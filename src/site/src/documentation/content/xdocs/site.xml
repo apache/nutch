@@ -43,7 +43,7 @@ See http://forrest.apache.org/docs/linking.html for more info.
 
   <external-refs>
     <incubator href="http://incubator.apache.org/" />
-    <wiki      href="http://wiki.apachi.org/nutch/" />
+    <wiki      href="http://wiki.apache.org/nutch/" />
     <lucene    href="http://jakarta.apache.org/lucene/" />
   </external-refs>
  

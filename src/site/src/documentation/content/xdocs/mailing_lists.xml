@@ -47,6 +47,20 @@
     </section>
   
     <section>
+      <title>Commits</title>
+
+      <p>If you'd like to see changes made in Nutch's <a
+      href="version_control.html">version control system</a>
+      then subscribe to the Nutch commit mailing list.</p>
+
+      <ul>
+        <li><a href="mailto:nutch-commits-subscribe@incubator.apache.org">Subscribe to List</a></li>
+        <li><a href="mailto:nutch-commits-unsubscribe@incubator.apache.org">Unsubscribe from List</a></li>
+        <li><a href="http://incubator.apache.org/mail/nutch-commits/">View List Archive</a></li>
+      </ul>
+    </section>
+  
+    <section>
       <title>Agents</title>
 
       <p>If you use Nutch to perform extensive crawls of sites that
