@@ -23,9 +23,7 @@
   <li>Apache's <a href="http://jakarta.apache.org/tomcat/">Tomcat</a>
 4.x.</li>
   <li>On Win32, <a href="http://www.cygwin.com/">cygwin</a>, for
-shell support.  (If you plan to use CVS on Win32, be sure to select the cvs and
-openssh packages when you install, in the "Devel" and "Net"
-categories, respectively.)</li>
+shell support.  (If you plan to use Subversion on Win32, be sure to select the subversion package when you install, in the "Devel" category.)</li>
   <li>Up to a gigabyte of free disk space, a high-speed connection, and
 an hour or so.
   </li>
@@ -39,7 +37,7 @@ a release from <a
 href="http://www.nutch.org/release/">http://www.nutch.org/release/</a>.
 Unpack the release and connect to its top-level directory.  Or, check
 out the latest source code from <a
-href="http://sourceforge.net/cvs/?group_id=59548">CVS</a> and build it
+href="version_control.html">subversion</a> and build it
 with <a href="http://ant.apache.org/">Ant</a>.</p>
 
 <p>Try the following command:</p>
