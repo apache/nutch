@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 
 <header-menu>
- <item><a href="http://www.nutch.org/about.html">Quan a</a></item>
+ <item><a href="about.html">Quan a</a></item>
  <item><a href="http://www.nutch.org/faq.html">FAQ</a></item>
 </header-menu>
 

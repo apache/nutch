@@ -1,9 +1,9 @@
 <page>
 <body>
 <center>
-<form name="search" action="/search.jsp" method="get"> <input
+<form name="search" action="../search.jsp" method="get"> <input
  name="query" size="44"/>&#160;<input type="submit" value="ค้นหา"/>
-<a href="/th/help.html">คำแนะนำการใช้</a>
+<a href="help.html">คำแนะนำการใช้</a>
 </form>
 </center>
 </body>

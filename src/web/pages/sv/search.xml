@@ -1,14 +1,14 @@
 <page>
 <body>
 <center>
-<form name="search" action="/search.jsp" method="get"> <input
+<form name="search" action="../search.jsp" method="get"> <input
  name="query" size="44"/>&#160;<input type="submit" value="Search"/>
 <a href="help.html">hjälp</a>
 </form>
 </center>
 <div style="text-align: right;">
 <a href="http://www.nutch.org/">
-<img border="0" src="/img/poweredbynutch_01.gif"/>
+<img border="0" src="../img/poweredbynutch_01.gif"/>
 </a>
 </div>
 </body>
