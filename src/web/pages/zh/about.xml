@@ -4,10 +4,8 @@
 <title>简介</title>
 
 <menu>
- <item><a href="../en/org.html">组织结构</a></item>
- <item><a href="../en/credits.html">参与人员</a></item>
- <item><a href="../en/press.html">新闻报道</a></item>
- <item><a href="../en/status.html">当前状态</a></item>
+ <item><a href="http://www.nutch.org/credits.html">参与人员</a></item>
+ <item><a href="http://www.nutch.org/">当前状态</a></item>
 </menu>
 
 <!--This page is translated by Shanfeng Zhu from Engiish to simplified Chinese!-->
@@ -42,8 +40,8 @@
 
 <p> 这是一个巨大的挑战. 如果你相信它的价值, 请伸出你的援手. 你可以
 参与<a
-href="../en/developers.html">开发</a>, 或是提供<a
-href="../en/donate.html">捐赠</a>. </p>
+href="http://www.apache.org/dev/">开发</a>, 或是提供<a
+href="http://www.apache.org/foundation/contributing.html">捐赠</a>. </p>
   
 </body>
 </page>

@@ -3,10 +3,8 @@
 <title>om</title>
 
 <menu>
- <item><a href="../en/org.html">Organisation</a></item>
- <item><a href="../en/credits.html">Erkännanden</a></item>
- <item><a href="../en/press.html">Press</a></item>
- <item><a href="../en/status.html">Status</a></item>
+ <item><a href="http://www.nutch.org/credits.html">Erkännanden</a></item>
+ <item><a href="http://www.nutch.org/">Status</a></item>
 </menu>
 
 <body>
@@ -41,8 +39,8 @@ Nutch-mjukvara kunna:</p>
 </ul>
 
 <p>Detta är ett utmanande förslag. Om du tror på detta projekts förtjänster,
-hjälp gärna till, antingen som en <a href="../en/developers.html">utvecklare</a>
-eller med en <a href="../en/donate.html">donation</a></p>
+hjälp gärna till, antingen som en <a href="http://www.apache.org/dev/">utvecklare</a>
+eller med en <a href="http://www.apache.org/foundation/contributing.html">donation</a></p>
 
 </body>
 </page>

@@ -3,10 +3,8 @@
 <title>about</title>
 
 <menu>
- <item><a href="org.html">Organization</a></item>
- <item><a href="credits.html">Credits</a></item>
- <item><a href="press.html">Press</a></item>
- <item><a href="status.html">Status</a></item>
+ <item><a href="http://www.nutch.org/credits.html">Credits</a></item>
+ <item><a href="http://www.nutch.org/">Status</a></item>
 </menu>
 
 <body>
@@ -43,8 +41,8 @@ succeed, Nutch software must be able to:</p>
 
 <p>This is a challenging proposition.  If you believe in the merits of
 this project, please help out, either as a <a
-href="developers.html">developer</a> or with a <a
-href="donate.html">donation</a>
+href="http://www.apache.org/dev/">developer</a> or with a <a
+href="http://www.apache.org/foundation/contributing.html">donation</a>
 </p>
 
 </body>
