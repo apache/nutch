@@ -55,7 +55,9 @@ public class UpdateDatabaseTool {
     public static final Logger LOG =
       LogFormatter.getLogger("org.apache.nutch.tools.UpdateDatabaseTool");
 
-    private static final int MAX_RETRIES = 2;
+    private static final int MAX_RETRIES =
+      NutchConf.get().getInt("db.fetch.retry.max", 2);
+
     private static final long MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
 
     private IWebDBWriter webdb;

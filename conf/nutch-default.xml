@@ -246,6 +246,13 @@
   </description>
 </property>
 
+<property>
+  <name>db.fetch.retry.max</name>
+  <value>3</value>
+  <description>The maximum number of times a url that has encountered
+  recoverable errors is generated for fetch.</description>
+</property>
+
 <!-- fetchlist tool properties -->
 
 <property>
@@ -279,13 +286,6 @@
   <value>1</value>
   <description>This number is the maximum number of threads that
     should be allowed to access a host at one time.</description>
-</property>
-
-<property>
-  <name>fetcher.retry.max</name>
-  <value>3</value>
-  <description>The maximum number of times the fetcher will attempt to get 
-    a page that has encountered recoverable errors. </description>
 </property>
 
 <property>
