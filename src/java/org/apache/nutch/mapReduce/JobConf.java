@@ -32,6 +32,7 @@ import org.apache.nutch.util.NutchConf;
 
 import org.apache.nutch.io.Writable;
 import org.apache.nutch.io.WritableComparable;
+import org.apache.nutch.io.WritableComparator;
 import org.apache.nutch.io.LongWritable;
 import org.apache.nutch.io.UTF8;
 
@@ -128,6 +129,17 @@ public class JobConf extends NutchConf {
   }
   public void setOutputKeyClass(Class theClass) {
     setClass("mapred.output.key.class", theClass, WritableComparable.class);
+  }
+
+  public Class getOutputKeyComparatorClass() {
+    return getClass("mapred.output.key.comparator.class",
+                    WritableComparator.get(getOutputKeyClass()).getClass(),
+                    WritableComparator.class);
+  }
+
+  public void setOutputKeyComparatorClass(Class theClass) {
+    setClass("mapred.output.key.comparator.class",
+             theClass, WritableComparator.class);
   }
 
   public Class getOutputValueClass() {
