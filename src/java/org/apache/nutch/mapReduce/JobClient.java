@@ -190,11 +190,12 @@ public class JobClient implements MRConstants {
      * Get a filesystem handle.  We need this to prepare jobs
      * for submission to the MapReduce system.
      */
-    private synchronized void obtainFS() throws IOException {
-        if (this.fs == null) {
-            String fsName = jobSubmitClient.getFilesystemName();
-            this.fs = NutchFileSystem.getNamed(fsName);
-        }
+    public synchronized NutchFileSystem getFs() throws IOException {
+      if (this.fs == null) {
+        String fsName = jobSubmitClient.getFilesystemName();
+        this.fs = NutchFileSystem.getNamed(fsName);
+      }
+      return fs;
     }
 
     /**
@@ -217,9 +218,6 @@ public class JobClient implements MRConstants {
         // semantics.  (that is, if the job file is deleted right after
         // submission, we can still run the submission to completion)
         //
-        if (fs == null) {
-            obtainFS();
-        }
 
         // Create a number of filenames in the JobTracker's fs namespace
         File submitJobDir = new File(JobConf.getSystemDir(), "submit_" + Integer.toString(Math.abs(r.nextInt()),36));
@@ -231,14 +229,14 @@ public class JobClient implements MRConstants {
         // Modify the job file, write to JobTracker's fs
         job.setJar(submitJarFile.toString());
         NFSDataOutputStream out =
-          new NFSDataOutputStream(fs.create(submitJobFile));
+          new NFSDataOutputStream(getFs().create(submitJobFile));
         try {
           job.write(out);
         } finally {
           out.close();
         }
         // Copy jar to JobTracker's fs
-        fs.copyFromLocalFile(new File(originalJarPath), submitJarFile);
+        getFs().copyFromLocalFile(new File(originalJarPath), submitJarFile);
 
         //
         // Now, actually submit the job (using the submit name)
@@ -268,8 +266,10 @@ public class JobClient implements MRConstants {
      * complete. */
     public static void runJob(JobConf job) throws IOException {
       JobClient jc = new JobClient();
+      boolean error = true;
+      RunningJob running = null;
       try {
-        RunningJob running = jc.submitJob(job);
+        running = jc.submitJob(job);
         String jobId = running.getJobID();
         LOG.info("Running job: " + jobId);
         while (!running.isComplete()) {
@@ -286,7 +286,11 @@ public class JobClient implements MRConstants {
           }
         }
         LOG.info("Job complete: " + jobId);
+        error = false;
       } finally {
+        if (error && (running != null)) {
+          running.killJob();
+        }
         jc.close();
       }
     }
