@@ -168,7 +168,8 @@ public class HtmlParser implements Parser {
       parser.parse(input);
 
       // convert Document to DocumentFragment
-      Document doc = parser.getDocument();
+      HTMLDocumentImpl doc = (HTMLDocumentImpl)parser.getDocument();
+      doc.setErrorChecking(false);
       root = doc.createDocumentFragment();
       root.appendChild(doc.getDocumentElement());
     } catch (IOException e) {
@@ -228,8 +229,9 @@ public class HtmlParser implements Parser {
     Parse parse = new HtmlParser().getParse(new Content(url,url,
                                                         bytes,"text/html",
                                                         new Properties()));
-    System.out.println("text length: "+parse.getText().length());
-    System.out.println("links: "+parse.getData().getOutlinks().length);
+    System.out.println("data: "+parse.getData());
+
+    System.out.println("text: "+parse.getText());
     
   }
 }
