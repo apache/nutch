@@ -32,6 +32,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.util.NutchConf;
 import org.apache.nutch.io.Writable;
 import org.apache.nutch.io.UTF8;
 
@@ -49,7 +50,7 @@ public class Client {
   private Hashtable connections = new Hashtable();
 
   private Class valueClass;                       // class of call values
-  private int timeout = 10000;                    // timeout for calls
+  private int timeout = NutchConf.get().getInt("ipc.client.timeout",10000);                    // timeout for calls
   private int counter;                            // counter for call ids
   private boolean running = true;                 // true while client runs
 
