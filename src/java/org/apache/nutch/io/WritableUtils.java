@@ -40,6 +40,11 @@ public final class WritableUtils  {
      return decompressed;
   }
 
+  public static void skipCompressedByteArray(DataInput in) throws IOException {
+    int length = in.readInt();
+    in.skipBytes(length);
+  }
+
   public static int  writeCompressedByteArray(DataOutput out, byte[] bytes) throws IOException {
     ByteArrayOutputStream bos =  new ByteArrayOutputStream();
     GZIPOutputStream gzout = new GZIPOutputStream(bos);
