@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin
+   id="ontology"
+   name="Ontology Plug-in"
+   version="1.0.0"
+   provider-name="nutch.org">
+
+   <extension-point
+      id="org.apache.nutch.ontology.Ontology"
+      name="Ontology Model Loader"/>
+
+   <runtime>
+      <library name="ontology.jar">
+         <export name="*"/>
+      </library>
+
+      <library name="commons-logging-1.0.3.jar"/>
+      <library name="icu4j_2_6_1.jar"/>
+      <library name="jena-2.1.jar"/>
+
+   </runtime>
+
+   <!-- attribute "point" is the plugin interface class -->
+   <!-- seems kinda redundant to have to define the point here too -->   
+   <extension id="org.apache.nutch.ontology.OntologyImpl"
+              name="Ontology Model Loader"
+              point="org.apache.nutch.ontology.Ontology">
+
+      <!-- define all the classes that implement the point defined above -->
+      <implementation id="org.apache.nutch.ontology.OntologyImpl"
+                      class="org.apache.nutch.ontology.OntologyImpl"
+                      pathSuffix=""/>
+
+   </extension>
+
+</plugin>

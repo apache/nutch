@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<page>
+
+<title>faq</title>
+
+<body>
+
+	<h3>Per què necessitem el projecte Nutch, quan els cercadors són gratuïts?</h3>
+
+	<p>Els cercadors web són tan lliures d'emprar com la televisió de mirar, però, com la programació de televisió, els resultats de cerca són objecte de manipulació interesada per part dels propietaris dels cercadors. L'única manera d'estar segurs que els resultats no són esbiaxats és fent que la tecnologia que els produeix sigui pública. Nutch persegueix produir una tecnologia de cerca d'alta qualitat lliure i accessible.</p>
+    
+	<h3>Com puc ajudar?</h3>
+
+	<p>Si estas interessat en fer una donació econòmica, si us plau visita la nostra pàgina de <a href="../en/donate.html">donacions</a>.</p>
+
+	<p>Si ets un desenvolupador, si us plau visita la nostra pàgina de <a
+			href="developers.html">desenvolupadors</a>.</p>
+
+	<p>Si tens qualsevol suggeriment, preguntes o comentaris, si us plau envia un missatge a <a
+href="mailto:general@nutch.org">general@nutch.org</a>.</p>
+
+<h3>Com pot una organització sense ànim de lucre permetre's muntar un motor de cerca al Web?</h3>
+
+<p>Nutch és primordialment un projecte de programari, no un servei. Instal·lacions a gran escala de Nutch seran segurament dutes a terme per iniciatives comercials que no tenen cap lligam amb Nutch, financiant-ho mitjançant publicitat o d'altres. Si el programari Nutch és prou bó, podria ser que els grans motors de cerca actuals acabessin usant-lo enlloc del seu codi tancat actual.</p>
+
+<p>El projecte Nutch mateix, podria hostatjar una demo a petita escala del sistema, de manera que la gent pugui comprovar que realment funciona. Això requeriria una quantitat de diners moderada, potser d'alguns centenars de milers de dolars. El projecte Nutch potser mai arribarà a hostatjar una instal·lació a gran escala perquè els usuaris puguin fer-lo servir de forma diària i habitual. Això ho deixarem en mans de les iniciatives comercials que s'ho puguin permetre.</p>
+
+<h3>Arribarà algun dia en què Nutch sigui tant bo com els altres cercadors Web?</h3>
+
+<p>Nosaltres esperem que sigui fins i tot millor. Amb desenvolupadors i investigadors de tots els racons del món ajudant i col·laborant amb el projecte, nosaltres esperem ser capaços de superar la qualitat del què una sola companyia pot fer.</p>
+
+<h3>Com puc evitar que Nutch entri al meu lloc Web?</h3>
+
+<p>Si us plau, visita la nostra <a href="../en/bot.html">pàgina d'informació per a webmasters</a>.</p>
+
+<h3>Com em puc asegurar que Nutch entri al meu lloc Web?</h3>
+
+<p>Nutch fa servir el <a href="http://www.dmoz.org/">DMOZ Directori Obert</a> per subministrar llocs Web al crawler. La millor manera d'assegurar-te que el teu lloc Web és indexat per Nutch és comprovant que aparegui llistat al Directori Obert.</p>
+
+<h3>Serà Nutch un cercador distribuit, basat en tecnologies P2P?</h3>
+
+<p>No pensem que sigui possible, de moment, construir un motor de cerca web distribuit que sigui competitiu amb els altres motors de cerca exitents al mercat. Seria massa lent. Retornar els resultats en menys d'un segon és molt important: això permet a l'usuari reformular ràpidament les seves consultes de manera que puguin trobar el que busquen d'una forma més frequent i eficient. Resumint, un cercador ràpid és un cercador millor. No creiem que gaire gent vulgui emprar un cercador que trigi més de deu segons o més per retornar els resultats.</p>
+
+<p>Dit això, si algú vol iniciar algun subprojecte de Nutch per explorar el tema de la cerca distribuida, nosaltres estarem encantats d'hostatjar-lo. No creiem que aquest tipus de técniques puguin arribar a resoldre els difícils problemes que Nutch necessita solventar, però estarem encantats de veure provar que realment no són la solució adecuada.</p>
+
+<h3>Farà servir Nutch un crawler distribuït com <a
+href="http://www.grub.org/">Grub</a>?</h3>
+
+<p>El crawling distribuït pot estalviar amplada de banda, però, a la llarga, aquest estalvi no és significant. Un motor de cerca exitós requereix més amplada de banda per pujar els resultats de cerca que els que necessita el crawler per baixar-se les pàgines, d'aquesta manera, fer que el crawler empri menys amplada de banda no redueix les necessitats globals d'amplada de banda. El que consumeix més recursos en un cercador web no és el procés de crawling (recol·lecció de pàgines) sinó el de cerca..</p>
+
+<h3>El fet que el codi sigui obert, no facilitará que d'altres llocs Web manipulin els rànquings?</h3>
+
+<p>Dins del món del desenvolupament de motors de cerca Web es treballa dur per contruir algoritmes de rànquing que siguin inmunes a la manipulació. Alguns optimitzadors de cerca al Web encara aconsegueixen d'interpretar, mitjançant enginyeria inversa, els algoritmes de rànquing emprats pels cercadors Web, i millorar la posició al rànquing de les seves pàgines. Per exemple, molts lloc Web fan servir 'granjes d'enllaços' per manipular els algoritmes de rànquing basats en enllaços. Els cercadors Web, al seu torn, repliquen millorant els seu algoritmes perquè no tinguin en compte els efectes generats per les 'granjes d'enllaços'.</p>
+
+<p>Amb un motor de cerca de codi obert, això encara passarà, com a la resta de cercadors. El problema és semblant al de l'encriptació i el programari de protecció de virus. A llarg termini, fer que els algoritmes siguin oberts, els farà més forts, a mesura que més i més gent pugui examinar el codi font per detectar punt febles i suggerir millores. Per tant, nosaltres creiem que un motor de cerca fet amb codi obert té el potencial per a resistir millor els intents de manipulació dels rànkings.</p>
+
+<h3>Quan buscarà Nutch imatges, fitxers pdf, etc.?</h3>
+
+<p>Aviat, esprem.</p>
+
+</body>
+</page>
+

@@ -1,0 +1,39 @@
+<page>
+
+<title>Petunjuk Carian</title>
+
+<body>
+
+<h3>Kueri</h3>
+Untuk mencari dengan Nutch, taip beberapa katakunci.
+<ul>
+   <li>Halaman-halaman hasil pencarian hanya mengandungi <span
+ style="font-style: italic;">semua</span> perkataan yang dicari.</li>
+   <li>Gunakan tanda " " bagi perkataan yang wujud seiring, sebagai satu frasa
+ seperti. <span style="font-weight: bold;">"New Zealand"</span>.</li>
+   <li>Ruang kosong diantara perkataan juga akan mencetuskan pencarian frasa. Jadi, 
+ mencari <span style="font-weight: bold;">http://www.nutch.org/</span>
+ adalah sama seperti mencari<span style="font-weight: bold;">"http www
+ nutch org"</span>.</li>
+   <li>Pencarian Nutch adalah tidak kes sensitif, jadi mencari <span
+ style="font-weight: bold;">NuTcH</span> adalah sama seperti mencari <span
+ style="font-weight: bold;">nUtCh</span>.</li>
+   <li>Anda boleh mengelakkan pencarian untuk sesuatu perkataan dengan 
+ menggunakan tanda sempang sebelum perkataan tersebut. Jadi, mencari <span style="font-weight: bold;">football
+-nfl</span>, anda akan menerima halaman-halaman hasil pencarian mengenai bolasepak, tanpa
+perkataan "nfl".</li>
+  <li>Itu sahaja!</li>
+</ul>
+<h3>Hasil Pencarian</h3>
+Setiap halaman hasil pencarian akan mengandungi link berikut:
+<ul>
+  <li>(<span style="color: rgb(51, 51, 255);">tampungan</span>) menampilkan 
+versi halaman yang Nutch perolehi.</li>
+  <li>(<span style="color: rgb(51, 51, 255);">penerangan</span>) menampilkan 
+deskripsi mengenai tahap kesesuaian halaman tersebut.</li>
+  <li>(<span style="color: rgb(51, 51, 255);">penunjuk</span>) menunjukkan 
+  senarai penunjuk tuju-masuk yang diindekkan untuk halaman tersebut.</li>
+</ul>
+
+</body>
+</page>

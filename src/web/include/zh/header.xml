@@ -1,0 +1,6 @@
+﻿<header-menu>
+ <item><a href="about.html">简介</a></item>
+ <item><a href="../en/faq.html">常见问题</a></item>
+ <item><a href="../en/developers.html">开发</a></item>
+ <item><a href="../en/donate.html">捐赠</a></item>
+</header-menu>

@@ -1,0 +1,51 @@
+<page>
+
+<title>about</title>
+
+<menu>
+ <item><a href="org.html">Organization</a></item>
+ <item><a href="credits.html">Credits</a></item>
+ <item><a href="press.html">Press</a></item>
+ <item><a href="status.html">Status</a></item>
+</menu>
+
+<body>
+
+<p>Nutch is a nascent effort to implement an open-source web search
+engine.</p>
+
+<p>Web search is a basic requirement for internet navigation, yet the
+number of web search engines is decreasing. Today's oligopoly could
+soon be a monopoly, with a single company controlling nearly all web
+search for its commercial gain.  That would not be good for users of
+the internet.</p>
+
+<p>Nutch provides a transparent alternative to commercial web search
+engines.  Only open source search results can be fully trusted to be
+without bias.  (Or at least their bias is public.)  All existing major
+search engines have proprietary ranking formulas, and will not explain
+why a given page ranks as it does.  Additionally, some search engines
+determine which sites to index based on payments, rather than on the
+merits of the sites themselves.  Nutch, on the other hand, has nothing
+to hide and no motive to bias its results or its crawler in any way
+other than to try to give each user the best results possible.</p>
+
+<p>Nutch aims to enable anyone to easily and cost-effectively deploy a
+world-class web search engine.  This is a substantial challenge.  To
+succeed, Nutch software must be able to:</p>
+<ul>
+  <li>fetch several billion pages per month</li>
+  <li>maintain an index of these pages</li>
+  <li>search that index up to 1000 times per second</li>
+  <li>provide very high quality search results</li>
+  <li>operate at minimal cost</li>
+</ul>
+
+<p>This is a challenging proposition.  If you believe in the merits of
+this project, please help out, either as a <a
+href="developers.html">developer</a> or with a <a
+href="donate.html">donation</a>
+</p>
+
+</body>
+</page>

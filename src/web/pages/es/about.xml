@@ -1,0 +1,56 @@
+<page>
+
+<title>Acerca de...</title>
+
+<menu>
+ <item><a href="../en/org.html">Organización</a></item>
+ <item><a href="../en/credits.html">Créditos</a></item>
+ <item><a href="../en/press.html">Prensa</a></item>
+ <item><a href="../en/status.html">Status</a></item>
+</menu>
+
+<body>
+
+<p>Nutch es un esfuerzo naciente para implementar un buscador de web de 
+fuentes abiertos (open-source).</p>
+
+<p>La búsqueda en la web es un requisito básico para la navegación 
+de internet. Sin embargo, el número de motores de búsqueda de web 
+se encuentra en disminución. El oligopolio actual podría convertirse en 
+un monopolio en un futuro próximo, con una única empresa que controlaría 
+cerca de la totalidad de las búsquedas de web para su beneficio comercial. 
+Esto no sería beneficioso para los usuarios de internet.</p>
+
+<p>Nutch provee una alternativa transparente en relación a los buscadores 
+comerciales. Solamente los resultados de un buscador open-source pueden 
+ser considerados imparciales (o al menos, su parcialidad es pública). Todos 
+los buscadores líderes tienen fórmulas propietarias para generar su 
+ranking de resultados y no revelan por qué una página determinada ocupa 
+una cierta posición en la lista. Además, algunos buscadores deciden 
+qué sitios incluir en su índice en base a pagos, en lugar de basarse en 
+el mérito propio de cada sitio. Nutch, por otro lado, no tiene nada que 
+ocultar ni motivos para sesgar sus resultados o las páginas visitadas 
+por su araña (crawler) en forma alguna, más allá de la intención de 
+proporcionar a cada usuario los mejores resultados posibles.</p>
+
+<p>Nutch apunta a permitir que cualquiera pueda implementar un motor 
+de búsqueda con tecnología de nivel mundial en forma sencilla y eficiente 
+en cuanto a los costos. Este es un desafío significativo. Para tener éxito, 
+el software de Nutch debe ser capaz de:</p>
+
+<ul>
+  <li>visitar miles de millones de páginas cada mes</li>
+  <li>mantener un índice de dichas páginas</li>
+  <li>buscar en ese índice hasta mil veces por segundo</li>
+  <li>proveer resultados de búsqueda de muy alta calidad</li>
+  <li>operar a un costo mínimo</li>
+</ul>
+
+<p>Esta es una propuesta ambiciosa. Si te convencen los méritos de
+este proyecto, te pedimos que colabores, ya sea como <a
+href="../en/developers.html">desarrollador</a> o bien a través de una <a
+href="../en/donate.html">donación</a>
+</p>
+
+</body>
+</page>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="parse-text"
+   name="Text Parse Plug-in"
+   version="1.0.0"
+   provider-name="nutch.org">
+
+   <extension-point
+      id="org.apache.nutch.parse.Parser"
+      name="Nutch Content Parser"/>
+
+   <runtime>
+      <library name="parse-text.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <extension id="org.apache.nutch.parse.text"
+              name="TextParse"
+              point="org.apache.nutch.parse.Parser">
+
+      <implementation id="org.apache.nutch.parse.text.TextParser"
+                      class="org.apache.nutch.parse.text.TextParser"
+                      contentType="text/plain"
+                      pathSuffix="txt"/>
+
+   </extension>
+
+</plugin>

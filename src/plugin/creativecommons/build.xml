@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+
+<project name="creativecommons" default="jar">
+
+  <import file="../build-plugin.xml"/>
+
+  <property name="this.web" location="${root}/src/web"/>
+  <property name="nutch.web" location="${nutch.root}/src/web"/>
+
+  <!-- Make creativecommons.war -->
+  <target name="war">
+    <war destfile="${build.dir}/${name}.war"
+	 webxml="${this.web}/web.xml">
+      <fileset dir="${nutch.web}/jsp" excludes="**/search.jsp"/>
+      <fileset dir="${nutch.root}/docs">
+        <include name="img/*.gif"/>
+      </fileset>
+      <fileset dir="${this.web}" includes="search.jsp"/>
+      <classes dir="${nutch.root}/conf" excludes="**/*.template"/>
+      <classes dir="${root}/conf"/>
+      <classes dir="${nutch.web}/locale"/>
+      <zipfileset dir="${this.web}" includes="include/*.html"/>
+      <lib dir="${nutch.root}/lib">
+	<include name="lucene*.jar"/>
+	<include name="taglibs-*.jar"/>
+	<include name="dom4j-*.jar"/>
+      </lib>
+      <lib dir="${nutch.root}/build">
+	<include name="nutch-*.jar"/>
+      </lib>
+      <zipfileset prefix="WEB-INF/classes/plugins"
+                  dir="${nutch.root}/build/plugins"/>
+      <webinf dir="${nutch.root}/lib">
+	<include name="taglibs-*.tld"/>
+      </webinf>
+    </war>
+   </target>
+
+
+</project>

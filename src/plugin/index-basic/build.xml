@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+
+<project name="index-basic" default="jar">
+
+  <import file="../build-plugin.xml"/>
+
+</project>

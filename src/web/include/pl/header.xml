@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<header-menu>
+	<item><a href="about.html">O Nutch</a></item>
+	<item><a href="faq.html">Częste pytania</a></item>
+	<item><a href="developers.html">Deweloperzy</a></item>
+	<item><a href="donate.html">Darowizny</a></item>
+</header-menu>

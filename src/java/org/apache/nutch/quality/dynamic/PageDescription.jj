@@ -1,0 +1,163 @@
+/**
+ * Copyright 2005 The Apache Software Foundation
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+options {
+  IGNORE_CASE = true;
+  STATIC = false;
+}
+
+PARSER_BEGIN(PageDescription)
+
+package org.apache.nutch.quality.dynamic;
+
+import java.io.*;
+import java.util.*;
+
+/************************************************
+ * PageDescription gives the URL and the textual
+ * description for a target page.  It loads in
+ * a Sherlock plugin file.
+ * 
+ * @author Mike Cafarella
+ ************************************************/
+
+public class PageDescription {
+    HashMap values = new HashMap();
+    ArrayList inputs = new ArrayList();
+    ArrayList interprets = new ArrayList();
+
+    public HashMap getValues() {
+        return values;
+
+    }
+
+    public ArrayList getInputs() {
+        return inputs;
+    }
+
+    public ArrayList getInterprets() {
+        return interprets;
+    }
+
+    /**
+     * Test out sherlock parsing
+     */
+    public static void main(String argv[]) throws IOException, ParseException {
+        if (argv.length < 1) {
+            System.out.println("Usage: java org.apache.nutch.quality.PageDescription <srcFile>");
+            return;
+        }
+        PageDescription pd = new PageDescription(new FileInputStream(new File(argv[0])));
+        pd.parse();
+    }
+}
+
+
+PARSER_END(PageDescription)
+
+<DEFAULT,AFTER_EQUALS> SKIP : {
+  " " | "\t" | "\n" | "\r" 
+| <"#" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
+}
+
+TOKEN : {
+  <KEYWORD: (["a"-"z","A"-"Z"])+>
+}
+
+TOKEN : {
+  <EQUALS: "="> : AFTER_EQUALS
+}
+
+<AFTER_EQUALS> TOKEN : {
+  <QUOTED_VALUE:
+    "\"" (~["\""])* "\""  |
+      "\'" (~["\'"])* "\'" > 				         : DEFAULT
+| <UNQUOTED_VALUE:
+      (~["\n","\r","\t"," ","\"","\'",">"])+ > : DEFAULT
+}
+
+void parse() : {} {
+  "<search" (param())* ">"
+  (element())*
+  ("</search>")?
+}
+
+void param() : {
+  String keyword;
+  String value;
+}
+{
+  <KEYWORD> { keyword = token.image.toLowerCase(); }
+  <EQUALS>
+  value=value()
+
+  { values.put(keyword,value); }
+}
+
+void element() : {
+  HashMap input;
+  HashMap interpret;
+}
+{
+  (
+   "<input"
+      { input = new HashMap(); inputs.add(input); }
+    ( inputItem(input) )*
+  |  
+   "<interpret"
+      { interpret = new HashMap(); interprets.add(interpret); }
+    ( matchItem(interpret) )*
+  |
+    "<" <KEYWORD> (<KEYWORD> (<EQUALS> value() )? )*
+  )
+  ("/>" | ">")
+}
+
+void inputItem(HashMap input) : {
+  String keyword;
+  String value = null;
+}
+{
+  <KEYWORD> { keyword = token.image.toLowerCase(); }
+  (<EQUALS> value=value()) ?
+
+  {input.put(keyword,value); }
+}
+
+
+void matchItem(HashMap interpret) : {
+  String keyword;
+  String value = null;
+}
+{
+  <KEYWORD> { keyword = token.image.toLowerCase(); }
+  <EQUALS>
+  value=value()
+
+  {interpret.put(keyword,value); }
+}
+
+String value() : {
+  String image;
+}
+{
+  (
+   <QUOTED_VALUE> { image = token.image.substring(1,token.image.length()-1); }
+    |
+   <UNQUOTED_VALUE> { image = token.image; }
+  )
+   { return image; }
+}

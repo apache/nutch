@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="protocol-ftp"
+   name="Ftp Protocol Plug-in"
+   version="1.0.0"
+   provider-name="nutch.org">
+
+   <extension-point
+      id="org.apache.nutch.protocol.Protocol"
+      name="Nutch Protocol"/>
+
+   <runtime>
+      <library name="protocol-ftp.jar">
+         <export name="*"/>
+      </library>
+      <library name="commons-net-1.2.0-dev.jar"/>
+   </runtime>
+
+   <extension id="org.apache.nutch.protocol.ftp"
+              name="FtpProtocol"
+              point="org.apache.nutch.protocol.Protocol">
+
+      <implementation id="org.apache.nutch.protocol.ftp.Ftp"
+                      class="org.apache.nutch.protocol.ftp.Ftp"
+                      protocolName="ftp"/>
+
+   </extension>
+
+</plugin>

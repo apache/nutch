@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<page>
+
+<title>névjegy</title>
+
+<menu>
+ <item><a href="../en/org.html">Szervezet</a></item>
+ <item><a href="../en/credits.html">Rólunk</a></item>
+ <item><a href="../en/press.html">Sajtó</a></item>
+ <item><a href="../en/status.html">Státusz</a></item>
+</menu>
+
+<body>
+
+<p>A Nutch egy most induló, nyílt forrású, webes keresõmotor.</p>
+
+<p>Bár a webes keresés alapvetõen fontos az interneten való navigálásban, mégis, a
+keresõk száma egyre csökken. A ma létezõ többszereplõs keresõ-piac helyét hamarosan átveheti
+az anyagi alapon mûködõ egyszemélyes, monopól piac. 
+Ez sem a felhasználóknak, sem az internetnek nem tenne jót.</p>
+
+<p>A Nutch az üzleti keresõgépekkel szemben kínál alternatívát.
+Csak a nyílt forrású projektek mentesek minden buktatótól. (Vagy legalábbis a
+bennük lévõ hibák ismertek, publikusak.)  Minden már meglévõ keresõmotor rangsorolja a találatokat,
+de nem írják le, hogy mi alapján teszik ezt. Ráadásul, néhány keresõmotor nem az oldal alapján,
+hanem anyagi megfontolások alapján indexelik az adott lapot. A Nutch, ezzel ellentétben, semmi
+hasonlót nem tesz, csak a legjobb találati arányra összpontosít.</p>
+
+<p>A Nutch célja, hogy bárki képes legyen olcsón nagy teljesítményû keresõgépet
+üzembe állítani. Ez az alapvetõ cél.
+A sikerhez a Nutch-nak a következõknek kell megfelelnie:</p>
+<ul>
+  <li>át kell tudnia vizsgálni több milliárd oldalt havonta</li>
+  <li>indexelni ezeket az oldalakat</li>
+  <li>keresni ezekben az indexekben (1000 találat másodpercenként)</li>
+  <li>nagyon jól illeszkedõ találatokat adni</li>
+  <li>költséghatékonynak lenni</li>
+</ul>
+
+<p>Ez egy felhívás. Ha a projekt felkeltette az érdeklõdéseset, kérlek segíts, 
+ vagy mint <a href="../en/developers.html">fejlesztõ</a>, vagy mint
+ <a href="../en/donate.html">támogató</a>
+</p>
+
+</body>
+</page>

@@ -1,0 +1,664 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="nutch-conf.xsl"?>
+
+<!-- Do not modify this file directly.  Instead, copy entries that you -->
+<!-- wish to modify from this file into nutch-site.xml and change them -->
+<!-- there.  If nutch-site.xml does not already exist, create it.      -->
+
+<nutch-conf>
+
+<!-- HTTP properties -->
+
+<property>
+  <name>http.agent.name</name>
+  <value>NutchCVS</value>
+  <description>Our HTTP 'User-Agent' request header.</description>
+</property>
+
+<property>
+  <name>http.robots.agents</name>
+  <value>NutchCVS,Nutch,*</value>
+  <description>The agent strings we'll look for in robots.txt files,
+  comma-separated, in decreasing order of precedence.</description>
+</property>
+
+<property>
+  <name>http.agent.description</name>
+  <value>Nutch</value>
+  <description>Further description of our bot- this text is used in
+  the User-Agent header.  It appears in parenthesis after the agent name.
+  </description>
+</property>
+
+<property>
+  <name>http.agent.url</name>
+  <value>http://www.nutch.org/docs/en/bot.html</value>
+  <description>A URL to advertise in the User-Agent header.  This will 
+   appear in parenthesis after the agent name.
+  </description>
+</property>
+
+<property>
+  <name>http.agent.email</name>
+  <value>nutch-agent@lists.sourceforge.net</value>
+  <description>An email address to advertise in the HTTP 'From' request
+   header and User-Agent header.</description>
+</property>
+
+<property>
+  <name>http.agent.version</name>
+  <value>0.06-dev</value>
+  <description>A version string to advertise in the User-Agent 
+   header.</description>
+</property>
+
+<property>
+  <name>http.timeout</name>
+  <value>10000</value>
+  <description>The default network timeout, in milliseconds.</description>
+</property>
+
+<property>
+  <name>http.max.delays</name>
+  <value>3</value>
+  <description>The number of times a thread will delay when trying to
+  fetch a page.  Each time it finds that a host is busy, it will wait
+  fetcher.server.delay.  After http.max.delays attepts, it will give
+  up on the page for now.</description>
+</property>
+
+<property>
+  <name>http.content.limit</name>
+  <value>65536</value>
+  <description>The length limit for downloaded content, in bytes.
+  If this value is nonnegative (>=0), content longer than it will be truncated;
+  otherwise, no truncation at all.
+  </description>
+</property>
+
+<property>
+  <name>http.proxy.host</name>
+  <value></value>
+  <description>The proxy hostname.  If empty, no proxy is used.</description>
+</property>
+
+<property>
+  <name>http.proxy.port</name>
+  <value></value>
+  <description>The proxy port.</description>
+</property>
+
+<property>
+  <name>http.verbose</name>
+  <value>false</value>
+  <description>If true, HTTP will log more verbosely.</description>
+</property>
+
+<property>
+  <name>http.redirect.max</name>
+  <value>3</value>
+  <description>The maximum number of redirects the fetcher will follow when
+    trying to fetch a page.</description>
+</property>
+
+<!-- FILE properties -->
+
+<property>
+  <name>file.content.limit</name>
+  <value>65536</value>
+  <description>The length limit for downloaded content, in bytes.
+  If this value is larger than zero, content longer than it will be
+  truncated; otherwise (zero or negative), no truncation at all.
+  </description>
+</property>
+
+<property>
+  <name>file.content.ignored</name>
+  <value>true</value>
+  <description>If true, no file content will be saved during fetch.
+  And it is probably what we want to set most of time, since file:// URLs
+  are meant to be local and we can always use them directly at parsing
+  and indexing stages. Otherwise file contents will be saved.
+  !! NO IMPLEMENTED YET !!
+  </description>
+</property>
+
+<!-- FTP properties -->
+
+<property>
+  <name>ftp.username</name>
+  <value>anonymous</value>
+  <description>ftp login username.</description>
+</property>
+
+<property>
+  <name>ftp.password</name>
+  <value>anonymous@example.com</value>
+  <description>ftp login password.</description>
+</property>
+
+<property>
+  <name>ftp.content.limit</name>
+  <value>65536</value> 
+  <description>The length limit for downloaded content, in bytes.
+  If this value is larger than zero, content longer than it is truncated;
+  otherwise (zero or negative), no truncation at all. Caution: classical
+  ftp RFCs never defines partial transfer and, in fact, some ftp servers
+  out there do not handle client side forced close-down very well.
+  Our implementation tries its best to handle such situations smoothly.
+  </description>
+</property>
+
+<property>
+  <name>ftp.timeout</name>
+  <value>60000</value>
+  <description>Default timeout for ftp client socket, in millisec.
+  Please also see ftp.keep.connection below.</description>
+</property>
+
+<property>
+  <name>ftp.server.timeout</name>
+  <value>100000</value>
+  <description>An estimation of ftp server idle time, in millisec.
+  Typically it is 120000 millisec for many ftp servers out there.
+  Better be conservative here. Together with ftp.timeout, it is used to
+  decide if we need to delete (annihilate) current ftp.client instance and
+  force to start another ftp.client instance anew. This is necessary because
+  a fetcher thread may not be able to obtain next request from queue in time
+  (due to idleness) before our ftp client times out or remote server
+  disconnects. Used only when ftp.keep.connection is true (please see below).
+  </description>
+</property>
+
+<property>
+  <name>ftp.keep.connection</name>
+  <value>false</value>
+  <description>Whether to keep ftp connection. Useful if crawling same host
+  again and again. When set to true, it avoids connection, login and dir list
+  parser setup for subsequent urls. If it is set to true, however, you must
+  make sure (roughly):
+  (1) ftp.timeout is less than ftp.server.timeout
+  (2) ftp.timeout is larger than (fetcher.threads.fetch * fetcher.server.delay)
+  Otherwise there will be too many "delete client because idled too long"
+  messages in thread logs.</description>
+</property>
+
+<property>
+  <name>ftp.follow.talk</name>
+  <value>false</value>
+  <description>Whether to log dialogue between our client and remote
+  server. Useful for debugging.</description>
+</property>
+
+<!-- web db properties -->
+
+<property>
+  <name>db.default.fetch.interval</name>
+  <value>30</value>
+  <description>The default number of days between re-fetches of a page.
+  </description>
+</property>
+
+<property>
+  <name>db.ignore.internal.links</name>
+  <value>true</value>
+  <description>If true, when adding new links to a page, links from
+  the same host are ignored.  This is an effective way to limit the
+  size of the link database, keeping the only the highest quality
+  links.
+  </description>
+</property>
+
+<property>
+  <name>db.score.injected</name>
+  <value>1.0</value>
+  <description>The score of new pages added by the injector.
+  </description>
+</property>
+
+<property>
+  <name>db.score.link.external</name>
+  <value>1.0</value>
+  <description>The score factor for new pages added due to a link from
+  another host relative to the referencing page's score.
+  </description>
+</property>
+
+<property>
+  <name>db.score.link.internal</name>
+  <value>1.0</value>
+  <description>The score factor for pages added due to a link from the
+  same host, relative to the referencing page's score.
+  </description>
+</property>
+
+<property>
+  <name>db.max.outlinks.per.page</name>
+  <value>100</value>
+  <description>The maximum number of outlinks that we'll process for a page.
+  </description>
+</property>
+
+<property>
+  <name>db.max.anchor.length</name>
+  <value>100</value>
+  <description>The maximum number of characters permitted in an anchor.
+  </description>
+</property>
+
+<!-- fetchlist tool properties -->
+
+<property>
+  <name>fetchlist.score.by.link.count</name>
+  <value>false</value>
+  <description>If true, set page scores on fetchlist entries based on
+  log(number of anchors), instead of using original page scores. This
+  results in prioritization of pages with many incoming links.
+  </description>
+</property>
+
+<!-- fetcher properties -->
+
+<property>
+  <name>fetcher.server.delay</name>
+  <value>5.0</value>
+  <description>The number of seconds the fetcher will delay between 
+   successive requests to the same server.</description>
+</property>
+
+<property>
+  <name>fetcher.threads.fetch</name>
+  <value>10</value>
+  <description>The number of FetcherThreads the fetcher should use.
+    This is also determines the maximum number of requests that are 
+    made at once (each FetcherThread handles one connection).</description>
+</property>
+
+<property>
+  <name>fetcher.threads.per.host</name>
+  <value>1</value>
+  <description>This number is the maximum number of threads that
+    should be allowed to access a host at one time.</description>
+</property>
+
+<property>
+  <name>fetcher.retry.max</name>
+  <value>3</value>
+  <description>The maximum number of times the fetcher will attempt to get 
+    a page that has encountered recoverable errors. </description>
+</property>
+
+<property>
+  <name>fetcher.verbose</name>
+  <value>false</value>
+  <description>If true, fetcher will log more verbosely.</description>
+</property>
+
+<!-- parser properties -->
+<property>
+  <name>parser.threads.parse</name>
+  <value>10</value>
+  <description>Number of ParserThreads ParseSegment should use.</description>
+</property>
+
+<!-- i/o properties -->
+
+<property>
+  <name>io.sort.factor</name>
+  <value>100</value>
+  <description>The number of streams to merge at once while sorting
+  files.  This determines the number of open file handles.</description>
+</property>
+
+<property>
+  <name>io.sort.mb</name>
+  <value>100</value>
+  <description>The total amount of buffer memory to use while sorting 
+  files, in megabytes.  By default, gives each merge stream 1MB, which
+  should minimize seeks.</description>
+</property>
+
+<property>
+  <name>io.file.buffer.size</name>
+  <value>131072</value>
+  <description>The size of buffer for use in sequence files.
+  The size of this buffer should probably be a multiple of hardware
+  page size (4096 on Intel x86), and it determines how much data is
+  buffered during read and write operations.</description>
+</property>
+  
+<!-- file system properties -->
+
+<property>
+  <name>fs.default.name</name>
+  <value>local</value>
+  <description>The name of the default file system.  Either the
+  literal string "local" or a host:port for NDFS.</description>
+</property>
+
+<property>
+  <name>ndfs.name.dir</name>
+  <value>/tmp/nutch/ndfs/name</value>
+  <description>Determines where on the local filesystem the NDFS name node
+      should store the name table.</description>
+</property>
+
+<property>
+  <name>ndfs.data.dir</name>
+  <value>/tmp/nutch/ndfs/data</value>
+  <description>Determines where on the local filesystem an NDFS data node
+      should store its blocks.</description>
+</property>
+
+<!-- map/reduce properties -->
+
+<property>
+  <name>mapred.job.tracker</name>
+  <value>localhost:8010</value>
+  <description>The host and port that the MapReduce job tracker runs at.
+  </description>
+</property>
+
+<property>
+  <name>mapred.local.dir</name>
+  <value>/tmp/nutch/mapred/local</value>
+  <description>The local directory where MapReduce stores temprorary files
+      related to tasks and jobs.
+  </description>
+</property>
+
+<!-- indexer properties -->
+
+<property>
+  <name>indexer.score.power</name>
+  <value>0.5</value>
+  <description>Determines the power of link analyis scores.  Each
+  pages's boost is set to <i>score<sup>scorePower</sup></i> where
+  <i>score</i> is its link analysis score and <i>scorePower</i> is the
+  value of this parameter.  This is compiled into indexes, so, when
+  this is changed, pages must be re-indexed for it to take
+  effect.</description>
+</property>
+
+<property>
+  <name>indexer.boost.by.link.count</name>
+  <value>false</value>
+  <description>When true scores for a page are multipled by the log of
+  the number of incoming links to the page.</description>
+</property>
+
+<property>
+  <name>indexer.max.title.length</name>
+  <value>100</value>
+  <description>The maximum number of characters of a title that are indexed.
+  </description>
+</property>
+
+<property>
+  <name>indexer.max.tokens</name>
+  <value>10000</value>
+  <description>
+  The maximum number of tokens that will be indexed for a single field
+  in a document. This limits the amount of memory required for
+  indexing, so that collections with very large files will not crash
+  the indexing process by running out of memory.
+
+  Note that this effectively truncates large documents, excluding
+  from the index tokens that occur further in the document. If you
+  know your source documents are large, be sure to set this value
+  high enough to accomodate the expected size. If you set it to
+  Integer.MAX_VALUE, then the only limit is your memory, but you
+  should anticipate an OutOfMemoryError.
+  </description>
+</property>
+
+<property>
+  <name>indexer.mergeFactor</name>
+  <value>50</value>
+  <description>The factor that determines the frequency of Lucene segment
+  merges. This must not be less than 2, higher values increase indexing
+  speed but lead to increased RAM usage, and increase the number of
+  open file handles (which may lead to "Too many open files" errors).
+  NOTE: the "segments" here have nothing to do with Nutch segments, they
+  are a low-level data unit used by Lucene.
+  </description>
+</property>
+
+<property>
+  <name>indexer.minMergeDocs</name>
+  <value>50</value>
+  <description>This number determines the minimum number of Lucene
+  Documents buffered in memory between Lucene segment merges. Larger
+  values increase indexing speed and increase RAM usage.
+  </description>
+</property>
+
+<property>
+  <name>indexer.maxMergeDocs</name>
+  <value>50</value>
+  <description>This number determines the maximum number of Lucene
+  Documents to be merged into a new Lucene segment. Larger values
+  increase indexing speed and reduce the number of Lucene segments,
+  which reduces the number of open file handles; however, this also
+  increases RAM usage during indexing.
+  </description>
+</property>
+
+<!-- analysis properties -->
+
+<property>
+  <name>analysis.common.terms.file</name>
+  <value>common-terms.utf8</value>
+  <description>The name of a file containing a list of common terms
+  that should be indexed in n-grams.</description>
+</property>
+
+<!-- searcher properties -->
+
+<property>
+  <name>searcher.dir</name>
+  <value>.</value>
+  <description>
+  Path to root of index directories.  This directory is searched (in
+  order) for either the file search-servers.txt, containing a list of
+  distributed search servers, or the directory "index" containing
+  merged indexes, or the directory "segments" containing segment
+  indexes.
+  </description>
+</property>
+
+<property>
+  <name>searcher.filter.cache.size</name>
+  <value>16</value>
+  <description>
+  Maximum number of filters to cache.  Filters can accelerate certain
+  field-based queries, like language, document format, etc.  Each
+  filter requires one bit of RAM per page.  So, with a 10 million page
+  index, a cache size of 16 consumes two bytes per page, or 20MB.
+  </description>
+</property>
+
+<property>
+  <name>searcher.filter.cache.threshold</name>
+  <value>0.05</value>
+  <description>
+  Filters are cached when their term is matched by more than this
+  fraction of pages.  For example, with a threshold of 0.05, and 10
+  million pages, the term must match more than 1/20, or 50,000 pages.
+  So, if out of 10 million pages, 50% of pages are in English, and 2%
+  are in Finnish, then, with a threshold of 0.05, searches for
+  "lang:en" will use a cached filter, while searches for "lang:fi"
+  will score all 20,000 finnish documents.
+  </description>
+</property>
+
+<property>
+  <name>searcher.hostgrouping.rawhits.factor</name>
+  <value>2.0</value>
+  <description>
+  A factor that is used to determine the number of raw hits
+  initially fetched, before host grouping is done.
+  </description>
+</property>
+
+<property>
+  <name>searcher.summary.context</name>
+  <value>5</value>
+  <description>
+  The number of context terms to display preceding and following
+  matching terms in a hit summary.
+  </description>
+</property>
+
+<property>
+  <name>searcher.summary.length</name>
+  <value>20</value>
+  <description>
+  The total number of terms to display in a hit summary.
+  </description>
+</property>
+
+<!-- URL normalizer properties -->
+
+<property>
+  <name>urlnormalizer.class</name>
+  <value>org.apache.nutch.net.BasicUrlNormalizer</value>
+  <description>Name of the class used to normalize URLs.</description>
+</property>
+
+<property>
+  <name>urlnormalizer.regex.file</name>
+  <value>regex-normalize.xml</value>
+  <description>Name of the config file used by the RegexUrlNormalizer class.</description></property>
+
+<!-- mime properties -->
+
+<property>
+  <name>mime.types.file</name>
+  <value>mime.types</value>
+  <description>Name of file in CLASSPATH containing filename extension to
+  mime types mapping information</description>
+</property>
+
+<property>
+  <name>mime.magic.file</name>
+  <value>mime-magic.txt</value>
+  <description>Name of file in CLASSPATH containing file magic to
+  mime types mapping information</description>
+</property>
+
+<!-- plugin properties -->
+
+<property>
+  <name>plugin.folders</name>
+  <value>plugins</value>
+  <description>Directories where nutch plugins are located.  Each
+  element may be a relative or absolute path.  If absolute, it is used
+  as is.  If relative, it is searched for on the classpath.</description>
+</property>
+
+<property>
+  <name>plugin.includes</name>
+  <value>protocol-http|urlfilter-regex|parse-(text|html)|index-basic|query-(basic|site|url)</value>
+  <description>Regular expression naming plugin directory names to
+  include.  Any plugin not matching this expression is excluded.  By
+  default Nutch includes crawling just HTML and plain text via HTTP,
+  and basic indexing and search plugins.
+  </description>
+</property>
+
+<property>
+  <name>plugin.excludes</name>
+  <value></value>
+  <description>Regular expression naming plugin directory names to exclude.  
+  </description>
+</property>
+
+<property>
+  <name>parser.character.encoding.default</name>
+  <value>windows-1252</value>
+  <description>The character encoding to fall back to when no other information
+  is available</description>
+</property>
+
+<!-- urlfilter plugin properties -->
+
+<property>
+  <name>urlfilter.regex.file</name>
+  <value>regex-urlfilter.txt</value>
+  <description>Name of file on CLASSPATH containing regular expressions
+  used by urlfilter-regex (RegexURLFilter) plugin.</description>
+</property>
+
+<property>
+  <name>urlfilter.prefix.file</name>
+  <value>prefix-urlfilter.txt</value>
+  <description>Name of file on CLASSPATH containing url prefixes
+  used by urlfilter-prefix (PrefixURLFilter) plugin.</description>
+</property>
+
+<property>
+  <name>urlfilter.order</name>
+  <value></value>
+  <description>The order by which url filters are applied.
+  If empty, all available url filters (as dictated by properties
+  plugin-includes and plugin-excludes above) are loaded and applied in system
+  defined order. If not empty, only named filters are loaded and applied
+  in given order. For example, if this property has value:
+  org.apache.nutch.net.RegexURLFilter org.apache.nutch.net.PrefixURLFilter
+  then RegexURLFilter is applied first, and PrefixURLFilter second.
+  Since all filters are AND'ed, filter ordering does not have impact
+  on end result, but it may have performance implication, depending
+  on relative expensiveness of filters.
+  </description>
+</property>
+
+<!-- clustering extension properties -->
+
+<property>
+  <name>extension.clustering.hits-to-cluster</name>
+  <value>100</value>
+  <description>Number of snippets retrieved for the clustering extension
+  if clustering extension is available and user requested results
+  to be clustered.</description>
+</property>
+
+<property>
+  <name>extension.clustering.extension-name</name>
+  <value></value>
+  <description>Use the specified online clustering extension. If empty,
+  the first available extension will be used. The "name" here refers to an 'id'
+  attribute of the 'implementation' element in the plugin descriptor XML
+  file.</description>
+</property>
+
+<!-- ontology extension properties -->
+
+<property>
+  <name>extension.ontology.extension-name</name>
+  <value></value>
+  <description>Use the specified online ontology extension. If empty,
+  the first available extension will be used. The "name" here refers to an 'id'
+  attribute of the 'implementation' element in the plugin descriptor XML
+  file.</description>
+</property>
+
+<property>
+  <name>extension.ontology.urls</name>
+  <value>
+  </value>
+  <description>Urls of owl files, separated by spaces, such as
+  http://www.example.com/ontology/time.owl
+  http://www.example.com/ontology/space.owl
+  http://www.example.com/ontology/wine.owl
+  Or
+  file:/ontology/time.owl
+  file:/ontology/space.owl
+  file:/ontology/wine.owl
+  You have to make sure each url is valid.
+  By default, there is no owl file, so query refinement based on ontology
+  is silently ignored.
+  </description>
+</property>
+
+</nutch-conf>

@@ -1,0 +1,229 @@
+<page>
+
+<title>Podręcznik</title>
+
+<body>
+
+<h3>Wymagania</h3>
+<ol>
+  <li>Zalecane jest użycie Java 1.4.x, wersji <a
+ href="http://java.sun.com/j2se/downloads.html">Sun</a> lub <a
+ href="http://www-106.ibm.com/developerworks/java/jdk/">IBM</a> dla
+ platformy Linux.  Ustaw zmienną środowiskową <code>NUTCH_JAVA_HOME</code> tak,
+ żeby wskazywała na katalog główny instalacji Java.
+  </li>
+  <li>Apache <a href="http://jakarta.apache.org/tomcat/">Tomcat</a>
+4.x.</li>
+  <li>Dla platformy Win32, środowisko <a href="http://www.cygwin.com/">Cygwin</a>,
+  potrzebne ze względu na powłokę poleceń. (Jeśli planujesz używać CVS z pakietu
+  Cygwin, nie zapomnij zaznaczyć CVS i OpenSSH podczas instalacji. Zajdują się one
+  w kategoriach "Devel" i "Net").</li>
+  <li>Około gigabajta wolnej przestrzeni dyskowej, szybki dostęp do Internetu,
+  i około jednej godziny.
+  </li>
+</ol>
+<h3>Zaczynamy</h3>
+<p>Po pierwsze, musisz uzyskać kopię kodu Nutch. Możesz ściągnąć oficjalną
+wersję z  <a href="http://www.nutch.org/release/">http://www.nutch.org/release/</a>.
+Rozpakuj archiwum i przejdź do głównego katalogu dystrybucji. Możesz również
+wziąć kod źródłowy z <a href="http://sourceforge.net/cvs/?group_id=59548">CVS</a>
+i skompilować wersję binarną przy użyciu <a href="http://ant.apache.org/">Ant</a>.</p>
+
+<p>Następnie wykonaj następujące polecenie:</p>
+<pre style="margin-left: 40px;">bin/nutch</pre>
+Wyświetli ono dokumentację skryptu poleceń Nutch.
+
+<p>Teraz jesteśmy gotowi do pobierania stron ("crawling"). Istnieją dwa warianty
+pobierania:
+<ol>
+<li>Pobieranie z intranetu, przy pomocy polecenia <code>crawl</code>.</li>
+<li>Pobieranie z całej sieci Internet, gdzie ma się więcej kontroli nad procesem, i przy
+użyciu poleceń niższego poziomu: <code>inject</code>, <code>generate</code>, <code>fetch</code>
+oraz <code>updatedb</code>.</li>
+</ol>
+</p>
+
+<h3>Pobieranie z intranetu</h3>
+
+<p>Ten sposób pobierania jest właściwszy wtedy, gdy planujemy pobrać nie więcej niż
+około 1 miliona stron pochodzących z kilku serwerów.</p>
+
+<h4>Intranet: Konfiguracja</h4>
+
+W celu poprawnej konfiguracji dla pobierania z intranetu musisz:
+
+<ol>
+
+<li>Utworzyć plik tekstowy zawierający listę głównych odnośników URL.
+Na przykład, żeby pobrać strony z serwera <code>nutch.org</code> możesz utworzyć
+plik o nazwie <code>urls</code> zawierający wyłącznie odnośnik do strony domowej. 
+Wszystkie pozostałe strony powinny być powiązane z tą stroną. A zatem plik <code>urls</code>
+wyglądałby następująco:
+
+<pre>
+http://www.nutch.org/
+</pre>
+</li>
+
+<li>Otworzyć plik <code>conf/crawl-urlfilter.txt</code> w edytorze i
+zamienić tekst <code>MY.DOMAIN.NAME</code> na nazwę domeny, z której chcesz pobierać
+strony. Na przykład, jeśli chcesz ograniczyć pobieranie to domeny <code>nutch.org</code>,
+to odpowiedni wiersz pliku powininen wyglądać tak:
+<pre>
++^http://([a-z0-9]*\.)*nutch.org/
+</pre>
+To wyrażenie pasuje do dowolnego odnośnika z domeny <code>nutch.org</code>.
+</li>
+
+</ol>
+
+<h4>Intranet: Uruchomienie pobierania</h4>
+
+Po dokonaniu konfiguracji uruchomienie pobierania jest łatwe. Po prostu
+użyj polecenia "crawl". Można podać następujące opcje:
+
+<ul>
+<li><code>-dir</code> <i>dir</i> nazwa katalogu, gdzie zostanie umieszczony wynik.</li>
+<li><code>-depth</code> <i>depth</i> wskazuje maksymalny poziom zagłębienia odnośników do stron, które
+mają zostać pobrane, liczony od strony głównej.</li>
+<li><code>-delay</code> <i>delay</i> ustala liczbę sekund pomiędzy kolejnymi pobraniami z
+tego samego serwera.</li>
+<li><code>-threads</code> <i>threads</i> ustala liczbę wątków, które będą równolegle pobierać strony.</li>
+</ul>
+
+Na przykład typowe wywołanie może wyglądać następująco:
+
+<pre>
+bin/nutch crawl urls -dir crawl.test -depth 3 >&amp; crawl.log
+</pre>
+
+Zazwyczaj uruchamia się pobieranie najpierw na próbę, z małymi wartościami parametru "depth",
+żeby sprawdzić czy pobierane są właściwe strony. Kiedy już upewnimy się, że
+konfiguracja jest prawidłowa, to stosowna wielkość tego parametru dla pełnego pobierania
+wynosi około 10.
+
+<p>Kiedy pobieranie zostanie już zakończone, przejdź do części "Wyszukiwanie" znajdującej się
+dalej.</p>
+
+<h3>Pobieranie z całej sieci Internet</h3>
+
+Pobieranie z całej sieci zostało zaprojektowane tak, aby móc obsłużyć duże ilości
+pobieranych stron, gdzie proces pobierania może trwać tygodniami i działać na wielu
+maszynach jednocześnie.
+
+<h4>Internet: Główne pojęcia</h4>
+Nutch przechowuje dane dwóch rodzajów:
+<ol>
+  <li>Baza stron WWW (WebDB).  Zawiera ona informacje o wszystkich
+  stronach znanych wyszukiwarce, oraz o połączeniach pomiędzy nimi.</li>
+  <li>Zestaw segmentów danych. Segment jest to kolekcja stron WWW, pobranych
+  i zindeksowanych jako jeden zestaw. Segment zawiera następujące rodzaje danych:</li>
+  <ul>
+    <li><i>fetchlist</i> to plik opisujący zestaw stron do pobrania</li>
+    <li><i>fetcher output</i> to zestaw plików zawierający treść pobranych stron</li>
+    <li><i>index </i> zawiera pełnotekstowy indeks stron w formacie Lucene.</li>
+  </ul>
+</ol>
+W przykładach poniżej nasza baza stron WWW będzie się znajdować w katalogu
+<tt>db</tt>, a nasze segmenty danych będą w katalogu <tt>segments</tt>:
+<pre style="margin-left: 40px;">mkdir db
+mkdir segments</pre>
+
+<h4>Internet Inicjalizacja Bazy Stron WWW</h4>
+Do utworzenia nowej, pustej bazy, stosujemy narzędzie administracyjne:
+<pre style="margin-left: 40px;">bin/nutch admin db -create</pre>
+Narzędzie <i>Injector</i> dodaje adresy stron do bazy danych.  Dodajmy adresy
+pochodzące z katalogu <a href="http://dmoz.org/">DMOZ</a> - Open Directory.
+Najpierw musimy ściągnąć i rozpakować plik zawierający listę wszystkich stron
+skatalogowanych w DMOZ. (Plik ten ma ponad 200MB, więc zajmie to parę minut.)
+<pre style="margin-left: 40px;">wget http://rdf.dmoz.org/rdf/content.rdf.u8.gz
+gunzip content.rdf.u8.gz</pre>
+Następnie dodamy losowo wybrany podzbiór tych stron to naszej bazy.
+(Używamy losowej próbki, żeby wszyscy ci co postępują według tego podręcznika nie
+obciążali tych samych serwerów.) Katalog DMOZ zawiera około 3 milionów adresów.
+Dodamy jeden na 3000, więc w rezultacie otrzymamy około 1000 adresów:
+<pre style="margin-left: 40px;">bin/nutch inject db -dmozfile content.rdf.u8 -subset 3000</pre>
+Ten krok również zabiera kilka minut, ponieważ cały plik musi zostać przetworzony.
+
+<p>W rezultacie otrzymamy bazę stron WWW zawierającą około 1000 adresów jeszcze
+nie pobranych stron.</p>
+
+<h4>Internet: Pobieranie</h4>
+W celu ropozczęcia pobierania najpierw musimy na podstawie bazy stron utworzyć
+listę adresów do pobrania (tzw. "fetchlist"):
+<pre style="margin-left: 40px;">bin/nutch generate db segments
+</pre>
+To polecenie tworzy listę stron do pobrania. Lista ta zostaje umieszczona w
+nowo utworzonym katalogu segmentów. Katalog ten otrzymuje nazwę reprezentującą
+czas utworzenia listy. Zachowamy nazwę tego katalogu w zmiennej środowiskowej:
+<tt>>s1</tt>:
+<pre style="margin-left: 40px;">s1=`ls -d segments/2* | tail -1`
+echo $s1
+</pre>
+Teraz możemy uruchomić proces pobierania tego segmentu przy pomocy polecenia:
+<pre style="margin-left: 40px;">bin/nutch fetch $s1</pre>
+Kiedy ten proces się zakończy, uaktualniamy bazę stron na podstawie rezultatów
+pobierania:
+<pre style="margin-left: 40px;">bin/nutch updatedb db $s1</pre>
+W tym momencie w bazie danych znajdą się dane na temat wszystkich stron
+połączonych odnośnikami do stron pochodzących z początkowego zestawu.
+
+<p>Następnie uruchamiamy pięciokrotną analizę bazy w celu ustalenia priorytetów
+stron, które powinny być pobrane w następnej kolejności:</p>
+<pre style="margin-left: 40px;">bin/nutch analyze db 5
+</pre>
+Następnie tworzymy nowy segment z listą 1000 stron do pobrania, które uzyskały
+najwyższy priorytet:
+<pre style="margin-left: 40px;">bin/nutch generate db segments -topN 1000
+s2=`ls -d segments/2* | tail -1`
+echo $s2
+
+bin/nutch fetch $s2
+bin/nutch updatedb db $s2
+bin/nutch analyze db 2
+</pre>
+Pobierzmy w ten sam sposób jeszcze raz następne 1000 stron:
+<pre style="margin-left: 40px;">
+bin/nutch generate db segments -topN 1000
+s3=`ls -d segments/2* | tail -1`
+echo $s3
+
+bin/nutch fetch $s3
+bin/nutch updatedb db $s3
+bin/nutch analyze db 2</pre>
+Do tego momemntu pobraliśmy już parę tysięcy stron. Utwórzmy więc ich indeks.
+
+<h4>Internet: Indeksowanie</h4>
+W celu utworzenia indeksu <tt>index</tt> dla każdego segmentu, stosujemy
+następujące polecenie:
+<pre style="margin-left: 40px;">bin/nutch index $s1
+bin/nutch index $s2
+bin/nutch index $s3</pre>
+Następnie, zanim zaczniemy używać indeksów do wyszukiwania, musimy usunąć z niego
+duplikaty stron. Robimy to tak:
+<pre style="margin-left: 40px;">bin/nutch dedup segments dedup.tmp</pre>
+Teraz jesteśmy gotowi do wyszukiwania!
+
+<h3>Wyszukiwanie</h3>
+
+<p>Zanim będziesz mógł wyszukiwać, musisz umieścić archiwum WAR w odpowiednim
+katalogu twojego serwera servlet-ów. (Jeśli używałeś kodu z CVS, to najpierw
+musisz skompilować plik WAR poleceniem <tt>ant war</tt>.)</p>
+
+Zakładając, że zainstalowałeś serwer Tomcat jako <tt>~/local/tomcat</tt>, to
+plik WAR można zainstalować poleceniami:
+<pre style="margin-left: 40px;">rm -rf ~/local/tomcat/webapps/ROOT*
+cp nutch*.war ~/local/tomcat/webapps/ROOT.war
+</pre>
+<p>(UWAGA: Aplikacja Nutch w chwili obecnej wymaga instalacji w kontekście ROOT).</p>
+Aplikacja standardowo korzysta z indeksów z podkatalogu <tt>./segments</tt>,
+względem katalogu z którego startujemy serwer Tomcat. Jeśli pobierałeś strony z
+intranetu poleceniem "crawl" zmień aktualny katalog na ten, gdzie jest wynik pobierania,
+w przeciwnym przypadku nie zmieniając aktualnego katalogu wydaj następujące polecenie:
+<pre style="margin-left: 40px;">~/local/tomcat/bin/catalina.sh start
+</pre>
+Następnie odwiedź stronę <a href="http://localhost:8080/">http://localhost:8080/</a>.
+Miłej zabawy!
+
+</body>
+</page>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<page>
+
+<title>Status</title>
+
+<body>
+
+<p>
+Zur Zeit sind wir lediglich eine Hand voll Entwickler, die in ihrer 
+Freizeit an Nutch arbeiten. Zum jetzigen Zeitpunkt ist Nutch zu 100% in Java 
+geschrieben. Jegliche Daten werden jedoch in einem sprachunabhängigen
+Format gespeichert, damit, falls n&ouml;tig, einzelne Module
+in einer anderen Sprache (z.B. C++) geschrieben werden könnten.
+</p>
+
+
+<p>
+Nutch wurde bis jetzt noch nicht auf Qualit&auml;t optimiert. 
+Es gibt zehn bis zwanzig R&auml;dchen, an denen man drehen kann,
+um das Ranking-System zu verbessern. Wir entwickeln Software,
+welche ein solches Tuning selbst erledigen sollte, aber der jetzige
+Code basiert lediglich auf Sch&auml;tzungen. Durch ein wenig
+Optimieren sollten wir Resultate erhalten, die es mit den
+grossen Suchmaschinen aufnehmen k&ouml;nnen.
+</p>
+
+
+<p>
+Im Juni 2003 konnten wir erfolgreich ein Testsystem von 100 
+Millionen Seiten aufschalten. Leider haben wir zur Zeit nicht genug Hardware,
+um einen &ouml;ffentlichen Testzugang zur Verf&uuml;gung zu stellen, aber wir 
+sind zuversichtlich, dass sich dies schon n&auml;chsten Monat &auml;ndern wird.
+Bleiben Sie am Ball.
+</p>
+
+</body>
+</page>

@@ -1,0 +1,24 @@
+# Google plugin
+
+<search 
+   name="Google"
+   description="Google Search"
+   method="GET"
+   action="http://www.google.com/search"
+   update="http://www.google.com/mozilla/google.src"
+   updateCheckDays=1   
+>
+
+<input name="q" user>
+<input name="sourceid" value="mozilla-search">
+<inputnext name="start" factor="10">
+<inputprev name="start" factor="10">
+
+<interpret 
+    resultListStart="<body" 
+    resultListEnd="</body>" 
+
+    resultItemStart="<p class=g>" 
+    resultItemEnd="<br>"
+>
+</search>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="query-more"
+   name="More Query Filter"
+   version="1.0.0"
+   provider-name="nutch.org">
+
+   <extension-point
+      id="org.apache.nutch.searcher.QueryFilter"
+      name="Nutch Query Filter"/>
+
+   <runtime>
+      <library name="query-more.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <extension id="org.apache.nutch.searcher.more"
+              name="Nutch More Query Filter"
+              point="org.apache.nutch.searcher.QueryFilter">
+      <implementation id="TypeQueryFilter"
+                      class="org.apache.nutch.searcher.more.TypeQueryFilter"
+                      raw-fields="type"/>
+   </extension>
+
+   <extension id="org.apache.nutch.searcher.more"
+              name="Nutch More Query Filter"
+              point="org.apache.nutch.searcher.QueryFilter">
+      <implementation id="DateQueryFilter"
+                      class="org.apache.nutch.searcher.more.DateQueryFilter"
+                      raw-fields="date"/>
+   </extension>
+
+</plugin>

@@ -1,0 +1,100 @@
+<page>
+
+<title>developer information</title>
+
+<menu>
+ <item><a href="http://www.nutch.org/cgi-bin/twiki/view/Main/Nutch">Wiki</a></item>
+ <item><a href="http://sourceforge.net/mail/?group_id=59548">Mailing Lists</a></item> 
+ <item><a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/nutch/nutch/">CVS</a></item>
+ <item><a href="tutorial.html">Tutorial</a></item>
+ <item><a href="i18n.html">i18n</a></item>
+ <item><a href="http://www.nutch.org/release/">Download</a></item>
+ <item><a href="../api/index.html">Javadoc</a></item>
+ <item><a href="http://sourceforge.net/tracker/?atid=491356&amp;group_id=59548&amp;func=browse">Bugs</a></item>
+ <item><a href="policies.html">Policies</a></item>
+ <item><a href="bot.html">Webmasters</a></item>
+</menu>
+
+<body>
+
+<h3>How to Contribute</h3>
+
+<p>Contributions are merit-based.  Other developers must see
+contributions in order to evaluate them, suggest improvements, and
+integrate them into the sourcebase.</p>
+
+<p>Contributors should follow these steps:</p>
+
+<ol>
+  <li>Check the nutch developers mailing list to see if anyone is
+already working on what you are interested in working on.  If so, you
+might want to contact that person to see how far along the work has
+come.</li>
+
+  <li> If it looks like you are not duplicating effort, send
+a small piece of mail saying you are about to do the work.  When
+future people want to contribute, they will see your letter during
+step (1) above.</li>
+
+  <li> Once you've done some, submit the diffs to the nutch developers
+mailing list, or attach them to a bug report.  We can all then examine
+the work for quality, relevance, etc.  Details like formatting,
+documentation, and coding conventions are important.</li>
+
+  <li> We hope everyone will try to provide good feedback on your work, 
+but honestly everyone's time is very limited.  Make it easy for
+people to examine your work by making it:
+   <ul>
+    <li>high-quality;</li>
+    <li>easy-to-read; and</li>
+    <li>easy-to-integrate; and</li>
+    <li>relevant to Nutch's stated goals.</li>
+   </ul>
+  </li>
+
+  <li> If everything seems right, we'll accept it into the source 
+base and it will become part of Nutch.</li>
+
+  <li> Collect glory and good karma.  Goto step 1.</li>
+</ol>
+
+<p>Please also read the developer <a href="policies.html">policies</a>
+page.</p>
+
+<h3>Needed contributions</h3>
+
+Nutch needs contributions in the following areas (among others).  If
+you think you can help with these, or with something else, please send
+a message to <a
+href="mailto:dev@nutch.org">dev@nutch.org</a>.
+
+<h4>Internationalization</h4>
+
+<p>Nutch intends to be international.  At present, we believe that
+our indexing works well for western languages.  But we need:
+<ul>
+<li>Translations of the basic Nutch pages (at least <tt>search.xml</tt>,
+<tt>help.xml</tt> and <tt>about.xml</tt>) into other languages.</li>
+<li>Testing and development work on improved Asian language support</li>
+</ul>
+More information about how to internationalize can be found on the <a
+href="i18n.html">i18n</a> page.
+</p>
+
+
+<h4>Search Parameter Tuning</h4>
+
+<p>Nutch has not yet been tuned for quality.  There are ten or twenty
+knobs that we can twiddle to adjust the ranking formula.  We have
+started developing software to do this tuning automatically, but the
+current code just contains guesses.  With a little tuning we should be
+able to get results that are competitive with those of major search
+engines.</p>
+
+<h4>Alternate Content Types</h4>
+
+<p>Nutch currently only supports HTML content accessed by HTTP.  It
+would be great to add support for PDF files, image search, etc.</p>
+
+</body>
+</page>

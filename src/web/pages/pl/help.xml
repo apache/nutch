@@ -1,0 +1,39 @@
+<page>
+
+<title>pomoc wyszukiwania</title>
+
+<body>
+
+<h3>Zapytania</h3>
+W celu wyszukiwania przy użyciu Nutch, po prostu wpisz kilka słów.
+<ul>
+  <li>Wyniki zawierają wyłącznie strony, które posiadają <span
+ style="font-style: italic;">wszystkie</span> słowa zapytania.</li>
+  <li>Zamykaj kilka słów w cudzysłowach, jeśli muszą one występować razem jako
+  fraza, n.p. <span style="font-weight: bold;">"Nowa Zelandia"</span></li>
+  <li>Znaki interpunkcyjne pomiędzy słowami również powodują traktowanie
+  słów jako frazy. Zatem zapytanie
+  <span style="font-weight: bold;">http://www.nutch.org/</span> jest
+  równoznaczne z zapytaniem <span style="font-weight: bold;">"http www
+nutch org"</span>.</li>
+  <li>Wyszukiwanie nie jest wrażliwe na wielkość liter, więc zapytanie
+  <span style="font-weight: bold;">NuTcH</span> jest równoważne zapytaniu <span
+ style="font-weight: bold;">nUtCh</span>.</li>
+  <li>Możesz zabronić występowania pewnego terminu przez umieszczenie minusa
+  przed danym słowem, tzn. zapytanie <span style="font-weight: bold;">football
+-nfl</span> odnajdzie strony, które mówią o futbolu, ale nie używają słowa "NFL".</li>
+  <li>To wszystko!</li>
+</ul>
+<h3>Wyniki</h3>
+Każda pasująca strona na liście wyników posiada następujące odnośniki:
+<ul>
+  <li>(<span style="color: rgb(51, 51, 255);">kopia</span>) pokazuje tę
+  wersję strony, którą Nutch ściągnął do indeksowania.</li>
+  <li>(<span style="color: rgb(51, 51, 255);">wyjaśnij</span>) pokazuje
+  wyjaśnienie dlaczego ta strona otrzymała ten ranking.</li>
+  <li>(<span style="color: rgb(51, 51, 255);">odnośniki</span>) pokazuje listę
+  odnośników w indeksie wskazujących na tę stronę.</li>
+</ul>
+
+</body>
+</page>

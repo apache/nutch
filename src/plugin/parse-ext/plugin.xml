@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="parse-ext"
+   name="External Parser Plug-in"
+   version="1.0.0"
+   provider-name="nutch.org">
+
+   <extension-point
+      id="org.apache.nutch.parse.Parser"
+      name="Nutch Content Parser"/>
+
+   <runtime>
+      <library name="parse-ext.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <extension id="org.apache.nutch.parse.ext"
+              name="ExtParse"
+              point="org.apache.nutch.parse.Parser">
+
+      <implementation id="ExtParser"
+                      class="org.apache.nutch.parse.ext.ExtParser"
+                      contentType="application/vnd.nutch.example.cat"
+                      pathSuffix=""
+                      command="./build/plugins/parse-ext/command"
+                      timeout="10"/>
+
+      <implementation id="ExtParser"
+                      class="org.apache.nutch.parse.ext.ExtParser"
+                      contentType="application/vnd.nutch.example.md5sum"
+                      pathSuffix=""
+                      command="./build/plugins/parse-ext/command"
+                      timeout="20"/>
+
+   </extension>
+
+</plugin>

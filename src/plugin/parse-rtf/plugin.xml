@@ -1,0 +1,13 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<plugin version="1.0.0" provider-name="nutch.org" id="parse-rtf" name="RTF Parse Plug-in" >
+  <extension-point id="org.apache.nutch.parse.Parser" name="Nutch Content Parser" />
+  <runtime>
+    <library name="parse-rtf.jar" >
+      <export name="*" />
+    </library>
+    <library name="rtf-parser.jar"/>
+  </runtime>
+  <extension point="org.apache.nutch.parse.Parser" id="org.apache.nutch.parse.rtf" name="RTFParse" >
+    <implementation class="org.apache.nutch.parse.rtf.RTFParseFactory" pathSuffix="rtf" id="org.apache.nutch.parse.rtf.RTFParseFactory" contentType="application/rtf" />
+  </extension>
+</plugin>

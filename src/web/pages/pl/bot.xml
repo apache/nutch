@@ -1,0 +1,107 @@
+<page>
+
+<title>robot</title>
+
+<menu>
+<item><a href="#sysadmin">Administratorzy</a></item>
+<item><a href="#webmaster">Webmasterzy</a></item>
+<item><a href="mailto:agent@nutch.org">Kontakt</a></item>
+</menu>
+
+<body>
+
+<p> Jeśli czytasz ten tekst, to prawdopodobnie widziałeś w logach swojego
+serwera jak nasz robot indeksujący odwiedzał twoje strony. Kiedy my odwiedzamy
+serwery w celu zbudowania indeksu, używamy nagłówka "User-agent" zawierającego
+tekst "NutchOrg". Jeśli tekst, który widzisz, to "Nutch" lub "NutchCVS",
+to prawdopodobnie jakiś deweloper testuje nową wersję naszego robota, lub
+też ktoś uruchamia własną kopię wyszukiwarki.</p>
+<p> Jesteśmy projektem Open Source, który stara się zbudować narzędzie
+użyteczne dla szerokiego ogółu. Dlatego też jest dla nas naturalne, że chcemy
+być dobrymi obywatelami sieci (netizens). Jeśli zauważycz, że nasz robot
+zachowuje się niepoprawnie, prosimy o krótką wiadomość na adres 
+<a href="mailto:agent@nutch.org">
+agent@nutch.org</a>, a my sprawdzimy na czym polega
+problem.</p>
+<p> Nasz robot pobiera i przetwarza pliki "robots.txt", jak również
+sprawdza znaczniki META w plikach HTML. Są to standardowe sposoby, przy
+pomocy których webmasterzy mogą informować roboty indeksujące o tym,
+które części serwisu robot może odwiedzać.</p>
+
+<h3><a name="sysadmin">Administratorzy / robots.txt</a></h3>
+<p> Jesteśmy projektem Open Source, więc prosimy o zrozumienie, że
+niepoprawnie zachowujący się robot, który przedstawia się w polu
+Agenta naszym tekstem, może nie należeć do nas. Nasz kod źródłowy
+dostępny jest dla wszystkich, którzy mają ochotę coś z nim zrobić.
+Mimo to, czy należy on do nas czy też nie, będziemy wdzięczni za
+powiadomienie nas o zaobserwowanym złym zachowaniu. Jeśli to możliwe, prosimy
+o podanie nazwy domeny oraz fragmentu logu serwera świadczącego o nadużyciu.
+Można się z nami skontaktować pisząc na adres <a
+ href="mailto:agent@nutch.org">
+agent@nutch.org</a> .</p>
+
+<p> Nasz robot przestrzega reguł zawartych w standardzie "robots.txt", opisanych w <a
+ href="http://www.robotstxt.org/wc/exclusion.html#robotstxt">
+http://www.robotstxt.org/wc/exclusion.html#robotstxt</a>.  W zależności od
+konfiguracji, nasz robot może przestrzegać różnych konkretnych reguł.
+Postanowiliśmy zawsze przestrzegać reguł o nazwie "Nutch", żeby w prosty
+sposób można było zabronić naszemu robotowi odwiedzania stron. A oto
+szczegóły dla różnych przypadków:</p>
+
+<ul>
+  <li> Jeśli uruchamiamy robota w celu zapełnienia naszego indeksu, przedstawiamy
+  się jako "NutchOrg", i przestrzegamy reguł dla "NutchOrg" jeśli istnieją, lub
+"Nutch",   lub "*". </li>
+  <li> Jeśli ktoś uruchamia niezmodyfikowaną wersję robota pobraną z CVS
+  (włączając w to przypadki kiedy my sami testujemy robota), przedstawia się
+  on jako "NutchCVS", i przestrzega reguł dla "NutchCVS" jeśli istnieją,
+  lub "Nutch", lub "*". </li>
+  <li> Pełne wersje produkcyjne naszego robota przedstawiają sie jako "Nutch",
+  i przestrzegają reguł dla "Nutch" lub "*". </li>
+</ul>
+
+<p> Jeśli na swoim serwisie chcesz zabronić odwiedzin wszelkich robotów, to
+w pliku "robots.txt" umieść: </p>
+<blockquote>
+  <pre>User-agent: *<br/>Disallow: /<br/> </pre>
+</blockquote>
+<p> Aby zabronić odwiedzin robota Nutch <b>z wyjątkiem przypadku</b> gdy buduje on
+indeks demonstracyjny Nutch.Org, umieść następującą pozycję w pliku "robots.txt": </p>
+<blockquote>
+  <pre>User-agent: Nutch<br/>Disallow: /<br/><br/>User-agent: NutchOrg<br/>Disallow: <br/> </pre>
+</blockquote>
+<p> Aby zabronić wszelkich odwiedzin robota Nutch: </p>
+<blockquote>
+  <pre>User-agent: Nutch<br/>Disallow: /<br/> </pre>
+</blockquote>
+
+<h3><a name="webmaster">Webmasterzy / Znaczniki META dla robotów</a></h3>
+<p>Jeśli nie masz uprawnień do wprowadzania zmian do pliku
+/robots.txt na swoim serwerze, to i tak możesz przekazać robotom żeby nie
+indeksowały twoich stron lub nie podążały za twoimi odnośnikami.
+Standardowym sposobem jest zastosowanie znaczników META, jak to opisano w <a
+ href="http://www.robotstxt.org/wc/meta-user.html">
+http://www.robotstxt.org/wc/meta-user.html</a>. </p>
+
+<p> Jeśli chcesz poinformować robota Nutch, lub jakiegokolwiek innego, żeby
+nie indeksował twoich stron lub odnośników, wstaw następujące znaczniki META
+do części HEAD w plikach HTML:</p>
+<blockquote>
+  <pre>&lt;meta name="robots" content="noindex,nofollow"&gt;<br/> </pre>
+</blockquote>
+<p> Oczywiście, można kontrolować polecenia "index" i "follow"
+niezależnie.  Słowa kluczowe "all" lub "none" również są dozwolone, 
+i oznaczają odpowiednio "index,follow" lub "noindex,nofollow".  Parę
+przykładów: </p>
+<blockquote>
+  <pre>&lt;meta name="robots" content="all"&gt;<br/>&lt;meta
+  name="robots" content="index,follow"&gt;<br/>&lt;meta name="robots"
+  content="index,nofollow"&gt;<br/>&lt;meta name="robots"
+  content="noindex,follow"&gt;<br/>&lt;meta name="robots"
+  content="none"&gt;<br/>  </pre>
+</blockquote>
+<p> Jeśli nie ma powyższych znaczników META (tzn. nie występuje ani "nofollow",
+ani "none"), Nutch uzna że dozwolone jest indeksowanie stron i odnośników. </p>
+
+</body>
+</page>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="query-basic"
+   name="Basic Query Filter"
+   version="1.0.0"
+   provider-name="nutch.org">
+
+   <extension-point
+      id="org.apache.nutch.searcher.QueryFilter"
+      name="Nutch Query Filter"/>
+
+   <runtime>
+      <library name="query-basic.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <extension id="org.apache.nutch.searcher.basic"
+              name="Nutch Basic Query Filter"
+              point="org.apache.nutch.searcher.QueryFilter">
+      <implementation id="BasicQueryFilter"
+                      class="org.apache.nutch.searcher.basic.BasicQueryFilter"
+                      fields="DEFAULT"/>
+   </extension>
+
+</plugin>

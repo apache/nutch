@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<project name="parse-msword" default="jar">
+
+  <import file="../build-plugin.xml"/>
+
+  <!-- for junit test -->
+  <mkdir dir="${build.test}/data"/>
+  <copy file="sample/word95.doc" todir="${build.test}/data"/>
+  <copy file="sample/word97.doc" todir="${build.test}/data"/>
+
+</project>

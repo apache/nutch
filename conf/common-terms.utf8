@@ -1,0 +1,13 @@
+# Common terms and phrases which will be indexed in n-grams
+# in order to optimize search.
+content:a
+content:and
+content:for
+content:in
+content:of
+content:the
+content:to
+url:com
+url:http
+url:http-www
+url:www

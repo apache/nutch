@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<header-menu>
+ <item><a href="about.html">Sobre</a></item>
+ <item><a href="../en/faq.html">Perguntas Mais Freqüêntes</a></item>
+ <item><a href="../en/developers.html">Desenvolvedores</a></item>
+ <item><a href="../en/donate.html">Doe</a></item>
+</header-menu>

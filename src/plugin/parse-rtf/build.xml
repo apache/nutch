@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<project name="parse-rtf" default="jar">
+
+  <import file="../build-plugin.xml"/>
+
+  <!-- for junit test -->
+  <mkdir dir="${build.test}/data"/>
+  <copy file="sample/test.rtf" todir="${build.test}/data"/>
+</project>

@@ -1,0 +1,11 @@
+﻿<page>
+<body>
+<!--This page is translated by Shanfeng Zhu from Engiish to simplified Chinese!-->
+<center>
+<form name="search" action="/search.jsp" method="get"> <input
+ name="query" size="44"/>&#160;<input type="submit" value="搜索"/>
+<a href="help.html">帮助</a>
+</form>
+</center>
+</body>
+</page>
