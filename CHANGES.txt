@@ -43,6 +43,9 @@ Release 0.7
     Slightly modified are web.xml and cached.jsp.
     (John Xing, 20050401)
 
+ 8. Add skipCompressedByteArray() to WritableUtils.java.
+    (John Xing, 20050402)
+
 Release 0.6
 
  1. Added clustering-carrot2 plugin, together with introduction of clustering
