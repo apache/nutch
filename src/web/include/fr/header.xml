@@ -1,0 +1,6 @@
+<header-menu>
+ <item><a href="about.html">A propos</a></item>
+ <item><a href="faq.html">Questions fréquentes</a></item>
+ <item><a href="../en/developers.html">Développeurs</a></item>
+ <item><a href="../en/donate.html">Faire un don</a></item>
+</header-menu>

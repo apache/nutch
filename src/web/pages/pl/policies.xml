@@ -1,0 +1,79 @@
+<page>
+
+<title>zasady dla deweloperów</title>
+
+<body>
+
+<h3>Definicje</h3>
+<ul>
+  <li>kod - całość oprogramowania Nutch wraz z dokumentacją.<br/>
+  </li>
+  <li>deweloper - członek niewielkiej grupy, która może bezpośrednio
+  zmieniać kod.</li>
+  <li>kontrybutor - ktoś, kto przekazuje kod dla projektu Nutch pośrednio
+  poprzez dewelopera</li>
+  <li>licencja - licencja znajdująca się w pliku <a href="../LICENSE.txt">LICENSE.txt</a>.</li>
+  <li>organizacja - właściciel praw do kodu Nutch.</li>
+</ul>
+<h3>Proces Podejmowania Decyzji<br/>
+</h3>
+Wszystkie decyzje w projekcie podejmowane są zwykłą większością głosów
+wszystkich deweloperów. Głosy wysyłane są emailem na listę dyskusyjną <a
+ href="mailto:dev@nutch.org">dev@nutch.org</a>.<br/>
+<br/>
+Generalnie rzecz biorąc, projekt Nutch działa w oparciu o kilku
+aktywnych deweloperów, którzy ufają sobie nawzajem. W związku z tym
+większość zmian może byc wprowadzana jednomyślnie, bez oficjalnej
+autoryzacji.<br/>
+<br/>
+W szczególności:<br/>
+<ul>
+  <li>Sam proces decyzyjny może zostać zmieniony zwykłą większością
+  głosów.</li>
+  <li>Deweloperzy są dodawani lub usuwani zwykłą większością głosów
+  pozostałych deweloperów.</li>
+  <li>Różnice zdań co do konkretnych zmian kodu rozwiązywane są
+  zwykłą większością głosów istniejących deweloperów.</li>
+</ul>
+<h3>Proces Wprowadzania Zmian</h3>
+Deweloperzy zawsze powinni przeprowadzić rekompilację kodu według
+najnowszej wersji kodu pobranej z CVS. Kompilacja powinna zakończyć się
+pomyślnie, i bez ostrzegawczych komunikatów. Tworzenie Javadoc powinno
+nie dawać żadnych ostrzegawczych komunikatów. Wszystkie testy JUnit
+muszą zakończyć się sukcesem zanim kod zostanie wprowadzony do
+oficjalnej wersji.<br/>
+<br/>
+Innymi słowy, należy podjąć następujące kroki przed każdym "cvs commit": 
+<br/>
+<pre style="margin-left: 40px;">cvs update -d<br/>ant clean test javadoc<br/></pre>
+Mamy również system codziennej automatycznej kompilacji źródeł, który wysyła
+emailem powiadomienia dla deweloperów w przypadku błędów.<br/><br/>
+<h3>Kontrybucje</h3>
+<!-- the original is somewhat elusive... I think we can do better here :-) -->
+Zachęcamy wszystkich, którzy nie są oficjalnymi deweloperami,
+do wspierania projektu przez raportowanie i poprawianie błędów, oraz
+implementowanie nowej funkcjonalności.
+<br/>
+Kontrybucje muszą:<br/>
+<ul>
+  <li>być wysyłane na listę dyskusyjną <a
+ href="mailto:dev@nutch.org">dev@nutch.org</a>.</li>
+  <li>być w formacie "patch" (np. przez użycie <code>cvs diff -Nu</code>)</li>
+  <li>odpowiadać stylowi kodowania przyjętemu w projekcie</li>
+  <li>używać licencji projektu Nutch</li>
+  <li>przekazać prawa własności dla organizacji Nutch.<br/>
+  </li>
+</ul>
+<h3>Styl kodowania</h3>
+Kod źródłowy Java powinien stosować się do stylu opisanego w:<br/>
+   <a
+ href="http://java.sun.com/docs/codeconv/html/CodeConvTOC.doc.html">http://java.sun.com/docs/codeconv/html/CodeConvTOC.doc.html<br/>
+</a><br/>
+Wszystkim modułom powinny towarzyszyć testy <a
+ href="http://www.junit.org/index.htm">JUnit</a>.<br/>
+<br/>
+Każdej klasie, metodzie i polu "public" lub "protected" musi towarzyszyć pomocny
+komentarz Javadoc.<br/>
+<br/>
+</body>
+</page>

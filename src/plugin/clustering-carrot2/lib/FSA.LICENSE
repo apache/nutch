@@ -1,0 +1,14 @@
+
+An implementation of Finite State Automatons in Java
+
+Public domain software. Written by Dawid Weiss.
+
+Available from:
+http://www.cs.put.poznan.pl/dweiss/xml/projects/fsa/index.xml?lang=en
+
+This project is my contribution to Jan Daciuk's FSA package. It provides a set 
+of Java classes and methods to load, traverse and in general utilize the power 
+of dictionaries produced using FSA tools (those tools are written in C++). 
+
+See Jan Daciuk's Web page for details:
+http://www.eti.pg.gda.pl/~jandac/

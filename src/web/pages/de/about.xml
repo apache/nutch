@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<page>
+
+<title>&Uuml;ber</title>
+
+<menu>
+ <item><a href="../en/org.html">Organisation</a></item>
+ <item><a href="credits.html">Danksagungen</a></item>
+ <item><a href="../en/press.html">Presse</a></item>
+ <item><a href="status.html">Status</a></item>
+</menu>
+
+<body>
+
+<p>
+&quot;Nutch&quot; ist der Versuch, eine Suchmaschine auf Open-Source-Basis zu implementieren.
+</p>
+
+<p>
+Suchmaschinen dienen heute als Grundlage zur Navigation im Internet.
+Trotz der hohen Nachfrage gibt es immer weniger davon. Bald könnte sich
+das bestehende Oligopol zu einem Monopol entwickeln. Eine einzelne Firma 
+würde fast alle Internet-Suchen und damit den Zugriff zu Informationen 
+kontrollieren - kein wünschenswertes Szenario für Internet-Nutzer.
+</p>
+
+<p>
+&quot;Nutch&quot; stellt Ihnen eine transparente Alternative zu kommerziellen
+Suchmaschinen zur Verfügung. Nur von offenen Suchergebnissen können sie eine
+vollkommene Unvoreingenommenheit erwarten (Oder zumindest können Sie Ihre
+Voreingenommenheit öffentlich einsehen). Alle bestehenden Suchmaschinen haben propriet&auml;re
+Bewertungsalgorithmen. Sie können nicht nachvollziehen, warum Ihre Seite ein gewisses
+Ranking bekommt. Zudem erlauben es einige Suchmaschinen, gute Positionen zu erkaufen.
+&quot;Nutch&quot; hingegen hat nichts zu verbergen und keine Motivation, seine Resultate
+zu verfälschen.
+&quot;Nutch&quot;s einziges Ziel ist es, den Benutzer mit den bestmöglichen Suchresultaten 
+zu versorgen.
+</p>
+
+
+<p>
+&quot;Nutch&quot; ziehlt darauf ab, jedem die Möglichkeit zu geben, kosteneffizient 
+und auf einfache Art und Weise eine Suchmaschine einzurichten. Um erfolgreich zu sein,
+muss &quot;Nutch&quot; Folgendes leisten können:
+</p>
+<ul>
+  <li>Mehrere Millionen Webseiten pro Monat indexieren</li>
+  <li>Durchsuchen der indexierten Seiten bis zu 1000 mal pro Sekunde</li>
+  <li>Qualitativ hochwertige Suchresultate zur Verfügung stellen</li>
+  <li>Minimalste Kosten verursachen</li>
+</ul>
+
+<p>
+Dieses Vorhaben ist eine grosse Herausforderung, und wenn Sie wie wir an die 
+Vorzüge eines solchen Projektes glauben, so bitten wir Sie uns zu unterstützen - 
+entweder als <a href="../en/developers.html">Entwickler</a> oder durch eine <a href="../en/donate.html">Spende</a>.
+</p>
+
+</body>
+</page>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="index-basic"
+   name="Basic Indexing Filter"
+   version="1.0.0"
+   provider-name="nutch.org">
+
+   <extension-point
+      id="org.apache.nutch.indexer.IndexingFilter"
+      name="Nutch Indexing Filter"/>
+
+   <runtime>
+      <library name="index-basic.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <extension id="org.apache.nutch.indexer.basic"
+              name="Nutch Basic Indexing Filter"
+              point="org.apache.nutch.indexer.IndexingFilter">
+      <implementation id="BasicIndexingFilter"
+                      class="org.apache.nutch.indexer.basic.BasicIndexingFilter"/>
+   </extension>
+
+</plugin>

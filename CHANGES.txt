@@ -1,0 +1,368 @@
+Nutch Change Log
+
+Release 0.7
+
+ 1. Added support for "type:" in queries. Search results are limited/qualified
+    by mimetype or its primary type or sub type. For example,
+    (1) searching with "type:application/pdf" restricts results
+    to pages which were identified to be of mimetype "application/pdf".
+    (2) with "type:application", nutch will return pages of
+    primary type "application".
+    (3) with "type:pdf", only pages of sub type "pdf" will be listed.
+    (John Xing, 20050120)
+
+ 2. Added support for "date:" in queries. Last-Modified is indexed.
+    Search results are restricted by lower and upper date (inclusive)
+    as date:yyyymmdd-yyyymmdd. For example, date:20040101-20041231
+    only returns pages with Last-Modified in year 2004.
+    (John Xing, 20050122)
+
+ 3. Add URLFilter plugin interface and convert existing url filters into
+    plugins. (John Xing, 20050206)
+
+ 4. Add UpdateSegmentsFromDb tool, which updates the scores and
+    anchors of existing segments with the current values in the web
+    db.  This is used by CrawlTool, so that pages are now only fetched
+    once per crawl.  (Doug Cutting, 20050221)
+
+ 5. Moved code into org.apache.nutch sub-packages.  Changed license to
+    Apache 2.0.  Removed jar files whose licenses do not permit
+    redistribution by Apache.  Disabled compilation of plugins which
+    require these libraries.  (Doug Cutting 20050301)
+
+Release 0.6
+
+ 1. Added clustering-carrot2 plugin, together with introduction of clustering
+    api and modification to search jsp. (Dawid Weiss via John Xing, 20040809)
+
+ 2. Make a number of changes to NDFS (Nutch Distributed File System)
+    to fix bugs, add admin tools, etc.
+
+    Also, modify all command line tools so you can indicate whether to
+    use NDFS or the local filesystem.  If you indicate nothing, then
+    it defaults to the local fs.
+
+    I've used this to do a 35m page crawl via NDFS, distributed over a
+    dozen machines.  (Mike Cafarella)
+
+ 3. Add support for BASE tags in HTML.  Outlinks are now correctly
+    extracted when a BASE tag is present.  (cutting)
+
+ 4. Fix two bugs in result pagination.  When the last hit on a page
+    was the last hit overall, the "next" button was sometimes shown
+    when the "show all" button should be shown instead.  Also, in
+    certain cases, the "show all" button would be shown when the
+    "next" button should have been shown.  (cutting)
+
+ 5. Add config parameter "indexer.max.tokens" that determines the
+    maximum number of tokens indexed per field.  (Andy Hedges via cutting)
+
+ 6. Add parser for mp3 files.  (Andy Hedges via cutting)
+
+ 7. Add RegexUrlNormalizer.  This is useful for things like stripping
+    out session IDs from URLs.  To use it, add values for
+    urlnormalizer.class and urlnormalizer.regex.file to your
+    nutch-site.xml.  The RegexUrlNormalizer class extends the
+    BasicUrlNormalizer, and does basic normalization as well.
+    (Luke Baker via cutting)
+
+ 8. Added Swedish translation (Stefan Verzel via Sami Siren, 20040910)
+
+ 9. Added Polish translation (Andrzej Bialecki, 20040911)
+ 
+10. Added 3 more language profiles to language identifier (ru,hu,pl).
+	Other changes to language identifier: Porfiles converted to utf8,
+	added some test cases, changed the similarity calculation.
+	(Sami Siren, 20040925)
+
+11. Added plugin parse-rtf (Andy Hedges via John Xing, 20040929)
+
+12. Added plugin index-more and more.jsp (John Xing, 20041003)
+
+13. Added "View as Plain Text" feature. A new op OP_PARSETEXT is introduced
+    in DistributedSearch.java. text.jsp is added. (John Xing, 20041006)
+
+14. Fixed a bug that fails cached.jsp, explain.jsp, anchors.jsp and text.jsp
+    (but not search.jsp) with NullPointerException in distributed search.
+    It seems that this bug appears after "hits per site" stuff is added.
+    The fix is done in Hit.java, making sure String site is never null.
+    Hope this fix not have bad effetct on "hits per site" code.
+    (John Xing, 20041006)
+
+15. Fixed a bug that fails fullyDelete() in FileUtil.java for
+    LocalFileSystem.java. This bug also exposes possible incompleteness
+    of NDFSFile.java, where a few methods are not supported, including
+    delete(). Nothing changed in NDFSFile.java though. Leave it for future
+    improvement (John Xing, 20041022).
+
+16. Introduced option -noParsing to Fetcher.java and added ParseSegment.java.
+    A new status code CANT_PARSE is added to FetcherOutput.java.
+    Without option -noParsing , no change in fetcher behavior. With
+    option -noParsing, fetcher does crawls only, no parsing is carried out.
+    Then, ParseSegment.java should be used to parse in separate pass.
+    (John Xing, 20041025)
+
+17. Added ontology plugin. Currently it is used for query refinement, as
+    examplified in refine-query-init.jsp and refine-query.jsp. By default,
+    query refinement is disabled in search.jsp. Please check
+    ./src/plugin/ontology/README.txt for further description.
+    Ontology plugin certainly can be used for many other things.
+    (Michael J. Pan via John Xing, 20041129)
+ 
+18. Changed fetcher.server.delay to be a float, so that sub-second
+    delays can be specified.  (cutting)
+
+19. Added plugin.includes config parameter that determines which
+    plugins are included.  By default now only http, html and basic
+    indexing and search plugins are enabled, rather than all plugins.
+    This should make default performance more predictable and reliable
+    going forward. (cutting)
+
+20. Cleaned up some filesystem code, including:
+
+    - Replaced BufferedRandomAccessFile with two simpler utilties,
+      NFSDataInputStream and NFSDataOutputStream.
+
+    - Fixed the bug where SequenceFiles were no longer flushed when
+      created, so that, when fetches crashed, segments were
+      unreadable.  Now segments are always readable after crashes.
+      Only the contents of the last buffer is lost.
+
+    - Simplified the FSOutputStream API to not include seek().  We
+      should never need that functionality.
+
+    - Simplified LocalFileSystem's implementations of FSInputStream
+      and FSOutputStream and optimized FSInputStream.seek().
+
+    (cutting)
+
+21. Fixed BasicUrlNormalizer to better handle relative urls.  The file
+    part of a URL is normalized in the following manner:
+
+      1. "/aa/../" will be replaced by "/" This is done step by step until
+	 the url doesnÂ´t change anymore. So we ensure, that
+	 "/aa/bb/../../" will be replaced by "/", too
+
+      2. leading "/../" will be replaced by "/"
+
+    (Sven Wende via cutting)
+
+22. Fix Page constructors so that next fetch date is less likely to be
+    misconstrued as a float.  This patches a problem in WebDBInjector,
+    where new pages were added to the db with nextScore set to the
+    intended nextFetch date.  This, in turn, confused link analysis.
+
+23. In ndfs code, replace addLocalFile(), putToLocalFile() with
+    copyFromLocalFile(), moveFromLocalFile(), copyToLocalFile() and
+    moveToLocalFile(). (John Xing, 20041217)
+
+24. Added new config parameter fetcher.threads.per.host.  This is used
+    by the Http protocol.  When this is one behavior is as before.
+    When this is greater than one then multiple threads are permitted
+    to access a host at once.  Note that fetcher.server.delay is no
+    longer consistently observed when this is greater than one.
+    (Luke Baker via Doug Cutting)
+
+Release 0.5
+
+ 1. Changed plugin directory to be a list of directories.
+
+ 2. Permit Plugin to be the default plugin implementation.
+
+ 3. Added pluggable interface for network protocols in new package
+    net.nutch.protocol.  Moved http code from core into a plugin.
+
+ 4. Added pluggable interface for content parsing in new package
+    net.nutch.parse.  Moved html parsing code from core into a
+    plugin.
+
+ 5. Fixed a bug in NutchAnalysis where 16-bit characters were not
+    processed correctly.
+
+ 6. Fixed bug #971731: random summaries on result page.
+    (Daniel Naber via cutting)
+
+ 7. Made Nutch logo transparent. (Daniel Naber via cutting)
+
+ 8. Added file protocol plugin.  (John Xing via cutting)
+
+ 9. Added ftp protocol plugin.  (John Xing via cutting)
+
+10. Added pdf and msword parser plugins.  (John Xing via cutting)
+
+11. Added pluggable indexing interface.  By default, url, content,
+    anchors and title are indexed, as before, but now one can easily
+    alter this to, e.g., index metadata.  A demonstration is provided
+    which extracts and indexes Creative Commons license urls. (cutting)
+
+12. Add language identification plugin. 
+
+    The process of identification is as follows:
+
+    1. html (html only, HTML 4.0 "lang" attribute)
+    2. meta tags (html only, http-equiv, dc.language)
+    3. http header (Content-Language)
+    4. if all above fail "statistical analysis"
+
+    1 & 2 are run during the fetching phase and 3 & 4 are run on
+    indexing phase.
+
+    Currently supported languages (in "statistical analysis") are
+    da,de,el,en,es,fi,fr,it,nl,sv and pt. The corpus used was grabbed
+    from http://www.isi.edu/~koehn/europarl/ and the profiles were
+    build with tool supplied in patch.
+
+    After indexing the language can be found from field named "lang"
+
+    It's not 100% accurate but it's a start.
+    (Sami Siren)
+
+13. Added SegmentMergeTool and "mergesegs" command, to remove
+    duplicated or otherwise not used content from several segments and
+    joining them together into a single new segment.  The tool also
+    optionally performs several other steps required for proper
+    operation of Nutch - such as indexing segments, deleting
+    duplicates, merging indices, and indexing the new single segment.
+    (Andrzej Bialecki)
+
+14. Add the ability to retrieve ParseData of a search hit. ParseData
+    contains many valuable properties of a search hit.
+
+    This is required (among others) to properly display the cached
+    content because it's not possible to determine the character
+    encoding from the output of the getContent() method (which returns
+    byte[]). The symptoms are that for HTML pages using non-latin1 or
+    non-UTF8 encodings the cached preview will almost certainly look
+    broken. Using the attached patch it is possible to determine the
+    character encoding from the ParseData (for HTTP: Content-Type
+    metadata), and encode the content accordingly. (Andrzej Bialecki)
+
+15. Add a pluggable query interface.  By default, the content, anchor
+    and url fields are searched as before.  A sample plugin indexes
+    the host name and adds a "site:" keyword to query parsing.
+
+16. Added support for "lang:" in queries.  For example, searching with
+    "lang:en" restricts results to pages which were identified to
+    be in English.
+
+17. Automatically optimize field queries to use cached Lucene filters.
+    This makes, for example, searches restricted by languages or sites
+    that are very common much faster.
+
+18. Improved charset handling in jsp pages.  (jshin by cutting)
+
+19. Permit topic filtering when injecting DMOZ pages.  (jshin by cutting)
+
+20. When parsing crawled pages, interpret charset specifications in
+    html meta tags.  (jshin by cutting)
+
+21. Added support for "cc:licensed" in queries, which searches for documents
+    released under Creative Commons licenses.  Attributes of the
+    license may also be queried, with, e.g., "cc:by" for
+    attribution-required licenses, "cc:nc" for non-commercial
+    licenses, etc.
+
+22. Relative paths named in plugin.folders are now searched for on the
+    classpath.  This makes, e.g., deployment in a war file much simpler.
+
+23. Modifications to Fetcher.java.
+
+    1. Make sure it works properly with regard to creation and initialization
+    of plugin instances. The problem was that multiple threads race to
+    startUp() or shutDown() plugin instances. It was solved by synchronizing
+    certain codes in PluginRepository.java and Extension.java.
+    (Stefan Groschupf via John Xing)
+
+    2. Added code to explictly shutDown() plugins. Otherwise FetcherThreads
+    may never return (quit) if there are still data or other structures
+    (e.g., persistent socket connections) associated with plugins. (John Xing)
+    
+    3. Fixed one type of Fetcher "hang" problems by monitoring named
+    FetcherThreads. If all FetcherThreads are gone (finished),
+    Fetcher.java is considered done. The problem was: there could be
+    runaway threads started by external libs via FetcherThreads.
+    Those threads never return, thus keep Fetcher from exiting normally.
+    (John Xing)
+
+24. Eliminate excessive hits from sites.  This is done efficiently by
+    adding the site name to Hit instances, and, when needed,
+    re-querying with too-frequent sites prohibited in the query.
+
+
+Release 0.4
+
+ 1. Http class refactored.  (Kevin Smith via Tom Pierce)
+
+ 2. Add Finnish translation. (Sampo Syreeni via Doug Cutting)
+
+ 3. Added Japanese translation. (Yukio Andoh via Doug Cutting)
+
+ 4. Updated Dutch translation. (Ype Kingma via Doug Cutting)
+
+ 5. Initial version of Distributed DB code.  (Mike Cafarella)
+
+ 6. Make things more tolerant of crashed fetcher output files.
+    (Doug Cutting)
+
+ 7. New skin for website. (Frank Henze via Doug Cutting)
+
+ 8. Added Spanish translation. (Diego Basch via Doug Cutting)
+
+ 9. Add FTP support to fetcher.  (John Xing via Doug Cutting)
+
+10. Added Thai translation. (Pichai Ongvasith via Doug Cutting)
+
+11. Added Robots.txt & throttling support to Fetcher.java.  (Mike
+    Cafarella)
+
+12. Added nightly build. (Doug Cutting)
+
+13. Default all link scores to 1.0. (Doug Cutting)
+
+14. Permit one to keep internal links. (Doug Cutting)
+
+15. Fixed dedup to select shortest URL. (Doug Cutting)
+
+16. Changed index merger so that merged index is written to named
+    directory, rather than to a generated name in that directory.
+    (Doug Cutting)
+
+17. Disable coordination weighting of query clauses and other minor
+    scoring improvements. (Doug Cutting)
+
+18. Added a new command, crawl, that constructs a database, injects a
+    url file and performs a few rounds of generate/fetch/updatedb.
+    This simplifies use for intranet sites.  Changed some defaults to
+    be more intranet friendly.  (Doug Cutting)
+
+19. Fixed a bug where Fetcher.java didn't construct correct relative
+    links when a page was redirected.  (Doug Cutting)
+
+20. Fixed a query parser problem with lookahead over plusses and minuses.
+    (Doug Cutting)
+
+21. Add support for HTTP proxy servers.  (Sami Siren via Doug Cutting)
+
+22. Permit searching while fetching and/or indexing.
+    (Sami Siren via Doug Cutting)
+
+23. Fix a bug when throttling is disabled.  (Sami Siren via Doug Cutting)
+
+24. Updated Bahasa Malaysia translation.  (Michael Lim via Doug Cutting)
+
+25. Added Catalan translation.  (Xavier Guardiola via Doug Cutting)
+
+26. Added brazilian portuguese translation.
+    (A. Moreir via Doug Cutting)
+
+27. Added a french translation.  (Julien Nioche via Doug Cutting)
+
+28. Updated to Lucene 1.4RC3.  (Doug Cutting)
+
+29. Add capability to boost by link count & use it in crawl tool.
+    (Doug Cutting)
+
+30. Added plugin system.  (Stefan Groschupf via Doug Cutting)
+
+31. Add this change log file, for recording significant changes to
+    Nutch.  Populate it with changes from the last few months.

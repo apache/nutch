@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<page>
+
+<title>FAQ</title>
+
+<body>
+
+
+<h3>Warum braucht die Welt Nutch, wo doch sowieso alle Suchmaschinen gratis sind?</h3>
+
+<p>
+Suchmaschinen sind in ihrer Benutzung gratis - genauso wie Fernsehen
+gratis ist. Aber genauso wie das Fernsehen k&ouml;nnen Suchresultate
+von den Institutionen manipuliert werden, welche sie kontrollieren.
+Die einzige M&ouml;glichkeit, um unvoreingenommene Suchresultate zu erhalten, besteht darin,
+das dazu n&ouml;tige Ranking-System &ouml;ffentlich zu machen.
+Das Ziel von Nutch ist es, eine qualitativ hochwertige Such-Technologie 
+frei verf&uml;gbar zu machen.
+</p>
+
+
+   
+<h3>Wie kann ich helfen?</h3>
+
+<p>Wenn Sie darin interessiert sind, uns zu sponsern, besuchen Sie die <a
+href="../en/donate.html">Spenden</a>-Seite.</p>
+
+<p>Wenn Sie an der Entwicklung interessiert sind, besuchen Sie die  <a
+href="../en/developers.html">Entwickler</a>-Seite.</p>
+
+<p>
+Haben Sie andere Vorschl&auml;ge, Anregungen oder Fragen, senden Sie doch eine Mail an
+<a href="mailto:general@nutch.org">general@nutch.org</a>.
+</p>
+
+
+
+<h3>Wie kann sich eine gemeinn&uuml;tzige Organisation den Betrieb einer Suchmaschine leisten?</h3>
+
+<p>
+Nutch ist prim&auml;r ein Software-Projekt und keine Dienstleistung. 
+Der Einsatz im grossen Umfang wird vermutlich von kommerziellen Interessen, unabhängig von Nutch, 
+ausgehen, finanziert durch Werbung oder &auml;hnliches.
+Wenn die Software gut genug ist, werden vielleicht bereits existierende gr&ouml;ssere Suchmaschinen
+Nutch an Stelle der vorhandenen closed-source Software verwenden.
+</p>
+	
+
+<p>
+Das Nutch-Projekt selbst wird m&ouml;glicherweise ein kleines
+Demo-System hosten, um zu zeigen, dass das Ganze wirklich funktioniert.
+</p>
+
+
+<h3>Wird Nutch jemals so gut sein wie andere, kommerzielle Suchmaschinen?</h3>
+
+<p>
+Wir hoffen, es wird besser. Mit Entwicklern und Forschern rund um den Globus
+hoffen wir die Qualit&auml;t zu &uuml;bertreffen, welche eine einzelne
+Firma erreichen kann.
+</p>
+
+
+
+<h3>Wie kann ich Nutch davon abhalten, meine Seite zu indexieren?</h3>
+
+<p>Bitte besuchen Sie unsere <a href="../en/bot.html">Webmaster-Informations-Seite</a>.</p>
+
+
+<h3>Wie kann ich sichergehen, dass Nutch meine Seite indexiert?</h3>
+
+<p>
+Nutch nutzt das <a href="http://www.dmoz.org/">DMOZ Open
+Directory</a> als Ausgangspunkt f&uuml;r die Indexierung.
+Der beste Weg, Ihre Seite in den Nutch Index zu bekommen, ist also,
+sie in das Open Directory einzutragen.
+</p>
+
+
+<h3>Wird Nutch eine verteilte, P2P-basierte Suchmaschine?</h3>
+
+<p>
+Wir glauben nicht, dass es zur Zeit m&ouml;glich ist, eine peer-to-peer
+Suchmaschine aufzubauen, welche mit bestehenden Suchmaschinen konkurrieren  
+k&ouml;nnte. Sie w&auml;re einfach zu langsam. Resultate in weniger als einer
+Sekunde auf dem Bildschirm zu haben, ist wichtig: so k&ouml;nnen Benutzer
+schnell Ihre Suchanfrage umformulieren, bis sie gefunden haben, was sie suchen.
+Kurzgesagt: Eine schnellere Suchmaschine ist die bessere Suchmaschine.
+</p>
+
+<p>
+Trotzdem k&ouml;nnen Interessierte, wenn sie dies wollen, ein Unterprojekt
+starten, welches die Entwicklung einer verteilten Suchfunktionalit&auml;t 
+zum Ziel hat.</p>
+
+
+
+<h3>Nutzt Nutch einen verteilten Crawler wie <a href="http://www.grub.org/">Grub</a>?</h3>
+
+<p>
+Verteiltes Indexieren kann Bandbreite sparen, aber langfristig ist diese
+Bandbreite nicht von Bedeutung. Eine erfolgreiche Suchmaschine braucht
+mehr Bandbreite, um Seiten mit Suchresultaten an den Benutzer zu schicken,
+als der Crawler Download-Bandbreite zum Sammeln von Seiten ben&ouml;tigt.
+Eine Reduktion der Indexierungsbandbreite w&uuml;rde also nur wenig zur 
+Reduktion des gesammten Traffics beitragen.
+</p>
+
+
+<h3>Wird die &ouml;ffentliche Verf&uuml;gbarkeit nicht Manipulationen am Ranking-System 
+erleichtern?</h3>
+
+<p>
+Suchmaschinen arbeiten hart an Ranking-Systemen, die eine Manipulation
+erschweren. Trotzdem schaffen es Such-Optimierer immer wieder, die Algorithmen zu knacken
+und so das Ranking ihrer Seiten zu verbessern. Viele Seiten nutzen zum Beispiel Link-Farmen,
+um Link-basierte Ranking-Systeme (wie z.B. das von Google) zu umgehen. 
+Suchmaschinen-Betreiber vergelten dies, indem ihre Link-basierten Algorithmen verbessert werden, um den
+Effekt der Link-Farmen zu neutralisieren.
+</p>
+
+<p>
+Mit einer Open-Source-Suchmaschine wird das nicht anders sein -
+einfach &ouml;ffentlich. Dies verh&auml;lt sich wie bei Verschl&uuml;sselungs-
+und Virus-Scanalgorithmen. Auf lange Zeit gesehen macht das Offenlegen
+solcher Algorithmen diese st&auml;rker, da mehr Leute den Sourcecode 
+durchst&ouml;bern und damit Fehler finden und Verbesserungen
+anbringen k&ouml;nnen.
+</p>
+
+<h3>Wann wird Nutch Bilder und PDF-Dateien durchsuchen k&ouml;nnen?</h3>
+
+<p>Wir hoffen bald.</p>
+
+</body>
+</page>

@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+
+<project name="urlfilter-prefix" default="jar">
+
+  <import file="../build-plugin.xml"/>
+
+</project>

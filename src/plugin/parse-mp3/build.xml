@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<project name="parse-mp3" default="jar">
+
+  <import file="../build-plugin.xml"/>
+
+  <!-- for junit test -->
+  <mkdir dir="${build.test}/data"/>
+  <copy file="sample/postgresql-id3v1.mp3" todir="${build.test}/data"/>
+  <copy file="sample/postgresql-id3v2.mp3" todir="${build.test}/data"/>
+  <copy file="sample/postgresql-none.mp3" todir="${build.test}/data"/>
+</project>

@@ -1,0 +1,102 @@
+<page>
+
+<title>robot</title>
+
+<menu>
+<item><a href="#sysadmin">Sysadmins</a></item>
+<item><a href="#webmaster">Webmasters</a></item>
+<item><a href="mailto:agent@nutch.org">Contact us</a></item>
+</menu>
+
+<body>
+
+<p> If you're reading this, chances are you've seen our robot visiting 
+your site while looking through your server logs.  When we crawl to 
+populate our index, we advertise the "User-agent" string "NutchOrg". 
+If you see the agent "Nutch" or "NutchCVS", that's probably a 
+developer testing a new version of our robot, or someone running  their
+own instance. </p>
+<p> We are open-source developers, trying to build something useful for 
+the world to use.  It comes naturally to us to want to be good 
+netizens.  If you notice our bot misbehaving, please drop us a line  at<a
+ href="mailto:agent@nutch.org">
+agent@nutch.org</a> and we will investigate the
+problem. </p>
+<p> Our bot does retrieve and parse robots.txt files, and it looks for 
+robots META tags in HTML.  These are the standard mechanisms for 
+webmasters to tell web robots which portions of a site a robot is 
+welcome to access. </p>
+
+<h3><a name="sysadmin">Sysadmins/robots.txt</a></h3>
+<p>We're an open source project, so please
+understand that a misbehaving  bot appearing with our Agent string may
+not have been run by us.  Our  code is out there for anyone to tinker
+with.  However, whether or not  we ran the bot, we'd appreciate hearing
+about any bad behavior-  please let us know about it!  If possible,
+please include the name of  the domain and some representative log
+entries.  We can be reached at <a
+ href="mailto:agent@nutch.org">
+agent@nutch.org</a> </p>
+<p> Our bot follows the robots.txt exclusion standard, which is
+described at <a
+ href="http://www.robotstxt.org/wc/exclusion.html#robotstxt">
+http://www.robotstxt.org/wc/exclusion.html#robotstxt</a>.  Depending on
+the configuration, our robot may obey different rules.  To make it
+simple to send our bot away, we'll always obey rules for  "Nutch". 
+Here are the different cases. </p>
+<ul>
+  <li> When we're running to populate our index, we'll advertise the
+agent   "NutchOrg", and obey rules for "NutchOrg" if they exist, or
+"Nutch",   or "*". </li>
+  <li> When anyone is running an unmodified CVS version of our bot  
+(including when we're running our bot to test it) it will advertise  
+"NutchCVS", and obey rules for "NutchCVS" if they exist, or "Nutch",  
+or "*". </li>
+  <li> Release versions of our bot will advertise "Nutch", and obey
+rules   for "Nutch" or "*". </li>
+</ul>
+<p> To ban all bots from your site, place the following in your 
+robots.txt file: </p>
+<blockquote>
+  <pre>User-agent: *<br/>Disallow: /<br/> </pre>
+</blockquote>
+<p> To ban Nutch bots from your site <b>unless</b> they're building the 
+Nutch.Org demo index, place the following in your robots.txt  file: </p>
+<blockquote>
+  <pre>User-agent: Nutch<br/>Disallow: /<br/><br/>User-agent: NutchOrg<br/>Disallow: <br/> </pre>
+</blockquote>
+<p> To ban all Nutch bots from your site: </p>
+<blockquote>
+  <pre>User-agent: Nutch<br/>Disallow: /<br/> </pre>
+</blockquote>
+
+<h3><a name="webmaster">Webmasters/Robots META</a></h3>
+<p>If you do not have permission to edit the
+/robots.txt file on your  server, you can still tell robots not to
+index your pages or follow  your links.  The standard mechanism for
+this is the robots META tag,  as described at<a
+ href="http://www.robotstxt.org/wc/meta-user.html">
+http://www.robotstxt.org/wc/meta-user.html</a>. </p>
+<p> To tell Nutch, and other robots, not to index your page or follow
+your  links, insert this META tag into the HEAD section of your HTML
+document: </p>
+<blockquote>
+  <pre>&lt;meta name="robots" content="noindex,nofollow"&gt;<br/> </pre>
+</blockquote>
+<p> Of course, you can control the "index" and "follow" directives 
+independantly.  The keywords "all" or "none" are also allowed, 
+meaning "index,follow" or "noindex,nofollow", respectively.  Some 
+examples are: </p>
+<blockquote>
+  <pre>&lt;meta name="robots" content="all"&gt;<br/>&lt;meta
+  name="robots" content="index,follow"&gt;<br/>&lt;meta name="robots"
+  content="index,nofollow"&gt;<br/>&lt;meta name="robots"
+  content="noindex,follow"&gt;<br/>&lt;meta name="robots"
+  content="none"&gt;<br/>  </pre>
+</blockquote>
+<p> If there are no robots META tags, or if an action is not
+specifically  prohibited (ie. neither "nofollow" or "none" appears),
+Nutch will  assume it is allowed to index or follow links. </p>
+
+</body>
+</page>

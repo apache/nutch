@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="protocol-http"
+   name="Http Protocol Plug-in"
+   version="1.0.0"
+   provider-name="nutch.org">
+
+   <extension-point
+      id="org.apache.nutch.protocol.Protocol"
+      name="Nutch Protocol"/>
+
+   <runtime>
+      <library name="protocol-http.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <extension id="org.apache.nutch.protocol.http"
+              name="HttpProtocol"
+              point="org.apache.nutch.protocol.Protocol">
+
+      <implementation id="org.apache.nutch.protocol.http.Http"
+                      class="org.apache.nutch.protocol.http.Http"
+                      protocolName="http"/>
+
+   </extension>
+
+</plugin>

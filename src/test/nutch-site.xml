@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<!-- Configuration overrides used during unit tests. -->
+
+<nutch-conf>
+
+<property>
+  <name>plugin.includes</name>
+  <value>.*</value>
+  <description>Enable all plugins during unit testing.</description>
+</property>
+
+</nutch-conf>

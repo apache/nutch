@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<page>
+
+<title>Danksagung</title>
+
+<body>
+
+<h3>Entwickler</h3>
+<ul>
+  <li>Mike Cafarella</li>
+  <li>Doug Cutting</li>
+  <li>Ben Lutch</li>
+  <li>Tom Pierce</li>
+</ul>
+
+<h3>Freunde</h3>
+<ul>
+  <li>Dan Fain (<a href="http://research.overture.com/">Overture Research</a>)</li>
+  <li>Brewster Kahle (<a href="http://www.archive.org/">Internet Archive</a>)</li>
+  <li>Michele Kimpton (<a href="http://www.archive.org/">Internet Archive</a>)</li>
+  <li>Joe Kraus (<a href="http://www.digitalconsumer.org/">Digital Consumer</a>)</li>
+  <li>Graham Spencer (<a href="http://www.digitalconsumer.org/">Digital Consumer</a>)</li>
+  <li>Brett Bullington</li>
+  <li>Neil &amp; Danny Rimer (<a href="http://www.indexventures.com/">Index Ventures</a>)</li>
+  <li>R.J. Pittman (<a href="http://www.groxis.com/">Groxis</a>)</li>
+  <li>Rob Cresswell (<a href="http://malachiarts.com/">Malachiarts</a>)</li>
+</ul>
+
+<h3>Sponsoren</h3>
+<ul>
+
+  <li><a href="http://research.overture.com/">Overture Research</a> spendete Hardware 
+    und unterst&uuml;tzte die Entwickler</li>
+
+  <li><a href="http://www.archive.org/">The Internet Archive</a> hostet Nutch</li>
+</ul>
+
+
+</body>
+</page>

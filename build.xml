@@ -1,0 +1,422 @@
+<?xml version="1.0"?>
+
+<project name="Nutch" default="compile" basedir=".">
+
+  <!-- Load all the default properties, and any the user wants    -->
+  <!-- to contribute (without having to type -D or edit this file -->
+  <property file="${user.home}/build.properties" />
+  <property file="${basedir}/build.properties" />
+  <property file="${basedir}/default.properties" />
+ 
+  <!-- the normal classpath -->
+  <path id="classpath">
+    <pathelement location="${build.classes}"/>
+    <fileset dir="${lib.dir}">
+      <include name="*.jar" />
+    </fileset>
+  </path>
+
+  <!-- the unit test classpath -->
+  <dirname property="plugins.classpath.dir" file="${build.plugins}"/>
+  <path id="test.classpath">
+    <pathelement location="${test.build.classes}" />
+    <pathelement location="${conf.dir}"/>
+    <pathelement location="${plugins.classpath.dir}"/>
+    <path refid="classpath"/>
+  </path>
+
+
+  <!-- ====================================================== -->
+  <!-- Stuff needed by all targets                            -->
+  <!-- ====================================================== -->
+  <target name="init">
+    <mkdir dir="${build.dir}"/>
+    <mkdir dir="${build.classes}"/>
+
+    <mkdir dir="${test.build.dir}"/>
+    <mkdir dir="${test.build.classes}"/>
+
+    <touch datetime="01/25/1971 2:00 pm">
+      <fileset dir="${conf.dir}" includes="**/*.template"/>
+    </touch>
+
+    <copy todir="${conf.dir}" verbose="true">
+      <fileset dir="${conf.dir}" includes="**/*.template"/>
+      <mapper type="glob" from="*.template" to="*"/>
+    </copy>
+
+
+  </target>
+
+  <!-- ====================================================== -->
+  <!-- Compile the Java files                                 -->
+  <!-- ====================================================== -->
+  <target name="compile" depends="compile-core, compile-plugins, jar"/>
+
+  <target name="compile-core" depends="init">
+    <javac 
+     encoding="${build.encoding}" 
+     srcdir="${src.dir}"
+     includes="org/apache/nutch/**/*.java"
+     destdir="${build.classes}"
+     debug="${debug}"
+     optimize="${optimize}"
+     deprecation="${deprecation}">
+      <classpath refid="classpath"/>
+    </javac>    
+  </target>
+
+  <target name="compile-plugins">
+    <ant dir="src/plugin" target="deploy" inheritAll="false"/>
+  </target>
+
+  <target name="generate-src" depends="init">
+    <javacc target="${src.dir}/org/apache/nutch/quality/dynamic/PageDescription.jj"
+            javacchome="${javacc.home}">
+    </javacc>
+    <javacc target="${src.dir}/org/apache/nutch/analysis/NutchAnalysis.jj"
+            javacchome="${javacc.home}">
+    </javacc>
+
+    <fixcrlf srcdir="${src.dir}" eol="lf" includes="**/*.java"/>
+
+  </target>
+
+  <target name="dynamic" depends="generate-src, compile">
+  </target>
+
+
+  <!-- ================================================================== -->
+  <!-- Make nutch.jar                                                     -->
+  <!-- ================================================================== -->
+  <!--                                                                    -->
+  <!-- ================================================================== -->
+  <target name="jar" depends="compile-core">
+    <copy file="${conf.dir}/nutch-default.xml"
+          todir="${build.classes}"/>
+    <copy file="${conf.dir}/nutch-site.xml"
+          todir="${build.classes}"/>
+    <jar
+      jarfile="${build.dir}/${final.name}.jar"
+      basedir="${build.classes}"
+    />
+    <symlink overwrite="true" link="${name}.jar"
+             resource="${build.dir}/${final.name}.jar"/>
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Make nutch.war                                                     -->
+  <!-- ================================================================== -->
+  <!--                                                                    -->
+  <!-- ================================================================== -->
+  <target name="war" depends="jar,generate-docs">
+    <war destfile="${build.dir}/${final.name}.war"
+	 webxml="${web.src.dir}/web.xml">
+      <fileset dir="${web.src.dir}/jsp"/>
+      <zipfileset dir="${docs.src}" includes="include/*.html"/>
+      <zipfileset dir="${build.docs}" includes="*/include/*.html"/>
+      <fileset dir="${docs.dir}"/>
+      <lib dir="${lib.dir}">
+	<include name="lucene*.jar"/>
+	<include name="taglibs-*.jar"/>
+	<include name="dom4j-*.jar"/>
+	<include name="xerces-*.jar"/>
+      </lib>
+      <lib dir="${build.dir}">
+	<include name="${final.name}.jar"/>
+      </lib>
+      <classes dir="${conf.dir}" excludes="**/*.template"/>
+      <classes dir="${web.src.dir}/locale"/>
+      <zipfileset prefix="WEB-INF/classes/plugins" dir="${build.plugins}"/>
+      <webinf dir="${lib.dir}">
+	<include name="taglibs-*.tld"/>
+      </webinf>
+    </war>
+   </target>
+
+
+  <!-- ================================================================== -->
+  <!-- Compile test code                                                  --> 
+  <!-- ================================================================== -->
+  <target name="compile-core-test" depends="compile-core">
+    <javac 
+     encoding="${build.encoding}" 
+     srcdir="${test.src.dir}"
+     includes="org/apache/nutch/**/*.java"
+     destdir="${test.build.classes}"
+     debug="${debug}">
+      <classpath refid="test.classpath"/>
+    </javac>    
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Run unit tests                                                     --> 
+  <!-- ================================================================== -->
+  <target name="test" depends="test-core, test-plugins"/>
+
+  <target name="test-core" depends="compile, compile-core-test">
+
+    <delete dir="${test.build.data}"/>
+    <mkdir dir="${test.build.data}"/>
+
+    <copy file="${test.src.dir}/nutch-site.xml"
+          todir="${test.build.classes}"/>
+
+    <junit printsummary="yes" haltonfailure="no" fork="yes" dir="${basedir}"
+      errorProperty="tests.failed" failureProperty="tests.failed">
+      <sysproperty key="test.build.data" value="${test.build.data}"/>
+      <sysproperty key="test.src.dir" value="${test.src.dir}"/>
+      <classpath refid="test.classpath"/>
+      <formatter type="plain" />
+      <batchtest todir="${test.build.dir}" unless="testcase">
+        <fileset dir="${test.src.dir}"
+                 includes="**/Test*.java" excludes="**/${test.exclude}.java" />
+      </batchtest>
+      <batchtest todir="${test.build.dir}" if="testcase">
+        <fileset dir="${test.src.dir}" includes="**/${testcase}.java"/>
+      </batchtest>
+    </junit>
+
+    <fail if="tests.failed">Tests failed!</fail>
+
+  </target>   
+
+  <target name="test-plugins" depends="compile">
+    <ant dir="src/plugin" target="test" inheritAll="false"/>
+  </target>
+
+
+  <!-- ================================================================== -->
+  <!-- Documentation                                                      -->
+  <!-- ================================================================== -->
+  <target name="javadoc" depends="compile">
+    <mkdir dir="${build.javadoc}"/>
+    <javadoc
+      overview="${src.dir}/overview.html"
+      destdir="${build.javadoc}"
+      author="true"
+      version="true"
+      use="true"
+      windowtitle="${Name} ${version} API"
+      doctitle="${Name} ${version} API"
+      bottom="Copyright &amp;copy; ${year} The Apache Software Foundation"
+      >
+    	<packageset dir="${src.dir}"/>
+    	<packageset dir="${plugins.dir}/protocol-file/src/java"/>
+    	<packageset dir="${plugins.dir}/protocol-ftp/src/java"/>
+       	<packageset dir="${plugins.dir}/protocol-http/src/java"/>
+    	<packageset dir="${plugins.dir}/parse-html/src/java"/>
+    	<packageset dir="${plugins.dir}/parse-text/src/java"/>
+    	<packageset dir="${plugins.dir}/parse-pdf/src/java"/>
+	<packageset dir="${plugins.dir}/parse-rtf/src/java"/>
+	<packageset dir="${plugins.dir}/parse-mp3/src/java"/>
+    	<packageset dir="${plugins.dir}/parse-msword/src/java"/>
+    	<packageset dir="${plugins.dir}/index-basic/src/java"/>
+    	<packageset dir="${plugins.dir}/index-more/src/java"/>
+    	<packageset dir="${plugins.dir}/query-more/src/java"/>
+    	<packageset dir="${plugins.dir}/urlfilter-regex/src/java"/>
+    	<packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
+    	<packageset dir="${plugins.dir}/creativecommons/src/java"/>
+    	<packageset dir="${plugins.dir}/languageidentifier/src/java"/>
+    	<packageset dir="${plugins.dir}/clustering-carrot2/src/java"/>
+    	<packageset dir="${plugins.dir}/ontology/src/java"/>
+        <link href="${javadoc.link.java}"/>
+        <link href="${javadoc.link.lucene}"/>
+        <classpath refid="classpath"/>
+    	<classpath>
+    		<fileset dir="${plugins.dir}" >
+    			<include name="**/*.jar"/>
+    		</fileset>
+    	</classpath>
+    	<group title="Core" packages="org.apache.nutch.*"/>
+    	<group title="Plugins" packages="${plugins.packages}"/>
+    </javadoc>
+  </target>	
+	
+  <target name="default-doc">
+    <style basedir="${conf.dir}" destdir="${docs.dir}"
+           includes="nutch-default.xml" style="conf/nutch-conf.xsl"/>
+  </target>
+
+  <target name="generate-locale" if="doc.locale">
+    <echo message="Generating docs for locale=${doc.locale}"/>
+
+    <mkdir dir="${build.docs}/${doc.locale}/include"/>
+    <xslt in="${docs.src}/include/${doc.locale}/header.xml"
+          out="${build.docs}/${doc.locale}/include/header.html"
+          style="${docs.src}/style/nutch-header.xsl"/>
+
+    <dependset>
+       <srcfileset dir="${docs.src}/include/${doc.locale}" includes="*.xml"/>
+       <srcfileset dir="${docs.src}/style" includes="*.xsl"/>
+       <targetfileset dir="${docs.dir}/${doc.locale}" includes="*.html"/>
+    </dependset>  
+
+    <copy file="${docs.src}/style/nutch-page.xsl"
+          todir="${build.docs}/${doc.locale}"
+          preservelastmodified="true"/>
+
+    <xslt basedir="${docs.src}/pages/${doc.locale}"
+          destdir="${docs.dir}/${doc.locale}"
+          includes="*.xml"
+          style="${build.docs}/${doc.locale}/nutch-page.xsl"/>
+  </target>
+
+
+  <target name="generate-docs" depends="init">
+    <dependset>
+       <srcfileset dir="${docs.src}/include" includes="*.html"/>
+       <targetfileset dir="${docs.dir}" includes="**/*.html"/>
+    </dependset>  
+
+    <mkdir dir="${build.docs}/include"/>
+    <copy todir="${build.docs}/include">
+      <fileset dir="${docs.src}/include"/>
+    </copy>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="ca"/>
+    </antcall>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="de"/>
+    </antcall>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="en"/>
+    </antcall>
+    
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="es"/>
+    </antcall>
+    
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="fi"/>
+    </antcall>
+    
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="fr"/>
+    </antcall>
+    
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="hu"/>
+    </antcall>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="jp"/>
+    </antcall>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="ms"/>
+    </antcall>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="nl"/>
+    </antcall>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="pl"/>
+    </antcall>
+
+  	<antcall target="generate-locale">
+      <param name="doc.locale" value="pt"/>
+    </antcall>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="sv"/>
+    </antcall>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="th"/>
+    </antcall>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="zh"/>
+    </antcall>
+
+    <fixcrlf srcdir="${docs.dir}" eol="lf" encoding="utf-8"
+             includes="**/*.html"/>
+
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- D I S T R I B U T I O N                                            -->
+  <!-- ================================================================== -->
+  <!--                                                                    -->
+  <!-- ================================================================== -->
+  <target name="package" depends="jar, war, javadoc">
+    <mkdir dir="${dist.dir}"/>
+    <mkdir dir="${dist.dir}/lib"/>
+    <mkdir dir="${dist.dir}/bin"/>
+    <mkdir dir="${dist.dir}/docs"/>
+    <mkdir dir="${dist.dir}/docs/api"/>
+    <mkdir dir="${dist.dir}/plugins"/>
+
+    <copy todir="${dist.dir}/lib" includeEmptyDirs="false">
+      <fileset dir="lib"/>
+    </copy>
+
+    <copy todir="${dist.dir}/plugins">
+      <fileset dir="${build.plugins}"/>
+    </copy>
+
+    <copy file="${build.dir}/${final.name}.jar" todir="${dist.dir}"/>
+
+    <copy file="${build.dir}/${final.name}.war" todir="${dist.dir}"/>
+
+    <copy todir="${dist.dir}/bin">
+      <fileset dir="bin"/>
+    </copy>
+
+    <copy todir="${dist.dir}/conf">
+      <fileset dir="${conf.dir}" excludes="**/*.template"/>
+    </copy>
+
+    <apply executable="chmod">
+      <arg value="+x"/>
+      <fileset dir="${dist.dir}/bin"/>
+    </apply>
+
+    <copy todir="${dist.dir}/docs">
+      <fileset dir="${docs.dir}"/>
+    </copy>
+
+    <copy todir="${dist.dir}/docs/api">
+      <fileset dir="${build.javadoc}"/>
+    </copy>
+
+    <copy todir="${dist.dir}">
+      <fileset dir=".">
+        <include name="*.txt" />
+      </fileset>
+    </copy>
+
+    <copy todir="${dist.dir}/src" includeEmptyDirs="false">
+      <fileset dir="src"/>
+    </copy>
+
+    <copy todir="${dist.dir}/" file="build.xml"/>
+    <copy todir="${dist.dir}/" file="default.properties"/>
+
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Make release tarball                                               -->
+  <!-- ================================================================== -->
+  <target name="tar" depends="package">
+    <exec executable="tar" dir="${build.dir}">
+      <arg value="czf"/>
+      <arg value="${final.name}.tar.gz"/>
+      <arg value="${final.name}"/>
+    </exec>
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Clean.  Delete the build files, and their directories              -->
+  <!-- ================================================================== -->
+  <target name="clean">
+    <delete dir="${build.dir}"/>
+    <exec executable="rm"><arg value="-f"/><arg value="${name}.jar"/></exec>
+  </target>
+
+</project>

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<project name="parse-pdf" default="jar">
+
+  <import file="../build-plugin.xml"/>
+
+  <!-- for junit test -->
+  <mkdir dir="${build.test}/data"/>
+  <copy file="sample/pdftest.pdf" todir="${build.test}/data"/>
+
+</project>

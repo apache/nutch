@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+
+<project name="clustering-carrot2" default="jar">
+
+  <import file="../build-plugin.xml"/>
+
+</project>

@@ -1,0 +1,24 @@
+# Altavista plugin
+
+<search 
+   name="Altavista"
+   description="Altavista web search"
+   method="GET"
+   action="http://www.altavista.com/web/results"
+   updateCheckDays=1   
+>
+
+<input name="q" user>
+<input name="sourceid" value="mozilla-search">
+<inputnext name="start" factor="10">
+<inputprev name="start" factor="10">
+
+<interpret 
+    resultListStart="AltaVista found" 
+    resultListEnd="</body>" 
+
+    resultItemStart="<td valign=top  width=99" 
+    resultItemEnd="<span class=rgy>"
+    extractarg="r"
+>
+</search>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<header-menu>
+ <item><a href="about.html">A Nutch-ról</a></item>
+ <item><a href="../en/faq.html">GYIK</a></item>
+ <item><a href="../en/developers.html">Fejlesztõk</a></item>
+ <item><a href="../en/donate.html">Adomány</a></item>
+</header-menu>

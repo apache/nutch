@@ -1,0 +1,25 @@
+# FAST/Hotbot plugin
+
+<search 
+   name="FASTHotbot"
+   description="FAST Search via Hotbot"
+   method="GET"
+   action="http://www.hotbot.com/default.asp"
+   update="http://www.hotbot.com/mozilla/hotbot.src"
+   updateCheckDays=1   
+>
+
+<input name="query" user>
+<input name="prov" value="FAST">
+<input name="tab" value="web">
+<inputnext name="start" factor="10">
+<inputprev name="start" factor="10">
+
+<interpret 
+    resultListStart="<!-- RESULTS -->" 
+    resultListEnd="<!-- /RESULTS -->" 
+
+    resultItemStart="<!-- IS -->" 
+    resultItemEnd="<!-- /IS -->"
+>
+</search>

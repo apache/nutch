@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<project name="language-identifier" default="jar">
+
+  <import file="../build-plugin.xml"/>
+
+  <target name="init-plugin">
+    <echo>Copying language profiles</echo>
+    <copy todir="${build.classes}">
+      <fileset dir="${src.dir}" includes="**/*.ngp, **/*.properties"/>
+    </copy>
+  </target>
+	
+</project>

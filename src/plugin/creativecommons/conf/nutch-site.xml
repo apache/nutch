@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="nutch-conf.xsl"?>
+
+<!-- Creative Commons' Nutch configuration -->
+
+<nutch-conf>
+
+<property>
+  <name>http.agent.name</name>
+  <value>CreativeCommons</value>
+  <description>Our HTTP 'User-Agent' request header.</description>
+</property>
+
+<property>
+  <name>http.robots.agents</name>
+  <value>CreativeCommons,Nutch,*</value>
+  <description>The agent strings we'll look for in robots.txt files,
+  comma-separated, in decreasing order of precedence.</description>
+</property>
+
+<property>
+  <name>fetcher.server.delay</name>
+  <value>2.0</value>
+  <description>We need to be more polite than when crawling an
+  intranet that we control.</description>
+</property>
+
+<property>
+  <name>http.max.delays</name>
+  <value>3</value>
+  <description>The CC crawl visits a large number of different
+  hosts, so we should not need to delay much.</description>
+</property>
+
+<property>
+  <name>creativecommons.exclude.unlicensed</name>
+  <value>true</value>
+  <description>Exclude HTML content which does not contain a CC license.
+  </description>
+</property>
+
+<property>
+  <name>plugin.excludes</name>
+  <value>parse-(?!html).*</value>
+  <description>Exclude non-HTML content, since we don't know how to
+  find a CC license in anything but HTML. 
+  </description>
+</property>
+
+</nutch-conf>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="protocol-file"
+   name="File Protocol Plug-in"
+   version="1.0.0"
+   provider-name="nutch.org">
+
+   <extension-point
+      id="org.apache.nutch.protocol.Protocol"
+      name="Nutch Protocol"/>
+
+   <runtime>
+      <library name="protocol-file.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <extension id="org.apache.nutch.protocol.file"
+              name="FileProtocol"
+              point="org.apache.nutch.protocol.Protocol">
+
+      <implementation id="org.apache.nutch.protocol.file.File"
+                      class="org.apache.nutch.protocol.file.File"
+                      protocolName="file"/>
+
+   </extension>
+
+</plugin>

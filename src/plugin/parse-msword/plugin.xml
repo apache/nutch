@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="parse-msword"
+   name="MSWord Parse Plug-in"
+   version="1.0.0"
+   provider-name="nutch.org">
+
+   <extension-point
+      id="org.apache.nutch.parse.Parser"
+      name="Nutch Content Parser"/>
+
+   <!--
+   <extension-point
+      id="org.apache.nutch.parse.MSWordParseFilter"
+      name="MSWord Parse Filter"/>
+   -->
+
+   <runtime>
+      <library name="parse-msword.jar">
+         <export name="*"/>
+      </library>
+      <library name="poi-2.1-20040508.jar"/>
+      <library name="poi-scratchpad-2.1-20040508.jar"/>
+   </runtime>
+
+   <extension id="org.apache.nutch.parse.msword"
+              name="MSWordParse"
+              point="org.apache.nutch.parse.Parser">
+
+      <implementation id="org.apache.nutch.parse.msword.MSWordParser"
+                      class="org.apache.nutch.parse.msword.MSWordParser"
+                      contentType="application/msword"
+                      pathSuffix=""/>
+
+   </extension>
+
+</plugin>

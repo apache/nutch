@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<project name="parse-ext" default="jar">
+
+  <import file="../build-plugin.xml"/>
+
+  <copy file="command" todir="${deploy.dir}" preservelastmodified="true"/>
+  <chmod file="${deploy.dir}/command" perm="755"/>
+
+</project>

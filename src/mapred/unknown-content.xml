@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+
+<!-- extract unknown parse content types from a nutch log -->
+
+<nutch-conf>
+
+<property>
+  <name>mapred.input.dir</name>
+  <value>sample</value>
+</property>
+
+<property>
+  <name>mapred.output.dir</name>
+  <value>freqs</value>
+</property>
+
+<property>
+  <name>mapred.mapper.class</name>
+  <value>org.apache.nutch.mapReduce.lib.RegexMapper</value>
+</property>
+
+<property>
+  <name>mapred.mapper.regex</name>
+  <value>Content-Type not .*: (.*)</value>
+</property>
+
+<property>
+  <name>mapred.mapper.regex.group</name>
+  <value>1</value>
+</property>
+
+<property>
+  <name>mapred.reduce.tasks</name>
+  <value>1</value>
+</property>
+
+<property>
+  <name>mapred.combiner.class</name>
+  <value>org.apache.nutch.mapReduce.lib.LongSumReducer</value>
+</property>
+
+<property>
+  <name>mapred.reducer.class</name>
+  <value>org.apache.nutch.mapReduce.lib.LongSumReducer</value>
+</property>
+
+<property>
+  <name>mapred.output.key.class</name>
+  <value>org.apache.nutch.io.UTF8</value>
+</property>
+
+<property>
+  <name>mapred.output.value.class</name>
+  <value>org.apache.nutch.io.LongWritable</value>
+</property>
+
+</nutch-conf>

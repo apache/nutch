@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="creativecommons"
+   name="Creative Commons Plugins"
+   version="1.0.0"
+   provider-name="nutch.org">
+
+   <extension-point
+      id="org.apache.nutch.parse.HtmlParseFilter"
+      name="HTML Parse Filter"/>
+
+   <extension-point
+      id="org.apache.nutch.indexer.IndexingFilter"
+      name="Nutch Indexing Filter"/>
+
+   <extension-point
+      id="org.apache.nutch.searcher.QueryFilter"
+      name="Nutch Query Filter"/>
+
+   <runtime>
+      <library name="creativecommons.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <extension id="org.creativecommons.nutch.CCParseFilter"
+              name="Creative Commons Metadata Filter"
+              point="org.apache.nutch.parse.HtmlParseFilter">
+      <implementation id="CCParseFilter"
+                      class="org.creativecommons.nutch.CCParseFilter"/>
+   </extension>
+
+   <extension id="org.creativecommons.nutch.CCIndexingFilter"
+              name="Creative Commons Indexing Filter"
+              point="org.apache.nutch.indexer.IndexingFilter">
+      <implementation id="CCIndexingFilter"
+                      class="org.creativecommons.nutch.CCIndexingFilter"/>
+   </extension>
+
+   <extension id="org.creativecommons.nutch.CCQueryFilter"
+              name="Creative Commmons Query Filter"
+              point="org.apache.nutch.searcher.QueryFilter">
+      <implementation id="CCQueryFilter"
+                      class="org.creativecommons.nutch.CCQueryFilter"
+                      fields="cc"/>
+   </extension>
+
+</plugin>

@@ -1,0 +1,52 @@
+<page>
+
+<title>O Projekcie</title>
+
+<menu>
+ <item><a href="org.html">Organizacja</a></item>
+ <item><a href="credits.html">Podziękowania</a></item>
+ <item><a href="press.html">W prasie</a></item>
+ <item><a href="status.html">Status</a></item>
+</menu>
+
+<body>
+
+<p>Projekt Nutch jest niedawno powstałą inicjatywą zmierzającą do zaimplementowania
+serwera wyszukiwania stron WWW, na licencji Open Source.</p>
+
+<p>Wyszukiwarka sieciowa to podstawowe narzędzie do celów nawigacji
+internetowej - a jednak liczba dostępnych wyszukiwarek maleje. Obecna oligarchia
+kilku wiodących wyszukiwarek może wkrótce przerodzić się w monopol, w którym
+jedna firma będzie niemal całkiem kontrolowała wyszukiwanie dla swoich
+komercyjnych celów. Nie byłoby to dobre dla użytkowników Internetu.</p>
+
+<p>Nutch oferuje przejrzystą alternatywę dla komercyjnych wyszukiwarek.
+Tylko rezultatom szukania opartym o technologię Open Source można w pełni zaufać,
+że nie są stronnicze (a przynajmniej ich stronniczość jest jawna). Wszystkie
+główne wyszukiwarki stosują niejawne metody sortowania rezultatów, i nie
+wyjaśniają dlaczego dana strona uzyskała taki wynik a nie inny. Co więcej,
+niektóre wyszukiwarki decydują o tym, które strony umieścić w swoim indeksie,
+na podstawie opłat a nie rzeczywistej wartości użytkowej stron. W
+przeciwieństwie do nich Nutch nie ma nic do ukrycia, i nie ma motywacji żeby
+uzależniać rezultaty wyszukiwania lub indeksowania od czegokolwiek innego niż
+ chęci dostarczenia użytkownikom jak najbardziej wiarygodnych rezultatów.</p>
+
+<p>Projekt Nutch pragnie umożliwić każdemu łatwą i efektywną instalację
+wyszukiwarki sieciowej światowej klasy. Jest to niemałe wyzwanie. W celu
+osiągnięcia sukcesu, oprogramowanie Nutch musi być w stanie:</p>
+<ul>
+  <li>pobrać kilka miliardów stron na miesiąc</li>
+  <li>zarządzać indeksem tych stron</li>
+  <li>przeszukiwać indeks nawet 1000 razy na sekundę</li>
+  <li>zapewniać wysoką jakość wyników wyszukiwania</li>
+  <li>działać przy zachowaniu minimum kosztów</li>
+</ul>
+
+<p>Takie cele są prawdziwym wyzwaniem. Jeśli jesteś przekonany o
+zaletach tego projektu, to możesz nam pomóc jako <a
+href="developers.html">deweloper</a> lub poprzez <a
+href="donate.html">darowizny</a>.
+</p>
+
+</body>
+</page>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<page>
+
+	<title>Quan a</title>
+
+<menu>
+ <item><a href="../en/org.html">Organization</a></item>
+ <item><a href="../en/credits.html">Credits</a></item>
+ <item><a href="../en/press.html">Press</a></item>
+ <item><a href="../en/status.html">Status</a></item>
+</menu>
+
+<body>
+
+<p>Nutch és un nou projecte per implementar un cercador Web amb codi obert.</p>
+
+<p>La cerca al Web és un requeriment bàsic per la navegació a Internet, malgrat aquest fet, el nombre de cercadors disminueix dia a dia. L'oligopoli actual es pot convertir, aviat, en un monopoli amb una única companyia controlant gariabé totes les cerques que es facin al Web pels seus interessos comercials.</p>
+
+<p>Nutch proporciona una alternativa transparent als motors de cerca comercials. Només els resultats de cerca obtinguts a partir d'un sistema fet amb codi obert es poden considerar realment fiables i no esbiaxats. Tots els grans cercadors comercials tenen fórmules de rànquing propietàries, i no explicaran mai perquè una pàgina en particular surt en una determinada posició del rànquing. A més, alguns cercadors determinien quins llocs Web indexar en funció de pagaments i no pas en funció dels mèrits intrínsecs del lloc Web. Nutch, per la seva banda, no té res a amagar ni cap motiu per prioritzar esbiaxadament els seus resultats o el seu crawler, i només busca proporcionar a cada usuari els millors resultats de cerca possibles.</p>
+
+<p>L'objectiu de Nutch és permetre a qualsevol persona muntar un cercador Web de primera classe de forma barata i efectiva. Per aconseguir-ho, el programari Nutch ha de capaç de:</p>
+<ul>
+	<li>Recollir diversos milers de mil·lions de pàgines Web mensualment.</li>
+	<li>Mantenir un índex d'aquestes pàgines.</li>
+	<li>Cercar en aquest índex fins a 1000 vegades per segon.</li>
+	<li>Proporcionar resultats de cerca d'alta qualitat.</li>
+	<li>Operar amb un cost mínim.</li>
+</ul>
+
+<p>Aquesta proposta és sens dubte, un repte. Si creus en els mèrits d'aquest projecte, si us plau, ajuda-n's, tant com a <a href="developers.html">desenvolupador</a> o amb una <a href="../en/donate.html">donació</a>
+.</p>
+
+</body>
+</page>
+

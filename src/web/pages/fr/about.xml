@@ -1,0 +1,42 @@
+<page>
+
+<title>A propos de Nutch</title>
+
+<body>
+
+<p>Le projet Nutch a pour but le développement d'un moteur de
+recherche open source pour le web.</p>
+
+<p>Bien que les moteurs de recherche soient indispensables pour naviguer sur Internet, 
+ leur nombre est en diminution. Ce qui aujourd'hui est un oligopole pourrait
+ se changer rapidement en monopole, où une seule entreprise contrôlerait presque
+ toute la recherche sur le web pour son profit commercial. Cela ne serait pas bon pour 
+ les utilisateurs d'Internet.</p>
+  
+<p>Nutch constitue une alternative transparente aux moteurs de recherche commerciaux.
+  Seuls les résultats d'un système de recherche open source peuvent être garantis comme n'étant pas
+  faussés (ou du moins le biais serait publique). Tous les principaux moteurs de recherche 
+  ont des formules de classement propriétaires et n'expliqueront jamais pourquoi telle 
+  ou telle page a été classée d'une certaine façon. De plus, certains moteurs de recherche
+  choisissent les sites à indexer en échange d'une rémunération plus que sur la valeur 
+  intrinsèque du site. Nutch, lui, n'a rien à cacher et n'a aucune raison de fausser  
+  ses résultats ou son crawling si ce n'est pour donner à chaque utilisateur les meilleurs 
+  résultats possibles.</p>
+
+<p>Nutch a pour but de permettre à quiconque de mettre en place un moteur de recherche web 
+facilement et à moindre frais. Ce n'est pas une mince affaire. Pour y parvenir, le logiciel Nutch doit
+ être capable de :</p>
+
+<ul>
+  <li>récupérer plusieurs milliards de pages par mois</li>
+  <li>maintenir un index de ces pages</li>
+  <li>faire des recherches sur cet index jusqu'à un millier de fois par seconde</li>
+  <li>offrir des résultats de très haute qualité</li>
+  <li>fonctionner à moindre coût</li>
+</ul>
+
+<p>C'est un défi de taille.  Si vous croyez dans les mérites de ce projet, merci d'y contribuer en 
+tant que <a href="../en/developers.html">développeur</a> ou bien en <a href="../en/donate.html">faisant un don</a>.
+</p>
+</body>
+</page>

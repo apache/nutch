@@ -1,0 +1,234 @@
+<page>
+
+<title>tutorial</title>
+
+<body>
+
+<h3>Requirements</h3>
+<ol>
+  <li>Java 1.4.x, either from <a
+ href="http://java.sun.com/j2se/downloads.html">Sun</a> or <a
+ href="http://www-106.ibm.com/developerworks/java/jdk/">IBM</a> on
+ Linux is preferred.  Set <code>NUTCH_JAVA_HOME</code> to the root
+ of your JVM installation.
+  </li>
+  <li>Apache's <a href="http://jakarta.apache.org/tomcat/">Tomcat</a>
+4.x.</li>
+  <li>On Win32, <a href="http://www.cygwin.com/">cygwin</a>, for
+shell support.  (If you plan to use CVS on Win32, be sure to select the cvs and
+openssh packages when you install, in the "Devel" and "Net"
+categories, respectively.)</li>
+  <li>Up to a gigabyte of free disk space, a high-speed connection, and
+an hour or so.
+  </li>
+</ol>
+<h3>Getting Started</h3> <p>First, you need to get a copy of the Nutch
+code.  You can download a release from <a
+href="http://www.nutch.org/release/">http://www.nutch.org/release/</a>.
+Unpack the release and connect to its top-level directory.  Or, check
+out the latest source code from <a
+href="http://sourceforge.net/cvs/?group_id=59548">CVS</a> and build it
+with <a href="http://ant.apache.org/">Ant</a>.</p>
+
+<p>Try the following command:</p>
+<pre style="margin-left: 40px;">bin/nutch</pre>
+This will display the documentation for the Nutch command script.
+
+<p>Now we're ready to crawl.  There are two approaches to crawling:
+<ol>
+<li>Intranet crawling, with the <code>crawl</code> command.</li>
+<li>Whole-web crawling, with much greater control, using the lower
+level <code>inject</code>, <code>generate</code>, <code>fetch</code>
+and <code>updatedb</code> commands.</li>
+</ol>
+</p>
+
+<h3>Intranet Crawling</h3>
+
+<p>Intranet crawling is more appropriate when you intend to crawl up to
+around one million pages on a handful of web servers.</p>
+
+<h4>Intranet: Configuration</h4>
+
+To configure things for intranet crawling you must:
+
+<ol>
+
+<li>Create a flat file of root urls.  For example, to crawl the
+<code>nutch.org</code> site you might start with a file named
+<code>urls</code> containing just the Nutch home page.  All other
+Nutch pages should be reachable from this page.  The <code>urls</code>
+file would thus look like:
+<pre>
+http://www.nutch.org/
+</pre>
+</li>
+
+<li>Edit the file <code>conf/crawl-urlfilter.txt</code> and replace
+<code>MY.DOMAIN.NAME</code> with the name of the domain you wish to
+crawl.  For example, if you wished to limit the crawl to the
+<code>nutch.org</code> domain, the line should read:
+<pre>
++^http://([a-z0-9]*\.)*nutch.org/
+</pre>
+This will include any url in the domain <code>nutch.org</code>.
+</li>
+
+</ol>
+
+<h4>Intranet: Running the Crawl</h4>
+
+Once things are configured, running the crawl is easy.  Just use the
+crawl command.  Its options include:
+
+<ul>
+<li><code>-dir</code> <i>dir</i> names the directory to put the crawl in.</li>
+<li><code>-depth</code> <i>depth</i> indicates the link depth from the root
+page that should be crawled.</li>
+<li><code>-delay</code> <i>delay</i> determines the number of seconds
+between accesses to each host.</li>
+<li><code>-threads</code> <i>threads</i> determines the number of
+threads that will fetch in parallel.</li>
+</ul>
+
+For example, a typical call might be:
+
+<pre>
+bin/nutch crawl urls -dir crawl.test -depth 3 >&amp; crawl.log
+</pre>
+
+Typically one starts testing one's configuration by crawling at low
+depths, and watching the output to check that desired pages are found.
+Once one is more confident of the configuration, then an appropriate
+depth for a full crawl is around 10.
+
+<p>Once crawling has completed, one can skip to the Searching section
+below.</p>
+
+<h3>Whole-web Crawling</h3>
+
+Whole-web crawling is designed to handle very large crawls which may
+take weeks to complete, running on multiple machines.
+
+<h4>Whole-web: Concepts</h4>
+Nutch data is of two types:
+<ol>
+  <li>The web database.  This contains information about every
+page known to Nutch, and about links between those pages.</li>
+  <li>A set of segments.  Each segment is a set of pages that are
+fetched and indexed as a unit.  Segment data consists of the
+following types:</li>
+  <ul>
+    <li>a <i>fetchlist</i> is a file
+that names a set of pages to be fetched</li>
+    <li>the<i> fetcher output</i> is a
+set of files containing the fetched pages</li>
+    <li>the <i>index </i>is a
+Lucene-format index of the fetcher output.</li>
+  </ul>
+</ol>
+In the following examples we will keep our web database in a directory
+named <tt>db</tt> and our segments
+in a directory named <tt>segments</tt>:
+<pre style="margin-left: 40px;">mkdir db
+mkdir segments</pre>
+
+<h4>Whole-web: Boostrapping the Web Database</h4>
+The admin tool is used to create a new, empty database:
+<pre style="margin-left: 40px;">bin/nutch admin db -create</pre>
+The <i>injector</i> adds urls into
+the database.  Let's inject URLs from the <a
+ href="http://dmoz.org/">DMOZ</a> Open Directory. First we must download
+and uncompress the file listing all of the DMOZ pages.  (This is a
+200+Mb file, so this will take a few minutes.)
+<pre style="margin-left: 40px;">wget http://rdf.dmoz.org/rdf/content.rdf.u8.gz
+gunzip content.rdf.u8.gz</pre>
+Next we inject a random subset of these pages into the web database.
+ (We use a random subset so that everyone who runs this tutorial
+doesn't hammer the same sites.)  DMOZ contains around three million
+URLs.  We inject one out of every 3000, so that we end up with
+around 1000 URLs:
+<pre style="margin-left: 40px;">bin/nutch inject db -dmozfile content.rdf.u8 -subset 3000</pre>
+This also takes a few minutes, as it must parse the full file.
+
+<p>Now we have a web database with around 1000 as-yet unfetched URLs in it.</p>
+
+<h4>Whole-web: Fetching</h4>
+To fetch, we first generate a fetchlist from the database:
+<pre style="margin-left: 40px;">bin/nutch generate db segments
+</pre>
+This generates a fetchlist for all of the pages due to be fetched.
+ The fetchlist is placed in a newly created segment directory.
+ The segment directory is named by the time it's created.  We
+save the name of this segment in the shell variable <tt>>s1</tt>:
+<pre style="margin-left: 40px;">s1=`ls -d segments/2* | tail -1`
+echo $s1
+</pre>
+Now we run the fetcher on this segment with:
+<pre style="margin-left: 40px;">bin/nutch fetch $s1</pre>
+When this is complete, we update the database with the results of the
+fetch:
+<pre style="margin-left: 40px;">bin/nutch updatedb db $s1</pre>
+Now the database has entries for all of the pages referenced by the
+initial set.
+
+<p>Next we run five iterations of link analysis on the database in order
+to prioritize which pages to next fetch:</p>
+<pre style="margin-left: 40px;">bin/nutch analyze db 5
+</pre>
+Now we fetch a new segment with the top-scoring 1000 pages:
+<pre style="margin-left: 40px;">bin/nutch generate db segments -topN 1000
+s2=`ls -d segments/2* | tail -1`
+echo $s2
+
+bin/nutch fetch $s2
+bin/nutch updatedb db $s2
+bin/nutch analyze db 2
+</pre>
+Let's fetch one more round:
+<pre style="margin-left: 40px;">
+bin/nutch generate db segments -topN 1000
+s3=`ls -d segments/2* | tail -1`
+echo $s3
+
+bin/nutch fetch $s3
+bin/nutch updatedb db $s3
+bin/nutch analyze db 2</pre>
+By this point we've fetched a few thousand pages.  Let's index
+them!
+
+<h4>Whole-web: Indexing</h4>
+To index each segment we use the <tt>index</tt>
+command, as follows:
+<pre style="margin-left: 40px;">bin/nutch index $s1
+bin/nutch index $s2
+bin/nutch index $s3</pre>
+Then, before we can search a set of segments, we need to delete
+duplicate pages.  This is done with:
+<pre style="margin-left: 40px;">bin/nutch dedup segments dedup.tmp</pre>
+Now we're ready to search!
+
+<h3>Searching</h3>
+
+<p>To search you need to put the nutch war file into your servlet
+container.  (If instead of downloading a Nutch release you checked the
+sources out of CVS, then you'll first need to build the war file, with
+the command <tt>ant war</tt>.)</p>
+
+Assuming you've unpacked Tomcat as ~/local/tomcat, then the Nutch war
+file may be installed with the commands:
+<pre style="margin-left: 40px;">rm -rf ~/local/tomcat/webapps/ROOT*
+cp nutch*.war ~/local/tomcat/webapps/ROOT.war
+</pre>
+The webapp finds its indexes in <tt>./segments</tt>,
+relative to where you start Tomcat, so, if you've done intranet
+crawling, connect to your crawl directory, or, if you've done
+whole-web crawling, don't change
+directories, and give the command:
+<pre style="margin-left: 40px;">~/local/tomcat/bin/catalina.sh start
+</pre>
+Then visit <a href="http://localhost:8080/">http://localhost:8080/</a>
+and have fun!
+
+</body>
+</page>

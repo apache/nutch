@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<page>
+
+<title>Informació per a desenvolupadors</title>
+
+<menu>
+ <item><a href="http://www.nutch.org/cgi-bin/twiki/view/Main/Nutch">Wiki</a></item>
+ <item><a href="http://sourceforge.net/mail/?group_id=59548">Mailing Lists</a></item> 
+ <item><a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/nutch/nutch/">CVS</a></item>
+ <item><a href="../en/tutorial.html">Tutorial</a></item>
+ <item><a href="../en/i18n.html">i18n</a></item>
+ <item><a href="http://www.nutch.org/release/nightly/">Download</a></item>
+ <item><a href="../api/index.html">Javadoc</a></item>
+ <item><a href="http://sourceforge.net/tracker/?atid=491356&amp;group_id=59548&amp;func=browse">Bugs</a></item>
+ <item><a href="../en/policies.html">Policies</a></item>
+ <item><a href="../en/bot.html">Webmasters</a></item>
+</menu>
+
+<body>
+
+<h3>Com contribuir</h3>
+
+<p>Les contribucions estan basades en mèrits. Els altres desenvolupadors han de veure les
+contribucions per evaluar-les, suggerir millores i integrar-les al codi base.</p>
+
+<p>Qui vulgui contribuir ha de seguir les següents pases:</p>
+
+<ol>
+  <li>Comprovar a la llista de ditribució de correu 'dev@nutch.org' si algú ja està treballant en el que tu estas interessat. Si es així, potser t'interessaria contactar amb aquesta persona per veure fins a quin punt ha arribat i com està el tema.</li>
+
+  <li> Si sembla que no estas duplicant esforços i feina, envia un petit missatge anunciant el que t'agradaria desenvolupar. Si, en un futur, algú vol contribuir amb nou codi, podrá veure el teu anunci durant l'etapa (1) d'abans.</li>
+
+  <li> Un cop tinguis codi útil, envia les diferències (un diff) a la llista de 'dev@nutch.org'. Podrem examinar la teva aportació i evaluar-ne la qualitat, rellevància, etc. Els detalls sobre els formats, documentació i les convencions en el codi són molt importants.</li>
+
+  <li> Esperem que tothom provi de proporcionar-te una bona resposta i un anàlisi de la teva feina, però, honestament, a tothom sempre li falta temps. Facilita la tasca d'examinar la teva feina asseguran-te que sigui:
+   <ul>
+    <li>d'alta qualitat</li>
+    <li>fàcil de llegir</li>
+    <li>fàcil d'integrar</li>
+    <li>rellevant als propòsits declarats de Nutch.</li>
+   </ul>
+  </li>
+
+  <li> Si tot sembla correcte, ho acceptarem dins del codi base i formarà part de Nutch.</li>
+
+  <li> Recull glòria i bon karma.  Torna a l'etapa 1.</li>
+</ol>
+
+<p>Si us plau, llegeix també la pàgina de <a href="../en/policies.html">polítiques</a> pels desenvolupadors.</p>
+
+<h3>Demanda de contribucions</h3>
+
+Nutch necessita contribucions en les següents àrees (entre d'altres). Si creus que pots donar un cop de mà amb aquestes, o en qualsevol altre, si us plau, envia un missatge a <a
+href="mailto:dev@nutch.org">dev@nutch.org</a>.
+
+<h4>Internacionalizació</h4>
+
+<p>Nutch preten ser internacional. En aquest moment, creiem que la nostra indexació funciona correctament per les llengües occidentals. Malgrat tot necessitem:
+<ul>
+<li>Traduccions de les pàgines bàsiques de Nutch (com a mínim <tt>search.xml</tt>,
+<tt>help.xml</tt> i <tt>about.xml</tt>).</li>
+<li>Feines de desenvolupament i test en temes de suport a llengües asiàtiques.</li>
+</ul>
+Més informació sobre com internacioanlitzar es pot trobar a la pàgina <a
+href="../en/i18n.html">i18n</a>.
+</p>
+
+
+<h4>Ajust dels paràmetres de cerca</h4>
+
+<p>Nutch encara no s'ha ajustat per maximitzar-ne la qualitat. Existeixen deu o vint punts on es pot jugar per ajustar la fòrmula de rànquing. Hem començat a desenvolupar programari que faci l'ajust automàticament, però el codi actual només conté algunes idees. Amb una mica d'ajust hauriem de ser capaços de reproduir els bons resultats que s'obtenen amb molts dels cercadors comercials més importants.</p>
+
+<h4>Tipus de contingut alternatius</h4>
+
+<p>Ara com ara, Nutch només suporta contingut HTML accessible per HTTP. Seria fantàstic afegir suport per arxius PDF, cerca d'imatges, etc.</p>
+
+</body>
+</page>

@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+
+<!-- map/reduce configuration file -->
+
+<nutch-conf>
+
+<property>
+  <name>mapred.input.dir</name>
+  <value>sample</value>
+</property>
+
+<property>
+  <name>mapred.output.dir</name>
+  <value>freqs</value>
+</property>
+
+<property>
+  <name>mapred.mapper.class</name>
+  <value>org.apache.nutch.mapReduce.lib.TokenCountMapper</value>
+</property>
+
+<property>
+  <name>mapred.reducer.class</name>
+  <value>org.apache.nutch.mapReduce.lib.LongSumReducer</value>
+</property>
+
+<property>
+  <name>mapred.output.key.class</name>
+  <value>org.apache.nutch.io.UTF8</value>
+</property>
+
+<property>
+  <name>mapred.output.value.class</name>
+  <value>org.apache.nutch.io.LongWritable</value>
+</property>
+
+</nutch-conf>

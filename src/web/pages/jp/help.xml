@@ -1,0 +1,30 @@
+<page>
+
+<title>検索のヘルプ</title>
+
+<body>
+
+<h3>検索</h3>
+Nutch で検索するために 2〜3語を入力してください。
+<ul>
+  <li>検索結果は検索語の <span
+ style="font-style: italic;">全て</span> を含むページだけです。</li>
+  <li>例えば繋がって表記されなければいけない単語の場合は引用符で囲ってください。例：<span style="font-weight: bold;">"New Zealand"</span>.</li>
+  <li>単語の間のピリオドは、同じフレーズを示します。<span style="font-weight: bold;">http://www.nutch.org/</span> を検索することと、<span style="font-weight: bold;">"http www nutch org"</span> を検索するのは同じことです。</li>
+  <li>検索語は、大文字と小文字の区別ができません。 <span
+ style="font-weight: bold;">NuTcH</span> を検索することと <span
+ style="font-weight: bold;">nUtCh</span> を検索するのは同じことです。</li>
+  <li>単語の前にマイナス記号をつけることによって、その単語が含まれるページを検索対象から外すことができます。例：<span style="font-weight: bold;">football
+-nfl</span> サッカー関連のページを検索しますが、NFL という単語を使っていないページを探します。</li>
+  <li>以上です!</li>
+</ul>
+<h3>検索結果</h3>
+各検索結果のページには、以下のリンクが加えられます:
+<ul>
+  <li>(<span style="color: rgb(51, 51, 255);">cached</span>) Nutch が保存しているキャッシュの表示</li>
+  <li>(<span style="color: rgb(51, 51, 255);">explain</span>) このページがこの順位を得た理由の説明</li>
+  <li>(<span style="color: rgb(51, 51, 255);">anchors</span>) このページへリンクしているページ</li>
+</ul>
+
+</body>
+</page>

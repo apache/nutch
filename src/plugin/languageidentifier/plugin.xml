@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="language-identifier"
+   name="Language Identification Parser/Filter"
+   version="1.0.0"
+   provider-name="nutch.org">
+
+   <extension-point
+      id="org.apache.nutch.parse.HtmlParseFilter"
+      name="HTML Parse Filter"/>
+
+   <extension-point
+      id="org.apache.nutch.indexer.IndexingFilter"
+      name="Nutch Indexing Filter"/>
+
+   <extension-point
+      id="org.apache.nutch.searcher.QueryFilter"
+      name="Nutch Query Filter"/>
+
+    <runtime>
+      <library name="language-identifier.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <extension id="org.apache.nutch.analysis.lang.LanguageParser"
+              name="Nutch language Parser"
+              point="org.apache.nutch.parse.HtmlParseFilter">
+      <implementation id="LanguageParser"
+                      class="org.apache.nutch.analysis.lang.HTMLLanguageParser"/>
+   </extension>
+   
+   <extension id="org.apache.nutch.analysis.lang"
+              name="Nutch language identifier filter"
+              point="org.apache.nutch.indexer.IndexingFilter">
+      <implementation id="LanguageIdentifier"
+                      class="org.apache.nutch.analysis.lang.LanguageIdentifier"/>
+   </extension>
+
+
+   <extension id="org.apache.nutch.analysis.lang.LanguageQueryFilter"
+              name="Nutch Language Query Filter"
+              point="org.apache.nutch.searcher.QueryFilter">
+      <implementation id="LanguageQueryFilter"
+                      class="org.apache.nutch.analysis.lang.LanguageQueryFilter"
+                      raw-fields="lang"/>
+   </extension>
+
+
+</plugin>
+

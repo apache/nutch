@@ -1,0 +1,186 @@
+<page>
+
+<title>Tłumaczenia (i18n)</title>
+
+<body>
+
+<p>Strony projektu Nutch, włącznie ze stronami wyszukiwarki, są łatwe do
+przetłumaczenia na inny język.</p>
+
+<p>Dla każdego języka istnieją trzy rodzaje informacji do przetłumaczenia:</p>
+
+<ol>
+
+<li><b>nagłówek strony</b>: Jest to lista odnośników umieszczana na górze
+każdej strony.</li>
+
+<li><b>stała zawartość strony</b>: Stanowi największą część stron projektu Nutch,
+i służy również jako dokumentacja, tak jak np. ta strona.</li>
+
+<li><b>zmienny tekst na stronie</b>: Używany przy tworzeniu listy wyników
+wyszukiwania.</li>
+
+</ol>
+
+<p>Każda z tych rzeczy opisana jest szczegółowo poniżej.</p>
+
+<h3>Wprowadzenie</h3>
+
+<p>Ogólnie rzecz biorąc, nie wszystkie części dokumentacji Nutch muszą zostać przetłumaczone.
+Najważniejsze rzeczy do przetłumaczenia to:</p>
+
+<ol>
+<li>nagłówek strony</li>
+<li>strona "about" / "o projekcie" (<tt>src/web/pages/<i>lang</i>/about.xml</tt>)</li>
+<li>strona "search" / "szukanie" (<tt>src/web/pages/<i>lang</i>/search.xml</tt>)</li>
+<li>strona "help" / "pomoc" (<tt>src/web/pages/<i>lang</i>/help.xml</tt>)</li>
+<li>tekst używany przy tworzeniu listy wyników (<tt>src/web/locale/org/nutch/jsp/search_<i>język</i>.properties</tt>)</li>
+</ol>
+
+<p>Jeśli chciałbyś dostarczyć tłumaczenie, po prostu wyślij tych pięć plików na
+listę <a
+href="mailto:dev@nutch.org">dev@nutch.org</a>
+jako załącznik.  Jeśli możesz przetłumaczyć więcej, też chętnie to przyjmiemy!
+Dla tych stron, których nie przetłumaczyłeś, użyj odnośników do ich wersji w
+jęz. angielskim. Weź inne tłumaczenia jako przykład jak to zrobić.</p>
+
+
+<h3>Nagłówek strony</h3>
+
+<p>Nagłówek stron Nutch umieszczany jest na górze każdej strony.</p>
+
+<p>Nagłówek ten znajduje się w pliku
+<tt>src/web/include/<i>język</i>/header.xml</tt> gdzie
+<i>język</i> jest to kod <a
+href="http://ftp.ics.uci.edu/pub/ietf/http/related/iso639.txt">IS0639</a>
+danego języka.</p>
+
+<p>Format pliku nagłówka jest następujący:</p>
+
+<pre>
+  &lt;header-menu&gt;
+    &lt;item&gt; ... &lt;/item&gt;
+    &lt;item&gt; ... &lt;/item&gt;
+  &lt;/header-menu&gt;
+</pre>
+
+<p>Każdy element "item" zawiera zazwyczaj odnośnik HTML, po jednym na
+każdą stronę górnego poziomu danego tłumaczenia.</p>
+
+<p>Na przykład plik nagłówka dla tłumaczenia w jęz. angielskim znajduje się w <a
+href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/nutch/nutch/src/web/include/en/header.xml?rev=HEAD"><tt>src/web/include/en/header.xml</tt></a>.</p>
+
+
+<h3>Stała Zawartość Strony</h3>
+
+<p>Stałe strony stanowią większą część zawartości stron Nutch, i są również
+użyte jako dokumentacja projektu. Są to pliki HTML wygenerowane z plików XML
+przy pomocy transformacji XSL. W trakcie tego procesu dołączany jest standardowy
+nagłówek i stopka strony, oraz opcjonalnie menu stron o poziom niżej.</p>
+
+<p>Stała zawartość znajduje się w plikach 
+<tt>src/web/pages/<i>język</i>/<i>strona</i>.xml</tt>, gdzie
+<i>język</i> jest to kod IS0639 języka, jak powyżej, a <i>strona</i>
+określa nazwę generowanej strony:
+<tt>docs/<i>page</i>.html</tt>.</p>
+
+<p>Format pliku XML zawierającego treść strony jest następujący:</p>
+
+<pre>
+  &lt;page&gt;
+    &lt;title&gt; ... &lt;/title&gt;
+    &lt;menu&gt;
+      &lt;item&gt; ... &lt;/item&gt;
+      &lt;item&gt; ... &lt;/item&gt;
+    &lt;/menu&gt;
+    &lt;body&gt; ... &lt;/body&gt;
+  &lt;/page&gt;
+</pre>
+
+Element <tt>&lt;menu&gt;</tt> jest opcjonalny.
+
+<p>Zwróć uwagę na to, ze jeśli używasz kodowania znaków innego niż UTF-8
+(standardowe dla plików XML), to musisz to zadeklarować. Tak samo jeśli
+używasz encji HTML musisz je również zadeklarować. Weź na wzór istniejące już
+tłumaczenia.</p>
+
+<p>Na przykład strona "about" dla jęz. angielskiego znajduje się w pliku <a
+href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/nutch/nutch/src/web/pages/en/about.xml?rev=HEAD"><tt>src/web/pages/en/about.xml</tt></a>.</p>
+
+<h3>Zmienna Zawartość Stron</h3>
+
+<p>Do wyświetlenia wyników wyszukiwania, jak również paru innych dynamicznych stron
+(ranking, kopia, wyjaśnienie, itd.) używa się stron Java Server Pages (JSP).</p>
+
+<p>Posługują się one mechanizmem Javy <a
+href="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Locale.html">Locale</a>
+dla zapewnienia wielojęzyczności.  Dla każdej pary strona/język istnieje plik
+w formacie Java properties, zawierający przetłumaczony tekst danej strony.
+</p>
+
+<p>Pliki te znajdują się w
+<tt>src/web/locale/org/nutch/jsp/<i>strona</i>_<i>język</i>.xml</tt>
+gdzie <i>strona</i> jest nazwą strony JSP w <a
+href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/nutch/nutch/src/web/jsp/"><tt>src/web/jsp/</tt></a>
+a <i>język</i> jest to kod IS0639 języka, jak powyżej.</p>
+
+<p>Na przykład tekst w jęz. angielskim dla strony wyszukiwania "search" znajduje się w <a
+href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/nutch/nutch/src/web/locale/org/nutch/jsp/search_en.properties?rev=HEAD"><tt>src/web/locale/org/nutch/jsp/search_en.properties</tt></a>.
+ Jego zawartość to:</p>
+
+<pre>
+  title = search results
+  search = Search
+  hits = Hits &lt;b&gt;{0}-{1}&lt;/b&gt; (out of {2} total matching documents):
+  cached = cached
+  explain = explain
+  anchors = anchors
+  next = Next
+</pre>
+
+<p>Każdy wiersz odpowiada fragmentowi tekstu ze strony z wynikami. Wiersz "hits"
+używa składni opisanej w dokumentacji klasy <a
+href="http://java.sun.com/j2se/1.4.2/docs/api/java/text/MessageFormat.html">MessageFormat</a>.</p>
+
+<p>Zwróć uwagę na to, że te pliki <i>property</i> muszą używać kodowania ISO 8859-1
+oraz zakodowanych znaków Unicode. Jeśli wpisałeś je przy użyciu innego kodowania,
+to musisz użyć programu <tt>native2ascii</tt> żeby dostosować ich kodowanie.</p>
+
+<h3>Generowanie Stron Statycznych</h3>
+
+<p>Jesli chcesz wygenerować statyczne strony, musisz mieć zainstalowane pakiety <a
+ href="http://java.sun.com/j2se/downloads.html">Java</a>, <a
+ href="http://ant.apache.org/">Ant</a> oraz źródła Nutch. Do zainstalowania
+ najnowszej wersji oficjalnej Nutch możesz ściągnąć <a
+ href="http://www.nutch.org/release/nightly/">wersję z danego dnia</a>, lub
+ uzyskać ją za pomocą <a
+ href="http://sourceforge.net/cvs/?group_id=59548">CVS</a>.</p>
+
+<p>Następnie wydaj polecenie:</p>
+
+<pre>
+  ant generate-docs
+</pre>
+
+<i>Ta dokumentacja wymaga więcej szczegółów. Czy ktoś mógłby podać listę
+wszystkich kroków wymaganych na tym etapie?</i>
+
+<p>Kiedy już ten etap zadziała, spróbuj dodać katalogi i pliki z twoim
+tłumaczeniem nagłówka i niektórych stron statycznych.</p>
+
+<h3>Testowanie Stron Dynamicznych</h3>
+
+<p>Jeśli chcesz przetestować strony tworzone dynamicznie, musisz również mieć
+instalację serwera <a href="http://jakarta.apache.org/tomcat/">Tomcat</a>.</p>
+
+<p>Będziesz również potrzebować indeksu. Możesz ściągnąć <a
+href="http://sourceforge.net/project/showfiles.php?group_id=59548">próbkę</a>,
+lub też utworzyć własny indeks postępując według <a
+href="tutorial.html">podręcznika</a>.  Kiedy już będziesz miał indeks,
+postępuj według wskazówek w podręczniku dotyczących wyszukiwania.</p>
+
+<i>Ta dokumentacja wymaga więcej szczegółów. Czy ktoś mógłby podać listę
+wszystkich kroków wymaganych na tym etapie?</i>
+
+</body>
+</page>

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<project name="ontology" default="jar">
+
+  <import file="../build-plugin.xml"/>
+
+  <!-- for junit test -->
+  <mkdir dir="${build.test}/data"/>
+  <copy file="sample/time.owl" todir="${build.test}/data"/>
+
+</project>

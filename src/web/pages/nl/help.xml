@@ -1,0 +1,43 @@
+<page>
+
+<title>Help voor het zoeken</title>
+
+<body>
+
+<h3>Queries</h3>
+Type een paar woorden in om met Nuch te zoeken.
+<ul>
+  <li>Resultaten bevatten alleen pagina's die
+  <span style="font-style: italic;">alle</span> query woorden bevatten.</li>
+  <li>Gebruik quotes om woorden die achter elkaar moeten voorkomen, als een phrase,
+  b.v.  <span style="font-weight: bold;">"Nieuw Zeeland"</span>.</li>
+  <li>'Punktuering' tussen woorden (punten, komma's, dubbele punten ed.)
+  leidt ook tot het zoeken naar phrasen. Dus zoeken naar
+   <span style="font-weight: bold;">http://www.nutch.org/</span>
+    is hetzelfde als zoeken naar
+    <span style="font-weight: bold;">"http www nutch org"</span>.</li>
+  <li>Zoeken is niet kast-gevoelig, dus zoeken naar
+  <span style="font-weight: bold;">NuTcH</span>
+  is hetzelfde als zoeken naar
+  <span style="font-weight: bold;">nUtCh</span>.</li>
+  <li>U kunt een term in de resulterende pagina's voorkomen
+  door een min-streepje ervoor te zetten, b.v. zoeken naar
+<span style="font-weight: bold;">voetbal -knvb</span>
+zal pagina's vinden die over voetbal gaan, maar het woord "knvb" niet bevatten.
+</li>
+  <li>Dat is alles!</li>
+</ul>
+<h3>Resultaten</h3>
+Iedere gevonden pagina in de resultaten heeft de volgende links:
+<ul>
+  <li>(<span style="color: rgb(51, 51, 255);">opgeslagen</span>)
+  geeft de versie van de pagina weer die Nutch gedownload heeft.</li>
+  <li>(<span style="color: rgb(51, 51, 255);">uitleg</span>)
+  geeft een uitleg weer over hoe deze pagina scoorde.</li>
+  <li>(<span style="color: rgb(51, 51, 255);">verwijzers</span>)
+  laat een lijst zien van pagina's die naar deze pagina verwijzen.
+  </li>
+</ul>
+
+</body>
+</page>
