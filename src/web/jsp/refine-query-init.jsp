@@ -14,7 +14,7 @@ private static org.apache.nutch.ontology.Ontology ontology;
 
 static {
   try {
-    String urls = org.apache.nutch.util.NutchConf.get("extension.ontology.urls");
+    String urls = org.apache.nutch.util.NutchConf.get().get("extension.ontology.urls");
     ontology = org.apache.nutch.ontology.OntologyFactory.getOntology();
     if (urls==null || urls.trim().equals("")) {
       // ignored siliently
