@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+
+<!--
+Forrest site.xml
+
+This file contains an outline of the site's information content.  It is used to:
+- Generate the website menus (though these can be overridden - see docs)
+- Provide semantic, location-independent aliases for internal 'site:' URIs, eg
+<link href="site:changes"> links to changes.html (or ../changes.html if in
+  subdir).
+- Provide aliases for external URLs in the external-refs section.  Eg, <link
+  href="ext:cocoon"> links to http://xml.apache.org/cocoon/
+
+See http://forrest.apache.org/docs/linking.html for more info.
+-->
+
+<site label="Nutch" href="" xmlns="http://apache.org/forrest/linkmap/1.0">
+
+  <project label="Project">
+    <news        label="News"             href="index.html" />    
+    <about       label="About"            href="about.html" />    
+    <credits     label="Credits"          href="credits.html" />    
+  </project>
+
+  <docs label="Documentation">    
+    <faq         label="FAQ"              href="faq.html" />    
+    <wiki        label="Wiki"             href="ext:wiki" />    
+    <tutorial    label="Tutorial"         href="tutorial.html" />
+    <webmasters  label="Robot     "       href="bot.html" />
+    <apidocs     label="API Docs"         href="apidocs/index.html" />
+  </docs>
+
+  <resources label="Resources">
+    <download    label="Download"         href="download.html" />    
+    <contact     label="Mailing Lists"    href="mailing_lists.html" />
+    <issues      label="Issue Tracking"   href="issue_tracking.html" />
+    <vcs         label="Version Control"  href="version_control.html" />
+  </resources>
+
+  <projects label="Related Projects">
+    <lucene     label="Lucene"      href="ext:lucene" />
+  </projects>
+
+  <external-refs>
+    <incubator href="http://incubator.apache.org/" />
+    <wiki      href="http://www.nutch.org/cgi-bin/twiki/view/Main/Nutch" />
+    <lucene    href="http://jakarta.apache.org/lucene/" />
+  </external-refs>
+ 
+</site>

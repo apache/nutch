@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" 
+          "http://forrest.apache.org/dtd/document-v20.dtd">
+
+<document> 
+
+  <header> 
+    <title>About Nutch</title> 
+  </header> 
+
+  <body> 
+
+    <section>
+      <title>Overview</title>
+      <p>Nutch is open source web-search software.  It builds on <a
+      href="ext:lucene">Lucene</a>, adding web-specifics, such as a
+      crawler, a link-graph database, parsers for HTML and other
+      document formats, etc.</p>
+
+      <p>For more information about Nutch, please see the <a
+      href="ext:wiki">Nutch wiki.</a></p>
+
+    </section>
+
+    <section>
+      <title>Incubation Disclaimer</title>
+      <p>
+        The Nutch project is an effort undergoing incubation at the
+        Apache Software Foundation (ASF). Incubation is required of
+        all newly accepted projects until a further review indicates
+        that the infrastructure, communications, and decision making
+        process have stabilized in a manner consistent with other
+        successful ASF projects. While incubation status is not
+        necessarily a reflection of the completeness or stability of
+        the code, it does indicate that the project has yet to be
+        fully endorsed by the ASF.
+      </p>
+      <p>
+        The incubation proposal for Nutch is
+        <a href="http://wiki.apache.org/incubator/NutchProposal">here</a>.
+      </p>
+      <p>
+        The status of the Nutch incubation process is
+        <a href="http://incubator.apache.org/projects/nutch.html">here</a>.
+      </p>
+    </section>    
+
+  </body>
+
+</document>

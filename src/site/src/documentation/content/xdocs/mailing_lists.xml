@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" 
+          "http://forrest.apache.org/dtd/document-v20.dtd">
+
+<document>
+  
+  <header>
+    <title>Nutch Mailing Lists</title>
+  </header>
+  
+  <body>
+  
+    <section>
+      <title>Users</title>
+
+      <p>If you use Nutch, please subscribe to the Nutch user mailing list.</p>
+
+      <p>
+        The Nutch user mailing list is :
+        <a href="mailto:nutch-user@search.apache.org">nutch-user@apache.org</a>.
+      </p>      
+      <ul>
+        <li><a href="mailto:nutch-user-subscribe@search.apache.org">Subscribe to List</a></li>
+        <li><a href="mailto:nutch-user-unsubscribe@search.apache.org">Unsubscribe from List</a></li>
+        <li><a href="http://search.apache.org/mail/nutch-user/">View List Archive</a></li>
+      </ul>
+      <note>In order to post to the list, it is necessary to first subscribe to it.</note>
+    </section>
+  
+    <section>
+      <title>Developers</title>
+
+      <p>If you'd like to contribute to Nutch, please subscribe to the
+      Nutch developer mailing list.</p>
+
+      <p>
+        The Nutch developer mailing list is :
+        <a href="mailto:nutch-dev@search.apache.org">nutch-dev@apache.org</a>.
+      </p>      
+      <ul>
+        <li><a href="mailto:nutch-dev-subscribe@search.apache.org">Subscribe to List</a></li>
+        <li><a href="mailto:nutch-dev-unsubscribe@search.apache.org">Unsubscribe from List</a></li>
+        <li><a href="http://search.apache.org/mail/nutch-dev/">View List Archive</a></li>
+      </ul>
+      <note>In order to post to the list, it is necessary to first subscribe to it.</note>
+    </section>
+  
+    <section>
+      <title>Agents</title>
+
+      <p>If you use Nutch to perform extensive crawls of sites that
+      you do not control, please subscribe to the Nutch agent mailing
+      list.  This is where we encourage webmasters to post questions
+      about the Nutch crawler.</p>
+
+      <p>
+        The Nutch agent mailing list is :
+        <a href="mailto:nutch-agent@search.apache.org">nutch-agent@apache.org</a>.
+      </p>      
+      <ul>
+        <li><a href="mailto:nutch-agent-subscribe@search.apache.org">Subscribe to List</a></li>
+        <li><a href="mailto:nutch-agent-unsubscribe@search.apache.org">Unsubscribe from List</a></li>
+        <li><a href="http://search.apache.org/mail/nutch-agent/">View List Archive</a></li>
+      </ul>
+
+    </section>
+  
+    
+  </body>
+  
+</document>
