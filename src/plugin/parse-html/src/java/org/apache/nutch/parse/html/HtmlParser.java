@@ -21,8 +21,7 @@ import java.util.ArrayList;
 import java.util.logging.*;
 import java.net.URL;
 import java.net.MalformedURLException;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.regex.*;
 
 import org.cyberneko.html.parsers.*;
@@ -96,7 +95,7 @@ public class HtmlParser implements Parser {
     NutchConf.get().get("parser.character.encoding.default", "windows-1252");
 
   public Parse getParse(Content content) throws ParseException {
-    DOMFragmentParser parser = new DOMFragmentParser();
+    DOMParser parser = new DOMParser();
     
     // some plugins, e.g., creativecommons, need to examine html comments
     try {
@@ -124,9 +123,7 @@ public class HtmlParser implements Parser {
       throw new ParseException("Content-Type not text/html: " + contentType);
     
     // parse the content
-    HTMLDocumentImpl impl = new HTMLDocumentImpl();
-    impl.setErrorChecking(false);
-    DocumentFragment root = impl.createDocumentFragment();
+    DocumentFragment root;
     try {
       byte[] contentInOctets = content.getContent();
       InputSource input =
@@ -167,7 +164,13 @@ public class HtmlParser implements Parser {
         LOG.fine(base + ": falling back to " + defaultCharEncoding);
       }
 
-      parser.parse(input, root);
+      LOG.fine("Parsing...");
+      parser.parse(input);
+
+      // convert Document to DocumentFragment
+      Document doc = parser.getDocument();
+      root = doc.createDocumentFragment();
+      root.appendChild(doc.getDocumentElement());
     } catch (IOException e) {
       throw new ParseException(e);
     } catch (DOMException e) {
@@ -182,9 +185,11 @@ public class HtmlParser implements Parser {
     // check meta directives
     if (!robotsMeta.getNoIndex()) {               // okay to index
       StringBuffer sb = new StringBuffer();
+      LOG.fine("Getting text...");
       DOMContentUtils.getText(sb, root);          // extract text
       text = sb.toString();
       sb.setLength(0);
+      LOG.fine("Getting title...");
       DOMContentUtils.getTitle(sb, root);         // extract title
       title = sb.toString().trim();
     }
@@ -192,6 +197,7 @@ public class HtmlParser implements Parser {
     if (!robotsMeta.getNoFollow()) {              // okay to follow links
       ArrayList l = new ArrayList();              // extract outlinks
       URL baseTag = DOMContentUtils.getBase(root);
+      LOG.fine("Getting links...");
       DOMContentUtils.getOutlinks(baseTag!=null?baseTag:base, l, root);
       outlinks = (Outlink[])l.toArray(new Outlink[l.size()]);
       LOG.fine("found "+outlinks.length+" outlinks in "+content.getUrl());
@@ -209,5 +215,21 @@ public class HtmlParser implements Parser {
 
     // run filters on parse
     return HtmlParseFilters.filter(content, parse, root);
+  }
+
+  public static void main(String[] args) throws Exception {
+    LOG.setLevel(Level.FINE);
+    String name = args[0];
+    String url = "file:"+name;
+    File file = new File(name);
+    byte[] bytes = new byte[(int)file.length()];
+    DataInputStream in = new DataInputStream(new FileInputStream(file));
+    in.readFully(bytes);
+    Parse parse = new HtmlParser().getParse(new Content(url,url,
+                                                        bytes,"text/html",
+                                                        new Properties()));
+    System.out.println("text length: "+parse.getText().length());
+    System.out.println("links: "+parse.getData().getOutlinks().length);
+    
   }
 }
