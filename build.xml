@@ -185,6 +185,8 @@
     <ant dir="src/plugin" target="test" inheritAll="false"/>
   </target>
 
+  <target name="nightly" depends="test, tar">
+  </target>
 
   <!-- ================================================================== -->
   <!-- Documentation                                                      -->
