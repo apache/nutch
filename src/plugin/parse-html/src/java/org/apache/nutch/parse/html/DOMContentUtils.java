@@ -146,6 +146,9 @@ public class DOMContentUtils {
    * @return true if a title node was found, false otherwise
    */
   public static final boolean getTitle(StringBuffer sb, Node node) {
+    if ("body".equalsIgnoreCase(node.getNodeName())) // stop after HEAD
+      return false;
+
     if (node.getNodeType() == Node.ELEMENT_NODE) {
       if ("title".equalsIgnoreCase(node.getNodeName())) {
         getText(sb, node);
@@ -169,6 +172,11 @@ public class DOMContentUtils {
 
     // is this node a BASE tag?
     if (node.getNodeType() == Node.ELEMENT_NODE) {
+
+      if ("body".equalsIgnoreCase(node.getNodeName())) // stop after HEAD
+        return null;
+
+
       if ("base".equalsIgnoreCase(node.getNodeName())) {
         NamedNodeMap attrs = node.getAttributes();
         for (int i= 0; i < attrs.getLength(); i++ ) {
