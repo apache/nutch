@@ -31,7 +31,7 @@ See http://forrest.apache.org/docs/linking.html for more info.
   </docs>
 
   <resources label="Resources">
-    <download    label="Download"         href="download.html" />    
+<!--- <download    label="Download"         href="download.html" />    -->
     <contact     label="Mailing Lists"    href="mailing_lists.html" />
     <issues      label="Issue Tracking"   href="issue_tracking.html" />
     <vcs         label="Version Control"  href="version_control.html" />
@@ -43,7 +43,7 @@ See http://forrest.apache.org/docs/linking.html for more info.
 
   <external-refs>
     <incubator href="http://incubator.apache.org/" />
-    <wiki      href="http://www.nutch.org/cgi-bin/twiki/view/Main/Nutch" />
+    <wiki      href="http://wiki.apachi.org/nutch/" />
     <lucene    href="http://jakarta.apache.org/lucene/" />
   </external-refs>
  

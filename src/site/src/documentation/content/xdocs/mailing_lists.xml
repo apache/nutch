@@ -18,12 +18,12 @@
 
       <p>
         The Nutch user mailing list is :
-        <a href="mailto:nutch-user@search.apache.org">nutch-user@apache.org</a>.
+        <a href="mailto:nutch-user@incubator.apache.org">nutch-user@incubator.apache.org</a>.
       </p>      
       <ul>
-        <li><a href="mailto:nutch-user-subscribe@search.apache.org">Subscribe to List</a></li>
-        <li><a href="mailto:nutch-user-unsubscribe@search.apache.org">Unsubscribe from List</a></li>
-        <li><a href="http://search.apache.org/mail/nutch-user/">View List Archive</a></li>
+        <li><a href="mailto:nutch-user-subscribe@incubator.apache.org">Subscribe to List</a></li>
+        <li><a href="mailto:nutch-user-unsubscribe@incubator.apache.org">Unsubscribe from List</a></li>
+        <li><a href="http://incubator.apache.org/mail/nutch-user/">View List Archive</a></li>
       </ul>
       <note>In order to post to the list, it is necessary to first subscribe to it.</note>
     </section>
@@ -36,12 +36,12 @@
 
       <p>
         The Nutch developer mailing list is :
-        <a href="mailto:nutch-dev@search.apache.org">nutch-dev@apache.org</a>.
+        <a href="mailto:nutch-dev@incubator.apache.org">nutch-dev@incubator.apache.org</a>.
       </p>      
       <ul>
-        <li><a href="mailto:nutch-dev-subscribe@search.apache.org">Subscribe to List</a></li>
-        <li><a href="mailto:nutch-dev-unsubscribe@search.apache.org">Unsubscribe from List</a></li>
-        <li><a href="http://search.apache.org/mail/nutch-dev/">View List Archive</a></li>
+        <li><a href="mailto:nutch-dev-subscribe@incubator.apache.org">Subscribe to List</a></li>
+        <li><a href="mailto:nutch-dev-unsubscribe@incubator.apache.org">Unsubscribe from List</a></li>
+        <li><a href="http://incubator.apache.org/mail/nutch-dev/">View List Archive</a></li>
       </ul>
       <note>In order to post to the list, it is necessary to first subscribe to it.</note>
     </section>
@@ -56,12 +56,12 @@
 
       <p>
         The Nutch agent mailing list is :
-        <a href="mailto:nutch-agent@search.apache.org">nutch-agent@apache.org</a>.
+        <a href="mailto:nutch-agent@incubator.apache.org">nutch-agent@incubator.apache.org</a>.
       </p>      
       <ul>
-        <li><a href="mailto:nutch-agent-subscribe@search.apache.org">Subscribe to List</a></li>
-        <li><a href="mailto:nutch-agent-unsubscribe@search.apache.org">Unsubscribe from List</a></li>
-        <li><a href="http://search.apache.org/mail/nutch-agent/">View List Archive</a></li>
+        <li><a href="mailto:nutch-agent-subscribe@incubator.apache.org">Subscribe to List</a></li>
+        <li><a href="mailto:nutch-agent-unsubscribe@incubator.apache.org">Unsubscribe from List</a></li>
+        <li><a href="http://incubator.apache.org/mail/nutch-agent/">View List Archive</a></li>
       </ul>
 
     </section>
