@@ -30,6 +30,16 @@ Release 0.7
     redistribution by Apache.  Disabled compilation of plugins which
     require these libraries.  (Doug Cutting 20050301)
 
+ 6. Index host and title in separate fields.  Host was indexed
+    previously only as a part of the URL.  Title was indexed as an
+    anchor.  Now boosts for matching these fields may be adjusted
+    separately from boosts for matching anchors and url.  Also: move
+    site indexing to index-basic plugin to minimize the number of
+    times the URL needs to be parsed; and, stop using anchor analyzer
+    for anything but anchors.  (Piotr Kosiorowski via Doug Cutting
+    20050323)
+
+
 Release 0.6
 
  1. Added clustering-carrot2 plugin, together with introduction of clustering
