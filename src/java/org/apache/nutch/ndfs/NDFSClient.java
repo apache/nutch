@@ -623,7 +623,7 @@ public class NDFSClient implements FSConstants {
                 InetSocketAddress target = NDFS.createSocketAddr(nodes[0].getName().toString());
                 Socket s = null;
                 try {
-                    System.err.println("Trying to connect to " + target);
+                    //System.err.println("Trying to connect to " + target);
                     s = new Socket(target.getAddress(), target.getPort());
                 } catch (IOException ie) {
                     // Connection failed.  Let's wait a little bit and retry
