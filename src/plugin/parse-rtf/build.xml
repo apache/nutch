@@ -3,8 +3,43 @@
 <project name="parse-rtf" default="jar">
 
   <import file="../build-plugin.xml"/>
+   
+  <property name="rtf-src.jar" value="tmp/rtf_parser_src.jar"/>
+  <property name="rtf-parser.jar" value="lib/rtf-parser.jar"/>
+   
+  <available file="${rtf-src.jar}" property="rtf-src.jar.available"/>
+  <available file="${rtf-parser.jar}" property="rtf-parser.available"/>
+   
+  <target name="download-rtf-src" unless="rtf-src.jar.available">
+      <mkdir dir="tmp"/>
+    <get src="http://www.cobase.cs.ucla.edu/pub/javacc/rtf_parser_src.jar"
+              dest="tmp/rtf_parser_src.jar"/>    
+  </target>
+   
+  <target name="build-rtf-parser" 
+          depends="download-rtf-src"
+          unless="rtf-parser.available">
+      <unjar src="${rtf-src.jar}"
+            dest="tmp"/>
+      <javacc target="tmp/rtf/RTFParser.jj"
+        javacchome="${javacc.home}">
+      </javacc>
+   
+      <mkdir dir="tmp/classes"/>
+      <javac srcdir="tmp" destdir="tmp/classes"/>
+      <jar destfile="${rtf-parser.jar}" basedir="tmp/classes"/>
+        <delete>
+          <fileset dir="tmp">
+            <exclude name="*.jar"/>
+          </fileset>
+        </delete>
+  </target>
+   
+  <target name="init-plugin" depends="build-rtf-parser">
 
-  <!-- for junit test -->
-  <mkdir dir="${build.test}/data"/>
-  <copy file="sample/test.rtf" todir="${build.test}/data"/>
+      <!-- for junit test -->
+      <mkdir dir="${build.test}/data"/>
+      <copy file="sample/test.rtf" todir="${build.test}/data"/>
+     
+  </target>
 </project>
