@@ -13,6 +13,8 @@
   Hit hit = new Hit(Integer.parseInt(request.getParameter("idx")),
                     Integer.parseInt(request.getParameter("id")), 0.0f, null);
   HitDetails details = bean.getDetails(hit);
+  String id = "idx=" + hit.getIndexNo() + "&id=" + hit.getIndexDocNo();
+
   String language =
     ResourceBundle.getBundle("org.nutch.jsp.cached", request.getLocale())
     .getLocale().getLanguage();
@@ -40,7 +42,10 @@
     else 
       content = new String(bean.getContent(details));
   }
-%><base href="<%=details.getValue("url")%>">
+%>
+<!--
+<base href="<%=details.getValue("url")%>">
+-->
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <%
   out.flush();
@@ -58,8 +63,17 @@
    FIXME: have to sanitize 'content' : e.g. removing unncessary part
         of head elememt
 -->
+<% if (contentType.startsWith("text/html")) {%>
+
 <% if (content != null && !content.equals("")) {%>
 <%= content %>
 <% } else { %>
 <i18n:message key="noContent"/>
+<% } %>
+
+<% } else { %>
+
+The cached content has mime type "<%=contentType%>",
+click this <a href="/servlet/cached?<%=id%>">link</a> to download it directly.
+
 <% } %>
