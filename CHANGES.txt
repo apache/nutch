@@ -39,6 +39,9 @@ Release 0.7
     for anything but anchors.  (Piotr Kosiorowski via Doug Cutting
     20050323)
 
+ 7. Add servlet Cached.java that serves cached Content of any mime type.
+    Slightly modified are web.xml and cached.jsp.
+    (John Xing, 20050401)
 
 Release 0.6
 
