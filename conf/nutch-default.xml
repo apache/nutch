@@ -547,6 +547,14 @@
   mime types mapping information</description>
 </property>
 
+<!-- ipc properties -->
+
+<property>
+  <name>ipc.client.timeout</name>
+  <value>10000</value>
+  <description>Defines the timeout for IPC calls in milliseconds. </description>
+</property>
+
 <!-- plugin properties -->
 
 <property>
