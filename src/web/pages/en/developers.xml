@@ -4,13 +4,13 @@
 
 <menu>
  <item><a href="http://www.nutch.org/cgi-bin/twiki/view/Main/Nutch">Wiki</a></item>
- <item><a href="http://sourceforge.net/mail/?group_id=59548">Mailing Lists</a></item> 
- <item><a href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/nutch/nutch/">CVS</a></item>
+ <item><a href="http://incubator.apache.org/nutch/mailing_lists.html">Mailing Lists</a></item> 
+ <item><a href="http://incubator.apache.org/nutch/version_control.html">Version Control</a></item>
  <item><a href="tutorial.html">Tutorial</a></item>
  <item><a href="i18n.html">i18n</a></item>
  <item><a href="http://www.nutch.org/release/">Download</a></item>
  <item><a href="../api/index.html">Javadoc</a></item>
- <item><a href="http://sourceforge.net/tracker/?atid=491356&amp;group_id=59548&amp;func=browse">Bugs</a></item>
+ <item><a href="http://incubator.apache.org/nutch/issue_tracking.html">Bugs</a></item>
  <item><a href="policies.html">Policies</a></item>
  <item><a href="bot.html">Webmasters</a></item>
 </menu>
