@@ -5,10 +5,8 @@
 <title>Over Nutch</title>
 
 <menu>
- <item><a href="../en/org.html">Organisatie</a></item>
- <item><a href="../en/credits.html">Credits</a></item>
- <item><a href="../en/press.html">Persberichten</a></item>
- <item><a href="../en/status.html">Status</a></item>
+ <item><a href="http://www.nutch.org/credits.html">Credits</a></item>
+ <item><a href="http://www.nutch.org/">Status</a></item>
 </menu>
 
 <body>
@@ -47,8 +45,8 @@ Dit vormt een aanzienlijke uitdaging. Om erin te slagen dient de Nutch software 
 
 <p>Dit voornemen vormt een uitdaging.
 Als je in het belang van dit project gelooft, werk er dan aan mee, als
-<a href="developers.html">ontwikkelaar</a> of als
-<a href="donate.html">donateur</a>.
+<a href="http://www.apache.org/dev/">ontwikkelaar</a> of als
+<a href="http://www.apache.org/foundation/contributing.html">donateur</a>.
 </p>
 
 </body>

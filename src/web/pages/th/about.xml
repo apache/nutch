@@ -3,10 +3,8 @@
 <title>about</title>
 
 <menu>
- <item><a href="../en/org.html">องค์กร</a></item>
- <item><a href="../en/credits.html">ผู้ร่วมงาน</a></item>
- <item><a href="../en/press.html">สื่อมวลชน</a></item>
- <item><a href="../en/status.html">สถานภาพ</a></item>
+ <item><a href="http://www.nutch.org/credits.html">ผู้ร่วมงาน</a></item>
+ <item><a href="http://www.nutch.org/">สถานภาพ</a></item>
 </menu>
 
 <body>
@@ -45,8 +43,8 @@
 
 <p>นี่เป็นเป้าหมายที่ท้าทาย ถ้าคุณเชื่อว่าโครงการนี้มีประโยชน์
 กรุณาให้ความร่วมมือโดยเป็น<a
-href="../en/developers.html">ผู้พัฒนา</a>หรือร่วม<a
-href="../en/donate.html">บริจาค</a>
+href="http://www.apache.org/dev/">ผู้พัฒนา</a>หรือร่วม<a
+href="http://www.apache.org/foundation/contributing.html">บริจาค</a>
 </p>
 
 </body>

@@ -1,11 +1,14 @@
-<page>
+<?xml version="1.0"?>
 
+<document>
+
+<header>
 <title>i18n</title>
+</header>
 
 <body>
 
-<p>The Nutch website, including the search pages, is easy to
-internationalize.</p>
+<p>The Nutch search pages are easy to internationalize.</p>
 
 <p>For each language, there are three kinds things which must be
 translated:</p>
@@ -15,20 +18,19 @@ translated:</p>
 <li><b>page header</b>: This is a list of anchors included at the top of
 every page.</li>
 
-<li><b>static page content</b>: This forms the bulk of the Nutch
-website, and also serves as downloadable documentation, like this page.</li>
+<li><b>static pages</b>: These include the "about" page, the "search"
+page and the "help" page.</li>
 
-<li><b>dynamic page text</b>: This is used when constructing search
-result pages.</li>
+<li><b>dynamic page text</b>: These are strings used when constructing
+search result pages.</li>
 
 </ol>
 
 <p>Each of the above is described in more detail below.</p>
 
-<h3>Getting Started</h3>
+<section><title>Getting Started</title>
 
-<p>In general, all of the Nutch documentation does not need to be
-translated.  The most important things to translate are:</p>
+<p>The things to translate are:</p>
 
 <ol>
 <li>the page header</li>
@@ -39,13 +41,12 @@ translated.  The most important things to translate are:</p>
 </ol>
 
 <p>If you'd like to provide a translation, simply post translations of
-these five files to <a
-href="mailto:dev@nutch.org">dev@nutch.org</a>
-as an attachment.  If you're able to translate more, we'd love that
-too!  For pages that you don't translate, provide links to the English
-version.  Look at the other translations for examples of this.</p>
+these five files to <a href="mailto:dev@nutch.org">dev@nutch.org</a>
+as an attachment.</p>
 
-<h3>Page Header</h3>
+</section>
+
+<section><title>Page Header</title>
 
 <p>The Nutch page header is included at the top of every page.</p>
 
@@ -69,10 +70,12 @@ top-level pages in the translation.</p>
 
 <p>For example, the header file for an English translation is filed
 as <a
-href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/nutch/nutch/src/web/include/en/header.xml?rev=HEAD"><tt>src/web/include/en/header.xml</tt></a>.</p>
+href="http://svn.apache.org/repos/asf/incubator/nutch/trunk/src/web/include/en/header.xml"><tt>src/web/include/en/header.xml</tt></a>.</p>
 
 
-<h3>Static Page Content</h3>
+</section>
+
+<section><title>Static Page Content</title>
 
 <p>Static pages compose most of the Nutch website, and are also used
 for project documentation.  These are HTML generated from XML files by
@@ -107,9 +110,11 @@ existing translations for examples of this.</p>
 
 <p>For example, the English language "about" page is filed
 as <a
-href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/nutch/nutch/src/web/pages/en/about.xml?rev=HEAD"><tt>src/web/pages/en/about.xml</tt></a>.</p>
+href="http://svn.apache.org/repos/asf/incubator/nutch/trunk/src/web/pages/en/about.xml"><tt>src/web/pages/en/about.xml</tt></a>.</p>
 
-<h3>Dynamic Page Content</h3>
+</section>
+
+<section><title>Dynamic Page Content</title>
 
 <p>Java Server Pages (JSP) is used to generate Nutch search results, and
 a few other dynamic pages (cached content, score explanations, etc.).</p>
@@ -123,12 +128,12 @@ page.</p>
 <p>These property files are filed as
 <tt>src/web/locale/org/nutch/jsp/<i>page</i>_<i>language</i>.xml</tt>
 where <i>page</i> is the name of the JSP page in <a
-href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/nutch/nutch/src/web/jsp/"><tt>src/web/jsp/</tt></a>
+href="http://svn.apache.org/repos/asf/incubator/nutch/trunk/src/web/jsp/"><tt>src/web/jsp/</tt></a>
 and <i>language</i> is the IS0639 language code, as above.</p>
 
 <p>For example, text for the English language search results page is filed
 as <a
-href="http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/nutch/nutch/src/web/locale/org/nutch/jsp/search_en.properties?rev=HEAD"><tt>src/web/locale/org/nutch/jsp/search_en.properties</tt></a>.
+href="http://svn.apache.org/repos/asf/incubator/nutch/trunk/src/web/locale/org/nutch/jsp/search_en.properties"><tt>src/web/locale/org/nutch/jsp/search_en.properties</tt></a>.
  This contains something like:</p>
 
 <pre>
@@ -150,7 +155,9 @@ unicode escapes.  If you author them in a different encoding, please
 use Java's <tt>native2ascii</tt> tool to convert them to this
 encoding.</p>
 
-<h3>Generating Static Pages</h3>
+</section>
+
+<section><title>Generating Static Pages</title>
 
 <p>To generate the static pages you must have <a
  href="http://java.sun.com/j2se/downloads.html">Java</a>, <a
@@ -158,7 +165,7 @@ encoding.</p>
  install Nutch, either download and unpack the latest <a
  href="http://www.nutch.org/release/nightly/">release</a>, or check it
  out from <a
- href="http://sourceforge.net/cvs/?group_id=59548">CVS</a>.</p>
+ href="version_control.html">Subversion</a>.</p>
 
 <p>Then give the command:</p>
 
@@ -173,19 +180,22 @@ please submit a list of the actual steps required here?</i>
 <p>Once this is working, try adding directories and files to make your
 own translation of the header and a few of the static pages.</p>
 
-<h3>Testing Dynamic Pages</h3>
+</section>
+
+<section><title>Testing Dynamic Pages</title>
 
 <p>To test the dynamic pages you must also have <a
 href="http://jakarta.apache.org/tomcat/">Tomcat</a> installed.</p>
 
-<p>An index is also required.  You can either download a <a
-href="http://sourceforge.net/project/showfiles.php?group_id=59548">sample
-index</a>, or collect your own by working through the <a
-href="tutorial.html">tutorial</a>.  Once you have an index, follow the
-steps outlined at the end of the tutorial for searching.</p>
+<p>An index is also required.  You can collect your own by working
+through the <a href="http://www.nutch.org/tutorial.html">tutorial</a>.
+Once you have an index, follow the steps outlined at the end of the
+tutorial for searching.</p>
 
 <i>This documentation needs more detail.  Could someone
 please submit a list of the actual steps required here?</i>
 
+</section>
+
 </body>
-</page>
+</document>

@@ -7,10 +7,8 @@
 <title>névjegy</title>
 
 <menu>
- <item><a href="../en/org.html">Szervezet</a></item>
- <item><a href="../en/credits.html">Rólunk</a></item>
- <item><a href="../en/press.html">Sajtó</a></item>
- <item><a href="../en/status.html">Státusz</a></item>
+ <item><a href="http://www.nutch.org/credits.html">Rólunk</a></item>
+ <item><a href="http://www.nutch.org/">Státusz</a></item>
 </menu>
 
 <body>
@@ -41,8 +39,8 @@ A sikerhez a Nutch-nak a következõknek kell megfelelnie:</p>
 </ul>
 
 <p>Ez egy felhívás. Ha a projekt felkeltette az érdeklõdéseset, kérlek segíts, 
- vagy mint <a href="../en/developers.html">fejlesztõ</a>, vagy mint
- <a href="../en/donate.html">támogató</a>
+ vagy mint <a href="http://www.apache.org/dev/">fejlesztõ</a>, vagy mint
+ <a href="http://www.apache.org/foundation/contributing.html">támogató</a>
 </p>
 
 </body>

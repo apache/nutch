@@ -27,6 +27,7 @@ See http://forrest.apache.org/docs/linking.html for more info.
     <wiki        label="Wiki"             href="ext:wiki" />    
     <tutorial    label="Tutorial"         href="tutorial.html" />
     <webmasters  label="Robot     "       href="bot.html" />
+    <i18n        label="i18n"             href="i18n.html" />
     <apidocs     label="API Docs"         href="apidocs/index.html" />
   </docs>
 

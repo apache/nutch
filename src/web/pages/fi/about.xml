@@ -3,10 +3,8 @@
 <title>projektista</title>
 
 <menu>
- <item><a href="../en/org.html">Organisaatio</a></item>
- <item><a href="../en/credits.html">Tekijät</a></item>
- <item><a href="../en/press.html">Julkisuus</a></item>
- <item><a href="../en/status.html">Projektin tila</a></item>
+ <item><a href="http://www.nutch.org/credits.html">Tekijät</a></item>
+ <item><a href="http://www.nutch.org/">Projektin tila</a></item>
 </menu>
 
 <body>
@@ -40,8 +38,8 @@ Nutchin täytyy pystyä:</p>
 </ul>
 
 <p>Ongelma on haastava. Jos uskot projektin mahdollisuuksiin voit auttaa joko sen
-<a href="../en/developers.html">kehittämisessä</a> tai <a
-href="../en/donate.html">lahjoittamalla sille varoja</a>.</p>
+<a href="http://www.apache.org/dev/">kehittämisessä</a> tai <a
+href="http://www.apache.org/foundation/contributing.html">lahjoittamalla sille varoja</a>.</p>
 
 </body>
 </page>

@@ -3,10 +3,8 @@
 <title>Nutchについて</title>
 
 <menu>
- <item><a href="../en/org.html">組織</a></item>
- <item><a href="../en/credits.html">協力者</a></item>
- <item><a href="../en/press.html">発表</a></item>
- <item><a href="../en/status.html">状態</a></item>
+ <item><a href="http://www.nutch.org/credits.html">協力者</a></item>
+ <item><a href="http://www.nutch.org/">状態</a></item>
 </menu>
 
 <body>
@@ -41,8 +39,8 @@ Nutch ソフトウェアが成功するためには以下の要件を満たし�
 
 <p>これはとても挑戦的な提案です。
 あなたが Nutch プロジェクトの価値を信じるならば、<a
-href="../en/developers.html">開発者</a>として、又は<a
-href="../en/donate.html">寄付</a>をしてこのプロジェクトを是非とも応援してください。
+href="http://www.apache.org/dev/">開発者</a>として、又は<a
+href="http://www.apache.org/foundation/contributing.html">寄付</a>をしてこのプロジェクトを是非とも応援してください。
 </p>
 
 </body>

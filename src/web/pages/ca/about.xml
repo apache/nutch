@@ -4,10 +4,8 @@
 	<title>Quan a</title>
 
 <menu>
- <item><a href="../en/org.html">Organization</a></item>
- <item><a href="../en/credits.html">Credits</a></item>
- <item><a href="../en/press.html">Press</a></item>
- <item><a href="../en/status.html">Status</a></item>
+ <item><a href="http://www.nutch.org/credits.html">Credits</a></item>
+ <item><a href="http://www.nutch.org/">Status</a></item>
 </menu>
 
 <body>
@@ -27,7 +25,7 @@
 	<li>Operar amb un cost mínim.</li>
 </ul>
 
-<p>Aquesta proposta és sens dubte, un repte. Si creus en els mèrits d'aquest projecte, si us plau, ajuda-n's, tant com a <a href="developers.html">desenvolupador</a> o amb una <a href="../en/donate.html">donació</a>
+<p>Aquesta proposta és sens dubte, un repte. Si creus en els mèrits d'aquest projecte, si us plau, ajuda-n's, tant com a <a href="http://www.apache.org/dev/">desenvolupador</a> o amb una <a href="http://www.apache.org/foundation/contributing.html">donació</a>
 .</p>
 
 </body>

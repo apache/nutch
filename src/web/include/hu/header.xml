@@ -3,8 +3,6 @@
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <header-menu>
- <item><a href="about.html">A Nutch-ról</a></item>
- <item><a href="../en/faq.html">GYIK</a></item>
- <item><a href="../en/developers.html">Fejlesztõk</a></item>
- <item><a href="../en/donate.html">Adomány</a></item>
+ <item><a href="http://www.nutch.org/about.html">A Nutch-ról</a></item>
+ <item><a href="http://www.nutch.org/faq.html">GYIK</a></item>
 </header-menu>

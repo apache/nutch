@@ -5,10 +5,8 @@
 <title>sobre</title>
 
 <menu>
- <item><a href="../en/org.html">Organização</a></item>
- <item><a href="../en/credits.html">Créditos</a></item>
- <item><a href="../en/press.html">Imprensa</a></item>
- <item><a href="../en/status.html">Status</a></item>
+ <item><a href="http://www.nutch.org/credits.html">Créditos</a></item>
+ <item><a href="http://www.nutch.org/">Status</a></item>
 </menu>
 
 <body>
@@ -51,8 +49,8 @@ software Nutch tem que ser capaz de:</p>
 
 <p>Esta é uma proósta desafiadora.  Se você acredita nos méritos desse
 projeto, por favor ajude, ou como um
-<a href="../en/developers.html">desenvolvedor</a> ou com uma
-<a href="../en/donate.html">doação</a>.</p>
+<a href="http://www.apache.org/dev/">desenvolvedor</a> ou com uma
+<a href="http://www.apache.org/foundation/contributing.html">doação</a>.</p>
 
 </body>
 </page>

@@ -7,10 +7,8 @@
 <title>&Uuml;ber</title>
 
 <menu>
- <item><a href="../en/org.html">Organisation</a></item>
- <item><a href="credits.html">Danksagungen</a></item>
- <item><a href="../en/press.html">Presse</a></item>
- <item><a href="status.html">Status</a></item>
+ <item><a href="http://www.nutch.org/credits.html">Danksagungen</a></item>
+ <item><a href="http://www.nutch.org/">Status</a></item>
 </menu>
 
 <body>
@@ -56,7 +54,7 @@ muss &quot;Nutch&quot; Folgendes leisten können:
 <p>
 Dieses Vorhaben ist eine grosse Herausforderung, und wenn Sie wie wir an die 
 Vorzüge eines solchen Projektes glauben, so bitten wir Sie uns zu unterstützen - 
-entweder als <a href="../en/developers.html">Entwickler</a> oder durch eine <a href="../en/donate.html">Spende</a>.
+entweder als <a href="http://www.apache.org/dev/">Entwickler</a> oder durch eine <a href="http://www.apache.org/foundation/contributing.html">Spende</a>.
 </p>
 
 </body>

@@ -3,10 +3,8 @@
 <title>O Projekcie</title>
 
 <menu>
- <item><a href="org.html">Organizacja</a></item>
- <item><a href="credits.html">Podziękowania</a></item>
- <item><a href="press.html">W prasie</a></item>
- <item><a href="status.html">Status</a></item>
+ <item><a href="http://www.nutch.org/credits.html">Podziękowania</a></item>
+ <item><a href="http://www.nutch.org/">Status</a></item>
 </menu>
 
 <body>
@@ -44,8 +42,8 @@ osiągnięcia sukcesu, oprogramowanie Nutch musi być w stanie:</p>
 
 <p>Takie cele są prawdziwym wyzwaniem. Jeśli jesteś przekonany o
 zaletach tego projektu, to możesz nam pomóc jako <a
-href="developers.html">deweloper</a> lub poprzez <a
-href="donate.html">darowizny</a>.
+href="http://www.apache.org/dev/">deweloper</a> lub poprzez <a
+href="http://www.apache.org/foundation/contributing.html">darowizny</a>.
 </p>
 
 </body>

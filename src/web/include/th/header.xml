@@ -1,6 +1,4 @@
 <header-menu>
- <item><a href="../th/about.html">เกี่ยวกับ</a></item>
- <item><a href="../en/faq.html">คำถามที่ถามบ่อย</a></item>
- <item><a href="../en/developers.html">นักพัฒนา</a></item>
- <item><a href="../en/donate.html">บริจาค</a></item>
+ <item><a href="http://www.nutch.org/about.html">เกี่ยวกับ</a></item>
+ <item><a href="http://www.nutch.org/faq.html">คำถามที่ถามบ่อย</a></item>
 </header-menu>
