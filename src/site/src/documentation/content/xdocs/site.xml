@@ -31,7 +31,7 @@ See http://forrest.apache.org/docs/linking.html for more info.
   </docs>
 
   <resources label="Resources">
-<!--- <download    label="Download"         href="download.html" />    -->
+    <download    label="Download"         href="release/" />
     <contact     label="Mailing Lists"    href="mailing_lists.html" />
     <issues      label="Issue Tracking"   href="issue_tracking.html" />
     <vcs         label="Version Control"  href="version_control.html" />
