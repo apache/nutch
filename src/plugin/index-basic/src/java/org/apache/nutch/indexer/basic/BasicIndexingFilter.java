@@ -27,6 +27,8 @@ import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.fetcher.FetcherOutput;
 import org.apache.nutch.pagedb.FetchListEntry;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.logging.Logger;
 import org.apache.nutch.util.LogFormatter;
 import org.apache.nutch.util.NutchConf;
@@ -43,6 +45,21 @@ public class BasicIndexingFilter implements IndexingFilter {
     throws IndexingException {
     
     String url = fo.getUrl().toString();
+    String host = null;
+    try {
+      URL u = new URL(url);
+      host = u.getHost();
+    } catch (MalformedURLException e) {
+      throw new IndexingException(e);
+    }
+
+    if (host != null) {
+      // add host as un-stored, indexed and tokenized
+      doc.add(Field.UnStored("host", host));
+      // add site as un-stored, indexed and un-tokenized
+      doc.add(new Field("site", host, false, true, false));
+    }
+
 
     // url is both stored and indexed, so it's both searchable and returned
     doc.add(Field.Text("url", url));
@@ -61,10 +78,8 @@ public class BasicIndexingFilter implements IndexingFilter {
     if (title.length() > MAX_TITLE_LENGTH) {      // truncate title if needed
       title = title.substring(0, MAX_TITLE_LENGTH);
     }
-    // add title as anchor so it is searchable.  doesn't warrant its own field.
-    doc.add(Field.UnStored("anchor", title));
-    // add title unindexed, so that it can be displayed
-    doc.add(Field.UnIndexed("title", title));
+    // add title indexed and stored so that it can be displayed
+    doc.add(Field.Text("title", title));
 
     return doc;
   }

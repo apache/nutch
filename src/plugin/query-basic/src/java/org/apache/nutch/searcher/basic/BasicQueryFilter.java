@@ -36,15 +36,22 @@ public class BasicQueryFilter implements QueryFilter {
 
   private static float URL_BOOST = 4.0f;
   private static float ANCHOR_BOOST = 2.0f;
+  private static float TITLE_BOOST = 1.5f;
+  private static float HOST_BOOST = 2.0f;
 
   private static int SLOP = Integer.MAX_VALUE;
   private static float PHRASE_BOOST = 1.0f;
 
-  private static final String[] FIELDS = {"url", "anchor", "content"};
-  private static final float[] FIELD_BOOSTS = {URL_BOOST, ANCHOR_BOOST, 1.0f};
+  private static final String[] FIELDS =
+  { "url", "anchor", "content", "title", "host" };
 
-  /** Set the boost factor for url matches, relative to content and anchor
-   * matches */
+  private static final float[] FIELD_BOOSTS =
+  { URL_BOOST, ANCHOR_BOOST, 1.0f, TITLE_BOOST, HOST_BOOST };
+
+  /**
+   * Set the boost factor for url matches, relative to content and anchor
+   * matches
+   */
   public static void setUrlBoost(float boost) { URL_BOOST = boost; }
 
   /** Set the boost factor for title/anchor matches, relative to url and

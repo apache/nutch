@@ -77,7 +77,7 @@ public class NutchDocumentAnalyzer extends Analyzer {
   /** Returns a new token stream for text from the named field. */
   public TokenStream tokenStream(String fieldName, Reader reader) {
     Analyzer analyzer;
-    if ("url".equals(fieldName) || ("anchor".equals(fieldName)))
+    if ("anchor".equals(fieldName))
       analyzer = ANCHOR_ANALYZER;
     else
       analyzer = CONTENT_ANALYZER;
