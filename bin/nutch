@@ -38,7 +38,8 @@ if [ $# = 0 ]; then
   echo "  index             run the indexer on a segment's fetcher output"
   echo "  merge             merge several segment indexes"
   echo "  dedup             remove duplicates from a set of segment indexes"
-  echo "  updatedb          update database from a segment's fetcher output"
+  echo "  updatedb          update db from segments after fetching"
+  echo "  updatesegs        update segments with link data from the db"
   echo "  mergesegs         merge multiple segments into a single segment"
   echo "  readdb            examine arbitrary fields of the database"
   echo "  analyze           adjust database link-analysis scoring"
@@ -148,6 +149,8 @@ elif [ "$COMMAND" = "dedup" ] ; then
   CLASS=org.apache.nutch.indexer.DeleteDuplicates
 elif [ "$COMMAND" = "updatedb" ] ; then
   CLASS=org.apache.nutch.tools.UpdateDatabaseTool
+elif [ "$COMMAND" = "updatesegs" ] ; then
+  CLASS=org.apache.nutch.tools.UpdateSegmentsFromDb
 elif [ "$COMMAND" = "mergesegs" ] ; then
   CLASS=org.apache.nutch.tools.SegmentMergeTool
 elif [ "$COMMAND" = "readdb" ] ; then
