@@ -46,6 +46,12 @@ Release 0.7
  8. Add skipCompressedByteArray() to WritableUtils.java.
     (John Xing, 20050402)
 
+ 9. Fixes to jsp and static web pages.  These now use relative links,
+    so that the Nutch webapp file can be used in places other than at
+    the root.  Also fixed links to the about and help pages.  Bug #32.
+    (Jerome Charron via cutting, 20050404)
+
+
 Release 0.6
 
  1. Added clustering-carrot2 plugin, together with introduction of clustering

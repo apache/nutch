@@ -110,9 +110,9 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <head>
 <title>Nutch: <i18n:message key="title"/></title>
-<link rel="icon" href="/img/favicon.ico" type="image/x-icon"/>
-<link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon"/>
-<jsp:include page="/include/style.html"/>
+<link rel="icon" href="img/favicon.ico" type="image/x-icon"/>
+<link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon"/>
+<jsp:include page="include/style.html"/>
 <base href="<%= base  + "/" + language %>/">
 </head>
 
@@ -120,7 +120,7 @@
 
 <jsp:include page="<%= language + "/include/header.html"%>"/>
 
- <form name="search" action="/search.jsp" method="get">
+ <form name="search" action="../search.jsp" method="get">
  <input name="query" size=44 value="<%=htmlQueryString%>">
  <input type="hidden" name="hitsPerPage" value="<%=hitsPerPage%>">
  <input type="submit" value="<i18n:message key="search"/>">
@@ -128,6 +128,7 @@
    <input id="clustbox" type="checkbox" name="clustering" value="yes" <% if (clustering.equals("yes")) { %>CHECKED<% } %>>
     <label for="clustbox"><i18n:message key="clustering"/></label>
  <% } %>
+ <a href="help.html">help</a>
  </form>
 
 <%--
@@ -196,21 +197,21 @@ out.flush();
       title = url;
     %>
     <b><a href="<%=url%>"><%=Entities.encode(title)%></a></b>
-    <%@ include file="./more.jsp" %>
+    <%@ include file="more.jsp" %>
     <% if (!"".equals(summary)) { %>
     <br><%=summary%>
     <% } %>
     <br>
     <span class="url"><%=Entities.encode(url)%></span>
-    (<a href="/cached.jsp?<%=id%>"><i18n:message key="cached"/></a>)
-    (<a href="/explain.jsp?<%=id%>&query=<%=URLEncoder.encode(queryString)%>"><i18n:message key="explain"/></a>)
-    (<a href="/anchors.jsp?<%=id%>"><i18n:message key="anchors"/></a>)
+    (<a href="../cached.jsp?<%=id%>"><i18n:message key="cached"/></a>)
+    (<a href="../explain.jsp?<%=id%>&query=<%=URLEncoder.encode(queryString)%>"><i18n:message key="explain"/></a>)
+    (<a href="../anchors.jsp?<%=id%>"><i18n:message key="anchors"/></a>)
     <% if (hit.moreFromSiteExcluded()) {
     String more =
     "query="+URLEncoder.encode("site:"+hit.getSite()+" "+queryString)
     +"&start="+start+"&hitsPerPage="+hitsPerPage+"&hitsPerSite="+0
     +"&clustering="+clustering;%>
-    (<a href="/search.jsp?<%=more%>"><i18n:message key="moreFrom"/>
+    (<a href="../search.jsp?<%=more%>"><i18n:message key="moreFrom"/>
      <%=hit.getSite()%></a>)
     <% } %>
     <br><br>
@@ -223,7 +224,7 @@ out.flush();
 <!-- clusters -->
 <td style="border-right: 1px dotted gray;" />&#160;</td>
 <td align="left" valign="top" width="25%">
-<%@ include file="./cluster.jsp" %>
+<%@ include file="cluster.jsp" %>
 </td>
 
 </tr>
@@ -236,7 +237,7 @@ out.flush();
 if ((hits.totalIsExact() && end < hits.getTotal()) // more hits to show
     || (!hits.totalIsExact() && (hits.getLength() > start+hitsPerPage))) {
 %>
-    <form name="search" action="<%= base %>/search.jsp" method="get">
+    <form name="search" action="../search.jsp" method="get">
     <input type="hidden" name="query" value="<%=htmlQueryString%>">
     <input type="hidden" name="start" value="<%=end%>">
     <input type="hidden" name="hitsPerPage" value="<%=hitsPerPage%>">
@@ -249,7 +250,7 @@ if ((hits.totalIsExact() && end < hits.getTotal()) // more hits to show
 
 if ((!hits.totalIsExact() && (hits.getLength() <= start+hitsPerPage))) {
 %>
-    <form name="search" action="/search.jsp" method="get">
+    <form name="search" action="../search.jsp" method="get">
     <input type="hidden" name="query" value="<%=htmlQueryString%>">
     <input type="hidden" name="hitsPerPage" value="<%=hitsPerPage%>">
     <input type="hidden" name="hitsPerSite" value="0">
@@ -262,10 +263,10 @@ if ((!hits.totalIsExact() && (hits.getLength() <= start+hitsPerPage))) {
 
 <p>
 <a href="http://www.nutch.org/">
-<img border="0" src="/img/poweredbynutch_01.gif">
+<img border="0" src="../img/poweredbynutch_01.gif">
 </a>
 
-<jsp:include page="/include/footer.html"/>
+<jsp:include page="<%= language + "/include/footer.html"%>"/>
 
 </body>
 </html>

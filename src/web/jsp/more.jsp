@@ -47,6 +47,6 @@
     if (primaryType.equalsIgnoreCase("text")) { %>
     <br><font size=-1><nobr><%=contentType%> <%=contentLength%> <%=lastModified%></nobr></font>
 <%  } else { %>
-    <br><font size=-1><nobr><%=contentType%> <%=contentLength%> <%=lastModified%> - <a href="/text.jsp?<%=id%>"><i18n:message key="viewAsText"/></a></nobr></font>
+    <br><font size=-1><nobr><%=contentType%> <%=contentLength%> <%=lastModified%> - <a href="text.jsp?<%=id%>"><i18n:message key="viewAsText"/></a></nobr></font>
 <%  }
   } %>
