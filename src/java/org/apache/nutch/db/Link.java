@@ -26,6 +26,7 @@ import org.apache.nutch.net.UrlNormalizerFactory;
 
 /*********************************************
  * This is the field in the Link Database.
+ * <pre>
  * Each row is a Link:
  *   type   name    description
  * ---------------------------------------------------------------
@@ -35,7 +36,8 @@ import org.apache.nutch.net.UrlNormalizerFactory;
  * string TO_URL  - The URL destination of the link.
  * string ANCHOR  - The anchor text of the link.
  * boolean TARGET_HAS_OUTLINK   - Whether the target of the link has outlinks.
- *
+ * </pre>
+ * 
  * @author Mike Cafarella
  *************************************************/
 public class Link implements WritableComparable {
