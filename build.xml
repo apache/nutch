@@ -109,7 +109,7 @@
   <!-- ================================================================== -->
   <!--                                                                    -->
   <!-- ================================================================== -->
-  <target name="war" depends="jar,generate-docs">
+  <target name="war" depends="compile,generate-docs">
     <war destfile="${build.dir}/${final.name}.war"
 	 webxml="${web.src.dir}/web.xml">
       <fileset dir="${web.src.dir}/jsp"/>
