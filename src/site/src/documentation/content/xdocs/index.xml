@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" 
+          "http://forrest.apache.org/dtd/document-v20.dtd">
+
+<document> 
+
+  <header> 
+    <title>Welcome to Nutch!</title> 
+  </header> 
+
+  <body> 
+
+    <section>
+      <title>News</title>
+
+      <section>
+      <title>January 2005: Nutch Joins Apache Incubator</title>
+
+      <p>Nutch is a two-year-old open source project, previously
+        hosted at Sourceforge and backed by its own non-profit
+        organization. The non-profit was founded in order to assign
+        copyright, so that we could retain the right to change the
+        license. We have now determined that the Apache license is the
+        appropriate license for Nutch and no longer require the
+        overhead of an independent non-profit organization. Nutch's
+        board of directors and its developers were both polled and
+        supported the move to the Apache foundation.</p>
+
+      </section>
+
+      <section>
+      <title>September 2004: Creative Commons launches Nutch-based Search</title>
+
+      <p>Creative Commons unveiled a beta version of its search
+      engine, which scours the web for text, images, audio, and video
+      free to re-use on certain terms a search refinement offered by
+      no other company or organization.</p>
+
+      <p>See the <a
+      href="http://creativecommons.org/press-releases/entry/5064">Creative
+      Commons Press Release</a> for more details.</p>
+
+      </section>
+
+      <section>
+      <title>September 2004: Oregon State University switches to Nutch</title>
+
+      <p>Oregon State University is converting its searching
+      infrastructure from Googletm to the open source project
+      Nutch. The effort to replace the Googletm will realize
+      significant cost savings for Oregon State University, while
+      promoting both the Nutch Search Engine and transparency in
+      search engine use and management.</p>
+
+      <p>For more details see the announcement by OSU's <a
+      href="http://osuosl.org/news_folder/nutch">Open Source
+      Lab</a>.</p>
+
+      </section>
+
+
+    </section>
+
+  </body>
+
+</document>

@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V2.0//EN" 
+          "http://forrest.apache.org/dtd/document-v20.dtd">
+
+<document> 
+
+<header>
+  <title>Nutch credits</title> 
+</header> 
+
+<body>
+
+<section>
+<title>Committers</title>
+<ul>
+  <li>Andrzej Bialecki</li>
+  <li>Mike Cafarella (Search Quality)</li>
+  <li><a href="http://www.nutch.org/blog/cutting.html">Doug Cutting</a></li>
+  <li>Sami Siren</li>
+  <li>John Xing</li>
+</ul>
+</section>
+
+<section>
+<title>Friends</title>
+<ul>
+  <li>Dan Fain (<a href="http://research.yahoo.com/">Yahoo! Research Labs</a>)</li>
+  <li><a href="http://www.fenwick.com/">Fenwick &amp; West LLP</a></li>
+  <li>Stefan Groschupf (<a href="http://www.media-style.com/">media style GmbH</a>)</li>
+  <li>Brewster Kahle (<a href="http://www.archive.org/">Internet Archive</a>)</li>
+  <li>Michele Kimpton (<a href="http://www.archive.org/">Internet Archive</a>)</li>
+  <li>Joe Kraus (<a href="http://www.digitalconsumer.org/">Digital Consumer</a>)</li>
+  <li>Brett Bullington</li>
+  <li>Neil &amp; Danny Rimer (<a href="http://www.indexventures.com/">Index Ventures</a>)</li>
+  <li>R.J. Pittman (<a href="http://www.groxis.com/">Groxis</a>)</li>
+  <li>Rob Cresswell (<a href="http://malachiarts.com/">Malachiarts</a>)</li>
+</ul>
+</section>
+
+<section>
+<title>Sponsors</title>
+<ul>
+
+  <li><a href="http://research.yahoo.com/">Yahoo! Research Labs</a> has
+  donated hardware and helped to fund development.</li>
+
+  <li><a href="http://www.archive.org/">The Internet Archive</a>
+  hosts some Nutch work.</li>
+
+</ul>
+</section>
+
+
+</body>
+</document>
