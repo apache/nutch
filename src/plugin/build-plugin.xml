@@ -51,6 +51,7 @@
   <path id="test.classpath">
     <pathelement location="${build.test}" />
     <pathelement location="${nutch.root}/build/test/classes"/>
+    <pathelement location="${nutch.root}/src/test"/>
     <pathelement location="${conf.dir}"/>
     <pathelement location="${nutch.root}/build"/>
     <path refid="classpath"/>
