@@ -173,7 +173,7 @@ public class PluginManifestParser {
     for (int i = 0; i < libraries.size(); i++) {
       Element library = (Element) libraries.get(i);
       String libName = library.attributeValue("name");
-      Element exportElement = library.element("extport");
+      Element exportElement = library.element("export");
       if (exportElement != null)
         pDescriptor.addExportedLibRelative(libName);
       else
