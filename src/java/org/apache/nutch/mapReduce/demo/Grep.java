@@ -18,14 +18,18 @@ package org.apache.nutch.mapReduce.demo;
 import org.apache.nutch.mapReduce.JobConf;
 import org.apache.nutch.mapReduce.JobClient;
 import org.apache.nutch.mapReduce.RunningJob;
+import org.apache.nutch.mapReduce.InputFormats;
+import org.apache.nutch.mapReduce.OutputFormats;
 
 import org.apache.nutch.mapReduce.lib.RegexMapper;
+import org.apache.nutch.mapReduce.lib.InverseMapper;
 import org.apache.nutch.mapReduce.lib.LongSumReducer;
 
 import org.apache.nutch.io.UTF8;
 import org.apache.nutch.io.LongWritable;
 
 import java.io.File;
+import java.util.Random;
 
 /* Extracts matching regexs from input files and counts them. */
 public class Grep {
@@ -37,24 +41,48 @@ public class Grep {
       System.exit(-1);
     }
 
-    JobConf job = new JobConf();
+    File tempDir =
+      new File("grep-temp-"+
+               Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
-    job.setInputDir(new File(args[0]));
-    job.setOutputDir(new File(args[1]));
+    JobConf grepJob = new JobConf();
 
-    job.setMapperClass(RegexMapper.class);
-    job.set("mapred.mapper.regex", args[2]);
+    grepJob.setNumMapTasks(36);
+    grepJob.setInputDir(new File(args[0]));
+
+    grepJob.setMapperClass(RegexMapper.class);
+    grepJob.set("mapred.mapper.regex", args[2]);
     if (args.length == 4)
-      job.set("mapred.mapper.regex.group", args[3]);
+      grepJob.set("mapred.mapper.regex.group", args[3]);
     
-    job.setCombinerClass(LongSumReducer.class);
-    job.setReducerClass(LongSumReducer.class);
+    grepJob.setCombinerClass(LongSumReducer.class);
+    grepJob.setReducerClass(LongSumReducer.class);
 
-    job.setOutputKeyClass(UTF8.class);
-    job.setOutputValueClass(LongWritable.class);
+    grepJob.setNumReduceTasks(6);
+    grepJob.setOutputDir(tempDir);
+    grepJob.setOutputFormat(OutputFormats.get("seq"));
+    grepJob.setOutputKeyClass(UTF8.class);
+    grepJob.setOutputValueClass(LongWritable.class);
 
-    JobClient.runJob(job);
+    JobClient.runJob(grepJob);
 
+    JobConf sortJob = new JobConf();
+
+    sortJob.setNumMapTasks(6);
+
+    sortJob.setInputDir(tempDir);
+    sortJob.setInputFormat(InputFormats.get("seq"));
+    sortJob.setInputKeyClass(UTF8.class);
+    sortJob.setInputValueClass(LongWritable.class);
+
+    sortJob.setMapperClass(InverseMapper.class);
+
+    sortJob.setNumReduceTasks(1);                 // write a single file
+    sortJob.setOutputDir(new File(args[1]));
+
+    JobClient.runJob(sortJob);
+
+    new JobClient().getFs().delete(tempDir);
   }
 
 }
