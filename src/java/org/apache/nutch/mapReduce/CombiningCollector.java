@@ -32,7 +32,8 @@ class CombiningCollector implements OutputCollector {
     = NutchConf.get().getInt("mapred.combine.buffer.size", 100000);
 
   private int count = 0;
-  private Map keyToValues = new TreeMap();
+  private Map keyToValues;                        // the buffer
+
   private JobConf job;
   private OutputCollector out;
   private Reducer combiner;
@@ -41,6 +42,13 @@ class CombiningCollector implements OutputCollector {
     this.job = job;
     this.out = out;
     this.combiner = (Reducer)job.newInstance(job.getCombinerClass());
+
+    try {
+      this.keyToValues = new TreeMap
+        ((Comparator)job.getOutputKeyComparatorClass().newInstance());
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public void collect(WritableComparable key, Writable value)

@@ -24,9 +24,11 @@ import org.apache.nutch.mapReduce.OutputFormats;
 import org.apache.nutch.mapReduce.lib.RegexMapper;
 import org.apache.nutch.mapReduce.lib.InverseMapper;
 import org.apache.nutch.mapReduce.lib.LongSumReducer;
+import org.apache.nutch.mapReduce.lib.IdentityReducer;
 
 import org.apache.nutch.io.UTF8;
 import org.apache.nutch.io.LongWritable;
+import org.apache.nutch.io.WritableComparator;
 
 import java.io.File;
 import java.util.Random;
@@ -34,7 +36,7 @@ import java.util.Random;
 /* Extracts matching regexs from input files and counts them. */
 public class Grep {
   private Grep() {}                               // singleton
-  
+
   public static void main(String[] args) throws Exception {
     if (args.length < 3) {
       System.out.println("Grep <inDir> <outDir> <regex> [<group>]");
@@ -47,7 +49,7 @@ public class Grep {
 
     JobConf grepJob = new JobConf();
 
-    grepJob.setNumMapTasks(36);
+    grepJob.setNumMapTasks(18);
     grepJob.setInputDir(new File(args[0]));
 
     grepJob.setMapperClass(RegexMapper.class);
@@ -79,6 +81,8 @@ public class Grep {
 
     sortJob.setNumReduceTasks(1);                 // write a single file
     sortJob.setOutputDir(new File(args[1]));
+    sortJob.setOutputKeyComparatorClass           // sort by decreasing freq
+      (LongWritable.DecreasingComparator.class);
 
     JobClient.runJob(sortJob);
 

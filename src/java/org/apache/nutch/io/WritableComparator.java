@@ -28,7 +28,7 @@ import java.util.*;
  * {@link #compare(byte[],int,int,byte[],int,int)}.  Static utility methods are
  * provided to assist in optimized implementations of this method.
  */
-public class WritableComparator {
+public class WritableComparator implements Comparator {
 
   private static HashMap comparators = new HashMap(); // registry
 
@@ -103,6 +103,10 @@ public class WritableComparator {
    * Comparable#compareTo(Object)}. */
   public int compare(WritableComparable a, WritableComparable b) {
     return a.compareTo(b);
+  }
+
+  public int compare(Object a, Object b) {
+    return compare((WritableComparable)a, (WritableComparable)b);
   }
 
   /** Lexicographic order of binary data. */

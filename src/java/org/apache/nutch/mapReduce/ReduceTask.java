@@ -172,8 +172,15 @@ public class ReduceTask extends Task {
       
     // sort the input file
     String sortedFile = file+".sorted";
+    WritableComparator comparator = null;
+    try {
+      comparator =
+        (WritableComparator)job.getOutputKeyComparatorClass().newInstance();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
     SequenceFile.Sorter sorter =
-      new SequenceFile.Sorter(lfs, keyClass, valueClass);
+      new SequenceFile.Sorter(lfs, comparator, valueClass);
     sorter.sort(file, sortedFile);                // sort
     lfs.delete(new File(file));                   // remove unsorted
 

@@ -277,11 +277,11 @@ public class JobClient implements MRConstants {
             Thread.sleep(1000);
           } catch (InterruptedException e) {}
           running = jc.getJob(jobId);
-          if (running.mapProgress() < 1.0f)
+          if (running.reduceProgress() == 0.0)
             LOG.info(" map "+Math.round(running.mapProgress()*100)
                      +"% complete");
           else {
-            LOG.info(" map "+Math.round(running.reduceProgress()*100)
+            LOG.info(" reduce "+Math.round(running.reduceProgress()*100)
                      +"% complete");
           }
         }
