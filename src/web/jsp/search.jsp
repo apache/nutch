@@ -24,7 +24,7 @@
    * and clustering is on. By default, 100. Configurable via nutch-conf.xml.
    */
   private final static int HITS_TO_CLUSTER =
-    NutchConf.getInt("extension.clustering.hits-to-cluster", 100);
+    NutchConf.get().getInt("extension.clustering.hits-to-cluster", 100);
 
   /**
    * An instance of the clustering extension, if available.
