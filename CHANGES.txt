@@ -56,6 +56,9 @@ Release 0.7
     servers are not queried until tey come back online, watchdog keeps
     an eye for your searchservers and writes simple statistics.
     (Sami Siren, 20050407)
+    
+11. Fix for bug #4 - Unbalanced quote in query eats all resources.
+	(Piotr Kosiorowski, Sami Siren, 20050407)
 
 Release 0.6
 

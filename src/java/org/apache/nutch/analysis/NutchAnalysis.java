@@ -147,7 +147,6 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     label_2:
     while (true) {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-      case 0:
       case PLUS:
       case MINUS:
       case COLON:
@@ -181,7 +180,6 @@ public class NutchAnalysis implements NutchAnalysisConstants {
       label_4:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
-        case 0:
         case PLUS:
         case MINUS:
         case COLON:
@@ -200,7 +198,18 @@ public class NutchAnalysis implements NutchAnalysisConstants {
       }
     }
     end = token.endColumn;
-    jj_consume_token(QUOTE);
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case QUOTE:
+      jj_consume_token(QUOTE);
+      break;
+    case 0:
+      jj_consume_token(0);
+      break;
+    default:
+      jj_la1[7] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
     if (QueryFilters.isRawField(field)) {
       result.clear();
       result.add(queryString.substring(start, end));
@@ -240,7 +249,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
           ;
           break;
         default:
-          jj_la1[7] = jj_gen;
+          jj_la1[8] = jj_gen;
           break label_6;
         }
       }
@@ -269,7 +278,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
       token = jj_consume_token(SIGRAM);
       break;
     default:
-      jj_la1[8] = jj_gen;
+      jj_la1[9] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -292,11 +301,30 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     case APOSTROPHE:
       infix();
       break;
+    default:
+      jj_la1[10] = jj_gen;
+      jj_consume_token(-1);
+      throw new ParseException();
+    }
+  }
+
+  final public void nonTermOrEOF() throws ParseException {
+    switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+    case PLUS:
+    case MINUS:
+    case COLON:
+    case SLASH:
+    case DOT:
+    case ATSIGN:
+    case APOSTROPHE:
+    case WHITE:
+      nonTerm();
+      break;
     case 0:
       jj_consume_token(0);
       break;
     default:
-      jj_la1[9] = jj_gen;
+      jj_la1[11] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -332,14 +360,14 @@ public class NutchAnalysis implements NutchAnalysisConstants {
           jj_consume_token(MINUS);
           break;
         default:
-          jj_la1[10] = jj_gen;
+          jj_la1[12] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
-        nonTerm();
+        nonTermOrEOF();
         break;
       default:
-        jj_la1[11] = jj_gen;
+        jj_la1[13] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -363,7 +391,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
       nonOpInfix();
       break;
     default:
-      jj_la1[12] = jj_gen;
+      jj_la1[14] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -388,7 +416,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
       jj_consume_token(APOSTROPHE);
       break;
     default:
-      jj_la1[13] = jj_gen;
+      jj_la1[15] = jj_gen;
       jj_consume_token(-1);
       throw new ParseException();
     }
@@ -434,24 +462,13 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     return false;
   }
 
-  final private boolean jj_3R_25() {
+  final private boolean jj_3R_26() {
     if (jj_3R_16()) return true;
     return false;
   }
 
   final private boolean jj_3R_8() {
     if (jj_3R_14()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_21() {
-    Token xsp;
-    if (jj_3R_25()) return true;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_25()) { jj_scanpos = xsp; break; }
-    }
-    if (jj_3R_11()) return true;
     return false;
   }
 
@@ -468,6 +485,17 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     return false;
   }
 
+  final private boolean jj_3R_21() {
+    Token xsp;
+    if (jj_3R_26()) return true;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_26()) { jj_scanpos = xsp; break; }
+    }
+    if (jj_3R_11()) return true;
+    return false;
+  }
+
   final private boolean jj_3R_15() {
     if (jj_3R_11()) return true;
     Token xsp;
@@ -475,11 +503,6 @@ public class NutchAnalysis implements NutchAnalysisConstants {
       xsp = jj_scanpos;
       if (jj_3R_21()) { jj_scanpos = xsp; break; }
     }
-    return false;
-  }
-
-  final private boolean jj_3R_23() {
-    if (jj_3R_16()) return true;
     return false;
   }
 
@@ -496,6 +519,11 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     return false;
   }
 
+  final private boolean jj_3R_27() {
+    if (jj_3R_16()) return true;
+    return false;
+  }
+
   final private boolean jj_3_1() {
     if (jj_scan_token(WORD)) return true;
     if (jj_scan_token(COLON)) return true;
@@ -504,6 +532,21 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     if (jj_3R_8()) {
     jj_scanpos = xsp;
     if (jj_3R_9()) return true;
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_23() {
+    if (jj_3R_24()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_18() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_23()) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(0)) return true;
     }
     return false;
   }
@@ -519,21 +562,28 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     return false;
   }
 
-  final private boolean jj_3R_18() {
+  final private boolean jj_3R_24() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_scan_token(15)) {
     jj_scanpos = xsp;
-    if (jj_3R_23()) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(0)) return true;
-    }
+    if (jj_3R_27()) return true;
     }
     return false;
   }
 
-  final private boolean jj_3R_24() {
-    if (jj_3R_18()) return true;
+  final private boolean jj_3R_22() {
+    if (jj_3R_17()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_25() {
+    if (jj_3R_24()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_12() {
+    if (jj_3R_17()) return true;
     return false;
   }
 
@@ -555,7 +605,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     Token xsp;
     while (true) {
       xsp = jj_scanpos;
-      if (jj_3R_24()) { jj_scanpos = xsp; break; }
+      if (jj_3R_25()) { jj_scanpos = xsp; break; }
     }
     return false;
   }
@@ -565,18 +615,8 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     return false;
   }
 
-  final private boolean jj_3R_22() {
-    if (jj_3R_17()) return true;
-    return false;
-  }
-
   final private boolean jj_3R_19() {
-    if (jj_3R_18()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_12() {
-    if (jj_3R_17()) return true;
+    if (jj_3R_24()) return true;
     return false;
   }
 
@@ -607,7 +647,11 @@ public class NutchAnalysis implements NutchAnalysisConstants {
       xsp = jj_scanpos;
       if (jj_3R_20()) { jj_scanpos = xsp; break; }
     }
-    if (jj_scan_token(QUOTE)) return true;
+    xsp = jj_scanpos;
+    if (jj_scan_token(9)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(0)) return true;
+    }
     return false;
   }
 
@@ -619,13 +663,13 @@ public class NutchAnalysis implements NutchAnalysisConstants {
   public boolean lookingAhead = false;
   private boolean jj_semLA;
   private int jj_gen;
-  final private int[] jj_la1 = new int[14];
+  final private int[] jj_la1 = new int[16];
   static private int[] jj_la1_0;
   static {
       jj_la1_0();
    }
    private static void jj_la1_0() {
-      jj_la1_0 = new int[] {0x38e,0x180,0x180,0x20e,0xfd81,0xe,0xfd81,0x7d80,0xe,0xfd81,0x180,0xfd80,0x7d80,0x7c00,};
+      jj_la1_0 = new int[] {0x38e,0x180,0x180,0x20e,0xfd80,0xe,0xfd80,0x201,0x7d80,0xe,0xfd80,0xfd81,0x180,0xfd80,0x7d80,0x7c00,};
    }
   final private JJCalls[] jj_2_rtns = new JJCalls[3];
   private boolean jj_rescan = false;
@@ -636,7 +680,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 14; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 16; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -645,7 +689,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 14; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 16; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -654,7 +698,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 14; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 16; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -663,7 +707,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 14; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 16; i++) jj_la1[i] = -1;
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
@@ -782,7 +826,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 14; i++) {
+    for (int i = 0; i < 16; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
