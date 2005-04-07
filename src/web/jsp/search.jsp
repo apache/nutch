@@ -150,7 +150,12 @@
     // NOTE by Dawid Weiss:
     // The 'clustering' window actually moves with the start
     // position.... this is good, bad?... ugly?....
-   Hits hits = bean.search(query, start + hitsToRetrieve, hitsPerSite);
+   Hits hits;
+   try{
+     hits = bean.search(query, start + hitsToRetrieve, hitsPerSite);
+   } catch (IOException e){
+     hits = new Hits(0,new Hit[0]);	
+   }
    int end = (int)Math.min(hits.getLength(), start + hitsPerPage);
    int length = end-start;
    int realEnd = (int)Math.min(hits.getLength(), start + hitsToRetrieve);

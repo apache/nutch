@@ -25,8 +25,6 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.util.LogFormatter;
 import org.apache.nutch.io.*;
-import org.apache.nutch.ipc.*;
-
 
 /** Implements the search API over IPC connnections. */
 public class DistributedSearch {
@@ -283,10 +281,21 @@ public class DistributedSearch {
 
   /** The search client. */
   public static class Client extends org.apache.nutch.ipc.Client
-    implements Searcher, HitDetailer, HitSummarizer, HitContent {
+    implements Searcher, HitDetailer, HitSummarizer, HitContent, Runnable {
 
-    private InetSocketAddress[] addresses;
+    private InetSocketAddress[] addresses=new InetSocketAddress[0];
+    private InetSocketAddress[] defaultaddresses;
     private HashMap segmentToAddress = new HashMap();
+    
+    /**
+     * Flag for watchdog, true=keep running, false=stop
+     */
+    private boolean shouldrun=true;
+
+    /**
+     * Backgroudthread that polls search servers.
+     */
+    private Thread watchdog;
 
     /** Construct a client talking to servers listed in the named file.
      * Each line in the file lists a server hostname and port, separated by
@@ -320,29 +329,47 @@ public class DistributedSearch {
     /** Construct a client talking to the named servers. */
     public Client(InetSocketAddress[] addresses) throws IOException {
       super(Result.class);
+      this.defaultaddresses = addresses;
+      watchdog=new Thread(this);
+      watchdog.start();
+    }
+    
+    /** Updates segments
+     * 
+     * @throws IOException
+     */
+    public void updateSegments() throws IOException {
       
-      this.addresses = addresses;
-
+      int statServers=0;
+      int statSegments=0;
+      Vector aliveaddresses=new Vector();
+      
       // build segmentToAddress map
       Param param = new Param(OP_SEGMENTS, NullWritable.get());
-      Writable[] params = new Writable[addresses.length];
+      Writable[] params = new Writable[defaultaddresses.length];
       for (int i = 0; i < params.length; i++) {
         params[i] = param;                     // build param for parallel call
       }
-      Writable[] results = call(params, addresses); // make parallel call
+      Writable[] results = call(params, defaultaddresses); // make parallel call
 
       for (int i = 0; i < results.length; i++) {  // process results of call
         Result result = (Result)results[i];
         if (result == null) {
-          LOG.warning("Client: no segments from: " + addresses[i]);
+          LOG.warning("Client: no segments from: " + defaultaddresses[i]);
           continue;
         }
         String[] segments = ((ArrayWritable)result.value).toStrings();
         for (int j = 0; j < segments.length; j++) {
-          LOG.info("Client: segment "+segments[j]+" at "+addresses[i]);
-          segmentToAddress.put(segments[j], addresses[i]);
+          LOG.info("Client: segment "+segments[j]+" at "+defaultaddresses[i]);
+          segmentToAddress.put(segments[j], defaultaddresses[i]);
+          aliveaddresses.add(defaultaddresses[i]);
         }
+        statServers++;
+        statSegments+=segments.length;
       }
+
+      addresses=(InetSocketAddress[])aliveaddresses.toArray(new InetSocketAddress[statServers]);
+      LOG.info("STATS: " + statServers + " servers / " + statSegments + " segments online.");
     }
 
     /** Return the names of segments searched. */
@@ -504,7 +531,31 @@ public class DistributedSearch {
 
     }
 
-
+    public void run() {
+      while (shouldrun=true){
+        try{
+          LOG.info("Querying segments from search servers");
+          updateSegments();
+        } catch (IOException ioe) {
+          LOG.warning("No search servers available!");
+          addresses=new InetSocketAddress[0];
+        }
+        try{
+          Thread.sleep(10000);
+        } catch (InterruptedException ie){
+          LOG.info("Thread sleep interrupted.");
+        }
+      }
+    }
+    
+    /**
+     * Stops the watchdog thread.
+     */
+    public void stop() {
+      super.stop();
+      LOG.info("stopping watchdog.");
+      shouldrun=false;
+      watchdog.interrupt();
+    }
   }
-
 }

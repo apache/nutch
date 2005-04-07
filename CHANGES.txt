@@ -51,6 +51,11 @@ Release 0.7
     the root.  Also fixed links to the about and help pages.  Bug #32.
     (Jerome Charron via cutting, 20050404)
 
+10. Added some features to DistributedSearch: new segments can be added
+    to searchservers without restarting the frontend, defective search
+    servers are not queried until tey come back online, watchdog keeps
+    an eye for your searchservers and writes simple statistics.
+    (Sami Siren, 20050407)
 
 Release 0.6
 
