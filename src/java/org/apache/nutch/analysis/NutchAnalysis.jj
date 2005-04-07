@@ -239,7 +239,7 @@ ArrayList phrase(String field) :
 
   { end = token.endColumn; }
 
-  <QUOTE>
+  (<QUOTE>|<EOF>)
     
   {
     if (QueryFilters.isRawField(field)) {
@@ -294,15 +294,20 @@ String term() :
 void nonTerm() :
 {}
 {
-  <WHITE> | infix() | <EOF>
+  <WHITE> | infix()
 }
 
+void nonTermOrEOF() :
+{}
+{
+  nonTerm() | <EOF>
+}
 
 /** Parse anything but a term or an operator (plur or minus or quote). */
 void nonOpOrTerm() :
 {}
 {
-  (LOOKAHEAD(2) (<WHITE> | nonOpInfix() | ((<PLUS>|<MINUS>) nonTerm())))*
+  (LOOKAHEAD(2) (<WHITE> | nonOpInfix() | ((<PLUS>|<MINUS>) nonTermOrEOF())))*
 }
 
 /** Characters which can be used to form compound terms. */
