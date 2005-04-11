@@ -214,7 +214,7 @@ out.flush();
     <% if (hit.moreFromSiteExcluded()) {
     String more =
     "query="+URLEncoder.encode("site:"+hit.getSite()+" "+queryString)
-    +"&start="+start+"&hitsPerPage="+hitsPerPage+"&hitsPerSite="+0
+    +"&hitsPerPage="+hitsPerPage+"&hitsPerSite="+0
     +"&clustering="+clustering;%>
     (<a href="../search.jsp?<%=more%>"><i18n:message key="moreFrom"/>
      <%=hit.getSite()%></a>)
