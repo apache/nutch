@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.logging.Level;
+import java.util.Map;
+import java.util.HashMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletConfig;
@@ -45,11 +47,12 @@ import org.apache.nutch.util.NutchConf;
 /** Present search results using A9's OpenSearch extensions to RSS, plus a few
  * Nutch-specific extensions. */   
 public class OpenSearchServlet extends HttpServlet {
-  private static final String OPENSEARCH_NS =
-    "http://a9.com/-/spec/opensearchrss/1.0/";
+  private static final Map NS_MAP = new HashMap();
 
-  private static final String NUTCH_NS =
-    "http://www.nutch.org/opensearchrss/1.0/";
+  static {
+    NS_MAP.put("opensearch", "http://a9.com/-/spec/opensearchrss/1.0/");
+    NS_MAP.put("nutch", "http://www.nutch.org/opensearchrss/1.0/");
+  }
 
   private NutchBean bean;
 
@@ -114,11 +117,14 @@ public class OpenSearchServlet extends HttpServlet {
     String base = requestUrl.substring(0, requestUrl.lastIndexOf('/'));
 
     try {
-      Document doc = DocumentBuilderFactory.newInstance()
-        .newDocumentBuilder().newDocument();
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      factory.setNamespaceAware(true);
+      Document doc = factory.newDocumentBuilder().newDocument();
  
       Element rss = addNode(doc, doc, "rss");
       addAttribute(doc, rss, "version", "2.0");
+      addAttribute(doc, rss, "xmlns:os", (String)NS_MAP.get("opensearch"));
+      addAttribute(doc, rss, "xmlns:nutch", (String)NS_MAP.get("nutch"));
 
       Element channel = addNode(doc, rss, "channel");
     
@@ -132,9 +138,9 @@ public class OpenSearchServlet extends HttpServlet {
               +"&hitsPerPage="+hitsPerPage
               +"&hitsPerSite="+hitsPerSite);
 
-      addNode(doc, channel, OPENSEARCH_NS, "totalResults", ""+hits.getTotal());
-      addNode(doc, channel, OPENSEARCH_NS, "startIndex", ""+start);
-      addNode(doc, channel, OPENSEARCH_NS, "itemsPerPage", ""+hitsPerPage);
+      addNode(doc, channel, "opensearch", "totalResults", ""+hits.getTotal());
+      addNode(doc, channel, "opensearch", "startIndex", ""+start);
+      addNode(doc, channel, "opensearch", "itemsPerPage", ""+hitsPerPage);
     
       for (int i = 0; i < length; i++) {
         Hit hit = show[i];
@@ -152,12 +158,12 @@ public class OpenSearchServlet extends HttpServlet {
         addNode(doc, item, "description", summaries[i]);
         addNode(doc, item, "link", url);
 
-        addNode(doc, channel, NUTCH_NS, "cache", base+"/cached.jsp?"+id);
-        addNode(doc, channel, NUTCH_NS, "explain", base+"/explain.jsp?"+id
+        addNode(doc, channel, "nutch", "cache", base+"/cached.jsp?"+id);
+        addNode(doc, channel, "nutch", "explain", base+"/explain.jsp?"+id
                 +"&query="+URLEncoder.encode(queryString));
 
         if (hit.moreFromSiteExcluded()) {
-          addNode(doc, channel, NUTCH_NS, "moreFromSite", base+"/search.jsp"
+          addNode(doc, channel, "nutch", "moreFromSite", base+"/search.jsp"
                   +"?query="
                   +URLEncoder.encode("site:"+hit.getSite()+" "+queryString)
                   +"&hitsPerPage="+hitsPerPage+"&hitsPerSite="+0);
@@ -196,8 +202,8 @@ public class OpenSearchServlet extends HttpServlet {
   }
 
   private static void addNode(Document doc, Node parent,
-                              String nameSpace, String name, String text) {
-    Element child = doc.createElementNS(nameSpace, name);
+                              String ns, String name, String text) {
+    Element child = doc.createElementNS((String)NS_MAP.get(ns), ns+":"+name);
     child.appendChild(doc.createTextNode(text));
     parent.appendChild(child);
   }
