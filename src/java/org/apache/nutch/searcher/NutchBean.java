@@ -180,7 +180,7 @@ public class NutchBean
         LOG.info("re-searching for "+numHitsRaw+" raw hits, query: "+optQuery);
         hits = searcher.search(optQuery, numHitsRaw);
         LOG.info("found "+hits.getTotal()+" raw hits");
-        rawHitNum = 0;
+        rawHitNum = -1;
         continue;
       }
 
