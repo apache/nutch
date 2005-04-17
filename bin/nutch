@@ -185,5 +185,5 @@ if expr match `uname` 'CYGWIN*' > /dev/null; then
 fi
 
 # run it
-exec $JAVA $JAVA_HEAP_MAX $NUTCH_OPTS -classpath "$CLASSPATH" $CLASS "$@"
+exec "$JAVA" $JAVA_HEAP_MAX $NUTCH_OPTS -classpath "$CLASSPATH" $CLASS "$@"
 
