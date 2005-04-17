@@ -36,14 +36,12 @@ import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.fetcher.FetcherOutput;
 
 import org.apache.nutch.util.NutchConf;
+import org.apache.nutch.util.mime.MimeType;
+import org.apache.nutch.util.mime.MimeTypes;
+import org.apache.nutch.util.mime.MimeTypeException;
 
 import org.apache.nutch.util.LogFormatter;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.activation.MimetypesFileTypeMap;
-import javax.activation.MimeType;
-import javax.activation.MimeTypeParseException;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -54,8 +52,6 @@ import java.util.TimeZone;
 import java.util.Enumeration;
 import java.util.Properties;
 
-import java.io.InputStream;
-import java.io.IOException;
 
 /**
  * Add (or reset) a few metaData properties as respective fields
@@ -74,30 +70,15 @@ public class MoreIndexingFilter implements IndexingFilter {
   public static final Logger LOG
     = LogFormatter.getLogger(MoreIndexingFilter.class.getName());
 
-  // Filename extension to mime-type map.
-  // Used by addType().
-  static MimetypesFileTypeMap TYPE_MAP = null;
-  static {
-    try {
-      // read mime types from config file
-      InputStream is =
-        NutchConf.get().getConfResourceAsInputStream
-        (NutchConf.get().get("mime.types.file"));
-      if (is == null) {
-        LOG.warning
-          ("no mime.types.file: content-type won't be indexed.");
-        TYPE_MAP = null;
-      } else {
-        TYPE_MAP = new MimetypesFileTypeMap(is);
-      }
+  /** A flag that tells if magic resolution must be performed */
+  private final static boolean MAGIC =
+        NutchConf.get().getBoolean("mime.type.magic", true);
 
-      if (is != null)
-        is.close();
-    } catch (IOException e) {
-      LOG.log(Level.SEVERE, "Unexpected error", e);
-    }
-  }
+  /** Get the MimeTypes resolver instance. */
+  private final static MimeTypes MIME = 
+        MimeTypes.get(NutchConf.get().get("mime.types.file"));
 
+  
   public Document filter(Document doc, Parse parse, FetcherOutput fo)
     throws IndexingException {
 
@@ -110,8 +91,7 @@ public class MoreIndexingFilter implements IndexingFilter {
 
     addLength(doc, metaData, url);
 
-    if (TYPE_MAP != null)
-      addType(doc, metaData, url);
+    addType(doc, metaData, url);
 
     resetTitle(doc, metaData, url);
 
@@ -175,18 +155,36 @@ public class MoreIndexingFilter implements IndexingFilter {
 
   // Add Content-Type and its primaryType and subType
   private Document addType(Document doc, Properties metaData, String url) {
+    MimeType mimeType = null;
     String contentType = metaData.getProperty("content-type");
-    if (contentType == null)
-      return doc;
-
-    MimeType mimeType;
-    try {
-      mimeType = new MimeType(contentType);
-    } catch (MimeTypeParseException e) {
-      LOG.warning(url+": can't parse erroneous content-type: "+contentType);
+    if (contentType == null) {
+	// Note by Jerome Charron on 20050415:
+        // Content Type not solved by a previous plugin
+        // Or unable to solve it... Trying to find it
+        // Should be better to use the doc content too
+        // (using MimeTypes.getMimeType(byte[], String), but I don't know
+        // which field it is?
+        // if (MAGIC) {
+        //   contentType = MIME.getMimeType(url, content);
+        // } else {
+        //   contentType = MIME.getMimeType(url);
+        // }
+        mimeType = MIME.getMimeType(url);
+    } else {
+        try {
+            mimeType = new MimeType(contentType);
+        } catch (MimeTypeException e) {
+            LOG.warning(url + e.toString());
+            mimeType = null;
+        }
+    }
+        
+    // Checks if we solved the content-type.
+    if (mimeType == null) {
       return doc;
     }
 
+    contentType = mimeType.getName();
     String primaryType = mimeType.getPrimaryType();
     String subType = mimeType.getSubType();
     // leave this for future improvement

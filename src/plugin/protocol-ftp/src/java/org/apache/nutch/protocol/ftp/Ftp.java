@@ -16,9 +16,6 @@
 
 package org.apache.nutch.protocol.ftp;
 
-import javax.activation.MimetypesFileTypeMap;
-// 20040528, xing, disabled for now
-//import xing.org.apache.nutch.util.magicfile.*;
 
 import org.apache.commons.net.ftp.FTPFileEntryParser;
 
@@ -87,54 +84,6 @@ public class Ftp implements Protocol {
   // http date format
   HttpDateFormat httpDateFormat = null;
 
-  // file name extension to mime-type map
-  static MimetypesFileTypeMap TYPE_MAP = null;
-
-  static {
-    try {
-      // read mime types from config file
-      InputStream is =
-        NutchConf.get().getConfResourceAsInputStream
-        (NutchConf.get().get("mime.types.file"));
-      if (is == null) {
-        LOG.warning
-          ("no mime.types.file: won't use url extension for content-type.");
-        TYPE_MAP = null;
-      } else {
-        TYPE_MAP = new MimetypesFileTypeMap(is);
-      }
-      
-      if (is != null)
-        is.close();
-    } catch (IOException e) {
-      LOG.log(Level.SEVERE, "Unexpected error", e);
-    }
-  }
-
-// 20040528, xing, disabled for now
-//  // file magic for determining content type
-//  static MagicFile MAGIC = null;
-//
-//  static {
-//    try {
-//      // read file magic from config file
-//      Reader reader =
-//        NutchConf.get().getConfResourceAsReader
-//          (NutchConf.get().get("mime.magic.file"));
-//      if (reader == null) {
-//        LOG.warning
-//          ("no mime.magic.file: won't use file magic for content-type.");
-//        MAGIC = null;
-//      } else {
-//        MAGIC = MagicFile.getInstance(reader);
-//      }
-//
-//      if (reader != null)
-//        reader.close();
-//    } catch (IOException e) {
-//      LOG.log(Level.SEVERE, "Unexpected error", e);
-//    }
-//  }
 
   // constructor
   public Ftp() {

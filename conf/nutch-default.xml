@@ -535,16 +535,16 @@
 
 <property>
   <name>mime.types.file</name>
-  <value>mime.types</value>
-  <description>Name of file in CLASSPATH containing filename extension to
-  mime types mapping information</description>
+  <value>mime-types.xml</value>
+  <description>Name of file in CLASSPATH containing filename extension and
+  magic sequence to mime types mapping information</description>
 </property>
 
 <property>
-  <name>mime.magic.file</name>
-  <value>mime-magic.txt</value>
-  <description>Name of file in CLASSPATH containing file magic to
-  mime types mapping information</description>
+  <name>mime.type.magic</name>
+  <value>true</value>
+  <description>Defines if the mime content type detector uses magic resolution.
+  </description>
 </property>
 
 <!-- ipc properties -->

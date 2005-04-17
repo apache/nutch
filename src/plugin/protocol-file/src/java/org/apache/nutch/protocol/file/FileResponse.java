@@ -16,21 +16,19 @@
 
 package org.apache.nutch.protocol.file;
 
-import javax.activation.MimetypesFileTypeMap;
-// 20040528, xing, disabled for now
-//import xing.org.apache.nutch.util.magicfile.*;
-
-import org.apache.nutch.protocol.Content;
-
+// JDK imports
 import java.net.URL;
-
 import java.util.TreeMap;
 import java.util.Properties;
-
 import java.util.logging.Level;
-
-import java.io.InputStream;
 import java.io.IOException;
+
+// Nutch imports
+import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.NutchConf;
+import org.apache.nutch.util.mime.MimeType;
+import org.apache.nutch.util.mime.MimeTypes;
+
 
 /************************************
  * FileResponse.java mimics file replies as http response.
@@ -59,6 +57,16 @@ import java.io.IOException;
  * @author John Xing
  ***********************************/
 public class FileResponse {
+
+  /** A flag that tells if magic resolution must be performed */
+  private final static boolean MAGIC =
+        NutchConf.get().getBoolean("mime.type.magic", true);
+
+  /** Get the MimeTypes resolver instance. */
+  private final static MimeTypes MIME = 
+        MimeTypes.get(NutchConf.get().get("mime.types.file"));
+
+
   private String orig;
   private String base;
   private byte[] content;
@@ -193,15 +201,15 @@ public class FileResponse {
     hdrs.put("Last-Modified",
       this.file.httpDateFormat.toString(f.lastModified()));
 
-    String contentType = null;
-// 20040528, xing, disabled for now
-//      if (contentType == null && this.file.MAGIC != null)
-//        contentType = this.file.MAGIC.getMimeType(this.content);
-    if (contentType == null && this.file.TYPE_MAP != null)
-      contentType = this.file.TYPE_MAP.getContentType(f.getName());
-    if (contentType != null)
-      hdrs.put("Content-Type", contentType);
-
+    MimeType contentType = null;
+    if (MAGIC) {
+      contentType = MIME.getMimeType(f.getName(), this.content);
+    } else {
+      contentType = MIME.getMimeType(f.getName());
+    }
+    if (contentType != null) {
+        hdrs.put("Content-Type", contentType.getName());
+    }
     this.headers.putAll(hdrs);
 
     // response code

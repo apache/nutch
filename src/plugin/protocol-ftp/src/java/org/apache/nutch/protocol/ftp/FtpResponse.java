@@ -16,9 +16,6 @@
 
 package org.apache.nutch.protocol.ftp;
 
-import javax.activation.MimetypesFileTypeMap;
-// 20040528, xing, disabled for now
-//import xing.org.apache.nutch.util.magicfile.*;
 
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPFile;
@@ -29,16 +26,15 @@ import org.apache.commons.net.ftp.parser.ParserInitializationException;
 
 import org.apache.nutch.protocol.Content;
 
+import org.apache.nutch.util.NutchConf;
+import org.apache.nutch.util.mime.MimeType;
+import org.apache.nutch.util.mime.MimeTypes;
+
 import java.net.InetAddress;
 import java.net.URL;
 
-import java.lang.Exception;
-import java.lang.StackTraceElement;
-
 import java.util.List;
 import java.util.LinkedList;
-import java.util.Map;
-import java.util.TreeMap;
 import java.util.Properties;
 
 import java.util.logging.Level;
@@ -46,6 +42,7 @@ import java.util.logging.Level;
 import java.io.ByteArrayOutputStream;
 //import java.io.InputStream;
 import java.io.IOException;
+
 
 /************************************
  * FtpResponse.java mimics ftp replies as http response.
@@ -61,6 +58,15 @@ import java.io.IOException;
  * @author John Xing
  ***********************************/
 public class FtpResponse {
+    
+  /** A flag that tells if magic resolution must be performed */
+  private final static boolean MAGIC =
+        NutchConf.get().getBoolean("mime.type.magic", true);
+
+  /** Get the MimeTypes resolver instance. */
+  private final static MimeTypes MIME = 
+        MimeTypes.get(NutchConf.get().get("mime.types.file"));
+    
   private String orig;
   private String base;
   private byte[] content;
@@ -308,14 +314,15 @@ public class FtpResponse {
         ftp.httpDateFormat.toString(ftpFile.getTimestamp()));
       this.content = os.toByteArray();
 
-      String contentType = null;
-      // 20040427, xing, disabled for now
-      //if (contentType == null && ftp.magic != null)
-      //  contentType = ftp.magic.getMimeType(this.content);
-      if (contentType == null && ftp.TYPE_MAP != null)
-        contentType = ftp.TYPE_MAP.getContentType(path);
-      if (contentType != null)
-        this.headers.put("Content-Type", contentType);
+      MimeType contentType = null;
+      if (MAGIC) {
+        contentType = MIME.getMimeType(path, this.content);
+      } else {
+        contentType = MIME.getMimeType(path);
+      }
+      if (contentType != null) {
+        this.headers.put("Content-Type", contentType.getName());
+      }
 
 //      // approximate bytes sent and read
 //      if (this.httpAccounting != null) {
@@ -353,14 +360,15 @@ public class FtpResponse {
         ftp.httpDateFormat.toString(ftpFile.getTimestamp()));
       this.content = os.toByteArray();
 
-      String contentType = null;
-      // 20040427, xing, disabled for now
-      //if (contentType == null && ftp.magic != null)
-      //  contentType = ftp.magic.getMimeType(this.content);
-      if (contentType == null && ftp.TYPE_MAP != null)
-        contentType = ftp.TYPE_MAP.getContentType(path);
-      if (contentType != null)
-        this.headers.put("Content-Type", contentType);
+      MimeType contentType = null;
+      if (MAGIC) {
+        contentType = MIME.getMimeType(path, this.content);
+      } else {
+        contentType = MIME.getMimeType(path);
+      }
+      if (contentType != null) {
+        this.headers.put("Content-Type", contentType.getName());
+      }
 
 //      // approximate bytes sent and read
 //      if (this.httpAccounting != null) {

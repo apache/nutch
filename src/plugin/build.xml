@@ -6,8 +6,8 @@
   <!-- Build & deploy all the plugin jars.                    -->
   <!-- ====================================================== -->
   <target name="deploy">
-<!-- <ant dir="protocol-file" target="deploy"/>  license: activation is Sun-->
-<!-- <ant dir="protocol-ftp" target="deploy"/>   license: activation is Sun-->
+     <ant dir="protocol-file" target="deploy"/>
+     <ant dir="protocol-ftp" target="deploy"/>
      <ant dir="protocol-http" target="deploy"/>
      <ant dir="parse-html" target="deploy"/>
      <ant dir="parse-text" target="deploy"/>
@@ -17,7 +17,7 @@
 <!-- <ant dir="parse-rtf" target="deploy"/>      license: parse-rtf is LGPL-->
      <ant dir="parse-ext" target="deploy"/>
      <ant dir="index-basic" target="deploy"/>
-<!-- <ant dir="index-more" target="deploy"/>     license: activation is Sun-->
+     <ant dir="index-more" target="deploy"/>
      <ant dir="query-basic" target="deploy"/>
      <ant dir="query-more" target="deploy"/>
      <ant dir="query-site" target="deploy"/>
@@ -36,8 +36,8 @@
   <target name="test">
      <ant dir="protocol-http" target="test"/>
      <ant dir="parse-html" target="test"/>
-<!-- <ant dir="parse-pdf" target="test"/> -->
-<!-- <ant dir="parse-msword" target="test"/> -->
+     <ant dir="parse-pdf" target="test"/>
+     <ant dir="parse-msword" target="test"/>
 <!-- <ant dir="parse-mp3" target="test"/> -->
 <!-- <ant dir="parse-rtf" target="test"/> -->
 <!-- <ant dir="parse-ext" target="test"/> -->
