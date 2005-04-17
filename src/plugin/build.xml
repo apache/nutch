@@ -40,7 +40,7 @@
      <ant dir="parse-msword" target="test"/>
 <!-- <ant dir="parse-mp3" target="test"/> -->
 <!-- <ant dir="parse-rtf" target="test"/> -->
-<!-- <ant dir="parse-ext" target="test"/> -->
+     <ant dir="parse-ext" target="test"/>
      <ant dir="creativecommons" target="test"/>
      <ant dir="languageidentifier" target="test"/>
      <ant dir="ontology" target="test"/>

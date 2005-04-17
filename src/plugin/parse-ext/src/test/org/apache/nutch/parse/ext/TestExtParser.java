@@ -66,10 +66,10 @@ public class TestExtParser extends TestCase {
       File tempDir = new File(path);
       if (!tempDir.exists())
         tempDir.mkdir();
-      tempFile = File.createTempFile("nutch.test.plugin.ExtParser.","",tempDir);
+      tempFile = File.createTempFile("nutch.test.plugin.ExtParser.",".txt",tempDir);
     } else {
       // otherwise in java.io.tmpdir
-      tempFile = File.createTempFile("nutch.test.plugin.ExtParser.","");
+      tempFile = File.createTempFile("nutch.test.plugin.ExtParser.",".txt");
     }
     urlString = tempFile.toURL().toString();
 
@@ -96,8 +96,11 @@ public class TestExtParser extends TestCase {
     String contentType;
 
     // now test only on linux platform
-    if (!System.getProperty("os.name").equalsIgnoreCase("linux"))
+    if (!System.getProperty("os.name").equalsIgnoreCase("linux")) {
+      System.err.println("Current OS is "+System.getProperty("os.name")+".");
+      System.err.println("No test is run on OS other than linux.");
       return;
+    }
 
     // loop alternately, total 10*2 times of invoking external command
     for (int i=0; i<10; i++) {
