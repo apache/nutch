@@ -1,0 +1,11 @@
+<!ELEMENT mime-types (mime-type+)>
+<!ELEMENT mime-type (ext*, magic*)>
+<!ATTLIST mime-type name CDATA #REQUIRED>
+<!ATTLIST mime-type description CDATA #IMPLIED>
+
+<!ELEMENT ext (#PCDATA)>
+
+<!ELEMENT magic (EMPTY)>
+<!ATTLIST magic offset CDATA #REQUIRED>
+<!ATTLIST magic type (byte | string) "string">
+<!ATTLIST magic value CDATA #REQUIRED>

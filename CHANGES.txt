@@ -60,6 +60,9 @@ Release 0.7
 11. Fix for bug #4 - Unbalanced quote in query eats all resources.
 	(Piotr Kosiorowski, Sami Siren, 20050407)
 
+12. Close Issue #33 - MIME content type detector (using magic char sequences).
+    (Jerome Charron and Hari Kodungallur via John Xing, 20050416)
+
 Release 0.6
 
  1. Added clustering-carrot2 plugin, together with introduction of clustering

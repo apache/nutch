@@ -21,6 +21,7 @@
   <path id="test.classpath">
     <pathelement location="${test.build.classes}" />
     <pathelement location="${conf.dir}"/>
+    <pathelement location="${test.src.dir}"/>
     <pathelement location="${plugins.classpath.dir}"/>
     <path refid="classpath"/>
   </path>
@@ -144,7 +145,8 @@
      srcdir="${test.src.dir}"
      includes="org/apache/nutch/**/*.java"
      destdir="${test.build.classes}"
-     debug="${debug}">
+     debug="${debug}"
+     deprecation="${deprecation}">
       <classpath refid="test.classpath"/>
     </javac>    
   </target>
