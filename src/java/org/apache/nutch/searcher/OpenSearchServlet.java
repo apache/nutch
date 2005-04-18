@@ -22,6 +22,8 @@ import java.net.URLEncoder;
 import java.util.logging.Level;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Set;
+import java.util.HashSet;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletConfig;
@@ -53,6 +55,12 @@ public class OpenSearchServlet extends HttpServlet {
     NS_MAP.put("nutch", "http://www.nutch.org/opensearchrss/1.0/");
   }
 
+  private static final Set SKIP_DETAILS = new HashSet();
+  static {
+    SKIP_DETAILS.add("url");                   // redundant with RSS link
+    SKIP_DETAILS.add("title");                 // redundant with RSS title
+  }
+
   private NutchBean bean;
 
   public void init(ServletConfig config) throws ServletException {
@@ -73,7 +81,7 @@ public class OpenSearchServlet extends HttpServlet {
     String queryString = request.getParameter("query");
     if (queryString == null)
       queryString = "";
-    String htmlQueryString = Entities.encode(queryString);
+    String urlQuery = URLEncoder.encode(queryString, "UTF-8");
 
     int start = 0;                                // first hit to display
     String startString = request.getParameter("start");
@@ -132,7 +140,7 @@ public class OpenSearchServlet extends HttpServlet {
               + queryString);
       addNode(doc, channel, "link",
               base+"/search.jsp"
-              +"?query="+htmlQueryString
+              +"?query="+urlQuery
               +"&start="+start
               +"&hitsPerPage="+hitsPerPage
               +"&hitsPerSite="+hitsPerSite);
@@ -140,7 +148,26 @@ public class OpenSearchServlet extends HttpServlet {
       addNode(doc, channel, "opensearch", "totalResults", ""+hits.getTotal());
       addNode(doc, channel, "opensearch", "startIndex", ""+start);
       addNode(doc, channel, "opensearch", "itemsPerPage", ""+hitsPerPage);
+
+      addNode(doc, channel, "nutch", "query", queryString);
     
+
+      if ((hits.totalIsExact() && end < hits.getTotal()) // more hits to show
+          || (!hits.totalIsExact() && (hits.getLength() > start+hitsPerPage))){
+        addNode(doc, channel, "nutch", "nextPage", requestUrl
+                +"?query="+urlQuery
+                +"&start="+end
+                +"&hitsPerPage="+hitsPerPage
+                +"&hitsPerSite="+hitsPerSite);
+      }
+
+      if ((!hits.totalIsExact() && (hits.getLength() <= start+hitsPerPage))) {
+        addNode(doc, channel, "nutch", "showAllHits", requestUrl
+                +"?query="+urlQuery
+                +"&hitsPerPage="+hitsPerPage
+                +"&hitsPerSite="+0);
+      }
+
       for (int i = 0; i < length; i++) {
         Hit hit = show[i];
         HitDetails detail = details[i];
@@ -157,16 +184,24 @@ public class OpenSearchServlet extends HttpServlet {
         addNode(doc, item, "description", summaries[i]);
         addNode(doc, item, "link", url);
 
+        addNode(doc, item, "nutch", "site", hit.getSite());
+
         addNode(doc, item, "nutch", "cache", base+"/cached.jsp?"+id);
         addNode(doc, item, "nutch", "explain", base+"/explain.jsp?"+id
-                +"&query="+URLEncoder.encode(queryString, "UTF-8"));
+                +"&query="+urlQuery);
 
         if (hit.moreFromSiteExcluded()) {
-          addNode(doc, item, "nutch", "moreFromSite", base+"/search.jsp"
+          addNode(doc, item, "nutch", "moreFromSite", requestUrl
                   +"?query="
                   +URLEncoder.encode("site:"+hit.getSite()+" "+queryString,
                                      "UTF-8")
                   +"&hitsPerPage="+hitsPerPage+"&hitsPerSite="+0);
+        }
+
+        for (int j = 0; j < detail.getLength(); j++) { // add all from detail
+          String field = detail.getField(j);
+          if (!SKIP_DETAILS.contains(field))
+            addNode(doc, item, "nutch", field, detail.getValue(j));
         }
       }
 
