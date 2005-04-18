@@ -95,7 +95,9 @@
     .getLocale().getLanguage();
   String requestURI = HttpUtils.getRequestURL(request).toString();
   String base = requestURI.substring(0, requestURI.lastIndexOf('/'));
-
+  String rss = "../opensearch?query="+htmlQueryString
+    +"&hitsPerSite="+hitsPerSite
+    +"&hitsPerPage="+hitsPerPage;
 %><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <%
   // To prevent the character encoding declared with 'contentType' page
@@ -112,6 +114,7 @@
 <title>Nutch: <i18n:message key="title"/></title>
 <link rel="icon" href="img/favicon.ico" type="image/x-icon"/>
 <link rel="shortcut icon" href="img/favicon.ico" type="image/x-icon"/>
+<link rel="alternate" type="application/rss+xml" title="RSS" href="<%=rss%>"/>
 <jsp:include page="include/style.html"/>
 <base href="<%= base  + "/" + language %>/">
 </head>
@@ -265,6 +268,11 @@ if ((!hits.totalIsExact() && (hits.getLength() <= start+hitsPerPage))) {
 <%
     }
 %>
+
+<table bgcolor="3333ff" align="right">
+<tr><td bgcolor="ff9900"><a href="<%=rss%>"><font color="ffffff"><b>RSS</b>
+</font></a></td></tr>
+</table>
 
 <p>
 <a href="http://www.nutch.org/">
