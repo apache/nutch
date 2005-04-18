@@ -26,7 +26,6 @@ import java.util.HashMap;
 import javax.servlet.ServletException;
 import javax.servlet.ServletConfig;
 import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpUtils;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -113,7 +112,7 @@ public class OpenSearchServlet extends HttpServlet {
     HitDetails[] details = bean.getDetails(show);
     String[] summaries = bean.getSummary(details, query);
 
-    String requestUrl = HttpUtils.getRequestURL(request).toString();
+    String requestUrl = request.getRequestURL().toString();
     String base = requestUrl.substring(0, requestUrl.lastIndexOf('/'));
 
     try {
@@ -158,14 +157,15 @@ public class OpenSearchServlet extends HttpServlet {
         addNode(doc, item, "description", summaries[i]);
         addNode(doc, item, "link", url);
 
-        addNode(doc, channel, "nutch", "cache", base+"/cached.jsp?"+id);
-        addNode(doc, channel, "nutch", "explain", base+"/explain.jsp?"+id
-                +"&query="+URLEncoder.encode(queryString));
+        addNode(doc, item, "nutch", "cache", base+"/cached.jsp?"+id);
+        addNode(doc, item, "nutch", "explain", base+"/explain.jsp?"+id
+                +"&query="+URLEncoder.encode(queryString, "UTF-8"));
 
         if (hit.moreFromSiteExcluded()) {
-          addNode(doc, channel, "nutch", "moreFromSite", base+"/search.jsp"
+          addNode(doc, item, "nutch", "moreFromSite", base+"/search.jsp"
                   +"?query="
-                  +URLEncoder.encode("site:"+hit.getSite()+" "+queryString)
+                  +URLEncoder.encode("site:"+hit.getSite()+" "+queryString,
+                                     "UTF-8")
                   +"&hitsPerPage="+hitsPerPage+"&hitsPerSite="+0);
         }
       }
