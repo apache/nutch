@@ -19,7 +19,9 @@ package org.apache.nutch.util.mime;
 import java.net.URL;
 import java.io.File;
 import java.io.IOException;
+import java.io.BufferedReader;
 import java.io.DataInputStream;
+import java.io.InputStreamReader;
 
 // JUnit imports
 import junit.framework.Test;
@@ -73,10 +75,11 @@ public class TestMimeTypes extends TestCase {
     public void testGetMimeFromExtension() {
 
         try {
-            DataInputStream in = new DataInputStream(
-                            this.getClass().getResourceAsStream("mime-types.txt"));
-            while(in.available() != 0) {
-                String[] tokens = in.readLine().split(";");
+            BufferedReader in = new BufferedReader(new InputStreamReader(
+                    this.getClass().getResourceAsStream("mime-types.txt")));
+            String line = null;
+            while((line = in.readLine()) != null) {
+                String[] tokens = line.split(";");
                 if (tokens[1].equals("rpm")) {
                     // TODO...
                 } else if (!tokens[1].equals("")) {
@@ -99,10 +102,11 @@ public class TestMimeTypes extends TestCase {
     public void testGetMimeTypeFromData() {
 
         try {
-            DataInputStream in = new DataInputStream(
-                            this.getClass().getResourceAsStream("mime-types.txt"));
-            while(in.available() != 0) {
-                String[] tokens = in.readLine().split(";");
+            BufferedReader in = new BufferedReader(new InputStreamReader(
+                    this.getClass().getResourceAsStream("mime-types.txt")));
+            String line = null;
+            while((line = in.readLine()) != null) {
+                String[] tokens = line.split(";");
                 if (tokens.length == 3) {
                     assertEquals(new MimeType(tokens[0]), mimes.getMimeType(getData(tokens[2])));
                 }
@@ -117,11 +121,12 @@ public class TestMimeTypes extends TestCase {
     public void testGetMimeTypeFromDataAndExtension() {
 
         try {
-            DataInputStream in = new DataInputStream(
-                            this.getClass().getResourceAsStream("mime-types.txt"));
-            while(in.available() != 0) {
+            BufferedReader in = new BufferedReader(new InputStreamReader(
+                    this.getClass().getResourceAsStream("mime-types.txt")));
+            String line = null;
+            while((line = in.readLine()) != null) {
                 byte[] data = null;
-                String[] tokens = in.readLine().split(";");
+                String[] tokens = line.split(";");
                 if (tokens[1].equals("rpm")) {
                     // TODO...
                 } else {
