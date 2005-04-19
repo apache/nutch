@@ -63,6 +63,14 @@ Release 0.7
 12. Close Issue #33 - MIME content type detector (using magic char sequences).
     (Jerome Charron and Hari Kodungallur via John Xing, 20050416)
 
+13. Add a servlet that implements A9's OpenSearch RSS web service.
+    (cutting, 20050418)
+
+14. Remove references to link analysis from tutorial, and enable
+    scoring by link count when generating fetchlists and searching.
+    (cutting, 20040419)
+
+
 Release 0.6
 
  1. Added clustering-carrot2 plugin, together with introduction of clustering
