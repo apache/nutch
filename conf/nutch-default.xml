@@ -669,4 +669,43 @@
   </description>
 </property>
 
+<!-- query-basic plugin properties -->
+
+<property>
+  <name>query.url.boost</name>
+  <value>4.0</value>
+  <description> Used as a boost for url field in Lucene query.
+  </description>
+</property>
+
+<property>
+  <name>query.anchor.boost</name>
+  <value>2.0</value>
+  <description> Used as a boost for anchor field in Lucene query.
+  </description>
+</property>
+
+
+<property>
+  <name>query.title.boost</name>
+  <value>1.5</value>
+  <description> Used as a boost for title field in Lucene query.
+  </description>
+</property>
+
+<property>
+  <name>query.host.boost</name>
+  <value>2.0</value>
+  <description> Used as a boost for host field in Lucene query.
+  </description>
+</property>
+
+<property>
+  <name>query.phrase.boost</name>
+  <value>1.0</value>
+  <description> Used as a boost for phrase in Lucene query.
+  Multiplied by boost for field phrase is matched in.
+  </description>
+</property>
+
 </nutch-conf>
