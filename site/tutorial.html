@@ -396,10 +396,6 @@ fetch:</p>
 <pre class="code">bin/nutch updatedb db $s1</pre>
 <p>Now the database has entries for all of the pages referenced by the
 initial set.</p>
-<p>Next we run five iterations of link analysis on the database in order
-to prioritize which pages to next fetch:</p>
-<pre class="code">bin/nutch analyze db 5
-</pre>
 <p>Now we fetch a new segment with the top-scoring 1000 pages:</p>
 <pre class="code">bin/nutch generate db segments -topN 1000
 s2=`ls -d segments/2* | tail -1`
@@ -407,7 +403,6 @@ echo $s2
 
 bin/nutch fetch $s2
 bin/nutch updatedb db $s2
-bin/nutch analyze db 2
 </pre>
 <p>Let's fetch one more round:</p>
 <pre class="code">
@@ -417,10 +412,10 @@ echo $s3
 
 bin/nutch fetch $s3
 bin/nutch updatedb db $s3
-bin/nutch analyze db 2</pre>
+</pre>
 <p>By this point we've fetched a few thousand pages.  Let's index
 them!</p>
-<a name="N1018D"></a><a name="Whole-web%3A+Indexing"></a>
+<a name="N10186"></a><a name="Whole-web%3A+Indexing"></a>
 <h3 class="h4">Whole-web: Indexing</h3>
 <p>To index each segment we use the <span class="codefrag">index</span>
 command, as follows:</p>
@@ -431,7 +426,7 @@ bin/nutch index $s3</pre>
 duplicate pages.  This is done with:</p>
 <pre class="code">bin/nutch dedup segments dedup.tmp</pre>
 <p>Now we're ready to search!</p>
-<a name="N101A8"></a><a name="Searching"></a>
+<a name="N101A1"></a><a name="Searching"></a>
 <h3 class="h4">Searching</h3>
 <p>To search you need to put the nutch war file into your servlet
 container.  (If instead of downloading a Nutch release you checked the

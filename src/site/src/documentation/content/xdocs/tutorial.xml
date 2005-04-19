@@ -203,10 +203,6 @@ fetch:</p>
 <p>Now the database has entries for all of the pages referenced by the
 initial set.</p>
 
-<p>Next we run five iterations of link analysis on the database in order
-to prioritize which pages to next fetch:</p>
-<source>bin/nutch analyze db 5
-</source>
 <p>Now we fetch a new segment with the top-scoring 1000 pages:</p>
 <source>bin/nutch generate db segments -topN 1000
 s2=`ls -d segments/2* | tail -1`
@@ -214,7 +210,6 @@ echo $s2
 
 bin/nutch fetch $s2
 bin/nutch updatedb db $s2
-bin/nutch analyze db 2
 </source>
 <p>Let's fetch one more round:</p>
 <source>
@@ -224,7 +219,7 @@ echo $s3
 
 bin/nutch fetch $s3
 bin/nutch updatedb db $s3
-bin/nutch analyze db 2</source>
+</source>
 
 <p>By this point we've fetched a few thousand pages.  Let's index
 them!</p>
