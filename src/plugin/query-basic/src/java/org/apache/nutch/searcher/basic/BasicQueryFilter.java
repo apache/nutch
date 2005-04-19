@@ -26,6 +26,7 @@ import org.apache.nutch.analysis.CommonGrams;
 import org.apache.nutch.searcher.QueryFilter;
 import org.apache.nutch.searcher.Query;
 import org.apache.nutch.searcher.Query.*;
+import org.apache.nutch.util.NutchConf;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -33,14 +34,23 @@ import java.util.HashSet;
 /** The default query filter.  Query terms in the default query field are
  * expanded to search the url, anchor and content document fields.*/
 public class BasicQueryFilter implements QueryFilter {
+    
+  private static float URL_BOOST =
+    NutchConf.get().getFloat("query.url.boost", 4.0f);
 
-  private static float URL_BOOST = 4.0f;
-  private static float ANCHOR_BOOST = 2.0f;
-  private static float TITLE_BOOST = 1.5f;
-  private static float HOST_BOOST = 2.0f;
+  private static float ANCHOR_BOOST =
+    NutchConf.get().getFloat("query.anchor.boost", 2.0f);
+
+  private static float TITLE_BOOST =
+    NutchConf.get().getFloat("query.title.boost", 1.5f);
+
+    private static float HOST_BOOST =
+      NutchConf.get().getFloat("query.host.boost", 2.0f);
 
   private static int SLOP = Integer.MAX_VALUE;
-  private static float PHRASE_BOOST = 1.0f;
+
+  private static float PHRASE_BOOST =
+    NutchConf.get().getFloat("query.phrase.boost", 1.0f);
 
   private static final String[] FIELDS =
   { "url", "anchor", "content", "title", "host" };

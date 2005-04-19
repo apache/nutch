@@ -70,6 +70,9 @@ Release 0.7
     scoring by link count when generating fetchlists and searching.
     (cutting, 20040419)
 
+15. Make query boosts for host, title, anchor and phrase matches
+    configurable.  (Piotr Kosiorowski via cutting, 20050419)
+
 
 Release 0.6
 
