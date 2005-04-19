@@ -246,7 +246,7 @@ duplicate pages.  This is done with:</p>
 
 <p>To search you need to put the nutch war file into your servlet
 container.  (If instead of downloading a Nutch release you checked the
-sources out of CVS, then you'll first need to build the war file, with
+sources out of SVN, then you'll first need to build the war file, with
 the command <code>ant war</code>.)</p>
 
 <p>Assuming you've unpacked Tomcat as ~/local/tomcat, then the Nutch war
