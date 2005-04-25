@@ -411,14 +411,12 @@ public class NDFS implements FSConstants {
         Vector receivedBlockList = new Vector();
 
         /**
-         * Create using configured defaults.
+         * Create using configured defaults and dataDir.
          */
-        public DataNode() throws IOException {
-          this(InetAddress.getLocalHost().getHostName(),
-               new File(NutchConf.get().get("ndfs.data.dir",
-                                            "/tmp/nutch/data/name")),
-               createSocketAddr
-               (NutchConf.get().get("fs.default.name", "local")));
+        public DataNode(String dataDir) throws IOException {
+            this(InetAddress.getLocalHost().getHostName(), new File(dataDir),
+                    createSocketAddr(NutchConf.get().get("fs.default.name",
+                            "local")));
         }
 
         /**
@@ -911,7 +909,14 @@ public class NDFS implements FSConstants {
         /**
          */
         public static void main(String argv[]) throws IOException {
-            DataNode datanode = new DataNode();
+            String dataDir = NutchConf.get().get("ndfs.data.dir",
+                    "/tmp/nutch/data/name");
+            if (argv.length > 0){
+                dataDir=argv[0];
+            } 
+            LOG.info("Using ["+dataDir+"] directory for data storage.");
+            
+            DataNode datanode = new DataNode(dataDir);
             while (true) {
                 try {
                     datanode.offerService();
