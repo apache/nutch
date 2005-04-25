@@ -215,8 +215,12 @@ public class TestClient {
      * main() has some simple utility methods
      */
     public static void main(String argv[]) throws IOException {
-        if (argv.length < 2) {
-            System.out.println("Usage: java NDFSClient (-local | -ndfs <namenode:port>) [-ls <path>] [-du <path>] [-mv <src> <dst>] [-cp <src> <dst>] [-rm <src>] [-put <localsrc> <dst>] [-copyFromLocal <localsrc> <dst>] [-moveFromLocal <localsrc> <dst>] [-get <src> <localdst>] [-copyToLocal <src> <localdst>] [-moveToLocal <src> <localdst>]");
+        if (argv.length < 1) {
+            System.out.println("Usage: java NDFSClient [-local | -ndfs <namenode:port>]" +
+                    " [-ls <path>] [-du <path>] [-mv <src> <dst>] [-cp <src> <dst>] [-rm <src>]" +
+                    " [-put <localsrc> <dst>] [-copyFromLocal <localsrc> <dst>] [-moveFromLocal <localsrc> <dst>]" + 
+                    " [-get <src> <localdst>] [-copyToLocal <src> <localdst>] [-moveToLocal <src> <localdst>]" +
+                    " [-mkdir <path>] [-report]");
             return;
         }
 
