@@ -51,14 +51,32 @@ public class RPC {
     PRIMITIVE_NAMES.put("void", Void.TYPE);
   }
 
+  private static class NullInstance implements Writable {
+    private Class theClass;
+    public NullInstance() {}
+    public NullInstance(Class theClass) { this.theClass = theClass; }
+    public void readFields(DataInput in) throws IOException {
+      try {
+        theClass = Class.forName(UTF8.readString(in));
+      } catch (ClassNotFoundException e) {
+        throw new RuntimeException(e.toString());
+      }
+    }
+    public void write(DataOutput out) throws IOException {
+      UTF8.writeString(out, theClass.getName());
+    }
+  }
+
   private static void writeObject(DataOutput out, Object instance,
                                   Class theClass) throws IOException {
 
     if (instance == null) {                       // null
-      instance = NullWritable.get();
+      instance = new NullInstance(theClass);
+      theClass = NullInstance.class;
     }
 
     UTF8.writeString(out, theClass.getName());
+
     if (theClass.isArray()) {                     // array
       int length = Array.getLength(instance);
       out.writeInt(length);
@@ -92,8 +110,10 @@ public class RPC {
         throw new IllegalArgumentException("Not a known primitive: "+theClass);
       }
       
-    } else {                                      // Writable
+    } else if (instance instanceof Writable) {        // Writable
       ((Writable)instance).write(out);
+    } else {
+      throw new IOException("Can't write: " + instance + " as " + theClass);
     }
   }
   
@@ -119,7 +139,10 @@ public class RPC {
     if (storeClass != null)
       storeClass[0] = theClass;
 
-    if (theClass == NullWritable.class) {         // null
+    if (theClass == NullInstance.class) {         // null
+      NullInstance instance = new NullInstance();
+      instance.readFields(in);
+      storeClass[0] = instance.theClass;
       return null;
 
     } else if (theClass.isPrimitive()) {          // primitive types
