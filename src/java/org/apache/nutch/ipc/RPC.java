@@ -30,9 +30,8 @@ import java.util.*;
 import org.apache.nutch.io.*;
 import org.apache.nutch.util.*;
 
-/** A simple RPC mechanism.  A protocol is a Java interface.  All method
- * parameters and return values must implement Writable.  All methods should
- * throw only IOException.  No field data is transmitted. */
+/** A simple RPC mechanism.  A protocol is a Java interface.  All methods
+ * should throw only IOException.  No field data is transmitted. */
 public class RPC {
   public static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.ipc.RPC");
