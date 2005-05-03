@@ -16,10 +16,6 @@
 
 package org.apache.nutch.ipc;
 
-import org.apache.nutch.io.Writable;
-import org.apache.nutch.io.IntWritable;
-import org.apache.nutch.io.NullWritable;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.lang.reflect.Method;
@@ -52,9 +48,9 @@ public class TestRPC extends TestCase {
     void ping() throws IOException;
     String echo(String value) throws IOException;
     String[] echo(String[] value) throws IOException;
-    IntWritable add(IntWritable v1, IntWritable v2) throws IOException;
-    IntWritable add(IntWritable[] values) throws IOException;
-    IntWritable error() throws IOException;
+    int add(int v1, int v2) throws IOException;
+    int add(int[] values) throws IOException;
+    int error() throws IOException;
   }
 
   public class TestImpl implements TestProtocol {
@@ -65,19 +61,19 @@ public class TestRPC extends TestCase {
 
     public String[] echo(String[] values) throws IOException { return values; }
 
-    public IntWritable add(IntWritable v1, IntWritable v2) {
-      return new IntWritable(v1.get() + v2.get());
+    public int add(int v1, int v2) {
+      return v1 + v2;
     }
 
-    public IntWritable add(IntWritable[] values) {
+    public int add(int[] values) {
       int sum = 0;
       for (int i = 0; i < values.length; i++) {
-        sum += values[i].get();
+        sum += values[i];
       }
-      return new IntWritable(sum);
+      return sum;
     }
 
-    public IntWritable error() throws IOException {
+    public int error() throws IOException {
       throw new IOException("bobo");
     }
 
@@ -99,12 +95,11 @@ public class TestRPC extends TestCase {
     String[] stringResults = proxy.echo(new String[]{"foo","bar"});
     assertTrue(Arrays.equals(stringResults, new String[]{"foo","bar"}));
 
-    IntWritable intResult = proxy.add(new IntWritable(1), new IntWritable(2));
-    assertEquals(intResult, new IntWritable(3));
+    int intResult = proxy.add(1, 2);
+    assertEquals(intResult, 3);
 
-    intResult = proxy.add(new IntWritable[]
-      { new IntWritable(1), new IntWritable(2) });
-    assertEquals(intResult, new IntWritable(3));
+    intResult = proxy.add(new int[] {1, 2});
+    assertEquals(intResult, 3);
 
     boolean caught = false;
     try {
