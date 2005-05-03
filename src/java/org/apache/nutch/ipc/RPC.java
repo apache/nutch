@@ -191,6 +191,25 @@ public class RPC {
                                   new Class[] { protocol },
                                   new Invoker(addr));
   }
+
+  /** Make multiple, parallel calls to a set of servers. */
+  public static Object[] call(Method method, Object[][] params,
+                              InetSocketAddress[] addrs)
+    throws IOException {
+
+    Invocation[] invocations = new Invocation[params.length];
+    for (int i = 0; i < params.length; i++)
+      invocations[i] = new Invocation(method, params[i]);
+    
+    Writable[] wrappedValues = CLIENT.call(invocations, addrs);
+    
+    Object[] values =
+      (Object[])Array.newInstance(method.getReturnType(),wrappedValues.length);
+    for (int i = 0; i < values.length; i++)
+      values[i] = ((ObjectWritable)wrappedValues[i]).get();
+    
+    return values;
+  }
   
 
   /** Construct a server for the named instance listening on the named port. */

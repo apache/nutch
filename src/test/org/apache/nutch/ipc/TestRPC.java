@@ -22,6 +22,7 @@ import org.apache.nutch.io.NullWritable;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.lang.reflect.Method;
 
 import junit.framework.TestCase;
 
@@ -86,9 +87,9 @@ public class TestRPC extends TestCase {
     Server server = RPC.getServer(new TestImpl(), PORT);
     server.start();
 
+    InetSocketAddress addr = new InetSocketAddress(PORT);
     TestProtocol proxy =
-      (TestProtocol)RPC.getProxy(TestProtocol.class,
-                                 new InetSocketAddress(PORT));
+      (TestProtocol)RPC.getProxy(TestProtocol.class, addr);
     
     proxy.ping();
 
@@ -114,9 +115,16 @@ public class TestRPC extends TestCase {
     }
     assertTrue(caught);
 
+    // try a multi-call
+    Method method =
+      TestProtocol.class.getMethod("echo", new Class[] { String.class });
+    String[] values = (String[])RPC.call(method, new String[][]{{"a"},{"b"}},
+                                         new InetSocketAddress[] {addr, addr});
+    assertTrue(Arrays.equals(values, new String[]{"a","b"}));
+
+
     server.stop();
   }
-
   public static void main(String[] args) throws Exception {
     // crank up the volume!
     LOG.setLevel(Level.FINE);
