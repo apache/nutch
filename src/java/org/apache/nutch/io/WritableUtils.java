@@ -25,6 +25,7 @@ public final class WritableUtils  {
 
   public static byte[] readCompressedByteArray(DataInput in) throws IOException {
     int length = in.readInt();
+    if (length == -1) return null;
     byte[] buffer = new byte[length];
     in.readFully(buffer);      // could/should use readFully(buffer,0,length)?
     GZIPInputStream gzi = new GZIPInputStream(new ByteArrayInputStream(buffer, 0, buffer.length));
@@ -42,31 +43,38 @@ public final class WritableUtils  {
 
   public static void skipCompressedByteArray(DataInput in) throws IOException {
     int length = in.readInt();
-    in.skipBytes(length);
+    if (length != -1) in.skipBytes(length);
   }
 
   public static int  writeCompressedByteArray(DataOutput out, byte[] bytes) throws IOException {
-    ByteArrayOutputStream bos =  new ByteArrayOutputStream();
-    GZIPOutputStream gzout = new GZIPOutputStream(bos);
-    gzout.write(bytes,0,bytes.length);
-    gzout.close();
-    byte[] buffer = bos.toByteArray();
-    int len = buffer.length;
-    out.writeInt(len);
-    out.write(buffer,0,len);
+    if (bytes != null) {
+      ByteArrayOutputStream bos =  new ByteArrayOutputStream();
+      GZIPOutputStream gzout = new GZIPOutputStream(bos);
+      gzout.write(bytes,0,bytes.length);
+      gzout.close();
+      byte[] buffer = bos.toByteArray();
+      int len = buffer.length;
+      out.writeInt(len);
+      out.write(buffer,0,len);
     /* debug only! Once we have confidence, can lose this. */
-    return ((bytes.length != 0) ? (100*buffer.length)/bytes.length : 0);
+      return ((bytes.length != 0) ? (100*buffer.length)/bytes.length : 0);
+    } else {
+      out.writeInt(-1);
+      return -1;
+    }
   }
 
 
   /* Ugly utility, maybe someone else can do this better  */
   public static String readCompressedString(DataInput in) throws IOException {
-    return new String(readCompressedByteArray(in),"UTF-8");
+    byte[] bytes = readCompressedByteArray(in);
+    if (bytes == null) return null;
+    return new String(bytes, "UTF-8");
   }
 
 
   public static int  writeCompressedString(DataOutput out, String s) throws IOException {
-    return writeCompressedByteArray(out, s.getBytes("UTF-8"));
+    return writeCompressedByteArray(out, (s != null) ? s.getBytes("UTF-8") : null);
   }
 
   /*
@@ -77,10 +85,14 @@ public final class WritableUtils  {
    * 
    */
   public static void writeString(DataOutput out, String s) throws IOException {
-    byte[] buffer = s.getBytes("UTF-8");
-    int len = buffer.length;
-    out.writeInt(len);
-    out.write(buffer,0,len);
+    if (s != null) {
+      byte[] buffer = s.getBytes("UTF-8");
+      int len = buffer.length;
+      out.writeInt(len);
+      out.write(buffer,0,len);
+    } else {
+      out.writeInt(-1);
+    }
   }
 
   /*
@@ -91,6 +103,7 @@ public final class WritableUtils  {
    */
   public static String readString(DataInput in) throws IOException{
     int length = in.readInt();
+    if (length == -1) return null;
     byte[] buffer = new byte[length];
     in.readFully(buffer);      // could/should use readFully(buffer,0,length)?
     return new String(buffer,"UTF-8");  
@@ -110,15 +123,48 @@ public final class WritableUtils  {
   }
 
   /*
+   * Write a String array as a Nework Int N, followed by Int N Byte Array of
+   * compressed Strings. Handles also null arrays and null values.
+   * Could be generalised using introspection.
+   *
+   */
+  public static void writeCompressedStringArray(DataOutput out, String[] s) throws IOException{
+    if (s == null) {
+      out.writeInt(-1);
+      return;
+    }
+    out.writeInt(s.length);
+    for(int i = 0; i < s.length; i++){
+      writeCompressedString(out, s[i]);
+    }
+  }
+
+  /*
    * Write a String array as a Nework Int N, followed by Int N Byte Array Strings.
    * Could be generalised using introspection. Actually this bit couldn't...
    *
    */
-  public static  String[] readStringArray(DataInput in) throws IOException {
+  public static String[] readStringArray(DataInput in) throws IOException {
+    int len = in.readInt();
+    if (len == -1) return null;
+    String[] s = new String[len];
+    for(int i = 0; i < len; i++){
+      s[i] = readString(in);
+    }
+    return s;
+  }
+
+
+  /*
+   * Write a String array as a Nework Int N, followed by Int N Byte Array Strings.
+   * Could be generalised using introspection. Handles null arrays and null values.
+   *
+   */
+  public static  String[] readCompressedStringArray(DataInput in) throws IOException {
     int len = in.readInt();
     String[] s = new String[len];
-    for(int i=0;i < len;i++){
-      s[i] = readString(in);
+    for(int i = 0; i < len; i++){
+      s[i] = readCompressedString(in);
     }
     return s;
   }
