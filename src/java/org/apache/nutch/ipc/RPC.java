@@ -30,10 +30,26 @@ import java.util.*;
 import org.apache.nutch.io.*;
 import org.apache.nutch.util.*;
 
-/** A simple RPC mechanism.  A protocol is a Java interface.  All methods
- * should throw only IOException.  No field data is transmitted. */
+/** A simple RPC mechanism.
+ *
+ * A <i>protocol</i> is a Java interface.  All parameters and return types must
+ * be one of:
+ *
+ * <ul> <li>a primitive type, <code>boolean</code>, <code>byte</code>,
+ * <code>char</code>, <code>short</code>, <code>int</code>, <code>long</code>,
+ * <code>float</code>, <code>double</code>, or <code>void</code>; or</li>
+ *
+ * <li>a {@link String}; or</li>
+ *
+ * <li>a {@link Writable}; or</li>
+ *
+ * <li>an array of the above types</li> </ul>
+ *
+ * All methods in the protocol should throw only IOException.  No field data of
+ * the protocol instance is transmitted.
+ */
 public class RPC {
-  public static final Logger LOG =
+  private static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.ipc.RPC");
 
   private RPC() {}                                  // no public ctor
@@ -52,68 +68,85 @@ public class RPC {
   }
 
   private static class NullInstance implements Writable {
-    private Class theClass;
+    private Class declaredClass;
     public NullInstance() {}
-    public NullInstance(Class theClass) { this.theClass = theClass; }
+    public NullInstance(Class declaredClass) {
+      this.declaredClass = declaredClass;
+    }
     public void readFields(DataInput in) throws IOException {
-      try {
-        theClass = Class.forName(UTF8.readString(in));
-      } catch (ClassNotFoundException e) {
-        throw new RuntimeException(e.toString());
+      String className = UTF8.readString(in);
+      declaredClass = (Class)PRIMITIVE_NAMES.get(className);
+      if (declaredClass == null) {
+        try {
+          declaredClass = Class.forName(className);
+        } catch (ClassNotFoundException e) {
+          throw new RuntimeException(e.toString());
+        }
       }
     }
     public void write(DataOutput out) throws IOException {
-      UTF8.writeString(out, theClass.getName());
+      UTF8.writeString(out, declaredClass.getName());
     }
   }
 
   private static void writeObject(DataOutput out, Object instance,
-                                  Class theClass) throws IOException {
+                                  Class declaredClass) throws IOException {
 
     if (instance == null) {                       // null
-      instance = new NullInstance(theClass);
-      theClass = NullInstance.class;
+      instance = new NullInstance(declaredClass);
+      declaredClass = NullInstance.class;
     }
 
-    UTF8.writeString(out, theClass.getName());
+    if (instance instanceof Writable) {           // Writable
 
-    if (theClass.isArray()) {                     // array
+      // write instance's class, to support subclasses of the declared class
+      UTF8.writeString(out, instance.getClass().getName());
+      
+      ((Writable)instance).write(out);
+
+      return;
+    }
+
+    // write declared class for primitives, as they can't be subclassed, and
+    // the class of the instance may be a wrapper
+    UTF8.writeString(out, declaredClass.getName());
+
+    if (declaredClass.isArray()) {                // array
       int length = Array.getLength(instance);
       out.writeInt(length);
       for (int i = 0; i < length; i++) {
-        writeObject(out, Array.get(instance, i), theClass.getComponentType());
+        writeObject(out, Array.get(instance, i),
+                    declaredClass.getComponentType());
       }
       
-    } else if (theClass == String.class) {        // String
+    } else if (declaredClass == String.class) {   // String
       UTF8.writeString(out, (String)instance);
       
-    } else if (theClass.isPrimitive()) {          // primitive type
+    } else if (declaredClass.isPrimitive()) {     // primitive type
 
-      if (theClass == Boolean.TYPE) {            // boolean
+      if (declaredClass == Boolean.TYPE) {        // boolean
         out.writeBoolean(((Boolean)instance).booleanValue());
-      } else if (theClass == Character.TYPE) {    // char
+      } else if (declaredClass == Character.TYPE) { // char
         out.writeChar(((Character)instance).charValue());
-      } else if (theClass == Byte.TYPE) {         // byte
+      } else if (declaredClass == Byte.TYPE) {    // byte
         out.writeByte(((Byte)instance).byteValue());
-      } else if (theClass == Short.TYPE) {        // short
+      } else if (declaredClass == Short.TYPE) {   // short
         out.writeShort(((Short)instance).shortValue());
-      } else if (theClass == Integer.TYPE) {      // int
+      } else if (declaredClass == Integer.TYPE) { // int
         out.writeInt(((Integer)instance).intValue());
-      } else if (theClass == Long.TYPE) {         // long
+      } else if (declaredClass == Long.TYPE) {    // long
         out.writeLong(((Long)instance).longValue());
-      } else if (theClass == Float.TYPE) {        // float
+      } else if (declaredClass == Float.TYPE) {   // float
         out.writeFloat(((Float)instance).floatValue());
-      } else if (theClass == Double.TYPE) {       // double
+      } else if (declaredClass == Double.TYPE) {  // double
         out.writeDouble(((Double)instance).doubleValue());
-      } else if (theClass == Void.TYPE) {         // void
+      } else if (declaredClass == Void.TYPE) {    // void
       } else {
-        throw new IllegalArgumentException("Not a known primitive: "+theClass);
+        throw new IllegalArgumentException("Not a primitive: "+declaredClass);
       }
       
-    } else if (instance instanceof Writable) {        // Writable
-      ((Writable)instance).write(out);
     } else {
-      throw new IOException("Can't write: " + instance + " as " + theClass);
+      throw new IOException("Can't write: "+instance+" as "+declaredClass);
     }
   }
   
@@ -123,74 +156,79 @@ public class RPC {
     return readObject(in, null);
   }
     
-  private static Object readObject(DataInput in, Class[] storeClass)
+  private static Object readObject(DataInput in, ObjectWritable objectWritable)
     throws IOException {
-    
-    String name = UTF8.readString(in);
-    Class theClass = (Class)PRIMITIVE_NAMES.get(name);
-    if (theClass == null) {
+    String className = UTF8.readString(in);
+    Class declaredClass = (Class)PRIMITIVE_NAMES.get(className);
+    if (declaredClass == null) {
       try {
-        theClass = Class.forName(name);
+        declaredClass = Class.forName(className);
       } catch (ClassNotFoundException e) {
         throw new RuntimeException(e.toString());
       }
     }    
 
-    if (storeClass != null)
-      storeClass[0] = theClass;
+    Object instance;
+    
+    if (declaredClass == NullInstance.class) {         // null
+      NullInstance wrapper = new NullInstance();
+      wrapper.readFields(in);
+      declaredClass = wrapper.declaredClass;
+      instance = null;
 
-    if (theClass == NullInstance.class) {         // null
-      NullInstance instance = new NullInstance();
-      instance.readFields(in);
-      storeClass[0] = instance.theClass;
-      return null;
+    } else if (declaredClass.isPrimitive()) {          // primitive types
 
-    } else if (theClass.isPrimitive()) {          // primitive types
-
-      if (theClass == Boolean.TYPE) {             // boolean
-        return Boolean.valueOf(in.readBoolean());
-      } else if (theClass == Character.TYPE) {    // char
-        return new Character(in.readChar());
-      } else if (theClass == Byte.TYPE) {         // byte
-        return new Byte(in.readByte());
-      } else if (theClass == Short.TYPE) {        // short
-        return new Short(in.readShort());
-      } else if (theClass == Integer.TYPE) {      // int
-        return new Integer(in.readInt());
-      } else if (theClass == Long.TYPE) {         // long
-        return new Long(in.readLong());
-      } else if (theClass == Float.TYPE) {        // float
-        return new Float(in.readFloat());
-      } else if (theClass == Double.TYPE) {       // double
-        return new Double(in.readDouble());
-      } else if (theClass == Void.TYPE) {         // void
-        return null;
+      if (declaredClass == Boolean.TYPE) {             // boolean
+        instance = Boolean.valueOf(in.readBoolean());
+      } else if (declaredClass == Character.TYPE) {    // char
+        instance = new Character(in.readChar());
+      } else if (declaredClass == Byte.TYPE) {         // byte
+        instance = new Byte(in.readByte());
+      } else if (declaredClass == Short.TYPE) {        // short
+        instance = new Short(in.readShort());
+      } else if (declaredClass == Integer.TYPE) {      // int
+        instance = new Integer(in.readInt());
+      } else if (declaredClass == Long.TYPE) {         // long
+        instance = new Long(in.readLong());
+      } else if (declaredClass == Float.TYPE) {        // float
+        instance = new Float(in.readFloat());
+      } else if (declaredClass == Double.TYPE) {       // double
+        instance = new Double(in.readDouble());
+      } else if (declaredClass == Void.TYPE) {         // void
+        instance = null;
       } else {
-        throw new IllegalArgumentException("Not a known primitive: "+theClass);
+        throw new IllegalArgumentException("Not a primitive: "+declaredClass);
       }
 
-    } else if (theClass.isArray()) {              // array
+    } else if (declaredClass.isArray()) {              // array
       int length = in.readInt();
-      Object array = Array.newInstance(theClass.getComponentType(), length);
+      instance = Array.newInstance(declaredClass.getComponentType(), length);
       for (int i = 0; i < length; i++) {
-        Array.set(array, i, readObject(in));
+        Array.set(instance, i, readObject(in));
       }
-      return array;
       
-    } else if (theClass == String.class) {        // String
-      return UTF8.readString(in);
+    } else if (declaredClass == String.class) {        // String
+      instance = UTF8.readString(in);
       
     } else {                                      // Writable
       try {
-        Writable instance = (Writable)theClass.newInstance();
-        instance.readFields(in);
-        return instance;
+        Writable writable = (Writable)declaredClass.newInstance();
+        writable.readFields(in);
+        instance = writable;
       } catch (InstantiationException e) {
         throw new RuntimeException(e);
       } catch (IllegalAccessException e) {
         throw new RuntimeException(e);
       }
     }
+
+    if (objectWritable != null) {                 // store values
+      objectWritable.declaredClass = declaredClass;
+      objectWritable.instance = instance;
+    }
+
+    return instance;
+      
   }
 
   /** A method invocation, including the method name and its parameters.*/
@@ -221,10 +259,10 @@ public class RPC {
       parameters = new Object[in.readInt()];
       parameterClasses = new Class[parameters.length];
 
-      Class[] storeClass = new Class[1];
+      ObjectWritable objectWritable = new ObjectWritable();
       for (int i = 0; i < parameters.length; i++) {
-        parameters[i] = readObject(in, storeClass);
-        parameterClasses[i] = storeClass[0];
+        parameters[i] = readObject(in, objectWritable);
+        parameterClasses[i] = objectWritable.declaredClass;
       }
     }
 
@@ -255,13 +293,13 @@ public class RPC {
    * Also handles arrays and strings w/o a Writable wrapper.
    */
   private static class ObjectWritable implements Writable {
-    private Class theClass;
+    private Class declaredClass;
     private Object instance;
 
     public ObjectWritable() {}
 
-    public ObjectWritable(Class theClass, Object instance) {
-      this.theClass = theClass;
+    public ObjectWritable(Class declaredClass, Object instance) {
+      this.declaredClass = declaredClass;
       this.instance = instance;
     }
 
@@ -269,13 +307,11 @@ public class RPC {
     public Object get() { return instance; }
 
     public void readFields(DataInput in) throws IOException {
-      Class[] storeClass = new Class[1];
-      instance = readObject(in, storeClass);
-      theClass = storeClass[0];
+      readObject(in, this);
     }
 
     public void write(DataOutput out) throws IOException {
-      writeObject(out, instance, theClass);
+      writeObject(out, instance, declaredClass);
     }
 
   }
@@ -305,7 +341,7 @@ public class RPC {
                                   new Invoker(addr));
   }
 
-  /** Make multiple, parallel calls to a set of servers. */
+  /** Expert: Make multiple, parallel calls to a set of servers. */
   public static Object[] call(Method method, Object[][] params,
                               InetSocketAddress[] addrs)
     throws IOException {
@@ -319,18 +355,21 @@ public class RPC {
     Object[] values =
       (Object[])Array.newInstance(method.getReturnType(),wrappedValues.length);
     for (int i = 0; i < values.length; i++)
-      values[i] = ((ObjectWritable)wrappedValues[i]).get();
+      if (wrappedValues[i] != null)
+        values[i] = ((ObjectWritable)wrappedValues[i]).get();
     
     return values;
   }
   
 
-  /** Construct a server for the named instance listening on the named port. */
+  /** Construct a server for a protocol implementation instance listening on a
+   * port. */
   public static Server getServer(final Object instance, final int port) {
     return getServer(instance, port, 1, false);
   }
 
-  /** Construct a server for the named instance listening on the named port. */
+  /** Construct a server for a protocol implementation instance listening on a
+   * port. */
   public static Server getServer(final Object instance, final int port,
                                  final int numHandlers,
                                  final boolean verbose) {
