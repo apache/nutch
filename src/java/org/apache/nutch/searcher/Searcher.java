@@ -21,7 +21,9 @@ import java.io.IOException;
 /** Service that searches. */
 public interface Searcher {
   /** Return the top-scoring hits for a query. */
-  Hits search(Query query, int numHits) throws IOException;
+  Hits search(Query query, int numHits,
+              String dedupField, String sortField, boolean reverse)
+    throws IOException;
 
   /** Return an HTML-formatted explanation of how a query scored. */
   String getExplanation(Query query, Hit hit) throws IOException;

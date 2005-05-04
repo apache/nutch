@@ -380,14 +380,14 @@ public class RPC {
         public Writable call(Writable param) throws IOException {
           try {
             Invocation call = (Invocation)param;
-            if (verbose) LOG.info("Call: " + call);
+            if (verbose) log("Call: " + call);
 
             Method method =
               implementation.getMethod(call.getMethodName(),
                                        call.getParameterClasses());
 
             Object value = method.invoke(instance, call.getParameters());
-            if (verbose) LOG.info("Return: " + value);
+            if (verbose) log("Return: "+value);
 
             return new ObjectWritable(method.getReturnType(), value);
 
@@ -407,6 +407,12 @@ public class RPC {
           }
         }
       };
+  }
+
+  private static void log(String value) {
+    if (value!= null && value.length() > 55)
+      value = value.substring(0, 55)+"...";
+    LOG.info(value);
   }
   
 }

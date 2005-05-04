@@ -11,7 +11,7 @@
   NutchBean bean = NutchBean.get(application);
   bean.LOG.info("cache request from " + request.getRemoteAddr());
   Hit hit = new Hit(Integer.parseInt(request.getParameter("idx")),
-                    Integer.parseInt(request.getParameter("id")), 0.0f, null);
+                    Integer.parseInt(request.getParameter("id")));
   HitDetails details = bean.getDetails(hit);
   String id = "idx=" + hit.getIndexNo() + "&id=" + hit.getIndexDocNo();
 

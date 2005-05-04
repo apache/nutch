@@ -32,7 +32,8 @@ import org.apache.nutch.indexer.*;
  * @version $Id: NutchBean.java,v 1.19 2005/02/07 19:10:08 cutting Exp $
  */   
 public class NutchBean
-  implements Searcher, HitDetailer, HitSummarizer, HitContent {
+  implements Searcher, HitDetailer, HitSummarizer, HitContent,
+             DistributedSearch.Protocol {
 
   public static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.searcher.NutchBean");
@@ -131,54 +132,83 @@ public class NutchBean
   }
 
   public Hits search(Query query, int numHits) throws IOException {
-    return searcher.search(query, numHits);
+    return search(query, numHits, null, null, false);
   }
   
-  private class SiteHits extends ArrayList {
+  public Hits search(Query query, int numHits,
+                     String dedupField, String sortField, boolean reverse)
+    throws IOException {
+
+    return searcher.search(query, numHits, dedupField, sortField, reverse);
+  }
+  
+  private class DupHits extends ArrayList {
     private boolean maxSizeExceeded;
   }
 
-  /**
-   * Search for pages matching a query, eliminating excessive hits from sites.
-   * Hits for a site in excess of <code>maxHitsPerSite</code> are removed from
-   * the results.  The remaining hits for such sites have {@link
-   * Hit#moreFromSiteExcluded()} set.
-   * <p>
-   * If maxHitsPerSite is zero then all hits are returned.
+  /** Search for pages matching a query, eliminating excessive hits with
+   * matching values for a named field.  Hits after the first
+   * <code>maxHitsPerDup</code> are removed from results.  The remaining hits
+   * have {@link Hit#moreFromDupExcluded()} set.  <p> If maxHitsPerDup is zero
+   * then all hits are returned.
    * 
    * @param query query
    * @param numHits number of requested hits
-   * @param maxHitsPerSite the maximum hits returned per site, or zero
+   * @param maxHitsPerDup the maximum hits returned with matching values, or zero
+   * @param dedupField field name to check for duplicates
    * @return Hits the matching hits
    * @throws IOException
    */
-  public Hits search(Query query, int numHits, int maxHitsPerSite)
+  public Hits search(Query query, int numHits,
+                     int maxHitsPerDup, String dedupField)
        throws IOException {
-    if (maxHitsPerSite <= 0)                      // disable site checking
-      return searcher.search(query, numHits);
+    return search(query, numHits, maxHitsPerDup, dedupField, null, false);
+  }
+  /** Search for pages matching a query, eliminating excessive hits with
+   * matching values for a named field.  Hits after the first
+   * <code>maxHitsPerDup</code> are removed from results.  The remaining hits
+   * have {@link Hit#moreFromDupExcluded()} set.  <p> If maxHitsPerDup is zero
+   * then all hits are returned.
+   * 
+   * @param query query
+   * @param numHits number of requested hits
+   * @param maxHitsPerDup the maximum hits returned with matching values, or zero
+   * @param dedupField field name to check for duplicates
+   * @return Hits the matching hits
+   * @throws IOException
+   */
+  public Hits search(Query query, int numHits,
+                     int maxHitsPerDup, String dedupField,
+                     String sortField, boolean reverse)
+       throws IOException {
+    if (maxHitsPerDup <= 0)                      // disable dup checking
+      return search(query, numHits, dedupField, sortField, reverse);
 
     int numHitsRaw = (int)(numHits * RAW_HITS_FACTOR);
     LOG.info("searching for "+numHitsRaw+" raw hits");
-    Hits hits = searcher.search(query, numHitsRaw);
+    Hits hits = searcher.search(query, numHitsRaw,
+                                dedupField, sortField, reverse);
     long total = hits.getTotal();
-    Map siteToHits = new HashMap();
+    Map dupToHits = new HashMap();
     List resultList = new ArrayList();
     Set seen = new HashSet();
-    List excludedSites = new ArrayList();
+    List excludedValues = new ArrayList();
     boolean totalIsExact = true;
     for (int rawHitNum = 0; rawHitNum < hits.getTotal(); rawHitNum++) {
       // get the next raw hit
       if (rawHitNum >= hits.getLength()) {
-        // optimize query by prohibiting more matches on some excluded sites
+        // optimize query by prohibiting more matches on some excluded values
         Query optQuery = (Query)query.clone();
-        for (int i = 0; i < excludedSites.size(); i++) {
+        for (int i = 0; i < excludedValues.size(); i++) {
           if (i == MAX_PROHIBITED_TERMS)
             break;
-          optQuery.addProhibitedTerm(((String)excludedSites.get(i)), "site");
+          optQuery.addProhibitedTerm(((String)excludedValues.get(i)),
+                                     dedupField);
         }
         numHitsRaw = (int)(numHitsRaw * RAW_HITS_FACTOR);
         LOG.info("re-searching for "+numHitsRaw+" raw hits, query: "+optQuery);
-        hits = searcher.search(optQuery, numHitsRaw);
+        hits = searcher.search(optQuery, numHitsRaw,
+                               dedupField, sortField, reverse);
         LOG.info("found "+hits.getTotal()+" raw hits");
         rawHitNum = -1;
         continue;
@@ -189,28 +219,28 @@ public class NutchBean
         continue;
       seen.add(hit);
       
-      // get site hits for its site
-      String site = hit.getSite();
-      SiteHits siteHits = (SiteHits)siteToHits.get(site);
-      if (siteHits == null)
-        siteToHits.put(site, siteHits = new SiteHits());
+      // get dup hits for its value
+      String value = hit.getDedupValue();
+      DupHits dupHits = (DupHits)dupToHits.get(value);
+      if (dupHits == null)
+        dupToHits.put(value, dupHits = new DupHits());
 
-      // does this hit exceed maxHitsPerSite?
-      if (siteHits.size() == maxHitsPerSite) {    // yes -- ignore the hit
-        if (!siteHits.maxSizeExceeded) {
+      // does this hit exceed maxHitsPerDup?
+      if (dupHits.size() == maxHitsPerDup) {      // yes -- ignore the hit
+        if (!dupHits.maxSizeExceeded) {
 
-          // mark prior hits with moreFromSiteExcluded
-          for (int i = 0; i < siteHits.size(); i++) {
-            ((Hit)siteHits.get(i)).setMoreFromSiteExcluded(true);
+          // mark prior hits with moreFromDupExcluded
+          for (int i = 0; i < dupHits.size(); i++) {
+            ((Hit)dupHits.get(i)).setMoreFromDupExcluded(true);
           }
-          siteHits.maxSizeExceeded = true;
+          dupHits.maxSizeExceeded = true;
 
-          excludedSites.add(site);                // exclude site
+          excludedValues.add(value);              // exclude dup
         }
         totalIsExact = false;
       } else {                                    // no -- collect the hit
         resultList.add(hit);
-        siteHits.add(hit);
+        dupHits.add(hit);
 
         // are we done?
         // we need to find one more than asked for, so that we can tell if

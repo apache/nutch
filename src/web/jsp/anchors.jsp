@@ -15,7 +15,7 @@
   request.setCharacterEncoding("UTF-8");
   bean.LOG.info("anchors request from " + request.getRemoteAddr());
   Hit hit = new Hit(Integer.parseInt(request.getParameter("idx")),
-                    Integer.parseInt(request.getParameter("id")), 0.0f, null);
+                    Integer.parseInt(request.getParameter("id")));
   HitDetails details = bean.getDetails(hit);
   String language =
     ResourceBundle.getBundle("org.nutch.jsp.anchors", request.getLocale())

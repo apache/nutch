@@ -21,6 +21,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import org.apache.nutch.io.Writable;
+import org.apache.nutch.io.WritableComparable;
 import org.apache.nutch.io.UTF8;
 
 import java.util.logging.Logger;
@@ -33,25 +34,25 @@ public class Hit implements Writable, Comparable {
 
   private int indexNo;                            // index id
   private int indexDocNo;                         // index-relative id
-  private float score;                            // its score for the query
-  private String site;                            // its website name
-  private boolean moreFromSiteExcluded;
+  private WritableComparable sortValue;           // value sorted on
+  private String dedupValue;                      // value to dedup on
+  private boolean moreFromDupExcluded;
 
   public Hit() {}
 
-  public Hit(int indexNo, int indexDocNo, float score, String site) {
-    this(indexDocNo, score, site);
+  public Hit(int indexNo, int indexDocNo) {
+    this(indexNo, indexDocNo, null, null);
+  }
+  public Hit(int indexNo, int indexDocNo,
+             WritableComparable sortValue,
+             String dedupValue) {
+    this(indexDocNo, sortValue, dedupValue);
     this.indexNo = indexNo;
   }
-  public Hit(int indexDocNo, float score, String site) {
+  public Hit(int indexDocNo, WritableComparable sortValue, String dedupValue) {
     this.indexDocNo = indexDocNo;
-    this.score = score;
-    // 20041006, xing
-    // The following fixes a bug that causes cached.jsp, text.jsp, etc.,
-    // to fail in distributed search. "Release 0.6, note 14" in CHANGES.txt
-    if (site == null)
-      site = "";
-    this.site = site;
+    this.sortValue = sortValue;
+    this.dedupValue = dedupValue == null ? "" : dedupValue;
   }
 
   /** Return the index number that this hit came from. */
@@ -61,31 +62,19 @@ public class Hit implements Writable, Comparable {
   /** Return the document number of this hit within an index. */
   public int getIndexDocNo() { return indexDocNo; }
 
-  /** Return the degree to which this document matched the query. */
-  public float getScore() { return score; }
+  /** Return the value of the field that hits are sorted on. */
+  public WritableComparable getSortValue() { return sortValue; }
 
-  /** Return the name of this this document's website. */
-  public String getSite() { return site; }
+  /** Return the value of the field that hits should be deduplicated on. */
+  public String getDedupValue() { return dedupValue; }
 
-  /** True iff other, lower-scoring, hits from the same site have been excluded
-   * from the list which contains this hit.. */
-  public boolean moreFromSiteExcluded() { return moreFromSiteExcluded; }
+  /** True iff other, lower-scoring, hits with the same dedup value have been
+   * excluded from the list which contains this hit.. */
+  public boolean moreFromDupExcluded() { return moreFromDupExcluded; }
 
-  /** True iff other, lower-scoring, hits from the same site have been excluded
-   * from the list which contains this hit.. */
-  public void setMoreFromSiteExcluded(boolean more){moreFromSiteExcluded=more;}
-
-  public void write(DataOutput out) throws IOException {
-    out.writeInt(indexDocNo);
-    out.writeFloat(score);
-    UTF8.writeString(out, site);
-  }
-
-  public void readFields(DataInput in) throws IOException {
-    indexDocNo = in.readInt();
-    score = in.readFloat();
-    site = UTF8.readString(in);
-  }
+  /** True iff other, lower-scoring, hits with the same deup value have been
+   * excluded from the list which contains this hit.. */
+  public void setMoreFromDupExcluded(boolean more){moreFromDupExcluded=more;}
 
   /** Display as a string. */
   public String toString() {
@@ -106,14 +95,22 @@ public class Hit implements Writable, Comparable {
 
   public int compareTo(Object o) {
     Hit other = (Hit)o;
-    if (other.score > this.score) {               // prefer higher scores
-      return 1;
-    } else if (other.score < this.score) {
-      return -1;
+    int compare = sortValue.compareTo(other.sortValue);
+    if (compare != 0) {
+      return compare;                             // use sortValue
     } else if (other.indexNo != this.indexNo) {
       return other.indexNo - this.indexNo;        // prefer later indexes
     } else {
       return other.indexDocNo - this.indexDocNo;  // prefer later docs
     }
   }
+
+  public void write(DataOutput out) throws IOException {
+    out.writeInt(indexDocNo);
+  }
+
+  public void readFields(DataInput in) throws IOException {
+    indexDocNo = in.readInt();
+  }
+
 }

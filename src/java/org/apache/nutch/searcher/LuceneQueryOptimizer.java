@@ -23,6 +23,7 @@ import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.QueryFilter;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.Sort;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -54,7 +55,8 @@ class LuceneQueryOptimizer {
   }
 
   public TopDocs optimize(BooleanQuery original,
-                          Searcher searcher, int numHits)
+                          Searcher searcher, int numHits,
+                          String sortField, boolean reverse)
     throws IOException {
 
     BooleanQuery query = new BooleanQuery();
@@ -89,6 +91,11 @@ class LuceneQueryOptimizer {
       }        
     }
 
-    return searcher.search(query, filter, numHits);
+    if (sortField == null && !reverse) {
+      return searcher.search(query, filter, numHits);
+    } else {
+      return searcher.search(query, filter, numHits,
+                             new Sort(sortField, reverse));
+    }
   }
 }
