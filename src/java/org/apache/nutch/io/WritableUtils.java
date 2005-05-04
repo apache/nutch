@@ -117,8 +117,8 @@ public final class WritableUtils  {
    */
   public static void writeStringArray(DataOutput out, String[] s) throws IOException{
     out.writeInt(s.length);
-    for(int i=0;i < s.length;i++){
-      writeString(out,s[i]);
+    for(int i = 0; i < s.length; i++) {
+      writeString(out, s[i]);
     }
   }
 
@@ -134,7 +134,7 @@ public final class WritableUtils  {
       return;
     }
     out.writeInt(s.length);
-    for(int i = 0; i < s.length; i++){
+    for(int i = 0; i < s.length; i++) {
       writeCompressedString(out, s[i]);
     }
   }
@@ -148,7 +148,7 @@ public final class WritableUtils  {
     int len = in.readInt();
     if (len == -1) return null;
     String[] s = new String[len];
-    for(int i = 0; i < len; i++){
+    for(int i = 0; i < len; i++) {
       s[i] = readString(in);
     }
     return s;
@@ -162,8 +162,9 @@ public final class WritableUtils  {
    */
   public static  String[] readCompressedStringArray(DataInput in) throws IOException {
     int len = in.readInt();
+    if (len == -1) return null;
     String[] s = new String[len];
-    for(int i = 0; i < len; i++){
+    for(int i = 0; i < len; i++) {
       s[i] = readCompressedString(in);
     }
     return s;
