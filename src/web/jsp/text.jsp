@@ -17,7 +17,7 @@
   bean.LOG.info("text request from " + request.getRemoteAddr());
 
   Hit hit = new Hit(Integer.parseInt(request.getParameter("idx")),
-                    Integer.parseInt(request.getParameter("id")), 0.0f, null);
+                    Integer.parseInt(request.getParameter("id")));
   HitDetails details = bean.getDetails(hit);
 
   String text = bean.getParseText(details).getText();

@@ -125,7 +125,8 @@ public class DistributedSearch {
         GET_SEGMENTS = Protocol.class.getMethod
           ("getSegmentNames", new Class[] {});
         SEARCH = Protocol.class.getMethod
-          ("search", new Class[] { Query.class, Integer.TYPE});
+          ("search", new Class[] { Query.class, Integer.TYPE, String.class,
+                                   String.class, Boolean.TYPE});
         DETAILS = Protocol.class.getMethod
           ("getDetails", new Class[] { Hit.class});
         SUMMARY = Protocol.class.getMethod
@@ -179,30 +180,50 @@ public class DistributedSearch {
         segmentToAddress.keySet().toArray(new String[segmentToAddress.size()]);
     }
 
-    public Hits search(Query query, int numHits) throws IOException {
+    public Hits search(final Query query, final int numHits,
+                       final String dedupField, final String sortField,
+                       final boolean reverse) throws IOException {
       long totalHits = 0;
       Hits[] segmentHits = new Hits[liveAddresses.length];
 
-      Object[][] params = new Object[liveAddresses.length][2];
+      Object[][] params = new Object[liveAddresses.length][5];
       for (int i = 0; i < params.length; i++) {
         params[i][0] = query;
         params[i][1] = new Integer(numHits);
+        params[i][2] = dedupField;
+        params[i][3] = sortField;
+        params[i][4] = Boolean.valueOf(reverse);
       }
       Hits[] results = (Hits[])RPC.call(SEARCH, params, liveAddresses);
 
-      TreeSet queue = new TreeSet();              // cull top hits from results
-      Comparable minValue = null;
+      TreeSet queue;                              // cull top hits from results
+
+      if (sortField == null || reverse) {
+        queue = new TreeSet(new Comparator() {
+            public int compare(Object o1, Object o2) {
+              return ((Comparable)o2).compareTo(o1); // reverse natural order
+            }
+          });
+      } else {
+        queue = new TreeSet();
+      }
+      
+      Comparable maxValue = null;
       for (int i = 0; i < results.length; i++) {
         Hits hits = results[i];
         if (hits == null) continue;
         totalHits += hits.getTotal();
         for (int j = 0; j < hits.getLength(); j++) {
           Hit h = hits.getHit(j);
-          if (minValue == null || h.getSite().compareTo(minValue) >= 0) {
-            queue.add(new Hit(i, h.getIndexDocNo(), h.getSite()));
+          if (maxValue == null ||
+              ((reverse || sortField == null)
+               ? h.getSortValue().compareTo(maxValue) >= 0
+               : h.getSortValue().compareTo(maxValue) <= 0)) {
+            queue.add(new Hit(i, h.getIndexDocNo(),
+                              h.getSortValue(), h.getDedupValue()));
             if (queue.size() > numHits) {         // if hit queue overfull
               queue.remove(queue.last());         // remove lowest in hit queue
-              minValue = ((Hit)queue.last()).getSite(); // reset minValue
+              maxValue = ((Hit)queue.last()).getSortValue(); // reset maxValue
             }
           }
         }
@@ -297,7 +318,7 @@ public class DistributedSearch {
       Client client = new Client(addresses);
       //client.setTimeout(Integer.MAX_VALUE);
 
-      Hits hits = client.search(query, 10);
+      Hits hits = client.search(query, 10, null, null, false);
       System.out.println("Total hits: " + hits.getTotal());
       for (int i = 0; i < hits.getLength(); i++) {
         System.out.println(" "+i+" "+ client.getDetails(hits.getHit(i)));

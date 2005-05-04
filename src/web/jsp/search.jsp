@@ -155,7 +155,7 @@
     // position.... this is good, bad?... ugly?....
    Hits hits;
    try{
-     hits = bean.search(query, start + hitsToRetrieve, hitsPerSite);
+     hits = bean.search(query, start + hitsToRetrieve, hitsPerSite, "site");
    } catch (IOException e){
      hits = new Hits(0,new Hit[0]);	
    }
@@ -214,13 +214,13 @@ out.flush();
     (<a href="../cached.jsp?<%=id%>"><i18n:message key="cached"/></a>)
     (<a href="../explain.jsp?<%=id%>&query=<%=URLEncoder.encode(queryString)%>"><i18n:message key="explain"/></a>)
     (<a href="../anchors.jsp?<%=id%>"><i18n:message key="anchors"/></a>)
-    <% if (hit.moreFromSiteExcluded()) {
+    <% if (hit.moreFromDupExcluded()) {
     String more =
-    "query="+URLEncoder.encode("site:"+hit.getSite()+" "+queryString)
+    "query="+URLEncoder.encode("site:"+hit.getDedupValue()+" "+queryString)
     +"&hitsPerPage="+hitsPerPage+"&hitsPerSite="+0
     +"&clustering="+clustering;%>
     (<a href="../search.jsp?<%=more%>"><i18n:message key="moreFrom"/>
-     <%=hit.getSite()%></a>)
+     <%=hit.getDedupValue()%></a>)
     <% } %>
     <br><br>
 <% } %>

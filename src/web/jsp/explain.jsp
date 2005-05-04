@@ -13,7 +13,7 @@
   request.setCharacterEncoding("UTF-8");
   bean.LOG.info("explain request from " + request.getRemoteAddr());
   Hit hit = new Hit(Integer.parseInt(request.getParameter("idx")),
-                    Integer.parseInt(request.getParameter("id")), 0.0f, null);
+                    Integer.parseInt(request.getParameter("id")));
   HitDetails details = bean.getDetails(hit);
   Query query = Query.parse(request.getParameter("query"));
   String language =

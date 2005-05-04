@@ -98,13 +98,18 @@ public class OpenSearchServlet extends HttpServlet {
     if (hitsPerSiteString != null)
       hitsPerSite = Integer.parseInt(hitsPerSiteString);
 
+    String sort = request.getParameter("sort");
+    boolean reverse =
+      sort!=null && "true".equals(request.getParameter("reverse"));
+
     Query query = Query.parse(queryString);
     bean.LOG.info("query: " + queryString);
 
     // execute the query
     Hits hits;
     try {
-      hits = bean.search(query, start + hitsPerPage, hitsPerSite);
+      hits = bean.search(query, start + hitsPerPage, hitsPerSite, "site",
+                         sort, reverse);
     } catch (IOException e) {
       bean.LOG.log(Level.WARNING, "Search Error", e);
       hits = new Hits(0,new Hit[0]);	
@@ -122,6 +127,9 @@ public class OpenSearchServlet extends HttpServlet {
 
     String requestUrl = request.getRequestURL().toString();
     String base = requestUrl.substring(0, requestUrl.lastIndexOf('/'));
+    String params = "&hitsPerPage="+hitsPerPage
+      +(sort==null ? "" : "&sort="+sort+(reverse?"&reverse=true":""));
+      
 
     try {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -130,7 +138,8 @@ public class OpenSearchServlet extends HttpServlet {
  
       Element rss = addNode(doc, doc, "rss");
       addAttribute(doc, rss, "version", "2.0");
-      addAttribute(doc, rss, "xmlns:os", (String)NS_MAP.get("opensearch"));
+      addAttribute(doc, rss, "xmlns:opensearch",
+                   (String)NS_MAP.get("opensearch"));
       addAttribute(doc, rss, "xmlns:nutch", (String)NS_MAP.get("nutch"));
 
       Element channel = addNode(doc, rss, "channel");
@@ -142,8 +151,8 @@ public class OpenSearchServlet extends HttpServlet {
               base+"/search.jsp"
               +"?query="+urlQuery
               +"&start="+start
-              +"&hitsPerPage="+hitsPerPage
-              +"&hitsPerSite="+hitsPerSite);
+              +"&hitsPerSite="+hitsPerSite
+              +params);
 
       addNode(doc, channel, "opensearch", "totalResults", ""+hits.getTotal());
       addNode(doc, channel, "opensearch", "startIndex", ""+start);
@@ -157,15 +166,15 @@ public class OpenSearchServlet extends HttpServlet {
         addNode(doc, channel, "nutch", "nextPage", requestUrl
                 +"?query="+urlQuery
                 +"&start="+end
-                +"&hitsPerPage="+hitsPerPage
-                +"&hitsPerSite="+hitsPerSite);
+                +"&hitsPerSite="+hitsPerSite
+                +params);
       }
 
       if ((!hits.totalIsExact() && (hits.getLength() <= start+hitsPerPage))) {
         addNode(doc, channel, "nutch", "showAllHits", requestUrl
                 +"?query="+urlQuery
-                +"&hitsPerPage="+hitsPerPage
-                +"&hitsPerSite="+0);
+                +"&hitsPerSite="+0
+                +params);
       }
 
       for (int i = 0; i < length; i++) {
@@ -184,18 +193,19 @@ public class OpenSearchServlet extends HttpServlet {
         addNode(doc, item, "description", summaries[i]);
         addNode(doc, item, "link", url);
 
-        addNode(doc, item, "nutch", "site", hit.getSite());
+        addNode(doc, item, "nutch", "site", hit.getDedupValue());
 
         addNode(doc, item, "nutch", "cache", base+"/cached.jsp?"+id);
         addNode(doc, item, "nutch", "explain", base+"/explain.jsp?"+id
                 +"&query="+urlQuery);
 
-        if (hit.moreFromSiteExcluded()) {
+        if (hit.moreFromDupExcluded()) {
           addNode(doc, item, "nutch", "moreFromSite", requestUrl
                   +"?query="
-                  +URLEncoder.encode("site:"+hit.getSite()+" "+queryString,
-                                     "UTF-8")
-                  +"&hitsPerPage="+hitsPerPage+"&hitsPerSite="+0);
+                  +URLEncoder.encode("site:"+hit.getDedupValue()
+                                     +" "+queryString, "UTF-8")
+                  +"&hitsPerSite="+0
+                  +params);
         }
 
         for (int j = 0; j < detail.getLength(); j++) { // add all from detail

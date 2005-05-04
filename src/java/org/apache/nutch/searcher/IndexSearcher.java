@@ -28,6 +28,7 @@ import org.apache.lucene.index.MultiReader;
 import org.apache.lucene.search.MultiSearcher;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.FieldDoc;
 import org.apache.lucene.search.FieldCache;
 
 import org.apache.lucene.document.Document;
@@ -46,9 +47,8 @@ import org.apache.nutch.analysis.NutchDocumentAnalyzer;
 public class IndexSearcher implements Searcher, HitDetailer {
 
   private org.apache.lucene.search.Searcher luceneSearcher;
+  private org.apache.lucene.index.IndexReader reader;
 
-  private String[] sites;
-  
   private LuceneQueryOptimizer optimizer = new LuceneQueryOptimizer
     (NutchConf.get().getInt("searcher.filter.cache.size", 16),
      NutchConf.get().getFloat("searcher.filter.cache.threshold", 0.05f));
@@ -70,18 +70,23 @@ public class IndexSearcher implements Searcher, HitDetailer {
   }
 
   private void init(IndexReader reader) throws IOException {
-    this.sites = FieldCache.DEFAULT.getStrings(reader, "site");
+    this.reader = reader;
     this.luceneSearcher = new org.apache.lucene.search.IndexSearcher(reader);
     this.luceneSearcher.setSimilarity(new NutchSimilarity());
   }
 
-  public Hits search(Query query, int numHits) throws IOException {
+  public Hits search(Query query, int numHits,
+                     String dedupField, String sortField, boolean reverse)
+
+    throws IOException {
 
     org.apache.lucene.search.BooleanQuery luceneQuery =
       QueryFilters.filter(query);
     
     return translateHits
-      (optimizer.optimize(luceneQuery, luceneSearcher, numHits));
+      (optimizer.optimize(luceneQuery, luceneSearcher, numHits,
+                          sortField, reverse),
+       dedupField, sortField);
   }
 
   public String getExplanation(Query query, Hit hit) throws IOException {
@@ -113,13 +118,40 @@ public class IndexSearcher implements Searcher, HitDetailer {
     return results;
   }
 
-  private Hits translateHits(TopDocs topDocs) throws IOException {
+  private Hits translateHits(TopDocs topDocs,
+                             String dedupField, String sortField)
+    throws IOException {
+
+    String[] dedupValues = null;
+    if (dedupField != null) 
+      dedupValues = FieldCache.DEFAULT.getStrings(reader, dedupField);
+
     ScoreDoc[] scoreDocs = topDocs.scoreDocs;
     int length = scoreDocs.length;
     Hit[] hits = new Hit[length];
     for (int i = 0; i < length; i++) {
+      
       int doc = scoreDocs[i].doc;
-      hits[i] = new Hit(doc, scoreDocs[i].score, sites[doc]);
+      
+      WritableComparable sortValue;               // convert value to writable
+      if (sortField == null) {
+        sortValue = new FloatWritable(scoreDocs[i].score);
+      } else {
+        Object raw = ((FieldDoc)scoreDocs[i]).fields[0];
+        if (raw instanceof Integer) {
+          sortValue = new IntWritable(((Integer)raw).intValue());
+        } else if (raw instanceof Float) {
+          sortValue = new FloatWritable(((Float)raw).floatValue());
+        } else if (raw instanceof String) {
+          sortValue = new UTF8((String)raw);
+        } else {
+          throw new RuntimeException("Unknown sort value type!");
+        }
+      }
+
+      String dedupValue = dedupValues == null ? null : dedupValues[doc];
+
+      hits[i] = new Hit(doc, sortValue, dedupValue);
     }
     return new Hits(topDocs.totalHits, hits);
   }
