@@ -27,7 +27,7 @@
 
   <property name="deploy.dir" location="${nutch.root}/build/plugins/${name}"/>
 
-  <property name="javac.deprecation" value="on"/>
+  <property name="javac.deprecation" value="off"/>
   <property name="javac.debug" value="on"/>
 
   <property name="javadoc.link"
