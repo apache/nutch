@@ -17,33 +17,31 @@
 package org.apache.nutch.searcher;
 
 import org.apache.lucene.search.Searcher;
-import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.QueryFilter;
-import org.apache.lucene.search.Filter;
-import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.Sort;
+import org.apache.lucene.search.*;
+import org.apache.lucene.index.Term;
+import org.apache.lucene.misc.ChainedFilter;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.ArrayList;
+
 import java.io.IOException;
 
 /** Utility which converts certain query clauses into {@link QueryFilter}s and
- * caches these.  Only required {@link TermQuery}s whose boost is zero and
- * whose term occurs in at least a certain fraction of documents are converted
- * to cached filters.  This accellerates query constraints like language,
- * document format, etc., which do not affect ranking but might otherwise slow
- * search considerably. */
+ * caches these.  Only required clauses whose boost is zero are converted to
+ * cached filters.  Range queries are converted to range filters.  This
+ * accellerates query constraints like date, language, document format, etc.,
+ * which do not affect ranking but might otherwise slow search considerably. */
 class LuceneQueryOptimizer {
   private LinkedHashMap cache;                   // an LRU cache of QueryFilter
 
   private float threshold;
 
-  /** Construct an optimizer that caches and uses filters for required {@link
-   * TermQuery}s whose boost is zero.
+  /** Construct an optimizer that caches and uses filters for required clauses
+   * whose boost is zero.
    * @param cacheSize the number of QueryFilters to cache
-   * @param threshold the fraction of documents which must contain term
+   * @param threshold the fraction of documents which must contain a term
    */
   public LuceneQueryOptimizer(final int cacheSize, float threshold) {
     this.cache = new LinkedHashMap(cacheSize, 0.75f, true) {
@@ -60,33 +58,68 @@ class LuceneQueryOptimizer {
     throws IOException {
 
     BooleanQuery query = new BooleanQuery();
-    BooleanQuery filterQuery = null;
+    BooleanQuery cacheQuery = new BooleanQuery();
+    BooleanQuery filterQuery = new BooleanQuery();
+    ArrayList filters = new ArrayList();
 
     BooleanClause[] clauses = original.getClauses();
     for (int i = 0; i < clauses.length; i++) {
       BooleanClause c = clauses[i];
       if (c.required                              // required
-          && c.query.getBoost() == 0.0f           // boost is zero
-          && c.query instanceof TermQuery         // TermQuery
-          && (searcher.docFreq(((TermQuery)c.query).getTerm())
-              / (float)searcher.maxDoc()) >= threshold) { // check threshold
-        if (filterQuery == null)
-          filterQuery = new BooleanQuery();
+          && c.query.getBoost() == 0.0f) {        // boost is zero
+
+        if (c.query instanceof TermQuery          // TermQuery
+            && (searcher.docFreq(((TermQuery)c.query).getTerm())
+                / (float)searcher.maxDoc()) < threshold) { // beneath threshold
+          query.add(c);                           // don't filterize
+          continue;
+        }
+          
+        if (c.query instanceof RangeQuery) {      // RangeQuery
+          RangeQuery range = (RangeQuery)c.query;
+          boolean inclusive = range.isInclusive();// convert to RangeFilter
+          Term lower = range.getLowerTerm();
+          Term upper = range.getUpperTerm();
+          filters.add(new RangeFilter(lower!=null?lower.field():upper.field(),
+                                      lower != null ? lower.text() : null,
+                                      upper != null ? upper.text() : null,
+                                      inclusive, inclusive));
+          cacheQuery.add(c.query, true, false);   // cache it
+          continue;
+        }
+
+        // all other query types
         filterQuery.add(c.query, true, false);    // filter it
-      } else {
-        query.add(c);                             // query it
+        cacheQuery.add(c.query, true, false);     // cache it
+        continue;
       }
+
+      query.add(c);                               // query it
     }
 
     Filter filter = null;
-    if (filterQuery != null) {
+
+    if (cacheQuery.getClauses().length != 0) {
       synchronized (cache) {                      // check cache
-        filter = (Filter)cache.get(filterQuery);
+        filter = (Filter)cache.get(cacheQuery);
       }
       if (filter == null) {                       // miss
-        filter = new QueryFilter(filterQuery);    // construct new entry
+
+        if (filterQuery.getClauses().length != 0) // add filterQuery to filters
+          filters.add(new QueryFilter(filterQuery));
+
+        if (filters.size() == 1) {                // convert filters to filter
+          filter = (Filter)filters.get(0);
+        } else {
+          filter = new ChainedFilter((Filter[])filters.toArray
+                                     (new Filter[filters.size()]),
+                                     ChainedFilter.AND);
+        }
+        if (!(filter instanceof QueryFilter))     // make sure bits are cached
+          filter = new CachingWrapperFilter(filter);
+        
         synchronized (cache) {
-          cache.put(filterQuery, filter);         // cache it
+          cache.put(cacheQuery, filter);          // cache the filter
         }
       }        
     }
