@@ -85,6 +85,13 @@
   if (hitsPerSiteString != null)
     hitsPerSite = Integer.parseInt(hitsPerSiteString);
 
+  String sort = request.getParameter("sort");
+  boolean reverse =
+    sort!=null && "true".equals(request.getParameter("reverse"));
+
+  String params = "&hitsPerPage="+hitsPerPage
+     +(sort==null ? "" : "&sort="+sort+(reverse?"&reverse=true":""));
+
   int hitsToCluster = HITS_TO_CLUSTER;            // number of hits to cluster
 
   Query query = Query.parse(queryString);
@@ -96,8 +103,7 @@
   String requestURI = HttpUtils.getRequestURL(request).toString();
   String base = requestURI.substring(0, requestURI.lastIndexOf('/'));
   String rss = "../opensearch?query="+htmlQueryString
-    +"&hitsPerSite="+hitsPerSite
-    +"&hitsPerPage="+hitsPerPage;
+    +"&hitsPerSite="+hitsPerSite+params;
 %><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <%
   // To prevent the character encoding declared with 'contentType' page
@@ -155,7 +161,8 @@
     // position.... this is good, bad?... ugly?....
    Hits hits;
    try{
-     hits = bean.search(query, start + hitsToRetrieve, hitsPerSite, "site");
+     hits = bean.search(query, start + hitsToRetrieve, hitsPerSite, "site",
+                        sort, reverse);
    } catch (IOException e){
      hits = new Hits(0,new Hit[0]);	
    }
@@ -217,7 +224,7 @@ out.flush();
     <% if (hit.moreFromDupExcluded()) {
     String more =
     "query="+URLEncoder.encode("site:"+hit.getDedupValue()+" "+queryString)
-    +"&hitsPerPage="+hitsPerPage+"&hitsPerSite="+0
+    +params+"&hitsPerSite="+0
     +"&clustering="+clustering;%>
     (<a href="../search.jsp?<%=more%>"><i18n:message key="moreFrom"/>
      <%=hit.getDedupValue()%></a>)
@@ -252,6 +259,10 @@ if ((hits.totalIsExact() && end < hits.getTotal()) // more hits to show
     <input type="hidden" name="hitsPerSite" value="<%=hitsPerSite%>">
     <input type="hidden" name="clustering" value="<%=clustering%>">
     <input type="submit" value="<i18n:message key="next"/>">
+<% if (sort != null) { %>
+    <input type="hidden" name="sort" value="<%=sort%>">
+    <input type="hidden" name="reverse" value="<%=reverse%>">
+<% } %>
     </form>
 <%
     }
@@ -264,6 +275,10 @@ if ((!hits.totalIsExact() && (hits.getLength() <= start+hitsPerPage))) {
     <input type="hidden" name="hitsPerSite" value="0">
     <input type="hidden" name="clustering" value="<%=clustering%>">
     <input type="submit" value="<i18n:message key="showAllHits"/>">
+<% if (sort != null) { %>
+    <input type="hidden" name="sort" value="<%=sort%>">
+    <input type="hidden" name="reverse" value="<%=reverse%>">
+<% } %>
     </form>
 <%
     }
