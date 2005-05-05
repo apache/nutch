@@ -65,9 +65,7 @@ public class DateQueryFilter implements QueryFilter {
        
       Matcher matcher = pattern.matcher(x);
       if (!matcher.matches()) {
-        LOG.warning("Wrong query syntax for field "+FIELD_NAME+":"+x);
-        // or just ignore silently?
-        return output;
+        throw new QueryException("Wrong query syntax "+FIELD_NAME+":"+x);
       }
 
       // do it as lucene RangeQuery
@@ -76,6 +74,8 @@ public class DateQueryFilter implements QueryFilter {
 
       // inclusive
       RangeQuery rangeQuery = new RangeQuery(xLower, xUpper, true);
+
+      rangeQuery.setBoost(0.0f);                  // trigger filterization
           
       output.add(rangeQuery, c.isRequired(), c.isProhibited());
              
