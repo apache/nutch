@@ -87,7 +87,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     // normalize metaData (see note in the method below).
     Properties metaData = normalizeMeta(parse.getData().getMetadata());
 
-    addTime(doc, metaData, url);
+    addTime(doc, metaData, url, fo);
 
     addLength(doc, metaData, url);
 
@@ -98,40 +98,24 @@ public class MoreIndexingFilter implements IndexingFilter {
     return doc;
   }
     
-  // Add time related meta info, now Last-Modified only
-  // Others for consideration: Date, Expires
-  private Document addTime(Document doc, Properties metaData, String url) {
+  // Add time related meta info.  Add last-modified if present.  Index date as
+  // last-modified, or, if that's not present, use fetch time.
+  private Document addTime(Document doc, Properties metaData, String url,
+                           FetcherOutput fo) {
+    long time = -1;
 
     String lastModified = metaData.getProperty("last-modified");
-    if (lastModified == null)
-      return doc;
-
-    // try to figure out last-modified as long value
-    DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy zzz");
-    long time = -1;
-    try {
-      time = HttpDateFormat.toLong(lastModified);
-    } catch  (ParseException e) {
-      // try to parse it as date in alternative format
-      try {
-        Date d = df.parse(lastModified);
-        time = d.getTime();
-      } catch (Exception e1) {
-        LOG.warning(url+": can't parse erroneous last-modified: "+lastModified);
-      }
+    if (lastModified != null) {                   // try parse last-modified
+      time = getTime(lastModified,url);           // use as time
+                                                  // store as string
+      doc.add(Field.UnIndexed("lastModified", new Long(time).toString()));
     }
 
-    if (time == -1) {
-      // or instead set it to current time at indexing?
-      //time = System.currentTimeMillis();
-      // for now, we just do nothing
-      return doc;
+    if (time == -1) {                             // if no last-modified
+      time = fo.getFetchDate();                   // use fetch time
     }
 
-    // store last-modified as string
-    doc.add(Field.UnIndexed("lastModified", new Long(time).toString()));
-
-    // add support for query syntax date: using last-modified
+    // add support for query syntax date:
     // query filter is implemented in DateQueryFilter.java
     SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
     sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -141,6 +125,23 @@ public class MoreIndexingFilter implements IndexingFilter {
     doc.add(new Field("date", dateString, false, true, false));
 
     return doc;
+  }
+
+  private long getTime(String date, String url) {
+    long time = -1;
+    try {
+      time = HttpDateFormat.toLong(date);
+    } catch  (ParseException e) {
+      // try to parse it as date in alternative format
+      try {
+        DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy zzz");
+        Date d = df.parse(date);
+        time = d.getTime();
+      } catch (Exception e1) {
+        LOG.warning(url+": can't parse erroneous date: "+date);
+      }
+    }
+    return time;
   }
 
   // Add Content-Length
