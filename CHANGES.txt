@@ -76,6 +76,10 @@ Release 0.7
 16. Add support for sorting search results and search-time deduping by
     fields other than site.
 
+17. Automatically convert range queries into cached range filters.
+    This improves the performance and scalability of, e.g., date range
+    searching.
+
 
 Release 0.6
 
