@@ -43,6 +43,7 @@ public class TestMimeType extends TestCase {
 
     /** Test of <code>MimeType(String)</code> constructor. */
     public void testConstructorString() {
+        MimeType type = null;
         constructorFailure(null);
         constructorFailure("");
         constructorFailure("mimetype");
@@ -50,19 +51,27 @@ public class TestMimeType extends TestCase {
         constructorFailure("/mimetype");
         constructorFailure("mime@type");
         constructorFailure("mime;type");
-        constructorSuccess("mime/type");
+        type = constructorSuccess("mime/type");
+        assertEquals("mime", type.getPrimaryType());
+        assertEquals("type", type.getSubType());
+        type = constructorSuccess("mime/type;parameter=value");
+        assertEquals("mime", type.getPrimaryType());
+        assertEquals("type", type.getSubType());
     }
 
     /** Test of <code>MimeType(String, String)</code> constructor. */
     public void testConstructorStringString() {
-        constructorFailure(null);
-        constructorFailure("");
-        constructorFailure("mimetype");
-        constructorFailure("mime/type/");
-        constructorFailure("/mimetype");
-        constructorFailure("mime@type");
-        constructorFailure("mime;type");
-        constructorSuccess("mime/type");
+        MimeType type = null;
+        constructorFailure(null, null);
+        constructorFailure("", "");
+        constructorFailure("mime", "type/");
+        constructorFailure("", "mimetype");
+        type = constructorSuccess("mime", "type");
+        assertEquals("mime", type.getPrimaryType());
+        assertEquals("type", type.getSubType());
+        type = constructorSuccess("mime", "type;parameter=value");
+        assertEquals("mime", type.getPrimaryType());
+        assertEquals("type", type.getSubType());
     }
     
     /** Test of <code>getName</code> method. */
