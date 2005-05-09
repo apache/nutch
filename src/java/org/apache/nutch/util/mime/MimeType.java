@@ -30,6 +30,9 @@ public final class MimeType {
     /** The primary and sub types separator */
     private final static String SEPARATOR = "/";
     
+    /** The parameters separator */
+    private final static String PARAMS_SEP = ";";
+    
     /** Special characters not allowed in content types. */
     private final static String SPECIALS = "()<>@,;:\\\"/[]?=";
     
@@ -65,18 +68,14 @@ public final class MimeType {
         if (name == null || name.length() <= 0) {
             throw new MimeTypeException("The type can not be null or empty");
         }
-
+        
         // Split the two parts of the Mime Content Type
         String[] parts = name.split(SEPARATOR, 2);
         
         // Checks validity of the parts
-        if ((parts.length != 2) || (!isValid(parts[0]))) {
-            throw new MimeTypeException("Invalid Primary Type " + parts[0]);
+        if (parts.length != 2) {
+            throw new MimeTypeException("Invalid Content Type " + name);
         }
-        if (!isValid(parts[1])) {
-            throw new MimeTypeException("Invalid Sub Type " + parts[1]);
-        }
-        // All is ok, init values
         init(parts[0], parts[1]);
      }    
     
@@ -86,23 +85,29 @@ public final class MimeType {
      * @param sub the content type sub type.
      */
     public MimeType(String primary, String sub) throws MimeTypeException {
+        init(primary, sub);
+    }
+    
+    /** Init method used by constructors. */
+    private void init(String primary, String sub) throws MimeTypeException {
+
         // Preliminary checks...
         if ((primary == null) || (primary.length() <= 0) || (!isValid(primary))) {
             throw new MimeTypeException("Invalid Primary Type " + primary);
         }
-        if ((sub == null) || (sub.length() <= 0) || (!isValid(sub))) {
-            throw new MimeTypeException("Invalid Sub Type " + sub);
+        // Remove optional parameters from the sub type
+        String clearedSub = null;
+        if (sub != null) {
+            clearedSub = sub.split(PARAMS_SEP)[0];
         }
-        // All is ok, init values
-        init(primary, sub);
-    }
-
-    /** Init method used by constructors. */
-    private void init(String primary, String sub) {
+        if ((clearedSub == null) || (clearedSub.length() <= 0) || (!isValid(clearedSub))) {
+            throw new MimeTypeException("Invalid Sub Type " + clearedSub);
+        }
+                
         // All is ok, assign values
         this.name = primary + SEPARATOR + sub;
         this.primary = primary;
-        this.sub = sub;
+        this.sub = clearedSub;
         this.extensions = new ArrayList();
         this.magics = new ArrayList();
     }
