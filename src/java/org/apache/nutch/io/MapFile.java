@@ -44,6 +44,12 @@ public class MapFile {
   /** The name of the data file. */
   public static final String DATA_FILE_NAME = "data";
 
+  /** Number of index entries to skip between each entry.  Zero by default.
+   * Setting this to values larger than zero can facilitate opening large map
+   * files using less memory. */
+  public static final int INDEX_SKIP =
+    NutchConf.get().getInt("io.map.index.skip", 0);
+
   protected MapFile() {}                          // no public ctor
 
   /** Writes a new map. */
@@ -203,6 +209,7 @@ public class MapFile {
       this.keys = new WritableComparable[1024];
       this.positions = new long[1024];
       try {
+        int skip = INDEX_SKIP;
         LongWritable position = new LongWritable();
         WritableComparable lastKey = null;
         while (true) {
@@ -216,6 +223,13 @@ public class MapFile {
             throw new IOException("key out of order: "+k+" after "+lastKey);
           lastKey = k;
           
+          if (skip > 0) {
+            skip--;
+            continue;                             // skip this entry
+          } else {
+            skip = INDEX_SKIP;                    // reset skip
+          }
+
           if (count == keys.length) {                // time to grow arrays
             int newLength = (keys.length*3)/2;
             WritableComparable[] newKeys = new WritableComparable[newLength];
