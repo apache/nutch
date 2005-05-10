@@ -444,6 +444,17 @@
   </description>
 </property>
 
+<property>
+  <name>indexer.termIndexInterval</name>
+  <value>128</value>
+  <description>Determines the fraction of terms which Lucene keeps in
+  RAM when searching, to facilitate random-access.  Smaller values use
+  more memory but make searches somewhat faster.  Larger values use
+  less memory but make searches somewhat slower.
+  </description>
+</property>
+
+
 <!-- analysis properties -->
 
 <property>

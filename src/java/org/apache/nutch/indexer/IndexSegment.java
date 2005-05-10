@@ -55,6 +55,9 @@ public class IndexSegment {
       IndexWriter.DEFAULT_MIN_MERGE_DOCS);
   private int MAX_MERGE_DOCS = NutchConf.get().getInt("indexer.maxMergeDocs",
       IndexWriter.DEFAULT_MAX_MERGE_DOCS);
+  private int TERM_INDEX_INTERVAL =
+    NutchConf.get().getInt("indexer.termIndexInterval",
+                           IndexWriter.DEFAULT_TERM_INDEX_INTERVAL);
   private NutchFileSystem nfs;
   private long maxDocs = Long.MAX_VALUE;
   private File srcDir;
@@ -99,6 +102,7 @@ public class IndexSegment {
       writer.mergeFactor = MERGE_FACTOR;
       writer.minMergeDocs = MIN_MERGE_DOCS;
       writer.maxMergeDocs = MAX_MERGE_DOCS;
+      writer.setTermIndexInterval(TERM_INDEX_INTERVAL);
       writer.maxFieldLength = maxFieldLength;
       //writer.infoStream = LogFormatter.getLogStream(LOG, Level.FINE);
       writer.setUseCompoundFile(false);
