@@ -146,11 +146,51 @@ public class FetchedSegments implements HitSummarizer, HitContent {
     return new Summarizer().getSummary(text, query).toString();
   }
     
+  private class SummaryThread extends Thread {
+    private HitDetails details;
+    private Query query;
+
+    private String summary;
+    private Throwable throwable;
+
+    public SummaryThread(HitDetails details, Query query) {
+      this.details = details;
+      this.query = query;
+    }
+
+    public void run() {
+      try {
+        this.summary = getSummary(details, query);
+      } catch (Throwable throwable) {
+        this.throwable = throwable;
+      }
+    }
+
+  }
+
+
   public String[] getSummary(HitDetails[] details, Query query)
     throws IOException {
+    SummaryThread[] threads = new SummaryThread[details.length];
+    for (int i = 0; i < threads.length; i++) {
+      threads[i] = new SummaryThread(details[i], query);
+      threads[i].start();
+    }
+
     String[] results = new String[details.length];
-    for (int i = 0; i < details.length; i++)
-      results[i] = getSummary(details[i], query);
+    for (int i = 0; i < threads.length; i++) {
+      try {
+        threads[i].join();
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+      if (threads[i].throwable instanceof IOException) {
+        throw (IOException)threads[i].throwable;
+      } else if (threads[i].throwable != null) {
+        throw new RuntimeException(threads[i].throwable);
+      }
+      results[i] = threads[i].summary;
+    }
     return results;
   }
 
