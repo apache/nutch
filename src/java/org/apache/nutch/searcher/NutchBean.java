@@ -146,6 +146,23 @@ public class NutchBean
     private boolean maxSizeExceeded;
   }
 
+  /** Search for pages matching a query, eliminating excessive hits from the
+   * same site.  Hits after the first <code>maxHitsPerDup</code> from the same
+   * site are removed from results.  The remaining hits have {@link
+   * Hit#moreFromDupExcluded()} set.  <p> If maxHitsPerDup is zero then all
+   * hits are returned.
+   * 
+   * @param query query
+   * @param numHits number of requested hits
+   * @param maxHitsPerDup the maximum hits returned with matching values, or zero
+   * @return Hits the matching hits
+   * @throws IOException
+   */
+  public Hits search(Query query, int numHits, int maxHitsPerDup)
+       throws IOException {
+    return search(query, numHits, maxHitsPerDup, "site", null, false);
+  }
+
   /** Search for pages matching a query, eliminating excessive hits with
    * matching values for a named field.  Hits after the first
    * <code>maxHitsPerDup</code> are removed from results.  The remaining hits
