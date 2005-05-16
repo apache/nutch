@@ -55,8 +55,12 @@ public class DOMContentUtils {
   static {
       linkParams.put("a", new LinkParams("a", "href", 1));
       linkParams.put("area", new LinkParams("area", "href", 0));
+      linkParams.put("form", new LinkParams("form", "action", 1));
       linkParams.put("frame", new LinkParams("frame", "src", 0));
       linkParams.put("iframe", new LinkParams("iframe", "src", 0));
+      linkParams.put("script", new LinkParams("script", "src", 0));
+      linkParams.put("link", new LinkParams("link", "href", 0));
+      linkParams.put("img", new LinkParams("img", "src", 0));
   }
   
   /**
@@ -71,8 +75,6 @@ public class DOMContentUtils {
    * any text encountered after a nested anchor is found.
    * 
    * <p>
-   *
-   * Currently, only SCRIPT, STYLE and comment text are ignored.
    *
    * @return true if nested anchors were found
    */
@@ -100,9 +102,25 @@ public class DOMContentUtils {
                                              boolean abortOnNestedAnchors,
                                              int anchorDepth) {
     if ("script".equalsIgnoreCase(node.getNodeName())) {
+      Node n = node.getAttributes().getNamedItem("language");
+      if (n != null) {
+        String text = n.getNodeValue();
+        sb.append(text);
+      }
       return false;
     }
     if ("style".equalsIgnoreCase(node.getNodeName())) {
+      Node n = node.getAttributes().getNamedItem("rel");
+      if (n != null) {
+        String text = n.getNodeValue();
+        sb.append(text);
+      }
+      n = node.getAttributes().getNamedItem("type");
+      if (n != null) {
+        String text = n.getNodeValue();
+        if (sb.length() > 0) sb.append(", ");
+        sb.append(text);
+      }
       return false;
     }
     if (abortOnNestedAnchors && "a".equalsIgnoreCase(node.getNodeName())) {
