@@ -25,7 +25,10 @@ import java.net.URL;
 import java.util.Properties;
 import java.util.jar.JarFile;
 import java.util.jar.JarEntry;
+import java.util.StringTokenizer;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Collections;
 
 import org.apache.nutch.fs.NutchFileSystem;
 import org.apache.nutch.util.NutchConf;
@@ -46,10 +49,14 @@ import org.apache.nutch.mapred.lib.HashPartitioner;
  * of input files, and where the output files should be written. */
 public class JobConf extends NutchConf {
 
-  /** Construct a map/reduce configuration. */
-  public JobConf() {
-    super();
+  /** Construct a map/reduce job configuration.
+   *
+   * @param confg a NutchConf whose settings will be inherited.
+   */
+  public JobConf(NutchConf conf) {
+    super(conf);
   }
+
 
   /** Construct a map/reduce configuration.
    *
@@ -68,15 +75,7 @@ public class JobConf extends NutchConf {
     addConfResource(config);
   }
 
-  public String getJar() {
-    String defaultValue = "nutch.jar";
-
-    URL jarUrl = get().getResource(defaultValue); // resolve default
-    if (jarUrl != null && "file".equals(jarUrl.getProtocol()))
-      defaultValue = jarUrl.getFile();
-      
-    return get("mapred.jar", defaultValue);
-  }
+  public String getJar() { return get("mapred.jar"); }
   public void setJar(String jar) { set("mapred.jar", jar); }
 
   public static File getSystemDir() {
@@ -89,8 +88,21 @@ public class JobConf extends NutchConf {
                                         "/tmp/nutch/mapred/local"));
   }
 
-  public File getInputDir() { return new File(get("mapred.input.dir")); }
   public void setInputDir(File dir) { set("mapred.input.dir", dir); }
+
+  public void addInputDir(File dir) {
+    String dirs = get("mapred.input.dir");
+    set("mapred.input.dir", dirs == null ? dir.toString() : dirs + "," + dir);
+  }
+  public File[] getInputDirs() {
+    String dirs = get("mapred.input.dir", "");
+    ArrayList list = Collections.list(new StringTokenizer(dirs, ","));
+    File[] result = new File[list.size()];
+    for (int i = 0; i < list.size(); i++) {
+      result[i] = new File((String)list.get(i));
+    }
+    return result;
+  }
 
   public File getOutputDir() { return new File(get("mapred.output.dir")); }
   public void setOutputDir(File dir) { set("mapred.output.dir", dir); }
@@ -120,7 +132,7 @@ public class JobConf extends NutchConf {
     return getClass("mapred.input.value.class", UTF8.class, Writable.class);
   }
   public void setInputValueClass(Class theClass) {
-    setClass("mapred.input.value.class", theClass, WritableComparable.class);
+    setClass("mapred.input.value.class", theClass, Writable.class);
   }
 
   public Class getOutputKeyClass() {
@@ -146,7 +158,7 @@ public class JobConf extends NutchConf {
     return getClass("mapred.output.value.class", UTF8.class, Writable.class);
   }
   public void setOutputValueClass(Class theClass) {
-    setClass("mapred.output.value.class", theClass, WritableComparable.class);
+    setClass("mapred.output.value.class", theClass, Writable.class);
   }
 
   public Class getMapperClass() {
@@ -196,8 +208,5 @@ public class JobConf extends NutchConf {
     return result;
   }
 
-  public static void main(String[] args) {
-    System.out.println(new JobConf().getJar());
-  }
 }
 

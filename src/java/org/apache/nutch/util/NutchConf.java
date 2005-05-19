@@ -47,7 +47,7 @@ public class NutchConf {
   /** Return the default configuration. */
   public static NutchConf get() { return DEFAULT; }
 
-  private List resourceNames = new ArrayList();
+  private ArrayList resourceNames = new ArrayList();
   private Properties properties;
   private ClassLoader classLoader = NutchConf.class.getClassLoader();
 
@@ -55,6 +55,13 @@ public class NutchConf {
   public NutchConf() {
     resourceNames.add("nutch-default.xml");
     resourceNames.add("nutch-site.xml");
+  }
+
+  /** A new configuration with the same settings as another. */
+  public NutchConf(NutchConf other) {
+    this.resourceNames = (ArrayList)other.resourceNames.clone();
+    if (other.properties != null)
+      this.properties = (Properties)other.properties.clone();
   }
 
   /** Adds a resource name to the chain of resources read.  Such resources are

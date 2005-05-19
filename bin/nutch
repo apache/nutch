@@ -172,9 +172,9 @@ elif [ "$COMMAND" = "datanode" ] ; then
 elif [ "$COMMAND" = "ndfs" ] ; then
   CLASS=org.apache.nutch.fs.TestClient
 elif [ "$COMMAND" = "jobtracker" ] ; then
-  CLASS=org.apache.nutch.mapReduce.JobTracker
+  CLASS=org.apache.nutch.mapred.JobTracker
 elif [ "$COMMAND" = "tasktracker" ] ; then
-  CLASS=org.apache.nutch.mapReduce.TaskTracker
+  CLASS=org.apache.nutch.mapred.TaskTracker
 else
   CLASS=$COMMAND
 fi

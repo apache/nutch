@@ -19,6 +19,7 @@ package org.apache.nutch.mapred;
 import java.io.IOException;
 import java.io.File;
 
+import java.util.Arrays;
 import java.util.ArrayList;
 
 import org.apache.nutch.fs.NutchFileSystem;
@@ -38,11 +39,16 @@ public abstract class InputFormatBase implements InputFormat {
    * expression.*/ 
   protected File[] listFiles(NutchFileSystem fs, JobConf job)
     throws IOException {
-    File[] files = fs.listFiles(job.getInputDir());
-    if (files == null) {
-      throw new IOException("No input files in: "+job.getInputDir());
+    File[] dirs = job.getInputDirs();
+    ArrayList files = new ArrayList();
+    for (int i = 0; i < dirs.length; i++) {
+      files.addAll(Arrays.asList(fs.listFiles(dirs[i])));
     }
-    return files;
+
+    if (files.size() == 0) {
+      throw new IOException("No input files in: "+job.getInputDirs());
+    }
+    return (File[])files.toArray(new File[files.size()]);
   }
 
   /** Splits files returned by {#listFiles(NutchFileSystem,JobConf) when

@@ -30,6 +30,8 @@ import org.apache.nutch.io.UTF8;
 import org.apache.nutch.io.LongWritable;
 import org.apache.nutch.io.WritableComparator;
 
+import org.apache.nutch.util.NutchConf;
+
 import java.io.File;
 import java.util.Random;
 
@@ -43,11 +45,13 @@ public class Grep {
       System.exit(-1);
     }
 
+    NutchConf defaults = NutchConf.get();
+
     File tempDir =
       new File("grep-temp-"+
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
-    JobConf grepJob = new JobConf();
+    JobConf grepJob = new JobConf(defaults);
 
     grepJob.setNumMapTasks(18);
     grepJob.setInputDir(new File(args[0]));
@@ -68,7 +72,7 @@ public class Grep {
 
     JobClient.runJob(grepJob);
 
-    JobConf sortJob = new JobConf();
+    JobConf sortJob = new JobConf(defaults);
 
     sortJob.setNumMapTasks(6);
 
@@ -86,7 +90,7 @@ public class Grep {
 
     JobClient.runJob(sortJob);
 
-    new JobClient().getFs().delete(tempDir);
+    new JobClient(defaults).getFs().delete(tempDir);
   }
 
 }

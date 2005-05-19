@@ -64,7 +64,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
      * Start with the local machine name, and the default JobTracker
      */
     public TaskTracker() throws IOException {
-      this(JobTracker.getDefaultAddress());
+      this(JobTracker.getAddress(NutchConf.get()));
     }
 
     /**
@@ -306,15 +306,17 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
 
             JobConf jc = new JobConf(localJobFile);
             String jarFile = jc.getJar();
-            fs.copyToLocalFile(new File(jarFile), localJarFile);
-            jc.setJar(localJarFile.getCanonicalPath());
+            if (jarFile != null) {
+              fs.copyToLocalFile(new File(jarFile), localJarFile);
+              jc.setJar(localJarFile.getCanonicalPath());
 
-            BufferedOutputStream out =
-              new BufferedOutputStream(new FileOutputStream(localJobFile));
-            try {
+              BufferedOutputStream out =
+                new BufferedOutputStream(new FileOutputStream(localJobFile));
+              try {
                 jc.write(out);
-            } finally {
+              } finally {
                 out.close();
+              }
             }
         }
 
