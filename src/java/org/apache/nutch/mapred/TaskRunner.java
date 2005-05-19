@@ -60,15 +60,40 @@ abstract class TaskRunner extends Thread {
 
       prepare();
 
+      String sep = System.getProperty("path.separator");
+      File workDir = new File(new File(t.getJobFile()).getParent(), "work");
+               
+      StringBuffer classPath = new StringBuffer();
+      // start with same classpath as parent process
+      classPath.append(System.getProperty("java.class.path"));
+      classPath.append(sep);
+      
+      
+      JobConf job = new JobConf(t.getJobFile());
+      String jar = job.getJar();
+      if (jar != null) {                      // if jar exists, it into workDir
+        runChild(new String[] { "jar", "xf", jar}, workDir);
+        String[] libs = new File(workDir, "lib").list();
+        for (int i = 0; i < libs.length; i++) {
+          classPath.append(sep);              // add libs from jar to classpath
+          classPath.append(libs[i]);
+        }
+        classPath.append(sep);
+        classPath.append(new File(workDir, "classes"));
+        classPath.append(sep);
+        classPath.append(workDir);
+      }
+
+      // run java
       runChild(new String[] {
-        "java",                                   // run java
-        //"-verbose",
-        "-cp", 
-        new JobConf(t.getJobFile()).getJar(),     // classpath is task jar
+        "java",
+        "-Xmx"+job.get("mapred.child.heap.size", "200m"),
+        "-cp", classPath.toString(),
         TaskTracker.Child.class.getName(),        // main is Child
         tracker.taskReportPort+"",                // pass umbilical port
         t.getTaskId()                             // pass task identifier
-      });
+      }, null);
+
     } catch (IOException e) {
       LOG.log(Level.WARNING, "Child Error", e);
     } finally {
@@ -79,8 +104,8 @@ abstract class TaskRunner extends Thread {
   /**
    * Run the child process
    */
-  private void runChild(String[] args) throws IOException {
-    this.process = Runtime.getRuntime().exec(args);
+  private void runChild(String[] args, File dir) throws IOException {
+    this.process = Runtime.getRuntime().exec(args, null, dir);
     try {
       logStream(process.getErrorStream());        // copy log output
       logStream(process.getInputStream());        // normally empty

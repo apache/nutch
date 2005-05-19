@@ -164,8 +164,8 @@ public class JobClient implements MRConstants {
     /**
      * Build a job client, connect to the default job tracker
      */
-    public JobClient() throws IOException {
-      this(JobTracker.getDefaultAddress());
+    public JobClient(NutchConf conf) throws IOException {
+      this(JobTracker.getAddress(conf));
     }
   
     /**
@@ -226,8 +226,12 @@ public class JobClient implements MRConstants {
 
         String originalJarPath = job.getJar();
 
-        // Modify the job file, write to JobTracker's fs
-        job.setJar(submitJarFile.toString());
+        if (originalJarPath != null) {           // Copy jar to JobTracker's fs
+          job.setJar(submitJarFile.toString());
+          getFs().copyFromLocalFile(new File(originalJarPath), submitJarFile);
+        }
+
+        // Write job file to JobTracker's fs
         NFSDataOutputStream out =
           new NFSDataOutputStream(getFs().create(submitJobFile));
         try {
@@ -235,8 +239,6 @@ public class JobClient implements MRConstants {
         } finally {
           out.close();
         }
-        // Copy jar to JobTracker's fs
-        getFs().copyFromLocalFile(new File(originalJarPath), submitJarFile);
 
         //
         // Now, actually submit the job (using the submit name)
@@ -265,7 +267,7 @@ public class JobClient implements MRConstants {
     /** Utility that submits a job, then polls for progress until the job is
      * complete. */
     public static void runJob(JobConf job) throws IOException {
-      JobClient jc = new JobClient();
+      JobClient jc = new JobClient(job);
       boolean error = true;
       RunningJob running = null;
       try {
@@ -327,7 +329,7 @@ public class JobClient implements MRConstants {
         }
 
         // Submit the request
-        JobClient jc = new JobClient();
+        JobClient jc = new JobClient(NutchConf.get());
         try {
             if (submitJobFile != null) {
                 RunningJob job = jc.submitJob(submitJobFile);

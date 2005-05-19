@@ -36,8 +36,8 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
 
     public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.mapred.JobTracker");
     public static JobTracker tracker = null;
-    public static void createTracker() throws IOException {
-      createTracker(getDefaultAddress());
+    public static void createTracker(NutchConf conf) throws IOException {
+      createTracker(getAddress(conf));
     }
     public static void createTracker(InetSocketAddress addr) throws IOException {
       tracker = new JobTracker(addr);
@@ -46,9 +46,9 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
         return tracker;
     }
 
-    public static InetSocketAddress getDefaultAddress() {
+    public static InetSocketAddress getAddress(NutchConf conf) {
       String jobTrackerStr =
-        NutchConf.get().get("mapred.job.tracker", "localhost:8012");
+        conf.get("mapred.job.tracker", "localhost:8012");
       int colon = jobTrackerStr.indexOf(":");
       if (colon < 0) {
         throw new RuntimeException("Bad mapred.job.tracker: "+jobTrackerStr);
@@ -230,8 +230,8 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
         this.port = addr.getPort();
         this.interTrackerServer = RPC.getServer(this, addr.getPort());
         this.interTrackerServer.start();
-        this.infoServer = new JobTrackerInfoServer(this, TRACKERINFO_PORT);
-        this.infoServer.start();
+//         this.infoServer = new JobTrackerInfoServer(this, TRACKERINFO_PORT);
+//         this.infoServer.start();
 
         this.startTime = System.currentTimeMillis();
 
@@ -903,7 +903,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
           System.exit(-1);
         }
 
-        JobTracker.createTracker();
+        JobTracker.createTracker(NutchConf.get());
         JobTracker jt = JobTracker.getTracker();
         jt.offerService();
     }

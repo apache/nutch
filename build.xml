@@ -52,7 +52,7 @@
   <!-- ====================================================== -->
   <!-- Compile the Java files                                 -->
   <!-- ====================================================== -->
-  <target name="compile" depends="compile-core, compile-plugins, jar"/>
+  <target name="compile" depends="compile-core, compile-plugins"/>
 
   <target name="compile-core" depends="init">
     <javac 
@@ -97,12 +97,11 @@
           todir="${build.classes}"/>
     <copy file="${conf.dir}/nutch-site.xml"
           todir="${build.classes}"/>
-    <jar
-      jarfile="${build.dir}/${final.name}.jar"
-      basedir="${build.classes}"
-    />
-    <symlink overwrite="true" link="${basedir}/${name}.jar"
-             resource="${build.dir}/${final.name}.jar"/>
+    <jar jarfile="${build.dir}/${final.name}.jar"
+         basedir="${build.classes}">
+      <manifest>
+      </manifest>
+    </jar>
   </target>
 
   <!-- ================================================================== -->
@@ -420,7 +419,6 @@
   <!-- ================================================================== -->
   <target name="clean">
     <delete dir="${build.dir}"/>
-    <exec executable="rm"><arg value="-f"/><arg value="${name}.jar"/></exec>
   </target>
 
 </project>
