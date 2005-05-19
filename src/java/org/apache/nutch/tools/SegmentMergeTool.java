@@ -36,6 +36,7 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.segment.SegmentReader;
 import org.apache.nutch.segment.SegmentWriter;
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.util.NutchConf;
 
 import org.apache.lucene.analysis.WhitespaceAnalyzer;
 import org.apache.lucene.document.DateField;
@@ -94,6 +95,11 @@ public class SegmentMergeTool implements Runnable {
   public static int INDEX_SIZE = 250000;
   public static int INDEX_MERGE_FACTOR = 30;
   public static int INDEX_MIN_MERGE_DOCS = 100;
+  
+  private boolean boostByLinkCount =
+    NutchConf.get().getBoolean("indexer.boost.by.link.count", false);
+
+  private float scorePower = NutchConf.get().getFloat("indexer.score.power", 0.5f);
   
   private NutchFileSystem nfs = null;
   private File[] segments = null;
@@ -231,10 +237,16 @@ public class SegmentMergeTool implements Runnable {
             if (!sr.get(i, fo, null, null, null)) break;
 
             Document doc = new Document();
+            
+            // compute boost
+            float boost = IndexSegment.calculateBoost(fo.getFetchListEntry().getPage().getScore(),
+                    scorePower, boostByLinkCount, fo.getAnchors().length);
             doc.add(new Field("sd", name + "|" + i, true, false, false));
             doc.add(new Field("uh", MD5Hash.digest(fo.getUrl().toString()).toString(), true, true, false));
             doc.add(new Field("ch", fo.getMD5Hash().toString(), true, true, false));
             doc.add(new Field("time", DateField.timeToString(fo.getFetchDate()), true, false, false));
+            doc.add(new Field("score", boost + "", true, false, false));
+            doc.add(new Field("ul", fo.getUrl().toString().length() + "", true, false, false));
             iw.addDocument(doc);
             processedRecords++;
             if (processedRecords > 0 && (processedRecords % LOG_STEP == 0)) {
@@ -304,32 +316,82 @@ public class SegmentMergeTool implements Runnable {
         // Enumerate all docs with the same URL hash or content hash
         TermDocs td = ir.termDocs(t);
         if (td == null) continue;
-        int id = -1;
-        String time = null;
-        Document doc = null;
-        // Keep only the latest version of the document with
-        // the same hash (url or content). Note: even if the content
-        // hash is identical, other metadata may be different, so even
-        // in this case it makes sense to keep the latest version.
-        while (td.next()) {
-          int docid = td.doc();
-          if (!ir.isDeleted(docid)) {
-            doc = ir.document(docid);
-            if (time == null) {
-              time = doc.get("time");
-              id = docid;
-              continue;
-            }
-            String dtime = doc.get("time");
-            // "time" is a DateField, and can be compared lexicographically
-            if (dtime.compareTo(time) > 0) {
-              if (id != -1) {
-                ir.delete(id);
+        if (t.field().equals("uh")) {
+          // Keep only the latest version of the document with
+          // the same url hash. Note: even if the content
+          // hash is identical, other metadata may be different, so even
+          // in this case it makes sense to keep the latest version.
+          int id = -1;
+          String time = null;
+          Document doc = null;
+          while (td.next()) {
+            int docid = td.doc();
+            if (!ir.isDeleted(docid)) {
+              doc = ir.document(docid);
+              if (time == null) {
+                time = doc.get("time");
+                id = docid;
+                continue;
               }
-              time = dtime;
-              id = docid;
-            } else {
-              ir.delete(docid);
+              String dtime = doc.get("time");
+              // "time" is a DateField, and can be compared lexicographically
+              if (dtime.compareTo(time) > 0) {
+                if (id != -1) {
+                  ir.delete(id);
+                }
+                time = dtime;
+                id = docid;
+              } else {
+                ir.delete(docid);
+              }
+            }
+          }
+        } else if (t.field().equals("ch")) {
+          // Keep only the version of the document with
+          // the highest score, and then with the shortest url.
+          int id = -1;
+          int ul = 0;
+          float score = 0.0f;
+          Document doc = null;
+          while (td.next()) {
+            int docid = td.doc();
+            if (!ir.isDeleted(docid)) {
+              doc = ir.document(docid);
+              if (ul == 0) {
+                try {
+                  ul = Integer.parseInt(doc.get("ul"));
+                  score = Float.parseFloat(doc.get("score"));
+                } catch (Exception e) {};
+                id = docid;
+                continue;
+              }
+              int dul = 0;
+              float dscore = 0.0f;
+              try {
+                dul = Integer.parseInt(doc.get("ul"));
+                dscore = Float.parseFloat(doc.get("score"));
+              } catch (Exception e) {};
+              int cmp = Float.compare(dscore, score);
+              if (cmp == 0) {
+                // equal scores, select the one with shortest url
+                if (dul < ul) {
+                  if (id != -1) {
+                    ir.delete(id);
+                  }
+                  ul = dul;
+                  id = docid;
+                } else {
+                  ir.delete(docid);
+                }
+              } else if (cmp < 0) {
+                ir.delete(docid);
+              } else {
+                if (id != -1) {
+                  ir.delete(id);
+                }
+                ul = dul;
+                id = docid;
+              }
             }
           }
         }
