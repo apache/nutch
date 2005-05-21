@@ -202,14 +202,8 @@ public class IndexSegment {
     // add digest, used by dedup
     doc.add(Field.UnIndexed("digest", fo.getMD5Hash().toString()));
 
-    // compute boost
-    // 1. Start with page's score from DB -- 1.0 if no link analysis.
-    float boost = fo.getFetchListEntry().getPage().getScore();
-    // 2. Apply scorePower to this.
-    boost = (float)Math.pow(boost, scorePower);
-    // 3. Optionally boost by log of incoming anchor count.
-    if (boostByLinkCount)
-      boost *= (float)Math.log(Math.E + fo.getAnchors().length);
+    float boost = calculateBoost(fo.getFetchListEntry().getPage().getScore(),
+            scorePower, boostByLinkCount, fo.getAnchors().length);
     // 4. Apply boost to all indexed fields.
     doc.setBoost(boost);
 
@@ -219,6 +213,17 @@ public class IndexSegment {
     return doc;
   }
 
+  public static float calculateBoost(float pageScore, float scorePower,
+          boolean boostByLinkCount, int linkCount) {
+    // 1. Start with page's score from DB -- 1.0 if no link analysis.
+    float res = pageScore;
+    // 2. Apply scorePower to this.
+    res = (float)Math.pow(pageScore, scorePower);
+    // 3. Optionally boost by log of incoming anchor count.
+    if (boostByLinkCount)
+      res *= (float)Math.log(Math.E + linkCount);
+    return res;
+  }
 
   /** 
    * Create an index for the input files in the named directory. 
