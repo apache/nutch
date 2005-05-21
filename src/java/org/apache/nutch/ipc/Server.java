@@ -25,6 +25,7 @@ import java.io.BufferedOutputStream;
 
 import java.net.Socket;
 import java.net.ServerSocket;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 
 import java.util.LinkedList;
@@ -146,7 +147,9 @@ public abstract class Server {
           }
         }
       } catch (EOFException eof) {
-          // This is what happens when the other side shuts things down
+          // This is what happens on linux when the other side shuts down
+      } catch (SocketException eof) {
+          // This is what happens on Win32 when the other side shuts down
       } catch (Exception e) {
         LOG.log(Level.INFO, getName() + " caught: " + e, e);
       } finally {

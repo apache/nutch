@@ -56,7 +56,8 @@ public class TextInputFormat extends InputFormatBase {
 
     return new RecordReader() {
         /** Read a line. */
-        public boolean next(Writable key, Writable value) throws IOException {
+        public synchronized boolean next(Writable key, Writable value)
+          throws IOException {
           long pos = in.getPos();
           if (pos >= end)
             return false;
@@ -66,9 +67,11 @@ public class TextInputFormat extends InputFormatBase {
           return true;
         }
         
-        public long getPos() throws IOException { return in.getPos(); }
+        public  synchronized long getPos() throws IOException {
+          return in.getPos();
+        }
 
-        public void close() throws IOException { in.close(); }
+        public synchronized void close() throws IOException { in.close(); }
 
       };
   }
