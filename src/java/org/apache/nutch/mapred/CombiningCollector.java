@@ -51,7 +51,7 @@ class CombiningCollector implements OutputCollector {
     }
   }
 
-  public void collect(WritableComparable key, Writable value)
+  public synchronized void collect(WritableComparable key, Writable value)
     throws IOException {
 
     // buffer new value in map
@@ -71,7 +71,7 @@ class CombiningCollector implements OutputCollector {
     }
   }
 
-  public void flush() throws IOException {
+  public synchronized void flush() throws IOException {
     Iterator pairs = keyToValues.entrySet().iterator();
     while (pairs.hasNext()) {
       Map.Entry pair = (Map.Entry)pairs.next();

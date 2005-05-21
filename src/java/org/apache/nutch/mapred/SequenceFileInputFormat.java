@@ -45,7 +45,8 @@ public class SequenceFileInputFormat extends InputFormatBase {
     in.sync(split.getStart());                    // sync to start
 
     return new RecordReader() {
-        public boolean next(Writable key, Writable value) throws IOException {
+        public synchronized boolean next(Writable key, Writable value)
+          throws IOException {
           long pos = in.getPosition();
           boolean more = in.next(key, value);
           if (pos >= end && in.syncSeen()) {
@@ -55,9 +56,11 @@ public class SequenceFileInputFormat extends InputFormatBase {
           }
         }
         
-        public long getPos() throws IOException { return in.getPosition(); }
+        public synchronized long getPos() throws IOException {
+          return in.getPosition();
+        }
 
-        public void close() throws IOException { in.close(); }
+        public synchronized void close() throws IOException { in.close(); }
 
       };
   }

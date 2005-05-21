@@ -168,6 +168,14 @@ public class JobConf extends NutchConf {
     setClass("mapred.mapper.class", theClass, Mapper.class);
   }
 
+  public Class getMapRunnerClass() {
+    return getClass("mapred.map.runner.class",
+                    MapRunner.class, MapRunnable.class);
+  }
+  public void setMapRunnerClass(Class theClass) {
+    setClass("mapred.map.runner.class", theClass, MapRunnable.class);
+  }
+
   public Class getPartitionerClass() {
     return getClass("mapred.partitioner.class",
                     HashPartitioner.class, Partitioner.class);

@@ -53,7 +53,7 @@ public class MapTask extends Task {
     split.readFields(in);
   }
 
-  public void run(final JobConf job, TaskUmbilicalProtocol umbilical)
+  public void run(final JobConf job, final TaskUmbilicalProtocol umbilical)
     throws IOException {
 
     // open output files
@@ -68,12 +68,12 @@ public class MapTask extends Task {
                                   job.getOutputValueClass());
       }
 
-      Mapper mapper = (Mapper)job.newInstance(job.getMapperClass());
       final Partitioner partitioner =
         (Partitioner)job.newInstance(job.getPartitionerClass());
 
       OutputCollector partCollector = new OutputCollector() { // make collector
-          public void collect(WritableComparable key, Writable value)
+          public synchronized void collect(WritableComparable key,
+                                           Writable value)
             throws IOException {
             outs[partitioner.getPartition(key, partitions)].append(key, value);
           }
@@ -86,41 +86,34 @@ public class MapTask extends Task {
         collector = new CombiningCollector(job, partCollector);
       }
 
-      float end = (float)split.getLength();
-      float lastProgress = 0.0f;
-
-      Class inputKeyClass = job.getInputKeyClass();
-      Class inputValueClass = job.getInputValueClass();
-      WritableComparable key = null;
-      Writable value = null;
-
-      RecordReader in =                           // open the input
+      final RecordReader rawIn =                  // open input
         job.getInputFormat().getRecordReader(NutchFileSystem.get(),split,job);
 
+      RecordReader in = new RecordReader() {      // wrap in progress reporter
+          private float end = (float)split.getLength();
+          private float lastProgress = 0.0f;
+
+          public synchronized boolean next(Writable key, Writable value)
+            throws IOException {
+
+            float progress =                        // compute progress
+              (float)Math.min((rawIn.getPos()-split.getStart())/end, 1.0f);
+            if ((progress - lastProgress) > 0.01f)  { // 100 progress reports
+              umbilical.progress(getTaskId(), new FloatWritable(progress));
+              lastProgress = progress;
+            }
+
+            return rawIn.next(key, value);
+          }
+          public long getPos() throws IOException { return rawIn.getPos(); }
+          public void close() throws IOException { rawIn.close(); }
+        };
+
+      MapRunnable runner =
+        (MapRunnable)job.newInstance(job.getMapRunnerClass());
+
       try {
-
-        // always allocate new keys and values when combining
-        if (combining || key == null) {
-          try {
-            key = (WritableComparable)inputKeyClass.newInstance();
-            value = (Writable)inputValueClass.newInstance();
-          } catch (Exception e) {
-            throw new IOException(e.toString());
-          }
-        }
-
-        while (in.next(key, value)) {             // map input to collector
-
-          mapper.map(key, value, collector);
-
-          float progress =                        // compute progress
-            (float)Math.min((in.getPos()-split.getStart())/end, 1.0f);
-      
-          if ((progress - lastProgress) > 0.01f)  { // 100 progress reports
-            umbilical.progress(getTaskId(), new FloatWritable(progress));
-            lastProgress = progress;
-          }
-        }
+        runner.run(in, collector);                // run the map
 
         if (combining) {                          // flush combiner
           ((CombiningCollector)collector).flush();

@@ -113,7 +113,7 @@ public class SequenceFile {
 
 
     /** Close the file. */
-    public void close() throws IOException {
+    public synchronized void close() throws IOException {
       if (out != null) {
         out.close();
         out = null;
@@ -121,7 +121,8 @@ public class SequenceFile {
     }
 
     /** Append a key/value pair. */
-    public void append(Writable key, Writable val) throws IOException {
+    public synchronized void append(Writable key, Writable val)
+      throws IOException {
       if (key.getClass() != keyClass)
         throw new IOException("wrong key class: "+key+" is not "+keyClass);
       if (val.getClass() != valClass)
@@ -139,8 +140,8 @@ public class SequenceFile {
     }
 
     /** Append a key/value pair. */
-    public void append(byte[] data, int start, int length, int keyLength)
-      throws IOException {
+    public synchronized void append(byte[] data, int start, int length,
+                                    int keyLength) throws IOException {
       if (keyLength == 0)
         throw new IOException("zero length keys not allowed");
 
@@ -156,7 +157,7 @@ public class SequenceFile {
     }
 
     /** Returns the current length of the output file. */
-    public long getLength() throws IOException {
+    public synchronized long getLength() throws IOException {
       return out.getPos();
     }
 

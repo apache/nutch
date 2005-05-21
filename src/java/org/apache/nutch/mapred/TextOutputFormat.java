@@ -38,14 +38,14 @@ public class TextOutputFormat implements OutputFormat {
       new NFSDataOutputStream(fs.create(file, true));
 
     return new RecordWriter() {
-        public void write(WritableComparable key, Writable value)
+        public synchronized void write(WritableComparable key, Writable value)
           throws IOException {
           out.writeBytes(key.toString());         // BUG: assume 8-bit chars
           out.writeByte('\t');
           out.writeBytes(value.toString());       // BUG: assume 8-bit chars
           out.writeByte('\n');
         }
-        public void close() throws IOException {
+        public synchronized void close() throws IOException {
           out.close();
         }
       };
