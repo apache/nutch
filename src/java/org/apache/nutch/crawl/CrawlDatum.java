@@ -24,7 +24,7 @@ import org.apache.nutch.io.*;
 import org.apache.nutch.util.*;
 
 /* The crawl state of a url. */
-public class CrawlDatum implements Writable, Cloneable {
+public class CrawlDatum implements WritableComparable, Cloneable {
   private final static byte CUR_VERSION = 0;
 
   public static final byte STATUS_DB_UNFETCHED = 0;
@@ -38,12 +38,15 @@ public class CrawlDatum implements Writable, Cloneable {
   private long nextFetch = System.currentTimeMillis();
   private byte retries;
   private float fetchInterval;
+  private int linkCount;
 
   public CrawlDatum() {}
 
   public CrawlDatum(int status, float fetchInterval) {
     this.status = (byte)status;
     this.fetchInterval = fetchInterval;
+    if (status == STATUS_LINKED)
+      linkCount = 1;
   }
 
   //
@@ -64,6 +67,9 @@ public class CrawlDatum implements Writable, Cloneable {
     this.fetchInterval = fetchInterval;
   }
 
+  public int getLinkCount() { return linkCount; }
+  public void setLinkCount(int linkCount) { this.linkCount = linkCount; }
+
   //
   // writable methods
   //
@@ -77,14 +83,19 @@ public class CrawlDatum implements Writable, Cloneable {
     nextFetch = in.readLong();
     retries = in.readByte();
     fetchInterval = in.readFloat();
+    linkCount = in.readInt();
   }
+
+  /** The number of bytes into a CrawlDatum that the linkCount is stored. */
+  private static final int LINK_COUNT_OFFSET = 1 + 1 + 8 + 1 + 4;
 
   public void write(DataOutput out) throws IOException {
     out.writeByte(CUR_VERSION);                   // store current version
-    out.write(status);
+    out.writeByte(status);
     out.writeLong(nextFetch);
-    out.write(retries);
+    out.writeByte(retries);
     out.writeFloat(fetchInterval);
+    out.writeInt(linkCount);
   }
 
   /** Copy the contents of another instance into this instance. */
@@ -93,7 +104,36 @@ public class CrawlDatum implements Writable, Cloneable {
     this.nextFetch = that.nextFetch;
     this.retries = that.retries;
     this.fetchInterval = that.fetchInterval;
+    this.linkCount = that.linkCount;
   }
+
+
+  //
+  // compare methods
+  //
+  
+  /** Sort by decreasing link count. */
+  public int compareTo(Object o) {
+    int thisLinkCount = this.linkCount;
+    int thatLinkCount = ((CrawlDatum)o).linkCount;
+    return thatLinkCount - thisLinkCount;
+  }
+
+  /** A Comparator optimized for CrawlDatum. */ 
+  public static class Comparator extends WritableComparator {
+    public Comparator() { super(CrawlDatum.class); }
+
+    public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
+      int linkCount1 = readInt(b1,s1+LINK_COUNT_OFFSET);
+      int linkCount2 = readInt(b2,s2+LINK_COUNT_OFFSET);
+      return linkCount2 - linkCount1;
+    }
+  }
+
+  static {                                        // register this comparator
+    WritableComparator.define(CrawlDatum.class, new Comparator());
+  }
+
 
   //
   // basic methods
@@ -106,6 +146,7 @@ public class CrawlDatum implements Writable, Cloneable {
     buf.append("Next fetch: " + new Date(getNextFetchTime()) + "\n");
     buf.append("Retries since fetch: " + getRetriesSinceFetch() + "\n");
     buf.append("Retry interval: " + getFetchInterval() + " days\n");
+    buf.append("Link Count: " + getLinkCount() + "\n");
     return buf.toString();
   }
 
@@ -117,7 +158,8 @@ public class CrawlDatum implements Writable, Cloneable {
       (this.status == other.status) &&
       (this.nextFetch == other.nextFetch) &&
       (this.retries == other.retries) &&
-      (this.fetchInterval == other.fetchInterval);
+      (this.fetchInterval == other.fetchInterval) &&
+      (this.linkCount == other.linkCount);
   }
 
   public int hashCode() {
@@ -125,7 +167,8 @@ public class CrawlDatum implements Writable, Cloneable {
       status ^
       ((int)nextFetch) ^
       retries ^
-      Float.floatToIntBits(fetchInterval);
+      Float.floatToIntBits(fetchInterval) ^
+      linkCount;
   }
 
   public Object clone() {

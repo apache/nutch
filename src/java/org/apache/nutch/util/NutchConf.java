@@ -138,6 +138,11 @@ public class NutchConf {
     }
   }
 
+  /** Sets the value of the <code>name</code> property to a long. */
+  public void setLong(String name, long value) {
+    set(name, Long.toString(value));
+  }
+
   /** Returns the value of the <code>name</code> property as a float.  If no
    * such property is specified, or if the specified value is not a valid
    * float, then <code>defaultValue</code> is returned.
@@ -165,6 +170,11 @@ public class NutchConf {
     else if ("false".equals(valueString))
       return false;
     else return defaultValue;
+  }
+
+  /** Sets the value of the <code>name</code> property to an integer. */
+  public void setBoolean(String name, boolean value) {
+    set(name, Boolean.toString(value));
   }
 
   /** Returns the value of the <code>name</code> property as an array of
