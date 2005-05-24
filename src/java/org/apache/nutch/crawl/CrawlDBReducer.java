@@ -31,12 +31,16 @@ public class CrawlDBReducer implements Reducer {
   public void reduce(WritableComparable key, Iterator values,
                      OutputCollector output) throws IOException {
     // collect datum with the highest status
-    CrawlDatum datum = null;
+    CrawlDatum result = null;
+    int linkCount = 0;
     while (values.hasNext()) {
-      CrawlDatum nextDatum = (CrawlDatum)values.next();
-      if (datum == null || nextDatum.getStatus() > datum.getStatus())
-        datum = nextDatum;
+      CrawlDatum datum = (CrawlDatum)values.next();
+      linkCount += datum.getLinkCount();          // sum link counts
+                                                  // keep w/ max status
+      if (result == null || datum.getStatus() > result.getStatus())
+        result = datum;
     }
-    output.collect(key, datum);
+    result.setLinkCount(linkCount);
+    output.collect(key, result);
   }
 }

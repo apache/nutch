@@ -88,12 +88,13 @@ public class Injector extends NutchConfigured {
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
     JobConf mergeJob = new JobConf(getConf());
     mergeJob.addInputDir(tempDir);
-    mergeJob.addInputDir(crawlDb);
+    mergeJob.addInputDir(new File(crawlDb, "current/"));
     mergeJob.setInputFormat(InputFormats.get("seq"));
     mergeJob.setInputKeyClass(UTF8.class);
     mergeJob.setInputValueClass(CrawlDatum.class);
 
-    mergeJob.setPartitionerClass(CrawlDBPartitioner.class);
+    mergeJob.setInt("partition.url.by.host.seed", new Random().nextInt());
+    mergeJob.setPartitionerClass(PartitionUrlByHost.class);
     mergeJob.setReducerClass(CrawlDBReducer.class);
 
     mergeJob.setOutputDir(newCrawlDb);
@@ -103,7 +104,12 @@ public class Injector extends NutchConfigured {
 
     JobClient.runJob(mergeJob);
 
-    new JobClient(getConf()).getFs().delete(tempDir);
+    NutchFileSystem fs = new JobClient(getConf()).getFs();
+    fs.delete(new File(crawlDb, "old/"));
+    fs.rename(new File(crawlDb, "current/"), new File(crawlDb, "old/"));
+    fs.rename(newCrawlDb, new File(crawlDb, "current/"));
+    fs.delete(new File(crawlDb, "old/"));
+    fs.delete(tempDir);
 
   }
 

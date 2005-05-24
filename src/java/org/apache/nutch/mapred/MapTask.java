@@ -75,7 +75,8 @@ public class MapTask extends Task {
           public synchronized void collect(WritableComparable key,
                                            Writable value)
             throws IOException {
-            outs[partitioner.getPartition(key, partitions)].append(key, value);
+            outs[partitioner.getPartition(key, value, partitions)]
+              .append(key, value);
           }
         };
 
