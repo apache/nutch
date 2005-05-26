@@ -77,7 +77,7 @@ public class Injector extends NutchConfigured {
     sortJob.setMapperClass(InjectMapper.class);
 
     sortJob.setOutputDir(tempDir);
-    sortJob.setOutputFormat(OutputFormats.get("seq"));
+    sortJob.setOutputFormat(SequenceFileOutputFormat.class);
     sortJob.setOutputKeyClass(UTF8.class);
     sortJob.setOutputValueClass(CrawlDatum.class);
     JobClient.runJob(sortJob);
@@ -89,7 +89,7 @@ public class Injector extends NutchConfigured {
     JobConf mergeJob = new JobConf(getConf());
     mergeJob.addInputDir(tempDir);
     mergeJob.addInputDir(new File(crawlDb, "current/"));
-    mergeJob.setInputFormat(InputFormats.get("seq"));
+    mergeJob.setInputFormat(SequenceFileInputFormat.class);
     mergeJob.setInputKeyClass(UTF8.class);
     mergeJob.setInputValueClass(CrawlDatum.class);
 
@@ -98,7 +98,7 @@ public class Injector extends NutchConfigured {
     mergeJob.setReducerClass(CrawlDBReducer.class);
 
     mergeJob.setOutputDir(newCrawlDb);
-    mergeJob.setOutputFormat(OutputFormats.get("seq"));
+    mergeJob.setOutputFormat(SequenceFileOutputFormat.class);
     mergeJob.setOutputKeyClass(UTF8.class);
     mergeJob.setOutputValueClass(CrawlDatum.class);
 

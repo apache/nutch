@@ -146,14 +146,9 @@ public class ReduceTask extends Task {
       new SequenceFile.Writer(lfs, file, keyClass, valueClass);
     try {
       // append all input files into a single input file
-      WritableComparable key;
-      Writable value;
-      try {
-        key = (WritableComparable)keyClass.newInstance();
-        value = (Writable)valueClass.newInstance();
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
+      WritableComparable key = (WritableComparable)job.newInstance(keyClass);
+      Writable value = (Writable)job.newInstance(valueClass);
+
       for (int i = 0; i < mapTaskIds.length; i++) {
         String partFile =
           MapOutputFile.getInputFile(mapTaskIds[i], getTaskId()).toString();
@@ -175,7 +170,7 @@ public class ReduceTask extends Task {
     WritableComparator comparator = null;
     try {
       comparator =
-        (WritableComparator)job.getOutputKeyComparatorClass().newInstance();
+        (WritableComparator)job.newInstance(job.getOutputKeyComparatorClass());
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

@@ -25,14 +25,17 @@ import org.apache.nutch.util.*;
 
 /* The crawl state of a url. */
 public class CrawlDatum implements WritableComparable, Cloneable {
-  private final static byte CUR_VERSION = 0;
+  public static final String DIR_NAME = "crawl";
 
-  public static final byte STATUS_DB_UNFETCHED = 0;
-  public static final byte STATUS_DB_FETCHED = 1;
-  public static final byte STATUS_LINKED = 2;
-  public static final byte STATUS_FETCHER_SUCCESS = 3;
-  public static final byte STATUS_FETCHER_FAIL_TEMP = 4;
-  public static final byte STATUS_FETCHER_FAIL_PERM = 5;
+  private final static byte CUR_VERSION = 1;
+
+  public static final byte STATUS_DB_UNFETCHED = 1;
+  public static final byte STATUS_DB_FETCHED = 2;
+  public static final byte STATUS_DB_GONE = 3;
+  public static final byte STATUS_LINKED = 4;
+  public static final byte STATUS_FETCH_SUCCESS = 5;
+  public static final byte STATUS_FETCH_FAIL_TEMP = 6;
+  public static final byte STATUS_FETCH_FAIL_PERM = 7;
 
   private byte status;
   private long nextFetch = System.currentTimeMillis();
@@ -54,7 +57,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   //
 
   public byte getStatus() { return status; }
-  public void setStatus(byte status) { this.status = (byte)status; }
+  public void setStatus(int status) { this.status = (byte)status; }
 
   public long getNextFetchTime() { return nextFetch; }
   public void setNextFetchTime(long nextFetch) { this.nextFetch = nextFetch; }
@@ -73,6 +76,13 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   //
   // writable methods
   //
+
+  public static CrawlDatum read(DataInput in) throws IOException {
+    CrawlDatum result = new CrawlDatum();
+    result.readFields(in);
+    return result;
+  }
+
 
   public void readFields(DataInput in) throws IOException {
     byte version = in.readByte();                 // read version

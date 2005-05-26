@@ -18,8 +18,8 @@ package org.apache.nutch.mapred.demo;
 import org.apache.nutch.mapred.JobConf;
 import org.apache.nutch.mapred.JobClient;
 import org.apache.nutch.mapred.RunningJob;
-import org.apache.nutch.mapred.InputFormats;
-import org.apache.nutch.mapred.OutputFormats;
+import org.apache.nutch.mapred.SequenceFileOutputFormat;
+import org.apache.nutch.mapred.SequenceFileInputFormat;
 
 import org.apache.nutch.mapred.lib.RegexMapper;
 import org.apache.nutch.mapred.lib.InverseMapper;
@@ -66,7 +66,7 @@ public class Grep {
 
     grepJob.setNumReduceTasks(6);
     grepJob.setOutputDir(tempDir);
-    grepJob.setOutputFormat(OutputFormats.get("seq"));
+    grepJob.setOutputFormat(SequenceFileOutputFormat.class);
     grepJob.setOutputKeyClass(UTF8.class);
     grepJob.setOutputValueClass(LongWritable.class);
 
@@ -77,7 +77,7 @@ public class Grep {
     sortJob.setNumMapTasks(6);
 
     sortJob.setInputDir(tempDir);
-    sortJob.setInputFormat(InputFormats.get("seq"));
+    sortJob.setInputFormat(SequenceFileInputFormat.class);
     sortJob.setInputKeyClass(UTF8.class);
     sortJob.setInputValueClass(LongWritable.class);
 

@@ -23,28 +23,25 @@ import org.apache.nutch.io.WritableComparable;
 
 /** Default {@link MapRunnable} implementation.*/
 public class MapRunner implements MapRunnable {
+  private JobConf job;
   private Mapper mapper;
   private Class inputKeyClass;
   private Class inputValueClass;
 
   public void configure(JobConf job) {
-    mapper = (Mapper)job.newInstance(job.getMapperClass());
-    inputKeyClass = job.getInputKeyClass();
-    inputValueClass = job.getInputValueClass();
+    this.job = job;
+    this.mapper = (Mapper)job.newInstance(job.getMapperClass());
+    this.inputKeyClass = job.getInputKeyClass();
+    this.inputValueClass = job.getInputValueClass();
   }
 
   public void run(RecordReader input, OutputCollector output)
     throws IOException {
     while (true) {
       // allocate new key & value instances
-      WritableComparable key = null;
-      Writable value = null;
-      try {
-        key = (WritableComparable)inputKeyClass.newInstance();
-        value = (Writable)inputValueClass.newInstance();
-      } catch (Exception e) {
-        throw new IOException(e.toString());
-      }
+      WritableComparable key =
+        (WritableComparable)job.newInstance(inputKeyClass);
+      Writable value = (Writable)job.newInstance(inputValueClass);
 
       // read next key & value
       if (!input.next(key, value))

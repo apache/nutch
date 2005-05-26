@@ -32,8 +32,6 @@ import org.apache.nutch.io.UTF8;
  * the position in the file, and values are the line of text.. */
 public class SequenceFileInputFormat extends InputFormatBase {
 
-  public String getName() { return "seq"; }
-
   public RecordReader getRecordReader(NutchFileSystem fs, FileSplit split,
                                       JobConf job) throws IOException {
 
@@ -45,15 +43,19 @@ public class SequenceFileInputFormat extends InputFormatBase {
     in.sync(split.getStart());                    // sync to start
 
     return new RecordReader() {
+        private boolean more = true;
+
         public synchronized boolean next(Writable key, Writable value)
           throws IOException {
+          if (!more) return false;
           long pos = in.getPosition();
-          boolean more = in.next(key, value);
+          boolean eof = in.next(key, value);
           if (pos >= end && in.syncSeen()) {
-            return false;
+            more = false;
           } else {
-            return more;
+            more = eof;
           }
+          return more;
         }
         
         public synchronized long getPos() throws IOException {
