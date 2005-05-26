@@ -26,8 +26,6 @@ import org.apache.nutch.io.WritableComparable;
 import org.apache.nutch.io.Writable;
 
 public class TextOutputFormat implements OutputFormat {
-  
-  public String getName() { return "text"; }
 
   public RecordWriter getRecordWriter(NutchFileSystem fs, JobConf job,
                                       String name) throws IOException {

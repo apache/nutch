@@ -14,39 +14,58 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.mapred;
+package org.apache.nutch.crawl;
 
 import java.io.IOException;
 import java.io.File;
 
 import org.apache.nutch.fs.NutchFileSystem;
 
-import org.apache.nutch.io.SequenceFile;
+import org.apache.nutch.io.MapFile;
 import org.apache.nutch.io.WritableComparable;
 import org.apache.nutch.io.Writable;
+import org.apache.nutch.io.UTF8;
 
-public class SequenceFileOutputFormat implements OutputFormat {
+import org.apache.nutch.mapred.OutputFormat;
+import org.apache.nutch.mapred.RecordWriter;
+import org.apache.nutch.mapred.JobConf;
+
+import org.apache.nutch.protocol.Content;
+
+/** Splits FetcherOutput entries into multiple map files. */
+public class FetcherOutputFormat implements OutputFormat {
 
   public RecordWriter getRecordWriter(NutchFileSystem fs, JobConf job,
                                       String name) throws IOException {
 
-    File file = new File(job.getOutputDir(), name);
+    File dir = new File(job.getOutputDir(), name);
 
-    final SequenceFile.Writer out =
-      new SequenceFile.Writer(fs, file.toString(),
-                              job.getOutputKeyClass(),
-                              job.getOutputValueClass());
+    final MapFile.Writer crawlOut =
+      new MapFile.Writer(fs, new File(dir, CrawlDatum.DIR_NAME).toString(),
+                         UTF8.class, CrawlDatum.class);
+    
+    final MapFile.Writer contentOut =
+      new MapFile.Writer(fs, new File(dir, Content.DIR_NAME).toString(),
+                         UTF8.class, Content.class);
 
     return new RecordWriter() {
 
         public void write(WritableComparable key, Writable value)
           throws IOException {
 
-          out.append(key, value);
+          FetcherOutput fo = (FetcherOutput)value;
+          
+          crawlOut.append(key, fo.getCrawlDatum());
+          contentOut.append(key, fo.getContent());
         }
 
-        public void close() throws IOException { out.close(); }
+        public void close() throws IOException {
+          crawlOut.close();
+          contentOut.close();
+        }
+
       };
+
   }      
 }
 

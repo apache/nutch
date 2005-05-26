@@ -35,18 +35,15 @@ public class Generator extends NutchConfigured {
     LogFormatter.getLogger("org.apache.nutch.crawl.Generator");
 
   private File dbDir;
-  private boolean refetchOnly;
 
   /** Selects entries due for fetch. */
   public static class Selector implements Mapper, Partitioner, Reducer {
     private long curTime;
-    private boolean refetchOnly;
     private long limit;
     private long count;
 
     public void configure(JobConf job) {
       curTime = job.getLong("crawl.gen.curTime", System.currentTimeMillis());
-      refetchOnly = job.getBoolean("crawl.gen.refetchOnly", false);
       limit = job.getLong("crawl.gen.limit", Long.MAX_VALUE);
     }
 
@@ -55,12 +52,11 @@ public class Generator extends NutchConfigured {
                     OutputCollector output) throws IOException {
       CrawlDatum crawlDatum = (CrawlDatum)value;
 
-      if (crawlDatum.getNextFetchTime() > curTime)
-        return;
+      if (crawlDatum.getStatus() == CrawlDatum.STATUS_DB_GONE)
+        return;                                   // don't retry
 
-      if (refetchOnly
-          && crawlDatum.getStatus() == CrawlDatum.STATUS_DB_UNFETCHED)
-        return;
+      if (crawlDatum.getNextFetchTime() > curTime)
+        return;                                   // not time yet
 
       output.collect(crawlDatum, key);          // invert for sort by linkCount
     }
@@ -82,6 +78,22 @@ public class Generator extends NutchConfigured {
 
   }
 
+  /** Sort fetch lists by hash of URL. */
+  public static class HashComparator extends WritableComparator {
+    public HashComparator() { super(UTF8.class); }
+
+    public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
+      return hash(b1, s1, l1) - hash(b2, s2, l2);
+    }
+
+    private static int hash(byte[] bytes, int start, int length) {
+      int hash = 1;
+      for (int i = 0; i < length; i++)
+        hash = (31 * hash) + (int)bytes[start+i];
+      return hash;
+    }
+  }
+
   /** Construct a generator. */
   public Generator(NutchConf conf, File dbDir) {
     super(conf);
@@ -89,23 +101,21 @@ public class Generator extends NutchConfigured {
   }
 
   /** Generate fetchlists. */
-  public void generate(File dir, int numLists, long topN, long curTime,
-                       boolean refetchOnly)
+  public void generate(File dir, int numLists, long topN, long curTime)
     throws IOException {
 
     File tempDir =
       new File("generate-temp-"+
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
-    // map to inverted subset due for fetch
+    // map to inverted subset due for fetch, sort by link count
     JobConf job = new JobConf(getConf());
     
     job.setLong("crawl.gen.curTime", curTime);
-    job.setBoolean("crawl.gen.refetchOnly", refetchOnly);
     job.setLong("crawl.gen.limit", topN / job.getNumReduceTasks());
 
     job.setInputDir(new File(dbDir, "current"));
-    job.setInputFormat(InputFormats.get("seq"));
+    job.setInputFormat(SequenceFileInputFormat.class);
     job.setInputKeyClass(UTF8.class);
     job.setInputValueClass(CrawlDatum.class);
 
@@ -114,18 +124,18 @@ public class Generator extends NutchConfigured {
     job.setReducerClass(Selector.class);
 
     job.setOutputDir(tempDir);
-    job.setOutputFormat(OutputFormats.get("seq"));
+    job.setOutputFormat(SequenceFileOutputFormat.class);
     job.setOutputKeyClass(CrawlDatum.class);
     job.setOutputValueClass(UTF8.class);
     JobClient.runJob(job);
 
-    // invert again and paritition by host
+    // invert again, paritition by host, sort by url hash
     job = new JobConf(getConf());
     
     job.setInt("partition.url.by.host.seed", new Random().nextInt());
 
     job.setInputDir(tempDir);
-    job.setInputFormat(InputFormats.get("seq"));
+    job.setInputFormat(SequenceFileInputFormat.class);
     job.setInputKeyClass(CrawlDatum.class);
     job.setInputValueClass(UTF8.class);
 
@@ -134,9 +144,10 @@ public class Generator extends NutchConfigured {
     job.setNumReduceTasks(numLists);
 
     job.setOutputDir(dir);
-    job.setOutputFormat(OutputFormats.get("seq"));
+    job.setOutputFormat(SequenceFileOutputFormat.class);
     job.setOutputKeyClass(UTF8.class);
     job.setOutputValueClass(CrawlDatum.class);
+    job.setOutputKeyComparatorClass(HashComparator.class);
     JobClient.runJob(job);
 
     new JobClient(getConf()).getFs().delete(tempDir);
@@ -147,21 +158,18 @@ public class Generator extends NutchConfigured {
    */
   public static void main(String args[]) throws Exception {
     if (args.length < 2) {
-      System.out.println("Usage: Generator <crawldb> <segments_dir> [-refetchonly] [-topN N] [-numFetchers numFetchers] [-adddays numDays]");
+      System.out.println("Usage: Generator <crawldb> <segments_dir> [-topN N] [-numFetchers numFetchers] [-adddays numDays]");
       return;
     }
 
     File dbDir = new File(args[0]);
     File segmentsDir = new File(args[1]);
     long curTime = System.currentTimeMillis();
-    boolean refetchOnly = false;
     long topN = Long.MAX_VALUE;
     int numFetchers = 1;
 
     for (int i = 2; i < args.length; i++) {
-      if ("-refetchonly".equals(args[i])) {
-        refetchOnly = true;
-      } else if ("-topN".equals(args[i])) {
+      if ("-topN".equals(args[i])) {
         topN = Long.parseLong(args[i+1]);
         i++;
       } else if ("-numFetchers".equals(args[i])) {
@@ -177,7 +185,7 @@ public class Generator extends NutchConfigured {
     if (topN != Long.MAX_VALUE)
       LOG.info("topN:" + topN);
     Generator gen = new Generator(NutchConf.get(), dbDir);
-    gen.generate(segmentsDir, numFetchers, topN, curTime, refetchOnly);
+    gen.generate(segmentsDir, numFetchers, topN, curTime);
     LOG.info("Generator completed");
   }
 }

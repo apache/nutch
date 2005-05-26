@@ -16,13 +16,8 @@
 
 package org.apache.nutch.mapred;
 
-import java.io.IOException;
-
-import org.apache.nutch.io.Writable;
-import org.apache.nutch.io.WritableComparable;
-
 /** That what may be configured. */
-public interface Configurable {
+public interface JobConfigurable {
   /** Initializes a new instance from a {@link JobConf}.
    *
    * @param job the configuration

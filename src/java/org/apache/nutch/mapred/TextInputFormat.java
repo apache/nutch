@@ -32,8 +32,6 @@ import org.apache.nutch.io.UTF8;
  * the position in the file, and values are the line of text.. */
 public class TextInputFormat extends InputFormatBase {
 
-  public String getName() { return "text"; }
-
   public RecordReader getRecordReader(NutchFileSystem fs, FileSplit split,
                                       JobConf job) throws IOException {
 

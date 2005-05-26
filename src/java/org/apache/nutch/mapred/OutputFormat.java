@@ -24,11 +24,6 @@ import org.apache.nutch.fs.NutchFileSystem;
 /** An output data format.  Output files are stored in a {@link
  * NutchFileSystem}. */
 public interface OutputFormat {
-  
-  /** The name of this output format.
-   * @see OutputFormats
-   */
-  String getName();
 
   /** Construct a {@link RecordWriter}.
    *

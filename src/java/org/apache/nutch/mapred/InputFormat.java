@@ -26,11 +26,6 @@ import org.apache.nutch.fs.NutchFileSystem;
  * Files are processed as sequences of records, implementing {@link
  * RecordReader}.  Files must thus be split on record boundaries. */
 public interface InputFormat {
-  
-  /** The name of this input format.
-   * @see InputFormats
-   */
-  String getName();
 
   /** Splits a set of input files.  One split is created per map task.
    *

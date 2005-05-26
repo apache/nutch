@@ -108,16 +108,20 @@ public class JobConf extends NutchConf {
   public void setOutputDir(File dir) { set("mapred.output.dir", dir); }
 
   public InputFormat getInputFormat() {
-    return InputFormats.get(get("mapred.input.format", "text"));
+    return (InputFormat)newInstance(getClass("mapred.input.format.class",
+                                             TextInputFormat.class,
+                                             InputFormat.class));
   }
-  public void setInputFormat(InputFormat format) {
-    set("mapred.input.format", format.getName());
+  public void setInputFormat(Class theClass) {
+    setClass("mapred.input.format.class", theClass, InputFormat.class);
   }
   public OutputFormat getOutputFormat() {
-    return OutputFormats.get(get("mapred.output.format", "text"));
+    return (OutputFormat)newInstance(getClass("mapred.output.format.class",
+                                              TextOutputFormat.class,
+                                              OutputFormat.class));
   }
-  public void setOutputFormat(OutputFormat format) {
-    set("mapred.output.format", format.getName());
+  public void setOutputFormat(Class theClass) {
+    setClass("mapred.output.format.class", theClass, OutputFormat.class);
   }
   
   public Class getInputKeyClass() {
@@ -205,14 +209,15 @@ public class JobConf extends NutchConf {
   public int getNumReduceTasks() { return getInt("mapred.reduce.tasks", 10); }
   public void setNumReduceTasks(int n) { setInt("mapred.reduce.tasks", n); }
 
-  public Configurable newInstance(Class theClass) {
-    Configurable result;
+  public Object newInstance(Class theClass) {
+    Object result;
     try {
-      result = (Configurable)theClass.newInstance();
+      result = theClass.newInstance();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
-    result.configure(this);
+    if (result instanceof JobConfigurable)
+      ((JobConfigurable)result).configure(this);
     return result;
   }
 

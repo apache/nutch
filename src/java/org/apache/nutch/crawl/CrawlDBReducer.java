@@ -25,22 +25,80 @@ import org.apache.nutch.mapred.*;
 
 /** Merge new page entries with existing entries. */
 public class CrawlDBReducer implements Reducer {
+  private int retryMax;
 
-  public void configure(JobConf job) {}
+  public void configure(JobConf job) {
+    retryMax = job.getInt("db.fetch.retry.max", 3);
+  }
 
   public void reduce(WritableComparable key, Iterator values,
                      OutputCollector output) throws IOException {
-    // collect datum with the highest status
-    CrawlDatum result = null;
+
+    CrawlDatum highest = null;
+    CrawlDatum old = null;
     int linkCount = 0;
+
     while (values.hasNext()) {
       CrawlDatum datum = (CrawlDatum)values.next();
       linkCount += datum.getLinkCount();          // sum link counts
-                                                  // keep w/ max status
-      if (result == null || datum.getStatus() > result.getStatus())
-        result = datum;
+
+      if (highest == null || datum.getStatus() > highest.getStatus()) {
+        highest = datum;                          // find highest status
+      }
+
+      switch (datum.getStatus()) {                // find old entry, if any
+      case CrawlDatum.STATUS_DB_UNFETCHED:
+      case CrawlDatum.STATUS_DB_FETCHED:
+        old = datum;
+      }
     }
-    result.setLinkCount(linkCount);
-    output.collect(key, result);
+
+    CrawlDatum result = null;
+
+    switch (highest.getStatus()) {                // determine new status
+
+    case CrawlDatum.STATUS_DB_UNFETCHED:          // no new entry
+    case CrawlDatum.STATUS_DB_FETCHED:
+    case CrawlDatum.STATUS_DB_GONE:
+      result = old;                               // use old
+      break;
+
+    case CrawlDatum.STATUS_LINKED:                // highest was link
+      if (old != null) {                          // if old exists
+        result = old;                             // use it
+      } else {
+        result = highest;                         // use new entry
+        result.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
+      }
+      break;
+      
+    case CrawlDatum.STATUS_FETCH_SUCCESS:         // succesful fetch
+      result = highest;                           // use new entry
+      result.setStatus(CrawlDatum.STATUS_DB_FETCHED);
+      break;
+
+    case CrawlDatum.STATUS_FETCH_FAIL_TEMP:       // temporary failure
+      result = highest;                           // use new entry
+      if (highest.getRetriesSinceFetch() < retryMax) {
+        result.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
+      } else {
+        result.setStatus(CrawlDatum.STATUS_DB_GONE);
+      }
+      break;
+
+    case CrawlDatum.STATUS_FETCH_FAIL_PERM:       // permanent failure
+      result = highest;                           // use new entry
+      result.setStatus(CrawlDatum.STATUS_DB_GONE);
+      break;
+
+    default:
+      throw new RuntimeException("Unknown status: "+highest.getStatus());
+    }
+    
+    if (result != null) {
+      result.setLinkCount(linkCount);
+      output.collect(key, result);
+    }
   }
+
 }

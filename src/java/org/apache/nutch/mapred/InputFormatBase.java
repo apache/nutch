@@ -29,8 +29,6 @@ public abstract class InputFormatBase implements InputFormat {
 
   private static final double SPLIT_SLOP = 0.1;   // 10% slop
 
-  public abstract String getName();
-
   public abstract RecordReader getRecordReader(NutchFileSystem fs,
                                                FileSplit split,
                                                JobConf job) throws IOException;
@@ -42,7 +40,10 @@ public abstract class InputFormatBase implements InputFormat {
     File[] dirs = job.getInputDirs();
     ArrayList files = new ArrayList();
     for (int i = 0; i < dirs.length; i++) {
-      files.addAll(Arrays.asList(fs.listFiles(dirs[i])));
+      File[] dir = fs.listFiles(dirs[i]);
+      if (dir != null) {
+        files.addAll(Arrays.asList(dir));
+      }
     }
 
     if (files.size() == 0) {
