@@ -32,7 +32,6 @@ if [ $# = 0 ]; then
   echo "  admin             database administration, including creation"
   echo "  inject            inject new urls into the database"
   echo "  generate          generate new segments to fetch"
-  echo "  fetchlist         print the fetchlist of a segment"
   echo "  fetch             fetch a segment's pages"
   echo "  parse             parse a segment's pages"
   echo "  index             run the indexer on a segment's fetcher output"
@@ -128,17 +127,13 @@ unset IFS
 
 # figure out which class to run
 if [ "$COMMAND" = "crawl" ] ; then
-  CLASS=org.apache.nutch.tools.CrawlTool
-elif [ "$COMMAND" = "admin" ] ; then
-  CLASS=org.apache.nutch.tools.WebDBAdminTool
+  CLASS=org.apache.nutch.crawl.Crawl
 elif [ "$COMMAND" = "inject" ] ; then
-  CLASS=org.apache.nutch.db.WebDBInjector
+  CLASS=org.apache.nutch.crawl.Injector
 elif [ "$COMMAND" = "generate" ] ; then
-  CLASS=org.apache.nutch.tools.FetchListTool
-elif [ "$COMMAND" = "fetchlist" ] ; then
-  CLASS=org.apache.nutch.pagedb.FetchListEntry
+  CLASS=org.apache.nutch.crawl.Generator
 elif [ "$COMMAND" = "fetch" ] ; then
-  CLASS=org.apache.nutch.fetcher.Fetcher
+  CLASS=org.apache.nutch.crawl.Fetcher
 elif [ "$COMMAND" = "parse" ] ; then
   CLASS=org.apache.nutch.tools.ParseSegment
 elif [ "$COMMAND" = "index" ] ; then

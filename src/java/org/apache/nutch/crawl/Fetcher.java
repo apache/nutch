@@ -166,21 +166,21 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
     
   }
 
-  public void fetch(File inputDir, File outputDir, int threads)
+  public void fetch(File segment, int threads)
     throws IOException {
 
     JobConf job = new JobConf(getConf());
 
     job.setInt("fetcher.threads.fetch", threads);
 
-    job.setInputDir(inputDir);
+    job.setInputDir(new File(segment, "fetchlist"));
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setInputKeyClass(UTF8.class);
     job.setInputValueClass(CrawlDatum.class);
 
     job.setMapRunnerClass(Fetcher.class);
 
-    job.setOutputDir(outputDir);
+    job.setOutputDir(segment);
     job.setOutputFormat(FetcherOutputFormat.class);
     job.setOutputKeyClass(UTF8.class);
     job.setOutputValueClass(FetcherOutput.class);
@@ -191,15 +191,14 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
   /** Run the fetcher. */
   public static void main(String[] args) throws Exception {
 
-    String usage = "Usage: Fetcher <inDir> <outDir> [-threads n]";
+    String usage = "Usage: Fetcher <segment> [-threads n]";
 
-    if (args.length < 2) {
+    if (args.length < 1) {
       System.err.println(usage);
       System.exit(-1);
     }
       
-    File inDir = new File(args[0]);
-    File outDir = new File(args[1]);
+    File segment = new File(args[0]);
 
     NutchConf conf = NutchConf.get();
 
@@ -213,7 +212,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
 
     Fetcher fetcher = new Fetcher(conf);          // make a Fetcher
     
-    fetcher.fetch(inDir, outDir, threads);        // run the Fetcher
+    fetcher.fetch(segment, threads);              // run the Fetcher
 
   }
 }
