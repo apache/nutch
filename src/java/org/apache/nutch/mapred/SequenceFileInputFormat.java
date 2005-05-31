@@ -27,9 +27,7 @@ import org.apache.nutch.io.WritableComparable;
 import org.apache.nutch.io.LongWritable;
 import org.apache.nutch.io.UTF8;
 
-/** An {@link InputFormat} for plain text files.  Files are broken into lines.
- * Either linefeed or carriage-return are used to signal end of line.  Keys are
- * the position in the file, and values are the line of text.. */
+/** An {@link InputFormat} for {@link SequenceFile}s. */
 public class SequenceFileInputFormat extends InputFormatBase {
 
   public RecordReader getRecordReader(NutchFileSystem fs, FileSplit split,
