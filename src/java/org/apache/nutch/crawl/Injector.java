@@ -66,7 +66,7 @@ public class Injector extends NutchConfigured {
     super(conf);
   }
 
-  public void inject(File urlDir, File crawlDb) throws IOException {
+  public void inject(File crawlDb, File urlDir) throws IOException {
     File tempDir =
       new File("inject-temp-"+
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
@@ -93,8 +93,6 @@ public class Injector extends NutchConfigured {
     mergeJob.setInputKeyClass(UTF8.class);
     mergeJob.setInputValueClass(CrawlDatum.class);
 
-    mergeJob.setInt("partition.url.by.host.seed", new Random().nextInt());
-    mergeJob.setPartitionerClass(PartitionUrlByHost.class);
     mergeJob.setReducerClass(CrawlDBReducer.class);
 
     mergeJob.setOutputDir(newCrawlDb);
@@ -115,6 +113,12 @@ public class Injector extends NutchConfigured {
 
   public static void main(String[] args) throws Exception {
     Injector injector = new Injector(NutchConf.get());
+    
+    if (args.length < 2) {
+      System.err.println("Usage: Injector <crawldb> <url_dir>");
+      return;
+    }
+    
     injector.inject(new File(args[0]), new File(args[1]));
   }
 

@@ -38,15 +38,16 @@ public class FetcherOutputFormat implements OutputFormat {
   public RecordWriter getRecordWriter(NutchFileSystem fs, JobConf job,
                                       String name) throws IOException {
 
-    File dir = new File(job.getOutputDir(), name);
+    File crawl =
+      new File(new File(job.getOutputDir(), CrawlDatum.DIR_NAME), name);
+    File content =
+      new File(new File(job.getOutputDir(), Content.DIR_NAME), name);
 
     final MapFile.Writer crawlOut =
-      new MapFile.Writer(fs, new File(dir, CrawlDatum.DIR_NAME).toString(),
-                         UTF8.class, CrawlDatum.class);
+      new MapFile.Writer(fs, crawl.toString(), UTF8.class, CrawlDatum.class);
     
     final MapFile.Writer contentOut =
-      new MapFile.Writer(fs, new File(dir, Content.DIR_NAME).toString(),
-                         UTF8.class, Content.class);
+      new MapFile.Writer(fs, content.toString(), UTF8.class, Content.class);
 
     return new RecordWriter() {
 

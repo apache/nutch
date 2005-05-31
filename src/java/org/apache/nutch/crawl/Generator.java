@@ -100,13 +100,16 @@ public class Generator extends NutchConfigured {
     this.dbDir = dbDir;
   }
 
-  /** Generate fetchlists. */
-  public void generate(File dir, int numLists, long topN, long curTime)
+  /** Generate fetchlists in a segment. */
+  public void generate(File segments, int numLists, long topN, long curTime)
     throws IOException {
 
     File tempDir =
       new File("generate-temp-"+
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
+
+    File segment = new File(segments, getDate());
+    File output = new File(segment, "fetchlist");
 
     // map to inverted subset due for fetch, sort by link count
     JobConf job = new JobConf(getConf());
@@ -143,7 +146,7 @@ public class Generator extends NutchConfigured {
     job.setPartitionerClass(PartitionUrlByHost.class);
     job.setNumReduceTasks(numLists);
 
-    job.setOutputDir(dir);
+    job.setOutputDir(output);
     job.setOutputFormat(SequenceFileOutputFormat.class);
     job.setOutputKeyClass(UTF8.class);
     job.setOutputValueClass(CrawlDatum.class);
@@ -151,6 +154,11 @@ public class Generator extends NutchConfigured {
     JobClient.runJob(job);
 
     new JobClient(getConf()).getFs().delete(tempDir);
+  }
+
+  private static String getDate() {
+    return new SimpleDateFormat("yyyyMMddHHmmss").format
+      (new Date(System.currentTimeMillis()));
   }
 
   /**
