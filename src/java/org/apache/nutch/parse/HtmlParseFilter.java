@@ -30,6 +30,5 @@ public interface HtmlParseFilter {
 
   /** Adds metadata or otherwise modifies a parse of HTML content, given
    * the DOM tree of a page. */
-  Parse filter(Content content, Parse parse, DocumentFragment doc)
-    throws ParseException;
+  Parse filter(Content content, Parse parse, HTMLMetaTags metaTags, DocumentFragment doc);
 }

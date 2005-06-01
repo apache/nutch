@@ -134,7 +134,7 @@ public class IndexSegment {
             if (!sr.next(fetcherOutput, null, parseText, parseData)) continue;
 
               // only index the page if it was fetched correctly
-              if (fetcherOutput.getStatus() != FetcherOutput.SUCCESS) {
+              if (!fetcherOutput.getProtocolStatus().isSuccess()) {
                   continue;                              
               }
 

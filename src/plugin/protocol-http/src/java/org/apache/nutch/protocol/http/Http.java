@@ -16,7 +16,7 @@
 
 package org.apache.nutch.protocol.http;
 
-import java.io.*;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -28,6 +28,8 @@ import java.util.logging.Logger;
 import org.apache.nutch.util.LogFormatter;
 import org.apache.nutch.util.NutchConf;
 
+import org.apache.nutch.db.Page;
+import org.apache.nutch.pagedb.FetchListEntry;
 import org.apache.nutch.protocol.*;
 
 /** An implementation of the Http protocol. */
@@ -170,7 +172,18 @@ public class Http implements Protocol {
     }
   }
 
-  public Content getContent(String urlString) throws ProtocolException {
+  public ProtocolOutput getProtocolOutput(String urlString) {
+    ProtocolOutput output = null;
+    try {
+      return getProtocolOutput(new FetchListEntry(true,
+            new Page(urlString, 1.0f), new String[0]));
+    } catch (MalformedURLException mue) {
+      return new ProtocolOutput(null, new ProtocolStatus(mue));
+    }
+  }
+  
+  public ProtocolOutput getProtocolOutput(FetchListEntry fle) {
+    String urlString = fle.getUrl().toString();
     try {
       URL url = new URL(urlString);
 
@@ -191,7 +204,7 @@ public class Http implements Protocol {
         int code = response.getCode();
         
         if (code == 200) {                        // got a good response
-          return response.toContent();            // return it
+          return new ProtocolOutput(response.toContent());            // return it
           
         } else if (code == 410) {                 // page is gone
           throw new ResourceGone(url, "Http: " + code);
@@ -207,8 +220,8 @@ public class Http implements Protocol {
           throw new HttpError(code);
         }
       }
-    } catch (IOException e) {
-      throw new HttpException(e);
+    } catch (Exception e) {
+      return new ProtocolOutput(null, new ProtocolStatus(e));
     } 
   }
 
@@ -285,7 +298,7 @@ public class Http implements Protocol {
       LOG.setLevel(Level.FINE);
     }
 
-    Content content = http.getContent(url);
+    Content content = http.getProtocolOutput(url).getContent();
 
     System.out.println("Content Type: " + content.getContentType());
     System.out.println("Content Length: " + content.get("Content-Length"));

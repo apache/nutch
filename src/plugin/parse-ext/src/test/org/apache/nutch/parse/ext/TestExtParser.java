@@ -79,7 +79,7 @@ public class TestExtParser extends TestCase {
 
     // get nutch content
     Protocol protocol = ProtocolFactory.getProtocol(urlString);
-    content = protocol.getContent(urlString);
+    content = protocol.getProtocolOutput(urlString).getContent();
     protocol = null;
   }
 

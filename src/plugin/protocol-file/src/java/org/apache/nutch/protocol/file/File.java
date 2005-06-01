@@ -17,23 +17,23 @@
 package org.apache.nutch.protocol.file;
 
 
+import org.apache.nutch.db.Page;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 
 import org.apache.nutch.util.LogFormatter;
 import org.apache.nutch.util.NutchConf;
 
+import org.apache.nutch.pagedb.FetchListEntry;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
+import org.apache.nutch.protocol.ProtocolOutput;
+import org.apache.nutch.protocol.ProtocolStatus;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import java.net.MalformedURLException;
 import java.net.URL;
-
-import java.io.InputStream;
-// 20040528, xing, disabled for now
-//import java.io.Reader;
-import java.io.IOException;
 
 /************************************
  * File.java deals with file: scheme.
@@ -65,9 +65,20 @@ public class File implements Protocol {
   }
 
   /** Set the point at which content is truncated. */
-  public void setMaxContentLength(int length) {this.maxContentLength = length;}
+  public void setMaxContentLength(int length) {maxContentLength = length;}
 
-  public Content getContent(String urlString) throws FileException {
+  public ProtocolOutput getProtocolOutput(String urlString) {
+    ProtocolOutput output = null;
+    try {
+      return getProtocolOutput(new FetchListEntry(true,
+            new Page(urlString, 1.0f), new String[0]));
+    } catch (MalformedURLException mue) {
+      return new ProtocolOutput(null, new ProtocolStatus(mue));
+    }
+  }
+  
+  public ProtocolOutput getProtocolOutput(FetchListEntry fle) {
+    String urlString = fle.getUrl().toString();
     try {
       URL url = new URL(urlString);
   
@@ -80,7 +91,7 @@ public class File implements Protocol {
         int code = response.getCode();
   
         if (code == 200) {                          // got a good response
-          return response.toContent();              // return it
+          return new ProtocolOutput(response.toContent());              // return it
   
         } else if (code >= 300 && code < 400) {     // handle redirect
           if (redirects == MAX_REDIRECTS)
@@ -94,8 +105,8 @@ public class File implements Protocol {
           throw new FileError(code);
         }
       } 
-    } catch (IOException e) {
-      throw new FileException(e);
+    } catch (Exception e) {
+      return new ProtocolOutput(null, new ProtocolStatus(e));
     }
   }
 
@@ -139,7 +150,7 @@ public class File implements Protocol {
     // set log level
     LOG.setLevel(Level.parse((new String(logLevel)).toUpperCase()));
 
-    Content content = file.getContent(urlString);
+    Content content = file.getProtocolOutput(urlString).getContent();
 
     System.err.println("Content-Type: " + content.getContentType());
     System.err.println("Content-Length: " + content.get("Content-Length"));

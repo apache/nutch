@@ -18,6 +18,7 @@ package org.apache.nutch.parse.msword;
 
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
@@ -52,13 +53,13 @@ public class MSWordParser implements Parser {
 
   public MSWordParser () {}
 
-  public Parse getParse(Content content) throws ParseException {
+  public Parse getParse(Content content) {
 
     // check that contentType is one we can handle
     String contentType = content.getContentType();
     if (contentType != null && !contentType.startsWith("application/msword"))
-      throw new ParseException(
-        "Content-Type not application/msword: "+contentType);
+      return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_INVALID_FORMAT,
+        "Content-Type not application/msword: " + contentType).getEmptyParse();
 
     String text = null;
     String title = null;
@@ -71,8 +72,9 @@ public class MSWordParser implements Parser {
       String contentLength = content.get("Content-Length");
       if (contentLength != null
             && raw.length != Integer.parseInt(contentLength)) {
-          throw new ParseException("Content truncated at "+raw.length
-            +" bytes. Parser can't handle incomplete msword file.");
+          return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_TRUNCATED,
+                  "Content truncated at " + raw.length
+            +" bytes. Parser can't handle incomplete msword file.").getEmptyParse();
       }
 
       WordExtractor extractor = new WordExtractor();
@@ -86,13 +88,14 @@ public class MSWordParser implements Parser {
       extractor = null;
 
     } catch (ParseException e) {
-      throw e;
+      return new ParseStatus(e).getEmptyParse();
     } catch (FastSavedException e) {
-      throw new ParseException(e);
+      return new ParseStatus(e).getEmptyParse();
     } catch (PasswordProtectedException e) {
-      throw new ParseException(e);
+      return new ParseStatus(e).getEmptyParse();
     } catch (Exception e) { // run time exception
-      throw new ParseException("Can't be handled as msword document. "+e);
+      return new ParseStatus(ParseStatus.FAILED,
+              "Can't be handled as msword document. " + e).getEmptyParse();
     } finally {
       // nothing so far
     }
@@ -116,7 +119,7 @@ public class MSWordParser implements Parser {
     // collect outlink
     Outlink[] outlinks = new Outlink[0];
 
-    ParseData parseData = new ParseData(title, outlinks, metadata);
+    ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks, metadata);
     return new ParseImpl(text, parseData);
     // any filter?
     //return HtmlParseFilters.filter(content, parse, root);

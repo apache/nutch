@@ -19,6 +19,8 @@ package org.apache.nutch.fetcher;
 import java.io.*;
 import org.apache.nutch.io.*;
 import org.apache.nutch.pagedb.*;
+import org.apache.nutch.protocol.ProtocolStatus;
+
 import junit.framework.TestCase;
 
 /** Unit tests for FetcherOutput. */
@@ -32,7 +34,7 @@ public class TestFetcherOutput extends TestCase {
     FetcherOutput o =
       new FetcherOutput(new FetchListEntry(true, TestPage.getTestPage(),
                                            anchors),
-                        TestMD5Hash.getTestHash(), FetcherOutput.SUCCESS);
+                        TestMD5Hash.getTestHash(), ProtocolStatus.STATUS_SUCCESS);
                         
     TestWritable.testWritable(o);
 

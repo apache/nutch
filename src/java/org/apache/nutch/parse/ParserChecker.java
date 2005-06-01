@@ -67,7 +67,7 @@ public class ParserChecker {
     LOG.info("fetching: "+url);
 
     Protocol protocol = ProtocolFactory.getProtocol(url);
-    Content content = protocol.getContent(url);
+    Content content = protocol.getProtocolOutput(url).getContent();
 
     if (force) {
       content.setContentType(contentType);

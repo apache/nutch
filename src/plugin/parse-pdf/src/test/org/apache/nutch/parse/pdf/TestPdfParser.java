@@ -64,7 +64,7 @@ public class TestPdfParser extends TestCase {
       urlString = "file:" + sampleDir + fileSeparator + sampleFiles[i];
 
       protocol = ProtocolFactory.getProtocol(urlString);
-      content = protocol.getContent(urlString);
+      content = protocol.getProtocolOutput(urlString).getContent();
 
       parser = ParserFactory.getParser(content.getContentType(), urlString);
       parse = parser.getParse(content);
