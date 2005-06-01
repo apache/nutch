@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="protocol-httpclient"
+   name="Http / Https Protocol Plug-in"
+   version="1.0.0"
+   provider-name="nutch.org">
+
+   <extension-point
+      id="org.apache.nutch.protocol.Protocol"
+      name="Nutch Protocol"/>
+
+   <runtime>
+      <library name="protocol-httpclient.jar">
+         <export name="*"/>
+      </library>
+      <library name="commons-codec.jar" />
+      <library name="commons-httpclient-3.0-rc2.jar" />
+      
+   </runtime>
+
+   <extension id="org.apache.nutch.protocol.httpclient"
+	   name="HttpProtocol"
+              point="org.apache.nutch.protocol.Protocol">
+
+      <implementation id="org.apache.nutch.protocol.httpclient.Http"
+                      class="org.apache.nutch.protocol.httpclient.Http"
+                      protocolName="http"/>
+
+   </extension>
+
+   <extension id="org.apache.nutch.protocol.https"
+              name="HttpsProtocol"
+              point="org.apache.nutch.protocol.Protocol">
+
+      <implementation id="org.apache.nutch.protocol.httpclient.Http"
+                      class="org.apache.nutch.protocol.httpclient.Http"
+                      protocolName="https"/>
+
+   </extension>
+
+</plugin>

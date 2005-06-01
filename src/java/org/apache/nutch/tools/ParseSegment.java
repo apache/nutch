@@ -178,14 +178,15 @@ public class ParseSegment {
           // safe guard against mismatched files
           if (!url.equals(content.getUrl())) {
             LOG.severe("Mismatched entries under "
-              + FetcherOutput.DIR_NAME_NP + " and " + Content.DIR_NAME);
+              + FetcherOutput.DIR_NAME_NP + " (" + url +
+              ") and " + Content.DIR_NAME + " (" + content.getUrl() + ")");
             continue;
           }
 
           // if fetch was successful or
           // previously unable to parse (so try again)
-          if (fetcherOutput.getStatus() == FetcherOutput.SUCCESS ||
-              fetcherOutput.getStatus() == FetcherOutput.CANT_PARSE) {
+          ProtocolStatus ps = fetcherOutput.getProtocolStatus();
+          if (ps.isSuccess()) {
             handleContent(url, content);
             synchronized (ParseSegment.this) {
               pages++;                    // record successful parse
@@ -195,18 +196,18 @@ public class ParseSegment {
             }
           } else {
             // errored at fetch step
-            logError(url, new ProtocolException("Error at fetch stage"));
-            handleNoContent(ParserOutput.NOFETCH);
+            logError(url, new ProtocolException("Error at fetch stage: " + ps));
+            handleNoContent(new ParseStatus(ParseStatus.FAILED_MISSING_CONTENT));
           }
 
         } catch (ParseException e) {
           logError(url, e);
-          handleNoContent(ParserOutput.FAILURE);
+          handleNoContent(new ParseStatus(e));
 
         } catch (Throwable t) {                   // an unchecked exception
           if (fle != null) {
             logError(url, t);
-            handleNoContent(ParserOutput.UNKNOWN);
+            handleNoContent(new ParseStatus(t));
           } else {
             LOG.severe("Unexpected exception");
           }
@@ -238,27 +239,26 @@ public class ParseSegment {
       Parse parse = parser.getParse(content);
 
       outputPage
-        (new ParseText(parse.getText()), parse.getData(),ParserOutput.SUCCESS);
+        (new ParseText(parse.getText()), parse.getData());
     }
 
-    private void handleNoContent(int status) {
+    private void handleNoContent(ParseStatus status) {
       if (ParseSegment.this.dryRun) {
         LOG.info("To be handled as no content");
         return;
       }
       outputPage(new ParseText(""),
-                 new ParseData("", new Outlink[0], new Properties()),
-                 status);
+                 new ParseData(status, "", new Outlink[0], new Properties()));
     }
       
     private void outputPage
-      (ParseText parseText, ParseData parseData, int status) {
+      (ParseText parseText, ParseData parseData) {
       try {
         t3 = System.currentTimeMillis();
         synchronized (parserOutputWriter) {
           t4 = System.currentTimeMillis();
           parserOutputWriter.append(new LongWritable(myEntry),
-            new ParserOutput(parseData, parseText, status));
+            new ParserOutput(parseData, parseText));
           t5 = System.currentTimeMillis();
           if (LOG.isLoggable(Level.FINE))
             LOG.fine("Entry: "+myEntry
@@ -274,30 +274,21 @@ public class ParseSegment {
   }
 
   /**
-   * Inner class ParserOutput: ParseData + ParseText + status
+   * Inner class ParserOutput: ParseData + ParseText
    */
   private class ParserOutput extends VersionedWritable {
     public static final String DIR_NAME = "parser";
 
-    private final static byte VERSION = 1;
-
-    // could be more detailed
-    public final static byte UNKNOWN = (byte)0; // unknown problem in parsing
-    public final static byte SUCCESS = (byte)1; // parsing succeeded
-    public final static byte FAILURE = (byte)2; // parsing failed
-    public final static byte NOFETCH = (byte)3; // fetch was not a SUCCESS
-
-    private int status;
+    private final static byte VERSION = 2;
 
     private ParseData parseData = new ParseData();
     private ParseText parseText = new ParseText();
 
     public ParserOutput() {}
     
-    public ParserOutput(ParseData parseData, ParseText parseText, int status) {
+    public ParserOutput(ParseData parseData, ParseText parseText) {
       this.parseData = parseData;
       this.parseText = parseText;
-      this.status = status;
     }
 
     public byte getVersion() { return VERSION; }
@@ -310,13 +301,8 @@ public class ParseSegment {
       return this.parseText;
     }
 
-    public int getStatus() {
-      return this.status;
-    }
-
     public final void readFields(DataInput in) throws IOException {
       super.readFields(in);                         // check version
-      status = in.readByte();
       parseData.readFields(in);
       parseText.readFields(in);
       return;
@@ -324,7 +310,6 @@ public class ParseSegment {
 
     public final void write(DataOutput out) throws IOException {
       super.write(out);                             // write version
-      out.writeByte(status);
       parseData.write(out);
       parseText.write(out);
       return;
@@ -523,19 +508,6 @@ public class ParseSegment {
         if (fetcherNPReader.key() != key.get())
           throw new IOException("Mismatch between entries under "
             + FetcherOutput.DIR_NAME_NP + " and in " + sortedFile.getName());
-        // reset status in fo (FetcherOutput), using status in ParserOutput
-        switch (val.getStatus()) {
-        case ParserOutput.SUCCESS:
-          fo.setStatus(FetcherOutput.SUCCESS);
-          break;
-        case ParserOutput.UNKNOWN:
-        case ParserOutput.FAILURE:
-          fo.setStatus(FetcherOutput.CANT_PARSE);
-          break;
-        case ParserOutput.NOFETCH:
-        default:
-          // do not reset
-        }
         fetcherWriter.append(fo);
         parseDataWriter.append(val.getParseData());
         parseTextWriter.append(val.getParseText());

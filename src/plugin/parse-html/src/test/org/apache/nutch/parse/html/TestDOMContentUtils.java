@@ -205,6 +205,7 @@ public class TestDOMContentUtils extends TestCase {
            new Outlink("http://www.nutch.org/frames/right.html", ""),
          },
          {
+           new Outlink("http://www.nutch.org/maps/logo.gif", ""),
            new Outlink("http://www.nutch.org/index.html", ""),
            new Outlink("http://www.nutch.org/maps/#bottom", ""),
            new Outlink("http://www.nutch.org/bot.html", ""),

@@ -27,5 +27,5 @@ public interface Parser {
   public final static String X_POINT_ID = Parser.class.getName();
 
   /** Creates the parse for some content. */
-  Parse getParse(Content c) throws ParseException;
+  Parse getParse(Content c);
 }

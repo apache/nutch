@@ -20,6 +20,7 @@ package org.apache.nutch.parse;
  * @see Parser#getParse(FetcherOutput,Content)
  */
 public interface Parse {
+  
   /** The textual content of the page. This is indexed, searched, and used when
    * generating snippets.*/ 
   String getText();

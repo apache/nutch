@@ -18,13 +18,21 @@ package org.apache.nutch.protocol;
 
 import java.io.IOException;
 
+import org.apache.nutch.pagedb.FetchListEntry;
+
 /** A retriever of url content.  Implemented by protocol extensions. */
 public interface Protocol {
   /** The name of the extension point. */
   public final static String X_POINT_ID = Protocol.class.getName();
 
-  /** Returns the {@link Content} for a url.
+  /** Returns the {@link Content} for a url. This method may be
+   * more limited than {@link #getProtocolOutput(FetchListEntry)}.
    * @throws IOException for any errors.
    */
-  Content getContent(String url) throws ProtocolException;
+  ProtocolOutput getProtocolOutput(String url);
+
+  /** Returns the {@link Content} for a fetchlist entry.
+   * @throws IOException for any errors.
+   */
+  ProtocolOutput getProtocolOutput(FetchListEntry fle);
 }

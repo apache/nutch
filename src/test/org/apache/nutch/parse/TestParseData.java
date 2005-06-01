@@ -40,7 +40,7 @@ public class TestParseData extends TestCase {
     metaData.put("Language", "en/us");
     metaData.put("Charset", "UTF-8");
 
-    ParseData r = new ParseData(title, outlinks, metaData);
+    ParseData r = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks, metaData);
                         
     TestWritable.testWritable(r);
   }

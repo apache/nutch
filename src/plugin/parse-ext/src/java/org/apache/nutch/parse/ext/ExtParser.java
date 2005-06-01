@@ -17,15 +17,14 @@
 package org.apache.nutch.parse.ext;
 
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.Outlink;
-import org.apache.nutch.parse.ParseException;
 
 import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
 import org.apache.nutch.util.CommandRunner;
 
 import org.apache.nutch.plugin.Extension;
@@ -88,14 +87,14 @@ public class ExtParser implements Parser {
 
   public ExtParser () {}
 
-  public Parse getParse(Content content) throws ParseException {
+  public Parse getParse(Content content) {
 
     String contentType = content.getContentType();
 
     String[] params = (String[]) TYPE_PARAMS_MAP.get(contentType);
     if (params == null)
-      throw new ParseException(
-        "No external command defined for contentType: " + contentType);
+      return new ParseStatus(ParseStatus.FAILED,
+                      "No external command defined for contentType: " + contentType).getEmptyParse();
 
     String command = params[0];
     int timeout = Integer.parseInt(params[1]);
@@ -114,8 +113,10 @@ public class ExtParser implements Parser {
         (String)content.getMetadata().get("Content-Length");
       if (contentLength != null
             && raw.length != Integer.parseInt(contentLength)) {
-          throw new ParseException("Content truncated at "+raw.length
-            +" bytes. Parser can't handle incomplete "+contentType+" file.");
+          return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_TRUNCATED,
+                "Content truncated at " + raw.length
+            +" bytes. Parser can't handle incomplete "
+            + contentType + " file.").getEmptyParse();
       }
 
       ByteArrayOutputStream os = new ByteArrayOutputStream(BUFFER_SIZE);
@@ -133,15 +134,14 @@ public class ExtParser implements Parser {
       cr.evaluate();
 
       if (cr.getExitValue() != 0)
-        throw new ParseException("External command "+command
-          +" failed with error: "+es.toString());
+        return new ParseStatus(ParseStatus.FAILED,
+                        "External command " + command
+                        + " failed with error: " + es.toString()).getEmptyParse();
 
       text = os.toString();
 
-    } catch (ParseException e) {
-      throw e;
     } catch (Exception e) { // run time exception
-      throw new ParseException("ExtParser failed. "+e);
+      return new ParseStatus(e).getEmptyParse();
     }
 
     if (text == null)
@@ -157,7 +157,7 @@ public class ExtParser implements Parser {
     Properties metaData = new Properties();
     metaData.putAll(content.getMetadata()); // copy through
 
-    ParseData parseData = new ParseData(title, outlinks, metaData);
+    ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks, metaData);
     return new ParseImpl(text, parseData);
   }
 

@@ -18,7 +18,8 @@ package org.apache.nutch.parse.html;
 
 import junit.framework.TestCase;
 
-import org.apache.nutch.parse.html.RobotsMetaProcessor.*;
+import org.apache.nutch.parse.HTMLMetaTags;
+import org.apache.nutch.parse.html.HTMLMetaProcessor.*;
 
 import java.io.ByteArrayInputStream;
 import java.net.URL;
@@ -28,7 +29,7 @@ import org.xml.sax.*;
 import org.w3c.dom.*;
 import org.apache.html.dom.*;
 
-/** Unit tests for RobotsMetaProcessor. */
+/** Unit tests for HTMLMetaProcessor. */
 public class TestRobotsMetaProcessor extends TestCase {
   public TestRobotsMetaProcessor(String name) { 
     super(name); 
@@ -157,8 +158,8 @@ public class TestRobotsMetaProcessor extends TestCase {
         e.printStackTrace();
       }
 
-      RobotsMetaIndicator robotsMeta= new RobotsMetaIndicator();
-      RobotsMetaProcessor.getRobotsMetaDirectives(robotsMeta, node, 
+      HTMLMetaTags robotsMeta= new HTMLMetaTags();
+      HTMLMetaProcessor.getMetaTags(robotsMeta, node, 
                                                   currURLsAndAnswers[i][0]);
 
       assertTrue("got index wrong on test " + i,
