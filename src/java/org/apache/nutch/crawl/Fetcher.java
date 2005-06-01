@@ -173,7 +173,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
 
     job.setInt("fetcher.threads.fetch", threads);
 
-    job.setInputDir(new File(segment, "fetchlist"));
+    job.setInputDir(new File(segment, CrawlDatum.GENERATE_DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setInputKeyClass(UTF8.class);
     job.setInputValueClass(CrawlDatum.class);

@@ -109,7 +109,7 @@ public class Generator extends NutchConfigured {
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     File segment = new File(segments, getDate());
-    File output = new File(segment, "fetchlist");
+    File output = new File(segment, CrawlDatum.GENERATE_DIR_NAME);
 
     // map to inverted subset due for fetch, sort by link count
     JobConf job = new JobConf(getConf());
@@ -117,7 +117,7 @@ public class Generator extends NutchConfigured {
     job.setLong("crawl.gen.curTime", curTime);
     job.setLong("crawl.gen.limit", topN / job.getNumReduceTasks());
 
-    job.setInputDir(new File(dbDir, "current"));
+    job.setInputDir(new File(dbDir, CrawlDatum.DB_DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setInputKeyClass(UTF8.class);
     job.setInputValueClass(CrawlDatum.class);
@@ -191,7 +191,7 @@ public class Generator extends NutchConfigured {
 
     LOG.info("Generator started");
     if (topN != Long.MAX_VALUE)
-      LOG.info("topN:" + topN);
+      LOG.info("topN: " + topN);
     Generator gen = new Generator(NutchConf.get(), dbDir);
     gen.generate(segmentsDir, numFetchers, topN, curTime);
     LOG.info("Generator completed");

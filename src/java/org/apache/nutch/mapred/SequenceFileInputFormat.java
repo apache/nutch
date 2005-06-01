@@ -30,6 +30,19 @@ import org.apache.nutch.io.UTF8;
 /** An {@link InputFormat} for {@link SequenceFile}s. */
 public class SequenceFileInputFormat extends InputFormatBase {
 
+  protected File[] listFiles(NutchFileSystem fs, JobConf job)
+    throws IOException {
+
+    File[] files = super.listFiles(fs, job);
+    for (int i = 0; i < files.length; i++) {
+      File file = files[i];
+      if (file.isDirectory()) {                   // it's a MapFile
+        files[i] = new File(file, "data");        // use the data file
+      }
+    }
+    return files;
+  }
+
   public RecordReader getRecordReader(NutchFileSystem fs, FileSplit split,
                                       JobConf job) throws IOException {
 

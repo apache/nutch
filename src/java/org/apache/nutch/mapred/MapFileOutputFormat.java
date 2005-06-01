@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.crawl;
+package org.apache.nutch.mapred;
 
 import java.io.IOException;
 import java.io.File;
@@ -24,49 +24,29 @@ import org.apache.nutch.fs.NutchFileSystem;
 import org.apache.nutch.io.MapFile;
 import org.apache.nutch.io.WritableComparable;
 import org.apache.nutch.io.Writable;
-import org.apache.nutch.io.UTF8;
 
-import org.apache.nutch.mapred.OutputFormat;
-import org.apache.nutch.mapred.RecordWriter;
-import org.apache.nutch.mapred.JobConf;
-
-import org.apache.nutch.protocol.Content;
-
-/** Splits FetcherOutput entries into multiple map files. */
-public class FetcherOutputFormat implements OutputFormat {
+public class MapFileOutputFormat implements OutputFormat {
 
   public RecordWriter getRecordWriter(NutchFileSystem fs, JobConf job,
                                       String name) throws IOException {
 
-    File fetch =
-      new File(new File(job.getOutputDir(), CrawlDatum.FETCH_DIR_NAME), name);
-    File content =
-      new File(new File(job.getOutputDir(), Content.DIR_NAME), name);
+    File file = new File(job.getOutputDir(), name);
 
-    final MapFile.Writer fetchOut =
-      new MapFile.Writer(fs, fetch.toString(), UTF8.class, CrawlDatum.class);
-    
-    final MapFile.Writer contentOut =
-      new MapFile.Writer(fs, content.toString(), UTF8.class, Content.class);
+    final MapFile.Writer out =
+      new MapFile.Writer(fs, file.toString(),
+                         job.getOutputKeyClass(),
+                         job.getOutputValueClass());
 
     return new RecordWriter() {
 
         public void write(WritableComparable key, Writable value)
           throws IOException {
 
-          FetcherOutput fo = (FetcherOutput)value;
-          
-          fetchOut.append(key, fo.getCrawlDatum());
-          contentOut.append(key, fo.getContent());
+          out.append(key, value);
         }
 
-        public void close() throws IOException {
-          fetchOut.close();
-          contentOut.close();
-        }
-
+        public void close() throws IOException { out.close(); }
       };
-
   }      
 }
 

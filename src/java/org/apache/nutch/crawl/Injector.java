@@ -61,6 +61,16 @@ public class Injector extends NutchConfigured {
     }
   }
 
+  /** Combine multiple new entries for a url. */
+  public static class InjectReducer implements Reducer {
+    public void configure(JobConf job) {}
+
+    public void reduce(WritableComparable key, Iterator values,
+                       OutputCollector output) throws IOException {
+      output.collect(key, (Writable)values.next()); // just collect first value
+    }
+  }
+
   /** Construct an Injector. */
   public Injector(NutchConf conf) {
     super(conf);
@@ -75,6 +85,7 @@ public class Injector extends NutchConfigured {
     JobConf sortJob = new JobConf(getConf());
     sortJob.setInputDir(urlDir);
     sortJob.setMapperClass(InjectMapper.class);
+    sortJob.setReducerClass(InjectReducer.class);
 
     sortJob.setOutputDir(tempDir);
     sortJob.setOutputFormat(SequenceFileOutputFormat.class);
@@ -83,30 +94,13 @@ public class Injector extends NutchConfigured {
     JobClient.runJob(sortJob);
 
     // merge with existing crawl db
-    File newCrawlDb =
-      new File(crawlDb,
-               Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
-    JobConf mergeJob = new JobConf(getConf());
+    JobConf mergeJob = CrawlDb.createJob(getConf(), crawlDb);
     mergeJob.addInputDir(tempDir);
-    mergeJob.addInputDir(new File(crawlDb, "current/"));
-    mergeJob.setInputFormat(SequenceFileInputFormat.class);
-    mergeJob.setInputKeyClass(UTF8.class);
-    mergeJob.setInputValueClass(CrawlDatum.class);
-
-    mergeJob.setReducerClass(CrawlDBReducer.class);
-
-    mergeJob.setOutputDir(newCrawlDb);
-    mergeJob.setOutputFormat(SequenceFileOutputFormat.class);
-    mergeJob.setOutputKeyClass(UTF8.class);
-    mergeJob.setOutputValueClass(CrawlDatum.class);
-
     JobClient.runJob(mergeJob);
+    CrawlDb.install(mergeJob, crawlDb);
 
+    // clean up
     NutchFileSystem fs = new JobClient(getConf()).getFs();
-    fs.delete(new File(crawlDb, "old/"));
-    fs.rename(new File(crawlDb, "current/"), new File(crawlDb, "old/"));
-    fs.rename(newCrawlDb, new File(crawlDb, "current/"));
-    fs.delete(new File(crawlDb, "old/"));
     fs.delete(tempDir);
 
   }

@@ -25,7 +25,11 @@ import org.apache.nutch.util.*;
 
 /* The crawl state of a url. */
 public class CrawlDatum implements WritableComparable, Cloneable {
-  public static final String DIR_NAME = "crawl";
+  public static final String DB_DIR_NAME = "current";
+
+  public static final String GENERATE_DIR_NAME = "crawl_generate";
+  public static final String FETCH_DIR_NAME = "crawl_fetch";
+  public static final String PARSE_DIR_NAME = "crawl_parse";
 
   private final static byte CUR_VERSION = 1;
 

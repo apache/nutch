@@ -24,7 +24,7 @@ import org.apache.nutch.io.*;
 import org.apache.nutch.mapred.*;
 
 /** Merge new page entries with existing entries. */
-public class CrawlDBReducer implements Reducer {
+public class CrawlDbReducer implements Reducer {
   private int retryMax;
 
   public void configure(JobConf job) {

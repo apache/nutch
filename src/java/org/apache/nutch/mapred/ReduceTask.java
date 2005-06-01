@@ -101,7 +101,10 @@ public class ReduceTask extends Task {
     /// Auxiliary methods
 
     /** Start processing next unique key. */
-    public void nextKey() { hasNext = more; }
+    public void nextKey() {
+      while (hasNext) { next(); }                 // skip any unread
+      hasNext = more;
+    }
 
     /** True iff more keys remain. */
     public boolean more() { return more; }
