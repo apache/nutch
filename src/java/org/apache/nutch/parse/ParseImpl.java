@@ -16,19 +16,39 @@
 
 package org.apache.nutch.parse;
 
+import java.io.*;
+import org.apache.nutch.io.*;
+
+
 /** The result of parsing a page's raw content.
  * @see Parser#getParse(Content)
  */
-public class ParseImpl implements Parse {
-  private String text;
+public class ParseImpl implements Parse, Writable {
+  private ParseText text;
   private ParseData data;
 
+  public ParseImpl() {}
+
   public ParseImpl(String text, ParseData data) {
-    this.text = text;
+    this.text = new ParseText(text);
     this.data = data;
   }
 
-  public String getText() { return text; }
+  public String getText() { return text.getText(); }
 
   public ParseData getData() { return data; }
+  
+  public final void write(DataOutput out) throws IOException {
+    text.write(out);
+    data.write(out);
+  }
+
+  public void readFields(DataInput in) throws IOException {
+    text = new ParseText();
+    text.readFields(in);
+
+    data = new ParseData();
+    data.readFields(in);
+  }
+
 }
