@@ -69,7 +69,8 @@ public class TestQueryParser extends TestCase {
 
     //STOPWORD
     assertQueryEquals("the", "");
-    assertQueryEquals("field:the -y", "-y");
+    assertQueryEquals("field:the -y", "field:the -y");
+    assertQueryEquals("\"the y\"", "\"the y\"");
     assertQueryEquals("+the -y", "the -y");
 
     //PHRASE
