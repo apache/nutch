@@ -25,7 +25,7 @@
       <title>Web Access (read-only)</title>
       <p>
         The source code can be browsed via the Web at 
-        <a href="http://svn.apache.org/viewcvs.cgi/incubator/nutch/">http://svn.apache.org/viewcvs.cgi/incubator/nutch/</a>.
+        <a href="http://svn.apache.org/viewcvs.cgi/lucene/nutch/">http://svn.apache.org/viewcvs.cgi/lucene/nutch/</a>.
         No SVN client software is required.
       </p>
     </section>
@@ -34,7 +34,7 @@
       <title>Anonymous Access (read-only)</title>
       <p>
         The SVN URL for anonymous users is 
-        <a href="http://svn.apache.org/repos/asf/incubator/nutch/">http://svn.apache.org/repos/asf/incubator/nutch/</a>.
+        <a href="http://svn.apache.org/repos/asf/lucene/nutch/">http://svn.apache.org/repos/asf/lucene/nutch/</a>.
         Instructions for anonymous SVN access are 
         <a href="http://www.apache.org/dev/version-control.html#anon-svn">here</a>.
       </p>
@@ -44,7 +44,7 @@
       <title>Committer Access (read-write)</title>
       <p>
         The SVN URL for committers is 
-        <a href="https://svn.apache.org/repos/asf/incubator/nutch/">https://svn.apache.org/repos/asf/incubator/nutch/</a>.
+        <a href="https://svn.apache.org/repos/asf/lucene/nutch/">https://svn.apache.org/repos/asf/lucene/nutch/</a>.
         Instructions for committer SVN access are 
         <a href="http://www.apache.org/dev/version-control.html#https-svn">here</a>.
       </p>
