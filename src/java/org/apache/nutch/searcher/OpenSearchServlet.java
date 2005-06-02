@@ -93,14 +93,33 @@ public class OpenSearchServlet extends HttpServlet {
     if (hitsString != null)
       hitsPerPage = Integer.parseInt(hitsString);
 
-    int hitsPerSite = 2;                          // max hits per site
-    String hitsPerSiteString = request.getParameter("hitsPerSite");
-    if (hitsPerSiteString != null)
-      hitsPerSite = Integer.parseInt(hitsPerSiteString);
-
     String sort = request.getParameter("sort");
     boolean reverse =
       sort!=null && "true".equals(request.getParameter("reverse"));
+
+    // De-Duplicate handling.  Look for duplicates field and for how many
+    // duplicates per results to return. Default duplicates field is 'site'
+    // and duplicates per results default is '2'.
+    String dedupField = request.getParameter("dedupField");
+    if (dedupField == null || dedupField.length() == 0) {
+        dedupField = "site";
+    }
+    int hitsPerDup = 2;
+    String hitsPerDupString = request.getParameter("hitsPerDup");
+    if (hitsPerDupString != null && hitsPerDupString.length() > 0) {
+        hitsPerDup = Integer.parseInt(hitsPerDupString);
+    } else {
+        // If 'hitsPerSite' present, use that value.
+        String hitsPerSiteString = request.getParameter("hitsPerSite");
+        if (hitsPerSiteString != null && hitsPerSiteString.length() > 0) {
+            hitsPerDup = Integer.parseInt(hitsPerSiteString);
+        }
+    }
+     
+    // Make up query string for use later drawing the 'rss' logo.
+    String params = "&hitsPerPage=" + hitsPerPage +
+        (sort == null ? "" : "&sort=" + sort + (reverse? "&reverse=true": "") +
+        (dedupField == null ? "" : "&dedupField=" + dedupField));
 
     Query query = Query.parse(queryString);
     bean.LOG.info("query: " + queryString);
@@ -108,8 +127,8 @@ public class OpenSearchServlet extends HttpServlet {
     // execute the query
     Hits hits;
     try {
-      hits = bean.search(query, start + hitsPerPage, hitsPerSite, "site",
-                         sort, reverse);
+      hits = bean.search(query, start + hitsPerPage, hitsPerDup, dedupField,
+          sort, reverse);
     } catch (IOException e) {
       bean.LOG.log(Level.WARNING, "Search Error", e);
       hits = new Hits(0,new Hit[0]);	
@@ -127,8 +146,6 @@ public class OpenSearchServlet extends HttpServlet {
 
     String requestUrl = request.getRequestURL().toString();
     String base = requestUrl.substring(0, requestUrl.lastIndexOf('/'));
-    String params = "&hitsPerPage="+hitsPerPage
-      +(sort==null ? "" : "&sort="+sort+(reverse?"&reverse=true":""));
       
 
     try {
@@ -151,7 +168,7 @@ public class OpenSearchServlet extends HttpServlet {
               base+"/search.jsp"
               +"?query="+urlQuery
               +"&start="+start
-              +"&hitsPerSite="+hitsPerSite
+              +"&hitsPerDup="+hitsPerDup
               +params);
 
       addNode(doc, channel, "opensearch", "totalResults", ""+hits.getTotal());
@@ -166,14 +183,14 @@ public class OpenSearchServlet extends HttpServlet {
         addNode(doc, channel, "nutch", "nextPage", requestUrl
                 +"?query="+urlQuery
                 +"&start="+end
-                +"&hitsPerSite="+hitsPerSite
+                +"&hitsPerDup="+hitsPerDup
                 +params);
       }
 
       if ((!hits.totalIsExact() && (hits.getLength() <= start+hitsPerPage))) {
         addNode(doc, channel, "nutch", "showAllHits", requestUrl
                 +"?query="+urlQuery
-                +"&hitsPerSite="+0
+                +"&hitsPerDup="+0
                 +params);
       }
 
