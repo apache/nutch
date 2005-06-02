@@ -83,7 +83,7 @@ public class PrefixURLFilter implements URLFilter {
     Reader reader = NutchConf.get().getConfResourceAsReader(file);
 
     if (reader == null) {
-      LOG.severe("Can't find resource: " + file);
+      trie = new PrefixStringMatcher(new String[0]);
     } else {
       trie = readConfigurationFile(reader);
     }
