@@ -123,7 +123,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
       String[] array = (String[])terms.toArray(new String[terms.size()]);
 
       if (stop
-          && field != Clause.DEFAULT_FIELD
+          && field == Clause.DEFAULT_FIELD
           && terms.size()==1
           && isStopWord(array[0])) {
         // ignore stop words only when single, unadorned terms in default field
