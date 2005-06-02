@@ -606,6 +606,7 @@
   <description>HTML Parser implementation. Currently the following keywords
   are recognized: "neko" uses NekoHTML, "tagsoup" uses TagSoup.
   </description>
+</property>
 
 <!-- urlfilter plugin properties -->
 
