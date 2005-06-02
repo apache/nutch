@@ -66,14 +66,14 @@ which will be used to configure the chosen Forrest skin.
   <!-- project logo -->
   <project-name>Nutch</project-name>
   <project-description>Open Source Web Search Software</project-description>
-  <project-url>http://incubator.apache.org/nutch/</project-url>
+  <project-url>http://lucene.apache.org/nutch/</project-url>
   <project-logo>images/nutch-logo.gif</project-logo>
 
   <!-- group logo -->
-  <group-name>Incubator</group-name>
-  <group-description>Apache Incubator</group-description>
-  <group-url>http://incubator.apache.org/</group-url>
-  <group-logo>http://incubator.apache.org/images/apache-incubator-logo.png</group-logo>
+  <group-name>Lucene</group-name>
+  <group-description>Apache Lucene</group-description>
+  <group-url>http://lucene.apache.org/</group-url>
+  <group-logo>http://lucene.apache.org/java/docs/images/lucene_green_150.gif</group-logo>
 
   <!-- optional host logo (e.g. sourceforge logo)
        default skin: renders it at the bottom-left corner -->
@@ -96,8 +96,8 @@ which will be used to configure the chosen Forrest skin.
     For some skins just set the attributes to blank.
   -->
   <trail>
-    <link1 name="Incubator" href="http://incubator.apache.org/"/>
-    <link2 name="Nutch" href="http://incubator.apache.org/nutch/"/>
+    <link1 name="Lucene" href="http://lucene.apache.org/"/>
+    <link2 name="Nutch" href="http://lucene.apache.org/nutch/"/>
     <link3 name="" href=""/>
   </trail>
 
