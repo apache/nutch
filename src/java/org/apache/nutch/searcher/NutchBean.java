@@ -191,6 +191,8 @@ public class NutchBean
    * @param numHits number of requested hits
    * @param maxHitsPerDup the maximum hits returned with matching values, or zero
    * @param dedupField field name to check for duplicates
+   * @param sortField Field to sort on (or null if no sorting).
+   * @param reverse True if we are to reverse sort by <code>sortField</code>.
    * @return Hits the matching hits
    * @throws IOException
    */
