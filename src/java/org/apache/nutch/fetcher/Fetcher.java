@@ -124,7 +124,7 @@ public class Fetcher {
           // in parsing mode). Protocol-level redirects take precedence over
           // content-level redirects. Some plugins can handle redirects
           // automatically, so that only the final success or failure will be
-          // shown here.
+          // shown? here.
           boolean refetch = false;
           int redirCnt = 0;
           do {
