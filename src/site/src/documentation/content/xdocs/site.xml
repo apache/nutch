@@ -39,13 +39,12 @@ See http://forrest.apache.org/docs/linking.html for more info.
   </resources>
 
   <projects label="Related Projects">
-    <lucene     label="Lucene"      href="ext:lucene" />
+    <lucene     label="Lucene Java"      href="ext:lucene" />
   </projects>
 
   <external-refs>
-    <lucene    href="http://lucene.apache.org/" />
+    <lucene    href="http://lucene.apache.org/java/" />
     <wiki      href="http://wiki.apache.org/nutch/" />
-    <lucene    href="http://jakarta.apache.org/lucene/" />
   </external-refs>
  
 </site>

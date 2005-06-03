@@ -29,8 +29,8 @@ which will be used to configure the chosen Forrest skin.
     no search box. @domain will enable sitesearch for the specific domain with google.
     In other words google will search the @domain for the query string.
 
-  <search name="MyProject" domain="mydomain" provider="google"/>
   -->
+  <search name="Lucene" domain="lucene.apache.org" provider="google"/>
 
   <!-- Disable the print link? If enabled, invalid HTML 4.0.1 -->
   <disable-print-link>true</disable-print-link>  
@@ -73,7 +73,7 @@ which will be used to configure the chosen Forrest skin.
   <group-name>Lucene</group-name>
   <group-description>Apache Lucene</group-description>
   <group-url>http://lucene.apache.org/</group-url>
-  <group-logo>http://lucene.apache.org/java/docs/images/lucene_green_200.gif</group-logo>
+  <group-logo>http://lucene.apache.org/java/docs/images/lucene_green_150.gif</group-logo>
 
   <!-- optional host logo (e.g. sourceforge logo)
        default skin: renders it at the bottom-left corner -->
