@@ -30,7 +30,7 @@
     |start group logo
     +-->
 <div class="grouplogo">
-<a href="http://lucene.apache.org/"><img class="logoImage" alt="Lucene" src="http://lucene.apache.org/java/docs/images/lucene_green_200.gif" title="Apache Lucene"></a>
+<a href="http://lucene.apache.org/"><img class="logoImage" alt="Lucene" src="http://lucene.apache.org/java/docs/images/lucene_green_150.gif" title="Apache Lucene"></a>
 </div>
 <!--+
     |end group logo
@@ -38,11 +38,23 @@
 <!--+
     |start Project Logo
     +-->
-<div class="projectlogoA1">
+<div class="projectlogo">
 <a href="http://lucene.apache.org/nutch/"><img class="logoImage" alt="Nutch" src="images/nutch-logo.gif" title="Open Source Web Search Software"></a>
 </div>
 <!--+
     |end Project Logo
+    +-->
+<!--+
+    |start Search
+    +-->
+<div class="searchbox">
+<form action="http://www.google.com/search" method="get" class="roundtopsmall">
+<input value="lucene.apache.org" name="sitesearch" type="hidden"><input onFocus="getBlank (this, 'Search the site with google:');" value="Search the site with google:" size="25" name="q" id="query" type="text">&nbsp; 
+                    <input name="Search" value="Search" type="submit">
+</form>
+</div>
+<!--+
+    |end search
     +-->
 <!--+
     |start Tabs
@@ -138,7 +150,7 @@
 <div onclick="SwitchMenu('menu_1.4', 'skin/')" id="menu_1.4Title" class="menutitle">Related Projects</div>
 <div id="menu_1.4" class="menuitemgroup">
 <div class="menuitem">
-<a title="" href="http://lucene.apache.org/">Lucene</a>
+<a title="" href="http://lucene.apache.org/java/">Lucene Java</a>
 </div>
 </div>
 <div id="credit">
