@@ -208,7 +208,9 @@
     	<packageset dir="${plugins.dir}/protocol-file/src/java"/>
     	<packageset dir="${plugins.dir}/protocol-ftp/src/java"/>
        	<packageset dir="${plugins.dir}/protocol-http/src/java"/>
+       	<packageset dir="${plugins.dir}/protocol-httpclient/src/java"/>
     	<packageset dir="${plugins.dir}/parse-html/src/java"/>
+    	<packageset dir="${plugins.dir}/parse-js/src/java"/>
     	<packageset dir="${plugins.dir}/parse-text/src/java"/>
     	<packageset dir="${plugins.dir}/parse-pdf/src/java"/>
 	<packageset dir="${plugins.dir}/parse-rtf/src/java"/>

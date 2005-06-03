@@ -39,6 +39,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
   private OutputCollector output;
 
   private int activeThreads;
+  private int maxRedirect;
 
   private long start = System.currentTimeMillis(); // start time of fetcher run
 
@@ -70,21 +71,63 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
           try {
             LOG.info("fetching " + url);            // fetch the page
             
-            Protocol protocol = ProtocolFactory.getProtocol(url);
-            Content content = protocol.getContent(url);
+            boolean redirecting;
+            int redirectCount = 0;
+            do {
+              redirecting = false;
+              LOG.fine("redirectCount=" + redirectCount);
+              Protocol protocol = ProtocolFactory.getProtocol(url);
+              ProtocolOutput output = protocol.getProtocolOutput(url);
+              ProtocolStatus status = output.getStatus();
+              Content content = output.getContent();
 
-            output(url, datum, content, CrawlDatum.STATUS_FETCH_SUCCESS);
-            
-            updateStatus(content.getContent().length);
+              switch(status.getCode()) {
 
-          } catch (ResourceGone e) {                // don't retry
-            logError(url, e);
-            output(url, datum, null, CrawlDatum.STATUS_FETCH_FAIL_PERM);
+              case ProtocolStatus.SUCCESS:        // got a page
+                output(key, datum, content, CrawlDatum.STATUS_FETCH_SUCCESS);
+                updateStatus(content.getContent().length);
+                break;
+
+              case ProtocolStatus.MOVED:         // redirect
+              case ProtocolStatus.TEMP_MOVED:
+                url = status.getMessage();
+                if (url != null) {
+                  redirecting = true;
+                  redirectCount++;
+                  LOG.info(" - protocol redirect to " + url);
+                }
+                break;
+
+              case ProtocolStatus.RETRY:          // retry
+              case ProtocolStatus.EXCEPTION:
+                output(key, datum, null, CrawlDatum.STATUS_FETCH_RETRY);
+                break;
+                
+              case ProtocolStatus.GONE:           // gone
+              case ProtocolStatus.NOT_FOUND:
+              case ProtocolStatus.ACCESS_DENIED:
+              case ProtocolStatus.ROBOTS_DENIED:
+              case ProtocolStatus.NOTMODIFIED:
+                output(key, datum, null, CrawlDatum.STATUS_FETCH_GONE);
+                break;
+
+              default:
+                LOG.warning("Unknown ProtocolStatus: " + status.getCode());
+                output(key, datum, null, CrawlDatum.STATUS_FETCH_GONE);
+              }
+
+              if (redirecting && redirectCount >= maxRedirect) {
+                LOG.info(" - redirect count exceeded " + url);
+                output(key, datum, null, CrawlDatum.STATUS_FETCH_GONE);
+              }
+
+            } while (redirecting && (redirectCount < maxRedirect));
+
             
-          } catch (Throwable t) {                   // retry all others
+          } catch (Throwable t) {                 // unexpected exception
             logError(url, t);
-            output(url, datum, null, CrawlDatum.STATUS_FETCH_FAIL_TEMP);
-
+            output(key, datum, null, CrawlDatum.STATUS_FETCH_GONE);
+            
           }
         }
 
@@ -103,13 +146,18 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
       }
     }
 
-    private void output(String url, CrawlDatum datum,
+    private void output(UTF8 key, CrawlDatum datum,
                         Content content, int status) {
+
       datum.setStatus(status);
-      if (content == null)
+
+      if (content == null) {
+        String url = key.toString();
         content = new Content(url, url, new byte[0], "", new Properties());
+      }
+
       try {
-        output.collect(new UTF8(url), new FetcherOutput(datum, content));
+        output.collect(key, new FetcherOutput(datum, content));
       } catch (IOException e) {
         LOG.severe("fetcher caught:"+e.toString());
       }
@@ -152,6 +200,8 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
     this.input = input;
     this.output = output;
 			
+    this.maxRedirect = getConf().getInt("http.redirect.max", 3);
+    
     int threadCount = getConf().getInt("fetcher.threads.fetch", 10);
     for (int i = 0; i < threadCount; i++) {       // spawn threads
       new FetcherThread().start();

@@ -23,12 +23,12 @@ import org.apache.nutch.parse.*;
 import org.apache.nutch.util.*;
 
 public class TextParser implements Parser {
-  public Parse getParse(Content content) throws ParseException {
+  public Parse getParse(Content content) {
     // copy content meta data through
     Properties metadata = new Properties();
     metadata.putAll(content.getMetadata());
 
-    ParseData parseData = new ParseData("", new Outlink[0], metadata);
+    ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, "", new Outlink[0], metadata);
 
     String encoding =
       StringUtil.parseCharacterEncoding(content.getContentType());
@@ -37,7 +37,7 @@ public class TextParser implements Parser {
       try {                                       // try to use named encoding
         text = new String(content.getContent(), encoding);
       } catch (java.io.UnsupportedEncodingException e) {
-        throw new ParseException(e);
+        return new ParseStatus(e).getEmptyParse();
       }
     } else {
       // FIXME: implement charset detector. This code causes problem when 

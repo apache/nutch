@@ -26,6 +26,8 @@ import org.apache.nutch.util.*;
 import org.apache.nutch.pagedb.FetchListEntry;
 import org.apache.nutch.tools.UpdateDatabaseTool;
 import org.apache.nutch.parse.Outlink;
+import org.apache.nutch.parse.ParseStatus;
+import org.apache.nutch.protocol.ProtocolStatus;
 
 /*********************************************
  * An entry in the fetcher's output.  This includes all of the fetcher output
@@ -50,25 +52,34 @@ public final class FetcherOutput implements Writable {
   public static final String DONE_NAME = "fetcher.done";
   public static final String ERROR_NAME = "fetcher.error";
 
-  private final static byte VERSION = 4;
+  private final static byte VERSION = 5;
 
-  public final static byte RETRY = 0;
-  public final static byte SUCCESS = 1;
-  public final static byte NOT_FOUND = 2;
-  public final static byte CANT_PARSE = 4; // fetched, but can't be parsed
+  // backwards compatibility codes
+  private final static byte RETRY = 0;
+  private final static byte SUCCESS = 1;
+  private final static byte NOT_FOUND = 2;
+  private final static byte CANT_PARSE = 4; // fetched, but can't be parsed
+  
+  private static final byte[] oldToNewMap = {
+          ProtocolStatus.RETRY,
+          ProtocolStatus.SUCCESS,
+          ProtocolStatus.NOT_FOUND,
+          ProtocolStatus.FAILED,
+          ProtocolStatus.RETRY
+  };
 
   private FetchListEntry fetchListEntry;
   private MD5Hash md5Hash;
-  private int status;
+  private ProtocolStatus protocolStatus;
   private long fetchDate;
 
   public FetcherOutput() {}
 
   public FetcherOutput(FetchListEntry fetchListEntry,
-                       MD5Hash md5Hash, int status) {
+                       MD5Hash md5Hash, ProtocolStatus protocolStatus) {
     this.fetchListEntry = fetchListEntry;
     this.md5Hash = md5Hash;
-    this.status = status;
+    this.protocolStatus = protocolStatus;
     this.fetchDate = System.currentTimeMillis();
   }
 
@@ -78,7 +89,12 @@ public final class FetcherOutput implements Writable {
     byte version = in.readByte();                 // read version
     fetchListEntry = FetchListEntry.read(in);
     md5Hash = MD5Hash.read(in);
-    status = in.readByte();
+    if (version < 5) {
+      int status = in.readByte();
+      protocolStatus = new ProtocolStatus(oldToNewMap[status]);
+    } else {
+      protocolStatus = ProtocolStatus.read(in);
+    }
 
     if (version < 4) {
       UTF8.readString(in);                        // read & ignore title
@@ -95,7 +111,7 @@ public final class FetcherOutput implements Writable {
     out.writeByte(VERSION);                       // store current version
     fetchListEntry.write(out);
     md5Hash.write(out);
-    out.writeByte(status);
+    protocolStatus.write(out);
     out.writeLong(fetchDate);
   }
 
@@ -110,8 +126,8 @@ public final class FetcherOutput implements Writable {
   //
   public FetchListEntry getFetchListEntry() { return fetchListEntry; }
   public MD5Hash getMD5Hash() { return md5Hash; }
-  public int getStatus() { return status; }
-  public void setStatus(int status) { this.status = status; }
+  public ProtocolStatus getProtocolStatus() { return protocolStatus; }
+  public void setProtocolStatus(ProtocolStatus protocolStatus) { this.protocolStatus = protocolStatus; }
   public long getFetchDate() { return fetchDate; }
   public void setFetchDate(long fetchDate) { this.fetchDate = fetchDate; }
 
@@ -126,7 +142,7 @@ public final class FetcherOutput implements Writable {
     return
       this.fetchListEntry.equals(other.fetchListEntry) &&
       this.md5Hash.equals(other.md5Hash) &&
-      (this.status == other.status);
+      this.protocolStatus.equals(other.protocolStatus);
   }
 
 
@@ -134,7 +150,7 @@ public final class FetcherOutput implements Writable {
     StringBuffer buffer = new StringBuffer();
     buffer.append("FetchListEntry: " + fetchListEntry + "Fetch Result:\n" );
     buffer.append("MD5Hash: " + md5Hash + "\n" );
-    buffer.append("Status: " + status + "\n" );
+    buffer.append("ProtocolStatus: " + protocolStatus + "\n" );
     buffer.append("FetchDate: " + new Date(fetchDate) + "\n" );
     return buffer.toString();
   }

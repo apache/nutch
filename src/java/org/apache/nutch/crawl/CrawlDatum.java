@@ -38,8 +38,8 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   public static final byte STATUS_DB_GONE = 3;
   public static final byte STATUS_LINKED = 4;
   public static final byte STATUS_FETCH_SUCCESS = 5;
-  public static final byte STATUS_FETCH_FAIL_TEMP = 6;
-  public static final byte STATUS_FETCH_FAIL_PERM = 7;
+  public static final byte STATUS_FETCH_RETRY = 6;
+  public static final byte STATUS_FETCH_GONE = 7;
 
   private byte status;
   private long nextFetch = System.currentTimeMillis();

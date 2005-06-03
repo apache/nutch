@@ -21,7 +21,6 @@ import java.util.*;
 
 import org.apache.nutch.io.*;
 import org.apache.nutch.fs.*;
-import org.apache.nutch.util.*;
 import org.apache.nutch.tools.UpdateDatabaseTool;
 
 
@@ -31,15 +30,17 @@ import org.apache.nutch.tools.UpdateDatabaseTool;
 public final class ParseData extends VersionedWritable {
   public static final String DIR_NAME = "parse_data";
 
-  private final static byte VERSION = 1;
+  private final static byte VERSION = 2;
 
   private String title;
   private Outlink[] outlinks;
   private Properties metadata;
+  private ParseStatus status;
 
   public ParseData() {}
 
-  public ParseData(String title, Outlink[] outlinks, Properties metadata) {
+  public ParseData(ParseStatus status, String title, Outlink[] outlinks, Properties metadata) {
+    this.status = status;
     this.title = title;
     this.outlinks = outlinks;
     this.metadata = metadata;
@@ -49,6 +50,9 @@ public final class ParseData extends VersionedWritable {
   // Accessor methods
   //
 
+  /** The status of parsing the page. */
+  public ParseStatus getStatus() { return status; }
+  
   /** The title of the page. */
   public String getTitle() { return title; }
 
@@ -70,8 +74,12 @@ public final class ParseData extends VersionedWritable {
   public byte getVersion() { return VERSION; }
 
   public final void readFields(DataInput in) throws IOException {
-    super.readFields(in);                         // check version
 
+    byte version = in.readByte();
+    if (version > 1)
+      status = ParseStatus.read(in);
+    else
+      status = ParseStatus.STATUS_SUCCESS;
     title = UTF8.readString(in);                   // read title
 
     int totalOutlinks = in.readInt();             // read outlinks
@@ -94,8 +102,8 @@ public final class ParseData extends VersionedWritable {
   }
 
   public final void write(DataOutput out) throws IOException {
-    super.write(out);                             // write version
-
+    out.writeByte(VERSION);                             // write version
+    status.write(out);                       // write status
     UTF8.writeString(out, title);                 // write title
 
     out.writeInt(outlinks.length);                // write outlinks
@@ -127,6 +135,7 @@ public final class ParseData extends VersionedWritable {
       return false;
     ParseData other = (ParseData)o;
     return
+      this.status.equals(other.status) &&
       this.title.equals(other.title) &&
       Arrays.equals(this.outlinks, other.outlinks) &&
       this.metadata.equals(other.metadata);
@@ -135,6 +144,7 @@ public final class ParseData extends VersionedWritable {
   public String toString() {
     StringBuffer buffer = new StringBuffer();
 
+    buffer.append("Status: " + status + "\n" );
     buffer.append("Title: " + title + "\n" );
 
     buffer.append("Outlinks: " + outlinks.length + "\n" );

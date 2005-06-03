@@ -252,19 +252,22 @@ public class CCParseFilter implements HtmlParseFilter {
 
   /** Adds metadata or otherwise modifies a parse of an HTML document, given
    * the DOM tree of a page. */
-  public Parse filter(Content content, Parse parse, DocumentFragment doc)
-    throws ParseException {
+  public Parse filter(Content content, Parse parse, HTMLMetaTags metaTags, DocumentFragment doc) {
 
     // construct base url
     URL base;
     try {
       base = new URL(content.getBaseUrl());
     } catch (MalformedURLException e) {
-      throw new ParseException(e);
+      return new ParseStatus(e).getEmptyParse();
     }
 
-    // extract license metadata
-    Walker.walk(doc, base, parse.getData().getMetadata());
+    try {
+      // extract license metadata
+      Walker.walk(doc, base, parse.getData().getMetadata());
+    } catch (ParseException e) {
+      return new ParseStatus(e).getEmptyParse();
+    }
 
     return parse;
   }

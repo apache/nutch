@@ -19,22 +19,24 @@ package org.apache.nutch.protocol.ftp;
 
 import org.apache.commons.net.ftp.FTPFileEntryParser;
 
+import org.apache.nutch.db.Page;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 
 import org.apache.nutch.util.LogFormatter;
 import org.apache.nutch.util.NutchConf;
 
+import org.apache.nutch.pagedb.FetchListEntry;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
+import org.apache.nutch.protocol.ProtocolOutput;
+import org.apache.nutch.protocol.ProtocolStatus;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 
-import java.io.InputStream;
-// 20040528, xing, disabled for now
-//import java.io.Reader;
 import java.io.IOException;
 
 /************************************
@@ -91,13 +93,13 @@ public class Ftp implements Protocol {
   }
 
   /** Set the timeout. */
-  public void setTimeout(int timeout) {
-    this.timeout = timeout;
+  public void setTimeout(int to) {
+    timeout = to;
   }
 
   /** Set the point at which content is truncated. */
   public void setMaxContentLength(int length) {
-    this.maxContentLength = length;
+    maxContentLength = length;
   }
 
   /** Set followTalk */
@@ -110,7 +112,18 @@ public class Ftp implements Protocol {
     this.keepConnection = keepConnection;
   }
 
-  public Content getContent(String urlString) throws FtpException {
+  public ProtocolOutput getProtocolOutput(String urlString) {
+    ProtocolOutput output = null;
+    try {
+      return getProtocolOutput(new FetchListEntry(true,
+            new Page(urlString, 1.0f), new String[0]));
+    } catch (MalformedURLException mue) {
+      return new ProtocolOutput(null, new ProtocolStatus(mue));
+    }
+  }
+  
+  public ProtocolOutput getProtocolOutput(FetchListEntry fle) {
+    String urlString = fle.getUrl().toString();
     try {
       URL url = new URL(urlString);
   
@@ -123,7 +136,7 @@ public class Ftp implements Protocol {
         int code = response.getCode();
   
         if (code == 200) {                          // got a good response
-          return response.toContent();              // return it
+          return new ProtocolOutput(response.toContent());              // return it
   
         } else if (code >= 300 && code < 400) {     // handle redirect
           if (redirects == MAX_REDIRECTS)
@@ -137,8 +150,8 @@ public class Ftp implements Protocol {
           throw new FtpError(code);
         }
       } 
-    } catch (IOException e) {
-      throw new FtpException(e);
+    } catch (Exception e) {
+      return new ProtocolOutput(null, new ProtocolStatus(e));
     }
   }
 
@@ -205,7 +218,7 @@ public class Ftp implements Protocol {
     // set log level
     LOG.setLevel(Level.parse((new String(logLevel)).toUpperCase()));
 
-    Content content = ftp.getContent(urlString);
+    Content content = ftp.getProtocolOutput(urlString).getContent();
 
     System.err.println("Content-Type: " + content.getContentType());
     System.err.println("Content-Length: " + content.get("Content-Length"));

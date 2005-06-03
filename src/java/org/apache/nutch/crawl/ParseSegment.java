@@ -49,15 +49,22 @@ public class ParseSegment
   public void map(WritableComparable key, Writable value,
                   OutputCollector output) throws IOException {
     Content content = (Content)value;
+
+    Parse parse = null;
+    ParseStatus status;
     try {
       Parser parser = ParserFactory.getParser(content.getContentType(),
                                               content.getBaseUrl());
-      Parse parse = parser.getParse(content);
-      
+      parse = parser.getParse(content);
+      status = parse.getData().getStatus();
+    } catch (Exception e) {
+      status = new ParseStatus(e);
+    }
+
+    if (status.isSuccess()) {
       output.collect(key, new ParseImpl(parse.getText(), parse.getData()));
-      
-    } catch (ParseException t) {
-      LOG.warning("Error parsing: "+key+": "+t.toString());
+    } else {
+      LOG.warning("Error parsing: "+key+": "+status.toString());
     }
   }
 

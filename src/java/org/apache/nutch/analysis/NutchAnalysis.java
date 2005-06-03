@@ -122,8 +122,11 @@ public class NutchAnalysis implements NutchAnalysisConstants {
       nonOpOrTerm();
       String[] array = (String[])terms.toArray(new String[terms.size()]);
 
-      if (stop && terms.size()==1 && isStopWord(array[0])) {
-        // ignore stop words only when single, unadorned terms
+      if (stop
+          && field == Clause.DEFAULT_FIELD
+          && terms.size()==1
+          && isStopWord(array[0])) {
+        // ignore stop words only when single, unadorned terms in default field
       } else {
         if (prohibited)
           query.addProhibitedPhrase(array, field);
@@ -443,32 +446,8 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     finally { jj_save(2, xla); }
   }
 
-  final private boolean jj_3R_17() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(10)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(11)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(12)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(13)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(14)) return true;
-    }
-    }
-    }
-    }
-    return false;
-  }
-
   final private boolean jj_3R_26() {
     if (jj_3R_16()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_8() {
-    if (jj_3R_14()) return true;
     return false;
   }
 
@@ -493,6 +472,11 @@ public class NutchAnalysis implements NutchAnalysisConstants {
       if (jj_3R_26()) { jj_scanpos = xsp; break; }
     }
     if (jj_3R_11()) return true;
+    return false;
+  }
+
+  final private boolean jj_3R_8() {
+    if (jj_3R_14()) return true;
     return false;
   }
 
@@ -524,18 +508,6 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     return false;
   }
 
-  final private boolean jj_3_1() {
-    if (jj_scan_token(WORD)) return true;
-    if (jj_scan_token(COLON)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_8()) {
-    jj_scanpos = xsp;
-    if (jj_3R_9()) return true;
-    }
-    return false;
-  }
-
   final private boolean jj_3R_23() {
     if (jj_3R_24()) return true;
     return false;
@@ -559,6 +531,18 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     if (jj_scan_token(8)) return true;
     }
     if (jj_3R_18()) return true;
+    return false;
+  }
+
+  final private boolean jj_3_1() {
+    if (jj_scan_token(WORD)) return true;
+    if (jj_scan_token(COLON)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_8()) {
+    jj_scanpos = xsp;
+    if (jj_3R_9()) return true;
+    }
     return false;
   }
 
@@ -610,13 +594,13 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     return false;
   }
 
-  final private boolean jj_3R_9() {
-    if (jj_3R_15()) return true;
+  final private boolean jj_3R_19() {
+    if (jj_3R_24()) return true;
     return false;
   }
 
-  final private boolean jj_3R_19() {
-    if (jj_3R_24()) return true;
+  final private boolean jj_3R_9() {
+    if (jj_3R_15()) return true;
     return false;
   }
 
@@ -651,6 +635,25 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     if (jj_scan_token(9)) {
     jj_scanpos = xsp;
     if (jj_scan_token(0)) return true;
+    }
+    return false;
+  }
+
+  final private boolean jj_3R_17() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(10)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(11)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(12)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(13)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(14)) return true;
+    }
+    }
+    }
     }
     return false;
   }

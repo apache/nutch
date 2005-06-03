@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.File;
 import java.util.Properties;
 
+import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.pagedb.FetchListEntry;
 import org.apache.nutch.io.*;
 import org.apache.nutch.db.*;
@@ -68,6 +69,10 @@ public class Fetcher {
 
   private int threadCount =                       // max number of threads
     NutchConf.get().getInt("fetcher.threads.fetch", 10);
+  private static final float NEW_INJECTED_PAGE_SCORE =
+    NutchConf.get().getFloat("db.score.injected", 2.0f);
+  private static final int MAX_REDIRECT =
+    NutchConf.get().getInt("http.redirect.max", 3);
 
   // All threads (FetcherThread or thread started by it) belong to
   // group "fetcher". Each FetcherThread is named as "fetcherXX",
@@ -110,45 +115,84 @@ public class Fetcher {
           if (!fle.getFetch()) {                  // should we fetch this page?
             if (LOG.isLoggable(Level.FINE))
               LOG.fine("not fetching " + url);
-            handleNoFetch(fle, FetcherOutput.SUCCESS);
+            handleNoFetch(fle, ProtocolStatus.STATUS_NOTFETCHING);
             continue;
           }
 
-          LOG.info("fetching " + url);            // fetch the page
-
-          Protocol protocol = ProtocolFactory.getProtocol(url);
-          Content content = protocol.getContent(url);
-
-          handleFetch(url, fle, content);
-
-          synchronized (Fetcher.this) {           // update status
-            pages++;
-            bytes += content.getContent().length;
-            if ((pages % 100) == 0) {             // show status every 100pp
-              status();
+          // support multiple redirects, if requested by protocol
+          // or content meta-tags (the latter requires running Fetcher
+          // in parsing mode). Protocol-level redirects take precedence over
+          // content-level redirects. Some plugins can handle redirects
+          // automatically, so that only the final success or failure will be
+          // shown here.
+          boolean refetch = false;
+          int redirCnt = 0;
+          do {
+            LOG.fine("redirCnt=" + redirCnt);
+            refetch = false;
+            LOG.info("fetching " + url);            // fetch the page
+            Protocol protocol = ProtocolFactory.getProtocol(url);
+            ProtocolOutput output = protocol.getProtocolOutput(fle);
+            ProtocolStatus pstat = output.getStatus();
+            Content content = output.getContent();
+            switch(pstat.getCode()) {
+              case ProtocolStatus.SUCCESS:
+                if (content != null) {
+                  synchronized (Fetcher.this) {           // update status
+                    pages++;
+                    bytes += content.getContent().length;
+                    if ((pages % 100) == 0) {             // show status every 100pp
+                      status();
+                    }
+                  }
+                  ParseStatus ps = handleFetch(url, fle, output);
+                  if (ps != null && ps.getMinorCode() == ParseStatus.SUCCESS_REDIRECT) {
+                    url = ps.getMessage();
+                    url = URLFilters.filter(url);
+                    if (url != null) {
+                      refetch = true;
+                      redirCnt++;
+                      fle = new FetchListEntry(true, new Page(url, NEW_INJECTED_PAGE_SCORE), new String[0]);
+                      LOG.info(" - content redirect to " + url);
+                    }
+                  }
+                }
+                break;
+              case ProtocolStatus.MOVED: // try to redirect immediately
+              case ProtocolStatus.TEMP_MOVED: // try to redirect immediately
+                // record the redirect. perhaps the DB will want to know this.
+                handleNoFetch(fle, pstat);
+                url = pstat.getMessage();
+                if (url != null) {
+                  refetch = true;
+                  redirCnt++;
+                  // create new entry.
+                  fle = new FetchListEntry(true, new Page(url, NEW_INJECTED_PAGE_SCORE), new String[0]);
+                  LOG.info(" - protocol redirect to " + url);
+                }
+                break;
+              case ProtocolStatus.GONE:
+              case ProtocolStatus.NOT_FOUND:
+              case ProtocolStatus.ACCESS_DENIED:
+              case ProtocolStatus.ROBOTS_DENIED:
+              case ProtocolStatus.RETRY:
+              case ProtocolStatus.NOTMODIFIED:
+                handleNoFetch(fle, pstat);
+                break;
+              case ProtocolStatus.EXCEPTION:
+                logError(url, fle, new Exception(pstat.getMessage()));                // retry?
+                handleNoFetch(fle, pstat);
+              break;
+              default:
+                LOG.warning("Unknown ProtocolStatus: " + pstat.getCode());
+                handleNoFetch(fle, pstat);
             }
-          }
-        } catch (ResourceGone e) {                // don't retry
-          logError(url, fle, e);
-          handleNoFetch(fle, FetcherOutput.NOT_FOUND);
-
-        // dealt with in handleFetch() below
-        //} catch (ParseException e) {              // don't retry
-        //  logError(url, fle, e);
-        //  handleNoFetch(fle, FetcherOutput.CANT_PARSE);
-
-        } catch (RetryLater e) {                  // explicit retry
-          logError(url, fle, e);
-          handleNoFetch(fle, FetcherOutput.RETRY);
-
-        } catch (ProtocolException e) {           // implicit retry
-          logError(url, fle, e);
-          handleNoFetch(fle, FetcherOutput.RETRY);
+          } while (refetch && (redirCnt < MAX_REDIRECT));
 
         } catch (Throwable t) {                   // an unchecked exception
           if (fle != null) {
             logError(url, fle, t);                // retry?
-            handleNoFetch(fle, FetcherOutput.RETRY);
+            handleNoFetch(fle, new ProtocolStatus(t));
           }
         }
       }
@@ -176,36 +220,44 @@ public class Fetcher {
       }
     }
 
-    private void handleFetch(String url, FetchListEntry fle, Content content) {
+    private ParseStatus handleFetch(String url, FetchListEntry fle, ProtocolOutput output) {
+      Content content = output.getContent();
+      ProtocolStatus protocolStatus = output.getStatus();
       if (!Fetcher.this.parsing) {
         outputPage(new FetcherOutput(fle, MD5Hash.digest(content.getContent()),
-                                    FetcherOutput.SUCCESS),
+                protocolStatus),
                 content, null, null);
-        return;
+        return null;
       }
 
-      try {
         String contentType = content.getContentType();
-        Parser parser = ParserFactory.getParser(contentType, url);
-        Parse parse = parser.getParse(content);
-        outputPage(new FetcherOutput(fle, MD5Hash.digest(content.getContent()),
-                                    FetcherOutput.SUCCESS),
-                content, new ParseText(parse.getText()), parse.getData());
-      } catch (ParseException e) {
-        // 20041026, xing
-        // If fetching succeeds, but parsing fails, content should be saved
-        // so that we can try to parse again in separate pass, possibly
-        // using better/alternative parser.
-        LOG.info("fetch okay, but can't parse " + url + ", reason: "
-          + e.getMessage());
-        outputPage(new FetcherOutput(fle, MD5Hash.digest(content.getContent()),
-                                    FetcherOutput.CANT_PARSE),
-                content, new ParseText(""),
-                new ParseData("", new Outlink[0], new Properties()));
-      }
+        Parser parser = null;
+        Parse parse = null;
+        ParseStatus status = null;
+        try {
+          parser = ParserFactory.getParser(contentType, url);
+          parse = parser.getParse(content);
+          status = parse.getData().getStatus();
+        } catch (Exception e) {
+          e.printStackTrace();
+          status = new ParseStatus(e);
+        }
+        if (status.isSuccess()) {
+          outputPage(new FetcherOutput(fle, MD5Hash.digest(content.getContent()),
+                  protocolStatus),
+                  content, new ParseText(parse.getText()), parse.getData());
+        } else {
+          LOG.info("fetch okay, but can't parse " + url + ", reason: "
+                  + status.toString());
+          outputPage(new FetcherOutput(fle, MD5Hash.digest(content.getContent()),
+                  protocolStatus),
+                  content, new ParseText(""),
+                  new ParseData(status, "", new Outlink[0], new Properties()));
+        }
+        return status;
     }
 
-    private void handleNoFetch(FetchListEntry fle, int status) {
+    private void handleNoFetch(FetchListEntry fle, ProtocolStatus status) {
       String url = fle.getPage().getURL().toString();
       MD5Hash hash = MD5Hash.digest(url);
 
@@ -213,7 +265,7 @@ public class Fetcher {
         outputPage(new FetcherOutput(fle, hash, status),
                    new Content(url, url, new byte[0], "", new Properties()),
                    new ParseText(""),
-                   new ParseData("", new Outlink[0], new Properties()));
+                   new ParseData(ParseStatus.STATUS_NOTPARSED, "", new Outlink[0], new Properties()));
       } else {
         outputPage(new FetcherOutput(fle, hash, status),
                    new Content(url, url, new byte[0], "", new Properties()),
@@ -234,6 +286,7 @@ public class Fetcher {
         }
       } catch (Throwable t) {
         LOG.severe("error writing output:" + t.toString());
+        t.printStackTrace();
       }
     }
                                        
@@ -429,7 +482,7 @@ public class Fetcher {
     }
 
     // set log level
-    fetcher.setLogLevel(Level.parse(logLevel.toUpperCase()));
+    setLogLevel(Level.parse(logLevel.toUpperCase()));
 
     if (showThreadID) {
       LogFormatter.setShowThreadIDs(showThreadID);

@@ -27,6 +27,7 @@ import org.pdfbox.exceptions.InvalidPasswordException;
 
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
@@ -79,13 +80,13 @@ public class PdfParser implements Parser {
     rootLogger.addAppender(appender);
   }
 
-  public Parse getParse(Content content) throws ParseException {
+  public Parse getParse(Content content) {
 
     // check that contentType is one we can handle
     String contentType = content.getContentType();
     if (contentType != null && !contentType.startsWith("application/pdf"))
-      throw new ParseException(
-        "Content-Type not application/pdf: "+contentType);
+      return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_INVALID_FORMAT,
+        "Content-Type not application/pdf: " + contentType).getEmptyParse();
 
     // in memory representation of pdf file
     PDDocument pdf = null;
@@ -100,8 +101,9 @@ public class PdfParser implements Parser {
       String contentLength = content.get("Content-Length");
       if (contentLength != null
             && raw.length != Integer.parseInt(contentLength)) {
-          throw new ParseException("Content truncated at "+raw.length
-            +" bytes. Parser can't handle incomplete pdf file.");
+          return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_TRUNCATED,
+                  "Content truncated at "+raw.length
+            +" bytes. Parser can't handle incomplete pdf file.").getEmptyParse();
       }
 
       PDFParser parser = new PDFParser(
@@ -134,14 +136,15 @@ public class PdfParser implements Parser {
       // formatDate(info.getCreationDate())
       // formatDate(info.getModificationDate())
 
-    } catch (ParseException e) {
-      throw e;
     } catch (CryptographyException e) {
-      throw new ParseException("Error decrypting document. "+e);
+      return new ParseStatus(ParseStatus.FAILED,
+              "Error decrypting document. " + e).getEmptyParse();
     } catch (InvalidPasswordException e) {
-      throw new ParseException("Can't decrypt document. "+e);
+      return new ParseStatus(ParseStatus.FAILED,
+              "Can't decrypt document - invalid password. " + e).getEmptyParse();
     } catch (Exception e) { // run time exception
-      throw new ParseException("Can't be handled as pdf document. "+e);
+      return new ParseStatus(ParseStatus.FAILED,
+              "Can't be handled as pdf document. " + e).getEmptyParse();
     } finally {
       try {
         if (pdf != null)
@@ -164,7 +167,7 @@ public class PdfParser implements Parser {
     Properties metadata = new Properties();
     metadata.putAll(content.getMetadata()); // copy through
 
-    ParseData parseData = new ParseData(title, outlinks, metadata);
+    ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks, metadata);
     return new ParseImpl(text, parseData);
     // any filter?
     //return HtmlParseFilters.filter(content, parse, root);

@@ -9,12 +9,14 @@
      <ant dir="protocol-file" target="deploy"/>
      <ant dir="protocol-ftp" target="deploy"/>
      <ant dir="protocol-http" target="deploy"/>
+     <ant dir="protocol-httpclient" target="deploy"/>
      <ant dir="parse-html" target="deploy"/>
+     <ant dir="parse-js" target="deploy"/>
      <ant dir="parse-text" target="deploy"/>
      <ant dir="parse-pdf" target="deploy"/>
      <ant dir="parse-msword" target="deploy"/>
-<!-- <ant dir="parse-mp3" target="deploy"/>      license: jid3 is LGPL-->
-<!-- <ant dir="parse-rtf" target="deploy"/>      license: parse-rtf is LGPL-->
+<!-- <ant dir="parse-mp3" target="deploy"/> -->
+<!-- <ant dir="parse-rtf" target="deploy"/> -->
      <ant dir="parse-ext" target="deploy"/>
      <ant dir="index-basic" target="deploy"/>
      <ant dir="index-more" target="deploy"/>
@@ -38,8 +40,8 @@
      <ant dir="parse-html" target="test"/>
      <ant dir="parse-pdf" target="test"/>
      <ant dir="parse-msword" target="test"/>
-<!-- <ant dir="parse-mp3" target="test"/> -->
-<!-- <ant dir="parse-rtf" target="test"/> -->
+ <!-- <ant dir="parse-mp3" target="test"/> -->
+ <!-- <ant dir="parse-rtf" target="test"/> -->
      <ant dir="parse-ext" target="test"/>
      <ant dir="creativecommons" target="test"/>
      <ant dir="languageidentifier" target="test"/>
@@ -53,7 +55,9 @@
     <ant dir="protocol-file" target="clean"/>
     <ant dir="protocol-ftp" target="clean"/>
     <ant dir="protocol-http" target="clean"/>
+    <ant dir="protocol-httpclient" target="clean"/>
     <ant dir="parse-html" target="clean"/>
+    <ant dir="parse-js" target="clean"/>
     <ant dir="parse-text" target="clean"/>
     <ant dir="parse-pdf" target="clean"/>
     <ant dir="parse-msword" target="clean"/>

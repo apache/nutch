@@ -45,11 +45,11 @@ public class HtmlParseFilters {
   private  HtmlParseFilters() {}                  // no public ctor
 
   /** Run all defined filters. */
-  public static Parse filter(Content content,Parse parse,DocumentFragment doc)
-    throws ParseException {
+  public static Parse filter(Content content, Parse parse, HTMLMetaTags metaTags, DocumentFragment doc) {
 
     for (int i = 0 ; i < CACHE.length; i++) {
-      parse = CACHE[i].filter(content, parse, doc);
+      parse = CACHE[i].filter(content, parse, metaTags, doc);
+      if (!parse.getData().getStatus().isSuccess()) break;
     }
 
     return parse;

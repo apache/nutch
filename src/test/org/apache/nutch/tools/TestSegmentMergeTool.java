@@ -22,17 +22,17 @@ import java.util.Random;
 
 import org.apache.nutch.db.Page;
 import org.apache.nutch.fetcher.FetcherOutput;
-import org.apache.nutch.io.ArrayFile;
 import org.apache.nutch.io.MD5Hash;
 import org.apache.nutch.fs.*;
 import org.apache.nutch.segment.SegmentReader;
 import org.apache.nutch.segment.SegmentWriter;
-import org.apache.nutch.util.*;
 import org.apache.nutch.pagedb.FetchListEntry;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.ParseData;
+import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.ProtocolStatus;
 
 import junit.framework.TestCase;
 
@@ -81,7 +81,7 @@ public class TestSegmentMergeTool extends TestCase {
       }
       url += "/example.html";
       FetchListEntry fle = new FetchListEntry(true, new Page(url, 1.0f), new String[] { "test" + rnd });
-      FetcherOutput fo = new FetcherOutput(fle, MD5Hash.digest(url), FetcherOutput.SUCCESS);
+      FetcherOutput fo = new FetcherOutput(fle, MD5Hash.digest(url), ProtocolStatus.STATUS_SUCCESS);
       StringBuffer content = new StringBuffer("<html><body><h1>Hello from Page " + i + "</h1>");
       if (unique) {
         content.append("<p>Created at epoch time: " + System.currentTimeMillis() + ", " + r.nextLong() + "</p>");
@@ -95,7 +95,7 @@ public class TestSegmentMergeTool extends TestCase {
       meta.setProperty("Host", "http://localhost");
       meta.setProperty("Connection", "Keep-alive, close");
       Content co = new Content(url, "http://www.example.com", content.toString().getBytes("UTF-8"), "text/html", meta);
-      ParseData pd = new ParseData("Hello from Page " + i, new Outlink[0], meta);
+      ParseData pd = new ParseData(ParseStatus.STATUS_SUCCESS, "Hello from Page " + i, new Outlink[0], meta);
       StringBuffer text = new StringBuffer("Hello from Page" + i);
       if (unique) {
         text.append("\nCreated at epoch time: " + System.currentTimeMillis() + ", " + r.nextLong());

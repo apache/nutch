@@ -18,6 +18,7 @@
          <export name="*"/>
       </library>
       <library name="nekohtml-0.9.4.jar"/>
+      <library name="tagsoup-1.0rc3.jar"/>
    </runtime>
 
    <extension id="org.apache.nutch.parse.html"

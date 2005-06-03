@@ -239,7 +239,7 @@ public class LanguageIdentifier implements IndexingFilter {
     Protocol protocol;
     try {
       protocol = ProtocolFactory.getProtocol(url);
-      Content content = protocol.getContent(url);
+      Content content = protocol.getProtocolOutput(url).getContent();
       String contentType = content.getContentType();
       Parser parser = ParserFactory.getParser(contentType, url);
       Parse parse = parser.getParse(content);

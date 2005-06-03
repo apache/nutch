@@ -29,6 +29,7 @@ import org.apache.nutch.linkdb.*;
 import org.apache.nutch.pagedb.*;
 import org.apache.nutch.fetcher.*;
 import org.apache.nutch.parse.*;
+import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.util.*;
 
 
@@ -108,14 +109,14 @@ public class UpdateDatabaseTool {
             if (!fle.getFetch()) {                // didn't fetch
               pageContentsUnchanged(fo);          // treat as unchanged
 
-            } else if (fo.getStatus() == fo.SUCCESS) { // fetch succeed
+            } else if (fo.getProtocolStatus().isSuccess()) { // fetch succeed
               if (fo.getMD5Hash().equals(page.getMD5())) {
                 pageContentsUnchanged(fo);        // contents unchanged
               } else {
                 pageContentsChanged(fo, pd);      // contents changed
               }
 
-            } else if (fo.getStatus() == fo.RETRY &&
+            } else if (fo.getProtocolStatus().getCode() == ProtocolStatus.RETRY &&
                        page.getRetriesSinceFetch() < MAX_RETRIES) {
 
               pageRetry(fo);                      // retry later

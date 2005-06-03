@@ -70,7 +70,7 @@ top-level pages in the translation.</p>
 
 <p>For example, the header file for an English translation is filed
 as <a
-href="http://svn.apache.org/repos/asf/incubator/nutch/trunk/src/web/include/en/header.xml"><tt>src/web/include/en/header.xml</tt></a>.</p>
+href="http://svn.apache.org/repos/asf/lucene/nutch/trunk/src/web/include/en/header.xml"><tt>src/web/include/en/header.xml</tt></a>.</p>
 
 
 </section>
@@ -110,7 +110,7 @@ existing translations for examples of this.</p>
 
 <p>For example, the English language "about" page is filed
 as <a
-href="http://svn.apache.org/repos/asf/incubator/nutch/trunk/src/web/pages/en/about.xml"><tt>src/web/pages/en/about.xml</tt></a>.</p>
+href="http://svn.apache.org/repos/asf/lucene/nutch/trunk/src/web/pages/en/about.xml"><tt>src/web/pages/en/about.xml</tt></a>.</p>
 
 </section>
 
@@ -128,12 +128,12 @@ page.</p>
 <p>These property files are filed as
 <tt>src/web/locale/org/nutch/jsp/<i>page</i>_<i>language</i>.xml</tt>
 where <i>page</i> is the name of the JSP page in <a
-href="http://svn.apache.org/repos/asf/incubator/nutch/trunk/src/web/jsp/"><tt>src/web/jsp/</tt></a>
+href="http://svn.apache.org/repos/asf/lucene/nutch/trunk/src/web/jsp/"><tt>src/web/jsp/</tt></a>
 and <i>language</i> is the IS0639 language code, as above.</p>
 
 <p>For example, text for the English language search results page is filed
 as <a
-href="http://svn.apache.org/repos/asf/incubator/nutch/trunk/src/web/locale/org/nutch/jsp/search_en.properties"><tt>src/web/locale/org/nutch/jsp/search_en.properties</tt></a>.
+href="http://svn.apache.org/repos/asf/lucene/nutch/trunk/src/web/locale/org/nutch/jsp/search_en.properties"><tt>src/web/locale/org/nutch/jsp/search_en.properties</tt></a>.
  This contains something like:</p>
 
 <pre>

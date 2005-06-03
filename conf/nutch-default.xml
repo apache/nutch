@@ -578,7 +578,7 @@
 
 <property>
   <name>plugin.includes</name>
-  <value>protocol-http|urlfilter-regex|parse-(text|html)|index-basic|query-(basic|site|url)</value>
+  <value>protocol-httpclient|urlfilter-regex|parse-(text|html|js)|index-basic|query-(basic|site|url)</value>
   <description>Regular expression naming plugin directory names to
   include.  Any plugin not matching this expression is excluded.  By
   default Nutch includes crawling just HTML and plain text via HTTP,
@@ -598,6 +598,14 @@
   <value>windows-1252</value>
   <description>The character encoding to fall back to when no other information
   is available</description>
+</property>
+
+<property>
+  <name>parser.html.impl</name>
+  <value>neko</value>
+  <description>HTML Parser implementation. Currently the following keywords
+  are recognized: "neko" uses NekoHTML, "tagsoup" uses TagSoup.
+  </description>
 </property>
 
 <!-- urlfilter plugin properties -->

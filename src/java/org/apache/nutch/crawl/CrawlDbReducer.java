@@ -77,7 +77,7 @@ public class CrawlDbReducer implements Reducer {
       result.setStatus(CrawlDatum.STATUS_DB_FETCHED);
       break;
 
-    case CrawlDatum.STATUS_FETCH_FAIL_TEMP:       // temporary failure
+    case CrawlDatum.STATUS_FETCH_RETRY:           // temporary failure
       result = highest;                           // use new entry
       if (highest.getRetriesSinceFetch() < retryMax) {
         result.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
@@ -86,7 +86,7 @@ public class CrawlDbReducer implements Reducer {
       }
       break;
 
-    case CrawlDatum.STATUS_FETCH_FAIL_PERM:       // permanent failure
+    case CrawlDatum.STATUS_FETCH_GONE:            // permanent failure
       result = highest;                           // use new entry
       result.setStatus(CrawlDatum.STATUS_DB_GONE);
       break;

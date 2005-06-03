@@ -28,14 +28,11 @@ import org.cyberneko.html.parsers.*;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.w3c.dom.*;
-import org.w3c.dom.html.*;
 import org.apache.html.dom.*;
 
-import org.apache.nutch.fetcher.FetcherOutput;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.*;
 import org.apache.nutch.parse.*;
-import org.apache.nutch.parse.html.RobotsMetaProcessor.*;
 
 
 public class HtmlParser implements Parser {
@@ -52,6 +49,8 @@ public class HtmlParser implements Parser {
   private static Pattern charsetPattern =
     Pattern.compile("charset=\\s*([a-z][_\\-0-9a-z]*)",
                     Pattern.CASE_INSENSITIVE);
+  
+  private static String parserImpl = NutchConf.get().get("parser.html.impl", "neko");
 
   /**
    * Given a <code>byte[]</code> representing an html file of an 
@@ -94,22 +93,14 @@ public class HtmlParser implements Parser {
   private static String defaultCharEncoding =
     NutchConf.get().get("parser.character.encoding.default", "windows-1252");
 
-  public Parse getParse(Content content) throws ParseException {
-    DOMParser parser = new DOMParser();
-    
-    // some plugins, e.g., creativecommons, need to examine html comments
-    try {
-      parser.setFeature("http://apache.org/xml/features/include-comments", 
-                        true);
-    } catch (SAXException e) {}
-
-    RobotsMetaIndicator robotsMeta = new RobotsMetaIndicator();
+  public Parse getParse(Content content) {
+    HTMLMetaTags metaTags = new HTMLMetaTags();
 
     URL base;
     try {
       base = new URL(content.getBaseUrl());
     } catch (MalformedURLException e) {
-      throw new ParseException(e);
+      return new ParseStatus(e).getEmptyParse();
     }
 
     String text = "";
@@ -120,19 +111,18 @@ public class HtmlParser implements Parser {
     // check that contentType is one we can handle
     String contentType = content.getContentType();
     if (!"".equals(contentType) && !contentType.startsWith("text/html"))
-      throw new ParseException("Content-Type not text/html: " + contentType);
+      return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_INVALID_FORMAT,
+              "Content-Type not text/html: " + contentType).getEmptyParse();
     
     // parse the content
     DocumentFragment root;
     try {
       byte[] contentInOctets = content.getContent();
-      InputSource input =
-        new InputSource(new ByteArrayInputStream(contentInOctets));
+      InputSource input = new InputSource(new ByteArrayInputStream(contentInOctets));
       String encoding = StringUtil.parseCharacterEncoding(contentType);
       if (encoding!=null) {
         metadata.put("OriginalCharEncoding", encoding);
         if ((encoding = StringUtil.resolveEncodingAlias(encoding)) != null) {
-	  input.setEncoding(encoding); 
           metadata.put("CharEncodingForConversion", encoding);
           LOG.fine(base + ": setting encoding to " + encoding);
         }
@@ -144,7 +134,6 @@ public class HtmlParser implements Parser {
         if (encoding!=null) {
           metadata.put("OriginalCharEncoding", encoding);
           if ((encoding = StringUtil.resolveEncodingAlias(encoding)) != null) {
-	    input.setEncoding(encoding); 
             metadata.put("CharEncodingForConversion", encoding);
             LOG.fine(base + ": setting encoding to " + encoding);
           }
@@ -158,33 +147,29 @@ public class HtmlParser implements Parser {
         // (e.g. se: windows-1252, kr: x-windows-949, cn: gb18030, tw: big5
         // doesn't work for jp because euc-jp and shift_jis have about the
         // same share)
-       
+        encoding = defaultCharEncoding;
         metadata.put("CharEncodingForConversion", defaultCharEncoding);
-        input.setEncoding(defaultCharEncoding);
         LOG.fine(base + ": falling back to " + defaultCharEncoding);
       }
-
+      input.setEncoding(encoding);
       LOG.fine("Parsing...");
-      parser.parse(input);
-
-      // convert Document to DocumentFragment
-      HTMLDocumentImpl doc = (HTMLDocumentImpl)parser.getDocument();
-      doc.setErrorChecking(false);
-      root = doc.createDocumentFragment();
-      root.appendChild(doc.getDocumentElement());
+      root = parse(input);
     } catch (IOException e) {
-      throw new ParseException(e);
+      return new ParseStatus(e).getEmptyParse();
     } catch (DOMException e) {
-      throw new ParseException(e);
+      return new ParseStatus(e).getEmptyParse();
     } catch (SAXException e) {
-      throw new ParseException(e);
+      return new ParseStatus(e).getEmptyParse();
+    } catch (Exception e) {
+      e.printStackTrace();
+      return new ParseStatus(e).getEmptyParse();
     }
       
     // get meta directives
-    RobotsMetaProcessor.getRobotsMetaDirectives(robotsMeta, root, base);
-      
+    HTMLMetaProcessor.getMetaTags(metaTags, root, base);
+    LOG.info("Meta tags for " + base + ": " + metaTags.toString());
     // check meta directives
-    if (!robotsMeta.getNoIndex()) {               // okay to index
+    if (!metaTags.getNoIndex()) {               // okay to index
       StringBuffer sb = new StringBuffer();
       LOG.fine("Getting text...");
       DOMContentUtils.getText(sb, root);          // extract text
@@ -195,7 +180,7 @@ public class HtmlParser implements Parser {
       title = sb.toString().trim();
     }
       
-    if (!robotsMeta.getNoFollow()) {              // okay to follow links
+    if (!metaTags.getNoFollow()) {              // okay to follow links
       ArrayList l = new ArrayList();              // extract outlinks
       URL baseTag = DOMContentUtils.getBase(root);
       LOG.fine("Getting links...");
@@ -204,20 +189,78 @@ public class HtmlParser implements Parser {
       LOG.fine("found "+outlinks.length+" outlinks in "+content.getUrl());
     }
     
-    if (!robotsMeta.getNoCache()) {             // okay to cache
+    if (!metaTags.getNoCache()) {             // okay to cache
       // ??? FIXME ???
     }
     
     // copy content metadata through
     metadata.putAll(content.getMetadata());
-
-    ParseData parseData = new ParseData(title, outlinks, metadata);
+    ParseStatus status = new ParseStatus(ParseStatus.SUCCESS);
+    if (metaTags.getRefresh()) {
+      status.setMinorCode(ParseStatus.SUCCESS_REDIRECT);
+      status.setMessage(metaTags.getRefreshHref().toString());
+    }
+    ParseData parseData = new ParseData(status, title, outlinks, metadata);
     Parse parse = new ParseImpl(text, parseData);
 
     // run filters on parse
-    return HtmlParseFilters.filter(content, parse, root);
+    return HtmlParseFilters.filter(content, parse, metaTags, root);
   }
 
+  private DocumentFragment parse(InputSource input) throws Exception {
+    if (parserImpl.equalsIgnoreCase("tagsoup"))
+      return parseTagSoup(input);
+    else return parseNeko(input);
+  }
+  
+  private DocumentFragment parseTagSoup(InputSource input) throws Exception {
+    HTMLDocumentImpl doc = new HTMLDocumentImpl();
+    DocumentFragment frag = doc.createDocumentFragment();
+    DOMBuilder builder = new DOMBuilder(doc, frag);
+    org.ccil.cowan.tagsoup.Parser reader = new org.ccil.cowan.tagsoup.Parser();
+    reader.setContentHandler(builder);
+    reader.setFeature(reader.ignoreBogonsFeature, true);
+    reader.setFeature(reader.bogonsEmptyFeature, false);
+    reader.setProperty("http://xml.org/sax/properties/lexical-handler", builder);
+    reader.parse(input);
+    return frag;
+  }
+  
+  private DocumentFragment parseNeko(InputSource input) throws Exception {
+    DOMFragmentParser parser = new DOMFragmentParser();
+    // some plugins, e.g., creativecommons, need to examine html comments
+    try {
+      parser.setFeature("http://apache.org/xml/features/include-comments", 
+              true);
+      parser.setFeature("http://apache.org/xml/features/augmentations", 
+              true);
+      parser.setFeature("http://cyberneko.org/html/features/balance-tags/ignore-outside-content",
+              false);
+      parser.setFeature("http://cyberneko.org/html/features/balance-tags/document-fragment",
+              true);
+      parser.setFeature("http://cyberneko.org/html/features/report-errors",
+              true);
+    } catch (SAXException e) {}
+    // convert Document to DocumentFragment
+    HTMLDocumentImpl doc = new HTMLDocumentImpl();
+    doc.setErrorChecking(false);
+    DocumentFragment res = doc.createDocumentFragment();
+    DocumentFragment frag = doc.createDocumentFragment();
+    parser.parse(input, frag);
+    res.appendChild(frag);
+    
+    try {
+      while(true) {
+        frag = doc.createDocumentFragment();
+        parser.parse(input, frag);
+        if (!frag.hasChildNodes()) break;
+        LOG.info(" - new frag, " + frag.getChildNodes().getLength() + " nodes.");
+        res.appendChild(frag);
+      }
+    } catch (Exception x) { x.printStackTrace();};
+    return res;
+  }
+  
   public static void main(String[] args) throws Exception {
     LOG.setLevel(Level.FINE);
     String name = args[0];

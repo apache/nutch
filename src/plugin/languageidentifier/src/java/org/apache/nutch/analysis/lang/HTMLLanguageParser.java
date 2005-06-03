@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 package org.apache.nutch.analysis.lang;
+import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.HtmlParseFilter;
-import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.protocol.Content;
 import org.w3c.dom.*;
 
@@ -38,8 +38,7 @@ public class HTMLLanguageParser implements HtmlParseFilter {
    * <li>3. meta http-equiv (content-language) (http://www.w3.org/TR/REC-html40/struct/global.html#h-7.4.4.2)
    * <br>Only the first occurence of language is stored.
    */
-  public Parse filter(Content content, Parse parse, DocumentFragment doc)
-    throws ParseException {
+  public Parse filter(Content content, Parse parse, HTMLMetaTags metaTags, DocumentFragment doc) {
     String lang = findLanguage(doc);
 
     if (lang != null) {
