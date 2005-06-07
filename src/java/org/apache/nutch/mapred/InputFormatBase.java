@@ -38,18 +38,31 @@ public abstract class InputFormatBase implements InputFormat {
   protected File[] listFiles(NutchFileSystem fs, JobConf job)
     throws IOException {
     File[] dirs = job.getInputDirs();
-    ArrayList files = new ArrayList();
+    String subdir = job.get("mapred.input.subdir");
+    ArrayList result = new ArrayList();
     for (int i = 0; i < dirs.length; i++) {
       File[] dir = fs.listFiles(dirs[i]);
       if (dir != null) {
-        files.addAll(Arrays.asList(dir));
+        for (int j = 0; j < dir.length; j++) {
+          File file = dir[j];
+          if (subdir != null) {
+            File[] subFiles = fs.listFiles(new File(file, subdir));
+            if (subFiles != null) {
+              for (int k = 0; k < subFiles.length; k++) {
+                result.add(subFiles[k]);
+              }
+            }
+          } else {
+            result.add(file);
+          }
+        }
       }
     }
 
-    if (files.size() == 0) {
+    if (result.size() == 0) {
       throw new IOException("No input files in: "+job.getInputDirs());
     }
-    return (File[])files.toArray(new File[files.size()]);
+    return (File[])result.toArray(new File[result.size()]);
   }
 
   /** Splits files returned by {#listFiles(NutchFileSystem,JobConf) when
@@ -59,7 +72,14 @@ public abstract class InputFormatBase implements InputFormat {
 
     File[] files = listFiles(fs, job);
 
-    long totalSize = 0;
+    for (int i = 0; i < files.length; i++) {      // check we have valid files
+      File file = files[i];
+      if (fs.isDirectory(file) || !fs.exists(file)) {
+        throw new IOException("Not a file: "+files[i]);
+      }
+    }
+
+    long totalSize = 0;                           // compute total size
     for (int i = 0; i < files.length; i++) {
       totalSize += fs.getLength(files[i]);
     }
@@ -67,7 +87,7 @@ public abstract class InputFormatBase implements InputFormat {
     long bytesPerSplit = totalSize / numSplits;
     long maxPerSplit = bytesPerSplit + (long)(bytesPerSplit*SPLIT_SLOP);
 
-    ArrayList splits = new ArrayList(numSplits);
+    ArrayList splits = new ArrayList(numSplits);  // generate splits
     for (int i = 0; i < files.length; i++) {
       File file = files[i];
       long length = fs.getLength(file);

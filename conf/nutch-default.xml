@@ -294,13 +294,6 @@
   <description>If true, fetcher will log more verbosely.</description>
 </property>
 
-<!-- parser properties -->
-<property>
-  <name>parser.threads.parse</name>
-  <value>10</value>
-  <description>Number of ParserThreads ParseSegment should use.</description>
-</property>
-
 <!-- i/o properties -->
 
 <property>

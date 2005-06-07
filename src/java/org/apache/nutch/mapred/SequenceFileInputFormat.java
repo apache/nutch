@@ -22,6 +22,7 @@ import java.io.File;
 import org.apache.nutch.fs.NutchFileSystem;
 
 import org.apache.nutch.io.SequenceFile;
+import org.apache.nutch.io.MapFile;
 import org.apache.nutch.io.Writable;
 import org.apache.nutch.io.WritableComparable;
 import org.apache.nutch.io.LongWritable;
@@ -37,7 +38,7 @@ public class SequenceFileInputFormat extends InputFormatBase {
     for (int i = 0; i < files.length; i++) {
       File file = files[i];
       if (file.isDirectory()) {                   // it's a MapFile
-        files[i] = new File(file, "data");        // use the data file
+        files[i] = new File(file, MapFile.DATA_FILE_NAME); // use the data file
       }
     }
     return files;
