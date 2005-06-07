@@ -22,6 +22,7 @@ import org.apache.nutch.mapred.*;
 import org.apache.nutch.util.*;
 import org.apache.nutch.protocol.*;
 import org.apache.nutch.parse.*;
+import org.apache.nutch.net.*;
 
 import java.io.*;
 import java.util.*;
@@ -36,6 +37,8 @@ public class ParseSegment
 
   private float interval;
 
+  private UrlNormalizer urlNormalizer = UrlNormalizerFactory.getNormalizer();
+        
   public ParseSegment() { super(null); }
 
   public ParseSegment(NutchConf conf) {
@@ -93,7 +96,7 @@ public class ParseSegment
                               UTF8.class, CrawlDatum.class);
     
     return new RecordWriter() {
-        
+
         public void write(WritableComparable key, Writable value)
           throws IOException {
           
@@ -105,9 +108,17 @@ public class ParseSegment
           // collect outlinks for subsequent db update
           Outlink[] links = parse.getData().getOutlinks();
           for (int i = 0; i < links.length; i++) {
-            crawlOut.append(new UTF8(links[i].getToUrl()),
-                            new CrawlDatum(CrawlDatum.STATUS_LINKED,
-                                           interval));
+            String toUrl = links[i].getToUrl();
+            try {
+              toUrl = urlNormalizer.normalize(toUrl); // normalize the url
+              toUrl = URLFilters.filter(toUrl);   // filter the url
+            } catch (Exception e) {
+              toUrl = null;
+            }
+            if (toUrl != null)
+              crawlOut.append(new UTF8(toUrl),
+                              new CrawlDatum(CrawlDatum.STATUS_LINKED,
+                                             interval));
           }
         }
         
