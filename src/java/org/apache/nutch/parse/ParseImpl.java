@@ -30,7 +30,11 @@ public class ParseImpl implements Parse, Writable {
   public ParseImpl() {}
 
   public ParseImpl(String text, ParseData data) {
-    this.text = new ParseText(text);
+    this(new ParseText(text), data);
+  }
+
+  public ParseImpl(ParseText text, ParseData data) {
+    this.text = text;
     this.data = data;
   }
 

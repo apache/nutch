@@ -47,36 +47,7 @@ public class SequenceFileInputFormat extends InputFormatBase {
   public RecordReader getRecordReader(NutchFileSystem fs, FileSplit split,
                                       JobConf job) throws IOException {
 
-    // open the file and seek to the start of the split
-    final SequenceFile.Reader in =
-      new SequenceFile.Reader(fs, split.getFile().toString());
-    final long end = split.getStart() + split.getLength();
-
-    in.sync(split.getStart());                    // sync to start
-
-    return new RecordReader() {
-        private boolean more = true;
-
-        public synchronized boolean next(Writable key, Writable value)
-          throws IOException {
-          if (!more) return false;
-          long pos = in.getPosition();
-          boolean eof = in.next(key, value);
-          if (pos >= end && in.syncSeen()) {
-            more = false;
-          } else {
-            more = eof;
-          }
-          return more;
-        }
-        
-        public synchronized long getPos() throws IOException {
-          return in.getPosition();
-        }
-
-        public synchronized void close() throws IOException { in.close(); }
-
-      };
+    return new SequenceFileRecordReader(fs, split);
   }
 
 }
