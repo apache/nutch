@@ -26,6 +26,11 @@
     <path refid="classpath"/>
   </path>
 
+  <!-- xmlcatalog definition for xslt task -->
+  <xmlcatalog id="docDTDs">
+     <dtd publicId="-//W3C//DTD XHTML 1.0 Transitional//EN"            
+          location="${xmlcatalog.dir}/xhtml1-transitional.dtd"/> 
+  </xmlcatalog> 
 
   <!-- ====================================================== -->
   <!-- Stuff needed by all targets                            -->
@@ -250,7 +255,9 @@
     <mkdir dir="${build.docs}/${doc.locale}/include"/>
     <xslt in="${docs.src}/include/${doc.locale}/header.xml"
           out="${build.docs}/${doc.locale}/include/header.html"
-          style="${docs.src}/style/nutch-header.xsl"/>
+          style="${docs.src}/style/nutch-header.xsl">
+        <xmlcatalog refid="docDTDs"/>
+    </xslt>
 
     <dependset>
        <srcfileset dir="${docs.src}/include/${doc.locale}" includes="*.xml"/>
@@ -265,7 +272,9 @@
     <xslt basedir="${docs.src}/pages/${doc.locale}"
           destdir="${docs.dir}/${doc.locale}"
           includes="*.xml"
-          style="${build.docs}/${doc.locale}/nutch-page.xsl"/>
+          style="${build.docs}/${doc.locale}/nutch-page.xsl">
+         <xmlcatalog refid="docDTDs"/>
+    </xslt>
   </target>
 
 
