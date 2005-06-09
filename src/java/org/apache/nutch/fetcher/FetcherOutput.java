@@ -63,7 +63,7 @@ public final class FetcherOutput implements Writable {
   private static final byte[] oldToNewMap = {
           ProtocolStatus.RETRY,
           ProtocolStatus.SUCCESS,
-          ProtocolStatus.NOT_FOUND,
+          ProtocolStatus.NOTFOUND,
           ProtocolStatus.FAILED,
           ProtocolStatus.RETRY
   };

@@ -172,7 +172,7 @@ public class Fetcher {
                 }
                 break;
               case ProtocolStatus.GONE:
-              case ProtocolStatus.NOT_FOUND:
+              case ProtocolStatus.NOTFOUND:
               case ProtocolStatus.ACCESS_DENIED:
               case ProtocolStatus.ROBOTS_DENIED:
               case ProtocolStatus.RETRY:
