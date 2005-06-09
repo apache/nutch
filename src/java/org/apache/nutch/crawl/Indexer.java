@@ -149,6 +149,7 @@ public class Indexer extends NutchConfigured implements Reducer {
 
     Document doc = new Document();
     Properties meta = parseData.getMetadata();
+    String[] anchors = inlinks!=null ? inlinks.getAnchors() : new String[0];
 
     // add segment, used to map from merged index back to segment files
     doc.add(Field.UnIndexed("segment",
@@ -160,7 +161,7 @@ public class Indexer extends NutchConfigured implements Reducer {
     // compute boost
     float boost =
       IndexSegment.calculateBoost(1.0f, scorePower, boostByLinkCount,
-                                  inlinks == null ? 0 : inlinks.size());
+                                  anchors.length);
     // apply boost to all indexed fields.
     doc.setBoost(boost);
     // store boost for use by explain and dedup
@@ -176,7 +177,6 @@ public class Indexer extends NutchConfigured implements Reducer {
     try {
       // dummy up a FetcherOutput so that we can use existing indexing filters
       // TODO: modify IndexingFilter interface to use Inlinks, etc. 
-      String[] anchors = inlinks!=null ? inlinks.getAnchors() : new String[0];
       FetcherOutput fo =
         new FetcherOutput(new FetchListEntry(true,new Page((UTF8)key),anchors),
                           null, null);
