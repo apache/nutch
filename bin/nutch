@@ -36,7 +36,7 @@ if [ $# = 0 ]; then
   echo "  parse             parse a segment's pages"
   echo "  updatedb          update crawl db from segments after fetching"
   echo "  invertlinks       create a linkdb from parsed segments"
-  echo "  index             run the indexer on a segment's fetcher output"
+  echo "  index             run the indexer on parsed segments and linkdb"
   echo "  merge             merge several segment indexes"
   echo "  dedup             remove duplicates from a set of segment indexes"
   echo "  updatesegs        update segments with link data from the db"
@@ -142,7 +142,7 @@ elif [ "$COMMAND" = "updatedb" ] ; then
 elif [ "$COMMAND" = "invertlinks" ] ; then
   CLASS=org.apache.nutch.crawl.LinkDb
 elif [ "$COMMAND" = "index" ] ; then
-  CLASS=org.apache.nutch.indexer.IndexSegment
+  CLASS=org.apache.nutch.crawl.Indexer
 elif [ "$COMMAND" = "merge" ] ; then
   CLASS=org.apache.nutch.indexer.IndexMerger
 elif [ "$COMMAND" = "dedup" ] ; then

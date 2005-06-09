@@ -27,7 +27,11 @@ import org.apache.nutch.util.*;
 import org.apache.nutch.mapred.*;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.analysis.*;
+
 import org.apache.nutch.indexer.*;
+import org.apache.nutch.pagedb.FetchListEntry;
+import org.apache.nutch.fetcher.FetcherOutput;
+import org.apache.nutch.db.Page;
 
 import org.apache.lucene.index.*;
 import org.apache.lucene.document.*;
@@ -80,6 +84,9 @@ public class Indexer extends NutchConfigured implements Reducer {
       writer.setTermIndexInterval
         (job.getInt("indexer.termIndexInterval", 128));
       writer.maxFieldLength = job.getInt("indexer.max.tokens", 10000);
+      //writer.infoStream = LogFormatter.getLogStream(LOG, Level.FINE);
+      writer.setUseCompoundFile(false);
+      writer.setSimilarity(new NutchSimilarity());
 
       return new RecordWriter() {
 
@@ -118,12 +125,15 @@ public class Indexer extends NutchConfigured implements Reducer {
   public void reduce(WritableComparable key, Iterator values,
                      OutputCollector output) throws IOException {
     Inlinks inlinks = null;
+    CrawlDatum crawlDatum = null;
     ParseData parseData = null;
     ParseText parseText = null;
     while (values.hasNext()) {
       Object value = ((ObjectWritable)values.next()).get(); // unwrap
       if (value instanceof Inlinks) {
         inlinks = (Inlinks)value;
+      } else if (value instanceof CrawlDatum) {
+        crawlDatum = (CrawlDatum)value;
       } else if (value instanceof ParseData) {
         parseData = (ParseData)value;
       } else if (value instanceof ParseText) {
@@ -133,30 +143,47 @@ public class Indexer extends NutchConfigured implements Reducer {
       }
     }      
 
-    if (parseText == null || parseData == null) {
+    if (crawlDatum == null || parseText == null || parseData == null) {
       return;                                     // only have inlinks
     }
 
     Document doc = new Document();
+    Properties meta = parseData.getMetadata();
 
-    // add docno & segment, used to map from merged index back to segment files
-    //doc.add(Field.UnIndexed("docNo", Long.toString(docNo, 16)));
-    //doc.add(Field.UnIndexed("segment", segmentName));
+    // add segment, used to map from merged index back to segment files
+    doc.add(Field.UnIndexed("segment",
+                            meta.getProperty(ParseSegment.SEGMENT_NAME_KEY)));
 
     // add digest, used by dedup
-    //doc.add(Field.UnIndexed("digest", fo.getMD5Hash().toString()));
+    doc.add(Field.UnIndexed("digest", meta.getProperty(Fetcher.DIGEST_KEY)));
 
-    // 4. Apply boost to all indexed fields.
+    // compute boost
     float boost =
-      IndexSegment.calculateBoost(1.0f,scorePower, boostByLinkCount,
+      IndexSegment.calculateBoost(1.0f, scorePower, boostByLinkCount,
                                   inlinks == null ? 0 : inlinks.size());
+    // apply boost to all indexed fields.
     doc.setBoost(boost);
     // store boost for use by explain and dedup
     doc.add(Field.UnIndexed("boost", Float.toString(boost)));
 
+//     LOG.info("Url: "+key.toString());
+//     LOG.info("Title: "+parseData.getTitle());
+//     LOG.info(crawlDatum.toString());
+//     if (inlinks != null) {
+//       LOG.info(inlinks.toString());
+//     }
+
     try {
-      doc = IndexingFilters.filter(doc, new ParseImpl(parseText, parseData),
-                                   null);
+      // dummy up a FetcherOutput so that we can use existing indexing filters
+      // TODO: modify IndexingFilter interface to use Inlinks, etc. 
+      String[] anchors = inlinks!=null ? inlinks.getAnchors() : new String[0];
+      FetcherOutput fo =
+        new FetcherOutput(new FetchListEntry(true,new Page((UTF8)key),anchors),
+                          null, null);
+      fo.setFetchDate(crawlDatum.getFetchTime());
+
+      // run indexing filters
+      doc = IndexingFilters.filter(doc,new ParseImpl(parseText, parseData),fo);
     } catch (IndexingException e) {
       LOG.warning("Error indexing "+key+": "+e);
       return;
@@ -165,29 +192,23 @@ public class Indexer extends NutchConfigured implements Reducer {
     output.collect(key, new ObjectWritable(doc));
   }
 
-  public void index(File indexDir, File segmentsDir) throws IOException {
-    JobConf job = Indexer.createJob(getConf(), indexDir);
-    job.setInputDir(segmentsDir);
-    job.set("mapred.input.subdir", ParseData.DIR_NAME);
-    JobClient.runJob(job);
-  }
+  public void index(File indexDir, File linkDb, File[] segments)
+    throws IOException {
 
-  public void index(File indexDir, File[] segments) throws IOException {
-    JobConf job = Indexer.createJob(getConf(), indexDir);
+    JobConf job = new JobConf(getConf());
+
     for (int i = 0; i < segments.length; i++) {
+      job.addInputDir(new File(segments[i], CrawlDatum.FETCH_DIR_NAME));
       job.addInputDir(new File(segments[i], ParseData.DIR_NAME));
+      job.addInputDir(new File(segments[i], ParseText.DIR_NAME));
     }
-    JobClient.runJob(job);
-  }
 
-  private static JobConf createJob(NutchConf config, File indexDir) {
-    JobConf job = new JobConf(config);
+    job.addInputDir(new File(linkDb, LinkDb.CURRENT_NAME));
 
     job.setInputFormat(InputFormat.class);
     job.setInputKeyClass(UTF8.class);
     job.setInputValueClass(ObjectWritable.class);
 
-    job.setMapperClass(Indexer.class);
     //job.setCombinerClass(Indexer.class);
     job.setReducerClass(Indexer.class);
 
@@ -196,20 +217,23 @@ public class Indexer extends NutchConfigured implements Reducer {
     job.setOutputKeyClass(UTF8.class);
     job.setOutputValueClass(ObjectWritable.class);
 
-    return job;
+    JobClient.runJob(job);
   }
 
   public static void main(String[] args) throws Exception {
     Indexer indexer = new Indexer(NutchConf.get());
     
     if (args.length < 2) {
-      System.err.println("Usage: <linkdb> <segments>");
+      System.err.println("Usage: <index> <linkdb> <segment> <segment> ...");
       return;
     }
     
-    indexer.index(new File(args[0]), new File(args[1]));
+    File[] segments = new File[args.length-2];
+    for (int i = 2; i < args.length; i++) {
+      segments[i-2] = new File(args[i]);
+    }
+
+    indexer.index(new File(args[0]), new File(args[1]), segments);
   }
-
-
 
 }

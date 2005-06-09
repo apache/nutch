@@ -41,8 +41,10 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   public static final byte STATUS_FETCH_RETRY = 6;
   public static final byte STATUS_FETCH_GONE = 7;
 
+  private static final float MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
+
   private byte status;
-  private long nextFetch = System.currentTimeMillis();
+  private long fetchTime = System.currentTimeMillis();
   private byte retries;
   private float fetchInterval;
   private int linkCount;
@@ -63,8 +65,12 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   public byte getStatus() { return status; }
   public void setStatus(int status) { this.status = (byte)status; }
 
-  public long getNextFetchTime() { return nextFetch; }
-  public void setNextFetchTime(long nextFetch) { this.nextFetch = nextFetch; }
+  public long getFetchTime() { return fetchTime; }
+  public void setFetchTime(long fetchTime) { this.fetchTime = fetchTime; }
+
+  public void setNextFetchTime() {
+    fetchTime += (long)(MILLISECONDS_PER_DAY*fetchInterval);
+  }
 
   public byte getRetriesSinceFetch() { return retries; }
   public void setRetriesSinceFetch(int retries) {this.retries = (byte)retries;}
@@ -94,7 +100,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
       throw new VersionMismatchException(CUR_VERSION, version);
 
     status = in.readByte();
-    nextFetch = in.readLong();
+    fetchTime = in.readLong();
     retries = in.readByte();
     fetchInterval = in.readFloat();
     linkCount = in.readInt();
@@ -106,7 +112,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   public void write(DataOutput out) throws IOException {
     out.writeByte(CUR_VERSION);                   // store current version
     out.writeByte(status);
-    out.writeLong(nextFetch);
+    out.writeLong(fetchTime);
     out.writeByte(retries);
     out.writeFloat(fetchInterval);
     out.writeInt(linkCount);
@@ -115,7 +121,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   /** Copy the contents of another instance into this instance. */
   public void set(CrawlDatum that) {
     this.status = that.status;
-    this.nextFetch = that.nextFetch;
+    this.fetchTime = that.fetchTime;
     this.retries = that.retries;
     this.fetchInterval = that.fetchInterval;
     this.linkCount = that.linkCount;
@@ -157,7 +163,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     StringBuffer buf = new StringBuffer();
     buf.append("Version: " + CUR_VERSION + "\n");
     buf.append("Status: " + getStatus() + "\n");
-    buf.append("Next fetch: " + new Date(getNextFetchTime()) + "\n");
+    buf.append("Fetch time: " + new Date(getFetchTime()) + "\n");
     buf.append("Retries since fetch: " + getRetriesSinceFetch() + "\n");
     buf.append("Retry interval: " + getFetchInterval() + " days\n");
     buf.append("Link Count: " + getLinkCount() + "\n");
@@ -170,7 +176,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     CrawlDatum other = (CrawlDatum)o;
     return
       (this.status == other.status) &&
-      (this.nextFetch == other.nextFetch) &&
+      (this.fetchTime == other.fetchTime) &&
       (this.retries == other.retries) &&
       (this.fetchInterval == other.fetchInterval) &&
       (this.linkCount == other.linkCount);
@@ -179,7 +185,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   public int hashCode() {
     return
       status ^
-      ((int)nextFetch) ^
+      ((int)fetchTime) ^
       retries ^
       Float.floatToIntBits(fetchInterval) ^
       linkCount;

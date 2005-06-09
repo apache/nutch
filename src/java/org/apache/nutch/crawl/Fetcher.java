@@ -35,6 +35,8 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
   public static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.fetcher.Fetcher");
   
+  public static final String DIGEST_KEY = "nutch.content.digest";
+
   private RecordReader input;
   private OutputCollector output;
 
@@ -155,6 +157,9 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
         String url = key.toString();
         content = new Content(url, url, new byte[0], "", new Properties());
       }
+
+      content.getMetadata().setProperty           // add digest to metadata
+        (DIGEST_KEY, MD5Hash.digest(content.getContent()).toString());
 
       try {
         output.collect(key, new FetcherOutput(datum, content));

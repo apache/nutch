@@ -75,6 +75,7 @@ public class CrawlDbReducer implements Reducer {
     case CrawlDatum.STATUS_FETCH_SUCCESS:         // succesful fetch
       result = highest;                           // use new entry
       result.setStatus(CrawlDatum.STATUS_DB_FETCHED);
+      result.setNextFetchTime();
       break;
 
     case CrawlDatum.STATUS_FETCH_RETRY:           // temporary failure

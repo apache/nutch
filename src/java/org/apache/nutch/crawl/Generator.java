@@ -55,7 +55,7 @@ public class Generator extends NutchConfigured {
       if (crawlDatum.getStatus() == CrawlDatum.STATUS_DB_GONE)
         return;                                   // don't retry
 
-      if (crawlDatum.getNextFetchTime() > curTime)
+      if (crawlDatum.getFetchTime() > curTime)
         return;                                   // not time yet
 
       output.collect(crawlDatum, key);          // invert for sort by linkCount

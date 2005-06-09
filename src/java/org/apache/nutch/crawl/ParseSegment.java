@@ -35,7 +35,10 @@ public class ParseSegment
   public static final Logger LOG =
     LogFormatter.getLogger(Parser.class.getName());
 
+  public static final String SEGMENT_NAME_KEY = "nutch.segment.name";
+
   private float interval;
+  private String segmentName;
 
   private UrlNormalizer urlNormalizer = UrlNormalizerFactory.getNormalizer();
         
@@ -47,6 +50,7 @@ public class ParseSegment
 
   public void configure(JobConf job) {
     interval = job.getFloat("db.default.fetch.interval", 30f);
+    segmentName = job.get(SEGMENT_NAME_KEY);
   }
 
   public void map(WritableComparable key, Writable value,
@@ -65,6 +69,7 @@ public class ParseSegment
     }
 
     if (status.isSuccess()) {
+      parse.getData().getMetadata().setProperty(SEGMENT_NAME_KEY, segmentName);
       output.collect(key, new ParseImpl(parse.getText(), parse.getData()));
     } else {
       LOG.warning("Error parsing: "+key+": "+status.toString());
@@ -134,6 +139,9 @@ public class ParseSegment
 
   public void parse(File segment) throws IOException {
     JobConf job = new JobConf(getConf());
+
+    job.set(SEGMENT_NAME_KEY, segment.getName());
+
     job.setInputDir(new File(segment, Content.DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setInputKeyClass(UTF8.class);
