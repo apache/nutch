@@ -35,6 +35,7 @@ public class LinkDb extends NutchConfigured implements Mapper, Reducer {
 
   public static String CURRENT_NAME = "current";
 
+  private int maxAnchorLength;
 
   public LinkDb() {
     super(null);
@@ -45,7 +46,9 @@ public class LinkDb extends NutchConfigured implements Mapper, Reducer {
     super(conf);
   }
 
-  public void configure(JobConf job) {}
+  public void configure(JobConf job) {
+    maxAnchorLength = job.getInt("db.max.anchor.length", 100);
+  }
 
   public void map(WritableComparable key, Writable value,
                   OutputCollector output) throws IOException {
@@ -56,7 +59,11 @@ public class LinkDb extends NutchConfigured implements Mapper, Reducer {
     for (int i = 0; i < outlinks.length; i++) {
       Outlink outlink = outlinks[i];
       inlinks.clear();
-      inlinks.add(new Inlink(fromUrl, outlink.getAnchor()));
+      String anchor = outlink.getAnchor();        // truncate long anchors
+      if (anchor.length() > maxAnchorLength) {
+        anchor = anchor.substring(0, maxAnchorLength);
+      }
+      inlinks.add(new Inlink(fromUrl, anchor));   // collect inverted link
       output.collect(new UTF8(outlink.getToUrl()), inlinks);
     }
   }
