@@ -99,10 +99,16 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
           // Keyboard: onkeydown,onkeypress,onkeyup
           // Mouse: onclick,ondbclick,onmousedown,onmouseout,onmousover,onmouseup
           Node anode = attrs.item(i);
+          Outlink[] links = null;
           if (anode.getNodeName().startsWith("on")) {
-            Outlink[] links = getJSLinks(anode.getNodeValue(), base, base);
-            if (links != null && links.length > 0) outlinks.addAll(Arrays.asList(links));
+            links = getJSLinks(anode.getNodeValue(), base, base);
+          } else if (anode.getNodeName().equalsIgnoreCase("href")) {
+            String val = anode.getNodeValue();
+            if (val != null && val.toLowerCase().indexOf("javascript:") != -1) {
+              links = getJSLinks(val, base, base);
+            }
           }
+          if (links != null && links.length > 0) outlinks.addAll(Arrays.asList(links));
         }
       }
     }

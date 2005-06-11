@@ -567,7 +567,7 @@ public class SegmentMergeTool implements Runnable {
       LOG.severe("No input segments.");
       return;
     }
-    if (output == null) output = (File)dirs.get(0);
+    if (output == null) output = ((File)dirs.get(0)).getParentFile();
     SegmentMergeTool st = new SegmentMergeTool(nfs, (File[])dirs.toArray(new File[0]),
             output, maxCount, runIndexer, delSegs);
     st.run();
