@@ -156,7 +156,6 @@ public class JobClient implements MRConstants {
     }
 
     JobSubmissionProtocol jobSubmitClient;
-    InetSocketAddress jobTrackAddr;
     NutchFileSystem fs = null;
 
     static Random r = new Random();
@@ -165,17 +164,24 @@ public class JobClient implements MRConstants {
      * Build a job client, connect to the default job tracker
      */
     public JobClient(NutchConf conf) throws IOException {
-      this(JobTracker.getAddress(conf));
+      String tracker = conf.get("mapred.job.tracker", "local");
+      if ("local".equals(tracker)) {
+        this.jobSubmitClient = new LocalJobRunner();
+      } else {
+        this.jobSubmitClient = (JobSubmissionProtocol) 
+          RPC.getProxy(JobSubmissionProtocol.class,
+                       JobTracker.getAddress(conf));
+      }
     }
   
     /**
      * Build a job client, connect to the indicated job tracker.
      */
     public JobClient(InetSocketAddress jobTrackAddr) throws IOException {
-        this.jobTrackAddr = jobTrackAddr;
         this.jobSubmitClient = (JobSubmissionProtocol) 
             RPC.getProxy(JobSubmissionProtocol.class, jobTrackAddr);
     }
+
 
     /**
      */

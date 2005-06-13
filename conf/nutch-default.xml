@@ -347,7 +347,7 @@
 
 <property>
   <name>mapred.job.tracker</name>
-  <value>localhost:8010</value>
+  <value>local</value>
   <description>The host and port that the MapReduce job tracker runs at.
   </description>
 </property>
