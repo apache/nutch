@@ -195,9 +195,13 @@ public class Indexer extends NutchConfigured implements Reducer {
   public void index(File indexDir, File linkDb, File[] segments)
     throws IOException {
 
+    LOG.info("Indexer: starting");
+    LOG.info("Indexer: linkdb: " + linkDb);
+
     JobConf job = new JobConf(getConf());
 
     for (int i = 0; i < segments.length; i++) {
+      LOG.info("Indexer: adding segment: " + segments[i]);
       job.addInputDir(new File(segments[i], CrawlDatum.FETCH_DIR_NAME));
       job.addInputDir(new File(segments[i], ParseData.DIR_NAME));
       job.addInputDir(new File(segments[i], ParseText.DIR_NAME));
@@ -218,6 +222,7 @@ public class Indexer extends NutchConfigured implements Reducer {
     job.setOutputValueClass(ObjectWritable.class);
 
     JobClient.runJob(job);
+    LOG.info("Indexer: done");
   }
 
   public static void main(String[] args) throws Exception {

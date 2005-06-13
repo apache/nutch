@@ -84,20 +84,29 @@ public class LinkDb extends NutchConfigured implements Mapper, Reducer {
 
 
   public void invert(File linkDb, File segmentsDir) throws IOException {
+    LOG.info("LinkDb: starting");
+    LOG.info("LinkDb: linkdb: " + linkDb);
+    LOG.info("LinkDb: segments: " + segmentsDir);
+
     JobConf job = LinkDb.createJob(getConf(), linkDb);
     job.setInputDir(segmentsDir);
     job.set("mapred.input.subdir", ParseData.DIR_NAME);
     JobClient.runJob(job);
     LinkDb.install(job, linkDb);
+    LOG.info("LinkDb: done");
   }
 
   public void invert(File linkDb, File[] segments) throws IOException {
+    LOG.info("LinkDb: starting");
+    LOG.info("LinkDb: linkdb: " + linkDb);
     JobConf job = LinkDb.createJob(getConf(), linkDb);
     for (int i = 0; i < segments.length; i++) {
+      LOG.info("LinkDb: adding segment: " + segments[i]);
       job.addInputDir(new File(segments[i], ParseData.DIR_NAME));
     }
     JobClient.runJob(job);
     LinkDb.install(job, linkDb);
+    LOG.info("LinkDb: done");
   }
 
   private static JobConf createJob(NutchConf config, File linkDb) {

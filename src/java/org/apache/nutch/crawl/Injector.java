@@ -77,11 +77,16 @@ public class Injector extends NutchConfigured {
   }
 
   public void inject(File crawlDb, File urlDir) throws IOException {
+    LOG.info("Injector: starting");
+    LOG.info("Injector: crawlDb: " + crawlDb);
+    LOG.info("Injector: urlDir: " + urlDir);
+
     File tempDir =
       new File("inject-temp-"+
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     // map text input file to a <url,CrawlDatum> file
+    LOG.info("Injector: Converting injected urls to crawl db entries.");
     JobConf sortJob = new JobConf(getConf());
     sortJob.setInputDir(urlDir);
     sortJob.setMapperClass(InjectMapper.class);
@@ -94,6 +99,7 @@ public class Injector extends NutchConfigured {
     JobClient.runJob(sortJob);
 
     // merge with existing crawl db
+    LOG.info("Injector: Merging injected urls into crawl db.");
     JobConf mergeJob = CrawlDb.createJob(getConf(), crawlDb);
     mergeJob.addInputDir(tempDir);
     JobClient.runJob(mergeJob);
@@ -102,6 +108,7 @@ public class Injector extends NutchConfigured {
     // clean up
     NutchFileSystem fs = new JobClient(getConf()).getFs();
     fs.delete(tempDir);
+    LOG.info("Injector: done");
 
   }
 

@@ -34,8 +34,6 @@ public class Generator extends NutchConfigured {
   public static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.crawl.Generator");
 
-  private File dbDir;
-
   /** Selects entries due for fetch. */
   public static class Selector implements Mapper, Partitioner, Reducer {
     private long curTime;
@@ -95,13 +93,20 @@ public class Generator extends NutchConfigured {
   }
 
   /** Construct a generator. */
-  public Generator(NutchConf conf, File dbDir) {
+  public Generator(NutchConf conf) {
     super(conf);
-    this.dbDir = dbDir;
   }
 
   /** Generate fetchlists in a segment. */
-  public void generate(File segments, int numLists, long topN, long curTime)
+  public File generate(File dbDir, File segments)
+    throws IOException {
+    return generate(dbDir, segments,
+                    1, Long.MAX_VALUE, System.currentTimeMillis());
+  }
+
+  /** Generate fetchlists in a segment. */
+  public File generate(File dbDir, File segments,
+                       int numLists, long topN, long curTime)
     throws IOException {
 
     File tempDir =
@@ -111,7 +116,11 @@ public class Generator extends NutchConfigured {
     File segment = new File(segments, getDate());
     File output = new File(segment, CrawlDatum.GENERATE_DIR_NAME);
 
+    LOG.info("Generator: starting");
+    LOG.info("Generator: segment: " + segment);
+
     // map to inverted subset due for fetch, sort by link count
+    LOG.info("Generator: Selecting most-linked urls due for fetch.");
     JobConf job = new JobConf(getConf());
     
     job.setLong("crawl.gen.curTime", curTime);
@@ -133,6 +142,7 @@ public class Generator extends NutchConfigured {
     JobClient.runJob(job);
 
     // invert again, paritition by host, sort by url hash
+    LOG.info("Generator: Partitioning selected urls by host, for politeness.");
     job = new JobConf(getConf());
     
     job.setInt("partition.url.by.host.seed", new Random().nextInt());
@@ -154,6 +164,10 @@ public class Generator extends NutchConfigured {
     JobClient.runJob(job);
 
     new JobClient(getConf()).getFs().delete(tempDir);
+
+    LOG.info("Generator: done.");
+
+    return segment;
   }
 
   private static String getDate() {
@@ -189,11 +203,9 @@ public class Generator extends NutchConfigured {
       }
     }
 
-    LOG.info("Generator started");
     if (topN != Long.MAX_VALUE)
       LOG.info("topN: " + topN);
-    Generator gen = new Generator(NutchConf.get(), dbDir);
-    gen.generate(segmentsDir, numFetchers, topN, curTime);
-    LOG.info("Generator completed");
+    Generator gen = new Generator(NutchConf.get());
+    gen.generate(dbDir, segmentsDir, numFetchers, topN, curTime);
   }
 }

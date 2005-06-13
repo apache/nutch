@@ -203,10 +203,10 @@ public class JobConf extends NutchConf {
     setClass("mapred.combiner.class", theClass, Reducer.class);
   }
   
-  public int getNumMapTasks() { return getInt("mapred.map.tasks", 10); }
+  public int getNumMapTasks() { return getInt("mapred.map.tasks", 1); }
   public void setNumMapTasks(int n) { setInt("mapred.map.tasks", n); }
 
-  public int getNumReduceTasks() { return getInt("mapred.reduce.tasks", 10); }
+  public int getNumReduceTasks() { return getInt("mapred.reduce.tasks", 1); }
   public void setNumReduceTasks(int n) { setInt("mapred.reduce.tasks", n); }
 
   public Object newInstance(Class theClass) {

@@ -138,6 +138,9 @@ public class ParseSegment
   }      
 
   public void parse(File segment) throws IOException {
+    LOG.info("Parse: starting");
+    LOG.info("Parse: segment: " + segment);
+
     JobConf job = new JobConf(getConf());
 
     job.set(SEGMENT_NAME_KEY, segment.getName());
@@ -155,6 +158,7 @@ public class ParseSegment
     job.setOutputValueClass(ParseImpl.class);
 
     JobClient.runJob(job);
+    LOG.info("Parse: done");
   }
 
 

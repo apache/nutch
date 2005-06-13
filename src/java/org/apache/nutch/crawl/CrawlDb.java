@@ -40,11 +40,19 @@ public class CrawlDb extends NutchConfigured {
   }
 
   public void update(File crawlDb, File segment) throws IOException {
+    LOG.info("CrawlDb update: starting");
+    LOG.info("CrawlDb update: db: " + crawlDb);
+    LOG.info("CrawlDb update: segment: " + segment);
+
     JobConf job = CrawlDb.createJob(getConf(), crawlDb);
     job.addInputDir(new File(segment, CrawlDatum.FETCH_DIR_NAME));
     job.addInputDir(new File(segment, CrawlDatum.PARSE_DIR_NAME));
+
+    LOG.info("CrawlDb update: Merging segment data into db.");
     JobClient.runJob(job);
+
     CrawlDb.install(job, crawlDb);
+    LOG.info("CrawlDb update: done");
   }
 
   public static JobConf createJob(NutchConf config, File crawlDb) {

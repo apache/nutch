@@ -39,13 +39,6 @@ if [ $# = 0 ]; then
   echo "  index             run the indexer on parsed segments and linkdb"
   echo "  merge             merge several segment indexes"
   echo "  dedup             remove duplicates from a set of segment indexes"
-  echo "  updatesegs        update segments with link data from the db"
-  echo "  mergesegs         merge multiple segments into a single segment"
-  echo "  readdb            examine arbitrary fields of the database"
-  echo "  analyze           adjust database link-analysis scoring"
-  echo "  prune             prune segment index(es) of unwanted content"
-  echo "  segread           read, fix and dump segment data"
-  echo "  segslice          append, join and slice segment data"
   echo "  server            run a search server"
   echo "  namenode          run the NDFS namenode"
   echo "  datanode          run an NDFS datanode"
@@ -145,22 +138,6 @@ elif [ "$COMMAND" = "index" ] ; then
   CLASS=org.apache.nutch.crawl.Indexer
 elif [ "$COMMAND" = "merge" ] ; then
   CLASS=org.apache.nutch.indexer.IndexMerger
-elif [ "$COMMAND" = "dedup" ] ; then
-  CLASS=org.apache.nutch.indexer.DeleteDuplicates
-elif [ "$COMMAND" = "updatesegs" ] ; then
-  CLASS=org.apache.nutch.tools.UpdateSegmentsFromDb
-elif [ "$COMMAND" = "mergesegs" ] ; then
-  CLASS=org.apache.nutch.tools.SegmentMergeTool
-elif [ "$COMMAND" = "readdb" ] ; then
-  CLASS=org.apache.nutch.db.WebDBReader
-elif [ "$COMMAND" = "prune" ] ; then
-  CLASS=org.apache.nutch.tools.PruneIndexTool
-elif [ "$COMMAND" = "segread" ] ; then
-  CLASS=org.apache.nutch.segment.SegmentReader
-elif [ "$COMMAND" = "segslice" ] ; then
-  CLASS=org.apache.nutch.segment.SegmentSlicer
-elif [ "$COMMAND" = "analyze" ] ; then
-  CLASS=org.apache.nutch.tools.LinkAnalysisTool
 elif [ "$COMMAND" = "server" ] ; then
   CLASS='org.apache.nutch.searcher.DistributedSearch$Server'
 elif [ "$COMMAND" = "namenode" ] ; then

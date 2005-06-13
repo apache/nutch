@@ -224,6 +224,11 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
   public void fetch(File segment, int threads)
     throws IOException {
 
+    LOG.info("Fetcher: starting");
+    LOG.info("Fetcher: segment: " + segment);
+    LOG.info("Fetcher: threads: " + threads);
+
+
     JobConf job = new JobConf(getConf());
 
     job.setInt("fetcher.threads.fetch", threads);
@@ -239,7 +244,9 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
     job.setOutputFormat(FetcherOutputFormat.class);
     job.setOutputKeyClass(UTF8.class);
     job.setOutputValueClass(FetcherOutput.class);
+
     JobClient.runJob(job);
+    LOG.info("Fetcher: done");
   }
 
 

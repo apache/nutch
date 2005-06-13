@@ -45,6 +45,8 @@ public abstract class NutchFileSystem {
      * Parse the cmd-line args, starting at i.  Remove consumed args
      * from array.  We expect param in the form:
      * '-local | -ndfs <namenode:port>'
+     *
+     * @deprecated use fs.default.name config option instead
      */
     public static NutchFileSystem parseArgs(String argv[], int i) throws IOException {
         /**
@@ -77,7 +79,12 @@ public abstract class NutchFileSystem {
 
     /** Returns the default filesystem implementation.*/
     public static NutchFileSystem get() throws IOException {
-      return getNamed(NutchConf.get().get("fs.default.name", "local"));
+      return get(NutchConf.get());
+    }
+
+    /** Returns the configured filesystem implementation.*/
+    public static NutchFileSystem get(NutchConf conf) throws IOException {
+      return getNamed(conf.get("fs.default.name", "local"));
     }
 
     /** Returns a name for this filesystem, suitable to pass to {@link

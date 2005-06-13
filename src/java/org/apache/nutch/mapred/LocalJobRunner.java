@@ -34,8 +34,8 @@ public class LocalJobRunner implements JobSubmissionProtocol {
     private String id;
     private JobConf job;
 
-    private boolean mapping = true;
     private JobStatus status = new JobStatus();
+    private ArrayList mapIds = new ArrayList();
 
     public Job(String file) throws IOException {
       this.file = file;
@@ -59,23 +59,26 @@ public class LocalJobRunner implements JobSubmissionProtocol {
         FileSplit[] splits = job.getInputFormat().getSplits(fs, job, 1);
 
         // run a map task for each split
-        String mapIds[] = new String[splits.length];
-        for (int i = 0; i < mapIds.length; i++) {
-          mapIds[i] = "map_" + newId();
-          MapTask map = new MapTask(file, mapIds[i], splits[i]);
+        for (int i = 0; i < splits.length; i++) {
+          mapIds.add("map_" + newId());
+          MapTask map = new MapTask(file, (String)mapIds.get(i), splits[i]);
           map.run(job, this);
         }
 
         // move map output to reduce input
         String reduceId = "_" + newId();
-        for (int i = 0; i < mapIds.length; i++) {
-          fs.rename(MapOutputFile.getOutputFile(mapIds[i], 0),
-                    MapOutputFile.getInputFile(mapIds[i], reduceId));
-          MapOutputFile.removeAll(mapIds[i]);
+        for (int i = 0; i < mapIds.size(); i++) {
+          String mapId = (String)mapIds.get(i);
+          fs.rename(MapOutputFile.getOutputFile(mapId, 0),
+                    MapOutputFile.getInputFile(mapId, reduceId));
+          MapOutputFile.removeAll(mapId);
         }
 
         // run a single reduce task
-        ReduceTask reduce = new ReduceTask(file, reduceId, mapIds, 0);
+        ReduceTask reduce =
+          new ReduceTask(file, reduceId,
+                         (String[])mapIds.toArray(new String[0]),
+                         0);
         reduce.run(job, this);
         MapOutputFile.removeAll(reduceId);
         
@@ -95,15 +98,24 @@ public class LocalJobRunner implements JobSubmissionProtocol {
 
     public Task getTask(String taskid) { return null; }
 
-    public void progress(String taskid, FloatWritable progress) {
-      if (mapping) {
-        status.mapProgress = progress.get();
+    public void progress(String taskId, FloatWritable progress) {
+      float taskIndex = mapIds.indexOf(taskId);
+      if (taskIndex >= 0) {                       // mapping
+        float numTasks = mapIds.size();
+        status.mapProgress = (taskIndex/numTasks)+(progress.get()/numTasks);
       } else {
         status.reduceProgress = progress.get();
       }
     }
 
-    public void done(String taskid) throws IOException {}
+    public void done(String taskId) throws IOException {
+      int taskIndex = mapIds.indexOf(taskId);
+      if (taskIndex >= 0) {                       // mapping
+        status.mapProgress = 1.0f;
+      } else {
+        status.reduceProgress = 1.0f;
+      }
+    }
 
 
   }

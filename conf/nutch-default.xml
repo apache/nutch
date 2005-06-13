@@ -348,17 +348,45 @@
 <property>
   <name>mapred.job.tracker</name>
   <value>local</value>
-  <description>The host and port that the MapReduce job tracker runs at.
+  <description>The host and port that the MapReduce job tracker runs
+  at.  If "local", then jobs are run in-process as a single map
+  and reduce task.
   </description>
 </property>
 
 <property>
   <name>mapred.local.dir</name>
   <value>/tmp/nutch/mapred/local</value>
-  <description>The local directory where MapReduce stores temprorary files
-      related to tasks and jobs.
+  <description>The local directory where MapReduce stores intermediate
+  data files.
   </description>
 </property>
+
+<property>
+  <name>mapred.system.dir</name>
+  <value>/tmp/nutch/mapred/system</value>
+  <description>The local directory where MapReduce stores control files.
+  </description>
+</property>
+
+<property>
+  <name>mapred.map.tasks</name>
+  <value>1</value>
+  <description>The default number of map tasks per job.  Typically set
+  to a multiple of the number of available hosts.  Ignored when
+  mapred.job.tracker is "local".
+  </description>
+</property>
+
+<property>
+  <name>mapred.reduce.tasks</name>
+  <value>1</value>
+  <description>The default number of reduce tasks per job.  Typically set
+  to a multiple of the number of available hosts.  Ignored when
+  mapred.job.tracker is "local".
+  </description>
+</property>
+
 
 <!-- indexer properties -->
 
