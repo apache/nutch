@@ -63,6 +63,11 @@ public interface RunningJob {
     public boolean isComplete() throws IOException;
 
     /**
+     * True iff job completed successfully.
+     */
+    public boolean isSuccessful() throws IOException;
+
+    /**
      * Blocks until the job is complete.
      */
     public void waitForCompletion() throws IOException;

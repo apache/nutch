@@ -121,6 +121,14 @@ public class JobClient implements MRConstants {
         }
 
         /**
+         * True iff job completed successfully.
+         */
+        public synchronized boolean isSuccessful() throws IOException {
+            ensureFreshStatus();
+            return status.getRunState() == JobStatus.SUCCEEDED;
+        }
+
+        /**
          * Blocks until the job is finished
          */
         public synchronized void waitForCompletion() throws IOException {
@@ -292,6 +300,9 @@ public class JobClient implements MRConstants {
             LOG.info(" reduce "+Math.round(running.reduceProgress()*100)
                      +"% complete");
           }
+        }
+        if (!running.isSuccessful()) {
+          throw new IOException("Job failed!");
         }
         LOG.info("Job complete: " + jobId);
         error = false;
