@@ -64,6 +64,25 @@ public class ParseStatus implements Writable {
   public static final ParseStatus STATUS_SUCCESS = new ParseStatus(SUCCESS);
   public static final ParseStatus STATUS_FAILURE = new ParseStatus(FAILED);
   
+
+  private static class EmptyParseImpl implements Parse {
+  
+    private ParseData data = null;
+  
+    public EmptyParseImpl(ParseStatus status) {
+      data = new ParseData(status, "", new Outlink[0], new Properties());
+    }
+  
+    public ParseData getData() {
+      return data;
+    }
+
+    public String getText() {
+      return "";
+    }
+  }
+
+
   private byte majorCode = 0;
   private short minorCode = 0;
   private String[] args = null;
@@ -212,23 +231,6 @@ public class ParseStatus implements Writable {
       }
     }
     return true;
-  }
-}
-
-class EmptyParseImpl implements Parse {
-  
-  private ParseData data = null;
-  
-  public EmptyParseImpl(ParseStatus status) {
-    data = new ParseData(status, "", new Outlink[0], new Properties());
-  }
-  
-  public ParseData getData() {
-    return data;
-  }
-
-  public String getText() {
-    return "";
   }
 }
 
