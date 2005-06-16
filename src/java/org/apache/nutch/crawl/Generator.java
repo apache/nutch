@@ -101,7 +101,7 @@ public class Generator extends NutchConfigured {
   public File generate(File dbDir, File segments)
     throws IOException {
     return generate(dbDir, segments,
-                    1, Long.MAX_VALUE, System.currentTimeMillis());
+                    -1, Long.MAX_VALUE, System.currentTimeMillis());
   }
 
   /** Generate fetchlists in a segment. */
@@ -123,6 +123,10 @@ public class Generator extends NutchConfigured {
     LOG.info("Generator: Selecting most-linked urls due for fetch.");
     JobConf job = new JobConf(getConf());
     
+    if (numLists == -1) {                         // for politeness make
+      numLists = job.getNumMapTasks();            // a partition per fetch task
+    }
+
     job.setLong("crawl.gen.curTime", curTime);
     job.setLong("crawl.gen.limit", topN / job.getNumReduceTasks());
 

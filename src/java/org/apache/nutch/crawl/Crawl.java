@@ -43,7 +43,8 @@ public class Crawl {
   /* Perform complete crawling and indexing given a set of root urls. */
   public static void main(String args[]) throws Exception {
     if (args.length < 1) {
-      System.out.println("Usage: Crawl <urlDir> [-dir d] [-threads n] [-depth i]");
+      System.out.println
+        ("Usage: Crawl <urlDir> [-dir d] [-threads n] [-depth i] [-topN N]");
       return;
     }
 
@@ -54,6 +55,7 @@ public class Crawl {
     File dir = new File("crawl-" + getDate());
     int threads = conf.getInt("fetcher.threads.fetch", 10);
     int depth = 5;
+    int topN = Integer.MAX_VALUE;
 
     for (int i = 0; i < args.length; i++) {
       if ("-dir".equals(args[i])) {
@@ -64,6 +66,9 @@ public class Crawl {
         i++;
       } else if ("-depth".equals(args[i])) {
         depth = Integer.parseInt(args[i+1]);
+        i++;
+      } else if ("-topN".equals(args[i])) {
+        topN = Integer.parseInt(args[i+1]);
         i++;
       } else if (args[i] != null) {
         rootUrlFile = new File(args[i]);
@@ -80,6 +85,9 @@ public class Crawl {
     LOG.info("threads = " + threads);
     LOG.info("depth = " + depth);
 
+    if (topN != Integer.MAX_VALUE)
+      LOG.info("topN = " + depth);
+
     File crawlDb = new File(dir + "/crawldb");
     File linkDb = new File(dir + "/linkdb");
     File segments = new File(dir + "/segments");
@@ -89,7 +97,9 @@ public class Crawl {
     new Injector(conf).inject(crawlDb, rootUrlFile);
       
     for (int i = 0; i < depth; i++) {             // generate new segment
-      File segment = new Generator(conf).generate(crawlDb, segments);
+      File segment =
+        new Generator(conf).generate(crawlDb, segments, -1,
+                                     topN, System.currentTimeMillis());
       new Fetcher(conf).fetch(segment, threads);  // fetch it
       new ParseSegment(conf).parse(segment);      // parse it
       new CrawlDb(conf).update(crawlDb, segment); // update crawldb
