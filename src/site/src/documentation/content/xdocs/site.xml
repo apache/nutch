@@ -20,6 +20,7 @@ See http://forrest.apache.org/docs/linking.html for more info.
     <news        label="News"             href="index.html" />    
     <about       label="About"            href="about.html" />    
     <credits     label="Credits"          href="credits.html" />    
+    <store       label="Buy Stuff"        href="ext:store" />    
   </project>
 
   <docs label="Documentation">    
@@ -39,13 +40,13 @@ See http://forrest.apache.org/docs/linking.html for more info.
   </resources>
 
   <projects label="Related Projects">
-    <lucene     label="Lucene"      href="ext:lucene" />
+    <lucene     label="Lucene Java"      href="ext:lucene" />
   </projects>
 
   <external-refs>
-    <lucene    href="http://lucene.apache.org/" />
+    <lucene    href="http://lucene.apache.org/java/" />
     <wiki      href="http://wiki.apache.org/nutch/" />
-    <lucene    href="http://jakarta.apache.org/lucene/" />
+    <store     href="http://www.cafepress.com/nutch/" />
   </external-refs>
  
 </site>

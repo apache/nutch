@@ -26,6 +26,11 @@
     <path refid="classpath"/>
   </path>
 
+  <!-- xmlcatalog definition for xslt task -->
+  <xmlcatalog id="docDTDs">
+     <dtd publicId="-//W3C//DTD XHTML 1.0 Transitional//EN"            
+          location="${xmlcatalog.dir}/xhtml1-transitional.dtd"/> 
+  </xmlcatalog> 
 
   <!-- ====================================================== -->
   <!-- Stuff needed by all targets                            -->
@@ -249,7 +254,9 @@
     <mkdir dir="${build.docs}/${doc.locale}/include"/>
     <xslt in="${docs.src}/include/${doc.locale}/header.xml"
           out="${build.docs}/${doc.locale}/include/header.html"
-          style="${docs.src}/style/nutch-header.xsl"/>
+          style="${docs.src}/style/nutch-header.xsl">
+        <xmlcatalog refid="docDTDs"/>
+    </xslt>
 
     <dependset>
        <srcfileset dir="${docs.src}/include/${doc.locale}" includes="*.xml"/>
@@ -264,7 +271,9 @@
     <xslt basedir="${docs.src}/pages/${doc.locale}"
           destdir="${docs.dir}/${doc.locale}"
           includes="*.xml"
-          style="${build.docs}/${doc.locale}/nutch-page.xsl"/>
+          style="${build.docs}/${doc.locale}/nutch-page.xsl">
+         <xmlcatalog refid="docDTDs"/>
+    </xslt>
   </target>
 
 
@@ -323,7 +332,7 @@
       <param name="doc.locale" value="pl"/>
     </antcall>
 
-  	<antcall target="generate-locale">
+    <antcall target="generate-locale">
       <param name="doc.locale" value="pt"/>
     </antcall>
 
@@ -377,10 +386,9 @@
       <fileset dir="${conf.dir}" excludes="**/*.template"/>
     </copy>
 
-    <apply executable="chmod">
-      <arg value="+x"/>
-      <fileset dir="${dist.dir}/bin"/>
-    </apply>
+    <chmod perm="ugo+x" type="file">
+        <fileset dir="${dist.dir}/bin"/>
+    </chmod>
 
     <copy todir="${dist.dir}/docs">
       <fileset dir="${docs.dir}"/>
@@ -409,11 +417,12 @@
   <!-- Make release tarball                                               -->
   <!-- ================================================================== -->
   <target name="tar" depends="package">
-    <exec executable="tar" dir="${build.dir}">
-      <arg value="czf"/>
-      <arg value="${final.name}.tar.gz"/>
-      <arg value="${final.name}"/>
-    </exec>
+    <tar compression="gzip" longfile="gnu"
+      destfile="${build.dir}/${final.name}.tar.gz">
+      <tarfileset dir="${build.dir}">
+        <include name="${final.name}/**" />
+      </tarfileset>
+    </tar>
   </target>
 
   <!-- ================================================================== -->

@@ -20,7 +20,7 @@
     |breadtrail
     +-->
 <div class="breadtrail">
-<a href="http://lucene.apache.org/">Lucene</a> &gt; <a href="http://lucene.apache.org/nutch/">Nutch</a><script src="skin/breadcrumbs.js" language="JavaScript" type="text/javascript"></script>
+<a href="http://www.apache.org/">Apache</a> &gt; <a href="http://lucene.apache.org/">Lucene</a> &gt; <a href="http://lucene.apache.org/nutch/">Nutch</a><script src="skin/breadcrumbs.js" language="JavaScript" type="text/javascript"></script>
 </div>
 <!--+
     |header
@@ -38,11 +38,23 @@
 <!--+
     |start Project Logo
     +-->
-<div class="projectlogoA1">
+<div class="projectlogo">
 <a href="http://lucene.apache.org/nutch/"><img class="logoImage" alt="Nutch" src="images/nutch-logo.gif" title="Open Source Web Search Software"></a>
 </div>
 <!--+
     |end Project Logo
+    +-->
+<!--+
+    |start Search
+    +-->
+<div class="searchbox">
+<form action="http://www.google.com/search" method="get" class="roundtopsmall">
+<input value="lucene.apache.org" name="sitesearch" type="hidden"><input onFocus="getBlank (this, 'Search the site with google:');" value="Search the site with google:" size="25" name="q" id="query" type="text">&nbsp; 
+                    <input name="Search" value="Search" type="submit">
+</form>
+</div>
+<!--+
+    |end search
     +-->
 <!--+
     |start Tabs
@@ -98,6 +110,9 @@
 <div class="menupage">
 <div class="menupagetitle">Credits</div>
 </div>
+<div class="menuitem">
+<a title="" href="http://www.cafepress.com/nutch/">Buy Stuff</a>
+</div>
 </div>
 <div onclick="SwitchMenu('menu_1.2', 'skin/')" id="menu_1.2Title" class="menutitle">Documentation</div>
 <div id="menu_1.2" class="menuitemgroup">
@@ -138,7 +153,7 @@
 <div onclick="SwitchMenu('menu_1.4', 'skin/')" id="menu_1.4Title" class="menutitle">Related Projects</div>
 <div id="menu_1.4" class="menuitemgroup">
 <div class="menuitem">
-<a title="" href="http://lucene.apache.org/">Lucene</a>
+<a title="" href="http://lucene.apache.org/java/">Lucene Java</a>
 </div>
 </div>
 <div id="credit"></div>

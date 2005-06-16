@@ -20,14 +20,16 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import org.apache.nutch.io.Writable;
+import org.apache.nutch.io.VersionedWritable;
 import org.apache.nutch.io.WritableUtils;
 import org.apache.nutch.parse.ParseStatus;
 
 /**
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
-public class ProtocolStatus implements Writable {
+public class ProtocolStatus extends VersionedWritable {
+  
+  private final static byte VERSION = 1;
   
   /** Content was retrieved without errors. */
   public static final int SUCCESS              = 1;
@@ -43,7 +45,7 @@ public class ProtocolStatus implements Writable {
   /** Resource has moved temporarily. New url should be found in args. */
   public static final int TEMP_MOVED           = 13;
   /** Resource was not found. */
-  public static final int NOT_FOUND            = 14;
+  public static final int NOTFOUND            = 14;
   /** Temporary failure. Application may retry immediately. */
   public static final int RETRY                = 15;
   /** Unspecified exception occured. Further information may be provided in args. */
@@ -53,23 +55,34 @@ public class ProtocolStatus implements Writable {
   /** Access denied by robots.txt rules. */
   public static final int ROBOTS_DENIED        = 18;
   /** Too many redirects. */
-  public static final int REDIR_EXCEED         = 19;
+  public static final int REDIR_EXCEEDED         = 19;
   /** Not fetching. */
   public static final int NOTFETCHING          = 20;
   /** Unchanged since the last fetch. */
   public static final int NOTMODIFIED          = 21;
   
-  
+  // Useful static instances for status codes that don't usually require any
+  // additional arguments.
   public static final ProtocolStatus STATUS_SUCCESS = new ProtocolStatus(SUCCESS);
-  public static final ProtocolStatus STATUS_NOTFETCHING = new ProtocolStatus(NOTFETCHING);
   public static final ProtocolStatus STATUS_FAILED = new ProtocolStatus(FAILED);
+  public static final ProtocolStatus STATUS_GONE = new ProtocolStatus(GONE);
+  public static final ProtocolStatus STATUS_NOTFOUND = new ProtocolStatus(NOTFOUND);
+  public static final ProtocolStatus STATUS_RETRY = new ProtocolStatus(RETRY);
+  public static final ProtocolStatus STATUS_ROBOTS_DENIED = new ProtocolStatus(ROBOTS_DENIED);
+  public static final ProtocolStatus STATUS_REDIR_EXCEEDED = new ProtocolStatus(REDIR_EXCEEDED);
+  public static final ProtocolStatus STATUS_NOTFETCHING = new ProtocolStatus(NOTFETCHING);
   public static final ProtocolStatus STATUS_NOTMODIFIED = new ProtocolStatus(NOTMODIFIED);
   
   private int code;
+  private long lastModified;
   private String[] args;
   
-  protected ProtocolStatus() {
+  public ProtocolStatus() {
     
+  }
+
+  public byte getVersion() {
+    return VERSION;
   }
 
   public ProtocolStatus(int code, String[] args) {
@@ -77,13 +90,28 @@ public class ProtocolStatus implements Writable {
     this.args = args;
   }
   
+  public ProtocolStatus(int code, String[] args, long lastModified) {
+    this.code = code;
+    this.args = args;
+    this.lastModified = lastModified;
+  }
+  
   public ProtocolStatus(int code) {
     this(code, null);
   }
   
+  public ProtocolStatus(int code, long lastModified) {
+    this(code, null, lastModified);
+  }
+  
   public ProtocolStatus(int code, Object message) {
+    this(code, message, 0L);
+  }
+  
+  public ProtocolStatus(int code, Object message, long lastModified) {
     this.code = code;
-    this.args = new String[]{String.valueOf(message)};
+    this.lastModified = lastModified;
+    if (message != null) this.args = new String[]{String.valueOf(message)};
   }
   
   public ProtocolStatus(Throwable t) {
@@ -97,15 +125,23 @@ public class ProtocolStatus implements Writable {
   }
   
   public void readFields(DataInput in) throws IOException {
+    super.readFields(in);       // check version
     code = in.readByte();
+    lastModified = in.readLong();
     args = WritableUtils.readCompressedStringArray(in);
   }
   
   public void write(DataOutput out) throws IOException {
+    super.write(out);           // write version
     out.writeByte((byte)code);
+    out.writeLong(lastModified);
     WritableUtils.writeCompressedStringArray(out, args);
   }
 
+  public void setArgs(String[] args) {
+    this.args = args;
+  }
+  
   public String[] getArgs() {
     return args;
   }
@@ -114,8 +150,31 @@ public class ProtocolStatus implements Writable {
     return code;
   }
   
+  public void setCode(int code) {
+    this.code = code;
+  }
+  
   public boolean isSuccess() {
     return code == SUCCESS; 
+  }
+  
+  public boolean isTransientFailure() {
+    return
+        code == ACCESS_DENIED ||
+        code == EXCEPTION ||
+        code == REDIR_EXCEEDED ||
+        code == RETRY ||
+        code == TEMP_MOVED ||
+        code == PROTO_NOT_FOUND; 
+  }
+  
+  public boolean isPermanentFailure() {
+    return
+        code == FAILED ||
+        code == GONE ||
+        code == MOVED ||
+        code == NOTFOUND ||
+        code == ROBOTS_DENIED;
   }
   
   public String getMessage() {
@@ -123,11 +182,24 @@ public class ProtocolStatus implements Writable {
     return null;
   }
   
+  public void setMessage(String msg) {
+    if (args != null && args.length > 0) args[0] = msg;
+    else args = new String[] {msg};
+  }
+  
+  public long getLastModified() {
+    return lastModified;
+  }
+  
+  public void setLastModified(long lastModified) {
+    this.lastModified = lastModified;
+  }
+  
   public boolean equals(Object o) {
     if (o == null) return false;
     if (!(o instanceof ProtocolStatus)) return false;
     ProtocolStatus other = (ProtocolStatus)o;
-    if (this.code != other.code) return false;
+    if (this.code != other.code || this.lastModified != other.lastModified) return false;
     if (this.args == null) {
       if (other.args == null) return true;
       else return false;
@@ -143,7 +215,7 @@ public class ProtocolStatus implements Writable {
   
   public String toString() {
     StringBuffer res = new StringBuffer();
-    res.append("(" + code + ")");
+    res.append("(" + code + "), lastModified=" + lastModified);
     if (args != null) {
       if (args.length == 1) {
         res.append(": " + String.valueOf(args[0]));

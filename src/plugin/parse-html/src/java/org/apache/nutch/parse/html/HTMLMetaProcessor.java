@@ -133,8 +133,12 @@ public class HTMLMetaProcessor {
                   try {
                     refreshUrl = new URL(url);
                   } catch (Exception e) {
-                    // this has to be an absolute url!
-                    if (!url.startsWith("/")) url = "/" + url;
+                    // XXX according to the spec, this has to be an absolute
+                    // XXX url. However, many websites use relative URLs and
+                    // XXX expect browsers to handle that.
+                    // XXX Unfortunately, in some cases this may create a
+                    // XXX infinitely recursive paths (a crawler trap)...
+                    // if (!url.startsWith("/")) url = "/" + url;
                     try {
                       refreshUrl = new URL(currURL, url);
                     } catch (Exception e1) {

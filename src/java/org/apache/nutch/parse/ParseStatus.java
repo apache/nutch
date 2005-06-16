@@ -10,13 +10,15 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Properties;
 
-import org.apache.nutch.io.Writable;
+import org.apache.nutch.io.VersionedWritable;
 import org.apache.nutch.io.WritableUtils;
 
 /**
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
-public class ParseStatus implements Writable {
+public class ParseStatus extends VersionedWritable {
+  
+  private final static byte VERSION = 1;
   
   // Primary status codes:
   
@@ -87,7 +89,11 @@ public class ParseStatus implements Writable {
   private short minorCode = 0;
   private String[] args = null;
   
-  protected ParseStatus() {
+  public byte getVersion() {
+    return VERSION;
+  }
+
+  public ParseStatus() {
     
   }
   
@@ -130,12 +136,14 @@ public class ParseStatus implements Writable {
   }
   
   public void readFields(DataInput in) throws IOException {
+    super.readFields(in);     // check version
     majorCode = in.readByte();
     minorCode = in.readShort();
     args = WritableUtils.readCompressedStringArray(in);
   }
   
   public void write(DataOutput out) throws IOException {
+    super.write(out);         // write out version
     out.writeByte(majorCode);
     out.writeShort(minorCode);
     WritableUtils.writeCompressedStringArray(out, args);

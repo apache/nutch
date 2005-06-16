@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 
 import org.apache.commons.httpclient.Cookie;
 import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
@@ -247,7 +248,7 @@ public class Http implements org.apache.nutch.protocol.Protocol {
         } else if (code == 401) { // requires authorization
           LOG.fine("401 Authentication Required");
           if (redirects == MAX_REDIRECTS)
-                  return new ProtocolOutput(null, new ProtocolStatus(ProtocolStatus.REDIR_EXCEED,
+                  return new ProtocolOutput(null, new ProtocolStatus(ProtocolStatus.REDIR_EXCEEDED,
                           "Too many redirects: " + urlString));
           Properties p = response.toContent().getMetadata();
           if (p instanceof MultiProperties) {
@@ -258,7 +259,7 @@ public class Http implements org.apache.nutch.protocol.Protocol {
           }
           redirects++;
         } else if (code == 404) {
-          return new ProtocolOutput(null, new ProtocolStatus(ProtocolStatus.NOT_FOUND, url));
+          return new ProtocolOutput(null, new ProtocolStatus(ProtocolStatus.NOTFOUND, url));
         } else if (code == 410) { // permanently GONE
           return new ProtocolOutput(null, new ProtocolStatus(ProtocolStatus.GONE, url));
         } else {
@@ -382,11 +383,10 @@ public class Http implements org.apache.nutch.protocol.Protocol {
     params.setSoTimeout(TIMEOUT);
     params.setSendBufferSize(BUFFER_SIZE);
     params.setReceiveBufferSize(BUFFER_SIZE);
-    /*
-     * HostConfiguration hostConf = client.getHostConfiguration(); if (PROXY) {
-     * hostConf.setProxy(PROXY_HOST, PROXY_PORT); }
-     *  
-     */
+    HostConfiguration hostConf = client.getHostConfiguration();
+    if (PROXY) {
+      hostConf.setProxy(PROXY_HOST, PROXY_PORT);
+    }
     if (NTLM_USERNAME.length() > 0) {
       Credentials ntCreds = new NTCredentials(NTLM_USERNAME, NTLM_PASSWORD, NTLM_HOST, NTLM_DOMAIN);
       client.getState().setCredentials(null, null, ntCreds);

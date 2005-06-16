@@ -96,7 +96,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
                 if (url != null) {
                   redirecting = true;
                   redirectCount++;
-                  LOG.info(" - protocol redirect to " + url);
+                  LOG.fine(" - protocol redirect to " + url);
                 }
                 break;
 
@@ -106,7 +106,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
                 break;
                 
               case ProtocolStatus.GONE:           // gone
-              case ProtocolStatus.NOT_FOUND:
+              case ProtocolStatus.NOTFOUND:
               case ProtocolStatus.ACCESS_DENIED:
               case ProtocolStatus.ROBOTS_DENIED:
               case ProtocolStatus.NOTMODIFIED:

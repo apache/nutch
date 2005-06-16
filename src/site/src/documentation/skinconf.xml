@@ -29,8 +29,8 @@ which will be used to configure the chosen Forrest skin.
     no search box. @domain will enable sitesearch for the specific domain with google.
     In other words google will search the @domain for the query string.
 
-  <search name="MyProject" domain="mydomain" provider="google"/>
   -->
+  <search name="Lucene" domain="lucene.apache.org" provider="google"/>
 
   <!-- Disable the print link? If enabled, invalid HTML 4.0.1 -->
   <disable-print-link>true</disable-print-link>  
@@ -96,9 +96,9 @@ which will be used to configure the chosen Forrest skin.
     For some skins just set the attributes to blank.
   -->
   <trail>
-    <link1 name="Lucene" href="http://lucene.apache.org/"/>
-    <link2 name="Nutch" href="http://lucene.apache.org/nutch/"/>
-    <link3 name="" href=""/>
+    <link1 name="Apache" href="http://www.apache.org/"/>
+    <link2 name="Lucene" href="http://lucene.apache.org/"/>
+    <link3 name="Nutch" href="http://lucene.apache.org/nutch/"/>
   </trail>
 
   <!-- Configure the TOC, i.e. the Table of Contents.
