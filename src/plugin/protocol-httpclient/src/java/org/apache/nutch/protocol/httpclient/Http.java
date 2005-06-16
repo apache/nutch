@@ -38,7 +38,12 @@ public class Http implements org.apache.nutch.protocol.Protocol {
   public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.net.Http");
 
   static {
-    if (NutchConf.get().getBoolean("http.verbose", false)) LOG.setLevel(Level.FINE);
+    if (NutchConf.get().getBoolean("http.verbose", false)) {
+      LOG.setLevel(Level.FINE);
+    } else {                                      // shush about redirects
+      Logger.getLogger("org.apache.commons.httpclient.HttpMethodDirector")
+        .setLevel(Level.WARNING);
+    }
   }
 
   static final int BUFFER_SIZE = 8 * 1024;
