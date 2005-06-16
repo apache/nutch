@@ -167,7 +167,7 @@ public class HtmlParser implements Parser {
       
     // get meta directives
     HTMLMetaProcessor.getMetaTags(metaTags, root, base);
-    LOG.info("Meta tags for " + base + ": " + metaTags.toString());
+    LOG.fine("Meta tags for " + base + ": " + metaTags.toString());
     // check meta directives
     if (!metaTags.getNoIndex()) {               // okay to index
       StringBuffer sb = new StringBuffer();
