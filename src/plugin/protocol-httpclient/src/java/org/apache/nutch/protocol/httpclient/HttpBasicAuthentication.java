@@ -57,7 +57,7 @@ public class HttpBasicAuthentication implements HttpAuthentication {
         
         String username = NutchConf.get().get("http.auth.basic." + challenge + ".user");
         LOG.fine("BasicAuthentication username=" + username);
-        String password = NutchConf.get().get("http.auth.basic." + challenge + ".user");
+        String password = NutchConf.get().get("http.auth.basic." + challenge + ".password");
         LOG.fine("BasicAuthentication password=" + password);
         
         if (username == null) {
