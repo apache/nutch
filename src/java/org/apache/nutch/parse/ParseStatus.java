@@ -168,7 +168,10 @@ public class ParseStatus extends VersionedWritable {
   
   public String toString() {
     StringBuffer res = new StringBuffer();
-    res.append(majorCodes[majorCode] + "(" + majorCode + "," + minorCode + ")");
+    String name = null;
+    if (majorCode >= 0 && majorCode < majorCodes.length) name = majorCodes[majorCode];
+    else name = "UNKNOWN!";
+    res.append(name + "(" + majorCode + "," + minorCode + ")");
     if (args != null) {
       if (args.length == 1) {
         res.append(": " + String.valueOf(args[0]));
@@ -221,22 +224,22 @@ public class ParseStatus extends VersionedWritable {
     }
     return true;
   }
-}
+  
+  private static class EmptyParseImpl implements Parse {
+    
+    private ParseData data = null;
+    
+    public EmptyParseImpl(ParseStatus status) {
+      data = new ParseData(status, "", new Outlink[0], new Properties());
+    }
+    
+    public ParseData getData() {
+      return data;
+    }
 
-class EmptyParseImpl implements Parse {
-  
-  private ParseData data = null;
-  
-  public EmptyParseImpl(ParseStatus status) {
-    data = new ParseData(status, "", new Outlink[0], new Properties());
-  }
-  
-  public ParseData getData() {
-    return data;
-  }
-
-  public String getText() {
-    return "";
+    public String getText() {
+      return "";
+    }
   }
 }
 

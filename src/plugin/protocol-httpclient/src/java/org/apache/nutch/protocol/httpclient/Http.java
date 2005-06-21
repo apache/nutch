@@ -216,15 +216,20 @@ public class Http implements org.apache.nutch.protocol.Protocol {
         }
 
         int code = response.getCode();
+        Content c = response.toContent();
 
         if (code == 200) { // got a good response
-          return new ProtocolOutput(response.toContent()); // return it
+          return new ProtocolOutput(c); // return it
 
         } else if (code == 410) { // page is gone
-          return new ProtocolOutput(null, new ProtocolStatus(ProtocolStatus.GONE, "Http: " + code + " url=" + url));
+          return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.GONE, "Http: " + code + " url=" + url));
 
         } else if (code >= 300 && code < 400) { // handle redirect
-          url = new URL(url, response.getHeader("Location"));
+          String location = response.getHeader("Location");
+          // some broken servers, such as MS IIS, use lowercase header name...
+          if (location == null) location = response.getHeader("location");
+          if (location == null) location = "";
+          url = new URL(url, location);
           int protocolStatusCode;
           switch (code) {
             case 300:   // multiple choices, preferred value in Location
@@ -246,29 +251,29 @@ public class Http implements org.apache.nutch.protocol.Protocol {
               protocolStatusCode = ProtocolStatus.MOVED;
           }
           // handle this in the higher layer.
-          return new ProtocolOutput(null, new ProtocolStatus(protocolStatusCode, url));
+          return new ProtocolOutput(c, new ProtocolStatus(protocolStatusCode, url));
         } else if (code == 400) { // bad request, mark as GONE
           LOG.fine("400 Bad request: " + url);
-          return new ProtocolOutput(null, new ProtocolStatus(ProtocolStatus.GONE, url));
+          return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.GONE, url));
         } else if (code == 401) { // requires authorization
           LOG.fine("401 Authentication Required");
           if (redirects == MAX_REDIRECTS)
-                  return new ProtocolOutput(null, new ProtocolStatus(ProtocolStatus.REDIR_EXCEEDED,
+                  return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.REDIR_EXCEEDED,
                           "Too many redirects: " + urlString));
-          Properties p = response.toContent().getMetadata();
+          Properties p = c.getMetadata();
           if (p instanceof MultiProperties) {
             auth = HttpAuthenticationFactory.findAuthentication((MultiProperties) p);
           } else {
-            return new ProtocolOutput(null, new ProtocolStatus(ProtocolStatus.ACCESS_DENIED, "Authorization required: "
+            return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.ACCESS_DENIED, "Authorization required: "
                     + urlString));
           }
           redirects++;
         } else if (code == 404) {
-          return new ProtocolOutput(null, new ProtocolStatus(ProtocolStatus.NOTFOUND, url));
+          return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.NOTFOUND, url));
         } else if (code == 410) { // permanently GONE
-          return new ProtocolOutput(null, new ProtocolStatus(ProtocolStatus.GONE, url));
+          return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.GONE, url));
         } else {
-          return new ProtocolOutput(null, new ProtocolStatus(ProtocolStatus.EXCEPTION, "Http code=" + code + ", url="
+          return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.EXCEPTION, "Http code=" + code + ", url="
                   + url));
         }
       }
