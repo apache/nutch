@@ -183,31 +183,22 @@ public class ParseSegment {
             continue;
           }
 
-          // if fetch was successful or
-          // previously unable to parse (so try again)
-          ProtocolStatus ps = fetcherOutput.getProtocolStatus();
-          if (ps.isSuccess()) {
-            handleContent(url, content);
-            synchronized (ParseSegment.this) {
-              pages++;                    // record successful parse
-              bytes += content.getContent().length;
-              if ((pages % 100) == 0)
-                status();
-            }
-          } else {
-            // errored at fetch step
-            logError(url, new ProtocolException("Error at fetch stage: " + ps));
-            handleNoContent(new ParseStatus(ParseStatus.FAILED_MISSING_CONTENT));
+          handleContent(fetcherOutput, content);
+          synchronized (ParseSegment.this) {
+            pages++;                    // record successful parse
+            bytes += content.getContent().length;
+            if ((pages % 100) == 0)
+              status();
           }
 
         } catch (ParseException e) {
           logError(url, e);
-          handleNoContent(new ParseStatus(e));
+          handleError(new ParseStatus(e));
 
         } catch (Throwable t) {                   // an unchecked exception
           if (fle != null) {
             logError(url, t);
-            handleNoContent(new ParseStatus(t));
+            handleError(new ParseStatus(t));
           } else {
             LOG.severe("Unexpected exception");
           }
@@ -224,27 +215,35 @@ public class ParseSegment {
       }
     }
 
-    private void handleContent(String url, Content content)
+    private void handleContent(FetcherOutput fo, Content content)
       throws ParseException {
 
-      //String contentType = content.getContentType();
-      String contentType = content.getMetadata().getProperty("Content-Type");
+      String url = fo.getUrl().toString();
+      if (content != null) {
+        String contentType = content.getMetadata().getProperty("Content-Type");
+        if (ParseSegment.this.dryRun) {
+          LOG.info("To be handled as Content-Type: "+contentType);
+          return;
+        }
 
-      if (ParseSegment.this.dryRun) {
-        LOG.info("To be handled as Content-Type: "+contentType);
-        return;
+        Parser parser = ParserFactory.getParser(contentType, url);
+        Parse parse = parser.getParse(content);
+        outputPage(new ParseText(parse.getText()), parse.getData());
+        
+      } else {
+        if (ParseSegment.this.dryRun) {
+          LOG.info("To be handled as no content");
+          return;
+        }
+        outputPage(new ParseText(""),
+                new ParseData(new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_MISSING_CONTENT),
+                        "", new Outlink[0], new Properties()));
       }
-
-      Parser parser = ParserFactory.getParser(contentType, url);
-      Parse parse = parser.getParse(content);
-
-      outputPage
-        (new ParseText(parse.getText()), parse.getData());
     }
 
-    private void handleNoContent(ParseStatus status) {
+    private void handleError(ParseStatus status) {
       if (ParseSegment.this.dryRun) {
-        LOG.info("To be handled as no content");
+        LOG.info("To be handled as error");
         return;
       }
       outputPage(new ParseText(""),
@@ -267,6 +266,7 @@ public class ParseSegment {
               +" wait="+(t4-t3) +" write="+(t5-t4) +"ms");
         }
       } catch (Throwable t) {
+        t.printStackTrace();
         LOG.severe("error writing output:" + t.toString());
       }
     }

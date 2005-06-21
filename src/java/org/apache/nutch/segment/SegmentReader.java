@@ -528,6 +528,7 @@ public class SegmentReader {
         cnt++;
         if (dump) reader.dump(sorted, System.out);
       } catch (Throwable t) {
+        t.printStackTrace();
         LOG.warning(t.getMessage());
       }
     }
