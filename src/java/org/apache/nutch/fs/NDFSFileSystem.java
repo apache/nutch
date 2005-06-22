@@ -222,6 +222,7 @@ public class NDFSFileSystem extends NutchFileSystem {
             byte buf[] = new byte[4096];
             InputStream in = open(src);
             try {
+                dst.getParentFile().mkdirs();
                 OutputStream out = new BufferedOutputStream(new FileOutputStream(dst));
                 try {
                     int bytesRead = in.read(buf);
