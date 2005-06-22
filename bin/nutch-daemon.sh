@@ -56,7 +56,7 @@ case $startStop in
     fi
 
     echo starting $command, logging to $log
-    $this_dir/nutch $command "$@" >& $log < /dev/null &
+    nohup $this_dir/nutch $command "$@" >& $log < /dev/null &
     echo $! > $pid
     sleep 1; head $log
     ;;
