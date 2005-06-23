@@ -42,7 +42,7 @@ fi
 
 # some variables
 log=$NUTCH_LOG_DIR/nutch-$command-`hostname`.log
-pid=/tmp/nutch-$command.pid
+pid=/tmp/nutch-$USER-$command.pid
 
 case $startStop in
 
