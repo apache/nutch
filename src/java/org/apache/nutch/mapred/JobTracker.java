@@ -33,6 +33,7 @@ import java.util.logging.*;
  *******************************************************/
 public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmissionProtocol {
     static final int TRACKERINFO_PORT = 7845;
+    static final int MAX_TASK_FAILURES = 3;
 
     public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.mapred.JobTracker");
     public static JobTracker tracker = null;
@@ -475,6 +476,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
         TreeMap completeMapTasks = new TreeMap();
         TreeMap incompleteReduceTasks = new TreeMap();
         TreeMap completeReduceTasks = new TreeMap();
+        TreeMap taskFailures = new TreeMap();
 
         // Info for user; useless for JobTracker
         int numMapTasks = 0;
@@ -665,6 +667,15 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
                 completeReduceTasks.remove(taskid);
                 incompleteReduceTasks.put(taskid, t);
             }
+            
+            // Check if we need to kill the job because of excess failures
+            Integer failures = (Integer) taskFailures.get(taskid);
+            int numFailures = ((failures == null) ? 0 : failures.intValue()) + 1;
+            taskFailures.put(taskid, new Integer(numFailures));
+            if (numFailures >= MAX_TASK_FAILURES) {
+                kill();
+            }
+
             if (status.getRunState() == JobStatus.RUNNING) {
                 executeTask(taskid);
             }
