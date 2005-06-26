@@ -520,7 +520,6 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
               // Report back any failures, for diagnostic purposes
               ByteArrayOutputStream baos = new ByteArrayOutputStream();
               ie.printStackTrace(new PrintStream(baos));
-              LOG.info("Exception!  Reporting via umbilical this str: " + baos.toString());
               umbilical.reportDiagnosticInfo(taskid, baos.toString());
               throw ie;
           }
