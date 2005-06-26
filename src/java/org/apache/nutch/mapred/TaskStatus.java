@@ -36,13 +36,15 @@ public class TaskStatus implements Writable {
     private String taskid;
     private float progress;
     private int runState;
+    private String diagnosticInfo;
 
     public TaskStatus() {}
 
-    public TaskStatus(String taskid, float progress, int runState) {
+    public TaskStatus(String taskid, float progress, int runState, String diagnosticInfo) {
         this.taskid = taskid;
         this.progress = progress;
         this.runState = runState;
+        this.diagnosticInfo = diagnosticInfo;
     }
     
     public String getTaskId() { return taskid; }
@@ -50,6 +52,8 @@ public class TaskStatus implements Writable {
     public void setProgress(float progress) { this.progress = progress; } 
     public int getRunState() { return runState; }
     public void setRunState(int runState) { this.runState = runState; }
+    public String getDiagnosticInfo() { return diagnosticInfo; }
+    public void setDiagnosticInfo(String info) { this.diagnosticInfo = info; }
 
     //////////////////////////////////////////////
     // Writable
@@ -58,11 +62,13 @@ public class TaskStatus implements Writable {
         UTF8.writeString(out, taskid);
         out.writeFloat(progress);
         out.writeInt(runState);
+        UTF8.writeString(out, diagnosticInfo);
     }
 
     public void readFields(DataInput in) throws IOException {
         this.taskid = UTF8.readString(in);
         this.progress = in.readFloat();
         this.runState = in.readInt();
+        this.diagnosticInfo = UTF8.readString(in);
     }
 }

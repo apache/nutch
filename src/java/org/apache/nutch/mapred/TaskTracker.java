@@ -183,8 +183,9 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
                 for (Iterator it = runningTasks.keySet().iterator(); it.hasNext(); ) {
                     String taskid = (String) it.next();
                     TaskInProgress tip = (TaskInProgress) runningTasks.get(taskid);
-                    taskReports.add(tip.getStatus());
-                    if (tip.getStatus().getRunState() != TaskStatus.RUNNING) {
+                    TaskStatus status = tip.createStatus();
+                    taskReports.add(status);
+                    if (status.getRunState() != TaskStatus.RUNNING) {
                         it.remove();
                     }
                 }
@@ -275,7 +276,9 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
     class TaskInProgress {
         Task task;
         File localTaskDir;
-        TaskStatus status;
+        float progress;
+        int runstate;
+        StringBuffer diagnosticInfo = new StringBuffer();
         TaskRunner runner;
         boolean done = false;
         boolean closeRunnerUponEnd = false;
@@ -326,7 +329,13 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
             return task;
         }
 
-        public TaskStatus getStatus() {
+        /**
+         */
+        public TaskStatus createStatus() {
+            TaskStatus status = new TaskStatus(task.getTaskId(), progress, runstate, diagnosticInfo.toString());
+            if (diagnosticInfo.length() > 0) {
+                diagnosticInfo = new StringBuffer();
+            }
             return status;
         }
 
@@ -334,7 +343,9 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
          * Kick off the task execution
          */
         public synchronized void launchTask() throws IOException {
-            this.status = new TaskStatus(task.getTaskId(), 0.0f, TaskStatus.RUNNING);
+            this.progress = 0.0f;
+            this.runstate = TaskStatus.RUNNING;
+            this.diagnosticInfo = new StringBuffer();
             this.runner = task.createRunner(TaskTracker.this);
             this.runner.start();
         }
@@ -344,7 +355,15 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
          */
         public synchronized void reportProgress(float p) {
             LOG.info("Progress for task " + task.getTaskId() + " is " + p);
-            this.status = new TaskStatus(task.getTaskId(), p, TaskStatus.RUNNING);
+            this.progress = p;
+            this.runstate = TaskStatus.RUNNING;
+        }
+
+        /**
+         * The task has reported some diagnostic info about its status
+         */
+        public synchronized void reportDiagnosticInfo(String info) {
+            this.diagnosticInfo.append(info);
         }
 
         /**
@@ -377,9 +396,9 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
             // task was 'done' before terminating
             //
             if (done) {
-                status.setRunState(TaskStatus.SUCCEEDED);
+                runstate = TaskStatus.SUCCEEDED;
             } else {
-                status.setRunState(TaskStatus.FAILED);
+                runstate = TaskStatus.FAILED;
             }
 
             //
@@ -405,7 +424,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
          * This method cleans up the task, first killing it if necessary.
          */
         public synchronized void cleanup() throws IOException {
-            if (status.getRunState() == TaskStatus.RUNNING) {
+            if (runstate == TaskStatus.RUNNING) {
                 closeRunnerUponEnd = true;
                 runner.kill();
             } else {
@@ -452,6 +471,15 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
     }
 
     /**
+     * Called when the task dies before completion, and we want to report back
+     * diagnostic info
+     */
+    public void reportDiagnosticInfo(String taskid, String info) throws IOException {
+        TaskInProgress tip = (TaskInProgress) tasks.get(taskid);
+        tip.reportDiagnosticInfo(info);
+    }
+
+    /**
      * The task is done.
      */
     public void done(String taskid) throws IOException {
@@ -486,7 +514,15 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
             
           Task task = umbilical.getTask(taskid);
           JobConf job = new JobConf(task.getJobFile());
-          task.run(job, umbilical);                   // run the task
+          try {
+              task.run(job, umbilical);                   // run the task
+          } catch (IOException ie) {
+              // Report back any failures, for diagnostic purposes
+              ByteArrayOutputStream baos = new ByteArrayOutputStream();
+              ie.printStackTrace(new PrintStream(baos));
+              umbilical.reportDiagnosticInfo(taskid, baos.toString());
+              throw ie;
+          }
           umbilical.done(taskid);
         }
     }

@@ -770,6 +770,10 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
             }
             delta += status.getProgress();
 
+            if (status.getDiagnosticInfo() != null) {
+                LOG.info("Task '" + taskid + "' has reported diagnostic info:\n" + status.getDiagnosticInfo());
+            }
+
             if (incompleteMapTasks.get(taskid) != null || 
                 completeMapTasks.get(taskid) != null) {
                 totalReportedMapProgress += delta;
@@ -803,7 +807,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
             } else if (incompleteReduceTasks.get(taskid) != null) {
                 attemptedReduceExecutions++;
             }
-            updateTaskStatus(taskid, new TaskStatus(taskid, 0.0f, TaskStatus.UNASSIGNED));
+            updateTaskStatus(taskid, new TaskStatus(taskid, 0.0f, TaskStatus.UNASSIGNED, ""));
             unassignedTasks.add(taskid);
         }
     }
@@ -870,7 +874,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
 
             // Move task status to RUNNING
             JobInProgress job = (JobInProgress) jobs.get((String) taskToJobMap.get(taskid));
-            job.updateTaskStatus(taskid, new TaskStatus(taskid, 0.0f, TaskStatus.RUNNING));
+            job.updateTaskStatus(taskid, new TaskStatus(taskid, 0.0f, TaskStatus.RUNNING, ""));
 
             // Remember where we are running it
             TreeSet taskset = (TreeSet) trackerToTaskMap.get(taskTracker);

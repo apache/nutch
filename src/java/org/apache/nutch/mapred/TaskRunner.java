@@ -107,6 +107,7 @@ abstract class TaskRunner extends Thread {
   private void runChild(String[] args, File dir) throws IOException {
     this.process = Runtime.getRuntime().exec(args, null, dir);
     try {
+      StringBuffer errorBuf = new StringBuffer();
       logStream(process.getErrorStream());        // copy log output
       logStream(process.getInputStream());        // normally empty
       

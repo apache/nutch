@@ -34,6 +34,11 @@ public interface TaskUmbilicalProtocol {
    */
   void progress(String taskid, FloatWritable progress) throws IOException;
 
+  /** Report a child diagnostic message back to parent
+   *  @param trace, the stack trace text
+   */
+  void reportDiagnosticInfo(String taskid, String trace) throws IOException;
+
   /** Report that the task is successfully completed.  Failure is assumed if
    * the task process exits without calling this. */
   void done(String taskid) throws IOException;
