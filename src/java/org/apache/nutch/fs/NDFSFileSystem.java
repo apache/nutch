@@ -211,6 +211,7 @@ public class NDFSFileSystem extends NutchFileSystem {
                 }
             }
         }
+        dst = dst.getCanonicalFile();
 
         if (isDirectory(src)) {
             dst.mkdirs();
