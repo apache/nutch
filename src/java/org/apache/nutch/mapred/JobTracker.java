@@ -770,7 +770,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
             }
             delta += status.getProgress();
 
-            if (status.getDiagnosticInfo() != null) {
+            if (status.getDiagnosticInfo() != null && status.getDiagnosticInfo().length() > 0) {
                 LOG.info("Task '" + taskid + "' has reported diagnostic info:\n" + status.getDiagnosticInfo());
             }
 
