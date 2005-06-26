@@ -111,6 +111,10 @@ public class LocalJobRunner implements JobSubmissionProtocol {
       }
     }
 
+    public void reportDiagnosticInfo(String taskid, String trace) {
+      // Ignore for now
+    }
+
     public void done(String taskId) throws IOException {
       int taskIndex = mapIds.indexOf(taskId);
       if (taskIndex >= 0) {                       // mapping
