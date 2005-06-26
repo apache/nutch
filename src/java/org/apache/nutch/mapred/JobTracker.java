@@ -33,7 +33,7 @@ import java.util.logging.*;
  *******************************************************/
 public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmissionProtocol {
     static final int TRACKERINFO_PORT = 7845;
-    static final int MAX_TASK_FAILURES = 3;
+    static final int MAX_TASK_FAILURES = 4;
 
     public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.mapred.JobTracker");
     public static JobTracker tracker = null;
@@ -560,8 +560,10 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
          * Kill the job and all its component tasks.
          */
         public synchronized void kill() {
-            this.status = new JobStatus(status.getJobId(), 1.0f, 1.0f, JobStatus.FAILED);
-            this.finishTime = System.currentTimeMillis();
+            if (status.getRunState() != JobStatus.FAILED) {
+                this.status = new JobStatus(status.getJobId(), 1.0f, 1.0f, JobStatus.FAILED);
+                this.finishTime = System.currentTimeMillis();
+            }
         }
 
         /**
@@ -673,6 +675,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
             int numFailures = ((failures == null) ? 0 : failures.intValue()) + 1;
             taskFailures.put(taskid, new Integer(numFailures));
             if (numFailures >= MAX_TASK_FAILURES) {
+                LOG.info("Task " + taskid + " has failed " + numFailures + " times.  Aborting owning job " + profile.getJobId());
                 kill();
             }
 
