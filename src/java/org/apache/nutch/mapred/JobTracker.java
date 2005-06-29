@@ -231,8 +231,14 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
         this.port = addr.getPort();
         this.interTrackerServer = RPC.getServer(this, addr.getPort());
         this.interTrackerServer.start();
-//         this.infoServer = new JobTrackerInfoServer(this, TRACKERINFO_PORT);
-//         this.infoServer.start();
+	Properties p = System.getProperties();
+	for (Iterator it = p.keySet().iterator(); it.hasNext(); ) {
+	    String key = (String) it.next();
+	    String val = (String) p.getProperty(key);
+	    LOG.info("Property '" + key + "' is " + val);
+	}
+        this.infoServer = new JobTrackerInfoServer(this, TRACKERINFO_PORT);
+        this.infoServer.start();
 
         this.startTime = System.currentTimeMillis();
 

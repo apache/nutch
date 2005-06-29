@@ -4,7 +4,7 @@
   import="javax.servlet.http.*"
   import="java.io.*"
   import="java.util.*"
-  import="org.apache.nutch.mapReduce.*"
+  import="org.apache.nutch.mapred.*"
 %>
 <%!
   JobTracker tracker = JobTracker.getTracker();

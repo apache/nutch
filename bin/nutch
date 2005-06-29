@@ -82,6 +82,7 @@ fi
 
 # CLASSPATH initially contains $NUTCH_CONF_DIR, or defaults to $NUTCH_HOME/conf
 CLASSPATH=${NUTCH_CONF_DIR:=$NUTCH_HOME/conf}
+CLASSPATH=${CLASSPATH}:$JAVA_HOME/lib/tools.jar
 
 # for developers, add Nutch classes to CLASSPATH
 if [ -d "$NUTCH_HOME/build/classes" ]; then

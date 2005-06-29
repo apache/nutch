@@ -59,10 +59,21 @@ public class JobTrackerInfoServer {
      * We need the jobTracker to grab stats, and the port to 
      * know where to listen.
      */
+    private static final boolean WINDOWS = System.getProperty("os.name").startsWith("Windows");
     public JobTrackerInfoServer(JobTracker jobTracker, int port) throws IOException {
         this.jobTracker = jobTracker;
         this.server = new org.mortbay.jetty.Server();
-        WebApplicationContext context = server.addWebApplication(null, "/", "src/webapps/jobtracker");
+	URL url = JobTrackerInfoServer.class.getClassLoader().getResource("webapps");
+	String path = url.getPath();
+	if (WINDOWS && path.startsWith("/")) {
+	    path = path.substring(1);
+	    try {
+		path = URLDecoder.decode(path, "UTF-8");
+	    } catch (UnsupportedEncodingException e) {
+	    }
+	}
+	File jobtracker = new File(path, "jobtracker");
+        WebApplicationContext context = server.addWebApplication(null, "/", jobtracker.getCanonicalPath());
 
         SocketListener socketListener = new SocketListener();
         socketListener.setPort(port);
