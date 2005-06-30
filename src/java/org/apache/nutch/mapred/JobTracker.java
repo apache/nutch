@@ -483,11 +483,11 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
         }
     }
 
-    Vector generateSingleReport(String taskid, TaskStatus status, String diagInfo) {
+    Vector generateSingleReport(String taskid, TaskStatus status, Vector diagInfo) {
         Vector report = new Vector();
         report.add(taskid);
         report.add("" + status.getProgress());
-        report.add(diagInfo);
+        report.addAll(diagInfo);
         return report;
     }
 
@@ -800,12 +800,12 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
             }
             return t;
         }
-        public String getTaskDiagnosticInfo(String taskid) {
-            StringBuffer buf = (StringBuffer) taskDiagnosticData.get(taskid);
-            if (buf == null) {
-                return "";
+        public Vector getTaskDiagnosticInfo(String taskid) {
+            Vector v = (Vector) taskDiagnosticData.get(taskid);
+            if (v == null) {
+                return new Vector();
             } else {
-                return buf.toString().trim();
+                return v;
             }
         }
         public float completedRatio() {
@@ -846,12 +846,12 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
 
             String diagInfo = status.getDiagnosticInfo();
             if (diagInfo != null && diagInfo.length() > 0) {
-                StringBuffer buf = (StringBuffer) taskDiagnosticData.get(taskid);
-                if (buf == null) {
-                    buf = new StringBuffer();
-                    taskDiagnosticData.put(taskid, buf);
+                Vector v = (Vector) taskDiagnosticData.get(taskid);
+                if (v == null) {
+                    v = new Vector();
+                    taskDiagnosticData.put(taskid, v);
                 }
-                buf.append(diagInfo);
+                v.add(diagInfo);
             }
 
             if (incompleteMapTasks.get(taskid) != null || 
