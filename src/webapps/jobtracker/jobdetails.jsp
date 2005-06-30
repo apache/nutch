@@ -12,6 +12,9 @@
   JobTracker.JobInProgress job = (JobTracker.JobInProgress) tracker.getJob(jobid);
   JobProfile profile = (job != null) ? (job.getProfile()) : null;
   JobStatus status = (job != null) ? (job.getStatus()) : null;
+
+  Vector mapTaskReports[] = job.getMapTaskReport(jobid);
+  Vector reduceTaskReports[] = job.getReduceTaskReport(jobid);
 %>
 
 <html>
@@ -35,10 +38,13 @@
 <h2>Map Tasks</h2>
   <center>
   <table border=2 cellpadding="5" cellspacing="2">
-  <tr><td align="center" colspan="4">Map Tasks</td></tr>
+  <tr><td align="center" colspan="4">Map Task Id</td><td>Pct Complete</td><td>Diagnostic Text</td></tr>
 
   <%
-
+    for (int i = 0; i < mapTaskReports.length; i++) {
+      Vector v = mapTaskReports[i];
+      out.print("<tr><td>" + v.elementAt(0) + "</td><td>" + v.elementAt(1) + "</td><td>" + v.elementAt(2) + "</td></tr>\n");
+    }
   %>
   </table>
   </center>
@@ -46,6 +52,18 @@
 
 
 <h2>Reduce Tasks</h2>
+  <center>
+  <table border=2 cellpadding="5" cellspacing="2">
+  <tr><td align="center" colspan="4">Reduce Task Id</td><td>Pct Complete</td><td>Diagnostic Text</td></tr>
+
+  <%
+    for (int i = 0; i < reduceTaskReports.length; i++) {
+      Vector v = reduceTaskReports[i];
+      out.print("<tr><td>" + v.elementAt(0) + "</td><td>" + v.elementAt(1) + "</td><td>" + v.elementAt(2) + "</td></tr>\n");
+    }
+  %>
+  </table>
+  </center>
 
 
 <hr>

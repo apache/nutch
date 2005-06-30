@@ -17,6 +17,7 @@
 package org.apache.nutch.mapred;
 
 import java.io.*;
+import java.util.*;
 import org.apache.nutch.io.*;
 
 /** 
@@ -45,6 +46,12 @@ public interface JobSubmissionProtocol {
      * Grab a handle to a job that is already known to the JobTracker
      */
     public JobStatus getJobStatus(String jobid);
+
+    /**
+     * Grab a bunch of info on the tasks that make up the job
+     */
+    public Vector[] getMapTaskReport(String jobid);
+    public Vector[] getReduceTaskReport(String jobid);
 
     /**
      * A MapReduce system always operates on a single filesystem.  This 
