@@ -62,7 +62,7 @@
 <h2>Reduce Tasks</h2>
   <center>
   <table border=2 cellpadding="5" cellspacing="2">
-  <tr><td align="center" colspan="4">Reduce Task Id</td><td>Pct Complete</td><td>Diagnostic Text</td></tr>
+  <tr><td align="center">Reduce Task Id</td><td>Pct Complete</td><td>Diagnostic Text</td></tr>
 
   <%
     for (int i = 0; i < reduceTaskReports.length; i++) {
