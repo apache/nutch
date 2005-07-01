@@ -61,7 +61,7 @@ NUTCH_HOME=`cd "$THIS_DIR/.." ; pwd`
 
 # some Java parameters
 if [ "$NUTCH_JAVA_HOME" != "" ]; then
-  echo "run java in $NUTCH_JAVA_HOME"
+  #echo "run java in $NUTCH_JAVA_HOME"
   JAVA_HOME=$NUTCH_JAVA_HOME
 fi
   
@@ -75,9 +75,9 @@ JAVA_HEAP_MAX=-Xmx1000m
 
 # check envvars which might override default args
 if [ "$NUTCH_HEAPSIZE" != "" ]; then
-  echo "run with heapsize $NUTCH_HEAPSIZE"
+  #echo "run with heapsize $NUTCH_HEAPSIZE"
   JAVA_HEAP_MAX="-Xmx""$NUTCH_HEAPSIZE""m"
-  echo $JAVA_HEAP_MAX
+  #echo $JAVA_HEAP_MAX
 fi
 
 # CLASSPATH initially contains $NUTCH_CONF_DIR, or defaults to $NUTCH_HOME/conf
@@ -113,7 +113,7 @@ for f in $NUTCH_HOME/lib/*.jar; do
   CLASSPATH=${CLASSPATH}:$f;
 done
 
-for f in $NUTCH_HOME/lib/jettyext/*.jar; do
+for f in $NUTCH_HOME/lib/jetty-ext/*.jar; do
   CLASSPATH=${CLASSPATH}:$f;
 done
 
