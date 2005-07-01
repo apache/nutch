@@ -32,34 +32,21 @@ import java.util.logging.*;
  * @author Mike Cafarella
  *******************************************************/
 public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmissionProtocol {
-    static final int TRACKERINFO_PORT = 7845;
     static final int MAX_TASK_FAILURES = 4;
 
     public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.mapred.JobTracker");
-    public static JobTracker tracker = null;
-    public static void createTracker(NutchConf conf) throws IOException {
-      createTracker(getAddress(conf));
-    }
-    public static void createTracker(InetSocketAddress addr) throws IOException {
-      tracker = new JobTracker(addr);
+
+    private static JobTracker tracker = null;
+    public static void startTracker(NutchConf conf) throws IOException {
+      if (tracker != null)
+        throw new IOException("JobTracker already running.");
+      tracker = new JobTracker(conf);
+      tracker.offerService();
+
     }
     public static JobTracker getTracker() {
         return tracker;
     }
-
-    public static InetSocketAddress getAddress(NutchConf conf) {
-      String jobTrackerStr =
-        conf.get("mapred.job.tracker", "localhost:8012");
-      int colon = jobTrackerStr.indexOf(":");
-      if (colon < 0) {
-        throw new RuntimeException("Bad mapred.job.tracker: "+jobTrackerStr);
-      }
-      String jobTrackerName = jobTrackerStr.substring(0, colon);
-      int jobTrackerPort = Integer.parseInt(jobTrackerStr.substring(colon+1));
-      return new InetSocketAddress(jobTrackerName, jobTrackerPort);
-    }
-
-
 
     ///////////////////////////////////////////////////////
     // Used to expire TaskTrackers that have gone down
@@ -202,6 +189,8 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
 
     // Used to provide an HTML view on Job, Task, and TaskTracker structures
     JobTrackerInfoServer infoServer;
+    int infoPort;
+
     Server interTrackerServer;
 
     // Some jobs are stored in a local system directory.  We can delete
@@ -213,7 +202,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
     /**
      * Start the JobTracker process, listen on the indicated port
      */
-    JobTracker(InetSocketAddress addr) throws IOException {
+    JobTracker(NutchConf conf) throws IOException {
         // This is a directory of temporary submission files.  We delete it
         // on startup, and can delete any files that we're done with
         this.systemDir = JobConf.getSystemDir();
@@ -227,6 +216,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
         this.localDir.mkdirs();
 
         // Set ports, start RPC servers, etc.
+        InetSocketAddress addr = getAddress(conf);
         this.localMachine = addr.getHostName();
         this.port = addr.getPort();
         this.interTrackerServer = RPC.getServer(this, addr.getPort());
@@ -237,13 +227,28 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
 	    String val = (String) p.getProperty(key);
 	    LOG.info("Property '" + key + "' is " + val);
 	}
-        this.infoServer = new JobTrackerInfoServer(this, TRACKERINFO_PORT);
+
+        this.infoPort = conf.getInt("mapred.job.tracker.info.port", 7845);
+        this.infoServer = new JobTrackerInfoServer(this, infoPort);
         this.infoServer.start();
 
         this.startTime = System.currentTimeMillis();
 
         new Thread(this.expireTrackers).start();
     }
+
+    private static InetSocketAddress getAddress(NutchConf conf) {
+      String jobTrackerStr =
+        conf.get("mapred.job.tracker", "localhost:8012");
+      int colon = jobTrackerStr.indexOf(":");
+      if (colon < 0) {
+        throw new RuntimeException("Bad mapred.job.tracker: "+jobTrackerStr);
+      }
+      String jobTrackerName = jobTrackerStr.substring(0, colon);
+      int jobTrackerPort = Integer.parseInt(jobTrackerStr.substring(colon+1));
+      return new InetSocketAddress(jobTrackerName, jobTrackerPort);
+    }
+
 
     /**
      * Run forever
@@ -551,7 +556,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
          */
         public JobInProgress(String jobFile) throws IOException {
             String jobid = createJobId();
-            String url = "http://" + localMachine + ":" + TRACKERINFO_PORT + "/jobdetails.jsp?jobid=" + jobid;
+            String url = "http://" + localMachine + ":" + infoPort + "/jobdetails.jsp?jobid=" + jobid;
             this.profile = new JobProfile(jobid, jobFile, url);
             this.status = new JobStatus(jobid, 0.0f, 0.0f, JobStatus.RUNNING);
 
@@ -1001,8 +1006,6 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
           System.exit(-1);
         }
 
-        JobTracker.createTracker(NutchConf.get());
-        JobTracker jt = JobTracker.getTracker();
-        jt.offerService();
+        startTracker(NutchConf.get());
     }
 }
