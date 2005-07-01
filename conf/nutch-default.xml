@@ -298,7 +298,7 @@
 
 <property>
   <name>io.sort.factor</name>
-  <value>100</value>
+  <value>10</value>
   <description>The number of streams to merge at once while sorting
   files.  This determines the number of open file handles.</description>
 </property>
