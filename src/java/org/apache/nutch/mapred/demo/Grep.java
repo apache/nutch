@@ -53,7 +53,6 @@ public class Grep {
 
     JobConf grepJob = new JobConf(defaults);
 
-    grepJob.setNumMapTasks(18);
     grepJob.setInputDir(new File(args[0]));
 
     grepJob.setMapperClass(RegexMapper.class);
@@ -64,7 +63,6 @@ public class Grep {
     grepJob.setCombinerClass(LongSumReducer.class);
     grepJob.setReducerClass(LongSumReducer.class);
 
-    grepJob.setNumReduceTasks(6);
     grepJob.setOutputDir(tempDir);
     grepJob.setOutputFormat(SequenceFileOutputFormat.class);
     grepJob.setOutputKeyClass(UTF8.class);
@@ -73,8 +71,6 @@ public class Grep {
     JobClient.runJob(grepJob);
 
     JobConf sortJob = new JobConf(defaults);
-
-    sortJob.setNumMapTasks(6);
 
     sortJob.setInputDir(tempDir);
     sortJob.setInputFormat(SequenceFileInputFormat.class);
