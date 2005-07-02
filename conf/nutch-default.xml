@@ -23,6 +23,15 @@
 </property>
 
 <property>
+  <name>http.robots.403.allow</name>
+  <value>true</value>
+  <description>Some servers return HTTP status 403 (Forbidden) if
+  /robots.txt doesn't exist. This should probably mean that we are
+  allowed to crawl the site nonetheless. If this is set to false,
+  then such sites will be treated as forbidden.</description>
+</property>
+
+<property>
   <name>http.agent.description</name>
   <value>Nutch</value>
   <description>Further description of our bot- this text is used in
