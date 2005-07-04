@@ -102,25 +102,9 @@ public class DOMContentUtils {
                                              boolean abortOnNestedAnchors,
                                              int anchorDepth) {
     if ("script".equalsIgnoreCase(node.getNodeName())) {
-      Node n = node.getAttributes().getNamedItem("language");
-      if (n != null) {
-        String text = n.getNodeValue();
-        sb.append(text);
-      }
       return false;
     }
     if ("style".equalsIgnoreCase(node.getNodeName())) {
-      Node n = node.getAttributes().getNamedItem("rel");
-      if (n != null) {
-        String text = n.getNodeValue();
-        sb.append(text);
-      }
-      n = node.getAttributes().getNamedItem("type");
-      if (n != null) {
-        String text = n.getNodeValue();
-        if (sb.length() > 0) sb.append(", ");
-        sb.append(text);
-      }
       return false;
     }
     if (abortOnNestedAnchors && "a".equalsIgnoreCase(node.getNodeName())) {
