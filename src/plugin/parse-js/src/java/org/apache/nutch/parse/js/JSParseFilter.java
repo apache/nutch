@@ -120,9 +120,9 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
   
   public Parse getParse(Content c) {
     String type = c.getContentType();
-    if (type != null && !type.toLowerCase().startsWith("application/x-javascript"))
+    if (type != null && !type.trim().equals("") && !type.toLowerCase().startsWith("application/x-javascript"))
       return new ParseStatus(ParseStatus.FAILED_INVALID_FORMAT,
-              "Content not JavaScript: " + type).getEmptyParse();
+              "Content not JavaScript: '" + type + "'").getEmptyParse();
     String script = new String(c.getContent());
     Outlink[] outlinks = getJSLinks(script, c.getUrl(), c.getUrl());
     if (outlinks == null) outlinks = new Outlink[0];
