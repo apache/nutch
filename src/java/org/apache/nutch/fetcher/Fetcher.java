@@ -147,13 +147,17 @@ public class Fetcher {
                   }
                   ParseStatus ps = handleFetch(fle, output);
                   if (ps != null && ps.getMinorCode() == ParseStatus.SUCCESS_REDIRECT) {
-                    url = ps.getMessage();
-                    url = URLFilters.filter(url);
-                    if (url != null) {
+                    String newurl = ps.getMessage();
+                    newurl = URLFilters.filter(newurl);
+                    if (newurl != null && !newurl.equals(url)) {
                       refetch = true;
+                      url = newurl;
                       redirCnt++;
                       fle = new FetchListEntry(true, new Page(url, NEW_INJECTED_PAGE_SCORE), new String[0]);
-                      LOG.info(" - content redirect to " + url);
+                      LOG.fine(" - content redirect to " + url);
+                    } else {
+                      LOG.fine(" - content redirect skipped, " +
+                              (url.equals(newurl)? "newurl == url" : "prohibited by urlfilter"));
                     }
                   }
                 }
@@ -162,13 +166,18 @@ public class Fetcher {
               case ProtocolStatus.TEMP_MOVED: // try to redirect immediately
                 // record the redirect. perhaps the DB will want to know this.
                 handleFetch(fle, output);
-                url = pstat.getMessage();
-                if (url != null) {
+                String newurl = pstat.getMessage();
+                newurl = URLFilters.filter(newurl);
+                if (newurl != null && !newurl.equals(url)) {
                   refetch = true;
+                  url = newurl;
                   redirCnt++;
                   // create new entry.
                   fle = new FetchListEntry(true, new Page(url, NEW_INJECTED_PAGE_SCORE), new String[0]);
                   LOG.info(" - protocol redirect to " + url);
+                } else {
+                  LOG.fine(" - protocol redirect skipped, " +
+                          (url.equals(newurl)? "newurl == url" : "prohibited by urlfilter"));
                 }
                 break;
               case ProtocolStatus.GONE:
