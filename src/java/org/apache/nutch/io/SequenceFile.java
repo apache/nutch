@@ -59,7 +59,7 @@ public class SequenceFile {
     // can seek into the middle of a file and then synchronize with record
     // starts and ends by scanning for this value.
     private long lastSyncPos;                     // position of last sync
-    private final byte[] sync;                    // 16 random bytes
+    private byte[] sync;                          // 16 random bytes
     {
       try {                                       // use hash of uid + host
         MessageDigest digester = MessageDigest.getInstance("MD5");
@@ -147,7 +147,8 @@ public class SequenceFile {
       if (keyLength == 0)
         throw new IOException("zero length keys not allowed");
 
-      if (out.getPos() >= lastSyncPos+SYNC_INTERVAL) { // time to emit sync
+      if (sync != null &&
+          out.getPos() >= lastSyncPos+SYNC_INTERVAL) { // time to emit sync
         lastSyncPos = out.getPos();               // update lastSyncPos
         //LOG.info("sync@"+lastSyncPos);
         out.writeInt(SYNC_ESCAPE);                // escape it
@@ -300,7 +301,8 @@ public class SequenceFile {
 
       int length = in.readInt();
 
-      if (version[3] > 1 && length == SYNC_ESCAPE) { // process a sync entry
+      if (version[3] > 1 && sync != null &&
+          length == SYNC_ESCAPE) {                // process a sync entry
         //LOG.info("sync@"+in.getPos());
         in.readFully(syncCheck);                  // read syncCheck
         if (!Arrays.equals(sync, syncCheck))      // check it
@@ -529,13 +531,15 @@ public class SequenceFile {
 
           long length = buffer.getLength();       // compute its size
           length += count*8;                      // allow for length/keyLength
-          length += (count/SYNC_INTERVAL)*SYNC_SIZE; // allow for syncs
 
           out.writeLong(length);                  // write size
           out.writeLong(count);                   // write count
         }
 
         Writer writer = new Writer(out, keyClass, valClass);
+        if (!done) {
+          writer.sync = null;                     // disable sync on temp files
+        }
 
         for (int i = 0; i < count; i++) {         // write in sorted order
           int p = pointers[i];
@@ -640,12 +644,13 @@ public class SequenceFile {
             long count = in.readLong();
 
             totalLength += length;
-            totalLength -= (count/SYNC_INTERVAL)*SYNC_SIZE; // remove syncs
 
             totalCount+= count;
 
             Reader reader = new Reader(nfs, inName, memory/(factor+1),
                                        in.getPos(), length);
+            reader.sync = null;                   // disable sync on temp files
+
             MergeStream ms = new MergeStream(reader); // add segment to queue
             if (ms.next()) {
               queue.put(ms);
@@ -654,7 +659,6 @@ public class SequenceFile {
           }
 
           if (!last) {                             // intermediate file
-            totalLength += (totalCount/SYNC_INTERVAL)*SYNC_SIZE; // add syncs
             queue.out.writeLong(totalLength);     // write size
             queue.out.writeLong(totalCount);      // write count
           }
