@@ -56,6 +56,7 @@ public class FileSplit implements Writable {
   /** The number of bytes in the file to process. */
   public long getLength() { return length; }
 
+  public String toString() { return file + ":" + start + "+" + length; }
 
   ////////////////////////////////////////////
   // Writable methods

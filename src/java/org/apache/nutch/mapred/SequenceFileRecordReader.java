@@ -38,7 +38,10 @@ public class SequenceFileRecordReader implements RecordReader {
     this.in = new SequenceFile.Reader(fs, split.getFile().toString());
     this.end = split.getStart() + split.getLength();
 
-    in.sync(split.getStart());                    // sync to start
+    if (split.getStart() > in.getPosition())
+      in.sync(split.getStart());                  // sync to start
+
+    more = in.getPosition() < end;
   }
 
 

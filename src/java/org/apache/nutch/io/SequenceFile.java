@@ -39,9 +39,11 @@ public class SequenceFile {
   };
 
   private static final int SYNC_ESCAPE = -1;      // "length" of sync entries
-  private static final int SYNC_INTERVAL = 10;    // num entries between syncs
   private static final int SYNC_HASH_SIZE = 16;   // number of bytes in hash 
   private static final int SYNC_SIZE = 4+SYNC_HASH_SIZE; // escape + hash
+
+  /** The number of bytes between sync points.*/
+  public static final int SYNC_INTERVAL = 100*SYNC_SIZE; 
 
   /** Write key/value pairs to a sequence-format file. */
   public static class Writer {
@@ -56,7 +58,7 @@ public class SequenceFile {
     // Insert a globally unique 16-byte value every few entries, so that one
     // can seek into the middle of a file and then synchronize with record
     // starts and ends by scanning for this value.
-    private long count;                           // number of entries added
+    private long lastSyncPos;                     // position of last sync
     private final byte[] sync;                    // 16 random bytes
     {
       try {                                       // use hash of uid + host
@@ -145,7 +147,9 @@ public class SequenceFile {
       if (keyLength == 0)
         throw new IOException("zero length keys not allowed");
 
-      if ((++count % SYNC_INTERVAL) == 0) {       // time to emit sync
+      if (out.getPos() >= lastSyncPos+SYNC_INTERVAL) { // time to emit sync
+        lastSyncPos = out.getPos();               // update lastSyncPos
+        //LOG.info("sync@"+lastSyncPos);
         out.writeInt(SYNC_ESCAPE);                // escape it
         out.write(sync);                          // write sync
       }
@@ -297,6 +301,7 @@ public class SequenceFile {
       int length = in.readInt();
 
       if (version[3] > 1 && length == SYNC_ESCAPE) { // process a sync entry
+        //LOG.info("sync@"+in.getPos());
         in.readFully(syncCheck);                  // read syncCheck
         if (!Arrays.equals(sync, syncCheck))      // check it
           throw new IOException("File is corrupt!");
@@ -318,12 +323,12 @@ public class SequenceFile {
 
     /** Seek to the next sync mark past a given position.*/
     public synchronized void sync(long position) throws IOException {
-      if (position+sync.length >= end) {
+      if (position+SYNC_SIZE >= end) {
         seek(end);
         return;
       }
 
-      seek(position);
+      seek(position+4);                           // skip escape
       in.readFully(syncCheck);
       int syncLen = sync.length;
       for (int i = 0; in.getPos() < end; i++) {
@@ -332,8 +337,10 @@ public class SequenceFile {
           if (sync[j] != syncCheck[(i+j)%syncLen])
             break;
         }
-        if (j == syncLen)
+        if (j == syncLen) {
+          in.seek(in.getPos() - SYNC_SIZE);  // position before sync
           return;
+        }
         syncCheck[i%syncLen] = in.readByte();
       }
     }

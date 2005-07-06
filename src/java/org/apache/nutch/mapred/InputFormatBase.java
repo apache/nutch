@@ -21,13 +21,24 @@ import java.io.File;
 
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 import org.apache.nutch.fs.NutchFileSystem;
+import org.apache.nutch.util.LogFormatter;
 
 /** A base class for {@link InputFormat}. */
 public abstract class InputFormatBase implements InputFormat {
 
+  public static final Logger LOG =
+    LogFormatter.getLogger("org.apache.nutch.mapred.InputFormatBase");
+
   private static final double SPLIT_SLOP = 0.1;   // 10% slop
+
+  private int minSplitSize = 1;
+
+  protected void setMinSplitSize(int minSplitSize) {
+    this.minSplitSize = minSplitSize;
+  }
 
   public abstract RecordReader getRecordReader(NutchFileSystem fs,
                                                FileSplit split,
@@ -84,8 +95,11 @@ public abstract class InputFormatBase implements InputFormat {
       totalSize += fs.getLength(files[i]);
     }
 
-    long bytesPerSplit = totalSize / numSplits;
+    long bytesPerSplit = Math.max(totalSize / numSplits, minSplitSize);
     long maxPerSplit = bytesPerSplit + (long)(bytesPerSplit*SPLIT_SLOP);
+
+    //LOG.info("bytesPerSplit = " + bytesPerSplit);
+    //LOG.info("maxPerSplit = " + maxPerSplit);
 
     ArrayList splits = new ArrayList(numSplits);  // generate splits
     for (int i = 0; i < files.length; i++) {

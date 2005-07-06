@@ -31,6 +31,10 @@ import org.apache.nutch.io.UTF8;
 /** An {@link InputFormat} for {@link SequenceFile}s. */
 public class SequenceFileInputFormat extends InputFormatBase {
 
+  public SequenceFileInputFormat() {
+    setMinSplitSize(SequenceFile.SYNC_INTERVAL);
+  }
+
   protected File[] listFiles(NutchFileSystem fs, JobConf job)
     throws IOException {
 
