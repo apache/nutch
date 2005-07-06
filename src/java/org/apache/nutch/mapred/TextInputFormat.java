@@ -41,9 +41,9 @@ public class TextInputFormat extends InputFormatBase {
     // open the file and seek to the start of the split
     final NFSDataInputStream in =
       new NFSDataInputStream(fs.open(split.getFile()));
-    in.seek(start);
     
     if (start != 0) {
+      in.seek(start-1);
       while (in.getPos() < end) {    // scan to the next newline in the file
         char c = (char)in.read();
         if (c == '\r' || c == '\n') {

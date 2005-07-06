@@ -237,7 +237,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
         new Thread(this.expireTrackers).start();
     }
 
-    private static InetSocketAddress getAddress(NutchConf conf) {
+    public static InetSocketAddress getAddress(NutchConf conf) {
       String jobTrackerStr =
         conf.get("mapred.job.tracker", "localhost:8012");
       int colon = jobTrackerStr.indexOf(":");

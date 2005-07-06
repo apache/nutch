@@ -25,7 +25,7 @@ import org.apache.nutch.fs.*;
 import org.apache.nutch.io.*;
 import org.apache.nutch.util.*;
 
-public class TestSequenceFileInputFormat extends TestCase {
+public class TestTextInputFormat extends TestCase {
   private static final Logger LOG = InputFormatBase.LOG;
 
   private static int MAX_LENGTH = 10000;
@@ -34,7 +34,7 @@ public class TestSequenceFileInputFormat extends TestCase {
     JobConf job = new JobConf(NutchConf.get());
     NutchFileSystem fs = NutchFileSystem.getNamed("local");
     File dir = new File(System.getProperty("test.build.data",".") + "/mapred");
-    File file = new File(dir, "test.seq");
+    File file = new File(dir, "test.txt");
     
     int seed = new Random().nextInt();
     //LOG.info("seed = "+seed);
@@ -58,28 +58,22 @@ public class TestSequenceFileInputFormat extends TestCase {
 
       // create a file with length entries
       file.delete();
-      SequenceFile.Writer writer =
-        new SequenceFile.Writer(fs, file.toString(),
-                                IntWritable.class, BytesWritable.class);
+      Writer writer = new FileWriter(file);
       try {
         for (int i = 0; i < length; i++) {
-          IntWritable key = new IntWritable(i);
-          byte[] data = new byte[random.nextInt(10)];
-          random.nextBytes(data);
-          BytesWritable value = new BytesWritable(data);
-          writer.append(key, value);
+          writer.write(Integer.toString(i));
+          writer.write("\n");
         }
       } finally {
         writer.close();
       }
 
       // try splitting the file in a variety of sizes
-      InputFormat format = new SequenceFileInputFormat();
-      IntWritable key = new IntWritable();
-      BytesWritable value = new BytesWritable();
+      InputFormat format = new TextInputFormat();
+      LongWritable key = new LongWritable();
+      UTF8 value = new UTF8();
       for (int i = 0; i < 3; i++) {
-        int numSplits =
-          random.nextInt(MAX_LENGTH/(SequenceFile.SYNC_INTERVAL/20))+1;
+        int numSplits = random.nextInt(MAX_LENGTH/20)+1;
         //LOG.info("splitting: requesting = " + numSplits);
         FileSplit[] splits = format.getSplits(fs, job, numSplits);
         //LOG.info("splitting: got =        " + splits.length);
@@ -90,12 +84,13 @@ public class TestSequenceFileInputFormat extends TestCase {
           RecordReader reader = format.getRecordReader(fs, splits[j], job);
           int count = 0;
           while (reader.next(key, value)) {
-//             if (bits.get(key.get())) {
-//               LOG.info("splits["+j+"]="+splits[j]+" : " + key.get());
+            int v = Integer.parseInt(value.toString());
+//             if (bits.get(v)) {
+//               LOG.info("splits["+j+"]="+splits[j]+" : " + v);
 //               LOG.info("@"+reader.getPos());
 //             }
-            assertFalse("Key in multiple partitions.", bits.get(key.get()));
-            bits.set(key.get());
+            assertFalse("Key in multiple partitions.", bits.get(v));
+            bits.set(v);
             count++;
           }
           //LOG.info("splits["+j+"]="+splits[j]+" count=" + count);
@@ -107,6 +102,6 @@ public class TestSequenceFileInputFormat extends TestCase {
   }
 
   public static void main(String[] args) throws Exception {
-    new TestSequenceFileInputFormat().testFormat();
+    new TestTextInputFormat().testFormat();
   }
 }
