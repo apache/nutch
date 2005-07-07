@@ -55,6 +55,7 @@ public class JobConf extends NutchConf {
    */
   public JobConf(NutchConf conf) {
     super(conf);
+    addConfResource("mapred-default.xml");
   }
 
 
