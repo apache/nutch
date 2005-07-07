@@ -13,28 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.analysis.lang;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
+// JDK imports
 import java.io.File;
+import java.io.InputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.BufferedInputStream;
 import java.util.Date;
-import java.util.Collections;
-import java.util.Hashtable;
+import java.util.List;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
+// Nutch imports
 import org.apache.nutch.util.LogFormatter;
 
+// Lucene imports
 import org.apache.lucene.analysis.Token;
+
 
 /**
  * This class runs a ngram analysis over submitted text, results might be used
@@ -45,257 +50,235 @@ import org.apache.lucene.analysis.Token;
  * Methods are provided to build new NGramProfiles profiles.
  * 
  * @author Sami Siren
+ * @author Jerome Charron - http://frutch.free.fr/
  */
 public class NGramProfile {
 
   public static final Logger LOG = LogFormatter
       .getLogger("org.apache.nutch.analysis.lang.NGramProfile");
 
-  private String name;
+  /** The minimum length allowed for a ngram. */
+  final static int ABSOLUTE_MIN_NGRAM_LENGTH = 1;
 
-  private Vector sorted = null;
+  /** The maximum length allowed for a ngram. */
+  final static int ABSOLUTE_MAX_NGRAM_LENGTH = 4;
+    
+  /** The default min length of ngram */
+  final static int DEFAULT_MIN_NGRAM_LENGTH = 3;
 
-  private StringBuffer tokensb = new StringBuffer();
+  /** The default max length of ngram */
+  final static int DEFAULT_MAX_NGRAM_LENGTH = 3;
 
-  private int min_ngram_length = DEFAULT_MIN_NGRAM_LENGTH;
+  /** The ngram profile file extension */
+  static final String FILE_EXTENSION = "ngp";
 
-  private int max_ngram_length = DEFAULT_MAX_NGRAM_LENGTH;
+  /** The profile max size (number of ngrams of the same size) */
+  static final int MAX_SIZE = 1000;
 
-  private int ngramcount = 0;
-
-  static final String NGRAM_FILE_EXTENSION = "ngp";
-
-  static final int NGRAM_LENGTH = 1000;
-
-  //separator char
+  /** separator char */
   static final char SEPARATOR = '_';
+  /** The String form of the separator char */  
+  private final static String SEP_CHARSEQ = new String(new char[] { SEPARATOR });
 
-  //default min length of ngram
-  static final int DEFAULT_MIN_NGRAM_LENGTH = 1;
+  
+  /** The profile's name */
+  private String name = null;
 
-  //default max length of ngram
-  static final int DEFAULT_MAX_NGRAM_LENGTH = 4;
+  /** The NGrams of this profile sorted on the number of occurences */
+  private List sorted = null;
 
-  //table to store ngrams
-  Hashtable ngrams = null;
+  /** The min length of ngram */
+  private int minLength = DEFAULT_MIN_NGRAM_LENGTH;
 
-  /**
-   * private class used to store NGramEntry
-   */
-  class NGramEntry implements Comparable {
-    private CharSequence seq;
+  /** The max length of ngram */
+  private int maxLength = DEFAULT_MAX_NGRAM_LENGTH;
 
-    private int count;
+  /** The total number of ngrams occurences */
+  private int[] ngramcounts = null;
 
-    private float normalized_count;
+  /** An index of the ngrams of the profile */
+  private Map ngrams = null;
 
-    public NGramEntry(CharSequence seq) {
-      this.seq = seq;
-    }
-
-    /**
-     * @param ngramsequence
-     * @param ngramcount
-     */
-    public NGramEntry(String ngramsequence, int ngramcount) {
-      seq = new StringBuffer(ngramsequence).subSequence(0, ngramsequence
-          .length());
-      this.count = ngramcount;
-    }
-
-    public int getCount() {
-      return count;
-    }
-
-    public CharSequence getSeq() {
-      return seq;
-    }
-
-    public int compareTo(Object o) {
-      if (((NGramEntry) o).count - count != 0)
-        return ((NGramEntry) o).count - count;
-      else
-        return (seq.toString().compareTo(((NGramEntry) o).seq.toString()));
-    }
-
-    public void inc() {
-      count++;
-    }
-  }
-
+  /** A StringBuffer used during analysis */
+  private QuickStringBuffer word = new QuickStringBuffer();
+  
+    
   /**
    * Construct a new ngram profile
    * 
-   * @param name
-   *          Name of profile
-   */
-  public NGramProfile(String name) {
-    this(name, DEFAULT_MIN_NGRAM_LENGTH, DEFAULT_MAX_NGRAM_LENGTH);
-  }
-
-  /**
-   * Construct a new ngram profile
-   * 
-   * @param name
-   *          Name of profile
-   * @param minlen
-   *          min length of ngram sequences
-   * @param maxlen
-   *          max length of ngram sequences
+   * @param name is the name of the profile
+   * @param minlen is the min length of ngram sequences
+   * @param maxlen is the max length of ngram sequences
    */
   public NGramProfile(String name, int minlen, int maxlen) {
-    ngrams = new Hashtable();
-    this.max_ngram_length = maxlen;
-    this.min_ngram_length = minlen;
+    // TODO: Compute the initial capacity using minlen and maxlen.
+    this.ngrams = new HashMap(4000);
+    this.minLength = minlen;
+    this.maxLength = maxlen;
     this.name = name;
   }
 
   /**
+   * @return Returns the name.
+   */
+  public String getName() {
+    return name;
+  }
+  
+  /**
    * Add ngrams from a token to this profile
    * 
-   * @param t
-   *          Token to be added
+   * @param t is the Token to be added
    */
-  public void addFromToken(Token t) {
-    tokensb.setLength(0);
-    tokensb.append(SEPARATOR).append(t.termText()).append(SEPARATOR);
-    addNGrams(tokensb);
-  }
-
-  /**
-   * Analyze a piece of text
-   * 
-   * @param text
-   *          the text to be analyzed
-   */
-  public void analyze(StringBuffer text) {
-    StringBuffer word;
-    int i;
-
-    if (ngrams != null) {
-      ngrams.clear();
-    }
-
-    word = new StringBuffer().append(SEPARATOR);
-    for (i = 0; i < text.length(); i++) {
-      char c = Character.toLowerCase(text.charAt(i));
-
-      if (Character.isLetter(c)) {
-        word.append(c);
-      } else {
-        //found word boundary
-        if (word.length() > 1) {
-          //we have a word!
-          word.append(SEPARATOR);
-          addNGrams(word);
-          word.delete(0, word.length());
-        }
-      }
-    }
-
-    if (word.length() > 1) {
-      //we have a last word
-      word.append(SEPARATOR);
-      addNGrams(word);
-    }
-    normalize();
-  }
-
-  /**
-   * Normalize profile
-   */
-  protected void normalize() {
-    Vector sorted = getSorted();
-    int sum = 0;
-
-    //only calculate ngramcount if it was not available in profile
-    if (ngramcount == 0) {
-      for (int i = 0; i < sorted.size(); i++) {
-        ngramcount += ((NGramEntry) sorted.get(i)).count;
-      }
-    }
-
-    if (sorted.size() > 0) {
-      Iterator i = sorted.iterator();
-
-      while (i.hasNext()) {
-        NGramEntry e = (NGramEntry) i.next();
-        e.normalized_count = e.count / (float)ngramcount;
-      }
-    }
+  public void add(Token t) {
+    add(new StringBuffer().append(SEPARATOR)
+                          .append(t.termText())
+                          .append(SEPARATOR));
   }
 
   /**
    * Add ngrams from a single word to this profile
    * 
-   * @param word
+   * @param word is the word to add
    */
-  public void addNGrams(StringBuffer word) {
-    int i;
-
-    for (i = min_ngram_length; i <= max_ngram_length && i < word.length(); i++) {
-      addNGrams(word, i);
+  public void add(StringBuffer word) {
+    for (int i=minLength; (i <= maxLength) && (i < word.length()); i++) {
+      add(word, i);
     }
   }
 
   /**
-   * @param word
-   * @param n
-   *          sequence length
+   * Add the last NGrams from the specified word.
    */
-  private void addNGrams(StringBuffer word, int n) {
-    NGramEntry nge;
-    StringBuffer sb;
-    int i;
+  private void add(QuickStringBuffer word) {
+    int wlen = word.length();
+    if (wlen >= minLength) {
+        int max = Math.min(maxLength, wlen);
+        for (int i=minLength; i<=max; i++) {
+            add(word.subSequence(wlen-i, wlen));
+        }
+    }
+  }
+  
+  /**
+   * Add ngrams from a single word in this profile
+   *
+   * @param word is the word to add
+   * @param n is the ngram size
+   */
+  private void add(CharSequence cs) {
 
-    for (i = 0; i <= word.length() - n; i++) {
-
-      CharSequence cs = word.subSequence(i, i + n);
-
-      if (ngrams.containsKey(cs)) {
-        nge = (NGramEntry) ngrams.get(cs);
-      } else {
-        nge = new NGramEntry(cs);
-      }
-      nge.inc();
+    if (cs.equals(SEP_CHARSEQ)) { return; }
+    NGramEntry nge = (NGramEntry) ngrams.get(cs);
+    if (nge == null) {
+      nge = new NGramEntry(cs);
       ngrams.put(cs, nge);
     }
+    nge.inc();
   }
 
   /**
-   * Return sorted vector of ngrams (sort done by 1. count 2. sequence)
+   * Analyze a piece of text
+   * 
+   * @param text the text to be analyzed
+   */
+  public void analyze(StringBuffer text) {
+
+    if (ngrams != null) {
+      ngrams.clear();
+      sorted = null;
+    }
+
+    word.clear().append(SEPARATOR);
+    for (int i = 0; i < text.length(); i++) {
+      char c = Character.toLowerCase(text.charAt(i));
+
+      if (Character.isLetter(c)) {
+        add(word.append(c));
+      } else {
+        //found word boundary
+        if (word.length() > 1) {
+          //we have a word!
+          add(word.append(SEPARATOR));
+          word.clear().append(SEPARATOR);
+        }
+      }
+    }
+
+    if (word.length() > 1) {
+      //we have a word!
+      add(word.append(SEPARATOR));
+    }
+    normalize();
+  }
+
+  /**
+   * @param word
+   * @param n sequence length
+   */
+  private void add(StringBuffer word, int n) {
+    for (int i=0; i <= word.length()-n; i++) {
+      add(word.subSequence(i, i + n));
+    }
+  }
+    
+  /**
+   * Normalize the profile (calculates the ngrams frequencies)
+   */
+  protected void normalize() {
+
+    NGramEntry e = null;
+    //List sorted = getSorted();
+    Iterator i = ngrams.values().iterator();
+
+    // Calculate ngramcount if not already done
+    if (ngramcounts == null) {
+      ngramcounts = new int[maxLength+1];
+      while (i.hasNext()) {
+        e = (NGramEntry) i.next();
+        ngramcounts[e.size()] += e.count;
+      }
+    }
+    
+    i = ngrams.values().iterator();
+    while (i.hasNext()) {
+      e = (NGramEntry) i.next();
+      e.frequency = (float) e.count / (float) ngramcounts[e.size()];
+    }
+  }
+
+  /**
+   * Return a sorted list of ngrams (sort done by 1. frequency 2. sequence)
    * 
    * @return sorted vector of ngrams
    */
-  public Vector getSorted() {
-    //make sure srting is done only once
+  public List getSorted() {
+    // make sure sorting is done only once
     if (sorted == null) {
-      sorted = new Vector(ngrams.values());
+      sorted = new ArrayList(ngrams.values());
       Collections.sort(sorted);
 
-      //trim at NGRAM_LENGTH entries
-      if (sorted.size() > NGRAM_LENGTH)
-        sorted.setSize(NGRAM_LENGTH);
+      // trim at NGRAM_LENGTH entries
+      if (sorted.size() > MAX_SIZE) {
+        sorted = sorted.subList(0, MAX_SIZE);
+      }
     }
-
     return sorted;
   }
-
-  /**
-   * Return ngramprofile as text
-   * 
-   * @return ngramprofile as text
-   */
+  
+  // Inherited JavaDoc
   public String toString() {
-    StringBuffer s = new StringBuffer();
+
+    StringBuffer s = new StringBuffer().append("NGramProfile: ")
+                                       .append(name).append("\n");
 
     Iterator i = getSorted().iterator();
 
-    s.append("NGramProfile: ").append(name).append("\n");
     while (i.hasNext()) {
       NGramEntry entry = (NGramEntry) i.next();
-      s.append(entry.count).append(':').append(entry.seq).append(" ").append(
-          entry.normalized_count).append("\n");
+      s.append("[").append(entry.seq)
+       .append("/").append(entry.count)
+       .append("/").append(entry.frequency).append("]\n");
     }
     return s.toString();
   }
@@ -308,6 +291,7 @@ public class NGramProfile {
    * @return similarity 0=exact match
    */
   public float getSimilarity(NGramProfile another) {
+      
     float sum = 0;
 
     try {
@@ -315,21 +299,20 @@ public class NGramProfile {
       while (i.hasNext()) {
         NGramEntry other = (NGramEntry) i.next();
         if (ngrams.containsKey(other.seq)) {
-          sum += Math.abs((other.normalized_count - ((NGramEntry) ngrams
-              .get(other.seq)).normalized_count)) / 2;
+          sum += Math.abs((other.frequency -
+                          ((NGramEntry) ngrams.get(other.seq)).frequency)) / 2;
         } else {
-          sum += other.normalized_count;
+          sum += other.frequency;
         }
       }
       i = getSorted().iterator();
       while (i.hasNext()) {
         NGramEntry other = (NGramEntry) i.next();
         if (another.ngrams.containsKey(other.seq)) {
-          sum += Math
-              .abs((other.normalized_count - ((NGramEntry) another.ngrams
-                  .get(other.seq)).normalized_count)) / 2;
+          sum += Math.abs((other.frequency -
+                          ((NGramEntry) another.ngrams.get(other.seq)).frequency)) / 2;
         } else {
-          sum += other.normalized_count;
+          sum += other.frequency;
         }
       }
     } catch (Exception e) {
@@ -339,27 +322,29 @@ public class NGramProfile {
   }
 
   /**
-   * Loads a ngram profile from InputStream (assumes UTF-8 encoded content)
+   * Loads a ngram profile from an InputStream
+   * (assumes UTF-8 encoded content)
+   * @param is the InputStream to read
    */
   public void load(InputStream is) throws IOException {
-    BufferedReader bis = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-    String line;
 
     ngrams.clear();
+    ngramcounts = new int[maxLength+1];
+    BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
+    String line = null;
 
-    while ((line = bis.readLine()) != null) {
+    while ((line = reader.readLine()) != null) {
 
       // # starts a comment line
       if (line.charAt(0) != '#') {
         int spacepos = line.indexOf(' ');
         String ngramsequence = line.substring(0, spacepos).trim();
-        int ngramcount = Integer.parseInt(line.substring(spacepos + 1));
-
-        if (!line.startsWith("ngram_count")) {
-          NGramEntry en = new NGramEntry(ngramsequence, ngramcount);
-          ngrams.put(en.getSeq(), en);
-        } else {
-          this.ngramcount = ngramcount;
+        int len = ngramsequence.length();
+        if ((len >= minLength) && (len <= maxLength)) {
+            int ngramcount = Integer.parseInt(line.substring(spacepos + 1));
+            NGramEntry en = new NGramEntry(ngramsequence, ngramcount);
+            ngrams.put(en.getSeq(), en);
+            ngramcounts[len] += ngramcount;
         }
       }
     }
@@ -369,16 +354,14 @@ public class NGramProfile {
   /**
    * Create a new Language profile from (preferably quite large) text file
    * 
-   * @param name
-   *          name of profile
-   * @param is
-   * @param encoding
-   *          encoding of stream
+   * @param name is thename of profile
+   * @param is is the stream to read
+   * @param encoding is the encoding of stream
    */
-  public static NGramProfile createNgramProfile(String name, InputStream is,
-      String encoding) {
+  public static NGramProfile create(String name, InputStream is, String encoding) {
 
-    NGramProfile newProfile = new NGramProfile(name);
+    NGramProfile newProfile = new NGramProfile(name, ABSOLUTE_MIN_NGRAM_LENGTH,
+                                                     ABSOLUTE_MAX_NGRAM_LENGTH);
     BufferedInputStream bis = new BufferedInputStream(is);
 
     byte buffer[] = new byte[4096];
@@ -394,7 +377,6 @@ public class NGramProfile {
     }
 
     newProfile.analyze(text);
-
     return newProfile;
   }
 
@@ -402,25 +384,42 @@ public class NGramProfile {
    * Writes NGramProfile content into OutputStream, content is outputted with
    * UTF-8 encoding
    * 
-   * @param os
-   *          Stream to output to
+   * @param os the Stream to output to
    * @throws IOException
    */
-
   public void save(OutputStream os) throws IOException {
-    Vector v = getSorted();
-    Iterator i = v.iterator();
-    os
-        .write(("# NgramProfile generated at " + new Date() + " for Nutch Language Identification\n")
-            .getBytes());
-    os.write(("ngram_count " + ngramcount + "\n").getBytes());
 
-    while (i.hasNext()) {
-      NGramEntry e = (NGramEntry) i.next();
-      String line = e.getSeq().toString() + " " + e.getCount() + "\n";
+    // Write header
+    os.write(("# NgramProfile generated at " + new Date() +
+              " for Nutch Language Identification\n").getBytes());
+
+    // And then each ngram
+    
+    // First dispatch ngrams in many lists depending on their size
+    // (one list for each size, in order to store MAX_SIZE ngrams for each
+    // size of ngram)
+    int count = 0;
+    List list = new ArrayList();
+    List sublist = new ArrayList();
+    NGramEntry[] entries = (NGramEntry[]) ngrams.values().toArray(new NGramEntry[ngrams.size()]);
+    for (int i=minLength; i<=maxLength; i++) {
+      for (int j=0; j<entries.length; j++) {
+        if (entries[j].getSeq().length() == i) {
+          sublist.add(entries[j]);
+        }
+      }
+      Collections.sort(sublist);
+      if (sublist.size() > MAX_SIZE) {
+        sublist = sublist.subList(0, MAX_SIZE);
+      }
+      list.addAll(sublist);
+      sublist.clear();
+    }
+    for (int i=0; i<list.size(); i++) {
+      NGramEntry e = (NGramEntry) list.get(i);
+      String line = e.toString() + " " + e.getCount() + "\n";
       os.write(line.getBytes("UTF-8"));
     }
-
     os.flush();
   }
 
@@ -431,7 +430,10 @@ public class NGramProfile {
    */
   public static void main(String args[]) {
 
-    String usage = "Usage: NGramProfile [-create profilename filename encoding] [-similarity file1 file2] [-score profile-name filename encoding]";
+    String usage = "Usage: NGramProfile " +
+                   "[-create profilename filename encoding] " +
+                   "[-similarity file1 file2] "+
+                   "[-score profile-name filename encoding]";
     int command = 0;
 
     final int CREATE = 1;
@@ -442,7 +444,7 @@ public class NGramProfile {
     String filename = "";
     String filename2 = "";
     String encoding = "";
-
+    
     if (args.length == 0) {
       System.err.println(usage);
       System.exit(-1);
@@ -479,43 +481,40 @@ public class NGramProfile {
 
         File f = new File(filename);
         FileInputStream fis = new FileInputStream(f);
-        NGramProfile newProfile = NGramProfile.createNgramProfile(profilename,
-            fis, encoding);
+        NGramProfile newProfile = NGramProfile.create(profilename, fis, encoding);
         fis.close();
-        f = new File(profilename + "." + NGRAM_FILE_EXTENSION);
+        f = new File(profilename + "." + FILE_EXTENSION);
         FileOutputStream fos = new FileOutputStream(f);
         newProfile.save(fos);
-        System.out.println("new profile " + profilename + "."
-            + NGRAM_FILE_EXTENSION + " was created.");
+        System.out.println("new profile " + profilename + "." + FILE_EXTENSION + " was created.");
         break;
 
       case SIMILARITY:
 
         f = new File(filename);
         fis = new FileInputStream(f);
-        newProfile = NGramProfile.createNgramProfile(filename, fis, encoding);
+        newProfile = NGramProfile.create(filename, fis, encoding);
         newProfile.normalize();
 
         f = new File(filename2);
         fis = new FileInputStream(f);
-        NGramProfile newProfile2 = NGramProfile.createNgramProfile(filename2,
-            fis, encoding);
+        NGramProfile newProfile2 = NGramProfile.create(filename2, fis, encoding);
         newProfile2.normalize();
-        System.out.println("Similarity is "
-            + newProfile.getSimilarity(newProfile2));
+        System.out.println("Similarity is " + newProfile.getSimilarity(newProfile2));
         break;
 
       case SCORE:
         f = new File(filename);
         fis = new FileInputStream(f);
-        newProfile = NGramProfile.createNgramProfile(filename, fis, encoding);
+        newProfile = NGramProfile.create(filename, fis, encoding);
 
-        f = new File(profilename + "." + NGRAM_FILE_EXTENSION);
+        f = new File(profilename + "." + FILE_EXTENSION);
         fis = new FileInputStream(f);
-        NGramProfile compare = new NGramProfile(profilename);
+        NGramProfile compare = new NGramProfile(profilename,
+                                                DEFAULT_MIN_NGRAM_LENGTH,
+                                                DEFAULT_MAX_NGRAM_LENGTH);
         compare.load(fis);
         System.out.println("Score is " + compare.getSimilarity(newProfile));
-
         break;
 
       }
@@ -525,18 +524,217 @@ public class NGramProfile {
     }
   }
 
+  
   /**
-   * @return Returns the name.
+   * Inner class that describes a NGram
    */
-  public String getName() {
-    return name;
+  class NGramEntry implements Comparable {
+
+    /** The NGRamProfile this NGram is related to */
+    private NGramProfile profile = null;
+
+    /** The sequence of characters of the ngram */
+    CharSequence seq = null;
+
+    /** The number of occurences of this ngram in its profile */
+    private int count = 0;
+
+    /** The frequency of this ngram in its profile */
+    private float frequency = 0.0F;
+
+    
+    /** 
+     * Constructs a new NGramEntry
+     * @param seq is the sequence of characters of the ngram
+     */
+    public NGramEntry(CharSequence seq) {
+      this.seq = seq;
+    }
+
+    /** 
+     * Constructs a new NGramEntry
+     * @param seq is the sequence of characters of the ngram
+     * @param count is the number of occurences of this ngram
+     */
+    public NGramEntry(String seq, int count) {
+      this.seq = new StringBuffer(seq).subSequence(0, seq.length());
+      this.count = count;
+    }
+
+    
+    /**
+     * Returns the number of occurences of this ngram in its profile
+     * @return the number of occurences of this ngram in its profile
+     */
+    public int getCount() {
+      return count;
+    }
+    
+    /**
+     * Returns the frequency of this ngram in its profile
+     * @return the frequency of this ngram in its profile
+     */
+    public float getFrequency() {
+        return frequency;
+    }
+
+    /**
+     * Returns the sequence of characters of this ngram
+     * @return the sequence of characters of this ngram
+     */
+    public CharSequence getSeq() {
+      return seq;
+    }
+
+    /**
+     * Returns the size of this ngram
+     * @return the size of this ngram
+     */
+    public int size() {
+        return seq.length();
+    }
+    
+    // Inherited JavaDoc
+    public int compareTo(Object o) {
+      NGramEntry ngram = (NGramEntry) o;
+      int diff = Float.compare(ngram.getFrequency(), frequency);
+      if (diff != 0) {
+        return diff;
+      } else {
+        return (toString().compareTo(ngram.toString()));
+      }
+    }
+
+    /**
+     * Increments the number of occurences of this ngram.
+     */
+    public void inc() {
+      count++;
+    }
+
+    /**
+     * Associated a profile to this ngram
+     * @param profile is the profile associated to this ngram
+     */
+    public void setProfile(NGramProfile profile) {
+        this.profile = profile;
+    }
+
+    /**
+     * Returns the profile associated to this ngram
+     * @return the profile associated to this ngram
+     */
+    public NGramProfile getProfile() {
+        return profile;
+    }
+
+    // Inherited JavaDoc
+    public String toString() {
+        return seq.toString();
+    }
+
+    // Inherited JavaDoc
+    public int hashCode() {
+        return seq.hashCode();
+    }
+    
+    // Inherited JavaDoc
+    public boolean equals(Object obj) {
+        
+        NGramEntry ngram = null;
+        try {
+            ngram = (NGramEntry) obj;
+            return ngram.seq.equals(seq);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
   }
 
-  /**
-   * @param name
-   *          The name to set.
-   */
-  public void setName(String name) {
-    this.name = name;
+  
+  private class QuickStringBuffer implements CharSequence {
+
+    private char value[];
+
+    private int count;
+
+    QuickStringBuffer() {
+      this(16);
+    }
+
+    QuickStringBuffer(char[] value) {
+      this.value = value;
+      count = value.length;
+    }
+    
+    QuickStringBuffer(int length) {
+      value = new char[length];
+    }
+
+    QuickStringBuffer(String str) {
+      this(str.length() + 16);
+      append(str);
+    }
+
+    public int length() {
+      return count;
+    }
+
+    private void expandCapacity(int minimumCapacity) {
+      int newCapacity = (value.length + 1) * 2;
+      if (newCapacity < 0) {
+        newCapacity = Integer.MAX_VALUE;
+      } else if (minimumCapacity > newCapacity) {
+          newCapacity = minimumCapacity;
+      }
+	
+      char newValue[] = new char[newCapacity];
+      System.arraycopy(value, 0, newValue, 0, count);
+      value = newValue;
+    }
+
+    QuickStringBuffer clear() {
+      count = 0;
+      return this;
+    }
+
+    public char charAt(int index) {
+      return value[index];
+    }
+
+    QuickStringBuffer append(String str) {
+      if (str == null) {
+        str = String.valueOf(str);
+      }
+
+      int len = str.length();
+      int newcount = count + len;
+      if (newcount > value.length) {
+        expandCapacity(newcount);
+      }
+      str.getChars(0, len, value, count);
+      count = newcount;
+      return this;
+    }
+
+    QuickStringBuffer append(char c) {
+      int newcount = count + 1;
+      if (newcount > value.length) {
+        expandCapacity(newcount);
+      }
+      value[count++] = c;
+      return this;
+    }
+
+    public CharSequence subSequence(int start, int end) {
+      return new String(value, start, end - start);
+    }
+        
+    public String toString() {
+      return new String(this.value);
+    }
   }
+  
+  
 }

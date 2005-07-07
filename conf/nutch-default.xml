@@ -23,6 +23,15 @@
 </property>
 
 <property>
+  <name>http.robots.403.allow</name>
+  <value>true</value>
+  <description>Some servers return HTTP status 403 (Forbidden) if
+  /robots.txt doesn't exist. This should probably mean that we are
+  allowed to crawl the site nonetheless. If this is set to false,
+  then such sites will be treated as forbidden.</description>
+</property>
+
+<property>
   <name>http.agent.description</name>
   <value>Nutch</value>
   <description>Further description of our bot- this text is used in
@@ -745,6 +754,40 @@
   <value>1.0</value>
   <description> Used as a boost for phrase in Lucene query.
   Multiplied by boost for field phrase is matched in.
+  </description>
+</property>
+
+<!-- language-identifier plugin properties -->
+
+<property>
+  <name>lang.ngram.min.length</name>
+  <value>1</value>
+  <description> The minimum size of ngrams to uses to identify
+  language (must be between 1 and lang.ngram.max.length).
+  The larger is the range between lang.ngram.min.length and
+  lang.ngram.max.length, the better is the identification, but
+  the slowest it is.
+  </description>
+</property>
+
+<property>
+  <name>lang.ngram.max.length</name>
+  <value>4</value>
+  <description> The maximum size of ngrams to uses to identify
+  language (must be between lang.ngram.min.length and 4).
+  The larger is the range between lang.ngram.min.length and
+  lang.ngram.max.length, the better is the identification, but
+  the slowest it is.
+  </description>
+</property>
+
+<property>
+  <name>lang.analyze.max.length</name>
+  <value>2048</value>
+  <description> The maximum bytes of data to uses to indentify
+  the language (0 means full content analysis).
+  The larger is this value, the better is the analysis, but the
+  slowest it is.
   </description>
 </property>
 

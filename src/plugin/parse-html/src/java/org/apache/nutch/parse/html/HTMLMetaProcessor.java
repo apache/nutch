@@ -122,6 +122,7 @@ public class HTMLMetaProcessor {
               } catch (Exception e) {
                 ;
               }
+              URL refreshUrl = null;
               if (metaTags.getRefresh() && idx != -1) { // set the URL
                 idx = content.toLowerCase().indexOf("url=");
                 if (idx == -1) { // assume a mis-formatted entry with just the url
@@ -129,7 +130,6 @@ public class HTMLMetaProcessor {
                 } else idx += 4;
                 if (idx != -1) {
                   String url = content.substring(idx);
-                  URL refreshUrl = null;
                   try {
                     refreshUrl = new URL(url);
                   } catch (Exception e) {
@@ -142,12 +142,18 @@ public class HTMLMetaProcessor {
                     try {
                       refreshUrl = new URL(currURL, url);
                     } catch (Exception e1) {
-                      ;
+                      refreshUrl = null;
                     }
                   }
-                  if (refreshUrl == null) metaTags.setRefresh(false);
-                  metaTags.setRefreshHref(refreshUrl);
                 }
+              }
+              if (metaTags.getRefresh()) {
+                if (refreshUrl == null) {
+                  // apparently only refresh time was present. set the URL
+                  // to the same URL.
+                  refreshUrl = currURL;
+                }
+                metaTags.setRefreshHref(refreshUrl);
               }
             }
           }

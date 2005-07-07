@@ -19,35 +19,20 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.Iterator;
-import java.util.Vector;
+import java.util.List;
 
 import junit.framework.TestCase;
-import org.apache.lucene.analysis.Token;
+
 
 public class TestNGramProfile extends TestCase {
 
   String tokencontent1 = "testaddtoken";
   String tokencontent2 = "anotherteststring";
 
-  int[] counts1 = { 3, 2, 2, 2, 1, 1, 1, 1, 1 };
+  int[] counts1 = { 3, 2, 2, 1, 1, 1, 1, 1 };
 
-  String[] chars1 = { "t", "_", "d", "e", "a", "k", "n", "o", "s" };
+  String[] chars1 = { "t", "d", "e", "a", "k", "n", "o", "s" };
 
-  /**
-   * Test addFromToken method
-   *
-   */
-  public void testAddToken() {
-
-    NGramProfile p = new NGramProfile("test", 1, 1);
-
-    Token t = new Token(tokencontent1, 0, tokencontent1.length());
-    p.addFromToken(t);
-    p.normalize();
-    
-    testCounts(p.getSorted(), counts1);
-    testContents(p.getSorted(), chars1);
-  }
 
   /**
    * Test analyze method
@@ -58,31 +43,16 @@ public class TestNGramProfile extends TestCase {
     NGramProfile p = new NGramProfile("test", 1, 1);
     p.analyze(new StringBuffer(tokencontent));
 
-    //test that profile size is ok, eg 9 different NGramEntries "_tesmagin"
-    assertEquals(9, p.getSorted().size());
-  }
-
-  /**
-   * Test addNGrams method with StringBuffer argument
-   *
-   */
-  public void testAddNGramsStringBuffer() {
-    String tokencontent = "testmeagain";
-
-    NGramProfile p = new NGramProfile("test", 1, 1);
-    p.addNGrams(new StringBuffer(tokencontent));
-
     //test that profile size is ok, eg 8 different NGramEntries "tesmagin"
     assertEquals(8, p.getSorted().size());
-
   }
 
   /**
    * test getSorted method
    */
   public void testGetSorted() {
-    int[] count = { 4, 3, 2, 1 };
-    String[] ngram = { "a", "b", "" + NGramProfile.SEPARATOR, "c" };
+    int[] count = { 4, 3, 1 };
+    String[] ngram = { "a", "b", "c" };
 
     String teststring = "AAaaBbbC";
 
@@ -90,7 +60,7 @@ public class TestNGramProfile extends TestCase {
     p.analyze(new StringBuffer(teststring));
 
     //test size of profile
-    assertEquals(4, p.getSorted().size());
+    assertEquals(3, p.getSorted().size());
 
     testCounts(p.getSorted(), count);
     testContents(p.getSorted(), ngram);
@@ -105,7 +75,7 @@ public class TestNGramProfile extends TestCase {
     b.analyze(new StringBuffer(tokencontent2));
 
     //because of rounding errors might slightly return different results
-    assertEquals(a.getSimilarity(b), b.getSimilarity(a), 0.0000001);
+    assertEquals(a.getSimilarity(b), b.getSimilarity(a), 0.0000002);
 
   }
 
@@ -150,7 +120,7 @@ public class TestNGramProfile extends TestCase {
     testContents(b.getSorted(), chars1);
   }
 
-  private void testContents(Vector entries, String contents[]) {
+  private void testContents(List entries, String contents[]) {
     int c = 0;
     Iterator i = entries.iterator();
 
@@ -161,7 +131,7 @@ public class TestNGramProfile extends TestCase {
     }
   }
 
-  private void testCounts(Vector entries, int counts[]) {
+  private void testCounts(List entries, int counts[]) {
     int c = 0;
     Iterator i = entries.iterator();
 

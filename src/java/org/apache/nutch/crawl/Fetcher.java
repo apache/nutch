@@ -92,11 +92,16 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
 
               case ProtocolStatus.MOVED:         // redirect
               case ProtocolStatus.TEMP_MOVED:
-                url = status.getMessage();
-                if (url != null) {
+                String newUrl = status.getMessage();
+                newUrl = URLFilters.filter(newUrl);
+                if (newUrl != null && !newUrl.equals(url)) {
+                  url = newUrl;
                   redirecting = true;
                   redirectCount++;
-                  LOG.fine(" - protocol redirect to " + url);
+                  LOG.fine(" - redirect to " + url);
+                } else {
+                  LOG.fine(" - redirect skipped: " +
+                           (url.equals(newUrl) ? "to same url" : "filtered"));
                 }
                 break;
 

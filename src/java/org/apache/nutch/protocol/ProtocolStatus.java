@@ -19,6 +19,7 @@ package org.apache.nutch.protocol;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.apache.nutch.io.VersionedWritable;
 import org.apache.nutch.io.WritableUtils;
@@ -76,6 +77,24 @@ public class ProtocolStatus extends VersionedWritable {
   private int code;
   private long lastModified;
   private String[] args;
+  
+  private static HashMap codeToName = new HashMap();
+  static {
+    codeToName.put(new Integer(SUCCESS), "success");
+    codeToName.put(new Integer(FAILED), "failed");
+    codeToName.put(new Integer(PROTO_NOT_FOUND), "proto_not_found");
+    codeToName.put(new Integer(GONE), "gone");
+    codeToName.put(new Integer(MOVED), "moved");
+    codeToName.put(new Integer(TEMP_MOVED), "temp_moved");
+    codeToName.put(new Integer(NOTFOUND), "notfound");
+    codeToName.put(new Integer(RETRY), "retry");
+    codeToName.put(new Integer(EXCEPTION), "exception");
+    codeToName.put(new Integer(ACCESS_DENIED), "access_denied");
+    codeToName.put(new Integer(ROBOTS_DENIED), "robots_denied");
+    codeToName.put(new Integer(REDIR_EXCEEDED), "redir_exceeded");
+    codeToName.put(new Integer(NOTFETCHING), "notfetching");
+    codeToName.put(new Integer(NOTMODIFIED), "notmodified");
+  }
   
   public ProtocolStatus() {
     
@@ -215,7 +234,7 @@ public class ProtocolStatus extends VersionedWritable {
   
   public String toString() {
     StringBuffer res = new StringBuffer();
-    res.append("(" + code + "), lastModified=" + lastModified);
+    res.append(codeToName.get(new Integer(code)) + "(" + code + "), lastModified=" + lastModified);
     if (args != null) {
       if (args.length == 1) {
         res.append(": " + String.valueOf(args[0]));

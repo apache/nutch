@@ -49,6 +49,9 @@ import org.apache.nutch.protocol.ProtocolException;
 public class RobotRulesParser {
   public static final Logger LOG=
     LogFormatter.getLogger("org.apache.nutch.fetcher.RobotRulesParser");
+  
+  private static final boolean ALLOW_FORBIDDEN =
+    NutchConf.get().getBoolean("http.robots.403.allow", false);
 
   private static final String[] AGENTS = getAgents();
   private static final Hashtable CACHE = new Hashtable();
@@ -378,7 +381,7 @@ public class RobotRulesParser {
 
       if (response.getCode() == 200)               // found rules: parse them
         robotRules = new RobotRulesParser().parseRules(response.getContent());
-      else if (response.getCode() == 403)
+      else if ( (response.getCode() == 403) && (!ALLOW_FORBIDDEN) )
         robotRules = FORBID_ALL_RULES;            // use forbid all
       else                                        
         robotRules = EMPTY_RULES;                 // use default rules

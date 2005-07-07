@@ -34,7 +34,7 @@
               name="Nutch language identifier filter"
               point="org.apache.nutch.indexer.IndexingFilter">
       <implementation id="LanguageIdentifier"
-                      class="org.apache.nutch.analysis.lang.LanguageIdentifier"/>
+                      class="org.apache.nutch.analysis.lang.LanguageIndexingFilter"/>
    </extension>
 
 

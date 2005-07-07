@@ -66,25 +66,6 @@ public class ParseStatus extends VersionedWritable {
   public static final ParseStatus STATUS_SUCCESS = new ParseStatus(SUCCESS);
   public static final ParseStatus STATUS_FAILURE = new ParseStatus(FAILED);
   
-
-  private static class EmptyParseImpl implements Parse {
-  
-    private ParseData data = null;
-  
-    public EmptyParseImpl(ParseStatus status) {
-      data = new ParseData(status, "", new Outlink[0], new Properties());
-    }
-  
-    public ParseData getData() {
-      return data;
-    }
-
-    public String getText() {
-      return "";
-    }
-  }
-
-
   private byte majorCode = 0;
   private short minorCode = 0;
   private String[] args = null;
@@ -187,7 +168,10 @@ public class ParseStatus extends VersionedWritable {
   
   public String toString() {
     StringBuffer res = new StringBuffer();
-    res.append(majorCodes[majorCode] + "(" + majorCode + "," + minorCode + ")");
+    String name = null;
+    if (majorCode >= 0 && majorCode < majorCodes.length) name = majorCodes[majorCode];
+    else name = "UNKNOWN!";
+    res.append(name + "(" + majorCode + "," + minorCode + ")");
     if (args != null) {
       if (args.length == 1) {
         res.append(": " + String.valueOf(args[0]));
@@ -239,6 +223,23 @@ public class ParseStatus extends VersionedWritable {
       }
     }
     return true;
+  }
+  
+  private static class EmptyParseImpl implements Parse {
+    
+    private ParseData data = null;
+    
+    public EmptyParseImpl(ParseStatus status) {
+      data = new ParseData(status, "", new Outlink[0], new Properties());
+    }
+    
+    public ParseData getData() {
+      return data;
+    }
+
+    public String getText() {
+      return "";
+    }
   }
 }
 

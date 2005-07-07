@@ -9,6 +9,10 @@
     <copy todir="${build.classes}">
       <fileset dir="${src.dir}" includes="**/*.ngp, **/*.properties"/>
     </copy>
+    <echo>Copying test files</echo>
+    <copy todir="${build.test}">
+      <fileset dir="${src.test}" includes="**/*.test, **/*.txt"/>
+    </copy>
   </target>
 	
 </project>

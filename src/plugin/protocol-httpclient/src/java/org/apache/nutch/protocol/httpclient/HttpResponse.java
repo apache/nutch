@@ -28,6 +28,8 @@ public class HttpResponse {
 
   private byte[] content;
 
+  private static final byte[] EMPTY_CONTENT = new byte[0];
+
   private int code;
 
   private MultiProperties headers = new MultiProperties();
@@ -53,6 +55,7 @@ public class HttpResponse {
   public Content toContent() {
     String contentType = getHeader("Content-Type");
     if (contentType == null) contentType = "";
+    if (content == null) content = EMPTY_CONTENT;
     return new Content(orig, base, content, contentType, headers);
   }
 
@@ -77,8 +80,9 @@ public class HttpResponse {
       for (int i = 0; i < heads.length; i++) {
         headers.put(heads[i].getName(), heads[i].getValue());
       }
-      if (code == 200) {
-
+      // always read content. Sometimes content is useful to find a cause
+      // for error.
+      try {
         InputStream in = get.getResponseBodyAsStream();
         byte[] buffer = new byte[Http.BUFFER_SIZE];
         int bufferFilled = 0;
@@ -93,7 +97,9 @@ public class HttpResponse {
 
         content = out.toByteArray();
         in.close();
-
+      } catch (Exception e) {
+        if (code == 200) throw new IOException(e.toString());
+        // for codes other than 200 OK, we are fine with empty content
       }
     } catch (org.apache.commons.httpclient.ProtocolException pe) {
       pe.printStackTrace();
