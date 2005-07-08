@@ -160,7 +160,7 @@ public class DistributedSearch {
           continue;
         }
         for (int j = 0; j < segments.length; j++) {
-          LOG.info("Client: segment "+segments[j]+" at "+addr);
+          LOG.finest("Client: segment "+segments[j]+" at "+addr);
           segmentToAddress.put(segments[j], addr);
         }
         liveAddresses.add(addr);
