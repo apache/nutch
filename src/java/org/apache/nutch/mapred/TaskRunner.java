@@ -108,7 +108,12 @@ abstract class TaskRunner extends Thread {
     this.process = Runtime.getRuntime().exec(args, null, dir);
     try {
       StringBuffer errorBuf = new StringBuffer();
-      logStream(process.getErrorStream());        // copy log output
+      new Thread() {
+        public void run() {
+          logStream(process.getErrorStream());    // copy log output
+        }
+      }.start();
+        
       logStream(process.getInputStream());        // normally empty
       
       if (this.process.waitFor() != 0) {
