@@ -47,7 +47,7 @@ public class FileUtil {
         }
 
         File dstParent = dst.getParentFile();
-        if (! nfs.exists(dstParent)) {
+        if ((dstParent != null) && (!nfs.exists(dstParent))) {
             nfs.mkdirs(dstParent);
         }
 
