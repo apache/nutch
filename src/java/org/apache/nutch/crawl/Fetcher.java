@@ -38,6 +38,19 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
   
   public static final String DIGEST_KEY = "nutch.content.digest";
 
+  public class InputFormat extends SequenceFileInputFormat {
+    /** Don't split inputs, to keep things polite. */
+    public FileSplit[] getSplits(NutchFileSystem fs, JobConf job, int nSplits)
+      throws IOException {
+      File[] files = listFiles(fs, job);
+      FileSplit[] splits = new FileSplit[files.length];
+      for (int i = 0; i < files.length; i++) {
+        splits[i] = new FileSplit(files[i], 0, fs.getLength(files[i]));
+      }
+      return splits;
+    }
+  }
+
   private RecordReader input;
   private OutputCollector output;
 
