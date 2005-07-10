@@ -38,7 +38,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
   
   public static final String DIGEST_KEY = "nutch.content.digest";
 
-  public class InputFormat extends SequenceFileInputFormat {
+  public static class InputFormat extends SequenceFileInputFormat {
     /** Don't split inputs, to keep things polite. */
     public FileSplit[] getSplits(NutchFileSystem fs, JobConf job, int nSplits)
       throws IOException {
@@ -253,7 +253,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
     job.setInt("fetcher.threads.fetch", threads);
 
     job.setInputDir(new File(segment, CrawlDatum.GENERATE_DIR_NAME));
-    job.setInputFormat(SequenceFileInputFormat.class);
+    job.setInputFormat(InputFormat.class);
     job.setInputKeyClass(UTF8.class);
     job.setInputValueClass(CrawlDatum.class);
 
