@@ -91,7 +91,7 @@ public class Crawl {
     File crawlDb = new File(dir + "/crawldb");
     File linkDb = new File(dir + "/linkdb");
     File segments = new File(dir + "/segments");
-    File index = new File(dir + "/index");
+    File index = new File(dir + "/indexes");
       
     // initialize crawlDb
     new Injector(conf).inject(crawlDb, rootUrlFile);
@@ -108,7 +108,7 @@ public class Crawl {
     new LinkDb(conf).invert(linkDb, segments); // invert links
 
     // index
-    new Indexer(conf).index(index, linkDb, segments.listFiles());
+    new Indexer(conf).index(index, linkDb, fs.listFiles(segments));
 
     LOG.info("crawl finished: " + dir);
   }
