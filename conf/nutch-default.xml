@@ -498,9 +498,9 @@
 
 <property>
   <name>searcher.dir</name>
-  <value>.</value>
+  <value>crawl</value>
   <description>
-  Path to root of index directories.  This directory is searched (in
+  Path to root of crawl.  This directory is searched (in
   order) for either the file search-servers.txt, containing a list of
   distributed search servers, or the directory "index" containing
   merged indexes, or the directory "segments" containing segment

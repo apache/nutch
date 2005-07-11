@@ -39,57 +39,64 @@ public class FetchedSegments implements HitSummarizer, HitContent {
     private NutchFileSystem nfs;
     private File segmentDir;
 
-    private ArrayFile.Reader fetcher;
-    private ArrayFile.Reader content;
-    private ArrayFile.Reader text;
-    private ArrayFile.Reader parsedata;
+    private MapFile.Reader[] content;
+    private MapFile.Reader[] parseText;
+    private MapFile.Reader[] parseData;
 
     public Segment(NutchFileSystem nfs, File segmentDir) throws IOException {
       this.nfs = nfs;
       this.segmentDir = segmentDir;
     }
 
-    public FetcherOutput getFetcherOutput(int docNo) throws IOException {
-      if (fetcher == null) { 
-        this.fetcher = new ArrayFile.Reader
-          (nfs, new File(segmentDir, FetcherOutput.DIR_NAME).toString());
-      }
-
-      FetcherOutput entry = new FetcherOutput();
-      fetcher.get(docNo, entry);
-      return entry;
+    public FetcherOutput getFetcherOutput(UTF8 url) throws IOException {
+      throw new UnsupportedOperationException();
     }
 
-    public byte[] getContent(int docNo) throws IOException {
-      if (content == null) {
-        this.content = new ArrayFile.Reader
-          (nfs, new File(segmentDir, Content.DIR_NAME).toString());
+    public byte[] getContent(UTF8 url) throws IOException {
+      synchronized (this) {
+        if (content == null) {
+          File[] parts = nfs.listFiles(new File(segmentDir, Content.DIR_NAME));
+          content = new MapFile.Reader[parts.length];
+          for (int i = 0; i < parts.length; i++) {
+            content[i] = new MapFile.Reader(nfs, parts[i].toString());
+          }
+        }
       }
 
       Content entry = new Content();
-      content.get(docNo, entry);
+      content[url.hashCode()%content.length].get(url, entry);
       return entry.getContent();
     }
 
-    public ParseData getParseData(int docNo) throws IOException {
-      if (parsedata == null) {
-        this.parsedata = new ArrayFile.Reader
-          (nfs, new File(segmentDir, ParseData.DIR_NAME).toString());
+    public ParseData getParseData(UTF8 url) throws IOException {
+      synchronized (this) {
+        if (parseData == null) {
+          File[] parts=nfs.listFiles(new File(segmentDir, ParseData.DIR_NAME));
+          parseData = new MapFile.Reader[parts.length];
+          for (int i = 0; i < parts.length; i++) {
+            parseData[i] = new MapFile.Reader(nfs, parts[i].toString());
+          }
+        }
       }
       
       ParseData entry = new ParseData();
-      parsedata.get(docNo, entry);
+      parseData[url.hashCode()%parseData.length].get(url, entry);
       return entry;
     }
 
-    public ParseText getParseText(int docNo) throws IOException {
-      if (text == null) {
-        this.text = new ArrayFile.Reader
-          (nfs, new File(segmentDir, ParseText.DIR_NAME).toString());
+    public ParseText getParseText(UTF8 url) throws IOException {
+      synchronized (this) {
+        if (parseText == null) {
+          File[] parts=nfs.listFiles(new File(segmentDir, ParseText.DIR_NAME));
+          parseText = new MapFile.Reader[parts.length];
+          for (int i = 0; i < parts.length; i++) {
+            parseText[i] = new MapFile.Reader(nfs, parts[i].toString());
+          }
+        }
       }
-
+      
       ParseText entry = new ParseText();
-      text.get(docNo, entry);
+      parseText[url.hashCode()%parseText.length].get(url, entry);
       return entry;
     }
     
@@ -104,10 +111,12 @@ public class FetchedSegments implements HitSummarizer, HitContent {
     if (segmentDirs != null) {
         for (int i = 0; i < segmentDirs.length; i++) {
             File segmentDir = segmentDirs[i];
-            File indexdone = new File(segmentDir, IndexSegment.DONE_NAME);
-            if (nfs.exists(indexdone) && nfs.isFile(indexdone)) {
-            	segments.put(segmentDir.getName(), new Segment(nfs, segmentDir));
-            }
+//             File indexdone = new File(segmentDir, IndexSegment.DONE_NAME);
+//             if (nfs.exists(indexdone) && nfs.isFile(indexdone)) {
+//             	segments.put(segmentDir.getName(), new Segment(nfs, segmentDir));
+//             }
+            segments.put(segmentDir.getName(), new Segment(nfs, segmentDir));
+
         }
     }
   }
@@ -117,31 +126,31 @@ public class FetchedSegments implements HitSummarizer, HitContent {
   }
 
   public byte[] getContent(HitDetails details) throws IOException {
-    return getSegment(details).getContent(getDocNo(details));
+    return getSegment(details).getContent(getUrl(details));
   }
 
   public ParseData getParseData(HitDetails details) throws IOException {
-    return getSegment(details).getParseData(getDocNo(details));
+    return getSegment(details).getParseData(getUrl(details));
   }
 
   public String[] getAnchors(HitDetails details) throws IOException {
-    return getSegment(details).getFetcherOutput(getDocNo(details))
+    return getSegment(details).getFetcherOutput(getUrl(details))
       .getFetchListEntry().getAnchors();
   }
 
   public long getFetchDate(HitDetails details) throws IOException {
-    return getSegment(details).getFetcherOutput(getDocNo(details))
+    return getSegment(details).getFetcherOutput(getUrl(details))
       .getFetchDate();
   }
 
   public ParseText getParseText(HitDetails details) throws IOException {
-    return getSegment(details).getParseText(getDocNo(details));
+    return getSegment(details).getParseText(getUrl(details));
   }
 
   public String getSummary(HitDetails details, Query query)
     throws IOException {
 
-    String text = getSegment(details).getParseText(getDocNo(details)).getText();
+    String text = getSegment(details).getParseText(getUrl(details)).getText();
 
     return new Summarizer().getSummary(text, query).toString();
   }
@@ -199,8 +208,8 @@ public class FetchedSegments implements HitSummarizer, HitContent {
     return (Segment)segments.get(details.getValue("segment"));
   }
 
-  private int getDocNo(HitDetails details) {
-    return Integer.parseInt(details.getValue("docNo"), 16);
+  private UTF8 getUrl(HitDetails details) {
+    return new UTF8(details.getValue("url"));
   }
 
 

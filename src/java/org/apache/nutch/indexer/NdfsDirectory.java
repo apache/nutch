@@ -1,5 +1,3 @@
-package org.apache.lucene.store;
-
 /**
  * Copyright 2004 The Apache Software Foundation
  *
@@ -15,6 +13,8 @@ package org.apache.lucene.store;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+package org.apache.nutch.indexer;
 
 import java.io.*;
 import org.apache.lucene.store.*;

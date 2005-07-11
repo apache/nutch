@@ -100,6 +100,7 @@ public class Indexer extends NutchConfigured implements Reducer {
             writer.optimize();
             writer.close();
             fs.completeLocalOutput(perm, temp);   // copy to ndfs
+            fs.createNewFile(new File(perm, IndexSegment.DONE_NAME));
           }
         };
     }
