@@ -218,6 +218,7 @@ public class FSNamesystem implements FSConstants {
                 // Get the array of replication targets 
                 DatanodeInfo targets[] = chooseTargets(DESIRED_REPLICATION, null);
                 if (targets.length < MIN_REPLICATION) {
+                    LOG.info("Target-length is " + targets.length + ", below MIN_REPLICATION (" + MIN_REPLICATION + ")");
                     return null;
                 }
 
@@ -241,6 +242,8 @@ public class FSNamesystem implements FSConstants {
                 results[0] = allocateBlock(src);
                 results[1] = targets;
             }
+        } else {
+            LOG.info("Cannot start file because pendingCreates is non-null");
         }
         return results;
     }
@@ -318,6 +321,7 @@ public class FSNamesystem implements FSConstants {
      */
     public synchronized int completeFile(UTF8 src, UTF8 holder) {
         if (dir.getFile(src) != null || pendingCreates.get(src) == null) {
+	    LOG.info("Failed to complete " + src + "  because dir.getFile()==" + dir.getFile(src) + " and " + pendingCreates.get(src));
             return OPERATION_FAILED;
         } else if (! checkFileProgress(src)) {
             return STILL_WAITING;
@@ -380,6 +384,7 @@ public class FSNamesystem implements FSConstants {
                 }
                 return COMPLETE_SUCCESS;
             }
+	    LOG.info("Dropped through on file add....");
         }
 
         return OPERATION_FAILED;
@@ -719,6 +724,7 @@ public class FSNamesystem implements FSConstants {
      * 2) Adjust usage stats for future block allocation
      */
     public void gotHeartbeat(UTF8 name, long capacity, long remaining) {
+        LOG.info("Got heartbeat from " + name);
         synchronized (heartbeats) {
             synchronized (datanodeMap) {
                 long capacityDiff = 0;
@@ -1126,6 +1132,7 @@ public class FSNamesystem implements FSConstants {
     DatanodeInfo chooseTarget(TreeSet alreadyHasNode, TreeSet alreadyChosen) {
         int totalMachines = datanodeMap.size();
         if (totalMachines == 0) {
+            LOG.info("While choosing target, totalMachines is " + totalMachines);
             return null;
         }
         int freeMachines = totalMachines;

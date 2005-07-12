@@ -59,7 +59,7 @@ public abstract class NutchFileSystem {
         String cmd = argv[i];
         if ("-ndfs".equals(cmd)) {
             i++;
-            InetSocketAddress addr = NDFS.createSocketAddr(argv[i++]);
+            InetSocketAddress addr = DataNode.createSocketAddr(argv[i++]);
             nfs = new NDFSFileSystem(addr);
         } else if ("-local".equals(cmd)) {
             i++;
@@ -99,7 +99,7 @@ public abstract class NutchFileSystem {
         if ("local".equals(name)) {
           fs = new LocalFileSystem();
         } else {
-          fs = new NDFSFileSystem(NDFS.createSocketAddr(name));
+          fs = new NDFSFileSystem(DataNode.createSocketAddr(name));
         }
         NAME_TO_FS.put(name, fs);
       }
