@@ -36,6 +36,7 @@ class ReduceTaskRunner extends TaskRunner {
   /** Assemble all of the map output files. */
   public void prepare() throws IOException {
     ReduceTask task = ((ReduceTask)getTask());
+    MapOutputFile.removeAll(task.getTaskId());    // cleanup from failures
     String[] mapTaskIds = task.getMapTaskIds();
 
     getTracker().progress(task.getTaskId(), new FloatWritable(0.0f/3.0f));
