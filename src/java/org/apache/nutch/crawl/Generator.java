@@ -192,7 +192,7 @@ public class Generator extends NutchConfigured {
     File segmentsDir = new File(args[1]);
     long curTime = System.currentTimeMillis();
     long topN = Long.MAX_VALUE;
-    int numFetchers = 1;
+    int numFetchers = -1;
 
     for (int i = 2; i < args.length; i++) {
       if ("-topN".equals(args[i])) {
