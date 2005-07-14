@@ -45,6 +45,7 @@ if [ $# = 0 ]; then
   echo "  ndfs              run an NDFS admin client"
   echo "  jobtracker        run the MapReduce job Tracker node" 
   echo "  tasktracker       run a MapReduce task Tracker node" 
+  echo "  job               manipulate MapReduce jobs" 
   echo " or"
   echo "  CLASSNAME         run the class named CLASSNAME"
   echo "Most commands print help when invoked w/o parameters."
@@ -151,6 +152,8 @@ elif [ "$COMMAND" = "jobtracker" ] ; then
   CLASS=org.apache.nutch.mapred.JobTracker
 elif [ "$COMMAND" = "tasktracker" ] ; then
   CLASS=org.apache.nutch.mapred.TaskTracker
+elif [ "$COMMAND" = "job" ] ; then
+  CLASS=org.apache.nutch.mapred.JobClient
 else
   CLASS=$COMMAND
 fi

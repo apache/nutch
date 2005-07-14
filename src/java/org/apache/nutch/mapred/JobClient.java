@@ -319,7 +319,7 @@ public class JobClient implements MRConstants {
      */
     public static void main(String argv[]) throws IOException {
         if (argv.length < 2) {
-            System.out.println("JobClient [-submit <job>] [-status <id>]");
+            System.out.println("JobClient -submit <job> | -status <id> | -kill <id>");
             System.exit(-1);
         }
 
