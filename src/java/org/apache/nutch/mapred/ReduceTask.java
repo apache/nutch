@@ -23,6 +23,7 @@ import org.apache.nutch.fs.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.text.*;
 
 /** A Reduce task. */
 public class ReduceTask extends Task {
@@ -185,7 +186,7 @@ public class ReduceTask extends Task {
     umbilical.progress(getTaskId(), new FloatWritable(2.0f/3.0f));
 
     // make output collector
-    String name = "part-" + getPartition();
+    String name = getOutputName(getPartition());
     final RecordWriter out =
       job.getOutputFormat().getRecordWriter(NutchFileSystem.get(), job, name);
     OutputCollector collector = new OutputCollector() {
@@ -211,6 +212,20 @@ public class ReduceTask extends Task {
     }
 
     umbilical.progress(getTaskId(), new FloatWritable(3.0f/3.0f));
+  }
+
+  /** Construct output file names so that, when an output directory listing is
+   * sorted lexicographically, positions correspond to output partitions.*/
+
+  private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance();
+
+  static {
+    NUMBER_FORMAT.setMinimumIntegerDigits(5);
+    NUMBER_FORMAT.setGroupingUsed(false);
+  }
+
+  private static synchronized String getOutputName(int partition) {
+    return "part-" + NUMBER_FORMAT.format(partition);
   }
 
 }

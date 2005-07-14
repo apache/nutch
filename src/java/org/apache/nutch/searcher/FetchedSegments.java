@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.File;
 
 import java.util.HashMap;
+import java.util.Arrays;
 
 import org.apache.nutch.io.*;
 import org.apache.nutch.fs.*;
@@ -54,52 +55,47 @@ public class FetchedSegments implements HitSummarizer, HitContent {
 
     public byte[] getContent(UTF8 url) throws IOException {
       synchronized (this) {
-        if (content == null) {
-          File[] parts = nfs.listFiles(new File(segmentDir, Content.DIR_NAME));
-          content = new MapFile.Reader[parts.length];
-          for (int i = 0; i < parts.length; i++) {
-            content[i] = new MapFile.Reader(nfs, parts[i].toString());
-          }
-        }
+        if (content == null)
+          content = getReaders(Content.DIR_NAME);
       }
-
-      Content entry = new Content();
-      content[url.hashCode()%content.length].get(url, entry);
-      return entry.getContent();
+      return ((Content)getEntry(content, url, new Content())).getContent();
     }
 
     public ParseData getParseData(UTF8 url) throws IOException {
       synchronized (this) {
-        if (parseData == null) {
-          File[] parts=nfs.listFiles(new File(segmentDir, ParseData.DIR_NAME));
-          parseData = new MapFile.Reader[parts.length];
-          for (int i = 0; i < parts.length; i++) {
-            parseData[i] = new MapFile.Reader(nfs, parts[i].toString());
-          }
-        }
+        if (content == null)
+          content = getReaders(ParseData.DIR_NAME);
       }
-      
-      ParseData entry = new ParseData();
-      parseData[url.hashCode()%parseData.length].get(url, entry);
-      return entry;
+      return (ParseData)getEntry(content, url, new ParseData());
     }
 
     public ParseText getParseText(UTF8 url) throws IOException {
       synchronized (this) {
-        if (parseText == null) {
-          File[] parts=nfs.listFiles(new File(segmentDir, ParseText.DIR_NAME));
-          parseText = new MapFile.Reader[parts.length];
-          for (int i = 0; i < parts.length; i++) {
-            parseText[i] = new MapFile.Reader(nfs, parts[i].toString());
-          }
-        }
+        if (content == null)
+          content = getReaders(ParseText.DIR_NAME);
       }
-      
-      ParseText entry = new ParseText();
-      parseText[url.hashCode()%parseText.length].get(url, entry);
-      return entry;
+      return (ParseText)getEntry(content, url, new ParseText());
     }
     
+    private MapFile.Reader[] getReaders(String subDir) throws IOException {
+      File[] names = nfs.listFiles(new File(segmentDir, subDir));
+      
+      // sort names, so that hash partitioning works
+      Arrays.sort(names);
+
+      MapFile.Reader[] parts = new MapFile.Reader[names.length];
+      for (int i = 0; i < names.length; i++) {
+        parts[i] = new MapFile.Reader(nfs, names[i].toString());
+      }
+      return parts;
+    }
+
+    // hash the url to figure out which part its in
+    private Writable getEntry(MapFile.Reader[] readers, UTF8 url,
+                              Writable entry) throws IOException {
+      return readers[url.hashCode()%readers.length].get(url, entry);
+    }
+
   }
 
   private HashMap segments = new HashMap();
