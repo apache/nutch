@@ -199,11 +199,7 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
     }
 
     public NDFSFileInfo[] getListing(String src) throws IOException {
-        NDFSFileInfo results[] = namesystem.getListing(new UTF8(src));
-        if (results == null || results.length == 0) {
-            throw new IOException("Cannot find listing for " + src);
-        }
-        return results;
+        return namesystem.getListing(new UTF8(src));
     }
 
     public long[] getStats() throws IOException {
