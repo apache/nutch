@@ -724,7 +724,6 @@ public class FSNamesystem implements FSConstants {
      * 2) Adjust usage stats for future block allocation
      */
     public void gotHeartbeat(UTF8 name, long capacity, long remaining) {
-        LOG.info("Got heartbeat from " + name);
         synchronized (heartbeats) {
             synchronized (datanodeMap) {
                 long capacityDiff = 0;

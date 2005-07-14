@@ -136,7 +136,6 @@ public class DataNode implements FSConstants {
                     // -- Total capacity
                     // -- Bytes remaining
                     //
-		    LOG.info("Sending heartbeat from " + localName);
                     namenode.sendHeartbeat(localName, data.getCapacity(), data.getRemaining());
                     lastHeartbeat = now;
 		}
