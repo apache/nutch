@@ -19,7 +19,6 @@ package org.apache.nutch.fs;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import java.text.*;
 
 import org.apache.nutch.io.*;
 import org.apache.nutch.ndfs.*;
@@ -44,15 +43,18 @@ public class NDFSFileSystem extends NutchFileSystem {
      */
     public NDFSFileSystem(InetSocketAddress namenode) throws IOException {
       this.ndfs = new NDFSClient(namenode);
-      this.name = namenode.getHostName()+":"+namenode.getPort();
+      this.name = namenode.getHostName() + ":" + namenode.getPort();
     }
 
     public String getName() { return name; }
 
     private UTF8 getPath(File file) {
-      if (!file.isAbsolute())
-        file = new File(HOME_DIR+file.getPath());
-      return new UTF8(file.getPath());
+      File f = file;
+      String path = getNDFSPath(file);
+      if (!path.startsWith(NDFSFile.NDFS_FILE_SEPARATOR)) {
+        f = new File(HOME_DIR, path);
+      }
+      return new UTF8(getNDFSPath(f));
     }
 
     /**
@@ -289,5 +291,29 @@ public class NDFSFileSystem extends NutchFileSystem {
      */
     public NDFSClient getClient() {
         return ndfs;
+    }
+    
+    private String getNDFSPath(File f) {
+      List l = new ArrayList();
+      l.add(f.getName());
+      File parent = f.getParentFile();
+      while (parent != null) {
+        l.add(parent.getName());
+        parent = parent.getParentFile();
+      }
+      StringBuffer path = new StringBuffer();
+      String fname = (String) l.get(l.size() - 1);
+      if (!"".equals(fname)) {
+        path.append(fname); //handle not absolute paths
+      } else {
+        if (l.size() == 1)
+          path.append(NDFSFile.NDFS_FILE_SEPARATOR); //handle root path
+      }
+      for (int i = l.size() - 2; i >= 0; i--) {
+        fname = (String) l.get(i);
+        path.append(NDFSFile.NDFS_FILE_SEPARATOR);
+        path.append(fname);
+      }
+      return path.toString();
     }
 }

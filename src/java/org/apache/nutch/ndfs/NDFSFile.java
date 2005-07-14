@@ -16,8 +16,6 @@
 package org.apache.nutch.ndfs;
 
 import java.io.*;
-import java.net.*;
-import java.util.*;
 
 
 /*****************************************************************
@@ -29,6 +27,9 @@ import java.util.*;
 public class NDFSFile extends File {
     NDFSFileInfo info;
 
+    /** Separator used in NDFS filenames. */
+    public static final String NDFS_FILE_SEPARATOR = "/";
+    
     /**
      */
     public NDFSFile(NDFSFileInfo info) {
@@ -75,5 +76,23 @@ public class NDFSFile extends File {
      */
     public long getContentsLength() {
         return info.getContentsLen();
+    }
+    
+    /**
+     * Retrieving parent path from NDFS path string
+     * @param path - NDFS path 
+     * @return - parent path of NDFS path, or null if no parent exist.
+     */
+    public static String getNDFSParent(String path) {
+        if (path == null)
+            return null;
+        if (NDFS_FILE_SEPARATOR.equals(path))
+            return null;
+        int index = path.lastIndexOf(NDFS_FILE_SEPARATOR); 
+        if (index == -1)
+            return null;
+        if (index == 0)
+            return NDFS_FILE_SEPARATOR;
+        return path.substring(0, index);
     }
 }
