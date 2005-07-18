@@ -17,6 +17,9 @@
 # skip URLs containing certain characters as probable queries, etc.
 -[?*!@=]
 
+# skip URLs with slash-delimited segment that repeats 3+ times, to break loops
+-.*(/.+?)/.*?\1/.*?\1/
+
 # accept hosts in MY.DOMAIN.NAME
 +^http://([a-z0-9]*\.)*MY.DOMAIN.NAME/
 
