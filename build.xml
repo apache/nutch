@@ -219,8 +219,8 @@
     	<packageset dir="${plugins.dir}/parse-js/src/java"/>
     	<packageset dir="${plugins.dir}/parse-text/src/java"/>
     	<packageset dir="${plugins.dir}/parse-pdf/src/java"/>
-	<packageset dir="${plugins.dir}/parse-rtf/src/java"/>
-	<packageset dir="${plugins.dir}/parse-mp3/src/java"/>
+<!--	<packageset dir="${plugins.dir}/parse-rtf/src/java"/> plugin excluded from build due to licensing issues-->
+<!--	<packageset dir="${plugins.dir}/parse-mp3/src/java"/> plugin excluded from build due to licensing issues-->
     	<packageset dir="${plugins.dir}/parse-msword/src/java"/>
     	<packageset dir="${plugins.dir}/index-basic/src/java"/>
     	<packageset dir="${plugins.dir}/index-more/src/java"/>
