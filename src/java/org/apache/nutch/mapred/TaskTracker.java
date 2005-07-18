@@ -502,7 +502,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
      * The main() for child processes. 
      */
     public static class Child {
-        public static void main(String[] args) throws Exception {
+        public static void main(String[] args) throws Throwable {
           LogFormatter.showTime(false);
           LOG.info("Child starting");
 
@@ -516,12 +516,12 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
           JobConf job = new JobConf(task.getJobFile());
           try {
               task.run(job, umbilical);                   // run the task
-          } catch (Exception ie) {
+          } catch (Throwable throwable) {
+              LOG.log(Level.WARNING, "Failed to spawn child", throwable);
               // Report back any failures, for diagnostic purposes
               ByteArrayOutputStream baos = new ByteArrayOutputStream();
-              ie.printStackTrace(new PrintStream(baos));
+              throwable.printStackTrace(new PrintStream(baos));
               umbilical.reportDiagnosticInfo(taskid, baos.toString());
-              throw ie;
           }
           umbilical.done(taskid);
         }

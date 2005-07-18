@@ -94,8 +94,15 @@ abstract class TaskRunner extends Thread {
         t.getTaskId()                             // pass task identifier
       }, null);
 
-    } catch (Exception e) {
-      LOG.log(Level.WARNING, "Child Error", e);
+    } catch (Throwable throwable) {
+      LOG.log(Level.WARNING, "Child Error", throwable);
+      ByteArrayOutputStream baos = new ByteArrayOutputStream();
+      throwable.printStackTrace(new PrintStream(baos));
+      try {
+        tracker.reportDiagnosticInfo(t.getTaskId(), baos.toString());
+      } catch (IOException e) {
+        LOG.log(Level.WARNING, "Reporting Diagnostics", e);
+      }
     } finally {
       tracker.reportTaskFinished(t.getTaskId());
     }
