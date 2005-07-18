@@ -39,10 +39,13 @@ public class Generator extends NutchConfigured {
     private long curTime;
     private long limit;
     private long count;
+    private HashMap hostCounts = new HashMap();
+    private int maxPerHost;
 
     public void configure(JobConf job) {
       curTime = job.getLong("crawl.gen.curTime", System.currentTimeMillis());
       limit = job.getLong("crawl.gen.limit", Long.MAX_VALUE);
+      maxPerHost = job.getInt("generate.max.per.host", -1);
     }
 
     /** Select & invert subset due for fetch. */
@@ -55,6 +58,18 @@ public class Generator extends NutchConfigured {
 
       if (crawlDatum.getFetchTime() > curTime)
         return;                                   // not time yet
+
+      if (maxPerHost > 0) {                       // are we counting hosts?
+        String host = new URL(((UTF8)key).toString()).getHost();
+        Integer count = (Integer)hostCounts.get(host);
+        if (count != null) {
+          if (count.intValue() >= maxPerHost)
+            return;                               // too many from host
+          hostCounts.put(host, new Integer(count.intValue()+1));
+        } else {                                  // update host count
+          hostCounts.put(host, new Integer(1));
+        }
+      }
 
       output.collect(crawlDatum, key);          // invert for sort by linkCount
     }

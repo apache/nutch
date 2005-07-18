@@ -262,6 +262,15 @@
   recoverable errors is generated for fetch.</description>
 </property>
 
+<!-- generate properties -->
+
+<property>
+  <name>generate.max.per.host</name>
+  <value>-1</value>
+  <description>The maximum number of urls per host in a single
+  fetchlist.  -1 if unlimited.</description>
+</property>
+
 <!-- fetchlist tool properties -->
 
 <property>
