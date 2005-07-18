@@ -990,7 +990,7 @@ public class FSNamesystem implements FSConstants {
      */
     public synchronized Block[] checkObsoleteBlocks(UTF8 name) {
         DatanodeInfo nodeInfo = (DatanodeInfo) datanodeMap.get(name);
-        if (System.currentTimeMillis() - nodeInfo.lastObsoleteCheck() <= OBSOLETE_INTERVAL) {
+        if (nodeInfo == null || System.currentTimeMillis() - nodeInfo.lastObsoleteCheck() <= OBSOLETE_INTERVAL) {
             return null;
         } else {
             nodeInfo.updateObsoleteCheck();
