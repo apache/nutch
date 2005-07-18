@@ -284,6 +284,7 @@ public class JobClient implements MRConstants {
       JobClient jc = new JobClient(job);
       boolean error = true;
       RunningJob running = null;
+      String lastReport = null;
       try {
         running = jc.submitJob(job);
         String jobId = running.getJobID();
@@ -293,12 +294,15 @@ public class JobClient implements MRConstants {
             Thread.sleep(1000);
           } catch (InterruptedException e) {}
           running = jc.getJob(jobId);
+          String report = null;
           if (running.reduceProgress() == 0.0)
-            LOG.info(" map "+Math.round(running.mapProgress()*100)
-                     +"% complete");
+            report=" map "+Math.round(running.mapProgress()*100)+"%";
           else {
-            LOG.info(" reduce "+Math.round(running.reduceProgress()*100)
-                     +"% complete");
+            report=" reduce "+Math.round(running.reduceProgress()*100)+"%";
+          }
+          if (!report.equals(lastReport)) {
+            LOG.info(report);
+            lastReport = report;
           }
         }
         if (!running.isSuccessful()) {
