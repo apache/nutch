@@ -99,9 +99,11 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
         this.mapOutputPort = 32768+r.nextInt(32768);
 
         // RPC initialization
-        this.taskReportServer = RPC.getServer(this, taskReportPort);
+        this.taskReportServer =
+          RPC.getServer(this, taskReportPort, MAX_CURRENT_TASKS, false);
         this.taskReportServer.start();
-        this.mapOutputServer = RPC.getServer(this, mapOutputPort);
+        this.mapOutputServer =
+          RPC.getServer(this, mapOutputPort, MAX_CURRENT_TASKS, false);
         this.mapOutputServer.start();
 
         // Clear out temporary files that might be lying around

@@ -54,7 +54,7 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
      */
     public NameNode(File dir, int port) throws IOException {
         this.namesystem = new FSNamesystem(dir);
-        this.server = RPC.getServer(this, port);
+        this.server = RPC.getServer(this, port, 10, false);
         this.server.start();
     }
 

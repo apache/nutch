@@ -33,6 +33,7 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.util.NutchConf;
 import org.apache.nutch.io.Writable;
 import org.apache.nutch.io.UTF8;
 
@@ -52,7 +53,8 @@ public abstract class Server {
   private int maxQueuedCalls;                     // max number of queued calls
   private Class paramClass;                       // class of call parameters
 
-  private int timeout = 10000;                    // timeout for i/o
+  private int timeout = NutchConf.get().getInt("ipc.client.timeout",10000);
+
   private boolean running = true;                 // true while server runs
   private LinkedList callQueue = new LinkedList(); // queued calls
   private Object callDequeued = new Object();     // used by wait/notify
