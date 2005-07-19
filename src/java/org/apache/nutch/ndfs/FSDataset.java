@@ -283,16 +283,21 @@ public class FSDataset implements FSConstants {
             reserved += BLOCK_SIZE;
             f = getTmpFile(b);
 
-            if (f.exists()) {
-                throw new IOException("Unexpected problem in startBlock() for " + b + ".  File " + f + " should not be present, but is.");
-            }
-        }
+	    try {
+		if (f.exists()) {
+		    throw new IOException("Unexpected problem in startBlock() for " + b + ".  File " + f + " should not be present, but is.");
+		}
 
-        //
-        // Create the zero-length temp file
-        //
-        if (!f.createNewFile()) {
-            throw new IOException("Unexpected problem in startBlock() for " + b + ".  File " + f + " should be creatable, but is already present.");
+		//
+		// Create the zero-length temp file
+		//
+		if (!f.createNewFile()) {
+		    throw new IOException("Unexpected problem in startBlock() for " + b + ".  File " + f + " should be creatable, but is already present.");
+		}
+	    } catch (IOException ie) {
+		ongoingCreates.remove(b);		
+		reserved -= BLOCK_SIZE;
+	    }
         }
 
         //

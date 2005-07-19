@@ -38,6 +38,9 @@ public class FSNamesystem implements FSConstants {
     final static int DESIRED_REPLICATION =
       NutchConf.get().getInt("ndfs.replication", 3);
 
+    // How many outgoing replication streams a given node should have at one time
+    final static int MAX_REPLICATION_STREAMS = NutchConf.get().getInt("ndfs.max-repl-streams", 2);
+
     // MIN_REPLICATION is how many copies we need in place or else we disallow the write
     final static int MIN_REPLICATION = 1;
 
@@ -990,7 +993,7 @@ public class FSNamesystem implements FSConstants {
      */
     public synchronized Block[] checkObsoleteBlocks(UTF8 name) {
         DatanodeInfo nodeInfo = (DatanodeInfo) datanodeMap.get(name);
-        if (nodeInfo == null || System.currentTimeMillis() - nodeInfo.lastObsoleteCheck() <= OBSOLETE_INTERVAL) {
+        if (System.currentTimeMillis() - nodeInfo.lastObsoleteCheck() <= OBSOLETE_INTERVAL) {
             return null;
         } else {
             nodeInfo.updateObsoleteCheck();
@@ -1017,17 +1020,10 @@ public class FSNamesystem implements FSConstants {
      *     target sequence for the Block at the appropriate index.
      *
      */
-    public synchronized Object[] pendingTransfers(DatanodeInfo srcNode, int maxXfers) {
-        //
-        // Allow the namenode to come up and hear from all datanodes before
-        // making transfers.
-        //
-        if (System.currentTimeMillis() - systemStart < SYSTEM_STARTUP_PERIOD) {
-            return null;
-        }
-
+    public synchronized Object[] pendingTransfers(DatanodeInfo srcNode, int xmitsInProgress) {
         synchronized (neededReplications) {
             Object results[] = null;
+	    int scheduledXfers = 0;
 
             if (neededReplications.size() > 0) {
                 //
@@ -1041,7 +1037,7 @@ public class FSNamesystem implements FSConstants {
                     //
                     // We can only reply with 'maxXfers' or fewer blocks
                     //
-                    if (replicateBlocks.size() >= maxXfers) {
+                    if (scheduledXfers >= MAX_REPLICATION_STREAMS - xmitsInProgress) {
                         break;
                     }
 
@@ -1052,11 +1048,12 @@ public class FSNamesystem implements FSConstants {
                         TreeSet containingNodes = (TreeSet) blocksMap.get(block);
 
                         if (containingNodes.contains(srcNode)) {
-                            DatanodeInfo targets[] = chooseTargets(DESIRED_REPLICATION - containingNodes.size(), containingNodes);
+                            DatanodeInfo targets[] = chooseTargets(Math.min(DESIRED_REPLICATION - containingNodes.size(), MAX_REPLICATION_STREAMS - xmitsInProgress), containingNodes);
                             if (targets.length > 0) {
                                 // Build items to return
                                 replicateBlocks.add(block);
                                 replicateTargetSets.add(targets);
+				scheduledXfers += targets.length;
                             }
                         }
                     }
@@ -1064,9 +1061,9 @@ public class FSNamesystem implements FSConstants {
 
                 //
                 // Move the block-replication into a "pending" state.
-                // REMIND - mjc - the reason we use 'pending' is so we can retry
+                // The reason we use 'pending' is so we can retry
                 // replications that fail after an appropriate amount of time.  
-                // This is not yet implemented
+                // (REMIND - mjc - this timer is not yet implemented.)
                 //
                 if (replicateBlocks.size() > 0) {
                     int i = 0;
@@ -1079,13 +1076,14 @@ public class FSNamesystem implements FSConstants {
                             neededReplications.remove(block);
                             pendingReplications.add(block);
                         }
+
+			LOG.info("Pending transfer (block " + block.getBlockName() + ") from " + srcNode.getName() + " to " + targets.length + " destinations");
                     }
 
                     //
                     // Build returned objects from above lists
                     //
                     DatanodeInfo targetMatrix[][] = new DatanodeInfo[replicateTargetSets.size()][];
-                    LOG.info("Pending transfer from " + srcNode.getName() + " to " + targetMatrix.length + " destinations");
                     for (i = 0; i < targetMatrix.length; i++) {
                         targetMatrix[i] = (DatanodeInfo[]) replicateTargetSets.elementAt(i);
                     }

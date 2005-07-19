@@ -102,7 +102,6 @@ public interface FSConstants {
     public static long EXPIRE_INTERVAL = 4 * HEARTBEAT_INTERVAL;
     public static long BLOCKREPORT_INTERVAL = 9 * 60 * 1000;
     public static long OBSOLETE_INTERVAL = 10 * 60 * 1000;
-    public static long SYSTEM_STARTUP_PERIOD = 15 * 1000;
-    public static long DATANODE_STARTUP_PERIOD = 30 * 1000;
+    public static long DATANODE_STARTUP_PERIOD = 120 * 1000;
     public static long LEASE_PERIOD = 16 * 1000;
 }

@@ -44,12 +44,6 @@ public class DataNode implements FSConstants {
     //private static long numGigs = NutchConf.get().getLong("ndfs.datanode.maxgigs", 100);
     //
 
-    //
-    // Eventually, this constant should be computed dynamically using 
-    // load information
-    //
-    private static final int MAX_BLOCKS_PER_ROUNDTRIP = 3;
-
     /**
      * Util method to build socket addr from string
      */
@@ -69,6 +63,7 @@ public class DataNode implements FSConstants {
     FSDataset data;
     String localName;
     Vector receivedBlockList = new Vector();
+    int xmitsInProgress = 0;
 
     /**
      * Create using configured defaults and dataDir.
@@ -155,39 +150,49 @@ public class DataNode implements FSConstants {
                     namenode.blockReceived(localName, blockArray);
                 }
 
-                //
-                // Check to see if there are any block-instructions from the
-                // namenode that this datanode should perform.
-                //
-                BlockCommand cmd = namenode.getBlockwork(localName);
-                if (cmd.transferBlocks()) {
-                    //
-                    // Send a copy of a block to another datanode
-                    //
-                    Block blocks[] = cmd.getBlocks();
-                    DatanodeInfo xferTargets[][] = cmd.getTargets();
-
-                    for (int i = 0; i < blocks.length; i++) {
-                        if (!data.isValidBlock(blocks[i])) {
-                            String errStr = "Can't send invalid block " + blocks[i];
-                            LOG.info(errStr);
-                            namenode.errorReport(localName, errStr);
-                            break;
-                        } else {
-                            if (xferTargets[i].length > 0) {
-                                LOG.info("Starting thread to transfer block " + blocks[i] + " to " + xferTargets[i]);
-                                new Daemon(new DataTransfer(xferTargets[i], blocks[i])).start();
-                            }
-                        }
-                    }
-                } else if (cmd.invalidateBlocks()) {
-                    //
-                    // Some local block(s) are obsolete and can be 
-                    // safely garbage-collected.
-                    //
-                    data.invalidate(cmd.getBlocks());
-                }
-
+		//
+		// Only perform block operations (transfer, delete) after 
+		// a startup quiet period.  The assumption is that all the
+		// datanodes will be started together, but the namenode may
+		// have been started some time before.  (This is esp. true in
+		// the case of network interruptions.)  So, wait for some time
+		// to pass from the time of connection to the first block-transfer.
+		// Otherwise we transfer a lot of blocks unnecessarily.
+		//
+		if (now - sendStart > DATANODE_STARTUP_PERIOD) {
+		    //
+		    // Check to see if there are any block-instructions from the
+		    // namenode that this datanode should perform.
+		    //
+		    BlockCommand cmd = namenode.getBlockwork(localName, xmitsInProgress);
+		    if (cmd.transferBlocks()) {
+			//
+			// Send a copy of a block to another datanode
+			//
+			Block blocks[] = cmd.getBlocks();
+			DatanodeInfo xferTargets[][] = cmd.getTargets();
+			
+			for (int i = 0; i < blocks.length; i++) {
+			    if (!data.isValidBlock(blocks[i])) {
+				String errStr = "Can't send invalid block " + blocks[i];
+				LOG.info(errStr);
+				namenode.errorReport(localName, errStr);
+				break;
+			    } else {
+				if (xferTargets[i].length > 0) {
+				    LOG.info("Starting thread to transfer block " + blocks[i] + " to " + xferTargets[i]);
+				    new Daemon(new DataTransfer(xferTargets[i], blocks[i])).start();
+				}
+			    }
+			}
+		    } else if (cmd.invalidateBlocks()) {
+			//
+			// Some local block(s) are obsolete and can be 
+			// safely garbage-collected.
+			//
+			data.invalidate(cmd.getBlocks());
+		    }
+		}
 
                 //
                 // There is no work to do;  sleep until hearbeat timer elapses, 
@@ -501,6 +506,7 @@ public class DataNode implements FSConstants {
          * Do the deed, write the bytes
          */
         public void run() {
+	    xmitsInProgress++;
             try {
                 Socket s = new Socket(curTarget.getAddress(), curTarget.getPort());
                 DataOutputStream out = new DataOutputStream(new BufferedOutputStream(s.getOutputStream()));
@@ -534,9 +540,11 @@ public class DataNode implements FSConstants {
                 } finally {
                     out.close();
                 }
-                LOG.info("Replicated block " + b + " to " + curTarget);
+                LOG.info("Transmitted block " + b + " to " + curTarget);
             } catch (IOException ie) {
-            }
+            } finally {
+		xmitsInProgress--;
+	    }
         }
     }
 
@@ -555,6 +563,7 @@ public class DataNode implements FSConstants {
             try {
                 datanode.offerService();
             } catch (Exception ex) {
+		LOG.info("Exception: " + ex.toString());
                 LOG.info("Lost connection to namenode [" + datanode.getNamenode() + "].  Retrying...");
                 try {
                     Thread.sleep(5000);

@@ -36,12 +36,6 @@ import java.util.logging.*;
  * @author Mike Cafarella
  **********************************************************/
 public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
-    //
-    // Eventually, this constant should be computed dynamically using 
-    // load information
-    //
-    private static final int MAX_BLOCKS_PER_ROUNDTRIP = 3;
-
     FSNamesystem namesystem;
     Server server;
 
@@ -243,11 +237,11 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
     /**
      * Return a block-oriented command for the datanode to execute
      */
-    public BlockCommand getBlockwork(String sender) {
+    public BlockCommand getBlockwork(String sender, int xmitsInProgress) {
         //
         // Ask to perform pending transfers, if any
         //
-        Object xferResults[] = namesystem.pendingTransfers(new DatanodeInfo(new UTF8(sender)), MAX_BLOCKS_PER_ROUNDTRIP);
+        Object xferResults[] = namesystem.pendingTransfers(new DatanodeInfo(new UTF8(sender)), xmitsInProgress);
         if (xferResults != null) {
             return new BlockCommand((Block[]) xferResults[0], (DatanodeInfo[][]) xferResults[1]);
         }

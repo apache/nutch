@@ -32,5 +32,5 @@ public interface DatanodeProtocol {
     public void blockReceived(String sender, Block blocks[]);
     public void errorReport(String sender, String msg);
 
-    public BlockCommand getBlockwork(String sender);
+    public BlockCommand getBlockwork(String sender, int xmitsInProgress);
 }
