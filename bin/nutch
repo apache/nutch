@@ -180,7 +180,7 @@ else
 fi
 
 # cygwin path translation
-if expr match `uname` 'CYGWIN*' > /dev/null; then
+if expr `uname` : 'CYGWIN*' > /dev/null; then
   CLASSPATH=`cygpath -p -w "$CLASSPATH"`
 fi
 
