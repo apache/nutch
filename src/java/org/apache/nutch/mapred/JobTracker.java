@@ -588,6 +588,15 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
             FileSplit[] splits =
               jd.getInputFormat().getSplits(fs, jd, numMapTasks);
 
+            // sort splits by decreasing length, to reduce job's tail
+            Arrays.sort(splits, new Comparator() {
+                public int compare(Object a, Object b) {
+                  long diff =
+                    ((FileSplit)b).getLength() - ((FileSplit)a).getLength();
+                  return diff==0 ? 0 : (diff > 0 ? 1 : -1);
+                }
+              });
+
             // adjust number of map tasks to actual number of splits
             numMapTasks = splits.length;
 
