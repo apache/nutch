@@ -27,10 +27,10 @@ import org.apache.nutch.io.*;
  **********************************************************************/
 public interface DatanodeProtocol {
 
-    public void sendHeartbeat(String sender, long capacity, long remaining);
-    public void blockReport(String sender, Block blocks[]);
-    public void blockReceived(String sender, Block blocks[]);
-    public void errorReport(String sender, String msg);
+    public void sendHeartbeat(String sender, long capacity, long remaining) throws IOException;
+    public void blockReport(String sender, Block blocks[]) throws IOException;
+    public void blockReceived(String sender, Block blocks[]) throws IOException;
+    public void errorReport(String sender, String msg) throws IOException;
 
-    public BlockCommand getBlockwork(String sender, int xmitsInProgress);
+    public BlockCommand getBlockwork(String sender, int xmitsInProgress) throws IOException;
 }

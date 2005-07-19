@@ -35,7 +35,7 @@ import java.util.logging.*;
  *
  * @author Mike Cafarella
  **********************************************************/
-public class DataNode implements FSConstants {
+public class DataNode implements FSConstants, Runnable {
     public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.ndfs.DataNode");
     //
     // REMIND - mjc - I might bring "maxgigs" back so user can place 
@@ -66,12 +66,12 @@ public class DataNode implements FSConstants {
     int xmitsInProgress = 0;
 
     /**
-     * Create using configured defaults and dataDir.
+     * Create given a configuration and a dataDir.
      */
-    public DataNode(String datadir) throws IOException {
+    public DataNode(NutchConf conf, String datadir) throws IOException {
         this(InetAddress.getLocalHost().getHostName(), 
              new File(datadir),
-             createSocketAddr(NutchConf.get().get("fs.default.name", "local")));
+             createSocketAddr(conf.get("fs.default.name", "local")));
     }
 
     /**
@@ -548,28 +548,38 @@ public class DataNode implements FSConstants {
         }
     }
 
-    /**
-     */
-    public static void main(String argv[]) throws IOException {
-        String dataDir = NutchConf.get().get("ndfs.data.dir",
-                                             "/tmp/nutch/data/name");
-        if (argv.length > 0){
-            dataDir=argv[0];
-        } 
-        LOG.info("Using ["+dataDir+"] directory for data storage.");
-            
-        DataNode datanode = new DataNode(dataDir);
-        while (true) {
-            try {
-                datanode.offerService();
-            } catch (Exception ex) {
-		LOG.info("Exception: " + ex.toString());
-                LOG.info("Lost connection to namenode [" + datanode.getNamenode() + "].  Retrying...");
-                try {
-                    Thread.sleep(5000);
-                } catch (InterruptedException ie) {
-                }
-            }
+  public void run() {
+    LOG.info("Starting DataNode in: "+data.data);
+    while (true) {
+      try {
+        offerService();
+      } catch (Exception ex) {
+        LOG.info("Exception: " + ex);
+        LOG.info("Lost connection to namenode.  Retrying...");
+        try {
+          Thread.sleep(5000);
+        } catch (InterruptedException ie) {
         }
+      }
     }
+  }
+
+  public static void run(NutchConf conf) throws IOException {
+    String[] dataDirs = conf.getStrings("ndfs.data.dir");
+    for (int i = 0; i < dataDirs.length; i++) {
+      String dataDir = dataDirs[i];
+      File data = new File(dataDir);
+      data.mkdirs();
+      if (!data.isDirectory()) {
+        LOG.warning("Can't start DataNode in non-directory: "+dataDir);
+        continue;
+      }
+      new Thread(new DataNode(conf, dataDir), "DataNode: "+dataDir).start();
+    }
+  }
+
+  public static void main(String args[]) throws IOException {
+    LogFormatter.setShowThreadIDs(true);
+    run(NutchConf.get());
+  }
 }

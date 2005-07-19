@@ -358,7 +358,9 @@
   <name>ndfs.data.dir</name>
   <value>/tmp/nutch/ndfs/data</value>
   <description>Determines where on the local filesystem an NDFS data node
-      should store its blocks.</description>
+  should store its blocks.  If this is a comma- or space-delimited
+  list of directories, then data will be stored in all named
+  directories, typically on different devices.</description>
 </property>
 
 <!-- map/reduce properties -->
