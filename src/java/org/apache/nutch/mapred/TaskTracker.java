@@ -489,6 +489,13 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
         tip.reportDone();
     }
 
+    /** Child checking to see if we're alive.  Normally does nothing.*/
+    public void ping(String taskid) throws IOException {
+      if (tasks.get(taskid) == null) {
+        throw new IOException("No such task id."); // force child exit
+      }
+    }
+
     /////////////////////////////////////////////////////
     //  Called by TaskTracker thread after task process ends
     /////////////////////////////////////////////////////
@@ -516,8 +523,11 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
             
           Task task = umbilical.getTask(taskid);
           JobConf job = new JobConf(task.getJobFile());
+
+          startPinging(umbilical, taskid);        // start pinging parent
+
           try {
-              task.run(job, umbilical);                   // run the task
+              task.run(job, umbilical);           // run the task
           } catch (Throwable throwable) {
               LOG.log(Level.WARNING, "Failed to spawn child", throwable);
               // Report back any failures, for diagnostic purposes
@@ -526,6 +536,29 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
               umbilical.reportDiagnosticInfo(taskid, baos.toString());
           }
           umbilical.done(taskid);
+        }
+
+        /** Periodically ping parent and exit when this fails.*/
+        private static void startPinging(final TaskUmbilicalProtocol umbilical,
+                                         final String taskid) {
+          Thread thread = new Thread(new Runnable() {
+              public void run() {
+                while (true) {
+                  try {
+                    umbilical.ping(taskid);
+                  } catch (Throwable t) {
+                    LOG.warning("Parent died.  Exiting "+taskid);
+                    System.exit(1);
+                  }
+                  try {
+                    Thread.sleep(1000);
+                  } catch (InterruptedException e) {
+                  }
+                }
+              }
+            }, "Pinger for "+taskid);
+          thread.setDaemon(true);
+          thread.start();
         }
     }
 

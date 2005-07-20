@@ -56,6 +56,14 @@ class ReduceTaskRunner extends TaskRunner {
       MapOutputLocation[] locs =
         jobClient.locateMapOutputs(task.getTaskId(), neededStrings);
 
+      if (locs.length == 0) {
+        try {
+          Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
+        continue;
+      }
+
       LOG.info("Got "+locs.length+" map output locations.");
 
       // try each of these locations
