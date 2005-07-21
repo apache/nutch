@@ -108,4 +108,14 @@ public class ExtensionPoint {
     return (Extension[]) fExtensions.toArray(new Extension[fExtensions
                                                            .size()]);
   }
+
+  /**
+   * Returns a array of extensions that lsiten to this extension point
+   *
+   * @return Extension[]
+   * @deprecated Use the correctly spelled #{getExtensions} method instead.
+   */
+  public Extension[] getExtentens() {
+    return getExtensions();
+  }
 }
