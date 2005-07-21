@@ -58,7 +58,7 @@ public class ExtParser implements Parser {
   // set TYPE_PARAMS_MAP using plugin.xml of this plugin
   static {
     Extension[] extensions = PluginRepository.getInstance()
-      .getExtensionPoint("org.apache.nutch.parse.Parser").getExtentens();
+      .getExtensionPoint("org.apache.nutch.parse.Parser").getExtensions();
 
     String contentType, command, timeoutString;
 
