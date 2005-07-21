@@ -19,7 +19,6 @@ package org.apache.nutch.net;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRepository;
-import org.apache.nutch.plugin.PluginRuntimeException;
 
 import org.apache.nutch.util.LogFormatter;
 
@@ -27,7 +26,6 @@ import java.util.logging.Logger;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.io.IOException;
 
 /**
  * Checke one given filter or all filters.
@@ -51,7 +49,7 @@ public class URLFilterChecker {
     if (point == null)
       throw new RuntimeException(URLFilter.X_POINT_ID+" not found.");
 
-    Extension[] extensions = point.getExtentens();
+    Extension[] extensions = point.getExtensions();
 
     for (int i = 0; i < extensions.length; i++) {
       Extension extension = extensions[i];

@@ -43,7 +43,7 @@ public class URLFilters {
       if (point == null)
         throw new RuntimeException(URLFilter.X_POINT_ID+" not found.");
 
-      Extension[] extensions = point.getExtentens();
+      Extension[] extensions = point.getExtensions();
       HashMap filterMap = new HashMap();
       for (int i = 0; i < extensions.length; i++) {
         Extension extension = extensions[i];

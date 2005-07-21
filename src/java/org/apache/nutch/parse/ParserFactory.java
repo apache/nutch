@@ -98,7 +98,7 @@ public class ParserFactory {
 
     //LOG.fine("findExtension: contentType="+contentType+" suffix="+suffix);
 
-    Extension[] extensions = X_POINT.getExtentens();
+    Extension[] extensions = X_POINT.getExtensions();
 
     // first look for a content-type match
     if (contentType != null) {

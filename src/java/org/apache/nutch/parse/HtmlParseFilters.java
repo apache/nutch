@@ -31,7 +31,7 @@ public class HtmlParseFilters {
         .getExtensionPoint(HtmlParseFilter.X_POINT_ID);
       if (point == null)
         throw new RuntimeException(HtmlParseFilter.X_POINT_ID+" not found.");
-      Extension[] extensions = point.getExtentens();
+      Extension[] extensions = point.getExtensions();
       CACHE = new HtmlParseFilter[extensions.length];
       for (int i = 0; i < extensions.length; i++) {
         Extension extension = extensions[i];
