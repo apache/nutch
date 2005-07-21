@@ -45,7 +45,7 @@ public class QueryFilters {
         .getExtensionPoint(QueryFilter.X_POINT_ID);
       if (point == null)
         throw new RuntimeException(QueryFilter.X_POINT_ID+" not found.");
-      Extension[] extensions = point.getExtentens();
+      Extension[] extensions = point.getExtensions();
       CACHE = new QueryFilter[extensions.length];
       for (int i = 0; i < extensions.length; i++) {
         Extension extension = extensions[i];

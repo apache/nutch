@@ -62,7 +62,7 @@ public class OntologyFactory {
       // not found, fallback to the default, if available.
     }
 
-    Extension[] extensions = X_POINT.getExtentens();
+    Extension[] extensions = X_POINT.getExtensions();
     if (extensions.length > 0) {
       LOG.info("Using the first ontology extension found: "
         + extensions[0].getId());
@@ -76,7 +76,7 @@ public class OntologyFactory {
   private static Extension findExtension(String name)
     throws PluginRuntimeException {
 
-    Extension[] extensions = X_POINT.getExtentens();
+    Extension[] extensions = X_POINT.getExtensions();
 
     for (int i = 0; i < extensions.length; i++) {
       Extension extension = extensions[i];
