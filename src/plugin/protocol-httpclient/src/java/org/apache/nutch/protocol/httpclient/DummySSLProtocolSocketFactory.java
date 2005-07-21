@@ -18,14 +18,14 @@ import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.HttpClientError;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.ControllerThreadSocketFactory;
-import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
+import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.sun.net.ssl.SSLContext;
 import com.sun.net.ssl.TrustManager;
 
-public class DummySSLProtocolSocketFactory implements SecureProtocolSocketFactory {
+public class DummySSLProtocolSocketFactory implements ProtocolSocketFactory {
 
   /** Log object for this class. */
   private static final Log LOG = LogFactory.getLog(DummySSLProtocolSocketFactory.class);
