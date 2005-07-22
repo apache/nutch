@@ -31,7 +31,7 @@ import org.apache.nutch.util.LogFormatter;
  * At system boot up a repositority is builded by parsing the mainifest files of
  * all plugins. Plugins that require not existing other plugins are not
  * registed. For each plugin a plugin descriptor instance will be created. The
- * descriptor represent all meta information about a plugin. So a plugin
+ * descriptor represents all meta information about a plugin. So a plugin
  * instance will be created later when it is required, this allow lazy plugin
  * loading.
  * 
@@ -62,7 +62,7 @@ public class PluginRepository {
     }
 
     /**
-     * @param fRegisteredPlugins
+     * @param pRegisteredPlugins
      */
     private void installExtensions(ArrayList pRegisteredPlugins)
             throws PluginRuntimeException {
@@ -95,7 +95,7 @@ public class PluginRepository {
             boolean available = true;
             for (int j = 0; j < dependencyIDs.length; j++) {
                 String id = dependencyIDs[j];
-                if (!dependencyIsAvailabel(id, pLoadedPlugins)) {
+                if (!dependencyIsAvailable(id, pLoadedPlugins)) {
                     available = false;
                     //LOG.fine("Skipping " + descriptor.getName());
                     break;
@@ -121,7 +121,7 @@ public class PluginRepository {
      * @param pLoadedPlugins
      * @return boolean
      */
-    private boolean dependencyIsAvailabel(String id, ArrayList pLoadedPlugins) {
+    private boolean dependencyIsAvailable(String id, ArrayList pLoadedPlugins) {
         if (pLoadedPlugins != null && id != null) {
             for (int i = 0; i < pLoadedPlugins.size(); i++) {
                 PluginDescriptor descriptor = (PluginDescriptor) pLoadedPlugins
