@@ -66,7 +66,7 @@ public class ExtParser implements Parser {
       Extension extension = extensions[i];
 
       // only look for extensions defined by plugin parse-ext
-      if (!extension.getDiscriptor().getPluginId().equals("parse-ext"))
+      if (!extension.getDescriptor().getPluginId().equals("parse-ext"))
         continue;
 
       contentType = extension.getAttribute("contentType");
