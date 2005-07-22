@@ -17,7 +17,7 @@
 package org.apache.nutch.plugin;
 /**
  * A nutch-plugin is an container for a set of custom logic that provide
- * extensions to the nutch core functionality or a other plugin that proides a
+ * extensions to the nutch core functionality or another plugin that provides an
  * API for extending. A plugin can provide one or a set of extensions.
  * Extensions are components that can be dynamically installed as a kind of
  * listener to extension points. Extension points are a kind of publisher that
