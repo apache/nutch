@@ -58,7 +58,7 @@ public class PrefixURLFilter implements URLFilter {
       .getExtensionPoint(URLFilter.class.getName()).getExtensions();
     for (int i=0; i < extensions.length; i++) {
       Extension extension = extensions[i];
-      if (extension.getDiscriptor().getPluginId().equals(pluginName)) {
+      if (extension.getDescriptor().getPluginId().equals(pluginName)) {
         attributeFile = extension.getAttribute("file");
         break;
       }

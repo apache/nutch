@@ -36,7 +36,6 @@ import java.util.logging.Logger;
 import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
 import org.apache.oro.text.regex.Perl5Pattern;
-import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.PatternMatcher;
 import org.apache.oro.text.regex.MalformedPatternException;
 
@@ -66,7 +65,7 @@ public class RegexURLFilter implements URLFilter {
       .getExtensionPoint(URLFilter.class.getName()).getExtensions();
     for (int i=0; i < extensions.length; i++) {
       Extension extension = extensions[i];
-      if (extension.getDiscriptor().getPluginId().equals(pluginName)) {
+      if (extension.getDescriptor().getPluginId().equals(pluginName)) {
         attributeFile = extension.getAttribute("file");
         break;
       }
