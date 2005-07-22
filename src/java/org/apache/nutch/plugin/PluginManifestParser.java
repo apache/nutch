@@ -168,7 +168,7 @@ public class PluginManifestParser {
     }
 
     /**
-     * @param document
+     * @param pDocument
      * @throws MalformedURLException
      */
     private static PluginDescriptor parsePlugin(Document pDocument, String pPath)
@@ -193,8 +193,8 @@ public class PluginManifestParser {
     }
 
     /**
-     * @param rootElement
-     * @param pluginDescriptor
+     * @param pRootElement
+     * @param pDescriptor
      * @throws MalformedURLException
      */
     private static void parseLibraries(Element pRootElement,
