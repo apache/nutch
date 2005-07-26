@@ -99,7 +99,8 @@ public class MapTask extends Task {
 
             float progress =                        // compute progress
               (float)Math.min((rawIn.getPos()-split.getStart())/end, 1.0f);
-            if ((progress - lastProgress) > 0.01f)  { // 100 progress reports
+            if ((progress - lastProgress) > 0.01f ||
+                progress >= (1.0f - 0.01f))  { // 100 progress reports
               umbilical.progress(getTaskId(), new FloatWritable(progress));
               lastProgress = progress;
             }
