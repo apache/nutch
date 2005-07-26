@@ -393,8 +393,8 @@
   <name>mapred.map.tasks</name>
   <value>1</value>
   <description>The default number of map tasks per job.  Typically set
-  to a multiple of the number of available hosts.  Ignored when
-  mapred.job.tracker is "local".
+  to a prime several times greater than number of available hosts.
+  Ignored when mapred.job.tracker is "local".  
   </description>
 </property>
 
@@ -402,7 +402,7 @@
   <name>mapred.reduce.tasks</name>
   <value>1</value>
   <description>The default number of reduce tasks per job.  Typically set
-  to a multiple of the number of available hosts.  Ignored when
+  to a prime close to the number of available hosts.  Ignored when
   mapred.job.tracker is "local".
   </description>
 </property>
