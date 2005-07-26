@@ -84,9 +84,12 @@ abstract class TaskRunner extends Thread {
         classPath.append(workDir);
       }
 
+      File jvm =                                  // use same jvm as parent
+        new File(new File(System.getProperty("java.home"), "bin"), "java");
+        
       // run java
       runChild(new String[] {
-        "java",
+        jvm.toString(),
         "-Xmx"+job.get("mapred.child.heap.size", "200m"),
         "-cp", classPath.toString(),
         TaskTracker.Child.class.getName(),        // main is Child
