@@ -101,7 +101,9 @@ public class Generator extends NutchConfigured {
 
     private static int hash(byte[] bytes, int start, int length) {
       int hash = 1;
-      for (int i = 0; i < length; i++)
+      // make later bytes more significant in hash code, so that sorting by
+      // hashcode correlates less with by-host ordering.
+      for (int i = length-1; i >= 0; i--)
         hash = (31 * hash) + (int)bytes[start+i];
       return hash;
     }
