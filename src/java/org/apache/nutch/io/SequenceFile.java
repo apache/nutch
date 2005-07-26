@@ -618,7 +618,8 @@ public class SequenceFile {
         this.pass = pass;
         this.last = last;
 
-        this.queue = new MergeQueue(factor, last ? outFile : outFile+"."+pass);
+        this.queue =
+          new MergeQueue(factor, last ? outFile : outFile+"."+pass, last);
 
         this.inName = outFile+"."+(pass-1);
         this.in = new NFSDataInputStream(nfs.open(new File(inName)));
@@ -695,7 +696,7 @@ public class SequenceFile {
       private MergeQueue queue;
 
       public MergeFiles() throws IOException {
-        this.queue = new MergeQueue(factor, outFile);
+        this.queue = new MergeQueue(factor, outFile, true);
       }
 
       public void close() throws IOException {
@@ -741,12 +742,15 @@ public class SequenceFile {
 
     private class MergeQueue extends PriorityQueue {
       private NFSDataOutputStream out;
+      private boolean done;
 
-      public MergeQueue(int size, String outName) throws IOException {
+      public MergeQueue(int size, String outName, boolean done)
+        throws IOException {
         initialize(size);
         this.out =
           new NFSDataOutputStream(nfs.create(new File(outName)),
                                   memory/(factor+1));
+        this.done = done;
       }
 
       protected boolean lessThan(Object a, Object b) {
@@ -758,6 +762,9 @@ public class SequenceFile {
 
       public void merge() throws IOException {
         Writer writer = new Writer(out, keyClass, valClass);
+        if (!done) {
+          writer.sync = null;                     // disable sync on temp files
+        }
 
         while (size() != 0) {
           MergeStream ms = (MergeStream)top();
