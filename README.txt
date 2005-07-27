@@ -17,9 +17,9 @@ Interesting files include:
 
 For the latest information about Nutch, please visit our website at:
 
-   http://www.nutch.org/
+   http://lucene.apache.org/nutch/
 
 and our wiki, at:
 
-   http://www.nutch.org/cgi-bin/twiki/view/Main/Nutch
+   http://wiki.apache.org/nutch/
 
