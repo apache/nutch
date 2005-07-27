@@ -31,6 +31,12 @@ public class ReduceTask extends Task {
 
   private String[] mapTaskIds;
   private int partition;
+  private boolean sortComplete;
+
+  private Progress copyPhase = getTaskProgress().addPhase();
+  private Progress appendPhase = getTaskProgress().addPhase();
+  private Progress sortPhase  = getTaskProgress().addPhase();
+  private Progress reducePhase = getTaskProgress().addPhase();
 
   public ReduceTask() {}
 
@@ -71,15 +77,21 @@ public class ReduceTask extends Task {
   }
 
   /** Iterates values while keys match in sorted input. */
-  private static class ValuesIterator implements Iterator {
+  private class ValuesIterator implements Iterator {
     private SequenceFile.Reader in;               // input file
     private WritableComparable key;               // current key
     private Writable value;                       // current value
     private boolean hasNext;                      // more w/ this key
     private boolean more;                         // more in file
+    private float progPerByte;
+    private TaskUmbilicalProtocol umbilical;
 
-    public ValuesIterator (SequenceFile.Reader in) throws IOException {
+    public ValuesIterator (SequenceFile.Reader in, long length,
+                           TaskUmbilicalProtocol umbilical)
+      throws IOException {
       this.in = in;
+      this.progPerByte = 1.0f / (float)length;
+      this.umbilical = umbilical;
       getNext();
     }
 
@@ -114,6 +126,9 @@ public class ReduceTask extends Task {
     public WritableComparable getKey() { return key; }
 
     private void getNext() throws IOException {
+      reducePhase.set(in.getPosition()*progPerByte); // update progress
+      reportProgress(umbilical);
+
       Writable lastKey = key;                     // save previous key
       try {
         key = (WritableComparable)in.getKeyClass().newInstance();
@@ -134,56 +149,85 @@ public class ReduceTask extends Task {
     }
   }
 
-  public void run(JobConf job, TaskUmbilicalProtocol umbilical)
+  public void run(JobConf job, final TaskUmbilicalProtocol umbilical)
     throws IOException {
     Class keyClass = job.getOutputKeyClass();
     Class valueClass = job.getOutputValueClass();
     Reducer reducer = (Reducer)job.newInstance(job.getReducerClass());
-        
-    umbilical.progress(getTaskId(), new FloatWritable(1.0f/3.0f));
-
-    // open a file to collect map output
     NutchFileSystem lfs = NutchFileSystem.getNamed("local");
+
+    copyPhase.complete();                         // copy is already complete
+
+    // spawn a thread to give sort progress heartbeats
+    Thread sortProgress = new Thread() {
+        public void run() {
+          while (!sortComplete) {
+            try {
+              reportProgress(umbilical);
+              Thread.sleep(PROGRESS_INTERVAL);
+            } catch (InterruptedException e) {
+              continue;
+            } catch (Throwable e) {
+              return;
+            }
+          }
+        }
+      };
+    sortProgress.setName("Sort progress reporter for task "+getTaskId());
+
     File taskDir = new File(LOCAL_DIR, getTaskId());
     String file = new File(taskDir, "all.in").toString();
-    SequenceFile.Writer writer =
-      new SequenceFile.Writer(lfs, file, keyClass, valueClass);
-    try {
-      // append all input files into a single input file
-      WritableComparable key = (WritableComparable)job.newInstance(keyClass);
-      Writable value = (Writable)job.newInstance(valueClass);
-
-      for (int i = 0; i < mapTaskIds.length; i++) {
-        String partFile =
-          MapOutputFile.getInputFile(mapTaskIds[i], getTaskId()).toString();
-        SequenceFile.Reader in = new SequenceFile.Reader(lfs, partFile);
-        try {
-          while(in.next(key, value)) {
-            writer.append(key, value);
-          }
-        } finally {
-          in.close();
-        }
-      }
-    } finally {
-      writer.close();
-    }
-      
-    // sort the input file
     String sortedFile = file+".sorted";
-    WritableComparator comparator = null;
-    try {
-      comparator =
-        (WritableComparator)job.newInstance(job.getOutputKeyComparatorClass());
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-    SequenceFile.Sorter sorter =
-      new SequenceFile.Sorter(lfs, comparator, valueClass);
-    sorter.sort(file, sortedFile);                // sort
-    lfs.delete(new File(file));                   // remove unsorted
 
-    umbilical.progress(getTaskId(), new FloatWritable(2.0f/3.0f));
+    try {
+      sortProgress.start();
+
+      // open a file to collect map output
+      SequenceFile.Writer writer =
+        new SequenceFile.Writer(lfs, file, keyClass, valueClass);
+      try {
+        // append all input files into a single input file
+        WritableComparable key = (WritableComparable)job.newInstance(keyClass);
+        Writable value = (Writable)job.newInstance(valueClass);
+
+        for (int i = 0; i < mapTaskIds.length; i++) {
+          appendPhase.addPhase();                 // one per file
+        }
+
+        for (int i = 0; i < mapTaskIds.length; i++) {
+          String partFile =
+            MapOutputFile.getInputFile(mapTaskIds[i], getTaskId()).toString();
+          SequenceFile.Reader in = new SequenceFile.Reader(lfs, partFile);
+          try {
+            while(in.next(key, value)) {
+              writer.append(key, value);
+            }
+          } finally {
+            in.close();
+          }
+          appendPhase.startNextPhase();
+        }
+
+      } finally {
+        writer.close();
+      }
+      
+      appendPhase.complete();                     // append is complete
+
+      // sort the input file
+      WritableComparator comparator = 
+        (WritableComparator)job.newInstance(job.getOutputKeyComparatorClass());
+    
+      SequenceFile.Sorter sorter =
+        new SequenceFile.Sorter(lfs, comparator, valueClass);
+      sorter.sort(file, sortedFile);              // sort
+      lfs.delete(new File(file));                 // remove unsorted
+
+    } finally {
+      sortComplete = true;
+    }
+
+    sortPhase.complete();                         // sort is complete
 
     // make output collector
     String name = getOutputName(getPartition());
@@ -198,8 +242,9 @@ public class ReduceTask extends Task {
     
     // apply reduce function
     SequenceFile.Reader in = new SequenceFile.Reader(lfs, sortedFile);
+    long length = lfs.getLength(new File(sortedFile));
     try {
-      ValuesIterator values = new ValuesIterator(in);
+      ValuesIterator values = new ValuesIterator(in, length, umbilical);
       while (values.more()) {
         reducer.reduce(values.getKey(), values, collector);
         values.nextKey();
@@ -211,7 +256,7 @@ public class ReduceTask extends Task {
       out.close();
     }
 
-    umbilical.progress(getTaskId(), new FloatWritable(3.0f/3.0f));
+    reportProgress(umbilical);
   }
 
   /** Construct output file names so that, when an output directory listing is

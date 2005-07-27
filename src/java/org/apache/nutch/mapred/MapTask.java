@@ -91,18 +91,14 @@ public class MapTask extends Task {
         job.getInputFormat().getRecordReader(NutchFileSystem.get(),split,job);
 
       RecordReader in = new RecordReader() {      // wrap in progress reporter
-          private float end = (float)split.getLength();
-          private float lastProgress = 0.0f;
+          private float perByte = 1.0f /(float)split.getLength();
 
           public synchronized boolean next(Writable key, Writable value)
             throws IOException {
 
             float progress =                        // compute progress
-              (float)Math.min((rawIn.getPos()-split.getStart())/end, 1.0f);
-            if ((progress - lastProgress) > 0.01f)  { // 100 progress reports
-              umbilical.progress(getTaskId(), new FloatWritable(progress));
-              lastProgress = progress;
-            }
+              (float)Math.min((rawIn.getPos()-split.getStart())*perByte, 1.0f);
+            reportProgress(umbilical, progress);
 
             return rawIn.next(key, value);
           }
@@ -120,7 +116,7 @@ public class MapTask extends Task {
           ((CombiningCollector)collector).flush();
         }
 
-        umbilical.progress(getTaskId(), new FloatWritable(1.0f)); // done
+        reportProgress(umbilical, 1.0f);          // done
 
       } finally {
         in.close();                               // close input

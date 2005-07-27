@@ -17,6 +17,7 @@
 package org.apache.nutch.mapred;
 
 import org.apache.nutch.io.*;
+import org.apache.nutch.util.*;
 
 import java.io.*;
 import java.net.*;
@@ -24,7 +25,6 @@ import java.util.*;
 
 /** Base class for tasks. */
 public abstract class Task implements Writable {
-
   ////////////////////////////////////////////
   // Fields
   ////////////////////////////////////////////
@@ -75,5 +75,29 @@ public abstract class Task implements Writable {
 
   /** Return an approprate thread runner for this task. */
   public abstract TaskRunner createRunner(TaskTracker tracker);
+
+  /** The number of milliseconds between progress reports. */
+  public static final int PROGRESS_INTERVAL = 1000;
+
+  private transient Progress taskProgress = new Progress();
+  private transient long nextProgressTime =
+    System.currentTimeMillis() + PROGRESS_INTERVAL;
+
+  public Progress getTaskProgress() { return taskProgress; }
+
+  public void reportProgress(TaskUmbilicalProtocol umbilical, float progress)
+    throws IOException {
+    taskProgress.set(progress);
+    reportProgress(umbilical);
+  }
+
+  public void reportProgress(TaskUmbilicalProtocol umbilical)
+    throws IOException {
+    long now = System.currentTimeMillis();
+    if (now > nextProgressTime)  {
+      umbilical.progress(getTaskId(), new FloatWritable(taskProgress.get()));
+      nextProgressTime = now + PROGRESS_INTERVAL;
+    }
+  }
 
 }

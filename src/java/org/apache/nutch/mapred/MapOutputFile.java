@@ -31,6 +31,17 @@ public class MapOutputFile implements Writable {
   private String reduceTaskId;
   private int partition;
   
+  /** Permits reporting of file copy progress. */
+  public static interface ProgressReporter {
+    void progress(float progress) throws IOException;
+  }
+
+  private static final ThreadLocal REPORTERS = new ThreadLocal();
+  
+  public static void setProgressReporter(ProgressReporter reporter) {
+    REPORTERS.set(reporter);
+  }
+
   /** Create a local map output file name.
    * @param mapTaskId a map task id
    * @param partition a reduce partition
@@ -96,18 +107,24 @@ public class MapOutputFile implements Writable {
     this.reduceTaskId = UTF8.readString(in);
     this.partition = in.readInt();
 
+    ProgressReporter reporter = (ProgressReporter)REPORTERS.get();
+
     // read the length-prefixed file content into a local file
     File file = getInputFile(mapTaskId, reduceTaskId);
     long length = in.readLong();
+    long unread = length;
     file.getParentFile().mkdirs();                // make directory
     OutputStream out = new FileOutputStream(file);
     try {
       byte[] buffer = new byte[8192];
-      while (length > 0) {
-          int bytesToRead = Math.min((int) length, buffer.length);
+      while (unread > 0) {
+          int bytesToRead = Math.min((int) unread, buffer.length);
           in.readFully(buffer, 0, bytesToRead);
           out.write(buffer, 0, bytesToRead);
-          length -= bytesToRead;
+          unread -= bytesToRead;
+          if (reporter != null) {
+            reporter.progress(length-unread/(float)length);
+          }
       }
     } finally {
       out.close();

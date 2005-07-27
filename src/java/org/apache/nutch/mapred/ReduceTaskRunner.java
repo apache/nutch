@@ -38,17 +38,19 @@ class ReduceTaskRunner extends TaskRunner {
     ReduceTask task = ((ReduceTask)getTask());
     MapOutputFile.removeAll(task.getTaskId());    // cleanup from failures
     String[] mapTaskIds = task.getMapTaskIds();
-
-    getTracker().progress(task.getTaskId(), new FloatWritable(0.0f/3.0f));
+    final Progress copyPhase = getTask().getTaskProgress().phase();
 
     // we need input from every map task
     HashSet needed = new HashSet();
     for (int i = 0; i < mapTaskIds.length; i++) {
       needed.add(mapTaskIds[i]);
+      copyPhase.addPhase();                       // add sub-phase per file
     }
 
     InterTrackerProtocol jobClient = getTracker().getJobClient();
     while (needed.size() > 0) {
+
+      getTask().reportProgress(getTracker());
 
       // get list of available map output locations from job tracker
       String[] neededStrings =
@@ -74,24 +76,41 @@ class ReduceTaskRunner extends TaskRunner {
         MapOutputProtocol client =
           (MapOutputProtocol)RPC.getProxy(MapOutputProtocol.class, addr);
 
+        MapOutputFile.setProgressReporter(new MapOutputFile.ProgressReporter(){
+            public void progress(float progress) {
+              copyPhase.phase().set(progress);
+              try {
+                getTask().reportProgress(getTracker());
+              } catch (IOException e) {
+                throw new RuntimeException(e);
+              }
+            }
+          });
 
+        getTask().reportProgress(getTracker());
         try {
           LOG.info("Copying "+loc.getMapTaskId()+" from "+addr);
+          
           client.getFile(loc.getMapTaskId(), task.getTaskId(),
                          new IntWritable(task.getPartition()));
           
           needed.remove(loc.getMapTaskId());     // success: remove from needed
           
           LOG.info("Copy complete: "+loc.getMapTaskId()+" from "+addr);
-
+          
+          copyPhase.startNextPhase();
+          
         } catch (IOException e) {                 // failed: try again later
           LOG.info("Copy failed: "+loc.getMapTaskId()+" from "+addr);
+          
+        } finally {
+          MapOutputFile.setProgressReporter(null);
         }
         
       }
-
+      
     }
-    getTracker().progress(task.getTaskId(), new FloatWritable(1.0f/3.0f));
+    getTask().reportProgress(getTracker());
   }
 
   /** Delete all of the temporary map output files. */
