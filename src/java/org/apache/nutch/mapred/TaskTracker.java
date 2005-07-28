@@ -467,9 +467,9 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
     /**
      * Called periodically to report Task progress, from 0.0 to 1.0.
      */
-    public void progress(String taskid, FloatWritable progress) throws IOException {
+    public void progress(String taskid, float progress, String state) throws IOException {
         TaskInProgress tip = (TaskInProgress) tasks.get(taskid);
-        tip.reportProgress(progress.get());
+        tip.reportProgress(progress);
     }
 
     /**

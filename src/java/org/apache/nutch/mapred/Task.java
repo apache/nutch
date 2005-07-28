@@ -95,8 +95,10 @@ public abstract class Task implements Writable {
     throws IOException {
     long now = System.currentTimeMillis();
     if (now > nextProgressTime)  {
-      umbilical.progress(getTaskId(), new FloatWritable(taskProgress.get()));
-      nextProgressTime = now + PROGRESS_INTERVAL;
+      synchronized (this) {
+        nextProgressTime = now + PROGRESS_INTERVAL;
+        umbilical.progress(getTaskId(), taskProgress.get(), "");
+      }
     }
   }
 

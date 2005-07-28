@@ -101,13 +101,13 @@ public class LocalJobRunner implements JobSubmissionProtocol {
 
     public Task getTask(String taskid) { return null; }
 
-    public void progress(String taskId, FloatWritable progress) {
+    public void progress(String taskId, float progress, String state) {
       float taskIndex = mapIds.indexOf(taskId);
       if (taskIndex >= 0) {                       // mapping
         float numTasks = mapIds.size();
-        status.mapProgress = (taskIndex/numTasks)+(progress.get()/numTasks);
+        status.mapProgress = (taskIndex/numTasks)+(progress/numTasks);
       } else {
-        status.reduceProgress = progress.get();
+        status.reduceProgress = progress;
       }
     }
 

@@ -30,11 +30,15 @@ public interface TaskUmbilicalProtocol {
   Task getTask(String taskid) throws IOException;
 
   /** Report child's progress to parent.
+   * @param taskid the id of the task
    * @param progress value between zero and one
+   * @param state description of task's current state
    */
-  void progress(String taskid, FloatWritable progress) throws IOException;
+  void progress(String taskid, float progress, String state)
+    throws IOException;
 
-  /** Report a child diagnostic message back to parent
+  /** Report error messages back to parent.  Calls should be sparing, since all
+   *  such messages are held in the job tracker.
    *  @param trace, the stack trace text
    */
   void reportDiagnosticInfo(String taskid, String trace) throws IOException;
