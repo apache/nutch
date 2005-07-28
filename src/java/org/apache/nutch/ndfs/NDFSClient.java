@@ -719,7 +719,6 @@ public class NDFSClient implements FSConstants {
 			
         /**
          * Writes the specified byte to this output stream.
-         * This is the only write method that needs to be implemented.
          */
         public synchronized void write(int b) throws IOException {
             if (closed) {
@@ -732,6 +731,29 @@ public class NDFSClient implements FSConstants {
             }
             outBuf[pos++] = (byte) b;
             filePos++;
+        }
+
+        /**
+         * Writes the specified bytes to this output stream.
+         */
+      public synchronized void write(byte b[], int off, int len)
+        throws IOException {
+            if (closed) {
+                throw new IOException("Stream closed");
+            }
+            while (len > 0) {
+              int remaining = BUFFER_SIZE - pos;
+              int toWrite = Math.min(remaining, len);
+              System.arraycopy(b, off, outBuf, pos, toWrite);
+              pos += toWrite;
+              off += toWrite;
+              len -= toWrite;
+
+              if ((bytesWrittenToBlock + pos >= BLOCK_SIZE) ||
+                  (pos == BUFFER_SIZE)) {
+                flush();
+              }
+            }
         }
 
         /**
