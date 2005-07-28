@@ -247,9 +247,11 @@ public class TestNutchFileSystem extends TestCase {
   public static void main(String[] args) throws Exception {
     int megaBytes = 10;
     int files = 100;
-    boolean check = true;
+    boolean noRead = false;
+    boolean noWrite = false;
+    long seed = new Random().nextLong();
 
-    String usage = "Usage: TestNutchFileSystem -files N -megaBytes M";
+    String usage = "Usage: TestNutchFileSystem -files N -megaBytes M [-noread] [-nowrite]";
     
     if (args.length == 0) {
         System.err.println(usage);
@@ -260,12 +262,26 @@ public class TestNutchFileSystem extends TestCase {
         files = Integer.parseInt(args[++i]);
       } else if (args[i].equals("-megaBytes")) {
         megaBytes = Integer.parseInt(args[++i]);
+      } else if (args[i].equals("-noread")) {
+        noRead = true;
+      } else if (args[i].equals("-nowrite")) {
+        noWrite = true;
       }
     }
+
+    LOG.info("seed = "+seed);
     LOG.info("files = " + files);
     LOG.info("megaBytes = " + megaBytes);
-    LOG.info("check = " + check);
   
-    testFs(megaBytes * MEGA, files, 0);
+    NutchFileSystem fs = NutchFileSystem.get();
+
+    if (!noWrite) {
+      createControlFile(fs, megaBytes*MEGA, files, seed);
+      writeTest(fs);
+    }
+    if (!noRead) {
+      readTest(fs);
+    }
   }
+
 }
