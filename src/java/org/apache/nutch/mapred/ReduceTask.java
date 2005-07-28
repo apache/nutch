@@ -158,6 +158,45 @@ public class ReduceTask extends Task {
 
     copyPhase.complete();                         // copy is already complete
 
+    // open a file to collect map output
+    File taskDir = new File(LOCAL_DIR, getTaskId());
+    String file = new File(taskDir, "all.in").toString();
+    SequenceFile.Writer writer =
+      new SequenceFile.Writer(lfs, file, keyClass, valueClass);
+    try {
+      // append all input files into a single input file
+      WritableComparable key = (WritableComparable)job.newInstance(keyClass);
+      Writable value = (Writable)job.newInstance(valueClass);
+      
+      for (int i = 0; i < mapTaskIds.length; i++) {
+        appendPhase.addPhase();                 // one per file
+      }
+      
+      for (int i = 0; i < mapTaskIds.length; i++) {
+        File partFile =
+          MapOutputFile.getInputFile(mapTaskIds[i], getTaskId());
+        float progPerByte = 1.0f / lfs.getLength(partFile);
+        Progress phase = appendPhase.phase();
+        SequenceFile.Reader in =
+          new SequenceFile.Reader(lfs, partFile.toString());
+        try {
+          while(in.next(key, value)) {
+            writer.append(key, value);
+            phase.set(in.getPosition()*progPerByte);
+            reportProgress(umbilical);
+          }
+        } finally {
+          in.close();
+        }
+        phase.complete();
+      }
+      
+    } finally {
+      writer.close();
+    }
+      
+    appendPhase.complete();                     // append is complete
+
     // spawn a thread to give sort progress heartbeats
     Thread sortProgress = new Thread() {
         public void run() {
@@ -175,44 +214,10 @@ public class ReduceTask extends Task {
       };
     sortProgress.setName("Sort progress reporter for task "+getTaskId());
 
-    File taskDir = new File(LOCAL_DIR, getTaskId());
-    String file = new File(taskDir, "all.in").toString();
     String sortedFile = file+".sorted";
 
     try {
       sortProgress.start();
-
-      // open a file to collect map output
-      SequenceFile.Writer writer =
-        new SequenceFile.Writer(lfs, file, keyClass, valueClass);
-      try {
-        // append all input files into a single input file
-        WritableComparable key = (WritableComparable)job.newInstance(keyClass);
-        Writable value = (Writable)job.newInstance(valueClass);
-
-        for (int i = 0; i < mapTaskIds.length; i++) {
-          appendPhase.addPhase();                 // one per file
-        }
-
-        for (int i = 0; i < mapTaskIds.length; i++) {
-          String partFile =
-            MapOutputFile.getInputFile(mapTaskIds[i], getTaskId()).toString();
-          SequenceFile.Reader in = new SequenceFile.Reader(lfs, partFile);
-          try {
-            while(in.next(key, value)) {
-              writer.append(key, value);
-            }
-          } finally {
-            in.close();
-          }
-          appendPhase.startNextPhase();
-        }
-
-      } finally {
-        writer.close();
-      }
-      
-      appendPhase.complete();                     // append is complete
 
       // sort the input file
       WritableComparator comparator = 

@@ -112,6 +112,7 @@ public class MapOutputFile implements Writable {
     // read the length-prefixed file content into a local file
     File file = getInputFile(mapTaskId, reduceTaskId);
     long length = in.readLong();
+    float progPerByte = 1.0f / length;
     long unread = length;
     file.getParentFile().mkdirs();                // make directory
     OutputStream out = new FileOutputStream(file);
@@ -123,7 +124,7 @@ public class MapOutputFile implements Writable {
           out.write(buffer, 0, bytesToRead);
           unread -= bytesToRead;
           if (reporter != null) {
-            reporter.progress(length-unread/(float)length);
+            reporter.progress((length-unread)*progPerByte);
           }
       }
     } finally {

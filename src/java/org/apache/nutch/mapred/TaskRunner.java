@@ -90,6 +90,7 @@ abstract class TaskRunner extends Thread {
       // run java
       runChild(new String[] {
         jvm.toString(),
+        //"-Xrunhprof:cpu=samples,file="+t.getTaskId()+".prof",
         "-Xmx"+job.get("mapred.child.heap.size", "200m"),
         "-cp", classPath.toString(),
         TaskTracker.Child.class.getName(),        // main is Child
