@@ -38,7 +38,7 @@ class ReduceTaskRunner extends TaskRunner {
     ReduceTask task = ((ReduceTask)getTask());
     MapOutputFile.removeAll(task.getTaskId());    // cleanup from failures
     String[] mapTaskIds = task.getMapTaskIds();
-    final Progress copyPhase = getTask().getTaskProgress().phase();
+    final Progress copyPhase = getTask().getProgress().phase();
 
     // we need input from every map task
     HashSet needed = new HashSet();
@@ -89,19 +89,17 @@ class ReduceTaskRunner extends TaskRunner {
 
         getTask().reportProgress(getTracker());
         try {
-          LOG.info("Copying "+loc.getMapTaskId()+" from "+addr);
+          copyPhase.phase().setStatus(loc.toString());
           
           client.getFile(loc.getMapTaskId(), task.getTaskId(),
                          new IntWritable(task.getPartition()));
           
           needed.remove(loc.getMapTaskId());     // success: remove from needed
           
-          LOG.info("Copy complete: "+loc.getMapTaskId()+" from "+addr);
-          
           copyPhase.startNextPhase();
           
         } catch (IOException e) {                 // failed: try again later
-          LOG.info("Copy failed: "+loc.getMapTaskId()+" from "+addr);
+          LOG.warning("copy failed: "+loc.getMapTaskId()+" from "+addr);
           
         } finally {
           MapOutputFile.setProgressReporter(null);
@@ -115,7 +113,7 @@ class ReduceTaskRunner extends TaskRunner {
 
   /** Delete all of the temporary map output files. */
   public void close() throws IOException {
-    LOG.info("Task "+getTask()+" done; removing files.");
+    getTask().getProgress().setStatus("closed");
     MapOutputFile.removeAll(getTask().getTaskId());
   }
 

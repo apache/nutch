@@ -21,7 +21,7 @@ import java.net.*;
 import java.util.*;
 
 import org.apache.nutch.io.*;
-import org.apache.nutch.util.NutchConf;
+import org.apache.nutch.util.*;
 
 /** Implements partial value reduction during mapping.  This can minimize the
  * size of intermediate data.  Buffers a list of values for each unique key,
@@ -37,10 +37,13 @@ class CombiningCollector implements OutputCollector {
   private JobConf job;
   private OutputCollector out;
   private Reducer combiner;
+  private Reporter reporter;
 
-  public CombiningCollector(JobConf job, OutputCollector out) {
+  public CombiningCollector(JobConf job, OutputCollector out,
+                            Reporter reporter) {
     this.job = job;
     this.out = out;
+    this.reporter = reporter;
     this.combiner = (Reducer)job.newInstance(job.getCombinerClass());
     this.keyToValues = new TreeMap
       ((Comparator)job.newInstance(job.getOutputKeyComparatorClass()));
@@ -72,7 +75,7 @@ class CombiningCollector implements OutputCollector {
       Map.Entry pair = (Map.Entry)pairs.next();
       combiner.reduce((WritableComparable)pair.getKey(),
                       ((ArrayList)pair.getValue()).iterator(),
-                      out);
+                      out, reporter);
     }
     keyToValues.clear();
     count = 0;

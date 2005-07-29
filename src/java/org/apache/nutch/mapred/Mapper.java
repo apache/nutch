@@ -36,6 +36,7 @@ public interface Mapper extends JobConfigurable {
    * @param value the values
    * @param output collects mapped keys and values
    */
-  void map(WritableComparable key, Writable value, OutputCollector output)
+  void map(WritableComparable key, Writable value,
+           OutputCollector output, Reporter reporter)
     throws IOException;
 }

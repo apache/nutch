@@ -61,4 +61,8 @@ public class MapOutputLocation implements Writable {
     this.port = in.readInt();
   }
 
+  public String toString() {
+    return mapTaskId+"@"+host+":"+port;
+  }
+
 }

@@ -81,10 +81,11 @@ public class MapTask extends Task {
         };
 
       OutputCollector collector = partCollector;
+      Reporter reporter = getReporter(umbilical, getProgress());
 
       boolean combining = job.getCombinerClass() != null;
       if (combining) {                            // add combining collector
-        collector = new CombiningCollector(job, partCollector);
+        collector = new CombiningCollector(job, partCollector, reporter);
       }
 
       final RecordReader rawIn =                  // open input
@@ -110,7 +111,7 @@ public class MapTask extends Task {
         (MapRunnable)job.newInstance(job.getMapRunnerClass());
 
       try {
-        runner.run(in, collector);                // run the map
+        runner.run(in, collector, reporter);      // run the map
 
         if (combining) {                          // flush combiner
           ((CombiningCollector)collector).flush();

@@ -51,7 +51,8 @@ public class LinkDb extends NutchConfigured implements Mapper, Reducer {
   }
 
   public void map(WritableComparable key, Writable value,
-                  OutputCollector output) throws IOException {
+                  OutputCollector output, Reporter reporter)
+    throws IOException {
     String fromUrl = key.toString();
     ParseData parseData = (ParseData)value;
     Outlink[] outlinks = parseData.getOutlinks();
@@ -69,7 +70,8 @@ public class LinkDb extends NutchConfigured implements Mapper, Reducer {
   }
 
   public void reduce(WritableComparable key, Iterator values,
-                     OutputCollector output) throws IOException {
+                     OutputCollector output, Reporter reporter)
+    throws IOException {
     Inlinks result = null;
     while (values.hasNext()) {
       Inlinks inlinks = (Inlinks)values.next();

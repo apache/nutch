@@ -53,6 +53,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
 
   private RecordReader input;
   private OutputCollector output;
+  private Reporter reporter;
 
   private int activeThreads;
   private int maxRedirect;
@@ -193,21 +194,21 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
 
   public Fetcher(NutchConf conf) { super(conf); }
 
-  private synchronized void updateStatus(int bytesInPage) {
+  private synchronized void updateStatus(int bytesInPage) throws IOException {
     pages++;
     bytes += bytesInPage;
 
     if ((pages % 100) == 0) {             // show status every 100pp
       long elapsed = (System.currentTimeMillis() - start)/1000;
-      LOG.info( "status: "
-                + pages + " pages, "
-                + errors + " errors, "
-                + bytes + " bytes, "
-                + elapsed + " seconds");
-      LOG.info("status: "
-               + ((float)pages)/elapsed+" pages/s, "
-               + ((((float)bytes)*8)/1024)/elapsed+" kb/s, "
-               + ((float)bytes)/pages+" bytes/page");
+      String line1 =
+        pages+" pages, "+errors+" errors, "+bytes+" bytes, "+elapsed+" secs";
+      String line2 = 
+        + ((float)pages)/elapsed+" pages/s, "
+        + ((((float)bytes)*8)/1024)/elapsed+" kb/s, "
+        + ((float)bytes)/pages+" bytes/page";
+      LOG.info( "status: "+line1);
+      LOG.info( "status: "+line2);
+      reporter.setStatus(line2);
     }
   }
 
@@ -218,11 +219,12 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
     }
   }
 
-  public void run(RecordReader input, OutputCollector output)
-    throws IOException {
+  public void run(RecordReader input, OutputCollector output,
+                  Reporter reporter) throws IOException {
 
     this.input = input;
     this.output = output;
+    this.reporter = reporter;
 			
     this.maxRedirect = getConf().getInt("http.redirect.max", 3);
     

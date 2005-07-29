@@ -124,7 +124,8 @@ public class Indexer extends NutchConfigured implements Reducer {
   }
 
   public void reduce(WritableComparable key, Iterator values,
-                     OutputCollector output) throws IOException {
+                     OutputCollector output, Reporter reporter)
+    throws IOException {
     Inlinks inlinks = null;
     CrawlDatum crawlDatum = null;
     ParseData parseData = null;

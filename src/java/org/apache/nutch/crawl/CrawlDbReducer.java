@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.io.IOException;
 
 import org.apache.nutch.io.*;
+import org.apache.nutch.util.*;
 import org.apache.nutch.mapred.*;
 
 /** Merge new page entries with existing entries. */
@@ -32,7 +33,8 @@ public class CrawlDbReducer implements Reducer {
   }
 
   public void reduce(WritableComparable key, Iterator values,
-                     OutputCollector output) throws IOException {
+                     OutputCollector output, Reporter reporter)
+    throws IOException {
 
     CrawlDatum highest = null;
     CrawlDatum old = null;

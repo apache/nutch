@@ -76,9 +76,6 @@ public class SequenceFile {
       throws IOException {
       this.nfs = nfs;
       this.target = new File(name);
-      if (nfs.exists(target)) {
-        throw new IOException("already exists: " + target);
-      }
       init(new NFSDataOutputStream(nfs.create(target)),
            keyClass, valClass);
     }

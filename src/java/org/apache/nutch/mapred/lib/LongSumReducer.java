@@ -22,11 +22,12 @@ import java.util.Iterator;
 import org.apache.nutch.mapred.Reducer;
 import org.apache.nutch.mapred.OutputCollector;
 import org.apache.nutch.mapred.JobConf;
+import org.apache.nutch.mapred.Reporter;
+
 
 import org.apache.nutch.io.Writable;
 import org.apache.nutch.io.WritableComparable;
 import org.apache.nutch.io.LongWritable;
-
 
 /** A {@link Reducer} that sums long values. */
 public class LongSumReducer implements Reducer {
@@ -34,7 +35,8 @@ public class LongSumReducer implements Reducer {
   public void configure(JobConf job) {}
 
   public void reduce(WritableComparable key, Iterator values,
-                     OutputCollector output) throws IOException {
+                     OutputCollector output, Reporter reporter)
+    throws IOException {
 
     // sum all values for this key
     long sum = 0;

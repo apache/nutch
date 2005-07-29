@@ -35,6 +35,7 @@ public interface Reducer extends JobConfigurable {
    * @param values the values to combine
    * @param output to collect combined values
    */
-  void reduce(WritableComparable key, Iterator values, OutputCollector output)
+  void reduce(WritableComparable key, Iterator values,
+              OutputCollector output, Reporter reporter)
     throws IOException;
 }

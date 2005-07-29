@@ -21,9 +21,11 @@ import java.io.IOException;
 import org.apache.nutch.mapred.Mapper;
 import org.apache.nutch.mapred.OutputCollector;
 import org.apache.nutch.mapred.JobConf;
+import org.apache.nutch.mapred.Reporter;
 
 import org.apache.nutch.io.WritableComparable;
 import org.apache.nutch.io.Writable;
+
 
 /** A {@link Mapper} that swaps keys and values. */
 public class InverseMapper implements Mapper {
@@ -32,7 +34,8 @@ public class InverseMapper implements Mapper {
 
   /** The inverse function.  Input keys and values are swapped.*/
   public void map(WritableComparable key, Writable value,
-                  OutputCollector output) throws IOException {
+                  OutputCollector output, Reporter reporter)
+    throws IOException {
     output.collect((WritableComparable)value, key);
   }
 }

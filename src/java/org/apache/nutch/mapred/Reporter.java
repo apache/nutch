@@ -18,16 +18,11 @@ package org.apache.nutch.mapred;
 
 import java.io.IOException;
 
-import org.apache.nutch.io.Writable;
-import org.apache.nutch.io.WritableComparable;
-
-/** Expert: Permits greater control of map processing. For example,
- * implementations might perform multi-threaded, asynchronous mappings. */
-public interface MapRunnable extends JobConfigurable {
-  /** Called to execute mapping.  Mapping is complete when this returns.
-   * @param input the {@link RecordReader} with input key/value pairs.
-   * @param output the {@link OutputCollector} for mapped key/value pairs.
+/** Passed to application code to permit alteration of status. */
+public interface Reporter {
+  /** Alter the application's status description.
+   *
+   * @param status a brief description of the current status
    */
-  void run(RecordReader input, OutputCollector output, Reporter reporter)
-    throws IOException;
+  void setStatus(String status) throws IOException;
 }

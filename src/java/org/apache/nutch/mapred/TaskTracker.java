@@ -355,8 +355,8 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
         /**
          * The task is reporting its progress
          */
-        public synchronized void reportProgress(float p) {
-            LOG.info("Progress for task " + task.getTaskId() + " is " + p);
+        public synchronized void reportProgress(float p, String state) {
+            LOG.info(task.getTaskId()+" "+p+"% "+state);
             this.progress = p;
             this.runstate = TaskStatus.RUNNING;
         }
@@ -469,7 +469,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
      */
     public void progress(String taskid, float progress, String state) throws IOException {
         TaskInProgress tip = (TaskInProgress) tasks.get(taskid);
-        tip.reportProgress(progress);
+        tip.reportProgress(progress, state);
     }
 
     /**

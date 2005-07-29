@@ -50,7 +50,8 @@ public class Generator extends NutchConfigured {
 
     /** Select & invert subset due for fetch. */
     public void map(WritableComparable key, Writable value,
-                    OutputCollector output) throws IOException {
+                    OutputCollector output, Reporter reporter)
+      throws IOException {
       CrawlDatum crawlDatum = (CrawlDatum)value;
 
       if (crawlDatum.getStatus() == CrawlDatum.STATUS_DB_GONE)
@@ -82,7 +83,9 @@ public class Generator extends NutchConfigured {
 
     /** Collect until limit is reached. */
     public void reduce(WritableComparable key, Iterator values,
-                       OutputCollector output) throws IOException {
+                       OutputCollector output, Reporter reporter)
+      throws IOException {
+
       while (values.hasNext() && ++count < limit) {
         output.collect(key, (Writable)values.next());
       }

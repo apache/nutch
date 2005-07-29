@@ -23,6 +23,7 @@ import java.util.Iterator;
 import org.apache.nutch.mapred.Reducer;
 import org.apache.nutch.mapred.OutputCollector;
 import org.apache.nutch.mapred.JobConf;
+import org.apache.nutch.mapred.Reporter;
 
 import org.apache.nutch.io.Writable;
 import org.apache.nutch.io.WritableComparable;
@@ -33,8 +34,9 @@ public class IdentityReducer implements Reducer {
   public void configure(JobConf job) {}
 
   /** Writes all keys and values directly to output. */
-  public void reduce (WritableComparable key, Iterator values,
-                      OutputCollector output) throws IOException {
+  public void reduce(WritableComparable key, Iterator values,
+                     OutputCollector output, Reporter reporter)
+    throws IOException {
     while (values.hasNext()) {
       output.collect(key, (Writable)values.next());
     }

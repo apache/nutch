@@ -33,10 +33,12 @@ public class ReduceTask extends Task {
   private int partition;
   private boolean sortComplete;
 
-  private Progress copyPhase = getTaskProgress().addPhase();
-  private Progress appendPhase = getTaskProgress().addPhase();
-  private Progress sortPhase  = getTaskProgress().addPhase();
-  private Progress reducePhase = getTaskProgress().addPhase();
+  { getProgress().setStatus("reduce"); }
+
+  private Progress copyPhase = getProgress().addPhase("copy");
+  private Progress appendPhase = getProgress().addPhase("append");
+  private Progress sortPhase  = getProgress().addPhase("sort");
+  private Progress reducePhase = getProgress().addPhase("reduce");
 
   public ReduceTask() {}
 
@@ -165,25 +167,27 @@ public class ReduceTask extends Task {
       new SequenceFile.Writer(lfs, file, keyClass, valueClass);
     try {
       // append all input files into a single input file
-      WritableComparable key = (WritableComparable)job.newInstance(keyClass);
-      Writable value = (Writable)job.newInstance(valueClass);
-      
       for (int i = 0; i < mapTaskIds.length; i++) {
         appendPhase.addPhase();                 // one per file
       }
       
+      DataOutputBuffer buffer = new DataOutputBuffer();
+
       for (int i = 0; i < mapTaskIds.length; i++) {
         File partFile =
           MapOutputFile.getInputFile(mapTaskIds[i], getTaskId());
         float progPerByte = 1.0f / lfs.getLength(partFile);
         Progress phase = appendPhase.phase();
+        phase.setStatus(partFile.toString());
         SequenceFile.Reader in =
           new SequenceFile.Reader(lfs, partFile.toString());
         try {
-          while(in.next(key, value)) {
-            writer.append(key, value);
+          int keyLen;
+          while((keyLen = in.next(buffer)) > 0) {
+            writer.append(buffer.getData(), 0, buffer.getLength(), keyLen);
             phase.set(in.getPosition()*progPerByte);
             reportProgress(umbilical);
+            buffer.reset();
           }
         } finally {
           in.close();
@@ -247,11 +251,12 @@ public class ReduceTask extends Task {
     
     // apply reduce function
     SequenceFile.Reader in = new SequenceFile.Reader(lfs, sortedFile);
+    Reporter reporter = getReporter(umbilical, getProgress());
     long length = lfs.getLength(new File(sortedFile));
     try {
       ValuesIterator values = new ValuesIterator(in, length, umbilical);
       while (values.more()) {
-        reducer.reduce(values.getKey(), values, collector);
+        reducer.reduce(values.getKey(), values, collector, reporter);
         values.nextKey();
       }
 

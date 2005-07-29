@@ -83,7 +83,17 @@ public abstract class Task implements Writable {
   private transient long nextProgressTime =
     System.currentTimeMillis() + PROGRESS_INTERVAL;
 
-  public Progress getTaskProgress() { return taskProgress; }
+  public Progress getProgress() { return taskProgress; }
+
+  public Reporter getReporter(final TaskUmbilicalProtocol umbilical,
+                              final Progress progress) throws IOException {
+    return new Reporter() {
+        public void setStatus(String status) throws IOException {
+          progress.setStatus(status);
+          reportProgress(umbilical);
+        }
+      };
+  }
 
   public void reportProgress(TaskUmbilicalProtocol umbilical, float progress)
     throws IOException {
@@ -97,7 +107,9 @@ public abstract class Task implements Writable {
     if (now > nextProgressTime)  {
       synchronized (this) {
         nextProgressTime = now + PROGRESS_INTERVAL;
-        umbilical.progress(getTaskId(), taskProgress.get(), "");
+        float progress = taskProgress.get();
+        String status = taskProgress.toString();
+        umbilical.progress(getTaskId(), progress, status);
       }
     }
   }

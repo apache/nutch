@@ -35,7 +35,8 @@ public class MapRunner implements MapRunnable {
     this.inputValueClass = job.getInputValueClass();
   }
 
-  public void run(RecordReader input, OutputCollector output)
+  public void run(RecordReader input, OutputCollector output,
+                  Reporter reporter)
     throws IOException {
     while (true) {
       // allocate new key & value instances
@@ -48,7 +49,7 @@ public class MapRunner implements MapRunnable {
         return;
 
       // map pair to output
-      mapper.map(key, value, output);
+      mapper.map(key, value, output, reporter);
     }
   }
 

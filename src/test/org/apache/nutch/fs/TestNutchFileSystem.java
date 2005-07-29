@@ -116,13 +116,14 @@ public class TestNutchFileSystem extends TestCase {
     }
 
     public void map(WritableComparable key, Writable value,
-                    OutputCollector collector) throws IOException {
+                    OutputCollector collector, Reporter reporter)
+      throws IOException {
       String name = ((UTF8)key).toString();
       long size = ((LongWritable)value).get();
       long seed = Long.parseLong(name);
 
       random.setSeed(seed);
-      //LOG.info("writing: name="+name+" size="+size);
+      reporter.setStatus("creating " + name);
 
       OutputStream out = fs.create(new File(DATA_DIR, name));
 
@@ -134,12 +135,15 @@ public class TestNutchFileSystem extends TestCase {
           int length = (remains<=buffer.length) ? (int)remains : buffer.length;
           out.write(buffer, 0, length);
           written += length;
+          reporter.setStatus("writing "+name+"@"+written+"/"+size);
         }
       } finally {
         out.close();
       }
 
       collector.collect(new UTF8("bytes"), new LongWritable(written));
+
+      reporter.setStatus("wrote " + name);
     }
   }
 
@@ -188,36 +192,41 @@ public class TestNutchFileSystem extends TestCase {
     }
 
     public void map(WritableComparable key, Writable value,
-                    OutputCollector collector) throws IOException {
+                    OutputCollector collector, Reporter reporter)
+      throws IOException {
       String name = ((UTF8)key).toString();
       long size = ((LongWritable)value).get();
       long seed = Long.parseLong(name);
 
       random.setSeed(seed);
-      //LOG.info("reading: name="+name+" size="+size);
+      reporter.setStatus("opening " + name);
 
-      InputStream in = fs.open(new File(DATA_DIR, name));
+      DataInputStream in =
+        new DataInputStream(fs.open(new File(DATA_DIR, name)));
 
       long read = 0;
       try {
         while (read < size) {
           long remains = size - read;
-          int req = (remains<=buffer.length) ? (int)remains : buffer.length;
-          int got = in.read(buffer, 0, req);
-          read += got;
-          assertEquals(got, req);
+          int n = (remains<=buffer.length) ? (int)remains : buffer.length;
+          in.readFully(buffer, 0, n);
+          read += n;
           random.nextBytes(check);
-          if (got != buffer.length) {
-            Arrays.fill(buffer, got, buffer.length, (byte)0);
-            Arrays.fill(check, got, check.length, (byte)0);
+          if (n != buffer.length) {
+            Arrays.fill(buffer, n, buffer.length, (byte)0);
+            Arrays.fill(check, n, check.length, (byte)0);
           }
           assertTrue(Arrays.equals(buffer, check));
+          reporter.setStatus("reading "+name+"@"+read+"/"+size);
+
         }
       } finally {
         in.close();
       }
 
       collector.collect(new UTF8("bytes"), new LongWritable(read));
+
+      reporter.setStatus("read " + name);
     }
   }
 

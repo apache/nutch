@@ -21,11 +21,13 @@ import java.io.IOException;
 import org.apache.nutch.mapred.Mapper;
 import org.apache.nutch.mapred.OutputCollector;
 import org.apache.nutch.mapred.JobConf;
+import org.apache.nutch.mapred.Reporter;
 
 import org.apache.nutch.io.WritableComparable;
 import org.apache.nutch.io.Writable;
 import org.apache.nutch.io.LongWritable;
 import org.apache.nutch.io.UTF8;
+
 
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -43,7 +45,8 @@ public class RegexMapper implements Mapper {
   }
 
   public void map(WritableComparable key, Writable value,
-                  OutputCollector output) throws IOException {
+                  OutputCollector output, Reporter reporter)
+    throws IOException {
     String text = ((UTF8)value).toString();
     Matcher matcher = pattern.matcher(text);
     while (matcher.find()) {

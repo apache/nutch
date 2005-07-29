@@ -43,7 +43,8 @@ public class Injector extends NutchConfigured {
     }
 
     public void map(WritableComparable key, Writable val,
-                    OutputCollector output) throws IOException {
+                    OutputCollector output, Reporter reporter)
+      throws IOException {
       UTF8 value = (UTF8)val;
       String url = value.toString();              // value is line of text
       try {
@@ -66,7 +67,8 @@ public class Injector extends NutchConfigured {
     public void configure(JobConf job) {}
 
     public void reduce(WritableComparable key, Iterator values,
-                       OutputCollector output) throws IOException {
+                       OutputCollector output, Reporter reporter)
+      throws IOException {
       output.collect(key, (Writable)values.next()); // just collect first value
     }
   }

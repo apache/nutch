@@ -21,6 +21,7 @@ import java.io.IOException;
 import org.apache.nutch.mapred.Mapper;
 import org.apache.nutch.mapred.OutputCollector;
 import org.apache.nutch.mapred.JobConf;
+import org.apache.nutch.mapred.Reporter;
 
 import org.apache.nutch.io.Writable;
 import org.apache.nutch.io.WritableComparable;
@@ -33,7 +34,8 @@ public class IdentityMapper implements Mapper {
   /** The identify function.  Input key/value pair is written directly to
    * output.*/
   public void map(WritableComparable key, Writable val,
-                  OutputCollector output) throws IOException {
+                  OutputCollector output, Reporter reporter)
+    throws IOException {
     output.collect(key, val);
   }
 

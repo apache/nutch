@@ -54,7 +54,8 @@ public class ParseSegment
   }
 
   public void map(WritableComparable key, Writable value,
-                  OutputCollector output) throws IOException {
+                  OutputCollector output, Reporter reporter)
+    throws IOException {
     Content content = (Content)value;
 
     Parse parse = null;
@@ -77,7 +78,8 @@ public class ParseSegment
   }
 
   public void reduce(WritableComparable key, Iterator values,
-                     OutputCollector output) throws IOException {
+                     OutputCollector output, Reporter reporter)
+    throws IOException {
     output.collect(key, (Writable)values.next()); // collect first value
   }
 
