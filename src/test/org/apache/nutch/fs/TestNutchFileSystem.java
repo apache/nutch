@@ -32,7 +32,7 @@ public class TestNutchFileSystem extends TestCase {
 
   private static final long MEGA = 1024 * 1024;
 
-  private static String ROOT = System.getProperty("test.build.data",".");
+  private static String ROOT = System.getProperty("test.build.data","fs_test");
   private static File CONTROL_DIR = new File(ROOT, "fs_control");
   private static File WRITE_DIR = new File(ROOT, "fs_write");
   private static File READ_DIR = new File(ROOT, "fs_read");
