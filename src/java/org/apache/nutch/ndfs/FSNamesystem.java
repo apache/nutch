@@ -317,6 +317,13 @@ public class FSNamesystem implements FSConstants {
     }
 
     /**
+     * Abandon the entire file in progress
+     */
+    public synchronized void abandonFileInProgress(UTF8 src) throws IOException {
+        internalReleaseCreate(src);
+    }
+
+    /**
      * Finalize the created file and make it world-accessible.  The
      * FSNamesystem will already know the blocks that make up the file.
      * Before we return, we make sure that all the file's blocks have 
@@ -578,7 +585,10 @@ public class FSNamesystem implements FSConstants {
                 internalReleaseLock(src, holder);
             }
             locks.clear();
-            internalReleaseCreates(creates);
+            for (Iterator it = creates.iterator(); it.hasNext(); ) {
+                UTF8 src = (UTF8) it.next();
+                internalReleaseCreate(src);
+            }
             creates.clear();
         }
 
@@ -682,14 +692,11 @@ public class FSNamesystem implements FSConstants {
     private int internalReleaseLock(UTF8 src, UTF8 holder) {
         return dir.releaseLock(src, holder);
     }
-    private void internalReleaseCreates(TreeSet creates) {
-        for (Iterator it = creates.iterator(); it.hasNext(); ) {
-            UTF8 src = (UTF8) it.next();
-            Vector v = (Vector) pendingCreates.remove(src);
-            for (Iterator it2 = v.iterator(); it2.hasNext(); ) {
-                Block b = (Block) it2.next();
-                pendingCreateBlocks.remove(b);
-            }
+    private void internalReleaseCreate(UTF8 src) {
+        Vector v = (Vector) pendingCreates.remove(src);
+        for (Iterator it2 = v.iterator(); it2.hasNext(); ) {
+            Block b = (Block) it2.next();
+            pendingCreateBlocks.remove(b);
         }
     }
 

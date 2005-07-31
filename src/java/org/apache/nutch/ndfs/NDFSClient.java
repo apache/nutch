@@ -236,16 +236,10 @@ public class NDFSClient implements FSConstants {
         private DataInputStream blockStream;
         private DataOutputStream partnerStream;
         private Block blocks[];
-        private int curBlock = 0;
         private DatanodeInfo nodes[][];
         private long pos = 0;
-        private long bytesRemainingInBlock = 0, curBlockSize = 0;
-
-        private int memoryBuf[] = new int[32 * 1024];
-        private long memoryStartPos = 0;
-        private long openPoint = 0;
-        private int memoryBytes = 0;
-        private int memoryBytesStart = 0;
+        private long filelen = 0;
+        private long blockEnd = -1;
 
         /**
          */
@@ -254,22 +248,18 @@ public class NDFSClient implements FSConstants {
             this.nodes = nodes;
             this.blockStream = null;
             this.partnerStream = null;
+            for (int i = 0; i < blocks.length; i++) {
+                this.filelen += blocks[i].getNumBytes();
+            }
         }
 
         /**
-         * Open a DataInputStream to a DataNode so that it can be written to.
-         * This happens when a file is created and each time a new block is allocated.
-         * Must get block ID and the IDs of the destinations from the namenode.
+         * Open a DataInputStream to a DataNode so that it can be read from.
+         * We get block ID and the IDs of the destinations at startup, from the namenode.
          */
-        private synchronized void nextBlockInputStream() throws IOException {
-            nextBlockInputStream(0);
-        }
-        private synchronized void nextBlockInputStream(long preSkip) throws IOException {
-            if (curBlock >= blocks.length) {
+        private synchronized void blockSeekTo(long target) throws IOException {
+            if (target >= filelen) {
                 throw new IOException("Attempted to read past end of file");
-            }
-            if (bytesRemainingInBlock > 0) {
-                throw new IOException("Trying to skip to next block without reading all data");
             }
 
             if (blockStream != null) {
@@ -278,17 +268,39 @@ public class NDFSClient implements FSConstants {
             }
 
             //
-            // Connect to best DataNode for current Block
+            // Compute desired block
             //
-            InetSocketAddress target = null;
+            int targetBlock = -1;
+            long targetBlockStart = 0;
+            long targetBlockEnd = 0;
+            for (int i = 0; i < blocks.length; i++) {
+                long blocklen = blocks[i].getNumBytes();
+                targetBlockEnd = targetBlockStart + blocklen - 1;
+
+                if (target >= targetBlockStart && target <= targetBlockEnd) {
+                    targetBlock = i;
+                    break;
+                } else {
+                    targetBlockStart = targetBlockEnd + 1;                    
+                }
+            }
+            if (targetBlock < 0) {
+                throw new IOException("Impossible situation: could not find target position " + target);
+            }
+            long offsetIntoBlock = target - targetBlockStart;
+
+            //
+            // Connect to best DataNode for desired Block, with potential offset
+            //
+            InetSocketAddress targetAddr = null;
             Socket s = null;
             TreeSet deadNodes = new TreeSet();
             while (s == null) {
                 DatanodeInfo chosenNode;
 
                 try {
-                    chosenNode = bestNode(nodes[curBlock], deadNodes);
-                    target = DataNode.createSocketAddr(chosenNode.getName().toString());
+                    chosenNode = bestNode(nodes[targetBlock], deadNodes);
+                    targetAddr = DataNode.createSocketAddr(chosenNode.getName().toString());
                 } catch (IOException ie) {
                     LOG.info("Could not obtain block from any node.  Retrying...");
                     try {
@@ -299,37 +311,34 @@ public class NDFSClient implements FSConstants {
                     continue;
                 }
                 try {
-                    s = new Socket(target.getAddress(), target.getPort());
-                    //LOG.info("Now downloading from " + target + ", block " + blocks[curBlock] + ", skipahead " + preSkip);
+                    s = new Socket(targetAddr.getAddress(), targetAddr.getPort());
 
                     //
                     // Xmit header info to datanode
                     //
                     DataOutputStream out = new DataOutputStream(new BufferedOutputStream(s.getOutputStream()));
                     out.write(OP_READSKIP_BLOCK);
-                    blocks[curBlock].write(out);
-                    out.writeLong(preSkip);
+                    blocks[targetBlock].write(out);
+                    out.writeLong(offsetIntoBlock);
                     out.flush();
 
                     //
                     // Get bytes in block, set streams
                     //
                     DataInputStream in = new DataInputStream(new BufferedInputStream(s.getInputStream()));
-                    curBlockSize = in.readLong();
+                    long curBlockSize = in.readLong();
                     long amtSkipped = in.readLong();
-
-                    pos += amtSkipped;
-                    bytesRemainingInBlock = curBlockSize - amtSkipped;
-
-                    if (amtSkipped > 0) {
-                        memoryStartPos = pos;
-                        memoryBytes = 0;
-                        memoryBytesStart = 0;
+                    if (curBlockSize != blocks[targetBlock].len) {
+                        throw new IOException("Recorded block size is " + blocks[targetBlock].len + ", but datanode reports size of " + curBlockSize);
                     }
-                    blockStream = in;
-                    partnerStream = out;
-                    curBlock++;
-                    openPoint = pos;
+                    if (amtSkipped != offsetIntoBlock) {
+                        throw new IOException("Asked for offset of " + offsetIntoBlock + ", but only received offset of " + amtSkipped);
+                    }
+
+                    this.pos = target;
+                    this.blockEnd = targetBlockEnd;
+                    this.blockStream = in;
+                    this.partnerStream = out;
                 } catch (IOException ex) {
                     // Put chosen node into dead list, continue
                     LOG.info("Could not connect to " + target);
@@ -340,169 +349,7 @@ public class NDFSClient implements FSConstants {
         }
 
         /**
-         */
-        public synchronized void seek(long pos) throws IOException {
-            if (pos < 0) {
-                throw new IOException("Cannot seek to negative position " + pos);
-            }
-            if (pos == this.pos) {
-                return;
-            }
-
-            //
-            // If we have remembered enough bytes to seek backwards to the
-            // desired pos, we can do so easily
-            //
-            if ((pos >= memoryStartPos) && (memoryStartPos + memoryBytes > pos)) {
-                this.pos = pos;
-            } else {
-                //
-                // If we are seeking backwards (and *don't* have enough memory bytes)
-                // we need to reset the NDFS streams.  They will be reopened upon the
-                // next call to nextBlockInputStream().  After this operation, all
-                // seeks will be "forwardSeeks".
-                //
-                if (pos < memoryStartPos && blockStream != null) {
-                    blockStream.close();
-                    blockStream = null;
-                    partnerStream.close();
-                    partnerStream = null;
-                    this.curBlock = 0;
-                    this.bytesRemainingInBlock = 0;
-                    this.pos = 0;
-                    this.memoryStartPos = 0;
-                    this.memoryBytes = 0;
-                    this.memoryBytesStart = 0;
-                    //
-                    // REMIND - this could be made more efficient, to just
-                    // skip back block-by-block
-                    //
-                }
-
-                //
-                // Now read ahead to the desired position.
-                //
-                long diff = pos - this.pos;
-                while (diff > 0) {
-                    long skipped = skip(diff);
-                    if (skipped > 0) {
-                        diff -= skipped;
-                    }
-                }
-                // Pos will be incremented by skip()
-            }
-        }
-
-        /**
-         * Skip ahead some number of bytes
-         */
-        public synchronized long skip(long skip) throws IOException {
-            long toSkip = 0;
-            long toFastSkip = 0;
-            if (skip > memoryBuf.length) {
-                toSkip = memoryBuf.length;
-                toFastSkip = skip - toSkip;
-            } else {
-                toSkip = skip;
-            }
-            long totalSkipped = 0;
-
-            //
-            // If there's a lot of fast-skipping to do within the current block,
-            // close it and reopen, so we can fast-skip to the target
-            //
-            /**
-            while (toFastSkip > 0) {
-                long amtSkipped = super.skip(toFastSkip);
-                toFastSkip -= amtSkipped;
-                totalSkipped += amtSkipped;
-            }
-            **/
-            long realBytesRemaining = bytesRemainingInBlock + (memoryBytes - (pos - memoryStartPos));
-            if (toFastSkip > 0 && realBytesRemaining > 0 && 
-                toFastSkip < realBytesRemaining) {
-
-                blockStream.close();
-                blockStream = null;
-                partnerStream.close();
-                partnerStream = null;
-
-                long backwardsDistance = curBlockSize - realBytesRemaining;
-                pos -= backwardsDistance;
-                totalSkipped -= backwardsDistance;
-                toFastSkip += backwardsDistance;
-                bytesRemainingInBlock = 0;
-                curBlock--;
-
-                memoryStartPos = pos;
-                memoryBytes = 0;
-                memoryBytesStart = 0;
-            }
-
-            //
-            // If there's any fast-skipping to do, we do it by opening a
-            // new block and telling the datanode how many bytes to skip.
-            //
-            while (toFastSkip > 0 && curBlock < blocks.length) {
-
-                if (bytesRemainingInBlock > 0) {
-                    blockStream.close();
-                    blockStream = null;
-                    partnerStream.close();
-                    partnerStream = null;
-
-                    pos += bytesRemainingInBlock;
-                    totalSkipped += bytesRemainingInBlock;
-                    toFastSkip -= bytesRemainingInBlock;
-                    bytesRemainingInBlock = 0;
-                }
-
-                long oldPos = pos;
-                nextBlockInputStream(toFastSkip);
-                long forwardDistance = (pos - oldPos);
-                totalSkipped += forwardDistance;
-                toFastSkip -= (pos - oldPos);
-
-                memoryStartPos = pos;
-                memoryBytes = 0;
-                memoryBytesStart = 0;
-            }
-
-            //
-            // If there's any remaining toFastSkip, well, there's
-            // not much we can do about it.  We're at the end of
-            // the stream!
-            //
-            if (toFastSkip > 0) {
-                System.err.println("Trying to skip past end of file....");
-                toFastSkip = 0;
-            }
-
-            //
-            // Do a slow skip as we approach, so we can fill the client
-            // history buffer
-            //
-            totalSkipped += super.skip(toSkip);
-            toSkip = 0;
-            return totalSkipped;
-        }
-
-        /**
-         */
-        public synchronized long getPos() throws IOException {
-            return pos;
-        }
-
-        /**
-         */
-        public synchronized int available() throws IOException {
-            if (closed) {
-                throw new IOException("Stream closed");
-            }
-            return (int) Math.min((long) Integer.MAX_VALUE, bytesRemainingInBlock);
-        }
-
-        /**
+         * Close it down!
          */
         public synchronized void close() throws IOException {
             if (closed) {
@@ -519,63 +366,93 @@ public class NDFSClient implements FSConstants {
         }
 
         /**
-         * Other read() functions are implemented in terms of
-         * this one.
+         * Basic read()
          */
         public synchronized int read() throws IOException {
             if (closed) {
                 throw new IOException("Stream closed");
             }
-
-            int b = 0;
-            if (pos - memoryStartPos < memoryBytes) {
-                //
-                // Move the memoryStartPos up to current pos, if necessary.
-                //
-                int diff = (int) (pos - memoryStartPos);
-
-                //
-                // Fetch the byte
-                //
-                b = memoryBuf[(memoryBytesStart + diff) % memoryBuf.length];
-
-                //
-                // Bump the pos
-                //
-                pos++;
-            } else {
-                if (bytesRemainingInBlock == 0) {
-                    if (curBlock < blocks.length) {
-                        nextBlockInputStream();
-                    } else {
-                        return -1;
-                    }
+            int result = -1;
+            if (pos < filelen) {
+                if (pos > blockEnd) {
+                    blockSeekTo(pos);
                 }
-                b = blockStream.read();
-                if (b >= 0) {
-                    //
-                    // Remember byte so we can seek backwards at some later time
-                    //
-                    if (memoryBytes == memoryBuf.length) {
-                        memoryStartPos++;
-                    }
-
-                    if (memoryBuf.length > 0) {
-                        int target;
-                        if (memoryBytes == memoryBuf.length) {
-                            target = memoryBytesStart;
-                            memoryBytesStart = (memoryBytesStart + 1) % memoryBuf.length;
-                        } else {
-                            target = (memoryBytesStart + memoryBytes) % memoryBuf.length;
-                            memoryBytes++;
-                        }
-                        memoryBuf[target] = b;
-                    }
-                    bytesRemainingInBlock--;
+                result = blockStream.read();
+                if (result >= 0) {
                     pos++;
                 }
             }
-            return b;
+            return result;
+        }
+
+        /**
+         * Read the entire buffer.
+         */
+        public synchronized int read(byte buf[], int off, int len) throws IOException {
+            if (closed) {
+                throw new IOException("Stream closed");
+            }
+            if (pos < filelen) {
+                if (pos > blockEnd) {
+                    blockSeekTo(pos);
+                }
+                int result = blockStream.read(buf, off, len);
+                if (result >= 0) {
+                    pos += result;
+                }
+                return result;
+            }
+            return -1;
+        }
+
+        /**
+         * Seek to a new arbitrary location
+         */
+        public synchronized void seek(long targetPos) throws IOException {
+            if (targetPos >= filelen) {
+                throw new IOException("Cannot seek after EOF");
+            }
+            if (targetPos >= pos && targetPos <= blockEnd) {
+                skip(targetPos - pos);
+            } else {
+                pos = targetPos;
+                blockEnd = -1;
+            }
+        }
+
+        /**
+         * Skip ahead some number of bytes
+         */
+        public synchronized long skip(long skip) throws IOException {
+            if (skip > 0) {
+                long targetPos = pos + skip;
+                targetPos = Math.min(targetPos, filelen);
+
+                if (targetPos <= blockEnd) {
+                    return blockStream.skip(skip);
+                } else {
+                    pos = targetPos;
+                    blockEnd = -1;
+                    return skip;
+                }
+            } else {
+                return 0;
+            }
+        }
+
+        /**
+         */
+        public synchronized long getPos() throws IOException {
+            return pos;
+        }
+
+        /**
+         */
+        public synchronized int available() throws IOException {
+            if (closed) {
+                throw new IOException("Stream closed");
+            }
+            return (int) (filelen - pos);
         }
 
         /**
@@ -661,7 +538,6 @@ public class NDFSClient implements FSConstants {
                             }
                         } catch (InterruptedException ie) {
                         }
-
                     } else {
                         blockComplete = true;
                     }
@@ -676,7 +552,6 @@ public class NDFSClient implements FSConstants {
                 InetSocketAddress target = DataNode.createSocketAddr(nodes[0].getName().toString());
                 Socket s = null;
                 try {
-                    //System.err.println("Trying to connect to " + target);
                     s = new Socket(target.getAddress(), target.getPort());
                 } catch (IOException ie) {
                     // Connection failed.  Let's wait a little bit and retry
@@ -687,7 +562,11 @@ public class NDFSClient implements FSConstants {
                         Thread.sleep(6000);
                     } catch (InterruptedException iex) {
                     }
-                    namenode.abandonBlock(block, src.toString());
+                    if (firstTime) {
+                        namenode.abandonFileInProgress(src.toString());
+                    } else {
+                        namenode.abandonBlock(block, src.toString());
+                    }
                     retry = true;
                     continue;
                 }

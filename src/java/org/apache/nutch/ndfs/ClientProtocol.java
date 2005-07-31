@@ -51,6 +51,12 @@ public interface ClientProtocol {
     public void abandonBlock(Block b, String src) throws IOException;
 
     /**
+     * The client wants to abandon writing to the current file, and
+     * let anyone else grab it.
+     */
+    public void abandonFileInProgress(String src) throws IOException;
+
+    /**
      * The client is done writing data to the given filename, and would 
      * like to complete it.  Returns whether the file has been closed
      * correctly (true) or whether caller should try again (false).

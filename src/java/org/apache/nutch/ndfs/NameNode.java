@@ -123,6 +123,9 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
             throw new IOException("Cannot abandon block during write to " + src);
         }
     }
+    public void abandonFileInProgress(String src) throws IOException {
+        namesystem.abandonFileInProgress(new UTF8(src));
+    }
     public boolean complete(String src, String clientName) throws IOException {
         int returnCode = namesystem.completeFile(new UTF8(src), new UTF8(clientName));
         if (returnCode == STILL_WAITING) {
