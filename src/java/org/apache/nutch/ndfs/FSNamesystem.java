@@ -879,7 +879,7 @@ public class FSNamesystem implements FSConstants {
 
         synchronized (neededReplications) {
             if (dir.isValidBlock(block)) {
-                LOG.info("Node " + node + " is reporting stored block " + block);
+              //LOG.info("Node " + node + " is reporting stored block " + block);
                 if (containingNodes.size() >= DESIRED_REPLICATION) {
                     neededReplications.remove(block);
                     pendingReplications.remove(block);

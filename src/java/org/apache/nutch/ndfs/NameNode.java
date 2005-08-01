@@ -36,6 +36,8 @@ import java.util.logging.*;
  * @author Mike Cafarella
  **********************************************************/
 public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
+    public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.ndfs.NameNode");
+
     FSNamesystem namesystem;
     Server server;
 
@@ -381,6 +383,7 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
     }
 
     public void blockReport(String sender, Block blocks[]) {
+        LOG.info("Block report from "+sender+": "+blocks.length+" blocks.");
         long start = System.currentTimeMillis();
         namesystem.processReport(blocks, new UTF8(sender));
         long end = System.currentTimeMillis();
