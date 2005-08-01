@@ -132,6 +132,7 @@ public class DataNode implements FSConstants, Runnable {
                     // -- Bytes remaining
                     //
                     namenode.sendHeartbeat(localName, data.getCapacity(), data.getRemaining());
+                    LOG.info("Just sent heartbeat, with name " + localName);
                     lastHeartbeat = now;
 		}
 		if (now - lastBlockReport > BLOCKREPORT_INTERVAL) {

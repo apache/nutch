@@ -388,6 +388,7 @@ public class FSNamesystem implements FSConstants {
                     TreeSet containingNodes = (TreeSet) blocksMap.get(pendingBlocks[i]);
                     if (containingNodes.size() < DESIRED_REPLICATION) {
                         synchronized (neededReplications) {
+                            LOG.info("Completed file " + src + ", at holder " + holder + ".  There is/are only " + containingNodes.size() + " copies of block " + pendingBlocks[i] + ", so replicating up to " + DESIRED_REPLICATION);
                             neededReplications.add(pendingBlocks[i]);
                         }
                     }
@@ -741,6 +742,7 @@ public class FSNamesystem implements FSConstants {
                 DatanodeInfo nodeinfo = (DatanodeInfo) datanodeMap.get(name);
 
                 if (nodeinfo == null) {
+                    LOG.info("Got brand-new heartbeat from " + name);
                     nodeinfo = new DatanodeInfo(name, capacity, remaining);
                     datanodeMap.put(name, nodeinfo);
                     capacityDiff = capacity;
@@ -877,6 +879,7 @@ public class FSNamesystem implements FSConstants {
 
         synchronized (neededReplications) {
             if (dir.isValidBlock(block)) {
+                LOG.info("Node " + node + " is reporting stored block " + block);
                 if (containingNodes.size() >= DESIRED_REPLICATION) {
                     neededReplications.remove(block);
                     pendingReplications.remove(block);

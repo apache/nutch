@@ -325,6 +325,7 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
     /**
      */
     public NDFSFileInfo[] getListing(String src) throws IOException {
+        /**
         System.out.println("opCounts: " + opCounts + ", avgTime: " + (opTime / (1.0 * opCounts)));
         System.out.println("crCounts: " + crCounts + ", avgTime: " + (crTime / (1.0 * crCounts)));
         System.out.println("addbCounts: " + addbCounts + ", avgTime: " + (addbTime / (1.0 * addbCounts)));
@@ -341,6 +342,7 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
         System.out.println("brCounts: " + brCounts + ", avgTime: " + (brTime / (1.0 * brCounts)));
         System.out.println("brvCounts: " + brvCounts + ", avgTime: " + (brvTime / (1.0 * brvCounts)));
         System.out.println("bwCounts: " + bwCounts + ", avgTime: " + (bwTime / (1.0 * bwCounts)));
+        **/
         return namesystem.getListing(new UTF8(src));
     }
 
