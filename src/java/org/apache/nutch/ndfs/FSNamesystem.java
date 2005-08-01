@@ -393,6 +393,8 @@ public class FSNamesystem implements FSConstants {
                     }
                 }
                 return COMPLETE_SUCCESS;
+            } else {
+                System.out.println("AddFile() for " + src + " failed");
             }
 	    LOG.info("Dropped through on file add....");
         }

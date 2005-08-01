@@ -47,7 +47,7 @@ public class FSDirectory implements FSConstants {
     class INode {
         public String name;
         public INode parent;
-        public Vector children = new Vector();
+        public TreeMap children = new TreeMap();
         public Block blocks[];
 
         /**
@@ -59,61 +59,45 @@ public class FSDirectory implements FSConstants {
         }
 
         /**
+         * This is the external interface
          */
         INode getNode(String target) {
-            if (! target.startsWith("/")) {
+            if (! target.startsWith("/") || target.length() == 0) {
+                return null;
+            } else if (parent == null && "/".equals(target)) {
+                return this;
+            } else {
+                Vector components = new Vector();
+                int start = 0;
+                int slashid = 0;
+                while (start < target.length() && (slashid = target.indexOf('/', start)) >= 0) {
+                    components.add(target.substring(start, slashid));
+                    start = slashid + 1;
+                }
+                if (start < target.length()) {
+                    components.add(target.substring(start));
+                }
+                return getNode(components, 0);
+            }
+        }
+
+        /**
+         */
+        INode getNode(Vector components, int index) {
+            if (! name.equals((String) components.elementAt(index))) {
                 return null;
             }
-
-            if (parent == null) {
-                if ("/".equals(target)) {
-                    return this;
-                } else {
-                    // Check with children
-                    for (Iterator it = children.iterator(); it.hasNext(); ) {
-                        INode child = (INode) it.next();
-                        INode result = child.getNode(target);
-                        if (result != null) {
-                            return result;
-                        }
-                    }
-                }
-            } else {
-                // Strip the leading slash
-                if (target.length() > 1) {
-                    target = target.substring(1);
-                }
-
-                // Check if it's the current node
-                if (name.equals(target)) {
-                    return this;
-                }
-
-                // Get the chunk up to the next slash
-                String curComponent, remainder;
-                int slash = target.indexOf('/');
-                if (slash < 0) {
-                    return null;
-                } else {
-                    curComponent = target.substring(0, slash);
-                    remainder = target.substring(slash);
-                }
-
-                // Make sure we're on the right track
-                if (! name.equals(curComponent)) {
-                    return null;
-                } 
-
-                // Check with children
-                for (Iterator it = children.iterator(); it.hasNext(); ) {
-                    INode child = (INode) it.next();
-                    INode result = child.getNode(remainder);
-                    if (result != null) {
-                        return result;
-                    }
-                }
+            if (index == components.size()-1) {
+                return this;
             }
-            return null;
+
+            // Check with children
+            INode child = (INode) children.get(components.elementAt(index+1));
+            if (child == null) {
+                return null;
+            } else {
+                return child.getNode(components, index+1);
+            }
         }
 
         /**
@@ -133,7 +117,7 @@ public class FSDirectory implements FSConstants {
                 } else {
                     String targetName = new File(target).getName();
                     INode newItem = new INode(targetName, parentNode, blocks);
-                    parentNode.children.add(newItem);
+                    parentNode.children.put(targetName, newItem);
                     return newItem;
                 }
             }
@@ -146,7 +130,7 @@ public class FSDirectory implements FSConstants {
             if (targetNode == null) {
                 return null;
             } else {
-                targetNode.parent.children.remove(targetNode);
+                targetNode.parent.children.remove(target);
                 return targetNode;
             }
         }
@@ -155,7 +139,7 @@ public class FSDirectory implements FSConstants {
          */
         int numItemsInTree() {
             int total = 0;
-            for (Iterator it = children.iterator(); it.hasNext(); ) {
+            for (Iterator it = children.values().iterator(); it.hasNext(); ) {
                 INode child = (INode) it.next();
                 total += child.numItemsInTree();
             }
@@ -188,7 +172,7 @@ public class FSDirectory implements FSConstants {
          */
         long computeContentsLength() {
             long total = computeFileLength();
-            for (Iterator it = children.iterator(); it.hasNext(); ) {
+            for (Iterator it = children.values().iterator(); it.hasNext(); ) {
                 INode child = (INode) it.next();
                 total += child.computeContentsLength();
             }
@@ -202,7 +186,7 @@ public class FSDirectory implements FSConstants {
                 v.add(this);
             }
 
-            for (Iterator it = children.iterator(); it.hasNext(); ) {
+            for (Iterator it = children.values().iterator(); it.hasNext(); ) {
                 INode child = (INode) it.next();
                 v.add(child);
             }
@@ -224,7 +208,7 @@ public class FSDirectory implements FSConstants {
                     }
                 }
             }
-            for (Iterator it = children.iterator(); it.hasNext(); ) {
+            for (Iterator it = children.values().iterator(); it.hasNext(); ) {
                 INode child = (INode) it.next();
                 child.saveImage(fullName, out);
             }
@@ -510,13 +494,13 @@ public class FSDirectory implements FSConstants {
             INode newNode = rootDir.addNode(dst.toString(), removedNode.blocks);
             if (newNode != null) {
                 newNode.children = removedNode.children;
-                for (Iterator it = newNode.children.iterator(); it.hasNext(); ) {
+                for (Iterator it = newNode.children.values().iterator(); it.hasNext(); ) {
                     INode child = (INode) it.next();
                     child.parent = newNode;
                 }
                 return true;
             } else {
-                removedNode.parent.children.add(removedNode);
+                removedNode.parent.children.put(new File(dst.toString()).getName(), removedNode);
                 return false;
             }
         }
