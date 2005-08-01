@@ -627,6 +627,7 @@ public class NDFSClient implements FSConstants {
               pos += toWrite;
               off += toWrite;
               len -= toWrite;
+              filePos += toWrite;
 
               if ((bytesWrittenToBlock + pos >= BLOCK_SIZE) ||
                   (pos == BUFFER_SIZE)) {
@@ -660,7 +661,7 @@ public class NDFSClient implements FSConstants {
         private synchronized void flushData(int maxPos) throws IOException {
             int workingPos = Math.min(pos, maxPos);
             
-            if (workingPos >= 0) {
+            if (workingPos > 0) {
                 //
                 // To the blockStream, write length, then bytes
                 //

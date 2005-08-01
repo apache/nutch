@@ -550,7 +550,6 @@ public class FSNamesystem implements FSConstants {
         TreeSet creates = new TreeSet();
 
         public Lease(UTF8 holder) {
-            LOG.info("New lease, holder " + holder);
             this.holder = holder;
             renew();
         }
@@ -710,7 +709,6 @@ public class FSNamesystem implements FSConstants {
                 sortedLeases.remove(lease);
                 lease.renew();
                 sortedLeases.add(lease);
-                LOG.info("Renewed lease " + lease);
             }
         }
     }

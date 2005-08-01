@@ -71,6 +71,8 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
     /////////////////////////////////////////////////////
     // ClientProtocol
     /////////////////////////////////////////////////////
+    /**
+     */
     public LocatedBlock[] open(String src) throws IOException {
         Object openResults[] = namesystem.open(new UTF8(src));
         if (openResults == null) {
@@ -86,6 +88,8 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
         }
     }
 
+    /**
+     */
     public LocatedBlock create(String src, String clientName, boolean overwrite) throws IOException {
         Object results[] = namesystem.startFile(new UTF8(src), new UTF8(clientName), overwrite);
         if (results == null) {
@@ -97,6 +101,8 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
         }
     }
 
+    /**
+     */
     public LocatedBlock addBlock(String src) throws IOException {
         Object results[] = namesystem.getAdditionalBlock(new UTF8(src));
         if (results != null && results[0] == null) {
@@ -118,14 +124,20 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
         }
     }
 
+    /**
+     */
     public void abandonBlock(Block b, String src) throws IOException {
         if (! namesystem.abandonBlock(b, new UTF8(src))) {
             throw new IOException("Cannot abandon block during write to " + src);
         }
     }
+    /**
+     */
     public void abandonFileInProgress(String src) throws IOException {
         namesystem.abandonFileInProgress(new UTF8(src));
     }
+    /**
+     */
     public boolean complete(String src, String clientName) throws IOException {
         int returnCode = namesystem.completeFile(new UTF8(src), new UTF8(clientName));
         if (returnCode == STILL_WAITING) {
@@ -136,6 +148,8 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
             throw new IOException("Could not complete write to file " + src + " by " + clientName);
         }
     }
+    /**
+     */
     public String[] getHints(String src, long offset) throws IOException {
         UTF8 hosts[] = namesystem.getDatanodeHints(new UTF8(src), offset);
         if (hosts == null) {
@@ -148,27 +162,38 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
             return results;
         }
     }
-
+    /**
+     */
     public boolean rename(String src, String dst) throws IOException {
         return namesystem.renameTo(new UTF8(src), new UTF8(dst));
     }
 
+    /**
+     */
     public boolean delete(String src) throws IOException {
         return namesystem.delete(new UTF8(src));
     }
 
+    /**
+     */
     public boolean exists(String src) throws IOException {
         return namesystem.exists(new UTF8(src));
     }
 
+    /**
+     */
     public boolean isDir(String src) throws IOException {
         return namesystem.isDir(new UTF8(src));
     }
 
+    /**
+     */
     public boolean mkdirs(String src) throws IOException {
         return namesystem.mkdirs(new UTF8(src));
     }
 
+    /**
+     */
     public boolean obtainLock(String src, String clientName, boolean exclusive) throws IOException {
         int returnCode = namesystem.obtainLock(new UTF8(src), new UTF8(clientName), exclusive);
         if (returnCode == COMPLETE_SUCCESS) {
@@ -180,6 +205,8 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
         }
     }
 
+    /**
+     */
     public boolean releaseLock(String src, String clientName) throws IOException {
         int returnCode = namesystem.releaseLock(new UTF8(src), new UTF8(clientName));
         if (returnCode == COMPLETE_SUCCESS) {
@@ -191,14 +218,26 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
         }
     }
 
+    /**
+     */
     public void renewLease(String clientName) throws IOException {
         namesystem.renewLease(new UTF8(clientName));        
     }
 
+    /**
+     */
     public NDFSFileInfo[] getListing(String src) throws IOException {
+        /**
+        System.out.println("hbCounts: " + hbCounts + ", avgTime: " + (hbTime / (1.0 * hbCounts)));
+        System.out.println("brCounts: " + brCounts + ", avgTime: " + (brTime / (1.0 * brCounts)));
+        System.out.println("brvCounts: " + brvCounts + ", avgTime: " + (brvTime / (1.0 * brvCounts)));
+        System.out.println("bwCounts: " + bwCounts + ", avgTime: " + (bwTime / (1.0 * bwCounts)));
+        **/
         return namesystem.getListing(new UTF8(src));
     }
 
+    /**
+     */
     public long[] getStats() throws IOException {
         long results[] = new long[2];
         results[0] = namesystem.totalCapacity();
@@ -206,6 +245,8 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
         return results;
     }
 
+    /**
+     */
     public DatanodeInfo[] getDatanodeReport() throws IOException {
         DatanodeInfo results[] = namesystem.datanodeReport();
         if (results == null || results.length == 0) {
@@ -214,20 +255,37 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
         return results;
     }
 
+    ////////////////////////////////////////////////////////////////
+    // DatanodeProtocol
+    ////////////////////////////////////////////////////////////////
+    long hbTime = 0, brTime = 0, brvTime = 0, bwTime = 0;
+    int hbCounts = 0, brCounts = 0, brvCounts = 0, bwCounts = 0;
     /**
      */
     public void sendHeartbeat(String sender, long capacity, long remaining) {
+        long start = System.currentTimeMillis();
         namesystem.gotHeartbeat(new UTF8(sender), capacity, remaining);
+        long end = System.currentTimeMillis();
+        hbCounts++;
+        hbTime += (end-start);
     }
 
     public void blockReport(String sender, Block blocks[]) {
+        long start = System.currentTimeMillis();
         namesystem.processReport(blocks, new UTF8(sender));
+        long end = System.currentTimeMillis();
+        brCounts++;
+        brTime += (end-start);
     }
 
     public void blockReceived(String sender, Block blocks[]) {
+        long start = System.currentTimeMillis();
         for (int i = 0; i < blocks.length; i++) {
             namesystem.blockReceived(blocks[i], new UTF8(sender));
         }
+        long end = System.currentTimeMillis();
+        brvCounts++;
+        brvTime += (end-start);
     }
 
     /**
@@ -244,23 +302,30 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
         //
         // Ask to perform pending transfers, if any
         //
-        Object xferResults[] = namesystem.pendingTransfers(new DatanodeInfo(new UTF8(sender)), xmitsInProgress);
-        if (xferResults != null) {
-            return new BlockCommand((Block[]) xferResults[0], (DatanodeInfo[][]) xferResults[1]);
-        }
+        long start = System.currentTimeMillis();
+        try {
+            Object xferResults[] = namesystem.pendingTransfers(new DatanodeInfo(new UTF8(sender)), xmitsInProgress);
+            if (xferResults != null) {
+                return new BlockCommand((Block[]) xferResults[0], (DatanodeInfo[][]) xferResults[1]);
+            }
 
-        //
-        // If none, check to see if there are blocks to invalidate
-        //
-        Block blocks[] = namesystem.recentlyInvalidBlocks(new UTF8(sender));
-        if (blocks == null) {
-            blocks = namesystem.checkObsoleteBlocks(new UTF8(sender));
-        }
-        if (blocks != null) {
-            return new BlockCommand(blocks);
-        }
+            //
+            // If none, check to see if there are blocks to invalidate
+            //
+            Block blocks[] = namesystem.recentlyInvalidBlocks(new UTF8(sender));
+            if (blocks == null) {
+                blocks = namesystem.checkObsoleteBlocks(new UTF8(sender));
+            }
+            if (blocks != null) {
+                return new BlockCommand(blocks);
+            }
 
-        return new BlockCommand();
+            return new BlockCommand();
+        } finally {
+            long end = System.currentTimeMillis();
+            bwCounts++;
+            bwTime += (end-start);
+        }
     }
 
     /**

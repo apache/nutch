@@ -22,7 +22,7 @@ package org.apache.nutch.ndfs;
  ************************************/
 public interface FSConstants {
     public static int BLOCK_SIZE = 32 * 1000 * 1000;
-    //public static int BLOCK_SIZE = 2173;
+    //public static int BLOCK_SIZE = 19;
 
     public static final long WRITE_COMPLETE = 0xcafae11a;
 

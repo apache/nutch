@@ -282,7 +282,6 @@ public class FSDataset implements FSConstants {
             ongoingCreates.add(b);
             reserved += BLOCK_SIZE;
             f = getTmpFile(b);
-
 	    try {
 		if (f.exists()) {
 		    throw new IOException("Unexpected problem in startBlock() for " + b + ".  File " + f + " should not be present, but is.");
@@ -295,8 +294,10 @@ public class FSDataset implements FSConstants {
 		    throw new IOException("Unexpected problem in startBlock() for " + b + ".  File " + f + " should be creatable, but is already present.");
 		}
 	    } catch (IOException ie) {
+                System.out.println("Exception!  " + ie);
 		ongoingCreates.remove(b);		
 		reserved -= BLOCK_SIZE;
+                throw ie;
 	    }
         }
 
