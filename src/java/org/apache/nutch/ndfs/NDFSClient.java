@@ -577,7 +577,7 @@ public class NDFSClient implements FSConstants {
                     }
                 }
 
-                Block block = lb.getBlock();
+                block = lb.getBlock();
                 DatanodeInfo nodes[] = lb.getLocations();
 
                 //
