@@ -130,7 +130,7 @@ public class FSDirectory implements FSConstants {
             if (targetNode == null) {
                 return null;
             } else {
-                targetNode.parent.children.remove(target);
+                targetNode.parent.children.remove(new File(target).getName());
                 return targetNode;
             }
         }

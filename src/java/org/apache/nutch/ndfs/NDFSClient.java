@@ -512,6 +512,7 @@ public class NDFSClient implements FSConstants {
         private int pos = 0;
 
         private UTF8 src;
+        boolean closingDown = false;
         private boolean overwrite;
         private boolean blockStreamWorking;
         private DataOutputStream blockStream;
@@ -695,7 +696,8 @@ public class NDFSClient implements FSConstants {
         private synchronized void flushData(int maxPos) throws IOException {
             int workingPos = Math.min(pos, maxPos);
             
-            if (workingPos > 0) {
+            if (workingPos > 0 || 
+                (workingPos == 0 && closingDown)) {
                 //
                 // To the blockStream, write length, then bytes
                 //
@@ -820,6 +822,7 @@ public class NDFSClient implements FSConstants {
                 throw new IOException("Stream closed");
             }
 
+            closingDown = true;
             flush();
             endBlock();
 
@@ -848,6 +851,7 @@ public class NDFSClient implements FSConstants {
                 }
             }
             closed = true;
+            closingDown = false;
         }
     }
 }
