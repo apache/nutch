@@ -62,8 +62,10 @@ public class DataNode implements FSConstants, Runnable {
     DatanodeProtocol namenode;
     FSDataset data;
     String localName;
+    boolean shouldRun = true;
     Vector receivedBlockList = new Vector();
     int xmitsInProgress = 0;
+    Daemon dataXceiveServer = null;
 
     /**
      * Create given a configuration and a dataDir.
@@ -93,7 +95,8 @@ public class DataNode implements FSConstants, Runnable {
             }
         }
         this.localName = machineName + ":" + tmpPort;
-        new Daemon(new DataXceiveServer(ss)).start();
+        this.dataXceiveServer = new Daemon(new DataXceiveServer(ss));
+        this.dataXceiveServer.start();
     }
 
     /**
@@ -101,6 +104,18 @@ public class DataNode implements FSConstants, Runnable {
     public String getNamenode() {
         //return namenode.toString();
 	return "<namenode>";
+    }
+
+    /**
+     * Shut down this instance of the datanode.
+     */
+    void shutdown() {
+        this.shouldRun = false;
+        ((DataXceiveServer) this.dataXceiveServer.getRunnable()).kill();
+        try {
+            this.dataXceiveServer.join();
+        } catch (InterruptedException ie) {
+        }
     }
 
     /**
@@ -117,7 +132,6 @@ public class DataNode implements FSConstants, Runnable {
         //
         // Now loop for a long time....
         //
-        boolean shouldRun = true;
         while (shouldRun) {
             long now = System.currentTimeMillis();
 
@@ -216,6 +230,7 @@ public class DataNode implements FSConstants, Runnable {
      * Server used for receiving/sending a block of data
      */
     class DataXceiveServer implements Runnable {
+        boolean shouldListen = true;
         ServerSocket ss;
         public DataXceiveServer(ServerSocket ss) {
             this.ss = ss;
@@ -225,12 +240,20 @@ public class DataNode implements FSConstants, Runnable {
          */
         public void run() {
             try {
-                while (true) {
+                while (shouldListen) {
                     Socket s = ss.accept();
                     new Daemon(new DataXceiver(s)).start();
                 }
+                ss.close();
             } catch (IOException ie) {
                 LOG.info("Exiting DataXceiveServer due to " + ie.toString());
+            }
+        }
+        public void kill() {
+            this.shouldListen = false;
+            try {
+                this.ss.close();
+            } catch (IOException iex) {
             }
         }
     }
@@ -333,7 +356,12 @@ public class DataNode implements FSConstants, Runnable {
                                         while (len > 0) {
                                             int bytesRead = in.read(buf, 0, Math.min(buf.length, (int) len));
                                             if (bytesRead >= 0) {
-                                                out.write(buf, 0, bytesRead);
+                                                try {
+                                                    out.write(buf, 0, bytesRead);
+                                                } catch (IOException iex) {
+                                                    shutdown();
+                                                    throw iex;
+                                                }
                                                 if (out2 != null) {
                                                     try {
                                                         out2.write(buf, 0, bytesRead);
@@ -387,7 +415,12 @@ public class DataNode implements FSConstants, Runnable {
                                     }
                                 }
                             } finally {
-                                out.close();
+                                try {
+                                    out.close();
+                                } catch (IOException iex) {
+                                    shutdown();
+                                    throw iex;
+                                }
                             }
                             data.finalizeBlock(b);
 
@@ -441,23 +474,45 @@ public class DataNode implements FSConstants, Runnable {
                                     if (toSkip > len) {
                                         toSkip = len;
                                     }
-                                    long amtSkipped = in2.skip(toSkip);
+                                    long amtSkipped = 0;
+                                    try {
+                                        amtSkipped = in2.skip(toSkip);
+                                    } catch (IOException iex) {
+                                        shutdown();
+                                        throw iex;
+                                    }
                                     out.writeLong(amtSkipped);
                                 }
 
                                 byte buf[] = new byte[4096];
                                 try {
-                                    int bytesRead = in2.read(buf);
+                                    int bytesRead = 0;
+                                    try {
+                                        bytesRead = in2.read(buf);
+                                    } catch (IOException iex) {
+                                        shutdown();
+                                        throw iex;
+                                    }
                                     while (bytesRead >= 0) {
                                         out.write(buf, 0, bytesRead);
                                         len -= bytesRead;
-                                        bytesRead = in2.read(buf);
+                                        try {
+                                            bytesRead = in2.read(buf);
+                                        } catch (IOException iex) {
+                                            shutdown();
+                                            throw iex;
+                                        }
                                     }
                                 } catch (SocketException se) {
                                     // This might be because the reader
                                     // closed the stream early
                                 } finally {
-                                    in2.close();
+                                    try {
+                                        in2.close();
+                                    } catch (IOException iex) {
+                                        shutdown();
+                                        throw iex;
+                                    }
                                 }
                             }
                             LOG.info("Served block " + b + " to " + s.getInetAddress());
@@ -551,38 +606,49 @@ public class DataNode implements FSConstants, Runnable {
         }
     }
 
-  public void run() {
-    LOG.info("Starting DataNode in: "+data.data);
-    while (true) {
-      try {
-        offerService();
-      } catch (Exception ex) {
-        LOG.info("Exception: " + ex);
-        LOG.info("Lost connection to namenode.  Retrying...");
-        try {
-          Thread.sleep(5000);
-        } catch (InterruptedException ie) {
+    /**
+     * No matter what kind of exception we get, keep retrying to offerService().
+     * That's the loop that connects to the NameNode and provides basic DataNode
+     * functionality.
+     *
+     * Only stop when "shouldRun" is turned off (which can only happen at shutdown).
+     */
+    public void run() {
+        LOG.info("Starting DataNode in: "+data.data);
+        while (shouldRun) {
+            try {
+                offerService();
+            } catch (Exception ex) {
+                LOG.info("Exception: " + ex);
+                LOG.info("Lost connection to namenode.  Retrying...");
+                try {
+                    Thread.sleep(5000);
+                } catch (InterruptedException ie) {
+                }
+            }
         }
-      }
     }
-  }
 
-  public static void run(NutchConf conf) throws IOException {
-    String[] dataDirs = conf.getStrings("ndfs.data.dir");
-    for (int i = 0; i < dataDirs.length; i++) {
-      String dataDir = dataDirs[i];
-      File data = new File(dataDir);
-      data.mkdirs();
-      if (!data.isDirectory()) {
-        LOG.warning("Can't start DataNode in non-directory: "+dataDir);
-        continue;
-      }
-      new Thread(new DataNode(conf, dataDir), "DataNode: "+dataDir).start();
+    /**
+     */
+    public static void run(NutchConf conf) throws IOException {
+        String[] dataDirs = conf.getStrings("ndfs.data.dir");
+        for (int i = 0; i < dataDirs.length; i++) {
+            String dataDir = dataDirs[i];
+            File data = new File(dataDir);
+            data.mkdirs();
+            if (!data.isDirectory()) {
+                LOG.warning("Can't start DataNode in non-directory: "+dataDir);
+                continue;
+            }
+            new Thread(new DataNode(conf, dataDir), "DataNode: "+dataDir).start();
+        }
     }
-  }
 
-  public static void main(String args[]) throws IOException {
-    LogFormatter.setShowThreadIDs(true);
-    run(NutchConf.get());
-  }
+    /**
+     */
+    public static void main(String args[]) throws IOException {
+        LogFormatter.setShowThreadIDs(true);
+        run(NutchConf.get());
+    }
 }

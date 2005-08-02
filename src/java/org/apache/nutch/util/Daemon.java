@@ -23,6 +23,7 @@ public class Daemon extends Thread {
     setDaemon(true);                              // always a daemon
   }
 
+  Runnable runnable = null;
   /** Construct a daemon thread. */
   public Daemon() {
     super();
@@ -33,4 +34,7 @@ public class Daemon extends Thread {
     super(runnable);
   }
 
+  public Runnable getRunnable() {
+    return runnable;
+  }
 }

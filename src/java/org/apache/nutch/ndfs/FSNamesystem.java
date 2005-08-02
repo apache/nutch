@@ -382,6 +382,13 @@ public class FSNamesystem implements FSConstants {
                     }
                 }
 
+                //
+                // REMIND - mjc - this should be done only after we wait a few secs.
+                // The namenode isn't giving datanodes enough time to report the
+                // replicated blocks that are automatically done as part of a client
+                // write.
+                //
+
                 // Now that the file is real, we need to be sure to replicate
                 // the blocks.
                 for (int i = 0; i < pendingBlocks.length; i++) {
