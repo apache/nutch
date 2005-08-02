@@ -1143,47 +1143,57 @@ public class FSNamesystem implements FSConstants {
      * choose according to capacity and load-balancing needs (or even 
      * network-topology, to avoid inter-switch traffic).
      */
-    DatanodeInfo chooseTarget(TreeSet alreadyHasNode, TreeSet alreadyChosen) {
+    DatanodeInfo chooseTarget(TreeSet forbidden1, TreeSet forbidden2) {
+        //
+        // Check if there are any available targets at all
+        //
         int totalMachines = datanodeMap.size();
         if (totalMachines == 0) {
             LOG.info("While choosing target, totalMachines is " + totalMachines);
             return null;
         }
-        int freeMachines = totalMachines;
+
+        //
+        // In addition to already-chosen datanode/port pairs, we want to avoid
+        // already-chosen machinenames.  (There can be multiple datanodes per
+        // machine.)  We might relax this requirement in the future, though. (Maybe
+        // so that at least one replicate is off the machine.)
+        //
+        TreeSet forbiddenMachines = new TreeSet();
+        if (forbidden1 != null) {
+            for (Iterator it = forbidden1.iterator(); it.hasNext(); ) {
+                DatanodeInfo cur = (DatanodeInfo) it.next();
+                forbiddenMachines.add(cur.getHost());
+            }
+        }
+        if (forbidden2 != null) {
+            for (Iterator it = forbidden2.iterator(); it.hasNext(); ) {
+                DatanodeInfo cur = (DatanodeInfo) it.next();
+                forbiddenMachines.add(cur.getHost());
+            }
+        }
+
+        //
+        // Now build list of machines we can actually choose from
+        //
+        Vector targetList = new Vector();
         for (Iterator it = datanodeMap.values().iterator(); it.hasNext(); ) {
             DatanodeInfo node = (DatanodeInfo) it.next();
-            if ((alreadyHasNode != null && alreadyHasNode.contains(node)) ||
-                (alreadyChosen != null && alreadyChosen.contains(node))) {
-                freeMachines--;
+            if ((forbidden1 == null || ! forbidden1.contains(node)) &&
+                (forbidden2 == null || ! forbidden2.contains(node)) &&
+                (! forbiddenMachines.contains(node.getHost()))) {
+                targetList.add(node);
             }
         }
 
         //
         // Now pick one
         //
-        DatanodeInfo target = null;
-        if (freeMachines > 0) {
-            //
-            // Get all possible targets
-            //
-            int i = 0;
-            DatanodeInfo targetlist[] = new DatanodeInfo[totalMachines];
-            for (Iterator it = datanodeMap.values().iterator(); it.hasNext(); i++) {
-                targetlist[i] = (DatanodeInfo) it.next();
-            }
-        
-            do {
-                int index = r.nextInt(totalMachines);
-                target = targetlist[index];
-
-                if ((alreadyHasNode != null && alreadyHasNode.contains(target)) ||
-                    (alreadyChosen != null && alreadyChosen.contains(target))) {
-                    target = null;
-                }
-            } while (target == null);
+        if (targetList.size() == 0) {
+            return null;
+        } else {
+            return (DatanodeInfo) targetList.elementAt(r.nextInt() % targetList.size());
         }
-        return target;
-
         /**
          * Choose target weighted by available storage
          */
