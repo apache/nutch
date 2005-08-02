@@ -230,7 +230,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
                 TaskInProgress tip = (TaskInProgress) it.next();
                 if ((tip.getRunState() == TaskStatus.RUNNING) &&
                     (System.currentTimeMillis() - tip.getLastProgressReport() > TASK_MIN_PROGRESS_INTERVAL)) {
-
+                    LOG.info("Task " + tip.getTask().getTaskId() + " has not reported progress for a long time.  Killing...");
                     tip.cleanup();
                 }
             }
