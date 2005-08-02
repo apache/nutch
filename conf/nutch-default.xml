@@ -603,8 +603,8 @@
 
 <property>
   <name>ipc.client.timeout</name>
-  <value>10000</value>
-  <description>Defines the timeout for IPC calls in milliseconds. </description>
+  <value>60000</value>
+  <description>Defines the timeout for IPC calls in milliseconds.</description>
 </property>
 
 <!-- plugin properties -->
