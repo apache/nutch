@@ -111,6 +111,8 @@ public class DataNode implements FSConstants, Runnable {
         long lastHeartbeat = 0, lastBlockReport = 0;
         long sendStart = System.currentTimeMillis();
         int heartbeatsSent = 0;
+        long blockReportInterval =
+          BLOCKREPORT_INTERVAL - new Random().nextInt((int)(BLOCKREPORT_INTERVAL/10));
 
         //
         // Now loop for a long time....
@@ -135,7 +137,7 @@ public class DataNode implements FSConstants, Runnable {
                     LOG.info("Just sent heartbeat, with name " + localName);
                     lastHeartbeat = now;
 		}
-		if (now - lastBlockReport > BLOCKREPORT_INTERVAL) {
+		if (now - lastBlockReport > blockReportInterval) {
                     //
                     // Send latest blockinfo report if timer has expired
                     //
