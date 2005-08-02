@@ -47,6 +47,9 @@ public class FSNamesystem implements FSConstants {
     // HEARTBEAT_RECHECK is how often a datanode sends its hearbeat
     final static long HEARTBEAT_RECHECK = 1000;
 
+    // Whether we should use disk-availability info when determining target
+    final static boolean USE_AVAILABILITY = NutchConf.get().getBoolean("ndfs.availability.allocation", false);
+
     //
     // Stores the correct file name hierarchy
     //
@@ -1176,6 +1179,7 @@ public class FSNamesystem implements FSConstants {
         //
         // Now build list of machines we can actually choose from
         //
+        long totalRemaining = 0;
         Vector targetList = new Vector();
         for (Iterator it = datanodeMap.values().iterator(); it.hasNext(); ) {
             DatanodeInfo node = (DatanodeInfo) it.next();
@@ -1183,6 +1187,7 @@ public class FSNamesystem implements FSConstants {
                 (forbidden2 == null || ! forbidden2.contains(node)) &&
                 (! forbiddenMachines.contains(node.getHost()))) {
                 targetList.add(node);
+                totalRemaining += node.getRemaining();
             }
         }
 
@@ -1191,52 +1196,23 @@ public class FSNamesystem implements FSConstants {
         //
         if (targetList.size() == 0) {
             return null;
+        } else if (! USE_AVAILABILITY) {
+            int target = r.nextInt(targetList.size());
+            return (DatanodeInfo) targetList.elementAt(target);
         } else {
-            return (DatanodeInfo) targetList.elementAt(r.nextInt() % targetList.size());
-        }
-        /**
-         * Choose target weighted by available storage
-         */
-        /**
-        synchronized (datanodeMap) {
-            if (datanodeMap.size() == 0) {
-                return;
-            }
+            // Choose node according to target capacity
+            double target = r.nextDouble() * totalRemaining;
 
-            long totalRemaining = 0;
-            Vector okTargets = new Vector();
-            for (Iterator it = datanodeMap.values().iterator(); it.hasNext(); ) {
+            for (Iterator it = targetList.iterator(); it.hasNext(); ) {
                 DatanodeInfo node = (DatanodeInfo) it.next();
-                if ((alreadyHasNode == null || ! alreadyHasNode.contains(node)) &&
-                    (alreadyChosen == null || ! alreadyChosen.contains(node))) {
-                    okTargets.add(node);
-                    totalRemaining += node.getRemaining();
+                target -= node.getRemaining();
+                if (target <= 0) {
+                    return node;
                 }
             }
 
-            //
-            // Now pick one
-            //
-            DatanodeInfo target = null;
-            if (okTargets.size() > 0) {
-                //
-                // Repeatedly choose random byte of the total bytes free.
-                // The machine that has that byte will be our target.  Thus,
-                // we select at random with bias toward machines with greater
-                // available storage.
-                //
-                long targetByte = r.nextLong(totalRemaining);
-                for (Iterator it = okTargets.iterator(); it.hasNext(); ) {
-                    DatanodeInfo node = (DatanodeInfO) it.next();
-                    targetByte -= node.getRemaining();
-                    if (targetByte <= 0) {
-                        target = node;
-                        break;
-                    }
-                }
-            }
-            return target;
+            LOG.info("Impossible state.  When trying to choose target node, could not find any.  This may indicate that datanode capacities are being updated during datanode selection.  Anyway, now returning an arbitrary target to recover...");
+            return (DatanodeInfo) targetList.elementAt(r.nextInt(targetList.size()));
         }
-        **/
     }
 }
