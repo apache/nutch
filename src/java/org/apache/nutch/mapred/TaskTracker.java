@@ -35,7 +35,10 @@ import java.util.logging.*;
 public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutputProtocol, Runnable {
     private static final int MAX_CURRENT_TASKS = 
     NutchConf.get().getInt("mapred.tasktracker.tasks.maximum", 2);
+
     static final long WAIT_FOR_DONE = 3 * 1000;
+    static final long TASK_MIN_PROGRESS_INTERVAL = 60 * 1000;
+
     static final int STALE_STATE = 1;
 
     public static final Logger LOG =
@@ -221,6 +224,18 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
             }
 
             //
+            // Kill any tasks that have not reported progress in the last X seconds.
+            //
+            for (Iterator it = runningTasks.values().iterator(); it.hasNext(); ) {
+                TaskInProgress tip = (TaskInProgress) it.next();
+                if ((tip.getRunState() == TaskStatus.RUNNING) &&
+                    (System.currentTimeMillis() - tip.getLastProgressReport() > TASK_MIN_PROGRESS_INTERVAL)) {
+
+                    tip.cleanup();
+                }
+            }
+
+            //
             // Check for any Tasks whose job may have ended
             //
             String toCloseId = jobClient.pollForClosedTask(taskTrackerName);
@@ -280,6 +295,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
         File localTaskDir;
         float progress;
         int runstate;
+        long lastProgressReport;
         StringBuffer diagnosticInfo = new StringBuffer();
         TaskRunner runner;
         boolean done = false;
@@ -289,6 +305,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
          */
         public TaskInProgress(Task task) throws IOException {
             this.task = task;
+            this.lastProgressReport = System.currentTimeMillis();
             this.localTaskDir = new File(localDir, task.getTaskId());
             if (localTaskDir.exists()) {
                 FileUtil.fullyDelete(localTaskDir);
@@ -359,6 +376,19 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
             LOG.info(task.getTaskId()+" "+p+"% "+state);
             this.progress = p;
             this.runstate = TaskStatus.RUNNING;
+            this.lastProgressReport = System.currentTimeMillis();
+        }
+
+        /**
+         */
+        public long getLastProgressReport() {
+            return lastProgressReport;
+        }
+
+        /**
+         */
+        public int getRunState() {
+            return runstate;
         }
 
         /**
