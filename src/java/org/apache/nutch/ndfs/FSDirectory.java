@@ -125,13 +125,29 @@ public class FSDirectory implements FSConstants {
 
         /**
          */
-        INode removeNode(String target) {
-            INode targetNode = getNode(target);
-            if (targetNode == null) {
-                return null;
+        boolean removeNode() {
+            if (parent == null) {
+                return false;
             } else {
-                targetNode.parent.children.remove(new File(target).getName());
-                return targetNode;
+                parent.children.remove(name);
+                return true;
+            }
+        }
+
+        /**
+         * Collect all the blocks at this INode and all its children.
+         * This operation is performed after a node is removed from the tree,
+         * and we want to GC all the blocks at this node and below.
+         */
+        void collectSubtreeBlocks(Vector v) {
+            if (blocks != null) {
+                for (int i = 0; i < blocks.length; i++) {
+                    v.add(blocks[i]);
+                }
+            }
+            for (Iterator it = children.values().iterator(); it.hasNext(); ) {
+                INode child = (INode) it.next();
+                child.collectSubtreeBlocks(v);
             }
         }
 
@@ -486,10 +502,11 @@ public class FSDirectory implements FSConstants {
      */
     boolean unprotectedRenameTo(UTF8 src, UTF8 dst) {
         synchronized(rootDir) {
-            INode removedNode = rootDir.removeNode(src.toString());
+            INode removedNode = rootDir.getNode(src.toString());
             if (removedNode == null) {
                 return false;
             }
+            removedNode.removeNode();
 
             INode newNode = rootDir.addNode(dst.toString(), removedNode.blocks);
             if (newNode != null) {
@@ -523,25 +540,21 @@ public class FSDirectory implements FSConstants {
             if (targetNode == null) {
                 return null;
             } else {
-                Vector allBlocks = new Vector();
-                Vector contents = new Vector();
-                targetNode.listContents(contents);
-
-                for (Iterator it = contents.iterator(); it.hasNext(); ) {
-                    INode cur = (INode) it.next();
-                    INode removedNode = rootDir.removeNode(cur.computeName());
-                    if (removedNode != null) {
-                        Block blocks[] = removedNode.blocks;
-                        if (blocks != null) {
-                            for (int i = 0; i < blocks.length; i++) {
-                                activeBlocks.remove(blocks[i]);
-                                allBlocks.add(blocks[i]);
-                            }
-                        }
+                //
+                // Remove the node from the namespace and GC all
+                // the blocks underneath the node.
+                //
+                if (! targetNode.removeNode()) {
+                    return null;
+                } else {
+                    Vector v = new Vector();
+                    targetNode.collectSubtreeBlocks(v);
+                    for (Iterator it = v.iterator(); it.hasNext(); ) {
+                        Block b = (Block) it.next();
+                        activeBlocks.remove(b);
                     }
+                    return (Block[]) v.toArray(new Block[v.size()]);
                 }
-                rootDir.removeNode(src.toString());
-                return (Block[]) allBlocks.toArray(new Block[0]);
             }
         }
     }
