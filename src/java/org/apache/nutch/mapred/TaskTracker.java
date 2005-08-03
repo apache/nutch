@@ -226,12 +226,14 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
             //
             // Kill any tasks that have not reported progress in the last X seconds.
             //
-            for (Iterator it = runningTasks.values().iterator(); it.hasNext(); ) {
-                TaskInProgress tip = (TaskInProgress) it.next();
-                if ((tip.getRunState() == TaskStatus.RUNNING) &&
-                    (System.currentTimeMillis() - tip.getLastProgressReport() > TASK_MIN_PROGRESS_INTERVAL)) {
-                    LOG.info("Task " + tip.getTask().getTaskId() + " has not reported progress for a long time.  Killing...");
-                    tip.cleanup();
+            synchronized (runningTasks) {
+                for (Iterator it = runningTasks.values().iterator(); it.hasNext(); ) {
+                    TaskInProgress tip = (TaskInProgress) it.next();
+                    if ((tip.getRunState() == TaskStatus.RUNNING) &&
+                        (System.currentTimeMillis() - tip.getLastProgressReport() > TASK_MIN_PROGRESS_INTERVAL)) {
+                        LOG.info("Task " + tip.getTask().getTaskId() + " has not reported progress for a long time.  Killing...");
+                        tip.cleanup();
+                    }
                 }
             }
 
