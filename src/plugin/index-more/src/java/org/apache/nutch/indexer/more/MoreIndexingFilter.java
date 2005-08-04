@@ -48,6 +48,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.Enumeration;
 import java.util.Properties;
@@ -131,14 +132,21 @@ public class MoreIndexingFilter implements IndexingFilter {
     long time = -1;
     try {
       time = HttpDateFormat.toLong(date);
-    } catch  (ParseException e) {
+    } catch (ParseException e) {
       // try to parse it as date in alternative format
+      String date2 = date;
       try {
-        DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy zzz");
-        Date d = df.parse(date);
-        time = d.getTime();
+        if (date.length() > 25 ) date2 = date.substring(0, 25);
+        DateFormat df = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss", Locale.US);
+        time = df.parse(date2).getTime();
       } catch (Exception e1) {
-        LOG.warning(url+": can't parse erroneous date: "+date);
+        try {
+          if (date.length() > 24 ) date2 = date.substring(0, 24);
+          DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy", Locale.US);
+          time = df.parse(date2).getTime();
+        } catch (Exception e2) {
+          LOG.warning(url + ": can't parse erroneous date: " + date);
+        }
       }
     }
     return time;
