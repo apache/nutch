@@ -41,7 +41,7 @@
 
 <property>
   <name>http.agent.url</name>
-  <value>http://www.nutch.org/docs/en/bot.html</value>
+  <value>http://lucene.apache.org/nutch/bot.html</value>
   <description>A URL to advertise in the User-Agent header.  This will 
    appear in parenthesis after the agent name.
   </description>
@@ -49,14 +49,14 @@
 
 <property>
   <name>http.agent.email</name>
-  <value>nutch-agent@lists.sourceforge.net</value>
+  <value>nutch-agent@lucene.apache.org</value>
   <description>An email address to advertise in the HTTP 'From' request
    header and User-Agent header.</description>
 </property>
 
 <property>
   <name>http.agent.version</name>
-  <value>0.06-dev</value>
+  <value>0.07</value>
   <description>A version string to advertise in the User-Agent 
    header.</description>
 </property>
