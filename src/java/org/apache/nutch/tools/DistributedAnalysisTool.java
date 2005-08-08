@@ -69,6 +69,9 @@ public class DistributedAnalysisTool {
     final private static float DECAY_VALUE = 0.85f;
 
     public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.tools.DistributedAnalysisTool");
+    
+    public final static long OUTLINK_LIMIT = 10000;
+    
 
     /**
      * The EditSet inner class represents all of the sorted edits
@@ -343,8 +346,10 @@ public class DistributedAnalysisTool {
         try {
             // Iterate through all items in the webdb, sorted by URL
             long curIndex = 0;
+            long linkCount = 0;
             ScoreValue score = new ScoreValue();
             IWebDBReader reader = new WebDBReader(nfs, dbDir);
+            MD5Hash lastHash = null;
             try {
                 for (Enumeration e = reader.pagesByMD5(); e.hasMoreElements(); curIndex++) {
                     //
@@ -366,7 +371,25 @@ public class DistributedAnalysisTool {
                     // OK, do some analysis!
                     //
                     Page curPage = (Page) e.nextElement();
+                    
+                    // Process only one page from set of pages having the same
+                    // MD5. Otherwise all links from these pages would be processed
+                    // multiple times.
+                    MD5Hash newHash = curPage.getMD5();
+                    if (newHash.equals(lastHash)) {
+                        continue;
+                    }
+                    lastHash = newHash;
+                    
                     Link outLinks[] = reader.getLinks(curPage.getMD5());
+                    linkCount += outLinks.length;
+                    
+                    if (outLinks.length > OUTLINK_LIMIT) {
+                        LOG.info("Suspicious outlink count = "
+                                + outLinks.length + " for ["
+                                + curPage.getURL().toString() + "].");
+                    }
+                    
                     int targetOutlinkers = 0;
                     for (int i = 0; i < outLinks.length; i++) {
                         if (outLinks[i].targetHasOutlink()) {
@@ -402,7 +425,9 @@ public class DistributedAnalysisTool {
                     }
 
                     if (((curIndex - startIndex) % 5000) == 0) {
-                        LOG.info("Pages consumed: " + (curIndex - startIndex) + " (at index " + curIndex + ")");
+                        LOG.info("Pages consumed: " + (curIndex - startIndex)
+                                + " (at index " + curIndex
+                                + "). Links fetched: " + linkCount + ".");
                     }
                 }
             } finally {
