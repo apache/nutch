@@ -34,7 +34,7 @@ an hour or so.
 
 <p>First, you need to get a copy of the Nutch code.  You can download
 a release from <a
-href="http://www.nutch.org/release/">http://www.nutch.org/release/</a>.
+href="http://lucene.apache.org/nutch/release/">http://lucene.apache.org/nutch/release/</a>.
 Unpack the release and connect to its top-level directory.  Or, check
 out the latest source code from <a
 href="version_control.html">subversion</a> and build it
@@ -67,23 +67,23 @@ around one million pages on a handful of web servers.</p>
 <ol>
 
 <li>Create a flat file of root urls.  For example, to crawl the
-<code>nutch.org</code> site you might start with a file named
+<code>nutch</code> site you might start with a file named
 <code>urls</code> containing just the Nutch home page.  All other
 Nutch pages should be reachable from this page.  The <code>urls</code>
 file would thus look like:
 <source>
-http://www.nutch.org/
+http://lucene.apache.org/nutch/
 </source>
 </li>
 
 <li>Edit the file <code>conf/crawl-urlfilter.txt</code> and replace
 <code>MY.DOMAIN.NAME</code> with the name of the domain you wish to
 crawl.  For example, if you wished to limit the crawl to the
-<code>nutch.org</code> domain, the line should read:
+<code>apache.org</code> domain, the line should read:
 <source>
-+^http://([a-z0-9]*\.)*nutch.org/
++^http://([a-z0-9]*\.)*apache.org/
 </source>
-This will include any url in the domain <code>nutch.org</code>.
+This will include any url in the domain <code>apache.org</code>.
 </li>
 
 </ol>
