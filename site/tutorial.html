@@ -246,7 +246,7 @@ an hour or so.
 <h2 class="h3">Getting Started</h2>
 <div class="section">
 <p>First, you need to get a copy of the Nutch code.  You can download
-a release from <a href="http://www.nutch.org/release/">http://www.nutch.org/release/</a>.
+a release from <a href="http://lucene.apache.org/nutch/release/">http://lucene.apache.org/nutch/release/</a>.
 Unpack the release and connect to its top-level directory.  Or, check
 out the latest source code from <a href="version_control.html">subversion</a> and build it
 with <a href="http://ant.apache.org/">Ant</a>.</p>
@@ -277,12 +277,12 @@ around one million pages on a handful of web servers.</p>
 
 
 <li>Create a flat file of root urls.  For example, to crawl the
-<span class="codefrag">nutch.org</span> site you might start with a file named
+<span class="codefrag">nutch</span> site you might start with a file named
 <span class="codefrag">urls</span> containing just the Nutch home page.  All other
 Nutch pages should be reachable from this page.  The <span class="codefrag">urls</span>
 file would thus look like:
 <pre class="code">
-http://www.nutch.org/
+http://lucene.apache.org/nutch/
 </pre>
 
 </li>
@@ -291,11 +291,11 @@ http://www.nutch.org/
 <li>Edit the file <span class="codefrag">conf/crawl-urlfilter.txt</span> and replace
 <span class="codefrag">MY.DOMAIN.NAME</span> with the name of the domain you wish to
 crawl.  For example, if you wished to limit the crawl to the
-<span class="codefrag">nutch.org</span> domain, the line should read:
+<span class="codefrag">apache.org</span> domain, the line should read:
 <pre class="code">
-+^http://([a-z0-9]*\.)*nutch.org/
++^http://([a-z0-9]*\.)*apache.org/
 </pre>
-This will include any url in the domain <span class="codefrag">nutch.org</span>.
+This will include any url in the domain <span class="codefrag">apache.org</span>.
 </li>
 
 
