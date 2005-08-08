@@ -17,7 +17,6 @@
 package org.apache.nutch.searcher;
 
 import java.io.IOException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.logging.Level;
 import java.util.Map;
@@ -37,12 +36,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-
-import org.apache.nutch.html.Entities;
-import org.apache.nutch.searcher.*;
-import org.apache.nutch.plugin.*;
-import org.apache.nutch.clustering.*;
-import org.apache.nutch.util.NutchConf;
 
 
 /** Present search results using A9's OpenSearch extensions to RSS, plus a few
@@ -74,7 +67,7 @@ public class OpenSearchServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
 
-    bean.LOG.info("query request from " + request.getRemoteAddr());
+    NutchBean.LOG.info("query request from " + request.getRemoteAddr());
 
     // get parameters from request
     request.setCharacterEncoding("UTF-8");
@@ -122,7 +115,7 @@ public class OpenSearchServlet extends HttpServlet {
         (dedupField == null ? "" : "&dedupField=" + dedupField));
 
     Query query = Query.parse(queryString);
-    bean.LOG.info("query: " + queryString);
+    NutchBean.LOG.info("query: " + queryString);
 
     // execute the query
     Hits hits;
@@ -130,11 +123,11 @@ public class OpenSearchServlet extends HttpServlet {
       hits = bean.search(query, start + hitsPerPage, hitsPerDup, dedupField,
           sort, reverse);
     } catch (IOException e) {
-      bean.LOG.log(Level.WARNING, "Search Error", e);
+      NutchBean.LOG.log(Level.WARNING, "Search Error", e);
       hits = new Hits(0,new Hit[0]);	
     }
 
-    bean.LOG.info("total hits: " + hits.getTotal());
+    NutchBean.LOG.info("total hits: " + hits.getTotal());
 
     // generate xml results
     int end = (int)Math.min(hits.getLength(), start + hitsPerPage);
