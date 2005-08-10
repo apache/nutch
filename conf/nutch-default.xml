@@ -56,7 +56,7 @@
 
 <property>
   <name>http.agent.version</name>
-  <value>0.07</value>
+  <value>0.7-dev</value>
   <description>A version string to advertise in the User-Agent 
    header.</description>
 </property>
