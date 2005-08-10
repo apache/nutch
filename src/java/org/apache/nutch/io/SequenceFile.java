@@ -18,6 +18,7 @@ package org.apache.nutch.io;
 
 import java.io.*;
 import java.util.*;
+import java.util.zip.*;
 import java.util.logging.*;
 import java.nio.channels.*;
 import java.net.InetAddress;
@@ -35,7 +36,7 @@ public class SequenceFile {
   private SequenceFile() {}                         // no public ctor
 
   private static byte[] VERSION = new byte[] {
-    (byte)'S', (byte)'E', (byte)'Q', 2
+    (byte)'S', (byte)'E', (byte)'Q', 3
   };
 
   private static final int SYNC_ESCAPE = -1;      // "length" of sync entries
@@ -54,6 +55,11 @@ public class SequenceFile {
 
     private Class keyClass;
     private Class valClass;
+
+    private boolean deflateValues;
+    private DataOutputBuffer deflateIn = new DataOutputBuffer();
+    private byte[] deflateOut = new byte[1024];
+    private Deflater deflater = new Deflater();
 
     // Insert a globally unique 16-byte value every few entries, so that one
     // can seek into the middle of a file and then synchronize with record
@@ -74,29 +80,44 @@ public class SequenceFile {
     public Writer(NutchFileSystem nfs, String name,
                   Class keyClass, Class valClass)
       throws IOException {
+      this(nfs, name, keyClass, valClass, false);
+    }
+    
+    /** Create the named file.
+     * @param compress if true, values are compressed.
+     */
+    public Writer(NutchFileSystem nfs, String name,
+                  Class keyClass, Class valClass, boolean compress)
+      throws IOException {
       this.nfs = nfs;
       this.target = new File(name);
       init(new NFSDataOutputStream(nfs.create(target)),
-           keyClass, valClass);
+           keyClass, valClass, compress);
     }
     
     /** Write to an arbitrary stream using a specified buffer size. */
     private Writer(NFSDataOutputStream out,
-                   Class keyClass, Class valClass) throws IOException {
-      init(out, keyClass, valClass);
+                   Class keyClass, Class valClass, boolean compress)
+      throws IOException {
+      init(out, keyClass, valClass, compress);
     }
     
     /** Write and flush the file header. */
     private void init(NFSDataOutputStream out,
-                      Class keyClass, Class valClass) throws IOException {
+                      Class keyClass, Class valClass,
+                      boolean compress) throws IOException {
       this.out = out;
       this.out.write(VERSION);
 
       this.keyClass = keyClass;
       this.valClass = valClass;
 
+      this.deflateValues = compress;
+
       new UTF8(WritableName.getName(keyClass)).write(this.out);
       new UTF8(WritableName.getName(valClass)).write(this.out);
+
+      this.out.writeBoolean(deflateValues);
 
       out.write(sync);                            // write the sync bytes
 
@@ -134,7 +155,20 @@ public class SequenceFile {
       if (keyLength == 0)
         throw new IOException("zero length keys not allowed: " + key);
 
-      val.write(buffer);
+      if (deflateValues) {
+        deflateIn.reset();
+        val.write(deflateIn);
+        deflater.reset();
+        deflater.setInput(deflateIn.getData(), 0, deflateIn.getLength());
+        deflater.finish();
+        while (!deflater.finished()) {
+          int count = deflater.deflate(deflateOut);
+          buffer.write(deflateOut, 0, count);
+        }
+      } else {
+        val.write(buffer);
+      }
+
       append(buffer.getData(), 0, buffer.getLength(), keyLength);
     }
 
@@ -185,6 +219,11 @@ public class SequenceFile {
     private long end;
     private int keyLength;
 
+    private boolean inflateValues;
+    private byte[] inflateIn = new byte[1024];
+    private DataOutputBuffer inflateOut = new DataOutputBuffer();
+    private Inflater inflater = new Inflater();
+
     /** Open the named file. */
     public Reader(NutchFileSystem nfs, String file) throws IOException {
       this(nfs, file, NutchConf.get().getInt("io.file.buffer.size", 4096));
@@ -229,6 +268,10 @@ public class SequenceFile {
       className.readFields(in);                   // read val class name
       this.valClass = WritableName.getClass(className.toString());
 
+      if (version[3] > 2) {                       // if version > 2
+        this.inflateValues = in.readBoolean();    // is compressed?
+      }
+
       if (version[3] > 1) {                       // if version > 1
         in.readFully(sync);                       // read sync bytes
       }
@@ -244,6 +287,9 @@ public class SequenceFile {
 
     /** Returns the class of values in this file. */
     public Class getValueClass() { return valClass; }
+
+    /** Returns true if values are compressed. */
+    public boolean isCompressed() { return inflateValues; }
 
     /** Read the next key in the file into <code>key</code>, skipping its
      * value.  True if another entry exists, and false at end of file. */
@@ -278,11 +324,29 @@ public class SequenceFile {
       boolean more = next(key);
 
       if (more) {
+
+        if (inflateValues) {
+          inflater.reset();
+          inflater.setInput(outBuf.getData(), keyLength,
+                            outBuf.getLength()-keyLength);
+          inflateOut.reset();
+          while (!inflater.finished()) {
+            try {
+              int count = inflater.inflate(inflateIn);
+              inflateOut.write(inflateIn, 0, count);
+            } catch (DataFormatException e) {
+              throw new IOException (e.toString());
+            }
+          }
+          inBuf.reset(inflateOut.getData(), inflateOut.getLength());
+        }
+
         val.readFields(inBuf);
-        if (inBuf.getPosition() != outBuf.getLength())
+
+        if (inBuf.getPosition() != inBuf.getLength())
           throw new IOException(val+" read "+(inBuf.getPosition()-keyLength)
                                 + " bytes, should read " +
-                                (outBuf.getLength()-keyLength));
+                                (inBuf.getLength()-keyLength));
       }
 
       return more;
@@ -533,7 +597,7 @@ public class SequenceFile {
           out.writeLong(count);                   // write count
         }
 
-        Writer writer = new Writer(out, keyClass, valClass);
+        Writer writer = new Writer(out, keyClass, valClass, in.isCompressed());
         if (!done) {
           writer.sync = null;                     // disable sync on temp files
         }
@@ -651,7 +715,7 @@ public class SequenceFile {
 
             MergeStream ms = new MergeStream(reader); // add segment to queue
             if (ms.next()) {
-              queue.put(ms);
+              queue.add(ms);
             }
             in.seek(reader.end);
           }
@@ -740,6 +804,16 @@ public class SequenceFile {
     private class MergeQueue extends PriorityQueue {
       private NFSDataOutputStream out;
       private boolean done;
+      private boolean compress;
+
+      public void add(MergeStream stream) throws IOException {
+        if (size() == 0) {
+          compress = stream.in.isCompressed();
+        } else if (compress != stream.in.isCompressed()) {
+          throw new IOException("All merged files must be compressed or not.");
+        }
+        put(stream);
+      }
 
       public MergeQueue(int size, String outName, boolean done)
         throws IOException {
@@ -758,7 +832,7 @@ public class SequenceFile {
       }
 
       public void merge() throws IOException {
-        Writer writer = new Writer(out, keyClass, valClass);
+        Writer writer = new Writer(out, keyClass, valClass, compress);
         if (!done) {
           writer.sync = null;                     // disable sync on temp files
         }

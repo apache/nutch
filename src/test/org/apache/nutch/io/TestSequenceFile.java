@@ -42,7 +42,7 @@ public class TestSequenceFile extends TestCase {
     NutchFileSystem nfs = new LocalFileSystem();
     try {
         //LOG.setLevel(Level.FINE);
-        writeTest(nfs, count, seed, file);
+        writeTest(nfs, count, seed, file, false);
         readTest(nfs, count, seed, file);
 
         sortTest(nfs, count, megabytes, factor, false, file);
@@ -61,12 +61,14 @@ public class TestSequenceFile extends TestCase {
     }
   }
 
-  private static void writeTest(NutchFileSystem nfs, int count, int seed, String file)
+  private static void writeTest(NutchFileSystem nfs, int count, int seed,
+                                String file, boolean compress)
     throws IOException {
     new File(file).delete();
     LOG.fine("creating with " + count + " records");
     SequenceFile.Writer writer =
-      new SequenceFile.Writer(nfs, file, RandomDatum.class, RandomDatum.class);
+      new SequenceFile.Writer(nfs, file, RandomDatum.class, RandomDatum.class,
+                              compress);
     RandomDatum.Generator generator = new RandomDatum.Generator(seed);
     for (int i = 0; i < count; i++) {
       generator.next();
@@ -210,8 +212,9 @@ public class TestSequenceFile extends TestCase {
     boolean check = false;
     boolean fast = false;
     boolean merge = false;
+    boolean compress = false;
     String file = null;
-    String usage = "Usage: SequenceFile (-local | -ndfs <namenode:port>) [-count N] [-megabytes M] [-factor F] [-nocreate] [-check] [-fast] [-merge] file";
+    String usage = "Usage: SequenceFile (-local | -ndfs <namenode:port>) [-count N] [-megabytes M] [-factor F] [-nocreate] [-check] [-fast] [-merge] [-compress] file";
     
     if (args.length == 0) {
         System.err.println(usage);
@@ -237,6 +240,8 @@ public class TestSequenceFile extends TestCase {
               fast = true;
           } else if (args[i].equals("-merge")) {
               merge = true;
+          } else if (args[i].equals("-compress")) {
+              compress = true;
           } else {
               // file is required parameter
               file = args[i];
@@ -249,6 +254,7 @@ public class TestSequenceFile extends TestCase {
         LOG.info("check = " + check);
         LOG.info("fast = " + fast);
         LOG.info("merge = " + merge);
+        LOG.info("compress = " + compress);
         LOG.info("file = " + file);
 
         int seed = 0;
@@ -256,7 +262,7 @@ public class TestSequenceFile extends TestCase {
         LOG.setLevel(Level.FINE);
 
         if (create && !merge) {
-            writeTest(nfs, count, seed, file);
+            writeTest(nfs, count, seed, file, compress);
             readTest(nfs, count, seed, file);
         }
 
