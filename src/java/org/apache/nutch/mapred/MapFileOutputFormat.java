@@ -35,7 +35,8 @@ public class MapFileOutputFormat implements OutputFormat {
     final MapFile.Writer out =
       new MapFile.Writer(fs, file.toString(),
                          job.getOutputKeyClass(),
-                         job.getOutputValueClass());
+                         job.getOutputValueClass(),
+                         job.getBoolean("mapred.output.compress", false));
 
     return new RecordWriter() {
 

@@ -131,6 +131,7 @@ public class LinkDb extends NutchConfigured implements Mapper, Reducer {
 
     job.setOutputDir(newLinkDb);
     job.setOutputFormat(MapFileOutputFormat.class);
+    job.setBoolean("mapred.output.compress", true);
     job.setOutputKeyClass(UTF8.class);
     job.setOutputValueClass(Inlinks.class);
 

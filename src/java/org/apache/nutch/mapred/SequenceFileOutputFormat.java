@@ -35,7 +35,8 @@ public class SequenceFileOutputFormat implements OutputFormat {
     final SequenceFile.Writer out =
       new SequenceFile.Writer(fs, file.toString(),
                               job.getOutputKeyClass(),
-                              job.getOutputValueClass());
+                              job.getOutputValueClass(),
+                              job.getBoolean("mapred.output.compress", false));
 
     return new RecordWriter() {
 

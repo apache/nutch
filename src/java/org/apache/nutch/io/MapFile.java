@@ -70,14 +70,31 @@ public class MapFile {
 
 
     /** Create the named map for keys of the named class. */
-    public Writer(NutchFileSystem nfs, String dirName, Class keyClass, Class valClass)
+    public Writer(NutchFileSystem nfs, String dirName,
+                  Class keyClass, Class valClass)
       throws IOException {
-      this(nfs, dirName, WritableComparator.get(keyClass), valClass);
+      this(nfs, dirName, WritableComparator.get(keyClass), valClass, false);
+    }
+
+    /** Create the named map for keys of the named class. */
+    public Writer(NutchFileSystem nfs, String dirName,
+                  Class keyClass, Class valClass, boolean compress)
+      throws IOException {
+      this(nfs, dirName, WritableComparator.get(keyClass), valClass, compress);
     }
 
     /** Create the named map using the named key comparator. */
-    public Writer(NutchFileSystem nfs, String dirName, WritableComparator 
-                  comparator, Class valClass) throws IOException {
+    public Writer(NutchFileSystem nfs, String dirName,
+                  WritableComparator comparator, Class valClass)
+      throws IOException {
+      this(nfs, dirName, comparator, valClass, false);
+    }
+    /** Create the named map using the named key comparator. */
+    public Writer(NutchFileSystem nfs, String dirName,
+                  WritableComparator comparator, Class valClass,
+                  boolean compress)
+      throws IOException {
+
       this.comparator = comparator;
       this.lastKey = comparator.newKey();
 
@@ -92,7 +109,8 @@ public class MapFile {
 
       Class keyClass = comparator.getKeyClass();
       this.data =
-        new SequenceFile.Writer(nfs, dataFile.getPath(), keyClass, valClass);
+        new SequenceFile.Writer(nfs, dataFile.getPath(), keyClass, valClass,
+                                compress);
       this.index =
         new SequenceFile.Writer(nfs, indexFile.getPath(),
                                 keyClass, LongWritable.class);

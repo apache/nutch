@@ -96,7 +96,7 @@ public class ParseSegment
       new MapFile.Writer(fs, text.toString(), UTF8.class, ParseText.class);
     
     final MapFile.Writer dataOut =
-      new MapFile.Writer(fs, data.toString(), UTF8.class, ParseData.class);
+      new MapFile.Writer(fs, data.toString(), UTF8.class,ParseData.class,true);
     
     final SequenceFile.Writer crawlOut =
       new SequenceFile.Writer(fs, crawl.toString(),
