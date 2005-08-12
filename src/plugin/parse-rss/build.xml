@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<project name="parse-rss" default="jar">
+
+  <import file="../build-plugin.xml"/>
+  
+  
+  <!-- for junit test -->
+  <mkdir dir="${build.test}/data"/>
+  <copy file="sample/rsstest.rss" todir="${build.test}/data"/>
+  
+
+</project>
