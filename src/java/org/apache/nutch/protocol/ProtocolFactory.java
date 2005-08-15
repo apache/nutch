@@ -75,7 +75,7 @@ public class ProtocolFactory {
     
     Extension extension = findExtension(name);
     
-    CACHE.put(name, extension);
+    if (extension != null) CACHE.put(name, extension);
     
     return extension;
   }
