@@ -99,9 +99,6 @@ public class MapFile {
       this.lastKey = comparator.newKey();
 
       File dir = new File(dirName);
-      if (nfs.exists(dir)) {
-          throw new IOException("already exists: " + dir);
-      }
       nfs.mkdirs(dir);
 
       File dataFile = new File(dir, DATA_FILE_NAME);
@@ -130,8 +127,8 @@ public class MapFile {
       index.close();
     }
 
-    /** Append a key/value pair to the map.  The key must be strictly greater
-     * than the previous key added to the map. */
+    /** Append a key/value pair to the map.  The key must be greater or equal
+     * to the previous key added to the map. */
     public synchronized void append(WritableComparable key, Writable val)
       throws IOException {
 
@@ -148,7 +145,7 @@ public class MapFile {
 
     private void checkKey(WritableComparable key) throws IOException {
       // check that keys are well-ordered
-      if (size != 0 && comparator.compare(lastKey, key) >= 0)
+      if (size != 0 && comparator.compare(lastKey, key) > 0)
         throw new IOException("key out of order: "+key+" after "+lastKey);
           
       // update lastKey with a copy of key by writing and reading
