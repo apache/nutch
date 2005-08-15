@@ -23,12 +23,13 @@ import org.apache.nutch.io.*;
 import org.apache.nutch.fs.*;
 import org.apache.nutch.util.*;
 
-public final class Content extends VersionedWritable {
+public final class Content extends CompressedWritable {
 
   public static final String DIR_NAME = "content";
 
   private final static byte VERSION = 1;
 
+  private byte version;
   private String url;
   private String base;
   private byte[] content;
@@ -53,15 +54,16 @@ public final class Content extends VersionedWritable {
     this.metadata = metadata;
   }
 
-  public byte getVersion() { return VERSION; }
-
-  public final void readFields(DataInput in) throws IOException {
-    super.readFields(in);                         // check version
+  protected final void readFieldsCompressed(DataInput in) throws IOException {
+    version = in.readByte();
+    if (version > VERSION)
+      throw new VersionMismatchException(VERSION, version);
 
     url = UTF8.readString(in);                    // read url
     base = UTF8.readString(in);                   // read base
 
-    content = WritableUtils.readCompressedByteArray(in);
+    content = new byte[in.readInt()];             // read content
+    in.readFully(content);
 
     contentType = UTF8.readString(in);            // read contentType
 
@@ -72,13 +74,14 @@ public final class Content extends VersionedWritable {
     }
   }
 
-  public final void write(DataOutput out) throws IOException {
-    super.write(out);                             // write version
+  protected final void writeCompressed(DataOutput out) throws IOException {
+    out.writeByte(version);
 
     UTF8.writeString(out, url);                   // write url
     UTF8.writeString(out, base);                  // write base
 
-    WritableUtils.writeCompressedByteArray(out, content); // write content
+    out.writeInt(content.length);                 // write content
+    out.write(content);
 
     UTF8.writeString(out, contentType);           // write contentType
     
@@ -102,32 +105,55 @@ public final class Content extends VersionedWritable {
   //
 
   /** The url fetched. */
-  public String getUrl() { return url; }
+  public String getUrl() {
+    ensureInflated();
+    return url;
+  }
 
   /** The base url for relative links contained in the content.
    * Maybe be different from url if the request redirected.
    */
-  public String getBaseUrl() { return base; }
+  public String getBaseUrl() {
+    ensureInflated();
+    return base;
+  }
 
   /** The binary content retrieved. */
-  public byte[] getContent() { return content; }
-  public void setContent(byte[] content) { this.content = content; }
+  public byte[] getContent() {
+    ensureInflated();
+    return content;
+  }
+  public void setContent(byte[] content) {
+    ensureInflated();
+    this.content = content;
+  }
 
   /** The media type of the retrieved content.
    * @see http://www.iana.org/assignments/media-types/
    */
-  public String getContentType() { return contentType; }
+  public String getContentType() {
+    ensureInflated();
+    return contentType;
+  }
   public void setContentType(String contentType) {
+    ensureInflated();
     this.contentType = contentType;
   }
 
   /** Other protocol-specific data. */
-  public Properties getMetadata() { return metadata; }
+  public Properties getMetadata() {
+    ensureInflated();
+    return metadata;
+  }
 
   /** Return the value of a metadata property. */
-  public String get(String name) { return getMetadata().getProperty(name); }
+  public String get(String name) {
+    ensureInflated();
+    return getMetadata().getProperty(name);
+  }
 
   public boolean equals(Object o) {
+    ensureInflated();
     if (!(o instanceof Content)){
       return false;
     }
@@ -141,6 +167,7 @@ public final class Content extends VersionedWritable {
   }
 
   public String toString() {
+    ensureInflated();
     StringBuffer buffer = new StringBuffer();
 
     buffer.append("url: " + url + "\n" );
