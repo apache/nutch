@@ -72,8 +72,9 @@ abstract class TaskRunner extends Thread {
       JobConf job = new JobConf(t.getJobFile());
       String jar = job.getJar();
       if (jar != null) {                      // if jar exists, it into workDir
+        workDir.mkdirs();
         runChild(new String[] { "jar", "xf", jar}, workDir);
-        String[] libs = new File(workDir, "lib").list();
+        File[] libs = new File(workDir, "lib").listFiles();
         for (int i = 0; i < libs.length; i++) {
           classPath.append(sep);              // add libs from jar to classpath
           classPath.append(libs[i]);
