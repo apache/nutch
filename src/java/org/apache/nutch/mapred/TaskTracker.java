@@ -37,7 +37,9 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
     NutchConf.get().getInt("mapred.tasktracker.tasks.maximum", 2);
 
     static final long WAIT_FOR_DONE = 3 * 1000;
-    static final long TASK_MIN_PROGRESS_INTERVAL = 60 * 1000;
+
+    static final long TASK_TIMEOUT = 
+      NutchConf.get().getInt("mapred.task.timeout", 10* 60 * 1000);
 
     static final int STALE_STATE = 1;
 
@@ -230,8 +232,9 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
                 for (Iterator it = runningTasks.values().iterator(); it.hasNext(); ) {
                     TaskInProgress tip = (TaskInProgress) it.next();
                     if ((tip.getRunState() == TaskStatus.RUNNING) &&
-                        (System.currentTimeMillis() - tip.getLastProgressReport() > TASK_MIN_PROGRESS_INTERVAL)) {
-                        LOG.info("Task " + tip.getTask().getTaskId() + " has not reported progress for a long time.  Killing...");
+                        (System.currentTimeMillis() - tip.getLastProgressReport() > TASK_TIMEOUT)) {
+                        LOG.info("Task " + tip.getTask().getTaskId() + " timed out.  Killing.");
+                        tip.reportDiagnosticInfo("Timed out.");
                         tip.cleanup();
                     }
                 }
