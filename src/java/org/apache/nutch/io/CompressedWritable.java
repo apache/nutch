@@ -23,6 +23,7 @@ import java.io.DataOutputStream;
 import java.io.DataInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
+import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -65,10 +66,11 @@ public abstract class CompressedWritable implements Writable {
   public final void write(DataOutput out) throws IOException {
     if (compressed == null) {
       ByteArrayOutputStream deflated = new ByteArrayOutputStream();
-      DataOutputStream deflater =
-        new DataOutputStream(new DeflaterOutputStream(deflated));
-      writeCompressed(deflater);
-      deflater.close();
+      Deflater deflater = new Deflater(Deflater.BEST_SPEED);
+      DataOutputStream dout =
+        new DataOutputStream(new DeflaterOutputStream(deflated, deflater));
+      writeCompressed(dout);
+      dout.close();
       compressed = deflated.toByteArray();
     }
     out.writeInt(compressed.length);

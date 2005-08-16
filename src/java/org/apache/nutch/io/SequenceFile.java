@@ -59,7 +59,7 @@ public class SequenceFile {
     private boolean deflateValues;
     private DataOutputBuffer deflateIn = new DataOutputBuffer();
     private byte[] deflateOut = new byte[1024];
-    private Deflater deflater = new Deflater();
+    private Deflater deflater = new Deflater(Deflater.BEST_SPEED);
 
     // Insert a globally unique 16-byte value every few entries, so that one
     // can seek into the middle of a file and then synchronize with record
