@@ -153,7 +153,7 @@ abstract class TaskRunner extends Thread {
       BufferedReader in = new BufferedReader(new InputStreamReader(output));
       String line;
       while ((line = in.readLine()) != null) {
-        LOG.info(line);
+        LOG.info(t.getTaskId()+" "+line);
       }
     } catch (IOException e) {
       LOG.warning(e.toString());
