@@ -1,6 +1,6 @@
 Nutch Change Log
 
-Release 0.7
+Release 0.7 - 2005-08-16
 
  1. Added support for "type:" in queries. Search results are limited/qualified
     by mimetype or its primary type or sub type. For example,
