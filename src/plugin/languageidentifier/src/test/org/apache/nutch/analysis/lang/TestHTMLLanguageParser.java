@@ -15,13 +15,18 @@
  */
 package org.apache.nutch.analysis.lang;
 
+// JDK imports
 import java.util.Properties;
 
+// JUnit imports
 import junit.framework.TestCase;
+
+// Nutch imports
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.ParserFactory;
 import org.apache.nutch.protocol.Content;
+
 
 public class TestHTMLLanguageParser extends TestCase {
 
@@ -61,6 +66,61 @@ public class TestHTMLLanguageParser extends TestCase {
 
   }
 
+  /** Test of <code>LanguageParser.parseLanguage(String)</code> method. */
+  public void testParseLanguage() {
+    String tests[][] = {
+      { "(SCHEME=ISO.639-1) sv", "sv" },
+      { "(SCHEME=RFC1766) sv-FI", "sv" },
+      { "(SCHEME=Z39.53) SWE", "sv" },
+      { "EN_US, SV, EN, EN_UK", "en" },
+      { "English Swedish", "en" },
+      { "English, swedish", "en" },
+      { "English,Swedish", "en" },
+      { "Other (Svenska)", "sv" },
+      { "SE", "se" },
+      { "SV", "sv" },
+      { "SV charset=iso-8859-1", "sv" },
+      { "SV-FI", "sv" },
+      { "SV; charset=iso-8859-1", "sv" },
+      { "SVE", "sv" },
+      { "SW", "sw" },
+      { "SWE", "sv" },
+      { "SWEDISH", "sv" },
+      { "Sv", "sv" },
+      { "Sve", "sv" },
+      { "Svenska", "sv" },
+      { "Swedish", "sv" },
+      { "Swedish, svenska", "sv" },
+      { "en, sv", "en" },
+      { "sv", "sv" },
+      { "sv, be, dk, de, fr, no, pt, ch, fi, en", "sv" },
+      { "sv,en", "sv" },
+      { "sv-FI", "sv" },
+      { "sv-SE", "sv" },
+      { "sv-en", "sv" },
+      { "sv-fi", "sv" },
+      { "sv-se", "sv" },
+      { "sv; Content-Language: sv", "sv" },
+      { "sv_SE", "sv" },
+      { "sve", "sv" },
+      { "svenska, swedish, engelska, english", "sv" },
+      { "sw", "sw" },
+      { "swe", "sv" },
+      { "swe.SPR.", "sv" },
+      { "sweden", "sv" },
+      { "swedish", "sv" },
+      { "swedish,", "sv" },
+      { "text/html; charset=sv-SE", "sv" },
+      { "text/html; sv", "sv" },
+      { "torp, stuga, uthyres, bed & breakfast", null }
+    };
+    
+    for (int i=0; i<44; i++) {
+      assertEquals(tests[i][1], HTMLLanguageParser.LanguageParser.parseLanguage(tests[i][0]));
+    }
+  }
+  
+  
   private Content getContent(String text) {
     Properties p = new Properties();
     p.put("Content-Type", "text/html");
@@ -68,4 +128,5 @@ public class TestHTMLLanguageParser extends TestCase {
     Content content = new Content(URL, BASE, text.getBytes(), "text/html", p);
     return content;
   }
+
 }
