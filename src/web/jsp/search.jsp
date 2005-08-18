@@ -123,9 +123,14 @@
 <link rel="alternate" type="application/rss+xml" title="RSS" href="<%=rss%>"/>
 <jsp:include page="include/style.html"/>
 <base href="<%= base  + "/" + language %>/">
+<script type="text/javascript">
+<!--
+function queryfocus() { document.search.query.focus(); }
+// -->
+</script>
 </head>
 
-<body>
+<body onLoad="queryfocus();">
 
 <jsp:include page="<%= language + "/include/header.html"%>"/>
 
