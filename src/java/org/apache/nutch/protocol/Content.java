@@ -158,6 +158,7 @@ public final class Content extends CompressedWritable {
       return false;
     }
     Content that = (Content)o;
+    that.ensureInflated();
     return
       this.url.equals(that.url) &&
       this.base.equals(that.base) &&
