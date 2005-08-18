@@ -77,8 +77,8 @@
     <ant dir="urlfilter-prefix" target="clean"/>
     <ant dir="creativecommons" target="clean"/>
     <ant dir="languageidentifier" target="clean"/>
-    <ant dir="clustering-carrot2" target="deploy"/>
-    <ant dir="ontology" target="deploy"/>
+    <ant dir="clustering-carrot2" target="clean"/>
+    <ant dir="ontology" target="clean"/>
   </target>
 
 </project>
