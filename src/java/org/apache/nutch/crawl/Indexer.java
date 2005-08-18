@@ -155,7 +155,7 @@ public class Indexer extends NutchConfigured implements Reducer {
 
     // add segment, used to map from merged index back to segment files
     doc.add(Field.UnIndexed("segment",
-                            meta.getProperty(ParseSegment.SEGMENT_NAME_KEY)));
+                            meta.getProperty(Fetcher.SEGMENT_NAME_KEY)));
 
     // add digest, used by dedup
     doc.add(Field.UnIndexed("digest", meta.getProperty(Fetcher.DIGEST_KEY)));

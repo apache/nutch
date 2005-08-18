@@ -77,6 +77,7 @@ public class MapTask extends Task {
             throws IOException {
             outs[partitioner.getPartition(key, value, partitions)]
               .append(key, value);
+            reportProgress(umbilical);
           }
         };
 

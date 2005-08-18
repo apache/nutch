@@ -29,6 +29,10 @@ public class ParseImpl implements Parse, Writable {
 
   public ParseImpl() {}
 
+  public ParseImpl(Parse parse) {
+    this(parse.getText(), parse.getData());
+  }
+
   public ParseImpl(String text, ParseData data) {
     this(new ParseText(text), data);
   }
@@ -53,6 +57,12 @@ public class ParseImpl implements Parse, Writable {
 
     data = new ParseData();
     data.readFields(in);
+  }
+
+  public static ParseImpl read(DataInput in) throws IOException {
+    ParseImpl parseImpl = new ParseImpl();
+    parseImpl.readFields(in);
+    return parseImpl;
   }
 
 }

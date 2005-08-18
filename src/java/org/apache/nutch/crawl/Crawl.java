@@ -101,7 +101,9 @@ public class Crawl {
         new Generator(conf).generate(crawlDb, segments, -1,
                                      topN, System.currentTimeMillis());
       new Fetcher(conf).fetch(segment, threads);  // fetch it
-      new ParseSegment(conf).parse(segment);      // parse it
+      if (!Fetcher.isParsing(conf)) {
+        new ParseSegment(conf).parse(segment);    // parse it, if needed
+      }
       new CrawlDb(conf).update(crawlDb, segment); // update crawldb
     }
       

@@ -312,6 +312,18 @@
   <description>If true, fetcher will log more verbosely.</description>
 </property>
 
+<property>
+  <name>fetcher.parse</name>
+  <value>true</value>
+  <description>If true, fetcher will parse content.</description>
+</property>
+
+<property>
+  <name>fetcher.store.content</name>
+  <value>true</value>
+  <description>If true, fetcher will store content.</description>
+</property>
+
 <!-- i/o properties -->
 
 <property>
@@ -391,7 +403,7 @@
 
 <property>
   <name>mapred.map.tasks</name>
-  <value>1</value>
+  <value>2</value>
   <description>The default number of map tasks per job.  Typically set
   to a prime several times greater than number of available hosts.
   Ignored when mapred.job.tracker is "local".  

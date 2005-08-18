@@ -22,31 +22,46 @@ import org.apache.nutch.io.*;
 import org.apache.nutch.fs.*;
 import org.apache.nutch.util.*;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.parse.*;
 
 /* An entry in the fetcher's output. */
 public final class FetcherOutput implements Writable {
   private CrawlDatum crawlDatum;
   private Content content;
+  private ParseImpl parse;
 
   public FetcherOutput() {}
 
-  public FetcherOutput(CrawlDatum crawlDatum, Content content) {
+  public FetcherOutput(CrawlDatum crawlDatum, Content content,
+                       ParseImpl parse) {
     this.crawlDatum = crawlDatum;
     this.content = content;
+    this.parse = parse;
   }
 
   public final void readFields(DataInput in) throws IOException {
     this.crawlDatum = CrawlDatum.read(in);
-    this.content = Content.read(in);
+    this.content = in.readBoolean() ? Content.read(in) : null;
+    this.parse = in.readBoolean() ? ParseImpl.read(in) : null;
   }
 
   public final void write(DataOutput out) throws IOException {
     crawlDatum.write(out);
-    content.write(out);
+
+    out.writeBoolean(content != null);
+    if (content != null) {
+      content.write(out);
+    }
+
+    out.writeBoolean(parse != null);
+    if (parse != null) {
+      parse.write(out);
+    }
   }
 
   public CrawlDatum getCrawlDatum() { return crawlDatum; }
   public Content getContent() { return content; }
+  public ParseImpl getParse() { return parse; }
 
   public boolean equals(Object o) {
     if (!(o instanceof FetcherOutput))

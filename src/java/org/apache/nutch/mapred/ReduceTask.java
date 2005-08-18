@@ -246,6 +246,7 @@ public class ReduceTask extends Task {
         public void collect(WritableComparable key, Writable value)
           throws IOException {
           out.write(key, value);
+          reportProgress(umbilical);
         }
       };
     

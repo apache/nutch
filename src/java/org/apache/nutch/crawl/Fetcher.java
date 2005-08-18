@@ -37,6 +37,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
     LogFormatter.getLogger("org.apache.nutch.fetcher.Fetcher");
   
   public static final String DIGEST_KEY = "nutch.content.digest";
+  public static final String SEGMENT_NAME_KEY = "nutch.segment.name";
 
   public static class InputFormat extends SequenceFileInputFormat {
     /** Don't split inputs, to keep things polite. */
@@ -55,6 +56,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
   private OutputCollector output;
   private Reporter reporter;
 
+  private String segmentName;
   private int activeThreads;
   private int maxRedirect;
 
@@ -63,6 +65,9 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
   private long bytes;                             // total bytes fetched
   private int pages;                              // total pages fetched
   private int errors;                             // total pages errored
+
+  private boolean storingContent;
+  private boolean parsing;
 
   private class FetcherThread extends Thread {
     public void run() {
@@ -180,9 +185,32 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
 
       content.getMetadata().setProperty           // add digest to metadata
         (DIGEST_KEY, MD5Hash.digest(content.getContent()).toString());
+      content.getMetadata().setProperty           // add segment to metadata
+        (SEGMENT_NAME_KEY, segmentName);
+
+      Parse parse = null;
+      if (parsing) {
+        ParseStatus parseStatus;
+        try {
+          Parser parser = ParserFactory.getParser(content.getContentType(),
+                                                  content.getBaseUrl());
+          parse = parser.getParse(content);
+          parseStatus = parse.getData().getStatus();
+        } catch (Exception e) {
+          parseStatus = new ParseStatus(e);
+        }
+        if (!parseStatus.isSuccess()) {
+          LOG.warning("Error parsing: "+key+": "+parseStatus);
+          parse = null;
+        }
+      }
 
       try {
-        output.collect(key, new FetcherOutput(datum, content));
+        output.collect
+          (key,
+           new FetcherOutput(datum,
+                             storingContent ? content : null,
+                             parse != null ? new ParseImpl(parse) : null));
       } catch (IOException e) {
         LOG.severe("fetcher caught:"+e.toString());
       }
@@ -214,9 +242,22 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
 
   public void configure(JobConf job) {
     setConf(job);
+
+    this.segmentName = job.get(SEGMENT_NAME_KEY);
+    this.storingContent = isStoringContent(job);
+    this.parsing = isParsing(job);
+
     if (job.getBoolean("fetcher.verbose", false)) {
       LOG.setLevel(Level.FINE);
     }
+  }
+
+  public static boolean isParsing(NutchConf conf) {
+    return conf.getBoolean("fetcher.parse", true);
+  }
+
+  public static boolean isStoringContent(NutchConf conf) {
+    return conf.getBoolean("fetcher.store.content", true);
   }
 
   public void run(RecordReader input, OutputCollector output,
@@ -253,6 +294,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
     JobConf job = new JobConf(getConf());
 
     job.setInt("fetcher.threads.fetch", threads);
+    job.set(SEGMENT_NAME_KEY, segment.getName());
 
     job.setInputDir(new File(segment, CrawlDatum.GENERATE_DIR_NAME));
     job.setInputFormat(InputFormat.class);

@@ -35,21 +35,32 @@ import org.apache.nutch.protocol.Content;
 /** Splits FetcherOutput entries into multiple map files. */
 public class FetcherOutputFormat implements OutputFormat {
 
-  public RecordWriter getRecordWriter(NutchFileSystem fs, JobConf job,
-                                      String name) throws IOException {
+  public RecordWriter getRecordWriter(final NutchFileSystem fs,
+                                      final JobConf job,
+                                      final String name) throws IOException {
 
-    File fetch =
+    final File fetch =
       new File(new File(job.getOutputDir(), CrawlDatum.FETCH_DIR_NAME), name);
-    File content =
+    final File content =
       new File(new File(job.getOutputDir(), Content.DIR_NAME), name);
 
     final MapFile.Writer fetchOut =
       new MapFile.Writer(fs, fetch.toString(), UTF8.class, CrawlDatum.class);
     
-    final MapFile.Writer contentOut =
-      new MapFile.Writer(fs, content.toString(), UTF8.class, Content.class);
-
     return new RecordWriter() {
+        private MapFile.Writer contentOut;
+        private RecordWriter parseOut;
+
+        {
+          if (Fetcher.isStoringContent(job)) {
+            contentOut = new MapFile.Writer(fs, content.toString(),
+                                            UTF8.class, Content.class);
+          }
+
+          if (Fetcher.isParsing(job)) {
+            parseOut = new ParseOutputFormat().getRecordWriter(fs, job, name);
+          }
+        }
 
         public void write(WritableComparable key, Writable value)
           throws IOException {
@@ -57,12 +68,25 @@ public class FetcherOutputFormat implements OutputFormat {
           FetcherOutput fo = (FetcherOutput)value;
           
           fetchOut.append(key, fo.getCrawlDatum());
-          contentOut.append(key, fo.getContent());
+
+          if (fo.getContent() != null) {
+            contentOut.append(key, fo.getContent());
+          }
+
+          if (fo.getParse() != null) {
+            parseOut.write(key, fo.getParse());
+          }
+
         }
 
         public void close() throws IOException {
           fetchOut.close();
-          contentOut.close();
+          if (contentOut != null) {
+            contentOut.close();
+          }
+          if (parseOut != null) {
+            parseOut.close();
+          }
         }
 
       };
