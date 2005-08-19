@@ -223,7 +223,7 @@ public class TestLanguageIdentifier extends TestCase {
                     String testLine = null;
                     while((testLine = testFile.readLine()) != null) {
                         testLine = testLine.trim();
-                        if (testLine.length() > 64) {
+                        if (testLine.length() > 256) {
                             lang = idfr.identify(testLine);
                             assertEquals(tokens[1], lang);
                         }
