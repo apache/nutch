@@ -5,10 +5,6 @@
    version="1.0.0"
    provider-name="nutch.org">
 
-   <extension-point
-      id="org.apache.nutch.net.URLFilter"
-      name="Nutch URL Filter"/>
-
    <runtime>
       <library name="urlfilter-regex.jar">
          <export name="*"/>
