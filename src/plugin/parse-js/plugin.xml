@@ -5,14 +5,6 @@
    version="1.0.0"
    provider-name="nutch.org">
 
-   <extension-point
-      id="org.apache.nutch.parse.Parser"
-      name="Nutch Content Parser"/>
-
-   <extension-point
-      id="org.apache.nutch.parse.HtmlParseFilter"
-      name="HTML Parse Filter"/>
-
    <runtime>
       <library name="parse-js.jar">
          <export name="*"/>
@@ -23,17 +15,17 @@
               name="JS Parser"
               point="org.apache.nutch.parse.Parser">
       <implementation id="JSParser"
-	      class="org.apache.nutch.parse.js.JSParseFilter"
-	      contentType="application/x-javascript"
-	      pathSuffix="js"/>
+         class="org.apache.nutch.parse.js.JSParseFilter"
+         contentType="application/x-javascript"
+         pathSuffix="js"/>
    </extension>
    <extension id="org.apache.nutch.parse.js.JSParseFilter"
               name="Parse JS Filter"
               point="org.apache.nutch.parse.HtmlParseFilter">
       <implementation id="JSParseFilter"
-	      class="org.apache.nutch.parse.js.JSParseFilter"
-	      contentType="application/x-javascript"
-	      pathSuffix=""/>
+         class="org.apache.nutch.parse.js.JSParseFilter"
+         contentType="application/x-javascript"
+         pathSuffix=""/>
    </extension>
 
 </plugin>

@@ -6,9 +6,6 @@
    version="1.0.0"
    provider-name="nutch.org">
 
-   <extension-point
-      id="org.apache.nutch.ontology.Ontology"
-      name="Ontology Model Loader"/>
 
    <runtime>
       <library name="ontology.jar">

@@ -1,13 +1,25 @@
 <?xml version = '1.0' encoding = 'UTF-8'?>
-<plugin version="1.0.0" provider-name="nutch.org" id="parse-mp3" name="MP3 Parse Plug-in" >
-  <extension-point id="org.apache.nutch.parse.Parser" name="Nutch Content Parser" />
-  <runtime>
-    <library name="parse-mp3.jar" >
-      <export name="*" />
-    </library>
-    <library name="jid3lib-0.5.1.jar" />
-  </runtime>
-  <extension point="org.apache.nutch.parse.Parser" id="org.apache.nutch.parse.mp3" name="MP3Parse" >
-    <implementation class="org.apache.nutch.parse.mp3.MP3Parser" pathSuffix="mp3" id="org.apache.nutch.parse.mp3.MP3Parser" contentType="audio/mpeg" />
-  </extension>
+<plugin
+   version="1.0.0"
+   provider-name="nutch.org"
+   id="parse-mp3"
+   name="MP3 Parse Plug-in">
+
+   <runtime>
+      <library name="parse-mp3.jar">
+         <export name="*"/>
+      </library>
+      <library name="jid3lib-0.5.1.jar"/>
+   </runtime>
+
+   <extension point="org.apache.nutch.parse.Parser"
+              id="org.apache.nutch.parse.mp3"
+              name="MP3Parse">
+
+      <implementation class="org.apache.nutch.parse.mp3.MP3Parser"
+                      pathSuffix="mp3"
+                      id="org.apache.nutch.parse.mp3.MP3Parser"
+                      contentType="audio/mpeg"/>
+   </extension>
+
 </plugin>
