@@ -5,19 +5,8 @@
 # Environment Variables
 #
 #   NUTCH_LOG_DIR   Where log files are stored.  PWD by default.
-#
-
-# resolve links - $0 may be a softlink
-this="$0"
-while [ -h "$this" ]; do
-  ls=`ls -ld "$this"`
-  link=`expr "$ls" : '.*-> \(.*\)$'`
-  if expr "$link" : '.*/.*' > /dev/null; then
-    this="$link"
-  else
-    this=`dirname "$this"`/"$link"
-  fi
-done
+#   NUTCH_MASTER    host:path where nutch code should be rsync'd from
+##
 
 usage="Usage: nutch-daemon [start|stop] [nutch-command] [args...]"
 
@@ -33,11 +22,21 @@ shift
 command=$1
 shift
 
-# some directories
-this_dir=`dirname "$this"`
+# resolve links - $0 may be a softlink
+this="$0"
+while [ -h "$this" ]; do
+  ls=`ls -ld "$this"`
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '.*/.*' > /dev/null; then
+    this="$link"
+  else
+    this=`dirname "$this"`/"$link"
+  fi
+done
 
+# get log directory
 if [ "$NUTCH_LOG_DIR" = "" ]; then
-  NUTCH_LOG_DIR=.
+  NUTCH_LOG_DIR=$PWD
 fi
 
 # some variables
@@ -55,8 +54,15 @@ case $startStop in
       fi
     fi
 
+    root=`dirname $this`/..
+    if [ "$NUTCH_MASTER" != "" ]; then
+      echo rsync from $NUTCH_MASTER
+      rsync -a --delete --exclude=.svn $NUTCH_MASTER/{build,bin,lib,conf} $root
+    fi
+
+    cd $root
     echo starting $command, logging to $log
-    nohup $this_dir/nutch $command "$@" >& $log < /dev/null &
+    nohup bin/nutch $command "$@" >& $log < /dev/null &
     echo $! > $pid
     sleep 1; head $log
     ;;
