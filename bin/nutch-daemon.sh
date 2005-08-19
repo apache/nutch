@@ -57,7 +57,7 @@ case $startStop in
     root=`dirname $this`/..
     if [ "$NUTCH_MASTER" != "" ]; then
       echo rsync from $NUTCH_MASTER
-      rsync -a --delete --exclude=.svn $NUTCH_MASTER/{build,bin,lib,conf} $root
+      rsync -a --delete --exclude=.svn $NUTCH_MASTER/ $root
     fi
 
     cd $root
