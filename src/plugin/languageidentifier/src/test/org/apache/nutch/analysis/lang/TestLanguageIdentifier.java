@@ -219,7 +219,7 @@ public class TestLanguageIdentifier extends TestCase {
                     // Then, each line of the file...
                     BufferedReader testFile = new BufferedReader(
                             new InputStreamReader(
-                                this.getClass().getResourceAsStream(tokens[0])));
+                                this.getClass().getResourceAsStream(tokens[0]), "UTF-8"));
                     String testLine = null;
                     while((testLine = testFile.readLine()) != null) {
                         testLine = testLine.trim();
