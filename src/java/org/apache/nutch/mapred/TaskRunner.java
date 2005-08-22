@@ -134,6 +134,8 @@ abstract class TaskRunner extends Thread {
       
     } catch (InterruptedException e) {
       throw new IOException(e.toString());
+    } finally {
+      kill();
     }
   }
 
