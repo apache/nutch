@@ -61,6 +61,8 @@ class DF {
       }
     } catch (InterruptedException e) {
       throw new IOException(e.toString());
+    } finally {
+      process.destroy();
     }
   }
 
