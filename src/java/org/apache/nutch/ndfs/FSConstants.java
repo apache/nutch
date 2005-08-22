@@ -104,4 +104,5 @@ public interface FSConstants {
     public static long OBSOLETE_INTERVAL = 10 * 60 * 1000;
     public static long DATANODE_STARTUP_PERIOD = 120 * 1000;
     public static long LEASE_PERIOD = 16 * 1000;
+    public static int READ_TIMEOUT = 20 * 1000;
 }

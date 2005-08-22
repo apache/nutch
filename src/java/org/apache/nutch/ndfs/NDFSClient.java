@@ -33,7 +33,6 @@ import java.util.logging.*;
  ********************************************************/
 public class NDFSClient implements FSConstants {
     public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.fs.NDFSClient");
-    static int READ_TIMEOUT = 20 * 1000;
     static int BUFFER_SIZE = 4096;
     static int MAX_BLOCK_ACQUIRE_FAILURES = 10;
     ClientProtocol namenode;

@@ -242,6 +242,7 @@ public class DataNode implements FSConstants, Runnable {
             try {
                 while (shouldListen) {
                     Socket s = ss.accept();
+                    s.setSoTimeout(READ_TIMEOUT);
                     new Daemon(new DataXceiver(s)).start();
                 }
                 ss.close();
@@ -318,6 +319,7 @@ public class DataNode implements FSConstants, Runnable {
                                     mirrorTarget = createSocketAddr(targets[1].getName().toString());
                                     try {
                                         Socket s = new Socket(mirrorTarget.getAddress(), mirrorTarget.getPort());
+                                        s.setSoTimeout(READ_TIMEOUT);
                                         out2 = new DataOutputStream(new BufferedOutputStream(s.getOutputStream()));
                                         in2 = new DataInputStream(new BufferedInputStream(s.getInputStream()));
 
