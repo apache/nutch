@@ -33,6 +33,7 @@ import java.util.logging.*;
  ********************************************************/
 public class NDFSClient implements FSConstants {
     public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.fs.NDFSClient");
+    static int READ_TIMEOUT = 20 * 1000;
     static int BUFFER_SIZE = 4096;
     static int MAX_BLOCK_ACQUIRE_FAILURES = 10;
     ClientProtocol namenode;
@@ -346,6 +347,7 @@ public class NDFSClient implements FSConstants {
                 }
                 try {
                     s = new Socket(targetAddr.getAddress(), targetAddr.getPort());
+                    s.setSoTimeout(READ_TIMEOUT);
 
                     //
                     // Xmit header info to datanode
@@ -377,6 +379,12 @@ public class NDFSClient implements FSConstants {
                     // Put chosen node into dead list, continue
                     LOG.info("Could not connect to " + target);
                     deadNodes.add(chosenNode);
+                    if (s != null) {
+                        try {
+                            s.close();
+                        } catch (IOException iex) {
+                        }                        
+                    }
                     s = null;
                 }
             }
@@ -588,6 +596,7 @@ public class NDFSClient implements FSConstants {
                 Socket s = null;
                 try {
                     s = new Socket(target.getAddress(), target.getPort());
+                    s.setSoTimeout(READ_TIMEOUT);
                 } catch (IOException ie) {
                     // Connection failed.  Let's wait a little bit and retry
                     try {
