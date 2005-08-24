@@ -106,13 +106,15 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
     /**
      */
     public LocatedBlock addBlock(String src) throws IOException {
+        int retries = 5;
         Object results[] = namesystem.getAdditionalBlock(new UTF8(src));
-        if (results != null && results[0] == null) {
+        while (results != null && results[0] == null && retries > 0) {
             try {
-                Thread.sleep(50);
+                Thread.sleep(100);
             } catch (InterruptedException ie) {
             }
             results = namesystem.getAdditionalBlock(new UTF8(src));
+            retries--;
         }
 
         if (results == null) {
