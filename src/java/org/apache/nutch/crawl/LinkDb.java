@@ -36,6 +36,7 @@ public class LinkDb extends NutchConfigured implements Mapper, Reducer {
   public static String CURRENT_NAME = "current";
 
   private int maxAnchorLength;
+  private int maxInlinks;
 
   public LinkDb() {
     super(null);
@@ -48,6 +49,7 @@ public class LinkDb extends NutchConfigured implements Mapper, Reducer {
 
   public void configure(JobConf job) {
     maxAnchorLength = job.getInt("db.max.anchor.length", 100);
+    maxInlinks = job.getInt("db.max.inlinks", 100000);
   }
 
   public void map(WritableComparable key, Writable value,
@@ -72,13 +74,12 @@ public class LinkDb extends NutchConfigured implements Mapper, Reducer {
   public void reduce(WritableComparable key, Iterator values,
                      OutputCollector output, Reporter reporter)
     throws IOException {
-    Inlinks result = null;
+    Inlinks result = new Inlinks();
     while (values.hasNext()) {
       Inlinks inlinks = (Inlinks)values.next();
-      if (result == null) {
-        result = inlinks;
-      } else {
-        result.add(inlinks);
+      int end = Math.min(maxInlinks - result.size(), inlinks.size());
+      for (int i = 0; i < end; i++) {
+        result.add(inlinks.get(i));
       }
     }
     output.collect(key, result);
