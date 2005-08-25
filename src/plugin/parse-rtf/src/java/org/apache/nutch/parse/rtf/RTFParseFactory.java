@@ -59,9 +59,12 @@ public class RTFParseFactory implements Parser {
       title = "";
     }
 
-    ParseData parseData = new ParseData(title, new Outlink[0], metadata);
+    String text = delegate.getText();
 
-    return new ParseImpl(delegate.getText(), parseData);
+    return new ParseImpl(text, 
+                         new ParseData(title,
+                                       OutlinkExtractor.getOutlinks(text),
+                                       metadata));
   }
 
 

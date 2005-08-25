@@ -5,21 +5,16 @@
    version="1.0.0"
    provider-name="nutch.org">
 
-   <extension-point
-      id="org.apache.nutch.protocol.Protocol"
-      name="Nutch Protocol"/>
-
    <runtime>
       <library name="protocol-httpclient.jar">
          <export name="*"/>
       </library>
       <library name="commons-codec.jar" />
       <library name="commons-httpclient-3.0-rc2.jar" />
-      
    </runtime>
 
    <extension id="org.apache.nutch.protocol.httpclient"
-	   name="HttpProtocol"
+              name="HttpProtocol"
               point="org.apache.nutch.protocol.Protocol">
 
       <implementation id="org.apache.nutch.protocol.httpclient.Http"

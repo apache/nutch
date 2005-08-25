@@ -5,13 +5,7 @@
    version="1.0.0"
    provider-name="nutch.org">
 
-   <extension-point
-      id="org.apache.nutch.parse.Parser"
-      name="Nutch Content Parser"/>
 
-   <extension-point
-      id="org.apache.nutch.parse.HtmlParseFilter"
-      name="HTML Parse Filter"/>
 
    <runtime>
       <library name="parse-html.jar">

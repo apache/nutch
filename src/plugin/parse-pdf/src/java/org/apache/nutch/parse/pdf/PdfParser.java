@@ -33,6 +33,7 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.Outlink;
+import org.apache.nutch.parse.OutlinkExtractor;
 import org.apache.nutch.parse.ParseException;
 
 import java.text.SimpleDateFormat;
@@ -161,7 +162,7 @@ public class PdfParser implements Parser {
       title = "";
 
     // collect outlink
-    Outlink[] outlinks = new Outlink[0];
+    Outlink[] outlinks = OutlinkExtractor.getOutlinks(text);
 
     // collect meta data
     Properties metadata = new Properties();

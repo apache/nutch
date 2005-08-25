@@ -422,7 +422,7 @@ public class LanguageIdentifier {
       if (analyzeLength != 0) {
           len = Math.min(len, analyzeLength - text.length());
       }
-      text.append(new String(buffer, 0, len));
+      text.append(new String(buffer, 0, len, "UTF-8"));
     }
     return identify(text);
   }
