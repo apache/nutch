@@ -5,9 +5,6 @@
    version="1.0.0"
    provider-name="nutch.org">
 
-   <extension-point
-      id="org.apache.nutch.protocol.Protocol"
-      name="Nutch Protocol"/>
 
    <runtime>
       <library name="protocol-file.jar">

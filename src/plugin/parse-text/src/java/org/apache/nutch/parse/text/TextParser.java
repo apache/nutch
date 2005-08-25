@@ -28,7 +28,7 @@ public class TextParser implements Parser {
     Properties metadata = new Properties();
     metadata.putAll(content.getMetadata());
 
-    ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, "", new Outlink[0], metadata);
+    //ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, "", new Outlink[0], metadata);
 
     String encoding =
       StringUtil.parseCharacterEncoding(content.getContentType());
@@ -45,6 +45,9 @@ public class TextParser implements Parser {
       text = new String(content.getContent());    // use default encoding
     }
 
-    return new ParseImpl(text, parseData);
+    return new ParseImpl(text,
+                         new ParseData(ParseStatus.STATUS_SUCCESS, "",
+                                       OutlinkExtractor.getOutlinks(text),
+                                       metadata));
   }
 }

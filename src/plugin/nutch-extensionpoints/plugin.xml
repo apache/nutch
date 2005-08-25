@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="nutch-extensionpoints"
+   name="the nutch core extension points"
+   version="0.8.0"
+   provider-name="nutch.org">
+
+   <!-- this file hosts all extension points nutch core code offers. 
+   Please not that plugins can define extension points as well to be extendable.-->
+
+<extension-point
+      id="org.apache.nutch.clustering.OnlineClusterer"
+      name="Nutch Online Search Results Clustering Plugin"/>
+
+<extension-point
+      id="org.apache.nutch.indexer.IndexingFilter"
+      name="Nutch Indexing Filter"/>
+
+<extension-point
+      id="org.apache.nutch.ontology.Ontology"
+      name="Ontology Model Loader"/>
+
+<extension-point
+      id="org.apache.nutch.parse.Parser"
+      name="Nutch Content Parser"/>
+ 
+<extension-point
+      id="org.apache.nutch.parse.HtmlParseFilter"
+      name="HTML Parse Filter"/>
+
+<extension-point
+      id="org.apache.nutch.protocol.Protocol"
+      name="Nutch Protocol"/>
+
+<extension-point
+      id="org.apache.nutch.searcher.QueryFilter"
+      name="Nutch Query Filter"/>
+
+<extension-point
+      id="org.apache.nutch.net.URLFilter"
+      name="Nutch URL Filter"/>
+
+
+</plugin>
