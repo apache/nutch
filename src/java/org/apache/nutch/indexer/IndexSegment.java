@@ -16,25 +16,20 @@
 
 package org.apache.nutch.indexer;
 
-import org.apache.nutch.pagedb.*;
-import org.apache.nutch.linkdb.*;
 import org.apache.nutch.fetcher.*;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.analysis.NutchDocumentAnalyzer;
-import org.apache.nutch.db.*;
-import org.apache.nutch.io.*;
 import org.apache.nutch.fs.*;
 import org.apache.nutch.segment.SegmentReader;
 import org.apache.nutch.util.*;
-
-import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
 import java.util.logging.*;
-import java.util.*;
 import java.io.*;
+import org.apache.nutch.analysis.AnalyzerFactory;
+import org.apache.nutch.analysis.NutchAnalyzer;
 
 /** Creates an index for the output corresponding to a single fetcher run. */
 public class IndexSegment {
@@ -149,7 +144,11 @@ public class IndexSegment {
               doc = IndexingFilters.filter(doc, parse, fetcherOutput);
     
               // add the document to the index
-              writer.addDocument(doc);
+              NutchAnalyzer analyzer = AnalyzerFactory.get(doc.get("lang"));
+              LOG.info(" Indexing [" + doc.getField("url").stringValue() +
+                       "] with analyzer " + analyzer + " (" + doc.getField("lang").stringValue() + ")");
+              //LOG.info(" Doc is " + doc);
+              writer.addDocument(doc, analyzer);
               if (count > 0 && count % LOG_STEP == 0) {
                 curTime = System.currentTimeMillis();
                 LOG.info(" Processed " + count + " records (" +

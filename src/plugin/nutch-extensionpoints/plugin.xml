@@ -40,5 +40,8 @@
       id="org.apache.nutch.net.URLFilter"
       name="Nutch URL Filter"/>
 
+<extension-point
+      id="org.apache.nutch.analysis.NutchAnalyzer"
+      name="Nutch Analysis"/>
 
 </plugin>
