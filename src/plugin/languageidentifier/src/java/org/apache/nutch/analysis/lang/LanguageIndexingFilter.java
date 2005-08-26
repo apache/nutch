@@ -37,11 +37,11 @@ import org.apache.lucene.document.Document;
  *       information</li>
  *   <li>Then, checking if a <code>Content-Language</code> HTTP header can be
  *       found</li>
- *   <li>Finaly by analyzing the document content</li>
+ *   <li>Finaly by statisticaly analyzing the document content</li>
  * </ul>
  *   
  * @author Sami Siren
- * @author Jerome Charron
+ * @author J&eacute;r&ocirc;me Charron
  */
 public class LanguageIndexingFilter implements IndexingFilter {
   

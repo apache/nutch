@@ -25,6 +25,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 import java.util.Iterator;
@@ -42,19 +44,20 @@ import org.apache.lucene.analysis.Token;
 
 
 /**
- * This class runs a ngram analysis over submitted text, results might be used
- * for automatic language identifiaction.
- * 
- * The similarity calculation is at experimental level. You have been warned.
- * 
- * Methods are provided to build new NGramProfiles profiles.
+ * This class represents a ngram profile.
+ * A ngram profile is a set of the most frequently used sequences of chars
+ * in a text or set of texts.
+ * This class can be used to runs a ngram analysis over submitted text and
+ * then to build new NGramProfiles.
+ * A profile can then be serialized into a textual file, or a profile can
+ * be initialized from a ngram profile file (ngp files).
  * 
  * @author Sami Siren
- * @author Jerome Charron - http://frutch.free.fr/
+ * @author J&eacute;r&ocirc;me Charron
  */
 public class NGramProfile {
 
-  public static final Logger LOG = LogFormatter
+  static final Logger LOG = LogFormatter
       .getLogger("org.apache.nutch.analysis.lang.NGramProfile");
 
   /** The minimum length allowed for a ngram. */
@@ -119,7 +122,8 @@ public class NGramProfile {
   }
 
   /**
-   * @return Returns the name.
+   * Returns the profile name.
+   * @return the profile name.
    */
   public String getName() {
     return name;
@@ -178,9 +182,9 @@ public class NGramProfile {
   }
 
   /**
-   * Analyze a piece of text
+   * Analyze a piece of text.
    * 
-   * @param text the text to be analyzed
+   * @param text is the text to be analyzed
    */
   public void analyze(StringBuffer text) {
 
@@ -248,9 +252,11 @@ public class NGramProfile {
   }
 
   /**
-   * Return a sorted list of ngrams (sort done by 1. frequency 2. sequence)
+   * Return a sorted list of ngrams.
+   * The list is sorted by:
+   * <ol><li>frequency</li><li>sequence</li></ol>
    * 
-   * @return sorted vector of ngrams
+   * @return A sorted list of ngrams
    */
   public List getSorted() {
     // make sure sorting is done only once
@@ -285,10 +291,10 @@ public class NGramProfile {
 
   /**
    * Calculate a score how well NGramProfiles match each other
+   * The similarity calculation is at experimental level. You have been warned.
    * 
-   * @param another
-   *          ngram profile to compare against
-   * @return similarity 0=exact match
+   * @param another is the ngram profile to compare against
+   * @return a similarity indicator, where 0 stands for an exact match.
    */
   public float getSimilarity(NGramProfile another) {
       
@@ -322,9 +328,10 @@ public class NGramProfile {
   }
 
   /**
-   * Loads a ngram profile from an InputStream
-   * (assumes UTF-8 encoded content)
-   * @param is the InputStream to read
+   * Loads a ngram profile from an InputStream.
+   * <i>Please notice, that this method assumes that the stream is UTF-8
+   * encoded</i>.
+   * @param is is the InputStream to read
    */
   public void load(InputStream is) throws IOException {
 
@@ -352,40 +359,43 @@ public class NGramProfile {
   }
 
   /**
-   * Create a new Language profile from (preferably quite large) text file
+   * Create a new ngram profile from an input stream.
+   * <i>Please notice that the size of the submitted content must be quite
+   * large for a good result</i>.
    * 
-   * @param name is thename of profile
-   * @param is is the stream to read
-   * @param encoding is the encoding of stream
+   * @param name is the name of the profile.
+   * @param is is the stream to read.
+   * @param encoding is the encoding of the stream.
    */
-  public static NGramProfile create(String name, InputStream is, String encoding) {
+  public static NGramProfile create(String name,
+                                    InputStream is,
+                                    String encoding)
+                                    throws UnsupportedEncodingException {
 
     NGramProfile newProfile = new NGramProfile(name, ABSOLUTE_MIN_NGRAM_LENGTH,
                                                      ABSOLUTE_MAX_NGRAM_LENGTH);
     BufferedInputStream bis = new BufferedInputStream(is);
-
+    ByteArrayOutputStream bao = new ByteArrayOutputStream();
     byte buffer[] = new byte[4096];
-    StringBuffer text = new StringBuffer();
     int len;
 
     try {
       while ((len = bis.read(buffer)) != -1) {
-        text.append(new String(buffer, 0, len, encoding));
+        bao.write(buffer, 0, len);
       }
     } catch (IOException e) {
       e.printStackTrace();
     }
-
-    newProfile.analyze(text);
+    newProfile.analyze(new StringBuffer(bao.toString(encoding)));
     return newProfile;
   }
 
   /**
-   * Writes NGramProfile content into OutputStream, content is outputted with
-   * UTF-8 encoding
+   * Writes NGramProfile content into OutputStream.
+   * The content is outputted using UTF-8 encoding.
    * 
-   * @param os the Stream to output to
-   * @throws IOException
+   * @param os is the stream to output to.
+   * @throws IOException if something wrong occurs on the output stream.
    */
   public void save(OutputStream os) throws IOException {
 
@@ -424,9 +434,14 @@ public class NGramProfile {
   }
 
   /**
-   * main method used for testing only
-   * 
-   * @param args
+   * Main method used for command line process.
+   * <br/>Usage is:
+   * <pre>
+   * NGramProfile [-create profilename filename encoding]
+   *              [-similarity file1 file2]
+   *              [-score profile-name filename encoding]
+   * </pre>
+   * @param args arguments.
    */
   public static void main(String args[]) {
 
