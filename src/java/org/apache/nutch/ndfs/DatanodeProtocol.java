@@ -28,7 +28,7 @@ import org.apache.nutch.io.*;
 public interface DatanodeProtocol {
 
     public void sendHeartbeat(String sender, long capacity, long remaining) throws IOException;
-    public void blockReport(String sender, Block blocks[]) throws IOException;
+    public Block[] blockReport(String sender, Block blocks[]) throws IOException;
     public void blockReceived(String sender, Block blocks[]) throws IOException;
     public void errorReport(String sender, String msg) throws IOException;
 

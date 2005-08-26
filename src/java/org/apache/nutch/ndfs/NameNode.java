@@ -262,9 +262,9 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
         namesystem.gotHeartbeat(new UTF8(sender), capacity, remaining);
     }
 
-    public void blockReport(String sender, Block blocks[]) {
+    public Block[] blockReport(String sender, Block blocks[]) {
         LOG.info("Block report from "+sender+": "+blocks.length+" blocks.");
-        namesystem.processReport(blocks, new UTF8(sender));
+        return namesystem.processReport(blocks, new UTF8(sender));
     }
 
     public void blockReceived(String sender, Block blocks[]) {
@@ -281,7 +281,8 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
     }
 
     /**
-     * Return a block-oriented command for the datanode to execute
+     * Return a block-oriented command for the datanode to execute.
+     * This will be either a transfer or a delete operation.
      */
     public BlockCommand getBlockwork(String sender, int xmitsInProgress) {
         //
@@ -293,17 +294,16 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
         }
 
         //
-        // If none, check to see if there are blocks to invalidate
+        // If there are no transfers, check for recently-deleted blocks that
+        // should be removed.  This is not a full-datanode sweep, as is done during
+        // a block report.  This is just a small fast removal of blocks that have
+        // just been removed.
         //
-        Block blocks[] = namesystem.recentlyInvalidBlocks(new UTF8(sender));
-        if (blocks == null) {
-            blocks = namesystem.checkObsoleteBlocks(new UTF8(sender));
-        }
+        Block blocks[] = namesystem.blocksToInvalidate(new UTF8(sender));
         if (blocks != null) {
             return new BlockCommand(blocks);
         }
-
-        return new BlockCommand();
+        return null;
     }
 
     /**

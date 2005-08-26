@@ -28,7 +28,7 @@ import java.util.*;
  **************************************************/
 public class DatanodeInfo implements Writable, Comparable {
     UTF8 name;
-    long capacity, remaining, lastUpdate, lastObsoleteCheck;
+    long capacity, remaining, lastUpdate;
     volatile TreeSet blocks;
 
     /**
@@ -41,7 +41,6 @@ public class DatanodeInfo implements Writable, Comparable {
         this.name = name;
         int colon = name.toString().indexOf(":");
         this.blocks = new TreeSet();
-        this.lastObsoleteCheck = System.currentTimeMillis();
         updateHeartbeat(0, 0);        
     }
 
@@ -50,7 +49,6 @@ public class DatanodeInfo implements Writable, Comparable {
     public DatanodeInfo(UTF8 name, long capacity, long remaining) {
         this.name = name;
         this.blocks = new TreeSet();
-        this.lastObsoleteCheck = System.currentTimeMillis();
         updateHeartbeat(capacity, remaining);
     }
 
@@ -105,12 +103,6 @@ public class DatanodeInfo implements Writable, Comparable {
     }
     public long lastUpdate() {
         return lastUpdate;
-    }
-    public void updateObsoleteCheck() {
-        this.lastObsoleteCheck = System.currentTimeMillis();
-    }
-    public long lastObsoleteCheck() {
-        return lastObsoleteCheck;
     }
 
     /////////////////////////////////////////////////

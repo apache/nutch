@@ -148,14 +148,17 @@ public class DataNode implements FSConstants, Runnable {
                     // -- Bytes remaining
                     //
                     namenode.sendHeartbeat(localName, data.getCapacity(), data.getRemaining());
-                    LOG.info("Just sent heartbeat, with name " + localName);
+                    //LOG.info("Just sent heartbeat, with name " + localName);
                     lastHeartbeat = now;
 		}
 		if (now - lastBlockReport > blockReportInterval) {
                     //
-                    // Send latest blockinfo report if timer has expired
+                    // Send latest blockinfo report if timer has expired.
+                    // Get back a list of local block(s) that are obsolete
+                    // and can be safely GC'ed.
                     //
-                    namenode.blockReport(localName, data.getBlockReport());
+                    Block toDelete[] = namenode.blockReport(localName, data.getBlockReport());
+                    data.invalidate(toDelete);
                     lastBlockReport = now;
 		}
 		if (receivedBlockList.size() > 0) {
@@ -182,7 +185,7 @@ public class DataNode implements FSConstants, Runnable {
 		    // namenode that this datanode should perform.
 		    //
 		    BlockCommand cmd = namenode.getBlockwork(localName, xmitsInProgress);
-		    if (cmd.transferBlocks()) {
+		    if (cmd != null && cmd.transferBlocks()) {
 			//
 			// Send a copy of a block to another datanode
 			//
@@ -202,14 +205,14 @@ public class DataNode implements FSConstants, Runnable {
 				}
 			    }
 			}
-		    } else if (cmd.invalidateBlocks()) {
-			//
-			// Some local block(s) are obsolete and can be 
-			// safely garbage-collected.
-			//
-			data.invalidate(cmd.getBlocks());
-		    }
-		}
+                    } else if (cmd != null && cmd.invalidateBlocks()) {
+                        //
+                        // Some local block(s) are obsolete and can be 
+                        // safely garbage-collected.
+                        //
+                        data.invalidate(cmd.getBlocks());
+                    }
+                }
 
                 //
                 // There is no work to do;  sleep until hearbeat timer elapses, 

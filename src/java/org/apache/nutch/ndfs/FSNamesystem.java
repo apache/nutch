@@ -38,6 +38,9 @@ public class FSNamesystem implements FSConstants {
     final static int DESIRED_REPLICATION =
       NutchConf.get().getInt("ndfs.replication", 3);
 
+    // The maximum number of replicates we should allow for a single block
+    final static int MAX_REPLICATION = DESIRED_REPLICATION;
+
     // How many outgoing replication streams a given node should have at one time
     final static int MAX_REPLICATION_STREAMS = NutchConf.get().getInt("ndfs.max-repl-streams", 2);
 
@@ -74,6 +77,13 @@ public class FSNamesystem implements FSConstants {
     // on the machine in question.
     //
     TreeMap recentInvalidateSets = new TreeMap();
+
+    //
+    // Keeps a TreeSet for every named node.  Each treeset contains
+    // a list of the blocks that are "extra" at that location.  We'll
+    // eventually remove these extras.
+    //
+    TreeMap excessReplicateMap = new TreeMap();
 
     //
     // Keeps track of files that are being created, plus the
@@ -825,7 +835,7 @@ public class FSNamesystem implements FSConstants {
      * The given node is reporting all its blocks.  Use this info to 
      * update the (machine-->blocklist) and (block-->machinelist) tables.
      */
-    public synchronized void processReport(Block newReport[], UTF8 name) {
+    public synchronized Block[] processReport(Block newReport[], UTF8 name) {
         DatanodeInfo node = (DatanodeInfo) datanodeMap.get(name);
         if (node == null) {
             throw new IllegalArgumentException("Unexpected exception.  Received block report from node " + name + ", but there is no info for " + name);
@@ -869,6 +879,29 @@ public class FSNamesystem implements FSConstants {
         // Modify node so it has the new blockreport
         //
         node.updateBlocks(newReport);
+
+        //
+        // We've now completely updated the node's block report profile.
+        // We now go through all its blocks and find which ones are invalid,
+        // no longer pending, or over-replicated.
+        //
+        // (Note it's not enough to just invalidate blocks at lease expiry 
+        // time; datanodes can go down before the client's lease on 
+        // the failed file expires and miss the "expire" event.)
+        //
+        // This function considers every block on a datanode, and thus
+        // should only be invoked infrequently.
+        //
+        Vector obsolete = new Vector();
+        for (Iterator it = node.getBlockIterator(); it.hasNext(); ) {
+            Block b = (Block) it.next();
+
+            if (! dir.isValidBlock(b) && ! pendingCreateBlocks.contains(b)) {
+                LOG.info("Obsoleting block " + b);
+                obsolete.add(b);
+            }
+        }
+        return (Block[]) obsolete.toArray(new Block[obsolete.size()]);
     }
 
     /**
@@ -889,7 +922,6 @@ public class FSNamesystem implements FSConstants {
 
         synchronized (neededReplications) {
             if (dir.isValidBlock(block)) {
-              //LOG.info("Node " + node + " is reporting stored block " + block);
                 if (containingNodes.size() >= DESIRED_REPLICATION) {
                     neededReplications.remove(block);
                     pendingReplications.remove(block);
@@ -898,7 +930,64 @@ public class FSNamesystem implements FSConstants {
                         neededReplications.add(block);
                     }
                 }
+
+                //
+                // Find how many of the containing nodes are "extra", if any.
+                // If there are any extras, call chooseExcessReplicates() to
+                // mark them in the excessReplicateMap.
+                //
+                Vector nonExcess = new Vector();
+                for (Iterator it = containingNodes.iterator(); it.hasNext(); ) {
+                    DatanodeInfo cur = (DatanodeInfo) it.next();
+                    TreeSet excessBlocks = (TreeSet) excessReplicateMap.get(cur.getName());
+                    if (excessBlocks == null || ! excessBlocks.contains(block)) {
+                        nonExcess.add(cur);
+                    }
+                }
+                if (nonExcess.size() > MAX_REPLICATION) {
+                    chooseExcessReplicates(nonExcess, block, MAX_REPLICATION);    
+                }
             }
+        }
+    }
+
+    /**
+     * We want a max of "maxReps" replicates for any block, but we now have too many.  
+     * In this method, copy enough nodes from 'srcNodes' into 'dstNodes' such that:
+     *
+     * srcNodes.size() - dstNodes.size() == maxReps
+     *
+     * For now, we choose nodes randomly.  In the future, we might enforce some
+     * kind of policy (like making sure replicates are spread across racks).
+     */
+    void chooseExcessReplicates(Vector nonExcess, Block b, int maxReps) {
+        while (nonExcess.size() - maxReps > 0) {
+            int chosenNode = r.nextInt(nonExcess.size());
+            DatanodeInfo cur = (DatanodeInfo) nonExcess.elementAt(chosenNode);
+            nonExcess.removeElementAt(chosenNode);
+
+            TreeSet excessBlocks = (TreeSet) excessReplicateMap.get(cur.getName());
+            if (excessBlocks == null) {
+                excessBlocks = new TreeSet();
+                excessReplicateMap.put(cur.getName(), excessBlocks);
+            }
+            excessBlocks.add(b);
+
+            //
+            // The 'excessblocks' tracks blocks until we get confirmation
+            // that the datanode has deleted them; the only way we remove them
+            // is when we get a "removeBlock" message.  
+            //
+            // The 'invalidate' list is used to inform the datanode the block 
+            // should be deleted.  Items are removed from the invalidate list
+            // upon giving instructions to the namenode.
+            //
+            Vector invalidateSet = (Vector) recentInvalidateSets.get(cur.getName());
+            if (invalidateSet == null) {
+                invalidateSet = new Vector();
+                recentInvalidateSets.put(cur.getName(), invalidateSet);
+            }
+            invalidateSet.add(b);
         }
     }
 
@@ -922,6 +1011,18 @@ public class FSNamesystem implements FSConstants {
         if (dir.isValidBlock(block) && (containingNodes.size() < DESIRED_REPLICATION)) {
             synchronized (neededReplications) {
                 neededReplications.add(block);
+            }
+        }
+
+        //
+        // We've removed a block from a node, so it's definitely no longer
+        // in "excess" there.
+        //
+        TreeSet excessBlocks = (TreeSet) excessReplicateMap.get(node.getName());
+        if (excessBlocks != null) {
+            excessBlocks.remove(block);
+            if (excessBlocks.size() == 0) {
+                excessReplicateMap.remove(node.getName());
             }
         }
     }
@@ -984,49 +1085,14 @@ public class FSNamesystem implements FSConstants {
     /////////////////////////////////////////////////////////
 
     /**
-     * Return with a list of Blocks that should be invalidated
-     * at the given node.  Done in response to a file delete, which 
-     * eliminates a number of blocks from the universe.
+     * Check if there are any recently-deleted blocks a datanode should remove.
      */
-    public synchronized Block[] recentlyInvalidBlocks(UTF8 name) {
-        Vector invalidateSet = (Vector) recentInvalidateSets.remove(name);
-        if (invalidateSet == null) {
-            return null;
-        } else {
+    public synchronized Block[] blocksToInvalidate(UTF8 sender) {
+        Vector invalidateSet = (Vector) recentInvalidateSets.remove(sender);
+        if (invalidateSet != null) {
             return (Block[]) invalidateSet.toArray(new Block[invalidateSet.size()]);
-        }
-    }
-
-    /**
-     * If the node has not been checked in some time, go through
-     * its blocks and find which ones are neither valid nor pending.
-     * It often happens that a client will start writing blocks and
-     * then exit.  The blocks are on-disk, but the file will be 
-     * abandoned.
-     *
-     * It's not enough to invalidate blocks at lease expiry time;
-     * datanodes can go down before the client's lease on 
-     * the failed file expires and miss the "expire" event.
-     *
-     * This function considers every block on a datanode, and thus
-     * should only be invoked infrequently.
-     */
-    public synchronized Block[] checkObsoleteBlocks(UTF8 name) {
-        DatanodeInfo nodeInfo = (DatanodeInfo) datanodeMap.get(name);
-        if (System.currentTimeMillis() - nodeInfo.lastObsoleteCheck() <= OBSOLETE_INTERVAL) {
-            return null;
         } else {
-            nodeInfo.updateObsoleteCheck();
-            Vector obsolete = new Vector();
-            for (Iterator it = nodeInfo.getBlockIterator(); it.hasNext(); ) {
-                Block b = (Block) it.next();
-
-                if (! dir.isValidBlock(b) && ! pendingCreateBlocks.contains(b)) {
-                    LOG.info("Obsoleting block " + b);
-                    obsolete.add(b);
-                }
-            }
-            return (Block[]) obsolete.toArray(new Block[obsolete.size()]);
+            return null;
         }
     }
 
@@ -1066,7 +1132,6 @@ public class FSNamesystem implements FSConstants {
                         it.remove();
                     } else {
                         TreeSet containingNodes = (TreeSet) blocksMap.get(block);
-
                         if (containingNodes.contains(srcNode)) {
                             DatanodeInfo targets[] = chooseTargets(Math.min(DESIRED_REPLICATION - containingNodes.size(), MAX_REPLICATION_STREAMS - xmitsInProgress), containingNodes);
                             if (targets.length > 0) {
@@ -1166,13 +1231,13 @@ public class FSNamesystem implements FSConstants {
         if (forbidden1 != null) {
             for (Iterator it = forbidden1.iterator(); it.hasNext(); ) {
                 DatanodeInfo cur = (DatanodeInfo) it.next();
-                forbiddenMachines.add(cur.getHost());
+                forbiddenMachines.add(cur.getName());
             }
         }
         if (forbidden2 != null) {
             for (Iterator it = forbidden2.iterator(); it.hasNext(); ) {
                 DatanodeInfo cur = (DatanodeInfo) it.next();
-                forbiddenMachines.add(cur.getHost());
+                forbiddenMachines.add(cur.getName());
             }
         }
 
@@ -1185,7 +1250,7 @@ public class FSNamesystem implements FSConstants {
             DatanodeInfo node = (DatanodeInfo) it.next();
             if ((forbidden1 == null || ! forbidden1.contains(node)) &&
                 (forbidden2 == null || ! forbidden2.contains(node)) &&
-                (! forbiddenMachines.contains(node.getHost()))) {
+                (! forbiddenMachines.contains(node.getName()))) {
                 targetList.add(node);
                 totalRemaining += node.getRemaining();
             }
