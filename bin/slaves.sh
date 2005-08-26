@@ -4,7 +4,7 @@
 #
 # Environment Variables
 #
-#   NUTCH_SLAVES    File naming remote hosts.
+#   NUTCH_SLAVES    File naming remote hosts.  Default is ~/.slaves
 ##
 
 usage="Usage: slaves.sh command..."
@@ -16,8 +16,7 @@ if [ $# -le 0 ]; then
 fi
 
 if [ "$NUTCH_SLAVES" = "" ]; then
-  echo Set NUTCH_SLAVES to file listing slave host names.
-  exit 1
+  export NUTCH_SLAVES=$HOME/.slaves
 fi
 
 for slave in `cat $NUTCH_SLAVES`; do
