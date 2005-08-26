@@ -264,10 +264,10 @@ public class ReduceTask extends Task {
     } finally {
       in.close();
       lfs.delete(new File(sortedFile));           // remove sorted
-      out.close();
+      out.close(reporter);
     }
 
-    reportProgress(umbilical);
+    umbilical.done(getTaskId());
   }
 
   /** Construct output file names so that, when an output directory listing is

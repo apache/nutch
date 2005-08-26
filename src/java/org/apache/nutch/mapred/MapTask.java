@@ -118,8 +118,6 @@ public class MapTask extends Task {
           ((CombiningCollector)collector).flush();
         }
 
-        reportProgress(umbilical, 1.0f);          // done
-
       } finally {
         in.close();                               // close input
       }
@@ -130,6 +128,7 @@ public class MapTask extends Task {
         }
       }
     }
+    umbilical.done(getTaskId());
   }
   
 }

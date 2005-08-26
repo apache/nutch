@@ -408,6 +408,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
          */
         public synchronized void reportDone() {
             LOG.info("Task " + task.getTaskId() + " is done.");
+            this.progress = 1.0f;
             this.done = true;
         }
 

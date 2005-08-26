@@ -35,5 +35,5 @@ public interface RecordWriter {
   void write(WritableComparable key, Writable value) throws IOException;
 
   /** Close this to future operations.*/ 
-  void close() throws IOException;
+  void close(Reporter reporter) throws IOException;
 }

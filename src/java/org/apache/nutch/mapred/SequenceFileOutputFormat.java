@@ -46,7 +46,7 @@ public class SequenceFileOutputFormat implements OutputFormat {
           out.append(key, value);
         }
 
-        public void close() throws IOException { out.close(); }
+        public void close(Reporter reporter) throws IOException { out.close();}
       };
   }      
 }

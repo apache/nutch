@@ -43,7 +43,7 @@ public class TextOutputFormat implements OutputFormat {
           out.writeBytes(value.toString());       // BUG: assume 8-bit chars
           out.writeByte('\n');
         }
-        public synchronized void close() throws IOException {
+        public synchronized void close(Reporter reporter) throws IOException {
           out.close();
         }
       };
