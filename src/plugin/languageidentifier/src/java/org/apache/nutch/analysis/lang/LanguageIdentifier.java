@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.List;
@@ -48,9 +49,13 @@ import org.apache.nutch.util.LogFormatter;
 
 
 /**
+ * Identify the language of a content, based on statistical analysis.
+ *
+ * @see <a href="http://www.w3.org/WAI/ER/IG/ert/iso639.htm">ISO 639
+ *      Language Codes</a>.
  * 
  * @author Sami Siren
- * @author Jerome Charron
+ * @author J&eacute;r&ocirc;me Charron
  */
 public class LanguageIdentifier {
   
@@ -59,8 +64,8 @@ public class LanguageIdentifier {
   
   private final static float SCORE_THRESOLD = 0.00F;
 
-  public final static Logger LOG = LogFormatter.getLogger(LanguageIdentifier.class.getName());
-
+  private final static Logger LOG =
+          LogFormatter.getLogger(LanguageIdentifier.class.getName());
   
   private ArrayList languages = new ArrayList();
 
@@ -168,7 +173,8 @@ public class LanguageIdentifier {
   }
 
   /**
-   * return handle to singleton instance
+   * Get a LanguageIdentifier instance.
+   * @return the LanguageIdentifier singleton instance.
    */
   public static LanguageIdentifier getInstance() {
     if (identifier == null) {
@@ -182,13 +188,25 @@ public class LanguageIdentifier {
   }
 
   /**
-   * main method used for testing
-   * 
-   * @param args
+   * Main method used for command line process.
+   * <br/>Usage is:
+   * <pre>
+   * LanguageIdentifier [-identifyrows filename maxlines]
+   *                    [-identifyfile charset filename]
+   *                    [-identifyfileset charset files]
+   *                    [-identifytext text]
+   *                    [-identifyurl url]
+   * </pre>
+   * @param args arguments.
    */
   public static void main(String args[]) {
 
-    String usage = "Usage: LanguageIdentifier [-identifyrows filename maxlines] [-identifyfile filename] [-identifyfileset files] [-identifytext text] [-identifyurl url]";
+    String usage = "Usage: LanguageIdentifier "            +
+                      "[-identifyrows filename maxlines] " +
+                      "[-identifyfile charset filename] "  +
+                      "[-identifyfileset charset files] "  +
+                      "[-identifytext text] "              +
+                      "[-identifyurl url]";
     int command = 0;
 
     final int IDFILE = 1;
@@ -199,6 +217,7 @@ public class LanguageIdentifier {
 
     Vector fileset = new Vector();
     String filename = "";
+    String charset = "";
     String url = "";
     String text = "";
     int max = 0;
@@ -211,6 +230,7 @@ public class LanguageIdentifier {
     for (int i = 0; i < args.length; i++) { // parse command line
       if (args[i].equals("-identifyfile")) {
         command = IDFILE;
+        charset = args[++i];
         filename = args[++i];
       }
 
@@ -233,6 +253,7 @@ public class LanguageIdentifier {
 
       if (args[i].equals("-identifyfileset")) {
         command = IDFILESET;
+        charset = args[++i];
         for (i++; i < args.length; i++) {
           File[] files = null;
           File f = new File(args[i]);
@@ -264,7 +285,7 @@ public class LanguageIdentifier {
         case IDFILE:
           f = new File(filename);
           fis = new FileInputStream(f);
-          lang = idfr.identify(fis);
+          lang = idfr.identify(fis, charset);
           fis.close();
           break;
 
@@ -302,7 +323,7 @@ public class LanguageIdentifier {
               filename = (String) i.next();
               f = new File(filename);
               fis = new FileInputStream(f);
-              lang = idfr.identify(fis);
+              lang = idfr.identify(fis, charset);
               fis.close();
             } catch (Exception e) {
               System.out.println(e);
@@ -349,22 +370,26 @@ public class LanguageIdentifier {
   }
 
   /**
-   * Identify language based on submitted content
+   * Identify language of a content.
    * 
-   * @param text to analyze
-   * @return 2 letter ISO639 code of language (en, fi, sv...) , or null if
-   *         unknown
+   * @param content is the content to analyze.
+   * @return The 2 letter
+   *         <a href="http://www.w3.org/WAI/ER/IG/ert/iso639.htm">ISO 639
+   *         language code</a> (en, fi, sv, ...) of the language that best
+   *         matches the specified content.
    */
-  public String identify(String text) {
-    return identify(new StringBuffer(text));
+  public String identify(String content) {
+    return identify(new StringBuffer(content));
   }
 
   /**
-   * Identify language based on submitted content
+   * Identify language of a content.
    * 
-   * @param text to analyze
-   * @return 2 letter ISO639 code of language (en, fi, sv...) , or null if
-   *         unknown
+   * @param content is the content to analyze.
+   * @return The 2 letter
+   *         <a href="http://www.w3.org/WAI/ER/IG/ert/iso639.htm">ISO 639
+   *         language code</a> (en, fi, sv, ...) of the language that best
+   *         matches the specified content.
    */
   public String identify(StringBuffer content) {
 
@@ -405,26 +430,48 @@ public class LanguageIdentifier {
   }
 
   /**
-   * Identify language from inputstream
-   * 
-   * @param is
-   * @return language code
-   * @throws IOException
+   * Identify language from input stream.
+   * This method uses the platform default encoding to read the input stream.
+   * For using a specific encoding, use the
+   * {@link #identify(InputStream, String)} method.
+   *
+   * @param is is the input stream to analyze.
+   * @return The 2 letter
+   *         <a href="http://www.w3.org/WAI/ER/IG/ert/iso639.htm">ISO 639
+   *         language code</a> (en, fi, sv, ...) of the language that best
+   *         matches the content of the specified input stream.
+   * @throws IOException if something wrong occurs on the input stream.
    */
   public String identify(InputStream is) throws IOException {
+    return identify(is, null);
+  }
+  
+  /**
+   * Identify language from input stream.
+   * 
+   * @param is is the input stream to analyze.
+   * @param charset is the charset to use to read the input stream.
+   * @return The 2 letter
+   *         <a href="http://www.w3.org/WAI/ER/IG/ert/iso639.htm">ISO 639
+   *         language code</a> (en, fi, sv, ...) of the language that best
+   *         matches the content of the specified input stream.
+   * @throws IOException if something wrong occurs on the input stream.
+   */
+  public String identify(InputStream is, String charset) throws IOException {
 
-    StringBuffer text = new StringBuffer();
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
     byte[] buffer = new byte[2048];
     int len = 0;
 
     while (((len = is.read(buffer)) != -1) &&
-           ((analyzeLength == 0) || (text.length() < analyzeLength))) {
+           ((analyzeLength == 0) || (out.size() < analyzeLength))) {
       if (analyzeLength != 0) {
-          len = Math.min(len, analyzeLength - text.length());
+          len = Math.min(len, analyzeLength - out.size());
       }
-      text.append(new String(buffer, 0, len, "UTF-8"));
+      out.write(buffer, 0, len);
     }
-    return identify(text);
+    return identify((charset == null) ? out.toString()
+                                      : out.toString(charset));
   }
 
 }

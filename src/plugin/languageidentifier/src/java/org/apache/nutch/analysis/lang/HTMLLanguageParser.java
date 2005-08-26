@@ -22,13 +22,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-// Nutch imports
-import org.apache.nutch.parse.HTMLMetaTags;
-import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.HtmlParseFilter;
-import org.apache.nutch.protocol.Content;
-import org.apache.nutch.util.LogFormatter;
-
 // DOM imports
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
@@ -36,18 +29,33 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+// Nutch imports
+import org.apache.nutch.parse.HTMLMetaTags;
+import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.HtmlParseFilter;
+import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.LogFormatter;
+
 
 /**
- * Adds metadata identifying language of document if found
- * We could also run statistical analysis here but we'd miss all other formats
+ * An {@link org.apache.nutch.parse.HtmlParseFilter} that looks for possible
+ * indications of content language.
+ *
+ * If some indication is found, it is added in the {@link #META_LANG_NAME}
+ * attribute of the {@link org.apache.nutch.parse.ParseData} metadata.
+ *
+ * @author Sami Siren
+ * @author J&eacute;r&ocirc;me Charron
  */
 public class HTMLLanguageParser implements HtmlParseFilter {
-  
-  public static final String META_LANG_NAME="X-meta-lang";
-  public static final Logger LOG = LogFormatter
+
+  private static final Logger LOG = LogFormatter
     .getLogger(HTMLLanguageParser.class.getName());
 
-  /* A static Map of ISO-639 language codes */
+  /** The language meta data attribute name */
+  public static final String META_LANG_NAME="X-meta-lang";
+
+  /** A static Map of ISO-639 language codes */
   private static Map LANGUAGES_MAP = new HashMap();
   static {
     try {
@@ -67,18 +75,22 @@ public class HTMLLanguageParser implements HtmlParseFilter {
       LOG.severe(e.toString());
     }
   }
-  
 
-  
   /**
-   * Scan the HTML document looking at possible indications of content language<br>
-   * <li>1. html lang attribute (http://www.w3.org/TR/REC-html40/struct/dirlang.html#h-8.1)
-   * <li>2. meta dc.language (http://dublincore.org/documents/2000/07/16/usageguide/qualified-html.shtml#language)
-   * <li>3. meta http-equiv (content-language) (http://www.w3.org/TR/REC-html40/struct/global.html#h-7.4.4.2)
-   * <br>Only the first occurence of language is stored.
+   * Scan the HTML document looking at possible indications of content language.
+   * <ol>
+   * <li>html lang attribute
+   *     (<a href="http://www.w3.org/TR/REC-html40/struct/dirlang.html#h-8.1">
+   *     http://www.w3.org/TR/REC-html40/struct/dirlang.html#h-8.1</a>),</li>
+   * <li>meta dc.language (<a href="http://dublincore.org/documents/2000/07/16/usageguide/qualified-html.shtml#language">
+   *     http://dublincore.org/documents/2000/07/16/usageguide/qualified-html.shtml#language</a>),</li>
+   * <li>meta http-equiv (content-language) (
+   *     <a href="http://www.w3.org/TR/REC-html40/struct/global.html#h-7.4.4.2">
+   *     http://www.w3.org/TR/REC-html40/struct/global.html#h-7.4.4.2</a>).</li>
+   * </ol>
+   * Only the first occurence of language is stored.
    */
   public Parse filter(Content content, Parse parse, HTMLMetaTags metaTags, DocumentFragment doc) {
-    
     // Trying to find the document's language
     LanguageParser parser = new LanguageParser(doc);
     String lang = parser.getLanguage();
@@ -90,27 +102,27 @@ public class HTMLLanguageParser implements HtmlParseFilter {
   }
 
   static class LanguageParser {
-    
+
     private String dublinCore = null;
     private String htmlAttribute = null;
     private String httpEquiv = null;
     private String language = null;
-    
+
     LanguageParser(Node node) {
       parse(node);
       if (htmlAttribute != null) { language = htmlAttribute; }
       else if (dublinCore != null) { language = dublinCore; }
       else {language = httpEquiv; }
     }
-  
+
     String getLanguage() {
       return language;
     }
-    
+
     void parse(Node node) {
 
       String lang = null;
-      
+
       if (node.getNodeType() == Node.ELEMENT_NODE) {
 
         // Check for the lang HTML attribute
@@ -121,7 +133,7 @@ public class HTMLLanguageParser implements HtmlParseFilter {
         // Check for Meta
         if ("meta".equalsIgnoreCase(node.getNodeName())) {
           NamedNodeMap attrs = node.getAttributes();
-        
+
           // Check for the dc.language Meta
           if (dublinCore == null) {
             for (int i=0; i<attrs.getLength(); i++) {
@@ -153,7 +165,7 @@ public class HTMLLanguageParser implements HtmlParseFilter {
           }
         }
       }
-      
+
       // Recurse
       NodeList children = node.getChildNodes();
       for (int i=0; children != null && i<children.getLength(); i++) {
@@ -165,21 +177,21 @@ public class HTMLLanguageParser implements HtmlParseFilter {
         }
       }
     }
-    
+
     /**
      * Parse a language string and return an ISO 639 primary code,
      * or <code>null</code> if something wrong occurs, or if no language is found.
      */
     final static String parseLanguage(String lang) {
-      
+
       if (lang == null) { return null; }
 
       String code = null;
       String language = null;
-      
+
       // First, split multi-valued values
       String langs[] = lang.split(",| |;|\\.|\\(|\\)|=", -1);
-      
+
       int i = 0;
       while ((language == null) && (i<langs.length)) {
         // Then, get the primary code
@@ -189,11 +201,10 @@ public class HTMLLanguageParser implements HtmlParseFilter {
         language = (String) LANGUAGES_MAP.get(code.toLowerCase());
         i++;
       }
-      
+
       return language;
     }
-    
+
   }
 
-      
 }
