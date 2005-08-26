@@ -52,7 +52,7 @@ import org.apache.nutch.util.LogFormatter;
  * Identify the language of a content, based on statistical analysis.
  *
  * @see <a href="http://www.w3.org/WAI/ER/IG/ert/iso639.htm">ISO 639
- *      Language Codes</a>.
+ *      Language Codes</a>
  * 
  * @author Sami Siren
  * @author J&eacute;r&ocirc;me Charron

@@ -114,7 +114,8 @@ public final class Content extends VersionedWritable {
   public void setContent(byte[] content) { this.content = content; }
 
   /** The media type of the retrieved content.
-   * @see http://www.iana.org/assignments/media-types/
+   * @see <a href="http://www.iana.org/assignments/media-types/">
+   *      http://www.iana.org/assignments/media-types/</a>
    */
   public String getContentType() { return contentType; }
   public void setContentType(String contentType) {
