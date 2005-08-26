@@ -19,7 +19,7 @@ package org.apache.nutch.protocol;
 import java.io.IOException;
 import java.net.URL;
 
-/** Thrown by {@link Protocol#getContent(String)} when a {@link URL} is invalid.*/
+/** Thrown when a resource is invalid. */
 public class ResourceGone extends ProtocolException {
   private URL url;
 

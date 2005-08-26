@@ -18,7 +18,6 @@ package org.apache.nutch.protocol;
 
 import java.net.URL;
 
-/** Thrown by {@link Protocol#getContent(String)}.*/
 public class ProtocolException extends Exception {
 
   public ProtocolException() {

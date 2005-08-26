@@ -179,7 +179,8 @@ public class SegmentReader {
    * @param withParseText if true, fix parse_text, otherwise ignore it
    * @param withParseData if true, fix parse_data, otherwise ignore it
    * @param dryrun if true, only show what would be done without performing any actions
-   * @return
+   * @return <code>true</code> if segment was fixed successfully, otherwise
+   *         return <code>false</code>.
    */
   public static boolean fixSegment(NutchFileSystem nfs, File dir, 
           boolean withContent, boolean withParseText, boolean withParseData,
