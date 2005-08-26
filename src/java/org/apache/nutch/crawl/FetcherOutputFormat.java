@@ -29,6 +29,7 @@ import org.apache.nutch.io.UTF8;
 import org.apache.nutch.mapred.OutputFormat;
 import org.apache.nutch.mapred.RecordWriter;
 import org.apache.nutch.mapred.JobConf;
+import org.apache.nutch.mapred.Reporter;
 
 import org.apache.nutch.protocol.Content;
 
@@ -79,13 +80,13 @@ public class FetcherOutputFormat implements OutputFormat {
 
         }
 
-        public void close() throws IOException {
+        public void close(Reporter reporter) throws IOException {
           fetchOut.close();
           if (contentOut != null) {
             contentOut.close();
           }
           if (parseOut != null) {
-            parseOut.close();
+            parseOut.close(reporter);
           }
         }
 

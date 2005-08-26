@@ -79,7 +79,7 @@ public class ParseOutputFormat implements OutputFormat {
           }
         }
         
-        public void close() throws IOException {
+        public void close(Reporter reporter) throws IOException {
           textOut.close();
           dataOut.close();
           crawlOut.close();

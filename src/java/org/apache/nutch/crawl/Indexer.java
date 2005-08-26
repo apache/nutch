@@ -89,18 +89,37 @@ public class Indexer extends NutchConfigured implements Reducer {
       writer.setSimilarity(new NutchSimilarity());
 
       return new RecordWriter() {
+          boolean closed;
 
           public void write(WritableComparable key, Writable value)
             throws IOException {                  // unwrap & index doc
             writer.addDocument((Document)((ObjectWritable)value).get());
           }
           
-          public void close() throws IOException {
-            LOG.info("Optimizing index.");        // optimize & close index
-            writer.optimize();
-            writer.close();
-            fs.completeLocalOutput(perm, temp);   // copy to ndfs
-            fs.createNewFile(new File(perm, IndexSegment.DONE_NAME));
+          public void close(final Reporter reporter) throws IOException {
+            // spawn a thread to give progress heartbeats
+            Thread prog = new Thread() {
+                public void run() {
+                  while (!closed) {
+                    try {
+                      reporter.setStatus("closing");
+                      Thread.sleep(1000);
+                    } catch (InterruptedException e) { continue; }
+                      catch (Throwable e) { return; }
+                  }
+                }
+              };
+
+            try {
+              prog.start();
+              LOG.info("Optimizing index.");        // optimize & close index
+              writer.optimize();
+              writer.close();
+              fs.completeLocalOutput(perm, temp);   // copy to ndfs
+              fs.createNewFile(new File(perm, IndexSegment.DONE_NAME));
+            } finally {
+              closed = true;
+            }
           }
         };
     }
