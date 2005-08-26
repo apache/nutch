@@ -13,20 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.analysis;
 
+// JDK imports
+import java.io.Reader;
+import java.io.IOException;
+
+// Lucene imports
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Token;
-import java.io.Reader;
-import java.io.IOException;
 
-/** The analyzer used for Nutch documents.  Uses the JavaCC-defined lexical
- * analyzer {@link NutchDocumentTokenizer}, with no stop list.  This keeps it
- * consistent with query parsing. */
-public class NutchDocumentAnalyzer extends Analyzer {
+
+/**
+ * The analyzer used for Nutch documents.
+ * Uses the JavaCC-defined lexical analyzer {@link NutchDocumentTokenizer},
+ * with no stop list.  This keeps it consistent with query parsing.
+ */
+public class NutchDocumentAnalyzer extends NutchAnalyzer {
 
   /** Analyzer used to index textual content. */
   private static class ContentAnalyzer extends Analyzer {
