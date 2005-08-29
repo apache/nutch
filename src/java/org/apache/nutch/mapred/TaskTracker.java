@@ -491,7 +491,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
     /**
      * Called upon startup by the child process, to fetch Task data.
      */
-    public Task getTask(String taskid) throws IOException {
+    public synchronized Task getTask(String taskid) throws IOException {
         TaskInProgress tip = (TaskInProgress) tasks.get(taskid);
         if (tip != null) {
             return (Task) tip.getTask();
@@ -503,7 +503,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
     /**
      * Called periodically to report Task progress, from 0.0 to 1.0.
      */
-    public void progress(String taskid, float progress, String state) throws IOException {
+    public synchronized void progress(String taskid, float progress, String state) throws IOException {
         TaskInProgress tip = (TaskInProgress) tasks.get(taskid);
         tip.reportProgress(progress, state);
     }
@@ -512,24 +512,24 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
      * Called when the task dies before completion, and we want to report back
      * diagnostic info
      */
-    public void reportDiagnosticInfo(String taskid, String info) throws IOException {
+    public synchronized void reportDiagnosticInfo(String taskid, String info) throws IOException {
         TaskInProgress tip = (TaskInProgress) tasks.get(taskid);
         tip.reportDiagnosticInfo(info);
+    }
+
+    /** Child checking to see if we're alive.  Normally does nothing.*/
+    public synchronized void ping(String taskid) throws IOException {
+      if (tasks.get(taskid) == null) {
+        throw new IOException("No such task id."); // force child exit
+      }
     }
 
     /**
      * The task is done.
      */
-    public void done(String taskid) throws IOException {
+    public synchronized void done(String taskid) throws IOException {
         TaskInProgress tip = (TaskInProgress) tasks.get(taskid);
         tip.reportDone();
-    }
-
-    /** Child checking to see if we're alive.  Normally does nothing.*/
-    public void ping(String taskid) throws IOException {
-      if (tasks.get(taskid) == null) {
-        throw new IOException("No such task id."); // force child exit
-      }
     }
 
     /////////////////////////////////////////////////////

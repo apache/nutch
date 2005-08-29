@@ -329,7 +329,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
     /**
      * Process incoming heartbeat messages from the task trackers.
      */
-    public IntWritable emitHeartbeat(TaskTrackerStatus trackerStatus, BooleanWritable initialContact) {
+    public synchronized IntWritable emitHeartbeat(TaskTrackerStatus trackerStatus, BooleanWritable initialContact) {
         String trackerName = trackerStatus.getTrackerName();
         trackerStatus.setLastSeen(System.currentTimeMillis());
 
@@ -365,7 +365,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
     /**
      * A tracker wants to know if there's a Task to run
      */
-    public Task pollForNewTask(String trackerName) {
+    public synchronized Task pollForNewTask(String trackerName) {
         //LOG.info("Unassigned tasks: " + unassignedTasks.size());
 
         // Allocate a pending task to this TaskTracker
@@ -409,30 +409,34 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
      * map task outputs.
      * 
      */
-    public MapOutputLocation[] locateMapOutputs(String taskId, String[] mapTasksNeeded) {
+    public synchronized MapOutputLocation[] locateMapOutputs(String taskId, String[] mapTasksNeeded) {
         JobInProgress job = (JobInProgress) jobs.get((String) taskToJobMap.get(taskId));
         MapOutputLocation outputs[] = job.locateTasks(mapTasksNeeded);
         return outputs;
     }
 
-    public JobTracker.JobInProgress getJob(String jobid) {
-        return (JobInProgress) jobs.get(jobid);
+    /**
+     * Grab the local fs name
+     */
+    public synchronized String getFilesystemName() throws IOException {
+        return fs.getName();
     }
+
     ////////////////////////////////////////////////////
     // JobSubmissionProtocol
     ////////////////////////////////////////////////////
-    public JobStatus submitJob(String jobFile) throws IOException {
+    public synchronized JobStatus submitJob(String jobFile) throws IOException {
         totalSubmissions++;
         JobInProgress job = createJob(jobFile);
         return job.getStatus();
     }
 
-    public void killJob(String jobid) {
+    public synchronized void killJob(String jobid) {
         JobInProgress job = (JobInProgress) jobs.get(jobid);
         job.kill();
     }
 
-    public JobProfile getJobProfile(String jobid) {
+    public synchronized JobProfile getJobProfile(String jobid) {
         JobInProgress job = (JobInProgress) jobs.get(jobid);
         if (job != null) {
             return job.getProfile();
@@ -440,7 +444,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
             return null;
         }
     }
-    public JobStatus getJobStatus(String jobid) {
+    public synchronized JobStatus getJobStatus(String jobid) {
         JobInProgress job = (JobInProgress) jobs.get(jobid);
         if (job != null) {
             return job.getStatus();
@@ -448,7 +452,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
             return null;
         }
     }
-    public Vector[] getMapTaskReport(String jobid) {
+    public synchronized Vector[] getMapTaskReport(String jobid) {
         JobInProgress job = (JobInProgress) jobs.get(jobid);
         if (job == null) {
             return new Vector[0];
@@ -468,7 +472,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
         }
     }
 
-    public Vector[] getReduceTaskReport(String jobid) {
+    public synchronized Vector[] getReduceTaskReport(String jobid) {
         JobInProgress job = (JobInProgress) jobs.get(jobid);
         if (job == null) {
             return new Vector[0];
@@ -488,6 +492,10 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
         }
     }
 
+    //////////////////////////////////////////////////////////////
+    //  (See InterTrackerProtocol section for getFilesystemName())
+    //////////////////////////////////////////////////////////////
+
     Vector generateSingleReport(String taskid, TaskStatus status, Vector diagInfo) {
         Vector report = new Vector();
         report.add(taskid);
@@ -496,13 +504,13 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
         return report;
     }
 
-    public String getFilesystemName() throws IOException {
-        return fs.getName();
-    }
-
     ///////////////////////////////////////////////////////////////
     // JobTracker methods
     ///////////////////////////////////////////////////////////////
+    public JobTracker.JobInProgress getJob(String jobid) {
+        return (JobInProgress) jobs.get(jobid);
+    }
+
     /**
      * JobProfile createJob() kicks off a new job.  
      * This function creates a job profile and also decomposes it into
