@@ -124,7 +124,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
      * within the same process space might be restarted, so everything must be
      * clean.
      */
-    public void close() throws IOException {
+    public synchronized void close() throws IOException {
         // Kill running tasks
         Vector v = new Vector();
         for (Iterator it = tasks.values().iterator(); it.hasNext(); ) {
@@ -186,7 +186,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
             // Emit standard hearbeat message to check in with JobTracker
             //
             Vector taskReports = new Vector();
-            synchronized (runningTasks) {
+            synchronized (this) {
                 for (Iterator it = runningTasks.keySet().iterator(); it.hasNext(); ) {
                     String taskid = (String) it.next();
                     TaskInProgress tip = (TaskInProgress) runningTasks.get(taskid);
@@ -204,11 +204,11 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
             if (justStarted) {
                 this.fs = NutchFileSystem.getNamed(jobClient.getFilesystemName());
             }
-
-            IntWritable resultCode = jobClient.emitHeartbeat(new TaskTrackerStatus(taskTrackerName, localHostname, mapOutputPort, taskReports), new BooleanWritable(justStarted));
+            
+            int resultCode = jobClient.emitHeartbeat(new TaskTrackerStatus(taskTrackerName, localHostname, mapOutputPort, taskReports), justStarted);
             justStarted = false;
-
-            if (resultCode.get() == InterTrackerProtocol.UNKNOWN_TASKTRACKER) {
+              
+            if (resultCode == InterTrackerProtocol.UNKNOWN_TASKTRACKER) {
                 return STALE_STATE;
             }
 
@@ -219,8 +219,10 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
                 Task t = jobClient.pollForNewTask(taskTrackerName);
                 if (t != null) {
                     TaskInProgress tip = new TaskInProgress(t);
-                    tasks.put(t.getTaskId(), tip);
-                    runningTasks.put(t.getTaskId(), tip);
+                    synchronized (this) {
+                      tasks.put(t.getTaskId(), tip);
+                      runningTasks.put(t.getTaskId(), tip);
+                    }
                     tip.launchTask();
                 }
             }
@@ -228,7 +230,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
             //
             // Kill any tasks that have not reported progress in the last X seconds.
             //
-            synchronized (runningTasks) {
+            synchronized (this) {
                 for (Iterator it = runningTasks.values().iterator(); it.hasNext(); ) {
                     TaskInProgress tip = (TaskInProgress) it.next();
                     if ((tip.getRunState() == TaskStatus.RUNNING) &&
@@ -245,8 +247,10 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
             //
             String toCloseId = jobClient.pollForClosedTask(taskTrackerName);
             if (toCloseId != null) {
+              synchronized (this) {
                 TaskInProgress tip = (TaskInProgress) tasks.get(toCloseId);
                 tip.cleanup();
+              }
             }
             lastHeartbeat = now;
         }
@@ -538,7 +542,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
     /**
      * The task is no longer running.  It may not have completed successfully
      */
-    void reportTaskFinished(String taskid) {
+    synchronized void reportTaskFinished(String taskid) {
         TaskInProgress tip = (TaskInProgress) tasks.get(taskid);
         tip.taskFinished();
     }

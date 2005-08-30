@@ -35,7 +35,7 @@ public interface InterTrackerProtocol {
    * TaskTracker must also indicate whether this is the first interaction
    * (since state refresh)
    */
-  IntWritable emitHeartbeat(TaskTrackerStatus status, BooleanWritable initialContact);
+  int emitHeartbeat(TaskTrackerStatus status, boolean initialContact);
 
   /** Called to get new tasks from from the job tracker for this tracker.*/
   Task pollForNewTask(String trackerName);

@@ -329,13 +329,13 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
     /**
      * Process incoming heartbeat messages from the task trackers.
      */
-    public synchronized IntWritable emitHeartbeat(TaskTrackerStatus trackerStatus, BooleanWritable initialContact) {
+    public synchronized int emitHeartbeat(TaskTrackerStatus trackerStatus, boolean initialContact) {
         String trackerName = trackerStatus.getTrackerName();
         trackerStatus.setLastSeen(System.currentTimeMillis());
 
         synchronized (taskTrackers) {
             synchronized (trackerExpiryQueue) {
-                if (initialContact.get()) {
+                if (initialContact) {
                     // If it's first contact, then clear out any state hanging around
                     if (taskTrackers.get(trackerName) != null) {
                         taskTrackers.remove(trackerName);
@@ -344,14 +344,14 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
                 } else {
                     // If not first contact, there should be some record of the tracker
                     if (taskTrackers.get(trackerName) == null) {
-                        return new IntWritable(InterTrackerProtocol.UNKNOWN_TASKTRACKER);
+                        return InterTrackerProtocol.UNKNOWN_TASKTRACKER;
                     }
                 }
 
                 // Store latest state.  If first contact, then save current
                 // state in expiry queue
                 taskTrackers.put(trackerName, trackerStatus);
-                if (initialContact.get()) {
+                if (initialContact) {
                     trackerExpiryQueue.add(trackerStatus);
                 }
             }
@@ -359,7 +359,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
 
         updateTaskStatuses(trackerStatus);
         //LOG.info("Got heartbeat from "+trackerName);
-        return new IntWritable(InterTrackerProtocol.TRACKERS_OK);
+        return InterTrackerProtocol.TRACKERS_OK;
     }
 
     /**
