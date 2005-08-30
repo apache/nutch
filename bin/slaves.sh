@@ -20,6 +20,6 @@ if [ "$NUTCH_SLAVES" = "" ]; then
 fi
 
 for slave in `cat $NUTCH_SLAVES`; do
- echo -n $slave:\ 
+ echo $slave:
  ssh -o ConnectTimeout=1 $slave "$@"
 done
