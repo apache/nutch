@@ -80,8 +80,8 @@ public abstract class NutchFileSystem {
       return getNamed(NutchConf.get().get("fs.default.name", "local"));
     }
 
-    /** Returns a name for this filesystem, suitable to pass to {@link
-     * NutchFileSystem#getNamed(String).*/
+    /** Returns a name for this filesystem, suitable to pass to
+     * {@link NutchFileSystem#getNamed(String)}.*/
     public abstract String getName();
   
     /** Returns a named filesystem.  Names are either the string "local" or a

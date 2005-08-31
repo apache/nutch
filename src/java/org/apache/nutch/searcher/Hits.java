@@ -44,14 +44,14 @@ public final class Hits implements Writable {
   }
 
   /** Returns the total number of hits for this query.  This may be an estimate
-   * when (@link totalIsExact()} is false. */
+   * when (@link #totalIsExact()} is false. */
   public long getTotal() { return total; }
 
-  /** True if {@link getTotal()} gives the exact number of hits, or false if
+  /** True if {@link #getTotal()} gives the exact number of hits, or false if
    * it is only an estimate of the total number of hits. */
   public boolean totalIsExact() { return totalIsExact; }
 
-  /** Set {@link totalIsExact()}. */
+  /** Set {@link #totalIsExact()}. */
   public void setTotalIsExact(boolean isExact) { totalIsExact = isExact; }
 
   /** Returns the number of hits included in this current listing. */

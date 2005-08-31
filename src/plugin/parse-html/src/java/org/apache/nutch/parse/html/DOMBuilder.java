@@ -42,7 +42,6 @@ import org.xml.sax.ext.LexicalHandler;
  * This class takes SAX events (in addition to some extra events
  * that SAX doesn't handle yet) and adds the result to a document
  * or document fragment.
- * @xsl.usage general
  */
 public class DOMBuilder
         implements ContentHandler, LexicalHandler
