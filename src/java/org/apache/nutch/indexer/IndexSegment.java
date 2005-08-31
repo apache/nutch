@@ -145,8 +145,9 @@ public class IndexSegment {
     
               // add the document to the index
               NutchAnalyzer analyzer = AnalyzerFactory.get(doc.get("lang"));
-              LOG.info(" Indexing [" + doc.getField("url").stringValue() +
-                       "] with analyzer " + analyzer + " (" + doc.getField("lang").stringValue() + ")");
+              LOG.info(" Indexing [" + doc.getField("url").stringValue() + "]" +
+                       " with analyzer " + analyzer +
+                       " (" + doc.get("lang") + ")");
               //LOG.info(" Doc is " + doc);
               writer.addDocument(doc, analyzer);
               if (count > 0 && count % LOG_STEP == 0) {
