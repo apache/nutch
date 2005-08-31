@@ -19,8 +19,7 @@ package org.apache.nutch.protocol;
 import java.io.IOException;
 import java.net.URL;
 
-/** Thrown by {@link Protocol#getContent(String)} when a {@link URL} no longer
- * exists.*/
+/** Thrown when a resource no longer exists.*/
 public class ResourceMoved extends IOException {
   private URL oldUrl;
   private URL newUrl;

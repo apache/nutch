@@ -58,7 +58,7 @@ public class DummySSLProtocolSocketFactory implements ProtocolSocketFactory {
   }
 
   /**
-   * @see SecureProtocolSocketFactory#createSocket(java.lang.String,int,java.net.InetAddress,int)
+   * @see org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory#createSocket(String,int,InetAddress,int)
    */
   public Socket createSocket(String host, int port, InetAddress clientHost, int clientPort) throws IOException,
           UnknownHostException {
@@ -79,8 +79,8 @@ public class DummySSLProtocolSocketFactory implements ProtocolSocketFactory {
    * 
    * @param host the host name/IP
    * @param port the port on the host
-   * @param clientHost the local host name/IP to bind the socket to
-   * @param clientPort the port on the local machine
+   * @param localAddress the local host name/IP to bind the socket to
+   * @param localPort the port on the local machine
    * @param params {@link HttpConnectionParams Http connection parameters}
    * 
    * @return Socket a new socket
@@ -104,14 +104,14 @@ public class DummySSLProtocolSocketFactory implements ProtocolSocketFactory {
   }
 
   /**
-   * @see SecureProtocolSocketFactory#createSocket(java.lang.String,int)
+   * @see org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory#createSocket(String,int)
    */
   public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
     return getSSLContext().getSocketFactory().createSocket(host, port);
   }
 
   /**
-   * @see SecureProtocolSocketFactory#createSocket(java.net.Socket,java.lang.String,int,boolean)
+   * @see org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory#createSocket(Socket,String,int,boolean)
    */
   public Socket createSocket(Socket socket, String host, int port, boolean autoClose) throws IOException,
           UnknownHostException {
