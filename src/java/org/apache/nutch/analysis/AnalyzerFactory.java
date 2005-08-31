@@ -44,7 +44,7 @@ public class AnalyzerFactory {
 
   private final static Map CACHE = new HashMap();
 
-  private final static NutchAnalyzer DEFAULT_ANALYSER = 
+  private final static NutchAnalyzer DEFAULT_ANALYZER = 
                                             new NutchDocumentAnalyzer();
   
   
@@ -60,22 +60,22 @@ public class AnalyzerFactory {
 
   
   /**
-   * Returns the appropriate {@link Analyser} implementation given a language
-   * code.
+   * Returns the appropriate {@link NutchAnalyzer analyzer} implementation
+   * given a language code.
    *
-   * <p>NutchAnalyser extensions should define the attribute "lang". The first
+   * <p>NutchAnalyzer extensions should define the attribute "lang". The first
    * plugin found whose "lang" attribute equals the specified lang parameter is
    * used. If none match, then the {@link NutchDocumentAnalyzer} is used.
    */
   public static NutchAnalyzer get(String lang) {
 
-    NutchAnalyzer analyzer = DEFAULT_ANALYSER;
+    NutchAnalyzer analyzer = DEFAULT_ANALYZER;
     Extension extension = getExtension(lang);
     if (extension != null) {
         try {
             analyzer = (NutchAnalyzer) extension.getExtensionInstance();
         } catch (PluginRuntimeException pre) {
-            analyzer = DEFAULT_ANALYSER;
+            analyzer = DEFAULT_ANALYZER;
         }
     }
     return analyzer;
