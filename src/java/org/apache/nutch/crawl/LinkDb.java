@@ -131,9 +131,6 @@ public class LinkDb extends NutchConfigured implements Mapper, Reducer {
 
     JobConf job = new JobConf(config);
 
-    job.setInt("partition.url.by.host.seed", new Random().nextInt());
-    job.setPartitionerClass(PartitionUrlByHost.class);
-
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setInputKeyClass(UTF8.class);
     job.setInputValueClass(ParseData.class);

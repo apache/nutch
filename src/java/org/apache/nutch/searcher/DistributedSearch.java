@@ -24,6 +24,7 @@ import java.lang.reflect.Method;
 
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseText;
+import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.util.LogFormatter;
 import org.apache.nutch.io.*;
 import org.apache.nutch.ipc.RPC;
@@ -37,7 +38,7 @@ public class DistributedSearch {
 
   /** The distributed search protocol. */
   public interface Protocol
-    extends Searcher, HitDetailer, HitSummarizer, HitContent {
+    extends Searcher, HitDetailer, HitSummarizer, HitContent, HitInlinks {
 
     /** The name of the segments searched by this node. */
     String[] getSegmentNames();
@@ -71,7 +72,8 @@ public class DistributedSearch {
 
   /** The search client. */
   public static class Client extends Thread
-    implements Searcher, HitDetailer, HitSummarizer, HitContent, Runnable {
+    implements Searcher, HitDetailer, HitSummarizer, HitContent, HitInlinks,
+               Runnable {
 
     private InetSocketAddress[] defaultAddresses;
     private InetSocketAddress[] liveAddresses;
@@ -293,6 +295,10 @@ public class DistributedSearch {
       
     public String[] getAnchors(HitDetails hit) throws IOException {
       return getRemote(hit).getAnchors(hit);
+    }
+
+    public Inlinks getInlinks(HitDetails hit) throws IOException {
+      return getRemote(hit).getInlinks(hit);
     }
 
     public long getFetchDate(HitDetails hit) throws IOException {

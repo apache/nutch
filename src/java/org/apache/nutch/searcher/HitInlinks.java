@@ -18,21 +18,13 @@ package org.apache.nutch.searcher;
 
 import java.io.IOException;
 
-import org.apache.nutch.parse.ParseData;
-import org.apache.nutch.parse.ParseText;
+import org.apache.nutch.crawl.Inlinks;
 
-/** Service that returns the content of a hit. */
-public interface HitContent {
-  /** Returns the content of a hit document. */
-  byte[] getContent(HitDetails details) throws IOException;
+/** Service that returns information about incoming links to a hit. */
+public interface HitInlinks {
+  /** Returns the anchors of a hit document. */
+  String[] getAnchors(HitDetails details) throws IOException;
 
-  /** Returns the ParseData of a hit document. */
-  ParseData getParseData(HitDetails details) throws IOException;
-
-  /** Returns the ParseText of a hit document. */
-  ParseText getParseText(HitDetails details) throws IOException;
-
-  /** Returns the fetch date of a hit document. */
-  long getFetchDate(HitDetails details) throws IOException;
-
+  /** Return the inlinks of a hit document. */
+  Inlinks getInlinks(HitDetails details) throws IOException;
 }

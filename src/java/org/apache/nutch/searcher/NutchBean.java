@@ -26,13 +26,14 @@ import org.apache.nutch.fs.*;
 import org.apache.nutch.util.*;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.indexer.*;
+import org.apache.nutch.crawl.Inlinks;
 
 /** 
  * One stop shopping for search-related functionality.
  * @version $Id: NutchBean.java,v 1.19 2005/02/07 19:10:08 cutting Exp $
  */   
 public class NutchBean
-  implements Searcher, HitDetailer, HitSummarizer, HitContent,
+  implements Searcher, HitDetailer, HitSummarizer, HitContent, HitInlinks,
              DistributedSearch.Protocol {
 
   public static final Logger LOG =
@@ -50,6 +51,7 @@ public class NutchBean
   private HitDetailer detailer;
   private HitSummarizer summarizer;
   private HitContent content;
+  private HitInlinks linkDb;
 
   private float RAW_HITS_FACTOR =
     NutchConf.get().getFloat("searcher.hostgrouping.rawhits.factor", 2.0f);
@@ -83,11 +85,13 @@ public class NutchBean
     } else {
       init(new File(dir, "index"),
            new File(dir, "indexes"),
-           new File(dir, "segments"));
+           new File(dir, "segments"),
+           new File(dir, "linkdb"));
     }
   }
 
-  private void init(File indexDir, File indexesDir, File segmentsDir)
+  private void init(File indexDir, File indexesDir, File segmentsDir,
+                    File linkDb)
     throws IOException {
     IndexSearcher indexSearcher;
     if (fs.exists(indexDir)) {
@@ -117,11 +121,14 @@ public class NutchBean
     FetchedSegments segments = new FetchedSegments(fs, segmentsDir.toString());
     
     this.segmentNames = segments.getSegmentNames();
-    
+
     this.searcher = indexSearcher;
     this.detailer = indexSearcher;
     this.summarizer = segments;
     this.content = segments;
+
+    LOG.info("opening linkdb in " + linkDb);
+    this.linkDb = new LinkDbReader(fs, linkDb);
   }
 
   private void init(DistributedSearch.Client client) throws IOException {
@@ -130,6 +137,7 @@ public class NutchBean
     this.detailer = client;
     this.summarizer = client;
     this.content = client;
+    this.linkDb = client;
   }
 
 
@@ -317,7 +325,11 @@ public class NutchBean
   }
 
   public String[] getAnchors(HitDetails hit) throws IOException {
-    return content.getAnchors(hit);
+    return linkDb.getAnchors(hit);
+  }
+
+  public Inlinks getInlinks(HitDetails hit) throws IOException {
+    return linkDb.getInlinks(hit);
   }
 
   public long getFetchDate(HitDetails hit) throws IOException {

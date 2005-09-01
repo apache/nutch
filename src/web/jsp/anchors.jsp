@@ -55,8 +55,10 @@
 <ul>
 <%
   String[] anchors = bean.getAnchors(details);
-  for (int i = 0; i < anchors.length; i++) {
+  if (anchors != null) {
+    for (int i = 0; i < anchors.length; i++) {
 %><li><%=Entities.encode(anchors[i])%>
+<%   } %>
 <% } %>
 </ul>
      

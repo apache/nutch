@@ -33,30 +33,36 @@ import org.apache.nutch.pagedb.*;
 import org.apache.nutch.indexer.*;
 import org.apache.nutch.mapred.*;
 import org.apache.nutch.mapred.lib.*;
+import org.apache.nutch.crawl.*;
 
 /** Implements {@link HitSummarizer} and {@link HitContent} for a set of
  * fetched segments. */
 public class FetchedSegments implements HitSummarizer, HitContent {
 
   private static class Segment {
+    private static final Partitioner PARTITIONER = new HashPartitioner();
+
     private NutchFileSystem nfs;
     private File segmentDir;
 
     private MapFile.Reader[] content;
     private MapFile.Reader[] parseText;
     private MapFile.Reader[] parseData;
-
-    private Partitioner partitioner = new HashPartitioner();
+    private MapFile.Reader[] crawl;
 
     public Segment(NutchFileSystem nfs, File segmentDir) throws IOException {
       this.nfs = nfs;
       this.segmentDir = segmentDir;
     }
 
-    public FetcherOutput getFetcherOutput(UTF8 url) throws IOException {
-      throw new UnsupportedOperationException();
+    public CrawlDatum getCrawlDatum(UTF8 url) throws IOException {
+      synchronized (this) {
+        if (crawl == null)
+          crawl = getReaders(CrawlDatum.FETCH_DIR_NAME);
+      }
+      return (CrawlDatum)getEntry(crawl, url, new CrawlDatum());
     }
-
+    
     public byte[] getContent(UTF8 url) throws IOException {
       synchronized (this) {
         if (content == null)
@@ -82,23 +88,12 @@ public class FetchedSegments implements HitSummarizer, HitContent {
     }
     
     private MapFile.Reader[] getReaders(String subDir) throws IOException {
-      File[] names = nfs.listFiles(new File(segmentDir, subDir));
-      
-      // sort names, so that hash partitioning works
-      Arrays.sort(names);
-
-      MapFile.Reader[] parts = new MapFile.Reader[names.length];
-      for (int i = 0; i < names.length; i++) {
-        parts[i] = new MapFile.Reader(nfs, names[i].toString());
-      }
-      return parts;
+      return MapFileOutputFormat.getReaders(nfs, new File(segmentDir, subDir));
     }
 
-    // hash the url to figure out which part its in
     private Writable getEntry(MapFile.Reader[] readers, UTF8 url,
                               Writable entry) throws IOException {
-      int part = partitioner.getPartition(url, null, readers.length);
-      return readers[part].get(url, entry);
+      return MapFileOutputFormat.getEntry(readers, PARTITIONER, url, entry);
     }
 
   }
@@ -134,14 +129,9 @@ public class FetchedSegments implements HitSummarizer, HitContent {
     return getSegment(details).getParseData(getUrl(details));
   }
 
-  public String[] getAnchors(HitDetails details) throws IOException {
-    return getSegment(details).getFetcherOutput(getUrl(details))
-      .getFetchListEntry().getAnchors();
-  }
-
   public long getFetchDate(HitDetails details) throws IOException {
-    return getSegment(details).getFetcherOutput(getUrl(details))
-      .getFetchDate();
+    return getSegment(details).getCrawlDatum(getUrl(details))
+      .getFetchTime();
   }
 
   public ParseText getParseText(HitDetails details) throws IOException {
