@@ -87,13 +87,16 @@ public class ReduceTask extends Task {
     private boolean more;                         // more in file
     private float progPerByte;
     private TaskUmbilicalProtocol umbilical;
+    private WritableComparator comparator;
 
     public ValuesIterator (SequenceFile.Reader in, long length,
+                           WritableComparator comparator,
                            TaskUmbilicalProtocol umbilical)
       throws IOException {
       this.in = in;
       this.progPerByte = 1.0f / (float)length;
       this.umbilical = umbilical;
+      this.comparator = comparator;
       getNext();
     }
 
@@ -143,7 +146,7 @@ public class ReduceTask extends Task {
         if (lastKey == null) {
           hasNext = true;
         } else {
-          hasNext = (key.compareTo(lastKey) == 0);
+          hasNext = (comparator.compare(key, lastKey) == 0);
         }
       } else {
         hasNext = false;
@@ -220,13 +223,13 @@ public class ReduceTask extends Task {
 
     String sortedFile = file+".sorted";
 
+    WritableComparator comparator = 
+      (WritableComparator)job.newInstance(job.getOutputKeyComparatorClass());
+    
     try {
       sortProgress.start();
 
       // sort the input file
-      WritableComparator comparator = 
-        (WritableComparator)job.newInstance(job.getOutputKeyComparatorClass());
-    
       SequenceFile.Sorter sorter =
         new SequenceFile.Sorter(lfs, comparator, valueClass);
       sorter.sort(file, sortedFile);              // sort
@@ -255,7 +258,8 @@ public class ReduceTask extends Task {
     Reporter reporter = getReporter(umbilical, getProgress());
     long length = lfs.getLength(new File(sortedFile));
     try {
-      ValuesIterator values = new ValuesIterator(in, length, umbilical);
+      ValuesIterator values = new ValuesIterator(in, length, comparator,
+                                                 umbilical);
       while (values.more()) {
         reducer.reduce(values.getKey(), values, collector, reporter);
         values.nextKey();
