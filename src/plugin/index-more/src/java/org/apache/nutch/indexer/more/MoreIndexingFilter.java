@@ -53,7 +53,7 @@ import java.util.TimeZone;
 import java.util.Enumeration;
 import java.util.Properties;
 
-
+import org.apache.commons.lang.time.DateUtils;
 /**
  * Add (or reset) a few metaData properties as respective fields
  * (if they are available), so that they can be displayed by more.jsp
@@ -133,21 +133,37 @@ public class MoreIndexingFilter implements IndexingFilter {
     try {
       time = HttpDateFormat.toLong(date);
     } catch (ParseException e) {
-      // try to parse it as date in alternative format
-      String date2 = date;
-      try {
-        if (date.length() > 25 ) date2 = date.substring(0, 25);
-        DateFormat df = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss", Locale.US);
-        time = df.parse(date2).getTime();
-      } catch (Exception e1) {
-        try {
-          if (date.length() > 24 ) date2 = date.substring(0, 24);
-          DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy", Locale.US);
-          time = df.parse(date2).getTime();
-        } catch (Exception e2) {
-          LOG.warning(url + ": can't parse erroneous date: " + date);
-        }
-      }
+	// try to parse it as date in alternative format
+	try {
+	    Date parsedDate = DateUtils.parseDate(date,
+		  new String [] {
+		      "EEE MMM dd HH:mm:ss yyyy",
+		      "EEE MMM dd HH:mm:ss yyyy zzz",
+		      "EEE, MMM dd HH:mm:ss yyyy zzz",
+		      "EEE, dd MMM yyyy HH:mm:ss zzz",
+		      "EEE,dd MMM yyyy HH:mm:ss zzz",
+		      "EEE, dd MMM yyyy HH:mm:sszzz",
+		      "EEE, dd MMM yyyy HH:mm:ss",
+		      "EEE, dd-MMM-yy HH:mm:ss zzz",
+		      "yyyy/MM/dd HH:mm:ss.SSS zzz",
+		      "yyyy/MM/dd HH:mm:ss.SSS",
+		      "yyyy/MM/dd HH:mm:ss zzz",
+		      "yyyy/MM/dd",
+		      "yyyy.MM.dd HH:mm:ss",
+		      "yyyy-MM-dd HH:mm",
+		      "MMM dd yyyy HH:mm:ss. zzz",
+		      "MMM dd yyyy HH:mm:ss zzz",
+		      "dd.MM.yyyy HH:mm:ss zzz",
+		      "dd MM yyyy HH:mm:ss zzz",
+		      "dd.MM.yyyy; HH:mm:ss",
+		      "dd.MM.yyyy HH:mm:ss",
+		      "dd.MM.yyyy zzz"
+		  });
+	    time = parsedDate.getTime();
+	    //	    LOG.warning(url + ": parsed date: " + date +" to:"+time);
+	} catch (Exception e2) {
+	    LOG.warning(url + ": can't parse erroneous date: " + date);
+	}
     }
     return time;
   }
