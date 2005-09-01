@@ -73,18 +73,18 @@ public class FetchedSegments implements HitSummarizer, HitContent {
 
     public ParseData getParseData(UTF8 url) throws IOException {
       synchronized (this) {
-        if (content == null)
-          content = getReaders(ParseData.DIR_NAME);
+        if (parseData == null)
+          parseData = getReaders(ParseData.DIR_NAME);
       }
-      return (ParseData)getEntry(content, url, new ParseData());
+      return (ParseData)getEntry(parseData, url, new ParseData());
     }
 
     public ParseText getParseText(UTF8 url) throws IOException {
       synchronized (this) {
-        if (content == null)
-          content = getReaders(ParseText.DIR_NAME);
+        if (parseText == null)
+          parseText = getReaders(ParseText.DIR_NAME);
       }
-      return (ParseText)getEntry(content, url, new ParseText());
+      return (ParseText)getEntry(parseText, url, new ParseText());
     }
     
     private MapFile.Reader[] getReaders(String subDir) throws IOException {
