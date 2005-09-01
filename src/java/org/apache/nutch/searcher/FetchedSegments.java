@@ -31,6 +31,8 @@ import org.apache.nutch.protocol.*;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.pagedb.*;
 import org.apache.nutch.indexer.*;
+import org.apache.nutch.mapred.*;
+import org.apache.nutch.mapred.lib.*;
 
 /** Implements {@link HitSummarizer} and {@link HitContent} for a set of
  * fetched segments. */
@@ -43,6 +45,8 @@ public class FetchedSegments implements HitSummarizer, HitContent {
     private MapFile.Reader[] content;
     private MapFile.Reader[] parseText;
     private MapFile.Reader[] parseData;
+
+    private Partitioner partitioner = new HashPartitioner();
 
     public Segment(NutchFileSystem nfs, File segmentDir) throws IOException {
       this.nfs = nfs;
@@ -93,7 +97,8 @@ public class FetchedSegments implements HitSummarizer, HitContent {
     // hash the url to figure out which part its in
     private Writable getEntry(MapFile.Reader[] readers, UTF8 url,
                               Writable entry) throws IOException {
-      return readers[url.hashCode()%readers.length].get(url, entry);
+      int part = partitioner.getPartition(url, null, readers.length);
+      return readers[part].get(url, entry);
     }
 
   }
