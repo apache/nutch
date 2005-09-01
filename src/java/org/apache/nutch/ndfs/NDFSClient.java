@@ -437,7 +437,7 @@ public class NDFSClient implements FSConstants {
                 if (pos > blockEnd) {
                     blockSeekTo(pos);
                 }
-                int result = blockStream.read(buf, off, len);
+                int result = blockStream.read(buf, off, Math.min(len, (int) (blockEnd - pos + 1)));
                 if (result >= 0) {
                     pos += result;
                 }
