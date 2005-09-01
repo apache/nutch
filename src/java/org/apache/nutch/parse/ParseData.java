@@ -147,9 +147,11 @@ public final class ParseData extends VersionedWritable {
     buffer.append("Status: " + status + "\n" );
     buffer.append("Title: " + title + "\n" );
 
-    buffer.append("Outlinks: " + outlinks.length + "\n" );
-    for (int i = 0; i < outlinks.length; i++) {
-       buffer.append("  outlink: " + outlinks[i] + "\n");
+    if (outlinks != null) {
+      buffer.append("Outlinks: " + outlinks.length + "\n" );
+      for (int i = 0; i < outlinks.length; i++) {
+        buffer.append("  outlink: " + outlinks[i] + "\n");
+      }
     }
 
     buffer.append("Metadata: " + metadata + "\n" );

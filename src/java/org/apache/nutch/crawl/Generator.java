@@ -41,6 +41,7 @@ public class Generator extends NutchConfigured {
     private long count;
     private HashMap hostCounts = new HashMap();
     private int maxPerHost;
+    private Partitioner hostPartitioner = new PartitionUrlByHost();
 
     public void configure(JobConf job) {
       curTime = job.getLong("crawl.gen.curTime", System.currentTimeMillis());
@@ -60,25 +61,14 @@ public class Generator extends NutchConfigured {
       if (crawlDatum.getFetchTime() > curTime)
         return;                                   // not time yet
 
-      if (maxPerHost > 0) {                       // are we counting hosts?
-        String host = new URL(((UTF8)key).toString()).getHost();
-        Integer count = (Integer)hostCounts.get(host);
-        if (count != null) {
-          if (count.intValue() >= maxPerHost)
-            return;                               // too many from host
-          hostCounts.put(host, new Integer(count.intValue()+1));
-        } else {                                  // update host count
-          hostCounts.put(host, new Integer(1));
-        }
-      }
-
       output.collect(crawlDatum, key);          // invert for sort by linkCount
     }
 
-    /** Hash urls to randomize link counts accross partitions. */
+    /** Partition by host (value). */
     public int getPartition(WritableComparable key, Writable value,
                             int numReduceTasks) {
-      return (value.hashCode() & Integer.MAX_VALUE) % numReduceTasks;
+      return hostPartitioner.getPartition((WritableComparable)value, key,
+                                          numReduceTasks);
     }
 
     /** Collect until limit is reached. */
@@ -87,7 +77,22 @@ public class Generator extends NutchConfigured {
       throws IOException {
 
       while (values.hasNext() && ++count < limit) {
-        output.collect(key, (Writable)values.next());
+
+        UTF8 url = (UTF8)values.next();
+
+        if (maxPerHost > 0) {                       // are we counting hosts?
+          String host = new URL(url.toString()).getHost();
+          Integer count = (Integer)hostCounts.get(host);
+          if (count != null) {
+            if (count.intValue() >= maxPerHost)
+              continue;                           // too many from host
+            hostCounts.put(host, new Integer(count.intValue()+1));
+          } else {                                // update host count
+            hostCounts.put(host, new Integer(1));
+          }
+        }
+
+        output.collect(key, url);
       }
 
     }
@@ -98,8 +103,26 @@ public class Generator extends NutchConfigured {
   public static class HashComparator extends WritableComparator {
     public HashComparator() { super(UTF8.class); }
 
+    public int compare(WritableComparable a, WritableComparable b) {
+      UTF8 url1 = (UTF8)a;
+      UTF8 url2 = (UTF8)b;
+      int hash1 = hash(url1.getBytes(), 0, url1.getLength());
+      int hash2 = hash(url2.getBytes(), 0, url2.getLength());
+      if (hash1 != hash2) {
+        return hash1 - hash2;
+      }
+      return compareBytes(url1.getBytes(), 0, url1.getLength(),
+                          url2.getBytes(), 0, url2.getLength());
+    }
+
+
     public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
-      return hash(b1, s1, l1) - hash(b2, s2, l2);
+      int hash1 = hash(b1, s1, l1);
+      int hash2 = hash(b2, s2, l2);
+      if (hash1 != hash2) {
+        return hash1 - hash2;
+      }
+      return compareBytes(b1, s1+2, l1, b2, s2+2, l2);
     }
 
     private static int hash(byte[] bytes, int start, int length) {

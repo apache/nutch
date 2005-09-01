@@ -134,9 +134,18 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   
   /** Sort by decreasing link count. */
   public int compareTo(Object o) {
-    int thisLinkCount = this.linkCount;
-    int thatLinkCount = ((CrawlDatum)o).linkCount;
-    return thatLinkCount - thisLinkCount;
+    CrawlDatum that = (CrawlDatum)o; 
+    if (that.linkCount != this.linkCount)
+      return that.linkCount - this.linkCount;
+    if (that.status != this.status)
+      return this.status - that.status;
+    if (that.fetchTime != this.fetchTime)
+      return (that.fetchTime - this.fetchTime) > 0 ? 1 : -1;
+    if (that.retries != this.retries)
+      return that.retries - this.retries;
+    if (that.fetchInterval != this.fetchInterval)
+      return (that.fetchInterval - this.fetchInterval) > 0 ? 1 : -1;
+    return 0;
   }
 
   /** A Comparator optimized for CrawlDatum. */ 
@@ -146,7 +155,26 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
       int linkCount1 = readInt(b1,s1+LINK_COUNT_OFFSET);
       int linkCount2 = readInt(b2,s2+LINK_COUNT_OFFSET);
-      return linkCount2 - linkCount1;
+      if (linkCount2 != linkCount1) {
+        return linkCount2 - linkCount1;
+      }
+      int status1 = b1[s1+1];
+      int status2 = b2[s2+1];
+      if (status2 != status1)
+        return status1 - status2;
+      long fetchTime1 = readLong(b1, s1+1+1);
+      long fetchTime2 = readLong(b2, s2+1+1);
+      if (fetchTime2 != fetchTime1)
+        return (fetchTime2 - fetchTime1) > 0 ? 1 : -1;
+      int retries1 = b1[s1+1+1+8];
+      int retries2 = b2[s2+1+1+8];
+      if (retries2 != retries1)
+        return retries2 - retries1;
+      float fetchInterval1 = readFloat(b1, s1+1+1+8+1);
+      float fetchInterval2 = readFloat(b2, s2+1+1+8+1);
+      if (fetchInterval2 != fetchInterval1)
+        return (fetchInterval2 - fetchInterval1) > 0 ? 1 : -1;
+      return 0;
     }
   }
 

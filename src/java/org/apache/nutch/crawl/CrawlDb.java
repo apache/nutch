@@ -62,9 +62,6 @@ public class CrawlDb extends NutchConfigured {
 
     JobConf job = new JobConf(config);
 
-    job.setInt("partition.url.by.host.seed", new Random().nextInt());
-    job.setPartitionerClass(PartitionUrlByHost.class);
-
     job.addInputDir(new File(crawlDb, CrawlDatum.DB_DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setInputKeyClass(UTF8.class);
