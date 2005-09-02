@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="parse-mspowerpoint"
+   name="MSPowerPoint Parse Plug-in"
+   version="1.0.0"
+   provider-name="nutch.org">
+
+   <runtime>
+      <library name="parse-mspowerpoint.jar">
+         <export name="*"/>
+      </library>
+      <library name="poi-2.5.1-final-20040804.jar"/>
+      <library name="poi-scratchpad-2.5.1-final-20040804.jar"/>
+   </runtime>
+
+   <extension id="net.nutch.parse.mspowerpoint"
+              name="MSPowerPointParse" 
+              point="org.apache.nutch.parse.Parser">
+      <implementation id="org.apache.nutch.parse.mspowerpoint.MSPowerPointParser" 
+                      class="org.apache.nutch.parse.mspowerpoint.MSPowerPointParser" 
+                      contentType="application/vnd.ms-powerpoint"
+                      pathSuffix=""/>
+   </extension>
+
+</plugin>
