@@ -117,12 +117,14 @@ public class Generator extends NutchConfigured {
 
 
     public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
-      int hash1 = hash(b1, s1, l1);
-      int hash2 = hash(b2, s2, l2);
+      int n1 = readUnsignedShort(b1, s1);
+      int n2 = readUnsignedShort(b2, s2);
+      int hash1 = hash(b1, s1+2, n1);
+      int hash2 = hash(b2, s2+2, n2);
       if (hash1 != hash2) {
         return hash1 - hash2;
       }
-      return compareBytes(b1, s1+2, l1, b2, s2+2, l2);
+      return compareBytes(b1, s1+2, n1, b2, s2+2, n2);
     }
 
     private static int hash(byte[] bytes, int start, int length) {
