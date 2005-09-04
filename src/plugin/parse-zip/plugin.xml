@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="parse-zip"
+   name="Zip Parse Plug-in"
+   version="1.0.0"
+   provider-name="nutch.org">
+
+   <runtime>
+      <library name="parse-zip.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <extension id="org.apache.nutch.parse.zip"
+              name="ZipParser" 
+              point="org.apache.nutch.parse.Parser">
+
+      <implementation id="org.apache.nutch.parse.zip.ZipParser" 
+                      class="org.apache.nutch.parse.zip.ZipParser" 
+                      contentType="application/zip"
+                      pathSuffix="zip"/>
+   </extension>
+
+</plugin>

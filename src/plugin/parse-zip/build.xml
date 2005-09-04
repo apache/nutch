@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<project name="parse-zip" default="jar">
+
+  <import file="../build-plugin.xml"/>
+  
+  	<!-- for junit test -->
+	<mkdir dir="${build.test}/data" />
+	<copy todir="${build.test}/data">
+		<fileset dir="sample">
+			<include name="*.zip" />
+		</fileset>
+	</copy>
+
+</project>

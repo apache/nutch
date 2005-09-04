@@ -21,6 +21,7 @@
 <!-- <ant dir="parse-mp3" target="deploy"/> -->
 <!-- <ant dir="parse-rtf" target="deploy"/> -->
      <ant dir="parse-ext" target="deploy"/>
+     <ant dir="parse-zip" target="deploy"/>
      <ant dir="index-basic" target="deploy"/>
      <ant dir="index-more" target="deploy"/>
      <ant dir="query-basic" target="deploy"/>
@@ -48,6 +49,7 @@
  <!-- <ant dir="parse-mp3" target="test"/> -->
  <!-- <ant dir="parse-rtf" target="test"/> -->
      <ant dir="parse-ext" target="test"/>
+     <ant dir="parse-zip" target="test"/>
      <ant dir="creativecommons" target="test"/>
      <ant dir="languageidentifier" target="test"/>
      <ant dir="ontology" target="test"/>
@@ -72,6 +74,7 @@
     <ant dir="parse-mp3" target="clean"/>
     <ant dir="parse-rtf" target="clean"/>
     <ant dir="parse-ext" target="clean"/>
+    <ant dir="parse-zip" target="clean"/>
     <ant dir="index-basic" target="clean"/>
     <ant dir="index-more" target="clean"/>
     <ant dir="query-basic" target="clean"/>
