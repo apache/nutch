@@ -35,6 +35,8 @@
 
   <property name="build.encoding" value="ISO-8859-1"/>
 
+  <path id="plugin.deps"/>
+
   <fileset id="lib.jars" dir="${root}" includes="lib/*.jar"/>
 
   <!-- the normal classpath -->
@@ -45,6 +47,7 @@
     <fileset dir="${nutch.root}/lib">
       <include name="*.jar" />
     </fileset>
+    <path refid="plugin.deps"/>
   </path>
 
   <!-- the unit test classpath -->
