@@ -27,6 +27,7 @@ class PPTConstants {
   /** ID of master slide */
   public static final long PPT_MASTERSLIDE = 1024L;
 
+  /** ATOM ID of slide */
   public static long PPT_ATOM_SLIDE = 1007l;
 
   /** ATOM ID of notes */

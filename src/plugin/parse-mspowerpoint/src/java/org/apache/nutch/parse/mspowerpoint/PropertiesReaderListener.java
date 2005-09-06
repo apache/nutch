@@ -23,7 +23,6 @@ import java.util.logging.Logger;
 
 import org.apache.nutch.parse.mspowerpoint.PPTExtractor.PropertiesBroker;
 import org.apache.nutch.util.LogFormatter;
-import org.apache.poi.hpsf.PropertySet;
 import org.apache.poi.hpsf.PropertySetFactory;
 import org.apache.poi.hpsf.SummaryInformation;
 import org.apache.poi.poifs.eventfilesystem.POIFSReaderEvent;
