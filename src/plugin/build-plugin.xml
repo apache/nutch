@@ -111,7 +111,7 @@
     <mkdir dir="${deploy.dir}"/>
     <copy file="plugin.xml" todir="${deploy.dir}" 
           preservelastmodified="true"/>
-    <copy file="${build.dir}/${name}.jar" todir="${deploy.dir}"/>
+    <copy file="${build.dir}/${name}.jar" todir="${deploy.dir}" failonerror="false"/>
     <copy todir="${deploy.dir}" flatten="true">
       <fileset refid="lib.jars"/>
     </copy>
