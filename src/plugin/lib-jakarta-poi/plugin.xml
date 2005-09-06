@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ ! Jakarta POI - Java API To Access Microsoft Format Files
+ ! (http://jakarta.apache.org/poi/)
+ ! 
+ ! Dowload : http://www.apache.org/dyn/closer.cgi/jakarta/poi/
+ ! License : http://www.apache.org/licenses/LICENSE-2.0.txt
+ !-->
+<plugin
+   id="lib-jakarta-poi"
+   name="Jakarta POI - Java API To Access Microsoft Format Files"
+   version="2.5.1"
+   provider-name="jakarta.apache.org">
+
+   <runtime>
+     <library name="poi-2.5.1-final-20040804.jar">
+        <export name="*"/>
+     </library>
+     <library name="poi-scratchpad-2.5.1-final-20040804.jar">
+        <export name="*"/>
+     </library>
+   </runtime>
+
+</plugin>
