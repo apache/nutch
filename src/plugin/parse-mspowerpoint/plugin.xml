@@ -9,9 +9,11 @@
       <library name="parse-mspowerpoint.jar">
          <export name="*"/>
       </library>
-      <library name="poi-2.5.1-final-20040804.jar"/>
-      <library name="poi-scratchpad-2.5.1-final-20040804.jar"/>
    </runtime>
+
+   <requires>
+      <import plugin="lib-jakarta-poi"/>
+   </requires>
 
    <extension id="net.nutch.parse.mspowerpoint"
               name="MSPowerPointParse" 
