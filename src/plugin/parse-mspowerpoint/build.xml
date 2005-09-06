@@ -4,6 +4,12 @@
 
 	<import file="../build-plugin.xml" />
 
+        <path id="plugin.deps">
+             <fileset dir="../lib-jakarta-poi/lib">
+                 <include name="*.jar" />
+             </fileset>
+        </path>
+
 	<!-- for junit test -->
 	<mkdir dir="${build.test}/data" />
 	<copy todir="${build.test}/data">
