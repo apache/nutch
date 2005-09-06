@@ -6,6 +6,7 @@
   <!-- Build & deploy all the plugin jars.                    -->
   <!-- ====================================================== -->
   <target name="deploy">
+     <ant dir="lib-jakarta-poi" target="deploy"/>
      <ant dir="nutch-extensionpoints" target="deploy"/>
      <ant dir="protocol-file" target="deploy"/>
      <ant dir="protocol-ftp" target="deploy"/>
@@ -59,6 +60,7 @@
   <!-- Clean all of the plugins.                              -->
   <!-- ====================================================== -->
   <target name="clean">
+    <ant dir="lib-jakarta-poi" target="clean"/>
     <ant dir="nutch-extensionpoints" target="clean"/>
     <ant dir="protocol-file" target="clean"/>
     <ant dir="protocol-ftp" target="clean"/>
