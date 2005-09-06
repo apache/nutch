@@ -376,7 +376,7 @@ public class NDFSClient implements FSConstants {
                     this.partnerStream = out;
                 } catch (IOException ex) {
                     // Put chosen node into dead list, continue
-                    LOG.info("Could not connect to " + target);
+                    LOG.info("Failed to connect to " + targetAddr + ":" + ex);
                     deadNodes.add(chosenNode);
                     if (s != null) {
                         try {
