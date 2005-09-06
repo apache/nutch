@@ -23,6 +23,7 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 import org.apache.nutch.parse.Outlink;
+import org.apache.nutch.parse.OutlinkExtractor;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
@@ -53,13 +54,6 @@ public class MSPowerPointParser implements Parser {
    * 
    */
   public MSPowerPointParser() {
-  }
-
-  /**
-   * 
-   */
-  public MSPowerPointParser(String fileName) {
-
   }
 
   /**
@@ -128,7 +122,7 @@ public class MSPowerPointParser implements Parser {
 
       plainText = extractor.getText();
       properties = extractor.getProperties();
-      outlinks = this.getOutlinks(plainText, content.getUrl());
+      outlinks = OutlinkExtractor.getOutlinks(plainText, content.getUrl());
 
     } catch (Exception e) {
       LOG.throwing(this.getClass().getName(), "getParse", e);
@@ -158,17 +152,6 @@ public class MSPowerPointParser implements Parser {
 
     LOG.finest("PowerPoint file parsed sucessful.");
     return new ParseImpl(plainText, parseData);
-  }
-
-  /**
-   * Collect outlinks of document.
-   * 
-   * @param plainText
-   * 
-   * @return Array of links within the PowerPoint file
-   */
-  protected Outlink[] getOutlinks(String plainText, String anchor) {
-    return OutlinkExtractor.getOutlinks(plainText, anchor);
   }
   
   private final static byte[] getRawBytes(File f) {

@@ -25,7 +25,6 @@ import org.apache.nutch.util.LogFormatter;
 import org.apache.poi.hdf.extractor.Utils;
 import org.apache.poi.poifs.eventfilesystem.POIFSReaderEvent;
 import org.apache.poi.poifs.eventfilesystem.POIFSReaderListener;
-import org.apache.poi.poifs.filesystem.DocumentEntry;
 import org.apache.poi.poifs.filesystem.DocumentInputStream;
 import org.apache.poi.util.LittleEndian;
 import org.apache.poi.util.StringUtil;
@@ -272,10 +271,9 @@ class ContentReaderListener implements POIFSReaderListener {
                   // TextCharAtom record
 
                   final String strTempContent = new String(pptdata,
-                      (int) startPos + 6, (int) (nsize) + 2);
+                      startPos + 6, (int) (nsize) + 2);
                   final byte bytes[] = strTempContent.getBytes();
                   if (true) {
-                    // FIXME my version
                     outStream = new FilteredStringWriter();
                     for (int ii = 0; ii < bytes.length - 1; ii += 2) {
                       // For loop to changed to a function

@@ -15,7 +15,6 @@
  */
 package org.apache.nutch.parse.mspowerpoint;
 
-import java.io.IOException;
 
 /**
  * Exception class used for catching the runtime exceptions for the Powerpoint
