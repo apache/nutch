@@ -56,6 +56,7 @@ public class TestNutchFileSystem extends TestCase {
     createControlFile(fs, megaBytes, numFiles, seed);
     writeTest(fs);
     readTest(fs);
+    seekTest(fs);
   }
 
   public static void createControlFile(NutchFileSystem fs,
@@ -344,7 +345,7 @@ public class TestNutchFileSystem extends TestCase {
     boolean noSeek = false;
     long seed = new Random().nextLong();
 
-    String usage = "Usage: TestNutchFileSystem -files N -megaBytes M [-noread] [-nowrite]";
+    String usage = "Usage: TestNutchFileSystem -files N -megaBytes M [-noread] [-nowrite] [-noseek]";
     
     if (args.length == 0) {
         System.err.println(usage);
@@ -359,6 +360,8 @@ public class TestNutchFileSystem extends TestCase {
         noRead = true;
       } else if (args[i].equals("-nowrite")) {
         noWrite = true;
+      } else if (args[i].equals("-noseek")) {
+        noSeek = true;
       }
     }
 
