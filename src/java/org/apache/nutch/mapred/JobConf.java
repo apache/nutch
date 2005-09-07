@@ -149,10 +149,12 @@ public class JobConf extends NutchConf {
     setClass("mapred.output.key.class", theClass, WritableComparable.class);
   }
 
-  public Class getOutputKeyComparatorClass() {
-    return getClass("mapred.output.key.comparator.class",
-                    WritableComparator.get(getOutputKeyClass()).getClass(),
-                    WritableComparator.class);
+  public WritableComparator getOutputKeyComparator() {
+    Class theClass = getClass("mapred.output.key.comparator.class", null,
+                              WritableComparator.class);
+    if (theClass != null)
+      return (WritableComparator)newInstance(theClass);
+    return WritableComparator.get(getOutputKeyClass());
   }
 
   public void setOutputKeyComparatorClass(Class theClass) {

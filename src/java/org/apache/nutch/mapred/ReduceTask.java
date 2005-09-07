@@ -223,8 +223,7 @@ public class ReduceTask extends Task {
 
     String sortedFile = file+".sorted";
 
-    WritableComparator comparator = 
-      (WritableComparator)job.newInstance(job.getOutputKeyComparatorClass());
+    WritableComparator comparator = job.getOutputKeyComparator();
     
     try {
       sortProgress.start();

@@ -45,8 +45,7 @@ class CombiningCollector implements OutputCollector {
     this.out = out;
     this.reporter = reporter;
     this.combiner = (Reducer)job.newInstance(job.getCombinerClass());
-    this.keyToValues = new TreeMap
-      ((Comparator)job.newInstance(job.getOutputKeyComparatorClass()));
+    this.keyToValues = new TreeMap(job.getOutputKeyComparator());
   }
 
   public synchronized void collect(WritableComparable key, Writable value)
