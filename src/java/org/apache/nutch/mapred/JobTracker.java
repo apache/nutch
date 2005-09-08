@@ -521,7 +521,17 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
     JobInProgress createJob(String jobFile) throws IOException {
         JobInProgress job = new JobInProgress(jobFile);
         jobs.put(job.getProfile().getJobId(), job);
-        job.launch();
+
+        boolean error = true;
+        try {
+          job.launch();
+          error = false;
+        } finally {
+          if (error) {
+            job.kill();
+          }
+        }
+
         return job;
     }
 
