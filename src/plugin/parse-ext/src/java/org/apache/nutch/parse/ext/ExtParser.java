@@ -23,6 +23,7 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.Outlink;
+import org.apache.nutch.parse.OutlinkExtractor;
 
 import org.apache.nutch.util.LogFormatter;
 import org.apache.nutch.util.CommandRunner;
@@ -58,7 +59,7 @@ public class ExtParser implements Parser {
   // set TYPE_PARAMS_MAP using plugin.xml of this plugin
   static {
     Extension[] extensions = PluginRepository.getInstance()
-      .getExtensionPoint("org.apache.nutch.parse.Parser").getExtentens();
+      .getExtensionPoint("org.apache.nutch.parse.Parser").getExtensions();
 
     String contentType, command, timeoutString;
 
@@ -66,7 +67,7 @@ public class ExtParser implements Parser {
       Extension extension = extensions[i];
 
       // only look for extensions defined by plugin parse-ext
-      if (!extension.getDiscriptor().getPluginId().equals("parse-ext"))
+      if (!extension.getDescriptor().getPluginId().equals("parse-ext"))
         continue;
 
       contentType = extension.getAttribute("contentType");
@@ -151,7 +152,7 @@ public class ExtParser implements Parser {
       title = "";
 
     // collect outlink
-    Outlink[] outlinks = new Outlink[0];
+    Outlink[] outlinks = OutlinkExtractor.getOutlinks(text);
 
     // collect meta data
     Properties metaData = new Properties();

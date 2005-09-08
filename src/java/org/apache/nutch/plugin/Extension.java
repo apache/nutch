@@ -17,8 +17,8 @@
 package org.apache.nutch.plugin;
 import java.util.HashMap;
 /**
- * A <code>Extension</code> is a kind of listener descriptor that will be
- * installed on a concret <code>ExtensionPoint</code> that act as kind of
+ * An <code>Extension</code> is a kind of listener descriptor that will be
+ * installed on a concrete <code>ExtensionPoint</code> that acts as kind of
  * Publisher.
  * 
  * @author joa23
@@ -40,7 +40,7 @@ public class Extension {
   public Extension(PluginDescriptor pDescriptor, String pExtensionPoint,
                    String pId, String pExtensionClass) {
     fAttributes = new HashMap();
-    setDiscriptor(pDescriptor);
+    setDescriptor(pDescriptor);
     setExtensionPoint(pExtensionPoint);
     setId(pId);
     setClazz(pExtensionClass);
@@ -140,7 +140,7 @@ public class Extension {
         Class extensionClazz = loader.loadClass(getClazz());
         // lazy loading of Plugin in case there is no instance of the plugin
         // already.
-        PluginRepository.getInstance().getPluginInstance(getDiscriptor());
+        PluginRepository.getInstance().getPluginInstance(getDescriptor());
         Object object = extensionClazz.newInstance();
         return object;
       } catch (ClassNotFoundException e) {
@@ -152,21 +152,29 @@ public class Extension {
       }
     }
   }
+
+  /**
+   * @deprecated Use #{getDescriptor()} instead.
+   */
+  public PluginDescriptor getDiscriptor() {
+    return getDescriptor();
+  }
+
   /**
    * return the plugin descriptor.
    * 
    * @return PluginDescriptor
    */
-  public PluginDescriptor getDiscriptor() {
+  public PluginDescriptor getDescriptor() {
     return fDescriptor;
   }
   /**
    * Sets the plugin descriptor and is only used until model creation at system
    * start up.
    * 
-   * @return PluginDescriptor
+   * @param pDescriptor
    */
-  public void setDiscriptor(PluginDescriptor pDescriptor) {
+  public void setDescriptor(PluginDescriptor pDescriptor) {
     fDescriptor = pDescriptor;
   }
 }

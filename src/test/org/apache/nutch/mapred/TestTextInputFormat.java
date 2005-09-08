@@ -82,18 +82,22 @@ public class TestTextInputFormat extends TestCase {
         BitSet bits = new BitSet(length);
         for (int j = 0; j < splits.length; j++) {
           RecordReader reader = format.getRecordReader(fs, splits[j], job);
-          int count = 0;
-          while (reader.next(key, value)) {
-            int v = Integer.parseInt(value.toString());
-//             if (bits.get(v)) {
-//               LOG.info("splits["+j+"]="+splits[j]+" : " + v);
-//               LOG.info("@"+reader.getPos());
-//             }
-            assertFalse("Key in multiple partitions.", bits.get(v));
-            bits.set(v);
-            count++;
+          try {
+            int count = 0;
+            while (reader.next(key, value)) {
+              int v = Integer.parseInt(value.toString());
+              //             if (bits.get(v)) {
+              //               LOG.info("splits["+j+"]="+splits[j]+" : " + v);
+              //               LOG.info("@"+reader.getPos());
+              //             }
+              assertFalse("Key in multiple partitions.", bits.get(v));
+              bits.set(v);
+              count++;
+            }
+            //LOG.info("splits["+j+"]="+splits[j]+" count=" + count);
+          } finally {
+            reader.close();
           }
-          //LOG.info("splits["+j+"]="+splits[j]+" count=" + count);
         }
         assertEquals("Some keys in no partition.", length, bits.cardinality());
       }

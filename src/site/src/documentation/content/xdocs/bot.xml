@@ -21,7 +21,7 @@ a misbehaving crawler appearing with our Agent string is not run by
 us.  Our software may be run by anyone.  However, we'd still like to
 hear about any bad behavior.  If possible, please include the name of
 the domain and some representative log entries.  We can be reached at
-<a href="mailto:agent@nutch.org"> agent@nutch.org</a>.</p>
+<a href="mailto:nutch-agent@lucene.apache.org">nutch-agent@lucene.apache.org</a>.</p>
 
 <p> Our software obeys the robots.txt exclusion standard, described at
 <a href="http://www.robotstxt.org/wc/exclusion.html#robotstxt">
@@ -52,7 +52,7 @@ http://www.robotstxt.org/wc/meta-user.html</a>. </p>
 <section><title>Contact us</title>
 
 <p>If your site has problems or questions about the Nutch crawler, please
-send an email to the <a href="mailto:agent@nutch.org">Nutch agent
+send an email to the <a href="mailto:nutch-agent@lucene.apache.org">Nutch agent
 mailing list</a>.</p>
 
 </section>

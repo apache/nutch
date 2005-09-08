@@ -41,7 +41,7 @@
 
 <property>
   <name>http.agent.url</name>
-  <value>http://www.nutch.org/docs/en/bot.html</value>
+  <value>http://lucene.apache.org/nutch/bot.html</value>
   <description>A URL to advertise in the User-Agent header.  This will 
    appear in parenthesis after the agent name.
   </description>
@@ -49,14 +49,14 @@
 
 <property>
   <name>http.agent.email</name>
-  <value>nutch-agent@lists.sourceforge.net</value>
+  <value>nutch-agent@lucene.apache.org</value>
   <description>An email address to advertise in the HTTP 'From' request
    header and User-Agent header.</description>
 </property>
 
 <property>
   <name>http.agent.version</name>
-  <value>0.06-dev</value>
+  <value>0.8-dev</value>
   <description>A version string to advertise in the User-Agent 
    header.</description>
 </property>
@@ -631,9 +631,10 @@
 
 <property>
   <name>plugin.includes</name>
-  <value>protocol-httpclient|urlfilter-regex|parse-(text|html|js)|index-basic|query-(basic|site|url)</value>
+  <value>nutch-extensionpoints|protocol-httpclient|urlfilter-regex|parse-(text|html|js)|index-basic|query-(basic|site|url)</value>
   <description>Regular expression naming plugin directory names to
-  include.  Any plugin not matching this expression is excluded.  By
+  include.  Any plugin not matching this expression is excluded.
+  In any case you need at least include the nutch-extensionpoints plugin. By
   default Nutch includes crawling just HTML and plain text via HTTP,
   and basic indexing and search plugins.
   </description>

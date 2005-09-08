@@ -5,9 +5,7 @@
    version="1.0.0"
    provider-name="nutch.org">
 
-   <extension-point
-      id="org.apache.nutch.searcher.QueryFilter"
-      name="Nutch Query Filter"/>
+
 
    <runtime>
       <library name="query-more.jar">

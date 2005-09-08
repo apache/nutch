@@ -14,23 +14,62 @@
  * limitations under the License.
  */
 package org.apache.nutch.analysis.lang;
+
+// JDK imports
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.logging.Logger;
+
+// Nutch imports
 import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.HtmlParseFilter;
 import org.apache.nutch.protocol.Content;
-import org.w3c.dom.*;
-
-import java.util.logging.Logger;
 import org.apache.nutch.util.LogFormatter;
 
-/** Adds metadata identifying language of document if found
+// DOM imports
+import org.w3c.dom.DocumentFragment;
+import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+
+/**
+ * Adds metadata identifying language of document if found
  * We could also run statistical analysis here but we'd miss all other formats
  */
 public class HTMLLanguageParser implements HtmlParseFilter {
+  
   public static final String META_LANG_NAME="X-meta-lang";
   public static final Logger LOG = LogFormatter
     .getLogger(HTMLLanguageParser.class.getName());
 
+  /* A static Map of ISO-639 language codes */
+  private static Map LANGUAGES_MAP = new HashMap();
+  static {
+    try {
+      Properties p = new Properties();
+      p.load(HTMLLanguageParser.class
+                               .getResourceAsStream("langmappings.properties"));
+      Enumeration keys = p.keys();
+      while (keys.hasMoreElements()) {
+        String key = (String) keys.nextElement();
+        String[] values = p.getProperty(key).split(",", -1);
+        LANGUAGES_MAP.put(key, key);
+        for (int i=0; i<values.length; i++) {
+          LANGUAGES_MAP.put(values[i].trim().toLowerCase(), key);
+        }
+      }
+    } catch (Exception e) {
+      LOG.severe(e.toString());
+    }
+  }
+  
+
+  
   /**
    * Scan the HTML document looking at possible indications of content language<br>
    * <li>1. html lang attribute (http://www.w3.org/TR/REC-html40/struct/dirlang.html#h-8.1)
@@ -39,60 +78,122 @@ public class HTMLLanguageParser implements HtmlParseFilter {
    * <br>Only the first occurence of language is stored.
    */
   public Parse filter(Content content, Parse parse, HTMLMetaTags metaTags, DocumentFragment doc) {
-    String lang = findLanguage(doc);
+    
+    // Trying to find the document's language
+    LanguageParser parser = new LanguageParser(doc);
+    String lang = parser.getLanguage();
 
     if (lang != null) {
       parse.getData().getMetadata().put(META_LANG_NAME, lang);
     }
-                
     return parse;
   }
+
+  static class LanguageParser {
+    
+    private String dublinCore = null;
+    private String htmlAttribute = null;
+    private String httpEquiv = null;
+    private String language = null;
+    
+    LanguageParser(Node node) {
+      parse(node);
+      if (htmlAttribute != null) { language = htmlAttribute; }
+      else if (dublinCore != null) { language = dublinCore; }
+      else {language = httpEquiv; }
+    }
+  
+    String getLanguage() {
+      return language;
+    }
+    
+    void parse(Node node) {
+
+      String lang = null;
+      
+      if (node.getNodeType() == Node.ELEMENT_NODE) {
+
+        // Check for the lang HTML attribute
+        if (htmlAttribute == null) {
+          htmlAttribute = parseLanguage(((Element) node).getAttribute("lang"));
+        }
+
+        // Check for Meta
+        if ("meta".equalsIgnoreCase(node.getNodeName())) {
+          NamedNodeMap attrs = node.getAttributes();
         
-  private String findLanguage(Node node) {
-    String lang = null;
+          // Check for the dc.language Meta
+          if (dublinCore == null) {
+            for (int i=0; i<attrs.getLength(); i++) {
+              Node attrnode = attrs.item(i);
+              if ("name".equalsIgnoreCase(attrnode.getNodeName())) {
+                if ("dc.language".equalsIgnoreCase(attrnode.getNodeValue())) {
+                  Node valueattr = attrs.getNamedItem("content");
+                  if (valueattr != null) {
+                    dublinCore = parseLanguage(valueattr.getNodeValue());
+                  }
+                }
+              }
+            }
+          }
 
-    if (node.getNodeType() == Node.ELEMENT_NODE) {
-                        
-      //lang attribute
-      lang = ((Element) node).getAttribute("lang");
-      if (lang != null && lang.length()>1) {
-        return lang;
-      }
-      if ("meta".equalsIgnoreCase(node.getNodeName())) {
-
-        NamedNodeMap attrs=node.getAttributes();
-
-        //dc.language
-        for(int i=0;i<attrs.getLength();i++){
-          Node attrnode=attrs.item(i);
-          if("name".equalsIgnoreCase(attrnode.getNodeName())){
-            if("dc.language".equalsIgnoreCase(attrnode.getNodeValue())){
-              Node valueattr=attrs.getNamedItem("content");
-              lang = (valueattr!=null)?valueattr.getNodeValue():null;
+          // Check for the http-equiv content-language
+          if (httpEquiv == null) {
+            for (int i=0; i<attrs.getLength(); i++){
+              Node attrnode = attrs.item(i);
+              if ("http-equiv".equalsIgnoreCase(attrnode.getNodeName())) {
+                if ("content-language".equals(attrnode.getNodeValue().toLowerCase())) {
+                  Node valueattr = attrs.getNamedItem("content");
+                  if (valueattr != null) {
+                    httpEquiv = parseLanguage(valueattr.getNodeValue());
+                  }
+                }
+              }
             }
           }
         }
-        
-        //http-equiv content-language
-        for(int i=0;i<attrs.getLength();i++){
-          Node attrnode=attrs.item(i);
-          if("http-equiv".equalsIgnoreCase(attrnode.getNodeName())){
-            if("content-language".equals(attrnode.getNodeValue().toLowerCase())){
-              Node valueattr=attrs.getNamedItem("content");
-              lang = (valueattr!=null)?valueattr.getNodeValue():null;
-            }
-          }
+      }
+      
+      // Recurse
+      NodeList children = node.getChildNodes();
+      for (int i=0; children != null && i<children.getLength(); i++) {
+        parse(children.item(i));
+        if ((dublinCore != null) &&
+            (htmlAttribute != null) &&
+            (httpEquiv != null)) {
+          return;
         }
       }
     }
-                
-    //recurse
-    NodeList children = node.getChildNodes();
-    for (int i = 0; children != null && i < children.getLength(); i++) {
-      lang = findLanguage(children.item(i));
-      if(lang != null && lang.length()>1) return lang;
-    }
+    
+    /**
+     * Parse a language string and return an ISO 639 primary code,
+     * or <code>null</code> if something wrong occurs, or if no language is found.
+     */
+    final static String parseLanguage(String lang) {
+      
+      if (lang == null) { return null; }
 
-    return lang;
+      String code = null;
+      String language = null;
+      
+      // First, split multi-valued values
+      String langs[] = lang.split(",| |;|\\.|\\(|\\)|=", -1);
+      
+      int i = 0;
+      while ((language == null) && (i<langs.length)) {
+        // Then, get the primary code
+        code = langs[i].split("-")[0];
+        code = code.split("_")[0];
+        // Find the ISO 639 code
+        language = (String) LANGUAGES_MAP.get(code.toLowerCase());
+        i++;
+      }
+      
+      return language;
+    }
+    
   }
+
+      
 }

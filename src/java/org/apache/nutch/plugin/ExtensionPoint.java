@@ -70,8 +70,7 @@ public class ExtensionPoint {
   /**
    * Sets the extensionPointId.
    * 
-   * @param extension point id
-   *            The extensionPointId to set
+   * @param pId extension point id
    */
   private void setId(String pId) {
     ftId = pId;
@@ -79,8 +78,7 @@ public class ExtensionPoint {
   /**
    * Sets the extension point name.
    * 
-   * @param extensionPointName
-   *            The extensionPointName to set
+   * @param pName
    */
   private void setName(String pName) {
     fName = pName;
@@ -88,8 +86,7 @@ public class ExtensionPoint {
   /**
    * Sets the schema.
    * 
-   * @param schema
-   *            The schema to set
+   * @param pSchema
    */
   private void setSchema(String pSchema) {
     fSchema = pSchema;
@@ -107,8 +104,18 @@ public class ExtensionPoint {
    * 
    * @return Extension[]
    */
-  public Extension[] getExtentens() {
+  public Extension[] getExtensions() {
     return (Extension[]) fExtensions.toArray(new Extension[fExtensions
                                                            .size()]);
+  }
+
+  /**
+   * Returns a array of extensions that lsiten to this extension point
+   *
+   * @return Extension[]
+   * @deprecated Use the correctly spelled #{getExtensions} method instead.
+   */
+  public Extension[] getExtentens() {
+    return getExtensions();
   }
 }

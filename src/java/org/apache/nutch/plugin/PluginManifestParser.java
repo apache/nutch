@@ -168,7 +168,7 @@ public class PluginManifestParser {
     }
 
     /**
-     * @param document
+     * @param pDocument
      * @throws MalformedURLException
      */
     private static PluginDescriptor parsePlugin(Document pDocument, String pPath)
@@ -189,12 +189,38 @@ public class PluginManifestParser {
         parseExtension(rootElement, pluginDescriptor);
         parseExtensionPoints(rootElement, pluginDescriptor);
         parseLibraries(rootElement, pluginDescriptor);
+        parseRequires(rootElement, pluginDescriptor);
         return pluginDescriptor;
     }
 
     /**
-     * @param rootElement
-     * @param pluginDescriptor
+     * @param pRootElement
+     * @param pDescriptor
+     * @throws MalformedURLException
+     */
+    private static void parseRequires(Element pRootElement,
+                                      PluginDescriptor pDescriptor)
+        throws MalformedURLException {
+      
+        NodeList nodelist = pRootElement.getElementsByTagName("requires");
+        if (nodelist.getLength() > 0) {
+
+            Element requires = (Element) nodelist.item(0);
+
+            NodeList imports = requires.getElementsByTagName("import");
+            for (int i=0; i<imports.getLength(); i++) {
+                Element anImport = (Element) imports.item(i);
+                String plugin = anImport.getAttribute("plugin");
+                if (plugin != null) {
+                  pDescriptor.addDependency(plugin);
+                }
+            }
+        }
+    }
+
+    /**
+     * @param pRootElement
+     * @param pDescriptor
      * @throws MalformedURLException
      */
     private static void parseLibraries(Element pRootElement,

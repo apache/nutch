@@ -22,7 +22,7 @@ import java.io.DataInput;
 import org.apache.nutch.io.WritableComparable;
 import org.apache.nutch.io.Writable;
 
-/** Reads key/value pairs from an input file {@link InputFormat.Split}.
+/** Reads key/value pairs from an input file {@link FileSplit}.
  * Implemented by {@link InputFormat} implementations. */
 public interface RecordReader {
   /** Reads the next key/value pair.

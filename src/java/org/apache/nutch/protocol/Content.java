@@ -129,7 +129,8 @@ public final class Content extends CompressedWritable {
   }
 
   /** The media type of the retrieved content.
-   * @see http://www.iana.org/assignments/media-types/
+   * @see <a href="http://www.iana.org/assignments/media-types/">
+   *      http://www.iana.org/assignments/media-types/</a>
    */
   public String getContentType() {
     ensureInflated();

@@ -27,7 +27,6 @@ package org.apache.nutch.parse.html;
 /**
  * Class used to verify whether the specified <var>ch</var> 
  * conforms to the XML 1.0 definition of whitespace. 
- * @xsl.usage internal
  */
 public class XMLCharacterRecognizer
 {
@@ -90,7 +89,7 @@ public class XMLCharacterRecognizer
   /**
    * Tell if the string is whitespace.
    *
-   * @param buf StringBuffer to check as XML whitespace.
+   * @param s String to check as XML whitespace.
    * @return True if characters in buffer are XML whitespace, false otherwise
    */
   public static boolean isWhiteSpace(String s)

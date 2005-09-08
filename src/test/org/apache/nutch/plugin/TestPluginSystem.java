@@ -95,7 +95,7 @@ public class TestPluginSystem extends TestCase {
                 .getExtensionPoint(xpId);
         assertEquals(extensionPoint, null);
         Extension[] extension1 = PluginRepository.getInstance()
-                .getExtensionPoint(getGetExtensionId()).getExtentens();
+                .getExtensionPoint(getGetExtensionId()).getExtensions();
         assertEquals(extension1.length, fPluginCount);
         for (int i = 0; i < extension1.length; i++) {
             Extension extension2 = extension1[i];
@@ -109,7 +109,7 @@ public class TestPluginSystem extends TestCase {
      */
     public void testGetExtensionInstances() throws PluginRuntimeException {
         Extension[] extensions = PluginRepository.getInstance()
-                .getExtensionPoint(getGetExtensionId()).getExtentens();
+                .getExtensionPoint(getGetExtensionId()).getExtensions();
         assertEquals(extensions.length, fPluginCount);
         for (int i = 0; i < extensions.length; i++) {
             Extension extension = extensions[i];

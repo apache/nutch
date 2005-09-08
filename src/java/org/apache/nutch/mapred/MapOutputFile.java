@@ -53,7 +53,7 @@ public class MapOutputFile implements Writable {
 
   /** Create a local reduce input file name.
    * @param mapTaskId a map task id
-   * @param partition a reduce partition
+   * @param reduceTaskId a reduce task id
    */
   public static File getInputFile(String mapTaskId, String reduceTaskId) {
     File taskDir = new File(LOCAL_DIR, reduceTaskId);

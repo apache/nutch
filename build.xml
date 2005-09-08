@@ -223,8 +223,8 @@
     	<packageset dir="${plugins.dir}/parse-js/src/java"/>
     	<packageset dir="${plugins.dir}/parse-text/src/java"/>
     	<packageset dir="${plugins.dir}/parse-pdf/src/java"/>
-	<packageset dir="${plugins.dir}/parse-rtf/src/java"/>
-	<packageset dir="${plugins.dir}/parse-mp3/src/java"/>
+<!--	<packageset dir="${plugins.dir}/parse-rtf/src/java"/> plugin excluded from build due to licensing issues-->
+<!--	<packageset dir="${plugins.dir}/parse-mp3/src/java"/> plugin excluded from build due to licensing issues-->
     	<packageset dir="${plugins.dir}/parse-msword/src/java"/>
     	<packageset dir="${plugins.dir}/index-basic/src/java"/>
     	<packageset dir="${plugins.dir}/index-more/src/java"/>
@@ -424,12 +424,16 @@
   <target name="tar" depends="package">
     <tar compression="gzip" longfile="gnu"
       destfile="${build.dir}/${final.name}.tar.gz">
-      <tarfileset dir="${build.dir}">
+      <tarfileset dir="${build.dir}" mode="664">
+	<exclude name="${final.name}/bin/*" />
         <include name="${final.name}/**" />
+      </tarfileset>
+      <tarfileset dir="${build.dir}" mode="755">
+        <include name="${final.name}/bin/*" />
       </tarfileset>
     </tar>
   </target>
-
+	
   <!-- ================================================================== -->
   <!-- Clean.  Delete the build files, and their directories              -->
   <!-- ================================================================== -->

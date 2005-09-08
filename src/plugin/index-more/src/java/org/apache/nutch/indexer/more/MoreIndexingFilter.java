@@ -48,11 +48,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 import java.util.Enumeration;
 import java.util.Properties;
 
-
+import org.apache.commons.lang.time.DateUtils;
 /**
  * Add (or reset) a few metaData properties as respective fields
  * (if they are available), so that they can be displayed by more.jsp
@@ -131,15 +132,38 @@ public class MoreIndexingFilter implements IndexingFilter {
     long time = -1;
     try {
       time = HttpDateFormat.toLong(date);
-    } catch  (ParseException e) {
-      // try to parse it as date in alternative format
-      try {
-        DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss yyyy zzz");
-        Date d = df.parse(date);
-        time = d.getTime();
-      } catch (Exception e1) {
-        LOG.warning(url+": can't parse erroneous date: "+date);
-      }
+    } catch (ParseException e) {
+	// try to parse it as date in alternative format
+	try {
+	    Date parsedDate = DateUtils.parseDate(date,
+		  new String [] {
+		      "EEE MMM dd HH:mm:ss yyyy",
+		      "EEE MMM dd HH:mm:ss yyyy zzz",
+		      "EEE, MMM dd HH:mm:ss yyyy zzz",
+		      "EEE, dd MMM yyyy HH:mm:ss zzz",
+		      "EEE,dd MMM yyyy HH:mm:ss zzz",
+		      "EEE, dd MMM yyyy HH:mm:sszzz",
+		      "EEE, dd MMM yyyy HH:mm:ss",
+		      "EEE, dd-MMM-yy HH:mm:ss zzz",
+		      "yyyy/MM/dd HH:mm:ss.SSS zzz",
+		      "yyyy/MM/dd HH:mm:ss.SSS",
+		      "yyyy/MM/dd HH:mm:ss zzz",
+		      "yyyy/MM/dd",
+		      "yyyy.MM.dd HH:mm:ss",
+		      "yyyy-MM-dd HH:mm",
+		      "MMM dd yyyy HH:mm:ss. zzz",
+		      "MMM dd yyyy HH:mm:ss zzz",
+		      "dd.MM.yyyy HH:mm:ss zzz",
+		      "dd MM yyyy HH:mm:ss zzz",
+		      "dd.MM.yyyy; HH:mm:ss",
+		      "dd.MM.yyyy HH:mm:ss",
+		      "dd.MM.yyyy zzz"
+		  });
+	    time = parsedDate.getTime();
+	    //	    LOG.warning(url + ": parsed date: " + date +" to:"+time);
+	} catch (Exception e2) {
+	    LOG.warning(url + ": can't parse erroneous date: " + date);
+	}
     }
     return time;
   }

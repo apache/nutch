@@ -26,8 +26,8 @@ import org.apache.nutch.io.UTF8;
 import org.apache.nutch.fs.NutchFileSystem;
 
 /** A section of an input file.  Returned by {@link
- * InputFormat#getSplits(File[], int)} and passed to
- * InputFormat#getRecordReader(FileSplit). */
+ * InputFormat#getSplits(NutchFileSystem, JobConf, int)} and passed to
+ * InputFormat#getRecordReader(NutchFileSystem, FileSplit, JobConf). */
 public class FileSplit implements Writable {
   private File file;
   private long start;

@@ -9,7 +9,7 @@
 
   <!-- Load all the default properties, and any the user wants    -->
   <!-- to contribute (without having to type -D or edit this file -->
-  <property file="${user.home}/$(name}.build.properties" />
+  <property file="${user.home}/${name}.build.properties" />
   <property file="${root}/build.properties" />
 
   <property name="nutch.root" location="${root}/../../../"/>
@@ -35,6 +35,8 @@
 
   <property name="build.encoding" value="ISO-8859-1"/>
 
+  <path id="plugin.deps"/>
+
   <fileset id="lib.jars" dir="${root}" includes="lib/*.jar"/>
 
   <!-- the normal classpath -->
@@ -45,6 +47,7 @@
     <fileset dir="${nutch.root}/lib">
       <include name="*.jar" />
     </fileset>
+    <path refid="plugin.deps"/>
   </path>
 
   <!-- the unit test classpath -->
@@ -108,7 +111,7 @@
     <mkdir dir="${deploy.dir}"/>
     <copy file="plugin.xml" todir="${deploy.dir}" 
           preservelastmodified="true"/>
-    <copy file="${build.dir}/${name}.jar" todir="${deploy.dir}"/>
+    <copy file="${build.dir}/${name}.jar" todir="${deploy.dir}" failonerror="false"/>
     <copy todir="${deploy.dir}" flatten="true">
       <fileset refid="lib.jars"/>
     </copy>

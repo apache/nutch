@@ -17,8 +17,15 @@
 <!-- specify icon file -->
       <link rel="icon" href="../img/favicon.ico" type="image/x-icon"/>
       <link rel="shortcut icon" href="../img/favicon.ico" type="image/x-icon"/>
+
+      <script type="text/javascript">
+      <xsl:comment>
+function queryfocus() { document.search.query.focus(); }
+<xsl:text>// </xsl:text>
+</xsl:comment>
+      </script>
       </head>
-      <body>
+      <body onLoad="queryfocus();">
 <!-- insert localized header -->
         <xsl:copy-of select="document('include/header.html')"/>
         <table width="635" border="0" cellpadding="0" cellspacing="0">

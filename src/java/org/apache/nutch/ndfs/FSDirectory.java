@@ -102,11 +102,11 @@ public class FSDirectory implements FSConstants {
 
         /**
          */
-        INode addNode(String target, Block blocks[]) {
+        INode addNode(String target, Block blks[]) {
             if (getNode(target) != null) {
                 return null;
             } else {
-                String parentName = new File(target).getParent();
+                String parentName = NDFSFile.getNDFSParent(target);
                 if (parentName == null) {
                     return null;
                 }
@@ -116,7 +116,7 @@ public class FSDirectory implements FSConstants {
                     return null;
                 } else {
                     String targetName = new File(target).getName();
-                    INode newItem = new INode(targetName, parentNode, blocks);
+                    INode newItem = new INode(targetName, parentNode, blks);
                     parentNode.children.put(targetName, newItem);
                     return newItem;
                 }
@@ -462,7 +462,7 @@ public class FSDirectory implements FSConstants {
         waitForReady();
 
         // Always do an implicit mkdirs for parent directory tree
-        mkdirs(new File(src.toString()).getParent());
+        mkdirs(NDFSFile.getNDFSParent(src.toString()));
         if (unprotectedAddFile(src, blocks)) {
             logEdit(OP_ADD, src, new ArrayWritable(Block.class, blocks));
             return true;
@@ -683,13 +683,13 @@ public class FSDirectory implements FSConstants {
         Vector v = new Vector();
 
         // The dir itself
-        File f = new File(src);
-        v.add(f.getPath());
+        v.add(src);
 
         // All its parents
-        while (f.getParent() != null) {
-            f = new File(f.getParent());
-            v.add(f.getPath());
+        String parent = NDFSFile.getNDFSParent(src);
+        while (parent != null) {
+            v.add(parent);
+            parent = NDFSFile.getNDFSParent(parent);
         }
 
         // Now go backwards through list of dirs, creating along

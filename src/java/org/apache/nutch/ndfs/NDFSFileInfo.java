@@ -16,10 +16,8 @@
 package org.apache.nutch.ndfs;
 
 import org.apache.nutch.io.*;
-import org.apache.nutch.util.*;
 
 import java.io.*;
-import java.util.*;
 
 /******************************************************
  * NDFSFileInfo tracks info about remote files, including
@@ -50,7 +48,7 @@ public class NDFSFileInfo implements Writable {
     /**
      */
     public String getPath() {
-        return new File(path.toString()).getPath();
+        return path.toString();
     }
 
     /**
@@ -62,7 +60,7 @@ public class NDFSFileInfo implements Writable {
     /**
      */
     public String getParent() {
-        return new File(path.toString()).getParent();
+        return NDFSFile.getNDFSParent(path.toString());
     }
 
     /**

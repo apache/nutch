@@ -88,17 +88,21 @@ public class TestSequenceFileInputFormat extends TestCase {
         BitSet bits = new BitSet(length);
         for (int j = 0; j < splits.length; j++) {
           RecordReader reader = format.getRecordReader(fs, splits[j], job);
-          int count = 0;
-          while (reader.next(key, value)) {
-//             if (bits.get(key.get())) {
-//               LOG.info("splits["+j+"]="+splits[j]+" : " + key.get());
-//               LOG.info("@"+reader.getPos());
-//             }
-            assertFalse("Key in multiple partitions.", bits.get(key.get()));
-            bits.set(key.get());
-            count++;
+          try {
+            int count = 0;
+            while (reader.next(key, value)) {
+              // if (bits.get(key.get())) {
+              // LOG.info("splits["+j+"]="+splits[j]+" : " + key.get());
+              // LOG.info("@"+reader.getPos());
+              // }
+              assertFalse("Key in multiple partitions.", bits.get(key.get()));
+              bits.set(key.get());
+              count++;
+            }
+            //LOG.info("splits["+j+"]="+splits[j]+" count=" + count);
+          } finally {
+            reader.close();
           }
-          //LOG.info("splits["+j+"]="+splits[j]+" count=" + count);
         }
         assertEquals("Some keys in no partition.", length, bits.cardinality());
       }

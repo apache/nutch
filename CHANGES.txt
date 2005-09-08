@@ -1,6 +1,9 @@
 Nutch Change Log
 
-Release 0.7
+Release 0.8
+
+
+Release 0.7 - 2005-08-17
 
  1. Added support for "type:" in queries. Search results are limited/qualified
     by mimetype or its primary type or sub type. For example,
@@ -79,6 +82,10 @@ Release 0.7
 17. Automatically convert range queries into cached range filters.
     This improves the performance and scalability of, e.g., date range
     searching.
+
+18. Several methods have been renamed due to misspellings.  The old
+    methods have been deprecated and will be removed before the 1.0
+    release.
 
 
 Release 0.6

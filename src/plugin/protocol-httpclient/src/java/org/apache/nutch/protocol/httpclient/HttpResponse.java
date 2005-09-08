@@ -4,24 +4,34 @@
 package org.apache.nutch.protocol.httpclient;
 
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.ProtocolException;
+import org.apache.nutch.util.NutchConf;
+import org.apache.nutch.util.mime.MimeType;
+import org.apache.nutch.util.mime.MimeTypes;
 
 import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpVersion;
 
+import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Properties;
-import java.util.List;
-import java.util.ListIterator;
 
 /**
  * An HTTP response.
  */
 public class HttpResponse {
+  /** A flag that tells if magic resolution must be performed */
+  private final static boolean MAGIC =
+        NutchConf.get().getBoolean("mime.type.magic", true);
+
+  /** Get the MimeTypes resolver instance. */
+  private final static MimeTypes MIME = 
+        MimeTypes.get(NutchConf.get().get("mime.types.file"));
+
   private String orig;
 
   private String base;
@@ -54,24 +64,40 @@ public class HttpResponse {
 
   public Content toContent() {
     String contentType = getHeader("Content-Type");
-    if (contentType == null) contentType = "";
+    if (contentType == null) {
+      MimeType type = null;
+      if (MAGIC) {
+        type = MIME.getMimeType(orig, content);
+      } else {
+        type = MIME.getMimeType(orig);
+      }
+      if (type != null) {
+          contentType = type.getName();
+      } else {
+          contentType = "";
+      }
+    }
     if (content == null) content = EMPTY_CONTENT;
     return new Content(orig, base, content, contentType, headers);
   }
 
-  public HttpResponse(URL url) throws ProtocolException, IOException {
-    this(url.toString(), url);
-  }
-
-  public HttpResponse(String orig, URL url) throws IOException {
-    this.orig = orig;
+  public HttpResponse(URL url) throws IOException {
     this.base = url.toString();
-    GetMethod get = new GetMethod(url.toString());
+    this.orig = url.toString();
+    GetMethod get = new GetMethod(this.orig);
     get.setFollowRedirects(false);
-    get.setStrictMode(false);
     get.setRequestHeader("User-Agent", Http.AGENT_STRING);
-    get.setHttp11(false);
-    get.setMethodRetryHandler(null);
+    HttpMethodParams params = get.getParams();
+    // some servers cannot digest the new protocol
+    params.setVersion(HttpVersion.HTTP_1_0);
+    params.makeLenient();
+    params.setContentCharset("UTF-8");
+    params.setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+    params.setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, true);
+    // XXX (ab) not sure about this... the default is to retry 3 times; if
+    // XXX the request body was sent the method is not retried, so there is
+    // XXX little danger in retrying...
+    // params.setParameter(HttpMethodParams.RETRY_HANDLER, null);
     try {
       code = Http.getClient().executeMethod(get);
 
@@ -103,6 +129,7 @@ public class HttpResponse {
       }
     } catch (org.apache.commons.httpclient.ProtocolException pe) {
       pe.printStackTrace();
+      get.releaseConnection();
       throw new IOException(pe.toString());
     } finally {
       get.releaseConnection();

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="parse-rss"
+   name="RSS Parse Plug-in"
+   version="1.0.0"
+   provider-name="edu.usc.cs.cs599">
+
+
+   <runtime>
+      <library name="parse-rss.jar">
+         <export name="*"/>
+      </library>
+      <library name="jdom.jar"/>
+      <library name="jaxen-core.jar"/>
+      <library name="jaxen-jdom.jar"/>
+      <library name="commons-feedparser-0.6-fork.jar"/>
+      <library name="saxpath.jar"/>
+      <library name="commons-httpclient-3.0-beta1.jar"/>
+      <library name="log4j-1.2.6.jar"/>
+      <library name="xercesImpl.jar"/>
+      <library name="xml-apis.jar"/>
+      <library name="xml-rpc-1.2.jar"/>
+
+   </runtime>
+
+   <extension id="org.apache.nutch.parse.rss"
+              name="RssParse"
+              point="org.apache.nutch.parse.Parser">
+
+      <implementation id="org.apache.nutch.parse.rss.RSSParser"
+                      class="org.apache.nutch.parse.rss.RSSParser"
+                      contentType="application/rss+xml"
+                      pathSuffix="rss"/>
+
+   </extension>
+
+</plugin>

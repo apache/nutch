@@ -9,18 +9,16 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.commons.httpclient.Cookie;
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.NTCredentials;
-import org.apache.commons.httpclient.params.HttpConnectionParams;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.nutch.db.Page;
 import org.apache.nutch.pagedb.FetchListEntry;
@@ -47,7 +45,6 @@ public class Http implements org.apache.nutch.protocol.Protocol {
   }
 
   static final int BUFFER_SIZE = 8 * 1024;
-  private static final int MAX_REDIRECTS = NutchConf.get().getInt("http.redirect.max", 3);
   private static MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
   private static HttpClient client;
 
@@ -101,8 +98,6 @@ public class Http implements org.apache.nutch.protocol.Protocol {
    * from BLOCKED_ADDR_TO_TIME, ordered by increasing time.
    */
   private static LinkedList BLOCKED_ADDR_QUEUE = new LinkedList();
-
-  private RobotRulesParser robotRules = new RobotRulesParser();
 
   private static InetAddress blockAddr(URL url) throws ProtocolException {
     InetAddress addr;
@@ -183,7 +178,6 @@ public class Http implements org.apache.nutch.protocol.Protocol {
   }
 
   public ProtocolOutput getProtocolOutput(String urlString) {
-    ProtocolOutput output = null;
     try {
       return getProtocolOutput(new FetchListEntry(true, new Page(urlString, 1.0f), new String[0]));
     } catch (MalformedURLException mue) {
@@ -196,9 +190,6 @@ public class Http implements org.apache.nutch.protocol.Protocol {
     try {
       URL url = new URL(urlString);
 
-      int redirects = 0;
-      HttpAuthentication auth = null;
-      while (true) {
         try {
           if (!RobotRulesParser.isAllowed(url))
                   return new ProtocolOutput(null, new ProtocolStatus(ProtocolStatus.ROBOTS_DENIED, url));
@@ -210,7 +201,7 @@ public class Http implements org.apache.nutch.protocol.Protocol {
         InetAddress addr = blockAddr(url);
         HttpResponse response;
         try {
-          response = new HttpResponse(urlString, url); // make a request
+          response = new HttpResponse(url); // make a request
         } finally {
           unblockAddr(addr);
         }
@@ -255,19 +246,10 @@ public class Http implements org.apache.nutch.protocol.Protocol {
         } else if (code == 400) { // bad request, mark as GONE
           LOG.fine("400 Bad request: " + url);
           return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.GONE, url));
-        } else if (code == 401) { // requires authorization
+        } else if (code == 401) { // requires authorization, but no valid auth provided.
           LOG.fine("401 Authentication Required");
-          if (redirects == MAX_REDIRECTS)
-                  return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.REDIR_EXCEEDED,
-                          "Too many redirects: " + urlString));
-          Properties p = c.getMetadata();
-          if (p instanceof MultiProperties) {
-            auth = HttpAuthenticationFactory.findAuthentication((MultiProperties) p);
-          } else {
-            return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.ACCESS_DENIED, "Authorization required: "
-                    + urlString));
-          }
-          redirects++;
+          return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.ACCESS_DENIED, "Authentication required: "
+                  + urlString));
         } else if (code == 404) {
           return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.NOTFOUND, url));
         } else if (code == 410) { // permanently GONE
@@ -276,7 +258,6 @@ public class Http implements org.apache.nutch.protocol.Protocol {
           return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.EXCEPTION, "Http code=" + code + ", url="
                   + url));
         }
-      }
     } catch (Throwable e) {
       e.printStackTrace();
       return new ProtocolOutput(null, new ProtocolStatus(e));
@@ -371,55 +352,33 @@ public class Http implements org.apache.nutch.protocol.Protocol {
     // get a client isntance -- we just need one.
 
     client = new HttpClient(connectionManager);
-    // this is just to add logging, whenever cookies are added.
-    client.setState(new NutchHttpState());
 
     // Set up an HTTPS socket factory that accepts self-signed certs.
     Protocol dummyhttps = new Protocol("https", new DummySSLProtocolSocketFactory(), 443);
     Protocol.registerProtocol("https", dummyhttps);
     
-    // set up the connection manager
-    // hardcoded for now
-
-    connectionManager.setMaxTotalConnections(MAX_THREADS_TOTAL);
-    //if (MAX_THREADS_TOTAL > MAX_THREADS_PER_HOST) {
-    //  connectionManager.setMaxConnectionsPerHost(MAX_THREADS_PER_HOST);
-    //} else {
-    //  connectionManager.setMaxConnectionsPerHost(MAX_THREADS_TOTAL);
-    //}
-
-    HttpConnectionParams params = connectionManager.getParams();
+    HttpConnectionManagerParams params = connectionManager.getParams();
     params.setConnectionTimeout(TIMEOUT);
     params.setSoTimeout(TIMEOUT);
     params.setSendBufferSize(BUFFER_SIZE);
     params.setReceiveBufferSize(BUFFER_SIZE);
+    params.setMaxTotalConnections(MAX_THREADS_TOTAL);
+    if (MAX_THREADS_TOTAL > MAX_THREADS_PER_HOST) {
+      params.setDefaultMaxConnectionsPerHost(MAX_THREADS_PER_HOST);
+    } else {
+      params.setDefaultMaxConnectionsPerHost(MAX_THREADS_TOTAL);
+    }
+
     HostConfiguration hostConf = client.getHostConfiguration();
     if (PROXY) {
       hostConf.setProxy(PROXY_HOST, PROXY_PORT);
     }
     if (NTLM_USERNAME.length() > 0) {
       Credentials ntCreds = new NTCredentials(NTLM_USERNAME, NTLM_PASSWORD, NTLM_HOST, NTLM_DOMAIN);
-      client.getState().setCredentials(null, null, ntCreds);
+      client.getState().setCredentials(new AuthScope(NTLM_HOST, AuthScope.ANY_PORT), ntCreds);
 
       LOG.info("Added NTLM credentials for " + NTLM_USERNAME);
     }
     LOG.info("Configured Client");
-  }
-}
-
-class NutchHttpState extends HttpState {
-  public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.net.Http.NutchHttpState");
-  
-  public void addCookie(Cookie cookie) {
-    LOG.fine(" - setting cookie: " + cookie);
-    super.addCookie(cookie);
-  }
-  
-  public void addCookies(Cookie[] cookies) {
-    LOG.fine(" - setting cookies: ");
-    for (int i = 0; i < cookies.length; i++)
-      LOG.fine("   cookie: " + cookies[i]);
-    
-    super.addCookies(cookies);
   }
 }

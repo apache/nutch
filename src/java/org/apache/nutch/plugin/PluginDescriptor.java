@@ -196,7 +196,7 @@ public class PluginDescriptor {
   /**
    * Adds a exported library with a relative path to the plugin directory.
    * 
-   * @param plibPath
+   * @param pLibPath
    */
   public void addExportedLibRelative(String pLibPath)
     throws MalformedURLException {
@@ -220,7 +220,7 @@ public class PluginDescriptor {
     return (URL[]) fExportedLibs.toArray(new URL[0]);
   }
   /**
-   * Adds a not exported library with a plugin directory relativ path.
+   * Adds a not exported library with a plugin directory relative path.
    * 
    * @param pLibPath
    */
@@ -278,7 +278,8 @@ public class PluginDescriptor {
     return list;
   }
   /**
-   * @param list
+   * @param pLibs
+   * @param pDescriptor
    */
   private void collectLibs(ArrayList pLibs, PluginDescriptor pDescriptor) {
     String[] pPluginIds = pDescriptor.getDependencies();
@@ -295,7 +296,7 @@ public class PluginDescriptor {
     }
   }
   /**
-   * Returns a internationalizabel resource string. The resource bundles could
+   * Returns a I18N'd resource string. The resource bundles could
    * be stored in root directory of a plugin in the well know i18n file name
    * conventions.
    * 

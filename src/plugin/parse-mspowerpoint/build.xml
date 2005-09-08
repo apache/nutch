@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+
+<project name="parse-mspowerpoint" default="jar">
+
+	<import file="../build-plugin.xml" />
+
+        <path id="plugin.deps">
+             <fileset dir="../lib-jakarta-poi/lib">
+                 <include name="*.jar" />
+             </fileset>
+        </path>
+
+	<!-- for junit test -->
+	<mkdir dir="${build.test}/data" />
+	<copy todir="${build.test}/data">
+		<fileset dir="sample">
+			<include name="*.ppt" />
+			<include name="*.content" />
+			<include name="*.meta" />	
+		</fileset>
+	</copy>
+	
+	  <!-- ================================================================== -->
+	  <!-- Run unit tests                                                     --> 
+	  <!-- ================================================================== -->
+	  <target name="test" depends="compile-test, deploy" if="test.available">
+	    <echo message="Testing plugin: ${name}"/>
+
+	    <junit printsummary="yes" haltonfailure="no" fork="yes"
+	      errorProperty="tests.failed" failureProperty="tests.failed">
+	      <sysproperty key="test.data" value="${build.test}/data"/>
+	      <sysproperty key="test.input" value="${root}/data"/>
+	      <classpath refid="test.classpath"/>
+	      <formatter type="plain" />
+	      <batchtest todir="${build.test}" unless="testcase">
+	        <fileset dir="${src.test}"
+	                 includes="**/AllTests.java" excludes="**/${test.exclude}.java" />
+	      </batchtest>
+	      <batchtest todir="${build.test}" if="testcase">
+	        <fileset dir="${src.test}" includes="**/${testcase}.java"/>
+	      </batchtest>
+	    </junit>
+
+	    <fail if="tests.failed">Tests failed!</fail>
+
+	  </target>  
+
+</project>

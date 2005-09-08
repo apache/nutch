@@ -18,14 +18,14 @@ import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.HttpClientError;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.ControllerThreadSocketFactory;
-import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
+import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.sun.net.ssl.SSLContext;
 import com.sun.net.ssl.TrustManager;
 
-public class DummySSLProtocolSocketFactory implements SecureProtocolSocketFactory {
+public class DummySSLProtocolSocketFactory implements ProtocolSocketFactory {
 
   /** Log object for this class. */
   private static final Log LOG = LogFactory.getLog(DummySSLProtocolSocketFactory.class);
@@ -58,7 +58,7 @@ public class DummySSLProtocolSocketFactory implements SecureProtocolSocketFactor
   }
 
   /**
-   * @see SecureProtocolSocketFactory#createSocket(java.lang.String,int,java.net.InetAddress,int)
+   * @see org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory#createSocket(String,int,InetAddress,int)
    */
   public Socket createSocket(String host, int port, InetAddress clientHost, int clientPort) throws IOException,
           UnknownHostException {
@@ -79,8 +79,8 @@ public class DummySSLProtocolSocketFactory implements SecureProtocolSocketFactor
    * 
    * @param host the host name/IP
    * @param port the port on the host
-   * @param clientHost the local host name/IP to bind the socket to
-   * @param clientPort the port on the local machine
+   * @param localAddress the local host name/IP to bind the socket to
+   * @param localPort the port on the local machine
    * @param params {@link HttpConnectionParams Http connection parameters}
    * 
    * @return Socket a new socket
@@ -104,14 +104,14 @@ public class DummySSLProtocolSocketFactory implements SecureProtocolSocketFactor
   }
 
   /**
-   * @see SecureProtocolSocketFactory#createSocket(java.lang.String,int)
+   * @see org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory#createSocket(String,int)
    */
   public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
     return getSSLContext().getSocketFactory().createSocket(host, port);
   }
 
   /**
-   * @see SecureProtocolSocketFactory#createSocket(java.net.Socket,java.lang.String,int,boolean)
+   * @see org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory#createSocket(Socket,String,int,boolean)
    */
   public Socket createSocket(Socket socket, String host, int port, boolean autoClose) throws IOException,
           UnknownHostException {

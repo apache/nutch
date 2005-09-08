@@ -19,8 +19,7 @@ package org.apache.nutch.protocol;
 import java.io.IOException;
 import java.net.URL;
 
-/** Thrown by {@link Protocol#getContent(String)} when a {@link URL} should be
- * retried later.*/
+/** Thrown when a resource should be retried later.*/
 public class RetryLater extends ProtocolException {
   private URL url;
 

@@ -23,8 +23,8 @@ import org.apache.nutch.searcher.HitDetails;
  * algorithms.
  *
  * <p>By the term <b>online</b> search results clustering we will understand
- * a clusterer that works on a set of {@link Hit}s retrieved for a user's query
- * and produces a set of {@link Clusters} that can be displayed to help
+ * a clusterer that works on a set of {@link HitDetails} retrieved for a user's
+ * query and produces a set of {@link HitsCluster} that can be displayed to help
  * the user gain insight in the topics found in the result.</p>
  *
  * <p>Other clustering options include predefined categories and off-line

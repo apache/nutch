@@ -24,6 +24,7 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.Outlink;
+import org.apache.nutch.parse.OutlinkExtractor;
 import org.apache.nutch.parse.ParseException;
 
 import java.util.Properties;
@@ -117,7 +118,7 @@ public class MSWordParser implements Parser {
       title = "";
 
     // collect outlink
-    Outlink[] outlinks = new Outlink[0];
+    Outlink[] outlinks = OutlinkExtractor.getOutlinks(text);
 
     ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks, metadata);
     return new ParseImpl(text, parseData);

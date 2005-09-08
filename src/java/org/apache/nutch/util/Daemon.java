@@ -16,7 +16,7 @@
 
 package org.apache.nutch.util;
 
-/** A thread that has called {@link Thread#SetDaemon(boolean) } with true.*/
+/** A thread that has called {@link Thread#setDaemon(boolean) } with true.*/
 public class Daemon extends Thread {
 
   {
