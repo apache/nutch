@@ -299,6 +299,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
         File localTaskDir;
         float progress;
         int runstate;
+        String stateString = "";
         long lastProgressReport;
         StringBuffer diagnosticInfo = new StringBuffer();
         TaskRunner runner;
@@ -355,7 +356,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
         /**
          */
         public TaskStatus createStatus() {
-            TaskStatus status = new TaskStatus(task.getTaskId(), progress, runstate, diagnosticInfo.toString());
+            TaskStatus status = new TaskStatus(task.getTaskId(), progress, runstate, diagnosticInfo.toString(), (stateString == null) ? "" : stateString);
             if (diagnosticInfo.length() > 0) {
                 diagnosticInfo = new StringBuffer();
             }
@@ -381,6 +382,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
             this.progress = p;
             this.runstate = TaskStatus.RUNNING;
             this.lastProgressReport = System.currentTimeMillis();
+            this.stateString = state;
         }
 
         /**

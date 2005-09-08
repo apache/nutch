@@ -38,16 +38,16 @@
 <h2>Map Tasks</h2>
   <center>
   <table border=2 cellpadding="5" cellspacing="2">
-  <tr><td align="center">Map Task Id</td><td>Pct Complete</td><td>Diagnostic Text</td></tr>
+  <tr><td align="center">Map Task Id</td><td>Pct Complete</td><td>State</td><td>Diagnostic Text</td></tr>
 
   <%
     for (int i = 0; i < mapTaskReports.length; i++) {
       Vector v = mapTaskReports[i];
-      out.print("<tr><td>" + v.elementAt(0) + "</td><td>" + v.elementAt(1) + "</td>");
-      if (v.size() == 2) {
+      out.print("<tr><td>" + v.elementAt(0) + "</td><td>" + v.elementAt(1) + "</td><td>" + v.elementAt(2) + "</td>");
+      if (v.size() == 3) {
         out.print("<td></td>");
       } else {
-        for (int j = 2; j < v.size(); j++) {
+        for (int j = 3; j < v.size(); j++) {
           out.print("<td>" + v.elementAt(j) + "</td>");
         }
       }
@@ -62,16 +62,16 @@
 <h2>Reduce Tasks</h2>
   <center>
   <table border=2 cellpadding="5" cellspacing="2">
-  <tr><td align="center">Reduce Task Id</td><td>Pct Complete</td><td>Diagnostic Text</td></tr>
+  <tr><td align="center">Reduce Task Id</td><td>Pct Complete</td><td>State</td><td>Diagnostic Text</td></tr>
 
   <%
     for (int i = 0; i < reduceTaskReports.length; i++) {
       Vector v = reduceTaskReports[i];
-      out.print("<tr><td>" + v.elementAt(0) + "</td><td>" + v.elementAt(1) + "</td>");
-      if (v.size() == 2) {
+      out.print("<tr><td>" + v.elementAt(0) + "</td><td>" + v.elementAt(1) + "</td><td>" + v.elementAt(2) + "</td>");
+      if (v.size() == 3) {
         out.print("<td></td>");
       } else {
-        for (int j = 2; j < v.size(); j++) {
+        for (int j = 3; j < v.size(); j++) {
           out.print("<td>" + v.elementAt(j) + "</td>");
         }
       }

@@ -461,12 +461,12 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
             TreeMap completeMapTasks = job.getCompleteMapTasks();
             for (Iterator it = completeMapTasks.keySet().iterator(); it.hasNext(); ) {
                 String taskid = (String) it.next();
-                reports.add(generateSingleReport(taskid, job.getTaskStatus(taskid), job.getTaskDiagnosticInfo(taskid)));
+                reports.add(generateSingleReport(taskid, job.getTaskStatus(taskid), job.getTaskDiagnosticInfo(taskid), job.getTaskStateString(taskid)));
             }
             TreeMap incompleteMapTasks = job.getIncompleteMapTasks();
             for (Iterator it = incompleteMapTasks.keySet().iterator(); it.hasNext(); ) {
                 String taskid = (String) it.next();
-                reports.add(generateSingleReport(taskid, job.getTaskStatus(taskid), job.getTaskDiagnosticInfo(taskid)));
+                reports.add(generateSingleReport(taskid, job.getTaskStatus(taskid), job.getTaskDiagnosticInfo(taskid), job.getTaskStateString(taskid)));
             }
             return (Vector[]) reports.toArray(new Vector[reports.size()]);
         }
@@ -481,12 +481,12 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
             TreeMap completeReduceTasks = job.getCompleteReduceTasks();
             for (Iterator it = completeReduceTasks.keySet().iterator(); it.hasNext(); ) {
                 String taskid = (String) it.next();
-                reports.add(generateSingleReport(taskid, job.getTaskStatus(taskid), job.getTaskDiagnosticInfo(taskid)));
+                reports.add(generateSingleReport(taskid, job.getTaskStatus(taskid), job.getTaskDiagnosticInfo(taskid), job.getTaskStateString(taskid)));
             }
             TreeMap incompleteReduceTasks = job.getIncompleteReduceTasks();
             for (Iterator it = incompleteReduceTasks.keySet().iterator(); it.hasNext(); ) {
                 String taskid = (String) it.next();
-                reports.add(generateSingleReport(taskid, job.getTaskStatus(taskid), job.getTaskDiagnosticInfo(taskid)));
+                reports.add(generateSingleReport(taskid, job.getTaskStatus(taskid), job.getTaskDiagnosticInfo(taskid), job.getTaskStateString(taskid)));
             }
             return (Vector[]) reports.toArray(new Vector[reports.size()]);
         }
@@ -496,10 +496,11 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
     //  (See InterTrackerProtocol section for getFilesystemName())
     //////////////////////////////////////////////////////////////
 
-    Vector generateSingleReport(String taskid, TaskStatus status, Vector diagInfo) {
+    Vector generateSingleReport(String taskid, TaskStatus status, Vector diagInfo, String stateString) {
         Vector report = new Vector();
         report.add(taskid);
         report.add("" + status.getProgress());
+        report.add(stateString);
         report.addAll(diagInfo);
         return report;
     }
@@ -554,6 +555,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
         TreeMap completeReduceTasks = new TreeMap();
         TreeMap taskFailures = new TreeMap();
         TreeMap taskDiagnosticData = new TreeMap();
+        TreeMap taskStateStrings = new TreeMap();
 
         // Info for user; useless for JobTracker
         int numMapTasks = 0;
@@ -840,6 +842,9 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
                 return v;
             }
         }
+        public String getTaskStateString(String taskid) {
+            return (String) taskStateStrings.get(taskid);
+        }
         public float completedRatio() {
             return (0.5f * status.mapProgress()) + (0.5f * status.reduceProgress());
         }
@@ -886,6 +891,8 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
                 v.add(diagInfo);
             }
 
+            taskStateStrings.put(taskid, status.getStateString());
+
             if (incompleteMapTasks.get(taskid) != null || 
                 completeMapTasks.get(taskid) != null) {
                 totalReportedMapProgress += delta;
@@ -919,7 +926,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
             } else if (incompleteReduceTasks.get(taskid) != null) {
                 attemptedReduceExecutions++;
             }
-            updateTaskStatus(taskid, new TaskStatus(taskid, 0.0f, TaskStatus.UNASSIGNED, ""));
+            updateTaskStatus(taskid, new TaskStatus(taskid, 0.0f, TaskStatus.UNASSIGNED, "", ""));
             unassignedTasks.add(taskid);
         }
     }
@@ -986,7 +993,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
 
             // Move task status to RUNNING
             JobInProgress job = (JobInProgress) jobs.get((String) taskToJobMap.get(taskid));
-            job.updateTaskStatus(taskid, new TaskStatus(taskid, 0.0f, TaskStatus.RUNNING, ""));
+            job.updateTaskStatus(taskid, new TaskStatus(taskid, 0.0f, TaskStatus.RUNNING, "", ""));
 
             // Remember where we are running it
             TreeSet taskset = (TreeSet) trackerToTaskMap.get(taskTracker);
