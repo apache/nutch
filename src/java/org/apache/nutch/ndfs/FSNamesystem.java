@@ -293,16 +293,6 @@ public class FSNamesystem implements FSConstants {
                 // Create next block
                 results[0] = allocateBlock(src);
                 results[1] = targets;
-            } else {
-                LOG.info("File progress failure for " + src);
-                Vector v = (Vector) pendingCreates.get(src);
-                for (Iterator it = v.iterator(); it.hasNext(); ) {
-                    Block b = (Block) it.next();
-                    TreeSet containingNodes = (TreeSet) blocksMap.get(b);
-                    if (containingNodes == null || containingNodes.size() < MIN_REPLICATION) {
-                        LOG.info("Problem with block " + b + ", with " + (containingNodes == null ? "0" : "" + containingNodes.size()) + " nodes reporting in.");
-                    }
-                }
             }
         }
         return results;

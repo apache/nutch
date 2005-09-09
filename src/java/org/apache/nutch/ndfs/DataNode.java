@@ -285,6 +285,7 @@ public class DataNode implements FSConstants, Runnable {
                         //
                         DataOutputStream reply = new DataOutputStream(new BufferedOutputStream(s.getOutputStream()));
                         try {
+                            boolean shouldReportBlock = in.readBoolean();
                             Block b = new Block();
                             b.readFields(in);
                             int numTargets = in.readInt();
@@ -302,9 +303,13 @@ public class DataNode implements FSConstants, Runnable {
 
                             //
                             // Make sure curTarget is equal to this machine
-                            // REMIND - mjc
                             //
                             DatanodeInfo curTarget = targets[0];
+
+                            //
+                            // Track all the places we've successfully written the block
+                            //
+                            Vector mirrors = new Vector();
 
                             //
                             // Open local disk out
@@ -329,6 +334,7 @@ public class DataNode implements FSConstants, Runnable {
 
                                         // Write connection header
                                         out2.write(OP_WRITE_BLOCK);
+                                        out2.writeBoolean(shouldReportBlock);
                                         b.write(out2);
                                         out2.writeInt(targets.length - 1);
                                         for (int i = 1; i < targets.length; i++) {
@@ -412,6 +418,12 @@ public class DataNode implements FSConstants, Runnable {
                                         if (complete != WRITE_COMPLETE) {
                                             LOG.info("Conflicting value for WRITE_COMPLETE: " + complete);
                                         }
+                                        LocatedBlock newLB = new LocatedBlock();
+                                        newLB.readFields(in2);
+                                        DatanodeInfo mirrorsSoFar[] = newLB.getLocations();
+                                        for (int k = 0; k < mirrorsSoFar.length; k++) {
+                                            mirrors.add(mirrorsSoFar[k]);
+                                        }
                                         LOG.info("Received block " + b + " from " + s.getInetAddress() + " and mirrored to " + mirrorTarget);
                                     }
                                 } finally {
@@ -432,17 +444,25 @@ public class DataNode implements FSConstants, Runnable {
 
                             // 
                             // Tell the namenode that we've received this block 
-                            // in full.
+                            // in full, if we've been asked to.  This is done
+                            // during NameNode-directed block transfers, but not
+                            // client writes.
                             //
-                            synchronized (receivedBlockList) {
-                                receivedBlockList.add(b);
-                                receivedBlockList.notifyAll();
+                            if (shouldReportBlock) {
+                                synchronized (receivedBlockList) {
+                                    receivedBlockList.add(b);
+                                    receivedBlockList.notifyAll();
+                                }
                             }
 
                             //
-                            // Tell client job is done
+                            // Tell client job is done, and reply with
+                            // the new LocatedBlock.
                             //
                             reply.writeLong(WRITE_COMPLETE);
+                            mirrors.add(curTarget);
+                            LocatedBlock newLB = new LocatedBlock(b, (DatanodeInfo[]) mirrors.toArray(new DatanodeInfo[mirrors.size()]));
+                            newLB.write(reply);
                         } finally {
                             reply.close();
                         }
@@ -582,6 +602,7 @@ public class DataNode implements FSConstants, Runnable {
                         // Header info
                         //
                         out.write(OP_WRITE_BLOCK);
+                        out.writeBoolean(true);
                         b.write(out);
                         out.writeInt(targets.length);
                         for (int i = 0; i < targets.length; i++) {

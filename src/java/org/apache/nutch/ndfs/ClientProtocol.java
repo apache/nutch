@@ -45,6 +45,13 @@ public interface ClientProtocol {
     public LocatedBlock addBlock(String src) throws IOException;
 
     /**
+     * The client wants to report a block it has just successfully
+     * written to one or more datanodes.  Client-written blocks are
+     * always reported by the client, not by the datanode.
+     */
+    public void reportWrittenBlock(LocatedBlock b) throws IOException;
+
+    /**
      * The client wants to abandon writing to the indicated block,
      * part of the indicated (currently-open) filename.
      */

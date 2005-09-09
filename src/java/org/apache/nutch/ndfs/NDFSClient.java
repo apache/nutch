@@ -623,6 +623,7 @@ public class NDFSClient implements FSConstants {
                 //
                 DataOutputStream out = new DataOutputStream(new BufferedOutputStream(s.getOutputStream()));
                 out.write(OP_WRITE_BLOCK);
+                out.writeBoolean(false);
                 block.write(out);
                 out.writeInt(nodes.length);
                 for (int i = 0; i < nodes.length; i++) {
@@ -745,6 +746,7 @@ public class NDFSClient implements FSConstants {
         }
 
         /**
+         * We're done writing to the current block.
          */
         private synchronized void endBlock() throws IOException {
             boolean mustRecover = ! blockStreamWorking;
@@ -754,16 +756,7 @@ public class NDFSClient implements FSConstants {
             //
             if (blockStreamWorking) {
                 try {
-                    blockStream.writeLong(0);
-                    blockStream.flush();
-
-                    long complete = blockReplyStream.readLong();
-                    if (complete != WRITE_COMPLETE) {
-                        LOG.info("Did not receive WRITE_COMPLETE flag: " + complete);
-                        throw new IOException("Did not receive WRITE_COMPLETE_FLAG: " + complete);
-                    }
-                    blockStream.close();
-                    blockReplyStream.close();
+                    internalClose();
                 } catch (IOException ie) {
                     try {
                         blockStream.close();
@@ -799,8 +792,7 @@ public class NDFSClient implements FSConstants {
                         blockStream.write(buf, 0, bytesRead);
                         bytesRead = in.read(buf);
                     }
-                    blockStream.writeLong(0);
-                    blockStream.close();
+                    internalClose();
                     LOG.info("Recovered from failed datanode connection");
                     mustRecover = false;
                 } catch (IOException ie) {
@@ -823,6 +815,28 @@ public class NDFSClient implements FSConstants {
             backupFile.delete();
             backupFile = File.createTempFile("ndfsout", "bak");
             backupStream = new BufferedOutputStream(new FileOutputStream(backupFile));
+        }
+
+        /**
+         * Close down stream to remote datanode.  Called from two places
+         * in endBlock();
+         */
+        private synchronized void internalClose() throws IOException {
+            blockStream.writeLong(0);
+            blockStream.flush();
+
+            long complete = blockReplyStream.readLong();
+            if (complete != WRITE_COMPLETE) {
+                LOG.info("Did not receive WRITE_COMPLETE flag: " + complete);
+                throw new IOException("Did not receive WRITE_COMPLETE_FLAG: " + complete);
+            }
+                    
+            LocatedBlock lb = new LocatedBlock();
+            lb.readFields(blockReplyStream);
+            namenode.reportWrittenBlock(lb);
+
+            blockStream.close();
+            blockReplyStream.close();
         }
 
         /**
