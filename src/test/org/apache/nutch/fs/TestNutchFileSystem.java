@@ -57,9 +57,9 @@ public class TestNutchFileSystem extends TestCase {
     LOG.info("seed = "+seed);
 
     createControlFile(fs, megaBytes, numFiles, seed);
-    writeTest(fs);
-    readTest(fs);
-    seekTest(fs);
+    writeTest(fs, false);
+    readTest(fs, false);
+    seekTest(fs, false);
   }
 
   public static void createControlFile(NutchFileSystem fs,
@@ -103,7 +103,8 @@ public class TestNutchFileSystem extends TestCase {
     private Random random = new Random();
     private byte[] buffer = new byte[BUFFER_SIZE];
     private NutchFileSystem fs;
-
+    private boolean fastCheck;
+    
     {
       try {
         fs = NutchFileSystem.get();
@@ -118,6 +119,7 @@ public class TestNutchFileSystem extends TestCase {
 
     public void configure(JobConf job) {
       setConf(job);
+      fastCheck = job.getBoolean("fs.test.fastCheck", false);
     }
 
     public void map(WritableComparable key, Writable value,
@@ -135,7 +137,11 @@ public class TestNutchFileSystem extends TestCase {
       long written = 0;
       try {
         while (written < size) {
-          random.nextBytes(buffer);
+          if (fastCheck) {
+            Arrays.fill(buffer, (byte)random.nextInt(Byte.MAX_VALUE));
+          } else {
+            random.nextBytes(buffer);
+          }
           long remains = size - written;
           int length = (remains<=buffer.length) ? (int)remains : buffer.length;
           out.write(buffer, 0, length);
@@ -152,12 +158,14 @@ public class TestNutchFileSystem extends TestCase {
     }
   }
 
-  public static void writeTest(NutchFileSystem fs)
+  public static void writeTest(NutchFileSystem fs, boolean fastCheck)
     throws Exception {
 
+    fs.delete(DATA_DIR);
     fs.delete(WRITE_DIR);
-
+    
     JobConf job = new JobConf(NutchConf.get());
+    job.setBoolean("fs.test.fastCheck", fastCheck);
 
     job.setInputDir(CONTROL_DIR);
     job.setInputFormat(SequenceFileInputFormat.class);
@@ -179,6 +187,7 @@ public class TestNutchFileSystem extends TestCase {
     private byte[] buffer = new byte[BUFFER_SIZE];
     private byte[] check  = new byte[BUFFER_SIZE];
     private NutchFileSystem fs;
+    private boolean fastCheck;
 
     {
       try {
@@ -194,6 +203,7 @@ public class TestNutchFileSystem extends TestCase {
 
     public void configure(JobConf job) {
       setConf(job);
+      fastCheck = job.getBoolean("fs.test.fastCheck", false);
     }
 
     public void map(WritableComparable key, Writable value,
@@ -216,12 +226,17 @@ public class TestNutchFileSystem extends TestCase {
           int n = (remains<=buffer.length) ? (int)remains : buffer.length;
           in.readFully(buffer, 0, n);
           read += n;
-          random.nextBytes(check);
+          if (fastCheck) {
+            Arrays.fill(check, (byte)random.nextInt(Byte.MAX_VALUE));
+          } else {
+            random.nextBytes(check);
+          }
           if (n != buffer.length) {
             Arrays.fill(buffer, n, buffer.length, (byte)0);
             Arrays.fill(check, n, check.length, (byte)0);
           }
           assertTrue(Arrays.equals(buffer, check));
+
           reporter.setStatus("reading "+name+"@"+read+"/"+size);
 
         }
@@ -235,12 +250,14 @@ public class TestNutchFileSystem extends TestCase {
     }
   }
 
-  public static void readTest(NutchFileSystem fs)
+  public static void readTest(NutchFileSystem fs, boolean fastCheck)
     throws Exception {
 
     fs.delete(READ_DIR);
 
     JobConf job = new JobConf(NutchConf.get());
+    job.setBoolean("fs.test.fastCheck", fastCheck);
+
 
     job.setInputDir(CONTROL_DIR);
     job.setInputFormat(SequenceFileInputFormat.class);
@@ -262,6 +279,7 @@ public class TestNutchFileSystem extends TestCase {
     private Random random = new Random();
     private byte[] check  = new byte[BUFFER_SIZE];
     private NutchFileSystem fs;
+    private boolean fastCheck;
 
     {
       try {
@@ -277,6 +295,7 @@ public class TestNutchFileSystem extends TestCase {
 
     public void configure(JobConf job) {
       setConf(job);
+      fastCheck = job.getBoolean("fs.test.fastCheck", false);
     }
 
     public void map(WritableComparable key, Writable value,
@@ -296,20 +315,25 @@ public class TestNutchFileSystem extends TestCase {
           // generate a random position
           long position = Math.abs(random.nextLong()) % size;
           
+          // seek file to that position
+          reporter.setStatus("seeking " + name);
+          in.seek(position);
+          byte b = in.readByte();
+          
+          // check that byte matches
+          byte checkByte = 0;
           // advance random state to that position
           random.setSeed(seed);
           for (int p = 0; p <= position; p+= check.length) {
             reporter.setStatus("generating data for " + name);
-            random.nextBytes(check);
+            if (fastCheck) {
+              checkByte = (byte)random.nextInt(Byte.MAX_VALUE);
+            } else {
+              random.nextBytes(check);
+              checkByte = check[(int)(position % check.length)];
+            }
           }
-          
-          // seek file to that position
-          reporter.setStatus("seeking " + name);
-          in.seek(position);
-          
-          // check that byte matches
-          assertEquals(in.readByte(), check[(int)(position % check.length)]);
-          
+          assertEquals(b, checkByte);
         }
       } finally {
         in.close();
@@ -317,12 +341,13 @@ public class TestNutchFileSystem extends TestCase {
     }
   }
 
-  public static void seekTest(NutchFileSystem fs)
+  public static void seekTest(NutchFileSystem fs, boolean fastCheck)
     throws Exception {
 
     fs.delete(READ_DIR);
 
     JobConf job = new JobConf(NutchConf.get());
+    job.setBoolean("fs.test.fastCheck", fastCheck);
 
     job.setInputDir(CONTROL_DIR);
     job.setInputFormat(SequenceFileInputFormat.class);
@@ -346,9 +371,10 @@ public class TestNutchFileSystem extends TestCase {
     boolean noRead = false;
     boolean noWrite = false;
     boolean noSeek = false;
+    boolean fastCheck = false;
     long seed = new Random().nextLong();
 
-    String usage = "Usage: TestNutchFileSystem -files N -megaBytes M [-noread] [-nowrite] [-noseek]";
+    String usage = "Usage: TestNutchFileSystem -files N -megaBytes M [-noread] [-nowrite] [-noseek] [-fastcheck]";
     
     if (args.length == 0) {
         System.err.println(usage);
@@ -365,6 +391,8 @@ public class TestNutchFileSystem extends TestCase {
         noWrite = true;
       } else if (args[i].equals("-noseek")) {
         noSeek = true;
+      } else if (args[i].equals("-fastcheck")) {
+        fastCheck = true;
       }
     }
 
@@ -376,13 +404,13 @@ public class TestNutchFileSystem extends TestCase {
 
     if (!noWrite) {
       createControlFile(fs, megaBytes*MEGA, files, seed);
-      writeTest(fs);
+      writeTest(fs, fastCheck);
     }
     if (!noRead) {
-      readTest(fs);
+      readTest(fs, fastCheck);
     }
     if (!noSeek) {
-      seekTest(fs);
+      seekTest(fs, fastCheck);
     }
   }
 
