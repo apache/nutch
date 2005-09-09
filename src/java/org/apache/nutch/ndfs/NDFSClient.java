@@ -33,7 +33,6 @@ import java.util.logging.*;
  ********************************************************/
 public class NDFSClient implements FSConstants {
     public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.fs.NDFSClient");
-    static int BUFFER_SIZE = 4096;
     static int MAX_BLOCK_ACQUIRE_FAILURES = 10;
     ClientProtocol namenode;
     boolean running = true;
@@ -793,7 +792,7 @@ public class NDFSClient implements FSConstants {
                 nextBlockOutputStream(false);
                 InputStream in = new FileInputStream(backupFile);
                 try {
-                    byte buf[] = new byte[4096];
+                    byte buf[] = new byte[BUFFER_SIZE];
                     int bytesRead = in.read(buf);
                     while (bytesRead >= 0) {
                         blockStream.writeLong((long) bytesRead);

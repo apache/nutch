@@ -30,6 +30,9 @@ import org.apache.nutch.util.*;
 public class TestNutchFileSystem extends TestCase {
   private static final Logger LOG = InputFormatBase.LOG;
 
+  private static int BUFFER_SIZE =
+    NutchConf.get().getInt("io.file.buffer.size", 4096);
+
   private static final long MEGA = 1024 * 1024;
   private static final int SEEKS_PER_FILE = 4;
 
@@ -98,7 +101,7 @@ public class TestNutchFileSystem extends TestCase {
 
   public static class WriteMapper extends NutchConfigured implements Mapper {
     private Random random = new Random();
-    private byte[] buffer = new byte[8192];
+    private byte[] buffer = new byte[BUFFER_SIZE];
     private NutchFileSystem fs;
 
     {
@@ -173,8 +176,8 @@ public class TestNutchFileSystem extends TestCase {
 
   public static class ReadMapper extends NutchConfigured implements Mapper {
     private Random random = new Random();
-    private byte[] buffer = new byte[8192];
-    private byte[] check  = new byte[8192];
+    private byte[] buffer = new byte[BUFFER_SIZE];
+    private byte[] check  = new byte[BUFFER_SIZE];
     private NutchFileSystem fs;
 
     {
@@ -257,7 +260,7 @@ public class TestNutchFileSystem extends TestCase {
 
   public static class SeekMapper extends NutchConfigured implements Mapper {
     private Random random = new Random();
-    private byte[] check  = new byte[8192];
+    private byte[] check  = new byte[BUFFER_SIZE];
     private NutchFileSystem fs;
 
     {

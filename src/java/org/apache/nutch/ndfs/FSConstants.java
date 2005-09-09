@@ -15,6 +15,8 @@
  */
 package org.apache.nutch.ndfs;
 
+import org.apache.nutch.util.NutchConf;
+
 /************************************
  * Some handy constants
  *
@@ -99,9 +101,14 @@ public interface FSConstants {
     // Timeouts, constants
     //
     public static long HEARTBEAT_INTERVAL = 3 * 1000;
-    public static long EXPIRE_INTERVAL = 60 * 1000;
-    public static long BLOCKREPORT_INTERVAL = 10 * 60 * 1000;
-    public static long DATANODE_STARTUP_PERIOD = 120 * 1000;
-    public static long LEASE_PERIOD = 16 * 1000;
-    public static int READ_TIMEOUT = 20 * 1000;
+    public static long EXPIRE_INTERVAL = 10 * 60 * 1000;
+    public static long BLOCKREPORT_INTERVAL = 60 * 60 * 1000;
+    public static long DATANODE_STARTUP_PERIOD = 2 * 60 * 1000;
+    public static long LEASE_PERIOD = 60 * 1000;
+    public static int READ_TIMEOUT = 60 * 1000;
+
+    public static int BUFFER_SIZE =
+      NutchConf.get().getInt("io.file.buffer.size", 4096);
+
 }
+

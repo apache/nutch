@@ -22,6 +22,7 @@ import java.util.*;
 
 import org.apache.nutch.io.*;
 import org.apache.nutch.ndfs.*;
+import org.apache.nutch.util.NutchConf;
 
 /****************************************************************
  * Implement the NutchFileSystem interface for the NDFS system.
@@ -177,7 +178,7 @@ public class NDFSFileSystem extends NutchFileSystem {
                 doFromLocalFile(contents[i], new File(dst, contents[i].getName()), deleteSource);
             }
         } else {
-            byte buf[] = new byte[4096];
+            byte buf[] = new byte[NutchConf.get().getInt("io.file.buffer.size", 4096)];
             InputStream in = new BufferedInputStream(new FileInputStream(src));
             try {
                 OutputStream out = create(dst);
@@ -222,7 +223,7 @@ public class NDFSFileSystem extends NutchFileSystem {
                 copyToLocalFile(contents[i], new File(dst, contents[i].getName()));
             }
         } else {
-            byte buf[] = new byte[4096];
+            byte buf[] = new byte[NutchConf.get().getInt("io.file.buffer.size", 4096)];
             InputStream in = open(src);
             try {
                 dst.getParentFile().mkdirs();

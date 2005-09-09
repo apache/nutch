@@ -160,6 +160,7 @@ public class DataNode implements FSConstants, Runnable {
                     Block toDelete[] = namenode.blockReport(localName, data.getBlockReport());
                     data.invalidate(toDelete);
                     lastBlockReport = now;
+                    continue;
 		}
 		if (receivedBlockList.size() > 0) {
                     //
@@ -355,7 +356,7 @@ public class DataNode implements FSConstants, Runnable {
                                 //
                                 try {
                                     boolean anotherChunk = true;
-                                    byte buf[] = new byte[2048];
+                                    byte buf[] = new byte[BUFFER_SIZE];
 
                                     while (anotherChunk) {
                                         while (len > 0) {
@@ -489,7 +490,7 @@ public class DataNode implements FSConstants, Runnable {
                                     out.writeLong(amtSkipped);
                                 }
 
-                                byte buf[] = new byte[4096];
+                                byte buf[] = new byte[BUFFER_SIZE];
                                 try {
                                     int bytesRead = 0;
                                     try {
@@ -562,7 +563,7 @@ public class DataNode implements FSConstants, Runnable {
             this.curTarget = createSocketAddr(targets[0].getName().toString());
             this.targets = targets;
             this.b = b;
-            this.buf = new byte[2048];
+            this.buf = new byte[BUFFER_SIZE];
         }
 
         /**
