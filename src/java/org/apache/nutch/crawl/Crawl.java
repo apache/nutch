@@ -86,7 +86,7 @@ public class Crawl {
     LOG.info("depth = " + depth);
 
     if (topN != Integer.MAX_VALUE)
-      LOG.info("topN = " + depth);
+      LOG.info("topN = " + topN);
 
     File crawlDb = new File(dir + "/crawldb");
     File linkDb = new File(dir + "/linkdb");
