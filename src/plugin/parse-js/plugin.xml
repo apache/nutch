@@ -11,6 +11,10 @@
       </library>
    </runtime>
 
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
    <extension id="org.apache.nutch.parse.js"
               name="JS Parser"
               point="org.apache.nutch.parse.Parser">

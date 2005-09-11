@@ -12,6 +12,10 @@
       <library name="rtf-parser.jar"/>
    </runtime>
 
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
    <extension point="org.apache.nutch.parse.Parser"
               id="org.apache.nutch.parse.rtf"
               name="RTFParse">

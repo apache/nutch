@@ -13,6 +13,10 @@
       <library name="poi-scratchpad-2.1-20040508.jar"/>
    </runtime>
 
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
    <extension id="org.apache.nutch.parse.msword"
               name="MSWordParse"
               point="org.apache.nutch.parse.Parser">

@@ -5,13 +5,15 @@
    version="1.0.0"
    provider-name="nutch.org">
 
-
-
    <runtime>
       <library name="urlfilter-prefix.jar">
          <export name="*"/>
       </library>
    </runtime>
+
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
 
    <extension id="org.apache.nutch.net.urlfiler"
               name="Nutch Prefix URL Filter"

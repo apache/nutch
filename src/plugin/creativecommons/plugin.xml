@@ -11,6 +11,10 @@
       </library>
    </runtime>
 
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
    <extension id="org.creativecommons.nutch.CCParseFilter"
               name="Creative Commons Metadata Filter"
               point="org.apache.nutch.parse.HtmlParseFilter">

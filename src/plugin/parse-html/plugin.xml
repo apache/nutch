@@ -5,8 +5,6 @@
    version="1.0.0"
    provider-name="nutch.org">
 
-
-
    <runtime>
       <library name="parse-html.jar">
          <export name="*"/>
@@ -14,6 +12,10 @@
       <library name="nekohtml-0.9.4.jar"/>
       <library name="tagsoup-1.0rc3.jar"/>
    </runtime>
+
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
 
    <extension id="org.apache.nutch.parse.html"
               name="HtmlParse"

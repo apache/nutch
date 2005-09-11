@@ -27,6 +27,10 @@
       <library name="nekohtml-0.9.2.jar"/>
    </runtime>
 
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
    <extension id="org.apache.nutch.clustering.carrot2"
               name="Carrot2 Clusterer"
               point="org.apache.nutch.clustering.OnlineClusterer">

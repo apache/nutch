@@ -13,6 +13,10 @@
       <library name="commons-httpclient-3.0-rc2.jar" />
    </runtime>
 
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
    <extension id="org.apache.nutch.protocol.httpclient"
               name="HttpProtocol"
               point="org.apache.nutch.protocol.Protocol">
