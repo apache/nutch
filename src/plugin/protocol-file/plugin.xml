@@ -12,6 +12,10 @@
       </library>
    </runtime>
 
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
    <extension id="org.apache.nutch.protocol.file"
               name="FileProtocol"
               point="org.apache.nutch.protocol.Protocol">

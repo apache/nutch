@@ -20,8 +20,11 @@
       <library name="xercesImpl.jar"/>
       <library name="xml-apis.jar"/>
       <library name="xml-rpc-1.2.jar"/>
-
    </runtime>
+
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
 
    <extension id="org.apache.nutch.parse.rss"
               name="RssParse"

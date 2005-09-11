@@ -5,13 +5,15 @@
    version="1.0.0"
    provider-name="nutch.org">
 
-
-
    <runtime>
       <library name="parse-ext.jar">
          <export name="*"/>
       </library>
    </runtime>
+
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
 
    <extension id="org.apache.nutch.parse.ext"
               name="ExtParse"
