@@ -586,8 +586,17 @@
 </property>
 
 <property>
+  <name>plugin.auto-activation</name>
+  <value>false</value>
+  <description>Defines if some plugins that are not activated regarding
+  the plugin.includes and plugin.excludes properties must be automaticaly
+  activated if they are needed by some actived plugins.
+  </description>
+</property>
+
+<property>
   <name>plugin.includes</name>
-  <value>nutch-extensionpoints|protocol-httpclient|urlfilter-regex|parse-(text|html|js)|index-basic|query-(basic|site|url)</value>
+  <value>protocol-httpclient|urlfilter-regex|parse-(text|html|js)|index-basic|query-(basic|site|url)</value>
   <description>Regular expression naming plugin directory names to
   include.  Any plugin not matching this expression is excluded.
   In any case you need at least include the nutch-extensionpoints plugin. By

@@ -16,14 +16,20 @@
  */
 package org.apache.nutch.plugin;
 
+// JDK imports
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
+// Nutch imports
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.util.NutchConf;
+
 
 /**
  * The plugin repositority is a registry of all plugins.
@@ -38,14 +44,19 @@ import org.apache.nutch.util.LogFormatter;
  * @author joa23
  */
 public class PluginRepository {
+  
+    private final static boolean AUTO =
+            NutchConf.get().getBoolean("plugin.auto-activation", true);
+    
     private static PluginRepository fInstance;
 
-    private ArrayList fRegisteredPlugins;
+    private List fRegisteredPlugins;
 
     private HashMap fExtensionPoints;
 
     private HashMap fActivatedPlugins;
 
+    
     public static final Logger LOG = LogFormatter
             .getLogger("org.apache.nutch.plugin.PluginRepository");
 
@@ -54,66 +65,115 @@ public class PluginRepository {
      * @see java.lang.Object#Object()
      */
     private PluginRepository() throws PluginRuntimeException{
-        fActivatedPlugins = new HashMap();
-        fExtensionPoints = new HashMap();
-        fRegisteredPlugins = getDependencyCheckedPlugins(PluginManifestParser
-                .parsePluginFolder());
-        installExtensions(fRegisteredPlugins);
+      fActivatedPlugins = new HashMap();
+      fExtensionPoints = new HashMap();
+      Map allPlugins = PluginManifestParser.parsePluginFolder();
+      Map filteredPlugins = PluginManifestParser.filter(allPlugins);
+      fRegisteredPlugins = getDependencyCheckedPlugins(
+                              filteredPlugins,
+                              AUTO ? allPlugins : filteredPlugins);
+      installExtensionPoints(fRegisteredPlugins);
+      installExtensions(fRegisteredPlugins);
+      displayStatus();
     }
 
+    private void installExtensionPoints(List plugins) {
+      if (plugins == null) { return; }
+      
+      for (int i=0; i<plugins.size(); i++) {
+        PluginDescriptor plugin = (PluginDescriptor) plugins.get(i);
+        ExtensionPoint[] points = plugin.getExtenstionPoints();
+        for (int j=0; j<points.length; j++) {
+          ExtensionPoint point = points[j];
+          String xpId = point.getId();
+          LOG.fine("Adding extension point " + xpId);
+          fExtensionPoints.put(xpId, point);
+        }
+      }
+    }
+    
     /**
      * @param pRegisteredPlugins
      */
-    private void installExtensions(ArrayList pRegisteredPlugins)
-            throws PluginRuntimeException {
-        for (int i = 0; i < pRegisteredPlugins.size(); i++) {
-            PluginDescriptor descriptor = (PluginDescriptor) pRegisteredPlugins
-                    .get(i);
-            Extension[] extensions = descriptor.getExtensions();
-            for (int j = 0; j < extensions.length; j++) {
-                Extension extension = extensions[j];
-                String xpId = extension.getTargetPoint();
-                ExtensionPoint point = getExtensionPoint(xpId);
-                if (point == null)
-                    throw new PluginRuntimeException("extension point: " + xpId
-                            + " does not exist.");
-                point.addExtension(extension);
-            }
+    private void installExtensions(List pRegisteredPlugins)
+      throws PluginRuntimeException {
+        
+      for (int i = 0; i < pRegisteredPlugins.size(); i++) {
+        PluginDescriptor descriptor = (PluginDescriptor) pRegisteredPlugins.get(i);
+        Extension[] extensions = descriptor.getExtensions();
+        for (int j = 0; j < extensions.length; j++) {
+          Extension extension = extensions[j];
+          String xpId = extension.getTargetPoint();
+          ExtensionPoint point = getExtensionPoint(xpId);
+          if (point == null) {
+            throw new PluginRuntimeException(
+                    "Plugin (" + descriptor.getPluginId() + "), " +
+                    "extension point: " + xpId + " does not exist.");
+          }
+          point.addExtension(extension);
         }
+      }
     }
 
-    /**
-     * @param pLoadedPlugins
-     * @return ArrayList
-     */
-    private ArrayList getDependencyCheckedPlugins(ArrayList pLoadedPlugins) {
-        ArrayList availablePlugins = new ArrayList();
-        for (int i = 0; i < pLoadedPlugins.size(); i++) {
-            PluginDescriptor descriptor = (PluginDescriptor) pLoadedPlugins
-                    .get(i);
-            String[] dependencyIDs = descriptor.getDependencies();
-            boolean available = true;
-            for (int j = 0; j < dependencyIDs.length; j++) {
-                String id = dependencyIDs[j];
-                if (!dependencyIsAvailable(id, pLoadedPlugins)) {
-                    available = false;
-                    //LOG.fine("Skipping " + descriptor.getName());
-                    break;
-                }
-            }
-            if (available) {
-                //LOG.fine("Adding " + descriptor.getName());
-                availablePlugins.add(descriptor);
-                ExtensionPoint[] points = descriptor.getExtenstionPoints();
-                for (int j = 0; j < points.length; j++) {
-                    ExtensionPoint point = points[j];
-                    String xpId = point.getId();
-                    //LOG.fine("Adding extension point " + xpId);
-                    fExtensionPoints.put(xpId, point);
-                }
-            }
+    private void getPluginCheckedDependencies(PluginDescriptor plugin,
+                                             Map plugins, Map dependencies)
+      throws MissingDependencyException,
+             CircularDependencyException {
+      
+      if (dependencies == null) { dependencies = new HashMap(); }
+      
+      String[] ids = plugin.getDependencies();
+      for (int i=0; i<ids.length; i++) {
+        String id = ids[i];
+        PluginDescriptor dependency = (PluginDescriptor) plugins.get(id);
+        if (dependency == null) {
+          throw new MissingDependencyException(
+                  "Missing dependency " + id +
+                  " for plugin " + plugin.getPluginId());
         }
-        return availablePlugins;
+        if (dependencies.containsKey(id)) {
+          throw new CircularDependencyException(
+                  "Circular dependency detected " + id +
+                  " for plugin " + plugin.getPluginId());
+        }
+        dependencies.put(id, dependency);
+        getPluginCheckedDependencies((PluginDescriptor) plugins.get(id),
+                                     plugins, dependencies);
+      }
+    }
+
+    private Map getPluginCheckedDependencies(PluginDescriptor plugin,
+                                             Map plugins)
+      throws MissingDependencyException,
+             CircularDependencyException {
+      Map dependencies = new HashMap();
+      getPluginCheckedDependencies(plugin, plugins, dependencies);
+      return dependencies;
+    }
+    
+    /**
+     * @param filtered is the list of plugin filtred
+     * @param all is the list of all plugins found.
+     * @return List
+     */
+    private List getDependencyCheckedPlugins(Map filtered, Map all) {
+      if (filtered == null) { return null; }
+      Map checked = new HashMap();
+      Iterator iter = filtered.values().iterator();
+      while (iter.hasNext()) {
+        PluginDescriptor plugin = (PluginDescriptor) iter.next();
+        try {
+          checked.putAll(getPluginCheckedDependencies(plugin, all));
+          checked.put(plugin.getPluginId(), plugin);
+        } catch (MissingDependencyException mde) {
+          // Simply ignore this plugin
+          LOG.warning(mde.getMessage());
+        } catch (CircularDependencyException cde) {
+          // Simply ignore this plugin
+          LOG.warning(cde.getMessage());
+        }
+      }
+      return new ArrayList(checked.values());
     }
 
     /**
@@ -121,7 +181,7 @@ public class PluginRepository {
      * @param pLoadedPlugins
      * @return boolean
      */
-    private boolean dependencyIsAvailable(String id, ArrayList pLoadedPlugins) {
+    private boolean dependencyIsAvailable(String id, List pLoadedPlugins) {
         if (pLoadedPlugins != null && id != null) {
             for (int i = 0; i < pLoadedPlugins.size(); i++) {
                 PluginDescriptor descriptor = (PluginDescriptor) pLoadedPlugins
@@ -251,5 +311,31 @@ public class PluginRepository {
             Plugin object = (Plugin) fActivatedPlugins.get(pluginId);
             object.shutDown();
         }
+    }
+    
+    private void displayStatus() {
+
+      LOG.info("Plugin Auto-activation mode: [" + AUTO + "]");
+
+      LOG.info("Registered Plugins:");
+      if ((fRegisteredPlugins == null) || (fRegisteredPlugins.size() == 0)) {
+        LOG.info("\tNONE");
+      } else {
+        for (int i=0; i<fRegisteredPlugins.size(); i++) {
+          PluginDescriptor plugin = (PluginDescriptor) fRegisteredPlugins.get(i);
+          LOG.info("\t" + plugin.getName() + " (" + plugin.getPluginId() + ")");
+        }
+      }
+
+      LOG.info("Registered Extension-Points:");
+      if ((fExtensionPoints == null) || (fExtensionPoints.size() == 0)) {
+        LOG.info("\tNONE");
+      } else {
+        Iterator iter = fExtensionPoints.values().iterator();
+        while (iter.hasNext()) {
+          ExtensionPoint ep = (ExtensionPoint) iter.next();
+          LOG.info("\t" + ep.getName() + " (" + ep.getId() + ")");
+        }
+      }
     }
 }
