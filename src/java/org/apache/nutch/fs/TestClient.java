@@ -239,17 +239,17 @@ public class TestClient {
             } else if ("-moveToLocal".equals(cmd)) {
                 tc.moveToLocal(argv[i++], new File(argv[i++]));
             } else if ("-ls".equals(cmd)) {
-                tc.ls(argv[i++]);
+                String arg = i < argv.length ? argv[i++] : "";
+                tc.ls(arg);
             } else if ("-mv".equals(cmd)) {
                 tc.rename(argv[i++], argv[i++]);
             } else if ("-cp".equals(cmd)) {
                 tc.copy(argv[i++], argv[i++]);
             } else if ("-rm".equals(cmd)) {
                 tc.delete(argv[i++]);
-            } else if ("-ls".equals(cmd)) {
-                tc.ls(argv[i++]);
             } else if ("-du".equals(cmd)) {
-                tc.du(argv[i++]);
+                String arg = i < argv.length ? argv[i++] : "";
+                tc.du(arg);
             } else if ("-mkdir".equals(cmd)) {
                 tc.mkdir(argv[i++]);
             } else if ("-report".equals(cmd)) {
