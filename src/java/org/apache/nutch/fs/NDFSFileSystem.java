@@ -50,12 +50,11 @@ public class NDFSFileSystem extends NutchFileSystem {
     public String getName() { return name; }
 
     private UTF8 getPath(File file) {
-      File f = file;
       String path = getNDFSPath(file);
       if (!path.startsWith(NDFSFile.NDFS_FILE_SEPARATOR)) {
-        f = new File(HOME_DIR, path);
+        path = getNDFSPath(new File(HOME_DIR, path)); // make absolute
       }
-      return new UTF8(getNDFSPath(f));
+      return new UTF8(path);
     }
 
     /**
@@ -305,17 +304,10 @@ public class NDFSFileSystem extends NutchFileSystem {
         parent = parent.getParentFile();
       }
       StringBuffer path = new StringBuffer();
-      String fname = (String) l.get(l.size() - 1);
-      if (!"".equals(fname)) {
-        path.append(fname); //handle not absolute paths
-      } else {
-        if (l.size() == 1)
-          path.append(NDFSFile.NDFS_FILE_SEPARATOR); //handle root path
-      }
+      path.append(l.get(l.size() - 1));
       for (int i = l.size() - 2; i >= 0; i--) {
-        fname = (String) l.get(i);
         path.append(NDFSFile.NDFS_FILE_SEPARATOR);
-        path.append(fname);
+        path.append(l.get(i));
       }
       return path.toString();
     }
