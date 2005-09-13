@@ -587,7 +587,7 @@
 
 <property>
   <name>plugin.auto-activation</name>
-  <value>false</value>
+  <value>true</value>
   <description>Defines if some plugins that are not activated regarding
   the plugin.includes and plugin.excludes properties must be automaticaly
   activated if they are needed by some actived plugins.
