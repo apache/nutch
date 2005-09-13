@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ ! Lucene Analyzers
+ ! (http://lucene.apache.org/java/docs/lucene-sandbox/)
+ !
+ ! Dowload : http://www.apache.org/dyn/closer.cgi/jakarta/lucene/binaries/
+ ! License : http://www.apache.org/licenses/LICENSE-2.0.txt
+ !-->
+<plugin
+   id="lib-lucene-analyzers"
+   name="Lucene Analysers"
+   version="1.9-rc1-dev"
+   provider-name="org.apache.lucene">
+
+   <runtime>
+     <library name="lucene-analyzers-1.9-rc1-dev.jar">
+        <export name="*"/>
+     </library>
+   </runtime>
+
+</plugin>
