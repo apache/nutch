@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="analysis-de"
+   name="German Analysis Plug-in"
+   version="1.0.0"
+   provider-name="org.apache.nutch">
+
+   <runtime>
+      <library name="analysis-de.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+      <import plugin="lib-lucene-analyzers"/>
+   </requires>
+
+   <extension id="org.apache.nutch.analysis.de"
+              name="GermanAnalyzer"
+              point="org.apache.nutch.analysis.NutchAnalyzer">
+
+      <implementation id="org.apache.nutch.analysis.de.GermanAnalyzer"
+                      class="org.apache.nutch.analysis.de.GermanAnalyzer"
+                      lang="de"/>
+
+   </extension>
+
+</plugin>

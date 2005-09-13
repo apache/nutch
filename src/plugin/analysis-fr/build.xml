@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<project name="analysis-fr" default="jar">
+
+  <import file="../build-plugin.xml"/>
+
+  <path id="plugin.deps">
+    <fileset dir="../lib-lucene-analyzers/lib">
+      <include name="*.jar" />
+    </fileset>
+  </path>
+
+</project>

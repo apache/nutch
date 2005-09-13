@@ -6,6 +6,8 @@
   <!-- Build & deploy all the plugin jars.                    -->
   <!-- ====================================================== -->
   <target name="deploy">
+     <!--ant dir="analysis-de" target="deploy"/-->
+     <!--ant dir="analysis-fr" target="deploy"/-->
      <ant dir="clustering-carrot2" target="deploy"/>
      <ant dir="creativecommons" target="deploy"/>
      <ant dir="index-basic" target="deploy"/>
@@ -61,6 +63,8 @@
   <!-- Clean all of the plugins.                              -->
   <!-- ====================================================== -->
   <target name="clean">
+    <ant dir="analysis-de" target="clean"/>
+    <ant dir="analysis-fr" target="clean"/>
     <ant dir="clustering-carrot2" target="clean"/>
     <ant dir="creativecommons" target="clean"/>
     <ant dir="index-basic" target="clean"/>
