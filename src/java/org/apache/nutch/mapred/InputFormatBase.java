@@ -42,7 +42,9 @@ public abstract class InputFormatBase implements InputFormat {
 
   public abstract RecordReader getRecordReader(NutchFileSystem fs,
                                                FileSplit split,
-                                               JobConf job) throws IOException;
+                                               JobConf job,
+                                               Reporter reporter)
+    throws IOException;
 
   /** Subclasses may override to, e.g., select only files matching a regular
    * expression.*/ 

@@ -35,6 +35,10 @@ public class TestTextInputFormat extends TestCase {
     NutchFileSystem fs = NutchFileSystem.getNamed("local");
     File dir = new File(System.getProperty("test.build.data",".") + "/mapred");
     File file = new File(dir, "test.txt");
+
+    Reporter reporter = new Reporter() {
+        public void setStatus(String status) throws IOException {}
+      };
     
     int seed = new Random().nextInt();
     //LOG.info("seed = "+seed);
@@ -81,7 +85,8 @@ public class TestTextInputFormat extends TestCase {
         // check each split
         BitSet bits = new BitSet(length);
         for (int j = 0; j < splits.length; j++) {
-          RecordReader reader = format.getRecordReader(fs, splits[j], job);
+          RecordReader reader =
+            format.getRecordReader(fs, splits[j], job, reporter);
           try {
             int count = 0;
             while (reader.next(key, value)) {

@@ -49,7 +49,10 @@ public class SequenceFileInputFormat extends InputFormatBase {
   }
 
   public RecordReader getRecordReader(NutchFileSystem fs, FileSplit split,
-                                      JobConf job) throws IOException {
+                                      JobConf job, Reporter reporter)
+    throws IOException {
+
+    reporter.setStatus(split.toString());
 
     return new SequenceFileRecordReader(fs, split);
   }

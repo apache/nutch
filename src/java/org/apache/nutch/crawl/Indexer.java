@@ -46,7 +46,11 @@ public class Indexer extends NutchConfigured implements Reducer {
    * types in reduce. */
   public static class InputFormat extends SequenceFileInputFormat {
     public RecordReader getRecordReader(NutchFileSystem fs, FileSplit split,
-                                        JobConf job) throws IOException {
+                                        JobConf job, Reporter reporter)
+      throws IOException {
+
+      reporter.setStatus(split.toString());
+      
       return new SequenceFileRecordReader(fs, split) {
           public synchronized boolean next(Writable key, Writable value)
             throws IOException {

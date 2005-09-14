@@ -90,7 +90,8 @@ public class MapTask extends Task {
       }
 
       final RecordReader rawIn =                  // open input
-        job.getInputFormat().getRecordReader(NutchFileSystem.get(),split,job);
+        job.getInputFormat().getRecordReader
+        (NutchFileSystem.get(), split, job, reporter);
 
       RecordReader in = new RecordReader() {      // wrap in progress reporter
           private float perByte = 1.0f /(float)split.getLength();

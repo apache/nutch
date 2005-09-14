@@ -45,6 +45,7 @@ public interface InputFormat {
    * @return a {@link RecordReader}
    */
   RecordReader getRecordReader(NutchFileSystem fs, FileSplit split,
-                               JobConf job) throws IOException;
+                               JobConf job, Reporter reporter)
+    throws IOException;
 }
 

@@ -33,7 +33,10 @@ import org.apache.nutch.io.UTF8;
 public class TextInputFormat extends InputFormatBase {
 
   public RecordReader getRecordReader(NutchFileSystem fs, FileSplit split,
-                                      JobConf job) throws IOException {
+                                      JobConf job, Reporter reporter)
+    throws IOException {
+
+    reporter.setStatus(split.toString());
 
     final long start = split.getStart();
     final long end = start + split.getLength();
