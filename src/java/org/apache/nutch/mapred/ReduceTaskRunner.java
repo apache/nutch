@@ -99,8 +99,9 @@ class ReduceTaskRunner extends TaskRunner {
           copyPhase.startNextPhase();
           
         } catch (IOException e) {                 // failed: try again later
-          LOG.warning("copy failed: "+loc.getMapTaskId()+" from "+addr);
-          
+          LOG.log(Level.WARNING,
+                  "copy failed: "+loc.getMapTaskId()+" from "+addr,
+                  e);
         } finally {
           MapOutputFile.setProgressReporter(null);
         }
