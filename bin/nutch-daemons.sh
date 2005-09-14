@@ -13,4 +13,4 @@ fi
 bin=`dirname $0`
 bin=`cd $bin; pwd`
 
-exec $bin/slaves.sh /bin/bash --login $bin/nutch-daemon.sh "$@"
+exec $bin/slaves.sh $bin/nutch-daemon.sh "$@"

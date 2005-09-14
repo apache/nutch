@@ -21,5 +21,5 @@ fi
 
 for slave in `cat $NUTCH_SLAVES`; do
  echo $slave:
- ssh -o ConnectTimeout=1 $slave "$@"
+ ssh -o ConnectTimeout=1 -o SendEnv='NUTCH* JAVA*' $slave "$@"
 done
