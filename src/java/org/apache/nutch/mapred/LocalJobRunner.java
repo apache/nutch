@@ -18,12 +18,16 @@ package org.apache.nutch.mapred;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.*;
 
 import org.apache.nutch.io.*;
 import org.apache.nutch.fs.*;
+import org.apache.nutch.util.*;
 
 /** Implements MapReduce locally, in-process, for debugging. */ 
 public class LocalJobRunner implements JobSubmissionProtocol {
+  public static final Logger LOG =
+    LogFormatter.getLogger("org.apache.nutch.mapred.LocalJobRunner");
 
   private NutchFileSystem fs;
   private HashMap jobs = new HashMap();
@@ -102,6 +106,7 @@ public class LocalJobRunner implements JobSubmissionProtocol {
     public Task getTask(String taskid) { return null; }
 
     public void progress(String taskId, float progress, String state) {
+      LOG.info(state);
       float taskIndex = mapIds.indexOf(taskId);
       if (taskIndex >= 0) {                       // mapping
         float numTasks = mapIds.size();

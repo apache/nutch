@@ -114,4 +114,10 @@ public abstract class Task implements Writable {
     }
   }
 
+  public void done(TaskUmbilicalProtocol umbilical)
+    throws IOException {
+    umbilical.progress(getTaskId(),               // send a final status report
+                       taskProgress.get(), taskProgress.toString());
+    umbilical.done(getTaskId());
+  }
 }

@@ -270,7 +270,7 @@ public class ReduceTask extends Task {
       out.close(reporter);
     }
 
-    umbilical.done(getTaskId());
+    done(umbilical);
   }
 
   /** Construct output file names so that, when an output directory listing is

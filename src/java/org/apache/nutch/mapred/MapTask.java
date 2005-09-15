@@ -129,7 +129,7 @@ public class MapTask extends Task {
         }
       }
     }
-    umbilical.done(getTaskId());
+    done(umbilical);
   }
   
 }
