@@ -234,12 +234,16 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
     bytes += bytesInPage;
   }
 
-  private synchronized void reportStatus() throws IOException {
-    long elapsed = (System.currentTimeMillis() - start)/1000;
-    reporter.setStatus
-      (pages+" pages, "+errors+" errors, "
-       + Math.round(((float)pages*10)/elapsed)/10.0+" pages/s, "
-       + Math.round(((((float)bytes)*8)/1024)/elapsed)+" kb/s, ");
+  private void reportStatus() throws IOException {
+    String status;
+    synchronized (this) {
+      long elapsed = (System.currentTimeMillis() - start)/1000;
+      status = 
+        pages+" pages, "+errors+" errors, "
+        + Math.round(((float)pages*10)/elapsed)/10.0+" pages/s, "
+        + Math.round(((((float)bytes)*8)/1024)/elapsed)+" kb/s, ";
+    }
+    reporter.setStatus(status);
   }
 
   public void configure(JobConf job) {
