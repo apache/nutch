@@ -100,13 +100,13 @@ abstract class TaskRunner extends Thread {
       }, null);
 
     } catch (Throwable throwable) {
-      LOG.log(Level.WARNING, "Child Error", throwable);
+      LOG.log(Level.WARNING, t.getTaskId()+" Child Error", throwable);
       ByteArrayOutputStream baos = new ByteArrayOutputStream();
       throwable.printStackTrace(new PrintStream(baos));
       try {
         tracker.reportDiagnosticInfo(t.getTaskId(), baos.toString());
       } catch (IOException e) {
-        LOG.log(Level.WARNING, "Reporting Diagnostics", e);
+        LOG.log(Level.WARNING, t.getTaskId()+" Reporting Diagnostics", e);
       }
     } finally {
       tracker.reportTaskFinished(t.getTaskId());
@@ -129,7 +129,7 @@ abstract class TaskRunner extends Thread {
       logStream(process.getInputStream());        // normally empty
       
       if (this.process.waitFor() != 0) {
-        throw new IOException("Child failed!");
+        throw new IOException("Task process exit with nonzero status.");
       }
       
     } catch (InterruptedException e) {
@@ -158,7 +158,13 @@ abstract class TaskRunner extends Thread {
         LOG.info(t.getTaskId()+" "+line);
       }
     } catch (IOException e) {
-      LOG.warning(e.toString());
+      LOG.log(Level.WARNING, t.getTaskId()+" Error reading child output", e);
+    } finally {
+      try {
+        output.close();
+      } catch (IOException e) {
+        LOG.log(Level.WARNING, t.getTaskId()+" Error closing child output", e);
+      }
     }
   }
 }

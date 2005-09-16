@@ -66,7 +66,7 @@ class ReduceTaskRunner extends TaskRunner {
         continue;
       }
 
-      LOG.info("Got "+locs.length+" map output locations.");
+      LOG.info(task.getTaskId()+" Got "+locs.length+" map output locations.");
 
       // try each of these locations
       for (int i = 0; i < locs.length; i++) {
@@ -100,7 +100,8 @@ class ReduceTaskRunner extends TaskRunner {
           
         } catch (IOException e) {                 // failed: try again later
           LOG.log(Level.WARNING,
-                  "copy failed: "+loc.getMapTaskId()+" from "+addr,
+                  task.getTaskId()+" copy failed: "
+                  +loc.getMapTaskId()+" from "+addr,
                   e);
         } finally {
           MapOutputFile.setProgressReporter(null);
