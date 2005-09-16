@@ -444,7 +444,7 @@
 
 <property>
   <name>indexer.maxMergeDocs</name>
-  <value>50</value>
+  <value>2147483647</value>
   <description>This number determines the maximum number of Lucene
   Documents to be merged into a new Lucene segment. Larger values
   increase indexing speed and reduce the number of Lucene segments,
