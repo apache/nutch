@@ -18,11 +18,11 @@
       <library name="carrot2-util-tokenizer.jar"/>
 
       <library name="colt-1.0.3.jar"/>
-      <library name="commons-collections-3.0.jar"/>
+      <library name="commons-collections-3.1-patched.jar"/>
       <library name="commons-pool-1.1.jar"/>
       <library name="FSA.jar"/>
       <library name="Jama-1.0.1-patched.jar"/>
-      <library name="log4j-1.2.8.jar"/>
+      <library name="log4j-1.2.11.jar"/>
 
       <library name="nekohtml-0.9.2.jar"/>
    </runtime>
