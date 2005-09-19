@@ -46,8 +46,17 @@ public abstract class InputFormatBase implements InputFormat {
                                                Reporter reporter)
     throws IOException;
 
-  /** Subclasses may override to, e.g., select only files matching a regular
-   * expression.*/ 
+  /** List input directories.
+   * Subclasses may override to, e.g., select only files matching a regular
+   * expression.
+   * Property mapred.input.subdir, if set, names a subdirectory that
+   * is appended to all input dirs specified by job, and if the given fs
+   * lists those too, each is added to the returned array of File.
+   * @param fs
+   * @param job
+   * @return array of File objects, never zero length.
+   * @throws IOException if zero items.
+   */
   protected File[] listFiles(NutchFileSystem fs, JobConf job)
     throws IOException {
     File[] dirs = job.getInputDirs();
@@ -73,7 +82,7 @@ public abstract class InputFormatBase implements InputFormat {
     }
 
     if (result.size() == 0) {
-      throw new IOException("No input files in: "+job.getInputDirs());
+      throw new IOException("No input directories specified in: "+job);
     }
     return (File[])result.toArray(new File[result.size()]);
   }

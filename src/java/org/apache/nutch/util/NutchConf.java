@@ -30,14 +30,17 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 /** Provides access to Nutch configuration parameters.
- *
+ * <p>An ordered list of configuration parameter files with
+ * default and always-overrides site parameters.
  * <p>Default values for all parameters are specified in a file named
  * <tt>nutch-default.xml</tt> located on the classpath.  Overrides for these
  * defaults should be in an optional file named <tt>nutch-site.xml</tt>, also
  * located on the classpath.  Typically these files reside in the
  * <tt>conf/</tt> subdirectory at the top-level of a Nutch installation.
+ * <p>The resource files are read upon first access of values (set, get,
+ * or write) after {@link #addConfResource(String)} or
+ * {@link #addConfResource(File)}.
  */
-    
 public class NutchConf {
   private static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.util.NutchConf");
@@ -57,7 +60,7 @@ public class NutchConf {
     resourceNames.add("nutch-site.xml");
   }
 
-  /** A new configuration with the same settings as another. */
+  /** A new configuration with the same settings cloned from another. */
   public NutchConf(NutchConf other) {
     this.resourceNames = (ArrayList)other.resourceNames.clone();
     if (other.properties != null)
@@ -392,6 +395,25 @@ public class NutchConf {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+
+  public String toString() {
+    StringBuffer sb = new StringBuffer(resourceNames.size()*30);
+    sb.append("NutchConf: ");
+    ListIterator i = resourceNames.listIterator();
+    while (i.hasNext()) {
+      if (i.nextIndex() != 0) {
+        sb.append(" , ");
+      }
+      Object obj = i.next();
+      if (obj instanceof File) {
+        sb.append((File)obj);
+      } else {
+        sb.append((String)obj);
+      }
+    }
+    return sb.toString();
   }
 
   /** For debugging.  List non-default properties to the terminal and exit. */
