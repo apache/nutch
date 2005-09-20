@@ -10,7 +10,7 @@
       <library name="parse-pdf.jar">
          <export name="*"/>
       </library>
-      <library name="PDFBox-0.7.0.jar"/>
+      <library name="PDFBox-0.7.2-log4j.jar"/>
       <library name="log4j-1.2.9.jar"/>
    </runtime>
 
