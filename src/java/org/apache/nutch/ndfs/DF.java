@@ -48,6 +48,9 @@ class DF {
           new StringTokenizer(lines.readLine(), " \t\n\r\f%");
         
         this.filesystem = tokens.nextToken();
+        if (!tokens.hasMoreTokens()) {            // for long filesystem name
+          tokens = new StringTokenizer(lines.readLine(), " \t\n\r\f%");
+        }
         this.capacity = Long.parseLong(tokens.nextToken()) * 1024;
         this.used = Long.parseLong(tokens.nextToken()) * 1024;
         this.available = Long.parseLong(tokens.nextToken()) * 1024;
