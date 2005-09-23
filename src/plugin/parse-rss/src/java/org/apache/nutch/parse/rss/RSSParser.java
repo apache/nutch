@@ -157,11 +157,13 @@ public class RSSParser implements Parser {
                 if (r.getLink() != null) {
                     try {
                         // get the outlink
-                        theOutlinks.add(new Outlink(r.getLink(), r
-                                .getDescription()));
+			if (r.getDescription()!= null ) {
+			    theOutlinks.add(new Outlink(r.getLink(), r.getDescription()));
+			} else {
+			    theOutlinks.add(new Outlink(r.getLink(), ""));
+			}
                     } catch (MalformedURLException e) {
-                        LOG
-                                .info("nutch:parse-rss:RSSParser Exception: MalformedURL: "
+                        LOG.info("nutch:parse-rss:RSSParser Exception: MalformedURL: "
                                         + r.getLink()
                                         + ": Attempting to continue processing outlinks");
                         e.printStackTrace();
@@ -185,12 +187,13 @@ public class RSSParser implements Parser {
 
                     if (whichLink != null) {
                         try {
-                            theOutlinks.add(new Outlink(whichLink, theRSSItem
-                                    .getDescription()));
-
+			    if (theRSSItem.getDescription()!=null) {
+				theOutlinks.add(new Outlink(whichLink, theRSSItem.getDescription()));
+			    } else {
+				theOutlinks.add(new Outlink(whichLink, ""));
+			    }
                         } catch (MalformedURLException e) {
-                            LOG
-                                    .info("nutch:parse-rss:RSSParser Exception: MalformedURL: "
+                            LOG.info("nutch:parse-rss:RSSParser Exception: MalformedURL: "
                                             + whichLink
                                             + ": Attempting to continue processing outlinks");
                             e.printStackTrace();
@@ -206,23 +209,18 @@ public class RSSParser implements Parser {
             LOG.fine("nutch:parse-rss:getParse:contentTitle=" + contentTitle);
 
         } else {
-            LOG
-                    .fine("nutch:parse-rss:Error:getParse: No RSS Channels recorded!");
+            LOG.fine("nutch:parse-rss:Error:getParse: No RSS Channels recorded!");
         }
 
         // format the outlinks
+        Outlink[] outlinks = (Outlink[]) theOutlinks.toArray(new Outlink[theOutlinks.size()]);
 
-        Outlink[] outlinks = (Outlink[]) theOutlinks
-                .toArray(new Outlink[theOutlinks.size()]);
-
-        LOG.fine("nutch:parse-rss:getParse:found " + outlinks.length
-                + " outlinks");
+        LOG.fine("nutch:parse-rss:getParse:found " + outlinks.length + " outlinks");
         // LOG.info("Outlinks: "+outlinks);
 
         ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS,
                 contentTitle.toString(), outlinks, content.getMetadata());
         return new ParseImpl(indexText.toString(), parseData);
-
     }
 
 }
