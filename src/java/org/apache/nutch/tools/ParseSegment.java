@@ -144,6 +144,15 @@ public class ParseSegment {
           synchronized (ParseSegment.this) {
             t1 = System.currentTimeMillis();
 
+            // 20050919, xing,
+            // entry++ should go before fetcherNPReader.next()
+            // and contentReader.next(), in order to have the logic correct
+            // if contentReader throws exception other than EOFException.
+            entry++;
+            myEntry = entry;
+            if (LOG.isLoggable(Level.FINE))
+              LOG.fine("Read in entry "+entry);
+
             try {
               if (fetcherNPReader.next(fetcherOutput) == null ||
                 contentReader.next(content) == null)
@@ -153,11 +162,6 @@ public class ParseSegment {
               // other threads will be stopped also.
               return;
             }
-
-            entry++;
-            myEntry = entry;
-            if (LOG.isLoggable(Level.FINE))
-              LOG.fine("Read in entry "+entry);
 
             // safe guard against mismatched files
             //if (entry != fetcherNPReader.key() ||
