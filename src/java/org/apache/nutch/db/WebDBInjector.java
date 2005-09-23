@@ -530,7 +530,7 @@ public class WebDBInjector {
           try {
               if ("-urlfile".equals(command)) {
                   if (!topics.isEmpty()) {
-                      System.out.println("You can't select URLs based on a topic when usin a URL-file");
+                      System.out.println("You can't select URLs based on a topic when using a URL-file");
                   }
                   injector.injectURLFile(new File(loadfile));
               } else if ("-dmozfile".equals(command)) {
