@@ -35,7 +35,7 @@ import org.apache.nutch.util.*;
 
 /*****************************************************
  * This class takes the output of the fetcher and updates the page and link
- * DBs accordingly.  Eventually, as the database scales, this will broken into
+ * DBs accordingly.  Eventually, as the database scales, this will be broken into
  * several phases, each consuming and emitting batch files, but, for now, we're
  * doing it all here.
  *
