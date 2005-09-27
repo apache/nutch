@@ -2,6 +2,35 @@ Nutch Change Log
 
 Release 0.7.1
 
+ 1. Give focus to search query input.
+
+ 2. Fixed plugin/build.xml. Bad target name used. Reported by Fuad Efendi.
+
+ 3. NUTCH-10, extension points defined only once (Stefan Groschupf).
+
+ 4. Add utility to extract urls from plain text (Stephan Strittmatter).
+  
+ 5. Small language identifier plugin updates.
+
+ 6. NUTCH-37, JavaDoc warnings cleanup.
+
+ 7. Updated indexer.maxMergeDocs default in nutch-default.xml to 2147483647.
+    The default for indexer.maxMergeDocs was mistakenly set to 50, which 
+    can make indexing really slow.  
+
+ 8. Update of the clustering plugin.
+    Carrot2 components updated to the newest stable versions. Improvements in
+    tokenizers (speedups) and stop words handling. Internal API changed slightly
+    (update needed if anyone wants to use other Carrot2 components and uses this
+    code as a glue). Support added for Danish, Finnish, Norwegian (bokmaal) and
+    Swedish. (Dawid Weiss)
+
+ 9. Updated to PDFBox-0.7.2. Starting with this release PDFBox comes in two
+    versions - one has no logging at all, the other uses log4j (which is
+    the version used here). This version also resolves NUTCH-85.                    
+                    
+10. NUTCH-89, parse-rss null pointer exception.(Michael Nebel)
+                                                                            
 
 Release 0.7 - 2005-08-17
 
