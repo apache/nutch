@@ -13,36 +13,53 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.parse;
 
+// JDK imports
 import java.util.Hashtable;
-
-import org.apache.nutch.plugin.*;
-
+import java.util.Iterator;
+import java.util.List;
 import java.util.logging.Logger;
+
+// Nutch imports
+import org.apache.nutch.plugin.Extension;
+import org.apache.nutch.plugin.ExtensionPoint;
+import org.apache.nutch.plugin.PluginRepository;
+import org.apache.nutch.plugin.PluginRuntimeException;
 import org.apache.nutch.util.LogFormatter;
 
+
 /** Creates and caches {@link Parser} plugins.*/
-public class ParserFactory {
+public final class ParserFactory {
+  
+  public static final Logger LOG =
+          LogFormatter.getLogger(ParserFactory.class.getName());
+  
+  public static final String DEFAULT_PLUGIN = "*";
 
-  public static final Logger LOG = LogFormatter
-    .getLogger(ParserFactory.class.getName());
-
-  private static final ExtensionPoint X_POINT = PluginRepository.getInstance()
-      .getExtensionPoint(Parser.X_POINT_ID);
-
+  private static final ExtensionPoint X_POINT =
+          PluginRepository.getInstance().getExtensionPoint(Parser.X_POINT_ID);
+  
+  private static final ParsePluginList PARSE_PLUGIN_LIST =
+          new ParsePluginsReader().parse();
+  
+  
   static {
     if (X_POINT == null) {
       throw new RuntimeException("x point "+Parser.X_POINT_ID+" not found.");
     }
+    if (PARSE_PLUGIN_LIST == null) {
+      throw new RuntimeException("Parse Plugins preferences could not be loaded.");
+    }
   }
-
+  
   private static final Hashtable CACHE = new Hashtable();
-
+  
+  
   private ParserFactory() {}                      // no public ctor
-
-  /** Returns the appropriate {@link Parser} implementation given a content
+  
+  /**
+   * Returns the appropriate {@link Parser} implementation given a content
    * type and url.
    *
    * <p>Parser extensions should define the attributes"contentType" and/or
@@ -53,78 +70,83 @@ public class ParserFactory {
    * first plugin whose "pathSuffix" is the empty string is used.
    */
   public static Parser getParser(String contentType, String url)
-    throws ParserNotFound {
-
+  throws ParserNotFound {
+    
     try {
-      Extension extension = getExtension(contentType, getSuffix(url));
-      if (extension == null)
+      Extension extension = getExtension(contentType);
+      if (extension != null) {
+        return (Parser) extension.getExtensionInstance();
+      }
+      // TODO once the MimeTypes is available
+      // extension = getExtension(MimeUtils.map(contentType));
+      // if (extension != null) {
+      //   return (Parser) extension.getExtensionInstance();
+      // }
+      // Last Chance: Guess content-type from file url...
+      // extension = getExtension(MimeUtils.getMimeType(url));
         throw new ParserNotFound(url, contentType);
-
-      return (Parser)extension.getExtensionInstance();
-
     } catch (PluginRuntimeException e) {
       throw new ParserNotFound(url, contentType, e.toString());
     }
   }
-
-  private static String getSuffix(String url) {
-    int i = url.lastIndexOf('.');
-    int j = url.lastIndexOf('/');
-    if (i == -1 || i == url.length()-1 || i < j)
-      return null;
-    return url.substring(i+1);
-  }
-
-
-  private static Extension getExtension(String contentType, String suffix)
-    throws PluginRuntimeException {
-
-    //LOG.fine("getExtension: contentType="+contentType+" suffix="+suffix);
-
-    String key = contentType + "+" + suffix;
-
-    if (CACHE.containsKey(key))
-      return (Extension)CACHE.get(key);
     
-    Extension extension = findExtension(contentType, suffix);
+  protected static Extension getExtension(String contentType)
+  throws PluginRuntimeException {
     
-    CACHE.put(key, extension);
-    
+    Extension extension = (Extension) CACHE.get(contentType);
+    if (extension == null) {
+      extension = findExtension(contentType);
+      // TODO: For null extension, add a fake extension in the CACHE
+      //       in order to avoid trying to find each time
+      //       an unavailable extension
+      if (extension != null) {
+        CACHE.put(contentType, extension);
+      }
+    }
     return extension;
   }
-
-  private static Extension findExtension(String contentType, String suffix)
-    throws PluginRuntimeException{
-
-    //LOG.fine("findExtension: contentType="+contentType+" suffix="+suffix);
-
+  
+  private static Extension findExtension(String contentType)
+  throws PluginRuntimeException{
+    
     Extension[] extensions = X_POINT.getExtensions();
-
-    // first look for a content-type match
-    if (contentType != null) {
-      for (int i = 0; i < extensions.length; i++) {
-        Extension extension = extensions[i];
-        if (contentType.startsWith(extension.getAttribute("contentType")))
-          return extension;                       // found a match
+    
+    // Look for a preferred plugin.
+    List parsePluginList = PARSE_PLUGIN_LIST.getPluginList(contentType);
+    Extension extension = matchExtension(parsePluginList, extensions, contentType);
+    if (extension != null) {
+      return extension;
+    }
+    
+    // If none found, look for a default plugin.
+    parsePluginList = PARSE_PLUGIN_LIST.getPluginList(DEFAULT_PLUGIN);
+    return matchExtension(parsePluginList, extensions, DEFAULT_PLUGIN);
+  }
+  
+  private static Extension matchExtension(List plugins,
+                                          Extension[] extensions,
+                                          String contentType) {
+    
+    // Preliminary check
+    if (plugins == null) { return null; }
+    
+    Iterator iter = plugins.iterator();
+    while (iter.hasNext()) {
+      String pluginId = (String) iter.next();
+      if (pluginId != null) {
+        for (int i=0; i<extensions.length; i++) {
+          if (match(extensions[i], pluginId, contentType)) {
+            return extensions[i];
+          }
+        }
       }
     }
-
-    // next look for a url path suffix match
-    if (suffix != null) {
-      for (int i = 0; i < extensions.length; i++) {
-        Extension extension = extensions[i];
-        if (suffix.equals(extension.getAttribute("pathSuffix")))
-          return extension;                       // found a match
-      }
-    }
-
-    // finally, look for an extension that accepts anything
-    for (int i = 0; i < extensions.length; i++) {
-      Extension extension = extensions[i];
-      if ("".equals(extension.getAttribute("pathSuffix"))) // matches all
-        return extension;
-    }
-
     return null;
+  }
+
+  private static boolean match(Extension extension, String id, String type) {
+    return (id.equals(extension.getDescriptor().getPluginId())) &&
+              (type.equals(extension.getAttribute("contentType")) ||
+              (type.equals(DEFAULT_PLUGIN))); 
   }
 }

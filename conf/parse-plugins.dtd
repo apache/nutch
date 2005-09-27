@@ -1,0 +1,7 @@
+<!ELEMENT parse-plugins (mimeType+)>
+<!ELEMENT mimeType (plugin+)>
+<!ATTLIST mimeType name CDATA #REQUIRED>
+
+<!ELEMENT plugin EMPTY>
+<!ATTLIST plugin id CDATA #REQUIRED>
+<!ATTLIST plugin order CDATA ''>
