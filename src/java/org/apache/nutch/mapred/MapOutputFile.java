@@ -119,7 +119,7 @@ public class MapOutputFile implements Writable {
     try {
       byte[] buffer = new byte[8192];
       while (unread > 0) {
-          int bytesToRead = Math.min((int) unread, buffer.length);
+          int bytesToRead = (int)Math.min(unread, buffer.length);
           in.readFully(buffer, 0, bytesToRead);
           out.write(buffer, 0, bytesToRead);
           unread -= bytesToRead;
