@@ -6,6 +6,8 @@
 #
 #   NUTCH_LOG_DIR   Where log files are stored.  PWD by default.
 #   NUTCH_MASTER    host:path where nutch code should be rsync'd from
+#   NUTCH_PID_DIR   The pid files are stored. /tmp by default.
+#   NUTCH_IDENT_STRING   A string representing this instance of nutch. $USER by default
 ##
 
 usage="Usage: nutch-daemon [start|stop] [nutch-command] [args...]"
@@ -39,9 +41,17 @@ if [ "$NUTCH_LOG_DIR" = "" ]; then
   NUTCH_LOG_DIR=$PWD
 fi
 
+if [ "$NUTCH_PID_DIR" = "" ]; then
+  NUTCH_PID_DIR=/tmp
+fi
+
+if [ "$NUTCH_IDENT_STRING" = "" ]; then
+  NUTCH_IDENT_STRING=$USER
+fi
+
 # some variables
-log=$NUTCH_LOG_DIR/nutch-$command-`hostname`.log
-pid=/tmp/nutch-$USER-$command.pid
+log=$NUTCH_LOG_DIR/nutch-$NUTCH_IDENT_STRING-$command-`hostname`.log
+pid=$NUTCH_PID_DIR/nutch-$NUTCH_IDENT_STRING-$command.pid
 
 case $startStop in
 
