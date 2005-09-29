@@ -71,14 +71,6 @@ public class NDFSClient implements FSConstants {
         return new NDFSInputStream(src.toString());
     }
 
-    /**
-     * Create an output stream that writes to all the right places.
-     * Basically creates instance of inner subclass of OutputStream
-     * that handles datanode/namenode negotiation.
-     */
-    public NFSOutputStream create(UTF8 src) throws IOException {
-        return create(src, false);
-    }
     public NFSOutputStream create(UTF8 src, boolean overwrite) throws IOException {
         return new NDFSOutputStream(src, overwrite);
     }

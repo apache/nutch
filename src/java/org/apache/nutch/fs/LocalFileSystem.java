@@ -95,13 +95,6 @@ public class LocalFileSystem extends NutchFileSystem {
         return new LocalNFSFileInputStream(f);
     }
 
-    /**
-     * Create the file at f.
-     */
-    public NFSOutputStream create(File f) throws IOException {
-        return create(f, false);
-    }
-
     /*********************************************************
      * For create()'s NFSOutputStream.
      *********************************************************/
@@ -128,8 +121,6 @@ public class LocalFileSystem extends NutchFileSystem {
       public void write(int b) throws IOException { fos.write(b); }
     }
 
-    /**
-     */
     public NFSOutputStream create(File f, boolean overwrite) throws IOException {
         if (f.exists() && ! overwrite) {
             throw new IOException("File already exists:"+f);

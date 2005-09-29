@@ -122,10 +122,18 @@ public abstract class NutchFileSystem {
     public abstract NFSInputStream open(File f) throws IOException;
 
     /**
-     * Opens an OutputStream at the indicated File, whether local
-     * or via NDFS.
+     * Opens an OutputStream at the indicated File.
+     * Files are overwritten by default.
      */
-    public abstract NFSOutputStream create(File f) throws IOException;
+    public NFSOutputStream create(File f) throws IOException {
+        return create(f, true);
+    }
+
+    /** Opens an OutputStream at the indicated File.
+     * @param f the file name to open
+     * @param overwrite if a file with this name already exists, then if true,
+     *   the file will be overwritten, and if false an error will be thrown.
+     */
     public abstract NFSOutputStream create(File f, boolean overwrite) throws IOException;
 
     /**
