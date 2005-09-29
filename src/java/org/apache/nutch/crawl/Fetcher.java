@@ -59,9 +59,9 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
   private String segmentName;
   private int activeThreads;
   private int maxRedirect;
-  private boolean done;
 
   private long start = System.currentTimeMillis(); // start time of fetcher run
+  private long lastRequestStart = start;
 
   private long bytes;                             // total bytes fetched
   private int pages;                              // total pages fetched
@@ -88,12 +88,15 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
           
           try {                                   // get next entry from input
             if (!input.next(key, datum)) {
-              done = true;
               break;                              // at eof, exit
             }
           } catch (IOException e) {
             LOG.severe("fetcher caught:"+e.toString());
             break;
+          }
+
+          synchronized (Fetcher.this) {
+            lastRequestStart = System.currentTimeMillis();
           }
 
           String url = key.toString();
@@ -280,6 +283,9 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
       new FetcherThread().start();
     }
 
+    // select a timeout that avoids a task timeout
+    long timeout = NutchConf.get().getInt("mapred.task.timeout", 10*60*1000)/2;
+
     do {                                          // wait for threads to exit
       try {
         Thread.sleep(1000);
@@ -287,18 +293,9 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
 
       reportStatus();
 
-      // some threads seem to hang, despite all intentions
-      if (done) {                                 // last entry read
-        long doneTime = System.currentTimeMillis();
-        long timeout =             // select timeout that avoids a task timeout
-          NutchConf.get().getInt("mapred.task.timeout", 10*60*1000)/2;
-        while (activeThreads > 0
-               && System.currentTimeMillis()-doneTime < timeout) {
-          try {
-            Thread.sleep(1000);                   // wait for completion
-          } catch (InterruptedException e) {}
-        }
-        if (activeThreads > 0) {                  // abort after timeout
+      // some requests seem to hang, despite all intentions
+      synchronized (this) {
+        if ((System.currentTimeMillis() - lastRequestStart) > timeout) { 
           LOG.warning("Aborting with "+activeThreads+" hung threads.");
           return;
         }
