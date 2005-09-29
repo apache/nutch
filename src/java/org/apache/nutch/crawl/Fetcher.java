@@ -290,7 +290,8 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
       // some threads seem to hang, despite all intentions
       if (done) {                                 // last entry read
         long doneTime = System.currentTimeMillis();
-        long timeout = getConf().getLong("http.timeout", 10000) * 10;
+        long timeout =             // select timeout that avoids a task timeout
+          NutchConf.get().getInt("mapred.task.timeout", 10*60*1000)/2;
         while (activeThreads > 0
                && System.currentTimeMillis()-doneTime < timeout) {
           try {
