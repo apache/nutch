@@ -22,6 +22,12 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import java.io.InputStream;
+import java.io.IOException;
+
+import java.net.URL;
+import java.net.MalformedURLException;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -76,8 +82,35 @@ public class ParsePluginsReader {
     Document document = null;
     InputSource inputSource = null;
     
-    inputSource = new InputSource(NutchConf.get()
-                          .getConfResourceAsInputStream(fParsePluginsFile));
+    //check to see if the Nutch conf property
+    //parse.plugin.file is defined
+    String parsePluginFileUrl = NutchConf.get().get("parse.plugin.file");
+    
+    InputStream ppInputStream = null;
+
+        if (parsePluginFileUrl != null) {
+            URL parsePluginUrl = null;
+
+            try {
+                parsePluginUrl = new URL(parsePluginFileUrl);
+                ppInputStream = parsePluginUrl.openStream();
+            } catch (MalformedURLException e) {
+                LOG.log(Level.SEVERE,
+                        "Unable to load parse plugins file from URL ["
+                                + parsePluginFileUrl + "]", e);
+                return null;
+            } catch (IOException e) {
+                LOG.log(Level.SEVERE,
+                        "Unable to load parse plugins file from URL ["
+                                + parsePluginFileUrl + "]", e);
+                return null;
+            }
+        } else {
+            ppInputStream = NutchConf.get().getConfResourceAsInputStream(
+                    fParsePluginsFile);
+        }
+    
+    inputSource = new InputSource(ppInputStream);
     
     try {
       factory = DocumentBuilderFactory.newInstance();
@@ -154,6 +187,12 @@ public class ParsePluginsReader {
   public static void main(String[] args) throws Exception {
     String parsePluginFile = null;
     String usage = "ParsePluginsReader [--file <parse plugin file location>]";
+    
+    if (( args.length != 0 && args.length != 2 )
+        || (args.length == 2 && !"--file".equals(args[0]))) {
+      System.err.println(usage);
+      System.exit(1);
+    }
     
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("--file")) {
