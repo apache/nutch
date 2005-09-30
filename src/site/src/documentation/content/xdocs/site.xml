@@ -24,7 +24,7 @@ See http://forrest.apache.org/docs/linking.html for more info.
   </project>
 
   <docs label="Documentation">    
-    <faq         label="FAQ"              href="faq.html" />    
+    <faq         label="FAQ"              href="ext:faq" />    
     <wiki        label="Wiki"             href="ext:wiki" />    
     <tutorial    label="Tutorial"         href="tutorial.html" />
     <webmasters  label="Robot     "       href="bot.html" />
@@ -46,6 +46,7 @@ See http://forrest.apache.org/docs/linking.html for more info.
   <external-refs>
     <lucene    href="http://lucene.apache.org/java/" />
     <wiki      href="http://wiki.apache.org/nutch/" />
+    <faq       href="http://wiki.apache.org/nutch/FAQ" /> 
     <store     href="http://www.cafepress.com/nutch/" />
   </external-refs>
  
