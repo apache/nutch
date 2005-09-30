@@ -612,6 +612,15 @@
   </description>
 </property>
 
+<!-- parser properties -->
+
+<property>
+  <name>parse.plugin.file</name>
+  <value>parse-plugins.xml</value>
+  <description>The name of the file that defines the associations between
+  content-types and parsers.</description>
+</property>
+
 <property>
   <name>parser.character.encoding.default</name>
   <value>windows-1252</value>
