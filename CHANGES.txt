@@ -1,6 +1,6 @@
 Nutch Change Log
 
-Release 0.7.1
+Release 0.7.1 - 2005-10-01
 
  1. Give focus to search query input.
 
