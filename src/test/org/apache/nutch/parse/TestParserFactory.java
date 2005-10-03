@@ -37,30 +37,13 @@ import java.net.MalformedURLException;
  */
 public class TestParserFactory extends TestCase {
 	
-  private NutchConf conf = null;
   
   public TestParserFactory(String name) { super(name); }
-  
-  private void initNutchConf(String testFile) {
-    // set the Nutch Conf property for parse.plugin.file.url
-    // to ${test.src.dir}/org/apache/nutch/parse/parse-plugin-test.xml
-    String testParsePluginFileUrl = null;
-    try{
-      testParsePluginFileUrl = new File(System.getProperty("test.src.dir")
-          +"/org/apache/nutch/parse/" + testFile).toURL().toString();
-      NutchConf.get().set("parse.plugin.file.url",testParsePluginFileUrl);
-      this.conf = NutchConf.get();
-    }
-    catch(MalformedURLException e){
-      throw new RuntimeException("Unable to load parse-plugins.xml file from URL: "+testParsePluginFileUrl);
-    }    
-  }
-  
-  /** Inits the Test Case: loads the Nutch Conf instance. */
+
+  /** Inits the Test Case with the test parse-plugin file */
   protected void setUp() throws Exception {
-    if (conf == null) {
-      initNutchConf("parse-plugin-test.xml");
-    }
+    NutchConf.get().set("parse.plugin.file",
+                        "org/apache/nutch/parse/parse-plugin-test.xml");
   }
   
   /** Unit test for <code>getParser(String, String)</code> method. */

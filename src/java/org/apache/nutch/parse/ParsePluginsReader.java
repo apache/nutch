@@ -54,14 +54,17 @@ public class ParsePluginsReader {
   public static final Logger LOG = 
           LogFormatter.getLogger(ParsePluginsReader.class.getName());
   
+  /** The property name of the parse-plugins location */
+  private static final String PP_FILE_PROP = "parse.plugin.file";
+
   /* the parse-plugins file */
-  private String fParsePluginsFile = "parse-plugins.xml";
+  private String fParsePluginsFile = null;
+
   
   /**
    * Constructs a new ParsePluginsReader
    */
-  public ParsePluginsReader() {
-  }
+  public ParsePluginsReader() { }
   
   /**
    * Reads the <code>parse-plugins.xml</code> file and returns the
@@ -82,33 +85,22 @@ public class ParsePluginsReader {
     Document document = null;
     InputSource inputSource = null;
     
-    //check to see if the Nutch conf property
-    //parse.plugin.file is defined
-    String parsePluginFileUrl = NutchConf.get().get("parse.plugin.file");
-    
     InputStream ppInputStream = null;
-
-        if (parsePluginFileUrl != null) {
-            URL parsePluginUrl = null;
-
-            try {
-                parsePluginUrl = new URL(parsePluginFileUrl);
-                ppInputStream = parsePluginUrl.openStream();
-            } catch (MalformedURLException e) {
-                LOG.log(Level.SEVERE,
-                        "Unable to load parse plugins file from URL ["
-                                + parsePluginFileUrl + "]", e);
-                return null;
-            } catch (IOException e) {
-                LOG.log(Level.SEVERE,
-                        "Unable to load parse plugins file from URL ["
-                                + parsePluginFileUrl + "]", e);
-                return null;
-            }
-        } else {
-            ppInputStream = NutchConf.get().getConfResourceAsInputStream(
-                    fParsePluginsFile);
-        }
+    if (fParsePluginsFile != null) {
+      URL parsePluginUrl = null;
+      try {
+        parsePluginUrl = new URL(fParsePluginsFile);
+        ppInputStream = parsePluginUrl.openStream();
+      } catch (Exception e) {
+        LOG.log(Level.SEVERE,
+                "Unable to load parse plugins file from URL " +
+                "[" + fParsePluginsFile + "]", e);
+        return pList;
+      }
+    } else {
+      ppInputStream = NutchConf.get().getConfResourceAsInputStream(
+                          NutchConf.get().get(PP_FILE_PROP));
+    }
     
     inputSource = new InputSource(ppInputStream);
     
