@@ -578,7 +578,6 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
 
           try {
               task.run(job, umbilical);           // run the task
-              umbilical.done(taskid);
           } catch (Throwable throwable) {
               LOG.log(Level.WARNING, "Failed to spawn child", throwable);
               // Report back any failures, for diagnostic purposes
