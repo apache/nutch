@@ -25,8 +25,6 @@ import org.apache.nutch.util.*;
 
 /** A local file to be transferred via the {@link MapOutputProtocol}. */ 
 public class MapOutputFile implements Writable {
-  private static final String LOCAL_DIR = JobConf.getLocalDir().toString();
-
   private String mapTaskId;
   private String reduceTaskId;
   private int partition;
@@ -46,23 +44,23 @@ public class MapOutputFile implements Writable {
    * @param mapTaskId a map task id
    * @param partition a reduce partition
    */
-  public static File getOutputFile(String mapTaskId, int partition) {
-    File taskDir = new File(LOCAL_DIR, mapTaskId);
-    return new File(taskDir, "part-"+partition+".out");
+  public static File getOutputFile(String mapTaskId, int partition)
+    throws IOException {
+    return JobConf.getLocalFile(mapTaskId, "part-"+partition+".out");
   }
 
   /** Create a local reduce input file name.
    * @param mapTaskId a map task id
    * @param reduceTaskId a reduce task id
    */
-  public static File getInputFile(String mapTaskId, String reduceTaskId) {
-    File taskDir = new File(LOCAL_DIR, reduceTaskId);
-    return new File(taskDir, mapTaskId+".out");
+  public static File getInputFile(String mapTaskId, String reduceTaskId)
+    throws IOException {
+    return JobConf.getLocalFile(reduceTaskId, mapTaskId+".out");
   }
 
   /** Removes all of the files related to a task. */
   public static void removeAll(String taskId) throws IOException {
-    FileUtil.fullyDelete(new File(LOCAL_DIR, taskId));
+    JobConf.deleteLocalFiles(taskId);
   }
 
   /** 
@@ -70,7 +68,7 @@ public class MapOutputFile implements Writable {
    * startup, to remove any leftovers from previous run.
    */
   public static void cleanupStorage() throws IOException {
-    FileUtil.fullyDelete(new File(LOCAL_DIR));
+    JobConf.deleteLocalFiles();
   }
 
   /** Construct a file for transfer. */

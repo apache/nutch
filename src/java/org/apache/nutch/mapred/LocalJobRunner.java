@@ -45,7 +45,7 @@ public class LocalJobRunner implements JobSubmissionProtocol {
       this.file = file;
       this.id = "job_" + newId();
 
-      File localFile = new File(JobConf.getLocalDir(), id+".xml");
+      File localFile = JobConf.getLocalFile("localRunner", id+".xml");
       fs.copyToLocalFile(new File(file), localFile);
       this.job = new JobConf(localFile);
 
@@ -63,6 +63,7 @@ public class LocalJobRunner implements JobSubmissionProtocol {
         FileSplit[] splits = job.getInputFormat().getSplits(fs, job, 1);
 
         // run a map task for each split
+        job.setNumReduceTasks(1);                 // force a single reduce task
         for (int i = 0; i < splits.length; i++) {
           mapIds.add("map_" + newId());
           MapTask map = new MapTask(file, (String)mapIds.get(i), splits[i]);
@@ -70,7 +71,7 @@ public class LocalJobRunner implements JobSubmissionProtocol {
         }
 
         // move map output to reduce input
-        String reduceId = "_" + newId();
+        String reduceId = "reduce_" + newId();
         for (int i = 0; i < mapIds.size(); i++) {
           String mapId = (String)mapIds.get(i);
           File mapOut = MapOutputFile.getOutputFile(mapId, 0);

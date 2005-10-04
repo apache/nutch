@@ -63,7 +63,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
 
     static Random r = new Random();
     NutchFileSystem fs = null;
-    File localDir = null;
+    static final String SUBDIR = "taskTracker";
 
     /**
      * Start with the local machine name, and the default JobTracker
@@ -77,7 +77,6 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
      */
     public TaskTracker(InetSocketAddress jobTrackAddr) throws IOException {
         this.jobTrackAddr = jobTrackAddr;
-        this.localDir = new File(JobConf.getLocalDir(), "tracker");
         initialize();
     }
 
@@ -90,10 +89,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
         this.taskTrackerName = "tracker_" + (Math.abs(r.nextInt()) % 100000);
         this.localHostname = InetAddress.getLocalHost().getHostName();
 
-        if (localDir.exists()) {
-            FileUtil.fullyDelete(localDir);
-        }
-        localDir.mkdirs();
+        JobConf.deleteLocalFiles(SUBDIR);
 
         // Clear out state tables
         this.tasks = new TreeMap();
@@ -296,7 +292,6 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
     ///////////////////////////////////////////////////////
     class TaskInProgress {
         Task task;
-        File localTaskDir;
         float progress;
         int runstate;
         String stateString = "";
@@ -311,11 +306,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
         public TaskInProgress(Task task) throws IOException {
             this.task = task;
             this.lastProgressReport = System.currentTimeMillis();
-            this.localTaskDir = new File(localDir, task.getTaskId());
-            if (localTaskDir.exists()) {
-                FileUtil.fullyDelete(localTaskDir);
-            }
-            this.localTaskDir.mkdirs();
+            JobConf.deleteLocalFiles(SUBDIR+File.separator+task.getTaskId());
             localizeTask(task);
         }
 
@@ -324,8 +315,10 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
          * So here, edit the Task's fields appropriately.
          */
         void localizeTask(Task t) throws IOException {
-            File localJobFile = new File(localTaskDir, "job.xml");
-            File localJarFile = new File(localTaskDir, "job.jar");
+            File localJobFile =
+              JobConf.getLocalFile(SUBDIR+File.separator+t.getTaskId(), "job.xml");
+            File localJarFile =
+              JobConf.getLocalFile(SUBDIR+File.separator+t.getTaskId(), "job.jar");
 
             String jobFile = t.getJobFile();
             fs.copyToLocalFile(new File(jobFile), localJobFile);
@@ -487,7 +480,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
                 runner.close();
             } catch (IOException ie) {
             }
-            FileUtil.fullyDelete(localTaskDir);
+            JobConf.deleteLocalFiles(SUBDIR+File.separator+task.getTaskId());
         }
     }
 

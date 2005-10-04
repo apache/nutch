@@ -195,7 +195,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
 
     // Some jobs are stored in a local system directory.  We can delete
     // the files when we're done with the job.
-    File localDir;
+    static final String SUBDIR = "jobTracker";
     NutchFileSystem fs;
     File systemDir;
 
@@ -211,9 +211,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
         fs.mkdirs(systemDir);
 
         // Same with 'localDir' except it's always on the local disk.
-        this.localDir = JobConf.getLocalDir();
-        FileUtil.fullyDelete(localDir);
-        this.localDir.mkdirs();
+        JobConf.deleteLocalFiles(SUBDIR);
 
         // Set ports, start RPC servers, etc.
         InetSocketAddress addr = getAddress(conf);
@@ -580,7 +578,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
             this.profile = new JobProfile(jobid, jobFile, url);
             this.status = new JobStatus(jobid, 0.0f, 0.0f, JobStatus.RUNNING);
 
-            this.localJobFile = new File(localDir, jobid+".xml");
+            this.localJobFile = JobConf.getLocalFile(SUBDIR, jobid+".xml");
             fs.copyToLocalFile(new File(jobFile), localJobFile);
 
             JobConf jd = new JobConf(localJobFile);

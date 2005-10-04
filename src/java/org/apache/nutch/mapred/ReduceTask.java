@@ -27,8 +27,6 @@ import java.text.*;
 
 /** A Reduce task. */
 public class ReduceTask extends Task {
-  private static final String LOCAL_DIR = JobConf.getLocalDir().toString();
-
   private String[] mapTaskIds;
   private int partition;
   private boolean sortComplete;
@@ -164,8 +162,7 @@ public class ReduceTask extends Task {
     copyPhase.complete();                         // copy is already complete
 
     // open a file to collect map output
-    File taskDir = new File(LOCAL_DIR, getTaskId());
-    String file = new File(taskDir, "all.in").toString();
+    String file = job.getLocalFile(getTaskId(), "all.1").toString();
     SequenceFile.Writer writer =
       new SequenceFile.Writer(lfs, file, keyClass, valueClass);
     try {
@@ -221,7 +218,7 @@ public class ReduceTask extends Task {
       };
     sortProgress.setName("Sort progress reporter for task "+getTaskId());
 
-    String sortedFile = file+".sorted";
+    String sortedFile = job.getLocalFile(getTaskId(), "all.2").toString();
 
     WritableComparator comparator = job.getOutputKeyComparator();
     

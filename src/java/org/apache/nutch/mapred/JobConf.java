@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Collections;
 
 import org.apache.nutch.fs.NutchFileSystem;
+import org.apache.nutch.fs.FileUtil;
 import org.apache.nutch.util.NutchConf;
 
 import org.apache.nutch.io.Writable;
@@ -85,9 +86,34 @@ public class JobConf extends NutchConf {
                                         "/tmp/nutch/mapred/system"));
   }
 
-  public static File getLocalDir() {
-    return new File(NutchConf.get().get("mapred.local.dir",
-                                        "/tmp/nutch/mapred/local"));
+  public static String[] getLocalDirs() throws IOException {
+    return NutchConf.get().getStrings("mapred.local.dir");
+  }
+
+  public static void deleteLocalFiles() throws IOException {
+    String[] localDirs = getLocalDirs();
+    for (int i = 0; i < localDirs.length; i++) {
+      FileUtil.fullyDelete(new File(localDirs[i]));
+    }
+  }
+
+  public static void deleteLocalFiles(String subdir) throws IOException {
+    String[] localDirs = getLocalDirs();
+    for (int i = 0; i < localDirs.length; i++) {
+      FileUtil.fullyDelete(new File(localDirs[i], subdir));
+    }
+  }
+
+  /** Constructs a local file name.  Files are distributed among configured
+   * local directories.*/
+  public static File getLocalFile(String subdir, String name)
+    throws IOException {
+    String[] localDirs = getLocalDirs();
+    String path = subdir + File.separator + name;
+    int i = (path.hashCode() & Integer.MAX_VALUE) % localDirs.length;
+    File file = new File(localDirs[i], path);
+    file.getParentFile().mkdirs();
+    return file;
   }
 
   public void setInputDir(File dir) { set("mapred.input.dir", dir); }

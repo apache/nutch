@@ -72,8 +72,8 @@ public class Indexer extends NutchConfigured implements Reducer {
     public RecordWriter getRecordWriter(final NutchFileSystem fs, JobConf job,
                                         String name) throws IOException {
       final File perm = new File(job.getOutputDir(), name);
-      final File temp = new File(job.getLocalDir(), "index-"
-                                 +Integer.toString(new Random().nextInt()));
+      final File temp =
+        job.getLocalFile("index","_"+Integer.toString(new Random().nextInt()));
 
       fs.delete(perm);                            // delete old, if any
 
