@@ -110,10 +110,16 @@ public class JobConf extends NutchConf {
     throws IOException {
     String[] localDirs = getLocalDirs();
     String path = subdir + File.separator + name;
-    int i = (path.hashCode() & Integer.MAX_VALUE) % localDirs.length;
-    File file = new File(localDirs[i], path);
-    file.getParentFile().mkdirs();
-    return file;
+    int hashCode = path.hashCode();
+    for (int i = 0; i < localDirs.length; i++) {  // try each local dir
+      int index = (hashCode+i & Integer.MAX_VALUE) % localDirs.length;
+      File file = new File(localDirs[index], path);
+      File dir = file.getParentFile();
+      if (dir.exists() || dir.mkdirs()) {
+        return file;
+      }
+    }
+    throw new IOException("No valid local directories.");
   }
 
   public void setInputDir(File dir) { set("mapred.input.dir", dir); }
