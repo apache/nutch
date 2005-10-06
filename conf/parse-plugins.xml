@@ -204,4 +204,14 @@
 		<plugin id="parse-text" />
 	</mimeType>
 
+       <!-- Types for parse-ext plugin: required for unit tests to pass. -->
+
+	<mimeType name="application/vnd.nutch.example.cat">
+		<plugin id="parse-ext" />
+	</mimeType>
+
+	<mimeType name="application/vnd.nutch.example.md5sum">
+		<plugin id="parse-ext" />
+	</mimeType>
+
 </parse-plugins>
