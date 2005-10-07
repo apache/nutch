@@ -109,8 +109,9 @@ public class Crawl {
       
     new LinkDb(conf).invert(linkDb, segments); // invert links
 
-    // index
+    // index & dedup
     new Indexer(conf).index(index, linkDb, fs.listFiles(segments));
+    new DeleteDuplicates(conf).dedup(new File[] { index });
 
     LOG.info("crawl finished: " + dir);
   }

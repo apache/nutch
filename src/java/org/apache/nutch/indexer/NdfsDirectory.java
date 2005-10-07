@@ -89,7 +89,13 @@ public class NdfsDirectory extends Directory {
   }
 
   public void renameFile(String from, String to) throws IOException {
-    fs.rename(new File(directory, from), new File(directory, to));
+    // NDFS is currently broken when target already exists,
+    // so we explicitly delete the target first.
+    File target = new File(directory, to);
+    if (fs.exists(target)) {
+      fs.delete(target);
+    }
+    fs.rename(new File(directory, from), target);
   }
 
   public IndexOutput createOutput(String name) throws IOException {
