@@ -64,14 +64,6 @@ public class NDFSFileSystem extends NutchFileSystem {
       return ndfs.open(getPath(f));
     }
 
-    /**
-     * Create the file at f.
-     */
-    public NFSOutputStream create(File f) throws IOException {
-        return create(f, false);
-    }
-    /**
-     */
     public NFSOutputStream create(File f, boolean overwrite) throws IOException {
       return ndfs.create(getPath(f), overwrite);
     }
