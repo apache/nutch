@@ -234,7 +234,7 @@ public class MapFile {
             break;
 
           // check order to make sure comparator is compatible
-          if (lastKey != null && comparator.compare(lastKey, k) >= 0)
+          if (lastKey != null && comparator.compare(lastKey, k) > 0)
             throw new IOException("key out of order: "+k+" after "+lastKey);
           lastKey = k;
           
