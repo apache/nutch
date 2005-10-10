@@ -444,37 +444,8 @@ public class NDFSClient implements FSConstants {
             if (targetPos >= filelen) {
                 throw new IOException("Cannot seek after EOF");
             }
-            if (targetPos >= pos && targetPos <= blockEnd) {
-                long desiredSkip = targetPos - pos;
-                while (desiredSkip > 0) {
-                    desiredSkip -= skip(targetPos - pos);
-                }
-            } else {
-                pos = targetPos;
-                blockEnd = -1;
-            }
-        }
-
-        /**
-         * Skip ahead some number of bytes
-         */
-        public synchronized long skip(long skip) throws IOException {
-            if (skip > 0) {
-                long targetPos = pos + skip;
-                targetPos = Math.min(targetPos, filelen);
-
-                if (targetPos <= blockEnd) {
-                    long result = blockStream.skip(skip);
-                    pos += result;
-                    return result;
-                } else {
-                    pos = targetPos;
-                    blockEnd = -1;
-                    return skip;
-                }
-            } else {
-                return 0;
-            }
+            pos = targetPos;
+            blockEnd = -1;
         }
 
         /**
