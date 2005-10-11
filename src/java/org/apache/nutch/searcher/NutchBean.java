@@ -93,7 +93,7 @@ public class NutchBean
       
       Vector vDirs=new Vector();
       File [] directories = segmentsDir.listFiles();
-      for(int i = 0; i < segmentsDir.listFiles().length; i++) {
+      for(int i = 0; i < directories.length; i++) {
         File indexdone = new File(directories[i], IndexSegment.DONE_NAME);
         if(indexdone.exists() && indexdone.isFile()) {
           vDirs.add(directories[i]);
