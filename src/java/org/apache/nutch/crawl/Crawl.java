@@ -26,6 +26,7 @@ import org.apache.nutch.io.*;
 import org.apache.nutch.fs.*;
 import org.apache.nutch.util.*;
 import org.apache.nutch.mapred.*;
+import org.apache.nutch.indexer.IndexMerger;
 
 public class Crawl {
   public static final Logger LOG =
@@ -91,7 +92,10 @@ public class Crawl {
     File crawlDb = new File(dir + "/crawldb");
     File linkDb = new File(dir + "/linkdb");
     File segments = new File(dir + "/segments");
-    File index = new File(dir + "/indexes");
+    File indexes = new File(dir + "/indexes");
+    File index = new File(dir + "/index");
+
+    File tmpDir = conf.getLocalFile("crawl", getDate());
       
     // initialize crawlDb
     new Injector(conf).inject(crawlDb, rootUrlFile);
@@ -109,9 +113,10 @@ public class Crawl {
       
     new LinkDb(conf).invert(linkDb, segments); // invert links
 
-    // index & dedup
-    new Indexer(conf).index(index, linkDb, fs.listFiles(segments));
-    new DeleteDuplicates(conf).dedup(new File[] { index });
+    // index, dedup & merge
+    new Indexer(conf).index(indexes, linkDb, fs.listFiles(segments));
+    new DeleteDuplicates(conf).dedup(new File[] { indexes });
+    new IndexMerger(fs, fs.listFiles(indexes), index, tmpDir).merge();
 
     LOG.info("crawl finished: " + dir);
   }

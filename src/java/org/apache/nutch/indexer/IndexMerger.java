@@ -53,38 +53,38 @@ public class IndexMerger {
   private NutchFileSystem nfs;
   private File outputIndex;
   private File localWorkingDir;
-  private File[] segments;
+  private File[] indexes;
 
   /**
-   * Merge all of the segments given
+   * Merge all of the indexes given
    */
-  public IndexMerger(NutchFileSystem nfs, File[] segments, File outputIndex, File localWorkingDir) throws IOException {
+  public IndexMerger(NutchFileSystem nfs, File[] indexes, File outputIndex, File localWorkingDir) throws IOException {
       this.nfs = nfs;
-      this.segments = segments;
+      this.indexes = indexes;
       this.outputIndex = outputIndex;
       this.localWorkingDir = localWorkingDir;
   }
 
   /**
-   * Load all input segment indices, then add to the single output index
+   * All all input indexes to the single output index
    */
   public void merge() throws IOException {
     //
     // Open local copies of NFS indices
     //
-    Directory[] dirs = new Directory[segments.length];
-    File[] localSegments = new File[segments.length];
-    for (int i = 0; i < segments.length; i++) {
-        File tmpFile = new File(localWorkingDir, "indexmerge-" + new SimpleDateFormat("yyyMMddHHmmss").format(new Date(System.currentTimeMillis())));
-        localSegments[i] = nfs.startLocalInput(new File(segments[i], "index"), tmpFile);
-        dirs[i] = FSDirectory.getDirectory(localSegments[i], false);
-    }
 
-    //
     // Get local output target
     //
     File tmpLocalOutput = new File(localWorkingDir, "merge-output");
     File localOutput = nfs.startLocalOutput(outputIndex, tmpLocalOutput);
+
+    Directory[] dirs = new Directory[indexes.length];
+    for (int i = 0; i < indexes.length; i++) {
+      LOG.info("Adding " + indexes[i]);
+      dirs[i] = new NdfsDirectory(nfs, indexes[i], false);
+    }
+
+    //
 
     //
     // Merge indices
@@ -105,12 +105,6 @@ public class IndexMerger {
     //
     nfs.completeLocalOutput(outputIndex, tmpLocalOutput);
 
-    //
-    // Delete all local inputs, if necessary
-    //
-    for (int i = 0; i < localSegments.length; i++) {
-        nfs.completeLocalInput(localSegments[i]);
-    }
     localWorkingDir.delete();
   }
 
@@ -118,50 +112,46 @@ public class IndexMerger {
    * Create an index for the input files in the named directory. 
    */
   public static void main(String[] args) throws Exception {
-    String usage = "IndexMerger (-local | -ndfs <nameserver:port>) [-workingdir <workingdir>] outputIndex segments...";
+    String usage = "IndexMerger [-workingdir <workingdir>] outputIndex indexesDir...";
     if (args.length < 2) {
       System.err.println("Usage: " + usage);
       return;
     }
 
     //
-    // Parse args, read all segment directories to be processed
+    // Parse args, read all index directories to be processed
     //
-    NutchFileSystem nfs = NutchFileSystem.parseArgs(args, 0);
-    try {
-        File workingDir = new File(new File("").getCanonicalPath());
-        Vector segments = new Vector();
+    NutchFileSystem nfs = NutchFileSystem.get();
+    File workDir = new File(new File("").getCanonicalPath());
+    List indexDirs = new ArrayList();
 
-        int i = 0;
-        if ("-workingdir".equals(args[i])) {
-            i++;
-            workingDir = new File(new File(args[i++]).getCanonicalPath());
-        }
-        File outputIndex = new File(args[i++]);
-
-        for (; i < args.length; i++) {
-            if (args[i] != null) {
-                segments.add(new File(args[i]));
-            }
-        }
-        workingDir = new File(workingDir, "indexmerger-workingdir");
-
-        //
-        // Merge the indices
-        //
-        File[] segmentFiles = (File[]) segments.toArray(new File[segments.size()]);
-        LOG.info("merging segment indexes to: " + outputIndex);
-
-        if (workingDir.exists()) {
-            FileUtil.fullyDelete(workingDir);
-        }
-        workingDir.mkdirs();
-        IndexMerger merger = new IndexMerger(nfs, segmentFiles, outputIndex, workingDir);
-        merger.merge();
-        LOG.info("done merging");
-        FileUtil.fullyDelete(workingDir);
-    } finally {
-        nfs.close();
+    int i = 0;
+    if ("-workingdir".equals(args[i])) {
+      i++;
+      workDir = new File(new File(args[i++]).getCanonicalPath());
     }
+    workDir = new File(workDir, "indexmerger-workingdir");
+
+    File outputIndex = new File(args[i++]);
+
+    for (; i < args.length; i++) {
+      indexDirs.addAll(Arrays.asList(nfs.listFiles(new File(args[i]))));
+    }
+
+    //
+    // Merge the indices
+    //
+    LOG.info("merging indexes to: " + outputIndex);
+
+    File[] indexFiles = (File[])indexDirs.toArray(new File[indexDirs.size()]);
+
+    if (workDir.exists()) {
+      FileUtil.fullyDelete(workDir);
+    }
+    workDir.mkdirs();
+    IndexMerger merger = new IndexMerger(nfs,indexFiles,outputIndex,workDir);
+    merger.merge();
+    LOG.info("done merging");
+    FileUtil.fullyDelete(workDir);
   }
 }
