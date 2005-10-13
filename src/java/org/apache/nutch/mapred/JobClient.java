@@ -246,8 +246,7 @@ public class JobClient implements MRConstants {
         }
 
         // Write job file to JobTracker's fs
-        NFSDataOutputStream out =
-          new NFSDataOutputStream(getFs().create(submitJobFile));
+        NFSDataOutputStream out = getFs().create(submitJobFile);
         try {
           job.write(out);
         } finally {

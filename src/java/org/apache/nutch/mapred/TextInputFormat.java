@@ -42,8 +42,7 @@ public class TextInputFormat extends InputFormatBase {
     final long end = start + split.getLength();
 
     // open the file and seek to the start of the split
-    final NFSDataInputStream in =
-      new NFSDataInputStream(fs.open(split.getFile()));
+    final NFSDataInputStream in = fs.open(split.getFile());
     
     if (start != 0) {
       in.seek(start-1);

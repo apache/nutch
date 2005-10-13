@@ -23,7 +23,7 @@ import java.io.*;
  *
  * @author Mike Cafarella
  *****************************************************************/
-public abstract class NFSInputStream extends InputStream {
+public abstract class NFSInputStream extends InputStream implements Seekable {
     /**
      * Seek to the given offset from the start of the file.
      * The next read() will be from that location.  Can't

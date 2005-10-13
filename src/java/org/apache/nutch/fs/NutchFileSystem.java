@@ -106,6 +106,16 @@ public abstract class NutchFileSystem {
       return fs;
     }
 
+    /** Return the name of the checksum file associated with a file.*/
+    public static File getChecksumFile(File file) {
+      return new File(file.getParentFile(), "."+file.getName()+".crc");
+    }
+
+    /** Return true iff file is a checksum file name.*/
+    public static boolean isChecksumFile(File file) {
+      String name = file.getName();
+      return name.startsWith(".") && name.endsWith(".crc");
+    }
 
     ///////////////////////////////////////////////////////////////
     // NutchFileSystem
@@ -116,17 +126,48 @@ public abstract class NutchFileSystem {
     }
 
     /**
+     * Opens an NFSDataInputStream for the indicated File.
+     */
+    public NFSDataInputStream open(File f) throws IOException {
+      return open(f, NutchConf.get().getInt("io.file.buffer.size", 4096));
+    }
+
+    /**
+     * Opens an NFSDataInputStream at the indicated File.
+     * @param f the file name to open
+     * @param overwrite if a file with this name already exists, then if true,
+     *   the file will be overwritten, and if false an error will be thrown.
+     * @param bufferSize the size of the buffer to be used.
+     */
+    public NFSDataInputStream open(File f, int bufferSize) throws IOException {
+      return new NFSDataInputStream(this, f, bufferSize);
+    }
+
+    /**
      * Opens an InputStream for the indicated File, whether local
      * or via NDFS.
      */
-    public abstract NFSInputStream open(File f) throws IOException;
+    public abstract NFSInputStream openRaw(File f) throws IOException;
 
     /**
-     * Opens an OutputStream at the indicated File.
+     * Opens an NFSDataOutputStream at the indicated File.
      * Files are overwritten by default.
      */
-    public NFSOutputStream create(File f) throws IOException {
-        return create(f, true);
+    public NFSDataOutputStream create(File f) throws IOException {
+      return create(f, true,
+                    NutchConf.get().getInt("io.file.buffer.size", 4096));
+    }
+
+    /**
+     * Opens an NFSDataOutputStream at the indicated File.
+     * @param f the file name to open
+     * @param overwrite if a file with this name already exists, then if true,
+     *   the file will be overwritten, and if false an error will be thrown.
+     * @param bufferSize the size of the buffer to be used.
+     */
+    public NFSDataOutputStream create(File f, boolean overwrite,
+                                      int bufferSize) throws IOException {
+      return new NFSDataOutputStream(this, f, overwrite, bufferSize);
     }
 
     /** Opens an OutputStream at the indicated File.
@@ -134,7 +175,8 @@ public abstract class NutchFileSystem {
      * @param overwrite if a file with this name already exists, then if true,
      *   the file will be overwritten, and if false an error will be thrown.
      */
-    public abstract NFSOutputStream create(File f, boolean overwrite) throws IOException;
+    public abstract NFSOutputStream createRaw(File f, boolean overwrite)
+      throws IOException;
 
     /**
      * Creates the given File as a brand-new zero-length file.  If
@@ -144,10 +186,10 @@ public abstract class NutchFileSystem {
         if (exists(f)) {
             return false;
         } else {
-            OutputStream out = create(f);
+            OutputStream out = createRaw(f, false);
             try {
             } finally {
-                out.close();
+              out.close();
             }
             return true;
         }
@@ -157,24 +199,52 @@ public abstract class NutchFileSystem {
      * Renames File src to File dst.  Can take place on local fs
      * or remote NDFS.
      */
-    public abstract boolean rename(File src, File dst) throws IOException;
+    public boolean rename(File src, File dst) throws IOException {
+      if (isDirectory(src)) {
+        return renameRaw(src, dst);
+      } else {
+
+        boolean value = renameRaw(src, dst);
+
+        File checkFile = getChecksumFile(src);
+        if (exists(checkFile))
+          renameRaw(checkFile, getChecksumFile(dst)); // try to rename checksum
+
+        return value;
+      }
+      
+    }
+
+    /**
+     * Renames File src to File dst.  Can take place on local fs
+     * or remote NDFS.
+     */
+    public abstract boolean renameRaw(File src, File dst) throws IOException;
 
     /**
      * Deletes File
      */
-    public abstract boolean delete(File f) throws IOException;
+    public boolean delete(File f) throws IOException {
+      if (isDirectory(f)) {
+        return deleteRaw(f);
+      } else {
+        deleteRaw(getChecksumFile(f));            // try to delete checksum
+        return deleteRaw(f);
+      }
+    }
+
+    /**
+     * Deletes File
+     */
+    public abstract boolean deleteRaw(File f) throws IOException;
 
     /**
      * Check if exists
      */
     public abstract boolean exists(File f) throws IOException;
 
-    /**
-     */
     public abstract boolean isDirectory(File f) throws IOException;
 
-    /**
-     */
     public boolean isFile(File f) throws IOException {
         if (exists(f) && ! isDirectory(f)) {
             return true;
@@ -183,17 +253,21 @@ public abstract class NutchFileSystem {
         }
     }
     
-    /**
-     */
     public abstract long getLength(File f) throws IOException;
 
-    /**
-     */
-    public abstract File[] listFiles(File f) throws IOException;
+    public File[] listFiles(File f) throws IOException {
+      return listFiles(f, new FileFilter() {
+          public boolean accept(File file) {
+            return !isChecksumFile(file);
+          }
+        });
+    }
+
+    public abstract File[] listFilesRaw(File f) throws IOException;
 
     public File[] listFiles(File f, FileFilter filter) throws IOException {
         Vector results = new Vector();
-        File listing[] = listFiles(f);
+        File listing[] = listFilesRaw(f);
         for (int i = 0; i < listing.length; i++) {
             if (filter.accept(listing[i])) {
                 results.add(listing[i]);
@@ -281,4 +355,17 @@ public abstract class NutchFileSystem {
      * release any held locks.
      */
     public abstract void close() throws IOException;
+
+    /**
+     * Report a checksum error to the file system.
+     * @param f the file name containing the error
+     * @param in the stream open on the file
+     * @param start the position of the beginning of the bad data in the file
+     * @param length the length of the bad data in the file
+     * @param crc the expected CRC32 of the data
+     */
+    public abstract void reportChecksumFailure(File f, NFSInputStream in,
+                                               long start, long length,
+                                               int crc);
+
 }

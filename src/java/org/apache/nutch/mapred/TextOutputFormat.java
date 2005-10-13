@@ -32,8 +32,7 @@ public class TextOutputFormat implements OutputFormat {
 
     File file = new File(job.getOutputDir(), name);
 
-    final NFSDataOutputStream out =
-      new NFSDataOutputStream(fs.create(file, true));
+    final NFSDataOutputStream out = fs.create(file);
 
     return new RecordWriter() {
         public synchronized void write(WritableComparable key, Writable value)

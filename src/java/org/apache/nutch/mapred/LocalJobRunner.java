@@ -77,7 +77,7 @@ public class LocalJobRunner implements JobSubmissionProtocol {
           File mapOut = MapOutputFile.getOutputFile(mapId, 0);
           File reduceIn = MapOutputFile.getInputFile(mapId, reduceId);
           reduceIn.getParentFile().mkdirs();
-          if (!mapOut.renameTo(reduceIn))
+          if (!NutchFileSystem.getNamed("local").rename(mapOut, reduceIn))
             throw new IOException("Couldn't rename " + mapOut);
           MapOutputFile.removeAll(mapId);
         }

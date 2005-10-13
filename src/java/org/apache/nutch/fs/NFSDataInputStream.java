@@ -16,19 +16,134 @@
 package org.apache.nutch.fs;
 
 import java.io.*;
-import org.apache.nutch.util.NutchConf;
+import java.util.Arrays;
+import java.util.logging.*;
+import java.util.zip.*;
+import org.apache.nutch.util.*;
 
 /** Utility that wraps a {@link NFSInputStream} in a {@link DataInputStream}
  * and buffers input through a {@link BufferedInputStream}. */
 public class NFSDataInputStream extends DataInputStream {
+  private static final Logger LOG =
+    LogFormatter.getLogger("org.apache.nutch.fs.DataInputStream");
+
+  private static final byte[] VERSION = NFSDataOutputStream.CHECKSUM_VERSION;
+  private static final int HEADER_LENGTH = 8;
   
+  private int bytesPerSum = 1;
+  
+  /** Verify that data matches checksums. */
+  private class Checker extends FilterInputStream implements Seekable {
+    private NutchFileSystem fs;
+    private File file;
+    private NFSDataInputStream sums;
+    private Checksum sum = new CRC32();
+    private int inSum;
+
+    public Checker(NutchFileSystem fs, File file)
+      throws IOException {
+      super(fs.openRaw(file));
+      
+      this.fs = fs;
+      this.file = file;
+      File sumFile = fs.getChecksumFile(file);
+      try {
+        this.sums = new NFSDataInputStream(fs.openRaw(sumFile));
+        byte[] version = new byte[VERSION.length];
+        sums.readFully(version);
+        if (!Arrays.equals(version, VERSION))
+          throw new IOException("Not a checksum file: "+sumFile);
+        bytesPerSum = sums.readInt();
+      } catch (IOException e) {
+        LOG.warning("Problem opening checksum file: "+e+". Ignoring.");
+        stopSumming();
+      }
+    }
+
+    public void seek(long desired) throws IOException {
+      ((Seekable)in).seek(desired);
+      if (sums != null) {
+        if (desired % bytesPerSum != 0)
+          throw new IOException("Seek to non-checksummed position.");
+        try {
+          sums.seek(HEADER_LENGTH + 4*(desired/bytesPerSum));
+        } catch (IOException e) {
+          LOG.warning("Problem seeking checksum file: "+e+". Ignoring.");
+          stopSumming();
+        }
+        sum.reset();
+        inSum = 0;
+      }
+    }
+    
+    public int read(byte b[], int off, int len) throws IOException {
+      int read = in.read(b, off, len);
+
+      if (sums != null) {
+        int summed = 0;
+        while (summed < read) {
+          
+          int goal = bytesPerSum - inSum;
+          int inBuf = read - summed;
+          int toSum = inBuf <= goal ? inBuf : goal;
+          
+          sum.update(b, off+summed, toSum);
+          summed += toSum;
+          
+          inSum += toSum;
+          if (inSum == bytesPerSum) {
+            verifySum(read-(summed-bytesPerSum));
+          }
+        }
+      }
+        
+      return read;
+    }
+
+    private void verifySum(int delta) throws IOException {
+      int crc;
+      try {
+        crc = sums.readInt();
+      } catch (IOException e) {
+        LOG.warning("Problem reading checksum file: "+e+". Ignoring.");
+        stopSumming();
+        return;
+      }
+      if (crc != (int)sum.getValue()) {
+        fs.reportChecksumFailure(file, (NFSInputStream)in,
+                                 getPos()-delta, bytesPerSum, crc);
+        throw new IOException("Checksum error: "+file);
+      }
+      sum.reset();
+      inSum = 0;
+    }
+
+    public long getPos() throws IOException {
+      return ((NFSInputStream)in).getPos();
+    }
+
+    public void close() throws IOException {
+      super.close();
+      stopSumming();
+    }
+
+    private void stopSumming() {
+      if (sums != null) {
+        try {
+          sums.close();
+        } catch (IOException f) {}
+        sums = null;
+        bytesPerSum = 1;
+      }
+    }
+  }
+
   /** Cache the file position.  This improves performance significantly.*/
   private static class PositionCache extends FilterInputStream {
     long position;
 
-    public PositionCache(NFSInputStream in) throws IOException {
+    public PositionCache(InputStream in) throws IOException {
       super(in);
-      this.position = in.getPos();
     }
 
     // This is the only read() method called by BufferedInputStream, so we trap
@@ -40,7 +155,7 @@ public class NFSDataInputStream extends DataInputStream {
     }
 
     public void seek(long desired) throws IOException {
-      ((NFSInputStream)in).seek(desired);         // seek underlying stream
+      ((Seekable)in).seek(desired);               // seek underlying stream
       position = desired;                         // update position
     }
       
@@ -51,25 +166,35 @@ public class NFSDataInputStream extends DataInputStream {
   }
 
   /** Buffer input.  This improves performance significantly.*/
-  private static class Buffer extends BufferedInputStream {
-    public Buffer(PositionCache in, int bufferSize) throws IOException {
+  private class Buffer extends BufferedInputStream {
+    public Buffer(PositionCache in, int bufferSize)
+      throws IOException {
       super(in, bufferSize);
     }
 
     public void seek(long desired) throws IOException {
-      long current = getPos();
-      long start = (current - this.pos);
-      if (desired >= start && desired < start + this.count) {
-        this.pos += (desired - current);          // can position within buffer
+      long end = ((PositionCache)in).getPos();
+      long start = end - this.count;
+      if (desired >= start && desired < end) {
+        this.pos = (int)(desired - start);        // can position within buffer
       } else {
         this.count = 0;                           // invalidate buffer
         this.pos = 0;
 
-        ((PositionCache)in).seek(desired);        // seek underlying stream
+        long delta = desired % bytesPerSum;
+        
+        // seek to last checksummed point, if any
+        ((PositionCache)in).seek(desired - delta);
+
+        // scan to desired position
+        for (int i = 0; i < delta; i++) {
+          read();
+        }
       }
+
     }
       
-    public long getPos() throws IOException { // adjust for buffer
+    public long getPos() throws IOException {     // adjust for buffer
       return ((PositionCache)in).getPos() - (this.count - this.pos);
     }
 
@@ -82,15 +207,27 @@ public class NFSDataInputStream extends DataInputStream {
 
 }
 
+  public NFSDataInputStream(NutchFileSystem fs, File file) throws IOException {
+    this(fs, file, NutchConf.get().getInt("io.file.buffer.size", 4096));
+  }
+
+  public NFSDataInputStream(NutchFileSystem fs, File file, int bufferSize)
+    throws IOException {
+    super(null);
+    this.in = new Buffer(new PositionCache(new Checker(fs, file)), bufferSize);
+  }
+    
+  /** Construct without checksums. */
   public NFSDataInputStream(NFSInputStream in) throws IOException {
     this(in, NutchConf.get().getInt("io.file.buffer.size", 4096));
   }
-
+  /** Construct without checksums. */
   public NFSDataInputStream(NFSInputStream in, int bufferSize)
     throws IOException {
-    super(new Buffer(new PositionCache(in), bufferSize));
+    super(null);
+    this.in = new Buffer(new PositionCache(in), bufferSize);
   }
-    
+  
   public void seek(long desired) throws IOException {
     ((Buffer)in).seek(desired);
   }

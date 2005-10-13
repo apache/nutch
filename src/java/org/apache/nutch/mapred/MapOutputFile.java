@@ -88,7 +88,7 @@ public class MapOutputFile implements Writable {
     // write the length-prefixed file content to the wire
     File file = getOutputFile(mapTaskId, partition);
     out.writeLong(file.length());
-    InputStream in = new FileInputStream(file);
+    NFSDataInputStream in = NutchFileSystem.getNamed("local").open(file);
     try {
       byte[] buffer = new byte[8192];
       int l;
@@ -112,8 +112,7 @@ public class MapOutputFile implements Writable {
     long length = in.readLong();
     float progPerByte = 1.0f / length;
     long unread = length;
-    file.getParentFile().mkdirs();                // make directory
-    OutputStream out = new FileOutputStream(file);
+    NFSDataOutputStream out = NutchFileSystem.getNamed("local").create(file);
     try {
       byte[] buffer = new byte[8192];
       while (unread > 0) {

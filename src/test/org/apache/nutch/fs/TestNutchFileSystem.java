@@ -307,8 +307,7 @@ public class TestNutchFileSystem extends TestCase {
 
       reporter.setStatus("opening " + name);
 
-      NFSDataInputStream in =
-        new NFSDataInputStream(fs.open(new File(DATA_DIR, name)));
+      NFSDataInputStream in = fs.open(new File(DATA_DIR, name));
         
       try {
         for (int i = 0; i < SEEKS_PER_FILE; i++) {

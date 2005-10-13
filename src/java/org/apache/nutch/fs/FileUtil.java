@@ -54,9 +54,9 @@ public class FileUtil {
         }
 
         if (nfs.isFile(src)) {
-            DataInputStream in = new DataInputStream(nfs.open(src));
+            NFSInputStream in = nfs.openRaw(src);
             try {
-                DataOutputStream out = new DataOutputStream(nfs.create(dst));
+                NFSOutputStream out = nfs.createRaw(dst, true);
                 byte buf[] = new byte[NutchConf.get().getInt("io.file.buffer.size", 4096)];
                 try {
                     int readBytes = in.read(buf);

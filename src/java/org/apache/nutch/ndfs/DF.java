@@ -25,7 +25,7 @@ import java.util.Iterator;
 
 /** Filesystem disk space usage statistics.  Uses the unix 'df' program.
  * Tested on Linux, FreeBSD and Cygwin. */
-class DF {
+public class DF {
   private String filesystem;
   private long capacity;
   private long used;

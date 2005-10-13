@@ -150,7 +150,7 @@ public class NdfsDirectory extends Directory {
 
     /** Shared by clones. */
     private class Descriptor {
-      public NFSInputStream in;
+      public NFSDataInputStream in;
       public long position;                       // cache of in.getPos()
       public Descriptor(File file) throws IOException {
         this.in = fs.open(file);
@@ -209,7 +209,7 @@ public class NdfsDirectory extends Directory {
   }
 
   private class NdfsIndexOutput extends BufferedIndexOutput {
-    private NFSOutputStream out;
+    private NFSDataOutputStream out;
 
     public NdfsIndexOutput(File path) throws IOException {
       out = fs.create(path);

@@ -57,28 +57,26 @@ public class NDFSFileSystem extends NutchFileSystem {
       return new UTF8(path);
     }
 
-    /**
-     * Open the file at f
-     */
-    public NFSInputStream open(File f) throws IOException {
+    public NFSInputStream openRaw(File f) throws IOException {
       return ndfs.open(getPath(f));
     }
 
-    public NFSOutputStream create(File f, boolean overwrite) throws IOException {
+    public NFSOutputStream createRaw(File f, boolean overwrite)
+      throws IOException {
       return ndfs.create(getPath(f), overwrite);
     }
 
     /**
      * Rename files/dirs
      */
-    public boolean rename(File src, File dst) throws IOException {
+    public boolean renameRaw(File src, File dst) throws IOException {
       return ndfs.rename(getPath(src), getPath(dst));
     }
 
     /**
      * Get rid of File f, whether a true file or dir.
      */
-    public boolean delete(File f) throws IOException {
+    public boolean deleteRaw(File f) throws IOException {
         return ndfs.delete(getPath(f));
     }
 
@@ -103,7 +101,7 @@ public class NDFSFileSystem extends NutchFileSystem {
 
     /**
      */
-    public File[] listFiles(File f) throws IOException {
+    public File[] listFilesRaw(File f) throws IOException {
         NDFSFileInfo info[] = ndfs.listFiles(getPath(f));
         if (info == null) {
             return new File[0];
@@ -217,8 +215,7 @@ public class NDFSFileSystem extends NutchFileSystem {
             byte buf[] = new byte[NutchConf.get().getInt("io.file.buffer.size", 4096)];
             InputStream in = open(src);
             try {
-                dst.getParentFile().mkdirs();
-                OutputStream out = new BufferedOutputStream(new FileOutputStream(dst));
+                OutputStream out = NutchFileSystem.getNamed("local").create(dst);
                 try {
                     int bytesRead = in.read(buf);
                     while (bytesRead >= 0) {
@@ -302,5 +299,16 @@ public class NDFSFileSystem extends NutchFileSystem {
         path.append(l.get(i));
       }
       return path.toString();
+    }
+
+    public void reportChecksumFailure(File f, NFSInputStream in,
+                                      long start, long length, int crc) {
+      
+      // ignore for now, causing task to fail, and hope that when task is
+      // retried it gets a different copy of the block that is not corrupt.
+
+      // FIXME: we should move the bad block(s) involved to a bad block
+      // directory on their datanode, and then re-replicate the blocks, so that
+      // no data is lost. a task may fail, but on retry it should succeed.
     }
 }

@@ -91,8 +91,7 @@ public class SequenceFile {
       throws IOException {
       this.nfs = nfs;
       this.target = new File(name);
-      init(new NFSDataOutputStream(nfs.create(target)),
-           keyClass, valClass, compress);
+      init(nfs.create(target), keyClass, valClass, compress);
     }
     
     /** Write to an arbitrary stream using a specified buffer size. */
@@ -233,7 +232,7 @@ public class SequenceFile {
       this.nfs = nfs;
       this.file = name;
       File file = new File(name);
-      this.in = new NFSDataInputStream(nfs.open(file), bufferSize);
+      this.in = nfs.open(file, bufferSize);
       this.end = nfs.getLength(file);
       init();
     }
@@ -242,7 +241,7 @@ public class SequenceFile {
       throws IOException {
       this.nfs = nfs;
       this.file = file;
-      this.in = new NFSDataInputStream(nfs.open(new File(file)), bufferSize);
+      this.in = nfs.open(new File(file), bufferSize);
       seek(start);
       init();
 
@@ -585,7 +584,7 @@ public class SequenceFile {
       private void flush(int count, boolean done) throws IOException {
         if (out == null) {
           outName = done ? outFile : outFile+".0";
-          out = new NFSDataOutputStream(nfs.create(new File(outName)));
+          out = nfs.create(new File(outName));
         }
 
         if (!done) {                              // an intermediate file
@@ -683,7 +682,7 @@ public class SequenceFile {
           new MergeQueue(factor, last ? outFile : outFile+"."+pass, last);
 
         this.inName = outFile+"."+(pass-1);
-        this.in = new NFSDataInputStream(nfs.open(new File(inName)));
+        this.in = nfs.open(new File(inName));
       }
 
       public void close() throws IOException {
@@ -818,9 +817,7 @@ public class SequenceFile {
       public MergeQueue(int size, String outName, boolean done)
         throws IOException {
         initialize(size);
-        this.out =
-          new NFSDataOutputStream(nfs.create(new File(outName)),
-                                  memory/(factor+1));
+        this.out = nfs.create(new File(outName), true, memory/(factor+1));
         this.done = done;
       }
 
