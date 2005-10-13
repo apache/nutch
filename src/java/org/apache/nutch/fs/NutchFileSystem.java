@@ -268,10 +268,12 @@ public abstract class NutchFileSystem {
     public File[] listFiles(File f, FileFilter filter) throws IOException {
         Vector results = new Vector();
         File listing[] = listFilesRaw(f);
-        for (int i = 0; i < listing.length; i++) {
+        if (listing != null) {
+          for (int i = 0; i < listing.length; i++) {
             if (filter.accept(listing[i])) {
-                results.add(listing[i]);
+              results.add(listing[i]);
             }
+          }
         }
         return (File[]) results.toArray(new File[results.size()]);
     }
