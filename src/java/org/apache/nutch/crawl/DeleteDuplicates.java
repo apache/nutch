@@ -127,7 +127,7 @@ public class DeleteDuplicates extends NutchConfigured
   }
 
   public static class InputFormat extends InputFormatBase {
-    private static final int INDEX_LENGTH = Integer.MAX_VALUE;
+    private static final long INDEX_LENGTH = Integer.MAX_VALUE;
 
     /** Return each index as a split. */
     public FileSplit[] getSplits(NutchFileSystem fs, JobConf job,
