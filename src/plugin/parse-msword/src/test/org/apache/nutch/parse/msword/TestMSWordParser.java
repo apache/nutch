@@ -21,8 +21,7 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ProtocolException;
 
-import org.apache.nutch.parse.ParserFactory;
-import org.apache.nutch.parse.Parser;
+import org.apache.nutch.parse.util.ParseUtil;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseException;
 
@@ -65,9 +64,7 @@ public class TestMSWordParser extends TestCase {
 
       protocol = ProtocolFactory.getProtocol(urlString);
       content = protocol.getProtocolOutput(urlString).getContent();
-
-      parser = ParserFactory.getParser(content.getContentType(), urlString);
-      parse = parser.getParse(content);
+      parse = ParseUtil.parseByParserId("parse-msword",content);
 
       assertTrue(parse.getText().startsWith(expectedText));
     }

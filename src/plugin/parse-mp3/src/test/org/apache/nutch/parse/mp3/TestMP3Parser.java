@@ -19,7 +19,7 @@ package org.apache.nutch.parse.mp3;
 import junit.framework.TestCase;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseException;
-import org.apache.nutch.parse.Parser;
+import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParserFactory;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
@@ -60,15 +60,13 @@ public class TestMP3Parser extends TestCase {
     String urlString;
     Protocol protocol;
     Content content;
-    Parser parser;
     Parse parse;
 
     urlString = "file:" + sampleDir + fileSeparator + id3v2;
     protocol = ProtocolFactory.getProtocol(urlString);
     content = protocol.getContent(urlString);
 
-    parser = ParserFactory.getParser(content.getContentType(), urlString);
-    parse = parser.getParse(content);
+    parse = ParseUtil.parseByParserId("parse-mp3",content);
     Properties metadata = parse.getData().getMetadata();
     assertEquals("postgresql comment id3v2", metadata.getProperty("COMM-Text"));
     assertEquals("postgresql composer id3v2", metadata.getProperty("TCOM-Text"));

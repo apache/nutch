@@ -13,15 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.parse;
 
-import java.io.IOException;
-
 public class ParserNotFound extends ParseException {
+
+  private static final long serialVersionUID=23993993939L;
   private String url;
   private String contentType;
 
+  public ParserNotFound(String message){
+    super(message);    
+  }
+  
   public ParserNotFound(String url, String contentType) {
     this(url, contentType,
          "parser not found for contentType="+contentType+" url="+url);

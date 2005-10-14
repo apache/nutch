@@ -174,6 +174,54 @@ public final class ParserFactory {
   }
   
   /**
+   * <p>Function returns a {@link Parser} instance with the specified <code>parserId</code>.
+   * If the Parser instance isn't found, then the function throws a <code>ParserNotFound</code>
+   * exception. If the function is able to find the {@link Parser} in the internal <code>PARSER_CACHE</code>
+   * then it will return the already instantiated Parser. Otherwise, if it has to instantiate the Parser itself
+   * , then this function will cache that Parser in the internal <code>PARSER_CACHE</code>.
+   * 
+   * @param parserId The string ID (e.g., "parse-text", "parse-msword") of the {@link Parser} implementation to return.
+   * @return A {@link Parser} implementation specified by the parameter <code>parserId</code>.
+   * @throws ParserNotFound If the Parser is not found (i.e., registered with the extension point), or if the there a {@link PluginRuntimeException}
+   * instantiating the {@link Parser}.
+   */
+  public static Parser getParserById(String parserId) throws ParserNotFound{
+      //first check the cache
+      
+      if(PARSER_CACHE.get(parserId) != null){
+          return (Parser)PARSER_CACHE.get(parserId);
+      }
+      else{
+          //get the list of registered parsing extensions
+          //then find the right one by Id
+          
+          Extension[] extensions = X_POINT.getExtensions();
+          Extension parserExt = getExtensionById(extensions,parserId);
+          
+          if (parserExt == null) {
+                throw new ParserNotFound("No Parser Found for parserId: "
+                        + parserId + "!");
+            } else {
+                // instantiate the Parser
+                try {
+                    Parser p = null;
+                    p = (Parser) parserExt.getExtensionInstance();
+                    PARSER_CACHE
+                            .put(parserId, p);
+                    return p;
+                } catch (PluginRuntimeException e) {
+                    LOG.warning("ParserFactory:PluginRuntimeException when "
+                            + "initializing parser plugin "
+                            + parserExt.getDescriptor().getPluginId()
+                            + " instance in getParserById");
+                    throw new ParserNotFound("No Parser Found for parserId: "
+                            + parserId + "!");
+                }
+            }
+      }
+  }
+  
+  /**
    * finds the best-suited parse plugin for a given contentType.
    *
    * @param contentType Content-Type for which we seek a parse plugin.

@@ -230,8 +230,7 @@ public class ParseSegment {
           return;
         }
 
-        Parser parser = ParserFactory.getParser(contentType, url);
-        Parse parse = parser.getParse(content);
+        Parse parse = ParseUtil.parse(content);
         outputPage(new ParseText(parse.getText()), parse.getData());
         
       } else {
@@ -585,7 +584,7 @@ public class ParseSegment {
 
       parseSegment.setLogLevel
         (Level.parse((new String(logLevel)).toUpperCase()));
-
+      
       if (threadCount != -1)
         parseSegment.setThreadCount(threadCount);
       if (showThreadID)

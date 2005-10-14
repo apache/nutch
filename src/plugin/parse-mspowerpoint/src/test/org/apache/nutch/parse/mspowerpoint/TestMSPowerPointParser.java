@@ -29,8 +29,7 @@ import junit.framework.TestCase;
 
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
-import org.apache.nutch.parse.Parser;
-import org.apache.nutch.parse.ParserFactory;
+import org.apache.nutch.parse.util.ParseUtil;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
@@ -123,9 +122,7 @@ public class TestMSPowerPointParser extends TestCase {
    */
   public void testContent() throws Exception {
 
-    Parser parser = ParserFactory.getParser(this.content.getContentType(),
-        this.urlString);
-    Parse parse = parser.getParse(this.content);
+    Parse parse = ParseUtil.parseByParserId("parse-mspowerpoint",this.content);
 
     ParseData data = parse.getData();
     String text = parse.getText();
@@ -162,10 +159,8 @@ public class TestMSPowerPointParser extends TestCase {
    */
   public void testMeta() throws Exception {
 
-    Parser parser = ParserFactory.getParser(this.content.getContentType(),
-        this.urlString);
-    Parse parse = parser.getParse(this.content);
-
+    Parse parse = ParseUtil.parseByParserId("parse-mspowerpoint",content);
+    
     ParseData data = parse.getData();
 
     final FileExtensionFilter titleFilter = new FileExtensionFilter(

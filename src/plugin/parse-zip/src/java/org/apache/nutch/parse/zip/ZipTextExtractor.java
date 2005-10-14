@@ -28,9 +28,8 @@ import java.net.URL;
 
 // Nutch imports
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.Parser;
+import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseData;
-import org.apache.nutch.parse.ParserFactory;
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.protocol.Content;
@@ -89,8 +88,7 @@ public class ZipTextExtractor {
             metadata.setProperty("Content-Length", Long.toString(entry.getSize()));
             metadata.setProperty("Content-Type", contentType);
             Content content = new Content(newurl, base, b, contentType, metadata);
-            Parser parser = ParserFactory.getParser(contentType, newurl);
-            Parse parse = parser.getParse(content);
+            Parse parse = ParseUtil.parse(content);
             ParseData theParseData = parse.getData();
             Outlink[] theOutlinks = theParseData.getOutlinks();
             
