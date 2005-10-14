@@ -16,7 +16,8 @@
 
 package org.creativecommons.nutch;
 
-import org.apache.nutch.parse.*;
+import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.protocol.Content;
 
 import java.util.Properties;
@@ -54,10 +55,9 @@ public class TestCCParseFilter extends TestCase {
     in.close();
     byte[] bytes = out.toByteArray();
 
-    Parser parser = ParserFactory.getParser(contentType, url);
     Content content =
       new Content(url, url, bytes, contentType, new Properties());
-    Parse parse = parser.getParse(content);
+    Parse parse = ParseUtil.parseByParserId("parse-html",content);
 
     Properties metadata = parse.getData().getMetadata();
     assertEquals(license, metadata.get("License-Url"));

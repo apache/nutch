@@ -21,8 +21,7 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ProtocolException;
 
-import org.apache.nutch.parse.ParserFactory;
-import org.apache.nutch.parse.Parser;
+import org.apache.nutch.parse.util.ParseUtil;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseException;
 
@@ -46,8 +45,7 @@ import java.io.IOException;
 public class TestExtParser extends TestCase {
   private File tempFile = null;
   private String urlString = null;
-  private Content content = null;;
-  private Parser parser = null;;
+  private Content content = null;
   private Parse parse = null;
 
   private String expectedText = "nutch rocks nutch rocks nutch rocks";
@@ -107,15 +105,13 @@ public class TestExtParser extends TestCase {
       // check external parser that does 'cat'
       contentType = "application/vnd.nutch.example.cat";
       content.setContentType(contentType);
-      parser = ParserFactory.getParser(contentType, urlString);
-      parse = parser.getParse(content);
+      parse = ParseUtil.parse(content);
       assertEquals(expectedText,parse.getText());
 
       // check external parser that does 'md5sum'
       contentType = "application/vnd.nutch.example.md5sum";
       content.setContentType(contentType);
-      parser = ParserFactory.getParser(contentType, urlString);
-      parse = parser.getParse(content);
+      parse = ParseUtil.parse(content);
       assertTrue(parse.getText().startsWith(expectedMD5sum));
     }
   }
