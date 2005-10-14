@@ -21,8 +21,8 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ProtocolException;
 
-import org.apache.nutch.parse.util.ParseUtil;
 import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.Outlink;

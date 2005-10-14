@@ -18,7 +18,7 @@ package org.apache.nutch.parse.rtf;
 
 import junit.framework.TestCase;
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.util.ParseUtil;
+import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.parse.ParserFactory;
 import org.apache.nutch.protocol.Content;

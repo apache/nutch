@@ -21,8 +21,8 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ProtocolException;
 
-import org.apache.nutch.parse.util.ParseUtil;
 import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
 
 import junit.framework.TestCase;
@@ -105,13 +105,13 @@ public class TestExtParser extends TestCase {
       // check external parser that does 'cat'
       contentType = "application/vnd.nutch.example.cat";
       content.setContentType(contentType);
-      parse = ParseUtil.parse(content);
+      parse = ParseUtil.parseByParserId("parse-ext", content);
       assertEquals(expectedText,parse.getText());
 
       // check external parser that does 'md5sum'
       contentType = "application/vnd.nutch.example.md5sum";
       content.setContentType(contentType);
-      parse = ParseUtil.parse(content);
+      parse = ParseUtil.parseByParserId("parse-ext", content);
       assertTrue(parse.getText().startsWith(expectedMD5sum));
     }
   }
