@@ -21,8 +21,8 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ProtocolException;
 
-import org.apache.nutch.parse.util.ParseUtil;
 import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
 
 import junit.framework.TestCase;
@@ -56,7 +56,6 @@ public class TestMSWordParser extends TestCase {
     String urlString;
     Protocol protocol;
     Content content;
-    Parser parser;
     Parse parse;
 
     for (int i=0; i<sampleFiles.length; i++) {
