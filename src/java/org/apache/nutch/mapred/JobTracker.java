@@ -648,6 +648,20 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
         public synchronized void kill() {
             if (status.getRunState() != JobStatus.FAILED) {
                 this.status = new JobStatus(status.getJobId(), 1.0f, 1.0f, JobStatus.FAILED);
+
+                //
+                // Kill all the pending tasks
+                //
+                synchronized (unassignedTasks) {
+                    for (Iterator it = unassignedTasks.iterator(); it.hasNext(); ) {
+                        String taskid = (String) it.next();
+                        if ((incompleteMapTasks.get(taskid) != null) ||
+                            (incompleteReduceTasks.get(taskid) != null)) {
+                            it.remove();
+                        }
+                    }
+                }
+
                 this.finishTime = System.currentTimeMillis();
             }
         }
@@ -925,7 +939,9 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
                 attemptedReduceExecutions++;
             }
             updateTaskStatus(taskid, new TaskStatus(taskid, 0.0f, TaskStatus.UNASSIGNED, "", ""));
-            unassignedTasks.add(taskid);
+            synchronized (unassignedTasks) {
+                unassignedTasks.add(taskid);
+            }
         }
     }
 
@@ -985,28 +1001,30 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
      * just grabs a single item out of the pending task list and hands it back.
      */
     Task getTaskAssignment(String taskTracker) {
-        if (unassignedTasks.size() > 0) {
-            String taskid = (String) unassignedTasks.elementAt(0);
-            unassignedTasks.remove(taskid);
+        synchronized (unassignedTasks) {
+            if (unassignedTasks.size() > 0) {
+                String taskid = (String) unassignedTasks.elementAt(0);
+                unassignedTasks.remove(taskid);
 
-            // Move task status to RUNNING
-            JobInProgress job = (JobInProgress) jobs.get((String) taskToJobMap.get(taskid));
-            job.updateTaskStatus(taskid, new TaskStatus(taskid, 0.0f, TaskStatus.RUNNING, "", ""));
+                // Move task status to RUNNING
+                JobInProgress job = (JobInProgress) jobs.get((String) taskToJobMap.get(taskid));
+                job.updateTaskStatus(taskid, new TaskStatus(taskid, 0.0f, TaskStatus.RUNNING, "", ""));
 
-            // Remember where we are running it
-            TreeSet taskset = (TreeSet) trackerToTaskMap.get(taskTracker);
-            if (taskset == null) {
-                taskset = new TreeSet();
-                trackerToTaskMap.put(taskTracker, taskset);
+                // Remember where we are running it
+                TreeSet taskset = (TreeSet) trackerToTaskMap.get(taskTracker);
+                if (taskset == null) {
+                    taskset = new TreeSet();
+                    trackerToTaskMap.put(taskTracker, taskset);
+                }
+                LOG.info("Adding task '" + taskid + "' to set for tracker '" + taskTracker + "'");
+                taskset.add(taskid);
+
+                taskToTrackerMap.put(taskid, taskTracker);
+
+                return job.getTask(taskid);
+            } else {
+                return null;
             }
-            LOG.info("Adding task '" + taskid + "' to set for tracker '" + taskTracker + "'");
-            taskset.add(taskid);
-
-            taskToTrackerMap.put(taskid, taskTracker);
-
-            return job.getTask(taskid);
-        } else {
-            return null;
         }
     }
 
