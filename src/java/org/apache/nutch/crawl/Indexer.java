@@ -36,7 +36,7 @@ import org.apache.nutch.db.Page;
 import org.apache.lucene.index.*;
 import org.apache.lucene.document.*;
 
-/** Maintains an inverted link map, listing incoming links for each url. */
+/** Create indexes for segments. */
 public class Indexer extends NutchConfigured implements Reducer {
 
   public static final Logger LOG =
