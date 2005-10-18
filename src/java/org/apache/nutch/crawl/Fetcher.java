@@ -351,7 +351,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
 
     int threads = conf.getInt("fetcher.threads.fetch", 10);
 
-    for (int i = 2; i < args.length; i++) {       // parse command line
+    for (int i = 1; i < args.length; i++) {       // parse command line
       if (args[i].equals("-threads")) {           // found -threads option
         threads =  Integer.parseInt(args[++i]);
       }
