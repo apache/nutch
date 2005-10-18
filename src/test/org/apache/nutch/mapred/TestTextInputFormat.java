@@ -44,11 +44,11 @@ public class TestTextInputFormat extends TestCase {
     //LOG.info("seed = "+seed);
     Random random = new Random(seed);
 
-    dir.mkdirs();
-    File[] files = dir.listFiles();
+    fs.mkdirs(dir);
+    File[] files = fs.listFiles(dir);
     if (files != null) {
       for (int i = 0; i < files.length; i++) {
-        files[i].delete();
+        fs.delete(files[i]);
       }
     }
 
@@ -61,8 +61,8 @@ public class TestTextInputFormat extends TestCase {
       //LOG.info("creating; entries = " + length);
 
       // create a file with length entries
-      file.delete();
-      Writer writer = new FileWriter(file);
+      fs.delete(file);
+      Writer writer = new OutputStreamWriter(fs.create(file));
       try {
         for (int i = 0; i < length; i++) {
           writer.write(Integer.toString(i));

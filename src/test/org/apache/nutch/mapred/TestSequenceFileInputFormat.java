@@ -44,11 +44,11 @@ public class TestSequenceFileInputFormat extends TestCase {
     //LOG.info("seed = "+seed);
     Random random = new Random(seed);
 
-    dir.mkdirs();
-    File[] files = dir.listFiles();
+    fs.mkdirs(dir);
+    File[] files = fs.listFiles(dir);
     if (files != null) {
       for (int i = 0; i < files.length; i++) {
-        files[i].delete();
+        fs.delete(files[i]);
       }
     }
 
@@ -61,7 +61,7 @@ public class TestSequenceFileInputFormat extends TestCase {
       //LOG.info("creating; entries = " + length);
 
       // create a file with length entries
-      file.delete();
+      fs.delete(file);
       SequenceFile.Writer writer =
         new SequenceFile.Writer(fs, file.toString(),
                                 IntWritable.class, BytesWritable.class);
