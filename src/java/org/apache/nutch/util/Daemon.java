@@ -32,6 +32,8 @@ public class Daemon extends Thread {
   /** Construct a daemon thread. */
   public Daemon(Runnable runnable) {
     super(runnable);
+    this.runnable = runnable;
+    this.setName(((Object)runnable).toString());
   }
 
   public Runnable getRunnable() {
