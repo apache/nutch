@@ -45,7 +45,7 @@ public class Generator extends NutchConfigured {
 
     public void configure(JobConf job) {
       curTime = job.getLong("crawl.gen.curTime", System.currentTimeMillis());
-      limit = job.getLong("crawl.gen.limit", Long.MAX_VALUE);
+      limit = job.getLong("crawl.topN",Long.MAX_VALUE)/job.getNumReduceTasks();
       maxPerHost = job.getInt("generate.max.per.host", -1);
     }
 
@@ -173,7 +173,7 @@ public class Generator extends NutchConfigured {
     }
 
     job.setLong("crawl.gen.curTime", curTime);
-    job.setLong("crawl.gen.limit", topN / job.getNumReduceTasks());
+    job.setLong("crawl.topN", topN);
 
     job.setInputDir(new File(dbDir, CrawlDatum.DB_DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
