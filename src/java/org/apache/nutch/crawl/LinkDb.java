@@ -19,6 +19,7 @@ package org.apache.nutch.crawl;
 import java.io.*;
 import java.util.*;
 import java.util.logging.*;
+import java.net.*;
 
 import org.apache.nutch.io.*;
 import org.apache.nutch.fs.*;
@@ -37,6 +38,7 @@ public class LinkDb extends NutchConfigured implements Mapper, Reducer {
 
   private int maxAnchorLength;
   private int maxInlinks;
+  private boolean ignoreInternalLinks;
 
   public LinkDb() {
     super(null);
@@ -50,24 +52,44 @@ public class LinkDb extends NutchConfigured implements Mapper, Reducer {
   public void configure(JobConf job) {
     maxAnchorLength = job.getInt("db.max.anchor.length", 100);
     maxInlinks = job.getInt("db.max.inlinks", 10000);
+    ignoreInternalLinks = job.getBoolean("db.ignore.internal.links", true);
   }
 
   public void map(WritableComparable key, Writable value,
                   OutputCollector output, Reporter reporter)
     throws IOException {
     String fromUrl = key.toString();
+    String fromHost = getHost(fromUrl);
+
     ParseData parseData = (ParseData)value;
     Outlink[] outlinks = parseData.getOutlinks();
     Inlinks inlinks = new Inlinks();
     for (int i = 0; i < outlinks.length; i++) {
       Outlink outlink = outlinks[i];
+      String toUrl = outlink.getToUrl();
+
+      if (ignoreInternalLinks) {
+        String toHost = getHost(toUrl);
+        if (toHost == null || toHost.equals(fromHost)) { // internal link
+          continue;                               // skip it
+        }
+      }
+
       inlinks.clear();
       String anchor = outlink.getAnchor();        // truncate long anchors
       if (anchor.length() > maxAnchorLength) {
         anchor = anchor.substring(0, maxAnchorLength);
       }
       inlinks.add(new Inlink(fromUrl, anchor));   // collect inverted link
-      output.collect(new UTF8(outlink.getToUrl()), inlinks);
+      output.collect(new UTF8(toUrl), inlinks);
+    }
+  }
+
+  private String getHost(String url) {
+    try {
+      return new URL(url).getHost().toLowerCase();
+    } catch (MalformedURLException e) {
+      return null;
     }
   }
 
