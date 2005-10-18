@@ -246,12 +246,10 @@ public class Fetcher {
         return null;
       }
       String contentType = content.getContentType();
-      Parser parser = null;
       Parse parse = null;
       ParseStatus status = null;
       try {
-        parser = ParserFactory.getParser(contentType, url);
-        parse = parser.getParse(content);
+        parse = ParseUtil.parse(content);
         status = parse.getData().getStatus();
       } catch (Exception e) {
         e.printStackTrace();

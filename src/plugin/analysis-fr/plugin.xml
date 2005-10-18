@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="analysis-fr"
+   name="French Analysis Plug-in"
+   version="1.0.0"
+   provider-name="org.apache.nutch">
+
+   <runtime>
+      <library name="analysis-fr.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+      <import plugin="lib-lucene-analyzers"/>
+   </requires>
+
+   <extension id="org.apache.nutch.analysis.fr"
+              name="FrenchAnalyzer"
+              point="org.apache.nutch.analysis.NutchAnalyzer">
+
+      <implementation id="org.apache.nutch.analysis.fr.FrenchAnalyzer"
+                      class="org.apache.nutch.analysis.fr.FrenchAnalyzer"
+                      lang="fr"/>
+
+   </extension>
+
+</plugin>

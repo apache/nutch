@@ -18,8 +18,8 @@ package org.apache.nutch.parse.rtf;
 
 import junit.framework.TestCase;
 import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
-import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.ParserFactory;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
@@ -58,15 +58,13 @@ public class TestRTFParser extends TestCase {
     String urlString;
     Protocol protocol;
     Content content;
-    Parser parser;
     Parse parse;
 
     urlString = "file:" + sampleDir + fileSeparator + rtfFile;
     protocol = ProtocolFactory.getProtocol(urlString);
     content = protocol.getContent(urlString);
 
-    parser = ParserFactory.getParser(content.getContentType(), urlString);
-    parse = parser.getParse(content);
+    parse = ParseUtil.parseByParserId("parse-rtf",content);
     String text = parse.getText();
     assertEquals("The quick brown fox jumps over the lazy dog", text.trim());
 

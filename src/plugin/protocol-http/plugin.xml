@@ -11,6 +11,10 @@
       </library>
    </runtime>
 
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
    <extension id="org.apache.nutch.protocol.http"
               name="HttpProtocol"
               point="org.apache.nutch.protocol.Protocol">

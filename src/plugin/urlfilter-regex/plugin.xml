@@ -11,7 +11,11 @@
       </library>
    </runtime>
 
-   <extension id="org.apache.nutch.net.urlfiler"
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
+   <extension id="org.apache.nutch.net.urlfilter"
               name="Nutch Regex URL Filter"
               point="org.apache.nutch.net.URLFilter">
       <implementation id="RegexURLFilter"

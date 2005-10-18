@@ -17,7 +17,6 @@
 package org.apache.nutch.searcher;
 
 import java.io.*;
-import java.net.*;
 import java.util.*;
 import java.util.logging.Logger;
 import javax.servlet.ServletContext;
@@ -131,7 +130,7 @@ public class NutchBean
     this.linkDb = new LinkDbReader(fs, linkDb);
   }
 
-  private void init(DistributedSearch.Client client) throws IOException {
+  private void init(DistributedSearch.Client client) {
     this.segmentNames = client.getSegmentNames();
     this.searcher = client;
     this.detailer = client;

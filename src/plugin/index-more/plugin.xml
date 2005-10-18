@@ -12,6 +12,10 @@
       </library>
    </runtime>
 
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
    <extension id="org.apache.nutch.indexer.more"
               name="Nutch More Indexing Filter"
               point="org.apache.nutch.indexer.IndexingFilter">

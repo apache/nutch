@@ -13,6 +13,7 @@
 
    <requires>
       <import plugin="lib-jakarta-poi"/>
+      <import plugin="nutch-extensionpoints"/>
    </requires>
 
    <extension id="net.nutch.parse.mspowerpoint"

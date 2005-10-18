@@ -21,9 +21,8 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ProtocolException;
 
-import org.apache.nutch.parse.ParserFactory;
-import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.Outlink;
@@ -75,7 +74,6 @@ public class TestRSSParser extends TestCase {
         String urlString;
         Protocol protocol;
         Content content;
-        Parser parser;
         Parse parse;
 
         for (int i = 0; i < sampleFiles.length; i++) {
@@ -83,10 +81,7 @@ public class TestRSSParser extends TestCase {
 
             protocol = ProtocolFactory.getProtocol(urlString);
             content = protocol.getProtocolOutput(urlString).getContent();
-
-            parser = ParserFactory.getParser(content.getContentType(),
-                    urlString);
-            parse = parser.getParse(content);
+            parse = ParseUtil.parseByParserId("parse-rss",content);
 
             //check that there are 3 outlinks:
             //http://test.channel.com

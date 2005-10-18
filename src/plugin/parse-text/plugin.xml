@@ -12,6 +12,10 @@
       </library>
    </runtime>
 
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
    <extension id="org.apache.nutch.parse.text"
               name="TextParse"
               point="org.apache.nutch.parse.Parser">

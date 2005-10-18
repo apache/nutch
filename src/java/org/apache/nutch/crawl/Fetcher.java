@@ -202,9 +202,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
       if (parsing) {
         ParseStatus parseStatus;
         try {
-          Parser parser = ParserFactory.getParser(content.getContentType(),
-                                                  content.getBaseUrl());
-          parse = parser.getParse(content);
+          parse = ParseUtil.parse(content);
           parseStatus = parse.getData().getStatus();
         } catch (Exception e) {
           parseStatus = new ParseStatus(e);

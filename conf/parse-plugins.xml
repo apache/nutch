@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	Copyright 2005 The Apache Software Foundation
+	
+	Licensed under the Apache License, Version 2.0 (the "License");
+	you may not use this file except in compliance with the License.
+	You may obtain a copy of the License at
+	
+	http://www.apache.org/licenses/LICENSE-2.0
+	
+	Unless required by applicable law or agreed to in writing, software
+	distributed under the License is distributed on an "AS IS" BASIS,
+	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+	See the License for the specific language governing permissions and
+	limitations under the License.
+	
+	Author     : mattmann 
+	Description: This xml file represents a natural ordering for which parsing 
+	plugin should get called for a particular mimeType. 
+-->
+
+<parse-plugins>
+
+	<!--  by default if the mimeType is set to *, or 
+		can't be determined, use parse-text -->
+	<mimeType name="*">
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="application/java">
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="application/msword">
+		<plugin id="parse-msword" />
+	</mimeType>
+
+	<mimeType name="application/pdf">
+		<plugin id="parse-pdf" />
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="application/postscript">
+		<plugin id="parse-pdf" />
+	</mimeType>
+
+	<mimeType name="application/rss+xml">
+		<plugin id="parse-rss" />
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="application/vnd.ms-excel">
+		<plugin id="parse-msexcel" />
+	</mimeType>
+
+	<mimeType name="application/vnd.ms-powerpoint">
+		<plugin id="parse-mspowerpoint" />
+	</mimeType>
+
+	<mimeType name="application/vnd.wap.wbxml">
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="application/vnd.wap.wmlc">
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="application/vnd.wap.wmlscriptc">
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="application/xhtml+xml">
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="application/x-bzip2">
+		<!--  try and parse it with the zip parser -->
+		<plugin id="parse-zip" />
+	</mimeType>
+
+	<mimeType name="application/x-csh">
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="application/x-gzip">
+		<!--  try and parse it with the zip parser -->
+		<plugin id="parse-zip" />
+	</mimeType>
+
+	<mimeType name="application/x-javascript">
+		<plugin id="parse-js" />
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="application/x-kword">
+		<!--  try and parse it with the word parser -->
+		<plugin id="parse-msword" />
+	</mimeType>
+
+	<mimeType name="application/x-kspread">
+		<!--  try and parse it with the msexcel parser -->
+		<plugin id="parse-msexcel" />
+	</mimeType>
+
+	<mimeType name="application/x-latex">
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="application/x-netcdf">
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="application/x-sh">
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="application/x-tcl">
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="application/x-tex">
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="application/x-texinfo">
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="application/x-troff">
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="application/x-troff-man">
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="application/x-troff-me">
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="application/x-troff-ms">
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="application/zip">
+		<plugin id="parse-zip" />
+	</mimeType>
+
+	<mimeType name="message/news">
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="message/rfc822">
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="text/css">
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="text/html">
+		<plugin id="parse-html" />
+	</mimeType>
+
+	<mimeType name="text/plain">
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="text/richtext">
+		<plugin id="parse-rtf" />
+		<plugin id="parse-msword" />
+	</mimeType>
+
+	<mimeType name="text/rtf">
+		<plugin id="parse-rtf" />
+		<plugin id="parse-msword" />
+	</mimeType>
+
+	<mimeType name="text/sgml">
+		<plugin id="parse-html" />
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="text/tab-separated-values">
+		<plugin id="parse-msexcel" />
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="text/vnd.wap.wml">
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="text/vnd.wap.wmlscript">
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="text/xml">
+		<plugin id="parse-text" />
+		<plugin id="parse-html" />
+		<plugin id="parse-rss" />
+	</mimeType>
+
+	<mimeType name="text/x-setext">
+		<plugin id="parse-text" />
+	</mimeType>
+
+       <!-- Types for parse-ext plugin: required for unit tests to pass. -->
+
+	<mimeType name="application/vnd.nutch.example.cat">
+		<plugin id="parse-ext" />
+	</mimeType>
+
+	<mimeType name="application/vnd.nutch.example.md5sum">
+		<plugin id="parse-ext" />
+	</mimeType>
+
+</parse-plugins>

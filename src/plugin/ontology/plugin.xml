@@ -18,6 +18,10 @@
 
    </runtime>
 
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
    <!-- attribute "point" is the plugin interface class -->
    <!-- seems kinda redundant to have to define the point here too -->   
    <extension id="org.apache.nutch.ontology.OntologyImpl"

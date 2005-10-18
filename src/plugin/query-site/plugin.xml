@@ -11,6 +11,10 @@
       </library>
    </runtime>
 
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
    <extension id="org.apache.nutch.searcher.site.SiteQueryFilter"
               name="Nutch Site Query Filter"
               point="org.apache.nutch.searcher.QueryFilter">

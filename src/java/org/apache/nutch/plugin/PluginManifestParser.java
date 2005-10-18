@@ -22,7 +22,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -51,20 +53,52 @@ public class PluginManifestParser {
             .startsWith("Windows");
 
     /**
+     * Filters a list of plugins.
+     * The list of plugins is filtered regarding the configuration
+     * properties <code>plugin.excludes</code> and <code>plugin.includes</code>.
+     */
+    public static Map filter(Map plugins) {
+      Map map = new HashMap();
+      Pattern excludes = Pattern.compile(NutchConf.get().get(
+                                         "plugin.excludes", ""));
+      Pattern includes = Pattern.compile(NutchConf.get().get(
+                                         "plugin.includes", ""));
+      if (plugins == null) { return map; }
+
+      Iterator iter = plugins.values().iterator();
+      while (iter.hasNext()) {
+        PluginDescriptor plugin = (PluginDescriptor) iter.next();
+        if (plugin == null) { continue; }
+        String id = plugin.getPluginId();
+        if (id == null) { continue; }
+        
+        if (!includes.matcher(id).matches()) {
+          LOG.fine("not including: " + id);
+          continue;
+        }
+        if (excludes.matcher(id).matches()) {
+          LOG.fine("excluding: " + id);
+          continue;
+        }
+        map.put(plugin.getPluginId(), plugin);
+      }
+      return map;
+    }
+    
+    /**
      * Returns a list with plugin descriptors.
      * 
      * @return ArrayList
      *  
      */
-    public static ArrayList parsePluginFolder() {
-        ArrayList list = new ArrayList();
+    public static Map parsePluginFolder() {
+        Map map = new HashMap();
         String[] pluginFolders = NutchConf.get().getStrings("plugin.folders");
-        Pattern excludes = Pattern.compile(NutchConf.get().get(
-                "plugin.excludes", ""));
-        Pattern includes = Pattern.compile(NutchConf.get().get(
-                "plugin.includes", ""));
-        if (pluginFolders == null)
+
+        if (pluginFolders == null) {
             throw new IllegalArgumentException("plugin.folders is not defined");
+        }
+        
         for (int i = 0; i < pluginFolders.length; i++) {
             String name = pluginFolders[i];
             File directory = getPluginFolder(name);
@@ -77,35 +111,25 @@ public class PluginManifestParser {
             for (int j = 0; j < files.length; j++) {
                 File oneSubFolder = files[j];
                 if (oneSubFolder.isDirectory()) {
-
-                    if (!includes.matcher(oneSubFolder.getName()).matches()) {
-                        LOG.info("not including: " + oneSubFolder);
-                        continue;
-                    }
-
-                    if (excludes.matcher(oneSubFolder.getName()).matches()) {
-                        LOG.info("excluding: " + oneSubFolder);
-                        continue;
-                    }
-
                     String manifestPath = oneSubFolder.getAbsolutePath()
                             + File.separator + "plugin.xml";
                     try {
-                        LOG.info("parsing: " + manifestPath);
-                        list.add(parseManifestFile(manifestPath));
+                        LOG.fine("parsing: " + manifestPath);
+                        PluginDescriptor p = parseManifestFile(manifestPath);
+                        map.put(p.getPluginId(), p);
                     } catch (MalformedURLException e) {
-                        LOG.info(e.toString());
+                        LOG.warning(e.toString());
                     } catch (SAXException e) {
-                        LOG.info(e.toString());
+                        LOG.warning(e.toString());
                     } catch (IOException e) {
-                        LOG.info(e.toString());
+                        LOG.warning(e.toString());
                     } catch (ParserConfigurationException e) {
-                        LOG.info(e.toString());
+                        LOG.warning(e.toString());
                     }
                 }
             }
         }
-        return list;
+        return map;
     }
 
     /**
@@ -118,10 +142,10 @@ public class PluginManifestParser {
             URL url = PluginManifestParser.class.getClassLoader().getResource(
                     name);
             if (url == null) {
-                LOG.info("Plugins: directory not found: " + name);
+                LOG.warning("Plugins: directory not found: " + name);
                 return null;
             } else if (!"file".equals(url.getProtocol())) {
-                LOG.info("Plugins: not a file: url. Can't load plugins from: "
+                LOG.warning("Plugins: not a file: url. Can't load plugins from: "
                         + url);
                 return null;
             }
@@ -184,7 +208,7 @@ public class PluginManifestParser {
         }
         PluginDescriptor pluginDescriptor = new PluginDescriptor(id, version,
                 name, providerName, pluginClazz, pPath);
-                 LOG.fine("plugin: id="+id+" name="+name+" version="+version
+        LOG.fine("plugin: id="+id+" name="+name+" version="+version
                  +" provider="+providerName+"class="+pluginClazz);
         parseExtension(rootElement, pluginDescriptor);
         parseExtensionPoints(rootElement, pluginDescriptor);
@@ -289,7 +313,7 @@ public class PluginManifestParser {
                         String id = oneImplementation.getAttribute("id");
                         String extensionClass = oneImplementation
                                 .getAttribute("class");
-                        LOG.info("impl: point=" + pointId + " class="
+                        LOG.fine("impl: point=" + pointId + " class="
                                 + extensionClass);
                         Extension extension = new Extension(pPluginDescriptor,
                                 pointId, id, extensionClass);

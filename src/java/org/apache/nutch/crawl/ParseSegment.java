@@ -51,9 +51,7 @@ public class ParseSegment extends NutchConfigured implements Mapper, Reducer {
     Parse parse = null;
     ParseStatus status;
     try {
-      Parser parser = ParserFactory.getParser(content.getContentType(),
-                                              content.getBaseUrl());
-      parse = parser.getParse(content);
+      parse = ParseUtil.parse(content);
       status = parse.getData().getStatus();
     } catch (Exception e) {
       status = new ParseStatus(e);

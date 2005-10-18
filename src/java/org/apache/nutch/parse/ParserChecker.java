@@ -18,6 +18,8 @@ package org.apache.nutch.parse;
 
 import org.apache.nutch.util.LogFormatter;
 
+import org.apache.nutch.parse.ParseUtil;
+
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.Content;
@@ -83,8 +85,7 @@ public class ParserChecker {
     LOG.info("parsing: "+url);
     LOG.info("contentType: "+contentType);
 
-    Parser parser = ParserFactory.getParser(contentType, url);
-    Parse parse = parser.getParse(content);
+    Parse parse = ParseUtil.parse(content);
 
     System.out.print("---------\nParseData\n---------\n");
     System.out.print(parse.getData().toString());

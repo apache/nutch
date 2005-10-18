@@ -12,6 +12,10 @@
       <library name="jid3lib-0.5.1.jar"/>
    </runtime>
 
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
    <extension point="org.apache.nutch.parse.Parser"
               id="org.apache.nutch.parse.mp3"
               name="MP3Parse">
