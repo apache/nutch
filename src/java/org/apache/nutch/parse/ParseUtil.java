@@ -64,6 +64,7 @@ public class ParseUtil {
     
     Parse parse = null;
     for (int i=0; i<parsers.length; i++) {
+      LOG.info("Parsing [" + content.getUrl() + "] with [" + parsers[i] + "]");
       parse = parsers[i].getParse(content);
       if ((parse != null) && (parse.getData().getStatus().isSuccess())) {
         return parse;

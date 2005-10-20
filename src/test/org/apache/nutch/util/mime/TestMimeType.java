@@ -87,6 +87,31 @@ public class TestMimeType extends TestCase {
         constructorSuccess("mime/type");
     }
 
+    /** Test of <code>clean(String)</code> method. */
+    public void testClean() {
+        try {
+            assertEquals("text/html", MimeType.clean("text/html"));
+            assertEquals("text/html", MimeType.clean("text/html; charset=ISO-8859-1"));
+        } catch (Exception e) {
+            fail(e.toString());
+        }
+        cleanExceptionChecker(null);
+        cleanExceptionChecker("");
+        cleanExceptionChecker("text");
+        cleanExceptionChecker("/html");
+        cleanExceptionChecker("/text/html");
+    }
+
+    private static void cleanExceptionChecker(String type) {
+        try {
+            MimeType.clean(type);
+            fail("Must raise a MimeTypeException for [" + type + "]");
+        } catch (MimeTypeException mte) { // All is ok
+        } catch (Exception e) {
+            fail("Must raise a MimeTypeException for [" + type + "]");
+        }
+    }
+
     /** Test of <code>getPrimaryType</code> method. */
     public void testGetPrimaryType() {
     }
