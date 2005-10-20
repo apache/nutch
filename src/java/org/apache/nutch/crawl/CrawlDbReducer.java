@@ -38,11 +38,10 @@ public class CrawlDbReducer implements Reducer {
 
     CrawlDatum highest = null;
     CrawlDatum old = null;
-    int linkCount = 0;
+    float scoreIncrement = 0.0f;
 
     while (values.hasNext()) {
       CrawlDatum datum = (CrawlDatum)values.next();
-      linkCount += datum.getLinkCount();          // sum link counts
 
       if (highest == null || datum.getStatus() > highest.getStatus()) {
         highest = datum;                          // find highest status
@@ -52,6 +51,10 @@ public class CrawlDbReducer implements Reducer {
       case CrawlDatum.STATUS_DB_UNFETCHED:
       case CrawlDatum.STATUS_DB_FETCHED:
         old = datum;
+        break;
+      case CrawlDatum.STATUS_LINKED:
+        scoreIncrement += datum.getScore();
+        break;
       }
     }
 
@@ -71,6 +74,7 @@ public class CrawlDbReducer implements Reducer {
       } else {
         result = highest;                         // use new entry
         result.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
+        result.setScore(1.0f);                    // initial score is 1.0f
       }
       break;
       
@@ -99,7 +103,7 @@ public class CrawlDbReducer implements Reducer {
     }
     
     if (result != null) {
-      result.setLinkCount(linkCount);
+      result.setScore(result.getScore() + scoreIncrement);
       output.collect(key, result);
     }
   }

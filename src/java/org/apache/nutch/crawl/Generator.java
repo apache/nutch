@@ -61,7 +61,7 @@ public class Generator extends NutchConfigured {
       if (crawlDatum.getFetchTime() > curTime)
         return;                                   // not time yet
 
-      output.collect(crawlDatum, key);          // invert for sort by linkCount
+      output.collect(crawlDatum, key);          // invert for sort by score
     }
 
     /** Partition by host (value). */

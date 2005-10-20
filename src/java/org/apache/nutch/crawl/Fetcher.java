@@ -38,6 +38,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
   
   public static final String DIGEST_KEY = "nutch.content.digest";
   public static final String SEGMENT_NAME_KEY = "nutch.segment.name";
+  public static final String SCORE_KEY = "nutch.crawl.score";
 
   public static class InputFormat extends SequenceFileInputFormat {
     /** Don't split inputs, to keep things polite. */
@@ -197,6 +198,8 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
         (DIGEST_KEY, MD5Hash.digest(content.getContent()).toString());
       content.getMetadata().setProperty           // add segment to metadata
         (SEGMENT_NAME_KEY, segmentName);
+      content.getMetadata().setProperty           // add score to metadata
+        (SCORE_KEY, Float.toString(datum.getScore()));
 
       Parse parse = null;
       if (parsing) {

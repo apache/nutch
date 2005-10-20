@@ -64,6 +64,11 @@ public class ParseOutputFormat implements OutputFormat {
 
           // collect outlinks for subsequent db update
           Outlink[] links = parse.getData().getOutlinks();
+
+          // compute OPIC score contribution
+          float score = Float.valueOf(parse.getData().get(Fetcher.SCORE_KEY));
+          score /= links.length;
+                          
           for (int i = 0; i < links.length; i++) {
             String toUrl = links[i].getToUrl();
             try {
@@ -75,7 +80,7 @@ public class ParseOutputFormat implements OutputFormat {
             if (toUrl != null)
               crawlOut.append(new UTF8(toUrl),
                               new CrawlDatum(CrawlDatum.STATUS_LINKED,
-                                             interval));
+                                             interval, score));
           }
         }
         

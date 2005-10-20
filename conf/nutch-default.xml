@@ -271,17 +271,6 @@
   fetchlist.  -1 if unlimited.</description>
 </property>
 
-<!-- fetchlist tool properties -->
-
-<property>
-  <name>fetchlist.score.by.link.count</name>
-  <value>true</value>
-  <description>If true, set page scores on fetchlist entries based on
-  log(number of anchors), instead of using original page scores. This
-  results in prioritization of pages with many incoming links.
-  </description>
-</property>
-
 <!-- fetcher properties -->
 
 <property>
@@ -448,13 +437,6 @@
   value of this parameter.  This is compiled into indexes, so, when
   this is changed, pages must be re-indexed for it to take
   effect.</description>
-</property>
-
-<property>
-  <name>indexer.boost.by.link.count</name>
-  <value>true</value>
-  <description>When true scores for a page are multipled by the log of
-  the number of incoming links to the page.</description>
 </property>
 
 <property>

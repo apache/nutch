@@ -114,7 +114,7 @@ public class Crawl {
     new LinkDb(conf).invert(linkDb, segments); // invert links
 
     // index, dedup & merge
-    new Indexer(conf).index(indexes, linkDb, fs.listFiles(segments));
+    new Indexer(conf).index(indexes, crawlDb, linkDb, fs.listFiles(segments));
     new DeleteDuplicates(conf).dedup(new File[] { indexes });
     new IndexMerger(fs, fs.listFiles(indexes), index, tmpDir).merge();
 

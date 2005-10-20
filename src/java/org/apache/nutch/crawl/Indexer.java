@@ -138,11 +138,9 @@ public class Indexer extends NutchConfigured implements Reducer {
     super(conf);
   }
 
-  private boolean boostByLinkCount;
   private float scorePower;
 
   public void configure(JobConf job) {
-    boostByLinkCount = job.getBoolean("indexer.boost.by.link.count", false);
     scorePower = job.getFloat("indexer.score.power", 0.5f);
   }
 
@@ -150,7 +148,8 @@ public class Indexer extends NutchConfigured implements Reducer {
                      OutputCollector output, Reporter reporter)
     throws IOException {
     Inlinks inlinks = null;
-    CrawlDatum crawlDatum = null;
+    CrawlDatum dbDatum = null;
+    CrawlDatum fetchDatum = null;
     ParseData parseData = null;
     ParseText parseText = null;
     while (values.hasNext()) {
@@ -158,7 +157,21 @@ public class Indexer extends NutchConfigured implements Reducer {
       if (value instanceof Inlinks) {
         inlinks = (Inlinks)value;
       } else if (value instanceof CrawlDatum) {
-        crawlDatum = (CrawlDatum)value;
+        CrawlDatum datum = (CrawlDatum)value;
+        switch (datum.getStatus()) {
+        case CrawlDatum.STATUS_DB_UNFETCHED:
+        case CrawlDatum.STATUS_DB_FETCHED:
+        case CrawlDatum.STATUS_DB_GONE:
+          dbDatum = datum;
+          break;
+        case CrawlDatum.STATUS_FETCH_SUCCESS:
+        case CrawlDatum.STATUS_FETCH_RETRY:
+        case CrawlDatum.STATUS_FETCH_GONE:
+          fetchDatum = datum;
+          break;
+        default:
+          throw new RuntimeException("Unexpected status: "+datum.getStatus());
+        }
       } else if (value instanceof ParseData) {
         parseData = (ParseData)value;
       } else if (value instanceof ParseText) {
@@ -168,7 +181,8 @@ public class Indexer extends NutchConfigured implements Reducer {
       }
     }      
 
-    if (crawlDatum == null || parseText == null || parseData == null) {
+    if (fetchDatum == null || dbDatum == null
+        || parseText == null || parseData == null) {
       return;                                     // only have inlinks
     }
 
@@ -183,10 +197,8 @@ public class Indexer extends NutchConfigured implements Reducer {
     // add digest, used by dedup
     doc.add(Field.UnIndexed("digest", meta.getProperty(Fetcher.DIGEST_KEY)));
 
-    // compute boost
-    float boost =
-      IndexSegment.calculateBoost(1.0f, scorePower, boostByLinkCount,
-                                  anchors.length);
+    // boost is opic
+    float boost = (float)Math.pow(dbDatum.getScore(), scorePower);
     // apply boost to all indexed fields.
     doc.setBoost(boost);
     // store boost for use by explain and dedup
@@ -205,7 +217,7 @@ public class Indexer extends NutchConfigured implements Reducer {
       FetcherOutput fo =
         new FetcherOutput(new FetchListEntry(true,new Page((UTF8)key),anchors),
                           null, null);
-      fo.setFetchDate(crawlDatum.getFetchTime());
+      fo.setFetchDate(fetchDatum.getFetchTime());
 
       // run indexing filters
       doc = IndexingFilters.filter(doc,new ParseImpl(parseText, parseData),fo);
@@ -217,7 +229,7 @@ public class Indexer extends NutchConfigured implements Reducer {
     output.collect(key, new ObjectWritable(doc));
   }
 
-  public void index(File indexDir, File linkDb, File[] segments)
+  public void index(File indexDir, File crawlDb, File linkDb, File[] segments)
     throws IOException {
 
     LOG.info("Indexer: starting");
@@ -232,6 +244,7 @@ public class Indexer extends NutchConfigured implements Reducer {
       job.addInputDir(new File(segments[i], ParseText.DIR_NAME));
     }
 
+    job.addInputDir(new File(crawlDb, CrawlDatum.DB_DIR_NAME));
     job.addInputDir(new File(linkDb, LinkDb.CURRENT_NAME));
 
     job.setInputFormat(InputFormat.class);
@@ -253,17 +266,18 @@ public class Indexer extends NutchConfigured implements Reducer {
   public static void main(String[] args) throws Exception {
     Indexer indexer = new Indexer(NutchConf.get());
     
-    if (args.length < 2) {
-      System.err.println("Usage: <index> <linkdb> <segment> <segment> ...");
+    if (args.length < 4) {
+      System.err.println("Usage: <index> <crawldb> <linkdb> <segment> ...");
       return;
     }
     
-    File[] segments = new File[args.length-2];
-    for (int i = 2; i < args.length; i++) {
-      segments[i-2] = new File(args[i]);
+    File[] segments = new File[args.length-3];
+    for (int i = 3; i < args.length; i++) {
+      segments[i-3] = new File(args[i]);
     }
 
-    indexer.index(new File(args[0]), new File(args[1]), segments);
+    indexer.index(new File(args[0]), new File(args[1]), new File(args[2]),
+                  segments);
   }
 
 }

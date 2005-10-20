@@ -15,13 +15,6 @@
 </property>
 
 <property>
-  <name>indexer.boost.by.link.count</name>
-  <value>true</value>
-  <description>When true scores for a page are multipled by the log of
-  the number of incoming links to the page.</description>
-</property>
-
-<property>
   <name>db.ignore.internal.links</name>
   <value>false</value>
   <description>If true, when adding new links to a page, links from

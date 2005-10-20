@@ -31,7 +31,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   public static final String FETCH_DIR_NAME = "crawl_fetch";
   public static final String PARSE_DIR_NAME = "crawl_parse";
 
-  private final static byte CUR_VERSION = 1;
+  private final static byte CUR_VERSION = 2;
 
   public static final byte STATUS_DB_UNFETCHED = 1;
   public static final byte STATUS_DB_FETCHED = 2;
@@ -47,15 +47,18 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   private long fetchTime = System.currentTimeMillis();
   private byte retries;
   private float fetchInterval;
-  private int linkCount;
+  private float score = 1.0f;
 
   public CrawlDatum() {}
 
   public CrawlDatum(int status, float fetchInterval) {
     this.status = (byte)status;
     this.fetchInterval = fetchInterval;
-    if (status == STATUS_LINKED)
-      linkCount = 1;
+  }
+
+  public CrawlDatum(int status, float fetchInterval, float score) {
+    this(status, fetchInterval);
+    this.score = score;
   }
 
   //
@@ -80,8 +83,8 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     this.fetchInterval = fetchInterval;
   }
 
-  public int getLinkCount() { return linkCount; }
-  public void setLinkCount(int linkCount) { this.linkCount = linkCount; }
+  public float getScore() { return score; }
+  public void setScore(float score) { this.score = score; }
 
   //
   // writable methods
@@ -96,18 +99,18 @@ public class CrawlDatum implements WritableComparable, Cloneable {
 
   public void readFields(DataInput in) throws IOException {
     byte version = in.readByte();                 // read version
-    if (version > CUR_VERSION)                    // check version
+    if (version != CUR_VERSION)                   // check version
       throw new VersionMismatchException(CUR_VERSION, version);
 
     status = in.readByte();
     fetchTime = in.readLong();
     retries = in.readByte();
     fetchInterval = in.readFloat();
-    linkCount = in.readInt();
+    score = in.readFloat();
   }
 
-  /** The number of bytes into a CrawlDatum that the linkCount is stored. */
-  private static final int LINK_COUNT_OFFSET = 1 + 1 + 8 + 1 + 4;
+  /** The number of bytes into a CrawlDatum that the score is stored. */
+  private static final int SCORE_OFFSET = 1 + 1 + 8 + 1 + 4;
 
   public void write(DataOutput out) throws IOException {
     out.writeByte(CUR_VERSION);                   // store current version
@@ -115,7 +118,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     out.writeLong(fetchTime);
     out.writeByte(retries);
     out.writeFloat(fetchInterval);
-    out.writeInt(linkCount);
+    out.writeFloat(score);
   }
 
   /** Copy the contents of another instance into this instance. */
@@ -124,7 +127,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     this.fetchTime = that.fetchTime;
     this.retries = that.retries;
     this.fetchInterval = that.fetchInterval;
-    this.linkCount = that.linkCount;
+    this.score = that.score;
   }
 
 
@@ -132,11 +135,11 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   // compare methods
   //
   
-  /** Sort by decreasing link count. */
+  /** Sort by decreasing score. */
   public int compareTo(Object o) {
     CrawlDatum that = (CrawlDatum)o; 
-    if (that.linkCount != this.linkCount)
-      return that.linkCount - this.linkCount;
+    if (that.score != this.score)
+      return (that.score - this.score) > 0 ? 1 : -1;
     if (that.status != this.status)
       return this.status - that.status;
     if (that.fetchTime != this.fetchTime)
@@ -153,10 +156,10 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     public Comparator() { super(CrawlDatum.class); }
 
     public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
-      int linkCount1 = readInt(b1,s1+LINK_COUNT_OFFSET);
-      int linkCount2 = readInt(b2,s2+LINK_COUNT_OFFSET);
-      if (linkCount2 != linkCount1) {
-        return linkCount2 - linkCount1;
+      float score1 = readFloat(b1,s1+SCORE_OFFSET);
+      float score2 = readFloat(b2,s2+SCORE_OFFSET);
+      if (score2 != score1) {
+        return (score2 - score1) > 0 ? 1 : -1;
       }
       int status1 = b1[s1+1];
       int status2 = b2[s2+1];
@@ -194,7 +197,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     buf.append("Fetch time: " + new Date(getFetchTime()) + "\n");
     buf.append("Retries since fetch: " + getRetriesSinceFetch() + "\n");
     buf.append("Retry interval: " + getFetchInterval() + " days\n");
-    buf.append("Link Count: " + getLinkCount() + "\n");
+    buf.append("Score: " + getScore() + "\n");
     return buf.toString();
   }
 
@@ -207,7 +210,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
       (this.fetchTime == other.fetchTime) &&
       (this.retries == other.retries) &&
       (this.fetchInterval == other.fetchInterval) &&
-      (this.linkCount == other.linkCount);
+      (this.score == other.score);
   }
 
   public int hashCode() {
@@ -216,7 +219,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
       ((int)fetchTime) ^
       retries ^
       Float.floatToIntBits(fetchInterval) ^
-      linkCount;
+      Float.floatToIntBits(score);
   }
 
   public Object clone() {
