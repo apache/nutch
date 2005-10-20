@@ -58,6 +58,8 @@ public class TestParserFactory extends TestCase {
   public void testGetExtensions() throws Exception {
     Extension ext = (Extension)ParserFactory.getExtensions("text/html").get(0);
     assertEquals("parse-html", ext.getDescriptor().getPluginId());
+    ext = (Extension) ParserFactory.getExtensions("text/html; charset=ISO-8859-1").get(0);
+    assertEquals("parse-html", ext.getDescriptor().getPluginId());
     ext = (Extension)ParserFactory.getExtensions("foo/bar").get(0);
     assertEquals("parse-text", ext.getDescriptor().getPluginId());
   }
@@ -69,6 +71,13 @@ public class TestParserFactory extends TestCase {
     assertEquals(1, parsers.length);
     assertEquals("org.apache.nutch.parse.html.HtmlParser",
         parsers[0].getClass().getName());
+
+    parsers = ParserFactory.getParsers("text/html; charset=ISO-8859-1", "http://foo.com");
+    assertNotNull(parsers);
+    assertEquals(1, parsers.length);
+    assertEquals("org.apache.nutch.parse.html.HtmlParser",
+        parsers[0].getClass().getName());
+
     
     parsers = ParserFactory.getParsers("application/x-javascript",
     "http://foo.com");

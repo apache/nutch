@@ -105,14 +105,27 @@ public final class MimeType {
         }
                 
         // All is ok, assign values
-        this.name = primary + SEPARATOR + sub;
+        this.name = primary + SEPARATOR + clearedSub;
         this.primary = primary;
         this.sub = clearedSub;
         this.extensions = new ArrayList();
         this.magics = new ArrayList();
     }
-    
-    
+
+    /**
+     * Cleans a content-type.
+     * This method cleans a content-type by removing its optional parameters
+     * and returning only its <code>primary-type/sub-type</code>.
+     * @param type is the content-type to clean.
+     * @return the cleaned version of the specified content-type.
+     * @throws MimeTypeException if something wrong occurs during the
+     *         parsing/cleaning of the specified type.
+     */
+    public final static String clean(String type) throws MimeTypeException {
+        return (new MimeType(type)).getName();
+    }
+
+
     /**
      * Return the name of this mime-type.
      * @return the name of this mime-type.

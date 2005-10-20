@@ -29,6 +29,8 @@ import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.plugin.PluginRuntimeException;
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.util.mime.MimeType;
+import org.apache.nutch.util.mime.MimeTypeException;
 
 
 /** Creates and caches {@link Parser} plugins.*/
@@ -228,9 +230,19 @@ public final class ParserFactory {
    * @return List - List of extensions to be used for this contentType.
    *                If none, returns null.
    */
-  protected static List getExtensions(String contentType){
+  protected static List getExtensions(String contentType) {
     
-    List extensions = (List)CACHE.get(contentType);
+    // First of all, tries to clean the content-type
+    String type = null;
+    try {
+        type = MimeType.clean(contentType);
+    } catch (MimeTypeException mte) {
+        LOG.info("Could not clean the content-type [" + contentType +
+                 "], Reason is [" + mte + "]. Using its raw version...");
+        type = contentType;
+    }
+
+    List extensions = (List) CACHE.get(type);
 
     // Just compare the reference:
     // if this is the empty list, we know we will find no extension.
@@ -239,13 +251,13 @@ public final class ParserFactory {
     }
     
     if (extensions == null) {
-      extensions = findExtensions(contentType);
+      extensions = findExtensions(type);
       if (extensions != null) {
-        CACHE.put(contentType, extensions);
+        CACHE.put(type, extensions);
       } else {
       	// Put the empty extension list into cache
       	// to remember we don't know any related extension.
-      	CACHE.put(contentType, EMPTY_EXTENSION_LIST);
+      	CACHE.put(type, EMPTY_EXTENSION_LIST);
       }
     }
     return extensions;
@@ -311,7 +323,7 @@ public final class ParserFactory {
         // file. 
         // OR it was enabled in plugin.includes, but the plugin's plugin.xml
         // file does not claim that the plugin supports the specified mimeType
-        // in either case, LOG the appropriate error message to SEVERE level
+        // in either case, LOG the appropriate error message to WARN level
         
         if (ext == null) {
            //try to get it just by its pluginId
@@ -331,10 +343,10 @@ public final class ParserFactory {
           
           } else{
             // plugin wasn't enabled via plugin.includes
-            LOG.severe("ParserFactory: Plugin: " + parsePluginId + 
-                       " mapped to contentType " + contentType +
-                       " via parse-plugins.xml, but not enabled via " +
-                       "plugin.includes in nutch-default.xml");                     
+            LOG.warning("ParserFactory: Plugin: " + parsePluginId + 
+                        " mapped to contentType " + contentType +
+                        " via parse-plugins.xml, but not enabled via " +
+                        "plugin.includes in nutch-default.xml");                     
           }
           
         } else{
