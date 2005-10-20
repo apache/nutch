@@ -73,7 +73,7 @@ public class FileUtil {
             }
         } else {
             nfs.mkdirs(dst);
-            File contents[] = nfs.listFiles(src);
+            File contents[] = nfs.listFilesRaw(src);
             if (contents != null) {
                 for (int i = 0; i < contents.length; i++) {
                     File newDst = new File(dst, contents[i].getName());
