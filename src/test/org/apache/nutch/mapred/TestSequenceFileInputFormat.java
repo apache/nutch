@@ -44,13 +44,7 @@ public class TestSequenceFileInputFormat extends TestCase {
     //LOG.info("seed = "+seed);
     Random random = new Random(seed);
 
-    fs.mkdirs(dir);
-    File[] files = fs.listFiles(dir);
-    if (files != null) {
-      for (int i = 0; i < files.length; i++) {
-        fs.delete(files[i]);
-      }
-    }
+    fs.delete(dir);
 
     job.setInputDir(dir);
 
@@ -61,7 +55,6 @@ public class TestSequenceFileInputFormat extends TestCase {
       //LOG.info("creating; entries = " + length);
 
       // create a file with length entries
-      fs.delete(file);
       SequenceFile.Writer writer =
         new SequenceFile.Writer(fs, file.toString(),
                                 IntWritable.class, BytesWritable.class);
