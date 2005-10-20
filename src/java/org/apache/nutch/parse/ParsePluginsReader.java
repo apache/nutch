@@ -19,7 +19,6 @@ package org.apache.nutch.parse;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import java.io.InputStream;
@@ -92,9 +91,8 @@ public class ParsePluginsReader {
         parsePluginUrl = new URL(fParsePluginsFile);
         ppInputStream = parsePluginUrl.openStream();
       } catch (Exception e) {
-        LOG.log(Level.SEVERE,
-                "Unable to load parse plugins file from URL " +
-                "[" + fParsePluginsFile + "]", e);
+        LOG.warning("Unable to load parse plugins file from URL " +
+                    "[" + fParsePluginsFile + "]. Reason is [" + e + "]");
         return pList;
       }
     } else {
@@ -109,7 +107,8 @@ public class ParsePluginsReader {
       parser = factory.newDocumentBuilder();
       document = parser.parse(inputSource);
     } catch (Exception e) {
-      LOG.log(Level.SEVERE, "Unable to parse [" + fParsePluginsFile + "]", e);
+      LOG.warning("Unable to parse [" + fParsePluginsFile + "]." +
+                  "Reason is [" + e + "]");
       return null;
     }
     
