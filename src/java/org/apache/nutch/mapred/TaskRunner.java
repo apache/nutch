@@ -63,6 +63,7 @@ abstract class TaskRunner extends Thread {
 
       String sep = System.getProperty("path.separator");
       File workDir = new File(new File(t.getJobFile()).getParent(), "work");
+      workDir.mkdirs();
                
       StringBuffer classPath = new StringBuffer();
       // start with same classpath as parent process
@@ -72,7 +73,6 @@ abstract class TaskRunner extends Thread {
       JobConf job = new JobConf(t.getJobFile());
       String jar = job.getJar();
       if (jar != null) {                      // if jar exists, it into workDir
-        workDir.mkdirs();
         runChild(new String[] { "unzip", jar}, workDir);
         File[] libs = new File(workDir, "lib").listFiles();
         for (int i = 0; i < libs.length; i++) {
