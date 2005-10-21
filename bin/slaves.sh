@@ -21,7 +21,7 @@ fi
 
 for slave in `cat $NUTCH_SLAVES`; do
  ssh -o ConnectTimeout=1 -o SendEnv='NUTCH* JAVA*' $slave "$@" \
-   | sed "s/^/$slave: /" &
+   2>&1 | sed "s/^/$slave: /" &
 done
 
 wait
