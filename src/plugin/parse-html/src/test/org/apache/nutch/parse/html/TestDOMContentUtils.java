@@ -113,6 +113,12 @@ public class TestDOMContentUtils extends TestCase {
                + "<h2>End\tthis\rmadness\n!</h2>\r\n"
                + "         .        .        .         ."
                + "</body>  </html>"),
+
+    // test that <a rel=nofollow> links are not returned
+    new String("<html><head></head><body>"
+               + "<a href=\"http://www.nutch.org\" rel=\"nofollow\"> ignore </a>"
+               + "<a rel=\"nofollow\" href=\"http://www.nutch.org\"> ignore </a>"
+               + "</body></html>"),
   };
 
   private static String[] testBaseHrefs= {
@@ -123,6 +129,7 @@ public class TestDOMContentUtils extends TestCase {
     "http://www.nutch.org/frames/",     
     "http://www.nutch.org/maps/",
     "http://www.nutch.org/whitespace/",
+    "http://www.nutch.org//",
   };
   
   private static final DocumentFragment testDOMs[]=
@@ -145,6 +152,7 @@ public class TestDOMContentUtils extends TestCase {
         + "one two three space here space there no space "
         + "one two two three three four put some text here and there. "
         + "End this madness ! . . . .",
+    "ignore ignore",
   };
 
   private static final String[] answerTitle= {
@@ -155,6 +163,7 @@ public class TestDOMContentUtils extends TestCase {
     "my title",
     "my title",
     "my title",
+    "",
   };
 
   // note: should be in page-order
@@ -214,6 +223,8 @@ public class TestDOMContentUtils extends TestCase {
          {
              new Outlink("http://www.nutch.org/index.html", "whitespace test"),
          },
+         {
+         }
       };
    
     } catch (MalformedURLException e) {

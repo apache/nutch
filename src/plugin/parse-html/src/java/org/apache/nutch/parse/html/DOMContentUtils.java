@@ -306,13 +306,21 @@ public class DOMContentUtils {
 
           NamedNodeMap attrs = node.getAttributes();
           String target = null;
+          boolean noFollow = false;
           for (int i= 0; i < attrs.getLength(); i++ ) {
-            if (params.attrName.equalsIgnoreCase(attrs.item(i).getNodeName())) {
-              target = attrs.item(i).getNodeValue();
-              break;
+            Node attr = attrs.item(i);
+            String attrName = attr.getNodeName();
+
+            if ("rel".equalsIgnoreCase(attrName) &&
+                "nofollow".equalsIgnoreCase(attr.getNodeValue())) {
+              noFollow = true;
+            }
+
+            if (params.attrName.equalsIgnoreCase(attrName)) {
+              target = attr.getNodeValue();
             }
           }
-          if (target != null)
+          if (target != null && !noFollow)
             try {
               URL url = new URL(base, target);
               outlinks.add(new Outlink(url.toString(),
