@@ -132,6 +132,9 @@ public class LocalJobRunner implements JobSubmissionProtocol {
       }
     }
 
+    public synchronized void fsError(String message) throws IOException {
+      LOG.severe("FSError: "+ message);
+    }
 
   }
 

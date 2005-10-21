@@ -78,11 +78,23 @@ public class LocalFileSystem extends NutchFileSystem {
         public int available() throws IOException { return fis.available(); }
         public void close() throws IOException { fis.close(); }
         public boolean markSupport() { return false; }
-        public int read() throws IOException { return fis.read(); }
-        public int read(byte[] b) throws IOException { return fis.read(b); }
-        public int read(byte[] b, int off, int len) throws IOException {
-            return fis.read(b, off, len);
+
+        public int read() throws IOException {
+          try {
+            return fis.read();
+          } catch (IOException e) {               // unexpected exception
+            throw new FSError(e);                 // assume native fs error
+          }
         }
+
+        public int read(byte[] b, int off, int len) throws IOException {
+          try {
+            return fis.read(b, off, len);
+          } catch (IOException e) {               // unexpected exception
+            throw new FSError(e);                 // assume native fs error
+          }
+        }
+
         public long skip(long n) throws IOException { return fis.skip(n); }
     }
     
@@ -115,11 +127,21 @@ public class LocalFileSystem extends NutchFileSystem {
        */
       public void close() throws IOException { fos.close(); }
       public void flush() throws IOException { fos.flush(); }
-      public void write(byte[] b) throws IOException { fos.write(b); }
+
       public void write(byte[] b, int off, int len) throws IOException {
-        fos.write(b, off, len);
+        try {
+          fos.write(b, off, len);
+        } catch (IOException e) {               // unexpected exception
+          throw new FSError(e);                 // assume native fs error
+        }
       }
-      public void write(int b) throws IOException { fos.write(b); }
+      public void write(int b) throws IOException {
+        try {
+          fos.write(b);
+        } catch (IOException e) {               // unexpected exception
+          throw new FSError(e);                 // assume native fs error
+        }
+      }
     }
 
     public NFSOutputStream createRaw(File f, boolean overwrite)

@@ -18,6 +18,7 @@ package org.apache.nutch.mapred;
 import org.apache.nutch.io.*;
 import org.apache.nutch.ipc.*;
 import org.apache.nutch.util.*;
+import org.apache.nutch.fs.*;
 
 import java.io.*;
 import java.net.*;
@@ -68,12 +69,11 @@ abstract class TaskRunner extends Thread {
       classPath.append(System.getProperty("java.class.path"));
       classPath.append(sep);
       
-      
       JobConf job = new JobConf(t.getJobFile());
       String jar = job.getJar();
       if (jar != null) {                      // if jar exists, it into workDir
         workDir.mkdirs();
-        runChild(new String[] { "jar", "xf", jar}, workDir);
+        runChild(new String[] { "unzip", jar}, workDir);
         File[] libs = new File(workDir, "lib").listFiles();
         for (int i = 0; i < libs.length; i++) {
           classPath.append(sep);              // add libs from jar to classpath
@@ -97,8 +97,15 @@ abstract class TaskRunner extends Thread {
         TaskTracker.Child.class.getName(),        // main is Child
         tracker.taskReportPort+"",                // pass umbilical port
         t.getTaskId()                             // pass task identifier
-      }, null);
+      }, workDir);
 
+    } catch (FSError e) {
+      LOG.log(Level.SEVERE, "FSError", e);
+      try {
+        tracker.fsError(e.getMessage());
+      } catch (IOException ie) {
+        LOG.log(Level.SEVERE, t.getTaskId()+" reporting FSError", ie);
+      }
     } catch (Throwable throwable) {
       LOG.log(Level.WARNING, t.getTaskId()+" Child Error", throwable);
       ByteArrayOutputStream baos = new ByteArrayOutputStream();

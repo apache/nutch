@@ -50,4 +50,7 @@ public interface TaskUmbilicalProtocol {
    * the task process exits without calling this. */
   void done(String taskid) throws IOException;
 
+  /** Report that the task encounted a local filesystem error.*/
+  void fsError(String message) throws IOException;
+
 }

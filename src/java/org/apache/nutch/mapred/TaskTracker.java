@@ -46,6 +46,8 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
     public static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.mapred.TaskTracker");
 
+    private boolean running = true;
+
     String taskTrackerName;
     String localHostname;
     InetSocketAddress jobTrackAddr;
@@ -161,7 +163,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
     int offerService() throws Exception {
         long lastHeartbeat = 0;
 
-        while (true) {
+        while (running) {
             long now = System.currentTimeMillis();
 
             long waitTime = HEARTBEAT_INTERVAL - (now - lastHeartbeat);
@@ -245,6 +247,8 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
             }
             lastHeartbeat = now;
         }
+
+        return 0;
     }
 
     /**
@@ -255,11 +259,11 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
      */
     public void run() {
         try {
-            while (true) {
+            while (running) {
                 boolean staleState = false;
                 try {
                     // This while-loop attempts reconnects if we get network errors
-                    while (! staleState) {
+                    while (running && ! staleState) {
                         try {
                             if (offerService() == STALE_STATE) {
                                 staleState = true;
@@ -539,6 +543,13 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
         tip.reportDone();
     }
 
+    /** A child task had a local filesystem error.  Exit, so that no future
+     * jobs are accepted. */
+    public synchronized void fsError(String message) throws IOException {
+      LOG.severe("FSError, exiting: "+ message);
+      running = false;
+    }
+
     /////////////////////////////////////////////////////
     //  Called by TaskTracker thread after task process ends
     /////////////////////////////////////////////////////
@@ -567,12 +578,17 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
           Task task = umbilical.getTask(taskid);
           JobConf job = new JobConf(task.getJobFile());
 
+          NutchConf.get().addConfResource(new File(task.getJobFile()));
+
           startPinging(umbilical, taskid);        // start pinging parent
 
           try {
               task.run(job, umbilical);           // run the task
+          } catch (FSError e) {
+            LOG.log(Level.SEVERE, "FSError from child", e);
+            umbilical.fsError(e.getMessage());
           } catch (Throwable throwable) {
-              LOG.log(Level.WARNING, "Failed to spawn child", throwable);
+              LOG.log(Level.WARNING, "Error running child", throwable);
               // Report back any failures, for diagnostic purposes
               ByteArrayOutputStream baos = new ByteArrayOutputStream();
               throwable.printStackTrace(new PrintStream(baos));
