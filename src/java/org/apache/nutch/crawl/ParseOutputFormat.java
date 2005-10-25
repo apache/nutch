@@ -66,7 +66,8 @@ public class ParseOutputFormat implements OutputFormat {
           Outlink[] links = parse.getData().getOutlinks();
 
           // compute OPIC score contribution
-          float score = Float.valueOf(parse.getData().get(Fetcher.SCORE_KEY));
+          float score =
+            Float.parseFloat(parse.getData().get(Fetcher.SCORE_KEY));
           score /= links.length;
                           
           for (int i = 0; i < links.length; i++) {
