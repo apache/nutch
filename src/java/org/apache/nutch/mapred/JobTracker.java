@@ -40,10 +40,21 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
     public static void startTracker(NutchConf conf) throws IOException {
       if (tracker != null)
         throw new IOException("JobTracker already running.");
-      tracker = new JobTracker(conf);
+      while (true) {
+        try {
+          tracker = new JobTracker(conf);
+          break;
+        } catch (IOException e) {
+          LOG.log(Level.WARNING, "Starting tracker", e);
+        }
+        try {
+          Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
+      }
       tracker.offerService();
-
     }
+
     public static JobTracker getTracker() {
         return tracker;
     }
