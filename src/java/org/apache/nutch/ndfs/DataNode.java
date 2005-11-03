@@ -366,8 +366,11 @@ public class DataNode implements FSConstants, Runnable {
 
                                     while (anotherChunk) {
                                         while (len > 0) {
-                                            int bytesRead = in.read(buf, 0, Math.min(buf.length, (int) len));
-                                            if (bytesRead >= 0) {
+                                            int bytesRead = in.read(buf, 0, (int)Math.min(buf.length, len));
+                                            if (bytesRead < 0) {
+                                              throw new EOFException("EOF reading from "+s.toString());
+                                            }
+                                            if (bytesRead > 0) {
                                                 try {
                                                     out.write(buf, 0, bytesRead);
                                                 } catch (IOException iex) {
@@ -393,8 +396,8 @@ public class DataNode implements FSConstants, Runnable {
                                                         }
                                                     }
                                                 }
+                                                len -= bytesRead;
                                             }
-                                            len -= bytesRead;
                                         }
 
                                         if (encodingType == RUNLENGTH_ENCODING) {
@@ -556,7 +559,7 @@ public class DataNode implements FSConstants, Runnable {
                     in.close();
                 }
             } catch (IOException ie) {
-                ie.printStackTrace();
+              LOG.log(Level.WARNING, "DataXCeiver", ie);
             } finally {
                 try {
                     s.close();
