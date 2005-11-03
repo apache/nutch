@@ -305,6 +305,8 @@ public class TestNutchFileSystem extends TestCase {
       long size = ((LongWritable)value).get();
       long seed = Long.parseLong(name);
 
+      if (size == 0) return;
+
       reporter.setStatus("opening " + name);
 
       NFSDataInputStream in = fs.open(new File(DATA_DIR, name));
