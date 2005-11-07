@@ -202,7 +202,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
         (SCORE_KEY, Float.toString(datum.getScore()));
 
       Parse parse = null;
-      if (parsing) {
+      if (parsing && status == CrawlDatum.STATUS_FETCH_SUCCESS) {
         ParseStatus parseStatus;
         try {
           parse = ParseUtil.parse(content);
@@ -280,6 +280,8 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
     this.maxRedirect = getConf().getInt("http.redirect.max", 3);
     
     int threadCount = getConf().getInt("fetcher.threads.fetch", 10);
+    LOG.info("Fetcher: threads: " + threadCount);
+
     for (int i = 0; i < threadCount; i++) {       // spawn threads
       new FetcherThread().start();
     }
@@ -311,8 +313,6 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
 
     LOG.info("Fetcher: starting");
     LOG.info("Fetcher: segment: " + segment);
-    LOG.info("Fetcher: threads: " + threads);
-
 
     JobConf job = new JobConf(getConf());
 
