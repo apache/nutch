@@ -379,7 +379,8 @@ public class RobotRulesParser {
     if (robotRules == null) {                     // cache miss
       LOG.fine("cache miss " + url);
       try {
-        HttpResponse response = new HttpResponse(new URL(url, "/robots.txt"));
+        HttpResponse response = new HttpResponse(new URL(url, "/robots.txt"),
+                                                 true);
 
         if (response.getCode() == 200)               // found rules: parse them
           robotRules = new RobotRulesParser().parseRules(response.getContent());
