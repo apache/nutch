@@ -387,7 +387,14 @@
 <property>
   <name>mapred.system.dir</name>
   <value>/tmp/nutch/mapred/system</value>
-  <description>The local directory where MapReduce stores control files.
+  <description>The shared directory where MapReduce stores control files.
+  </description>
+</property>
+
+<property>
+  <name>mapred.temp.dir</name>
+  <value>/tmp/nutch/mapred/temp</value>
+  <description>A shared directory for temporary files.
   </description>
 </property>
 

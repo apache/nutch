@@ -155,7 +155,8 @@ public class Generator extends NutchConfigured {
     throws IOException {
 
     File tempDir =
-      new File("generate-temp-"+
+      new File(NutchConf.get().get("mapred.temp.dir", ".") +
+               "/generate-temp-"+
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     File segment = new File(segments, getDate());

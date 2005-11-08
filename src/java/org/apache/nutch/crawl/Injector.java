@@ -84,7 +84,8 @@ public class Injector extends NutchConfigured {
     LOG.info("Injector: urlDir: " + urlDir);
 
     File tempDir =
-      new File("inject-temp-"+
+      new File(NutchConf.get().get("mapred.temp.dir", ".") +
+               "/inject-temp-"+
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     // map text input file to a <url,CrawlDatum> file
