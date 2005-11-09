@@ -74,6 +74,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
   private class FetcherThread extends Thread {
     public FetcherThread() {
       this.setDaemon(true);                       // don't hang JVM on exit
+      this.setName("FetcherThread");              // use an informative name
     }
 
     public void run() {
