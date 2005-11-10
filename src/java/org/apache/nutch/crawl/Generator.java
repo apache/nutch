@@ -76,23 +76,27 @@ public class Generator extends NutchConfigured {
                        OutputCollector output, Reporter reporter)
       throws IOException {
 
-      while (values.hasNext() && ++count < limit) {
+      while (values.hasNext() && count < limit) {
 
         UTF8 url = (UTF8)values.next();
 
-        if (maxPerHost > 0) {                       // are we counting hosts?
+        if (maxPerHost > 0) {                     // are we counting hosts?
           String host = new URL(url.toString()).getHost();
-          Integer count = (Integer)hostCounts.get(host);
-          if (count != null) {
-            if (count.intValue() >= maxPerHost)
+          Integer hostCount = (Integer)hostCounts.get(host);
+          if (hostCount != null) {
+            if (hostCount.intValue() >= maxPerHost)
               continue;                           // too many from host
-            hostCounts.put(host, new Integer(count.intValue()+1));
+            hostCounts.put(host, new Integer(hostCount.intValue()+1));
           } else {                                // update host count
             hostCounts.put(host, new Integer(1));
           }
         }
 
         output.collect(key, url);
+
+        // Count is incremented only when we keep the URL
+        // maxPerHost may cause us to skip it.
+        count++;
       }
 
     }
