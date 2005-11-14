@@ -237,7 +237,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
 	    LOG.info("Property '" + key + "' is " + val);
 	}
 
-        this.infoPort = conf.getInt("mapred.job.tracker.info.port", 7845);
+        this.infoPort = conf.getInt("mapred.job.tracker.info.port", 50030);
         this.infoServer = new JobTrackerInfoServer(this, infoPort);
         this.infoServer.start();
 

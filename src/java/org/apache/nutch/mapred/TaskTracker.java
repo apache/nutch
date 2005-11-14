@@ -67,17 +67,20 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
     NutchFileSystem fs = null;
     static final String SUBDIR = "taskTracker";
 
+    private NutchConf fConf;
+
     /**
      * Start with the local machine name, and the default JobTracker
      */
-    public TaskTracker() throws IOException {
-      this(JobTracker.getAddress(NutchConf.get()));
+    public TaskTracker(NutchConf conf) throws IOException {
+      this(JobTracker.getAddress(conf), conf);
     }
 
     /**
      * Start with the local machine name, and the addr of the target JobTracker
      */
-    public TaskTracker(InetSocketAddress jobTrackAddr) throws IOException {
+    public TaskTracker(InetSocketAddress jobTrackAddr, NutchConf conf) throws IOException {
+        this.fConf = conf;
         this.jobTrackAddr = jobTrackAddr;
         initialize();
     }
@@ -97,17 +100,32 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
         this.tasks = new TreeMap();
         this.runningTasks = new TreeMap();
 
-        // generate port numbers
-        this.taskReportPort = 32768+r.nextInt(32768);
-        this.mapOutputPort = 32768+r.nextInt(32768);
+        // port numbers
+        this.taskReportPort = this.fConf.getInt("mapred.task.tracker.report.port", 50050);
+        this.mapOutputPort = this.fConf.getInt("mapred.task.tracker.output.port", 50040);
 
         // RPC initialization
-        this.taskReportServer =
-          RPC.getServer(this, taskReportPort, MAX_CURRENT_TASKS, false);
-        this.taskReportServer.start();
-        this.mapOutputServer =
-          RPC.getServer(this, mapOutputPort, MAX_CURRENT_TASKS, false);
-        this.mapOutputServer.start();
+        while (true) {
+            try {
+                this.taskReportServer = RPC.getServer(this, this.taskReportPort, MAX_CURRENT_TASKS, false);
+                this.taskReportServer.start();
+                break;
+            } catch (BindException e) {
+                LOG.info("Could not open report server at " + this.taskReportPort + ", trying new port");
+                this.taskReportPort++;
+            }
+        
+        }
+        while (true) {
+            try {
+                this.mapOutputServer = RPC.getServer(this, this.mapOutputPort, MAX_CURRENT_TASKS, false);
+                this.mapOutputServer.start();
+                break;
+            } catch (BindException e) {
+                LOG.info("Could not open mapoutput server at " + this.mapOutputPort + ", trying new port");
+                this.mapOutputPort++;
+            }
+        }
 
         // Clear out temporary files that might be lying around
         MapOutputFile.cleanupStorage();
@@ -629,7 +647,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
             System.exit(-1);
         }
 
-        TaskTracker tt = new TaskTracker();
+        TaskTracker tt = new TaskTracker(NutchConf.get());
         tt.run();
     }
 }

@@ -349,6 +349,14 @@
 </property>
 
 <property>
+  <name>ndfs.datanode.port</name>
+  <value>50010</value>
+  <description>The port number that the ndfs datanode server uses as a starting 
+	       point to look for a free port to listen on.
+</description>
+</property>
+
+<property>
   <name>ndfs.name.dir</name>
   <value>/tmp/nutch/ndfs/name</value>
   <description>Determines where on the local filesystem the NDFS name node
@@ -372,6 +380,29 @@
   <description>The host and port that the MapReduce job tracker runs
   at.  If "local", then jobs are run in-process as a single map
   and reduce task.
+  </description>
+</property>
+
+<property>
+  <name>mapred.job.tracker.info.port</name>
+  <value>50030</value>
+  <description>The port that the MapReduce job tracker info webserver runs at.
+  </description>
+</property>
+
+<property>
+  <name>mapred.task.tracker.output.port</name>
+  <value>50040</value>
+  <description>The port number that the MapReduce task tracker output server uses as a starting
+               point to look for a free port to listen on.
+  </description>
+</property>
+
+<property>
+  <name>mapred.task.tracker.report.port</name>
+  <value>50050</value>
+  <description>The port number that the MapReduce task tracker report server uses as a starting
+               point to look for a free port to listen on.
   </description>
 </property>
 

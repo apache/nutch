@@ -66,6 +66,7 @@ public class DataNode implements FSConstants, Runnable {
     Vector receivedBlockList = new Vector();
     int xmitsInProgress = 0;
     Daemon dataXceiveServer = null;
+    private NutchConf fConf;
 
     /**
      * Create given a configuration and a dataDir.
@@ -73,18 +74,18 @@ public class DataNode implements FSConstants, Runnable {
     public DataNode(NutchConf conf, String datadir) throws IOException {
         this(InetAddress.getLocalHost().getHostName(), 
              new File(datadir),
-             createSocketAddr(conf.get("fs.default.name", "local")));
+             createSocketAddr(conf.get("fs.default.name", "local")), conf);
     }
 
     /**
      * Needs a directory to find its data (and config info)
      */
-    public DataNode(String machineName, File datadir, InetSocketAddress nameNodeAddr) throws IOException {
+    public DataNode(String machineName, File datadir, InetSocketAddress nameNodeAddr, NutchConf conf) throws IOException {
         this.namenode = (DatanodeProtocol) RPC.getProxy(DatanodeProtocol.class, nameNodeAddr);
         this.data = new FSDataset(datadir);
 
         ServerSocket ss = null;
-        int tmpPort = 7000;
+        int tmpPort = conf.getInt("ndfs.datanode.port", 50010);
         while (ss == null) {
             try {
                 ss = new ServerSocket(tmpPort);
