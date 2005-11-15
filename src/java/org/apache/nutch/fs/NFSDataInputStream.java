@@ -109,13 +109,15 @@ public class NFSDataInputStream extends DataInputStream {
         stopSumming();
         return;
       }
-      if (crc != (int)sum.getValue()) {
-        fs.reportChecksumFailure(file, (NFSInputStream)in,
-                                 getPos()-delta, bytesPerSum, crc);
-        throw new IOException("Checksum error: "+file);
-      }
+      int sumValue = (int)sum.getValue();
       sum.reset();
       inSum = 0;
+      if (crc != sumValue) {
+        long pos = getPos() - delta;
+        fs.reportChecksumFailure(file, (NFSInputStream)in,
+                                 pos, bytesPerSum, crc);
+        throw new ChecksumException("Checksum error: "+file+" at "+pos);
+      }
     }
 
     public long getPos() throws IOException {

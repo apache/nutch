@@ -359,23 +359,39 @@ public class SequenceFile {
       if (in.getPos() >= end)
         return -1;
 
-      int length = in.readInt();
+      try {
+        int length = in.readInt();
 
-      if (version[3] > 1 && sync != null &&
-          length == SYNC_ESCAPE) {                // process a sync entry
-        //LOG.info("sync@"+in.getPos());
-        in.readFully(syncCheck);                  // read syncCheck
-        if (!Arrays.equals(sync, syncCheck))      // check it
-          throw new IOException("File is corrupt!");
-        syncSeen = true;
-        length = in.readInt();                    // re-read length
-      } else {
-        syncSeen = false;
+        if (version[3] > 1 && sync != null &&
+            length == SYNC_ESCAPE) {              // process a sync entry
+          //LOG.info("sync@"+in.getPos());
+          in.readFully(syncCheck);                // read syncCheck
+          if (!Arrays.equals(sync, syncCheck))    // check it
+            throw new IOException("File is corrupt!");
+          syncSeen = true;
+          length = in.readInt();                  // re-read length
+        } else {
+          syncSeen = false;
+        }
+        
+        int keyLength = in.readInt();
+        buffer.write(in, length);
+        return keyLength;
+
+      } catch (ChecksumException e) {             // checksum failure
+        handleChecksumException(e);
+        return next(buffer);
       }
+    }
 
-      int keyLength = in.readInt();
-      buffer.write(in, length);
-      return keyLength;
+    private void handleChecksumException(ChecksumException e)
+      throws IOException {
+      if (NutchConf.get().getBoolean("io.skip.checksum.errors", false)) {
+        LOG.warning("Bad checksum at "+getPosition()+". Skipping entries.");
+        sync(getPosition()+NutchConf.get().getInt("io.bytes.per.checksum", 512));
+      } else {
+        throw e;
+      }
     }
 
     /** Set the current byte position in the input file. */
@@ -390,20 +406,24 @@ public class SequenceFile {
         return;
       }
 
-      seek(position+4);                           // skip escape
-      in.readFully(syncCheck);
-      int syncLen = sync.length;
-      for (int i = 0; in.getPos() < end; i++) {
-        int j = 0;
-        for (; j < syncLen; j++) {
-          if (sync[j] != syncCheck[(i+j)%syncLen])
-            break;
+      try {
+        seek(position+4);                         // skip escape
+        in.readFully(syncCheck);
+        int syncLen = sync.length;
+        for (int i = 0; in.getPos() < end; i++) {
+          int j = 0;
+          for (; j < syncLen; j++) {
+            if (sync[j] != syncCheck[(i+j)%syncLen])
+              break;
+          }
+          if (j == syncLen) {
+            in.seek(in.getPos() - SYNC_SIZE);     // position before sync
+            return;
+          }
+          syncCheck[i%syncLen] = in.readByte();
         }
-        if (j == syncLen) {
-          in.seek(in.getPos() - SYNC_SIZE);  // position before sync
-          return;
-        }
-        syncCheck[i%syncLen] = in.readByte();
+      } catch (ChecksumException e) {             // checksum failure
+        handleChecksumException(e);
       }
     }
 
