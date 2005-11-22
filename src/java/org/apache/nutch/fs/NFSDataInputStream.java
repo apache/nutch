@@ -54,7 +54,9 @@ public class NFSDataInputStream extends DataInputStream {
         if (!Arrays.equals(version, VERSION))
           throw new IOException("Not a checksum file: "+sumFile);
         bytesPerSum = sums.readInt();
-      } catch (IOException e) {
+      } catch (FileNotFoundException e) {         // quietly ignore
+        stopSumming();
+      } catch (IOException e) {                   // loudly ignore
         LOG.warning("Problem opening checksum file: "+e+". Ignoring.");
         stopSumming();
       }
