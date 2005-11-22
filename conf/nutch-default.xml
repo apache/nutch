@@ -69,7 +69,7 @@
 
 <property>
   <name>http.max.delays</name>
-  <value>3</value>
+  <value>100</value>
   <description>The number of times a thread will delay when trying to
   fetch a page.  Each time it finds that a host is busy, it will wait
   fetcher.server.delay.  After http.max.delays attepts, it will give

@@ -33,7 +33,7 @@
 
 <property>
   <name>http.max.delays</name>
-  <value>100</value>
+  <value>1000</value>
   <description>The number of times a thread will delay when trying to
   fetch a page.  When using the crawl tool there are likely to be very
   few different hosts, so we need to be willing to wait longer for
