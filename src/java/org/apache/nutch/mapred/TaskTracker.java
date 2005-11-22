@@ -142,8 +142,8 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
      */
     public synchronized void close() throws IOException {
         // Kill running tasks
-        for (Iterator it = tasks.values().iterator(); it.hasNext(); ) {
-            TaskInProgress tip = (TaskInProgress) it.next();
+        while (tasks.size() > 0) {
+            TaskInProgress tip = (TaskInProgress)tasks.get(tasks.firstKey());
             tip.jobHasFinished();
         }
 
