@@ -140,6 +140,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
               case ProtocolStatus.EXCEPTION:
                 logError(url, status.getMessage());
               case ProtocolStatus.RETRY:          // retry
+                datum.setRetriesSinceFetch(datum.getRetriesSinceFetch()+1);
                 output(key, datum, null, CrawlDatum.STATUS_FETCH_RETRY);
                 break;
                 
