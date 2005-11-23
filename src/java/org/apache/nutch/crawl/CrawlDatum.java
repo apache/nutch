@@ -40,6 +40,17 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   public static final byte STATUS_FETCH_SUCCESS = 5;
   public static final byte STATUS_FETCH_RETRY = 6;
   public static final byte STATUS_FETCH_GONE = 7;
+  
+  public static final String[] statNames = {
+    "INVALID",
+    "DB_unfetched",
+    "DB_fetched",
+    "DB_gone",
+    "linked",
+    "fetch_success",
+    "fetch_retry",
+    "fetch_gone"
+  };
 
   private static final float MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
 
@@ -193,7 +204,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   public String toString() {
     StringBuffer buf = new StringBuffer();
     buf.append("Version: " + CUR_VERSION + "\n");
-    buf.append("Status: " + getStatus() + "\n");
+    buf.append("Status: " + getStatus() + " (" + statNames[getStatus()] + ")\n");
     buf.append("Fetch time: " + new Date(getFetchTime()) + "\n");
     buf.append("Retries since fetch: " + getRetriesSinceFetch() + "\n");
     buf.append("Retry interval: " + getFetchInterval() + " days\n");
