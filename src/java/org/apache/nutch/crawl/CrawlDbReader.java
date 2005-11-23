@@ -187,7 +187,7 @@ public class CrawlDbReader {
     while (it.hasNext()) {
       String k = (String) it.next();
       LongWritable val = (LongWritable) stats.get(k);
-      if (k.contains("score")) {
+      if (k.indexOf("score") != -1) {
         if (k.startsWith("min")) {
           LOG.info(k + ":\t" + (float) ((float) (val.get() / min) / 1000.0f));
         } else if (k.startsWith("max")) {
