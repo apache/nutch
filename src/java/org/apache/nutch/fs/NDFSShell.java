@@ -29,12 +29,12 @@ import java.util.*;
  *
  * @author Mike Cafarella
  **************************************************/
-public class TestClient {
+public class NDFSShell {
     NutchFileSystem nfs;
 
     /**
      */
-    public TestClient(NutchFileSystem nfs) {
+    public NDFSShell(NutchFileSystem nfs) {
         this.nfs = nfs;
     }
 
@@ -216,7 +216,7 @@ public class TestClient {
      */
     public static void main(String argv[]) throws IOException {
         if (argv.length < 1) {
-            System.out.println("Usage: java NDFSClient [-local | -ndfs <namenode:port>]" +
+            System.out.println("Usage: java NDFSShell [-local | -ndfs <namenode:port>]" +
                     " [-ls <path>] [-du <path>] [-mv <src> <dst>] [-cp <src> <dst>] [-rm <src>]" +
                     " [-put <localsrc> <dst>] [-copyFromLocal <localsrc> <dst>] [-moveFromLocal <localsrc> <dst>]" + 
                     " [-get <src> <localdst>] [-copyToLocal <src> <localdst>] [-moveToLocal <src> <localdst>]" +
@@ -227,7 +227,7 @@ public class TestClient {
         int i = 0;
         NutchFileSystem nfs = NutchFileSystem.parseArgs(argv, i);
         try {
-            TestClient tc = new TestClient(nfs);
+            NDFSShell tc = new NDFSShell(nfs);
 
             String cmd = argv[i++];
             if ("-put".equals(cmd) || "-copyFromLocal".equals(cmd)) {
