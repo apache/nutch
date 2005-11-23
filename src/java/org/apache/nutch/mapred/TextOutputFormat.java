@@ -37,9 +37,9 @@ public class TextOutputFormat implements OutputFormat {
     return new RecordWriter() {
         public synchronized void write(WritableComparable key, Writable value)
           throws IOException {
-          out.writeBytes(key.toString());         // BUG: assume 8-bit chars
+          out.write(key.toString().getBytes("UTF-8"));
           out.writeByte('\t');
-          out.writeBytes(value.toString());       // BUG: assume 8-bit chars
+          out.write(value.toString().getBytes("UTF-8"));
           out.writeByte('\n');
         }
         public synchronized void close(Reporter reporter) throws IOException {
