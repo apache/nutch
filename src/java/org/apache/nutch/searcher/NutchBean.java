@@ -26,6 +26,7 @@ import org.apache.nutch.util.*;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.indexer.*;
 import org.apache.nutch.crawl.Inlinks;
+import org.apache.nutch.crawl.LinkDbReader;
 
 /** 
  * One stop shopping for search-related functionality.
@@ -127,7 +128,7 @@ public class NutchBean
     this.content = segments;
 
     LOG.info("opening linkdb in " + linkDb);
-    this.linkDb = new LinkDbReader(fs, linkDb);
+    this.linkDb = new LinkDbInlinks(fs, linkDb);
   }
 
   private void init(DistributedSearch.Client client) {
