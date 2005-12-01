@@ -70,9 +70,11 @@
      srcdir="${src.dir}"
      includes="org/apache/nutch/**/*.java"
      destdir="${build.classes}"
-     debug="${debug}"
-     optimize="${optimize}"
-     deprecation="${deprecation}">
+     debug="${javac.debug}"
+     optimize="${javac.optimize}"
+     target="${javac.version}"
+     source="${javac.version}"
+     deprecation="${javac.deprecation}">
       <classpath refid="classpath"/>
     </javac>    
   </target>
@@ -154,8 +156,11 @@
      srcdir="${test.src.dir}"
      includes="org/apache/nutch/**/*.java"
      destdir="${test.build.classes}"
-     debug="${debug}"
-     deprecation="${deprecation}">
+     debug="${javac.debug}"
+     optimize="${javac.optimize}"
+     target="${javac.version}"
+     source="${javac.version}"
+     deprecation="${javac.deprecation}">
       <classpath refid="test.classpath"/>
     </javac>    
   </target>
