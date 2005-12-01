@@ -95,7 +95,9 @@ public abstract class Server {
       }
       try {
         socket.close();
-      } catch (IOException e) {}
+      } catch (IOException e) {
+        LOG.info(getName() + ": e=" + e);
+      }
       LOG.info(getName() + ": exiting");
     }
   }
@@ -166,9 +168,9 @@ public abstract class Server {
 
   /** Handles queued calls . */
   private class Handler extends Thread {
-    public Handler() {
+    public Handler(int instanceNumber) {
       this.setDaemon(true);
-      this.setName("Server handler on " + port);
+      this.setName("Server handler "+ instanceNumber + " on " + port);
     }
 
     public void run() {
@@ -242,25 +244,31 @@ public abstract class Server {
     listener.start();
     
     for (int i = 0; i < handlerCount; i++) {
-      Handler handler = new Handler();
+      Handler handler = new Handler(i);
       handler.start();
     }
   }
 
-  /** Stops the service.  No calls will be handled after this is called.  All
-   * threads will exit. */
+  /** Stops the service.  No new calls will be handled after this is called.  All
+   * subthreads will likely be finished after this returns.
+   */
   public synchronized void stop() {
     LOG.info("Stopping server on " + port);
     running = false;
     try {
-      Thread.sleep(timeout);                        // let all threads exit
+      Thread.sleep(timeout);     //  inexactly wait for pending requests to finish
     } catch (InterruptedException e) {}
-    notify();
+    notifyAll();
   }
 
-  /** Wait for the server to be stopped. */
+  /** Wait for the server to be stopped.
+   * Does not wait for all subthreads to finish.
+   *  See {@link #stop()}.
+   */
   public synchronized void join() throws InterruptedException {
-    wait();
+    while (running) {
+      wait();
+    }
   }
 
   /** Called for each call. */

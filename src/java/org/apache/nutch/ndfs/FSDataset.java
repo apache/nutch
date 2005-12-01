@@ -29,7 +29,8 @@ import org.apache.nutch.util.*;
  ***************************************************/
 public class FSDataset implements FSConstants {
     static final double USABLE_DISK_PCT = 0.98;
-    /**
+
+  /**
      * A node type that can be built into a tree reflecting the
      * hierarchy of blocks on the local disk.
      */
@@ -165,6 +166,13 @@ public class FSDataset implements FSConstants {
         private int getHalfByte(long blkid, int halfByteIndex) {
             blkid = blkid >> ((15 - halfByteIndex) * 4);
             return (int) ((0x000000000000000F) & blkid);
+        }
+
+        public String toString() {
+          return "FSDir{" +
+              "dir=" + dir +
+              ", children=" + (children == null ? null : Arrays.asList(children)) +
+              "}";
         }
     }
 
@@ -411,4 +419,11 @@ public class FSDataset implements FSConstants {
         // REMIND - mjc - should cache this result for performance
         return new File(tmp, b.getBlockName());
     }
+
+    public String toString() {
+      return "FSDataset{" +
+        "dirpath='" + dirpath + "'" +
+        "}";
+    }
+
 }

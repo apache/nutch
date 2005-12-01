@@ -53,6 +53,9 @@ public class FSNamesystem implements FSConstants {
     // Whether we should use disk-availability info when determining target
     final static boolean USE_AVAILABILITY = NutchConf.get().getBoolean("ndfs.availability.allocation", false);
 
+    private boolean allowSameHostTargets =
+        NutchConf.get().getBoolean("test.ndfs.same.host.targets.allowed", false);
+
     //
     // Stores the correct file name hierarchy
     //
@@ -127,14 +130,14 @@ public class FSNamesystem implements FSConstants {
     // Store set of Blocks that need to be replicated 1 or more times.
     // We also store pending replication-orders.
     //
-    TreeSet neededReplications = new TreeSet();
-    TreeSet pendingReplications = new TreeSet();
+    private TreeSet neededReplications = new TreeSet();
+    private TreeSet pendingReplications = new TreeSet();
 
     //
     // Used for handling lock-leases
     //
-    TreeMap leases = new TreeMap();
-    TreeSet sortedLeases = new TreeSet();
+    private TreeMap leases = new TreeMap();
+    private TreeSet sortedLeases = new TreeSet();
 
     //
     // Threaded object that checks to see if we have been
@@ -159,17 +162,23 @@ public class FSNamesystem implements FSConstants {
         this.systemStart = System.currentTimeMillis();
     }
 
-    /**
+    /** Close down this filesystem manager.
+     * Causes heartbeat and lease daemons to stop; waits briefly for
+     * them to finish, but a short timeout returns control back to caller.
      */
     public void close() {
+      synchronized (this) {
         fsRunning = false;
+      }
         try {
-            hbthread.join();
+            hbthread.join(3000);
         } catch (InterruptedException ie) {
-        }
-        try {
-            lmthread.join();
-        } catch (InterruptedException ie) {
+        } finally {
+          // using finally to ensure we also wait for lease daemon
+          try {
+            lmthread.join(3000);
+          } catch (InterruptedException ie) {
+          }
         }
     }
 
@@ -218,6 +227,9 @@ public class FSNamesystem implements FSConstants {
      * of machines.  The first on this list should be where the client 
      * writes data.  Subsequent items in the list must be provided in
      * the connection to the first datanode.
+     * @return Return an array that consists of the block, plus a set
+     * of machines, or null if src is invalid for creation (based on
+     * {@link FSDirectory#isValidToCreate(UTF8)}.
      */
     public synchronized Object[] startFile(UTF8 src, UTF8 holder, boolean overwrite) {
         Object results[] = null;
@@ -234,7 +246,8 @@ public class FSNamesystem implements FSConstants {
                 // Get the array of replication targets 
                 DatanodeInfo targets[] = chooseTargets(DESIRED_REPLICATION, null);
                 if (targets.length < MIN_REPLICATION) {
-                    LOG.info("Target-length is " + targets.length + ", below MIN_REPLICATION (" + MIN_REPLICATION + ")");
+                    LOG.warning("Target-length is " + targets.length +
+                        ", below MIN_REPLICATION (" + MIN_REPLICATION + ")");
                     return null;
                 }
 
@@ -257,9 +270,11 @@ public class FSNamesystem implements FSConstants {
                 // Create next block
                 results[0] = allocateBlock(src);
                 results[1] = targets;
+            } else { // ! fileValid
+              LOG.warning("Cannot start file because it is invalid. src=" + src);
             }
         } else {
-            LOG.info("Cannot start file because pendingCreates is non-null");
+            LOG.warning("Cannot start file because pendingCreates is non-null. src=" + src);
         }
         return results;
     }
@@ -1172,10 +1187,13 @@ public class FSNamesystem implements FSConstants {
         }
     }
 
-
     /**
-     * Get a certain number of targets, if possible.  If not,
-     * return as many as we can.
+     * Get a certain number of targets, if possible.
+     * If not, return as many as we can.
+     * @param desiredReplicates number of duplicates wanted.
+     * @param forbiddenNodes of DatanodeInfo instances that should not be
+     * considered targets.
+     * @return array of DatanodeInfo instances uses as targets.
      */
     DatanodeInfo[] chooseTargets(int desiredReplicates, TreeSet forbiddenNodes) {
         TreeSet alreadyChosen = new TreeSet();
@@ -1187,7 +1205,7 @@ public class FSNamesystem implements FSConstants {
                 targets.add(target);
                 alreadyChosen.add(target);
             } else {
-                break;
+                break; // calling chooseTarget again won't help
             }
         }
         return (DatanodeInfo[]) targets.toArray(new DatanodeInfo[targets.size()]);
@@ -1200,6 +1218,10 @@ public class FSNamesystem implements FSConstants {
      * Right now it chooses randomly from available boxes.  In future could 
      * choose according to capacity and load-balancing needs (or even 
      * network-topology, to avoid inter-switch traffic).
+     * @param forbidden1 DatanodeInfo targets not allowed, null allowed.
+     * @param forbidden2 DatanodeInfo targets not allowed, null allowed.
+     * @return DatanodeInfo instance to use or null if something went wrong
+     * (a log message is emitted if null is returned).
      */
     DatanodeInfo chooseTarget(TreeSet forbidden1, TreeSet forbidden2) {
         //
@@ -1207,27 +1229,40 @@ public class FSNamesystem implements FSConstants {
         //
         int totalMachines = datanodeMap.size();
         if (totalMachines == 0) {
-            LOG.info("While choosing target, totalMachines is " + totalMachines);
+            LOG.warning("While choosing target, totalMachines is " + totalMachines);
             return null;
         }
 
+        TreeSet forbiddenMachines = new TreeSet();
         //
         // In addition to already-chosen datanode/port pairs, we want to avoid
         // already-chosen machinenames.  (There can be multiple datanodes per
         // machine.)  We might relax this requirement in the future, though. (Maybe
         // so that at least one replicate is off the machine.)
         //
-        TreeSet forbiddenMachines = new TreeSet();
+        UTF8 hostOrHostAndPort = null;
         if (forbidden1 != null) {
+          // add name [and host] of all elements in forbidden1 to forbiddenMachines
             for (Iterator it = forbidden1.iterator(); it.hasNext(); ) {
                 DatanodeInfo cur = (DatanodeInfo) it.next();
-                forbiddenMachines.add(cur.getName());
+                if (allowSameHostTargets) {
+                  hostOrHostAndPort = cur.getName(); // forbid same host:port
+                } else {
+                  hostOrHostAndPort = cur.getHost(); // forbid same host
+                }
+                forbiddenMachines.add(hostOrHostAndPort);
             }
         }
         if (forbidden2 != null) {
+          // add name [and host] of all elements in forbidden2 to forbiddenMachines
             for (Iterator it = forbidden2.iterator(); it.hasNext(); ) {
                 DatanodeInfo cur = (DatanodeInfo) it.next();
-                forbiddenMachines.add(cur.getName());
+              if (allowSameHostTargets) {
+                hostOrHostAndPort = cur.getName(); // forbid same host:port
+              } else {
+                hostOrHostAndPort = cur.getHost(); // forbid same host
+              }
+              forbiddenMachines.add(hostOrHostAndPort);
             }
         }
 
@@ -1238,9 +1273,12 @@ public class FSNamesystem implements FSConstants {
         Vector targetList = new Vector();
         for (Iterator it = datanodeMap.values().iterator(); it.hasNext(); ) {
             DatanodeInfo node = (DatanodeInfo) it.next();
-            if ((forbidden1 == null || ! forbidden1.contains(node)) &&
-                (forbidden2 == null || ! forbidden2.contains(node)) &&
-                (! forbiddenMachines.contains(node.getName()))) {
+            if (allowSameHostTargets) {
+                hostOrHostAndPort = node.getName(); // match host:port
+            } else {
+                hostOrHostAndPort = node.getHost(); // match host
+            }
+            if (! forbiddenMachines.contains(hostOrHostAndPort)) {
                 targetList.add(node);
                 totalRemaining += node.getRemaining();
             }
@@ -1250,6 +1288,11 @@ public class FSNamesystem implements FSConstants {
         // Now pick one
         //
         if (targetList.size() == 0) {
+            LOG.warning("Zero targets found, forbidden1.size=" +
+                ( forbidden1 != null ? forbidden1.size() : 0 ) +
+                " allowSameHostTargets=" + allowSameHostTargets +
+                " forbidden2.size()=" +
+                ( forbidden2 != null ? forbidden2.size() : 0 ));
             return null;
         } else if (! USE_AVAILABILITY) {
             int target = r.nextInt(targetList.size());
@@ -1266,7 +1309,7 @@ public class FSNamesystem implements FSConstants {
                 }
             }
 
-            LOG.info("Impossible state.  When trying to choose target node, could not find any.  This may indicate that datanode capacities are being updated during datanode selection.  Anyway, now returning an arbitrary target to recover...");
+            LOG.warning("Impossible state.  When trying to choose target node, could not find any.  This may indicate that datanode capacities are being updated during datanode selection.  Anyway, now returning an arbitrary target to recover...");
             return (DatanodeInfo) targetList.elementAt(r.nextInt(targetList.size()));
         }
     }

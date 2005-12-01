@@ -38,8 +38,12 @@ import java.util.logging.*;
 public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
     public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.ndfs.NameNode");
 
-    FSNamesystem namesystem;
-    Server server;
+    private FSNamesystem namesystem;
+    private Server server;
+    private int handlerCount = 2;
+
+    /** only used for testing purposes  */
+    private boolean stopRequested = false;
 
     /**
      * Create a NameNode at the default location
@@ -52,22 +56,38 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
     }
 
     /**
-     * Create a NameNode at the specified location
+     * Create a NameNode at the specified location and start it.
      */
     public NameNode(File dir, int port) throws IOException {
         this.namesystem = new FSNamesystem(dir);
-        this.server = RPC.getServer(this, port, 10, false);
+        this.handlerCount =
+            NutchConf.get().getInt("ndfs.namenode.handler.count", 10);
+        this.server = RPC.getServer(this, port, handlerCount, false);
         this.server.start();
     }
 
     /**
-     * Run forever
+     * Wait for service to finish.
+     * (Normally, it runs forever.)
      */
-    public void offerService() {
+    public void join() {
         try {
             this.server.join();
         } catch (InterruptedException ie) {
         }
+    }
+
+    /**
+     * Stop all NameNode threads and wait for all to finish.
+     * Package-only access since this is intended for JUnit testing.
+    */
+    void stop() {
+      if (! stopRequested) {
+        stopRequested = true;
+        namesystem.close();
+        server.stop();
+        //this.join();
+      }
     }
 
     /////////////////////////////////////////////////////
@@ -78,7 +98,7 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
     public LocatedBlock[] open(String src) throws IOException {
         Object openResults[] = namesystem.open(new UTF8(src));
         if (openResults == null) {
-            throw new IOException("Cannot find filename " + src);
+            throw new IOException("Cannot open filename " + src);
         } else {
             Block blocks[] = (Block[]) openResults[0];
             DatanodeInfo sets[][] = (DatanodeInfo[][]) openResults[1];
@@ -95,7 +115,7 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
     public LocatedBlock create(String src, String clientName, boolean overwrite) throws IOException {
         Object results[] = namesystem.startFile(new UTF8(src), new UTF8(clientName), overwrite);
         if (results == null) {
-            throw new IOException("Cannot create file " + src);
+            throw new IOException("Cannot create file " + src + " on client " + clientName);
         } else {
             Block b = (Block) results[0];
             DatanodeInfo targets[] = (DatanodeInfo[]) results[1];
@@ -324,6 +344,6 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
      */
     public static void main(String argv[]) throws IOException, InterruptedException {
         NameNode namenode = new NameNode();
-        namenode.offerService();
+        namenode.join();
     }
 }

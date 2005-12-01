@@ -37,7 +37,7 @@ import java.util.logging.*;
  **********************************************************/
 public class DataNode implements FSConstants, Runnable {
     public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.ndfs.DataNode");
-    //
+  //
     // REMIND - mjc - I might bring "maxgigs" back so user can place 
     // artificial  limit on space
     //private static final long GIGABYTE = 1024 * 1024 * 1024;
@@ -59,6 +59,8 @@ public class DataNode implements FSConstants, Runnable {
         return new InetSocketAddress(host, port);
     }
 
+
+    private static Vector subThreadList = null;
     DatanodeProtocol namenode;
     FSDataset data;
     String localName;
@@ -66,6 +68,8 @@ public class DataNode implements FSConstants, Runnable {
     Vector receivedBlockList = new Vector();
     int xmitsInProgress = 0;
     Daemon dataXceiveServer = null;
+    long blockReportInterval;
+    private long datanodeStartupPeriod;
     private NutchConf fConf;
 
     /**
@@ -98,6 +102,13 @@ public class DataNode implements FSConstants, Runnable {
         this.localName = machineName + ":" + tmpPort;
         this.dataXceiveServer = new Daemon(new DataXceiveServer(ss));
         this.dataXceiveServer.start();
+
+        long blockReportIntervalBasis =
+          conf.getLong("ndfs.blockreport.intervalMsec", BLOCKREPORT_INTERVAL);
+        this.blockReportInterval =
+          blockReportIntervalBasis - new Random().nextInt((int)(blockReportIntervalBasis/10));
+        this.datanodeStartupPeriod =
+          conf.getLong("ndfs.datanode.startupMsec", DATANODE_STARTUP_PERIOD);
     }
 
     /**
@@ -109,6 +120,7 @@ public class DataNode implements FSConstants, Runnable {
 
     /**
      * Shut down this instance of the datanode.
+     * Returns only after shutdown is complete.
      */
     void shutdown() {
         this.shouldRun = false;
@@ -127,8 +139,7 @@ public class DataNode implements FSConstants, Runnable {
         long lastHeartbeat = 0, lastBlockReport = 0;
         long sendStart = System.currentTimeMillis();
         int heartbeatsSent = 0;
-        long blockReportInterval =
-          BLOCKREPORT_INTERVAL - new Random().nextInt((int)(BLOCKREPORT_INTERVAL/10));
+        LOG.info("using BLOCKREPORT_INTERVAL of " + blockReportInterval + "msec");
 
         //
         // Now loop for a long time....
@@ -181,7 +192,7 @@ public class DataNode implements FSConstants, Runnable {
 		// to pass from the time of connection to the first block-transfer.
 		// Otherwise we transfer a lot of blocks unnecessarily.
 		//
-		if (now - sendStart > DATANODE_STARTUP_PERIOD) {
+		if (now - sendStart > datanodeStartupPeriod) {
 		    //
 		    // Check to see if there are any block-instructions from the
 		    // namenode that this datanode should perform.
@@ -651,35 +662,92 @@ public class DataNode implements FSConstants, Runnable {
                 offerService();
             } catch (Exception ex) {
                 LOG.info("Exception: " + ex);
+              if (shouldRun) {
                 LOG.info("Lost connection to namenode.  Retrying...");
                 try {
-                    Thread.sleep(5000);
+                  Thread.sleep(5000);
                 } catch (InterruptedException ie) {
                 }
+              }
             }
         }
+      LOG.info("Finishing DataNode in: "+data.data);
     }
 
-    /**
+    /** Start datanode daemons.
+     * Start a datanode daemon for each comma separated data directory
+     * specified in property ndfs.data.dir
      */
     public static void run(NutchConf conf) throws IOException {
         String[] dataDirs = conf.getStrings("ndfs.data.dir");
+        subThreadList = new Vector(dataDirs.length);
         for (int i = 0; i < dataDirs.length; i++) {
-            String dataDir = dataDirs[i];
-            File data = new File(dataDir);
-            data.mkdirs();
-            if (!data.isDirectory()) {
-                LOG.warning("Can't start DataNode in non-directory: "+dataDir);
-                continue;
-            }
-            new Thread(new DataNode(conf, dataDir), "DataNode: "+dataDir).start();
+          DataNode dn = makeInstanceForDir(dataDirs[i], conf);
+          if (dn != null) {
+            Thread t = new Thread(dn, "DataNode: "+dataDirs[i]);
+            t.setDaemon(true); // needed for JUnit testing
+            t.start();
+            subThreadList.add(t);
+          }
         }
     }
 
-    /**
+  /** Start datanode daemons.
+   * Start a datanode daemon for each comma separated data directory
+   * specified in property ndfs.data.dir and wait for them to finish.
+   * If this thread is specifically interrupted, it will stop waiting.
+   */
+  private static void runAndWait(NutchConf conf) throws IOException {
+    run(conf);
+
+    //  Wait for sub threads to exit
+    for (Iterator iterator = subThreadList.iterator(); iterator.hasNext();) {
+      Thread threadDataNode = (Thread) iterator.next();
+      try {
+        threadDataNode.join();
+      } catch (InterruptedException e) {
+        if (Thread.currentThread().isInterrupted()) {
+          // did someone knock?
+          return;
+        }
+      }
+    }
+  }
+
+  /**
+   * Make an instance of DataNode after ensuring that given data directory
+   * (and parent directories, if necessary) can be created.
+   * @param dataDir where the new DataNode instance should keep its files.
+   * @param conf NutchConf instance to use.
+   * @return DataNode instance for given data dir and conf, or null if directory
+   * cannot be created.
+   * @throws IOException
+   */
+  static DataNode makeInstanceForDir(String dataDir, NutchConf conf) throws IOException {
+    DataNode dn = null;
+    File data = new File(dataDir);
+    data.mkdirs();
+    if (!data.isDirectory()) {
+      LOG.warning("Can't start DataNode in non-directory: "+dataDir);
+      return null;
+    } else {
+      dn = new DataNode(conf, dataDir);
+    }
+    return dn;
+  }
+
+  public String toString() {
+    return "DataNode{" +
+        "data=" + data +
+        ", localName='" + localName + "'" +
+        ", xmitsInProgress=" + xmitsInProgress +
+        "}";
+  }
+
+  /**
      */
     public static void main(String args[]) throws IOException {
         LogFormatter.setShowThreadIDs(true);
-        run(NutchConf.get());
+        runAndWait(NutchConf.get());
     }
 }
