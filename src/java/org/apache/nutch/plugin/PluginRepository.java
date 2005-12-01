@@ -131,7 +131,7 @@ public class PluginRepository {
                   "Missing dependency " + id +
                   " for plugin " + plugin.getPluginId());
         }
-        if (dependencies.containsKey(id)) {
+        if (dependencies.containsKey(id) && !id.equals("nutch-extensionpoints")) {
           throw new CircularDependencyException(
                   "Circular dependency detected " + id +
                   " for plugin " + plugin.getPluginId());
