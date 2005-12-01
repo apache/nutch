@@ -25,8 +25,9 @@ import org.apache.nutch.ndfs.*;
 import org.apache.nutch.util.NutchConf;
 
 /****************************************************************
- * Implement the NutchFileSystem interface for the NDFS system.
- *
+ * Implementation of the abstract NutchFileSystem for the NDFS system.
+ * This is the distributed file system.  It can be distributed over
+ * 1 or more machines 
  * @author Mike Cafarella
  *****************************************************************/
 public class NDFSFileSystem extends NutchFileSystem {

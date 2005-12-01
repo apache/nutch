@@ -52,7 +52,7 @@ public class Crawl {
     JobConf conf = new JobConf(NutchConf.get());
     //conf.addConfResource("crawl-tool.xml");
 
-    File rootUrlFile = null;
+    File rootUrlDir = null;
     File dir = new File("crawl-" + getDate());
     int threads = conf.getInt("fetcher.threads.fetch", 10);
     int depth = 5;
@@ -72,7 +72,7 @@ public class Crawl {
         topN = Integer.parseInt(args[i+1]);
         i++;
       } else if (args[i] != null) {
-        rootUrlFile = new File(args[i]);
+        rootUrlDir = new File(args[i]);
       }
     }
 
@@ -82,7 +82,7 @@ public class Crawl {
     }
 
     LOG.info("crawl started in: " + dir);
-    LOG.info("rootUrlFile = " + rootUrlFile);
+    LOG.info("rootUrlDir = " + rootUrlDir);
     LOG.info("threads = " + threads);
     LOG.info("depth = " + depth);
 
@@ -98,7 +98,7 @@ public class Crawl {
     File tmpDir = conf.getLocalFile("crawl", getDate());
       
     // initialize crawlDb
-    new Injector(conf).inject(crawlDb, rootUrlFile);
+    new Injector(conf).inject(crawlDb, rootUrlDir);
       
     for (int i = 0; i < depth; i++) {             // generate new segment
       File segment =

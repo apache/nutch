@@ -52,7 +52,7 @@ public class JobConf extends NutchConf {
 
   /** Construct a map/reduce job configuration.
    *
-   * @param confg a NutchConf whose settings will be inherited.
+   * @param conf a NutchConf whose settings will be inherited.
    */
   public JobConf(NutchConf conf) {
     super(conf);

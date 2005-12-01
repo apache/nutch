@@ -26,9 +26,8 @@ import java.util.*;
 import java.util.logging.*;
 
 /********************************************************
- * NDFSClient does what's necessary to connect to a Nutch Filesystem
- * and perform basic file tasks.
- *
+ * NDFSClient can connect to a Nutch Filesystem and perform basic file tasks.
+ * Connects to a namenode daemon.
  * @author Mike Cafarella, Tessa MacDuff
  ********************************************************/
 public class NDFSClient implements FSConstants {
@@ -41,7 +40,7 @@ public class NDFSClient implements FSConstants {
     Daemon leaseChecker;
 
 
-    /**
+    /** Create a new NDFSClient connected to the given namenode server.
      */
     public NDFSClient(InetSocketAddress nameNodeAddr) {
         this.namenode = (ClientProtocol) RPC.getProxy(ClientProtocol.class, nameNodeAddr);
@@ -154,6 +153,7 @@ public class NDFSClient implements FSConstants {
     }
 
     /**
+     *
      */
     public void release(UTF8 src) throws IOException {
         boolean hasReleased = false;
@@ -186,8 +186,8 @@ public class NDFSClient implements FSConstants {
     }
 
     /***************************************************************
-     * If any leases are outstanding, periodically check in with the 
-     * namenode and renew all the leases.
+     * Periodically check in with the namenode and renew all the leases
+     * when the lease period is half over.
      ***************************************************************/
     class LeaseChecker implements Runnable {
         /**
