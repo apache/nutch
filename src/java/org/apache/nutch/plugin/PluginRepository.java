@@ -116,13 +116,20 @@ public class PluginRepository {
     }
 
     private void getPluginCheckedDependencies(PluginDescriptor plugin,
-                                             Map plugins, Map dependencies)
+                                             Map plugins,
+                                             Map dependencies,
+                                             Map branch)
       throws MissingDependencyException,
              CircularDependencyException {
       
       if (dependencies == null) { dependencies = new HashMap(); }
+      if (branch == null) { branch = new HashMap(); }
+      branch.put(plugin.getPluginId(), plugin);
       
+      // Get the plugin dependencies
       String[] ids = plugin.getDependencies();
+
+      // Otherwise, checks each dependency
       for (int i=0; i<ids.length; i++) {
         String id = ids[i];
         PluginDescriptor dependency = (PluginDescriptor) plugins.get(id);
@@ -131,15 +138,17 @@ public class PluginRepository {
                   "Missing dependency " + id +
                   " for plugin " + plugin.getPluginId());
         }
-        if (dependencies.containsKey(id)) {
+        if (branch.containsKey(id)) {
           throw new CircularDependencyException(
                   "Circular dependency detected " + id +
                   " for plugin " + plugin.getPluginId());
         }
         dependencies.put(id, dependency);
         getPluginCheckedDependencies((PluginDescriptor) plugins.get(id),
-                                     plugins, dependencies);
+                                     plugins, dependencies, branch);
       }
+      
+      branch.remove(plugin.getPluginId());
     }
 
     private Map getPluginCheckedDependencies(PluginDescriptor plugin,
@@ -147,7 +156,8 @@ public class PluginRepository {
       throws MissingDependencyException,
              CircularDependencyException {
       Map dependencies = new HashMap();
-      getPluginCheckedDependencies(plugin, plugins, dependencies);
+      Map branch = new HashMap();
+      getPluginCheckedDependencies(plugin, plugins, dependencies, branch);
       return dependencies;
     }
     
