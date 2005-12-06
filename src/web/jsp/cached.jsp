@@ -74,6 +74,6 @@
 <% } else { %>
 
 The cached content has mime type "<%=contentType%>",
-click this <a href="/servlet/cached?<%=id%>">link</a> to download it directly.
+click this <a href="./servlet/cached?<%=id%>">link</a> to download it directly.
 
 <% } %>
