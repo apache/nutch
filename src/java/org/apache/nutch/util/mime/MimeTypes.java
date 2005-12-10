@@ -39,7 +39,10 @@ public final class MimeTypes {
     public final static String DEFAULT = "application/octet-stream";
 
     /** All the registered MimeTypes */
-    private ArrayList types = new ArrayList();    
+    private ArrayList types = new ArrayList();
+
+    /** All the registered MimeType indexed by name */
+    private HashMap typesIdx = new HashMap();
 
     /** MimeTypes indexed on the file extension */
     private Map extIdx = new HashMap();
@@ -211,7 +214,14 @@ public final class MimeTypes {
         }
         return mimeType;
     }
-    
+   
+   /**
+    * Return a MimeType from its name.
+    */
+   public MimeType forName(String name) {
+      return (MimeType) typesIdx.get(name);
+   }
+
     /**
      * Return the minimum length of data to provide to analyzing methods
      * based on the document's content in order to check all the known
@@ -241,6 +251,7 @@ public final class MimeTypes {
      * @param type is the mime-type to add.
      */
     void add(MimeType type) {
+        typesIdx.put(type.getName(), type);
         types.add(type);
         // Update minLentgth
         minLength = Math.max(minLength, type.getMinLength());

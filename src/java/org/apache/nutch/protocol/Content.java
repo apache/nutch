@@ -22,12 +22,24 @@ import java.io.*;
 import org.apache.nutch.io.*;
 import org.apache.nutch.fs.*;
 import org.apache.nutch.util.*;
+import org.apache.nutch.util.mime.MimeType;
+import org.apache.nutch.util.mime.MimeTypes;
+import org.apache.nutch.util.mime.MimeTypeException;
+
 
 public final class Content extends VersionedWritable {
 
   public static final String DIR_NAME = "content";
 
   private final static byte VERSION = 1;
+
+  /** A flag that tells if magic resolution must be performed */
+  private final static boolean MAGIC =
+        NutchConf.get().getBoolean("mime.type.magic", true);
+
+  /** Get the MimeTypes resolver instance. */
+  private final static MimeTypes MIME = 
+        MimeTypes.get(NutchConf.get().get("mime.types.file"));
 
   private String url;
   private String base;
@@ -38,18 +50,17 @@ public final class Content extends VersionedWritable {
   public Content() {}
     
   public Content(String url, String base, byte[] content, String contentType,
-                 Properties metadata){
+                 Properties metadata) {
 
     if (url == null) throw new IllegalArgumentException("null url");
     if (base == null) throw new IllegalArgumentException("null base");
     if (content == null) throw new IllegalArgumentException("null content");
-    if (contentType == null) throw new IllegalArgumentException("null type");
     if (metadata == null) throw new IllegalArgumentException("null metadata");
 
     this.url = url;
     this.base = base;
     this.content = content;
-    this.contentType = contentType;
+    this.contentType = getContentType(contentType, url, content);
     this.metadata = metadata;
   }
 
@@ -185,4 +196,33 @@ public final class Content extends VersionedWritable {
       nfs.close();
     }
   }
+
+  private String getContentType(String typeName, String url, byte[] data) {
+    
+    MimeType type = null;
+    try {
+        typeName = MimeType.clean(typeName);
+        type = typeName == null ? null : MIME.forName(typeName);
+    } catch (MimeTypeException mte) {
+        // Seems to be a malformed mime type name...
+    }
+
+    if (typeName == null || type == null || !type.matches(url)) {
+      // If no mime-type header, or cannot find a corresponding registered
+      // mime-type, or the one found doesn't match the url pattern
+      // it shouldbe, then guess a mime-type from the url pattern
+      type = MIME.getMimeType(url);
+      typeName = type == null ? typeName : type.getName();
+    }
+    if (typeName == null || type == null ||
+        (MAGIC && type.hasMagic() && !type.matches(data))) {
+      // If no mime-type already found, or the one found doesn't match
+      // the magic bytes it should be, then, guess a mime-type from the
+      // document content (magic bytes)
+      type = MIME.getMimeType(data);
+      typeName = type == null ? typeName : type.getName();
+    }
+    return typeName;
+  }
+
 }

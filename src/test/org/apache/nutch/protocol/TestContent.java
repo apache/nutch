@@ -42,5 +42,59 @@ public class TestContent extends TestCase {
                         
     TestWritable.testWritable(r);
   }
+
+  /** Unit tests for getContentType(String, String, byte[]) method. */
+  public void testGetContentType() throws Exception {
+    Content c = null;
+    Properties p = new Properties();
+
+    c = new Content("http://www.foo.com/",
+                    "http://www.foo.com/",
+                    "".getBytes("UTF8"),
+                    "text/html; charset=UTF-8", p);
+    assertEquals("text/html", c.getContentType());
+
+    c = new Content("http://www.foo.com/foo.html",
+                    "http://www.foo.com/",
+                    "".getBytes("UTF8"),
+                    "", p);
+    assertEquals("text/html", c.getContentType());
+
+    c = new Content("http://www.foo.com/foo.html",
+                    "http://www.foo.com/",
+                    "".getBytes("UTF8"),
+                    null, p);
+    assertEquals("text/html", c.getContentType());
+
+    c = new Content("http://www.foo.com/",
+                    "http://www.foo.com/",
+                    "<html></html>".getBytes("UTF8"),
+                    "", p);
+    assertEquals("text/html", c.getContentType());
+
+    c = new Content("http://www.foo.com/foo.html",
+                    "http://www.foo.com/",
+                    "<html></html>".getBytes("UTF8"),
+                    "text/plain", p);
+    assertEquals("text/html", c.getContentType());
+
+    c = new Content("http://www.foo.com/foo.png",
+                    "http://www.foo.com/",
+                    "<html></html>".getBytes("UTF8"),
+                    "text/plain", p);
+    assertEquals("text/html", c.getContentType());
+
+    c = new Content("http://www.foo.com/",
+                    "http://www.foo.com/",
+                    "".getBytes("UTF8"),
+                    "", p);
+    assertEquals("", c.getContentType());
+
+    c = new Content("http://www.foo.com/",
+                    "http://www.foo.com/",
+                    "".getBytes("UTF8"),
+                    null, p);
+    assertNull(c.getContentType());
+  }
 	
 }

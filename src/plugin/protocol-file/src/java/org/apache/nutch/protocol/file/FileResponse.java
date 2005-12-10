@@ -25,9 +25,6 @@ import java.io.IOException;
 
 // Nutch imports
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.util.NutchConf;
-import org.apache.nutch.util.mime.MimeType;
-import org.apache.nutch.util.mime.MimeTypes;
 
 
 /************************************
@@ -57,15 +54,6 @@ import org.apache.nutch.util.mime.MimeTypes;
  * @author John Xing
  ***********************************/
 public class FileResponse {
-
-  /** A flag that tells if magic resolution must be performed */
-  private final static boolean MAGIC =
-        NutchConf.get().getBoolean("mime.type.magic", true);
-
-  /** Get the MimeTypes resolver instance. */
-  private final static MimeTypes MIME = 
-        MimeTypes.get(NutchConf.get().get("mime.types.file"));
-
 
   private String orig;
   private String base;
@@ -201,15 +189,8 @@ public class FileResponse {
     hdrs.put("Last-Modified",
       this.file.httpDateFormat.toString(f.lastModified()));
 
-    MimeType contentType = null;
-    if (MAGIC) {
-      contentType = MIME.getMimeType(f.getName(), this.content);
-    } else {
-      contentType = MIME.getMimeType(f.getName());
-    }
-    if (contentType != null) {
-        hdrs.put("Content-Type", contentType.getName());
-    }
+    hdrs.put("Content-Type", "");   // No Content-Type at file protocol level
+
     this.headers.putAll(hdrs);
 
     // response code
