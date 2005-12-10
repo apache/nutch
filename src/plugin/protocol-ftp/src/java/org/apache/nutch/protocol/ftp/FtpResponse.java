@@ -26,10 +26,6 @@ import org.apache.commons.net.ftp.parser.ParserInitializationException;
 
 import org.apache.nutch.protocol.Content;
 
-import org.apache.nutch.util.NutchConf;
-import org.apache.nutch.util.mime.MimeType;
-import org.apache.nutch.util.mime.MimeTypes;
-
 import java.net.InetAddress;
 import java.net.URL;
 
@@ -58,15 +54,7 @@ import java.io.IOException;
  * @author John Xing
  ***********************************/
 public class FtpResponse {
-    
-  /** A flag that tells if magic resolution must be performed */
-  private final static boolean MAGIC =
-        NutchConf.get().getBoolean("mime.type.magic", true);
 
-  /** Get the MimeTypes resolver instance. */
-  private final static MimeTypes MIME = 
-        MimeTypes.get(NutchConf.get().get("mime.types.file"));
-    
   private String orig;
   private String base;
   private byte[] content;
@@ -314,16 +302,6 @@ public class FtpResponse {
         ftp.httpDateFormat.toString(ftpFile.getTimestamp()));
       this.content = os.toByteArray();
 
-      MimeType contentType = null;
-      if (MAGIC) {
-        contentType = MIME.getMimeType(path, this.content);
-      } else {
-        contentType = MIME.getMimeType(path);
-      }
-      if (contentType != null) {
-        this.headers.put("Content-Type", contentType.getName());
-      }
-
 //      // approximate bytes sent and read
 //      if (this.httpAccounting != null) {
 //        this.httpAccounting.incrementBytesSent(path.length());
@@ -359,16 +337,6 @@ public class FtpResponse {
       this.headers.put("Last-Modified",
         ftp.httpDateFormat.toString(ftpFile.getTimestamp()));
       this.content = os.toByteArray();
-
-      MimeType contentType = null;
-      if (MAGIC) {
-        contentType = MIME.getMimeType(path, this.content);
-      } else {
-        contentType = MIME.getMimeType(path);
-      }
-      if (contentType != null) {
-        this.headers.put("Content-Type", contentType.getName());
-      }
 
 //      // approximate bytes sent and read
 //      if (this.httpAccounting != null) {

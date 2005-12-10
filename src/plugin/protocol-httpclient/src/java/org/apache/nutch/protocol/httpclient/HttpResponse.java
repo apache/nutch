@@ -4,9 +4,6 @@
 package org.apache.nutch.protocol.httpclient;
 
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.util.NutchConf;
-import org.apache.nutch.util.mime.MimeType;
-import org.apache.nutch.util.mime.MimeTypes;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpVersion;
@@ -24,13 +21,6 @@ import java.net.URL;
  * An HTTP response.
  */
 public class HttpResponse {
-  /** A flag that tells if magic resolution must be performed */
-  private final static boolean MAGIC =
-        NutchConf.get().getBoolean("mime.type.magic", true);
-
-  /** Get the MimeTypes resolver instance. */
-  private final static MimeTypes MIME = 
-        MimeTypes.get(NutchConf.get().get("mime.types.file"));
 
   private String orig;
 
@@ -63,22 +53,10 @@ public class HttpResponse {
   }
 
   public Content toContent() {
-    String contentType = getHeader("Content-Type");
-    if (contentType == null) {
-      MimeType type = null;
-      if (MAGIC) {
-        type = MIME.getMimeType(orig, content);
-      } else {
-        type = MIME.getMimeType(orig);
-      }
-      if (type != null) {
-          contentType = type.getName();
-      } else {
-          contentType = "";
-      }
-    }
-    if (content == null) content = EMPTY_CONTENT;
-    return new Content(orig, base, content, contentType, headers);
+    return new Content(orig, base,
+                       (content == null ? EMPTY_CONTENT : content),
+                       getHeader("Content-Type"),
+                       headers);
   }
 
   public HttpResponse(URL url) throws IOException {
