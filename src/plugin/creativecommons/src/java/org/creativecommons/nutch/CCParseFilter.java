@@ -18,6 +18,7 @@ package org.creativecommons.nutch;
 
 import org.apache.nutch.parse.*;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.util.NutchConf;
 
 import java.util.*;
@@ -51,7 +52,7 @@ public class CCParseFilter implements HtmlParseFilter {
     }
 
     /** Scan the document adding attributes to metadata.*/
-    public static void walk(Node doc, URL base, Properties metadata)
+    public static void walk(Node doc, URL base, ContentProperties metadata)
       throws ParseException {
 
       // walk the DOM tree, scanning for license data

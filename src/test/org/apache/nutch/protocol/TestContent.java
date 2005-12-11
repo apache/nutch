@@ -16,10 +16,7 @@
 
 package org.apache.nutch.protocol;
 
-import java.io.*;
-import java.util.Properties;
 import org.apache.nutch.io.*;
-import org.apache.nutch.pagedb.*;
 import junit.framework.TestCase;
 
 /** Unit tests for Content. */
@@ -33,7 +30,7 @@ public class TestContent extends TestCase {
 
     String url = "http://www.foo.com/";
 
-    Properties metaData = new Properties();
+    ContentProperties metaData = new ContentProperties();
     metaData.put("Host", "www.foo.com");
     metaData.put("Content-Type", "text/html");
 
@@ -41,12 +38,14 @@ public class TestContent extends TestCase {
                             metaData);
                         
     TestWritable.testWritable(r);
+    assertEquals("text/html", r.getMetadata().get("Content-Type"));
+    assertEquals("text/html", r.getMetadata().get("content-type"));
   }
 
   /** Unit tests for getContentType(String, String, byte[]) method. */
   public void testGetContentType() throws Exception {
     Content c = null;
-    Properties p = new Properties();
+    ContentProperties p = new ContentProperties();
 
     c = new Content("http://www.foo.com/",
                     "http://www.foo.com/",

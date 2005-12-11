@@ -16,6 +16,7 @@
 
 package org.apache.nutch.servlet;
 
+import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.searcher.NutchBean;
 import org.apache.nutch.searcher.Hit;
 import org.apache.nutch.searcher.HitDetails;
@@ -76,7 +77,7 @@ public class Cached extends HttpServlet {
     byte[] bytes = bean.getContent(details);
 
     // pass all original headers? only these for now.
-    Properties metaData = bean.getParseData(details).getMetadata();
+    ContentProperties metaData = bean.getParseData(details).getMetadata();
     String contentType = (String) metaData.get("Content-Type");
     //String lastModified = (String) metaData.get("Last-Modified");
     //String contentLength = (String) metaData.get("Content-Length");

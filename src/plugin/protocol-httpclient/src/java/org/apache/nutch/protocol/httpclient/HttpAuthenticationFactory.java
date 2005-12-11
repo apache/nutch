@@ -11,6 +11,8 @@ import java.util.Properties;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.util.LogFormatter;
 import org.apache.nutch.util.NutchConf;
 
@@ -44,7 +46,7 @@ public class HttpAuthenticationFactory {
     
     private HttpAuthenticationFactory() { }
     
-    public static HttpAuthentication findAuthentication(Properties header) {
+    public static HttpAuthentication findAuthentication(ContentProperties header) {
         if (header == null) return null;
         
     	try {

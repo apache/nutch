@@ -7,6 +7,7 @@
 
   import="org.apache.nutch.searcher.*"
   import="org.apache.nutch.parse.ParseData"
+  import="org.apache.nutch.protocol.ContentProperties"
 %><%
   NutchBean bean = NutchBean.get(application);
   bean.LOG.info("cache request from " + request.getRemoteAddr());
@@ -19,7 +20,7 @@
     ResourceBundle.getBundle("org.nutch.jsp.cached", request.getLocale())
     .getLocale().getLanguage();
 
-  Properties metaData = bean.getParseData(details).getMetadata();
+  ContentProperties metaData = bean.getParseData(details).getMetadata();
 
   String content = null;
   String contentType = (String) metaData.get("Content-Type");

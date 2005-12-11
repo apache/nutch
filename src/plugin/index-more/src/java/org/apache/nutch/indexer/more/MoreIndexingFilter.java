@@ -29,6 +29,7 @@ import org.apache.lucene.document.Field;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 
 import org.apache.nutch.parse.Parse;
+import org.apache.nutch.protocol.ContentProperties;
 
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
@@ -86,7 +87,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     String url = fo.getUrl().toString();
 
     // normalize metaData (see note in the method below).
-    Properties metaData = normalizeMeta(parse.getData().getMetadata());
+    ContentProperties metaData = normalizeMeta(parse.getData().getMetadata());
 
     addTime(doc, metaData, url, fo);
 
@@ -101,7 +102,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     
   // Add time related meta info.  Add last-modified if present.  Index date as
   // last-modified, or, if that's not present, use fetch time.
-  private Document addTime(Document doc, Properties metaData, String url,
+  private Document addTime(Document doc, ContentProperties metaData, String url,
                            FetcherOutput fo) {
     long time = -1;
 
@@ -169,7 +170,7 @@ public class MoreIndexingFilter implements IndexingFilter {
   }
 
   // Add Content-Length
-  private Document addLength(Document doc, Properties metaData, String url) {
+  private Document addLength(Document doc, ContentProperties metaData, String url) {
     String contentLength = metaData.getProperty("content-length");
 
     if (contentLength != null)
@@ -179,7 +180,7 @@ public class MoreIndexingFilter implements IndexingFilter {
   }
 
   // Add Content-Type and its primaryType and subType
-  private Document addType(Document doc, Properties metaData, String url) {
+  private Document addType(Document doc, ContentProperties metaData, String url) {
     MimeType mimeType = null;
     String contentType = metaData.getProperty("content-type");
     if (contentType == null) {
@@ -259,7 +260,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     }
   }
 
-  private Document resetTitle(Document doc, Properties metaData, String url) {
+  private Document resetTitle(Document doc, ContentProperties metaData, String url) {
     String contentDisposition = metaData.getProperty("content-disposition");
     if (contentDisposition == null)
       return doc;
@@ -284,8 +285,8 @@ public class MoreIndexingFilter implements IndexingFilter {
   // (*) empty header value
   // Note: the original metaData should be kept intact,
   // because there is a benefit to preserve whatever comes from server.
-  private Properties normalizeMeta(Properties old) {
-    Properties normalized = new Properties();
+  private ContentProperties normalizeMeta(ContentProperties old) {
+      ContentProperties normalized = new ContentProperties();
 
     for (Enumeration e = old.propertyNames(); e.hasMoreElements();) {
       String key = (String) e.nextElement();

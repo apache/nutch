@@ -12,6 +12,7 @@ import java.util.Properties;
 
 import org.apache.nutch.io.VersionedWritable;
 import org.apache.nutch.io.WritableUtils;
+import org.apache.nutch.protocol.ContentProperties;
 
 /**
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
@@ -230,7 +231,7 @@ public class ParseStatus extends VersionedWritable {
     private ParseData data = null;
     
     public EmptyParseImpl(ParseStatus status) {
-      data = new ParseData(status, "", new Outlink[0], new Properties());
+      data = new ParseData(status, "", new Outlink[0], new ContentProperties());
     }
     
     public ParseData getData() {

@@ -21,6 +21,7 @@ import java.util.*;
 
 import org.apache.nutch.io.*;
 import org.apache.nutch.fs.*;
+import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.tools.UpdateDatabaseTool;
 
 
@@ -34,12 +35,12 @@ public final class ParseData extends VersionedWritable {
 
   private String title;
   private Outlink[] outlinks;
-  private Properties metadata;
+  private ContentProperties metadata;
   private ParseStatus status;
 
   public ParseData() {}
 
-  public ParseData(ParseStatus status, String title, Outlink[] outlinks, Properties metadata) {
+  public ParseData(ParseStatus status, String title, Outlink[] outlinks, ContentProperties metadata) {
     this.status = status;
     this.title = title;
     this.outlinks = outlinks;
@@ -62,7 +63,7 @@ public final class ParseData extends VersionedWritable {
   /** Other page properties.  This is the place to find format-specific
    * properties.  Different parser implementations for different content types
    * will populate this differently. */
-  public Properties getMetadata() { return metadata; }
+  public ContentProperties getMetadata() { return metadata; }
 
   /** Return the value of a metadata property. */
   public String get(String name) { return getMetadata().getProperty(name); }
@@ -94,7 +95,7 @@ public final class ParseData extends VersionedWritable {
     }
     
     int propertyCount = in.readInt();             // read metadata
-    metadata = new Properties();
+    metadata = new ContentProperties();
     for (int i = 0; i < propertyCount; i++) {
       metadata.put(UTF8.readString(in), UTF8.readString(in));
     }

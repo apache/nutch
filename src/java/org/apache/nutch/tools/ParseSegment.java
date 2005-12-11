@@ -240,7 +240,7 @@ public class ParseSegment {
         }
         outputPage(new ParseText(""),
                 new ParseData(new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_MISSING_CONTENT),
-                        "", new Outlink[0], new Properties()));
+                        "", new Outlink[0], new ContentProperties()));
       }
     }
 
@@ -250,7 +250,7 @@ public class ParseSegment {
         return;
       }
       outputPage(new ParseText(""),
-                 new ParseData(status, "", new Outlink[0], new Properties()));
+                 new ParseData(status, "", new Outlink[0], new ContentProperties()));
     }
       
     private void outputPage

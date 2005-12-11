@@ -25,6 +25,7 @@ import org.apache.commons.net.ftp.parser.DefaultFTPFileEntryParserFactory;
 import org.apache.commons.net.ftp.parser.ParserInitializationException;
 
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.ContentProperties;
 
 import java.net.InetAddress;
 import java.net.URL;
@@ -59,7 +60,7 @@ public class FtpResponse {
   private String base;
   private byte[] content;
   private int code;
-  private Properties headers = new Properties();
+  private ContentProperties headers = new ContentProperties();
 
   private final Ftp ftp;
 

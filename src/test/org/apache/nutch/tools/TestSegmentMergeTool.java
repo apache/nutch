@@ -32,6 +32,7 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.protocol.ProtocolStatus;
 
 import junit.framework.TestCase;
@@ -90,7 +91,7 @@ public class TestSegmentMergeTool extends TestCase {
         content.append("<p>" + k + " lines of text in the queue, " + k + " lines of text...</p>\n");
       }
       content.append("</body></html>");
-      Properties meta = new Properties();
+      ContentProperties meta = new ContentProperties();
       meta.setProperty("Content-Type", "text/html");
       meta.setProperty("Host", "http://localhost");
       meta.setProperty("Connection", "Keep-alive, close");

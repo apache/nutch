@@ -32,6 +32,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.protocol.ProtocolException;
 
 import org.apache.nutch.util.GZIPUtils;
@@ -44,7 +45,7 @@ public class HttpResponse {
   private String base;
   private byte[] content;
   private int code;
-  private Properties headers = new Properties();
+  private ContentProperties headers = new ContentProperties();
 
   /** Returns the response code. */
   public int getCode() { return code; }
