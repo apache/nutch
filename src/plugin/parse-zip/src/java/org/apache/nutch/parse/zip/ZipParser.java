@@ -31,6 +31,7 @@ import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.util.LogFormatter;
 
 /**
@@ -87,7 +88,7 @@ public class ZipParser implements Parser{
         }
         
         // collect meta data
-        final Properties metadata = new Properties();
+        final ContentProperties metadata = new ContentProperties();
         metadata.putAll(content.getMetadata()); // copy through
         
         if (resultText == null) {

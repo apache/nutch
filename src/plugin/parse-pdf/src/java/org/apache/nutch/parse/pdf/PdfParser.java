@@ -26,6 +26,7 @@ import org.pdfbox.exceptions.CryptographyException;
 import org.pdfbox.exceptions.InvalidPasswordException;
 
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.util.LogFormatter;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
@@ -165,7 +166,7 @@ public class PdfParser implements Parser {
     Outlink[] outlinks = OutlinkExtractor.getOutlinks(text);
 
     // collect meta data
-    Properties metadata = new Properties();
+    ContentProperties metadata = new ContentProperties();
     metadata.putAll(content.getMetadata()); // copy through
 
     ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks, metadata);

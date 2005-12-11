@@ -45,12 +45,12 @@ public final class Content extends VersionedWritable {
   private String base;
   private byte[] content;
   private String contentType;
-  private Properties metadata;
+  private ContentProperties metadata;
 
   public Content() {}
     
   public Content(String url, String base, byte[] content, String contentType,
-                 Properties metadata) {
+                 ContentProperties metadata) {
 
     if (url == null) throw new IllegalArgumentException("null url");
     if (base == null) throw new IllegalArgumentException("null base");
@@ -77,7 +77,7 @@ public final class Content extends VersionedWritable {
     contentType = UTF8.readString(in);            // read contentType
 
     int propertyCount = in.readInt();             // read metadata
-    metadata = new Properties();
+    metadata = new ContentProperties();
     for (int i = 0; i < propertyCount; i++) {
       metadata.put(UTF8.readString(in), UTF8.readString(in));
     }
@@ -134,7 +134,7 @@ public final class Content extends VersionedWritable {
   }
 
   /** Other protocol-specific data. */
-  public Properties getMetadata() { return metadata; }
+  public ContentProperties getMetadata() { return metadata; }
 
   /** Return the value of a metadata property. */
   public String get(String name) { return getMetadata().getProperty(name); }

@@ -25,6 +25,7 @@ import java.io.IOException;
 
 // Nutch imports
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.ContentProperties;
 
 
 /************************************
@@ -59,7 +60,7 @@ public class FileResponse {
   private String base;
   private byte[] content;
   private int code;
-  private Properties headers = new Properties();
+  private ContentProperties headers = new ContentProperties();
 
   private final File file;
 

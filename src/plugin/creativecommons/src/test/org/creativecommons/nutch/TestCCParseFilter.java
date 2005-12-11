@@ -19,6 +19,7 @@ package org.creativecommons.nutch;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.ContentProperties;
 
 import java.util.Properties;
 import java.io.*;
@@ -56,10 +57,10 @@ public class TestCCParseFilter extends TestCase {
     byte[] bytes = out.toByteArray();
 
     Content content =
-      new Content(url, url, bytes, contentType, new Properties());
+      new Content(url, url, bytes, contentType, new ContentProperties());
     Parse parse = ParseUtil.parseByParserId("parse-html",content);
 
-    Properties metadata = parse.getData().getMetadata();
+    ContentProperties metadata = parse.getData().getMetadata();
     assertEquals(license, metadata.get("License-Url"));
     assertEquals(location, metadata.get("License-Location"));
     assertEquals(type, metadata.get("Work-Type"));

@@ -10,17 +10,18 @@ import java.util.Vector;
 import java.util.Iterator;
 import java.util.logging.Logger;
 
+import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.util.LogFormatter;
 
 /**
- * An extension to {@link Properties} which allows multiple values for a single key.
+ * An extension to {@link ContentProperties} which allows multiple values for a single key.
  * The {@link #get(Object)} method may return a single value or a
  * {@link java.util.Collection} of values.
  *
  * @author Matt Tencati
  */
 
-public class MultiProperties extends Properties {
+public class MultiProperties extends ContentProperties {
     public static final Logger LOG = LogFormatter
             .getLogger("net.nutch.protocol.http.MultiProperties");
 
@@ -31,7 +32,7 @@ public class MultiProperties extends Properties {
      */
     public MultiProperties() {
         super();
-        multiMap = new TreeMap();
+        multiMap = new TreeMap(String.CASE_INSENSITIVE_ORDER);
     }
 
     /**
@@ -41,7 +42,7 @@ public class MultiProperties extends Properties {
      */
     public MultiProperties(Properties defaults) {
         super(defaults);
-        multiMap = new TreeMap();
+        multiMap = new TreeMap(String.CASE_INSENSITIVE_ORDER);
     }
 
     /** 
