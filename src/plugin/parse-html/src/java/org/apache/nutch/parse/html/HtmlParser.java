@@ -109,17 +109,12 @@ public class HtmlParser implements Parser {
     Outlink[] outlinks = new Outlink[0];
     ContentProperties metadata = new ContentProperties();
 
-    // check that contentType is one we can handle
-    String contentType = content.getContentType();
-    if (!"".equals(contentType) && !contentType.startsWith("text/html"))
-      return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_INVALID_FORMAT,
-              "Content-Type not text/html: " + contentType).getEmptyParse();
-    
     // parse the content
     DocumentFragment root;
     try {
       byte[] contentInOctets = content.getContent();
       InputSource input = new InputSource(new ByteArrayInputStream(contentInOctets));
+      String contentType = content.getMetadata().getProperty("Content-Type");
       String encoding = StringUtil.parseCharacterEncoding(contentType);
       if (encoding!=null) {
         metadata.put("OriginalCharEncoding", encoding);

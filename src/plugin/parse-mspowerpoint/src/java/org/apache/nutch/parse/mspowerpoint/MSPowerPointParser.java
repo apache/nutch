@@ -89,15 +89,6 @@ public class MSPowerPointParser implements Parser {
    */
   public Parse getParse(final Content content) {
 
-    // check that contentType is one we can handle
-    final String contentType = content.getContentType();
-
-    if (contentType != null && !contentType.startsWith(MIME_TYPE)) {
-      return new ParseStatus(ParseStatus.FAILED,
-          ParseStatus.FAILED_INVALID_FORMAT, "Content-Type is not ["
-              + MIME_TYPE + "] was: " + contentType).getEmptyParse();
-    }
-
     String plainText = null;
     String title = null;
     Outlink[] outlinks = null;

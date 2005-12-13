@@ -48,13 +48,6 @@ public class ZipParser implements Parser{
     
     public Parse getParse(final Content content) {
         
-        // check that contentType is one we can handle
-        final String contentType = content.getContentType();
-        if (contentType != null && !contentType.startsWith("application/zip")) {
-            return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_INVALID_FORMAT,
-              "Content-Type not application/zip: " + contentType).getEmptyParse();
-        }
-        
         String resultText = null;
         String resultTitle = null;
         Outlink[] outlinks = null;

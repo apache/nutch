@@ -101,15 +101,6 @@ public class RSSParser implements Parser {
      */
     public Parse getParse(Content content) {
 
-        // check that contentType is one we can handle
-        String contentType = content.getContentType();
-        if (contentType != null
-                && (!contentType.startsWith("text/xml") && !contentType
-                        .startsWith("application/rss+xml")))
-            return new ParseStatus(ParseStatus.FAILED_INVALID_FORMAT,
-                    "Content-Type not text/xml or application/rss+xml: "
-                            + contentType).getEmptyParse();
-
         List theRSSChannels = null;
 
         try {

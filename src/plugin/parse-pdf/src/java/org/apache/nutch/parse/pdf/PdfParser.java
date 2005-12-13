@@ -84,12 +84,6 @@ public class PdfParser implements Parser {
 
   public Parse getParse(Content content) {
 
-    // check that contentType is one we can handle
-    String contentType = content.getContentType();
-    if (contentType != null && !contentType.startsWith("application/pdf"))
-      return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_INVALID_FORMAT,
-        "Content-Type not application/pdf: " + contentType).getEmptyParse();
-
     // in memory representation of pdf file
     PDDocument pdf = null;
 

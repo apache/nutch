@@ -57,12 +57,6 @@ public class MSWordParser implements Parser {
 
   public Parse getParse(Content content) {
 
-    // check that contentType is one we can handle
-    String contentType = content.getContentType();
-    if (contentType != null && !contentType.startsWith("application/msword"))
-      return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_INVALID_FORMAT,
-        "Content-Type not application/msword: " + contentType).getEmptyParse();
-
     String text = null;
     String title = null;
     Properties properties = null;
