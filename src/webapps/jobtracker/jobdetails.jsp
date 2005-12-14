@@ -15,7 +15,7 @@
 %>
 
 <html>
-<title Nutch MapReduce Job Details</title>
+<title>Nutch MapReduce Job Details</title>
 <body>
 <h1>Job '<%=jobid%>'</h1>
 
