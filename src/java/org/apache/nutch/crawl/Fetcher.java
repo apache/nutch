@@ -18,7 +18,6 @@ package org.apache.nutch.crawl;
 
 import java.io.IOException;
 import java.io.File;
-import java.util.Properties;
 
 import org.apache.nutch.io.*;
 import org.apache.nutch.fs.*;
@@ -193,7 +192,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
 
       if (content == null) {
         String url = key.toString();
-        content = new Content(url, url, new byte[0], "", new Properties());
+        content = new Content(url,url,new byte[0],"",new ContentProperties());
       }
 
       content.getMetadata().setProperty           // add digest to metadata

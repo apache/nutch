@@ -234,7 +234,7 @@ public class Fetcher {
       MD5Hash hash = null;
       String url = fle.getPage().getURL().toString();
       if (content == null) {
-        content = new Content(url, url, new byte[0], "", new Properties());
+        content = new Content(url, url, new byte[0], "", new ContentProperties());
         hash = MD5Hash.digest(url);
       } else {
         hash = MD5Hash.digest(content.getContent());
@@ -263,7 +263,7 @@ public class Fetcher {
                 + status.toString());
         outputPage(new FetcherOutput(fle, hash, protocolStatus),
                 content, new ParseText(""),
-                new ParseData(status, "", new Outlink[0], new Properties()));
+                new ParseData(status, "", new Outlink[0], new ContentProperties()));
       }
       return status;
     }

@@ -26,6 +26,7 @@ import org.apache.nutch.net.*;
 import org.apache.nutch.util.*;
 import org.apache.nutch.mapred.*;
 import org.apache.nutch.parse.*;
+import org.apache.nutch.protocol.*;
 import org.apache.nutch.analysis.*;
 
 import org.apache.nutch.indexer.*;
@@ -187,7 +188,7 @@ public class Indexer extends NutchConfigured implements Reducer {
     }
 
     Document doc = new Document();
-    Properties meta = parseData.getMetadata();
+    ContentProperties meta = parseData.getMetadata();
     String[] anchors = inlinks!=null ? inlinks.getAnchors() : new String[0];
 
     // add segment, used to map from merged index back to segment files

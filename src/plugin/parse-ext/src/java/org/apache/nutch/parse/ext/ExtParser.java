@@ -17,6 +17,7 @@
 package org.apache.nutch.parse.ext;
 
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.Parse;
@@ -155,7 +156,7 @@ public class ExtParser implements Parser {
     Outlink[] outlinks = OutlinkExtractor.getOutlinks(text);
 
     // collect meta data
-    Properties metaData = new Properties();
+    ContentProperties metaData = new ContentProperties();
     metaData.putAll(content.getMetadata()); // copy through
 
     ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks, metaData);

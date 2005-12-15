@@ -30,6 +30,7 @@ import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.util.LogFormatter;
 
 /**
@@ -73,7 +74,7 @@ public class MSPowerPointParser implements Parser {
 
     byte[] raw = getRawBytes(new File(file));
 
-    Properties prop = new Properties();
+    ContentProperties prop = new ContentProperties();
     prop.setProperty("Content-Length", "" + raw.length);
 
     Content content = new Content(file, file, raw, MIME_TYPE, prop);
@@ -87,15 +88,6 @@ public class MSPowerPointParser implements Parser {
    * @see org.apache.nutch.parse.Parser#getParse(Content)
    */
   public Parse getParse(final Content content) {
-
-    // check that contentType is one we can handle
-    final String contentType = content.getContentType();
-
-    if (contentType != null && !contentType.startsWith(MIME_TYPE)) {
-      return new ParseStatus(ParseStatus.FAILED,
-          ParseStatus.FAILED_INVALID_FORMAT, "Content-Type is not ["
-              + MIME_TYPE + "] was: " + contentType).getEmptyParse();
-    }
 
     String plainText = null;
     String title = null;
@@ -130,7 +122,7 @@ public class MSPowerPointParser implements Parser {
     }
 
     // collect meta data
-    final Properties metadata = new Properties();
+    final ContentProperties metadata = new ContentProperties();
     metadata.putAll(content.getMetadata()); // copy through
 
     if (properties != null) {

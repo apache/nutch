@@ -26,6 +26,7 @@ import org.pdfbox.exceptions.CryptographyException;
 import org.pdfbox.exceptions.InvalidPasswordException;
 
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.util.LogFormatter;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
@@ -82,12 +83,6 @@ public class PdfParser implements Parser {
   }
 
   public Parse getParse(Content content) {
-
-    // check that contentType is one we can handle
-    String contentType = content.getContentType();
-    if (contentType != null && !contentType.startsWith("application/pdf"))
-      return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_INVALID_FORMAT,
-        "Content-Type not application/pdf: " + contentType).getEmptyParse();
 
     // in memory representation of pdf file
     PDDocument pdf = null;
@@ -165,7 +160,7 @@ public class PdfParser implements Parser {
     Outlink[] outlinks = OutlinkExtractor.getOutlinks(text);
 
     // collect meta data
-    Properties metadata = new Properties();
+    ContentProperties metadata = new ContentProperties();
     metadata.putAll(content.getMetadata()); // copy through
 
     ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks, metadata);

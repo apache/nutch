@@ -17,6 +17,7 @@
 package org.apache.nutch.parse.msword;
 
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.util.LogFormatter;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
@@ -55,12 +56,6 @@ public class MSWordParser implements Parser {
   public MSWordParser () {}
 
   public Parse getParse(Content content) {
-
-    // check that contentType is one we can handle
-    String contentType = content.getContentType();
-    if (contentType != null && !contentType.startsWith("application/msword"))
-      return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_INVALID_FORMAT,
-        "Content-Type not application/msword: " + contentType).getEmptyParse();
 
     String text = null;
     String title = null;
@@ -102,7 +97,7 @@ public class MSWordParser implements Parser {
     }
 
     // collect meta data
-    Properties metadata = new Properties();
+    ContentProperties metadata = new ContentProperties();
     metadata.putAll(content.getMetadata()); // copy through
 
     if(properties != null) {

@@ -31,6 +31,7 @@ import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.util.LogFormatter;
 
 /**
@@ -46,13 +47,6 @@ public class ZipParser implements Parser{
     }
     
     public Parse getParse(final Content content) {
-        
-        // check that contentType is one we can handle
-        final String contentType = content.getContentType();
-        if (contentType != null && !contentType.startsWith("application/zip")) {
-            return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_INVALID_FORMAT,
-              "Content-Type not application/zip: " + contentType).getEmptyParse();
-        }
         
         String resultText = null;
         String resultTitle = null;
@@ -87,7 +81,7 @@ public class ZipParser implements Parser{
         }
         
         // collect meta data
-        final Properties metadata = new Properties();
+        final ContentProperties metadata = new ContentProperties();
         metadata.putAll(content.getMetadata()); // copy through
         
         if (resultText == null) {

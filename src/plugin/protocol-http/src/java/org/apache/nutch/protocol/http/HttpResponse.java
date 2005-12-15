@@ -32,31 +32,20 @@ import java.util.Properties;
 import java.util.logging.Level;
 
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.protocol.ProtocolException;
 
 import org.apache.nutch.util.GZIPUtils;
-import org.apache.nutch.util.NutchConf;
-import org.apache.nutch.util.mime.MimeType;
-import org.apache.nutch.util.mime.MimeTypes;
 
 
 /** An HTTP response. */
 public class HttpResponse {
-
-  /** A flag that tells if magic resolution must be performed */
-  private final static boolean MAGIC =
-        NutchConf.get().getBoolean("mime.type.magic", true);
-
-  /** Get the MimeTypes resolver instance. */
-  private final static MimeTypes MIME = 
-        MimeTypes.get(NutchConf.get().get("mime.types.file"));
-
   
   private String orig;
   private String base;
   private byte[] content;
   private int code;
-  private Properties headers = new Properties();
+  private ContentProperties headers = new ContentProperties();
 
   /** Returns the response code. */
   public int getCode() { return code; }
@@ -69,21 +58,9 @@ public class HttpResponse {
   public byte[] getContent() { return content; }
 
   public Content toContent() {
-    String contentType = getHeader("Content-Type");
-    if (contentType == null) {
-      MimeType type = null;
-      if (MAGIC) {
-        type = MIME.getMimeType(orig, content);
-      } else {
-        type = MIME.getMimeType(orig);
-      }
-      if (type != null) {
-          contentType = type.getName();
-      } else {
-          contentType = "";
-      }
-    }
-    return new Content(orig, base, content, contentType, headers);
+    return new Content(orig, base, content,
+                       getHeader("Content-Type"),
+                       headers);
   }
 
   public HttpResponse(URL url) throws ProtocolException, IOException {

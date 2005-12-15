@@ -33,6 +33,7 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.util.LogFormatter;
 import org.apache.nutch.util.NutchConf;
 import org.apache.nutch.util.mime.MimeTypes;
@@ -84,7 +85,7 @@ public class ZipTextExtractor {
           // Trying to resolve the Mime-Type
           String contentType = MIME.getMimeType(fname).getName();
           try {
-            Properties metadata = new Properties();
+            ContentProperties metadata = new ContentProperties();
             metadata.setProperty("Content-Length", Long.toString(entry.getSize()));
             metadata.setProperty("Content-Type", contentType);
             Content content = new Content(newurl, base, b, contentType, metadata);

@@ -22,6 +22,7 @@ import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.util.LogFormatter;
 import org.apache.oro.text.regex.MatchResult;
 import org.apache.oro.text.regex.Pattern;
@@ -56,7 +57,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     walk(doc, parse, metaTags, url, outlinks);
     if (outlinks.size() > 0) {
       Outlink[] old = parse.getData().getOutlinks();
-      Properties metadata = parse.getData().getMetadata();
+      ContentProperties metadata = parse.getData().getMetadata();
       String title = parse.getData().getTitle();
       List list = Arrays.asList(old);
       outlinks.addAll(list);
@@ -136,7 +137,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
       idx = Math.min(MAX_TITLE_LEN, script.length());
       title = script.substring(0, idx);
     }
-    Properties metadata = new Properties();
+    ContentProperties metadata = new ContentProperties();
     metadata.putAll(c.getMetadata());
     ParseData pd = new ParseData(ParseStatus.STATUS_SUCCESS, title,
             outlinks, metadata);

@@ -31,6 +31,7 @@ import org.w3c.dom.*;
 import org.apache.html.dom.*;
 
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.util.*;
 import org.apache.nutch.parse.*;
 
@@ -106,19 +107,14 @@ public class HtmlParser implements Parser {
     String text = "";
     String title = "";
     Outlink[] outlinks = new Outlink[0];
-    Properties metadata = new Properties();
+    ContentProperties metadata = new ContentProperties();
 
-    // check that contentType is one we can handle
-    String contentType = content.getContentType();
-    if (!"".equals(contentType) && !contentType.startsWith("text/html"))
-      return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_INVALID_FORMAT,
-              "Content-Type not text/html: " + contentType).getEmptyParse();
-    
     // parse the content
     DocumentFragment root;
     try {
       byte[] contentInOctets = content.getContent();
       InputSource input = new InputSource(new ByteArrayInputStream(contentInOctets));
+      String contentType = content.getMetadata().getProperty("Content-Type");
       String encoding = StringUtil.parseCharacterEncoding(contentType);
       if (encoding!=null) {
         metadata.put("OriginalCharEncoding", encoding);
@@ -271,7 +267,7 @@ public class HtmlParser implements Parser {
     in.readFully(bytes);
     Parse parse = new HtmlParser().getParse(new Content(url,url,
                                                         bytes,"text/html",
-                                                        new Properties()));
+                                                        new ContentProperties()));
     System.out.println("data: "+parse.getData());
 
     System.out.println("text: "+parse.getText());

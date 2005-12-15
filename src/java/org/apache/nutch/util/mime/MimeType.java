@@ -227,11 +227,21 @@ public final class MimeType {
         return minLength;
     }
     
-    boolean hasMagic() {
+    public boolean hasMagic() {
         return (magics.size() > 0);
     }
     
-    boolean matches(byte[] data) {
+    public boolean matches(String url) {
+        boolean match = false;
+        int index = url.lastIndexOf('.');
+        if ((index != -1) && (index < url.length()-1)) {
+            // There's an extension, so try to find if it matches mines
+            match = extensions.contains(url.substring(index + 1));
+         }
+         return match;
+    }
+
+    public boolean matches(byte[] data) {
         if (!hasMagic()) { return false; }
         
         Magic tested = null;

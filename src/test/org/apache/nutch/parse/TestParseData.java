@@ -16,10 +16,8 @@
 
 package org.apache.nutch.parse;
 
-import java.io.*;
-import java.util.Properties;
 import org.apache.nutch.io.*;
-import org.apache.nutch.pagedb.*;
+import org.apache.nutch.protocol.ContentProperties;
 import junit.framework.TestCase;
 
 /** Unit tests for ParseData. */
@@ -36,7 +34,7 @@ public class TestParseData extends TestCase {
       new Outlink("http://bar.com/", "Bar")
     };
 
-    Properties metaData = new Properties();
+    ContentProperties metaData = new ContentProperties();
     metaData.put("Language", "en/us");
     metaData.put("Charset", "UTF-8");
 

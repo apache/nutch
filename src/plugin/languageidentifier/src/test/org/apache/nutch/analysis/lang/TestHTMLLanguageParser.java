@@ -15,8 +15,7 @@
  */
 package org.apache.nutch.analysis.lang;
 
-// JDK imports
-import java.util.Properties;
+
 
 // JUnit imports
 import junit.framework.TestCase;
@@ -26,6 +25,7 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.ParserFactory;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.ContentProperties;
 
 
 public class TestHTMLLanguageParser extends TestCase {
@@ -122,7 +122,7 @@ public class TestHTMLLanguageParser extends TestCase {
   
   
   private Content getContent(String text) {
-    Properties p = new Properties();
+    ContentProperties p = new ContentProperties();
     p.put("Content-Type", "text/html");
 
     Content content = new Content(URL, BASE, text.getBytes(), "text/html", p);
