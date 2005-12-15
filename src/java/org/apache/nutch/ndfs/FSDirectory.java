@@ -507,7 +507,9 @@ public class FSDirectory implements FSConstants {
                 return false;
             }
             removedNode.removeNode();
-
+            if (isDir(dst)) {
+                dst = new UTF8(dst.toString() + "/" + new File(src.toString()).getName());
+            }
             INode newNode = rootDir.addNode(dst.toString(), removedNode.blocks);
             if (newNode != null) {
                 newNode.children = removedNode.children;
@@ -517,7 +519,7 @@ public class FSDirectory implements FSConstants {
                 }
                 return true;
             } else {
-                removedNode.parent.children.put(new File(dst.toString()).getName(), removedNode);
+                rootDir.addNode(src.toString(), removedNode.blocks);
                 return false;
             }
         }

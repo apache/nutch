@@ -131,6 +131,18 @@ public abstract class NutchFileSystem {
     }
 
     /**
+     * Return a 2D array of size 1x1 or greater, containing hostnames 
+     * where portions of the given file can be found.  For a nonexistent 
+     * file or regions, null will be returned.
+     *
+     * This call is most helpful with NDFS, where it returns 
+     * hostnames of machines that contain the given file.
+     *
+     * The NutchFileSystem will simply return an elt containing 'localhost'.
+     */
+    public abstract String[][] getFileCacheHints(File f, long start, long len) throws IOException;
+
+    /**
      * Opens an NFSDataInputStream for the indicated File.
      */
     public NFSDataInputStream open(File f) throws IOException {

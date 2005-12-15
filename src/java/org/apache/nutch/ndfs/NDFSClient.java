@@ -60,6 +60,15 @@ public class NDFSClient implements FSConstants {
     }
 
     /**
+     * Get hints about the location of the indicated block(s).  The
+     * array returned is as long as there are blocks in the indicated
+     * range.  Each block may have one or more locations.
+     */
+    public String[][] getHints(UTF8 src, long start, long len) throws IOException {
+        return namenode.getHints(src.toString(), start, len);
+    }
+
+    /**
      * Create an input stream that obtains a nodelist from the
      * namenode, and then reads from all the right places.  Creates
      * inner subclass of InputStream that does the right out-of-band

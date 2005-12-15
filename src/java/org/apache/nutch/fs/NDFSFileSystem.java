@@ -58,6 +58,10 @@ public class NDFSFileSystem extends NutchFileSystem {
       return new UTF8(path);
     }
 
+    public String[][] getFileCacheHints(File f, long start, long len) throws IOException {
+      return ndfs.getHints(getPath(f), start, len);
+    }
+
     public NFSInputStream openRaw(File f) throws IOException {
       return ndfs.open(getPath(f));
     }

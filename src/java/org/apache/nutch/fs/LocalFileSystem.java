@@ -51,6 +51,20 @@ public class LocalFileSystem extends NutchFileSystem {
         //     useCopyForRename = false;
     }
 
+    /**
+     * Return 1x1 'localhost' cell if the file exists.
+     * Return null if otherwise.
+     */
+    public String[][] getFileCacheHints(File f, long start, long len) throws IOException {
+        if (! f.exists()) {
+            return null;
+        } else {
+            String result[][] = new String[1][];
+            result[0] = new String[1];
+            result[0][0] = "localhost";
+            return result;
+        }
+    }
 
     public String getName() { return "local"; }
 

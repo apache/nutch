@@ -529,39 +529,58 @@ public class FSNamesystem implements FSConstants {
 
     /**
      * Figure out a few hosts that are likely to contain the
-     * block referred to by the given filename, offset pair.
+     * block(s) referred to by the given (filename, start, len) tuple.
      */
-    public UTF8[] getDatanodeHints(UTF8 src, long offset) {
-        Block targetBlock = null;
+    public UTF8[][] getDatanodeHints(UTF8 src, long start, long len) {
+        if (start < 0 || len < 0) {
+            return new UTF8[0][];
+        }
+
+        int startBlock = -1;
+        int endBlock = -1;
         Block blocks[] = dir.getFile(src);
 
         //
-        // First, figure out where the offset would fall in
+        // First, figure out where the range falls in
         // the blocklist.
         //
+        long startpos = start;
+        long endpos = start + len;
         for (int i = 0; i < blocks.length; i++) {
-            offset -= blocks[i].getNumBytes();
-            if (offset <= 0) {
-                targetBlock = blocks[i];
-                break;
+            if (startpos >= 0) {
+                startpos -= blocks[i].getNumBytes();
+                if (startpos <= 0) {
+                    startBlock = i;
+                }
+            }
+            if (endpos >= 0) {
+                endpos -= blocks[i].getNumBytes();
+                if (endpos <= 0) {
+                    endBlock = i;
+                    break;
+                }
             }
         }
 
         //
-        // Next, create an array of hosts where that block can
+        // Next, create an array of hosts where each block can
         // be found
         //
-        UTF8 hosts[] = null;
-        if (targetBlock != null) {
-            TreeSet containingNodes = (TreeSet) blocksMap.get(targetBlock);
-            Vector v = new Vector();
-            for (Iterator it = containingNodes.iterator(); it.hasNext(); ) {
-                DatanodeInfo cur = (DatanodeInfo) it.next();
-                v.add(cur.getHost());
+        if (startBlock < 0 || endBlock < 0) {
+            return new UTF8[0][];
+        } else {
+            UTF8 hosts[][] = new UTF8[endBlock - startBlock + 1][];
+            for (int i = startBlock; i <= endBlock; i++) {
+                TreeSet containingNodes = (TreeSet) blocksMap.get(blocks[i]);
+                Vector v = new Vector();
+                for (Iterator it = containingNodes.iterator(); it.hasNext(); ) {
+                    DatanodeInfo cur = (DatanodeInfo) it.next();
+                    v.add(cur.getHost());
+                }
+                hosts[i] = (UTF8[]) v.toArray(new UTF8[v.size()]);
             }
-            hosts = (UTF8[]) v.toArray(new UTF8[v.size()]);
+            return hosts;
         }
-        return hosts;
     }
 
     /************************************************************

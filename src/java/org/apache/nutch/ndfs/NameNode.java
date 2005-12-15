@@ -188,14 +188,17 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
     }
     /**
      */
-    public String[] getHints(String src, long offset) throws IOException {
-        UTF8 hosts[] = namesystem.getDatanodeHints(new UTF8(src), offset);
+    public String[][] getHints(String src, long start, long len) throws IOException {
+        UTF8 hosts[][] = namesystem.getDatanodeHints(new UTF8(src), start, len);
         if (hosts == null) {
-            return new String[0];
+            return new String[0][];
         } else {
-            String results[] = new String[hosts.length];
+            String results[][] = new String[hosts.length][];
             for (int i = 0; i < hosts.length; i++) {
-                results[i] = hosts[i].toString();
+                results[i] = new String[hosts[i].length];
+                for (int j = 0; j < results[i].length; j++) {
+                    results[i][j] = hosts[i][j].toString();
+                }
             }
             return results;
         }

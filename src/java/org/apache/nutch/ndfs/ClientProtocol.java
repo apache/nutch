@@ -73,9 +73,10 @@ public interface ClientProtocol {
     
     /**
      * The client wants to read the indicated filename at a certain offset.
-     * Return a list of hostnames where the data can be found.
+     * Return a list of hostnames where the data can be found.  (Return
+     * a set of hostnames for every block.)
      */
-    public String[] getHints(String src, long offset) throws IOException;
+    public String[][] getHints(String src, long start, long len) throws IOException;
 
     /**
      * Rename an item in the fs namespace
