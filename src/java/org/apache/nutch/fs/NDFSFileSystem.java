@@ -22,10 +22,12 @@ import java.util.*;
 
 import org.apache.nutch.io.*;
 import org.apache.nutch.ndfs.*;
+import org.apache.nutch.util.NutchConf;
 
 /****************************************************************
- * Implement the NutchFileSystem interface for the NDFS system.
- *
+ * Implementation of the abstract NutchFileSystem for the NDFS system.
+ * This is the distributed file system.  It can be distributed over
+ * 1 or more machines 
  * @author Mike Cafarella
  *****************************************************************/
 public class NDFSFileSystem extends NutchFileSystem {
@@ -49,44 +51,37 @@ public class NDFSFileSystem extends NutchFileSystem {
     public String getName() { return name; }
 
     private UTF8 getPath(File file) {
-      File f = file;
       String path = getNDFSPath(file);
       if (!path.startsWith(NDFSFile.NDFS_FILE_SEPARATOR)) {
-        f = new File(HOME_DIR, path);
+        path = getNDFSPath(new File(HOME_DIR, path)); // make absolute
       }
-      return new UTF8(getNDFSPath(f));
+      return new UTF8(path);
     }
 
-    /**
-     * Open the file at f
-     */
-    public NFSInputStream open(File f) throws IOException {
+    public String[][] getFileCacheHints(File f, long start, long len) throws IOException {
+      return ndfs.getHints(getPath(f), start, len);
+    }
+
+    public NFSInputStream openRaw(File f) throws IOException {
       return ndfs.open(getPath(f));
     }
 
-    /**
-     * Create the file at f.
-     */
-    public NFSOutputStream create(File f) throws IOException {
-        return create(f, false);
-    }
-    /**
-     */
-    public NFSOutputStream create(File f, boolean overwrite) throws IOException {
+    public NFSOutputStream createRaw(File f, boolean overwrite)
+      throws IOException {
       return ndfs.create(getPath(f), overwrite);
     }
 
     /**
      * Rename files/dirs
      */
-    public boolean rename(File src, File dst) throws IOException {
+    public boolean renameRaw(File src, File dst) throws IOException {
       return ndfs.rename(getPath(src), getPath(dst));
     }
 
     /**
      * Get rid of File f, whether a true file or dir.
      */
-    public boolean delete(File f) throws IOException {
+    public boolean deleteRaw(File f) throws IOException {
         return ndfs.delete(getPath(f));
     }
 
@@ -111,7 +106,7 @@ public class NDFSFileSystem extends NutchFileSystem {
 
     /**
      */
-    public File[] listFiles(File f) throws IOException {
+    public File[] listFilesRaw(File f) throws IOException {
         NDFSFileInfo info[] = ndfs.listFiles(getPath(f));
         if (info == null) {
             return new File[0];
@@ -177,7 +172,7 @@ public class NDFSFileSystem extends NutchFileSystem {
                 doFromLocalFile(contents[i], new File(dst, contents[i].getName()), deleteSource);
             }
         } else {
-            byte buf[] = new byte[4096];
+            byte buf[] = new byte[NutchConf.get().getInt("io.file.buffer.size", 4096)];
             InputStream in = new BufferedInputStream(new FileInputStream(src));
             try {
                 OutputStream out = create(dst);
@@ -213,6 +208,7 @@ public class NDFSFileSystem extends NutchFileSystem {
                 }
             }
         }
+        dst = dst.getCanonicalFile();
 
         if (isDirectory(src)) {
             dst.mkdirs();
@@ -221,10 +217,10 @@ public class NDFSFileSystem extends NutchFileSystem {
                 copyToLocalFile(contents[i], new File(dst, contents[i].getName()));
             }
         } else {
-            byte buf[] = new byte[4096];
+            byte buf[] = new byte[NutchConf.get().getInt("io.file.buffer.size", 4096)];
             InputStream in = open(src);
             try {
-                OutputStream out = new BufferedOutputStream(new FileOutputStream(dst));
+                OutputStream out = NutchFileSystem.getNamed("local").create(dst);
                 try {
                     int bytesRead = in.read(buf);
                     while (bytesRead >= 0) {
@@ -302,18 +298,22 @@ public class NDFSFileSystem extends NutchFileSystem {
         parent = parent.getParentFile();
       }
       StringBuffer path = new StringBuffer();
-      String fname = (String) l.get(l.size() - 1);
-      if (!"".equals(fname)) {
-        path.append(fname); //handle not absolute paths
-      } else {
-        if (l.size() == 1)
-          path.append(NDFSFile.NDFS_FILE_SEPARATOR); //handle root path
-      }
+      path.append(l.get(l.size() - 1));
       for (int i = l.size() - 2; i >= 0; i--) {
-        fname = (String) l.get(i);
         path.append(NDFSFile.NDFS_FILE_SEPARATOR);
-        path.append(fname);
+        path.append(l.get(i));
       }
       return path.toString();
+    }
+
+    public void reportChecksumFailure(File f, NFSInputStream in,
+                                      long start, long length, int crc) {
+      
+      // ignore for now, causing task to fail, and hope that when task is
+      // retried it gets a different copy of the block that is not corrupt.
+
+      // FIXME: we should move the bad block(s) involved to a bad block
+      // directory on their datanode, and then re-replicate the blocks, so that
+      // no data is lost. a task may fail, but on retry it should succeed.
     }
 }

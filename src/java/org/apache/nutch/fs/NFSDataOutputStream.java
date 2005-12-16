@@ -16,18 +16,78 @@
 package org.apache.nutch.fs;
 
 import java.io.*;
+import java.util.zip.Checksum;
+import java.util.zip.CRC32;
 import org.apache.nutch.util.NutchConf;
 
-/** Utility that wraps a {@link NFSOutputStream} in a {@link DataOutputStream}
- * and buffers output through a {@link BufferedOutputStream}. */
+/** Utility that wraps a {@link NFSOutputStream} in a {@link DataOutputStream},
+ * buffers output through a {@link BufferedOutputStream} and creates a checksum
+ * file. */
 public class NFSDataOutputStream extends DataOutputStream {
+  public static final byte[] CHECKSUM_VERSION = new byte[] {'c', 'r', 'c', 0};
   
+  /** Store checksums for data. */
+  private static class Summer extends FilterOutputStream {
+
+    private final int bytesPerSum
+      = NutchConf.get().getInt("io.bytes.per.checksum", 512);
+
+    private NFSDataOutputStream sums;
+    private Checksum sum = new CRC32();
+    private int inSum;
+
+    public Summer(NutchFileSystem fs, File file, boolean overwrite)
+      throws IOException {
+      super(fs.createRaw(file, overwrite));
+
+      this.sums =
+        new NFSDataOutputStream(fs.createRaw(fs.getChecksumFile(file), true));
+
+      sums.write(CHECKSUM_VERSION, 0, CHECKSUM_VERSION.length);
+      sums.writeInt(bytesPerSum);
+    }
+
+    public void write(byte b[], int off, int len) throws IOException {
+      int summed = 0;
+      while (summed < len) {
+
+        int goal = bytesPerSum - inSum;
+        int inBuf = len - summed;
+        int toSum = inBuf <= goal ? inBuf : goal;
+
+        sum.update(b, off+summed, toSum);
+        summed += toSum;
+
+        inSum += toSum;
+        if (inSum == bytesPerSum) {
+          writeSum();
+        }
+      }
+
+      out.write(b, off, len);
+    }
+
+    private void writeSum() throws IOException {
+      if (inSum != 0) {
+        sums.writeInt((int)sum.getValue());
+        sum.reset();
+        inSum = 0;
+      }
+    }
+
+    public void close() throws IOException {
+      writeSum();
+      sums.close();
+      super.close();
+    }
+
+  }
+
   private static class PositionCache extends FilterOutputStream {
     long position;
 
-    public PositionCache(NFSOutputStream out) throws IOException {
+    public PositionCache(OutputStream out) throws IOException {
       super(out);
-      this.position = out.getPos();
     }
 
     // This is the only write() method called by BufferedOutputStream, so we
@@ -44,7 +104,7 @@ public class NFSDataOutputStream extends DataOutputStream {
   }
 
   private static class Buffer extends BufferedOutputStream {
-    public Buffer(PositionCache out, int bufferSize) throws IOException {
+    public Buffer(OutputStream out, int bufferSize) throws IOException {
       super(out, bufferSize);
     }
 
@@ -63,10 +123,19 @@ public class NFSDataOutputStream extends DataOutputStream {
 
   }
 
+  public NFSDataOutputStream(NutchFileSystem fs, File file,
+                             boolean overwrite, int bufferSize)
+    throws IOException {
+    super(new Buffer(new PositionCache(new Summer(fs, file, overwrite)),
+                     bufferSize));
+  }
+
+  /** Construct without checksums. */
   public NFSDataOutputStream(NFSOutputStream out) throws IOException {
     this(out, NutchConf.get().getInt("io.file.buffer.size", 4096));
   }
 
+  /** Construct without checksums. */
   public NFSDataOutputStream(NFSOutputStream out, int bufferSize)
     throws IOException {
     super(new Buffer(new PositionCache(out), bufferSize));

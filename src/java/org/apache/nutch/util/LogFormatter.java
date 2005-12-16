@@ -70,8 +70,10 @@ public class LogFormatter extends Formatter {
     StringBuffer buffer = new StringBuffer();
 
     // the date
-    date.setTime(record.getMillis());
-    formatter.format(date, buffer, new FieldPosition(0));
+    if (showTime) {
+      date.setTime(record.getMillis());
+      formatter.format(date, buffer, new FieldPosition(0));
+    }
     
     // the thread id
     if (showThreadIDs) {

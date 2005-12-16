@@ -7,8 +7,7 @@
   <property name="name" value="${ant.project.name}"/>
   <property name="root" value="${basedir}"/>
 
-  <!-- Load all the default properties, and any the user wants    -->
-  <!-- to contribute (without having to type -D or edit this file -->
+  <!-- load plugin-specific properties first -->
   <property file="${user.home}/${name}.build.properties" />
   <property file="${root}/build.properties" />
 
@@ -27,13 +26,8 @@
 
   <property name="deploy.dir" location="${nutch.root}/build/plugins/${name}"/>
 
-  <property name="javac.deprecation" value="off"/>
-  <property name="javac.debug" value="on"/>
-
-  <property name="javadoc.link"
-            value="http://java.sun.com/j2se/1.4/docs/api/"/>
-
-  <property name="build.encoding" value="ISO-8859-1"/>
+  <!-- load nutch defaults last so that they can be overridden above -->
+  <property file="${nutch.root}/default.properties" />
 
   <path id="plugin.deps"/>
 
@@ -85,6 +79,9 @@
      includes="**/*.java"
      destdir="${build.classes}"
      debug="${javac.debug}"
+     optimize="${javac.optimize}"
+     target="${javac.version}"
+     source="${javac.version}"
      deprecation="${javac.deprecation}">
       <classpath refid="classpath"/>
     </javac>    
@@ -126,7 +123,11 @@
      srcdir="${src.test}"
      includes="**/*.java"
      destdir="${build.test}"
-     debug="${debug}">
+     debug="${javac.debug}"
+     optimize="${javac.optimize}"
+     target="${javac.version}"
+     source="${javac.version}"
+     deprecation="${javac.deprecation}">
       <classpath refid="test.classpath"/>
     </javac>    
   </target>

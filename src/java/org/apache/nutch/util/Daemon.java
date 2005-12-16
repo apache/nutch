@@ -23,6 +23,7 @@ public class Daemon extends Thread {
     setDaemon(true);                              // always a daemon
   }
 
+  Runnable runnable = null;
   /** Construct a daemon thread. */
   public Daemon() {
     super();
@@ -31,6 +32,11 @@ public class Daemon extends Thread {
   /** Construct a daemon thread. */
   public Daemon(Runnable runnable) {
     super(runnable);
+    this.runnable = runnable;
+    this.setName(((Object)runnable).toString());
   }
 
+  public Runnable getRunnable() {
+    return runnable;
+  }
 }

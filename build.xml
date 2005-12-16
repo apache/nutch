@@ -38,6 +38,7 @@
   <target name="init">
     <mkdir dir="${build.dir}"/>
     <mkdir dir="${build.classes}"/>
+    <mkdir dir="${build.webapps}"/>
 
     <mkdir dir="${test.build.dir}"/>
     <mkdir dir="${test.build.classes}"/>
@@ -45,6 +46,10 @@
     <touch datetime="01/25/1971 2:00 pm">
       <fileset dir="${conf.dir}" includes="**/*.template"/>
     </touch>
+
+    <copy todir="${build.webapps}/jobtracker">
+      <fileset dir="${src.webapps}/jobtracker"/>
+    </copy>
 
     <copy todir="${conf.dir}" verbose="true">
       <fileset dir="${conf.dir}" includes="**/*.template"/>
@@ -57,7 +62,7 @@
   <!-- ====================================================== -->
   <!-- Compile the Java files                                 -->
   <!-- ====================================================== -->
-  <target name="compile" depends="compile-core, compile-plugins, jar"/>
+  <target name="compile" depends="compile-core, compile-plugins"/>
 
   <target name="compile-core" depends="init">
     <javac 
@@ -65,9 +70,11 @@
      srcdir="${src.dir}"
      includes="org/apache/nutch/**/*.java"
      destdir="${build.classes}"
-     debug="${debug}"
-     optimize="${optimize}"
-     deprecation="${deprecation}">
+     debug="${javac.debug}"
+     optimize="${javac.optimize}"
+     target="${javac.version}"
+     source="${javac.version}"
+     deprecation="${javac.deprecation}">
       <classpath refid="classpath"/>
     </javac>    
   </target>
@@ -102,12 +109,11 @@
           todir="${build.classes}"/>
     <copy file="${conf.dir}/nutch-site.xml"
           todir="${build.classes}"/>
-    <jar
-      jarfile="${build.dir}/${final.name}.jar"
-      basedir="${build.classes}"
-    />
-
-    <copy file="${build.dir}/${final.name}.jar" tofile="${basedir}/${name}.jar" />
+    <jar jarfile="${build.dir}/${final.name}.jar"
+         basedir="${build.classes}">
+      <manifest>
+      </manifest>
+    </jar>
   </target>
 
   <!-- ================================================================== -->
@@ -115,7 +121,7 @@
   <!-- ================================================================== -->
   <!--                                                                    -->
   <!-- ================================================================== -->
-  <target name="war" depends="compile,generate-docs">
+  <target name="war" depends="jar,compile,generate-docs">
     <war destfile="${build.dir}/${final.name}.war"
 	 webxml="${web.src.dir}/web.xml">
       <fileset dir="${web.src.dir}/jsp"/>
@@ -150,8 +156,11 @@
      srcdir="${test.src.dir}"
      includes="org/apache/nutch/**/*.java"
      destdir="${test.build.classes}"
-     debug="${debug}"
-     deprecation="${deprecation}">
+     debug="${javac.debug}"
+     optimize="${javac.optimize}"
+     target="${javac.version}"
+     source="${javac.version}"
+     deprecation="${javac.deprecation}">
       <classpath refid="test.classpath"/>
     </javac>    
   </target>
@@ -435,7 +444,6 @@
   <!-- ================================================================== -->
   <target name="clean">
     <delete dir="${build.dir}"/>
-    <delete failonerror="true" file="${name}.jar" />
   </target>
 
 </project>

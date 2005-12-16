@@ -26,26 +26,25 @@ import java.util.*;
 import java.util.logging.*;
 
 /********************************************************
- * NDFSClient does what's necessary to connect to a Nutch Filesystem
- * and perform basic file tasks.
- *
+ * NDFSClient can connect to a Nutch Filesystem and perform basic file tasks.
+ * Connects to a namenode daemon.
  * @author Mike Cafarella, Tessa MacDuff
  ********************************************************/
 public class NDFSClient implements FSConstants {
     public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.fs.NDFSClient");
-    static int BUFFER_SIZE = 4096;
-    NameNodeCaller nameNodeCaller;
+    static int MAX_BLOCK_ACQUIRE_FAILURES = 10;
+    ClientProtocol namenode;
     boolean running = true;
     Random r = new Random();
-    UTF8 clientName;
+    String clientName;
     Daemon leaseChecker;
 
 
-    /**
+    /** Create a new NDFSClient connected to the given namenode server.
      */
-    public NDFSClient(InetSocketAddress namenode) {
-        this.nameNodeCaller = new NameNodeCaller(namenode);
-        this.clientName = new UTF8("NDFSClient_" + r.nextInt());
+    public NDFSClient(InetSocketAddress nameNodeAddr) {
+        this.namenode = (ClientProtocol) RPC.getProxy(ClientProtocol.class, nameNodeAddr);
+        this.clientName = "NDFSClient_" + r.nextInt();
         this.leaseChecker = new Daemon(new LeaseChecker());
         this.leaseChecker.start();
     }
@@ -53,12 +52,20 @@ public class NDFSClient implements FSConstants {
     /**
      */
     public void close() throws IOException {
-        //nameNodeCaller.stop();
         this.running = false;
         try {
             leaseChecker.join();
         } catch (InterruptedException ie) {
         }
+    }
+
+    /**
+     * Get hints about the location of the indicated block(s).  The
+     * array returned is as long as there are blocks in the indicated
+     * range.  Each block may have one or more locations.
+     */
+    public String[][] getHints(UTF8 src, long start, long len) throws IOException {
+        return namenode.getHints(src.toString(), start, len);
     }
 
     /**
@@ -69,18 +76,9 @@ public class NDFSClient implements FSConstants {
      */
     public NFSInputStream open(UTF8 src) throws IOException {
         // Get block info from namenode
-        Object results[] = nameNodeCaller.getBlocksNodes(src);
-        return new NDFSInputStream((Block[]) results[0], (DatanodeInfo[][]) results[1]);
+        return new NDFSInputStream(src.toString());
     }
 
-    /**
-     * Create an output stream that writes to all the right places.
-     * Basically creates instance of inner subclass of OutputStream
-     * that handles datanode/namenode negotiation.
-     */
-    public NFSOutputStream create(UTF8 src) throws IOException {
-        return create(src, false);
-    }
     public NFSOutputStream create(UTF8 src, boolean overwrite) throws IOException {
         return new NDFSOutputStream(src, overwrite);
     }
@@ -90,7 +88,7 @@ public class NDFSClient implements FSConstants {
      * there.
      */
     public boolean rename(UTF8 src, UTF8 dst) throws IOException {
-        return nameNodeCaller.rename(src, dst);
+        return namenode.rename(src.toString(), dst.toString());
     }
 
     /**
@@ -98,61 +96,86 @@ public class NDFSClient implements FSConstants {
      * there.
      */
     public boolean delete(UTF8 src) throws IOException {
-        return nameNodeCaller.delete(src);
+        return namenode.delete(src.toString());
     }
 
     /**
      */
     public boolean exists(UTF8 src) throws IOException {
-        return nameNodeCaller.exists(src);
+        return namenode.exists(src.toString());
     }
 
     /**
      */
     public boolean isDirectory(UTF8 src) throws IOException {
-        return nameNodeCaller.isDirectory(src);
+        return namenode.isDir(src.toString());
     }
 
     /**
      */
     public NDFSFileInfo[] listFiles(UTF8 src) throws IOException {
-        return nameNodeCaller.listing(src);
+        return namenode.getListing(src.toString());
     }
 
     /**
      */
     public long totalRawCapacity() throws IOException {
-        long rawNums[] = nameNodeCaller.rawReport();
+        long rawNums[] = namenode.getStats();
         return rawNums[0];
     }
 
     /**
      */
     public long totalRawUsed() throws IOException {
-        long rawNums[] = nameNodeCaller.rawReport();
+        long rawNums[] = namenode.getStats();
         return rawNums[1];
     }
 
     public DatanodeInfo[] datanodeReport() throws IOException {
-        return nameNodeCaller.datanodeReport();
+        return namenode.getDatanodeReport();
     }
 
     /**
      */
     public boolean mkdirs(UTF8 src) throws IOException {
-        return nameNodeCaller.mkdirs(src);
+        return namenode.mkdirs(src.toString());
     }
 
     /**
      */
     public void lock(UTF8 src, boolean exclusive) throws IOException {
-        nameNodeCaller.lock(src, exclusive);
+        long start = System.currentTimeMillis();
+        boolean hasLock = false;
+        while (! hasLock) {
+            hasLock = namenode.obtainLock(src.toString(), clientName, exclusive);
+            if (! hasLock) {
+                try {
+                    Thread.sleep(400);
+                    if (System.currentTimeMillis() - start > 5000) {
+                        LOG.info("Waiting to retry lock for " + (System.currentTimeMillis() - start) + " ms.");
+                        Thread.sleep(2000);
+                    }
+                } catch (InterruptedException ie) {
+                }
+            }
+        }
     }
 
     /**
+     *
      */
     public void release(UTF8 src) throws IOException {
-        nameNodeCaller.release(src);
+        boolean hasReleased = false;
+        while (! hasReleased) {
+            hasReleased = namenode.releaseLock(src.toString(), clientName);
+            if (! hasReleased) {
+                LOG.info("Could not release.  Retrying...");
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException ie) {
+                }
+            }
+        }
     }
 
     /**
@@ -172,8 +195,8 @@ public class NDFSClient implements FSConstants {
     }
 
     /***************************************************************
-     * If any leases are outstanding, periodically check in with the 
-     * namenode and renew all the leases.
+     * Periodically check in with the namenode and renew all the leases
+     * when the lease period is half over.
      ***************************************************************/
     class LeaseChecker implements Runnable {
         /**
@@ -183,8 +206,7 @@ public class NDFSClient implements FSConstants {
             while (running) {
                 if (System.currentTimeMillis() - lastRenewed > (LEASE_PERIOD / 2)) {
                     try {
-                        FSParam p = new FSParam(OP_CLIENT_RENEW_LEASE, clientName);
-                        FSResults r = nameNodeCaller.call(p);
+                        namenode.renewLease(clientName);
                         lastRenewed = System.currentTimeMillis();
                     } catch (IOException ie) {
                     }
@@ -204,43 +226,63 @@ public class NDFSClient implements FSConstants {
     class NDFSInputStream extends NFSInputStream {
         boolean closed = false;
 
+        private String src;
         private DataInputStream blockStream;
         private DataOutputStream partnerStream;
-        private Block blocks[];
-        private int curBlock = 0;
-        private DatanodeInfo nodes[][];
+        private Block blocks[] = null;
+        private DatanodeInfo nodes[][] = null;
         private long pos = 0;
-        private long bytesRemainingInBlock = 0, curBlockSize = 0;
-
-        private int memoryBuf[] = new int[32 * 1024];
-        private long memoryStartPos = 0;
-        private long openPoint = 0;
-        private int memoryBytes = 0;
-        private int memoryBytesStart = 0;
+        private long filelen = 0;
+        private long blockEnd = -1;
 
         /**
          */
-        public NDFSInputStream(Block blocks[], DatanodeInfo nodes[][]) throws IOException {
-            this.blocks = blocks;
-            this.nodes = nodes;
+        public NDFSInputStream(String src) throws IOException {
+            this.src = src;
+            openInfo();
             this.blockStream = null;
             this.partnerStream = null;
+            for (int i = 0; i < blocks.length; i++) {
+                this.filelen += blocks[i].getNumBytes();
+            }
         }
 
         /**
-         * Open a DataInputStream to a DataNode so that it can be written to.
-         * This happens when a file is created and each time a new block is allocated.
-         * Must get block ID and the IDs of the destinations from the namenode.
+         * Grab the open-file info from namenode
          */
-        private synchronized void nextBlockInputStream() throws IOException {
-            nextBlockInputStream(0);
-        }
-        private synchronized void nextBlockInputStream(long preSkip) throws IOException {
-            if (curBlock >= blocks.length) {
-                throw new IOException("Attempted to read past end of file");
+        void openInfo() throws IOException {
+            Block oldBlocks[] = this.blocks;
+
+            LocatedBlock results[] = namenode.open(src);            
+            Vector blockV = new Vector();
+            Vector nodeV = new Vector();
+            for (int i = 0; i < results.length; i++) {
+                blockV.add(results[i].getBlock());
+                nodeV.add(results[i].getLocations());
             }
-            if (bytesRemainingInBlock > 0) {
-                throw new IOException("Trying to skip to next block without reading all data");
+            Block newBlocks[] = (Block[]) blockV.toArray(new Block[blockV.size()]);
+
+            if (oldBlocks != null) {
+                for (int i = 0; i < oldBlocks.length; i++) {
+                    if (! oldBlocks[i].equals(newBlocks[i])) {
+                        throw new IOException("Blocklist for " + src + " has changed!");
+                    }
+                }
+                if (oldBlocks.length != newBlocks.length) {
+                    throw new IOException("Blocklist for " + src + " now has different length");
+                }
+            }
+            this.blocks = newBlocks;
+            this.nodes = (DatanodeInfo[][]) nodeV.toArray(new DatanodeInfo[nodeV.size()][]);
+        }
+
+        /**
+         * Open a DataInputStream to a DataNode so that it can be read from.
+         * We get block ID and the IDs of the destinations at startup, from the namenode.
+         */
+        private synchronized void blockSeekTo(long target) throws IOException {
+            if (target >= filelen) {
+                throw new IOException("Attempted to read past end of file");
             }
 
             if (blockStream != null) {
@@ -249,231 +291,106 @@ public class NDFSClient implements FSConstants {
             }
 
             //
-            // Connect to best DataNode for current Block
+            // Compute desired block
             //
-            InetSocketAddress target = null;
+            int targetBlock = -1;
+            long targetBlockStart = 0;
+            long targetBlockEnd = 0;
+            for (int i = 0; i < blocks.length; i++) {
+                long blocklen = blocks[i].getNumBytes();
+                targetBlockEnd = targetBlockStart + blocklen - 1;
+
+                if (target >= targetBlockStart && target <= targetBlockEnd) {
+                    targetBlock = i;
+                    break;
+                } else {
+                    targetBlockStart = targetBlockEnd + 1;                    
+                }
+            }
+            if (targetBlock < 0) {
+                throw new IOException("Impossible situation: could not find target position " + target);
+            }
+            long offsetIntoBlock = target - targetBlockStart;
+
+            //
+            // Connect to best DataNode for desired Block, with potential offset
+            //
+            int failures = 0;
+            InetSocketAddress targetAddr = null;
             Socket s = null;
             TreeSet deadNodes = new TreeSet();
             while (s == null) {
                 DatanodeInfo chosenNode;
 
                 try {
-                    chosenNode = bestNode(nodes[curBlock], deadNodes);
-                    target = NDFS.createSocketAddr(chosenNode.getName().toString());
+                    chosenNode = bestNode(nodes[targetBlock], deadNodes);
+                    targetAddr = DataNode.createSocketAddr(chosenNode.getName().toString());
                 } catch (IOException ie) {
-                    LOG.info("Could not obtain block from any node.  Retrying...");
+                    /**
+                    if (failures >= MAX_BLOCK_ACQUIRE_FAILURES) {
+                        throw new IOException("Could not obtain block " + blocks[targetBlock]);
+                    }
+                    **/
+                    if (nodes[targetBlock] == null || nodes[targetBlock].length == 0) {
+                        LOG.info("No node available for block " + blocks[targetBlock]);
+                    }
+                    LOG.info("Could not obtain block from any node:  " + ie);
                     try {
                         Thread.sleep(10000);
                     } catch (InterruptedException iex) {
                     }
                     deadNodes.clear();
+                    openInfo();
+                    failures++;
                     continue;
                 }
                 try {
-                    s = new Socket(target.getAddress(), target.getPort());
-                    //LOG.info("Now downloading from " + target + ", block " + blocks[curBlock] + ", skipahead " + preSkip);
+                    s = new Socket(targetAddr.getAddress(), targetAddr.getPort());
+                    s.setSoTimeout(READ_TIMEOUT);
 
                     //
                     // Xmit header info to datanode
                     //
                     DataOutputStream out = new DataOutputStream(new BufferedOutputStream(s.getOutputStream()));
                     out.write(OP_READSKIP_BLOCK);
-                    blocks[curBlock].write(out);
-                    out.writeLong(preSkip);
+                    blocks[targetBlock].write(out);
+                    out.writeLong(offsetIntoBlock);
                     out.flush();
 
                     //
                     // Get bytes in block, set streams
                     //
                     DataInputStream in = new DataInputStream(new BufferedInputStream(s.getInputStream()));
-                    curBlockSize = in.readLong();
+                    long curBlockSize = in.readLong();
                     long amtSkipped = in.readLong();
-
-                    pos += amtSkipped;
-                    bytesRemainingInBlock = curBlockSize - amtSkipped;
-
-                    if (amtSkipped > 0) {
-                        memoryStartPos = pos;
-                        memoryBytes = 0;
-                        memoryBytesStart = 0;
+                    if (curBlockSize != blocks[targetBlock].len) {
+                        throw new IOException("Recorded block size is " + blocks[targetBlock].len + ", but datanode reports size of " + curBlockSize);
                     }
-                    blockStream = in;
-                    partnerStream = out;
-                    curBlock++;
-                    openPoint = pos;
+                    if (amtSkipped != offsetIntoBlock) {
+                        throw new IOException("Asked for offset of " + offsetIntoBlock + ", but only received offset of " + amtSkipped);
+                    }
+
+                    this.pos = target;
+                    this.blockEnd = targetBlockEnd;
+                    this.blockStream = in;
+                    this.partnerStream = out;
                 } catch (IOException ex) {
                     // Put chosen node into dead list, continue
-                    LOG.info("Could not connect to " + target);
+                    LOG.info("Failed to connect to " + targetAddr + ":" + ex);
                     deadNodes.add(chosenNode);
+                    if (s != null) {
+                        try {
+                            s.close();
+                        } catch (IOException iex) {
+                        }                        
+                    }
                     s = null;
                 }
             }
         }
 
         /**
-         */
-        public synchronized void seek(long pos) throws IOException {
-            if (pos < 0) {
-                throw new IOException("Cannot seek to negative position " + pos);
-            }
-            if (pos == this.pos) {
-                return;
-            }
-
-            //
-            // If we have remembered enough bytes to seek backwards to the
-            // desired pos, we can do so easily
-            //
-            if ((pos >= memoryStartPos) && (memoryStartPos + memoryBytes > pos)) {
-                this.pos = pos;
-            } else {
-                //
-                // If we are seeking backwards (and *don't* have enough memory bytes)
-                // we need to reset the NDFS streams.  They will be reopened upon the
-                // next call to nextBlockInputStream().  After this operation, all
-                // seeks will be "forwardSeeks".
-                //
-                if (pos < memoryStartPos && blockStream != null) {
-                    blockStream.close();
-                    blockStream = null;
-                    partnerStream.close();
-                    partnerStream = null;
-                    this.curBlock = 0;
-                    this.bytesRemainingInBlock = 0;
-                    this.pos = 0;
-                    this.memoryStartPos = 0;
-                    this.memoryBytes = 0;
-                    this.memoryBytesStart = 0;
-                    //
-                    // REMIND - this could be made more efficient, to just
-                    // skip back block-by-block
-                    //
-                }
-
-                //
-                // Now read ahead to the desired position.
-                //
-                long diff = pos - this.pos;
-                while (diff > 0) {
-                    long skipped = skip(diff);
-                    if (skipped > 0) {
-                        diff -= skipped;
-                    }
-                }
-                // Pos will be incremented by skip()
-            }
-        }
-
-        /**
-         * Skip ahead some number of bytes
-         */
-        public synchronized long skip(long skip) throws IOException {
-            long toSkip = 0;
-            long toFastSkip = 0;
-            if (skip > memoryBuf.length) {
-                toSkip = memoryBuf.length;
-                toFastSkip = skip - toSkip;
-            } else {
-                toSkip = skip;
-            }
-            long totalSkipped = 0;
-
-            //
-            // If there's a lot of fast-skipping to do within the current block,
-            // close it and reopen, so we can fast-skip to the target
-            //
-            /**
-            while (toFastSkip > 0) {
-                long amtSkipped = super.skip(toFastSkip);
-                toFastSkip -= amtSkipped;
-                totalSkipped += amtSkipped;
-            }
-            **/
-            long realBytesRemaining = bytesRemainingInBlock + (memoryBytes - (pos - memoryStartPos));
-            if (toFastSkip > 0 && realBytesRemaining > 0 && 
-                toFastSkip < realBytesRemaining) {
-
-                blockStream.close();
-                blockStream = null;
-                partnerStream.close();
-                partnerStream = null;
-
-                long backwardsDistance = curBlockSize - realBytesRemaining;
-                pos -= backwardsDistance;
-                totalSkipped -= backwardsDistance;
-                toFastSkip += backwardsDistance;
-                bytesRemainingInBlock = 0;
-                curBlock--;
-
-                memoryStartPos = pos;
-                memoryBytes = 0;
-                memoryBytesStart = 0;
-            }
-
-            //
-            // If there's any fast-skipping to do, we do it by opening a
-            // new block and telling the datanode how many bytes to skip.
-            //
-            while (toFastSkip > 0 && curBlock < blocks.length) {
-
-                if (bytesRemainingInBlock > 0) {
-                    blockStream.close();
-                    blockStream = null;
-                    partnerStream.close();
-                    partnerStream = null;
-
-                    pos += bytesRemainingInBlock;
-                    totalSkipped += bytesRemainingInBlock;
-                    toFastSkip -= bytesRemainingInBlock;
-                    bytesRemainingInBlock = 0;
-                }
-
-                long oldPos = pos;
-                nextBlockInputStream(toFastSkip);
-                long forwardDistance = (pos - oldPos);
-                totalSkipped += forwardDistance;
-                toFastSkip -= (pos - oldPos);
-
-                memoryStartPos = pos;
-                memoryBytes = 0;
-                memoryBytesStart = 0;
-            }
-
-            //
-            // If there's any remaining toFastSkip, well, there's
-            // not much we can do about it.  We're at the end of
-            // the stream!
-            //
-            if (toFastSkip > 0) {
-                System.err.println("Trying to skip past end of file....");
-                toFastSkip = 0;
-            }
-
-            //
-            // Do a slow skip as we approach, so we can fill the client
-            // history buffer
-            //
-            totalSkipped += super.skip(toSkip);
-            toSkip = 0;
-            return totalSkipped;
-        }
-
-        /**
-         */
-        public synchronized long getPos() throws IOException {
-            return pos;
-        }
-
-        /**
-         */
-        public synchronized int available() throws IOException {
-            if (closed) {
-                throw new IOException("Stream closed");
-            }
-            return (int) Math.min((long) Integer.MAX_VALUE, bytesRemainingInBlock);
-        }
-
-        /**
+         * Close it down!
          */
         public synchronized void close() throws IOException {
             if (closed) {
@@ -490,63 +407,69 @@ public class NDFSClient implements FSConstants {
         }
 
         /**
-         * Other read() functions are implemented in terms of
-         * this one.
+         * Basic read()
          */
         public synchronized int read() throws IOException {
             if (closed) {
                 throw new IOException("Stream closed");
             }
-
-            int b = 0;
-            if (pos - memoryStartPos < memoryBytes) {
-                //
-                // Move the memoryStartPos up to current pos, if necessary.
-                //
-                int diff = (int) (pos - memoryStartPos);
-
-                //
-                // Fetch the byte
-                //
-                b = memoryBuf[(memoryBytesStart + diff) % memoryBuf.length];
-
-                //
-                // Bump the pos
-                //
-                pos++;
-            } else {
-                if (bytesRemainingInBlock == 0) {
-                    if (curBlock < blocks.length) {
-                        nextBlockInputStream();
-                    } else {
-                        return -1;
-                    }
+            int result = -1;
+            if (pos < filelen) {
+                if (pos > blockEnd) {
+                    blockSeekTo(pos);
                 }
-                b = blockStream.read();
-                if (b >= 0) {
-                    //
-                    // Remember byte so we can seek backwards at some later time
-                    //
-                    if (memoryBytes == memoryBuf.length) {
-                        memoryStartPos++;
-                    }
-
-                    if (memoryBuf.length > 0) {
-                        int target;
-                        if (memoryBytes == memoryBuf.length) {
-                            target = memoryBytesStart;
-                            memoryBytesStart = (memoryBytesStart + 1) % memoryBuf.length;
-                        } else {
-                            target = (memoryBytesStart + memoryBytes) % memoryBuf.length;
-                            memoryBytes++;
-                        }
-                        memoryBuf[target] = b;
-                    }
-                    bytesRemainingInBlock--;
+                result = blockStream.read();
+                if (result >= 0) {
                     pos++;
                 }
             }
-            return b;
+            return result;
+        }
+
+        /**
+         * Read the entire buffer.
+         */
+        public synchronized int read(byte buf[], int off, int len) throws IOException {
+            if (closed) {
+                throw new IOException("Stream closed");
+            }
+            if (pos < filelen) {
+                if (pos > blockEnd) {
+                    blockSeekTo(pos);
+                }
+                int result = blockStream.read(buf, off, Math.min(len, (int) (blockEnd - pos + 1)));
+                if (result >= 0) {
+                    pos += result;
+                }
+                return result;
+            }
+            return -1;
+        }
+
+        /**
+         * Seek to a new arbitrary location
+         */
+        public synchronized void seek(long targetPos) throws IOException {
+            if (targetPos >= filelen) {
+                throw new IOException("Cannot seek after EOF");
+            }
+            pos = targetPos;
+            blockEnd = -1;
+        }
+
+        /**
+         */
+        public synchronized long getPos() throws IOException {
+            return pos;
+        }
+
+        /**
+         */
+        public synchronized int available() throws IOException {
+            if (closed) {
+                throw new IOException("Stream closed");
+            }
+            return (int) (filelen - pos);
         }
 
         /**
@@ -572,6 +495,7 @@ public class NDFSClient implements FSConstants {
         private int pos = 0;
 
         private UTF8 src;
+        boolean closingDown = false;
         private boolean overwrite;
         private boolean blockStreamWorking;
         private DataOutputStream blockStream;
@@ -613,18 +537,41 @@ public class NDFSClient implements FSConstants {
             long start = System.currentTimeMillis();
             do {
                 retry = false;
-                Object results[] = nameNodeCaller.getNewOutputBlock(firstTime, overwrite, src);
-                block = (Block) results[0];
-                DatanodeInfo nodes[] = (DatanodeInfo[]) results[1];
+                
+                long localstart = System.currentTimeMillis();
+                boolean blockComplete = false;
+                LocatedBlock lb = null;                
+                while (! blockComplete) {
+                    if (firstTime) {
+                        lb = namenode.create(src.toString(), clientName.toString(), overwrite);
+                    } else {
+                        lb = namenode.addBlock(src.toString());
+                    }
+
+                    if (lb == null) {
+                        try {
+                            Thread.sleep(400);
+                            if (System.currentTimeMillis() - localstart > 5000) {
+                                LOG.info("Waiting to find new output block node for " + (System.currentTimeMillis() - start) + "ms");
+                            }
+                        } catch (InterruptedException ie) {
+                        }
+                    } else {
+                        blockComplete = true;
+                    }
+                }
+
+                block = lb.getBlock();
+                DatanodeInfo nodes[] = lb.getLocations();
 
                 //
                 // Connect to first DataNode in the list.  Abort if this fails.
                 //
-                InetSocketAddress target = NDFS.createSocketAddr(nodes[0].getName().toString());
+                InetSocketAddress target = DataNode.createSocketAddr(nodes[0].getName().toString());
                 Socket s = null;
                 try {
-                    //System.err.println("Trying to connect to " + target);
                     s = new Socket(target.getAddress(), target.getPort());
+                    s.setSoTimeout(READ_TIMEOUT);
                 } catch (IOException ie) {
                     // Connection failed.  Let's wait a little bit and retry
                     try {
@@ -634,7 +581,11 @@ public class NDFSClient implements FSConstants {
                         Thread.sleep(6000);
                     } catch (InterruptedException iex) {
                     }
-                    nameNodeCaller.abandonBlock(block, src);
+                    if (firstTime) {
+                        namenode.abandonFileInProgress(src.toString());
+                    } else {
+                        namenode.abandonBlock(block, src.toString());
+                    }
                     retry = true;
                     continue;
                 }
@@ -644,6 +595,7 @@ public class NDFSClient implements FSConstants {
                 //
                 DataOutputStream out = new DataOutputStream(new BufferedOutputStream(s.getOutputStream()));
                 out.write(OP_WRITE_BLOCK);
+                out.writeBoolean(false);
                 block.write(out);
                 out.writeInt(nodes.length);
                 for (int i = 0; i < nodes.length; i++) {
@@ -666,7 +618,6 @@ public class NDFSClient implements FSConstants {
 			
         /**
          * Writes the specified byte to this output stream.
-         * This is the only write method that needs to be implemented.
          */
         public synchronized void write(int b) throws IOException {
             if (closed) {
@@ -679,6 +630,30 @@ public class NDFSClient implements FSConstants {
             }
             outBuf[pos++] = (byte) b;
             filePos++;
+        }
+
+        /**
+         * Writes the specified bytes to this output stream.
+         */
+      public synchronized void write(byte b[], int off, int len)
+        throws IOException {
+            if (closed) {
+                throw new IOException("Stream closed");
+            }
+            while (len > 0) {
+              int remaining = BUFFER_SIZE - pos;
+              int toWrite = Math.min(remaining, len);
+              System.arraycopy(b, off, outBuf, pos, toWrite);
+              pos += toWrite;
+              off += toWrite;
+              len -= toWrite;
+              filePos += toWrite;
+
+              if ((bytesWrittenToBlock + pos >= BLOCK_SIZE) ||
+                  (pos == BUFFER_SIZE)) {
+                flush();
+              }
+            }
         }
 
         /**
@@ -706,7 +681,8 @@ public class NDFSClient implements FSConstants {
         private synchronized void flushData(int maxPos) throws IOException {
             int workingPos = Math.min(pos, maxPos);
             
-            if (workingPos >= 0) {
+            if (workingPos > 0 || 
+                (workingPos == 0 && closingDown)) {
                 //
                 // To the blockStream, write length, then bytes
                 //
@@ -723,7 +699,7 @@ public class NDFSClient implements FSConstants {
                             blockReplyStream.close();
                         } catch (IOException ie2) {
                         }
-                        nameNodeCaller.abandonBlock(block, src);
+                        namenode.abandonBlock(block, src.toString());
                         blockStreamWorking = false;
                     }
                 }
@@ -742,6 +718,7 @@ public class NDFSClient implements FSConstants {
         }
 
         /**
+         * We're done writing to the current block.
          */
         private synchronized void endBlock() throws IOException {
             boolean mustRecover = ! blockStreamWorking;
@@ -751,16 +728,7 @@ public class NDFSClient implements FSConstants {
             //
             if (blockStreamWorking) {
                 try {
-                    blockStream.writeLong(0);
-                    blockStream.flush();
-
-                    long complete = blockReplyStream.readLong();
-                    if (complete != WRITE_COMPLETE) {
-                        LOG.info("Did not receive WRITE_COMPLETE flag: " + complete);
-                        throw new IOException("Did not receive WRITE_COMPLETE_FLAG: " + complete);
-                    }
-                    blockStream.close();
-                    blockReplyStream.close();
+                    internalClose();
                 } catch (IOException ie) {
                     try {
                         blockStream.close();
@@ -770,7 +738,7 @@ public class NDFSClient implements FSConstants {
                         blockReplyStream.close();
                     } catch (IOException ie2) {
                     }
-                    nameNodeCaller.abandonBlock(block, src);
+                    namenode.abandonBlock(block, src.toString());
                     mustRecover = true;
                 } finally {
                     blockStreamWorking = false;
@@ -789,15 +757,14 @@ public class NDFSClient implements FSConstants {
                 nextBlockOutputStream(false);
                 InputStream in = new FileInputStream(backupFile);
                 try {
-                    byte buf[] = new byte[4096];
+                    byte buf[] = new byte[BUFFER_SIZE];
                     int bytesRead = in.read(buf);
                     while (bytesRead >= 0) {
                         blockStream.writeLong((long) bytesRead);
                         blockStream.write(buf, 0, bytesRead);
                         bytesRead = in.read(buf);
                     }
-                    blockStream.writeLong(0);
-                    blockStream.close();
+                    internalClose();
                     LOG.info("Recovered from failed datanode connection");
                     mustRecover = false;
                 } catch (IOException ie) {
@@ -809,7 +776,7 @@ public class NDFSClient implements FSConstants {
                         blockReplyStream.close();
                     } catch (IOException ie2) {
                     }
-                    nameNodeCaller.abandonBlock(block, src);
+                    namenode.abandonBlock(block, src.toString());
                     blockStreamWorking = false;
                 }
             }
@@ -823,6 +790,28 @@ public class NDFSClient implements FSConstants {
         }
 
         /**
+         * Close down stream to remote datanode.  Called from two places
+         * in endBlock();
+         */
+        private synchronized void internalClose() throws IOException {
+            blockStream.writeLong(0);
+            blockStream.flush();
+
+            long complete = blockReplyStream.readLong();
+            if (complete != WRITE_COMPLETE) {
+                LOG.info("Did not receive WRITE_COMPLETE flag: " + complete);
+                throw new IOException("Did not receive WRITE_COMPLETE_FLAG: " + complete);
+            }
+                    
+            LocatedBlock lb = new LocatedBlock();
+            lb.readFields(blockReplyStream);
+            namenode.reportWrittenBlock(lb);
+
+            blockStream.close();
+            blockReplyStream.close();
+        }
+
+        /**
          * Closes this output stream and releases any system 
          * resources associated with this stream.
          */
@@ -831,6 +820,7 @@ public class NDFSClient implements FSConstants {
                 throw new IOException("Stream closed");
             }
 
+            closingDown = true;
             flush();
             endBlock();
 
@@ -844,304 +834,22 @@ public class NDFSClient implements FSConstants {
             }
             super.close();
 
-            nameNodeCaller.completeFile(src);
-            closed = true;
-        }
-    }
-
-    /******************************************************************
-     * Handles the IPC calls to the nameNode.
-     * This keeps the IPC methods hidden from a the users of FSClient.
-     *
-     * I imagine that there will be a NameNodeCaller in the FSClient as 
-     * well as each Stream.
-     *******************************************************************/
-    private class NameNodeCaller {
-        private org.apache.nutch.ipc.Client client;
-        private InetSocketAddress namenode;
-        
-        /**
-         * Constructor takes the Socket Address of the NameNode.
-         */
-        public NameNodeCaller(InetSocketAddress namenode) {
-            this.client = new org.apache.nutch.ipc.Client(FSResults.class);
-            this.namenode = namenode;
-        }
-        
-        /**
-         * General-purpose call
-         */
-        public FSResults call(FSParam p) throws IOException {
-            return (FSResults) call(p, namenode);
-        }
-
-        private synchronized FSResults call(FSParam p, InetSocketAddress target) throws IOException {
-            FSResults results = null;
-            while (results == null) {
-                try {
-                    results = (FSResults) client.call(p, target);
-                } catch (IOException ie) {
-                    long start = System.currentTimeMillis();
-                    LOG.info("Problem making IPC call on " + target);
-                    client.stop();
-                    long end = System.currentTimeMillis();
-                    if (end - start < 15000) {
-                        try {
-                            Thread.sleep(15000 - (end - start));
-                        } catch (InterruptedException iex) {
-                        }
-                    }
-                    LOG.info("Restarting client");
-                    client = new org.apache.nutch.ipc.Client(FSResults.class);
-                }
-            }
-            return results;
-        }
-
-        /**
-         * Calls the nameNode to get a new block.  Returns the blockID
-         * and resets the given destination nodes.
-         */
-        public Object[] getNewOutputBlock(boolean newFile, boolean overwrite, UTF8 src) throws IOException {
-            long start = System.currentTimeMillis();
-            FSParam p = null;
-            FSResults r = null;
-            boolean blockComplete = false;
-            while (! blockComplete) {
-                UTF8 nameParams[] = new UTF8[2];
-                nameParams[0] = src;
-                nameParams[1] = clientName;
-                if (newFile) {
-                    p = new FSParam(OP_CLIENT_STARTFILE, new ArrayWritable(UTF8.class, nameParams), new BooleanWritable(overwrite));
-                } else {
-                    p = new FSParam(OP_CLIENT_ADDBLOCK, src);
-                }
-                r = (FSResults) call(p, namenode);
-                if (! r.success()) {
-                    throw new IOException("Could not obtain new output block for file " + src);
-                } else if (r.tryagain()) {
-                    try {
-                        Thread.sleep(400);
-                        if (System.currentTimeMillis() - start > 5000) {
-                            LOG.info("Waiting to find new output block node for " + (System.currentTimeMillis() - start) + "ms");
-                        }
-                    } catch (InterruptedException ie) {
-                    }
-                } else {
-                    blockComplete = true;
-                }
-            }
-            Block b = (Block) r.first;
-            DatanodeInfo targets[] = (DatanodeInfo[]) ((ArrayWritable) r.second).toArray();
-
-            Object results[] = new Object[2];
-            results[0] = b;
-            results[1] = targets;
-            return results;
-        }
-
-        /**
-         */
-        public void abandonBlock(Block b, UTF8 src) throws IOException {
-            FSParam p = null;
-            FSResults r = null;
-            p = new FSParam(OP_CLIENT_ABANDONBLOCK, b, src);
-            r = (FSResults) call(p, namenode);
-            if (! r.success()) {
-                throw new IOException("Block " + b + " has already been committed.");
-            }
-        }
-
-        /**
-         * Get the block IDs and Nodes for the given file name (src).
-         */
-        public Object[] getBlocksNodes(UTF8 src) throws IOException {
-            FSParam p = new FSParam(OP_CLIENT_OPEN, src);
-            FSResults r = (FSResults) call(p, namenode);
-            if (! r.success()) {
-                throw new IOException("Could not open file " + src);
-            } else {
-                Block blocks[] = (Block[]) ((ArrayWritable) r.first).toArray();
-                DatanodeInfo nodes[][] = (DatanodeInfo[][]) ((TwoDArrayWritable) r.second).toArray();
-                Object results[] = new Object[2];
-                results[0] = blocks;
-                results[1] = nodes;
-                return results;
-            }
-        }
-        
-        /**
-         * Rename details are kept within the NameNodeCaller.  
-         * This causes an extra level of indirection which might be too costly.
-         */
-        public boolean rename(UTF8 src, UTF8 dst) throws IOException{
-            FSParam p = new FSParam(OP_CLIENT_RENAMETO, src, dst);
-            FSResults r = (FSResults) call(p, namenode);
-            return r.success();
-        }
-
-        /**
-         * Delete details are kept within the NameNodeCaller.  
-         * This causes an extra level of indirection which might be too costly.
-         */
-        public boolean delete(UTF8 src) throws IOException {
-            FSParam p = new FSParam(OP_CLIENT_DELETE, src);
-            FSResults r = (FSResults) call(p, namenode);
-            return r.success();
-        }
-
-        /**
-         * Checks to see if the given path exists (as dir or file)
-         */
-        public boolean exists(UTF8 src) throws IOException {
-            FSParam p = new FSParam(OP_CLIENT_EXISTS, src);
-            FSResults r = (FSResults) call(p, namenode);
-            return r.success();
-        }
-
-        /**
-         * Checks to see if the given path is a dir.
-         */
-        public boolean isDirectory(UTF8 src) throws IOException {
-            FSParam p = new FSParam(OP_CLIENT_ISDIR, src);
-            FSResults r = (FSResults) call(p, namenode);
-            return r.success();
-        }
-
-        /**
-         */
-        public boolean mkdirs(UTF8 src) throws IOException {
-            FSParam p = new FSParam(OP_CLIENT_MKDIRS, src);
-            FSResults r = (FSResults) call(p, namenode);
-            return r.success();
-        }
-
-        /**
-         * We try to obtain a lock (ex or not, as described).  We 
-         * block until successful.
-         */
-        public void lock(UTF8 src, boolean exclusive) throws IOException {
-            long start = System.currentTimeMillis();
-            boolean complete = false;
-
-            while (! complete) {
-                UTF8 nameParams[] = new UTF8[2];
-                nameParams[0] = src;
-                nameParams[1] = clientName;
-                FSParam p = new FSParam(OP_CLIENT_OBTAINLOCK, new ArrayWritable(UTF8.class, nameParams), new BooleanWritable(exclusive));
-                FSResults r = (FSResults) call(p, namenode);
-                if (! r.success()) {
-                    throw new IOException("Could not obtain lock " + src);
-                } else if (r.tryagain()) {
-                    try {
-                        Thread.sleep(400);
-                        if (System.currentTimeMillis() - start > 5000) {
-                            LOG.info("Waiting to retry lock for " + (System.currentTimeMillis() - start) + " ms.");
-                            Thread.sleep(2000);
-                        }
-                    } catch (InterruptedException ie) {
-                    }
-                } else {
-                    complete = true;
-                }
-            }
-        }
-
-        /**
-         * Release the given lock
-         */
-        public void release(UTF8 src) throws IOException {
-            boolean complete = false;
-            while (! complete) {
-                UTF8 nameParams[] = new UTF8[2];
-                nameParams[0] = src;
-                nameParams[1] = clientName;
-                FSParam p = new FSParam(OP_CLIENT_RELEASELOCK, new ArrayWritable(UTF8.class, nameParams));
-                FSResults r = (FSResults) call(p, namenode);
-                if (! r.success()) {
-                    throw new IOException("Could not release lock " + src);
-                } else if (r.tryagain()) {
-                    LOG.info("Could not release.  Retrying...");
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException ie) {
-                    }
-                } else {
-                    complete = true;
-                }
-            }
-        }
-
-        /**
-         * List all the files at the given path
-         */
-        public NDFSFileInfo[] listing(UTF8 src) throws IOException {
-            FSParam p = new FSParam(OP_CLIENT_LISTING, src);
-            FSResults r = (FSResults) call(p, namenode);
-            if (r.success()) {
-                return (NDFSFileInfo[]) ((ArrayWritable) r.first).toArray();
-            } else {
-                return null;
-            }
-        }
-
-        /**
-         * Report on raw bytes
-         */
-        public long[] rawReport() throws IOException {
-            long results[] = null;
-            FSParam p = new FSParam(OP_CLIENT_RAWSTATS);
-            FSResults r = (FSResults) call(p, namenode);
-            if (r.success()) {
-                LongWritable report[] = (LongWritable[]) ((ArrayWritable) r.first).toArray(); 
-                results = new long[report.length];
-                for (int i = 0; i < report.length; i++) {
-                    results[i] = report[i].get();
-                }
-            }
-            return results;
-        }
-
-        /**
-         */
-        public DatanodeInfo[] datanodeReport() throws IOException {
-            FSParam p = new FSParam(OP_CLIENT_DATANODEREPORT);
-            FSResults r = (FSResults) call(p, namenode);
-            if (r.success()) {
-                return (DatanodeInfo[]) ((ArrayWritable) r.first).toArray();
-            } else {
-                return null;
-            }
-        }
-
-        /**
-         * Contacts the namenode repeatedly until file is wholly
-         * committed.  Blocks until that time.
-         */
-        public void completeFile(UTF8 src) throws IOException {
-            long start = System.currentTimeMillis();
+            long localstart = System.currentTimeMillis();
             boolean fileComplete = false;
-            UTF8 nameParams[] = new UTF8[2];
-            nameParams[0] = src;
-            nameParams[1] = clientName;
-            
             while (! fileComplete) {
-                FSParam p = new FSParam(OP_CLIENT_COMPLETEFILE, new ArrayWritable(UTF8.class, nameParams));
-                FSResults r = (FSResults) call(p, namenode);
-                if (! r.success()) {
-                    throw new IOException("Could not complete file " + src);
-                } else if (r.tryagain()) {
+                fileComplete = namenode.complete(src.toString(), clientName.toString());
+                if (!fileComplete) {
                     try {
                         Thread.sleep(400);
-                        if (System.currentTimeMillis() - start > 5000) {
+                        if (System.currentTimeMillis() - localstart > 5000) {
                             LOG.info("Could not complete file, retrying...");
                         }
                     } catch (InterruptedException ie) {
                     }
-                } else {
-                    fileComplete = true;
                 }
             }
+            closed = true;
+            closingDown = false;
         }
     }
 }

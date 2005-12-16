@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.File;
 
 import java.util.HashMap;
+import java.util.Arrays;
 
 import org.apache.nutch.io.*;
 import org.apache.nutch.fs.*;
@@ -30,69 +31,71 @@ import org.apache.nutch.protocol.*;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.pagedb.*;
 import org.apache.nutch.indexer.*;
+import org.apache.nutch.mapred.*;
+import org.apache.nutch.mapred.lib.*;
+import org.apache.nutch.crawl.*;
 
 /** Implements {@link HitSummarizer} and {@link HitContent} for a set of
  * fetched segments. */
 public class FetchedSegments implements HitSummarizer, HitContent {
 
   private static class Segment {
+    private static final Partitioner PARTITIONER = new HashPartitioner();
+
     private NutchFileSystem nfs;
     private File segmentDir;
 
-    private ArrayFile.Reader fetcher;
-    private ArrayFile.Reader content;
-    private ArrayFile.Reader text;
-    private ArrayFile.Reader parsedata;
+    private MapFile.Reader[] content;
+    private MapFile.Reader[] parseText;
+    private MapFile.Reader[] parseData;
+    private MapFile.Reader[] crawl;
 
     public Segment(NutchFileSystem nfs, File segmentDir) throws IOException {
       this.nfs = nfs;
       this.segmentDir = segmentDir;
     }
 
-    public FetcherOutput getFetcherOutput(int docNo) throws IOException {
-      if (fetcher == null) { 
-        this.fetcher = new ArrayFile.Reader
-          (nfs, new File(segmentDir, FetcherOutput.DIR_NAME).toString());
+    public CrawlDatum getCrawlDatum(UTF8 url) throws IOException {
+      synchronized (this) {
+        if (crawl == null)
+          crawl = getReaders(CrawlDatum.FETCH_DIR_NAME);
       }
-
-      FetcherOutput entry = new FetcherOutput();
-      fetcher.get(docNo, entry);
-      return entry;
-    }
-
-    public byte[] getContent(int docNo) throws IOException {
-      if (content == null) {
-        this.content = new ArrayFile.Reader
-          (nfs, new File(segmentDir, Content.DIR_NAME).toString());
-      }
-
-      Content entry = new Content();
-      content.get(docNo, entry);
-      return entry.getContent();
-    }
-
-    public ParseData getParseData(int docNo) throws IOException {
-      if (parsedata == null) {
-        this.parsedata = new ArrayFile.Reader
-          (nfs, new File(segmentDir, ParseData.DIR_NAME).toString());
-      }
-      
-      ParseData entry = new ParseData();
-      parsedata.get(docNo, entry);
-      return entry;
-    }
-
-    public ParseText getParseText(int docNo) throws IOException {
-      if (text == null) {
-        this.text = new ArrayFile.Reader
-          (nfs, new File(segmentDir, ParseText.DIR_NAME).toString());
-      }
-
-      ParseText entry = new ParseText();
-      text.get(docNo, entry);
-      return entry;
+      return (CrawlDatum)getEntry(crawl, url, new CrawlDatum());
     }
     
+    public byte[] getContent(UTF8 url) throws IOException {
+      synchronized (this) {
+        if (content == null)
+          content = getReaders(Content.DIR_NAME);
+      }
+      return ((Content)getEntry(content, url, new Content())).getContent();
+    }
+
+    public ParseData getParseData(UTF8 url) throws IOException {
+      synchronized (this) {
+        if (parseData == null)
+          parseData = getReaders(ParseData.DIR_NAME);
+      }
+      return (ParseData)getEntry(parseData, url, new ParseData());
+    }
+
+    public ParseText getParseText(UTF8 url) throws IOException {
+      synchronized (this) {
+        if (parseText == null)
+          parseText = getReaders(ParseText.DIR_NAME);
+      }
+      return (ParseText)getEntry(parseText, url, new ParseText());
+    }
+    
+    private MapFile.Reader[] getReaders(String subDir) throws IOException {
+      return MapFileOutputFormat.getReaders(nfs, new File(segmentDir, subDir));
+    }
+
+    private Writable getEntry(MapFile.Reader[] readers, UTF8 url,
+                              Writable entry) throws IOException {
+      return MapFileOutputFormat.getEntry(readers, PARTITIONER, url, entry);
+    }
+
   }
 
   private HashMap segments = new HashMap();
@@ -104,10 +107,12 @@ public class FetchedSegments implements HitSummarizer, HitContent {
     if (segmentDirs != null) {
         for (int i = 0; i < segmentDirs.length; i++) {
             File segmentDir = segmentDirs[i];
-            File indexdone = new File(segmentDir, IndexSegment.DONE_NAME);
-            if (nfs.exists(indexdone) && nfs.isFile(indexdone)) {
-            	segments.put(segmentDir.getName(), new Segment(nfs, segmentDir));
-            }
+//             File indexdone = new File(segmentDir, IndexSegment.DONE_NAME);
+//             if (nfs.exists(indexdone) && nfs.isFile(indexdone)) {
+//             	segments.put(segmentDir.getName(), new Segment(nfs, segmentDir));
+//             }
+            segments.put(segmentDir.getName(), new Segment(nfs, segmentDir));
+
         }
     }
   }
@@ -117,31 +122,26 @@ public class FetchedSegments implements HitSummarizer, HitContent {
   }
 
   public byte[] getContent(HitDetails details) throws IOException {
-    return getSegment(details).getContent(getDocNo(details));
+    return getSegment(details).getContent(getUrl(details));
   }
 
   public ParseData getParseData(HitDetails details) throws IOException {
-    return getSegment(details).getParseData(getDocNo(details));
-  }
-
-  public String[] getAnchors(HitDetails details) throws IOException {
-    return getSegment(details).getFetcherOutput(getDocNo(details))
-      .getFetchListEntry().getAnchors();
+    return getSegment(details).getParseData(getUrl(details));
   }
 
   public long getFetchDate(HitDetails details) throws IOException {
-    return getSegment(details).getFetcherOutput(getDocNo(details))
-      .getFetchDate();
+    return getSegment(details).getCrawlDatum(getUrl(details))
+      .getFetchTime();
   }
 
   public ParseText getParseText(HitDetails details) throws IOException {
-    return getSegment(details).getParseText(getDocNo(details));
+    return getSegment(details).getParseText(getUrl(details));
   }
 
   public String getSummary(HitDetails details, Query query)
     throws IOException {
 
-    String text = getSegment(details).getParseText(getDocNo(details)).getText();
+    String text = getSegment(details).getParseText(getUrl(details)).getText();
 
     return new Summarizer().getSummary(text, query).toString();
   }
@@ -199,8 +199,8 @@ public class FetchedSegments implements HitSummarizer, HitContent {
     return (Segment)segments.get(details.getValue("segment"));
   }
 
-  private int getDocNo(HitDetails details) {
-    return Integer.parseInt(details.getValue("docNo"), 16);
+  private UTF8 getUrl(HitDetails details) {
+    return new UTF8(details.getValue("url"));
   }
 
 

@@ -47,12 +47,12 @@ public final class HitDetails implements Writable {
   }
 
   /** Construct minimal details from a segment name and document number. */
-  public HitDetails(String segment, String docNo) {
+  public HitDetails(String segment, String url) {
     this(new String[2], new String[2]);
     this.fields[0] = "segment";
     this.values[0] = segment;
-    this.fields[1] = "docNo";
-    this.values[1] = docNo;
+    this.fields[1] = "url";
+    this.values[1] = url;
   }
 
   /** Returns the number of fields contained in this. */
@@ -102,7 +102,7 @@ public final class HitDetails implements Writable {
 
   /** Display as a string. */
   public String toString() {
-    return getValue("segment") + "/" + getValue("docNo");
+    return getValue("segment") + "/" + getValue("url");
   }
 
   /** Display as HTML. */

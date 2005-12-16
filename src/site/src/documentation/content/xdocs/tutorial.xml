@@ -66,11 +66,11 @@ around one million pages on a handful of web servers.</p>
 
 <ol>
 
-<li>Create a flat file of root urls.  For example, to crawl the
-<code>nutch</code> site you might start with a file named
-<code>urls</code> containing just the Nutch home page.  All other
-Nutch pages should be reachable from this page.  The <code>urls</code>
-file would thus look like:
+<li>Create a directory with a flat file of root urls.  For example, to
+crawl the <code>nutch</code> site you might start with a file named
+<code>urls/nutch</code> containing the url of just the Nutch home
+page.  All other Nutch pages should be reachable from this page.  The
+<code>urls/nutch</code> file would thus contain:
 <source>
 http://lucene.apache.org/nutch/
 </source>
@@ -97,24 +97,28 @@ crawl command.  Its options include:</p>
 
 <ul>
 <li><code>-dir</code> <em>dir</em> names the directory to put the crawl in.</li>
-<li><code>-depth</code> <em>depth</em> indicates the link depth from the root
-page that should be crawled.</li>
-<li><code>-delay</code> <em>delay</em> determines the number of seconds
-between accesses to each host.</li>
 <li><code>-threads</code> <em>threads</em> determines the number of
 threads that will fetch in parallel.</li>
+<li><code>-depth</code> <em>depth</em> indicates the link depth from the root
+page that should be crawled.</li>
+<li><code>-topN</code> <em>N</em> determines the maximum number of pages that
+will be retrieved at each level up to the depth.</li>
 </ul>
 
 <p>For example, a typical call might be:</p>
 
 <source>
-bin/nutch crawl urls -dir crawl.test -depth 3 >&amp; crawl.log
+bin/nutch crawl urls -dir crawl -depth 3 -topN 50
 </source>
 
-<p>Typically one starts testing one's configuration by crawling at low
-depths, and watching the output to check that desired pages are found.
-Once one is more confident of the configuration, then an appropriate
-depth for a full crawl is around 10.</p>
+<p>Typically one starts testing one's configuration by crawling at
+shallow depths, sharply limiting the number of pages fetched at each
+level (<code>-topN</code>), and watching the output to check that
+desired pages are fetched and undesirable pages are not.  Once one is
+confident of the configuration, then an appropriate depth for a full
+crawl is around 10.  The number of pages per level
+(<code>-topN</code>) for a full crawl can be from tens of thousands to
+millions, depending on your resources.</p>
 
 <p>Once crawling has completed, one can skip to the Searching section
 below.</p>
@@ -131,54 +135,62 @@ take weeks to complete, running on multiple machines.</p>
 <section>
 <title>Whole-web: Concepts</title>
 
-<p>Nutch data is of two types:</p>
+<p>Nutch data is composed of:</p>
 
 <ol>
-  <li>The web database.  This contains information about every
-page known to Nutch, and about links between those pages.</li>
-  <li>A set of segments.  Each segment is a set of pages that are
-fetched and indexed as a unit.  Segment data consists of the
-following types:</li>
+
+  <li>The crawl database, or <em>crawldb</em>.  This contains
+information about every url known to Nutch, including whether it was
+fetched, and, if so, when.</li>
+
+  <li>The link database, or <em>linkdb</em>.  This contains the list
+of known links to each url, including both the source url and anchor
+text of the link.</li>
+
+  <li>A set of <em>segments</em>.  Each segment is a set of urls that are
+fetched as a unit.  Segments are directories with the following
+subdirectories:</li>
+
   <li><ul>
-    <li>a <em>fetchlist</em> is a file
-that names a set of pages to be fetched</li>
-    <li>the<em> fetcher output</em> is a
-set of files containing the fetched pages</li>
-    <li>the <em>index </em>is a
-Lucene-format index of the fetcher output.</li>
+    <li>a <em>crawl_generate</em> names a set of urls to be fetched</li>
+    <li>a <em>crawl_fetch</em> contains the status of fetching each url</li>
+    <li>a <em>content</em> contains the content of each url</li>
+    <li>a <em>parse_text</em> contains the parsed text of each url</li>
+    <li>a <em>parse_data</em> contains outlinks and metadata parsed
+    from each url</li>
+    <li>a <em>crawl_parse</em> contains the outlink urls, used to
+    update the crawldb</li>
   </ul></li>
+
+<li>The <em>indexes</em>are Lucene-format indexes.</li>
+
 </ol>
-<p>In the following examples we will keep our web database in a directory
-named <code>db</code> and our segments
-in a directory named <code>segments</code>:</p>
-<source>mkdir db
-mkdir segments</source>
 
 </section>
 <section>
 <title>Whole-web: Boostrapping the Web Database</title>
-<p>The admin tool is used to create a new, empty database:</p>
 
-<source>bin/nutch admin db -create</source>
-
-<p>The <em>injector</em> adds urls into the database.  Let's inject
-URLs from the <a href="http://dmoz.org/">DMOZ</a> Open
-Directory. First we must download and uncompress the file listing all
-of the DMOZ pages.  (This is a 200+Mb file, so this will take a few
-minutes.)</p>
+<p>The <em>injector</em> adds urls to the crawldb.  Let's inject URLs
+from the <a href="http://dmoz.org/">DMOZ</a> Open Directory. First we
+must download and uncompress the file listing all of the DMOZ pages.
+(This is a 200+Mb file, so this will take a few minutes.)</p>
 
 <source>wget http://rdf.dmoz.org/rdf/content.rdf.u8.gz
 gunzip content.rdf.u8.gz</source>
 
-<p>Next we inject a random subset of these pages into the web database.
+<p>Next we select a random subset of these pages.
  (We use a random subset so that everyone who runs this tutorial
 doesn't hammer the same sites.)  DMOZ contains around three million
-URLs.  We inject one out of every 3000, so that we end up with
+URLs.  We select one out of every 5000, so that we end up with
 around 1000 URLs:</p>
 
-<source>bin/nutch inject db -dmozfile content.rdf.u8 -subset 3000</source>
+<source>mkdir dmoz
+bin/nutch org.apache.nutch.crawl.DmozParser content.rdf.u8 -subset 5000 &gt; dmoz/urls</source>
 
-<p>This also takes a few minutes, as it must parse the full file.</p>
+<p>The parser also takes a few minutes, as it must parse the full
+file.  Finally, we initialize the crawl db with the selected urls.</p>
+
+<source>bin/nutch inject crawl/crawldb dmoz</source>
 
 <p>Now we have a web database with around 1000 as-yet unfetched URLs in it.</p>
 
@@ -186,39 +198,39 @@ around 1000 URLs:</p>
 <section>
 <title>Whole-web: Fetching</title>
 <p>To fetch, we first generate a fetchlist from the database:</p>
-<source>bin/nutch generate db segments
+<source>bin/nutch generate crawl/crawldb crawl/segments
 </source>
 <p>This generates a fetchlist for all of the pages due to be fetched.
  The fetchlist is placed in a newly created segment directory.
  The segment directory is named by the time it's created.  We
 save the name of this segment in the shell variable <code>s1</code>:</p>
-<source>s1=`ls -d segments/2* | tail -1`
+<source>s1=`ls -d crawl/segments/2* | tail -1`
 echo $s1
 </source>
 <p>Now we run the fetcher on this segment with:</p>
 <source>bin/nutch fetch $s1</source>
 <p>When this is complete, we update the database with the results of the
 fetch:</p>
-<source>bin/nutch updatedb db $s1</source>
+<source>bin/nutch updatedb crawl/crawldb $s1</source>
 <p>Now the database has entries for all of the pages referenced by the
 initial set.</p>
 
 <p>Now we fetch a new segment with the top-scoring 1000 pages:</p>
-<source>bin/nutch generate db segments -topN 1000
-s2=`ls -d segments/2* | tail -1`
+<source>bin/nutch generate crawl/crawldb crawl/segments -topN 1000
+s2=`ls -d crawl/segments/2* | tail -1`
 echo $s2
 
 bin/nutch fetch $s2
-bin/nutch updatedb db $s2
+bin/nutch updatedb crawl/crawldb $s2
 </source>
 <p>Let's fetch one more round:</p>
 <source>
-bin/nutch generate db segments -topN 1000
-s3=`ls -d segments/2* | tail -1`
+bin/nutch generate crawl/crawldb crawl/segments -topN 1000
+s3=`ls -d crawl/segments/2* | tail -1`
 echo $s3
 
 bin/nutch fetch $s3
-bin/nutch updatedb db $s3
+bin/nutch updatedb crawl/crawldb $s3
 </source>
 
 <p>By this point we've fetched a few thousand pages.  Let's index
@@ -227,16 +239,20 @@ them!</p>
 </section>
 <section>
 <title>Whole-web: Indexing</title>
-<p>To index each segment we use the <code>index</code>
-command, as follows:</p>
-<source>bin/nutch index $s1
-bin/nutch index $s2
-bin/nutch index $s3</source>
 
-<p>Then, before we can search a set of segments, we need to delete
-duplicate pages.  This is done with:</p>
+<p>Before indexing we first invert all of the links, so that we may
+index incoming anchor text with the pages.</p>
 
-<source>bin/nutch dedup segments dedup.tmp</source>
+<source>bin/nutch invertlinks crawl/linkdb crawl/segments</source>
+
+<p>To index the segments we use the <code>index</code> command, as follows:</p>
+
+<source>bin/nutch index indexes crawl/linkdb crawl/segments/*</source>
+
+<!-- <p>Then, before we can search a set of segments, we need to delete -->
+<!-- duplicate pages.  This is done with:</p> -->
+
+<!-- <source>bin/nutch dedup indexes</source> -->
 
 <p>Now we're ready to search!</p>
 
@@ -256,10 +272,8 @@ file may be installed with the commands:</p>
 cp nutch*.war ~/local/tomcat/webapps/ROOT.war
 </source>
 
-<p>The webapp finds its indexes in <code>./segments</code>, relative
-to where you start Tomcat, so, if you've done intranet crawling,
-connect to your crawl directory, or, if you've done whole-web
-crawling, don't change directories, and give the command:</p>
+<p>The webapp finds its indexes in <code>./crawl</code>, relative
+to where you start Tomcat, so use a command like:</p>
 
 <source>~/local/tomcat/bin/catalina.sh start
 </source>

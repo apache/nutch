@@ -18,6 +18,7 @@ package org.apache.nutch.io;
 
 import java.io.*;
 import java.util.*;
+import java.util.zip.*;
 import java.util.logging.*;
 import java.nio.channels.*;
 import java.net.InetAddress;
@@ -35,13 +36,15 @@ public class SequenceFile {
   private SequenceFile() {}                         // no public ctor
 
   private static byte[] VERSION = new byte[] {
-    (byte)'S', (byte)'E', (byte)'Q', 2
+    (byte)'S', (byte)'E', (byte)'Q', 3
   };
 
   private static final int SYNC_ESCAPE = -1;      // "length" of sync entries
-  private static final int SYNC_INTERVAL = 10;    // num entries between syncs
   private static final int SYNC_HASH_SIZE = 16;   // number of bytes in hash 
   private static final int SYNC_SIZE = 4+SYNC_HASH_SIZE; // escape + hash
+
+  /** The number of bytes between sync points.*/
+  public static final int SYNC_INTERVAL = 100*SYNC_SIZE; 
 
   /** Write key/value pairs to a sequence-format file. */
   public static class Writer {
@@ -53,11 +56,16 @@ public class SequenceFile {
     private Class keyClass;
     private Class valClass;
 
+    private boolean deflateValues;
+    private DataOutputBuffer deflateIn = new DataOutputBuffer();
+    private byte[] deflateOut = new byte[1024];
+    private Deflater deflater = new Deflater(Deflater.BEST_SPEED);
+
     // Insert a globally unique 16-byte value every few entries, so that one
     // can seek into the middle of a file and then synchronize with record
     // starts and ends by scanning for this value.
-    private long count;                           // number of entries added
-    private final byte[] sync;                    // 16 random bytes
+    private long lastSyncPos;                     // position of last sync
+    private byte[] sync;                          // 16 random bytes
     {
       try {                                       // use hash of uid + host
         MessageDigest digester = MessageDigest.getInstance("MD5");
@@ -72,32 +80,43 @@ public class SequenceFile {
     public Writer(NutchFileSystem nfs, String name,
                   Class keyClass, Class valClass)
       throws IOException {
+      this(nfs, name, keyClass, valClass, false);
+    }
+    
+    /** Create the named file.
+     * @param compress if true, values are compressed.
+     */
+    public Writer(NutchFileSystem nfs, String name,
+                  Class keyClass, Class valClass, boolean compress)
+      throws IOException {
       this.nfs = nfs;
       this.target = new File(name);
-      if (nfs.exists(target)) {
-        throw new IOException("already exists: " + target);
-      }
-      init(new NFSDataOutputStream(nfs.create(target)),
-           keyClass, valClass);
+      init(nfs.create(target), keyClass, valClass, compress);
     }
     
     /** Write to an arbitrary stream using a specified buffer size. */
     private Writer(NFSDataOutputStream out,
-                   Class keyClass, Class valClass) throws IOException {
-      init(out, keyClass, valClass);
+                   Class keyClass, Class valClass, boolean compress)
+      throws IOException {
+      init(out, keyClass, valClass, compress);
     }
     
     /** Write and flush the file header. */
     private void init(NFSDataOutputStream out,
-                      Class keyClass, Class valClass) throws IOException {
+                      Class keyClass, Class valClass,
+                      boolean compress) throws IOException {
       this.out = out;
       this.out.write(VERSION);
 
       this.keyClass = keyClass;
       this.valClass = valClass;
 
+      this.deflateValues = compress;
+
       new UTF8(WritableName.getName(keyClass)).write(this.out);
       new UTF8(WritableName.getName(valClass)).write(this.out);
+
+      this.out.writeBoolean(deflateValues);
 
       out.write(sync);                            // write the sync bytes
 
@@ -113,7 +132,7 @@ public class SequenceFile {
 
 
     /** Close the file. */
-    public void close() throws IOException {
+    public synchronized void close() throws IOException {
       if (out != null) {
         out.close();
         out = null;
@@ -121,7 +140,8 @@ public class SequenceFile {
     }
 
     /** Append a key/value pair. */
-    public void append(Writable key, Writable val) throws IOException {
+    public synchronized void append(Writable key, Writable val)
+      throws IOException {
       if (key.getClass() != keyClass)
         throw new IOException("wrong key class: "+key+" is not "+keyClass);
       if (val.getClass() != valClass)
@@ -134,17 +154,33 @@ public class SequenceFile {
       if (keyLength == 0)
         throw new IOException("zero length keys not allowed: " + key);
 
-      val.write(buffer);
+      if (deflateValues) {
+        deflateIn.reset();
+        val.write(deflateIn);
+        deflater.reset();
+        deflater.setInput(deflateIn.getData(), 0, deflateIn.getLength());
+        deflater.finish();
+        while (!deflater.finished()) {
+          int count = deflater.deflate(deflateOut);
+          buffer.write(deflateOut, 0, count);
+        }
+      } else {
+        val.write(buffer);
+      }
+
       append(buffer.getData(), 0, buffer.getLength(), keyLength);
     }
 
     /** Append a key/value pair. */
-    public void append(byte[] data, int start, int length, int keyLength)
-      throws IOException {
+    public synchronized void append(byte[] data, int start, int length,
+                                    int keyLength) throws IOException {
       if (keyLength == 0)
         throw new IOException("zero length keys not allowed");
 
-      if ((++count % SYNC_INTERVAL) == 0) {       // time to emit sync
+      if (sync != null &&
+          out.getPos() >= lastSyncPos+SYNC_INTERVAL) { // time to emit sync
+        lastSyncPos = out.getPos();               // update lastSyncPos
+        //LOG.info("sync@"+lastSyncPos);
         out.writeInt(SYNC_ESCAPE);                // escape it
         out.write(sync);                          // write sync
       }
@@ -156,7 +192,7 @@ public class SequenceFile {
     }
 
     /** Returns the current length of the output file. */
-    public long getLength() throws IOException {
+    public synchronized long getLength() throws IOException {
       return out.getPos();
     }
 
@@ -182,6 +218,11 @@ public class SequenceFile {
     private long end;
     private int keyLength;
 
+    private boolean inflateValues;
+    private byte[] inflateIn = new byte[1024];
+    private DataOutputBuffer inflateOut = new DataOutputBuffer();
+    private Inflater inflater = new Inflater();
+
     /** Open the named file. */
     public Reader(NutchFileSystem nfs, String file) throws IOException {
       this(nfs, file, NutchConf.get().getInt("io.file.buffer.size", 4096));
@@ -191,7 +232,7 @@ public class SequenceFile {
       this.nfs = nfs;
       this.file = name;
       File file = new File(name);
-      this.in = new NFSDataInputStream(nfs.open(file), bufferSize);
+      this.in = nfs.open(file, bufferSize);
       this.end = nfs.getLength(file);
       init();
     }
@@ -200,7 +241,7 @@ public class SequenceFile {
       throws IOException {
       this.nfs = nfs;
       this.file = file;
-      this.in = new NFSDataInputStream(nfs.open(new File(file)), bufferSize);
+      this.in = nfs.open(new File(file), bufferSize);
       seek(start);
       init();
 
@@ -226,6 +267,10 @@ public class SequenceFile {
       className.readFields(in);                   // read val class name
       this.valClass = WritableName.getClass(className.toString());
 
+      if (version[3] > 2) {                       // if version > 2
+        this.inflateValues = in.readBoolean();    // is compressed?
+      }
+
       if (version[3] > 1) {                       // if version > 1
         in.readFully(sync);                       // read sync bytes
       }
@@ -241,6 +286,9 @@ public class SequenceFile {
 
     /** Returns the class of values in this file. */
     public Class getValueClass() { return valClass; }
+
+    /** Returns true if values are compressed. */
+    public boolean isCompressed() { return inflateValues; }
 
     /** Read the next key in the file into <code>key</code>, skipping its
      * value.  True if another entry exists, and false at end of file. */
@@ -275,11 +323,29 @@ public class SequenceFile {
       boolean more = next(key);
 
       if (more) {
+
+        if (inflateValues) {
+          inflater.reset();
+          inflater.setInput(outBuf.getData(), keyLength,
+                            outBuf.getLength()-keyLength);
+          inflateOut.reset();
+          while (!inflater.finished()) {
+            try {
+              int count = inflater.inflate(inflateIn);
+              inflateOut.write(inflateIn, 0, count);
+            } catch (DataFormatException e) {
+              throw new IOException (e.toString());
+            }
+          }
+          inBuf.reset(inflateOut.getData(), inflateOut.getLength());
+        }
+
         val.readFields(inBuf);
-        if (inBuf.getPosition() != outBuf.getLength())
+
+        if (inBuf.getPosition() != inBuf.getLength())
           throw new IOException(val+" read "+(inBuf.getPosition()-keyLength)
                                 + " bytes, should read " +
-                                (outBuf.getLength()-keyLength));
+                                (inBuf.getLength()-keyLength));
       }
 
       return more;
@@ -293,21 +359,39 @@ public class SequenceFile {
       if (in.getPos() >= end)
         return -1;
 
-      int length = in.readInt();
+      try {
+        int length = in.readInt();
 
-      if (version[3] > 1 && length == SYNC_ESCAPE) { // process a sync entry
-        in.readFully(syncCheck);                  // read syncCheck
-        if (!Arrays.equals(sync, syncCheck))      // check it
-          throw new IOException("File is corrupt!");
-        syncSeen = true;
-        length = in.readInt();                    // re-read length
-      } else {
-        syncSeen = false;
+        if (version[3] > 1 && sync != null &&
+            length == SYNC_ESCAPE) {              // process a sync entry
+          //LOG.info("sync@"+in.getPos());
+          in.readFully(syncCheck);                // read syncCheck
+          if (!Arrays.equals(sync, syncCheck))    // check it
+            throw new IOException("File is corrupt!");
+          syncSeen = true;
+          length = in.readInt();                  // re-read length
+        } else {
+          syncSeen = false;
+        }
+        
+        int keyLength = in.readInt();
+        buffer.write(in, length);
+        return keyLength;
+
+      } catch (ChecksumException e) {             // checksum failure
+        handleChecksumException(e);
+        return next(buffer);
       }
+    }
 
-      int keyLength = in.readInt();
-      buffer.write(in, length);
-      return keyLength;
+    private void handleChecksumException(ChecksumException e)
+      throws IOException {
+      if (NutchConf.get().getBoolean("io.skip.checksum.errors", false)) {
+        LOG.warning("Bad checksum at "+getPosition()+". Skipping entries.");
+        sync(getPosition()+NutchConf.get().getInt("io.bytes.per.checksum", 512));
+      } else {
+        throw e;
+      }
     }
 
     /** Set the current byte position in the input file. */
@@ -317,23 +401,29 @@ public class SequenceFile {
 
     /** Seek to the next sync mark past a given position.*/
     public synchronized void sync(long position) throws IOException {
-      if (position+sync.length >= end) {
+      if (position+SYNC_SIZE >= end) {
         seek(end);
         return;
       }
 
-      seek(position);
-      in.readFully(syncCheck);
-      int syncLen = sync.length;
-      for (int i = 0; in.getPos() < end; i++) {
-        int j = 0;
-        for (; j < syncLen; j++) {
-          if (sync[j] != syncCheck[(i+j)%syncLen])
-            break;
+      try {
+        seek(position+4);                         // skip escape
+        in.readFully(syncCheck);
+        int syncLen = sync.length;
+        for (int i = 0; in.getPos() < end; i++) {
+          int j = 0;
+          for (; j < syncLen; j++) {
+            if (sync[j] != syncCheck[(i+j)%syncLen])
+              break;
+          }
+          if (j == syncLen) {
+            in.seek(in.getPos() - SYNC_SIZE);     // position before sync
+            return;
+          }
+          syncCheck[i%syncLen] = in.readByte();
         }
-        if (j == syncLen)
-          return;
-        syncCheck[i%syncLen] = in.readByte();
+      } catch (ChecksumException e) {             // checksum failure
+        handleChecksumException(e);
       }
     }
 
@@ -514,20 +604,22 @@ public class SequenceFile {
       private void flush(int count, boolean done) throws IOException {
         if (out == null) {
           outName = done ? outFile : outFile+".0";
-          out = new NFSDataOutputStream(nfs.create(new File(outName)));
+          out = nfs.create(new File(outName));
         }
 
         if (!done) {                              // an intermediate file
 
           long length = buffer.getLength();       // compute its size
           length += count*8;                      // allow for length/keyLength
-          length += (count/SYNC_INTERVAL)*SYNC_SIZE; // allow for syncs
 
           out.writeLong(length);                  // write size
           out.writeLong(count);                   // write count
         }
 
-        Writer writer = new Writer(out, keyClass, valClass);
+        Writer writer = new Writer(out, keyClass, valClass, in.isCompressed());
+        if (!done) {
+          writer.sync = null;                     // disable sync on temp files
+        }
 
         for (int i = 0; i < count; i++) {         // write in sorted order
           int p = pointers[i];
@@ -606,10 +698,11 @@ public class SequenceFile {
         this.pass = pass;
         this.last = last;
 
-        this.queue = new MergeQueue(factor, last ? outFile : outFile+"."+pass);
+        this.queue =
+          new MergeQueue(factor, last ? outFile : outFile+"."+pass, last);
 
         this.inName = outFile+"."+(pass-1);
-        this.in = new NFSDataInputStream(nfs.open(new File(inName)));
+        this.in = nfs.open(new File(inName));
       }
 
       public void close() throws IOException {
@@ -632,21 +725,21 @@ public class SequenceFile {
             long count = in.readLong();
 
             totalLength += length;
-            totalLength -= (count/SYNC_INTERVAL)*SYNC_SIZE; // remove syncs
 
             totalCount+= count;
 
             Reader reader = new Reader(nfs, inName, memory/(factor+1),
                                        in.getPos(), length);
+            reader.sync = null;                   // disable sync on temp files
+
             MergeStream ms = new MergeStream(reader); // add segment to queue
             if (ms.next()) {
-              queue.put(ms);
+              queue.add(ms);
             }
             in.seek(reader.end);
           }
 
           if (!last) {                             // intermediate file
-            totalLength += (totalCount/SYNC_INTERVAL)*SYNC_SIZE; // add syncs
             queue.out.writeLong(totalLength);     // write size
             queue.out.writeLong(totalCount);      // write count
           }
@@ -683,7 +776,7 @@ public class SequenceFile {
       private MergeQueue queue;
 
       public MergeFiles() throws IOException {
-        this.queue = new MergeQueue(factor, outFile);
+        this.queue = new MergeQueue(factor, outFile, true);
       }
 
       public void close() throws IOException {
@@ -729,12 +822,23 @@ public class SequenceFile {
 
     private class MergeQueue extends PriorityQueue {
       private NFSDataOutputStream out;
+      private boolean done;
+      private boolean compress;
 
-      public MergeQueue(int size, String outName) throws IOException {
+      public void add(MergeStream stream) throws IOException {
+        if (size() == 0) {
+          compress = stream.in.isCompressed();
+        } else if (compress != stream.in.isCompressed()) {
+          throw new IOException("All merged files must be compressed or not.");
+        }
+        put(stream);
+      }
+
+      public MergeQueue(int size, String outName, boolean done)
+        throws IOException {
         initialize(size);
-        this.out =
-          new NFSDataOutputStream(nfs.create(new File(outName)),
-                                  memory/(factor+1));
+        this.out = nfs.create(new File(outName), true, memory/(factor+1));
+        this.done = done;
       }
 
       protected boolean lessThan(Object a, Object b) {
@@ -745,7 +849,10 @@ public class SequenceFile {
       }
 
       public void merge() throws IOException {
-        Writer writer = new Writer(out, keyClass, valClass);
+        Writer writer = new Writer(out, keyClass, valClass, compress);
+        if (!done) {
+          writer.sync = null;                     // disable sync on temp files
+        }
 
         while (size() != 0) {
           MergeStream ms = (MergeStream)top();

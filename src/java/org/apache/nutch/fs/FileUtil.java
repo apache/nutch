@@ -18,6 +18,8 @@ package org.apache.nutch.fs;
 
 import java.io.*;
 
+import org.apache.nutch.util.NutchConf;
+
 /**
  * A collection of file-processing util methods
  */
@@ -52,10 +54,10 @@ public class FileUtil {
         }
 
         if (nfs.isFile(src)) {
-            DataInputStream in = new DataInputStream(nfs.open(src));
+            NFSInputStream in = nfs.openRaw(src);
             try {
-                DataOutputStream out = new DataOutputStream(nfs.create(dst));
-                byte buf[] = new byte[2048];
+                NFSOutputStream out = nfs.createRaw(dst, true);
+                byte buf[] = new byte[NutchConf.get().getInt("io.file.buffer.size", 4096)];
                 try {
                     int readBytes = in.read(buf);
 
@@ -71,7 +73,7 @@ public class FileUtil {
             }
         } else {
             nfs.mkdirs(dst);
-            File contents[] = nfs.listFiles(src);
+            File contents[] = nfs.listFilesRaw(src);
             if (contents != null) {
                 for (int i = 0; i < contents.length; i++) {
                     File newDst = new File(dst, contents[i].getName());
