@@ -70,21 +70,35 @@ public class MapFile {
 
 
     /** Create the named map for keys of the named class. */
-    public Writer(NutchFileSystem nfs, String dirName, Class keyClass, Class valClass)
+    public Writer(NutchFileSystem nfs, String dirName,
+                  Class keyClass, Class valClass)
       throws IOException {
-      this(nfs, dirName, WritableComparator.get(keyClass), valClass);
+      this(nfs, dirName, WritableComparator.get(keyClass), valClass, false);
+    }
+
+    /** Create the named map for keys of the named class. */
+    public Writer(NutchFileSystem nfs, String dirName,
+                  Class keyClass, Class valClass, boolean compress)
+      throws IOException {
+      this(nfs, dirName, WritableComparator.get(keyClass), valClass, compress);
     }
 
     /** Create the named map using the named key comparator. */
-    public Writer(NutchFileSystem nfs, String dirName, WritableComparator 
-                  comparator, Class valClass) throws IOException {
+    public Writer(NutchFileSystem nfs, String dirName,
+                  WritableComparator comparator, Class valClass)
+      throws IOException {
+      this(nfs, dirName, comparator, valClass, false);
+    }
+    /** Create the named map using the named key comparator. */
+    public Writer(NutchFileSystem nfs, String dirName,
+                  WritableComparator comparator, Class valClass,
+                  boolean compress)
+      throws IOException {
+
       this.comparator = comparator;
       this.lastKey = comparator.newKey();
 
       File dir = new File(dirName);
-      if (nfs.exists(dir)) {
-          throw new IOException("already exists: " + dir);
-      }
       nfs.mkdirs(dir);
 
       File dataFile = new File(dir, DATA_FILE_NAME);
@@ -92,7 +106,8 @@ public class MapFile {
 
       Class keyClass = comparator.getKeyClass();
       this.data =
-        new SequenceFile.Writer(nfs, dataFile.getPath(), keyClass, valClass);
+        new SequenceFile.Writer(nfs, dataFile.getPath(), keyClass, valClass,
+                                compress);
       this.index =
         new SequenceFile.Writer(nfs, indexFile.getPath(),
                                 keyClass, LongWritable.class);
@@ -112,8 +127,8 @@ public class MapFile {
       index.close();
     }
 
-    /** Append a key/value pair to the map.  The key must be strictly greater
-     * than the previous key added to the map. */
+    /** Append a key/value pair to the map.  The key must be greater or equal
+     * to the previous key added to the map. */
     public synchronized void append(WritableComparable key, Writable val)
       throws IOException {
 
@@ -130,7 +145,7 @@ public class MapFile {
 
     private void checkKey(WritableComparable key) throws IOException {
       // check that keys are well-ordered
-      if (size != 0 && comparator.compare(lastKey, key) >= 0)
+      if (size != 0 && comparator.compare(lastKey, key) > 0)
         throw new IOException("key out of order: "+key+" after "+lastKey);
           
       // update lastKey with a copy of key by writing and reading
@@ -219,7 +234,7 @@ public class MapFile {
             break;
 
           // check order to make sure comparator is compatible
-          if (lastKey != null && comparator.compare(lastKey, k) >= 0)
+          if (lastKey != null && comparator.compare(lastKey, k) > 0)
             throw new IOException("key out of order: "+k+" after "+lastKey);
           lastKey = k;
           

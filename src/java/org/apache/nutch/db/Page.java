@@ -64,6 +64,10 @@ public class Page implements WritableComparable, Cloneable {
     md5 = new MD5Hash();    // initialize for readFields()
   }
 
+  public Page(UTF8 url) {
+    this.url = url;
+  }
+
   /** Construct a new, default page, due to be fetched. */
   public Page(String urlString, MD5Hash md5) throws MalformedURLException {
     setURL(urlString);

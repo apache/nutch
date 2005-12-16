@@ -22,6 +22,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Enumeration;
 
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiReader;
 
@@ -34,6 +37,7 @@ import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
+import org.apache.nutch.fs.*;
 import org.apache.nutch.io.*;
 import org.apache.nutch.util.*;
 import org.apache.nutch.db.*;
@@ -43,7 +47,7 @@ import org.apache.nutch.indexer.*;
 import org.apache.nutch.analysis.NutchDocumentAnalyzer;
 
 /** Implements {@link Searcher} and {@link HitDetailer} for either a single
- * merged index, or for a set of individual segment indexes. */
+ * merged index, or a set of indexes. */
 public class IndexSearcher implements Searcher, HitDetailer {
 
   private org.apache.lucene.search.Searcher luceneSearcher;
@@ -53,26 +57,34 @@ public class IndexSearcher implements Searcher, HitDetailer {
     (NutchConf.get().getInt("searcher.filter.cache.size", 16),
      NutchConf.get().getFloat("searcher.filter.cache.threshold", 0.05f));
 
-  /** Construct given a number of indexed segments. */
-  public IndexSearcher(File[] segmentDirs) throws IOException {
-    IndexReader[] readers = new IndexReader[segmentDirs.length];
-    for (int i = 0; i < segmentDirs.length; i++) {
-      readers[i] = IndexReader.open(new File(segmentDirs[i], "index"));
+  /** Construct given a number of indexes. */
+  public IndexSearcher(File[] indexDirs) throws IOException {
+    IndexReader[] readers = new IndexReader[indexDirs.length];
+    for (int i = 0; i < indexDirs.length; i++) {
+      readers[i] = IndexReader.open(getDirectory(indexDirs[i]));
     }
     init(new MultiReader(readers));
   }
 
-  /** Construct given a directory containing fetched segments, and a separate
-   * directory naming their merged index. */
-  public IndexSearcher(String index)
+  /** Construct given a single merged index. */
+  public IndexSearcher(File index)
     throws IOException {
-    init(IndexReader.open(index));
+    init(IndexReader.open(getDirectory(index)));
   }
 
   private void init(IndexReader reader) throws IOException {
     this.reader = reader;
     this.luceneSearcher = new org.apache.lucene.search.IndexSearcher(reader);
     this.luceneSearcher.setSimilarity(new NutchSimilarity());
+  }
+
+  private Directory getDirectory(File file) throws IOException {
+    NutchFileSystem fs = NutchFileSystem.get();
+    if ("local".equals(fs.getName())) {
+      return FSDirectory.getDirectory(file, false);
+    } else {
+      return new NdfsDirectory(fs, file, false);
+    }
   }
 
   public Hits search(Query query, int numHits,

@@ -1656,7 +1656,7 @@ public class DistributedWebDBWriter implements IWebDBWriter {
         }
 
         // Bump number by 1.
-        DataOutputStream out = new DataOutputStream(nfs.create(openCounter, true));
+        DataOutputStream out = nfs.create(openCounter);
         try {
             out.write(OPEN_COUNTER_VERSION);
             out.writeInt(numOpens + 1);
@@ -1793,7 +1793,7 @@ public class DistributedWebDBWriter implements IWebDBWriter {
         // 7. Finally, write out the total num of pages and links
         //
         File sectionStats = new File(newSectionDir, STATS_FILE);
-        DataOutputStream out = new DataOutputStream(nfs.create(sectionStats, true));
+        DataOutputStream out = nfs.create(sectionStats);
         try {
             //
             // These counts are guaranteed to be correct; they're
@@ -1854,7 +1854,7 @@ public class DistributedWebDBWriter implements IWebDBWriter {
         }
         
         // Bump that number by 1.
-        out = new DataOutputStream(nfs.create(closeCounter, true));
+        out = nfs.create(closeCounter);
         try {
             out.write(CLOSE_COUNTER_VERSION);
             out.writeInt(numCloses + 1);

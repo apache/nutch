@@ -32,10 +32,7 @@ public interface HitContent {
   /** Returns the ParseText of a hit document. */
   ParseText getParseText(HitDetails details) throws IOException;
 
-  /** Returns the anchors of a hit document. */
-  String[] getAnchors(HitDetails details) throws IOException;
-
-  /** Returns the anchors of a hit document. */
+  /** Returns the fetch date of a hit document. */
   long getFetchDate(HitDetails details) throws IOException;
 
 }

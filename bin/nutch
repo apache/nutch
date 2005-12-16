@@ -29,29 +29,25 @@ if [ $# = 0 ]; then
   echo "Usage: nutch COMMAND"
   echo "where COMMAND is one of:"
   echo "  crawl             one-step crawler for intranets"
+  echo "  readdb            read / dump crawl db"
+  echo "  readlinkdb        read / dump link db"
   echo "  admin             database administration, including creation"
   echo "  inject            inject new urls into the database"
   echo "  generate          generate new segments to fetch"
-  echo "  fetchlist         print the fetchlist of a segment"
   echo "  fetch             fetch a segment's pages"
   echo "  parse             parse a segment's pages"
-  echo "  index             run the indexer on a segment's fetcher output"
+  echo "  updatedb          update crawl db from segments after fetching"
+  echo "  invertlinks       create a linkdb from parsed segments"
+  echo "  index             run the indexer on parsed segments and linkdb"
   echo "  merge             merge several segment indexes"
   echo "  dedup             remove duplicates from a set of segment indexes"
-  echo "  updatedb          update db from segments after fetching"
-  echo "  updatesegs        update segments with link data from the db"
-  echo "  mergesegs         merge multiple segments into a single segment"
-  echo "  readdb            examine arbitrary fields of the database"
-  echo "  analyze           adjust database link-analysis scoring"
-  echo "  prune             prune segment index(es) of unwanted content"
-  echo "  segread           read, fix and dump segment data"
-  echo "  segslice          append, join and slice segment data"
   echo "  server            run a search server"
   echo "  namenode          run the NDFS namenode"
   echo "  datanode          run an NDFS datanode"
   echo "  ndfs              run an NDFS admin client"
   echo "  jobtracker        run the MapReduce job Tracker node" 
   echo "  tasktracker       run a MapReduce task Tracker node" 
+  echo "  job               manipulate MapReduce jobs" 
   echo " or"
   echo "  CLASSNAME         run the class named CLASSNAME"
   echo "Most commands print help when invoked w/o parameters."
@@ -68,7 +64,7 @@ NUTCH_HOME=`cd "$THIS_DIR/.." ; pwd`
 
 # some Java parameters
 if [ "$NUTCH_JAVA_HOME" != "" ]; then
-  echo "run java in $NUTCH_JAVA_HOME"
+  #echo "run java in $NUTCH_JAVA_HOME"
   JAVA_HOME=$NUTCH_JAVA_HOME
 fi
   
@@ -82,13 +78,14 @@ JAVA_HEAP_MAX=-Xmx1000m
 
 # check envvars which might override default args
 if [ "$NUTCH_HEAPSIZE" != "" ]; then
-  echo "run with heapsize $NUTCH_HEAPSIZE"
+  #echo "run with heapsize $NUTCH_HEAPSIZE"
   JAVA_HEAP_MAX="-Xmx""$NUTCH_HEAPSIZE""m"
-  echo $JAVA_HEAP_MAX
+  #echo $JAVA_HEAP_MAX
 fi
 
 # CLASSPATH initially contains $NUTCH_CONF_DIR, or defaults to $NUTCH_HOME/conf
 CLASSPATH=${NUTCH_CONF_DIR:=$NUTCH_HOME/conf}
+CLASSPATH=${CLASSPATH}:$JAVA_HOME/lib/tools.jar
 
 # for developers, add Nutch classes to CLASSPATH
 if [ -d "$NUTCH_HOME/build/classes" ]; then
@@ -119,7 +116,7 @@ for f in $NUTCH_HOME/lib/*.jar; do
   CLASSPATH=${CLASSPATH}:$f;
 done
 
-for f in $NUTCH_HOME/lib/jettyext/*.jar; do
+for f in $NUTCH_HOME/lib/jetty-ext/*.jar; do
   CLASSPATH=${CLASSPATH}:$f;
 done
 
@@ -128,53 +125,43 @@ unset IFS
 
 # figure out which class to run
 if [ "$COMMAND" = "crawl" ] ; then
-  CLASS=org.apache.nutch.tools.CrawlTool
-elif [ "$COMMAND" = "admin" ] ; then
-  CLASS=org.apache.nutch.tools.WebDBAdminTool
+  CLASS=org.apache.nutch.crawl.Crawl
 elif [ "$COMMAND" = "inject" ] ; then
-  CLASS=org.apache.nutch.db.WebDBInjector
+  CLASS=org.apache.nutch.crawl.Injector
 elif [ "$COMMAND" = "generate" ] ; then
-  CLASS=org.apache.nutch.tools.FetchListTool
-elif [ "$COMMAND" = "fetchlist" ] ; then
-  CLASS=org.apache.nutch.pagedb.FetchListEntry
+  CLASS=org.apache.nutch.crawl.Generator
 elif [ "$COMMAND" = "fetch" ] ; then
-  CLASS=org.apache.nutch.fetcher.Fetcher
+  CLASS=org.apache.nutch.crawl.Fetcher
 elif [ "$COMMAND" = "parse" ] ; then
-  CLASS=org.apache.nutch.tools.ParseSegment
+  CLASS=org.apache.nutch.crawl.ParseSegment
+elif [ "$COMMAND" = "readdb" ] ; then
+  CLASS=org.apache.nutch.crawl.CrawlDbReader
+elif [ "$COMMAND" = "readlinkdb" ] ; then
+  CLASS=org.apache.nutch.crawl.LinkDbReader
+elif [ "$COMMAND" = "updatedb" ] ; then
+  CLASS=org.apache.nutch.crawl.CrawlDb
+elif [ "$COMMAND" = "invertlinks" ] ; then
+  CLASS=org.apache.nutch.crawl.LinkDb
 elif [ "$COMMAND" = "index" ] ; then
-  CLASS=org.apache.nutch.indexer.IndexSegment
+  CLASS=org.apache.nutch.crawl.Indexer
+elif [ "$COMMAND" = "dedup" ] ; then
+  CLASS=org.apache.nutch.crawl.DeleteDuplicates
 elif [ "$COMMAND" = "merge" ] ; then
   CLASS=org.apache.nutch.indexer.IndexMerger
-elif [ "$COMMAND" = "dedup" ] ; then
-  CLASS=org.apache.nutch.indexer.DeleteDuplicates
-elif [ "$COMMAND" = "updatedb" ] ; then
-  CLASS=org.apache.nutch.tools.UpdateDatabaseTool
-elif [ "$COMMAND" = "updatesegs" ] ; then
-  CLASS=org.apache.nutch.tools.UpdateSegmentsFromDb
-elif [ "$COMMAND" = "mergesegs" ] ; then
-  CLASS=org.apache.nutch.tools.SegmentMergeTool
-elif [ "$COMMAND" = "readdb" ] ; then
-  CLASS=org.apache.nutch.db.WebDBReader
-elif [ "$COMMAND" = "prune" ] ; then
-  CLASS=org.apache.nutch.tools.PruneIndexTool
-elif [ "$COMMAND" = "segread" ] ; then
-  CLASS=org.apache.nutch.segment.SegmentReader
-elif [ "$COMMAND" = "segslice" ] ; then
-  CLASS=org.apache.nutch.segment.SegmentSlicer
-elif [ "$COMMAND" = "analyze" ] ; then
-  CLASS=org.apache.nutch.tools.LinkAnalysisTool
 elif [ "$COMMAND" = "server" ] ; then
   CLASS='org.apache.nutch.searcher.DistributedSearch$Server'
 elif [ "$COMMAND" = "namenode" ] ; then
-  CLASS='org.apache.nutch.ndfs.NDFS$NameNode'
+  CLASS='org.apache.nutch.ndfs.NameNode'
 elif [ "$COMMAND" = "datanode" ] ; then
-  CLASS='org.apache.nutch.ndfs.NDFS$DataNode'
+  CLASS='org.apache.nutch.ndfs.DataNode'
 elif [ "$COMMAND" = "ndfs" ] ; then
-  CLASS=org.apache.nutch.fs.TestClient
+  CLASS=org.apache.nutch.fs.NDFSShell
 elif [ "$COMMAND" = "jobtracker" ] ; then
-  CLASS=org.apache.nutch.mapReduce.JobTracker
+  CLASS=org.apache.nutch.mapred.JobTracker
 elif [ "$COMMAND" = "tasktracker" ] ; then
-  CLASS=org.apache.nutch.mapReduce.TaskTracker
+  CLASS=org.apache.nutch.mapred.TaskTracker
+elif [ "$COMMAND" = "job" ] ; then
+  CLASS=org.apache.nutch.mapred.JobClient
 else
   CLASS=$COMMAND
 fi

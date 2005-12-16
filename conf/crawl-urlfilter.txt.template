@@ -12,10 +12,13 @@
 -^(file|ftp|mailto):
 
 # skip image and other suffixes we can't yet parse
--\.(gif|GIF|jpg|JPG|ico|ICO|css|sit|eps|wmf|zip|ppt|mpg|xls|gz|rpm|tgz|mov|MOV|exe|png|PNG)$
+-\.(gif|GIF|jpg|JPG|ico|ICO|css|sit|eps|wmf|zip|ppt|mpg|xls|gz|rpm|tgz|mov|MOV|exe|png)$
 
 # skip URLs containing certain characters as probable queries, etc.
 -[?*!@=]
+
+# skip URLs with slash-delimited segment that repeats 3+ times, to break loops
+-.*(/.+?)/.*?\1/.*?\1/
 
 # accept hosts in MY.DOMAIN.NAME
 +^http://([a-z0-9]*\.)*MY.DOMAIN.NAME/

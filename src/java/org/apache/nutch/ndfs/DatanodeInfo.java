@@ -27,35 +27,36 @@ import java.util.*;
  * @author Mike Cafarella
  **************************************************/
 public class DatanodeInfo implements Writable, Comparable {
-    UTF8 name;
-    long capacity, remaining, lastUpdate, lastObsoleteCheck;
-    volatile TreeSet blocks;
+    private UTF8 name;
+    private long capacityBytes, remainingBytes, lastUpdate;
+    private volatile TreeSet blocks;
 
-    /**
+    /** Create an empty DatanodeInfo.
      */
     public DatanodeInfo() {
         this(new UTF8(), 0, 0);
     }
 
+   /**
+    * @param name hostname:portNumber as UTF8 object.
+    */
     public DatanodeInfo(UTF8 name) {
         this.name = name;
-        int colon = name.toString().indexOf(":");
         this.blocks = new TreeSet();
-        this.lastObsoleteCheck = System.currentTimeMillis();
         updateHeartbeat(0, 0);        
     }
 
-    /**
-     */
+   /**
+    * @param name hostname:portNumber as UTF8 object.
+    */
     public DatanodeInfo(UTF8 name, long capacity, long remaining) {
         this.name = name;
         this.blocks = new TreeSet();
-        this.lastObsoleteCheck = System.currentTimeMillis();
         updateHeartbeat(capacity, remaining);
     }
 
-    /**
-     */
+   /**
+    */
     public void updateBlocks(Block newBlocks[]) {
         blocks.clear();
         for (int i = 0; i < newBlocks.length; i++) {
@@ -63,8 +64,8 @@ public class DatanodeInfo implements Writable, Comparable {
         }
     }
 
-    /**
-     */
+   /**
+    */
     public void addBlock(Block b) {
         blocks.add(b);
     }
@@ -72,13 +73,21 @@ public class DatanodeInfo implements Writable, Comparable {
     /**
      */
     public void updateHeartbeat(long capacity, long remaining) {
-        this.capacity = capacity;
-        this.remaining = remaining;
+        this.capacityBytes = capacity;
+        this.remainingBytes = remaining;
         this.lastUpdate = System.currentTimeMillis();
     }
+
+    /**
+     * @return hostname:portNumber as UTF8 object.
+     */
     public UTF8 getName() {
         return name;
     }
+
+    /**
+     * @return hostname and no :portNumber as UTF8 object.
+     */
     public UTF8 getHost() {
         String nameStr = name.toString();
         int colon = nameStr.indexOf(":");
@@ -98,24 +107,20 @@ public class DatanodeInfo implements Writable, Comparable {
         return blocks.iterator();
     }
     public long getCapacity() {
-        return capacity;
+        return capacityBytes;
     }
     public long getRemaining() {
-        return remaining;
+        return remainingBytes;
     }
     public long lastUpdate() {
         return lastUpdate;
     }
-    public void updateObsoleteCheck() {
-        this.lastObsoleteCheck = System.currentTimeMillis();
-    }
-    public long lastObsoleteCheck() {
-        return lastObsoleteCheck;
-    }
 
-    /////////////////////////////////////////////////
-    // Comparable
-    /////////////////////////////////////////////////
+  /** Comparable.
+   * Basis of compare is the UTF8 name (host:portNumber) only.
+   * @param o
+   * @return as specified by Comparable.
+   */
     public int compareTo(Object o) {
         DatanodeInfo d = (DatanodeInfo) o;
         return name.compareTo(d.getName());
@@ -128,8 +133,8 @@ public class DatanodeInfo implements Writable, Comparable {
      */
     public void write(DataOutput out) throws IOException {
         name.write(out);
-        out.writeLong(capacity);
-        out.writeLong(remaining);
+        out.writeLong(capacityBytes);
+        out.writeLong(remainingBytes);
         out.writeLong(lastUpdate);
 
         /**
@@ -145,8 +150,8 @@ public class DatanodeInfo implements Writable, Comparable {
     public void readFields(DataInput in) throws IOException {
         this.name = new UTF8();
         this.name.readFields(in);
-        this.capacity = in.readLong();
-        this.remaining = in.readLong();
+        this.capacityBytes = in.readLong();
+        this.remainingBytes = in.readLong();
         this.lastUpdate = in.readLong();
 
         /**

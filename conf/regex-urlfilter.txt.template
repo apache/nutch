@@ -15,5 +15,8 @@
 # skip URLs containing certain characters as probable queries, etc.
 -[?*!@=]
 
+# skip URLs with slash-delimited segment that repeats 3+ times, to break loops
+-.*(/.+?)/.*?\1/.*?\1/
+
 # accept anything else
 +.

@@ -25,13 +25,15 @@ import org.apache.nutch.fs.*;
 import org.apache.nutch.util.*;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.indexer.*;
+import org.apache.nutch.crawl.Inlinks;
+import org.apache.nutch.crawl.LinkDbReader;
 
 /** 
  * One stop shopping for search-related functionality.
  * @version $Id: NutchBean.java,v 1.19 2005/02/07 19:10:08 cutting Exp $
  */   
 public class NutchBean
-  implements Searcher, HitDetailer, HitSummarizer, HitContent,
+  implements Searcher, HitDetailer, HitSummarizer, HitContent, HitInlinks,
              DistributedSearch.Protocol {
 
   public static final Logger LOG =
@@ -41,12 +43,15 @@ public class NutchBean
     LogFormatter.setShowThreadIDs(true);
   }
 
+  private NutchFileSystem fs = NutchFileSystem.get();
+
   private String[] segmentNames;
 
   private Searcher searcher;
   private HitDetailer detailer;
   private HitSummarizer summarizer;
   private HitContent content;
+  private HitInlinks linkDb;
 
   private float RAW_HITS_FACTOR =
     NutchConf.get().getFloat("searcher.hostgrouping.rawhits.factor", 2.0f);
@@ -68,33 +73,38 @@ public class NutchBean
 
   /** Construct reading from connected directory. */
   public NutchBean() throws IOException {
-    this(new File(NutchConf.get().get("searcher.dir", ".")));
+    this(new File(NutchConf.get().get("searcher.dir", "crawl")));
   }
 
   /** Construct in a named directory. */
   public NutchBean(File dir) throws IOException {
     File servers = new File(dir, "search-servers.txt");
-    if (servers.exists()) {
+    if (fs.exists(servers)) {
       LOG.info("searching servers in " + servers.getCanonicalPath());
       init(new DistributedSearch.Client(servers));
     } else {
-      init(new File(dir, "index"), new File(dir, "segments"));
+      init(new File(dir, "index"),
+           new File(dir, "indexes"),
+           new File(dir, "segments"),
+           new File(dir, "linkdb"));
     }
   }
 
-  private void init(File indexDir, File segmentsDir) throws IOException {
+  private void init(File indexDir, File indexesDir, File segmentsDir,
+                    File linkDb)
+    throws IOException {
     IndexSearcher indexSearcher;
-    if (indexDir.exists()) {
-      LOG.info("opening merged index in " + indexDir.getCanonicalPath());
-      indexSearcher = new IndexSearcher(indexDir.getCanonicalPath());
+    if (fs.exists(indexDir)) {
+      LOG.info("opening merged index in " + indexDir);
+      indexSearcher = new IndexSearcher(indexDir);
     } else {
-      LOG.info("opening segment indexes in " + segmentsDir.getCanonicalPath());
+      LOG.info("opening indexes in " + indexesDir);
       
       Vector vDirs=new Vector();
-      File [] directories = segmentsDir.listFiles();
-      for(int i = 0; i < directories.length; i++) {
+      File [] directories = fs.listFiles(indexesDir);
+      for(int i = 0; i < fs.listFiles(indexesDir).length; i++) {
         File indexdone = new File(directories[i], IndexSegment.DONE_NAME);
-        if(indexdone.exists() && indexdone.isFile()) {
+        if(fs.isFile(indexdone)) {
           vDirs.add(directories[i]);
         }
       }
@@ -107,14 +117,18 @@ public class NutchBean
       indexSearcher = new IndexSearcher(directories);
     }
 
-    FetchedSegments segments = new FetchedSegments(new LocalFileSystem(), segmentsDir.toString());
+    LOG.info("opening segments in " + segmentsDir);
+    FetchedSegments segments = new FetchedSegments(fs, segmentsDir.toString());
     
     this.segmentNames = segments.getSegmentNames();
-    
+
     this.searcher = indexSearcher;
     this.detailer = indexSearcher;
     this.summarizer = segments;
     this.content = segments;
+
+    LOG.info("opening linkdb in " + linkDb);
+    this.linkDb = new LinkDbInlinks(fs, linkDb);
   }
 
   private void init(DistributedSearch.Client client) {
@@ -123,6 +137,7 @@ public class NutchBean
     this.detailer = client;
     this.summarizer = client;
     this.content = client;
+    this.linkDb = client;
   }
 
 
@@ -310,7 +325,11 @@ public class NutchBean
   }
 
   public String[] getAnchors(HitDetails hit) throws IOException {
-    return content.getAnchors(hit);
+    return linkDb.getAnchors(hit);
+  }
+
+  public Inlinks getInlinks(HitDetails hit) throws IOException {
+    return linkDb.getInlinks(hit);
   }
 
   public long getFetchDate(HitDetails hit) throws IOException {
@@ -337,7 +356,7 @@ public class NutchBean
     String[] summaries = bean.getSummary(details, query);
 
     for (int i = 0; i < hits.getLength(); i++) {
-      System.out.println(" "+i+" "+ details[i]);// + "\n" + summaries[i]);
+      System.out.println(" "+i+" "+ details[i] + "\n" + summaries[i]);
     }
   }
 

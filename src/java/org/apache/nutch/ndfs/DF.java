@@ -25,7 +25,7 @@ import java.util.Iterator;
 
 /** Filesystem disk space usage statistics.  Uses the unix 'df' program.
  * Tested on Linux, FreeBSD and Cygwin. */
-class DF {
+public class DF {
   private String filesystem;
   private long capacity;
   private long used;
@@ -48,6 +48,9 @@ class DF {
           new StringTokenizer(lines.readLine(), " \t\n\r\f%");
         
         this.filesystem = tokens.nextToken();
+        if (!tokens.hasMoreTokens()) {            // for long filesystem name
+          tokens = new StringTokenizer(lines.readLine(), " \t\n\r\f%");
+        }
         this.capacity = Long.parseLong(tokens.nextToken()) * 1024;
         this.used = Long.parseLong(tokens.nextToken()) * 1024;
         this.available = Long.parseLong(tokens.nextToken()) * 1024;
@@ -61,6 +64,8 @@ class DF {
       }
     } catch (InterruptedException e) {
       throw new IOException(e.toString());
+    } finally {
+      process.destroy();
     }
   }
 

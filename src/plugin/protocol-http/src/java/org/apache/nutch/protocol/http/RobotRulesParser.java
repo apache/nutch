@@ -53,6 +53,9 @@ public class RobotRulesParser {
   private static final boolean ALLOW_FORBIDDEN =
     NutchConf.get().getBoolean("http.robots.403.allow", false);
 
+  private static final int MAX_REDIRECTS =
+    NutchConf.get().getInt("http.redirect.max", 3);
+
   private static final String[] AGENTS = getAgents();
   private static final Hashtable CACHE = new Hashtable();
   
@@ -377,16 +380,30 @@ public class RobotRulesParser {
     RobotRuleSet robotRules = (RobotRuleSet)CACHE.get(host);
 
     if (robotRules == null) {                     // cache miss
-      HttpResponse response = new HttpResponse(new URL(url, "/robots.txt"));
+      int redirects = 0;
+      do {
+        HttpResponse response = new HttpResponse(new URL(url, "/robots.txt"));
 
-      if (response.getCode() == 200)               // found rules: parse them
-        robotRules = new RobotRulesParser().parseRules(response.getContent());
-      else if ( (response.getCode() == 403) && (!ALLOW_FORBIDDEN) )
-        robotRules = FORBID_ALL_RULES;            // use forbid all
-      else                                        
-        robotRules = EMPTY_RULES;                 // use default rules
+        int code = response.getCode();
 
-      CACHE.put(host, robotRules);                // cache rules for host
+        if (code == 200) {                        // found rules: parse them
+          robotRules = new RobotRulesParser().parseRules(response.getContent());
+        } else if ( (code == 403) && (!ALLOW_FORBIDDEN) ) {
+          robotRules = FORBID_ALL_RULES;          // use forbid all
+        } else if (code >= 300 && code < 400) {   // handle redirect
+          if (redirects == MAX_REDIRECTS) {
+            robotRules = EMPTY_RULES;
+          } else {
+            url = new URL(url, response.getHeader("Location"));
+            LOG.fine("redirect to " + url); 
+            redirects++;
+          }
+        } else {
+          robotRules = EMPTY_RULES;                 // use default rules
+        }
+      } while (robotRules == null);
+
+      CACHE.put(host, robotRules);              // cache rules for host
     }
 
     String path = url.getPath();                  // check rules

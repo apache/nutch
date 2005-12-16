@@ -30,14 +30,17 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 /** Provides access to Nutch configuration parameters.
- *
+ * <p>An ordered list of configuration parameter files with
+ * default and always-overrides site parameters.
  * <p>Default values for all parameters are specified in a file named
  * <tt>nutch-default.xml</tt> located on the classpath.  Overrides for these
  * defaults should be in an optional file named <tt>nutch-site.xml</tt>, also
  * located on the classpath.  Typically these files reside in the
  * <tt>conf/</tt> subdirectory at the top-level of a Nutch installation.
+ * <p>The resource files are read upon first access of values (set, get,
+ * or write) after {@link #addConfResource(String)} or
+ * {@link #addConfResource(File)}.
  */
-    
 public class NutchConf {
   private static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.util.NutchConf");
@@ -47,7 +50,7 @@ public class NutchConf {
   /** Return the default configuration. */
   public static NutchConf get() { return DEFAULT; }
 
-  private List resourceNames = new ArrayList();
+  private ArrayList resourceNames = new ArrayList();
   private Properties properties;
   private ClassLoader classLoader = NutchConf.class.getClassLoader();
 
@@ -55,6 +58,13 @@ public class NutchConf {
   public NutchConf() {
     resourceNames.add("nutch-default.xml");
     resourceNames.add("nutch-site.xml");
+  }
+
+  /** A new configuration with the same settings cloned from another. */
+  public NutchConf(NutchConf other) {
+    this.resourceNames = (ArrayList)other.resourceNames.clone();
+    if (other.properties != null)
+      this.properties = (Properties)other.properties.clone();
   }
 
   /** Adds a resource name to the chain of resources read.  Such resources are
@@ -131,6 +141,11 @@ public class NutchConf {
     }
   }
 
+  /** Sets the value of the <code>name</code> property to a long. */
+  public void setLong(String name, long value) {
+    set(name, Long.toString(value));
+  }
+
   /** Returns the value of the <code>name</code> property as a float.  If no
    * such property is specified, or if the specified value is not a valid
    * float, then <code>defaultValue</code> is returned.
@@ -158,6 +173,11 @@ public class NutchConf {
     else if ("false".equals(valueString))
       return false;
     else return defaultValue;
+  }
+
+  /** Sets the value of the <code>name</code> property to an integer. */
+  public void setBoolean(String name, boolean value) {
+    set(name, Boolean.toString(value));
   }
 
   /** Returns the value of the <code>name</code> property as an array of
@@ -375,6 +395,25 @@ public class NutchConf {
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
+  }
+
+
+  public String toString() {
+    StringBuffer sb = new StringBuffer(resourceNames.size()*30);
+    sb.append("NutchConf: ");
+    ListIterator i = resourceNames.listIterator();
+    while (i.hasNext()) {
+      if (i.nextIndex() != 0) {
+        sb.append(" , ");
+      }
+      Object obj = i.next();
+      if (obj instanceof File) {
+        sb.append((File)obj);
+      } else {
+        sb.append((String)obj);
+      }
+    }
+    return sb.toString();
   }
 
   /** For debugging.  List non-default properties to the terminal and exit. */

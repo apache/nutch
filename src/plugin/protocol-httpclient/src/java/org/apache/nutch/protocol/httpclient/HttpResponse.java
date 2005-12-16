@@ -60,10 +60,14 @@ public class HttpResponse {
   }
 
   public HttpResponse(URL url) throws IOException {
+    this(url, false);
+  }
+
+  HttpResponse(URL url, boolean followRedirects) throws IOException {
     this.base = url.toString();
     this.orig = url.toString();
     GetMethod get = new GetMethod(this.orig);
-    get.setFollowRedirects(false);
+    get.setFollowRedirects(followRedirects);
     get.setRequestHeader("User-Agent", Http.AGENT_STRING);
     HttpMethodParams params = get.getParams();
     // some servers cannot digest the new protocol

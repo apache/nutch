@@ -21,6 +21,7 @@ import java.util.*;
 import java.nio.channels.*;
 
 import org.apache.nutch.ndfs.NDFSFile;
+import org.apache.nutch.ndfs.DF;
 import org.apache.nutch.ndfs.NDFSFileInfo;
 import org.apache.nutch.io.UTF8;
 
@@ -50,6 +51,20 @@ public class LocalFileSystem extends NutchFileSystem {
         //     useCopyForRename = false;
     }
 
+    /**
+     * Return 1x1 'localhost' cell if the file exists.
+     * Return null if otherwise.
+     */
+    public String[][] getFileCacheHints(File f, long start, long len) throws IOException {
+        if (! f.exists()) {
+            return null;
+        } else {
+            String result[][] = new String[1][];
+            result[0] = new String[1];
+            result[0][0] = "localhost";
+            return result;
+        }
+    }
 
     public String getName() { return "local"; }
 
@@ -77,29 +92,34 @@ public class LocalFileSystem extends NutchFileSystem {
         public int available() throws IOException { return fis.available(); }
         public void close() throws IOException { fis.close(); }
         public boolean markSupport() { return false; }
-        public int read() throws IOException { return fis.read(); }
-        public int read(byte[] b) throws IOException { return fis.read(b); }
-        public int read(byte[] b, int off, int len) throws IOException {
-            return fis.read(b, off, len);
+
+        public int read() throws IOException {
+          try {
+            return fis.read();
+          } catch (IOException e) {               // unexpected exception
+            throw new FSError(e);                 // assume native fs error
+          }
         }
+
+        public int read(byte[] b, int off, int len) throws IOException {
+          try {
+            return fis.read(b, off, len);
+          } catch (IOException e) {               // unexpected exception
+            throw new FSError(e);                 // assume native fs error
+          }
+        }
+
         public long skip(long n) throws IOException { return fis.skip(n); }
     }
     
     /**
      * Open the file at f
      */
-    public NFSInputStream open(File f) throws IOException {
+    public NFSInputStream openRaw(File f) throws IOException {
         if (! f.exists()) {
             throw new FileNotFoundException(f.toString());
         }
         return new LocalNFSFileInputStream(f);
-    }
-
-    /**
-     * Create the file at f.
-     */
-    public NFSOutputStream create(File f) throws IOException {
-        return create(f, false);
     }
 
     /*********************************************************
@@ -121,16 +141,25 @@ public class LocalFileSystem extends NutchFileSystem {
        */
       public void close() throws IOException { fos.close(); }
       public void flush() throws IOException { fos.flush(); }
-      public void write(byte[] b) throws IOException { fos.write(b); }
+
       public void write(byte[] b, int off, int len) throws IOException {
-        fos.write(b, off, len);
+        try {
+          fos.write(b, off, len);
+        } catch (IOException e) {               // unexpected exception
+          throw new FSError(e);                 // assume native fs error
+        }
       }
-      public void write(int b) throws IOException { fos.write(b); }
+      public void write(int b) throws IOException {
+        try {
+          fos.write(b);
+        } catch (IOException e) {               // unexpected exception
+          throw new FSError(e);                 // assume native fs error
+        }
+      }
     }
 
-    /**
-     */
-    public NFSOutputStream create(File f, boolean overwrite) throws IOException {
+    public NFSOutputStream createRaw(File f, boolean overwrite)
+      throws IOException {
         if (f.exists() && ! overwrite) {
             throw new IOException("File already exists:"+f);
         }
@@ -144,7 +173,7 @@ public class LocalFileSystem extends NutchFileSystem {
     /**
      * Rename files/dirs
      */
-    public boolean rename(File src, File dst) throws IOException {
+    public boolean renameRaw(File src, File dst) throws IOException {
         if (useCopyForRename) {
             FileUtil.copyContents(this, src, dst, true);
             return fullyDelete(src);
@@ -154,7 +183,7 @@ public class LocalFileSystem extends NutchFileSystem {
     /**
      * Get rid of File f, whether a true file or dir.
      */
-    public boolean delete(File f) throws IOException {
+    public boolean deleteRaw(File f) throws IOException {
         if (f.isFile()) {
             return f.delete();
         } else return fullyDelete(f);
@@ -180,7 +209,7 @@ public class LocalFileSystem extends NutchFileSystem {
 
     /**
      */
-    public File[] listFiles(File f) throws IOException {
+    public File[] listFilesRaw(File f) throws IOException {
         File[] files = f.listFiles();
         if (files == null) return null;
         // 20041022, xing, Watch out here:
@@ -346,4 +375,40 @@ public class LocalFileSystem extends NutchFileSystem {
         }
         return dir.delete();
     }
+
+    /** Moves files to a bad file directory on the same device, so that their
+     * storage will not be reused. */
+    public void reportChecksumFailure(File f, NFSInputStream in,
+                                      long start, long length, int crc) {
+      try {
+        // canonicalize f   
+        f = f.getCanonicalFile();
+      
+        // find highest writable parent dir of f on the same device
+        String device = new DF(f.toString()).getMount();
+        File parent = f.getParentFile();
+        File dir;
+        do {
+          dir = parent;
+          parent = parent.getParentFile();
+        } while (parent.canWrite() && parent.toString().startsWith(device));
+
+        // move the file there
+        File badDir = new File(dir, "bad_files");
+        badDir.mkdirs();
+        String suffix = "." + new Random().nextInt();
+        File badFile = new File(badDir,f.getName()+suffix);
+        LOG.warning("Moving bad file " + f + " to " + badFile);
+        in.close();                               // close it first
+        f.renameTo(badFile);                      // rename it
+
+        // move checksum file too
+        File checkFile = getChecksumFile(f);
+        checkFile.renameTo(new File(badDir, checkFile.getName()+suffix));
+
+      } catch (IOException e) {
+        LOG.warning("Error moving bad file " + f + ": " + e);
+      }
+    }
+
 }

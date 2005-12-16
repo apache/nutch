@@ -119,4 +119,8 @@ public class Block implements Writable, Comparable {
             return 1;
         }
     }
+    public boolean equals(Object o) {
+        Block b = (Block) o;
+        return (this.compareTo(b) == 0);
+    }
 }
