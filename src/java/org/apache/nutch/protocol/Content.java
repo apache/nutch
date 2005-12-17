@@ -77,11 +77,8 @@ public final class Content extends CompressedWritable {
 
     contentType = UTF8.readString(in);            // read contentType
 
-    int propertyCount = in.readInt();             // read metadata
     metadata = new ContentProperties();
-    for (int i = 0; i < propertyCount; i++) {
-      metadata.put(UTF8.readString(in), UTF8.readString(in));
-    }
+    metadata.readFields(in);                    // read meta data
   }
 
   protected final void writeCompressed(DataOutput out) throws IOException {
@@ -95,13 +92,7 @@ public final class Content extends CompressedWritable {
 
     UTF8.writeString(out, contentType);           // write contentType
     
-    out.writeInt(metadata.size());                // write metadata
-    Iterator i = metadata.entrySet().iterator();
-    while (i.hasNext()) {
-      Map.Entry e = (Map.Entry)i.next();
-      UTF8.writeString(out, (String)e.getKey());
-      UTF8.writeString(out, (String)e.getValue());
-    }
+    metadata.write(out);                           // write metadata
   }
 
   public static Content read(DataInput in) throws IOException {
