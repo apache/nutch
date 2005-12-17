@@ -105,7 +105,7 @@
 
 <property>
   <name>http.redirect.max</name>
-  <value>10</value>
+  <value>3</value>
   <description>The maximum number of redirects the fetcher will follow when
     trying to fetch a page.</description>
 </property>
@@ -727,8 +727,7 @@
 
 <property>
   <name>parser.character.encoding.default</name>
-  <!--value>windows-1252</value-->
-  <value>utf-8</value>
+  <value>windows-1252</value>
   <description>The character encoding to fall back to when no other information
   is available</description>
 </property>
