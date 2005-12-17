@@ -4,6 +4,12 @@ Release 0.7.2
  
  1. NUTCH-107 - Typo in plugin/urlfilter-*/plugin.xml. (Stephen Cross).  
 
+ 2. NUTCH-141 - Invalid title tag in jsp page. (Marko Bauhardt).
+
+ 3. Fixed distribution build problem due to missing empty dirs for plugin.
+
+ 4. 
+
 Release 0.7.1 - 2005-10-01
 
  1. Give focus to search query input.
