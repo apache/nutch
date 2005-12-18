@@ -414,7 +414,7 @@
       </fileset>
     </copy>
 
-    <copy todir="${dist.dir}/src" includeEmptyDirs="false">
+    <copy todir="${dist.dir}/src" includeEmptyDirs="true">
       <fileset dir="src"/>
     </copy>
 
