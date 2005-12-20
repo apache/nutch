@@ -288,7 +288,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
     }
 
     // select a timeout that avoids a task timeout
-    long timeout = NutchConf.get().getInt("mapred.task.timeout", 10*60*1000)/2;
+    long timeout = getConf().getInt("mapred.task.timeout", 10*60*1000)/2;
 
     do {                                          // wait for threads to exit
       try {
