@@ -479,14 +479,6 @@
   </description>
 </property>
 
-<property>
-  <name>mapred.job.tracker.info.port</name>
-  <value>7845</value>
-  <description>The port number where the jobtracker runs its
-  administrative web interface.
-  </description>
-</property>
-
 <!-- indexer properties -->
 
 <property>
