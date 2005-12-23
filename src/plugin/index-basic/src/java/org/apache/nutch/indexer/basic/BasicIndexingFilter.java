@@ -23,10 +23,14 @@ import org.apache.nutch.parse.Parse;
 
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
+import org.apache.nutch.io.UTF8;
 
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.fetcher.FetcherOutput;
 import org.apache.nutch.pagedb.FetchListEntry;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.logging.Logger;
@@ -41,13 +45,12 @@ public class BasicIndexingFilter implements IndexingFilter {
   private static final int MAX_TITLE_LENGTH =
     NutchConf.get().getInt("indexer.max.title.length", 100);
 
-  public Document filter(Document doc, Parse parse, FetcherOutput fo)
+  public Document filter(Document doc, Parse parse, UTF8 url, CrawlDatum datum, Inlinks inlinks)
     throws IndexingException {
     
-    String url = fo.getUrl().toString();
     String host = null;
     try {
-      URL u = new URL(url);
+      URL u = new URL(url.toString());
       host = u.getHost();
     } catch (MalformedURLException e) {
       throw new IndexingException(e);
@@ -62,15 +65,19 @@ public class BasicIndexingFilter implements IndexingFilter {
 
 
     // url is both stored and indexed, so it's both searchable and returned
-    doc.add(Field.Text("url", url));
+    doc.add(Field.Text("url", url.toString()));
     
     // content is indexed, so that it's searchable, but not stored in index
     doc.add(Field.UnStored("content", parse.getText()));
     
     // anchors are indexed, so they're searchable, but not stored in index
-    String[] anchors = fo.getAnchors();
-    for (int i = 0; i < anchors.length; i++) {
-      doc.add(Field.UnStored("anchor", anchors[i]));
+    try {
+      String[] anchors = inlinks.getAnchors();
+      for (int i = 0; i < anchors.length; i++) {
+        doc.add(Field.UnStored("anchor", anchors[i]));
+      }
+    } catch (IOException ioe) {
+      LOG.warning("BasicIndexingFilter: can't get anchors for " + url.toString());
     }
 
     // title

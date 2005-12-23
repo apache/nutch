@@ -75,6 +75,7 @@ public class IndexSegment {
   public void setScorePower(float power) { scorePower = power; }
 
   public void indexPages() throws Exception {
+/*
       //
       // First, see if it's ever been indexed before
       //
@@ -184,6 +185,7 @@ public class IndexSegment {
       float eps = (float) count / (float) (delta / 1000);
       LOG.info("DONE indexing segment " + srcDir.getName() + ": total " + total +
               " records in " + ((float) delta / 1000f) + " s (" + eps + " rec/s).");
+*/
   }
 
   /** 
@@ -229,6 +231,9 @@ public class IndexSegment {
    * Create an index for the input files in the named directory. 
    */
   public static void main(String[] args) throws Exception {
+      System.err.println("ERROR: use org.apache.nutch.crawl.Indexer instead.");
+      System.exit(0);
+
       String usage = "IndexSegment (-local | -ndfs <namenode:port>) <segment_directory> [-dir <workingdir>]";
       if (args.length == 0) {
           System.err.println("Usage: " + usage);
