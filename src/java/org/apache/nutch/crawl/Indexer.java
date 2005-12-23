@@ -213,15 +213,8 @@ public class Indexer extends NutchConfigured implements Reducer {
 //     }
 
     try {
-      // dummy up a FetcherOutput so that we can use existing indexing filters
-      // TODO: modify IndexingFilter interface to use Inlinks, etc. 
-      FetcherOutput fo =
-        new FetcherOutput(new FetchListEntry(true,new Page((UTF8)key),anchors),
-                          null, null);
-      fo.setFetchDate(fetchDatum.getFetchTime());
-
       // run indexing filters
-      doc = IndexingFilters.filter(doc,new ParseImpl(parseText, parseData),fo);
+      doc = IndexingFilters.filter(doc,new ParseImpl(parseText, parseData), (UTF8)key, fetchDatum, inlinks);
     } catch (IndexingException e) {
       LOG.warning("Error indexing "+key+": "+e);
       return;

@@ -17,9 +17,12 @@ package org.apache.nutch.analysis.lang;
 
 
 // Nutch imports
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.fetcher.FetcherOutput;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
+import org.apache.nutch.io.UTF8;
 import org.apache.nutch.parse.Parse;
 
 // Lucene imports
@@ -54,7 +57,7 @@ public class LanguageIndexingFilter implements IndexingFilter {
   }
 
   // Inherited JavaDoc
-  public Document filter(Document doc, Parse parse, FetcherOutput fo)
+  public Document filter(Document doc, Parse parse, UTF8 url, CrawlDatum datum, Inlinks inlinks)
     throws IndexingException {
 
     //check if X-meta-lang found, possibly put there by HTMLLanguageParser

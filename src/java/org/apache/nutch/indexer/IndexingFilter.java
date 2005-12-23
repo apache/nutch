@@ -18,7 +18,10 @@ package org.apache.nutch.indexer;
 
 import org.apache.lucene.document.Document;
 import org.apache.nutch.parse.Parse;
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.fetcher.FetcherOutput;
+import org.apache.nutch.io.UTF8;
 
 /** Extension point for indexing.  Permits one to add metadata to the indexed
  * fields.  All plugins found which implement this extension point are run
@@ -28,8 +31,18 @@ public interface IndexingFilter {
   /** The name of the extension point. */
   final static String X_POINT_ID = IndexingFilter.class.getName();
 
-  /** Adds fields or otherwise modifies the document that will be indexed for a
-   * parse. */
-  Document filter(Document doc, Parse parse, FetcherOutput fo)
+  /**
+   * Adds fields or otherwise modifies the document that will be indexed for a
+   * parse.
+   * 
+   * @param doc document instance for collecting fields
+   * @param parse parse data instance
+   * @param url page url
+   * @param datum crawl datum for the page
+   * @param inlinks page inlinks
+   * @return modified (or a new) document instance
+   * @throws IndexingException
+   */
+  Document filter(Document doc, Parse parse, UTF8 url, CrawlDatum datum, Inlinks inlinks)
     throws IndexingException;
 }

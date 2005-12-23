@@ -33,7 +33,10 @@ import org.apache.nutch.protocol.ContentProperties;
 
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
+import org.apache.nutch.io.UTF8;
 
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.fetcher.FetcherOutput;
 
 import org.apache.nutch.util.NutchConf;
@@ -81,21 +84,20 @@ public class MoreIndexingFilter implements IndexingFilter {
         MimeTypes.get(NutchConf.get().get("mime.types.file"));
 
   
-  public Document filter(Document doc, Parse parse, FetcherOutput fo)
+  public Document filter(Document doc, Parse parse, UTF8 url, CrawlDatum datum, Inlinks inlinks)
     throws IndexingException {
 
-    String url = fo.getUrl().toString();
-
+    String url_s = url.toString();
     // normalize metaData (see note in the method below).
     ContentProperties metaData = normalizeMeta(parse.getData().getMetadata());
 
-    addTime(doc, metaData, url, fo);
+    addTime(doc, metaData, url_s, datum);
 
-    addLength(doc, metaData, url);
+    addLength(doc, metaData, url_s);
 
-    addType(doc, metaData, url);
+    addType(doc, metaData, url_s);
 
-    resetTitle(doc, metaData, url);
+    resetTitle(doc, metaData, url_s);
 
     return doc;
   }
@@ -103,7 +105,7 @@ public class MoreIndexingFilter implements IndexingFilter {
   // Add time related meta info.  Add last-modified if present.  Index date as
   // last-modified, or, if that's not present, use fetch time.
   private Document addTime(Document doc, ContentProperties metaData, String url,
-                           FetcherOutput fo) {
+                           CrawlDatum datum) {
     long time = -1;
 
     String lastModified = metaData.getProperty("last-modified");
@@ -114,7 +116,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     }
 
     if (time == -1) {                             // if no last-modified
-      time = fo.getFetchDate();                   // use fetch time
+      time = datum.getFetchTime();                   // use fetch time
     }
 
     // add support for query syntax date:

@@ -23,7 +23,10 @@ import org.apache.nutch.parse.Parse;
 
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
+import org.apache.nutch.io.UTF8;
 
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.fetcher.FetcherOutput;
 import org.apache.nutch.pagedb.FetchListEntry;
 
@@ -42,16 +45,16 @@ public class CCIndexingFilter implements IndexingFilter {
   /** The name of the document field we use. */
   public static String FIELD = "cc";
 
-  public Document filter(Document doc, Parse parse, FetcherOutput fo)
+  public Document filter(Document doc, Parse parse, UTF8 url, CrawlDatum datum, Inlinks inlinks)
     throws IndexingException {
     
     // index the license
     String licenseUrl = parse.getData().get("License-Url");
     if (licenseUrl != null) {
-      LOG.info("CC: indexing "+licenseUrl+" for: "+fo.getUrl());
+      LOG.info("CC: indexing " + licenseUrl + " for: " + url.toString());
 
       // add the entire license as cc:license=xxx
-      addFeature(doc, "license="+licenseUrl);
+      addFeature(doc, "license=" + licenseUrl);
 
       // index license attributes extracted of the license url
       addUrlFeatures(doc, licenseUrl);
@@ -60,7 +63,7 @@ public class CCIndexingFilter implements IndexingFilter {
     // index the license location as cc:meta=xxx
     String licenseLocation = parse.getData().get("License-Location");
     if (licenseLocation != null) {
-      addFeature(doc, "meta="+licenseLocation);
+      addFeature(doc, "meta=" + licenseLocation);
     }
 
     // index the work type cc:type=xxx
@@ -91,7 +94,7 @@ public class CCIndexingFilter implements IndexingFilter {
         addFeature(doc, feature);
       }
     } catch (MalformedURLException e) {
-      LOG.warning("CC: failed to parse url: "+urlString+" : "+e);
+      LOG.warning("CC: failed to parse url: " + urlString + " : " + e);
     }
   }
   

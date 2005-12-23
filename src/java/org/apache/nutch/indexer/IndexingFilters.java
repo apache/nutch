@@ -22,7 +22,10 @@ import org.apache.lucene.document.Document;
 
 import org.apache.nutch.plugin.*;
 import org.apache.nutch.parse.Parse;
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.fetcher.FetcherOutput;
+import org.apache.nutch.io.UTF8;
 
 /** Creates and caches {@link IndexingFilter} implementing plugins.*/
 public class IndexingFilters {
@@ -39,6 +42,7 @@ public class IndexingFilters {
       for (int i = 0; i < extensions.length; i++) {
         Extension extension = extensions[i];
         IndexingFilter filter = (IndexingFilter)extension.getExtensionInstance();
+        System.out.println("-adding " + filter.getClass().getName());
         if (!filterMap.containsKey(filter.getClass().getName())) {
         	filterMap.put(filter.getClass().getName(), filter);
         }
@@ -52,11 +56,11 @@ public class IndexingFilters {
   private  IndexingFilters() {}                  // no public ctor
 
   /** Run all defined filters. */
-  public static Document filter(Document doc, Parse parse, FetcherOutput fo)
+  public static Document filter(Document doc, Parse parse, UTF8 url, CrawlDatum datum, Inlinks inlinks)
     throws IndexingException {
 
     for (int i = 0; i < CACHE.length; i++) {
-      doc = CACHE[i].filter(doc, parse, fo);
+      doc = CACHE[i].filter(doc, parse, url, datum, inlinks);
     }
 
     return doc;
