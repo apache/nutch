@@ -16,6 +16,8 @@
 
 package org.apache.nutch.parse;
 
+import org.apache.nutch.crawl.SignatureFactory;
+import org.apache.nutch.fetcher.Fetcher;
 import org.apache.nutch.io.*;
 import org.apache.nutch.parse.ParseOutputFormat;
 import org.apache.nutch.mapred.*;
@@ -32,13 +34,14 @@ public class ParseSegment extends NutchConfigured implements Mapper, Reducer {
   public static final Logger LOG =
     LogFormatter.getLogger(Parser.class.getName());
 
-  public ParseSegment() { super(null); }
+  public ParseSegment() { super(NutchConf.get()); }
 
   public ParseSegment(NutchConf conf) {
     super(conf);
   }
 
   public void configure(JobConf job) {
+    setConf(job);
   }
 
   public void map(WritableComparable key, Writable value,
@@ -55,6 +58,9 @@ public class ParseSegment extends NutchConfigured implements Mapper, Reducer {
       status = new ParseStatus(e);
     }
 
+    // compute the new signature
+    byte[] signature = SignatureFactory.getSignature(getConf()).calculate(content, parse);
+    parse.getData().getMetadata().setProperty(Fetcher.SIGNATURE_KEY, StringUtil.toHexString(signature));
     if (status.isSuccess()) {
       output.collect(key, new ParseImpl(parse.getText(), parse.getData()));
     } else {

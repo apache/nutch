@@ -262,6 +262,31 @@
   recoverable errors is generated for fetch.</description>
 </property>
 
+<property>
+  <name>db.signature.class</name>
+  <value>org.apache.nutch.crawl.MD5Signature</value>
+  <description>The default implementation of a page signature. Signatures
+  created with this implementation will be used for duplicate detection
+  and removal.</description>
+</property>
+
+<property>
+  <name>db.signature.text_profile.min_token_len</name>
+  <value>2</value>
+  <description>Minimum token length to be included in the signature.
+  </description>
+</property>
+
+<property>
+  <name>db.signature.text_profile.quant_rate</name>
+  <value>0.01</value>
+  <description>Profile frequencies will be rounded down to a multiple of
+  QUANT = (int)(QUANT_RATE * maxFreq), where maxFreq is a maximum token
+  frequency. If maxFreq > 1 then QUANT will be at least 2, which means that
+  for longer texts tokens with frequency 1 will always be discarded.
+  </description>
+</property>
+
 <!-- generate properties -->
 
 <property>

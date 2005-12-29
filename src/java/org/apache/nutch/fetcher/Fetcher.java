@@ -21,6 +21,7 @@ import java.io.File;
 
 import org.apache.nutch.io.*;
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.nutch.fs.*;
 import org.apache.nutch.net.*;
 import org.apache.nutch.util.*;
@@ -36,7 +37,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
   public static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.fetcher.Fetcher");
   
-  public static final String DIGEST_KEY = "nutch.content.digest";
+  public static final String SIGNATURE_KEY = "nutch.content.digest";
   public static final String SEGMENT_NAME_KEY = "nutch.segment.name";
   public static final String SCORE_KEY = "nutch.crawl.score";
 
@@ -93,6 +94,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
               break;                              // at eof, exit
             }
           } catch (IOException e) {
+            e.printStackTrace();
             LOG.severe("fetcher caught:"+e.toString());
             break;
           }
@@ -173,6 +175,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
         }
 
       } catch (Throwable e) {
+        e.printStackTrace();
         LOG.severe("fetcher caught:"+e.toString());
       } finally {
         synchronized (Fetcher.this) {activeThreads--;} // count threads
@@ -193,11 +196,9 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
 
       if (content == null) {
         String url = key.toString();
-        content = new Content(url,url,new byte[0],"",new ContentProperties());
+        content = new Content(url, url, new byte[0], "", new ContentProperties());
       }
 
-      content.getMetadata().setProperty           // add digest to metadata
-        (DIGEST_KEY, MD5Hash.digest(content.getContent()).toString());
       content.getMetadata().setProperty           // add segment to metadata
         (SEGMENT_NAME_KEY, segmentName);
       content.getMetadata().setProperty           // add score to metadata
@@ -213,9 +214,14 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
           parseStatus = new ParseStatus(e);
         }
         if (!parseStatus.isSuccess()) {
-          LOG.warning("Error parsing: "+key+": "+parseStatus);
-          parse = null;
+          LOG.warning("Error parsing: " + key + ": " + parseStatus);
+          parse = parseStatus.getEmptyParse();
         }
+        // Calculate page signature. For non-parsing fetchers this will
+        // be done in ParseSegment
+        byte[] signature = SignatureFactory.getSignature(getConf()).calculate(content, parse);
+        parse.getData().getMetadata().setProperty(SIGNATURE_KEY, StringUtil.toHexString(signature));
+        datum.setSignature(signature);
       }
 
       try {
@@ -225,6 +231,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
                              storingContent ? content : null,
                              parse != null ? new ParseImpl(parse) : null));
       } catch (IOException e) {
+        e.printStackTrace();
         LOG.severe("fetcher caught:"+e.toString());
       }
     }
@@ -310,7 +317,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
     
   }
 
-  public void fetch(File segment, int threads)
+  public void fetch(File segment, int threads, boolean parsing)
     throws IOException {
 
     LOG.info("Fetcher: starting");
@@ -320,6 +327,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
 
     job.setInt("fetcher.threads.fetch", threads);
     job.set(SEGMENT_NAME_KEY, segment.getName());
+    job.setBoolean("fetcher.parse", parsing);
 
     job.setInputDir(new File(segment, CrawlDatum.GENERATE_DIR_NAME));
     job.setInputFormat(InputFormat.class);
@@ -341,7 +349,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
   /** Run the fetcher. */
   public static void main(String[] args) throws Exception {
 
-    String usage = "Usage: Fetcher <segment> [-threads n]";
+    String usage = "Usage: Fetcher <segment> [-threads n] [-noParsing]";
 
     if (args.length < 1) {
       System.err.println(usage);
@@ -353,16 +361,21 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
     NutchConf conf = NutchConf.get();
 
     int threads = conf.getInt("fetcher.threads.fetch", 10);
+    boolean parsing = true;
 
     for (int i = 1; i < args.length; i++) {       // parse command line
       if (args[i].equals("-threads")) {           // found -threads option
         threads =  Integer.parseInt(args[++i]);
-      }
+      } else if (args[i].equals("-noParsing")) parsing = false;
     }
 
+    conf.setInt("fetcher.threads.fetch", threads);
+    if (!parsing) {
+      conf.setBoolean("fetcher.parse", parsing);
+    }
     Fetcher fetcher = new Fetcher(conf);          // make a Fetcher
     
-    fetcher.fetch(segment, threads);              // run the Fetcher
+    fetcher.fetch(segment, threads, parsing);              // run the Fetcher
 
   }
 }

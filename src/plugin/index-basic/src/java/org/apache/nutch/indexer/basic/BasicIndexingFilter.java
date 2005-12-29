@@ -70,7 +70,7 @@ public class BasicIndexingFilter implements IndexingFilter {
     
     // anchors are indexed, so they're searchable, but not stored in index
     try {
-      String[] anchors = inlinks.getAnchors();
+      String[] anchors = (inlinks != null ? inlinks.getAnchors() : new String[0]);
       for (int i = 0; i < anchors.length; i++) {
         doc.add(Field.UnStored("anchor", anchors[i]));
       }

@@ -35,6 +35,7 @@ if [ $# = 0 ]; then
   echo "  generate          generate new segments to fetch"
   echo "  fetch             fetch a segment's pages"
   echo "  parse             parse a segment's pages"
+  echo "  segread           read / dump segment data"
   echo "  updatedb          update crawl db from segments after fetching"
   echo "  invertlinks       create a linkdb from parsed segments"
   echo "  index             run the indexer on parsed segments and linkdb"
@@ -137,6 +138,8 @@ elif [ "$COMMAND" = "readdb" ] ; then
   CLASS=org.apache.nutch.crawl.CrawlDbReader
 elif [ "$COMMAND" = "readlinkdb" ] ; then
   CLASS=org.apache.nutch.crawl.LinkDbReader
+elif [ "$COMMAND" = "segread" ] ; then
+  CLASS=org.apache.nutch.segment.SegmentReader
 elif [ "$COMMAND" = "updatedb" ] ; then
   CLASS=org.apache.nutch.crawl.CrawlDb
 elif [ "$COMMAND" = "invertlinks" ] ; then

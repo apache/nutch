@@ -38,6 +38,7 @@ public class CrawlDbReducer implements Reducer {
 
     CrawlDatum highest = null;
     CrawlDatum old = null;
+    byte[] signature = null;
     float scoreIncrement = 0.0f;
 
     while (values.hasNext()) {
@@ -55,6 +56,8 @@ public class CrawlDbReducer implements Reducer {
       case CrawlDatum.STATUS_LINKED:
         scoreIncrement += datum.getScore();
         break;
+      case CrawlDatum.STATUS_SIGNATURE:
+        signature = datum.getSignature();
       }
     }
 
@@ -76,16 +79,20 @@ public class CrawlDbReducer implements Reducer {
         result.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
         result.setScore(1.0f);                    // initial score is 1.0f
       }
+      result.setSignature(null);                  // reset the signature
       break;
       
     case CrawlDatum.STATUS_FETCH_SUCCESS:         // succesful fetch
       result = highest;                           // use new entry
+      if (highest.getSignature() == null) highest.setSignature(signature);
       result.setStatus(CrawlDatum.STATUS_DB_FETCHED);
       result.setNextFetchTime();
       break;
 
     case CrawlDatum.STATUS_FETCH_RETRY:           // temporary failure
       result = highest;                           // use new entry
+      if (old != null)
+        result.setSignature(old.getSignature());  // use old signature
       if (highest.getRetriesSinceFetch() < retryMax) {
         result.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
       } else {
@@ -95,6 +102,8 @@ public class CrawlDbReducer implements Reducer {
 
     case CrawlDatum.STATUS_FETCH_GONE:            // permanent failure
       result = highest;                           // use new entry
+      if (old != null)
+        result.setSignature(old.getSignature());  // use old signature
       result.setStatus(CrawlDatum.STATUS_DB_GONE);
       break;
 
