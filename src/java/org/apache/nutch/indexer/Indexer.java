@@ -199,7 +199,7 @@ public class Indexer extends NutchConfigured implements Reducer {
                             meta.getProperty(Fetcher.SEGMENT_NAME_KEY)));
 
     // add digest, used by dedup
-    doc.add(Field.UnIndexed("digest", meta.getProperty(Fetcher.DIGEST_KEY)));
+    doc.add(Field.UnIndexed("digest", meta.getProperty(Fetcher.SIGNATURE_KEY)));
 
     // boost is opic
     float boost = (float)Math.pow(dbDatum.getScore(), scorePower);

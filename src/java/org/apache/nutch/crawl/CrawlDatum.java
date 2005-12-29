@@ -31,8 +31,9 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   public static final String FETCH_DIR_NAME = "crawl_fetch";
   public static final String PARSE_DIR_NAME = "crawl_parse";
 
-  private final static byte CUR_VERSION = 2;
+  private final static byte CUR_VERSION = 3;
 
+  public static final byte STATUS_SIGNATURE = 0;
   public static final byte STATUS_DB_UNFETCHED = 1;
   public static final byte STATUS_DB_FETCHED = 2;
   public static final byte STATUS_DB_GONE = 3;
@@ -42,7 +43,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   public static final byte STATUS_FETCH_GONE = 7;
   
   public static final String[] statNames = {
-    "INVALID",
+    "signature",
     "DB_unfetched",
     "DB_fetched",
     "DB_gone",
@@ -59,6 +60,8 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   private byte retries;
   private float fetchInterval;
   private float score = 1.0f;
+  private byte[] signature = null;
+  private long modifiedTime;
 
   public CrawlDatum() {}
 
@@ -86,6 +89,14 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     fetchTime += (long)(MILLISECONDS_PER_DAY*fetchInterval);
   }
 
+  public long getModifiedTime() {
+    return modifiedTime;
+  }
+
+  public void setModifiedTime(long modifiedTime) {
+    this.modifiedTime = modifiedTime;
+  }
+  
   public byte getRetriesSinceFetch() { return retries; }
   public void setRetriesSinceFetch(int retries) {this.retries = (byte)retries;}
 
@@ -96,6 +107,16 @@ public class CrawlDatum implements WritableComparable, Cloneable {
 
   public float getScore() { return score; }
   public void setScore(float score) { this.score = score; }
+
+  public byte[] getSignature() {
+    return signature;
+  }
+
+  public void setSignature(byte[] signature) {
+    if (signature != null && signature.length > 256)
+      throw new RuntimeException("Max signature length (256) exceeded: " + signature.length);
+    this.signature = signature;
+  }
 
   //
   // writable methods
@@ -110,7 +131,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
 
   public void readFields(DataInput in) throws IOException {
     byte version = in.readByte();                 // read version
-    if (version != CUR_VERSION)                   // check version
+    if (version > CUR_VERSION)                   // check version
       throw new VersionMismatchException(CUR_VERSION, version);
 
     status = in.readByte();
@@ -118,10 +139,19 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     retries = in.readByte();
     fetchInterval = in.readFloat();
     score = in.readFloat();
+    if (version > 2) {
+      modifiedTime = in.readLong();
+      int cnt = in.readByte();
+      if (cnt > 0) {
+        signature = new byte[cnt];
+        in.readFully(signature);
+      } else signature = null;
+    }
   }
 
   /** The number of bytes into a CrawlDatum that the score is stored. */
   private static final int SCORE_OFFSET = 1 + 1 + 8 + 1 + 4;
+  private static final int SIG_OFFSET = SCORE_OFFSET + 4 + 8;
 
   public void write(DataOutput out) throws IOException {
     out.writeByte(CUR_VERSION);                   // store current version
@@ -130,6 +160,13 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     out.writeByte(retries);
     out.writeFloat(fetchInterval);
     out.writeFloat(score);
+    out.writeLong(modifiedTime);
+    if (signature == null) {
+      out.writeByte(0);
+    } else {
+      out.writeByte(signature.length);
+      out.write(signature);
+    }
   }
 
   /** Copy the contents of another instance into this instance. */
@@ -139,6 +176,8 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     this.retries = that.retries;
     this.fetchInterval = that.fetchInterval;
     this.score = that.score;
+    this.modifiedTime = that.modifiedTime;
+    this.signature = that.signature;
   }
 
 
@@ -159,7 +198,9 @@ public class CrawlDatum implements WritableComparable, Cloneable {
       return that.retries - this.retries;
     if (that.fetchInterval != this.fetchInterval)
       return (that.fetchInterval - this.fetchInterval) > 0 ? 1 : -1;
-    return 0;
+    if (that.modifiedTime != this.modifiedTime)
+      return (that.modifiedTime - this.modifiedTime) > 0 ? 1 : -1;
+    return SignatureComparator._compare(this, that);
   }
 
   /** A Comparator optimized for CrawlDatum. */ 
@@ -188,7 +229,13 @@ public class CrawlDatum implements WritableComparable, Cloneable {
       float fetchInterval2 = readFloat(b2, s2+1+1+8+1);
       if (fetchInterval2 != fetchInterval1)
         return (fetchInterval2 - fetchInterval1) > 0 ? 1 : -1;
-      return 0;
+      long modifiedTime1 = readLong(b1, s1 + SCORE_OFFSET + 4);
+      long modifiedTime2 = readLong(b2, s2 + SCORE_OFFSET + 4);
+      if (modifiedTime2 != modifiedTime1)
+        return (modifiedTime2 - modifiedTime1) > 0 ? 1 : -1;
+      int sigl1 = b1[s1+SIG_OFFSET];
+      int sigl2 = b2[s2+SIG_OFFSET];
+      return SignatureComparator._compare(b1, SIG_OFFSET, sigl1, b2, SIG_OFFSET, sigl2);
     }
   }
 
@@ -206,9 +253,11 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     buf.append("Version: " + CUR_VERSION + "\n");
     buf.append("Status: " + getStatus() + " (" + statNames[getStatus()] + ")\n");
     buf.append("Fetch time: " + new Date(getFetchTime()) + "\n");
+    buf.append("Modified time: " + new Date(getModifiedTime()) + "\n");
     buf.append("Retries since fetch: " + getRetriesSinceFetch() + "\n");
     buf.append("Retry interval: " + getFetchInterval() + " days\n");
     buf.append("Score: " + getScore() + "\n");
+    buf.append("Signature: " + StringUtil.toHexString(getSignature()) + "\n");
     return buf.toString();
   }
 
@@ -219,15 +268,25 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     return
       (this.status == other.status) &&
       (this.fetchTime == other.fetchTime) &&
+      (this.modifiedTime == other.modifiedTime) &&
       (this.retries == other.retries) &&
       (this.fetchInterval == other.fetchInterval) &&
+      (SignatureComparator._compare(this.signature, other.signature) == 0) &&
       (this.score == other.score);
   }
 
   public int hashCode() {
+    int res = 0;
+    if (signature != null) {
+      for (int i = 0; i < signature.length / 4; i += 4) {
+        res ^= (int)(signature[i] << 24 + signature[i+1] << 16 +
+                signature[i+2] << 8 + signature[i+3]);
+      }
+    }
     return
-      status ^
+      res ^ status ^
       ((int)fetchTime) ^
+      ((int)modifiedTime) ^
       retries ^
       Float.floatToIntBits(fetchInterval) ^
       Float.floatToIntBits(score);
@@ -240,5 +299,4 @@ public class CrawlDatum implements WritableComparable, Cloneable {
       throw new RuntimeException(e);
     }
   }
-
 }

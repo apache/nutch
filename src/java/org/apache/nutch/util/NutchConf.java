@@ -91,6 +91,24 @@ public class NutchConf {
 
   /** Returns the value of the <code>name</code> property, or null if no
    * such property exists. */
+  public Object getObject(String name) { return getProps().get(name);}
+
+  /** Sets the value of the <code>name</code> property. */
+  public void setObject(String name, Object value) {
+    getProps().put(name, value);
+  }
+
+  /** Returns the value of the <code>name</code> property.  If no such property
+   * exists, then <code>defaultValue</code> is returned.
+   */
+  public Object get(String name, Object defaultValue) {
+    Object res = getObject(name);
+    if (res != null) return res;
+    else return defaultValue;
+  }
+  
+  /** Returns the value of the <code>name</code> property, or null if no
+   * such property exists. */
   public String get(String name) { return getProps().getProperty(name);}
 
   /** Sets the value of the <code>name</code> property. */

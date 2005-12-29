@@ -22,6 +22,7 @@ import org.apache.nutch.fetcher.Fetcher;
 import org.apache.nutch.fs.*;
 import org.apache.nutch.mapred.*;
 import org.apache.nutch.parse.*;
+import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.net.*;
 
 import java.io.*;
@@ -63,6 +64,18 @@ public class ParseOutputFormat implements OutputFormat {
           
           textOut.append(key, new ParseText(parse.getText()));
           dataOut.append(key, parse.getData());
+          
+          // recover the signature prepared by Fetcher or ParseSegment
+          String sig = parse.getData().getMetadata().getProperty(Fetcher.SIGNATURE_KEY);
+          if (sig != null) {
+            byte[] signature = StringUtil.fromHexString(sig);
+            if (signature != null) {
+              // append a CrawlDatum with a signature
+              CrawlDatum d = new CrawlDatum(CrawlDatum.STATUS_SIGNATURE, 0.0f);
+              d.setSignature(signature);
+              crawlOut.append(key, d);
+            }
+          }
 
           // collect outlinks for subsequent db update
           Outlink[] links = parse.getData().getOutlinks();
