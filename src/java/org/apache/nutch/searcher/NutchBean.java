@@ -26,7 +26,6 @@ import org.apache.nutch.util.*;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.indexer.*;
 import org.apache.nutch.crawl.Inlinks;
-import org.apache.nutch.crawl.LinkDbReader;
 
 /** 
  * One stop shopping for search-related functionality.
@@ -103,7 +102,7 @@ public class NutchBean
       Vector vDirs=new Vector();
       File [] directories = fs.listFiles(indexesDir);
       for(int i = 0; i < fs.listFiles(indexesDir).length; i++) {
-        File indexdone = new File(directories[i], IndexSegment.DONE_NAME);
+        File indexdone = new File(directories[i], Indexer.DONE_NAME);
         if(fs.isFile(indexdone)) {
           vDirs.add(directories[i]);
         }

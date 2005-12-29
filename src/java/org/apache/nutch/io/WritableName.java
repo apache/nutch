@@ -32,10 +32,6 @@ public class WritableName {
     WritableName.setName(LongWritable.class, "long");
     WritableName.setName(UTF8.class, "UTF8");
     WritableName.setName(MD5Hash.class, "MD5Hash");
-    WritableName.setName(org.apache.nutch.db.Page.class, "Page");
-    WritableName.setName(org.apache.nutch.db.Link.class, "Link");
-    WritableName.setName
-      (org.apache.nutch.pagedb.FetchListEntry.class, "FetchListEntry");
     WritableName.setName
       (org.apache.nutch.fetcher.FetcherOutput.class, "FetcherOutput");
     WritableName.setName(org.apache.nutch.protocol.Content.class, "Content");

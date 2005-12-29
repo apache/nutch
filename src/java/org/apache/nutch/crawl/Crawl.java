@@ -23,10 +23,14 @@ import java.text.*;
 import java.util.logging.*;
 
 import org.apache.nutch.io.*;
+import org.apache.nutch.fetcher.Fetcher;
 import org.apache.nutch.fs.*;
 import org.apache.nutch.util.*;
 import org.apache.nutch.mapred.*;
+import org.apache.nutch.parse.ParseSegment;
+import org.apache.nutch.indexer.DeleteDuplicates;
 import org.apache.nutch.indexer.IndexMerger;
+import org.apache.nutch.indexer.Indexer;
 
 public class Crawl {
   public static final Logger LOG =

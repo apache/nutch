@@ -18,475 +18,351 @@ package org.apache.nutch.fetcher;
 
 import java.io.IOException;
 import java.io.File;
-import java.util.Properties;
 
-import org.apache.nutch.net.URLFilters;
-import org.apache.nutch.pagedb.FetchListEntry;
 import org.apache.nutch.io.*;
-import org.apache.nutch.db.*;
+import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.fs.*;
+import org.apache.nutch.net.*;
 import org.apache.nutch.util.*;
 import org.apache.nutch.protocol.*;
 import org.apache.nutch.parse.*;
-import org.apache.nutch.plugin.*;
+import org.apache.nutch.mapred.*;
 
 import java.util.logging.*;
 
-/**
- * The fetcher. Most of the work is done by plugins.
- *
- * <p>
- * Note by John Xing: As of 20041022, option -noParsing is introduced.
- * Without this option, fetcher behaves the old way, i.e., it not only
- * crawls but also parses content. With option -noParsing, fetcher
- * does crawl only. Use ParseSegment.java to parse fetched contents.
- * Check FetcherOutput.java and ParseSegment.java for further description.
- */
-public class Fetcher {
+/** The fetcher. Most of the work is done by plugins. */
+public class Fetcher extends NutchConfigured implements MapRunnable { 
 
   public static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.fetcher.Fetcher");
+  
+  public static final String DIGEST_KEY = "nutch.content.digest";
+  public static final String SEGMENT_NAME_KEY = "nutch.segment.name";
+  public static final String SCORE_KEY = "nutch.crawl.score";
 
-  static {
-    if (NutchConf.get().getBoolean("fetcher.verbose", false)) {
-      setLogLevel(Level.FINE);
+  public static class InputFormat extends SequenceFileInputFormat {
+    /** Don't split inputs, to keep things polite. */
+    public FileSplit[] getSplits(NutchFileSystem fs, JobConf job, int nSplits)
+      throws IOException {
+      File[] files = listFiles(fs, job);
+      FileSplit[] splits = new FileSplit[files.length];
+      for (int i = 0; i < files.length; i++) {
+        splits[i] = new FileSplit(files[i], 0, fs.getLength(files[i]));
+      }
+      return splits;
     }
   }
 
-  private ArrayFile.Reader fetchList;             // the input
-  private ArrayFile.Writer fetcherWriter;         // the output
-  private ArrayFile.Writer contentWriter;
-  private ArrayFile.Writer parseTextWriter;
-  private ArrayFile.Writer parseDataWriter;
+  private RecordReader input;
+  private OutputCollector output;
+  private Reporter reporter;
 
-  private String name;                            // name of the segment
-  private long start;                             // start time of fetcher run
+  private String segmentName;
+  private int activeThreads;
+  private int maxRedirect;
+
+  private long start = System.currentTimeMillis(); // start time of fetcher run
+  private long lastRequestStart = start;
+
   private long bytes;                             // total bytes fetched
   private int pages;                              // total pages fetched
   private int errors;                             // total pages errored
 
-  private boolean parsing = true;                 // whether do parsing
+  private boolean storingContent;
+  private boolean parsing;
 
-  private int threadCount =                       // max number of threads
-    NutchConf.get().getInt("fetcher.threads.fetch", 10);
-  private static final float NEW_INJECTED_PAGE_SCORE =
-    NutchConf.get().getFloat("db.score.injected", 2.0f);
-  private static final int MAX_REDIRECT =
-    NutchConf.get().getInt("http.redirect.max", 3);
-
-  // All threads (FetcherThread or thread started by it) belong to
-  // group "fetcher". Each FetcherThread is named as "fetcherXX",
-  // where XX is the order it's started.
-  private static final String THREAD_GROUP_NAME = "fetcher";
-
-  private ThreadGroup group = new ThreadGroup(THREAD_GROUP_NAME); // our group
-
-  // count of FetcherThreads that are through the loop and just about to return
-  private int atCompletion = 0;
-
-  /********************************************
-   * Fetcher thread
-   ********************************************/
   private class FetcherThread extends Thread {
+    public FetcherThread() {
+      this.setDaemon(true);                       // don't hang JVM on exit
+      this.setName("FetcherThread");              // use an informative name
+    }
 
-    public FetcherThread(String name) { super(group, name); }
-
-    /**
-     * This thread keeps looping, grabbing an item off the list
-     * of URLs to be fetched (in a thread-safe way).  It checks 
-     * whether the URL is OK to download.  If so, we do it.
-     */
     public void run() {
-
-      FetchListEntry fle = new FetchListEntry();
-
-      while (true) {
-        if (LogFormatter.hasLoggedSevere())       // something bad happened
-          break;                                  // exit
+      synchronized (Fetcher.this) {activeThreads++;} // count threads
+      
+      try {
+        UTF8 key = new UTF8();
+        CrawlDatum datum = new CrawlDatum();
         
-        String url = null;
-        try {
-
-          if (fetchList.next(fle) == null)
+        while (true) {
+          if (LogFormatter.hasLoggedSevere())     // something bad happened
+            break;                                // exit
+          
+          try {                                   // get next entry from input
+            if (!input.next(key, datum)) {
+              break;                              // at eof, exit
+            }
+          } catch (IOException e) {
+            LOG.severe("fetcher caught:"+e.toString());
             break;
-
-          url = fle.getPage().getURL().toString();
-
-          if (!fle.getFetch()) {                  // should we fetch this page?
-            if (LOG.isLoggable(Level.FINE))
-              LOG.fine("not fetching " + url);
-            handleFetch(fle, new ProtocolOutput(null, ProtocolStatus.STATUS_NOTFETCHING));
-            continue;
           }
 
-          // support multiple redirects, if requested by protocol
-          // or content meta-tags (the latter requires running Fetcher
-          // in parsing mode). Protocol-level redirects take precedence over
-          // content-level redirects. Some plugins can handle redirects
-          // automatically, so that only the final success or failure will be
-          // reported here.
-          boolean refetch = false;
-          int redirCnt = 0;
-          do {
-            LOG.fine("redirCnt=" + redirCnt);
-            refetch = false;
+          synchronized (Fetcher.this) {
+            lastRequestStart = System.currentTimeMillis();
+          }
+
+          String url = key.toString();
+          try {
             LOG.info("fetching " + url);            // fetch the page
-            Protocol protocol = ProtocolFactory.getProtocol(url);
-            ProtocolOutput output = protocol.getProtocolOutput(fle);
-            ProtocolStatus pstat = output.getStatus();
-            Content content = output.getContent();
-            switch(pstat.getCode()) {
-              case ProtocolStatus.SUCCESS:
-                if (content != null) {
-                  synchronized (Fetcher.this) {           // update status
-                    pages++;
-                    bytes += content.getContent().length;
-                    if ((pages % 100) == 0) {             // show status every 100pp
-                      status();
-                    }
-                  }
-                  ParseStatus ps = handleFetch(fle, output);
-                  if (ps != null && ps.getMinorCode() == ParseStatus.SUCCESS_REDIRECT) {
-                    String newurl = ps.getMessage();
-                    newurl = URLFilters.filter(newurl);
-                    if (newurl != null && !newurl.equals(url)) {
-                      refetch = true;
-                      url = newurl;
-                      redirCnt++;
-                      fle = new FetchListEntry(true, new Page(url, NEW_INJECTED_PAGE_SCORE), new String[0]);
-                      LOG.fine(" - content redirect to " + url);
-                    } else {
-                      LOG.fine(" - content redirect skipped, " +
-                              (url.equals(newurl)? "newurl == url" : "prohibited by urlfilter"));
-                    }
-                  }
-                }
+            
+            boolean redirecting;
+            int redirectCount = 0;
+            do {
+              redirecting = false;
+              LOG.fine("redirectCount=" + redirectCount);
+              Protocol protocol = ProtocolFactory.getProtocol(url);
+              ProtocolOutput output = protocol.getProtocolOutput(key, datum);
+              ProtocolStatus status = output.getStatus();
+              Content content = output.getContent();
+
+              switch(status.getCode()) {
+
+              case ProtocolStatus.SUCCESS:        // got a page
+                output(key, datum, content, CrawlDatum.STATUS_FETCH_SUCCESS);
+                updateStatus(content.getContent().length);
                 break;
-              case ProtocolStatus.MOVED: // try to redirect immediately
-              case ProtocolStatus.TEMP_MOVED: // try to redirect immediately
-                // record the redirect. perhaps the DB will want to know this.
-                handleFetch(fle, output);
-                String newurl = pstat.getMessage();
-                newurl = URLFilters.filter(newurl);
-                if (newurl != null && !newurl.equals(url)) {
-                  refetch = true;
-                  url = newurl;
-                  redirCnt++;
-                  // create new entry.
-                  fle = new FetchListEntry(true, new Page(url, NEW_INJECTED_PAGE_SCORE), new String[0]);
-                  LOG.info(" - protocol redirect to " + url);
+
+              case ProtocolStatus.MOVED:         // redirect
+              case ProtocolStatus.TEMP_MOVED:
+                String newUrl = status.getMessage();
+                newUrl = URLFilters.filter(newUrl);
+                if (newUrl != null && !newUrl.equals(url)) {
+                  url = newUrl;
+                  redirecting = true;
+                  redirectCount++;
+                  LOG.fine(" - redirect to " + url);
                 } else {
-                  LOG.fine(" - protocol redirect skipped, " +
-                          (url.equals(newurl)? "newurl == url" : "prohibited by urlfilter"));
+                  LOG.fine(" - redirect skipped: " +
+                           (url.equals(newUrl) ? "to same url" : "filtered"));
                 }
                 break;
-              case ProtocolStatus.GONE:
+
+              case ProtocolStatus.EXCEPTION:
+                logError(url, status.getMessage());
+              case ProtocolStatus.RETRY:          // retry
+                datum.setRetriesSinceFetch(datum.getRetriesSinceFetch()+1);
+                output(key, datum, null, CrawlDatum.STATUS_FETCH_RETRY);
+                break;
+                
+              case ProtocolStatus.GONE:           // gone
               case ProtocolStatus.NOTFOUND:
               case ProtocolStatus.ACCESS_DENIED:
               case ProtocolStatus.ROBOTS_DENIED:
-              case ProtocolStatus.RETRY:
               case ProtocolStatus.NOTMODIFIED:
-                handleFetch(fle, output);
+                output(key, datum, null, CrawlDatum.STATUS_FETCH_GONE);
                 break;
-              case ProtocolStatus.EXCEPTION:
-                logError(url, fle, new Exception(pstat.getMessage()));                // retry?
-                handleFetch(fle, output);
-              break;
+
               default:
-                LOG.warning("Unknown ProtocolStatus: " + pstat.getCode());
-                handleFetch(fle, output);
-            }
-          } while (refetch && (redirCnt < MAX_REDIRECT));
+                LOG.warning("Unknown ProtocolStatus: " + status.getCode());
+                output(key, datum, null, CrawlDatum.STATUS_FETCH_GONE);
+              }
 
-        } catch (Throwable t) {                   // an unchecked exception
-          if (fle != null) {
-            logError(url, fle, t);                // retry?
-            handleFetch(fle, new ProtocolOutput(null, new ProtocolStatus(t)));
+              if (redirecting && redirectCount >= maxRedirect) {
+                LOG.info(" - redirect count exceeded " + url);
+                output(key, datum, null, CrawlDatum.STATUS_FETCH_GONE);
+              }
+
+            } while (redirecting && (redirectCount < maxRedirect));
+
+            
+          } catch (Throwable t) {                 // unexpected exception
+            logError(url, t.toString());
+            output(key, datum, null, CrawlDatum.STATUS_FETCH_GONE);
+            
           }
         }
-      }
 
-      // Explicitly invoke shutDown() for all possible plugins.
-      // Done by the FetcherThread finished the last.
-      synchronized (Fetcher.this) {
-        atCompletion++;
-        if (atCompletion == threadCount) {
-          try {
-            PluginRepository.getInstance().finalize();
-          } catch (java.lang.Throwable t) {
-            // do nothing
-          }
-        }
+      } catch (Throwable e) {
+        LOG.severe("fetcher caught:"+e.toString());
+      } finally {
+        synchronized (Fetcher.this) {activeThreads--;} // count threads
       }
-      return;
     }
 
-    private void logError(String url, FetchListEntry fle, Throwable t) {
-      LOG.info("fetch of " + url + " failed with: " + t);
-      LOG.log(Level.FINE, "stack", t);            // stack trace
+    private void logError(String url, String message) {
+      LOG.info("fetch of " + url + " failed with: " + message);
       synchronized (Fetcher.this) {               // record failure
         errors++;
       }
     }
 
-    private ParseStatus handleFetch(FetchListEntry fle, ProtocolOutput output) {
-      Content content = output.getContent();
-      MD5Hash hash = null;
-      String url = fle.getPage().getURL().toString();
+    private void output(UTF8 key, CrawlDatum datum,
+                        Content content, int status) {
+
+      datum.setStatus(status);
+
       if (content == null) {
-        content = new Content(url, url, new byte[0], "", new ContentProperties());
-        hash = MD5Hash.digest(url);
-      } else {
-        hash = MD5Hash.digest(content.getContent());
+        String url = key.toString();
+        content = new Content(url,url,new byte[0],"",new ContentProperties());
       }
-      ProtocolStatus protocolStatus = output.getStatus();
-      if (!Fetcher.this.parsing) {
-        outputPage(new FetcherOutput(fle, hash, protocolStatus),
-                content, null, null);
-        return null;
-      }
-      String contentType = content.getContentType();
+
+      content.getMetadata().setProperty           // add digest to metadata
+        (DIGEST_KEY, MD5Hash.digest(content.getContent()).toString());
+      content.getMetadata().setProperty           // add segment to metadata
+        (SEGMENT_NAME_KEY, segmentName);
+      content.getMetadata().setProperty           // add score to metadata
+        (SCORE_KEY, Float.toString(datum.getScore()));
+
       Parse parse = null;
-      ParseStatus status = null;
+      if (parsing && status == CrawlDatum.STATUS_FETCH_SUCCESS) {
+        ParseStatus parseStatus;
+        try {
+          parse = ParseUtil.parse(content);
+          parseStatus = parse.getData().getStatus();
+        } catch (Exception e) {
+          parseStatus = new ParseStatus(e);
+        }
+        if (!parseStatus.isSuccess()) {
+          LOG.warning("Error parsing: "+key+": "+parseStatus);
+          parse = null;
+        }
+      }
+
       try {
-        parse = ParseUtil.parse(content);
-        status = parse.getData().getStatus();
-      } catch (Exception e) {
-        e.printStackTrace();
-        status = new ParseStatus(e);
+        output.collect
+          (key,
+           new FetcherOutput(datum,
+                             storingContent ? content : null,
+                             parse != null ? new ParseImpl(parse) : null));
+      } catch (IOException e) {
+        LOG.severe("fetcher caught:"+e.toString());
       }
-      if (status.isSuccess()) {
-        outputPage(new FetcherOutput(fle, hash, protocolStatus),
-                content, new ParseText(parse.getText()), parse.getData());
-      } else {
-        LOG.info("fetch okay, but can't parse " + url + ", reason: "
-                + status.toString());
-        outputPage(new FetcherOutput(fle, hash, protocolStatus),
-                content, new ParseText(""),
-                new ParseData(status, "", new Outlink[0], new ContentProperties()));
-      }
-      return status;
+    }
+    
+  }
+
+  public Fetcher() { super(null); }
+
+  public Fetcher(NutchConf conf) { super(conf); }
+
+  private synchronized void updateStatus(int bytesInPage) throws IOException {
+    pages++;
+    bytes += bytesInPage;
+  }
+
+  private void reportStatus() throws IOException {
+    String status;
+    synchronized (this) {
+      long elapsed = (System.currentTimeMillis() - start)/1000;
+      status = 
+        pages+" pages, "+errors+" errors, "
+        + Math.round(((float)pages*10)/elapsed)/10.0+" pages/s, "
+        + Math.round(((((float)bytes)*8)/1024)/elapsed)+" kb/s, ";
+    }
+    reporter.setStatus(status);
+  }
+
+  public void configure(JobConf job) {
+    setConf(job);
+
+    this.segmentName = job.get(SEGMENT_NAME_KEY);
+    this.storingContent = isStoringContent(job);
+    this.parsing = isParsing(job);
+
+    if (job.getBoolean("fetcher.verbose", false)) {
+      LOG.setLevel(Level.FINE);
+    }
+  }
+
+  public static boolean isParsing(NutchConf conf) {
+    return conf.getBoolean("fetcher.parse", true);
+  }
+
+  public static boolean isStoringContent(NutchConf conf) {
+    return conf.getBoolean("fetcher.store.content", true);
+  }
+
+  public void run(RecordReader input, OutputCollector output,
+                  Reporter reporter) throws IOException {
+
+    this.input = input;
+    this.output = output;
+    this.reporter = reporter;
+
+    this.maxRedirect = getConf().getInt("http.redirect.max", 3);
+    
+    int threadCount = getConf().getInt("fetcher.threads.fetch", 10);
+    LOG.info("Fetcher: threads: " + threadCount);
+
+    for (int i = 0; i < threadCount; i++) {       // spawn threads
+      new FetcherThread().start();
     }
 
-    private void outputPage(FetcherOutput fo, Content content,
-                            ParseText text, ParseData parseData) {
+    // select a timeout that avoids a task timeout
+    long timeout = getConf().getInt("mapred.task.timeout", 10*60*1000)/2;
+
+    do {                                          // wait for threads to exit
       try {
-        synchronized (fetcherWriter) {
-          fetcherWriter.append(fo);
-          contentWriter.append(content);
-          if (Fetcher.this.parsing) {
-            parseTextWriter.append(text);
-            parseDataWriter.append(parseData);
-          }
+        Thread.sleep(1000);
+      } catch (InterruptedException e) {}
+
+      reportStatus();
+
+      // some requests seem to hang, despite all intentions
+      synchronized (this) {
+        if ((System.currentTimeMillis() - lastRequestStart) > timeout) { 
+          LOG.warning("Aborting with "+activeThreads+" hung threads.");
+          return;
         }
-      } catch (Throwable t) {
-        LOG.severe("error writing output:" + t.toString());
-        t.printStackTrace();
       }
-    }
-                                       
+
+    } while (activeThreads > 0);
+    
   }
-			
-  public Fetcher(NutchFileSystem nfs, String directory, boolean parsing)
+
+  public void fetch(File segment, int threads)
     throws IOException {
 
-    this.parsing = parsing;
+    LOG.info("Fetcher: starting");
+    LOG.info("Fetcher: segment: " + segment);
 
-    // Set up in/out streams
-    fetchList = new ArrayFile.Reader
-      (nfs, new File(directory, FetchListEntry.DIR_NAME).toString());
-    if (this.parsing) {
-      fetcherWriter = new ArrayFile.Writer
-        (nfs, new File(directory, FetcherOutput.DIR_NAME).toString(),
-        FetcherOutput.class);
-    } else {
-      fetcherWriter = new ArrayFile.Writer
-        (nfs, new File(directory, FetcherOutput.DIR_NAME_NP).toString(),
-        FetcherOutput.class);
-    }
-    contentWriter = new ArrayFile.Writer
-      (nfs, new File(directory, Content.DIR_NAME).toString(), Content.class);
-    if (this.parsing) {
-      parseTextWriter = new ArrayFile.Writer(nfs,
-        new File(directory, ParseText.DIR_NAME).toString(), ParseText.class);
-      parseDataWriter = new ArrayFile.Writer(nfs,
-        new File(directory, ParseData.DIR_NAME).toString(), ParseData.class);
-    }
-    name = new File(directory).getName();
+    JobConf job = new JobConf(getConf());
+
+    job.setInt("fetcher.threads.fetch", threads);
+    job.set(SEGMENT_NAME_KEY, segment.getName());
+
+    job.setInputDir(new File(segment, CrawlDatum.GENERATE_DIR_NAME));
+    job.setInputFormat(InputFormat.class);
+    job.setInputKeyClass(UTF8.class);
+    job.setInputValueClass(CrawlDatum.class);
+
+    job.setMapRunnerClass(Fetcher.class);
+
+    job.setOutputDir(segment);
+    job.setOutputFormat(FetcherOutputFormat.class);
+    job.setOutputKeyClass(UTF8.class);
+    job.setOutputValueClass(FetcherOutput.class);
+
+    JobClient.runJob(job);
+    LOG.info("Fetcher: done");
   }
 
-  /** Set thread count */
-  public void setThreadCount(int threadCount) {
-    this.threadCount=threadCount;
-  }
-
-  /** Set the logging level. */
-  public static void setLogLevel(Level level) {
-    LOG.setLevel(level);
-    PluginRepository.LOG.setLevel(level);
-    ParserFactory.LOG.setLevel(level);
-    LOG.info("logging at " + level);
-  }
-
-  /** Runs the fetcher. */
-  public void run() throws IOException, InterruptedException {
-    start = System.currentTimeMillis();
-    for (int i = 0; i < threadCount; i++) {       // spawn threads
-      FetcherThread thread = new FetcherThread(THREAD_GROUP_NAME+i); 
-      thread.start();
-    }
-
-    // Quit monitoring if all FetcherThreads are gone.
-    // There could still be other threads, which may well be runaway threads
-    // started by external libs via FetcherThreads and it is generally safe
-    // to ignore them because our main FetcherThreads have finished their jobs.
-    // In fact we are a little more cautious here by making sure
-    // there is no more outstanding page fetches via monitoring
-    // changes of pages, errors and bytes.
-    int pages0 = pages; int errors0 = errors; long bytes0 = bytes;
-  
-    while (true) {
-      Thread.sleep(1000);
-
-      if (LogFormatter.hasLoggedSevere()) 
-        throw new RuntimeException("SEVERE error logged.  Exiting fetcher.");
-
-      int n = group.activeCount();
-      Thread[] list = new Thread[n];
-      group.enumerate(list);
-      boolean noMoreFetcherThread = true; // assumption
-      for (int i = 0; i < n; i++) {
-        // this thread may have gone away in the meantime
-        if (list[i] == null) continue;
-        String tname = list[i].getName();
-        if (tname.startsWith(THREAD_GROUP_NAME)) // prove it
-          noMoreFetcherThread = false;
-        if (LOG.isLoggable(Level.FINE))
-          LOG.fine(list[i].toString());
-      }
-      if (noMoreFetcherThread) {
-        if (LOG.isLoggable(Level.FINE))
-          LOG.fine("number of active threads: "+n);
-        if (pages == pages0 && errors == errors0 && bytes == bytes0)
-          break;
-        status();
-        pages0 = pages; errors0 = errors; bytes0 = bytes;
-      }
-    }
-
-    fetchList.close();                            // close databases
-    fetcherWriter.close();
-    contentWriter.close();
-    if (this.parsing) {
-      parseTextWriter.close();
-      parseDataWriter.close();
-    }
-
-  }
-  
-  public static class FetcherStatus {
-    private String name;
-    private long startTime, curTime;
-    private int pageCount, errorCount;
-    private long byteCount;
-    
-    /**
-     * FetcherStatus encapsulates a snapshot of the Fetcher progress status.
-     * @param name short name of the segment being processed
-     * @param start the time in millisec. this fetcher was started
-     * @param pages number of pages fetched
-     * @param errors number of fetching errors
-     * @param bytes number of bytes fetched
-     */
-    public FetcherStatus(String name, long start, int pages, int errors, long bytes) {
-      this.name = name;
-      this.startTime = start;
-      this.curTime = System.currentTimeMillis();
-      this.pageCount = pages;
-      this.errorCount = errors;
-      this.byteCount = bytes;
-    }
-    
-    public String getName() {return name;}
-    public long getStartTime() {return startTime;}
-    public long getCurTime() {return curTime;}
-    public long getElapsedTime() {return curTime - startTime;}
-    public int getPageCount() {return pageCount;}
-    public int getErrorCount() {return errorCount;}
-    public long getByteCount() {return byteCount;}
-    
-    public String toString() {
-      return "status: segment " + name + ", "
-        + pageCount + " pages, "
-        + errorCount + " errors, "
-        + byteCount + " bytes, "
-        + (curTime - startTime) + " ms";
-    }
-  }
-  
-  public synchronized FetcherStatus getStatus() {
-    return new FetcherStatus(name, start, pages, errors, bytes);
-  }
-
-  /** Display the status of the fetcher run. */
-  public synchronized void status() {
-    FetcherStatus status = getStatus();
-    LOG.info(status.toString());
-    LOG.info("status: "
-             + (((float)status.getPageCount())/(status.getElapsedTime()/1000.0f))+" pages/s, "
-             + (((float)status.getByteCount()*8/1024)/(status.getElapsedTime()/1000.0f))+" kb/s, "
-             + (((float)status.getByteCount())/status.getPageCount()) + " bytes/page");
-  }
 
   /** Run the fetcher. */
   public static void main(String[] args) throws Exception {
-    int threadCount = -1;
-    String logLevel = "info";
-    boolean parsing = true;
-    boolean showThreadID = false;
-    String directory = null;
 
-    String usage = "Usage: Fetcher (-local | -ndfs <namenode:port>) [-logLevel level] [-noParsing] [-showThreadID] [-threads n] <dir>";
+    String usage = "Usage: Fetcher <segment> [-threads n]";
 
-    if (args.length == 0) {
+    if (args.length < 1) {
       System.err.println(usage);
       System.exit(-1);
     }
       
-    int i = 0;
-    NutchFileSystem nfs = NutchFileSystem.parseArgs(args, i);
-    for (; i < args.length; i++) {       // parse command line
-      if (args[i] == null) {
-          continue;
-      } else if (args[i].equals("-threads")) {    // found -threads option
-        threadCount =  Integer.parseInt(args[++i]);
-      } else if (args[i].equals("-logLevel")) {
-        logLevel = args[++i];
-      } else if (args[i].equals("-noParsing")) {
-        parsing = false;
-      } else if (args[i].equals("-showThreadID")) {
-        showThreadID = true;
-      } else                                      // root is required parameter
-        directory = args[i];
+    File segment = new File(args[0]);
+
+    NutchConf conf = NutchConf.get();
+
+    int threads = conf.getInt("fetcher.threads.fetch", 10);
+
+    for (int i = 1; i < args.length; i++) {       // parse command line
+      if (args[i].equals("-threads")) {           // found -threads option
+        threads =  Integer.parseInt(args[++i]);
+      }
     }
 
-    Fetcher fetcher = new Fetcher(nfs, directory, parsing);// make a Fetcher
-    if (threadCount != -1) {                      // set threadCount option
-      fetcher.setThreadCount(threadCount);
-    }
-
-    // set log level
-    setLogLevel(Level.parse(logLevel.toUpperCase()));
-
-    if (showThreadID) {
-      LogFormatter.setShowThreadIDs(showThreadID);
-    }
+    Fetcher fetcher = new Fetcher(conf);          // make a Fetcher
     
-    try {
-      fetcher.run();                                // run the Fetcher
-    } finally {
-      nfs.close();
-    }
+    fetcher.fetch(segment, threads);              // run the Fetcher
 
   }
 }

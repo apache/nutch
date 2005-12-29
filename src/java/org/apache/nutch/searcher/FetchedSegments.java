@@ -20,17 +20,11 @@ import java.io.IOException;
 import java.io.File;
 
 import java.util.HashMap;
-import java.util.Arrays;
 
 import org.apache.nutch.io.*;
 import org.apache.nutch.fs.*;
-import org.apache.nutch.db.*;
-import org.apache.nutch.util.*;
-import org.apache.nutch.fetcher.*;
 import org.apache.nutch.protocol.*;
 import org.apache.nutch.parse.*;
-import org.apache.nutch.pagedb.*;
-import org.apache.nutch.indexer.*;
 import org.apache.nutch.mapred.*;
 import org.apache.nutch.mapred.lib.*;
 import org.apache.nutch.crawl.*;

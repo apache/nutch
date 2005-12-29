@@ -19,13 +19,13 @@ package org.apache.nutch.protocol.ftp;
 
 import org.apache.commons.net.ftp.FTPFileEntryParser;
 
-import org.apache.nutch.db.Page;
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.io.UTF8;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 
 import org.apache.nutch.util.LogFormatter;
 import org.apache.nutch.util.NutchConf;
 
-import org.apache.nutch.pagedb.FetchListEntry;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolOutput;
@@ -112,26 +112,16 @@ public class Ftp implements Protocol {
     this.keepConnection = keepConnection;
   }
 
-  public ProtocolOutput getProtocolOutput(String urlString) {
-    ProtocolOutput output = null;
+  public ProtocolOutput getProtocolOutput(UTF8 url, CrawlDatum datum) {
+    String urlString = url.toString();
     try {
-      return getProtocolOutput(new FetchListEntry(true,
-            new Page(urlString, 1.0f), new String[0]));
-    } catch (MalformedURLException mue) {
-      return new ProtocolOutput(null, new ProtocolStatus(mue));
-    }
-  }
-  
-  public ProtocolOutput getProtocolOutput(FetchListEntry fle) {
-    String urlString = fle.getUrl().toString();
-    try {
-      URL url = new URL(urlString);
+      URL u = new URL(urlString);
   
       int redirects = 0;
   
       while (true) {
         FtpResponse response;
-        response = new FtpResponse(urlString, url, this);   // make a request
+        response = new FtpResponse(u, datum, this);   // make a request
   
         int code = response.getCode();
   
@@ -141,10 +131,10 @@ public class Ftp implements Protocol {
         } else if (code >= 300 && code < 400) {     // handle redirect
           if (redirects == MAX_REDIRECTS)
             throw new FtpException("Too many redirects: " + url);
-          url = new URL(response.getHeader("Location"));
+          u = new URL(response.getHeader("Location"));
           redirects++;                
           if (LOG.isLoggable(Level.FINE))
-            LOG.fine("redirect to " + url); 
+            LOG.fine("redirect to " + u); 
   
         } else {                                    // convert to exception
           throw new FtpError(code);
@@ -218,7 +208,7 @@ public class Ftp implements Protocol {
     // set log level
     LOG.setLevel(Level.parse((new String(logLevel)).toUpperCase()));
 
-    Content content = ftp.getProtocolOutput(urlString).getContent();
+    Content content = ftp.getProtocolOutput(new UTF8(urlString), new CrawlDatum()).getContent();
 
     System.err.println("Content-Type: " + content.getContentType());
     System.err.println("Content-Length: " + content.get("Content-Length"));

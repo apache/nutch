@@ -35,6 +35,7 @@ import java.util.logging.Handler;
 
 import org.apache.nutch.util.NutchConf;
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.protocol.ProtocolException;
 
 /**
@@ -382,7 +383,7 @@ public class RobotRulesParser {
     if (robotRules == null) {                     // cache miss
       int redirects = 0;
       do {
-        HttpResponse response = new HttpResponse(new URL(url, "/robots.txt"));
+        HttpResponse response = new HttpResponse(new URL(url, "/robots.txt"), new CrawlDatum());
 
         int code = response.getCode();
 

@@ -31,6 +31,7 @@ import java.util.TreeMap;
 import java.util.Properties;
 import java.util.logging.Level;
 
+import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.protocol.ProtocolException;
@@ -63,14 +64,10 @@ public class HttpResponse {
                        headers);
   }
 
-  public HttpResponse(URL url) throws ProtocolException, IOException {
-    this(url.toString(), url);
-  }
-
-  public HttpResponse(String orig, URL url)
+  public HttpResponse(URL url, CrawlDatum datum)
     throws ProtocolException, IOException {
     
-    this.orig = orig;
+    this.orig = url.toString();
     this.base = url.toString();
 
     if (!"http".equals(url.getProtocol()))

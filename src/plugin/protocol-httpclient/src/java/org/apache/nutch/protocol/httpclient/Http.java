@@ -20,13 +20,9 @@ import org.apache.commons.httpclient.NTCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.protocol.Protocol;
-import org.apache.nutch.db.Page;
-import org.apache.nutch.pagedb.FetchListEntry;
-import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.ProtocolException;
-import org.apache.nutch.protocol.ProtocolOutput;
-import org.apache.nutch.protocol.ProtocolStatus;
-import org.apache.nutch.protocol.RetryLater;
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.io.UTF8;
+import org.apache.nutch.protocol.*;
 import org.apache.nutch.util.LogFormatter;
 import org.apache.nutch.util.NutchConf;
 
@@ -130,7 +126,7 @@ public class Http implements org.apache.nutch.protocol.Protocol {
         }
       }
 
-      if (delays == MAX_DELAYS) throw new RetryLater(url, "Exceeded http.max.delays: retry later.");
+      if (delays == MAX_DELAYS) throw new HttpException("Exceeded http.max.delays: retry later.");
 
       long done = time.longValue();
       long now = System.currentTimeMillis();
@@ -177,31 +173,23 @@ public class Http implements org.apache.nutch.protocol.Protocol {
     }
   }
 
-  public ProtocolOutput getProtocolOutput(String urlString) {
+  public ProtocolOutput getProtocolOutput(UTF8 url, CrawlDatum datum) {
+    String urlString = url.toString();
     try {
-      return getProtocolOutput(new FetchListEntry(true, new Page(urlString, 1.0f), new String[0]));
-    } catch (MalformedURLException mue) {
-      return new ProtocolOutput(null, new ProtocolStatus(mue));
-    }
-  }
-
-  public ProtocolOutput getProtocolOutput(FetchListEntry fle) {
-    String urlString = fle.getUrl().toString();
-    try {
-      URL url = new URL(urlString);
+      URL u = new URL(urlString);
 
         try {
-          if (!RobotRulesParser.isAllowed(url))
+          if (!RobotRulesParser.isAllowed(u))
                   return new ProtocolOutput(null, new ProtocolStatus(ProtocolStatus.ROBOTS_DENIED, url));
         } catch (Throwable e) {
           // XXX Maybe bogus: assume this is allowed.
           LOG.fine("Exception checking robot rules for " + url + ": " + e);
         }
 
-        InetAddress addr = blockAddr(url);
+        InetAddress addr = blockAddr(u);
         HttpResponse response;
         try {
-          response = new HttpResponse(url); // make a request
+          response = new HttpResponse(u, datum); // make a request
         } finally {
           unblockAddr(addr);
         }
@@ -220,7 +208,7 @@ public class Http implements org.apache.nutch.protocol.Protocol {
           // some broken servers, such as MS IIS, use lowercase header name...
           if (location == null) location = response.getHeader("location");
           if (location == null) location = "";
-          url = new URL(url, location);
+          u = new URL(u, location);
           int protocolStatusCode;
           switch (code) {
             case 300:   // multiple choices, preferred value in Location
@@ -242,21 +230,21 @@ public class Http implements org.apache.nutch.protocol.Protocol {
               protocolStatusCode = ProtocolStatus.MOVED;
           }
           // handle this in the higher layer.
-          return new ProtocolOutput(c, new ProtocolStatus(protocolStatusCode, url));
+          return new ProtocolOutput(c, new ProtocolStatus(protocolStatusCode, u));
         } else if (code == 400) { // bad request, mark as GONE
-          LOG.fine("400 Bad request: " + url);
-          return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.GONE, url));
+          LOG.fine("400 Bad request: " + u);
+          return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.GONE, u));
         } else if (code == 401) { // requires authorization, but no valid auth provided.
           LOG.fine("401 Authentication Required");
           return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.ACCESS_DENIED, "Authentication required: "
                   + urlString));
         } else if (code == 404) {
-          return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.NOTFOUND, url));
+          return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.NOTFOUND, u));
         } else if (code == 410) { // permanently GONE
-          return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.GONE, url));
+          return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.GONE, u));
         } else {
           return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.EXCEPTION, "Http code=" + code + ", url="
-                  + url));
+                  + u));
         }
     } catch (Throwable e) {
       e.printStackTrace();
@@ -333,7 +321,7 @@ public class Http implements org.apache.nutch.protocol.Protocol {
       LOG.setLevel(Level.FINE);
     }
 
-    ProtocolOutput out = http.getProtocolOutput(url);
+    ProtocolOutput out = http.getProtocolOutput(new UTF8(url), new CrawlDatum());
     Content content = out.getContent();
 
     System.out.println("Status: " + out.getStatus());

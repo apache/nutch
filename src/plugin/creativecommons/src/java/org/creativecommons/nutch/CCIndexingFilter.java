@@ -27,8 +27,6 @@ import org.apache.nutch.io.UTF8;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
-import org.apache.nutch.fetcher.FetcherOutput;
-import org.apache.nutch.pagedb.FetchListEntry;
 
 import java.util.logging.Logger;
 import org.apache.nutch.util.LogFormatter;

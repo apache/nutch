@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.crawl;
+package org.apache.nutch.parse;
 
 import org.apache.nutch.io.*;
-import org.apache.nutch.fs.*;
+import org.apache.nutch.parse.ParseOutputFormat;
 import org.apache.nutch.mapred.*;
 import org.apache.nutch.util.*;
 import org.apache.nutch.protocol.*;
-import org.apache.nutch.parse.*;
-import org.apache.nutch.net.*;
 
 import java.io.*;
 import java.util.*;

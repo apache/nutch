@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.crawl;
+package org.apache.nutch.parse;
 
 import org.apache.nutch.io.*;
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.fetcher.Fetcher;
 import org.apache.nutch.fs.*;
 import org.apache.nutch.mapred.*;
 import org.apache.nutch.parse.*;

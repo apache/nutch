@@ -18,7 +18,7 @@ package org.creativecommons.nutch;
 
 import org.apache.nutch.io.*;
 import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.indexer.IndexSegment;
+import org.apache.nutch.indexer.Indexer;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.document.Document;
@@ -80,7 +80,7 @@ public class CCDeleteUnlicensedTool {
     Vector vReaders=new Vector();
     int maxDoc = 0;
     for (int i = 0; i < directories.length; i++) {
-      File indexDone = new File(directories[i], IndexSegment.DONE_NAME);
+      File indexDone = new File(directories[i], Indexer.DONE_NAME);
       if (indexDone.exists() && indexDone.isFile()){
         File indexDir = new File(directories[i], "index");
       	IndexReader reader = IndexReader.open(indexDir);

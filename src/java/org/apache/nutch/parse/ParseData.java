@@ -22,7 +22,7 @@ import java.util.*;
 import org.apache.nutch.io.*;
 import org.apache.nutch.fs.*;
 import org.apache.nutch.protocol.ContentProperties;
-import org.apache.nutch.tools.UpdateDatabaseTool;
+import org.apache.nutch.util.NutchConf;
 
 
 /** Data extracted from a page's content.
@@ -84,7 +84,9 @@ public final class ParseData extends VersionedWritable {
     title = UTF8.readString(in);                   // read title
 
     int totalOutlinks = in.readInt();             // read outlinks
-    int outlinksToRead = Math.min(UpdateDatabaseTool.MAX_OUTLINKS_PER_PAGE,
+    // XXX remove the dependency on static NutchConf.get(). How?
+    int outlinksToRead =
+      Math.min(NutchConf.get().getInt("db.max.outlinks.per.page", 100),
                                   totalOutlinks);
     outlinks = new Outlink[outlinksToRead];
     for (int i = 0; i < outlinksToRead; i++) {

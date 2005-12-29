@@ -31,7 +31,6 @@ if [ $# = 0 ]; then
   echo "  crawl             one-step crawler for intranets"
   echo "  readdb            read / dump crawl db"
   echo "  readlinkdb        read / dump link db"
-  echo "  admin             database administration, including creation"
   echo "  inject            inject new urls into the database"
   echo "  generate          generate new segments to fetch"
   echo "  fetch             fetch a segment's pages"
@@ -131,9 +130,9 @@ elif [ "$COMMAND" = "inject" ] ; then
 elif [ "$COMMAND" = "generate" ] ; then
   CLASS=org.apache.nutch.crawl.Generator
 elif [ "$COMMAND" = "fetch" ] ; then
-  CLASS=org.apache.nutch.crawl.Fetcher
+  CLASS=org.apache.nutch.fetcher.Fetcher
 elif [ "$COMMAND" = "parse" ] ; then
-  CLASS=org.apache.nutch.crawl.ParseSegment
+  CLASS=org.apache.nutch.parse.ParseSegment
 elif [ "$COMMAND" = "readdb" ] ; then
   CLASS=org.apache.nutch.crawl.CrawlDbReader
 elif [ "$COMMAND" = "readlinkdb" ] ; then
@@ -143,9 +142,9 @@ elif [ "$COMMAND" = "updatedb" ] ; then
 elif [ "$COMMAND" = "invertlinks" ] ; then
   CLASS=org.apache.nutch.crawl.LinkDb
 elif [ "$COMMAND" = "index" ] ; then
-  CLASS=org.apache.nutch.crawl.Indexer
+  CLASS=org.apache.nutch.indexer.Indexer
 elif [ "$COMMAND" = "dedup" ] ; then
-  CLASS=org.apache.nutch.crawl.DeleteDuplicates
+  CLASS=org.apache.nutch.indexer.DeleteDuplicates
 elif [ "$COMMAND" = "merge" ] ; then
   CLASS=org.apache.nutch.indexer.IndexMerger
 elif [ "$COMMAND" = "server" ] ; then

@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.crawl;
+package org.apache.nutch.fetcher;
 
 import java.io.IOException;
 import java.io.File;
 
+import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.fs.NutchFileSystem;
 
 import org.apache.nutch.io.MapFile;
@@ -31,6 +32,7 @@ import org.apache.nutch.mapred.RecordWriter;
 import org.apache.nutch.mapred.JobConf;
 import org.apache.nutch.mapred.Reporter;
 
+import org.apache.nutch.parse.ParseOutputFormat;
 import org.apache.nutch.protocol.Content;
 
 /** Splits FetcherOutput entries into multiple map files. */

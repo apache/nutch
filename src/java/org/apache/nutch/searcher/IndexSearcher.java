@@ -28,7 +28,6 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiReader;
 
-import org.apache.lucene.search.MultiSearcher;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.FieldDoc;
@@ -40,11 +39,7 @@ import org.apache.lucene.document.Field;
 import org.apache.nutch.fs.*;
 import org.apache.nutch.io.*;
 import org.apache.nutch.util.*;
-import org.apache.nutch.db.*;
-import org.apache.nutch.fetcher.*;
-import org.apache.nutch.linkdb.*;
 import org.apache.nutch.indexer.*;
-import org.apache.nutch.analysis.NutchDocumentAnalyzer;
 
 /** Implements {@link Searcher} and {@link HitDetailer} for either a single
  * merged index, or a set of indexes. */

@@ -37,7 +37,6 @@ import org.apache.nutch.io.UTF8;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
-import org.apache.nutch.fetcher.FetcherOutput;
 
 import org.apache.nutch.util.NutchConf;
 import org.apache.nutch.util.mime.MimeType;

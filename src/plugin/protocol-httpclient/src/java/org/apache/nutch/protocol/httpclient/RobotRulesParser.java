@@ -35,6 +35,7 @@ import java.util.logging.Handler;
 
 import org.apache.nutch.util.NutchConf;
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.protocol.ProtocolException;
 
 /**
@@ -380,7 +381,7 @@ public class RobotRulesParser {
       LOG.fine("cache miss " + url);
       try {
         HttpResponse response = new HttpResponse(new URL(url, "/robots.txt"),
-                                                 true);
+                                      new CrawlDatum(), true);
 
         if (response.getCode() == 200)               // found rules: parse them
           robotRules = new RobotRulesParser().parseRules(response.getContent());
