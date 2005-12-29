@@ -17,14 +17,13 @@
 package org.apache.nutch.indexer;
 
 import java.io.*;
-import java.security.*;
-import java.text.*;
 import java.util.*;
 import java.util.logging.*;
 
 import org.apache.nutch.io.*;
 import org.apache.nutch.fs.*;
 import org.apache.nutch.util.*;
+import org.apache.nutch.mapred.*;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.document.Document;
@@ -32,337 +31,319 @@ import org.apache.lucene.document.Document;
 /******************************************************************
  * Deletes duplicate documents in a set of Lucene indexes.
  * Duplicates have either the same contents (via MD5 hash) or the same URL.
- * 
- * @author Doug Cutting
- * @author Mike Cafarella
  ******************************************************************/
-public class DeleteDuplicates {
+public class DeleteDuplicates extends NutchConfigured
+  implements Mapper, Reducer, OutputFormat {
   private static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.indexer.DeleteDuplicates");
 
-  /********************************************************
-   * The key used in sorting for duplicates.
-   *******************************************************/
-  public static class IndexedDoc implements WritableComparable {
-    private MD5Hash hash = new MD5Hash();
-    private float score;
-    private int index;                            // the segment index
+//   Algorithm:
+//      
+//   1. map indexes -> <<md5, score, urlLen>, <index,doc>>
+//      partition by md5
+//      reduce, deleting all but largest score w/ shortest url
+//
+//   2. map indexes -> <<url, fetchdate>, <index,doc>>
+//      partition by url
+//      reduce, deleting all but most recent.
+//
+//   Part 2 is not yet implemented, but the Indexer currently only indexes one
+//   URL per page, so this is not a critical problem.
+
+  public static class IndexDoc implements WritableComparable {
+    private UTF8 index;                           // the segment index
     private int doc;                              // within the index
+
+    public void write(DataOutput out) throws IOException {
+      index.write(out);
+      out.writeInt(doc);
+    }
+
+    public void readFields(DataInput in) throws IOException {
+      if (index == null) {
+        index = new UTF8();
+      }
+      index.readFields(in);
+      this.doc = in.readInt();
+    }
+
+    public int compareTo(Object o) {
+      IndexDoc that = (IndexDoc)o;
+      int indexCompare = this.index.compareTo(that.index);
+      if (indexCompare != 0) {                    // prefer later indexes
+        return indexCompare;
+      } else {
+        return this.doc - that.doc;               // prefer later docs
+      }
+    }
+
+    public boolean equals(Object o) {
+      IndexDoc that = (IndexDoc)o;
+      return this.index.equals(that.index) && this.doc == that.doc;
+    }
+
+  }
+
+  public static class HashScore implements WritableComparable {
+    private MD5Hash hash;
+    private float score;
     private int urlLen;
 
     public void write(DataOutput out) throws IOException {
       hash.write(out);
       out.writeFloat(score);
-      out.writeInt(index);
-      out.writeInt(doc);
       out.writeInt(urlLen);
     }
 
     public void readFields(DataInput in) throws IOException {
+      if (hash == null) {
+        hash = new MD5Hash();
+      }
       hash.readFields(in);
-      this.score = in.readFloat();
-      this.index = in.readInt();
-      this.doc = in.readInt();
-      this.urlLen = in.readInt();
+      score = in.readFloat();
+      urlLen = in.readInt();
     }
 
     public int compareTo(Object o) {
-      throw new RuntimeException("this is never used");
-    }
-
-    /** 
-     * Order equal hashes by decreasing score and increasing urlLen. 
-     */
-    public static class ByHashScore extends WritableComparator {
-      public ByHashScore() { super(IndexedDoc.class); }
-      
-      public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2){
-        int c = compareBytes(b1, s1, MD5Hash.MD5_LEN, b2, s2, MD5Hash.MD5_LEN);
-        if (c != 0)
-          return c;
-
-        float thisScore = readFloat(b1, s1+MD5Hash.MD5_LEN);
-        float thatScore = readFloat(b2, s2+MD5Hash.MD5_LEN);
-
-        if (thisScore < thatScore)
-          return 1;
-        else if (thisScore > thatScore)
-          return -1;
-        
-        int thisUrlLen = readInt(b1, s1+MD5Hash.MD5_LEN+12);
-        int thatUrlLen = readInt(b2, s2+MD5Hash.MD5_LEN+12);
-
-        return thisUrlLen - thatUrlLen;
+      HashScore that = (HashScore)o;
+      if (!this.hash.equals(that.hash)) {         // order first by hash
+        return this.hash.compareTo(that.hash);
+      } else if (this.score != that.score) {      // prefer larger scores
+        return this.score < that.score ? 1 : -1 ;
+      } else {                                    // prefer shorter urls
+        return this.urlLen - that.urlLen;
       }
     }
 
-    /** 
-     * Order equal hashes by decreasing index and document. 
-     */
-    public static class ByHashDoc extends WritableComparator {
-      public ByHashDoc() { super(IndexedDoc.class); }
-      
-      public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2){
-        int c = compareBytes(b1, s1, MD5Hash.MD5_LEN, b2, s2, MD5Hash.MD5_LEN);
-        if (c != 0)
-          return c;
-
-        int thisIndex = readInt(b1, s1+MD5Hash.MD5_LEN+4);
-        int thatIndex = readInt(b2, s2+MD5Hash.MD5_LEN+4);
-
-        if (thisIndex != thatIndex)
-          return thatIndex - thisIndex;
-
-        int thisDoc = readInt(b1, s1+MD5Hash.MD5_LEN+8);
-        int thatDoc = readInt(b2, s2+MD5Hash.MD5_LEN+8);
-
-        return thatDoc - thisDoc;
-      }
+    public boolean equals(Object o) {
+      HashScore that = (HashScore)o;
+      return this.hash.equals(that.hash)
+        && this.score == that.score
+        && this.urlLen == that.urlLen;
     }
   }
 
-  /*****************************************************
-   ****************************************************/
-  private interface Hasher {
-    void updateHash(MD5Hash hash, Document doc);
-  }
+  public static class InputFormat extends InputFormatBase {
+    private static final long INDEX_LENGTH = Integer.MAX_VALUE;
 
-  //////////////////////////////////////////////////////
-  //  DeleteDuplicates class
-  //////////////////////////////////////////////////////
-  private IndexReader[] readers;
-  private File tempFile;
-
-  /** 
-   * Constructs a duplicate detector for the provided indexes. 
-   */
-  public DeleteDuplicates(IndexReader[] readers, File workingDir) throws IOException {
-    this.readers = readers;
-    this.tempFile = new File(workingDir, "ddup-" + new SimpleDateFormat("yyyyMMddHHmmss").format(new Date(System.currentTimeMillis())));
-  }
-
-  /** 
-   * Closes the indexes, saving changes. 
-   */
-  public void close() throws IOException {
-    for (int i = 0; i < readers.length; i++) {
-        readers[i].close();
-    }
-    tempFile.delete();
-  }
-
-  /** 
-   * Delete pages with duplicate content hashes.  Of those with the same
-   * content hash, keep the page with the highest score. 
-   */
-  public void deleteContentDuplicates() throws IOException {
-    LOG.info("Reading content hashes...");
-    computeHashes(new Hasher() {
-        public void updateHash(MD5Hash hash, Document doc) {
-          hash.setDigest(doc.get("digest"));
-        }
-      });
-
-    LOG.info("Sorting content hashes...");
-    SequenceFile.Sorter byHashScoreSorter =
-      new SequenceFile.Sorter(new LocalFileSystem(), new IndexedDoc.ByHashScore(),NullWritable.class);
-    byHashScoreSorter.sort(tempFile.getPath(), tempFile.getPath() + ".sorted");
-    
-    LOG.info("Deleting content duplicates...");
-    int duplicateCount = deleteDuplicates();
-    LOG.info("Deleted " + duplicateCount + " content duplicates.");
-  }
-
-  /** 
-   * Delete pages with duplicate URLs.  Of those with the same
-   * URL, keep the most recently fetched page. 
-   */
-  public void deleteUrlDuplicates() throws IOException {
-    final MessageDigest digest;
-    try {
-      digest = MessageDigest.getInstance("MD5");
-    } catch (Exception e) {
-      throw new RuntimeException(e.toString());
+    /** Return each index as a split. */
+    public FileSplit[] getSplits(NutchFileSystem fs, JobConf job,
+                                 int numSplits)
+      throws IOException {
+      File[] files = listFiles(fs, job);
+      FileSplit[] splits = new FileSplit[files.length];
+      for (int i = 0; i < files.length; i++) {
+        splits[i] = new FileSplit(files[i], 0, INDEX_LENGTH);
+      }
+      return splits;
     }
 
-    LOG.info("Reading url hashes...");
-    computeHashes(new Hasher() {
-        public void updateHash(MD5Hash hash, Document doc) {
-          try {
-            digest.update(UTF8.getBytes(doc.get("url")));
-            digest.digest(hash.getDigest(), 0, MD5Hash.MD5_LEN);
-          } catch (Exception e) {
-            throw new RuntimeException(e.toString());
-          }
-        }
-      });
+    /** Return each index as a split. */
+    public RecordReader getRecordReader(final NutchFileSystem fs,
+                                        final FileSplit split,
+                                        final JobConf job,
+                                        Reporter reporter) throws IOException {
+      final UTF8 index = new UTF8(split.getFile().toString());
+      reporter.setStatus(index.toString());
+      return new RecordReader() {
 
-    LOG.info("Sorting url hashes...");
-    SequenceFile.Sorter byHashDocSorter =
-      new SequenceFile.Sorter(new LocalFileSystem(), new IndexedDoc.ByHashDoc(), NullWritable.class);
-    byHashDocSorter.sort(tempFile.getPath(), tempFile.getPath() + ".sorted");
-    
-    LOG.info("Deleting url duplicates...");
-    int duplicateCount = deleteDuplicates();
-    LOG.info("Deleted " + duplicateCount + " url duplicates.");
-  }
+          private IndexReader indexReader =
+            IndexReader.open(new NdfsDirectory(fs, split.getFile(), false));
 
-  /**
-   * Compute hashes over all the input indices
-   */
-  private void computeHashes(Hasher hasher) throws IOException {
-    IndexedDoc indexedDoc = new IndexedDoc();
+          { indexReader.undeleteAll(); }
 
-    SequenceFile.Writer writer =
-      new SequenceFile.Writer(new LocalFileSystem(), tempFile.getPath(), IndexedDoc.class, NullWritable.class);
-    try {
-      for (int index = 0; index < readers.length; index++) {
-        IndexReader reader = readers[index];
-        int readerMax = reader.maxDoc();
-        indexedDoc.index = index;
-        for (int doc = 0; doc < readerMax; doc++) {
-          if (!reader.isDeleted(doc)) {
-            Document document = reader.document(doc);
-            hasher.updateHash(indexedDoc.hash, document);
-            indexedDoc.score = Float.parseFloat(document.get("boost"));
-            indexedDoc.doc = doc;
-            indexedDoc.urlLen = document.get("url").length();
-            writer.append(indexedDoc, NullWritable.get());
-          }
-        }
-      }
-    } finally {
-      writer.close();
-    }
-  }
+          private final int maxDoc = indexReader.maxDoc();
+          private int doc;
 
-  /**
-   * Actually remove the duplicates from the indices
-   */
-  private int deleteDuplicates() throws IOException {
-      if (tempFile.exists()) {
-          tempFile.delete();
-      }
-      if (!new File(tempFile.getPath() + ".sorted").renameTo(tempFile)) {
-          throw new IOException("Couldn't rename!");
-      }
+          public boolean next(Writable key, Writable value)
+            throws IOException {
 
-      IndexedDoc indexedDoc = new IndexedDoc();
-      SequenceFile.Reader reader = new SequenceFile.Reader(new LocalFileSystem(), tempFile.getPath());
-      try {
-          int duplicateCount = 0;
-          MD5Hash prevHash = null;                    // previous hash
-          while (reader.next(indexedDoc, NullWritable.get())) {
-              if (prevHash == null) {                   // initialize prevHash
-                  prevHash = new MD5Hash();
-                  prevHash.set(indexedDoc.hash);
-                  continue;
+            if (doc >= maxDoc)
+              return false;
+
+            Document document = indexReader.document(doc);
+
+            // fill in key
+            if (key instanceof UTF8) {
+              ((UTF8)key).set(document.get("url"));
+            } else {
+              HashScore hashScore = (HashScore)key;
+              if (hashScore.hash == null) {
+                hashScore.hash = new MD5Hash();
               }
-              if (indexedDoc.hash.equals(prevHash)) {   // found a duplicate
-                  readers[indexedDoc.index].delete(indexedDoc.doc); // delete it
-                  duplicateCount++;
-              } else {
-                  prevHash.set(indexedDoc.hash);          // reset prevHash
-              }
-          }
-          return duplicateCount;
-      } finally {
-          reader.close();
-          tempFile.delete();
-      }
-  }
-
-  /** 
-   * Delete duplicates in the indexes in the named directory. 
-   */
-  public static void main(String[] args) throws Exception {
-    //
-    // Usage, arg checking
-    //
-    String usage = "DeleteDuplicates (-local | -ndfs <namenode:port>) [-workingdir <workingdir>] <segmentsDir>";
-    if (args.length < 2) {
-      System.err.println("Usage: " + usage);
-      return;
-    } 
-
-    NutchFileSystem nfs = NutchFileSystem.parseArgs(args, 0);
-    File workingDir = new File(new File("").getCanonicalPath());
-    try {
-        //
-        // Build an array of IndexReaders for all the segments we want to process
-        //
-        int j = 0;
-        if ("-workingdir".equals(args[j])) {
-            j++;
-            workingDir = new File(new File(args[j++]).getCanonicalPath());
-        }
-        workingDir = new File(workingDir, "ddup-workingdir");
-
-        String segmentsDir = args[j++];
-        File[] directories = nfs.listFiles(new File(segmentsDir));
-        Vector vReaders = new Vector();
-        Vector putbackList = new Vector();
-        int maxDoc = 0;
-
-        for (int i = 0; i < directories.length; i++) {
-            //
-            // Make sure the index has been completed
-            //
-            File indexDone = new File(directories[i], IndexSegment.DONE_NAME);
-            if (nfs.exists(indexDone) && nfs.isFile(indexDone)) {
-                //
-                // Make sure the specified segment can be processed locally
-                //
-                File indexDir = new File(directories[i], "index");
-                File tmpDir = new File(workingDir, "ddup-" + new SimpleDateFormat("yyyMMddHHmmss").format(new Date(System.currentTimeMillis())));
-                File localIndexDir = nfs.startLocalOutput(indexDir, tmpDir);
-
-                putbackList.add(indexDir);
-                putbackList.add(tmpDir);
-
-                //
-                // Construct the reader
-                //
-                IndexReader reader = IndexReader.open(localIndexDir);
-                if (reader.hasDeletions()) {
-                    LOG.info("Clearing old deletions in " + indexDir + "(" + localIndexDir + ")");
-                    reader.undeleteAll();
-                }
-                maxDoc += reader.maxDoc();
-                vReaders.add(reader);
+              hashScore.hash.setDigest(document.get("digest"));
+              hashScore.score = Float.parseFloat(document.get("boost"));
+              hashScore.urlLen = document.get("url").length();
             }
-        }
 
-        //
-        // Now build the DeleteDuplicates object, and complete
-        //
-        IndexReader[] readers = new IndexReader[vReaders.size()];
-        for(int i = 0; vReaders.size()>0; i++) {
-            readers[i] = (IndexReader)vReaders.remove(0);
-        }
+            // fill in value
+            IndexDoc indexDoc = (IndexDoc)value;
+            if (indexDoc.index == null) {
+              indexDoc.index = new UTF8();
+            }
+            indexDoc.index.set(index);
+            indexDoc.doc = doc;
 
-        if (workingDir.exists()) {
-            FileUtil.fullyDelete(workingDir);
-        }
-        workingDir.mkdirs();
-        DeleteDuplicates dd = new DeleteDuplicates(readers, workingDir);
-        dd.deleteUrlDuplicates();
-        dd.deleteContentDuplicates();
-        dd.close();
+            doc++;
 
-        //
-        // Dups have been deleted.  Now make sure they are placed back to NFS
-        //
-        LOG.info("Duplicate deletion complete locally.  Now returning to NFS...");
-        for (Iterator it = putbackList.iterator(); it.hasNext(); ) {
-            File indexDir = (File) it.next();
-            File tmpDir = (File) it.next();
-            nfs.completeLocalOutput(indexDir, tmpDir);
-        }
-        LOG.info("DeleteDuplicates complete");
-        FileUtil.fullyDelete(workingDir);
-    } finally {
-        nfs.close();
+            return true;
+          }
+
+          public long getPos() throws IOException {
+            return (doc*INDEX_LENGTH)/maxDoc;
+          }
+
+          public void close() throws IOException {
+            indexReader.close();
+          }
+        };
     }
   }
+
+  public static class HashPartitioner implements Partitioner {
+    public void configure(JobConf job) {}
+    public int getPartition(WritableComparable key, Writable value,
+                            int numReduceTasks) {
+      int hashCode = ((HashScore)key).hash.hashCode();
+      return (hashCode & Integer.MAX_VALUE) % numReduceTasks;
+    }
+  }
+
+  public static class HashReducer implements Reducer {
+    private MD5Hash prevHash = new MD5Hash();
+    public void configure(JobConf job) {}
+    public void reduce(WritableComparable key, Iterator values,
+                       OutputCollector output, Reporter reporter)
+      throws IOException {
+      MD5Hash hash = ((HashScore)key).hash;
+      while (values.hasNext()) {
+        Writable value = (Writable)values.next();
+        if (hash.equals(prevHash)) {                // collect all but first
+          output.collect(key, value);
+        } else {
+          prevHash.set(hash);
+        }
+      }
+    }
+  }
+    
+  private NutchFileSystem fs;
+
+  public DeleteDuplicates() { super(null); }
+
+  public DeleteDuplicates(NutchConf conf) { super(conf); }
+
+  public void configure(JobConf job) {
+    try {
+      fs = NutchFileSystem.get(job);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  /** Map [*,IndexDoc] pairs to [index,doc] pairs. */
+  public void map(WritableComparable key, Writable value,
+                  OutputCollector output, Reporter reporter)
+    throws IOException {
+    IndexDoc indexDoc = (IndexDoc)value;
+    output.collect(indexDoc.index, new IntWritable(indexDoc.doc));
+  }
+
+  /** Delete docs named in values from index named in key. */
+  public void reduce(WritableComparable key, Iterator values,
+                     OutputCollector output, Reporter reporter)
+    throws IOException {
+    File index = new File(key.toString());
+    IndexReader reader = IndexReader.open(new NdfsDirectory(fs, index, false));
+    try {
+      while (values.hasNext()) {
+        reader.delete(((IntWritable)values.next()).get());
+      }
+    } finally {
+      reader.close();
+    }
+  }
+
+  /** Write nothing. */
+  public RecordWriter getRecordWriter(final NutchFileSystem fs,
+                                      final JobConf job,
+                                      final String name) throws IOException {
+    return new RecordWriter() {                   
+        public void write(WritableComparable key, Writable value)
+          throws IOException {
+          throw new UnsupportedOperationException();
+        }        
+        public void close(Reporter reporter) throws IOException {}
+      };
+  }
+
+  public void dedup(File[] indexDirs)
+    throws IOException {
+
+    LOG.info("Dedup: starting");
+
+    File hashDir =
+      new File("dedup-hash-"+
+               Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
+
+    JobConf job = new JobConf(getConf());
+
+    for (int i = 0; i < indexDirs.length; i++) {
+      LOG.info("Dedup: adding indexes in: " + indexDirs[i]);
+      job.addInputDir(indexDirs[i]);
+    }
+
+    job.setInputKeyClass(HashScore.class);
+    job.setInputValueClass(IndexDoc.class);
+    job.setInputFormat(InputFormat.class);
+
+    job.setPartitionerClass(HashPartitioner.class);
+    job.setReducerClass(HashReducer.class);
+
+    job.setOutputDir(hashDir);
+
+    job.setOutputKeyClass(HashScore.class);
+    job.setOutputValueClass(IndexDoc.class);
+    job.setOutputFormat(SequenceFileOutputFormat.class);
+
+    JobClient.runJob(job);
+
+    job = new JobConf(getConf());
+
+    job.addInputDir(hashDir);
+
+    job.setInputFormat(SequenceFileInputFormat.class);
+    job.setInputKeyClass(HashScore.class);
+    job.setInputValueClass(IndexDoc.class);
+
+    job.setMapperClass(DeleteDuplicates.class);
+    job.setReducerClass(DeleteDuplicates.class);
+
+    job.setOutputFormat(DeleteDuplicates.class);
+    job.setOutputKeyClass(UTF8.class);
+    job.setOutputValueClass(IntWritable.class);
+
+    JobClient.runJob(job);
+
+    new JobClient(getConf()).getFs().delete(hashDir);
+
+    LOG.info("Dedup: done");
+  }
+
+  public static void main(String[] args) throws Exception {
+    DeleteDuplicates dedup = new DeleteDuplicates(NutchConf.get());
+    
+    if (args.length < 1) {
+      System.err.println("Usage: <indexes> ...");
+      return;
+    }
+    
+    File[] indexes = new File[args.length];
+    for (int i = 0; i < args.length; i++) {
+      indexes[i] = new File(args[i]);
+    }
+
+    dedup.dedup(indexes);
+  }
+
 }

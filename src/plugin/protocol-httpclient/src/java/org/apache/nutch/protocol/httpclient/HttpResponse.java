@@ -3,7 +3,9 @@
 
 package org.apache.nutch.protocol.httpclient;
 
+import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.ContentProperties;
 
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpVersion;
@@ -32,7 +34,7 @@ public class HttpResponse {
 
   private int code;
 
-  private MultiProperties headers = new MultiProperties();
+  private ContentProperties headers = new ContentProperties();
 
   /**
    * Returns the response code.
@@ -59,11 +61,11 @@ public class HttpResponse {
                        headers);
   }
 
-  public HttpResponse(URL url) throws IOException {
-    this(url, false);
+  public HttpResponse(URL url, CrawlDatum datum) throws IOException {
+    this(url, datum, false);
   }
 
-  HttpResponse(URL url, boolean followRedirects) throws IOException {
+  HttpResponse(URL url, CrawlDatum datum, boolean followRedirects) throws IOException {
     this.base = url.toString();
     this.orig = url.toString();
     GetMethod get = new GetMethod(this.orig);

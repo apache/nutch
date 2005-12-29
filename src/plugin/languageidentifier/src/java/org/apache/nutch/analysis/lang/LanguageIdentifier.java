@@ -34,6 +34,8 @@ import java.util.logging.Logger;
 
 // Nutch imports
 import org.apache.nutch.analysis.lang.NGramProfile.NGramEntry;
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.io.UTF8;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.ParserFactory;
@@ -350,7 +352,7 @@ public class LanguageIdentifier {
     Protocol protocol;
     try {
       protocol = ProtocolFactory.getProtocol(url);
-      Content content = protocol.getProtocolOutput(url).getContent();
+      Content content = protocol.getProtocolOutput(new UTF8(url), new CrawlDatum()).getContent();
       String contentType = content.getContentType();
       Parser parser = ParserFactory.getParser(contentType, url);
       Parse parse = parser.getParse(content);

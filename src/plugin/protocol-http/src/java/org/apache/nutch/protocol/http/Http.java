@@ -28,8 +28,8 @@ import java.util.logging.Logger;
 import org.apache.nutch.util.LogFormatter;
 import org.apache.nutch.util.NutchConf;
 
-import org.apache.nutch.db.Page;
-import org.apache.nutch.pagedb.FetchListEntry;
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.io.UTF8;
 import org.apache.nutch.protocol.*;
 
 /** An implementation of the Http protocol. */
@@ -123,7 +123,7 @@ public class Http implements Protocol {
       }
 
       if (delays == MAX_DELAYS)
-        throw new RetryLater(url, "Exceeded http.max.delays: retry later.");
+        throw new HttpException("Exceeded http.max.delays: retry later.");
 
       long done = time.longValue();
       long now = System.currentTimeMillis();
@@ -172,31 +172,21 @@ public class Http implements Protocol {
     }
   }
 
-  public ProtocolOutput getProtocolOutput(String urlString) {
-    ProtocolOutput output = null;
+  public ProtocolOutput getProtocolOutput(UTF8 url, CrawlDatum datum) {
+    String urlString = url.toString();
     try {
-      return getProtocolOutput(new FetchListEntry(true,
-            new Page(urlString, 1.0f), new String[0]));
-    } catch (MalformedURLException mue) {
-      return new ProtocolOutput(null, new ProtocolStatus(mue));
-    }
-  }
-  
-  public ProtocolOutput getProtocolOutput(FetchListEntry fle) {
-    String urlString = fle.getUrl().toString();
-    try {
-      URL url = new URL(urlString);
+      URL u = new URL(urlString);
 
       int redirects = 0;
       while (true) {
         
-        if (!RobotRulesParser.isAllowed(url))
-          throw new ResourceGone(url, "Blocked by robots.txt");
+        if (!RobotRulesParser.isAllowed(u))
+          throw new HttpException("Blocked by robots.txt");
         
-        InetAddress addr = blockAddr(url);
+        InetAddress addr = blockAddr(u);
         HttpResponse response;
         try {
-          response = new HttpResponse(urlString, url); // make a request
+          response = new HttpResponse(u, datum); // make a request
         } finally {
           unblockAddr(addr);
         }
@@ -207,14 +197,14 @@ public class Http implements Protocol {
           return new ProtocolOutput(response.toContent());            // return it
           
         } else if (code == 410) {                 // page is gone
-          throw new ResourceGone(url, "Http: " + code);
+          throw new HttpException("Http: " + code);
 
         } else if (code >= 300 && code < 400) {   // handle redirect
           if (redirects == MAX_REDIRECTS)
             throw new HttpException("Too many redirects: " + urlString);
-          url = new URL(url, response.getHeader("Location"));
+          u = new URL(u, response.getHeader("Location"));
           redirects++;                
-          LOG.fine("redirect to " + url); 
+          LOG.fine("redirect to " + u); 
           
         } else {                                  // convert to exception
           throw new HttpError(code);
@@ -298,7 +288,7 @@ public class Http implements Protocol {
       LOG.setLevel(Level.FINE);
     }
 
-    Content content = http.getProtocolOutput(url).getContent();
+    Content content = http.getProtocolOutput(new UTF8(url), new CrawlDatum()).getContent();
 
     System.out.println("Content Type: " + content.getContentType());
     System.out.println("Content Length: " + content.get("Content-Length"));

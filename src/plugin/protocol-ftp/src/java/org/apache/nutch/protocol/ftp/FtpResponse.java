@@ -24,6 +24,7 @@ import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.net.ftp.parser.DefaultFTPFileEntryParserFactory;
 import org.apache.commons.net.ftp.parser.ParserInitializationException;
 
+import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ContentProperties;
 
@@ -80,15 +81,10 @@ public class FtpResponse {
                        headers);
   }
 
-  public FtpResponse(URL url, Ftp ftp)
-    throws FtpException, IOException {
-    this(url.toString(), url, ftp);
-  }
-
-  public FtpResponse(String orig, URL url, Ftp ftp)
+  public FtpResponse(URL url, CrawlDatum datum, Ftp ftp)
     throws FtpException, IOException {
 
-    this.orig = orig;
+    this.orig = url.toString();
     this.base = url.toString();
     this.ftp = ftp;
 

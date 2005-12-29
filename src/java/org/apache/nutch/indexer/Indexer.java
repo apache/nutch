@@ -14,13 +14,14 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.crawl;
+package org.apache.nutch.indexer;
 
 import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
 import org.apache.nutch.io.*;
+import org.apache.nutch.fetcher.Fetcher;
 import org.apache.nutch.fs.*;
 import org.apache.nutch.net.*;
 import org.apache.nutch.util.*;
@@ -30,15 +31,17 @@ import org.apache.nutch.protocol.*;
 import org.apache.nutch.analysis.*;
 
 import org.apache.nutch.indexer.*;
-import org.apache.nutch.pagedb.FetchListEntry;
-import org.apache.nutch.fetcher.FetcherOutput;
-import org.apache.nutch.db.Page;
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.Inlinks;
+import org.apache.nutch.crawl.LinkDb;
 
 import org.apache.lucene.index.*;
 import org.apache.lucene.document.*;
 
 /** Create indexes for segments. */
 public class Indexer extends NutchConfigured implements Reducer {
+  
+  public static final String DONE_NAME = "index.done";
 
   public static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.crawl.Indexer");
@@ -121,7 +124,7 @@ public class Indexer extends NutchConfigured implements Reducer {
               writer.optimize();
               writer.close();
               fs.completeLocalOutput(perm, temp);   // copy to ndfs
-              fs.createNewFile(new File(perm, IndexSegment.DONE_NAME));
+              fs.createNewFile(new File(perm, DONE_NAME));
             } finally {
               closed = true;
             }

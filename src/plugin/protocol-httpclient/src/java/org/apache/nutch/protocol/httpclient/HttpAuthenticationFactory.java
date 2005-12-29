@@ -51,7 +51,7 @@ public class HttpAuthenticationFactory {
         
     	try {
 			Collection challenge = null;
-			if (header instanceof MultiProperties) {
+			if (header instanceof ContentProperties) {
 				Object o = header.get(AUTH_HEADER);
 				if (o instanceof Collection) {
 					challenge = (Collection) o;

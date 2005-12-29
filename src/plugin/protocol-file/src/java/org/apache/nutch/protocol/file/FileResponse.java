@@ -19,11 +19,11 @@ package org.apache.nutch.protocol.file;
 // JDK imports
 import java.net.URL;
 import java.util.TreeMap;
-import java.util.Properties;
 import java.util.logging.Level;
 import java.io.IOException;
 
 // Nutch imports
+import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ContentProperties;
 
@@ -80,15 +80,10 @@ public class FileResponse {
                        headers);
   }
 
-  public FileResponse(URL url, File file)
-    throws FileException, IOException {
-    this(url.toString(), url, file);
-  }
-
-  public FileResponse(String orig, URL url, File file)
+  public FileResponse(URL url, CrawlDatum datum, File file)
     throws FileException, IOException {
 
-    this.orig = orig;
+    this.orig = url.toString();
     this.base = url.toString();
     this.file = file;
 

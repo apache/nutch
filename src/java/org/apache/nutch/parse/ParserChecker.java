@@ -18,6 +18,8 @@ package org.apache.nutch.parse;
 
 import org.apache.nutch.util.LogFormatter;
 
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.io.UTF8;
 import org.apache.nutch.parse.ParseUtil;
 
 import org.apache.nutch.protocol.ProtocolFactory;
@@ -69,7 +71,7 @@ public class ParserChecker {
     LOG.info("fetching: "+url);
 
     Protocol protocol = ProtocolFactory.getProtocol(url);
-    Content content = protocol.getProtocolOutput(url).getContent();
+    Content content = protocol.getProtocolOutput(new UTF8(url), new CrawlDatum()).getContent();
 
     if (force) {
       content.setContentType(contentType);
