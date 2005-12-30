@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.crawl;
+package org.apache.nutch.tools;
 
 import java.io.*;
 import java.net.*;
@@ -36,7 +36,7 @@ import org.apache.nutch.util.NutchConf;
 
 /** Utility that converts DMOZ RDF into a flat file of URLs to be injected. */
 public class DmozParser {
-  public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.crawl.DmozParser");
+  public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.tools.DmozParser");
   
     long pages = 0;
 
