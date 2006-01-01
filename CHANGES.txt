@@ -8,7 +8,11 @@ Release 0.7.2
 
  3. Fixed distribution build problem due to missing empty dirs for plugin.
 
- 4. 
+ 4. NUTCH-142 - NutchConf should use the thread context classloader. (Mike
+Cannon-Brookes). 
+ 
+ 5. 
+
 
 Release 0.7.1 - 2005-10-01
 

@@ -49,8 +49,8 @@ public class NutchConf {
 
   private List resourceNames = new ArrayList();
   private Properties properties;
-  private ClassLoader classLoader = NutchConf.class.getClassLoader();
 
+  private ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
   /** A new configuration. */
   public NutchConf() {
     resourceNames.add("nutch-default.xml");
