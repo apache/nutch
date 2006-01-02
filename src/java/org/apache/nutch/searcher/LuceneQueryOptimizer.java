@@ -22,6 +22,8 @@ import org.apache.lucene.search.*;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.misc.ChainedFilter;
 
+import org.apache.nutch.util.NutchConf;
+
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.ArrayList;
@@ -34,6 +36,30 @@ import java.io.IOException;
  * accellerates query constraints like date, language, document format, etc.,
  * which do not affect ranking but might otherwise slow search considerably. */
 class LuceneQueryOptimizer {
+
+  private static int MAX_HITS =
+    NutchConf.get().getInt("searcher.max.hits", Integer.MAX_VALUE);
+
+  private static class LimitExceeded extends RuntimeException {
+    private int maxDoc;
+    public LimitExceeded(int maxDoc) { this.maxDoc = maxDoc; }    
+  }
+  
+  private static class LimitedCollector extends TopDocCollector {
+    private int maxHits;
+    
+    public LimitedCollector(int numHits, int maxHits) {
+      super(maxHits);
+      this.maxHits = maxHits;
+    }
+
+    public void collect(int doc, float score) {
+      if (getTotalHits() >= maxHits)
+        throw new LimitExceeded(doc);
+      super.collect(doc, score);
+    }
+  }
+
   private LinkedHashMap cache;                   // an LRU cache of QueryFilter
 
   private float threshold;
@@ -123,9 +149,21 @@ class LuceneQueryOptimizer {
         }
       }        
     }
-
     if (sortField == null && !reverse) {
-      return searcher.search(query, filter, numHits);
+      LimitedCollector collector = new LimitedCollector(numHits, MAX_HITS);
+      LimitExceeded exceeded = null;
+      try {
+        searcher.search(query, filter, collector);
+      } catch (LimitExceeded le) {
+        exceeded = le;
+      }
+      TopDocs results = collector.topDocs();
+      if (exceeded != null) {                     // limit was exceeded
+        results.totalHits = (int)                 // must estimate totalHits
+          (results.totalHits*(searcher.maxDoc()/(float)exceeded.maxDoc));
+      }
+      return results;
+
     } else {
       return searcher.search(query, filter, numHits,
                              new Sort(sortField, reverse));
