@@ -25,6 +25,9 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
 
+import org.apache.nutch.io.UTF8;
+import org.apache.nutch.crawl.CrawlDatum;
+
 import junit.framework.TestCase;
 
 import java.io.File;
@@ -77,7 +80,7 @@ public class TestExtParser extends TestCase {
 
     // get nutch content
     Protocol protocol = ProtocolFactory.getProtocol(urlString);
-    content = protocol.getProtocolOutput(urlString).getContent();
+    content = protocol.getProtocolOutput(new UTF8(urlString), new CrawlDatum()).getContent();
     protocol = null;
   }
 

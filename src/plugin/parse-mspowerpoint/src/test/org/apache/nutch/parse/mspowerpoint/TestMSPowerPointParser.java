@@ -35,6 +35,9 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.util.LogFormatter;
 
+import org.apache.nutch.io.UTF8;
+import org.apache.nutch.crawl.CrawlDatum;
+
 /**
  * <p>
  * Unit tests for MSPowerPointParser.
@@ -103,7 +106,7 @@ public class TestMSPowerPointParser extends TestCase {
 
     System.out.println("Testing file: " + this.urlString + "...");
     this.protocol = ProtocolFactory.getProtocol(this.urlString);
-    this.content = this.protocol.getProtocolOutput(this.urlString).getContent();
+    this.content = this.protocol.getProtocolOutput(new UTF8(this.urlString), new CrawlDatum()).getContent();
   }
 
   /**

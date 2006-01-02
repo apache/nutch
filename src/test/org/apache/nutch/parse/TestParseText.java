@@ -18,7 +18,6 @@ package org.apache.nutch.parse;
 
 import java.io.*;
 import org.apache.nutch.io.*;
-import org.apache.nutch.pagedb.*;
 import junit.framework.TestCase;
 
 /** Unit tests for ParseText. */
