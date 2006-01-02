@@ -27,6 +27,9 @@ import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.Outlink;
 
+import org.apache.nutch.io.UTF8;
+import org.apache.nutch.crawl.CrawlDatum;
+
 import junit.framework.TestCase;
 
 /**
@@ -80,7 +83,7 @@ public class TestRSSParser extends TestCase {
             urlString = "file:" + sampleDir + fileSeparator + sampleFiles[i];
 
             protocol = ProtocolFactory.getProtocol(urlString);
-            content = protocol.getProtocolOutput(urlString).getContent();
+            content = protocol.getProtocolOutput(new UTF8(urlString), new CrawlDatum()).getContent();
             parse = ParseUtil.parseByParserId("parse-rss",content);
 
             //check that there are 3 outlinks:
