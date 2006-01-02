@@ -190,7 +190,7 @@ public class DeleteDuplicates extends NutchConfigured
           }
 
           public long getPos() throws IOException {
-            return (doc*INDEX_LENGTH)/maxDoc;
+            return maxDoc==0 ? 0 : (doc*INDEX_LENGTH)/maxDoc;
           }
 
           public void close() throws IOException {
