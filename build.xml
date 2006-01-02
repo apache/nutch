@@ -84,9 +84,6 @@
   </target>
 
   <target name="generate-src" depends="init">
-    <javacc target="${src.dir}/org/apache/nutch/quality/dynamic/PageDescription.jj"
-            javacchome="${javacc.home}">
-    </javacc>
     <javacc target="${src.dir}/org/apache/nutch/analysis/NutchAnalysis.jj"
             javacchome="${javacc.home}">
     </javacc>
