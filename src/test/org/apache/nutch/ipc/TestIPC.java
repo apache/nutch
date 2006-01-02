@@ -35,14 +35,14 @@ public class TestIPC extends TestCase {
   public static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.ipc.TestIPC");
 
-  private static final int TIMEOUT = 10000;
-
   // quiet during testing, since output ends up on console
   static {
     LOG.setLevel(Level.WARNING);
     Client.LOG.setLevel(Level.WARNING);
     Server.LOG.setLevel(Level.WARNING);
   }
+
+  public TestIPC(String name) { super(name); }
 
   private static final Random RANDOM = new Random();
 
@@ -53,7 +53,7 @@ public class TestIPC extends TestCase {
 
     public TestServer(int port, int handlerCount, boolean sleep) {
       super(port, LongWritable.class, handlerCount);
-      this.setTimeout(TIMEOUT);
+      this.setTimeout(1000);
       this.sleep = sleep;
     }
 
@@ -75,7 +75,7 @@ public class TestIPC extends TestCase {
     public SerialCaller(Client client, int count) {
       this.client = client;
       this.count = count;
-      client.setTimeout(TIMEOUT);
+      client.setTimeout(1000);
     }
 
     public void run() {
@@ -108,7 +108,7 @@ public class TestIPC extends TestCase {
       this.client = client;
       this.addresses = addresses;
       this.count = count;
-      client.setTimeout(TIMEOUT);
+      client.setTimeout(1000);
     }
 
     public void run() {
@@ -157,10 +157,10 @@ public class TestIPC extends TestCase {
       callers[i].join();
       assertFalse(callers[i].failed);
     }
-//     for (int i = 0; i < clientCount; i++) {
-//       clients[i].stop();
-//     }
-//     server.stop();
+    for (int i = 0; i < clientCount; i++) {
+      clients[i].stop();
+    }
+    server.stop();
   }
 	
   public void testParallel() throws Exception {
@@ -207,17 +207,14 @@ public class TestIPC extends TestCase {
 	
   public static void main(String[] args) throws Exception {
     // crank up the volume!
-//      LOG.setLevel(Level.INFO);
-//      Client.LOG.setLevel(Level.INFO);
-//      Server.LOG.setLevel(Level.INFO);
-//      LogFormatter.setShowThreadIDs(true);
+    LOG.setLevel(Level.FINE);
+    Client.LOG.setLevel(Level.FINE);
+    Server.LOG.setLevel(Level.FINE);
+    LogFormatter.setShowThreadIDs(true);
 
-     new TestIPC().testSerial(10, false, 500, 500, 100);
-    //new TestIPC().testParallel(10, false, 2, 4, 2, 4, 1000);
+    //new TestIPC("test").testSerial(5, false, 2, 10, 1000);
 
-//     TestIPC test = new TestIPC();
-//     test.testSerial();
-//     test.testParallel();
+    new TestIPC("test").testParallel(10, false, 2, 4, 2, 4, 1000);
 
   }
 
