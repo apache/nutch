@@ -37,7 +37,8 @@ public class ParseOutputFormat implements OutputFormat {
                                       String name) throws IOException {
 
     final float interval = job.getFloat("db.default.fetch.interval", 30f);
-
+    final float extscore = job.getFloat("db.score.link.external", 1.0f);
+    
     File text =
       new File(new File(job.getOutputDir(), ParseText.DIR_NAME), name);
     File data =
@@ -81,8 +82,10 @@ public class ParseOutputFormat implements OutputFormat {
           Outlink[] links = parse.getData().getOutlinks();
 
           // compute OPIC score contribution
-          float score =
-            Float.parseFloat(parse.getData().get(Fetcher.SCORE_KEY));
+          String scoreString = parse.getData().get(Fetcher.SCORE_KEY);
+          float score = extscore;
+          // this may happen if there was a fetch error.
+         if (scoreString != null) score = Float.parseFloat(scoreString);
           score /= links.length;
                           
           for (int i = 0; i < links.length; i++) {
