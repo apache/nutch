@@ -7,12 +7,14 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
@@ -358,6 +360,15 @@ public class Http implements org.apache.nutch.protocol.Protocol {
     }
 
     HostConfiguration hostConf = client.getHostConfiguration();
+    ArrayList headers = new ArrayList();
+    // prefer English
+    headers.add(new Header("Accept-Language", "en-us,en-gb,en;q=0.7,*;q=0.3"));
+    // prefer UTF-8
+    headers.add(new Header("Accept-Charset", "utf-8,ISO-8859-1;q=0.7,*;q=0.7"));
+    // prefer understandable formats
+    headers.add(new Header("Accept",
+            "text/html,application/xml;q=0.9,application/xhtml+xml,text/xml;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5"));
+    hostConf.getParams().setParameter("http.default-headers", headers);
     if (PROXY) {
       hostConf.setProxy(PROXY_HOST, PROXY_PORT);
     }

@@ -88,7 +88,7 @@ public class HttpResponse {
       Header[] heads = get.getResponseHeaders();
 
       for (int i = 0; i < heads.length; i++) {
-        headers.put(heads[i].getName(), heads[i].getValue());
+        headers.setProperty(heads[i].getName(), heads[i].getValue());
       }
       // always read content. Sometimes content is useful to find a cause
       // for error.
