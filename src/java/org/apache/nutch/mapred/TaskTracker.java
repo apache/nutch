@@ -287,8 +287,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
                                 staleState = true;
                             }
                         } catch (Exception ex) {
-                            ex.printStackTrace();
-                            LOG.info("Lost connection to JobTracker [" + jobTrackAddr + "].  Retrying...");
+                            LOG.info("Lost connection to JobTracker [" + jobTrackAddr + "]. ex=" + ex + "  Retrying...");
                             try {
                                 Thread.sleep(5000);
                             } catch (InterruptedException ie) {
