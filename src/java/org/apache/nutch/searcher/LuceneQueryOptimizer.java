@@ -37,8 +37,7 @@ import java.io.IOException;
  * which do not affect ranking but might otherwise slow search considerably. */
 class LuceneQueryOptimizer {
 
-  private static int MAX_HITS =
-    NutchConf.get().getInt("searcher.max.hits", Integer.MAX_VALUE);
+  private static int MAX_HITS = NutchConf.get().getInt("searcher.max.hits",-1);
 
   private static class LimitExceeded extends RuntimeException {
     private int maxDoc;
@@ -150,6 +149,13 @@ class LuceneQueryOptimizer {
       }        
     }
     if (sortField == null && !reverse) {
+
+      // no hit limit
+      if (MAX_HITS <= 0) {
+        return searcher.search(query, filter, numHits);
+      }
+
+      // hits limited -- use a LimitedCollector
       LimitedCollector collector = new LimitedCollector(numHits, MAX_HITS);
       LimitExceeded exceeded = null;
       try {
