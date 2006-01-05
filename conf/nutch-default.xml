@@ -504,6 +504,13 @@
   </description>
 </property>
 
+<property>
+  <name>mapred.child.heap.size</name>
+  <value>200m</value>
+  <description>The heap size (-Xmx) that will be used for task tracker
+  child processes.</description>
+</property>
+
 <!-- indexer properties -->
 
 <property>
