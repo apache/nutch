@@ -48,7 +48,7 @@ class LuceneQueryOptimizer {
     private int maxHits;
     
     public LimitedCollector(int numHits, int maxHits) {
-      super(maxHits);
+      super(numHits);
       this.maxHits = maxHits;
     }
 
