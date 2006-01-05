@@ -661,10 +661,11 @@
 
 <property>
   <name>searcher.max.hits</name>
-  <value>2147483647</value>
-  <description>Search stops after this many hits are found.  Setting
-  this to smaller values can make searches much faster.  With a sorted
-  index, the quality of the hits suffers little.</description>
+  <value>-1</value>
+  <description>If positive, search stops after this many hits are
+  found.  Setting this to small, positive values (e.g., 1000) can make
+  searches much faster.  With a sorted index, the quality of the hits
+  suffers little.</description>
 </property>
 
 <!-- URL normalizer properties -->
