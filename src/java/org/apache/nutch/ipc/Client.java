@@ -306,7 +306,7 @@ public class Client {
    * contains nulls for calls that timed out or errored.  */
   public Writable[] call(Writable[] params, InetSocketAddress[] addresses)
     throws IOException {
-    if (params.length == 0) return new Writable[0];
+    if (addresses.length == 0) return new Writable[0];
 
     ParallelResults results = new ParallelResults(params.length);
     synchronized (results) {
