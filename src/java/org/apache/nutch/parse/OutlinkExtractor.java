@@ -55,11 +55,12 @@ public class OutlinkExtractor {
    *      </a>
    */
   private static final String URL_PATTERN = 
-    "([A-Za-z][A-Za-z0-9+.-]+:[A-Za-z0-9/](([A-Za-z0-9$_.+!*,;/?:@&~=-])|%[A-Fa-f0-9]{2})+(#([a-zA-Z0-9][a-zA-Z0-9$_.+!*,;/?:@&~=%-]*))?)";
+    "([A-Za-z][A-Za-z0-9+.-]{1,120}:[A-Za-z0-9/](([A-Za-z0-9$_.+!*,;/?:@&~=-])|%[A-Fa-f0-9]{2}){1,333}(#([a-zA-Z0-9][a-zA-Z0-9$_.+!*,;/?:@&~=%-]{0,1000}))?)";
 
   /**
    * Extracts <code>Outlink</code> from given plain text.
-   * 
+   * Applying this method to non-plain-text can result in extremely lengthy
+   * runtimes for parasitic cases (postscript is a known example).
    * @param plainText  the plain text from wich URLs should be extracted.
    * 
    * @return Array of <code>Outlink</code>s within found in plainText
@@ -78,7 +79,7 @@ public class OutlinkExtractor {
    * @return Array of <code>Outlink</code>s within found in plainText
    */
   public static Outlink[] getOutlinks(final String plainText, String anchor) {
-
+    long start = System.currentTimeMillis();
     final List outlinks = new ArrayList();
 
     try {
@@ -95,13 +96,19 @@ public class OutlinkExtractor {
 
       //loop the matches
       while (matcher.contains(input, pattern)) {
+        // if this is taking too long, stop matching
+        //   (SHOULD really check cpu time used so that heavily loaded systems
+        //   do not unnecessarily hit this limit.)
+        if (System.currentTimeMillis() - start >= 60000L) {
+          LOG.warning("Time limit exceeded for getOutLinks");
+          break;
+        }
         result = matcher.getMatch();
         url = result.group(0);
         outlinks.add(new Outlink(url, anchor));
       }
     } catch (Exception ex) {
-      // if it is a malformed URL we just throw it away and continue with
-      // extraction.
+      // if the matcher fails (perhaps a malformed URL) we just log it and move on
       LOG.throwing(OutlinkExtractor.class.getName(), "getOutlinks", ex);
     }
 
