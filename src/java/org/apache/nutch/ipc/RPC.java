@@ -149,6 +149,10 @@ public class RPC {
     
     Writable[] wrappedValues = CLIENT.call(invocations, addrs);
     
+    if (method.getReturnType() == Void.TYPE) {
+      return null;
+    }
+
     Object[] values =
       (Object[])Array.newInstance(method.getReturnType(),wrappedValues.length);
     for (int i = 0; i < values.length; i++)
