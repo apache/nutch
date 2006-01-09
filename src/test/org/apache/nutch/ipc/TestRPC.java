@@ -110,13 +110,17 @@ public class TestRPC extends TestCase {
     }
     assertTrue(caught);
 
-    // try a multi-call
-    Method method =
+    // try some multi-calls
+    Method echo =
       TestProtocol.class.getMethod("echo", new Class[] { String.class });
-    String[] values = (String[])RPC.call(method, new String[][]{{"a"},{"b"}},
+    String[] strings = (String[])RPC.call(echo, new String[][]{{"a"},{"b"}},
                                          new InetSocketAddress[] {addr, addr});
-    assertTrue(Arrays.equals(values, new String[]{"a","b"}));
+    assertTrue(Arrays.equals(strings, new String[]{"a","b"}));
 
+    Method ping = TestProtocol.class.getMethod("ping", new Class[] {});
+    Object[] voids = (Object[])RPC.call(ping, new Object[][]{{},{}},
+                                        new InetSocketAddress[] {addr, addr});
+    assertEquals(voids, null);
 
     server.stop();
   }
