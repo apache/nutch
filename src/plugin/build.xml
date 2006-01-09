@@ -6,13 +6,14 @@
   <!-- Build & deploy all the plugin jars.                    -->
   <!-- ====================================================== -->
   <target name="deploy">
-     <!--ant dir="analysis-de" target="deploy"/-->
-     <!--ant dir="analysis-fr" target="deploy"/-->
+     <ant dir="analysis-de" target="deploy"/>
+     <ant dir="analysis-fr" target="deploy"/>
      <ant dir="clustering-carrot2" target="deploy"/>
      <ant dir="creativecommons" target="deploy"/>
      <ant dir="index-basic" target="deploy"/>
      <ant dir="index-more" target="deploy"/>
      <ant dir="languageidentifier" target="deploy"/>
+     <ant dir="lib-http" target="deploy"/>
      <ant dir="lib-jakarta-poi" target="deploy"/>
      <ant dir="lib-lucene-analyzers" target="deploy"/>
      <ant dir="nutch-extensionpoints" target="deploy"/>

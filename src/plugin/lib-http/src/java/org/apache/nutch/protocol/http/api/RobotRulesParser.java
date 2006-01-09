@@ -13,30 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.nutch.protocol.http.api;
 
-package org.apache.nutch.protocol.httpclient;
-
+// JDK imports
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.LineNumberReader;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
-
 import java.util.logging.Logger;
-import java.util.logging.Level;
-import java.util.logging.Handler;
 
+// Nutch imports
 import org.apache.nutch.util.NutchConf;
 import org.apache.nutch.util.LogFormatter;
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
+
 
 /**
  * This class handles the parsing of <code>robots.txt</code> files.
@@ -370,7 +368,7 @@ public class RobotRulesParser {
     return rules;
   }
   
-  public static boolean isAllowed(URL url)
+  public static boolean isAllowed(HttpBase http, URL url)
     throws ProtocolException, IOException {
 
     String host = url.getHost();
@@ -380,8 +378,8 @@ public class RobotRulesParser {
     if (robotRules == null) {                     // cache miss
       LOG.fine("cache miss " + url);
       try {
-        HttpResponse response = new HttpResponse(new URL(url, "/robots.txt"),
-                                      new CrawlDatum(), true);
+        Response response = http.getResponse(new URL(url, "/robots.txt"),
+                                             new CrawlDatum(), true);
 
         if (response.getCode() == 200)               // found rules: parse them
           robotRules = new RobotRulesParser().parseRules(response.getContent());

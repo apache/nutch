@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.protocol.http;
 
+// JDK imports
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
@@ -28,45 +28,32 @@ import java.net.Socket;
 import java.net.URL;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.Properties;
 import java.util.logging.Level;
 
+// Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.protocol.Content;
+import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.protocol.ProtocolException;
-
+import org.apache.nutch.protocol.http.api.HttpException;
 import org.apache.nutch.util.GZIPUtils;
 
 
 /** An HTTP response. */
-public class HttpResponse {
+public class HttpResponse implements Response {
   
+  private URL url;
   private String orig;
   private String base;
   private byte[] content;
   private int code;
   private ContentProperties headers = new ContentProperties();
 
-  /** Returns the response code. */
-  public int getCode() { return code; }
-
-  /** Returns the value of a named header. */
-  public String getHeader(String name) {
-    return (String)headers.get(name);
-  }
-
-  public byte[] getContent() { return content; }
-
-  public Content toContent() {
-    return new Content(orig, base, content,
-                       getHeader("Content-Type"),
-                       headers);
-  }
 
   public HttpResponse(URL url, CrawlDatum datum)
     throws ProtocolException, IOException {
-    
+
+    this.url = url;
     this.orig = url.toString();
     this.base = url.toString();
 
@@ -181,6 +168,36 @@ public class HttpResponse {
     }
 
   }
+
+  
+  /* ------------------------- *
+   * <implementation:Response> *
+   * ------------------------- */
+  
+  public URL getUrl() {
+    return url;
+  }
+  
+  public int getCode() {
+    return code;
+  }
+
+  public String getHeader(String name) {
+    return (String) headers.get(name);
+  }
+  
+  public ContentProperties getHeaders() {
+    return headers;
+  }
+
+  public byte[] getContent() {
+    return content;
+  }
+
+  /* ------------------------- *
+   * <implementation:Response> *
+   * ------------------------- */
+  
 
   private void readPlainContent(InputStream in) 
     throws HttpException, IOException {

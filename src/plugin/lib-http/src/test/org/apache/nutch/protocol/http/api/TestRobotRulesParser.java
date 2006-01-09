@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.protocol.http;
+package org.apache.nutch.protocol.http.api;
 
-import org.apache.nutch.protocol.http.RobotRulesParser.RobotRuleSet;
+import org.apache.nutch.protocol.http.api.RobotRulesParser.RobotRuleSet;
 
 import junit.framework.TestCase;
 
