@@ -32,12 +32,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Logger;
-
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
-import org.apache.oro.text.regex.Perl5Pattern;
-import org.apache.oro.text.regex.PatternMatcher;
-import org.apache.oro.text.regex.MalformedPatternException;
+import java.util.regex.*;
 
 /**
  * Filters URLs based on a file of regular expressions. The file is named by
@@ -80,15 +75,14 @@ public class RegexURLFilter implements URLFilter {
   }
 
   private static class Rule {
-    public Perl5Pattern pattern;
+    public Pattern pattern;
     public boolean sign;
     public String regex;
   }
 
   private List rules;
-  private PatternMatcher matcher = new Perl5Matcher();
 
-  public RegexURLFilter() throws IOException, MalformedPatternException {
+  public RegexURLFilter() throws IOException, PatternSyntaxException {
     String file = NutchConf.get().get("urlfilter.regex.file");
     // attribute "file" takes precedence if defined
     if (attributeFile != null)
@@ -103,7 +97,7 @@ public class RegexURLFilter implements URLFilter {
   }
 
   public RegexURLFilter(String filename)
-    throws IOException, MalformedPatternException {
+    throws IOException, PatternSyntaxException {
     rules = readConfigurationFile(new FileReader(filename));
   }
 
@@ -111,7 +105,9 @@ public class RegexURLFilter implements URLFilter {
     Iterator i=rules.iterator();
     while(i.hasNext()) {
       Rule r=(Rule) i.next();
-      if (matcher.contains(url,r.pattern)) {
+      Matcher matcher = r.pattern.matcher(url);
+
+      if (matcher.find()) {
         //System.out.println("Matched " + r.regex);
         return r.sign ? url : null;
       }
@@ -129,10 +125,9 @@ public class RegexURLFilter implements URLFilter {
   // 
 
   private static List readConfigurationFile(Reader reader)
-    throws IOException, MalformedPatternException {
+    throws IOException, PatternSyntaxException {
 
     BufferedReader in=new BufferedReader(reader);
-    Perl5Compiler compiler=new Perl5Compiler();
     List rules=new ArrayList();
     String line;
        
@@ -157,7 +152,7 @@ public class RegexURLFilter implements URLFilter {
       String regex=line.substring(1);
 
       Rule rule=new Rule();
-      rule.pattern=(Perl5Pattern) compiler.compile(regex);
+      rule.pattern=Pattern.compile(regex);
       rule.sign=sign;
       rule.regex=regex;
       rules.add(rule);
@@ -167,7 +162,7 @@ public class RegexURLFilter implements URLFilter {
   }
 
   public static void main(String args[])
-    throws IOException, MalformedPatternException {
+    throws IOException, PatternSyntaxException {
 
     RegexURLFilter filter=new RegexURLFilter();
     BufferedReader in=new BufferedReader(new InputStreamReader(System.in));
