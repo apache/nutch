@@ -15,6 +15,7 @@
 
    <requires>
       <import plugin="nutch-extensionpoints"/>
+      <import plugin="lib-http"/>
    </requires>
 
    <extension id="org.apache.nutch.protocol.httpclient"

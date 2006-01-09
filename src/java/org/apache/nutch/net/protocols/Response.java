@@ -13,14 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.net.protocols;
 
+// JDK imports
 import java.net.URL;
 
+// Nutch imports
+import org.apache.nutch.protocol.ContentProperties;
 
-/** A response inteface.  Makes all protocols model HTTP. */
 
+/**
+ * A response inteface.  Makes all protocols model HTTP.
+ */
 public interface Response {
 
   /** Returns the URL used to retrieve this response. */
@@ -32,19 +36,10 @@ public interface Response {
   /** Returns the value of a named header. */
   public String getHeader(String name);
 
+  /** Returns all the headers. */
+  public ContentProperties getHeaders();
+  
   /** Returns the full content of the response. */
   public byte[] getContent();
-
-  /** 
-   * Returns the compressed version of the content if the server
-   * transmitted a compressed version, or <code>null</code>
-   * otherwise. 
-   */
-  public byte[] getCompressedContent();
-
-  /**
-   * Returns the number of 100/Continue headers encountered 
-   */
-  public int getNumContinues();
 
 }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ ! A common framework for http protocol implementations
+ !-->
+<plugin
+   id="lib-http"
+   name="HTTP Framework"
+   version="1.0"
+   provider-name="org.apache.nutch">
+
+   <runtime>
+     <library name="lib-http.jar">
+        <export name="*"/>
+     </library>
+   </runtime>
+
+</plugin>
