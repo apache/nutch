@@ -31,7 +31,7 @@ import org.apache.nutch.util.NutchConf;
 public final class ParseData extends VersionedWritable {
   public static final String DIR_NAME = "parse_data";
 
-  private final static byte VERSION = 2;
+  private final static byte VERSION = 3;
 
   private String title;
   private Outlink[] outlinks;
@@ -96,10 +96,15 @@ public final class ParseData extends VersionedWritable {
       Outlink.skip(in);
     }
     
-    int propertyCount = in.readInt();             // read metadata
-    metadata = new ContentProperties();
-    for (int i = 0; i < propertyCount; i++) {
-      metadata.put(UTF8.readString(in), UTF8.readString(in));
+    if (version < 3) {
+      int propertyCount = in.readInt();             // read metadata
+      metadata = new ContentProperties();
+      for (int i = 0; i < propertyCount; i++) {
+        metadata.put(UTF8.readString(in), UTF8.readString(in));
+      }
+    } else {
+      metadata = new ContentProperties();
+      metadata.readFields(in);
     }
     
   }
@@ -113,14 +118,7 @@ public final class ParseData extends VersionedWritable {
     for (int i = 0; i < outlinks.length; i++) {
       outlinks[i].write(out);
     }
-
-    out.writeInt(metadata.size());                // write metadata
-    Iterator i = metadata.entrySet().iterator();
-    while (i.hasNext()) {
-      Map.Entry e = (Map.Entry)i.next();
-      UTF8.writeString(out, (String)e.getKey());
-      UTF8.writeString(out, (String)e.getValue());
-    }
+    metadata.write(out);
   }
 
   public static ParseData read(DataInput in) throws IOException {
