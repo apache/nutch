@@ -6,8 +6,6 @@
   <!-- Build & deploy all the plugin jars.                    -->
   <!-- ====================================================== -->
   <target name="deploy">
-     <ant dir="analysis-de" target="deploy"/>
-     <ant dir="analysis-fr" target="deploy"/>
      <ant dir="clustering-carrot2" target="deploy"/>
      <ant dir="creativecommons" target="deploy"/>
      <ant dir="index-basic" target="deploy"/>
@@ -47,8 +45,8 @@
   <target name="test">
      <ant dir="creativecommons" target="test"/>
      <ant dir="languageidentifier" target="test"/>
+     <ant dir="lib-http" target="test"/>
      <ant dir="ontology" target="test"/>
-     <ant dir="protocol-http" target="test"/>
      <ant dir="parse-ext" target="test"/>
      <ant dir="parse-html" target="test"/>
      <!-- <ant dir="parse-mp3" target="test"/> -->
@@ -71,6 +69,7 @@
     <ant dir="index-basic" target="clean"/>
     <ant dir="index-more" target="clean"/>
     <ant dir="languageidentifier" target="clean"/>
+    <ant dir="lib-http" target="clean"/>
     <ant dir="lib-jakarta-poi" target="clean"/>
     <ant dir="lib-lucene-analyzers" target="clean"/>
     <ant dir="nutch-extensionpoints" target="clean"/>
