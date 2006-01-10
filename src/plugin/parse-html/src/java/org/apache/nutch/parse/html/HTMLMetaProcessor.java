@@ -59,10 +59,22 @@ public class HTMLMetaProcessor {
 
       if ("meta".equalsIgnoreCase(node.getNodeName())) {
         NamedNodeMap attrs = node.getAttributes();
-        Node nameNode = attrs.getNamedItem("name");
-        Node equivNode = attrs.getNamedItem("http-equiv");
-        Node contentNode = attrs.getNamedItem("content");
-
+        Node nameNode = null;
+        Node equivNode = null;
+        Node contentNode = null;
+        // Retrieves name, http-equiv and content attribues
+        for (int i=0; i<attrs.getLength(); i++) {
+          Node attr = attrs.item(i);
+          String attrName = attr.getNodeName().toLowerCase();
+          if (attrName.equals("name")) {
+            nameNode = attr;
+          } else if (attrName.equals("http-equiv")) {
+            equivNode = attr;
+          } else if (attrName.equals("content")) {
+            contentNode = attr;
+          }
+        }
+        
         if (nameNode != null) {
           if (contentNode != null) {
             String name = nameNode.getNodeValue().toLowerCase();
