@@ -43,7 +43,6 @@ public class CommandRunner {
   private boolean _waitForExit = true;
   private String _command;
   private int _timeout = 10;
-  private boolean _destroyOnTimeout = true;
 
   private InputStream _stdin;
   private OutputStream _stdout;
@@ -123,9 +122,6 @@ public class CommandRunner {
       }
     } catch (TimeoutException ex) {
       _timedout = true;
-      if (_destroyOnTimeout) {
-        proc.destroy();
-      }
     } catch (BrokenBarrierException bbe) {
       /* IGNORE */
     } catch (InterruptedException e) {
@@ -167,10 +163,8 @@ public class CommandRunner {
       }
     }
 
-    if (_timedout) {
-      if (_destroyOnTimeout) {
-        proc.destroy();
-      }
+    if (_waitForExit) {
+      proc.destroy();
     }
     return _xit;
   }
@@ -222,6 +216,13 @@ public class CommandRunner {
           /* IGNORE */
         }
       }
+      try {
+         _barrier.barrier();
+       } catch (InterruptedException ie) {
+         /* IGNORE */
+       } catch (BrokenBarrierException bbe) {
+         /* IGNORE */
+       }
     }
   }
 
@@ -243,14 +244,6 @@ public class CommandRunner {
 
   public void setTimeout(int timeout) {
     _timeout = timeout;
-  }
-
-  public boolean getDestroyOnTimeout() {
-    return _destroyOnTimeout;
-  }
-
-  public void setDestroyOnTimeout(boolean destroyOnTimeout) {
-    _destroyOnTimeout = destroyOnTimeout;
   }
 
   public boolean getWaitForExit() {
