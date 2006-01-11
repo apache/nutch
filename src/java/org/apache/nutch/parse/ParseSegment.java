@@ -58,9 +58,16 @@ public class ParseSegment extends NutchConfigured implements Mapper, Reducer {
       status = new ParseStatus(e);
     }
 
+    ContentProperties metadata = parse.getData().getMetadata();
     // compute the new signature
     byte[] signature = SignatureFactory.getSignature(getConf()).calculate(content, parse);
-    parse.getData().getMetadata().setProperty(Fetcher.SIGNATURE_KEY, StringUtil.toHexString(signature));
+    metadata.setProperty(Fetcher.SIGNATURE_KEY, StringUtil.toHexString(signature));
+    // copy segment name and score
+    String segmentName = content.getMetadata().getProperty(Fetcher.SEGMENT_NAME_KEY);
+    String score = content.getMetadata().getProperty(Fetcher.SCORE_KEY);
+    metadata.setProperty(Fetcher.SEGMENT_NAME_KEY, segmentName);
+    metadata.setProperty(Fetcher.SCORE_KEY, score);
+    
     if (status.isSuccess()) {
       output.collect(key, new ParseImpl(parse.getText(), parse.getData()));
     } else {
