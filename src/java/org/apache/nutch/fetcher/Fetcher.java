@@ -222,10 +222,10 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
         byte[] signature = SignatureFactory.getSignature(getConf()).calculate(content, parse);
         parse.getData().getMetadata().setProperty(SIGNATURE_KEY, StringUtil.toHexString(signature));
         datum.setSignature(signature);
+        // add segment name and score to parseData metadata
+        parse.getData().getMetadata().setProperty(SEGMENT_NAME_KEY, segmentName);
+        parse.getData().getMetadata().setProperty(SCORE_KEY, Float.toString(datum.getScore()));
       }
-      // add segment name and score to parseData metadata
-      parse.getData().getMetadata().setProperty(SEGMENT_NAME_KEY, segmentName);
-      parse.getData().getMetadata().setProperty(SCORE_KEY, Float.toString(datum.getScore()));
 
       try {
         output.collect
