@@ -377,6 +377,10 @@
       <fileset dir="lib"/>
     </copy>
 
+    <copy todir="${dist.dir}/webapps">
+      <fileset dir="${build.webapps}"/>
+    </copy>
+
     <copy todir="${dist.dir}/plugins">
       <fileset dir="${build.plugins}"/>
     </copy>
