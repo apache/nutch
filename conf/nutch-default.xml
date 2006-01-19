@@ -379,6 +379,14 @@
   exception.</description>
 </property>
   
+<property>
+  <name>io.map.index.skip</name>
+  <value>0</value>
+  <description>Number of index entries to skip between each entry.
+  Zero by default. Setting this to values larger than zero can
+  facilitate opening large map files using less memory.</description>
+</property>
+
 <!-- file system properties -->
 
 <property>
@@ -410,6 +418,14 @@
   should store its blocks.  If this is a comma- or space-delimited
   list of directories, then data will be stored in all named
   directories, typically on different devices.</description>
+</property>
+
+<property>
+  <name>ndfs.replication</name>
+  <value>3</value>
+  <description>How many copies we try to have at all times. The actual
+  number of replications is at max the number of datanodes in the
+  cluster.</description>
 </property>
 
 <!-- map/reduce properties -->
@@ -509,6 +525,13 @@
   <value>200m</value>
   <description>The heap size (-Xmx) that will be used for task tracker
   child processes.</description>
+</property>
+
+<property>
+  <name>mapred.combine.buffer.size</name>
+  <value>100000</value>
+  <description>The number of entries the combining collector caches before
+  combining them and writing to disk.</description>
 </property>
 
 <!-- indexer properties -->
