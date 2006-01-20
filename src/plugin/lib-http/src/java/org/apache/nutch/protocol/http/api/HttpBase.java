@@ -109,13 +109,13 @@ public abstract class HttpBase implements Protocol {
     if (logger != null) {
       this.logger = logger;
     }
-    logger.info("http.proxy.host = " + PROXY_HOST);
-    logger.info("http.proxy.port = " + PROXY_PORT);
-    logger.info("http.timeout = " + TIMEOUT);
-    logger.info("http.content.limit = " + MAX_CONTENT);
-    logger.info("http.agent = " + AGENT_STRING);
-    logger.info("fetcher.server.delay = " + SERVER_DELAY);
-    logger.info("http.max.delays = " + MAX_DELAYS);
+    logger.fine("http.proxy.host = " + PROXY_HOST);
+    logger.fine("http.proxy.port = " + PROXY_PORT);
+    logger.fine("http.timeout = " + TIMEOUT);
+    logger.fine("http.content.limit = " + MAX_CONTENT);
+    logger.fine("http.agent = " + AGENT_STRING);
+    logger.fine("fetcher.server.delay = " + SERVER_DELAY);
+    logger.fine("http.max.delays = " + MAX_DELAYS);
   }
   
   public ProtocolOutput getProtocolOutput(UTF8 url, CrawlDatum datum) {
