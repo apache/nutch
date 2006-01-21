@@ -11,8 +11,7 @@ Release 0.7.2
  4. NUTCH-142 - NutchConf should use the thread context classloader. (Mike
 Cannon-Brookes). 
  
- 5. 
-
+ 5. NUTCH-45 - Log corrupt segments in SegmentMergeTool. (Otis Gospodnetic).
 
 Release 0.7.1 - 2005-10-01
 

@@ -199,6 +199,7 @@ public class SegmentMergeTool implements Runnable {
           sr = new SegmentReader(nfs, dir, true);
         } catch (Exception e) {
           // this segment is hosed beyond repair, don't use it
+          LOG.warning("* Segment " + dir.getName() + " is corrupt beyond repair; skipping it.");
           continue;
         }
         segdirs.add(dir);
