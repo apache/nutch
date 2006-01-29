@@ -44,6 +44,7 @@ public class SignatureFactory {
         Class implClass = Class.forName(clazz);
         impl = (Signature)implClass.newInstance();
         impl.setConf(conf);
+        conf.setObject(clazz, impl);
       } catch (Exception e) {
         throw new RuntimeException("Couldn't create " + clazz, e);
       }
