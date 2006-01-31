@@ -17,11 +17,24 @@
 package org.creativecommons.nutch;
 
 import org.apache.nutch.searcher.RawFieldQueryFilter;
+import org.apache.nutch.util.NutchConf;
 
-/** Handles "cc:" query clauses, causing them to search the "cc" field
- * indexed by CCIndexingFilter. */
+/**
+ * Handles "cc:" query clauses, causing them to search the "cc" field indexed by
+ * CCIndexingFilter.
+ */
 public class CCQueryFilter extends RawFieldQueryFilter {
+  private NutchConf nutchConf;
+
   public CCQueryFilter() {
     super(CCIndexingFilter.FIELD);
+  }
+
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
   }
 }

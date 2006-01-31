@@ -24,6 +24,7 @@ import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
+import org.apache.nutch.util.NutchConf;
 
 import org.apache.nutch.io.UTF8;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -79,7 +80,7 @@ public class TestExtParser extends TestCase {
     fos.close();
 
     // get nutch content
-    Protocol protocol = ProtocolFactory.getProtocol(urlString);
+    Protocol protocol = new ProtocolFactory(new NutchConf()).getProtocol(urlString);
     content = protocol.getProtocolOutput(new UTF8(urlString), new CrawlDatum()).getContent();
     protocol = null;
   }
@@ -103,18 +104,19 @@ public class TestExtParser extends TestCase {
       return;
     }
 
+    NutchConf nutchConf = new NutchConf();
     // loop alternately, total 10*2 times of invoking external command
     for (int i=0; i<10; i++) {
       // check external parser that does 'cat'
       contentType = "application/vnd.nutch.example.cat";
       content.setContentType(contentType);
-      parse = ParseUtil.parseByParserId("parse-ext", content);
+      parse = new ParseUtil(nutchConf).parseByParserId("parse-ext", content);
       assertEquals(expectedText,parse.getText());
 
       // check external parser that does 'md5sum'
       contentType = "application/vnd.nutch.example.md5sum";
       content.setContentType(contentType);
-      parse = ParseUtil.parseByParserId("parse-ext", content);
+      parse = new ParseUtil(nutchConf).parseByParserId("parse-ext", content);
       assertTrue(parse.getText().startsWith(expectedMD5sum));
     }
   }

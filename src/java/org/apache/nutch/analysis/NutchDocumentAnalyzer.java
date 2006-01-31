@@ -24,40 +24,60 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Token;
-
+import org.apache.nutch.mapred.JobConf;
+import org.apache.nutch.util.NutchConf;
 
 /**
- * The analyzer used for Nutch documents.
- * Uses the JavaCC-defined lexical analyzer {@link NutchDocumentTokenizer},
- * with no stop list.  This keeps it consistent with query parsing.
+ * The analyzer used for Nutch documents. Uses the JavaCC-defined lexical
+ * analyzer {@link NutchDocumentTokenizer}, with no stop list. This keeps it
+ * consistent with query parsing.
  */
 public class NutchDocumentAnalyzer extends NutchAnalyzer {
 
   /** Analyzer used to index textual content. */
-  private static class ContentAnalyzer extends Analyzer {
-    /** Constructs a {@link NutchDocumentTokenizer}. */
-    public TokenStream tokenStream(String field, Reader reader) {
-      return CommonGrams.getFilter(new NutchDocumentTokenizer(reader), field);
-    }
-  }
-
-  /** Analyzer used to index textual content. */
-  public static final Analyzer CONTENT_ANALYZER = new ContentAnalyzer();
-
+  private static Analyzer CONTENT_ANALYZER;
   // Anchor Analysis
   // Like content analysis, but leave gap between anchors to inhibit
   // cross-anchor phrase matching.
-
-  /** The number of unused term positions between anchors in the anchor
-   * field. */
+  /**
+   * The number of unused term positions between anchors in the anchor field.
+   */
   public static final int INTER_ANCHOR_GAP = 4;
+  /** Analyzer used to analyze anchors. */
+  private static Analyzer ANCHOR_ANALYZER;
+  private NutchConf nutchConf;
+
+  /**
+   * @param conf
+   */
+  public NutchDocumentAnalyzer(NutchConf conf) {
+    this.nutchConf = conf;
+    CONTENT_ANALYZER = new ContentAnalyzer(conf);
+    ANCHOR_ANALYZER = new AnchorAnalyzer();
+  }
+
+  /** Analyzer used to index textual content. */
+  private static class ContentAnalyzer extends Analyzer {
+    private CommonGrams commonGrams;
+
+    public ContentAnalyzer(NutchConf nutchConf) {
+      this.commonGrams = new CommonGrams(nutchConf);
+    }
+
+    /** Constructs a {@link NutchDocumentTokenizer}. */
+    public TokenStream tokenStream(String field, Reader reader) {
+      return this.commonGrams.getFilter(new NutchDocumentTokenizer(reader),
+          field);
+    }
+  }
 
   private static class AnchorFilter extends TokenFilter {
+    private boolean first = true;
+
     public AnchorFilter(TokenStream input) {
       super(input);
     }
 
-    private boolean first = true;
     public final Token next() throws IOException {
       Token result = input.next();
       if (result == null)
@@ -76,9 +96,6 @@ public class NutchDocumentAnalyzer extends NutchAnalyzer {
     }
   }
 
-  /** Analyzer used to analyze anchors. */
-  public static final Analyzer ANCHOR_ANALYZER = new AnchorAnalyzer();
-
   /** Returns a new token stream for text from the named field. */
   public TokenStream tokenStream(String fieldName, Reader reader) {
     Analyzer analyzer;
@@ -89,5 +106,4 @@ public class NutchDocumentAnalyzer extends NutchAnalyzer {
 
     return analyzer.tokenStream(fieldName, reader);
   }
-
 }

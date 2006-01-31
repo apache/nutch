@@ -51,7 +51,7 @@ public class HtmlParser implements Parser {
     Pattern.compile("charset=\\s*([a-z][_\\-0-9a-z]*)",
                     Pattern.CASE_INSENSITIVE);
   
-  private static String parserImpl = NutchConf.get().get("parser.html.impl", "neko");
+  private String parserImpl;
 
   /**
    * Given a <code>byte[]</code> representing an html file of an 
@@ -91,8 +91,11 @@ public class HtmlParser implements Parser {
   }
 
 
-  private static String defaultCharEncoding =
-    NutchConf.get().get("parser.character.encoding.default", "windows-1252");
+  private String defaultCharEncoding;
+
+  private NutchConf nutchConf;
+
+  private HtmlParseFilters htmlParseFilters;
 
   public Parse getParse(Content content) {
     HTMLMetaTags metaTags = new HTMLMetaTags();
@@ -101,7 +104,7 @@ public class HtmlParser implements Parser {
     try {
       base = new URL(content.getBaseUrl());
     } catch (MalformedURLException e) {
-      return new ParseStatus(e).getEmptyParse();
+      return new ParseStatus(e).getEmptyParse(getConf());
     }
 
     String text = "";
@@ -151,14 +154,14 @@ public class HtmlParser implements Parser {
       LOG.fine("Parsing...");
       root = parse(input);
     } catch (IOException e) {
-      return new ParseStatus(e).getEmptyParse();
+      return new ParseStatus(e).getEmptyParse(getConf());
     } catch (DOMException e) {
-      return new ParseStatus(e).getEmptyParse();
+      return new ParseStatus(e).getEmptyParse(getConf());
     } catch (SAXException e) {
-      return new ParseStatus(e).getEmptyParse();
+      return new ParseStatus(e).getEmptyParse(getConf());
     } catch (Exception e) {
       e.printStackTrace();
-      return new ParseStatus(e).getEmptyParse();
+      return new ParseStatus(e).getEmptyParse(getConf());
     }
       
     // get meta directives
@@ -180,7 +183,7 @@ public class HtmlParser implements Parser {
       ArrayList l = new ArrayList();              // extract outlinks
       URL baseTag = DOMContentUtils.getBase(root);
       LOG.fine("Getting links...");
-      DOMContentUtils.getOutlinks(baseTag!=null?baseTag:base, l, root);
+      DOMContentUtils.getOutlinks(baseTag!=null?baseTag:base, l, root, getConf());
       outlinks = (Outlink[])l.toArray(new Outlink[l.size()]);
       LOG.fine("found "+outlinks.length+" outlinks in "+content.getUrl());
     }
@@ -197,10 +200,11 @@ public class HtmlParser implements Parser {
       status.setMessage(metaTags.getRefreshHref().toString());
     }
     ParseData parseData = new ParseData(status, title, outlinks, metadata);
+    parseData.setConf(this.nutchConf);
     Parse parse = new ParseImpl(text, parseData);
 
     // run filters on parse
-    return HtmlParseFilters.filter(content, parse, metaTags, root);
+    return this.htmlParseFilters.filter(content, parse, metaTags, root);
   }
 
   private DocumentFragment parse(InputSource input) throws Exception {
@@ -267,10 +271,22 @@ public class HtmlParser implements Parser {
     in.readFully(bytes);
     Parse parse = new HtmlParser().getParse(new Content(url,url,
                                                         bytes,"text/html",
-                                                        new ContentProperties()));
+                                                        new ContentProperties(), new NutchConf()));
     System.out.println("data: "+parse.getData());
 
     System.out.println("text: "+parse.getText());
     
+  }
+
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+    this.htmlParseFilters = new HtmlParseFilters(getConf());
+    this.parserImpl = getConf().get("parser.html.impl", "neko");
+    this.defaultCharEncoding = getConf().get(
+        "parser.character.encoding.default", "windows-1252");
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
   }
 }

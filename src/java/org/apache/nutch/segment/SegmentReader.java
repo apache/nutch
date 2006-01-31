@@ -68,7 +68,7 @@ public class SegmentReader extends NutchConfigured implements Reducer {
       throws IOException {
       reporter.setStatus(split.toString());
 
-      return new SequenceFileRecordReader(fs, split) {
+      return new SequenceFileRecordReader(job, split) {
           public synchronized boolean next(Writable key, Writable value)
             throws IOException {
             ObjectWritable wrapper = (ObjectWritable)value;
@@ -219,7 +219,8 @@ public class SegmentReader extends NutchConfigured implements Reducer {
   }
   
   public static void main(String[] args) throws Exception {
-    SegmentReader segmentReader = new SegmentReader(NutchConf.get());
+    NutchConf nutchConf = new NutchConf();
+    SegmentReader segmentReader = new SegmentReader(nutchConf);
 
     String usage = "Usage: SegmentReader <segment>";
 

@@ -8,8 +8,14 @@
   import="org.apache.nutch.searcher.*"
   import="org.apache.nutch.parse.ParseData"
   import="org.apache.nutch.protocol.ContentProperties"
+  import="org.apache.nutch.util.NutchConf"
 %><%
-  NutchBean bean = NutchBean.get(application);
+  NutchConf nutchConf = (NutchConf) application.getAttribute(NutchConf.class.getName());
+  if (nutchConf == null) {
+    nutchConf = new NutchConf();
+    application.setAttribute(NutchConf.class.getName(), nutchConf);
+  }
+  NutchBean bean = NutchBean.get(application, nutchConf);
   bean.LOG.info("cache request from " + request.getRemoteAddr());
   Hit hit = new Hit(Integer.parseInt(request.getParameter("idx")),
                     Integer.parseInt(request.getParameter("id")));

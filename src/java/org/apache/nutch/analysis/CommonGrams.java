@@ -37,11 +37,15 @@ public class CommonGrams {
   private static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.analysis.CommonGrams");
   private static final char SEPARATOR = '-';
-  private static final HashMap COMMON_TERMS = new HashMap();
-
-  static { init(); }
-
-  private CommonGrams() {}                        // no public ctor
+  private HashMap COMMON_TERMS = new HashMap();
+  
+  /**
+   * The constructor.
+   * @param nutchConf
+   */
+  public CommonGrams(NutchConf nutchConf) {
+      init(nutchConf);
+  }
 
   private static class Filter extends TokenFilter {
     private HashSet common;
@@ -130,10 +134,10 @@ public class CommonGrams {
   }
 
   /** Construct using the provided config file. */
-  private static void init() {
+  private void init(NutchConf nutchConf) {
     try {
-      Reader reader = NutchConf.get().getConfResourceAsReader
-        (NutchConf.get().get("analysis.common.terms.file"));
+      Reader reader = nutchConf.getConfResourceAsReader
+        (nutchConf.get("analysis.common.terms.file"));
       BufferedReader in = new BufferedReader(reader);
       String line;
       while ((line = in.readLine()) != null) {
@@ -170,7 +174,7 @@ public class CommonGrams {
 
   /** Construct a token filter that inserts n-grams for common terms.  For use
    * while indexing documents.  */
-  public static TokenFilter getFilter(TokenStream ts, String field) {
+  public TokenFilter getFilter(TokenStream ts, String field) {
     return new Filter(ts, (HashSet)COMMON_TERMS.get(field));
   }
 
@@ -179,8 +183,10 @@ public class CommonGrams {
     private Term[] terms;
     private int index;
 
-    public ArrayTokens(Phrase phrase) { this.terms = phrase.getTerms(); }
-    
+    public ArrayTokens(Phrase phrase) {
+      this.terms = phrase.getTerms();
+    }
+
     public Token next() {
       if (index == terms.length)
         return null;
@@ -190,7 +196,7 @@ public class CommonGrams {
   }
 
   /** Optimizes phrase queries to use n-grams when possible. */
-  public static String[] optimizePhrase(Phrase phrase, String field) {
+  public String[] optimizePhrase(Phrase phrase, String field) {
     //LOG.info("Optimizing " + phrase + " for " + field);
     ArrayList result = new ArrayList();
     TokenStream ts = getFilter(new ArrayTokens(phrase), field);
@@ -211,17 +217,10 @@ public class CommonGrams {
     if (prev != null)
       result.add(prev.termText());
 
-//     LOG.info("Optimized: ");
-//     for (int i = 0; i < result.size(); i++) {
-//       LOG.info(result.get(i) + " ");
-//     }
-
     return (String[])result.toArray(new String[result.size()]);
-
-
   }
 
-  private static int arity(String gram) {
+  private int arity(String gram) {
     int index = 0;
     int arity = 0;
     while ((index = gram.indexOf(SEPARATOR, index+1)) != -1) {
@@ -237,14 +236,14 @@ public class CommonGrams {
       text.append(args[i]);
       text.append(' ');
     }
-    TokenStream ts =
-      new NutchDocumentTokenizer(new StringReader(text.toString()));
-    ts = getFilter(ts, "url");
+    TokenStream ts = new NutchDocumentTokenizer(new StringReader(text.toString()));
+    CommonGrams commonGrams = new CommonGrams(new NutchConf());
+    ts = commonGrams.getFilter(ts, "url");
     Token token;
     while ((token = ts.next()) != null) {
       System.out.println("Token: " + token);
     }
-    String[] optimized = optimizePhrase(new Phrase(args), "url");
+    String[] optimized = commonGrams.optimizePhrase(new Phrase(args), "url");
     System.out.print("Optimized: ");
     for (int i = 0; i < optimized.length; i++) {
       System.out.print(optimized[i] + " ");

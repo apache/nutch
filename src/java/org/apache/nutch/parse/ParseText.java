@@ -80,14 +80,15 @@ public final class ParseText extends VersionedWritable {
       return;
     }
 
-    NutchFileSystem nfs = NutchFileSystem.parseArgs(argv, 0);
+    NutchConf nutchConf = new NutchConf();
+    NutchFileSystem nfs = NutchFileSystem.parseArgs(argv, 0, nutchConf);
     try {
       int recno = Integer.parseInt(argv[0]);
       String segment = argv[1];
       String filename = new File(segment, ParseText.DIR_NAME).getPath();
 
       ParseText parseText = new ParseText();
-      ArrayFile.Reader parseTexts = new ArrayFile.Reader(nfs, filename);
+      ArrayFile.Reader parseTexts = new ArrayFile.Reader(nfs, filename, nutchConf);
 
       parseTexts.get(recno, parseText);
       System.out.println("Retrieved " + recno + " from file " + filename);

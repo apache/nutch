@@ -30,11 +30,13 @@ import org.apache.nutch.util.LogFormatter;
 public class OnlineClustererFactory {
   public static final Logger LOG = LogFormatter
     .getLogger(OnlineClustererFactory.class.getName());
+  private ExtensionPoint extensionPoint;
+  private String extensionName;
 
-  private final static ExtensionPoint X_POINT = PluginRepository.getInstance()
-    .getExtensionPoint(OnlineClusterer.X_POINT_ID);
-
-  private OnlineClustererFactory() {}
+  public OnlineClustererFactory(NutchConf nutchConf) {
+      this.extensionPoint = nutchConf.getPluginRepository().getExtensionPoint(OnlineClusterer.X_POINT_ID);
+      this.extensionName = nutchConf.get("extension.clustering.extension-name");
+  }
 
   /**
   * @return Returns the online clustering extension specified
@@ -43,15 +45,14 @@ public class OnlineClustererFactory {
   * empty (no preference), the first available clustering extension is
   * returned.
   */
-  public static OnlineClusterer getOnlineClusterer()
+  public OnlineClusterer getOnlineClusterer()
     throws PluginRuntimeException {
 
-    if (X_POINT == null) {
+    if (this.extensionPoint == null) {
       // not even an extension point defined.
       return null;
     }
-
-    String extensionName = NutchConf.get().get("extension.clustering.extension-name");
+    
     if (extensionName != null) {
       Extension extension = findExtension(extensionName);
       if (extension != null) {
@@ -63,7 +64,7 @@ public class OnlineClustererFactory {
       // not found, fallback to the default, if available.
     }
 
-    Extension[] extensions = X_POINT.getExtensions();
+    Extension[] extensions = this.extensionPoint.getExtensions();
     if (extensions.length > 0) {
       LOG.info("Using the first clustering extension found: "
         + extensions[0].getId());
@@ -73,10 +74,10 @@ public class OnlineClustererFactory {
     }
   }
 
-  private static Extension findExtension(String name)
+  private Extension findExtension(String name)
     throws PluginRuntimeException {
 
-    Extension[] extensions = X_POINT.getExtensions();
+    Extension[] extensions = this.extensionPoint.getExtensions();
 
     for (int i = 0; i < extensions.length; i++) {
       Extension extension = extensions[i];

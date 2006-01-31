@@ -259,7 +259,7 @@ public class Generator extends NutchConfigured {
 
     if (topN != Long.MAX_VALUE)
       LOG.info("topN: " + topN);
-    Generator gen = new Generator(NutchConf.get());
+    Generator gen = new Generator(new NutchConf());
     gen.generate(dbDir, segmentsDir, numFetchers, topN, curTime);
   }
 }

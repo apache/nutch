@@ -28,8 +28,7 @@ import org.apache.nutch.util.*;
  * then invokes the combiner's reduce method to merge some values before
  * they're transferred to a reduce node. */
 class CombiningCollector implements OutputCollector {
-  private static final int LIMIT
-    = NutchConf.get().getInt("mapred.combine.buffer.size", 100000);
+  private int limit;
 
   private int count = 0;
   private Map keyToValues;                        // the buffer
@@ -46,6 +45,7 @@ class CombiningCollector implements OutputCollector {
     this.reporter = reporter;
     this.combiner = (Reducer)job.newInstance(job.getCombinerClass());
     this.keyToValues = new TreeMap(job.getOutputKeyComparator());
+    this.limit = job.getInt("mapred.combine.buffer.size", 100000);
   }
 
   public synchronized void collect(WritableComparable key, Writable value)
@@ -63,7 +63,7 @@ class CombiningCollector implements OutputCollector {
 
     count++;
 
-    if (count >= LIMIT) {                         // time to flush
+    if (count >= this.limit) {                         // time to flush
       flush();
     }
   }

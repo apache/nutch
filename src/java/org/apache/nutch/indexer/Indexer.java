@@ -55,7 +55,7 @@ public class Indexer extends NutchConfigured implements Reducer {
 
       reporter.setStatus(split.toString());
       
-      return new SequenceFileRecordReader(fs, split) {
+      return new SequenceFileRecordReader(job, split) {
           public synchronized boolean next(Writable key, Writable value)
             throws IOException {
             ObjectWritable wrapper = (ObjectWritable)value;
@@ -83,7 +83,7 @@ public class Indexer extends NutchConfigured implements Reducer {
 
       final IndexWriter writer =                  // build locally first
         new IndexWriter(fs.startLocalOutput(perm, temp),
-                        new NutchDocumentAnalyzer(), true);
+                        new NutchDocumentAnalyzer(job), true);
 
       writer.mergeFactor = job.getInt("indexer.mergeFactor", 10);
       writer.minMergeDocs = job.getInt("indexer.minMergeDocs", 100);
@@ -92,7 +92,7 @@ public class Indexer extends NutchConfigured implements Reducer {
       writer.setTermIndexInterval
         (job.getInt("indexer.termIndexInterval", 128));
       writer.maxFieldLength = job.getInt("indexer.max.tokens", 10000);
-      //writer.infoStream = LogFormatter.getLogStream(LOG, Level.FINE);
+      writer.infoStream = LogFormatter.getLogStream(LOG, Level.INFO);
       writer.setUseCompoundFile(false);
       writer.setSimilarity(new NutchSimilarity());
 
@@ -133,6 +133,8 @@ public class Indexer extends NutchConfigured implements Reducer {
     }
   }
 
+  private IndexingFilters filters;
+
   public Indexer() {
     super(null);
   }
@@ -146,6 +148,8 @@ public class Indexer extends NutchConfigured implements Reducer {
 
   public void configure(JobConf job) {
     scorePower = job.getFloat("indexer.score.power", 0.5f);
+    setConf(job);
+    this.filters = new IndexingFilters(getConf());
   }
 
   public void reduce(WritableComparable key, Iterator values,
@@ -217,7 +221,7 @@ public class Indexer extends NutchConfigured implements Reducer {
 
     try {
       // run indexing filters
-      doc = IndexingFilters.filter(doc,new ParseImpl(parseText, parseData), (UTF8)key, fetchDatum, inlinks);
+      doc = this.filters.filter(doc,new ParseImpl(parseText, parseData), (UTF8)key, fetchDatum, inlinks);
     } catch (IndexingException e) {
       LOG.warning("Error indexing "+key+": "+e);
       return;
@@ -261,7 +265,7 @@ public class Indexer extends NutchConfigured implements Reducer {
   }
 
   public static void main(String[] args) throws Exception {
-    Indexer indexer = new Indexer(NutchConf.get());
+    Indexer indexer = new Indexer(new NutchConf());
     
     if (args.length < 4) {
       System.err.println("Usage: <index> <crawldb> <linkdb> <segment> ...");

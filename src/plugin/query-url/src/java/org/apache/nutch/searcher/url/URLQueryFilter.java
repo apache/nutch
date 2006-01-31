@@ -17,11 +17,24 @@
 package org.apache.nutch.searcher.url;
 
 import org.apache.nutch.searcher.FieldQueryFilter;
+import org.apache.nutch.util.NutchConf;
 
-/** Handles "url:" query clauses, causing them to search the field indexed by
- * BasicIndexingFilter. */
+/**
+ * Handles "url:" query clauses, causing them to search the field indexed by
+ * BasicIndexingFilter.
+ */
 public class URLQueryFilter extends FieldQueryFilter {
+  private NutchConf nutchConf;
+
   public URLQueryFilter() {
     super("url");
+  }
+
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
   }
 }

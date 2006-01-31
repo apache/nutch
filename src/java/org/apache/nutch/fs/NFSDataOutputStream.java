@@ -29,29 +29,27 @@ public class NFSDataOutputStream extends DataOutputStream {
   /** Store checksums for data. */
   private static class Summer extends FilterOutputStream {
 
-    private final int bytesPerSum
-      = NutchConf.get().getInt("io.bytes.per.checksum", 512);
-
     private NFSDataOutputStream sums;
     private Checksum sum = new CRC32();
     private int inSum;
+    private int bytesPerSum;
 
-    public Summer(NutchFileSystem fs, File file, boolean overwrite)
+    public Summer(NutchFileSystem fs, File file, boolean overwrite, NutchConf nutchConf)
       throws IOException {
       super(fs.createRaw(file, overwrite));
-
+      this.bytesPerSum = nutchConf.getInt("io.bytes.per.checksum", 512);
       this.sums =
-        new NFSDataOutputStream(fs.createRaw(fs.getChecksumFile(file), true));
+        new NFSDataOutputStream(fs.createRaw(fs.getChecksumFile(file), true), nutchConf);
 
       sums.write(CHECKSUM_VERSION, 0, CHECKSUM_VERSION.length);
-      sums.writeInt(bytesPerSum);
+      sums.writeInt(this.bytesPerSum);
     }
 
     public void write(byte b[], int off, int len) throws IOException {
       int summed = 0;
       while (summed < len) {
 
-        int goal = bytesPerSum - inSum;
+        int goal = this.bytesPerSum - inSum;
         int inBuf = len - summed;
         int toSum = inBuf <= goal ? inBuf : goal;
 
@@ -59,7 +57,7 @@ public class NFSDataOutputStream extends DataOutputStream {
         summed += toSum;
 
         inSum += toSum;
-        if (inSum == bytesPerSum) {
+        if (inSum == this.bytesPerSum) {
           writeSum();
         }
       }
@@ -124,15 +122,15 @@ public class NFSDataOutputStream extends DataOutputStream {
   }
 
   public NFSDataOutputStream(NutchFileSystem fs, File file,
-                             boolean overwrite, int bufferSize)
+                             boolean overwrite, NutchConf nutchConf)
     throws IOException {
-    super(new Buffer(new PositionCache(new Summer(fs, file, overwrite)),
-                     bufferSize));
+    super(new Buffer(new PositionCache(new Summer(fs, file, overwrite, nutchConf)),
+            nutchConf.getInt("io.file.buffer.size", 4096)));
   }
 
   /** Construct without checksums. */
-  public NFSDataOutputStream(NFSOutputStream out) throws IOException {
-    this(out, NutchConf.get().getInt("io.file.buffer.size", 4096));
+  public NFSDataOutputStream(NFSOutputStream out, NutchConf nutchConf) throws IOException {
+    this(out, nutchConf.getInt("io.file.buffer.size", 4096));
   }
 
   /** Construct without checksums. */

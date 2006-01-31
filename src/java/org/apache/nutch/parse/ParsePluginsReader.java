@@ -74,7 +74,7 @@ public class ParsePluginsReader {
    * @throws Exception
    *             If any parsing error occurs.
    */
-  public ParsePluginList parse() {
+  public ParsePluginList parse(NutchConf nutchConf) {
     
     ParsePluginList pList = new ParsePluginList();
     
@@ -96,8 +96,8 @@ public class ParsePluginsReader {
         return pList;
       }
     } else {
-      ppInputStream = NutchConf.get().getConfResourceAsInputStream(
-                          NutchConf.get().get(PP_FILE_PROP));
+      ppInputStream = nutchConf.getConfResourceAsInputStream(
+                          nutchConf.get(PP_FILE_PROP));
     }
     
     inputSource = new InputSource(ppInputStream);
@@ -197,7 +197,7 @@ public class ParsePluginsReader {
       reader.setFParsePluginsFile(parsePluginFile);
     }
     
-    ParsePluginList prefs = reader.parse();
+    ParsePluginList prefs = reader.parse(new NutchConf());
     
     for (Iterator i = prefs.getSupportedMimeTypes().iterator(); i.hasNext();) {
       String mimeType = (String) i.next();

@@ -37,6 +37,8 @@ public class ReduceTask extends Task {
   private Progress appendPhase = getProgress().addPhase("append");
   private Progress sortPhase  = getProgress().addPhase("sort");
   private Progress reducePhase = getProgress().addPhase("reduce");
+  private NutchConf nutchConf;
+  private MapOutputFile mapOutputFile;
 
   public ReduceTask() {}
 
@@ -48,7 +50,7 @@ public class ReduceTask extends Task {
   }
 
   public TaskRunner createRunner(TaskTracker tracker) {
-    return new ReduceTaskRunner(this, tracker);
+    return new ReduceTaskRunner(this, tracker, this.nutchConf);
   }
 
   public String[] getMapTaskIds() { return mapTaskIds; }
@@ -157,7 +159,8 @@ public class ReduceTask extends Task {
     Class keyClass = job.getOutputKeyClass();
     Class valueClass = job.getOutputValueClass();
     Reducer reducer = (Reducer)job.newInstance(job.getReducerClass());
-    NutchFileSystem lfs = NutchFileSystem.getNamed("local");
+    reducer.configure(job);
+    NutchFileSystem lfs = NutchFileSystem.getNamed("local", job);
 
     copyPhase.complete();                         // copy is already complete
 
@@ -175,12 +178,12 @@ public class ReduceTask extends Task {
 
       for (int i = 0; i < mapTaskIds.length; i++) {
         File partFile =
-          MapOutputFile.getInputFile(mapTaskIds[i], getTaskId());
+          this.mapOutputFile.getInputFile(mapTaskIds[i], getTaskId());
         float progPerByte = 1.0f / lfs.getLength(partFile);
         Progress phase = appendPhase.phase();
         phase.setStatus(partFile.toString());
         SequenceFile.Reader in =
-          new SequenceFile.Reader(lfs, partFile.toString());
+          new SequenceFile.Reader(lfs, partFile.toString(), job);
         try {
           int keyLen;
           while((keyLen = in.next(buffer)) > 0) {
@@ -227,7 +230,7 @@ public class ReduceTask extends Task {
 
       // sort the input file
       SequenceFile.Sorter sorter =
-        new SequenceFile.Sorter(lfs, comparator, valueClass);
+        new SequenceFile.Sorter(lfs, comparator, valueClass, job);
       sorter.sort(file, sortedFile);              // sort
       lfs.delete(new File(file));                 // remove unsorted
 
@@ -240,7 +243,7 @@ public class ReduceTask extends Task {
     // make output collector
     String name = getOutputName(getPartition());
     final RecordWriter out =
-      job.getOutputFormat().getRecordWriter(NutchFileSystem.get(), job, name);
+      job.getOutputFormat().getRecordWriter(NutchFileSystem.get(job), job, name);
     OutputCollector collector = new OutputCollector() {
         public void collect(WritableComparable key, Writable value)
           throws IOException {
@@ -250,7 +253,7 @@ public class ReduceTask extends Task {
       };
     
     // apply reduce function
-    SequenceFile.Reader in = new SequenceFile.Reader(lfs, sortedFile);
+    SequenceFile.Reader in = new SequenceFile.Reader(lfs, sortedFile, job);
     Reporter reporter = getReporter(umbilical, getProgress());
     long length = lfs.getLength(new File(sortedFile));
     try {
@@ -266,7 +269,6 @@ public class ReduceTask extends Task {
       lfs.delete(new File(sortedFile));           // remove sorted
       out.close(reporter);
     }
-
     done(umbilical);
   }
 
@@ -282,6 +284,16 @@ public class ReduceTask extends Task {
 
   private static synchronized String getOutputName(int partition) {
     return "part-" + NUMBER_FORMAT.format(partition);
+  }
+
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+    this.mapOutputFile = new MapOutputFile();
+    this.mapOutputFile.setConf(conf);
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
   }
 
 }

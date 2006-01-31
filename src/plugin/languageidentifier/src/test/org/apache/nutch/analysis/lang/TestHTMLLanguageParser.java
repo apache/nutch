@@ -26,6 +26,7 @@ import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.ParserFactory;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ContentProperties;
+import org.apache.nutch.util.NutchConf;
 
 
 public class TestHTMLLanguageParser extends TestCase {
@@ -52,7 +53,7 @@ public class TestHTMLLanguageParser extends TestCase {
       for (int t = 0; t < docs.length; t++) {
 
         Content content = getContent(docs[t]);
-        Parser parser = ParserFactory.getParser("text/html", URL);
+        Parser parser = new ParserFactory(new NutchConf()).getParser("text/html", URL);
         Parse parse = parser.getParse(content);
 
         assertEquals(metalanguages[t], (String) parse.getData().get(
@@ -125,7 +126,7 @@ public class TestHTMLLanguageParser extends TestCase {
     ContentProperties p = new ContentProperties();
     p.put("Content-Type", "text/html");
 
-    Content content = new Content(URL, BASE, text.getBytes(), "text/html", p);
+    Content content = new Content(URL, BASE, text.getBytes(), "text/html", p, new NutchConf());
     return content;
   }
 

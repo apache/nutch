@@ -25,12 +25,15 @@ import org.apache.nutch.analysis.CommonGrams;
 
 import org.apache.nutch.searcher.Query.Clause;
 import org.apache.nutch.searcher.Query.Phrase;
+import org.apache.nutch.util.NutchConf;
 
 /** Translate query fields to search the same-named field, as indexed by an
  * IndexingFilter.  Best for tokenized fields. */
 public abstract class FieldQueryFilter implements QueryFilter {
   private String field;
   private float boost = 1.0f;
+  private NutchConf nutchConf;
+  private CommonGrams commonGrams;
 
   /** Construct for the named field.*/
   protected FieldQueryFilter(String field) {
@@ -57,12 +60,12 @@ public abstract class FieldQueryFilter implements QueryFilter {
 
       // optimize phrase clause
       if (c.isPhrase()) {
-        String[] opt = CommonGrams.optimizePhrase(c.getPhrase(), field);
+        String[] opt = this.commonGrams.optimizePhrase(c.getPhrase(), field);
         if (opt.length==1) {
           c = new Clause(new Query.Term(opt[0]),
-                         c.isRequired(), c.isProhibited());
+                         c.isRequired(), c.isProhibited(), getConf());
         } else {
-          c = new Clause(new Phrase(opt), c.isRequired(), c.isProhibited());
+          c = new Clause(new Phrase(opt), c.isRequired(), c.isProhibited(), getConf());
         }
       }
 
@@ -88,5 +91,14 @@ public abstract class FieldQueryFilter implements QueryFilter {
     
     // return the modified Lucene query
     return output;
+  }
+  
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+    this.commonGrams = new CommonGrams(conf);
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
   }
 }

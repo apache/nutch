@@ -25,13 +25,17 @@ import java.lang.reflect.InvocationTargetException;
 import java.io.*;
 import java.util.*;
 
+import org.apache.nutch.util.NutchConf;
+import org.apache.nutch.util.NutchConfigurable;
+
 /** A polymorphic Writable that writes an instance with it's class name.
  * Handles arrays, strings and primitive types without a Writable wrapper.
  */
-public class ObjectWritable implements Writable {
+public class ObjectWritable implements Writable, NutchConfigurable {
 
   private Class declaredClass;
   private Object instance;
+  private NutchConf nutchConf;
 
   public ObjectWritable() {}
   
@@ -57,7 +61,7 @@ public class ObjectWritable implements Writable {
   }
   
   public void readFields(DataInput in) throws IOException {
-    readObject(in, this);
+    readObject(in, this, this.nutchConf);
   }
   
   public void write(DataOutput out) throws IOException {
@@ -165,14 +169,14 @@ public class ObjectWritable implements Writable {
   
   /** Read a {@link Writable}, {@link String}, primitive type, or an array of
    * the preceding. */
-  public static Object readObject(DataInput in)
+  public static Object readObject(DataInput in, NutchConf nutchConf)
     throws IOException {
-    return readObject(in, null);
+    return readObject(in, null, nutchConf);
   }
     
   /** Read a {@link Writable}, {@link String}, primitive type, or an array of
    * the preceding. */
-  public static Object readObject(DataInput in, ObjectWritable objectWritable)
+  public static Object readObject(DataInput in, ObjectWritable objectWritable, NutchConf nutchConf)
     throws IOException {
     String className = UTF8.readString(in);
     Class declaredClass = (Class)PRIMITIVE_NAMES.get(className);
@@ -220,7 +224,7 @@ public class ObjectWritable implements Writable {
       int length = in.readInt();
       instance = Array.newInstance(declaredClass.getComponentType(), length);
       for (int i = 0; i < length; i++) {
-        Array.set(instance, i, readObject(in));
+        Array.set(instance, i, readObject(in, nutchConf));
       }
       
     } else if (declaredClass == String.class) {        // String
@@ -229,6 +233,9 @@ public class ObjectWritable implements Writable {
     } else {                                      // Writable
       try {
         Writable writable = (Writable)declaredClass.newInstance();
+        if(writable instanceof NutchConfigurable) {
+          ((NutchConfigurable) writable).setConf(nutchConf);
+        }
         writable.readFields(in);
         instance = writable;
       } catch (InstantiationException e) {
@@ -245,6 +252,14 @@ public class ObjectWritable implements Writable {
 
     return instance;
       
+  }
+
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
   }
   
 }

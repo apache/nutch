@@ -34,27 +34,7 @@ import java.util.logging.*;
 public class FSNamesystem implements FSConstants {
     public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.fs.FSNamesystem");
 
-    // DESIRED_REPLICATION is how many copies we try to have at all times
-    final static int DESIRED_REPLICATION =
-      NutchConf.get().getInt("ndfs.replication", 3);
-
-    // The maximum number of replicates we should allow for a single block
-    final static int MAX_REPLICATION = DESIRED_REPLICATION;
-
-    // How many outgoing replication streams a given node should have at one time
-    final static int MAX_REPLICATION_STREAMS = NutchConf.get().getInt("ndfs.max-repl-streams", 2);
-
-    // MIN_REPLICATION is how many copies we need in place or else we disallow the write
-    final static int MIN_REPLICATION = 1;
-
-    // HEARTBEAT_RECHECK is how often a datanode sends its hearbeat
-    final static long HEARTBEAT_RECHECK = 1000;
-
-    // Whether we should use disk-availability info when determining target
-    final static boolean USE_AVAILABILITY = NutchConf.get().getBoolean("ndfs.availability.allocation", false);
-
-    private boolean allowSameHostTargets =
-        NutchConf.get().getBoolean("test.ndfs.same.host.targets.allowed", false);
+   
 
     //
     // Stores the correct file name hierarchy
@@ -148,18 +128,44 @@ public class FSNamesystem implements FSConstants {
     Daemon hbthread = null, lmthread = null;
     boolean fsRunning = true;
     long systemStart = 0;
+    private NutchConf nutchConf;
+
+    //  DESIRED_REPLICATION is how many copies we try to have at all times
+    private int desiredReplication;
+    //  The maximum number of replicates we should allow for a single block
+    private int maxReplication;
+    //  How many outgoing replication streams a given node should have at one time
+    private int maxReplicationStreams;
+    // MIN_REPLICATION is how many copies we need in place or else we disallow the write
+    private int minReplication;
+    // HEARTBEAT_RECHECK is how often a datanode sends its hearbeat
+    private int heartBeatRecheck;
+   //  Whether we should use disk-availability info when determining target
+    private boolean useAvailability;
+
+    private boolean allowSameHostTargets;
     
     /**
      * dir is where the filesystem directory state 
      * is stored
      */
-    public FSNamesystem(File dir) throws IOException {
+    public FSNamesystem(File dir, NutchConf nutchConf) throws IOException {
         this.dir = new FSDirectory(dir);
         this.hbthread = new Daemon(new HeartbeatMonitor());
         this.lmthread = new Daemon(new LeaseMonitor());
         hbthread.start();
         lmthread.start();
         this.systemStart = System.currentTimeMillis();
+        this.nutchConf = nutchConf;
+        
+        this.desiredReplication = nutchConf.getInt("ndfs.replication", 3);
+        this.maxReplication = desiredReplication;
+        this.maxReplicationStreams = nutchConf.getInt("ndfs.max-repl-streams", 2);
+        this.minReplication = 1;
+        this.heartBeatRecheck= 1000;
+        this.useAvailability = nutchConf.getBoolean("ndfs.availability.allocation", false);
+        this.allowSameHostTargets =
+           nutchConf.getBoolean("test.ndfs.same.host.targets.allowed", false);
     }
 
     /** Close down this filesystem manager.
@@ -244,10 +250,10 @@ public class FSNamesystem implements FSConstants {
                 results = new Object[2];
 
                 // Get the array of replication targets 
-                DatanodeInfo targets[] = chooseTargets(DESIRED_REPLICATION, null);
-                if (targets.length < MIN_REPLICATION) {
+                DatanodeInfo targets[] = chooseTargets(this.desiredReplication, null);
+                if (targets.length < this.minReplication) {
                     LOG.warning("Target-length is " + targets.length +
-                        ", below MIN_REPLICATION (" + MIN_REPLICATION + ")");
+                        ", below MIN_REPLICATION (" + this.minReplication+ ")");
                     return null;
                 }
 
@@ -300,8 +306,8 @@ public class FSNamesystem implements FSConstants {
             //
             if (checkFileProgress(src)) {
                 // Get the array of replication targets 
-                DatanodeInfo targets[] = chooseTargets(DESIRED_REPLICATION, null);
-                if (targets.length < MIN_REPLICATION) {
+                DatanodeInfo targets[] = chooseTargets(this.desiredReplication, null);
+                if (targets.length < this.minReplication) {
                     return null;
                 }
 
@@ -411,9 +417,9 @@ public class FSNamesystem implements FSConstants {
                 // the blocks.
                 for (int i = 0; i < pendingBlocks.length; i++) {
                     TreeSet containingNodes = (TreeSet) blocksMap.get(pendingBlocks[i]);
-                    if (containingNodes.size() < DESIRED_REPLICATION) {
+                    if (containingNodes.size() < this.desiredReplication) {
                         synchronized (neededReplications) {
-                            LOG.info("Completed file " + src + ", at holder " + holder + ".  There is/are only " + containingNodes.size() + " copies of block " + pendingBlocks[i] + ", so replicating up to " + DESIRED_REPLICATION);
+                            LOG.info("Completed file " + src + ", at holder " + holder + ".  There is/are only " + containingNodes.size() + " copies of block " + pendingBlocks[i] + ", so replicating up to " + this.desiredReplication);
                             neededReplications.add(pendingBlocks[i]);
                         }
                     }
@@ -449,7 +455,7 @@ public class FSNamesystem implements FSConstants {
         for (Iterator it = v.iterator(); it.hasNext(); ) {
             Block b = (Block) it.next();
             TreeSet containingNodes = (TreeSet) blocksMap.get(b);
-            if (containingNodes == null || containingNodes.size() < MIN_REPLICATION) {
+            if (containingNodes == null || containingNodes.size() < this.minReplication) {
                 return false;
             }
         }
@@ -814,7 +820,7 @@ public class FSNamesystem implements FSConstants {
             while (fsRunning) {
                 heartbeatCheck();
                 try {
-                    Thread.sleep(HEARTBEAT_RECHECK);
+                    Thread.sleep(heartBeatRecheck);
                 } catch (InterruptedException ie) {
                 }
             }
@@ -946,10 +952,10 @@ public class FSNamesystem implements FSConstants {
 
         synchronized (neededReplications) {
             if (dir.isValidBlock(block)) {
-                if (containingNodes.size() >= DESIRED_REPLICATION) {
+                if (containingNodes.size() >= this.desiredReplication) {
                     neededReplications.remove(block);
                     pendingReplications.remove(block);
-                } else if (containingNodes.size() < DESIRED_REPLICATION) {
+                } else if (containingNodes.size() < this.desiredReplication) {
                     if (! neededReplications.contains(block)) {
                         neededReplications.add(block);
                     }
@@ -968,8 +974,8 @@ public class FSNamesystem implements FSConstants {
                         nonExcess.add(cur);
                     }
                 }
-                if (nonExcess.size() > MAX_REPLICATION) {
-                    chooseExcessReplicates(nonExcess, block, MAX_REPLICATION);    
+                if (nonExcess.size() > this.maxReplication) {
+                    chooseExcessReplicates(nonExcess, block, this.maxReplication);    
                 }
             }
         }
@@ -1032,7 +1038,7 @@ public class FSNamesystem implements FSConstants {
         // necessary.  In that case, put block on a possibly-will-
         // be-replicated list.
         //
-        if (dir.isValidBlock(block) && (containingNodes.size() < DESIRED_REPLICATION)) {
+        if (dir.isValidBlock(block) && (containingNodes.size() < this.desiredReplication)) {
             synchronized (neededReplications) {
                 neededReplications.add(block);
             }
@@ -1147,7 +1153,7 @@ public class FSNamesystem implements FSConstants {
                     //
                     // We can only reply with 'maxXfers' or fewer blocks
                     //
-                    if (scheduledXfers >= MAX_REPLICATION_STREAMS - xmitsInProgress) {
+                    if (scheduledXfers >= this.maxReplicationStreams - xmitsInProgress) {
                         break;
                     }
 
@@ -1157,7 +1163,7 @@ public class FSNamesystem implements FSConstants {
                     } else {
                         TreeSet containingNodes = (TreeSet) blocksMap.get(block);
                         if (containingNodes.contains(srcNode)) {
-                            DatanodeInfo targets[] = chooseTargets(Math.min(DESIRED_REPLICATION - containingNodes.size(), MAX_REPLICATION_STREAMS - xmitsInProgress), containingNodes);
+                            DatanodeInfo targets[] = chooseTargets(Math.min(this.desiredReplication - containingNodes.size(), this.maxReplicationStreams - xmitsInProgress), containingNodes);
                             if (targets.length > 0) {
                                 // Build items to return
                                 replicateBlocks.add(block);
@@ -1181,7 +1187,7 @@ public class FSNamesystem implements FSConstants {
                         DatanodeInfo targets[] = (DatanodeInfo[]) replicateTargetSets.elementAt(i);
                         TreeSet containingNodes = (TreeSet) blocksMap.get(block);
 
-                        if (containingNodes.size() + targets.length >= DESIRED_REPLICATION) {
+                        if (containingNodes.size() + targets.length >= this.desiredReplication) {
                             neededReplications.remove(block);
                             pendingReplications.add(block);
                         }
@@ -1313,7 +1319,7 @@ public class FSNamesystem implements FSConstants {
                 " forbidden2.size()=" +
                 ( forbidden2 != null ? forbidden2.size() : 0 ));
             return null;
-        } else if (! USE_AVAILABILITY) {
+        } else if (! this.useAvailability) {
             int target = r.nextInt(targetList.size());
             return (DatanodeInfo) targetList.elementAt(target);
         } else {

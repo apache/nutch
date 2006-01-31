@@ -72,8 +72,9 @@ public class TestNDFS extends TestCase implements FSConstants {
   private static final Logger LOG =
       LogFormatter.getLogger("org.apache.nutch.ndfs.TestNDFS");
 
+  private static NutchConf nutchConf = new NutchConf();
   private static int BUFFER_SIZE =
-      NutchConf.get().getInt("io.file.buffer.size", 4096);
+      nutchConf.getInt("io.file.buffer.size", 4096);
 
   private static int testCycleNumber = 0;
 
@@ -124,7 +125,7 @@ public class TestNDFS extends TestCase implements FSConstants {
 
   protected void setUp() throws Exception {
     super.setUp();
-    NutchConf.get().setBoolean("test.ndfs.same.host.targets.allowed", true);
+    nutchConf.setBoolean("test.ndfs.same.host.targets.allowed", true);
   }
 
  /**
@@ -134,7 +135,7 @@ public class TestNDFS extends TestCase implements FSConstants {
   protected void prepareTempFileSpace() {
     if (baseDir.exists()) {
       try { // start from a blank slate
-        FileUtil.fullyDelete(baseDir);
+        FileUtil.fullyDelete(baseDir, nutchConf);
       } catch (Exception ignored) {
       }
     }
@@ -192,17 +193,17 @@ public class TestNDFS extends TestCase implements FSConstants {
 
     //
     // set given config param to override other config settings
-    NutchConf.get().setInt("test.ndfs.block_size", blockSize);
+    nutchConf.setInt("test.ndfs.block_size", blockSize);
     // verify that config changed
-    assertTrue(blockSize == NutchConf.get().getInt("test.ndfs.block_size", 2)); // 2 is an intentional obviously-wrong block size
+    assertTrue(blockSize == nutchConf.getInt("test.ndfs.block_size", 2)); // 2 is an intentional obviously-wrong block size
     // downsize for testing (just to save resources)
-    NutchConf.get().setInt("ndfs.namenode.handler.count", 3);
+    nutchConf.setInt("ndfs.namenode.handler.count", 3);
     if (false) { //  use MersenneTwister, if present
-      NutchConf.get().set("nutch.random.class",
+      nutchConf.set("nutch.random.class",
                           "org.apache.nutch.util.MersenneTwister");
     }
-    NutchConf.get().setLong("ndfs.blockreport.intervalMsec", 50*1000L);
-    NutchConf.get().setLong("ndfs.datanode.startupMsec", 15*1000L);
+    nutchConf.setLong("ndfs.blockreport.intervalMsec", 50*1000L);
+    nutchConf.setLong("ndfs.datanode.startupMsec", 15*1000L);
 
     String nameFSDir = baseDirSpecified + "/name";
     msg("----Start Test Cycle=" + currentTestCycleNumber +
@@ -216,20 +217,19 @@ public class TestNDFS extends TestCase implements FSConstants {
 
     int nameNodePort = 9000 + testCycleNumber++; // ToDo: settable base port
     String nameNodeSocketAddr = "localhost:" + nameNodePort;
-    NameNode nameNodeDaemon = new NameNode(new File(nameFSDir), nameNodePort);
+    NameNode nameNodeDaemon = new NameNode(new File(nameFSDir), nameNodePort, nutchConf);
     NDFSClient ndfsClient = null;
     try {
       //
       //        start some DataNodes
       //
       ArrayList listOfDataNodeDaemons = new ArrayList();
-      NutchConf conf = NutchConf.get();
-      conf.set("fs.default.name", nameNodeSocketAddr);
+      nutchConf.set("fs.default.name", nameNodeSocketAddr);
       for (int i = 0; i < initialDNcount; i++) {
         // uniquely config real fs path for data storage for this datanode
         String dataDir = baseDirSpecified + "/datanode" + i;
-        conf.set("ndfs.data.dir", dataDir);
-        DataNode dn = DataNode.makeInstanceForDir(dataDir, conf);
+        nutchConf.set("ndfs.data.dir", dataDir);
+        DataNode dn = DataNode.makeInstanceForDir(dataDir, nutchConf);
         if (dn != null) {
           listOfDataNodeDaemons.add(dn);
           (new Thread(dn, "DataNode" + i + ": " + dataDir)).start();
@@ -244,7 +244,7 @@ public class TestNDFS extends TestCase implements FSConstants {
         awaitQuiescence();
 
         //  act as if namenode is a remote process
-        ndfsClient = new NDFSClient(new InetSocketAddress("localhost", nameNodePort));
+        ndfsClient = new NDFSClient(new InetSocketAddress("localhost", nameNodePort), nutchConf);
 
         //
         //           write nBytes of data using randomDataGenerator to numFiles
@@ -431,12 +431,12 @@ public class TestNDFS extends TestCase implements FSConstants {
    * testing (a default is set here if property is not set.)
    */
   private Random makeRandomDataGenerator() {
-    long seed = NutchConf.get().getLong("test.ndfs.random.seed", 0xB437EF);
+    long seed = nutchConf.getLong("test.ndfs.random.seed", 0xB437EF);
     try {
       if (randomDataGeneratorCtor == null) {
         // lazy init
         String rndDataGenClassname =
-            NutchConf.get().get("nutch.random.class", "java.util.Random");
+            nutchConf.get("nutch.random.class", "java.util.Random");
         Class clazz = Class.forName(rndDataGenClassname);
         randomDataGeneratorCtor = clazz.getConstructor(new Class[]{Long.TYPE});
       }

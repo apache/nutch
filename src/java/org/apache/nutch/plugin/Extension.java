@@ -16,6 +16,9 @@
  */
 package org.apache.nutch.plugin;
 import java.util.HashMap;
+
+import org.apache.nutch.util.NutchConf;
+import org.apache.nutch.util.NutchConfigurable;
 /**
  * An <code>Extension</code> is a kind of listener descriptor that will be
  * installed on a concrete <code>ExtensionPoint</code> that acts as kind of
@@ -29,6 +32,8 @@ public class Extension {
   private String fTargetPoint;
   private String fClazz;
   private HashMap fAttributes;
+  private NutchConf nutchConf;
+  private PluginRepository pluginRepository;
   /**
    * @param pDescriptor
    *            a plugin descriptor
@@ -38,12 +43,14 @@ public class Extension {
    *            an unique id of the plugin
    */
   public Extension(PluginDescriptor pDescriptor, String pExtensionPoint,
-                   String pId, String pExtensionClass) {
+                   String pId, String pExtensionClass, NutchConf nutchConf, PluginRepository pluginRepository) {
     fAttributes = new HashMap();
     setDescriptor(pDescriptor);
     setExtensionPoint(pExtensionPoint);
     setId(pId);
     setClazz(pExtensionClass);
+    this.nutchConf = nutchConf;
+    this.pluginRepository = pluginRepository;
   }
   /**
    * @param point
@@ -140,8 +147,11 @@ public class Extension {
         Class extensionClazz = loader.loadClass(getClazz());
         // lazy loading of Plugin in case there is no instance of the plugin
         // already.
-        PluginRepository.getInstance().getPluginInstance(getDescriptor());
+        this.pluginRepository.getPluginInstance(getDescriptor());
         Object object = extensionClazz.newInstance();
+        if(object instanceof NutchConfigurable) {
+            ((NutchConfigurable)object).setConf(this.nutchConf);
+        }
         return object;
       } catch (ClassNotFoundException e) {
         throw new PluginRuntimeException(e);

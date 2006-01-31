@@ -25,6 +25,7 @@ import org.apache.nutch.io.*;
 import org.apache.nutch.fs.*;
 import org.apache.nutch.protocol.*;
 import org.apache.nutch.parse.*;
+import org.apache.nutch.util.NutchConf;
 import org.apache.nutch.mapred.*;
 import org.apache.nutch.mapred.lib.*;
 import org.apache.nutch.crawl.*;
@@ -43,10 +44,12 @@ public class FetchedSegments implements HitSummarizer, HitContent {
     private MapFile.Reader[] parseText;
     private MapFile.Reader[] parseData;
     private MapFile.Reader[] crawl;
+    private NutchConf nutchConf;
 
-    public Segment(NutchFileSystem nfs, File segmentDir) throws IOException {
+    public Segment(NutchFileSystem nfs, File segmentDir, NutchConf nutchConf) throws IOException {
       this.nfs = nfs;
       this.segmentDir = segmentDir;
+      this.nutchConf = nutchConf;
     }
 
     public CrawlDatum getCrawlDatum(UTF8 url) throws IOException {
@@ -82,7 +85,7 @@ public class FetchedSegments implements HitSummarizer, HitContent {
     }
     
     private MapFile.Reader[] getReaders(String subDir) throws IOException {
-      return MapFileOutputFormat.getReaders(nfs, new File(segmentDir, subDir));
+      return MapFileOutputFormat.getReaders(nfs, new File(segmentDir, subDir), this.nutchConf);
     }
 
     private Writable getEntry(MapFile.Reader[] readers, UTF8 url,
@@ -93,10 +96,16 @@ public class FetchedSegments implements HitSummarizer, HitContent {
   }
 
   private HashMap segments = new HashMap();
+  private int sumContext = 5;
+  private int sumLength = 20;
+  private Summarizer summarizer;
 
   /** Construct given a directory containing fetcher output. */
-  public FetchedSegments(NutchFileSystem nfs, String segmentsDir) throws IOException {
+  public FetchedSegments(NutchFileSystem nfs, String segmentsDir, NutchConf nutchConf) throws IOException {
     File[] segmentDirs = nfs.listFiles(new File(segmentsDir));
+    this.sumContext = nutchConf.getInt("searcher.summary.context", 5);
+    this.sumLength = nutchConf.getInt("searcher.summary.length", 20);
+    this.summarizer = new Summarizer(nutchConf);
 
     if (segmentDirs != null) {
         for (int i = 0; i < segmentDirs.length; i++) {
@@ -105,7 +114,7 @@ public class FetchedSegments implements HitSummarizer, HitContent {
 //             if (nfs.exists(indexdone) && nfs.isFile(indexdone)) {
 //             	segments.put(segmentDir.getName(), new Segment(nfs, segmentDir));
 //             }
-            segments.put(segmentDir.getName(), new Segment(nfs, segmentDir));
+            segments.put(segmentDir.getName(), new Segment(nfs, segmentDir, nutchConf));
 
         }
     }
@@ -137,7 +146,7 @@ public class FetchedSegments implements HitSummarizer, HitContent {
 
     String text = getSegment(details).getParseText(getUrl(details)).getText();
 
-    return new Summarizer().getSummary(text, query).toString();
+    return this.summarizer.getSummary(text, query, this.sumContext, this.sumLength).toString();
   }
     
   private class SummaryThread extends Thread {

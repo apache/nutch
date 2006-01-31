@@ -52,38 +52,15 @@ public class PluginManifestParser {
     private static final boolean WINDOWS = System.getProperty("os.name")
             .startsWith("Windows");
 
-    /**
-     * Filters a list of plugins.
-     * The list of plugins is filtered regarding the configuration
-     * properties <code>plugin.excludes</code> and <code>plugin.includes</code>.
-     */
-    public static Map filter(Map plugins) {
-      Map map = new HashMap();
-      Pattern excludes = Pattern.compile(NutchConf.get().get(
-                                         "plugin.excludes", ""));
-      Pattern includes = Pattern.compile(NutchConf.get().get(
-                                         "plugin.includes", ""));
-      if (plugins == null) { return map; }
+    private NutchConf nutchConf;
 
-      Iterator iter = plugins.values().iterator();
-      while (iter.hasNext()) {
-        PluginDescriptor plugin = (PluginDescriptor) iter.next();
-        if (plugin == null) { continue; }
-        String id = plugin.getPluginId();
-        if (id == null) { continue; }
-        
-        if (!includes.matcher(id).matches()) {
-          LOG.fine("not including: " + id);
-          continue;
-        }
-        if (excludes.matcher(id).matches()) {
-          LOG.fine("excluding: " + id);
-          continue;
-        }
-        map.put(plugin.getPluginId(), plugin);
-      }
-      return map;
+    private PluginRepository pluginRepository;
+
+    public PluginManifestParser(NutchConf nutchConf, PluginRepository pluginRepository) {
+        this.nutchConf = nutchConf;
+        this.pluginRepository = pluginRepository;
     }
+   
     
     /**
      * Returns a list with plugin descriptors.
@@ -91,9 +68,8 @@ public class PluginManifestParser {
      * @return ArrayList
      *  
      */
-    public static Map parsePluginFolder() {
+    public Map parsePluginFolder(String[] pluginFolders) {
         Map map = new HashMap();
-        String[] pluginFolders = NutchConf.get().getStrings("plugin.folders");
 
         if (pluginFolders == null) {
             throw new IllegalArgumentException("plugin.folders is not defined");
@@ -136,7 +112,7 @@ public class PluginManifestParser {
      * Return the named plugin folder. If the name is absolute then it is
      * returned. Otherwise, for relative names, the classpath is scanned.
      */
-    static File getPluginFolder(String name) {
+    public File getPluginFolder(String name) {
         File directory = new File(name);
         if (!directory.isAbsolute()) {
             URL url = PluginManifestParser.class.getClassLoader().getResource(
@@ -168,7 +144,7 @@ public class PluginManifestParser {
      * @throws SAXException
      * @throws MalformedURLException
      */
-    private static PluginDescriptor parseManifestFile(String pManifestPath)
+    private PluginDescriptor parseManifestFile(String pManifestPath)
             throws MalformedURLException, SAXException, IOException,
             ParserConfigurationException {
         Document document = parseXML(new File(pManifestPath).toURL());
@@ -184,7 +160,7 @@ public class PluginManifestParser {
      * @throws ParserConfigurationException
      * @throws DocumentException
      */
-    private static Document parseXML(URL url) throws SAXException, IOException,
+    private Document parseXML(URL url) throws SAXException, IOException,
             ParserConfigurationException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
@@ -195,7 +171,7 @@ public class PluginManifestParser {
      * @param pDocument
      * @throws MalformedURLException
      */
-    private static PluginDescriptor parsePlugin(Document pDocument, String pPath)
+    private PluginDescriptor parsePlugin(Document pDocument, String pPath)
             throws MalformedURLException {
         Element rootElement = pDocument.getDocumentElement();
         String id = rootElement.getAttribute("id");
@@ -207,7 +183,7 @@ public class PluginManifestParser {
             pluginClazz = rootElement.getAttribute("class");
         }
         PluginDescriptor pluginDescriptor = new PluginDescriptor(id, version,
-                name, providerName, pluginClazz, pPath);
+                name, providerName, pluginClazz, pPath, this.nutchConf);
         LOG.fine("plugin: id="+id+" name="+name+" version="+version
                  +" provider="+providerName+"class="+pluginClazz);
         parseExtension(rootElement, pluginDescriptor);
@@ -222,7 +198,7 @@ public class PluginManifestParser {
      * @param pDescriptor
      * @throws MalformedURLException
      */
-    private static void parseRequires(Element pRootElement,
+    private void parseRequires(Element pRootElement,
                                       PluginDescriptor pDescriptor)
         throws MalformedURLException {
       
@@ -247,7 +223,7 @@ public class PluginManifestParser {
      * @param pDescriptor
      * @throws MalformedURLException
      */
-    private static void parseLibraries(Element pRootElement,
+    private void parseLibraries(Element pRootElement,
             PluginDescriptor pDescriptor) throws MalformedURLException {
         NodeList nodelist = pRootElement.getElementsByTagName("runtime");
         if (nodelist.getLength() > 0) {
@@ -272,7 +248,7 @@ public class PluginManifestParser {
      * @param rootElement
      * @param pluginDescriptor
      */
-    private static void parseExtensionPoints(Element pRootElement,
+    private void parseExtensionPoints(Element pRootElement,
             PluginDescriptor pPluginDescriptor) {
         NodeList list = pRootElement.getElementsByTagName("extension-point");
         if (list != null) {
@@ -293,7 +269,7 @@ public class PluginManifestParser {
      * @param rootElement
      * @param pluginDescriptor
      */
-    private static void parseExtension(Element pRootElement,
+    private void parseExtension(Element pRootElement,
             PluginDescriptor pPluginDescriptor) {
         NodeList extensions = pRootElement.getElementsByTagName("extension");
         if (extensions != null) {
@@ -316,7 +292,7 @@ public class PluginManifestParser {
                         LOG.fine("impl: point=" + pointId + " class="
                                 + extensionClass);
                         Extension extension = new Extension(pPluginDescriptor,
-                                pointId, id, extensionClass);
+                                pointId, id, extensionClass, this.nutchConf, this.pluginRepository);
                         NamedNodeMap list = oneImplementation.getAttributes();
                         for (int k = 0; k < list.getLength(); k++) {
                             Node attribute = list.item(k);

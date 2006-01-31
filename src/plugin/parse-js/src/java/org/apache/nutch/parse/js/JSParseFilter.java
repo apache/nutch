@@ -24,6 +24,7 @@ import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.util.NutchConf;
 import org.apache.oro.text.regex.MatchResult;
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.PatternCompiler;
@@ -50,6 +51,8 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     LogFormatter.getLogger("org.apache.nutch.parse.js.JSParseFilter");
 
   private static final int MAX_TITLE_LEN = 80;
+
+  private NutchConf nutchConf;
   
   public Parse filter(Content content, Parse parse, HTMLMetaTags metaTags, DocumentFragment doc) {
     String url = content.getBaseUrl();
@@ -64,7 +67,9 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
       ParseStatus status = parse.getData().getStatus();
       String text = parse.getText();
       Outlink[] newlinks = (Outlink[])outlinks.toArray(new Outlink[outlinks.size()]);
-      parse = new ParseImpl(text, new ParseData(status, title, newlinks, metadata));
+      ParseData parseData = new ParseData(status, title, newlinks, metadata);
+      parseData.setConf(this.nutchConf);
+      parse = new ParseImpl(text, parseData);
     }
     return parse;
   }
@@ -123,7 +128,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     String type = c.getContentType();
     if (type != null && !type.trim().equals("") && !type.toLowerCase().startsWith("application/x-javascript"))
       return new ParseStatus(ParseStatus.FAILED_INVALID_FORMAT,
-              "Content not JavaScript: '" + type + "'").getEmptyParse();
+              "Content not JavaScript: '" + type + "'").getEmptyParse(getConf());
     String script = new String(c.getContent());
     Outlink[] outlinks = getJSLinks(script, c.getUrl(), c.getUrl());
     if (outlinks == null) outlinks = new Outlink[0];
@@ -141,6 +146,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     metadata.putAll(c.getMetadata());
     ParseData pd = new ParseData(ParseStatus.STATUS_SUCCESS, title,
             outlinks, metadata);
+    pd.setConf(this.nutchConf);
     Parse parse = new ParseImpl(script, pd);
     return parse;
   }
@@ -154,7 +160,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
   /**
    *  This method extracts URLs from literals embedded in JavaScript.
    */
-  private static Outlink[] getJSLinks(String plainText, String anchor, String base) {
+  private Outlink[] getJSLinks(String plainText, String anchor, String base) {
 
     final List outlinks = new ArrayList();
     URL baseURL = null;
@@ -195,7 +201,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
         } else url = new URL(baseURL, url).toString();
         url = url.replaceAll("&amp;", "&");
         LOG.fine(" - outlink from JS: '" + url + "'");
-        outlinks.add(new Outlink(url, anchor));
+        outlinks.add(new Outlink(url, anchor, getConf()));
       }
     } catch (Exception ex) {
       // if it is a malformed URL we just throw it away and continue with
@@ -225,9 +231,19 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     StringBuffer sb = new StringBuffer();
     String line = null;
     while ((line = br.readLine()) != null) sb.append(line + "\n");
-    Outlink[] links = getJSLinks(sb.toString(), args[1], args[1]);
+    JSParseFilter parseFilter = new JSParseFilter();
+    parseFilter.setConf(new NutchConf());
+    Outlink[] links = parseFilter.getJSLinks(sb.toString(), args[1], args[1]);
     System.out.println("Outlinks extracted: " + links.length);
     for (int i = 0; i < links.length; i++)
       System.out.println(" - " + links[i]);
+  }
+
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
   }
 }

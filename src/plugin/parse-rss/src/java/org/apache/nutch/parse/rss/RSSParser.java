@@ -18,6 +18,7 @@ package org.apache.nutch.parse.rss;
 
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.util.NutchConf;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseStatus;
@@ -63,6 +64,7 @@ import org.apache.commons.feedparser.network.ResourceRequest;
 public class RSSParser implements Parser {
     public static final Logger LOG = LogFormatter
             .getLogger("org.apache.nutch.parse.rss");
+    private NutchConf nutchConf;
 
     /**
      * <p>
@@ -122,7 +124,7 @@ public class RSSParser implements Parser {
             e.printStackTrace();
             LOG.fine("nutch:parse-rss:RSSParser Exception: " + e.getMessage());
             return new ParseStatus(ParseStatus.FAILED,
-                    "Can't be handled as rss document. " + e).getEmptyParse();
+                    "Can't be handled as rss document. " + e).getEmptyParse(getConf());
         }
 
         StringBuffer contentTitle = new StringBuffer(), indexText = new StringBuffer();
@@ -149,9 +151,9 @@ public class RSSParser implements Parser {
                     try {
                         // get the outlink
 			if (r.getDescription()!= null ) {
-			    theOutlinks.add(new Outlink(r.getLink(), r.getDescription()));
+			    theOutlinks.add(new Outlink(r.getLink(), r.getDescription(), getConf()));
 			} else {
-			    theOutlinks.add(new Outlink(r.getLink(), ""));
+			    theOutlinks.add(new Outlink(r.getLink(), "", getConf()));
 			}
                     } catch (MalformedURLException e) {
                         LOG.info("nutch:parse-rss:RSSParser Exception: MalformedURL: "
@@ -179,9 +181,9 @@ public class RSSParser implements Parser {
                     if (whichLink != null) {
                         try {
 			    if (theRSSItem.getDescription()!=null) {
-				theOutlinks.add(new Outlink(whichLink, theRSSItem.getDescription()));
+				theOutlinks.add(new Outlink(whichLink, theRSSItem.getDescription(), getConf()));
 			    } else {
-				theOutlinks.add(new Outlink(whichLink, ""));
+				theOutlinks.add(new Outlink(whichLink, "", getConf()));
 			    }
                         } catch (MalformedURLException e) {
                             LOG.info("nutch:parse-rss:RSSParser Exception: MalformedURL: "
@@ -211,7 +213,16 @@ public class RSSParser implements Parser {
 
         ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS,
                 contentTitle.toString(), outlinks, content.getMetadata());
+        parseData.setConf(this.nutchConf);
         return new ParseImpl(indexText.toString(), parseData);
     }
+
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
+  }
 
 }

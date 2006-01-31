@@ -44,11 +44,8 @@ public class MapFile {
   /** The name of the data file. */
   public static final String DATA_FILE_NAME = "data";
 
-  /** Number of index entries to skip between each entry.  Zero by default.
-   * Setting this to values larger than zero can facilitate opening large map
-   * files using less memory. */
-  public static final int INDEX_SKIP =
-    NutchConf.get().getInt("io.map.index.skip", 0);
+
+
 
   protected MapFile() {}                          // no public ctor
 
@@ -160,6 +157,12 @@ public class MapFile {
   
   /** Provide access to an existing map. */
   public static class Reader {
+      
+    /** Number of index entries to skip between each entry.  Zero by default.
+    * Setting this to values larger than zero can facilitate opening large map
+    * files using less memory. */
+    private int INDEX_SKIP = 0;
+      
     private WritableComparator comparator;
 
     private DataOutputBuffer keyBuf = new DataOutputBuffer();
@@ -190,19 +193,20 @@ public class MapFile {
     public Class getValueClass() { return data.getValueClass(); }
 
     /** Construct a map reader for the named map.*/
-    public Reader(NutchFileSystem nfs, String dirName) throws IOException {
-      this(nfs, dirName, null);
+    public Reader(NutchFileSystem nfs, String dirName, NutchConf nutchConf) throws IOException {
+      this(nfs, dirName, null, nutchConf);
+      INDEX_SKIP = nutchConf.getInt("io.map.index.skip", 0);
     }
 
     /** Construct a map reader for the named map using the named comparator.*/
-    public Reader(NutchFileSystem nfs, String dirName, WritableComparator comparator)
+    public Reader(NutchFileSystem nfs, String dirName, WritableComparator comparator, NutchConf nutchConf)
       throws IOException {
       File dir = new File(dirName);
       File dataFile = new File(dir, DATA_FILE_NAME);
       File indexFile = new File(dir, INDEX_FILE_NAME);
 
       // open the data
-      this.data = new SequenceFile.Reader(nfs, dataFile.getPath());
+      this.data = new SequenceFile.Reader(nfs, dataFile.getPath(),  nutchConf);
       this.firstPosition = data.getPosition();
 
       if (comparator == null)
@@ -213,7 +217,7 @@ public class MapFile {
       this.getKey = this.comparator.newKey();
 
       // open the index
-      this.index = new SequenceFile.Reader(nfs, indexFile.getPath());
+      this.index = new SequenceFile.Reader(nfs, indexFile.getPath(), nutchConf);
     }
 
     private void readIndex() throws IOException {
@@ -416,7 +420,7 @@ public class MapFile {
    * @throws Exception
    */
   public static long fix(NutchFileSystem nfs, File dir,
-          Class keyClass, Class valueClass, boolean dryrun) throws Exception {
+          Class keyClass, Class valueClass, boolean dryrun, NutchConf nutchConf) throws Exception {
     String dr = (dryrun ? "[DRY RUN ] " : "");
     File data = new File(dir, DATA_FILE_NAME);
     File index = new File(dir, INDEX_FILE_NAME);
@@ -429,7 +433,7 @@ public class MapFile {
       // no fixing needed
       return -1;
     }
-    SequenceFile.Reader dataReader = new SequenceFile.Reader(nfs, data.toString());
+    SequenceFile.Reader dataReader = new SequenceFile.Reader(nfs, data.toString(), nutchConf);
     if (!dataReader.getKeyClass().equals(keyClass)) {
       throw new Exception(dr + "Wrong key class in " + dir + ", expected" + keyClass.getName() +
               ", got " + dataReader.getKeyClass().getName());
@@ -474,8 +478,10 @@ public class MapFile {
     String in = args[0];
     String out = args[1];
 
-    NutchFileSystem nfs = new LocalFileSystem();
-    MapFile.Reader reader = new MapFile.Reader(nfs, in);
+    NutchConf conf = new NutchConf();
+    int ioFileBufferSize = conf.getInt("io.file.buffer.size", 4096);
+    NutchFileSystem nfs = new LocalFileSystem(conf);
+    MapFile.Reader reader = new MapFile.Reader(nfs, in, conf);
     MapFile.Writer writer =
       new MapFile.Writer(nfs, out, reader.getKeyClass(), reader.getValueClass());
 

@@ -148,7 +148,7 @@ public class DeleteDuplicates extends NutchConfigured
       return new RecordReader() {
 
           private IndexReader indexReader =
-            IndexReader.open(new NdfsDirectory(fs, split.getFile(), false));
+            IndexReader.open(new NdfsDirectory(fs, split.getFile(), false, job));
 
           { indexReader.undeleteAll(); }
 
@@ -228,6 +228,7 @@ public class DeleteDuplicates extends NutchConfigured
   }
     
   private NutchFileSystem fs;
+  private int ioFileBufferSize;
 
   public DeleteDuplicates() { super(null); }
 
@@ -236,6 +237,7 @@ public class DeleteDuplicates extends NutchConfigured
   public void configure(JobConf job) {
     try {
       fs = NutchFileSystem.get(job);
+      this.ioFileBufferSize = job.getInt("io.file.buffer.size", 4096);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -254,7 +256,7 @@ public class DeleteDuplicates extends NutchConfigured
                      OutputCollector output, Reporter reporter)
     throws IOException {
     File index = new File(key.toString());
-    IndexReader reader = IndexReader.open(new NdfsDirectory(fs, index, false));
+    IndexReader reader = IndexReader.open(new NdfsDirectory(fs, index, false, getConf()));
     try {
       while (values.hasNext()) {
         reader.delete(((IntWritable)values.next()).get());
@@ -316,6 +318,7 @@ public class DeleteDuplicates extends NutchConfigured
     job.setInputKeyClass(HashScore.class);
     job.setInputValueClass(IndexDoc.class);
 
+    job.setInt("io.file.buffer.size", 4096);
     job.setMapperClass(DeleteDuplicates.class);
     job.setReducerClass(DeleteDuplicates.class);
 
@@ -331,7 +334,7 @@ public class DeleteDuplicates extends NutchConfigured
   }
 
   public static void main(String[] args) throws Exception {
-    DeleteDuplicates dedup = new DeleteDuplicates(NutchConf.get());
+    DeleteDuplicates dedup = new DeleteDuplicates(new NutchConf());
     
     if (args.length < 1) {
       System.err.println("Usage: <indexes> ...");

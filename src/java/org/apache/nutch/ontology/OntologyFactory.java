@@ -31,10 +31,13 @@ public class OntologyFactory {
   public final static Logger LOG =
     LogFormatter.getLogger(OntologyFactory.class.getName());
 
-  private final static ExtensionPoint X_POINT =
-    PluginRepository.getInstance().getExtensionPoint(Ontology.X_POINT_ID);
-
-  private OntologyFactory() {}
+  private ExtensionPoint extensionPoint;
+  private NutchConf nutchConf;
+  
+  public OntologyFactory(NutchConf nutchConf) {
+    this.nutchConf = nutchConf;
+    this.extensionPoint = nutchConf.getPluginRepository().getExtensionPoint(Ontology.X_POINT_ID);  
+  }
 
   /**
   * @return Returns the online ontology extension specified
@@ -43,14 +46,14 @@ public class OntologyFactory {
   * If the name is  empty (no preference),
   * the first available ontology extension is returned.
   */
-  public static Ontology getOntology() throws PluginRuntimeException {
-
-    if (X_POINT == null) {
+  public Ontology getOntology() throws PluginRuntimeException {
+     
+    if (this.extensionPoint == null) {
       // not even an extension point defined.
       return null;
     }
 
-    String extensionName = NutchConf.get().get("extension.ontology.extension-name");
+    String extensionName = this.nutchConf.get("extension.ontology.extension-name");
     if (extensionName != null) {
       Extension extension = findExtension(extensionName);
       if (extension != null) {
@@ -62,7 +65,7 @@ public class OntologyFactory {
       // not found, fallback to the default, if available.
     }
 
-    Extension[] extensions = X_POINT.getExtensions();
+    Extension[] extensions = this.extensionPoint.getExtensions();
     if (extensions.length > 0) {
       LOG.info("Using the first ontology extension found: "
         + extensions[0].getId());
@@ -73,10 +76,10 @@ public class OntologyFactory {
 
   }
 
-  private static Extension findExtension(String name)
+  private Extension findExtension(String name)
     throws PluginRuntimeException {
 
-    Extension[] extensions = X_POINT.getExtensions();
+    Extension[] extensions = this.extensionPoint.getExtensions();
 
     for (int i = 0; i < extensions.length; i++) {
       Extension extension = extensions[i];

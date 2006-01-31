@@ -30,10 +30,12 @@ public class TestSetFile extends TestCase {
   private static String FILE =
     System.getProperty("test.build.data",".") + "/test.set";
 
+  private static NutchConf nutchConf = new NutchConf();
+  
   public TestSetFile(String name) { super(name); }
 
   public void testSetFile() throws Exception {
-    NutchFileSystem nfs = new LocalFileSystem();
+    NutchFileSystem nfs = new LocalFileSystem(nutchConf);
     try {
         RandomDatum[] data = generate(10000);
         writeTest(nfs, data, FILE);
@@ -70,7 +72,7 @@ public class TestSetFile extends TestCase {
     throws IOException {
     RandomDatum v = new RandomDatum();
     LOG.fine("reading " + data.length + " records");
-    SetFile.Reader reader = new SetFile.Reader(nfs, file);
+    SetFile.Reader reader = new SetFile.Reader(nfs, file, nutchConf);
     for (int i = 0; i < data.length; i++) {
       if (!reader.seek(data[i]))
         throw new RuntimeException("wrong value at " + i);
@@ -94,7 +96,7 @@ public class TestSetFile extends TestCase {
     }
       
     int i = 0;
-    NutchFileSystem nfs = NutchFileSystem.parseArgs(args, i);      
+    NutchFileSystem nfs = NutchFileSystem.parseArgs(args, i, nutchConf);      
     try {
       for (; i < args.length; i++) {       // parse command line
         if (args[i] == null) {

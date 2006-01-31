@@ -29,10 +29,11 @@ public class TestTextInputFormat extends TestCase {
   private static final Logger LOG = InputFormatBase.LOG;
 
   private static int MAX_LENGTH = 10000;
-
+  private static NutchConf nutchConf = new NutchConf();
+  
   public void testFormat() throws Exception {
-    JobConf job = new JobConf(NutchConf.get());
-    NutchFileSystem fs = NutchFileSystem.getNamed("local");
+    JobConf job = new JobConf(nutchConf);
+    NutchFileSystem fs = NutchFileSystem.getNamed("local", nutchConf);
     File dir = new File(System.getProperty("test.build.data",".") + "/mapred");
     File file = new File(dir, "test.txt");
 

@@ -33,13 +33,9 @@ import java.util.logging.*;
  * @author Mike Cafarella
  *******************************************************/
 public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutputProtocol, Runnable {
-    private static final int MAX_CURRENT_TASKS = 
-    NutchConf.get().getInt("mapred.tasktracker.tasks.maximum", 2);
-
+    private int maxCurrentTask; 
     static final long WAIT_FOR_DONE = 3 * 1000;
-
-    static final long TASK_TIMEOUT = 
-      NutchConf.get().getInt("mapred.task.timeout", 10* 60 * 1000);
+    private long taskTimeout; 
 
     static final int STALE_STATE = 1;
 
@@ -68,6 +64,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
     static final String SUBDIR = "taskTracker";
 
     private NutchConf fConf;
+    private MapOutputFile mapOutputFile;
 
     /**
      * Start with the local machine name, and the default JobTracker
@@ -82,6 +79,10 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
     public TaskTracker(InetSocketAddress jobTrackAddr, NutchConf conf) throws IOException {
         this.fConf = conf;
         this.jobTrackAddr = jobTrackAddr;
+        this.maxCurrentTask = conf.getInt("mapred.tasktracker.tasks.maximum", 2);
+        this.taskTimeout = conf.getInt("mapred.task.timeout", 10* 60 * 1000);
+        this.mapOutputFile = new MapOutputFile();
+        this.mapOutputFile.setConf(conf);
         initialize();
     }
 
@@ -94,7 +95,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
         this.taskTrackerName = "tracker_" + (Math.abs(r.nextInt()) % 100000);
         this.localHostname = InetAddress.getLocalHost().getHostName();
 
-        JobConf.deleteLocalFiles(SUBDIR);
+        new JobConf(this.fConf).deleteLocalFiles(SUBDIR);
 
         // Clear out state tables
         this.tasks = new TreeMap();
@@ -107,7 +108,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
         // RPC initialization
         while (true) {
             try {
-                this.taskReportServer = RPC.getServer(this, this.taskReportPort, MAX_CURRENT_TASKS, false);
+                this.taskReportServer = RPC.getServer(this, this.taskReportPort, this.maxCurrentTask, false, this.fConf);
                 this.taskReportServer.start();
                 break;
             } catch (BindException e) {
@@ -118,7 +119,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
         }
         while (true) {
             try {
-                this.mapOutputServer = RPC.getServer(this, this.mapOutputPort, MAX_CURRENT_TASKS, false);
+                this.mapOutputServer = RPC.getServer(this, this.mapOutputPort, this.maxCurrentTask, false, this.fConf);
                 this.mapOutputServer.start();
                 break;
             } catch (BindException e) {
@@ -128,10 +129,10 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
         }
 
         // Clear out temporary files that might be lying around
-        MapOutputFile.cleanupStorage();
+        this.mapOutputFile.cleanupStorage();
         this.justStarted = true;
 
-        this.jobClient = (InterTrackerProtocol) RPC.getProxy(InterTrackerProtocol.class, jobTrackAddr);
+        this.jobClient = (InterTrackerProtocol) RPC.getProxy(InterTrackerProtocol.class, jobTrackAddr, this.fConf);
     }
 
     /**
@@ -164,7 +165,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
         }
 
         // Clear local storage
-        MapOutputFile.cleanupStorage();
+        this.mapOutputFile.cleanupStorage();
     }
 
     /**
@@ -213,7 +214,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
             // Xmit the heartbeat
             //
             if (justStarted) {
-                this.fs = NutchFileSystem.getNamed(jobClient.getFilesystemName());
+                this.fs = NutchFileSystem.getNamed(jobClient.getFilesystemName(), this.fConf);
             }
             
             int resultCode = jobClient.emitHeartbeat(new TaskTrackerStatus(taskTrackerName, localHostname, mapOutputPort, taskReports), justStarted);
@@ -226,10 +227,10 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
             //
             // Check if we should create a new Task
             //
-            if (runningTasks.size() < MAX_CURRENT_TASKS) {
+            if (runningTasks.size() < this.maxCurrentTask) {
                 Task t = jobClient.pollForNewTask(taskTrackerName);
                 if (t != null) {
-                    TaskInProgress tip = new TaskInProgress(t);
+                    TaskInProgress tip = new TaskInProgress(t, this.fConf);
                     synchronized (this) {
                       tasks.put(t.getTaskId(), tip);
                       runningTasks.put(t.getTaskId(), tip);
@@ -245,7 +246,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
                 for (Iterator it = runningTasks.values().iterator(); it.hasNext(); ) {
                     TaskInProgress tip = (TaskInProgress) it.next();
                     if ((tip.getRunState() == TaskStatus.RUNNING) &&
-                        (System.currentTimeMillis() - tip.getLastProgressReport() > TASK_TIMEOUT)) {
+                        (System.currentTimeMillis() - tip.getLastProgressReport() > this.taskTimeout)) {
                         LOG.info("Task " + tip.getTask().getTaskId() + " timed out.  Killing.");
                         tip.reportDiagnosticInfo("Timed out.");
                         tip.killAndCleanup();
@@ -321,13 +322,15 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
         TaskRunner runner;
         boolean done = false;
         boolean wasKilled = false;
+        private JobConf jobConf;
 
         /**
          */
-        public TaskInProgress(Task task) throws IOException {
+        public TaskInProgress(Task task, NutchConf nutchConf) throws IOException {
             this.task = task;
             this.lastProgressReport = System.currentTimeMillis();
-            JobConf.deleteLocalFiles(SUBDIR+File.separator+task.getTaskId());
+            this.jobConf = new JobConf(nutchConf);
+            this.jobConf.deleteLocalFiles(SUBDIR + File.separator + task.getTaskId());
             localizeTask(task);
         }
 
@@ -337,9 +340,9 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
          */
         void localizeTask(Task t) throws IOException {
             File localJobFile =
-              JobConf.getLocalFile(SUBDIR+File.separator+t.getTaskId(), "job.xml");
+              this.jobConf.getLocalFile(SUBDIR+File.separator+t.getTaskId(), "job.xml");
             File localJarFile =
-              JobConf.getLocalFile(SUBDIR+File.separator+t.getTaskId(), "job.jar");
+              this.jobConf.getLocalFile(SUBDIR+File.separator+t.getTaskId(), "job.jar");
 
             String jobFile = t.getJobFile();
             fs.copyToLocalFile(new File(jobFile), localJobFile);
@@ -501,7 +504,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
                 runner.close();
             } catch (IOException ie) {
             }
-            JobConf.deleteLocalFiles(SUBDIR+File.separator+task.getTaskId());
+            this.jobConf.deleteLocalFiles(SUBDIR + File.separator + task.getTaskId());
         }
     }
 
@@ -509,11 +512,14 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
     // MapOutputProtocol
     /////////////////////////////////////////////////////////////////
     public MapOutputFile getFile(String mapTaskId, String reduceTaskId,
-                                 IntWritable partition) {
-        return new MapOutputFile(mapTaskId, reduceTaskId, partition.get());
-    }
+      IntWritable partition) {
+    MapOutputFile mapOutputFile = new MapOutputFile(mapTaskId, reduceTaskId,
+        partition.get());
+    mapOutputFile.setConf(this.fConf);
+    return mapOutputFile;
+  }
 
-    /////////////////////////////////////////////////////////////////
+    // ///////////////////////////////////////////////////////////////
     // TaskUmbilicalProtocol
     /////////////////////////////////////////////////////////////////
     /**
@@ -586,16 +592,17 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
           LogFormatter.showTime(false);
           LOG.info("Child starting");
 
+          NutchConf nutchConf = new NutchConf();
           int port = Integer.parseInt(args[0]);
           String taskid = args[1];
           TaskUmbilicalProtocol umbilical =
             (TaskUmbilicalProtocol)RPC.getProxy(TaskUmbilicalProtocol.class,
-                                                new InetSocketAddress(port));
+                                                new InetSocketAddress(port), nutchConf);
             
           Task task = umbilical.getTask(taskid);
           JobConf job = new JobConf(task.getJobFile());
 
-          NutchConf.get().addConfResource(new File(task.getJobFile()));
+          nutchConf.addConfResource(new File(task.getJobFile()));
 
           startPinging(umbilical, taskid);        // start pinging parent
 
@@ -646,7 +653,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
             System.exit(-1);
         }
 
-        TaskTracker tt = new TaskTracker(NutchConf.get());
+        TaskTracker tt = new TaskTracker(new NutchConf());
         tt.run();
     }
 }

@@ -32,6 +32,7 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ContentProperties;
+import org.apache.nutch.protocol.http.api.HttpBase;
 
 
 /**
@@ -47,24 +48,26 @@ public class HttpResponse implements Response {
 
   private byte[] content;
 
+  private HttpBase http;
 
   private int code;
 
   private ContentProperties headers = new ContentProperties();
 
   
-  public HttpResponse(URL url, CrawlDatum datum) throws IOException {
-    this(url, datum, false);
+  public HttpResponse(HttpBase http, URL url, CrawlDatum datum) throws IOException {
+    this(http, url, datum, false);
   }
 
   
-  HttpResponse(URL url, CrawlDatum datum, boolean followRedirects) throws IOException {
+  HttpResponse(HttpBase http, URL url, CrawlDatum datum, boolean followRedirects) throws IOException {
+    this.http = http;
     this.url = url;
     this.base = url.toString();
     this.orig = url.toString();
     GetMethod get = new GetMethod(this.orig);
     get.setFollowRedirects(followRedirects);
-    get.setRequestHeader("User-Agent", Http.AGENT_STRING);
+    get.setRequestHeader("User-Agent", http.getUserAgent());
     HttpMethodParams params = get.getParams();
     // some servers cannot digest the new protocol
     params.setVersion(HttpVersion.HTTP_1_0);
@@ -88,7 +91,7 @@ public class HttpResponse implements Response {
       // for error.
       try {
         InputStream in = get.getResponseBodyAsStream();
-        byte[] buffer = new byte[Http.BUFFER_SIZE];
+        byte[] buffer = new byte[http.BUFFER_SIZE];
         int bufferFilled = 0;
         int totalRead = 0;
         ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -147,10 +150,10 @@ public class HttpResponse implements Response {
 
   private int calculateTryToRead(int totalRead) {
     int tryToRead = Http.BUFFER_SIZE;
-    if (Http.MAX_CONTENT <= 0) {
-      return Http.BUFFER_SIZE;
-    } else if (Http.MAX_CONTENT - totalRead < Http.BUFFER_SIZE) {
-      tryToRead = Http.MAX_CONTENT - totalRead;
+    if (http.getMaxContent() <= 0) {
+      return http.BUFFER_SIZE;
+    } else if (http.getMaxContent() - totalRead < http.BUFFER_SIZE) {
+      tryToRead = http.getMaxContent() - totalRead;
     }
     return tryToRead;
   }

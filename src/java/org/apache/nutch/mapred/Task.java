@@ -24,14 +24,13 @@ import java.net.*;
 import java.util.*;
 
 /** Base class for tasks. */
-public abstract class Task implements Writable {
+public abstract class Task implements Writable, NutchConfigurable {
   ////////////////////////////////////////////
   // Fields
   ////////////////////////////////////////////
 
   private String jobFile;                         // job configuration file
   private String taskId;                          // unique, includes job id
-
   ////////////////////////////////////////////
   // Constructors
   ////////////////////////////////////////////

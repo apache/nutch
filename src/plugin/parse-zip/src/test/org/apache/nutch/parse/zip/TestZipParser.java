@@ -24,6 +24,7 @@ import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
+import org.apache.nutch.util.NutchConf;
 
 import org.apache.nutch.io.UTF8;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -61,12 +62,13 @@ public class TestZipParser extends TestCase {
     Content content;
     Parse parse;
 
+    NutchConf conf = new NutchConf();
     for (int i = 0; i < sampleFiles.length; i++) {
       urlString = "file:" + sampleDir + fileSeparator + sampleFiles[i];
 
-      protocol = ProtocolFactory.getProtocol(urlString);
+      protocol = new ProtocolFactory(conf).getProtocol(urlString);
       content = protocol.getProtocolOutput(new UTF8(urlString), new CrawlDatum()).getContent();
-      parse = ParseUtil.parseByParserId("parse-zip",content);
+      parse = new ParseUtil(conf).parseByParserId("parse-zip",content);
       assertTrue(parse.getText().equals(expectedText));
     }
   }

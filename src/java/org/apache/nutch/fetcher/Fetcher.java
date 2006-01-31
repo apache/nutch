@@ -73,9 +73,18 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
   private boolean parsing;
 
   private class FetcherThread extends Thread {
-    public FetcherThread() {
+    private NutchConf nutchConf;
+    private URLFilters urlFilters;
+    private ParseUtil parseUtil;
+    private ProtocolFactory protocolFactory;
+
+    public FetcherThread(NutchConf nutchConf) {
       this.setDaemon(true);                       // don't hang JVM on exit
       this.setName("FetcherThread");              // use an informative name
+      this.nutchConf = nutchConf;
+      this.urlFilters = new URLFilters(nutchConf);
+      this.parseUtil = new ParseUtil(nutchConf);
+      this.protocolFactory = new ProtocolFactory(nutchConf);
     }
 
     public void run() {
@@ -112,7 +121,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
             do {
               redirecting = false;
               LOG.fine("redirectCount=" + redirectCount);
-              Protocol protocol = ProtocolFactory.getProtocol(url);
+              Protocol protocol = this.protocolFactory.getProtocol(url);
               ProtocolOutput output = protocol.getProtocolOutput(key, datum);
               ProtocolStatus status = output.getStatus();
               Content content = output.getContent();
@@ -127,7 +136,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
               case ProtocolStatus.MOVED:         // redirect
               case ProtocolStatus.TEMP_MOVED:
                 String newUrl = status.getMessage();
-                newUrl = URLFilters.filter(newUrl);
+                newUrl = this.urlFilters.filter(newUrl);
                 if (newUrl != null && !newUrl.equals(url)) {
                   url = newUrl;
                   redirecting = true;
@@ -196,7 +205,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
 
       if (content == null) {
         String url = key.toString();
-        content = new Content(url, url, new byte[0], "", new ContentProperties());
+        content = new Content(url, url, new byte[0], "", new ContentProperties(), this.nutchConf);
       }
 
       content.getMetadata().setProperty           // add segment to metadata
@@ -208,14 +217,14 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
       if (parsing && status == CrawlDatum.STATUS_FETCH_SUCCESS) {
         ParseStatus parseStatus;
         try {
-          parse = ParseUtil.parse(content);
+          parse = this.parseUtil.parse(content);
           parseStatus = parse.getData().getStatus();
         } catch (Exception e) {
           parseStatus = new ParseStatus(e);
         }
         if (!parseStatus.isSuccess()) {
           LOG.warning("Error parsing: " + key + ": " + parseStatus);
-          parse = parseStatus.getEmptyParse();
+          parse = parseStatus.getEmptyParse(getConf());
         }
         // Calculate page signature. For non-parsing fetchers this will
         // be done in ParseSegment
@@ -295,7 +304,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
     LOG.info("Fetcher: threads: " + threadCount);
 
     for (int i = 0; i < threadCount; i++) {       // spawn threads
-      new FetcherThread().start();
+      new FetcherThread(getConf()).start();
     }
 
     // select a timeout that avoids a task timeout
@@ -361,7 +370,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
       
     File segment = new File(args[0]);
 
-    NutchConf conf = NutchConf.get();
+    NutchConf conf = new NutchConf();
 
     int threads = conf.getInt("fetcher.threads.fetch", 10);
     boolean parsing = true;

@@ -31,6 +31,7 @@ public class LocalJobRunner implements JobSubmissionProtocol {
 
   private NutchFileSystem fs;
   private HashMap jobs = new HashMap();
+  private NutchConf nutchConf;
 
   private class Job extends Thread
     implements TaskUmbilicalProtocol {
@@ -40,15 +41,19 @@ public class LocalJobRunner implements JobSubmissionProtocol {
 
     private JobStatus status = new JobStatus();
     private ArrayList mapIds = new ArrayList();
+    private MapOutputFile mapoutputFile;
 
-    public Job(String file) throws IOException {
+    public Job(String file, NutchConf nutchConf) throws IOException {
       this.file = file;
       this.id = "job_" + newId();
+      this.mapoutputFile = new MapOutputFile();
+      this.mapoutputFile.setConf(nutchConf);
 
-      File localFile = JobConf.getLocalFile("localRunner", id+".xml");
+      File localFile = new JobConf(nutchConf).getLocalFile("localRunner", id+".xml");
       fs.copyToLocalFile(new File(file), localFile);
       this.job = new JobConf(localFile);
-
+      
+      
       this.status.jobid = id;
       this.status.runState = JobStatus.RUNNING;
 
@@ -67,6 +72,7 @@ public class LocalJobRunner implements JobSubmissionProtocol {
         for (int i = 0; i < splits.length; i++) {
           mapIds.add("map_" + newId());
           MapTask map = new MapTask(file, (String)mapIds.get(i), splits[i]);
+          map.setConf(job);
           map.run(job, this);
         }
 
@@ -74,12 +80,12 @@ public class LocalJobRunner implements JobSubmissionProtocol {
         String reduceId = "reduce_" + newId();
         for (int i = 0; i < mapIds.size(); i++) {
           String mapId = (String)mapIds.get(i);
-          File mapOut = MapOutputFile.getOutputFile(mapId, 0);
-          File reduceIn = MapOutputFile.getInputFile(mapId, reduceId);
+          File mapOut = this.mapoutputFile.getOutputFile(mapId, 0);
+          File reduceIn = this.mapoutputFile.getInputFile(mapId, reduceId);
           reduceIn.getParentFile().mkdirs();
-          if (!NutchFileSystem.getNamed("local").rename(mapOut, reduceIn))
+          if (!NutchFileSystem.getNamed("local", this.job).rename(mapOut, reduceIn))
             throw new IOException("Couldn't rename " + mapOut);
-          MapOutputFile.removeAll(mapId);
+          this.mapoutputFile.removeAll(mapId);
         }
 
         // run a single reduce task
@@ -87,8 +93,9 @@ public class LocalJobRunner implements JobSubmissionProtocol {
           new ReduceTask(file, reduceId,
                          (String[])mapIds.toArray(new String[0]),
                          0);
+        reduce.setConf(job);
         reduce.run(job, this);
-        MapOutputFile.removeAll(reduceId);
+        this.mapoutputFile.removeAll(reduceId);
         
         this.status.runState = JobStatus.SUCCEEDED;
 
@@ -138,14 +145,15 @@ public class LocalJobRunner implements JobSubmissionProtocol {
 
   }
 
-  public LocalJobRunner() throws IOException {
-    this.fs = NutchFileSystem.get();
+  public LocalJobRunner(NutchConf nutchConf) throws IOException {
+    this.fs = NutchFileSystem.get(nutchConf);
+    this.nutchConf = nutchConf;
   }
 
   // JobSubmissionProtocol methods
 
   public JobStatus submitJob(String jobFile) throws IOException {
-    return new Job(jobFile).status;
+    return new Job(jobFile, this.nutchConf).status;
   }
 
   public void killJob(String id) {

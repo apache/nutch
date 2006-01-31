@@ -7,15 +7,21 @@
   import="java.io.*"
   import="java.util.*"
   import="org.apache.nutch.searcher.*"
+  import="org.apache.nutch.util.NutchConf"
 %><%
-  NutchBean bean = NutchBean.get(application);
+  NutchConf nutchConf = (NutchConf) application.getAttribute(NutchConf.class.getName());
+  if (nutchConf == null) {
+    nutchConf = new NutchConf();
+    application.setAttribute(NutchConf.class.getName(), nutchConf);
+  }
+  NutchBean bean = NutchBean.get(application, nutchConf);
   // set the character encoding to use when interpreting request values 
   request.setCharacterEncoding("UTF-8");
   bean.LOG.info("explain request from " + request.getRemoteAddr());
   Hit hit = new Hit(Integer.parseInt(request.getParameter("idx")),
                     Integer.parseInt(request.getParameter("id")));
   HitDetails details = bean.getDetails(hit);
-  Query query = Query.parse(request.getParameter("query"));
+  Query query = Query.parse(request.getParameter("query"), nutchConf);
   String language =
     ResourceBundle.getBundle("org.nutch.jsp.explain", request.getLocale())
     .getLocale().getLanguage();

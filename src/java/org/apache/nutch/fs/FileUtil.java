@@ -28,8 +28,8 @@ public class FileUtil {
      * Delete a directory and all its contents.  If
      * we return false, the directory may be partially-deleted.
      */
-    public static boolean fullyDelete(File dir) throws IOException {
-        return fullyDelete(new LocalFileSystem(), dir);
+    public static boolean fullyDelete(File dir, NutchConf nutchConf) throws IOException {
+        return fullyDelete(new LocalFileSystem(nutchConf), dir);
     }
     public static boolean fullyDelete(NutchFileSystem nfs, File dir) throws IOException {
         // 20041022, xing.
@@ -43,7 +43,7 @@ public class FileUtil {
      * Copy a file's contents to a new location.
      * Returns whether a target file was overwritten
      */
-    public static boolean copyContents(NutchFileSystem nfs, File src, File dst, boolean overwrite) throws IOException {
+    public static boolean copyContents(NutchFileSystem nfs, File src, File dst, boolean overwrite, NutchConf nutchConf) throws IOException {
         if (nfs.exists(dst) && !overwrite) {
             return false;
         }
@@ -57,7 +57,7 @@ public class FileUtil {
             NFSInputStream in = nfs.openRaw(src);
             try {
                 NFSOutputStream out = nfs.createRaw(dst, true);
-                byte buf[] = new byte[NutchConf.get().getInt("io.file.buffer.size", 4096)];
+                byte buf[] = new byte[nutchConf.getInt("io.file.buffer.size", 4096)];
                 try {
                     int readBytes = in.read(buf);
 
@@ -77,7 +77,7 @@ public class FileUtil {
             if (contents != null) {
                 for (int i = 0; i < contents.length; i++) {
                     File newDst = new File(dst, contents[i].getName());
-                    if (! copyContents(nfs, contents[i], newDst, overwrite)) {
+                    if (! copyContents(nfs, contents[i], newDst, overwrite, nutchConf)) {
                         return false;
                     }
                 }
@@ -90,7 +90,7 @@ public class FileUtil {
      * Copy a file and/or directory and all its contents (whether
      * data or other files/dirs)
      */
-    public static void recursiveCopy(NutchFileSystem nfs, File src, File dst) throws IOException {
+    public static void recursiveCopy(NutchFileSystem nfs, File src, File dst, NutchConf nutchConf) throws IOException {
         //
         // Resolve the real target.
         //
@@ -107,7 +107,7 @@ public class FileUtil {
             //
             // If the source is a file, then just copy the contents
             //
-            copyContents(nfs, src, dst, true);
+            copyContents(nfs, src, dst, true, nutchConf);
         } else {
             //
             // If the source is a dir, then we need to copy all the subfiles.
@@ -115,7 +115,7 @@ public class FileUtil {
             nfs.mkdirs(dst);
             File contents[] = nfs.listFiles(src);
             for (int i = 0; i < contents.length; i++) {
-                recursiveCopy(nfs, contents[i], new File(dst, contents[i].getName()));
+                recursiveCopy(nfs, contents[i], new File(dst, contents[i].getName()), nutchConf);
             }
         }
     }

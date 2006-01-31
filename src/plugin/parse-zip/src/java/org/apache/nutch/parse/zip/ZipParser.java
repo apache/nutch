@@ -33,73 +33,87 @@ import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.util.NutchConf;
 
 /**
  * ZipParser class based on MSPowerPointParser class by Stephan Strittmatter.
  * Nutch parse plugin for zip files - Content Type : application/zip
+ * 
  * @author Rohit Kulkarni & Ashish Vaidya
  */
-public class ZipParser implements Parser{
-    
-    private static final Logger LOG = LogFormatter.getLogger(ZipParser.class.getName());
-    /** Creates a new instance of ZipParser */
-    public ZipParser() {
+public class ZipParser implements Parser {
+
+  private static final Logger LOG = LogFormatter.getLogger(ZipParser.class
+      .getName());
+  private NutchConf nutchConf;
+
+  /** Creates a new instance of ZipParser */
+  public ZipParser() {
+  }
+
+  public Parse getParse(final Content content) {
+
+    String resultText = null;
+    String resultTitle = null;
+    Outlink[] outlinks = null;
+    List outLinksList = new ArrayList();
+    Properties properties = null;
+
+    try {
+      final String contentLen = content.get("Content-Length");
+      final int len = Integer.parseInt(contentLen);
+      System.out.println("ziplen: " + len);
+      final byte[] contentInBytes = content.getContent();
+      final ByteArrayInputStream bainput = new ByteArrayInputStream(
+          contentInBytes);
+      final InputStream input = bainput;
+
+      if (contentLen != null && contentInBytes.length != len) {
+        return new ParseStatus(ParseStatus.FAILED,
+            ParseStatus.FAILED_TRUNCATED, "Content truncated at "
+                + contentInBytes.length
+                + " bytes. Parser can't handle incomplete pdf file.")
+            .getEmptyParse(getConf());
+      }
+
+      ZipTextExtractor extractor = new ZipTextExtractor(getConf());
+
+      // extract text
+      resultText = extractor.extractText(new ByteArrayInputStream(
+          contentInBytes), content.getUrl(), outLinksList);
+
+    } catch (Exception e) {
+      return new ParseStatus(ParseStatus.FAILED,
+          "Can't be handled as Zip document. " + e).getEmptyParse(getConf());
     }
-    
-    public Parse getParse(final Content content) {
-        
-        String resultText = null;
-        String resultTitle = null;
-        Outlink[] outlinks = null;
-        List outLinksList = new ArrayList();
-	Properties properties = null;
-        
-        try {
-            final String contentLen = content.get("Content-Length");
-            final int len = Integer.parseInt(contentLen);
-            System.out.println("ziplen: " + len);
-            final byte[] contentInBytes = content.getContent();
-            final ByteArrayInputStream bainput = new ByteArrayInputStream(contentInBytes);
-            final InputStream input = bainput;
-            
-            if (contentLen != null && contentInBytes.length != len) {
-                return new ParseStatus(ParseStatus.FAILED,
-                                       ParseStatus.FAILED_TRUNCATED,
-                                       "Content truncated at " + contentInBytes.length +
-                                       " bytes. Parser can't handle incomplete pdf file.").getEmptyParse();
-            }
-            
-            ZipTextExtractor extractor = new ZipTextExtractor();
-            
-            // extract text
-            resultText = extractor.extractText(new ByteArrayInputStream(contentInBytes),
-	    				content.getUrl(), outLinksList);
-            
-        } catch (Exception e) {
-            return new ParseStatus(ParseStatus.FAILED,
-                                   "Can't be handled as Zip document. " + e).getEmptyParse();
-        }
-        
-        // collect meta data
-        final ContentProperties metadata = new ContentProperties();
-        metadata.putAll(content.getMetadata()); // copy through
-        
-        if (resultText == null) {
-            resultText = "";
-        }
-        
-        if (resultTitle == null) {
-            resultTitle = "";
-        }
-	
-        outlinks = (Outlink[])outLinksList.toArray(new Outlink[0]);
-        final ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS,
-                                                  resultTitle, 
-                                                  outlinks, 
-                                                  metadata);
-        
-        LOG.finest("Zip file parsed sucessfully !!");
-        return new ParseImpl(resultText, parseData);
+
+    // collect meta data
+    final ContentProperties metadata = new ContentProperties();
+    metadata.putAll(content.getMetadata()); // copy through
+
+    if (resultText == null) {
+      resultText = "";
     }
-    
+
+    if (resultTitle == null) {
+      resultTitle = "";
+    }
+
+    outlinks = (Outlink[]) outLinksList.toArray(new Outlink[0]);
+    final ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS,
+        resultTitle, outlinks, metadata);
+    parseData.setConf(this.nutchConf);
+
+    LOG.finest("Zip file parsed sucessfully !!");
+    return new ParseImpl(resultText, parseData);
+  }
+
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
+  }
+
 }

@@ -17,6 +17,9 @@
 package org.apache.nutch.net;
 
 import java.net.URL;
+
+import org.apache.nutch.util.NutchConf;
+
 import junit.framework.TestCase;
 
 /** Unit tests for BasicUrlNormalizer. */
@@ -81,7 +84,7 @@ public class TestBasicUrlNormalizer extends TestCase {
   }
 
   private void normalizeTest(String weird, String normal) throws Exception {
-    assertEquals(normal, UrlNormalizerFactory.getNormalizer().normalize(weird));
+    assertEquals(normal, new UrlNormalizerFactory(new NutchConf()).getNormalizer().normalize(weird));
   }
 	
   public static void main(String[] args) throws Exception {

@@ -24,19 +24,20 @@ import org.apache.nutch.fs.*;
 import org.apache.nutch.util.*;
 
 /** A local file to be transferred via the {@link MapOutputProtocol}. */ 
-public class MapOutputFile implements Writable {
+public class MapOutputFile implements Writable, NutchConfigurable {
   private String mapTaskId;
   private String reduceTaskId;
   private int partition;
   
   /** Permits reporting of file copy progress. */
-  public static interface ProgressReporter {
+  public interface ProgressReporter {
     void progress(float progress) throws IOException;
   }
 
-  private static final ThreadLocal REPORTERS = new ThreadLocal();
+  private ThreadLocal REPORTERS = new ThreadLocal();
+  private JobConf jobConf;
   
-  public static void setProgressReporter(ProgressReporter reporter) {
+  public void setProgressReporter(ProgressReporter reporter) {
     REPORTERS.set(reporter);
   }
 
@@ -44,36 +45,37 @@ public class MapOutputFile implements Writable {
    * @param mapTaskId a map task id
    * @param partition a reduce partition
    */
-  public static File getOutputFile(String mapTaskId, int partition)
+  public File getOutputFile(String mapTaskId, int partition)
     throws IOException {
-    return JobConf.getLocalFile(mapTaskId, "part-"+partition+".out");
+    return this.jobConf.getLocalFile(mapTaskId, "part-"+partition+".out");
   }
 
   /** Create a local reduce input file name.
    * @param mapTaskId a map task id
    * @param reduceTaskId a reduce task id
    */
-  public static File getInputFile(String mapTaskId, String reduceTaskId)
+  public File getInputFile(String mapTaskId, String reduceTaskId)
     throws IOException {
-    return JobConf.getLocalFile(reduceTaskId, mapTaskId+".out");
+    return this.jobConf.getLocalFile(reduceTaskId, mapTaskId+".out");
   }
 
   /** Removes all of the files related to a task. */
-  public static void removeAll(String taskId) throws IOException {
-    JobConf.deleteLocalFiles(taskId);
+  public void removeAll(String taskId) throws IOException {
+    this.jobConf.deleteLocalFiles(taskId);
   }
 
   /** 
    * Removes all contents of temporary storage.  Called upon 
    * startup, to remove any leftovers from previous run.
    */
-  public static void cleanupStorage() throws IOException {
-    JobConf.deleteLocalFiles();
+  public void cleanupStorage() throws IOException {
+    this.jobConf.deleteLocalFiles();
   }
 
   /** Construct a file for transfer. */
-  public MapOutputFile() {
+  public MapOutputFile() { 
   }
+  
   public MapOutputFile(String mapTaskId, String reduceTaskId, int partition) {
     this.mapTaskId = mapTaskId;
     this.reduceTaskId = reduceTaskId;
@@ -88,7 +90,7 @@ public class MapOutputFile implements Writable {
     // write the length-prefixed file content to the wire
     File file = getOutputFile(mapTaskId, partition);
     out.writeLong(file.length());
-    NFSDataInputStream in = NutchFileSystem.getNamed("local").open(file);
+    NFSDataInputStream in = NutchFileSystem.getNamed("local", this.jobConf).open(file);
     try {
       byte[] buffer = new byte[8192];
       int l;
@@ -112,7 +114,7 @@ public class MapOutputFile implements Writable {
     long length = in.readLong();
     float progPerByte = 1.0f / length;
     long unread = length;
-    NFSDataOutputStream out = NutchFileSystem.getNamed("local").create(file);
+    NFSDataOutputStream out = NutchFileSystem.getNamed("local", this.jobConf).create(file);
     try {
       byte[] buffer = new byte[8192];
       while (unread > 0) {
@@ -127,6 +129,14 @@ public class MapOutputFile implements Writable {
     } finally {
       out.close();
     }
+  }
+
+  public void setConf(NutchConf conf) {
+    this.jobConf = new JobConf(conf);
+  }
+
+  public NutchConf getConf() {
+    return this.jobConf;
   }
 
 }

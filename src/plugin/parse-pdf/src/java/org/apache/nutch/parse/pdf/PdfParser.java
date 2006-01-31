@@ -28,6 +28,7 @@ import org.pdfbox.exceptions.InvalidPasswordException;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.util.NutchConf;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.Parse;
@@ -62,6 +63,7 @@ import java.io.IOException;
 public class PdfParser implements Parser {
   public static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.parse.pdf");
+  private NutchConf nutchConf;
 
   public PdfParser () {
     // redirect org.apache.log4j.Logger to java's native logger, in order
@@ -99,7 +101,7 @@ public class PdfParser implements Parser {
             && raw.length != Integer.parseInt(contentLength)) {
           return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_TRUNCATED,
                   "Content truncated at "+raw.length
-            +" bytes. Parser can't handle incomplete pdf file.").getEmptyParse();
+            +" bytes. Parser can't handle incomplete pdf file.").getEmptyParse(getConf());
       }
 
       PDFParser parser = new PDFParser(
@@ -134,13 +136,13 @@ public class PdfParser implements Parser {
 
     } catch (CryptographyException e) {
       return new ParseStatus(ParseStatus.FAILED,
-              "Error decrypting document. " + e).getEmptyParse();
+              "Error decrypting document. " + e).getEmptyParse(getConf());
     } catch (InvalidPasswordException e) {
       return new ParseStatus(ParseStatus.FAILED,
-              "Can't decrypt document - invalid password. " + e).getEmptyParse();
+              "Can't decrypt document - invalid password. " + e).getEmptyParse(getConf());
     } catch (Exception e) { // run time exception
       return new ParseStatus(ParseStatus.FAILED,
-              "Can't be handled as pdf document. " + e).getEmptyParse();
+              "Can't be handled as pdf document. " + e).getEmptyParse(getConf());
     } finally {
       try {
         if (pdf != null)
@@ -157,13 +159,14 @@ public class PdfParser implements Parser {
       title = "";
 
     // collect outlink
-    Outlink[] outlinks = OutlinkExtractor.getOutlinks(text);
+    Outlink[] outlinks = OutlinkExtractor.getOutlinks(text, getConf());
 
     // collect meta data
     ContentProperties metadata = new ContentProperties();
     metadata.putAll(content.getMetadata()); // copy through
 
     ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks, metadata);
+    parseData.setConf(this.nutchConf);
     return new ParseImpl(text, parseData);
     // any filter?
     //return HtmlParseFilters.filter(content, parse, root);
@@ -178,6 +181,14 @@ public class PdfParser implements Parser {
       retval = formatter.format(date.getTime());
     }
     return retval;
+  }
+
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
   }
 
 }

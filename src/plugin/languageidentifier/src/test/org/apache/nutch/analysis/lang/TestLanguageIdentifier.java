@@ -32,6 +32,7 @@ import junit.textui.TestRunner;
 
 // Lucene imports
 import org.apache.lucene.analysis.Token;
+import org.apache.nutch.util.NutchConf;
 
 
 /**
@@ -204,7 +205,7 @@ public class TestLanguageIdentifier extends TestCase {
     public void testIdentify() {
         try {
             long total = 0;
-            LanguageIdentifier idfr = LanguageIdentifier.getInstance();
+            LanguageIdentifier idfr = new LanguageIdentifier(new NutchConf());
             BufferedReader in = new BufferedReader(new InputStreamReader(
                         this.getClass().getResourceAsStream("test-referencial.txt")));
             String line = null;

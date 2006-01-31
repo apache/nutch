@@ -17,6 +17,7 @@
 package org.apache.nutch.protocol;
 
 import org.apache.nutch.io.TestWritable;
+import org.apache.nutch.util.NutchConf;
 
 import junit.framework.TestCase;
 
@@ -53,7 +54,7 @@ public class TestContentProperties extends TestCase {
         }
         TestWritable.testWritable(properties);
         Content content = new Content("url", "url", new byte[0], "text/html",
-                new ContentProperties());
+                new ContentProperties(), new NutchConf());
         ContentProperties metadata = content.getMetadata();
         for (int i = 0; i < 100; i++) {
             metadata.setProperty("aKey", "" + i);

@@ -35,6 +35,7 @@ import java.util.logging.Level;
 
 import org.apache.nutch.util.LogFormatter;
 import org.apache.nutch.util.NutchConf;
+import org.apache.nutch.util.NutchConfigurable;
 import org.apache.nutch.io.Writable;
 import org.apache.nutch.io.UTF8;
 
@@ -52,9 +53,10 @@ public class Client {
   private Hashtable connections = new Hashtable();
 
   private Class valueClass;                       // class of call values
-  private int timeout = NutchConf.get().getInt("ipc.client.timeout",10000);                    // timeout for calls
+  private int timeout ;// timeout for calls
   private int counter;                            // counter for call ids
   private boolean running = true;                 // true while client runs
+  private NutchConf nutchConf;
 
   /** A call waiting for a value. */
   private class Call {
@@ -160,6 +162,9 @@ public class Client {
             Writable value = makeValue();
             try {
               readingCall = call;
+              if(value instanceof NutchConfigurable) {
+                ((NutchConfigurable) value).setConf(nutchConf);
+              }
               value.readFields(in);                 // read value
             } finally {
               readingCall = null;
@@ -256,8 +261,10 @@ public class Client {
 
   /** Construct an IPC client whose values are of the given {@link Writable}
    * class. */
-  public Client(Class valueClass) {
+  public Client(Class valueClass, NutchConf nutchConf) {
     this.valueClass = valueClass;
+    this.timeout = nutchConf.getInt("ipc.client.timeout",10000);
+    this.nutchConf = nutchConf;
   }
 
   /** Stop all threads related to this client.  No further calls may be made

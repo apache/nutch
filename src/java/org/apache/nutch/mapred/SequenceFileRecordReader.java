@@ -26,6 +26,7 @@ import org.apache.nutch.io.Writable;
 import org.apache.nutch.io.WritableComparable;
 import org.apache.nutch.io.LongWritable;
 import org.apache.nutch.io.UTF8;
+import org.apache.nutch.util.NutchConf;
 
 /** An {@link RecordReader} for {@link SequenceFile}s. */
 public class SequenceFileRecordReader implements RecordReader {
@@ -33,9 +34,10 @@ public class SequenceFileRecordReader implements RecordReader {
   private long end;
   private boolean more = true;
 
-  public SequenceFileRecordReader(NutchFileSystem fs, FileSplit split)
+  public SequenceFileRecordReader(NutchConf nutchConf, FileSplit split)
     throws IOException {
-    this.in = new SequenceFile.Reader(fs, split.getFile().toString());
+    NutchFileSystem fs = NutchFileSystem.get(nutchConf);
+    this.in = new SequenceFile.Reader(fs, split.getFile().toString(), nutchConf);
     this.end = split.getStart() + split.getLength();
 
     if (split.getStart() > in.getPosition())

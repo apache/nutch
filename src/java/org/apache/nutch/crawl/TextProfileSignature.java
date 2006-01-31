@@ -157,7 +157,7 @@ public class TextProfileSignature extends Signature {
   
   public static void main(String[] args) throws Exception {
     TextProfileSignature sig = new TextProfileSignature();
-    sig.setConf(NutchConf.get());
+    sig.setConf(new NutchConf());
     HashMap res = new HashMap();
     File[] files = new File(args[0]).listFiles();
     for (int i = 0; i < files.length; i++) {

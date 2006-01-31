@@ -43,8 +43,9 @@ public class NDFSFileSystem extends NutchFileSystem {
      * Create the ShareSet automatically, and then go on to
      * the regular constructor.
      */
-    public NDFSFileSystem(InetSocketAddress namenode) throws IOException {
-      this.ndfs = new NDFSClient(namenode);
+    public NDFSFileSystem(InetSocketAddress namenode, NutchConf nutchConf) throws IOException {
+      super(nutchConf);
+      this.ndfs = new NDFSClient(namenode, nutchConf);
       this.name = namenode.getHostName() + ":" + namenode.getPort();
     }
 
@@ -172,7 +173,7 @@ public class NDFSFileSystem extends NutchFileSystem {
                 doFromLocalFile(contents[i], new File(dst, contents[i].getName()), deleteSource);
             }
         } else {
-            byte buf[] = new byte[NutchConf.get().getInt("io.file.buffer.size", 4096)];
+            byte buf[] = new byte[this.nutchConf.getInt("io.file.buffer.size", 4096)];
             InputStream in = new BufferedInputStream(new FileInputStream(src));
             try {
                 OutputStream out = create(dst);
@@ -217,10 +218,10 @@ public class NDFSFileSystem extends NutchFileSystem {
                 copyToLocalFile(contents[i], new File(dst, contents[i].getName()));
             }
         } else {
-            byte buf[] = new byte[NutchConf.get().getInt("io.file.buffer.size", 4096)];
+            byte buf[] = new byte[this.nutchConf.getInt("io.file.buffer.size", 4096)];
             InputStream in = open(src);
             try {
-                OutputStream out = NutchFileSystem.getNamed("local").create(dst);
+                OutputStream out = NutchFileSystem.getNamed("local", this.nutchConf).create(dst);
                 try {
                     int bytesRead = in.read(buf);
                     while (bytesRead >= 0) {
@@ -267,7 +268,7 @@ public class NDFSFileSystem extends NutchFileSystem {
      */
     public void completeLocalInput(File localFile) throws IOException {
         // Get rid of the local copy - we don't need it anymore.
-        FileUtil.fullyDelete(localFile);
+        FileUtil.fullyDelete(localFile, this.nutchConf);
     }
 
     /**

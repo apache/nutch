@@ -210,25 +210,29 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
     NutchFileSystem fs;
     File systemDir;
 
+    private NutchConf nutchConf;
+
     /**
      * Start the JobTracker process, listen on the indicated port
      */
     JobTracker(NutchConf conf) throws IOException {
         // This is a directory of temporary submission files.  We delete it
         // on startup, and can delete any files that we're done with
-        this.systemDir = JobConf.getSystemDir();
-        this.fs = NutchFileSystem.get();
+        JobConf jobConf = new JobConf(conf);
+        this.systemDir = jobConf.getSystemDir();
+        this.nutchConf = conf;
+        this.fs = NutchFileSystem.get(conf);
         FileUtil.fullyDelete(fs, systemDir);
         fs.mkdirs(systemDir);
 
         // Same with 'localDir' except it's always on the local disk.
-        JobConf.deleteLocalFiles(SUBDIR);
+        jobConf.deleteLocalFiles(SUBDIR);
 
         // Set ports, start RPC servers, etc.
         InetSocketAddress addr = getAddress(conf);
         this.localMachine = addr.getHostName();
         this.port = addr.getPort();
-        this.interTrackerServer = RPC.getServer(this,addr.getPort(),10,false);
+        this.interTrackerServer = RPC.getServer(this, addr.getPort(), 10, false, conf);
         this.interTrackerServer.start();
 	Properties p = System.getProperties();
 	for (Iterator it = p.keySet().iterator(); it.hasNext(); ) {
@@ -529,7 +533,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
      * task allocation.)
      */
     JobInProgress createJob(String jobFile) throws IOException {
-        JobInProgress job = new JobInProgress(jobFile);
+        JobInProgress job = new JobInProgress(jobFile, this.nutchConf);
         jobs.put(job.getProfile().getJobId(), job);
 
         boolean error = true;
@@ -576,6 +580,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
         long startTime;
         long finishTime;
         String deleteUponCompletion = null;
+        private NutchConf nutchConf;
 
         /**
          * Create a 'JobInProgress' object, which contains both JobProfile
@@ -583,13 +588,13 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
          * of the JobTracker.  But JobInProgress adds info that's useful for
          * the JobTracker alone.
          */
-        public JobInProgress(String jobFile) throws IOException {
+        public JobInProgress(String jobFile, NutchConf nutchConf) throws IOException {
             String jobid = createJobId();
             String url = "http://" + localMachine + ":" + infoPort + "/jobdetails.jsp?jobid=" + jobid;
             this.profile = new JobProfile(jobid, jobFile, url);
             this.status = new JobStatus(jobid, 0.0f, 0.0f, JobStatus.RUNNING);
 
-            this.localJobFile = JobConf.getLocalFile(SUBDIR, jobid+".xml");
+            this.localJobFile = new JobConf(nutchConf).getLocalFile(SUBDIR, jobid + ".xml");
             fs.copyToLocalFile(new File(jobFile), localJobFile);
 
             JobConf jd = new JobConf(localJobFile);
@@ -602,6 +607,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
             if (jobFile.startsWith(systemDir.getPath())) {
                 this.deleteUponCompletion = jobFile;
             }
+            this.nutchConf = nutchConf;
         }
 
         /**
@@ -613,7 +619,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
 
             // construct input splits
             JobConf jd = new JobConf(localJobFile);
-            NutchFileSystem fs = NutchFileSystem.get();
+            NutchFileSystem fs = NutchFileSystem.get(nutchConf);
             FileSplit[] splits =
               jd.getInputFormat().getSplits(fs, jd, numMapTasks);
 
@@ -634,6 +640,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
             for (int i = 0; i < numMapTasks; i++) {
                 mapIds[i] = createMapTaskId();
                 Task t = new MapTask(jobFile, mapIds[i], splits[i]);
+                t.setConf(this.nutchConf);
 
                 incompleteMapTasks.put(mapIds[i], t);
                 taskToJobMap.put(mapIds[i], jobid);
@@ -643,6 +650,7 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
             for (int i = 0; i < numReduceTasks; i++) {
                 String taskid = createReduceTaskId();
                 Task t = new ReduceTask(jobFile, taskid, mapIds, i);
+                t.setConf(this.nutchConf);
                 reducesToLaunch.add(t);
                 taskToJobMap.put(taskid, jobid);
             }
@@ -1067,6 +1075,6 @@ public class JobTracker implements MRConstants, InterTrackerProtocol, JobSubmiss
           System.exit(-1);
         }
 
-        startTracker(NutchConf.get());
+        startTracker(new NutchConf());
     }
 }

@@ -52,40 +52,13 @@ public class PrefixURLFilter implements URLFilter {
 
   // read in attribute "file" of this plugin.
   private static String attributeFile = null;
-  static {
-    String pluginName = "urlfilter-prefix";
-    Extension[] extensions = PluginRepository.getInstance()
-      .getExtensionPoint(URLFilter.class.getName()).getExtensions();
-    for (int i=0; i < extensions.length; i++) {
-      Extension extension = extensions[i];
-      if (extension.getDescriptor().getPluginId().equals(pluginName)) {
-        attributeFile = extension.getAttribute("file");
-        break;
-      }
-    }
-    if (attributeFile != null && attributeFile.trim().equals(""))
-      attributeFile = null;
-    if (attributeFile != null) {
-      LOG.info("Attribute \"file\" is defined for plugin "+pluginName+" as "+attributeFile);
-    } else {
-      //LOG.warning("Attribute \"file\" is not defined in plugin.xml for plugin "+pluginName);
-    }
-  }
 
   private TrieStringMatcher trie;
 
-  public PrefixURLFilter() throws IOException {
-    String file = NutchConf.get().get("urlfilter.prefix.file");
-    // attribute "file" takes precedence if defined
-    if (attributeFile != null)
-      file = attributeFile;
-    Reader reader = NutchConf.get().getConfResourceAsReader(file);
+  private NutchConf nutchConf;
 
-    if (reader == null) {
-      trie = new PrefixStringMatcher(new String[0]);
-    } else {
-      trie = readConfigurationFile(reader);
-    }
+  public PrefixURLFilter() throws IOException {
+   
   }
 
   public PrefixURLFilter(String filename) throws IOException {
@@ -99,7 +72,7 @@ public class PrefixURLFilter implements URLFilter {
       return url;
   }
 
-  private static TrieStringMatcher readConfigurationFile(Reader reader)
+  private TrieStringMatcher readConfigurationFile(Reader reader)
     throws IOException {
     
     BufferedReader in=new BufferedReader(reader);
@@ -139,6 +112,52 @@ public class PrefixURLFilter implements URLFilter {
         System.out.println(out);
       }
     }
+  }
+
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+
+    String pluginName = "urlfilter-prefix";
+    Extension[] extensions = conf.getPluginRepository().getExtensionPoint(
+        URLFilter.class.getName()).getExtensions();
+    for (int i = 0; i < extensions.length; i++) {
+      Extension extension = extensions[i];
+      if (extension.getDescriptor().getPluginId().equals(pluginName)) {
+        attributeFile = extension.getAttribute("file");
+        break;
+      }
+    }
+    if (attributeFile != null && attributeFile.trim().equals(""))
+      attributeFile = null;
+    if (attributeFile != null) {
+      LOG.info("Attribute \"file\" is defined for plugin " + pluginName
+          + " as " + attributeFile);
+    } else {
+      // LOG.warning("Attribute \"file\" is not defined in plugin.xml for
+      // plugin "+pluginName);
+    }
+
+    String file = conf.get("urlfilter.prefix.file");
+    // attribute "file" takes precedence if defined
+    if (attributeFile != null)
+      file = attributeFile;
+    Reader reader = conf.getConfResourceAsReader(file);
+
+    if (reader == null) {
+      trie = new PrefixStringMatcher(new String[0]);
+    } else {
+      try {
+        trie = readConfigurationFile(reader);
+      } catch (IOException e) {
+        LOG.severe(e.getMessage());
+        // TODO mb@media-style.com: throw Exception? Because broken api.
+        throw new RuntimeException(e.getMessage(), e);
+      }
+    }
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
   }
   
 }

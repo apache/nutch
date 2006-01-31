@@ -16,12 +16,14 @@
 
 package org.apache.nutch.net;
 
+import org.apache.nutch.util.NutchConfigurable;
+
 /**
  * Interface used to limit which URLs enter Nutch.
  * Used by the injector and the db updater.
  */
 
-public interface URLFilter {
+public interface URLFilter extends NutchConfigurable {
   /** The name of the extension point. */
   public final static String X_POINT_ID = URLFilter.class.getName();
 

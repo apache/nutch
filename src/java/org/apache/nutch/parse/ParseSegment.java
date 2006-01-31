@@ -34,8 +34,6 @@ public class ParseSegment extends NutchConfigured implements Mapper, Reducer {
   public static final Logger LOG =
     LogFormatter.getLogger(Parser.class.getName());
 
-  public ParseSegment() { super(NutchConf.get()); }
-
   public ParseSegment(NutchConf conf) {
     super(conf);
   }
@@ -52,7 +50,7 @@ public class ParseSegment extends NutchConfigured implements Mapper, Reducer {
     Parse parse = null;
     ParseStatus status;
     try {
-      parse = ParseUtil.parse(content);
+      parse = new ParseUtil(getConf()).parse(content);
       status = parse.getData().getStatus();
     } catch (Exception e) {
       status = new ParseStatus(e);
@@ -116,7 +114,7 @@ public class ParseSegment extends NutchConfigured implements Mapper, Reducer {
       
     segment = new File(args[0]);
 
-    ParseSegment parseSegment = new ParseSegment(NutchConf.get());
+    ParseSegment parseSegment = new ParseSegment(new NutchConf());
     parseSegment.parse(segment);
   }
 }

@@ -46,14 +46,17 @@ import org.apache.nutch.util.mime.MimeTypes;
 public class ZipTextExtractor {
   
   /** Get the MimeTypes resolver instance. */
-  private final static MimeTypes MIME =
-          MimeTypes.get(NutchConf.get().get("mime.types.file"));
+  private MimeTypes MIME;
   
   public static final Logger LOG = LogFormatter.getLogger(ZipTextExtractor.class.getName());
+
+private NutchConf nutchConf;
   
   
   /** Creates a new instance of ZipTextExtractor */
-  public ZipTextExtractor() {
+  public ZipTextExtractor(NutchConf nutchConf) {
+      this.nutchConf = nutchConf;
+      this.MIME = MimeTypes.get(nutchConf.get("mime.types.file"));
   }
   
   public String extractText(InputStream input, String url, List outLinksList) throws IOException {
@@ -88,13 +91,13 @@ public class ZipTextExtractor {
             ContentProperties metadata = new ContentProperties();
             metadata.setProperty("Content-Length", Long.toString(entry.getSize()));
             metadata.setProperty("Content-Type", contentType);
-            Content content = new Content(newurl, base, b, contentType, metadata);
-            Parse parse = ParseUtil.parse(content);
+            Content content = new Content(newurl, base, b, contentType, metadata, this.nutchConf);
+            Parse parse = new ParseUtil(this.nutchConf).parse(content);
             ParseData theParseData = parse.getData();
             Outlink[] theOutlinks = theParseData.getOutlinks();
             
             for(int count = 0; count < theOutlinks.length; count++) {
-              outLinksList.add(new Outlink(theOutlinks[count].getToUrl(), theOutlinks[count].getAnchor()));
+              outLinksList.add(new Outlink(theOutlinks[count].getToUrl(), theOutlinks[count].getAnchor(), this.nutchConf));
             }
             
             resultText += entry.getName() + " " + parse.getText() + " ";

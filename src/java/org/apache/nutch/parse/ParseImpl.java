@@ -18,14 +18,17 @@ package org.apache.nutch.parse;
 
 import java.io.*;
 import org.apache.nutch.io.*;
+import org.apache.nutch.util.NutchConf;
+import org.apache.nutch.util.NutchConfigurable;
 
 
 /** The result of parsing a page's raw content.
  * @see Parser#getParse(Content)
  */
-public class ParseImpl implements Parse, Writable {
+public class ParseImpl implements Parse, Writable, NutchConfigurable {
   private ParseText text;
   private ParseData data;
+  private NutchConf nutchConf;
 
   public ParseImpl() {}
 
@@ -56,13 +59,24 @@ public class ParseImpl implements Parse, Writable {
     text.readFields(in);
 
     data = new ParseData();
+    data.setConf(this.nutchConf);
     data.readFields(in);
   }
 
-  public static ParseImpl read(DataInput in) throws IOException {
+  public static ParseImpl read(DataInput in, NutchConf nutchConf) throws IOException {
     ParseImpl parseImpl = new ParseImpl();
+    parseImpl.setConf(nutchConf);
     parseImpl.readFields(in);
     return parseImpl;
+  }
+
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
   }
 
 }

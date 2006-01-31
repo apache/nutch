@@ -41,28 +41,21 @@ public class IndexMerger {
 
   public static final String DONE_NAME = "merge.done";
 
-  private int MERGE_FACTOR = NutchConf.get().getInt("indexer.mergeFactor",
-      IndexWriter.DEFAULT_MERGE_FACTOR);
-  private int MIN_MERGE_DOCS = NutchConf.get().getInt("indexer.minMergeDocs",
-      IndexWriter.DEFAULT_MIN_MERGE_DOCS);
-  private int MAX_MERGE_DOCS = NutchConf.get().getInt("indexer.maxMergeDocs",
-      IndexWriter.DEFAULT_MAX_MERGE_DOCS);
-  private int TERM_INDEX_INTERVAL =
-    NutchConf.get().getInt("indexer.termIndexInterval",
-                           IndexWriter.DEFAULT_TERM_INDEX_INTERVAL);
   private NutchFileSystem nfs;
   private File outputIndex;
   private File localWorkingDir;
   private File[] indexes;
+  private NutchConf nutchConf;
 
   /**
    * Merge all of the indexes given
    */
-  public IndexMerger(NutchFileSystem nfs, File[] indexes, File outputIndex, File localWorkingDir) throws IOException {
+  public IndexMerger(NutchFileSystem nfs, File[] indexes, File outputIndex, File localWorkingDir, NutchConf nutchConf) throws IOException {
       this.nfs = nfs;
       this.indexes = indexes;
       this.outputIndex = outputIndex;
       this.localWorkingDir = localWorkingDir;
+      this.nutchConf = nutchConf;
   }
 
   /**
@@ -81,7 +74,7 @@ public class IndexMerger {
     Directory[] dirs = new Directory[indexes.length];
     for (int i = 0; i < indexes.length; i++) {
       LOG.info("Adding " + indexes[i]);
-      dirs[i] = new NdfsDirectory(nfs, indexes[i], false);
+      dirs[i] = new NdfsDirectory(nfs, indexes[i], false, this.nutchConf);
     }
 
     //
@@ -90,10 +83,10 @@ public class IndexMerger {
     // Merge indices
     //
     IndexWriter writer = new IndexWriter(localOutput, null, true);
-    writer.mergeFactor = MERGE_FACTOR;
-    writer.minMergeDocs = MIN_MERGE_DOCS;
-    writer.maxMergeDocs = MAX_MERGE_DOCS;
-    writer.setTermIndexInterval(TERM_INDEX_INTERVAL);
+    writer.mergeFactor = nutchConf.getInt("indexer.mergeFactor", IndexWriter.DEFAULT_MERGE_FACTOR);
+    writer.minMergeDocs = nutchConf.getInt("indexer.minMergeDocs", IndexWriter.DEFAULT_MIN_MERGE_DOCS);
+    writer.maxMergeDocs = nutchConf.getInt("indexer.maxMergeDocs", IndexWriter.DEFAULT_MAX_MERGE_DOCS);
+    writer.setTermIndexInterval(nutchConf.getInt("indexer.termIndexInterval", IndexWriter.DEFAULT_TERM_INDEX_INTERVAL));
     writer.infoStream = LogFormatter.getLogStream(LOG, Level.FINE);
     writer.setUseCompoundFile(false);
     writer.setSimilarity(new NutchSimilarity());
@@ -121,7 +114,8 @@ public class IndexMerger {
     //
     // Parse args, read all index directories to be processed
     //
-    NutchFileSystem nfs = NutchFileSystem.get();
+    NutchConf nutchConf = new NutchConf();
+    NutchFileSystem nfs = NutchFileSystem.get(nutchConf);
     File workDir = new File(new File("").getCanonicalPath());
     List indexDirs = new ArrayList();
 
@@ -146,12 +140,12 @@ public class IndexMerger {
     File[] indexFiles = (File[])indexDirs.toArray(new File[indexDirs.size()]);
 
     if (workDir.exists()) {
-      FileUtil.fullyDelete(workDir);
+      FileUtil.fullyDelete(workDir, nutchConf);
     }
     workDir.mkdirs();
-    IndexMerger merger = new IndexMerger(nfs,indexFiles,outputIndex,workDir);
+    IndexMerger merger = new IndexMerger(nfs,indexFiles,outputIndex,workDir, nutchConf);
     merger.merge();
     LOG.info("done merging");
-    FileUtil.fullyDelete(workDir);
+    FileUtil.fullyDelete(workDir, nutchConf);
   }
 }

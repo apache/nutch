@@ -26,6 +26,7 @@ import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.plugin.PluginRuntimeException;
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.util.NutchConf;
 
 
 /**
@@ -38,25 +39,21 @@ public class AnalyzerFactory {
   public final static Logger LOG =
           LogFormatter.getLogger(AnalyzerFactory.class.getName());
 
-  private final static ExtensionPoint X_POINT = 
-          PluginRepository.getInstance()
-                          .getExtensionPoint(NutchAnalyzer.X_POINT_ID);
 
-  private final static Map CACHE = new HashMap();
+  private NutchAnalyzer DEFAULT_ANALYZER;
+  
+  private ExtensionPoint extensionPoint;
+  private NutchConf nutchConf;
 
-  private final static NutchAnalyzer DEFAULT_ANALYZER = 
-                                            new NutchDocumentAnalyzer();
-  
-  
-  static {
-    if (X_POINT == null) {
-      throw new RuntimeException("x point " + NutchAnalyzer.X_POINT_ID +
-                                 " not found.");
-    }
+  public AnalyzerFactory (NutchConf nutchConf) {
+      DEFAULT_ANALYZER = new NutchDocumentAnalyzer(nutchConf);
+      this.nutchConf = nutchConf;
+      this.extensionPoint = nutchConf.getPluginRepository().getExtensionPoint(NutchAnalyzer.X_POINT_ID);
+      if(this.extensionPoint == null) {
+          throw new RuntimeException("x point " + NutchAnalyzer.X_POINT_ID +
+          " not found.");
+      }
   }
-
-
-  private AnalyzerFactory() {}
 
   
   /**
@@ -67,7 +64,7 @@ public class AnalyzerFactory {
    * plugin found whose "lang" attribute equals the specified lang parameter is
    * used. If none match, then the {@link NutchDocumentAnalyzer} is used.
    */
-  public static NutchAnalyzer get(String lang) {
+  public NutchAnalyzer get(String lang) {
 
     NutchAnalyzer analyzer = DEFAULT_ANALYZER;
     Extension extension = getExtension(lang);
@@ -81,20 +78,20 @@ public class AnalyzerFactory {
     return analyzer;
   }
 
-  private static Extension getExtension(String lang) {
+  private Extension getExtension(String lang) {
 
-    Extension extension = (Extension) CACHE.get(lang);
+    Extension extension = (Extension) this.nutchConf.getObject(lang);
     if (extension == null) {
       extension = findExtension(lang);
-      CACHE.put(lang, extension);
+      this.nutchConf.setObject(lang, extension);
     }
     return extension;
   }
 
-  private static Extension findExtension(String lang) {
+  private Extension findExtension(String lang) {
 
     if (lang != null) {
-      Extension[] extensions = X_POINT.getExtentens();
+      Extension[] extensions = this.extensionPoint.getExtensions();
       for (int i=0; i<extensions.length; i++) {
         if (lang.equals(extensions[i].getAttribute("lang"))) {
           return extensions[i];

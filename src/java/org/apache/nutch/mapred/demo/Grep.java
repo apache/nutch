@@ -45,7 +45,7 @@ public class Grep {
       System.exit(-1);
     }
 
-    NutchConf defaults = NutchConf.get();
+    NutchConf defaults = new NutchConf();
 
     File tempDir =
       new File("grep-temp-"+

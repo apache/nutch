@@ -20,6 +20,8 @@ import java.io.*;
 import java.util.Random;
 import junit.framework.TestCase;
 import org.apache.nutch.io.*;
+import org.apache.nutch.parse.ParseData;
+import org.apache.nutch.util.NutchConf;
 
 /** Unit tests for Writable. */
 public class TestWritable extends TestCase {
@@ -68,6 +70,10 @@ public class TestWritable extends TestCase {
       dib.reset(dob.getData(), dob.getLength());
     
       Writable after = (Writable)before.getClass().newInstance();
+      if(after instanceof ParseData) {
+        ParseData parseData = (ParseData) after;
+        parseData.setConf(new NutchConf());
+      }
       after.readFields(dib);
 
       assertEquals(before, after);

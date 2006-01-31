@@ -40,7 +40,7 @@ public class NFSDataInputStream extends DataInputStream {
     private Checksum sum = new CRC32();
     private int inSum;
 
-    public Checker(NutchFileSystem fs, File file)
+    public Checker(NutchFileSystem fs, File file, NutchConf nutchConf)
       throws IOException {
       super(fs.openRaw(file));
       
@@ -48,7 +48,7 @@ public class NFSDataInputStream extends DataInputStream {
       this.file = file;
       File sumFile = fs.getChecksumFile(file);
       try {
-        this.sums = new NFSDataInputStream(fs.openRaw(sumFile));
+        this.sums = new NFSDataInputStream(fs.openRaw(sumFile), nutchConf);
         byte[] version = new byte[VERSION.length];
         sums.readFully(version);
         if (!Arrays.equals(version, VERSION))
@@ -210,20 +210,25 @@ public class NFSDataInputStream extends DataInputStream {
     }
 
 }
-
-  public NFSDataInputStream(NutchFileSystem fs, File file) throws IOException {
-    this(fs, file, NutchConf.get().getInt("io.file.buffer.size", 4096));
+  
+  
+  public NFSDataInputStream(NutchFileSystem fs, File file, int bufferSize, NutchConf nutchConf)
+      throws IOException {
+    super(null);
+    this.in = new Buffer(new PositionCache(new Checker(fs, file, nutchConf)), bufferSize);
   }
-
-  public NFSDataInputStream(NutchFileSystem fs, File file, int bufferSize)
+  
+  
+  public NFSDataInputStream(NutchFileSystem fs, File file, NutchConf nutchConf)
     throws IOException {
     super(null);
-    this.in = new Buffer(new PositionCache(new Checker(fs, file)), bufferSize);
+    int bufferSize = nutchConf.getInt("io.file.buffer.size", 4096);
+    this.in = new Buffer(new PositionCache(new Checker(fs, file, nutchConf)), bufferSize);
   }
     
   /** Construct without checksums. */
-  public NFSDataInputStream(NFSInputStream in) throws IOException {
-    this(in, NutchConf.get().getInt("io.file.buffer.size", 4096));
+  public NFSDataInputStream(NFSInputStream in, NutchConf nutchConf) throws IOException {
+    this(in, nutchConf.getInt("io.file.buffer.size", 4096));
   }
   /** Construct without checksums. */
   public NFSDataInputStream(NFSInputStream in, int bufferSize)

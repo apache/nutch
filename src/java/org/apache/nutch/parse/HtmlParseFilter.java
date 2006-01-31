@@ -17,6 +17,7 @@
 package org.apache.nutch.parse;
 
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.NutchConfigurable;
 
 import org.w3c.dom.DocumentFragment;
 
@@ -24,7 +25,7 @@ import org.w3c.dom.DocumentFragment;
  * metadata to HTML parses.  All plugins found which implement this extension
  * point are run sequentially on the parse.
  */
-public interface HtmlParseFilter {
+public interface HtmlParseFilter extends NutchConfigurable {
   /** The name of the extension point. */
   final static String X_POINT_ID = HtmlParseFilter.class.getName();
 

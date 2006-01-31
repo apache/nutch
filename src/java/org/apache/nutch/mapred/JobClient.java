@@ -166,28 +166,30 @@ public class JobClient implements MRConstants {
     JobSubmissionProtocol jobSubmitClient;
     NutchFileSystem fs = null;
 
+    private NutchConf nutchConf;
     static Random r = new Random();
 
     /**
      * Build a job client, connect to the default job tracker
      */
     public JobClient(NutchConf conf) throws IOException {
+      this.nutchConf = conf;
       String tracker = conf.get("mapred.job.tracker", "local");
       if ("local".equals(tracker)) {
-        this.jobSubmitClient = new LocalJobRunner();
+        this.jobSubmitClient = new LocalJobRunner(conf);
       } else {
         this.jobSubmitClient = (JobSubmissionProtocol) 
           RPC.getProxy(JobSubmissionProtocol.class,
-                       JobTracker.getAddress(conf));
+                       JobTracker.getAddress(conf), conf);
       }
     }
   
     /**
      * Build a job client, connect to the indicated job tracker.
      */
-    public JobClient(InetSocketAddress jobTrackAddr) throws IOException {
+    public JobClient(InetSocketAddress jobTrackAddr, NutchConf nutchConf) throws IOException {
         this.jobSubmitClient = (JobSubmissionProtocol) 
-            RPC.getProxy(JobSubmissionProtocol.class, jobTrackAddr);
+            RPC.getProxy(JobSubmissionProtocol.class, jobTrackAddr, nutchConf);
     }
 
 
@@ -207,7 +209,7 @@ public class JobClient implements MRConstants {
     public synchronized NutchFileSystem getFs() throws IOException {
       if (this.fs == null) {
         String fsName = jobSubmitClient.getFilesystemName();
-        this.fs = NutchFileSystem.getNamed(fsName);
+        this.fs = NutchFileSystem.getNamed(fsName, this.nutchConf);
       }
       return fs;
     }
@@ -234,7 +236,7 @@ public class JobClient implements MRConstants {
         //
 
         // Create a number of filenames in the JobTracker's fs namespace
-        File submitJobDir = new File(JobConf.getSystemDir(), "submit_" + Integer.toString(Math.abs(r.nextInt()),36));
+        File submitJobDir = new File(job.getSystemDir(), "submit_" + Integer.toString(Math.abs(r.nextInt()), 36));
         File submitJobFile = new File(submitJobDir, "job.xml");
         File submitJarFile = new File(submitJobDir, "job.jar");
 
@@ -349,7 +351,7 @@ public class JobClient implements MRConstants {
         }
 
         // Submit the request
-        JobClient jc = new JobClient(NutchConf.get());
+        JobClient jc = new JobClient(new NutchConf());
         try {
             if (submitJobFile != null) {
                 RunningJob job = jc.submitJob(submitJobFile);

@@ -19,6 +19,7 @@ package org.apache.nutch.parse.msword;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.util.NutchConf;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.Parse;
@@ -50,6 +51,8 @@ import java.io.ByteArrayInputStream;
  */
 
 public class MSWordParser implements Parser {
+  private NutchConf nutchConf;
+
 //  public static final Logger LOG =
 //    LogFormatter.getLogger("org.apache.nutch.parse.msword");
 
@@ -70,7 +73,7 @@ public class MSWordParser implements Parser {
             && raw.length != Integer.parseInt(contentLength)) {
           return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_TRUNCATED,
                   "Content truncated at " + raw.length
-            +" bytes. Parser can't handle incomplete msword file.").getEmptyParse();
+            +" bytes. Parser can't handle incomplete msword file.").getEmptyParse(this.nutchConf);
       }
 
       WordExtractor extractor = new WordExtractor();
@@ -84,14 +87,14 @@ public class MSWordParser implements Parser {
       extractor = null;
 
     } catch (ParseException e) {
-      return new ParseStatus(e).getEmptyParse();
+      return new ParseStatus(e).getEmptyParse(this.nutchConf);
     } catch (FastSavedException e) {
-      return new ParseStatus(e).getEmptyParse();
+      return new ParseStatus(e).getEmptyParse(this.nutchConf);
     } catch (PasswordProtectedException e) {
-      return new ParseStatus(e).getEmptyParse();
+      return new ParseStatus(e).getEmptyParse(this.nutchConf);
     } catch (Exception e) { // run time exception
       return new ParseStatus(ParseStatus.FAILED,
-              "Can't be handled as msword document. " + e).getEmptyParse();
+              "Can't be handled as msword document. " + e).getEmptyParse(this.nutchConf);
     } finally {
       // nothing so far
     }
@@ -113,12 +116,21 @@ public class MSWordParser implements Parser {
       title = "";
 
     // collect outlink
-    Outlink[] outlinks = OutlinkExtractor.getOutlinks(text);
+    Outlink[] outlinks = OutlinkExtractor.getOutlinks(text, this.nutchConf);
 
     ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks, metadata);
+    parseData.setConf(this.nutchConf);
     return new ParseImpl(text, parseData);
     // any filter?
     //return HtmlParseFilters.filter(content, parse, root);
+  }
+
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
   }
 
 }

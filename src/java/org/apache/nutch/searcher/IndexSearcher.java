@@ -47,38 +47,43 @@ public class IndexSearcher implements Searcher, HitDetailer {
 
   private org.apache.lucene.search.Searcher luceneSearcher;
   private org.apache.lucene.index.IndexReader reader;
-
-  private LuceneQueryOptimizer optimizer = new LuceneQueryOptimizer
-    (NutchConf.get().getInt("searcher.filter.cache.size", 16),
-     NutchConf.get().getFloat("searcher.filter.cache.threshold", 0.05f));
+  private LuceneQueryOptimizer optimizer;
+  private NutchFileSystem fs;
+  private NutchConf nutchConf;
+  private QueryFilters queryFilters;
 
   /** Construct given a number of indexes. */
-  public IndexSearcher(File[] indexDirs) throws IOException {
+  public IndexSearcher(File[] indexDirs, NutchConf nutchConf) throws IOException {
     IndexReader[] readers = new IndexReader[indexDirs.length];
+    this.nutchConf = nutchConf;
+    this.fs = NutchFileSystem.get(nutchConf);
     for (int i = 0; i < indexDirs.length; i++) {
       readers[i] = IndexReader.open(getDirectory(indexDirs[i]));
     }
-    init(new MultiReader(readers));
+    init(new MultiReader(readers), nutchConf);
   }
 
   /** Construct given a single merged index. */
-  public IndexSearcher(File index)
+  public IndexSearcher(File index,  NutchConf nutchConf)
     throws IOException {
-    init(IndexReader.open(getDirectory(index)));
+    this.nutchConf = nutchConf;
+    this.fs = NutchFileSystem.get(nutchConf);
+    init(IndexReader.open(getDirectory(index)), nutchConf);
   }
 
-  private void init(IndexReader reader) throws IOException {
+  private void init(IndexReader reader, NutchConf nutchConf) throws IOException {
     this.reader = reader;
     this.luceneSearcher = new org.apache.lucene.search.IndexSearcher(reader);
     this.luceneSearcher.setSimilarity(new NutchSimilarity());
+    this.optimizer = new LuceneQueryOptimizer(nutchConf);
+    this.queryFilters = new QueryFilters(nutchConf);
   }
 
   private Directory getDirectory(File file) throws IOException {
-    NutchFileSystem fs = NutchFileSystem.get();
-    if ("local".equals(fs.getName())) {
+    if ("local".equals(this.fs.getName())) {
       return FSDirectory.getDirectory(file, false);
     } else {
-      return new NdfsDirectory(fs, file, false);
+      return new NdfsDirectory(this.fs, file, false, this.nutchConf);
     }
   }
 
@@ -86,10 +91,8 @@ public class IndexSearcher implements Searcher, HitDetailer {
                      String dedupField, String sortField, boolean reverse)
 
     throws IOException {
-
     org.apache.lucene.search.BooleanQuery luceneQuery =
-      QueryFilters.filter(query);
-    
+      this.queryFilters.filter(query);
     return translateHits
       (optimizer.optimize(luceneQuery, luceneSearcher, numHits,
                           sortField, reverse),
@@ -97,7 +100,7 @@ public class IndexSearcher implements Searcher, HitDetailer {
   }
 
   public String getExplanation(Query query, Hit hit) throws IOException {
-    return luceneSearcher.explain(QueryFilters.filter(query),
+    return luceneSearcher.explain(this.queryFilters.filter(query),
                                   hit.getIndexDocNo()).toHtml();
   }
 

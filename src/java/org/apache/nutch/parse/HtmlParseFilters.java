@@ -16,39 +16,49 @@
 
 package org.apache.nutch.parse;
 
+import java.util.HashMap;
+
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.plugin.*;
+import org.apache.nutch.util.NutchConf;
 
 import org.w3c.dom.DocumentFragment;
 
 /** Creates and caches {@link HtmlParseFilter} implementing plugins.*/
 public class HtmlParseFilters {
 
-  private static final HtmlParseFilter[] CACHE;
-  static {
-    try {
-      ExtensionPoint point = PluginRepository.getInstance()
-        .getExtensionPoint(HtmlParseFilter.X_POINT_ID);
-      if (point == null)
-        throw new RuntimeException(HtmlParseFilter.X_POINT_ID+" not found.");
-      Extension[] extensions = point.getExtensions();
-      CACHE = new HtmlParseFilter[extensions.length];
-      for (int i = 0; i < extensions.length; i++) {
-        Extension extension = extensions[i];
-        CACHE[i] = (HtmlParseFilter)extension.getExtensionInstance();
-      }
-    } catch (PluginRuntimeException e) {
-      throw new RuntimeException(e);
-    }
-  }
+  private HtmlParseFilter[] htmlParseFilters;
 
-  private  HtmlParseFilters() {}                  // no public ctor
+  public HtmlParseFilters(NutchConf nutchConf) {
+        this.htmlParseFilters = (HtmlParseFilter[]) nutchConf.getObject(HtmlParseFilter.class.getName());
+        if (htmlParseFilters == null) {
+            HashMap filters = new HashMap();
+            try {
+                ExtensionPoint point = nutchConf.getPluginRepository().getExtensionPoint(HtmlParseFilter.X_POINT_ID);
+                if (point == null)
+                    throw new RuntimeException(HtmlParseFilter.X_POINT_ID + " not found.");
+                Extension[] extensions = point.getExtensions();
+                for (int i = 0; i < extensions.length; i++) {
+                    Extension extension = extensions[i];
+                    HtmlParseFilter parseFilter = (HtmlParseFilter) extension.getExtensionInstance();
+                    if (!filters.containsKey(parseFilter.getClass().getName())) {
+                        filters.put(parseFilter.getClass().getName(), parseFilter);
+                    }
+                }
+                HtmlParseFilter[] htmlParseFilters = (HtmlParseFilter[]) filters.values().toArray(new HtmlParseFilter[filters.size()]);
+                nutchConf.setObject(HtmlParseFilter.class.getName(), htmlParseFilters);
+            } catch (PluginRuntimeException e) {
+                throw new RuntimeException(e);
+            }
+            this.htmlParseFilters = (HtmlParseFilter[]) nutchConf.getObject(HtmlParseFilter.class.getName());
+        }
+    }                  
 
   /** Run all defined filters. */
-  public static Parse filter(Content content, Parse parse, HTMLMetaTags metaTags, DocumentFragment doc) {
+  public Parse filter(Content content, Parse parse, HTMLMetaTags metaTags, DocumentFragment doc) {
 
-    for (int i = 0 ; i < CACHE.length; i++) {
-      parse = CACHE[i].filter(content, parse, metaTags, doc);
+    for (int i = 0 ; i < this.htmlParseFilters.length; i++) {
+      parse = this.htmlParseFilters[i].filter(content, parse, metaTags, doc);
       if (!parse.getData().getStatus().isSuccess()) break;
     }
 

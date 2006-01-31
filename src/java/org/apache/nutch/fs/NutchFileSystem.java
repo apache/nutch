@@ -45,7 +45,6 @@ public abstract class NutchFileSystem {
     public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.util.NutchFileSystem");
 
     private static final HashMap NAME_TO_FS = new HashMap();
-  
     /**
      * Parse the cmd-line args, starting at i.  Remove consumed args
      * from array.  We expect param in the form:
@@ -53,7 +52,7 @@ public abstract class NutchFileSystem {
      *
      * @deprecated use fs.default.name config option instead
      */
-    public static NutchFileSystem parseArgs(String argv[], int i) throws IOException {
+    public static NutchFileSystem parseArgs(String argv[], int i, NutchConf nutchConf) throws IOException {
         /**
         if (argv.length - i < 1) {
             throw new IOException("Must indicate filesystem type for NDFS");
@@ -65,12 +64,12 @@ public abstract class NutchFileSystem {
         if ("-ndfs".equals(cmd)) {
             i++;
             InetSocketAddress addr = DataNode.createSocketAddr(argv[i++]);
-            nfs = new NDFSFileSystem(addr);
+            nfs = new NDFSFileSystem(addr, nutchConf);
         } else if ("-local".equals(cmd)) {
             i++;
-            nfs = new LocalFileSystem();
+            nfs = new LocalFileSystem(nutchConf);
         } else {
-            nfs = get();                          // using default
+            nfs = get(nutchConf);                          // using default
             LOG.info("No FS indicated, using default:"+nfs.getName());
 
         }
@@ -81,30 +80,26 @@ public abstract class NutchFileSystem {
         return nfs;
     }
 
-
-    /** Returns the default filesystem implementation.*/
-    public static NutchFileSystem get() throws IOException {
-      return get(NutchConf.get());
-    }
-
     /** Returns the configured filesystem implementation.*/
     public static NutchFileSystem get(NutchConf conf) throws IOException {
-      return getNamed(conf.get("fs.default.name", "local"));
+      return getNamed(conf.get("fs.default.name", "local"), conf);
     }
 
+    protected NutchConf nutchConf;
     /** Returns a name for this filesystem, suitable to pass to {@link
      * NutchFileSystem#getNamed(String).*/
     public abstract String getName();
   
     /** Returns a named filesystem.  Names are either the string "local" or a
      * host:port pair, naming an NDFS name server.*/
-    public static NutchFileSystem getNamed(String name) throws IOException {
+    public static NutchFileSystem getNamed(String name, NutchConf nutchConf) throws IOException {
       NutchFileSystem fs = (NutchFileSystem)NAME_TO_FS.get(name);
+      int ioFileBufferSize = nutchConf.getInt("io.file.buffer.size", 4096);
       if (fs == null) {
         if ("local".equals(name)) {
-          fs = new LocalFileSystem();
+          fs = new LocalFileSystem(nutchConf);
         } else {
-          fs = new NDFSFileSystem(DataNode.createSocketAddr(name));
+          fs = new NDFSFileSystem(DataNode.createSocketAddr(name), nutchConf);
         }
         NAME_TO_FS.put(name, fs);
       }
@@ -127,7 +122,8 @@ public abstract class NutchFileSystem {
     ///////////////////////////////////////////////////////////////
     /**
      */
-    public NutchFileSystem() {
+    public NutchFileSystem(NutchConf nutchConf) {
+        this.nutchConf = nutchConf;
     }
 
     /**
@@ -143,13 +139,6 @@ public abstract class NutchFileSystem {
     public abstract String[][] getFileCacheHints(File f, long start, long len) throws IOException;
 
     /**
-     * Opens an NFSDataInputStream for the indicated File.
-     */
-    public NFSDataInputStream open(File f) throws IOException {
-      return open(f, NutchConf.get().getInt("io.file.buffer.size", 4096));
-    }
-
-    /**
      * Opens an NFSDataInputStream at the indicated File.
      * @param f the file name to open
      * @param overwrite if a file with this name already exists, then if true,
@@ -157,7 +146,18 @@ public abstract class NutchFileSystem {
      * @param bufferSize the size of the buffer to be used.
      */
     public NFSDataInputStream open(File f, int bufferSize) throws IOException {
-      return new NFSDataInputStream(this, f, bufferSize);
+      return new NFSDataInputStream(this, f, bufferSize, this.nutchConf);
+    }
+    
+    /**
+     * Opens an NFSDataInputStream at the indicated File.
+     * @param f the file name to open
+     * @param overwrite if a file with this name already exists, then if true,
+     *   the file will be overwritten, and if false an error will be thrown.
+     * @param bufferSize the size of the buffer to be used.
+     */
+    public NFSDataInputStream open(File f) throws IOException {
+      return new NFSDataInputStream(this, f, nutchConf);
     }
 
     /**
@@ -171,8 +171,7 @@ public abstract class NutchFileSystem {
      * Files are overwritten by default.
      */
     public NFSDataOutputStream create(File f) throws IOException {
-      return create(f, true,
-                    NutchConf.get().getInt("io.file.buffer.size", 4096));
+      return create(f, true,this.nutchConf.getInt("io.file.buffer.size", 4096));
     }
 
     /**
@@ -184,7 +183,7 @@ public abstract class NutchFileSystem {
      */
     public NFSDataOutputStream create(File f, boolean overwrite,
                                       int bufferSize) throws IOException {
-      return new NFSDataOutputStream(this, f, overwrite, bufferSize);
+      return new NFSDataOutputStream(this, f, overwrite, this.nutchConf);
     }
 
     /** Opens an OutputStream at the indicated File.

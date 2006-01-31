@@ -107,8 +107,8 @@ public interface FSConstants {
     public static long LEASE_PERIOD = 60 * 1000;
     public static int READ_TIMEOUT = 60 * 1000;
 
-    public static int BUFFER_SIZE =
-      NutchConf.get().getInt("io.file.buffer.size", 4096);
+    //TODO mb@media-style.com: should be nutchConf injected?
+    public static final int BUFFER_SIZE = new NutchConf().getInt("io.file.buffer.size", 4096);
 
 }
 

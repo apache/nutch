@@ -36,8 +36,6 @@ public class CCParseFilter implements HtmlParseFilter {
   public static final Logger LOG
     = LogFormatter.getLogger(CCParseFilter.class.getName());
 
-  private static final boolean EXCLUDE_UNLICENSED =
-    NutchConf.get().getBoolean("creativecommons.exclude.unlicensed", false);
 
   /** Walks DOM tree, looking for RDF in comments and licenses in anchors.*/
   public static class Walker {
@@ -52,7 +50,7 @@ public class CCParseFilter implements HtmlParseFilter {
     }
 
     /** Scan the document adding attributes to metadata.*/
-    public static void walk(Node doc, URL base, ContentProperties metadata)
+    public static void walk(Node doc, URL base, ContentProperties metadata, NutchConf nutchConf)
       throws ParseException {
 
       // walk the DOM tree, scanning for license data
@@ -71,7 +69,7 @@ public class CCParseFilter implements HtmlParseFilter {
       } else if (walker.anchorLicense != null) {  // 3rd: anchor w/ CC license
         licenseLocation = "a";
         licenseUrl = walker.anchorLicense.toString();
-      } else if (EXCLUDE_UNLICENSED) {
+      } else if (nutchConf.getBoolean("creativecommons.exclude.unlicensed", false)) {
         throw new ParseException("No CC license.  Excluding.");
       }
 
@@ -251,6 +249,8 @@ public class CCParseFilter implements HtmlParseFilter {
     WORK_TYPE_NAMES.put("http://purl.org/dc/dcmitype/Image", "image");
   }
 
+  private NutchConf nutchConf;
+
   /** Adds metadata or otherwise modifies a parse of an HTML document, given
    * the DOM tree of a page. */
   public Parse filter(Content content, Parse parse, HTMLMetaTags metaTags, DocumentFragment doc) {
@@ -260,17 +260,24 @@ public class CCParseFilter implements HtmlParseFilter {
     try {
       base = new URL(content.getBaseUrl());
     } catch (MalformedURLException e) {
-      return new ParseStatus(e).getEmptyParse();
+      return new ParseStatus(e).getEmptyParse(getConf());
     }
 
     try {
       // extract license metadata
-      Walker.walk(doc, base, parse.getData().getMetadata());
+      Walker.walk(doc, base, parse.getData().getMetadata(), getConf());
     } catch (ParseException e) {
-      return new ParseStatus(e).getEmptyParse();
+      return new ParseStatus(e).getEmptyParse(getConf());
     }
 
     return parse;
   }
 
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
+  }
 }
