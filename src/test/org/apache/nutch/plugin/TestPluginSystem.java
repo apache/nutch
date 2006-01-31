@@ -38,10 +38,17 @@ public class TestPluginSystem extends TestCase {
     private int fPluginCount;
 
     private LinkedList fFolders = new LinkedList();
+    private NutchConf nutchConf ;
+    private PluginRepository repository;
 
     protected void setUp() throws Exception {
+        this.nutchConf = new NutchConf();
+        nutchConf.set("plugin.includes", ".*");
+//        String string = this.nutchConf.get("plugin.includes", "");
+//        nutchConf.set("plugin.includes", string + "|Dummy*");
         fPluginCount = 5;
         createDummyPlugins(fPluginCount);
+        this.repository = nutchConf.getPluginRepository();
     }
 
     /*
@@ -72,7 +79,7 @@ public class TestPluginSystem extends TestCase {
     /**
      */
     public void testLoadPlugins() {
-        PluginDescriptor[] descriptors = PluginRepository.getInstance()
+        PluginDescriptor[] descriptors = repository
                 .getPluginDescriptors();
         int k = descriptors.length;
         assertTrue(fPluginCount <= k);
@@ -91,10 +98,10 @@ public class TestPluginSystem extends TestCase {
      */
     public void testGetExtensionAndAttributes() {
         String xpId = " sdsdsd";
-        ExtensionPoint extensionPoint = PluginRepository.getInstance()
+        ExtensionPoint extensionPoint =repository
                 .getExtensionPoint(xpId);
         assertEquals(extensionPoint, null);
-        Extension[] extension1 = PluginRepository.getInstance()
+        Extension[] extension1 = repository
                 .getExtensionPoint(getGetExtensionId()).getExtensions();
         assertEquals(extension1.length, fPluginCount);
         for (int i = 0; i < extension1.length; i++) {
@@ -108,7 +115,7 @@ public class TestPluginSystem extends TestCase {
      * @throws PluginRuntimeException
      */
     public void testGetExtensionInstances() throws PluginRuntimeException {
-        Extension[] extensions = PluginRepository.getInstance()
+        Extension[] extensions = repository
                 .getExtensionPoint(getGetExtensionId()).getExtensions();
         assertEquals(extensions.length, fPluginCount);
         for (int i = 0; i < extensions.length; i++) {
@@ -127,7 +134,7 @@ public class TestPluginSystem extends TestCase {
      *  
      */
     public void testGetClassLoader() {
-        PluginDescriptor[] descriptors = PluginRepository.getInstance()
+        PluginDescriptor[] descriptors = repository
                 .getPluginDescriptors();
         for (int i = 0; i < descriptors.length; i++) {
             PluginDescriptor descriptor = descriptors[i];
@@ -139,7 +146,7 @@ public class TestPluginSystem extends TestCase {
      * @throws IOException
      */
     public void testGetResources() throws IOException {
-        PluginDescriptor[] descriptors = PluginRepository.getInstance()
+        PluginDescriptor[] descriptors = repository
                 .getPluginDescriptors();
         for (int i = 0; i < descriptors.length; i++) {
             PluginDescriptor descriptor = descriptors[i];
@@ -159,12 +166,12 @@ public class TestPluginSystem extends TestCase {
      * @return a PluginFolderPath
      */
     private String getPluginFolder() {
-        String[] strings = NutchConf.get().getStrings("plugin.folders");
+        String[] strings = nutchConf.getStrings("plugin.folders");
         if (strings == null || strings.length == 0)
             fail("no plugin directory setuped..");
 
         String name = strings[0];
-        return PluginManifestParser.getPluginFolder(name).toString();
+        return new PluginManifestParser(nutchConf, this.repository).getPluginFolder(name).toString();
     }
 
     /**

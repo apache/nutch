@@ -17,9 +17,8 @@
 package org.apache.nutch.parse.rtf;
 
 import org.apache.nutch.parse.*;
-import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.protocol.Content;
-
+import org.apache.nutch.util.NutchConf;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -29,9 +28,12 @@ import com.etranslate.tm.processing.rtf.RTFParser;
 
 /**
  * A parser for RTF documents
+ * 
  * @author Andy Hedges
  */
 public class RTFParseFactory implements Parser {
+
+  private NutchConf nutchConf;
 
   public Parse getParse(Content content) throws ParseException {
     byte[] raw = content.getContent();
@@ -53,7 +55,7 @@ public class RTFParseFactory implements Parser {
     metadata.putAll(delegate.getMetaData());
     String title = metadata.getProperty("title");
 
-    if(title != null){
+    if (title != null) {
       metadata.remove(title);
     } else {
       title = "";
@@ -61,11 +63,15 @@ public class RTFParseFactory implements Parser {
 
     String text = delegate.getText();
 
-    return new ParseImpl(text, 
-                         new ParseData(title,
-                                       OutlinkExtractor.getOutlinks(text),
-                                       metadata));
+    return new ParseImpl(text, new ParseData(title, OutlinkExtractor
+        .getOutlinks(text, this.nutchConf), metadata));
   }
 
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+  }
 
+  public NutchConf getConf() {
+    return this.nutchConf;
+  }
 }

@@ -51,14 +51,14 @@ public class SetFile extends MapFile {
   public static class Reader extends MapFile.Reader {
 
     /** Construct a set reader for the named set.*/
-    public Reader(NutchFileSystem nfs, String dirName) throws IOException {
-      super(nfs, dirName);
+    public Reader(NutchFileSystem nfs, String dirName, NutchConf nutchConf) throws IOException {
+      super(nfs, dirName, nutchConf);
     }
 
     /** Construct a set reader for the named set using the named comparator.*/
-    public Reader(NutchFileSystem nfs, String dirName, WritableComparator comparator)
+    public Reader(NutchFileSystem nfs, String dirName, WritableComparator comparator, NutchConf nutchConf)
       throws IOException {
-      super(nfs, dirName, comparator);
+      super(nfs, dirName, comparator, nutchConf);
     }
 
     // javadoc inherited

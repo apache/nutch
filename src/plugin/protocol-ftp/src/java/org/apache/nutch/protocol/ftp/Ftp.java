@@ -56,23 +56,23 @@ public class Ftp implements Protocol {
 
   static final int MAX_REDIRECTS = 5;
 
-  static int timeout = NutchConf.get().getInt("ftp.timeout", 10000);
+  int timeout;
 
-  static int maxContentLength = NutchConf.get().getInt("ftp.content.limit",64*1024);
+  int maxContentLength;
 
-  String userName = NutchConf.get().get("ftp.username", "anonymous");
-  String passWord = NutchConf.get().get("ftp.password", "anonymous@example.com");
+  String userName;
+  String passWord; 
 
   // typical/default server timeout is 120*1000 millisec.
   // better be conservative here
-  int serverTimeout = NutchConf.get().getInt("ftp.server.timeout", 60*1000);
+  int serverTimeout;
 
   // when to have client start anew
   long renewalTime = -1;
 
-  boolean keepConnection = NutchConf.get().getBoolean("ftp.keep.connection", false);
+  boolean keepConnection;
 
-  boolean followTalk = NutchConf.get().getBoolean("ftp.follow.talk", false);
+  boolean followTalk;
 
   // ftp client
   Client client = null;
@@ -85,6 +85,8 @@ public class Ftp implements Protocol {
 
   // http date format
   HttpDateFormat httpDateFormat = null;
+
+  private NutchConf nutchConf;
 
 
   // constructor
@@ -121,7 +123,7 @@ public class Ftp implements Protocol {
   
       while (true) {
         FtpResponse response;
-        response = new FtpResponse(u, datum, this);   // make a request
+        response = new FtpResponse(u, datum, this, getConf());   // make a request
   
         int code = response.getCode();
   
@@ -218,6 +220,22 @@ public class Ftp implements Protocol {
     }
 
     ftp = null;
+  }
+
+  
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+    this.maxContentLength = conf.getInt("ftp.content.limit", 64 * 1024);
+    this.timeout = conf.getInt("ftp.timeout", 10000);
+    this.userName = conf.get("ftp.username", "anonymous");
+    this.passWord = conf.get("ftp.password", "anonymous@example.com");
+    this.serverTimeout = conf.getInt("ftp.server.timeout", 60 * 1000);
+    this.keepConnection = conf.getBoolean("ftp.keep.connection", false);
+    this.followTalk = conf.getBoolean("ftp.follow.talk", false);
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
   }
 
 }

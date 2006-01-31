@@ -21,6 +21,7 @@ import org.apache.nutch.util.LogFormatter;
 
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
+import org.apache.oro.text.regex.MalformedPatternException;
 
 import java.io.Reader;
 import java.io.FileReader;
@@ -54,25 +55,6 @@ public class RegexURLFilter implements URLFilter {
 
   // read in attribute "file" of this plugin.
   private static String attributeFile = null;
-  static {
-    String pluginName = "urlfilter-regex";
-    Extension[] extensions = PluginRepository.getInstance()
-      .getExtensionPoint(URLFilter.class.getName()).getExtensions();
-    for (int i=0; i < extensions.length; i++) {
-      Extension extension = extensions[i];
-      if (extension.getDescriptor().getPluginId().equals(pluginName)) {
-        attributeFile = extension.getAttribute("file");
-        break;
-      }
-    }
-    if (attributeFile != null && attributeFile.trim().equals(""))
-      attributeFile = null;
-    if (attributeFile != null) {
-      LOG.info("Attribute \"file\" is defined for plugin "+pluginName+" as "+attributeFile);
-    } else {
-      //LOG.warning("Attribute \"file\" is not defined in plugin.xml for plugin "+pluginName);
-    }
-  }
 
   private static class Rule {
     public Pattern pattern;
@@ -82,18 +64,9 @@ public class RegexURLFilter implements URLFilter {
 
   private List rules;
 
-  public RegexURLFilter() throws IOException, PatternSyntaxException {
-    String file = NutchConf.get().get("urlfilter.regex.file");
-    // attribute "file" takes precedence if defined
-    if (attributeFile != null)
-      file = attributeFile;
-    Reader reader = NutchConf.get().getConfResourceAsReader(file);
+  private NutchConf nutchConf;
 
-    if (reader == null) {
-      LOG.severe("Can't find resource: " + file);
-    } else {
-      rules=readConfigurationFile(reader);
-    }
+  public RegexURLFilter() {
   }
 
   public RegexURLFilter(String filename)
@@ -177,6 +150,49 @@ public class RegexURLFilter implements URLFilter {
         System.out.println(line);
       }
     }
+  }
+
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+    String pluginName = "urlfilter-regex";
+    Extension[] extensions = conf.getPluginRepository().getExtensionPoint(
+        URLFilter.class.getName()).getExtensions();
+    for (int i = 0; i < extensions.length; i++) {
+      Extension extension = extensions[i];
+      if (extension.getDescriptor().getPluginId().equals(pluginName)) {
+        attributeFile = extension.getAttribute("file");
+        break;
+      }
+    }
+    if (attributeFile != null && attributeFile.trim().equals(""))
+      attributeFile = null;
+    if (attributeFile != null) {
+      LOG.info("Attribute \"file\" is defined for plugin " + pluginName
+          + " as " + attributeFile);
+    } else {
+      //LOG.warning("Attribute \"file\" is not defined in plugin.xml for plugin "+pluginName);
+    }
+    String file = conf.get("urlfilter.regex.file");
+    // attribute "file" takes precedence if defined
+    if (attributeFile != null)
+      file = attributeFile;
+    Reader reader = conf.getConfResourceAsReader(file);
+
+    if (reader == null) {
+      LOG.severe("Can't find resource: " + file);
+    } else {
+      try {
+        rules = readConfigurationFile(reader);
+      } catch (IOException e) {
+        LOG.severe(e.getMessage());
+        //TODO mb@media-style.com: throw Exception? Because broken api.
+        throw new RuntimeException(e.getMessage(), e);
+      }
+    }
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
   }
 
 }

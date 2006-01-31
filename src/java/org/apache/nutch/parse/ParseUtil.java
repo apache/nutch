@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 // Nutch Imports
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.util.NutchConf;
 
 
 /**
@@ -37,9 +38,17 @@ public class ParseUtil {
   /* our log stream */
   public static final Logger LOG = LogFormatter.getLogger(ParseUtil.class
           .getName());
+  private NutchConf nutchConf;
+  private ParserFactory parserFactory;
   
-  /** No public constructor */
-  private ParseUtil() { }
+  /**
+   * 
+   * @param nutchConf
+   */
+  public ParseUtil(NutchConf nutchConf) {
+    this.nutchConf = nutchConf;
+    this.parserFactory = new ParserFactory(nutchConf);
+  }
   
   /**
    * Performs a parse by iterating through a List of preferred {@Parser}s
@@ -51,11 +60,11 @@ public class ParseUtil {
    * @return A {@link Parse} object containing the parsed data.
    * @throws ParseException If no suitable parser is found to perform the parse.
    */
-  public final static Parse parse(Content content) throws ParseException {
+  public Parse parse(Content content) throws ParseException {
     Parser[] parsers = null;
     
     try {
-      parsers = ParserFactory.getParsers(content.getContentType(), "");
+      parsers = this.parserFactory.getParsers(content.getContentType(), "");
     } catch (ParserNotFound e) {
       LOG.warning("No suitable parser found when trying to parse content " +
                   content);
@@ -75,7 +84,7 @@ public class ParseUtil {
                 " of type " + content.getContentType());
 
     ParseStatus ps = (parse.getData() != null) ? parse.getData().getStatus() : null;
-    return (ps == null) ? new ParseStatus().getEmptyParse() : ps.getEmptyParse();
+    return (ps == null) ? new ParseStatus().getEmptyParse(this.nutchConf) : ps.getEmptyParse(this.nutchConf);
   }
   
   /**
@@ -95,13 +104,13 @@ public class ParseUtil {
    * @throws ParseException If there is no suitable {@link Parser} found
    *                        to perform the parse.
    */
-  public final static Parse parseByParserId(String parserId, Content content)
+  public Parse parseByParserId(String parserId, Content content)
   throws ParseException {
     Parse parse = null;
     Parser p = null;
     
     try {
-      p = ParserFactory.getParserById(parserId);
+      p = this.parserFactory.getParserById(parserId);
     } catch (ParserNotFound e) {
       LOG.warning("No suitable parser found when trying to parse content " +
                   content);
@@ -115,7 +124,7 @@ public class ParseUtil {
     } else {
       LOG.warning("Unable to successfully parse content " + content.getUrl() +
                   " of type " + content.getContentType());
-      return new ParseStatus().getEmptyParse();
+      return new ParseStatus().getEmptyParse(this.nutchConf);
     }
   }
   

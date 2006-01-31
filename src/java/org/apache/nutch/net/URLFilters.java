@@ -20,63 +20,67 @@ import java.util.HashMap;
 
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
-import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.plugin.PluginRuntimeException;
 
 import org.apache.nutch.util.NutchConf;
-
 /** Creates and caches {@link URLFilter} implementing plugins.*/
 public class URLFilters {
 
-  private static final URLFilter[] CACHE;
-  static {
-    String order = NutchConf.get().get("urlfilter.order");
-    String[] orderedFilters = null;
-    if (order!=null && !order.trim().equals("")) {
-      orderedFilters = order.split("\\s+");
-    }
+  private NutchConf nutchConf;
+  private URLFilter[] filters;
 
-    try {
-      ExtensionPoint point =
-        PluginRepository.getInstance().getExtensionPoint(URLFilter.X_POINT_ID);
+  public URLFilters(NutchConf nutchConf) {
+      String order = nutchConf.get("urlfilter.order");
+      this.filters = (URLFilter[]) nutchConf.getObject(URLFilter.class.getName());
+      
+      if (this.filters == null) {
+            String[] orderedFilters = null;
+            if (order != null && !order.trim().equals("")) {
+                orderedFilters = order.split("\\s+");
+            }
 
-      if (point == null)
-        throw new RuntimeException(URLFilter.X_POINT_ID+" not found.");
-
-      Extension[] extensions = point.getExtensions();
-      HashMap filterMap = new HashMap();
-      for (int i = 0; i < extensions.length; i++) {
-        Extension extension = extensions[i];
-        URLFilter filter = (URLFilter)extension.getExtensionInstance();
-        if (!filterMap.containsKey(filter.getClass().getName())) {
-        	filterMap.put(filter.getClass().getName(), filter);
+            try {
+                ExtensionPoint point = nutchConf.getPluginRepository()
+                        .getExtensionPoint(URLFilter.X_POINT_ID);
+                if (point == null)
+                    throw new RuntimeException(URLFilter.X_POINT_ID
+                            + " not found.");
+                Extension[] extensions = point.getExtensions();
+                HashMap filterMap = new HashMap();
+                for (int i = 0; i < extensions.length; i++) {
+                    Extension extension = extensions[i];
+                    URLFilter filter = (URLFilter) extension
+                            .getExtensionInstance();
+                    if (!filterMap.containsKey(filter.getClass().getName())) {
+                        filterMap.put(filter.getClass().getName(), filter);
+                    }
+                }
+                if (orderedFilters == null) {
+                    nutchConf.setObject(URLFilter.class.getName(), filterMap
+                            .values().toArray(new URLFilter[0]));
+                } else {
+                    URLFilter[] filter = new URLFilter[orderedFilters.length];
+                    for (int i = 0; i < orderedFilters.length; i++) {
+                        filter[i] = (URLFilter) filterMap
+                                .get(orderedFilters[i]);
+                    }
+                    nutchConf.setObject(URLFilter.class.getName(), filter);
+                }
+            } catch (PluginRuntimeException e) {
+                throw new RuntimeException(e);
+            }
+            this.filters = (URLFilter[]) nutchConf.getObject(URLFilter.class
+                    .getName());
         }
-      }
-      if (orderedFilters==null) {
-        CACHE = (URLFilter[])filterMap.values().toArray(new URLFilter[0]);
-      } else {
-        CACHE = new URLFilter[orderedFilters.length];
-        for (int i=0; i<orderedFilters.length; i++) {
-          CACHE[i] = (URLFilter)filterMap.get(orderedFilters[i]);
-        }
-      }
-    } catch (PluginRuntimeException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private URLFilters() {}                  // no public ctor
+  }  
 
   /** Run all defined filters. Assume logical AND. */
-  public static String filter(String urlString) throws URLFilterException {
-
-    for (int i = 0; i < CACHE.length; i++) {
+  public String filter(String urlString) throws URLFilterException {
+    for (int i = 0; i < this.filters.length; i++) {
       if (urlString == null)
         return null;
-      //System.out.println("using fitler "+i+":"+CACHE[i].getClass().getName());
-      urlString = CACHE[i].filter(urlString);
+      urlString = this.filters[i].filter(urlString);
     }
-
     return urlString;
   }
 }

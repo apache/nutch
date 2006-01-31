@@ -42,8 +42,8 @@ public class NDFSClient implements FSConstants {
 
     /** Create a new NDFSClient connected to the given namenode server.
      */
-    public NDFSClient(InetSocketAddress nameNodeAddr) {
-        this.namenode = (ClientProtocol) RPC.getProxy(ClientProtocol.class, nameNodeAddr);
+    public NDFSClient(InetSocketAddress nameNodeAddr, NutchConf nutchConf) {
+        this.namenode = (ClientProtocol) RPC.getProxy(ClientProtocol.class, nameNodeAddr, nutchConf);
         this.clientName = "NDFSClient_" + r.nextInt();
         this.leaseChecker = new Daemon(new LeaseChecker());
         this.leaseChecker.start();

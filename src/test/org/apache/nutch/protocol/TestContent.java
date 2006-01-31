@@ -17,11 +17,16 @@
 package org.apache.nutch.protocol;
 
 import org.apache.nutch.io.*;
+import org.apache.nutch.util.NutchConf;
+
 import junit.framework.TestCase;
 
 /** Unit tests for Content. */
 
 public class TestContent extends TestCase {
+    
+  private static NutchConf nutchConf = new NutchConf();
+    
   public TestContent(String name) { super(name); }
 
   public void testContent() throws Exception {
@@ -35,7 +40,7 @@ public class TestContent extends TestCase {
     metaData.put("Content-Type", "text/html");
 
     Content r = new Content(url, url, page.getBytes("UTF8"), "text/html",
-                            metaData);
+                            metaData, nutchConf);
                         
     TestWritable.testWritable(r);
     assertEquals("text/html", r.getMetadata().get("Content-Type"));
@@ -50,49 +55,49 @@ public class TestContent extends TestCase {
     c = new Content("http://www.foo.com/",
                     "http://www.foo.com/",
                     "".getBytes("UTF8"),
-                    "text/html; charset=UTF-8", p);
+                    "text/html; charset=UTF-8", p, nutchConf);
     assertEquals("text/html", c.getContentType());
 
     c = new Content("http://www.foo.com/foo.html",
                     "http://www.foo.com/",
                     "".getBytes("UTF8"),
-                    "", p);
+                    "", p, nutchConf);
     assertEquals("text/html", c.getContentType());
 
     c = new Content("http://www.foo.com/foo.html",
                     "http://www.foo.com/",
                     "".getBytes("UTF8"),
-                    null, p);
+                    null, p, nutchConf);
     assertEquals("text/html", c.getContentType());
 
     c = new Content("http://www.foo.com/",
                     "http://www.foo.com/",
                     "<html></html>".getBytes("UTF8"),
-                    "", p);
+                    "", p, nutchConf);
     assertEquals("text/html", c.getContentType());
 
     c = new Content("http://www.foo.com/foo.html",
                     "http://www.foo.com/",
                     "<html></html>".getBytes("UTF8"),
-                    "text/plain", p);
+                    "text/plain", p, nutchConf);
     assertEquals("text/html", c.getContentType());
 
     c = new Content("http://www.foo.com/foo.png",
                     "http://www.foo.com/",
                     "<html></html>".getBytes("UTF8"),
-                    "text/plain", p);
+                    "text/plain", p, nutchConf);
     assertEquals("text/html", c.getContentType());
 
     c = new Content("http://www.foo.com/",
                     "http://www.foo.com/",
                     "".getBytes("UTF8"),
-                    "", p);
+                    "", p, nutchConf);
     assertEquals("", c.getContentType());
 
     c = new Content("http://www.foo.com/",
                     "http://www.foo.com/",
                     "".getBytes("UTF8"),
-                    null, p);
+                    null, p, nutchConf);
     assertNull(c.getContentType());
   }
 	

@@ -20,36 +20,40 @@ import java.io.*;
 import junit.framework.TestCase;
 import java.util.Arrays;
 import org.apache.nutch.analysis.NutchAnalysis;
+import org.apache.nutch.util.NutchConf;
 
 public class TestQuery extends TestCase {
+    
+  private static NutchConf nutchConf = new NutchConf();
+    
   public TestQuery(String name) { super(name); }
 
   public void testRequiredTerm() throws Exception {
-    Query query = new Query();
+    Query query = new Query(nutchConf);
     query.addRequiredTerm("bobo");
     testQuery(query, "bobo");
   }
 
   public void testProhibitedTerm() throws Exception {
-    Query query = new Query();
+    Query query = new Query(nutchConf);
     query.addProhibitedTerm("bobo");
     testQuery(query, "-bobo");
   }
 
   public void testRequiredPhrase() throws Exception {
-    Query query = new Query();
+    Query query = new Query(nutchConf);
     query.addRequiredPhrase(new String[] {"bobo", "bogo"});
     testQuery(query, "\"bobo bogo\"");
   }
 
   public void testProhibitedPhrase() throws Exception {
-    Query query = new Query();
+    Query query = new Query(nutchConf);
     query.addProhibitedPhrase(new String[] {"bobo", "bogo"});
     testQuery(query, "-\"bobo bogo\"");
   }
 
   public void testComplex() throws Exception {
-    Query query = new Query();
+    Query query = new Query(nutchConf);
     query.addRequiredTerm("bobo");
     query.addProhibitedTerm("bono");
     query.addRequiredPhrase(new String[] {"bobo", "bogo"});
@@ -69,7 +73,7 @@ public class TestQuery extends TestCase {
 
   public static void testQueryParser(Query query, String string)
     throws Exception {
-    Query after = NutchAnalysis.parseQuery(string);
+    Query after = NutchAnalysis.parseQuery(string, nutchConf);
     assertEquals(after, query);
     assertEquals(after.toString(), string);
   }
@@ -82,7 +86,7 @@ public class TestQuery extends TestCase {
     ByteArrayInputStream iBuf = new ByteArrayInputStream(oBuf.toByteArray());
     DataInputStream in = new DataInputStream(iBuf);
 
-    Query after = Query.read(in);
+    Query after = Query.read(in, nutchConf);
 
     assertEquals(after, query);
   }
@@ -95,7 +99,7 @@ public class TestQuery extends TestCase {
 
   public static void testQueryTerms(String query, String[] terms)
     throws Exception {
-    assertTrue(Arrays.equals(NutchAnalysis.parseQuery(query).getTerms(),
+    assertTrue(Arrays.equals(NutchAnalysis.parseQuery(query, nutchConf).getTerms(),
                              terms));
   }
 

@@ -85,8 +85,8 @@ public class DataNode implements FSConstants, Runnable {
      * Needs a directory to find its data (and config info)
      */
     public DataNode(String machineName, File datadir, InetSocketAddress nameNodeAddr, NutchConf conf) throws IOException {
-        this.namenode = (DatanodeProtocol) RPC.getProxy(DatanodeProtocol.class, nameNodeAddr);
-        this.data = new FSDataset(datadir);
+        this.namenode = (DatanodeProtocol) RPC.getProxy(DatanodeProtocol.class, nameNodeAddr, conf);
+        this.data = new FSDataset(datadir, conf);
 
         ServerSocket ss = null;
         int tmpPort = conf.getInt("ndfs.datanode.port", 50010);
@@ -748,6 +748,6 @@ public class DataNode implements FSConstants, Runnable {
      */
     public static void main(String args[]) throws IOException {
         LogFormatter.setShowThreadIDs(true);
-        runAndWait(NutchConf.get());
+        runAndWait(new NutchConf());
     }
 }

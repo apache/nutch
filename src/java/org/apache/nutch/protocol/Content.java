@@ -32,25 +32,19 @@ public final class Content extends CompressedWritable {
 
   private final static byte VERSION = 1;
 
-  /** A flag that tells if magic resolution must be performed */
-  private final static boolean MAGIC =
-    NutchConf.get().getBoolean("mime.type.magic", true);
-  
-  /** Get the MimeTypes resolver instance. */
-  private final static MimeTypes MIME = 
-    MimeTypes.get(NutchConf.get().get("mime.types.file"));
-
   private byte version;
   private String url;
   private String base;
   private byte[] content;
   private String contentType;
   private ContentProperties metadata;
+  private boolean mimeTypeMagic;
+  private MimeTypes mimeTypes;
 
   public Content() {}
     
   public Content(String url, String base, byte[] content, String contentType,
-                 ContentProperties metadata){
+                 ContentProperties metadata, NutchConf nutchConf) {
 
     if (url == null) throw new IllegalArgumentException("null url");
     if (base == null) throw new IllegalArgumentException("null base");
@@ -60,8 +54,10 @@ public final class Content extends CompressedWritable {
     this.url = url;
     this.base = base;
     this.content = content;
-    this.contentType = getContentType(contentType, url, content);
     this.metadata = metadata;
+    this.mimeTypeMagic = nutchConf.getBoolean("mime.type.magic", true);
+    this.mimeTypes = MimeTypes.get(nutchConf.get("mime.types.file"));
+    this.contentType = getContentType(contentType, url, content);
   }
 
   protected final void readFieldsCompressed(DataInput in) throws IOException {
@@ -192,8 +188,8 @@ public final class Content extends CompressedWritable {
       System.out.println("usage:" + usage);
       return;
     }
-
-    NutchFileSystem nfs = NutchFileSystem.parseArgs(argv, 0);
+    NutchConf nutchConf = new NutchConf();
+    NutchFileSystem nfs = NutchFileSystem.parseArgs(argv, 0, nutchConf);
     try {
       int recno = Integer.parseInt(argv[0]);
       String segment = argv[1];
@@ -201,7 +197,7 @@ public final class Content extends CompressedWritable {
       File file = new File(segment, DIR_NAME);
       System.out.println("Reading from file: " + file);
 
-      ArrayFile.Reader contents = new ArrayFile.Reader(nfs, file.toString());
+      ArrayFile.Reader contents = new ArrayFile.Reader(nfs, file.toString(), nutchConf);
 
       Content content = new Content();
       contents.get(recno, content);
@@ -216,11 +212,10 @@ public final class Content extends CompressedWritable {
   }
 
   private String getContentType(String typeName, String url, byte[] data) {
-    
     MimeType type = null;
     try {
         typeName = MimeType.clean(typeName);
-        type = typeName == null ? null : MIME.forName(typeName);
+        type = typeName == null ? null : this.mimeTypes.forName(typeName);
     } catch (MimeTypeException mte) {
         // Seems to be a malformed mime type name...
     }
@@ -229,15 +224,15 @@ public final class Content extends CompressedWritable {
       // If no mime-type header, or cannot find a corresponding registered
       // mime-type, or the one found doesn't match the url pattern
       // it shouldbe, then guess a mime-type from the url pattern
-      type = MIME.getMimeType(url);
+      type = this.mimeTypes.getMimeType(url);
       typeName = type == null ? typeName : type.getName();
     }
     if (typeName == null || type == null ||
-        (MAGIC && type.hasMagic() && !type.matches(data))) {
+        (this.mimeTypeMagic && type.hasMagic() && !type.matches(data))) {
       // If no mime-type already found, or the one found doesn't match
       // the magic bytes it should be, then, guess a mime-type from the
       // document content (magic bytes)
-      type = MIME.getMimeType(data);
+      type = this.mimeTypes.getMimeType(data);
       typeName = type == null ? typeName : type.getName();
     }
     return typeName;

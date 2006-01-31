@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.util.NutchConf;
 import org.apache.nutch.analysis.NutchAnalysis;
 
 import org.apache.nutch.io.Writable;
@@ -47,30 +48,34 @@ public final class Query implements Writable, Cloneable {
     private boolean isProhibited;
     private String field = DEFAULT_FIELD;
     private float weight = 1.0f;
-    private Object termOrPhrase; 
+    private Object termOrPhrase;
+
+    private NutchConf nutchConf; 
 
     public Clause(Term term, String field,
-                  boolean isRequired, boolean isProhibited) {
-      this(term, isRequired, isProhibited);
+                  boolean isRequired, boolean isProhibited, NutchConf nutchConf) {
+      this(term, isRequired, isProhibited, nutchConf);
       this.field = field;
     }
 
-    public Clause(Term term, boolean isRequired, boolean isProhibited) {
+    public Clause(Term term, boolean isRequired, boolean isProhibited, NutchConf nutchConf) {
       this.isRequired = isRequired;
       this.isProhibited = isProhibited;
       this.termOrPhrase = term;
+      this.nutchConf = nutchConf;
     }
 
     public Clause(Phrase phrase, String field,
-                  boolean isRequired, boolean isProhibited) {
-      this(phrase, isRequired, isProhibited);
+                  boolean isRequired, boolean isProhibited, NutchConf nutchConf) {
+      this(phrase, isRequired, isProhibited, nutchConf);
       this.field = field;
     }
 
-    public Clause(Phrase phrase, boolean isRequired, boolean isProhibited) {
+    public Clause(Phrase phrase, boolean isRequired, boolean isProhibited, NutchConf nutchConf) {
       this.isRequired = isRequired;
       this.isProhibited = isProhibited;
       this.termOrPhrase = phrase;
+      this.nutchConf = nutchConf;
     }
 
     public boolean isRequired() { return isRequired; }
@@ -104,7 +109,7 @@ public final class Query implements Writable, Cloneable {
         getTerm().write(out);
     }
 
-    public static Clause read(DataInput in) throws IOException {
+    public static Clause read(DataInput in, NutchConf nutchConf) throws IOException {
       byte bits = in.readByte();
       boolean required = ((bits & REQUIRED_BIT) != 0);
       boolean prohibited = ((bits & PROHIBITED_BIT) != 0);
@@ -114,9 +119,9 @@ public final class Query implements Writable, Cloneable {
 
       Clause clause;
       if ((bits & PHRASE_BIT) == 0) {
-        clause = new Clause(Term.read(in), field, required, prohibited);
+        clause = new Clause(Term.read(in), field, required, prohibited, nutchConf);
       } else {
-        clause = new Clause(Phrase.read(in), field, required, prohibited);
+        clause = new Clause(Phrase.read(in), field, required, prohibited, nutchConf);
       }
       clause.weight = weight;
       return clause;
@@ -135,7 +140,7 @@ public final class Query implements Writable, Cloneable {
         buffer.append(":");
       }
 
-      if (!isPhrase() && QueryFilters.isRawField(field)) {
+      if (!isPhrase() && new QueryFilters(nutchConf).isRawField(field)) {
         buffer.append('"');                        // quote raw terms
         buffer.append(termOrPhrase.toString());
         buffer.append('"');
@@ -274,7 +279,13 @@ public final class Query implements Writable, Cloneable {
 
   private ArrayList clauses = new ArrayList();
 
+  private NutchConf nutchConf;
+
   private static final Clause[] CLAUSES_PROTO = new Clause[0];
+  
+  public Query(NutchConf nutchConf) {
+      this.nutchConf = nutchConf;
+  }
 
   /** Return all clauses. */
   public Clause[] getClauses() {
@@ -288,7 +299,7 @@ public final class Query implements Writable, Cloneable {
 
   /** Add a required term in a specified field. */
   public void addRequiredTerm(String term, String field) {
-    clauses.add(new Clause(new Term(term), field, true, false));
+    clauses.add(new Clause(new Term(term), field, true, false, this.nutchConf));
   }
 
   /** Add a prohibited term in the default field. */
@@ -298,7 +309,7 @@ public final class Query implements Writable, Cloneable {
 
   /** Add a prohibited term in the specified field. */
   public void addProhibitedTerm(String term, String field) {
-    clauses.add(new Clause(new Term(term), field, false, true));
+    clauses.add(new Clause(new Term(term), field, false, true, this.nutchConf));
   }
 
   /** Add a required phrase in the default field. */
@@ -312,7 +323,7 @@ public final class Query implements Writable, Cloneable {
     } else if (terms.length == 1) {
       addRequiredTerm(terms[0], field);           // optimize to term query
     } else {
-      clauses.add(new Clause(new Phrase(terms), field, true, false));
+      clauses.add(new Clause(new Phrase(terms), field, true, false, this.nutchConf));
     }
   }
 
@@ -327,7 +338,7 @@ public final class Query implements Writable, Cloneable {
     } else if (terms.length == 1) {
       addProhibitedTerm(terms[0], field);         // optimize to term query
     } else {
-      clauses.add(new Clause(new Phrase(terms), field, false, true));
+      clauses.add(new Clause(new Phrase(terms), field, false, true, this.nutchConf));
     }
   }
 
@@ -337,8 +348,8 @@ public final class Query implements Writable, Cloneable {
       ((Clause)clauses.get(i)).write(out);
   }
   
-  public static Query read(DataInput in) throws IOException {
-    Query result = new Query();
+  public static Query read(DataInput in, NutchConf nutchConf) throws IOException {
+    Query result = new Query(nutchConf);
     result.readFields(in);
     return result;
   }
@@ -347,7 +358,7 @@ public final class Query implements Writable, Cloneable {
     clauses.clear();
     int length = in.readByte();
     for (int i = 0; i < length; i++)
-      clauses.add(Clause.read(in));
+      clauses.add(Clause.read(in, this.nutchConf));
   }
 
   public String toString() {
@@ -404,18 +415,18 @@ public final class Query implements Writable, Cloneable {
 
 
   /** Parse a query from a string. */
-  public static Query parse(String queryString) throws IOException {
-    return fixup(NutchAnalysis.parseQuery(queryString));
+  public static Query parse(String queryString, NutchConf nutchConf) throws IOException {
+    return fixup(NutchAnalysis.parseQuery(queryString, nutchConf), nutchConf);
   }
 
   /** Convert clauses in unknown fields to the default field. */
-  private static Query fixup(Query input) {
+  private static Query fixup(Query input, NutchConf nutchConf) {
     // walk the query
-    Query output = new Query();
+    Query output = new Query(nutchConf);
     Clause[] clauses = input.getClauses();
     for (int i = 0; i < clauses.length; i++) {
       Clause c = clauses[i];
-      if (!QueryFilters.isField(c.getField())) {  // unknown field
+      if (!new QueryFilters(nutchConf).isField(c.getField())) {  // unknown field
         ArrayList terms = new ArrayList();        // add name to query
         if (c.isPhrase()) {                       
           terms.addAll(Arrays.asList(c.getPhrase().getTerms()));
@@ -436,12 +447,13 @@ public final class Query implements Writable, Cloneable {
   /** For debugging. */
   public static void main(String[] args) throws Exception {
     BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    NutchConf nutchConf = new NutchConf();
     while (true) {
       System.out.print("Query: ");
       String line = in.readLine();
-      Query query = parse(line);
+      Query query = parse(line, nutchConf);
       System.out.println("Parsed: " + query);
-      System.out.println("Translated: " + QueryFilters.filter(query));
+      System.out.println("Translated: " + new QueryFilters(nutchConf).filter(query));
     }
   }
 }

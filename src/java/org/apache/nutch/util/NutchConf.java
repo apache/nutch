@@ -18,11 +18,12 @@ package org.apache.nutch.util;
 
 import java.util.*;
 import java.net.URL;
-import java.net.URLClassLoader;
-import java.net.MalformedURLException;
 import java.io.*;
 import java.util.logging.Logger;
+
 import javax.xml.parsers.*;
+
+import org.apache.nutch.plugin.PluginRepository;
 import org.w3c.dom.*;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.Transformer;
@@ -45,16 +46,13 @@ public class NutchConf {
   private static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.util.NutchConf");
 
-  private static final NutchConf DEFAULT = new NutchConf();
-
-  /** Return the default configuration. */
-  public static NutchConf get() { return DEFAULT; }
-
   private ArrayList resourceNames = new ArrayList();
   private Properties properties;
   private ClassLoader classLoader = 
     Thread.currentThread().getContextClassLoader();
 
+  private PluginRepository pluginRepository;
+  
   /** A new configuration. */
   public NutchConf() {
     resourceNames.add("nutch-default.xml");
@@ -89,9 +87,21 @@ public class NutchConf {
     resourceNames.add(resourceNames.size()-1, name); // add second to last
     properties = null;                            // trigger reload
   }
+  
+  /**
+   * @return a cached instance of the plugin repository
+   */
+  public PluginRepository getPluginRepository() {
+    if (this.pluginRepository == null) {
+      this.pluginRepository = new PluginRepository(this);
+    }
+    return this.pluginRepository;
+  }
 
-  /** Returns the value of the <code>name</code> property, or null if no
-   * such property exists. */
+  /**
+   * Returns the value of the <code>name</code> property, or null if no such
+   * property exists.
+   */
   public Object getObject(String name) { return getProps().get(name);}
 
   /** Sets the value of the <code>name</code> property. */
@@ -390,8 +400,13 @@ public class NutchConf {
       conf.appendChild(doc.createTextNode("\n"));
       for (Enumeration e = properties.keys(); e.hasMoreElements();) {
         String name = (String)e.nextElement();
-        String value = (String)properties.get(name);
-      
+        Object object = properties.get(name);
+        String value = null;
+        if(object instanceof String) {
+          value = (String) object;
+        }else {
+          continue;
+        }
         Element propNode = doc.createElement("property");
         conf.appendChild(propNode);
       
@@ -437,7 +452,7 @@ public class NutchConf {
 
   /** For debugging.  List non-default properties to the terminal and exit. */
   public static void main(String[] args) throws Exception {
-    get().write(System.out);
+    new NutchConf().write(System.out);
   }
 
 }

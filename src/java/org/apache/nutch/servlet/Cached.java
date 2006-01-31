@@ -47,9 +47,9 @@ public class Cached extends HttpServlet {
 
   NutchBean bean = null;
 
-  public void init() {
+  public void init(NutchConf nutchConf) {
     try {
-      bean = NutchBean.get(this.getServletContext());
+      bean = NutchBean.get(this.getServletContext(), nutchConf);
     } catch (IOException e) {
       // nothing
     }

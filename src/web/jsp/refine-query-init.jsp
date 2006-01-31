@@ -1,4 +1,4 @@
-<%!
+<%
 
 // 20041129, Mike Pan and John Xing
 // Initiates Ontology ontology and loads in all owl files.
@@ -6,16 +6,20 @@
 // siliently ignored.
 // Please check ./refine-query.jsp, which provides query-refinement hypertext.
 
-private static org.apache.nutch.ontology.Ontology ontology;
+org.apache.nutch.ontology.Ontology ontology = null;
 
 // note: should we ignore plugin exceptions, or rethrow it below?
 // Rethrowing it effectively prevents the servlet class from
 // being loaded into the JVM. Need improvement in future.
 
-static {
   try {
-    String urls = org.apache.nutch.util.NutchConf.get().get("extension.ontology.urls");
-    ontology = org.apache.nutch.ontology.OntologyFactory.getOntology();
+    org.apache.nutch.util.NutchConf nutchConf = (org.apache.nutch.util.NutchConf) application.getAttribute(org.apache.nutch.util.NutchConf.class.getName());
+  	if (nutchConf == null) {
+    	  nutchConf = new org.apache.nutch.util.NutchConf();
+    	  application.setAttribute(org.apache.nutch.util.NutchConf.class.getName(), nutchConf);
+  	}
+    String urls = nutchConf.get("extension.ontology.urls");
+    ontology = new org.apache.nutch.ontology.OntologyFactory(nutchConf).getOntology();
     if (urls==null || urls.trim().equals("")) {
       // ignored siliently
     } else {
@@ -24,6 +28,5 @@ static {
   } catch (Exception e) {
     // ignored siliently 
   }
-};
 
 %>

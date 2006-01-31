@@ -35,11 +35,14 @@ public class Injector extends NutchConfigured {
 
   /** Normalize and filter injected urls. */
   public static class InjectMapper implements Mapper {
-    private UrlNormalizer urlNormalizer = UrlNormalizerFactory.getNormalizer();
+    private UrlNormalizer urlNormalizer;
     private float interval;
+    private JobConf jobConf;
 
     public void configure(JobConf job) {
+      urlNormalizer = new UrlNormalizerFactory(job).getNormalizer();
       interval = job.getFloat("db.default.fetch.interval", 30f);
+      this.jobConf = job;
     }
 
     public void map(WritableComparable key, Writable val,
@@ -47,9 +50,11 @@ public class Injector extends NutchConfigured {
       throws IOException {
       UTF8 value = (UTF8)val;
       String url = value.toString();              // value is line of text
+      // System.out.println("url: " +url);
       try {
         url = urlNormalizer.normalize(url);       // normalize the url
-        url = URLFilters.filter(url);             // filter the url
+        URLFilters filters = new URLFilters(this.jobConf);
+        url = filters.filter(url);             // filter the url
       } catch (Exception e) {
         LOG.warning("Skipping " +url+":"+e);
         url = null;
@@ -116,7 +121,7 @@ public class Injector extends NutchConfigured {
   }
 
   public static void main(String[] args) throws Exception {
-    Injector injector = new Injector(NutchConf.get());
+    Injector injector = new Injector(new NutchConf());
     
     if (args.length < 2) {
       System.err.println("Usage: Injector <crawldb> <url_dir>");

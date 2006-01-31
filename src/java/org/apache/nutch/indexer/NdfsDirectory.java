@@ -19,19 +19,22 @@ package org.apache.nutch.indexer;
 import java.io.*;
 import org.apache.lucene.store.*;
 import org.apache.nutch.fs.*;
+import org.apache.nutch.util.NutchConf;
 
 /** Reads a Lucene index stored in NDFS. */
 public class NdfsDirectory extends Directory {
 
   private NutchFileSystem fs;
   private File directory;
+  private int ioFileBufferSize;
 
-  public NdfsDirectory(NutchFileSystem fs, File directory, boolean create)
+  public NdfsDirectory(NutchFileSystem fs, File directory, boolean create, NutchConf nutchConf)
     throws IOException {
 
     this.fs = fs;
     this.directory = directory;
-
+    this.ioFileBufferSize = nutchConf.getInt("io.file.buffer.size", 4096);
+    
     if (create) {
       create();
     }
@@ -103,12 +106,12 @@ public class NdfsDirectory extends Directory {
     if (fs.exists(file) && !fs.delete(file))      // delete existing, if any
       throw new IOException("Cannot overwrite: " + file);
 
-    return new NdfsIndexOutput(file);
+    return new NdfsIndexOutput(file, this.ioFileBufferSize);
   }
 
 
   public IndexInput openInput(String name) throws IOException {
-    return new NdfsIndexInput(new File(directory, name));
+    return new NdfsIndexInput(new File(directory, name), this.ioFileBufferSize);
   }
 
   public Lock makeLock(final String name) {
@@ -152,7 +155,7 @@ public class NdfsDirectory extends Directory {
     private class Descriptor {
       public NFSDataInputStream in;
       public long position;                       // cache of in.getPos()
-      public Descriptor(File file) throws IOException {
+      public Descriptor(File file, int ioFileBufferSize) throws IOException {
         this.in = fs.open(file);
       }
     }
@@ -161,8 +164,8 @@ public class NdfsDirectory extends Directory {
     private final long length;
     private boolean isClone;
 
-    public NdfsIndexInput(File path) throws IOException {
-      descriptor = new Descriptor(path);
+    public NdfsIndexInput(File path, int ioFileBufferSize) throws IOException {
+      descriptor = new Descriptor(path,ioFileBufferSize);
       length = fs.getLength(path);
     }
 
@@ -211,7 +214,7 @@ public class NdfsDirectory extends Directory {
   private class NdfsIndexOutput extends BufferedIndexOutput {
     private NFSDataOutputStream out;
 
-    public NdfsIndexOutput(File path) throws IOException {
+    public NdfsIndexOutput(File path, int ioFileBufferSize) throws IOException {
       out = fs.create(path);
     }
 

@@ -31,11 +31,17 @@ import java.util.*;
 /* Parse content in a segment. */
 public class ParseOutputFormat implements OutputFormat {
 
-  private UrlNormalizer urlNormalizer = UrlNormalizerFactory.getNormalizer();
+  private UrlNormalizer urlNormalizer;
+  private JobConf jobConf;
+  private URLFilters filters;
+
 
   public RecordWriter getRecordWriter(NutchFileSystem fs, JobConf job,
                                       String name) throws IOException {
 
+    this.jobConf = job;
+    this.urlNormalizer = new UrlNormalizerFactory(job).getNormalizer();
+    this.filters = new URLFilters(job);
     final float interval = job.getFloat("db.default.fetch.interval", 30f);
     final float extscore = job.getFloat("db.score.link.external", 1.0f);
     
@@ -57,6 +63,7 @@ public class ParseOutputFormat implements OutputFormat {
                               UTF8.class, CrawlDatum.class);
     
     return new RecordWriter() {
+
 
         public void write(WritableComparable key, Writable value)
           throws IOException {
@@ -92,7 +99,7 @@ public class ParseOutputFormat implements OutputFormat {
             String toUrl = links[i].getToUrl();
             try {
               toUrl = urlNormalizer.normalize(toUrl); // normalize the url
-              toUrl = URLFilters.filter(toUrl);   // filter the url
+              toUrl = filters.filter(toUrl);   // filter the url
             } catch (Exception e) {
               toUrl = null;
             }

@@ -24,31 +24,42 @@ import org.apache.nutch.parse.*;
 import org.apache.nutch.util.*;
 
 public class TextParser implements Parser {
+  private NutchConf nutchConf;
+
   public Parse getParse(Content content) {
     // copy content meta data through
     ContentProperties metadata = new ContentProperties();
     metadata.putAll(content.getMetadata());
 
-    //ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, "", new Outlink[0], metadata);
+    // ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, "", new
+    // Outlink[0], metadata);
 
-    String encoding =
-      StringUtil.parseCharacterEncoding(content.getContentType());
+    String encoding = StringUtil.parseCharacterEncoding(content
+        .getContentType());
     String text;
-    if (encoding != null) {                       // found an encoding header
-      try {                                       // try to use named encoding
+    if (encoding != null) { // found an encoding header
+      try { // try to use named encoding
         text = new String(content.getContent(), encoding);
       } catch (java.io.UnsupportedEncodingException e) {
-        return new ParseStatus(e).getEmptyParse();
+        return new ParseStatus(e).getEmptyParse(getConf());
       }
     } else {
-      // FIXME: implement charset detector. This code causes problem when 
-      //        character set isn't specified in HTTP header.
-      text = new String(content.getContent());    // use default encoding
+      // FIXME: implement charset detector. This code causes problem when
+      // character set isn't specified in HTTP header.
+      text = new String(content.getContent()); // use default encoding
     }
+    ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, "",
+        OutlinkExtractor.getOutlinks(text, getConf()), metadata);
+    parseData.setConf(this.nutchConf);
+    return new ParseImpl(text, parseData);
+    
+  }
 
-    return new ParseImpl(text,
-                         new ParseData(ParseStatus.STATUS_SUCCESS, "",
-                                       OutlinkExtractor.getOutlinks(text),
-                                       metadata));
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
   }
 }

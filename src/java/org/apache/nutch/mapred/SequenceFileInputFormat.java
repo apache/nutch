@@ -54,7 +54,7 @@ public class SequenceFileInputFormat extends InputFormatBase {
 
     reporter.setStatus(split.toString());
 
-    return new SequenceFileRecordReader(fs, split);
+    return new SequenceFileRecordReader(job, split);
   }
 
 }

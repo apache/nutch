@@ -53,7 +53,7 @@ public abstract class Server {
   private int maxQueuedCalls;                     // max number of queued calls
   private Class paramClass;                       // class of call parameters
 
-  private int timeout = NutchConf.get().getInt("ipc.client.timeout",10000);
+  private int timeout;
 
   private boolean running = true;                 // true while server runs
   private LinkedList callQueue = new LinkedList(); // queued calls
@@ -228,11 +228,12 @@ public abstract class Server {
    * be of the named class.  The <code>handlerCount</handlerCount> determines
    * the number of handler threads that will be used to process calls.
    */
-  protected Server(int port, Class paramClass, int handlerCount) {
+  protected Server(int port, Class paramClass, int handlerCount, NutchConf nutchConf) {
     this.port = port;
     this.paramClass = paramClass;
     this.handlerCount = handlerCount;
     this.maxQueuedCalls = handlerCount;
+    this.timeout = nutchConf.getInt("ipc.client.timeout",10000); 
   }
 
   /** Sets the timeout used for network i/o. */

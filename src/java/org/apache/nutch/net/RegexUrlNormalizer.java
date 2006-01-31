@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Logger;
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.util.NutchConf;
 
 import javax.xml.parsers.*;
 import org.w3c.dom.*;
@@ -57,15 +58,8 @@ public class RegexUrlNormalizer extends BasicUrlNormalizer
     private List rules;
     private PatternMatcher matcher = new Perl5Matcher();
     
-    /** Default constructor which gets the file name from either <tt>nutch-site.xml</tt>
-      * or <tt>nutch-default.xml</tt> and reads that configuration file.  It stores the regex patterns
-      * and corresponding substitutions in a List. The file should be in the CLASSPATH. */
-    public RegexUrlNormalizer() throws IOException, MalformedPatternException {
-      String filename = NutchConf.get().get("urlnormalizer.regex.file");
-      URL url= NutchConf.get().getResource(filename);
-     
-      rules=readConfigurationFile(url.toString());
-    }
+    /** The default constructor which is called from UrlNormalizerFactory (normalizerClass.newInstance()) in method: getNormalizer()**/
+    public RegexUrlNormalizer()  {}
     
     /** Constructor which can be passed the file name, so it doesn't look in the configuration files for it. */
     public RegexUrlNormalizer(String filename)
@@ -101,7 +95,7 @@ public class RegexUrlNormalizer extends BasicUrlNormalizer
   
   
   /** Reads the configuration file and populates a List of Rules. */
-  private static List readConfigurationFile(String filename)
+  private List readConfigurationFile(String filename)
     throws IOException, MalformedPatternException {
 
     Perl5Compiler compiler=new Perl5Compiler();
@@ -153,10 +147,30 @@ public class RegexUrlNormalizer extends BasicUrlNormalizer
     return rules;
   }
   
+  public void setConf(NutchConf conf) {
+    super.setConf(conf);
+    // the default constructor was called
+    if (this.rules == null) {
+      String filename = getConf().get("urlnormalizer.regex.file");
+      URL url = getConf().getResource(filename);
+      try {
+        this.rules = readConfigurationFile(url.toString());
+      } catch (IOException e) {
+        // TODO mb@media-style.com: throw Exception? Because broken api.
+        throw new RuntimeException(e.getMessage(), e);
+      } catch (MalformedPatternException e) {
+        // TODO mb@media-style.com: throw Exception? Because broken api.
+        throw new RuntimeException(e.getMessage(), e);
+      }
+    }
+
+  }
+    
   /** Spits out patterns and substitutions that are in the configuration file. */
   public static void main(String args[])
     throws MalformedPatternException, IOException {
       RegexUrlNormalizer normalizer = new RegexUrlNormalizer();
+      normalizer.setConf(new NutchConf());
       Iterator i=normalizer.rules.iterator();
       while(i.hasNext()) {
         Rule r=(Rule) i.next();

@@ -18,8 +18,10 @@ package org.apache.nutch.net;
 
 import java.net.MalformedURLException;
 
+import org.apache.nutch.util.NutchConfigurable;
+
 /** Interface used to convert URLs to normal form and optionally do regex substitutions */
-public interface UrlNormalizer {
+public interface UrlNormalizer extends NutchConfigurable {
   
   /* Interface for URL normalization */
   public String normalize(String urlString) throws MalformedURLException;

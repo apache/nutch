@@ -33,16 +33,20 @@ import org.apache.nutch.util.NutchConf;
 public class Http extends HttpBase {
 
   public static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.net.Http");
-
-  static {
-    if (NutchConf.get().getBoolean("http.verbose", false))
-      LOG.setLevel(Level.FINE);
-  }
+    LogFormatter.getLogger(Http.class.getName());
 
 
   public Http() {
     super(LOG);
+  }
+
+  public void setConf(NutchConf conf) {
+    super.setConf(conf);
+    Level logLevel = Level.WARNING;
+    if (conf.getBoolean("http.verbose", false)) {
+      logLevel = Level.FINE;
+    }
+    LOG.setLevel(logLevel);
   }
 
   public static void main(String[] args) throws Exception {
@@ -51,7 +55,7 @@ public class Http extends HttpBase {
 
   protected Response getResponse(URL url, CrawlDatum datum, boolean redirect)
     throws ProtocolException, IOException {
-    return new HttpResponse(url, datum);
+    return new HttpResponse(this, url, datum);
   }
 
 }

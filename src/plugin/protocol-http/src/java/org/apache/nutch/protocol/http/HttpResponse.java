@@ -35,13 +35,15 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.protocol.ProtocolException;
+import org.apache.nutch.protocol.http.api.HttpBase;
 import org.apache.nutch.protocol.http.api.HttpException;
 import org.apache.nutch.util.GZIPUtils;
 
 
 /** An HTTP response. */
 public class HttpResponse implements Response {
-  
+ 
+  private HttpBase http; 
   private URL url;
   private String orig;
   private String base;
@@ -50,9 +52,10 @@ public class HttpResponse implements Response {
   private ContentProperties headers = new ContentProperties();
 
 
-  public HttpResponse(URL url, CrawlDatum datum)
+  public HttpResponse(HttpBase http, URL url, CrawlDatum datum)
     throws ProtocolException, IOException {
 
+    this.http = http;
     this.url = url;
     this.orig = url.toString();
     this.base = url.toString();
@@ -83,20 +86,20 @@ public class HttpResponse implements Response {
 
     try {
       socket = new Socket();                    // create the socket
-      socket.setSoTimeout(Http.TIMEOUT);
+      socket.setSoTimeout(http.getTimeout());
 
 
       // connect
-      String sockHost = Http.PROXY ? Http.PROXY_HOST : host;
-      int sockPort = Http.PROXY ? Http.PROXY_PORT : port;
+      String sockHost = http.useProxy() ? http.getProxyHost() : host;
+      int sockPort = http.useProxy() ? http.getProxyPort() : port;
       InetSocketAddress sockAddr= new InetSocketAddress(sockHost, sockPort);
-      socket.connect(sockAddr, Http.TIMEOUT);
+      socket.connect(sockAddr, http.getTimeout());
 
       // make request
       OutputStream req = socket.getOutputStream();
 
       StringBuffer reqStr = new StringBuffer("GET ");
-      if(Http.PROXY){
+      if (http.useProxy()) {
       	reqStr.append(url.getProtocol()+"://"+host+portString+path);
       } else {
       	reqStr.append(path);
@@ -111,11 +114,12 @@ public class HttpResponse implements Response {
 
       reqStr.append("Accept-Encoding: x-gzip, gzip\r\n");
 
-      if ((Http.AGENT_STRING == null) || (Http.AGENT_STRING.length() == 0)) {
+      String userAgent = http.getUserAgent();
+      if ((userAgent == null) || (userAgent.length() == 0)) {
         Http.LOG.severe("User-agent is not set!");
       } else {
         reqStr.append("User-Agent: ");
-        reqStr.append(Http.AGENT_STRING);
+        reqStr.append(userAgent);
         reqStr.append("\r\n");
       }
 
@@ -148,7 +152,7 @@ public class HttpResponse implements Response {
         Http.LOG.fine("uncompressing....");
         byte[] compressed = content;
 
-        content = GZIPUtils.unzipBestEffort(compressed, Http.MAX_CONTENT);
+        content = GZIPUtils.unzipBestEffort(compressed, http.getMaxContent());
 
         if (content == null)
           throw new HttpException("unzipBestEffort returned null");
@@ -212,9 +216,9 @@ public class HttpResponse implements Response {
         throw new HttpException("bad content length: "+contentLengthString);
       }
     }
-    if (Http.MAX_CONTENT >= 0
-      && contentLength > Http.MAX_CONTENT)   // limit download size
-      contentLength  = Http.MAX_CONTENT;
+    if (http.getMaxContent() >= 0
+      && contentLength > http.getMaxContent())   // limit download size
+      contentLength  = http.getMaxContent();
 
     ByteArrayOutputStream out = new ByteArrayOutputStream(Http.BUFFER_SIZE);
     byte[] bytes = new byte[Http.BUFFER_SIZE];
@@ -265,8 +269,8 @@ public class HttpResponse implements Response {
         break;
       }
 
-      if ( (contentBytesRead + chunkLen) > Http.MAX_CONTENT )
-        chunkLen= Http.MAX_CONTENT - contentBytesRead;
+      if ( (contentBytesRead + chunkLen) > http.getMaxContent() )
+        chunkLen= http.getMaxContent() - contentBytesRead;
 
       // read one chunk
       int chunkBytesRead= 0;
@@ -295,7 +299,7 @@ public class HttpResponse implements Response {
     }
 
     if (!doneChunks) {
-      if (contentBytesRead != Http.MAX_CONTENT) 
+      if (contentBytesRead != http.getMaxContent()) 
         throw new HttpException("chunk eof: !doneChunk && didn't max out");
       return;
     }

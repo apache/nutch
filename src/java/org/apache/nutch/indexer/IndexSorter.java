@@ -225,14 +225,14 @@ public class IndexSorter {
     this.directory = directory;
   }
 
-  public void sort() throws IOException {
+  public void sort(int termIndexInterval) throws IOException {
     IndexReader reader = IndexReader.open(new File(directory, "index"));
 
     SortingReader sorter = new SortingReader(reader, oldToNew(reader));
     IndexWriter writer = new IndexWriter(new File(directory, "index-sorted"),
                                          null, true);
     writer.setTermIndexInterval
-      (NutchConf.get().getInt("indexer.termIndexInterval", 128));
+      (termIndexInterval);
     writer.setUseCompoundFile(false);
     writer.addIndexes(new IndexReader[] { sorter });
     writer.close();
@@ -283,8 +283,9 @@ public class IndexSorter {
     IndexSorter sorter = new IndexSorter(directory);
 
     Date start = new Date();
-
-    sorter.sort();
+    NutchConf nutchConf = new NutchConf();
+    int termIndexInterval = nutchConf.getInt("indexer.termIndexInterval", 128);
+    sorter.sort(termIndexInterval);
 
     Date end = new Date();
 

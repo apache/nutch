@@ -22,6 +22,7 @@ import org.apache.nutch.searcher.QueryFilter;
 import org.apache.nutch.searcher.QueryException;
 
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.util.NutchConf;
 
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.RangeQuery;
@@ -47,6 +48,8 @@ public class DateQueryFilter implements QueryFilter {
 
   // query syntax is defined as date:yyyymmdd-yyyymmdd
   private static final Pattern pattern = Pattern.compile("^(\\d{8})-(\\d{8})$");
+
+  private NutchConf nutchConf;
     
   public BooleanQuery filter(Query input, BooleanQuery output)
     throws QueryException {
@@ -84,4 +87,11 @@ public class DateQueryFilter implements QueryFilter {
     return output;
   }
 
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
+  }
 }

@@ -27,6 +27,7 @@ import org.apache.commons.net.ftp.parser.ParserInitializationException;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ContentProperties;
+import org.apache.nutch.util.NutchConf;
 
 import java.net.InetAddress;
 import java.net.URL;
@@ -64,6 +65,7 @@ public class FtpResponse {
   private ContentProperties headers = new ContentProperties();
 
   private final Ftp ftp;
+  private NutchConf nutchConf;
 
   /** Returns the response code. */
   public int getCode() { return code; }
@@ -78,15 +80,16 @@ public class FtpResponse {
   public Content toContent() {
     return new Content(orig, base, content,
                        getHeader("Content-Type"),
-                       headers);
+                       headers, this.nutchConf);
   }
 
-  public FtpResponse(URL url, CrawlDatum datum, Ftp ftp)
+  public FtpResponse(URL url, CrawlDatum datum, Ftp ftp, NutchConf nutchConf)
     throws FtpException, IOException {
 
     this.orig = url.toString();
     this.base = url.toString();
     this.ftp = ftp;
+    this.nutchConf = nutchConf;
 
     if (!"ftp".equals(url.getProtocol()))
       throw new FtpException("Not a ftp url:" + url);

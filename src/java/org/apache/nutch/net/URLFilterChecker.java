@@ -21,6 +21,7 @@ import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRepository;
 
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.util.NutchConf;
 
 import java.util.logging.Logger;
 
@@ -37,14 +38,17 @@ public class URLFilterChecker {
 
   public static final Logger LOG =
     LogFormatter.getLogger(URLFilterChecker.class.getName());
+  private NutchConf nutchConf;
 
-  public URLFilterChecker() {}
+  public URLFilterChecker(NutchConf nutchConf) {
+      this.nutchConf = nutchConf;
+  }
 
   private void checkOne(String filterName) throws Exception {
     URLFilter filter = null;
 
     ExtensionPoint point =
-      PluginRepository.getInstance().getExtensionPoint(URLFilter.X_POINT_ID);
+      this.nutchConf.getPluginRepository().getExtensionPoint(URLFilter.X_POINT_ID);
 
     if (point == null)
       throw new RuntimeException(URLFilter.X_POINT_ID+" not found.");
@@ -90,7 +94,8 @@ public class URLFilterChecker {
     BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
     String line;
     while((line=in.readLine())!=null) {
-      String out=URLFilters.filter(line);
+      URLFilters filters = new URLFilters(this.nutchConf);
+      String out = filters.filter(line);
       if(out!=null) {
         System.out.print("+");
         System.out.println(out);
@@ -119,7 +124,7 @@ public class URLFilterChecker {
       filterName = args[1];
     }
 
-    URLFilterChecker checker = new URLFilterChecker();
+    URLFilterChecker checker = new URLFilterChecker(new NutchConf());
     if (filterName != null) {
       checker.checkOne(filterName);
     } else {

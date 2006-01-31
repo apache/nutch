@@ -37,9 +37,12 @@ abstract class TaskRunner extends Thread {
   private Task t;
   private TaskTracker tracker;
 
-  public TaskRunner(Task t, TaskTracker tracker) {
+  protected NutchConf nutchConf;
+
+  public TaskRunner(Task t, TaskTracker tracker, NutchConf nutchConf) {
     this.t = t;
     this.tracker = tracker;
+    this.nutchConf = nutchConf;
   }
 
   public Task getTask() { return t; }

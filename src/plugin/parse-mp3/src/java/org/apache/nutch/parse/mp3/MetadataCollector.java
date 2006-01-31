@@ -17,6 +17,7 @@
 package org.apache.nutch.parse.mp3;
 
 import org.apache.nutch.parse.Outlink;
+import org.apache.nutch.util.NutchConf;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -34,7 +35,12 @@ public class MetadataCollector {
   private String album = null;
   private ArrayList links = new ArrayList();
   private String text = "";
+  private NutchConf nutchConf;
 
+  public MetadataCollector(NutchConf nutchConf) {
+      this.nutchConf = nutchConf;
+  }
+  
   public void notifyProperty(String name, String value) throws MalformedURLException {
     if (name.equals("TIT2-Text"))
       setTitle(value);
@@ -44,7 +50,7 @@ public class MetadataCollector {
       setArtist(value);
 
     if (name.indexOf("URL Link") > -1) {
-      links.add(new Outlink(value, ""));
+      links.add(new Outlink(value, "", this.nutchConf));
     } else if (name.indexOf("Text") > -1) {
       text += value + "\n";
     }

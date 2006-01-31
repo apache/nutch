@@ -17,6 +17,7 @@
 package org.apache.nutch.analysis;
 
 import org.apache.nutch.searcher.Query;
+import org.apache.nutch.util.NutchConf;
 
 import junit.framework.TestCase;
 
@@ -26,9 +27,10 @@ import junit.framework.TestCase;
  */
 public class TestQueryParser extends TestCase {
 
+  private static NutchConf nutchConf = new NutchConf();
   public void assertQueryEquals(String query, String result) throws Exception {
     try {
-      Query q = NutchAnalysis.parseQuery(query);
+      Query q = NutchAnalysis.parseQuery(query, nutchConf);
       String s = q.toString();
       if (!s.equals(result)) {
         fail("Query /" + query + "/ yielded /" + s + "/, expecting /" + result

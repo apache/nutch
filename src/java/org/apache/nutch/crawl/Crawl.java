@@ -41,9 +41,6 @@ public class Crawl {
       (new Date(System.currentTimeMillis()));
   }
 
-  static {
-    NutchConf.get().addConfResource("crawl-tool.xml");
-  }
 
   /* Perform complete crawling and indexing given a set of root urls. */
   public static void main(String args[]) throws Exception {
@@ -53,8 +50,9 @@ public class Crawl {
       return;
     }
 
-    JobConf conf = new JobConf(NutchConf.get());
-    //conf.addConfResource("crawl-tool.xml");
+    NutchConf nutchConf = new NutchConf();
+    nutchConf.addConfResource("crawl-tool.xml");
+    JobConf conf = new JobConf(nutchConf);
 
     File rootUrlDir = null;
     File dir = new File("crawl-" + getDate());
@@ -120,7 +118,7 @@ public class Crawl {
     // index, dedup & merge
     new Indexer(conf).index(indexes, crawlDb, linkDb, fs.listFiles(segments));
     new DeleteDuplicates(conf).dedup(new File[] { indexes });
-    new IndexMerger(fs, fs.listFiles(indexes), index, tmpDir).merge();
+    new IndexMerger(fs, fs.listFiles(indexes), index, tmpDir, nutchConf).merge();
 
     LOG.info("crawl finished: " + dir);
   }

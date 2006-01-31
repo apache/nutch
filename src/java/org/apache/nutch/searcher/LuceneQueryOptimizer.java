@@ -37,8 +37,6 @@ import java.io.IOException;
  * which do not affect ranking but might otherwise slow search considerably. */
 class LuceneQueryOptimizer {
 
-  private static int MAX_HITS = NutchConf.get().getInt("searcher.max.hits",-1);
-
   private static class LimitExceeded extends RuntimeException {
     private int maxDoc;
     public LimitExceeded(int maxDoc) { this.maxDoc = maxDoc; }    
@@ -63,18 +61,28 @@ class LuceneQueryOptimizer {
 
   private float threshold;
 
-  /** Construct an optimizer that caches and uses filters for required clauses
+  private int searcherMaxHits;
+
+  /**
+   * Construct an optimizer that caches and uses filters for required clauses
    * whose boost is zero.
-   * @param cacheSize the number of QueryFilters to cache
-   * @param threshold the fraction of documents which must contain a term
+   * 
+   * @param cacheSize
+   *          the number of QueryFilters to cache
+   * @param threshold
+   *          the fraction of documents which must contain a term
    */
-  public LuceneQueryOptimizer(final int cacheSize, float threshold) {
+  public LuceneQueryOptimizer(NutchConf nutchConf) {
+    final int cacheSize = nutchConf.getInt("searcher.filter.cache.size", 16);
+    this.threshold = nutchConf.getFloat("searcher.filter.cache.threshold",
+        0.05f);
+    this.searcherMaxHits = nutchConf.getInt("searcher.max.hits", -1);
+    this.searcherMaxHits = searcherMaxHits;
     this.cache = new LinkedHashMap(cacheSize, 0.75f, true) {
-        protected boolean removeEldestEntry(Map.Entry eldest) {
-          return size() > cacheSize;              // limit size of cache
-        }
-      };
-    this.threshold = threshold;
+      protected boolean removeEldestEntry(Map.Entry eldest) {
+        return size() > cacheSize; // limit size of cache
+      }
+    };
   }
 
   public TopDocs optimize(BooleanQuery original,
@@ -123,7 +131,6 @@ class LuceneQueryOptimizer {
     }
 
     Filter filter = null;
-
     if (cacheQuery.getClauses().length != 0) {
       synchronized (cache) {                      // check cache
         filter = (Filter)cache.get(cacheQuery);
@@ -151,12 +158,12 @@ class LuceneQueryOptimizer {
     if (sortField == null && !reverse) {
 
       // no hit limit
-      if (MAX_HITS <= 0) {
+      if (this.searcherMaxHits <= 0) {
         return searcher.search(query, filter, numHits);
       }
 
       // hits limited -- use a LimitedCollector
-      LimitedCollector collector = new LimitedCollector(numHits, MAX_HITS);
+      LimitedCollector collector = new LimitedCollector(numHits, searcherMaxHits);
       LimitExceeded exceeded = null;
       try {
         searcher.search(query, filter, collector);

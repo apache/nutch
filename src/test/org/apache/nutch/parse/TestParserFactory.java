@@ -27,6 +27,7 @@ import org.apache.nutch.util.NutchConf;
 import java.io.File;
 
 import java.net.MalformedURLException;
+import java.util.Arrays;
 
 
 /**
@@ -37,69 +38,74 @@ import java.net.MalformedURLException;
  */
 public class TestParserFactory extends TestCase {
 	
-  
+  private NutchConf nutchConf;
+  private ParserFactory parserFactory;
+    
   public TestParserFactory(String name) { super(name); }
 
   /** Inits the Test Case with the test parse-plugin file */
   protected void setUp() throws Exception {
-    NutchConf.get().set("parse.plugin.file",
+      nutchConf = new NutchConf();
+      nutchConf.set("plugin.includes", ".*");
+      nutchConf.set("parse.plugin.file",
                         "org/apache/nutch/parse/parse-plugin-test.xml");
+      parserFactory = new ParserFactory(nutchConf);
   }
   
   /** Unit test for <code>getParser(String, String)</code> method. */
   public void testGetParser() throws Exception {
-    Parser  parser = ParserFactory.getParser("text/html", "http://foo.com/");
+    Parser parser = parserFactory.getParser("text/html", "http://foo.com/");
     assertNotNull(parser);
-    parser  = ParserFactory.getParser("foo/bar", "http://foo.com/");
+    parser  = parserFactory.getParser("foo/bar", "http://foo.com/");
     assertNotNull(parser);
   }
   
   /** Unit test for <code>getExtensions(String)</code> method. */
   public void testGetExtensions() throws Exception {
-    Extension ext = (Extension)ParserFactory.getExtensions("text/html").get(0);
+    Extension ext = (Extension)parserFactory.getExtensions("text/html").get(0);
     assertEquals("parse-html", ext.getDescriptor().getPluginId());
-    ext = (Extension) ParserFactory.getExtensions("text/html; charset=ISO-8859-1").get(0);
+    ext = (Extension) parserFactory.getExtensions("text/html; charset=ISO-8859-1").get(0);
     assertEquals("parse-html", ext.getDescriptor().getPluginId());
-    ext = (Extension)ParserFactory.getExtensions("foo/bar").get(0);
+    ext = (Extension)parserFactory.getExtensions("foo/bar").get(0);
     assertEquals("parse-text", ext.getDescriptor().getPluginId());
   }
   
   /** Unit test to check <code>getParsers</code> method */
   public void testGetParsers() throws Exception {
-    Parser [] parsers = ParserFactory.getParsers("text/html", "http://foo.com");
+    Parser [] parsers = parserFactory.getParsers("text/html", "http://foo.com");
     assertNotNull(parsers);
     assertEquals(1, parsers.length);
     assertEquals("org.apache.nutch.parse.html.HtmlParser",
         parsers[0].getClass().getName());
 
-    parsers = ParserFactory.getParsers("text/html; charset=ISO-8859-1", "http://foo.com");
+    parsers = parserFactory.getParsers("text/html; charset=ISO-8859-1", "http://foo.com");
     assertNotNull(parsers);
     assertEquals(1, parsers.length);
     assertEquals("org.apache.nutch.parse.html.HtmlParser",
         parsers[0].getClass().getName());
 
     
-    parsers = ParserFactory.getParsers("application/x-javascript",
+    parsers = parserFactory.getParsers("application/x-javascript",
     "http://foo.com");
     assertNotNull(parsers);
     assertEquals(1, parsers.length);
     assertEquals("org.apache.nutch.parse.js.JSParseFilter",
         parsers[0].getClass().getName());
     
-    parsers = ParserFactory.getParsers("text/plain", "http://foo.com");
+    parsers = parserFactory.getParsers("text/plain", "http://foo.com");
     assertNotNull(parsers);
     assertEquals(1, parsers.length);
     assertEquals("org.apache.nutch.parse.text.TextParser",
         parsers[0].getClass().getName());
     
-    Parser parser1 = ParserFactory.getParsers("text/plain", "http://foo.com")[0];
-    Parser parser2 = ParserFactory.getParsers("*", "http://foo.com")[0];
+    Parser parser1 = parserFactory.getParsers("text/plain", "http://foo.com")[0];
+    Parser parser2 = parserFactory.getParsers("*", "http://foo.com")[0];
    
     assertEquals("Different instances!", parser1.hashCode(), parser2.hashCode());
     
     //test and make sure that the rss parser is loaded even though its plugin.xml
     //doesn't claim to support text/rss, only application/rss+xml
-    parsers = ParserFactory.getParsers("text/rss","http://foo.com");
+    parsers = parserFactory.getParsers("text/rss","http://foo.com");
     assertNotNull(parsers);
     assertEquals(1,parsers.length);
     assertEquals("org.apache.nutch.parse.rss.RSSParser",parsers[0].getClass().getName());

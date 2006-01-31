@@ -28,6 +28,8 @@ import org.apache.nutch.util.*;
 public class TestSequenceFile extends TestCase {
   private static Logger LOG = SequenceFile.LOG;
 
+  private static NutchConf nutchConf = new NutchConf();
+  
   public TestSequenceFile(String name) { super(name); }
 
   /** Unit tests for SequenceFile. */
@@ -39,7 +41,7 @@ public class TestSequenceFile extends TestCase {
  
     int seed = new Random().nextInt();
 
-    NutchFileSystem nfs = new LocalFileSystem();
+    NutchFileSystem nfs = new LocalFileSystem(new NutchConf());
     try {
         //LOG.setLevel(Level.FINE);
         writeTest(nfs, count, seed, file, false);
@@ -85,7 +87,7 @@ public class TestSequenceFile extends TestCase {
     RandomDatum k = new RandomDatum();
     RandomDatum v = new RandomDatum();
     LOG.fine("reading " + count + " records");
-    SequenceFile.Reader reader = new SequenceFile.Reader(nfs, file);
+    SequenceFile.Reader reader = new SequenceFile.Reader(nfs, file, nutchConf);
     RandomDatum.Generator generator = new RandomDatum.Generator(seed);
     for (int i = 0; i < count; i++) {
       generator.next();
@@ -129,7 +131,7 @@ public class TestSequenceFile extends TestCase {
     RandomDatum k = new RandomDatum();
     RandomDatum v = new RandomDatum();
     Iterator iterator = map.entrySet().iterator();
-    SequenceFile.Reader reader = new SequenceFile.Reader(nfs, file + ".sorted");
+    SequenceFile.Reader reader = new SequenceFile.Reader(nfs, file + ".sorted", nutchConf);
     for (int i = 0; i < count; i++) {
       Map.Entry entry = (Map.Entry)iterator.next();
       RandomDatum key = (RandomDatum)entry.getKey();
@@ -195,8 +197,8 @@ public class TestSequenceFile extends TestCase {
                                                int megabytes, int factor) {
     SequenceFile.Sorter sorter = 
       fast
-      ? new SequenceFile.Sorter(nfs, new RandomDatum.Comparator(),RandomDatum.class)
-      : new SequenceFile.Sorter(nfs, RandomDatum.class, RandomDatum.class);
+      ? new SequenceFile.Sorter(nfs, new RandomDatum.Comparator(),RandomDatum.class, nutchConf)
+      : new SequenceFile.Sorter(nfs, RandomDatum.class, RandomDatum.class, nutchConf);
     sorter.setMemory(megabytes * 1024*1024);
     sorter.setFactor(factor);
     return sorter;
@@ -221,7 +223,7 @@ public class TestSequenceFile extends TestCase {
         System.exit(-1);
     }
     int i = 0;
-    NutchFileSystem nfs = NutchFileSystem.parseArgs(args, i);      
+    NutchFileSystem nfs = NutchFileSystem.parseArgs(args, i, nutchConf);      
     try {
       for (; i < args.length; i++) {       // parse command line
           if (args[i] == null) {

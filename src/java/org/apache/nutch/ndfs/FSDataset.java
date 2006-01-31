@@ -191,7 +191,7 @@ public class FSDataset implements FSConstants {
     /**
      * An FSDataset has a directory where it loads its data files.
      */
-    public FSDataset(File dir) throws IOException {
+    public FSDataset(File dir, NutchConf nutchConf) throws IOException {
         this.dirpath = dir.getCanonicalPath();
         this.data = new File(dir, "data");
         if (! data.exists()) {
@@ -199,7 +199,7 @@ public class FSDataset implements FSConstants {
         }
         this.tmp = new File(dir, "tmp");
         if (tmp.exists()) {
-            FileUtil.fullyDelete(tmp);
+            FileUtil.fullyDelete(tmp, nutchConf);
         }
         this.tmp.mkdirs();
         this.dirTree = new FSDir(data);

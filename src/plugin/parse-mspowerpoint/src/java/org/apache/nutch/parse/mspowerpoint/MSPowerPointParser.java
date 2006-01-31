@@ -32,6 +32,7 @@ import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.util.NutchConf;
 
 /**
  * Nutch-Parser for parsing MS PowerPoint slides ( mime type:
@@ -50,6 +51,8 @@ public class MSPowerPointParser implements Parser {
 
   private static final Logger LOG = LogFormatter
       .getLogger(MSPowerPointParser.class.getName());
+
+  private NutchConf nutchConf;
 
   /**
    * 
@@ -77,7 +80,7 @@ public class MSPowerPointParser implements Parser {
     ContentProperties prop = new ContentProperties();
     prop.setProperty("Content-Length", "" + raw.length);
 
-    Content content = new Content(file, file, raw, MIME_TYPE, prop);
+    Content content = new Content(file, file, raw, MIME_TYPE, prop, new NutchConf());
 
     System.out.println(ppe.getParse(content).getText());
   }
@@ -106,7 +109,7 @@ public class MSPowerPointParser implements Parser {
                 + raw.length
                 + " bytes. Please increase <protocol>.content.limit at nutch-default.xml. "
                 + "Parser can't handle incomplete PowerPoint files.")
-            .getEmptyParse();
+            .getEmptyParse(getConf());
       }
 
       final PPTExtractor extractor = new PPTExtractor(new ByteArrayInputStream(
@@ -114,11 +117,11 @@ public class MSPowerPointParser implements Parser {
 
       plainText = extractor.getText();
       properties = extractor.getProperties();
-      outlinks = OutlinkExtractor.getOutlinks(plainText, content.getUrl());
+      outlinks = OutlinkExtractor.getOutlinks(plainText, content.getUrl(), getConf());
 
     } catch (Exception e) {
       LOG.throwing(this.getClass().getName(), "getParse", e);
-      return new ParseStatus(e).getEmptyParse();
+      return new ParseStatus(e).getEmptyParse(getConf());
     }
 
     // collect meta data
@@ -141,6 +144,7 @@ public class MSPowerPointParser implements Parser {
 
     final ParseStatus status = new ParseStatus(ParseStatus.SUCCESS);
     final ParseData parseData = new ParseData(status, title, outlinks, metadata);
+    parseData.setConf(this.nutchConf);
 
     LOG.finest("PowerPoint file parsed sucessful.");
     return new ParseImpl(plainText, parseData);
@@ -160,5 +164,13 @@ public class MSPowerPointParser implements Parser {
       return null;
     }
 
+  }
+  
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
   }
 }

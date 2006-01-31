@@ -18,6 +18,7 @@ package org.apache.nutch.indexer;
 
 import org.apache.lucene.document.Document;
 import org.apache.nutch.parse.Parse;
+import org.apache.nutch.util.NutchConfigurable;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.io.UTF8;
@@ -26,7 +27,7 @@ import org.apache.nutch.io.UTF8;
  * fields.  All plugins found which implement this extension point are run
  * sequentially on the parse.
  */
-public interface IndexingFilter {
+public interface IndexingFilter extends NutchConfigurable {
   /** The name of the extension point. */
   final static String X_POINT_ID = IndexingFilter.class.getName();
 

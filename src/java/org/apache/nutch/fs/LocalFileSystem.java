@@ -23,6 +23,7 @@ import java.nio.channels.*;
 import org.apache.nutch.ndfs.NDFSFile;
 import org.apache.nutch.ndfs.DF;
 import org.apache.nutch.ndfs.NDFSFileInfo;
+import org.apache.nutch.util.NutchConf;
 import org.apache.nutch.io.UTF8;
 
 /****************************************************************
@@ -38,11 +39,11 @@ public class LocalFileSystem extends NutchFileSystem {
     TreeMap lockObjSet = new TreeMap();
     // by default use copy/delete instead of rename
     boolean useCopyForRename = true;
-
+    
     /**
      */
-    public LocalFileSystem() throws IOException {
-        super();
+    public LocalFileSystem(NutchConf nutchConf) throws IOException {
+        super(nutchConf);
         // if you find an OS which reliably supports non-POSIX
         // rename(2) across filesystems / volumes, you can
         // uncomment this.
@@ -175,7 +176,7 @@ public class LocalFileSystem extends NutchFileSystem {
      */
     public boolean renameRaw(File src, File dst) throws IOException {
         if (useCopyForRename) {
-            FileUtil.copyContents(this, src, dst, true);
+            FileUtil.copyContents(this, src, dst, true, nutchConf);
             return fullyDelete(src);
         } else return src.renameTo(dst);
     }
@@ -288,7 +289,7 @@ public class LocalFileSystem extends NutchFileSystem {
     public void moveFromLocalFile(File src, File dst) throws IOException {
         if (! src.equals(dst)) {
             if (useCopyForRename) {
-                FileUtil.copyContents(this, src, dst, true);
+                FileUtil.copyContents(this, src, dst, true, this.nutchConf);
                 fullyDelete(src);
             } else src.renameTo(dst);
         }
@@ -299,7 +300,7 @@ public class LocalFileSystem extends NutchFileSystem {
      */
     public void copyFromLocalFile(File src, File dst) throws IOException {
         if (! src.equals(dst)) {
-            FileUtil.copyContents(this, src, dst, true);
+            FileUtil.copyContents(this, src, dst, true, this.nutchConf);
         }
     }
 
@@ -308,7 +309,7 @@ public class LocalFileSystem extends NutchFileSystem {
      */
     public void copyToLocalFile(File src, File dst) throws IOException {
         if (! src.equals(dst)) {
-            FileUtil.copyContents(this, src, dst, true);
+            FileUtil.copyContents(this, src, dst, true, this.nutchConf);
         }
     }
 

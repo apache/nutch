@@ -75,13 +75,10 @@ public class MoreIndexingFilter implements IndexingFilter {
     = LogFormatter.getLogger(MoreIndexingFilter.class.getName());
 
   /** A flag that tells if magic resolution must be performed */
-  private final static boolean MAGIC =
-        NutchConf.get().getBoolean("mime.type.magic", true);
+  private boolean MAGIC;
 
   /** Get the MimeTypes resolver instance. */
-  private final static MimeTypes MIME = 
-        MimeTypes.get(NutchConf.get().get("mime.types.file"));
-
+  private MimeTypes MIME; 
   
   public Document filter(Document doc, Parse parse, UTF8 url, CrawlDatum datum, Inlinks inlinks)
     throws IndexingException {
@@ -247,6 +244,8 @@ public class MoreIndexingFilter implements IndexingFilter {
   // HTTP header "Content-Disposition". Typically it looks like:
   // Content-Disposition: inline; filename="foo.ppt"
   private PatternMatcher matcher = new Perl5Matcher();
+
+  private NutchConf nutchConf;
   static Perl5Pattern patterns[] = {null, null};
   static {
     Perl5Compiler compiler = new Perl5Compiler();
@@ -300,6 +299,16 @@ public class MoreIndexingFilter implements IndexingFilter {
     }
 
     return normalized;
+  }
+
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+    MAGIC = conf.getBoolean("mime.type.magic", true);
+    MIME = MimeTypes.get(getConf().get("mime.types.file"));
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
   }
 
 }

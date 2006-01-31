@@ -89,7 +89,7 @@ public class CrawlDb extends NutchConfigured {
   }
 
   public static void main(String[] args) throws Exception {
-    CrawlDb crawlDb = new CrawlDb(NutchConf.get());
+    CrawlDb crawlDb = new CrawlDb(new NutchConf());
     
     if (args.length < 2) {
       System.err.println("Usage: <crawldb> <segment>");

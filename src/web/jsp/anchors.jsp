@@ -9,8 +9,14 @@
 
   import="org.apache.nutch.html.Entities"
   import="org.apache.nutch.searcher.*"
+  import="org.apache.nutch.util.NutchConf"
 %><%
-  NutchBean bean = NutchBean.get(application);
+  NutchConf nutchConf = (NutchConf) application.getAttribute(NutchConf.class.getName());
+  if (nutchConf == null) {
+    nutchConf = new NutchConf();
+    application.setAttribute(NutchConf.class.getName(), nutchConf);
+  }
+  NutchBean bean = NutchBean.get(application, nutchConf);
   // set the character encoding to use when interpreting request values 
   request.setCharacterEncoding("UTF-8");
   bean.LOG.info("anchors request from " + request.getRemoteAddr());

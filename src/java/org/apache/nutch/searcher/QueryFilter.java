@@ -17,12 +17,13 @@
 package org.apache.nutch.searcher;
 
 import org.apache.lucene.search.BooleanQuery;
+import org.apache.nutch.util.NutchConfigurable;
 
 /** Extension point for query translation.  Permits one to add metadata to a
  * query.  All plugins found which implement this extension point are run
  * sequentially on the query.
  */
-public interface QueryFilter {
+public interface QueryFilter extends NutchConfigurable {
   /** The name of the extension point. */
   final static String X_POINT_ID = QueryFilter.class.getName();
 

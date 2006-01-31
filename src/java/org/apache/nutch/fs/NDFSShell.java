@@ -122,8 +122,8 @@ public class NDFSShell {
     /**
      * Copy an NDFS file
      */
-    public void copy(String srcf, String dstf) throws IOException {
-        if (FileUtil.copyContents(nfs, new File(srcf), new File(dstf), true)) {
+    public void copy(String srcf, String dstf, NutchConf nutchConf) throws IOException {
+        if (FileUtil.copyContents(nfs, new File(srcf), new File(dstf), true, nutchConf)) {
             System.out.println("Copied " + srcf + " to " + dstf);
         } else {
             System.out.println("Copy failed");
@@ -224,8 +224,9 @@ public class NDFSShell {
             return;
         }
 
+        NutchConf nutchConf = new NutchConf();
         int i = 0;
-        NutchFileSystem nfs = NutchFileSystem.parseArgs(argv, i);
+        NutchFileSystem nfs = NutchFileSystem.parseArgs(argv, i, nutchConf);
         try {
             NDFSShell tc = new NDFSShell(nfs);
 
@@ -244,7 +245,7 @@ public class NDFSShell {
             } else if ("-mv".equals(cmd)) {
                 tc.rename(argv[i++], argv[i++]);
             } else if ("-cp".equals(cmd)) {
-                tc.copy(argv[i++], argv[i++]);
+                tc.copy(argv[i++], argv[i++], nutchConf);
             } else if ("-rm".equals(cmd)) {
                 tc.delete(argv[i++]);
             } else if ("-du".equals(cmd)) {

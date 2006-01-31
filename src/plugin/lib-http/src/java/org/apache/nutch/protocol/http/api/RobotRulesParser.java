@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 
 // Nutch imports
 import org.apache.nutch.util.NutchConf;
+import org.apache.nutch.util.NutchConfigurable;
 import org.apache.nutch.util.LogFormatter;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
@@ -45,14 +46,13 @@ import org.apache.nutch.protocol.ProtocolException;
  * @author Mike Cafarella
  * @author Doug Cutting
  */
-public class RobotRulesParser {
+public class RobotRulesParser implements NutchConfigurable {
+  
   public static final Logger LOG=
-    LogFormatter.getLogger("org.apache.nutch.fetcher.RobotRulesParser");
+    LogFormatter.getLogger(RobotRulesParser.class.getName());
 
-  private static final boolean ALLOW_FORBIDDEN =
-    NutchConf.get().getBoolean("http.robots.403.allow", false);
+  private boolean allowForbidden = false;
 
-  private static final String[] AGENTS = getAgents();
   private static final Hashtable CACHE = new Hashtable();
   
   private static final String CHARACTER_ENCODING= "UTF-8";
@@ -60,9 +60,9 @@ public class RobotRulesParser {
     
   private static final RobotRuleSet EMPTY_RULES= new RobotRuleSet();
 
-  private static RobotRuleSet FORBID_ALL_RULES =
-    new RobotRulesParser().getForbidAllRules();
+  private static RobotRuleSet FORBID_ALL_RULES = getForbidAllRules();
 
+  private NutchConf conf;
   private HashMap robotNames;
 
   /**
@@ -84,14 +84,6 @@ public class RobotRulesParser {
         this.prefix= prefix;
         this.allowed= allowed;
       }
-    }
-
-    /**
-     * should not be instantiated from outside RobotRulesParser
-     */
-    private RobotRuleSet() {
-      tmpEntries= new ArrayList();
-      entries= null;
     }
 
     /**
@@ -182,14 +174,25 @@ public class RobotRulesParser {
   }
 
 
-  public RobotRulesParser() { this(AGENTS); }
+  RobotRulesParser() { }
 
-  private static String[] getAgents() {
+  public RobotRulesParser(NutchConf conf) {
+    setConf(conf);
+  }
+
+
+  /* ---------------------------------- *
+   * <implementation:NutchConfigurable> *
+   * ---------------------------------- */
+
+  public void setConf(NutchConf conf) {
+    this.conf = conf;
+    allowForbidden = conf.getBoolean("http.robots.403.allow", false);
     //
     // Grab the agent names we advertise to robots files.
     //
-    String agentName = NutchConf.get().get("http.agent.name");
-    String agentNames = NutchConf.get().get("http.robots.agents");
+    String agentName = conf.get("http.agent.name");
+    String agentNames = conf.get("http.robots.agents");
     StringTokenizer tok = new StringTokenizer(agentNames, ",");
     ArrayList agents = new ArrayList();
     while (tok.hasMoreTokens()) {
@@ -197,22 +200,38 @@ public class RobotRulesParser {
     }
 
     //
-    // If there are no agents for robots-parsing, use our 
+    // If there are no agents for robots-parsing, use our
     // default agent-string.  If both are present, our agent-string
     // should be the first one we advertise to robots-parsing.
-    // 
+    //
     if (agents.size() == 0) {
       agents.add(agentName);
       LOG.severe("No agents listed in 'http.robots.agents' property!");
     } else if (!((String)agents.get(0)).equalsIgnoreCase(agentName)) {
       agents.add(0, agentName);
-      LOG.severe("Agent we advertise (" + agentName 
+      LOG.severe("Agent we advertise (" + agentName
                  + ") not listed first in 'http.robots.agents' property!");
     }
-
-    return (String[])agents.toArray(new String[agents.size()]);
+    setRobotNames((String[]) agents.toArray(new String[agents.size()]));
   }
 
+  public NutchConf getConf() {
+    return conf;
+  }
+
+  /* ---------------------------------- *
+   * <implementation:NutchConfigurable> *
+   * ---------------------------------- */
+
+  private void setRobotNames(String[] robotNames) {
+    this.robotNames= new HashMap();
+    for (int i= 0; i < robotNames.length; i++) {
+      this.robotNames.put(robotNames[i].toLowerCase(), new Integer(i));
+    }
+    // always make sure "*" is included
+    if (!this.robotNames.containsKey("*"))
+      this.robotNames.put("*", new Integer(robotNames.length));
+  }
 
   /**
    *  Creates a new <code>RobotRulesParser</code> which will use the
@@ -223,14 +242,8 @@ public class RobotRulesParser {
    *  rules associated with the robot name having the smallest index
    *  will be used.
    */
-  public RobotRulesParser(String[] robotNames) {
-    this.robotNames= new HashMap();
-    for (int i= 0; i < robotNames.length; i++) {
-      this.robotNames.put(robotNames[i].toLowerCase(), new Integer(i));
-    }
-    // always make sure "*" is included
-    if (!this.robotNames.containsKey("*"))
-      this.robotNames.put("*", new Integer(robotNames.length));
+  RobotRulesParser(String[] robotNames) {
+    setRobotNames(robotNames); 
   }
 
   /**
@@ -368,7 +381,7 @@ public class RobotRulesParser {
     return rules;
   }
   
-  public static boolean isAllowed(HttpBase http, URL url)
+  public boolean isAllowed(HttpBase http, URL url)
     throws ProtocolException, IOException {
 
     String host = url.getHost();
@@ -382,8 +395,8 @@ public class RobotRulesParser {
                                              new CrawlDatum(), true);
 
         if (response.getCode() == 200)               // found rules: parse them
-          robotRules = new RobotRulesParser().parseRules(response.getContent());
-        else if ( (response.getCode() == 403) && (!ALLOW_FORBIDDEN) )
+          robotRules = parseRules(response.getContent());
+        else if ( (response.getCode() == 403) && (!allowForbidden) )
           robotRules = FORBID_ALL_RULES;            // use forbid all
         else                                        
           robotRules = EMPTY_RULES;                 // use default rules

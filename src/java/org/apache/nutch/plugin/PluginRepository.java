@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 // Nutch imports
 import org.apache.nutch.util.LogFormatter;
@@ -45,8 +46,7 @@ import org.apache.nutch.util.NutchConf;
  */
 public class PluginRepository {
   
-    private final static boolean AUTO =
-            NutchConf.get().getBoolean("plugin.auto-activation", true);
+    private boolean auto;
     
     private static PluginRepository fInstance;
 
@@ -64,16 +64,28 @@ public class PluginRepository {
      * @throws PluginRuntimeException
      * @see java.lang.Object#Object()
      */
-    private PluginRepository() throws PluginRuntimeException{
+    public PluginRepository(NutchConf nutchConf) throws RuntimeException {
       fActivatedPlugins = new HashMap();
       fExtensionPoints = new HashMap();
-      Map allPlugins = PluginManifestParser.parsePluginFolder();
-      Map filteredPlugins = PluginManifestParser.filter(allPlugins);
+      this.auto = nutchConf.getBoolean("plugin.auto-activation", true);
+      String[] pluginFolders = nutchConf.getStrings("plugin.folders");
+      PluginManifestParser manifestParser =  new PluginManifestParser(nutchConf, this);
+      Map allPlugins =manifestParser.parsePluginFolder(pluginFolders);
+      Pattern excludes = Pattern.compile(nutchConf.get(
+              "plugin.excludes", ""));
+      Pattern includes = Pattern.compile(nutchConf.get(
+              "plugin.includes", ""));
+      Map filteredPlugins = filter(excludes, includes, allPlugins);
       fRegisteredPlugins = getDependencyCheckedPlugins(
                               filteredPlugins,
-                              AUTO ? allPlugins : filteredPlugins);
+                              this.auto ? allPlugins : filteredPlugins);
       installExtensionPoints(fRegisteredPlugins);
-      installExtensions(fRegisteredPlugins);
+      try {
+        installExtensions(fRegisteredPlugins);
+      } catch (PluginRuntimeException e) {
+         LOG.severe(e.toString());
+         throw new RuntimeException(e.getMessage());
+      }
       displayStatus();
     }
 
@@ -205,21 +217,6 @@ public class PluginRepository {
     }
 
     /**
-     * Returns the singelton instance of the <code>PluginRepository</code>
-     */
-    public static synchronized PluginRepository getInstance() {
-        if (fInstance != null)
-            return fInstance;
-        try {
-            fInstance = new PluginRepository();
-        } catch (Exception e) {
-            LOG.severe(e.toString());
-            throw new RuntimeException(e);
-        }
-        return fInstance;
-    }
-
-    /**
      * Returns all registed plugin descriptors.
      * 
      * @return PluginDescriptor[]
@@ -249,9 +246,10 @@ public class PluginRepository {
      * Returns a extension point indentified by a extension point id.
      * 
      * @param pXpId
+     * @return a extentsion point
      */
     public ExtensionPoint getExtensionPoint(String pXpId) {
-        return (ExtensionPoint) fExtensionPoints.get(pXpId);
+        return (ExtensionPoint) this.fExtensionPoints.get(pXpId);
     }
 
     /**
@@ -325,7 +323,7 @@ public class PluginRepository {
     
     private void displayStatus() {
 
-      LOG.info("Plugin Auto-activation mode: [" + AUTO + "]");
+      LOG.info("Plugin Auto-activation mode: [" + this.auto + "]");
 
       LOG.info("Registered Plugins:");
       if ((fRegisteredPlugins == null) || (fRegisteredPlugins.size() == 0)) {
@@ -347,5 +345,33 @@ public class PluginRepository {
           LOG.info("\t" + ep.getName() + " (" + ep.getId() + ")");
         }
       }
+    }
+    /**
+     * Filters a list of plugins.
+     * The list of plugins is filtered regarding the configuration
+     * properties <code>plugin.excludes</code> and <code>plugin.includes</code>.
+     */
+    private Map filter(Pattern excludes, Pattern includes, Map plugins) {
+      Map map = new HashMap();
+      if (plugins == null) { return map; }
+
+      Iterator iter = plugins.values().iterator();
+      while (iter.hasNext()) {
+        PluginDescriptor plugin = (PluginDescriptor) iter.next();
+        if (plugin == null) { continue; }
+        String id = plugin.getPluginId();
+        if (id == null) { continue; }
+        
+        if (!includes.matcher(id).matches()) {
+          LOG.fine("not including: " + id);
+          continue;
+        }
+        if (excludes.matcher(id).matches()) {
+          LOG.fine("excluding: " + id);
+          continue;
+        }
+        map.put(plugin.getPluginId(), plugin);
+      }
+      return map;
     }
 }

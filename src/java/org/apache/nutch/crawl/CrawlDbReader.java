@@ -157,8 +157,8 @@ public class CrawlDbReader {
     JobClient.runJob(job);
 
     // reading the result
-    NutchFileSystem fileSystem = NutchFileSystem.get();
-    SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(fileSystem, tmpFolder);
+    NutchFileSystem fileSystem = NutchFileSystem.get(config);
+    SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(config, tmpFolder);
 
     UTF8 key = new UTF8();
     LongWritable value = new LongWritable();
@@ -210,7 +210,7 @@ public class CrawlDbReader {
     NutchFileSystem fs = NutchFileSystem.get(config);
     UTF8 key = new UTF8(url);
     CrawlDatum val = new CrawlDatum();
-    MapFile.Reader[] readers = MapFileOutputFormat.getReaders(fs, new File(crawlDb, CrawlDatum.DB_DIR_NAME));
+    MapFile.Reader[] readers = MapFileOutputFormat.getReaders(fs, new File(crawlDb, CrawlDatum.DB_DIR_NAME), config);
     Writable res = MapFileOutputFormat.getEntry(readers, new HashPartitioner(), key, val);
     System.out.println("URL: " + url);
     if (res != null) {
@@ -254,7 +254,7 @@ public class CrawlDbReader {
     }
     String param = null;
     String crawlDb = args[0];
-    NutchConf conf = NutchConf.get();
+    NutchConf conf = new NutchConf();
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-stats")) {
         dbr.processStatJob(crawlDb, conf);

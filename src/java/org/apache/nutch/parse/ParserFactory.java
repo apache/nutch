@@ -17,7 +17,6 @@ package org.apache.nutch.parse;
 
 // JDK imports
 import java.util.Collections;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -26,12 +25,11 @@ import java.util.logging.Logger;
 // Nutch imports
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
-import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.plugin.PluginRuntimeException;
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.util.NutchConf;
 import org.apache.nutch.util.mime.MimeType;
 import org.apache.nutch.util.mime.MimeTypeException;
-
 
 /** Creates and caches {@link Parser} plugins.*/
 public final class ParserFactory {
@@ -41,52 +39,46 @@ public final class ParserFactory {
   
   /** Wildcard for default plugins. */
   public static final String DEFAULT_PLUGIN = "*";
-
-  /** Extension point. */
-  private static final ExtensionPoint X_POINT =
-          PluginRepository.getInstance().getExtensionPoint(Parser.X_POINT_ID);
-  
-  /** List of parser plugins. */
-  private static final ParsePluginList PARSE_PLUGIN_LIST =
-          new ParsePluginsReader().parse();
   
   /** Empty extension list for caching purposes. */
-  private static final List EMPTY_EXTENSION_LIST = Collections.EMPTY_LIST;
+  private final List EMPTY_EXTENSION_LIST = Collections.EMPTY_LIST;
   
-  static {
-    if (X_POINT == null) {
-      throw new RuntimeException("x point "+Parser.X_POINT_ID+" not found.");
+  private NutchConf nutchConf;
+  private ExtensionPoint extensionPoint;
+  private ParsePluginList parsePluginList;
+
+  public ParserFactory(NutchConf nutchConf) {
+    this.nutchConf = nutchConf;
+    this.extensionPoint = nutchConf.getPluginRepository().getExtensionPoint(
+        Parser.X_POINT_ID);
+    this.parsePluginList = new ParsePluginsReader().parse(nutchConf);
+
+    if (this.extensionPoint == null) {
+      throw new RuntimeException("x point " + Parser.X_POINT_ID + " not found.");
     }
-    if (PARSE_PLUGIN_LIST == null) {
-      throw new RuntimeException("Parse Plugins preferences could not be loaded.");
+    if (this.parsePluginList == null) {
+      throw new RuntimeException(
+          "Parse Plugins preferences could not be loaded.");
     }
-  }
-  
-  //cache mapping mimeType->List of Extensions
-  private static final Hashtable CACHE = new Hashtable();
-  
-  //cache mapping parser plugin id->Parser instance
-  private static final Hashtable PARSER_CACHE = new Hashtable();
-  
-  private ParserFactory() {}                      // no public ctor
+  }                      
   
 
   /**
-   * Returns the appropriate {@link Parser} implementation given a content
-   * type and url.
+   * Returns the appropriate {@link Parser} implementation given a content type
+   * and url.
    * 
-   * @deprecated Since the addition of NUTCH-88, this method is replaced by 
-   * taking the highest priority {@link Parser} returned from
-   * {@link #getParsers(String, String)}.
+   * @deprecated Since the addition of NUTCH-88, this method is replaced by
+   *             taking the highest priority {@link Parser} returned from
+   *             {@link #getParsers(String, String)}.
    * 
    * Parser extensions should define the attributes "contentType" and/or
    * "pathSuffix". Content type has priority: the first plugin found whose
    * "contentType" attribute matches the beginning of the content's type is
    * used. If none match, then the first whose "pathSuffix" attribute matches
-   * the end of the url's path is used.  If neither of these match, then the
+   * the end of the url's path is used. If neither of these match, then the
    * first plugin whose "pathSuffix" is the empty string is used.
    */
-  public static Parser getParser(String contentType, String url)
+  public Parser getParser(String contentType, String url)
   throws ParserNotFound {
     
     Parser[] parsers = getParsers(contentType, url);
@@ -132,7 +124,7 @@ public final class ParserFactory {
    *         consist of two {@link Parser} interfaces,
    *         <code>[parse-html, parse-rtf]</code>.
    */
-  public static Parser[] getParsers(String contentType, String url)
+  public Parser[] getParsers(String contentType, String url)
   throws ParserNotFound {
     
     List parsers = null;
@@ -157,14 +149,15 @@ public final class ParserFactory {
       Parser p = null;
       try {
         //check to see if we've cached this parser instance yet
-        p = (Parser) PARSER_CACHE.get(ext.getDescriptor().getPluginId());
+        p = (Parser) this.nutchConf.getObject(ext.getDescriptor().getPluginId());
         if (p == null) {
           // go ahead and instantiate it and then cache it
           p = (Parser) ext.getExtensionInstance();
-          PARSER_CACHE.put(ext.getDescriptor().getPluginId(),p);
+          this.nutchConf.setObject(ext.getDescriptor().getPluginId(),p);
         }
         parsers.add(p);
       } catch (PluginRuntimeException e) {
+          e.printStackTrace();
         LOG.warning("ParserFactory:PluginRuntimeException when "
                   + "initializing parser plugin "
                   + ext.getDescriptor().getPluginId()
@@ -176,61 +169,68 @@ public final class ParserFactory {
   }
   
   /**
-   * <p>Function returns a {@link Parser} instance with the specified <code>parserId</code>.
-   * If the Parser instance isn't found, then the function throws a <code>ParserNotFound</code>
-   * exception. If the function is able to find the {@link Parser} in the internal <code>PARSER_CACHE</code>
-   * then it will return the already instantiated Parser. Otherwise, if it has to instantiate the Parser itself
-   * , then this function will cache that Parser in the internal <code>PARSER_CACHE</code>.
+   * <p>
+   * Function returns a {@link Parser} instance with the specified
+   * <code>parserId</code>. If the Parser instance isn't found, then the
+   * function throws a <code>ParserNotFound</code> exception. If the function
+   * is able to find the {@link Parser} in the internal
+   * <code>PARSER_CACHE</code> then it will return the already instantiated
+   * Parser. Otherwise, if it has to instantiate the Parser itself , then this
+   * function will cache that Parser in the internal <code>PARSER_CACHE</code>.
    * 
-   * @param parserId The string ID (e.g., "parse-text", "parse-msword") of the {@link Parser} implementation to return.
-   * @return A {@link Parser} implementation specified by the parameter <code>parserId</code>.
-   * @throws ParserNotFound If the Parser is not found (i.e., registered with the extension point), or if the there a {@link PluginRuntimeException}
-   * instantiating the {@link Parser}.
+   * @param parserId
+   *          The string ID (e.g., "parse-text", "parse-msword") of the
+   *          {@link Parser} implementation to return.
+   * @return A {@link Parser} implementation specified by the parameter
+   *         <code>parserId</code>.
+   * @throws ParserNotFound
+   *           If the Parser is not found (i.e., registered with the extension
+   *           point), or if the there a {@link PluginRuntimeException}
+   *           instantiating the {@link Parser}.
    */
-  public static Parser getParserById(String parserId) throws ParserNotFound{
-      //first check the cache
-      
-      if(PARSER_CACHE.get(parserId) != null){
-          return (Parser)PARSER_CACHE.get(parserId);
+  public Parser getParserById(String parserId) throws ParserNotFound {
+    // first check the cache
+
+    if (this.nutchConf.getObject(parserId) != null) {
+      return (Parser) this.nutchConf.getObject(parserId);
+    } else {
+      // get the list of registered parsing extensions
+      // then find the right one by Id
+
+      Extension[] extensions = this.extensionPoint.getExtensions();
+      Extension parserExt = getExtensionById(extensions, parserId);
+
+      if (parserExt == null) {
+        throw new ParserNotFound("No Parser Found for parserId: " + parserId
+            + "!");
+      } else {
+        // instantiate the Parser
+        try {
+          Parser p = null;
+          p = (Parser) parserExt.getExtensionInstance();
+          this.nutchConf.setObject(parserId, p);
+          return p;
+        } catch (PluginRuntimeException e) {
+          LOG.warning("ParserFactory:PluginRuntimeException when "
+              + "initializing parser plugin "
+              + parserExt.getDescriptor().getPluginId()
+              + " instance in getParserById");
+          throw new ParserNotFound("No Parser Found for parserId: " + parserId
+              + "!");
+        }
       }
-      else{
-          //get the list of registered parsing extensions
-          //then find the right one by Id
-          
-          Extension[] extensions = X_POINT.getExtensions();
-          Extension parserExt = getExtensionById(extensions,parserId);
-          
-          if (parserExt == null) {
-                throw new ParserNotFound("No Parser Found for parserId: "
-                        + parserId + "!");
-            } else {
-                // instantiate the Parser
-                try {
-                    Parser p = null;
-                    p = (Parser) parserExt.getExtensionInstance();
-                    PARSER_CACHE
-                            .put(parserId, p);
-                    return p;
-                } catch (PluginRuntimeException e) {
-                    LOG.warning("ParserFactory:PluginRuntimeException when "
-                            + "initializing parser plugin "
-                            + parserExt.getDescriptor().getPluginId()
-                            + " instance in getParserById");
-                    throw new ParserNotFound("No Parser Found for parserId: "
-                            + parserId + "!");
-                }
-            }
-      }
+    }
   }
   
   /**
    * finds the best-suited parse plugin for a given contentType.
-   *
-   * @param contentType Content-Type for which we seek a parse plugin.
-   * @return List - List of extensions to be used for this contentType.
-   *                If none, returns null.
+   * 
+   * @param contentType
+   *          Content-Type for which we seek a parse plugin.
+   * @return List - List of extensions to be used for this contentType. If none,
+   *         returns null.
    */
-  protected static List getExtensions(String contentType) {
+  protected List getExtensions(String contentType) {
     
     // First of all, tries to clean the content-type
     String type = null;
@@ -242,7 +242,7 @@ public final class ParserFactory {
         type = contentType;
     }
 
-    List extensions = (List) CACHE.get(type);
+    List extensions = (List) this.nutchConf.getObject(type);
 
     // Just compare the reference:
     // if this is the empty list, we know we will find no extension.
@@ -253,11 +253,11 @@ public final class ParserFactory {
     if (extensions == null) {
       extensions = findExtensions(type);
       if (extensions != null) {
-        CACHE.put(type, extensions);
+        this.nutchConf.setObject(type, extensions);
       } else {
       	// Put the empty extension list into cache
       	// to remember we don't know any related extension.
-      	CACHE.put(type, EMPTY_EXTENSION_LIST);
+      	this.nutchConf.setObject(type, EMPTY_EXTENSION_LIST);
       }
     }
     return extensions;
@@ -272,19 +272,19 @@ public final class ParserFactory {
    * @return List - List of extensions to be used for this contentType.
    *                If none, returns null.
    */
-  private static List findExtensions(String contentType){
+  private List findExtensions(String contentType) {
     
-    Extension[] extensions = X_POINT.getExtensions();
+    Extension[] extensions = this.extensionPoint.getExtensions();
     
     // Look for a preferred plugin.
-    List parsePluginList = PARSE_PLUGIN_LIST.getPluginList(contentType);
+    List parsePluginList = this.parsePluginList.getPluginList(contentType);
     List extensionList = matchExtensions(parsePluginList, extensions, contentType);
     if (extensionList != null) {
       return extensionList;
     }
     
     // If none found, look for a default plugin.
-    parsePluginList = PARSE_PLUGIN_LIST.getPluginList(DEFAULT_PLUGIN);
+    parsePluginList = this.parsePluginList.getPluginList(DEFAULT_PLUGIN);
     return matchExtensions(parsePluginList, extensions, DEFAULT_PLUGIN);
   }
   
@@ -302,7 +302,7 @@ public final class ParserFactory {
    * @return List - List of extensions to be used for this contentType.
    *                If none, returns null.
    */
-  private static List matchExtensions(List plugins,
+  private List matchExtensions(List plugins,
                                       Extension[] extensions,
                                       String contentType) {
     
@@ -390,13 +390,13 @@ public final class ParserFactory {
     }
   }
 
-  private static boolean match(Extension extension, String id, String type) {
+  private boolean match(Extension extension, String id, String type) {
     return (id.equals(extension.getDescriptor().getPluginId())) &&
     (type.equals(extension.getAttribute("contentType")) ||
         (type.equals(DEFAULT_PLUGIN))); 
   }
   
-  private static Extension getExtensionByIdAndType(Extension[] extList,
+  private Extension getExtensionByIdAndType(Extension[] extList,
                                                    String plugId,
                                                    String contentType) {
     for (int i = 0; i < extList.length; i++) {
@@ -407,7 +407,7 @@ public final class ParserFactory {
     return null;
   }
   
-  private static Extension getExtensionById(Extension[] extList, String plugId) {
+  private Extension getExtensionById(Extension[] extList, String plugId) {
     for(int i = 0; i < extList.length; i++){
       if(plugId.equals(extList[i].getDescriptor().getPluginId())){
         return extList[i];

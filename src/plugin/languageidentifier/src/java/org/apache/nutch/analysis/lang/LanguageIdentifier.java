@@ -95,12 +95,12 @@ public class LanguageIdentifier {
   /**
    * Constructs a new Language Identifier.
    */
-  private LanguageIdentifier() {
+  public LanguageIdentifier(NutchConf nutchConf) {
 
     // Gets ngram sizes to take into account from the Nutch Config
-    minLength = NutchConf.get().getInt("lang.ngram.min.length",
+    minLength = nutchConf.getInt("lang.ngram.min.length",
                                        NGramProfile.DEFAULT_MIN_NGRAM_LENGTH);
-    maxLength = NutchConf.get().getInt("lang.ngram.max.length",
+    maxLength = nutchConf.getInt("lang.ngram.max.length",
                                        NGramProfile.DEFAULT_MAX_NGRAM_LENGTH);
     // Ensure the min and max values are in an acceptale range
     // (ie min >= DEFAULT_MIN_NGRAM_LENGTH and max <= DEFAULT_MAX_NGRAM_LENGTH)
@@ -110,7 +110,7 @@ public class LanguageIdentifier {
     minLength = Math.min(minLength, maxLength);
 
     // Gets the value of the maximum size of data to analyze
-    analyzeLength = NutchConf.get().getInt("lang.analyze.max.length",
+    analyzeLength = nutchConf.getInt("lang.analyze.max.length",
                                            DEFAULT_ANALYSIS_LENGTH);
     
     Properties p = new Properties();
@@ -174,20 +174,6 @@ public class LanguageIdentifier {
     }
   }
 
-  /**
-   * Get a LanguageIdentifier instance.
-   * @return the LanguageIdentifier singleton instance.
-   */
-  public static LanguageIdentifier getInstance() {
-    if (identifier == null) {
-        synchronized(LanguageIdentifier.class) {
-            if (identifier == null) {
-                identifier = new LanguageIdentifier();
-            }
-        }
-    }
-    return identifier;
-  }
 
   /**
    * Main method used for command line process.
@@ -272,9 +258,10 @@ public class LanguageIdentifier {
 
     }
 
+    NutchConf nutchConf = new NutchConf();
     String lang = null;
     //LanguageIdentifier idfr = LanguageIdentifier.getInstance();
-    LanguageIdentifier idfr = new LanguageIdentifier();
+    LanguageIdentifier idfr = new LanguageIdentifier(nutchConf);
     File f;
     FileInputStream fis;
     try {
@@ -292,7 +279,7 @@ public class LanguageIdentifier {
           break;
 
         case IDURL:
-          text = getUrlContent(filename);
+          text = getUrlContent(filename, nutchConf);
           lang = idfr.identify(text);
           break;
 
@@ -348,13 +335,13 @@ public class LanguageIdentifier {
    * @param url
    * @return contents of url
    */
-  private static String getUrlContent(String url) {
+  private static String getUrlContent(String url, NutchConf nutchConf) {
     Protocol protocol;
     try {
-      protocol = ProtocolFactory.getProtocol(url);
+      protocol = new ProtocolFactory(nutchConf).getProtocol(url);
       Content content = protocol.getProtocolOutput(new UTF8(url), new CrawlDatum()).getContent();
       String contentType = content.getContentType();
-      Parser parser = ParserFactory.getParser(contentType, url);
+      Parser parser = new ParserFactory(nutchConf).getParser(contentType, url);
       Parse parse = parser.getParse(content);
       System.out.println("text:" + parse.getText());
       return parse.getText();

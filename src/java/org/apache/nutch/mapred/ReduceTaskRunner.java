@@ -28,15 +28,18 @@ import java.util.logging.*;
 class ReduceTaskRunner extends TaskRunner {
   private static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.mapred.ReduceTaskRunner");
+  private MapOutputFile mapOutputFile;
 
-  public ReduceTaskRunner(Task task, TaskTracker tracker) {
-    super(task, tracker);
+  public ReduceTaskRunner(Task task, TaskTracker tracker, NutchConf nutchConf) {
+    super(task, tracker, nutchConf);
+    this.mapOutputFile = new MapOutputFile();
+    this.mapOutputFile.setConf(nutchConf);
   }
 
   /** Assemble all of the map output files. */
   public void prepare() throws IOException {
     ReduceTask task = ((ReduceTask)getTask());
-    MapOutputFile.removeAll(task.getTaskId());    // cleanup from failures
+    this.mapOutputFile.removeAll(task.getTaskId());    // cleanup from failures
     String[] mapTaskIds = task.getMapTaskIds();
     final Progress copyPhase = getTask().getProgress().phase();
 
@@ -74,9 +77,9 @@ class ReduceTaskRunner extends TaskRunner {
         InetSocketAddress addr =
           new InetSocketAddress(loc.getHost(), loc.getPort());
         MapOutputProtocol client =
-          (MapOutputProtocol)RPC.getProxy(MapOutputProtocol.class, addr);
+          (MapOutputProtocol)RPC.getProxy(MapOutputProtocol.class, addr, this.nutchConf);
 
-        MapOutputFile.setProgressReporter(new MapOutputFile.ProgressReporter(){
+        this.mapOutputFile.setProgressReporter(new MapOutputFile.ProgressReporter() {
             public void progress(float progress) {
               copyPhase.phase().set(progress);
               try {
@@ -104,7 +107,7 @@ class ReduceTaskRunner extends TaskRunner {
                   +loc.getMapTaskId()+" from "+addr,
                   e);
         } finally {
-          MapOutputFile.setProgressReporter(null);
+          this.mapOutputFile.setProgressReporter(null);
         }
         
       }
@@ -116,7 +119,7 @@ class ReduceTaskRunner extends TaskRunner {
   /** Delete all of the temporary map output files. */
   public void close() throws IOException {
     getTask().getProgress().setStatus("closed");
-    MapOutputFile.removeAll(getTask().getTaskId());
+    this.mapOutputFile.removeAll(getTask().getTaskId());
   }
 
 }

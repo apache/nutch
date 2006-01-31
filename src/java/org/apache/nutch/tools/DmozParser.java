@@ -338,7 +338,8 @@ public class DmozParser {
     Pattern topicPattern = null; 
     Vector topics = new Vector(); 
     
-    NutchFileSystem nfs = NutchFileSystem.get();
+    NutchConf nutchConf = new NutchConf();
+    NutchFileSystem nfs = NutchFileSystem.get(nutchConf);
     try {
       for (int i = 1; i < argv.length; i++) {
         if ("-includeAdultMaterial".equals(argv[i])) {

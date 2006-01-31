@@ -35,46 +35,43 @@ import java.util.HashSet;
  * expanded to search the url, anchor and content document fields.*/
 public class BasicQueryFilter implements QueryFilter {
     
-  private static float URL_BOOST =
-    NutchConf.get().getFloat("query.url.boost", 4.0f);
+  private float URL_BOOST;
 
-  private static float ANCHOR_BOOST =
-    NutchConf.get().getFloat("query.anchor.boost", 2.0f);
+  private float ANCHOR_BOOST ;
 
-  private static float TITLE_BOOST =
-    NutchConf.get().getFloat("query.title.boost", 1.5f);
+  private float TITLE_BOOST;
 
-    private static float HOST_BOOST =
-      NutchConf.get().getFloat("query.host.boost", 2.0f);
+  private float HOST_BOOST;
 
   private static int SLOP = Integer.MAX_VALUE;
 
-  private static float PHRASE_BOOST =
-    NutchConf.get().getFloat("query.phrase.boost", 1.0f);
+  private float PHRASE_BOOST;
 
   private static final String[] FIELDS =
   { "url", "anchor", "content", "title", "host" };
 
-  private static final float[] FIELD_BOOSTS =
+  private final float[] FIELD_BOOSTS =
   { URL_BOOST, ANCHOR_BOOST, 1.0f, TITLE_BOOST, HOST_BOOST };
 
   /**
    * Set the boost factor for url matches, relative to content and anchor
    * matches
    */
-  public static void setUrlBoost(float boost) { URL_BOOST = boost; }
+  public void setUrlBoost(float boost) { URL_BOOST = boost; }
 
   /** Set the boost factor for title/anchor matches, relative to url and
    * content matches. */
-  public static void setAnchorBoost(float boost) { ANCHOR_BOOST = boost; }
+  public void setAnchorBoost(float boost) { ANCHOR_BOOST = boost; }
 
   /** Set the boost factor for sloppy phrase matches relative to unordered term
    * matches. */
-  public static void setPhraseBoost(float boost) { PHRASE_BOOST = boost; }
+  public void setPhraseBoost(float boost) { PHRASE_BOOST = boost; }
 
   /** Set the maximum number of terms permitted between matching terms in a
    * sloppy phrase match. */
-  public static void setSlop(int slop) { SLOP = slop; }
+  public void setSlop(int slop) { SLOP = slop; }
+
+  private NutchConf nutchConf;
 
   public BooleanQuery filter(Query input, BooleanQuery output) {
     addTerms(input, output);
@@ -82,7 +79,7 @@ public class BasicQueryFilter implements QueryFilter {
     return output;
   }
 
-  private static void addTerms(Query input, BooleanQuery output) {
+  private void addTerms(Query input, BooleanQuery output) {
     Clause[] clauses = input.getClauses();
     for (int i = 0; i < clauses.length; i++) {
       Clause c = clauses[i];
@@ -95,11 +92,11 @@ public class BasicQueryFilter implements QueryFilter {
 
         Clause o = c;
         if (c.isPhrase()) {                         // optimize phrase clauses
-          String[] opt = CommonGrams.optimizePhrase(c.getPhrase(), FIELDS[f]);
+          String[] opt = new CommonGrams(getConf()).optimizePhrase(c.getPhrase(), FIELDS[f]);
           if (opt.length==1) {
-            o = new Clause(new Term(opt[0]), c.isRequired(), c.isProhibited());
+            o = new Clause(new Term(opt[0]), c.isRequired(), c.isProhibited(), getConf());
           } else {
-            o = new Clause(new Phrase(opt), c.isRequired(), c.isProhibited());
+            o = new Clause(new Phrase(opt), c.isRequired(), c.isProhibited(), getConf());
           }
         }
 
@@ -112,7 +109,7 @@ public class BasicQueryFilter implements QueryFilter {
     }
   }
 
-  private static void addSloppyPhrases(Query input, BooleanQuery output) {
+  private void addSloppyPhrases(Query input, BooleanQuery output) {
     Clause[] clauses = input.getClauses();
     for (int f = 0; f < FIELDS.length; f++) {
 
@@ -145,7 +142,7 @@ public class BasicQueryFilter implements QueryFilter {
   }
 
 
-  private static org.apache.lucene.search.Query
+  private org.apache.lucene.search.Query
         termQuery(String field, Term term, float boost) {
     TermQuery result = new TermQuery(luceneTerm(field, term));
     result.setBoost(boost);
@@ -153,7 +150,7 @@ public class BasicQueryFilter implements QueryFilter {
   }
 
   /** Utility to construct a Lucene exact phrase query for a Nutch phrase. */
-  private static org.apache.lucene.search.Query
+  private org.apache.lucene.search.Query
        exactPhrase(Phrase nutchPhrase,
                    String field, float boost) {
     Term[] terms = nutchPhrase.getTerms();
@@ -169,5 +166,18 @@ public class BasicQueryFilter implements QueryFilter {
   private static org.apache.lucene.index.Term luceneTerm(String field,
                                                          Term term) {
     return new org.apache.lucene.index.Term(field, term.toString());
+  }
+
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+    this.URL_BOOST = conf.getFloat("query.url.boost", 4.0f);
+    this.ANCHOR_BOOST = conf.getFloat("query.anchor.boost", 2.0f);
+    this.TITLE_BOOST = conf.getFloat("query.title.boost", 1.5f);
+    this.HOST_BOOST = conf.getFloat("query.host.boost", 2.0f);
+    this.PHRASE_BOOST = conf.getFloat("query.phrase.boost", 1.0f);
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
   }
 }

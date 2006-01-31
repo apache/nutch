@@ -15,6 +15,8 @@ import java.util.logging.Logger;
 import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.util.LogFormatter;
 import org.apache.nutch.util.NutchConf;
+import org.apache.nutch.util.NutchConfigurable;
+
 
 /**
  * Provides the Http protocol implementation
@@ -28,25 +30,50 @@ import org.apache.nutch.util.NutchConf;
  * 
  * @author Matt Tencati
  */
-public class HttpAuthenticationFactory {
-    /** The HTTP Authentication (WWW-Authenticate) header which is returned 
+public class HttpAuthenticationFactory implements NutchConfigurable {
+
+    /** 
+     * The HTTP Authentication (WWW-Authenticate) header which is returned 
      * by a webserver requiring authentication.
      */
     public static final String AUTH_HEADER = "WWW-Authenticate";
 	
-	public static final Logger LOG =
-		LogFormatter.getLogger("net.nutch.protocol.http.HttpAuthenticationFactory");
+    public static final Logger LOG =
+		LogFormatter.getLogger(HttpAuthenticationFactory.class.getName());
 
-	static {
-		if (NutchConf.get().getBoolean("http.auth.verbose", false))
-			LOG.setLevel(Level.FINE);
-	}
-	  
     private static Map auths = new TreeMap(); 
+
+    private NutchConf conf = null;
     
-    private HttpAuthenticationFactory() { }
     
-    public static HttpAuthentication findAuthentication(ContentProperties header) {
+    public HttpAuthenticationFactory(NutchConf conf) {
+      setConf(conf);
+    }
+
+   
+    /* ---------------------------------- *
+     * <implementation:NutchConfigurable> *
+     * ---------------------------------- */
+
+    public void setConf(NutchConf conf) {
+      this.conf = conf;
+      if (conf.getBoolean("http.auth.verbose", false)) {
+        LOG.setLevel(Level.FINE);
+      } else {
+        LOG.setLevel(Level.WARNING);
+      }
+    }
+
+    public NutchConf getConf() {
+      return conf;
+    }
+ 
+    /* ---------------------------------- *
+     * <implementation:NutchConfigurable> *
+     * ---------------------------------- */
+
+
+    public HttpAuthentication findAuthentication(ContentProperties header) {
         if (header == null) return null;
         
     	try {
@@ -80,7 +107,7 @@ public class HttpAuthenticationFactory {
 		                  }
 		                
 		                LOG.fine("Checking challengeString=" + challengeString);
-				auth = HttpBasicAuthentication.getAuthentication(challengeString);
+				auth = HttpBasicAuthentication.getAuthentication(challengeString, conf);
 				if (auth != null) return auth;
 				
 				//TODO Add additional Authentication lookups here

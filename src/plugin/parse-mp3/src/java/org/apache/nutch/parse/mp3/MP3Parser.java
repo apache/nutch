@@ -19,6 +19,7 @@ package org.apache.nutch.parse.mp3;
 
 import org.apache.nutch.parse.*;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.NutchConf;
 import org.farng.mp3.MP3File;
 import org.farng.mp3.TagException;
 import org.farng.mp3.id3.AbstractID3v2;
@@ -39,7 +40,8 @@ import java.util.Iterator;
 
 public class MP3Parser implements Parser {
 
-  private MetadataCollector metadataCollector = new MetadataCollector();
+  private MetadataCollector metadataCollector;
+  private NutchConf nutchConf;
 
   public Parse getParse(Content content) throws ParseException {
     Parse parse = null;
@@ -84,7 +86,7 @@ public class MP3Parser implements Parser {
     metadataCollector.notifyProperty("TYER-Text", tag.getYear());
     ParseData parseData = new ParseData(metadataCollector.getTitle(),
         metadataCollector.getOutlinks(),
-        metadataCollector.getData());
+        metadataCollector.getData(), getConf());
     return new ParseImpl(metadataCollector.getText(), parseData);
   }
 
@@ -113,4 +115,12 @@ public class MP3Parser implements Parser {
   }
 
 
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+    this.metadataCollector = new MetadataCollector(conf);
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
+  }
 }

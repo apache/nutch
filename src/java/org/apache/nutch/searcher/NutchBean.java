@@ -42,8 +42,6 @@ public class NutchBean
     LogFormatter.setShowThreadIDs(true);
   }
 
-  private NutchFileSystem fs = NutchFileSystem.get();
-
   private String[] segmentNames;
 
   private Searcher searcher;
@@ -52,50 +50,65 @@ public class NutchBean
   private HitContent content;
   private HitInlinks linkDb;
 
-  private float RAW_HITS_FACTOR =
-    NutchConf.get().getFloat("searcher.hostgrouping.rawhits.factor", 2.0f);
 
   /** BooleanQuery won't permit more than 32 required/prohibited clauses.  We
    * don't want to use too many of those. */ 
   private static final int MAX_PROHIBITED_TERMS = 20;
+  
+  private NutchConf nutchConf;
+
+  private NutchFileSystem fs;
 
   /** Cache in servlet context. */
-  public static NutchBean get(ServletContext app) throws IOException {
+  public static NutchBean get(ServletContext app, NutchConf conf) throws IOException {
     NutchBean bean = (NutchBean)app.getAttribute("nutchBean");
     if (bean == null) {
       LOG.info("creating new bean");
-      bean = new NutchBean();
+      bean = new NutchBean(conf);
       app.setAttribute("nutchBean", bean);
     }
     return bean;
   }
 
-  /** Construct reading from connected directory. */
-  public NutchBean() throws IOException {
-    this(new File(NutchConf.get().get("searcher.dir", "crawl")));
-  }
 
-  /** Construct in a named directory. */
-  public NutchBean(File dir) throws IOException {
-    File servers = new File(dir, "search-servers.txt");
-    if (fs.exists(servers)) {
-      LOG.info("searching servers in " + servers.getCanonicalPath());
-      init(new DistributedSearch.Client(servers));
-    } else {
-      init(new File(dir, "index"),
-           new File(dir, "indexes"),
-           new File(dir, "segments"),
-           new File(dir, "linkdb"));
-    }
+  /**
+   * 
+   * @param nutchConf
+   * @throws IOException
+   */
+  public NutchBean(NutchConf nutchConf) throws IOException {
+    this(nutchConf, null);
   }
+  
+  /**
+   *  Construct in a named directory. 
+   * @param nutchConf
+   * @param dir
+   * @throws IOException
+   */
+  public NutchBean(NutchConf nutchConf, File dir) throws IOException {
+        this.nutchConf = nutchConf;
+        this.fs = NutchFileSystem.get(this.nutchConf);
+        if (dir == null) {
+            dir = new File(this.nutchConf.get("searcher.dir", "crawl"));
+        }
+        File servers = new File(dir, "search-servers.txt");
+        if (fs.exists(servers)) {
+            LOG.info("searching servers in " + servers.getCanonicalPath());
+            init(new DistributedSearch.Client(servers, nutchConf));
+        } else {
+            init(new File(dir, "index"), new File(dir, "indexes"), new File(
+                    dir, "segments"), new File(dir, "linkdb"));
+        }
+    }
 
   private void init(File indexDir, File indexesDir, File segmentsDir,
                     File linkDb)
     throws IOException {
     IndexSearcher indexSearcher;
-    if (fs.exists(indexDir)) {
+    if (this.fs.exists(indexDir)) {
       LOG.info("opening merged index in " + indexDir);
-      indexSearcher = new IndexSearcher(indexDir);
+      indexSearcher = new IndexSearcher(indexDir, this.nutchConf);
     } else {
       LOG.info("opening indexes in " + indexesDir);
       
@@ -108,16 +121,17 @@ public class NutchBean
         }
       }
       
+      
       directories = new File[ vDirs.size() ];
       for(int i = 0; vDirs.size()>0; i++) {
         directories[i]=(File)vDirs.remove(0);
       }
       
-      indexSearcher = new IndexSearcher(directories);
+      indexSearcher = new IndexSearcher(directories, this.nutchConf);
     }
 
     LOG.info("opening segments in " + segmentsDir);
-    FetchedSegments segments = new FetchedSegments(fs, segmentsDir.toString());
+    FetchedSegments segments = new FetchedSegments(this.fs, segmentsDir.toString(),this.nutchConf);
     
     this.segmentNames = segments.getSegmentNames();
 
@@ -127,7 +141,7 @@ public class NutchBean
     this.content = segments;
 
     LOG.info("opening linkdb in " + linkDb);
-    this.linkDb = new LinkDbInlinks(fs, linkDb);
+    this.linkDb = new LinkDbInlinks(fs, linkDb, this.nutchConf);
   }
 
   private void init(DistributedSearch.Client client) {
@@ -216,7 +230,8 @@ public class NutchBean
     if (maxHitsPerDup <= 0)                      // disable dup checking
       return search(query, numHits, dedupField, sortField, reverse);
 
-    int numHitsRaw = (int)(numHits * RAW_HITS_FACTOR);
+    float rawHitsFactor = this.nutchConf.getFloat("searcher.hostgrouping.rawhits.factor", 2.0f);
+    int numHitsRaw = (int)(numHits * rawHitsFactor);
     LOG.info("searching for "+numHitsRaw+" raw hits");
     Hits hits = searcher.search(query, numHitsRaw,
                                 dedupField, sortField, reverse);
@@ -237,7 +252,7 @@ public class NutchBean
           optQuery.addProhibitedTerm(((String)excludedValues.get(i)),
                                      dedupField);
         }
-        numHitsRaw = (int)(numHitsRaw * RAW_HITS_FACTOR);
+        numHitsRaw = (int)(numHitsRaw * rawHitsFactor);
         LOG.info("re-searching for "+numHitsRaw+" raw hits, query: "+optQuery);
         hits = searcher.search(optQuery, numHitsRaw,
                                dedupField, sortField, reverse);
@@ -344,9 +359,9 @@ public class NutchBean
       System.exit(-1);
     }
 
-    NutchBean bean = new NutchBean();
-    Query query = Query.parse(args[0]);
-
+    NutchConf nutchConf = new NutchConf();
+    NutchBean bean = new NutchBean(nutchConf);
+    Query query = Query.parse(args[0], nutchConf);
     Hits hits = bean.search(query, 10);
     System.out.println("Total hits: " + hits.getTotal());
     int length = (int)Math.min(hits.getTotal(), 10);

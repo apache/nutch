@@ -3,6 +3,8 @@ package org.apache.nutch.analysis;
 import org.apache.nutch.searcher.Query;
 import org.apache.nutch.searcher.QueryFilters;
 import org.apache.nutch.searcher.Query.Clause;
+import org.apache.nutch.searcher.Query.Clause;
+import org.apache.nutch.util.NutchConf;
 import org.apache.lucene.analysis.StopFilter;
 import java.io.*;
 import java.util.*;

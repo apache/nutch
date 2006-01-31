@@ -23,12 +23,13 @@ import org.apache.nutch.io.*;
 import org.apache.nutch.fs.*;
 import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.util.NutchConf;
+import org.apache.nutch.util.NutchConfigurable;
 
 
 /** Data extracted from a page's content.
  * @see Parse#getData()
  */
-public final class ParseData extends VersionedWritable {
+public final class ParseData extends VersionedWritable implements NutchConfigurable {
   public static final String DIR_NAME = "parse_data";
 
   private final static byte VERSION = 3;
@@ -37,7 +38,12 @@ public final class ParseData extends VersionedWritable {
   private Outlink[] outlinks;
   private ContentProperties metadata;
   private ParseStatus status;
-
+  private NutchConf nutchConf;
+  
+  // TODO mb@media-style.com: should we really implement NutchConfigurable or should we add the
+  // parameter NutchConf to the default-constructor. NOTE: The test
+  // TestWriteable instantiates ParseData with Class.newInstance() -> the default
+  // constructor is called -> nutchConf is null. The programmer which use this object may not forget to set the nutchConf.
   public ParseData() {}
 
   public ParseData(ParseStatus status, String title, Outlink[] outlinks, ContentProperties metadata) {
@@ -84,15 +90,13 @@ public final class ParseData extends VersionedWritable {
     title = UTF8.readString(in);                   // read title
 
     int totalOutlinks = in.readInt();             // read outlinks
-    // XXX remove the dependency on static NutchConf.get(). How?
-    int outlinksToRead =
-      Math.min(NutchConf.get().getInt("db.max.outlinks.per.page", 100),
-                                  totalOutlinks);
+    int maxOutlinksPerPage = this.nutchConf.getInt("db.max.outlinks.per.page", 100);
+    int outlinksToRead = Math.min(maxOutlinksPerPage, totalOutlinks);
     outlinks = new Outlink[outlinksToRead];
     for (int i = 0; i < outlinksToRead; i++) {
       outlinks[i] = Outlink.read(in);
     }
-    for (int i = outlinksToRead; i < totalOutlinks; i++) {
+    for (int i = maxOutlinksPerPage; i < totalOutlinks; i++) {
       Outlink.skip(in);
     }
     
@@ -168,7 +172,8 @@ public final class ParseData extends VersionedWritable {
       return;
     }
 
-    NutchFileSystem nfs = NutchFileSystem.parseArgs(argv, 0);
+    NutchConf nutchConf = new NutchConf();
+    NutchFileSystem nfs = NutchFileSystem.parseArgs(argv, 0, nutchConf);
     try {
       int recno = Integer.parseInt(argv[0]);
       String segment = argv[1];
@@ -176,7 +181,7 @@ public final class ParseData extends VersionedWritable {
       File file = new File(segment, DIR_NAME);
       System.out.println("Reading from file: " + file);
 
-      ArrayFile.Reader parses = new ArrayFile.Reader(nfs, file.toString());
+      ArrayFile.Reader parses = new ArrayFile.Reader(nfs, file.toString(), nutchConf);
 
       ParseData parseDatum = new ParseData();
       parses.get(recno, parseDatum);
@@ -188,5 +193,13 @@ public final class ParseData extends VersionedWritable {
     } finally {
       nfs.close();
     }
+  }
+
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
   }
 }

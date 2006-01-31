@@ -46,39 +46,43 @@ public class Http extends HttpBase {
 
   public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.net.Http");
 
-  static {
-    if (NutchConf.get().getBoolean("http.verbose", false)) {
-      LOG.setLevel(Level.FINE);
-    } else {                                      // shush about redirects
-      Logger.getLogger("org.apache.commons.httpclient.HttpMethodDirector")
-        .setLevel(Level.WARNING);
-    }
-  }
-
   private static MultiThreadedHttpConnectionManager connectionManager =
           new MultiThreadedHttpConnectionManager();
-  
-  private static HttpClient client;
+
+  // Since the NutchConf has not yet been setted,
+  // then an unconfigured client is returned.
+  private static HttpClient client = new HttpClient(connectionManager);
 
   static synchronized HttpClient getClient() {
-    if (client != null) return client;
-    configureClient();
     return client;
   }
 
-  static int MAX_THREADS_TOTAL = NutchConf.get().getInt("fetcher.threads.fetch", 10);
-  static String NTLM_USERNAME = NutchConf.get().get("http.auth.ntlm.username", "");
-  static String NTLM_PASSWORD = NutchConf.get().get("http.auth.ntlm.password", "");
-  static String NTLM_DOMAIN = NutchConf.get().get("http.auth.ntlm.domain", "");
-  static String NTLM_HOST = NutchConf.get().get("http.auth.ntlm.host", "");
-
-  static {
-    LOG.info("http.auth.ntlm.username = " + NTLM_USERNAME);
-  }
-
+  boolean verbose = false;
+  int maxThreadsTotal = 10;
+  String ntlmUsername = "";
+  String ntlmPassword = "";
+  String ntlmDomain = "";
+  String ntlmHost = "";
 
   public Http() {
     super(LOG);
+  }
+
+  public void setConf(NutchConf conf) {
+    super.setConf(conf);
+    this.maxThreadsTotal = conf.getInt("fetcher.threads.fetch", 10);
+    this.ntlmUsername = conf.get("http.auth.ntlm.username", "");
+    this.ntlmPassword = conf.get("http.auth.ntlm.password", "");
+    this.ntlmDomain = conf.get("http.auth.ntlm.domain", "");
+    this.ntlmHost = conf.get("http.auth.ntlm.host", "");
+    Level logLevel = Level.WARNING;
+    if (conf.getBoolean("http.verbose", false)) {
+      logLevel = Level.FINE;
+    }
+    LOG.setLevel(logLevel);
+    Logger.getLogger("org.apache.commons.httpclient.HttpMethodDirector")
+          .setLevel(logLevel);
+    configureClient();
   }
 
   public static void main(String[] args) throws Exception {
@@ -87,29 +91,25 @@ public class Http extends HttpBase {
 
   protected Response getResponse(URL url, CrawlDatum datum, boolean redirect)
     throws ProtocolException, IOException {
-    return new HttpResponse(url, datum, redirect);
+    return new HttpResponse(this, url, datum, redirect);
   }
   
-  private static void configureClient() {
-
-    // get a client isntance -- we just need one.
-
-    client = new HttpClient(connectionManager);
+  private void configureClient() {
 
     // Set up an HTTPS socket factory that accepts self-signed certs.
     Protocol dummyhttps = new Protocol("https", new DummySSLProtocolSocketFactory(), 443);
     Protocol.registerProtocol("https", dummyhttps);
     
     HttpConnectionManagerParams params = connectionManager.getParams();
-    params.setConnectionTimeout(TIMEOUT);
-    params.setSoTimeout(TIMEOUT);
+    params.setConnectionTimeout(timeout);
+    params.setSoTimeout(timeout);
     params.setSendBufferSize(BUFFER_SIZE);
     params.setReceiveBufferSize(BUFFER_SIZE);
-    params.setMaxTotalConnections(MAX_THREADS_TOTAL);
-    if (MAX_THREADS_TOTAL > MAX_THREADS_PER_HOST) {
-      params.setDefaultMaxConnectionsPerHost(MAX_THREADS_PER_HOST);
+    params.setMaxTotalConnections(maxThreadsTotal);
+    if (maxThreadsTotal > maxThreadsPerHost) {
+      params.setDefaultMaxConnectionsPerHost(maxThreadsPerHost);
     } else {
-      params.setDefaultMaxConnectionsPerHost(MAX_THREADS_TOTAL);
+      params.setDefaultMaxConnectionsPerHost(maxThreadsTotal);
     }
 
     HostConfiguration hostConf = client.getHostConfiguration();
@@ -122,14 +122,14 @@ public class Http extends HttpBase {
     headers.add(new Header("Accept",
             "text/html,application/xml;q=0.9,application/xhtml+xml,text/xml;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5"));
     hostConf.getParams().setParameter("http.default-headers", headers);
-    if (PROXY) {
-      hostConf.setProxy(PROXY_HOST, PROXY_PORT);
+    if (useProxy) {
+      hostConf.setProxy(proxyHost, proxyPort);
     }
-    if (NTLM_USERNAME.length() > 0) {
-      Credentials ntCreds = new NTCredentials(NTLM_USERNAME, NTLM_PASSWORD, NTLM_HOST, NTLM_DOMAIN);
-      client.getState().setCredentials(new AuthScope(NTLM_HOST, AuthScope.ANY_PORT), ntCreds);
+    if (ntlmUsername.length() > 0) {
+      Credentials ntCreds = new NTCredentials(ntlmUsername, ntlmPassword, ntlmHost, ntlmDomain);
+      client.getState().setCredentials(new AuthScope(ntlmHost, AuthScope.ANY_PORT), ntCreds);
 
-      LOG.info("Added NTLM credentials for " + NTLM_USERNAME);
+      LOG.info("Added NTLM credentials for " + ntlmUsername);
     }
     LOG.info("Configured Client");
   }

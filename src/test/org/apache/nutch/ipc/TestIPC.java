@@ -29,12 +29,15 @@ import java.util.logging.Logger;
 import java.util.logging.Level;
 
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.util.NutchConf;
 
 /** Unit tests for IPC. */
 public class TestIPC extends TestCase {
   public static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.ipc.TestIPC");
 
+  private static NutchConf nutchConf = new NutchConf();
+  
   // quiet during testing, since output ends up on console
   static {
     LOG.setLevel(Level.WARNING);
@@ -52,7 +55,7 @@ public class TestIPC extends TestCase {
     private boolean sleep;
 
     public TestServer(int port, int handlerCount, boolean sleep) {
-      super(port, LongWritable.class, handlerCount);
+      super(port, LongWritable.class, handlerCount, nutchConf);
       this.setTimeout(1000);
       this.sleep = sleep;
     }
@@ -145,7 +148,7 @@ public class TestIPC extends TestCase {
 
     Client[] clients = new Client[clientCount];
     for (int i = 0; i < clientCount; i++) {
-      clients[i] = new Client(LongWritable.class);
+      clients[i] = new Client(LongWritable.class, nutchConf);
     }
     
     SerialCaller[] callers = new SerialCaller[callerCount];
@@ -184,7 +187,7 @@ public class TestIPC extends TestCase {
 
     Client[] clients = new Client[clientCount];
     for (int i = 0; i < clientCount; i++) {
-      clients[i] = new Client(LongWritable.class);
+      clients[i] = new Client(LongWritable.class, nutchConf);
     }
     
     ParallelCaller[] callers = new ParallelCaller[callerCount];

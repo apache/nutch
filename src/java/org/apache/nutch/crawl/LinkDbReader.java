@@ -37,10 +37,12 @@ public class LinkDbReader {
   private NutchFileSystem fs;
   private File directory;
   private MapFile.Reader[] readers;
+  private NutchConf nutchConf;
 
-  public LinkDbReader(NutchFileSystem fs, File directory) {
+  public LinkDbReader(NutchFileSystem fs, File directory, NutchConf nutchConf) {
     this.fs = fs;
     this.directory = directory;
+    this.nutchConf = nutchConf;
   }
 
   public String[] getAnchors(UTF8 url) throws IOException {
@@ -55,7 +57,7 @@ public class LinkDbReader {
     synchronized (this) {
       if (readers == null) {
         readers = MapFileOutputFormat.getReaders
-          (fs, new File(directory, LinkDb.CURRENT_NAME));
+          (fs, new File(directory, LinkDb.CURRENT_NAME), this.nutchConf);
       }
     }
     
@@ -90,11 +92,11 @@ public class LinkDbReader {
       System.err.println("\t-url <url>\tprint information about <url> to System.out");
       return;
     }
-    
+    NutchConf nutchConf = new NutchConf();
     if (args[1].equals("-dump")) {
-      LinkDbReader.processDumpJob(args[0], args[2], NutchConf.get());
+      LinkDbReader.processDumpJob(args[0], args[2], nutchConf);
     } else if (args[1].equals("-url")) {
-      LinkDbReader dbr = new LinkDbReader(NutchFileSystem.get(), new File(args[0]));
+      LinkDbReader dbr = new LinkDbReader(NutchFileSystem.get(new NutchConf()), new File(args[0]), nutchConf);
       Inlinks links = dbr.getInlinks(new UTF8(args[2]));
       if (links == null) {
         System.out.println(" - no link information.");

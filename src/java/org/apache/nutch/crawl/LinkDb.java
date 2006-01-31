@@ -182,7 +182,7 @@ public class LinkDb extends NutchConfigured implements Mapper, Reducer {
   }
 
   public static void main(String[] args) throws Exception {
-    LinkDb linkDb = new LinkDb(NutchConf.get());
+    LinkDb linkDb = new LinkDb(new NutchConf());
     
     if (args.length < 2) {
       System.err.println("Usage: <linkdb> <segments>");

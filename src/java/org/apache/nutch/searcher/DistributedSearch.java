@@ -26,6 +26,7 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.util.NutchConf;
 import org.apache.nutch.io.*;
 import org.apache.nutch.ipc.RPC;
 
@@ -61,9 +62,10 @@ public class DistributedSearch {
       int port = Integer.parseInt(args[0]);
       File directory = new File(args[1]);
 
-      NutchBean bean = new NutchBean(directory);
+      NutchConf nutchConf = new NutchConf();
+      NutchBean bean = new NutchBean(nutchConf, directory);
 
-      org.apache.nutch.ipc.Server server = RPC.getServer(bean, port, 10, true);
+      org.apache.nutch.ipc.Server server = RPC.getServer(bean, port, 10, true, nutchConf);
       server.start();
       server.join();
     }
@@ -80,14 +82,15 @@ public class DistributedSearch {
     private HashMap segmentToAddress = new HashMap();
     
     private boolean running = true;
+    private NutchConf nutchConf;
 
     /** Construct a client talking to servers listed in the named file.
      * Each line in the file lists a server hostname and port, separated by
      * whitespace. 
      */
 
-    public Client(File file) throws IOException {
-      this(readConfig(file));
+    public Client(File file, NutchConf nutchConf) throws IOException {
+      this(readConfig(file), nutchConf);
     }
 
     private static InetSocketAddress[] readConfig(File config)
@@ -111,11 +114,12 @@ public class DistributedSearch {
     }
 
     /** Construct a client talking to the named servers. */
-    public Client(InetSocketAddress[] addresses) throws IOException {
+    public Client(InetSocketAddress[] addresses, NutchConf nutchConf) throws IOException {
       this.defaultAddresses = addresses;
       updateSegments();
       setDaemon(true);
       start();
+      this.nutchConf = nutchConf;
     }
     
     private static final Method GET_SEGMENTS;
@@ -152,7 +156,7 @@ public class DistributedSearch {
       // build segmentToAddress map
       Object[][] params = new Object[defaultAddresses.length][0];
       String[][] results =
-        (String[][])RPC.call(GET_SEGMENTS, params, defaultAddresses);
+        (String[][])RPC.call(GET_SEGMENTS, params, defaultAddresses, this.nutchConf);
 
       for (int i = 0; i < results.length; i++) {  // process results of call
         InetSocketAddress addr = defaultAddresses[i];
@@ -196,7 +200,7 @@ public class DistributedSearch {
         params[i][3] = sortField;
         params[i][4] = Boolean.valueOf(reverse);
       }
-      Hits[] results = (Hits[])RPC.call(SEARCH, params, liveAddresses);
+      Hits[] results = (Hits[])RPC.call(SEARCH, params, liveAddresses, this.nutchConf);
 
       TreeSet queue;                              // cull top hits from results
 
@@ -235,13 +239,13 @@ public class DistributedSearch {
     
     private Protocol getRemote(Hit hit) {
       return (Protocol)
-        RPC.getProxy(Protocol.class, liveAddresses[hit.getIndexNo()]);
+        RPC.getProxy(Protocol.class, liveAddresses[hit.getIndexNo()], nutchConf);
     }
 
     private Protocol getRemote(HitDetails hit) {
       InetSocketAddress address =
         (InetSocketAddress)segmentToAddress.get(hit.getValue("segment"));
-      return (Protocol)RPC.getProxy(Protocol.class, address);
+      return (Protocol)RPC.getProxy(Protocol.class, address, nutchConf);
     }
 
     public String getExplanation(Query query, Hit hit) throws IOException {
@@ -259,7 +263,7 @@ public class DistributedSearch {
         addrs[i] = liveAddresses[hits[i].getIndexNo()];
         params[i][0] = hits[i];
       }
-      return (HitDetails[])RPC.call(DETAILS, params, addrs);
+      return (HitDetails[])RPC.call(DETAILS, params, addrs, nutchConf);
     }
 
 
@@ -278,7 +282,7 @@ public class DistributedSearch {
         params[i][0] = hit;
         params[i][1] = query;
       }
-      return (String[])RPC.call(SUMMARY, params, addrs);
+      return (String[])RPC.call(SUMMARY, params, addrs, nutchConf);
     }
     
     public byte[] getContent(HitDetails hit) throws IOException {
@@ -313,7 +317,7 @@ public class DistributedSearch {
         System.exit(-1);
       }
 
-      Query query = Query.parse(args[0]);
+      Query query = Query.parse(args[0], new NutchConf());
       
       InetSocketAddress[] addresses = new InetSocketAddress[(args.length-1)/2];
       for (int i = 0; i < (args.length-1)/2; i++) {
@@ -321,7 +325,7 @@ public class DistributedSearch {
           new InetSocketAddress(args[i*2+1], Integer.parseInt(args[i*2+2]));
       }
 
-      Client client = new Client(addresses);
+      Client client = new Client(addresses, new NutchConf());
       //client.setTimeout(Integer.MAX_VALUE);
 
       Hits hits = client.search(query, 10, null, null, false);

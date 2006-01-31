@@ -22,12 +22,15 @@ import org.apache.nutch.io.*;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.parse.*;
+import org.apache.nutch.util.NutchConf;
+import org.apache.nutch.util.NutchConfigurable;
 
 /* An entry in the fetcher's output. */
-public final class FetcherOutput implements Writable {
+public final class FetcherOutput implements Writable, NutchConfigurable {
   private CrawlDatum crawlDatum;
   private Content content;
   private ParseImpl parse;
+  private NutchConf nutchConf;
 
   public FetcherOutput() {}
 
@@ -41,7 +44,7 @@ public final class FetcherOutput implements Writable {
   public final void readFields(DataInput in) throws IOException {
     this.crawlDatum = CrawlDatum.read(in);
     this.content = in.readBoolean() ? Content.read(in) : null;
-    this.parse = in.readBoolean() ? ParseImpl.read(in) : null;
+    this.parse = in.readBoolean() ? ParseImpl.read(in, this.nutchConf) : null;
   }
 
   public final void write(DataOutput out) throws IOException {
@@ -75,6 +78,14 @@ public final class FetcherOutput implements Writable {
     StringBuffer buffer = new StringBuffer();
     buffer.append("CrawlDatum: " + crawlDatum+"\n" );
     return buffer.toString();
+  }
+
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
   }
 
 }

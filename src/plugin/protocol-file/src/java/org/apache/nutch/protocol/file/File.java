@@ -50,7 +50,7 @@ public class File implements Protocol {
 
   static final int MAX_REDIRECTS = 5;
 
-  static int maxContentLength = NutchConf.get().getInt("file.content.limit", 64 * 1024);
+  int maxContentLength;
 
   // 20040412, xing
   // the following three: HttpDateFormat, MimetypesFileTypeMap, MagicFile
@@ -58,6 +58,8 @@ public class File implements Protocol {
 
   // http date format
   HttpDateFormat httpDateFormat = null;
+
+  private NutchConf nutchConf;
 
   // constructor
   public File() {
@@ -76,7 +78,7 @@ public class File implements Protocol {
   
       while (true) {
         FileResponse response;
-        response = new FileResponse(u, datum, this);   // make a request
+        response = new FileResponse(u, datum, this, getConf());   // make a request
   
         int code = response.getCode();
   
@@ -152,4 +154,12 @@ public class File implements Protocol {
     file = null;
   }
 
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+    this.maxContentLength = conf.getInt("file.content.limit", 64 * 1024);
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
+  }
 }

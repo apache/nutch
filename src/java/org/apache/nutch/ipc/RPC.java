@@ -56,10 +56,11 @@ public class RPC {
 
 
   /** A method invocation, including the method name and its parameters.*/
-  private static class Invocation implements Writable {
+  private static class Invocation implements Writable, NutchConfigurable {
     private String methodName;
     private Class[] parameterClasses;
     private Object[] parameters;
+    private NutchConf nutchConf;
 
     public Invocation() {}
 
@@ -82,10 +83,9 @@ public class RPC {
       methodName = UTF8.readString(in);
       parameters = new Object[in.readInt()];
       parameterClasses = new Class[parameters.length];
-
       ObjectWritable objectWritable = new ObjectWritable();
       for (int i = 0; i < parameters.length; i++) {
-        parameters[i] = ObjectWritable.readObject(in, objectWritable);
+        parameters[i] = ObjectWritable.readObject(in, objectWritable, this.nutchConf);
         parameterClasses[i] = objectWritable.getDeclaredClass();
       }
     }
@@ -111,15 +111,29 @@ public class RPC {
       return buffer.toString();
     }
 
+    public void setConf(NutchConf conf) {
+      this.nutchConf = conf;
+    }
+
+    public NutchConf getConf() {
+      return this.nutchConf;
+    }
+
   }
 
-  private static Client CLIENT = new Client(ObjectWritable.class);
+  //TODO mb@media-style.com: static client or non-static client?
+  private static Client CLIENT;
 
   private static class Invoker implements InvocationHandler {
     private InetSocketAddress address;
 
-    public Invoker(InetSocketAddress address) {
+    public Invoker(InetSocketAddress address, NutchConf nutchConf) {
       this.address = address;
+      CLIENT = (Client) nutchConf.getObject(Client.class.getName());
+      if(CLIENT == null) {
+          CLIENT = new Client(ObjectWritable.class, nutchConf);
+          nutchConf.setObject(Client.class.getName(), CLIENT);
+      }
     }
 
     public Object invoke(Object proxy, Method method, Object[] args)
@@ -132,21 +146,25 @@ public class RPC {
 
   /** Construct a client-side proxy object that implements the named protocol,
    * talking to a server at the named address. */
-  public static Object getProxy(Class protocol, InetSocketAddress addr) {
+  public static Object getProxy(Class protocol, InetSocketAddress addr, NutchConf nutchConf) {
     return Proxy.newProxyInstance(protocol.getClassLoader(),
                                   new Class[] { protocol },
-                                  new Invoker(addr));
+                                  new Invoker(addr, nutchConf));
   }
 
   /** Expert: Make multiple, parallel calls to a set of servers. */
   public static Object[] call(Method method, Object[][] params,
-                              InetSocketAddress[] addrs)
+                              InetSocketAddress[] addrs, NutchConf nutchConf)
     throws IOException {
 
     Invocation[] invocations = new Invocation[params.length];
     for (int i = 0; i < params.length; i++)
       invocations[i] = new Invocation(method, params[i]);
-    
+    CLIENT = (Client) nutchConf.getObject(Client.class.getName());
+    if(CLIENT == null) {
+        CLIENT = new Client(ObjectWritable.class, nutchConf);
+        nutchConf.setObject(Client.class.getName(), CLIENT);
+    }
     Writable[] wrappedValues = CLIENT.call(invocations, addrs);
     
     if (method.getReturnType() == Void.TYPE) {
@@ -165,16 +183,16 @@ public class RPC {
 
   /** Construct a server for a protocol implementation instance listening on a
    * port. */
-  public static Server getServer(final Object instance, final int port) {
-    return getServer(instance, port, 1, false);
+  public static Server getServer(final Object instance, final int port, NutchConf nutchConf) {
+    return getServer(instance, port, 1, false, nutchConf);
   }
 
   /** Construct a server for a protocol implementation instance listening on a
    * port. */
   public static Server getServer(final Object instance, final int port,
                                  final int numHandlers,
-                                 final boolean verbose) {
-    return new Server(port, Invocation.class, numHandlers) {
+                                 final boolean verbose, NutchConf nutchConf) {
+    return new Server(port, Invocation.class, numHandlers, nutchConf) {
         
         Class implementation = instance.getClass();
 

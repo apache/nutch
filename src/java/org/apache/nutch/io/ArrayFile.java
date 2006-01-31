@@ -46,8 +46,8 @@ public class ArrayFile extends MapFile {
     private LongWritable key = new LongWritable();
 
     /** Construct an array reader for the named file.*/
-    public Reader(NutchFileSystem nfs, String file) throws IOException {
-      super(nfs, file);
+    public Reader(NutchFileSystem nfs, String file, NutchConf nutchConf) throws IOException {
+      super(nfs, file, nutchConf);
     }
 
     /** Positions the reader before its <code>n</code>th value. */

@@ -24,6 +24,7 @@ import org.apache.nutch.plugin.*;
 
 import java.util.logging.Logger;
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.util.NutchConf;
 
 /** Creates and caches {@link Protocol} plugins.  Protocol plugins should
  * define the attribute "protocolName" with the name of the protocol that they
@@ -33,21 +34,20 @@ public class ProtocolFactory {
   public static final Logger LOG = LogFormatter
     .getLogger(ProtocolFactory.class.getName());
 
-  private final static ExtensionPoint X_POINT = PluginRepository.getInstance()
+  private ExtensionPoint extensionPoint;
+  private NutchConf nutchConf;
+
+  public ProtocolFactory(NutchConf nutchConf) {
+      this.nutchConf = nutchConf;
+      this.extensionPoint = nutchConf.getPluginRepository()
       .getExtensionPoint(Protocol.X_POINT_ID);
-
-  static {
-    if (X_POINT == null) {
-      throw new RuntimeException("x-point "+Protocol.X_POINT_ID+" not found.");
-    }
-  }
-
-  private static final Hashtable CACHE = new Hashtable();
-
-  private ProtocolFactory() {}                      // no public ctor
+      if (this.extensionPoint == null) {
+          throw new RuntimeException("x-point " + Protocol.X_POINT_ID + " not found.");
+        }
+  }                      
 
   /** Returns the appropriate {@link Protocol} implementation for a url. */
-  public static Protocol getProtocol(String urlString)
+  public Protocol getProtocol(String urlString)
     throws ProtocolNotFound {
     try {
       URL url = new URL(urlString);
@@ -57,8 +57,9 @@ public class ProtocolFactory {
       Extension extension = getExtension(protocolName);
       if (extension == null)
         throw new ProtocolNotFound(protocolName);
-
-      return (Protocol)extension.getExtensionInstance();
+      Protocol protocol = (Protocol) extension.getExtensionInstance();
+      protocol.setConf(this.nutchConf);
+      return protocol;
 
     } catch (MalformedURLException e) {
       throw new ProtocolNotFound(urlString, e.toString());
@@ -67,23 +68,23 @@ public class ProtocolFactory {
     }
   }
 
-  private static Extension getExtension(String name)
+  private Extension getExtension(String name)
     throws PluginRuntimeException {
 
-    if (CACHE.containsKey(name))
-      return (Extension)CACHE.get(name);
+    if (this.nutchConf.getObject(name) != null)
+      return (Extension)this.nutchConf.getObject(name);
     
     Extension extension = findExtension(name);
     
-    if (extension != null) CACHE.put(name, extension);
+    if (extension != null) this.nutchConf.setObject(name, extension);
     
     return extension;
   }
 
-  private static Extension findExtension(String name)
+  private Extension findExtension(String name)
     throws PluginRuntimeException {
 
-    Extension[] extensions = X_POINT.getExtensions();
+    Extension[] extensions = this.extensionPoint.getExtensions();
 
     for (int i = 0; i < extensions.length; i++) {
       Extension extension = extensions[i];

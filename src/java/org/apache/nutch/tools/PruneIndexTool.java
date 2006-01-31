@@ -459,8 +459,9 @@ public class PruneIndexTool implements Runnable {
     if (qPath != null) {
       is = new FileInputStream(qPath);
     } else {
-      qPath = NutchConf.get().get("prune.index.tool.queries");
-      is = NutchConf.get().getConfResourceAsInputStream(qPath);
+        NutchConf nutchConf = new NutchConf();
+        qPath = nutchConf.get("prune.index.tool.queries");
+        is = nutchConf.getConfResourceAsInputStream(qPath);
     }
     if (is == null) {
       LOG.severe("Can't load queries from " + qPath);

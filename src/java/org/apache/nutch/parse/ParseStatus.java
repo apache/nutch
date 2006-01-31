@@ -13,6 +13,7 @@ import java.util.Properties;
 import org.apache.nutch.io.VersionedWritable;
 import org.apache.nutch.io.WritableUtils;
 import org.apache.nutch.protocol.ContentProperties;
+import org.apache.nutch.util.NutchConf;
 
 /**
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
@@ -163,8 +164,8 @@ public class ParseStatus extends VersionedWritable {
   /** A convenience method. Creates an empty Parse instance,
    * which returns this status.
    */
-  public Parse getEmptyParse() {
-    return new EmptyParseImpl(this);
+  public Parse getEmptyParse(NutchConf nutchConf) {
+    return new EmptyParseImpl(this, nutchConf);
   }
   
   public String toString() {
@@ -230,8 +231,9 @@ public class ParseStatus extends VersionedWritable {
     
     private ParseData data = null;
     
-    public EmptyParseImpl(ParseStatus status) {
+    public EmptyParseImpl(ParseStatus status, NutchConf nutchConf) {
       data = new ParseData(status, "", new Outlink[0], new ContentProperties());
+      data.setConf(nutchConf);
     }
     
     public ParseData getData() {

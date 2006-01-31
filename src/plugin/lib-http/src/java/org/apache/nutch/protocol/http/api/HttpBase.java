@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.io.UTF8;
 import org.apache.nutch.net.protocols.Response;
@@ -43,35 +44,46 @@ public abstract class HttpBase implements Protocol {
   
   public static final int BUFFER_SIZE = 8 * 1024;
   
-  public static String PROXY_HOST =
-          NutchConf.get().get("http.proxy.host");
-  
-  public static int PROXY_PORT =
-          NutchConf.get().getInt("http.proxy.port", 8080);
-  
-  public static boolean PROXY =
-          (PROXY_HOST != null && PROXY_HOST.length() > 0);
-  
-  public static int TIMEOUT =
-          NutchConf.get().getInt("http.timeout", 10000);
-  
-  public static int MAX_CONTENT =
-          NutchConf.get().getInt("http.content.limit", 64 * 1024);
-  
-  public static int MAX_DELAYS =
-          NutchConf.get().getInt("http.max.delays", 3);
-  
-  public static int MAX_THREADS_PER_HOST =
-          NutchConf.get().getInt("fetcher.threads.per.host", 1);
-  
-  public static String AGENT_STRING =
-          getAgentString();
-  
-  public static long SERVER_DELAY =
-          (long) (NutchConf.get().getFloat("fetcher.server.delay", 1.0f) * 1000);
-  
-
   private static final byte[] EMPTY_CONTENT = new byte[0];
+
+  private RobotRulesParser robots = null;
+ 
+  /** The proxy hostname. */ 
+  protected String proxyHost = null;
+
+  /** The proxy port. */
+  protected int proxyPort = 8080; 
+
+  /** Indicates if a proxy is used */
+  protected boolean useProxy = false;
+
+  /** The network timeout in millisecond */
+  protected int timeout = 10000;
+
+  /** The length limit for downloaded content, in bytes. */
+  protected int maxContent = 64 * 1024; 
+
+  /** The number of times a thread will delay when trying to fetch a page. */
+  protected int maxDelays = 3;
+
+  /**
+   * The maximum number of threads that should be allowed
+   * to access a host at one time.
+   */
+  protected int maxThreadsPerHost = 1; 
+
+  /**
+   * The number of seconds the fetcher will delay between
+   * successive requests to the same server.
+   */
+  protected long serverDelay = 1000;
+
+  /** The Nutch 'User-Agent' request header */
+  protected String userAgent = getAgentString(
+                        "NutchCVS", null, "Nutch",
+                        "http://lucene.apache.org/nutch/bot.html",
+                        "nutch-agent@lucene.apache.org");
+
     
   /**
    * Maps from InetAddress to a Long naming the time it should be unblocked.
@@ -97,7 +109,10 @@ public abstract class HttpBase implements Protocol {
 
   /** The specified logger */
   private Logger logger = LOGGER;
-  
+ 
+  /** The nutch configuration */
+  private NutchConf conf = null;
+ 
 
   /** Creates a new instance of HttpBase */
   public HttpBase() {
@@ -109,14 +124,32 @@ public abstract class HttpBase implements Protocol {
     if (logger != null) {
       this.logger = logger;
     }
-    logger.fine("http.proxy.host = " + PROXY_HOST);
-    logger.fine("http.proxy.port = " + PROXY_PORT);
-    logger.fine("http.timeout = " + TIMEOUT);
-    logger.fine("http.content.limit = " + MAX_CONTENT);
-    logger.fine("http.agent = " + AGENT_STRING);
-    logger.fine("fetcher.server.delay = " + SERVER_DELAY);
-    logger.fine("http.max.delays = " + MAX_DELAYS);
+    robots = new RobotRulesParser();
   }
+  
+   // Inherited Javadoc
+    public void setConf(NutchConf conf) {
+        this.conf = conf;
+        this.proxyHost = conf.get("http.proxy.host");
+        this.proxyPort = conf.getInt("http.proxy.port", 8080);
+        this.useProxy = (proxyHost != null && proxyHost.length() > 0);
+        this.timeout = conf.getInt("http.timeout", 10000);
+        this.maxContent = conf.getInt("http.content.limit", 64 * 1024);
+        this.maxDelays = conf.getInt("http.max.delays", 3);
+        this.maxThreadsPerHost = conf.getInt("fetcher.threads.per.host", 1);
+        this.userAgent = getAgentString(conf.get("http.agent.name"), conf.get("http.agent.version"), conf
+                .get("http.agent.description"), conf.get("http.agent.url"), conf.get("http.agent.email"));
+        this.serverDelay = (long) (conf.getFloat("fetcher.server.delay", 1.0f) * 1000);
+        this.robots.setConf(conf);
+        logConf();
+    }
+
+  // Inherited Javadoc
+  public NutchConf getConf() {
+    return this.conf;
+  }
+   
+  
   
   public ProtocolOutput getProtocolOutput(UTF8 url, CrawlDatum datum) {
     
@@ -125,7 +158,7 @@ public abstract class HttpBase implements Protocol {
       URL u = new URL(urlString);
       
       try {
-        if (!RobotRulesParser.isAllowed(this, u)) {
+        if (!robots.isAllowed(this, u)) {
           return new ProtocolOutput(null, new ProtocolStatus(ProtocolStatus.ROBOTS_DENIED, url));
         }
       } catch (Throwable e) {
@@ -146,7 +179,7 @@ public abstract class HttpBase implements Protocol {
       Content c = new Content(u.toString(), u.toString(),
                               (content == null ? EMPTY_CONTENT : content),
                               response.getHeader("Content-Type"),
-                              response.getHeaders());
+                              response.getHeaders(), this.conf);
       
       if (code == 200) { // got a good response
         return new ProtocolOutput(c); // return it
@@ -203,8 +236,49 @@ public abstract class HttpBase implements Protocol {
     }
   }
   
-  
-  private static InetAddress blockAddr(URL url) throws ProtocolException {
+  /* -------------------------- *
+   * </implementation:Protocol> *
+   * -------------------------- */
+
+
+  public String getProxyHost() {
+    return proxyHost;
+  }
+
+  public int getProxyPort() {
+    return proxyPort;
+  }
+
+  public boolean useProxy() {
+    return useProxy;
+  }
+
+  public int getTimeout() {
+    return timeout;
+  }
+
+  public int getMaxContent() {
+    return maxContent;
+  }
+
+  public int getMaxDelays() {
+    return maxDelays;
+  }
+
+  public int getMaxThreadsPerHost() {
+    return maxThreadsPerHost;
+  }
+
+  public long getServerDelay() {
+    return serverDelay;
+  }
+
+  public String getUserAgent() {
+    return userAgent;
+  }
+
+
+  private InetAddress blockAddr(URL url) throws ProtocolException {
     
     InetAddress addr;
     try {
@@ -229,21 +303,21 @@ public abstract class HttpBase implements Protocol {
           count++;                              // increment & store
           THREADS_PER_HOST_COUNT.put(addr, new Integer(count));
           
-          if (count >= MAX_THREADS_PER_HOST) {
+          if (count >= maxThreadsPerHost) {
             BLOCKED_ADDR_TO_TIME.put(addr, new Long(0)); // block it
           }
           return addr;
         }
       }
       
-      if (delays == MAX_DELAYS)
+      if (delays == maxDelays)
         throw new HttpException("Exceeded http.max.delays: retry later.");
       
       long done = time.longValue();
       long now = System.currentTimeMillis();
       long sleep = 0;
       if (done == 0) {                            // address is still in use
-        sleep = SERVER_DELAY;                     // wait at least delay
+        sleep = serverDelay;                      // wait at least delay
         
       } else if (now < done) {                    // address is on hold
         sleep = done - now;                       // wait until its free
@@ -256,14 +330,14 @@ public abstract class HttpBase implements Protocol {
     }
   }
   
-  private static void unblockAddr(InetAddress addr) {
+  private void unblockAddr(InetAddress addr) {
     synchronized (BLOCKED_ADDR_TO_TIME) {
       int addrCount = ((Integer)THREADS_PER_HOST_COUNT.get(addr)).intValue();
       if (addrCount == 1) {
         THREADS_PER_HOST_COUNT.remove(addr);
         BLOCKED_ADDR_QUEUE.addFirst(addr);
         BLOCKED_ADDR_TO_TIME.put
-                (addr, new Long(System.currentTimeMillis()+SERVER_DELAY));
+                (addr, new Long(System.currentTimeMillis() + serverDelay));
       } else {
         THREADS_PER_HOST_COUNT.put(addr, new Integer(addrCount - 1));
       }
@@ -285,13 +359,11 @@ public abstract class HttpBase implements Protocol {
     }
   }
   
-  private static String getAgentString() {
-    
-    String agentName = NutchConf.get().get("http.agent.name");
-    String agentVersion = NutchConf.get().get("http.agent.version");
-    String agentDesc = NutchConf.get().get("http.agent.description");
-    String agentURL = NutchConf.get().get("http.agent.url");
-    String agentEmail = NutchConf.get().get("http.agent.email");
+  private static String getAgentString(String agentName,
+                                       String agentVersion,
+                                       String agentDesc,
+                                       String agentURL,
+                                       String agentEmail) {
     
     if ( (agentName == null) || (agentName.trim().length() == 0) )
       LOGGER.severe("No User-Agent string set (http.agent.name)!");
@@ -327,6 +399,16 @@ public abstract class HttpBase implements Protocol {
     }
     return buf.toString();
   }
+
+  protected void logConf() {
+    logger.info("http.proxy.host = " + proxyHost);
+    logger.info("http.proxy.port = " + proxyPort);
+    logger.info("http.timeout = " + timeout);
+    logger.info("http.content.limit = " + maxContent);
+    logger.info("http.agent = " + userAgent);
+    logger.info("fetcher.server.delay = " + serverDelay);
+    logger.info("http.max.delays = " + maxDelays);
+  }
   
   protected static void main(HttpBase http, String[] args) throws Exception {
     boolean verbose = false;
@@ -341,7 +423,7 @@ public abstract class HttpBase implements Protocol {
     
     for (int i = 0; i < args.length; i++) { // parse command line
       if (args[i].equals("-timeout")) { // found -timeout option
-        TIMEOUT = Integer.parseInt(args[++i]) * 1000;
+        http.timeout = Integer.parseInt(args[++i]) * 1000;
       } else if (args[i].equals("-verbose")) { // found -verbose option
         verbose = true;
       } else if (i != args.length - 1) {

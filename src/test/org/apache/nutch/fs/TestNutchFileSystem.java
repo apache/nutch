@@ -30,8 +30,8 @@ import org.apache.nutch.util.*;
 public class TestNutchFileSystem extends TestCase {
   private static final Logger LOG = InputFormatBase.LOG;
 
-  private static int BUFFER_SIZE =
-    NutchConf.get().getInt("io.file.buffer.size", 4096);
+  private static NutchConf nutchConf = new NutchConf();
+  private static int BUFFER_SIZE = nutchConf.getInt("io.file.buffer.size", 4096);
 
   private static final long MEGA = 1024 * 1024;
   private static final int SEEKS_PER_FILE = 4;
@@ -49,7 +49,7 @@ public class TestNutchFileSystem extends TestCase {
   public static void testFs(long megaBytes, int numFiles, long seed)
     throws Exception {
 
-    NutchFileSystem fs = NutchFileSystem.get();
+    NutchFileSystem fs = NutchFileSystem.get(nutchConf);
 
     if (seed == 0)
       seed = new Random().nextLong();
@@ -107,7 +107,7 @@ public class TestNutchFileSystem extends TestCase {
     
     {
       try {
-        fs = NutchFileSystem.get();
+        fs = NutchFileSystem.get(nutchConf);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -164,7 +164,7 @@ public class TestNutchFileSystem extends TestCase {
     fs.delete(DATA_DIR);
     fs.delete(WRITE_DIR);
     
-    JobConf job = new JobConf(NutchConf.get());
+    JobConf job = new JobConf(nutchConf);
     job.setBoolean("fs.test.fastCheck", fastCheck);
 
     job.setInputDir(CONTROL_DIR);
@@ -191,7 +191,7 @@ public class TestNutchFileSystem extends TestCase {
 
     {
       try {
-        fs = NutchFileSystem.get();
+        fs = NutchFileSystem.get(nutchConf);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -255,7 +255,7 @@ public class TestNutchFileSystem extends TestCase {
 
     fs.delete(READ_DIR);
 
-    JobConf job = new JobConf(NutchConf.get());
+    JobConf job = new JobConf(nutchConf);
     job.setBoolean("fs.test.fastCheck", fastCheck);
 
 
@@ -283,7 +283,7 @@ public class TestNutchFileSystem extends TestCase {
 
     {
       try {
-        fs = NutchFileSystem.get();
+        fs = NutchFileSystem.get(nutchConf);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
@@ -347,7 +347,7 @@ public class TestNutchFileSystem extends TestCase {
 
     fs.delete(READ_DIR);
 
-    JobConf job = new JobConf(NutchConf.get());
+    JobConf job = new JobConf(nutchConf);
     job.setBoolean("fs.test.fastCheck", fastCheck);
 
     job.setInputDir(CONTROL_DIR);
@@ -401,7 +401,7 @@ public class TestNutchFileSystem extends TestCase {
     LOG.info("files = " + files);
     LOG.info("megaBytes = " + megaBytes);
   
-    NutchFileSystem fs = NutchFileSystem.get();
+    NutchFileSystem fs = NutchFileSystem.get(nutchConf);
 
     if (!noWrite) {
       createControlFile(fs, megaBytes*MEGA, files, seed);

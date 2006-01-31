@@ -48,21 +48,20 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
     /**
      * Create a NameNode at the default location
      */
-    public NameNode() throws IOException {
-        this(new File(NutchConf.get().get("ndfs.name.dir",
+    public NameNode(NutchConf nutchConf) throws IOException {
+        this(new File(nutchConf.get("ndfs.name.dir",
                                           "/tmp/nutch/ndfs/name")),
              DataNode.createSocketAddr
-             (NutchConf.get().get("fs.default.name", "local")).getPort());
+             (nutchConf.get("fs.default.name", "local")).getPort(), nutchConf);
     }
 
     /**
      * Create a NameNode at the specified location and start it.
      */
-    public NameNode(File dir, int port) throws IOException {
-        this.namesystem = new FSNamesystem(dir);
-        this.handlerCount =
-            NutchConf.get().getInt("ndfs.namenode.handler.count", 10);
-        this.server = RPC.getServer(this, port, handlerCount, false);
+    public NameNode(File dir, int port, NutchConf nutchConf) throws IOException {
+        this.namesystem = new FSNamesystem(dir, nutchConf);
+        this.handlerCount = nutchConf.getInt("ndfs.namenode.handler.count", 10);
+        this.server = RPC.getServer(this, port, handlerCount, false, nutchConf);
         this.server.start();
     }
 
@@ -346,7 +345,7 @@ public class NameNode implements ClientProtocol, DatanodeProtocol, FSConstants {
     /**
      */
     public static void main(String argv[]) throws IOException, InterruptedException {
-        NameNode namenode = new NameNode();
+        NameNode namenode = new NameNode(new NutchConf());
         namenode.join();
     }
 }

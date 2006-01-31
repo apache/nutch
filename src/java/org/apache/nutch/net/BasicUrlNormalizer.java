@@ -23,6 +23,7 @@ import java.net.MalformedURLException;
 
 import java.util.logging.Logger;
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.util.NutchConf;
 import org.apache.oro.text.regex.*;
 
 /** Converts URLs to a normal form . */
@@ -38,6 +39,8 @@ public class BasicUrlNormalizer implements UrlNormalizer {
       };
     private Rule relativePathRule = null;
     private Rule leadingRelativePathRule = null;
+
+    private NutchConf nutchConf;
 
     public BasicUrlNormalizer() {
       try {
@@ -171,6 +174,15 @@ public class BasicUrlNormalizer implements UrlNormalizer {
         public Perl5Pattern pattern;
         public Perl5Substitution substitution;
     }
+
+
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
+  }
 
 }
 

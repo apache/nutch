@@ -17,35 +17,38 @@
 package org.apache.nutch.net;
 
 import org.apache.nutch.util.*;
+
+import java.net.URL;
 import java.util.logging.*;
 
 /** Factory to create a UrlNormalizer from "urlnormalizer.class" config property. */
 public class UrlNormalizerFactory {
-  private static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.net.UrlNormalizerFactory");
+  private static final Logger LOG = LogFormatter
+      .getLogger("org.apache.nutch.net.UrlNormalizerFactory");
 
-  private static final String URLNORMALIZER_CLASS =
-    NutchConf.get().get("urlnormalizer.class");
+  private NutchConf nutchConf;
 
-  private UrlNormalizerFactory() {}                   // no public ctor
-
-  private static UrlNormalizer normalizer;
-
-  /** Return the default UrlNormalizer implementation. */
-  public static UrlNormalizer getNormalizer() {
-
-    if (normalizer == null) {
-      try {
-        LOG.info("Using URL normalizer: " + URLNORMALIZER_CLASS);
-        Class normalizerClass = Class.forName(URLNORMALIZER_CLASS);
-        normalizer = (UrlNormalizer)normalizerClass.newInstance();
-      } catch (Exception e) {
-        throw new RuntimeException("Couldn't create "+URLNORMALIZER_CLASS, e);
-      }
-    }
-
-    return normalizer;
-
+  public UrlNormalizerFactory(NutchConf nutchConf) {
+    this.nutchConf = nutchConf;
   }
 
+  /** Return the default UrlNormalizer implementation. */
+  public UrlNormalizer getNormalizer() {
+    String urlNormalizer = null;
+    UrlNormalizer normalizer = (UrlNormalizer) this.nutchConf
+        .getObject(UrlNormalizer.class.getName());
+    if (normalizer == null) {
+      try {
+        urlNormalizer = this.nutchConf.get("urlnormalizer.class");
+        LOG.info("Using URL normalizer: " + urlNormalizer);
+        Class normalizerClass = Class.forName(urlNormalizer);
+        normalizer = (UrlNormalizer) normalizerClass.newInstance();
+        normalizer.setConf(this.nutchConf);
+        this.nutchConf.setObject(UrlNormalizer.class.getName(), normalizer);
+      } catch (Exception e) {
+        throw new RuntimeException("Couldn't create " + urlNormalizer, e);
+      }
+    }
+    return normalizer;
+  }
 }

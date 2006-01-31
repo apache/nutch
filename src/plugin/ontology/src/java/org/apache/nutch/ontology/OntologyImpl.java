@@ -325,9 +325,10 @@ public class OntologyImpl implements org.apache.nutch.ontology.Ontology {
 
   public static void main( String[] args ) throws Exception {
 
-    Ontology ontology = OntologyFactory.getOntology();
+    NutchConf nutchConf = new NutchConf(); 
+    Ontology ontology = new OntologyFactory(nutchConf).getOntology();
 
-    String urls = NutchConf.get().get("extension.ontology.urls");
+    String urls = nutchConf.get("extension.ontology.urls");
     if (urls==null || urls.trim().equals("")) {
       LOG.severe("No ontology url found.");
       return;

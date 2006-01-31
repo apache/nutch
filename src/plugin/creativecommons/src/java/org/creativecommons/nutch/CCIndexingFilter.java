@@ -30,6 +30,7 @@ import org.apache.nutch.crawl.Inlinks;
 
 import java.util.logging.Logger;
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.util.NutchConf;
 
 import java.util.*;
 import java.net.URL;
@@ -42,6 +43,8 @@ public class CCIndexingFilter implements IndexingFilter {
 
   /** The name of the document field we use. */
   public static String FIELD = "cc";
+
+  private NutchConf nutchConf;
 
   public Document filter(Document doc, Parse parse, UTF8 url, CrawlDatum datum, Inlinks inlinks)
     throws IndexingException {
@@ -98,6 +101,14 @@ public class CCIndexingFilter implements IndexingFilter {
   
   private void addFeature(Document doc, String feature) {
     doc.add(Field.Keyword(FIELD, feature));
+  }
+
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
   }
 
 }

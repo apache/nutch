@@ -20,9 +20,10 @@ import java.io.IOException;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.io.UTF8;
+import org.apache.nutch.util.NutchConfigurable;
 
 /** A retriever of url content.  Implemented by protocol extensions. */
-public interface Protocol {
+public interface Protocol extends NutchConfigurable {
   /** The name of the extension point. */
   public final static String X_POINT_ID = Protocol.class.getName();
 

@@ -27,6 +27,7 @@ import java.util.logging.Level;
 import java.util.Arrays;
 
 import org.apache.nutch.util.LogFormatter;
+import org.apache.nutch.util.NutchConf;
 
 /** Unit tests for RPC. */
 public class TestRPC extends TestCase {
@@ -34,6 +35,8 @@ public class TestRPC extends TestCase {
 
   public static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.ipc.TestRPC");
+  
+  private static NutchConf nutchConf = new NutchConf();
 
   // quiet during testing, since output ends up on console
   static {
@@ -80,12 +83,12 @@ public class TestRPC extends TestCase {
   }
 
   public void testCalls() throws Exception {
-    Server server = RPC.getServer(new TestImpl(), PORT);
+    Server server = RPC.getServer(new TestImpl(), PORT, nutchConf);
     server.start();
 
     InetSocketAddress addr = new InetSocketAddress(PORT);
     TestProtocol proxy =
-      (TestProtocol)RPC.getProxy(TestProtocol.class, addr);
+      (TestProtocol)RPC.getProxy(TestProtocol.class, addr, nutchConf);
     
     proxy.ping();
 
@@ -114,12 +117,12 @@ public class TestRPC extends TestCase {
     Method echo =
       TestProtocol.class.getMethod("echo", new Class[] { String.class });
     String[] strings = (String[])RPC.call(echo, new String[][]{{"a"},{"b"}},
-                                         new InetSocketAddress[] {addr, addr});
+                                         new InetSocketAddress[] {addr, addr}, nutchConf);
     assertTrue(Arrays.equals(strings, new String[]{"a","b"}));
 
     Method ping = TestProtocol.class.getMethod("ping", new Class[] {});
     Object[] voids = (Object[])RPC.call(ping, new Object[][]{{},{}},
-                                        new InetSocketAddress[] {addr, addr});
+                                        new InetSocketAddress[] {addr, addr}, nutchConf);
     assertEquals(voids, null);
 
     server.stop();

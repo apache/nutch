@@ -14,44 +14,43 @@
   import="org.apache.nutch.clustering.*"
   import="org.apache.nutch.util.NutchConf"
 
-%><%!
-  // NOTE: Dawid Weiss
-  // these are servlet's class variables. Merely to speed up access
-  // to them (instead of referencing static objects).
-
+%><%
+  NutchConf nutchConf = (NutchConf) application.getAttribute(NutchConf.class.getName());
+  if (nutchConf == null) {
+    nutchConf = new NutchConf();
+    application.setAttribute(NutchConf.class.getName(), nutchConf);
+  }
+  
   /**
    * Number of hits to retrieve and cluster if clustering extension is available
    * and clustering is on. By default, 100. Configurable via nutch-conf.xml.
    */
-  private final static int HITS_TO_CLUSTER =
-    NutchConf.get().getInt("extension.clustering.hits-to-cluster", 100);
+  int HITS_TO_CLUSTER = 
+    nutchConf.getInt("extension.clustering.hits-to-cluster", 100);
 
   /**
    * An instance of the clustering extension, if available.
    */
-  private static OnlineClusterer clusterer;
-
-  static {
-    try {
-      clusterer = OnlineClustererFactory.getOnlineClusterer();
-    } catch (PluginRuntimeException e) {
-      // NOTE: Dawid Weiss
-      // should we ignore plugin exceptions, or rethrow it? Rethrowing
-      // it effectively prevents the servlet class from being loaded into
-      // the JVM
-    }
+  OnlineClusterer clusterer = null;
+  try {
+    clusterer = new OnlineClustererFactory(nutchConf).getOnlineClusterer();
+  } catch (PluginRuntimeException e) {
+    // NOTE: Dawid Weiss
+    // should we ignore plugin exceptions, or rethrow it? Rethrowing
+    // it effectively prevents the servlet class from being loaded into
+    // the JVM
   }
 
 %>
 
 <%--
 // Uncomment this to enable query refinement.
-// Do the same to "refine-query.jsp" below.
+// Do the same to "refine-query.jsp" below.,
 <%@ include file="./refine-query-init.jsp" %>
 --%>
 
 <%
-  NutchBean bean = NutchBean.get(application);
+  NutchBean bean = NutchBean.get(application, nutchConf);
   // set the character encoding to use when interpreting request values 
   request.setCharacterEncoding("UTF-8");
 
@@ -94,7 +93,7 @@
 
   int hitsToCluster = HITS_TO_CLUSTER;            // number of hits to cluster
 
-  Query query = Query.parse(queryString);
+  Query query = Query.parse(queryString, nutchConf);
   bean.LOG.info("query: " + queryString);
 
   String language =

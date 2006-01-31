@@ -27,6 +27,8 @@ import org.apache.nutch.fs.NutchFileSystem;
 /** A Map task. */
 public class MapTask extends Task {
   private FileSplit split;
+  private MapOutputFile mapOutputFile;
+  private NutchConf nutchConf;
 
   public MapTask() {}
 
@@ -36,7 +38,7 @@ public class MapTask extends Task {
   }
 
   public TaskRunner createRunner(TaskTracker tracker) {
-    return new MapTaskRunner(this, tracker);
+    return new MapTaskRunner(this, tracker, this.nutchConf);
   }
 
   public FileSplit getSplit() { return split; }
@@ -62,8 +64,8 @@ public class MapTask extends Task {
     try {
       for (int i = 0; i < partitions; i++) {
         outs[i] =
-          new SequenceFile.Writer(NutchFileSystem.getNamed("local"),
-                                  MapOutputFile.getOutputFile(getTaskId(), i).toString(),
+          new SequenceFile.Writer(NutchFileSystem.getNamed("local", job),
+                                  this.mapOutputFile.getOutputFile(getTaskId(), i).toString(),
                                   job.getOutputKeyClass(),
                                   job.getOutputValueClass());
       }
@@ -91,7 +93,7 @@ public class MapTask extends Task {
 
       final RecordReader rawIn =                  // open input
         job.getInputFormat().getRecordReader
-        (NutchFileSystem.get(), split, job, reporter);
+        (NutchFileSystem.get(job), split, job, reporter);
 
       RecordReader in = new RecordReader() {      // wrap in progress reporter
           private float perByte = 1.0f /(float)split.getLength();
@@ -130,6 +132,16 @@ public class MapTask extends Task {
       }
     }
     done(umbilical);
+  }
+
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+    this.mapOutputFile = new MapOutputFile();
+    this.mapOutputFile.setConf(conf);
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
   }
   
 }

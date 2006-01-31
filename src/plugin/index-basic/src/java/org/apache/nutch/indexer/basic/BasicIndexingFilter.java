@@ -40,8 +40,8 @@ public class BasicIndexingFilter implements IndexingFilter {
   public static final Logger LOG
     = LogFormatter.getLogger(BasicIndexingFilter.class.getName());
 
-  private static final int MAX_TITLE_LENGTH =
-    NutchConf.get().getInt("indexer.max.title.length", 100);
+  private int MAX_TITLE_LENGTH;
+  private NutchConf nutchConf;
 
   public Document filter(Document doc, Parse parse, UTF8 url, CrawlDatum datum, Inlinks inlinks)
     throws IndexingException {
@@ -87,6 +87,15 @@ public class BasicIndexingFilter implements IndexingFilter {
     doc.add(Field.Text("title", title));
 
     return doc;
+  }
+
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+    this.MAX_TITLE_LENGTH = conf.getInt("indexer.max.title.length", 100);
+  }
+
+  public NutchConf getConf() {
+    return this.nutchConf;
   }
 
 }

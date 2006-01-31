@@ -35,16 +35,18 @@ public class TestArrayFile extends TestCase {
   }
 
   public void testArrayFile() throws Exception {
-    NutchFileSystem nfs = new LocalFileSystem();
+      NutchConf nutchConf = new NutchConf();
+    NutchFileSystem nfs = new LocalFileSystem(nutchConf);
     RandomDatum[] data = generate(10000);
     writeTest(nfs, data, FILE);
-    readTest(nfs, data, FILE);
+    readTest(nfs, data, FILE, nutchConf);
   }
 
   public void testEmptyFile() throws Exception {
-    NutchFileSystem nfs = new LocalFileSystem();
+    NutchConf nutchConf = new NutchConf();
+    NutchFileSystem nfs = new LocalFileSystem(nutchConf);
     writeTest(nfs, new RandomDatum[0], FILE);
-    ArrayFile.Reader reader = new ArrayFile.Reader(nfs, FILE);
+    ArrayFile.Reader reader = new ArrayFile.Reader(nfs, FILE, nutchConf);
     assertNull(reader.get(0, new RandomDatum()));
     reader.close();
   }
@@ -71,11 +73,11 @@ public class TestArrayFile extends TestCase {
     writer.close();
   }
 
-  private static void readTest(NutchFileSystem nfs, RandomDatum[] data, String file)
+  private static void readTest(NutchFileSystem nfs, RandomDatum[] data, String file, NutchConf nutchConf)
     throws IOException {
     RandomDatum v = new RandomDatum();
     LOG.fine("reading " + data.length + " records");
-    ArrayFile.Reader reader = new ArrayFile.Reader(nfs, file);
+    ArrayFile.Reader reader = new ArrayFile.Reader(nfs, file, nutchConf);
     for (int i = 0; i < data.length; i++) {       // try forwards
       reader.get(i, v);
       if (!v.equals(data[i])) {
@@ -106,8 +108,9 @@ public class TestArrayFile extends TestCase {
       System.exit(-1);
     }
 
+    NutchConf nutchConf = new NutchConf();
     int i = 0;
-    NutchFileSystem nfs = NutchFileSystem.parseArgs(args, i);
+    NutchFileSystem nfs = NutchFileSystem.parseArgs(args, i, nutchConf);
     try {
         for (; i < args.length; i++) {       // parse command line
             if (args[i] == null) {
@@ -138,7 +141,7 @@ public class TestArrayFile extends TestCase {
         }
 
         if (check) {
-            readTest(nfs, data, file);
+            readTest(nfs, data, file, nutchConf);
         }
     } finally {
         nfs.close();

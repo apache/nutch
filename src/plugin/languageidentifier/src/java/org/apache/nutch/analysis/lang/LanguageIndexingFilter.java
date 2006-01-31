@@ -24,6 +24,7 @@ import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.io.UTF8;
 import org.apache.nutch.parse.Parse;
+import org.apache.nutch.util.NutchConf;
 
 // Lucene imports
 import org.apache.lucene.document.Field;
@@ -49,7 +50,10 @@ import org.apache.lucene.document.Document;
 public class LanguageIndexingFilter implements IndexingFilter {
   
 
-  /**
+  private NutchConf nutchConf;
+  private LanguageIdentifier languageIdentifier;
+
+/**
    * Constructs a new Language Indexing Filter.
    */
   public LanguageIndexingFilter() {
@@ -77,7 +81,7 @@ public class LanguageIndexingFilter implements IndexingFilter {
       text.append(parse.getData().getTitle())
           .append(" ")
           .append(parse.getText());
-      lang = LanguageIdentifier.getInstance().identify(text);
+      lang = this.languageIdentifier.identify(text);
     }
 
     if (lang == null) {
@@ -88,5 +92,13 @@ public class LanguageIndexingFilter implements IndexingFilter {
 
     return doc;
   }
+  
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+    this.languageIdentifier = new LanguageIdentifier(conf);
+  }
 
+  public NutchConf getConf() {
+    return this.nutchConf;
+  }
 }

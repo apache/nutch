@@ -222,10 +222,12 @@ public class SequenceFile {
     private byte[] inflateIn = new byte[1024];
     private DataOutputBuffer inflateOut = new DataOutputBuffer();
     private Inflater inflater = new Inflater();
+    private NutchConf nutchConf;
 
     /** Open the named file. */
-    public Reader(NutchFileSystem nfs, String file) throws IOException {
-      this(nfs, file, NutchConf.get().getInt("io.file.buffer.size", 4096));
+    public Reader(NutchFileSystem nfs, String file, NutchConf nutchConf) throws IOException {
+      this(nfs, file, nutchConf.getInt("io.file.buffer.size", 4096));
+      this.nutchConf = nutchConf;
     }
 
     private Reader(NutchFileSystem nfs, String name, int bufferSize) throws IOException {
@@ -339,7 +341,9 @@ public class SequenceFile {
           }
           inBuf.reset(inflateOut.getData(), inflateOut.getLength());
         }
-
+        if(val instanceof NutchConfigurable) {
+          ((NutchConfigurable) val).setConf(this.nutchConf);
+        }
         val.readFields(inBuf);
 
         if (inBuf.getPosition() != inBuf.getLength())
@@ -386,9 +390,9 @@ public class SequenceFile {
 
     private void handleChecksumException(ChecksumException e)
       throws IOException {
-      if (NutchConf.get().getBoolean("io.skip.checksum.errors", false)) {
+      if (this.nutchConf.getBoolean("io.skip.checksum.errors", false)) {
         LOG.warning("Bad checksum at "+getPosition()+". Skipping entries.");
-        sync(getPosition()+NutchConf.get().getInt("io.bytes.per.checksum", 512));
+        sync(getPosition()+this.nutchConf.getInt("io.bytes.per.checksum", 512));
       } else {
         throw e;
       }
@@ -449,10 +453,6 @@ public class SequenceFile {
    * very efficient.  In particular, it should avoid allocating memory.
    */
   public static class Sorter {
-    private static final int FACTOR =
-      NutchConf.get().getInt("io.sort.factor", 100); 
-    private static final int MEGABYTES =
-      NutchConf.get().getInt("io.sort.mb", 100); 
 
     private WritableComparator comparator;
 
@@ -461,25 +461,30 @@ public class SequenceFile {
 
     private String outFile;
 
-    private int memory = MEGABYTES * 1024*1024;   // bytes
-    private int factor = FACTOR;                  // merged per pass
+    private int memory; // bytes
+    private int factor; // merged per pass
 
     private NutchFileSystem nfs = null;
 
     private Class keyClass;
     private Class valClass;
 
+    private NutchConf nutchConf;
+
     /** Sort and merge files containing the named classes. */
-    public Sorter(NutchFileSystem nfs, Class keyClass, Class valClass)  {
-      this(nfs, new WritableComparator(keyClass), valClass);
+    public Sorter(NutchFileSystem nfs, Class keyClass, Class valClass, NutchConf nutchConf)  {
+      this(nfs, new WritableComparator(keyClass), valClass, nutchConf);
     }
 
     /** Sort and merge using an arbitrary {@link WritableComparator}. */
-    public Sorter(NutchFileSystem nfs, WritableComparator comparator, Class valClass) {
+    public Sorter(NutchFileSystem nfs, WritableComparator comparator, Class valClass, NutchConf nutchConf) {
       this.nfs = nfs;
       this.comparator = comparator;
       this.keyClass = comparator.getKeyClass();
       this.valClass = valClass;
+      this.memory = nutchConf.getInt("io.sort.mb", 100) * 1024 * 1024;
+      this.factor = nutchConf.getInt("io.sort.factor", 100);
+      this.nutchConf = nutchConf;
     }
 
     /** Set the number of streams to merge at once.*/
@@ -513,7 +518,7 @@ public class SequenceFile {
 
     private int sortPass() throws IOException {
       LOG.fine("running sort pass");
-      SortPass sortPass = new SortPass();         // make the SortPass
+      SortPass sortPass = new SortPass(this.nutchConf);         // make the SortPass
       try {
         return sortPass.run();                    // run it
       } finally {
@@ -536,8 +541,8 @@ public class SequenceFile {
       private NFSDataOutputStream out;
         private String outName;
 
-      public SortPass() throws IOException {
-        in = new Reader(nfs, inFile);
+      public SortPass(NutchConf nutchConf) throws IOException {
+        in = new Reader(nfs, inFile, nutchConf);
       }
       
       public int run() throws IOException {

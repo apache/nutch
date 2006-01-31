@@ -26,17 +26,22 @@ import java.util.logging.*;
 
 /** Runs a map task. */
 class MapTaskRunner extends TaskRunner {
-  public MapTaskRunner(Task task, TaskTracker tracker) {
-    super(task, tracker);
+  private MapOutputFile mapOutputFile;
+
+  public MapTaskRunner(Task task, TaskTracker tracker, NutchConf nutchConf) {
+    super(task, tracker, nutchConf);
+    this.mapOutputFile = new MapOutputFile();
+    this.mapOutputFile.setConf(nutchConf);
   }
+  
   /** Delete any temporary files from previous failed attempts. */
   public void prepare() throws IOException {
-    MapOutputFile.removeAll(getTask().getTaskId());
+    this.mapOutputFile.removeAll(getTask().getTaskId());
   }
 
   /** Delete all of the temporary map output files. */
   public void close() throws IOException {
     LOG.info(getTask()+" done; removing files.");
-    MapOutputFile.removeAll(getTask().getTaskId());
+    this.mapOutputFile.removeAll(getTask().getTaskId());
   }
 }

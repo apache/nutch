@@ -29,21 +29,23 @@ import org.apache.nutch.analysis.NutchDocumentAnalyzer;
 
 /** Implements hit summarization. */
 public class Summarizer {
-
-  /** The number of context terms to display preceding and following matches.*/
-  private static final int SUM_CONTEXT =
-    NutchConf.get().getInt("searcher.summary.context", 5);
-
-  /** The total number of terms to display in a summary.*/
-  private static final int SUM_LENGTH = 
-    NutchConf.get().getInt("searcher.summary.length", 20);
-
+   
   /** Converts text to tokens. */
-  private static final Analyzer ANALYZER = new NutchDocumentAnalyzer();
+  private Analyzer ANALYZER;
+  private NutchConf nutchConf;
 
   /**
-   * Class Excerpt represents a single passage found in the
-   * document, with some appropriate regions highlit.
+   * The constructor.
+   * @param conf
+   */
+  public Summarizer(NutchConf conf) {
+    this.nutchConf = conf;
+    this.ANALYZER = new NutchDocumentAnalyzer(conf);
+  }
+
+  /**
+   * Class Excerpt represents a single passage found in the document, with some
+   * appropriate regions highlit.
    */
   class Excerpt {
       Vector passages = new Vector();
@@ -54,7 +56,7 @@ public class Summarizer {
        */
       public Excerpt() {
       }
-
+      
       /**
        */
       public void addToken(String token) {
@@ -99,7 +101,7 @@ public class Summarizer {
   }
 
   /** Returns a summary for the given pre-tokenized text. */
-  public Summary getSummary(String text, Query query) throws IOException {
+  public Summary getSummary(String text, Query query, int sumContext, int sumLength) throws IOException {
 
     // Simplistic implementation.  Finds the first fragments in the document
     // containing any query terms.
@@ -161,8 +163,8 @@ public class Summarizer {
         // Start searching at a point SUM_CONTEXT terms back,
         // and move SUM_CONTEXT terms into the future.
         //
-        int startToken = (i > SUM_CONTEXT) ? i-SUM_CONTEXT : 0;
-        int endToken = Math.min(i+SUM_CONTEXT, tokens.length);
+        int startToken = (i > sumContext) ? i - sumContext : 0;
+        int endToken = Math.min(i + sumContext, tokens.length);
         int offset = tokens[startToken].startOffset();
         int j = startToken;
 
@@ -181,7 +183,7 @@ public class Summarizer {
         // the document and we haven't hit the max-number-of-items
         // -in-a-summary.
         //
-        while ((j < endToken) && (j - startToken < SUM_LENGTH)) {
+        while ((j < endToken) && (j - startToken < sumLength)) {
           //
           // Now grab the hit-element, if present
           //
@@ -191,7 +193,7 @@ public class Summarizer {
             excerpt.add(new Fragment(text.substring(offset, t.startOffset())));
             excerpt.add(new Highlight(text.substring(t.startOffset(),t.endOffset())));
             offset = t.endOffset();
-            endToken = Math.min(j+SUM_CONTEXT, tokens.length);
+            endToken = Math.min(j + sumContext, tokens.length);
           }
 
           j++;
@@ -226,7 +228,7 @@ public class Summarizer {
         // Start SUM_CONTEXT places away.  The next
         // search for relevant excerpts begins at i-SUM_CONTEXT
         //
-        i = j+SUM_CONTEXT;
+        i = j + sumContext;
       }
     }
 
@@ -236,7 +238,7 @@ public class Summarizer {
     //
     if (excerptSet.size() == 0) {
         Excerpt excerpt = new Excerpt();
-        int excerptLen = Math.min(SUM_LENGTH, tokens.length);
+        int excerptLen = Math.min(sumLength, tokens.length);
         lastExcerptPos = excerptLen;
 
         excerpt.add(new Fragment(text.substring(tokens[0].startOffset(), tokens[excerptLen-1].startOffset())));
@@ -250,7 +252,7 @@ public class Summarizer {
     //
     double tokenCount = 0;
     Summary s = new Summary();
-    while (tokenCount <= SUM_LENGTH && excerptSet.size() > 0) {
+    while (tokenCount <= sumLength && excerptSet.size() > 0) {
         Excerpt excerpt = (Excerpt) excerptSet.last();
         excerptSet.remove(excerpt);
 
@@ -258,7 +260,7 @@ public class Summarizer {
         for (Enumeration e = excerpt.elements(); e.hasMoreElements(); ) {
             Fragment f = (Fragment) e.nextElement();
             // Don't add fragments if it takes us over the max-limit
-            if (tokenCount + tokenFraction <= SUM_LENGTH) {
+            if (tokenCount + tokenFraction <= sumLength) {
                 s.add(f);
             }
             tokenCount += tokenFraction;
@@ -290,7 +292,7 @@ public class Summarizer {
             return;
         }
 
-        Summarizer s = new Summarizer();
+        Summarizer s = new Summarizer(new NutchConf());
 
         //
         // Parse the args
@@ -318,8 +320,11 @@ public class Summarizer {
             in.close();
         }
 
+        NutchConf nutchConf = new NutchConf();
+        int sumContext = nutchConf.getInt("searcher.summary.context", 5);
+        int sumLength = nutchConf.getInt("searcher.summary.length", 20);
         // Convert the query string into a proper Query
-        Query query = Query.parse(queryBuf.toString());
-        System.out.println("Summary: '" + s.getSummary(body.toString(), query) + "'");
+        Query query = Query.parse(queryBuf.toString(), nutchConf);
+        System.out.println("Summary: '" + s.getSummary(body.toString(), query, sumContext, sumLength) + "'");
     }
 }

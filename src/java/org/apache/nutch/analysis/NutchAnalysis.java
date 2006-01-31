@@ -4,7 +4,8 @@ package org.apache.nutch.analysis;
 import org.apache.nutch.searcher.Query;
 import org.apache.nutch.searcher.QueryFilters;
 import org.apache.nutch.searcher.Query.Clause;
-
+import org.apache.nutch.searcher.Query.Clause;
+import org.apache.nutch.util.NutchConf;
 import org.apache.lucene.analysis.StopFilter;
 
 import java.io.*;
@@ -24,6 +25,8 @@ public class NutchAnalysis implements NutchAnalysisConstants {
   private static final Set STOP_SET = StopFilter.makeStopSet(STOP_WORDS);
 
   private String queryString;
+  private QueryFilters queryFilters;
+
 
   /** True iff word is a stop word.  Stop words are only removed from queries.
    * Every word is indexed.  */
@@ -32,11 +35,12 @@ public class NutchAnalysis implements NutchAnalysisConstants {
   }
 
   /** Construct a query parser for the text in a reader. */
-  public static Query parseQuery(String queryString) throws IOException {
+  public static Query parseQuery(String queryString, NutchConf nutchConf) throws IOException {
     NutchAnalysis parser =
       new NutchAnalysis(new FastCharStream(new StringReader(queryString)));
     parser.queryString = queryString;
-    return parser.parse();
+    parser.queryFilters = new QueryFilters(nutchConf);
+    return parser.parse(nutchConf);
   }
 
   /** For debugging. */
@@ -45,13 +49,13 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     while (true) {
       System.out.print("Query: ");
       String line = in.readLine();
-      System.out.println(parseQuery(line));
+      System.out.println(parseQuery(line, new NutchConf()));
     }
   }
 
 /** Parse a query. */
-  final public Query parse() throws ParseException {
-  Query query = new Query();
+  final public Query parse(NutchConf nutchConf) throws ParseException {
+  Query query = new Query(nutchConf);
   ArrayList terms;
   Token token;
   String field;
@@ -213,7 +217,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
       jj_consume_token(-1);
       throw new ParseException();
     }
-    if (QueryFilters.isRawField(field)) {
+    if (this.queryFilters.isRawField(field)) {
       result.clear();
       result.add(queryString.substring(start, end));
     }
@@ -259,7 +263,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
       term = term();
                     result.add(term);
     }
-    if (QueryFilters.isRawField(field)) {
+    if (this.queryFilters.isRawField(field)) {
       result.clear();
       result.add(queryString.substring(start, token.endColumn));
     }

@@ -50,9 +50,15 @@ import org.apache.nutch.mapred.lib.HashPartitioner;
  * of input files, and where the output files should be written. */
 public class JobConf extends NutchConf {
 
-  /** Construct a map/reduce job configuration.
-   *
-   * @param conf a NutchConf whose settings will be inherited.
+  public JobConf() {
+    super();
+  }
+    
+  /**
+   * Construct a map/reduce job configuration.
+   * 
+   * @param conf
+   *          a NutchConf whose settings will be inherited.
    */
   public JobConf(NutchConf conf) {
     super(conf);
@@ -81,32 +87,32 @@ public class JobConf extends NutchConf {
   public String getJar() { return get("mapred.jar"); }
   public void setJar(String jar) { set("mapred.jar", jar); }
 
-  public static File getSystemDir() {
-    return new File(NutchConf.get().get("mapred.system.dir",
+  public File getSystemDir() {
+    return new File(get("mapred.system.dir",
                                         "/tmp/nutch/mapred/system"));
   }
 
-  public static String[] getLocalDirs() throws IOException {
-    return NutchConf.get().getStrings("mapred.local.dir");
+  public String[] getLocalDirs() throws IOException {
+    return getStrings("mapred.local.dir");
   }
 
-  public static void deleteLocalFiles() throws IOException {
+  public void deleteLocalFiles() throws IOException {
     String[] localDirs = getLocalDirs();
     for (int i = 0; i < localDirs.length; i++) {
-      FileUtil.fullyDelete(new File(localDirs[i]));
+      FileUtil.fullyDelete(new File(localDirs[i]), this);
     }
   }
 
-  public static void deleteLocalFiles(String subdir) throws IOException {
+  public void deleteLocalFiles(String subdir) throws IOException {
     String[] localDirs = getLocalDirs();
     for (int i = 0; i < localDirs.length; i++) {
-      FileUtil.fullyDelete(new File(localDirs[i], subdir));
+      FileUtil.fullyDelete(new File(localDirs[i], subdir), this);
     }
   }
 
   /** Constructs a local file name.  Files are distributed among configured
    * local directories.*/
-  public static File getLocalFile(String subdir, String name)
+  public File getLocalFile(String subdir, String name)
     throws IOException {
     String[] localDirs = getLocalDirs();
     String path = subdir + File.separator + name;

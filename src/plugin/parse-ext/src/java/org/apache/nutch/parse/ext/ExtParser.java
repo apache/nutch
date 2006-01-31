@@ -28,6 +28,7 @@ import org.apache.nutch.parse.OutlinkExtractor;
 
 import org.apache.nutch.util.LogFormatter;
 import org.apache.nutch.util.CommandRunner;
+import org.apache.nutch.util.NutchConf;
 
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
@@ -55,12 +56,93 @@ public class ExtParser implements Parser {
   static final int TIMEOUT_DEFAULT = 30; // in seconds
 
   // handy map from String contentType to String[] {command, timeoutString}
-  static Hashtable TYPE_PARAMS_MAP = new Hashtable();
+  Hashtable TYPE_PARAMS_MAP = new Hashtable();
 
-  // set TYPE_PARAMS_MAP using plugin.xml of this plugin
-  static {
-    Extension[] extensions = PluginRepository.getInstance()
-      .getExtensionPoint("org.apache.nutch.parse.Parser").getExtensions();
+  private NutchConf nutchConf;  
+
+  private boolean loaded = false;
+
+  public ExtParser () { }
+
+  public Parse getParse(Content content) {
+
+    String contentType = content.getContentType();
+
+    String[] params = (String[]) TYPE_PARAMS_MAP.get(contentType);
+    if (params == null)
+      return new ParseStatus(ParseStatus.FAILED,
+                      "No external command defined for contentType: " + contentType).getEmptyParse(getConf());
+
+    String command = params[0];
+    int timeout = Integer.parseInt(params[1]);
+
+    if (LOG.isLoggable(Level.FINE))
+      LOG.fine("Use "+command+ " with timeout="+timeout+"secs");
+
+    String text = null;
+    String title = null;
+
+    try {
+
+      byte[] raw = content.getContent();
+
+      String contentLength =
+        (String)content.getMetadata().get("Content-Length");
+      if (contentLength != null
+            && raw.length != Integer.parseInt(contentLength)) {
+          return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_TRUNCATED,
+                "Content truncated at " + raw.length
+            +" bytes. Parser can't handle incomplete "
+            + contentType + " file.").getEmptyParse(getConf());
+      }
+
+      ByteArrayOutputStream os = new ByteArrayOutputStream(BUFFER_SIZE);
+      ByteArrayOutputStream es = new ByteArrayOutputStream(BUFFER_SIZE/4);
+
+      CommandRunner cr = new CommandRunner();
+
+      cr.setCommand(command+ " " +contentType);
+      cr.setInputStream(new ByteArrayInputStream(raw));
+      cr.setStdOutputStream(os);
+      cr.setStdErrorStream(es);
+
+      cr.setTimeout(timeout);
+
+      cr.evaluate();
+
+      if (cr.getExitValue() != 0)
+        return new ParseStatus(ParseStatus.FAILED,
+                        "External command " + command
+                        + " failed with error: " + es.toString()).getEmptyParse(getConf());
+
+      text = os.toString();
+
+    } catch (Exception e) { // run time exception
+      return new ParseStatus(e).getEmptyParse(getConf());
+    }
+
+    if (text == null)
+      text = "";
+
+    if (title == null)
+      title = "";
+
+    // collect outlink
+    Outlink[] outlinks = OutlinkExtractor.getOutlinks(text, getConf());
+
+    // collect meta data
+    ContentProperties metaData = new ContentProperties();
+    metaData.putAll(content.getMetadata()); // copy through
+
+    ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks, metaData);
+    parseData.setConf(this.nutchConf);
+    return new ParseImpl(text, parseData);
+  }
+  
+  public void setConf(NutchConf conf) {
+    this.nutchConf = conf;
+    Extension[] extensions = conf.getPluginRepository().getExtensionPoint(
+        "org.apache.nutch.parse.Parser").getExtensions();
 
     String contentType, command, timeoutString;
 
@@ -83,84 +165,11 @@ public class ExtParser implements Parser {
       if (timeoutString == null || timeoutString.equals(""))
         timeoutString = "" + TIMEOUT_DEFAULT;
 
-      TYPE_PARAMS_MAP.put(contentType, new String[]{command, timeoutString});
+      TYPE_PARAMS_MAP.put(contentType, new String[] { command, timeoutString });
     }
   }
 
-  public ExtParser () {}
-
-  public Parse getParse(Content content) {
-
-    String contentType = content.getContentType();
-
-    String[] params = (String[]) TYPE_PARAMS_MAP.get(contentType);
-    if (params == null)
-      return new ParseStatus(ParseStatus.FAILED,
-                      "No external command defined for contentType: " + contentType).getEmptyParse();
-
-    String command = params[0];
-    int timeout = Integer.parseInt(params[1]);
-
-    if (LOG.isLoggable(Level.FINE))
-      LOG.fine("Use "+command+ " with timeout="+timeout+"secs");
-
-    String text = null;
-    String title = null;
-
-    try {
-
-      byte[] raw = content.getContent();
-
-      String contentLength =
-        (String)content.getMetadata().get("Content-Length");
-      if (contentLength != null
-            && raw.length != Integer.parseInt(contentLength)) {
-          return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_TRUNCATED,
-                "Content truncated at " + raw.length
-            +" bytes. Parser can't handle incomplete "
-            + contentType + " file.").getEmptyParse();
-      }
-
-      ByteArrayOutputStream os = new ByteArrayOutputStream(BUFFER_SIZE);
-      ByteArrayOutputStream es = new ByteArrayOutputStream(BUFFER_SIZE/4);
-
-      CommandRunner cr = new CommandRunner();
-
-      cr.setCommand(command+ " " +contentType);
-      cr.setInputStream(new ByteArrayInputStream(raw));
-      cr.setStdOutputStream(os);
-      cr.setStdErrorStream(es);
-
-      cr.setTimeout(timeout);
-
-      cr.evaluate();
-
-      if (cr.getExitValue() != 0)
-        return new ParseStatus(ParseStatus.FAILED,
-                        "External command " + command
-                        + " failed with error: " + es.toString()).getEmptyParse();
-
-      text = os.toString();
-
-    } catch (Exception e) { // run time exception
-      return new ParseStatus(e).getEmptyParse();
-    }
-
-    if (text == null)
-      text = "";
-
-    if (title == null)
-      title = "";
-
-    // collect outlink
-    Outlink[] outlinks = OutlinkExtractor.getOutlinks(text);
-
-    // collect meta data
-    ContentProperties metaData = new ContentProperties();
-    metaData.putAll(content.getMetadata()); // copy through
-
-    ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks, metaData);
-    return new ParseImpl(text, parseData);
+  public NutchConf getConf() {
+    return this.nutchConf;
   }
-
 }

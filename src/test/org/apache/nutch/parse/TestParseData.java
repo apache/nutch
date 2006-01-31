@@ -18,11 +18,16 @@ package org.apache.nutch.parse;
 
 import org.apache.nutch.io.*;
 import org.apache.nutch.protocol.ContentProperties;
+import org.apache.nutch.util.NutchConf;
+
 import junit.framework.TestCase;
 
 /** Unit tests for ParseData. */
 
 public class TestParseData extends TestCase {
+    
+  private NutchConf nutchConf = new NutchConf();
+  
   public TestParseData(String name) { super(name); }
 
   public void testParseData() throws Exception {
@@ -30,8 +35,8 @@ public class TestParseData extends TestCase {
     String title = "The Foo Page";
 
     Outlink[] outlinks = new Outlink[] {
-      new Outlink("http://foo.com/", "Foo"),
-      new Outlink("http://bar.com/", "Bar")
+      new Outlink("http://foo.com/", "Foo", nutchConf),
+      new Outlink("http://bar.com/", "Bar", nutchConf)
     };
 
     ContentProperties metaData = new ContentProperties();
@@ -39,6 +44,7 @@ public class TestParseData extends TestCase {
     metaData.put("Charset", "UTF-8");
 
     ParseData r = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks, metaData);
+    r.setConf(nutchConf);
                         
     TestWritable.testWritable(r);
   }
