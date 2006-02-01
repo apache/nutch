@@ -56,6 +56,8 @@ public class PluginRepository {
 
     private HashMap fActivatedPlugins;
 
+    private NutchConf nutchConf;
+
     
     public static final Logger LOG = LogFormatter
             .getLogger("org.apache.nutch.plugin.PluginRepository");
@@ -67,6 +69,7 @@ public class PluginRepository {
     public PluginRepository(NutchConf nutchConf) throws RuntimeException {
       fActivatedPlugins = new HashMap();
       fExtensionPoints = new HashMap();
+      this.nutchConf = nutchConf;
       this.auto = nutchConf.getBoolean("plugin.auto-activation", true);
       String[] pluginFolders = nutchConf.getStrings("plugin.folders");
       PluginManifestParser manifestParser =  new PluginManifestParser(nutchConf, this);
@@ -280,9 +283,9 @@ public class PluginRepository {
                 Class pluginClass = loader.loadClass(pDescriptor
                         .getPluginClass());
                 Constructor constructor = pluginClass
-                        .getConstructor(new Class[] { PluginDescriptor.class });
+                        .getConstructor(new Class[] { PluginDescriptor.class, NutchConf.class });
                 Plugin plugin = (Plugin) constructor
-                        .newInstance(new Object[] { pDescriptor });
+                        .newInstance(new Object[] { pDescriptor, this.nutchConf });
                 plugin.startUp();
                 fActivatedPlugins.put(pDescriptor.getPluginId(), plugin);
                 return plugin;

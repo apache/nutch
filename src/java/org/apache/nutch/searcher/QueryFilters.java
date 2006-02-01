@@ -58,6 +58,8 @@ public class QueryFilters {
         if (point == null)
           throw new RuntimeException(QueryFilter.X_POINT_ID + " not found.");
         Extension[] extensions = point.getExtensions();
+        FIELD_NAMES = new HashSet();
+        RAW_FIELD_NAMES = new HashSet();
         QueryFilter[] filters = new QueryFilter[extensions.length];
         for (int i = 0; i < extensions.length; i++) {
           Extension extension = extensions[i];
@@ -69,11 +71,9 @@ public class QueryFilters {
             continue;
           }
           filters[i] = (QueryFilter) extension.getExtensionInstance();
-          FIELD_NAMES = new HashSet();
           FIELD_NAMES.addAll(fieldNames);
           FIELD_NAMES.addAll(rawFieldNames);
           nutchConf.setObject("FIELD_NAMES", FIELD_NAMES);
-          RAW_FIELD_NAMES = new HashSet();
           RAW_FIELD_NAMES.addAll(rawFieldNames);
           nutchConf.setObject("RAW_FIELD_NAMES", RAW_FIELD_NAMES);
         }

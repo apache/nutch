@@ -15,6 +15,9 @@
  * limitations under the License.
  */
 package org.apache.nutch.plugin;
+
+import org.apache.nutch.util.NutchConf;
+
 /**
  * A nutch-plugin is an container for a set of custom logic that provide
  * extensions to the nutch core functionality or another plugin that provides an
@@ -37,12 +40,15 @@ package org.apache.nutch.plugin;
  */
 public class Plugin {
   private PluginDescriptor fDescriptor;
+  protected NutchConf nutchConf;
+
   /**
    * Constructor
    *  
    */
-  public Plugin(PluginDescriptor pDescriptor) {
+  public Plugin(PluginDescriptor pDescriptor, NutchConf nutchConf) {
     setDescriptor(pDescriptor);
+    this.nutchConf = nutchConf;
   }
   /**
    * Will be invoked until plugin start up. Since the nutch-plugin system use
