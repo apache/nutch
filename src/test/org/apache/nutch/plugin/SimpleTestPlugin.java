@@ -17,6 +17,8 @@
 
 package org.apache.nutch.plugin;
 
+import org.apache.nutch.util.NutchConf;
+
 /**
  * Simple Test plugin
  * 
@@ -26,10 +28,11 @@ public class SimpleTestPlugin extends Plugin {
 
   /**
    * @param pDescriptor 
+   * @param nutchConf 
    */
-  public SimpleTestPlugin(PluginDescriptor pDescriptor) {
+  public SimpleTestPlugin(PluginDescriptor pDescriptor, NutchConf nutchConf) {
 
-    super(pDescriptor);
+    super(pDescriptor, nutchConf);
   }
 
   /*
