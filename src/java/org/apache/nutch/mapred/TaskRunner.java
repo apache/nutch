@@ -78,9 +78,11 @@ abstract class TaskRunner extends Thread {
       if (jar != null) {                      // if jar exists, it into workDir
         runChild(new String[] { "unzip", jar}, workDir);
         File[] libs = new File(workDir, "lib").listFiles();
-        for (int i = 0; i < libs.length; i++) {
-          classPath.append(sep);              // add libs from jar to classpath
-          classPath.append(libs[i]);
+        if (libs != null) {
+          for (int i = 0; i < libs.length; i++) {
+            classPath.append(sep);            // add libs from jar to classpath
+            classPath.append(libs[i]);
+          }
         }
         classPath.append(sep);
         classPath.append(new File(workDir, "classes"));
