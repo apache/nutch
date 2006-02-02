@@ -86,7 +86,9 @@ public class Http extends HttpBase {
   }
 
   public static void main(String[] args) throws Exception {
-    main(new Http(), args);
+    Http http = new Http();
+    http.setConf(new NutchConf());
+    main(http, args);
   }
 
   protected Response getResponse(URL url, CrawlDatum datum, boolean redirect)
