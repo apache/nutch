@@ -41,6 +41,7 @@ if [ $# = 0 ]; then
   echo "  index             run the indexer on parsed segments and linkdb"
   echo "  merge             merge several segment indexes"
   echo "  dedup             remove duplicates from a set of segment indexes"
+  echo "  plugin            load a plugin and run one of its classes main()"
   echo "  server            run a search server"
   echo "  namenode          run the NDFS namenode"
   echo "  datanode          run an NDFS datanode"
@@ -150,6 +151,8 @@ elif [ "$COMMAND" = "dedup" ] ; then
   CLASS=org.apache.nutch.indexer.DeleteDuplicates
 elif [ "$COMMAND" = "merge" ] ; then
   CLASS=org.apache.nutch.indexer.IndexMerger
+elif [ "$COMMAND" = "plugin" ] ; then
+  CLASS=org.apache.nutch.plugin.PluginRepository
 elif [ "$COMMAND" = "server" ] ; then
   CLASS='org.apache.nutch.searcher.DistributedSearch$Server'
 elif [ "$COMMAND" = "namenode" ] ; then
