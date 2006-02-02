@@ -9,21 +9,28 @@
 <%
   String jobid = request.getParameter("jobid");
   JobTracker tracker = JobTracker.getTracker();
-  JobTracker.JobInProgress job = (JobTracker.JobInProgress) tracker.getJob(jobid);
+  JobInProgress job = (JobInProgress) tracker.getJob(jobid);
   JobProfile profile = (job != null) ? (job.getProfile()) : null;
   JobStatus status = (job != null) ? (job.getStatus()) : null;
 
-  Vector mapTaskReports[] = tracker.getMapTaskReport(jobid);
-  Vector reduceTaskReports[] = tracker.getReduceTaskReport(jobid);
+  Vector mapTaskReports[] = (job != null) ? tracker.getMapTaskReport(jobid) : null;
+  Vector reduceTaskReports[] = (job != null) ? tracker.getReduceTaskReport(jobid) : null;
 %>
 
 <html>
 <title>Nutch MapReduce Job Details</title>
 <body>
+<%
+  if (job == null) {
+    %>
+    No job found<br>
+    <%
+  } else {
+    %>
 <h1>Job '<%=jobid%>'</h1>
 
 <b>Job File:</b> <%=profile.getJobFile()%><br>
-<b>Start time:</b> <%= new Date(job.getStartTime())%><br>
+<b>The job started at:</b> <%= new Date(job.getStartTime())%><br>
 <%
   if (status.getRunState() == JobStatus.RUNNING) {
     out.print("The job is still running.<br>\n");
@@ -38,19 +45,28 @@
 <h2>Map Tasks</h2>
   <center>
   <table border=2 cellpadding="5" cellspacing="2">
-  <tr><td align="center">Map Task Id</td><td>Pct Complete</td><td>State</td><td>Diagnostic Text</td></tr>
+  <tr><td align="center">Map Task Id</td><td>Pct Complete</td><td>Diagnostic Data</td></tr>
 
   <%
     for (int i = 0; i < mapTaskReports.length; i++) {
       Vector v = mapTaskReports[i];
-      out.print("<tr><td>" + v.elementAt(0) + "</td><td>" + v.elementAt(1) + "</td><td>" + v.elementAt(2) + "</td>");
-      if (v.size() == 3) {
-        out.print("<td></td>");
-      } else {
-        for (int j = 3; j < v.size(); j++) {
-          out.print("<td>" + v.elementAt(j) + "</td>");
+      String tipid = (String) v.elementAt(0);
+      String progress = (String) v.elementAt(1);
+      int diagnosticSize = ((Integer) v.elementAt(2)).intValue();
+
+      out.print("<tr><td>" + tipid + "</td><td>" + progress + "</td><td>");
+      for (int j = 0; j < diagnosticSize; j++) {
+        Vector taskData = (Vector) v.elementAt(3 + ((2 * j)));
+        String taskStateString = (String) v.elementAt(3 + ((2 * j) + 1));
+        out.print(taskStateString);
+        out.print("<b>");
+
+        for (Iterator it2 = taskData.iterator(); it2.hasNext(); ) {
+          out.print("" + it2.next());
+          out.println("<b>");
         }
       }
+      out.print("</td>");
       out.print("</tr>\n");
     }
   %>
@@ -62,25 +78,36 @@
 <h2>Reduce Tasks</h2>
   <center>
   <table border=2 cellpadding="5" cellspacing="2">
-  <tr><td align="center">Reduce Task Id</td><td>Pct Complete</td><td>State</td><td>Diagnostic Text</td></tr>
+  <tr><td align="center">Reduce Task Id</td><td>Pct Complete</td><td>Diagnostic Data</td></tr>
 
   <%
     for (int i = 0; i < reduceTaskReports.length; i++) {
       Vector v = reduceTaskReports[i];
-      out.print("<tr><td>" + v.elementAt(0) + "</td><td>" + v.elementAt(1) + "</td><td>" + v.elementAt(2) + "</td>");
-      if (v.size() == 3) {
-        out.print("<td></td>");
-      } else {
-        for (int j = 3; j < v.size(); j++) {
-          out.print("<td>" + v.elementAt(j) + "</td>");
+      String tipid = (String) v.elementAt(0);
+      String progress = (String) v.elementAt(1);
+      int diagnosticSize = ((Integer) v.elementAt(2)).intValue();
+
+      out.print("<tr><td>" + tipid + "</td><td>" + progress + "</td><td>");
+      for (int j = 0; j < diagnosticSize; j++) {
+        Vector taskData = (Vector) v.elementAt(3 + ((2 * j)));
+        String taskStateString = (String) v.elementAt(3 + ((2 * j) + 1));
+        out.print(taskStateString);
+        out.print("<b>");
+
+        for (Iterator it2 = taskData.iterator(); it2.hasNext(); ) {
+          out.print("" + it2.next());
+          out.println("<b>");
         }
       }
+      out.print("</td>");
       out.print("</tr>\n");
     }
   %>
   </table>
   </center>
-
+  <%
+  }
+%>
 
 <hr>
 <a href="/jobtracker.jsp">Go back to JobTracker</a><br>

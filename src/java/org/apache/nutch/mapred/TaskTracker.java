@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.mapred;
+ package org.apache.nutch.mapred;
 
 import org.apache.nutch.fs.*;
 import org.apache.nutch.io.*;
@@ -33,7 +33,6 @@ import java.util.logging.*;
  * @author Mike Cafarella
  *******************************************************/
 public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutputProtocol, Runnable {
-    private int maxCurrentTask; 
     static final long WAIT_FOR_DONE = 3 * 1000;
     private long taskTimeout; 
 
@@ -66,6 +65,8 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
     private NutchConf fConf;
     private MapOutputFile mapOutputFile;
 
+    private int maxCurrentTasks;
+
     /**
      * Start with the local machine name, and the default JobTracker
      */
@@ -77,9 +78,10 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
      * Start with the local machine name, and the addr of the target JobTracker
      */
     public TaskTracker(InetSocketAddress jobTrackAddr, NutchConf conf) throws IOException {
+        maxCurrentTasks = conf.getInt("mapred.tasktracker.tasks.maximum", 2);
+
         this.fConf = conf;
         this.jobTrackAddr = jobTrackAddr;
-        this.maxCurrentTask = conf.getInt("mapred.tasktracker.tasks.maximum", 2);
         this.taskTimeout = conf.getInt("mapred.task.timeout", 10* 60 * 1000);
         this.mapOutputFile = new MapOutputFile();
         this.mapOutputFile.setConf(conf);
@@ -93,6 +95,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
      */
     void initialize() throws IOException {
         this.taskTrackerName = "tracker_" + (Math.abs(r.nextInt()) % 100000);
+        LOG.info("Starting tracker " + taskTrackerName);
         this.localHostname = InetAddress.getLocalHost().getHostName();
 
         new JobConf(this.fConf).deleteLocalFiles(SUBDIR);
@@ -108,7 +111,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
         // RPC initialization
         while (true) {
             try {
-                this.taskReportServer = RPC.getServer(this, this.taskReportPort, this.maxCurrentTask, false, this.fConf);
+                this.taskReportServer = RPC.getServer(this, this.taskReportPort, maxCurrentTasks, false, this.fConf);
                 this.taskReportServer.start();
                 break;
             } catch (BindException e) {
@@ -119,7 +122,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
         }
         while (true) {
             try {
-                this.mapOutputServer = RPC.getServer(this, this.mapOutputPort, this.maxCurrentTask, false, this.fConf);
+                this.mapOutputServer = RPC.getServer(this, this.mapOutputPort, maxCurrentTasks, false, this.fConf);
                 this.mapOutputServer.start();
                 break;
             } catch (BindException e) {
@@ -142,9 +145,14 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
      * clean.
      */
     public synchronized void close() throws IOException {
-        // Kill running tasks
-        while (tasks.size() > 0) {
-            TaskInProgress tip = (TaskInProgress)tasks.get(tasks.firstKey());
+        //
+        // Kill running tasks.  Do this in a 2nd vector, called 'tasksToClose',
+        // because calling jobHasFinished() may result in an edit to 'tasks'.
+        //
+        TreeMap tasksToClose = new TreeMap();
+        tasksToClose.putAll(tasks);
+        for (Iterator it = tasksToClose.values().iterator(); it.hasNext(); ) {
+            TaskInProgress tip = (TaskInProgress) it.next();
             tip.jobHasFinished();
         }
 
@@ -154,11 +162,21 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
         } catch (InterruptedException ie) {
         }
 
-        // Shutdown local RPC servers
-        if (taskReportServer != null) {
-            taskReportServer.stop();
-            taskReportServer = null;
-        }
+        //
+        // Shutdown local RPC servers.  Do them
+        // in parallel, as RPC servers can take a long
+        // time to shutdown.  (They need to wait a full
+        // RPC timeout, which might be 10-30 seconds.)
+        //
+        new Thread() {
+            public void run() {
+                if (taskReportServer != null) {
+                    taskReportServer.stop();
+                    taskReportServer = null;
+                }
+            }
+        }.start();
+
         if (mapOutputServer != null) {
             mapOutputServer.stop();
             mapOutputServer = null;
@@ -227,7 +245,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
             //
             // Check if we should create a new Task
             //
-            if (runningTasks.size() < this.maxCurrentTask) {
+            if (runningTasks.size() < maxCurrentTasks) {
                 Task t = jobClient.pollForNewTask(taskTrackerName);
                 if (t != null) {
                     TaskInProgress tip = new TaskInProgress(t, this.fConf);
@@ -255,9 +273,16 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
             }
 
             //
+            // Check for any Tasks that should be killed, even if
+            // the containing Job is still ongoing.  (This happens
+            // with speculative execution, when one version of the
+            // task finished before another
+            //
+
+            //
             // Check for any Tasks whose job may have ended
             //
-            String toCloseId = jobClient.pollForClosedTask(taskTrackerName);
+            String toCloseId = jobClient.pollForTaskWithClosedJob(taskTrackerName);
             if (toCloseId != null) {
               synchronized (this) {
                 TaskInProgress tip = (TaskInProgress) tasks.get(toCloseId);
@@ -288,7 +313,8 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
                                 staleState = true;
                             }
                         } catch (Exception ex) {
-                            LOG.info("Lost connection to JobTracker [" + jobTrackAddr + "]. ex=" + ex + "  Retrying...");
+                            ex.printStackTrace();
+                            LOG.info("Lost connection to JobTracker [" + jobTrackAddr + "].  Retrying...");
                             try {
                                 Thread.sleep(5000);
                             } catch (InterruptedException ie) {
@@ -373,7 +399,7 @@ public class TaskTracker implements MRConstants, TaskUmbilicalProtocol, MapOutpu
         /**
          */
         public TaskStatus createStatus() {
-            TaskStatus status = new TaskStatus(task.getTaskId(), progress, runstate, diagnosticInfo.toString(), (stateString == null) ? "" : stateString);
+            TaskStatus status = new TaskStatus(task.getTaskId(), task.isMapTask(), progress, runstate, diagnosticInfo.toString(), (stateString == null) ? "" : stateString);
             if (diagnosticInfo.length() > 0) {
                 diagnosticInfo = new StringBuffer();
             }

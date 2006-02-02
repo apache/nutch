@@ -27,7 +27,7 @@ import java.text.*;
 
 /** A Reduce task. */
 public class ReduceTask extends Task {
-  private String[] mapTaskIds;
+  private String[][] mapTaskIds;
   private int partition;
   private boolean sortComplete;
 
@@ -43,7 +43,7 @@ public class ReduceTask extends Task {
   public ReduceTask() {}
 
   public ReduceTask(String jobFile, String taskId,
-                    String[] mapTaskIds, int partition) {
+                    String[][] mapTaskIds, int partition) {
     super(jobFile, taskId);
     this.mapTaskIds = mapTaskIds;
     this.partition = partition;
@@ -53,7 +53,11 @@ public class ReduceTask extends Task {
     return new ReduceTaskRunner(this, tracker, this.nutchConf);
   }
 
-  public String[] getMapTaskIds() { return mapTaskIds; }
+  public boolean isMapTask() {
+      return false;
+  }
+
+  public String[][] getMapTaskIds() { return mapTaskIds; }
   public int getPartition() { return partition; }
 
   public void write(DataOutput out) throws IOException {
@@ -61,7 +65,10 @@ public class ReduceTask extends Task {
 
     out.writeInt(mapTaskIds.length);              // write mapTaskIds
     for (int i = 0; i < mapTaskIds.length; i++) {
-      UTF8.writeString(out, mapTaskIds[i]);
+        out.writeInt(mapTaskIds[i].length);
+        for (int j = 0; j < mapTaskIds[i].length; j++) {
+            UTF8.writeString(out, mapTaskIds[i][j]);
+        }
     }
 
     out.writeInt(partition);                      // write partition
@@ -70,9 +77,12 @@ public class ReduceTask extends Task {
   public void readFields(DataInput in) throws IOException {
     super.readFields(in);
 
-    mapTaskIds = new String[in.readInt()];        // read mapTaskIds
+    mapTaskIds = new String[in.readInt()][];        // read mapTaskIds
     for (int i = 0; i < mapTaskIds.length; i++) {
-      mapTaskIds[i] = UTF8.readString(in);
+        mapTaskIds[i] = new String[in.readInt()];
+        for (int j = 0; j < mapTaskIds[i].length; j++) {
+            mapTaskIds[i][j] = UTF8.readString(in);
+        }
     }
 
     this.partition = in.readInt();                // read partition
@@ -182,6 +192,7 @@ public class ReduceTask extends Task {
         float progPerByte = 1.0f / lfs.getLength(partFile);
         Progress phase = appendPhase.phase();
         phase.setStatus(partFile.toString());
+
         SequenceFile.Reader in =
           new SequenceFile.Reader(lfs, partFile.toString(), job);
         try {

@@ -296,11 +296,7 @@ public class JobClient implements MRConstants {
           } catch (InterruptedException e) {}
           running = jc.getJob(jobId);
           String report = null;
-          if (running.reduceProgress() == 0.0)
-            report=" map "+Math.round(running.mapProgress()*100)+"%";
-          else {
-            report=" reduce "+Math.round(running.reduceProgress()*100)+"%";
-          }
+          report = " map "+Math.round(running.mapProgress()*100)+"%  reduce " + Math.round(running.reduceProgress()*100)+"%";
           if (!report.equals(lastReport)) {
             LOG.info(report);
             lastReport = report;

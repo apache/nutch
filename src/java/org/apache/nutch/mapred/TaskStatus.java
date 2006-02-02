@@ -34,6 +34,7 @@ public class TaskStatus implements Writable {
     public static final int UNASSIGNED = 3;
     
     private String taskid;
+    private boolean isMap;
     private float progress;
     private int runState;
     private String diagnosticInfo;
@@ -41,8 +42,9 @@ public class TaskStatus implements Writable {
 
     public TaskStatus() {}
 
-    public TaskStatus(String taskid, float progress, int runState, String diagnosticInfo, String stateString) {
+    public TaskStatus(String taskid, boolean isMap, float progress, int runState, String diagnosticInfo, String stateString) {
         this.taskid = taskid;
+        this.isMap = isMap;
         this.progress = progress;
         this.runState = runState;
         this.diagnosticInfo = diagnosticInfo;
@@ -50,6 +52,7 @@ public class TaskStatus implements Writable {
     }
     
     public String getTaskId() { return taskid; }
+    public boolean getIsMap() { return isMap; }
     public float getProgress() { return progress; }
     public void setProgress(float progress) { this.progress = progress; } 
     public int getRunState() { return runState; }
@@ -64,6 +67,7 @@ public class TaskStatus implements Writable {
     //////////////////////////////////////////////
     public void write(DataOutput out) throws IOException {
         UTF8.writeString(out, taskid);
+        out.writeBoolean(isMap);
         out.writeFloat(progress);
         out.writeInt(runState);
         UTF8.writeString(out, diagnosticInfo);
@@ -72,6 +76,7 @@ public class TaskStatus implements Writable {
 
     public void readFields(DataInput in) throws IOException {
         this.taskid = UTF8.readString(in);
+        this.isMap = in.readBoolean();
         this.progress = in.readFloat();
         this.runState = in.readInt();
         this.diagnosticInfo = UTF8.readString(in);

@@ -77,6 +77,28 @@ public class TaskTrackerStatus implements Writable {
     public Iterator taskReports() {
         return taskReports.iterator();
     }
+
+    /**
+     * Return the current MapTask count
+     */
+    public int countMapTasks() {
+        int mapCount = 0;
+        for (Iterator it = taskReports.iterator(); it.hasNext(); ) {
+            TaskStatus ts = (TaskStatus) it.next();
+            if (ts.getIsMap()) {
+                mapCount++;
+            }
+        }
+        return mapCount;
+    }
+
+    /**
+     * Return the current ReduceTask count
+     */
+    public int countReduceTasks() {
+        return taskReports.size() - countMapTasks();
+    }
+
     /**
      */
     public long getLastSeen() {

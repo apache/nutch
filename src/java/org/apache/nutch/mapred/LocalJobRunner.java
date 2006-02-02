@@ -89,9 +89,13 @@ public class LocalJobRunner implements JobSubmissionProtocol {
         }
 
         // run a single reduce task
+        String mapDependencies[][] = new String[mapIds.size()][1];
+        for (int i = 0; i < mapIds.size(); i++) {
+            mapDependencies[i][0] = (String) mapIds.get(i);
+        }
         ReduceTask reduce =
           new ReduceTask(file, reduceId,
-                         (String[])mapIds.toArray(new String[0]),
+                         mapDependencies,
                          0);
         reduce.setConf(job);
         reduce.run(job, this);
