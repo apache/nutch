@@ -37,6 +37,10 @@ public class MapTask extends Task {
     this.split = split;
   }
 
+  public boolean isMapTask() {
+      return true;
+  }
+
   public TaskRunner createRunner(TaskTracker tracker) {
     return new MapTaskRunner(this, tracker, this.nutchConf);
   }

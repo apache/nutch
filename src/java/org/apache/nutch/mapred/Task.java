@@ -82,6 +82,8 @@ public abstract class Task implements Writable, NutchConfigurable {
   private transient long nextProgressTime =
     System.currentTimeMillis() + PROGRESS_INTERVAL;
 
+  public abstract boolean isMapTask();
+
   public Progress getProgress() { return taskProgress; }
 
   public Reporter getReporter(final TaskUmbilicalProtocol umbilical,

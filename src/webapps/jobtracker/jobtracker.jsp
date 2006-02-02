@@ -46,22 +46,22 @@
       out.print("<tr><td align=\"center\" colspan=\"8\"><b>" + label + " Jobs </b></td></tr>\n");
 
       if (jobs.size() > 0) {
-        out.print("<tr><td><b>Jobid</b></td><td><b>% complete</b></td><td><b>Required maps</b></td><td><b>maps attempted</b></td><td><b>maps completed</b></td><td><b>Required reduces</b></td><td><b>reduces attempted</b></td><td><b>reduces completed</b></td></tr>\n");
+        out.print("<tr><td><b>Jobid</b></td><td><b>% complete</b></td><td><b>Required maps</b></td><td><b>maps completed</b></td><td><b>Required reduces</b></td><td><b>reduces completed</b></td></tr>\n");
         for (Iterator it = jobs.iterator(); it.hasNext(); ) {
-          JobTracker.JobInProgress job = (JobTracker.JobInProgress) it.next();
+          JobInProgress job = (JobInProgress) it.next();
           JobProfile profile = job.getProfile();
           JobStatus status = job.getStatus();
 
           String jobid = profile.getJobId();
-          float completedRatio = (100 * job.completedRatio());
-          int desiredMaps = job.desiredMaps();
-          int attemptedMaps = job.attemptedMaps();
-          int completedMaps = job.completedMaps();
-          int desiredReduces = job.desiredReduces();
-          int attemptedReduces = job.attemptedReduces();
-          int completedReduces = job.completedReduces();
+          double completedRatio = (0.5 * (100 * status.mapProgress())) +
+                                 (0.5 * (100 * status.reduceProgress()));
 
-          out.print("<tr><td><a href=\"jobdetails.jsp?jobid=" + jobid + "\">" + jobid + "</a></td><td>" + completedRatio + "%</td><td>" + desiredMaps + "</td><td>" + attemptedMaps + "</td><td>" + completedMaps + "</td><td>" + desiredReduces + "</td><td>" + attemptedReduces + "</td><td> " + completedReduces + "</td></tr>\n");
+          int desiredMaps = job.desiredMaps();
+          int desiredReduces = job.desiredReduces();
+          int completedMaps = job.finishedMaps();
+          int completedReduces = job.finishedReduces();
+
+          out.print("<tr><td><a href=\"jobdetails.jsp?jobid=" + jobid + "\">" + jobid + "</a></td><td>" + completedRatio + "%</td><td>" + desiredMaps + "</td><td>" + completedMaps + "</td><td>" + desiredReduces + "</td><td> " + completedReduces + "</td></tr>\n");
         }
       } else {
         out.print("<tr><td align=\"center\" colspan=\"8\"><i>none</i></td></tr>\n");

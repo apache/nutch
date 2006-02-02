@@ -25,7 +25,7 @@ public interface MRConstants {
     // Timeouts, constants
     //
     public static final long HEARTBEAT_INTERVAL = 3 * 1000;
-    public static final long TASKTRACKER_EXPIRY_INTERVAL = 10 * 60 * 1000;
+    public static final long TASKTRACKER_EXPIRY_INTERVAL = 60 * 1000;
 
     //
     // Result codes

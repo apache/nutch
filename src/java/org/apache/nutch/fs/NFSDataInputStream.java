@@ -57,7 +57,7 @@ public class NFSDataInputStream extends DataInputStream {
       } catch (FileNotFoundException e) {         // quietly ignore
         stopSumming();
       } catch (IOException e) {                   // loudly ignore
-        LOG.warning("Problem opening checksum file: "+e+". Ignoring.");
+        LOG.warning("Problem opening checksum file: "+ file + ".  Ignoring with exception " + e + ".");
         stopSumming();
       }
     }

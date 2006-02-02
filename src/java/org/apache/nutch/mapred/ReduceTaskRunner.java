@@ -37,14 +37,14 @@ class ReduceTaskRunner extends TaskRunner {
   }
 
   /** Assemble all of the map output files. */
-  public void prepare() throws IOException {
+  public boolean prepare() throws IOException {
     ReduceTask task = ((ReduceTask)getTask());
     this.mapOutputFile.removeAll(task.getTaskId());    // cleanup from failures
-    String[] mapTaskIds = task.getMapTaskIds();
+    String[][] mapTaskIds = task.getMapTaskIds();
     final Progress copyPhase = getTask().getProgress().phase();
 
     // we need input from every map task
-    HashSet needed = new HashSet();
+    Vector needed = new Vector();
     for (int i = 0; i < mapTaskIds.length; i++) {
       needed.add(mapTaskIds[i]);
       copyPhase.addPhase();                       // add sub-phase per file
@@ -52,17 +52,21 @@ class ReduceTaskRunner extends TaskRunner {
 
     InterTrackerProtocol jobClient = getTracker().getJobClient();
     while (needed.size() > 0) {
-
       getTask().reportProgress(getTracker());
 
       // get list of available map output locations from job tracker
-      String[] neededStrings =
-        (String[])needed.toArray(new String[needed.size()]);
+      String[][] neededStrings = new String[needed.size()][];
+      for (int i = 0; i < needed.size(); i++) {
+          neededStrings[i] = (String[]) needed.elementAt(i);
+      }
       MapOutputLocation[] locs =
         jobClient.locateMapOutputs(task.getTaskId(), neededStrings);
 
       if (locs.length == 0) {
         try {
+          if (killed) {
+            return false;
+          }
           Thread.sleep(1000);
         } catch (InterruptedException e) {
         }
@@ -96,9 +100,19 @@ class ReduceTaskRunner extends TaskRunner {
           
           client.getFile(loc.getMapTaskId(), task.getTaskId(),
                          new IntWritable(task.getPartition()));
-          
-          needed.remove(loc.getMapTaskId());     // success: remove from needed
-          
+
+          // Success: remove from 'needed'
+          boolean foundit = false;
+          for (Iterator it = needed.iterator(); it.hasNext() && !foundit; ) {
+              String idsForSingleMap[] = (String[]) it.next();
+              for (int j = 0; j < idsForSingleMap.length; j++) {
+                  if (idsForSingleMap[j].equals(loc.getMapTaskId())) {
+                      it.remove();
+                      foundit = true;
+                      break;
+                  }
+              }
+          }
           copyPhase.startNextPhase();
           
         } catch (IOException e) {                 // failed: try again later
@@ -109,11 +123,10 @@ class ReduceTaskRunner extends TaskRunner {
         } finally {
           this.mapOutputFile.setProgressReporter(null);
         }
-        
       }
-      
     }
     getTask().reportProgress(getTracker());
+    return true;
   }
 
   /** Delete all of the temporary map output files. */

@@ -33,6 +33,7 @@ abstract class TaskRunner extends Thread {
   public static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.mapred.TaskRunner");
 
+  boolean killed = false;
   private Process process;
   private Task t;
   private TaskTracker tracker;
@@ -51,7 +52,7 @@ abstract class TaskRunner extends Thread {
   /** Called to assemble this task's input.  This method is run in the parent
    * process before the child is spawned.  It should not execute user code,
    * only system code. */
-  public void prepare() throws IOException {}
+  public boolean prepare() throws IOException {return true;}
 
   /** Called when this task's output is no longer needed.
   * This method is run in the parent process after the child exits.  It should
@@ -62,7 +63,9 @@ abstract class TaskRunner extends Thread {
   public final void run() {
     try {
 
-      prepare();
+      if (! prepare()) {
+        return;
+      }
 
       String sep = System.getProperty("path.separator");
       File workDir = new File(new File(t.getJobFile()).getParent(), "work");
@@ -72,7 +75,7 @@ abstract class TaskRunner extends Thread {
       // start with same classpath as parent process
       classPath.append(System.getProperty("java.class.path"));
       classPath.append(sep);
-      
+
       JobConf job = new JobConf(t.getJobFile());
       String jar = job.getJar();
       if (jar != null) {                      // if jar exists, it into workDir
@@ -158,6 +161,7 @@ abstract class TaskRunner extends Thread {
       if (process != null) {
           process.destroy();
       }
+      killed = true;
   }
 
   /**

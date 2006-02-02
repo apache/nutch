@@ -58,6 +58,10 @@ public class MapOutputFile implements Writable, NutchConfigurable {
     throws IOException {
     return this.jobConf.getLocalFile(reduceTaskId, mapTaskId+".out");
   }
+  public File getInputFile(String mapTaskId[], String reduceTaskId)
+    throws IOException {
+    return this.jobConf.getLocalFile(reduceTaskId, mapTaskId, ".out");
+  }
 
   /** Removes all of the files related to a task. */
   public void removeAll(String taskId) throws IOException {
