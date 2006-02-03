@@ -16,8 +16,6 @@
 
 package org.apache.nutch.net;
 
-import java.net.URL;
-
 import org.apache.nutch.util.NutchConf;
 
 import junit.framework.TestCase;

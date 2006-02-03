@@ -16,7 +16,6 @@
 
 package org.apache.nutch.parse;
 
-import java.io.*;
 import org.apache.nutch.io.*;
 import junit.framework.TestCase;
 

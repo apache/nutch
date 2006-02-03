@@ -21,7 +21,6 @@ import java.util.*;
 import junit.framework.TestCase;
 import java.util.logging.*;
 
-import org.apache.nutch.fs.*;
 import org.apache.nutch.mapred.*;
 import org.apache.nutch.mapred.lib.*;
 import org.apache.nutch.io.*;
