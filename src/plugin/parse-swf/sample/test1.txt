@@ -1,0 +1,60 @@
+
+--------
+Help
+javascript:openCrosslinkWindow('/go/adobeacquisition')
+Macromedia Home
+/go/gnav_search?loc=en_us
+MovieClip
+solutions
+/go/gnav_showcase
+_sans
+rollOut
+To ensure the best possible Internet Experience, please download the latest version of the free
+/go/gnav_store
+International
+Products
+devnet
+en_us
+/go/gnav_products
+AppleGothic
+Macromedia Flash Player
+active
+products
+String
+Store
+downloads
+rollOver
+Adobe Home
+/go/gnav_your_account
+/go/gnav_downloads
+Showcase
+bluePill
+/go/gnav_company
+/go/gnav_support
+/go/gnav_help
+javascript:openCrosslinkWindow('/go/gnav_adobe_home')
+home
+Home
+Array
+/go/gnav_fl_minmessage
+textColor
+Developers
+Support
+color
+support
+showcase
+button
+/go/gnav_mm_home
+tabHolder
+selected
+Solutions
+LocaleManager
+Verdana
+/go/gnav_devnet
+Acquisition Info
+/go/gnav_cart
+Company
+/go/gnav_solutions
+company
+Downloads
+TextFormat

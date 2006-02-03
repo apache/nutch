@@ -29,6 +29,7 @@
      <ant dir="parse-pdf" target="deploy"/>
      <ant dir="parse-rss" target="deploy"/>
      <!-- <ant dir="parse-rtf" target="deploy"/> -->
+     <ant dir="parse-swf" target="deploy"/>
      <ant dir="parse-text" target="deploy"/>
      <ant dir="parse-zip" target="deploy"/>
      <ant dir="query-basic" target="deploy"/>
@@ -55,6 +56,7 @@
      <ant dir="parse-pdf" target="test"/>
      <ant dir="parse-rss" target="test"/>
  <!-- <ant dir="parse-rtf" target="test"/> -->
+     <ant dir="parse-swf" target="test"/>
      <ant dir="parse-zip" target="test"/>
   </target>
 
@@ -87,6 +89,7 @@
     <ant dir="parse-pdf" target="clean"/>
     <ant dir="parse-rss" target="clean"/>
     <ant dir="parse-rtf" target="clean"/>
+    <ant dir="parse-swf" target="clean"/>
     <ant dir="parse-text" target="clean"/>
     <ant dir="parse-zip" target="clean"/>
     <ant dir="query-basic" target="clean"/>

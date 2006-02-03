@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+
+<project name="parse-swf" default="jar">
+
+  <import file="../build-plugin.xml"/>
+
+  <!-- for junit test -->
+  <mkdir dir="${build.test}/data"/>
+  <copy file="sample/test1.swf" todir="${build.test}/data"/>
+  <copy file="sample/test2.swf" todir="${build.test}/data"/>
+  <copy file="sample/test3.swf" todir="${build.test}/data"/>
+  <copy file="sample/test1.txt" todir="${build.test}/data"/>
+  <copy file="sample/test2.txt" todir="${build.test}/data"/>
+  <copy file="sample/test3.txt" todir="${build.test}/data"/>
+
+</project>
