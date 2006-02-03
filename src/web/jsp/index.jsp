@@ -9,6 +9,5 @@
     .getLocale().getLanguage();
   String requestURI = HttpUtils.getRequestURL(request).toString();
   String base = requestURI.substring(0, requestURI.lastIndexOf('/'));
+  response.sendRedirect(language + "/");
 %>
-
-<jsp:forward page="<%= language + "/"%>"/>
