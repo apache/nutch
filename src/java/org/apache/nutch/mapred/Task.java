@@ -20,8 +20,6 @@ import org.apache.nutch.io.*;
 import org.apache.nutch.util.*;
 
 import java.io.*;
-import java.net.*;
-import java.util.*;
 
 /** Base class for tasks. */
 public abstract class Task implements Writable, NutchConfigurable {

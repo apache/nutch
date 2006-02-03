@@ -21,7 +21,6 @@ import org.apache.nutch.util.*;
 import org.apache.nutch.fs.*;
 
 import java.io.*;
-import java.net.*;
 import java.util.*;
 import java.text.*;
 

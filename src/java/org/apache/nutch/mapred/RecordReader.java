@@ -19,7 +19,6 @@ package org.apache.nutch.mapred;
 import java.io.IOException;
 import java.io.DataInput;
 
-import org.apache.nutch.io.WritableComparable;
 import org.apache.nutch.io.Writable;
 
 /** Reads key/value pairs from an input file {@link FileSplit}.

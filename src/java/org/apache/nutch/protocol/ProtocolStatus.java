@@ -23,7 +23,6 @@ import java.util.HashMap;
 
 import org.apache.nutch.io.VersionedWritable;
 import org.apache.nutch.io.WritableUtils;
-import org.apache.nutch.parse.ParseStatus;
 
 /**
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;

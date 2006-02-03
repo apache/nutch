@@ -16,14 +16,11 @@
 package org.apache.nutch.analysis;
 
 // JDK imports
-import java.util.HashMap;
-import java.util.Map;
 import java.util.logging.Logger;
 
 // Nutch imports
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
-import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.plugin.PluginRuntimeException;
 import org.apache.nutch.util.LogFormatter;
 import org.apache.nutch.util.NutchConf;

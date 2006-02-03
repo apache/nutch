@@ -20,7 +20,6 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
-import org.apache.nutch.io.*;
 import org.apache.nutch.fs.*;
 import org.apache.nutch.util.*;
 

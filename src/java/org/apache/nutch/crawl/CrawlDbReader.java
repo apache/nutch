@@ -18,21 +18,17 @@ package org.apache.nutch.crawl;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.logging.Logger;
 
 import org.apache.nutch.fs.NutchFileSystem;
-import org.apache.nutch.io.FloatWritable;
-import org.apache.nutch.io.IntWritable;
 import org.apache.nutch.io.LongWritable;
 import org.apache.nutch.io.MapFile;
 import org.apache.nutch.io.SequenceFile;
 import org.apache.nutch.io.UTF8;
 import org.apache.nutch.io.Writable;
 import org.apache.nutch.io.WritableComparable;
-import org.apache.nutch.io.MapFile.Reader;
 import org.apache.nutch.mapred.JobClient;
 import org.apache.nutch.mapred.JobConf;
 import org.apache.nutch.mapred.MapFileOutputFormat;
@@ -44,7 +40,6 @@ import org.apache.nutch.mapred.SequenceFileInputFormat;
 import org.apache.nutch.mapred.SequenceFileOutputFormat;
 import org.apache.nutch.mapred.TextOutputFormat;
 import org.apache.nutch.mapred.lib.HashPartitioner;
-import org.apache.nutch.mapred.lib.LongSumReducer;
 import org.apache.nutch.util.LogFormatter;
 import org.apache.nutch.util.NutchConf;
 

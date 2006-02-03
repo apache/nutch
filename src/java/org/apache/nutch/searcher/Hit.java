@@ -22,7 +22,6 @@ import java.io.IOException;
 
 import org.apache.nutch.io.Writable;
 import org.apache.nutch.io.WritableComparable;
-import org.apache.nutch.io.UTF8;
 
 import java.util.logging.Logger;
 import org.apache.nutch.util.LogFormatter;

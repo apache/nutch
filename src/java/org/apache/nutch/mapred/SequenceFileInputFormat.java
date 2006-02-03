@@ -23,10 +23,6 @@ import org.apache.nutch.fs.NutchFileSystem;
 
 import org.apache.nutch.io.SequenceFile;
 import org.apache.nutch.io.MapFile;
-import org.apache.nutch.io.Writable;
-import org.apache.nutch.io.WritableComparable;
-import org.apache.nutch.io.LongWritable;
-import org.apache.nutch.io.UTF8;
 
 /** An {@link InputFormat} for {@link SequenceFile}s. */
 public class SequenceFileInputFormat extends InputFormatBase {

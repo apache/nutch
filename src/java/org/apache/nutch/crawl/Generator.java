@@ -23,7 +23,6 @@ import java.text.*;
 import java.util.logging.*;
 
 import org.apache.nutch.io.*;
-import org.apache.nutch.fs.*;
 import org.apache.nutch.util.*;
 import org.apache.nutch.mapred.*;
 import org.apache.nutch.mapred.lib.*;

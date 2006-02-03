@@ -19,21 +19,15 @@ package org.apache.nutch.net;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.io.IOException;
-// import java.net.URI;
-// import java.net.URISyntaxException;
 
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.logging.Logger;
-import org.apache.nutch.util.LogFormatter;
 import org.apache.nutch.util.NutchConf;
 
 import javax.xml.parsers.*;
 import org.w3c.dom.*;
 import org.apache.oro.text.regex.*;
-
-import org.apache.nutch.util.*;
 
 /** Allows users to do regex substitutions on all/any URLs that are encountered, which
  * is useful for stripping session IDs from URLs.

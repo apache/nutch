@@ -17,10 +17,8 @@
 package org.apache.nutch.tools;
 
 import java.io.*;
-import java.net.*;
 import java.util.*;
 import java.util.logging.*;
-import java.net.MalformedURLException;
 import java.util.regex.*;
 
 import javax.xml.parsers.*;
@@ -30,7 +28,6 @@ import org.apache.xerces.util.XMLChar;
 
 import org.apache.nutch.io.*;
 import org.apache.nutch.fs.*;
-import org.apache.nutch.net.*;
 import org.apache.nutch.util.*;
 import org.apache.nutch.util.NutchConf;
 

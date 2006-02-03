@@ -19,7 +19,6 @@ import org.apache.nutch.io.*;
 
 import java.io.*;
 import java.net.*;
-import java.util.*;
 
 /**************************************************
  * A JobProfile is a MapReduce primitive.  Tracks a job,

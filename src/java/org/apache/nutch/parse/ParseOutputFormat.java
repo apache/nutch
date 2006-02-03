@@ -21,12 +21,10 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.fetcher.Fetcher;
 import org.apache.nutch.fs.*;
 import org.apache.nutch.mapred.*;
-import org.apache.nutch.parse.*;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.net.*;
 
 import java.io.*;
-import java.util.*;
 
 /* Parse content in a segment. */
 public class ParseOutputFormat implements OutputFormat {

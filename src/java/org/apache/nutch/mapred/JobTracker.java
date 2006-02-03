@@ -16,7 +16,6 @@
 package org.apache.nutch.mapred;
 
 
-import org.apache.nutch.io.*;
 import org.apache.nutch.fs.*;
 import org.apache.nutch.ipc.*;
 import org.apache.nutch.util.*;

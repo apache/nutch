@@ -16,7 +16,6 @@
 
 package org.apache.nutch.protocol;
 
-import java.util.Hashtable;
 import java.net.URL;
 import java.net.MalformedURLException;
 

@@ -17,12 +17,10 @@
 package org.apache.nutch.crawl;
 
 import java.io.*;
-import java.net.*;
 import java.util.*;
 import java.text.*;
 import java.util.logging.*;
 
-import org.apache.nutch.io.*;
 import org.apache.nutch.fetcher.Fetcher;
 import org.apache.nutch.fs.*;
 import org.apache.nutch.util.*;

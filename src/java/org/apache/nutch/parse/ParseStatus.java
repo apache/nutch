@@ -8,7 +8,6 @@ package org.apache.nutch.parse;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Properties;
 
 import org.apache.nutch.io.VersionedWritable;
 import org.apache.nutch.io.WritableUtils;

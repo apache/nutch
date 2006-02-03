@@ -16,7 +16,6 @@
 
 package org.apache.nutch.analysis;
 
-import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Token;

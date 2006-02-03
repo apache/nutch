@@ -24,7 +24,6 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Token;
-import org.apache.nutch.mapred.JobConf;
 import org.apache.nutch.util.NutchConf;
 
 /**

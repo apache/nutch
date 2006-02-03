@@ -17,7 +17,6 @@
 package org.apache.nutch.ndfs;
 
 import java.io.*;
-import org.apache.nutch.io.*;
 
 /**********************************************************************
  * Protocol that an NDFS datanode uses to communicate with the NameNode.

@@ -16,8 +16,6 @@
 
 package org.apache.nutch.protocol;
 
-import java.io.IOException;
-
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.io.UTF8;
 import org.apache.nutch.util.NutchConfigurable;

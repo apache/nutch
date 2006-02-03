@@ -18,8 +18,6 @@ package org.apache.nutch.mapred;
 
 import java.io.IOException;
 
-import org.apache.nutch.io.*;
-
 /** Protocol that task child process uses to contact its parent process.  The
  * parent is a daemon which which polls the central master for a new map or
  * reduce task and runs it as a child process.  All communication between child

@@ -17,7 +17,6 @@
 package org.apache.nutch.mapred;
 
 import java.io.IOException;
-import java.io.DataInput;
 
 import org.apache.nutch.io.Writable;
 import org.apache.nutch.io.WritableComparable;
