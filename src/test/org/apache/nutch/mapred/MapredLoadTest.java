@@ -18,11 +18,9 @@ package org.apache.nutch.mapred;
 import org.apache.nutch.fs.*;
 import org.apache.nutch.io.*;
 import org.apache.nutch.util.*;
-import org.apache.nutch.mapred.lib.*;
 
 import java.io.*;
 import java.util.*;
-import java.math.*;
 
 /**********************************************************
  * MapredLoadTest generates a bunch of work that exercises

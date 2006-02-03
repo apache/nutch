@@ -16,8 +16,6 @@
 
 package org.apache.nutch.net;
 
-import java.net.URL;
-import junit.framework.TestCase;
 import org.apache.nutch.net.RegexUrlNormalizer;
 
 /** Unit tests for RegexUrlNormalizer. */

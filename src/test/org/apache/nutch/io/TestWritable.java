@@ -19,7 +19,6 @@ package org.apache.nutch.io;
 import java.io.*;
 import java.util.Random;
 import junit.framework.TestCase;
-import org.apache.nutch.io.*;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.util.NutchConf;
 

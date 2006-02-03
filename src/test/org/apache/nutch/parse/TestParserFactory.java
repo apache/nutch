@@ -23,13 +23,6 @@ import junit.framework.TestCase;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.util.NutchConf;
 
-// JDK imports
-import java.io.File;
-
-import java.net.MalformedURLException;
-import java.util.Arrays;
-
-
 /**
  * Unit test for new parse plugin selection.
  *
