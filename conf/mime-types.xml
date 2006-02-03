@@ -255,6 +255,8 @@
                description="Macromedia Flash Format File">
         <ext>swf</ext>
         <magic offset="0" value="FWS"/>
+	<!-- compressed -->
+        <magic offset="0" value="CWS"/>
     </mime-type>
     
     <mime-type name="application/x-stuffit"

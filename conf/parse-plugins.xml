@@ -114,6 +114,10 @@
 		<plugin id="parse-text" />
 	</mimeType>
 
+	<mimeType name="application/x-shockwave-flash">
+		<plugin id="parse-swf" />
+	</mimeType>
+
 	<mimeType name="application/x-tcl">
 		<plugin id="parse-text" />
 	</mimeType>
