@@ -17,7 +17,6 @@
 package org.apache.nutch.io;
 
 import java.io.*;
-import java.util.Arrays;
 import org.apache.nutch.fs.*;
 import org.apache.nutch.util.*;
 

@@ -20,7 +20,6 @@ import java.io.IOException;
 
 import java.io.*;
 import org.apache.nutch.io.*;
-import org.apache.nutch.util.*;
 
 /** The location of a map output file, as passed to a reduce task via the
  * {@link InterTrackerProtocol}. */ 

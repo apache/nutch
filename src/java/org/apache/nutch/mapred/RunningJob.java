@@ -16,10 +16,7 @@
 
 package org.apache.nutch.mapred;
 
-import org.apache.nutch.io.*;
-
 import java.io.*;
-import java.net.*;
 
 /** 
  * Includes details on a running MapReduce job.  A client can

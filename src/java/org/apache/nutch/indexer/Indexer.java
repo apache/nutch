@@ -23,14 +23,12 @@ import java.util.logging.*;
 import org.apache.nutch.io.*;
 import org.apache.nutch.fetcher.Fetcher;
 import org.apache.nutch.fs.*;
-import org.apache.nutch.net.*;
 import org.apache.nutch.util.*;
 import org.apache.nutch.mapred.*;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.protocol.*;
 import org.apache.nutch.analysis.*;
 
-import org.apache.nutch.indexer.*;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.crawl.LinkDb;

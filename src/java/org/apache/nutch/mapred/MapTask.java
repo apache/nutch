@@ -17,8 +17,6 @@
 package org.apache.nutch.mapred;
 
 import java.io.*;
-import java.net.*;
-import java.util.*;
 
 import org.apache.nutch.io.*;
 import org.apache.nutch.util.NutchConf;

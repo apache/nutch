@@ -18,9 +18,6 @@ package org.apache.nutch.mapred;
 
 import java.io.IOException;
 
-import org.apache.nutch.io.Writable;
-import org.apache.nutch.io.WritableComparable;
-
 /** Expert: Permits greater control of map processing. For example,
  * implementations might perform multi-threaded, asynchronous mappings. */
 public interface MapRunnable extends JobConfigurable {

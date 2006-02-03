@@ -18,7 +18,6 @@ package org.apache.nutch.net.protocols;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.text.SimpleDateFormat;

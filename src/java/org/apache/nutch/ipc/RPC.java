@@ -25,7 +25,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.InetSocketAddress;
 import java.util.logging.Logger;
 import java.io.*;
-import java.util.*;
 
 import org.apache.nutch.io.*;
 import org.apache.nutch.util.*;

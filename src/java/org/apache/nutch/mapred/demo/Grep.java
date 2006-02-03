@@ -17,18 +17,15 @@ package org.apache.nutch.mapred.demo;
 
 import org.apache.nutch.mapred.JobConf;
 import org.apache.nutch.mapred.JobClient;
-import org.apache.nutch.mapred.RunningJob;
 import org.apache.nutch.mapred.SequenceFileOutputFormat;
 import org.apache.nutch.mapred.SequenceFileInputFormat;
 
 import org.apache.nutch.mapred.lib.RegexMapper;
 import org.apache.nutch.mapred.lib.InverseMapper;
 import org.apache.nutch.mapred.lib.LongSumReducer;
-import org.apache.nutch.mapred.lib.IdentityReducer;
 
 import org.apache.nutch.io.UTF8;
 import org.apache.nutch.io.LongWritable;
-import org.apache.nutch.io.WritableComparator;
 
 import org.apache.nutch.util.NutchConf;
 

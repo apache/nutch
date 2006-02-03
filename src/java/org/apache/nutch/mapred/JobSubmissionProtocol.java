@@ -18,7 +18,6 @@ package org.apache.nutch.mapred;
 
 import java.io.*;
 import java.util.*;
-import org.apache.nutch.io.*;
 
 /** 
  * Protocol that a JobClient and the central JobTracker use to communicate.  The

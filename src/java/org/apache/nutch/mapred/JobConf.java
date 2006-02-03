@@ -19,19 +19,11 @@ package org.apache.nutch.mapred;
 
 import java.io.IOException;
 import java.io.File;
-import java.io.InputStream;
-import java.io.FileNotFoundException;
-import java.net.URL;
 
-import java.util.Properties;
-import java.util.jar.JarFile;
-import java.util.jar.JarEntry;
 import java.util.StringTokenizer;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Collections;
 
-import org.apache.nutch.fs.NutchFileSystem;
 import org.apache.nutch.fs.FileUtil;
 import org.apache.nutch.util.NutchConf;
 

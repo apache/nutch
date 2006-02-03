@@ -24,8 +24,6 @@ import org.apache.nutch.mapred.OutputCollector;
 import org.apache.nutch.mapred.JobConf;
 import org.apache.nutch.mapred.Reporter;
 
-
-import org.apache.nutch.io.Writable;
 import org.apache.nutch.io.WritableComparable;
 import org.apache.nutch.io.LongWritable;
 

@@ -20,12 +20,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 import java.util.logging.Logger;
-
 import java.io.InputStream;
-import java.io.IOException;
-
 import java.net.URL;
-import java.net.MalformedURLException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;

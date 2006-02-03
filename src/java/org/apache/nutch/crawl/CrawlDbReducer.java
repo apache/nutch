@@ -16,12 +16,10 @@
 
 package org.apache.nutch.crawl;
 
-import java.net.URL;
 import java.util.Iterator;
 import java.io.IOException;
 
 import org.apache.nutch.io.*;
-import org.apache.nutch.util.*;
 import org.apache.nutch.mapred.*;
 
 /** Merge new page entries with existing entries. */

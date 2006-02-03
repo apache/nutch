@@ -16,7 +16,6 @@
 package org.apache.nutch.ndfs;
 
 import org.apache.nutch.io.*;
-import org.apache.nutch.util.*;
 
 import java.io.*;
 import java.util.*;

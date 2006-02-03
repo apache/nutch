@@ -17,13 +17,11 @@
 package org.apache.nutch.mapred;
 
 import java.io.IOException;
-import java.io.File;
 
 import org.apache.nutch.fs.NutchFileSystem;
 import org.apache.nutch.fs.NFSDataInputStream;
 
 import org.apache.nutch.io.Writable;
-import org.apache.nutch.io.WritableComparable;
 import org.apache.nutch.io.LongWritable;
 import org.apache.nutch.io.UTF8;
 

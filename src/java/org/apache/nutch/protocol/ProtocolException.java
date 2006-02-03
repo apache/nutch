@@ -16,8 +16,6 @@
 
 package org.apache.nutch.protocol;
 
-import java.net.URL;
-
 public class ProtocolException extends Exception {
 
   public ProtocolException() {

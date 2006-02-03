@@ -23,12 +23,9 @@ import org.apache.nutch.searcher.HitDetails;
 
 import org.apache.nutch.util.NutchConf;
 
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import java.util.Properties;
 
 import java.io.OutputStream;
 import java.io.IOException;

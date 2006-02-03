@@ -18,7 +18,6 @@ package org.apache.nutch.net;
 
 import org.apache.nutch.util.*;
 
-import java.net.URL;
 import java.util.logging.*;
 
 /** Factory to create a UrlNormalizer from "urlnormalizer.class" config property. */

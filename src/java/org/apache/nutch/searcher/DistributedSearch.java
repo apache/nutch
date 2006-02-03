@@ -27,7 +27,6 @@ import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.util.LogFormatter;
 import org.apache.nutch.util.NutchConf;
-import org.apache.nutch.io.*;
 import org.apache.nutch.ipc.RPC;
 
 /** Implements the search API over IPC connnections. */

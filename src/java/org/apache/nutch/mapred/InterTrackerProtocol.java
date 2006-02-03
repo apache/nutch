@@ -17,7 +17,6 @@
 package org.apache.nutch.mapred;
 
 import java.io.*;
-import org.apache.nutch.io.*;
 
 /** 
  * Protocol that a TaskTracker and the central JobTracker use to communicate.

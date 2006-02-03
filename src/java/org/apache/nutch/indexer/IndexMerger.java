@@ -17,7 +17,6 @@
 package org.apache.nutch.indexer;
 
 import java.io.*;
-import java.text.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -25,7 +24,6 @@ import org.apache.nutch.fs.*;
 import org.apache.nutch.util.*;
 
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.index.IndexWriter;
 
 /*************************************************************************
