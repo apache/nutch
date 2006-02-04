@@ -28,9 +28,6 @@ import org.apache.nutch.searcher.Query;
 import org.apache.nutch.searcher.Query.*;
 import org.apache.hadoop.conf.Configuration;
 
-import java.io.IOException;
-import java.util.HashSet;
-
 /** The default query filter.  Query terms in the default query field are
  * expanded to search the url, anchor and content document fields.*/
 public class BasicQueryFilter implements QueryFilter {

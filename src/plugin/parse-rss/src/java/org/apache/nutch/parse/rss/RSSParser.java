@@ -25,32 +25,22 @@ import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.Outlink;
-import org.apache.nutch.parse.ParseException;
 
 import org.apache.nutch.parse.rss.structs.RSSItem;
 import org.apache.nutch.parse.rss.structs.RSSChannel;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.io.IOException;
 
 import java.net.MalformedURLException;
 
-import java.util.Properties;
 import java.util.logging.Logger;
-import java.util.Date;
 import java.util.List;
 import java.util.Vector;
 
 // add all the RSS parsing imports right here
-import org.apache.commons.feedparser.FeedParserState;
 import org.apache.commons.feedparser.FeedParserListener;
 import org.apache.commons.feedparser.FeedParser;
-import org.apache.commons.feedparser.FeedParserException;
 import org.apache.commons.feedparser.FeedParserFactory;
-import org.apache.commons.feedparser.DefaultFeedParserListener;
-import org.apache.commons.feedparser.network.ResourceRequestFactory;
-import org.apache.commons.feedparser.network.ResourceRequest;
 
 /**
  * 

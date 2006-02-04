@@ -19,7 +19,6 @@ package org.apache.nutch.analysis.lang;
 // Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
-import org.apache.nutch.fetcher.FetcherOutput;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.hadoop.io.UTF8;

@@ -34,7 +34,6 @@ import org.apache.nutch.protocol.ProtocolStatus;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import java.net.MalformedURLException;
 import java.net.URL;
 
 import java.io.IOException;

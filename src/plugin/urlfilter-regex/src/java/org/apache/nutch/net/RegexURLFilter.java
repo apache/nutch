@@ -21,7 +21,6 @@ import org.apache.hadoop.util.LogFormatter;
 
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
-import org.apache.oro.text.regex.MalformedPatternException;
 
 import java.io.Reader;
 import java.io.FileReader;

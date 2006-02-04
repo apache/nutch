@@ -17,7 +17,6 @@
 package org.apache.nutch.parse.swf;
 
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.apache.nutch.crawl.CrawlDatum;
@@ -28,8 +27,6 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ProtocolException;
 
 import org.apache.nutch.parse.ParseUtil;
-import org.apache.nutch.parse.ParserFactory;
-import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseException;
 import org.apache.hadoop.conf.Configuration;

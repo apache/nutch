@@ -19,7 +19,6 @@ package org.apache.nutch.parse.html;
 import junit.framework.TestCase;
 
 import org.apache.nutch.parse.HTMLMetaTags;
-import org.apache.nutch.parse.html.HTMLMetaProcessor.*;
 
 import java.io.ByteArrayInputStream;
 import java.net.URL;

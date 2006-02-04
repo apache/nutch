@@ -16,7 +16,6 @@
 
 package org.creativecommons.nutch;
 
-import org.apache.hadoop.io.*;
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.indexer.Indexer;
 

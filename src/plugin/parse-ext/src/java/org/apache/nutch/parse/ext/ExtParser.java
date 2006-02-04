@@ -34,7 +34,6 @@ import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
 
 import java.util.Hashtable;
-import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

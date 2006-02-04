@@ -32,7 +32,6 @@ import junit.textui.TestRunner;
 
 // Lucene imports
 import org.apache.lucene.analysis.Token;
-import org.apache.hadoop.conf.Configuration;
 
 import org.apache.nutch.util.NutchConfiguration;
 

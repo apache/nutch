@@ -16,8 +16,6 @@
 
 package org.apache.nutch.parse.text;
 
-import java.util.Properties;
-
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.parse.*;

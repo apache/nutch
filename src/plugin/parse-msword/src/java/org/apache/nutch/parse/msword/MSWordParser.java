@@ -18,7 +18,6 @@ package org.apache.nutch.parse.msword;
 
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ContentProperties;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;

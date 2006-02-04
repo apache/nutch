@@ -36,12 +36,10 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.OutlinkExtractor;
-import org.apache.nutch.parse.ParseException;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import java.util.Properties;
 import java.util.logging.Logger;
 
 import java.io.ByteArrayInputStream;

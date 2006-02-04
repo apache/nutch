@@ -34,7 +34,6 @@ import java.net.URL;
 
 import java.util.List;
 import java.util.LinkedList;
-import java.util.Properties;
 
 import java.util.logging.Level;
 
