@@ -30,7 +30,6 @@ import org.apache.hadoop.io.MD5Hash;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.protocol.Content;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.NutchConfiguration;
 
