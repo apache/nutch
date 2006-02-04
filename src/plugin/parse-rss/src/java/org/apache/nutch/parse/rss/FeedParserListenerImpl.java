@@ -21,7 +21,6 @@ import org.apache.commons.feedparser.FeedParserException;
 
 import java.util.List;
 import java.util.Vector;
-import java.util.Date;
 
 import org.apache.nutch.parse.rss.structs.RSSChannel;
 import org.apache.nutch.parse.rss.structs.RSSItem;

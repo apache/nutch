@@ -7,7 +7,6 @@ package org.apache.nutch.protocol.httpclient;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 import com.sun.net.ssl.TrustManagerFactory;

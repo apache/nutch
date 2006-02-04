@@ -19,10 +19,8 @@ import org.apache.nutch.parse.msword.chp.*;
 
 import org.apache.poi.util.LittleEndian;
 import org.apache.poi.hwpf.model.*;
-import org.apache.poi.hwpf.sprm.*;
 
 import java.util.*;
-import java.io.*;
 
 /**
  * This class is used to extract text from Word 6 documents only. It should

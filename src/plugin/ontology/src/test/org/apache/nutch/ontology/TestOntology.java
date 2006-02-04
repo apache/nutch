@@ -16,14 +16,8 @@
 
 package org.apache.nutch.ontology;
 
-import org.apache.nutch.protocol.ProtocolFactory;
-import org.apache.nutch.protocol.Protocol;
-import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ProtocolException;
 
-import org.apache.nutch.parse.ParserFactory;
-import org.apache.nutch.parse.Parser;
-import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;

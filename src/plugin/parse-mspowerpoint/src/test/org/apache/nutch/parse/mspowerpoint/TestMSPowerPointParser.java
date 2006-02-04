@@ -34,7 +34,6 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.hadoop.util.LogFormatter;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
 import org.apache.hadoop.io.UTF8;

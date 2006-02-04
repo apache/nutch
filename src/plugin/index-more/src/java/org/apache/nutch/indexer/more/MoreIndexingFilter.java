@@ -46,15 +46,12 @@ import org.apache.nutch.util.mime.MimeTypeException;
 import org.apache.hadoop.util.LogFormatter;
 import java.util.logging.Logger;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import java.util.Date;
-import java.util.Locale;
 import java.util.TimeZone;
 import java.util.Enumeration;
-import java.util.Properties;
 
 import org.apache.commons.lang.time.DateUtils;
 /**

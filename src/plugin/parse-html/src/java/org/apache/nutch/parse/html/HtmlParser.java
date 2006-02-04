@@ -16,7 +16,6 @@
 
 package org.apache.nutch.parse.html;
 
-import java.util.Properties;
 import java.util.ArrayList;
 import java.util.logging.*;
 import java.net.URL;

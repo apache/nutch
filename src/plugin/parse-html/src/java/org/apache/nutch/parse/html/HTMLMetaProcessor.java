@@ -17,7 +17,6 @@
 package org.apache.nutch.parse.html;
 
 import java.net.URL;
-import java.util.Properties;
 
 import org.apache.nutch.parse.HTMLMetaTags;
 import org.w3c.dom.*;
