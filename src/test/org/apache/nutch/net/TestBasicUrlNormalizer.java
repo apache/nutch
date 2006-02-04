@@ -16,7 +16,6 @@
 
 package org.apache.nutch.net;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
 import junit.framework.TestCase;
