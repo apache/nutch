@@ -17,24 +17,24 @@
 package org.apache.nutch.searcher.url;
 
 import org.apache.nutch.searcher.FieldQueryFilter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 
 /**
  * Handles "url:" query clauses, causing them to search the field indexed by
  * BasicIndexingFilter.
  */
 public class URLQueryFilter extends FieldQueryFilter {
-  private NutchConf nutchConf;
+  private Configuration conf;
 
   public URLQueryFilter() {
     super("url");
   }
 
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 }

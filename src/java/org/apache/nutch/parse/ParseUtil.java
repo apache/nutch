@@ -20,8 +20,8 @@ import java.util.logging.Logger;
 
 // Nutch Imports
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
 
 
 /**
@@ -38,16 +38,16 @@ public class ParseUtil {
   /* our log stream */
   public static final Logger LOG = LogFormatter.getLogger(ParseUtil.class
           .getName());
-  private NutchConf nutchConf;
+  private Configuration conf;
   private ParserFactory parserFactory;
   
   /**
    * 
-   * @param nutchConf
+   * @param conf
    */
-  public ParseUtil(NutchConf nutchConf) {
-    this.nutchConf = nutchConf;
-    this.parserFactory = new ParserFactory(nutchConf);
+  public ParseUtil(Configuration conf) {
+    this.conf = conf;
+    this.parserFactory = new ParserFactory(conf);
   }
   
   /**
@@ -84,7 +84,7 @@ public class ParseUtil {
                 " of type " + content.getContentType());
 
     ParseStatus ps = (parse.getData() != null) ? parse.getData().getStatus() : null;
-    return (ps == null) ? new ParseStatus().getEmptyParse(this.nutchConf) : ps.getEmptyParse(this.nutchConf);
+    return (ps == null) ? new ParseStatus().getEmptyParse(this.conf) : ps.getEmptyParse(this.conf);
   }
   
   /**
@@ -124,7 +124,7 @@ public class ParseUtil {
     } else {
       LOG.warning("Unable to successfully parse content " + content.getUrl() +
                   " of type " + content.getContentType());
-      return new ParseStatus().getEmptyParse(this.nutchConf);
+      return new ParseStatus().getEmptyParse(this.conf);
     }
   }
   

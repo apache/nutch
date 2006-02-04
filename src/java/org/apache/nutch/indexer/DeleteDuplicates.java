@@ -20,10 +20,13 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
-import org.apache.nutch.io.*;
-import org.apache.nutch.fs.*;
-import org.apache.nutch.util.*;
-import org.apache.nutch.mapred.*;
+import org.apache.hadoop.io.*;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.conf.*;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.mapred.*;
+
+import org.apache.nutch.util.NutchConfiguration;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.document.Document;
@@ -32,7 +35,7 @@ import org.apache.lucene.document.Document;
  * Deletes duplicate documents in a set of Lucene indexes.
  * Duplicates have either the same contents (via MD5 hash) or the same URL.
  ******************************************************************/
-public class DeleteDuplicates extends NutchConfigured
+public class DeleteDuplicates extends Configured
   implements Mapper, Reducer, OutputFormat {
   private static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.indexer.DeleteDuplicates");
@@ -127,7 +130,7 @@ public class DeleteDuplicates extends NutchConfigured
     private static final long INDEX_LENGTH = Integer.MAX_VALUE;
 
     /** Return each index as a split. */
-    public FileSplit[] getSplits(NutchFileSystem fs, JobConf job,
+    public FileSplit[] getSplits(FileSystem fs, JobConf job,
                                  int numSplits)
       throws IOException {
       File[] files = listFiles(fs, job);
@@ -139,7 +142,7 @@ public class DeleteDuplicates extends NutchConfigured
     }
 
     /** Return each index as a split. */
-    public RecordReader getRecordReader(final NutchFileSystem fs,
+    public RecordReader getRecordReader(final FileSystem fs,
                                         final FileSplit split,
                                         final JobConf job,
                                         Reporter reporter) throws IOException {
@@ -148,7 +151,7 @@ public class DeleteDuplicates extends NutchConfigured
       return new RecordReader() {
 
           private IndexReader indexReader =
-            IndexReader.open(new NdfsDirectory(fs, split.getFile(), false, job));
+            IndexReader.open(new FsDirectory(fs, split.getFile(), false, job));
 
           { indexReader.undeleteAll(); }
 
@@ -227,16 +230,17 @@ public class DeleteDuplicates extends NutchConfigured
     }
   }
     
-  private NutchFileSystem fs;
+  private FileSystem fs;
   private int ioFileBufferSize;
 
   public DeleteDuplicates() { super(null); }
 
-  public DeleteDuplicates(NutchConf conf) { super(conf); }
+  public DeleteDuplicates(Configuration conf) { super(conf); }
 
   public void configure(JobConf job) {
+    setConf(job);
     try {
-      fs = NutchFileSystem.get(job);
+      fs = FileSystem.get(job);
       this.ioFileBufferSize = job.getInt("io.file.buffer.size", 4096);
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -256,7 +260,7 @@ public class DeleteDuplicates extends NutchConfigured
                      OutputCollector output, Reporter reporter)
     throws IOException {
     File index = new File(key.toString());
-    IndexReader reader = IndexReader.open(new NdfsDirectory(fs, index, false, getConf()));
+    IndexReader reader = IndexReader.open(new FsDirectory(fs, index, false, getConf()));
     try {
       while (values.hasNext()) {
         reader.delete(((IntWritable)values.next()).get());
@@ -267,7 +271,7 @@ public class DeleteDuplicates extends NutchConfigured
   }
 
   /** Write nothing. */
-  public RecordWriter getRecordWriter(final NutchFileSystem fs,
+  public RecordWriter getRecordWriter(final FileSystem fs,
                                       final JobConf job,
                                       final String name) throws IOException {
     return new RecordWriter() {                   
@@ -334,7 +338,7 @@ public class DeleteDuplicates extends NutchConfigured
   }
 
   public static void main(String[] args) throws Exception {
-    DeleteDuplicates dedup = new DeleteDuplicates(new NutchConf());
+    DeleteDuplicates dedup = new DeleteDuplicates(NutchConfiguration.create());
     
     if (args.length < 1) {
       System.err.println("Usage: <indexes> ...");

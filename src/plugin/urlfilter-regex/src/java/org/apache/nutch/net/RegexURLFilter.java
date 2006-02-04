@@ -16,8 +16,8 @@
 
 package org.apache.nutch.net;
 
-import org.apache.nutch.util.NutchConf;
-import org.apache.nutch.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.util.LogFormatter;
 
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
@@ -64,7 +64,7 @@ public class RegexURLFilter implements URLFilter {
 
   private List rules;
 
-  private NutchConf nutchConf;
+  private Configuration conf;
 
   public RegexURLFilter() {
   }
@@ -152,10 +152,10 @@ public class RegexURLFilter implements URLFilter {
     }
   }
 
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
     String pluginName = "urlfilter-regex";
-    Extension[] extensions = conf.getPluginRepository().getExtensionPoint(
+    Extension[] extensions = PluginRepository.get(conf).getExtensionPoint(
         URLFilter.class.getName()).getExtensions();
     for (int i = 0; i < extensions.length; i++) {
       Extension extension = extensions[i];
@@ -191,8 +191,8 @@ public class RegexURLFilter implements URLFilter {
     }
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 
 }

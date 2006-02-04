@@ -34,8 +34,8 @@ import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ContentProperties;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.mime.MimeTypes;
 
 
@@ -50,13 +50,13 @@ public class ZipTextExtractor {
   
   public static final Logger LOG = LogFormatter.getLogger(ZipTextExtractor.class.getName());
 
-private NutchConf nutchConf;
+private Configuration conf;
   
   
   /** Creates a new instance of ZipTextExtractor */
-  public ZipTextExtractor(NutchConf nutchConf) {
-      this.nutchConf = nutchConf;
-      this.MIME = MimeTypes.get(nutchConf.get("mime.types.file"));
+  public ZipTextExtractor(Configuration conf) {
+      this.conf = conf;
+      this.MIME = MimeTypes.get(conf.get("mime.types.file"));
   }
   
   public String extractText(InputStream input, String url, List outLinksList) throws IOException {
@@ -91,13 +91,13 @@ private NutchConf nutchConf;
             ContentProperties metadata = new ContentProperties();
             metadata.setProperty("Content-Length", Long.toString(entry.getSize()));
             metadata.setProperty("Content-Type", contentType);
-            Content content = new Content(newurl, base, b, contentType, metadata, this.nutchConf);
-            Parse parse = new ParseUtil(this.nutchConf).parse(content);
+            Content content = new Content(newurl, base, b, contentType, metadata, this.conf);
+            Parse parse = new ParseUtil(this.conf).parse(content);
             ParseData theParseData = parse.getData();
             Outlink[] theOutlinks = theParseData.getOutlinks();
             
             for(int count = 0; count < theOutlinks.length; count++) {
-              outLinksList.add(new Outlink(theOutlinks[count].getToUrl(), theOutlinks[count].getAnchor(), this.nutchConf));
+              outLinksList.add(new Outlink(theOutlinks[count].getToUrl(), theOutlinks[count].getAnchor(), this.conf));
             }
             
             resultText += entry.getName() + " " + parse.getText() + " ";

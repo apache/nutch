@@ -24,7 +24,8 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Token;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.conf.Configuration;
 
 /**
  * The analyzer used for Nutch documents. Uses the JavaCC-defined lexical
@@ -44,13 +45,13 @@ public class NutchDocumentAnalyzer extends NutchAnalyzer {
   public static final int INTER_ANCHOR_GAP = 4;
   /** Analyzer used to analyze anchors. */
   private static Analyzer ANCHOR_ANALYZER;
-  private NutchConf nutchConf;
+  private Configuration conf;
 
   /**
    * @param conf
    */
-  public NutchDocumentAnalyzer(NutchConf conf) {
-    this.nutchConf = conf;
+  public NutchDocumentAnalyzer(Configuration conf) {
+    this.conf = conf;
     CONTENT_ANALYZER = new ContentAnalyzer(conf);
     ANCHOR_ANALYZER = new AnchorAnalyzer();
   }
@@ -59,8 +60,8 @@ public class NutchDocumentAnalyzer extends NutchAnalyzer {
   private static class ContentAnalyzer extends Analyzer {
     private CommonGrams commonGrams;
 
-    public ContentAnalyzer(NutchConf nutchConf) {
-      this.commonGrams = new CommonGrams(nutchConf);
+    public ContentAnalyzer(Configuration conf) {
+      this.commonGrams = new CommonGrams(conf);
     }
 
     /** Constructs a {@link NutchDocumentTokenizer}. */

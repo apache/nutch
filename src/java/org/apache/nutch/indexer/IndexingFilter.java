@@ -18,16 +18,16 @@ package org.apache.nutch.indexer;
 
 import org.apache.lucene.document.Document;
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.util.NutchConfigurable;
+import org.apache.hadoop.conf.Configurable;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
-import org.apache.nutch.io.UTF8;
+import org.apache.hadoop.io.UTF8;
 
 /** Extension point for indexing.  Permits one to add metadata to the indexed
  * fields.  All plugins found which implement this extension point are run
  * sequentially on the parse.
  */
-public interface IndexingFilter extends NutchConfigurable {
+public interface IndexingFilter extends Configurable {
   /** The name of the extension point. */
   final static String X_POINT_ID = IndexingFilter.class.getName();
 

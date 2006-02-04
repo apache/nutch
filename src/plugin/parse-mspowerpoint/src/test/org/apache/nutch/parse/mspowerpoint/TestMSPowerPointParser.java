@@ -33,10 +33,11 @@ import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.NutchConfiguration;
 
-import org.apache.nutch.io.UTF8;
+import org.apache.hadoop.io.UTF8;
 import org.apache.nutch.crawl.CrawlDatum;
 
 /**
@@ -106,7 +107,7 @@ public class TestMSPowerPointParser extends TestCase {
     this.urlString = createUrl(this.testFile.getName());
 
     System.out.println("Testing file: " + this.urlString + "...");
-    this.protocol =new ProtocolFactory(new NutchConf()).getProtocol(this.urlString);
+    this.protocol =new ProtocolFactory(NutchConfiguration.create()).getProtocol(this.urlString);
     this.content = this.protocol.getProtocolOutput(new UTF8(this.urlString), new CrawlDatum()).getContent();
   }
 
@@ -126,7 +127,7 @@ public class TestMSPowerPointParser extends TestCase {
    */
   public void testContent() throws Exception {
 
-    Parse parse = new ParseUtil(new NutchConf()).parseByParserId("parse-mspowerpoint",this.content);
+    Parse parse = new ParseUtil(NutchConfiguration.create()).parseByParserId("parse-mspowerpoint",this.content);
 
     ParseData data = parse.getData();
     String text = parse.getText();
@@ -163,7 +164,7 @@ public class TestMSPowerPointParser extends TestCase {
    */
   public void testMeta() throws Exception {
 
-    Parse parse = new ParseUtil(new NutchConf()).parseByParserId("parse-mspowerpoint",content);
+    Parse parse = new ParseUtil(NutchConfiguration.create()).parseByParserId("parse-mspowerpoint",content);
     
     ParseData data = parse.getData();
 

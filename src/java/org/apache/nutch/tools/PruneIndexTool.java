@@ -37,9 +37,10 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.logging.Logger;
 
-import org.apache.nutch.io.UTF8;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.NutchConfiguration;
 
 import org.apache.lucene.analysis.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
@@ -459,9 +460,9 @@ public class PruneIndexTool implements Runnable {
     if (qPath != null) {
       is = new FileInputStream(qPath);
     } else {
-        NutchConf nutchConf = new NutchConf();
-        qPath = nutchConf.get("prune.index.tool.queries");
-        is = nutchConf.getConfResourceAsInputStream(qPath);
+        Configuration conf = NutchConfiguration.create();
+        qPath = conf.get("prune.index.tool.queries");
+        is = conf.getConfResourceAsInputStream(qPath);
     }
     if (is == null) {
       LOG.severe("Can't load queries from " + qPath);

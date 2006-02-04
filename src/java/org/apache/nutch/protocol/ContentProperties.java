@@ -25,8 +25,8 @@ import java.util.Iterator;
 import java.util.Properties;
 import java.util.TreeMap;
 
-import org.apache.nutch.io.UTF8;
-import org.apache.nutch.io.Writable;
+import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Writable;
 
 /**
  * writable case insensitive properties
@@ -135,7 +135,7 @@ public class ContentProperties extends TreeMap implements Writable {
     /*
      * (non-Javadoc)
      * 
-     * @see org.apache.nutch.io.Writable#write(java.io.DataOutput)
+     * @see org.apache.hadoop.io.Writable#write(java.io.DataOutput)
      */
     public final void write(DataOutput out) throws IOException {
         out.writeInt(keySet().size());
@@ -157,7 +157,7 @@ public class ContentProperties extends TreeMap implements Writable {
     /*
      * (non-Javadoc)
      * 
-     * @see org.apache.nutch.io.Writable#readFields(java.io.DataInput)
+     * @see org.apache.hadoop.io.Writable#readFields(java.io.DataInput)
      */
     public final void readFields(DataInput in) throws IOException {
         int keySize = in.readInt();

@@ -19,9 +19,9 @@ package org.apache.nutch.parse;
 import java.io.*;
 import java.net.MalformedURLException;
 
-import org.apache.nutch.io.*;
+import org.apache.hadoop.io.*;
 import org.apache.nutch.net.UrlNormalizerFactory;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 
 /* An outgoing link from a page. */
 public class Outlink implements Writable {
@@ -31,8 +31,8 @@ public class Outlink implements Writable {
 
   public Outlink() {}
 
-  public Outlink(String toUrl, String anchor, NutchConf nutchConf) throws MalformedURLException {
-    this.toUrl = new UrlNormalizerFactory(nutchConf).getNormalizer().normalize(toUrl);
+  public Outlink(String toUrl, String anchor, Configuration conf) throws MalformedURLException {
+    this.toUrl = new UrlNormalizerFactory(conf).getNormalizer().normalize(toUrl);
     this.anchor = anchor;
   }
 

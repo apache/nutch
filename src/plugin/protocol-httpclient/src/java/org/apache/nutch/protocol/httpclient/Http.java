@@ -38,8 +38,9 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.http.api.HttpBase;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.NutchConfiguration;
 
 
 public class Http extends HttpBase {
@@ -49,7 +50,7 @@ public class Http extends HttpBase {
   private static MultiThreadedHttpConnectionManager connectionManager =
           new MultiThreadedHttpConnectionManager();
 
-  // Since the NutchConf has not yet been setted,
+  // Since the Configuration has not yet been setted,
   // then an unconfigured client is returned.
   private static HttpClient client = new HttpClient(connectionManager);
 
@@ -68,7 +69,7 @@ public class Http extends HttpBase {
     super(LOG);
   }
 
-  public void setConf(NutchConf conf) {
+  public void setConf(Configuration conf) {
     super.setConf(conf);
     this.maxThreadsTotal = conf.getInt("fetcher.threads.fetch", 10);
     this.ntlmUsername = conf.get("http.auth.ntlm.username", "");
@@ -87,7 +88,7 @@ public class Http extends HttpBase {
 
   public static void main(String[] args) throws Exception {
     Http http = new Http();
-    http.setConf(new NutchConf());
+    http.setConf(NutchConfiguration.create());
     main(http, args);
   }
 

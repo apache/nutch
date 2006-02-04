@@ -26,12 +26,13 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.apache.nutch.io.MD5Hash;
+import org.apache.hadoop.io.MD5Hash;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.StringUtil;
+import org.apache.nutch.util.NutchConfiguration;
 
 /**
  * <p>An implementation of a page signature. It calculates an MD5 hash
@@ -157,7 +158,7 @@ public class TextProfileSignature extends Signature {
   
   public static void main(String[] args) throws Exception {
     TextProfileSignature sig = new TextProfileSignature();
-    sig.setConf(new NutchConf());
+    sig.setConf(NutchConfiguration.create());
     HashMap res = new HashMap();
     File[] files = new File(args[0]).listFiles();
     for (int i = 0; i < files.length; i++) {

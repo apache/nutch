@@ -30,7 +30,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -50,12 +50,12 @@ public class PluginManifestParser {
     private static final boolean WINDOWS = System.getProperty("os.name")
             .startsWith("Windows");
 
-    private NutchConf nutchConf;
+    private Configuration conf;
 
     private PluginRepository pluginRepository;
 
-    public PluginManifestParser(NutchConf nutchConf, PluginRepository pluginRepository) {
-        this.nutchConf = nutchConf;
+    public PluginManifestParser(Configuration conf, PluginRepository pluginRepository) {
+        this.conf = conf;
         this.pluginRepository = pluginRepository;
     }
    
@@ -181,7 +181,7 @@ public class PluginManifestParser {
             pluginClazz = rootElement.getAttribute("class");
         }
         PluginDescriptor pluginDescriptor = new PluginDescriptor(id, version,
-                name, providerName, pluginClazz, pPath, this.nutchConf);
+                name, providerName, pluginClazz, pPath, this.conf);
         LOG.fine("plugin: id="+id+" name="+name+" version="+version
                  +" provider="+providerName+"class="+pluginClazz);
         parseExtension(rootElement, pluginDescriptor);
@@ -290,7 +290,7 @@ public class PluginManifestParser {
                         LOG.fine("impl: point=" + pointId + " class="
                                 + extensionClass);
                         Extension extension = new Extension(pPluginDescriptor,
-                                pointId, id, extensionClass, this.nutchConf, this.pluginRepository);
+                                pointId, id, extensionClass, this.conf, this.pluginRepository);
                         NamedNodeMap list = oneImplementation.getAttributes();
                         for (int k = 0; k < list.getLength(); k++) {
                             Node attribute = list.item(k);

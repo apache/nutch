@@ -16,7 +16,8 @@
 
 package org.apache.nutch.net;
 
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.NutchConfiguration;
 
 import junit.framework.TestCase;
 
@@ -82,7 +83,7 @@ public class TestBasicUrlNormalizer extends TestCase {
   }
 
   private void normalizeTest(String weird, String normal) throws Exception {
-    assertEquals(normal, new UrlNormalizerFactory(new NutchConf()).getNormalizer().normalize(weird));
+    assertEquals(normal, new UrlNormalizerFactory(NutchConfiguration.create()).getNormalizer().normalize(weird));
   }
 	
   public static void main(String[] args) throws Exception {

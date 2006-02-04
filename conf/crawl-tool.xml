@@ -1,5 +1,5 @@
 <?xml version="1.0" ?> 
-<?xml:stylesheet type="text/xsl" href="nutch-conf.xsl"?>
+<?xml:stylesheet type="text/xsl" href="configuration.xsl"?>
 
 <!-- Overidden defaults for intranet use. -->
 
@@ -7,7 +7,7 @@
 <!-- wish to modify from this file into nutch-site.xml and change them -->
 <!-- there.  If nutch-site.xml does not already exist, create it.      -->
 
-<nutch-conf>
+<configuration>
 
 <property>
   <name>urlfilter.regex.file</name>
@@ -40,4 +40,4 @@
   each.</description>
 </property>
 
-</nutch-conf>
+</configuration>

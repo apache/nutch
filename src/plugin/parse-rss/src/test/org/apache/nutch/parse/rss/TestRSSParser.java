@@ -26,9 +26,10 @@ import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.Outlink;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.NutchConfiguration;
 
-import org.apache.nutch.io.UTF8;
+import org.apache.hadoop.io.UTF8;
 import org.apache.nutch.crawl.CrawlDatum;
 
 import junit.framework.TestCase;
@@ -80,13 +81,13 @@ public class TestRSSParser extends TestCase {
         Content content;
         Parse parse;
 
-        NutchConf nutchConf = new NutchConf();
+        Configuration conf = NutchConfiguration.create();
         for (int i = 0; i < sampleFiles.length; i++) {
             urlString = "file:" + sampleDir + fileSeparator + sampleFiles[i];
 
-            protocol = new ProtocolFactory(nutchConf).getProtocol(urlString);
+            protocol = new ProtocolFactory(conf).getProtocol(urlString);
             content = protocol.getProtocolOutput(new UTF8(urlString), new CrawlDatum()).getContent();
-            parse = new ParseUtil(nutchConf).parseByParserId("parse-rss",content);
+            parse = new ParseUtil(conf).parseByParserId("parse-rss",content);
 
             //check that there are 3 outlinks:
             //http://test.channel.com

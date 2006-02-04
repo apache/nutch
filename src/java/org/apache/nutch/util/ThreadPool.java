@@ -18,7 +18,7 @@ package org.apache.nutch.util;
 
 import java.util.*;
 import java.util.logging.*;
-import org.apache.nutch.util.LogFormatter;
+import org.apache.hadoop.util.LogFormatter;
 
 /************************************************
  * ThreadPool.java                                                 

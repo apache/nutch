@@ -22,8 +22,9 @@ import java.util.logging.Logger;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRuntimeException;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.nutch.plugin.PluginRepository;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
 
 
 /**
@@ -40,12 +41,12 @@ public class AnalyzerFactory {
   private NutchAnalyzer DEFAULT_ANALYZER;
   
   private ExtensionPoint extensionPoint;
-  private NutchConf nutchConf;
+  private Configuration conf;
 
-  public AnalyzerFactory (NutchConf nutchConf) {
-      DEFAULT_ANALYZER = new NutchDocumentAnalyzer(nutchConf);
-      this.nutchConf = nutchConf;
-      this.extensionPoint = nutchConf.getPluginRepository().getExtensionPoint(NutchAnalyzer.X_POINT_ID);
+  public AnalyzerFactory (Configuration conf) {
+      DEFAULT_ANALYZER = new NutchDocumentAnalyzer(conf);
+      this.conf = conf;
+      this.extensionPoint = PluginRepository.get(conf).getExtensionPoint(NutchAnalyzer.X_POINT_ID);
       if(this.extensionPoint == null) {
           throw new RuntimeException("x point " + NutchAnalyzer.X_POINT_ID +
           " not found.");
@@ -77,10 +78,10 @@ public class AnalyzerFactory {
 
   private Extension getExtension(String lang) {
 
-    Extension extension = (Extension) this.nutchConf.getObject(lang);
+    Extension extension = (Extension) this.conf.getObject(lang);
     if (extension == null) {
       extension = findExtension(lang);
-      this.nutchConf.setObject(lang, extension);
+      this.conf.setObject(lang, extension);
     }
     return extension;
   }

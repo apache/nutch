@@ -18,8 +18,8 @@
 
 package org.apache.nutch.net;
 
-import org.apache.nutch.util.NutchConf;
-import org.apache.nutch.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.util.LogFormatter;
 
 import org.apache.nutch.util.PrefixStringMatcher;
 import org.apache.nutch.util.TrieStringMatcher;
@@ -55,7 +55,7 @@ public class PrefixURLFilter implements URLFilter {
 
   private TrieStringMatcher trie;
 
-  private NutchConf nutchConf;
+  private Configuration conf;
 
   public PrefixURLFilter() throws IOException {
    
@@ -114,11 +114,11 @@ public class PrefixURLFilter implements URLFilter {
     }
   }
 
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
 
     String pluginName = "urlfilter-prefix";
-    Extension[] extensions = conf.getPluginRepository().getExtensionPoint(
+    Extension[] extensions = PluginRepository.get(conf).getExtensionPoint(
         URLFilter.class.getName()).getExtensions();
     for (int i = 0; i < extensions.length; i++) {
       Extension extension = extensions[i];
@@ -156,8 +156,8 @@ public class PrefixURLFilter implements URLFilter {
     }
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
   
 }

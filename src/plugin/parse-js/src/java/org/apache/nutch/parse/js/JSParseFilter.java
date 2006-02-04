@@ -23,8 +23,9 @@ import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ContentProperties;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.nutch.util.NutchConfiguration;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.oro.text.regex.MatchResult;
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.PatternCompiler;
@@ -52,7 +53,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
 
   private static final int MAX_TITLE_LEN = 80;
 
-  private NutchConf nutchConf;
+  private Configuration conf;
   
   public Parse filter(Content content, Parse parse, HTMLMetaTags metaTags, DocumentFragment doc) {
     String url = content.getBaseUrl();
@@ -68,7 +69,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
       String text = parse.getText();
       Outlink[] newlinks = (Outlink[])outlinks.toArray(new Outlink[outlinks.size()]);
       ParseData parseData = new ParseData(status, title, newlinks, metadata);
-      parseData.setConf(this.nutchConf);
+      parseData.setConf(this.conf);
       parse = new ParseImpl(text, parseData);
     }
     return parse;
@@ -146,7 +147,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     metadata.putAll(c.getMetadata());
     ParseData pd = new ParseData(ParseStatus.STATUS_SUCCESS, title,
             outlinks, metadata);
-    pd.setConf(this.nutchConf);
+    pd.setConf(this.conf);
     Parse parse = new ParseImpl(script, pd);
     return parse;
   }
@@ -232,18 +233,18 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     String line = null;
     while ((line = br.readLine()) != null) sb.append(line + "\n");
     JSParseFilter parseFilter = new JSParseFilter();
-    parseFilter.setConf(new NutchConf());
+    parseFilter.setConf(NutchConfiguration.create());
     Outlink[] links = parseFilter.getJSLinks(sb.toString(), args[1], args[1]);
     System.out.println("Outlinks extracted: " + links.length);
     for (int i = 0; i < links.length; i++)
       System.out.println(" - " + links[i]);
   }
 
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 }

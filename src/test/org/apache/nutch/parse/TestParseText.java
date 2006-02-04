@@ -16,7 +16,9 @@
 
 package org.apache.nutch.parse;
 
-import org.apache.nutch.io.*;
+import org.apache.hadoop.io.*;
+import org.apache.nutch.util.WritableTestUtils;
+
 import junit.framework.TestCase;
 
 /** Unit tests for ParseText. */
@@ -30,7 +32,7 @@ public class TestParseText extends TestCase {
 
     ParseText s = new ParseText(page);
                         
-    TestWritable.testWritable(s);
+    WritableTestUtils.testWritable(s);
   }
 	
 }

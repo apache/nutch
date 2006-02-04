@@ -35,7 +35,7 @@ import java.util.logging.Logger;
 // Nutch imports
 import org.apache.nutch.analysis.lang.NGramProfile.NGramEntry;
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.io.UTF8;
+import org.apache.hadoop.io.UTF8;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.ParserFactory;
@@ -46,8 +46,9 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.ProtocolNotFound;
 import org.apache.nutch.protocol.ProtocolException;
-import org.apache.nutch.util.NutchConf;
-import org.apache.nutch.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.nutch.util.NutchConfiguration;
 
 
 /**
@@ -95,12 +96,12 @@ public class LanguageIdentifier {
   /**
    * Constructs a new Language Identifier.
    */
-  public LanguageIdentifier(NutchConf nutchConf) {
+  public LanguageIdentifier(Configuration conf) {
 
     // Gets ngram sizes to take into account from the Nutch Config
-    minLength = nutchConf.getInt("lang.ngram.min.length",
+    minLength = conf.getInt("lang.ngram.min.length",
                                        NGramProfile.DEFAULT_MIN_NGRAM_LENGTH);
-    maxLength = nutchConf.getInt("lang.ngram.max.length",
+    maxLength = conf.getInt("lang.ngram.max.length",
                                        NGramProfile.DEFAULT_MAX_NGRAM_LENGTH);
     // Ensure the min and max values are in an acceptale range
     // (ie min >= DEFAULT_MIN_NGRAM_LENGTH and max <= DEFAULT_MAX_NGRAM_LENGTH)
@@ -110,7 +111,7 @@ public class LanguageIdentifier {
     minLength = Math.min(minLength, maxLength);
 
     // Gets the value of the maximum size of data to analyze
-    analyzeLength = nutchConf.getInt("lang.analyze.max.length",
+    analyzeLength = conf.getInt("lang.analyze.max.length",
                                            DEFAULT_ANALYSIS_LENGTH);
     
     Properties p = new Properties();
@@ -258,10 +259,10 @@ public class LanguageIdentifier {
 
     }
 
-    NutchConf nutchConf = new NutchConf();
+    Configuration conf = NutchConfiguration.create();
     String lang = null;
     //LanguageIdentifier idfr = LanguageIdentifier.getInstance();
-    LanguageIdentifier idfr = new LanguageIdentifier(nutchConf);
+    LanguageIdentifier idfr = new LanguageIdentifier(conf);
     File f;
     FileInputStream fis;
     try {
@@ -279,7 +280,7 @@ public class LanguageIdentifier {
           break;
 
         case IDURL:
-          text = getUrlContent(filename, nutchConf);
+          text = getUrlContent(filename, conf);
           lang = idfr.identify(text);
           break;
 
@@ -335,13 +336,13 @@ public class LanguageIdentifier {
    * @param url
    * @return contents of url
    */
-  private static String getUrlContent(String url, NutchConf nutchConf) {
+  private static String getUrlContent(String url, Configuration conf) {
     Protocol protocol;
     try {
-      protocol = new ProtocolFactory(nutchConf).getProtocol(url);
+      protocol = new ProtocolFactory(conf).getProtocol(url);
       Content content = protocol.getProtocolOutput(new UTF8(url), new CrawlDatum()).getContent();
       String contentType = content.getContentType();
-      Parser parser = new ParserFactory(nutchConf).getParser(contentType, url);
+      Parser parser = new ParserFactory(conf).getParser(contentType, url);
       Parse parse = parser.getParse(content);
       System.out.println("text:" + parse.getText());
       return parse.getText();

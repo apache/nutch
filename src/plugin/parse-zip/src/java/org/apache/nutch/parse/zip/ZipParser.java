@@ -32,8 +32,8 @@ import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ContentProperties;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
 
 /**
  * ZipParser class based on MSPowerPointParser class by Stephan Strittmatter.
@@ -45,7 +45,7 @@ public class ZipParser implements Parser {
 
   private static final Logger LOG = LogFormatter.getLogger(ZipParser.class
       .getName());
-  private NutchConf nutchConf;
+  private Configuration conf;
 
   /** Creates a new instance of ZipParser */
   public ZipParser() {
@@ -102,18 +102,18 @@ public class ZipParser implements Parser {
     outlinks = (Outlink[]) outLinksList.toArray(new Outlink[0]);
     final ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS,
         resultTitle, outlinks, metadata);
-    parseData.setConf(this.nutchConf);
+    parseData.setConf(this.conf);
 
     LOG.finest("Zip file parsed sucessfully !!");
     return new ParseImpl(resultText, parseData);
   }
 
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 
 }

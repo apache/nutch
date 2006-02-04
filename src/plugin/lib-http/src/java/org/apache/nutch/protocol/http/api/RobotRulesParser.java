@@ -29,9 +29,9 @@ import java.util.StringTokenizer;
 import java.util.logging.Logger;
 
 // Nutch imports
-import org.apache.nutch.util.NutchConf;
-import org.apache.nutch.util.NutchConfigurable;
-import org.apache.nutch.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configurable;
+import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
@@ -46,7 +46,7 @@ import org.apache.nutch.protocol.ProtocolException;
  * @author Mike Cafarella
  * @author Doug Cutting
  */
-public class RobotRulesParser implements NutchConfigurable {
+public class RobotRulesParser implements Configurable {
   
   public static final Logger LOG=
     LogFormatter.getLogger(RobotRulesParser.class.getName());
@@ -62,7 +62,7 @@ public class RobotRulesParser implements NutchConfigurable {
 
   private static RobotRuleSet FORBID_ALL_RULES = getForbidAllRules();
 
-  private NutchConf conf;
+  private Configuration conf;
   private HashMap robotNames;
 
   /**
@@ -176,16 +176,16 @@ public class RobotRulesParser implements NutchConfigurable {
 
   RobotRulesParser() { }
 
-  public RobotRulesParser(NutchConf conf) {
+  public RobotRulesParser(Configuration conf) {
     setConf(conf);
   }
 
 
   /* ---------------------------------- *
-   * <implementation:NutchConfigurable> *
+   * <implementation:Configurable> *
    * ---------------------------------- */
 
-  public void setConf(NutchConf conf) {
+  public void setConf(Configuration conf) {
     this.conf = conf;
     allowForbidden = conf.getBoolean("http.robots.403.allow", false);
     //
@@ -215,12 +215,12 @@ public class RobotRulesParser implements NutchConfigurable {
     setRobotNames((String[]) agents.toArray(new String[agents.size()]));
   }
 
-  public NutchConf getConf() {
+  public Configuration getConf() {
     return conf;
   }
 
   /* ---------------------------------- *
-   * <implementation:NutchConfigurable> *
+   * <implementation:Configurable> *
    * ---------------------------------- */
 
   private void setRobotNames(String[] robotNames) {

@@ -13,9 +13,9 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.nutch.protocol.ContentProperties;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
-import org.apache.nutch.util.NutchConfigurable;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configurable;
 
 
 /**
@@ -30,7 +30,7 @@ import org.apache.nutch.util.NutchConfigurable;
  * 
  * @author Matt Tencati
  */
-public class HttpAuthenticationFactory implements NutchConfigurable {
+public class HttpAuthenticationFactory implements Configurable {
 
     /** 
      * The HTTP Authentication (WWW-Authenticate) header which is returned 
@@ -43,19 +43,19 @@ public class HttpAuthenticationFactory implements NutchConfigurable {
 
     private static Map auths = new TreeMap(); 
 
-    private NutchConf conf = null;
+    private Configuration conf = null;
     
     
-    public HttpAuthenticationFactory(NutchConf conf) {
+    public HttpAuthenticationFactory(Configuration conf) {
       setConf(conf);
     }
 
    
     /* ---------------------------------- *
-     * <implementation:NutchConfigurable> *
+     * <implementation:Configurable> *
      * ---------------------------------- */
 
-    public void setConf(NutchConf conf) {
+    public void setConf(Configuration conf) {
       this.conf = conf;
       if (conf.getBoolean("http.auth.verbose", false)) {
         LOG.setLevel(Level.FINE);
@@ -64,12 +64,12 @@ public class HttpAuthenticationFactory implements NutchConfigurable {
       }
     }
 
-    public NutchConf getConf() {
+    public Configuration getConf() {
       return conf;
     }
  
     /* ---------------------------------- *
-     * <implementation:NutchConfigurable> *
+     * <implementation:Configurable> *
      * ---------------------------------- */
 
 

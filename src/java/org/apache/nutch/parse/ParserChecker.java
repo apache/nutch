@@ -16,11 +16,13 @@
 
 package org.apache.nutch.parse;
 
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
+
+import org.apache.nutch.util.NutchConfiguration;
 
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.io.UTF8;
+import org.apache.hadoop.io.UTF8;
 import org.apache.nutch.parse.ParseUtil;
 
 import org.apache.nutch.protocol.ProtocolFactory;
@@ -71,8 +73,8 @@ public class ParserChecker {
 
     LOG.info("fetching: "+url);
 
-    NutchConf nutchConf = new NutchConf();
-    ProtocolFactory factory = new ProtocolFactory(nutchConf);
+    Configuration conf = NutchConfiguration.create();
+    ProtocolFactory factory = new ProtocolFactory(conf);
     Protocol protocol = factory.getProtocol(url);
     Content content = protocol.getProtocolOutput(new UTF8(url), new CrawlDatum()).getContent();
 
@@ -90,7 +92,7 @@ public class ParserChecker {
     LOG.info("parsing: "+url);
     LOG.info("contentType: "+contentType);
 
-    Parse parse = new ParseUtil(nutchConf).parse(content);
+    Parse parse = new ParseUtil(conf).parse(content);
 
     System.out.print("---------\nParseData\n---------\n");
     System.out.print(parse.getData().toString());

@@ -26,7 +26,7 @@ import java.io.IOException;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ContentProperties;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 
 
 /************************************
@@ -64,7 +64,7 @@ public class FileResponse {
   private ContentProperties headers = new ContentProperties();
 
   private final File file;
-  private NutchConf nutchConf;
+  private Configuration conf;
 
   /** Returns the response code. */
   public int getCode() { return code; }
@@ -79,16 +79,16 @@ public class FileResponse {
   public Content toContent() {
     return new Content(orig, base, content,
                        getHeader("Content-Type"),
-                       headers, this.nutchConf);
+                       headers, this.conf);
   }
 
-  public FileResponse(URL url, CrawlDatum datum, File file, NutchConf nutchConf)
+  public FileResponse(URL url, CrawlDatum datum, File file, Configuration conf)
     throws FileException, IOException {
 
     this.orig = url.toString();
     this.base = url.toString();
     this.file = file;
-    this.nutchConf = nutchConf;
+    this.conf = conf;
 
     if (!"file".equals(url.getProtocol()))
       throw new FileException("Not a file url:" + url);

@@ -32,9 +32,10 @@ import org.apache.html.dom.*;
 
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ContentProperties;
-import org.apache.nutch.util.*;
+import org.apache.hadoop.conf.*;
+import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.parse.*;
-
+import org.apache.nutch.util.*;
 
 public class HtmlParser implements Parser {
   public static final Logger LOG =
@@ -93,7 +94,7 @@ public class HtmlParser implements Parser {
 
   private String defaultCharEncoding;
 
-  private NutchConf nutchConf;
+  private Configuration conf;
 
   private HtmlParseFilters htmlParseFilters;
 
@@ -200,7 +201,7 @@ public class HtmlParser implements Parser {
       status.setMessage(metaTags.getRefreshHref().toString());
     }
     ParseData parseData = new ParseData(status, title, outlinks, metadata);
-    parseData.setConf(this.nutchConf);
+    parseData.setConf(this.conf);
     Parse parse = new ParseImpl(text, parseData);
 
     // run filters on parse
@@ -271,22 +272,22 @@ public class HtmlParser implements Parser {
     in.readFully(bytes);
     Parse parse = new HtmlParser().getParse(new Content(url,url,
                                                         bytes,"text/html",
-                                                        new ContentProperties(), new NutchConf()));
+                                                        new ContentProperties(), NutchConfiguration.create()));
     System.out.println("data: "+parse.getData());
 
     System.out.println("text: "+parse.getText());
     
   }
 
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
     this.htmlParseFilters = new HtmlParseFilters(getConf());
     this.parserImpl = getConf().get("parser.html.impl", "neko");
     this.defaultCharEncoding = getConf().get(
         "parser.character.encoding.default", "windows-1252");
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 }

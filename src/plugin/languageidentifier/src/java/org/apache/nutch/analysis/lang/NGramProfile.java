@@ -35,7 +35,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 
 // Nutch imports
-import org.apache.nutch.util.LogFormatter;
+import org.apache.hadoop.util.LogFormatter;
 
 // Lucene imports
 import org.apache.lucene.analysis.Token;

@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import javax.xml.parsers.*;
 
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 import org.w3c.dom.*;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.Transformer;
@@ -57,12 +57,12 @@ public class OpenSearchServlet extends HttpServlet {
   }
 
   private NutchBean bean;
-  private NutchConf nutchConf;
+  private Configuration conf;
 
-  public void init(ServletConfig config, NutchConf nutchConf) throws ServletException {
+  public void init(ServletConfig config, Configuration conf) throws ServletException {
     try {
-      bean = NutchBean.get(config.getServletContext(), nutchConf);
-      this.nutchConf = nutchConf;
+      bean = NutchBean.get(config.getServletContext(), conf);
+      this.conf = conf;
     } catch (IOException e) {
       throw new ServletException(e);
     }
@@ -118,7 +118,7 @@ public class OpenSearchServlet extends HttpServlet {
         (sort == null ? "" : "&sort=" + sort + (reverse? "&reverse=true": "") +
         (dedupField == null ? "" : "&dedupField=" + dedupField));
 
-    Query query = Query.parse(queryString, this.nutchConf);
+    Query query = Query.parse(queryString, this.conf);
     NutchBean.LOG.info("query: " + queryString);
 
     // execute the query

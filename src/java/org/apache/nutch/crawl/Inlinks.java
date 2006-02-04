@@ -20,7 +20,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import org.apache.nutch.io.*;
+import org.apache.hadoop.io.*;
 
 /** A list of {@link Inlink}s. */
 public class Inlinks implements Writable {

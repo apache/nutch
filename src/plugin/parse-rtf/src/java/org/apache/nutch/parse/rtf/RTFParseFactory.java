@@ -18,7 +18,7 @@ package org.apache.nutch.parse.rtf;
 
 import org.apache.nutch.parse.*;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -33,7 +33,7 @@ import com.etranslate.tm.processing.rtf.RTFParser;
  */
 public class RTFParseFactory implements Parser {
 
-  private NutchConf nutchConf;
+  private Configuration conf;
 
   public Parse getParse(Content content) throws ParseException {
     byte[] raw = content.getContent();
@@ -64,14 +64,14 @@ public class RTFParseFactory implements Parser {
     String text = delegate.getText();
 
     return new ParseImpl(text, new ParseData(title, OutlinkExtractor
-        .getOutlinks(text, this.nutchConf), metadata));
+        .getOutlinks(text, this.conf), metadata));
   }
 
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 }

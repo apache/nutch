@@ -18,13 +18,13 @@ package org.apache.nutch.crawl;
 
 import java.util.logging.Logger;
 
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
 
 /**
  * Factory class, which instantiates a Signature implementation according to the
- * current NutchConf configuration. This newly created instance is cached in the
- * NutchConf instance, so that it could be later retrieved.
+ * current Configuration configuration. This newly created instance is cached in the
+ * Configuration instance, so that it could be later retrieved.
  * 
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
@@ -35,7 +35,7 @@ public class SignatureFactory {
   private SignatureFactory() {}                   // no public ctor
 
   /** Return the default Signature implementation. */
-  public static Signature getSignature(NutchConf conf) {
+  public static Signature getSignature(Configuration conf) {
     String clazz = conf.get("db.signature.class", MD5Signature.class.getName());
     Signature impl = (Signature)conf.getObject(clazz);
     if (impl == null) {

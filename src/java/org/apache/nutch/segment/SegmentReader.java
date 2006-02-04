@@ -28,30 +28,31 @@ import java.util.Iterator;
 import java.util.logging.Logger;
 
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.fs.NutchFileSystem;
-import org.apache.nutch.io.ObjectWritable;
-import org.apache.nutch.io.UTF8;
-import org.apache.nutch.io.Writable;
-import org.apache.nutch.io.WritableComparable;
-import org.apache.nutch.mapred.FileSplit;
-import org.apache.nutch.mapred.JobClient;
-import org.apache.nutch.mapred.JobConf;
-import org.apache.nutch.mapred.OutputCollector;
-import org.apache.nutch.mapred.RecordReader;
-import org.apache.nutch.mapred.RecordWriter;
-import org.apache.nutch.mapred.Reducer;
-import org.apache.nutch.mapred.Reporter;
-import org.apache.nutch.mapred.SequenceFileInputFormat;
-import org.apache.nutch.mapred.SequenceFileRecordReader;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.io.ObjectWritable;
+import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.mapred.FileSplit;
+import org.apache.hadoop.mapred.JobClient;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.OutputCollector;
+import org.apache.hadoop.mapred.RecordReader;
+import org.apache.hadoop.mapred.RecordWriter;
+import org.apache.hadoop.mapred.Reducer;
+import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapred.SequenceFileInputFormat;
+import org.apache.hadoop.mapred.SequenceFileRecordReader;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
-import org.apache.nutch.util.NutchConfigured;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
+import org.apache.nutch.util.NutchConfiguration;
 
 /** Dump the content of a segment. */
-public class SegmentReader extends NutchConfigured implements Reducer {
+public class SegmentReader extends Configured implements Reducer {
 
   public static final String DIR_NAME = "segdump";
 
@@ -63,7 +64,7 @@ public class SegmentReader extends NutchConfigured implements Reducer {
   /** Wraps inputs in an {@link ObjectWritable}, to permit merging different
    * types in reduce. */
   public static class InputFormat extends SequenceFileInputFormat {
-    public RecordReader getRecordReader(NutchFileSystem fs, FileSplit split,
+    public RecordReader getRecordReader(FileSystem fs, FileSplit split,
                                         JobConf job, Reporter reporter)
       throws IOException {
       reporter.setStatus(split.toString());
@@ -85,8 +86,8 @@ public class SegmentReader extends NutchConfigured implements Reducer {
 
   /** Implements a text output format*/
   public static class TextOutputFormat
-  implements org.apache.nutch.mapred.OutputFormat {
-  public RecordWriter getRecordWriter(final NutchFileSystem fs, JobConf job,
+  implements org.apache.hadoop.mapred.OutputFormat {
+  public RecordWriter getRecordWriter(final FileSystem fs, JobConf job,
                                       String name) throws IOException {
 
    final File segmentDumpFile =
@@ -113,7 +114,7 @@ public class SegmentReader extends NutchConfigured implements Reducer {
       super(null); 
   }
 
-  public SegmentReader(NutchConf conf) {
+  public SegmentReader(Configuration conf) {
     super(conf);
   }
 
@@ -170,23 +171,23 @@ public class SegmentReader extends NutchConfigured implements Reducer {
     JobClient.runJob(job);
     
     // concatenate the output
-    NutchFileSystem nfs = NutchFileSystem.get(job);
+    FileSystem fs = FileSystem.get(job);
     File directory = new File(job.getOutputDir(), SegmentReader.DIR_NAME);
     File dumpFile = new File(directory, job.get("segment.dump.dir", "dump"));
 
     // remove the old file 
-    nfs.delete(dumpFile);
-    File[] files = nfs.listFiles(directory);
+    fs.delete(dumpFile);
+    File[] files = fs.listFiles(directory);
     
     PrintWriter writer = null;
     int currentReccordNumber = 0;
     if (files.length > 0) {
-        writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(nfs.create(dumpFile))));
+        writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(fs.create(dumpFile))));
         try {
             for (int i = 0 ; i < files.length; i++) {
                 File partFile = (File)files[i];
                 try {
-                    currentReccordNumber = append(nfs, job, partFile, writer, currentReccordNumber);
+                    currentReccordNumber = append(fs, job, partFile, writer, currentReccordNumber);
                 } catch (IOException exception) {
                     LOG.warning("Couldn't copy the content of " + partFile.toString() + " into " + dumpFile.toString());
                     LOG.warning(exception.getMessage());
@@ -201,8 +202,8 @@ public class SegmentReader extends NutchConfigured implements Reducer {
   }
 
   /** Appends two files and updates the Recno counter*/
-  private int append(NutchFileSystem nfs, NutchConf conf, File src, PrintWriter writer, int currentReccordNumber) throws IOException {
-      BufferedReader reader = new BufferedReader(new InputStreamReader(nfs.open(src)));
+  private int append(FileSystem fs, Configuration conf, File src, PrintWriter writer, int currentReccordNumber) throws IOException {
+      BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(src)));
       try {
           String line = reader.readLine();
           while(line != null) {
@@ -219,8 +220,8 @@ public class SegmentReader extends NutchConfigured implements Reducer {
   }
   
   public static void main(String[] args) throws Exception {
-    NutchConf nutchConf = new NutchConf();
-    SegmentReader segmentReader = new SegmentReader(nutchConf);
+    Configuration conf = NutchConfiguration.create();
+    SegmentReader segmentReader = new SegmentReader(conf);
 
     String usage = "Usage: SegmentReader <segment>";
 

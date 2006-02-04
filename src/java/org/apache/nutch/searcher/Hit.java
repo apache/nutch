@@ -20,11 +20,11 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import org.apache.nutch.io.Writable;
-import org.apache.nutch.io.WritableComparable;
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
 
 import java.util.logging.Logger;
-import org.apache.nutch.util.LogFormatter;
+import org.apache.hadoop.util.LogFormatter;
 
 /** A document which matched a query in an index. */
 public class Hit implements Writable, Comparable {

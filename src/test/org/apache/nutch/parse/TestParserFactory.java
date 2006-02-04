@@ -21,7 +21,8 @@ import junit.framework.TestCase;
 
 // Nutch imports
 import org.apache.nutch.plugin.Extension;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.NutchConfiguration;
 
 /**
  * Unit test for new parse plugin selection.
@@ -31,18 +32,18 @@ import org.apache.nutch.util.NutchConf;
  */
 public class TestParserFactory extends TestCase {
 	
-  private NutchConf nutchConf;
+  private Configuration conf;
   private ParserFactory parserFactory;
     
   public TestParserFactory(String name) { super(name); }
 
   /** Inits the Test Case with the test parse-plugin file */
   protected void setUp() throws Exception {
-      nutchConf = new NutchConf();
-      nutchConf.set("plugin.includes", ".*");
-      nutchConf.set("parse.plugin.file",
+      conf = NutchConfiguration.create();
+      conf.set("plugin.includes", ".*");
+      conf.set("parse.plugin.file",
                         "org/apache/nutch/parse/parse-plugin-test.xml");
-      parserFactory = new ParserFactory(nutchConf);
+      parserFactory = new ParserFactory(conf);
   }
   
   /** Unit test for <code>getParser(String, String)</code> method. */

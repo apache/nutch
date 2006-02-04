@@ -19,8 +19,8 @@ package org.apache.nutch.crawl;
 import java.net.URL;
 import java.net.MalformedURLException;
 
-import org.apache.nutch.io.*;
-import org.apache.nutch.mapred.*;
+import org.apache.hadoop.io.*;
+import org.apache.hadoop.mapred.*;
 
 /** Partition urls by hostname. */
 public class PartitionUrlByHost implements Partitioner {

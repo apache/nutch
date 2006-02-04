@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.oro.text.regex.MatchResult;
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.PatternCompiler;
@@ -66,8 +66,8 @@ public class OutlinkExtractor {
    * 
    * @return Array of <code>Outlink</code>s within found in plainText
    */
-  public static Outlink[] getOutlinks(final String plainText, NutchConf nutchConf) {
-    return OutlinkExtractor.getOutlinks(plainText, "", nutchConf);
+  public static Outlink[] getOutlinks(final String plainText, Configuration conf) {
+    return OutlinkExtractor.getOutlinks(plainText, "", conf);
   }
 
   /**
@@ -79,7 +79,7 @@ public class OutlinkExtractor {
    * 
    * @return Array of <code>Outlink</code>s within found in plainText
    */
-  public static Outlink[] getOutlinks(final String plainText, String anchor, NutchConf nutchConf) {
+  public static Outlink[] getOutlinks(final String plainText, String anchor, Configuration conf) {
     long start = System.currentTimeMillis();
     final List outlinks = new ArrayList();
 
@@ -106,7 +106,7 @@ public class OutlinkExtractor {
         }
         result = matcher.getMatch();
         url = result.group(0);
-        outlinks.add(new Outlink(url, anchor, nutchConf));
+        outlinks.add(new Outlink(url, anchor, conf));
       }
     } catch (Exception ex) {
       // if the matcher fails (perhaps a malformed URL) we just log it and move on

@@ -25,9 +25,12 @@ import java.lang.reflect.Method;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.crawl.Inlinks;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
-import org.apache.nutch.ipc.RPC;
+
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.ipc.RPC;
+
+import org.apache.nutch.util.NutchConfiguration;
 
 /** Implements the search API over IPC connnections. */
 public class DistributedSearch {
@@ -61,10 +64,10 @@ public class DistributedSearch {
       int port = Integer.parseInt(args[0]);
       File directory = new File(args[1]);
 
-      NutchConf nutchConf = new NutchConf();
-      NutchBean bean = new NutchBean(nutchConf, directory);
+      Configuration conf = NutchConfiguration.create();
+      NutchBean bean = new NutchBean(conf, directory);
 
-      org.apache.nutch.ipc.Server server = RPC.getServer(bean, port, 10, true, nutchConf);
+      org.apache.hadoop.ipc.Server server = RPC.getServer(bean, port, 10, true, conf);
       server.start();
       server.join();
     }
@@ -81,15 +84,15 @@ public class DistributedSearch {
     private HashMap segmentToAddress = new HashMap();
     
     private boolean running = true;
-    private NutchConf nutchConf;
+    private Configuration conf;
 
     /** Construct a client talking to servers listed in the named file.
      * Each line in the file lists a server hostname and port, separated by
      * whitespace. 
      */
 
-    public Client(File file, NutchConf nutchConf) throws IOException {
-      this(readConfig(file), nutchConf);
+    public Client(File file, Configuration conf) throws IOException {
+      this(readConfig(file), conf);
     }
 
     private static InetSocketAddress[] readConfig(File config)
@@ -113,12 +116,12 @@ public class DistributedSearch {
     }
 
     /** Construct a client talking to the named servers. */
-    public Client(InetSocketAddress[] addresses, NutchConf nutchConf) throws IOException {
+    public Client(InetSocketAddress[] addresses, Configuration conf) throws IOException {
       this.defaultAddresses = addresses;
       updateSegments();
       setDaemon(true);
       start();
-      this.nutchConf = nutchConf;
+      this.conf = conf;
     }
     
     private static final Method GET_SEGMENTS;
@@ -155,7 +158,7 @@ public class DistributedSearch {
       // build segmentToAddress map
       Object[][] params = new Object[defaultAddresses.length][0];
       String[][] results =
-        (String[][])RPC.call(GET_SEGMENTS, params, defaultAddresses, this.nutchConf);
+        (String[][])RPC.call(GET_SEGMENTS, params, defaultAddresses, this.conf);
 
       for (int i = 0; i < results.length; i++) {  // process results of call
         InetSocketAddress addr = defaultAddresses[i];
@@ -199,7 +202,7 @@ public class DistributedSearch {
         params[i][3] = sortField;
         params[i][4] = Boolean.valueOf(reverse);
       }
-      Hits[] results = (Hits[])RPC.call(SEARCH, params, liveAddresses, this.nutchConf);
+      Hits[] results = (Hits[])RPC.call(SEARCH, params, liveAddresses, this.conf);
 
       TreeSet queue;                              // cull top hits from results
 
@@ -238,13 +241,13 @@ public class DistributedSearch {
     
     private Protocol getRemote(Hit hit) {
       return (Protocol)
-        RPC.getProxy(Protocol.class, liveAddresses[hit.getIndexNo()], nutchConf);
+        RPC.getProxy(Protocol.class, liveAddresses[hit.getIndexNo()], conf);
     }
 
     private Protocol getRemote(HitDetails hit) {
       InetSocketAddress address =
         (InetSocketAddress)segmentToAddress.get(hit.getValue("segment"));
-      return (Protocol)RPC.getProxy(Protocol.class, address, nutchConf);
+      return (Protocol)RPC.getProxy(Protocol.class, address, conf);
     }
 
     public String getExplanation(Query query, Hit hit) throws IOException {
@@ -262,7 +265,7 @@ public class DistributedSearch {
         addrs[i] = liveAddresses[hits[i].getIndexNo()];
         params[i][0] = hits[i];
       }
-      return (HitDetails[])RPC.call(DETAILS, params, addrs, nutchConf);
+      return (HitDetails[])RPC.call(DETAILS, params, addrs, conf);
     }
 
 
@@ -281,7 +284,7 @@ public class DistributedSearch {
         params[i][0] = hit;
         params[i][1] = query;
       }
-      return (String[])RPC.call(SUMMARY, params, addrs, nutchConf);
+      return (String[])RPC.call(SUMMARY, params, addrs, conf);
     }
     
     public byte[] getContent(HitDetails hit) throws IOException {
@@ -316,7 +319,7 @@ public class DistributedSearch {
         System.exit(-1);
       }
 
-      Query query = Query.parse(args[0], new NutchConf());
+      Query query = Query.parse(args[0], NutchConfiguration.create());
       
       InetSocketAddress[] addresses = new InetSocketAddress[(args.length-1)/2];
       for (int i = 0; i < (args.length-1)/2; i++) {
@@ -324,7 +327,7 @@ public class DistributedSearch {
           new InetSocketAddress(args[i*2+1], Integer.parseInt(args[i*2+2]));
       }
 
-      Client client = new Client(addresses, new NutchConf());
+      Client client = new Client(addresses, NutchConfiguration.create());
       //client.setTimeout(Integer.MAX_VALUE);
 
       Hits hits = client.search(query, 10, null, null, false);

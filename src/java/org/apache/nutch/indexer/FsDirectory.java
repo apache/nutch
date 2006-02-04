@@ -18,22 +18,22 @@ package org.apache.nutch.indexer;
 
 import java.io.*;
 import org.apache.lucene.store.*;
-import org.apache.nutch.fs.*;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.conf.Configuration;
 
-/** Reads a Lucene index stored in NDFS. */
-public class NdfsDirectory extends Directory {
+/** Reads a Lucene index stored in DFS. */
+public class FsDirectory extends Directory {
 
-  private NutchFileSystem fs;
+  private FileSystem fs;
   private File directory;
   private int ioFileBufferSize;
 
-  public NdfsDirectory(NutchFileSystem fs, File directory, boolean create, NutchConf nutchConf)
+  public FsDirectory(FileSystem fs, File directory, boolean create, Configuration conf)
     throws IOException {
 
     this.fs = fs;
     this.directory = directory;
-    this.ioFileBufferSize = nutchConf.getInt("io.file.buffer.size", 4096);
+    this.ioFileBufferSize = conf.getInt("io.file.buffer.size", 4096);
     
     if (create) {
       create();
@@ -92,7 +92,7 @@ public class NdfsDirectory extends Directory {
   }
 
   public void renameFile(String from, String to) throws IOException {
-    // NDFS is currently broken when target already exists,
+    // DFS is currently broken when target already exists,
     // so we explicitly delete the target first.
     File target = new File(directory, to);
     if (fs.exists(target)) {
@@ -106,12 +106,12 @@ public class NdfsDirectory extends Directory {
     if (fs.exists(file) && !fs.delete(file))      // delete existing, if any
       throw new IOException("Cannot overwrite: " + file);
 
-    return new NdfsIndexOutput(file, this.ioFileBufferSize);
+    return new DfsIndexOutput(file, this.ioFileBufferSize);
   }
 
 
   public IndexInput openInput(String name) throws IOException {
-    return new NdfsIndexInput(new File(directory, name), this.ioFileBufferSize);
+    return new DfsIndexInput(new File(directory, name), this.ioFileBufferSize);
   }
 
   public Lock makeLock(final String name) {
@@ -149,11 +149,11 @@ public class NdfsDirectory extends Directory {
   }
 
 
-  private class NdfsIndexInput extends BufferedIndexInput {
+  private class DfsIndexInput extends BufferedIndexInput {
 
     /** Shared by clones. */
     private class Descriptor {
-      public NFSDataInputStream in;
+      public FSDataInputStream in;
       public long position;                       // cache of in.getPos()
       public Descriptor(File file, int ioFileBufferSize) throws IOException {
         this.in = fs.open(file);
@@ -164,7 +164,7 @@ public class NdfsDirectory extends Directory {
     private final long length;
     private boolean isClone;
 
-    public NdfsIndexInput(File path, int ioFileBufferSize) throws IOException {
+    public DfsIndexInput(File path, int ioFileBufferSize) throws IOException {
       descriptor = new Descriptor(path,ioFileBufferSize);
       length = fs.getLength(path);
     }
@@ -205,16 +205,16 @@ public class NdfsDirectory extends Directory {
     }
 
     public Object clone() {
-      NdfsIndexInput clone = (NdfsIndexInput)super.clone();
+      DfsIndexInput clone = (DfsIndexInput)super.clone();
       clone.isClone = true;
       return clone;
     }
   }
 
-  private class NdfsIndexOutput extends BufferedIndexOutput {
-    private NFSDataOutputStream out;
+  private class DfsIndexOutput extends BufferedIndexOutput {
+    private FSDataOutputStream out;
 
-    public NdfsIndexOutput(File path, int ioFileBufferSize) throws IOException {
+    public DfsIndexOutput(File path, int ioFileBufferSize) throws IOException {
       out = fs.create(path);
     }
 

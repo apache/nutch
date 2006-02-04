@@ -17,7 +17,7 @@
 package org.apache.nutch.searcher.more;
 
 import org.apache.nutch.searcher.RawFieldQueryFilter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 
 /**
  * Handles "type:" query clauses, causing them to search the field
@@ -27,17 +27,17 @@ import org.apache.nutch.util.NutchConf;
  */
 
 public class TypeQueryFilter extends RawFieldQueryFilter {
-  private NutchConf nutchConf;
+  private Configuration conf;
 
   public TypeQueryFilter() {
     super("type");
   }
 
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 }

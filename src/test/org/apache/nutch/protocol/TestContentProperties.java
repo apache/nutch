@@ -16,8 +16,11 @@
 
 package org.apache.nutch.protocol;
 
-import org.apache.nutch.io.TestWritable;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.*;
+
+import org.apache.nutch.util.WritableTestUtils;
+import org.apache.nutch.util.NutchConfiguration;
 
 import junit.framework.TestCase;
 
@@ -52,14 +55,14 @@ public class TestContentProperties extends TestCase {
         for (int i = 0; i < 10; i++) {
             properties.setProperty("key", "" + i);
         }
-        TestWritable.testWritable(properties);
+        WritableTestUtils.testWritable(properties);
         Content content = new Content("url", "url", new byte[0], "text/html",
-                new ContentProperties(), new NutchConf());
+                new ContentProperties(), NutchConfiguration.create());
         ContentProperties metadata = content.getMetadata();
         for (int i = 0; i < 100; i++) {
             metadata.setProperty("aKey", "" + i);
         }
-        TestWritable.testWritable(content);
+        WritableTestUtils.testWritable(content);
     }
-
+	
 }

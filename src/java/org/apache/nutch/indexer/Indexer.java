@@ -20,14 +20,17 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
-import org.apache.nutch.io.*;
+import org.apache.hadoop.io.*;
 import org.apache.nutch.fetcher.Fetcher;
-import org.apache.nutch.fs.*;
-import org.apache.nutch.util.*;
-import org.apache.nutch.mapred.*;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.conf.*;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.mapred.*;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.protocol.*;
 import org.apache.nutch.analysis.*;
+
+import org.apache.nutch.util.NutchConfiguration;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
@@ -37,7 +40,7 @@ import org.apache.lucene.index.*;
 import org.apache.lucene.document.*;
 
 /** Create indexes for segments. */
-public class Indexer extends NutchConfigured implements Reducer {
+public class Indexer extends Configured implements Reducer {
   
   public static final String DONE_NAME = "index.done";
 
@@ -47,7 +50,7 @@ public class Indexer extends NutchConfigured implements Reducer {
   /** Wraps inputs in an {@link ObjectWritable}, to permit merging different
    * types in reduce. */
   public static class InputFormat extends SequenceFileInputFormat {
-    public RecordReader getRecordReader(NutchFileSystem fs, FileSplit split,
+    public RecordReader getRecordReader(FileSystem fs, FileSplit split,
                                         JobConf job, Reporter reporter)
       throws IOException {
 
@@ -70,8 +73,8 @@ public class Indexer extends NutchConfigured implements Reducer {
 
   /** Unwrap Lucene Documents created by reduce and add them to an index. */
   public static class OutputFormat
-    implements org.apache.nutch.mapred.OutputFormat {
-    public RecordWriter getRecordWriter(final NutchFileSystem fs, JobConf job,
+    implements org.apache.hadoop.mapred.OutputFormat {
+    public RecordWriter getRecordWriter(final FileSystem fs, JobConf job,
                                         String name) throws IOException {
       final File perm = new File(job.getOutputDir(), name);
       final File temp =
@@ -121,7 +124,7 @@ public class Indexer extends NutchConfigured implements Reducer {
               LOG.info("Optimizing index.");        // optimize & close index
               writer.optimize();
               writer.close();
-              fs.completeLocalOutput(perm, temp);   // copy to ndfs
+              fs.completeLocalOutput(perm, temp);   // copy to dfs
               fs.createNewFile(new File(perm, DONE_NAME));
             } finally {
               closed = true;
@@ -138,7 +141,7 @@ public class Indexer extends NutchConfigured implements Reducer {
   }
 
   /** Construct an Indexer. */
-  public Indexer(NutchConf conf) {
+  public Indexer(Configuration conf) {
     super(conf);
   }
 
@@ -263,7 +266,7 @@ public class Indexer extends NutchConfigured implements Reducer {
   }
 
   public static void main(String[] args) throws Exception {
-    Indexer indexer = new Indexer(new NutchConf());
+    Indexer indexer = new Indexer(NutchConfiguration.create());
     
     if (args.length < 4) {
       System.err.println("Usage: <index> <crawldb> <linkdb> <segment> ...");

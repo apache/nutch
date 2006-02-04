@@ -23,8 +23,10 @@ import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.util.*;
 
+import org.apache.hadoop.conf.Configuration;
+
 public class TextParser implements Parser {
-  private NutchConf nutchConf;
+  private Configuration conf;
 
   public Parse getParse(Content content) {
     // copy content meta data through
@@ -50,16 +52,16 @@ public class TextParser implements Parser {
     }
     ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, "",
         OutlinkExtractor.getOutlinks(text, getConf()), metadata);
-    parseData.setConf(this.nutchConf);
+    parseData.setConf(this.conf);
     return new ParseImpl(text, parseData);
     
   }
 
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 }

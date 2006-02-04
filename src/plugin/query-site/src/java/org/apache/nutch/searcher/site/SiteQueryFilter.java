@@ -17,22 +17,22 @@
 package org.apache.nutch.searcher.site;
 
 import org.apache.nutch.searcher.RawFieldQueryFilter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 
 /** Handles "site:" query clauses, causing them to search the field indexed by
  * SiteIndexingFilter. */
 public class SiteQueryFilter extends RawFieldQueryFilter {
-  private NutchConf nutchConf;
+  private Configuration conf;
 
   public SiteQueryFilter() {
     super("site");
   }
   
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 }

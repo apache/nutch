@@ -22,7 +22,7 @@ import org.apache.lucene.search.*;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.misc.ChainedFilter;
 
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -72,11 +72,11 @@ class LuceneQueryOptimizer {
    * @param threshold
    *          the fraction of documents which must contain a term
    */
-  public LuceneQueryOptimizer(NutchConf nutchConf) {
-    final int cacheSize = nutchConf.getInt("searcher.filter.cache.size", 16);
-    this.threshold = nutchConf.getFloat("searcher.filter.cache.threshold",
+  public LuceneQueryOptimizer(Configuration conf) {
+    final int cacheSize = conf.getInt("searcher.filter.cache.size", 16);
+    this.threshold = conf.getFloat("searcher.filter.cache.threshold",
         0.05f);
-    this.searcherMaxHits = nutchConf.getInt("searcher.max.hits", -1);
+    this.searcherMaxHits = conf.getInt("searcher.max.hits", -1);
     this.searcherMaxHits = searcherMaxHits;
     this.cache = new LinkedHashMap(cacheSize, 0.75f, true) {
       protected boolean removeEldestEntry(Map.Entry eldest) {

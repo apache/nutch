@@ -20,11 +20,11 @@ package org.apache.nutch.protocol.ftp;
 import org.apache.commons.net.ftp.FTPFileEntryParser;
 
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.io.UTF8;
+import org.apache.hadoop.io.UTF8;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
 
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
@@ -86,7 +86,7 @@ public class Ftp implements Protocol {
   // http date format
   HttpDateFormat httpDateFormat = null;
 
-  private NutchConf nutchConf;
+  private Configuration conf;
 
 
   // constructor
@@ -223,8 +223,8 @@ public class Ftp implements Protocol {
   }
 
   
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
     this.maxContentLength = conf.getInt("ftp.content.limit", 64 * 1024);
     this.timeout = conf.getInt("ftp.timeout", 10000);
     this.userName = conf.get("ftp.username", "anonymous");
@@ -234,8 +234,8 @@ public class Ftp implements Protocol {
     this.followTalk = conf.getBoolean("ftp.follow.talk", false);
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 
 }

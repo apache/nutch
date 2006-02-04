@@ -20,7 +20,8 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ContentProperties;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.NutchConfiguration;
 
 import java.util.Properties;
 import java.io.*;
@@ -56,11 +57,11 @@ public class TestCCParseFilter extends TestCase {
     }
     in.close();
     byte[] bytes = out.toByteArray();
-    NutchConf nutchConf = new NutchConf();
+    Configuration conf = NutchConfiguration.create();
 
     Content content =
-      new Content(url, url, bytes, contentType, new ContentProperties(), nutchConf);
-    Parse parse = new ParseUtil(nutchConf).parseByParserId("parse-html",content);
+      new Content(url, url, bytes, contentType, new ContentProperties(), conf);
+    Parse parse = new ParseUtil(conf).parseByParserId("parse-html",content);
 
     ContentProperties metadata = parse.getData().getMetadata();
     assertEquals(license, metadata.get("License-Url"));

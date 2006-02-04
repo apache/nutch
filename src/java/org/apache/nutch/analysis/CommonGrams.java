@@ -24,8 +24,9 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
 
-import org.apache.nutch.util.*;
-
+import org.apache.hadoop.conf.*;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.searcher.Query.*;
 
 /** Construct n-grams for frequently occuring terms and phrases while indexing.
@@ -40,10 +41,10 @@ public class CommonGrams {
   
   /**
    * The constructor.
-   * @param nutchConf
+   * @param conf
    */
-  public CommonGrams(NutchConf nutchConf) {
-      init(nutchConf);
+  public CommonGrams(Configuration conf) {
+      init(conf);
   }
 
   private static class Filter extends TokenFilter {
@@ -133,10 +134,10 @@ public class CommonGrams {
   }
 
   /** Construct using the provided config file. */
-  private void init(NutchConf nutchConf) {
+  private void init(Configuration conf) {
     try {
-      Reader reader = nutchConf.getConfResourceAsReader
-        (nutchConf.get("analysis.common.terms.file"));
+      Reader reader = conf.getConfResourceAsReader
+        (conf.get("analysis.common.terms.file"));
       BufferedReader in = new BufferedReader(reader);
       String line;
       while ((line = in.readLine()) != null) {
@@ -236,7 +237,7 @@ public class CommonGrams {
       text.append(' ');
     }
     TokenStream ts = new NutchDocumentTokenizer(new StringReader(text.toString()));
-    CommonGrams commonGrams = new CommonGrams(new NutchConf());
+    CommonGrams commonGrams = new CommonGrams(NutchConfiguration.create());
     ts = commonGrams.getFilter(ts, "url");
     Token token;
     while ((token = ts.next()) != null) {

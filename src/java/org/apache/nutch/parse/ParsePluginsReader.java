@@ -32,8 +32,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 // Nutch imports
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.NutchConfiguration;
 
 
 /**
@@ -70,7 +71,7 @@ public class ParsePluginsReader {
    * @throws Exception
    *             If any parsing error occurs.
    */
-  public ParsePluginList parse(NutchConf nutchConf) {
+  public ParsePluginList parse(Configuration conf) {
     
     ParsePluginList pList = new ParsePluginList();
     
@@ -92,8 +93,8 @@ public class ParsePluginsReader {
         return pList;
       }
     } else {
-      ppInputStream = nutchConf.getConfResourceAsInputStream(
-                          nutchConf.get(PP_FILE_PROP));
+      ppInputStream = conf.getConfResourceAsInputStream(
+                          conf.get(PP_FILE_PROP));
     }
     
     inputSource = new InputSource(ppInputStream);
@@ -193,7 +194,7 @@ public class ParsePluginsReader {
       reader.setFParsePluginsFile(parsePluginFile);
     }
     
-    ParsePluginList prefs = reader.parse(new NutchConf());
+    ParsePluginList prefs = reader.parse(NutchConfiguration.create());
     
     for (Iterator i = prefs.getSupportedMimeTypes().iterator(); i.hasNext();) {
       String mimeType = (String) i.next();

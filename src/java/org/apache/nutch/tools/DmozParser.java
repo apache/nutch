@@ -26,10 +26,12 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 import org.apache.xerces.util.XMLChar;
 
-import org.apache.nutch.io.*;
-import org.apache.nutch.fs.*;
-import org.apache.nutch.util.*;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.io.*;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.conf.*;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.NutchConfiguration;
 
 /** Utility that converts DMOZ RDF into a flat file of URLs to be injected. */
 public class DmozParser {
@@ -335,8 +337,8 @@ public class DmozParser {
     Pattern topicPattern = null; 
     Vector topics = new Vector(); 
     
-    NutchConf nutchConf = new NutchConf();
-    NutchFileSystem nfs = NutchFileSystem.get(nutchConf);
+    Configuration conf = NutchConfiguration.create();
+    FileSystem fs = FileSystem.get(conf);
     try {
       for (int i = 1; i < argv.length; i++) {
         if ("-includeAdultMaterial".equals(argv[i])) {
@@ -375,7 +377,7 @@ public class DmozParser {
                            includeAdult, skew, topicPattern);
       
     } finally {
-      nfs.close();
+      fs.close();
     }
   }
 

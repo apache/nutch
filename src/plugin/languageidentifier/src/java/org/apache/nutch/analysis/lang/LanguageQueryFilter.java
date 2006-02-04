@@ -17,22 +17,22 @@
 package org.apache.nutch.analysis.lang;
 
 import org.apache.nutch.searcher.RawFieldQueryFilter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 
 /** Handles "lang:" query clauses, causing them to search the "lang" field
  * indexed by LanguageIdentifier. */
 public class LanguageQueryFilter extends RawFieldQueryFilter {
-  private NutchConf nutchConf;
+  private Configuration conf;
 
   public LanguageQueryFilter() {
     super("lang");
   }
   
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 }

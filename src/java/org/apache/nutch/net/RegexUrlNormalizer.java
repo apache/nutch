@@ -23,7 +23,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
-import org.apache.nutch.util.NutchConf;
+
+import org.apache.hadoop.conf.Configuration;
+
+import org.apache.nutch.util.NutchConfiguration;
 
 import javax.xml.parsers.*;
 import org.w3c.dom.*;
@@ -58,7 +61,7 @@ public class RegexUrlNormalizer extends BasicUrlNormalizer
     /** Constructor which can be passed the file name, so it doesn't look in the configuration files for it. */
     public RegexUrlNormalizer(String filename)
       throws IOException, MalformedPatternException {
-      //URL url= NutchConf.get().getResource(filename);
+      //URL url= Configuration.get().getResource(filename);
       rules = readConfigurationFile(filename);
     }
     
@@ -97,7 +100,7 @@ public class RegexUrlNormalizer extends BasicUrlNormalizer
     try {
       
       LOG.info("loading " + filename);
-      // borrowed heavily from code in NutchConf.java
+      // borrowed heavily from code in Configuration.java
       Document doc =
         DocumentBuilderFactory.newInstance().newDocumentBuilder()
         .parse(filename);
@@ -141,7 +144,7 @@ public class RegexUrlNormalizer extends BasicUrlNormalizer
     return rules;
   }
   
-  public void setConf(NutchConf conf) {
+  public void setConf(Configuration conf) {
     super.setConf(conf);
     // the default constructor was called
     if (this.rules == null) {
@@ -164,7 +167,7 @@ public class RegexUrlNormalizer extends BasicUrlNormalizer
   public static void main(String args[])
     throws MalformedPatternException, IOException {
       RegexUrlNormalizer normalizer = new RegexUrlNormalizer();
-      normalizer.setConf(new NutchConf());
+      normalizer.setConf(NutchConfiguration.create());
       Iterator i=normalizer.rules.iterator();
       while(i.hasNext()) {
         Rule r=(Rule) i.next();

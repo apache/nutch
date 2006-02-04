@@ -18,19 +18,21 @@ package org.apache.nutch.fetcher;
 
 import java.io.*;
 
-import org.apache.nutch.io.*;
+import org.apache.hadoop.io.*;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.parse.*;
-import org.apache.nutch.util.NutchConf;
-import org.apache.nutch.util.NutchConfigurable;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configurable;
 
 /* An entry in the fetcher's output. */
-public final class FetcherOutput implements Writable, NutchConfigurable {
+public final class FetcherOutput implements Writable, Configurable {
   private CrawlDatum crawlDatum;
   private Content content;
   private ParseImpl parse;
-  private NutchConf nutchConf;
+  private Configuration conf;
+
+  static { WritableName.setName(FetcherOutput.class, "FetcherOutput"); }
 
   public FetcherOutput() {}
 
@@ -44,7 +46,7 @@ public final class FetcherOutput implements Writable, NutchConfigurable {
   public final void readFields(DataInput in) throws IOException {
     this.crawlDatum = CrawlDatum.read(in);
     this.content = in.readBoolean() ? Content.read(in) : null;
-    this.parse = in.readBoolean() ? ParseImpl.read(in, this.nutchConf) : null;
+    this.parse = in.readBoolean() ? ParseImpl.read(in, this.conf) : null;
   }
 
   public final void write(DataOutput out) throws IOException {
@@ -80,12 +82,12 @@ public final class FetcherOutput implements Writable, NutchConfigurable {
     return buffer.toString();
   }
 
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 
 }

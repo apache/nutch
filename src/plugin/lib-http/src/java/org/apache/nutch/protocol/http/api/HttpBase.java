@@ -26,14 +26,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.io.UTF8;
+import org.apache.hadoop.io.UTF8;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 
 
 /**
@@ -111,7 +111,7 @@ public abstract class HttpBase implements Protocol {
   private Logger logger = LOGGER;
  
   /** The nutch configuration */
-  private NutchConf conf = null;
+  private Configuration conf = null;
  
 
   /** Creates a new instance of HttpBase */
@@ -128,7 +128,7 @@ public abstract class HttpBase implements Protocol {
   }
   
    // Inherited Javadoc
-    public void setConf(NutchConf conf) {
+    public void setConf(Configuration conf) {
         this.conf = conf;
         this.proxyHost = conf.get("http.proxy.host");
         this.proxyPort = conf.getInt("http.proxy.port", 8080);
@@ -145,7 +145,7 @@ public abstract class HttpBase implements Protocol {
     }
 
   // Inherited Javadoc
-  public NutchConf getConf() {
+  public Configuration getConf() {
     return this.conf;
   }
    

@@ -16,8 +16,9 @@
 
 package org.apache.nutch.ontology;
 
-import org.apache.nutch.util.NutchConf;
-import org.apache.nutch.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.nutch.util.NutchConfiguration;
 
 import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.ontology.OntClass;
@@ -325,10 +326,10 @@ public class OntologyImpl implements org.apache.nutch.ontology.Ontology {
 
   public static void main( String[] args ) throws Exception {
 
-    NutchConf nutchConf = new NutchConf(); 
-    Ontology ontology = new OntologyFactory(nutchConf).getOntology();
+    Configuration conf = NutchConfiguration.create(); 
+    Ontology ontology = new OntologyFactory(conf).getOntology();
 
-    String urls = nutchConf.get("extension.ontology.urls");
+    String urls = conf.get("extension.ontology.urls");
     if (urls==null || urls.trim().equals("")) {
       LOG.severe("No ontology url found.");
       return;

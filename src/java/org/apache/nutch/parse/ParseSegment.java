@@ -18,23 +18,25 @@ package org.apache.nutch.parse;
 
 import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.nutch.fetcher.Fetcher;
-import org.apache.nutch.io.*;
+import org.apache.hadoop.io.*;
 import org.apache.nutch.parse.ParseOutputFormat;
-import org.apache.nutch.mapred.*;
-import org.apache.nutch.util.*;
+import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.conf.*;
+import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.protocol.*;
+import org.apache.nutch.util.*;
 
 import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
 /* Parse content in a segment. */
-public class ParseSegment extends NutchConfigured implements Mapper, Reducer {
+public class ParseSegment extends Configured implements Mapper, Reducer {
 
   public static final Logger LOG =
     LogFormatter.getLogger(Parser.class.getName());
 
-  public ParseSegment(NutchConf conf) {
+  public ParseSegment(Configuration conf) {
     super(conf);
   }
 
@@ -114,7 +116,7 @@ public class ParseSegment extends NutchConfigured implements Mapper, Reducer {
       
     segment = new File(args[0]);
 
-    ParseSegment parseSegment = new ParseSegment(new NutchConf());
+    ParseSegment parseSegment = new ParseSegment(NutchConfiguration.create());
     parseSegment.parse(segment);
   }
 }

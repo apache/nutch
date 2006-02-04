@@ -26,8 +26,9 @@ import java.util.logging.Logger;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRuntimeException;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.nutch.plugin.PluginRepository;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.mime.MimeType;
 import org.apache.nutch.util.mime.MimeTypeException;
 
@@ -43,15 +44,15 @@ public final class ParserFactory {
   /** Empty extension list for caching purposes. */
   private final List EMPTY_EXTENSION_LIST = Collections.EMPTY_LIST;
   
-  private NutchConf nutchConf;
+  private Configuration conf;
   private ExtensionPoint extensionPoint;
   private ParsePluginList parsePluginList;
 
-  public ParserFactory(NutchConf nutchConf) {
-    this.nutchConf = nutchConf;
-    this.extensionPoint = nutchConf.getPluginRepository().getExtensionPoint(
+  public ParserFactory(Configuration conf) {
+    this.conf = conf;
+    this.extensionPoint = PluginRepository.get(conf).getExtensionPoint(
         Parser.X_POINT_ID);
-    this.parsePluginList = new ParsePluginsReader().parse(nutchConf);
+    this.parsePluginList = new ParsePluginsReader().parse(conf);
 
     if (this.extensionPoint == null) {
       throw new RuntimeException("x point " + Parser.X_POINT_ID + " not found.");
@@ -149,11 +150,11 @@ public final class ParserFactory {
       Parser p = null;
       try {
         //check to see if we've cached this parser instance yet
-        p = (Parser) this.nutchConf.getObject(ext.getDescriptor().getPluginId());
+        p = (Parser) this.conf.getObject(ext.getDescriptor().getPluginId());
         if (p == null) {
           // go ahead and instantiate it and then cache it
           p = (Parser) ext.getExtensionInstance();
-          this.nutchConf.setObject(ext.getDescriptor().getPluginId(),p);
+          this.conf.setObject(ext.getDescriptor().getPluginId(),p);
         }
         parsers.add(p);
       } catch (PluginRuntimeException e) {
@@ -191,8 +192,8 @@ public final class ParserFactory {
   public Parser getParserById(String parserId) throws ParserNotFound {
     // first check the cache
 
-    if (this.nutchConf.getObject(parserId) != null) {
-      return (Parser) this.nutchConf.getObject(parserId);
+    if (this.conf.getObject(parserId) != null) {
+      return (Parser) this.conf.getObject(parserId);
     } else {
       // get the list of registered parsing extensions
       // then find the right one by Id
@@ -208,7 +209,7 @@ public final class ParserFactory {
         try {
           Parser p = null;
           p = (Parser) parserExt.getExtensionInstance();
-          this.nutchConf.setObject(parserId, p);
+          this.conf.setObject(parserId, p);
           return p;
         } catch (PluginRuntimeException e) {
           LOG.warning("ParserFactory:PluginRuntimeException when "
@@ -242,7 +243,7 @@ public final class ParserFactory {
         type = contentType;
     }
 
-    List extensions = (List) this.nutchConf.getObject(type);
+    List extensions = (List) this.conf.getObject(type);
 
     // Just compare the reference:
     // if this is the empty list, we know we will find no extension.
@@ -253,11 +254,11 @@ public final class ParserFactory {
     if (extensions == null) {
       extensions = findExtensions(type);
       if (extensions != null) {
-        this.nutchConf.setObject(type, extensions);
+        this.conf.setObject(type, extensions);
       } else {
       	// Put the empty extension list into cache
       	// to remember we don't know any related extension.
-      	this.nutchConf.setObject(type, EMPTY_EXTENSION_LIST);
+      	this.conf.setObject(type, EMPTY_EXTENSION_LIST);
       }
     }
     return extensions;

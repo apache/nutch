@@ -19,17 +19,18 @@ package org.apache.nutch.parse;
 import java.io.*;
 import java.util.*;
 
-import org.apache.nutch.io.*;
-import org.apache.nutch.fs.*;
+import org.apache.hadoop.io.*;
+import org.apache.hadoop.fs.*;
 import org.apache.nutch.protocol.ContentProperties;
-import org.apache.nutch.util.NutchConf;
-import org.apache.nutch.util.NutchConfigurable;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configurable;
 
+import org.apache.nutch.util.NutchConfiguration;
 
 /** Data extracted from a page's content.
  * @see Parse#getData()
  */
-public final class ParseData extends VersionedWritable implements NutchConfigurable {
+public final class ParseData extends VersionedWritable implements Configurable {
   public static final String DIR_NAME = "parse_data";
 
   private final static byte VERSION = 3;
@@ -38,12 +39,15 @@ public final class ParseData extends VersionedWritable implements NutchConfigura
   private Outlink[] outlinks;
   private ContentProperties metadata;
   private ParseStatus status;
-  private NutchConf nutchConf;
+  private Configuration conf;
   
-  // TODO mb@media-style.com: should we really implement NutchConfigurable or should we add the
-  // parameter NutchConf to the default-constructor. NOTE: The test
+  static { WritableName.setName(ParseData.class, "ParseData"); }
+
+
+  // TODO mb@media-style.com: should we really implement Configurable or should we add the
+  // parameter Configuration to the default-constructor. NOTE: The test
   // TestWriteable instantiates ParseData with Class.newInstance() -> the default
-  // constructor is called -> nutchConf is null. The programmer which use this object may not forget to set the nutchConf.
+  // constructor is called -> conf is null. The programmer which use this object may not forget to set the conf.
   public ParseData() {}
 
   public ParseData(ParseStatus status, String title, Outlink[] outlinks, ContentProperties metadata) {
@@ -90,7 +94,7 @@ public final class ParseData extends VersionedWritable implements NutchConfigura
     title = UTF8.readString(in);                   // read title
 
     int totalOutlinks = in.readInt();             // read outlinks
-    int maxOutlinksPerPage = this.nutchConf.getInt("db.max.outlinks.per.page", 100);
+    int maxOutlinksPerPage = this.conf.getInt("db.max.outlinks.per.page", 100);
     int outlinksToRead = Math.min(maxOutlinksPerPage, totalOutlinks);
     outlinks = new Outlink[outlinksToRead];
     for (int i = 0; i < outlinksToRead; i++) {
@@ -165,15 +169,15 @@ public final class ParseData extends VersionedWritable implements NutchConfigura
   }
 
   public static void main(String argv[]) throws Exception {
-    String usage = "ParseData (-local | -ndfs <namenode:port>) recno segment";
+    String usage = "ParseData (-local | -dfs <namenode:port>) recno segment";
     
     if (argv.length < 3) {
       System.out.println("usage:" + usage);
       return;
     }
 
-    NutchConf nutchConf = new NutchConf();
-    NutchFileSystem nfs = NutchFileSystem.parseArgs(argv, 0, nutchConf);
+    Configuration conf = NutchConfiguration.create();
+    FileSystem fs = FileSystem.parseArgs(argv, 0, conf);
     try {
       int recno = Integer.parseInt(argv[0]);
       String segment = argv[1];
@@ -181,7 +185,7 @@ public final class ParseData extends VersionedWritable implements NutchConfigura
       File file = new File(segment, DIR_NAME);
       System.out.println("Reading from file: " + file);
 
-      ArrayFile.Reader parses = new ArrayFile.Reader(nfs, file.toString(), nutchConf);
+      ArrayFile.Reader parses = new ArrayFile.Reader(fs, file.toString(), conf);
 
       ParseData parseDatum = new ParseData();
       parses.get(recno, parseDatum);
@@ -191,15 +195,15 @@ public final class ParseData extends VersionedWritable implements NutchConfigura
 
       parses.close();
     } finally {
-      nfs.close();
+      fs.close();
     }
   }
 
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 }

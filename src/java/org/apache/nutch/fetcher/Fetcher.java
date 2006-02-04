@@ -19,20 +19,23 @@ package org.apache.nutch.fetcher;
 import java.io.IOException;
 import java.io.File;
 
-import org.apache.nutch.io.*;
+import org.apache.hadoop.io.*;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.conf.*;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.mapred.*;
+
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.SignatureFactory;
-import org.apache.nutch.fs.*;
 import org.apache.nutch.net.*;
-import org.apache.nutch.util.*;
 import org.apache.nutch.protocol.*;
 import org.apache.nutch.parse.*;
-import org.apache.nutch.mapred.*;
+import org.apache.nutch.util.*;
 
 import java.util.logging.*;
 
 /** The fetcher. Most of the work is done by plugins. */
-public class Fetcher extends NutchConfigured implements MapRunnable { 
+public class Fetcher extends Configured implements MapRunnable { 
 
   public static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.fetcher.Fetcher");
@@ -43,7 +46,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
 
   public static class InputFormat extends SequenceFileInputFormat {
     /** Don't split inputs, to keep things polite. */
-    public FileSplit[] getSplits(NutchFileSystem fs, JobConf job, int nSplits)
+    public FileSplit[] getSplits(FileSystem fs, JobConf job, int nSplits)
       throws IOException {
       File[] files = listFiles(fs, job);
       FileSplit[] splits = new FileSplit[files.length];
@@ -73,18 +76,18 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
   private boolean parsing;
 
   private class FetcherThread extends Thread {
-    private NutchConf nutchConf;
+    private Configuration conf;
     private URLFilters urlFilters;
     private ParseUtil parseUtil;
     private ProtocolFactory protocolFactory;
 
-    public FetcherThread(NutchConf nutchConf) {
+    public FetcherThread(Configuration conf) {
       this.setDaemon(true);                       // don't hang JVM on exit
       this.setName("FetcherThread");              // use an informative name
-      this.nutchConf = nutchConf;
-      this.urlFilters = new URLFilters(nutchConf);
-      this.parseUtil = new ParseUtil(nutchConf);
-      this.protocolFactory = new ProtocolFactory(nutchConf);
+      this.conf = conf;
+      this.urlFilters = new URLFilters(conf);
+      this.parseUtil = new ParseUtil(conf);
+      this.protocolFactory = new ProtocolFactory(conf);
     }
 
     public void run() {
@@ -205,7 +208,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
 
       if (content == null) {
         String url = key.toString();
-        content = new Content(url, url, new byte[0], "", new ContentProperties(), this.nutchConf);
+        content = new Content(url, url, new byte[0], "", new ContentProperties(), this.conf);
       }
 
       content.getMetadata().setProperty           // add segment to metadata
@@ -252,7 +255,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
 
   public Fetcher() { super(null); }
 
-  public Fetcher(NutchConf conf) { super(conf); }
+  public Fetcher(Configuration conf) { super(conf); }
 
   private synchronized void updateStatus(int bytesInPage) throws IOException {
     pages++;
@@ -283,11 +286,11 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
     }
   }
 
-  public static boolean isParsing(NutchConf conf) {
+  public static boolean isParsing(Configuration conf) {
     return conf.getBoolean("fetcher.parse", true);
   }
 
-  public static boolean isStoringContent(NutchConf conf) {
+  public static boolean isStoringContent(Configuration conf) {
     return conf.getBoolean("fetcher.store.content", true);
   }
 
@@ -370,7 +373,7 @@ public class Fetcher extends NutchConfigured implements MapRunnable {
       
     File segment = new File(args[0]);
 
-    NutchConf conf = new NutchConf();
+    Configuration conf = NutchConfiguration.create();
 
     int threads = conf.getInt("fetcher.threads.fetch", 10);
     boolean parsing = true;

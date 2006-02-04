@@ -20,20 +20,23 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
-import org.apache.nutch.io.*;
-import org.apache.nutch.fs.*;
-import org.apache.nutch.util.*;
-import org.apache.nutch.mapred.*;
+import org.apache.hadoop.io.*;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.conf.*;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.mapred.*;
+
+import org.apache.nutch.util.NutchConfiguration;
 
 /** This class takes a flat file of URLs and adds them to the of pages to be
  * crawled.  Useful for bootstrapping the system. */
-public class CrawlDb extends NutchConfigured {
+public class CrawlDb extends Configured {
 
   public static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.crawl.CrawlDb");
 
   /** Construct an CrawlDb. */
-  public CrawlDb(NutchConf conf) {
+  public CrawlDb(Configuration conf) {
     super(conf);
   }
 
@@ -53,7 +56,7 @@ public class CrawlDb extends NutchConfigured {
     LOG.info("CrawlDb update: done");
   }
 
-  public static JobConf createJob(NutchConf config, File crawlDb) {
+  public static JobConf createJob(Configuration config, File crawlDb) {
     File newCrawlDb =
       new File(crawlDb,
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
@@ -77,7 +80,7 @@ public class CrawlDb extends NutchConfigured {
 
   public static void install(JobConf job, File crawlDb) throws IOException {
     File newCrawlDb = job.getOutputDir();
-    NutchFileSystem fs = new JobClient(job).getFs();
+    FileSystem fs = new JobClient(job).getFs();
     File old = new File(crawlDb, "old");
     File current = new File(crawlDb, CrawlDatum.DB_DIR_NAME);
     fs.delete(old);
@@ -87,7 +90,7 @@ public class CrawlDb extends NutchConfigured {
   }
 
   public static void main(String[] args) throws Exception {
-    CrawlDb crawlDb = new CrawlDb(new NutchConf());
+    CrawlDb crawlDb = new CrawlDb(NutchConfiguration.create());
     
     if (args.length < 2) {
       System.err.println("Usage: <crawldb> <segment>");

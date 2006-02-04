@@ -22,13 +22,15 @@ import java.text.*;
 import java.util.logging.*;
 
 import org.apache.nutch.fetcher.Fetcher;
-import org.apache.nutch.fs.*;
-import org.apache.nutch.util.*;
-import org.apache.nutch.mapred.*;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.conf.*;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.mapred.*;
 import org.apache.nutch.parse.ParseSegment;
 import org.apache.nutch.indexer.DeleteDuplicates;
 import org.apache.nutch.indexer.IndexMerger;
 import org.apache.nutch.indexer.Indexer;
+import org.apache.nutch.util.NutchConfiguration;
 
 public class Crawl {
   public static final Logger LOG =
@@ -48,13 +50,13 @@ public class Crawl {
       return;
     }
 
-    NutchConf nutchConf = new NutchConf();
-    nutchConf.addConfResource("crawl-tool.xml");
-    JobConf conf = new JobConf(nutchConf);
+    Configuration conf = NutchConfiguration.create();
+    conf.addAppResource("crawl-tool.xml");
+    JobConf job = new JobConf(conf);
 
     File rootUrlDir = null;
     File dir = new File("crawl-" + getDate());
-    int threads = conf.getInt("fetcher.threads.fetch", 10);
+    int threads = job.getInt("fetcher.threads.fetch", 10);
     int depth = 5;
     int topN = Integer.MAX_VALUE;
 
@@ -76,7 +78,7 @@ public class Crawl {
       }
     }
 
-    NutchFileSystem fs = NutchFileSystem.get(conf);
+    FileSystem fs = FileSystem.get(job);
     if (fs.exists(dir)) {
       throw new RuntimeException(dir + " already exists.");
     }
@@ -95,28 +97,28 @@ public class Crawl {
     File indexes = new File(dir + "/indexes");
     File index = new File(dir + "/index");
 
-    File tmpDir = conf.getLocalFile("crawl", getDate());
+    File tmpDir = job.getLocalFile("crawl", getDate());
       
     // initialize crawlDb
-    new Injector(conf).inject(crawlDb, rootUrlDir);
+    new Injector(job).inject(crawlDb, rootUrlDir);
       
     for (int i = 0; i < depth; i++) {             // generate new segment
       File segment =
-        new Generator(conf).generate(crawlDb, segments, -1,
+        new Generator(job).generate(crawlDb, segments, -1,
                                      topN, System.currentTimeMillis());
-      new Fetcher(conf).fetch(segment, threads, Fetcher.isParsing(conf));  // fetch it
-      if (!Fetcher.isParsing(conf)) {
-        new ParseSegment(conf).parse(segment);    // parse it, if needed
+      new Fetcher(job).fetch(segment, threads, Fetcher.isParsing(job));  // fetch it
+      if (!Fetcher.isParsing(job)) {
+        new ParseSegment(job).parse(segment);    // parse it, if needed
       }
-      new CrawlDb(conf).update(crawlDb, segment); // update crawldb
+      new CrawlDb(job).update(crawlDb, segment); // update crawldb
     }
       
-    new LinkDb(conf).invert(linkDb, segments); // invert links
+    new LinkDb(job).invert(linkDb, segments); // invert links
 
     // index, dedup & merge
-    new Indexer(conf).index(indexes, crawlDb, linkDb, fs.listFiles(segments));
-    new DeleteDuplicates(conf).dedup(new File[] { indexes });
-    new IndexMerger(fs, fs.listFiles(indexes), index, tmpDir, nutchConf).merge();
+    new Indexer(job).index(indexes, crawlDb, linkDb, fs.listFiles(segments));
+    new DeleteDuplicates(job).dedup(new File[] { indexes });
+    new IndexMerger(fs, fs.listFiles(indexes), index, tmpDir, job).merge();
 
     LOG.info("crawl finished: " + dir);
   }

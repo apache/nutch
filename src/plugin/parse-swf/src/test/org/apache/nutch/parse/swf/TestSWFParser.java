@@ -21,7 +21,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.io.UTF8;
+import org.apache.hadoop.io.UTF8;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.Content;
@@ -32,7 +32,8 @@ import org.apache.nutch.parse.ParserFactory;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseException;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.NutchConfiguration;
 
 import junit.framework.TestCase;
 
@@ -81,7 +82,7 @@ public class TestSWFParser extends TestCase {
     Protocol protocol;
     Content content;
     Parse parse;
-    NutchConf conf = new NutchConf();
+    Configuration conf = NutchConfiguration.create();
 
     for (int i = 0; i < sampleFiles.length; i++) {
       urlString = "file:" + sampleDir + fileSeparator + sampleFiles[i];

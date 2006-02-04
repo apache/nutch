@@ -21,8 +21,8 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.HashMap;
 
-import org.apache.nutch.io.VersionedWritable;
-import org.apache.nutch.io.WritableUtils;
+import org.apache.hadoop.io.VersionedWritable;
+import org.apache.hadoop.io.WritableUtils;
 
 /**
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;

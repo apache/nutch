@@ -21,9 +21,9 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.logging.Logger;
 
-import org.apache.nutch.io.*;
+import org.apache.hadoop.io.*;
 import org.apache.nutch.html.Entities;
-import org.apache.nutch.util.LogFormatter;
+import org.apache.hadoop.util.LogFormatter;
 
 /** Data stored in the index for a hit.
  *

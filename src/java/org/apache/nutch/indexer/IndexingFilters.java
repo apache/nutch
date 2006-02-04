@@ -22,21 +22,21 @@ import org.apache.lucene.document.Document;
 
 import org.apache.nutch.plugin.*;
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
-import org.apache.nutch.io.UTF8;
+import org.apache.hadoop.io.UTF8;
 
 /** Creates and caches {@link IndexingFilter} implementing plugins.*/
 public class IndexingFilters {
 
   private IndexingFilter[] indexingFilters;
 
-  public IndexingFilters(NutchConf nutchConf) {
-      this.indexingFilters =(IndexingFilter[]) nutchConf.getObject(IndexingFilter.class.getName()); 
+  public IndexingFilters(Configuration conf) {
+      this.indexingFilters =(IndexingFilter[]) conf.getObject(IndexingFilter.class.getName()); 
       if (this.indexingFilters == null) {
             try {
-                ExtensionPoint point = nutchConf.getPluginRepository().getExtensionPoint(IndexingFilter.X_POINT_ID);
+                ExtensionPoint point = PluginRepository.get(conf).getExtensionPoint(IndexingFilter.X_POINT_ID);
                 if (point == null)
                     throw new RuntimeException(IndexingFilter.X_POINT_ID + " not found.");
                 Extension[] extensions = point.getExtensions();
@@ -49,11 +49,11 @@ public class IndexingFilters {
                         filterMap.put(filter.getClass().getName(), filter);
                     }
                 }
-                nutchConf.setObject(IndexingFilter.class.getName(), (IndexingFilter[]) filterMap.values().toArray(new IndexingFilter[0]));
+                conf.setObject(IndexingFilter.class.getName(), (IndexingFilter[]) filterMap.values().toArray(new IndexingFilter[0]));
             } catch (PluginRuntimeException e) {
                 throw new RuntimeException(e);
             }
-            this.indexingFilters =(IndexingFilter[]) nutchConf.getObject(IndexingFilter.class.getName());
+            this.indexingFilters =(IndexingFilter[]) conf.getObject(IndexingFilter.class.getName());
         }
   }                  
 

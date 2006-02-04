@@ -21,14 +21,17 @@ import java.util.*;
 import java.util.logging.*;
 import java.net.*;
 
-import org.apache.nutch.io.*;
-import org.apache.nutch.fs.*;
-import org.apache.nutch.util.*;
-import org.apache.nutch.mapred.*;
+import org.apache.hadoop.io.*;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.conf.*;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.mapred.*;
+
 import org.apache.nutch.parse.*;
+import org.apache.nutch.util.NutchConfiguration;
 
 /** Maintains an inverted link map, listing incoming links for each url. */
-public class LinkDb extends NutchConfigured implements Mapper, Reducer {
+public class LinkDb extends Configured implements Mapper, Reducer {
 
   public static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.crawl.LinkDb");
@@ -44,7 +47,7 @@ public class LinkDb extends NutchConfigured implements Mapper, Reducer {
   }
 
   /** Construct an LinkDb. */
-  public LinkDb(NutchConf conf) {
+  public LinkDb(Configuration conf) {
     super(conf);
   }
 
@@ -145,7 +148,7 @@ public class LinkDb extends NutchConfigured implements Mapper, Reducer {
     LOG.info("LinkDb: done");
   }
 
-  private static JobConf createJob(NutchConf config, File linkDb) {
+  private static JobConf createJob(Configuration config, File linkDb) {
     File newLinkDb =
       new File(linkDb,
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
@@ -171,7 +174,7 @@ public class LinkDb extends NutchConfigured implements Mapper, Reducer {
 
   public static void install(JobConf job, File linkDb) throws IOException {
     File newLinkDb = job.getOutputDir();
-    NutchFileSystem fs = new JobClient(job).getFs();
+    FileSystem fs = new JobClient(job).getFs();
     File old = new File(linkDb, "old");
     File current = new File(linkDb, CURRENT_NAME);
     fs.delete(old);
@@ -181,7 +184,7 @@ public class LinkDb extends NutchConfigured implements Mapper, Reducer {
   }
 
   public static void main(String[] args) throws Exception {
-    LinkDb linkDb = new LinkDb(new NutchConf());
+    LinkDb linkDb = new LinkDb(NutchConfiguration.create());
     
     if (args.length < 2) {
       System.err.println("Usage: <linkdb> <segments>");

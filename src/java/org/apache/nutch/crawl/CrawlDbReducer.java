@@ -19,8 +19,8 @@ package org.apache.nutch.crawl;
 import java.util.Iterator;
 import java.io.IOException;
 
-import org.apache.nutch.io.*;
-import org.apache.nutch.mapred.*;
+import org.apache.hadoop.io.*;
+import org.apache.hadoop.mapred.*;
 
 /** Merge new page entries with existing entries. */
 public class CrawlDbReducer implements Reducer {
