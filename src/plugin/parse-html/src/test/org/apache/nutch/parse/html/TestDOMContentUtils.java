@@ -19,7 +19,8 @@ package org.apache.nutch.parse.html;
 import junit.framework.TestCase;
 
 import org.apache.nutch.parse.Outlink;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.NutchConfiguration;
 
 import java.io.ByteArrayInputStream;
 import java.net.MalformedURLException;
@@ -175,7 +176,7 @@ public class TestDOMContentUtils extends TestCase {
   }
 
   private static void setup() {
-    NutchConf nutchConf = new NutchConf();
+    Configuration conf = NutchConfiguration.create();
     DOMFragmentParser parser= new DOMFragmentParser();
     for (int i= 0; i < testPages.length; i++) {
         DocumentFragment node= 
@@ -194,36 +195,36 @@ public class TestDOMContentUtils extends TestCase {
     try {
      answerOutlinks = new Outlink[][]{ 
          {
-           new Outlink("http://www.nutch.org", "anchor", nutchConf),
+           new Outlink("http://www.nutch.org", "anchor", conf),
          },
          {
-           new Outlink("http://www.nutch.org/", "home", nutchConf),
-           new Outlink("http://www.nutch.org/docs/bot.html", "bots", nutchConf),
+           new Outlink("http://www.nutch.org/", "home", conf),
+           new Outlink("http://www.nutch.org/docs/bot.html", "bots", conf),
          },
          {
-           new Outlink("http://www.nutch.org/", "separate this", nutchConf),
-           new Outlink("http://www.nutch.org/docs/ok", "from this", nutchConf),
+           new Outlink("http://www.nutch.org/", "separate this", conf),
+           new Outlink("http://www.nutch.org/docs/ok", "from this", conf),
          },
          {
-           new Outlink("http://www.nutch.org/", "home", nutchConf),
-           new Outlink("http://www.nutch.org/docs/1", "1", nutchConf),
-           new Outlink("http://www.nutch.org/docs/2", "2", nutchConf),
+           new Outlink("http://www.nutch.org/", "home", conf),
+           new Outlink("http://www.nutch.org/docs/1", "1", conf),
+           new Outlink("http://www.nutch.org/docs/2", "2", conf),
          },
          {
-           new Outlink("http://www.nutch.org/frames/top.html", "", nutchConf),
-           new Outlink("http://www.nutch.org/frames/left.html", "", nutchConf),
-           new Outlink("http://www.nutch.org/frames/invalid.html", "", nutchConf),
-           new Outlink("http://www.nutch.org/frames/right.html", "", nutchConf),
+           new Outlink("http://www.nutch.org/frames/top.html", "", conf),
+           new Outlink("http://www.nutch.org/frames/left.html", "", conf),
+           new Outlink("http://www.nutch.org/frames/invalid.html", "", conf),
+           new Outlink("http://www.nutch.org/frames/right.html", "", conf),
          },
          {
-           new Outlink("http://www.nutch.org/maps/logo.gif", "", nutchConf),
-           new Outlink("http://www.nutch.org/index.html", "", nutchConf),
-           new Outlink("http://www.nutch.org/maps/#bottom", "", nutchConf),
-           new Outlink("http://www.nutch.org/bot.html", "", nutchConf),
-           new Outlink("http://www.nutch.org/docs/index.html", "", nutchConf),
+           new Outlink("http://www.nutch.org/maps/logo.gif", "", conf),
+           new Outlink("http://www.nutch.org/index.html", "", conf),
+           new Outlink("http://www.nutch.org/maps/#bottom", "", conf),
+           new Outlink("http://www.nutch.org/bot.html", "", conf),
+           new Outlink("http://www.nutch.org/docs/index.html", "", conf),
          },
          {
-             new Outlink("http://www.nutch.org/index.html", "whitespace test", nutchConf),
+             new Outlink("http://www.nutch.org/index.html", "whitespace test", conf),
          },
          {
          }
@@ -284,7 +285,7 @@ public class TestDOMContentUtils extends TestCase {
       setup();
     for (int i= 0; i < testPages.length; i++) {
       ArrayList outlinks= new ArrayList();
-      DOMContentUtils.getOutlinks(testBaseHrefURLs[i], outlinks, testDOMs[i], new NutchConf());
+      DOMContentUtils.getOutlinks(testBaseHrefURLs[i], outlinks, testDOMs[i], NutchConfiguration.create());
       Outlink[] outlinkArr= new Outlink[outlinks.size()];
       outlinkArr= (Outlink[]) outlinks.toArray(outlinkArr);
       compareOutlinks(answerOutlinks[i], outlinkArr);

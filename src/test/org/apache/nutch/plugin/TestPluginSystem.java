@@ -27,7 +27,8 @@ import java.util.Properties;
 
 import junit.framework.TestCase;
 
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.NutchConfiguration;
 
 /**
  * Unit tests for the plugin system
@@ -38,17 +39,17 @@ public class TestPluginSystem extends TestCase {
     private int fPluginCount;
 
     private LinkedList fFolders = new LinkedList();
-    private NutchConf nutchConf ;
+    private Configuration conf ;
     private PluginRepository repository;
 
     protected void setUp() throws Exception {
-        this.nutchConf = new NutchConf();
-        nutchConf.set("plugin.includes", ".*");
-//        String string = this.nutchConf.get("plugin.includes", "");
-//        nutchConf.set("plugin.includes", string + "|Dummy*");
+        this.conf = NutchConfiguration.create();
+        conf.set("plugin.includes", ".*");
+//        String string = this.conf.get("plugin.includes", "");
+//        conf.set("plugin.includes", string + "|Dummy*");
         fPluginCount = 5;
         createDummyPlugins(fPluginCount);
-        this.repository = nutchConf.getPluginRepository();
+        this.repository = PluginRepository.get(conf);
     }
 
     /*
@@ -166,12 +167,12 @@ public class TestPluginSystem extends TestCase {
      * @return a PluginFolderPath
      */
     private String getPluginFolder() {
-        String[] strings = nutchConf.getStrings("plugin.folders");
+        String[] strings = conf.getStrings("plugin.folders");
         if (strings == null || strings.length == 0)
             fail("no plugin directory setuped..");
 
         String name = strings[0];
-        return new PluginManifestParser(nutchConf, this.repository).getPluginFolder(name).toString();
+        return new PluginManifestParser(conf, this.repository).getPluginFolder(name).toString();
     }
 
     /**

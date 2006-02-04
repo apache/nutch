@@ -36,9 +36,9 @@ import org.apache.lucene.search.FieldCache;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
-import org.apache.nutch.fs.*;
-import org.apache.nutch.io.*;
-import org.apache.nutch.util.*;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.io.*;
+import org.apache.hadoop.conf.*;
 import org.apache.nutch.indexer.*;
 
 /** Implements {@link Searcher} and {@link HitDetailer} for either a single
@@ -48,42 +48,42 @@ public class IndexSearcher implements Searcher, HitDetailer {
   private org.apache.lucene.search.Searcher luceneSearcher;
   private org.apache.lucene.index.IndexReader reader;
   private LuceneQueryOptimizer optimizer;
-  private NutchFileSystem fs;
-  private NutchConf nutchConf;
+  private FileSystem fs;
+  private Configuration conf;
   private QueryFilters queryFilters;
 
   /** Construct given a number of indexes. */
-  public IndexSearcher(File[] indexDirs, NutchConf nutchConf) throws IOException {
+  public IndexSearcher(File[] indexDirs, Configuration conf) throws IOException {
     IndexReader[] readers = new IndexReader[indexDirs.length];
-    this.nutchConf = nutchConf;
-    this.fs = NutchFileSystem.get(nutchConf);
+    this.conf = conf;
+    this.fs = FileSystem.get(conf);
     for (int i = 0; i < indexDirs.length; i++) {
       readers[i] = IndexReader.open(getDirectory(indexDirs[i]));
     }
-    init(new MultiReader(readers), nutchConf);
+    init(new MultiReader(readers), conf);
   }
 
   /** Construct given a single merged index. */
-  public IndexSearcher(File index,  NutchConf nutchConf)
+  public IndexSearcher(File index,  Configuration conf)
     throws IOException {
-    this.nutchConf = nutchConf;
-    this.fs = NutchFileSystem.get(nutchConf);
-    init(IndexReader.open(getDirectory(index)), nutchConf);
+    this.conf = conf;
+    this.fs = FileSystem.get(conf);
+    init(IndexReader.open(getDirectory(index)), conf);
   }
 
-  private void init(IndexReader reader, NutchConf nutchConf) throws IOException {
+  private void init(IndexReader reader, Configuration conf) throws IOException {
     this.reader = reader;
     this.luceneSearcher = new org.apache.lucene.search.IndexSearcher(reader);
     this.luceneSearcher.setSimilarity(new NutchSimilarity());
-    this.optimizer = new LuceneQueryOptimizer(nutchConf);
-    this.queryFilters = new QueryFilters(nutchConf);
+    this.optimizer = new LuceneQueryOptimizer(conf);
+    this.queryFilters = new QueryFilters(conf);
   }
 
   private Directory getDirectory(File file) throws IOException {
     if ("local".equals(this.fs.getName())) {
       return FSDirectory.getDirectory(file, false);
     } else {
-      return new NdfsDirectory(this.fs, file, false, this.nutchConf);
+      return new FsDirectory(this.fs, file, false, this.conf);
     }
   }
 

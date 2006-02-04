@@ -25,14 +25,14 @@ import org.apache.nutch.analysis.CommonGrams;
 
 import org.apache.nutch.searcher.Query.Clause;
 import org.apache.nutch.searcher.Query.Phrase;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 
 /** Translate query fields to search the same-named field, as indexed by an
  * IndexingFilter.  Best for tokenized fields. */
 public abstract class FieldQueryFilter implements QueryFilter {
   private String field;
   private float boost = 1.0f;
-  private NutchConf nutchConf;
+  private Configuration conf;
   private CommonGrams commonGrams;
 
   /** Construct for the named field.*/
@@ -93,12 +93,12 @@ public abstract class FieldQueryFilter implements QueryFilter {
     return output;
   }
   
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
     this.commonGrams = new CommonGrams(conf);
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 }

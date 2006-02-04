@@ -5,8 +5,9 @@ import org.apache.nutch.searcher.Query;
 import org.apache.nutch.searcher.QueryFilters;
 import org.apache.nutch.searcher.Query.Clause;
 import org.apache.nutch.searcher.Query.Clause;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.lucene.analysis.StopFilter;
+import org.apache.nutch.util.NutchConfiguration;
 
 import java.io.*;
 import java.util.*;
@@ -35,12 +36,12 @@ public class NutchAnalysis implements NutchAnalysisConstants {
   }
 
   /** Construct a query parser for the text in a reader. */
-  public static Query parseQuery(String queryString, NutchConf nutchConf) throws IOException {
+  public static Query parseQuery(String queryString, Configuration conf) throws IOException {
     NutchAnalysis parser =
       new NutchAnalysis(new FastCharStream(new StringReader(queryString)));
     parser.queryString = queryString;
-    parser.queryFilters = new QueryFilters(nutchConf);
-    return parser.parse(nutchConf);
+    parser.queryFilters = new QueryFilters(conf);
+    return parser.parse(conf);
   }
 
   /** For debugging. */
@@ -49,13 +50,13 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     while (true) {
       System.out.print("Query: ");
       String line = in.readLine();
-      System.out.println(parseQuery(line, new NutchConf()));
+      System.out.println(parseQuery(line, NutchConfiguration.create()));
     }
   }
 
 /** Parse a query. */
-  final public Query parse(NutchConf nutchConf) throws ParseException {
-  Query query = new Query(nutchConf);
+  final public Query parse(Configuration conf) throws ParseException {
+  Query query = new Query(conf);
   ArrayList terms;
   Token token;
   String field;

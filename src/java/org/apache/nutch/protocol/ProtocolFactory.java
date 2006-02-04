@@ -22,8 +22,8 @@ import java.net.MalformedURLException;
 import org.apache.nutch.plugin.*;
 
 import java.util.logging.Logger;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
 
 /** Creates and caches {@link Protocol} plugins.  Protocol plugins should
  * define the attribute "protocolName" with the name of the protocol that they
@@ -34,11 +34,11 @@ public class ProtocolFactory {
     .getLogger(ProtocolFactory.class.getName());
 
   private ExtensionPoint extensionPoint;
-  private NutchConf nutchConf;
+  private Configuration conf;
 
-  public ProtocolFactory(NutchConf nutchConf) {
-      this.nutchConf = nutchConf;
-      this.extensionPoint = nutchConf.getPluginRepository()
+  public ProtocolFactory(Configuration conf) {
+      this.conf = conf;
+      this.extensionPoint = PluginRepository.get(conf)
       .getExtensionPoint(Protocol.X_POINT_ID);
       if (this.extensionPoint == null) {
           throw new RuntimeException("x-point " + Protocol.X_POINT_ID + " not found.");
@@ -57,7 +57,7 @@ public class ProtocolFactory {
       if (extension == null)
         throw new ProtocolNotFound(protocolName);
       Protocol protocol = (Protocol) extension.getExtensionInstance();
-      protocol.setConf(this.nutchConf);
+      protocol.setConf(this.conf);
       return protocol;
 
     } catch (MalformedURLException e) {
@@ -70,12 +70,12 @@ public class ProtocolFactory {
   private Extension getExtension(String name)
     throws PluginRuntimeException {
 
-    if (this.nutchConf.getObject(name) != null)
-      return (Extension)this.nutchConf.getObject(name);
+    if (this.conf.getObject(name) != null)
+      return (Extension)this.conf.getObject(name);
     
     Extension extension = findExtension(name);
     
-    if (extension != null) this.nutchConf.setObject(name, extension);
+    if (extension != null) this.conf.setObject(name, extension);
     
     return extension;
   }

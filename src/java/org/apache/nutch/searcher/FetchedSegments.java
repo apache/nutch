@@ -21,13 +21,13 @@ import java.io.File;
 
 import java.util.HashMap;
 
-import org.apache.nutch.io.*;
-import org.apache.nutch.fs.*;
+import org.apache.hadoop.io.*;
+import org.apache.hadoop.fs.*;
 import org.apache.nutch.protocol.*;
 import org.apache.nutch.parse.*;
-import org.apache.nutch.util.NutchConf;
-import org.apache.nutch.mapred.*;
-import org.apache.nutch.mapred.lib.*;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.mapred.lib.*;
 import org.apache.nutch.crawl.*;
 
 /** Implements {@link HitSummarizer} and {@link HitContent} for a set of
@@ -37,19 +37,19 @@ public class FetchedSegments implements HitSummarizer, HitContent {
   private static class Segment {
     private static final Partitioner PARTITIONER = new HashPartitioner();
 
-    private NutchFileSystem nfs;
+    private FileSystem fs;
     private File segmentDir;
 
     private MapFile.Reader[] content;
     private MapFile.Reader[] parseText;
     private MapFile.Reader[] parseData;
     private MapFile.Reader[] crawl;
-    private NutchConf nutchConf;
+    private Configuration conf;
 
-    public Segment(NutchFileSystem nfs, File segmentDir, NutchConf nutchConf) throws IOException {
-      this.nfs = nfs;
+    public Segment(FileSystem fs, File segmentDir, Configuration conf) throws IOException {
+      this.fs = fs;
       this.segmentDir = segmentDir;
-      this.nutchConf = nutchConf;
+      this.conf = conf;
     }
 
     public CrawlDatum getCrawlDatum(UTF8 url) throws IOException {
@@ -85,7 +85,7 @@ public class FetchedSegments implements HitSummarizer, HitContent {
     }
     
     private MapFile.Reader[] getReaders(String subDir) throws IOException {
-      return MapFileOutputFormat.getReaders(nfs, new File(segmentDir, subDir), this.nutchConf);
+      return MapFileOutputFormat.getReaders(fs, new File(segmentDir, subDir), this.conf);
     }
 
     private Writable getEntry(MapFile.Reader[] readers, UTF8 url,
@@ -101,20 +101,20 @@ public class FetchedSegments implements HitSummarizer, HitContent {
   private Summarizer summarizer;
 
   /** Construct given a directory containing fetcher output. */
-  public FetchedSegments(NutchFileSystem nfs, String segmentsDir, NutchConf nutchConf) throws IOException {
-    File[] segmentDirs = nfs.listFiles(new File(segmentsDir));
-    this.sumContext = nutchConf.getInt("searcher.summary.context", 5);
-    this.sumLength = nutchConf.getInt("searcher.summary.length", 20);
-    this.summarizer = new Summarizer(nutchConf);
+  public FetchedSegments(FileSystem fs, String segmentsDir, Configuration conf) throws IOException {
+    File[] segmentDirs = fs.listFiles(new File(segmentsDir));
+    this.sumContext = conf.getInt("searcher.summary.context", 5);
+    this.sumLength = conf.getInt("searcher.summary.length", 20);
+    this.summarizer = new Summarizer(conf);
 
     if (segmentDirs != null) {
         for (int i = 0; i < segmentDirs.length; i++) {
             File segmentDir = segmentDirs[i];
 //             File indexdone = new File(segmentDir, IndexSegment.DONE_NAME);
-//             if (nfs.exists(indexdone) && nfs.isFile(indexdone)) {
-//             	segments.put(segmentDir.getName(), new Segment(nfs, segmentDir));
+//             if (fs.exists(indexdone) && fs.isFile(indexdone)) {
+//             	segments.put(segmentDir.getName(), new Segment(fs, segmentDir));
 //             }
-            segments.put(segmentDir.getName(), new Segment(nfs, segmentDir, nutchConf));
+            segments.put(segmentDir.getName(), new Segment(fs, segmentDir, conf));
 
         }
     }

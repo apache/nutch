@@ -17,8 +17,8 @@
 package org.apache.nutch.parse.rss;
 
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseStatus;
@@ -64,7 +64,7 @@ import org.apache.commons.feedparser.network.ResourceRequest;
 public class RSSParser implements Parser {
     public static final Logger LOG = LogFormatter
             .getLogger("org.apache.nutch.parse.rss");
-    private NutchConf nutchConf;
+    private Configuration conf;
 
     /**
      * <p>
@@ -85,7 +85,7 @@ public class RSSParser implements Parser {
 
         org.apache.log4j.Appender appender = new org.apache.log4j.WriterAppender(
                 new org.apache.log4j.SimpleLayout(),
-                org.apache.nutch.util.LogFormatter.getLogStream(this.LOG,
+                org.apache.hadoop.util.LogFormatter.getLogStream(this.LOG,
                         java.util.logging.Level.INFO));
 
         rootLogger.addAppender(appender);
@@ -213,16 +213,16 @@ public class RSSParser implements Parser {
 
         ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS,
                 contentTitle.toString(), outlinks, content.getMetadata());
-        parseData.setConf(this.nutchConf);
+        parseData.setConf(this.conf);
         return new ParseImpl(indexText.toString(), parseData);
     }
 
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 
 }

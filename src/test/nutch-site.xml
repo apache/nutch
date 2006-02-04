@@ -2,7 +2,7 @@
 
 <!-- Configuration overrides used during unit tests. -->
 
-<nutch-conf>
+<configuration>
 
 <property>
   <name>plugin.includes</name>
@@ -10,4 +10,4 @@
   <description>Enable all plugins during unit testing.</description>
 </property>
 
-</nutch-conf>
+</configuration>

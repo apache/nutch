@@ -9,10 +9,10 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import org.apache.nutch.io.VersionedWritable;
-import org.apache.nutch.io.WritableUtils;
+import org.apache.hadoop.io.VersionedWritable;
+import org.apache.hadoop.io.WritableUtils;
 import org.apache.nutch.protocol.ContentProperties;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 
 /**
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
@@ -163,8 +163,8 @@ public class ParseStatus extends VersionedWritable {
   /** A convenience method. Creates an empty Parse instance,
    * which returns this status.
    */
-  public Parse getEmptyParse(NutchConf nutchConf) {
-    return new EmptyParseImpl(this, nutchConf);
+  public Parse getEmptyParse(Configuration conf) {
+    return new EmptyParseImpl(this, conf);
   }
   
   public String toString() {
@@ -230,9 +230,9 @@ public class ParseStatus extends VersionedWritable {
     
     private ParseData data = null;
     
-    public EmptyParseImpl(ParseStatus status, NutchConf nutchConf) {
+    public EmptyParseImpl(ParseStatus status, Configuration conf) {
       data = new ParseData(status, "", new Outlink[0], new ContentProperties());
-      data.setConf(nutchConf);
+      data.setConf(conf);
     }
     
     public ParseData getData() {

@@ -16,7 +16,7 @@
  */
 package org.apache.nutch.plugin;
 
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 
 /**
  * A nutch-plugin is an container for a set of custom logic that provide
@@ -40,15 +40,15 @@ import org.apache.nutch.util.NutchConf;
  */
 public class Plugin {
   private PluginDescriptor fDescriptor;
-  protected NutchConf nutchConf;
+  protected Configuration conf;
 
   /**
    * Constructor
    *  
    */
-  public Plugin(PluginDescriptor pDescriptor, NutchConf nutchConf) {
+  public Plugin(PluginDescriptor pDescriptor, Configuration conf) {
     setDescriptor(pDescriptor);
-    this.nutchConf = nutchConf;
+    this.conf = conf;
   }
   /**
    * Will be invoked until plugin start up. Since the nutch-plugin system use

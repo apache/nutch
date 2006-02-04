@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.nutch.parse.Outlink;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 
 import org.w3c.dom.*;
 
@@ -287,7 +287,7 @@ public class DOMContentUtils {
    * nekohtml).
    */
   public static final void getOutlinks(URL base, ArrayList outlinks, 
-                                       Node node, NutchConf nutchConf) {
+                                       Node node, Configuration conf) {
 
     NodeList children = node.getChildNodes();
     int childLen= 0;
@@ -323,7 +323,7 @@ public class DOMContentUtils {
             try {
               URL url = new URL(base, target);
               outlinks.add(new Outlink(url.toString(),
-                                       linkText.toString().trim(), nutchConf));
+                                       linkText.toString().trim(), conf));
             } catch (MalformedURLException e) {
               // don't care
             }
@@ -333,7 +333,7 @@ public class DOMContentUtils {
       }
     }
     for ( int i = 0; i < childLen; i++ ) {
-      getOutlinks(base, outlinks, children.item(i), nutchConf);
+      getOutlinks(base, outlinks, children.item(i), conf);
     }
   }
 

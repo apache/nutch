@@ -27,8 +27,8 @@ import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.HtmlParseFilter;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
 
 // DOM imports
 import org.w3c.dom.DocumentFragment;
@@ -69,7 +69,7 @@ public class HTMLLanguageParser implements HtmlParseFilter {
     }
   }
 
-  private NutchConf nutchConf;
+  private Configuration conf;
   
 
   
@@ -198,11 +198,11 @@ public class HTMLLanguageParser implements HtmlParseFilter {
     
   }
 
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 }

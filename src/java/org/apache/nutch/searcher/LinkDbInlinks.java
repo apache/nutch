@@ -9,9 +9,9 @@ import java.io.IOException;
 
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.crawl.LinkDbReader;
-import org.apache.nutch.fs.NutchFileSystem;
-import org.apache.nutch.io.UTF8;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.conf.Configuration;
 
 import java.io.File;
 
@@ -19,8 +19,8 @@ public class LinkDbInlinks implements HitInlinks {
   
   private LinkDbReader linkdb = null;
   
-  public LinkDbInlinks(NutchFileSystem fs, File dir, NutchConf nutchConf) {
-    linkdb = new LinkDbReader(fs, dir, nutchConf);
+  public LinkDbInlinks(FileSystem fs, File dir, Configuration conf) {
+    linkdb = new LinkDbReader(fs, dir, conf);
   }
 
   public String[] getAnchors(HitDetails details) throws IOException {

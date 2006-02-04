@@ -33,17 +33,17 @@ import org.apache.nutch.protocol.ContentProperties;
 
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
-import org.apache.nutch.io.UTF8;
+import org.apache.hadoop.io.UTF8;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.mime.MimeType;
 import org.apache.nutch.util.mime.MimeTypes;
 import org.apache.nutch.util.mime.MimeTypeException;
 
-import org.apache.nutch.util.LogFormatter;
+import org.apache.hadoop.util.LogFormatter;
 import java.util.logging.Logger;
 
 import java.text.DateFormat;
@@ -245,7 +245,7 @@ public class MoreIndexingFilter implements IndexingFilter {
   // Content-Disposition: inline; filename="foo.ppt"
   private PatternMatcher matcher = new Perl5Matcher();
 
-  private NutchConf nutchConf;
+  private Configuration conf;
   static Perl5Pattern patterns[] = {null, null};
   static {
     Perl5Compiler compiler = new Perl5Compiler();
@@ -301,14 +301,14 @@ public class MoreIndexingFilter implements IndexingFilter {
     return normalized;
   }
 
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
     MAGIC = conf.getBoolean("mime.type.magic", true);
     MIME = MimeTypes.get(getConf().get("mime.types.file"));
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 
 }

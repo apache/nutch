@@ -20,7 +20,7 @@ import java.util.HashMap;
 
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.plugin.*;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 
 import org.w3c.dom.DocumentFragment;
 
@@ -29,12 +29,12 @@ public class HtmlParseFilters {
 
   private HtmlParseFilter[] htmlParseFilters;
 
-  public HtmlParseFilters(NutchConf nutchConf) {
-        this.htmlParseFilters = (HtmlParseFilter[]) nutchConf.getObject(HtmlParseFilter.class.getName());
+  public HtmlParseFilters(Configuration conf) {
+        this.htmlParseFilters = (HtmlParseFilter[]) conf.getObject(HtmlParseFilter.class.getName());
         if (htmlParseFilters == null) {
             HashMap filters = new HashMap();
             try {
-                ExtensionPoint point = nutchConf.getPluginRepository().getExtensionPoint(HtmlParseFilter.X_POINT_ID);
+                ExtensionPoint point = PluginRepository.get(conf).getExtensionPoint(HtmlParseFilter.X_POINT_ID);
                 if (point == null)
                     throw new RuntimeException(HtmlParseFilter.X_POINT_ID + " not found.");
                 Extension[] extensions = point.getExtensions();
@@ -46,11 +46,11 @@ public class HtmlParseFilters {
                     }
                 }
                 HtmlParseFilter[] htmlParseFilters = (HtmlParseFilter[]) filters.values().toArray(new HtmlParseFilter[filters.size()]);
-                nutchConf.setObject(HtmlParseFilter.class.getName(), htmlParseFilters);
+                conf.setObject(HtmlParseFilter.class.getName(), htmlParseFilters);
             } catch (PluginRuntimeException e) {
                 throw new RuntimeException(e);
             }
-            this.htmlParseFilters = (HtmlParseFilter[]) nutchConf.getObject(HtmlParseFilter.class.getName());
+            this.htmlParseFilters = (HtmlParseFilter[]) conf.getObject(HtmlParseFilter.class.getName());
         }
     }                  
 

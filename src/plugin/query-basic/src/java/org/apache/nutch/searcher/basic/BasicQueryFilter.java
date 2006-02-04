@@ -26,7 +26,7 @@ import org.apache.nutch.analysis.CommonGrams;
 import org.apache.nutch.searcher.QueryFilter;
 import org.apache.nutch.searcher.Query;
 import org.apache.nutch.searcher.Query.*;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -71,7 +71,7 @@ public class BasicQueryFilter implements QueryFilter {
    * sloppy phrase match. */
   public void setSlop(int slop) { SLOP = slop; }
 
-  private NutchConf nutchConf;
+  private Configuration conf;
 
   public BooleanQuery filter(Query input, BooleanQuery output) {
     addTerms(input, output);
@@ -168,8 +168,8 @@ public class BasicQueryFilter implements QueryFilter {
     return new org.apache.lucene.index.Term(field, term.toString());
   }
 
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
     this.URL_BOOST = conf.getFloat("query.url.boost", 4.0f);
     this.ANCHOR_BOOST = conf.getFloat("query.anchor.boost", 2.0f);
     this.TITLE_BOOST = conf.getFloat("query.title.boost", 1.5f);
@@ -177,7 +177,7 @@ public class BasicQueryFilter implements QueryFilter {
     this.PHRASE_BOOST = conf.getFloat("query.phrase.boost", 1.0f);
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 }

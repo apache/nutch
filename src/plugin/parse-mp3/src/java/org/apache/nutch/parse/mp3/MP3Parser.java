@@ -19,7 +19,7 @@ package org.apache.nutch.parse.mp3;
 
 import org.apache.nutch.parse.*;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 import org.farng.mp3.MP3File;
 import org.farng.mp3.TagException;
 import org.farng.mp3.id3.AbstractID3v2;
@@ -41,7 +41,7 @@ import java.util.Iterator;
 public class MP3Parser implements Parser {
 
   private MetadataCollector metadataCollector;
-  private NutchConf nutchConf;
+  private Configuration conf;
 
   public Parse getParse(Content content) throws ParseException {
     Parse parse = null;
@@ -115,12 +115,12 @@ public class MP3Parser implements Parser {
   }
 
 
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
     this.metadataCollector = new MetadataCollector(conf);
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 }

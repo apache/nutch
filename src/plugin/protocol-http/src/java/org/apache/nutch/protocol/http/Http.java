@@ -26,8 +26,9 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.http.api.HttpBase;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.NutchConfiguration;
 
 
 public class Http extends HttpBase {
@@ -40,7 +41,7 @@ public class Http extends HttpBase {
     super(LOG);
   }
 
-  public void setConf(NutchConf conf) {
+  public void setConf(Configuration conf) {
     super.setConf(conf);
     Level logLevel = Level.WARNING;
     if (conf.getBoolean("http.verbose", false)) {
@@ -51,7 +52,7 @@ public class Http extends HttpBase {
 
   public static void main(String[] args) throws Exception {
     Http http = new Http();
-    http.setConf(new NutchConf());
+    http.setConf(NutchConfiguration.create());
     main(http, args);
   }
 

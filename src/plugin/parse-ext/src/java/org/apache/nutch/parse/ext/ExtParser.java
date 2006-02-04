@@ -26,9 +26,9 @@ import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.OutlinkExtractor;
 
-import org.apache.nutch.util.LogFormatter;
+import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.util.CommandRunner;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
@@ -58,7 +58,7 @@ public class ExtParser implements Parser {
   // handy map from String contentType to String[] {command, timeoutString}
   Hashtable TYPE_PARAMS_MAP = new Hashtable();
 
-  private NutchConf nutchConf;  
+  private Configuration conf;  
 
   private boolean loaded = false;
 
@@ -135,13 +135,13 @@ public class ExtParser implements Parser {
     metaData.putAll(content.getMetadata()); // copy through
 
     ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks, metaData);
-    parseData.setConf(this.nutchConf);
+    parseData.setConf(this.conf);
     return new ParseImpl(text, parseData);
   }
   
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
-    Extension[] extensions = conf.getPluginRepository().getExtensionPoint(
+  public void setConf(Configuration conf) {
+    this.conf = conf;
+    Extension[] extensions = PluginRepository.get(conf).getExtensionPoint(
         "org.apache.nutch.parse.Parser").getExtensions();
 
     String contentType, command, timeoutString;
@@ -169,7 +169,7 @@ public class ExtParser implements Parser {
     }
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 }

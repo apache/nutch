@@ -22,9 +22,9 @@ import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.fetcher.FetcherOutput;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
-import org.apache.nutch.io.UTF8;
+import org.apache.hadoop.io.UTF8;
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 
 // Lucene imports
 import org.apache.lucene.document.Field;
@@ -50,7 +50,7 @@ import org.apache.lucene.document.Document;
 public class LanguageIndexingFilter implements IndexingFilter {
   
 
-  private NutchConf nutchConf;
+  private Configuration conf;
   private LanguageIdentifier languageIdentifier;
 
 /**
@@ -93,12 +93,12 @@ public class LanguageIndexingFilter implements IndexingFilter {
     return doc;
   }
   
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
     this.languageIdentifier = new LanguageIdentifier(conf);
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 }

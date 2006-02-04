@@ -16,7 +16,8 @@
 
 package org.apache.nutch.net;
 
-import org.apache.nutch.util.*;
+import org.apache.hadoop.conf.*;
+import org.apache.hadoop.util.LogFormatter;
 
 import java.util.logging.*;
 
@@ -25,25 +26,25 @@ public class UrlNormalizerFactory {
   private static final Logger LOG = LogFormatter
       .getLogger("org.apache.nutch.net.UrlNormalizerFactory");
 
-  private NutchConf nutchConf;
+  private Configuration conf;
 
-  public UrlNormalizerFactory(NutchConf nutchConf) {
-    this.nutchConf = nutchConf;
+  public UrlNormalizerFactory(Configuration conf) {
+    this.conf = conf;
   }
 
   /** Return the default UrlNormalizer implementation. */
   public UrlNormalizer getNormalizer() {
     String urlNormalizer = null;
-    UrlNormalizer normalizer = (UrlNormalizer) this.nutchConf
+    UrlNormalizer normalizer = (UrlNormalizer) this.conf
         .getObject(UrlNormalizer.class.getName());
     if (normalizer == null) {
       try {
-        urlNormalizer = this.nutchConf.get("urlnormalizer.class");
+        urlNormalizer = this.conf.get("urlnormalizer.class");
         LOG.info("Using URL normalizer: " + urlNormalizer);
         Class normalizerClass = Class.forName(urlNormalizer);
         normalizer = (UrlNormalizer) normalizerClass.newInstance();
-        normalizer.setConf(this.nutchConf);
-        this.nutchConf.setObject(UrlNormalizer.class.getName(), normalizer);
+        normalizer.setConf(this.conf);
+        this.conf.setObject(UrlNormalizer.class.getName(), normalizer);
       } catch (Exception e) {
         throw new RuntimeException("Couldn't create " + urlNormalizer, e);
       }

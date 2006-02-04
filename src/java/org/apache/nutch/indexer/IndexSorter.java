@@ -26,7 +26,9 @@ import org.apache.lucene.document.*;
 import org.apache.lucene.store.*;
 import org.apache.lucene.search.*;
 
-import org.apache.nutch.util.NutchConf;
+import org.apache.nutch.util.NutchConfiguration;
+
+import org.apache.hadoop.conf.Configuration;
 
 /** Sort a Nutch index by page score.  Higher scoring documents are assigned
  * smaller document numbers. */
@@ -283,8 +285,8 @@ public class IndexSorter {
     IndexSorter sorter = new IndexSorter(directory);
 
     Date start = new Date();
-    NutchConf nutchConf = new NutchConf();
-    int termIndexInterval = nutchConf.getInt("indexer.termIndexInterval", 128);
+    Configuration conf = NutchConfiguration.create();
+    int termIndexInterval = conf.getInt("indexer.termIndexInterval", 128);
     sorter.sort(termIndexInterval);
 
     Date end = new Date();

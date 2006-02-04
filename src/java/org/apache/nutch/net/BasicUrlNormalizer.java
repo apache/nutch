@@ -22,8 +22,8 @@ import java.net.MalformedURLException;
 // import java.net.URISyntaxException;
 
 import java.util.logging.Logger;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.oro.text.regex.*;
 
 /** Converts URLs to a normal form . */
@@ -40,7 +40,7 @@ public class BasicUrlNormalizer implements UrlNormalizer {
     private Rule relativePathRule = null;
     private Rule leadingRelativePathRule = null;
 
-    private NutchConf nutchConf;
+    private Configuration conf;
 
     public BasicUrlNormalizer() {
       try {
@@ -176,12 +176,12 @@ public class BasicUrlNormalizer implements UrlNormalizer {
     }
 
 
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 
 }

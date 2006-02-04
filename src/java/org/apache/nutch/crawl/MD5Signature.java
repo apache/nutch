@@ -16,7 +16,7 @@
 
 package org.apache.nutch.crawl;
 
-import org.apache.nutch.io.MD5Hash;
+import org.apache.hadoop.io.MD5Hash;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.protocol.Content;
 

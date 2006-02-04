@@ -17,11 +17,11 @@
 package org.apache.nutch.protocol;
 
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.io.UTF8;
-import org.apache.nutch.util.NutchConfigurable;
+import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.conf.Configurable;
 
 /** A retriever of url content.  Implemented by protocol extensions. */
-public interface Protocol extends NutchConfigurable {
+public interface Protocol extends Configurable {
   /** The name of the extension point. */
   public final static String X_POINT_ID = Protocol.class.getName();
 

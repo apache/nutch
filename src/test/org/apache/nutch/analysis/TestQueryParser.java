@@ -17,7 +17,8 @@
 package org.apache.nutch.analysis;
 
 import org.apache.nutch.searcher.Query;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.NutchConfiguration;
 
 import junit.framework.TestCase;
 
@@ -27,10 +28,10 @@ import junit.framework.TestCase;
  */
 public class TestQueryParser extends TestCase {
 
-  private static NutchConf nutchConf = new NutchConf();
+  private static Configuration conf = NutchConfiguration.create();
   public void assertQueryEquals(String query, String result) throws Exception {
     try {
-      Query q = NutchAnalysis.parseQuery(query, nutchConf);
+      Query q = NutchAnalysis.parseQuery(query, conf);
       String s = q.toString();
       if (!s.equals(result)) {
         fail("Query /" + query + "/ yielded /" + s + "/, expecting /" + result

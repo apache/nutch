@@ -22,6 +22,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.WeakHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -29,9 +30,9 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 // Nutch imports
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
-
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.NutchConfiguration;
 
 /**
  * The plugin repositority is a registry of all plugins.
@@ -46,18 +47,17 @@ import org.apache.nutch.util.NutchConf;
  * @author joa23
  */
 public class PluginRepository {
-  
+    private static final WeakHashMap CACHE = new WeakHashMap();
+
     private boolean auto;
     
-    private static PluginRepository fInstance;
-
     private List fRegisteredPlugins;
 
     private HashMap fExtensionPoints;
 
     private HashMap fActivatedPlugins;
 
-    private NutchConf nutchConf;
+    private Configuration conf;
 
     
     public static final Logger LOG = LogFormatter
@@ -67,17 +67,17 @@ public class PluginRepository {
      * @throws PluginRuntimeException
      * @see java.lang.Object#Object()
      */
-    public PluginRepository(NutchConf nutchConf) throws RuntimeException {
+    public PluginRepository(Configuration conf) throws RuntimeException {
       fActivatedPlugins = new HashMap();
       fExtensionPoints = new HashMap();
-      this.nutchConf = nutchConf;
-      this.auto = nutchConf.getBoolean("plugin.auto-activation", true);
-      String[] pluginFolders = nutchConf.getStrings("plugin.folders");
-      PluginManifestParser manifestParser =  new PluginManifestParser(nutchConf, this);
+      this.conf = conf;
+      this.auto = conf.getBoolean("plugin.auto-activation", true);
+      String[] pluginFolders = conf.getStrings("plugin.folders");
+      PluginManifestParser manifestParser =  new PluginManifestParser(conf, this);
       Map allPlugins =manifestParser.parsePluginFolder(pluginFolders);
-      Pattern excludes = Pattern.compile(nutchConf.get(
+      Pattern excludes = Pattern.compile(conf.get(
               "plugin.excludes", ""));
-      Pattern includes = Pattern.compile(nutchConf.get(
+      Pattern includes = Pattern.compile(conf.get(
               "plugin.includes", ""));
       Map filteredPlugins = filter(excludes, includes, allPlugins);
       fRegisteredPlugins = getDependencyCheckedPlugins(
@@ -92,6 +92,19 @@ public class PluginRepository {
       }
       displayStatus();
     }
+
+    /**
+     * @return a cached instance of the plugin repository
+     */
+    public static synchronized PluginRepository get(Configuration conf) {
+      PluginRepository result = (PluginRepository)CACHE.get(conf);
+      if (result == null) {
+        result = new PluginRepository(conf);
+        CACHE.put(conf, result);
+      }
+      return result;
+    }
+
 
     private void installExtensionPoints(List plugins) {
       if (plugins == null) { return; }
@@ -284,9 +297,9 @@ public class PluginRepository {
                 Class pluginClass = loader.loadClass(pDescriptor
                         .getPluginClass());
                 Constructor constructor = pluginClass
-                        .getConstructor(new Class[] { PluginDescriptor.class, NutchConf.class });
+                        .getConstructor(new Class[] { PluginDescriptor.class, Configuration.class });
                 Plugin plugin = (Plugin) constructor
-                        .newInstance(new Object[] { pDescriptor, this.nutchConf });
+                        .newInstance(new Object[] { pDescriptor, this.conf });
                 plugin.startUp();
                 fActivatedPlugins.put(pDescriptor.getPluginId(), plugin);
                 return plugin;
@@ -392,7 +405,7 @@ public class PluginRepository {
         System.err.println("Usage: PluginRepository pluginId className [arg1 arg2 ...]");
         return;
       }
-      NutchConf conf = new NutchConf();
+      Configuration conf = NutchConfiguration.create();
       PluginRepository repo = new PluginRepository(conf);
       // args[0] - plugin ID
       PluginDescriptor d = repo.getPluginDescriptor(args[0]);

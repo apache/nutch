@@ -22,27 +22,29 @@ import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.logging.Logger;
 
-import org.apache.nutch.fs.NutchFileSystem;
-import org.apache.nutch.io.LongWritable;
-import org.apache.nutch.io.MapFile;
-import org.apache.nutch.io.SequenceFile;
-import org.apache.nutch.io.UTF8;
-import org.apache.nutch.io.Writable;
-import org.apache.nutch.io.WritableComparable;
-import org.apache.nutch.mapred.JobClient;
-import org.apache.nutch.mapred.JobConf;
-import org.apache.nutch.mapred.MapFileOutputFormat;
-import org.apache.nutch.mapred.Mapper;
-import org.apache.nutch.mapred.OutputCollector;
-import org.apache.nutch.mapred.Reducer;
-import org.apache.nutch.mapred.Reporter;
-import org.apache.nutch.mapred.SequenceFileInputFormat;
-import org.apache.nutch.mapred.SequenceFileOutputFormat;
-import org.apache.nutch.mapred.TextOutputFormat;
-import org.apache.nutch.mapred.lib.HashPartitioner;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.MapFile;
+import org.apache.hadoop.io.SequenceFile;
+import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.MapFile.Reader;
+import org.apache.hadoop.mapred.JobClient;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.MapFileOutputFormat;
+import org.apache.hadoop.mapred.Mapper;
+import org.apache.hadoop.mapred.OutputCollector;
+import org.apache.hadoop.mapred.Reducer;
+import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapred.SequenceFileInputFormat;
+import org.apache.hadoop.mapred.SequenceFileOutputFormat;
+import org.apache.hadoop.mapred.TextOutputFormat;
+import org.apache.hadoop.mapred.lib.HashPartitioner;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
 
+import org.apache.nutch.util.NutchConfiguration;
 /**
  * Read utility for the CrawlDB.
  * 
@@ -130,7 +132,7 @@ public class CrawlDbReader {
     }
   }
   
-  public void processStatJob(String crawlDb, NutchConf config) throws IOException {
+  public void processStatJob(String crawlDb, Configuration config) throws IOException {
     LOG.info("CrawlDb statistics start: " + crawlDb);
     File tmpFolder = new File(crawlDb, "stat_tmp" + System.currentTimeMillis());
 
@@ -152,7 +154,7 @@ public class CrawlDbReader {
     JobClient.runJob(job);
 
     // reading the result
-    NutchFileSystem fileSystem = NutchFileSystem.get(config);
+    FileSystem fileSystem = FileSystem.get(config);
     SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(config, tmpFolder);
 
     UTF8 key = new UTF8();
@@ -201,8 +203,8 @@ public class CrawlDbReader {
 
   }
 
-  public void readUrl(String crawlDb, String url, NutchConf config) throws IOException {
-    NutchFileSystem fs = NutchFileSystem.get(config);
+  public void readUrl(String crawlDb, String url, Configuration config) throws IOException {
+    FileSystem fs = FileSystem.get(config);
     UTF8 key = new UTF8(url);
     CrawlDatum val = new CrawlDatum();
     MapFile.Reader[] readers = MapFileOutputFormat.getReaders(fs, new File(crawlDb, CrawlDatum.DB_DIR_NAME), config);
@@ -215,7 +217,7 @@ public class CrawlDbReader {
     }
   }
   
-  public void processDumpJob(String crawlDb, String output, NutchConf config) throws IOException {
+  public void processDumpJob(String crawlDb, String output, Configuration config) throws IOException {
 
     LOG.info("CrawlDb dump: starting");
     LOG.info("CrawlDb db: " + crawlDb);
@@ -249,7 +251,7 @@ public class CrawlDbReader {
     }
     String param = null;
     String crawlDb = args[0];
-    NutchConf conf = new NutchConf();
+    Configuration conf = NutchConfiguration.create();
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-stats")) {
         dbr.processStatJob(crawlDb, conf);

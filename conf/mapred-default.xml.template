@@ -3,6 +3,6 @@
 
 <!-- Put mapred-specific property overrides in this file. -->
 
-<nutch-conf>
+<configuration>
 
-</nutch-conf>
+</configuration>

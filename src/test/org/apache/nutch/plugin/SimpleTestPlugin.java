@@ -17,7 +17,7 @@
 
 package org.apache.nutch.plugin;
 
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 
 /**
  * Simple Test plugin
@@ -28,11 +28,11 @@ public class SimpleTestPlugin extends Plugin {
 
   /**
    * @param pDescriptor 
-   * @param nutchConf 
+   * @param conf 
    */
-  public SimpleTestPlugin(PluginDescriptor pDescriptor, NutchConf nutchConf) {
+  public SimpleTestPlugin(PluginDescriptor pDescriptor, Configuration conf) {
 
-    super(pDescriptor, nutchConf);
+    super(pDescriptor, conf);
   }
 
   /*

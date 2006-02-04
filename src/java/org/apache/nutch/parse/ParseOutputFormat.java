@@ -16,11 +16,11 @@
 
 package org.apache.nutch.parse;
 
-import org.apache.nutch.io.*;
+import org.apache.hadoop.io.*;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.fetcher.Fetcher;
-import org.apache.nutch.fs.*;
-import org.apache.nutch.mapred.*;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.mapred.*;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.net.*;
 
@@ -34,7 +34,7 @@ public class ParseOutputFormat implements OutputFormat {
   private URLFilters filters;
 
 
-  public RecordWriter getRecordWriter(NutchFileSystem fs, JobConf job,
+  public RecordWriter getRecordWriter(FileSystem fs, JobConf job,
                                       String name) throws IOException {
 
     this.jobConf = job;

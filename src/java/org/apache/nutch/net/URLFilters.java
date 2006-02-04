@@ -21,17 +21,18 @@ import java.util.HashMap;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRuntimeException;
+import org.apache.nutch.plugin.PluginRepository;
 
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 /** Creates and caches {@link URLFilter} implementing plugins.*/
 public class URLFilters {
 
-  private NutchConf nutchConf;
+  private Configuration conf;
   private URLFilter[] filters;
 
-  public URLFilters(NutchConf nutchConf) {
-      String order = nutchConf.get("urlfilter.order");
-      this.filters = (URLFilter[]) nutchConf.getObject(URLFilter.class.getName());
+  public URLFilters(Configuration conf) {
+      String order = conf.get("urlfilter.order");
+      this.filters = (URLFilter[]) conf.getObject(URLFilter.class.getName());
       
       if (this.filters == null) {
             String[] orderedFilters = null;
@@ -40,7 +41,7 @@ public class URLFilters {
             }
 
             try {
-                ExtensionPoint point = nutchConf.getPluginRepository()
+                ExtensionPoint point = PluginRepository.get(conf)
                         .getExtensionPoint(URLFilter.X_POINT_ID);
                 if (point == null)
                     throw new RuntimeException(URLFilter.X_POINT_ID
@@ -56,7 +57,7 @@ public class URLFilters {
                     }
                 }
                 if (orderedFilters == null) {
-                    nutchConf.setObject(URLFilter.class.getName(), filterMap
+                    conf.setObject(URLFilter.class.getName(), filterMap
                             .values().toArray(new URLFilter[0]));
                 } else {
                     URLFilter[] filter = new URLFilter[orderedFilters.length];
@@ -64,12 +65,12 @@ public class URLFilters {
                         filter[i] = (URLFilter) filterMap
                                 .get(orderedFilters[i]);
                     }
-                    nutchConf.setObject(URLFilter.class.getName(), filter);
+                    conf.setObject(URLFilter.class.getName(), filter);
                 }
             } catch (PluginRuntimeException e) {
                 throw new RuntimeException(e);
             }
-            this.filters = (URLFilter[]) nutchConf.getObject(URLFilter.class
+            this.filters = (URLFilter[]) conf.getObject(URLFilter.class
                     .getName());
         }
   }  

@@ -25,8 +25,8 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
 /**
  * The <code>PluginDescriptor</code> provide access to all meta information of
  * a nutch-plugin, as well to the internationalizable resources and the plugin
@@ -53,7 +53,7 @@ public class PluginDescriptor {
   private PluginClassLoader fClassLoader;
   public static final Logger LOG = LogFormatter
     .getLogger(PluginDescriptor.class.getName());
-  private NutchConf fNutchConf;
+  private Configuration fConf;
   
   /**
    * Constructor
@@ -66,7 +66,7 @@ public class PluginDescriptor {
    * @param pPath
    */
   public PluginDescriptor(String pId, String pVersion, String pName,
-                          String pProviderName, String pPluginclazz, String pPath, NutchConf nutchConf) {
+                          String pProviderName, String pPluginclazz, String pPath, Configuration conf) {
     setPath(pPath);
     setPluginId(pId);
     setVersion(pVersion);
@@ -76,7 +76,7 @@ public class PluginDescriptor {
     if (pPluginclazz != null)
       setPluginClass(pPluginclazz);
 
-    this.fNutchConf = nutchConf;
+    this.fConf = conf;
   }
   /**
    * @param pPath
@@ -289,7 +289,7 @@ public class PluginDescriptor {
     String[] pPluginIds = pDescriptor.getDependencies();
     for (int i = 0; i < pPluginIds.length; i++) {
       String id = pPluginIds[i];
-      PluginDescriptor descriptor = this.fNutchConf.getPluginRepository().getPluginDescriptor(id);
+      PluginDescriptor descriptor = PluginRepository.get(fConf).getPluginDescriptor(id);
       URL[] libs = descriptor.getExportedLibUrls();
       for (int j = 0; j < libs.length; j++) {
         URL url = libs[j];

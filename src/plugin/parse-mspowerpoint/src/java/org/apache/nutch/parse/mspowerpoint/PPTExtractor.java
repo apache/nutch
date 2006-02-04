@@ -22,7 +22,7 @@ import java.util.Date;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import org.apache.nutch.util.LogFormatter;
+import org.apache.hadoop.util.LogFormatter;
 import org.apache.poi.hpsf.SummaryInformation;
 import org.apache.poi.poifs.eventfilesystem.POIFSReader;
 

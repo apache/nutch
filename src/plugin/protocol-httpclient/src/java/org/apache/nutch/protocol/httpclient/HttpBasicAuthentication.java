@@ -14,9 +14,9 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.codec.binary.Base64;
 
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
-import org.apache.nutch.util.NutchConfigurable;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configurable;
 
 /**
  * Implementation of RFC 2617 Basic Authentication.  Usernames and passwords are stored 
@@ -26,7 +26,7 @@ import org.apache.nutch.util.NutchConfigurable;
  *
  * @author    Matt Tencati
  */
-public class HttpBasicAuthentication implements HttpAuthentication, NutchConfigurable {
+public class HttpBasicAuthentication implements HttpAuthentication, Configurable {
 
     public static final Logger LOG =
 		LogFormatter.getLogger(HttpBasicAuthentication.class.getName());
@@ -35,7 +35,7 @@ public class HttpBasicAuthentication implements HttpAuthentication, NutchConfigu
 	
     private static Map authMap = new TreeMap();
    
-    private NutchConf conf = null; 
+    private Configuration conf = null; 
     private String challenge = null;
     private ArrayList credentials = null;
     private String realm = null;
@@ -49,9 +49,9 @@ public class HttpBasicAuthentication implements HttpAuthentication, NutchConfigu
      *
      * @param  challenge  WWW-Authenticate header from web server
      */
-    protected HttpBasicAuthentication(String challenge, NutchConf nutchConf) throws HttpAuthenticationException {
+    protected HttpBasicAuthentication(String challenge, Configuration conf) throws HttpAuthenticationException {
         
-        setConf(nutchConf);
+        setConf(conf);
         this.challenge = challenge;
         LOG.fine("BasicAuthentication challenge is " + challenge);
         credentials = new ArrayList();
@@ -76,10 +76,10 @@ public class HttpBasicAuthentication implements HttpAuthentication, NutchConfigu
 
 
     /* ---------------------------------- *
-     * <implementation:NutchConfigurable> *
+     * <implementation:Configurable> *
      * ---------------------------------- */
 
-    public void setConf(NutchConf conf) {
+    public void setConf(Configuration conf) {
       this.conf = conf;
       if (conf.getBoolean("http.auth.verbose", false)) {
         LOG.setLevel(Level.FINE);
@@ -88,12 +88,12 @@ public class HttpBasicAuthentication implements HttpAuthentication, NutchConfigu
       }
     }
 
-    public NutchConf getConf() {
+    public Configuration getConf() {
       return this.conf;
     }
 
     /* ---------------------------------- *
-     * <implementation:NutchConfigurable> *
+     * <implementation:Configurable> *
      * ---------------------------------- */
 
 
@@ -129,7 +129,7 @@ public class HttpBasicAuthentication implements HttpAuthentication, NutchConfigu
      * @return An HttpBasicAuthentication object or null 
      * if unable to generate appropriate credentials.
      */
-    public static HttpBasicAuthentication getAuthentication(String challenge, NutchConf conf) {
+    public static HttpBasicAuthentication getAuthentication(String challenge, Configuration conf) {
         if (challenge == null) return null;
         Matcher basicMatcher = basic.matcher(challenge);
         if (basicMatcher.matches()) {

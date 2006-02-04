@@ -4,7 +4,7 @@ import org.apache.nutch.searcher.Query;
 import org.apache.nutch.searcher.QueryFilters;
 import org.apache.nutch.searcher.Query.Clause;
 import org.apache.nutch.searcher.Query.Clause;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.lucene.analysis.StopFilter;
 import java.io.*;
 import java.util.*;

@@ -19,12 +19,14 @@ package org.apache.nutch.crawl;
 import java.io.IOException;
 import java.io.File;
 
-import org.apache.nutch.io.*;
-import org.apache.nutch.fs.*;
-import org.apache.nutch.mapred.*;
-import org.apache.nutch.mapred.lib.HashPartitioner;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.io.*;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.mapred.lib.HashPartitioner;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
+
+import org.apache.nutch.util.NutchConfiguration;
 
 import java.util.logging.Logger;
 
@@ -34,15 +36,15 @@ public class LinkDbReader {
 
   private static final Partitioner PARTITIONER = new HashPartitioner();
 
-  private NutchFileSystem fs;
+  private FileSystem fs;
   private File directory;
   private MapFile.Reader[] readers;
-  private NutchConf nutchConf;
+  private Configuration conf;
 
-  public LinkDbReader(NutchFileSystem fs, File directory, NutchConf nutchConf) {
+  public LinkDbReader(FileSystem fs, File directory, Configuration conf) {
     this.fs = fs;
     this.directory = directory;
-    this.nutchConf = nutchConf;
+    this.conf = conf;
   }
 
   public String[] getAnchors(UTF8 url) throws IOException {
@@ -57,7 +59,7 @@ public class LinkDbReader {
     synchronized (this) {
       if (readers == null) {
         readers = MapFileOutputFormat.getReaders
-          (fs, new File(directory, LinkDb.CURRENT_NAME), this.nutchConf);
+          (fs, new File(directory, LinkDb.CURRENT_NAME), this.conf);
       }
     }
     
@@ -65,7 +67,7 @@ public class LinkDbReader {
       (readers, PARTITIONER, url, new Inlinks());
   }
   
-  public static void processDumpJob(String linkdb, String output, NutchConf config) throws IOException {
+  public static void processDumpJob(String linkdb, String output, Configuration config) throws IOException {
     LOG.info("LinkDb dump: starting");
     LOG.info("LinkDb db: " + linkdb);
     File outFolder = new File(output);
@@ -92,11 +94,11 @@ public class LinkDbReader {
       System.err.println("\t-url <url>\tprint information about <url> to System.out");
       return;
     }
-    NutchConf nutchConf = new NutchConf();
+    Configuration conf = NutchConfiguration.create();
     if (args[1].equals("-dump")) {
-      LinkDbReader.processDumpJob(args[0], args[2], nutchConf);
+      LinkDbReader.processDumpJob(args[0], args[2], conf);
     } else if (args[1].equals("-url")) {
-      LinkDbReader dbr = new LinkDbReader(NutchFileSystem.get(new NutchConf()), new File(args[0]), nutchConf);
+      LinkDbReader dbr = new LinkDbReader(FileSystem.get(NutchConfiguration.create()), new File(args[0]), conf);
       Inlinks links = dbr.getInlinks(new UTF8(args[2]));
       if (links == null) {
         System.out.println(" - no link information.");

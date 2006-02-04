@@ -18,8 +18,8 @@ package org.apache.nutch.parse.msword;
 
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ContentProperties;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.Parse;
@@ -51,7 +51,7 @@ import java.io.ByteArrayInputStream;
  */
 
 public class MSWordParser implements Parser {
-  private NutchConf nutchConf;
+  private Configuration conf;
 
 //  public static final Logger LOG =
 //    LogFormatter.getLogger("org.apache.nutch.parse.msword");
@@ -73,7 +73,7 @@ public class MSWordParser implements Parser {
             && raw.length != Integer.parseInt(contentLength)) {
           return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_TRUNCATED,
                   "Content truncated at " + raw.length
-            +" bytes. Parser can't handle incomplete msword file.").getEmptyParse(this.nutchConf);
+            +" bytes. Parser can't handle incomplete msword file.").getEmptyParse(this.conf);
       }
 
       WordExtractor extractor = new WordExtractor();
@@ -87,14 +87,14 @@ public class MSWordParser implements Parser {
       extractor = null;
 
     } catch (ParseException e) {
-      return new ParseStatus(e).getEmptyParse(this.nutchConf);
+      return new ParseStatus(e).getEmptyParse(this.conf);
     } catch (FastSavedException e) {
-      return new ParseStatus(e).getEmptyParse(this.nutchConf);
+      return new ParseStatus(e).getEmptyParse(this.conf);
     } catch (PasswordProtectedException e) {
-      return new ParseStatus(e).getEmptyParse(this.nutchConf);
+      return new ParseStatus(e).getEmptyParse(this.conf);
     } catch (Exception e) { // run time exception
       return new ParseStatus(ParseStatus.FAILED,
-              "Can't be handled as msword document. " + e).getEmptyParse(this.nutchConf);
+              "Can't be handled as msword document. " + e).getEmptyParse(this.conf);
     } finally {
       // nothing so far
     }
@@ -116,21 +116,21 @@ public class MSWordParser implements Parser {
       title = "";
 
     // collect outlink
-    Outlink[] outlinks = OutlinkExtractor.getOutlinks(text, this.nutchConf);
+    Outlink[] outlinks = OutlinkExtractor.getOutlinks(text, this.conf);
 
     ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks, metadata);
-    parseData.setConf(this.nutchConf);
+    parseData.setConf(this.conf);
     return new ParseImpl(text, parseData);
     // any filter?
     //return HtmlParseFilters.filter(content, parse, root);
   }
 
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 
 }

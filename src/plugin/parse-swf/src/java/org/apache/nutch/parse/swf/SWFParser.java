@@ -24,8 +24,10 @@ import java.util.logging.Logger;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ContentProperties;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.NutchConfiguration;
 
 import com.anotherbigidea.flash.interfaces.*;
 import com.anotherbigidea.flash.readers.*;
@@ -43,16 +45,16 @@ import com.anotherbigidea.io.InStream;
 public class SWFParser implements Parser {
   public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.parse.swf");
 
-  private NutchConf nutchConf = null;
+  private Configuration conf = null;
 
   public SWFParser() {}
 
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
   }
 
-  public NutchConf getConf() {
-    return nutchConf;
+  public Configuration getConf() {
+    return conf;
   }
 
   public Parse getParse(Content content) {
@@ -70,7 +72,7 @@ public class SWFParser implements Parser {
       String contentLength = content.get("Content-Length");
       if (contentLength != null && raw.length != Integer.parseInt(contentLength)) {
         return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_TRUNCATED, "Content truncated at " + raw.length
-                + " bytes. Parser can't handle incomplete files.").getEmptyParse(nutchConf);
+                + " bytes. Parser can't handle incomplete files.").getEmptyParse(conf);
       }
       ExtractText extractor = new ExtractText();
 
@@ -90,16 +92,16 @@ public class SWFParser implements Parser {
       // harvest potential outlinks
       String[] links = extractor.getUrls();
       for (int i = 0; i < links.length; i++) {
-        Outlink out = new Outlink(links[i], "", nutchConf);
+        Outlink out = new Outlink(links[i], "", conf);
         outlinks.add(out);
       }
-      Outlink[] olinks = OutlinkExtractor.getOutlinks(text, nutchConf);
+      Outlink[] olinks = OutlinkExtractor.getOutlinks(text, conf);
       if (olinks != null) for (int i = 0; i < olinks.length; i++) {
         outlinks.add(olinks[i]);
       }
     } catch (Exception e) { // run time exception
       e.printStackTrace();
-      return new ParseStatus(ParseStatus.FAILED, "Can't be handled as SWF document. " + e).getEmptyParse(nutchConf);
+      return new ParseStatus(ParseStatus.FAILED, "Can't be handled as SWF document. " + e).getEmptyParse(conf);
     } finally {}
     if (text == null) text = "";
 
@@ -118,7 +120,7 @@ public class SWFParser implements Parser {
     in.read(buf);
     SWFParser parser = new SWFParser();
     Parse p = parser.getParse(new Content("file:" + args[0], "file:" + args[0], buf, "application/x-shockwave-flash",
-            new ContentProperties(), new NutchConf()));
+            new ContentProperties(), NutchConfiguration.create()));
     System.out.println("Parse Text:");
     System.out.println(p.getText());
     System.out.println("Parse Data:");

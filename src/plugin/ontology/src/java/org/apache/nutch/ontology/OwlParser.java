@@ -21,7 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-//import org.apache.nutch.util.LogFormatter;
+//import org.apache.hadoop.util.LogFormatter;
 
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;

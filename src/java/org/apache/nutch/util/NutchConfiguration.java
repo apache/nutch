@@ -1,5 +1,5 @@
 /**
- * Copyright 2005 The Apache Software Foundation
+ * Copyright 2006 The Apache Software Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,26 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.crawl;
+package org.apache.nutch.util;
 
-import org.apache.nutch.parse.Parse;
-import org.apache.nutch.protocol.Content;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configurable;
 
-public abstract class Signature implements Configurable {
-  protected Configuration conf;
-  
-  public abstract byte[] calculate(Content content, Parse parse);
+/** Utility to create Hadoop {@link Configuration}s that include Nutch-specific
+ * resources.  */
+public class NutchConfiguration {
 
-  public Configuration getConf() {
+  /** Create a {@link Configuration} for Nutch. */
+  public static Configuration create() {
+    Configuration conf = new Configuration();
+    addNutchResources(conf);
     return conf;
   }
 
-  public void setConf(Configuration conf) {
-    this.conf = conf;
+  /** Add the standard Nutch resources to {@link Configuration}. */
+  public static Configuration addNutchResources(Configuration conf) {
+    conf.addDefaultResource("nutch-default.xml");
+    conf.addFinalResource("nutch-site.xml");
+    return conf;
   }
 }
+

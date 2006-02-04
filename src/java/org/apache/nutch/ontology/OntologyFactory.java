@@ -17,9 +17,9 @@
 package org.apache.nutch.ontology;
 
 import org.apache.nutch.plugin.*;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 import java.util.logging.Logger;
-import org.apache.nutch.util.LogFormatter;
+import org.apache.hadoop.util.LogFormatter;
 
 /**
  * A factory for retrieving {@link Ontology} extensions.
@@ -32,11 +32,11 @@ public class OntologyFactory {
     LogFormatter.getLogger(OntologyFactory.class.getName());
 
   private ExtensionPoint extensionPoint;
-  private NutchConf nutchConf;
+  private Configuration conf;
   
-  public OntologyFactory(NutchConf nutchConf) {
-    this.nutchConf = nutchConf;
-    this.extensionPoint = nutchConf.getPluginRepository().getExtensionPoint(Ontology.X_POINT_ID);  
+  public OntologyFactory(Configuration conf) {
+    this.conf = conf;
+    this.extensionPoint = PluginRepository.get(conf).getExtensionPoint(Ontology.X_POINT_ID);  
   }
 
   /**
@@ -53,7 +53,7 @@ public class OntologyFactory {
       return null;
     }
 
-    String extensionName = this.nutchConf.get("extension.ontology.extension-name");
+    String extensionName = this.conf.get("extension.ontology.extension-name");
     if (extensionName != null) {
       Extension extension = findExtension(extensionName);
       if (extension != null) {

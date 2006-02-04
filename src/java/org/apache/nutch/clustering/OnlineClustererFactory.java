@@ -17,9 +17,9 @@
 package org.apache.nutch.clustering;
 
 import org.apache.nutch.plugin.*;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 import java.util.logging.Logger;
-import org.apache.nutch.util.LogFormatter;
+import org.apache.hadoop.util.LogFormatter;
 
 /**
  * A factory for retrieving {@link OnlineClusterer} extensions.
@@ -33,9 +33,9 @@ public class OnlineClustererFactory {
   private ExtensionPoint extensionPoint;
   private String extensionName;
 
-  public OnlineClustererFactory(NutchConf nutchConf) {
-      this.extensionPoint = nutchConf.getPluginRepository().getExtensionPoint(OnlineClusterer.X_POINT_ID);
-      this.extensionName = nutchConf.get("extension.clustering.extension-name");
+  public OnlineClustererFactory(Configuration conf) {
+      this.extensionPoint = PluginRepository.get(conf).getExtensionPoint(OnlineClusterer.X_POINT_ID);
+      this.extensionName = conf.get("extension.clustering.extension-name");
   }
 
   /**

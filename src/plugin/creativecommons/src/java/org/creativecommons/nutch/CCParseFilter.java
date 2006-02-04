@@ -19,7 +19,7 @@ package org.creativecommons.nutch;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ContentProperties;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 
 import java.util.*;
 import java.io.*;
@@ -29,7 +29,7 @@ import org.xml.sax.InputSource;
 import org.w3c.dom.*;
 
 import java.util.logging.Logger;
-import org.apache.nutch.util.LogFormatter;
+import org.apache.hadoop.util.LogFormatter;
 
 /** Adds metadata identifying the Creative Commons license used, if any. */
 public class CCParseFilter implements HtmlParseFilter {
@@ -50,7 +50,7 @@ public class CCParseFilter implements HtmlParseFilter {
     }
 
     /** Scan the document adding attributes to metadata.*/
-    public static void walk(Node doc, URL base, ContentProperties metadata, NutchConf nutchConf)
+    public static void walk(Node doc, URL base, ContentProperties metadata, Configuration conf)
       throws ParseException {
 
       // walk the DOM tree, scanning for license data
@@ -69,7 +69,7 @@ public class CCParseFilter implements HtmlParseFilter {
       } else if (walker.anchorLicense != null) {  // 3rd: anchor w/ CC license
         licenseLocation = "a";
         licenseUrl = walker.anchorLicense.toString();
-      } else if (nutchConf.getBoolean("creativecommons.exclude.unlicensed", false)) {
+      } else if (conf.getBoolean("creativecommons.exclude.unlicensed", false)) {
         throw new ParseException("No CC license.  Excluding.");
       }
 
@@ -249,7 +249,7 @@ public class CCParseFilter implements HtmlParseFilter {
     WORK_TYPE_NAMES.put("http://purl.org/dc/dcmitype/Image", "image");
   }
 
-  private NutchConf nutchConf;
+  private Configuration conf;
 
   /** Adds metadata or otherwise modifies a parse of an HTML document, given
    * the DOM tree of a page. */
@@ -273,11 +273,11 @@ public class CCParseFilter implements HtmlParseFilter {
     return parse;
   }
 
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 }

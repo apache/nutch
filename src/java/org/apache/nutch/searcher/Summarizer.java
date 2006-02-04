@@ -23,23 +23,24 @@ import org.apache.lucene.analysis.Token;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.searcher.Summary.*;
 import org.apache.nutch.analysis.NutchDocumentAnalyzer;
+import org.apache.nutch.util.NutchConfiguration;
 
 /** Implements hit summarization. */
 public class Summarizer {
    
   /** Converts text to tokens. */
   private Analyzer ANALYZER;
-  private NutchConf nutchConf;
+  private Configuration conf;
 
   /**
    * The constructor.
    * @param conf
    */
-  public Summarizer(NutchConf conf) {
-    this.nutchConf = conf;
+  public Summarizer(Configuration conf) {
+    this.conf = conf;
     this.ANALYZER = new NutchDocumentAnalyzer(conf);
   }
 
@@ -292,7 +293,7 @@ public class Summarizer {
             return;
         }
 
-        Summarizer s = new Summarizer(new NutchConf());
+        Summarizer s = new Summarizer(NutchConfiguration.create());
 
         //
         // Parse the args
@@ -320,11 +321,11 @@ public class Summarizer {
             in.close();
         }
 
-        NutchConf nutchConf = new NutchConf();
-        int sumContext = nutchConf.getInt("searcher.summary.context", 5);
-        int sumLength = nutchConf.getInt("searcher.summary.length", 20);
+        Configuration conf = NutchConfiguration.create();
+        int sumContext = conf.getInt("searcher.summary.context", 5);
+        int sumLength = conf.getInt("searcher.summary.length", 20);
         // Convert the query string into a proper Query
-        Query query = Query.parse(queryBuf.toString(), nutchConf);
+        Query query = Query.parse(queryBuf.toString(), conf);
         System.out.println("Summary: '" + s.getSummary(body.toString(), query, sumContext, sumLength) + "'");
     }
 }

@@ -27,8 +27,8 @@ import org.pdfbox.exceptions.InvalidPasswordException;
 
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ContentProperties;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.Parse;
@@ -63,7 +63,7 @@ import java.io.IOException;
 public class PdfParser implements Parser {
   public static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.parse.pdf");
-  private NutchConf nutchConf;
+  private Configuration conf;
 
   public PdfParser () {
     // redirect org.apache.log4j.Logger to java's native logger, in order
@@ -78,7 +78,7 @@ public class PdfParser implements Parser {
 
     org.apache.log4j.Appender appender = new org.apache.log4j.WriterAppender(
       new org.apache.log4j.SimpleLayout(),
-      org.apache.nutch.util.LogFormatter.getLogStream(
+      org.apache.hadoop.util.LogFormatter.getLogStream(
         this.LOG, java.util.logging.Level.INFO));
 
     rootLogger.addAppender(appender);
@@ -166,7 +166,7 @@ public class PdfParser implements Parser {
     metadata.putAll(content.getMetadata()); // copy through
 
     ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks, metadata);
-    parseData.setConf(this.nutchConf);
+    parseData.setConf(this.conf);
     return new ParseImpl(text, parseData);
     // any filter?
     //return HtmlParseFilters.filter(content, parse, root);
@@ -183,12 +183,12 @@ public class PdfParser implements Parser {
     return retval;
   }
 
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 
 }

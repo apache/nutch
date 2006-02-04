@@ -17,9 +17,10 @@
 package org.apache.nutch.parse;
 
 import java.io.*;
-import org.apache.nutch.io.*;
-import org.apache.nutch.fs.*;
-import org.apache.nutch.util.*;
+import org.apache.hadoop.io.*;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.conf.*;
+import org.apache.nutch.util.NutchConfiguration;
 
 /* The text conversion of page's content, stored using gzip compression.
  * @see Parse#getText()
@@ -35,6 +36,8 @@ public final class ParseText extends VersionedWritable {
   public ParseText(String text){
     this.text = text;
   }
+
+  static { WritableName.setName(ParseText.class, "ParseText"); }
 
   public byte getVersion() { return VERSION; }
 
@@ -73,29 +76,29 @@ public final class ParseText extends VersionedWritable {
   }
 
   public static void main(String argv[]) throws Exception {
-    String usage = "ParseText (-local | -ndfs <namenode:port>) recno segment";
+    String usage = "ParseText (-local | -dfs <namenode:port>) recno segment";
 
     if (argv.length < 3) {
       System.out.println("usage:" + usage);
       return;
     }
 
-    NutchConf nutchConf = new NutchConf();
-    NutchFileSystem nfs = NutchFileSystem.parseArgs(argv, 0, nutchConf);
+    Configuration conf = NutchConfiguration.create();
+    FileSystem fs = FileSystem.parseArgs(argv, 0, conf);
     try {
       int recno = Integer.parseInt(argv[0]);
       String segment = argv[1];
       String filename = new File(segment, ParseText.DIR_NAME).getPath();
 
       ParseText parseText = new ParseText();
-      ArrayFile.Reader parseTexts = new ArrayFile.Reader(nfs, filename, nutchConf);
+      ArrayFile.Reader parseTexts = new ArrayFile.Reader(fs, filename, conf);
 
       parseTexts.get(recno, parseText);
       System.out.println("Retrieved " + recno + " from file " + filename);
       System.out.println(parseText);
       parseTexts.close();
     } finally {
-      nfs.close();
+      fs.close();
     }
   }
 }

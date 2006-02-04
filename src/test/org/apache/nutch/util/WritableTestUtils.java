@@ -14,34 +14,36 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.searcher;
+package org.apache.nutch.util;
 
 import org.apache.hadoop.io.*;
+import org.apache.hadoop.conf.*;
+
 import junit.framework.TestCase;
 
-public class TestHitDetails extends TestCase {
-  public TestHitDetails(String name) { super(name); }
+public class WritableTestUtils {
 
-  public void testHitDetails() throws Exception {
-    final int length = 3;
-    final String[] fields = new String[] {"a", "b", "c" };
-    final String[] values = new String[] { "foo", "bar", "baz" };
+  /** Utility method for testing writables. */
+  public static void testWritable(Writable before) throws Exception {
+    testWritable(before, null);
+  }
 
-    HitDetails before = new HitDetails(fields, values);
-
+  /** Utility method for testing writables. */
+  public static void testWritable(Writable before, Configuration conf)
+      throws Exception {
     DataOutputBuffer dob = new DataOutputBuffer();
     before.write(dob);
-
+    
     DataInputBuffer dib = new DataInputBuffer();
     dib.reset(dob.getData(), dob.getLength());
-
-    HitDetails after = HitDetails.read(dib);
-
-    assertEquals(length, after.getLength());
-    for (int i = 0; i < length; i++) {
-      assertEquals(fields[i], after.getField(i));
-      assertEquals(values[i], after.getValue(i));
-      assertEquals(values[i], after.getValue(fields[i]));
+    
+    Writable after = (Writable)before.getClass().newInstance();
+    if (conf != null) {
+      ((Configurable)after).setConf(conf);
     }
+    after.readFields(dib);
+
+    TestCase.assertEquals(before, after);
   }
+	
 }

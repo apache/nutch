@@ -19,12 +19,13 @@ package org.apache.nutch.protocol;
 import java.util.*;
 import java.io.*;
 
-import org.apache.nutch.io.*;
-import org.apache.nutch.fs.*;
-import org.apache.nutch.util.*;
+import org.apache.hadoop.io.*;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.conf.*;
 import org.apache.nutch.util.mime.MimeType;
 import org.apache.nutch.util.mime.MimeTypes;
 import org.apache.nutch.util.mime.MimeTypeException;
+import org.apache.nutch.util.NutchConfiguration;
 
 public final class Content extends CompressedWritable {
 
@@ -41,10 +42,12 @@ public final class Content extends CompressedWritable {
   private boolean mimeTypeMagic;
   private MimeTypes mimeTypes;
 
+  static { WritableName.setName(Content.class, "Content"); }
+
   public Content() {}
     
   public Content(String url, String base, byte[] content, String contentType,
-                 ContentProperties metadata, NutchConf nutchConf) {
+                 ContentProperties metadata, Configuration conf) {
 
     if (url == null) throw new IllegalArgumentException("null url");
     if (base == null) throw new IllegalArgumentException("null base");
@@ -55,8 +58,8 @@ public final class Content extends CompressedWritable {
     this.base = base;
     this.content = content;
     this.metadata = metadata;
-    this.mimeTypeMagic = nutchConf.getBoolean("mime.type.magic", true);
-    this.mimeTypes = MimeTypes.get(nutchConf.get("mime.types.file"));
+    this.mimeTypeMagic = conf.getBoolean("mime.type.magic", true);
+    this.mimeTypes = MimeTypes.get(conf.get("mime.types.file"));
     this.contentType = getContentType(contentType, url, content);
   }
 
@@ -182,14 +185,14 @@ public final class Content extends CompressedWritable {
 
   public static void main(String argv[]) throws Exception {
 
-    String usage = "Content (-local | -ndfs <namenode:port>) recno segment";
+    String usage = "Content (-local | -dfs <namenode:port>) recno segment";
     
     if (argv.length < 3) {
       System.out.println("usage:" + usage);
       return;
     }
-    NutchConf nutchConf = new NutchConf();
-    NutchFileSystem nfs = NutchFileSystem.parseArgs(argv, 0, nutchConf);
+    Configuration conf = NutchConfiguration.create();
+    FileSystem fs = FileSystem.parseArgs(argv, 0, conf);
     try {
       int recno = Integer.parseInt(argv[0]);
       String segment = argv[1];
@@ -197,7 +200,7 @@ public final class Content extends CompressedWritable {
       File file = new File(segment, DIR_NAME);
       System.out.println("Reading from file: " + file);
 
-      ArrayFile.Reader contents = new ArrayFile.Reader(nfs, file.toString(), nutchConf);
+      ArrayFile.Reader contents = new ArrayFile.Reader(fs, file.toString(), conf);
 
       Content content = new Content();
       contents.get(recno, content);
@@ -207,7 +210,7 @@ public final class Content extends CompressedWritable {
 
       contents.close();
     } finally {
-      nfs.close();
+      fs.close();
     }
   }
 

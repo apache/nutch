@@ -25,7 +25,8 @@ import org.apache.nutch.parse.ParserFactory;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseException;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.NutchConfiguration;
 
 import junit.framework.TestCase;
 
@@ -51,13 +52,13 @@ public class TestOntology extends TestCase {
   private String[] sampleFiles = {"time.owl"};
 
   private static Ontology ontology;
-  private NutchConf nutchConf;
+  private Configuration conf;
   public TestOntology(String name) { 
     super(name); 
   }
 
   protected void setUp() {
-      this.nutchConf = new NutchConf();
+      this.conf = NutchConfiguration.create();
   }
 
   protected void tearDown() {}
@@ -69,7 +70,7 @@ public class TestOntology extends TestCase {
 
     if (ontology==null) {
       try {
-        ontology = new OntologyFactory(this.nutchConf).getOntology();
+        ontology = new OntologyFactory(this.conf).getOntology();
       } catch (Exception e) {
         throw new Exception("Failed to instantiate ontology");
       }

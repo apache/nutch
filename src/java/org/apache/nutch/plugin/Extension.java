@@ -17,8 +17,8 @@
 package org.apache.nutch.plugin;
 import java.util.HashMap;
 
-import org.apache.nutch.util.NutchConf;
-import org.apache.nutch.util.NutchConfigurable;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configurable;
 /**
  * An <code>Extension</code> is a kind of listener descriptor that will be
  * installed on a concrete <code>ExtensionPoint</code> that acts as kind of
@@ -32,7 +32,7 @@ public class Extension {
   private String fTargetPoint;
   private String fClazz;
   private HashMap fAttributes;
-  private NutchConf nutchConf;
+  private Configuration conf;
   private PluginRepository pluginRepository;
   /**
    * @param pDescriptor
@@ -43,13 +43,13 @@ public class Extension {
    *            an unique id of the plugin
    */
   public Extension(PluginDescriptor pDescriptor, String pExtensionPoint,
-                   String pId, String pExtensionClass, NutchConf nutchConf, PluginRepository pluginRepository) {
+                   String pId, String pExtensionClass, Configuration conf, PluginRepository pluginRepository) {
     fAttributes = new HashMap();
     setDescriptor(pDescriptor);
     setExtensionPoint(pExtensionPoint);
     setId(pId);
     setClazz(pExtensionClass);
-    this.nutchConf = nutchConf;
+    this.conf = conf;
     this.pluginRepository = pluginRepository;
   }
   /**
@@ -149,8 +149,8 @@ public class Extension {
         // already.
         this.pluginRepository.getPluginInstance(getDescriptor());
         Object object = extensionClazz.newInstance();
-        if(object instanceof NutchConfigurable) {
-            ((NutchConfigurable)object).setConf(this.nutchConf);
+        if(object instanceof Configurable) {
+            ((Configurable)object).setConf(this.conf);
         }
         return object;
       } catch (ClassNotFoundException e) {

@@ -18,8 +18,8 @@ package org.apache.nutch.searcher;
 
 import org.apache.nutch.plugin.*;
 import org.apache.nutch.searcher.Query.Clause;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
 
 import java.util.logging.Logger;
 import java.util.*;
@@ -48,12 +48,12 @@ public class QueryFilters {
     return Collections.list(new StringTokenizer(fields, " ,\t\n\r"));
   }
 
-  public QueryFilters(NutchConf nutchConf) {
-    this.queryFilters = (QueryFilter[]) nutchConf.getObject(QueryFilter.class
+  public QueryFilters(Configuration conf) {
+    this.queryFilters = (QueryFilter[]) conf.getObject(QueryFilter.class
         .getName());
     if (this.queryFilters == null) {
       try {
-        ExtensionPoint point = nutchConf.getPluginRepository()
+        ExtensionPoint point = PluginRepository.get(conf)
             .getExtensionPoint(QueryFilter.X_POINT_ID);
         if (point == null)
           throw new RuntimeException(QueryFilter.X_POINT_ID + " not found.");
@@ -73,20 +73,20 @@ public class QueryFilters {
           filters[i] = (QueryFilter) extension.getExtensionInstance();
           FIELD_NAMES.addAll(fieldNames);
           FIELD_NAMES.addAll(rawFieldNames);
-          nutchConf.setObject("FIELD_NAMES", FIELD_NAMES);
+          conf.setObject("FIELD_NAMES", FIELD_NAMES);
           RAW_FIELD_NAMES.addAll(rawFieldNames);
-          nutchConf.setObject("RAW_FIELD_NAMES", RAW_FIELD_NAMES);
+          conf.setObject("RAW_FIELD_NAMES", RAW_FIELD_NAMES);
         }
-        nutchConf.setObject(QueryFilter.class.getName(), filters);
+        conf.setObject(QueryFilter.class.getName(), filters);
       } catch (PluginRuntimeException e) {
         throw new RuntimeException(e);
       }
-      this.queryFilters = (QueryFilter[]) nutchConf.getObject(QueryFilter.class
+      this.queryFilters = (QueryFilter[]) conf.getObject(QueryFilter.class
           .getName());
     } else {
       // cache already filled
-      FIELD_NAMES = (HashSet) nutchConf.getObject("FIELD_NAMES");
-      RAW_FIELD_NAMES = (HashSet) nutchConf.getObject("RAW_FIELD_NAMES");
+      FIELD_NAMES = (HashSet) conf.getObject("FIELD_NAMES");
+      RAW_FIELD_NAMES = (HashSet) conf.getObject("RAW_FIELD_NAMES");
     }
   }              
 

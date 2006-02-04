@@ -24,9 +24,10 @@ import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.NutchConfiguration;
 
-import org.apache.nutch.io.UTF8;
+import org.apache.hadoop.io.UTF8;
 import org.apache.nutch.crawl.CrawlDatum;
 
 import junit.framework.TestCase;
@@ -65,10 +66,10 @@ public class TestPdfParser extends TestCase {
     for (int i=0; i<sampleFiles.length; i++) {
       urlString = "file:" + sampleDir + fileSeparator + sampleFiles[i];
 
-      NutchConf nutchConf = new NutchConf();
-      protocol = new ProtocolFactory(nutchConf).getProtocol(urlString);
+      Configuration conf = NutchConfiguration.create();
+      protocol = new ProtocolFactory(conf).getProtocol(urlString);
       content = protocol.getProtocolOutput(new UTF8(urlString), new CrawlDatum()).getContent();
-      parse = new ParseUtil(nutchConf).parseByParserId("parse-pdf",content);
+      parse = new ParseUtil(conf).parseByParserId("parse-pdf",content);
 
       int index = parse.getText().indexOf(expectedText);
       assertTrue(index > 0);

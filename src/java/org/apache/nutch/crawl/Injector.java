@@ -20,15 +20,18 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
-import org.apache.nutch.io.*;
-import org.apache.nutch.fs.*;
+import org.apache.hadoop.io.*;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.conf.*;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.mapred.*;
+
 import org.apache.nutch.net.*;
-import org.apache.nutch.util.*;
-import org.apache.nutch.mapred.*;
+import org.apache.nutch.util.NutchConfiguration;
 
 /** This class takes a flat file of URLs and adds them to the of pages to be
  * crawled.  Useful for bootstrapping the system. */
-public class Injector extends NutchConfigured {
+public class Injector extends Configured {
   public static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.crawl.Injector");
 
@@ -79,7 +82,7 @@ public class Injector extends NutchConfigured {
   }
 
   /** Construct an Injector. */
-  public Injector(NutchConf conf) {
+  public Injector(Configuration conf) {
     super(conf);
   }
 
@@ -114,14 +117,14 @@ public class Injector extends NutchConfigured {
     CrawlDb.install(mergeJob, crawlDb);
 
     // clean up
-    NutchFileSystem fs = new JobClient(getConf()).getFs();
+    FileSystem fs = new JobClient(getConf()).getFs();
     fs.delete(tempDir);
     LOG.info("Injector: done");
 
   }
 
   public static void main(String[] args) throws Exception {
-    Injector injector = new Injector(new NutchConf());
+    Injector injector = new Injector(NutchConfiguration.create());
     
     if (args.length < 2) {
       System.err.println("Usage: Injector <crawldb> <url_dir>");

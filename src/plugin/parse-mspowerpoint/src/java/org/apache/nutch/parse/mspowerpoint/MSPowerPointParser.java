@@ -31,8 +31,9 @@ import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ContentProperties;
-import org.apache.nutch.util.LogFormatter;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.NutchConfiguration;
 
 /**
  * Nutch-Parser for parsing MS PowerPoint slides ( mime type:
@@ -52,7 +53,7 @@ public class MSPowerPointParser implements Parser {
   private static final Logger LOG = LogFormatter
       .getLogger(MSPowerPointParser.class.getName());
 
-  private NutchConf nutchConf;
+  private Configuration conf;
 
   /**
    * 
@@ -80,7 +81,7 @@ public class MSPowerPointParser implements Parser {
     ContentProperties prop = new ContentProperties();
     prop.setProperty("Content-Length", "" + raw.length);
 
-    Content content = new Content(file, file, raw, MIME_TYPE, prop, new NutchConf());
+    Content content = new Content(file, file, raw, MIME_TYPE, prop, NutchConfiguration.create());
 
     System.out.println(ppe.getParse(content).getText());
   }
@@ -144,7 +145,7 @@ public class MSPowerPointParser implements Parser {
 
     final ParseStatus status = new ParseStatus(ParseStatus.SUCCESS);
     final ParseData parseData = new ParseData(status, title, outlinks, metadata);
-    parseData.setConf(this.nutchConf);
+    parseData.setConf(this.conf);
 
     LOG.finest("PowerPoint file parsed sucessful.");
     return new ParseImpl(plainText, parseData);
@@ -166,11 +167,11 @@ public class MSPowerPointParser implements Parser {
 
   }
   
-  public void setConf(NutchConf conf) {
-    this.nutchConf = conf;
+  public void setConf(Configuration conf) {
+    this.conf = conf;
   }
 
-  public NutchConf getConf() {
-    return this.nutchConf;
+  public Configuration getConf() {
+    return this.conf;
   }
 }

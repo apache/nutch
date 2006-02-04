@@ -22,13 +22,16 @@ import java.util.*;
 import java.text.*;
 import java.util.logging.*;
 
-import org.apache.nutch.io.*;
-import org.apache.nutch.util.*;
-import org.apache.nutch.mapred.*;
-import org.apache.nutch.mapred.lib.*;
+import org.apache.hadoop.io.*;
+import org.apache.hadoop.conf.*;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.mapred.lib.*;
+
+import org.apache.nutch.util.NutchConfiguration;
 
 /** Generates a subset of a crawl db to fetch. */
-public class Generator extends NutchConfigured {
+public class Generator extends Configured {
 
   public static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.crawl.Generator");
@@ -141,7 +144,7 @@ public class Generator extends NutchConfigured {
   }
 
   /** Construct a generator. */
-  public Generator(NutchConf conf) {
+  public Generator(Configuration conf) {
     super(conf);
   }
 
@@ -258,7 +261,7 @@ public class Generator extends NutchConfigured {
 
     if (topN != Long.MAX_VALUE)
       LOG.info("topN: " + topN);
-    Generator gen = new Generator(new NutchConf());
+    Generator gen = new Generator(NutchConfiguration.create());
     gen.generate(dbDir, segmentsDir, numFetchers, topN, curTime);
   }
 }

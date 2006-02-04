@@ -20,17 +20,17 @@ import java.io.IOException;
 import java.io.File;
 
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.fs.NutchFileSystem;
+import org.apache.hadoop.fs.FileSystem;
 
-import org.apache.nutch.io.MapFile;
-import org.apache.nutch.io.WritableComparable;
-import org.apache.nutch.io.Writable;
-import org.apache.nutch.io.UTF8;
+import org.apache.hadoop.io.MapFile;
+import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.UTF8;
 
-import org.apache.nutch.mapred.OutputFormat;
-import org.apache.nutch.mapred.RecordWriter;
-import org.apache.nutch.mapred.JobConf;
-import org.apache.nutch.mapred.Reporter;
+import org.apache.hadoop.mapred.OutputFormat;
+import org.apache.hadoop.mapred.RecordWriter;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.Reporter;
 
 import org.apache.nutch.parse.ParseOutputFormat;
 import org.apache.nutch.protocol.Content;
@@ -38,7 +38,7 @@ import org.apache.nutch.protocol.Content;
 /** Splits FetcherOutput entries into multiple map files. */
 public class FetcherOutputFormat implements OutputFormat {
 
-  public RecordWriter getRecordWriter(final NutchFileSystem fs,
+  public RecordWriter getRecordWriter(final FileSystem fs,
                                       final JobConf job,
                                       final String name) throws IOException {
 

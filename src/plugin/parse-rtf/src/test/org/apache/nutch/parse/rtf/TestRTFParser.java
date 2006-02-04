@@ -25,7 +25,7 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolFactory;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
 
 import java.util.Properties;
 
@@ -61,12 +61,12 @@ public class TestRTFParser extends TestCase {
     Content content;
     Parse parse;
 
-    NutchConf nutchConf = new NutchConf();
+    Configuration conf = NutchConfiguration.create();
     urlString = "file:" + sampleDir + fileSeparator + rtfFile;
-    protocol = new ProtocolFactory(nutchConf).getProtocol(urlString);
+    protocol = new ProtocolFactory(conf).getProtocol(urlString);
     content = protocol.getContent(urlString);
 
-    parse = new ParseUtil(nutchConf).parseByParserId("parse-rtf", content);
+    parse = new ParseUtil(conf).parseByParserId("parse-rtf", content);
     String text = parse.getText();
     assertEquals("The quick brown fox jumps over the lazy dog", text.trim());
 
