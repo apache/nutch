@@ -38,7 +38,6 @@
   <target name="init">
     <mkdir dir="${build.dir}"/>
     <mkdir dir="${build.classes}"/>
-    <mkdir dir="${build.webapps}"/>
 
     <mkdir dir="${test.build.dir}"/>
     <mkdir dir="${test.build.classes}"/>
@@ -46,10 +45,6 @@
     <touch datetime="01/25/1971 2:00 pm">
       <fileset dir="${conf.dir}" includes="**/*.template"/>
     </touch>
-
-    <copy todir="${build.webapps}/jobtracker">
-      <fileset dir="${src.webapps}/jobtracker"/>
-    </copy>
 
     <copy todir="${conf.dir}" verbose="true">
       <fileset dir="${conf.dir}" includes="**/*.template"/>
@@ -375,10 +370,6 @@
 
     <copy todir="${dist.dir}/lib" includeEmptyDirs="false">
       <fileset dir="lib"/>
-    </copy>
-
-    <copy todir="${dist.dir}/webapps">
-      <fileset dir="${build.webapps}"/>
     </copy>
 
     <copy todir="${dist.dir}/plugins">
