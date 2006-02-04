@@ -16,9 +16,6 @@
 
 package org.apache.nutch.protocol;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.*;
-
 import org.apache.nutch.util.WritableTestUtils;
 import org.apache.nutch.util.NutchConfiguration;
 

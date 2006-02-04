@@ -16,7 +16,6 @@
 
 package org.apache.nutch.parse;
 
-import org.apache.hadoop.io.*;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
