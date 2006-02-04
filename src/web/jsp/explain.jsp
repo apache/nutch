@@ -6,12 +6,13 @@
   import="java.io.*"
   import="java.util.*"
   import="org.apache.nutch.searcher.*"
-  import="org.apache.nutch.util.NutchConf"
+  import="org.apache.hadoop.conf.Configuration"
+  import="org.apache.nutch.util.NutchConfiguration"
 %><%
-  NutchConf nutchConf = (NutchConf) application.getAttribute(NutchConf.class.getName());
+  Configuration nutchConf = (Configuration) application.getAttribute(Configuration.class.getName());
   if (nutchConf == null) {
-    nutchConf = new NutchConf();
-    application.setAttribute(NutchConf.class.getName(), nutchConf);
+    nutchConf = NutchConfiguration.create();
+    application.setAttribute(Configuration.class.getName(), nutchConf);
   }
   NutchBean bean = NutchBean.get(application, nutchConf);
   // set the character encoding to use when interpreting request values 

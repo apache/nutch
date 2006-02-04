@@ -3,7 +3,6 @@
   contentType="text/html; charset=UTF-8"
   pageEncoding="UTF-8"
 
-  import="javax.servlet.http.*"
   import="java.io.*"
   import="java.util.*"
   import="java.net.*"
@@ -12,15 +11,15 @@
   import="org.apache.nutch.searcher.*"
   import="org.apache.nutch.plugin.*"
   import="org.apache.nutch.clustering.*"
-  import="org.apache.nutch.util.NutchConf"
+  import="org.apache.hadoop.conf.*"
+  import="org.apache.nutch.util.NutchConfiguration"
 
 %><%
-  NutchConf nutchConf = (NutchConf) application.getAttribute(NutchConf.class.getName());
+  Configuration nutchConf = (Configuration) application.getAttribute(Configuration.class.getName());
   if (nutchConf == null) {
-    nutchConf = new NutchConf();
-    application.setAttribute(NutchConf.class.getName(), nutchConf);
-  }
-  
+    nutchConf = NutchConfiguration.create();
+    application.setAttribute(Configuration.class.getName(), nutchConf);
+  }  
   /**
    * Number of hits to retrieve and cluster if clustering extension is available
    * and clustering is on. By default, 100. Configurable via nutch-conf.xml.

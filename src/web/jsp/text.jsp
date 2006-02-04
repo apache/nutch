@@ -6,15 +6,16 @@
 
   import="org.apache.nutch.searcher.*"
   import="org.apache.nutch.parse.ParseText"
-  import="org.apache.nutch.util.NutchConf"
+  import="org.apache.hadoop.conf.Configuration"
+  import="org.apache.nutch.util.NutchConfiguration"
 
 %><%
 
   // show the content of a hit as plain text
-  NutchConf nutchConf = (NutchConf) application.getAttribute(NutchConf.class.getName());
+  Configuration nutchConf = (Configuration) application.getAttribute(Configuration.class.getName());
   if (nutchConf == null) {
-    nutchConf = new NutchConf();
-    application.setAttribute(NutchConf.class.getName(), nutchConf);
+    nutchConf = NutchConfiguration.create();
+    application.setAttribute(Configuration.class.getName(), nutchConf);
   }
   NutchBean bean = NutchBean.get(application, nutchConf);
 
