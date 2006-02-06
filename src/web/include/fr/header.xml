@@ -1,4 +1,4 @@
 <header-menu>
  <item><a href="about.html">A propos</a></item>
- <item><a href="http://www.nutch.org/faq.html">Questions fréquentes</a></item>
+ <item><a href="http://wiki.apache.org/nutch/FAQ">Questions fréquentes</a></item>
 </header-menu>
