@@ -3,8 +3,8 @@
 <title>about</title>
 
 <menu>
- <item><a href="http://www.nutch.org/credits.html">ผู้ร่วมงาน</a></item>
- <item><a href="http://www.nutch.org/">สถานภาพ</a></item>
+ <item><a href="http://lucene.apache.org/nutch/credits.html">ผู้ร่วมงาน</a></item>
+ <item><a href="http://wiki.apache.org/nutchi/index.html">สถานภาพ</a></item>
 </menu>
 
 <body>

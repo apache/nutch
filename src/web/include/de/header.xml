@@ -2,5 +2,5 @@
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <header-menu>
  <item><a href="about.html">&Uuml;ber</a></item>
- <item><a href="http://www.nutch.org/faq.html">FAQ</a></item>
+ <item><a href="http://wiki.apache.org/nutch/FAQ">FAQ</a></item>
 </header-menu>

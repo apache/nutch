@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <header-menu>
 	<item><a href="about.html">O Nutch</a></item>
-	<item><a href="http://www.nutch.org/faq.html">Częste pytania</a></item>
+	<item><a href="http://wiki.apache.org/nutch/FAQ">Częste pytania</a></item>
 </header-menu>
