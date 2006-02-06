@@ -293,11 +293,11 @@ if ((!hits.totalIsExact() && (hits.getLength() <= start+hitsPerPage))) {
 </table>
 
 <p>
-<a href="http://www.nutch.org/">
+<a href="http://wiki.apache.org/nutch/FAQ">
 <img border="0" src="../img/poweredbynutch_01.gif">
 </a>
 
-<jsp:include page="<%= language + "/include/footer.html"%>"/>
+<jsp:include page="/include/footer.html"/>
 
 </body>
 </html>
