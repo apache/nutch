@@ -42,8 +42,6 @@ public final class Content extends CompressedWritable {
   private boolean mimeTypeMagic;
   private MimeTypes mimeTypes;
 
-  static { WritableName.setName(Content.class, "Content"); }
-
   public Content() {}
     
   public Content(String url, String base, byte[] content, String contentType,

@@ -41,9 +41,6 @@ public final class ParseData extends VersionedWritable implements Configurable {
   private ParseStatus status;
   private Configuration conf;
   
-  static { WritableName.setName(ParseData.class, "ParseData"); }
-
-
   // TODO mb@media-style.com: should we really implement Configurable or should we add the
   // parameter Configuration to the default-constructor. NOTE: The test
   // TestWriteable instantiates ParseData with Class.newInstance() -> the default
