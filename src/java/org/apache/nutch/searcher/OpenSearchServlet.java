@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.*;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.NutchConfiguration;
 import org.w3c.dom.*;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.Transformer;
@@ -59,10 +60,10 @@ public class OpenSearchServlet extends HttpServlet {
   private NutchBean bean;
   private Configuration conf;
 
-  public void init(ServletConfig config, Configuration conf) throws ServletException {
+  public void init(ServletConfig config) throws ServletException {
     try {
-      bean = NutchBean.get(config.getServletContext(), conf);
-      this.conf = conf;
+      this.conf = NutchConfiguration.create();
+      bean = NutchBean.get(config.getServletContext(), this.conf);
     } catch (IOException e) {
       throw new ServletException(e);
     }
