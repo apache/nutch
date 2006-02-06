@@ -31,8 +31,8 @@ package org.apache.nutch.analysis;
 import org.apache.nutch.searcher.Query;
 import org.apache.nutch.searcher.QueryFilters;
 import org.apache.nutch.searcher.Query.Clause;
-import org.apache.nutch.searcher.Query.Clause;
-import org.apache.nutch.util.NutchConf;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.NutchConfiguration;
 import org.apache.lucene.analysis.StopFilter;
 
 import java.io.*;
@@ -62,12 +62,12 @@ public class NutchAnalysis {
   }
 
   /** Construct a query parser for the text in a reader. */
-  public static Query parseQuery(String queryString, NutchConf nutchConf) throws IOException {
+  public static Query parseQuery(String queryString, Configuration conf) throws IOException {
     NutchAnalysis parser =
       new NutchAnalysis(new FastCharStream(new StringReader(queryString)));
     parser.queryString = queryString;
-    parser.queryFilters = new QueryFilters(nutchConf);
-    return parser.parse(nutchConf);
+    parser.queryFilters = new QueryFilters(conf);
+    return parser.parse(conf);
   }
 
   /** For debugging. */
@@ -76,7 +76,7 @@ public class NutchAnalysis {
     while (true) {
       System.out.print("Query: ");
       String line = in.readLine();
-      System.out.println(parseQuery(line, new NutchConf()));
+      System.out.println(parseQuery(line, NutchConfiguration.create()));
     }
   }
 
@@ -178,9 +178,9 @@ TOKEN : {					  // token regular expressions
 
 
 /** Parse a query. */
-Query parse(NutchConf nutchConf) :
+Query parse(Configuration conf) :
 {
-  Query query = new Query(nutchConf);
+  Query query = new Query(conf);
   ArrayList terms;
   Token token;
   String field;
