@@ -37,8 +37,6 @@ public final class ParseText extends VersionedWritable {
     this.text = text;
   }
 
-  static { WritableName.setName(ParseText.class, "ParseText"); }
-
   public byte getVersion() { return VERSION; }
 
   public void readFields(DataInput in) throws IOException {

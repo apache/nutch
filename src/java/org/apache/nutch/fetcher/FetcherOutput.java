@@ -32,8 +32,6 @@ public final class FetcherOutput implements Writable, Configurable {
   private ParseImpl parse;
   private Configuration conf;
 
-  static { WritableName.setName(FetcherOutput.class, "FetcherOutput"); }
-
   public FetcherOutput() {}
 
   public FetcherOutput(CrawlDatum crawlDatum, Content content,
