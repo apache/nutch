@@ -51,6 +51,16 @@
       <mapper type="glob" from="*.template" to="*"/>
     </copy>
 
+    <!-- unpack hadoop scripts from hadoop jar into bin directory -->
+    <mkdir dir="${build.dir}/hadoop"/>
+    <unjar dest="${build.dir}/hadoop">
+      <fileset dir="${lib.dir}" includes="hadoop*.jar"/>
+      <patternset includes="bin.tgz"/>
+    </unjar>
+    <exec dir="bin" executable="tar">
+      <arg value="xzf"/>
+      <arg value="../${build.dir}/hadoop/bin.tgz"/>
+    </exec>
 
   </target>
 
