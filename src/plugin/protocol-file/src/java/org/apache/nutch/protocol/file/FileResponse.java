@@ -18,6 +18,7 @@ package org.apache.nutch.protocol.file;
 
 // JDK imports
 import java.net.URL;
+import java.util.Date;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.io.IOException;
@@ -25,7 +26,10 @@ import java.io.IOException;
 // Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.ContentProperties;
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.net.protocols.Response;
+
+// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 
 
@@ -61,7 +65,7 @@ public class FileResponse {
   private String base;
   private byte[] content;
   private int code;
-  private ContentProperties headers = new ContentProperties();
+  private Metadata headers = new Metadata();
 
   private final File file;
   private Configuration conf;
@@ -71,17 +75,17 @@ public class FileResponse {
 
   /** Returns the value of a named header. */
   public String getHeader(String name) {
-    return (String)headers.get(name);
+    return headers.get(name);
   }
 
   public byte[] getContent() { return content; }
 
   public Content toContent() {
     return new Content(orig, base, content,
-                       getHeader("Content-Type"),
+                       getHeader(Response.CONTENT_TYPE),
                        headers, this.conf);
   }
-
+  
   public FileResponse(URL url, CrawlDatum datum, File file, Configuration conf)
     throws FileException, IOException {
 
@@ -124,10 +128,8 @@ public class FileResponse {
       // where case is insensitive
       if (!f.equals(f.getCanonicalFile())) {
         // set headers
-        TreeMap hdrs = new TreeMap(String.CASE_INSENSITIVE_ORDER);
         //hdrs.put("Location", f.getCanonicalFile().toURI());
-        hdrs.put("Location", f.getCanonicalFile().toURL().toString());
-        this.headers.putAll(hdrs);
+        headers.set(Response.LOCATION, f.getCanonicalFile().toURL().toString());
 
         this.code = 300;  // http redirect
         return;
@@ -181,16 +183,10 @@ public class FileResponse {
     is.close(); 
 
     // set headers
-    TreeMap hdrs = new TreeMap(String.CASE_INSENSITIVE_ORDER);
-
-    hdrs.put("Content-Length", new Long(size).toString());
-
-    hdrs.put("Last-Modified",
+    headers.set(Response.CONTENT_LENGTH, new Long(size).toString());
+    headers.set(Response.LAST_MODIFIED,
       this.file.httpDateFormat.toString(f.lastModified()));
-
-    hdrs.put("Content-Type", "");   // No Content-Type at file protocol level
-
-    this.headers.putAll(hdrs);
+    headers.set(Response.CONTENT_TYPE, "");   // No Content-Type at file protocol level
 
     // response code
     this.code = 200; // http OK
@@ -204,17 +200,11 @@ public class FileResponse {
     this.content = list2html(f.listFiles(), path, "/".equals(path) ? false : true);
 
     // set headers
-    TreeMap hdrs = new TreeMap(String.CASE_INSENSITIVE_ORDER);
-
-    hdrs.put("Content-Length",
+    headers.set(Response.CONTENT_LENGTH,
       new Integer(this.content.length).toString());
-
-    hdrs.put("Content-Type", "text/html");
-
-    hdrs.put("Last-Modified",
+    headers.set(Response.CONTENT_TYPE, "text/html");
+    headers.set(Response.LAST_MODIFIED,
       this.file.httpDateFormat.toString(f.lastModified()));
-
-    this.headers.putAll(hdrs);
 
     // response code
     this.code = 200; // http OK

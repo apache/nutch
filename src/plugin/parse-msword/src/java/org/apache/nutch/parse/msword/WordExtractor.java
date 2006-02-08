@@ -20,6 +20,7 @@ import org.apache.poi.hwpf.sprm.*;
 import org.apache.poi.poifs.eventfilesystem.*;
 import org.apache.poi.poifs.filesystem.*;
 import org.apache.poi.util.LittleEndian;
+import org.apache.nutch.metadata.Metadata;
 
 import java.util.*;
 import java.io.*;
@@ -33,8 +34,7 @@ import java.io.*;
  * code to extract all msword properties.
  *
  */
-public class WordExtractor
-{
+public class WordExtractor {
 
   /**
    * Constructor
@@ -276,39 +276,40 @@ public class WordExtractor
       /*Dates are being stored in millis since the epoch to aid
       localization*/
       if(title != null)
-        properties.setProperty("Title", title);
+        properties.setProperty(Metadata.TITLE, title);
       if(applicationName != null)
-        properties.setProperty("Application-Name", applicationName);
+        properties.setProperty(Metadata.APPLICATION_NAME, applicationName);
       if(author != null)
-        properties.setProperty("Author", author);
+        properties.setProperty(Metadata.AUTHOR, author);
       if(charCount != 0)
-        properties.setProperty("Character Count", charCount + "");
+        properties.setProperty(Metadata.CHARACTER_COUNT, charCount + "");
       if(comments != null)
-        properties.setProperty("Comments", comments);
+        properties.setProperty(Metadata.COMMENTS, comments);
       if(createDateTime != null)
-        properties.setProperty("Creation-Date", createDateTime.getTime() + "");
+        properties.setProperty(Metadata.DATE,
+                               Metadata.DATE_FORMAT.format(createDateTime));
       if(editTime != 0)
-        properties.setProperty("Edit-Time", editTime + "");
+        properties.setProperty(Metadata.LAST_MODIFIED, editTime + "");
       if(keywords != null)
-        properties.setProperty("Keywords", keywords);
+        properties.setProperty(Metadata.KEYWORDS, keywords);
       if(lastAuthor != null)
-        properties.setProperty("Last-Author", lastAuthor);
+        properties.setProperty(Metadata.LAST_AUTHOR, lastAuthor);
       if(lastPrinted != null)
-        properties.setProperty("Last-Printed", lastPrinted.getTime() + "");
+        properties.setProperty(Metadata.LAST_PRINTED, lastPrinted.getTime() + "");
       if(lastSaveDateTime != null)
-        properties.setProperty("Last-Save-Date", lastSaveDateTime.getTime() + "");
+        properties.setProperty(Metadata.LAST_SAVED, lastSaveDateTime.getTime() + "");
       if(pageCount != 0)
-        properties.setProperty("Page-Count", pageCount + "");
+        properties.setProperty(Metadata.PAGE_COUNT, pageCount + "");
       if(revNumber != null)
-        properties.setProperty("Revision-Number", revNumber);
+        properties.setProperty(Metadata.REVISION_NUMBER, revNumber);
       if(security != 0)
-        properties.setProperty("Security", security + "");
+        properties.setProperty(Metadata.RIGHTS, security + "");
       if(subject != null)
-        properties.setProperty("Subject", subject);
+        properties.setProperty(Metadata.SUBJECT, subject);
       if(template != null)
-        properties.setProperty("Template", template);
+        properties.setProperty(Metadata.TEMPLATE, template);
       if(wordCount != 0)
-        properties.setProperty("Word-Count", wordCount + "");
+        properties.setProperty(Metadata.WORD_COUNT, wordCount + "");
       propertiesBroker.setProperties(properties);
 
       //si.getThumbnail(); // can't think of a sensible way of turning this into a string.

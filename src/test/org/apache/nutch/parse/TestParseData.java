@@ -20,7 +20,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
 import org.apache.nutch.util.WritableTestUtils;
-import org.apache.nutch.protocol.ContentProperties;
+import org.apache.nutch.metadata.Metadata;
 
 import junit.framework.TestCase;
 
@@ -41,9 +41,9 @@ public class TestParseData extends TestCase {
       new Outlink("http://bar.com/", "Bar", conf)
     };
 
-    ContentProperties metaData = new ContentProperties();
-    metaData.put("Language", "en/us");
-    metaData.put("Charset", "UTF-8");
+    Metadata metaData = new Metadata();
+    metaData.add("Language", "en/us");
+    metaData.add("Charset", "UTF-8");
 
     ParseData r = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks, metaData);
     r.setConf(conf);

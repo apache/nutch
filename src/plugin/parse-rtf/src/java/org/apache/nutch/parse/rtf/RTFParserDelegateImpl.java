@@ -22,18 +22,20 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.nutch.util.MetadataNames;
+
 /**
  * A parser delegate for handling rtf events.
  * @author Andy Hedges
  */
-public class RTFParserDelegateImpl implements RTFParserDelegate {
+public class RTFParserDelegateImpl implements RTFParserDelegate, MetadataNames {
 
   String tabs = "";
   Properties metadata = new Properties();
 
-  String[] META_NAMES_TEXT = {"title", "subject", "author", "manager",
-                              "company", "operator", "category", "keywords",
-                              "comment", "doccomm", "hlinkbase"};
+  String[] META_NAMES_TEXT = {TITLE, SUBJECT, AUTHOR, "manager",
+                              "company", "operator", "category", KEYWORDS,
+                              COMMENTS, "doccomm", "hlinkbase"};
   String[] META_NAMES_DATE = {"creatim", "creatim", "printim", "buptim"};
 
   String metaName = "";

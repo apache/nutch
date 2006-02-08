@@ -16,9 +16,10 @@
 
 package org.creativecommons.nutch;
 
+import org.apache.nutch.metadata.CreativeCommons;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.ContentProperties;
+import org.apache.nutch.metadata.Metadata;
 import org.apache.hadoop.conf.Configuration;
 
 import java.util.*;
@@ -50,7 +51,7 @@ public class CCParseFilter implements HtmlParseFilter {
     }
 
     /** Scan the document adding attributes to metadata.*/
-    public static void walk(Node doc, URL base, ContentProperties metadata, Configuration conf)
+    public static void walk(Node doc, URL base, Metadata metadata, Configuration conf)
       throws ParseException {
 
       // walk the DOM tree, scanning for license data
@@ -76,13 +77,13 @@ public class CCParseFilter implements HtmlParseFilter {
       // add license to metadata
       if (licenseUrl != null) {
         LOG.info("CC: found "+licenseUrl+" in "+licenseLocation+" of "+base);
-        metadata.put("License-Url", licenseUrl);
-        metadata.put("License-Location", licenseLocation);
+        metadata.add(CreativeCommons.LICENSE_URL, licenseUrl);
+        metadata.add(CreativeCommons.LICENSE_LOCATION, licenseLocation);
       }
 
       if (walker.workType != null) {
         LOG.info("CC: found "+walker.workType+" in "+base);
-        metadata.put("Work-Type", walker.workType);
+        metadata.add(CreativeCommons.WORK_TYPE, walker.workType);
       }
 
     }
@@ -265,7 +266,7 @@ public class CCParseFilter implements HtmlParseFilter {
 
     try {
       // extract license metadata
-      Walker.walk(doc, base, parse.getData().getMetadata(), getConf());
+      Walker.walk(doc, base, parse.getData().getParseMeta(), getConf());
     } catch (ParseException e) {
       return new ParseStatus(e).getEmptyParse(getConf());
     }

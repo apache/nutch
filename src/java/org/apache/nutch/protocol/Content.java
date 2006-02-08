@@ -22,6 +22,7 @@ import java.io.*;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
+import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.util.mime.MimeType;
 import org.apache.nutch.util.mime.MimeTypes;
 import org.apache.nutch.util.mime.MimeTypeException;
@@ -38,14 +39,14 @@ public final class Content extends CompressedWritable {
   private String base;
   private byte[] content;
   private String contentType;
-  private ContentProperties metadata;
+  private Metadata metadata;
   private boolean mimeTypeMagic;
   private MimeTypes mimeTypes;
 
   public Content() {}
     
   public Content(String url, String base, byte[] content, String contentType,
-                 ContentProperties metadata, Configuration conf) {
+                 Metadata metadata, Configuration conf) {
 
     if (url == null) throw new IllegalArgumentException("null url");
     if (base == null) throw new IllegalArgumentException("null base");
@@ -74,7 +75,7 @@ public final class Content extends CompressedWritable {
 
     contentType = UTF8.readString(in);            // read contentType
 
-    metadata = new ContentProperties();
+    metadata = new Metadata();
     metadata.readFields(in);                    // read meta data
   }
 
@@ -140,15 +141,9 @@ public final class Content extends CompressedWritable {
   }
 
   /** Other protocol-specific data. */
-  public ContentProperties getMetadata() {
+  public Metadata getMetadata() {
     ensureInflated();
     return metadata;
-  }
-
-  /** Return the value of a metadata property. */
-  public String get(String name) {
-    ensureInflated();
-    return getMetadata().getProperty(name);
   }
 
   public boolean equals(Object o) {

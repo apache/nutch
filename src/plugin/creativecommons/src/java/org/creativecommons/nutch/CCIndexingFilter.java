@@ -18,6 +18,7 @@ package org.creativecommons.nutch;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.nutch.metadata.CreativeCommons;
 
 import org.apache.nutch.parse.Parse;
 
@@ -27,6 +28,8 @@ import org.apache.hadoop.io.UTF8;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.metadata.CreativeCommons;
 
 import java.util.logging.Logger;
 import org.apache.hadoop.util.LogFormatter;
@@ -49,8 +52,9 @@ public class CCIndexingFilter implements IndexingFilter {
   public Document filter(Document doc, Parse parse, UTF8 url, CrawlDatum datum, Inlinks inlinks)
     throws IndexingException {
     
+    Metadata metadata = parse.getData().getParseMeta();
     // index the license
-    String licenseUrl = parse.getData().get("License-Url");
+    String licenseUrl = metadata.get(CreativeCommons.LICENSE_URL);
     if (licenseUrl != null) {
       LOG.info("CC: indexing " + licenseUrl + " for: " + url.toString());
 
@@ -62,13 +66,13 @@ public class CCIndexingFilter implements IndexingFilter {
     }
 
     // index the license location as cc:meta=xxx
-    String licenseLocation = parse.getData().get("License-Location");
+    String licenseLocation = metadata.get(CreativeCommons.LICENSE_LOCATION);
     if (licenseLocation != null) {
       addFeature(doc, "meta=" + licenseLocation);
     }
 
     // index the work type cc:type=xxx
-    String workType = parse.getData().get("Work-Type");
+    String workType = metadata.get(CreativeCommons.WORK_TYPE);
     if (workType != null) {
       addFeature(doc, workType);
     }

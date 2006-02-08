@@ -17,7 +17,6 @@
 package org.apache.nutch.parse.ext;
 
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.Parse;
@@ -28,6 +27,8 @@ import org.apache.nutch.parse.OutlinkExtractor;
 
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.util.CommandRunner;
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.net.protocols.Response;
 import org.apache.hadoop.conf.Configuration;
 
 import org.apache.nutch.plugin.Extension;
@@ -47,6 +48,7 @@ import java.io.ByteArrayOutputStream;
  */
 
 public class ExtParser implements Parser {
+
   public static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.parse.ext");
 
@@ -85,8 +87,7 @@ public class ExtParser implements Parser {
 
       byte[] raw = content.getContent();
 
-      String contentLength =
-        (String)content.getMetadata().get("Content-Length");
+      String contentLength = content.getMetadata().get(Response.CONTENT_LENGTH);
       if (contentLength != null
             && raw.length != Integer.parseInt(contentLength)) {
           return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_TRUNCATED,
@@ -129,11 +130,8 @@ public class ExtParser implements Parser {
     // collect outlink
     Outlink[] outlinks = OutlinkExtractor.getOutlinks(text, getConf());
 
-    // collect meta data
-    ContentProperties metaData = new ContentProperties();
-    metaData.putAll(content.getMetadata()); // copy through
-
-    ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks, metaData);
+    ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title,
+                                        outlinks, content.getMetadata());
     parseData.setConf(this.conf);
     return new ParseImpl(text, parseData);
   }

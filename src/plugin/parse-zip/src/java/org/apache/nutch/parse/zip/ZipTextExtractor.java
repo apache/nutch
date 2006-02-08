@@ -26,13 +26,14 @@ import java.util.zip.ZipInputStream;
 import java.net.URL;
 
 // Nutch imports
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseData;
+import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.ContentProperties;
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.mime.MimeTypes;
@@ -87,9 +88,9 @@ private Configuration conf;
           // Trying to resolve the Mime-Type
           String contentType = MIME.getMimeType(fname).getName();
           try {
-            ContentProperties metadata = new ContentProperties();
-            metadata.setProperty("Content-Length", Long.toString(entry.getSize()));
-            metadata.setProperty("Content-Type", contentType);
+            Metadata metadata = new Metadata();
+            metadata.set(Response.CONTENT_LENGTH, Long.toString(entry.getSize()));
+            metadata.set(Response.CONTENT_TYPE, contentType);
             Content content = new Content(newurl, base, b, contentType, metadata, this.conf);
             Parse parse = new ParseUtil(this.conf).parse(content);
             ParseData theParseData = parse.getData();

@@ -27,6 +27,7 @@ import org.apache.hadoop.mapred.*;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.SignatureFactory;
+import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.*;
 import org.apache.nutch.protocol.*;
 import org.apache.nutch.parse.*;
@@ -208,13 +209,13 @@ public class Fetcher extends Configured implements MapRunnable {
 
       if (content == null) {
         String url = key.toString();
-        content = new Content(url, url, new byte[0], "", new ContentProperties(), this.conf);
+        content = new Content(url, url, new byte[0], "", new Metadata(), this.conf);
       }
-
-      content.getMetadata().setProperty           // add segment to metadata
-        (SEGMENT_NAME_KEY, segmentName);
-      content.getMetadata().setProperty           // add score to metadata
-        (SCORE_KEY, Float.toString(datum.getScore()));
+      Metadata metadata = content.getMetadata();
+      // add segment to metadata
+      metadata.set(SEGMENT_NAME_KEY, segmentName);
+      // add score to metadata
+      metadata.set(SCORE_KEY, Float.toString(datum.getScore()));
 
       Parse parse = null;
       if (parsing && status == CrawlDatum.STATUS_FETCH_SUCCESS) {
@@ -232,11 +233,8 @@ public class Fetcher extends Configured implements MapRunnable {
         // Calculate page signature. For non-parsing fetchers this will
         // be done in ParseSegment
         byte[] signature = SignatureFactory.getSignature(getConf()).calculate(content, parse);
-        parse.getData().getMetadata().setProperty(SIGNATURE_KEY, StringUtil.toHexString(signature));
+        metadata.set(SIGNATURE_KEY, StringUtil.toHexString(signature));
         datum.setSignature(signature);
-        // add segment name and score to parseData metadata
-        parse.getData().getMetadata().setProperty(SEGMENT_NAME_KEY, segmentName);
-        parse.getData().getMetadata().setProperty(SCORE_KEY, Float.toString(datum.getScore()));
       }
 
       try {

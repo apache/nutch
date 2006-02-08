@@ -19,11 +19,11 @@ package org.apache.nutch.parse;
 import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.nutch.fetcher.Fetcher;
 import org.apache.hadoop.io.*;
-import org.apache.nutch.parse.ParseOutputFormat;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.protocol.*;
+import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.util.*;
 
 import java.io.*;
@@ -58,15 +58,9 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
       status = new ParseStatus(e);
     }
 
-    ContentProperties metadata = parse.getData().getMetadata();
     // compute the new signature
     byte[] signature = SignatureFactory.getSignature(getConf()).calculate(content, parse);
-    metadata.setProperty(Fetcher.SIGNATURE_KEY, StringUtil.toHexString(signature));
-    // copy segment name and score
-    String segmentName = content.getMetadata().getProperty(Fetcher.SEGMENT_NAME_KEY);
-    String score = content.getMetadata().getProperty(Fetcher.SCORE_KEY);
-    metadata.setProperty(Fetcher.SEGMENT_NAME_KEY, segmentName);
-    metadata.setProperty(Fetcher.SCORE_KEY, score);
+    content.getMetadata().set(Fetcher.SIGNATURE_KEY, StringUtil.toHexString(signature));
     
     if (status.isSuccess()) {
       output.collect(key, new ParseImpl(parse.getText(), parse.getData()));

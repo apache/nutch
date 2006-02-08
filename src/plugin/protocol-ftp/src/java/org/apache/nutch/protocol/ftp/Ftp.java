@@ -22,6 +22,7 @@ import org.apache.commons.net.ftp.FTPFileEntryParser;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.hadoop.io.UTF8;
 import org.apache.nutch.net.protocols.HttpDateFormat;
+import org.apache.nutch.net.protocols.Response;
 
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
@@ -212,8 +213,10 @@ public class Ftp implements Protocol {
     Content content = ftp.getProtocolOutput(new UTF8(urlString), new CrawlDatum()).getContent();
 
     System.err.println("Content-Type: " + content.getContentType());
-    System.err.println("Content-Length: " + content.get("Content-Length"));
-    System.err.println("Last-Modified: " + content.get("Last-Modified"));
+    System.err.println("Content-Length: " +
+                       content.getMetadata().get(Response.CONTENT_LENGTH));
+    System.err.println("Last-Modified: " +
+                      content.getMetadata().get(Response.LAST_MODIFIED));
     if (dumpContent) {
       System.out.print(new String(content.getContent()));
     }

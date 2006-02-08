@@ -30,10 +30,13 @@ import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.ContentProperties;
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.net.protocols.Response;
+
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
+
 
 /**
  * Nutch-Parser for parsing MS PowerPoint slides ( mime type:
@@ -78,10 +81,9 @@ public class MSPowerPointParser implements Parser {
 
     byte[] raw = getRawBytes(new File(file));
 
-    ContentProperties prop = new ContentProperties();
-    prop.setProperty("Content-Length", "" + raw.length);
-
-    Content content = new Content(file, file, raw, MIME_TYPE, prop, NutchConfiguration.create());
+    Metadata meta = new Metadata();
+    meta.set(Response.CONTENT_LENGTH, "" + raw.length);
+    Content content = new Content(file, file, raw, MIME_TYPE, meta, NutchConfiguration.create());
 
     System.out.println(ppe.getParse(content).getText());
   }
@@ -99,7 +101,7 @@ public class MSPowerPointParser implements Parser {
     Properties properties = null;
 
     try {
-      final String contentLen = content.get("Content-Length");
+      final String contentLen = content.getMetadata().get(Response.CONTENT_LENGTH);
       final byte[] raw = content.getContent();
 
       if (contentLen != null && raw.length != Integer.parseInt(contentLen)) {
@@ -125,14 +127,12 @@ public class MSPowerPointParser implements Parser {
       return new ParseStatus(e).getEmptyParse(getConf());
     }
 
-    // collect meta data
-    final ContentProperties metadata = new ContentProperties();
-    metadata.putAll(content.getMetadata()); // copy through
+    Metadata metadata = new Metadata();
 
     if (properties != null) {
-      title = properties.getProperty("Title");
-      properties.remove("Title");
-      metadata.putAll(properties);
+      title = properties.getProperty(Metadata.TITLE);
+      properties.remove(Metadata.TITLE);
+      metadata.setAll(properties);
     }
 
     if (plainText == null) {

@@ -6,7 +6,7 @@
 
   import="org.apache.nutch.searcher.*"
   import="org.apache.nutch.parse.ParseData"
-  import="org.apache.nutch.protocol.ContentProperties"
+  import="org.apache.nutch.metadata.Metadata"
   import="org.apache.hadoop.conf.Configuration"
   import="org.apache.nutch.util.NutchConfiguration"
 %><%
@@ -26,10 +26,10 @@
     ResourceBundle.getBundle("org.nutch.jsp.cached", request.getLocale())
     .getLocale().getLanguage();
 
-  ContentProperties metaData = bean.getParseData(details).getMetadata();
+  Metadata metaData = bean.getParseData(details).getContentMeta();
 
   String content = null;
-  String contentType = (String) metaData.get("Content-Type");
+  String contentType = (String) metaData.get(Metadata.CONTENT_TYPE);
   if (contentType.startsWith("text/html")) {
     // FIXME : it's better to emit the original 'byte' sequence 
     // with 'charset' set to the value of 'CharEncoding',

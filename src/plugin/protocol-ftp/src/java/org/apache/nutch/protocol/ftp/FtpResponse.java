@@ -26,7 +26,9 @@ import org.apache.commons.net.ftp.parser.ParserInitializationException;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.ContentProperties;
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.net.protocols.Response;
+
 import org.apache.hadoop.conf.Configuration;
 
 import java.net.InetAddress;
@@ -34,11 +36,9 @@ import java.net.URL;
 
 import java.util.List;
 import java.util.LinkedList;
-
 import java.util.logging.Level;
 
 import java.io.ByteArrayOutputStream;
-//import java.io.InputStream;
 import java.io.IOException;
 
 
@@ -61,7 +61,7 @@ public class FtpResponse {
   private String base;
   private byte[] content;
   private int code;
-  private ContentProperties headers = new ContentProperties();
+  private Metadata headers = new Metadata();
 
   private final Ftp ftp;
   private Configuration conf;
@@ -71,14 +71,14 @@ public class FtpResponse {
 
   /** Returns the value of a named header. */
   public String getHeader(String name) {
-    return (String)headers.get(name);
+    return headers.get(name);
   }
 
   public byte[] getContent() { return content; }
 
   public Content toContent() {
     return new Content(orig, base, content,
-                       getHeader("Content-Type"),
+                       getHeader(Response.CONTENT_TYPE),
                        headers, this.conf);
   }
 
@@ -294,11 +294,11 @@ public class FtpResponse {
       ftp.client.retrieveFile(path, os, ftp.maxContentLength);
 
       FTPFile ftpFile = (FTPFile) list.get(0);
-      this.headers.put("Content-Length",
-        new Long(ftpFile.getSize()).toString());
+      this.headers.set(Response.CONTENT_LENGTH,
+                       new Long(ftpFile.getSize()).toString());
       //this.headers.put("content-type", "text/html");
-      this.headers.put("Last-Modified",
-        ftp.httpDateFormat.toString(ftpFile.getTimestamp()));
+      this.headers.set(Response.LAST_MODIFIED,
+                       ftp.httpDateFormat.toString(ftpFile.getTimestamp()));
       this.content = os.toByteArray();
 
 //      // approximate bytes sent and read
@@ -330,11 +330,11 @@ public class FtpResponse {
       }
 
       FTPFile ftpFile = (FTPFile) list.get(0);
-      this.headers.put("Content-Length",
-        new Long(ftpFile.getSize()).toString());
+      this.headers.set(Response.CONTENT_LENGTH,
+                       new Long(ftpFile.getSize()).toString());
       //this.headers.put("content-type", "text/html");
-      this.headers.put("Last-Modified",
-        ftp.httpDateFormat.toString(ftpFile.getTimestamp()));
+      this.headers.set(Response.LAST_MODIFIED,
+                      ftp.httpDateFormat.toString(ftpFile.getTimestamp()));
       this.content = os.toByteArray();
 
 //      // approximate bytes sent and read
@@ -349,7 +349,7 @@ public class FtpResponse {
 
       if (FTPReply.isPositiveCompletion(ftp.client.cwd(path))) {
       // it is not a file, but dir, so redirect as a dir
-        this.headers.put("Location", path + "/");
+        this.headers.set(Response.LOCATION, path + "/");
         this.code = 300;  // http redirect
         // fixme, should we do ftp.client.cwd("/"), back to top dir?
       } else {
@@ -386,9 +386,9 @@ public class FtpResponse {
 
       ftp.client.retrieveList(null, list, ftp.maxContentLength, ftp.parser);
       this.content = list2html(list, path, "/".equals(path) ? false : true);
-      this.headers.put("Content-Length",
-        new Integer(this.content.length).toString());
-      this.headers.put("Content-Type", "text/html");
+      this.headers.set(Response.CONTENT_LENGTH,
+                       new Integer(this.content.length).toString());
+      this.headers.set(Response.CONTENT_TYPE, "text/html");
       // this.headers.put("Last-Modified", null);
 
 //      // approximate bytes sent and read
@@ -408,9 +408,9 @@ public class FtpResponse {
       ftp.client = null;
 
       this.content = list2html(list, path, "/".equals(path) ? false : true);
-      this.headers.put("Content-Length",
-        new Integer(this.content.length).toString());
-      this.headers.put("Content-Type", "text/html");
+      this.headers.set(Response.CONTENT_LENGTH,
+                       new Integer(this.content.length).toString());
+      this.headers.set(Response.CONTENT_TYPE, "text/html");
       // this.headers.put("Last-Modified", null);
 
 //      // approximate bytes sent and read

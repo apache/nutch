@@ -21,9 +21,10 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
 
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.ContentProperties;
 
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
@@ -60,19 +61,17 @@ public class SWFParser implements Parser {
   public Parse getParse(Content content) {
 
     String text = null;
-    // collect meta data
-    ContentProperties metadata = new ContentProperties();
-    metadata.putAll(content.getMetadata()); // copy through
     Vector outlinks = new Vector();
 
     try {
 
       byte[] raw = content.getContent();
 
-      String contentLength = content.get("Content-Length");
+      String contentLength = content.getMetadata().get(Response.CONTENT_LENGTH);
       if (contentLength != null && raw.length != Integer.parseInt(contentLength)) {
-        return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_TRUNCATED, "Content truncated at " + raw.length
-                + " bytes. Parser can't handle incomplete files.").getEmptyParse(conf);
+        return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_TRUNCATED,
+                               "Content truncated at " + raw.length +
+                               " bytes. Parser can't handle incomplete files.").getEmptyParse(conf);
       }
       ExtractText extractor = new ExtractText();
 
@@ -106,7 +105,8 @@ public class SWFParser implements Parser {
     if (text == null) text = "";
 
     Outlink[] links = (Outlink[]) outlinks.toArray(new Outlink[outlinks.size()]);
-    ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, "", links, metadata);
+    ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, "", links,
+                                        content.getMetadata());
     return new ParseImpl(text, parseData);
   }
 
@@ -119,8 +119,10 @@ public class SWFParser implements Parser {
     byte[] buf = new byte[in.available()];
     in.read(buf);
     SWFParser parser = new SWFParser();
-    Parse p = parser.getParse(new Content("file:" + args[0], "file:" + args[0], buf, "application/x-shockwave-flash",
-            new ContentProperties(), NutchConfiguration.create()));
+    Parse p = parser.getParse(new Content("file:" + args[0], "file:" + args[0],
+                                          buf, "application/x-shockwave-flash",
+                                          new Metadata(),
+                                          NutchConfiguration.create()));
     System.out.println("Parse Text:");
     System.out.println(p.getText());
     System.out.println("Parse Data:");

@@ -25,7 +25,15 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolFactory;
+<<<<<<< .mine
+<<<<<<< .mine
+import org.apache.nutch.util.MetadataNames;
+=======
+import org.apache.nutch.util.NutchConf;
+=======
 import org.apache.hadoop.conf.Configuration;
+>>>>>>> .r374853
+>>>>>>> .r373941
 
 import java.util.Properties;
 
@@ -34,7 +42,7 @@ import java.util.Properties;
  *
  * @author Andy Hedges
  */
-public class TestRTFParser extends TestCase {
+public class TestRTFParser extends TestCase implements MetadataNames {
 
   private String fileSeparator = System.getProperty("file.separator");
   // This system property is defined in ./src/plugin/build-plugin.xml
@@ -73,7 +81,7 @@ public class TestRTFParser extends TestCase {
     String title = parse.getData().getTitle();
     Properties meta = parse.getData().getMetadata();
     assertEquals("test rft document", title);
-    assertEquals("tests", meta.getProperty("subject"));
+    assertEquals("tests", meta.getProperty(SUBJECT));
 
 
 
