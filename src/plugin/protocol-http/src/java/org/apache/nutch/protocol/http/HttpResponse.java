@@ -28,12 +28,13 @@ import java.net.Socket;
 import java.net.URL;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Date;
 import java.util.logging.Level;
 
 // Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
-import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.http.api.HttpBase;
 import org.apache.nutch.protocol.http.api.HttpException;
@@ -49,7 +50,7 @@ public class HttpResponse implements Response {
   private String base;
   private byte[] content;
   private int code;
-  private ContentProperties headers = new ContentProperties();
+  private Metadata headers = new Metadata();
 
 
   public HttpResponse(HttpBase http, URL url, CrawlDatum datum)
@@ -141,13 +142,13 @@ public class HttpResponse implements Response {
         // parse status code line
         this.code = parseStatusLine(in, line); 
         // parse headers
-        headers.putAll(parseHeaders(in, line));
+        parseHeaders(in, line);
         haveSeenNonContinueStatus= code != 100; // 100 is "Continue"
       }
 
       readPlainContent(in);
 
-      String contentEncoding= getHeader("Content-Encoding");
+      String contentEncoding = getHeader(Response.CONTENT_ENCODING);
       if ("gzip".equals(contentEncoding) || "x-gzip".equals(contentEncoding)) {
         Http.LOG.fine("uncompressing....");
         byte[] compressed = content;
@@ -187,10 +188,10 @@ public class HttpResponse implements Response {
   }
 
   public String getHeader(String name) {
-    return (String) headers.get(name);
+    return headers.get(name);
   }
   
-  public ContentProperties getHeaders() {
+  public Metadata getHeaders() {
     return headers;
   }
 
@@ -207,7 +208,7 @@ public class HttpResponse implements Response {
     throws HttpException, IOException {
 
     int contentLength = Integer.MAX_VALUE;    // get content length
-    String contentLengthString = (String)headers.get("Content-Length");
+    String contentLengthString = headers.get(Response.CONTENT_LENGTH);
     if (contentLengthString != null) {
       contentLengthString = contentLengthString.trim();
       try {
@@ -333,8 +334,9 @@ public class HttpResponse implements Response {
   }
 
 
-  private void processHeaderLine(StringBuffer line, TreeMap headers)
+  private void processHeaderLine(StringBuffer line)
     throws IOException, HttpException {
+
     int colonIndex = line.indexOf(":");       // key is up to colon
     if (colonIndex == -1) {
       int i;
@@ -355,20 +357,14 @@ public class HttpResponse implements Response {
       valueStart++;
     }
     String value = line.substring(valueStart);
-
-    headers.put(key, value);
+    headers.set(key, value);
   }
 
-  private Map parseHeaders(PushbackInputStream in, StringBuffer line)
-    throws IOException, HttpException {
-    TreeMap headers = new TreeMap(String.CASE_INSENSITIVE_ORDER);
-    return parseHeaders(in, line, headers);
-  }
 
-  // Adds headers to an existing TreeMap
-  private Map parseHeaders(PushbackInputStream in, StringBuffer line,
-                           TreeMap headers)
+  // Adds headers to our headers Metadata
+  private void parseHeaders(PushbackInputStream in, StringBuffer line)
     throws IOException, HttpException {
+
     while (readLine(in, line, true) != 0) {
 
       // handle HTTP responses with missing blank line after headers
@@ -381,18 +377,21 @@ public class HttpResponse implements Response {
         line.setLength(pos);
 
         try {
-          processHeaderLine(line, headers);
+            //TODO: (CM) We don't know the header names here
+            //since we're just handling them generically. It would
+            //be nice to provide some sort of mapping function here
+            //for the returned header names to the standard metadata
+            //names in the ParseData class
+          processHeaderLine(line);
         } catch (Exception e) {
           // fixme:
           e.printStackTrace();
         }
-
-        return headers;
+        return;
       }
 
-      processHeaderLine(line, headers);
+      processHeaderLine(line);
     }
-    return headers;
   }
 
   private static int readLine(PushbackInputStream in, StringBuffer line,

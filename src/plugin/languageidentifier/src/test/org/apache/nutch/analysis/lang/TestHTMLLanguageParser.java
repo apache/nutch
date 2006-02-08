@@ -21,11 +21,11 @@ package org.apache.nutch.analysis.lang;
 import junit.framework.TestCase;
 
 // Nutch imports
+import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.ParserFactory;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.util.NutchConfiguration;
 
 
@@ -56,8 +56,7 @@ public class TestHTMLLanguageParser extends TestCase {
         Parser parser = new ParserFactory(NutchConfiguration.create()).getParser("text/html", URL);
         Parse parse = parser.getParse(content);
 
-        assertEquals(metalanguages[t], (String) parse.getData().get(
-            HTMLLanguageParser.META_LANG_NAME));
+        assertEquals(metalanguages[t], (String) parse.getData().getParseMeta().get(Metadata.LANGUAGE));
 
       }
     } catch (Exception e) {
@@ -123,11 +122,9 @@ public class TestHTMLLanguageParser extends TestCase {
   
   
   private Content getContent(String text) {
-    ContentProperties p = new ContentProperties();
-    p.put("Content-Type", "text/html");
-
-    Content content = new Content(URL, BASE, text.getBytes(), "text/html", p, NutchConfiguration.create());
-    return content;
+    Metadata meta = new Metadata();
+    meta.add("Content-Type", "text/html");
+    return new Content(URL, BASE, text.getBytes(), "text/html", meta, NutchConfiguration.create());
   }
 
 }

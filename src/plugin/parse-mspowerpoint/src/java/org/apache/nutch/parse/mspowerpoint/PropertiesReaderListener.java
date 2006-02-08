@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 
 import org.apache.nutch.parse.mspowerpoint.PPTExtractor.PropertiesBroker;
 import org.apache.hadoop.util.LogFormatter;
+import org.apache.nutch.metadata.Metadata;
 import org.apache.poi.hpsf.PropertySetFactory;
 import org.apache.poi.hpsf.SummaryInformation;
 import org.apache.poi.poifs.eventfilesystem.POIFSReaderEvent;
@@ -74,30 +75,12 @@ class PropertiesReaderListener implements POIFSReaderListener {
         final SummaryInformation sInfo = (SummaryInformation) PropertySetFactory
             .create(event.getStream());
 
-        addProperty("Title", sInfo.getTitle());
-        addProperty("Subject", sInfo.getSubject());
-        addProperty("Keywords", sInfo.getKeywords());
-        addProperty("Comments", sInfo.getComments());
-        addProperty("Author", sInfo.getAuthor());
-        addProperty("Last-Author", sInfo.getLastAuthor());
-
-        /*
-         * already provided by nutch
-         */
-        // addProperty("Saved-Date", si.getLastSaveDateTime());
-        /*
-         * following properties are not required for indexing/searching
-         */
-        // addProperty("Word-Count", si.getWordCount());
-        // addProperty("Page-Count", si.getPageCount());
-        // addProperty("Character Count", si.getCharCount());
-        // addProperty("Revision-Number", si.getRevNumber());
-        // addProperty("Creation-Date", si.getEditTime());
-        // addProperty("Edit-Time", si.getEditTime());
-        // addProperty("Last-Printed", si.getLastPrinted());
-        // addProperty("Template", si.getTemplate());
-        // addProperty("Security", si.getSecurity());
-        // addProperty("Application-Name", si.getApplicationName());
+        addProperty(Metadata.TITLE, sInfo.getTitle());
+        addProperty(Metadata.SUBJECT, sInfo.getSubject());
+        addProperty(Metadata.KEYWORDS, sInfo.getKeywords());
+        addProperty(Metadata.COMMENTS, sInfo.getComments());
+        addProperty(Metadata.CREATOR, sInfo.getAuthor());
+        addProperty(Metadata.LAST_AUTHOR, sInfo.getLastAuthor());
       } catch (Exception ex) {
         LOG.throwing(this.getClass().getName(), "processPOIFSReaderEvent", ex);
       }

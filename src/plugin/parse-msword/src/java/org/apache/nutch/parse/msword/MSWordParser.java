@@ -16,8 +16,10 @@
 
 package org.apache.nutch.parse.msword;
 
+import org.apache.nutch.metadata.DublinCore;
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.ContentProperties;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
@@ -29,8 +31,6 @@ import org.apache.nutch.parse.OutlinkExtractor;
 import org.apache.nutch.parse.ParseException;
 
 import java.util.Properties;
-//import java.util.logging.Logger;
-
 import java.io.ByteArrayInputStream;
 
 /**
@@ -67,7 +67,7 @@ public class MSWordParser implements Parser {
 
       byte[] raw = content.getContent();
 
-      String contentLength = content.get("Content-Length");
+      String contentLength = content.getMetadata().get(Response.CONTENT_LENGTH);
       if (contentLength != null
             && raw.length != Integer.parseInt(contentLength)) {
           return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_TRUNCATED,
@@ -99,25 +99,20 @@ public class MSWordParser implements Parser {
     }
 
     // collect meta data
-    ContentProperties metadata = new ContentProperties();
-    metadata.putAll(content.getMetadata()); // copy through
+    Metadata metadata = new Metadata();
+    title = properties.getProperty(DublinCore.TITLE);
+    properties.remove(DublinCore.TITLE);
+    metadata.setAll(properties);
 
-    if(properties != null) {
-      title = properties.getProperty("Title");
-      properties.remove("Title");
-      metadata.putAll(properties);
-    }
-
-    if (text == null)
-      text = "";
-
-    if (title == null)
-      title = "";
+    if (text == null) { text = ""; }
+    if (title == null) { title = ""; }
 
     // collect outlink
     Outlink[] outlinks = OutlinkExtractor.getOutlinks(text, this.conf);
 
-    ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks, metadata);
+    ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title,
+                                        outlinks, content.getMetadata(),
+                                        metadata);
     parseData.setConf(this.conf);
     return new ParseImpl(text, parseData);
     // any filter?

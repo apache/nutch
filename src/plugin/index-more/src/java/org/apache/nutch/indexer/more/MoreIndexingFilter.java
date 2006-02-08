@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.indexer.more;
+
 
 import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
@@ -26,24 +26,28 @@ import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
+import org.apache.nutch.metadata.Metadata;
+
 import org.apache.nutch.net.protocols.HttpDateFormat;
+import org.apache.nutch.net.protocols.Response;
 
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.protocol.ContentProperties;
 
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
-import org.apache.hadoop.io.UTF8;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
+import org.apache.nutch.parse.ParseData;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.mime.MimeType;
 import org.apache.nutch.util.mime.MimeTypes;
 import org.apache.nutch.util.mime.MimeTypeException;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.UTF8;
 import org.apache.hadoop.util.LogFormatter;
+
 import java.util.logging.Logger;
 
 import java.text.ParseException;
@@ -51,9 +55,10 @@ import java.text.SimpleDateFormat;
 
 import java.util.Date;
 import java.util.TimeZone;
-import java.util.Enumeration;
 
 import org.apache.commons.lang.time.DateUtils;
+
+
 /**
  * Add (or reset) a few metaData properties as respective fields
  * (if they are available), so that they can be displayed by more.jsp
@@ -81,27 +86,22 @@ public class MoreIndexingFilter implements IndexingFilter {
     throws IndexingException {
 
     String url_s = url.toString();
-    // normalize metaData (see note in the method below).
-    ContentProperties metaData = normalizeMeta(parse.getData().getMetadata());
 
-    addTime(doc, metaData, url_s, datum);
-
-    addLength(doc, metaData, url_s);
-
-    addType(doc, metaData, url_s);
-
-    resetTitle(doc, metaData, url_s);
+    addTime(doc, parse.getData(), url_s, datum);
+    addLength(doc, parse.getData(), url_s);
+    addType(doc, parse.getData(), url_s);
+    resetTitle(doc, parse.getData(), url_s);
 
     return doc;
   }
     
   // Add time related meta info.  Add last-modified if present.  Index date as
   // last-modified, or, if that's not present, use fetch time.
-  private Document addTime(Document doc, ContentProperties metaData, String url,
-                           CrawlDatum datum) {
+  private Document addTime(Document doc, ParseData data,
+                           String url, CrawlDatum datum) {
     long time = -1;
 
-    String lastModified = metaData.getProperty("last-modified");
+    String lastModified = data.getMeta(Metadata.LAST_MODIFIED);
     if (lastModified != null) {                   // try parse last-modified
       time = getTime(lastModified,url);           // use as time
                                                   // store as string
@@ -109,7 +109,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     }
 
     if (time == -1) {                             // if no last-modified
-      time = datum.getFetchTime();                   // use fetch time
+      time = datum.getFetchTime();                // use fetch time
     }
 
     // add support for query syntax date:
@@ -165,8 +165,8 @@ public class MoreIndexingFilter implements IndexingFilter {
   }
 
   // Add Content-Length
-  private Document addLength(Document doc, ContentProperties metaData, String url) {
-    String contentLength = metaData.getProperty("content-length");
+  private Document addLength(Document doc, ParseData data, String url) {
+    String contentLength = data.getMeta(Response.CONTENT_LENGTH);
 
     if (contentLength != null)
       doc.add(Field.UnIndexed("contentLength", contentLength));
@@ -175,9 +175,9 @@ public class MoreIndexingFilter implements IndexingFilter {
   }
 
   // Add Content-Type and its primaryType and subType
-  private Document addType(Document doc, ContentProperties metaData, String url) {
+  private Document addType(Document doc, ParseData data, String url) {
     MimeType mimeType = null;
-    String contentType = metaData.getProperty("content-type");
+    String contentType = data.getMeta(Response.CONTENT_TYPE);
     if (contentType == null) {
 	// Note by Jerome Charron on 20050415:
         // Content Type not solved by a previous plugin
@@ -257,8 +257,8 @@ public class MoreIndexingFilter implements IndexingFilter {
     }
   }
 
-  private Document resetTitle(Document doc, ContentProperties metaData, String url) {
-    String contentDisposition = metaData.getProperty("content-disposition");
+  private Document resetTitle(Document doc, ParseData data, String url) {
+    String contentDisposition = data.getMeta(Metadata.CONTENT_DISPOSITION);
     if (contentDisposition == null)
       return doc;
 
@@ -272,30 +272,6 @@ public class MoreIndexingFilter implements IndexingFilter {
     }
 
     return doc;
-  }
-
-  // Meta info in nutch metaData are saved in raw form, i.e.,
-  // whatever the fetcher sees. To facilitate further processing,
-  // a "normalization" is necessary.
-  // This includes fixing http server oddities, such as:
-  // (*) non-uniform casing of header names
-  // (*) empty header value
-  // Note: the original metaData should be kept intact,
-  // because there is a benefit to preserve whatever comes from server.
-  private ContentProperties normalizeMeta(ContentProperties old) {
-      ContentProperties normalized = new ContentProperties();
-
-    for (Enumeration e = old.propertyNames(); e.hasMoreElements();) {
-      String key = (String) e.nextElement();
-      String value = old.getProperty(key).trim();
-      // some http server sends out header with empty value! if so, skip it
-      if (value == null || value.equals(""))
-        continue;
-      // convert key (but, not value) to lower-case
-      normalized.setProperty(key.toLowerCase(),value);
-    }
-
-    return normalized;
   }
 
   public void setConf(Configuration conf) {

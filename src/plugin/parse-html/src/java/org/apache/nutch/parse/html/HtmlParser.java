@@ -29,8 +29,9 @@ import org.xml.sax.SAXException;
 import org.w3c.dom.*;
 import org.apache.html.dom.*;
 
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.ContentProperties;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.parse.*;
@@ -110,19 +111,19 @@ public class HtmlParser implements Parser {
     String text = "";
     String title = "";
     Outlink[] outlinks = new Outlink[0];
-    ContentProperties metadata = new ContentProperties();
+    Metadata metadata = new Metadata();
 
     // parse the content
     DocumentFragment root;
     try {
       byte[] contentInOctets = content.getContent();
       InputSource input = new InputSource(new ByteArrayInputStream(contentInOctets));
-      String contentType = content.getMetadata().getProperty("Content-Type");
+      String contentType = content.getMetadata().get(Response.CONTENT_TYPE);
       String encoding = StringUtil.parseCharacterEncoding(contentType);
       if (encoding!=null) {
-        metadata.put("OriginalCharEncoding", encoding);
+        metadata.set(Metadata.ORIGINAL_CHAR_ENCODING, encoding);
         if ((encoding = StringUtil.resolveEncodingAlias(encoding)) != null) {
-          metadata.put("CharEncodingForConversion", encoding);
+          metadata.set(Metadata.CHAR_ENCODING_FOR_CONVERSION, encoding);
           LOG.fine(base + ": setting encoding to " + encoding);
         }
       }
@@ -131,9 +132,9 @@ public class HtmlParser implements Parser {
       if (encoding == null) {
         encoding = sniffCharacterEncoding(contentInOctets);
         if (encoding!=null) {
-          metadata.put("OriginalCharEncoding", encoding);
+          metadata.set(Metadata.ORIGINAL_CHAR_ENCODING, encoding);
           if ((encoding = StringUtil.resolveEncodingAlias(encoding)) != null) {
-            metadata.put("CharEncodingForConversion", encoding);
+            metadata.set(Metadata.CHAR_ENCODING_FOR_CONVERSION, encoding);
             LOG.fine(base + ": setting encoding to " + encoding);
           }
         }
@@ -147,7 +148,7 @@ public class HtmlParser implements Parser {
         // doesn't work for jp because euc-jp and shift_jis have about the
         // same share)
         encoding = defaultCharEncoding;
-        metadata.put("CharEncodingForConversion", defaultCharEncoding);
+        metadata.set(Metadata.CHAR_ENCODING_FOR_CONVERSION, defaultCharEncoding);
         LOG.fine(base + ": falling back to " + defaultCharEncoding);
       }
       input.setEncoding(encoding);
@@ -192,14 +193,13 @@ public class HtmlParser implements Parser {
       // ??? FIXME ???
     }
     
-    // copy content metadata through
-    metadata.putAll(content.getMetadata());
     ParseStatus status = new ParseStatus(ParseStatus.SUCCESS);
     if (metaTags.getRefresh()) {
       status.setMinorCode(ParseStatus.SUCCESS_REDIRECT);
       status.setMessage(metaTags.getRefreshHref().toString());
     }
-    ParseData parseData = new ParseData(status, title, outlinks, metadata);
+    ParseData parseData = new ParseData(status, title, outlinks,
+                                        content.getMetadata(), metadata);
     parseData.setConf(this.conf);
     Parse parse = new ParseImpl(text, parseData);
 
@@ -269,9 +269,9 @@ public class HtmlParser implements Parser {
     byte[] bytes = new byte[(int)file.length()];
     DataInputStream in = new DataInputStream(new FileInputStream(file));
     in.readFully(bytes);
-    Parse parse = new HtmlParser().getParse(new Content(url,url,
-                                                        bytes,"text/html",
-                                                        new ContentProperties(), NutchConfiguration.create()));
+    Parse parse = new HtmlParser().getParse(
+            new Content(url, url, bytes, "text/html", new Metadata(),
+                        NutchConfiguration.create()));
     System.out.println("data: "+parse.getData());
 
     System.out.println("text: "+parse.getText());

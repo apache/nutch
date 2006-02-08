@@ -136,6 +136,7 @@
  	<include name="hadoop-*.jar"/>
 	<include name="dom4j-*.jar"/>
 	<include name="xerces-*.jar"/>
+        <include name="commons-lang-*.jar"/>
       </lib>
       <lib dir="${build.dir}">
 	<include name="${final.name}.jar"/>

@@ -26,7 +26,8 @@ import org.pdfbox.exceptions.CryptographyException;
 import org.pdfbox.exceptions.InvalidPasswordException;
 
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.ContentProperties;
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.net.protocols.Response;
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.parse.ParseStatus;
@@ -89,12 +90,13 @@ public class PdfParser implements Parser {
 
     String text = null;
     String title = null;
+    Metadata metadata = new Metadata();
 
     try {
 
       byte[] raw = content.getContent();
 
-      String contentLength = content.get("Content-Length");
+      String contentLength = content.getMetadata().get(Response.CONTENT_LENGTH);
       if (contentLength != null
             && raw.length != Integer.parseInt(contentLength)) {
           return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_TRUNCATED,
@@ -102,8 +104,7 @@ public class PdfParser implements Parser {
             +" bytes. Parser can't handle incomplete pdf file.").getEmptyParse(getConf());
       }
 
-      PDFParser parser = new PDFParser(
-        new ByteArrayInputStream(raw));
+      PDFParser parser = new PDFParser(new ByteArrayInputStream(raw));
       parser.parse();
 
       pdf = parser.getPDDocument();
@@ -122,15 +123,18 @@ public class PdfParser implements Parser {
       PDDocumentInformation info = pdf.getDocumentInformation();
       title = info.getTitle();
       // more useful info, currently not used. please keep them for future use.
-      // pdf.getPageCount();
-      // info.getAuthor()
-      // info.getSubject()
-      // info.getKeywords()
-      // info.getCreator()
-      // info.getProducer()
-      // info.getTrapped()
-      // formatDate(info.getCreationDate())
-      // formatDate(info.getModificationDate())
+      metadata.add(Metadata.PAGE_COUNT, String.valueOf(pdf.getPageCount()));
+      metadata.add(Metadata.AUTHOR, info.getAuthor());
+      metadata.add(Metadata.SUBJECT, info.getSubject());
+      metadata.add(Metadata.KEYWORDS, info.getKeywords());
+      metadata.add(Metadata.CREATOR, info.getCreator());
+      metadata.add(Metadata.PUBLISHER, info.getProducer());
+      
+      //TODO: Figure out why we get a java.io.IOException: Error converting date:1-Jan-3 18:15PM
+      //error here
+      
+      //metadata.put(DATE, dcDateFormatter.format(info.getCreationDate().getTime()));
+      //metadata.put(LAST_MODIFIED, dcDateFormatter.format(info.getModificationDate().getTime()));
 
     } catch (CryptographyException e) {
       return new ParseStatus(ParseStatus.FAILED,
@@ -139,6 +143,8 @@ public class PdfParser implements Parser {
       return new ParseStatus(ParseStatus.FAILED,
               "Can't decrypt document - invalid password. " + e).getEmptyParse(getConf());
     } catch (Exception e) { // run time exception
+        LOG.warning("General exception in PDF parser: "+e.getMessage());
+        e.printStackTrace();        
       return new ParseStatus(ParseStatus.FAILED,
               "Can't be handled as pdf document. " + e).getEmptyParse(getConf());
     } finally {
@@ -159,11 +165,9 @@ public class PdfParser implements Parser {
     // collect outlink
     Outlink[] outlinks = OutlinkExtractor.getOutlinks(text, getConf());
 
-    // collect meta data
-    ContentProperties metadata = new ContentProperties();
-    metadata.putAll(content.getMetadata()); // copy through
-
-    ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks, metadata);
+    ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title,
+                                        outlinks, content.getMetadata(),
+                                        metadata);
     parseData.setConf(this.conf);
     return new ParseImpl(text, parseData);
     // any filter?

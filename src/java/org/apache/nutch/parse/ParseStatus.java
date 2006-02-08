@@ -11,8 +11,10 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.VersionedWritable;
 import org.apache.hadoop.io.WritableUtils;
-import org.apache.nutch.protocol.ContentProperties;
 import org.apache.hadoop.conf.Configuration;
+
+import org.apache.nutch.metadata.Metadata;
+
 
 /**
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
@@ -231,7 +233,8 @@ public class ParseStatus extends VersionedWritable {
     private ParseData data = null;
     
     public EmptyParseImpl(ParseStatus status, Configuration conf) {
-      data = new ParseData(status, "", new Outlink[0], new ContentProperties());
+      data = new ParseData(status, "", new Outlink[0],
+                           new Metadata(), new Metadata());
       data.setConf(conf);
     }
     

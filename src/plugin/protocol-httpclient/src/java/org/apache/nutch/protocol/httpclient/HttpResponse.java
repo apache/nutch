@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Date;
 
 // HTTP Client imports
 import org.apache.commons.httpclient.Header;
@@ -30,8 +31,8 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 
 // Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
-import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.protocol.http.api.HttpBase;
 
 
@@ -52,7 +53,7 @@ public class HttpResponse implements Response {
 
   private int code;
 
-  private ContentProperties headers = new ContentProperties();
+  private Metadata headers = new Metadata();
 
   
   public HttpResponse(HttpBase http, URL url, CrawlDatum datum) throws IOException {
@@ -85,8 +86,9 @@ public class HttpResponse implements Response {
       Header[] heads = get.getResponseHeaders();
 
       for (int i = 0; i < heads.length; i++) {
-        headers.setProperty(heads[i].getName(), heads[i].getValue());
+        headers.set(heads[i].getName(), heads[i].getValue());
       }
+      
       // always read content. Sometimes content is useful to find a cause
       // for error.
       try {
@@ -131,10 +133,10 @@ public class HttpResponse implements Response {
   }
 
   public String getHeader(String name) {
-    return (String) headers.get(name);
+    return headers.get(name);
   }
   
-  public ContentProperties getHeaders() {
+  public Metadata getHeaders() {
     return headers;
   }
 

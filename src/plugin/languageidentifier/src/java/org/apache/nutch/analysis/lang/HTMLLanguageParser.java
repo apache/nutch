@@ -23,10 +23,13 @@ import java.util.Properties;
 import java.util.logging.Logger;
 
 // Nutch imports
+import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.HtmlParseFilter;
 import org.apache.nutch.protocol.Content;
+
+// Hadoop imports
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 
@@ -44,7 +47,6 @@ import org.w3c.dom.NodeList;
  */
 public class HTMLLanguageParser implements HtmlParseFilter {
   
-  public static final String META_LANG_NAME="X-meta-lang";
   public static final Logger LOG = LogFormatter
     .getLogger(HTMLLanguageParser.class.getName());
 
@@ -87,7 +89,7 @@ public class HTMLLanguageParser implements HtmlParseFilter {
     String lang = parser.getLanguage();
 
     if (lang != null) {
-      parse.getData().getMetadata().put(META_LANG_NAME, lang);
+      parse.getData().getParseMeta().set(Metadata.LANGUAGE, lang);
     }
     return parse;
   }

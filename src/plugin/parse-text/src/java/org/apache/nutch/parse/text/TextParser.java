@@ -17,7 +17,6 @@
 package org.apache.nutch.parse.text;
 
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.util.*;
 
@@ -27,9 +26,6 @@ public class TextParser implements Parser {
   private Configuration conf;
 
   public Parse getParse(Content content) {
-    // copy content meta data through
-    ContentProperties metadata = new ContentProperties();
-    metadata.putAll(content.getMetadata());
 
     // ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, "", new
     // Outlink[0], metadata);
@@ -49,7 +45,7 @@ public class TextParser implements Parser {
       text = new String(content.getContent()); // use default encoding
     }
     ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, "",
-        OutlinkExtractor.getOutlinks(text, getConf()), metadata);
+        OutlinkExtractor.getOutlinks(text, getConf()), content.getMetadata());
     parseData.setConf(this.conf);
     return new ParseImpl(text, parseData);
     

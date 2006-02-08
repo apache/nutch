@@ -23,6 +23,10 @@ import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.hadoop.io.UTF8;
 import org.apache.nutch.parse.Parse;
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.net.protocols.Response;
+
+// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 
 // Lucene imports
@@ -63,12 +67,12 @@ public class LanguageIndexingFilter implements IndexingFilter {
   public Document filter(Document doc, Parse parse, UTF8 url, CrawlDatum datum, Inlinks inlinks)
     throws IndexingException {
 
-    //check if X-meta-lang found, possibly put there by HTMLLanguageParser
-    String lang = parse.getData().get(HTMLLanguageParser.META_LANG_NAME);
+    // check if LANGUAGE found, possibly put there by HTMLLanguageParser
+    String lang = parse.getData().getParseMeta().get(Metadata.LANGUAGE);
 
-    //check if HTTP-header tels us the language
+    // check if HTTP-header tels us the language
     if (lang == null) {
-        lang = parse.getData().get("Content-Language");
+        lang = parse.getData().getContentMeta().get(Response.CONTENT_LANGUAGE);
     }
     
     if (lang == null) {

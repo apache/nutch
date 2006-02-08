@@ -18,7 +18,16 @@ package org.apache.nutch.parse.rtf;
 
 import org.apache.nutch.parse.*;
 import org.apache.nutch.protocol.Content;
+<<<<<<< .mine
+<<<<<<< .mine
+import org.apache.nutch.util.MetadataNames;
+
+=======
+import org.apache.nutch.util.NutchConf;
+=======
 import org.apache.hadoop.conf.Configuration;
+>>>>>>> .r374853
+>>>>>>> .r373941
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -31,7 +40,7 @@ import com.etranslate.tm.processing.rtf.RTFParser;
  * 
  * @author Andy Hedges
  */
-public class RTFParseFactory implements Parser {
+public class RTFParseFactory implements Parser, MetadataNames {
 
   private Configuration conf;
 
@@ -53,10 +62,13 @@ public class RTFParseFactory implements Parser {
     Properties metadata = new Properties();
     metadata.putAll(content.getMetadata());
     metadata.putAll(delegate.getMetaData());
-    String title = metadata.getProperty("title");
+    String title = metadata.getProperty(TITLE);
 
     if (title != null) {
-      metadata.remove(title);
+        //(CM): Why remove the title metadata property here? Even 
+        //though it's stored in the ParseData, it still might be useful
+        //to have via this properties object?
+        //metadata.remove(title);
     } else {
       title = "";
     }

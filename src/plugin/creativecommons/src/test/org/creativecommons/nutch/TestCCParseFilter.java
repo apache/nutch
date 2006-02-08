@@ -16,10 +16,10 @@
 
 package org.creativecommons.nutch;
 
+import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.ContentProperties;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
@@ -60,12 +60,13 @@ public class TestCCParseFilter extends TestCase {
     Configuration conf = NutchConfiguration.create();
 
     Content content =
-      new Content(url, url, bytes, contentType, new ContentProperties(), conf);
+      new Content(url, url, bytes, contentType, new Metadata(), conf);
     Parse parse = new ParseUtil(conf).parseByParserId("parse-html",content);
 
-    ContentProperties metadata = parse.getData().getMetadata();
+    Metadata metadata = parse.getData().getParseMeta();
     assertEquals(license, metadata.get("License-Url"));
     assertEquals(location, metadata.get("License-Location"));
     assertEquals(type, metadata.get("Work-Type"));
   }
 }
+

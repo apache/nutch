@@ -16,12 +16,13 @@
 
 package org.apache.nutch.protocol;
 
+import org.apache.nutch.metadata.Metadata;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
-
 import org.apache.nutch.util.WritableTestUtils;
 
 import junit.framework.TestCase;
+
 
 /** Unit tests for Content. */
 
@@ -37,9 +38,9 @@ public class TestContent extends TestCase {
 
     String url = "http://www.foo.com/";
 
-    ContentProperties metaData = new ContentProperties();
-    metaData.put("Host", "www.foo.com");
-    metaData.put("Content-Type", "text/html");
+    Metadata metaData = new Metadata();
+    metaData.add("Host", "www.foo.com");
+    metaData.add("Content-Type", "text/html");
 
     Content r = new Content(url, url, page.getBytes("UTF8"), "text/html",
                             metaData, conf);
@@ -47,12 +48,13 @@ public class TestContent extends TestCase {
     WritableTestUtils.testWritable(r);
     assertEquals("text/html", r.getMetadata().get("Content-Type"));
     assertEquals("text/html", r.getMetadata().get("content-type"));
+    assertEquals("text/html", r.getMetadata().get("CONTENTYPE"));
   }
 
   /** Unit tests for getContentType(String, String, byte[]) method. */
   public void testGetContentType() throws Exception {
     Content c = null;
-    ContentProperties p = new ContentProperties();
+    Metadata p = new Metadata();
 
     c = new Content("http://www.foo.com/",
                     "http://www.foo.com/",

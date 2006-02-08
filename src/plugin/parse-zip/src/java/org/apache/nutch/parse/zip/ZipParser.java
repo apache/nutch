@@ -23,6 +23,8 @@ import java.util.logging.Logger;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
@@ -30,7 +32,6 @@ import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.ContentProperties;
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 
@@ -59,7 +60,7 @@ public class ZipParser implements Parser {
     Properties properties = null;
 
     try {
-      final String contentLen = content.get("Content-Length");
+      final String contentLen = content.getMetadata().get(Response.CONTENT_LENGTH);
       final int len = Integer.parseInt(contentLen);
       System.out.println("ziplen: " + len);
       final byte[] contentInBytes = content.getContent();
@@ -86,10 +87,6 @@ public class ZipParser implements Parser {
           "Can't be handled as Zip document. " + e).getEmptyParse(getConf());
     }
 
-    // collect meta data
-    final ContentProperties metadata = new ContentProperties();
-    metadata.putAll(content.getMetadata()); // copy through
-
     if (resultText == null) {
       resultText = "";
     }
@@ -100,7 +97,8 @@ public class ZipParser implements Parser {
 
     outlinks = (Outlink[]) outLinksList.toArray(new Outlink[0]);
     final ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS,
-        resultTitle, outlinks, metadata);
+                                              resultTitle, outlinks,
+                                              content.getMetadata());
     parseData.setConf(this.conf);
 
     LOG.finest("Zip file parsed sucessfully !!");

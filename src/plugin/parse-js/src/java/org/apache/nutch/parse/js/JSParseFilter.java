@@ -19,7 +19,6 @@ import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.ContentProperties;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
@@ -58,14 +57,15 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     walk(doc, parse, metaTags, url, outlinks);
     if (outlinks.size() > 0) {
       Outlink[] old = parse.getData().getOutlinks();
-      ContentProperties metadata = parse.getData().getMetadata();
       String title = parse.getData().getTitle();
       List list = Arrays.asList(old);
       outlinks.addAll(list);
       ParseStatus status = parse.getData().getStatus();
       String text = parse.getText();
       Outlink[] newlinks = (Outlink[])outlinks.toArray(new Outlink[outlinks.size()]);
-      ParseData parseData = new ParseData(status, title, newlinks, metadata);
+      ParseData parseData = new ParseData(status, title, newlinks,
+                                          parse.getData().getContentMeta(),
+                                          parse.getData().getParseMeta());
       parseData.setConf(this.conf);
       parse = new ParseImpl(text, parseData);
     }
@@ -140,10 +140,8 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
       idx = Math.min(MAX_TITLE_LEN, script.length());
       title = script.substring(0, idx);
     }
-    ContentProperties metadata = new ContentProperties();
-    metadata.putAll(c.getMetadata());
-    ParseData pd = new ParseData(ParseStatus.STATUS_SUCCESS, title,
-            outlinks, metadata);
+    ParseData pd = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks,
+                                 c.getMetadata());
     pd.setConf(this.conf);
     Parse parse = new ParseImpl(script, pd);
     return parse;

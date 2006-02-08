@@ -25,15 +25,19 @@ import java.util.LinkedList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+// Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.hadoop.io.UTF8;
+import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
+
+// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.UTF8;
 
 
 /**
@@ -443,7 +447,8 @@ public abstract class HttpBase implements Protocol {
     System.out.println("Status: " + out.getStatus());
     if (content != null) {
       System.out.println("Content Type: " + content.getContentType());
-      System.out.println("Content Length: " + content.get("Content-Length"));
+      System.out.println("Content Length: " +
+                         content.getMetadata().get(Response.CONTENT_LENGTH));
       System.out.println("Content:");
       String text = new String(content.getContent());
       System.out.println(text);

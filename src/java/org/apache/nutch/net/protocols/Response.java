@@ -19,14 +19,15 @@ package org.apache.nutch.net.protocols;
 import java.net.URL;
 
 // Nutch imports
-import org.apache.nutch.protocol.ContentProperties;
+import org.apache.nutch.metadata.HttpHeaders;
+import org.apache.nutch.metadata.Metadata;
 
 
 /**
  * A response inteface.  Makes all protocols model HTTP.
  */
-public interface Response {
-
+public interface Response extends HttpHeaders {
+  
   /** Returns the URL used to retrieve this response. */
   public URL getUrl();
 
@@ -37,7 +38,7 @@ public interface Response {
   public String getHeader(String name);
 
   /** Returns all the headers. */
-  public ContentProperties getHeaders();
+  public Metadata getHeaders();
   
   /** Returns the full content of the response. */
   public byte[] getContent();

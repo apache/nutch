@@ -72,7 +72,8 @@ public class ParseOutputFormat implements OutputFormat {
           dataOut.append(key, parse.getData());
           
           // recover the signature prepared by Fetcher or ParseSegment
-          String sig = parse.getData().getMetadata().getProperty(Fetcher.SIGNATURE_KEY);
+          String sig = parse.getData()
+                            .getContentMeta().get(Fetcher.SIGNATURE_KEY);
           if (sig != null) {
             byte[] signature = StringUtil.fromHexString(sig);
             if (signature != null) {
@@ -87,7 +88,8 @@ public class ParseOutputFormat implements OutputFormat {
           Outlink[] links = parse.getData().getOutlinks();
 
           // compute OPIC score contribution
-          String scoreString = parse.getData().get(Fetcher.SCORE_KEY);
+          String scoreString = parse.getData()
+                                    .getContentMeta().get(Fetcher.SCORE_KEY);
           float score = extscore;
           // this may happen if there was a fetch error.
          if (scoreString != null) score = Float.parseFloat(scoreString);
