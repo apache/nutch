@@ -222,6 +222,9 @@
       doctitle="${Name} ${version} API"
       bottom="Copyright &amp;copy; ${year} The Apache Software Foundation"
       >
+        <arg value="${javadoc.proxy.host}"/>
+        <arg value="${javadoc.proxy.port}"/>
+
     	<packageset dir="${src.dir}"/>
     	<packageset dir="${plugins.dir}/lib-http/src/java"/>
     	<packageset dir="${plugins.dir}/protocol-file/src/java"/>
@@ -246,6 +249,7 @@
     	<packageset dir="${plugins.dir}/ontology/src/java"/>
         <link href="${javadoc.link.java}"/>
         <link href="${javadoc.link.lucene}"/>
+        <link href="${javadoc.link.hadoop}"/>
         <classpath refid="classpath"/>
     	<classpath>
     		<fileset dir="${plugins.dir}" >
