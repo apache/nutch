@@ -106,13 +106,13 @@ public final class ParserFactory {
    *
    * The function consults the internal {@link ParsePluginList} for the
    * ParserFactory to determine the list of pluginIds, then gets the
-   * appropriate extension points to instantiate as {Parser}s.
+   * appropriate extension points to instantiate as {@link Parser}s.
    *
    * @param contentType The contentType to return the <code>Array</code>
-   *                    of {Parser}s for.
+   *                    of {@link Parser}s for.
    * @param url The url for the content that may allow us to get the type from
    *            the file suffix.
-   * @return An <code>Array</code> of {@Parser}s for the given contentType.
+   * @return An <code>Array</code> of {@link Parser}s for the given contentType.
    *         If there were plugins mapped to a contentType via the
    *         <code>parse-plugins.xml</code> file, but never enabled via
    *         the <code>plugin.includes</code> Nutch conf, then those plugins

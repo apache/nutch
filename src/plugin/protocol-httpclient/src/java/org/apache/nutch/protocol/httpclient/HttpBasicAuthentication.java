@@ -111,7 +111,8 @@ public class HttpBasicAuthentication implements HttpAuthentication, Configurable
 
    /**
     * Gets the realm attribute of the HttpBasicAuthentication object.
-    * This should have been supplied to the {@link #getAuthentication(String)} static method
+    * This should have been supplied to the {@link #getAuthentication(String, Configuration)}
+    * static method
     *
     * @return    The realm
     */

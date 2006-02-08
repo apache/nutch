@@ -64,9 +64,9 @@ public class ParsePluginsReader {
   
   /**
    * Reads the <code>parse-plugins.xml</code> file and returns the
-   * {@link ParsePluginPreferenceList} defined by it.
+   * {@link ParsePluginList} defined by it.
    *
-   * @return A {@link ParsePluginPreferenceList} specified by the
+   * @return A {@link ParsePluginList} specified by the
    *         <code>parse-plugins.xml</code> file.
    * @throws Exception
    *             If any parsing error occurs.
