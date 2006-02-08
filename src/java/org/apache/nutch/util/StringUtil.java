@@ -57,7 +57,6 @@ public class StringUtil {
    * Convenience call for {@link #toHexString(byte[], String, int)}, where
    * <code>sep = null; lineLen = Integer.MAX_VALUE</code>.
    * @param buf
-   * @return
    */
   public static String toHexString(byte[] buf) {
     return toHexString(buf, null, Integer.MAX_VALUE);

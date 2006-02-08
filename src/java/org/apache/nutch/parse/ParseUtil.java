@@ -51,7 +51,7 @@ public class ParseUtil {
   }
   
   /**
-   * Performs a parse by iterating through a List of preferred {@Parser}s
+   * Performs a parse by iterating through a List of preferred {@link Parser}s
    * until a successful parse is performed and a {@link Parse} object is
    * returned. If the parse is unsuccessful, a message is logged to the
    * <code>WARNING</code> level, and an empty parse is returned.
