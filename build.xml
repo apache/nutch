@@ -223,6 +223,7 @@
       bottom="Copyright &amp;copy; ${year} The Apache Software Foundation"
       >
     	<packageset dir="${src.dir}"/>
+    	<packageset dir="${plugins.dir}/lib-http/src/java"/>
     	<packageset dir="${plugins.dir}/protocol-file/src/java"/>
     	<packageset dir="${plugins.dir}/protocol-ftp/src/java"/>
        	<packageset dir="${plugins.dir}/protocol-http/src/java"/>
