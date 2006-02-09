@@ -27,6 +27,7 @@ import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.mapred.*;
 
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.NutchJob;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.document.Document;
@@ -296,7 +297,7 @@ public class DeleteDuplicates extends Configured
       new File("dedup-hash-"+
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
-    JobConf job = new JobConf(getConf());
+    JobConf job = new NutchJob(getConf());
 
     for (int i = 0; i < indexDirs.length; i++) {
       LOG.info("Dedup: adding indexes in: " + indexDirs[i]);
@@ -318,7 +319,7 @@ public class DeleteDuplicates extends Configured
 
     JobClient.runJob(job);
 
-    job = new JobConf(getConf());
+    job = new NutchJob(getConf());
 
     job.addInputDir(hashDir);
 

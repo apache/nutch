@@ -29,6 +29,7 @@ import org.apache.hadoop.mapred.*;
 
 import org.apache.nutch.parse.*;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.NutchJob;
 
 /** Maintains an inverted link map, listing incoming links for each url. */
 public class LinkDb extends Configured implements Mapper, Reducer {
@@ -155,7 +156,7 @@ public class LinkDb extends Configured implements Mapper, Reducer {
       new File(linkDb,
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
-    JobConf job = new JobConf(config);
+    JobConf job = new NutchJob(config);
 
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setInputKeyClass(UTF8.class);

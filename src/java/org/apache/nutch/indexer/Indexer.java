@@ -31,6 +31,7 @@ import org.apache.nutch.protocol.*;
 import org.apache.nutch.analysis.*;
 
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.NutchJob;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
@@ -240,7 +241,7 @@ public class Indexer extends Configured implements Reducer {
     LOG.info("Indexer: starting");
     LOG.info("Indexer: linkdb: " + linkDb);
 
-    JobConf job = new JobConf(getConf());
+    JobConf job = new NutchJob(getConf());
 
     for (int i = 0; i < segments.length; i++) {
       LOG.info("Indexer: adding segment: " + segments[i]);

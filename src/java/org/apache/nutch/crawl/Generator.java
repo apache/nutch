@@ -29,6 +29,7 @@ import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.mapred.lib.*;
 
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.NutchJob;
 
 /** Generates a subset of a crawl db to fetch. */
 public class Generator extends Configured {
@@ -175,7 +176,7 @@ public class Generator extends Configured {
 
     // map to inverted subset due for fetch, sort by link count
     LOG.info("Generator: Selecting most-linked urls due for fetch.");
-    JobConf job = new JobConf(getConf());
+    JobConf job = new NutchJob(getConf());
     
     if (numLists == -1) {                         // for politeness make
       numLists = job.getNumMapTasks();            // a partition per fetch task
@@ -201,7 +202,7 @@ public class Generator extends Configured {
 
     // invert again, paritition by host, sort by url hash
     LOG.info("Generator: Partitioning selected urls by host, for politeness.");
-    job = new JobConf(getConf());
+    job = new NutchJob(getConf());
     
     job.setInt("partition.url.by.host.seed", new Random().nextInt());
 

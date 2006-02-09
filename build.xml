@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="Nutch" default="compile">
+<project name="Nutch" default="job">
 
   <!-- Load all the default properties, and any the user wants    -->
   <!-- to contribute (without having to type -D or edit this file -->
@@ -100,7 +100,6 @@
   <target name="dynamic" depends="generate-src, compile">
   </target>
 
-
   <!-- ================================================================== -->
   <!-- Make nutch.jar                                                     -->
   <!-- ================================================================== -->
@@ -115,6 +114,21 @@
          basedir="${build.classes}">
       <manifest>
       </manifest>
+    </jar>
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Make job jar                                                       -->
+  <!-- ================================================================== -->
+  <!--                                                                    -->
+  <!-- ================================================================== -->
+  <target name="job" depends="compile">
+    <jar jarfile="${build.dir}/${final.name}.job">
+      <zipfileset dir="${build.classes}"/>
+      <zipfileset dir="${conf.dir}" excludes="*.template"/>
+      <zipfileset dir="${lib.dir}" prefix="lib"
+                  includes="**/*.jar" excludes="hadoop-*.jar"/>
+      <zipfileset dir="${build.plugins}" prefix="plugins"/>
     </jar>
   </target>
 
@@ -385,7 +399,7 @@
   <!-- ================================================================== -->
   <!--                                                                    -->
   <!-- ================================================================== -->
-  <target name="package" depends="jar, war, javadoc">
+  <target name="package" depends="jar, job, war, javadoc">
     <mkdir dir="${dist.dir}"/>
     <mkdir dir="${dist.dir}/lib"/>
     <mkdir dir="${dist.dir}/bin"/>
@@ -402,7 +416,7 @@
     </copy>
 
     <copy file="${build.dir}/${final.name}.jar" todir="${dist.dir}"/>
-
+    <copy file="${build.dir}/${final.name}.job" todir="${dist.dir}"/>
     <copy file="${build.dir}/${final.name}.war" todir="${dist.dir}"/>
 
     <copy todir="${dist.dir}/bin">

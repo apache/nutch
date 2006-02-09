@@ -82,13 +82,13 @@ fi
 CLASSPATH=${NUTCH_CONF_DIR:=$NUTCH_HOME/conf}
 CLASSPATH=${CLASSPATH}:$JAVA_HOME/lib/tools.jar
 
-# for developers, add Nutch classes to CLASSPATH
-if [ -d "$NUTCH_HOME/build/classes" ]; then
-  CLASSPATH=${CLASSPATH}:$NUTCH_HOME/build/classes
-fi
+# for developers, add plugins, job & test code to CLASSPATH
 if [ -d "$NUTCH_HOME/build/plugins" ]; then
   CLASSPATH=${CLASSPATH}:$NUTCH_HOME/build
 fi
+for f in $NUTCH_HOME/build/nutch-*.job; do
+  CLASSPATH=${CLASSPATH}:$f;
+done
 if [ -d "$NUTCH_HOME/build/test/classes" ]; then
   CLASSPATH=${CLASSPATH}:$NUTCH_HOME/build/test/classes
 fi
@@ -96,14 +96,14 @@ fi
 # so that filenames w/ spaces are handled correctly in loops below
 IFS=
 
-# for releases, add Nutch jar to CLASSPATH
-for f in $NUTCH_HOME/nutch-*.jar; do
+# for releases, add Nutch job to CLASSPATH
+for f in $NUTCH_HOME/nutch-*.job; do
   CLASSPATH=${CLASSPATH}:$f;
 done
 
 # add plugins to classpath
 if [ -d "$NUTCH_HOME/plugins" ]; then
-  CLASSPATH=${CLASSPATH}:$NUTCH_HOME
+  CLASSPATH=${NUTCH_HOME}:${CLASSPATH}
 fi
 
 # add libs to CLASSPATH
