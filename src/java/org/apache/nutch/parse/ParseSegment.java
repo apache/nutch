@@ -35,7 +35,11 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
 
   public static final Logger LOG =
     LogFormatter.getLogger(Parser.class.getName());
-
+  
+  public ParseSegment() {
+    this(null);
+  }
+  
   public ParseSegment(Configuration conf) {
     super(conf);
   }
