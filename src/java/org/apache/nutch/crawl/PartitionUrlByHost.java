@@ -30,6 +30,8 @@ public class PartitionUrlByHost implements Partitioner {
     seed = job.getInt("partition.url.by.host.seed", 0);
   }
   
+  public void close() {}
+
   /** Hash by hostname. */
   public int getPartition(WritableComparable key, Writable value,
                           int numReduceTasks) {

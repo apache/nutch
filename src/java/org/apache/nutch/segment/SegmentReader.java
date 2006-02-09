@@ -118,8 +118,9 @@ public class SegmentReader extends Configured implements Reducer {
     super(conf);
   }
 
-  public void configure(JobConf job) {
-  }
+  public void configure(JobConf job) {}
+
+  public void close() {}
 
   public void reduce(WritableComparable key, Iterator values,
                      OutputCollector output, Reporter reporter)

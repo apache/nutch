@@ -30,6 +30,8 @@ public class CrawlDbReducer implements Reducer {
     retryMax = job.getInt("db.fetch.retry.max", 3);
   }
 
+  public void close() {}
+
   public void reduce(WritableComparable key, Iterator values,
                      OutputCollector output, Reporter reporter)
     throws IOException {

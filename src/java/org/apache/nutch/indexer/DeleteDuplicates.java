@@ -205,6 +205,7 @@ public class DeleteDuplicates extends Configured
 
   public static class HashPartitioner implements Partitioner {
     public void configure(JobConf job) {}
+    public void close() {}
     public int getPartition(WritableComparable key, Writable value,
                             int numReduceTasks) {
       int hashCode = ((HashScore)key).hash.hashCode();
@@ -215,6 +216,7 @@ public class DeleteDuplicates extends Configured
   public static class HashReducer implements Reducer {
     private MD5Hash prevHash = new MD5Hash();
     public void configure(JobConf job) {}
+    public void close() {}
     public void reduce(WritableComparable key, Iterator values,
                        OutputCollector output, Reporter reporter)
       throws IOException {
@@ -246,6 +248,8 @@ public class DeleteDuplicates extends Configured
       throw new RuntimeException(e);
     }
   }
+
+  public void close() {}
 
   /** Map [*,IndexDoc] pairs to [index,doc] pairs. */
   public void map(WritableComparable key, Writable value,

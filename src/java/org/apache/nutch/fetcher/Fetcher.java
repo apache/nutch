@@ -284,6 +284,8 @@ public class Fetcher extends Configured implements MapRunnable {
     }
   }
 
+  public void close() {}
+
   public static boolean isParsing(Configuration conf) {
     return conf.getBoolean("fetcher.parse", true);
   }

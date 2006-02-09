@@ -57,6 +57,8 @@ public class LinkDb extends Configured implements Mapper, Reducer {
     ignoreInternalLinks = job.getBoolean("db.ignore.internal.links", true);
   }
 
+  public void close() {}
+
   public void map(WritableComparable key, Writable value,
                   OutputCollector output, Reporter reporter)
     throws IOException {

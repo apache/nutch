@@ -48,6 +48,8 @@ public class Injector extends Configured {
       this.jobConf = job;
     }
 
+    public void close() {}
+
     public void map(WritableComparable key, Writable val,
                     OutputCollector output, Reporter reporter)
       throws IOException {
@@ -73,6 +75,7 @@ public class Injector extends Configured {
   /** Combine multiple new entries for a url. */
   public static class InjectReducer implements Reducer {
     public void configure(JobConf job) {}
+    public void close() {}
 
     public void reduce(WritableComparable key, Iterator values,
                        OutputCollector output, Reporter reporter)
