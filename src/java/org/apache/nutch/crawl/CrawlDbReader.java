@@ -44,6 +44,8 @@ import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.NutchJob;
+
 /**
  * Read utility for the CrawlDB.
  * 
@@ -137,7 +139,7 @@ public class CrawlDbReader {
     LOG.info("CrawlDb statistics start: " + crawlDb);
     File tmpFolder = new File(crawlDb, "stat_tmp" + System.currentTimeMillis());
 
-    JobConf job = new JobConf(config);
+    JobConf job = new NutchJob(config);
 
     job.addInputDir(new File(crawlDb, CrawlDatum.DB_DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
@@ -224,7 +226,7 @@ public class CrawlDbReader {
     LOG.info("CrawlDb db: " + crawlDb);
     File outFolder = new File(output);
 
-    JobConf job = new JobConf(config);
+    JobConf job = new NutchJob(config);
 
     job.addInputDir(new File(crawlDb, CrawlDatum.DB_DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);

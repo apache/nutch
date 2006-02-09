@@ -27,6 +27,7 @@ import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.NutchJob;
 
 import java.util.logging.Logger;
 
@@ -72,7 +73,7 @@ public class LinkDbReader {
     LOG.info("LinkDb db: " + linkdb);
     File outFolder = new File(output);
 
-    JobConf job = new JobConf(config);
+    JobConf job = new NutchJob(config);
 
     job.addInputDir(new File(linkdb, LinkDb.CURRENT_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);

@@ -27,6 +27,7 @@ import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.mapred.*;
 
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.NutchJob;
 
 /** This class takes a flat file of URLs and adds them to the of pages to be
  * crawled.  Useful for bootstrapping the system. */
@@ -61,7 +62,7 @@ public class CrawlDb extends Configured {
       new File(crawlDb,
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
-    JobConf job = new JobConf(config);
+    JobConf job = new NutchJob(config);
 
     job.addInputDir(new File(crawlDb, CrawlDatum.DB_DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);

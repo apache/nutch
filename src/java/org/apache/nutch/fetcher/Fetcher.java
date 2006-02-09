@@ -341,7 +341,7 @@ public class Fetcher extends Configured implements MapRunnable {
     LOG.info("Fetcher: starting");
     LOG.info("Fetcher: segment: " + segment);
 
-    JobConf job = new JobConf(getConf());
+    JobConf job = new NutchJob(getConf());
 
     job.setInt("fetcher.threads.fetch", threads);
     job.set(SEGMENT_NAME_KEY, segment.getName());

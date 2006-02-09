@@ -31,6 +31,7 @@ import org.apache.nutch.indexer.DeleteDuplicates;
 import org.apache.nutch.indexer.IndexMerger;
 import org.apache.nutch.indexer.Indexer;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.NutchJob;
 
 public class Crawl {
   public static final Logger LOG =
@@ -52,7 +53,7 @@ public class Crawl {
 
     Configuration conf = NutchConfiguration.create();
     conf.addDefaultResource("crawl-tool.xml");
-    JobConf job = new JobConf(conf);
+    JobConf job = new NutchJob(conf);
 
     File rootUrlDir = null;
     File dir = new File("crawl-" + getDate());

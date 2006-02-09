@@ -85,7 +85,7 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
     LOG.info("Parse: starting");
     LOG.info("Parse: segment: " + segment);
 
-    JobConf job = new JobConf(getConf());
+    JobConf job = new NutchJob(getConf());
 
     job.setInputDir(new File(segment, Content.DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);

@@ -22,6 +22,7 @@ import org.apache.hadoop.io.WritableName;
 /** Utility to create Hadoop {@link Configuration}s that include Nutch-specific
  * resources.  */
 public class NutchConfiguration {
+  private NutchConfiguration() {}                 // singleton
 
   // for back-compatibility, add old aliases for these Writable classes
   // this may be removed after the 0.8 release

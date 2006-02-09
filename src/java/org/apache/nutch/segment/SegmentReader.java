@@ -50,6 +50,7 @@ import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.NutchJob;
 
 /** Dump the content of a segment. */
 public class SegmentReader extends Configured implements Reducer {
@@ -149,7 +150,7 @@ public class SegmentReader extends Configured implements Reducer {
   public void reader(File segment) throws IOException {
     LOG.info("Reader: segment: " + segment);
 
-    JobConf job = new JobConf(getConf());
+    JobConf job = new NutchJob(getConf());
 
     job.addInputDir(new File(segment, CrawlDatum.GENERATE_DIR_NAME));
     job.addInputDir(new File(segment, CrawlDatum.FETCH_DIR_NAME));

@@ -28,6 +28,7 @@ import org.apache.hadoop.mapred.*;
 
 import org.apache.nutch.net.*;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.NutchJob;
 
 /** This class takes a flat file of URLs and adds them to the of pages to be
  * crawled.  Useful for bootstrapping the system. */
@@ -101,7 +102,7 @@ public class Injector extends Configured {
 
     // map text input file to a <url,CrawlDatum> file
     LOG.info("Injector: Converting injected urls to crawl db entries.");
-    JobConf sortJob = new JobConf(getConf());
+    JobConf sortJob = new NutchJob(getConf());
     sortJob.setInputDir(urlDir);
     sortJob.setMapperClass(InjectMapper.class);
     sortJob.setReducerClass(InjectReducer.class);
