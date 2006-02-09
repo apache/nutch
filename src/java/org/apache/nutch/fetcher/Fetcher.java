@@ -235,6 +235,9 @@ public class Fetcher extends Configured implements MapRunnable {
         byte[] signature = SignatureFactory.getSignature(getConf()).calculate(content, parse);
         metadata.set(SIGNATURE_KEY, StringUtil.toHexString(signature));
         datum.setSignature(signature);
+        // Ensure segment name and score are in parseData metadata
+        parse.getData().getContentMeta().set(SEGMENT_NAME_KEY, segmentName); 	 
+        parse.getData().getContentMeta().set(SCORE_KEY, Float.toString(datum.getScore()));        
       }
 
       try {
