@@ -51,6 +51,8 @@ public class Generator extends Configured {
       maxPerHost = job.getInt("generate.max.per.host", -1);
     }
 
+    public void close() {}
+
     /** Select & invert subset due for fetch. */
     public void map(WritableComparable key, Writable value,
                     OutputCollector output, Reporter reporter)

@@ -154,6 +154,8 @@ public class Indexer extends Configured implements Reducer {
     this.filters = new IndexingFilters(getConf());
   }
 
+  public void close() {}
+
   public void reduce(WritableComparable key, Iterator values,
                      OutputCollector output, Reporter reporter)
     throws IOException {

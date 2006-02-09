@@ -56,6 +56,7 @@ public class CrawlDbReader {
 
   public static class CrawlDbStatMapper implements Mapper {
     public void configure(JobConf job) {}
+    public void close() {}
     public void map(WritableComparable key, Writable value, OutputCollector output, Reporter reporter)
             throws IOException {
       CrawlDatum cd = (CrawlDatum) value;
@@ -68,6 +69,7 @@ public class CrawlDbReader {
 
   public static class CrawlDbStatReducer implements Reducer {
     public void configure(JobConf job) {}
+    public void close() {}
     public void reduce(WritableComparable key, Iterator values, OutputCollector output, Reporter reporter)
             throws IOException {
 
@@ -127,8 +129,8 @@ public class CrawlDbReader {
       }
     }
 
-    public void configure(JobConf job) {
-    }
+    public void configure(JobConf job) {}
+    public void close() {}
   }
   
   public void processStatJob(String crawlDb, Configuration config) throws IOException {

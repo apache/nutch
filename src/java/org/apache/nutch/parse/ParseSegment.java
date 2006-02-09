@@ -48,6 +48,8 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
     setConf(job);
   }
 
+  public void close() {}
+
   public void map(WritableComparable key, Writable value,
                   OutputCollector output, Reporter reporter)
     throws IOException {
