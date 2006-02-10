@@ -30,7 +30,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   public static final String FETCH_DIR_NAME = "crawl_fetch";
   public static final String PARSE_DIR_NAME = "crawl_parse";
 
-  private final static byte CUR_VERSION = 3;
+  private final static byte CUR_VERSION = 4;
 
   public static final byte STATUS_SIGNATURE = 0;
   public static final byte STATUS_DB_UNFETCHED = 1;
@@ -61,6 +61,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   private float score = 1.0f;
   private byte[] signature = null;
   private long modifiedTime;
+  private MapWritable metaData;
 
   public CrawlDatum() {}
 
@@ -116,6 +117,18 @@ public class CrawlDatum implements WritableComparable, Cloneable {
       throw new RuntimeException("Max signature length (256) exceeded: " + signature.length);
     this.signature = signature;
   }
+  
+   public void setMetaData(MapWritable mapWritable) {this.metaData = mapWritable; }
+
+  /**
+   * returns a MapWritable if it was set or read @see readFields(DataInput), 
+   * returns null in case CrawlDatum was freshly generated or an empty map 
+   * in case CrawlDatum is a recycled instance.
+   */
+  public MapWritable getMetaData() {
+    return this.metaData;
+  }
+  
 
   //
   // writable methods
@@ -146,6 +159,20 @@ public class CrawlDatum implements WritableComparable, Cloneable {
         in.readFully(signature);
       } else signature = null;
     }
+    if (version > 3) {
+      if (in.readBoolean()) {
+        if (metaData == null) {
+          metaData = new MapWritable(); 
+        } else {
+           metaData.clear();
+        }
+        metaData.readFields(in);
+      } else {
+        if (metaData != null) {
+          metaData.clear(); // at least clear old meta data
+        }
+      }
+    }
   }
 
   /** The number of bytes into a CrawlDatum that the score is stored. */
@@ -166,6 +193,12 @@ public class CrawlDatum implements WritableComparable, Cloneable {
       out.writeByte(signature.length);
       out.write(signature);
     }
+    if (metaData != null && metaData.size() > 0) {
+      out.writeBoolean(true);
+      metaData.write(out);
+    } else {
+      out.writeBoolean(false);
+    }
   }
 
   /** Copy the contents of another instance into this instance. */
@@ -177,6 +210,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     this.score = that.score;
     this.modifiedTime = that.modifiedTime;
     this.signature = that.signature;
+    this.metaData = that.metaData;
   }
 
 
