@@ -254,6 +254,7 @@
     	<packageset dir="${plugins.dir}/parse-pdf/src/java"/>
 <!--	<packageset dir="${plugins.dir}/parse-rtf/src/java"/> plugin excluded from build due to licensing issues-->
 <!--	<packageset dir="${plugins.dir}/parse-mp3/src/java"/> plugin excluded from build due to licensing issues-->
+    	<packageset dir="${plugins.dir}/parse-msexcel/src/java"/>
     	<packageset dir="${plugins.dir}/parse-mspowerpoint/src/java"/>
     	<packageset dir="${plugins.dir}/parse-msword/src/java"/>
     	<packageset dir="${plugins.dir}/parse-rss/src/java"/>
