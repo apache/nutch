@@ -62,6 +62,13 @@
       <arg value="../${build.dir}/hadoop/bin.tgz"/>
     </exec>
 
+    <!-- unpack hadoop webapp from hadoop jar into build directory -->
+    <mkdir dir="${build.dir}/webapps"/>
+    <unjar dest="${build.dir}">
+      <fileset dir="${lib.dir}" includes="hadoop*.jar"/>
+      <patternset includes="webapps/**"/>
+    </unjar>
+
   </target>
 
   <!-- ====================================================== -->
@@ -414,6 +421,10 @@
 
     <copy todir="${dist.dir}/plugins">
       <fileset dir="${build.plugins}"/>
+    </copy>
+
+    <copy todir="${dist.dir}/webapps">
+      <fileset dir="${build.webapps}"/>
     </copy>
 
     <copy file="${build.dir}/${final.name}.jar" todir="${dist.dir}"/>
