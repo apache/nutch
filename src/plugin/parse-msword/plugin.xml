@@ -15,6 +15,7 @@
 
    <requires>
       <import plugin="nutch-extensionpoints"/>
+      <import plugin="lib-jakarta-poi"/>
    </requires>
 
    <extension id="org.apache.nutch.parse.msword"
