@@ -9,8 +9,6 @@
       <library name="parse-msword.jar">
          <export name="*"/>
       </library>
-      <library name="poi-2.1-20040508.jar"/>
-      <library name="poi-scratchpad-2.1-20040508.jar"/>
    </runtime>
 
    <requires>
