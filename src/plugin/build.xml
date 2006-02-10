@@ -24,6 +24,7 @@
      <ant dir="parse-html" target="deploy"/>
      <ant dir="parse-js" target="deploy"/>
      <!-- <ant dir="parse-mp3" target="deploy"/> -->
+     <ant dir="parse-msexcel" target="deploy"/>
      <ant dir="parse-mspowerpoint" target="deploy"/>
      <ant dir="parse-msword" target="deploy"/>
      <ant dir="parse-pdf" target="deploy"/>
@@ -52,6 +53,7 @@
      <ant dir="parse-ext" target="test"/>
      <ant dir="parse-html" target="test"/>
      <!-- <ant dir="parse-mp3" target="test"/> -->
+     <ant dir="parse-msexcel" target="test"/>
      <ant dir="parse-mspowerpoint" target="test"/>
      <ant dir="parse-msword" target="test"/>
      <ant dir="parse-pdf" target="test"/>
@@ -86,6 +88,7 @@
     <ant dir="parse-html" target="clean"/>
     <ant dir="parse-js" target="clean"/>
     <ant dir="parse-mp3" target="clean"/>
+    <ant dir="parse-msexcel" target="clean"/>
     <ant dir="parse-mspowerpoint" target="clean"/>
     <ant dir="parse-msword" target="clean"/>
     <ant dir="parse-pdf" target="clean"/>

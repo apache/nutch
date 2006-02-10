@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="parse-msexcel"
+   name="MSExcel Parse Plug-in"
+   version="1.0.0"
+   provider-name="nutch.org">
+
+   <runtime>
+      <library name="parse-msexcel.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <requires>
+     <import plugin="nutch-extensionpoints"/>
+     <import plugin="lib-jakarta-poi"/>
+   </requires>
+
+   <extension id="org.apache.nutch.parse.msexcel"
+              name="MSExcelParser" 
+              point="org.apache.nutch.parse.Parser">
+
+      <implementation id="org.apache.nutch.parse.msexcel.MSExcelParser"
+                      class="org.apache.nutch.parse.msexcel.MSExcelParser" 
+                      contentType="application/vnd.ms-excel"
+                      pathSuffix="xls"/>
+   </extension>
+
+</plugin>
