@@ -23,7 +23,6 @@ import java.io.StringWriter;
  * 
  * @author Stephan Strittmatter - http://www.sybit.de
  * @version 1.0
- * @create 19.01.2005
  */
 public class FilteredStringWriter extends StringWriter {
 

@@ -56,7 +56,7 @@ public abstract class MSBaseParser implements Parser {
 
   /**
    * Parses a Content with a specific {@link MSExtractor Microsoft document
-   * extractor.
+   * extractor}.
    */
   protected Parse getParse(MSExtractor extractor, Content content) {
     
