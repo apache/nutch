@@ -16,17 +16,17 @@
 package org.apache.nutch.parse.msexcel;
 
 // JDK imports
-import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
-import java.util.Properties;
 
 // Jakarta POI imports
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.eventfilesystem.POIFSReader;
+
+// Nutch imports
+import org.apache.nutch.parse.ms.MSExtractor;
+
 
 /**
  * Excel Text and Properties extractor.
@@ -34,10 +34,10 @@ import org.apache.poi.poifs.eventfilesystem.POIFSReader;
  * @author Rohit Kulkarni & Ashish Vaidya
  * @author J&eacute;r&ocirc;me Charron
  */
-public class ExcelExtractor {
+class ExcelExtractor extends MSExtractor {
 
   
-  public String extractText(InputStream input) throws IOException {
+  protected String extractText(InputStream input) throws Exception {
     
     String resultText = "";
     HSSFWorkbook wb = new HSSFWorkbook(input);
@@ -88,45 +88,5 @@ public class ExcelExtractor {
     return resultText;
   }
   
-  
-  public Properties extractProperties(InputStream input) throws IOException {
-    
-    PropertiesBroker propertiesBroker = new PropertiesBroker();
-    POIFSReader reader = new POIFSReader();
-    reader.registerListener(new PropertiesReaderListener(propertiesBroker),
-                            "\005SummaryInformation");
-    reader.read(input);
-    return propertiesBroker.getProperties();
-  }
-  
-  
-  class PropertiesBroker {
-    
-    private Properties properties;
-    private int timeoutMillis = 2 * 1000;
-    
-    
-    public synchronized Properties getProperties() {
-      
-      long start = new Date().getTime();
-      long now = start;
-      
-      while ((properties == null) && (now-start < timeoutMillis)) {
-        try {
-          wait(timeoutMillis / 10);
-        } catch (InterruptedException e) {}
-        now = new Date().getTime();
-      }
-      
-      notifyAll();
-      return properties;
-    }
-    
-    public synchronized void setProperties(Properties properties) {
-      this.properties = properties;
-      notifyAll();
-    }
-  }
-
 }
 

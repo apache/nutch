@@ -13,118 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.parse.msword;
 
-import org.apache.nutch.metadata.DublinCore;
-import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.net.protocols.Response;
+// Nutch imports
 import org.apache.nutch.protocol.Content;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.parse.ParseStatus;
-import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.ParseData;
-import org.apache.nutch.parse.ParseImpl;
-import org.apache.nutch.parse.Outlink;
-import org.apache.nutch.parse.OutlinkExtractor;
-import org.apache.nutch.parse.ParseException;
+import org.apache.nutch.parse.ms.MSBaseParser;
 
-import java.util.Properties;
-import java.io.ByteArrayInputStream;
 
 /**
- * parser for mime type application/msword.
+ * Parser for mime type application/msword.
  * It is based on org.apache.poi.*. We have to see how well it performs.
  *
  * @author John Xing
- *
- * Note on 20040614 by Xing:
- * Some codes are stacked here for convenience (see inline comments).
- * They may be moved to more appropriate places when new codebase
- * stabilizes, especially after code for indexing is written.
- *
  * @author Andy Hedges
- * code to extract all msword properties.
- *
+ * @author J&eacute;r&ocirc;me Charron
  */
 
-public class MSWordParser implements Parser {
-  private Configuration conf;
+public class MSWordParser extends MSBaseParser {
 
-//  public static final Logger LOG =
-//    LogFormatter.getLogger("org.apache.nutch.parse.msword");
+  /**
+   * Associated Mime type for Word files
+   * (<code>application/msword</code>).
+   */
+  public static final String MIME_TYPE = "application/msword";
 
-  public MSWordParser () {}
-
+  
   public Parse getParse(Content content) {
-
-    String text = null;
-    String title = null;
-    Properties properties = null;
-
-    try {
-
-      byte[] raw = content.getContent();
-
-      String contentLength = content.getMetadata().get(Response.CONTENT_LENGTH);
-      if (contentLength != null
-            && raw.length != Integer.parseInt(contentLength)) {
-          return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_TRUNCATED,
-                  "Content truncated at " + raw.length
-            +" bytes. Parser can't handle incomplete msword file.").getEmptyParse(this.conf);
-      }
-
-      WordExtractor extractor = new WordExtractor();
-
-      // collect text
-      text = extractor.extractText(new ByteArrayInputStream(raw));
-
-      // collect meta info
-      properties = extractor.extractProperties(new ByteArrayInputStream(raw));
-
-      extractor = null;
-
-    } catch (ParseException e) {
-      return new ParseStatus(e).getEmptyParse(this.conf);
-    } catch (FastSavedException e) {
-      return new ParseStatus(e).getEmptyParse(this.conf);
-    } catch (PasswordProtectedException e) {
-      return new ParseStatus(e).getEmptyParse(this.conf);
-    } catch (Exception e) { // run time exception
-      return new ParseStatus(ParseStatus.FAILED,
-              "Can't be handled as msword document. " + e).getEmptyParse(this.conf);
-    } finally {
-      // nothing so far
-    }
-
-    // collect meta data
-    Metadata metadata = new Metadata();
-    title = properties.getProperty(DublinCore.TITLE);
-    properties.remove(DublinCore.TITLE);
-    metadata.setAll(properties);
-
-    if (text == null) { text = ""; }
-    if (title == null) { title = ""; }
-
-    // collect outlink
-    Outlink[] outlinks = OutlinkExtractor.getOutlinks(text, this.conf);
-
-    ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title,
-                                        outlinks, content.getMetadata(),
-                                        metadata);
-    parseData.setConf(this.conf);
-    return new ParseImpl(text, parseData);
-    // any filter?
-    //return HtmlParseFilters.filter(content, parse, root);
+    return getParse(new WordExtractor(), content);
   }
 
-  public void setConf(Configuration conf) {
-    this.conf = conf;
-  }
-
-  public Configuration getConf() {
-    return this.conf;
+  /**
+   * Main for testing. Pass an word document as argument
+   */
+  public static void main(String args[]) {
+    main(MIME_TYPE, new MSWordParser(), args);
   }
 
 }
