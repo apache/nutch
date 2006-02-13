@@ -14,42 +14,47 @@
  */
 package org.apache.nutch.parse.msword;
 
-import org.apache.poi.hpsf.*;
-import org.apache.poi.hwpf.model.*;
-import org.apache.poi.hwpf.sprm.*;
-import org.apache.poi.poifs.eventfilesystem.*;
-import org.apache.poi.poifs.filesystem.*;
-import org.apache.poi.util.LittleEndian;
-import org.apache.nutch.metadata.Metadata;
+// JDK imports
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
-import java.util.*;
-import java.io.*;
+// Jakarta POI imports
+import org.apache.poi.hwpf.model.CHPBinTable;
+import org.apache.poi.hwpf.model.CHPX;
+import org.apache.poi.hwpf.model.ComplexFileTable;
+import org.apache.poi.hwpf.model.TextPiece;
+import org.apache.poi.hwpf.model.TextPieceTable;
+import org.apache.poi.hwpf.sprm.SprmIterator;
+import org.apache.poi.hwpf.sprm.SprmOperation;
+import org.apache.poi.poifs.filesystem.DocumentEntry;
+import org.apache.poi.poifs.filesystem.DocumentInputStream;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+import org.apache.poi.util.LittleEndian;
+
+// Nutch imports
+import org.apache.nutch.parse.ms.MSExtractor;
+
 
 /**
  * This class extracts the text from a Word 6.0/95/97/2000/XP word doc
  *
  * @author Ryan Ackley
- *
  * @author Andy Hedges
- * code to extract all msword properties.
+ * @author J&eacute;r&ocirc;me Charron
  *
  */
-public class WordExtractor {
+class WordExtractor extends MSExtractor {
 
-  /**
-   * Constructor
-   */
-  public WordExtractor()
-  {
-  }
 
   /**
    * Gets the text from a Word document.
    *
    * @param in The InputStream representing the Word file.
    */
-  public String extractText(InputStream in) throws Exception
-  {
+  protected String extractText(InputStream in) throws Exception {
+
     ArrayList text = new ArrayList();
     POIFSFileSystem fsys = new POIFSFileSystem(in);
 
@@ -221,128 +226,5 @@ public class WordExtractor {
     return false;
   }
 
-  public Properties extractProperties(InputStream in)
-                      throws IOException {
-
-    PropertiesBroker propertiesBroker = new PropertiesBroker();
-    POIFSReader reader = new POIFSReader();
-    reader.registerListener(new PropertiesReaderListener(propertiesBroker),
-                            "\005SummaryInformation");
-    reader.read(in);
-    return propertiesBroker.getProperties();
-  }
-
-  class PropertiesReaderListener
-    implements POIFSReaderListener {
-
-    private PropertiesBroker propertiesBroker;
-    private Properties metaData = new Properties();
-
-    public PropertiesReaderListener(PropertiesBroker propertiesBroker) {
-      this.propertiesBroker = propertiesBroker;
-    }
-
-    public void processPOIFSReaderEvent(POIFSReaderEvent event) {
-
-      SummaryInformation si = null;
-      Properties properties = new Properties();
-
-      try {
-        si = (SummaryInformation)PropertySetFactory.create(event.getStream());
-      } catch (Exception ex) {
-        properties = null;
-      }
-
-      Date tmp = null;
-
-      String title = si.getTitle();
-      String applicationName = si.getApplicationName();
-      String author = si.getAuthor();
-      int charCount = si.getCharCount();
-      String comments = si.getComments();
-      Date createDateTime = si.getCreateDateTime();
-      long editTime = si.getEditTime();
-      String keywords = si.getKeywords();
-      String lastAuthor = si.getLastAuthor();
-      Date lastPrinted = si.getLastPrinted();
-      Date lastSaveDateTime = si.getLastSaveDateTime();
-      int pageCount = si.getPageCount();
-      String revNumber = si.getRevNumber();
-      int security = si.getSecurity();
-      String subject = si.getSubject();
-      String template = si.getTemplate();
-      int wordCount = si.getWordCount();
-
-      /*Dates are being stored in millis since the epoch to aid
-      localization*/
-      if(title != null)
-        properties.setProperty(Metadata.TITLE, title);
-      if(applicationName != null)
-        properties.setProperty(Metadata.APPLICATION_NAME, applicationName);
-      if(author != null)
-        properties.setProperty(Metadata.AUTHOR, author);
-      if(charCount != 0)
-        properties.setProperty(Metadata.CHARACTER_COUNT, charCount + "");
-      if(comments != null)
-        properties.setProperty(Metadata.COMMENTS, comments);
-      if(createDateTime != null)
-        properties.setProperty(Metadata.DATE,
-                               Metadata.DATE_FORMAT.format(createDateTime));
-      if(editTime != 0)
-        properties.setProperty(Metadata.LAST_MODIFIED, editTime + "");
-      if(keywords != null)
-        properties.setProperty(Metadata.KEYWORDS, keywords);
-      if(lastAuthor != null)
-        properties.setProperty(Metadata.LAST_AUTHOR, lastAuthor);
-      if(lastPrinted != null)
-        properties.setProperty(Metadata.LAST_PRINTED, lastPrinted.getTime() + "");
-      if(lastSaveDateTime != null)
-        properties.setProperty(Metadata.LAST_SAVED, lastSaveDateTime.getTime() + "");
-      if(pageCount != 0)
-        properties.setProperty(Metadata.PAGE_COUNT, pageCount + "");
-      if(revNumber != null)
-        properties.setProperty(Metadata.REVISION_NUMBER, revNumber);
-      if(security != 0)
-        properties.setProperty(Metadata.RIGHTS, security + "");
-      if(subject != null)
-        properties.setProperty(Metadata.SUBJECT, subject);
-      if(template != null)
-        properties.setProperty(Metadata.TEMPLATE, template);
-      if(wordCount != 0)
-        properties.setProperty(Metadata.WORD_COUNT, wordCount + "");
-      propertiesBroker.setProperties(properties);
-
-      //si.getThumbnail(); // can't think of a sensible way of turning this into a string.
-    }
-  }
-
-  class PropertiesBroker {
-
-    private Properties properties;
-    private int timeoutMillis = 2 * 1000;
-
-
-    public synchronized Properties getProperties() {
-
-      long start = new Date().getTime();
-      long now = start;
-
-      while (properties == null && now - start < timeoutMillis) {
-        try {
-          wait(timeoutMillis / 10);
-        } catch (InterruptedException e) {}
-        now = new Date().getTime();
-      }
-
-      notifyAll();
-
-      return properties;
-    }
-
-    public synchronized void setProperties(Properties properties) {
-      this.properties = properties;
-      notifyAll();
-    }
-  }
 }
 

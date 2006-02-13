@@ -8,6 +8,9 @@
     <fileset dir="../lib-jakarta-poi/lib">
       <include name="*.jar" />
     </fileset>
+    <fileset dir="../../../build/lib-parsems">
+      <include name="*.jar" />
+    </fileset>
   </path>
 
   <!-- for junit test -->

@@ -12,22 +12,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.nutch.parse.msword;
 
-/**
- * <p>Title: </p>
- * <p>Description: </p>
- * <p>Copyright: Copyright (c) 2003</p>
- * <p>Company: </p>
- * @author not attributable
- * @version 1.0
- */
 
-public class FastSavedException extends Exception
-{
-  public FastSavedException(String msg)
-  {
+public class FastSavedException extends Exception {
+  
+  public FastSavedException(String msg) {
     super(msg);
   }
 

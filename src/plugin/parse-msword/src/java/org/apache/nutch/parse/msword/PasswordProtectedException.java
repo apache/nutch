@@ -14,11 +14,10 @@
  */
 package org.apache.nutch.parse.msword;
 
-public class PasswordProtectedException
-  extends Exception
-{
-  public PasswordProtectedException(String msg)
-  {
+
+public class PasswordProtectedException extends Exception {
+
+  public PasswordProtectedException(String msg) {
     super(msg);
   }
 

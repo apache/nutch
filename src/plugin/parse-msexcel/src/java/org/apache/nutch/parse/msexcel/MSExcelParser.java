@@ -15,26 +15,11 @@
  */
 package org.apache.nutch.parse.msexcel;
 
-// JDK imports
-import java.io.ByteArrayInputStream;
-import java.util.Properties;
-import java.util.logging.Logger;
-
-// Hadoop imports
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.util.LogFormatter;
-
 // Nutch imports
-import org.apache.nutch.metadata.DublinCore;
-import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.parse.Outlink;
-import org.apache.nutch.parse.OutlinkExtractor;
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.ParseData;
-import org.apache.nutch.parse.ParseImpl;
-import org.apache.nutch.parse.ParseStatus;
-import org.apache.nutch.parse.Parser;
+import org.apache.nutch.parse.ms.MSBaseParser;
 import org.apache.nutch.protocol.Content;
+
 
 /**
  * An Excel document parser.
@@ -42,84 +27,24 @@ import org.apache.nutch.protocol.Content;
  * @author Rohit Kulkarni & Ashish Vaidya
  * @author J&eacute;r&ocirc;me Charron
  */
-public class MSExcelParser implements Parser {
-  
-  private Configuration conf;
-  
-  private static final Logger LOG = LogFormatter.getLogger(MSExcelParser.class.getName());
+public class MSExcelParser extends MSBaseParser {
+    
+  /**
+   * Associated Mime type for Excel files
+   * (<code>application/vnd.ms-excel</code>).
+   */
+  public static final String MIME_TYPE = "application/vnd.ms-excel";
 
-  /** Creates a new instance of MSExcelParser */
-  public MSExcelParser() { }
   
   public Parse getParse(Content content) {
-    
-    String text = null;
-    String title = null;
-    Properties properties = null;
-    
-    try {
-      byte[] raw = content.getContent();
-      String contentLength = content.getMetadata().get(Metadata.CONTENT_LENGTH);
-      if ((contentLength != null) &&
-          (raw.length != Integer.parseInt(contentLength))) {
-        return new ParseStatus(ParseStatus.FAILED,
-                               ParseStatus.FAILED_TRUNCATED,
-                               "Content truncated at " + raw.length +" bytes. " +
-                               "Parser can't handle incomplete msexcelfile.")
-                               .getEmptyParse(this.conf);
-      }
-
-      ExcelExtractor extractor = new ExcelExtractor();      
-      // Extract text
-      text = extractor.extractText(new ByteArrayInputStream(raw));
-      // Extract properties
-      properties = extractor.extractProperties(new ByteArrayInputStream(raw));
-      
-      //currently returning empty outlinks array
-      //outlinks = this.fetchOutlinks(resultText);
-      
-    } catch (Exception e) {
-      return new ParseStatus(ParseStatus.FAILED,
-                             "Can't be handled as msexcel document. " + e)
-                             .getEmptyParse(this.conf);
-    } finally {
-      // nothing so far
-    }
-    
-    // collect meta data
-    Metadata metadata = new Metadata();
-    title = properties.getProperty(DublinCore.TITLE);
-    properties.remove(DublinCore.TITLE);
-    metadata.setAll(properties);
-
-    if (text == null) { text = ""; }
-    if (title == null) { title = ""; }
-
-    // collect outlink
-    Outlink[] outlinks = OutlinkExtractor.getOutlinks(text, this.conf);
-
-    ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title,
-                                        outlinks, content.getMetadata(),
-                                        metadata);
-    parseData.setConf(this.conf);
-    return new ParseImpl(text, parseData);
+    return getParse(new ExcelExtractor(), content);
   }
 
-
-  /* ---------------------------- *
-   * <implemenation:Configurable> *
-   * ---------------------------- */
+  /**
+   * Main for testing. Pass an excel document as argument
+   */
+  public static void main(String args[]) {
+    main(MIME_TYPE, new MSExcelParser(), args);
+  }
   
-  public void setConf(Configuration conf) {
-    this.conf = conf;
-  }
-
-  public Configuration getConf() {
-    return this.conf;
-  }
-
-  /* ----------------------------- *
-   * </implemenation:Configurable> *
-   * ----------------------------- */
-
 }
