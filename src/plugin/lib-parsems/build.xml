@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<project name="lib-parsems" default="jar">
+
+  <import file="../build-plugin.xml"/>
+
+  <path id="plugin.deps">
+    <fileset dir="../lib-jakarta-poi/lib">
+      <include name="*.jar" />
+    </fileset>
+  </path>
+
+</project>

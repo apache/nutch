@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ ! A common framework for microsoft documents parsers implementations
+ !-->
+<plugin
+   id="lib-parsems"
+   name="Parse MS Documents Framework"
+   version="1.0"
+   provider-name="org.apache.nutch">
+
+   <runtime>
+     <library name="lib-parsems.jar">
+        <export name="*"/>
+     </library>
+   </runtime>
+
+   <requires>
+      <import plugin="lib-jakarta-poi"/>
+   </requires>
+
+</plugin>
