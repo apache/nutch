@@ -14,6 +14,7 @@
      <ant dir="lib-http" target="deploy"/>
      <ant dir="lib-jakarta-poi" target="deploy"/>
      <ant dir="lib-lucene-analyzers" target="deploy"/>
+     <ant dir="lib-parsems" target="deploy"/>
      <ant dir="nutch-extensionpoints" target="deploy"/>
      <ant dir="ontology" target="deploy"/>
      <ant dir="protocol-file" target="deploy"/>
@@ -78,6 +79,7 @@
     <ant dir="lib-http" target="clean"/>
     <ant dir="lib-jakarta-poi" target="clean"/>
     <ant dir="lib-lucene-analyzers" target="clean"/>
+    <ant dir="lib-parsems" target="clean"/>
     <ant dir="nutch-extensionpoints" target="clean"/>
     <ant dir="ontology" target="clean"/>
     <ant dir="protocol-file" target="clean"/>
