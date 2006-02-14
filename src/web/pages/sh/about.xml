@@ -1,0 +1,46 @@
+<page>
+
+<title>O Nutch-u</title>
+
+<menu>
+ <item><a href="http://lucene.apache.org/nutch/credits.html">Zasluge</a></item>
+ <item><a href="http://lucene.apache.org/nutch/index.html">Status</a></item>
+</menu>
+
+<body>
+
+<p>Nutch je poduhvat implementiranja web pretraživača otvorenog koda.</p>
+
+<p>Web pretraživanje je osnovni preduslov za internet navigaciju, a ipak se
+broj web pretraživača smanjuje. Oligopol današnjice mogao bi uskoro lako  
+postati monopol, sa jednom kompanijom koja kotroliše gotovo sva pretraživanja 
+radi sopstvene finansijske dobiti. Po korisnike interneta to ne bi bilo dobro.</p>
+
+<p>Nutch nudi transparentnu alternativu komercijalnim web pretraživačima.
+Samo pretraživačima otvorenog koda možemo verovati da su njihovi rezultati nepristrasni.
+(Ili je barem njihova pristrasnost javna.) Svi glavni postojeći pretraživači 
+imaju sopstvene formule rangiranja rezultata, i ne žele objašnjavati zašto se određena stranica 
+rangira baš tako. Takođe, nekim web pretraživačima moguće je platiti kako bi se uticalo na to 
+koji sajt i na koji način će biti rangiran u rezultatima, umesto da uslov za rangiranje bude sam sajt.
+Nutch, sa druge strane, nema šta da krije i nema motiva da njegovi rezultati ili njegov crawler bude pristrasan u bilo kom
+pogledu osim da pokuša da svakom korisniku ponudi najbolje moguće rezultate.</p>
+
+<p>Cilj Nutch-a je omogući svakome da jednostavno i ekonomično razvije 
+kvalitetan web pretraživač.  To je veliki izazov.  Da bi uspeo, Nutch 
+softver mora biti sposoban da:</p>
+<ul>
+  <li>dohvata nekoliko milijardi stranica mesečno</li>
+  <li>održava indeks tih stranica</li>
+  <li>pretražuje indeks tih stranica i do 1000 puta u sekundi</li>
+  <li>obezbedi visokokvalitetne rezulate pretrage</li>
+  <li>ima minimalne operativne troškove</li>
+</ul>
+
+<p>To je izazovan poduhvat. Ako veruješ u suštinu ovog projekta, možeš pomoći
+bilo svojim radom na <a
+href="http://www.apache.org/dev/">razvoju</a> bilo <a
+href="http://www.apache.org/foundation/contributing.html">donacijom.</a>
+</p>
+
+</body>
+</page>
