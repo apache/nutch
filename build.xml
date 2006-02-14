@@ -387,6 +387,14 @@
     </antcall>
 
     <antcall target="generate-locale">
+      <param name="doc.locale" value="sh"/>
+    </antcall>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="sr"/>
+    </antcall>
+
+    <antcall target="generate-locale">
       <param name="doc.locale" value="sv"/>
     </antcall>
 
