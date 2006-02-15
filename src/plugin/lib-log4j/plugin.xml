@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ ! Log4j library
+ ! (http://logging.apache.org/log4j/)
+ !
+ ! Dowload : http://logging.apache.org/site/binindex.cgi
+ ! License : http://www.apache.org/licenses/LICENSE-2.0.txt
+ !-->
+<plugin
+   id="lib-log4j"
+   name="Log4j"
+   version="1.2.11"
+   provider-name="org.apache.log4j">
+
+   <runtime>
+     <library name="log4j-1.2.11.jar">
+        <export name="*"/>
+     </library>
+   </runtime>
+
+</plugin>
