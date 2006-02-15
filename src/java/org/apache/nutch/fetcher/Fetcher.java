@@ -348,6 +348,9 @@ public class Fetcher extends Configured implements MapRunnable {
     job.set(SEGMENT_NAME_KEY, segment.getName());
     job.setBoolean("fetcher.parse", parsing);
 
+    // for politeness, don't permit parallel execution of a single task
+    job.setBoolean("mapred.speculative.execution", false);
+
     job.setInputDir(new File(segment, CrawlDatum.GENERATE_DIR_NAME));
     job.setInputFormat(InputFormat.class);
     job.setInputKeyClass(UTF8.class);
