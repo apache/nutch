@@ -29,6 +29,7 @@
 
    <requires>
       <import plugin="nutch-extensionpoints"/>
+      <import plugin="lib-log4j"/>
    </requires>
 
    <extension id="org.apache.nutch.clustering.carrot2"

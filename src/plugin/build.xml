@@ -13,6 +13,7 @@
      <ant dir="languageidentifier" target="deploy"/>
      <ant dir="lib-http" target="deploy"/>
      <ant dir="lib-jakarta-poi" target="deploy"/>
+     <ant dir="lib-log4j" target="deploy"/>
      <ant dir="lib-lucene-analyzers" target="deploy"/>
      <ant dir="lib-parsems" target="deploy"/>
      <ant dir="nutch-extensionpoints" target="deploy"/>
@@ -78,6 +79,7 @@
     <ant dir="languageidentifier" target="clean"/>
     <ant dir="lib-http" target="clean"/>
     <ant dir="lib-jakarta-poi" target="clean"/>
+    <ant dir="lib-log4j" target="clean"/>
     <ant dir="lib-lucene-analyzers" target="clean"/>
     <ant dir="lib-parsems" target="clean"/>
     <ant dir="nutch-extensionpoints" target="clean"/>

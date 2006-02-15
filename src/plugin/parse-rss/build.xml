@@ -4,6 +4,11 @@
 
   <import file="../build-plugin.xml"/>
   
+  <path id="plugin.deps">
+    <fileset dir="../lib-log4j/lib">
+      <include name="*.jar" />
+    </fileset>
+  </path>
   
   <!-- for junit test -->
   <mkdir dir="${build.test}/data"/>
