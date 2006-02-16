@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ ! NekoHTML is a simple HTML scanner and tag balancer.
+ ! (http://people.apache.org/~andyc/neko/doc/html/index.html)
+ ! 
+ ! Dowload : http://people.apache.org/~andyc/neko/doc/html/index.html
+ ! License : http://people.apache.org/~andyc/neko/LICENSE
+ !-->
+<plugin
+   id="lib-nekohtml"
+   name="CyberNeko HTML Parser"
+   version="0.9.4"
+   provider-name="org.cyberneko">
+
+   <runtime>
+     <library name="nekohtml-0.9.4.jar">
+        <export name="*"/>
+     </library>
+   </runtime>
+
+</plugin>

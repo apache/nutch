@@ -22,15 +22,12 @@
       <library name="commons-pool-1.1.jar"/>
       <library name="FSA.jar"/>
       <library name="Jama-1.0.1-patched.jar"/>
-      <library name="log4j-1.2.8.jar"/>
-
-      <library name="nekohtml-0.9.2.jar"/>
    </runtime>
 
    <requires>
       <import plugin="nutch-extensionpoints"/>
       <import plugin="lib-log4j"/>
-      <import plugin="lib-commons-httpclient"/>
+      <import plugin="lib-nekohtml"/>
    </requires>
 
    <extension id="org.apache.nutch.clustering.carrot2"
