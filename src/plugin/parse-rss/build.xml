@@ -3,10 +3,11 @@
 <project name="parse-rss" default="jar">
 
   <import file="../build-plugin.xml"/>
-  
+
   <path id="plugin.deps">
-    <fileset dir="../lib-log4j/lib">
-      <include name="*.jar" />
+    <fileset dir="${nutch.root}/build">
+      <include name="**/lib-log4j/*.jar" />
+      <include name="**/lib-commons-httpclient/*.jar" />
     </fileset>
   </path>
   
