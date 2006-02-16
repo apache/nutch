@@ -6,17 +6,18 @@
   <!-- Build & deploy all the plugin jars.                    -->
   <!-- ====================================================== -->
   <target name="deploy">
-     <ant dir="clustering-carrot2" target="deploy"/>
-     <ant dir="creativecommons" target="deploy"/>
-     <ant dir="index-basic" target="deploy"/>
-     <ant dir="index-more" target="deploy"/>
-     <ant dir="languageidentifier" target="deploy"/>
      <ant dir="lib-commons-httpclient" target="deploy"/>
      <ant dir="lib-http" target="deploy"/>
      <ant dir="lib-jakarta-poi" target="deploy"/>
      <ant dir="lib-log4j" target="deploy"/>
      <ant dir="lib-lucene-analyzers" target="deploy"/>
+     <ant dir="lib-nekohtml" target="deploy"/>
      <ant dir="lib-parsems" target="deploy"/>
+     <ant dir="clustering-carrot2" target="deploy"/>
+     <ant dir="creativecommons" target="deploy"/>
+     <ant dir="index-basic" target="deploy"/>
+     <ant dir="index-more" target="deploy"/>
+     <ant dir="languageidentifier" target="deploy"/>
      <ant dir="nutch-extensionpoints" target="deploy"/>
      <ant dir="ontology" target="deploy"/>
      <ant dir="protocol-file" target="deploy"/>
@@ -83,6 +84,7 @@
     <ant dir="lib-jakarta-poi" target="clean"/>
     <ant dir="lib-log4j" target="clean"/>
     <ant dir="lib-lucene-analyzers" target="clean"/>
+    <ant dir="lib-nekohtml" target="clean"/>
     <ant dir="lib-parsems" target="clean"/>
     <ant dir="nutch-extensionpoints" target="clean"/>
     <ant dir="ontology" target="clean"/>
