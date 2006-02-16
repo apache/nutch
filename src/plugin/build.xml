@@ -11,6 +11,7 @@
      <ant dir="index-basic" target="deploy"/>
      <ant dir="index-more" target="deploy"/>
      <ant dir="languageidentifier" target="deploy"/>
+     <ant dir="lib-commons-httpclient" target="deploy"/>
      <ant dir="lib-http" target="deploy"/>
      <ant dir="lib-jakarta-poi" target="deploy"/>
      <ant dir="lib-log4j" target="deploy"/>
@@ -77,6 +78,7 @@
     <ant dir="index-basic" target="clean"/>
     <ant dir="index-more" target="clean"/>
     <ant dir="languageidentifier" target="clean"/>
+    <ant dir="lib-commons-httpclient" target="clean"/>
     <ant dir="lib-http" target="clean"/>
     <ant dir="lib-jakarta-poi" target="clean"/>
     <ant dir="lib-log4j" target="clean"/>

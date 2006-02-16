@@ -5,8 +5,9 @@
   <import file="../build-plugin.xml"/>
 
   <path id="plugin.deps">
-    <fileset dir="../../../build/lib-http">
-      <include name="*.jar" />
+    <fileset dir="${nutch.root}/build">
+      <include name="**/lib-http/*.jar" />
+      <include name="**/lib-commons-httpclient/*.jar" />
     </fileset>
   </path>
 
