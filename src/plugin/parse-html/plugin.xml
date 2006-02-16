@@ -9,12 +9,12 @@
       <library name="parse-html.jar">
          <export name="*"/>
       </library>
-      <library name="nekohtml-0.9.4.jar"/>
       <library name="tagsoup-1.0rc3.jar"/>
    </runtime>
 
    <requires>
       <import plugin="nutch-extensionpoints"/>
+      <import plugin="lib-nekohtml"/>
    </requires>
 
    <extension id="org.apache.nutch.parse.html"

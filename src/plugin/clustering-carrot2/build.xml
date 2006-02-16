@@ -7,7 +7,7 @@
   <path id="plugin.deps">
     <fileset dir="${nutch.root}/build">
       <include name="**/lib-log4j/*.jar" />
-      <include name="**/lib-commons-httpclient/*.jar" />
+      <include name="**/lib-nekohtml/*.jar" />
     </fileset>
   </path>
 
