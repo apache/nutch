@@ -18,10 +18,11 @@ package org.apache.nutch.searcher;
 
 import java.io.IOException;
 
+import org.apache.hadoop.io.Closeable;
 import org.apache.nutch.crawl.Inlinks;
 
 /** Service that returns information about incoming links to a hit. */
-public interface HitInlinks {
+public interface HitInlinks extends Closeable {
   /** Returns the anchors of a hit document. */
   String[] getAnchors(HitDetails details) throws IOException;
 

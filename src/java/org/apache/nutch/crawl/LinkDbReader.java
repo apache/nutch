@@ -32,7 +32,7 @@ import org.apache.nutch.util.NutchJob;
 import java.util.logging.Logger;
 
 /** . */
-public class LinkDbReader {
+public class LinkDbReader implements Closeable {
   public static final Logger LOG = LogFormatter.getLogger(LinkDbReader.class.getName());
 
   private static final Partitioner PARTITIONER = new HashPartitioner();
@@ -66,6 +66,14 @@ public class LinkDbReader {
     
     return (Inlinks)MapFileOutputFormat.getEntry
       (readers, PARTITIONER, url, new Inlinks());
+  }
+  
+  public void close() throws IOException {
+    if (readers != null) {
+      for (int i = 0; i < readers.length; i++) {
+        readers[i].close();
+      }
+    }
   }
   
   public static void processDumpJob(String linkdb, String output, Configuration config) throws IOException {

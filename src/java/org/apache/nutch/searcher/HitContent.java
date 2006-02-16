@@ -18,11 +18,12 @@ package org.apache.nutch.searcher;
 
 import java.io.IOException;
 
+import org.apache.hadoop.io.Closeable;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseText;
 
 /** Service that returns the content of a hit. */
-public interface HitContent {
+public interface HitContent extends Closeable {
   /** Returns the content of a hit document. */
   byte[] getContent(HitDetails details) throws IOException;
 

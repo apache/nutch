@@ -165,5 +165,10 @@ public class IndexSearcher implements Searcher, HitDetailer {
     }
     return new Hits(topDocs.totalHits, hits);
   }
+  
+  public void close() throws IOException {
+    if (luceneSearcher != null) { luceneSearcher.close(); }
+    if (reader != null) { reader.close(); }
+  }
 
 }

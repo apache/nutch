@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.File;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
@@ -34,7 +35,7 @@ import org.apache.nutch.crawl.*;
  * fetched segments. */
 public class FetchedSegments implements HitSummarizer, HitContent {
 
-  private static class Segment {
+  private static class Segment implements Closeable {
     private static final Partitioner PARTITIONER = new HashPartitioner();
 
     private FileSystem fs;
@@ -91,6 +92,19 @@ public class FetchedSegments implements HitSummarizer, HitContent {
     private Writable getEntry(MapFile.Reader[] readers, UTF8 url,
                               Writable entry) throws IOException {
       return MapFileOutputFormat.getEntry(readers, PARTITIONER, url, entry);
+    }
+
+    public void close() throws IOException {
+      if (content != null) { closeReaders(content); }
+      if (parseText != null) { closeReaders(parseText); }
+      if (parseData != null) { closeReaders(parseData); }
+      if (crawl != null) { closeReaders(crawl); }
+    }
+
+    private void closeReaders(MapFile.Reader[] readers) throws IOException {
+      for (int i = 0; i < readers.length; i++) {
+        readers[i].close();
+      }
     }
 
   }
@@ -206,5 +220,11 @@ public class FetchedSegments implements HitSummarizer, HitContent {
     return new UTF8(details.getValue("url"));
   }
 
-
+  public void close() throws IOException {
+    Iterator iterator = segments.values().iterator();
+    while (iterator.hasNext()) {
+      ((Segment) iterator.next()).close();
+    }
+  }
+  
 }

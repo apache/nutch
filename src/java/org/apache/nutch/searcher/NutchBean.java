@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 import javax.servlet.ServletContext;
 
 import org.apache.hadoop.fs.*;
+import org.apache.hadoop.io.Closeable;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.parse.*;
@@ -35,7 +36,7 @@ import org.apache.nutch.util.NutchConfiguration;
  */   
 public class NutchBean
   implements Searcher, HitDetailer, HitSummarizer, HitContent, HitInlinks,
-             DistributedSearch.Protocol {
+             DistributedSearch.Protocol, Closeable {
 
   public static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.searcher.NutchBean");
@@ -352,6 +353,13 @@ public class NutchBean
     return content.getFetchDate(hit);
   }
 
+  public void close() throws IOException {
+    if (content != null) { content.close(); }
+    if (searcher != null) { searcher.close(); }
+    if (linkDb != null) { linkDb.close(); }
+    if (fs != null) { fs.close(); }
+  }
+  
   /** For debugging. */
   public static void main(String[] args) throws Exception {
     String usage = "NutchBean query";

@@ -30,4 +30,9 @@ public class LinkDbInlinks implements HitInlinks {
   public Inlinks getInlinks(HitDetails details) throws IOException {
     return linkdb.getInlinks(new UTF8(details.getValue("url")));
   }
+
+  public void close() throws IOException {
+    if (linkdb != null) { linkdb.close(); }
+  }
+
 }

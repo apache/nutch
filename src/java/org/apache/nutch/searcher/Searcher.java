@@ -18,8 +18,10 @@ package org.apache.nutch.searcher;
 
 import java.io.IOException;
 
+import org.apache.hadoop.io.Closeable;
+
 /** Service that searches. */
-public interface Searcher {
+public interface Searcher extends Closeable {
   /** Return the top-scoring hits for a query. */
   Hits search(Query query, int numHits,
               String dedupField, String sortField, boolean reverse)
