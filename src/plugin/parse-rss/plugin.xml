@@ -15,7 +15,6 @@
       <library name="jaxen-jdom.jar"/>
       <library name="commons-feedparser-0.6-fork.jar"/>
       <library name="saxpath.jar"/>
-      <library name="commons-httpclient-3.0-beta1.jar"/>
       <library name="log4j-1.2.6.jar"/>
       <library name="xercesImpl.jar"/>
       <library name="xml-apis.jar"/>
@@ -25,6 +24,7 @@
    <requires>
       <import plugin="nutch-extensionpoints"/>
       <import plugin="lib-log4j"/>
+      <import plugin="lib-commons-httpclient"/>
    </requires>
 
    <extension id="org.apache.nutch.parse.rss"
