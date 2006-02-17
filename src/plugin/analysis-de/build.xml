@@ -4,9 +4,16 @@
 
   <import file="../build-plugin.xml"/>
 
+  <!-- Build compilation dependencies -->
+  <target name="deps-jar">
+    <ant target="compile-core" inheritall="false" dir="${nutch.root}"/>
+    <ant target="jar" inheritall="false" dir="../lib-lucene-analyzers"/>
+  </target>
+
+  <!-- Add compilation dependencies to classpath -->
   <path id="plugin.deps">
-    <fileset dir="../lib-lucene-analyzers/lib">
-      <include name="*.jar" />
+    <fileset dir="${nutch.root}/build">
+      <include name="**/lib-lucene-analyzers/*.jar" />
     </fileset>
   </path>
 

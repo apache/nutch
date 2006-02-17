@@ -4,6 +4,11 @@
 
   <import file="../build-plugin.xml"/>
 
+  <target name="deps-jar">
+    <ant target="jar" inheritall="false" dir="../lib-commons-httpclient"/>
+    <ant target="jar" inheritall="false" dir="../lib-http"/>
+  </target>
+
   <path id="plugin.deps">
     <fileset dir="${nutch.root}/build">
       <include name="**/lib-http/*.jar" />
