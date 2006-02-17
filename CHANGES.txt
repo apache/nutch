@@ -13,6 +13,10 @@ Cannon-Brookes).
  
  5. NUTCH-45 - Log corrupt segments in SegmentMergeTool. (Otis Gospodnetic).
 
+ 6. Fixed TestFetcher JUnit test failing due to changes in www.nutch.org
+website.
+
+
 Release 0.7.1 - 2005-10-01
 
  1. Give focus to search query input.
