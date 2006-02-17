@@ -16,33 +16,33 @@
 
 package org.apache.nutch.parse.rtf;
 
+// JUnit imports
 import junit.framework.TestCase;
+
+// Nutch imports
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.metadata.DublinCore;
+import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
-import org.apache.nutch.parse.ParserFactory;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolFactory;
-<<<<<<< .mine
-<<<<<<< .mine
-import org.apache.nutch.util.MetadataNames;
-=======
-import org.apache.nutch.util.NutchConf;
-=======
-import org.apache.hadoop.conf.Configuration;
->>>>>>> .r374853
->>>>>>> .r373941
+import org.apache.nutch.util.NutchConfiguration;
 
-import java.util.Properties;
+// Hadoop imports
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.UTF8;
+
 
 /**
  * Unit tests for TestRTFParser.  (Adapted from John Xing msword unit tests).
  *
  * @author Andy Hedges
  */
-public class TestRTFParser extends TestCase implements MetadataNames {
+public class TestRTFParser extends TestCase {
 
   private String fileSeparator = System.getProperty("file.separator");
   // This system property is defined in ./src/plugin/build-plugin.xml
@@ -72,16 +72,16 @@ public class TestRTFParser extends TestCase implements MetadataNames {
     Configuration conf = NutchConfiguration.create();
     urlString = "file:" + sampleDir + fileSeparator + rtfFile;
     protocol = new ProtocolFactory(conf).getProtocol(urlString);
-    content = protocol.getContent(urlString);
-
+    content = protocol.getProtocolOutput(new UTF8(urlString), new CrawlDatum())
+                      .getContent();
     parse = new ParseUtil(conf).parseByParserId("parse-rtf", content);
     String text = parse.getText();
     assertEquals("The quick brown fox jumps over the lazy dog", text.trim());
 
     String title = parse.getData().getTitle();
-    Properties meta = parse.getData().getMetadata();
+    Metadata meta = parse.getData().getParseMeta();
     assertEquals("test rft document", title);
-    assertEquals("tests", meta.getProperty(SUBJECT));
+    assertEquals("tests", meta.get(DublinCore.SUBJECT));
 
 
 

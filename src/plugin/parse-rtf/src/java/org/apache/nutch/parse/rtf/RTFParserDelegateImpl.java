@@ -16,27 +16,48 @@
 
 package org.apache.nutch.parse.rtf;
 
+// RTF Parser imports
 import com.etranslate.tm.processing.rtf.RTFParserDelegate;
 
+// JDK imports
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import org.apache.nutch.util.MetadataNames;
+// Nutch imports
+import org.apache.nutch.metadata.DublinCore;
+import org.apache.nutch.metadata.Office;
+
 
 /**
  * A parser delegate for handling rtf events.
  * @author Andy Hedges
  */
-public class RTFParserDelegateImpl implements RTFParserDelegate, MetadataNames {
+public class RTFParserDelegateImpl implements RTFParserDelegate {
 
   String tabs = "";
   Properties metadata = new Properties();
 
-  String[] META_NAMES_TEXT = {TITLE, SUBJECT, AUTHOR, "manager",
-                              "company", "operator", "category", KEYWORDS,
-                              COMMENTS, "doccomm", "hlinkbase"};
-  String[] META_NAMES_DATE = {"creatim", "creatim", "printim", "buptim"};
+  String[] META_NAMES_TEXT = {
+    DublinCore.TITLE,
+    DublinCore.SUBJECT,
+    Office.AUTHOR,
+    "manager",
+    "company",
+    "operator",
+    "category",
+    Office.KEYWORDS,
+    Office.COMMENTS,
+    "doccomm",
+    "hlinkbase"
+  };
+  
+  String[] META_NAMES_DATE = {
+    "creatim",
+    "creatim",
+    "printim",
+    "buptim"
+  };
 
   String metaName = "";
   List metaNamesText = Arrays.asList(META_NAMES_TEXT);
