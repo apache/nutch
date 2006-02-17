@@ -8,10 +8,12 @@
    ! Override the compile and jar targets,
    ! since there is nothing to compile here.
    ! -->
-  <target name="compile" depends="init">
-    <echo message="Compiling plugin: ${name}"/>
-  </target>
+  <target name="compile" depends="init"/>
 
-  <target name="jar" depends="compile"/>
+  <target name="jar" depends="compile">
+    <copy todir="${build.dir}" verbose="true">
+      <fileset dir="./lib" includes="**/*.jar"/>
+    </copy>
+  </target>
 
 </project>
