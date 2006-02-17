@@ -51,8 +51,8 @@ public class TestFetcher extends TestCase {
 	
         String url1 = "http://sourceforge.net/projects/nutch/";
         String url2 = "http://www.yahoo.com/";
-        String url3 = "http://jakarta.apache.org/lucene/";
-        String url4 = "http://www.nutch.org/docs/index.html";
+        String url3 = "http://www.google.com";
+        String url4 = "http://lucene.apache.org/nutch/";
         String url5 = "ftp://ftp.redhat.com/";
     
         Page page1 = new Page(url1, id1);
