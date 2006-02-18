@@ -21,7 +21,7 @@ import org.apache.hadoop.conf.Configuration;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Properties;
+import org.apache.nutch.metadata.Metadata;
 
 /**
  * This class allows meta data to be collected and manipulated
@@ -29,7 +29,7 @@ import java.util.Properties;
  */
 public class MetadataCollector {
 
-  private Properties metadata = new Properties();
+  private Metadata metadata = new Metadata();
   private String title = null;
   private String artist = null;
   private String album = null;
@@ -55,14 +55,10 @@ public class MetadataCollector {
       text += value + "\n";
     }
 
-    metadata.setProperty(name, value);
+    metadata.set(name, value);
   }
 
-  public void putAll(Properties properties) {
-    metadata.putAll(properties);
-  }
-
-  public Properties getData() {
+  public Metadata getData() {
     return metadata;
   }
 

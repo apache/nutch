@@ -16,10 +16,14 @@
 
 package org.apache.nutch.parse.mp3;
 
+// JDK imports
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.Iterator;
 
-import org.apache.nutch.parse.*;
-import org.apache.nutch.protocol.Content;
-import org.apache.hadoop.conf.Configuration;
+// Java ID3 Tag imports
 import org.farng.mp3.MP3File;
 import org.farng.mp3.TagException;
 import org.farng.mp3.id3.AbstractID3v2;
@@ -27,29 +31,35 @@ import org.farng.mp3.id3.AbstractID3v2Frame;
 import org.farng.mp3.id3.ID3v1;
 import org.farng.mp3.object.AbstractMP3Object;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.Iterator;
+// Hadoop imports
+import org.apache.hadoop.conf.Configuration;
+
+// Nutch imports
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseData;
+import org.apache.nutch.parse.ParseException;
+import org.apache.nutch.parse.ParseImpl;
+import org.apache.nutch.parse.ParseStatus;
+import org.apache.nutch.parse.Parser;
+import org.apache.nutch.protocol.Content;
+
 
 /**
  * A parser for MP3 audio files
  * @author Andy Hedges
  */
-
 public class MP3Parser implements Parser {
 
   private MetadataCollector metadataCollector;
   private Configuration conf;
 
-  public Parse getParse(Content content) throws ParseException {
+  public Parse getParse(Content content) {
+
     Parse parse = null;
-    metadataCollector.putAll(content.getMetadata());
-
     byte[] raw = content.getContent();
-
     File tmp = null;
+    
     try {
       tmp = File.createTempFile("nutch", ".mp3");
       FileOutputStream fos = new FileOutputStream(tmp);
@@ -58,25 +68,31 @@ public class MP3Parser implements Parser {
       MP3File mp3 = new MP3File(tmp);
 
       if (mp3.hasID3v2Tag()) {
-        parse = getID3v2Parse(mp3);
+        parse = getID3v2Parse(mp3, content.getMetadata());
       } else if (mp3.hasID3v1Tag()) {
-        parse = getID3v1Parse(mp3);
+        parse = getID3v1Parse(mp3, content.getMetadata());
       } else {
-        throw new ParseException("No textual content available");
+        return new ParseStatus(ParseStatus.FAILED,
+                               ParseStatus.FAILED_MISSING_CONTENT,
+                               "No textual content available").getEmptyParse(conf);
       }
-
-
     } catch (IOException e) {
-      throw new ParseException("Couldn't create temporary file", e);
+      return new ParseStatus(ParseStatus.FAILED,
+                             ParseStatus.FAILED_EXCEPTION,
+                             "Couldn't create temporary file:" + e).getEmptyParse(conf);
     } catch (TagException e) {
-      throw new ParseException("ID3 Tags could not be parsed", e);
+      return new ParseStatus(ParseStatus.FAILED,
+                             ParseStatus.FAILED_EXCEPTION,
+                             "ID3 Tags could not be parsed:" + e).getEmptyParse(conf);
     } finally{
       tmp.delete();
     }
     return parse;
   }
 
-  private Parse getID3v1Parse(MP3File mp3) throws MalformedURLException {
+  private Parse getID3v1Parse(MP3File mp3, Metadata contentMeta)
+  throws MalformedURLException {
+
     ID3v1 tag = mp3.getID3v1Tag();
     metadataCollector.notifyProperty("TALB-Text", tag.getAlbum());
     metadataCollector.notifyProperty("TPE1-Text", tag.getArtist());
@@ -84,13 +100,17 @@ public class MP3Parser implements Parser {
     metadataCollector.notifyProperty("TCON-Text", "(" + tag.getGenre() + ")");
     metadataCollector.notifyProperty("TIT2-Text", tag.getTitle());
     metadataCollector.notifyProperty("TYER-Text", tag.getYear());
-    ParseData parseData = new ParseData(metadataCollector.getTitle(),
-        metadataCollector.getOutlinks(),
-        metadataCollector.getData(), getConf());
+    ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS,
+                                        metadataCollector.getTitle(),
+                                        metadataCollector.getOutlinks(),
+                                        contentMeta,
+                                        metadataCollector.getData());
     return new ParseImpl(metadataCollector.getText(), parseData);
   }
 
-  public Parse getID3v2Parse(MP3File mp3) throws IOException {
+  public Parse getID3v2Parse(MP3File mp3, Metadata contentMeta)
+  throws IOException {
+    
     AbstractID3v2 tag = mp3.getID3v2Tag();
     Iterator it = tag.iterator();
     while (it.hasNext()) {
@@ -108,9 +128,11 @@ public class MP3Parser implements Parser {
         }
       }
     }
-    ParseData parseData = new ParseData(metadataCollector.getTitle(),
-        metadataCollector.getOutlinks(),
-        metadataCollector.getData());
+    ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS,
+                                        metadataCollector.getTitle(),
+                                        metadataCollector.getOutlinks(),
+                                        contentMeta,
+                                        metadataCollector.getData());
     return new ParseImpl(metadataCollector.getText(), parseData);
   }
 
