@@ -27,6 +27,12 @@ import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolFactory;
 
 import java.util.Properties;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.UTF8;
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.parse.Parser;
+import org.apache.nutch.util.NutchConfiguration;
 
 /**
  * Unit tests for TestMP3Parser.  (Adapted from John Xing msword unit tests).
@@ -62,22 +68,23 @@ public class TestMP3Parser extends TestCase {
     Content content;
     Parse parse;
 
+    Configuration conf = NutchConfiguration.create();
     urlString = "file:" + sampleDir + fileSeparator + id3v2;
-    protocol = ProtocolFactory.getProtocol(urlString);
-    content = protocol.getContent(urlString);
-
-    parse = ParseUtil.parseByParserId("parse-mp3",content);
-    Properties metadata = parse.getData().getMetadata();
-    assertEquals("postgresql comment id3v2", metadata.getProperty("COMM-Text"));
-    assertEquals("postgresql composer id3v2", metadata.getProperty("TCOM-Text"));
-    assertEquals("02", metadata.getProperty("TRCK-Text"));
-    assertEquals("http://localhost/", metadata.getProperty("WCOP-URL Link"));
-    assertEquals("postgresql artist id3v2", metadata.getProperty("TPE1-Text"));
-    assertEquals("(28)", metadata.getProperty("TCON-Text"));
-    assertEquals("2004", metadata.getProperty("TYER-Text"));
-    assertEquals("postgresql title id3v2", metadata.getProperty("TIT2-Text"));
-    assertEquals("postgresql album id3v2", metadata.getProperty("TALB-Text"));
-    assertEquals("postgresql encoded by id3v2", metadata.getProperty("TENC-Text"));
+    protocol = new ProtocolFactory(conf).getProtocol(urlString);
+    content = protocol.getProtocolOutput(new UTF8(urlString), new CrawlDatum())
+                      .getContent();
+    parse = new ParseUtil(conf).parseByParserId("parse-mp3", content);
+    Metadata metadata = parse.getData().getParseMeta();
+    assertEquals("postgresql comment id3v2", metadata.get("COMM-Text"));
+    assertEquals("postgresql composer id3v2", metadata.get("TCOM-Text"));
+    assertEquals("02", metadata.get("TRCK-Text"));
+    assertEquals("http://localhost/", metadata.get("WCOP-URL Link"));
+    assertEquals("postgresql artist id3v2", metadata.get("TPE1-Text"));
+    assertEquals("(28)", metadata.get("TCON-Text"));
+    assertEquals("2004", metadata.get("TYER-Text"));
+    assertEquals("postgresql title id3v2", metadata.get("TIT2-Text"));
+    assertEquals("postgresql album id3v2", metadata.get("TALB-Text"));
+    assertEquals("postgresql encoded by id3v2", metadata.get("TENC-Text"));
 
     assertEquals("postgresql title id3v2 - "
         + "postgresql album id3v2 - "
@@ -91,22 +98,22 @@ public class TestMP3Parser extends TestCase {
     String urlString;
     Protocol protocol;
     Content content;
-    Parser parser;
     Parse parse;
 
+    Configuration conf = NutchConfiguration.create();
     urlString = "file:" + sampleDir + fileSeparator + id3v1;
-    protocol = ProtocolFactory.getProtocol(urlString);
-    content = protocol.getContent(urlString);
-    parser = ParserFactory.getParser(content.getContentType(), urlString);
-    parse = parser.getParse(content);
+    protocol = new ProtocolFactory(conf).getProtocol(urlString);
+    content = protocol.getProtocolOutput(new UTF8(urlString), new CrawlDatum())
+                      .getContent();
+    parse = new ParseUtil(conf).parseByParserId("parse-mp3", content);
 
-    Properties metadata = parse.getData().getMetadata();
-    assertEquals("postgresql comment id3v1", metadata.getProperty("COMM-Text"));
-    assertEquals("postgresql artist id3v1", metadata.getProperty("TPE1-Text"));
-    assertEquals("(28)", metadata.getProperty("TCON-Text"));
-    assertEquals("2004", metadata.getProperty("TYER-Text"));
-    assertEquals("postgresql title id3v1", metadata.getProperty("TIT2-Text"));
-    assertEquals("postgresql album id3v1", metadata.getProperty("TALB-Text"));
+    Metadata metadata = parse.getData().getParseMeta();
+    assertEquals("postgresql comment id3v1", metadata.get("COMM-Text"));
+    assertEquals("postgresql artist id3v1", metadata.get("TPE1-Text"));
+    assertEquals("(28)", metadata.get("TCON-Text"));
+    assertEquals("2004", metadata.get("TYER-Text"));
+    assertEquals("postgresql title id3v1", metadata.get("TIT2-Text"));
+    assertEquals("postgresql album id3v1", metadata.get("TALB-Text"));
 
     assertEquals("postgresql title id3v1 - "
         + "postgresql album id3v1 - "
@@ -118,21 +125,18 @@ public class TestMP3Parser extends TestCase {
     String urlString;
     Protocol protocol;
     Content content;
-    Parser parser;
     Parse parse;
 
+    Configuration conf = NutchConfiguration.create();
     urlString = "file:" + sampleDir + fileSeparator + none;
-    protocol = ProtocolFactory.getProtocol(urlString);
-    content = protocol.getContent(urlString);
-    parser = ParserFactory.getParser(content.getContentType(), urlString);
-    try {
-      parse = parser.getParse(content);
-      Properties metadata = parse.getData().getMetadata();
-    } catch (ParseException e) {
-      return;
+    protocol = new ProtocolFactory(conf).getProtocol(urlString);
+    content = protocol.getProtocolOutput(new UTF8(urlString), new CrawlDatum())
+                      .getContent();
+    parse = new ParseUtil(conf).parseByParserId("parse-mp3", content);
+    Metadata metadata = parse.getData().getParseMeta();
+    if (parse.getData().getStatus().isSuccess()) {
+      fail("Expected ParseException");
     }
-    fail("Expected ParseException");
-
   }
 
 }
