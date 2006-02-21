@@ -1,0 +1,38 @@
+<page>
+
+<title>aide</title>
+
+<body>
+
+<h3>Requêtes</h3>
+Pour effectuer une recherche avec Nutch, il suffit de saisir quelques mots.
+<ul>
+  <li>Les résultats contiendront uniquement les pages qui contiennent
+<span style="font-style: italic;">tous</span> les mots de la question.</li>
+  <li>Utilisez les doubles chevrons autour des termes qui doivent être adjacents,
+comme dans le cas d'une phrase. Par exemple <span style="font-weight: bold;">
+"Nouvelle Zélande"</span>.</li>
+  <li>La ponctuation entre les mots est ignorée. Ainsi, la recherche 
+<span style="font-weight: bold;">http://www.nutch.org/</span> est équivalente à
+<span style="font-weight: bold;">"http www nutch org"</span>.</li>
+  <li>La recherche n'est pas sensible à la casse. Ainsi, la recherche
+<span style="font-weight: bold;">NuTcH</span> est équivalente à <span
+ style="font-weight: bold;">nUtCh</span>.</li>
+  <li>Vous pouvez exclure un mot des résultats en plaçant un signe moins
+devant. Ainsi, la recherche <span style="font-weight: bold;">football
+-nfl</span> retournera les pages qui parlent de football, mais qui ne contiennent
+pas le mot "nfl".</li>
+</ul>
+<h3>Résultats</h3>
+Chaque page affichée dans la liste des résultats propose les liens suivants:
+<ul>
+  <li>(<span style="color: rgb(51, 51, 255);">En cache</span>) affiche la version
+de la page téléchargée par Nutch.</li>
+  <li>(<span style="color: rgb(51, 51, 255);">Explications</span>) affiche des explications
+sur la manière dont le score de la page a été calculé.</li>
+  <li>(<span style="color: rgb(51, 51, 255);">Ancres</span>) affiche la liste des documents
+indexés pointant vers cette page.</li>
+</ul>
+
+</body>
+</page>
