@@ -37,8 +37,7 @@ import org.apache.nutch.analysis.lang.NGramProfile.NGramEntry;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.hadoop.io.UTF8;
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.Parser;
-import org.apache.nutch.parse.ParserFactory;
+import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.parse.ParserNotFound;
 import org.apache.nutch.protocol.Content;
@@ -341,9 +340,7 @@ public class LanguageIdentifier {
     try {
       protocol = new ProtocolFactory(conf).getProtocol(url);
       Content content = protocol.getProtocolOutput(new UTF8(url), new CrawlDatum()).getContent();
-      String contentType = content.getContentType();
-      Parser parser = new ParserFactory(conf).getParser(contentType, url);
-      Parse parse = parser.getParse(content);
+      Parse parse = new ParseUtil(conf).parse(content);
       System.out.println("text:" + parse.getText());
       return parse.getText();
 

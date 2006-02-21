@@ -42,18 +42,10 @@ public class TestParserFactory extends TestCase {
       conf = NutchConfiguration.create();
       conf.set("plugin.includes", ".*");
       conf.set("parse.plugin.file",
-                        "org/apache/nutch/parse/parse-plugin-test.xml");
+               "org/apache/nutch/parse/parse-plugin-test.xml");
       parserFactory = new ParserFactory(conf);
   }
-  
-  /** Unit test for <code>getParser(String, String)</code> method. */
-  public void testGetParser() throws Exception {
-    Parser parser = parserFactory.getParser("text/html", "http://foo.com/");
-    assertNotNull(parser);
-    parser  = parserFactory.getParser("foo/bar", "http://foo.com/");
-    assertNotNull(parser);
-  }
-  
+    
   /** Unit test for <code>getExtensions(String)</code> method. */
   public void testGetExtensions() throws Exception {
     Extension ext = (Extension)parserFactory.getExtensions("text/html").get(0);
@@ -70,27 +62,27 @@ public class TestParserFactory extends TestCase {
     assertNotNull(parsers);
     assertEquals(1, parsers.length);
     assertEquals("org.apache.nutch.parse.html.HtmlParser",
-        parsers[0].getClass().getName());
+                 parsers[0].getClass().getName());
 
-    parsers = parserFactory.getParsers("text/html; charset=ISO-8859-1", "http://foo.com");
+    parsers = parserFactory.getParsers("text/html; charset=ISO-8859-1",
+                                       "http://foo.com");
     assertNotNull(parsers);
     assertEquals(1, parsers.length);
     assertEquals("org.apache.nutch.parse.html.HtmlParser",
-        parsers[0].getClass().getName());
-
+                 parsers[0].getClass().getName());
     
     parsers = parserFactory.getParsers("application/x-javascript",
-    "http://foo.com");
+                                       "http://foo.com");
     assertNotNull(parsers);
     assertEquals(1, parsers.length);
     assertEquals("org.apache.nutch.parse.js.JSParseFilter",
-        parsers[0].getClass().getName());
+                 parsers[0].getClass().getName());
     
     parsers = parserFactory.getParsers("text/plain", "http://foo.com");
     assertNotNull(parsers);
     assertEquals(1, parsers.length);
     assertEquals("org.apache.nutch.parse.text.TextParser",
-        parsers[0].getClass().getName());
+                 parsers[0].getClass().getName());
     
     Parser parser1 = parserFactory.getParsers("text/plain", "http://foo.com")[0];
     Parser parser2 = parserFactory.getParsers("*", "http://foo.com")[0];
@@ -102,7 +94,8 @@ public class TestParserFactory extends TestCase {
     parsers = parserFactory.getParsers("text/rss","http://foo.com");
     assertNotNull(parsers);
     assertEquals(1,parsers.length);
-    assertEquals("org.apache.nutch.parse.rss.RSSParser",parsers[0].getClass().getName());
+    assertEquals("org.apache.nutch.parse.rss.RSSParser",
+                 parsers[0].getClass().getName());
   }
  
 }

@@ -74,7 +74,7 @@ public class TestRTFParser extends TestCase {
     protocol = new ProtocolFactory(conf).getProtocol(urlString);
     content = protocol.getProtocolOutput(new UTF8(urlString), new CrawlDatum())
                       .getContent();
-    parse = new ParseUtil(conf).parseByParserId("parse-rtf", content);
+    parse = new ParseUtil(conf).parseByExtensionId("parse-rtf", content);
     String text = parse.getText();
     assertEquals("The quick brown fox jumps over the lazy dog", text.trim());
 

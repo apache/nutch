@@ -111,13 +111,13 @@ public class TestExtParser extends TestCase {
       // check external parser that does 'cat'
       contentType = "application/vnd.nutch.example.cat";
       content.setContentType(contentType);
-      parse = new ParseUtil(conf).parseByParserId("parse-ext", content);
+      parse = new ParseUtil(conf).parseByExtensionId("parse-ext", content);
       assertEquals(expectedText,parse.getText());
 
       // check external parser that does 'md5sum'
       contentType = "application/vnd.nutch.example.md5sum";
       content.setContentType(contentType);
-      parse = new ParseUtil(conf).parseByParserId("parse-ext", content);
+      parse = new ParseUtil(conf).parseByExtensionId("parse-ext", content);
       assertTrue(parse.getText().startsWith(expectedMD5sum));
     }
   }

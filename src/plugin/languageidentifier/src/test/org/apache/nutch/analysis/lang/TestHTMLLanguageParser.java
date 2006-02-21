@@ -23,8 +23,8 @@ import junit.framework.TestCase;
 // Nutch imports
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.ParserFactory;
+import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
 
@@ -48,16 +48,12 @@ public class TestHTMLLanguageParser extends TestCase {
   public void testMetaHTMLParsing() {
 
     try {
-
+      ParseUtil parser = new ParseUtil(NutchConfiguration.create());
       /* loop through the test documents and validate result */
       for (int t = 0; t < docs.length; t++) {
-
         Content content = getContent(docs[t]);
-        Parser parser = new ParserFactory(NutchConfiguration.create()).getParser("text/html", URL);
-        Parse parse = parser.getParse(content);
-
+        Parse parse = parser.parse(content);
         assertEquals(metalanguages[t], (String) parse.getData().getParseMeta().get(Metadata.LANGUAGE));
-
       }
     } catch (Exception e) {
       e.printStackTrace(System.out);

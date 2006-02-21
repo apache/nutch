@@ -19,6 +19,7 @@ package org.apache.nutch.parse;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -30,27 +31,40 @@ import java.util.List;
  * @author mattmann
  * @version 1.0
  */
-public class ParsePluginList {
+class ParsePluginList {
   
   /* a map to link mimeType to an ordered list of parsing plugins */
-  private HashMap fMimeTypeToPluginMap = null;
+  private Map fMimeTypeToPluginMap = null;
+  
+  /* A list of aliases */
+  private Map aliases = null;
+  
   
   /**
    * Constructs a new ParsePluginList
    */
-  public ParsePluginList() {
+  ParsePluginList() {
     fMimeTypeToPluginMap = new HashMap();
+    aliases = new HashMap();
   }
   
-  public List getPluginList(String mimeType) {
+  List getPluginList(String mimeType) {
     return (List) fMimeTypeToPluginMap.get(mimeType);
   }
+
+  void setAliases(Map aliases) {
+    this.aliases = aliases;
+  }
   
-  public void setPluginList(String mimeType, List l) {
+  Map getAliases() {
+    return aliases;
+  }
+  
+  void setPluginList(String mimeType, List l) {
     fMimeTypeToPluginMap.put(mimeType, l);
   }
   
-  public List getSupportedMimeTypes() {
+  List getSupportedMimeTypes() {
     return Arrays.asList(fMimeTypeToPluginMap.keySet().toArray(
             new String[] {}));
   }

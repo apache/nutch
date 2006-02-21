@@ -63,7 +63,7 @@ public class TestMSExcelParser extends TestCase {
       protocol = factory.getProtocol(urlString);
       content = protocol.getProtocolOutput(new UTF8(urlString),
                                            new CrawlDatum()).getContent();
-      parse = parser.parseByParserId("parse-msexcel", content);
+      parse = parser.parseByExtensionId("parse-msexcel", content);
 
       assertTrue(parse.getText().equals(expectedText));
     }
