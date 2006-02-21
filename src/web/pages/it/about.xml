@@ -1,0 +1,51 @@
+<page>
+
+<title>A proposito</title>
+
+<menu>
+ <item><a href="org.html">Organization</a></item>
+ <item><a href="credits.html">Credits</a></item>
+ <item><a href="press.html">Press</a></item>
+ <item><a href="status.html">Status</a></item>
+</menu>
+
+<body>
+
+<p>Nutch è un progetto che ha come obbiettivo implementare un motore
+di ricerca open-source.</p>
+
+<p>La ricerca sul Web ha un requisito fondamentale per la navigazione
+internet, nonostante ciò il numero dei motori di ricerca sta diminuendo.
+La oligopolia di oggi potrebbe diventare presto un monopolio, con un'uni-
+ca compagnia che controlla quasi tutte le ricerche web per il suo
+profitto commerciale.</p>
+
+<p>Nutch fornisce un'alternativa trasparente ai motori di ricerca commerciali.
+Solo con i risultati di ricerca open-source si può essere sicuri che non ci 
+sia stata nessuna forzatura.(O almeno la loro forzatura è pubblica).
+Tutti i maggiori motori di ricerca commerciali esistenti hanno le loro formule
+proprietarie per i punteggi, e non spiegheranno mai perchè una pagina ottiene
+un certo punteggio. Inoltre, alcuni motori di ricerca determinano quale sito
+indicizzare basandosi sui pagamenti, piuttosto che sui meriti dei siti stessi.
+Nutch, d'altra parte, non ha niente da nascondere e nessun motivo di forzare
+i suoi risultati o il suo crawler se non per dare ad ogni utente i migliori
+risultati possibili.</p>
+
+<p>L'obiettivo di nutch è quello di permettere a chiunque di utilizzare un 
+motore di ricerca mondiale facile ed economico. Ciò è una sfida notevole.
+Per avere successo,il software nutch deve poter:</p>
+<ul>
+  <li>recupera miliardi di pagine al mese</li>
+  <li>mantenere un indice di queste pagine</li>
+  <li>cercare in questo indice fino a 1000 volte al secondo</li>
+  <li>fornire risultati di altissima qualità</li>
+  <li>operare al minimo costo</li>
+</ul>
+
+<p>Questa è una proposta stimolante. Se credi nei meriti di questo progetto,
+per favore dai un contributo, sia come<a href="developers.html">sviluppatore</a>
+o con una <a href="donate.html">donazione</a>
+</p>
+
+</body>
+</page>
