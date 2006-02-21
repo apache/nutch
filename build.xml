@@ -367,6 +367,10 @@
     </antcall>
 
     <antcall target="generate-locale">
+      <param name="doc.locale" value="it"/>
+    </antcall>
+
+    <antcall target="generate-locale">
       <param name="doc.locale" value="jp"/>
     </antcall>
 
