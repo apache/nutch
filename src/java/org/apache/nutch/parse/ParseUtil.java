@@ -36,8 +36,8 @@ import org.apache.hadoop.conf.Configuration;
 public class ParseUtil {
   
   /* our log stream */
-  public static final Logger LOG = LogFormatter.getLogger(ParseUtil.class
-          .getName());
+  public static final Logger LOG =
+          LogFormatter.getLogger(ParseUtil.class.getName());
   private Configuration conf;
   private ParserFactory parserFactory;
   
@@ -84,33 +84,36 @@ public class ParseUtil {
                 " of type " + content.getContentType());
 
     ParseStatus ps = (parse.getData() != null) ? parse.getData().getStatus() : null;
-    return (ps == null) ? new ParseStatus().getEmptyParse(this.conf) : ps.getEmptyParse(this.conf);
+    return (ps == null) ? new ParseStatus().getEmptyParse(this.conf)
+                        : ps.getEmptyParse(this.conf);
   }
-  
+    
   /**
    * Method parses a {@link Content} object using the {@link Parser} specified
-   * by the parameter <code>parserId</code>. If a suitable {@link Parser} is not
-   * found, then a <code>WARNING</code> level message is logged, and a
-   * ParseException is thrown.
-   * If the parse is uncessful for any other reason, then a <code>WARNING</code>
-   * level message is logged, and a <code>ParseStatus.getEmptyParse() is
+   * by the parameter <code>extId</code>, i.e., the Parser's extension ID.
+   * If a suitable {@link Parser} is not found, then a <code>WARNING</code>
+   * level message is logged, and a ParseException is thrown. If the parse is
+   * uncessful for any other reason, then a <code>WARNING</code> level
+   * message is logged, and a <code>ParseStatus.getEmptyParse()</code> is
    * returned.
    *
-   * @param parserId The ID of the {@link Parser} to use to parse the specified
-   *                 content.
+   * @param extId The extension implementation ID of the {@link Parser} to use
+   *              to parse the specified content.
    * @param content The content to parse.
+   *
    * @return A {@link Parse} object if the parse is successful, otherwise,
    *         a <code>ParseStatus.getEmptyParse()</code>.
+   *
    * @throws ParseException If there is no suitable {@link Parser} found
    *                        to perform the parse.
    */
-  public Parse parseByParserId(String parserId, Content content)
+  public Parse parseByExtensionId(String extId, Content content)
   throws ParseException {
     Parse parse = null;
     Parser p = null;
     
     try {
-      p = this.parserFactory.getParserById(parserId);
+      p = this.parserFactory.getParserById(extId);
     } catch (ParserNotFound e) {
       LOG.warning("No suitable parser found when trying to parse content " +
                   content);
@@ -126,6 +129,6 @@ public class ParseUtil {
                   " of type " + content.getContentType());
       return new ParseStatus().getEmptyParse(this.conf);
     }
-  }
+  }  
   
 }

@@ -69,7 +69,7 @@ public class TestPdfParser extends TestCase {
       Configuration conf = NutchConfiguration.create();
       protocol = new ProtocolFactory(conf).getProtocol(urlString);
       content = protocol.getProtocolOutput(new UTF8(urlString), new CrawlDatum()).getContent();
-      parse = new ParseUtil(conf).parseByParserId("parse-pdf",content);
+      parse = new ParseUtil(conf).parseByExtensionId("parse-pdf", content);
 
       int index = parse.getText().indexOf(expectedText);
       assertTrue(index > 0);

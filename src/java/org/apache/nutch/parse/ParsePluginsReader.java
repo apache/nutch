@@ -16,12 +16,14 @@
 package org.apache.nutch.parse;
 
 // JDK imports
-import java.util.Iterator;
-import java.util.List;
-import java.util.Vector;
-import java.util.logging.Logger;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -53,7 +55,7 @@ public class ParsePluginsReader {
   /** The property name of the parse-plugins location */
   private static final String PP_FILE_PROP = "parse.plugin.file";
 
-  /* the parse-plugins file */
+  /** the parse-plugins file */
   private String fParsePluginsFile = null;
 
   
@@ -111,8 +113,12 @@ public class ParsePluginsReader {
     
     Element parsePlugins = document.getDocumentElement();
     
+    // build up the alias hash map
+    Map aliases = getAliases(parsePlugins);
+    // And store it on the parse plugin list
+    pList.setAliases(aliases);
+     
     // get all the mime type nodes
-    
     NodeList mimeTypes = parsePlugins.getElementsByTagName("mimeType");
     
     // iterate through the mime types
@@ -125,30 +131,29 @@ public class ParsePluginsReader {
       
       // iterate through the plugins, add them in order read
       // OR if they have a special order="" attribute, then hold those in
-      // a
-      // separate list, and then insert them into the final list at the
-      // order
-      // specified
-      
+      // a separate list, and then insert them into the final list at the
+      // order specified
       if (pluginList != null && pluginList.getLength() > 0) {
-        List plugList = new Vector(pluginList.getLength());
+        List plugList = new ArrayList(pluginList.getLength());
         
-        for (int j = 0; j < pluginList.getLength(); j++) {
+        for (int j = 0; j<pluginList.getLength(); j++) {
           Element plugin = (Element) pluginList.item(j);
           String pluginId = plugin.getAttribute("id");
-          
+          String extId = (String) aliases.get(pluginId);
+          if (extId == null) {
+            // Assume an extension id is directly specified
+            extId = pluginId;
+          }
           String orderStr = plugin.getAttribute("order");
           int order = -1;
-          
           try {
             order = Integer.parseInt(orderStr);
           } catch (NumberFormatException ignore) {
           }
-          
           if (order != -1) {
-            plugList.add(order - 1, pluginId);
+            plugList.add(order - 1, extId);
           } else {
-            plugList.add(pluginId);
+            plugList.add(extId);
           }
         }
         
@@ -202,7 +207,7 @@ public class ParsePluginsReader {
       System.out.println("MIMETYPE: " + mimeType);
       List plugList = prefs.getPluginList(mimeType);
       
-      System.out.println("PLUGINS:");
+      System.out.println("EXTENSION IDs:");
       
       for (Iterator j = plugList.iterator(); j.hasNext();) {
         System.out.println((String) j.next());
@@ -224,6 +229,39 @@ public class ParsePluginsReader {
    */
   public void setFParsePluginsFile(String parsePluginsFile) {
     fParsePluginsFile = parsePluginsFile;
+  }
+  
+  private Map getAliases(Element parsePluginsRoot) {
+
+    Map aliases = new HashMap();
+    NodeList aliasRoot = parsePluginsRoot.getElementsByTagName("aliases");
+	  
+    if (aliasRoot == null || (aliasRoot != null && aliasRoot.getLength() == 0)) {
+      LOG.warning("No aliases defined in parse-plugins.xml!");
+      return aliases;
+    }
+	  
+    if (aliasRoot.getLength() > 1) {
+      // log a warning, but try and continue processing
+      LOG.warning("There should only be one \"aliases\" tag in parse-plugins.xml");
+    }
+	  
+    Element aliasRootElem = (Element)aliasRoot.item(0);
+    NodeList aliasElements = aliasRootElem.getElementsByTagName("alias");
+	  
+    if (aliasElements != null && aliasElements.getLength() > 0) {
+      for (int i=0; i<aliasElements.getLength(); i++) {
+        Element aliasElem = (Element)aliasElements.item(i);
+	String parsePluginId = aliasElem.getAttribute("name");
+	String extensionId = aliasElem.getAttribute("extension-id");
+        LOG.finest("Found alias: plugin-id: " + parsePluginId +
+                   ", extension-id: " + extensionId);
+        if (parsePluginId != null && extensionId != null) {
+          aliases.put(parsePluginId, extensionId);
+        }
+      }
+    }
+    return aliases;
   }
   
 }

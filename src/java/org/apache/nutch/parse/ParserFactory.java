@@ -16,9 +16,11 @@
 package org.apache.nutch.parse;
 
 // JDK imports
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 import java.util.logging.Logger;
 
@@ -31,6 +33,7 @@ import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.mime.MimeType;
 import org.apache.nutch.util.mime.MimeTypeException;
+
 
 /** Creates and caches {@link Parser} plugins.*/
 public final class ParserFactory {
@@ -63,43 +66,6 @@ public final class ParserFactory {
     }
   }                      
   
-
-  /**
-   * Returns the appropriate {@link Parser} implementation given a content type
-   * and url.
-   * 
-   * @deprecated Since the addition of NUTCH-88, this method is replaced by
-   *             taking the highest priority {@link Parser} returned from
-   *             {@link #getParsers(String, String)}.
-   * 
-   * Parser extensions should define the attributes "contentType" and/or
-   * "pathSuffix". Content type has priority: the first plugin found whose
-   * "contentType" attribute matches the beginning of the content's type is
-   * used. If none match, then the first whose "pathSuffix" attribute matches
-   * the end of the url's path is used. If neither of these match, then the
-   * first plugin whose "pathSuffix" is the empty string is used.
-   */
-  public Parser getParser(String contentType, String url)
-  throws ParserNotFound {
-    
-    Parser[] parsers = getParsers(contentType, url);
-    
-    if(parsers != null){
-      //give the user the highest priority parser available
-      for(int i = 0;  i < parsers.length; i++ ){
-        Parser p = parsers[i];
-        if(p != null){
-          return p;
-        }
-      }
-      
-      throw new ParserNotFound(url, contentType);
-      
-    } 
-    else{
-      throw new ParserNotFound(url, contentType);
-    }
-  }
    
   /**
    * Function returns an array of {@link Parser}s for a given content type.
@@ -150,11 +116,11 @@ public final class ParserFactory {
       Parser p = null;
       try {
         //check to see if we've cached this parser instance yet
-        p = (Parser) this.conf.getObject(ext.getDescriptor().getPluginId());
+        p = (Parser) this.conf.getObject(ext.getId());
         if (p == null) {
           // go ahead and instantiate it and then cache it
           p = (Parser) ext.getExtensionInstance();
-          this.conf.setObject(ext.getDescriptor().getPluginId(),p);
+          this.conf.setObject(ext.getId(),p);
         }
         parsers.add(p);
       } catch (PluginRuntimeException e) {
@@ -168,79 +134,79 @@ public final class ParserFactory {
     }
     return (Parser[]) parsers.toArray(new Parser[]{});
   }
-  
+    
   /**
-   * <p>
    * Function returns a {@link Parser} instance with the specified
-   * <code>parserId</code>. If the Parser instance isn't found, then the
-   * function throws a <code>ParserNotFound</code> exception. If the function
-   * is able to find the {@link Parser} in the internal
-   * <code>PARSER_CACHE</code> then it will return the already instantiated
-   * Parser. Otherwise, if it has to instantiate the Parser itself , then this
-   * function will cache that Parser in the internal <code>PARSER_CACHE</code>.
+   * <code>extId</code>, representing its extension ID. If the Parser
+   * instance isn't found, then the function throws a
+   * <code>ParserNotFound</code> exception. If the function is able to find
+   * the {@link Parser} in the internal <code>PARSER_CACHE</code> then it
+   * will return the already instantiated Parser. Otherwise, if it has to
+   * instantiate the Parser itself , then this function will cache that Parser
+   * in the internal <code>PARSER_CACHE</code>.
    * 
-   * @param parserId
-   *          The string ID (e.g., "parse-text", "parse-msword") of the
-   *          {@link Parser} implementation to return.
+   * @param extId The string extension ID (e.g.,
+   *        "org.apache.nutch.parse.rss.RSSParser",
+   *        "org.apache.nutch.parse.rtf.RTFParseFactory") of the {@link Parser}
+   *        implementation to return.
    * @return A {@link Parser} implementation specified by the parameter
-   *         <code>parserId</code>.
-   * @throws ParserNotFound
-   *           If the Parser is not found (i.e., registered with the extension
-   *           point), or if the there a {@link PluginRuntimeException}
-   *           instantiating the {@link Parser}.
+   *         <code>extId</code>.
+   * @throws ParserNotFound If the Parser is not found (i.e., registered with
+   *         the extension point), or if the there a
+   *         {@link PluginRuntimeException} instantiating the {@link Parser}.
    */
-  public Parser getParserById(String parserId) throws ParserNotFound {
-    // first check the cache
+  public Parser getParserById(String id) throws ParserNotFound {
 
-    if (this.conf.getObject(parserId) != null) {
-      return (Parser) this.conf.getObject(parserId);
+    Extension[] extensions = this.extensionPoint.getExtensions();
+    Extension parserExt = null;
+
+    if (id != null) {
+      parserExt = getExtension(extensions, id);
+    }
+    if (parserExt == null) {
+      parserExt = getExtensionFromAlias(extensions, id);
+    }
+
+    if (parserExt == null) {
+      throw new ParserNotFound("No Parser Found for id [" + id + "]");
+    }
+    
+    // first check the cache	    	   
+    if (this.conf.getObject(parserExt.getId()) != null) {
+      return (Parser) this.conf.getObject(parserExt.getId());
+
+    // if not found in cache, instantiate the Parser    
     } else {
-      // get the list of registered parsing extensions
-      // then find the right one by Id
-
-      Extension[] extensions = this.extensionPoint.getExtensions();
-      Extension parserExt = getExtensionById(extensions, parserId);
-
-      if (parserExt == null) {
-        throw new ParserNotFound("No Parser Found for parserId: " + parserId
-            + "!");
-      } else {
-        // instantiate the Parser
-        try {
-          Parser p = null;
-          p = (Parser) parserExt.getExtensionInstance();
-          this.conf.setObject(parserId, p);
-          return p;
-        } catch (PluginRuntimeException e) {
-          LOG.warning("ParserFactory:PluginRuntimeException when "
-              + "initializing parser plugin "
-              + parserExt.getDescriptor().getPluginId()
-              + " instance in getParserById");
-          throw new ParserNotFound("No Parser Found for parserId: " + parserId
-              + "!");
-        }
+      try {
+        Parser p = (Parser) parserExt.getExtensionInstance();
+        this.conf.setObject(parserExt.getId(), p);
+        return p;
+      } catch (PluginRuntimeException e) {
+        LOG.warning("Canno initialize parser " +
+                    parserExt.getDescriptor().getPluginId() +
+                   " (cause: " + e.toString());
+        throw new ParserNotFound("Cannot init parser for id [" + id + "]");
       }
     }
   }
   
   /**
-   * finds the best-suited parse plugin for a given contentType.
+   * Finds the best-suited parse plugin for a given contentType.
    * 
-   * @param contentType
-   *          Content-Type for which we seek a parse plugin.
-   * @return List - List of extensions to be used for this contentType. If none,
-   *         returns null.
+   * @param contentType Content-Type for which we seek a parse plugin.
+   * @return a list of extensions to be used for this contentType.
+   *         If none, returns <code>null</code>.
    */
   protected List getExtensions(String contentType) {
     
     // First of all, tries to clean the content-type
     String type = null;
     try {
-        type = MimeType.clean(contentType);
+      type = MimeType.clean(contentType);
     } catch (MimeTypeException mte) {
-        LOG.info("Could not clean the content-type [" + contentType +
-                 "], Reason is [" + mte + "]. Using its raw version...");
-        type = contentType;
+      LOG.fine("Could not clean the content-type [" + contentType +
+               "], Reason is [" + mte + "]. Using its raw version...");
+      type = contentType;
     }
 
     List extensions = (List) this.conf.getObject(type);
@@ -304,19 +270,16 @@ public final class ParserFactory {
    *                If none, returns null.
    */
   private List matchExtensions(List plugins,
-                                      Extension[] extensions,
-                                      String contentType) {
+                               Extension[] extensions,
+                               String contentType) {
     
-    List extList = null;
+    List extList = new ArrayList();
     if (plugins != null) {
-      extList = new Vector(plugins.size());
       
       for (Iterator i = plugins.iterator(); i.hasNext();) {
         String parsePluginId = (String) i.next();
         
-        Extension ext = getExtensionByIdAndType(extensions,
-                                                parsePluginId,
-                                                contentType);
+        Extension ext = getExtension(extensions, parsePluginId, contentType);
         // the extension returned may be null
         // that means that it was not enabled in the plugin.includes
         // nutch conf property, but it was mapped in the
@@ -327,8 +290,9 @@ public final class ParserFactory {
         // in either case, LOG the appropriate error message to WARN level
         
         if (ext == null) {
-           //try to get it just by its pluginId
-            ext = getExtensionById(extensions, parsePluginId);
+          //try to get it just by its pluginId
+          ext = getExtension(extensions, parsePluginId);
+        
           if (ext != null) {
             // plugin was enabled via plugin.includes
             // its plugin.xml just doesn't claim to support that
@@ -338,25 +302,21 @@ public final class ParserFactory {
                         " via parse-plugins.xml, but " + "its plugin.xml " +
                         "file does not claim to support contentType: " +
                         contentType);
-            
-            //go ahead and load the extension anyways, though
-            extList.add(ext);
-          
-          } else{
+          } else {
             // plugin wasn't enabled via plugin.includes
             LOG.warning("ParserFactory: Plugin: " + parsePluginId + 
                         " mapped to contentType " + contentType +
                         " via parse-plugins.xml, but not enabled via " +
                         "plugin.includes in nutch-default.xml");                     
           }
-          
-        } else{
+        }
+
+        if (ext != null) {
           // add it to the list
           extList.add(ext);
         }
       }
       
-      return extList;
     } else {
       // okay, there were no list of plugins defined for
       // this mimeType, however, there may be plugins registered
@@ -366,19 +326,16 @@ public final class ParserFactory {
       // any extensions where this is the case, throw a
       // NotMappedParserException
       
-      List unmappedPlugins = new Vector();
-      
-      for (int i = 0; i < extensions.length; i++) {
+      for (int i=0; i<extensions.length; i++) {
         if (extensions[i].getAttribute("contentType") != null
             && extensions[i].getAttribute("contentType").equals(
                 contentType)) {
-          unmappedPlugins.add(extensions[i].getDescriptor()
-              .getPluginId());
+          extList.add(extensions[i].getId());
         }
       }
       
-      if (unmappedPlugins.size() > 0) {
-        LOG.info("The parsing plugins: " + unmappedPlugins +
+      if (extList.size() > 0) {
+        LOG.info("The parsing plugins: " + extList +
                  " are enabled via the plugin.includes system " +
                  "property, and all claim to support the content type " +
                  contentType + ", but they are not mapped to it  in the " +
@@ -387,33 +344,38 @@ public final class ParserFactory {
         LOG.fine("ParserFactory:No parse plugins mapped or enabled for " +
                  "contentType " + contentType);
       }
-      return null;
     }
+    
+    return (extList.size() > 0) ? extList : null;
   }
 
   private boolean match(Extension extension, String id, String type) {
-    return (id.equals(extension.getDescriptor().getPluginId())) &&
-    (type.equals(extension.getAttribute("contentType")) ||
-        (type.equals(DEFAULT_PLUGIN))); 
+    return ((id.equals(extension.getId())) &&
+            (type.equals(extension.getAttribute("contentType")) ||
+             type.equals(DEFAULT_PLUGIN)));
   }
   
-  private Extension getExtensionByIdAndType(Extension[] extList,
-                                                   String plugId,
-                                                   String contentType) {
-    for (int i = 0; i < extList.length; i++) {
-      if (match(extList[i], plugId, contentType)) {
-        return extList[i];
+  /** Get an extension from its id and supported content-type. */
+  private Extension getExtension(Extension[] list, String id, String type) {
+    for (int i=0; i<list.length; i++) {
+      if (match(list[i], id, type)) {
+        return list[i];
+      }
+    }
+    return null;
+  }
+    
+  private Extension getExtension(Extension[] list, String id) {
+    for (int i=0; i<list.length; i++) {
+      if (id.equals(list[i].getId())) {
+        return list[i];
       }
     }
     return null;
   }
   
-  private Extension getExtensionById(Extension[] extList, String plugId) {
-    for(int i = 0; i < extList.length; i++){
-      if(plugId.equals(extList[i].getDescriptor().getPluginId())){
-        return extList[i];
-      }
-    }
-    return null;
+  private Extension getExtensionFromAlias(Extension[] list, String id) {
+    return getExtension(list, (String) parsePluginList.getAliases().get(id));
   }
+
 }

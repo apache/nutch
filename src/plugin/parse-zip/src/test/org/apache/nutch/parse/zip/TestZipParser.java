@@ -69,7 +69,7 @@ public class TestZipParser extends TestCase {
 
       protocol = new ProtocolFactory(conf).getProtocol(urlString);
       content = protocol.getProtocolOutput(new UTF8(urlString), new CrawlDatum()).getContent();
-      parse = new ParseUtil(conf).parseByParserId("parse-zip",content);
+      parse = new ParseUtil(conf).parseByExtensionId("parse-zip",content);
       assertTrue(parse.getText().equals(expectedText));
     }
   }

@@ -69,7 +69,7 @@ public class TestMSWordParser extends TestCase {
 
       protocol = new ProtocolFactory(conf).getProtocol(urlString);
       content = protocol.getProtocolOutput(new UTF8(urlString), new CrawlDatum()).getContent();
-      parse = new ParseUtil(conf).parseByParserId("parse-msword",content);
+      parse = new ParseUtil(conf).parseByExtensionId("parse-msword", content);
 
       assertTrue(parse.getText().startsWith(expectedText));
     }

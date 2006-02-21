@@ -61,7 +61,7 @@ public class TestCCParseFilter extends TestCase {
 
     Content content =
       new Content(url, url, bytes, contentType, new Metadata(), conf);
-    Parse parse = new ParseUtil(conf).parseByParserId("parse-html",content);
+    Parse parse = new ParseUtil(conf).parseByExtensionId("parse-html",content);
 
     Metadata metadata = parse.getData().getParseMeta();
     assertEquals(license, metadata.get("License-Url"));
