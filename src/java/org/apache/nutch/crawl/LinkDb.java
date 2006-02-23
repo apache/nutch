@@ -190,11 +190,22 @@ public class LinkDb extends Configured implements Mapper, Reducer {
     LinkDb linkDb = new LinkDb(NutchConfiguration.create());
     
     if (args.length < 2) {
-      System.err.println("Usage: <linkdb> <segments>");
+      System.err.println("Usage: <linkdb> (-dir segmentsDir | segment1 segment2 ...)");
       return;
     }
-    
-    linkDb.invert(new File(args[0]), new File(args[1]));
+    boolean dir = false;
+    File segDir = null;
+    File db = new File(args[0]);
+    ArrayList segs = new ArrayList();
+    for (int i = 1; i < args.length; i++) {
+      if (args[i].equals("-dir")) {
+        dir = true;
+        segDir = new File(args[++i]);
+        break;
+      } else segs.add(new File(args[i]));
+    }
+    if (dir) linkDb.invert(db, segDir);
+    else linkDb.invert(db, (File[])segs.toArray(new File[segs.size()]));
   }
 
 
