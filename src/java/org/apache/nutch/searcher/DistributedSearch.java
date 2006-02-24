@@ -117,11 +117,11 @@ public class DistributedSearch {
 
     /** Construct a client talking to the named servers. */
     public Client(InetSocketAddress[] addresses, Configuration conf) throws IOException {
+      this.conf = conf;
       this.defaultAddresses = addresses;
       updateSegments();
       setDaemon(true);
       start();
-      this.conf = conf;
     }
     
     private static final Method GET_SEGMENTS;
