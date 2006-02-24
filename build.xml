@@ -57,10 +57,9 @@
       <fileset dir="${lib.dir}" includes="hadoop*.jar"/>
       <patternset includes="bin.tgz"/>
     </unjar>
-    <exec dir="bin" executable="tar">
-      <arg value="xzf"/>
-      <arg value="../${build.dir}/hadoop/bin.tgz"/>
-    </exec>
+    
+    <untar src="${build.dir}/hadoop/bin.tgz" dest="bin" compression="gzip"/>
+    <chmod dir="bin" perm="ugo+rx" includes="*.sh,hadoop"/>
 
     <!-- unpack hadoop webapp from hadoop jar into build directory -->
     <mkdir dir="${build.dir}/webapps"/>
