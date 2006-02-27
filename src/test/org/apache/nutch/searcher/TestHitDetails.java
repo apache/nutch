@@ -23,9 +23,9 @@ public class TestHitDetails extends TestCase {
   public TestHitDetails(String name) { super(name); }
 
   public void testHitDetails() throws Exception {
-    final int length = 3;
-    final String[] fields = new String[] {"a", "b", "c" };
-    final String[] values = new String[] { "foo", "bar", "baz" };
+    final int length = 4;
+    final String[] fields = new String[] {"a", "b", "c", "a" };
+    final String[] values = new String[] { "foo1", "bar", "baz", "foo2" };
 
     HitDetails before = new HitDetails(fields, values);
 
@@ -38,10 +38,20 @@ public class TestHitDetails extends TestCase {
     HitDetails after = HitDetails.read(dib);
 
     assertEquals(length, after.getLength());
-    for (int i = 0; i < length; i++) {
+    for (int i = 0; i < 3; i++) {
       assertEquals(fields[i], after.getField(i));
       assertEquals(values[i], after.getValue(i));
       assertEquals(values[i], after.getValue(fields[i]));
     }
+    String[] vals = after.getValues("a");
+    assertEquals(2, vals.length);
+    assertEquals("foo1", vals[0]);
+    assertEquals("foo2", vals[1]);
+    vals = after.getValues("b");
+    assertEquals(1, vals.length);
+    assertEquals("bar", vals[0]);
+    vals = after.getValues("c");
+    assertEquals(1, vals.length);
+    assertEquals("baz", vals[0]);
   }
 }
