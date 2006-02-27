@@ -19,6 +19,7 @@ package org.apache.nutch.searcher;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import org.apache.hadoop.io.*;
@@ -73,6 +74,19 @@ public final class HitDetails implements Writable {
     return null;
   }
 
+  /** Returns all the values with the specified name. */
+  public String[] getValues(String field) {
+   ArrayList vals = new ArrayList();
+   for (int i=0; i<length; i++) {
+     if (fields[i].equals(field)) {
+       vals.add(values[i]);
+     }
+   }
+   return (vals.size() > 0)
+            ? (String[]) vals.toArray(new String[vals.size()])
+            : null;
+}
+
   // javadoc from Writable
   public void write(DataOutput out) throws IOException {
     out.writeInt(length);
@@ -107,13 +121,20 @@ public final class HitDetails implements Writable {
 
   /** Display as HTML. */
   public String toHtml() {
+    String[] vals = null;
     StringBuffer buffer = new StringBuffer();
     buffer.append("<ul>\n");
     for (int i = 0; i < length; i++) {
       buffer.append("<li>");
       buffer.append(fields[i]);
       buffer.append(" = ");
-      buffer.append(Entities.encode(values[i]));
+      vals = getValues(fields[i]);
+      for (int j=0; j<vals.length; j++) {
+        buffer.append(Entities.encode(vals[j]));
+        if (j<(vals.length-1)) {
+          buffer.append(",");
+        }
+      }
       buffer.append("</li>\n");
     }
     buffer.append("</ul>\n");
