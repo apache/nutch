@@ -369,13 +369,13 @@ public class Fetcher extends Configured implements MapRunnable {
 
 
   /** Run the fetcher. */
-  public static void main(String[] args) throws Exception {
+  public static boolean doMain(String[] args) throws Exception {
 
     String usage = "Usage: Fetcher <segment> [-threads n] [-noParsing]";
 
     if (args.length < 1) {
       System.err.println(usage);
-      System.exit(-1);
+      return false;
     }
       
     File segment = new File(args[0]);
@@ -399,5 +399,21 @@ public class Fetcher extends Configured implements MapRunnable {
     
     fetcher.fetch(segment, threads, parsing);              // run the Fetcher
 
+    return true;
+  }
+
+  /**
+   * main() wrapper that returns proper exit status
+   */
+  public static void main(String[] args) {
+    Runtime rt = Runtime.getRuntime();
+    try {
+      boolean status = doMain(args);
+      rt.exit(status ? 0 : 1);
+    }
+    catch (Exception e) {
+      LOG.log(Level.SEVERE, "error, caught Exception in main()", e);
+      rt.exit(1);
+    }
   }
 }

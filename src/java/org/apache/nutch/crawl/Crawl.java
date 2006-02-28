@@ -44,11 +44,11 @@ public class Crawl {
 
 
   /* Perform complete crawling and indexing given a set of root urls. */
-  public static void main(String args[]) throws Exception {
+  public static boolean doMain(String args[]) throws Exception {
     if (args.length < 1) {
       System.out.println
         ("Usage: Crawl <urlDir> [-dir d] [-threads n] [-depth i] [-topN N]");
-      return;
+      return false;
     }
 
     Configuration conf = NutchConfiguration.create();
@@ -122,5 +122,22 @@ public class Crawl {
     new IndexMerger(fs, fs.listFiles(indexes), index, tmpDir, job).merge();
 
     LOG.info("crawl finished: " + dir);
+
+    return true;
+  }
+
+  /**
+   * main() wrapper that returns proper exit status
+   */
+  public static void main(String[] args) {
+    Runtime rt = Runtime.getRuntime();
+    try {
+      boolean status = doMain(args);
+      rt.exit(status ? 0 : 1);
+    }
+    catch (Exception e) {
+      LOG.log(Level.SEVERE, "error, caught Exception in main()", e);
+      rt.exit(1);
+    }
   }
 }

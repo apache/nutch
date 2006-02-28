@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl"?>
+<rdf:RDF xml:lang="en"
+         xmlns="http://usefulinc.com/ns/doap#" 
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+         xmlns:asfext="http://projects.apache.org/ns/asfext#"
+         xmlns:foaf="http://xmlns.com/foaf/0.1/">
+<!--
+  =======================================================================
+
+   Copyright (c) 2006 The Apache Software Foundation.  
+   All rights reserved.
+
+  =======================================================================
+-->
+  <Project rdf:about="http://lucene.apache.org/nutch/">
+    <created>2006-02-28</created>
+    <license rdf:resource="http://usefulinc.com/doap/licenses/asl20" />
+    <name>Apache Nutch</name>
+    <homepage rdf:resource="http://lucene.apache.org/nutch/" />
+    <asfext:pmc rdf:resource="http://lucene.apache.org" />
+    <shortdesc>Nutch is the open-source search engine.</shortdesc>
+    <description>Nutch is open source web-search software. It builds
+    on Lucene Java and Hadoop, adding web-specifics, such as a
+    crawler, a link-graph database, parsers for HTML and other
+    document formats, etc.
+    </description>
+    <bug-database rdf:resource="http://issues.apache.org/jira/browse/NUTCH" />
+    <mailing-list rdf:resource="http://lucene.apache.org/nutch/mailing_lists.html" />
+    <download-page rdf:resource="http://www.apache.org/dyn/closer.cgi/lucene/nutch/" />
+    <programming-language>Java</programming-language>
+    <category rdf:resource="http://projects.apache.org/category/web-framework" />
+    <release>
+      <Version>
+        <name>0.7</name>
+        <created>2005-08-17</created>
+        <revision>0.7</revision>
+      </Version>
+    </release>
+    <repository>
+      <SVNRepository>
+        <location rdf:resource="http://svn.apache.org/repos/asf/lucene/nutch/"/>
+        <browse rdf:resource="http://svn.apache.org/viewcvs.cgi/lucene/nutch/"/>
+      </SVNRepository>
+    </repository>
+  </Project>
+</rdf:RDF>
