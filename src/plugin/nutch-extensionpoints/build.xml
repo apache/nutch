@@ -4,4 +4,12 @@
 
   <import file="../build-plugin.xml"/>
 
+  <!--
+   ! Override the compile and jar targets,
+   ! since there is nothing to compile here.
+   ! -->
+  <target name="compile" depends="init"/>
+
+  <!--target name="jar" depends="compile"/-->
+
 </project>
