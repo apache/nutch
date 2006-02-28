@@ -29,7 +29,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 /** . */
 public class LinkDbReader implements Closeable {
@@ -96,12 +96,12 @@ public class LinkDbReader implements Closeable {
     JobClient.runJob(job);
   }
   
-  public static void main(String[] args) throws Exception {
+  public static boolean doMain(String[] args) throws Exception {
     if (args.length < 2) {
       System.err.println("LinkDbReader <linkdb> {-dump <out_dir> | -url <url>)");
       System.err.println("\t-dump <out_dir>\tdump whole link db to a text file in <out_dir>");
       System.err.println("\t-url <url>\tprint information about <url> to System.out");
-      return;
+      return false;
     }
     Configuration conf = NutchConfiguration.create();
     if (args[1].equals("-dump")) {
@@ -118,7 +118,24 @@ public class LinkDbReader implements Closeable {
       }
     } else {
       System.err.println("Error: wrong argument " + args[1]);
-      return;
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * main() wrapper that returns proper exit status
+   */
+  public static void main(String[] args) {
+    Runtime rt = Runtime.getRuntime();
+    try {
+      boolean status = doMain(args);
+      rt.exit(status ? 0 : 1);
+    }
+    catch (Exception e) {
+      LOG.log(Level.SEVERE, "error, caught Exception in main()", e);
+      rt.exit(1);
     }
   }
 }

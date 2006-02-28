@@ -20,7 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.TreeMap;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.io.LongWritable;
@@ -241,7 +241,7 @@ public class CrawlDbReader {
     JobClient.runJob(job);
   }
 
-  public static void main(String[] args) throws IOException {
+  public static boolean doMain(String[] args) throws IOException {
     CrawlDbReader dbr = new CrawlDbReader();
 
     if (args.length < 1) {
@@ -250,7 +250,7 @@ public class CrawlDbReader {
       System.err.println("\t-stats\tprint overall statistics to System.out");
       System.err.println("\t-dump <out_dir>\tdump the whole db to a text file in <out_dir>");
       System.err.println("\t-url <url>\tprint information on <url> to System.out");
-      return;
+      return false;
     }
     String param = null;
     String crawlDb = args[0];
@@ -266,8 +266,24 @@ public class CrawlDbReader {
         dbr.readUrl(crawlDb, param, conf);
       } else {
         System.err.println("\nError: wrong argument " + args[i]);
+        return false;
       }
     }
-    return;
+    return true;
+  }
+
+  /**
+   * main() wrapper that returns proper exit status
+   */
+  public static void main(String[] args) {
+    Runtime rt = Runtime.getRuntime();
+    try {
+      boolean status = doMain(args);
+      rt.exit(status ? 0 : -1);
+    }
+    catch (Exception e) {
+      LOG.log(Level.SEVERE, "error, caught Exception in main()", e);
+      rt.exit(-1);
+    }
   }
 }
