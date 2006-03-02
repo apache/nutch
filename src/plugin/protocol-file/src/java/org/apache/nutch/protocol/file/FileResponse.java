@@ -167,7 +167,7 @@ public class FileResponse {
     // capture content
     int len = (int) size;
     
-    if (this.file.maxContentLength > 0 && len > this.file.maxContentLength)
+    if (this.file.maxContentLength >= 0 && len > this.file.maxContentLength)
       len = this.file.maxContentLength;
 
     this.content = new byte[len];

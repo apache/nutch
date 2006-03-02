@@ -13,8 +13,8 @@
   <name>file.content.limit</name>
   <value>65536</value>
   <description>The length limit for downloaded content, in bytes.
-  If this value is larger than zero, content longer than it will be
-  truncated; otherwise (zero or negative), no truncation at all.
+  If this value is nonnegative (>=0), content longer than it will be truncated;
+  otherwise, no truncation at all.
   </description>
 </property>
 
@@ -150,11 +150,11 @@
   <name>ftp.content.limit</name>
   <value>65536</value> 
   <description>The length limit for downloaded content, in bytes.
-  If this value is larger than zero, content longer than it is truncated;
-  otherwise (zero or negative), no truncation at all. Caution: classical
-  ftp RFCs never defines partial transfer and, in fact, some ftp servers
-  out there do not handle client side forced close-down very well.
-  Our implementation tries its best to handle such situations smoothly.
+  If this value is nonnegative (>=0), content longer than it will be truncated;
+  otherwise, no truncation at all.
+  Caution: classical ftp RFCs never defines partial transfer and, in fact,
+  some ftp servers out there do not handle client side forced close-down very
+  well. Our implementation tries its best to handle such situations smoothly.
   </description>
 </property>
 
