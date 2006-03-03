@@ -249,6 +249,7 @@
     	<packageset dir="${src.dir}"/>
     	<packageset dir="${plugins.dir}/lib-http/src/java"/>
     	<packageset dir="${plugins.dir}/lib-parsems/src/java"/>
+    	<packageset dir="${plugins.dir}/microformats-reltag/src/java"/>
     	<packageset dir="${plugins.dir}/ontology/src/java"/>
     	<packageset dir="${plugins.dir}/protocol-file/src/java"/>
     	<packageset dir="${plugins.dir}/protocol-ftp/src/java"/>
