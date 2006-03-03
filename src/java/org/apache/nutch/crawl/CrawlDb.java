@@ -90,31 +90,17 @@ public class CrawlDb extends Configured {
     fs.delete(old);
   }
 
-  public static boolean doMain(String[] args) throws Exception {
+  public static void main(String[] args) throws Exception {
     CrawlDb crawlDb = new CrawlDb(NutchConfiguration.create());
     
     if (args.length < 2) {
       System.err.println("Usage: <crawldb> <segment>");
-      return false;
+      return;
     }
     
     crawlDb.update(new File(args[0]), new File(args[1]));
-
-    return true;
   }
 
-  /**
-   * main() wrapper that returns proper exit status
-   */
-  public static void main(String[] args) {
-    Runtime rt = Runtime.getRuntime();
-    try {
-      boolean status = doMain(args);
-      rt.exit(status ? 0 : 1);
-    }
-    catch (Exception e) {
-      LOG.log(Level.SEVERE, "error, caught Exception in main()", e);
-      rt.exit(1);
-    }
-  }
+
+
 }

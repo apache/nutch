@@ -19,7 +19,7 @@ package org.apache.nutch.searcher;
 import java.net.InetSocketAddress;
 import java.io.*;
 import java.util.*;
-import java.util.logging.*;
+import java.util.logging.Logger;
 import java.lang.reflect.Method;
 
 import org.apache.nutch.parse.ParseData;
@@ -53,12 +53,12 @@ public class DistributedSearch {
     private Server() {}
 
     /** Runs a search server. */
-    public static boolean doMain(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
       String usage = "DistributedSearch$Server <port> <index dir>";
 
       if (args.length == 0 || args.length > 2) {
         System.err.println(usage);
-        return false;
+        System.exit(-1);
       }
 
       int port = Integer.parseInt(args[0]);
@@ -70,24 +70,8 @@ public class DistributedSearch {
       org.apache.hadoop.ipc.Server server = RPC.getServer(bean, port, 10, true, conf);
       server.start();
       server.join();
-
-      return true;
     }
 
-    /**
-     * main() wrapper that returns proper exit status
-     */
-    public static void main(String[] args) {
-      Runtime rt = Runtime.getRuntime();
-      try {
-        boolean status = doMain(args);
-        rt.exit(status ? 0 : 1);
-      }
-      catch (Exception e) {
-        LOG.log(Level.SEVERE, "error, caught Exception in main()", e);
-        rt.exit(1);
-      }
-    }
   }
 
   /** The search client. */
@@ -327,12 +311,12 @@ public class DistributedSearch {
       return getRemote(hit).getFetchDate(hit);
     }
       
-    public static boolean doMain(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
       String usage = "DistributedSearch$Client query <host> <port> ...";
 
       if (args.length == 0) {
         System.err.println(usage);
-        return false;
+        System.exit(-1);
       }
 
       Query query = Query.parse(args[0], NutchConfiguration.create());
@@ -352,7 +336,6 @@ public class DistributedSearch {
         System.out.println(" "+i+" "+ client.getDetails(hits.getHit(i)));
       }
 
-      return true;
     }
 
     public void run() {
@@ -378,21 +361,6 @@ public class DistributedSearch {
     public void close() {
       running = false;
       interrupt();
-    }
-
-    /**
-     * main() wrapper that returns proper exit status
-     */
-    public static void main(String[] args) {
-      Runtime rt = Runtime.getRuntime();
-      try {
-        boolean status = doMain(args);
-        rt.exit(status ? 0 : 1);
-      }
-      catch (Exception e) {
-        LOG.log(Level.SEVERE, "error, caught Exception in main()", e);
-        rt.exit(1);
-      }
     }
   }
 }

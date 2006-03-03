@@ -237,10 +237,10 @@ public class Generator extends Configured {
   /**
    * Generate a fetchlist from the pagedb and linkdb
    */
-  public static boolean doMain(String args[]) throws Exception {
+  public static void main(String args[]) throws Exception {
     if (args.length < 2) {
       System.out.println("Usage: Generator <crawldb> <segments_dir> [-topN N] [-numFetchers numFetchers] [-adddays numDays]");
-      return false;
+      return;
     }
 
     File dbDir = new File(args[0]);
@@ -266,22 +266,5 @@ public class Generator extends Configured {
       LOG.info("topN: " + topN);
     Generator gen = new Generator(NutchConfiguration.create());
     gen.generate(dbDir, segmentsDir, numFetchers, topN, curTime);
-
-    return true;
-  }
-
-  /**
-   * main() wrapper that returns proper exit status
-   */
-  public static void main(String[] args) {
-    Runtime rt = Runtime.getRuntime();
-    try {
-      boolean status = doMain(args);
-      rt.exit(status ? 0 : 1);
-    }
-    catch (Exception e) {
-      LOG.log(Level.SEVERE, "error, caught Exception in main()", e);
-      rt.exit(1);
-    }
   }
 }
