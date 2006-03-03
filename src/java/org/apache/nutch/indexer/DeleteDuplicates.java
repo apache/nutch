@@ -307,6 +307,7 @@ public class DeleteDuplicates extends Configured
     job.setInputKeyClass(HashScore.class);
     job.setInputValueClass(IndexDoc.class);
     job.setInputFormat(InputFormat.class);
+    job.setBoolean("mapred.speculative.execution", false);
 
     job.setPartitionerClass(HashPartitioner.class);
     job.setReducerClass(HashReducer.class);
