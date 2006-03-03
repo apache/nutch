@@ -104,36 +104,19 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
   }
 
 
-  public static boolean doMain(String[] args) throws Exception {
+  public static void main(String[] args) throws Exception {
     File segment;
 
     String usage = "Usage: ParseSegment segment";
 
     if (args.length == 0) {
       System.err.println(usage);
-      return false;
+      System.exit(-1);
     }
       
     segment = new File(args[0]);
 
     ParseSegment parseSegment = new ParseSegment(NutchConfiguration.create());
     parseSegment.parse(segment);
-
-    return true;
-  }
-
-  /**
-   * main() wrapper that returns proper exit status
-   */
-  public static void main(String[] args) {
-    Runtime rt = Runtime.getRuntime();
-    try {
-      boolean status = doMain(args);
-      rt.exit(status ? 0 : 1);
-    }
-    catch (Exception e) {
-      LOG.log(Level.SEVERE, "error, caught Exception in main()", e);
-      rt.exit(1);
-    }
   }
 }

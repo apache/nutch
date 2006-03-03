@@ -127,31 +127,15 @@ public class Injector extends Configured {
 
   }
 
-  public static boolean doMain(String[] args) throws Exception {
+  public static void main(String[] args) throws Exception {
     Injector injector = new Injector(NutchConfiguration.create());
     
     if (args.length < 2) {
       System.err.println("Usage: Injector <crawldb> <url_dir>");
-      return false;
+      return;
     }
     
     injector.inject(new File(args[0]), new File(args[1]));
-
-    return true;
   }
 
-  /**
-   * main() wrapper that returns proper exit status
-   */
-  public static void main(String[] args) {
-    Runtime rt = Runtime.getRuntime();
-    try {
-      boolean status = doMain(args);
-      rt.exit(status ? 0 : 1);
-    }
-    catch (Exception e) {
-      LOG.log(Level.SEVERE, "error, caught Exception in main()", e);
-      rt.exit(1);
-    }
-  }
 }

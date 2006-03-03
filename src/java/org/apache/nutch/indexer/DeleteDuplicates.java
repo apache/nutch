@@ -343,12 +343,12 @@ public class DeleteDuplicates extends Configured
     LOG.info("Dedup: done");
   }
 
-  public static boolean doMain(String[] args) throws Exception {
+  public static void main(String[] args) throws Exception {
     DeleteDuplicates dedup = new DeleteDuplicates(NutchConfiguration.create());
     
     if (args.length < 1) {
       System.err.println("Usage: <indexes> ...");
-      return false;
+      return;
     }
     
     File[] indexes = new File[args.length];
@@ -357,22 +357,6 @@ public class DeleteDuplicates extends Configured
     }
 
     dedup.dedup(indexes);
-
-    return true;
   }
 
-  /**
-   * main() wrapper that returns proper exit status
-   */
-  public static void main(String[] args) {
-    Runtime rt = Runtime.getRuntime();
-    try {
-      boolean status = doMain(args);
-      rt.exit(status ? 0 : 1);
-    }
-    catch (Exception e) {
-      LOG.log(Level.SEVERE, "error, caught Exception in main()", e);
-      rt.exit(1);
-    }
-  }
 }

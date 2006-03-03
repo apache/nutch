@@ -105,11 +105,11 @@ public class IndexMerger {
   /** 
    * Create an index for the input files in the named directory. 
    */
-  public static boolean doMain(String[] args) throws Exception {
+  public static void main(String[] args) throws Exception {
     String usage = "IndexMerger [-workingdir <workingdir>] outputIndex indexesDir...";
     if (args.length < 2) {
       System.err.println("Usage: " + usage);
-      return false;
+      return;
     }
 
     //
@@ -148,22 +148,5 @@ public class IndexMerger {
     merger.merge();
     LOG.info("done merging");
     FileUtil.fullyDelete(workDir, conf);
-
-    return true;
-  }
-
-  /**
-   * main() wrapper that returns proper exit status
-   */
-  public static void main(String[] args) {
-    Runtime rt = Runtime.getRuntime();
-    try {
-      boolean status = doMain(args);
-      rt.exit(status ? 0 : 1);
-    }
-    catch (Exception e) {
-      LOG.log(Level.SEVERE, "error, caught Exception in main()", e);
-      rt.exit(1);
-    }
   }
 }

@@ -26,7 +26,7 @@ import java.util.WeakHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.*;
+import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 // Nutch imports
@@ -400,10 +400,10 @@ public class PluginRepository {
      * selected class.
      * @throws Exception
      */
-    public static boolean doMain(String[] args) throws Exception {
+    public static void main(String[] args) throws Exception {
       if (args.length < 2) {
         System.err.println("Usage: PluginRepository pluginId className [arg1 arg2 ...]");
-        return false;
+        return;
       }
       Configuration conf = NutchConfiguration.create();
       PluginRepository repo = new PluginRepository(conf);
@@ -411,7 +411,7 @@ public class PluginRepository {
       PluginDescriptor d = repo.getPluginDescriptor(args[0]);
       if (d == null) {
         System.err.println("Plugin '" + args[0] + "' not present or inactive.");
-        return false;
+        return;
       }
       ClassLoader cl = d.getClassLoader();
       // args[1] - class name
@@ -420,34 +420,17 @@ public class PluginRepository {
         clazz = Class.forName(args[1], true, cl);
       } catch (Exception e) {
         System.err.println("Could not load the class '" + args[1] + ": " + e.getMessage());
-        return false;
+        return;
       }
       Method m = null;
       try {
         m = clazz.getMethod("main", new Class[]{args.getClass()});
       } catch (Exception e) {
         System.err.println("Could not find the 'main(String[])' method in class " + args[1] + ": " + e.getMessage());
-        return false;
+        return;
       }
       String[] subargs = new String[args.length - 2];
       System.arraycopy(args, 2, subargs, 0, subargs.length);
       m.invoke(null, new Object[]{subargs});
-
-      return true;
     }
-
-  /**
-   * main() wrapper that returns proper exit status
-   */
-  public static void main(String[] args) {
-    Runtime rt = Runtime.getRuntime();
-    try {
-      boolean status = doMain(args);
-      rt.exit(status ? 0 : 1);
-    }
-    catch (Exception e) {
-      LOG.log(Level.SEVERE, "error, caught Exception in main()", e);
-      rt.exit(1);
-    }
-  }
 }
