@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="parse-msexcel" default="jar">
+<project name="parse-msexcel" default="jar-core">
 
   <import file="../build-plugin.xml" />
 

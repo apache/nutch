@@ -1,12 +1,11 @@
 <?xml version="1.0"?>
 
-<project name="parse-rss" default="jar">
+<project name="parse-rss" default="jar-core">
 
  <import file="../build-plugin.xml"/>
 
  <!-- Build compilation dependencies -->
  <target name="deps-jar">
-   <ant target="compile-core" inheritall="false" dir="${nutch.root}"/>
    <ant target="jar" inheritall="false" dir="../lib-log4j"/>
  </target>
 

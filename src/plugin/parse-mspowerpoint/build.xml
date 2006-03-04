@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="parse-mspowerpoint" default="jar">
+<project name="parse-mspowerpoint" default="jar-core">
 
   <import file="../build-plugin.xml" />
 

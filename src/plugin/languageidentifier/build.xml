@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="language-identifier" default="jar">
+<project name="language-identifier" default="jar-core">
 
   <import file="../build-plugin.xml"/>
 
@@ -13,11 +13,6 @@
     <copy todir="${build.test}">
       <fileset dir="${src.test}" includes="**/*.test, **/*.txt"/>
     </copy>
-  </target>
-
-  <!-- Build compilation dependencies -->
-  <target name="deps-jar">
-    <ant target="compile-core" inheritall="false" dir="${nutch.root}"/>
   </target>
 
   <!-- Deploy Unit test dependencies -->

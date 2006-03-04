@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="parse-msword" default="jar">
+<project name="parse-msword" default="jar-core">
 
   <import file="../build-plugin.xml"/>
 

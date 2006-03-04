@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="protocol-http" default="jar">
+<project name="protocol-http" default="jar-core">
 
   <import file="../build-plugin.xml"/>
 

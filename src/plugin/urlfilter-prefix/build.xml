@@ -1,12 +1,7 @@
 <?xml version="1.0"?>
 
-<project name="urlfilter-prefix" default="jar">
+<project name="urlfilter-prefix" default="jar-core">
 
   <import file="../build-plugin.xml"/>
-
-  <!-- Build compilation dependencies -->
-  <target name="deps-jar">
-    <ant target="compile-core" inheritall="false" dir="${nutch.root}"/>
-  </target>
 
 </project>
