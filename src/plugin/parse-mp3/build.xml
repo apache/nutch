@@ -1,13 +1,8 @@
 <?xml version="1.0"?>
 
-<project name="parse-mp3" default="jar">
+<project name="parse-mp3" default="jar-core">
 
   <import file="../build-plugin.xml"/>
-
-  <!-- Build compilation dependencies -->
-  <target name="deps-jar">
-    <ant target="compile-core" inheritall="false" dir="${nutch.root}"/>
-  </target>
 
   <!-- for junit test -->
   <mkdir dir="${build.test}/data"/>

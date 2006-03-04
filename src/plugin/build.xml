@@ -1,6 +1,11 @@
 <?xml version="1.0"?>
 
-<project name="Nutch" default="deploy" basedir=".">
+<project name="Nutch" default="deploy-core" basedir=".">
+
+  <target name="deploy-core">
+    <ant target="compile-core" inheritall="false" dir="../.."/>
+    <ant target="deploy"/>
+  </target>
 
   <!-- ====================================================== -->
   <!-- Build & deploy all the plugin jars.                    -->

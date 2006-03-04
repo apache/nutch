@@ -1,12 +1,11 @@
 <?xml version="1.0"?>
 
-<project name="lib-parsems" default="jar">
+<project name="lib-parsems" default="jar-core">
 
   <import file="../build-plugin.xml"/>
 
   <!-- Build compilation dependencies -->
   <target name="deps-jar">
-    <ant target="compile-core" inheritall="false" dir="${nutch.root}"/>
     <ant target="jar" inheritall="false" dir="../lib-jakarta-poi"/>
   </target>
 

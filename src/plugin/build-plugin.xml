@@ -96,9 +96,14 @@
      source="${javac.version}"
      deprecation="${javac.deprecation}">
       <classpath refid="classpath"/>
-    </javac>    
+    </javac>
   </target>
 
+  <target name="compile-core">
+    <ant target="compile-core" inheritall="false" dir="${nutch.root}"/>
+    <ant target="compile"/>
+  </target>
+  
   <!-- ================================================================== -->
   <!-- Make plugin .jar                                                   -->
   <!-- ================================================================== -->
@@ -109,6 +114,13 @@
       jarfile="${build.dir}/${name}.jar"
       basedir="${build.classes}"
     />
+  </target>
+
+  <target name="jar-core" depends="compile-core">
+    <jar
+        jarfile="${build.dir}/${name}.jar"
+        basedir="${build.classes}"
+        />
   </target>
 
   <!-- ================================================================== -->

@@ -1,13 +1,8 @@
 <?xml version="1.0"?>
 
-<project name="parse-zip" default="jar">
+<project name="parse-zip" default="jar-core">
 
   <import file="../build-plugin.xml"/>
-
-  <!-- Build compilation dependencies -->
-  <target name="deps-jar">
-    <ant target="compile-core" inheritall="false" dir="${nutch.root}"/>
-  </target>
 
   <!-- Deploy Unit test dependencies -->
   <target name="deps-test">
