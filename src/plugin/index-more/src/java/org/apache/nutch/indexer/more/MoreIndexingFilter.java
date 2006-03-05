@@ -105,7 +105,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     if (lastModified != null) {                   // try parse last-modified
       time = getTime(lastModified,url);           // use as time
                                                   // store as string
-      doc.add(Field.UnIndexed("lastModified", new Long(time).toString()));
+      doc.add(new Field("lastModified", new Long(time).toString(), Field.Store.YES, Field.Index.NO));
     }
 
     if (time == -1) {                             // if no last-modified
@@ -119,7 +119,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     String dateString = sdf.format(new Date(time));
 
     // un-stored, indexed and un-tokenized
-    doc.add(new Field("date", dateString, false, true, false));
+    doc.add(new Field("date", dateString, Field.Store.NO, Field.Index.UN_TOKENIZED));
 
     return doc;
   }
@@ -169,7 +169,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     String contentLength = data.getMeta(Response.CONTENT_LENGTH);
 
     if (contentLength != null)
-      doc.add(Field.UnIndexed("contentLength", contentLength));
+      doc.add(new Field("contentLength", contentLength, Field.Store.YES, Field.Index.NO));
 
     return doc;
   }
@@ -221,14 +221,14 @@ public class MoreIndexingFilter implements IndexingFilter {
     // type:vnd.ms-powerpoint
     // all case insensitive.
     // The query filter is implemented in TypeQueryFilter.java
-    doc.add(new Field("type", contentType, false, true, false));
-    doc.add(new Field("type", primaryType, false, true, false));
-    doc.add(new Field("type", subType, false, true, false));
+    doc.add(new Field("type", contentType, Field.Store.NO, Field.Index.UN_TOKENIZED));
+    doc.add(new Field("type", primaryType, Field.Store.NO, Field.Index.UN_TOKENIZED));
+    doc.add(new Field("type", subType, Field.Store.NO, Field.Index.UN_TOKENIZED));
 
     // add its primaryType and subType to respective fields
     // as stored, indexed and un-tokenized
-    doc.add(new Field("primaryType", primaryType, true, true, false));
-    doc.add(new Field("subType", subType, true, true, false));
+    doc.add(new Field("primaryType", primaryType, Field.Store.YES, Field.Index.UN_TOKENIZED));
+    doc.add(new Field("subType", subType, Field.Store.YES, Field.Index.UN_TOKENIZED));
 
     return doc;
   }
@@ -266,7 +266,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     for (int i=0; i<patterns.length; i++) {
       if (matcher.contains(contentDisposition,patterns[i])) {
         result = matcher.getMatch();
-        doc.add(Field.UnIndexed("title", result.group(1)));
+        doc.add(new Field("title", result.group(1), Field.Store.YES, Field.Index.NO));
         break;
       }
     }

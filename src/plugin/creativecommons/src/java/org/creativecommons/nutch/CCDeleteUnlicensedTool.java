@@ -55,7 +55,7 @@ public class CCDeleteUnlicensedTool {
         if (!reader.isDeleted(doc)) {
           Document document = reader.document(doc);
           if (document.get(CCIndexingFilter.FIELD)==null){ // no CC fields
-            reader.delete(doc);                   // delete it
+            reader.deleteDocument(doc);                    // delete it
             deleteCount++;
           }
         }

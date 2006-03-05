@@ -88,14 +88,13 @@ public class Indexer extends Configured implements Reducer {
         new IndexWriter(fs.startLocalOutput(perm, temp),
                         new NutchDocumentAnalyzer(job), true);
 
-      writer.mergeFactor = job.getInt("indexer.mergeFactor", 10);
-      writer.minMergeDocs = job.getInt("indexer.minMergeDocs", 100);
-      writer.maxMergeDocs =
-        job.getInt("indexer.maxMergeDocs", Integer.MAX_VALUE);
+      writer.setMergeFactor(job.getInt("indexer.mergeFactor", 10));
+      writer.setMaxBufferedDocs(job.getInt("indexer.minMergeDocs", 100));
+      writer.setMaxMergeDocs(job.getInt("indexer.maxMergeDocs", Integer.MAX_VALUE));
       writer.setTermIndexInterval
         (job.getInt("indexer.termIndexInterval", 128));
-      writer.maxFieldLength = job.getInt("indexer.max.tokens", 10000);
-      writer.infoStream = LogFormatter.getLogStream(LOG, Level.INFO);
+      writer.setMaxFieldLength(job.getInt("indexer.max.tokens", 10000));
+      writer.setInfoStream(LogFormatter.getLogStream(LOG, Level.INFO));
       writer.setUseCompoundFile(false);
       writer.setSimilarity(new NutchSimilarity());
 
@@ -204,18 +203,20 @@ public class Indexer extends Configured implements Reducer {
     String[] anchors = inlinks!=null ? inlinks.getAnchors() : new String[0];
 
     // add segment, used to map from merged index back to segment files
-    doc.add(Field.UnIndexed("segment",
-                            metadata.get(Fetcher.SEGMENT_NAME_KEY)));
+    doc.add(new Field("segment", metadata.get(Fetcher.SEGMENT_NAME_KEY),
+            Field.Store.YES, Field.Index.NO));
 
     // add digest, used by dedup
-    doc.add(Field.UnIndexed("digest", metadata.get(Fetcher.SIGNATURE_KEY)));
+    doc.add(new Field("digest", metadata.get(Fetcher.SIGNATURE_KEY),
+            Field.Store.YES, Field.Index.NO));
 
     // boost is opic
     float boost = (float)Math.pow(dbDatum.getScore(), scorePower);
     // apply boost to all indexed fields.
     doc.setBoost(boost);
     // store boost for use by explain and dedup
-    doc.add(Field.UnIndexed("boost", Float.toString(boost)));
+    doc.add(new Field("boost", Float.toString(boost),
+            Field.Store.YES, Field.Index.NO));
 
 //     LOG.info("Url: "+key.toString());
 //     LOG.info("Title: "+parseData.getTitle());
