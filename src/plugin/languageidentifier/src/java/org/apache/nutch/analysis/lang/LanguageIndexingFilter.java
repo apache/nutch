@@ -91,7 +91,7 @@ public class LanguageIndexingFilter implements IndexingFilter {
       lang = "unknown";
     }
 
-    doc.add(Field.Keyword("lang", lang));
+    doc.add(new Field("lang", lang, Field.Store.YES, Field.Index.UN_TOKENIZED));
 
     return doc;
   }

@@ -104,7 +104,7 @@ public class CCIndexingFilter implements IndexingFilter {
   }
   
   private void addFeature(Document doc, String feature) {
-    doc.add(Field.Keyword(FIELD, feature));
+    doc.add(new Field(FIELD, feature, Field.Store.YES, Field.Index.UN_TOKENIZED));
   }
 
   public void setConf(Configuration conf) {

@@ -84,11 +84,11 @@ public class IndexMerger {
     // Merge indices
     //
     IndexWriter writer = new IndexWriter(localOutput, null, true);
-    writer.mergeFactor = conf.getInt("indexer.mergeFactor", IndexWriter.DEFAULT_MERGE_FACTOR);
-    writer.minMergeDocs = conf.getInt("indexer.minMergeDocs", IndexWriter.DEFAULT_MIN_MERGE_DOCS);
-    writer.maxMergeDocs = conf.getInt("indexer.maxMergeDocs", IndexWriter.DEFAULT_MAX_MERGE_DOCS);
+    writer.setMergeFactor(conf.getInt("indexer.mergeFactor", IndexWriter.DEFAULT_MERGE_FACTOR));
+    writer.setMaxBufferedDocs(conf.getInt("indexer.minMergeDocs", IndexWriter.DEFAULT_MAX_BUFFERED_DOCS));
+    writer.setMaxMergeDocs(conf.getInt("indexer.maxMergeDocs", IndexWriter.DEFAULT_MAX_MERGE_DOCS));
     writer.setTermIndexInterval(conf.getInt("indexer.termIndexInterval", IndexWriter.DEFAULT_TERM_INDEX_INTERVAL));
-    writer.infoStream = LogFormatter.getLogStream(LOG, Level.FINE);
+    writer.setInfoStream(LogFormatter.getLogStream(LOG, Level.FINE));
     writer.setUseCompoundFile(false);
     writer.setSimilarity(new NutchSimilarity());
     writer.addIndexes(dirs);

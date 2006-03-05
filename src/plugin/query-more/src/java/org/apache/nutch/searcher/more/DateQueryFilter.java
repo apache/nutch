@@ -24,6 +24,7 @@ import org.apache.nutch.searcher.QueryException;
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 
+import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.RangeQuery;
 import org.apache.lucene.index.Term;
@@ -80,7 +81,14 @@ public class DateQueryFilter implements QueryFilter {
 
       rangeQuery.setBoost(0.0f);                  // trigger filterization
           
-      output.add(rangeQuery, c.isRequired(), c.isProhibited());
+      output.add(rangeQuery,
+          (c.isProhibited()
+              ? BooleanClause.Occur.MUST_NOT
+              : (c.isRequired()
+                  ? BooleanClause.Occur.MUST
+                  : BooleanClause.Occur.SHOULD
+                 )
+           ));
              
     }
 

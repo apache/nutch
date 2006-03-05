@@ -16,6 +16,7 @@
 
 package org.apache.nutch.searcher.basic;
 
+import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.TermQuery;
@@ -100,9 +101,14 @@ public class BasicQueryFilter implements QueryFilter {
         out.add(o.isPhrase()
                 ? exactPhrase(o.getPhrase(), FIELDS[f], FIELD_BOOSTS[f])
                 : termQuery(FIELDS[f], o.getTerm(), FIELD_BOOSTS[f]),
-                false, false);
+                BooleanClause.Occur.SHOULD);
       }
-      output.add(out, c.isRequired(), c.isProhibited());
+      output.add(out, (c.isProhibited()
+              ? BooleanClause.Occur.MUST_NOT
+              : (c.isRequired()
+                  ? BooleanClause.Occur.MUST
+                  : BooleanClause.Occur.SHOULD
+                )));
     }
   }
 
@@ -134,7 +140,7 @@ public class BasicQueryFilter implements QueryFilter {
       }
 
       if (sloppyTerms > 1)
-        output.add(sloppyPhrase, false, false);
+        output.add(sloppyPhrase, BooleanClause.Occur.SHOULD);
     }
   }
 

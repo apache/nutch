@@ -56,23 +56,23 @@ public class BasicIndexingFilter implements IndexingFilter {
 
     if (host != null) {
       // add host as un-stored, indexed and tokenized
-      doc.add(Field.UnStored("host", host));
+      doc.add(new Field("host", host, Field.Store.NO, Field.Index.TOKENIZED));
       // add site as un-stored, indexed and un-tokenized
-      doc.add(new Field("site", host, false, true, false));
+      doc.add(new Field("site", host, Field.Store.NO, Field.Index.UN_TOKENIZED));
     }
 
 
     // url is both stored and indexed, so it's both searchable and returned
-    doc.add(Field.Text("url", url.toString()));
+    doc.add(new Field("url", url.toString(), Field.Store.YES, Field.Index.TOKENIZED));
     
     // content is indexed, so that it's searchable, but not stored in index
-    doc.add(Field.UnStored("content", parse.getText()));
+    doc.add(new Field("content", parse.getText(), Field.Store.NO, Field.Index.TOKENIZED));
     
     // anchors are indexed, so they're searchable, but not stored in index
     try {
       String[] anchors = (inlinks != null ? inlinks.getAnchors() : new String[0]);
       for (int i = 0; i < anchors.length; i++) {
-        doc.add(Field.UnStored("anchor", anchors[i]));
+        doc.add(new Field("anchor", anchors[i], Field.Store.NO, Field.Index.TOKENIZED));
       }
     } catch (IOException ioe) {
       LOG.warning("BasicIndexingFilter: can't get anchors for " + url.toString());
@@ -84,7 +84,7 @@ public class BasicIndexingFilter implements IndexingFilter {
       title = title.substring(0, MAX_TITLE_LENGTH);
     }
     // add title indexed and stored so that it can be displayed
-    doc.add(Field.Text("title", title));
+    doc.add(new Field("title", title, Field.Store.YES, Field.Index.TOKENIZED));
 
     return doc;
   }

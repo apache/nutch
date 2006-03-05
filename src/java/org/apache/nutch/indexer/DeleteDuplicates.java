@@ -268,7 +268,7 @@ public class DeleteDuplicates extends Configured
     IndexReader reader = IndexReader.open(new FsDirectory(fs, index, false, getConf()));
     try {
       while (values.hasNext()) {
-        reader.delete(((IntWritable)values.next()).get());
+        reader.deleteDocument(((IntWritable)values.next()).get());
       }
     } finally {
       reader.close();

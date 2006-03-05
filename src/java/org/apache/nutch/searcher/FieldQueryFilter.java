@@ -16,6 +16,7 @@
 
 package org.apache.nutch.searcher;
 
+import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.PhraseQuery;
 import org.apache.lucene.search.TermQuery;
@@ -86,7 +87,15 @@ public abstract class FieldQueryFilter implements QueryFilter {
       // set boost
       luceneClause.setBoost(boost);
       // add it as specified in query
-      output.add(luceneClause, c.isRequired(), c.isProhibited());
+      
+      output.add(luceneClause, 
+          (c.isProhibited()
+              ? BooleanClause.Occur.MUST_NOT
+              : (c.isRequired()
+                  ? BooleanClause.Occur.MUST
+                  : BooleanClause.Occur.SHOULD
+                 )
+           ));
     }
     
     // return the modified Lucene query

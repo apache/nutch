@@ -98,18 +98,18 @@ class LuceneQueryOptimizer {
     BooleanClause[] clauses = original.getClauses();
     for (int i = 0; i < clauses.length; i++) {
       BooleanClause c = clauses[i];
-      if (c.required                              // required
-          && c.query.getBoost() == 0.0f) {        // boost is zero
+      if (c.isRequired()                          // required
+          && c.getQuery().getBoost() == 0.0f) {   // boost is zero
 
-        if (c.query instanceof TermQuery          // TermQuery
-            && (searcher.docFreq(((TermQuery)c.query).getTerm())
+        if (c.getQuery() instanceof TermQuery     // TermQuery
+            && (searcher.docFreq(((TermQuery)c.getQuery()).getTerm())
                 / (float)searcher.maxDoc()) < threshold) { // beneath threshold
           query.add(c);                           // don't filterize
           continue;
         }
           
-        if (c.query instanceof RangeQuery) {      // RangeQuery
-          RangeQuery range = (RangeQuery)c.query;
+        if (c.getQuery() instanceof RangeQuery) { // RangeQuery
+          RangeQuery range = (RangeQuery)c.getQuery();
           boolean inclusive = range.isInclusive();// convert to RangeFilter
           Term lower = range.getLowerTerm();
           Term upper = range.getUpperTerm();
@@ -117,13 +117,13 @@ class LuceneQueryOptimizer {
                                       lower != null ? lower.text() : null,
                                       upper != null ? upper.text() : null,
                                       inclusive, inclusive));
-          cacheQuery.add(c.query, true, false);   // cache it
+          cacheQuery.add(c.getQuery(), BooleanClause.Occur.MUST); // cache it
           continue;
         }
 
         // all other query types
-        filterQuery.add(c.query, true, false);    // filter it
-        cacheQuery.add(c.query, true, false);     // cache it
+        filterQuery.add(c.getQuery(), BooleanClause.Occur.MUST);  // filter it
+        cacheQuery.add(c.getQuery(), BooleanClause.Occur.MUST);   // cache it
         continue;
       }
 

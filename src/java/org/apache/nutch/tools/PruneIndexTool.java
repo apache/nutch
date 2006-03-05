@@ -351,7 +351,7 @@ public class PruneIndexTool implements Runnable {
             doDelete = check;
           } else doDelete = true;
           if (doDelete) {
-            if (!dryrun) reader.delete(docNum);
+            if (!dryrun) reader.deleteDocument(docNum);
             cnt++;
           }
         } catch (Exception e) {
