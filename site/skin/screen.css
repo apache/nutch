@@ -1,5 +1,6 @@
 /*
-* Copyright 2002-2004 The Apache Software Foundation
+* Copyright 2002-2004 The Apache Software Foundation or its licensors,
+* as applicable.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -330,6 +331,21 @@ img.cornersmall {
 #menu #credit {
     text-align: center;
 }
+#menu #credit2 {
+    text-align: center;
+    padding: 3px 3px 3px 3px;
+    background-color: #ffffff;
+}
+#menu .searchbox {
+    text-align: center;
+}
+#menu .searchbox form {
+    padding: 3px 3px;
+    margin: 0;
+}
+#menu .searchbox input {
+    font-size: 100%;
+}
 
 #content {
     padding: 20px 20px 20px 180px;
@@ -403,6 +419,20 @@ acronym { cursor: help; }
   padding: 0;
 }
 
+#motd-area {
+    position: relative; /* IE bugfix cont'd */
+    float: right;
+    width: 35%;
+    background-color: #f0f0ff;
+    border-top: solid 1px #4C6C8F;
+    border-bottom: solid 1px #4C6C8F;
+    margin-bottom: 15px;
+    margin-left: 15px;
+    margin-right: 10%;
+    padding-bottom: 5px;
+    padding-top: 5px;
+}
+
 #minitoc-area {
     border-top: solid 1px #4C6C8F;
     border-bottom: solid 1px #4C6C8F;
@@ -416,6 +446,7 @@ acronym { cursor: help; }
     list-style-image: url('images/current.gif');
     font-weight: normal;
 }
+
 li p {
     margin: 0;
     padding: 0;
@@ -510,3 +541,10 @@ li p {
     height: 16px;
     width: 16px;
 }
+
+p.instruction {
+  display: list-item;
+  list-style-image: url('../images/instruction_arrow.png');
+  list-style-position: outside;
+  margin-left: 2em;
+} 

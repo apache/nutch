@@ -34,14 +34,6 @@ a.external  {
 	background-image: url(images/external-link.gif);
 }
   
-    
-    p.quote {
-      margin-left: 2em;
-      padding: .5em;
-      background-color: #f0f0f0;
-      font-family: monospace;
-    }
-  
 #top          { background-color: #FFFFFF;}  
  
 #top .header .current { background-color: #4C6C8F;} 
@@ -150,3 +142,12 @@ a:hover { color:#0000ff}
 .code         { border-color: #a5b6c6;} 
  
 #footer       { background-color: #E5E4D9;} 
+/* extra-css */
+    
+    p.quote {
+      margin-left: 2em;
+      padding: .5em;
+      background-color: #f0f0f0;
+      font-family: monospace;
+    }
+  
