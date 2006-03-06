@@ -15,6 +15,6 @@
   -->
 
   <tab label="Main" dir=""/>  
-  <tab label="Wiki" href="ext:wiki"/>
+  <tab label="Wiki" href="http://wiki.apache.org/nutch/"/>
   
 </tabs>
