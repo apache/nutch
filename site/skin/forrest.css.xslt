@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <!--
-  Copyright 2002-2004 The Apache Software Foundation
+  Copyright 2002-2004 The Apache Software Foundation or its licensors,
+  as applicable.
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -28,6 +29,7 @@
    <xsl:call-template name="aural"/>
    <xsl:call-template name="a-external"/>
    <xsl:apply-templates/>
+   <xsl:call-template name="add-extra-css"/>
   </xsl:template>
 
   <xsl:template match="colors">
@@ -73,8 +75,9 @@ a.external  {
 }
   </xsl:template>
   
-  <xsl:template match="extra-css">
-    <xsl:value-of select="."/>
+  <xsl:template name="add-extra-css">
+    <xsl:text>/* extra-css */</xsl:text>
+    <xsl:value-of select="extra-css"/>
   </xsl:template>
   
   <xsl:template match="*"></xsl:template>

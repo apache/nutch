@@ -52,7 +52,7 @@
       <text x="20" y="75"
             style="stroke:#ffffff;stroke-width:1.0;
                    font-size:72;font-weight:normal;fill:#ffffff;
-                   font-family:Arial;text-anchor:start;">POD</text>
+                   font-family:Arial;text-anchor:start;">TXT</text>
     </g>
   </g>
 </svg>
