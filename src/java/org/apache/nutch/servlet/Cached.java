@@ -21,6 +21,7 @@ import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.searcher.NutchBean;
 import org.apache.nutch.searcher.Hit;
 import org.apache.nutch.searcher.HitDetails;
+import org.apache.nutch.util.NutchConfiguration;
 
 import org.apache.hadoop.conf.Configuration;
 
@@ -45,6 +46,10 @@ public class Cached extends HttpServlet {
 
   NutchBean bean = null;
 
+  public void init() {
+    init(NutchConfiguration.create());
+  }
+  
   public void init(Configuration conf) {
     try {
       bean = NutchBean.get(this.getServletContext(), conf);
