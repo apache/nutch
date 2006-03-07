@@ -55,7 +55,11 @@ public final class ParserFactory {
     this.conf = conf;
     this.extensionPoint = PluginRepository.get(conf).getExtensionPoint(
         Parser.X_POINT_ID);
-    this.parsePluginList = new ParsePluginsReader().parse(conf);
+    this.parsePluginList = (ParsePluginList)conf.getObject(ParsePluginList.class.getName());
+    if (this.parsePluginList == null) {
+      this.parsePluginList = new ParsePluginsReader().parse(conf);
+      conf.setObject(ParsePluginList.class.getName(), this.parsePluginList);
+    }
 
     if (this.extensionPoint == null) {
       throw new RuntimeException("x point " + Parser.X_POINT_ID + " not found.");
