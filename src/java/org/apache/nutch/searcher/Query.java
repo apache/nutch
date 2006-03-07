@@ -26,13 +26,14 @@ import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import org.apache.hadoop.util.LogFormatter;
+import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.analysis.NutchAnalysis;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.hadoop.io.Writable;
 
 /** A Nutch query. */
-public final class Query implements Writable, Cloneable {
+public final class Query implements Writable, Cloneable, Configurable {
   public static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.searcher.Query");
 
@@ -283,10 +284,21 @@ public final class Query implements Writable, Cloneable {
 
   private static final Clause[] CLAUSES_PROTO = new Clause[0];
   
+  public Query() {
+  }
+  
   public Query(Configuration conf) {
       this.conf = conf;
   }
 
+  public void setConf(Configuration conf) {
+    this.conf = conf;
+  }
+  
+  public Configuration getConf() {
+    return conf;
+  }
+  
   /** Return all clauses. */
   public Clause[] getClauses() {
     return (Clause[])clauses.toArray(CLAUSES_PROTO);
