@@ -28,6 +28,8 @@ import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.mapred.lib.*;
 
+import org.apache.nutch.net.URLFilterException;
+import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
@@ -45,11 +47,13 @@ public class Generator extends Configured {
     private HashMap hostCounts = new HashMap();
     private int maxPerHost;
     private Partitioner hostPartitioner = new PartitionUrlByHost();
+    private URLFilters filters;
 
     public void configure(JobConf job) {
       curTime = job.getLong("crawl.gen.curTime", System.currentTimeMillis());
       limit = job.getLong("crawl.topN",Long.MAX_VALUE)/job.getNumReduceTasks();
       maxPerHost = job.getInt("generate.max.per.host", -1);
+      filters = new URLFilters(job);
     }
 
     public void close() {}
@@ -58,6 +62,14 @@ public class Generator extends Configured {
     public void map(WritableComparable key, Writable value,
                     OutputCollector output, Reporter reporter)
       throws IOException {
+      UTF8 url = (UTF8)key;
+      // don't generate URLs that don't pass URLFilters
+      try {
+        if (filters.filter(url.toString()) == null)
+          return;
+      } catch (URLFilterException e) {
+        LOG.warning("Couldn't filter url: " + url + " (" + e.getMessage() + ")");
+      }
       CrawlDatum crawlDatum = (CrawlDatum)value;
 
       if (crawlDatum.getStatus() == CrawlDatum.STATUS_DB_GONE)
