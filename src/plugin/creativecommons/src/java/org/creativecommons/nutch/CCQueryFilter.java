@@ -32,6 +32,7 @@ public class CCQueryFilter extends RawFieldQueryFilter {
 
   public void setConf(Configuration conf) {
     this.conf = conf;
+    setBoost(conf.getFloat("query.cc.boost", 0.0f));
   }
 
   public Configuration getConf() {
