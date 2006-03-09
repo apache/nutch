@@ -120,7 +120,7 @@ public class HtmlParser implements Parser {
       byte[] contentInOctets = content.getContent();
       InputSource input = new InputSource(new ByteArrayInputStream(contentInOctets));
       String encoding = StringUtil.parseCharacterEncoding(contentType);
-      if (encoding!=null) {
+      if ((encoding != null) && !("".equals(encoding))) {
         metadata.put("OriginalCharEncoding", encoding);
         if ((encoding = StringUtil.resolveEncodingAlias(encoding)) != null) {
           metadata.put("CharEncodingForConversion", encoding);
@@ -129,7 +129,7 @@ public class HtmlParser implements Parser {
       }
 
       // sniff out 'charset' value from the beginning of a document
-      if (encoding == null) {
+      if ((encoding == null) || ("".equals(encoding))) {
         encoding = sniffCharacterEncoding(contentInOctets);
         if (encoding!=null) {
           metadata.put("OriginalCharEncoding", encoding);

@@ -16,6 +16,8 @@ Cannon-Brookes).
  6. Fixed TestFetcher JUnit test failing due to changes in www.nutch.org
 website.
 
+ 7. NUTCH-91 - empty encoding causes exception. (Michael Nebel).
+
 
 Release 0.7.1 - 2005-10-01
 
