@@ -688,7 +688,6 @@
   </description>
 </property>
 
-
 <property>
   <name>query.title.boost</name>
   <value>1.5</value>
@@ -708,6 +707,42 @@
   <value>1.0</value>
   <description> Used as a boost for phrase in Lucene query.
   Multiplied by boost for field phrase is matched in.
+  </description>
+</property>
+
+<!-- creative-commons plugin properties -->
+
+<property>
+  <name>query.cc.boost</name>
+  <value>0.0</value>
+  <description> Used as a boost for cc field in Lucene query.
+  </description>
+</property>
+
+<!-- query-more plugin properties -->
+
+<property>
+  <name>query.type.boost</name>
+  <value>0.0</value>
+  <description> Used as a boost for type field in Lucene query.
+  </description>
+</property>
+
+<!-- query-site plugin properties -->
+
+<property>
+  <name>query.site.boost</name>
+  <value>0.0</value>
+  <description> Used as a boost for site field in Lucene query.
+  </description>
+</property>
+
+<!-- microformats-reltag plugin properties -->
+
+<property>
+  <name>query.tag.boost</name>
+  <value>1.0</value>
+  <description> Used as a boost for tag field in Lucene query.
   </description>
 </property>
 
@@ -742,6 +777,13 @@
   the language (0 means full content analysis).
   The larger is this value, the better is the analysis, but the
   slowest it is.
+  </description>
+</property>
+
+<property>
+  <name>query.lang.boost</name>
+  <value>0.0</value>
+  <description> Used as a boost for lang field in Lucene query.
   </description>
 </property>
 

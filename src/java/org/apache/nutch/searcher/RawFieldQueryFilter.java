@@ -52,6 +52,10 @@ public abstract class RawFieldQueryFilter implements QueryFilter {
     this.boost = boost;
   }
 
+  protected void setBoost(float boost) {
+    this.boost = boost;
+  }
+  
   public BooleanQuery filter(Query input, BooleanQuery output)
     throws QueryException {
     

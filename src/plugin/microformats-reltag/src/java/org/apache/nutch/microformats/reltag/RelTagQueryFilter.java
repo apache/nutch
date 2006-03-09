@@ -44,6 +44,7 @@ public class RelTagQueryFilter extends RawFieldQueryFilter {
 
   public void setConf(Configuration conf) {
     this.conf = conf;
+    setBoost(conf.getFloat("query.tag.boost", 1.0f));
   }
 
   public Configuration getConf() {
