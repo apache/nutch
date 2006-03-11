@@ -18,6 +18,8 @@ website.
 
  7. NUTCH-91 - empty encoding causes exception. (Michael Nebel).
 
+ 8. Lucene upgraded to version 1.9.1.
+
 
 Release 0.7.1 - 2005-10-01
 
