@@ -21,11 +21,11 @@
 // cluster the hits
 HitsCluster [] clusters = null;
 if (clusterer != null) {
-  long clusteringStart = System.currentTimeMillis();
+  final long clusteringStart = System.currentTimeMillis();
   try {
     clusters = clusterer.clusterHits( details, summaries );
-	long clusteringDuration = start - System.currentTimeMillis();
-	bean.LOG.info("Clustering took: " + clusteringDuration + " milliseconds.");
+    final long clusteringDuration = System.currentTimeMillis() - clusteringStart;
+    bean.LOG.info("Clustering took: " + clusteringDuration + " milliseconds.");
   } catch (Exception e) {
     // failed to do clustering (see below)
   }
