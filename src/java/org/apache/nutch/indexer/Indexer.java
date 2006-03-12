@@ -84,6 +84,7 @@ public class Indexer extends Configured implements Reducer {
 
       fs.delete(perm);                            // delete old, if any
 
+      final AnalyzerFactory factory = new AnalyzerFactory(job);
       final IndexWriter writer =                  // build locally first
         new IndexWriter(fs.startLocalOutput(perm, temp),
                         new NutchDocumentAnalyzer(job), true);
@@ -103,7 +104,12 @@ public class Indexer extends Configured implements Reducer {
 
           public void write(WritableComparable key, Writable value)
             throws IOException {                  // unwrap & index doc
-            writer.addDocument((Document)((ObjectWritable)value).get());
+            Document doc = (Document)((ObjectWritable)value).get();
+            NutchAnalyzer analyzer = factory.get(doc.get("lang"));
+            LOG.info(" Indexing [" + doc.getField("url").stringValue() + "]" +
+                     " with analyzer " + analyzer +
+                     " (" + doc.get("lang") + ")");
+            writer.addDocument(doc, analyzer);
           }
           
           public void close(final Reporter reporter) throws IOException {
