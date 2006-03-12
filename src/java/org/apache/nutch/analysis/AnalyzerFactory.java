@@ -81,7 +81,9 @@ public class AnalyzerFactory {
     Extension extension = (Extension) this.conf.getObject(lang);
     if (extension == null) {
       extension = findExtension(lang);
-      this.conf.setObject(lang, extension);
+      if (extension != null) {
+        this.conf.setObject(lang, extension);
+      }
     }
     return extension;
   }
