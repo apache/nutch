@@ -78,7 +78,7 @@ public class PluginManifestParser {
             File directory = getPluginFolder(name);
             if (directory == null)
                 continue;
-            LOG.info("Plugins: looking in: " + directory);
+            LOG.info("Plugins: looking in: " + directory.getAbsolutePath());
             File[] files = directory.listFiles();
             if (files == null)
                 continue;
@@ -115,7 +115,10 @@ public class PluginManifestParser {
         if (!directory.isAbsolute()) {
             URL url = PluginManifestParser.class.getClassLoader().getResource(
                     name);
-            if (url == null) {
+            if (url == null && directory.exists()
+                && directory.isDirectory() && directory.listFiles().length > 0) {
+                return directory; // relative path that is not in the classpath
+            } else if (url == null) {
                 LOG.warning("Plugins: directory not found: " + name);
                 return null;
             } else if (!"file".equals(url.getProtocol())) {
