@@ -78,6 +78,7 @@ public class AnalyzerFactory {
 
   private Extension getExtension(String lang) {
 
+    if (lang == null) { return null; }
     Extension extension = (Extension) this.conf.getObject(lang);
     if (extension == null) {
       extension = findExtension(lang);
