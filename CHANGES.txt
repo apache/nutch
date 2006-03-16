@@ -20,6 +20,8 @@ website.
 
  8. Lucene upgraded to version 1.9.1.
 
+ 9. Commons HTTPClient upgraded to version 3.0.
+
 
 Release 0.7.1 - 2005-10-01
 

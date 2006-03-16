@@ -10,7 +10,7 @@
          <export name="*"/>
       </library>
       <library name="commons-codec.jar" />
-      <library name="commons-httpclient-3.0-rc2.jar" />
+      <library name="commons-httpclient-3.0.jar" />
    </runtime>
 
    <extension id="org.apache.nutch.protocol.httpclient"
