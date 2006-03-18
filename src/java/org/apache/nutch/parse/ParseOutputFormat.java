@@ -25,6 +25,7 @@ import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.net.*;
 
 import java.io.*;
+import java.util.ArrayList;
 
 /* Parse content in a segment. */
 public class ParseOutputFormat implements OutputFormat {
@@ -42,6 +43,7 @@ public class ParseOutputFormat implements OutputFormat {
     this.filters = new URLFilters(job);
     final float interval = job.getFloat("db.default.fetch.interval", 30f);
     final float extscore = job.getFloat("db.score.link.external", 1.0f);
+    final boolean countFiltered = job.getBoolean("db.score.count.filtered", false);
     
     File text =
       new File(new File(job.getOutputDir(), ParseText.DIR_NAME), name);
@@ -92,9 +94,9 @@ public class ParseOutputFormat implements OutputFormat {
                                     .getContentMeta().get(Fetcher.SCORE_KEY);
           float score = extscore;
           // this may happen if there was a fetch error.
-         if (scoreString != null) score = Float.parseFloat(scoreString);
-          score /= links.length;
-                          
+          if (scoreString != null) score = Float.parseFloat(scoreString);
+          String[] toUrls = new String[links.length];
+          int validCount = 0;
           for (int i = 0; i < links.length; i++) {
             String toUrl = links[i].getToUrl();
             try {
@@ -103,10 +105,18 @@ public class ParseOutputFormat implements OutputFormat {
             } catch (Exception e) {
               toUrl = null;
             }
-            if (toUrl != null)
-              crawlOut.append(new UTF8(toUrl),
-                              new CrawlDatum(CrawlDatum.STATUS_LINKED,
-                                             interval, score));
+            if (toUrl != null) validCount++;
+            toUrls[i] = toUrl;
+          }
+          if (countFiltered) {
+            score = score / links.length;
+          } else {
+            score = score / validCount;
+          }
+          for (int i = 0; i < toUrls.length; i++) {
+            if (toUrls[i] == null) continue;
+            crawlOut.append(new UTF8(toUrls[i]),
+                    new CrawlDatum(CrawlDatum.STATUS_LINKED, interval, score));
           }
         }
         
