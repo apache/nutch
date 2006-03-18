@@ -242,6 +242,16 @@
 </property>
 
 <property>
+  <name>db.score.count.filtered</name>
+  <value>false</value>
+  <description>The score value passed to newly discovered pages is
+  calculated as a fraction of the original page score divided by the
+  number of outlinks. If this option is false, only the outlinks that passed
+  URLFilters will count, if it's true then all outlinks will count.
+  </description>
+</property>
+
+<property>
   <name>db.max.outlinks.per.page</name>
   <value>100</value>
   <description>The maximum number of outlinks that we'll process for a page.
