@@ -29,6 +29,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
+import java.util.Iterator;
 import java.util.logging.Logger;
 
 /** . */
@@ -112,8 +113,9 @@ public class LinkDbReader implements Closeable {
       if (links == null) {
         System.out.println(" - no link information.");
       } else {
-        for (int i = 0; i < links.size(); i++) {
-          System.out.println(links.get(i).toString());
+        Iterator it = links.iterator();
+        while (it.hasNext()) {
+          System.out.println(it.next().toString());
         }
       }
     } else {
