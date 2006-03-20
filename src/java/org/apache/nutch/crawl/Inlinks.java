@@ -24,22 +24,23 @@ import org.apache.hadoop.io.*;
 
 /** A list of {@link Inlink}s. */
 public class Inlinks implements Writable {
-  private ArrayList inlinks = new ArrayList(1);
+  private HashSet inlinks = new HashSet(1);
 
   public void add(Inlink inlink) { inlinks.add(inlink); }
 
   public void add(Inlinks inlinks) { this.inlinks.addAll(inlinks.inlinks); }
 
+  public Iterator iterator() {
+    return this.inlinks.iterator();
+  }
+  
   public int size() { return inlinks.size(); }
-
-  public Inlink get(int i) { return (Inlink)inlinks.get(i); }
 
   public void clear() { inlinks.clear(); }
 
   public void readFields(DataInput in) throws IOException {
     int length = in.readInt();
     inlinks.clear();
-    inlinks.ensureCapacity(length);
     for (int i = 0; i < length; i++) {
       add(Inlink.read(in));
     }
@@ -47,17 +48,19 @@ public class Inlinks implements Writable {
 
   public void write(DataOutput out) throws IOException {
     out.writeInt(inlinks.size());
-    for (int i = 0; i < inlinks.size(); i++) {
-      ((Writable)inlinks.get(i)).write(out);
+    Iterator it = inlinks.iterator();
+    while (it.hasNext()) {
+      ((Writable)it.next()).write(out);
     }
   }
 
   public String toString() {
     StringBuffer buffer = new StringBuffer();
     buffer.append("Inlinks:\n");
-    for (int i = 0; i < inlinks.size(); i++) {
+    Iterator it = inlinks.iterator();
+    while (it.hasNext()) {
       buffer.append(" ");
-      buffer.append(inlinks.get(i));
+      buffer.append(it.next());
       buffer.append("\n");
     }
     return buffer.toString();
@@ -68,8 +71,9 @@ public class Inlinks implements Writable {
   public String[] getAnchors() throws IOException {
     HashMap domainToAnchors = new HashMap();
     ArrayList results = new ArrayList();
-    for (int i = 0; i < inlinks.size(); i++) {
-      Inlink inlink = (Inlink)inlinks.get(i);
+    Iterator it = inlinks.iterator();
+    while (it.hasNext()) {
+      Inlink inlink = (Inlink)it.next();
       String anchor = inlink.getAnchor();
 
       if (anchor.length() == 0)                   // skip empty anchors

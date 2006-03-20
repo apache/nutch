@@ -117,8 +117,10 @@ public class LinkDb extends Configured implements Mapper, Reducer {
       }
 
       int end = Math.min(maxInlinks - result.size(), inlinks.size());
-      for (int i = 0; i < end; i++) {
-        result.add(inlinks.get(i));
+      Iterator it = inlinks.iterator();
+      int i = 0;
+      while(it.hasNext() && i++ < end) {
+        result.add((Inlink)it.next());
       }
     }
     output.collect(key, result);
