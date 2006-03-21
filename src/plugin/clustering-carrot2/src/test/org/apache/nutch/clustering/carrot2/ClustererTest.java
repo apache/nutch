@@ -16,21 +16,22 @@
 
 package org.apache.nutch.clustering.carrot2;
 
-import java.io.File;
+import java.util.ArrayList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import junit.framework.TestCase;
 
 import org.apache.nutch.clustering.HitsCluster;
-import org.apache.nutch.searcher.Hit;
 import org.apache.nutch.searcher.HitDetails;
-import org.apache.nutch.searcher.Hits;
-import org.apache.nutch.searcher.NutchBean;
-import org.apache.nutch.searcher.Query;
-import junit.framework.TestCase;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * A test case for the Carrot2-based clusterer plugin to Nutch.
- *
- * <p><b>This test case is mostly commented-out because I don't know
- * how to integrate a test that requires an existing Nutch index.</b></p>
  *
  * @author Dawid Weiss
  * @version $Id: ClustererTest.java,v 1.1 2004/08/09 23:23:53 johnnx Exp $
@@ -45,43 +46,91 @@ public class ClustererTest extends TestCase {
     super();
   }
 
+  /**
+   * The clusterer should not fail on empty input, returning
+   * an empty array of {@link HitsCluster}.
+   */
   public void testEmptyInput() {
-    Clusterer c = new Clusterer();
-    
-    HitDetails [] hitDetails = new HitDetails[0];
-    String [] descriptions = new String [0];
-
-    HitsCluster [] clusters = c.clusterHits(hitDetails, descriptions);
-    assertTrue( clusters != null && clusters.length == 0 );
+    final Clusterer c = new Clusterer();
+    final HitDetails [] hitDetails = new HitDetails[0];
+    final String [] descriptions = new String [0];
+    final HitsCluster [] clusters = c.clusterHits(hitDetails, descriptions);
+    assertTrue(clusters != null && clusters.length == 0);
   }
 
-  /*
-  
-  UNCOMMENT THIS IF YOU HAVE A NUTCH INDEX AVAILABLE. REPLACE
-  THE HARDCODED PATH TO IT.
-  
-  public void testSomeInput() throws Exception {
-    Clusterer c = new Clusterer();
+  /**
+   * Tests the clusterer on some cached data.
+   */
+  public void testOnCachedData() throws Exception {
+    final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    final DocumentBuilder parser = factory.newDocumentBuilder();
+    final Document document = parser.parse(
+        getClass().getResourceAsStream("test-input.xml"));
 
-    NutchBean bean = new NutchBean(
-      new File("c:\\dweiss\\data\\mozdex-nutch\\nutch-mozdex\\resin"));
-    Query q = Query.parse( "blog" );
-    Hits hits = bean.search(q, 100);
-
-    Hit[] show = hits.getHits(0, 100);
-    HitDetails[] details = bean.getDetails(show);
-    String[] summaries = bean.getSummary(details, q);
-
-    HitsCluster [] clusters = c.clusterHits(details, summaries);
-    assertTrue( clusters != null );
+    final Element data = document.getDocumentElement();
+    final NodeList docs = data.getElementsByTagName("document");
     
-    for (int i=0;i<clusters.length;i++) {
-        HitsCluster cluster = clusters[i];
-        dump(0, cluster);
+    final ArrayList summaries = new ArrayList();
+    final ArrayList hitDetails = new ArrayList();
+
+    assertTrue(docs.getLength() > 0);
+    for (int i = 0; i < docs.getLength(); i++) {
+      final Element doc = (Element) docs.item(i);
+      assertTrue(doc.getNodeType() == Node.ELEMENT_NODE);
+      final Element urlElement = (Element) doc.getElementsByTagName("url").item(0);
+      final Element snippetElement = (Element) doc.getElementsByTagName("snippet").item(0);
+      final Element titleElement = (Element) doc.getElementsByTagName("title").item(0);
+
+      summaries.add(toText(titleElement) + " " + toText(snippetElement));
+      hitDetails.add(new HitDetails(
+          new String [] {"url"}, 
+          new String [] {toText(urlElement)}));
     }
-  }    
-  */
+
+    final Clusterer c = new Clusterer();
+    HitsCluster [] clusters = c.clusterHits(
+        (HitDetails[]) hitDetails.toArray(new HitDetails[hitDetails.size()]),
+        (String[]) summaries.toArray(new String[summaries.size()]));
+    
+    // There should be SOME clusters in the input... words distribution
+    // should not be random because some words have higher probability.
+    assertTrue(clusters != null);
+    assertTrue("Clusters expected, but not found.", clusters.length > 0);
+
+    // Check hit references inside clusters.
+    for (int i = 0; i < clusters.length; i++) {
+      assertTrue(clusters[i].getHits().length > 0);
+    }
+
+    /*
+    // Dump cluster content if you need to.
+    System.out.println("Clusters: " + clusters.length);
+    for (int i = 0; i < clusters.length; i++) {
+      dump(0, clusters[i]);
+    }
+    */
+  }
   
+  /**
+   * Converts a {@link Element} to plain text.
+   */
+  private String toText(Element snippetElement) {
+    final StringBuffer buffer = new StringBuffer();
+    final NodeList list = snippetElement.getChildNodes();
+    for (int i = 0; i < list.getLength(); i++) {
+      Node n = list.item(i);
+      if (n.getNodeType() == Node.TEXT_NODE) {
+        buffer.append(n.getNodeValue());
+      } else if (n.getNodeType() == Node.CDATA_SECTION_NODE) {
+        n.getNodeValue();
+      } else throw new RuntimeException("Unexpected nested element when converting to text.");
+    }
+    return buffer.toString();
+  }
+
+  /**
+   * Dumps the content of {@link HitsCluster} to system output stream. 
+   */
   private void dump(int level, HitsCluster cluster) {
     String [] labels = cluster.getDescriptionLabels();
     for (int indent = 0; indent<level; indent++) {

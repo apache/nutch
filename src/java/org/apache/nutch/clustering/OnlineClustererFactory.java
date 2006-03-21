@@ -30,19 +30,38 @@ import org.apache.hadoop.util.LogFormatter;
 public class OnlineClustererFactory {
   public static final Logger LOG = LogFormatter
     .getLogger(OnlineClustererFactory.class.getName());
+  
+  /**
+   * Nutch configuration key specifying a particular clustering extension
+   * to use. 
+   */
+  private final static String CONFIG_FIELD_NAME = "extension.clustering.extension-name";
+
+  /**
+   * An {@link ExtensionPoint} pointing to {@link OnlineClusterer}. 
+   */
   private ExtensionPoint extensionPoint;
+  
+  /**
+   * Default clustering extension implementation retrieved from the
+   * configuration file or <code>null</code> if the default (first encountered extension)
+   * is to be used.
+   */
   private String extensionName;
 
+  /**
+   * Create an instance of the clustering factory bound to
+   * a given configuration.
+   */
   public OnlineClustererFactory(Configuration conf) {
       this.extensionPoint = PluginRepository.get(conf).getExtensionPoint(OnlineClusterer.X_POINT_ID);
-      this.extensionName = conf.get("extension.clustering.extension-name");
+      this.extensionName = conf.get(CONFIG_FIELD_NAME);
   }
 
   /**
   * @return Returns the online clustering extension specified
-  * in nutch configuration's key
-  * <code>extension.clustering.extension-name</code>. If the name is
-  * empty (no preference), the first available clustering extension is
+  * in nutch configuration (key name in this field: {@link #CONFIG_FIELD_NAME}). 
+  * If the name is empty (no preference), the first available clustering extension is
   * returned.
   */
   public OnlineClusterer getOnlineClusterer()
@@ -64,7 +83,7 @@ public class OnlineClustererFactory {
       // not found, fallback to the default, if available.
     }
 
-    Extension[] extensions = this.extensionPoint.getExtensions();
+    final Extension[] extensions = this.extensionPoint.getExtensions();
     if (extensions.length > 0) {
       LOG.info("Using the first clustering extension found: "
         + extensions[0].getId());
@@ -77,11 +96,9 @@ public class OnlineClustererFactory {
   private Extension findExtension(String name)
     throws PluginRuntimeException {
 
-    Extension[] extensions = this.extensionPoint.getExtensions();
-
+    final Extension[] extensions = this.extensionPoint.getExtensions();
     for (int i = 0; i < extensions.length; i++) {
-      Extension extension = extensions[i];
-
+      final Extension extension = extensions[i];
       if (name.equals(extension.getId()))
         return extension;
     }
