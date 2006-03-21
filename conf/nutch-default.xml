@@ -612,6 +612,13 @@
 </property>
 
 <property>
+  <name>urlfilter.automaton.file</name>
+  <value>automaton-urlfilter.txt</value>
+  <description>Name of file on CLASSPATH containing regular expressions
+  used by urlfilter-automaton (AutomatonURLFilter) plugin.</description>
+</property>
+
+<property>
   <name>urlfilter.prefix.file</name>
   <value>prefix-urlfilter.txt</value>
   <description>Name of file on CLASSPATH containing url prefixes

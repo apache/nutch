@@ -23,6 +23,7 @@
      <ant dir="lib-lucene-analyzers" target="deploy"/>
      <ant dir="lib-nekohtml" target="deploy"/>
      <ant dir="lib-parsems" target="deploy"/>
+     <ant dir="lib-regex-filter" target="deploy"/>
      <ant dir="microformats-reltag" target="deploy"/>
      <ant dir="nutch-extensionpoints" target="deploy"/>
      <ant dir="ontology" target="deploy"/>
@@ -47,6 +48,7 @@
      <ant dir="query-more" target="deploy"/>
      <ant dir="query-site" target="deploy"/>
      <ant dir="query-url" target="deploy"/>
+     <ant dir="urlfilter-automaton" target="deploy"/>
      <ant dir="urlfilter-prefix" target="deploy"/>
      <ant dir="urlfilter-regex" target="deploy"/>
   </target>
@@ -71,6 +73,8 @@
  <!-- <ant dir="parse-rtf" target="test"/> -->
      <ant dir="parse-swf" target="test"/>
      <ant dir="parse-zip" target="test"/>
+     <ant dir="urlfilter-automaton" target="test"/>
+     <ant dir="urlfilter-regex" target="test"/>
     </parallel>
   </target>
 
@@ -92,6 +96,7 @@
     <ant dir="lib-lucene-analyzers" target="clean"/>
     <ant dir="lib-nekohtml" target="clean"/>
     <ant dir="lib-parsems" target="clean"/>
+    <ant dir="lib-regex-filter" target="clean"/>
     <ant dir="microformats-reltag" target="clean"/>
     <ant dir="nutch-extensionpoints" target="clean"/>
     <ant dir="ontology" target="clean"/>
@@ -116,6 +121,7 @@
     <ant dir="query-more" target="clean"/>
     <ant dir="query-site" target="clean"/>
     <ant dir="query-url" target="clean"/>
+    <ant dir="urlfilter-automaton" target="clean"/>
     <ant dir="urlfilter-prefix" target="clean"/>
     <ant dir="urlfilter-regex" target="clean"/>
   </target>
