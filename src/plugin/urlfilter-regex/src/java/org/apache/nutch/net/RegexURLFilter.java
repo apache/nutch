@@ -13,185 +13,75 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.net;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.util.LogFormatter;
-
-import org.apache.nutch.plugin.Extension;
-import org.apache.nutch.plugin.PluginRepository;
-
+// JDK imports
 import java.io.Reader;
-import java.io.FileReader;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.IOException;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.logging.Logger;
-import java.util.regex.*;
+// Hadoop imports
+import org.apache.hadoop.conf.Configuration;
+
 
 /**
- * Filters URLs based on a file of regular expressions. The file is named by
- * (1) property "urlfilter.regex.file" in ./conf/nutch-default.xml, and
- * (2) attribute "file" in plugin.xml of this plugin
- * Attribute "file" has higher precedence if defined.
- *
- * <p>The format of this file is:
- * <pre>
- * [+-]<regex>
- * </pre>
- * where plus means go ahead and index it and minus means no.
+ * Filters URLs based on a file of regular expressions using the
+ * {@link java.util.regex Java Regex implementation}.
  */
-
-public class RegexURLFilter implements URLFilter {
-
-  private static final Logger LOG =
-    LogFormatter.getLogger(RegexURLFilter.class.getName());
-
-  // read in attribute "file" of this plugin.
-  private static String attributeFile = null;
-
-  private static class Rule {
-    public Pattern pattern;
-    public boolean sign;
-    public String regex;
-  }
-
-  private List rules;
-
-  private Configuration conf;
+public class RegexURLFilter extends RegexURLFilterBase {
 
   public RegexURLFilter() {
+    super();
   }
 
   public RegexURLFilter(String filename)
     throws IOException, PatternSyntaxException {
-    rules = readConfigurationFile(new FileReader(filename));
+    super(filename);
   }
 
-  public synchronized String filter(String url) {
-    Iterator i=rules.iterator();
-    while(i.hasNext()) {
-      Rule r=(Rule) i.next();
-      Matcher matcher = r.pattern.matcher(url);
-
-      if (matcher.find()) {
-        //System.out.println("Matched " + r.regex);
-        return r.sign ? url : null;
-      }
-    };
-        
-    return null;   // assume no go
+  RegexURLFilter(Reader reader)
+    throws IOException, IllegalArgumentException {
+    super(reader);
   }
 
-  //
-  // Format of configuration file is
-  //    
-  // [+-]<regex>
-  //
-  // where plus means go ahead and index it and minus means no.
-  // 
+  
+  /* ----------------------------------- *
+   * <implementation:RegexURLFilterBase> *
+   * ----------------------------------- */
+  
+  // Inherited Javadoc
+  protected String getRulesFile(Configuration conf) {
+    return conf.get("urlfilter.regex.file");
+  }
 
-  private static List readConfigurationFile(Reader reader)
-    throws IOException, PatternSyntaxException {
+  // Inherited Javadoc
+  protected RegexRule createRule(boolean sign, String regex) {
+    return new Rule(sign, regex);
+  }
+  
+  /* ------------------------------------ *
+   * </implementation:RegexURLFilterBase> *
+   * ------------------------------------ */
 
-    BufferedReader in=new BufferedReader(reader);
-    List rules=new ArrayList();
-    String line;
-       
-    while((line=in.readLine())!=null) {
-      if (line.length() == 0)
-        continue;
-      char first=line.charAt(0);
-      boolean sign=false;
-      switch (first) {
-      case '+' : 
-        sign=true;
-        break;
-      case '-' :
-        sign=false;
-        break;
-      case ' ' : case '\n' : case '#' :           // skip blank & comment lines
-        continue;
-      default :
-        throw new IOException("Invalid first character: "+line);
-      }
+  
+  public static void main(String args[]) throws IOException {
+    main(new RegexURLFilter(), args);
+  }
 
-      String regex=line.substring(1);
 
-      Rule rule=new Rule();
-      rule.pattern=Pattern.compile(regex);
-      rule.sign=sign;
-      rule.regex=regex;
-      rules.add(rule);
+  private class Rule extends RegexRule {
+    
+    private Pattern pattern;
+    
+    Rule(boolean sign, String regex) {
+      super(sign, regex);
+      pattern = Pattern.compile(regex);
     }
 
-    return rules;
-  }
-
-  public static void main(String args[])
-    throws IOException, PatternSyntaxException {
-
-    RegexURLFilter filter=new RegexURLFilter();
-    BufferedReader in=new BufferedReader(new InputStreamReader(System.in));
-    String line;
-    while((line=in.readLine())!=null) {
-      String out=filter.filter(line);
-      if(out!=null) {
-        System.out.print("+");
-        System.out.println(out);
-      } else {
-        System.out.print("-");
-        System.out.println(line);
-      }
+    protected boolean match(String url) {
+      return pattern.matcher(url).find();
     }
   }
-
-  public void setConf(Configuration conf) {
-    this.conf = conf;
-    String pluginName = "urlfilter-regex";
-    Extension[] extensions = PluginRepository.get(conf).getExtensionPoint(
-        URLFilter.class.getName()).getExtensions();
-    for (int i = 0; i < extensions.length; i++) {
-      Extension extension = extensions[i];
-      if (extension.getDescriptor().getPluginId().equals(pluginName)) {
-        attributeFile = extension.getAttribute("file");
-        break;
-      }
-    }
-    if (attributeFile != null && attributeFile.trim().equals(""))
-      attributeFile = null;
-    if (attributeFile != null) {
-      LOG.info("Attribute \"file\" is defined for plugin " + pluginName
-          + " as " + attributeFile);
-    } else {
-      //LOG.warning("Attribute \"file\" is not defined in plugin.xml for plugin "+pluginName);
-    }
-    String file = conf.get("urlfilter.regex.file");
-    // attribute "file" takes precedence if defined
-    if (attributeFile != null)
-      file = attributeFile;
-    Reader reader = conf.getConfResourceAsReader(file);
-
-    if (reader == null) {
-      LOG.severe("Can't find resource: " + file);
-    } else {
-      try {
-        rules = readConfigurationFile(reader);
-      } catch (IOException e) {
-        LOG.severe(e.getMessage());
-        //TODO mb@media-style.com: throw Exception? Because broken api.
-        throw new RuntimeException(e.getMessage(), e);
-      }
-    }
-  }
-
-  public Configuration getConf() {
-    return this.conf;
-  }
-
+  
 }
