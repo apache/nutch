@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ ! A common framework for RegExp based URL filters
+ !-->
+<plugin
+   id="lib-regex-filter"
+   name="Regex URL Filter Framework"
+   version="1.0"
+   provider-name="org.apache.nutch">
+
+   <runtime>
+     <library name="lib-regex-filter.jar">
+        <export name="*"/>
+     </library>
+   </runtime>
+
+</plugin>
