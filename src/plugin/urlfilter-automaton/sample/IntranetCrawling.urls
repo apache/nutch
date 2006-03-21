@@ -1,0 +1,8 @@
+-file://home/jc/nutch/index.html
+-ftp://ftp.apache.org/nutch.html
+-mailto:jerome.charron@gmail.com
+-news://any.news.server/comp.lang.java
+-whois:/nutch.org
++http://MY.DOMAIN.NAME/
++http://MY.DOMAIN.NAME/nutch
++http://www.MY.DOMAIN.NAME/

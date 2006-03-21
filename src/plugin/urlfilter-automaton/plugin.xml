@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="urlfilter-automaton"
+   name="Automaton URL Filter"
+   version="1.0.0"
+   provider-name="nutch.org">
+
+   <runtime>
+      <library name="urlfilter-automaton.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
+   <extension id="org.apache.nutch.net.urlfilter"
+              name="Nutch Automaton URL Filter"
+              point="org.apache.nutch.net.URLFilter">
+      <implementation id="AutomatonURLFilter"
+                      class="org.apache.nutch.net.AutomatonURLFilter"/>
+   </extension>
+
+</plugin>
