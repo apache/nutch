@@ -13,6 +13,7 @@
 
    <requires>
       <import plugin="nutch-extensionpoints"/>
+      <import plugin="lib-regex-filter"/>
    </requires>
 
    <extension id="org.apache.nutch.net.urlfilter"
