@@ -269,9 +269,11 @@ public class HtmlParser implements Parser {
     byte[] bytes = new byte[(int)file.length()];
     DataInputStream in = new DataInputStream(new FileInputStream(file));
     in.readFully(bytes);
-    Parse parse = new HtmlParser().getParse(
-            new Content(url, url, bytes, "text/html", new Metadata(),
-                        NutchConfiguration.create()));
+    Configuration conf = NutchConfiguration.create();
+    HtmlParser parser = new HtmlParser();
+    parser.setConf(conf);
+    Parse parse = parser.getParse(
+            new Content(url, url, bytes, "text/html", new Metadata(), conf));
     System.out.println("data: "+parse.getData());
 
     System.out.println("text: "+parse.getText());
