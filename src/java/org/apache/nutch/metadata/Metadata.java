@@ -236,6 +236,22 @@ public class Metadata implements CreativeCommons,
     }
     return true;
   }
+
+  // Inherited Javadoc
+  public String toString() {
+    StringBuffer buf = new StringBuffer();
+    String[] names = names();
+    for (int i=0; i<names.length; i++) {
+      String[] values = getValues(names[i]);
+      for (int j=0; j<values.length; j++) {
+        buf.append(names[i])
+           .append("=")
+           .append(values[j])
+           .append(" ");
+      }
+    }
+    return buf.toString();
+  }
   
   
   /**
