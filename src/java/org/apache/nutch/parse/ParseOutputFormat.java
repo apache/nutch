@@ -34,6 +34,10 @@ public class ParseOutputFormat implements OutputFormat {
   private JobConf jobConf;
   private URLFilters filters;
 
+  public void checkOutputSpecs(FileSystem fs, JobConf job) throws IOException {
+    if (fs.exists(new File(job.getOutputDir(), CrawlDatum.PARSE_DIR_NAME)))
+      throw new IOException("Segment already parsed!");
+  }
 
   public RecordWriter getRecordWriter(FileSystem fs, JobConf job,
                                       String name) throws IOException {

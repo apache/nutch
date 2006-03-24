@@ -83,6 +83,7 @@ public class LinkDbReader implements Closeable {
     File outFolder = new File(output);
 
     JobConf job = new NutchJob(config);
+    job.setJobName("read " + linkdb);
 
     job.addInputDir(new File(linkdb, LinkDb.CURRENT_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);

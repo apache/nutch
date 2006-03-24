@@ -288,6 +288,8 @@ public class DeleteDuplicates extends Configured
       };
   }
 
+  public void checkOutputSpecs(FileSystem fs, JobConf job) {}
+
   public void dedup(File[] indexDirs)
     throws IOException {
 
@@ -303,6 +305,7 @@ public class DeleteDuplicates extends Configured
       LOG.info("Dedup: adding indexes in: " + indexDirs[i]);
       job.addInputDir(indexDirs[i]);
     }
+    job.setJobName("dedup phase 1");
 
     job.setInputKeyClass(HashScore.class);
     job.setInputValueClass(IndexDoc.class);
@@ -321,6 +324,7 @@ public class DeleteDuplicates extends Configured
     JobClient.runJob(job);
 
     job = new NutchJob(getConf());
+    job.setJobName("dedup phase 2");
 
     job.addInputDir(hashDir);
 
