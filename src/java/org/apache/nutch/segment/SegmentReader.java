@@ -87,7 +87,7 @@ public class SegmentReader extends Configured implements Reducer {
 
   /** Implements a text output format*/
   public static class TextOutputFormat
-  implements org.apache.hadoop.mapred.OutputFormat {
+  extends org.apache.hadoop.mapred.OutputFormatBase {
   public RecordWriter getRecordWriter(final FileSystem fs, JobConf job,
                                       String name) throws IOException {
 
@@ -151,6 +151,7 @@ public class SegmentReader extends Configured implements Reducer {
     LOG.info("Reader: segment: " + segment);
 
     JobConf job = new NutchJob(getConf());
+    job.setJobName("read " + segment);
 
     job.addInputDir(new File(segment, CrawlDatum.GENERATE_DIR_NAME));
     job.addInputDir(new File(segment, CrawlDatum.FETCH_DIR_NAME));

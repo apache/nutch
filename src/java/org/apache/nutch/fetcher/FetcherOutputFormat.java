@@ -38,6 +38,11 @@ import org.apache.nutch.protocol.Content;
 /** Splits FetcherOutput entries into multiple map files. */
 public class FetcherOutputFormat implements OutputFormat {
 
+  public void checkOutputSpecs(FileSystem fs, JobConf job) throws IOException {
+    if (fs.exists(new File(job.getOutputDir(), CrawlDatum.FETCH_DIR_NAME)))
+      throw new IOException("Segment already fetched!");
+  }
+
   public RecordWriter getRecordWriter(final FileSystem fs,
                                       final JobConf job,
                                       final String name) throws IOException {

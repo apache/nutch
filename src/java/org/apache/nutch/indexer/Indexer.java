@@ -75,7 +75,7 @@ public class Indexer extends Configured implements Reducer {
 
   /** Unwrap Lucene Documents created by reduce and add them to an index. */
   public static class OutputFormat
-    implements org.apache.hadoop.mapred.OutputFormat {
+    extends org.apache.hadoop.mapred.OutputFormatBase {
     public RecordWriter getRecordWriter(final FileSystem fs, JobConf job,
                                         String name) throws IOException {
       final File perm = new File(job.getOutputDir(), name);
@@ -249,6 +249,7 @@ public class Indexer extends Configured implements Reducer {
     LOG.info("Indexer: linkdb: " + linkDb);
 
     JobConf job = new NutchJob(getConf());
+    job.setJobName("index " + indexDir);
 
     for (int i = 0; i < segments.length; i++) {
       LOG.info("Indexer: adding segment: " + segments[i]);

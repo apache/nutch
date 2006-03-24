@@ -159,6 +159,7 @@ public class LinkDb extends Configured implements Mapper, Reducer {
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     JobConf job = new NutchJob(config);
+    job.setJobName("linkdb " + linkDb);
 
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setInputKeyClass(UTF8.class);

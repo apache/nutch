@@ -189,6 +189,7 @@ public class Generator extends Configured {
     // map to inverted subset due for fetch, sort by link count
     LOG.info("Generator: Selecting most-linked urls due for fetch.");
     JobConf job = new NutchJob(getConf());
+    job.setJobName("generate: select " + segment);
     
     if (numLists == -1) {                         // for politeness make
       numLists = job.getNumMapTasks();            // a partition per fetch task
@@ -215,6 +216,7 @@ public class Generator extends Configured {
     // invert again, paritition by host, sort by url hash
     LOG.info("Generator: Partitioning selected urls by host, for politeness.");
     job = new NutchJob(getConf());
+    job.setJobName("generate: partition " + segment);
     
     job.setInt("partition.url.by.host.seed", new Random().nextInt());
 

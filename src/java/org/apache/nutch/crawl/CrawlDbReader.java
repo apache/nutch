@@ -140,6 +140,7 @@ public class CrawlDbReader {
     File tmpFolder = new File(crawlDb, "stat_tmp" + System.currentTimeMillis());
 
     JobConf job = new NutchJob(config);
+    job.setJobName("stats " + crawlDb);
 
     job.addInputDir(new File(crawlDb, CrawlDatum.DB_DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
@@ -227,6 +228,7 @@ public class CrawlDbReader {
     File outFolder = new File(output);
 
     JobConf job = new NutchJob(config);
+    job.setJobName("dump " + crawlDb);
 
     job.addInputDir(new File(crawlDb, CrawlDatum.DB_DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);

@@ -63,6 +63,7 @@ public class CrawlDb extends Configured {
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     JobConf job = new NutchJob(config);
+    job.setJobName("crawldb " + crawlDb);
 
     job.addInputDir(new File(crawlDb, CrawlDatum.DB_DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);

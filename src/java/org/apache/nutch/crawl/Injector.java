@@ -103,6 +103,7 @@ public class Injector extends Configured {
     // map text input file to a <url,CrawlDatum> file
     LOG.info("Injector: Converting injected urls to crawl db entries.");
     JobConf sortJob = new NutchJob(getConf());
+    sortJob.setJobName("inject " + urlDir);
     sortJob.setInputDir(urlDir);
     sortJob.setMapperClass(InjectMapper.class);
     sortJob.setReducerClass(InjectReducer.class);
