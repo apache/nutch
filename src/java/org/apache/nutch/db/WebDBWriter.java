@@ -1231,7 +1231,7 @@ public class WebDBWriter implements IWebDBWriter {
          */
         public long closeDown(File workingDir, File outputDir, long numEdits) throws IOException {
             long result = super.closeDown(workingDir, outputDir, numEdits);
-            //pageDb.close();
+            pageDb.close();
             return result;
         }
 

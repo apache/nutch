@@ -27,6 +27,8 @@ website.
 11. NUTCH-239 - I changed httpclient to use javax.net.ssl instead of
 com.sun.net.ssl. (Jake Vanderdray).
 
+12. NUTCH-117 - Crawl crashes with java.io.IOException: already exists:
+C:\nutch\crawl.intranet\oct18\db\webdb.new\pagesByURL.
 
 Release 0.7.1 - 2005-10-01
 
