@@ -24,6 +24,9 @@ website.
 
 10. Skipping "post" and "nofollow" outlinks.
 
+11. NUTCH-239 - I changed httpclient to use javax.net.ssl instead of
+com.sun.net.ssl. (Jake Vanderdray).
+
 
 Release 0.7.1 - 2005-10-01
 

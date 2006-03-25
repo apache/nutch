@@ -10,9 +10,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
-import com.sun.net.ssl.TrustManagerFactory;
-import com.sun.net.ssl.TrustManager;
-import com.sun.net.ssl.X509TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import org.apache.commons.logging.Log; 
 import org.apache.commons.logging.LogFactory;
 
@@ -38,23 +38,33 @@ public class DummyX509TrustManager implements X509TrustManager
     }
 
     /**
-     * @see com.sun.net.ssl.X509TrustManager#isClientTrusted(X509Certificate[])
+     * @see javax.net.ssl.X509TrustManager#isClientTrusted(X509Certificate[])
      */
     public boolean isClientTrusted(X509Certificate[] certificates) {
         return true;
     }
 
     /**
-     * @see com.sun.net.ssl.X509TrustManager#isServerTrusted(X509Certificate[])
+     * @see javax.net.ssl.X509TrustManager#isServerTrusted(X509Certificate[])
      */
     public boolean isServerTrusted(X509Certificate[] certificates) {
       return true;
     }
 
     /**
-     * @see com.sun.net.ssl.X509TrustManager#getAcceptedIssuers()
+     * @see javax.net.ssl.X509TrustManager#getAcceptedIssuers()
      */
     public X509Certificate[] getAcceptedIssuers() {
         return this.standardTrustManager.getAcceptedIssuers();
+    }
+
+    public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+      // do nothing
+      
+    }
+
+    public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+      // do nothing
+      
     }
 }

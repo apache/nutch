@@ -22,8 +22,8 @@ import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.sun.net.ssl.SSLContext;
-import com.sun.net.ssl.TrustManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
 
 public class DummySSLProtocolSocketFactory implements ProtocolSocketFactory {
 
