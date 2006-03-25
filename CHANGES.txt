@@ -22,6 +22,8 @@ website.
 
  9. Commons HTTPClient upgraded to version 3.0.
 
+10. Skipping "post" and "nofollow" outlinks.
+
 
 Release 0.7.1 - 2005-10-01
 
