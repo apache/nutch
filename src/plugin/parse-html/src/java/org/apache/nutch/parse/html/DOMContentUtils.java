@@ -296,23 +296,29 @@ public class DOMContentUtils {
     if (node.getNodeType() == Node.ELEMENT_NODE) {
       LinkParams params = (LinkParams)linkParams.get(node.getNodeName().toLowerCase());
       if (params != null) {
-        if (shouldThrowAwayLink(node, children, childLen, params)) {
-          // this has no inner structure or just a single nested
-          // anchor-- toss it!
-        } else {
+        if (!shouldThrowAwayLink(node, children, childLen, params)) {
 
           StringBuffer linkText = new StringBuffer();
           getText(linkText, node, true);
 
           NamedNodeMap attrs = node.getAttributes();
           String target = null;
+          boolean noFollow = false;
+          boolean post = false;
           for (int i= 0; i < attrs.getLength(); i++ ) {
-            if (params.attrName.equalsIgnoreCase(attrs.item(i).getNodeName())) {
-              target = attrs.item(i).getNodeValue();
-              break;
+            Node attr = attrs.item(i);
+            String attrName = attr.getNodeName();
+            if (params.attrName.equalsIgnoreCase(attrName)) {
+              target = attr.getNodeValue();
+            } else if ("rel".equalsIgnoreCase(attrName) &&
+                       "nofollow".equalsIgnoreCase(attr.getNodeValue())) {
+              noFollow = true;
+            } else if ("method".equalsIgnoreCase(attrName) &&
+                       "post".equalsIgnoreCase(attr.getNodeValue())) {
+              post = true;
             }
           }
-          if (target != null)
+          if (target != null && !noFollow && !post)
             try {
               URL url = new URL(base, target);
               outlinks.add(new Outlink(url.toString(),
