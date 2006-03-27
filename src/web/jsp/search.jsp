@@ -15,11 +15,8 @@
   import="org.apache.nutch.util.NutchConfiguration"
 
 %><%
-  Configuration nutchConf = (Configuration) application.getAttribute(Configuration.class.getName());
-  if (nutchConf == null) {
-    nutchConf = NutchConfiguration.create();
-    application.setAttribute(Configuration.class.getName(), nutchConf);
-  }  
+  Configuration nutchConf = NutchConfiguration.get(application);
+  
   /**
    * Number of hits to retrieve and cluster if clustering extension is available
    * and clustering is on. By default, 100. Configurable via nutch-conf.xml.

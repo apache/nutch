@@ -13,11 +13,7 @@ org.apache.nutch.ontology.Ontology ontology = null;
 // being loaded into the JVM. Need improvement in future.
 
   try {
-    Configuration nutchConf = (Configuration) application.getAttribute(Configuration.class.getName());
-    if (nutchConf == null) {
-      nutchConf = NutchConfiguration.create();
-      application.setAttribute(Configuration.class.getName(), nutchConf);
-    }
+    Configuration nutchConf = NutchConfiguration.get(application);
     String urls = nutchConf.get("extension.ontology.urls");
     ontology = new org.apache.nutch.ontology.OntologyFactory(nutchConf).getOntology();
     if (urls==null || urls.trim().equals("")) {

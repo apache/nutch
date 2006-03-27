@@ -12,11 +12,7 @@
 %><%
 
   // show the content of a hit as plain text
-  Configuration nutchConf = (Configuration) application.getAttribute(Configuration.class.getName());
-  if (nutchConf == null) {
-    nutchConf = NutchConfiguration.create();
-    application.setAttribute(Configuration.class.getName(), nutchConf);
-  }
+  Configuration nutchConf = NutchConfiguration.get(application);
   NutchBean bean = NutchBean.get(application, nutchConf);
 
   bean.LOG.info("text request from " + request.getRemoteAddr());
