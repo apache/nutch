@@ -16,12 +16,23 @@
 
 package org.apache.nutch.util;
 
+// JDK imports
+import java.util.Enumeration;
+
+// Servlet imports
+import javax.servlet.ServletContext;
+
+// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.WritableName;
+
 
 /** Utility to create Hadoop {@link Configuration}s that include Nutch-specific
  * resources.  */
 public class NutchConfiguration {
+  
+  private final static String KEY = NutchConfiguration.class.getName();
+  
   private NutchConfiguration() {}                 // singleton
 
   // for back-compatibility, add old aliases for these Writable classes
@@ -41,11 +52,40 @@ public class NutchConfiguration {
     return conf;
   }
 
+  /**
+   * Create a {@link Configuration} for Nutch front-end.
+   *
+   * If a {@link Configuration} is found in the
+   * {@link javax.servlet.ServletContext} it is simply returned, otherwise,
+   * a new {@link Configuration} is created using the {@link #create()} method,
+   * and then all the init parameters found in the
+   * {@link javax.servlet.ServletContext} are added to the {@link Configuration}
+   * (the created {@link Configuration} is then saved into the
+   * {@link javax.servlet.ServletContext}).
+   *
+   * @param application is the ServletContext whose init parameters
+   *        must override those of Nutch.
+   */
+  public static Configuration get(ServletContext application) {
+    Configuration conf = (Configuration) application.getAttribute(KEY);
+    if (conf == null) {
+      conf = create();
+      Enumeration e = application.getInitParameterNames();
+      while (e.hasMoreElements()) {
+        String name = (String) e.nextElement();
+        conf.set(name, application.getInitParameter(name));
+      }
+      application.setAttribute(KEY, conf);
+    }
+    return conf;
+  }
+  
   /** Add the standard Nutch resources to {@link Configuration}. */
   public static Configuration addNutchResources(Configuration conf) {
     conf.addDefaultResource("nutch-default.xml");
     conf.addFinalResource("nutch-site.xml");
     return conf;
   }
+  
 }
 
