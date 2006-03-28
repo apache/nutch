@@ -252,7 +252,7 @@ out.flush();
 if ((hits.totalIsExact() && end < hits.getTotal()) // more hits to show
     || (!hits.totalIsExact() && (hits.getLength() > start+hitsPerPage))) {
 %>
-    <form name="search" action="../search.jsp" method="get">
+    <form name="next" action="../search.jsp" method="get">
     <input type="hidden" name="query" value="<%=htmlQueryString%>">
     <input type="hidden" name="start" value="<%=end%>">
     <input type="hidden" name="hitsPerPage" value="<%=hitsPerPage%>">
@@ -269,7 +269,7 @@ if ((hits.totalIsExact() && end < hits.getTotal()) // more hits to show
 
 if ((!hits.totalIsExact() && (hits.getLength() <= start+hitsPerPage))) {
 %>
-    <form name="search" action="../search.jsp" method="get">
+    <form name="showAllHits" action="../search.jsp" method="get">
     <input type="hidden" name="query" value="<%=htmlQueryString%>">
     <input type="hidden" name="hitsPerPage" value="<%=hitsPerPage%>">
     <input type="hidden" name="hitsPerSite" value="0">

@@ -20,7 +20,10 @@
 
       <script type="text/javascript">
       <xsl:comment>
-function queryfocus() { document.search.query.focus(); }
+function queryfocus() {
+  search = document.search;
+  if (search != null) { search.query.focus(); }
+}
 <xsl:text>// </xsl:text>
 </xsl:comment>
       </script>
