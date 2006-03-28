@@ -144,6 +144,14 @@
   <!--                                                                    -->
   <!-- ================================================================== -->
   <target name="war" depends="jar,compile,generate-docs">
+
+    <!-- generate the nutch.xml (servlet context) file -->
+    <xslt in="${basedir}/conf/nutch-default.xml"
+          out="${build.dir}/nutch.xml"
+          style="${basedir}/conf/context.xsl">
+        <xmlcatalog refid="docDTDs"/>
+    	<outputproperty name="indent" value="yes"/>
+    </xslt>
     <war destfile="${build.dir}/${final.name}.war"
 	 webxml="${web.src.dir}/web.xml">
       <fileset dir="${web.src.dir}/jsp"/>
