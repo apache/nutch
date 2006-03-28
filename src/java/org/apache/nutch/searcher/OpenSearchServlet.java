@@ -62,7 +62,7 @@ public class OpenSearchServlet extends HttpServlet {
 
   public void init(ServletConfig config) throws ServletException {
     try {
-      this.conf = NutchConfiguration.create();
+      this.conf = NutchConfiguration.get(config.getServletContext());
       bean = NutchBean.get(config.getServletContext(), this.conf);
     } catch (IOException e) {
       throw new ServletException(e);
