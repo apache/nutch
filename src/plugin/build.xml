@@ -24,6 +24,7 @@
      <ant dir="lib-nekohtml" target="deploy"/>
      <ant dir="lib-parsems" target="deploy"/>
      <ant dir="lib-regex-filter" target="deploy"/>
+     <ant dir="lib-xml" target="deploy"/>
      <ant dir="microformats-reltag" target="deploy"/>
      <ant dir="nutch-extensionpoints" target="deploy"/>
      <ant dir="ontology" target="deploy"/>
@@ -97,6 +98,7 @@
     <ant dir="lib-nekohtml" target="clean"/>
     <ant dir="lib-parsems" target="clean"/>
     <ant dir="lib-regex-filter" target="clean"/>
+    <ant dir="lib-xml" target="clean"/>
     <ant dir="microformats-reltag" target="clean"/>
     <ant dir="nutch-extensionpoints" target="clean"/>
     <ant dir="ontology" target="clean"/>
