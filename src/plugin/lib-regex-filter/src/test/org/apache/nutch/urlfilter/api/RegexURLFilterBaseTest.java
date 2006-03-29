@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.net;
+package org.apache.nutch.urlfilter.api;
 
 // JDK imports
 import java.io.BufferedReader;
@@ -29,6 +29,9 @@ import junit.framework.TestCase;
 
 // Hadoop imports
 import org.apache.hadoop.util.LogFormatter;
+
+// Nutch imports
+import org.apache.nutch.net.URLFilter;
 
 
 /**

@@ -24,13 +24,13 @@
 
    <!-- attribute "point" is the plugin interface class -->
    <!-- seems kinda redundant to have to define the point here too -->   
-   <extension id="org.apache.nutch.ontology.OntologyImpl"
+   <extension id="org.apache.nutch.ontology.jena"
               name="Ontology Model Loader"
               point="org.apache.nutch.ontology.Ontology">
 
       <!-- define all the classes that implement the point defined above -->
-      <implementation id="org.apache.nutch.ontology.OntologyImpl"
-                      class="org.apache.nutch.ontology.OntologyImpl"
+      <implementation id="org.apache.nutch.ontology.jena.OntologyImpl"
+                      class="org.apache.nutch.ontology.jena.OntologyImpl"
                       pathSuffix=""/>
 
    </extension>

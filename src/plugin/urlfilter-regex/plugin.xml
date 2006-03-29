@@ -20,7 +20,7 @@
               name="Nutch Regex URL Filter"
               point="org.apache.nutch.net.URLFilter">
       <implementation id="RegexURLFilter"
-                      class="org.apache.nutch.net.RegexURLFilter"/>
+                      class="org.apache.nutch.urlfilter.regex.RegexURLFilter"/>
       <!-- by default, attribute "file" is undefined, to keep classic behavior.
       <implementation id="RegexURLFilter"
                       class="org.apache.nutch.net.RegexURLFilter"

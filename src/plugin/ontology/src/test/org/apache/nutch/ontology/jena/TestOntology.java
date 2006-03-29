@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.ontology;
+package org.apache.nutch.ontology.jena;
 
+import org.apache.nutch.ontology.*;
 import org.apache.nutch.protocol.ProtocolException;
 
 import org.apache.nutch.parse.ParseException;

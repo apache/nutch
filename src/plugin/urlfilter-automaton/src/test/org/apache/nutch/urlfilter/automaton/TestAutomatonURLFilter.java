@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.net;
+package org.apache.nutch.urlfilter.automaton;
 
 // JDK imports
 import java.io.IOException;
@@ -23,6 +23,10 @@ import java.io.Reader;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
+import org.apache.nutch.net.*;
+
+// Nutch imports
+import org.apache.nutch.urlfilter.api.RegexURLFilterBaseTest;
 
 
 /**

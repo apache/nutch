@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.net;
+package org.apache.nutch.urlfilter.api;
 
 // JDK imports
 import java.io.Reader;
@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.LogFormatter;
+import org.apache.nutch.net.*;
 
 
 /**

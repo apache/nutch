@@ -16,10 +16,11 @@
 
 // $Id: PrefixURLFilter.java,v 1.2 2005/02/07 19:10:37 cutting Exp $
 
-package org.apache.nutch.net;
+package org.apache.nutch.urlfilter.prefix;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.LogFormatter;
+import org.apache.nutch.net.*;
 
 import org.apache.nutch.util.PrefixStringMatcher;
 import org.apache.nutch.util.TrieStringMatcher;
