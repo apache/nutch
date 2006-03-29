@@ -13,41 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.net;
+package org.apache.nutch.urlfilter.regex;
 
 // JDK imports
 import java.io.Reader;
 import java.io.IOException;
+import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
-
-// Automaton imports
-import dk.brics.automaton.RegExp;
-import dk.brics.automaton.RunAutomaton;
+import org.apache.nutch.net.*;
+import org.apache.nutch.urlfilter.api.RegexRule;
+import org.apache.nutch.urlfilter.api.RegexURLFilterBase;
 
 
 /**
- * RegexURLFilterBase implementation based on the
- * <a href="http://www.brics.dk/automaton/">dk.brics.automaton</a>
- * Finite-State Automata for Java<sup>TM</sup>.
- *
- * @author J&eacute;r&ocirc;me Charron
- * @see <a href="http://www.brics.dk/automaton/">dk.brics.automaton</a>
+ * Filters URLs based on a file of regular expressions using the
+ * {@link java.util.regex Java Regex implementation}.
  */
-public class AutomatonURLFilter extends RegexURLFilterBase {
+public class RegexURLFilter extends RegexURLFilterBase {
 
-  public AutomatonURLFilter() {
+  public RegexURLFilter() {
     super();
   }
 
-  public AutomatonURLFilter(String filename)
+  public RegexURLFilter(String filename)
     throws IOException, PatternSyntaxException {
     super(filename);
   }
 
-  AutomatonURLFilter(Reader reader)
+  RegexURLFilter(Reader reader)
     throws IOException, IllegalArgumentException {
     super(reader);
   }
@@ -59,7 +55,7 @@ public class AutomatonURLFilter extends RegexURLFilterBase {
   
   // Inherited Javadoc
   protected String getRulesFile(Configuration conf) {
-    return conf.get("urlfilter.automaton.file");
+    return conf.get("urlfilter.regex.file");
   }
 
   // Inherited Javadoc
@@ -73,21 +69,21 @@ public class AutomatonURLFilter extends RegexURLFilterBase {
 
   
   public static void main(String args[]) throws IOException {
-    main(new AutomatonURLFilter(), args);
+    main(new RegexURLFilter(), args);
   }
 
 
   private class Rule extends RegexRule {
     
-    private RunAutomaton automaton;
+    private Pattern pattern;
     
     Rule(boolean sign, String regex) {
       super(sign, regex);
-      automaton = new RunAutomaton(new RegExp(regex, RegExp.ALL).toAutomaton());
+      pattern = Pattern.compile(regex);
     }
 
     protected boolean match(String url) {
-      return automaton.run(url);
+      return pattern.matcher(url).find();
     }
   }
   

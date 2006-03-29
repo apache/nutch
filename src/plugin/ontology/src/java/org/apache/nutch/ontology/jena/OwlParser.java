@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.ontology;
+package org.apache.nutch.ontology.jena;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -27,6 +27,7 @@ import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.rdf.model.Literal;
+import org.apache.nutch.ontology.*;
 
 /**
  * implementation of parser for w3c's OWL files

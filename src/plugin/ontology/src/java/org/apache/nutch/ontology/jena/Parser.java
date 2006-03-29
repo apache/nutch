@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.ontology;
+package org.apache.nutch.ontology.jena;
 
 import com.hp.hpl.jena.ontology.OntModel;
 
 import java.util.Iterator;
+import org.apache.nutch.ontology.*;
 
 /**
  * interface for the parser

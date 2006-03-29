@@ -21,7 +21,7 @@
               name="Nutch Automaton URL Filter"
               point="org.apache.nutch.net.URLFilter">
       <implementation id="AutomatonURLFilter"
-                      class="org.apache.nutch.net.AutomatonURLFilter"/>
+                      class="org.apache.nutch.urlfilter.automaton.AutomatonURLFilter"/>
    </extension>
 
 </plugin>

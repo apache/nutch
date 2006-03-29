@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.ontology;
+package org.apache.nutch.ontology.jena;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.LogFormatter;
+import org.apache.nutch.ontology.*;
 import org.apache.nutch.util.NutchConfiguration;
 
 import com.hp.hpl.jena.ontology.Individual;
@@ -84,7 +85,7 @@ public class OntologyImpl implements org.apache.nutch.ontology.Ontology {
   public static Ontology getInstance () {
     if (ontology == null) {
       //ontology = new org.apache.nutch.ontology.Ontology();
-      ontology = new org.apache.nutch.ontology.OntologyImpl();
+      ontology = new org.apache.nutch.ontology.jena.OntologyImpl();
     }
     return ontology;
   }

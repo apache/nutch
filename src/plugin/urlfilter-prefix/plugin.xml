@@ -19,7 +19,7 @@
               name="Nutch Prefix URL Filter"
               point="org.apache.nutch.net.URLFilter">
       <implementation id="PrefixURLFilter"
-                      class="org.apache.nutch.net.PrefixURLFilter"/>
+                      class="org.apache.nutch.urlfilter.prefix.PrefixURLFilter"/>
       <!-- by default, attribute "file" is undefined, to keep classic behavior.
       <implementation id="PrefixURLFilter"
                       class="org.apache.nutch.net.PrefixURLFilter"
