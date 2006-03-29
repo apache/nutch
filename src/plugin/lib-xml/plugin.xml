@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ ! XML library - Gathers many XML related libraries:
+ !
+ ! * Jaxen
+ !     - Download : http://jaxen.org/releases.html
+ !     - License  : http://jaxen.org/license.html
+ !
+ !   * Xerces-J 2.6.1
+ !     - Download : http://xerces.apache.org/xerces2-j/download.cgi
+ !     - License  : http://www.apache.org/licenses/LICENSE-2.0
+ !
+ !   * SAXPath 1.0 FCS
+ !     - Note     : SAXPath has been incorporated into Jaxen.
+ !                  It has been merged into the Jaxen codebase
+ !                  and is no longer being maintained separately
+ !     - Download : http://sourceforge.net/project/showfiles.php?group_id=26014
+ !     - License  : OSI-Approved Open Source
+ !
+ !   * jdom 1.0 beta8-dev
+ !     - Download : http://www.jdom.org/downloads/index.html
+ !     - License  : http://www.jdom.org/docs/faq.html#a0030
+ !
+ !-->
+<plugin
+   id="lib-xml"
+   name="XML Libraries"
+   version="1.0"
+   provider-name="org.apache.nutch.xml">
+
+   <runtime>
+     <library name="jaxen-core.jar">
+       <export name="*"/>
+     </library>
+     <library name="jaxen-jdom.jar">
+       <export name="*"/>
+     </library>
+     <library name="xercesImpl.jar">
+       <export name="*"/>
+     </library>
+     <library name="saxpath.jar">
+       <export name="*"/>
+     </library>
+     <library name="jdom.jar">
+        <export name="*"/>
+     </library>
+   </runtime>
+
+</plugin>
