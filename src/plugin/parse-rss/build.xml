@@ -6,18 +6,21 @@
 
  <!-- Build compilation dependencies -->
  <target name="deps-jar">
+   <ant target="jar" inheritall="false" dir="../lib-xml"/>
    <ant target="jar" inheritall="false" dir="../lib-log4j"/>
  </target>
 
  <!-- Add compilation dependencies to classpath -->
  <path id="plugin.deps">
    <fileset dir="${nutch.root}/build">
+     <include name="**/lib-xml/*.jar" />
      <include name="**/lib-log4j/*.jar" />
    </fileset>
  </path>
 
  <!-- Deploy Unit test dependencies -->
  <target name="deps-test">
+   <ant target="deploy" inheritall="false" dir="../lib-xml"/>
    <ant target="deploy" inheritall="false" dir="../lib-log4j"/>
    <ant target="deploy" inheritall="false" dir="../nutch-extensionpoints"/>
    <ant target="deploy" inheritall="false" dir="../lib-commons-httpclient"/>
