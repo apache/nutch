@@ -10,19 +10,13 @@
       <library name="parse-rss.jar">
          <export name="*"/>
       </library>
-      <library name="jdom.jar"/>
-      <library name="jaxen-core.jar"/>
-      <library name="jaxen-jdom.jar"/>
       <library name="commons-feedparser-0.6-fork.jar"/>
-      <library name="saxpath.jar"/>
-      <library name="log4j-1.2.6.jar"/>
-      <library name="xercesImpl.jar"/>
-      <library name="xml-apis.jar"/>
       <library name="xml-rpc-1.2.jar"/>
    </runtime>
 
    <requires>
       <import plugin="nutch-extensionpoints"/>
+      <import plugin="lib-xml"/>
       <import plugin="lib-log4j"/>
       <import plugin="lib-commons-httpclient"/>
    </requires>
