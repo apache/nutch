@@ -16,31 +16,39 @@
 
 package org.apache.nutch.parse.rss;
 
-import org.apache.nutch.protocol.Content;
+// JDK imports
+import java.io.ByteArrayInputStream;
+import java.net.MalformedURLException;
+import java.util.logging.Logger;
+import java.util.List;
+import java.util.Vector;
+import java.util.logging.Level;
+
+// Hadoop imports
+import org.apache.hadoop.io.UTF8;
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
+
+// Nutch imports
+import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.Outlink;
-
 import org.apache.nutch.parse.rss.structs.RSSItem;
 import org.apache.nutch.parse.rss.structs.RSSChannel;
+import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.Protocol;
+import org.apache.nutch.protocol.ProtocolFactory;
+import org.apache.nutch.util.NutchConfiguration;
 
-import java.io.ByteArrayInputStream;
-
-import java.net.MalformedURLException;
-
-import java.util.logging.Logger;
-import java.util.List;
-import java.util.Vector;
-
-// add all the RSS parsing imports right here
+// RSS parsing imports
 import org.apache.commons.feedparser.FeedParserListener;
 import org.apache.commons.feedparser.FeedParser;
 import org.apache.commons.feedparser.FeedParserFactory;
+
 
 /**
  * 
@@ -214,5 +222,19 @@ public class RSSParser implements Parser {
   public Configuration getConf() {
     return this.conf;
   }
+  
+  public static void main(String[] args) throws Exception {
+    LOG.setLevel(Level.FINE);
+    String url = args[0];
+    Configuration conf = NutchConfiguration.create();
+    RSSParser parser = new RSSParser();
+    parser.setConf(conf);
+    Protocol protocol = new ProtocolFactory(conf).getProtocol(url);
+    Content content = protocol.getProtocolOutput(new UTF8(url), new CrawlDatum()).getContent();
+    Parse parse = parser.getParse(content);
+    System.out.println("data: "+ parse.getData());
+    System.out.println("text: "+parse.getText());
+  }
+  
 
 }
