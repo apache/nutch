@@ -1,6 +1,6 @@
 Nutch Change Log
 
-Release 0.7.2
+Release 0.7.2 - 2006-03-31
  
  1. NUTCH-107 - Typo in plugin/urlfilter-*/plugin.xml. (Stephen Cross).  
 
