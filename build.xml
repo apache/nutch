@@ -279,6 +279,7 @@
       <packageset dir="${plugins.dir}/parse-zip/src/java"/>
       <packageset dir="${plugins.dir}/index-basic/src/java"/>
       <packageset dir="${plugins.dir}/index-more/src/java"/>
+      <packageset dir="${plugins.dir}/query-basic/src/java"/>
       <packageset dir="${plugins.dir}/query-more/src/java"/>
       <packageset dir="${plugins.dir}/query-site/src/java"/>
       <packageset dir="${plugins.dir}/query-url/src/java"/>
