@@ -254,52 +254,64 @@
         <arg value="${javadoc.proxy.host}"/>
         <arg value="${javadoc.proxy.port}"/>
 
-    	<packageset dir="${src.dir}"/>
-    	<packageset dir="${plugins.dir}/lib-http/src/java"/>
-    	<packageset dir="${plugins.dir}/lib-parsems/src/java"/>
-    	<packageset dir="${plugins.dir}/lib-regex-filter/src/java"/>
-    	<packageset dir="${plugins.dir}/microformats-reltag/src/java"/>
-    	<packageset dir="${plugins.dir}/ontology/src/java"/>
-    	<packageset dir="${plugins.dir}/protocol-file/src/java"/>
-    	<packageset dir="${plugins.dir}/protocol-ftp/src/java"/>
-       	<packageset dir="${plugins.dir}/protocol-http/src/java"/>
-       	<packageset dir="${plugins.dir}/protocol-httpclient/src/java"/>
-    	<packageset dir="${plugins.dir}/parse-ext/src/java"/>
-    	<packageset dir="${plugins.dir}/parse-html/src/java"/>
-    	<packageset dir="${plugins.dir}/parse-js/src/java"/>
-    	<packageset dir="${plugins.dir}/parse-text/src/java"/>
-    	<packageset dir="${plugins.dir}/parse-pdf/src/java"/>
-<!--	<packageset dir="${plugins.dir}/parse-rtf/src/java"/> plugin excluded from build due to licensing issues-->
-<!--	<packageset dir="${plugins.dir}/parse-mp3/src/java"/> plugin excluded from build due to licensing issues-->
-    	<packageset dir="${plugins.dir}/parse-msexcel/src/java"/>
-    	<packageset dir="${plugins.dir}/parse-mspowerpoint/src/java"/>
-    	<packageset dir="${plugins.dir}/parse-msword/src/java"/>
-    	<packageset dir="${plugins.dir}/parse-rss/src/java"/>
-    	<packageset dir="${plugins.dir}/parse-swf/src/java"/>
-    	<packageset dir="${plugins.dir}/parse-zip/src/java"/>
-    	<packageset dir="${plugins.dir}/index-basic/src/java"/>
-    	<packageset dir="${plugins.dir}/index-more/src/java"/>
-    	<packageset dir="${plugins.dir}/query-more/src/java"/>
-    	<packageset dir="${plugins.dir}/query-site/src/java"/>
-    	<packageset dir="${plugins.dir}/query-url/src/java"/>
-    	<packageset dir="${plugins.dir}/urlfilter-automaton/src/java"/>
-    	<packageset dir="${plugins.dir}/urlfilter-regex/src/java"/>
-    	<packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
-    	<packageset dir="${plugins.dir}/creativecommons/src/java"/>
-    	<packageset dir="${plugins.dir}/languageidentifier/src/java"/>
-    	<packageset dir="${plugins.dir}/clustering-carrot2/src/java"/>
-    	<packageset dir="${plugins.dir}/ontology/src/java"/>
-        <link href="${javadoc.link.java}"/>
-        <link href="${javadoc.link.lucene}"/>
-        <link href="${javadoc.link.hadoop}"/>
-        <classpath refid="classpath"/>
+      <packageset dir="${src.dir}"/>
+      <packageset dir="${plugins.dir}/lib-http/src/java"/>
+      <packageset dir="${plugins.dir}/lib-parsems/src/java"/>
+      <packageset dir="${plugins.dir}/lib-regex-filter/src/java"/>
+      <packageset dir="${plugins.dir}/microformats-reltag/src/java"/>
+      <packageset dir="${plugins.dir}/ontology/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-file/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-ftp/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-http/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-httpclient/src/java"/>
+      <packageset dir="${plugins.dir}/parse-ext/src/java"/>
+      <packageset dir="${plugins.dir}/parse-html/src/java"/>
+      <packageset dir="${plugins.dir}/parse-js/src/java"/>
+      <packageset dir="${plugins.dir}/parse-text/src/java"/>
+      <packageset dir="${plugins.dir}/parse-pdf/src/java"/>
+<!--  <packageset dir="${plugins.dir}/parse-rtf/src/java"/> plugin excluded from build due to licensing issues-->
+<!--  <packageset dir="${plugins.dir}/parse-mp3/src/java"/> plugin excluded from build due to licensing issues-->
+      <packageset dir="${plugins.dir}/parse-msexcel/src/java"/>
+      <packageset dir="${plugins.dir}/parse-mspowerpoint/src/java"/>
+      <packageset dir="${plugins.dir}/parse-msword/src/java"/>
+      <packageset dir="${plugins.dir}/parse-rss/src/java"/>
+      <packageset dir="${plugins.dir}/parse-swf/src/java"/>
+      <packageset dir="${plugins.dir}/parse-zip/src/java"/>
+      <packageset dir="${plugins.dir}/index-basic/src/java"/>
+      <packageset dir="${plugins.dir}/index-more/src/java"/>
+      <packageset dir="${plugins.dir}/query-more/src/java"/>
+      <packageset dir="${plugins.dir}/query-site/src/java"/>
+      <packageset dir="${plugins.dir}/query-url/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-automaton/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-regex/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
+      <packageset dir="${plugins.dir}/creativecommons/src/java"/>
+      <packageset dir="${plugins.dir}/languageidentifier/src/java"/>
+      <packageset dir="${plugins.dir}/clustering-carrot2/src/java"/>
+      <packageset dir="${plugins.dir}/ontology/src/java"/>
+      
+      <link href="${javadoc.link.java}"/>
+      <link href="${javadoc.link.lucene}"/>
+      <link href="${javadoc.link.hadoop}"/>
+      
+      <classpath refid="classpath"/>
     	<classpath>
     		<fileset dir="${plugins.dir}" >
     			<include name="**/*.jar"/>
     		</fileset>
     	</classpath>
-    	<group title="Core" packages="org.apache.nutch.*"/>
-    	<group title="Plugins" packages="${plugins.packages}"/>
+    	
+      <group title="Core" packages="org.apache.nutch.*"/>
+      <group title="Plugins API" packages="${plugins.api}"/>
+      <group title="Protocol Plugins" packages="${plugins.protocol}"/>
+      <group title="URL Filter Plugins" packages="${plugins.urlfilter}"/>
+      <group title="Parse Plugins" packages="${plugins.parse}"/>
+      <group title="Analysis Plugins" packages="${plugins.analysis}"/>
+      <group title="Indexing Filter Plugins" packages="${plugins.index}"/>
+      <group title="Query Filter Plugins" packages="${plugins.query}"/>
+      <group title="Clustering Plugins" packages="${plugins.clustering}"/>
+      <group title="Ontology Plugins" packages="${plugins.ontology}"/>
+      <group title="Misc. Plugins" packages="${plugins.misc}"/>
     </javadoc>
   </target>	
 	
