@@ -185,7 +185,7 @@ URLs.  We select one out of every 5000, so that we end up with
 around 1000 URLs:</p>
 
 <source>mkdir dmoz
-bin/nutch org.apache.nutch.crawl.DmozParser content.rdf.u8 -subset 5000 &gt; dmoz/urls</source>
+bin/nutch org.apache.nutch.tools.DmozParser content.rdf.u8 -subset 5000 &gt; dmoz/urls</source>
 
 <p>The parser also takes a few minutes, as it must parse the full
 file.  Finally, we initialize the crawl db with the selected urls.</p>
