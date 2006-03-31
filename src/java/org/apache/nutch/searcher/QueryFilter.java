@@ -16,14 +16,21 @@
 
 package org.apache.nutch.searcher;
 
+// Lucene imports
 import org.apache.lucene.search.BooleanQuery;
+
+// Hadoop imports
 import org.apache.hadoop.conf.Configurable;
+
+// Nutch imports
+import org.apache.nutch.plugin.Pluggable;
+
 
 /** Extension point for query translation.  Permits one to add metadata to a
  * query.  All plugins found which implement this extension point are run
  * sequentially on the query.
  */
-public interface QueryFilter extends Configurable {
+public interface QueryFilter extends Pluggable, Configurable {
   /** The name of the extension point. */
   final static String X_POINT_ID = QueryFilter.class.getName();
 
