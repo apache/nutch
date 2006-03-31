@@ -16,16 +16,22 @@
 
 package org.apache.nutch.parse;
 
-import org.apache.nutch.protocol.Content;
+// JDK imports
+import org.w3c.dom.DocumentFragment;
+
+// Hadoop imports
 import org.apache.hadoop.conf.Configurable;
 
-import org.w3c.dom.DocumentFragment;
+// Nutch imports
+import org.apache.nutch.plugin.Pluggable;
+import org.apache.nutch.protocol.Content;
+
 
 /** Extension point for DOM-based HTML parsers.  Permits one to add additional
  * metadata to HTML parses.  All plugins found which implement this extension
  * point are run sequentially on the parse.
  */
-public interface HtmlParseFilter extends Configurable {
+public interface HtmlParseFilter extends Pluggable, Configurable {
   /** The name of the extension point. */
   final static String X_POINT_ID = HtmlParseFilter.class.getName();
 

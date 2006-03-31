@@ -13,26 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package org.apache.nutch.plugin;
 
-package org.apache.nutch.ontology;
-
-// JDK imports
-import java.util.Iterator;
-
-// Nutch imports
-import org.apache.nutch.plugin.Pluggable;
-
-
-public interface Ontology extends Pluggable {
-  /** The name of the extension point. */
-  public final static String X_POINT_ID = Ontology.class.getName();
-
-  public void load(String[] urls);
-
-  // not yet implemented
-  //public void merge(Ontology o);
-
-  public Iterator subclasses(String entitySearchTerm);
-
-  public Iterator synonyms(String queryKeyPhrase);
+/**
+ * Defines the capability of a class to be plugged into Nutch.
+ * This is a common interface that must be implemented by all
+ * Nutch Extension Points.
+ *
+ * @author J&eacute;r&ocirc;me Charron
+ *
+ * @see <a href="http://wiki.apache.org/nutch/AboutPlugins">About Plugins</a>
+ * @see <a href="package-summary.html#package_description">
+ *      plugin package description</a>
+ */
+public interface Pluggable {
+  
 }

@@ -22,6 +22,9 @@ import java.io.Reader;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 
+// Nutch imports
+import org.apache.nutch.plugin.Pluggable;
+
 
 /** 
  * Extension point for analysis.
@@ -30,7 +33,8 @@ import org.apache.lucene.analysis.TokenStream;
  *
  * @author J&eacute;r&ocirc;me Charron
  */
-public abstract class NutchAnalyzer extends Analyzer {
+public abstract class NutchAnalyzer extends Analyzer
+                                    implements Pluggable {
 
   /** The name of the extension point. */
   final static String X_POINT_ID = NutchAnalyzer.class.getName();

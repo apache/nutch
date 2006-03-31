@@ -16,7 +16,10 @@
 
 package org.apache.nutch.clustering;
 
+// Nutch imports
+import org.apache.nutch.plugin.Pluggable;
 import org.apache.nutch.searcher.HitDetails;
+
 
 /**
  * An extension point interface for online search results clustering
@@ -33,7 +36,7 @@ import org.apache.nutch.searcher.HitDetails;
  * @author Dawid Weiss
  * @version $Id: OnlineClusterer.java,v 1.1 2004/08/09 23:23:52 johnnx Exp $
  */
-public interface OnlineClusterer {
+public interface OnlineClusterer extends Pluggable {
   /** The name of the extension point. */
   public final static String X_POINT_ID = OnlineClusterer.class.getName();
 
