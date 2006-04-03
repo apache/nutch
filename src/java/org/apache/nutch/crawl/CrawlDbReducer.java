@@ -91,6 +91,7 @@ public class CrawlDbReducer implements Reducer {
         result.set(old);                          // use it
       } else {
         result.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
+        result.setScore(1.0f);
       }
       break;
       
