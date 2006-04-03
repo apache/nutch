@@ -70,7 +70,7 @@ public class TestMSPowerPointParser extends TestCase {
   /**
    * Wether dumping the extracted data to file for visual checks.
    */
-  private final static boolean DUMP_TO_FILE = true;
+  private final static boolean DUMP_TO_FILE = false;
 
   private final File testFile;
 
