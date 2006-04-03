@@ -25,6 +25,7 @@ import org.apache.hadoop.mapred.*;
 /** Merge new page entries with existing entries. */
 public class CrawlDbReducer implements Reducer {
   private int retryMax;
+  private CrawlDatum result = new CrawlDatum();
 
   public void configure(JobConf job) {
     retryMax = job.getInt("db.fetch.retry.max", 3);
@@ -61,36 +62,45 @@ public class CrawlDbReducer implements Reducer {
       }
     }
 
-    CrawlDatum result = null;
+    // initialize with the latest version
+    result.set(highest);
+    if (old != null) {
+      // copy metadata from old, if exists
+      if (old.getMetaData() != null) {
+        result.getMetaData().putAll(old.getMetaData());
+        // overlay with new, if any
+        if (highest.getMetaData() != null)
+          result.getMetaData().putAll(highest.getMetaData());
+      }
+      // set the most recent valid value of modifiedTime
+      if (old.getModifiedTime() > 0 && highest.getModifiedTime() == 0) {
+        result.setModifiedTime(old.getModifiedTime());
+      }
+    }
 
     switch (highest.getStatus()) {                // determine new status
 
     case CrawlDatum.STATUS_DB_UNFETCHED:          // no new entry
     case CrawlDatum.STATUS_DB_FETCHED:
     case CrawlDatum.STATUS_DB_GONE:
-      result = old;                               // use old
+      result.set(old);                            // use old
       break;
 
     case CrawlDatum.STATUS_LINKED:                // highest was link
       if (old != null) {                          // if old exists
-        result = old;                             // use it
+        result.set(old);                          // use it
       } else {
-        result = highest;                         // use new entry
         result.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
-        result.setScore(1.0f);                    // initial score is 1.0f
       }
-      result.setSignature(null);                  // reset the signature
       break;
       
     case CrawlDatum.STATUS_FETCH_SUCCESS:         // succesful fetch
-      result = highest;                           // use new entry
-      if (highest.getSignature() == null) highest.setSignature(signature);
+      if (highest.getSignature() == null) result.setSignature(signature);
       result.setStatus(CrawlDatum.STATUS_DB_FETCHED);
       result.setNextFetchTime();
       break;
 
     case CrawlDatum.STATUS_FETCH_RETRY:           // temporary failure
-      result = highest;                           // use new entry
       if (old != null)
         result.setSignature(old.getSignature());  // use old signature
       if (highest.getRetriesSinceFetch() < retryMax) {
@@ -101,7 +111,6 @@ public class CrawlDbReducer implements Reducer {
       break;
 
     case CrawlDatum.STATUS_FETCH_GONE:            // permanent failure
-      result = highest;                           // use new entry
       if (old != null)
         result.setSignature(old.getSignature());  // use old signature
       result.setStatus(CrawlDatum.STATUS_DB_GONE);
@@ -111,10 +120,8 @@ public class CrawlDbReducer implements Reducer {
       throw new RuntimeException("Unknown status: "+highest.getStatus());
     }
     
-    if (result != null) {
-      result.setScore(result.getScore() + scoreIncrement);
-      output.collect(key, result);
-    }
+    result.setScore(result.getScore() + scoreIncrement);
+    output.collect(key, result);
   }
 
 }
