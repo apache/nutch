@@ -14,8 +14,8 @@ Etsiäksesi Nutchilla kirjoita vain muutama hakusana.
       yhtenäisenä ryppäänä. Esimerkiksi:
       <span style="font-weight: bold;">"Yhdistyneet kansakunnat"</span>.</li>
   <li>Välimerkit sanojen välissä katkaisevat hakutermin. On samantekevää etsitkö
-      hakusanalla <span style="font-weight: bold;">http://www.nutch.org/</span>
-      vai sanoilla <span style="font-weight: bold;">"http www nutch org"</span>.</li>
+      hakusanalla <span style="font-weight: bold;">http://www.apache.org/</span>
+      vai sanoilla <span style="font-weight: bold;">"http www apache org"</span>.</li>
   <li>Haut eivät katso kirjaimen kokoon, eli hakusana
       <span style="font-weight: bold;">NuTcH</span> on sama kuin
       <span style="font-weight: bold;">nUtCh</span>.</li>

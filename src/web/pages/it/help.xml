@@ -12,8 +12,8 @@ Per cercare con Nutch, digita solo alcune parole.
   <li>Usa le virgolette attorno alle parole che devono essere adiacenti,
  come una frase, e.g., <span style="font-weight: bold;">"New Zealand"</span>.</li>
   <li>Anche l'uso della punteggiatura tra le parole attiva la ricerca per frase. In
- questo modo cercare<span style="font-weight: bold;">http://www.nutch.org/</span>
- equivale a cercare <span style="font-weight: bold;">"http www.nutch org"</span>.</li>
+ questo modo cercare<span style="font-weight: bold;">http://www.apache.org/</span>
+ equivale a cercare <span style="font-weight: bold;">"http www apache org"</span>.</li>
   <li>Le ricerche non tengono conto di lettere maiuscole e minuscole, quindi cercare <span
  style="font-weight: bold;">NuTcH</span> è come cercare <span
  style="font-weight: bold;">nUtCh</span>.</li>

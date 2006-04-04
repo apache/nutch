@@ -9,9 +9,9 @@
 <ul>
   <li>搜索结果只包括含有 <span style="font-style: italic;">所有</span>查询词的网页.</li>
   <li>使用双引号将相邻的词作为短语包含起来, 例如, <span style="font-weight: bold;">"New Zealand"</span>.</li>
-  <li>英文单词之间的符号会触发短语匹配. 因此搜索<span style="font-weight: bold;">http://www.nutch.org/</span>
-等同于搜索<span style="font-weight: bold;">"http www
-nutch org"</span>.</li>
+  <li>英文单词之间的符号会触发短语匹配. 因此搜索<span style="font-weight: bold;">http://www.apache.org/</span>
+等同于搜索<span
+style="font-weight: bold;">"http www apache org"</span>.</li>
   <li>搜索英文单词不区分大小写, 因此搜索<span
  style="font-weight: bold;">NuTcH</span> 等同于搜索 <span
  style="font-weight: bold;">nUtCh</span>.</li>

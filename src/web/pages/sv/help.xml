@@ -10,9 +10,9 @@ För att söka med Nutch, mata in några få ord.
   <li>Resultat inkluderar endast sidor som innehåller <span
  style="font-style: italic;">alla</span> sökord.</li>
   <li>Använd citattecken runt flera ord som måste ligga bredvid varandra, som en fras, t.ex. <span style="font-weight: bold;">"Nya Zeeland"</span>.</li>
-  <li>Frasmatchning aktiveras också av skiljetecken mellan ord. Så en sökning efter <span style="font-weight: bold;">http://www.nutch.org/</span>
+  <li>Frasmatchning aktiveras också av skiljetecken mellan ord. Så en sökning efter <span style="font-weight: bold;">http://www.apache.org/</span>
 är samma sak som en sökning efter <span style="font-weight: bold;">"http www
-nutch org"</span>.</li>
+apache org"</span>.</li>
   <li>I sökningar görs ingen skillnad på stora och små bokstöver, så att söka efter <span
  style="font-weight: bold;">NuTcH</span> är samma sak som att söka efter <span
  style="font-weight: bold;">nUtCh</span>.</li>

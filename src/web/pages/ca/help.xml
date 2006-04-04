@@ -13,8 +13,8 @@
  style="font-style: italic;">totes</span> les paraules de la consulta.</li>
   <li>Fes servir cometes per indicar les paraules que han d'aparèixer, forçosament, una al costat de l'altra, com una frase,
 p.e., <span style="font-weight: bold;">"pilar de sis"</span>.</li>
-  <li>La puntuació entre paraules també provoca que es cerqui com una frase. Així, cercar <span style="font-weight: bold;">http://www.nutch.org/</span> és el mateix que cercar <span style="font-weight: bold;">"http www
-nutch org"</span>.</li>
+  <li>La puntuació entre paraules també provoca que es cerqui com una frase. Així, cercar <span style="font-weight: bold;">http://www.apache.org/</span> és el mateix que cercar <span style="font-weight: bold;">"http www
+apache org"</span>.</li>
   <li>Les cerques no diferencien entre minúscules i majúscules, d'aquesta manera, cercar <span
  style="font-weight: bold;">NuTcH</span> és el mateix que cercar <span
  style="font-weight: bold;">nUtCh</span>.</li>

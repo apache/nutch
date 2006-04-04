@@ -17,8 +17,8 @@ Nutch ben&ouml;tigt nur wenige W&ouml;rter, um Ihnen zufriedenstellende Resultat
     Satzteil in exact dieser Folge vorkommen m&uuml;ssen. Z.B. <strong>&quot;Thomas 
     Jefferson&quot;</strong></li>
   <li>Interpunktionszeichen werden wie Leerzeichen behandelt und trennen Wortgruppen 
-    in einzelne Suchw&ouml;rter.Wenn Sie also nach <strong>http://www.nutch.org/</strong> 
-    suchen, entspricht dies einer Suche nach <strong>&quot;http www nutch org&quot;</strong>.</li>
+    in einzelne Suchw&ouml;rter.Wenn Sie also nach <strong>http://www.apache.org/</strong> 
+    suchen, entspricht dies einer Suche nach <strong>&quot;http www apache org&quot;</strong>.</li>
   <li>Die Gross-/Kleinschreibung wird bei der Suchen nicht beachtet.</li>
   <li>Sie k&ouml;nnen ein Wort explizit aus den Suchresultat ausschliessen indem 
     Sie ein Minus vor dieses Sezten. Wenn Sie zum Beispiel <strong>&quot;Fussball 
