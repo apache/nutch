@@ -12,9 +12,9 @@ Da biste pretraživali pomoću Nutch-a, samo ukucajte nekoliko reči.
   <li>Koristite navodnike oko reči koje se moraju pojavljivati zajedno, kao fraza,
 npr., <span style="font-weight: bold;">"Novi Sad"</span>.</li>
   <li>Interpunkcija između reči takođe izaziva pretraživanje po frazama.  Tako da je 
-pretraga po <span style="font-weight: bold;">http://www.nutch.org/</span>
+pretraga po <span style="font-weight: bold;">http://www.apache.org/</span>
 identična kao pretraga po <span style="font-weight: bold;">"http www
-nutch org"</span>.</li>
+apache org"</span>.</li>
   <li>Pretraživanje ne razlikuje velika i mala slova u upitu, tako da je pretraga po <span
  style="font-weight: bold;">NuTcH</span> identična kao pretraga po <span
  style="font-weight: bold;">nUtCh</span>.</li>

@@ -13,9 +13,9 @@ Para pesquisar com Nutch, apenas digite algumas poucas palavras.
   <li>Use aspas em volta das palavras que devem aparecer umas ao lado da outra, como uma frase,
 por exemplo, <span style="font-weight: bold;">"Nova Zelândia"</span>.</li>
   <li>Pontos entre palavras também geram resultados baseados em frases.  Logo,
-pesquisar por <span style="font-weight: bold;">http://www.nutch.org/</span>
+pesquisar por <span style="font-weight: bold;">http://www.apache.org/</span>
 é o mesmo que pesquisar por <span style="font-weight: bold;">"http www
-nutch org"</span>.</li>
+apache org"</span>.</li>
   <li>Pesquisar não são sensíveis à letras maiúsculas ou minúsculas, então, pesquisar por <span style="font-weight: bold;">NuTcH</span> é o mesmo que pesquisar por <span style="font-weight: bold;">nUtCh</span>.</li>
   <li>Você pode excluir termos da sua pesquisar colocando o sinal de menos
 antes dele, por exemplo, pesquisar por <span style="font-weight: bold;">futebol

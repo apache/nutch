@@ -13,8 +13,8 @@ Pour effectuer une recherche avec Nutch, il suffit de saisir quelques mots.
 comme dans le cas d'une phrase. Par exemple <span style="font-weight: bold;">
 "Nouvelle Zélande"</span>.</li>
   <li>La ponctuation entre les mots est ignorée. Ainsi, la recherche 
-<span style="font-weight: bold;">http://www.nutch.org/</span> est équivalente à
-<span style="font-weight: bold;">"http www nutch org"</span>.</li>
+<span style="font-weight: bold;">http://www.apache.org/</span> est équivalente à
+<span style="font-weight: bold;">"http www apache org"</span>.</li>
   <li>La recherche n'est pas sensible à la casse. Ainsi, la recherche
 <span style="font-weight: bold;">NuTcH</span> est équivalente à <span
  style="font-weight: bold;">nUtCh</span>.</li>

@@ -12,9 +12,9 @@ Untuk mencari dengan Nutch, taip beberapa katakunci.
    <li>Gunakan tanda " " bagi perkataan yang wujud seiring, sebagai satu frasa
  seperti. <span style="font-weight: bold;">"New Zealand"</span>.</li>
    <li>Ruang kosong diantara perkataan juga akan mencetuskan pencarian frasa. Jadi, 
- mencari <span style="font-weight: bold;">http://www.nutch.org/</span>
+ mencari <span style="font-weight: bold;">http://www.apache.org/</span>
  adalah sama seperti mencari<span style="font-weight: bold;">"http www
- nutch org"</span>.</li>
+ apache org"</span>.</li>
    <li>Pencarian Nutch adalah tidak kes sensitif, jadi mencari <span
  style="font-weight: bold;">NuTcH</span> adalah sama seperti mencari <span
  style="font-weight: bold;">nUtCh</span>.</li>

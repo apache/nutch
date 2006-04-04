@@ -10,7 +10,7 @@ Nutch で検索するために 2〜3語を入力してください。
   <li>検索結果は検索語の <span
  style="font-style: italic;">全て</span> を含むページだけです。</li>
   <li>例えば繋がって表記されなければいけない単語の場合は引用符で囲ってください。例：<span style="font-weight: bold;">"New Zealand"</span>.</li>
-  <li>単語の間のピリオドは、同じフレーズを示します。<span style="font-weight: bold;">http://www.nutch.org/</span> を検索することと、<span style="font-weight: bold;">"http www nutch org"</span> を検索するのは同じことです。</li>
+  <li>単語の間のピリオドは、同じフレーズを示します。<span style="font-weight: bold;">http://www.apache.org/</span> を検索することと、<span style="font-weight: bold;">"http www apache org"</span> を検索するのは同じことです。</li>
   <li>検索語は、大文字と小文字の区別ができません。 <span
  style="font-weight: bold;">NuTcH</span> を検索することと <span
  style="font-weight: bold;">nUtCh</span> を検索するのは同じことです。</li>

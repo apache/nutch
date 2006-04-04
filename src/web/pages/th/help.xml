@@ -12,8 +12,8 @@
   <li>ใช้อัญประกาศรอบคำที่จะต้องอยู่ใกล้กันเป็นพยางค์
 เช่น <span style="font-weight: bold;">"New Zealand"</span></li>
   <li>เครื่องหมายต่างๆระหว่างคำก็จะนำไปสู่การค้นหาเป็นพยางค์ เช่นถ้าจะหา
-	<span style="font-weight: bold;">http://www.nutch.org/</span>
-ก็เหมือนกับหา<span style="font-weight: bold;">"http www nutch org"</span>.</li>
+	<span style="font-weight: bold;">http://www.apache.org/</span>
+ก็เหมือนกับหา<span style="font-weight: bold;">"http www apache org"</span>.</li>
   <li>อักษรตัวใหญ่ตัวเล็กไม่มีผลในการค้นหา เช่น<span
  style="font-weight: bold;">NuTcH</span> เหมือนกับหา<span
  style="font-weight: bold;">nUtCh</span>.</li>

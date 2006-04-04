@@ -12,9 +12,9 @@ To search with Nutch, just type in a few words.
   <li>Use quotes around words that must occur adjacently, as a phrase,
 e.g., <span style="font-weight: bold;">"New Zealand"</span>.</li>
   <li>Punctuation between words also triggers phrase matching.  So
-searching for <span style="font-weight: bold;">http://www.nutch.org/</span>
+searching for <span style="font-weight: bold;">http://www.apache.org/</span>
 is the same as searching for <span style="font-weight: bold;">"http www
-nutch org"</span>.</li>
+apache org"</span>.</li>
   <li>Searches are not case-sensitive, so searching for <span
  style="font-weight: bold;">NuTcH</span> is the same as searching for <span
  style="font-weight: bold;">nUtCh</span>.</li>

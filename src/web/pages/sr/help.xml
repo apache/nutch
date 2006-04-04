@@ -12,9 +12,9 @@
   <li>Користите наводнике око речи које се морају појављивати заједно, као фраза,
 нпр., <span style="font-weight: bold;">"Нови сад"</span>.</li>
   <li>Интерпункција између речи такође изазива претраживање по фразама. Тако да је
-претраживање по <span style="font-weight: bold;">http://www.nutch.org/</span>
+претраживање по <span style="font-weight: bold;">http://www.apache.org/</span>
 идентично као претраживање по <span style="font-weight: bold;">"http www
-nutch org"</span>.</li>
+apache org"</span>.</li>
   <li>Претраживање не разликује велика и мала слова у упиту, тако да је претраживање по <span
  style="font-weight: bold;">NuTcH</span> идентично као претраживање по <span
  style="font-weight: bold;">nUtCh</span>.</li>

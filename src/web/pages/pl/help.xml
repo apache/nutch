@@ -13,9 +13,9 @@ W celu wyszukiwania przy użyciu Nutch, po prostu wpisz kilka słów.
   fraza, n.p. <span style="font-weight: bold;">"Nowa Zelandia"</span></li>
   <li>Znaki interpunkcyjne pomiędzy słowami również powodują traktowanie
   słów jako frazy. Zatem zapytanie
-  <span style="font-weight: bold;">http://www.nutch.org/</span> jest
+  <span style="font-weight: bold;">http://www.apache.org/</span> jest
   równoznaczne z zapytaniem <span style="font-weight: bold;">"http www
-nutch org"</span>.</li>
+apache org"</span>.</li>
   <li>Wyszukiwanie nie jest wrażliwe na wielkość liter, więc zapytanie
   <span style="font-weight: bold;">NuTcH</span> jest równoważne zapytaniu <span
  style="font-weight: bold;">nUtCh</span>.</li>

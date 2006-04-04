@@ -13,9 +13,9 @@ Type een paar woorden in om met Nuch te zoeken.
   b.v.  <span style="font-weight: bold;">"Nieuw Zeeland"</span>.</li>
   <li>'Punktuering' tussen woorden (punten, komma's, dubbele punten ed.)
   leidt ook tot het zoeken naar phrasen. Dus zoeken naar
-   <span style="font-weight: bold;">http://www.nutch.org/</span>
+   <span style="font-weight: bold;">http://www.apache.org/</span>
     is hetzelfde als zoeken naar
-    <span style="font-weight: bold;">"http www nutch org"</span>.</li>
+    <span style="font-weight: bold;">"http www apache org"</span>.</li>
   <li>Zoeken is niet kast-gevoelig, dus zoeken naar
   <span style="font-weight: bold;">NuTcH</span>
   is hetzelfde als zoeken naar

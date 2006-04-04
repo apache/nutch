@@ -16,9 +16,9 @@ A keresés megkezdéséhez írj be néhány szót.
   <li>Idézõjelek használatával pontos kifejezésre kereshetsz,
 	pl. <span style="font-weight: bold;">"Soltvadkerti bor"</span>.</li>
   <li>A szavak közötti pontok hatására az egyes szvakra keres rá a Nutch. 
-  	Tehát a <span style="font-weight: bold;">http://www.nutch.org/</span>-ra 
+  	Tehát a <span style="font-weight: bold;">http://www.apache.org/</span>-ra 
 	való keresés ugyan az, mintha <span style="font-weight: bold;">"http www
-	nutch org"</span>-ra keresnél.</li>
+	apache org"</span>-ra keresnél.</li>
   <li>A keresés nem érzékeny a kis- és nagybetûkre, tehát a <span
  style="font-weight: bold;">NuTcH</span> itt ugyanaz, mint a<span
  style="font-weight: bold;">nUtCh</span>.</li>
