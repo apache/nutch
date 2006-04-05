@@ -49,7 +49,7 @@ public class ParseStatus extends VersionedWritable {
   
   /** Parsing failed. An Exception occured (which may be retrieved from the arguments). */
   public static final short FAILED_EXCEPTION          = 200;
-  /** Parsing failed. Invalid format - the content may be corrupted or of wrong type. */
+  /** Parsing failed. Content was truncated, but the parser cannot handle incomplete content. */
   public static final short FAILED_TRUNCATED          = 202;
   /** Parsing failed. Invalid format - the content may be corrupted or of wrong type. */
   public static final short FAILED_INVALID_FORMAT     = 203;
