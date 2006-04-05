@@ -147,7 +147,7 @@ public class Generator extends Configured {
 
   }
 
-  public static class SelectorInverseMapper extends MapReduceBase {
+  public static class SelectorInverseMapper extends MapReduceBase implements Mapper {
 
     public void map(WritableComparable key, Writable value, OutputCollector output, Reporter reporter) throws IOException {
       SelectorEntry entry = (SelectorEntry)value;
