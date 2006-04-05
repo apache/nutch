@@ -116,6 +116,7 @@ public class Fetcher extends Configured implements MapRunnable {
             lastRequestStart = System.currentTimeMillis();
           }
 
+          // url may be changed through redirects.
           String url = key.toString();
           try {
             LOG.info("fetching " + url);            // fetch the page
@@ -126,7 +127,7 @@ public class Fetcher extends Configured implements MapRunnable {
               redirecting = false;
               LOG.fine("redirectCount=" + redirectCount);
               Protocol protocol = this.protocolFactory.getProtocol(url);
-              ProtocolOutput output = protocol.getProtocolOutput(key, datum);
+              ProtocolOutput output = protocol.getProtocolOutput(new UTF8(url), datum);
               ProtocolStatus status = output.getStatus();
               Content content = output.getContent();
 
@@ -145,9 +146,9 @@ public class Fetcher extends Configured implements MapRunnable {
                   url = newUrl;
                   redirecting = true;
                   redirectCount++;
-                  LOG.fine(" - redirect to " + url);
+                  LOG.fine(" - protocol redirect to " + url);
                 } else {
-                  LOG.fine(" - redirect skipped: " +
+                  LOG.fine(" - protocol redirect skipped: " +
                            (url.equals(newUrl) ? "to same url" : "filtered"));
                 }
                 break;
