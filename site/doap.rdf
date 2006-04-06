@@ -30,11 +30,13 @@
     <download-page rdf:resource="http://www.apache.org/dyn/closer.cgi/lucene/nutch/" />
     <programming-language>Java</programming-language>
     <category rdf:resource="http://projects.apache.org/category/web-framework" />
+    <wiki rdf:resource="http://wiki.apache.org/nutch/"/>
     <release>
       <Version>
-        <name>0.7</name>
-        <created>2005-08-17</created>
-        <revision>0.7</revision>
+        <branch>branch-0.7</branch>
+        <name>nutch-0.7.2</name>
+        <created>2006-03-31</created>
+        <revision>0.7.2</revision>
       </Version>
     </release>
     <repository>
@@ -43,5 +45,11 @@
         <browse rdf:resource="http://svn.apache.org/viewcvs.cgi/lucene/nutch/"/>
       </SVNRepository>
     </repository>
+    <maintainer>
+      <foaf:Person>
+        <foaf:name>Apache Nutch Team</foaf:name>
+        <foaf:mbox rdf:resource="mailto:nutch-dev@lucene.apache.org"/>
+      </foaf:Person>
+    </maintainer>
   </Project>
 </rdf:RDF>
