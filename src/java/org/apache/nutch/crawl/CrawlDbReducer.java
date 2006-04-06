@@ -52,6 +52,7 @@ public class CrawlDbReducer implements Reducer {
       switch (datum.getStatus()) {                // find old entry, if any
       case CrawlDatum.STATUS_DB_UNFETCHED:
       case CrawlDatum.STATUS_DB_FETCHED:
+      case CrawlDatum.STATUS_DB_GONE:
         old = datum;
         break;
       case CrawlDatum.STATUS_LINKED:
