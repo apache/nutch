@@ -31,6 +31,14 @@ public class WritableTestUtils {
   /** Utility method for testing writables. */
   public static void testWritable(Writable before, Configuration conf)
       throws Exception {
+    TestCase.assertEquals(before, writeRead(before, conf));
+  }
+
+  
+  /** Utility method for testing writables. */
+  public static Writable writeRead(Writable before, Configuration conf)
+    throws Exception {
+    
     DataOutputBuffer dob = new DataOutputBuffer();
     before.write(dob);
     
@@ -42,8 +50,7 @@ public class WritableTestUtils {
       ((Configurable)after).setConf(conf);
     }
     after.readFields(dib);
-
-    TestCase.assertEquals(before, after);
+    return after;
   }
-	
+  
 }
