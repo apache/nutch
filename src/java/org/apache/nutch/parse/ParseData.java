@@ -119,12 +119,15 @@ public final class ParseData extends VersionedWritable implements Configurable {
 
     int totalOutlinks = in.readInt();             // read outlinks
     int maxOutlinksPerPage = this.conf.getInt("db.max.outlinks.per.page", 100);
-    int outlinksToRead = Math.min(maxOutlinksPerPage, totalOutlinks);
+    int outlinksToRead = totalOutlinks;
+    if (maxOutlinksPerPage >= 0) {
+      outlinksToRead = Math.min(maxOutlinksPerPage, totalOutlinks);
+    }
     outlinks = new Outlink[outlinksToRead];
     for (int i = 0; i < outlinksToRead; i++) {
       outlinks[i] = Outlink.read(in);
     }
-    for (int i = maxOutlinksPerPage; i < totalOutlinks; i++) {
+    for (int i = outlinksToRead; i < totalOutlinks; i++) {
       Outlink.skip(in);
     }
     

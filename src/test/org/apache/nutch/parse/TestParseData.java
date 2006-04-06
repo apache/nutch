@@ -51,4 +51,31 @@ public class TestParseData extends TestCase {
     WritableTestUtils.testWritable(r, conf);
   }
 	
+  public void testMaxOutlinks() throws Exception {
+    Outlink[] outlinks = new Outlink[128];
+    for (int i=0; i<outlinks.length; i++) {
+      outlinks[i] = new Outlink("http://outlink.com/" + i, "Outlink" + i, conf);
+    }
+    ParseData original = new ParseData(ParseStatus.STATUS_SUCCESS,
+                                       "Max Outlinks Title",
+                                       outlinks,
+                                       new Metadata());
+    Configuration conf = NutchConfiguration.create();
+    // No Outlinks
+    conf.setInt("db.max.outlinks.per.page", 0);
+    ParseData data = (ParseData) WritableTestUtils.writeRead(original, conf);
+    assertEquals(0, data.getOutlinks().length);
+    // Only 100 Outlinks
+    conf.setInt("db.max.outlinks.per.page", 100);
+    data = (ParseData) WritableTestUtils.writeRead(original, conf);
+    assertEquals(100, data.getOutlinks().length);
+    // 256 Outlinks
+    conf.setInt("db.max.outlinks.per.page", 256);
+    data = (ParseData) WritableTestUtils.writeRead(original, conf);
+    assertEquals(outlinks.length, data.getOutlinks().length);
+    // All Outlinks
+    conf.setInt("db.max.outlinks.per.page", -1);
+    data = (ParseData) WritableTestUtils.writeRead(original, conf);
+    assertEquals(outlinks.length, data.getOutlinks().length);
+  }
 }
