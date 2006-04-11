@@ -227,6 +227,7 @@ public class Fetcher extends Configured implements MapRunnable {
                         Content content, int status) {
 
       datum.setStatus(status);
+      datum.setFetchTime(System.currentTimeMillis());
 
       if (content == null) {
         String url = key.toString();
