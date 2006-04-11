@@ -80,6 +80,7 @@ public class Fetcher extends Configured implements MapRunnable {
     private Configuration conf;
     private URLFilters urlFilters;
     private ParseUtil parseUtil;
+    private UrlNormalizer normalizer;
     private ProtocolFactory protocolFactory;
 
     public FetcherThread(Configuration conf) {
@@ -89,6 +90,7 @@ public class Fetcher extends Configured implements MapRunnable {
       this.urlFilters = new URLFilters(conf);
       this.parseUtil = new ParseUtil(conf);
       this.protocolFactory = new ProtocolFactory(conf);
+      this.normalizer = new UrlNormalizerFactory(conf).getNormalizer();
     }
 
     public void run() {
@@ -117,7 +119,8 @@ public class Fetcher extends Configured implements MapRunnable {
           }
 
           // url may be changed through redirects.
-          String url = key.toString();
+          UTF8 url = new UTF8();
+          url.set(key);
           try {
             LOG.info("fetching " + url);            // fetch the page
             
@@ -126,30 +129,47 @@ public class Fetcher extends Configured implements MapRunnable {
             do {
               redirecting = false;
               LOG.fine("redirectCount=" + redirectCount);
-              Protocol protocol = this.protocolFactory.getProtocol(url);
-              ProtocolOutput output = protocol.getProtocolOutput(new UTF8(url), datum);
+              Protocol protocol = this.protocolFactory.getProtocol(url.toString());
+              ProtocolOutput output = protocol.getProtocolOutput(url, datum);
               ProtocolStatus status = output.getStatus();
               Content content = output.getContent();
+              ParseStatus pstatus = null;
 
               switch(status.getCode()) {
 
               case ProtocolStatus.SUCCESS:        // got a page
-                output(key, datum, content, CrawlDatum.STATUS_FETCH_SUCCESS);
+                pstatus = output(url, datum, content, CrawlDatum.STATUS_FETCH_SUCCESS);
                 updateStatus(content.getContent().length);
+                if (pstatus != null && pstatus.isSuccess() &&
+                        pstatus.getMinorCode() == ParseStatus.SUCCESS_REDIRECT) {
+                  String newUrl = pstatus.getMessage();
+                  newUrl = normalizer.normalize(newUrl);
+                  newUrl = this.urlFilters.filter(newUrl);
+                  if (newUrl != null && !newUrl.equals(url.toString())) {
+                    url = new UTF8(newUrl);
+                    redirecting = true;
+                    redirectCount++;
+                    LOG.fine(" - content redirect to " + url);
+                  } else {
+                    LOG.fine(" - content redirect skipped: " +
+                             (url.equals(newUrl.toString()) ? "to same url" : "filtered"));
+                  }
+                }
                 break;
 
               case ProtocolStatus.MOVED:         // redirect
               case ProtocolStatus.TEMP_MOVED:
                 String newUrl = status.getMessage();
+                newUrl = normalizer.normalize(newUrl);
                 newUrl = this.urlFilters.filter(newUrl);
-                if (newUrl != null && !newUrl.equals(url)) {
-                  url = newUrl;
+                if (newUrl != null && !newUrl.equals(url.toString())) {
+                  url = new UTF8(newUrl);
                   redirecting = true;
                   redirectCount++;
                   LOG.fine(" - protocol redirect to " + url);
                 } else {
                   LOG.fine(" - protocol redirect skipped: " +
-                           (url.equals(newUrl) ? "to same url" : "filtered"));
+                           (url.equals(newUrl.toString()) ? "to same url" : "filtered"));
                 }
                 break;
 
@@ -157,7 +177,7 @@ public class Fetcher extends Configured implements MapRunnable {
                 logError(url, status.getMessage());
               case ProtocolStatus.RETRY:          // retry
                 datum.setRetriesSinceFetch(datum.getRetriesSinceFetch()+1);
-                output(key, datum, null, CrawlDatum.STATUS_FETCH_RETRY);
+                output(url, datum, null, CrawlDatum.STATUS_FETCH_RETRY);
                 break;
                 
               case ProtocolStatus.GONE:           // gone
@@ -165,17 +185,17 @@ public class Fetcher extends Configured implements MapRunnable {
               case ProtocolStatus.ACCESS_DENIED:
               case ProtocolStatus.ROBOTS_DENIED:
               case ProtocolStatus.NOTMODIFIED:
-                output(key, datum, null, CrawlDatum.STATUS_FETCH_GONE);
+                output(url, datum, null, CrawlDatum.STATUS_FETCH_GONE);
                 break;
 
               default:
                 LOG.warning("Unknown ProtocolStatus: " + status.getCode());
-                output(key, datum, null, CrawlDatum.STATUS_FETCH_GONE);
+                output(url, datum, null, CrawlDatum.STATUS_FETCH_GONE);
               }
 
               if (redirecting && redirectCount >= maxRedirect) {
                 LOG.info(" - redirect count exceeded " + url);
-                output(key, datum, null, CrawlDatum.STATUS_FETCH_GONE);
+                output(url, datum, null, CrawlDatum.STATUS_FETCH_GONE);
               }
 
             } while (redirecting && (redirectCount < maxRedirect));
@@ -183,7 +203,7 @@ public class Fetcher extends Configured implements MapRunnable {
             
           } catch (Throwable t) {                 // unexpected exception
             logError(url, t.toString());
-            output(key, datum, null, CrawlDatum.STATUS_FETCH_GONE);
+            output(url, datum, null, CrawlDatum.STATUS_FETCH_GONE);
             
           }
         }
@@ -196,14 +216,14 @@ public class Fetcher extends Configured implements MapRunnable {
       }
     }
 
-    private void logError(String url, String message) {
+    private void logError(UTF8 url, String message) {
       LOG.info("fetch of " + url + " failed with: " + message);
       synchronized (Fetcher.this) {               // record failure
         errors++;
       }
     }
 
-    private void output(UTF8 key, CrawlDatum datum,
+    private ParseStatus output(UTF8 key, CrawlDatum datum,
                         Content content, int status) {
 
       datum.setStatus(status);
@@ -252,6 +272,8 @@ public class Fetcher extends Configured implements MapRunnable {
         e.printStackTrace();
         LOG.severe("fetcher caught:"+e.toString());
       }
+      if (parse != null) return parse.getData().getStatus();
+      else return null;
     }
     
   }
