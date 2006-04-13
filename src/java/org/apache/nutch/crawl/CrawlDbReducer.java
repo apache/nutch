@@ -68,6 +68,7 @@ public class CrawlDbReducer implements Reducer {
     if (old != null) {
       // copy metadata from old, if exists
       if (old.getMetaData() != null) {
+        if (result.getMetaData() == null) result.setMetaData(new MapWritable());
         result.getMetaData().putAll(old.getMetaData());
         // overlay with new, if any
         if (highest.getMetaData() != null)
