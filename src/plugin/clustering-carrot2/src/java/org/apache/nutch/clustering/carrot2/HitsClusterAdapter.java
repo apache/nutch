@@ -33,7 +33,6 @@ import org.apache.nutch.searcher.HitDetails;
  * @version $Id: HitsClusterAdapter.java,v 1.1 2004/08/09 23:23:53 johnnx Exp $
  */
 public class HitsClusterAdapter implements HitsCluster {
-
   private RawCluster rawCluster;
   private HitDetails [] hits;
 

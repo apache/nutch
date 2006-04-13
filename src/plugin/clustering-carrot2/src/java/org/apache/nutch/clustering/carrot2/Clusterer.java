@@ -16,46 +16,86 @@
 
 package org.apache.nutch.clustering.carrot2;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.List;
-import java.util.Iterator;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
+import org.apache.hadoop.conf.Configurable;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.clustering.HitsCluster;
 import org.apache.nutch.clustering.OnlineClusterer;
 import org.apache.nutch.searcher.HitDetails;
+
 import com.dawidweiss.carrot.core.local.*;
 import com.dawidweiss.carrot.core.local.clustering.RawCluster;
 import com.dawidweiss.carrot.core.local.impl.ClustersConsumerOutputComponent;
-import com.dawidweiss.carrot.util.tokenizer.SnippetTokenizerLocalFilterComponent;
-import com.stachoodev.carrot.filter.lingo.local.LingoLocalFilterComponent;
-
-import com.dawidweiss.carrot.util.tokenizer.languages.dutch.Dutch;
-import com.dawidweiss.carrot.util.tokenizer.languages.english.English;
-import com.dawidweiss.carrot.util.tokenizer.languages.french.French;
-import com.dawidweiss.carrot.util.tokenizer.languages.german.German;
-import com.dawidweiss.carrot.util.tokenizer.languages.italian.Italian;
-import com.dawidweiss.carrot.util.tokenizer.languages.spanish.Spanish;
 import com.dawidweiss.carrot.core.local.linguistic.Language;
+import com.dawidweiss.carrot.util.tokenizer.languages.AllKnownLanguages;
+import com.stachoodev.carrot.filter.lingo.local.LingoLocalFilterComponent;
 
 
 /**
- * An plugin providing an implementation of {@link OnlineClusterer} extension
- * using clustering components of the Carrot2 project
- * (<a href="http://carrot2.sourceforge.net">http://carrot2.sourceforge.net</a>). 
+ * An plugin providing an implementation of {@link OnlineClusterer} 
+ * extension using clustering components of the Carrot2 project
+ * (<a href="http://carrot2.sourceforge.net">http://carrot2.sourceforge.net</a>).
+ * 
+ * We hardcode the following Carrot2 process:
+ * <pre><![CDATA[
+ * <local-process id="yahoo-lingo">
+ *   <name>Yahoo Search API -- Lingo Classic Clusterer</name>
+ * 
+ *   <input  component-key="input-localnutch" />
+ *   <filter component-key="filter-lingo" />
+ *   <output component-key="output-clustersConsumer" />
+ * </local-process>
+ * ]]></pre>
  *
  * @author Dawid Weiss
  * @version $Id: Clusterer.java,v 1.1 2004/08/09 23:23:53 johnnx Exp $
  */
-public class Clusterer implements OnlineClusterer {
-  private final LocalController controller;
+public class Clusterer implements OnlineClusterer, Configurable {
+  /** Default language property name. */
+  private final static String CONF_PROP_DEFAULT_LANGUAGE =
+    "extension.clustering.carrot2.defaultLanguage";
+
+  /** Recognizable languages property name. */
+  private final static String CONF_PROP_LANGUAGES =
+    "extension.clustering.carrot2.languages";
+
+  /** Internal clustering process ID in Carrot2 LocalController */
+  private final static String PROCESS_ID = "nutch-lingo";
+  
+  public static final Logger logger =
+    LogFormatter.getLogger(Clusterer.class.getName());  
+
+  /** The LocalController instance used for clustering */
+  private LocalController controller;
+
+  /** Nutch configuration. */
+  private Configuration conf;
+
+  /** 
+   * Default language for hits. English by default, but may be changed
+   * via a property in Nutch configuration. 
+   */
+  private String defaultLanguage = "en";
+
+  /** 
+   * A list of recognizable languages..
+   * English only by default, but configurable via Nutch configuration.
+   */
+  private String [] languages = new String [] {defaultLanguage};
 
   /**
    * An empty public constructor for making new instances
    * of the clusterer.
    */
   public Clusterer() {
+    initialize();
+  }
+
+  private synchronized void initialize() {
     controller = new LocalControllerBase();
     addComponentFactories();
     addProcesses();
@@ -63,68 +103,70 @@ public class Clusterer implements OnlineClusterer {
 
   /** Adds the required component factories to a local Carrot2 controller. */
   private void addComponentFactories() {
-    // Local nutch input component
+    //  *   <input  component-key="input-localnutch" />
     LocalComponentFactory nutchInputFactory = new LocalComponentFactoryBase() {
       public LocalComponent getInstance() {
-        return new LocalNutchInputComponent();
+        return new LocalNutchInputComponent(defaultLanguage);
       }
     };
-    controller.addLocalComponentFactory("input.localnutch", nutchInputFactory);
-    
-    // Cluster consumer output component
+    controller.addLocalComponentFactory("input-localnutch", nutchInputFactory);
+
+    // *   <filter component-key="filter-lingo" />
+    LocalComponentFactory lingoFactory = new LocalComponentFactoryBase() {
+      public LocalComponent getInstance() {
+        HashMap defaults = new HashMap();
+
+        // These are adjustments settings for the clustering algorithm.
+        // If you try the live WebStart demo of Carrot2 you can see how they affect
+        // the final clustering: http://www.carrot2.org/webstart 
+        defaults.put("lsi.threshold.clusterAssignment", "0.150");
+        defaults.put("lsi.threshold.candidateCluster",  "0.775");
+
+        // Initialize a new Lingo clustering component.
+        ArrayList languageList = new ArrayList(languages.length);
+        for (int i = 0; i < languages.length; i++) {
+          final String lcode = languages[i];
+          try {
+            Language lang = AllKnownLanguages.getLanguageForIsoCode(lcode);
+            if (lang == null) {
+              logger.log(Level.WARNING, "Language not supported in Carrot2: " + lcode);
+            } else {
+              languageList.add(lang);
+              logger.log(Level.FINE, "Language loaded: " + lcode);
+            }
+          } catch (Throwable t) {
+            logger.log(Level.WARNING, "Language could not be loaded: " + lcode, t);
+          }
+        }
+        return new LingoLocalFilterComponent(
+          (Language []) languageList.toArray(new Language [languageList.size()]), defaults);
+      }
+    };
+    controller.addLocalComponentFactory("filter-lingo", lingoFactory);
+
+    // *   <output component-key="output-clustersConsumer" />
     LocalComponentFactory clusterConsumerOutputFactory = new LocalComponentFactoryBase() {
       public LocalComponent getInstance() {
         return new ClustersConsumerOutputComponent();
       }
     };
-    controller.addLocalComponentFactory("output.cluster-consumer", 
+    controller.addLocalComponentFactory("output-clustersConsumer", 
       clusterConsumerOutputFactory);
-    
-    // Clustering component here.
-    LocalComponentFactory lingoFactory = new LocalComponentFactoryBase() {
-      public LocalComponent getInstance() {
-        HashMap defaults = new HashMap();
-        
-        // These are adjustments settings for the clustering algorithm...
-        // You can play with them, but the values below are our 'best guess'
-        // settings that we acquired experimentally.
-        defaults.put("lsi.threshold.clusterAssignment", "0.150");
-        defaults.put("lsi.threshold.candidateCluster",  "0.775");
-
-        // TODO: this should be eventually replaced with documents from Nutch
-        // tagged with a language tag. There is no need to again determine
-        // the language of a document.
-        return new LingoLocalFilterComponent(
-          // If you want to include Polish in the list of supported languages,
-          // you have to download a separate Carrot2-component called
-          // carrot2-stemmer-lametyzator.jar, put it in classpath
-          // and add new Polish() below.
-          new Language[]
-          { 
-            new English(), 
-            new Dutch(), 
-            new French(), 
-            new German(),
-            new Italian(), 
-            new Spanish() 
-          }, defaults);
-      }
-    };
-    controller.addLocalComponentFactory("filter.lingo-old", lingoFactory);      
   }
 
-  /** Adds a clustering process to the local controller */  
+  /** 
+   * Adds a hardcoded clustering process to the local controller.
+   */  
   private void addProcesses() {
-    LocalProcessBase lingoNMFKM3 
-      = new LocalProcessBase(
-        "input.localnutch",
-        "output.cluster-consumer",
-        new String [] {"filter.lingo-old"},
-        "Example the Lingo clustering algorithm.",
+    LocalProcessBase process = new LocalProcessBase(
+        "input-localnutch",                                   // input
+        "output-clustersConsumer",                            // output
+        new String [] {"filter-lingo"},                       // filters
+        "The Lingo clustering algorithm (www.carrot2.org).",
         "");
 
     try {
-      controller.addProcess("lingo-nmf-km-3", lingoNMFKM3);
+      controller.addProcess(PROCESS_ID, process);
     } catch (Exception e) {
       throw new RuntimeException("Could not assemble clustering process.", e);
     }
@@ -139,15 +181,17 @@ public class Clusterer implements OnlineClusterer {
       hitDetails);
     requestParams.put(LocalNutchInputComponent.NUTCH_INPUT_SUMMARIES_ARRAY,
       descriptions);
-    try {
-      ProcessingResult result = 
-        controller.query("lingo-nmf-km-3", "pseudo-query", requestParams);
 
-      ClustersConsumerOutputComponent.Result output =
+    try {
+      // The input component takes Nutch's results so we don't need the query argument.
+      final ProcessingResult result = 
+        controller.query(PROCESS_ID, "no-query", requestParams);
+
+      final ClustersConsumerOutputComponent.Result output =
         (ClustersConsumerOutputComponent.Result) result.getQueryResult();
 
-      List outputClusters = output.clusters;
-      HitsCluster [] clusters = new HitsCluster[ outputClusters.size() ];
+      final List outputClusters = output.clusters;
+      final HitsCluster [] clusters = new HitsCluster[ outputClusters.size() ];
 
       int j = 0;
       for (Iterator i = outputClusters.iterator(); i.hasNext(); j++) {
@@ -162,5 +206,33 @@ public class Clusterer implements OnlineClusterer {
     } catch (Exception e) {
       throw new RuntimeException("Unidentified problems with the clustering.", e);
     }
+  }
+
+  /**
+   * Implementation of {@link Configurable}
+   */
+  public void setConf(Configuration conf) {
+    this.conf = conf;
+    
+    // Configure default language and other component settings.
+    if (conf.get(CONF_PROP_DEFAULT_LANGUAGE) != null) {
+      // Change the default language.
+      this.defaultLanguage = conf.get(CONF_PROP_DEFAULT_LANGUAGE);
+    } 
+    if (conf.getStrings(CONF_PROP_LANGUAGES) != null) {
+      this.languages = conf.getStrings(CONF_PROP_LANGUAGES);
+    }
+
+    logger.log(Level.INFO, "Default language: " + defaultLanguage);
+    logger.log(Level.INFO, "Enabled languages: " + Arrays.asList(languages));
+
+    initialize();
+  }
+
+  /**
+   * Implementation of {@link Configurable}
+   */
+  public Configuration getConf() {
+    return conf;
   }
 }

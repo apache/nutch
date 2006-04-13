@@ -22,32 +22,47 @@ import com.dawidweiss.carrot.core.local.clustering.RawDocument;
 import com.dawidweiss.carrot.core.local.clustering.RawDocumentBase;
 
 /**
- * An adapter class that implements {@link RawDocument} for
- * Carrot2.  
+ * An adapter class that implements {@link RawDocument} required for Carrot2.  
  *
  * @author Dawid Weiss
  * @version $Id: NutchDocument.java,v 1.2 2004/08/10 00:18:43 johnnx Exp $
  */
 public class NutchDocument extends RawDocumentBase {
-
+  /**
+   * Integer identifier of this document. We need a subclass of 
+   * {@link java.lang.Object}, so this should do.
+   */
   private final Integer id;
   
   /**
    * Creates a new document with the given id, <code>summary</code> and wrapping
    * a <code>details</code> hit details.
    */
-  public NutchDocument(int id, HitDetails details, String summary) {
+  public NutchDocument(int id, HitDetails details, String summary, String defaultLanguage) {
     super.setProperty(RawDocument.PROPERTY_URL, details.getValue("url"));
     super.setProperty(RawDocument.PROPERTY_SNIPPET, summary);
-    
-    String title = details.getValue("title");
+
+    final String title = details.getValue("title");
     if (title != null && !"".equals(title)) {
       super.setProperty(RawDocument.PROPERTY_TITLE, title);
     }
     
+    String lang = details.getValue("lang");
+    if (lang == null) {
+      // No default language. Take the default from the configuration file.
+      lang = defaultLanguage;
+    }
+    // Use this language for the snippet. Truncate longer ISO codes
+    // to only include two-letter language code.
+    if (lang.length() > 2) {
+      lang = lang.substring(0, 2);
+    }
+    lang = lang.toLowerCase();
+    super.setProperty(RawDocument.PROPERTY_LANGUAGE, lang);
+
     this.id = new Integer(id);
   }
-  
+
   /*
    * @see com.dawidweiss.carrot.core.local.clustering.RawDocument#getId()
    */
