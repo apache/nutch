@@ -36,6 +36,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 /**
@@ -294,6 +296,15 @@ public class PluginManifestParser {
                                 + extensionClass);
                         Extension extension = new Extension(pPluginDescriptor,
                                 pointId, id, extensionClass, this.conf, this.pluginRepository);
+                        NodeList parameters = oneImplementation.getElementsByTagName("parameter");
+                        if (parameters != null) {
+                          for (int k=0; k<parameters.getLength(); k++) {
+                            Element param = (Element) parameters.item(k);
+                            extension.addAttribute(param.getAttribute("name"),
+                                                   param.getAttribute("value"));
+                          }
+                        }
+                        /*
                         NamedNodeMap list = oneImplementation.getAttributes();
                         for (int k = 0; k < list.getLength(); k++) {
                             Node attribute = list.item(k);
@@ -302,11 +313,12 @@ public class PluginManifestParser {
                                 continue;
                             String value = attribute.getNodeValue();
                             extension.addAttribute(name, value);
-                        }
+                        }*/
                         pPluginDescriptor.addExtension(extension);
                     }
                 }
             }
         }
     }
+    
 }

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <plugin
    id="parse-msexcel"
    name="MSExcel Parse Plug-in"
@@ -22,9 +23,10 @@
               point="org.apache.nutch.parse.Parser">
 
       <implementation id="org.apache.nutch.parse.msexcel.MSExcelParser"
-                      class="org.apache.nutch.parse.msexcel.MSExcelParser" 
-                      contentType="application/vnd.ms-excel"
-                      pathSuffix="xls"/>
+                      class="org.apache.nutch.parse.msexcel.MSExcelParser">
+        <parameter name="contentType" value="application/vnd.ms-excel"/>
+        <parameter name="pathSuffix"  value="xls"/>
+      </implementation>
    </extension>
 
 </plugin>

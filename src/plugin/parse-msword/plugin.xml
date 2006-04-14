@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <plugin
    id="parse-msword"
    name="MSWord Parse Plug-in"
@@ -22,10 +23,10 @@
               point="org.apache.nutch.parse.Parser">
 
       <implementation id="org.apache.nutch.parse.msword.MSWordParser"
-                      class="org.apache.nutch.parse.msword.MSWordParser"
-                      contentType="application/msword"
-                      pathSuffix=""/>
-
+                      class="org.apache.nutch.parse.msword.MSWordParser">
+        <parameter name="contentType" value="application/msword"/>
+        <parameter name="pathSuffix"  value=""/>
+      </implementation>
    </extension>
 
 </plugin>

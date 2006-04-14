@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <plugin
    id="parse-zip"
    name="Zip Parse Plug-in"
@@ -20,9 +21,11 @@
               point="org.apache.nutch.parse.Parser">
 
       <implementation id="org.apache.nutch.parse.zip.ZipParser" 
-                      class="org.apache.nutch.parse.zip.ZipParser" 
-                      contentType="application/zip"
-                      pathSuffix="zip"/>
+                      class="org.apache.nutch.parse.zip.ZipParser">
+        <parameter name="contentType" value="application/zip"/>
+        <parameter name="pathSuffix"  value="zip"/>
+      </implementation>
+      
    </extension>
 
 </plugin>

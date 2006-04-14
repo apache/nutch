@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <plugin
    id="parse-ext"
    name="External Parser Plug-in"
@@ -20,18 +21,20 @@
               point="org.apache.nutch.parse.Parser">
 
       <implementation id="ExtParser"
-                      class="org.apache.nutch.parse.ext.ExtParser"
-                      contentType="application/vnd.nutch.example.cat"
-                      pathSuffix=""
-                      command="./build/plugins/parse-ext/command"
-                      timeout="10"/>
+                      class="org.apache.nutch.parse.ext.ExtParser">
+        <parameter name="contentType" value="application/vnd.nutch.example.cat"/>
+        <parameter name="pathSuffix"  value=""/>
+        <parameter name="command"     value="./build/plugins/parse-ext/command"/>
+        <parameter name="timeout"     value="10"/>
+      </implementation>
 
       <implementation id="ExtParser"
-                      class="org.apache.nutch.parse.ext.ExtParser"
-                      contentType="application/vnd.nutch.example.md5sum"
-                      pathSuffix=""
-                      command="./build/plugins/parse-ext/command"
-                      timeout="20"/>
+                      class="org.apache.nutch.parse.ext.ExtParser">
+        <parameter name="contentType" value="application/vnd.nutch.example.md5sum"/>
+        <parameter name="pathSuffix"  value=""/>
+        <parameter name="command"     value="./build/plugins/parse-ext/command"/>
+        <parameter name="timeout"     value="20"/>
+      </implementation>
 
    </extension>
 

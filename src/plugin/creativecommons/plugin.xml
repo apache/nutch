@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <plugin
    id="creativecommons"
    name="Creative Commons Plugins"
@@ -33,8 +34,9 @@
               name="Creative Commmons Query Filter"
               point="org.apache.nutch.searcher.QueryFilter">
       <implementation id="CCQueryFilter"
-                      class="org.creativecommons.nutch.CCQueryFilter"
-                      fields="cc"/>
+                      class="org.creativecommons.nutch.CCQueryFilter">
+        <parameter name="fields" value="cc"/>
+      </implementation>
    </extension>
 
 </plugin>

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <plugin
    id="parse-swf"
    name="SWF Parse Plug-in"
@@ -18,9 +19,11 @@
               point="org.apache.nutch.parse.Parser">
 
       <implementation id="org.apache.nutch.parse.swf.SWFParser"
-                      class="org.apache.nutch.parse.swf.SWFParser"
-		      contentType="application/x-shockwave-flash"
-                      pathSuffix="swf"/>
+                      class="org.apache.nutch.parse.swf.SWFParser">
+        <parameter name="contentType" value="application/x-shockwave-flash"/>
+        <parameter name="pathSuffix"  value="swf"/>
+      </implementation>
+      
    </extension>
 
 </plugin>

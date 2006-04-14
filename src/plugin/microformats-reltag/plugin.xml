@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <plugin
    id="microformats-reltag"
    name="Rel-Tag microformat Parser/Indexer/Querier"
@@ -34,8 +35,10 @@
               name="Rel-Tag query filter"
               point="org.apache.nutch.searcher.QueryFilter">
       <implementation id="RelTagQueryFilter"
-                      class="org.apache.nutch.microformats.reltag.RelTagQueryFilter"
-                      raw-fields="tag"/>
+                      class="org.apache.nutch.microformats.reltag.RelTagQueryFilter">
+        <parameter name="raw-fields" value="tag"/>
+      </implementation>
+      
    </extension>
 
 

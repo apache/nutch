@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <plugin
    id="parse-rss"
    name="RSS Parse Plug-in"
@@ -26,10 +27,10 @@
               point="org.apache.nutch.parse.Parser">
 
       <implementation id="org.apache.nutch.parse.rss.RSSParser"
-                      class="org.apache.nutch.parse.rss.RSSParser"
-                      contentType="application/rss+xml"
-                      pathSuffix="rss"/>
-
+                      class="org.apache.nutch.parse.rss.RSSParser">
+        <parameter name="contentType" value="application/rss+xml"/>
+        <parameter name="pathSuffix"  value="rss"/>
+      </implementation>
    </extension>
 
 </plugin>

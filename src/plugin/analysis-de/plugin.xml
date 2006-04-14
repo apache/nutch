@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <plugin
    id="analysis-de"
    name="German Analysis Plug-in"
@@ -21,8 +22,9 @@
               point="org.apache.nutch.analysis.NutchAnalyzer">
 
       <implementation id="org.apache.nutch.analysis.de.GermanAnalyzer"
-                      class="org.apache.nutch.analysis.de.GermanAnalyzer"
-                      lang="de"/>
+                      class="org.apache.nutch.analysis.de.GermanAnalyzer">
+        <parameter name="lang" value="de"/>
+      </implementation>
 
    </extension>
 

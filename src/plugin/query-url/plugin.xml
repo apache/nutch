@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <plugin
    id="query-url"
    name="URL Query Filter"
@@ -19,8 +20,10 @@
               name="Nutch URL Query Filter"
               point="org.apache.nutch.searcher.QueryFilter">
       <implementation id="URLQueryFilter"
-                      class="org.apache.nutch.searcher.url.URLQueryFilter"
-                      fields="url"/>
+                      class="org.apache.nutch.searcher.url.URLQueryFilter">
+        <parameter name="fields" value="url"/>
+      </implementation>
+      
    </extension>
 
 </plugin>

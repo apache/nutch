@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <plugin
    id="query-basic"
    name="Basic Query Filter"
@@ -19,8 +20,10 @@
               name="Nutch Basic Query Filter"
               point="org.apache.nutch.searcher.QueryFilter">
       <implementation id="BasicQueryFilter"
-                      class="org.apache.nutch.searcher.basic.BasicQueryFilter"
-                      fields="DEFAULT"/>
+                      class="org.apache.nutch.searcher.basic.BasicQueryFilter">
+        <parameter name="fields" value="DEFAULT"/>
+      </implementation>
+      
    </extension>
 
 </plugin>

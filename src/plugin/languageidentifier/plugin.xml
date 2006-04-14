@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <plugin
    id="language-identifier"
    name="Language Identification Parser/Filter"
@@ -34,8 +35,9 @@
               name="Nutch Language Query Filter"
               point="org.apache.nutch.searcher.QueryFilter">
       <implementation id="LanguageQueryFilter"
-                      class="org.apache.nutch.analysis.lang.LanguageQueryFilter"
-                      raw-fields="lang"/>
+                      class="org.apache.nutch.analysis.lang.LanguageQueryFilter">
+        <parameter name="raw-fields" value="lang"/>
+      </implementation>
    </extension>
 
 
