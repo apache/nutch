@@ -67,11 +67,11 @@ public class Hit implements Writable, Comparable {
   /** Return the value of the field that hits should be deduplicated on. */
   public String getDedupValue() { return dedupValue; }
 
-  /** True iff other, lower-scoring, hits with the same dedup value have been
+  /** True if other, lower-scoring, hits with the same dedup value have been
    * excluded from the list which contains this hit.. */
   public boolean moreFromDupExcluded() { return moreFromDupExcluded; }
 
-  /** True iff other, lower-scoring, hits with the same deup value have been
+  /** True if other, lower-scoring, hits with the same deup value have been
    * excluded from the list which contains this hit.. */
   public void setMoreFromDupExcluded(boolean more){moreFromDupExcluded=more;}
 
