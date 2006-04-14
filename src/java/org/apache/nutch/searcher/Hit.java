@@ -71,7 +71,7 @@ public class Hit implements Writable, Comparable {
    * excluded from the list which contains this hit.. */
   public boolean moreFromDupExcluded() { return moreFromDupExcluded; }
 
-  /** True if other, lower-scoring, hits with the same deup value have been
+  /** True if other, lower-scoring, hits with the same dedup value have been
    * excluded from the list which contains this hit.. */
   public void setMoreFromDupExcluded(boolean more){moreFromDupExcluded=more;}
 
