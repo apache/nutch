@@ -30,8 +30,9 @@
 
       <!-- define all the classes that implement the point defined above -->
       <implementation id="org.apache.nutch.ontology.jena.OntologyImpl"
-                      class="org.apache.nutch.ontology.jena.OntologyImpl"
-                      pathSuffix=""/>
+                      class="org.apache.nutch.ontology.jena.OntologyImpl">
+        <parameter name="pathSuffix" value=""/>
+      </implementation>
 
    </extension>
 

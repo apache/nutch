@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <plugin
    id="protocol-httpclient"
    name="Http / Https Protocol Plug-in"
@@ -23,8 +24,9 @@
               point="org.apache.nutch.protocol.Protocol">
 
       <implementation id="org.apache.nutch.protocol.httpclient.Http"
-                      class="org.apache.nutch.protocol.httpclient.Http"
-                      protocolName="http"/>
+                      class="org.apache.nutch.protocol.httpclient.Http">
+        <parameter name="protocolName" value="http"/>
+      </implementation>
 
    </extension>
 
@@ -33,8 +35,9 @@
               point="org.apache.nutch.protocol.Protocol">
 
       <implementation id="org.apache.nutch.protocol.httpclient.Http"
-                      class="org.apache.nutch.protocol.httpclient.Http"
-                      protocolName="https"/>
+                      class="org.apache.nutch.protocol.httpclient.Http">
+        <parameter name="protocolName" value="https"/>
+      </implementation>
 
    </extension>
 

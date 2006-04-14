@@ -1,4 +1,5 @@
-<?xml version = '1.0' encoding = 'UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
+
 <plugin
    version="1.0.0"
    provider-name="nutch.org"
@@ -21,9 +22,10 @@
               name="MP3Parse">
 
       <implementation class="org.apache.nutch.parse.mp3.MP3Parser"
-                      pathSuffix="mp3"
-                      id="org.apache.nutch.parse.mp3.MP3Parser"
-                      contentType="audio/mpeg"/>
+                      id="org.apache.nutch.parse.mp3.MP3Parser">
+        <parameter name="pathSuffix"  value="mp3"/>
+        <parameter name="contentType" value="audio/mpeg"/>
+      </implementation>
    </extension>
 
 </plugin>

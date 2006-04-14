@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <plugin
    id="parse-pdf"
    name="Pdf Parse Plug-in"
@@ -24,10 +25,10 @@
               point="org.apache.nutch.parse.Parser">
 
       <implementation id="org.apache.nutch.parse.pdf.PdfParser"
-                      class="org.apache.nutch.parse.pdf.PdfParser"
-                      contentType="application/pdf"
-                      pathSuffix=""/>
-
+                      class="org.apache.nutch.parse.pdf.PdfParser">
+        <parameter name="contentType" value="application/pdf"/>
+        <parameter name="pathSuffix"  value=""/>
+      </implementation>
    </extension>
 
 </plugin>

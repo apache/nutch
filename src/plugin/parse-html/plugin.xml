@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <plugin
    id="parse-html"
    name="Html Parse Plug-in"
@@ -22,9 +23,10 @@
               point="org.apache.nutch.parse.Parser">
 
       <implementation id="org.apache.nutch.parse.html.HtmlParser"
-                      class="org.apache.nutch.parse.html.HtmlParser"
-                      contentType="text/html"
-                      pathSuffix=""/>
+                      class="org.apache.nutch.parse.html.HtmlParser">
+        <parameter name="contentType" value="text/html"/>
+        <parameter name="pathSuffix" value=""/>
+      </implementation>
 
    </extension>
 

@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <plugin
    id="protocol-http"
    name="Http Protocol Plug-in"
@@ -21,8 +22,9 @@
               point="org.apache.nutch.protocol.Protocol">
 
       <implementation id="org.apache.nutch.protocol.http.Http"
-                      class="org.apache.nutch.protocol.http.Http"
-                      protocolName="http"/>
+                      class="org.apache.nutch.protocol.http.Http">
+        <parameter name="protocolName" value="http"/>
+      </implementation>
 
    </extension>
 

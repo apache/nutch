@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <plugin
    id="urlfilter-regex"
    name="Regex URL Filter"
@@ -23,8 +24,9 @@
                       class="org.apache.nutch.urlfilter.regex.RegexURLFilter"/>
       <!-- by default, attribute "file" is undefined, to keep classic behavior.
       <implementation id="RegexURLFilter"
-                      class="org.apache.nutch.net.RegexURLFilter"
-                      file="urlfilter-regex.txt"/>
+                      class="org.apache.nutch.net.RegexURLFilter">
+        <parameter name="file" value="urlfilter-regex.txt"/>
+      </implementation>
       -->
    </extension>
 

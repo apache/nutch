@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <plugin
    id="protocol-ftp"
    name="Ftp Protocol Plug-in"
@@ -21,9 +22,10 @@
               point="org.apache.nutch.protocol.Protocol">
 
       <implementation id="org.apache.nutch.protocol.ftp.Ftp"
-                      class="org.apache.nutch.protocol.ftp.Ftp"
-                      protocolName="ftp"/>
-
+                      class="org.apache.nutch.protocol.ftp.Ftp">
+        <parameter name="protocolName" value="ftp"/>
+      </implementation>
+      
    </extension>
 
 </plugin>

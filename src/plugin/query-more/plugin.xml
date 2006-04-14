@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <plugin
    id="query-more"
    name="More Query Filter"
@@ -19,16 +20,20 @@
               name="Nutch More Query Filter"
               point="org.apache.nutch.searcher.QueryFilter">
       <implementation id="TypeQueryFilter"
-                      class="org.apache.nutch.searcher.more.TypeQueryFilter"
-                      raw-fields="type"/>
+                      class="org.apache.nutch.searcher.more.TypeQueryFilter">
+        <parameter name="raw-fields" value="type"/>
+      </implementation>
+      
    </extension>
 
    <extension id="org.apache.nutch.searcher.more"
               name="Nutch More Query Filter"
               point="org.apache.nutch.searcher.QueryFilter">
       <implementation id="DateQueryFilter"
-                      class="org.apache.nutch.searcher.more.DateQueryFilter"
-                      raw-fields="date"/>
+                      class="org.apache.nutch.searcher.more.DateQueryFilter">
+        <parameter name="raw-fields" value="date"/>
+      </implementation>
+      
    </extension>
 
 </plugin>

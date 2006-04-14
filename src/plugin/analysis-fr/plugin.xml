@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <plugin
    id="analysis-fr"
    name="French Analysis Plug-in"
@@ -21,8 +22,9 @@
               point="org.apache.nutch.analysis.NutchAnalyzer">
 
       <implementation id="org.apache.nutch.analysis.fr.FrenchAnalyzer"
-                      class="org.apache.nutch.analysis.fr.FrenchAnalyzer"
-                      lang="fr"/>
+                      class="org.apache.nutch.analysis.fr.FrenchAnalyzer">
+        <parameter name="lang" value="fr"/>
+      </implementation>
 
    </extension>
 

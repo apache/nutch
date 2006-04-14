@@ -108,7 +108,7 @@ public class TestPluginSystem extends TestCase {
         for (int i = 0; i < extension1.length; i++) {
             Extension extension2 = extension1[i];
             String string = extension2.getAttribute(getGetConfigElementName());
-            assertEquals(string, getAttributeValue());
+            assertEquals(string, getParameterValue());
         }
     }
 
@@ -240,18 +240,31 @@ public class TestPluginSystem extends TestCase {
             throws IOException {
         FileWriter out = new FileWriter(pFolderPath + File.separator
                 + "plugin.xml");
-        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><!--this is just a simple plugin for testing issues.--><nutch-plugin id=\"org.apache.nutch.plugin."
+        String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" 
+                + "<!--this is just a simple plugin for testing issues.-->"
+                + "<plugin id=\"org.apache.nutch.plugin."
                 + i
                 + "\" name=\""
                 + i
-                + "\" version=\"1.0\" provider-name=\"joa23\" class=\"org.apache.nutch.plugin.SimpleTestPlugin\"><extension-point id=\"aExtensioID\" name=\"simple Parser Extension\" schema=\"schema/testExtensionPoint.exsd\"/><runtime><library name=\"libs/exported.jar\"><extport/></library><library name=\"libs/not_exported.jar\"/></runtime><extension point=\"aExtensioID\"><implementation  name=\"simple Parser Extension\" id=\"aExtensionId.\" class=\"org.apache.nutch.plugin.HelloWorldExtension\"/></extension></nutch-plugin>";
+                + "\" version=\"1.0\" provider-name=\"joa23\" "
+                + "class=\"org.apache.nutch.plugin.SimpleTestPlugin\">"
+                + "<extension-point id=\"aExtensioID\" "
+                + "name=\"simple Parser Extension\" "
+                + "schema=\"schema/testExtensionPoint.exsd\"/>"
+                + "<runtime><library name=\"libs/exported.jar\"><extport/></library>"
+                + "<library name=\"libs/not_exported.jar\"/></runtime>"
+                + "<extension point=\"aExtensioID\">"
+                + "<implementation name=\"simple Parser Extension\" "
+                + "id=\"aExtensionId.\" class=\"org.apache.nutch.plugin.HelloWorldExtension\">"
+                + "<parameter name=\"dummy-name\" value=\"a simple param value\"/>"
+                + "</implementation></extension></plugin>";
         out.write(xml);
         out.flush();
         out.close();
     }
 
-    private String getAttributeValue() {
-        return "simple Parser Extension";
+    private String getParameterValue() {
+        return "a simple param value";
     }
 
     private static String getGetExtensionId() {
@@ -259,7 +272,7 @@ public class TestPluginSystem extends TestCase {
     }
 
     private static String getGetConfigElementName() {
-        return "name";
+        return "dummy-name";
     }
 
     public static void main(String[] args) throws IOException {

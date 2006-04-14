@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <plugin
    id="query-site"
    name="Site Query Filter"
@@ -19,8 +20,10 @@
               name="Nutch Site Query Filter"
               point="org.apache.nutch.searcher.QueryFilter">
       <implementation id="SiteQueryFilter"
-                      class="org.apache.nutch.searcher.site.SiteQueryFilter"
-                      raw-fields="site"/>
+                      class="org.apache.nutch.searcher.site.SiteQueryFilter">
+        <parameter name="raw-fields" value="site"/>
+      </implementation>
+      
    </extension>
 
 </plugin>

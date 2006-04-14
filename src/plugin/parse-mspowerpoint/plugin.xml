@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <plugin
    id="parse-mspowerpoint"
    name="MSPowerPoint Parse Plug-in"
@@ -21,9 +22,10 @@
               name="MSPowerPointParse" 
               point="org.apache.nutch.parse.Parser">
       <implementation id="org.apache.nutch.parse.mspowerpoint.MSPowerPointParser" 
-                      class="org.apache.nutch.parse.mspowerpoint.MSPowerPointParser" 
-                      contentType="application/vnd.ms-powerpoint"
-                      pathSuffix=""/>
+                      class="org.apache.nutch.parse.mspowerpoint.MSPowerPointParser">
+        <parameter name="contentType" value="application/vnd.ms-powerpoint"/>
+        <parameter name="pathSuffix"  value=""/>
+      </implementation>
    </extension>
 
 </plugin>

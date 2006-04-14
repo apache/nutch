@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <plugin
    id="parse-text"
    name="Text Parse Plug-in"
@@ -21,9 +22,10 @@
               point="org.apache.nutch.parse.Parser">
 
       <implementation id="org.apache.nutch.parse.text.TextParser"
-                      class="org.apache.nutch.parse.text.TextParser"
-                      contentType="text/plain"
-                      pathSuffix="txt"/>
+                      class="org.apache.nutch.parse.text.TextParser">
+        <parameter name="contentType" value="text/plain"/>
+        <parameter name="pathSuffix"  value="txt"/>
+      </implementation>
 
    </extension>
 
