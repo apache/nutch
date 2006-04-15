@@ -356,7 +356,8 @@
       <group title="Ontology Plugins" packages="${plugins.ontology}"/>
       <group title="Misc. Plugins" packages="${plugins.misc}"/>
     </javadoc>
-
+    <!-- Clean the doc-files dir from src -->
+    <delete dir="${src.dir}/org/apache/nutch/plugin/doc-files"/>
   </target>	
 	
   <target name="default-doc">
