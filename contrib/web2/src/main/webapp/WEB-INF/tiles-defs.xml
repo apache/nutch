@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 1.1//EN" "dtd/tiles-config_1_1.dtd">
+<tiles-definitions>
+	<definition name=".configurable">
+		<put name="style" value="/include/style.html" />
+	</definition>
+	<definition name=".layout" extends=".configurable"
+		path="/WEB-INF/jsp/template.jsp">
+		<put name="title" value="title" />
+		<put name="header" value=".header" />
+		<put name="footer" value="/WEB-INF/jsp/footer.jsp" />
+	</definition>
+	<!-- Search page -->
+	<definition name="searchPage" extends=".layout"
+		controllerClass="org.apache.nutch.webapp.controller.SearchController">
+		<put name="title" value="search.title" />
+		<put name="pageBody" value="/WEB-INF/jsp/search.jsp" />
+	</definition>
+	<!-- Cached -->
+	<definition name="cachedPage" path="/WEB-INF/jsp/cached.jsp">
+		<put name="title" value="cached.title" />
+	</definition>
+	<!-- Explain -->
+	<definition name="explainPage" extends=".layout"
+		controllerClass="org.apache.nutch.webapp.controller.ExplainController">
+		<put name="pageBody" value="/WEB-INF/jsp/explain.jsp" />
+		<put name="title" value="explain.title" />
+	</definition>
+	<!-- Anchors -->
+	<definition name="anchorsPage" extends=".layout"
+		controllerClass="org.apache.nutch.webapp.controller.AnchorsController">
+		<put name="pageBody" value="/WEB-INF/jsp/anchors.jsp" />
+		<put name="title" value="anchors.title" />
+	</definition>
+	<!-- Tile that displays the search results -->
+	<definition name="results" path="/WEB-INF/jsp/results.jsp">
+	</definition>
+	<definition name="more" path="/WEB-INF/jsp/more.jsp" />
+	<!-- Tile that displays the search result navigation -->
+	<definition name="navigate" path="/WEB-INF/jsp/navigate.jsp" />
+	<definition name=".header" extends=".configurable"
+		path="/WEB-INF/jsp/header.jsp"
+		controllerClass="org.apache.nutch.webapp.controller.I18NPageController" />
+	<definition name="localizedPage" extends=".layout"
+		controllerClass="org.apache.nutch.webapp.controller.I18NPageController">
+		<put name="pageBody" value="/WEB-INF/jsp/i18ncontent.jsp" />
+	</definition>
+	<!-- Help -->
+	<definition name="helpPage" extends="localizedPage">
+		<put name="basePage" value="/help.html" />
+	</definition>
+	<!-- About -->
+	<definition name="aboutPage" extends="localizedPage">
+		<put name="basePage" value="/about.html" />
+	</definition>
+	<!-- Front page -->
+	<definition name="frontPage" extends="localizedPage">
+		<put name="basePage" value="/search.html" />
+	</definition>
+	
+	<!-- No Results -->
+	<definition name="noResults" path="/WEB-INF/jsp/noResults.jsp"/>
+
+	<!-- i18n component -->
+	<definition name="i18nComponent" path="/WEB-INF/jsp/i18ncontent.jsp"
+	controllerClass="org.apache.nutch.webapp.controller.I18NPageController">
+	</definition>
+	
+</tiles-definitions>
