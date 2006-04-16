@@ -1,0 +1,291 @@
+<?xml version="1.0"?>
+<!-- This is a minimal build.xml file to build the
+webapp
+-->
+<project name="nutch-web2">
+
+	<property name="name" value="${ant.project.name}" />
+	<property name="root" value="${basedir}" />
+	<property name="nutch.root" location="${root}/../../" />
+
+
+	<property name="build.dir" location="target" />
+	<property name="build.classes" location="${build.dir}/classes" />
+	<property name="build.test" location="${build.dir}/test" />
+
+	<property name="src.dir" location="${root}/src/main/java" />
+	<property name="src.test" location="${root}/src/test" />
+	<property name="conf.dir" location="${nutch.root}/conf" />
+
+	<property name="deploy.dir" location="target" />
+
+	<property name="docs.src" value="${nutch.root}/src/web"/>
+	<property name="web.src.dir" value="${basedir}/src/main/webapp"/>
+	<property name="docs.dir" value="${build.dir}/${name}/"/>
+  <property name="build.plugins" value="${nutch.root}/build/plugins"/>
+
+	<property file="${nutch.root}/default.properties"/>
+
+	<property name="web.final.name" value="${name}-${version}" />
+
+	<fileset id="lib.jars" dir="." includes="lib/*.jar" />
+
+	<!--
+	Normal classpath
+	-->
+	<path id="classpath">
+		<pathelement location="${build.classes}" />
+		<fileset refid="lib.jars" />
+		<pathelement location="${nutch.root}/build/classes" />
+		<fileset dir="${nutch.root}/lib">
+			<include name="servlet-api.jar" />
+			<include name="hadoop-0.1.1.jar" />
+		</fileset>
+	</path>
+
+	<!--
+	Init
+	-->
+	<target name="init">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${build.classes}" />
+		<mkdir dir="${build.test}" />
+	</target>
+
+	<!--
+	Compile Java files
+	-->
+	<target name="compile" depends="init">
+		<echo message="Compiling ${name}" />
+		<javac encoding="${build.encoding}" srcdir="${src.dir}" includes="**/*.java" destdir="${build.classes}" debug="${javac.debug}" optimize="${javac.optimize}" target="${javac.version}" source="${javac.version}" deprecation="${javac.deprecation}">
+			<classpath refid="classpath" />
+		</javac>
+	</target>
+
+	<target name="compile-core">
+		<ant target="compile-core" inheritall="false" dir="${nutch.root}" />
+		<ant target="compile" />
+	</target>
+
+	<!-- 
+	Make webapp .jar
+	-->
+	<target name="jar" depends="compile">
+		<jar jarfile="${build.dir}/${web.final.name}.jar">
+		<zipfileset dir="${build.classes}"/>
+		<!-- localized resources -->
+		<zipfileset dir="src/main/resources"/>
+		</jar>
+	</target>
+
+	<!--
+		generate the nutch.xml (servlet context) file 
+	-->
+	<target name="generate-context">
+	  <!-- xmlcatalog definition for xslt task -->
+	  <xmlcatalog id="docDTDs">
+	     <dtd publicId="-//W3C//DTD XHTML 1.0 Transitional//EN"            
+	          location="${nutch-root}/xmlcatalog/xhtml1-transitional.dtd"/> 
+	  </xmlcatalog> 
+		<xslt in="${nutch.root}/conf/nutch-default.xml" out="${build.dir}/nutch.xml" style="${nutch.root}/conf/context.xsl">
+			<xmlcatalog refid="docDTDs" />
+			<outputproperty name="indent" value="yes" />
+		</xslt>
+	</target>
+
+	<target name="war" depends="jar, generate-context, generate-pages">
+		<war destfile="${build.dir}/${web.final.name}.war" webxml="src/main/webapp/WEB-INF/web.xml">
+			<fileset dir="${web.src.dir}" excludes="WEB-INF/web.xml"/>
+			<zipfileset dir="${docs.src}" includes="include/*.html" />
+			<zipfileset dir="${build.docs}" includes="*/include/*.html" />
+			<fileset dir="${docs.dir}" />
+			<lib dir="${nutch.root}/lib">
+				<include name="lucene-*.jar" />
+				<include name="hadoop-*.jar" />
+				<include name="commons-lang-*.jar" />
+			</lib>
+
+			<fileset dir="${nutch.root}/docs" includes="img/**"/>
+
+			<!-- webapp .jar -->
+			<lib dir="${build.dir}">
+				<include name="${web.final.name}.jar"/>
+			</lib>
+			<lib dir="lib" includes="*.jar"/>
+
+			<!-- nutch .jar -->
+			<lib dir="${nutch.root}/build">
+				<include name="*.jar" />
+			</lib>
+			<classes dir="${conf.dir}" excludes="**/*.template" />
+<!-- no plugins
+			<zipfileset prefix="WEB-INF/classes/plugins" dir="${build.plugins}" >
+				<exclude name="parse-*/**"/>
+				<exclude name="protocol-*/**"/>
+			</zipfileset>
+			-->
+		</war>
+	</target>
+
+	<!--
+	Deploy to ${deploy.dir}
+	-->
+	<target name="deploy" depends="war">
+		<mkdir dir="${deploy.dir}" />
+		<copy file="${build.dir}/${web.final.name}.war" todir="${deploy.dir}" failonerror="false" />
+	</target>
+	
+	<!--
+	Compile test code
+	-->
+	<target name="compile-test" depends="compile" if="test.available">
+		<javac encoding="${build.encoding}" srcdir="${src.test}" includes="**/*.java" destdir="${build.test}" debug="${javac.debug}" optimize="${javac.optimize}" target="${javac.version}" source="${javac.version}" deprecation="${javac.deprecation}">
+			<classpath refid="test.classpath" />
+		</javac>
+	</target>
+
+	<!--
+	Run unit tests
+	-->
+	<target name="test" depends="compile-test, deploy" if="test.available">
+		<junit printsummary="yes" haltonfailure="no" fork="yes" errorProperty="tests.failed" failureProperty="tests.failed">
+			<sysproperty key="test.data" value="${build.test}/data" />
+			<sysproperty key="test.input" value="${root}/data" />
+			<classpath refid="test.classpath" />
+			<formatter type="plain" />
+			<batchtest todir="${build.test}" unless="testcase">
+				<fileset dir="${src.test}" includes="**/Test*.java" excludes="**/${test.exclude}.java" />
+			</batchtest>
+			<batchtest todir="${build.test}" if="testcase">
+				<fileset dir="${src.test}" includes="**/${testcase}.java" />
+			</batchtest>
+		</junit>
+
+		<fail if="tests.failed">Tests failed!</fail>
+
+	</target>
+
+	<!--
+	Clean.  Delete the build files, and their directories
+	-->
+	<target name="clean">
+		<delete dir="${build.dir}" />
+		<delete dir="${deploy.dir}" />
+	</target>
+
+  <target name="generate-locale" if="doc.locale">
+    <echo message="Generating docs for locale=${doc.locale}"/>
+
+    <mkdir dir="${build.docs}/${doc.locale}/include"/>
+    <xslt in="${docs.src}/include/${doc.locale}/header.xml"
+          out="${build.docs}/${doc.locale}/include/header.html"
+          style="res/nutch-header.xsl">
+        <xmlcatalog refid="docDTDs"/>
+    </xslt>
+
+    <dependset>
+       <srcfileset dir="${docs.src}/include/${doc.locale}" includes="*.xml"/>
+       <srcfileset dir="${docs.src}/style" includes="*.xsl"/>
+       <targetfileset dir="${docs.dir}/${doc.locale}" includes="*.html"/>
+    </dependset>  
+
+<!--    <copy file="${docs.src}/style/nutch-page.xsl"
+          todir="${build.docs}/${doc.locale}"
+          preservelastmodified="true"/>
+-->
+    <xslt basedir="${docs.src}/pages/${doc.locale}"
+          destdir="${docs.dir}/${doc.locale}"
+          includes="*.xml"
+          style="res/nutch-page.xsl">
+         <xmlcatalog refid="docDTDs"/>
+    </xslt>
+  </target>
+
+
+  <target name="generate-pages" depends="init">
+    <mkdir dir="${build.docs}/include"/>
+    <copy todir="${build.docs}/include">
+      <fileset dir="${docs.src}/include"/>
+    </copy>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="ca"/>
+    </antcall>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="de"/>
+    </antcall>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="en"/>
+    </antcall>
+    
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="es"/>
+    </antcall>
+    
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="fi"/>
+    </antcall>
+    
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="fr"/>
+    </antcall>
+    
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="hu"/>
+    </antcall>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="it"/>
+    </antcall>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="jp"/>
+    </antcall>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="ms"/>
+    </antcall>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="nl"/>
+    </antcall>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="pl"/>
+    </antcall>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="pt"/>
+    </antcall>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="sh"/>
+    </antcall>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="sr"/>
+    </antcall>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="sv"/>
+    </antcall>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="th"/>
+    </antcall>
+
+    <antcall target="generate-locale">
+      <param name="doc.locale" value="zh"/>
+    </antcall>
+
+    <fixcrlf srcdir="${docs.dir}" eol="lf" encoding="utf-8"
+             includes="**/*.html"/>
+
+  	<replace dir="${docs.dir}" token="search.jsp" value="search.do" includes="**/*.html"/>
+  	<replace dir="${docs.dir}" token="../" value="" includes="**/*.html"/>
+  	
+  </target>
+	
+</project>
