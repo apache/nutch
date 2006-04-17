@@ -48,6 +48,7 @@
 	<!-- Help -->
 	<definition name="helpPage" extends="localizedPage">
 		<put name="basePage" value="/help.html" />
+		<put name="title" value="help.title" />
 	</definition>
 	<!-- About -->
 	<definition name="aboutPage" extends="localizedPage">
