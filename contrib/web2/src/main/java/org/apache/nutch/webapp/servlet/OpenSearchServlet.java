@@ -74,6 +74,7 @@ public class OpenSearchServlet extends HttpServlet {
     ServiceLocator locator = ServletContextServiceLocator.getInstance(conf
         .getServletContext());
     bean = locator.getNutchBean();
+    this.conf = locator.getConfiguration();
   }
 
   public void doGet(HttpServletRequest request, HttpServletResponse response)
