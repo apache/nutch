@@ -2,7 +2,7 @@
 <logic:match name="nutchSearch" property="isSearch" value="false">
 	<jsp:useBean id="resultInfo" scope="request" type="String[]" />
 	<form name="search" action="search.do" method="get"><input name="query"
-		size=44
+		size="44"
 		value="<bean:write name="nutchSearch" property="queryString"/>"> <input
 		type="hidden" name="hitsPerPage"
 		value="<bean:write name="nutchSearch" property="hitsPerPage"/>"> <input
