@@ -4,6 +4,10 @@ Release 0.8
 
  1. NUTCH-107 - Typo in plugin/urlfilter-*/plugin.xml. (Stephen Cross).
 
+ 2. NUTCH-108 - Log hosts that exceed generate.max.per.host.
+   (Rod Taylor via cutting)
+
+
 Release 0.7 - 2005-08-17
 
  1. Added support for "type:" in queries. Search results are limited/qualified

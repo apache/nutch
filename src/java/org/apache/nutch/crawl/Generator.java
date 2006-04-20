@@ -127,12 +127,18 @@ public class Generator extends Configured {
         if (maxPerHost > 0) {                     // are we counting hosts?
           String host = new URL(url.toString()).getHost();
           Integer hostCount = (Integer)hostCounts.get(host);
-          if (hostCount != null) {
-            if (hostCount.intValue() >= maxPerHost)
-              continue;                           // too many from host
-            hostCounts.put(host, new Integer(hostCount.intValue()+1));
-          } else {                                // update host count
-            hostCounts.put(host, new Integer(1));
+
+          // increment hostCount
+          hostCount = new Integer(hostCount==null ? 1 : hostCount.intValue()+1);
+          hostCounts.put(host, hostCount);
+
+          // skip URL if above the limit per host.
+          if (hostCount.intValue() > maxPerHost) {
+            if (hostCount.intValue() == maxPerHost + 1) {
+              LOG.info("Host "+ host +" has more than "+ maxPerHost +" URLs."+
+                       " Skipping additional.");
+            }
+            continue;
           }
         }
 
