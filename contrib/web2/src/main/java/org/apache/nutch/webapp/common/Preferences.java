@@ -36,7 +36,7 @@ public class Preferences extends HashMap {
 
   public static final String KEY_RESULTS_PER_PAGE = "R";
 
-  public static final String KEY_RESULTS_PER_DUP = "S";
+  public static final String KEY_HITS_PER_DUP = "S";
 
   public static final String KEY_DUP_FIELD = "D";
 

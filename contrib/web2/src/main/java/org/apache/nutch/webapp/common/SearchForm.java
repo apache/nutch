@@ -45,9 +45,9 @@ public class SearchForm {
    * General HTTP parameter name wich contains hits per page value
    */
   public static final String NAME_HITSPERPAGE = "hitsPerPage";
-
-  public static final String NAME_HITSPERSITE = "hitsPerSite";
-
+  
+  public static final String NAME_HITSPERDUP ="hitsPerDup";
+  
   public static final String NAME_START = "start";
 
   public static final String NAME_QUERYSTRING = "query";
