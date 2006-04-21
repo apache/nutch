@@ -111,7 +111,7 @@ public class SearchResultBean {
     more = "query="
         + URLEncoder.encode(search.getDupField() + ":" + hit.getDedupValue()
             + " " + search.getQueryString(), "UTF8")
-        + search.getForm().getParameterString("UTF8");// "&hitsPerSite=" + 0;
+        + "&" + SearchForm.NAME_HITSPERDUP  + "=0";
 
     return more;
   }

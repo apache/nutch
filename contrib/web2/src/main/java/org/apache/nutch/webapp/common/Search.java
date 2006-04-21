@@ -49,7 +49,7 @@ public class Search {
 
   int startOffset;
 
-  int hitsPerSite;
+  int hitsPerDup;
 
   int hitsPerPage;
 
@@ -158,8 +158,8 @@ public class Search {
     startOffset = parseInt(form.getValueString(SearchForm.NAME_START), 0);
     hitsPerPage = parseInt(form.getValueString(SearchForm.NAME_HITSPERPAGE),
         prefs.getInt(Preferences.KEY_RESULTS_PER_PAGE, 10));
-    hitsPerSite = parseInt(form.getValueString("hitsPerSite"), prefs.getInt(
-        Preferences.KEY_RESULTS_PER_DUP, 2));
+    hitsPerDup = parseInt(form.getValueString(SearchForm.NAME_HITSPERDUP), prefs.getInt(
+        Preferences.KEY_HITS_PER_DUP, 2));
 
     maxHits = hitsPerPage;
 
@@ -200,7 +200,7 @@ public class Search {
    * @return Returns the hitsPerSite.
    */
   public int getHitsPerSite() {
-    return hitsPerSite;
+    return hitsPerDup;
   }
 
   /**
@@ -208,7 +208,7 @@ public class Search {
    *          The hitsPerSite to set.
    */
   protected void setHitsPerSite(int hitsPerSite) {
-    this.hitsPerSite = hitsPerSite;
+    this.hitsPerDup = hitsPerSite;
   }
 
   /**
