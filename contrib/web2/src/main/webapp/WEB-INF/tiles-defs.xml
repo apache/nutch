@@ -54,11 +54,6 @@
 	<definition name="aboutPage" extends="localizedPage">
 		<put name="basePage" value="/about.html" />
 	</definition>
-	<!-- Front page -->
-	<definition name="frontPage" extends="localizedPage">
-		<put name="basePage" value="/search.html" />
-	</definition>
-	
 	<!-- No Results -->
 	<definition name="noResults" path="/WEB-INF/jsp/noResults.jsp"/>
 
