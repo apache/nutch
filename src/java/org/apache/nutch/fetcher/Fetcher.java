@@ -152,7 +152,7 @@ public class Fetcher extends Configured implements MapRunnable {
                     LOG.fine(" - content redirect to " + url);
                   } else {
                     LOG.fine(" - content redirect skipped: " +
-                             (url.equals(newUrl.toString()) ? "to same url" : "filtered"));
+                             (newUrl != null ? "to same url" : "filtered"));
                   }
                 }
                 break;
@@ -169,7 +169,7 @@ public class Fetcher extends Configured implements MapRunnable {
                   LOG.fine(" - protocol redirect to " + url);
                 } else {
                   LOG.fine(" - protocol redirect skipped: " +
-                           (url.equals(newUrl.toString()) ? "to same url" : "filtered"));
+                           (newUrl != null ? "to same url" : "filtered"));
                 }
                 break;
 
