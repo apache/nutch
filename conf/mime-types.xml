@@ -82,9 +82,74 @@
         <ext>ppt</ext>
     </mime-type>
 
+    <mime-type name="application/vnd.oasis.opendocument.presentation"
+               description="OpenDocument Presentation">
+        <ext>odp</ext>
+    </mime-type>
+
+    <mime-type name="application/vnd.oasis.opendocument.presentation-template"
+               description="OpenDocument Presentation Template">
+        <ext>otp</ext>
+    </mime-type>
+
+    <mime-type name="application/vnd.oasis.opendocument.spreadsheet"
+               description="OpenDocument Spreadsheet">
+        <ext>ods</ext>
+    </mime-type>
+
+    <mime-type name="application/vnd.oasis.opendocument.spreadsheet-template"
+               description="OpenDocument Spreadsheet Template">
+        <ext>ots</ext>
+    </mime-type>
+
+    <mime-type name="application/vnd.oasis.opendocument.text"
+               description="OpenDocument Text Document">
+        <ext>odt</ext>
+    </mime-type>
+
+    <mime-type name="application/vnd.oasis.opendocument.text-template"
+               description="OpenDocument Text Document Template">
+        <ext>ott</ext>
+    </mime-type>
+
+    <mime-type name="application/vnd.oasis.opendocument.text-master"
+               description="OpenDocument Text Document Master">
+        <ext>odm</ext>
+    </mime-type>
+
+    <mime-type name="application/vnd.oasis.opendocument.text-web"
+               description="OpenDocument Web Text Document">
+        <ext>odh</ext>
+    </mime-type>
+
+    <mime-type name="application/vnd.sun.xml.calc"
+               description="StarOffice Calc Spreadsheet">
+        <ext>sxc</ext>
+    </mime-type>
+
+    <mime-type name="application/vnd.sun.xml.calc.template"
+               description="StarOffice Calc Spreadsheet Template">
+        <ext>stc</ext>
+    </mime-type>
+
+    <mime-type name="application/vnd.sun.xml.impress"
+               description="StarOffice Impress Presentation">
+        <ext>sxi</ext>
+    </mime-type>
+
+    <mime-type name="application/vnd.sun.xml.impress.template"
+               description="StarOffice Impress Presentation Template">
+        <ext>sti</ext>
+    </mime-type>
+
     <mime-type name="application/vnd.sun.xml.writer"
-               description="OpenOffice.org Text Document">
+               description="StarOffice Text Document">
         <ext>sxw</ext>
+    </mime-type>
+
+    <mime-type name="application/vnd.sun.xml.writer.template"
+               description="StarOffice Text Document Template">
+        <ext>stw</ext>
     </mime-type>
 
     <mime-type name="application/vnd.wap.wbxml">
