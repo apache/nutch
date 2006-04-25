@@ -39,6 +39,7 @@
      <ant dir="parse-msexcel" target="deploy"/>
      <ant dir="parse-mspowerpoint" target="deploy"/>
      <ant dir="parse-msword" target="deploy"/>
+     <ant dir="parse-oo" target="deploy"/>
      <ant dir="parse-pdf" target="deploy"/>
      <ant dir="parse-rss" target="deploy"/>
      <!-- <ant dir="parse-rtf" target="deploy"/> -->
@@ -69,6 +70,7 @@
      <ant dir="parse-msexcel" target="test"/>
      <ant dir="parse-mspowerpoint" target="test"/>
      <ant dir="parse-msword" target="test"/>
+     <ant dir="parse-oo" target="test"/>
      <ant dir="parse-pdf" target="test"/>
      <ant dir="parse-rss" target="test"/>
  <!-- <ant dir="parse-rtf" target="test"/> -->
@@ -113,6 +115,7 @@
     <ant dir="parse-msexcel" target="clean"/>
     <ant dir="parse-mspowerpoint" target="clean"/>
     <ant dir="parse-msword" target="clean"/>
+    <ant dir="parse-oo" target="clean"/>
     <ant dir="parse-pdf" target="clean"/>
     <ant dir="parse-rss" target="clean"/>
     <ant dir="parse-rtf" target="clean"/>

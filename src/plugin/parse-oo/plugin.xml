@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="parse-oo"
+   name="OpenOffice/OpenDocument Parse Plug-in"
+   version="1.0.0"
+   provider-name="nutch.org">
+
+
+   <runtime>
+      <library name="parse-oo.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+      <import plugin="lib-xml"/>
+   </requires>
+
+   <extension id="org.apache.nutch.parse.oo"
+              name="OOParse"
+              point="org.apache.nutch.parse.Parser">
+
+      <!-- Text / Writer -->
+      <implementation id="org.apache.nutch.parse.oo.OpenDocument.Text"
+                      class="org.apache.nutch.parse.oo.OOParser"
+		      contentType="application/vnd.oasis.opendocument.text"
+                      pathSuffix="odt"/>
+      <implementation id="org.apache.nutch.parse.oo.StarOffice.Writer"
+                      class="org.apache.nutch.parse.oo.OOParser"
+		      contentType="application/vnd.sun.xml.writer"
+                      pathSuffix="sxw"/>
+      <!-- Text / Writer Template -->
+      <implementation id="org.apache.nutch.parse.oo.OpenDocument.TextTemplate"
+                      class="org.apache.nutch.parse.oo.OOParser"
+		      contentType="application/vnd.oasis.opendocument.text-template"
+                      pathSuffix="ott"/>
+      <implementation id="org.apache.nutch.parse.oo.StarOffice.WriterTemplate"
+                      class="org.apache.nutch.parse.oo.OOParser"
+		      contentType="application/vnd.sun.xml.writer.template"
+                      pathSuffix="stw"/>
+      <!-- Text-Web -->
+      <implementation id="org.apache.nutch.parse.oo.OpenDocument.TextWeb"
+                      class="org.apache.nutch.parse.oo.OOParser"
+		      contentType="application/vnd.oasis.opendocument.text-web"
+                      pathSuffix="odh"/>
+      <!-- Text-Master -->
+      <implementation id="org.apache.nutch.parse.oo.OpenDocument.TextMaster"
+                      class="org.apache.nutch.parse.oo.OOParser"
+		      contentType="application/vnd.oasis.opendocument.text-master"
+                      pathSuffix="odm"/>
+      <!-- Spreadsheet / Calc -->
+      <implementation id="org.apache.nutch.parse.oo.OpenDocument.Spreadsheet"
+                      class="org.apache.nutch.parse.oo.OOParser"
+		      contentType="application/vnd.oasis.opendocument.spreadsheet"
+                      pathSuffix="ods"/>
+      <implementation id="org.apache.nutch.parse.oo.StarOffice.Calc"
+                      class="org.apache.nutch.parse.oo.OOParser"
+		      contentType="application/vnd.sun.xml.calc"
+                      pathSuffix="sxc"/>
+      <!-- Spreadsheet / Calc Template -->
+      <implementation id="org.apache.nutch.parse.oo.OpenDocument.SpreadsheetTemplate"
+                      class="org.apache.nutch.parse.oo.OOParser"
+		      contentType="application/vnd.oasis.opendocument.spreadsheet-template"
+                      pathSuffix="ots"/>
+      <implementation id="org.apache.nutch.parse.oo.StarOffice.CalcTemplate"
+                      class="org.apache.nutch.parse.oo.OOParser"
+		      contentType="application/vnd.sun.xml.calc.template"
+                      pathSuffix="stc"/>
+      <!-- Presentation / Impress -->
+      <implementation id="org.apache.nutch.parse.oo.OpenDocument.Presentation"
+                      class="org.apache.nutch.parse.oo.OOParser"
+		      contentType="application/vnd.oasis.opendocument.presentation"
+                      pathSuffix="odp"/>
+      <implementation id="org.apache.nutch.parse.oo.StarOffice.Impress"
+                      class="org.apache.nutch.parse.oo.OOParser"
+		      contentType="application/vnd.sun.xml.impress"
+                      pathSuffix="sxi"/>
+      <!-- Presentation / Impress Template -->
+      <implementation id="org.apache.nutch.parse.oo.OpenDocument.PresentationTemplate"
+                      class="org.apache.nutch.parse.oo.OOParser"
+		      contentType="application/vnd.oasis.opendocument.presentation-template"
+                      pathSuffix="otp"/>
+      <implementation id="org.apache.nutch.parse.oo.StarOffice.ImpressTemplate"
+                      class="org.apache.nutch.parse.oo.OOParser"
+		      contentType="application/vnd.sun.xml.impress.template"
+                      pathSuffix="sti"/>
+
+   </extension>
+
+</plugin>

@@ -57,6 +57,62 @@
 		<plugin id="parse-mspowerpoint" />
 	</mimeType>
 
+	<mimeType name="application/vnd.oasis.opendocument.text">
+		<plugin id="parse-oo" />
+	</mimeType>
+
+	<mimeType name="application/vnd.oasis.opendocument.text-template">
+		<plugin id="parse-oo" />
+	</mimeType>
+
+	<mimeType name="application/vnd.oasis.opendocument.text-master">
+		<plugin id="parse-oo" />
+	</mimeType>
+
+	<mimeType name="application/vnd.oasis.opendocument.text-web">
+		<plugin id="parse-oo" />
+	</mimeType>
+
+	<mimeType name="application/vnd.oasis.opendocument.presentation">
+		<plugin id="parse-oo" />
+	</mimeType>
+
+	<mimeType name="application/vnd.oasis.opendocument.presentation-template">
+		<plugin id="parse-oo" />
+	</mimeType>
+
+	<mimeType name="application/vnd.oasis.opendocument.spreadsheet">
+		<plugin id="parse-oo" />
+	</mimeType>
+
+	<mimeType name="application/vnd.oasis.opendocument.spreadsheet-template">
+		<plugin id="parse-oo" />
+	</mimeType>
+
+	<mimeType name="application/vnd.sun.xml.calc">
+		<plugin id="parse-oo" />
+	</mimeType>
+
+	<mimeType name="application/vnd.sun.xml.calc.template">
+		<plugin id="parse-oo" />
+	</mimeType>
+
+	<mimeType name="application/vnd.sun.xml.impress">
+		<plugin id="parse-oo" />
+	</mimeType>
+
+	<mimeType name="application/vnd.sun.xml.impress.template">
+		<plugin id="parse-oo" />
+	</mimeType>
+
+	<mimeType name="application/vnd.sun.xml.writer">
+		<plugin id="parse-oo" />
+	</mimeType>
+
+	<mimeType name="application/vnd.sun.xml.writer.template">
+		<plugin id="parse-oo" />
+	</mimeType>
+
 	<mimeType name="application/vnd.wap.wbxml">
 		<plugin id="parse-text" />
 	</mimeType>
