@@ -121,11 +121,11 @@ public class CrawlDatum implements WritableComparable, Cloneable {
    public void setMetaData(MapWritable mapWritable) {this.metaData = mapWritable; }
 
   /**
-   * returns a MapWritable if it was set or read @see readFields(DataInput), 
-   * returns null in case CrawlDatum was freshly generated or an empty map 
-   * in case CrawlDatum is a recycled instance.
+   * returns a MapWritable if it was set or read in @see readFields(DataInput), 
+   * returns empty map in case CrawlDatum was freshly created (lazily instantiated).
    */
   public MapWritable getMetaData() {
+    if (this.metaData == null) this.metaData = new MapWritable();
     return this.metaData;
   }
   
@@ -291,6 +291,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     buf.append("Retry interval: " + getFetchInterval() + " days\n");
     buf.append("Score: " + getScore() + "\n");
     buf.append("Signature: " + StringUtil.toHexString(getSignature()) + "\n");
+    buf.append("Metadata: " + (metaData != null ? metaData.toString() : "null") + "\n");
     return buf.toString();
   }
 
@@ -298,7 +299,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     if (!(o instanceof CrawlDatum))
       return false;
     CrawlDatum other = (CrawlDatum)o;
-    return
+    boolean res =
       (this.status == other.status) &&
       (this.fetchTime == other.fetchTime) &&
       (this.modifiedTime == other.modifiedTime) &&
@@ -306,6 +307,19 @@ public class CrawlDatum implements WritableComparable, Cloneable {
       (this.fetchInterval == other.fetchInterval) &&
       (SignatureComparator._compare(this.signature, other.signature) == 0) &&
       (this.score == other.score);
+    if (!res) return res;
+    // allow zero-sized metadata to be equal to null metadata
+    if (this.metaData == null) {
+      if (other.metaData != null && other.metaData.size() > 0) return false;
+      else return true;
+    } else {
+      if (other.metaData == null) {
+        if (this.metaData.size() == 0) return true;
+        else return false;
+      } else {
+        return this.metaData.equals(other.metaData);
+      }
+    }
   }
 
   public int hashCode() {
@@ -316,6 +330,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
                 signature[i+2] << 8 + signature[i+3]);
       }
     }
+    if (metaData != null) res ^= metaData.hashCode();
     return
       res ^ status ^
       ((int)fetchTime) ^
