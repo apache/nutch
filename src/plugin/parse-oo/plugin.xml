@@ -23,68 +23,95 @@
 
       <!-- Text / Writer -->
       <implementation id="org.apache.nutch.parse.oo.OpenDocument.Text"
-                      class="org.apache.nutch.parse.oo.OOParser"
-		      contentType="application/vnd.oasis.opendocument.text"
-                      pathSuffix="odt"/>
+                      class="org.apache.nutch.parse.oo.OOParser">
+        <parameter name="contentType" value="application/vnd.oasis.opendocument.text"/>
+        <parameter name="pathSuffix"  value="odt"/>
+      </implementation>
+
       <implementation id="org.apache.nutch.parse.oo.StarOffice.Writer"
-                      class="org.apache.nutch.parse.oo.OOParser"
-		      contentType="application/vnd.sun.xml.writer"
-                      pathSuffix="sxw"/>
+                      class="org.apache.nutch.parse.oo.OOParser">
+        <parameter name="contentType" value="application/vnd.sun.xml.writer"/>
+        <parameter name="pathSuffix"  value="sxw"/>
+      </implementation>
+
       <!-- Text / Writer Template -->
       <implementation id="org.apache.nutch.parse.oo.OpenDocument.TextTemplate"
-                      class="org.apache.nutch.parse.oo.OOParser"
-		      contentType="application/vnd.oasis.opendocument.text-template"
-                      pathSuffix="ott"/>
+                      class="org.apache.nutch.parse.oo.OOParser">
+        <parameter name="contentType" value="application/vnd.oasis.opendocument.text-template"/>
+        <parameter name="pathSuffix"  value="ott"/>
+      </implementation>
+
       <implementation id="org.apache.nutch.parse.oo.StarOffice.WriterTemplate"
-                      class="org.apache.nutch.parse.oo.OOParser"
-		      contentType="application/vnd.sun.xml.writer.template"
-                      pathSuffix="stw"/>
+                      class="org.apache.nutch.parse.oo.OOParser">
+        <parameter name="contentType" value="application/vnd.sun.xml.writer.template"/>
+        <parameter name="pathSuffix"  value="stw"/>
+      </implementation>
+
       <!-- Text-Web -->
       <implementation id="org.apache.nutch.parse.oo.OpenDocument.TextWeb"
-                      class="org.apache.nutch.parse.oo.OOParser"
-		      contentType="application/vnd.oasis.opendocument.text-web"
-                      pathSuffix="odh"/>
+                      class="org.apache.nutch.parse.oo.OOParser">
+        <parameter name="contentType" value="application/vnd.oasis.opendocument.text-web"/>
+        <parameter name="pathSuffix"  value="odh"/>
+      </implementation>
+
       <!-- Text-Master -->
       <implementation id="org.apache.nutch.parse.oo.OpenDocument.TextMaster"
-                      class="org.apache.nutch.parse.oo.OOParser"
-		      contentType="application/vnd.oasis.opendocument.text-master"
-                      pathSuffix="odm"/>
+                      class="org.apache.nutch.parse.oo.OOParser">
+        <parameter name="contentType" value="application/vnd.oasis.opendocument.text-master"/>
+        <parameter name="pathSuffix"  value="odm"/>
+      </implementation>
+
       <!-- Spreadsheet / Calc -->
       <implementation id="org.apache.nutch.parse.oo.OpenDocument.Spreadsheet"
-                      class="org.apache.nutch.parse.oo.OOParser"
-		      contentType="application/vnd.oasis.opendocument.spreadsheet"
-                      pathSuffix="ods"/>
+                      class="org.apache.nutch.parse.oo.OOParser">
+        <parameter name="contentType" value="application/vnd.oasis.opendocument.spreadsheet"/>
+        <parameter name="pathSuffix"  value="ods"/>
+      </implementation>
+
       <implementation id="org.apache.nutch.parse.oo.StarOffice.Calc"
-                      class="org.apache.nutch.parse.oo.OOParser"
-		      contentType="application/vnd.sun.xml.calc"
-                      pathSuffix="sxc"/>
+                      class="org.apache.nutch.parse.oo.OOParser">
+        <parameter name="contentType" value="application/vnd.sun.xml.calc"/>
+        <parameter name="pathSuffix"  value="sxc"/>
+      </implementation>
+
       <!-- Spreadsheet / Calc Template -->
       <implementation id="org.apache.nutch.parse.oo.OpenDocument.SpreadsheetTemplate"
-                      class="org.apache.nutch.parse.oo.OOParser"
-		      contentType="application/vnd.oasis.opendocument.spreadsheet-template"
-                      pathSuffix="ots"/>
+                      class="org.apache.nutch.parse.oo.OOParser">
+        <parameter name="contentType" value="application/vnd.oasis.opendocument.spreadsheet-template"/>
+        <parameter name="pathSuffix"  value="ots"/>
+      </implementation>
+
       <implementation id="org.apache.nutch.parse.oo.StarOffice.CalcTemplate"
-                      class="org.apache.nutch.parse.oo.OOParser"
-		      contentType="application/vnd.sun.xml.calc.template"
-                      pathSuffix="stc"/>
+                      class="org.apache.nutch.parse.oo.OOParser">
+        <parameter name="contentType" value="application/vnd.sun.xml.calc.template"/>
+        <parameter name="pathSuffix"  value="stc"/>
+      </implementation>
+
       <!-- Presentation / Impress -->
       <implementation id="org.apache.nutch.parse.oo.OpenDocument.Presentation"
-                      class="org.apache.nutch.parse.oo.OOParser"
-		      contentType="application/vnd.oasis.opendocument.presentation"
-                      pathSuffix="odp"/>
+                      class="org.apache.nutch.parse.oo.OOParser">
+        <parameter name="contentType" value="application/vnd.oasis.opendocument.presentation"/>
+        <parameter name="pathSuffix"  value="odp"/>
+      </implementation>
+
       <implementation id="org.apache.nutch.parse.oo.StarOffice.Impress"
-                      class="org.apache.nutch.parse.oo.OOParser"
-		      contentType="application/vnd.sun.xml.impress"
-                      pathSuffix="sxi"/>
+                      class="org.apache.nutch.parse.oo.OOParser">
+        <parameter name="contentType" value="application/vnd.sun.xml.impress"/>
+        <parameter name="pathSuffix"  value="sxi"/>
+      </implementation>
+
       <!-- Presentation / Impress Template -->
       <implementation id="org.apache.nutch.parse.oo.OpenDocument.PresentationTemplate"
-                      class="org.apache.nutch.parse.oo.OOParser"
-		      contentType="application/vnd.oasis.opendocument.presentation-template"
-                      pathSuffix="otp"/>
+                      class="org.apache.nutch.parse.oo.OOParser">
+        <parameter name="contentType" value="application/vnd.oasis.opendocument.presentation-template"/>
+        <parameter name="pathSuffix"  value="otp"/>
+      </implementation>
+
       <implementation id="org.apache.nutch.parse.oo.StarOffice.ImpressTemplate"
-                      class="org.apache.nutch.parse.oo.OOParser"
-		      contentType="application/vnd.sun.xml.impress.template"
-                      pathSuffix="sti"/>
+                      class="org.apache.nutch.parse.oo.OOParser">
+        <parameter name="contentType" value="application/vnd.sun.xml.impress.template"/>
+        <parameter name="pathSuffix"  value="sti"/>
+      </implementation>
 
    </extension>
 
