@@ -313,6 +313,7 @@
       <packageset dir="${plugins.dir}/parse-msexcel/src/java"/>
       <packageset dir="${plugins.dir}/parse-mspowerpoint/src/java"/>
       <packageset dir="${plugins.dir}/parse-msword/src/java"/>
+      <packageset dir="${plugins.dir}/parse-oo/src/java"/>
       <packageset dir="${plugins.dir}/parse-rss/src/java"/>
       <packageset dir="${plugins.dir}/parse-swf/src/java"/>
       <packageset dir="${plugins.dir}/parse-zip/src/java"/>
