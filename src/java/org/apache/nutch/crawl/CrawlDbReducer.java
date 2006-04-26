@@ -67,11 +67,10 @@ public class CrawlDbReducer implements Reducer {
     result.set(highest);
     if (old != null) {
       // copy metadata from old, if exists
-      if (old.getMetaData() != null) {
-        if (result.getMetaData() == null) result.setMetaData(new MapWritable());
+      if (old.getMetaData().size() > 0) {
         result.getMetaData().putAll(old.getMetaData());
         // overlay with new, if any
-        if (highest.getMetaData() != null)
+        if (highest.getMetaData().size() > 0)
           result.getMetaData().putAll(highest.getMetaData());
       }
       // set the most recent valid value of modifiedTime
