@@ -279,9 +279,6 @@
   <!-- Documentation                                                      -->
   <!-- ================================================================== -->
   <target name="javadoc" depends="compile">
-    <!-- Copy the plugin.dtd file to the plugin doc-files dir -->
-    <copy file="${plugins.dir}/plugin.dtd"
-          todir="${src.dir}/org/apache/nutch/plugin/doc-files"/>
     <mkdir dir="${build.javadoc}"/>
     <javadoc
       overview="${src.dir}/overview.html"
@@ -356,8 +353,9 @@
       <group title="Ontology Plugins" packages="${plugins.ontology}"/>
       <group title="Misc. Plugins" packages="${plugins.misc}"/>
     </javadoc>
-    <!-- Clean the doc-files dir from src -->
-    <delete dir="${src.dir}/org/apache/nutch/plugin/doc-files"/>
+    <!-- Copy the plugin.dtd file to the plugin doc-files dir -->
+    <copy file="${plugins.dir}/plugin.dtd"
+          todir="${build.javadoc}/org/apache/nutch/plugin/doc-files"/>
   </target>	
 	
   <target name="default-doc">
