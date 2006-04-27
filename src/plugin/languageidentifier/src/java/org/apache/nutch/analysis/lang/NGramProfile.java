@@ -187,6 +187,7 @@ public class NGramProfile {
     if (ngrams != null) {
       ngrams.clear();
       sorted = null;
+      ngramcounts = null;
     }
 
     word.clear().append(SEPARATOR);
