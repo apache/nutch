@@ -22,4 +22,11 @@
     <ant target="deploy" inheritall="false" dir="../nutch-extensionpoints"/>
   </target>
 
+  <!-- for junit test -->
+  <copy todir="${build.test}/data">
+    <fileset dir="sample">
+      <include name="ootest.*"/>
+    </fileset>
+  </copy>
+
 </project>
