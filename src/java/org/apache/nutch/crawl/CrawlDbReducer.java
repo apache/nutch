@@ -19,11 +19,16 @@ package org.apache.nutch.crawl;
 import java.util.Iterator;
 import java.io.IOException;
 
+import java.util.logging.*;
+
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.util.LogFormatter;
 
 /** Merge new page entries with existing entries. */
 public class CrawlDbReducer implements Reducer {
+  public static final Logger LOG =
+    LogFormatter.getLogger("org.apache.nutch.crawl.CrawlDbReducer");
   private int retryMax;
   private CrawlDatum result = new CrawlDatum();
 
@@ -102,6 +107,9 @@ public class CrawlDbReducer implements Reducer {
       result.setNextFetchTime();
       break;
 
+    case CrawlDatum.STATUS_SIGNATURE:
+      LOG.warning("Lone CrawlDatum.STATUS_SIGNATURE: " + key);   
+      return;
     case CrawlDatum.STATUS_FETCH_RETRY:           // temporary failure
       if (old != null)
         result.setSignature(old.getSignature());  // use old signature
@@ -119,7 +127,7 @@ public class CrawlDbReducer implements Reducer {
       break;
 
     default:
-      throw new RuntimeException("Unknown status: "+highest.getStatus());
+      throw new RuntimeException("Unknown status: " + highest.getStatus() + " " + key);
     }
     
     result.setScore(result.getScore() + scoreIncrement);
