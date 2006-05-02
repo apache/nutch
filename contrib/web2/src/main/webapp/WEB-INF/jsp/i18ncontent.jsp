@@ -1,2 +1,2 @@
 <%@ include file="common.jsp" %>
-<bean:write name="content" scope="request" filter="false"/>
+<c:out value="${content}" escapeXml="false"/>

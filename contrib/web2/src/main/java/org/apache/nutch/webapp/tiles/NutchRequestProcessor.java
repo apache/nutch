@@ -17,10 +17,10 @@ package org.apache.nutch.webapp.tiles;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.jsp.jstl.core.Config;
 
 import org.apache.nutch.webapp.common.ServiceLocator;
 import org.apache.nutch.webapp.common.WebappInstanceServiceLocator;
-import org.apache.struts.Globals;
 import org.apache.struts.tiles.TilesRequestProcessor;
 
 public class NutchRequestProcessor extends TilesRequestProcessor {
@@ -37,8 +37,9 @@ public class NutchRequestProcessor extends TilesRequestProcessor {
 
     if(locator==null) {
       locator=new WebappInstanceServiceLocator(request, getServletContext());
+      WebappInstanceServiceLocator.register(request, (WebappInstanceServiceLocator)locator);
     } 
 
-    request.setAttribute(Globals.LOCALE_KEY, locator.getLocale());
+    Config.set(request, Config.FMT_LOCALE, locator.getLocale());
   }
 }

@@ -41,6 +41,9 @@ webapp
 			<include name="servlet-api.jar" />
 			<include name="hadoop-0.1.1.jar" />
 		</fileset>
+		<fileset dir="${nutch.root}/lib/jetty-ext">
+			<include name="jsp-api.jar" />
+		</fileset>
 	</path>
 
 	<!--
@@ -283,6 +286,7 @@ webapp
     <fixcrlf srcdir="${docs.dir}" eol="lf" encoding="utf-8"
              includes="**/*.html"/>
 
+  	<replace dir="${docs.dir}" token="help.html" value="help.do" includes="**/*.html"/>
   	<replace dir="${docs.dir}" token="search.jsp" value="search.do" includes="**/*.html"/>
   	<replace dir="${docs.dir}" token="../" value="" includes="**/*.html"/>
   	
