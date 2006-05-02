@@ -15,12 +15,17 @@
  */
 package org.apache.nutch.webapp.common;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Locale;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.nutch.html.Entities;
 
 /**
  * Preferences represents (extendable) configuration object that is persistable
@@ -39,6 +44,9 @@ public class Preferences extends HashMap {
   public static final String KEY_HITS_PER_DUP = "S";
 
   public static final String KEY_DUP_FIELD = "D";
+  
+  static final String KEYVALSEPARATOR="_";
+  static final String VALVALSEPARATOR="-";
 
   // Name of web ui cookie that stores users cutomized user preferences
   public static String COOKIE_NAME = "NUTCH";
@@ -60,7 +68,7 @@ public class Preferences extends HashMap {
    */
   public Locale getLocale(HttpServletRequest request) {
     if (containsKey(KEY_LOCALE))
-      return new Locale((String) defaults.get(KEY_LOCALE));
+      return new Locale((String) get(KEY_LOCALE));
     else
       return request.getLocale();
   }
@@ -68,8 +76,10 @@ public class Preferences extends HashMap {
   public static void setPreferencesCookie(HttpServletRequest request,
       HttpServletResponse response, Preferences prefs) {
     if (defaults.equals(prefs)) {
+      System.out.println("default qeuals prefs, removing");
       removeCookie(response);
     } else {
+      System.out.println("setting preferences to cookie");
       setPreferencesCookie(response, prefs);
     }
   }
@@ -107,19 +117,30 @@ public class Preferences extends HashMap {
   }
 
   public static Preferences parse(String data) {
+    return parse(data,VALVALSEPARATOR, KEYVALSEPARATOR);
+  }
+
+  public static Preferences parse(String data, String valueValueSeparator, String keyValueSeparator) {
+
+    System.out.println("data:" + data);
     Preferences p = new Preferences();
     p.putAll(defaults);
-    String[] dataitems = data.split(",");
+    String[] dataitems = data.split(valueValueSeparator);
+    System.out.println(dataitems.length + " dataitems submitted");
     for (int i = 0; i < dataitems.length; i++) {
-      String keyvalue[] = dataitems[0].split("=");
+      String keyvalue[] = dataitems[i].split(keyValueSeparator);
       if (keyvalue.length == 2) {
-        p.put(keyvalue[0], keyvalue[1]);
-        break;
+        try {
+          System.out.println("adding:" +  keyvalue[0] + "=" + keyvalue[1]);
+          p.put(keyvalue[0], URLDecoder.decode((String)keyvalue[1],"UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+          e.printStackTrace();
+        }
       }
     }
     return p;
   }
-
+  
   public int getInt(String name, int defaultVal) {
     try {
       return get(name) == null ? defaultVal : Integer
@@ -142,11 +163,17 @@ public class Preferences extends HashMap {
     Object[] keys = keySet().toArray();
 
     for (int i = 0; i < keys.length; i++) {
-      txt.append(keys[i].toString()).append("=").append(get(keys[i]));
+      try {
+        txt.append(keys[i].toString()).append(KEYVALSEPARATOR).append(URLEncoder.encode((String)get(keys[i]),"UTF-8"));
+      } catch (UnsupportedEncodingException e) {
+        e.printStackTrace();
+      }
       if (i < keys.length - 1)
-        txt.append(",");
+        txt.append(VALVALSEPARATOR);
     }
 
+    System.out.println("toString():" + txt.toString());
+    
     return txt.toString();
   }
 
