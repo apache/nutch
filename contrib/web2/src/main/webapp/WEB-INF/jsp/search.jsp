@@ -1,28 +1,28 @@
 <%@ include file="common.jsp"%>
-<logic:match name="nutchSearch" property="isSearch" value="false">
-	<jsp:useBean id="resultInfo" scope="request" type="String[]" />
+<c:if test="${nutchSearch.isSearch == true}">
 	<form name="search" action="search.do" method="get"><input name="query"
-		size="44"
-		value="<bean:write name="nutchSearch" property="queryString"/>"> <input
-		type="hidden" name="hitsPerPage"
-		value="<bean:write name="nutchSearch" property="hitsPerPage"/>"> <input
-		type="submit" value="<bean:message key="search.search" />"> <a
-		href="help.do"><bean:message key="search.help" /></a></form>
-	<logic:match name="nutchSearch" property="hasResults" value="true">
-		<bean:message key="search.hits" arg0="<%=resultInfo[0]%>"
-			arg1="<%=resultInfo[1]%>" arg2="<%=resultInfo[2]%>"
-			arg3="<%=resultInfo[3]%>" />
+		size="44" value="<c:out value="${nutchSearch.queryString}"/>">
+		<input
+		type="submit" value="<fmt:message key="search.search"/>"> <a
+		href="help.do"><fmt:message key="search.help" /></a></form>
+	<c:if test="${nutchSearch.hasResults == true }">
+		<fmt:message key="search.hits">
+			<fmt:param value="${resultInfo[0]}" />
+			<fmt:param value="${resultInfo[1]}" />
+			<fmt:param value="${resultInfo[2]}" />
+			<fmt:param value="${resultInfo[3]}" />
+		</fmt:message>
 		<br />
 		<tiles:insert name="results" />
 		<tiles:insert name="cluster" />
 		<tiles:insert name="navigate" />
-	</logic:match>
-	<logic:notMatch name="nutchSearch" property="hasResults" value="true">
+	</c:if>
+	<c:if test="${nutchSearch.hasResults == false }">
 		<tiles:insert name="noResults" />
-	</logic:notMatch>
-</logic:match>
-<logic:notMatch name="nutchSearch" property="isSearch" value="false">
+	</c:if>
+</c:if>
+<c:if test="${nutchSearch.isSearch == false}">
 	<tiles:insert name="i18nComponent">
 		<tiles:put name="basePage" value="/search.html" />
 	</tiles:insert>
-</logic:notMatch>
+</c:if>

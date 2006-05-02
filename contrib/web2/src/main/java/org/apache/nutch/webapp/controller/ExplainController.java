@@ -47,5 +47,6 @@ public class ExplainController extends NutchController {
     // put explanation and hitDetails into request so view can access them
     request.setAttribute("explanation", bean.getExplanation(query, hit));
     request.setAttribute("hitDetails", details.toHtml());
+    request.setAttribute("query", query);
   }
 }

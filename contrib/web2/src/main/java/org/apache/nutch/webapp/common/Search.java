@@ -89,24 +89,27 @@ public class Search {
       hits = new Hits(0, new Hit[0]);
     }
 
-    navigationHelper = new NavigationHelper(startOffset, hitsPerPage, hits
-        .getTotal(), hits.totalIsExact());
-
-    // set offset to next page to form so it get's to ui
-    if (navigationHelper.hasNext().booleanValue()) {
-      form.setValue(SearchForm.NAME_START, Long.toString(navigationHelper
-          .getNextStart()));
-    }
-
     LOG.info("form:");
     LOG.info(locator.getSearchForm().toString());
     LOG.info("performing search");
 
-    // found some unused code ?
     int realEnd = (int) Math.min(hits.getLength(), getStartOffset()
         + getMaxHits());
 
+    int endOffset=hits.getLength();
+    
     show = hits.getHits(getStartOffset(), realEnd - getStartOffset());
+
+    
+    
+    navigationHelper = new NavigationHelper(startOffset, endOffset, hitsPerPage, hits
+        .getTotal(), hits.totalIsExact());
+
+    // set offset to next page to form so it get's to ui
+    if (navigationHelper.hasNext()) {
+      form.setValue(SearchForm.NAME_START, Long.toString(navigationHelper
+          .getNextPageStart()));
+    }
 
     try {
       details = bean.getDetails(show);
@@ -393,14 +396,14 @@ public class Search {
   /**
    * @return true if more results available
    */
-  public Boolean getHasNextPage() {
+  public boolean getHasNextPage() {
     return navigationHelper.hasNext();
   }
 
   /**
    * @return true if previous page if available
    */
-  public Boolean getHasPrevPage() {
+  public boolean getHasPrevPage() {
     return navigationHelper.hasPrev();
   }
 
@@ -420,7 +423,13 @@ public class Search {
     return form.getActive();
   }
 
-  public Boolean getShowAllHits() {
+  public boolean getShowAllHits() {
+    if(navigationHelper.getShowAllHits()){
+      //remove start parameter from form
+      getForm().remove(SearchForm.NAME_START);
+      //add hitsPerDup=0
+      getForm().setValue(SearchForm.NAME_HITSPERDUP,"0");
+    }
     return navigationHelper.getShowAllHits();
   }
 
@@ -429,11 +438,11 @@ public class Search {
    * 
    * @return
    */
-  public Boolean getHasResults() {
-    return new Boolean(hits.getTotal() > 0);
+  public boolean getHasResults() {
+    return hits.getTotal() > 0;
   }
 
-  public Boolean getIsSearch() {
-    return new Boolean(queryString == null || queryString.trim().equals(""));
+  public boolean getIsSearch() {
+    return queryString != null && !queryString.trim().equals("");
   }
 }

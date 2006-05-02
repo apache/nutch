@@ -1,17 +1,17 @@
 <%@page contentType="text/html; charset=utf-8" session="false"%>
 <%@ include file="common.jsp"%>
-<html lang="<bean:message key="lang"/>">
+<html lang="<fmt:message key="lang"/>">
 <head>
 <tiles:insert name="header">
 	<tiles:put name="title" beanName="title" />
 	<tiles:put name="basePage" content="/include/header.html" />
-	<tiles:put name="attrName" content="header" />
+	<tiles:put name="attrName" content="headerContent" />
 </tiles:insert>
 </head>
-   <body onLoad="queryfocus();">
-   <bean:write name="header" scope="request" filter="false" ignore="true"/>
+<body onLoad="queryfocus();">
+<c:out default="" value="${headerContent}" escapeXml="false"/>
 <tiles:insert name="pageBody" />
 <tiles:insert name="footer" />
- </body>
+</body>
 </html>
 

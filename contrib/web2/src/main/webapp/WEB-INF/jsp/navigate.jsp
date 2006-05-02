@@ -1,14 +1,21 @@
-<div id="navigation">
 <%@ include file="common.jsp"%>
-<logic:equal name="nutchSearch" property="hasNextPage" value="true">
+<div id="navigation">
+<c:if test="${nutchSearch.hasNextPage==true}">
 	<form name="search" action="search.do" method="get"><input
-		type="submit" value="<bean:message key="search.next"/>"> <logic:iterate
-		scope="request" id="urlParameter" name="nutchSearch"
-		property="formProperties"
-		type="org.apache.nutch.webapp.common.SearchForm.KeyValue">
+		type="submit" value="<fmt:message key="search.next"/>">
+		<c:forEach var="urlParameter" items="${nutchSearch.formProperties}">
 		<input type="hidden"
-			name="<bean:write name="urlParameter" property="key"/>"
-			value="<bean:write name="urlParameter" property="value"/>" />
-	</logic:iterate></form>
-</logic:equal>
+			name="<c:out value="${urlParameter.key}"/>"
+			value="<c:out value="${urlParameter.value}"/>" />
+	</c:forEach></form>
+</c:if>
+<c:if test="${nutchSearch.showAllHits==true}">
+	<form name="search" action="search.do" method="get"><input
+		type="submit" value="<fmt:message key="search.showAllHits"/>">
+		<c:forEach var="urlParameter" items="${nutchSearch.formProperties}">
+		<input type="hidden"
+			name="<c:out value="${urlParameter.key}"/>"
+			value="<c:out value="${urlParameter.value}"/>" />
+	</c:forEach></form>
+</c:if>
 </div>

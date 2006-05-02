@@ -22,7 +22,7 @@ package org.apache.nutch.webapp.common;
  */
 public class NavigationHelper {
 
-  private int pageStart;
+  private int start;
 
   private int hitsPerPage;
 
@@ -30,26 +30,49 @@ public class NavigationHelper {
 
   private boolean totalIsExact;
 
-  public NavigationHelper(int pageStart, int hitsPerPage, long totalHits,
+  private int end;
+
+  /**
+   * Construct a new NavigationHelper
+   * @param start start index 
+   * @param hitsPerPage 
+   * @param length total number of hits
+   * @param totalIsExact total number of hits is exact (@see org.apache.nutch.searcher.Hits#setTotalIsExact(boolean))
+   */
+  public NavigationHelper(int start, int end, int hitsPerPage, long length,
       boolean totalIsExact) {
-    this.pageStart = pageStart;
+    this.start = start;
+    this.end = end;
     this.hitsPerPage = hitsPerPage;
-    this.totalHits = totalHits;
+    this.totalHits = length;
     this.totalIsExact = totalIsExact;
   }
 
-  protected Boolean hasPrev() {
-    return new Boolean(pageStart > 0);
+  /**
+   * Is there a previous page available
+   * 
+   * @return
+   */
+  protected boolean hasPrev() {
+    return start > 0;
   }
 
-  protected Boolean hasNext() {
-    return new Boolean((totalIsExact && pageStart + hitsPerPage < totalHits)
-        || (!totalIsExact && totalHits > pageStart + hitsPerPage));
-
+  /**
+   * Is there a next page available
+   * @return
+   */
+  protected boolean hasNext() {
+    System.out.println("totalIsExact" + totalIsExact);
+    System.out.println("end" + end);
+    System.out.println("totalHits" + totalHits);
+    return end < totalHits && (!getShowAllHits());
   }
 
-  protected void next() {
-    pageStart += hitsPerPage;
+  /** 
+   * Proceed to next page
+   */
+  protected void nextPage() {
+    start += hitsPerPage;
   }
 
   /**
@@ -57,24 +80,39 @@ public class NavigationHelper {
    * 
    * @return
    */
-  public long getNextStart() {
-    return pageStart + hitsPerPage;
+  public long getNextPageStart() {
+    return start + hitsPerPage;
   }
 
+  /**
+   * Proceed to previous page
+   */
   public void prev() {
-    pageStart -= hitsPerPage;
+    start -= hitsPerPage;
   }
 
+  /**
+   * Get a page number
+   * @return
+   */
   public int getPageNumber() {
-    return pageStart / hitsPerPage;
+    return start / hitsPerPage;
   }
 
-  protected Boolean getShowAllHits() {
-    return new Boolean(!totalIsExact && (totalHits <= pageStart + hitsPerPage));
+  /**
+   *  
+   * @return
+   */
+  protected boolean getShowAllHits() {
+    return !totalIsExact && (start + hitsPerPage > end);
   }
 
+  /**
+   * Returns the numer of last hit on page 
+   * @return
+   */
   public long getEnd() {
-    return Math.min(totalHits, getNextStart());
+    return Math.min(totalHits, getNextPageStart());
   }
 
 }

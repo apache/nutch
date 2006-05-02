@@ -7,7 +7,7 @@
 		<param-name>
 			javax.servlet.jsp.jstl.fmt.localizationContext
 		</param-name>
-		<param-value>ApplicationResources</param-value>
+		<param-value>org.nutch.jsp.resources</param-value>
 	</context-param>
 	<servlet>
 		<servlet-name>action</servlet-name>
@@ -54,15 +54,15 @@
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
 	<taglib>
-		<taglib-uri>/tags/struts-logic</taglib-uri>
-		<taglib-location>/WEB-INF/tld/struts-logic.tld</taglib-location>
-	</taglib>
-	<taglib>
 		<taglib-uri>/tags/struts-tiles</taglib-uri>
 		<taglib-location>/WEB-INF/tld/struts-tiles.tld</taglib-location>
 	</taglib>
 	<taglib>
-		<taglib-uri>/tags/struts-bean</taglib-uri>
-		<taglib-location>/WEB-INF/tld/struts-bean.tld</taglib-location>
+		<taglib-uri>/tags/jstl-c</taglib-uri>
+		<taglib-location>/WEB-INF/tld/c.tld</taglib-location>
+	</taglib>
+	<taglib>
+		<taglib-uri>/tags/jstl-fmt</taglib-uri>
+		<taglib-location>/WEB-INF/tld/fmt.tld</taglib-location>
 	</taglib>
 </web-app>
