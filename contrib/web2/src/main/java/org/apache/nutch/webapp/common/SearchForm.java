@@ -152,7 +152,8 @@ public class SearchForm {
     } else {
       n_values.put(key, new KeyValue(key, value));
     }
-    active.add(n_values.get(key));
+    if(!active.contains(n_values.get(key)))
+      active.add(n_values.get(key));
   }
 
   /**
@@ -162,7 +163,7 @@ public class SearchForm {
    * @return
    */
   public String getValue(String key) {
-    if (n_values.containsKey(key)) {
+    if (n_values.containsKey(key) && !active.contains(n_values.get(key))) {
       active.add(n_values.get(key));
       return (String) ((KeyValue) n_values.get(key)).getValue();
     } else
