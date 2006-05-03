@@ -68,12 +68,21 @@ public class I18NPageController extends NutchController {
     // XXX this prevents plugins to provide content
     if (content == null) {
       content = new StringBuffer();
-      List postfixes = calculateSuffixes(locale);
-      Iterator iterator = postfixes.iterator();
+      List suffixes = calculateSuffixes(locale);
+      
+      if(!suffixes.contains(servletContext.getInitParameter("javax.servlet.jsp.jstl.fmt.fallbackLocale"))){
+        System.out.println("Adding default suffix:" + servletContext.getInitParameter("javax.servlet.jsp.jstl.fmt.fallbackLocale"));
+        suffixes.add(servletContext.getInitParameter("javax.servlet.jsp.jstl.fmt.fallbackLocale"));
+      }
 
+      Iterator iterator = suffixes.iterator();
+      
       while (iterator.hasNext()) {
         String postfix = (String) iterator.next();
         String name = concatPostfix(baseName, postfix);
+
+        System.out.println("reading:" + name);
+        
         InputStream is = servletContext.getResourceAsStream(name);
         if (is != null) {
           BufferedReader br = new BufferedReader(new InputStreamReader(is));
@@ -132,7 +141,6 @@ public class I18NPageController extends NutchController {
     }
 
     return suffixes;
-
   }
 
   /**
@@ -153,20 +161,7 @@ public class I18NPageController extends NutchController {
     if (postfix == null) {
       return name;
     }
-
     return "/" + postfix + name;
-
-    // Search file name extension.
-    // take care of Unix files starting with .
-
-    /*
-     * int dotIndex = name.lastIndexOf("."); int lastNameStart =
-     * name.lastIndexOf(java.io.File.pathSeparator); if (dotIndex < 1 ||
-     * dotIndex < lastNameStart) { return name + postfix; }
-     * 
-     * String ext = name.substring(dotIndex); name = name.substring(0,
-     * dotIndex); return name + postfix + ext;
-     */
   }
-
+  
 }

@@ -9,6 +9,10 @@
 		</param-name>
 		<param-value>org.nutch.jsp.resources</param-value>
 	</context-param>
+	<context-param>
+		<param-name>javax.servlet.jsp.jstl.fmt.fallbackLocale</param-name>
+		<param-value>en</param-value>
+	</context-param>
 	<servlet>
 		<servlet-name>action</servlet-name>
 		<servlet-class>
