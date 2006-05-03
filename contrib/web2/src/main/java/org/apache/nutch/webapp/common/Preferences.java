@@ -25,13 +25,11 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.nutch.html.Entities;
-
 /**
  * Preferences represents (extendable) configuration object that is persistable
  * into user browser (as cookie)
  * 
- * cookie is in format key-1=value-1,key-2=value-2,key-n=value-n
+ * cookie is in format key-1<KEYVALSEPARATOR>value-1<VALVALSEPARATOR>key-2<KEYVALSEPARATOR>value-2<VALVALSEPARATOR>key-n<KEYVALSEPARATOR>value-n
  */
 public class Preferences extends HashMap {
 
@@ -45,8 +43,8 @@ public class Preferences extends HashMap {
 
   public static final String KEY_DUP_FIELD = "D";
   
-  static final String KEYVALSEPARATOR="_";
-  static final String VALVALSEPARATOR="-";
+  static final String DEFAULTKEYVALSEPARATOR="_";
+  static final String DEFAULTVALVALSEPARATOR="-";
 
   // Name of web ui cookie that stores users cutomized user preferences
   public static String COOKIE_NAME = "NUTCH";
@@ -73,6 +71,12 @@ public class Preferences extends HashMap {
       return request.getLocale();
   }
 
+  /**
+   * Persist Preferences as cookie.
+   * @param request 
+   * @param response
+   * @param prefs   preferences object to persist
+   */ 
   public static void setPreferencesCookie(HttpServletRequest request,
       HttpServletResponse response, Preferences prefs) {
     if (defaults.equals(prefs)) {
@@ -91,6 +95,11 @@ public class Preferences extends HashMap {
     response.addCookie(prefscookie);
   }
 
+  /**
+   * Remove cookie from browser
+   * 
+   * @param response
+   */
   public static void removeCookie(HttpServletResponse response) {
     Cookie prefscookie = new Cookie(COOKIE_NAME, "");
     prefscookie.setMaxAge(-1);
@@ -116,10 +125,22 @@ public class Preferences extends HashMap {
     return defaults;
   }
 
+  /**
+   * Parse a String into Preferences object using default separators
+   * @param data
+   * @return
+   */
   public static Preferences parse(String data) {
-    return parse(data,VALVALSEPARATOR, KEYVALSEPARATOR);
+    return parse(data,DEFAULTVALVALSEPARATOR, DEFAULTKEYVALSEPARATOR);
   }
 
+  /**
+   * Parse a String into a Preferences object 
+   * @param data String to parse
+   * @param valueValueSeparator delimiter between keyValue pairs
+   * @param keyValueSeparator delimiter between key & value
+   * @return parsed Preferences 
+   */
   public static Preferences parse(String data, String valueValueSeparator, String keyValueSeparator) {
 
     System.out.println("data:" + data);
@@ -141,6 +162,12 @@ public class Preferences extends HashMap {
     return p;
   }
   
+  /**
+   * Return int value or default if non existing
+   * @param name
+   * @param defaultVal
+   * @return
+   */
   public int getInt(String name, int defaultVal) {
     try {
       return get(name) == null ? defaultVal : Integer
@@ -151,8 +178,10 @@ public class Preferences extends HashMap {
   }
 
   /**
-   * return value or default if non existing
-   * 
+   * Return String value or default if non existing
+   * @param name
+   * @param defaultVal
+   * @return
    */
   public String getString(String name, String defaultVal) {
     return get(name) == null ? defaultVal : (String) get(name);
@@ -164,12 +193,12 @@ public class Preferences extends HashMap {
 
     for (int i = 0; i < keys.length; i++) {
       try {
-        txt.append(keys[i].toString()).append(KEYVALSEPARATOR).append(URLEncoder.encode((String)get(keys[i]),"UTF-8"));
+        txt.append(keys[i].toString()).append(DEFAULTKEYVALSEPARATOR).append(URLEncoder.encode((String)get(keys[i]),"UTF-8"));
       } catch (UnsupportedEncodingException e) {
         e.printStackTrace();
       }
       if (i < keys.length - 1)
-        txt.append(VALVALSEPARATOR);
+        txt.append(DEFAULTVALVALSEPARATOR);
     }
 
     System.out.println("toString():" + txt.toString());
@@ -177,12 +206,19 @@ public class Preferences extends HashMap {
     return txt.toString();
   }
 
+  /**
+   * Get (cached) Preferences instance from request (first from request
+   * attribute then from cookie)
+   * 
+   * @param request
+   * @return Preferences object from request or null if not 
+   */
   public static Preferences getPreferences(HttpServletRequest request) {
     Preferences prefs = (Preferences) request.getAttribute(Preferences.class
         .getName());
     // processing locale
     if (prefs == null) {
-      prefs = Preferences.parseCookie(request);
+      prefs = parseCookie(request);
       request.setAttribute(Preferences.class.getName(), prefs);
     }
     return prefs;
