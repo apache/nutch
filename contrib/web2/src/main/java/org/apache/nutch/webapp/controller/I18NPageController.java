@@ -71,7 +71,6 @@ public class I18NPageController extends NutchController {
       List suffixes = calculateSuffixes(locale);
       
       if(!suffixes.contains(servletContext.getInitParameter("javax.servlet.jsp.jstl.fmt.fallbackLocale"))){
-        System.out.println("Adding default suffix:" + servletContext.getInitParameter("javax.servlet.jsp.jstl.fmt.fallbackLocale"));
         suffixes.add(servletContext.getInitParameter("javax.servlet.jsp.jstl.fmt.fallbackLocale"));
       }
 
@@ -81,8 +80,6 @@ public class I18NPageController extends NutchController {
         String postfix = (String) iterator.next();
         String name = concatPostfix(baseName, postfix);
 
-        System.out.println("reading:" + name);
-        
         InputStream is = servletContext.getResourceAsStream(name);
         if (is != null) {
           BufferedReader br = new BufferedReader(new InputStreamReader(is));
