@@ -502,7 +502,7 @@ public class SegmentReader extends Configured implements Reducer {
       }
     }
     Configuration conf = NutchConfiguration.create();
-    FileSystem fs = FileSystem.get(conf);
+    final FileSystem fs = FileSystem.get(conf);
     SegmentReader segmentReader = new SegmentReader(conf, co, fe, ge, pa, pd, pt);
     // collect required args
     switch (mode) {
@@ -529,7 +529,9 @@ public class SegmentReader extends Configured implements Reducer {
             File dir = new File(args[++i]);
             File[] files = fs.listFiles(dir, new FileFilter() {
               public boolean accept(File pathname) {
-                if (pathname.isDirectory()) return true;
+                try {
+                  if (fs.isDirectory(pathname)) return true;
+                } catch (IOException e) {};
                 return false;
               }
             });
