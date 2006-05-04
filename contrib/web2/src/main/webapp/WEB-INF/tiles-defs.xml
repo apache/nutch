@@ -17,7 +17,8 @@
 		<put name="pageBody" value="/WEB-INF/jsp/search.jsp" />
 	</definition>
 	<!-- Cached -->
-	<definition name="cachedPage" path="/WEB-INF/jsp/cached.jsp">
+	<definition name="cachedPage" path="/WEB-INF/jsp/cached.jsp"
+	controllerClass="org.apache.nutch.webapp.controller.CachedController">
 		<put name="title" value="cached.title" />
 	</definition>
 	<!-- Explain -->
