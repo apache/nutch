@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.io.Closeable;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.MapFile;
@@ -55,9 +56,28 @@ import org.apache.nutch.util.NutchJob;
  * @author Andrzej Bialecki
  * 
  */
-public class CrawlDbReader {
+public class CrawlDbReader implements Closeable {
 
   public static final Logger LOG = LogFormatter.getLogger(CrawlDbReader.class.getName());
+  
+  private MapFile.Reader[] readers = null;
+  
+  private void openReaders(String crawlDb, Configuration config) throws IOException {
+    if (readers != null) return;
+    FileSystem fs = FileSystem.get(config);
+    readers = MapFileOutputFormat.getReaders(fs, new File(crawlDb, CrawlDatum.DB_DIR_NAME), config);
+  }
+  
+  private void closeReaders() {
+    if (readers == null) return;
+    for (int i = 0; i < readers.length; i++) {
+      try {
+        readers[i].close();
+      } catch (Exception e) {
+        
+      }
+    }
+  }
 
   public static class CrawlDbStatMapper implements Mapper {
     public void configure(JobConf job) {}
@@ -177,6 +197,10 @@ public class CrawlDbReader {
     
     public void close() {}
   }
+
+  public void close() {
+    closeReaders();
+  }
   
   public void processStatJob(String crawlDb, Configuration config) throws IOException {
     LOG.info("CrawlDb statistics start: " + crawlDb);
@@ -249,16 +273,20 @@ public class CrawlDbReader {
     LOG.info("CrawlDb statistics: done");
 
   }
-
-  public void readUrl(String crawlDb, String url, Configuration config) throws IOException {
-    FileSystem fs = FileSystem.get(config);
+  
+  public CrawlDatum get(String crawlDb, String url, Configuration config) throws IOException {
     UTF8 key = new UTF8(url);
     CrawlDatum val = new CrawlDatum();
-    MapFile.Reader[] readers = MapFileOutputFormat.getReaders(fs, new File(crawlDb, CrawlDatum.DB_DIR_NAME), config);
-    Writable res = MapFileOutputFormat.getEntry(readers, new HashPartitioner(), key, val);
+    openReaders(crawlDb, config);
+    CrawlDatum res = (CrawlDatum)MapFileOutputFormat.getEntry(readers, new HashPartitioner(), key, val);
+    return res;
+  }
+
+  public void readUrl(String crawlDb, String url, Configuration config) throws IOException {
+    CrawlDatum res = get(crawlDb, url, config);
     System.out.println("URL: " + url);
     if (res != null) {
-      System.out.println(val);
+      System.out.println(res);
     } else {
       System.out.println("not found");
     }

@@ -28,6 +28,7 @@ import org.apache.hadoop.conf.*;
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.mapred.*;
 
+import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
@@ -44,15 +45,27 @@ public class LinkDb extends Configured implements Mapper, Reducer {
   private int maxInlinks;
   private boolean ignoreInternalLinks;
   
-  public static class LinkDbMerger extends MapReduceBase implements Reducer {
+  public static class Merger extends MapReduceBase implements Reducer {
     private int _maxInlinks;
+    private URLFilters filters = null;
     
     public void configure(JobConf job) {
       super.configure(job);
       _maxInlinks = job.getInt("db.max.inlinks", 10000);
+      if (job.getBoolean("linkdb.merger.urlfilters", false)) {
+        filters = new URLFilters(job);
+      }
     }
 
     public void reduce(WritableComparable key, Iterator values, OutputCollector output, Reporter reporter) throws IOException {
+      if (filters != null) {
+        try {
+          if (filters.filter(((UTF8)key).toString()) == null)
+            return;
+        } catch (Exception e) {
+          LOG.fine("Can't filter " + key + ": " + e);
+        }
+      }
       Inlinks inlinks = null;
       while (values.hasNext()) {
         if (inlinks == null) {
@@ -65,9 +78,19 @@ public class LinkDb extends Configured implements Mapper, Reducer {
             output.collect(key, inlinks);
             return;
           }
-          inlinks.add((Inlink)it.next());
+          Inlink in = (Inlink)it.next();
+          if (filters != null) {
+            try {
+              if (filters.filter(in.getFromUrl()) == null)
+                continue;
+            } catch (Exception e) {
+              LOG.fine("Can't filter " + key + ": " + e);
+            }
+          }
+          inlinks.add(in);
         }
       }
+      if (inlinks.size() == 0) return;
       output.collect(key, inlinks);
     }
   }
@@ -205,7 +228,6 @@ public class LinkDb extends Configured implements Mapper, Reducer {
     job.setInputValueClass(ParseData.class);
 
     job.setMapperClass(LinkDb.class);
-    //job.setCombinerClass(LinkDb.class);
     job.setReducerClass(LinkDb.class);
 
     job.setOutputDir(newLinkDb);
@@ -217,7 +239,7 @@ public class LinkDb extends Configured implements Mapper, Reducer {
     return job;
   }
 
-  private static JobConf createMergeJob(Configuration config, File linkDb) {
+  public static JobConf createMergeJob(Configuration config, File linkDb) {
     File newLinkDb =
       new File("linkdb-merge-" + 
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
@@ -229,7 +251,7 @@ public class LinkDb extends Configured implements Mapper, Reducer {
     job.setInputKeyClass(UTF8.class);
     job.setInputValueClass(Inlinks.class);
 
-    job.setReducerClass(LinkDbMerger.class);
+    job.setReducerClass(Merger.class);
 
     job.setOutputDir(newLinkDb);
     job.setOutputFormat(MapFileOutputFormat.class);
