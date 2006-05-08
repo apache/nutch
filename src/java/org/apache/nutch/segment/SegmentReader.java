@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.*;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.LogFormatter;
@@ -70,7 +70,7 @@ public class SegmentReader extends Configured implements Reducer {
   public static class TextOutputFormat extends org.apache.hadoop.mapred.OutputFormatBase {
     public RecordWriter getRecordWriter(final FileSystem fs, JobConf job, String name) throws IOException {
 
-      final File segmentDumpFile = new File(job.getOutputDir(), name);
+      final Path segmentDumpFile = new Path(job.getOutputPath(), name);
 
       // Get the old copy out of the way
       fs.delete(segmentDumpFile);
@@ -160,18 +160,18 @@ public class SegmentReader extends Configured implements Reducer {
     output.collect(key, new ObjectWritable(dump.toString()));
   }
 
-  public void dump(File segment, File output) throws IOException {
+  public void dump(Path segment, Path output) throws IOException {
     LOG.info("SegmentReader: dump segment: " + segment);
 
     JobConf job = createJobConf();
     job.setJobName("read " + segment);
 
-    if (ge) job.addInputDir(new File(segment, CrawlDatum.GENERATE_DIR_NAME));
-    if (fe) job.addInputDir(new File(segment, CrawlDatum.FETCH_DIR_NAME));
-    if (pa) job.addInputDir(new File(segment, CrawlDatum.PARSE_DIR_NAME));
-    if (co) job.addInputDir(new File(segment, Content.DIR_NAME));
-    if (pd) job.addInputDir(new File(segment, ParseData.DIR_NAME));
-    if (pt) job.addInputDir(new File(segment, ParseText.DIR_NAME));
+    if (ge) job.addInputPath(new Path(segment, CrawlDatum.GENERATE_DIR_NAME));
+    if (fe) job.addInputPath(new Path(segment, CrawlDatum.FETCH_DIR_NAME));
+    if (pa) job.addInputPath(new Path(segment, CrawlDatum.PARSE_DIR_NAME));
+    if (co) job.addInputPath(new Path(segment, Content.DIR_NAME));
+    if (pd) job.addInputPath(new Path(segment, ParseData.DIR_NAME));
+    if (pt) job.addInputPath(new Path(segment, ParseText.DIR_NAME));
 
     job.setInputFormat(InputFormat.class);
     job.setInputKeyClass(UTF8.class);
@@ -179,10 +179,10 @@ public class SegmentReader extends Configured implements Reducer {
 
     job.setReducerClass(SegmentReader.class);
 
-    File tempDir = new File("/tmp/segread-" + new java.util.Random().nextInt());
+    Path tempDir = new Path("/tmp/segread-" + new java.util.Random().nextInt());
     fs.delete(tempDir);
     
-    job.setOutputDir(tempDir);
+    job.setOutputPath(tempDir);
     job.setOutputFormat(TextOutputFormat.class);
     job.setOutputKeyClass(UTF8.class);
     job.setOutputValueClass(ObjectWritable.class);
@@ -190,11 +190,11 @@ public class SegmentReader extends Configured implements Reducer {
     JobClient.runJob(job);
 
     // concatenate the output
-    File dumpFile = new File(output, job.get("segment.dump.dir", "dump"));
+    Path dumpFile = new Path(output, job.get("segment.dump.dir", "dump"));
 
     // remove the old file
     fs.delete(dumpFile);
-    File[] files = fs.listFiles(tempDir);
+    Path[] files = fs.listPaths(tempDir);
 
     PrintWriter writer = null;
     int currentRecordNumber = 0;
@@ -202,7 +202,7 @@ public class SegmentReader extends Configured implements Reducer {
       writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(fs.create(dumpFile))));
       try {
         for (int i = 0; i < files.length; i++) {
-          File partFile = (File) files[i];
+          Path partFile = (Path) files[i];
           try {
             currentRecordNumber = append(fs, job, partFile, writer, currentRecordNumber);
           } catch (IOException exception) {
@@ -219,7 +219,7 @@ public class SegmentReader extends Configured implements Reducer {
   }
 
   /** Appends two files and updates the Recno counter */
-  private int append(FileSystem fs, Configuration conf, File src, PrintWriter writer, int currentRecordNumber)
+  private int append(FileSystem fs, Configuration conf, Path src, PrintWriter writer, int currentRecordNumber)
           throws IOException {
     BufferedReader reader = new BufferedReader(new InputStreamReader(fs.open(src)));
     try {
@@ -246,14 +246,14 @@ public class SegmentReader extends Configured implements Reducer {
           {"pt", "ParseText::\n"}
   };
 
-  public void get(final File segment, final UTF8 key, Writer writer,
+  public void get(final Path segment, final UTF8 key, Writer writer,
           final Map results) throws Exception {
     LOG.info("SegmentReader: get '" + key + "'");
     ArrayList threads = new ArrayList();
     if (co) threads.add(new Thread() {
       public void run() {
         try {
-          List res = getMapRecords(new File(segment, Content.DIR_NAME), key);
+          List res = getMapRecords(new Path(segment, Content.DIR_NAME), key);
           results.put("co", res);
         } catch (Exception e) {
           e.printStackTrace();
@@ -263,7 +263,7 @@ public class SegmentReader extends Configured implements Reducer {
     if (fe) threads.add(new Thread() {
       public void run() {
         try {
-          List res = getMapRecords(new File(segment, CrawlDatum.FETCH_DIR_NAME), key);
+          List res = getMapRecords(new Path(segment, CrawlDatum.FETCH_DIR_NAME), key);
           results.put("fe", res);
         } catch (Exception e) {
           e.printStackTrace();
@@ -273,7 +273,7 @@ public class SegmentReader extends Configured implements Reducer {
     if (ge) threads.add(new Thread() {
       public void run() {
         try {
-          List res = getSeqRecords(new File(segment, CrawlDatum.GENERATE_DIR_NAME), key);
+          List res = getSeqRecords(new Path(segment, CrawlDatum.GENERATE_DIR_NAME), key);
           results.put("ge", res);
         } catch (Exception e) {
           e.printStackTrace();
@@ -283,7 +283,7 @@ public class SegmentReader extends Configured implements Reducer {
     if (pa) threads.add(new Thread() {
       public void run() {
         try {
-          List res = getSeqRecords(new File(segment, CrawlDatum.PARSE_DIR_NAME), key);
+          List res = getSeqRecords(new Path(segment, CrawlDatum.PARSE_DIR_NAME), key);
           results.put("pa", res);
         } catch (Exception e) {
           e.printStackTrace();
@@ -293,7 +293,7 @@ public class SegmentReader extends Configured implements Reducer {
     if (pd) threads.add(new Thread() {
       public void run() {
         try {
-          List res = getMapRecords(new File(segment, ParseData.DIR_NAME), key);
+          List res = getMapRecords(new Path(segment, ParseData.DIR_NAME), key);
           results.put("pd", res);
         } catch (Exception e) {
           e.printStackTrace();
@@ -303,7 +303,7 @@ public class SegmentReader extends Configured implements Reducer {
     if (pt) threads.add(new Thread() {
       public void run() {
         try {
-          List res = getMapRecords(new File(segment, ParseText.DIR_NAME), key);
+          List res = getMapRecords(new Path(segment, ParseText.DIR_NAME), key);
           results.put("pt", res);
         } catch (Exception e) {
           e.printStackTrace();
@@ -335,7 +335,7 @@ public class SegmentReader extends Configured implements Reducer {
     }
   }
   
-  private List getMapRecords(File dir, UTF8 key) throws Exception {
+  private List getMapRecords(Path dir, UTF8 key) throws Exception {
     MapFile.Reader[] readers = MapFileOutputFormat.getReaders(fs, dir, getConf());
     ArrayList res = new ArrayList();
     Class keyClass = readers[0].getKeyClass();
@@ -352,7 +352,7 @@ public class SegmentReader extends Configured implements Reducer {
     return res;
   }
 
-  private List getSeqRecords(File dir, UTF8 key) throws Exception {
+  private List getSeqRecords(Path dir, UTF8 key) throws Exception {
     SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(getConf(), dir);
     ArrayList res = new ArrayList();
     Class keyClass = readers[0].getKeyClass();
@@ -386,7 +386,7 @@ public class SegmentReader extends Configured implements Reducer {
   public void list(List dirs, Writer writer) throws Exception {
     writer.write("NAME\t\tGENERATED\tFETCHER START\t\tFETCHER END\t\tFETCHED\tPARSED\n");
     for (int i = 0; i < dirs.size(); i++) {
-      File dir = (File)dirs.get(i);
+      Path dir = (Path)dirs.get(i);
       SegmentReaderStats stats = new SegmentReaderStats();
       getStats(dir, stats);
       writer.write(dir.getName() + "\t");
@@ -409,8 +409,8 @@ public class SegmentReader extends Configured implements Reducer {
     }
   }
   
-  public void getStats(File segment, final SegmentReaderStats stats) throws Exception {
-    SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(getConf(), new File(segment, CrawlDatum.GENERATE_DIR_NAME));
+  public void getStats(Path segment, final SegmentReaderStats stats) throws Exception {
+    SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(getConf(), new Path(segment, CrawlDatum.GENERATE_DIR_NAME));
     long cnt = 0L;
     UTF8 key = new UTF8();
     for (int i = 0; i < readers.length; i++) {
@@ -418,7 +418,7 @@ public class SegmentReader extends Configured implements Reducer {
       readers[i].close();
     }
     stats.generated = cnt;
-    File fetchDir = new File(segment, CrawlDatum.FETCH_DIR_NAME);
+    Path fetchDir = new Path(segment, CrawlDatum.FETCH_DIR_NAME);
     if (fs.exists(fetchDir) && fs.isDirectory(fetchDir)) {
       cnt = 0L;
       long start = Long.MAX_VALUE;
@@ -437,7 +437,7 @@ public class SegmentReader extends Configured implements Reducer {
       stats.end = end;
       stats.fetched = cnt;
     }
-    File parseDir = new File(segment, ParseData.DIR_NAME);
+    Path parseDir = new Path(segment, ParseData.DIR_NAME);
     if (fs.exists(fetchDir) && fs.isDirectory(fetchDir)) {
       cnt = 0L;
       long errors = 0L;
@@ -519,16 +519,16 @@ public class SegmentReader extends Configured implements Reducer {
           usage();
           return;
         }
-        segmentReader.dump(new File(input), new File(output));
+        segmentReader.dump(new Path(input), new Path(output));
         return;
       case MODE_LIST:
         ArrayList dirs = new ArrayList();
         for (int i = 1; i < args.length; i++) {
           if (args[i] == null) continue;
           if (args[i].equals("-dir")) {
-            File dir = new File(args[++i]);
-            File[] files = fs.listFiles(dir, new FileFilter() {
-              public boolean accept(File pathname) {
+            Path dir = new Path(args[++i]);
+            Path[] files = fs.listPaths(dir, new PathFilter() {
+              public boolean accept(Path pathname) {
                 try {
                   if (fs.isDirectory(pathname)) return true;
                 } catch (IOException e) {};
@@ -538,7 +538,7 @@ public class SegmentReader extends Configured implements Reducer {
             if (files != null && files.length > 0) {
               dirs.addAll(Arrays.asList(files));
             }
-          } else dirs.add(new File(args[i]));
+          } else dirs.add(new Path(args[i]));
         }
         segmentReader.list(dirs, new OutputStreamWriter(System.out, "UTF-8"));
         return;
@@ -555,7 +555,7 @@ public class SegmentReader extends Configured implements Reducer {
           usage();
           return;
         }
-        segmentReader.get(new File(input), new UTF8(key), new OutputStreamWriter(System.out, "UTF-8"), new HashMap());
+        segmentReader.get(new Path(input), new UTF8(key), new OutputStreamWriter(System.out, "UTF-8"), new HashMap());
         return;
       default:
         System.err.println("Invalid operation: " + args[0]);

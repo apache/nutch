@@ -17,7 +17,6 @@
 package org.apache.nutch.crawl;
 
 import java.io.IOException;
-import java.io.File;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
@@ -39,11 +38,11 @@ public class LinkDbReader implements Closeable {
   private static final Partitioner PARTITIONER = new HashPartitioner();
 
   private FileSystem fs;
-  private File directory;
+  private Path directory;
   private MapFile.Reader[] readers;
   private Configuration conf;
 
-  public LinkDbReader(FileSystem fs, File directory, Configuration conf) {
+  public LinkDbReader(FileSystem fs, Path directory, Configuration conf) {
     this.fs = fs;
     this.directory = directory;
     this.conf = conf;
@@ -61,7 +60,7 @@ public class LinkDbReader implements Closeable {
     synchronized (this) {
       if (readers == null) {
         readers = MapFileOutputFormat.getReaders
-          (fs, new File(directory, LinkDb.CURRENT_NAME), this.conf);
+          (fs, new Path(directory, LinkDb.CURRENT_NAME), this.conf);
       }
     }
     
@@ -80,17 +79,17 @@ public class LinkDbReader implements Closeable {
   public static void processDumpJob(String linkdb, String output, Configuration config) throws IOException {
     LOG.info("LinkDb dump: starting");
     LOG.info("LinkDb db: " + linkdb);
-    File outFolder = new File(output);
+    Path outFolder = new Path(output);
 
     JobConf job = new NutchJob(config);
     job.setJobName("read " + linkdb);
 
-    job.addInputDir(new File(linkdb, LinkDb.CURRENT_NAME));
+    job.addInputPath(new Path(linkdb, LinkDb.CURRENT_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setInputKeyClass(UTF8.class);
     job.setInputValueClass(Inlinks.class);
 
-    job.setOutputDir(outFolder);
+    job.setOutputPath(outFolder);
     job.setOutputFormat(TextOutputFormat.class);
     job.setOutputKeyClass(UTF8.class);
     job.setOutputValueClass(Inlinks.class);
@@ -109,7 +108,7 @@ public class LinkDbReader implements Closeable {
     if (args[1].equals("-dump")) {
       LinkDbReader.processDumpJob(args[0], args[2], conf);
     } else if (args[1].equals("-url")) {
-      LinkDbReader dbr = new LinkDbReader(FileSystem.get(NutchConfiguration.create()), new File(args[0]), conf);
+      LinkDbReader dbr = new LinkDbReader(FileSystem.get(NutchConfiguration.create()), new Path(args[0]), conf);
       Inlinks links = dbr.getInlinks(new UTF8(args[2]));
       if (links == null) {
         System.out.println(" - no link information.");

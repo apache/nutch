@@ -43,15 +43,15 @@ public class IndexMerger {
   public static final String DONE_NAME = "merge.done";
 
   private FileSystem fs;
-  private File outputIndex;
-  private File localWorkingDir;
-  private File[] indexes;
+  private Path outputIndex;
+  private Path localWorkingDir;
+  private Path[] indexes;
   private Configuration conf;
 
   /**
    * Merge all of the indexes given
    */
-  public IndexMerger(FileSystem fs, File[] indexes, File outputIndex, File localWorkingDir, Configuration conf) throws IOException {
+  public IndexMerger(FileSystem fs, Path[] indexes, Path outputIndex, Path localWorkingDir, Configuration conf) throws IOException {
       this.fs = fs;
       this.indexes = indexes;
       this.outputIndex = outputIndex;
@@ -69,8 +69,8 @@ public class IndexMerger {
 
     // Get local output target
     //
-    File tmpLocalOutput = new File(localWorkingDir, "merge-output");
-    File localOutput = fs.startLocalOutput(outputIndex, tmpLocalOutput);
+    Path tmpLocalOutput = new Path(localWorkingDir, "merge-output");
+    Path localOutput = fs.startLocalOutput(outputIndex, tmpLocalOutput);
 
     Directory[] dirs = new Directory[indexes.length];
     for (int i = 0; i < indexes.length; i++) {
@@ -83,7 +83,7 @@ public class IndexMerger {
     //
     // Merge indices
     //
-    IndexWriter writer = new IndexWriter(localOutput, null, true);
+    IndexWriter writer = new IndexWriter(localOutput.toString(), null, true);
     writer.setMergeFactor(conf.getInt("indexer.mergeFactor", IndexWriter.DEFAULT_MERGE_FACTOR));
     writer.setMaxBufferedDocs(conf.getInt("indexer.minMergeDocs", IndexWriter.DEFAULT_MAX_BUFFERED_DOCS));
     writer.setMaxMergeDocs(conf.getInt("indexer.maxMergeDocs", IndexWriter.DEFAULT_MAX_MERGE_DOCS));
@@ -99,7 +99,7 @@ public class IndexMerger {
     //
     fs.completeLocalOutput(outputIndex, tmpLocalOutput);
 
-    localWorkingDir.delete();
+    FileSystem.getNamed("local", conf).delete(localWorkingDir);
   }
 
   /** 
@@ -117,20 +117,19 @@ public class IndexMerger {
     //
     Configuration conf = NutchConfiguration.create();
     FileSystem fs = FileSystem.get(conf);
-    File workDir = new File(new File("").getCanonicalPath());
+    Path workDir = new Path("indexmerger");
     List indexDirs = new ArrayList();
 
     int i = 0;
     if ("-workingdir".equals(args[i])) {
       i++;
-      workDir = new File(new File(args[i++]).getCanonicalPath());
+      workDir = new Path(args[i++]);
     }
-    workDir = new File(workDir, "indexmerger-workingdir");
 
-    File outputIndex = new File(args[i++]);
+    Path outputIndex = new Path(args[i++]);
 
     for (; i < args.length; i++) {
-      indexDirs.addAll(Arrays.asList(fs.listFiles(new File(args[i]))));
+      indexDirs.addAll(Arrays.asList(fs.listPaths(new Path(args[i]))));
     }
 
     //
@@ -138,15 +137,17 @@ public class IndexMerger {
     //
     LOG.info("merging indexes to: " + outputIndex);
 
-    File[] indexFiles = (File[])indexDirs.toArray(new File[indexDirs.size()]);
+    Path[] indexFiles = (Path[])indexDirs.toArray(new Path[indexDirs.size()]);
 
-    if (workDir.exists()) {
-      FileUtil.fullyDelete(workDir, conf);
+    FileSystem localFs = FileSystem.getNamed("local", conf);
+    if (localFs.exists(workDir)) {
+      localFs.delete(workDir);
     }
-    workDir.mkdirs();
-    IndexMerger merger = new IndexMerger(fs,indexFiles,outputIndex,workDir, conf);
+    localFs.mkdirs(workDir);
+    IndexMerger merger =
+      new IndexMerger(fs, indexFiles, outputIndex, workDir, conf);
     merger.merge();
     LOG.info("done merging");
-    FileUtil.fullyDelete(workDir, conf);
+    localFs.delete(workDir);
   }
 }

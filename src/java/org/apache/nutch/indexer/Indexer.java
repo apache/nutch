@@ -78,15 +78,15 @@ public class Indexer extends Configured implements Reducer {
     extends org.apache.hadoop.mapred.OutputFormatBase {
     public RecordWriter getRecordWriter(final FileSystem fs, JobConf job,
                                         String name) throws IOException {
-      final File perm = new File(job.getOutputDir(), name);
-      final File temp =
-        job.getLocalFile("index","_"+Integer.toString(new Random().nextInt()));
+      final Path perm = new Path(job.getOutputPath(), name);
+      final Path temp =
+        job.getLocalPath("index/_"+Integer.toString(new Random().nextInt()));
 
       fs.delete(perm);                            // delete old, if any
 
       final AnalyzerFactory factory = new AnalyzerFactory(job);
       final IndexWriter writer =                  // build locally first
-        new IndexWriter(fs.startLocalOutput(perm, temp),
+        new IndexWriter(fs.startLocalOutput(perm, temp).toString(),
                         new NutchDocumentAnalyzer(job), true);
 
       writer.setMergeFactor(job.getInt("indexer.mergeFactor", 10));
@@ -132,7 +132,7 @@ public class Indexer extends Configured implements Reducer {
               writer.optimize();
               writer.close();
               fs.completeLocalOutput(perm, temp);   // copy to dfs
-              fs.createNewFile(new File(perm, DONE_NAME));
+              fs.createNewFile(new Path(perm, DONE_NAME));
             } finally {
               closed = true;
             }
@@ -242,7 +242,7 @@ public class Indexer extends Configured implements Reducer {
     output.collect(key, new ObjectWritable(doc));
   }
 
-  public void index(File indexDir, File crawlDb, File linkDb, File[] segments)
+  public void index(Path indexDir, Path crawlDb, Path linkDb, Path[] segments)
     throws IOException {
 
     LOG.info("Indexer: starting");
@@ -253,13 +253,13 @@ public class Indexer extends Configured implements Reducer {
 
     for (int i = 0; i < segments.length; i++) {
       LOG.info("Indexer: adding segment: " + segments[i]);
-      job.addInputDir(new File(segments[i], CrawlDatum.FETCH_DIR_NAME));
-      job.addInputDir(new File(segments[i], ParseData.DIR_NAME));
-      job.addInputDir(new File(segments[i], ParseText.DIR_NAME));
+      job.addInputPath(new Path(segments[i], CrawlDatum.FETCH_DIR_NAME));
+      job.addInputPath(new Path(segments[i], ParseData.DIR_NAME));
+      job.addInputPath(new Path(segments[i], ParseText.DIR_NAME));
     }
 
-    job.addInputDir(new File(crawlDb, CrawlDatum.DB_DIR_NAME));
-    job.addInputDir(new File(linkDb, LinkDb.CURRENT_NAME));
+    job.addInputPath(new Path(crawlDb, CrawlDatum.DB_DIR_NAME));
+    job.addInputPath(new Path(linkDb, LinkDb.CURRENT_NAME));
 
     job.setInputFormat(InputFormat.class);
     job.setInputKeyClass(UTF8.class);
@@ -268,7 +268,7 @@ public class Indexer extends Configured implements Reducer {
     //job.setCombinerClass(Indexer.class);
     job.setReducerClass(Indexer.class);
 
-    job.setOutputDir(indexDir);
+    job.setOutputPath(indexDir);
     job.setOutputFormat(OutputFormat.class);
     job.setOutputKeyClass(UTF8.class);
     job.setOutputValueClass(ObjectWritable.class);
@@ -285,12 +285,12 @@ public class Indexer extends Configured implements Reducer {
       return;
     }
     
-    File[] segments = new File[args.length-3];
+    Path[] segments = new Path[args.length-3];
     for (int i = 3; i < args.length; i++) {
-      segments[i-3] = new File(args[i]);
+      segments[i-3] = new Path(args[i]);
     }
 
-    indexer.index(new File(args[0]), new File(args[1]), new File(args[2]),
+    indexer.index(new Path(args[0]), new Path(args[1]), new Path(args[2]),
                   segments);
   }
 

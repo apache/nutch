@@ -16,7 +16,6 @@
 
 package org.apache.nutch.crawl;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Random;
@@ -25,6 +24,7 @@ import java.util.logging.Logger;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Closeable;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
@@ -65,7 +65,7 @@ public class CrawlDbReader implements Closeable {
   private void openReaders(String crawlDb, Configuration config) throws IOException {
     if (readers != null) return;
     FileSystem fs = FileSystem.get(config);
-    readers = MapFileOutputFormat.getReaders(fs, new File(crawlDb, CrawlDatum.DB_DIR_NAME), config);
+    readers = MapFileOutputFormat.getReaders(fs, new Path(crawlDb, CrawlDatum.DB_DIR_NAME), config);
   }
   
   private void closeReaders() {
@@ -204,12 +204,12 @@ public class CrawlDbReader implements Closeable {
   
   public void processStatJob(String crawlDb, Configuration config) throws IOException {
     LOG.info("CrawlDb statistics start: " + crawlDb);
-    File tmpFolder = new File(crawlDb, "stat_tmp" + System.currentTimeMillis());
+    Path tmpFolder = new Path(crawlDb, "stat_tmp" + System.currentTimeMillis());
 
     JobConf job = new NutchJob(config);
     job.setJobName("stats " + crawlDb);
 
-    job.addInputDir(new File(crawlDb, CrawlDatum.DB_DIR_NAME));
+    job.addInputPath(new Path(crawlDb, CrawlDatum.DB_DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setInputKeyClass(UTF8.class);
     job.setInputValueClass(CrawlDatum.class);
@@ -217,7 +217,7 @@ public class CrawlDbReader implements Closeable {
     job.setMapperClass(CrawlDbStatMapper.class);
     job.setReducerClass(CrawlDbStatReducer.class);
 
-    job.setOutputDir(tmpFolder);
+    job.setOutputPath(tmpFolder);
     job.setOutputFormat(SequenceFileOutputFormat.class);
     job.setOutputKeyClass(UTF8.class);
     job.setOutputValueClass(LongWritable.class);
@@ -296,17 +296,17 @@ public class CrawlDbReader implements Closeable {
 
     LOG.info("CrawlDb dump: starting");
     LOG.info("CrawlDb db: " + crawlDb);
-    File outFolder = new File(output);
+    Path outFolder = new Path(output);
 
     JobConf job = new NutchJob(config);
     job.setJobName("dump " + crawlDb);
 
-    job.addInputDir(new File(crawlDb, CrawlDatum.DB_DIR_NAME));
+    job.addInputPath(new Path(crawlDb, CrawlDatum.DB_DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setInputKeyClass(UTF8.class);
     job.setInputValueClass(CrawlDatum.class);
 
-    job.setOutputDir(outFolder);
+    job.setOutputPath(outFolder);
     job.setOutputFormat(TextOutputFormat.class);
     job.setOutputKeyClass(UTF8.class);
     job.setOutputValueClass(CrawlDatum.class);
@@ -318,21 +318,21 @@ public class CrawlDbReader implements Closeable {
   public void processTopNJob(String crawlDb, long topN, float min, String output, Configuration config) throws IOException {
     LOG.info("CrawlDb topN: starting (topN=" + topN + ", min=" + min + ")");
     LOG.info("CrawlDb db: " + crawlDb);
-    File outFolder = new File(output);
-    File tempDir =
-      new File(config.get("mapred.temp.dir", ".") +
+    Path outFolder = new Path(output);
+    Path tempDir =
+      new Path(config.get("mapred.temp.dir", ".") +
                "/readdb-topN-temp-"+
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     JobConf job = new NutchJob(config);
-    job.addInputDir(new File(crawlDb, CrawlDatum.DB_DIR_NAME));
+    job.addInputPath(new Path(crawlDb, CrawlDatum.DB_DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setInputKeyClass(UTF8.class);
     job.setInputValueClass(CrawlDatum.class);
     job.setMapperClass(CrawlDbTopNMapper.class);
     job.setReducerClass(IdentityReducer.class);
 
-    job.setOutputDir(tempDir);
+    job.setOutputPath(tempDir);
     job.setOutputFormat(SequenceFileOutputFormat.class);
     job.setOutputKeyClass(FloatWritable.class);
     job.setOutputValueClass(UTF8.class);
@@ -345,14 +345,14 @@ public class CrawlDbReader implements Closeable {
     job = new NutchJob(config);
     job.setLong("CrawlDbReader.topN", topN);
 
-    job.addInputDir(tempDir);
+    job.addInputPath(tempDir);
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setInputKeyClass(FloatWritable.class);
     job.setInputValueClass(UTF8.class);
     job.setMapperClass(IdentityMapper.class);
     job.setReducerClass(CrawlDbTopNReducer.class);
 
-    job.setOutputDir(outFolder);
+    job.setOutputPath(outFolder);
     job.setOutputFormat(TextOutputFormat.class);
     job.setOutputKeyClass(FloatWritable.class);
     job.setOutputValueClass(UTF8.class);

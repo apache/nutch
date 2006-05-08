@@ -55,15 +55,15 @@ public class Crawl {
     conf.addDefaultResource("crawl-tool.xml");
     JobConf job = new NutchJob(conf);
 
-    File rootUrlDir = null;
-    File dir = new File("crawl-" + getDate());
+    Path rootUrlDir = null;
+    Path dir = new Path("crawl-" + getDate());
     int threads = job.getInt("fetcher.threads.fetch", 10);
     int depth = 5;
     int topN = Integer.MAX_VALUE;
 
     for (int i = 0; i < args.length; i++) {
       if ("-dir".equals(args[i])) {
-        dir = new File(args[i+1]);
+        dir = new Path(args[i+1]);
         i++;
       } else if ("-threads".equals(args[i])) {
         threads = Integer.parseInt(args[i+1]);
@@ -75,7 +75,7 @@ public class Crawl {
         topN = Integer.parseInt(args[i+1]);
         i++;
       } else if (args[i] != null) {
-        rootUrlDir = new File(args[i]);
+        rootUrlDir = new Path(args[i]);
       }
     }
 
@@ -92,19 +92,19 @@ public class Crawl {
     if (topN != Integer.MAX_VALUE)
       LOG.info("topN = " + topN);
 
-    File crawlDb = new File(dir + "/crawldb");
-    File linkDb = new File(dir + "/linkdb");
-    File segments = new File(dir + "/segments");
-    File indexes = new File(dir + "/indexes");
-    File index = new File(dir + "/index");
+    Path crawlDb = new Path(dir + "/crawldb");
+    Path linkDb = new Path(dir + "/linkdb");
+    Path segments = new Path(dir + "/segments");
+    Path indexes = new Path(dir + "/indexes");
+    Path index = new Path(dir + "/index");
 
-    File tmpDir = job.getLocalFile("crawl", getDate());
+    Path tmpDir = job.getLocalPath("crawl"+Path.SEPARATOR+getDate());
       
     // initialize crawlDb
     new Injector(job).inject(crawlDb, rootUrlDir);
       
     for (int i = 0; i < depth; i++) {             // generate new segment
-      File segment =
+      Path segment =
         new Generator(job).generate(crawlDb, segments, -1,
                                      topN, System.currentTimeMillis());
       new Fetcher(job).fetch(segment, threads, Fetcher.isParsing(job));  // fetch it
@@ -117,9 +117,9 @@ public class Crawl {
     new LinkDb(job).invert(linkDb, segments); // invert links
 
     // index, dedup & merge
-    new Indexer(job).index(indexes, crawlDb, linkDb, fs.listFiles(segments));
-    new DeleteDuplicates(job).dedup(new File[] { indexes });
-    new IndexMerger(fs, fs.listFiles(indexes), index, tmpDir, job).merge();
+    new Indexer(job).index(indexes, crawlDb, linkDb, fs.listPaths(segments));
+    new DeleteDuplicates(job).dedup(new Path[] { indexes });
+    new IndexMerger(fs, fs.listPaths(indexes), index, tmpDir, job).merge();
 
     LOG.info("crawl finished: " + dir);
   }

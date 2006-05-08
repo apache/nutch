@@ -16,7 +16,6 @@
 
 package org.apache.nutch.crawl;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -25,6 +24,7 @@ import java.util.logging.Logger;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.UTF8;
 import org.apache.nutch.util.NutchConfiguration;
@@ -71,7 +71,7 @@ public class TestLinkDbMerger extends TestCase {
   TreeMap init2 = new TreeMap();
   HashMap expected = new HashMap();
   Configuration conf;
-  File testDir;
+  Path testDir;
   FileSystem fs;
   LinkDbReader reader;
   
@@ -86,7 +86,7 @@ public class TestLinkDbMerger extends TestCase {
     expected.put(url21, urls21_expected);
     conf = NutchConfiguration.create();
     fs = FileSystem.get(conf);
-    testDir = new File("test-crawldb-" +
+    testDir = new Path("test-crawldb-" +
             new java.util.Random().nextInt());
     fs.mkdirs(testDir);
   }
@@ -104,17 +104,17 @@ public class TestLinkDbMerger extends TestCase {
   public void testMerge() throws Exception {
     Configuration conf = NutchConfiguration.create();
     FileSystem fs = FileSystem.get(conf);
-    File testDir = new File("test-linkdb-" +
+    Path testDir = new Path("test-linkdb-" +
             new java.util.Random().nextInt());
     fs.mkdirs(testDir);
-    File linkdb1 = new File(testDir, "linkdb1");
-    File linkdb2 = new File(testDir, "linkdb2");
-    File output = new File(testDir, "output");
+    Path linkdb1 = new Path(testDir, "linkdb1");
+    Path linkdb2 = new Path(testDir, "linkdb2");
+    Path output = new Path(testDir, "output");
     createLinkDb(fs, linkdb1, init1);
     createLinkDb(fs, linkdb2, init2);
     LinkDbMerger merger = new LinkDbMerger(conf);
     LOG.fine("* merging linkdbs to " + output);
-    merger.merge(output, new File[]{linkdb1, linkdb2}, false);
+    merger.merge(output, new Path[]{linkdb1, linkdb2}, false);
     LOG.fine("* reading linkdb: " + output);
     reader = new LinkDbReader(fs, output, conf);
     Iterator it = expected.keySet().iterator();
@@ -140,10 +140,10 @@ public class TestLinkDbMerger extends TestCase {
     fs.delete(testDir);
   }
   
-  private void createLinkDb(FileSystem fs, File linkdb, TreeMap init) throws Exception {
+  private void createLinkDb(FileSystem fs, Path linkdb, TreeMap init) throws Exception {
     LOG.fine("* creating linkdb: " + linkdb);
-    File dir = new File(linkdb, LinkDb.CURRENT_NAME);
-    MapFile.Writer writer = new MapFile.Writer(fs, new File(dir, "part-00000").toString(), UTF8.class, Inlinks.class);
+    Path dir = new Path(linkdb, LinkDb.CURRENT_NAME);
+    MapFile.Writer writer = new MapFile.Writer(fs, new Path(dir, "part-00000").toString(), UTF8.class, Inlinks.class);
     Iterator it = init.keySet().iterator();
     while (it.hasNext()) {
       String key = (String)it.next();

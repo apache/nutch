@@ -25,10 +25,10 @@ import org.apache.hadoop.conf.Configuration;
 public class FsDirectory extends Directory {
 
   private FileSystem fs;
-  private File directory;
+  private Path directory;
   private int ioFileBufferSize;
 
-  public FsDirectory(FileSystem fs, File directory, boolean create, Configuration conf)
+  public FsDirectory(FileSystem fs, Path directory, boolean create, Configuration conf)
     throws IOException {
 
     this.fs = fs;
@@ -52,15 +52,15 @@ public class FsDirectory extends Directory {
       throw new IOException(directory + " not a directory");
 
     // clear old files
-    File[] files = fs.listFiles(directory);
+    Path[] files = fs.listPaths(directory);
     for (int i = 0; i < files.length; i++) {
-      if (!files[i].delete())
+      if (!fs.delete(files[i]))
         throw new IOException("Cannot delete " + files[i]);
     }
   }
 
   public String[] list() throws IOException {
-    File[] files = fs.listFiles(directory);
+    Path[] files = fs.listPaths(directory);
     if (files == null) return null;
 
     String[] result = new String[files.length];
@@ -71,7 +71,7 @@ public class FsDirectory extends Directory {
   }
 
   public boolean fileExists(String name) throws IOException {
-    return fs.exists(new File(directory, name));
+    return fs.exists(new Path(directory, name));
   }
 
   public long fileModified(String name) {
@@ -83,26 +83,26 @@ public class FsDirectory extends Directory {
   }
 
   public long fileLength(String name) throws IOException {
-    return fs.getLength(new File(directory, name));
+    return fs.getLength(new Path(directory, name));
   }
 
   public void deleteFile(String name) throws IOException {
-    if (!fs.delete(new File(directory, name)))
+    if (!fs.delete(new Path(directory, name)))
       throw new IOException("Cannot delete " + name);
   }
 
   public void renameFile(String from, String to) throws IOException {
     // DFS is currently broken when target already exists,
     // so we explicitly delete the target first.
-    File target = new File(directory, to);
+    Path target = new Path(directory, to);
     if (fs.exists(target)) {
       fs.delete(target);
     }
-    fs.rename(new File(directory, from), target);
+    fs.rename(new Path(directory, from), target);
   }
 
   public IndexOutput createOutput(String name) throws IOException {
-    File file = new File(directory, name);
+    Path file = new Path(directory, name);
     if (fs.exists(file) && !fs.delete(file))      // delete existing, if any
       throw new IOException("Cannot overwrite: " + file);
 
@@ -111,14 +111,14 @@ public class FsDirectory extends Directory {
 
 
   public IndexInput openInput(String name) throws IOException {
-    return new DfsIndexInput(new File(directory, name), this.ioFileBufferSize);
+    return new DfsIndexInput(new Path(directory, name), this.ioFileBufferSize);
   }
 
   public Lock makeLock(final String name) {
     return new Lock() {
       public boolean obtain() {
         try {
-          fs.lock(new File(directory, name), false);
+          fs.lock(new Path(directory, name), false);
           return true;
         } catch (IOException e) {
           return false;
@@ -126,7 +126,7 @@ public class FsDirectory extends Directory {
       }
       public void release() {
         try {
-          fs.release(new File(directory, name));
+          fs.release(new Path(directory, name));
         } catch (IOException e) {
           throw new RuntimeException(e);
         }
@@ -135,7 +135,7 @@ public class FsDirectory extends Directory {
         throw new UnsupportedOperationException();
       }
       public String toString() {
-        return "Lock@" + new File(directory, name);
+        return "Lock@" + new Path(directory, name);
       }
     };
   }
@@ -155,7 +155,7 @@ public class FsDirectory extends Directory {
     private class Descriptor {
       public FSDataInputStream in;
       public long position;                       // cache of in.getPos()
-      public Descriptor(File file, int ioFileBufferSize) throws IOException {
+      public Descriptor(Path file, int ioFileBufferSize) throws IOException {
         this.in = fs.open(file);
       }
     }
@@ -164,7 +164,7 @@ public class FsDirectory extends Directory {
     private final long length;
     private boolean isClone;
 
-    public DfsIndexInput(File path, int ioFileBufferSize) throws IOException {
+    public DfsIndexInput(Path path, int ioFileBufferSize) throws IOException {
       descriptor = new Descriptor(path,ioFileBufferSize);
       length = fs.getLength(path);
     }
@@ -214,7 +214,7 @@ public class FsDirectory extends Directory {
   private class DfsIndexOutput extends BufferedIndexOutput {
     private FSDataOutputStream out;
 
-    public DfsIndexOutput(File path, int ioFileBufferSize) throws IOException {
+    public DfsIndexOutput(Path path, int ioFileBufferSize) throws IOException {
       out = fs.create(path);
     }
 

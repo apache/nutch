@@ -15,12 +15,11 @@
  */
 package org.apache.nutch.crawl;
 
-import java.io.File;
-
 import junit.framework.TestCase;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.DataInputBuffer;
 import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.io.IntWritable;
@@ -103,11 +102,11 @@ public class TestMapWritable extends TestCase {
   }
 
   public void testPerformance() throws Exception {
-    File file = new File(System.getProperty("java.io.tmpdir"), "mapTestFile");
-    file.delete();
+    FileSystem fs = FileSystem.get(configuration);
+    Path file = new Path(System.getProperty("java.io.tmpdir"), "mapTestFile");
+    fs.delete(file);
     org.apache.hadoop.io.SequenceFile.Writer writer = new SequenceFile.Writer(
-        FileSystem.get(configuration), file.getAbsolutePath(),
-        IntWritable.class, MapWritable.class);
+        fs, file, IntWritable.class, MapWritable.class);
     // write map
     System.out.println("start writing map's");
     long start = System.currentTimeMillis();
@@ -127,7 +126,7 @@ public class TestMapWritable extends TestCase {
     // read map
 
     org.apache.hadoop.io.SequenceFile.Reader reader = new SequenceFile.Reader(
-        FileSystem.get(configuration), file.getAbsolutePath(), configuration);
+        fs, file, configuration);
     System.out.println("start reading map's");
     start = System.currentTimeMillis();
     while (reader.next(key, map)) {
@@ -136,12 +135,11 @@ public class TestMapWritable extends TestCase {
     reader.close();
     needed = System.currentTimeMillis() - start;
     System.out.println("needed time for reading map's: " + needed);
-    file.delete();
+    fs.delete(file);
 
     // UTF8
     System.out.println("start writing utf8's");
-    writer = new SequenceFile.Writer(FileSystem.get(configuration), file
-        .getAbsolutePath(), IntWritable.class, UTF8.class);
+    writer = new SequenceFile.Writer(fs, file, IntWritable.class, UTF8.class);
     // write map
     start = System.currentTimeMillis();
     key = new IntWritable();
@@ -158,16 +156,14 @@ public class TestMapWritable extends TestCase {
 
     // read map
     System.out.println("start reading utf8's");
-    reader = new SequenceFile.Reader(FileSystem.get(configuration), file
-        .getAbsolutePath(), configuration);
+    reader = new SequenceFile.Reader(fs, file, configuration);
     start = System.currentTimeMillis();
     while (reader.next(key, value)) {
 
     }
     needed = System.currentTimeMillis() - start;
     System.out.println("needed time for reading utf8: " + needed);
-    file.delete();
-
+    fs.delete(file);
   }
 
   /** Utility method for testing writables, from hadoop code */

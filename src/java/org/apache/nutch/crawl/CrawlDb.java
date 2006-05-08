@@ -41,14 +41,14 @@ public class CrawlDb extends Configured {
     super(conf);
   }
 
-  public void update(File crawlDb, File segment) throws IOException {
+  public void update(Path crawlDb, Path segment) throws IOException {
     LOG.info("CrawlDb update: starting");
     LOG.info("CrawlDb update: db: " + crawlDb);
     LOG.info("CrawlDb update: segment: " + segment);
 
     JobConf job = CrawlDb.createJob(getConf(), crawlDb);
-    job.addInputDir(new File(segment, CrawlDatum.FETCH_DIR_NAME));
-    job.addInputDir(new File(segment, CrawlDatum.PARSE_DIR_NAME));
+    job.addInputPath(new Path(segment, CrawlDatum.FETCH_DIR_NAME));
+    job.addInputPath(new Path(segment, CrawlDatum.PARSE_DIR_NAME));
 
     LOG.info("CrawlDb update: Merging segment data into db.");
     JobClient.runJob(job);
@@ -57,22 +57,22 @@ public class CrawlDb extends Configured {
     LOG.info("CrawlDb update: done");
   }
 
-  public static JobConf createJob(Configuration config, File crawlDb) {
-    File newCrawlDb =
-      new File(crawlDb,
+  public static JobConf createJob(Configuration config, Path crawlDb) {
+    Path newCrawlDb =
+      new Path(crawlDb,
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     JobConf job = new NutchJob(config);
     job.setJobName("crawldb " + crawlDb);
 
-    job.addInputDir(new File(crawlDb, CrawlDatum.DB_DIR_NAME));
+    job.addInputPath(new Path(crawlDb, CrawlDatum.DB_DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setInputKeyClass(UTF8.class);
     job.setInputValueClass(CrawlDatum.class);
 
     job.setReducerClass(CrawlDbReducer.class);
 
-    job.setOutputDir(newCrawlDb);
+    job.setOutputPath(newCrawlDb);
     job.setOutputFormat(MapFileOutputFormat.class);
     job.setOutputKeyClass(UTF8.class);
     job.setOutputValueClass(CrawlDatum.class);
@@ -80,11 +80,11 @@ public class CrawlDb extends Configured {
     return job;
   }
 
-  public static void install(JobConf job, File crawlDb) throws IOException {
-    File newCrawlDb = job.getOutputDir();
+  public static void install(JobConf job, Path crawlDb) throws IOException {
+    Path newCrawlDb = job.getOutputPath();
     FileSystem fs = new JobClient(job).getFs();
-    File old = new File(crawlDb, "old");
-    File current = new File(crawlDb, CrawlDatum.DB_DIR_NAME);
+    Path old = new Path(crawlDb, "old");
+    Path current = new Path(crawlDb, CrawlDatum.DB_DIR_NAME);
     fs.delete(old);
     fs.rename(current, old);
     fs.rename(newCrawlDb, current);
@@ -99,7 +99,7 @@ public class CrawlDb extends Configured {
       return;
     }
     
-    crawlDb.update(new File(args[0]), new File(args[1]));
+    crawlDb.update(new Path(args[0]), new Path(args[1]));
   }
 
 
