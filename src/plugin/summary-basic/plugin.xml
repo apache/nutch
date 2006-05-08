@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin
+   id="summary-basic"
+   name="Basic Summarizer Plug-in"
+   version="1.0.0"
+   provider-name="org.apache.nutch">
+
+   <runtime>
+      <library name="summary-basic.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
+   <extension id="org.apache.nutch.summary.basic"
+              name="Basic Summarizer"
+              point="org.apache.nutch.searcher.Summarizer">
+
+      <implementation id="Basic Summarizer"
+                      class="org.apache.nutch.summary.basic.BasicSummarizer"/>
+
+   </extension>
+
+</plugin>

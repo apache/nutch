@@ -45,4 +45,8 @@
       id="org.apache.nutch.analysis.NutchAnalyzer"
       name="Nutch Analysis"/>
 
+<extension-point
+      id="org.apache.nutch.searcher.Summarizer"
+      name="Nutch Summarizer"/>
+
 </plugin>
