@@ -87,6 +87,10 @@ public final class ParseData extends VersionedWritable implements Configurable {
    */
   public Metadata getParseMeta() { return parseMeta; }
   
+  public void setParseMeta(Metadata parseMeta) {
+    this.parseMeta = parseMeta;
+  }
+  
   /**
    * Get a metadata single value.
    * This method first looks for the metadata value in the parse metadata. If no
