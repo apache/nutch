@@ -224,16 +224,20 @@ public class MapWritable implements Writable {
   public boolean equals(Object obj) {
     if (obj instanceof MapWritable) {
       MapWritable map = (MapWritable) obj;
+      if (fSize != map.fSize) return false;
+      HashSet set1 = new HashSet();
       KeyValueEntry e1 = fFirst;
-      KeyValueEntry e2 = map.fFirst;
-      while (e1 != null && e2 != null) {
-        if (!e1.equals(e2)) {
-          return false;
-        }
+      while (e1 != null) {
+        set1.add(e1);
         e1 = e1.fNextEntry;
+      }
+      HashSet set2 = new HashSet();
+      KeyValueEntry e2 = map.fFirst;
+      while (e2 != null) {
+        set2.add(e2);
         e2 = e2.fNextEntry;
       }
-      return true;
+      return set1.equals(set2);
     }
     return false;
   }
@@ -451,6 +455,10 @@ public class MapWritable implements Writable {
         return entry.fKey.equals(fKey) && entry.fValue.equals(fValue);
       }
       return false;
+    }
+
+    public int hashCode() {
+      return toString().hashCode();
     }
   }
 
