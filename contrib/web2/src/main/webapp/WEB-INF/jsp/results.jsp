@@ -1,7 +1,8 @@
 <%@ include file="common.jsp" %>
 <c:forEach var="hit" items="${nutchSearch.results}">
+  <c:set var="hit" scope="request" value="${hit}"/>
     <b><a href="<c:out value="${hit.url}"/>"><c:out value="${hit.title}"/></a></b><br/>    
-    <tiles:insert name="more" flush="false" beanName="hit"/>
+    <tiles:insert name="more" />
     <c:out value="${hit.summary}" escapeXml="false"/>
     <br>
     <span class="url"><c:out value="${hit.encodedUrl}"/></span>

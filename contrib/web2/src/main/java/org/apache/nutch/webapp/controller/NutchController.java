@@ -55,8 +55,9 @@ public abstract class NutchController implements Controller {
       LOG.info("Exception occured while executing nutch controller:");
       e.printStackTrace(System.err);
     }
-    LOG.info("request processing time: " + (System.currentTimeMillis() - t)
+/*    LOG.info("Controller processing time: " + (System.currentTimeMillis() - t)
         + "ms");
+        */
   }
 
   /**

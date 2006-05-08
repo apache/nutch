@@ -1,4 +1,5 @@
 <%@ include file="common.jsp"%>
+<tiles:importAttribute/>
 <form action="preferencesSave.do"><fmt:message
 	key="preferences.ui.language" /> <select name="L">
 	<c:forEach var="language" items="${languages}">

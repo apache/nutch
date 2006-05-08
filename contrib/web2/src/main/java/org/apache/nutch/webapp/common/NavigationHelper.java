@@ -62,9 +62,6 @@ public class NavigationHelper {
    * @return
    */
   protected boolean hasNext() {
-    System.out.println("totalIsExact" + totalIsExact);
-    System.out.println("end" + end);
-    System.out.println("totalHits" + totalHits);
     return end < totalHits && (!getShowAllHits());
   }
 

@@ -15,7 +15,7 @@
 					<fmt:param value="${resultInfo[3]}" />
 				</fmt:message>
 				<br />
-				<tiles:insert name="results" />
+				<tiles:insert name="results" flush="true"/>
 				<tiles:insert name="cluster" />
 				<tiles:insert name="navigate" />
 			</c:when>

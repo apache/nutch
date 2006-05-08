@@ -89,18 +89,12 @@ public class Search {
       hits = new Hits(0, new Hit[0]);
     }
 
-    LOG.info("form:");
-    LOG.info(locator.getSearchForm().toString());
-    LOG.info("performing search");
-
     int realEnd = (int) Math.min(hits.getLength(), getStartOffset()
         + getMaxHits());
 
     int endOffset=hits.getLength();
     
     show = hits.getHits(getStartOffset(), realEnd - getStartOffset());
-
-    
     
     navigationHelper = new NavigationHelper(startOffset, endOffset, hitsPerPage, hits
         .getTotal(), hits.totalIsExact());
