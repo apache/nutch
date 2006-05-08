@@ -25,6 +25,7 @@ import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.protocol.*;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.util.*;
+import org.apache.hadoop.fs.Path;
 
 import java.io.*;
 import java.util.*;
@@ -81,21 +82,21 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
     output.collect(key, (Writable)values.next()); // collect first value
   }
 
-  public void parse(File segment) throws IOException {
+  public void parse(Path segment) throws IOException {
     LOG.info("Parse: starting");
     LOG.info("Parse: segment: " + segment);
 
     JobConf job = new NutchJob(getConf());
     job.setJobName("parse " + segment);
 
-    job.setInputDir(new File(segment, Content.DIR_NAME));
+    job.setInputPath(new Path(segment, Content.DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setInputKeyClass(UTF8.class);
     job.setInputValueClass(Content.class);
     job.setMapperClass(ParseSegment.class);
     job.setReducerClass(ParseSegment.class);
     
-    job.setOutputDir(segment);
+    job.setOutputPath(segment);
     job.setOutputFormat(ParseOutputFormat.class);
     job.setOutputKeyClass(UTF8.class);
     job.setOutputValueClass(ParseImpl.class);
@@ -106,7 +107,7 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
 
 
   public static void main(String[] args) throws Exception {
-    File segment;
+    Path segment;
 
     String usage = "Usage: ParseSegment segment";
 
@@ -115,7 +116,7 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
       System.exit(-1);
     }
       
-    segment = new File(args[0]);
+    segment = new Path(args[0]);
 
     ParseSegment parseSegment = new ParseSegment(NutchConfiguration.create());
     parseSegment.parse(segment);

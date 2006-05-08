@@ -17,7 +17,6 @@
 package org.apache.nutch.searcher;
 
 import java.io.IOException;
-import java.io.File;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -39,7 +38,7 @@ public class FetchedSegments implements HitSummarizer, HitContent {
     private static final Partitioner PARTITIONER = new HashPartitioner();
 
     private FileSystem fs;
-    private File segmentDir;
+    private Path segmentDir;
 
     private MapFile.Reader[] content;
     private MapFile.Reader[] parseText;
@@ -47,7 +46,7 @@ public class FetchedSegments implements HitSummarizer, HitContent {
     private MapFile.Reader[] crawl;
     private Configuration conf;
 
-    public Segment(FileSystem fs, File segmentDir, Configuration conf) throws IOException {
+    public Segment(FileSystem fs, Path segmentDir, Configuration conf) throws IOException {
       this.fs = fs;
       this.segmentDir = segmentDir;
       this.conf = conf;
@@ -86,7 +85,7 @@ public class FetchedSegments implements HitSummarizer, HitContent {
     }
     
     private MapFile.Reader[] getReaders(String subDir) throws IOException {
-      return MapFileOutputFormat.getReaders(fs, new File(segmentDir, subDir), this.conf);
+      return MapFileOutputFormat.getReaders(fs, new Path(segmentDir, subDir), this.conf);
     }
 
     private Writable getEntry(MapFile.Reader[] readers, UTF8 url,
@@ -114,13 +113,13 @@ public class FetchedSegments implements HitSummarizer, HitContent {
 
   /** Construct given a directory containing fetcher output. */
   public FetchedSegments(FileSystem fs, String segmentsDir, Configuration conf) throws IOException {
-    File[] segmentDirs = fs.listFiles(new File(segmentsDir));
+    Path[] segmentDirs = fs.listPaths(new Path(segmentsDir));
     this.summarizer = new SummarizerFactory(conf).getSummarizer();
 
     if (segmentDirs != null) {
         for (int i = 0; i < segmentDirs.length; i++) {
-            File segmentDir = segmentDirs[i];
-//             File indexdone = new File(segmentDir, IndexSegment.DONE_NAME);
+            Path segmentDir = segmentDirs[i];
+//             Path indexdone = new Path(segmentDir, IndexSegment.DONE_NAME);
 //             if (fs.exists(indexdone) && fs.isFile(indexdone)) {
 //             	segments.put(segmentDir.getName(), new Segment(fs, segmentDir));
 //             }

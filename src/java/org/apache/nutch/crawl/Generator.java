@@ -27,6 +27,7 @@ import org.apache.hadoop.conf.*;
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.mapred.lib.*;
+import org.apache.hadoop.fs.Path;
 
 import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
@@ -205,24 +206,24 @@ public class Generator extends Configured {
   }
 
   /** Generate fetchlists in a segment. */
-  public File generate(File dbDir, File segments)
+  public Path generate(Path dbDir, Path segments)
     throws IOException {
     return generate(dbDir, segments,
                     -1, Long.MAX_VALUE, System.currentTimeMillis());
   }
 
   /** Generate fetchlists in a segment. */
-  public File generate(File dbDir, File segments,
+  public Path generate(Path dbDir, Path segments,
                        int numLists, long topN, long curTime)
     throws IOException {
 
-    File tempDir =
-      new File(getConf().get("mapred.temp.dir", ".") +
+    Path tempDir =
+      new Path(getConf().get("mapred.temp.dir", ".") +
                "/generate-temp-"+
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
-    File segment = new File(segments, getDate());
-    File output = new File(segment, CrawlDatum.GENERATE_DIR_NAME);
+    Path segment = new Path(segments, getDate());
+    Path output = new Path(segment, CrawlDatum.GENERATE_DIR_NAME);
 
     LOG.info("Generator: starting");
     LOG.info("Generator: segment: " + segment);
@@ -239,7 +240,7 @@ public class Generator extends Configured {
     job.setLong("crawl.gen.curTime", curTime);
     job.setLong("crawl.topN", topN);
 
-    job.setInputDir(new File(dbDir, CrawlDatum.DB_DIR_NAME));
+    job.setInputPath(new Path(dbDir, CrawlDatum.DB_DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setInputKeyClass(UTF8.class);
     job.setInputValueClass(CrawlDatum.class);
@@ -248,7 +249,7 @@ public class Generator extends Configured {
     job.setPartitionerClass(Selector.class);
     job.setReducerClass(Selector.class);
 
-    job.setOutputDir(tempDir);
+    job.setOutputPath(tempDir);
     job.setOutputFormat(SequenceFileOutputFormat.class);
     job.setOutputKeyClass(FloatWritable.class);
     job.setOutputValueClass(SelectorEntry.class);
@@ -261,7 +262,7 @@ public class Generator extends Configured {
     
     job.setInt("partition.url.by.host.seed", new Random().nextInt());
 
-    job.setInputDir(tempDir);
+    job.setInputPath(tempDir);
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setInputKeyClass(FloatWritable.class);
     job.setInputValueClass(SelectorEntry.class);
@@ -270,7 +271,7 @@ public class Generator extends Configured {
     job.setPartitionerClass(PartitionUrlByHost.class);
     job.setNumReduceTasks(numLists);
 
-    job.setOutputDir(output);
+    job.setOutputPath(output);
     job.setOutputFormat(SequenceFileOutputFormat.class);
     job.setOutputKeyClass(UTF8.class);
     job.setOutputValueClass(CrawlDatum.class);
@@ -298,8 +299,8 @@ public class Generator extends Configured {
       return;
     }
 
-    File dbDir = new File(args[0]);
-    File segmentsDir = new File(args[1]);
+    Path dbDir = new Path(args[0]);
+    Path segmentsDir = new Path(args[1]);
     long curTime = System.currentTimeMillis();
     long topN = Long.MAX_VALUE;
     int numFetchers = -1;

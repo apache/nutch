@@ -89,24 +89,24 @@ public class NutchBean
    * @param dir
    * @throws IOException
    */
-  public NutchBean(Configuration conf, File dir) throws IOException {
+  public NutchBean(Configuration conf, Path dir) throws IOException {
         this.conf = conf;
         this.fs = FileSystem.get(this.conf);
         if (dir == null) {
-            dir = new File(this.conf.get("searcher.dir", "crawl"));
+            dir = new Path(this.conf.get("searcher.dir", "crawl"));
         }
-        File servers = new File(dir, "search-servers.txt");
+        Path servers = new Path(dir, "search-servers.txt");
         if (fs.exists(servers)) {
-            LOG.info("searching servers in " + servers.getCanonicalPath());
+            LOG.info("searching servers in " + servers);
             init(new DistributedSearch.Client(servers, conf));
         } else {
-            init(new File(dir, "index"), new File(dir, "indexes"), new File(
-                    dir, "segments"), new File(dir, "linkdb"));
+            init(new Path(dir, "index"), new Path(dir, "indexes"), new Path(
+                    dir, "segments"), new Path(dir, "linkdb"));
         }
     }
 
-  private void init(File indexDir, File indexesDir, File segmentsDir,
-                    File linkDb)
+  private void init(Path indexDir, Path indexesDir, Path segmentsDir,
+                    Path linkDb)
     throws IOException {
     IndexSearcher indexSearcher;
     if (this.fs.exists(indexDir)) {
@@ -116,18 +116,18 @@ public class NutchBean
       LOG.info("opening indexes in " + indexesDir);
       
       Vector vDirs=new Vector();
-      File [] directories = fs.listFiles(indexesDir);
-      for(int i = 0; i < fs.listFiles(indexesDir).length; i++) {
-        File indexdone = new File(directories[i], Indexer.DONE_NAME);
+      Path [] directories = fs.listPaths(indexesDir);
+      for(int i = 0; i < fs.listPaths(indexesDir).length; i++) {
+        Path indexdone = new Path(directories[i], Indexer.DONE_NAME);
         if(fs.isFile(indexdone)) {
           vDirs.add(directories[i]);
         }
       }
       
       
-      directories = new File[ vDirs.size() ];
+      directories = new Path[ vDirs.size() ];
       for(int i = 0; vDirs.size()>0; i++) {
-        directories[i]=(File)vDirs.remove(0);
+        directories[i]=(Path)vDirs.remove(0);
       }
       
       indexSearcher = new IndexSearcher(directories, this.conf);

@@ -17,7 +17,6 @@
 package org.apache.nutch.fetcher;
 
 import java.io.IOException;
-import java.io.File;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
@@ -49,7 +48,7 @@ public class Fetcher extends Configured implements MapRunnable {
     /** Don't split inputs, to keep things polite. */
     public FileSplit[] getSplits(FileSystem fs, JobConf job, int nSplits)
       throws IOException {
-      File[] files = listFiles(fs, job);
+      Path[] files = listPaths(fs, job);
       FileSplit[] splits = new FileSplit[files.length];
       for (int i = 0; i < files.length; i++) {
         splits[i] = new FileSplit(files[i], 0, fs.getLength(files[i]));
@@ -360,7 +359,7 @@ public class Fetcher extends Configured implements MapRunnable {
     
   }
 
-  public void fetch(File segment, int threads, boolean parsing)
+  public void fetch(Path segment, int threads, boolean parsing)
     throws IOException {
 
     LOG.info("Fetcher: starting");
@@ -376,14 +375,14 @@ public class Fetcher extends Configured implements MapRunnable {
     // for politeness, don't permit parallel execution of a single task
     job.setBoolean("mapred.speculative.execution", false);
 
-    job.setInputDir(new File(segment, CrawlDatum.GENERATE_DIR_NAME));
+    job.setInputPath(new Path(segment, CrawlDatum.GENERATE_DIR_NAME));
     job.setInputFormat(InputFormat.class);
     job.setInputKeyClass(UTF8.class);
     job.setInputValueClass(CrawlDatum.class);
 
     job.setMapRunnerClass(Fetcher.class);
 
-    job.setOutputDir(segment);
+    job.setOutputPath(segment);
     job.setOutputFormat(FetcherOutputFormat.class);
     job.setOutputKeyClass(UTF8.class);
     job.setOutputValueClass(FetcherOutput.class);
@@ -403,7 +402,7 @@ public class Fetcher extends Configured implements MapRunnable {
       System.exit(-1);
     }
       
-    File segment = new File(args[0]);
+    Path segment = new Path(args[0]);
 
     Configuration conf = NutchConfiguration.create();
 

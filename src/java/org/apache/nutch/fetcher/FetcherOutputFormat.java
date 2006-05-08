@@ -17,10 +17,10 @@
 package org.apache.nutch.fetcher;
 
 import java.io.IOException;
-import java.io.File;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.WritableComparable;
@@ -39,7 +39,7 @@ import org.apache.nutch.protocol.Content;
 public class FetcherOutputFormat implements OutputFormat {
 
   public void checkOutputSpecs(FileSystem fs, JobConf job) throws IOException {
-    if (fs.exists(new File(job.getOutputDir(), CrawlDatum.FETCH_DIR_NAME)))
+    if (fs.exists(new Path(job.getOutputPath(), CrawlDatum.FETCH_DIR_NAME)))
       throw new IOException("Segment already fetched!");
   }
 
@@ -47,10 +47,10 @@ public class FetcherOutputFormat implements OutputFormat {
                                       final JobConf job,
                                       final String name) throws IOException {
 
-    final File fetch =
-      new File(new File(job.getOutputDir(), CrawlDatum.FETCH_DIR_NAME), name);
-    final File content =
-      new File(new File(job.getOutputDir(), Content.DIR_NAME), name);
+    final Path fetch =
+      new Path(new Path(job.getOutputPath(), CrawlDatum.FETCH_DIR_NAME), name);
+    final Path content =
+      new Path(new Path(job.getOutputPath(), Content.DIR_NAME), name);
 
     final MapFile.Writer fetchOut =
       new MapFile.Writer(fs, fetch.toString(), UTF8.class, CrawlDatum.class);

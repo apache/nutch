@@ -29,6 +29,8 @@ import org.apache.nutch.crawl.Inlinks;
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.ipc.RPC;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.FileSystem;
 
 import org.apache.nutch.util.NutchConfiguration;
 
@@ -62,7 +64,7 @@ public class DistributedSearch {
       }
 
       int port = Integer.parseInt(args[0]);
-      File directory = new File(args[1]);
+      Path directory = new Path(args[1]);
 
       Configuration conf = NutchConfiguration.create();
       NutchBean bean = new NutchBean(conf, directory);
@@ -90,29 +92,34 @@ public class DistributedSearch {
      * Each line in the file lists a server hostname and port, separated by
      * whitespace. 
      */
-
-    public Client(File file, Configuration conf) throws IOException {
-      this(readConfig(file), conf);
+    public Client(Path file, Configuration conf) throws IOException {
+      this(readConfig(file, conf), conf);
     }
 
-    private static InetSocketAddress[] readConfig(File config)
+    private static InetSocketAddress[] readConfig(Path path, Configuration conf)
       throws IOException {
-      BufferedReader reader = new BufferedReader(new FileReader(config));
-      ArrayList addrs = new ArrayList();
-      String line;
-      while ((line = reader.readLine()) != null) {
-        StringTokenizer tokens = new StringTokenizer(line);
-        if (tokens.hasMoreTokens()) {
-          String host = tokens.nextToken();
+      FileSystem fs = FileSystem.get(conf);
+      BufferedReader reader =
+        new BufferedReader(new InputStreamReader(fs.open(path)));
+      try {
+        ArrayList addrs = new ArrayList();
+        String line;
+        while ((line = reader.readLine()) != null) {
+          StringTokenizer tokens = new StringTokenizer(line);
           if (tokens.hasMoreTokens()) {
-            String port = tokens.nextToken();
-            addrs.add(new InetSocketAddress(host, Integer.parseInt(port)));
-            LOG.info("Client adding server "  + host + ":" + port);
+            String host = tokens.nextToken();
+            if (tokens.hasMoreTokens()) {
+              String port = tokens.nextToken();
+              addrs.add(new InetSocketAddress(host, Integer.parseInt(port)));
+              LOG.info("Client adding server "  + host + ":" + port);
+            }
           }
         }
+        return (InetSocketAddress[])
+          addrs.toArray(new InetSocketAddress[addrs.size()]);
+      } finally {
+        reader.close();
       }
-      return (InetSocketAddress[])
-        addrs.toArray(new InetSocketAddress[addrs.size()]);
     }
 
     /** Construct a client talking to the named servers. */

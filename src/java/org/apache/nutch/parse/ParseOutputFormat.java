@@ -35,7 +35,7 @@ public class ParseOutputFormat implements OutputFormat {
   private URLFilters filters;
 
   public void checkOutputSpecs(FileSystem fs, JobConf job) throws IOException {
-    if (fs.exists(new File(job.getOutputDir(), CrawlDatum.PARSE_DIR_NAME)))
+    if (fs.exists(new Path(job.getOutputPath(), CrawlDatum.PARSE_DIR_NAME)))
       throw new IOException("Segment already parsed!");
   }
 
@@ -49,12 +49,12 @@ public class ParseOutputFormat implements OutputFormat {
     final float extscore = job.getFloat("db.score.link.external", 1.0f);
     final boolean countFiltered = job.getBoolean("db.score.count.filtered", false);
     
-    File text =
-      new File(new File(job.getOutputDir(), ParseText.DIR_NAME), name);
-    File data =
-      new File(new File(job.getOutputDir(), ParseData.DIR_NAME), name);
-    File crawl =
-      new File(new File(job.getOutputDir(), CrawlDatum.PARSE_DIR_NAME), name);
+    Path text =
+      new Path(new Path(job.getOutputPath(), ParseText.DIR_NAME), name);
+    Path data =
+      new Path(new Path(job.getOutputPath(), ParseData.DIR_NAME), name);
+    Path crawl =
+      new Path(new Path(job.getOutputPath(), CrawlDatum.PARSE_DIR_NAME), name);
     
     final MapFile.Writer textOut =
       new MapFile.Writer(fs, text.toString(), UTF8.class, ParseText.class);
@@ -63,8 +63,7 @@ public class ParseOutputFormat implements OutputFormat {
       new MapFile.Writer(fs, data.toString(), UTF8.class,ParseData.class,true);
     
     final SequenceFile.Writer crawlOut =
-      new SequenceFile.Writer(fs, crawl.toString(),
-                              UTF8.class, CrawlDatum.class);
+      new SequenceFile.Writer(fs, crawl, UTF8.class, CrawlDatum.class);
     
     return new RecordWriter() {
 

@@ -90,13 +90,13 @@ public class Injector extends Configured {
     super(conf);
   }
 
-  public void inject(File crawlDb, File urlDir) throws IOException {
+  public void inject(Path crawlDb, Path urlDir) throws IOException {
     LOG.info("Injector: starting");
     LOG.info("Injector: crawlDb: " + crawlDb);
     LOG.info("Injector: urlDir: " + urlDir);
 
-    File tempDir =
-      new File(getConf().get("mapred.temp.dir", ".") +
+    Path tempDir =
+      new Path(getConf().get("mapred.temp.dir", ".") +
                "/inject-temp-"+
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
@@ -104,11 +104,11 @@ public class Injector extends Configured {
     LOG.info("Injector: Converting injected urls to crawl db entries.");
     JobConf sortJob = new NutchJob(getConf());
     sortJob.setJobName("inject " + urlDir);
-    sortJob.setInputDir(urlDir);
+    sortJob.setInputPath(urlDir);
     sortJob.setMapperClass(InjectMapper.class);
     sortJob.setReducerClass(InjectReducer.class);
 
-    sortJob.setOutputDir(tempDir);
+    sortJob.setOutputPath(tempDir);
     sortJob.setOutputFormat(SequenceFileOutputFormat.class);
     sortJob.setOutputKeyClass(UTF8.class);
     sortJob.setOutputValueClass(CrawlDatum.class);
@@ -117,7 +117,7 @@ public class Injector extends Configured {
     // merge with existing crawl db
     LOG.info("Injector: Merging injected urls into crawl db.");
     JobConf mergeJob = CrawlDb.createJob(getConf(), crawlDb);
-    mergeJob.addInputDir(tempDir);
+    mergeJob.addInputPath(tempDir);
     JobClient.runJob(mergeJob);
     CrawlDb.install(mergeJob, crawlDb);
 
@@ -136,7 +136,7 @@ public class Injector extends Configured {
       return;
     }
     
-    injector.inject(new File(args[0]), new File(args[1]));
+    injector.inject(new Path(args[0]), new Path(args[1]));
   }
 
 }

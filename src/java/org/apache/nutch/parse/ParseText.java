@@ -86,7 +86,7 @@ public final class ParseText extends VersionedWritable {
     try {
       int recno = Integer.parseInt(argv[0]);
       String segment = argv[1];
-      String filename = new File(segment, ParseText.DIR_NAME).getPath();
+      String filename = new Path(segment, ParseText.DIR_NAME).toString();
 
       ParseText parseText = new ParseText();
       ArrayFile.Reader parseTexts = new ArrayFile.Reader(fs, filename, conf);

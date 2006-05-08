@@ -15,12 +15,12 @@
  */
 package org.apache.nutch.crawl;
 
-import java.io.File;
 import java.util.ArrayList;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.nutch.util.NutchConfiguration;
@@ -49,16 +49,16 @@ public class LinkDbMerger extends Configured {
     super(conf);
   }
   
-  public void merge(File output, File[] dbs, boolean filter) throws Exception {
+  public void merge(Path output, Path[] dbs, boolean filter) throws Exception {
     JobConf job = LinkDb.createMergeJob(getConf(), output);
     job.setBoolean("linkdb.merger.urlfilters", filter);
     for (int i = 0; i < dbs.length; i++) {
-      job.addInputDir(new File(dbs[i], LinkDb.CURRENT_NAME));      
+      job.addInputPath(new Path(dbs[i], LinkDb.CURRENT_NAME));      
     }
     JobClient.runJob(job);
     FileSystem fs = FileSystem.get(getConf());
     fs.mkdirs(output);
-    fs.rename(job.getOutputDir(), new File(output, LinkDb.CURRENT_NAME));
+    fs.rename(job.getOutputPath(), new Path(output, LinkDb.CURRENT_NAME));
   }
   /**
    * @param args
@@ -72,7 +72,7 @@ public class LinkDbMerger extends Configured {
       return;
     }
     Configuration conf = NutchConfiguration.create();
-    File output = new File(args[0]);
+    Path output = new Path(args[0]);
     ArrayList dbs = new ArrayList();
     boolean filter = false;
     for (int i = 1; i < args.length; i++) {
@@ -80,10 +80,10 @@ public class LinkDbMerger extends Configured {
         filter = true;
         continue;
       }
-      dbs.add(new File(args[i]));
+      dbs.add(new Path(args[i]));
     }
     LinkDbMerger merger = new LinkDbMerger(conf);
-    merger.merge(output, (File[])dbs.toArray(new File[dbs.size()]), filter);
+    merger.merge(output, (Path[])dbs.toArray(new Path[dbs.size()]), filter);
   }
 
 }

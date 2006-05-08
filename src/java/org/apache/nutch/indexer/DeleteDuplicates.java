@@ -134,7 +134,7 @@ public class DeleteDuplicates extends Configured
     public FileSplit[] getSplits(FileSystem fs, JobConf job,
                                  int numSplits)
       throws IOException {
-      File[] files = listFiles(fs, job);
+      Path[] files = listPaths(fs, job);
       FileSplit[] splits = new FileSplit[files.length];
       for (int i = 0; i < files.length; i++) {
         splits[i] = new FileSplit(files[i], 0, INDEX_LENGTH);
@@ -147,12 +147,12 @@ public class DeleteDuplicates extends Configured
                                         final FileSplit split,
                                         final JobConf job,
                                         Reporter reporter) throws IOException {
-      final UTF8 index = new UTF8(split.getFile().toString());
+      final UTF8 index = new UTF8(split.getPath().toString());
       reporter.setStatus(index.toString());
       return new RecordReader() {
 
           private IndexReader indexReader =
-            IndexReader.open(new FsDirectory(fs, split.getFile(), false, job));
+            IndexReader.open(new FsDirectory(fs, split.getPath(), false, job));
 
           { indexReader.undeleteAll(); }
 
@@ -264,7 +264,7 @@ public class DeleteDuplicates extends Configured
   public void reduce(WritableComparable key, Iterator values,
                      OutputCollector output, Reporter reporter)
     throws IOException {
-    File index = new File(key.toString());
+    Path index = new Path(key.toString());
     IndexReader reader = IndexReader.open(new FsDirectory(fs, index, false, getConf()));
     try {
       while (values.hasNext()) {
@@ -290,20 +290,20 @@ public class DeleteDuplicates extends Configured
 
   public void checkOutputSpecs(FileSystem fs, JobConf job) {}
 
-  public void dedup(File[] indexDirs)
+  public void dedup(Path[] indexDirs)
     throws IOException {
 
     LOG.info("Dedup: starting");
 
-    File hashDir =
-      new File("dedup-hash-"+
+    Path hashDir =
+      new Path("dedup-hash-"+
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     JobConf job = new NutchJob(getConf());
 
     for (int i = 0; i < indexDirs.length; i++) {
       LOG.info("Dedup: adding indexes in: " + indexDirs[i]);
-      job.addInputDir(indexDirs[i]);
+      job.addInputPath(indexDirs[i]);
     }
     job.setJobName("dedup phase 1");
 
@@ -315,7 +315,7 @@ public class DeleteDuplicates extends Configured
     job.setPartitionerClass(HashPartitioner.class);
     job.setReducerClass(HashReducer.class);
 
-    job.setOutputDir(hashDir);
+    job.setOutputPath(hashDir);
 
     job.setOutputKeyClass(HashScore.class);
     job.setOutputValueClass(IndexDoc.class);
@@ -326,7 +326,7 @@ public class DeleteDuplicates extends Configured
     job = new NutchJob(getConf());
     job.setJobName("dedup phase 2");
 
-    job.addInputDir(hashDir);
+    job.addInputPath(hashDir);
 
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setInputKeyClass(HashScore.class);
@@ -355,9 +355,9 @@ public class DeleteDuplicates extends Configured
       return;
     }
     
-    File[] indexes = new File[args.length];
+    Path[] indexes = new Path[args.length];
     for (int i = 0; i < args.length; i++) {
-      indexes[i] = new File(args[i]);
+      indexes[i] = new Path(args[i]);
     }
 
     dedup.dedup(indexes);

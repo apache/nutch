@@ -219,7 +219,7 @@ public final class ParseData extends VersionedWritable implements Configurable {
       int recno = Integer.parseInt(argv[0]);
       String segment = argv[1];
 
-      File file = new File(segment, DIR_NAME);
+      Path file = new Path(segment, DIR_NAME);
       System.out.println("Reading from file: " + file);
 
       ArrayFile.Reader parses = new ArrayFile.Reader(fs, file.toString(), conf);

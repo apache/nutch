@@ -17,7 +17,6 @@
 package org.apache.nutch.searcher;
 
 import java.io.IOException;
-import java.io.File;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -53,7 +52,7 @@ public class IndexSearcher implements Searcher, HitDetailer {
   private QueryFilters queryFilters;
 
   /** Construct given a number of indexes. */
-  public IndexSearcher(File[] indexDirs, Configuration conf) throws IOException {
+  public IndexSearcher(Path[] indexDirs, Configuration conf) throws IOException {
     IndexReader[] readers = new IndexReader[indexDirs.length];
     this.conf = conf;
     this.fs = FileSystem.get(conf);
@@ -64,7 +63,7 @@ public class IndexSearcher implements Searcher, HitDetailer {
   }
 
   /** Construct given a single merged index. */
-  public IndexSearcher(File index,  Configuration conf)
+  public IndexSearcher(Path index,  Configuration conf)
     throws IOException {
     this.conf = conf;
     this.fs = FileSystem.get(conf);
@@ -79,9 +78,9 @@ public class IndexSearcher implements Searcher, HitDetailer {
     this.queryFilters = new QueryFilters(conf);
   }
 
-  private Directory getDirectory(File file) throws IOException {
+  private Directory getDirectory(Path file) throws IOException {
     if ("local".equals(this.fs.getName())) {
-      return FSDirectory.getDirectory(file, false);
+      return FSDirectory.getDirectory(file.toString(), false);
     } else {
       return new FsDirectory(this.fs, file, false, this.conf);
     }

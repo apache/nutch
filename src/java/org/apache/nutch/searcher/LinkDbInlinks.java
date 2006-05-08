@@ -12,14 +12,13 @@ import org.apache.nutch.crawl.LinkDbReader;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.io.UTF8;
 import org.apache.hadoop.conf.Configuration;
-
-import java.io.File;
+import org.apache.hadoop.fs.Path;
 
 public class LinkDbInlinks implements HitInlinks {
   
   private LinkDbReader linkdb = null;
   
-  public LinkDbInlinks(FileSystem fs, File dir, Configuration conf) {
+  public LinkDbInlinks(FileSystem fs, Path dir, Configuration conf) {
     linkdb = new LinkDbReader(fs, dir, conf);
   }
 

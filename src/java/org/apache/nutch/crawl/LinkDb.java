@@ -178,10 +178,10 @@ public class LinkDb extends Configured implements Mapper, Reducer {
     output.collect(key, result);
   }
 
-  public void invert(File linkDb, final File segmentsDir) throws IOException {
+  public void invert(Path linkDb, final Path segmentsDir) throws IOException {
     final FileSystem fs = FileSystem.get(getConf());
-    File[] files = fs.listFiles(segmentsDir, new FileFilter() {
-      public boolean accept(File f) {
+    Path[] files = fs.listPaths(segmentsDir, new PathFilter() {
+      public boolean accept(Path f) {
         try {
           if (fs.isDirectory(f)) return true;
         } catch (IOException ioe) {};
@@ -191,23 +191,23 @@ public class LinkDb extends Configured implements Mapper, Reducer {
     invert(linkDb, files);
   }
 
-  public void invert(File linkDb, File[] segments) throws IOException {
+  public void invert(Path linkDb, Path[] segments) throws IOException {
     LOG.info("LinkDb: starting");
     LOG.info("LinkDb: linkdb: " + linkDb);
     JobConf job = LinkDb.createJob(getConf(), linkDb);
     for (int i = 0; i < segments.length; i++) {
       LOG.info("LinkDb: adding segment: " + segments[i]);
-      job.addInputDir(new File(segments[i], ParseData.DIR_NAME));
+      job.addInputPath(new Path(segments[i], ParseData.DIR_NAME));
     }
     JobClient.runJob(job);
     FileSystem fs = FileSystem.get(getConf());
     if (fs.exists(linkDb)) {
       LOG.info("LinkDb: merging with existing linkdb: " + linkDb);
       // try to merge
-      File newLinkDb = job.getOutputDir();
+      Path newLinkDb = job.getOutputPath();
       job = LinkDb.createMergeJob(getConf(), linkDb);
-      job.addInputDir(new File(linkDb, CURRENT_NAME));
-      job.addInputDir(newLinkDb);
+      job.addInputPath(new Path(linkDb, CURRENT_NAME));
+      job.addInputPath(newLinkDb);
       JobClient.runJob(job);
       fs.delete(newLinkDb);
     }
@@ -215,9 +215,9 @@ public class LinkDb extends Configured implements Mapper, Reducer {
     LOG.info("LinkDb: done");
   }
 
-  private static JobConf createJob(Configuration config, File linkDb) {
-    File newLinkDb =
-      new File("linkdb-" +
+  private static JobConf createJob(Configuration config, Path linkDb) {
+    Path newLinkDb =
+      new Path("linkdb-" +
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     JobConf job = new NutchJob(config);
@@ -230,7 +230,7 @@ public class LinkDb extends Configured implements Mapper, Reducer {
     job.setMapperClass(LinkDb.class);
     job.setReducerClass(LinkDb.class);
 
-    job.setOutputDir(newLinkDb);
+    job.setOutputPath(newLinkDb);
     job.setOutputFormat(MapFileOutputFormat.class);
     job.setBoolean("mapred.output.compress", true);
     job.setOutputKeyClass(UTF8.class);
@@ -239,9 +239,9 @@ public class LinkDb extends Configured implements Mapper, Reducer {
     return job;
   }
 
-  public static JobConf createMergeJob(Configuration config, File linkDb) {
-    File newLinkDb =
-      new File("linkdb-merge-" + 
+  public static JobConf createMergeJob(Configuration config, Path linkDb) {
+    Path newLinkDb =
+      new Path("linkdb-merge-" + 
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     JobConf job = new NutchJob(config);
@@ -253,7 +253,7 @@ public class LinkDb extends Configured implements Mapper, Reducer {
 
     job.setReducerClass(Merger.class);
 
-    job.setOutputDir(newLinkDb);
+    job.setOutputPath(newLinkDb);
     job.setOutputFormat(MapFileOutputFormat.class);
     job.setBoolean("mapred.output.compress", true);
     job.setOutputKeyClass(UTF8.class);
@@ -262,11 +262,11 @@ public class LinkDb extends Configured implements Mapper, Reducer {
     return job;
   }
 
-  public static void install(JobConf job, File linkDb) throws IOException {
-    File newLinkDb = job.getOutputDir();
+  public static void install(JobConf job, Path linkDb) throws IOException {
+    Path newLinkDb = job.getOutputPath();
     FileSystem fs = new JobClient(job).getFs();
-    File old = new File(linkDb, "old");
-    File current = new File(linkDb, CURRENT_NAME);
+    Path old = new Path(linkDb, "old");
+    Path current = new Path(linkDb, CURRENT_NAME);
     fs.delete(old);
     fs.rename(current, old);
     fs.rename(newLinkDb, current);
@@ -281,15 +281,15 @@ public class LinkDb extends Configured implements Mapper, Reducer {
       System.err.println("Usage: <linkdb> (-dir segmentsDir | segment1 segment2 ...)");
       return;
     }
-    File segDir = null;
+    Path segDir = null;
     final FileSystem fs = FileSystem.get(conf);
-    File db = new File(args[0]);
+    Path db = new Path(args[0]);
     ArrayList segs = new ArrayList();
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-dir")) {
-        segDir = new File(args[++i]);
-        File[] files = fs.listFiles(segDir, new FileFilter() {
-          public boolean accept(File f) {
+        segDir = new Path(args[++i]);
+        Path[] files = fs.listPaths(segDir, new PathFilter() {
+          public boolean accept(Path f) {
             try {
               if (fs.isDirectory(f)) return true;
             } catch (IOException ioe) {};
@@ -298,9 +298,9 @@ public class LinkDb extends Configured implements Mapper, Reducer {
         });
         if (files != null) segs.addAll(Arrays.asList(files));
         break;
-      } else segs.add(new File(args[i]));
+      } else segs.add(new Path(args[i]));
     }
-    linkDb.invert(db, (File[])segs.toArray(new File[segs.size()]));
+    linkDb.invert(db, (Path[])segs.toArray(new Path[segs.size()]));
   }
 
 
