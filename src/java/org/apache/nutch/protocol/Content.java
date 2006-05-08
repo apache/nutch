@@ -146,6 +146,12 @@ public final class Content extends CompressedWritable {
     return metadata;
   }
 
+  /** Other protocol-specific data. */
+  public void setMetadata(Metadata metadata) {
+    ensureInflated();
+    this.metadata = metadata;
+  }
+
   public boolean equals(Object o) {
     ensureInflated();
     if (!(o instanceof Content)){
