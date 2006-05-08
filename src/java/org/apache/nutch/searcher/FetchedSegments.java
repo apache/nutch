@@ -110,16 +110,12 @@ public class FetchedSegments implements HitSummarizer, HitContent {
   }
 
   private HashMap segments = new HashMap();
-  private int sumContext = 5;
-  private int sumLength = 20;
   private Summarizer summarizer;
 
   /** Construct given a directory containing fetcher output. */
   public FetchedSegments(FileSystem fs, String segmentsDir, Configuration conf) throws IOException {
     File[] segmentDirs = fs.listFiles(new File(segmentsDir));
-    this.sumContext = conf.getInt("searcher.summary.context", 5);
-    this.sumLength = conf.getInt("searcher.summary.length", 20);
-    this.summarizer = new Summarizer(conf);
+    this.summarizer = new SummarizerFactory(conf).getSummarizer();
 
     if (segmentDirs != null) {
         for (int i = 0; i < segmentDirs.length; i++) {
@@ -158,9 +154,9 @@ public class FetchedSegments implements HitSummarizer, HitContent {
   public String getSummary(HitDetails details, Query query)
     throws IOException {
 
+    if (this.summarizer == null) { return ""; }
     String text = getSegment(details).getParseText(getUrl(details)).getText();
-
-    return this.summarizer.getSummary(text, query, this.sumContext, this.sumLength).toString();
+    return this.summarizer.getSummary(text, query).toString();
   }
     
   private class SummaryThread extends Thread {
