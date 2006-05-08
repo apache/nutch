@@ -287,6 +287,7 @@ webapp
              includes="**/*.html"/>
 
   	<replace dir="${docs.dir}" token="help.html" value="help.do" includes="**/*.html"/>
+  	<replace dir="${docs.dir}" token="about.html" value="about.do" includes="**/*.html"/>
   	<replace dir="${docs.dir}" token="search.jsp" value="search.do" includes="**/*.html"/>
   	<replace dir="${docs.dir}" token="../" value="" includes="**/*.html"/>
   	

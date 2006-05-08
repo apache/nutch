@@ -9,9 +9,9 @@ to represent blocks of functinality and layout on a search
 (and related) pages. Layout is constructed by using following
 tag libraries:
 
-struts-logic
+jstl-c
+jstl-fmt
 struts-tiles
-struts-bean
 
 These tiles blocks can be extended or overridden by plugins
 implementing org.apache.nutch.webapp.UIExtensionPoint. A
@@ -36,8 +36,10 @@ the configuration parameter you need to edit is named
 
 Todo:
 
--Provide some samples of ui plugins
-
+-provide some samples of ui plugins
+-move "more" functionality to plugin
+-remove table structures from html to allow more flexible css layouts
+-add mechanism for adding binary items (ie. images)
 
 Directory contents
 

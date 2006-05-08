@@ -48,12 +48,5 @@ public class PreferencesController extends NutchController {
       LOG.info("view");
       request.setAttribute("preferences", locator.getPreferences());
     }
-    
-    // add List languages  (defined in tles-defs)
-    request.setAttribute("languages", tileContext.getAttribute("languages"));
-
-    // add List hitsPerPages (defined in tles-defs)
-    request.setAttribute("hitsPerPage", tileContext.getAttribute("hitsPerPage"));
-    
   }
 }
