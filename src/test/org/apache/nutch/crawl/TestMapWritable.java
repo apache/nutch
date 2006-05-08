@@ -91,6 +91,16 @@ public class TestMapWritable extends TestCase {
     }
     testWritable(c);
   }
+  
+  public void testEquals() {
+    MapWritable map1 = new MapWritable();
+    MapWritable map2 = new MapWritable();
+    map1.put(new UTF8("key1"), new UTF8("val1"));
+    map1.put(new UTF8("key2"), new UTF8("val2"));
+    map2.put(new UTF8("key2"), new UTF8("val2"));
+    map2.put(new UTF8("key1"), new UTF8("val1"));
+    assertTrue(map1.equals(map2));
+  }
 
   public void testPerformance() throws Exception {
     File file = new File(System.getProperty("java.io.tmpdir"), "mapTestFile");
