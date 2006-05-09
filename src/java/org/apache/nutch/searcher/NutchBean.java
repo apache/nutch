@@ -320,11 +320,11 @@ public class NutchBean
     return detailer.getDetails(hits);
   }
 
-  public String getSummary(HitDetails hit, Query query) throws IOException {
+  public Summary getSummary(HitDetails hit, Query query) throws IOException {
     return summarizer.getSummary(hit, query);
   }
 
-  public String[] getSummary(HitDetails[] hits, Query query)
+  public Summary[] getSummary(HitDetails[] hits, Query query)
     throws IOException {
     return summarizer.getSummary(hits, query);
   }
@@ -377,7 +377,7 @@ public class NutchBean
     int length = (int)Math.min(hits.getTotal(), 10);
     Hit[] show = hits.getHits(0, length);
     HitDetails[] details = bean.getDetails(show);
-    String[] summaries = bean.getSummary(details, query);
+    Summary[] summaries = bean.getSummary(details, query);
 
     for (int i = 0; i < hits.getLength(); i++) {
       System.out.println(" "+i+" "+ details[i] + "\n" + summaries[i]);

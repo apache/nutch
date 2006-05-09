@@ -35,6 +35,7 @@ import org.apache.nutch.crawl.*;
 public class FetchedSegments implements HitSummarizer, HitContent {
 
   private static class Segment implements Closeable {
+    
     private static final Partitioner PARTITIONER = new HashPartitioner();
 
     private FileSystem fs;
@@ -150,19 +151,19 @@ public class FetchedSegments implements HitSummarizer, HitContent {
     return getSegment(details).getParseText(getUrl(details));
   }
 
-  public String getSummary(HitDetails details, Query query)
+  public Summary getSummary(HitDetails details, Query query)
     throws IOException {
 
-    if (this.summarizer == null) { return ""; }
+    if (this.summarizer == null) { return new Summary(); }
     String text = getSegment(details).getParseText(getUrl(details)).getText();
-    return this.summarizer.getSummary(text, query).toString();
+    return this.summarizer.getSummary(text, query);
   }
     
   private class SummaryThread extends Thread {
     private HitDetails details;
     private Query query;
 
-    private String summary;
+    private Summary summary;
     private Throwable throwable;
 
     public SummaryThread(HitDetails details, Query query) {
@@ -181,7 +182,7 @@ public class FetchedSegments implements HitSummarizer, HitContent {
   }
 
 
-  public String[] getSummary(HitDetails[] details, Query query)
+  public Summary[] getSummary(HitDetails[] details, Query query)
     throws IOException {
     SummaryThread[] threads = new SummaryThread[details.length];
     for (int i = 0; i < threads.length; i++) {
@@ -189,7 +190,7 @@ public class FetchedSegments implements HitSummarizer, HitContent {
       threads[i].start();
     }
 
-    String[] results = new String[details.length];
+    Summary[] results = new Summary[details.length];
     for (int i = 0; i < threads.length; i++) {
       try {
         threads[i].join();

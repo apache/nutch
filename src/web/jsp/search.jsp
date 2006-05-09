@@ -9,6 +9,7 @@
 
   import="org.apache.nutch.html.Entities"
   import="org.apache.nutch.searcher.*"
+  import="org.apache.nutch.searcher.Summary.Fragment"
   import="org.apache.nutch.plugin.*"
   import="org.apache.nutch.clustering.*"
   import="org.apache.hadoop.conf.*"
@@ -177,7 +178,7 @@ function queryfocus() { document.search.query.focus(); }
 
    Hit[] show = hits.getHits(start, realEnd-start);
    HitDetails[] details = bean.getDetails(show);
-   String[] summaries = bean.getSummary(details, query);
+   Summary[] summaries = bean.getSummary(details, query);
 
    bean.LOG.info("total hits: " + hits.getTotal());
 %>
@@ -210,11 +211,27 @@ out.flush();
     HitDetails detail = details[i];
     String title = detail.getValue("title");
     String url = detail.getValue("url");
-    String summary = summaries[i];
     String id = "idx=" + hit.getIndexNo() + "&id=" + hit.getIndexDocNo();
 
-    if (title == null || title.equals(""))        // use url for docs w/o title
+    if (title == null || title.equals("")) {      // use url for docs w/o title
       title = url;
+    }
+    
+    // Build the summary
+    StringBuffer sum = new StringBuffer();
+    Fragment[] fragments = summaries[i].getFragments();
+    for (int j=0; j<fragments.length; j++) {
+      if (fragments[j].isHighlight()) {
+        sum.append("<span class=\"highlight\">")
+           .append(Entities.encode(fragments[j].getText()))
+           .append("</span>");
+      } else if (fragments[j].isEllipsis()) {
+        sum.append("<span class=\"ellipsis\"> ... </span>");
+      } else {
+        sum.append(Entities.encode(fragments[j].getText()));
+      }
+    }
+    String summary = sum.toString();
     %>
     <b><a href="<%=url%>"><%=Entities.encode(title)%></a></b>
     <%@ include file="more.jsp" %>

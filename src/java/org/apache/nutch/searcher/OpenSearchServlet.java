@@ -145,7 +145,7 @@ public class OpenSearchServlet extends HttpServlet {
 
     Hit[] show = hits.getHits(start, end-start);
     HitDetails[] details = bean.getDetails(show);
-    String[] summaries = bean.getSummary(details, query);
+    Summary[] summaries = bean.getSummary(details, query);
 
     String requestUrl = request.getRequestURL().toString();
     String base = requestUrl.substring(0, requestUrl.lastIndexOf('/'));
@@ -204,13 +204,14 @@ public class OpenSearchServlet extends HttpServlet {
         String url = detail.getValue("url");
         String id = "idx=" + hit.getIndexNo() + "&id=" + hit.getIndexDocNo();
       
-        if (title == null || title.equals(""))    // use url for docs w/o title
+        if (title == null || title.equals("")) {   // use url for docs w/o title
           title = url;
-
+        }
+        
         Element item = addNode(doc, channel, "item");
 
         addNode(doc, item, "title", title);
-        addNode(doc, item, "description", summaries[i]);
+        addNode(doc, item, "description", summaries[i].toString());
         addNode(doc, item, "link", url);
 
         addNode(doc, item, "nutch", "site", hit.getDedupValue());

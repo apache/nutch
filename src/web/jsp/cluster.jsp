@@ -23,7 +23,7 @@ HitsCluster [] clusters = null;
 if (clusterer != null) {
   final long clusteringStart = System.currentTimeMillis();
   try {
-    clusters = clusterer.clusterHits( details, summaries );
+    clusters = clusterer.clusterHits( details, Summary.toStrings(summaries) );
     final long clusteringDuration = System.currentTimeMillis() - clusteringStart;
     bean.LOG.info("Clustering took: " + clusteringDuration + " milliseconds.");
   } catch (Exception e) {
