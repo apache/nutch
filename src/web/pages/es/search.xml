@@ -1,9 +1,10 @@
 <page>
 <body>
 <center>
-<form name="search" action="../search.jsp" method="get"> <input
- name="query" size="44"/>&#160;<input type="submit" value="Buscar"/>
-<a href="help.html">ayuda</a>
+<form name="search" action="../search.jsp" method="get">
+  <input type="hidden" name="lang" value="es"/>
+  <input name="query" size="44"/>&#160;<input type="submit" value="Buscar"/>
+  <a href="help.html">ayuda</a>
 </form>
 </center>
 </body>

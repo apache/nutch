@@ -3,8 +3,10 @@
 <page>
 <body>
 <center>
-<form name="search" action="../search.jsp" method="get"> <input name="query" size="44"/> <input type="submit" value="Search"/>
-<a href="help.html">ajuda</a>
+<form name="search" action="../search.jsp" method="get">
+  <input type="hidden" name="lang" value="pt"/>
+  <input name="query" size="44"/> <input type="submit" value="Search"/>
+  <a href="help.html">ajuda</a>
 </form>
 </center>
 </body>

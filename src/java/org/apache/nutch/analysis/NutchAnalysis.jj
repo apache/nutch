@@ -28,12 +28,15 @@ PARSER_BEGIN(NutchAnalysis)
 
 package org.apache.nutch.analysis;
 
+import java.io.StringReader;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.searcher.Query;
 import org.apache.nutch.searcher.QueryFilters;
 import org.apache.nutch.searcher.Query.Clause;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.StopFilter;
+import org.apache.lucene.analysis.TokenStream;
 
 import java.io.*;
 import java.util.*;
@@ -51,9 +54,16 @@ public class NutchAnalysis {
 
   private static final Set STOP_SET = StopFilter.makeStopSet(STOP_WORDS);
 
+  private Analyzer analyzer = null;
   private String queryString;
   private QueryFilters queryFilters;
   
+
+  /** Constructs a nutch analysis. */
+  public NutchAnalysis(String query, Analyzer analyzer) {
+    this(new FastCharStream(new StringReader(query)));
+    this.analyzer = analyzer;
+  }
 
   /** True iff word is a stop word.  Stop words are only removed from queries.
    * Every word is indexed.  */
@@ -63,8 +73,14 @@ public class NutchAnalysis {
 
   /** Construct a query parser for the text in a reader. */
   public static Query parseQuery(String queryString, Configuration conf) throws IOException {
-    NutchAnalysis parser =
-      new NutchAnalysis(new FastCharStream(new StringReader(queryString)));
+    return parseQuery(queryString, null, conf);
+  }
+
+  /** Construct a query parser for the text in a reader. */
+  public static Query parseQuery(String queryString, Analyzer analyzer, Configuration conf)
+    throws IOException {
+    NutchAnalysis parser = new NutchAnalysis(
+          queryString, (analyzer != null) ? analyzer : new NutchDocumentAnalyzer(conf));
     parser.queryString = queryString;
     parser.queryFilters = new QueryFilters(conf);
     return parser.parse(conf);
@@ -266,19 +282,46 @@ ArrayList compound(String field) :
   int start;
   ArrayList result = new ArrayList();
   String term;
+  StringBuffer terms = new StringBuffer();
 }
 {
   { start = token.endColumn; }
 
-  term = term() { result.add(term); }
+  term = term() {
+    terms.append(term).append(" ");
+    //result.add(term);
+  }
   ( LOOKAHEAD( (infix())+ term() )
     (infix())+
-    term = term() { result.add(term); })*
+    term = term() {
+      terms.append(term).append(" ");
+      //result.add(term);
+    })*
 
   {
     if (this.queryFilters.isRawField(field)) {
-      result.clear();
+//      result.clear();
       result.add(queryString.substring(start, token.endColumn));
+
+    } else {
+      org.apache.lucene.analysis.Token token;
+      TokenStream tokens = analyzer.tokenStream(
+                              field, new StringReader(terms.toString()));
+
+      while (true) {
+        try {
+          token = tokens.next();
+        } catch (IOException e) {
+          token = null;
+        }
+        if (token == null) { break; }
+        result.add(token.termText());
+      }
+      try {
+        tokens.close();
+      } catch (IOException e) {
+        // ignore
+      }
     }
     return result;
   }

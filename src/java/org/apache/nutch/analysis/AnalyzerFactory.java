@@ -34,10 +34,11 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class AnalyzerFactory {
 
-  public final static Logger LOG =
-          LogFormatter.getLogger(AnalyzerFactory.class.getName());
+  private final static String KEY = AnalyzerFactory.class.getName();
+  
+  public final static Logger LOG = LogFormatter.getLogger(KEY);
 
-
+  
   private NutchAnalyzer DEFAULT_ANALYZER;
   
   private ExtensionPoint extensionPoint;
@@ -53,6 +54,14 @@ public class AnalyzerFactory {
       }
   }
 
+  public static AnalyzerFactory get(Configuration conf) {
+    AnalyzerFactory factory = (AnalyzerFactory) conf.getObject(KEY);
+    if (factory == null) {
+      factory = new AnalyzerFactory(conf);
+      conf.setObject(KEY, factory);
+    }
+    return factory;
+  }
   
   /**
    * Returns the appropriate {@link NutchAnalyzer analyzer} implementation

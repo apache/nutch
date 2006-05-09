@@ -36,7 +36,7 @@
     // it effectively prevents the servlet class from being loaded into
     // the JVM
   }
-
+  
 %>
 
 <%--
@@ -57,7 +57,7 @@
   if (queryString == null)
     queryString = "";
   String htmlQueryString = Entities.encode(queryString);
-
+  
   // a flag to make the code cleaner a bit.
   boolean clusteringAvailable = (clusterer != null);
 
@@ -89,8 +89,12 @@
 
   int hitsToCluster = HITS_TO_CLUSTER;            // number of hits to cluster
 
-  Query query = Query.parse(queryString, nutchConf);
+  // get the lang from request
+  String queryLang = request.getParameter("lang");
+  if (queryLang == null) { queryLang = ""; }
+  Query query = Query.parse(queryString, queryLang, nutchConf);
   bean.LOG.info("query: " + queryString);
+  bean.LOG.info("lang: " + queryLang);
 
   String language =
     ResourceBundle.getBundle("org.nutch.jsp.search", request.getLocale())
@@ -98,7 +102,7 @@
   String requestURI = HttpUtils.getRequestURL(request).toString();
   String base = requestURI.substring(0, requestURI.lastIndexOf('/'));
   String rss = "../opensearch?query="+htmlQueryString
-    +"&hitsPerSite="+hitsPerSite+params;
+    +"&hitsPerSite="+hitsPerSite+"&lang="+queryLang+params;
 %><!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <%
   // To prevent the character encoding declared with 'contentType' page
@@ -132,6 +136,7 @@ function queryfocus() { document.search.query.focus(); }
  <form name="search" action="../search.jsp" method="get">
  <input name="query" size=44 value="<%=htmlQueryString%>">
  <input type="hidden" name="hitsPerPage" value="<%=hitsPerPage%>">
+ <input type="hidden" name="lang" value="<%=language%>">
  <input type="submit" value="<i18n:message key="search"/>">
  <% if (clusteringAvailable) { %>
    <input id="clustbox" type="checkbox" name="clustering" value="yes" <% if (clustering.equals("yes")) { %>CHECKED<% } %>>
@@ -219,12 +224,13 @@ out.flush();
     <br>
     <span class="url"><%=Entities.encode(url)%></span>
     (<a href="../cached.jsp?<%=id%>"><i18n:message key="cached"/></a>)
-    (<a href="../explain.jsp?<%=id%>&query=<%=URLEncoder.encode(queryString, "UTF-8")%>"><i18n:message key="explain"/></a>)
+    (<a href="../explain.jsp?<%=id%>&query=<%=URLEncoder.encode(queryString, "UTF-8")%>&lang=<%=queryLang%>"><i18n:message key="explain"/></a>)
     (<a href="../anchors.jsp?<%=id%>"><i18n:message key="anchors"/></a>)
     <% if (hit.moreFromDupExcluded()) {
     String more =
     "query="+URLEncoder.encode("site:"+hit.getDedupValue()+" "+queryString, "UTF8")
     +params+"&hitsPerSite="+0
+    +"&lang="+queryLang
     +"&clustering="+clustering;%>
     (<a href="../search.jsp?<%=more%>"><i18n:message key="moreFrom"/>
      <%=hit.getDedupValue()%></a>)
@@ -254,6 +260,7 @@ if ((hits.totalIsExact() && end < hits.getTotal()) // more hits to show
 %>
     <form name="next" action="../search.jsp" method="get">
     <input type="hidden" name="query" value="<%=htmlQueryString%>">
+    <input type="hidden" name="lang" value="<%=queryLang%>">
     <input type="hidden" name="start" value="<%=end%>">
     <input type="hidden" name="hitsPerPage" value="<%=hitsPerPage%>">
     <input type="hidden" name="hitsPerSite" value="<%=hitsPerSite%>">
@@ -271,6 +278,7 @@ if ((!hits.totalIsExact() && (hits.getLength() <= start+hitsPerPage))) {
 %>
     <form name="showAllHits" action="../search.jsp" method="get">
     <input type="hidden" name="query" value="<%=htmlQueryString%>">
+    <input type="hidden" name="lang" value="<%=queryLang%>">
     <input type="hidden" name="hitsPerPage" value="<%=hitsPerPage%>">
     <input type="hidden" name="hitsPerSite" value="0">
     <input type="hidden" name="clustering" value="<%=clustering%>">
