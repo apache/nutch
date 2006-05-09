@@ -80,7 +80,10 @@ public class OpenSearchServlet extends HttpServlet {
     if (queryString == null)
       queryString = "";
     String urlQuery = URLEncoder.encode(queryString, "UTF-8");
-
+    
+    // the query language
+    String queryLang = request.getParameter("lang");
+    
     int start = 0;                                // first hit to display
     String startString = request.getParameter("start");
     if (startString != null)
@@ -116,11 +119,13 @@ public class OpenSearchServlet extends HttpServlet {
      
     // Make up query string for use later drawing the 'rss' logo.
     String params = "&hitsPerPage=" + hitsPerPage +
+        (queryLang == null ? "" : "&lang=" + queryLang) +
         (sort == null ? "" : "&sort=" + sort + (reverse? "&reverse=true": "") +
         (dedupField == null ? "" : "&dedupField=" + dedupField));
 
-    Query query = Query.parse(queryString, this.conf);
+    Query query = Query.parse(queryString, queryLang, this.conf);
     NutchBean.LOG.info("query: " + queryString);
+    NutchBean.LOG.info("lang: " + queryLang);
 
     // execute the query
     Hits hits;
@@ -212,7 +217,7 @@ public class OpenSearchServlet extends HttpServlet {
 
         addNode(doc, item, "nutch", "cache", base+"/cached.jsp?"+id);
         addNode(doc, item, "nutch", "explain", base+"/explain.jsp?"+id
-                +"&query="+urlQuery);
+                +"&query="+urlQuery+"&lang="+queryLang);
 
         if (hit.moreFromDupExcluded()) {
           addNode(doc, item, "nutch", "moreFromSite", requestUrl

@@ -17,7 +17,11 @@
   Hit hit = new Hit(Integer.parseInt(request.getParameter("idx")),
                     Integer.parseInt(request.getParameter("id")));
   HitDetails details = bean.getDetails(hit);
-  Query query = Query.parse(request.getParameter("query"), nutchConf);
+  // get the lang from request
+  // get the lang from request
+  String queryLang = request.getParameter("lang");
+  if (queryLang == null) { queryLang = ""; }
+  Query query = Query.parse(request.getParameter("query"), queryLang, nutchConf);
   String language =
     ResourceBundle.getBundle("org.nutch.jsp.explain", request.getLocale())
     .getLocale().getLanguage();

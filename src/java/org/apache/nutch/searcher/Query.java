@@ -25,12 +25,17 @@ import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.util.LogFormatter;
+import org.apache.nutch.analysis.AnalyzerFactory;
+
 import org.apache.nutch.analysis.NutchAnalysis;
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.hadoop.io.Writable;
+
+import org.apache.lucene.analysis.Analyzer;
+
 
 /** A Nutch query. */
 public final class Query implements Writable, Cloneable, Configurable {
@@ -425,10 +430,16 @@ public final class Query implements Writable, Cloneable, Configurable {
     return (String[])result.toArray(new String[result.size()]);
   }
 
+  /** Parse a query from a string. */
+  public static Query parse(String queryString, String queryLang, Configuration conf)
+  throws IOException {
+    return fixup(NutchAnalysis.parseQuery(
+            queryString, AnalyzerFactory.get(conf).get(queryLang), conf), conf);
+  }
 
   /** Parse a query from a string. */
   public static Query parse(String queryString, Configuration conf) throws IOException {
-    return fixup(NutchAnalysis.parseQuery(queryString, conf), conf);
+    return parse(queryString, null, conf);
   }
 
   /** Convert clauses in unknown fields to the default field. */
