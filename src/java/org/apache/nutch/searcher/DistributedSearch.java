@@ -276,11 +276,11 @@ public class DistributedSearch {
     }
 
 
-    public String getSummary(HitDetails hit, Query query) throws IOException {
+    public Summary getSummary(HitDetails hit, Query query) throws IOException {
       return getRemote(hit).getSummary(hit, query);
     }
 
-    public String[] getSummary(HitDetails[] hits, Query query)
+    public Summary[] getSummary(HitDetails[] hits, Query query)
       throws IOException {
       InetSocketAddress[] addrs = new InetSocketAddress[hits.length];
       Object[][] params = new Object[hits.length][2];
@@ -291,7 +291,7 @@ public class DistributedSearch {
         params[i][0] = hit;
         params[i][1] = query;
       }
-      return (String[])RPC.call(SUMMARY, params, addrs, conf);
+      return (Summary[])RPC.call(SUMMARY, params, addrs, conf);
     }
     
     public byte[] getContent(HitDetails hit) throws IOException {
