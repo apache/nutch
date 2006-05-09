@@ -34,7 +34,6 @@ import com.dawidweiss.carrot.core.local.LocalInputComponentBase;
 import com.dawidweiss.carrot.core.local.ProcessingException;
 import com.dawidweiss.carrot.core.local.RequestContext;
 import com.dawidweiss.carrot.core.local.clustering.*;
-import com.dawidweiss.carrot.util.common.StringUtils;
 
 /**
  * A local input component that ignores the query passed from the
@@ -103,7 +102,7 @@ public class LocalNutchInputComponent extends LocalInputComponentBase {
     // produce 'documents' for successor components.
     final RawDocumentsConsumer consumer = (RawDocumentsConsumer) next;
     for (int i=0;i<summaries.length;i++) {
-      consumer.addDocument(new NutchDocument(i, details[i], htmlToText(summaries[i]), defaultLanguage));
+      consumer.addDocument(new NutchDocument(i, details[i], summaries[i], defaultLanguage));
     }
   }
 
@@ -121,14 +120,4 @@ public class LocalNutchInputComponent extends LocalInputComponentBase {
     return SUCCESSOR_CAPABILITIES;
   }
 
-  /**
-   * Converts a html chunk to plain text.
-   * 
-   * This method is only required because Nutch's summaries are in HTML.
-   * I guess it would be possible to get rid of the code below by
-   * adding patches/ methods to Nutch that return plain text summaries. 
-   */
-  private final String htmlToText(String html) {
-    return StringUtils.removeMarkup(html);
-  }
 }
