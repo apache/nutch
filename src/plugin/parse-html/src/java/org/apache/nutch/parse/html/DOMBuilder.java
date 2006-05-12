@@ -551,7 +551,7 @@ public class DOMBuilder
   public void comment(char ch[], int start, int length) throws org.xml.sax.SAXException
   {
     // tagsoup sometimes submits invalid values here
-    if (ch == null || start < 0 || length >= ch.length) return;
+    if (ch == null || start < 0 || length >= (ch.length - start) || length < 0) return;
     append(m_doc.createComment(new String(ch, start, length)));
   }
 
