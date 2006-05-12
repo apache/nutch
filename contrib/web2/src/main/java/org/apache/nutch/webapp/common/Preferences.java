@@ -80,10 +80,8 @@ public class Preferences extends HashMap {
   public static void setPreferencesCookie(HttpServletRequest request,
       HttpServletResponse response, Preferences prefs) {
     if (defaults.equals(prefs)) {
-      System.out.println("default qeuals prefs, removing");
       removeCookie(response);
     } else {
-      System.out.println("setting preferences to cookie");
       setPreferencesCookie(response, prefs);
     }
   }
@@ -142,17 +140,13 @@ public class Preferences extends HashMap {
    * @return parsed Preferences 
    */
   public static Preferences parse(String data, String valueValueSeparator, String keyValueSeparator) {
-
-    System.out.println("data:" + data);
     Preferences p = new Preferences();
     p.putAll(defaults);
     String[] dataitems = data.split(valueValueSeparator);
-    System.out.println(dataitems.length + " dataitems submitted");
     for (int i = 0; i < dataitems.length; i++) {
       String keyvalue[] = dataitems[i].split(keyValueSeparator);
       if (keyvalue.length == 2) {
         try {
-          System.out.println("adding:" +  keyvalue[0] + "=" + keyvalue[1]);
           p.put(keyvalue[0], URLDecoder.decode((String)keyvalue[1],"UTF-8"));
         } catch (UnsupportedEncodingException e) {
           e.printStackTrace();
@@ -201,8 +195,6 @@ public class Preferences extends HashMap {
         txt.append(DEFAULTVALVALSEPARATOR);
     }
 
-    System.out.println("toString():" + txt.toString());
-    
     return txt.toString();
   }
 

@@ -27,6 +27,7 @@ import org.apache.nutch.searcher.HitDetails;
 import org.apache.nutch.searcher.Hits;
 import org.apache.nutch.searcher.NutchBean;
 import org.apache.nutch.searcher.Query;
+import org.apache.nutch.searcher.Summary;
 
 /**
  * Search is a bean that represents an ongoing search.
@@ -45,8 +46,6 @@ public class Search {
 
   Query query;
 
-  int maxHits;
-
   int startOffset;
 
   int hitsPerDup;
@@ -63,7 +62,7 @@ public class Search {
 
   HitDetails[] details;
 
-  String[] summaries;
+  Summary[] summaries;
 
   ArrayList results = null;
 
@@ -83,14 +82,14 @@ public class Search {
   public void performSearch(NutchBean bean) {
 
     try {
-      hits = bean.search(getQuery(), getStartOffset() + getMaxHits(),
+      hits = bean.search(getQuery(), getStartOffset() + getHitsPerPage(),
           getHitsPerSite(), getDupField(), getSortColumn(), isSortDesc());
     } catch (IOException e) {
       hits = new Hits(0, new Hit[0]);
     }
 
     int realEnd = (int) Math.min(hits.getLength(), getStartOffset()
-        + getMaxHits());
+        + getHitsPerPage());
 
     int endOffset=hits.getLength();
     
@@ -158,8 +157,6 @@ public class Search {
     hitsPerDup = parseInt(form.getValueString(SearchForm.NAME_HITSPERDUP), prefs.getInt(
         Preferences.KEY_HITS_PER_DUP, 2));
 
-    maxHits = hitsPerPage;
-
     sortColumn = form.getValueString(SearchForm.NAME_SORTCOLUMN);
 
     sortDesc = (sortColumn != null && "true".equals(form
@@ -207,22 +204,7 @@ public class Search {
   protected void setHitsPerSite(int hitsPerSite) {
     this.hitsPerDup = hitsPerSite;
   }
-
-  /**
-   * @return Returns the maxHits.
-   */
-  public int getMaxHits() {
-    return maxHits;
-  }
-
-  /**
-   * @param maxHits
-   *          The maxHits to set.
-   */
-  protected void setMaxHits(int maxHits) {
-    this.maxHits = maxHits;
-  }
-
+  
   /**
    * @return Returns the query.
    */
@@ -365,7 +347,7 @@ public class Search {
   /**
    * @return Returns the summaries.
    */
-  public String[] getSummaries() {
+  public Summary[] getSummaries() {
     return summaries;
   }
 
@@ -373,7 +355,7 @@ public class Search {
    * @param summaries
    *          The summaries to set.
    */
-  protected void setSummaries(String[] summaries) {
+  protected void setSummaries(Summary[] summaries) {
     this.summaries = summaries;
   }
 

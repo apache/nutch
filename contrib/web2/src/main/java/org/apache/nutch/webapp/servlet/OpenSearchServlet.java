@@ -26,20 +26,17 @@ import java.util.HashSet;
 
 import javax.servlet.ServletException;
 import javax.servlet.ServletConfig;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import javax.xml.parsers.*;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.searcher.Hit;
 import org.apache.nutch.searcher.HitDetails;
 import org.apache.nutch.searcher.Hits;
 import org.apache.nutch.searcher.NutchBean;
 import org.apache.nutch.searcher.Query;
-import org.apache.nutch.webapp.common.ServiceLocator;
-import org.apache.nutch.webapp.common.ServletContextServiceLocator;
+import org.apache.nutch.searcher.Summary;
 import org.w3c.dom.*;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.Transformer;
@@ -50,7 +47,7 @@ import javax.xml.transform.stream.StreamResult;
  * Present search results using A9's OpenSearch extensions to RSS, plus a few
  * Nutch-specific extensions.
  */
-public class OpenSearchServlet extends HttpServlet {
+public class OpenSearchServlet extends NutchHttpServlet {
   private static final long serialVersionUID = 1L;
 
   private static final Map NS_MAP = new HashMap();
@@ -66,15 +63,8 @@ public class OpenSearchServlet extends HttpServlet {
     SKIP_DETAILS.add("title"); // redundant with RSS title
   }
 
-  private NutchBean bean;
-
-  private Configuration conf;
-
-  public void init(ServletConfig conf) {
-    ServiceLocator locator = ServletContextServiceLocator.getInstance(conf
-        .getServletContext());
-    bean = locator.getNutchBean();
-    this.conf = locator.getConfiguration();
+  public void init(ServletConfig conf) throws ServletException {
+    super.init(conf);
   }
 
   public void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -129,13 +119,13 @@ public class OpenSearchServlet extends HttpServlet {
             + (reverse ? "&reverse=true" : "")
             + (dedupField == null ? "" : "&dedupField=" + dedupField));
 
-    Query query = Query.parse(queryString, this.conf);
+    Query query = Query.parse(queryString, getServiceLocator().getConfiguration());
     NutchBean.LOG.info("query: " + queryString);
 
     // execute the query
     Hits hits;
     try {
-      hits = bean.search(query, start + hitsPerPage, hitsPerDup, dedupField,
+      hits = getServiceLocator().getNutchBean().search(query, start + hitsPerPage, hitsPerDup, dedupField,
           sort, reverse);
     } catch (IOException e) {
       NutchBean.LOG.log(Level.WARNING, "Search Error", e);
@@ -149,8 +139,8 @@ public class OpenSearchServlet extends HttpServlet {
     int length = end - start;
 
     Hit[] show = hits.getHits(start, end - start);
-    HitDetails[] details = bean.getDetails(show);
-    String[] summaries = bean.getSummary(details, query);
+    HitDetails[] details = getServiceLocator().getNutchBean().getDetails(show);
+    Summary[] summaries = getServiceLocator().getNutchBean().getSummary(details, query);
 
     String requestUrl = request.getRequestURL().toString();
     String base = requestUrl.substring(0, requestUrl.lastIndexOf('/'));
@@ -204,13 +194,13 @@ public class OpenSearchServlet extends HttpServlet {
         Element item = addNode(doc, channel, "item");
 
         addNode(doc, item, "title", title);
-        addNode(doc, item, "description", summaries[i]);
+        addNode(doc, item, "description", summaries[i].toString());
         addNode(doc, item, "link", url);
 
         addNode(doc, item, "nutch", "site", hit.getDedupValue());
 
-        addNode(doc, item, "nutch", "cache", base + "/cached.jsp?" + id);
-        addNode(doc, item, "nutch", "explain", base + "/explain.jsp?" + id
+        addNode(doc, item, "nutch", "cache", base + "/cached.do?" + id);
+        addNode(doc, item, "nutch", "explain", base + "/explain.do?" + id
             + "&query=" + urlQuery);
 
         if (hit.moreFromDupExcluded()) {
