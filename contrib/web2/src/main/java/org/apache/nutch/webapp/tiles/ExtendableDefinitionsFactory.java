@@ -25,7 +25,6 @@ import java.util.logging.Logger;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.LogFormatter;
 
 import org.apache.nutch.plugin.Extension;
@@ -89,8 +88,6 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
     } catch (Exception e) {
       e.printStackTrace(System.out);
     }
-    LOG.fine("Restoring ClassLoader.");
-
   }
 
   protected XmlDefinitionsSet getDefinitions() {
@@ -181,10 +178,6 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
         + definitions.toString());
   }
 
-  protected Configuration getNutchConfig(ServletContext context) {
-    return ServletContextServiceLocator.getInstance(context).getConfiguration();
-  }
-
   /*
    * (non-Javadoc)
    * 
@@ -204,7 +197,6 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
     PluginResourceLoader loader = ServletContextServiceLocator.getInstance(
         servletContext).getPluginResourceLoader(current);
 
-    //TODO: fix this!!!
     Thread.currentThread().setContextClassLoader(loader);
     initDefinitions(definitions);
     Thread.currentThread().setContextClassLoader(current);

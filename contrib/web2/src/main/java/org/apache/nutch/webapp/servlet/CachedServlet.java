@@ -21,11 +21,9 @@ import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.searcher.NutchBean;
 import org.apache.nutch.searcher.Hit;
 import org.apache.nutch.searcher.HitDetails;
-import org.apache.nutch.webapp.common.ServiceLocator;
-import org.apache.nutch.webapp.common.ServletContextServiceLocator;
 
 import javax.servlet.ServletConfig;
-import javax.servlet.http.HttpServlet;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -41,16 +39,12 @@ import java.io.IOException;
  * @author John Xing
  */
 
-public class CachedServlet extends HttpServlet {
+public class CachedServlet extends NutchHttpServlet {
 
   private static final long serialVersionUID = 1L;
 
-  NutchBean bean = null;
-
-  public void init(ServletConfig conf) {
-    ServiceLocator locator = ServletContextServiceLocator.getInstance(conf
-        .getServletContext());
-    bean = locator.getNutchBean();
+  public void init(ServletConfig conf) throws ServletException {
+    super.init(conf);
   }
 
   public void destroy() {
@@ -61,21 +55,17 @@ public class CachedServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response)
       throws IOException {
 
-    // quit if no bean
-    if (bean == null)
-      return;
-
     NutchBean.LOG.info("request from " + request.getRemoteAddr());
 
     Hit hit = new Hit(Integer.parseInt(request.getParameter("idx")), Integer
         .parseInt(request.getParameter("id")));
-    HitDetails details = bean.getDetails(hit);
+    HitDetails details = getServiceLocator().getNutchBean().getDetails(hit);
 
     // raw bytes
-    byte[] bytes = bean.getContent(details);
+    byte[] bytes = getServiceLocator().getNutchBean().getContent(details);
 
     // pass all original headers? only these for now.
-    Metadata metadata = bean.getParseData(details).getContentMeta();
+    Metadata metadata = getServiceLocator().getNutchBean().getParseData(details).getContentMeta();
     String contentType = metadata.get(Response.CONTENT_TYPE);
     // String lastModified = metadata.get(Metadata.LAST_MODIFIED);
     // String contentLength = metadata.get(Metadata.CONTENT_LENGTH);
