@@ -46,6 +46,7 @@
      <ant dir="parse-swf" target="deploy"/>
      <ant dir="parse-text" target="deploy"/>
      <ant dir="parse-zip" target="deploy"/>
+     <ant dir="scoring-opic" target="deploy"/>
      <ant dir="query-basic" target="deploy"/>
      <ant dir="query-more" target="deploy"/>
      <ant dir="query-site" target="deploy"/>
@@ -124,6 +125,7 @@
     <ant dir="parse-swf" target="clean"/>
     <ant dir="parse-text" target="clean"/>
     <ant dir="parse-zip" target="clean"/>
+    <ant dir="scoring-opic" target="clean"/>
     <ant dir="query-basic" target="clean"/>
     <ant dir="query-more" target="clean"/>
     <ant dir="query-site" target="clean"/>

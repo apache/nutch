@@ -16,6 +16,7 @@
 
 package org.apache.nutch.crawl;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.io.IOException;
 
@@ -24,6 +25,8 @@ import java.util.logging.*;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.LogFormatter;
+import org.apache.nutch.scoring.ScoringFilterException;
+import org.apache.nutch.scoring.ScoringFilters;
 
 /** Merge new page entries with existing entries. */
 public class CrawlDbReducer implements Reducer {
@@ -31,9 +34,14 @@ public class CrawlDbReducer implements Reducer {
     LogFormatter.getLogger("org.apache.nutch.crawl.CrawlDbReducer");
   private int retryMax;
   private CrawlDatum result = new CrawlDatum();
+  private ArrayList linked = new ArrayList();
+  private ScoringFilters scfilters = null;
+  private float scoreInjected;
 
   public void configure(JobConf job) {
     retryMax = job.getInt("db.fetch.retry.max", 3);
+    scfilters = new ScoringFilters(job);
+    scoreInjected = job.getFloat("db.score.injected", 1.0f);
   }
 
   public void close() {}
@@ -45,7 +53,7 @@ public class CrawlDbReducer implements Reducer {
     CrawlDatum highest = null;
     CrawlDatum old = null;
     byte[] signature = null;
-    float scoreIncrement = 0.0f;
+    linked.clear();
 
     while (values.hasNext()) {
       CrawlDatum datum = (CrawlDatum)values.next();
@@ -61,7 +69,7 @@ public class CrawlDbReducer implements Reducer {
         old = datum;
         break;
       case CrawlDatum.STATUS_LINKED:
-        scoreIncrement += datum.getScore();
+        linked.add(datum);
         break;
       case CrawlDatum.STATUS_SIGNATURE:
         signature = datum.getSignature();
@@ -97,7 +105,13 @@ public class CrawlDbReducer implements Reducer {
         result.set(old);                          // use it
       } else {
         result.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
-        result.setScore(1.0f);
+        try {
+          scfilters.initialScore((UTF8)key, result);
+        } catch (ScoringFilterException e) {
+          LOG.warning("Cannot filter init score for url " + key +
+                  ", using default: " + e.getMessage());
+          result.setScore(scoreInjected);
+        }
       }
       break;
       
@@ -129,8 +143,12 @@ public class CrawlDbReducer implements Reducer {
     default:
       throw new RuntimeException("Unknown status: " + highest.getStatus() + " " + key);
     }
-    
-    result.setScore(result.getScore() + scoreIncrement);
+
+    try {
+      scfilters.updateDbScore((UTF8)key, result, linked);
+    } catch (Exception e) {
+      LOG.warning("Couldn't update score, key=" + key + ": " + e);
+    }
     output.collect(key, result);
   }
 

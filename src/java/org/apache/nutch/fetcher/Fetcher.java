@@ -30,6 +30,7 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.*;
 import org.apache.nutch.protocol.*;
 import org.apache.nutch.parse.*;
+import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.*;
 
 import java.util.logging.*;
@@ -78,6 +79,7 @@ public class Fetcher extends Configured implements MapRunnable {
   private class FetcherThread extends Thread {
     private Configuration conf;
     private URLFilters urlFilters;
+    private ScoringFilters scfilters;
     private ParseUtil parseUtil;
     private UrlNormalizer normalizer;
     private ProtocolFactory protocolFactory;
@@ -87,6 +89,7 @@ public class Fetcher extends Configured implements MapRunnable {
       this.setName("FetcherThread");              // use an informative name
       this.conf = conf;
       this.urlFilters = new URLFilters(conf);
+      this.scfilters = new ScoringFilters(conf);
       this.parseUtil = new ParseUtil(conf);
       this.protocolFactory = new ProtocolFactory(conf);
       this.normalizer = new UrlNormalizerFactory(conf).getNormalizer();
@@ -235,8 +238,13 @@ public class Fetcher extends Configured implements MapRunnable {
       Metadata metadata = content.getMetadata();
       // add segment to metadata
       metadata.set(SEGMENT_NAME_KEY, segmentName);
-      // add score to metadata
-      metadata.set(SCORE_KEY, Float.toString(datum.getScore()));
+      // add score to content metadata so that ParseSegment can pick it up.
+      try {
+        scfilters.passScoreBeforeParsing(key, datum, content);
+      } catch (Exception e) {
+        e.printStackTrace();
+        LOG.warning("Couldn't pass score, url " + key + " (" + e + ")");
+      }
 
       Parse parse = null;
       if (parsing && status == CrawlDatum.STATUS_FETCH_SUCCESS) {
@@ -257,9 +265,15 @@ public class Fetcher extends Configured implements MapRunnable {
         metadata.set(SIGNATURE_KEY, StringUtil.toHexString(signature));
         datum.setSignature(signature);
         // Ensure segment name and score are in parseData metadata
-        parse.getData().getContentMeta().set(SEGMENT_NAME_KEY, segmentName); 	 
-        parse.getData().getContentMeta().set(SCORE_KEY, Float.toString(datum.getScore()));
+        parse.getData().getContentMeta().set(SEGMENT_NAME_KEY, segmentName);
         parse.getData().getContentMeta().set(SIGNATURE_KEY, StringUtil.toHexString(signature));
+        try {
+          scfilters.passScoreAfterParsing(key, content, parse);
+        } catch (Exception e) {
+          e.printStackTrace();
+          LOG.warning("Couldn't pass score, url " + key + " (" + e + ")");
+        }
+        
       }
 
       try {

@@ -27,6 +27,8 @@ import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.mapred.*;
 
 import org.apache.nutch.net.*;
+import org.apache.nutch.scoring.ScoringFilterException;
+import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
@@ -41,12 +43,18 @@ public class Injector extends Configured {
   public static class InjectMapper implements Mapper {
     private UrlNormalizer urlNormalizer;
     private float interval;
+    private float scoreInjected;
     private JobConf jobConf;
+    private URLFilters filters;
+    private ScoringFilters scfilters; 
 
     public void configure(JobConf job) {
-      urlNormalizer = new UrlNormalizerFactory(job).getNormalizer();
-      interval = job.getFloat("db.default.fetch.interval", 30f);
       this.jobConf = job;
+      urlNormalizer = new UrlNormalizerFactory(jobConf).getNormalizer();
+      interval = jobConf.getFloat("db.default.fetch.interval", 30f);
+      filters = new URLFilters(jobConf);
+      scfilters = new ScoringFilters(jobConf);
+      scoreInjected = jobConf.getFloat("db.score.injected", 1.0f);
     }
 
     public void close() {}
@@ -59,7 +67,6 @@ public class Injector extends Configured {
       // System.out.println("url: " +url);
       try {
         url = urlNormalizer.normalize(url);       // normalize the url
-        URLFilters filters = new URLFilters(this.jobConf);
         url = filters.filter(url);             // filter the url
       } catch (Exception e) {
         LOG.warning("Skipping " +url+":"+e);
@@ -67,8 +74,16 @@ public class Injector extends Configured {
       }
       if (url != null) {                          // if it passes
         value.set(url);                           // collect it
-        output.collect(value, new CrawlDatum(CrawlDatum.STATUS_DB_UNFETCHED,
-                                             interval));
+        CrawlDatum datum = new CrawlDatum(CrawlDatum.STATUS_DB_UNFETCHED, interval);
+        datum.setScore(scoreInjected);
+        try {
+          scfilters.initialScore(value, datum);
+        } catch (ScoringFilterException e) {
+          LOG.warning("Cannot filter init score for url " + url +
+                  ", using default (" + e.getMessage() + ")");
+          datum.setScore(scoreInjected);
+        }
+        output.collect(value, datum);
       }
     }
   }

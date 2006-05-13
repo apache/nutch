@@ -564,7 +564,7 @@
 
 <property>
   <name>plugin.includes</name>
-  <value>protocol-http|urlfilter-regex|parse-(text|html|js)|index-basic|query-(basic|site|url)|summary-basic</value>
+  <value>protocol-http|urlfilter-regex|parse-(text|html|js)|index-basic|query-(basic|site|url)|summary-basic|scoring-opic</value>
   <description>Regular expression naming plugin directory names to
   include.  Any plugin not matching this expression is excluded.
   In any case you need at least include the nutch-extensionpoints plugin. By
@@ -640,6 +640,19 @@
   Since all filters are AND'ed, filter ordering does not have impact
   on end result, but it may have performance implication, depending
   on relative expensiveness of filters.
+  </description>
+</property>
+
+<!-- scoring filters properties -->
+
+<property>
+  <name>scoring.filter.order</name>
+  <value></value>
+  <description>The order in which scoring filters are applied.
+  This may be left empty (in which case all available scoring
+  filters will be applied in the order defined in plugin-includes
+  and plugin-excludes), or a space separated list of implementation
+  classes.
   </description>
 </property>
 

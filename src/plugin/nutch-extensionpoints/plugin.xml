@@ -49,4 +49,8 @@
       id="org.apache.nutch.searcher.Summarizer"
       name="Nutch Summarizer"/>
 
+<extension-point
+      id="org.apache.nutch.scoring.ScoringFilter"
+      name="Nutch Scoring"/>
+
 </plugin>

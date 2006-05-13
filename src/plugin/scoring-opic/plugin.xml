@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="scoring-opic"
+   name="OPIC Scoring Plug-in"
+   version="1.0.0"
+   provider-name="nutch.org">
+
+
+   <runtime>
+      <library name="scoring-opic.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <extension id="org.apache.nutch.scoring.opic"
+              name="OPICScoring"
+              point="org.apache.nutch.scoring.ScoringFilter">
+
+      <implementation id="org.apache.nutch.scoring.opic.OPICScoringFilter"
+                      class="org.apache.nutch.scoring.opic.OPICScoringFilter" />
+   </extension>
+
+</plugin>
