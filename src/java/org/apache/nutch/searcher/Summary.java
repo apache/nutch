@@ -102,13 +102,43 @@ public class Summary implements Writable {
     return (Fragment[])fragments.toArray(FRAGMENT_PROTO);
   }
 
-  /** Returns an String representation of this Summary. */
+  /** Returns a String representation of this Summary. */
   public String toString() {
     StringBuffer buffer = new StringBuffer();
     for (int i = 0; i < fragments.size(); i++) {
       buffer.append(fragments.get(i));
     }
     return buffer.toString();
+  }
+
+  /**
+   * Returns a HTML representation of this Summary.
+   * HTML output for <b>Highlight</b> fragments is
+   * <code>&lt;span class="highlight"&gt;highlight's text&lt;/span&gt;</code>,
+   * for <b>Ellipsis</b> fragments is
+   * <code>&lt;span class="highlight"&gt; ... &lt;/span&gt;</code>, for generic
+   * <b>Fragment</b> is simply the fragment's text.<br/>
+   *
+   * @param encode specifies if the summary's entities should be encoded.
+   */
+  public String toHtml(boolean encode) {
+    Fragment fragment = null;
+    StringBuffer buf = new StringBuffer();
+    for (int i=0; i<fragments.size(); i++) {
+      fragment = (Fragment) fragments.get(i);
+      if (fragment.isHighlight()) {
+        buf.append("<span class=\"highlight\">")
+           .append(encode ? Entities.encode(fragment.getText())
+                          : fragment.getText())
+           .append("</span>");
+      } else if (fragment.isEllipsis()) {
+        buf.append("<span class=\"ellipsis\"> ... </span>");
+      } else {
+        buf.append(encode ? Entities.encode(fragment.getText())
+                          : fragment.getText());
+      }
+    }
+    return buf.toString();
   }
   
   // Inherited Javadoc

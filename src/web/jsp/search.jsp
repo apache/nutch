@@ -9,7 +9,6 @@
 
   import="org.apache.nutch.html.Entities"
   import="org.apache.nutch.searcher.*"
-  import="org.apache.nutch.searcher.Summary.Fragment"
   import="org.apache.nutch.plugin.*"
   import="org.apache.nutch.clustering.*"
   import="org.apache.hadoop.conf.*"
@@ -212,26 +211,11 @@ out.flush();
     String title = detail.getValue("title");
     String url = detail.getValue("url");
     String id = "idx=" + hit.getIndexNo() + "&id=" + hit.getIndexDocNo();
+    String summary = summaries[i].toHtml(true);
 
     if (title == null || title.equals("")) {      // use url for docs w/o title
       title = url;
     }
-    
-    // Build the summary
-    StringBuffer sum = new StringBuffer();
-    Fragment[] fragments = summaries[i].getFragments();
-    for (int j=0; j<fragments.length; j++) {
-      if (fragments[j].isHighlight()) {
-        sum.append("<span class=\"highlight\">")
-           .append(Entities.encode(fragments[j].getText()))
-           .append("</span>");
-      } else if (fragments[j].isEllipsis()) {
-        sum.append("<span class=\"ellipsis\"> ... </span>");
-      } else {
-        sum.append(Entities.encode(fragments[j].getText()));
-      }
-    }
-    String summary = sum.toString();
     %>
     <b><a href="<%=url%>"><%=Entities.encode(title)%></a></b>
     <%@ include file="more.jsp" %>
