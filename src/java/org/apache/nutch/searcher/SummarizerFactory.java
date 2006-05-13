@@ -49,7 +49,6 @@ public class SummarizerFactory {
                                     .getExtensionPoint(Summarizer.X_POINT_ID)
                                     .getExtensions();
       summarizer = (Summarizer) extensions[0].getExtensionInstance();
-      summarizer.setConf(conf);
       LOG.info("Using the first summarizer extension found: " +
                extensions[0].getId());
     } catch (Exception e) {
