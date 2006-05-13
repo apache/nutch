@@ -22,9 +22,11 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -56,6 +58,38 @@ public class BasicSummarizer implements Summarizer {
   private Analyzer analyzer = null;
   private Configuration conf = null;
   
+  private final static Comparator ORDER_COMPARATOR = new Comparator() {
+    public int compare(Object o1, Object o2) {
+      return ((Excerpt) o1).getOrder() - ((Excerpt) o2).getOrder();
+    }
+  };
+  
+  private final static Comparator SCORE_COMPARATOR = new Comparator() {
+    public int compare(Object o1, Object o2) {
+      Excerpt excerpt1 = (Excerpt) o1;
+      Excerpt excerpt2 = (Excerpt) o2;
+
+      if (excerpt1 == null && excerpt2 != null) {
+        return -1;
+      } else if (excerpt1 != null && excerpt2 == null) {
+        return 1;
+      } else if (excerpt1 == null && excerpt2 == null) {
+        return 0;
+      }
+
+      int numToks1 = excerpt1.numUniqueTokens();
+      int numToks2 = excerpt2.numUniqueTokens();
+
+      if (numToks1 < numToks2) {
+        return -1;
+      } else if (numToks1 == numToks2) {
+        return excerpt1.numFragments() - excerpt2.numFragments();
+      } else {
+        return 1;
+      }
+    }
+  };
+
   
   public BasicSummarizer() { }
   
@@ -105,37 +139,9 @@ public class BasicSummarizer implements Summarizer {
     for (int i = 0; i < terms.length; i++)
       highlight.add(terms[i]);
     
-    //
-    // Create a SortedSet that ranks excerpts according to
-    // how many query terms are present.  An excerpt is
-    // a Vector full of Fragments and Highlights
-    //
-    SortedSet excerptSet = new TreeSet(new Comparator() {
-      public int compare(Object o1, Object o2) {
-        Excerpt excerpt1 = (Excerpt) o1;
-        Excerpt excerpt2 = (Excerpt) o2;
-        
-        if (excerpt1 == null && excerpt2 != null) {
-          return -1;
-        } else if (excerpt1 != null && excerpt2 == null) {
-          return 1;
-        } else if (excerpt1 == null && excerpt2 == null) {
-          return 0;
-        }
-        
-        int numToks1 = excerpt1.numUniqueTokens();
-        int numToks2 = excerpt2.numUniqueTokens();
-        
-        if (numToks1 < numToks2) {
-          return -1;
-        } else if (numToks1 == numToks2) {
-          return excerpt1.numFragments() - excerpt2.numFragments();
-        } else {
-          return 1;
-        }
-      }
-    }
-    );
+    // A list to store document's excerpts.
+    // (An excerpt is a Vector full of Fragments and Highlights)
+    List excerpts = new ArrayList();
     
     //
     // Iterate through all terms in the document
@@ -160,7 +166,7 @@ public class BasicSummarizer implements Summarizer {
         // terms all the way.  The end of the passage is always
         // SUM_CONTEXT beyond the last query-term.
         //
-        Excerpt excerpt = new Excerpt();
+        Excerpt excerpt = new Excerpt(i);
         if (i != 0) {
           excerpt.add(new Summary.Ellipsis());
         }
@@ -209,7 +215,7 @@ public class BasicSummarizer implements Summarizer {
         //
         // Store the excerpt for later sorting
         //
-        excerptSet.add(excerpt);
+        excerpts.add(excerpt);
         
         //
         // Start SUM_CONTEXT places away.  The next
@@ -219,30 +225,46 @@ public class BasicSummarizer implements Summarizer {
       }
     }
     
+    // Sort the excerpts based on their score
+    Collections.sort(excerpts, SCORE_COMPARATOR);
+    
     //
     // If the target text doesn't appear, then we just
     // excerpt the first SUM_LENGTH words from the document.
     //
-    if (excerptSet.size() == 0) {
-      Excerpt excerpt = new Excerpt();
+    if (excerpts.size() == 0) {
+      Excerpt excerpt = new Excerpt(0);
       int excerptLen = Math.min(sumLength, tokens.length);
       lastExcerptPos = excerptLen;
       
       excerpt.add(new Fragment(text.substring(tokens[0].startOffset(), tokens[excerptLen-1].startOffset())));
       excerpt.setNumTerms(excerptLen);
-      excerptSet.add(excerpt);
+      excerpts.add(excerpt);
     }
     
     //
     // Now choose the best items from the excerpt set.
-    // Stop when our Summary grows too large.
+    // Stop when we have enought excerpts to build our Summary.
     //
     double tokenCount = 0;
+    int numExcerpt = excerpts.size()-1;
+    List bestExcerpts = new ArrayList();
+    while (tokenCount <= sumLength && numExcerpt >= 0) {
+      Excerpt excerpt = (Excerpt) excerpts.get(numExcerpt--);
+      bestExcerpts.add(excerpt);
+      tokenCount += excerpt.getNumTerms();
+    }    
+    // Sort the best excerpts based on their natural order
+    Collections.sort(bestExcerpts, ORDER_COMPARATOR);
+    
+    //
+    // Now build our Summary from the best the excerpts.
+    //
+    tokenCount = 0;
+    numExcerpt = 0;
     Summary s = new Summary();
-    while (tokenCount <= sumLength && excerptSet.size() > 0) {
-      Excerpt excerpt = (Excerpt) excerptSet.last();
-      excerptSet.remove(excerpt);
-      
+    while (tokenCount <= sumLength && numExcerpt < bestExcerpts.size()) {
+      Excerpt excerpt = (Excerpt) bestExcerpts.get(numExcerpt++);
       double tokenFraction = (1.0 * excerpt.getNumTerms()) / excerpt.numFragments();
       for (Enumeration e = excerpt.elements(); e.hasMoreElements(); ) {
         Fragment f = (Fragment) e.nextElement();
@@ -272,10 +294,12 @@ public class BasicSummarizer implements Summarizer {
     Vector passages = new Vector();
     SortedSet tokenSet = new TreeSet();
     int numTerms = 0;
+    int order = 0;
     
     /**
      */
-    public Excerpt() {
+    public Excerpt(int order) {
+      this.order = order;
     }
     
     /**
@@ -300,6 +324,10 @@ public class BasicSummarizer implements Summarizer {
     
     public void setNumTerms(int numTerms) {
       this.numTerms = numTerms;
+    }
+    
+    public int getOrder() {
+      return order;
     }
     
     public int getNumTerms() {
