@@ -25,6 +25,7 @@ import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
+import org.apache.nutch.plugin.Pluggable;
 import org.apache.nutch.protocol.Content;
 
 /**
@@ -36,7 +37,7 @@ import org.apache.nutch.protocol.Content;
  * 
  * @author Andrzej Bialecki
  */
-public interface ScoringFilter extends Configurable {
+public interface ScoringFilter extends Configurable, Pluggable {
   /** The name of the extension point. */
   public final static String X_POINT_ID = ScoringFilter.class.getName();
   

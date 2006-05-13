@@ -323,6 +323,7 @@
       <packageset dir="${plugins.dir}/query-more/src/java"/>
       <packageset dir="${plugins.dir}/query-site/src/java"/>
       <packageset dir="${plugins.dir}/query-url/src/java"/>
+      <packageset dir="${plugins.dir}/scoring-opic/src/java"/>
       <packageset dir="${plugins.dir}/summary-basic/src/java"/>
       <packageset dir="${plugins.dir}/summary-lucene/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-automaton/src/java"/>
@@ -348,6 +349,7 @@
       <group title="Plugins API" packages="${plugins.api}"/>
       <group title="Protocol Plugins" packages="${plugins.protocol}"/>
       <group title="URL Filter Plugins" packages="${plugins.urlfilter}"/>
+      <group title="Scoring Plugins" packages="${plugins.scoring}"/>
       <group title="Parse Plugins" packages="${plugins.parse}"/>
       <group title="Analysis Plugins" packages="${plugins.analysis}"/>
       <group title="Indexing Filter Plugins" packages="${plugins.index}"/>
