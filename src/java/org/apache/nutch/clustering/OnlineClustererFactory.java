@@ -60,7 +60,7 @@ public class OnlineClustererFactory {
 
   /**
   * @return Returns the online clustering extension specified
-  * in nutch configuration (key name in this field: {@link #CONFIG_FIELD_NAME}). 
+  * in nutch configuration (key name is <code>extension.clustering.extension-name</code>). 
   * If the name is empty (no preference), the first available clustering extension is
   * returned.
   */

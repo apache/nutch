@@ -46,7 +46,7 @@ import org.apache.nutch.util.NutchConfiguration;
  * @author mattmann
  * @version 1.0
  */
-public class ParsePluginsReader {
+class ParsePluginsReader {
   
   /* our log stream */
   public static final Logger LOG = 
@@ -66,9 +66,9 @@ public class ParsePluginsReader {
   
   /**
    * Reads the <code>parse-plugins.xml</code> file and returns the
-   * {@link ParsePluginList} defined by it.
+   * {@link #ParsePluginList} defined by it.
    *
-   * @return A {@link ParsePluginList} specified by the
+   * @return A {@link #ParsePluginList} specified by the
    *         <code>parse-plugins.xml</code> file.
    * @throws Exception
    *             If any parsing error occurs.
