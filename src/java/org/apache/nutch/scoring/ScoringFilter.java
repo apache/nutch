@@ -131,7 +131,7 @@ public interface ScoringFilter extends Configurable, Pluggable {
    * @param parse parsing result. NOTE: changes made to this instance are not persisted.
    * @param inlinks current inlinks from LinkDb. NOTE: changes made to this instance are
    * not persisted.
-   * @param initBoost initial boost value for the Lucene document.
+   * @param initScore initial boost value for the Lucene document.
    * @return boost value for the Lucene document. This value is passed as an argument
    * to the next scoring filter in chain. NOTE: implementations may also express
    * other scoring strategies by modifying Lucene document directly.

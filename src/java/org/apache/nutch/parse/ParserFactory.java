@@ -74,7 +74,7 @@ public final class ParserFactory {
   /**
    * Function returns an array of {@link Parser}s for a given content type.
    *
-   * The function consults the internal {@link ParsePluginList} for the
+   * The function consults the internal list of parse plugins for the
    * ParserFactory to determine the list of pluginIds, then gets the
    * appropriate extension points to instantiate as {@link Parser}s.
    *
@@ -149,12 +149,12 @@ public final class ParserFactory {
    * instantiate the Parser itself , then this function will cache that Parser
    * in the internal <code>PARSER_CACHE</code>.
    * 
-   * @param extId The string extension ID (e.g.,
+   * @param id The string extension ID (e.g.,
    *        "org.apache.nutch.parse.rss.RSSParser",
    *        "org.apache.nutch.parse.rtf.RTFParseFactory") of the {@link Parser}
    *        implementation to return.
    * @return A {@link Parser} implementation specified by the parameter
-   *         <code>extId</code>.
+   *         <code>id</code>.
    * @throws ParserNotFound If the Parser is not found (i.e., registered with
    *         the extension point), or if the there a
    *         {@link PluginRuntimeException} instantiating the {@link Parser}.

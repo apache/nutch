@@ -63,7 +63,7 @@ public class OPICScoringFilter implements ScoringFilter {
     datum.setScore(scoreInjected);
   }
 
-  /** Use {@param datum#getScore()}. */
+  /** Use {@link CrawlDatum#getScore()}. */
   public float generatorSortValue(UTF8 url, CrawlDatum datum, float initSort) throws ScoringFilterException {
     return datum.getScore();
   }
