@@ -211,7 +211,7 @@ public class OpenSearchServlet extends HttpServlet {
         Element item = addNode(doc, channel, "item");
 
         addNode(doc, item, "title", title);
-        addNode(doc, item, "description", summaries[i].toString());
+        addNode(doc, item, "description", summaries[i].toHtml(false));
         addNode(doc, item, "link", url);
 
         addNode(doc, item, "nutch", "site", hit.getDedupValue());
