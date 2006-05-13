@@ -30,6 +30,8 @@ import org.apache.nutch.parse.*;
 import org.apache.nutch.protocol.*;
 import org.apache.nutch.analysis.*;
 
+import org.apache.nutch.scoring.ScoringFilterException;
+import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
@@ -142,6 +144,7 @@ public class Indexer extends Configured implements Reducer {
   }
 
   private IndexingFilters filters;
+  private ScoringFilters scfilters;
 
   public Indexer() {
     super(null);
@@ -158,6 +161,7 @@ public class Indexer extends Configured implements Reducer {
     scorePower = job.getFloat("indexer.score.power", 0.5f);
     setConf(job);
     this.filters = new IndexingFilters(getConf());
+    this.scfilters = new ScoringFilters(getConf());
   }
 
   public void close() {}
@@ -206,7 +210,6 @@ public class Indexer extends Configured implements Reducer {
 
     Document doc = new Document();
     Metadata metadata = parseData.getContentMeta();
-    String[] anchors = inlinks!=null ? inlinks.getAnchors() : new String[0];
 
     // add segment, used to map from merged index back to segment files
     doc.add(new Field("segment", metadata.get(Fetcher.SEGMENT_NAME_KEY),
@@ -216,14 +219,6 @@ public class Indexer extends Configured implements Reducer {
     doc.add(new Field("digest", metadata.get(Fetcher.SIGNATURE_KEY),
             Field.Store.YES, Field.Index.NO));
 
-    // boost is opic
-    float boost = (float)Math.pow(dbDatum.getScore(), scorePower);
-    // apply boost to all indexed fields.
-    doc.setBoost(boost);
-    // store boost for use by explain and dedup
-    doc.add(new Field("boost", Float.toString(boost),
-            Field.Store.YES, Field.Index.NO));
-
 //     LOG.info("Url: "+key.toString());
 //     LOG.info("Title: "+parseData.getTitle());
 //     LOG.info(crawlDatum.toString());
@@ -231,13 +226,29 @@ public class Indexer extends Configured implements Reducer {
 //       LOG.info(inlinks.toString());
 //     }
 
+    Parse parse = new ParseImpl(parseText, parseData);
     try {
       // run indexing filters
-      doc = this.filters.filter(doc,new ParseImpl(parseText, parseData), (UTF8)key, fetchDatum, inlinks);
+      doc = this.filters.filter(doc, parse, (UTF8)key, fetchDatum, inlinks);
     } catch (IndexingException e) {
       LOG.warning("Error indexing "+key+": "+e);
       return;
     }
+
+    float boost = 1.0f;
+    // run scoring filters
+    try {
+      boost = this.scfilters.indexerScore((UTF8)key, doc, dbDatum,
+              fetchDatum, parse, inlinks, boost);
+    } catch (ScoringFilterException e) {
+      LOG.warning("Error calculating score " + key + ": " + e);
+      return;
+    }
+    // apply boost to all indexed fields.
+    doc.setBoost(boost);
+    // store boost for use by explain and dedup
+    doc.add(new Field("boost", Float.toString(boost),
+            Field.Store.YES, Field.Index.NO));
 
     output.collect(key, new ObjectWritable(doc));
   }

@@ -24,6 +24,8 @@ import org.apache.hadoop.conf.*;
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.protocol.*;
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.scoring.ScoringFilterException;
+import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.*;
 import org.apache.hadoop.fs.Path;
 
@@ -37,6 +39,8 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
   public static final Logger LOG =
     LogFormatter.getLogger(Parser.class.getName());
   
+  private ScoringFilters scfilters;
+  
   public ParseSegment() {
     this(null);
   }
@@ -47,6 +51,7 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
 
   public void configure(JobConf job) {
     setConf(job);
+    this.scfilters = new ScoringFilters(job);
   }
 
   public void close() {}
@@ -70,6 +75,13 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
     content.getMetadata().set(Fetcher.SIGNATURE_KEY, StringUtil.toHexString(signature));
     
     if (status.isSuccess()) {
+      try {
+        scfilters.passScoreAfterParsing((UTF8)key, content, parse);
+      } catch (ScoringFilterException e) {
+        e.printStackTrace();
+        LOG.warning("Error passing score: "+key+": "+e.getMessage());
+        return;
+      }
       output.collect(key, new ParseImpl(parse.getText(), parse.getData()));
     } else {
       LOG.warning("Error parsing: "+key+": "+status.toString());

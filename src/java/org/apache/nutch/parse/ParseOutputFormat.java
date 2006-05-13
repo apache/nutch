@@ -21,18 +21,23 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.fetcher.Fetcher;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.mapred.*;
+import org.apache.nutch.scoring.ScoringFilterException;
+import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.net.*;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 /* Parse content in a segment. */
 public class ParseOutputFormat implements OutputFormat {
+  private static final Logger LOG = Logger.getLogger(ParseOutputFormat.class.getName());
 
   private UrlNormalizer urlNormalizer;
   private JobConf jobConf;
   private URLFilters filters;
+  private ScoringFilters scfilters;
 
   public void checkOutputSpecs(FileSystem fs, JobConf job) throws IOException {
     if (fs.exists(new Path(job.getOutputPath(), CrawlDatum.PARSE_DIR_NAME)))
@@ -45,6 +50,7 @@ public class ParseOutputFormat implements OutputFormat {
     this.jobConf = job;
     this.urlNormalizer = new UrlNormalizerFactory(job).getNormalizer();
     this.filters = new URLFilters(job);
+    this.scfilters = new ScoringFilters(job);
     final float interval = job.getFloat("db.default.fetch.interval", 30f);
     final float extscore = job.getFloat("db.score.link.external", 1.0f);
     final boolean countFiltered = job.getBoolean("db.score.count.filtered", false);
@@ -74,11 +80,10 @@ public class ParseOutputFormat implements OutputFormat {
           Parse parse = (Parse)value;
           
           textOut.append(key, new ParseText(parse.getText()));
-          dataOut.append(key, parse.getData());
           
+          ParseData parseData = parse.getData();
           // recover the signature prepared by Fetcher or ParseSegment
-          String sig = parse.getData()
-                            .getContentMeta().get(Fetcher.SIGNATURE_KEY);
+          String sig = parseData.getContentMeta().get(Fetcher.SIGNATURE_KEY);
           if (sig != null) {
             byte[] signature = StringUtil.fromHexString(sig);
             if (signature != null) {
@@ -90,14 +95,8 @@ public class ParseOutputFormat implements OutputFormat {
           }
 
           // collect outlinks for subsequent db update
-          Outlink[] links = parse.getData().getOutlinks();
+          Outlink[] links = parseData.getOutlinks();
 
-          // compute OPIC score contribution
-          String scoreString = parse.getData()
-                                    .getContentMeta().get(Fetcher.SCORE_KEY);
-          float score = extscore;
-          // this may happen if there was a fetch error.
-          if (scoreString != null) score = Float.parseFloat(scoreString);
           String[] toUrls = new String[links.length];
           int validCount = 0;
           for (int i = 0; i < links.length; i++) {
@@ -111,16 +110,25 @@ public class ParseOutputFormat implements OutputFormat {
             if (toUrl != null) validCount++;
             toUrls[i] = toUrl;
           }
-          if (countFiltered) {
-            score = score / links.length;
-          } else {
-            score = score / validCount;
-          }
+          CrawlDatum adjust = null;
+          // compute score contributions and adjustment to the original score
           for (int i = 0; i < toUrls.length; i++) {
             if (toUrls[i] == null) continue;
-            crawlOut.append(new UTF8(toUrls[i]),
-                    new CrawlDatum(CrawlDatum.STATUS_LINKED, interval, score));
+            CrawlDatum target = new CrawlDatum(CrawlDatum.STATUS_LINKED, interval);
+            UTF8 targetUrl = new UTF8(toUrls[i]);
+            adjust = null;
+            try {
+              adjust = scfilters.distributeScoreToOutlink((UTF8)key, targetUrl,
+                      parseData, target, null, links.length, validCount);
+            } catch (ScoringFilterException e) {
+              LOG.warning("Cannot distribute score from " + key + " to " + targetUrl +
+                      " - skipped (" + e.getMessage());
+              continue;
+            }
+            crawlOut.append(targetUrl, target);
+            if (adjust != null) crawlOut.append(key, adjust);
           }
+          dataOut.append(key, parseData);
         }
         
         public void close(Reporter reporter) throws IOException {
