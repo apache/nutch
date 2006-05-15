@@ -18,7 +18,7 @@
       <import plugin="lib-regex-filter"/>
    </requires>
 
-   <extension id="org.apache.nutch.net.urlfilter"
+   <extension id="org.apache.nutch.net.urlfilter.automaton"
               name="Nutch Automaton URL Filter"
               point="org.apache.nutch.net.URLFilter">
       <implementation id="AutomatonURLFilter"

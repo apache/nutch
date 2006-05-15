@@ -628,6 +628,13 @@
 </property>
 
 <property>
+  <name>urlfilter.suffix.file</name>
+  <value>suffix-urlfilter.txt</value>
+  <description>Name of file on CLASSPATH containing url suffixes
+  used by urlfilter-suffix (SuffixURLFilter) plugin.</description>
+</property>
+
+<property>
   <name>urlfilter.order</name>
   <value></value>
   <description>The order by which url filters are applied.

@@ -16,7 +16,7 @@
       <import plugin="nutch-extensionpoints"/>
    </requires>
 
-   <extension id="org.apache.nutch.net.urlfilter"
+   <extension id="org.apache.nutch.net.urlfilter.prefix"
               name="Nutch Prefix URL Filter"
               point="org.apache.nutch.net.URLFilter">
       <implementation id="PrefixURLFilter"

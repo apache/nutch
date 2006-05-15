@@ -1,0 +1,11 @@
+# config file for urlfilter-suffix plugin
+
+# case-insensitive, allow unknown suffixes
++I
+
+# prohibit these
+.gif
+.jpg
+.jpeg
+.bmp
+.png
