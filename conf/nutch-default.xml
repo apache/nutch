@@ -308,6 +308,20 @@
   fetchlist.  -1 if unlimited.</description>
 </property>
 
+<property>
+  <name>generate.max.per.host.by.ip</name>
+  <value>false</value>
+  <description>If false, same host names are counted. If true,
+  hosts' IP addresses are resolved and the same IP-s are counted.
+  
+  -+-+-+- WARNING !!! -+-+-+-
+  When set to true, Generator will create a lot of DNS lookup
+  requests, rapidly. This may cause a DOS attack on
+  remote DNS servers, not to mention increased external traffic
+  and latency. For these reasons when using this option it is
+  required that a local caching DNS be used.</description>
+</property>
+
 <!-- fetcher properties -->
 
 <property>
@@ -330,6 +344,16 @@
   <value>1</value>
   <description>This number is the maximum number of threads that
     should be allowed to access a host at one time.</description>
+</property>
+
+<property>
+  <name>fetcher.threads.per.host.by.ip</name>
+  <value>true</value>
+  <description>If true, then fetcher will count threads by IP address,
+  to which the URL's host name resolves. If false, only host name will be
+  used. NOTE: this should be set to the same value as
+  "generate.max.per.host.by.ip" - default settings are different only for
+  reasons of backward-compatibility.</description>
 </property>
 
 <property>

@@ -26,7 +26,6 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.mapred.*;
-import org.apache.hadoop.mapred.lib.*;
 import org.apache.hadoop.fs.Path;
 
 import org.apache.nutch.net.URLFilterException;
@@ -71,11 +70,13 @@ public class Generator extends Configured {
     private URLFilters filters;
     private SelectorEntry entry = new SelectorEntry();
     private FloatWritable sortValue = new FloatWritable();
+    private boolean byIP;
 
     public void configure(JobConf job) {
       curTime = job.getLong("crawl.gen.curTime", System.currentTimeMillis());
       limit = job.getLong("crawl.topN",Long.MAX_VALUE)/job.getNumReduceTasks();
       maxPerHost = job.getInt("generate.max.per.host", -1);
+      byIP = job.getBoolean("generate.max.per.host.by.ip", false);
       filters = new URLFilters(job);
     }
 
@@ -127,15 +128,32 @@ public class Generator extends Configured {
 
         if (maxPerHost > 0) {                     // are we counting hosts?
           String host = new URL(url.toString()).getHost();
-          Integer hostCount = (Integer)hostCounts.get(host);
+          if (host == null) {
+            // unknown host, skip
+            continue;
+          }
+          host = host.toLowerCase();
+          if (byIP) {
+            try {
+              InetAddress ia = InetAddress.getByName(host);
+              host = ia.getHostAddress();
+            } catch (UnknownHostException uhe) {
+              LOG.fine("DNS lookup failed: " + host + ", skipping.");
+              continue;
+            }
+          }
+          IntWritable hostCount = (IntWritable)hostCounts.get(host);
+          if (hostCount == null) {
+            hostCount = new IntWritable();
+            hostCounts.put(host, hostCount);
+          }
 
           // increment hostCount
-          hostCount = new Integer(hostCount==null ? 1 : hostCount.intValue()+1);
-          hostCounts.put(host, hostCount);
+          hostCount.set(hostCount.get() + 1);
 
           // skip URL if above the limit per host.
-          if (hostCount.intValue() > maxPerHost) {
-            if (hostCount.intValue() == maxPerHost + 1) {
+          if (hostCount.get() > maxPerHost) {
+            if (hostCount.get() == maxPerHost + 1) {
               LOG.info("Host "+ host +" has more than "+ maxPerHost +" URLs."+
                        " Skipping additional.");
             }

@@ -90,20 +90,20 @@ public abstract class HttpBase implements Protocol {
 
     
   /**
-   * Maps from InetAddress to a Long naming the time it should be unblocked.
-   * The Long is zero while the address is in use, then set to now+wait when
-   * a request finishes.  This way only one thread at a time accesses an
-   * address.
+   * Maps from host to a Long naming the time it should be unblocked.
+   * The Long is zero while the host is in use, then set to now+wait when
+   * a request finishes.  This way only one thread at a time accesses a
+   * host.
    */
   private static HashMap BLOCKED_ADDR_TO_TIME = new HashMap();
   
   /**
-   * Maps an address to the number of threads accessing that address.
+   * Maps a host to the number of threads accessing that host.
    */
   private static HashMap THREADS_PER_HOST_COUNT = new HashMap();
   
   /**
-   * Queue of blocked InetAddress.  This contains all of the non-zero entries
+   * Queue of blocked hosts.  This contains all of the non-zero entries
    * from BLOCKED_ADDR_TO_TIME, ordered by increasing time.
    */
   private static LinkedList BLOCKED_ADDR_QUEUE = new LinkedList();
@@ -116,6 +116,9 @@ public abstract class HttpBase implements Protocol {
  
   /** The nutch configuration */
   private Configuration conf = null;
+  
+  /** Do we block by IP addresses or by hostnames? */
+  private boolean byIP = true;
  
 
   /** Creates a new instance of HttpBase */
@@ -144,6 +147,8 @@ public abstract class HttpBase implements Protocol {
         this.userAgent = getAgentString(conf.get("http.agent.name"), conf.get("http.agent.version"), conf
                 .get("http.agent.description"), conf.get("http.agent.url"), conf.get("http.agent.email"));
         this.serverDelay = (long) (conf.getFloat("fetcher.server.delay", 1.0f) * 1000);
+        // backward-compatible default setting
+        this.byIP = conf.getBoolean("fetcher.threads.per.host.by.ip", true);
         this.robots.setConf(conf);
         logConf();
     }
@@ -170,12 +175,12 @@ public abstract class HttpBase implements Protocol {
         logger.fine("Exception checking robot rules for " + url + ": " + e);
       }
       
-      InetAddress addr = blockAddr(u);
+      String host = blockAddr(u);
       Response response;
       try {
         response = getResponse(u, datum, false); // make a request
       } finally {
-        unblockAddr(addr);
+        unblockAddr(host);
       }
       
       int code = response.getCode();
@@ -282,13 +287,22 @@ public abstract class HttpBase implements Protocol {
   }
 
 
-  private InetAddress blockAddr(URL url) throws ProtocolException {
+  private String blockAddr(URL url) throws ProtocolException {
     
-    InetAddress addr;
-    try {
-      addr = InetAddress.getByName(url.getHost());
-    } catch (UnknownHostException e) {
-      throw new HttpException(e);
+    String host;
+    if (byIP) {
+      try {
+        InetAddress addr = InetAddress.getByName(url.getHost());
+        host = addr.getHostAddress();
+      } catch (UnknownHostException e) {
+        // unable to resolve it, so don't fall back to host name
+        throw new HttpException(e);
+      }
+    } else {
+      host = url.getHost();
+      if (host == null)
+        throw new HttpException("Unknown host for url: " + url);
+      host = host.toLowerCase();
     }
     
     int delays = 0;
@@ -297,20 +311,20 @@ public abstract class HttpBase implements Protocol {
       
       Long time;
       synchronized (BLOCKED_ADDR_TO_TIME) {
-        time = (Long) BLOCKED_ADDR_TO_TIME.get(addr);
+        time = (Long) BLOCKED_ADDR_TO_TIME.get(host);
         if (time == null) {                       // address is free
           
           // get # of threads already accessing this addr
-          Integer counter = (Integer)THREADS_PER_HOST_COUNT.get(addr);
+          Integer counter = (Integer)THREADS_PER_HOST_COUNT.get(host);
           int count = (counter == null) ? 0 : counter.intValue();
           
           count++;                              // increment & store
-          THREADS_PER_HOST_COUNT.put(addr, new Integer(count));
+          THREADS_PER_HOST_COUNT.put(host, new Integer(count));
           
           if (count >= maxThreadsPerHost) {
-            BLOCKED_ADDR_TO_TIME.put(addr, new Long(0)); // block it
+            BLOCKED_ADDR_TO_TIME.put(host, new Long(0)); // block it
           }
-          return addr;
+          return host;
         }
       }
       
@@ -334,16 +348,16 @@ public abstract class HttpBase implements Protocol {
     }
   }
   
-  private void unblockAddr(InetAddress addr) {
+  private void unblockAddr(String host) {
     synchronized (BLOCKED_ADDR_TO_TIME) {
-      int addrCount = ((Integer)THREADS_PER_HOST_COUNT.get(addr)).intValue();
+      int addrCount = ((Integer)THREADS_PER_HOST_COUNT.get(host)).intValue();
       if (addrCount == 1) {
-        THREADS_PER_HOST_COUNT.remove(addr);
-        BLOCKED_ADDR_QUEUE.addFirst(addr);
+        THREADS_PER_HOST_COUNT.remove(host);
+        BLOCKED_ADDR_QUEUE.addFirst(host);
         BLOCKED_ADDR_TO_TIME.put
-                (addr, new Long(System.currentTimeMillis() + serverDelay));
+                (host, new Long(System.currentTimeMillis() + serverDelay));
       } else {
-        THREADS_PER_HOST_COUNT.put(addr, new Integer(addrCount - 1));
+        THREADS_PER_HOST_COUNT.put(host, new Integer(addrCount - 1));
       }
     }
   }
@@ -351,10 +365,10 @@ public abstract class HttpBase implements Protocol {
   private static void cleanExpiredServerBlocks() {
     synchronized (BLOCKED_ADDR_TO_TIME) {
       while (!BLOCKED_ADDR_QUEUE.isEmpty()) {
-        InetAddress addr = (InetAddress) BLOCKED_ADDR_QUEUE.getLast();
-        long time = ((Long) BLOCKED_ADDR_TO_TIME.get(addr)).longValue();
+        String host = (String) BLOCKED_ADDR_QUEUE.getLast();
+        long time = ((Long) BLOCKED_ADDR_TO_TIME.get(host)).longValue();
         if (time <= System.currentTimeMillis()) {
-          BLOCKED_ADDR_TO_TIME.remove(addr);
+          BLOCKED_ADDR_TO_TIME.remove(host);
           BLOCKED_ADDR_QUEUE.removeLast();
         } else {
           break;
