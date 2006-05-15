@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<plugin
+   id="urlfilter-suffix"
+   name="Suffix URL Filter"
+   version="1.0.0"
+   provider-name="nutch.org">
+
+   <runtime>
+      <library name="urlfilter-suffix.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
+   <extension id="org.apache.nutch.net.urlfilter.suffix"
+              name="Nutch Suffix URL Filter"
+              point="org.apache.nutch.net.URLFilter">
+      <implementation id="SuffixURLFilter"
+                      class="org.apache.nutch.urlfilter.suffix.SuffixURLFilter"/>
+      <!-- by default, attribute "file" is undefined, to keep classic behavior.
+      <implementation id="SuffixURLFilter"
+                      class="org.apache.nutch.net.SuffixURLFilter">
+        <parameter name="file" value="urlfilter-suffix.txt"/>
+      </implementation>
+      -->
+   </extension>
+
+</plugin>
