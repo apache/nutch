@@ -26,9 +26,6 @@ import java.io.PushbackInputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.Date;
 import java.util.logging.Level;
 
 // Nutch imports
@@ -38,7 +35,6 @@ import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.http.api.HttpBase;
 import org.apache.nutch.protocol.http.api.HttpException;
-import org.apache.nutch.util.GZIPUtils;
 
 
 /** An HTTP response. */
@@ -150,18 +146,7 @@ public class HttpResponse implements Response {
 
       String contentEncoding = getHeader(Response.CONTENT_ENCODING);
       if ("gzip".equals(contentEncoding) || "x-gzip".equals(contentEncoding)) {
-        Http.LOG.fine("uncompressing....");
-        byte[] compressed = content;
-
-        content = GZIPUtils.unzipBestEffort(compressed, http.getMaxContent());
-
-        if (content == null)
-          throw new HttpException("unzipBestEffort returned null");
-
-        if (Http.LOG.isLoggable(Level.FINE))
-          Http.LOG.fine("fetched " + compressed.length
-                        + " bytes of compressed content (expanded to "
-                        + content.length + " bytes) from " + url);
+        content = http.processGzipEncoded(content, url);
       } else {
         if (Http.LOG.isLoggable(Level.FINE))
           Http.LOG.fine("fetched " + content.length + " bytes from " + url);

@@ -27,13 +27,13 @@ import java.util.logging.Logger;
 
 // Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
+import org.apache.nutch.util.GZIPUtils;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
@@ -120,6 +120,8 @@ public abstract class HttpBase implements Protocol {
   /** Do we block by IP addresses or by hostnames? */
   private boolean byIP = true;
  
+  /** Do we use HTTP/1.1? */
+  protected boolean useHttp11 = false;
 
   /** Creates a new instance of HttpBase */
   public HttpBase() {
@@ -149,6 +151,7 @@ public abstract class HttpBase implements Protocol {
         this.serverDelay = (long) (conf.getFloat("fetcher.server.delay", 1.0f) * 1000);
         // backward-compatible default setting
         this.byIP = conf.getBoolean("fetcher.threads.per.host.by.ip", true);
+        this.useHttp11 = conf.getBoolean("http.http11", false);
         this.robots.setConf(conf);
         logConf();
     }
@@ -285,8 +288,11 @@ public abstract class HttpBase implements Protocol {
   public String getUserAgent() {
     return userAgent;
   }
-
-
+  
+  public boolean getUseHttp11() {
+    return useHttp11;
+  }
+  
   private String blockAddr(URL url) throws ProtocolException {
     
     String host;
@@ -428,6 +434,21 @@ public abstract class HttpBase implements Protocol {
     logger.info("http.max.delays = " + maxDelays);
   }
   
+  public byte[] processGzipEncoded(byte[] compressed, URL url) throws IOException {
+    LOGGER.fine("uncompressing....");
+
+    byte[] content = GZIPUtils.unzipBestEffort(compressed, getMaxContent());
+
+    if (content == null)
+      throw new IOException("unzipBestEffort returned null");
+
+    if (LOGGER.isLoggable(Level.FINE))
+      LOGGER.fine("fetched " + compressed.length
+                    + " bytes of compressed content (expanded to "
+                    + content.length + " bytes) from " + url);
+    return content;
+  }
+  
   protected static void main(HttpBase http, String[] args) throws Exception {
     boolean verbose = false;
     String url = null;
@@ -475,5 +496,5 @@ public abstract class HttpBase implements Protocol {
                                           CrawlDatum datum,
                                           boolean followRedirects)
     throws ProtocolException, IOException;
-  
+
 }

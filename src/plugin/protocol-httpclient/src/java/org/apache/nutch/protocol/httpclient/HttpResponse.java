@@ -70,8 +70,11 @@ public class HttpResponse implements Response {
     get.setFollowRedirects(followRedirects);
     get.setRequestHeader("User-Agent", http.getUserAgent());
     HttpMethodParams params = get.getParams();
-    // some servers cannot digest the new protocol
-    params.setVersion(HttpVersion.HTTP_1_0);
+    if (http.getUseHttp11()) {
+      params.setVersion(HttpVersion.HTTP_1_1);
+    } else {
+      params.setVersion(HttpVersion.HTTP_1_0);
+    }
     params.makeLenient();
     params.setContentCharset("UTF-8");
     params.setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
@@ -109,6 +112,13 @@ public class HttpResponse implements Response {
       } catch (Exception e) {
         if (code == 200) throw new IOException(e.toString());
         // for codes other than 200 OK, we are fine with empty content
+      }
+      if (content != null) {
+        // check if we have to uncompress it
+        String contentEncoding = headers.get(Response.CONTENT_ENCODING);
+        if ("gzip".equals(contentEncoding) || "x-gzip".equals(contentEncoding)) {
+          content = http.processGzipEncoded(content, url);
+        }
       }
     } catch (org.apache.commons.httpclient.ProtocolException pe) {
       pe.printStackTrace();
