@@ -132,6 +132,14 @@
     trying to fetch a page.</description>
 </property>
 
+<property>
+  <name>http.useHttp11</name>
+  <value>false</value>
+  <description>NOTE: at the moment this works only for protocol-httpclient.
+  If true, use HTTP 1.1, if false use HTTP 1.0 .
+  </description>
+</property>
+
 <!-- FTP properties -->
 
 <property>
