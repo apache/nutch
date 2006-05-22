@@ -33,13 +33,11 @@ import org.apache.hadoop.conf.Configuration;
  * expanded to search the url, anchor and content document fields.*/
 public class BasicQueryFilter implements QueryFilter {
     
-  private float URL_BOOST;
-
-  private float ANCHOR_BOOST ;
-
-  private float TITLE_BOOST;
-
-  private float HOST_BOOST;
+  private static final int  URL_BOOST       = 0;
+  private static final int  ANCHOR_BOOST    = 1;
+  private static final int  CONTENT_BOOST   = 2;
+  private static final int  TITLE_BOOST     = 3;
+  private static final int  HOST_BOOST      = 4;
 
   private static int SLOP = Integer.MAX_VALUE;
 
@@ -48,18 +46,17 @@ public class BasicQueryFilter implements QueryFilter {
   private static final String[] FIELDS =
   { "url", "anchor", "content", "title", "host" };
 
-  private final float[] FIELD_BOOSTS =
-  { URL_BOOST, ANCHOR_BOOST, 1.0f, TITLE_BOOST, HOST_BOOST };
+  private float[] FIELD_BOOSTS = new float[5];
 
   /**
    * Set the boost factor for url matches, relative to content and anchor
    * matches
    */
-  public void setUrlBoost(float boost) { URL_BOOST = boost; }
+  public void setUrlBoost(float boost) { FIELD_BOOSTS[URL_BOOST] = boost; }
 
   /** Set the boost factor for title/anchor matches, relative to url and
    * content matches. */
-  public void setAnchorBoost(float boost) { ANCHOR_BOOST = boost; }
+  public void setAnchorBoost(float boost) { FIELD_BOOSTS[ANCHOR_BOOST] = boost; }
 
   /** Set the boost factor for sloppy phrase matches relative to unordered term
    * matches. */
@@ -173,10 +170,11 @@ public class BasicQueryFilter implements QueryFilter {
 
   public void setConf(Configuration conf) {
     this.conf = conf;
-    this.URL_BOOST = conf.getFloat("query.url.boost", 4.0f);
-    this.ANCHOR_BOOST = conf.getFloat("query.anchor.boost", 2.0f);
-    this.TITLE_BOOST = conf.getFloat("query.title.boost", 1.5f);
-    this.HOST_BOOST = conf.getFloat("query.host.boost", 2.0f);
+    this.FIELD_BOOSTS[URL_BOOST] = conf.getFloat("query.url.boost", 4.0f);
+    this.FIELD_BOOSTS[ANCHOR_BOOST] = conf.getFloat("query.anchor.boost", 2.0f);
+    this.FIELD_BOOSTS[CONTENT_BOOST] = conf.getFloat("query.content.boost", 1.0f);
+    this.FIELD_BOOSTS[TITLE_BOOST] = conf.getFloat("query.title.boost", 1.5f);
+    this.FIELD_BOOSTS[HOST_BOOST] = conf.getFloat("query.host.boost", 2.0f);
     this.PHRASE_BOOST = conf.getFloat("query.phrase.boost", 1.0f);
   }
 
