@@ -71,6 +71,7 @@ public class Generator extends Configured {
     private SelectorEntry entry = new SelectorEntry();
     private FloatWritable sortValue = new FloatWritable();
     private boolean byIP;
+    private long dnsFailure = 0L;
 
     public void configure(JobConf job) {
       curTime = job.getLong("crawl.gen.curTime", System.currentTimeMillis());
@@ -139,6 +140,8 @@ public class Generator extends Configured {
               host = ia.getHostAddress();
             } catch (UnknownHostException uhe) {
               LOG.fine("DNS lookup failed: " + host + ", skipping.");
+              dnsFailure++;
+              if (dnsFailure % 1000 == 0) LOG.warning("DNS failures: " + dnsFailure);
               continue;
             }
           }
