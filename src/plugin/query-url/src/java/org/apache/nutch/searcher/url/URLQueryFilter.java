@@ -24,17 +24,13 @@ import org.apache.hadoop.conf.Configuration;
  * BasicIndexingFilter.
  */
 public class URLQueryFilter extends FieldQueryFilter {
-  private Configuration conf;
 
   public URLQueryFilter() {
     super("url");
   }
 
   public void setConf(Configuration conf) {
-    this.conf = conf;
+    super.setConf(conf);
   }
 
-  public Configuration getConf() {
-    return this.conf;
-  }
 }
