@@ -80,6 +80,7 @@
  <!-- <ant dir="parse-rtf" target="test"/> -->
      <ant dir="parse-swf" target="test"/>
      <ant dir="parse-zip" target="test"/>
+     <ant dir="query-url" target="test"/>
      <ant dir="urlfilter-automaton" target="test"/>
      <ant dir="urlfilter-regex" target="test"/>
      <ant dir="urlfilter-suffix" target="test"/>
