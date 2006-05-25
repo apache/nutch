@@ -51,17 +51,27 @@ public class DOMContentUtils {
       }
   }
   
-  public static HashMap linkParams = new HashMap();
+  private HashMap linkParams = new HashMap();
+  private Configuration conf;
   
-  static {
-      linkParams.put("a", new LinkParams("a", "href", 1));
-      linkParams.put("area", new LinkParams("area", "href", 0));
+  
+  public DOMContentUtils(Configuration conf) {
+    setConf(conf);
+  }
+  
+  public void setConf(Configuration conf) {
+    this.conf = conf;
+    linkParams.clear();
+    linkParams.put("a", new LinkParams("a", "href", 1));
+    linkParams.put("area", new LinkParams("area", "href", 0));
+    if (conf.getBoolean("parser.html.form.use_action", false)) {
       linkParams.put("form", new LinkParams("form", "action", 1));
-      linkParams.put("frame", new LinkParams("frame", "src", 0));
-      linkParams.put("iframe", new LinkParams("iframe", "src", 0));
-      linkParams.put("script", new LinkParams("script", "src", 0));
-      linkParams.put("link", new LinkParams("link", "href", 0));
-      linkParams.put("img", new LinkParams("img", "src", 0));
+    }
+    linkParams.put("frame", new LinkParams("frame", "src", 0));
+    linkParams.put("iframe", new LinkParams("iframe", "src", 0));
+    linkParams.put("script", new LinkParams("script", "src", 0));
+    linkParams.put("link", new LinkParams("link", "href", 0));
+    linkParams.put("img", new LinkParams("img", "src", 0));
   }
   
   /**
@@ -79,7 +89,7 @@ public class DOMContentUtils {
    *
    * @return true if nested anchors were found
    */
-  public static final boolean getText(StringBuffer sb, Node node, 
+  public boolean getText(StringBuffer sb, Node node, 
                                       boolean abortOnNestedAnchors) {
     if (getTextHelper(sb, node, abortOnNestedAnchors, 0)) {
       return true;
@@ -93,13 +103,13 @@ public class DOMContentUtils {
    * #getText(StringBuffer,Node,boolean) getText(sb, node, false)}.
    * 
    */
-  public static final void getText(StringBuffer sb, Node node) {
+  public void getText(StringBuffer sb, Node node) {
     getText(sb, node, false);
   }
 
   // returns true if abortOnNestedAnchors is true and we find nested 
   // anchors
-  private static final boolean getTextHelper(StringBuffer sb, Node node, 
+  private boolean getTextHelper(StringBuffer sb, Node node, 
                                              boolean abortOnNestedAnchors,
                                              int anchorDepth) {
     if ("script".equalsIgnoreCase(node.getNodeName())) {
@@ -148,7 +158,7 @@ public class DOMContentUtils {
    *
    * @return true if a title node was found, false otherwise
    */
-  public static final boolean getTitle(StringBuffer sb, Node node) {
+  public boolean getTitle(StringBuffer sb, Node node) {
     if ("body".equalsIgnoreCase(node.getNodeName())) // stop after HEAD
       return false;
 
@@ -171,7 +181,7 @@ public class DOMContentUtils {
   }
 
   /** If Node contains a BASE tag then it's HREF is returned. */
-  public static final URL getBase(Node node) {
+  public URL getBase(Node node) {
 
     // is this node a BASE tag?
     if (node.getNodeType() == Node.ELEMENT_NODE) {
@@ -209,7 +219,7 @@ public class DOMContentUtils {
   }
 
 
-  private static boolean hasOnlyWhiteSpace(Node node) {
+  private boolean hasOnlyWhiteSpace(Node node) {
     String val= node.getNodeValue();
     for (int i= 0; i < val.length(); i++) {
       if (!Character.isWhitespace(val.charAt(i)))
@@ -220,7 +230,7 @@ public class DOMContentUtils {
 
   // this only covers a few cases of empty links that are symptomatic
   // of nekohtml's DOM-fixup process...
-  private static boolean shouldThrowAwayLink(Node node, NodeList children, 
+  private boolean shouldThrowAwayLink(Node node, NodeList children, 
                                               int childLen, LinkParams params) {
     if (childLen == 0) {
       // this has no inner structure 
@@ -286,8 +296,8 @@ public class DOMContentUtils {
    * nodes (this is a common DOM-fixup artifact, at least with
    * nekohtml).
    */
-  public static final void getOutlinks(URL base, ArrayList outlinks, 
-                                       Node node, Configuration conf) {
+  public void getOutlinks(URL base, ArrayList outlinks, 
+                                       Node node) {
 
     NodeList children = node.getChildNodes();
     int childLen= 0;
@@ -295,7 +305,8 @@ public class DOMContentUtils {
       childLen= children.getLength();
   
     if (node.getNodeType() == Node.ELEMENT_NODE) {
-      LinkParams params = (LinkParams)linkParams.get(node.getNodeName().toLowerCase());
+      String nodeName = node.getNodeName().toLowerCase();
+      LinkParams params = (LinkParams)linkParams.get(nodeName);
       if (params != null) {
         if (!shouldThrowAwayLink(node, children, childLen, params)) {
 
@@ -333,7 +344,7 @@ public class DOMContentUtils {
       }
     }
     for ( int i = 0; i < childLen; i++ ) {
-      getOutlinks(base, outlinks, children.item(i), conf);
+      getOutlinks(base, outlinks, children.item(i));
     }
   }
 

@@ -636,6 +636,16 @@
   </description>
 </property>
 
+<property>
+  <name>parser.html.form.use_action</name>
+  <value>false</value>
+  <description>If true, HTML parser will collect URLs from form action
+  attributes. This may lead to undesirable behavior (submitting empty
+  forms during next fetch cycle). If false, form action attribute will
+  be ignored.</description>
+</property>
+
+
 <!-- urlfilter plugin properties -->
 
 <property>
