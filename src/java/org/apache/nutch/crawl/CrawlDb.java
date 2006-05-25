@@ -87,6 +87,7 @@ public class CrawlDb extends Configured {
     Path current = new Path(crawlDb, CrawlDatum.DB_DIR_NAME);
     fs.delete(old);
     fs.rename(current, old);
+    fs.mkdirs(crawlDb);
     fs.rename(newCrawlDb, current);
     fs.delete(old);
   }
