@@ -269,6 +269,7 @@ public class LinkDb extends Configured implements Mapper, Reducer {
     Path current = new Path(linkDb, CURRENT_NAME);
     fs.delete(old);
     fs.rename(current, old);
+    fs.mkdirs(linkDb);
     fs.rename(newLinkDb, current);
     fs.delete(old);
   }
