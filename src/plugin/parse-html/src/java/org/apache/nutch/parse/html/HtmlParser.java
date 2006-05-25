@@ -95,6 +95,8 @@ public class HtmlParser implements Parser {
   private String defaultCharEncoding;
 
   private Configuration conf;
+  
+  private DOMContentUtils utils;
 
   private HtmlParseFilters htmlParseFilters;
 
@@ -172,19 +174,19 @@ public class HtmlParser implements Parser {
     if (!metaTags.getNoIndex()) {               // okay to index
       StringBuffer sb = new StringBuffer();
       LOG.fine("Getting text...");
-      DOMContentUtils.getText(sb, root);          // extract text
+      utils.getText(sb, root);          // extract text
       text = sb.toString();
       sb.setLength(0);
       LOG.fine("Getting title...");
-      DOMContentUtils.getTitle(sb, root);         // extract title
+      utils.getTitle(sb, root);         // extract title
       title = sb.toString().trim();
     }
       
     if (!metaTags.getNoFollow()) {              // okay to follow links
       ArrayList l = new ArrayList();              // extract outlinks
-      URL baseTag = DOMContentUtils.getBase(root);
+      URL baseTag = utils.getBase(root);
       LOG.fine("Getting links...");
-      DOMContentUtils.getOutlinks(baseTag!=null?baseTag:base, l, root, getConf());
+      utils.getOutlinks(baseTag!=null?baseTag:base, l, root);
       outlinks = (Outlink[])l.toArray(new Outlink[l.size()]);
       LOG.fine("found "+outlinks.length+" outlinks in "+content.getUrl());
     }
@@ -286,6 +288,7 @@ public class HtmlParser implements Parser {
     this.parserImpl = getConf().get("parser.html.impl", "neko");
     this.defaultCharEncoding = getConf().get(
         "parser.character.encoding.default", "windows-1252");
+    this.utils = new DOMContentUtils(conf);
   }
 
   public Configuration getConf() {

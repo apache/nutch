@@ -121,7 +121,21 @@ public class TestDOMContentUtils extends TestCase {
                + "<a href=\"http://www.nutch.org\" rel=\"nofollow\"> ignore </a>"
                + "<a rel=\"nofollow\" href=\"http://www.nutch.org\"> ignore </a>"
                + "</body></html>"),
+    // test that POST form actions are skipped
+    new String("<html><head></head><body>"
+            + "<form method='POST' action='/search.jsp'><input type=text>"
+            + "<input type=submit><p>test1</p></form>"
+            + "<form method='GET' action='/dummy.jsp'><input type=text>"
+            + "<input type=submit><p>test2</p></form></body></html>"),
+    // test that all form actions are skipped
+    new String("<html><head></head><body>"
+            + "<form method='POST' action='/search.jsp'><input type=text>"
+            + "<input type=submit><p>test1</p></form>"
+            + "<form method='GET' action='/dummy.jsp'><input type=text>"
+            + "<input type=submit><p>test2</p></form></body></html>"),
   };
+  
+  private static int SKIP = 9;
 
   private static String[] testBaseHrefs= {
     "http://www.nutch.org",     
@@ -132,8 +146,10 @@ public class TestDOMContentUtils extends TestCase {
     "http://www.nutch.org/maps/",
     "http://www.nutch.org/whitespace/",
     "http://www.nutch.org//",
+    "http://www.nutch.org/",
+    "http://www.nutch.org/",
   };
-  
+    
   private static final DocumentFragment testDOMs[]=
     new DocumentFragment[testPages.length];
 
@@ -155,6 +171,8 @@ public class TestDOMContentUtils extends TestCase {
         + "one two two three three four put some text here and there. "
         + "End this madness ! . . . .",
     "ignore ignore",
+    "test1 test2",
+    "test1 test2"
   };
 
   private static final String[] answerTitle= {
@@ -166,17 +184,24 @@ public class TestDOMContentUtils extends TestCase {
     "my title",
     "my title",
     "",
+    "",
+    ""
   };
 
   // note: should be in page-order
   private static Outlink[][] answerOutlinks;
+  
+  private static Configuration conf;
+  private static DOMContentUtils utils = null;
   
   public TestDOMContentUtils(String name) { 
     super(name); 
   }
 
   private static void setup() {
-    Configuration conf = NutchConfiguration.create();
+    conf = NutchConfiguration.create();
+    conf.setBoolean("parser.html.form.use_action", true);
+    utils = new DOMContentUtils(conf);
     DOMFragmentParser parser= new DOMFragmentParser();
     for (int i= 0; i < testPages.length; i++) {
         DocumentFragment node= 
@@ -227,6 +252,11 @@ public class TestDOMContentUtils extends TestCase {
              new Outlink("http://www.nutch.org/index.html", "whitespace test", conf),
          },
          {
+         },
+         {
+           new Outlink("http://www.nutch.org/dummy.jsp", "test2", conf),
+         },
+         {
          }
       };
    
@@ -255,7 +285,7 @@ public class TestDOMContentUtils extends TestCase {
       setup();
     for (int i= 0; i < testPages.length; i++) {
       StringBuffer sb= new StringBuffer();
-      DOMContentUtils.getText(sb, testDOMs[i]);
+      utils.getText(sb, testDOMs[i]);
       String text= sb.toString();
       assertTrue("expecting text: " + answerText[i] 
                  + System.getProperty("line.separator") 
@@ -270,7 +300,7 @@ public class TestDOMContentUtils extends TestCase {
       setup();
     for (int i= 0; i < testPages.length; i++) {
       StringBuffer sb= new StringBuffer();
-      DOMContentUtils.getTitle(sb, testDOMs[i]);
+      utils.getTitle(sb, testDOMs[i]);
       String text= sb.toString();
       assertTrue("expecting text: " + answerText[i] 
                  + System.getProperty("line.separator") 
@@ -285,7 +315,14 @@ public class TestDOMContentUtils extends TestCase {
       setup();
     for (int i= 0; i < testPages.length; i++) {
       ArrayList outlinks= new ArrayList();
-      DOMContentUtils.getOutlinks(testBaseHrefURLs[i], outlinks, testDOMs[i], NutchConfiguration.create());
+      if (i == SKIP) {
+        conf.setBoolean("parser.html.form.use_action", false);
+        utils.setConf(conf);
+      } else {
+        conf.setBoolean("parser.html.form.use_action", true);
+        utils.setConf(conf);
+      }
+      utils.getOutlinks(testBaseHrefURLs[i], outlinks, testDOMs[i]);
       Outlink[] outlinkArr= new Outlink[outlinks.size()];
       outlinkArr= (Outlink[]) outlinks.toArray(outlinkArr);
       compareOutlinks(answerOutlinks[i], outlinkArr);
