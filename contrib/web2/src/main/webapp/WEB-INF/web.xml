@@ -42,6 +42,18 @@
 			org.apache.nutch.webapp.servlet.OpenSearchServlet
 		</servlet-class>
 	</servlet>
+	<servlet>
+		<servlet-name>PluginResourceServlet</servlet-name>
+		<servlet-class>
+			org.apache.nutch.webapp.servlet.ResourceServlet
+		</servlet-class>
+	</servlet>
+	<servlet>
+		<servlet-name>PluginJSPDispatcher</servlet-name>
+		<servlet-class>
+			org.apache.nutch.webapp.servlet.JspDispatcherServlet
+		</servlet-class>
+	</servlet>
 	<servlet-mapping>
 		<servlet-name>Cached</servlet-name>
 		<url-pattern>/servlet/cached</url-pattern>
@@ -53,6 +65,14 @@
 	<servlet-mapping>
 		<servlet-name>action</servlet-name>
 		<url-pattern>*.do</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>PluginJSPDispatcher</servlet-name>
+		<url-pattern>/plugin/*</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>PluginResourceServlet</servlet-name>
+		<url-pattern>/resources/*</url-pattern>
 	</servlet-mapping>
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
