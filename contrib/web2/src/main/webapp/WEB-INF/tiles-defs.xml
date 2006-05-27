@@ -52,15 +52,6 @@
 	<definition name="results" path="/WEB-INF/jsp/results.jsp">
 	</definition>
 	
-	<!-- Index more ui extension, should really be in own plugin -->
-	<definition name="more" path="/WEB-INF/jsp/more.jsp" controllerClass="org.apache.nutch.webapp.controller.MoreController">
-	  <putList name="moreNames" id="moreNames">
- 	    <add value="primaryType" type="string"/>
-	    <add value="subType" type="string"/>
-	    <add value="contentLength" type="string"/>
-	    <add value="lastModified" type="string"/>
-	  </putList>
-	</definition>
 	<!-- Search result navigation -->
 	<definition name="navigate" path="/WEB-INF/jsp/navigate.jsp" />
 	
