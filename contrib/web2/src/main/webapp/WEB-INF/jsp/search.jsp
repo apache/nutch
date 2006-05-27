@@ -18,7 +18,7 @@
 				<tiles:insert name="results" flush="true" />
 				<!-- optional tile  -->
 				<c:if test="${cluter!=null}">
-					<tiles:insert ignore="cluster" />
+					<tiles:insert name="cluster" />
 				</c:if>
 				<tiles:insert name="navigate" />
 			</c:when>
