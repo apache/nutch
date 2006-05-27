@@ -21,29 +21,30 @@ it provides, tiles Controller, supporting classes and libraries.
 
 WebApp extension can contain ui logic (in forms of tiles
 controllers and pojos, jar libraries), ui markup
-(in form of html, jsp), ui resources css, javascript. there's
-no support for binary items at the time of writing this.
+(in form of html, jsp), ui resources css, javascript.
+
+Before compiling core nutch plugins you must edit the
+core nutch plugin 'nutch-extensionpoints' plugin.xml
+and add following snippet into it:
+
+<extension-point
+      id="org.apache.nutch.webapp.extension.UIExtensionPoint"
+      name="UI extension"/>
 
 To compile you need to fist build your nutch (core and plugins)
 after that run ant war to generate war.
+
+To compile web2 plugins you must issue command
+ant compile-plugins
+
+After compiling you must enable plugins, please refer to nutch
+documentation 
 
 The nutch plugins are not included in the generated war and you
 need to properly configure where your plugins are. This is achieved
 by editing the nutch configuration file <NUTCH_HOME>/conf/nutch-site.xml
 the configuration parameter you need to edit is named
 'plugin.folders'
-
-Compiling web2 plugins:
-
-ant compile-plugins (inside contrib/web2)
-
-After compiling you must enable plugins, please refer to nutch
-documentation 
-
-Todo:
-
--Remove table structures from html to allow more flexible
-css layouts
 
 Directory contents
 
@@ -132,4 +133,12 @@ absolute path, must start with /plugin/
 
 Static resources
 
+You can include static resources (images, html, css, js) in
+plugins by putting them in src/resources, at runtime those
+resources are exposed in urlspace /resources/<plugin-id>/<resource.ext>
 
+
+Todo:
+
+-Remove table structures from html to allow more flexible
+css layouts
