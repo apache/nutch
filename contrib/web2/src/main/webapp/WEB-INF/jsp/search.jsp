@@ -15,8 +15,11 @@
 					<fmt:param value="${resultInfo[3]}" />
 				</fmt:message>
 				<br />
-				<tiles:insert name="results" flush="true"/>
-				<tiles:insert name="cluster" />
+				<tiles:insert name="results" flush="true" />
+				<!-- optional tile  -->
+				<c:if test="${cluter!=null}">
+					<tiles:insert ignore="cluster" />
+				</c:if>
 				<tiles:insert name="navigate" />
 			</c:when>
 			<c:otherwise>
