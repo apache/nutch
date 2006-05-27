@@ -18,6 +18,7 @@ package org.apache.nutch.webapp.servlet;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.nutch.webapp.common.ServiceLocator;
 import org.apache.nutch.webapp.common.ServletContextServiceLocator;
@@ -31,11 +32,41 @@ public abstract class NutchHttpServlet extends HttpServlet{
 
   private ServiceLocator locator;
   
-  public void init(ServletConfig servletConfig) throws ServletException {
-    locator = ServletContextServiceLocator.getInstance(servletConfig
-        .getServletContext());
+  public void init(final ServletConfig servletConfig) throws ServletException {
+    super.init(servletConfig);
+        locator = ServletContextServiceLocator.getInstance(getServletContext());
   }
   
+  /**
+   * Return context relative path
+   * 
+   * @return
+   */
+  public String getContextRelativePath(final HttpServletRequest request) {
+    return request.getRequestURI().substring(request.getContextPath().length());
+  }
+  
+  /**
+   * Removes the first part of path String and returns new String
+   * if there is no path available return null
+   * @param path original path
+   * @return
+   */
+  public String getMappingRelativePath(final String path){
+    
+    String relPath=null;
+      
+    if(path.indexOf("/",(path.startsWith("/")?1:0))!=-1){
+      relPath=path.substring(path.indexOf('/',(path.startsWith("/")?1:0)));
+    } 
+    
+    return relPath;
+  }
+
+  /**
+   * Get ServiceLocator instance
+   * @return
+   */
   public ServiceLocator getServiceLocator(){
     return locator;
   }

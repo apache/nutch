@@ -92,9 +92,11 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
 
   protected XmlDefinitionsSet getDefinitions() {
 
+    System.out.println("getDefinitions()");
+    
     XmlDefinitionsSet definitions = new XmlDefinitionsSet();
     //
-    // global definitions
+    // core definitions
     //
     String configFiles = config.getDefinitionConfigFiles();
     LOG.info("config files:" + configFiles);
@@ -103,8 +105,10 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
       LOG.info("Trying to load " + files[i]);
       InputStream input = servletContext.getResourceAsStream(files[i]);
 
+      LOG.info("Stream: " + input);
+      
       if (input != null) {
-        parseXMLDefinitionSet(input, definitions, files[i]);
+         parseXMLDefinitionSet(input, definitions, files[i], "nutch-core");
       } else {
         LOG.info("Cannot find static " + files[i]);
       }
@@ -152,7 +156,7 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
       return;
     }
     parseXMLDefinitionSet(is, definitions, "Plugin " + extension.getId()
-        + " : tiles-defs.xml");
+        + " : tiles-defs.xml", extension.getId());
     try {
       is.close();
     } catch (Exception e) {
@@ -161,9 +165,12 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
   }
 
   protected void parseXMLDefinitionSet(InputStream input,
-      XmlDefinitionsSet definitions, String info) {
+      XmlDefinitionsSet definitions, String info, String pluginid) {
+    XmlDefinitionsSet newSet=new XmlDefinitionsSet();
+    
     try {
-      xmlParser.parse(input, definitions);
+      xmlParser.parse(input, newSet);
+      preprocessDefinitions(newSet);
     } catch (IOException e) {
       LOG.info("IOException (" + e.getMessage() + ") parsing definitions "
           + info);
@@ -176,6 +183,21 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
 
     LOG.info("Definitions:" + definitions.getDefinitions().size() + " : "
         + definitions.toString());
+    
+    copySet(definitions,newSet);
+    
+  }
+
+  private void copySet(XmlDefinitionsSet definitions2, XmlDefinitionsSet newSet) {
+    
+    Iterator iterator=newSet.getDefinitions().keySet().iterator();
+    
+    while(iterator.hasNext()){
+      String key=(String)iterator.next();
+      System.out.println("adding: -----------> " + key);
+      XmlDefinition value=newSet.getDefinition(key);
+      definitions2.putDefinition(value);
+    }
   }
 
   /*
@@ -202,7 +224,19 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
     Thread.currentThread().setContextClassLoader(current);
 
     this.definitions = definitions.getDefinitions();
-
+  }
+  
+  private void preprocessDefinitions(XmlDefinitionsSet set){
+    Map definitions=set.getDefinitions();
+    Iterator i=definitions.keySet().iterator();
+    
+    while(i.hasNext()){
+      String key=(String)i.next();
+      XmlDefinition definition=(XmlDefinition)definitions.get(key);
+      if(definition.getPath()!=null && definition.getPath().startsWith("@plugin@")){
+        definition.setPath("goooo" + definition.getPath());
+      }
+    }
   }
 
   private void initDefinitions(XmlDefinitionsSet definitions) {
@@ -218,7 +252,6 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
         e.printStackTrace(System.out);
       }
     }
-    LOG.fine("Restoring ClassLoader.");
   }
 
   /*
@@ -245,5 +278,4 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
   public DefinitionsFactoryConfig getConfig() {
     return config;
   }
-
 }
