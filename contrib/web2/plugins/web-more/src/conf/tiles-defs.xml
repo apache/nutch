@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 1.1//EN" "http://jakarta.apache.org/struts/dtds/tiles-config_1_1.dtd">
+<tiles-definitions>
+	<definition name="more" path="/plugin/more.jsp" controllerClass="org.apache.nutch.webapp.controller.MoreController">
+	  <putList name="moreNames" id="moreNames">
+ 	    <add value="primaryType" type="string"/>
+	    <add value="subType" type="string"/>
+	    <add value="contentLength" type="string"/>
+	    <add value="lastModified" type="string"/>
+	  </putList>
+	</definition>
+</tiles-definitions>

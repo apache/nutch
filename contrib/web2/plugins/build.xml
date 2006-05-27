@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+
+<project name="Nutch" default="deploy-core" basedir=".">
+
+  <target name="deploy-core">
+    <ant target="compile-core" inheritall="false" dir="../../../"/>
+    <ant target="deploy"/>
+  </target>
+
+  <!-- ====================================================== -->
+  <!-- Build & deploy all the plugin jars.                    -->
+  <!-- ====================================================== -->
+  <target name="deploy">
+     <ant dir="web-caching-oscache" target="deploy"/>
+    <ant dir="web-more" target="deploy"/>
+    <ant dir="web-resources" target="deploy"/>
+  </target>
+
+  <!-- ====================================================== -->
+  <!-- Test all of the plugins.                               -->
+  <!-- ====================================================== -->
+  <target name="test">
+    <parallel threadCount="2">
+      <ant dir="web-caching-oscache" target="test"/>
+    </parallel>
+  </target>
+
+  <!-- ====================================================== -->
+  <!-- Clean all of the plugins.                              -->
+  <!-- ====================================================== -->
+  <target name="clean">
+    <ant dir="web-caching-oscache" target="clean"/>
+    <ant dir="web-resources" target="clean"/>
+    <ant dir="web-more" target="clean"/>
+  </target>
+
+</project>
