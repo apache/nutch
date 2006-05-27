@@ -14,7 +14,7 @@ webapp
 	<property name="build.test" location="${build.dir}/test" />
 
 	<property name="src.dir" location="${root}/src/main/java" />
-	<property name="src.test" location="${root}/src/test" />
+	<property name="src.test" location="${root}/src/main/test" />
 	<property name="conf.dir" location="${nutch.root}/conf" />
 
 	<property name="deploy.dir" location="target" />
@@ -23,8 +23,10 @@ webapp
 	<property name="web.src.dir" value="${basedir}/src/main/webapp"/>
 	<property name="docs.dir" value="${build.dir}/${name}/"/>
   <property name="build.plugins" value="${nutch.root}/build/plugins"/>
+  <property name="build.src" value="${build.dir}/jsp-src"/>
 
 	<property file="${nutch.root}/default.properties"/>
+	
 
 	<property name="web.final.name" value="${name}-${version}" />
 
@@ -38,14 +40,20 @@ webapp
 		<fileset refid="lib.jars" />
 		<pathelement location="${nutch.root}/build/classes" />
 		<fileset dir="${nutch.root}/lib">
-			<include name="servlet-api.jar" />
-			<include name="hadoop-0.1.1.jar" />
-		</fileset>
-		<fileset dir="${nutch.root}/lib/jetty-ext">
-			<include name="jsp-api.jar" />
+			<include name="**/*.jar" />
 		</fileset>
 	</path>
 
+  <!-- the unit test classpath -->
+  <dirname property="plugins.classpath.dir" file="${build.plugins}"/>
+  <path id="test.classpath">
+    <pathelement location="${build.test}" />
+    <pathelement location="${conf.dir}"/>
+    <pathelement location="${test.src.dir}"/>
+    <pathelement location="${plugins.classpath.dir}"/>
+    <path refid="classpath"/>
+  </path>
+	
 	<!--
 	Init
 	-->
@@ -82,7 +90,7 @@ webapp
 	</target>
 
 	<!--
-		generate the nutch.xml (servlet context) file 
+  generate the nutch.xml (servlet context) file 
 	-->
 	<target name="generate-context">
 	  <!-- xmlcatalog definition for xslt task -->
@@ -96,7 +104,11 @@ webapp
 		</xslt>
 	</target>
 
-	<target name="war" depends="jar, generate-context, generate-pages">
+  <target name="compile-plugins" depends="init">
+    <ant dir="plugins" target="deploy" inheritAll="false"/>
+  </target>
+
+	<target name="war" depends="generate-context, generate-pages, jar">
 		<war destfile="${build.dir}/${web.final.name}.war" webxml="src/main/webapp/WEB-INF/web.xml">
 			<fileset dir="${web.src.dir}" excludes="WEB-INF/web.xml"/>
 			<zipfileset dir="${docs.src}" includes="include/*.html" />
@@ -106,7 +118,13 @@ webapp
 				<include name="lucene-*.jar" />
 				<include name="hadoop-*.jar" />
 				<include name="commons-lang-*.jar" />
+				<include name="commons-logging-*.jar" />
+				<include name="xerces-*.jar" />
 			</lib>
+			<lib dir="${nutch.root}/lib/jetty-ext">
+				<include name="jasper-runtime*.jar" />
+  		</lib>
+				
 
 			<fileset dir="${nutch.root}/docs" includes="img/**"/>
 
@@ -121,10 +139,11 @@ webapp
 				<include name="*.jar" />
 			</lib>
 			<classes dir="${conf.dir}" excludes="**/*.template" />
-<!-- no plugins
+			<!--
 			<zipfileset prefix="WEB-INF/classes/plugins" dir="${build.plugins}" >
 				<exclude name="parse-*/**"/>
 				<exclude name="protocol-*/**"/>
+				<exclude name="urlfilter-*/**"/>
 			</zipfileset>
 			-->
 		</war>
@@ -138,10 +157,13 @@ webapp
 		<copy file="${build.dir}/${web.final.name}.war" todir="${deploy.dir}" failonerror="false" />
 	</target>
 	
-	<!--
+	<taskdef classname="org.apache.jasper.JspC" name="jsp-compile" >
+  	<classpath refid="classpath"/>
+  </taskdef>
+  		<!--
 	Compile test code
 	-->
-	<target name="compile-test" depends="compile" if="test.available">
+	<target name="compile-test" depends="compile">
 		<javac encoding="${build.encoding}" srcdir="${src.test}" includes="**/*.java" destdir="${build.test}" debug="${javac.debug}" optimize="${javac.optimize}" target="${javac.version}" source="${javac.version}" deprecation="${javac.deprecation}">
 			<classpath refid="test.classpath" />
 		</javac>
@@ -150,7 +172,7 @@ webapp
 	<!--
 	Run unit tests
 	-->
-	<target name="test" depends="compile-test, deploy" if="test.available">
+	<target name="test" depends="compile-test">
 		<junit printsummary="yes" haltonfailure="no" fork="yes" errorProperty="tests.failed" failureProperty="tests.failed">
 			<sysproperty key="test.data" value="${build.test}/data" />
 			<sysproperty key="test.input" value="${root}/data" />

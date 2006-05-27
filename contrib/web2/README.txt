@@ -27,25 +27,37 @@ no support for binary items at the time of writing this.
 To compile you need to fist build your nutch (core and plugins)
 after that run ant war to generate war.
 
-The nutch plugins are no included in the generated war and you
+The nutch plugins are not included in the generated war and you
 need to properly configure where your plugins are. This is achieved
 by editing the nutch configuration file <NUTCH_HOME>/conf/nutch-site.xml
 the configuration parameter you need to edit is named
 'plugin.folders'
 
+Compiling web2 plugins:
+
+ant compile-plugins (inside contrib/web2)
+
+After compiling you must enable plugins, please refer to nutch
+documentation 
 
 Todo:
 
--provide some samples of ui plugins
--move "more" functionality to plugin
--remove table structures from html to allow more flexible css layouts
--add mechanism for adding binary items (ie. images)
+-Remove table structures from html to allow more flexible
+css layouts
 
 Directory contents
 
 /lib
-	contains required additional libraties, all Licenced and maintained by ASF.
-	struts.jar (version 1.2.9) and libraries required by struts.
+	contains required additional libraries, all licenced and
+	maintained by ASF. files:
+	struts.jar (version 1.2.9) and libraries required by struts:
+	commons-beanutils.jar
+	commons-collections-3.0.jar
+	commons-digester.jar
+	
+	jstl.jar
+	standard.jar
+	
 	
 /res
   contains stylesheets to transform static html pages or page snippets
@@ -66,3 +78,58 @@ README.txt
 	this file
 	
 	
+Web ui plugin source directory structure
+
+/lib
+	contains libraries required by extension
+	
+/src/conf
+  configuration files for example tiles-defs.xml
+  
+/src/java
+  java source files
+
+/src/test
+  java unit test source files
+
+/src/web
+  jsp files
+  
+/src/resources
+  any resources that needs to be exposed to public url space
+  (images, css, js...)
+
+/build.xml
+
+/plugin.xml
+
+
+JSP Templating
+
+Referencing jsp files from tiles-defs:
+
+Referencing jsp resources inside nutch war
+
+absolute path, must start with /WEB-INF
+
+	<definition name="searchPage" extends=".layout"
+	            controllerClass="org.apache.nutch.webapp.controller.CachingSearchController">
+    <put name="title" value="cached search"/>
+		<put name="pageBody" value="/WEB-INF/jsp/search.jsp" />
+	</definition>
+
+Referencing jsp resources inside plugins
+
+absolute path, must start with /plugin/
+
+
+	<definition name="searchPage" extends=".layout"
+	            controllerClass="org.apache.nutch.webapp.controller.CachingSearchController">
+    <put name="title" value="cached search"/>
+		<put name="pageBody" value="/plugin/search.jsp" />
+	</definition>
+
+
+Static resources
+
+

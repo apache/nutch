@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="web-resources"
+   name="Resources plugin"
+   version="1.0.0"
+   provider-name="apache.org">
+
+   <runtime>
+      <library name="web-resources.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
+    <extension id="org.apache.nutch.webapp.extension.UIExtensionPoint"
+      name="Nutch ui extension point"
+      point="org.apache.nutch.webapp.extension.UIExtensionPoint">
+      <implementation id="web-resources"
+                      class="org.apache.nutch.webapp.extension.UIExtension.VoidImplementation"/>
+   </extension>
+   
+</plugin>

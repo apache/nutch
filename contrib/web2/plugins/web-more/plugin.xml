@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="web-more"
+   name="diplay information from index-more plgin"
+   version="1.0.0"
+   provider-name="apache.org">
+
+   <runtime>
+      <library name="web-more.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
+    <extension id="org.apache.nutch.webapp.extension.UIExtensionPoint"
+      name="Nutch ui extension point"
+      point="org.apache.nutch.webapp.extension.UIExtensionPoint">
+      <implementation id="web-more"
+                      class="org.apache.nutch.webapp.extension.UIExtension.VoidImplementation"/>
+   </extension>
+   
+</plugin>

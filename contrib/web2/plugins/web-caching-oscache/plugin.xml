@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="web-caching-oscache"
+   name="Search result caching"
+   version="1.0.0"
+   provider-name="apache.org">
+
+   <runtime>
+      <library name="web-caching-oscache.jar">
+         <export name="*"/>
+      </library>
+
+      <library name="oscache-2.1.jar"/>
+   </runtime>
+
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
+    <extension id="org.apache.nutch.webapp.extension.UIExtensionPoint"
+      name="Nutch ui extension point"
+      point="org.apache.nutch.webapp.extension.UIExtensionPoint">
+      <implementation id="web-caching-oscache"
+                      class="org.apache.nutch.webapp.extension.UIExtension.VoidImplementation"/>
+   </extension>
+   
+</plugin>

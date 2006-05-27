@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+
+<project name="web-resources" default="jar-core">
+
+	<import file="../build-plugin.xml" />
+	<property name="nutch.root" location="${root}/../../../../" />
+
+	<target name="init-plugin">
+		<echo>Copying resources templates</echo>
+		<copy todir="${build.classes}/resources">
+			<fileset dir="${resources.dir}" includes="**/*" />
+		</copy>
+		<echo>Copying UI configuration</echo>
+		<copy todir="${build.classes}">
+			<fileset dir="src/conf" includes="**/*"/>
+		</copy>
+		<echo>Copying UI templates</echo>
+		<copy todir="${deploy.dir}/web">
+			<fileset dir="src/web" includes="**/*"/>
+		</copy>
+	</target>
+	
+
+</project>
