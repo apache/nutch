@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="web-clustering"
+   name="Clustering web interface extension"
+   version="1.0.0"
+   provider-name="apache.org">
+
+   <runtime>
+      <library name="web-clustering.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+        <!--  
+        Following is not a proper requirement, should really require
+        generic clustering plugin not any specific impplementation
+        
+        (TODO: remove generic clustergin stuff from core and move it
+        into a plugin?) 
+        
+        -->
+      <import plugin="clustering-carrot2"/>
+   </requires>
+
+    <extension id="org.apache.nutch.webapp.extension.UIExtensionPoint"
+      name="Clustering extension for Web UI"
+      point="org.apache.nutch.webapp.extension.UIExtensionPoint">
+      <implementation id="web-clustering"
+                      class="org.apache.nutch.webapp.extension.UIExtension.VoidImplementation"/>
+   </extension>
+   
+   <extension-point
+      id="org.apache.nutch.webapp.extension.PreSearchExtensionPoint"
+      name="Pre search extension"/>
+      
+   <extension id="org.apache.nutch.webapp.extension.PreSearchExtensionPoint"
+   	name="Clustering extension for Web UI"
+   	point="org.apache.nutch.webapp.extension.PreSearchExtensionPoint">
+   	<implementation id="web-clustering-presearch"
+   		class="org.apache.nutch.clustering.ClusteringPresearchExtension"
+   		/>
+   		</extension>
+</plugin>
