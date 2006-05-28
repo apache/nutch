@@ -11,9 +11,10 @@
   <!-- Build & deploy all the plugin jars.                    -->
   <!-- ====================================================== -->
   <target name="deploy">
-     <ant dir="web-caching-oscache" target="deploy"/>
+    <ant dir="web-caching-oscache" target="deploy"/>
     <ant dir="web-more" target="deploy"/>
     <ant dir="web-resources" target="deploy"/>
+    <ant dir="web-clustering" target="deploy"/>
   </target>
 
   <!-- ====================================================== -->
@@ -32,6 +33,7 @@
     <ant dir="web-caching-oscache" target="clean"/>
     <ant dir="web-resources" target="clean"/>
     <ant dir="web-more" target="clean"/>
+    <ant dir="web-clustering" target="clean"/>
   </target>
 
 </project>
