@@ -125,9 +125,12 @@ public class Search {
    * @return
    */
   public List getResults() {
+    
+    int len=Math.min(details.length,getHitsPerPage());
+    
     if (results == null) {
-      results = new ArrayList(details.length);
-      for (int i = 0; i < details.length; i++) {
+      results = new ArrayList(len);
+      for (int i = 0; i < len; i++) {
         results.add(new SearchResultBean(this, show[i], details[i],
             summaries[i]));
       }
@@ -433,7 +436,6 @@ public class Search {
    * @return
    */
   public int getHitsRequired() {
-    LOG.info("gettingHitsRequires:" + hitsRequired);
     if(hitsRequired!=0) {
     return hitsRequired;
     } 
@@ -445,7 +447,6 @@ public class Search {
    * @param hitsRequired
    */
   public void setHitsRequired(int hitsRequired) {
-    LOG.info("setting required:" + hitsRequired);
     this.hitsRequired = hitsRequired;
   }
 
