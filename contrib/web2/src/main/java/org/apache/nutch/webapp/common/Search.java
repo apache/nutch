@@ -95,7 +95,7 @@ public class Search {
     }
 
     int realEnd = (int) Math.min(hits.getLength(), getStartOffset()
-        + getHitsPerPage());
+        + getHitsRequired());
 
     int endOffset=hits.getLength();
     
