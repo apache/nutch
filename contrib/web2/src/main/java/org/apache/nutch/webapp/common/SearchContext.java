@@ -44,6 +44,14 @@ public interface SearchContext {
    * @return
    */
   String getParameter(Object key);
+  
+  /**
+   * Put parameter to context
+   * @param key
+   * @param value
+   * @return
+   */
+  void setParameter(Object key, Object value);
 
   /**
    * Return named object

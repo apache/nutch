@@ -15,6 +15,8 @@
  */
 package org.apache.nutch.webapp.common;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.logging.Logger;
 
@@ -22,7 +24,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
-import org.apache.nutch.plugin.PluginRuntimeException;
 import org.apache.nutch.webapp.extension.PostSearchExtensionPoint;
 import org.apache.nutch.webapp.extension.PreSearchExtensionPoint;
 import org.apache.nutch.webapp.extension.SearchExtensionPoint;
@@ -37,29 +38,32 @@ public class BaseSearch {
 
   protected PostSearchExtensionPoint[] postsearch;
 
-  protected Object[] setup(String xPoint, Configuration conf) {
+  protected Collection setup(String xPoint, Configuration conf) {
+    LOG.info("setting up:" + xPoint);
+
     HashMap filters = new HashMap();
     try {
       ExtensionPoint point = serviceLocator.getPluginRepository()
           .getExtensionPoint(xPoint);
-      if (point == null)
-        throw new RuntimeException(xPoint + " not found.");
-      Extension[] extensions = point.getExtensions();
-      for (int i = 0; i < extensions.length; i++) {
-        Extension extension = extensions[i];
-        Object extensionInstance = extension.getExtensionInstance();
-        if (!filters.containsKey(extensionInstance.getClass().getName())) {
-          filters
-              .put(extensionInstance.getClass().getName(), extensionInstance);
+      if (point != null) {
+        Extension[] extensions = point.getExtensions();
+        for (int i = 0; i < extensions.length; i++) {
+          Extension extension = extensions[i];
+          Object extensionInstance = extension.getExtensionInstance();
+          if (!filters.containsKey(extensionInstance.getClass().getName())) {
+            filters.put(extensionInstance.getClass().getName(),
+                extensionInstance);
+          }
         }
+        return filters.values();
       }
-      return (Object[]) filters.values().toArray(new Object[filters.size()]);
-    } catch (PluginRuntimeException e) {
-      throw new RuntimeException(e);
+    } catch (Exception e) {
+      LOG.info("Error setting up extensions :" + e);
     }
+    return Collections.EMPTY_LIST;
+
   }
 
-  // private HttpServletRequest request;
   private SearchContextImpl context;
 
   private ServiceLocator serviceLocator;
@@ -69,36 +73,42 @@ public class BaseSearch {
    */
   public BaseSearch(ServiceLocator locator) {
     this.serviceLocator = locator;
-    presearch = getPreSearchExtensions(serviceLocator.getConfiguration());
-    search = getSearchExtensions(serviceLocator.getConfiguration());
-    postsearch = getPostSearchExtensions(serviceLocator.getConfiguration());
+    Collection pre = getPreSearchExtensions(serviceLocator.getConfiguration());
+    presearch = new PreSearchExtensionPoint[pre.size()];
+    pre.toArray(presearch);
+
+    Collection searchC = getSearchExtensions(serviceLocator.getConfiguration());
+    search = new SearchExtensionPoint[searchC.size()];
+    searchC.toArray(search);
+
+    Collection post = getPostSearchExtensions(serviceLocator.getConfiguration());
+    postsearch = new PostSearchExtensionPoint[post.size()];
+    post.toArray(postsearch);
   }
 
-  public PreSearchExtensionPoint[] getPreSearchExtensions(Configuration conf) {
+  public Collection getPreSearchExtensions(Configuration conf) {
     if (conf.getObject(PreSearchExtensionPoint.X_POINT_ID) == null) {
-      conf.set(PreSearchExtensionPoint.X_POINT_ID, setup(
+      conf.setObject(PreSearchExtensionPoint.X_POINT_ID, setup(
           PreSearchExtensionPoint.X_POINT_ID, conf));
     }
-    return (PreSearchExtensionPoint[]) conf
-        .getObject(PreSearchExtensionPoint.X_POINT_ID);
+
+    return (Collection) conf.getObject(PreSearchExtensionPoint.X_POINT_ID);
   }
 
-  public SearchExtensionPoint[] getSearchExtensions(Configuration conf) {
+  public Collection getSearchExtensions(Configuration conf) {
     if (conf.getObject(SearchExtensionPoint.X_POINT_ID) == null) {
-      conf.set(SearchExtensionPoint.X_POINT_ID, setup(
+      conf.setObject(SearchExtensionPoint.X_POINT_ID, setup(
           SearchExtensionPoint.X_POINT_ID, conf));
     }
-    return (SearchExtensionPoint[]) conf
-        .getObject(SearchExtensionPoint.X_POINT_ID);
+    return (Collection) conf.getObject(SearchExtensionPoint.X_POINT_ID);
   }
 
-  public PostSearchExtensionPoint[] getPostSearchExtensions(Configuration conf) {
+  public Collection getPostSearchExtensions(Configuration conf) {
     if (conf.getObject(PostSearchExtensionPoint.X_POINT_ID) == null) {
-      conf.set(PostSearchExtensionPoint.X_POINT_ID, setup(
+      conf.setObject(PostSearchExtensionPoint.X_POINT_ID, setup(
           PostSearchExtensionPoint.X_POINT_ID, conf));
     }
-    return (PostSearchExtensionPoint[]) conf
-        .getObject(PostSearchExtensionPoint.X_POINT_ID);
+    return (Collection) conf.getObject(PostSearchExtensionPoint.X_POINT_ID);
   }
 
   /**
@@ -132,17 +142,11 @@ public class BaseSearch {
    * Entry point to execute the search
    */
   public void doSearch() {
-    // initiate Search Object
-    LOG.fine("create search");
-    Search search = new Search(serviceLocator);
     // create context
-    LOG.fine("create context");
-    context = new SearchContextImpl(search, serviceLocator);
-    LOG.fine("presearch");
+    context = new SearchContextImpl(serviceLocator);
     callPreSearch();
-    LOG.fine("search");
-    callSearch();
-    LOG.fine("post");
+    serviceLocator.getSearch().performSearch();
+    // callSearch();
     callPostSearch();
   }
 }

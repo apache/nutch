@@ -25,7 +25,6 @@ import org.apache.nutch.html.Entities;
 import org.apache.nutch.searcher.Hit;
 import org.apache.nutch.searcher.HitDetails;
 import org.apache.nutch.searcher.Hits;
-import org.apache.nutch.searcher.NutchBean;
 import org.apache.nutch.searcher.Query;
 import org.apache.nutch.searcher.Summary;
 
@@ -50,8 +49,13 @@ public class Search {
 
   int hitsPerDup;
 
+  // Number of results per page
   int hitsPerPage;
-
+ 
+  // Number of hits required, for example clustering plugin might require more
+  // than hitsPerPage hits
+  int hitsRequired=0;
+ 
   String sortColumn;
 
   boolean sortDesc;
@@ -79,10 +83,12 @@ public class Search {
    * 
    * @param bean
    */
-  public void performSearch(NutchBean bean) {
+  public void performSearch() {
 
+    LOG.info("performing search, requiring:" + getHitsRequired());
+    
     try {
-      hits = bean.search(getQuery(), getStartOffset() + getHitsPerPage(),
+      hits = locator.getNutchBean().search(getQuery(), getStartOffset() + getHitsRequired(),
           getHitsPerSite(), getDupField(), getSortColumn(), isSortDesc());
     } catch (IOException e) {
       hits = new Hits(0, new Hit[0]);
@@ -105,8 +111,8 @@ public class Search {
     }
 
     try {
-      details = bean.getDetails(show);
-      summaries = bean.getSummary(details, getQuery());
+      details = locator.getNutchBean().getDetails(show);
+      summaries = locator.getNutchBean().getSummary(details, getQuery());
     } catch (IOException e) {
       LOG.info("Error getting hit information:" + e);
       e.printStackTrace();
@@ -420,5 +426,34 @@ public class Search {
 
   public boolean getIsSearch() {
     return queryString != null && !queryString.trim().equals("");
+  }
+
+  /**
+   * Return number of hits required, if not specified defaults to HitsPerPage
+   * @return
+   */
+  public int getHitsRequired() {
+    LOG.info("gettingHitsRequires:" + hitsRequired);
+    if(hitsRequired!=0) {
+    return hitsRequired;
+    } 
+    return getHitsPerPage();
+  }
+
+  /**
+   * Set number of hits required
+   * @param hitsRequired
+   */
+  public void setHitsRequired(int hitsRequired) {
+    LOG.info("setting required:" + hitsRequired);
+    this.hitsRequired = hitsRequired;
+  }
+
+  /** 
+   * Launch search
+   */
+  public void launchSearch() {
+    BaseSearch bs=new BaseSearch(locator);
+    bs.doSearch();
   }
 }
