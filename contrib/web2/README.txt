@@ -154,3 +154,44 @@ Todo:
 
 -Remove table structures from html to allow more flexible
 css layouts
+
+-Refine the idea of extendability
+Perhaps we could just porovide maximum number of small tiles and
+then let end users combine their favourite ui from those, something like:
+
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="my-web-ui"
+   name="site xxx web-ui"
+   version="1.0.0"
+   provider-name="Me">
+
+   <runtime>
+      <library name="my-web-ui.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+      <import plugin="web-search-results"/>
+      <import plugin="web-search-navigation"/>
+      <import plugin="web-search-clustering"/>
+      <import plugin="web-search-preferences"/>
+      <import plugin="web-query-propose-spelling"/>
+      <import plugin="web-more"/>
+      <import plugin="web-caching-oscache"/>
+      <import plugin="web-search-preferences"/>
+   </requires>
+
+    <extension id="org.apache.nutch.webapp.extension.UI"
+      name="My Web UI"
+      point="org.apache.nutch.webapp.extension.UI">
+      <implementation id="my-ui"
+                      class="org.apache.nutch.webapp.extension.UI.VoidImplementation"/>
+   </extension>
+</plugin>
+
++ provide their own template and css
+
+
