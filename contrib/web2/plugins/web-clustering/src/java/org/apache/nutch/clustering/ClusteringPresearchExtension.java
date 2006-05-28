@@ -26,7 +26,6 @@ public class ClusteringPresearchExtension implements PreSearchExtensionPoint {
    * for clusterer
    */
   public void doPreSearch(SearchContext context) {
-    System.out.println("Woohoo, executing presearch for clustering");
     int orig=context.getSearch().getHitsRequired();
 
     //TODO set this configurable
