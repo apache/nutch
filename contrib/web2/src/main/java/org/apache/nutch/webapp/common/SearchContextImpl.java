@@ -28,8 +28,6 @@ public class SearchContextImpl extends HashMap implements SearchContext {
 
   private static final long serialVersionUID = 1L;
 
-  Search search;
-
   ServiceLocator serviceLocator;
 
   /**
@@ -40,9 +38,8 @@ public class SearchContextImpl extends HashMap implements SearchContext {
    * @param locator
    *          Used ServiceLocator
    */
-  SearchContextImpl(Search search, ServiceLocator locator) {
+  SearchContextImpl(ServiceLocator locator) {
     super();
-    this.search = search;
     this.serviceLocator = locator;
   }
 
@@ -52,7 +49,7 @@ public class SearchContextImpl extends HashMap implements SearchContext {
    * @see org.apache.nutch.webapp.common.SearchContext#getSearch()
    */
   public Search getSearch() {
-    return search;
+    return serviceLocator.getSearch();
   }
 
   /*
@@ -89,5 +86,9 @@ public class SearchContextImpl extends HashMap implements SearchContext {
    */
   public Configuration getConfigiration() {
     return serviceLocator.getConfiguration();
+  }
+
+  public void setParameter(Object key, Object value) {
+    this.put(key,value);
   }
 }

@@ -22,7 +22,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.nutch.searcher.NutchBean;
 import org.apache.nutch.webapp.common.Search;
 import org.apache.nutch.webapp.common.ServiceLocator;
 import org.apache.struts.tiles.ComponentContext;
@@ -38,7 +37,6 @@ public class SearchController extends NutchController {
     ServiceLocator locator=getServiceLocator(request);
     
     Search search=locator.getSearch();
-    NutchBean bean = locator.getNutchBean();
-    search.performSearch(bean);
+    search.launchSearch();
   }
 }
