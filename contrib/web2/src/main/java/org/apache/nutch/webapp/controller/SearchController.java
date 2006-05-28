@@ -31,9 +31,6 @@ import org.apache.struts.tiles.ComponentContext;
  */
 public class SearchController extends NutchController {
   
-  public static final String REQ_ATTR_SEARCH="nutchSearch";
-  public static final String REQ_ATTR_RESULTINFO="resultInfo";
-
   public void nutchPerform(ComponentContext tileContext, HttpServletRequest request,
       HttpServletResponse response, ServletContext servletContext)
       throws ServletException, IOException {
@@ -41,10 +38,7 @@ public class SearchController extends NutchController {
     ServiceLocator locator=getServiceLocator(request);
     
     Search search=locator.getSearch();
-    request.setAttribute(REQ_ATTR_SEARCH, search);
     NutchBean bean = locator.getNutchBean();
-
     search.performSearch(bean);
-    request.setAttribute(REQ_ATTR_RESULTINFO, search.getResultInfo());
   }
 }

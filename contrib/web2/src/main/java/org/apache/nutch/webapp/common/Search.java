@@ -37,7 +37,7 @@ import org.apache.nutch.searcher.Summary;
  * 
  */
 public class Search {
-
+  public static final String REQ_ATTR_SEARCH="nutchSearch";
   public static Logger LOG = LogFormatter.getLogger(Search.class.getName());
 
   String queryString;

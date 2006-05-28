@@ -61,7 +61,7 @@ public class WebappInstanceServiceLocator implements ServiceLocator {
   }
 
   public Search getSearch() {
-    String key = Search.class.getName();
+    String key = Search.REQ_ATTR_SEARCH;
     Search search = (Search) request.getAttribute(key);
     if (search == null) {
       search = new Search(this);
