@@ -1,25 +1,23 @@
 <%@ include file="common.jsp"%>
 <c:choose>
-	<c:when test="${nutchSearch.isSearch == true}">
+	<c:when test="${nutchSearch.isSearch}">
 		<form name="search" action="search.do" method="get"><input
 			name="query" size="44"
 			value="<c:out value="${nutchSearch.queryString}"/>"> <input
 			type="submit" value="<fmt:message key="search.search"/>"> <a
 			href="help.do"><fmt:message key="search.help" /></a></form>
 		<c:choose>
-			<c:when test="${nutchSearch.hasResults == true }">
+			<c:when test="${nutchSearch.hasResults}">
 				<fmt:message key="search.hits">
-					<fmt:param value="${resultInfo[0]}" />
-					<fmt:param value="${resultInfo[1]}" />
-					<fmt:param value="${resultInfo[2]}" />
-					<fmt:param value="${resultInfo[3]}" />
+					<fmt:param value="${nutchSearch.resultInfo[0]}" />
+					<fmt:param value="${nutchSearch.resultInfo[1]}" />
+					<fmt:param value="${nutchSearch.resultInfo[2]}" />
+					<fmt:param value="${nutchSearch.resultInfo[3]}" />
 				</fmt:message>
 				<br />
 				<tiles:insert name="results" flush="true" />
 				<!-- optional tile  -->
-				<c:if test="${cluter!=null}">
-					<tiles:insert name="cluster" />
-				</c:if>
+				<tiles:insert definition="cluster" ignore="true"/>
 				<tiles:insert name="navigate" />
 			</c:when>
 			<c:otherwise>

@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.nutch.webapp.CacheManager;
 import org.apache.nutch.webapp.common.Search;
 import org.apache.nutch.webapp.common.ServiceLocator;
+import org.apache.nutch.webapp.controller.SearchController;
 import org.apache.struts.tiles.ComponentContext;
 
 import com.opensymphony.oscache.base.NeedsRefreshException;
@@ -51,19 +52,17 @@ public class CachingSearchController extends SearchController {
       try {
         search = CacheManager.getInstance(locator.getConfiguration())
             .getSearch(key);
-        request.setAttribute("resultInfo", search.getResultInfo());
-        request.setAttribute("nutchSearch", search);
-
-        LOG.fine("Using cached");
+        request.setAttribute(Search.REQ_ATTR_SEARCH, search);
+        LOG.info("Using cached");
       } catch (NeedsRefreshException e) {
         requiresUpdate = true;
-        LOG.fine("Cache update required");
+        LOG.info("Cache update required");
       }
     }
     if (key!=null && (search == null || requiresUpdate)) {
-      LOG.fine("Cache miss");
+      LOG.info("Cache miss");
       super.nutchPerform(tileContext, request, response, servletContext);
-      search = (Search) request.getAttribute(SearchController.REQ_ATTR_SEARCH);
+      search = (Search) locator.getSearch();
       CacheManager.getInstance(locator.getConfiguration()).putSearch(key,
           search);
     }
