@@ -31,6 +31,18 @@ and add following snippet into it:
       id="org.apache.nutch.webapp.extension.UIExtensionPoint"
       name="UI extension"/>
 
+<extension-point
+      id="org.apache.nutch.webapp.extension.PreSearchExtensionPoint"
+      name="Pre search extension"/>
+
+<extension-point
+      id="org.apache.nutch.webapp.extension.PostSearchExtensionPoint"
+      name="Post search extension"/>
+
+<extension-point
+      id="org.apache.nutch.webapp.extension.SearchExtensionPoint"
+      name="Search Extension"/>
+
 To compile you need to fist build your nutch (core and plugins)
 after that run ant war to generate war.
 
