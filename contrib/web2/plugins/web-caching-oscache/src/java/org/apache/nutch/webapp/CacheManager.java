@@ -30,7 +30,7 @@ public class CacheManager {
 
   static final String CACHE_KEY="cache";
   
-  class NutchReferehPolicy implements EntryRefreshPolicy {
+  class NutchRefreshPolicy implements EntryRefreshPolicy {
 
     private static final long serialVersionUID = 1L;
 
@@ -39,7 +39,7 @@ public class CacheManager {
     }
   }
   
-  EntryRefreshPolicy policy=new NutchReferehPolicy();
+  EntryRefreshPolicy policy=new NutchRefreshPolicy();
 
   Cache cache;
   
