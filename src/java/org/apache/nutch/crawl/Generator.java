@@ -243,7 +243,7 @@ public class Generator extends Configured {
                "/generate-temp-"+
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
-    Path segment = new Path(segments, getDate());
+    Path segment = new Path(segments, generateSegmentName());
     Path output = new Path(segment, CrawlDatum.GENERATE_DIR_NAME);
 
     LOG.info("Generator: starting");
@@ -305,9 +305,14 @@ public class Generator extends Configured {
 
     return segment;
   }
+  
+  private static SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
 
-  private static String getDate() {
-    return new SimpleDateFormat("yyyyMMddHHmmss").format
+  public static synchronized String generateSegmentName() {
+    try {
+      Thread.sleep(1000);
+    } catch (Throwable t) {};
+    return sdf.format
       (new Date(System.currentTimeMillis()));
   }
 
