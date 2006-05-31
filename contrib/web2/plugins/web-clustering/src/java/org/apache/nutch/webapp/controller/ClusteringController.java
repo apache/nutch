@@ -30,20 +30,20 @@ import org.apache.nutch.plugin.PluginRuntimeException;
 import org.apache.nutch.searcher.HitDetails;
 import org.apache.nutch.searcher.Summary;
 import org.apache.nutch.webapp.common.ServiceLocator;
+import org.apache.nutch.webapp.common.Startable;
 import org.apache.struts.tiles.ComponentContext;
 
-public class ClusteringController extends NutchController {
+public class ClusteringController extends NutchController implements Startable  {
 
   public static final String REQ_ATTR_CLUSTERS = "clusters";
 
+  static OnlineClusterer clusterer=null;
+  
   public void nutchPerform(ComponentContext tileContext,
       HttpServletRequest request, HttpServletResponse response,
       ServletContext servletContext) throws ServletException, IOException {
 
     ServiceLocator locator = getServiceLocator(request);
-
-    int HITS_TO_CLUSTER = locator.getConfiguration().getInt(
-        "extension.clustering.hits-to-cluster", 100);
 
     // display top N clusters and top Q documents inside them.
     // TODO move these to configuration
@@ -52,15 +52,6 @@ public class ClusteringController extends NutchController {
     int Q = locator.getConfiguration().getInt(
         "extension.clustering.cluster-top-documents-count", 3);
     int maxLabels = 2;
-
-    OnlineClusterer clusterer = null;
-    try {
-      clusterer = new OnlineClustererFactory(locator.getConfiguration())
-          .getOnlineClusterer();
-    } catch (PluginRuntimeException e) {
-      LOG.info("Could not ionitialize Clusterer, is the plugin enabled?");
-      return;
-    }
 
     HitDetails[] details = locator.getSearch().getDetails();
     Summary[] summaries = locator.getSearch().getSummaries();
@@ -86,5 +77,16 @@ public class ClusteringController extends NutchController {
     //set to request
     Clusters clusterResult = new Clusters(clusters, N, Q, maxLabels);
     request.setAttribute(REQ_ATTR_CLUSTERS, clusterResult);
+  }
+
+  public void start(ServletContext servletContext) {
+    ServiceLocator locator = getServiceLocator(servletContext);
+    try {
+      clusterer = new OnlineClustererFactory(locator.getConfiguration())
+          .getOnlineClusterer();
+    } catch (PluginRuntimeException e) {
+      LOG.info("Could not ionitialize Clusterer, is the plugin enabled?");
+      return;
+    }
   }
 }

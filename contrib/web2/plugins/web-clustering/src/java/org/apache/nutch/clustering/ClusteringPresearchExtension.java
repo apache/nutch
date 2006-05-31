@@ -28,9 +28,11 @@ public class ClusteringPresearchExtension implements PreSearchExtensionPoint {
   public void doPreSearch(SearchContext context) {
     int orig=context.getSearch().getHitsRequired();
 
-    //TODO set this configurable
-    if(orig < 100){
-      context.getSearch().setHitsRequired(100);
+    int hitsToCluster = context.getConfigiration().getInt(
+        "extension.clustering.hits-to-cluster", 100);
+    
+    if(orig < hitsToCluster){
+      context.getSearch().setHitsRequired(hitsToCluster);
     }
   }
 }
