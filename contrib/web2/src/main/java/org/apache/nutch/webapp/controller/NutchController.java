@@ -28,38 +28,31 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.webapp.common.ServiceLocator;
 import org.apache.nutch.webapp.common.WebappInstanceServiceLocator;
-import org.apache.struts.Globals;
 import org.apache.struts.tiles.ComponentContext;
 import org.apache.struts.tiles.Controller;
-import org.apache.struts.util.MessageResources;
 
+/**
+ *  Base class for nutch Tiles controllers.
+ */
 public abstract class NutchController implements Controller {
 
   public static Logger LOG = LogFormatter.getLogger(NutchController.class
       .getName());
-
+  
   public final void execute(ComponentContext tileContext,
       HttpServletRequest request, HttpServletResponse response,
       ServletContext servletContext) throws ServletException, IOException {
-
+    
     request.setCharacterEncoding("UTF-8");
 
-    // this is not possible in servlet 2.3
-    // response.setCharacterEncoding("UTF-8");
-
-    // catch all errors that might occur so we can properly log the stack trace
-    long t = System.currentTimeMillis();
     try {
       nutchPerform(tileContext, request, response, servletContext);
     } catch (Exception e) {
       LOG.info("Exception occured while executing nutch controller:");
       e.printStackTrace(System.err);
     }
-/*    LOG.info("Controller processing time: " + (System.currentTimeMillis() - t)
-        + "ms");
-        */
   }
-
+  
   /**
    * Nutch controllers overwrite this method
    * 
@@ -108,7 +101,7 @@ public abstract class NutchController implements Controller {
 
     while (i.hasNext()) {
       String name = (String) i.next();
-      LOG.info("request attrs:" + name + " = " + context.getAttribute(name));
+      LOG.info("context attrs:" + name + " = " + context.getAttribute(name));
     }
   }
 
@@ -124,15 +117,4 @@ public abstract class NutchController implements Controller {
       throws ServletException, IOException {
     execute(tileContext, request, response, servletContext);
   }
-
-  /**
-   * Get struts MessageResources from request
-   * 
-   * @param request
-   * @return
-   */
-  public MessageResources getResources(HttpServletRequest request) {
-    return ((MessageResources) request.getAttribute(Globals.MESSAGES_KEY));
-  }
-
 }
