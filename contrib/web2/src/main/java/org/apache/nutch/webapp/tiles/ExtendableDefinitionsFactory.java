@@ -31,8 +31,10 @@ import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.webapp.common.PluginResourceLoader;
 import org.apache.nutch.webapp.common.ServletContextServiceLocator;
+import org.apache.nutch.webapp.common.Startable;
 import org.apache.nutch.webapp.extension.UIExtensionPoint;
 import org.apache.struts.tiles.ComponentDefinition;
+import org.apache.struts.tiles.Controller;
 import org.apache.struts.tiles.DefinitionsFactory;
 import org.apache.struts.tiles.DefinitionsFactoryConfig;
 import org.apache.struts.tiles.DefinitionsFactoryException;
@@ -247,7 +249,13 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
       LOG.fine("Initializing controller: " + key);
       XmlDefinition d = definitions.getDefinition(key);
       try {
-        d.getOrCreateController();
+        Controller controller=d.getOrCreateController();
+        if(controller!=null){
+          //check if it is implementing Startable, if so execute lifecycle method
+          if(controller instanceof Startable) {
+            ((Startable)controller).start(servletContext);
+          }
+        }
       } catch (Exception e) {
         e.printStackTrace(System.out);
       }
