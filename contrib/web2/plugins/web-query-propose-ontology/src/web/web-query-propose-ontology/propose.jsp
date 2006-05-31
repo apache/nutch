@@ -6,7 +6,6 @@
 // 20041129, Mike Pan and John Xing
 // Displays query-refinement hypertext based on ontology.
 // Try to be simple here. No mixing with other features such as clustering.
-// Please check refine-query-init.jsp, which does necessary initialization.
 %>
 <div id="refine">Refine your search:
 <c:forEach var="propose" items="${queryPropose}">
