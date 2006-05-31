@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.webapp.common.ServiceLocator;
+import org.apache.nutch.webapp.common.ServletContextServiceLocator;
 import org.apache.nutch.webapp.common.WebappInstanceServiceLocator;
 import org.apache.struts.tiles.ComponentContext;
 import org.apache.struts.tiles.Controller;
@@ -116,5 +117,16 @@ public abstract class NutchController implements Controller {
       HttpServletResponse response, ServletContext servletContext)
       throws ServletException, IOException {
     execute(tileContext, request, response, servletContext);
+  }
+
+  /**
+   * Get servlet context service locator, this one cannot access request
+   * specific information as preferences etc.
+   * 
+   * @param servletContext
+   * @return
+   */
+  public ServiceLocator getServiceLocator(ServletContext servletContext){
+    return ServletContextServiceLocator.getInstance(servletContext);
   }
 }
