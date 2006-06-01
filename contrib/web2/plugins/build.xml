@@ -16,6 +16,7 @@
     <ant dir="web-resources" target="deploy"/>
     <ant dir="web-clustering" target="deploy"/>
     <ant dir="web-query-propose-ontology" target="deploy"/>
+    <ant dir="web-query-propose-spellcheck" target="deploy"/>
   </target>
 
   <!-- ====================================================== -->
@@ -36,6 +37,7 @@
     <ant dir="web-more" target="clean"/>
     <ant dir="web-clustering" target="clean"/>
     <ant dir="web-query-propose-ontology" target="clean"/>
+    <ant dir="web-query-propose-spellcheck" target="clean"/>
   </target>
 
 </project>

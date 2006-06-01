@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 1.1//EN" "/WEB-INF/dtd/tiles-config_1_1.dtd">
+<tiles-definitions>
+  <definition name="propose" 
+              path="/plugin/web-query-propose-spellcheck/propose.jsp"
+              controllerClass="org.apache.nutch.webapp.controller.SpellCheckController"
+  />
+</tiles-definitions>
