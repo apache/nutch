@@ -301,5 +301,13 @@ public class SearchForm {
     }
     return sb.toString();
   }
+  
+  public Object clone(){
+    SearchForm newForm=new SearchForm(new HashMap());
+    newForm.active.addAll(active);
+    newForm.o_values.putAll(o_values);
+    newForm.n_values.putAll(n_values);
+    return newForm;
+  }
 
 }
