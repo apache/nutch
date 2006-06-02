@@ -23,7 +23,6 @@ import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.protocol.*;
-import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.*;
