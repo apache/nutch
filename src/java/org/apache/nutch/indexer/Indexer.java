@@ -27,7 +27,6 @@ import org.apache.hadoop.conf.*;
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.mapred.*;
 import org.apache.nutch.parse.*;
-import org.apache.nutch.protocol.*;
 import org.apache.nutch.analysis.*;
 
 import org.apache.nutch.scoring.ScoringFilterException;
@@ -155,10 +154,7 @@ public class Indexer extends Configured implements Reducer {
     super(conf);
   }
 
-  private float scorePower;
-
   public void configure(JobConf job) {
-    scorePower = job.getFloat("indexer.score.power", 0.5f);
     setConf(job);
     this.filters = new IndexingFilters(getConf());
     this.scfilters = new ScoringFilters(getConf());
