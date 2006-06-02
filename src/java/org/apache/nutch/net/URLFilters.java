@@ -27,7 +27,6 @@ import org.apache.hadoop.conf.Configuration;
 /** Creates and caches {@link URLFilter} implementing plugins.*/
 public class URLFilters {
 
-  private Configuration conf;
   private URLFilter[] filters;
 
   public URLFilters(Configuration conf) {
