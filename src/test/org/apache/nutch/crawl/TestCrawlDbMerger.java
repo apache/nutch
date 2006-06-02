@@ -16,16 +16,14 @@
 
 package org.apache.nutch.crawl;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.logging.Logger;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.UTF8;
 import org.apache.nutch.util.NutchConfiguration;
@@ -51,7 +49,7 @@ public class TestCrawlDbMerger extends TestCase {
   CrawlDatum cd1, cd2, cd3;
   Configuration conf;
   FileSystem fs;
-  File testDir;
+  Path testDir;
   CrawlDbReader reader;
   
   public void setUp() throws Exception {
@@ -79,7 +77,7 @@ public class TestCrawlDbMerger extends TestCase {
     expected.put(url21, cd2);
     conf = NutchConfiguration.create();
     fs = FileSystem.get(conf);
-    testDir = new File("test-crawldb-" +
+    testDir = new Path("test-crawldb-" +
             new java.util.Random().nextInt());
     fs.mkdirs(testDir);
   }
@@ -95,14 +93,14 @@ public class TestCrawlDbMerger extends TestCase {
   }
 
   public void testMerge() throws Exception {
-    File crawldb1 = new File(testDir, "crawldb1");
-    File crawldb2 = new File(testDir, "crawldb2");
-    File output = new File(testDir, "output");
+    Path crawldb1 = new Path(testDir, "crawldb1");
+    Path crawldb2 = new Path(testDir, "crawldb2");
+    Path output = new Path(testDir, "output");
     createCrawlDb(fs, crawldb1, init1, cd1);
     createCrawlDb(fs, crawldb2, init2, cd2);
     CrawlDbMerger merger = new CrawlDbMerger(conf);
     LOG.fine("* merging crawldbs to " + output);
-    merger.merge(output, new File[]{crawldb1, crawldb2}, false);
+    merger.merge(output, new Path[]{crawldb1, crawldb2}, false);
     LOG.fine("* reading crawldb: " + output);
     reader = new CrawlDbReader();
     String crawlDb = output.toString();
@@ -124,10 +122,10 @@ public class TestCrawlDbMerger extends TestCase {
     fs.delete(testDir);
   }
   
-  private void createCrawlDb(FileSystem fs, File crawldb, TreeSet init, CrawlDatum cd) throws Exception {
+  private void createCrawlDb(FileSystem fs, Path crawldb, TreeSet init, CrawlDatum cd) throws Exception {
     LOG.fine("* creating crawldb: " + crawldb);
-    File dir = new File(crawldb, CrawlDatum.DB_DIR_NAME);
-    MapFile.Writer writer = new MapFile.Writer(fs, new File(dir, "part-00000").toString(), UTF8.class, CrawlDatum.class);
+    Path dir = new Path(crawldb, CrawlDatum.DB_DIR_NAME);
+    MapFile.Writer writer = new MapFile.Writer(fs, new Path(dir, "part-00000").toString(), UTF8.class, CrawlDatum.class);
     Iterator it = init.iterator();
     while (it.hasNext()) {
       String key = (String)it.next();
