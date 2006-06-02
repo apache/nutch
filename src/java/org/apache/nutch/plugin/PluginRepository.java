@@ -216,24 +216,6 @@ public class PluginRepository {
     }
 
     /**
-     * @param id
-     * @param pLoadedPlugins
-     * @return boolean
-     */
-    private boolean dependencyIsAvailable(String id, List pLoadedPlugins) {
-        if (pLoadedPlugins != null && id != null) {
-            for (int i = 0; i < pLoadedPlugins.size(); i++) {
-                PluginDescriptor descriptor = (PluginDescriptor) pLoadedPlugins
-                        .get(i);
-                if (descriptor.getPluginId().equals(id)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    /**
      * Returns all registed plugin descriptors.
      * 
      * @return PluginDescriptor[]
