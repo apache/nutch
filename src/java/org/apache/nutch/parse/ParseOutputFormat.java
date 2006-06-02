@@ -27,7 +27,6 @@ import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.net.*;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.logging.Logger;
 
 /* Parse content in a segment. */
@@ -35,7 +34,6 @@ public class ParseOutputFormat implements OutputFormat {
   private static final Logger LOG = Logger.getLogger(ParseOutputFormat.class.getName());
 
   private UrlNormalizer urlNormalizer;
-  private JobConf jobConf;
   private URLFilters filters;
   private ScoringFilters scfilters;
 
@@ -47,13 +45,10 @@ public class ParseOutputFormat implements OutputFormat {
   public RecordWriter getRecordWriter(FileSystem fs, JobConf job,
                                       String name) throws IOException {
 
-    this.jobConf = job;
     this.urlNormalizer = new UrlNormalizerFactory(job).getNormalizer();
     this.filters = new URLFilters(job);
     this.scfilters = new ScoringFilters(job);
     final float interval = job.getFloat("db.default.fetch.interval", 30f);
-    final float extscore = job.getFloat("db.score.link.external", 1.0f);
-    final boolean countFiltered = job.getBoolean("db.score.count.filtered", false);
     
     Path text =
       new Path(new Path(job.getOutputPath(), ParseText.DIR_NAME), name);
