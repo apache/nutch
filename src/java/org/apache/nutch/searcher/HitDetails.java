@@ -20,19 +20,15 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 import org.apache.hadoop.io.*;
 import org.apache.nutch.html.Entities;
-import org.apache.hadoop.util.LogFormatter;
 
 /** Data stored in the index for a hit.
  *
  * <p>Represented as a list of name/value pairs.
  */
 public final class HitDetails implements Writable {
-  private static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.searcher.HitDetails");
 
   private int length;
   private String[] fields;
