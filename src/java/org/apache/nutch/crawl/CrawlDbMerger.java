@@ -16,7 +16,6 @@
 
 package org.apache.nutch.crawl;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 import java.util.logging.Logger;
@@ -24,6 +23,7 @@ import java.util.logging.Logger;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.UTF8;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapred.*;
@@ -103,20 +103,20 @@ public class CrawlDbMerger extends Configured {
     super(conf);
   }
 
-  public void merge(File output, File[] dbs, boolean filter) throws Exception {
+  public void merge(Path output, Path[] dbs, boolean filter) throws Exception {
     JobConf job = createMergeJob(getConf(), output);
     job.setBoolean("crawldb.merger.urlfilters", filter);
     for (int i = 0; i < dbs.length; i++) {
-      job.addInputDir(new File(dbs[i], CrawlDatum.DB_DIR_NAME));
+      job.addInputPath(new Path(dbs[i], CrawlDatum.DB_DIR_NAME));
     }
     JobClient.runJob(job);
     FileSystem fs = FileSystem.get(getConf());
     fs.mkdirs(output);
-    fs.rename(job.getOutputDir(), new File(output, CrawlDatum.DB_DIR_NAME));
+    fs.rename(job.getOutputPath(), new Path(output, CrawlDatum.DB_DIR_NAME));
   }
 
-  public static JobConf createMergeJob(Configuration conf, File output) {
-    File newCrawlDb = new File("crawldb-merge-" + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
+  public static JobConf createMergeJob(Configuration conf, Path output) {
+    Path newCrawlDb = new Path("crawldb-merge-" + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     JobConf job = new NutchJob(conf);
     job.setJobName("crawldb merge " + output);
@@ -127,7 +127,7 @@ public class CrawlDbMerger extends Configured {
 
     job.setReducerClass(Merger.class);
 
-    job.setOutputDir(newCrawlDb);
+    job.setOutputPath(newCrawlDb);
     job.setOutputFormat(MapFileOutputFormat.class);
     job.setOutputKeyClass(UTF8.class);
     job.setOutputValueClass(CrawlDatum.class);
@@ -147,7 +147,7 @@ public class CrawlDbMerger extends Configured {
       return;
     }
     Configuration conf = NutchConfiguration.create();
-    File output = new File(args[0]);
+    Path output = new Path(args[0]);
     ArrayList dbs = new ArrayList();
     boolean filter = false;
     for (int i = 1; i < args.length; i++) {
@@ -155,9 +155,9 @@ public class CrawlDbMerger extends Configured {
         filter = true;
         continue;
       }
-      dbs.add(new File(args[i]));
+      dbs.add(new Path(args[i]));
     }
     CrawlDbMerger merger = new CrawlDbMerger(conf);
-    merger.merge(output, (File[]) dbs.toArray(new File[dbs.size()]), filter);
+    merger.merge(output, (Path[]) dbs.toArray(new Path[dbs.size()]), filter);
   }
 }
