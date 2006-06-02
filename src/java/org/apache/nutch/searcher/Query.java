@@ -34,9 +34,6 @@ import org.apache.nutch.analysis.AnalyzerFactory;
 import org.apache.nutch.analysis.NutchAnalysis;
 import org.apache.nutch.util.NutchConfiguration;
 
-import org.apache.lucene.analysis.Analyzer;
-
-
 /** A Nutch query. */
 public final class Query implements Writable, Cloneable, Configurable {
   public static final Logger LOG =
