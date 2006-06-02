@@ -22,7 +22,6 @@ import org.apache.hadoop.io.UTF8;
 import org.apache.lucene.document.Document;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
-import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.plugin.Pluggable;
