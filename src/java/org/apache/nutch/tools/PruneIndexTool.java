@@ -37,7 +37,6 @@ import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.logging.Logger;
 
-import org.apache.hadoop.io.UTF8;
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
@@ -320,7 +319,6 @@ public class PruneIndexTool implements Runnable {
     BitSet bits = new BitSet(reader.maxDoc());
     AllHitsCollector ahc = new AllHitsCollector(bits);
     boolean doDelete = false;
-    UTF8 url = new UTF8();
     for (int i = 0; i < queries.length; i++) {
       LOG.info(dr + "Processing query: " + queries[i].toString());
       bits.clear();
@@ -475,7 +473,7 @@ public class PruneIndexTool implements Runnable {
       return;
     }
     try {
-      PruneIndexTool pit = new PruneIndexTool(indexes, queries, checkers, true, dryrun);
+      PruneIndexTool pit = new PruneIndexTool(indexes, queries, checkers, force, dryrun);
       pit.run();
     } catch (Exception e) {
       LOG.severe("Error running PruneIndexTool: " + e.getMessage());
