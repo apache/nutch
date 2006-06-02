@@ -199,7 +199,6 @@ public class DistributedSearch {
                        final String dedupField, final String sortField,
                        final boolean reverse) throws IOException {
       long totalHits = 0;
-      Hits[] segmentHits = new Hits[liveAddresses.length];
 
       Object[][] params = new Object[liveAddresses.length][5];
       for (int i = 0; i < params.length; i++) {
