@@ -234,7 +234,6 @@ public class DeleteDuplicates extends Configured
   }
     
   private FileSystem fs;
-  private int ioFileBufferSize;
 
   public DeleteDuplicates() { super(null); }
 
@@ -244,7 +243,6 @@ public class DeleteDuplicates extends Configured
     setConf(job);
     try {
       fs = FileSystem.get(job);
-      this.ioFileBufferSize = job.getInt("io.file.buffer.size", 4096);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
