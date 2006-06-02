@@ -46,7 +46,6 @@ public class ClusteringController extends NutchController implements Startable  
     ServiceLocator locator = getServiceLocator(request);
 
     // display top N clusters and top Q documents inside them.
-    // TODO move these to configuration
     int N = locator.getConfiguration().getInt(
         "extension.clustering.cluster-count", 10);
     int Q = locator.getConfiguration().getInt(
@@ -85,7 +84,7 @@ public class ClusteringController extends NutchController implements Startable  
       clusterer = new OnlineClustererFactory(locator.getConfiguration())
           .getOnlineClusterer();
     } catch (PluginRuntimeException e) {
-      LOG.info("Could not ionitialize Clusterer, is the plugin enabled?");
+      LOG.info("Could not initialize Clusterer, is the plugin enabled?");
       return;
     }
   }
