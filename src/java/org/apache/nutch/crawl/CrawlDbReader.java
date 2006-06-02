@@ -124,7 +124,7 @@ public class CrawlDbReader implements Closeable {
           output.collect(new UTF8(s), (LongWritable) stats.get(s));
         }
       } else if (k.equals("score")) {
-        long min = 0, max = 0, avg = 0, total = 0;
+        long min = 0, max = 0, total = 0;
         int cnt = 0;
         boolean first = true;
         while (values.hasNext()) {
