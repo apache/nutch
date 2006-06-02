@@ -24,13 +24,8 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.UTF8;
 
-import java.util.logging.Logger;
-import org.apache.hadoop.util.LogFormatter;
-
 /** A set of hits matching a query. */
 public final class Hits implements Writable {
-  private static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.searcher.Hits");
 
   private long total;
   private boolean totalIsExact = true;
