@@ -261,7 +261,6 @@ public class PluginDescriptor {
     try {
       for (int i = 0; i < files.length; i++) {
         File file2 = files[i];
-        String path = file2.getAbsolutePath();
         if (file2.getAbsolutePath().endsWith("properties"))
           arrayList.add(file2.getParentFile().toURL());
       }
@@ -326,5 +325,13 @@ public class PluginDescriptor {
     } catch (MissingResourceException x) {
       return '!' + pKey + '!';
     }
+  }
+
+  public String getProviderName() {
+    return fProviderName;
+  }
+  
+  public String getVersion() {
+    return fVersion;
   }
 }
