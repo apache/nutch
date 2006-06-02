@@ -23,13 +23,8 @@ import java.io.IOException;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
-import java.util.logging.Logger;
-import org.apache.hadoop.util.LogFormatter;
-
 /** A document which matched a query in an index. */
 public class Hit implements Writable, Comparable {
-  private static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.searcher.Hit");
 
   private int indexNo;                            // index id
   private int indexDocNo;                         // index-relative id
