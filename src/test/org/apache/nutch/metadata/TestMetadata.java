@@ -149,7 +149,6 @@ public class TestMetadata extends TestCase {
     
   /** Test for <code>get(String)</code> method */
   public void testGet() {
-    String[] values = null;
     Metadata meta = new Metadata();
     assertNull(meta.get("a-name"));
     
