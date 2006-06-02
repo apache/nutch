@@ -53,9 +53,6 @@ public final class MimeTypes {
     /** The minimum length of data to provide to check all MimeTypes */
     private int minLength = 0;
 
-    /** The logger to use */
-    private Logger logger = null;
-    
     /**
      * My registered instances
      * There is one instance associated for each specified file while
@@ -68,11 +65,6 @@ public final class MimeTypes {
     
     /** Should never be instanciated from outside */
     private MimeTypes(String filepath, Logger logger) {
-        if (logger == null) {
-            this.logger = Logger.getLogger(this.getClass().getName());
-        } else {
-            this.logger = logger;
-        }
         MimeTypesReader reader = new MimeTypesReader(logger);
         add(reader.read(filepath));
     }
