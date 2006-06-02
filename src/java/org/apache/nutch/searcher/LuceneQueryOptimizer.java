@@ -77,7 +77,6 @@ class LuceneQueryOptimizer {
     this.threshold = conf.getFloat("searcher.filter.cache.threshold",
         0.05f);
     this.searcherMaxHits = conf.getInt("searcher.max.hits", -1);
-    this.searcherMaxHits = searcherMaxHits;
     this.cache = new LinkedHashMap(cacheSize, 0.75f, true) {
       protected boolean removeEldestEntry(Map.Entry eldest) {
         return size() > cacheSize; // limit size of cache
