@@ -16,7 +16,6 @@
 
 package org.apache.nutch.crawl;
 
-import java.io.*;
 import java.util.*;
 import java.text.*;
 import java.util.logging.*;
