@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<keymatches>
+	<keymatch type="keyword">
+		<term>mapred</term>
+		<url>http://lucene.apache.org/hafoop/</url>
+		<title>Try Hadoop today!</title>
+	</keymatch>
+	<keymatch type="phrase">
+		<term>search engine</term>
+		<url>http://lucene.apache.org/nutch/</url>
+		<title>Try nutch!</title>
+	</keymatch>
+	<keymatch type="exact">
+		<term>apache search engine</term>
+		<url>http://lucene.apache.org/nutch/</url>
+		<title>Try apache nutch!</title>
+	</keymatch>
+	<keymatch type="exact">
+		<term>kw1 kw2 kw3 kw4</term>
+		<url>url/</url>
+		<title>title</title>
+	</keymatch>
+</keymatches>
