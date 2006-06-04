@@ -125,5 +125,15 @@
 	<definition name="preferencesSavePage" extends="preferencesPage">
 		<put name="action" value="save" />
 	</definition>
-
+	
+	<!-- 
+	     Decorated definition can be used to split the logic and ui configuration apart so that
+	     one at a time can be changed 
+	     
+	     The layout (view) can be selected with attribute named "decorator"
+	 -->
+	<definition name="decoratedDefinition" path="/WEB-INF/jsp/decorator.jsp">
+ 	  <put name="decorator" value="/WEB-INF/jsp/footer.jsp"/>
+ 	</definition>
+ 	
 </tiles-definitions>
