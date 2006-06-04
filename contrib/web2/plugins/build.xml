@@ -15,6 +15,7 @@
     <ant dir="web-more" target="deploy"/>
     <ant dir="web-resources" target="deploy"/>
     <ant dir="web-clustering" target="deploy"/>
+    <ant dir="web-keymatch" target="deploy"/>
     <ant dir="web-query-propose-ontology" target="deploy"/>
     <ant dir="web-query-propose-spellcheck" target="deploy"/>
   </target>
@@ -25,6 +26,7 @@
   <target name="test">
     <parallel threadCount="2">
       <ant dir="web-caching-oscache" target="test"/>
+      <ant dir="web-keymatch" target="test"/>
     </parallel>
   </target>
 
@@ -35,6 +37,7 @@
     <ant dir="web-caching-oscache" target="clean"/>
     <ant dir="web-resources" target="clean"/>
     <ant dir="web-more" target="clean"/>
+    <ant dir="web-keymatch" target="clean"/>
     <ant dir="web-clustering" target="clean"/>
     <ant dir="web-query-propose-ontology" target="clean"/>
     <ant dir="web-query-propose-spellcheck" target="clean"/>
