@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC "-//Apache Software Foundation//DTD Tiles Configuration 1.1//EN"
+        "http://struts.apache.org/dtds/tiles-config_1_1.dtd">
+<tiles-definitions>
+	<definition name="keymatch" extends="decoratedDefinition"  controllerClass="org.apache.nutch.webapp.controller.KeyMatchController">
+	  <put name="name" type="string">keymatch</put>
+ 	  <put name="decorator" type="string" value="/plugin/web-keymatch/keymatch.jsp"/>
+ 	</definition>
+</tiles-definitions>
