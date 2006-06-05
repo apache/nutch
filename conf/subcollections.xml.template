@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<subcollections>
+	<subcollection>
+		<name>nutch</name>
+		<id>nutch</id>
+		<whitelist>
+http://lucene.apache.org/nutch/
+http://wiki.apache.org/nutch/
+                </whitelist>
+		<blacklist />
+	</subcollection>
+</subcollections>
