@@ -25,7 +25,29 @@ public class TestRobotRulesParser extends TestCase {
   private static final String CR= "\r";
   private static final String CRLF= "\r\n";
   
-
+  private static final boolean[] ACCEPT_ALL = {
+    true,   // "/a",	      
+    true,   // "/a/",	      
+    true,   // "/a/bloh/foo.html"
+    true,   // "/b",	      
+    true,   // "/b/a",	      
+    true,   // "/b/a/index.html",
+    true,   // "/b/b/foo.html",  
+    true,   // "/c",	      
+    true,   // "/c/a",	      
+    true,   // "/c/a/index.html",
+    true,   // "/c/b/foo.html",  
+    true,   // "/d",	      
+    true,   // "/d/a",	      
+    true,   // "/e/a/index.html",
+    true,   // "/e/d",	      
+    true,   // "/e/d/foo.html",  
+    true,   // "/e/doh.html",    
+    true,   // "/f/index.html",  
+    true,   // "/foo/bar.html",  
+    true,   // "/f/",
+  };
+  
   private static final String[] ROBOTS_STRINGS= new String[] {
     "User-Agent: Agent1 #foo" + CR 
     + "Disallow: /a" + CR 
@@ -40,6 +62,7 @@ public class TestRobotRulesParser extends TestCase {
     + "" + CR 
     + "User-Agent: *" + CR 
     + "Disallow: /foo/bar/" + CR,
+    null  // Used to test EMPTY_RULES
   };
 
   private static final String[] AGENT_STRINGS= new String[] {
@@ -57,7 +80,14 @@ public class TestRobotRulesParser extends TestCase {
       false,
       false,
       true,
-    }
+    },
+    { 
+      false, 
+      false,
+      false,
+      false,
+      true,
+    }    
   };
 
   private static final String[] TEST_PATHS= new String[] {
@@ -195,6 +225,13 @@ public class TestRobotRulesParser extends TestCase {
 	false,  // "/foo/bar.html",  
 	true,   // "/f/",  
       }
+    },
+    { // ROBOTS_STRINGS[1]
+      ACCEPT_ALL, // Agent 1
+      ACCEPT_ALL, // Agent 2
+      ACCEPT_ALL, // Agent 3
+      ACCEPT_ALL, // Agent 4
+      ACCEPT_ALL, // Agent 5
     }
   };
  
@@ -233,7 +270,9 @@ public class TestRobotRulesParser extends TestCase {
     for (int i= 1; i < agents.length; i++)
       agentsString= agentsString + "," + agents[i];
     RobotRulesParser p= new RobotRulesParser(agents);
-    RobotRuleSet rules= p.parseRules(ROBOTS_STRINGS[robotsString].getBytes());
+    RobotRuleSet rules= p.parseRules(ROBOTS_STRINGS[robotsString] != null
+                                     ? ROBOTS_STRINGS[robotsString].getBytes()
+                                     : null);
     for (int i= 0; i < paths.length; i++) {
       assertTrue("testing robots file "+robotsString+", on agents ("
 		 + agentsString + "), and path " + TEST_PATHS[i] + "; got " 
@@ -243,4 +282,6 @@ public class TestRobotRulesParser extends TestCase {
     }
   }
 
+
+  
 }

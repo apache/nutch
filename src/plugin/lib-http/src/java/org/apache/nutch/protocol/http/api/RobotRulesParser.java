@@ -70,8 +70,8 @@ public class RobotRulesParser implements Configurable {
    * file, and can test paths against those rules.
    */
   public static class RobotRuleSet {
-    ArrayList tmpEntries;
-    RobotsEntry[] entries;
+    ArrayList tmpEntries = new ArrayList();
+    RobotsEntry[] entries = null;
     long expireTime;
 
     /**
