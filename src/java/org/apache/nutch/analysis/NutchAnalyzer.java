@@ -22,6 +22,10 @@ import java.io.Reader;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 
+// Hadoop imports
+import org.apache.hadoop.conf.Configurable;
+import org.apache.hadoop.conf.Configuration;
+
 // Nutch imports
 import org.apache.nutch.plugin.Pluggable;
 
@@ -34,10 +38,13 @@ import org.apache.nutch.plugin.Pluggable;
  * @author J&eacute;r&ocirc;me Charron
  */
 public abstract class NutchAnalyzer extends Analyzer
-                                    implements Pluggable {
+                                    implements Configurable, Pluggable {
 
   /** The name of the extension point. */
   final static String X_POINT_ID = NutchAnalyzer.class.getName();
+
+  /** The current Configuration */
+  protected Configuration conf = null;
 
   
   /**
@@ -45,5 +52,23 @@ public abstract class NutchAnalyzer extends Analyzer
    */
   public abstract TokenStream tokenStream(String fieldName, Reader reader);
 
-  
+
+  /* ----------------------------- *
+   * <implementation:Configurable> *
+   * ----------------------------- */
+
+  // Inherited Javadoc
+  public void setConf(Configuration conf) {
+    this.conf = conf;
+  }
+
+  // Inherited Javadoc
+  public Configuration getConf() {
+    return this.conf;
+  }
+
+  /* ------------------------------ *
+   * </implementation:Configurable> *
+   * ------------------------------ */
+
 }
