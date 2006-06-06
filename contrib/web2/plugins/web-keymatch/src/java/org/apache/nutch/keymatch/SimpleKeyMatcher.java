@@ -32,6 +32,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.searcher.Query;
+import org.apache.nutch.util.DomUtil;
 import org.apache.xerces.dom.DocumentImpl;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
