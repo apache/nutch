@@ -37,7 +37,10 @@ public class CommonGrams {
   private static final Logger LOG =
     LogFormatter.getLogger("org.apache.nutch.analysis.CommonGrams");
   private static final char SEPARATOR = '-';
-  private HashMap COMMON_TERMS = new HashMap();
+  /** The key used to cache commonTerms in Configuration */
+  private static final String KEY = CommonGrams.class.getName();
+
+  private HashMap commonTerms = new HashMap();
   
   /**
    * The constructor.
@@ -135,7 +138,13 @@ public class CommonGrams {
 
   /** Construct using the provided config file. */
   private void init(Configuration conf) {
+    // First, try to retrieve some commonTerms cached in configuration.
+    commonTerms = (HashMap) conf.getObject(KEY);
+    if (commonTerms != null) { return; }
+
+    // Otherwise, read the terms.file
     try {
+      commonTerms = new HashMap();
       Reader reader = conf.getConfResourceAsReader
         (conf.get("analysis.common.terms.file"));
       BufferedReader in = new BufferedReader(reader);
@@ -160,13 +169,14 @@ public class CommonGrams {
         while ((token = ts.next()) != null) {
           gram = gram + SEPARATOR + token.termText();
         }
-        HashSet table = (HashSet)COMMON_TERMS.get(field);
+        HashSet table = (HashSet)commonTerms.get(field);
         if (table == null) {
           table = new HashSet();
-          COMMON_TERMS.put(field, table);
+          commonTerms.put(field, table);
         }
         table.add(gram);
       }
+      conf.setObject(KEY, commonTerms);
     } catch (IOException e) {
       throw new RuntimeException(e.toString());
     }
@@ -175,7 +185,7 @@ public class CommonGrams {
   /** Construct a token filter that inserts n-grams for common terms.  For use
    * while indexing documents.  */
   public TokenFilter getFilter(TokenStream ts, String field) {
-    return new Filter(ts, (HashSet)COMMON_TERMS.get(field));
+    return new Filter(ts, (HashSet)commonTerms.get(field));
   }
 
   /** Utility to convert an array of Query.Terms into a token stream. */
