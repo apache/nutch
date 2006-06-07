@@ -693,7 +693,7 @@
     <mime-type name="text/xml"
                description="Extensible Markup Language File">
         <ext>xml</ext><ext>xsl</ext>
-        <magic offset="0" value="&lt;?xml"/>
+        <!--magic offset="0" value="&lt;?xml"/-->
     </mime-type>
         
     <mime-type name="text/x-setext"
