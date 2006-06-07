@@ -136,7 +136,7 @@ text/sgml;sgm
 text/tab-separated-values;tsv
 text/vnd.wap.wml;wml
 text/vnd.wap.wmlscript;wmls
-text/xml;xml;test.xml
+text/xml;xml
 text/xml;xsl
 text/x-setext;etx
 video/mpeg;mpg
