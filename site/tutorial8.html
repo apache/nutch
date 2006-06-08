@@ -5,7 +5,7 @@
 <meta content="Apache Forrest" name="Generator">
 <meta name="Forrest-version" content="0.7">
 <meta name="Forrest-skin-name" content="pelt">
-<title>Nutch version 0.7 tutorial</title>
+<title>Nutch version 0.8 tutorial</title>
 <link type="text/css" href="skin/basic.css" rel="stylesheet">
 <link media="screen" type="text/css" href="skin/screen.css" rel="stylesheet">
 <link media="print" type="text/css" href="skin/print.css" rel="stylesheet">
@@ -77,11 +77,11 @@ document.write("<text>Last Published:</text> " + document.lastModified);
 <div class="menuitem">
 <a href="http://wiki.apache.org/nutch/">Wiki</a>
 </div>
-<div class="menupage">
-<div class="menupagetitle">Tutorial ver. 0.7</div>
-</div>
 <div class="menuitem">
-<a href="tutorial8.html">Tutorial ver. 0.8</a>
+<a href="tutorial.html">Tutorial ver. 0.7</a>
+</div>
+<div class="menupage">
+<div class="menupagetitle">Tutorial ver. 0.8</div>
 </div>
 <div class="menuitem">
 <a href="bot.html">Robot     </a>
@@ -127,10 +127,10 @@ document.write("<text>Last Published:</text> " + document.lastModified);
 </div>
 <div id="content">
 <div title="Portable Document Format" class="pdflink">
-<a class="dida" href="tutorial.pdf"><img alt="PDF -icon" src="skin/images/pdfdoc.gif" class="skin"><br>
+<a class="dida" href="tutorial8.pdf"><img alt="PDF -icon" src="skin/images/pdfdoc.gif" class="skin"><br>
         PDF</a>
 </div>
-<h1>Nutch version 0.7 tutorial</h1>
+<h1>Nutch version 0.8 tutorial</h1>
 <div id="minitoc-area">
 <ul class="minitoc">
 <li>
@@ -231,11 +231,11 @@ around one million pages on a handful of web servers.</p>
 <ol>
 
 
-<li>Create a flat file of root urls.  For example, to crawl the
-<span class="codefrag">nutch</span> site you might start with a file named
-<span class="codefrag">urls</span> containing just the Nutch home page.  All other
-Nutch pages should be reachable from this page.  The <span class="codefrag">urls</span>
-file would thus look like:
+<li>Create a directory with a flat file of root urls.  For example, to
+crawl the <span class="codefrag">nutch</span> site you might start with a file named
+<span class="codefrag">urls/nutch</span> containing the url of just the Nutch home
+page.  All other Nutch pages should be reachable from this page.  The
+<span class="codefrag">urls/nutch</span> file would thus contain:
 <pre class="code">
 http://lucene.apache.org/nutch/
 </pre>
@@ -265,138 +265,152 @@ crawl command.  Its options include:</p>
 <span class="codefrag">-dir</span> <em>dir</em> names the directory to put the crawl in.</li>
 
 <li>
+<span class="codefrag">-threads</span> <em>threads</em> determines the number of
+threads that will fetch in parallel.</li>
+
+<li>
 <span class="codefrag">-depth</span> <em>depth</em> indicates the link depth from the root
 page that should be crawled.</li>
 
 <li>
-<span class="codefrag">-delay</span> <em>delay</em> determines the number of seconds
-between accesses to each host.</li>
-
-<li>
-<span class="codefrag">-threads</span> <em>threads</em> determines the number of
-threads that will fetch in parallel.</li>
+<span class="codefrag">-topN</span> <em>N</em> determines the maximum number of pages that
+will be retrieved at each level up to the depth.</li>
 
 </ul>
 <p>For example, a typical call might be:</p>
 <pre class="code">
-bin/nutch crawl urls -dir crawl.test -depth 3 &gt;&amp; crawl.log
+bin/nutch crawl urls -dir crawl -depth 3 -topN 50
 </pre>
-<p>Typically one starts testing one's configuration by crawling at low
-depths, and watching the output to check that desired pages are found.
-Once one is more confident of the configuration, then an appropriate
-depth for a full crawl is around 10.</p>
+<p>Typically one starts testing one's configuration by crawling at
+shallow depths, sharply limiting the number of pages fetched at each
+level (<span class="codefrag">-topN</span>), and watching the output to check that
+desired pages are fetched and undesirable pages are not.  Once one is
+confident of the configuration, then an appropriate depth for a full
+crawl is around 10.  The number of pages per level
+(<span class="codefrag">-topN</span>) for a full crawl can be from tens of thousands to
+millions, depending on your resources.</p>
 <p>Once crawling has completed, one can skip to the Searching section
 below.</p>
 </div>
 
 
-<a name="N100E4"></a><a name="Whole-web+Crawling"></a>
+<a name="N100EA"></a><a name="Whole-web+Crawling"></a>
 <h2 class="h3">Whole-web Crawling</h2>
 <div class="section">
 <p>Whole-web crawling is designed to handle very large crawls which may
 take weeks to complete, running on multiple machines.</p>
-<a name="N100ED"></a><a name="Whole-web%3A+Concepts"></a>
+<a name="N100F3"></a><a name="Whole-web%3A+Concepts"></a>
 <h3 class="h4">Whole-web: Concepts</h3>
-<p>Nutch data is of two types:</p>
+<p>Nutch data is composed of:</p>
 <ol>
+
   
-<li>The web database.  This contains information about every
-page known to Nutch, and about links between those pages.</li>
+<li>The crawl database, or <em>crawldb</em>.  This contains
+information about every url known to Nutch, including whether it was
+fetched, and, if so, when.</li>
+
   
-<li>A set of segments.  Each segment is a set of pages that are
-fetched and indexed as a unit.  Segment data consists of the
-following types:</li>
+<li>The link database, or <em>linkdb</em>.  This contains the list
+of known links to each url, including both the source url and anchor
+text of the link.</li>
+
+  
+<li>A set of <em>segments</em>.  Each segment is a set of urls that are
+fetched as a unit.  Segments are directories with the following
+subdirectories:</li>
+
   
 <li>
 <ul>
     
-<li>a <em>fetchlist</em> is a file
-that names a set of pages to be fetched</li>
+<li>a <em>crawl_generate</em> names a set of urls to be fetched</li>
     
-<li>the<em> fetcher output</em> is a
-set of files containing the fetched pages</li>
+<li>a <em>crawl_fetch</em> contains the status of fetching each url</li>
     
-<li>the <em>index </em>is a
-Lucene-format index of the fetcher output.</li>
+<li>a <em>content</em> contains the content of each url</li>
+    
+<li>a <em>parse_text</em> contains the parsed text of each url</li>
+    
+<li>a <em>parse_data</em> contains outlinks and metadata parsed
+    from each url</li>
+    
+<li>a <em>crawl_parse</em> contains the outlink urls, used to
+    update the crawldb</li>
   
 </ul>
 </li>
 
+
+<li>The <em>indexes</em>are Lucene-format indexes.</li>
+
+
 </ol>
-<p>In the following examples we will keep our web database in a directory
-named <span class="codefrag">db</span> and our segments
-in a directory named <span class="codefrag">segments</span>:</p>
-<pre class="code">mkdir db
-mkdir segments</pre>
-<a name="N10123"></a><a name="Whole-web%3A+Boostrapping+the+Web+Database"></a>
+<a name="N10140"></a><a name="Whole-web%3A+Boostrapping+the+Web+Database"></a>
 <h3 class="h4">Whole-web: Boostrapping the Web Database</h3>
-<p>The admin tool is used to create a new, empty database:</p>
-<pre class="code">bin/nutch admin db -create</pre>
-<p>The <em>injector</em> adds urls into the database.  Let's inject
-URLs from the <a href="http://dmoz.org/">DMOZ</a> Open
-Directory. First we must download and uncompress the file listing all
-of the DMOZ pages.  (This is a 200+Mb file, so this will take a few
-minutes.)</p>
+<p>The <em>injector</em> adds urls to the crawldb.  Let's inject URLs
+from the <a href="http://dmoz.org/">DMOZ</a> Open Directory. First we
+must download and uncompress the file listing all of the DMOZ pages.
+(This is a 200+Mb file, so this will take a few minutes.)</p>
 <pre class="code">wget http://rdf.dmoz.org/rdf/content.rdf.u8.gz
 gunzip content.rdf.u8.gz</pre>
-<p>Next we inject a random subset of these pages into the web database.
+<p>Next we select a random subset of these pages.
  (We use a random subset so that everyone who runs this tutorial
 doesn't hammer the same sites.)  DMOZ contains around three million
-URLs.  We inject one out of every 3000, so that we end up with
+URLs.  We select one out of every 5000, so that we end up with
 around 1000 URLs:</p>
-<pre class="code">bin/nutch inject db -dmozfile content.rdf.u8 -subset 3000</pre>
-<p>This also takes a few minutes, as it must parse the full file.</p>
+<pre class="code">mkdir dmoz
+bin/nutch org.apache.nutch.tools.DmozParser content.rdf.u8 -subset 5000 &gt; dmoz/urls</pre>
+<p>The parser also takes a few minutes, as it must parse the full
+file.  Finally, we initialize the crawl db with the selected urls.</p>
+<pre class="code">bin/nutch inject crawl/crawldb dmoz</pre>
 <p>Now we have a web database with around 1000 as-yet unfetched URLs in it.</p>
-<a name="N1014C"></a><a name="Whole-web%3A+Fetching"></a>
+<a name="N10166"></a><a name="Whole-web%3A+Fetching"></a>
 <h3 class="h4">Whole-web: Fetching</h3>
 <p>To fetch, we first generate a fetchlist from the database:</p>
-<pre class="code">bin/nutch generate db segments
+<pre class="code">bin/nutch generate crawl/crawldb crawl/segments
 </pre>
 <p>This generates a fetchlist for all of the pages due to be fetched.
  The fetchlist is placed in a newly created segment directory.
  The segment directory is named by the time it's created.  We
 save the name of this segment in the shell variable <span class="codefrag">s1</span>:</p>
-<pre class="code">s1=`ls -d segments/2* | tail -1`
+<pre class="code">s1=`ls -d crawl/segments/2* | tail -1`
 echo $s1
 </pre>
 <p>Now we run the fetcher on this segment with:</p>
 <pre class="code">bin/nutch fetch $s1</pre>
 <p>When this is complete, we update the database with the results of the
 fetch:</p>
-<pre class="code">bin/nutch updatedb db $s1</pre>
+<pre class="code">bin/nutch updatedb crawl/crawldb $s1</pre>
 <p>Now the database has entries for all of the pages referenced by the
 initial set.</p>
 <p>Now we fetch a new segment with the top-scoring 1000 pages:</p>
-<pre class="code">bin/nutch generate db segments -topN 1000
-s2=`ls -d segments/2* | tail -1`
+<pre class="code">bin/nutch generate crawl/crawldb crawl/segments -topN 1000
+s2=`ls -d crawl/segments/2* | tail -1`
 echo $s2
 
 bin/nutch fetch $s2
-bin/nutch updatedb db $s2
+bin/nutch updatedb crawl/crawldb $s2
 </pre>
 <p>Let's fetch one more round:</p>
 <pre class="code">
-bin/nutch generate db segments -topN 1000
-s3=`ls -d segments/2* | tail -1`
+bin/nutch generate crawl/crawldb crawl/segments -topN 1000
+s3=`ls -d crawl/segments/2* | tail -1`
 echo $s3
 
 bin/nutch fetch $s3
-bin/nutch updatedb db $s3
+bin/nutch updatedb crawl/crawldb $s3
 </pre>
 <p>By this point we've fetched a few thousand pages.  Let's index
 them!</p>
-<a name="N10186"></a><a name="Whole-web%3A+Indexing"></a>
+<a name="N101A0"></a><a name="Whole-web%3A+Indexing"></a>
 <h3 class="h4">Whole-web: Indexing</h3>
-<p>To index each segment we use the <span class="codefrag">index</span>
-command, as follows:</p>
-<pre class="code">bin/nutch index $s1
-bin/nutch index $s2
-bin/nutch index $s3</pre>
-<p>Then, before we can search a set of segments, we need to delete
-duplicate pages.  This is done with:</p>
-<pre class="code">bin/nutch dedup segments dedup.tmp</pre>
+<p>Before indexing we first invert all of the links, so that we may
+index incoming anchor text with the pages.</p>
+<pre class="code">bin/nutch invertlinks crawl/linkdb crawl/segments</pre>
+<p>To index the segments we use the <span class="codefrag">index</span> command, as follows:</p>
+<pre class="code">bin/nutch index indexes crawl/linkdb crawl/segments/*</pre>
 <p>Now we're ready to search!</p>
-<a name="N101A1"></a><a name="Searching"></a>
+<a name="N101C1"></a><a name="Searching"></a>
 <h3 class="h4">Searching</h3>
 <p>To search you need to put the nutch war file into your servlet
 container.  (If instead of downloading a Nutch release you checked the
@@ -407,10 +421,8 @@ file may be installed with the commands:</p>
 <pre class="code">rm -rf ~/local/tomcat/webapps/ROOT*
 cp nutch*.war ~/local/tomcat/webapps/ROOT.war
 </pre>
-<p>The webapp finds its indexes in <span class="codefrag">./segments</span>, relative
-to where you start Tomcat, so, if you've done intranet crawling,
-connect to your crawl directory, or, if you've done whole-web
-crawling, don't change directories, and give the command:</p>
+<p>The webapp finds its indexes in <span class="codefrag">./crawl</span>, relative
+to where you start Tomcat, so use a command like:</p>
 <pre class="code">~/local/tomcat/bin/catalina.sh start
 </pre>
 <p>Then visit <a href="http://localhost:8080/">http://localhost:8080/</a>
