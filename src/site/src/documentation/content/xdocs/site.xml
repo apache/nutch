@@ -26,7 +26,8 @@ See http://forrest.apache.org/docs/linking.html for more info.
   <docs label="Documentation">    
     <faq         label="FAQ"              href="ext:faq" />    
     <wiki        label="Wiki"             href="ext:wiki" />    
-    <tutorial    label="Tutorial"         href="tutorial.html" />
+    <tutorial    label="Tutorial ver. 0.7"     href="tutorial.html" />
+    <tutorial8   label="Tutorial ver. 0.8"     href="tutorial8.html" />
     <webmasters  label="Robot     "       href="bot.html" />
     <i18n        label="i18n"             href="i18n.html" />
     <apidocs     label="API Docs"         href="apidocs/index.html" />
@@ -34,17 +35,21 @@ See http://forrest.apache.org/docs/linking.html for more info.
 
   <resources label="Resources">
     <download    label="Download"         href="release/" />
+    <nightly     label="Nightly builds"   href="nightly.html" />
     <contact     label="Mailing Lists"    href="mailing_lists.html" />
     <issues      label="Issue Tracking"   href="issue_tracking.html" />
     <vcs         label="Version Control"  href="version_control.html" />
   </resources>
 
+
   <projects label="Related Projects">
     <lucene     label="Lucene Java"      href="ext:lucene" />
+    <hadoop     label="Hadoop"      href="ext:hadoop" />
   </projects>
 
   <external-refs>
     <lucene    href="http://lucene.apache.org/java/" />
+    <hadoop    href="http://lucene.apache.org/hadoop/" />
     <wiki      href="http://wiki.apache.org/nutch/" />
     <faq       href="http://wiki.apache.org/nutch/FAQ" /> 
     <store     href="http://www.cafepress.com/nutch/" />
