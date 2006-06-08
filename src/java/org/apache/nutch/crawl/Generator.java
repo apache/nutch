@@ -30,6 +30,8 @@ import org.apache.hadoop.fs.Path;
 
 import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
+import org.apache.nutch.scoring.ScoringFilterException;
+import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
@@ -68,6 +70,7 @@ public class Generator extends Configured {
     private int maxPerHost;
     private Partitioner hostPartitioner = new PartitionUrlByHost();
     private URLFilters filters;
+    private ScoringFilters scfilters;
     private SelectorEntry entry = new SelectorEntry();
     private FloatWritable sortValue = new FloatWritable();
     private boolean byIP;
@@ -79,6 +82,7 @@ public class Generator extends Configured {
       maxPerHost = job.getInt("generate.max.per.host", -1);
       byIP = job.getBoolean("generate.max.per.host.by.ip", false);
       filters = new URLFilters(job);
+      scfilters = new ScoringFilters(job);
     }
 
     public void close() {}
@@ -103,8 +107,14 @@ public class Generator extends Configured {
       if (crawlDatum.getFetchTime() > curTime)
         return;                                   // not time yet
 
+      float sort = 1.0f;
+      try {
+        sort = scfilters.generatorSortValue((UTF8)key, crawlDatum, sort);
+      } catch (ScoringFilterException sfe) {
+        LOG.warning("Couldn't filter generatorSortValue for " + key + ": " + sfe);
+      }
       // sort by decreasing score
-      sortValue.set(crawlDatum.getScore());
+      sortValue.set(sort);
       entry.datum = crawlDatum;
       entry.url = (UTF8)key;
       output.collect(sortValue, entry);          // invert for sort by score
