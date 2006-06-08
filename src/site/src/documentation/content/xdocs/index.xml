@@ -15,6 +15,22 @@
       <title>News</title>
 
       <section>
+      <title>31 March 2006: Nutch 0.7.2 Released</title>
+      <p>The 0.7.2 release of Nutch is now available. This is a bug fix release for 0.7 branch. See
+      <a href="http://svn.apache.org/viewcvs.cgi/lucene/nutch/branches/branch-0.7/CHANGES.txt?rev=390158">
+      CHANGES.txt</a> for details. The release is available
+      <a href="http://lucene.apache.org/nutch/release/">here</a>.</p>
+      </section>
+   
+      <section>
+      <title>1 October 2005: Nutch 0.7.1 Released</title>
+      <p>The 0.7.1 release of Nutch is now available. This is a bug fix release. See
+      <a href="http://svn.apache.org/viewcvs.cgi/lucene/nutch/branches/branch-0.7/CHANGES.txt?rev=292986">
+      CHANGES.txt</a> for details. The release is available
+      <a href="http://lucene.apache.org/nutch/release/">here</a>.</p>
+      </section>
+
+      <section>
       <title>17 August 2005: Nutch 0.7 Released</title>
       <p>This is the first Nutch release as an Apache Lucene sub-project. See 
       <a href="http://svn.apache.org/viewcvs.cgi/lucene/nutch/trunk/CHANGES.txt?rev=233150">
