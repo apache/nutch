@@ -165,6 +165,8 @@
 	<include name="dom4j-*.jar"/>
 	<include name="xerces-*.jar"/>
         <include name="commons-lang-*.jar"/>
+        <include name="commons-logging-*.jar"/>
+        <include name="log4j-*.jar"/>
       </lib>
       <lib dir="${build.dir}">
 	<include name="${final.name}.jar"/>
