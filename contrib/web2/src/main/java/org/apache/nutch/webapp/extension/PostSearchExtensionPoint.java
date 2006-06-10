@@ -15,7 +15,7 @@
  */
 package org.apache.nutch.webapp.extension;
 
-import org.apache.nutch.webapp.common.SearchContext;
+import org.apache.nutch.webapp.common.ServiceLocator;
 
 /**
  * Plugins extending this extension point are run after the actual
@@ -25,6 +25,6 @@ public interface PostSearchExtensionPoint {
 
   public static final String X_POINT_ID=PostSearchExtensionPoint.class.getName();
   
-  void doPostSearch(SearchContext context);
+  void doPostSearch(ServiceLocator locator);
   
 }

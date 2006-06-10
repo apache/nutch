@@ -266,7 +266,7 @@ public class SearchForm {
   /**
    * Returns a string usable in urls that contains all active parameters and
    * their values, if submitted encoding does not work values are encoded with
-   * default encoding.
+   * utf-8 encoding.
    * 
    * @param encoding
    * @return
@@ -292,8 +292,8 @@ public class SearchForm {
         sb.append(URLEncoder.encode(kv.getKey(), encoding)).append("=").append(
             URLEncoder.encode(kv.getValue(), encoding));
       } else {
-        sb.append(URLEncoder.encode(kv.getKey())).append("=").append(
-            URLEncoder.encode(kv.getValue()));
+        sb.append(URLEncoder.encode(kv.getKey(),"utf-8")).append("=").append(
+            URLEncoder.encode(kv.getValue(), "utf-8"));
       }
       if (i.hasNext()) {
         sb.append("&");

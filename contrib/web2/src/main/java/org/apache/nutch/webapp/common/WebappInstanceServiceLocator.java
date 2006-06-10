@@ -135,4 +135,5 @@ public class WebappInstanceServiceLocator implements ServiceLocator {
   public Locale getLocale() {
     return getPreferences().getLocale(request);
   }
+
 }

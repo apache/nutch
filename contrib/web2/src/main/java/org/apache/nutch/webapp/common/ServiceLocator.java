@@ -78,5 +78,5 @@ public interface ServiceLocator {
   public Search getSearch();
 
   public Locale getLocale();
-
+  
 }

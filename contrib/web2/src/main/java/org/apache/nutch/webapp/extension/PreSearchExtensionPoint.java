@@ -15,7 +15,7 @@
  */
 package org.apache.nutch.webapp.extension;
 
-import org.apache.nutch.webapp.common.SearchContext;
+import org.apache.nutch.webapp.common.ServiceLocator;
 
 /**
  * Plugins extending this extension point are run before the actual
@@ -25,6 +25,6 @@ public interface PreSearchExtensionPoint {
   
   public static final String X_POINT_ID=PreSearchExtensionPoint.class.getName();
 
-  void doPreSearch(SearchContext context);
+  void doPreSearch(ServiceLocator locator);
 
 }
