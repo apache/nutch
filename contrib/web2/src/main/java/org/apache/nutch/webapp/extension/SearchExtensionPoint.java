@@ -15,7 +15,7 @@
  */
 package org.apache.nutch.webapp.extension;
 
-import org.apache.nutch.webapp.common.SearchContext;
+import org.apache.nutch.webapp.common.ServiceLocator;
 
 /**
  * Plugins extending this interface can provide logic that
@@ -26,6 +26,6 @@ public interface SearchExtensionPoint {
   
   public static final String X_POINT_ID=SearchExtensionPoint.class.getName();
 
-  void doSearch(SearchContext context);
+  void doSearch(ServiceLocator locator);
 
 }

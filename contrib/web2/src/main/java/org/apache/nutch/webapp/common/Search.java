@@ -88,8 +88,15 @@ public class Search {
     LOG.info("performing search, requiring:" + getHitsRequired());
     
     try {
+      LOG.info("query:" + getQuery());
+      LOG.info("endOffset:" + getStartOffset() + getHitsRequired());
+      LOG.info("hitsPerDup:" + getHitsPerDup());
+      LOG.info("dupField:" + getDupField());
+      LOG.info("sortField:" + getSortColumn());
+      LOG.info("descending:" + isSortDesc());
+      
       hits = locator.getNutchBean().search(getQuery(), getStartOffset() + getHitsRequired(),
-          getHitsPerSite(), getDupField(), getSortColumn(), isSortDesc());
+          getHitsPerDup(), getDupField(), getSortColumn(), isSortDesc());
     } catch (IOException e) {
       hits = new Hits(0, new Hit[0]);
     }
@@ -202,7 +209,7 @@ public class Search {
   /**
    * @return Returns the hitsPerSite.
    */
-  public int getHitsPerSite() {
+  public int getHitsPerDup() {
     return hitsPerDup;
   }
 

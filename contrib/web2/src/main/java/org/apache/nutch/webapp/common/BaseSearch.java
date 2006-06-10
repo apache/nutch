@@ -64,8 +64,6 @@ public class BaseSearch {
 
   }
 
-  private SearchContextImpl context;
-
   private ServiceLocator serviceLocator;
 
   /**
@@ -114,9 +112,9 @@ public class BaseSearch {
   /**
    * Call plugins participating PreSearch activities
    */
-  void callPreSearch() {
+  void callPreSearch(ServiceLocator locator) {
     for (int i = 0; i < presearch.length; i++) {
-      presearch[i].doPreSearch(context);
+      presearch[i].doPreSearch(serviceLocator);
     }
   }
 
@@ -125,16 +123,16 @@ public class BaseSearch {
    */
   void callSearch() {
     for (int i = 0; i < search.length; i++) {
-      search[i].doSearch(context);
+      search[i].doSearch(serviceLocator);
     }
   }
 
   /**
    * Call plugins participating postSearch activities
    */
-  void callPostSearch() {
+  void callPostSearch(ServiceLocator locator) {
     for (int i = 0; i < postsearch.length; i++) {
-      postsearch[i].doPostSearch(context);
+      postsearch[i].doPostSearch(serviceLocator);
     }
   }
 
@@ -143,10 +141,9 @@ public class BaseSearch {
    */
   public void doSearch() {
     // create context
-    context = new SearchContextImpl(serviceLocator);
-    callPreSearch();
+    callPreSearch(serviceLocator);
     serviceLocator.getSearch().performSearch();
     // callSearch();
-    callPostSearch();
+    callPostSearch(serviceLocator);
   }
 }
