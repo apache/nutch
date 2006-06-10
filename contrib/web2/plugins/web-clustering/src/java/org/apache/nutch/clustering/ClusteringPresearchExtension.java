@@ -15,24 +15,50 @@
  */
 package org.apache.nutch.clustering;
 
-import org.apache.nutch.webapp.common.SearchContext;
+import org.apache.nutch.webapp.common.ServiceLocator;
 import org.apache.nutch.webapp.extension.PreSearchExtensionPoint;
 
+/**
+ * This class is responsible for interpreting request parameters
+ * and reacting if named parameter is defined.
+ * 
+ * If clustering is available the result window is checked
+ * and expanded to 100 hits if required.
+ */
 public class ClusteringPresearchExtension implements PreSearchExtensionPoint {
 
-  /** 
+
+  /**
+   * Check wether clustering is active or not
+   * @param locator
+   * @return true if clustering is active
+   */
+  public static boolean isClusteringActive(ServiceLocator locator){
+    return locator.getSearchForm().getValueString(REQ_PARAM_CLUSTERING_ENABLED)!=null;
+  }
+  
+  /**
+   * The parameter name to be searched from request
+   */
+  public static final String REQ_PARAM_CLUSTERING_ENABLED="clustering";
+
+  /* 
    * This hook is executed before actual search
    * so we have a change to expand the result window
-   * for clusterer
+   * for clusterer if clustering is active for the request
    */
-  public void doPreSearch(SearchContext context) {
-    int orig=context.getSearch().getHitsRequired();
+  public void doPreSearch(ServiceLocator locator) {
 
-    int hitsToCluster = context.getConfigiration().getInt(
+    if(isClusteringActive(locator)) {
+
+      int orig=locator.getSearch().getHitsRequired();
+
+      int hitsToCluster = locator.getConfiguration().getInt(
         "extension.clustering.hits-to-cluster", 100);
     
-    if(orig < hitsToCluster){
-      context.getSearch().setHitsRequired(hitsToCluster);
+      if(orig < hitsToCluster){
+        locator.getSearch().setHitsRequired(hitsToCluster);
+      }
     }
   }
 }

@@ -22,6 +22,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.nutch.clustering.ClusteringPresearchExtension;
 import org.apache.nutch.clustering.Clusters;
 import org.apache.nutch.clustering.HitsCluster;
 import org.apache.nutch.clustering.OnlineClusterer;
@@ -33,49 +34,53 @@ import org.apache.nutch.webapp.common.ServiceLocator;
 import org.apache.nutch.webapp.common.Startable;
 import org.apache.struts.tiles.ComponentContext;
 
-public class ClusteringController extends NutchController implements Startable  {
+public class ClusteringController extends NutchController implements Startable {
 
   public static final String REQ_ATTR_CLUSTERS = "clusters";
 
-  static OnlineClusterer clusterer=null;
-  
+  static OnlineClusterer clusterer = null;
+
   public void nutchPerform(ComponentContext tileContext,
       HttpServletRequest request, HttpServletResponse response,
       ServletContext servletContext) throws ServletException, IOException {
 
     ServiceLocator locator = getServiceLocator(request);
 
-    // display top N clusters and top Q documents inside them.
-    int N = locator.getConfiguration().getInt(
-        "extension.clustering.cluster-count", 10);
-    int Q = locator.getConfiguration().getInt(
-        "extension.clustering.cluster-top-documents-count", 3);
-    int maxLabels = 2;
+    if (ClusteringPresearchExtension.isClusteringActive(locator)) {
 
-    HitDetails[] details = locator.getSearch().getDetails();
-    Summary[] summaries = locator.getSearch().getSummaries();
+      // display top N clusters and top Q documents inside them.
+      int N = locator.getConfiguration().getInt(
+          "extension.clustering.cluster-count", 10);
+      int Q = locator.getConfiguration().getInt(
+          "extension.clustering.cluster-top-documents-count", 3);
+      int maxLabels = 2;
 
-    HitsCluster[] clusters = null;
-    if (clusterer != null) {
-      final long clusteringStart = System.currentTimeMillis();
-      try {
-        clusters = clusterer.clusterHits(details, Summary.toStrings(summaries));
-        final long clusteringDuration = System.currentTimeMillis()
-            - clusteringStart;
-        LOG.info("Clustering took: " + clusteringDuration + " milliseconds.");
-        
-      } catch (Exception e) {
-        LOG.info("Could not do clustering???" + e);
-        return;
+      HitDetails[] details = locator.getSearch().getDetails();
+      Summary[] summaries = locator.getSearch().getSummaries();
+
+      HitsCluster[] clusters = null;
+      if (clusterer != null) {
+        final long clusteringStart = System.currentTimeMillis();
+        try {
+          clusters = clusterer.clusterHits(details, Summary
+              .toStrings(summaries));
+          final long clusteringDuration = System.currentTimeMillis()
+              - clusteringStart;
+          LOG.info("Clustering took: " + clusteringDuration + " milliseconds.");
+
+        } catch (Exception e) {
+          LOG.info("Could not do clustering???" + e);
+          return;
+        }
       }
+
+      // set new limit if fever than N results
+      N = Math.min(N, clusters.length);
+
+      // set to request
+      Clusters clusterResult = new Clusters(clusters, N, Q, maxLabels);
+      request.setAttribute(REQ_ATTR_CLUSTERS, clusterResult);
     }
-
-    // set new limit if fever than N results
-    N = Math.min(N, clusters.length);
-
-    //set to request
-    Clusters clusterResult = new Clusters(clusters, N, Q, maxLabels);
-    request.setAttribute(REQ_ATTR_CLUSTERS, clusterResult);
   }
 
   public void start(ServletContext servletContext) {

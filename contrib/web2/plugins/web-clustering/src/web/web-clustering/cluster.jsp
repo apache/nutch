@@ -43,9 +43,5 @@ No clusters available
   </c:choose>
 
  </c:when>
- <c:otherwise>
-  <!--  todo: i18n -->
-Unable to do clustering.
-</c:otherwise>
 </c:choose>
 </div>
