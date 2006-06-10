@@ -5,4 +5,7 @@
 	<definition name="cluster" 
 	  path="/plugin/web-clustering/cluster.jsp"
     controllerClass="org.apache.nutch.webapp.controller.ClusteringController"	/>
+	<definition name="cluster-checkbox" 
+	  path="/plugin/web-clustering/cluster-checkbox.jsp"
+    controllerClass="org.apache.nutch.webapp.controller.ClusteringCheckboxController"	/>
 </tiles-definitions>
