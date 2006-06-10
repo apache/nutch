@@ -158,11 +158,13 @@ public class Subcollection extends Configured implements URLFilter{
   }
 
   /**
-   * Initialize SubCollection from dom element
+   * Initialize Subcollection from dom element
    * 
    * @param collection
    */
   public void initialize(Element collection) {
+    this.id = DOMUtil.getChildText(
+        collection.getElementsByTagName(TAG_ID).item(0)).trim();
     this.name = DOMUtil.getChildText(
         collection.getElementsByTagName(TAG_NAME).item(0)).trim();
     this.wlString = DOMUtil.getChildText(

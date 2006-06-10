@@ -30,6 +30,7 @@ import java.util.logging.Logger;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.nutch.util.DomUtil;
+import org.apache.nutch.util.NutchConfiguration;
 import org.apache.xerces.dom.DocumentImpl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -50,6 +51,13 @@ public class CollectionManager extends Configured {
     super(conf);
     init();
   }
+  
+  /** 
+   * Used for testing
+   */
+  protected CollectionManager(){
+    super(NutchConfiguration.create());
+  }
 
   protected void init(){
     try {
@@ -60,26 +68,30 @@ public class CollectionManager extends Configured {
 
       InputStream input = getConf().getConfResourceAsInputStream(
           getConf().get("subcollections.config", DEFAULT_FILE_NAME));
-      Element collections = DomUtil.getDom(input);
-
-      if (collections != null) {
-        NodeList nodeList = collections
-            .getElementsByTagName(Subcollection.TAG_COLLECTION);
-
-        LOG.info("file has" + nodeList.getLength() + " elements");
-        
-        for (int i = 0; i < nodeList.getLength(); i++) {
-          Element scElem = (Element) nodeList.item(i);
-          Subcollection subCol = new Subcollection(getConf());
-          subCol.initialize(scElem);
-          collectionMap.put(subCol.name, subCol);
-        }
-      } else {
-        LOG.info("Cannot find collections");
-      }
+      parse(input);
     } catch (Exception e) {
       LOG.info("Error occured:" + e);
       e.printStackTrace(System.out);
+    }
+  }
+
+  protected void parse(InputStream input) {
+    Element collections = DomUtil.getDom(input);
+
+    if (collections != null) {
+      NodeList nodeList = collections
+          .getElementsByTagName(Subcollection.TAG_COLLECTION);
+
+      LOG.info("file has" + nodeList.getLength() + " elements");
+      
+      for (int i = 0; i < nodeList.getLength(); i++) {
+        Element scElem = (Element) nodeList.item(i);
+        Subcollection subCol = new Subcollection(getConf());
+        subCol.initialize(scElem);
+        collectionMap.put(subCol.name, subCol);
+      }
+    } else {
+      LOG.info("Cannot find collections");
     }
   }
   
