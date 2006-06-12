@@ -17,7 +17,6 @@
 package org.apache.nutch.urlfilter.suffix;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.net.*;
 
 import org.apache.nutch.util.NutchConfiguration;
@@ -27,6 +26,9 @@ import org.apache.nutch.util.TrieStringMatcher;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.Reader;
 import java.io.FileReader;
 import java.io.BufferedReader;
@@ -35,7 +37,6 @@ import java.io.IOException;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 /**
  * Filters URLs based on a file of URL suffixes. The file is named by
@@ -118,7 +119,7 @@ import java.util.logging.Logger;
  */
 public class SuffixURLFilter implements URLFilter {
 
-  private static final Logger LOG = LogFormatter.getLogger(SuffixURLFilter.class.getName());
+  private static final Log LOG = LogFactory.getLog(SuffixURLFilter.class);
 
   // read in attribute "file" of this plugin.
   private String attributeFile = null;
@@ -158,7 +159,7 @@ public class SuffixURLFilter implements URLFilter {
 
     // handle missing config file
     if (reader == null) {
-      LOG.warning("Missing urlfilter.suffix.file, all URLs will be rejected!");
+      LOG.warn("Missing urlfilter.suffix.file, all URLs will be rejected!");
       suffixes = new SuffixStringMatcher(new String[0]);
       modeAccept = false;
       ignoreCase = false;
@@ -241,7 +242,7 @@ public class SuffixURLFilter implements URLFilter {
     if (attributeFile != null) {
       LOG.info("Attribute \"file\" is defined for plugin " + pluginName + " as " + attributeFile);
     } else {
-      // LOG.warning("Attribute \"file\" is not defined in plugin.xml for
+      // LOG.warn("Attribute \"file\" is not defined in plugin.xml for
       // plugin "+pluginName);
     }
 
@@ -253,7 +254,7 @@ public class SuffixURLFilter implements URLFilter {
     try {
       readConfigurationFile(reader);
     } catch (IOException e) {
-      LOG.severe(e.getMessage());
+      LOG.fatal(e.getMessage());
       throw new RuntimeException(e.getMessage(), e);
     }
   }

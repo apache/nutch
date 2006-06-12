@@ -18,12 +18,14 @@ package org.apache.nutch.crawl;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.*;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.mapred.*;
 
 import org.apache.nutch.net.*;
@@ -35,8 +37,7 @@ import org.apache.nutch.util.NutchJob;
 /** This class takes a flat file of URLs and adds them to the of pages to be
  * crawled.  Useful for bootstrapping the system. */
 public class Injector extends Configured {
-  public static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.crawl.Injector");
+  public static final Log LOG = LogFactory.getLog(Injector.class);
 
 
   /** Normalize and filter injected urls. */
@@ -69,7 +70,7 @@ public class Injector extends Configured {
         url = urlNormalizer.normalize(url);       // normalize the url
         url = filters.filter(url);             // filter the url
       } catch (Exception e) {
-        LOG.warning("Skipping " +url+":"+e);
+        LOG.warn("Skipping " +url+":"+e);
         url = null;
       }
       if (url != null) {                          // if it passes
@@ -79,8 +80,8 @@ public class Injector extends Configured {
         try {
           scfilters.initialScore(value, datum);
         } catch (ScoringFilterException e) {
-          LOG.warning("Cannot filter init score for url " + url +
-                  ", using default (" + e.getMessage() + ")");
+          LOG.warn("Cannot filter init score for url " + url +
+                   ", using default (" + e.getMessage() + ")");
           datum.setScore(scoreInjected);
         }
         output.collect(value, datum);

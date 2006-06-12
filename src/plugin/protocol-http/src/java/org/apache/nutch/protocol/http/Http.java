@@ -18,23 +18,25 @@ package org.apache.nutch.protocol.http;
 // JDK imports
 import java.io.IOException;
 import java.net.URL;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+// Hadoop imports
+import org.apache.hadoop.conf.Configuration;
 
 // Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.http.api.HttpBase;
-import org.apache.hadoop.util.LogFormatter;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
 
 public class Http extends HttpBase {
 
-  public static final Logger LOG =
-    LogFormatter.getLogger(Http.class.getName());
+  public static final Log LOG = LogFactory.getLog(Http.class);
 
 
   public Http() {
@@ -43,11 +45,11 @@ public class Http extends HttpBase {
 
   public void setConf(Configuration conf) {
     super.setConf(conf);
-    Level logLevel = Level.WARNING;
-    if (conf.getBoolean("http.verbose", false)) {
-      logLevel = Level.FINE;
-    }
-    LOG.setLevel(logLevel);
+//    Level logLevel = Level.WARNING;
+//    if (conf.getBoolean("http.verbose", false)) {
+//      logLevel = Level.FINE;
+//    }
+//    LOG.setLevel(logLevel);
   }
 
   public static void main(String[] args) throws Exception {

@@ -16,21 +16,21 @@
 
 package org.creativecommons.nutch;
 
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.indexer.Indexer;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.document.Document;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.io.*;
 import java.util.Vector;
-import java.util.logging.Logger;
 
 /** Deletes documents in a set of Lucene indexes that do not have a Creative
  * Commons license. */
 public class CCDeleteUnlicensedTool {
-  private static final Logger LOG =
-    LogFormatter.getLogger("org.creativecommons.nutch.CCDeleteUnlicensedTool");
+  private static final Log LOG = LogFactory.getLog(CCDeleteUnlicensedTool.class);
 
   private IndexReader[] readers;
 

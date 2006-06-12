@@ -25,10 +25,13 @@ import org.pdfbox.util.PDFTextStripper;
 import org.pdfbox.exceptions.CryptographyException;
 import org.pdfbox.exceptions.InvalidPasswordException;
 
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
@@ -37,11 +40,10 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.OutlinkExtractor;
+import org.apache.nutch.util.LogUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-
-import java.util.logging.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -60,28 +62,8 @@ import java.io.IOException;
  *********************************************/
 
 public class PdfParser implements Parser {
-  public static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.parse.pdf");
+  public static final Log LOG = LogFactory.getLog("org.apache.nutch.parse.pdf");
   private Configuration conf;
-
-  public PdfParser () {
-    // redirect org.apache.log4j.Logger to java's native logger, in order
-    // to, at least, suppress annoying log4j warnings.
-    // Note on 20040614 by Xing:
-    // log4j is used by pdfbox. This snippet'd better be moved
-    // to a common place shared by all parsers that use log4j.
-    org.apache.log4j.Logger rootLogger =
-      org.apache.log4j.Logger.getRootLogger();
-
-    rootLogger.setLevel(org.apache.log4j.Level.INFO);
-
-    org.apache.log4j.Appender appender = new org.apache.log4j.WriterAppender(
-      new org.apache.log4j.SimpleLayout(),
-      org.apache.hadoop.util.LogFormatter.getLogStream(
-        this.LOG, java.util.logging.Level.INFO));
-
-    rootLogger.addAppender(appender);
-  }
 
   public Parse getParse(Content content) {
 
@@ -143,8 +125,8 @@ public class PdfParser implements Parser {
       return new ParseStatus(ParseStatus.FAILED,
               "Can't decrypt document - invalid password. " + e).getEmptyParse(getConf());
     } catch (Exception e) { // run time exception
-        LOG.warning("General exception in PDF parser: "+e.getMessage());
-        e.printStackTrace();        
+        LOG.warn("General exception in PDF parser: "+e.getMessage());
+        e.printStackTrace(LogUtil.getWarnStream(LOG));        
       return new ParseStatus(ParseStatus.FAILED,
               "Can't be handled as pdf document. " + e).getEmptyParse(getConf());
     } finally {

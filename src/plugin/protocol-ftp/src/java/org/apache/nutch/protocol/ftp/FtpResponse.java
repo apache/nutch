@@ -36,7 +36,6 @@ import java.net.URL;
 
 import java.util.List;
 import java.util.LinkedList;
-import java.util.logging.Level;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -94,7 +93,7 @@ public class FtpResponse {
       throw new FtpException("Not a ftp url:" + url);
 
     if (url.getPath() != url.getFile())
-      Ftp.LOG.warning("url.getPath() != url.getFile(): " + url);
+      Ftp.LOG.warn("url.getPath() != url.getFile(): " + url);
 
     String path = "".equals(url.getPath()) ? "/" : url.getPath();
 
@@ -103,8 +102,9 @@ public class FtpResponse {
       if (ftp.followTalk) {
         Ftp.LOG.info("fetching "+url);
       } else {
-        if (Ftp.LOG.isLoggable(Level.FINE))
-          Ftp.LOG.fine("fetching "+url);
+        if (Ftp.LOG.isTraceEnabled()) {
+          Ftp.LOG.trace("fetching "+url);
+        }
       }
 
       InetAddress addr = InetAddress.getByName(url.getHost());
@@ -160,7 +160,7 @@ public class FtpResponse {
         ftp.client.connect(addr);
         if (!FTPReply.isPositiveCompletion(ftp.client.getReplyCode())) {
           ftp.client.disconnect();
-          Ftp.LOG.warning("ftp.client.connect() failed: "
+          Ftp.LOG.warn("ftp.client.connect() failed: "
             + addr + " " + ftp.client.getReplyString());
           this.code = 500; // http Internal Server Error
           return;
@@ -176,7 +176,7 @@ public class FtpResponse {
           // but throw exception, which then will be handled by caller
           // (not dealt with here at all) .
           ftp.client.disconnect();
-          Ftp.LOG.warning("ftp.client.login() failed: "+addr);
+          Ftp.LOG.warn("ftp.client.login() failed: "+addr);
           this.code = 401;  // http Unauthorized
           return;
         }
@@ -185,7 +185,7 @@ public class FtpResponse {
         if (!ftp.client.setFileType(FTP.BINARY_FILE_TYPE)) {
           ftp.client.logout();
           ftp.client.disconnect();
-          Ftp.LOG.warning("ftp.client.setFileType() failed: "+addr);
+          Ftp.LOG.warn("ftp.client.setFileType() failed: "+addr);
           this.code = 500; // http Internal Server Error
           return;
         }
@@ -203,18 +203,18 @@ public class FtpResponse {
           ftp.parser = (new DefaultFTPFileEntryParserFactory())
             .createFileEntryParser(parserKey);
         } catch (FtpExceptionBadSystResponse e) {
-          Ftp.LOG.warning("ftp.client.getSystemName() failed: "+addr+" "+e);
+          Ftp.LOG.warn("ftp.client.getSystemName() failed: "+addr+" "+e);
           ftp.parser = null;
         } catch (ParserInitializationException e) {
           // ParserInitializationException is RuntimeException defined in
           // org.apache.commons.net.ftp.parser.ParserInitializationException
-          Ftp.LOG.warning("createFileEntryParser() failed. "+addr+" "+e);
+          Ftp.LOG.warn("createFileEntryParser() failed. "+addr+" "+e);
           ftp.parser = null;
         } finally {
           if (ftp.parser == null) {
             // do not log as severe, otherwise
             // FetcherThread/RequestScheduler will abort
-            Ftp.LOG.warning("ftp.parser is null: "+addr);
+            Ftp.LOG.warn("ftp.parser is null: "+addr);
             ftp.client.logout();
             ftp.client.disconnect();
             this.code = 500; // http Internal Server Error
@@ -254,10 +254,10 @@ public class FtpResponse {
       }
       
     } catch (Exception e) {
-      ftp.LOG.warning(""+e);
+      ftp.LOG.warn(""+e);
       StackTraceElement stes[] = e.getStackTrace();
       for (int i=0; i<stes.length; i++) {
-        ftp.LOG.warning("   "+stes[i].toString());
+        ftp.LOG.warn("   "+stes[i].toString());
       }
       // for any un-foreseen exception (run time exception or not),
       // do ultimate clean and leave ftp.client for garbage collection
@@ -321,7 +321,7 @@ public class FtpResponse {
       // thrown by retrieveList() (not retrieveFile()) above,
       if (os == null) { // indicating throwing by retrieveList()
         //throw new FtpException("fail to get attibutes: "+path);
-        Ftp.LOG.warning(
+        Ftp.LOG.warn(
             "Please try larger maxContentLength for ftp.client.retrieveList(). "
           + e);
         // in a way, this is our request fault
@@ -360,7 +360,7 @@ public class FtpResponse {
     } catch (FtpExceptionUnknownForcedDataClose e) {
       // Please note control channel is still live.
       // in a way, this is our request fault
-      Ftp.LOG.warning(
+      Ftp.LOG.warn(
           "Unrecognized reply after forced close of data channel. "
         + "If this is acceptable, please modify Client.java accordingly. "
         + e);
@@ -424,13 +424,13 @@ public class FtpResponse {
     } catch (FtpExceptionUnknownForcedDataClose e) {
       // Please note control channel is still live.
       // in a way, this is our request fault
-      Ftp.LOG.warning(
+      Ftp.LOG.warn(
           "Unrecognized reply after forced close of data channel. "
         + "If this is acceptable, please modify Client.java accordingly. "
         + e);
       this.code = 400; // http Bad Request
     } catch (FtpExceptionCanNotHaveDataConnection e) {
-      Ftp.LOG.warning(""+ e);
+      Ftp.LOG.warn(""+ e);
       this.code = 500; // http Iternal Server Error
     }
 

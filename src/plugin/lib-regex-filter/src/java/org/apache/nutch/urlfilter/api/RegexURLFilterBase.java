@@ -23,11 +23,15 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.logging.Logger;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.util.LogFormatter;
+
+// Nutch imports
 import org.apache.nutch.net.*;
 
 
@@ -51,8 +55,7 @@ import org.apache.nutch.net.*;
 public abstract class RegexURLFilterBase implements URLFilter {
 
   /** My logger */
-  private final static Logger LOG =
-    LogFormatter.getLogger(RegexURLFilterBase.class.getName());
+  private final static Log LOG = LogFactory.getLog(RegexURLFilterBase.class);
 
   /** An array of applicable rules */
   private RegexRule[] rules;
@@ -131,12 +134,12 @@ public abstract class RegexURLFilterBase implements URLFilter {
     String file = getRulesFile(conf);
     Reader reader = conf.getConfResourceAsReader(file);
     if (reader == null) {
-      LOG.severe("Can't find resource: " + file);
+      LOG.fatal("Can't find resource: " + file);
     } else {
       try {
         rules = readRulesFile(reader);
       } catch (IOException e) {
-        LOG.severe(e.getMessage());
+        LOG.fatal(e.getMessage());
         //TODO mb@media-style.com: throw Exception? Because broken api.
         throw new RuntimeException(e.getMessage(), e);
       }
@@ -184,7 +187,7 @@ public abstract class RegexURLFilterBase implements URLFilter {
       }
 
       String regex = line.substring(1);
-      LOG.fine("Adding rule [" + regex + "]");
+      LOG.trace("Adding rule [" + regex + "]");
       RegexRule rule = createRule(sign, regex);
       rules.add(rule);
     }

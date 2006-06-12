@@ -20,18 +20,18 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.io.IOException;
 
-import java.util.logging.*;
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 
 /** Merge new page entries with existing entries. */
 public class CrawlDbReducer implements Reducer {
-  public static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.crawl.CrawlDbReducer");
+  public static final Log LOG = LogFactory.getLog(CrawlDbReducer.class);
   private int retryMax;
   private CrawlDatum result = new CrawlDatum();
   private ArrayList linked = new ArrayList();
@@ -108,8 +108,8 @@ public class CrawlDbReducer implements Reducer {
         try {
           scfilters.initialScore((UTF8)key, result);
         } catch (ScoringFilterException e) {
-          LOG.warning("Cannot filter init score for url " + key +
-                  ", using default: " + e.getMessage());
+          LOG.warn("Cannot filter init score for url " + key +
+                   ", using default: " + e.getMessage());
           result.setScore(scoreInjected);
         }
       }
@@ -122,7 +122,7 @@ public class CrawlDbReducer implements Reducer {
       break;
 
     case CrawlDatum.STATUS_SIGNATURE:
-      LOG.warning("Lone CrawlDatum.STATUS_SIGNATURE: " + key);   
+      LOG.warn("Lone CrawlDatum.STATUS_SIGNATURE: " + key);   
       return;
     case CrawlDatum.STATUS_FETCH_RETRY:           // temporary failure
       if (old != null)
@@ -147,7 +147,7 @@ public class CrawlDbReducer implements Reducer {
     try {
       scfilters.updateDbScore((UTF8)key, result, linked);
     } catch (Exception e) {
-      LOG.warning("Couldn't update score, key=" + key + ": " + e);
+      LOG.warn("Couldn't update score, key=" + key + ": " + e);
     }
     output.collect(key, result);
   }

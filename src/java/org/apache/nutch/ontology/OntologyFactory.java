@@ -16,10 +16,12 @@
 
 package org.apache.nutch.ontology;
 
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.nutch.plugin.*;
 import org.apache.hadoop.conf.Configuration;
-import java.util.logging.Logger;
-import org.apache.hadoop.util.LogFormatter;
 
 /**
  * A factory for retrieving {@link Ontology} extensions.
@@ -28,8 +30,7 @@ import org.apache.hadoop.util.LogFormatter;
  * @version $Id: OntologyFactory.java,v 1.2 2005/02/07 19:09:58 cutting Exp $
  */
 public class OntologyFactory {
-  public final static Logger LOG =
-    LogFormatter.getLogger(OntologyFactory.class.getName());
+  public final static Log LOG = LogFactory.getLog(OntologyFactory.class);
 
   private ExtensionPoint extensionPoint;
   private Configuration conf;
@@ -60,8 +61,8 @@ public class OntologyFactory {
         LOG.info("Using ontology extension: " + extensionName);
         return (Ontology) extension.getExtensionInstance();
       }
-      LOG.warning("Ontology extension not found: '" + extensionName 
-        + "', trying the default");
+      LOG.warn("Ontology extension not found: '" + extensionName 
+             + "', trying the default");
       // not found, fallback to the default, if available.
     }
 

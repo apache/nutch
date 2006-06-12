@@ -19,8 +19,10 @@ package org.apache.nutch.protocol.httpclient;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 // HTTP Client imports
 import org.apache.commons.httpclient.Credentials;
@@ -38,14 +40,13 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.http.api.HttpBase;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
 
 public class Http extends HttpBase {
 
-  public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.net.Http");
+  public static final Log LOG = LogFactory.getLog(Http.class);
 
   private static MultiThreadedHttpConnectionManager connectionManager =
           new MultiThreadedHttpConnectionManager();
@@ -76,13 +77,13 @@ public class Http extends HttpBase {
     this.ntlmPassword = conf.get("http.auth.ntlm.password", "");
     this.ntlmDomain = conf.get("http.auth.ntlm.domain", "");
     this.ntlmHost = conf.get("http.auth.ntlm.host", "");
-    Level logLevel = Level.WARNING;
-    if (conf.getBoolean("http.verbose", false)) {
-      logLevel = Level.FINE;
-    }
-    LOG.setLevel(logLevel);
-    Logger.getLogger("org.apache.commons.httpclient.HttpMethodDirector")
-          .setLevel(logLevel);
+    //Level logLevel = Level.WARNING;
+    //if (conf.getBoolean("http.verbose", false)) {
+    //  logLevel = Level.FINE;
+    //}
+    //LOG.setLevel(logLevel);
+    //Logger.getLogger("org.apache.commons.httpclient.HttpMethodDirector")
+    //      .setLevel(logLevel);
     configureClient();
   }
 

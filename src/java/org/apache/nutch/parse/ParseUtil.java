@@ -15,12 +15,14 @@
  */
 package org.apache.nutch.parse;
 
-// JDK imports
-import java.util.logging.Logger;
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 // Nutch Imports
 import org.apache.nutch.protocol.Content;
-import org.apache.hadoop.util.LogFormatter;
+
+// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 
 
@@ -36,8 +38,7 @@ import org.apache.hadoop.conf.Configuration;
 public class ParseUtil {
   
   /* our log stream */
-  public static final Logger LOG =
-          LogFormatter.getLogger(ParseUtil.class.getName());
+  public static final Log LOG = LogFactory.getLog(ParseUtil.class);
   private Configuration conf;
   private ParserFactory parserFactory;
   
@@ -66,22 +67,22 @@ public class ParseUtil {
     try {
       parsers = this.parserFactory.getParsers(content.getContentType(), "");
     } catch (ParserNotFound e) {
-      LOG.warning("No suitable parser found when trying to parse content " +
-                  content);
+      LOG.warn("No suitable parser found when trying to parse content " +
+               content);
       throw new ParseException(e.getMessage());
     }
     
     Parse parse = null;
     for (int i=0; i<parsers.length; i++) {
-      LOG.fine("Parsing [" + content.getUrl() + "] with [" + parsers[i] + "]");
+      LOG.debug("Parsing [" + content.getUrl() + "] with [" + parsers[i] + "]");
       parse = parsers[i].getParse(content);
       if ((parse != null) && (parse.getData().getStatus().isSuccess())) {
         return parse;
       }
     }
     
-    LOG.warning("Unable to successfully parse content " + content.getUrl() +
-                " of type " + content.getContentType());
+    LOG.warn("Unable to successfully parse content " + content.getUrl() +
+             " of type " + content.getContentType());
 
     ParseStatus ps = (parse.getData() != null) ? parse.getData().getStatus() : null;
     return (ps == null) ? new ParseStatus().getEmptyParse(this.conf)
@@ -115,8 +116,8 @@ public class ParseUtil {
     try {
       p = this.parserFactory.getParserById(extId);
     } catch (ParserNotFound e) {
-      LOG.warning("No suitable parser found when trying to parse content " +
-                  content);
+      LOG.warn("No suitable parser found when trying to parse content " +
+               content);
       throw new ParseException(e.getMessage());
     }
     
@@ -125,8 +126,8 @@ public class ParseUtil {
     if (parse != null && parse.getData().getStatus().isSuccess()) {
       return parse;
     } else {
-      LOG.warning("Unable to successfully parse content " + content.getUrl() +
-                  " of type " + content.getContentType());
+      LOG.warn("Unable to successfully parse content " + content.getUrl() +
+               " of type " + content.getContentType());
       return new ParseStatus().getEmptyParse(this.conf);
     }
   }  

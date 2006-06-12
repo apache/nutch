@@ -48,7 +48,7 @@ class PPTExtractor extends MSExtractor {
     if (input.available() > 0) {
       this.reader.read(input);
     } else {
-      LOG.warning("Input <=0 :" + input.available());
+      LOG.warn("Input <=0 :" + input.available());
     }
     return (this.text != null) ? text.toString() : null;
   }

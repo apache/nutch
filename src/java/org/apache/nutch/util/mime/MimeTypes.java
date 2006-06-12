@@ -23,7 +23,9 @@ import java.util.List;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.ArrayList;
-import java.util.logging.Logger;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
 
 
 /**
@@ -64,7 +66,7 @@ public final class MimeTypes {
     
     
     /** Should never be instanciated from outside */
-    private MimeTypes(String filepath, Logger logger) {
+    private MimeTypes(String filepath, Log logger) {
         MimeTypesReader reader = new MimeTypesReader(logger);
         add(reader.read(filepath));
     }
@@ -93,7 +95,7 @@ public final class MimeTypes {
      * @param logger is it Logger to uses for ouput messages.
      * @return A MimeTypes instance for the specified filepath xml file.
      */
-    public static MimeTypes get(String filepath, Logger logger) {
+    public static MimeTypes get(String filepath, Log logger) {
         MimeTypes instance = null;
         synchronized(instances) {
             instance = (MimeTypes) instances.get(filepath);

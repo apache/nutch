@@ -35,9 +35,11 @@ import java.io.PrintStream;
 import java.util.BitSet;
 import java.util.StringTokenizer;
 import java.util.Vector;
-import java.util.logging.Logger;
 
-import org.apache.hadoop.util.LogFormatter;
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
@@ -96,7 +98,7 @@ import org.apache.lucene.store.FSDirectory;
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
 public class PruneIndexTool implements Runnable {
-  public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.tools.PruneIndexTool");
+  public static final Log LOG = LogFactory.getLog(PruneIndexTool.class);
   /** Log the progress every LOG_STEP number of processed documents. */
   public static int LOG_STEP = 50000;
   
@@ -187,7 +189,7 @@ public class PruneIndexTool implements Runnable {
         output.flush();
         output.close();
       } catch (Exception e) {
-        LOG.warning("Error closing: " + e.getMessage());
+        LOG.warn("Error closing: " + e.getMessage());
       }
     }
     
@@ -255,7 +257,7 @@ public class PruneIndexTool implements Runnable {
         }
         if (!dryrun) {
           IndexReader.unlock(dir);
-          LOG.fine(" - had to unlock index in " + dir);
+          LOG.debug(" - had to unlock index in " + dir);
         }
       }
       reader = IndexReader.open(dir);
@@ -268,19 +270,19 @@ public class PruneIndexTool implements Runnable {
           dir = FSDirectory.getDirectory(indexDirs[i], false);
           if (IndexReader.isLocked(dir)) {
             if (!unlock) {
-              LOG.warning(dr + "Index " + indexDirs[i] + " is locked. Skipping...");
+              LOG.warn(dr + "Index " + indexDirs[i] + " is locked. Skipping...");
               continue;
             }
             if (!dryrun) {
               IndexReader.unlock(dir);
-              LOG.fine(" - had to unlock index in " + dir);
+              LOG.debug(" - had to unlock index in " + dir);
             }
           }
           IndexReader r = IndexReader.open(dir);
           indexes.add(r);
           numIdx++;
         } catch (Exception e) {
-          LOG.warning(dr + "Invalid index in " + indexDirs[i] + " - skipping...");
+          LOG.warn(dr + "Invalid index in " + indexDirs[i] + " - skipping...");
         }
       }
       if (indexes.size() == 0) throw new Exception("No input indexes.");
@@ -325,7 +327,7 @@ public class PruneIndexTool implements Runnable {
       try {
         searcher.search(queries[i], ahc);
       } catch (IOException e) {
-        LOG.warning(dr + " - failed: " + e.getMessage());
+        LOG.warn(dr + " - failed: " + e.getMessage());
         continue;
       }
       if (bits.cardinality() == 0) {
@@ -353,7 +355,7 @@ public class PruneIndexTool implements Runnable {
             cnt++;
           }
         } catch (Exception e) {
-          LOG.warning(dr + " - failed to delete doc #" + docNum);
+          LOG.warn(dr + " - failed to delete doc #" + docNum);
         }
         start = docNum + 1;
       }
@@ -368,20 +370,20 @@ public class PruneIndexTool implements Runnable {
     try {
       reader.close();
     } catch (IOException e) {
-      LOG.warning(dr + "Exception when closing reader(s): " + e.getMessage());
+      LOG.warn(dr + "Exception when closing reader(s): " + e.getMessage());
     }
   }
   
   public static void main(String[] args) throws Exception {
     if (args.length == 0) {
       usage();
-      LOG.severe("Missing arguments");
+      LOG.fatal("Missing arguments");
       return;
     }
     File idx = new File(args[0]);
     if (!idx.isDirectory()) {
       usage();
-      LOG.severe("Not a directory: " + idx);
+      LOG.fatal("Not a directory: " + idx);
       return;
     }
     Vector paths = new Vector();
@@ -396,7 +398,7 @@ public class PruneIndexTool implements Runnable {
       });
       if (dirs == null || dirs.length == 0) {
         usage();
-        LOG.severe("No indexes in " + idx);
+        LOG.fatal("No indexes in " + idx);
         return;
       }
       for (int i = 0; i < dirs.length; i++) {
@@ -407,7 +409,7 @@ public class PruneIndexTool implements Runnable {
       }
       if (paths.size() == 0) {
         usage();
-        LOG.severe("No indexes in " + idx + " or its subdirs.");
+        LOG.fatal("No indexes in " + idx + " or its subdirs.");
         return;
       }
     }
@@ -430,7 +432,7 @@ public class PruneIndexTool implements Runnable {
         dryrun = true;
       } else {
         usage();
-        LOG.severe("Unrecognized option: " + args[i]);
+        LOG.fatal("Unrecognized option: " + args[i]);
         return;
       }
     }
@@ -463,20 +465,20 @@ public class PruneIndexTool implements Runnable {
         is = conf.getConfResourceAsInputStream(qPath);
     }
     if (is == null) {
-      LOG.severe("Can't load queries from " + qPath);
+      LOG.fatal("Can't load queries from " + qPath);
       return;
     }
     try {
       queries = parseQueries(is);
     } catch (Exception e) {
-      LOG.severe("Error parsing queries: " + e.getMessage());
+      LOG.fatal("Error parsing queries: " + e.getMessage());
       return;
     }
     try {
       PruneIndexTool pit = new PruneIndexTool(indexes, queries, checkers, force, dryrun);
       pit.run();
     } catch (Exception e) {
-      LOG.severe("Error running PruneIndexTool: " + e.getMessage());
+      LOG.fatal("Error running PruneIndexTool: " + e.getMessage());
       return;
     }
   }

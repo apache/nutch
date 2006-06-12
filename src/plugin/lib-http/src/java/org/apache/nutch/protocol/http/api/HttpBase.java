@@ -15,15 +15,17 @@
  */
 package org.apache.nutch.protocol.http.api;
 
-// Nutch imports
+// JDK imports
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 // Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
@@ -34,6 +36,7 @@ import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.util.GZIPUtils;
+import org.apache.nutch.util.LogUtil;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
@@ -109,10 +112,10 @@ public abstract class HttpBase implements Protocol {
   private static LinkedList BLOCKED_ADDR_QUEUE = new LinkedList();
   
   /** The default logger */
-  private final static Logger LOGGER = Logger.getLogger(HttpBase.class.getName());
+  private final static Log LOGGER = LogFactory.getLog(HttpBase.class);
 
   /** The specified logger */
-  private Logger logger = LOGGER;
+  private Log logger = LOGGER;
  
   /** The nutch configuration */
   private Configuration conf = null;
@@ -129,7 +132,7 @@ public abstract class HttpBase implements Protocol {
   }
   
   /** Creates a new instance of HttpBase */
-  public HttpBase(Logger logger) {
+  public HttpBase(Log logger) {
     if (logger != null) {
       this.logger = logger;
     }
@@ -175,7 +178,7 @@ public abstract class HttpBase implements Protocol {
         }
       } catch (Throwable e) {
         // XXX Maybe bogus: assume this is allowed.
-        logger.fine("Exception checking robot rules for " + url + ": " + e);
+        logger.trace("Exception checking robot rules for " + url + ": " + e);
       }
       
       String host = blockAddr(u);
@@ -228,10 +231,10 @@ public abstract class HttpBase implements Protocol {
         // handle this in the higher layer.
         return new ProtocolOutput(c, new ProtocolStatus(protocolStatusCode, u));
       } else if (code == 400) { // bad request, mark as GONE
-        logger.fine("400 Bad request: " + u);
+        logger.trace("400 Bad request: " + u);
         return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.GONE, u));
       } else if (code == 401) { // requires authorization, but no valid auth provided.
-        logger.fine("401 Authentication Required");
+        logger.trace("401 Authentication Required");
         return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.ACCESS_DENIED, "Authentication required: "
                 + urlString));
       } else if (code == 404) {
@@ -243,7 +246,7 @@ public abstract class HttpBase implements Protocol {
                 + u));
       }
     } catch (Throwable e) {
-      e.printStackTrace();
+      e.printStackTrace(LogUtil.getErrorStream(logger));
       return new ProtocolOutput(null, new ProtocolStatus(e));
     }
   }
@@ -390,7 +393,7 @@ public abstract class HttpBase implements Protocol {
                                        String agentEmail) {
     
     if ( (agentName == null) || (agentName.trim().length() == 0) )
-      LOGGER.severe("No User-Agent string set (http.agent.name)!");
+      LOGGER.fatal("No User-Agent string set (http.agent.name)!");
     
     StringBuffer buf= new StringBuffer();
     
@@ -435,17 +438,18 @@ public abstract class HttpBase implements Protocol {
   }
   
   public byte[] processGzipEncoded(byte[] compressed, URL url) throws IOException {
-    LOGGER.fine("uncompressing....");
+    LOGGER.trace("uncompressing....");
 
     byte[] content = GZIPUtils.unzipBestEffort(compressed, getMaxContent());
 
     if (content == null)
       throw new IOException("unzipBestEffort returned null");
 
-    if (LOGGER.isLoggable(Level.FINE))
-      LOGGER.fine("fetched " + compressed.length
-                    + " bytes of compressed content (expanded to "
-                    + content.length + " bytes) from " + url);
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("fetched " + compressed.length
+                 + " bytes of compressed content (expanded to "
+                 + content.length + " bytes) from " + url);
+    }
     return content;
   }
   
@@ -472,9 +476,9 @@ public abstract class HttpBase implements Protocol {
         url = args[i];
     }
     
-    if (verbose) {
-      LOGGER.setLevel(Level.FINE);
-    }
+//    if (verbose) {
+//      LOGGER.setLevel(Level.FINE);
+//    }
     
     ProtocolOutput out = http.getProtocolOutput(new UTF8(url), new CrawlDatum());
     Content content = out.getContent();

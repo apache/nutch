@@ -20,7 +20,10 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.TreeMap;
-import java.util.logging.Logger;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -46,7 +49,6 @@ import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.mapred.lib.HashPartitioner;
 import org.apache.hadoop.mapred.lib.IdentityMapper;
 import org.apache.hadoop.mapred.lib.IdentityReducer;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
@@ -58,7 +60,7 @@ import org.apache.nutch.util.NutchJob;
  */
 public class CrawlDbReader implements Closeable {
 
-  public static final Logger LOG = LogFormatter.getLogger(CrawlDbReader.class.getName());
+  public static final Log LOG = LogFactory.getLog(CrawlDbReader.class);
   
   private MapFile.Reader[] readers = null;
   

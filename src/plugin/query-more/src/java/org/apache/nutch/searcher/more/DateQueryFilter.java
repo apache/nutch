@@ -21,8 +21,10 @@ import org.apache.nutch.searcher.Query.Clause;
 import org.apache.nutch.searcher.QueryFilter;
 import org.apache.nutch.searcher.QueryException;
 
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
@@ -32,7 +34,6 @@ import org.apache.lucene.index.Term;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
-import java.util.logging.Logger;
 
 /**
  * Handles "date:" query clauses, causing them to search the field "date"
@@ -42,8 +43,7 @@ import java.util.logging.Logger;
  */
 public class DateQueryFilter implements QueryFilter {
 
-  public static final Logger LOG
-    = LogFormatter.getLogger(DateQueryFilter.class.getName());
+  public static final Log LOG = LogFactory.getLog(DateQueryFilter.class);
 
   private static final String FIELD_NAME = "date";
 

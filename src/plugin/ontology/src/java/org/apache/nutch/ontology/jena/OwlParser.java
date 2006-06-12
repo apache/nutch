@@ -21,13 +21,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-//import org.apache.hadoop.util.LogFormatter;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.ontology.OntModel;
 import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.rdf.model.Literal;
 import org.apache.nutch.ontology.*;
+import org.apache.nutch.util.LogUtil;
 
 /**
  * implementation of parser for w3c's OWL files
@@ -35,6 +39,9 @@ import org.apache.nutch.ontology.*;
  * @author michael j pan
  */
 public class OwlParser implements Parser {
+
+  private final static Log LOG = LogFactory.getLog(OwlParser.class);
+
   public OwlParser () {
   }
 
@@ -123,8 +130,7 @@ public class OwlParser implements Parser {
           roots.add( c );
         }
       } catch (Exception e) {
-        //e.printStackTrace();
-        System.out.println(e.getMessage());
+        e.printStackTrace(LogUtil.getWarnStream(LOG));
       }
     }
     

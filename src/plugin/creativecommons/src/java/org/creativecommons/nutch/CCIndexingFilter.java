@@ -31,9 +31,10 @@ import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.CreativeCommons;
 
-import java.util.logging.Logger;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.util.*;
 import java.net.URL;
@@ -41,8 +42,7 @@ import java.net.MalformedURLException;
 
 /** Adds basic searchable fields to a document. */
 public class CCIndexingFilter implements IndexingFilter {
-  public static final Logger LOG
-    = LogFormatter.getLogger(CCIndexingFilter.class.getName());
+  public static final Log LOG = LogFactory.getLog(CCIndexingFilter.class);
 
   /** The name of the document field we use. */
   public static String FIELD = "cc";
@@ -99,7 +99,7 @@ public class CCIndexingFilter implements IndexingFilter {
         addFeature(doc, feature);
       }
     } catch (MalformedURLException e) {
-      LOG.warning("CC: failed to parse url: " + urlString + " : " + e);
+      LOG.warn("CC: failed to parse url: " + urlString + " : " + e);
     }
   }
   

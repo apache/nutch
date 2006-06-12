@@ -30,12 +30,18 @@ import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.Properties;
 import java.util.Enumeration;
-import java.util.logging.Logger;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+// Hadoop imports
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.UTF8;
 
 // Nutch imports
 import org.apache.nutch.analysis.lang.NGramProfile.NGramEntry;
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.hadoop.io.UTF8;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
@@ -45,8 +51,6 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.ProtocolNotFound;
 import org.apache.nutch.protocol.ProtocolException;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.util.NutchConfiguration;
 
 
@@ -66,8 +70,7 @@ public class LanguageIdentifier {
   
   private final static float SCORE_THRESOLD = 0.00F;
 
-  private final static Logger LOG =
-          LogFormatter.getLogger(LanguageIdentifier.class.getName());
+  private final static Log LOG = LogFactory.getLog(LanguageIdentifier.class);
   
   private ArrayList languages = new ArrayList();
 
@@ -152,7 +155,7 @@ public class LanguageIdentifier {
             list.append(" " + lang + "(" + ngrams.size() + ")");
             is.close();
           } catch (IOException e1) {
-            LOG.severe(e1.toString());
+            LOG.fatal(e1.toString());
           }
         }
       }
@@ -170,7 +173,7 @@ public class LanguageIdentifier {
       // Create the suspect profile
       suspect = new NGramProfile("suspect", minLength, maxLength);
     } catch (Exception e) {
-      LOG.severe(e.toString());
+      LOG.fatal(e.toString());
     }
   }
 

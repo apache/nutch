@@ -16,12 +16,14 @@
 
 package org.apache.nutch.parse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.nutch.fetcher.Fetcher;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.conf.*;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.protocol.*;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
@@ -30,13 +32,11 @@ import org.apache.hadoop.fs.Path;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.*;
 
 /* Parse content in a segment. */
 public class ParseSegment extends Configured implements Mapper, Reducer {
 
-  public static final Logger LOG =
-    LogFormatter.getLogger(Parser.class.getName());
+  public static final Log LOG = LogFactory.getLog(Parser.class);
   
   private ScoringFilters scfilters;
   
@@ -77,13 +77,13 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
       try {
         scfilters.passScoreAfterParsing((UTF8)key, content, parse);
       } catch (ScoringFilterException e) {
-        e.printStackTrace();
-        LOG.warning("Error passing score: "+key+": "+e.getMessage());
+        e.printStackTrace(LogUtil.getWarnStream(LOG));
+        LOG.warn("Error passing score: "+key+": "+e.getMessage());
         return;
       }
       output.collect(key, new ParseImpl(parse.getText(), parse.getData()));
     } else {
-      LOG.warning("Error parsing: "+key+": "+status.toString());
+      LOG.warn("Error parsing: "+key+": "+status.toString());
     }
   }
 

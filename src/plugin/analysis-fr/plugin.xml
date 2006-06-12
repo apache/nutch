@@ -18,10 +18,10 @@
    </requires>
 
    <extension id="org.apache.nutch.analysis.fr"
-              name="FrenchAnalyzer"
+              name="French Analyzer"
               point="org.apache.nutch.analysis.NutchAnalyzer">
 
-      <implementation id="org.apache.nutch.analysis.fr.FrenchAnalyzer"
+      <implementation id="FrenchAnalyzer"
                       class="org.apache.nutch.analysis.fr.FrenchAnalyzer">
         <parameter name="lang" value="fr"/>
       </implementation>

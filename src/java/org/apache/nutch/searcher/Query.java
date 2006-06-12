@@ -23,12 +23,14 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.logging.Logger;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.analysis.AnalyzerFactory;
 
 import org.apache.nutch.analysis.NutchAnalysis;
@@ -36,8 +38,7 @@ import org.apache.nutch.util.NutchConfiguration;
 
 /** A Nutch query. */
 public final class Query implements Writable, Cloneable, Configurable {
-  public static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.searcher.Query");
+  public static final Log LOG = LogFactory.getLog(Query.class);
 
   /** A query clause. */
   public static class Clause implements Cloneable {

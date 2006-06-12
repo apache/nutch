@@ -16,12 +16,13 @@
 
 package org.apache.nutch.searcher;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.nutch.plugin.*;
 import org.apache.nutch.searcher.Query.Clause;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 
-import java.util.logging.Logger;
 import java.util.*;
 
 import org.apache.lucene.search.BooleanQuery;
@@ -34,8 +35,7 @@ import org.apache.lucene.search.BooleanQuery;
  * are parsed as multi-token Query.Phrase's.
  */
 public class QueryFilters {
-  private static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.searcher.QueryFilters");
+  private static final Log LOG = LogFactory.getLog(QueryFilters.class);
 
   private QueryFilter[] queryFilters;
   private HashSet FIELD_NAMES ;
@@ -66,7 +66,7 @@ public class QueryFilters {
           ArrayList fieldNames = parseFieldNames(extension, "fields");
           ArrayList rawFieldNames = parseFieldNames(extension, "raw-fields");
           if (fieldNames.size() == 0 && rawFieldNames.size() == 0) {
-            LOG.warning("QueryFilter: " + extension.getId()
+            LOG.warn("QueryFilter: " + extension.getId()
                 + " names no fields.");
             continue;
           }

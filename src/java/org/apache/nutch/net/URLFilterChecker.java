@@ -20,12 +20,9 @@ import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRepository;
 
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 
 import org.apache.nutch.util.NutchConfiguration;
-
-import java.util.logging.Logger;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -38,8 +35,6 @@ import java.io.InputStreamReader;
 
 public class URLFilterChecker {
 
-  public static final Logger LOG =
-    LogFormatter.getLogger(URLFilterChecker.class.getName());
   private Configuration conf;
 
   public URLFilterChecker(Configuration conf) {
@@ -60,7 +55,6 @@ public class URLFilterChecker {
     for (int i = 0; i < extensions.length; i++) {
       Extension extension = extensions[i];
       filter = (URLFilter)extension.getExtensionInstance();
-      //LOG.info(filter.getClass().getName());
       if (filter.getClass().getName().equals(filterName)) {
         break;
       } else {
@@ -71,10 +65,11 @@ public class URLFilterChecker {
     if (filter == null)
       throw new RuntimeException("Filter "+filterName+" not found.");
 
-    if (LogFormatter.hasLoggedSevere())
-      throw new RuntimeException("Severe error encountered.");
+    // jerome : should we keep this behavior?
+    //if (LogFormatter.hasLoggedSevere())
+    //  throw new RuntimeException("Severe error encountered.");
 
-    LOG.info("Checking URLFilter "+filterName);
+    System.out.println("Checking URLFilter "+filterName);
 
     BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
     String line;
@@ -91,7 +86,7 @@ public class URLFilterChecker {
   }
 
   private void checkAll() throws Exception {
-    LOG.info("Checking combination of all URLFilters available");
+    System.out.println("Checking combination of all URLFilters available");
 
     BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
     String line;

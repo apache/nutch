@@ -25,7 +25,6 @@ import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.OutlinkExtractor;
 
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.util.CommandRunner;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
@@ -34,9 +33,10 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.Hashtable;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -49,8 +49,7 @@ import java.io.ByteArrayOutputStream;
 
 public class ExtParser implements Parser {
 
-  public static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.parse.ext");
+  public static final Log LOG = LogFactory.getLog("org.apache.nutch.parse.ext");
 
   static final int BUFFER_SIZE = 4096;
 
@@ -77,8 +76,9 @@ public class ExtParser implements Parser {
     String command = params[0];
     int timeout = Integer.parseInt(params[1]);
 
-    if (LOG.isLoggable(Level.FINE))
-      LOG.fine("Use "+command+ " with timeout="+timeout+"secs");
+    if (LOG.isTraceEnabled()) {
+      LOG.trace("Use "+command+ " with timeout="+timeout+"secs");
+    }
 
     String text = null;
     String title = null;

@@ -121,6 +121,16 @@ done
 # restore ordinary behaviour
 unset IFS
 
+# default log directory & file
+if [ "$NUTCH_LOG_DIR" = "" ]; then
+  NUTCH_LOG_DIR="$NUTCH_HOME/logs"
+fi
+if [ "$NUTCH_LOGFILE" = "" ]; then
+  NUTCH_LOGFILE='nutch.log'
+fi
+NUTCH_OPTS="$NUTCH_OPTS -Dnutch.log.dir=$NUTCH_LOG_DIR"
+NUTCH_OPTS="$NUTCH_OPTS -Dnutch.log.file=$NUTCH_LOGFILE"
+
 # figure out which class to run
 if [ "$COMMAND" = "crawl" ] ; then
   CLASS=org.apache.nutch.crawl.Crawl

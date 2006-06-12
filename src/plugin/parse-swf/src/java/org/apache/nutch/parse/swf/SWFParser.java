@@ -19,16 +19,18 @@ package org.apache.nutch.parse.swf;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
-import java.util.logging.Logger;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.protocol.Content;
-
-import org.apache.hadoop.util.LogFormatter;
-import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
+
+import org.apache.hadoop.conf.Configuration;
 
 import com.anotherbigidea.flash.interfaces.*;
 import com.anotherbigidea.flash.readers.*;
@@ -44,7 +46,7 @@ import com.anotherbigidea.io.InStream;
  * @author Andrzej Bialecki
  */
 public class SWFParser implements Parser {
-  public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.parse.swf");
+  public static final Log LOG = LogFactory.getLog("org.apache.nutch.parse.swf");
 
   private Configuration conf = null;
 
@@ -99,7 +101,7 @@ public class SWFParser implements Parser {
         outlinks.add(olinks[i]);
       }
     } catch (Exception e) { // run time exception
-      e.printStackTrace();
+      e.printStackTrace(LogUtil.getErrorStream(LOG));
       return new ParseStatus(ParseStatus.FAILED, "Can't be handled as SWF document. " + e).getEmptyParse(conf);
     } finally {}
     if (text == null) text = "";

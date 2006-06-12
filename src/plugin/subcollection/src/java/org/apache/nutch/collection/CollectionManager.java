@@ -25,11 +25,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.logging.Logger;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.nutch.util.DomUtil;
+import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.xerces.dom.DocumentImpl;
 import org.w3c.dom.Document;
@@ -40,8 +43,7 @@ public class CollectionManager extends Configured {
 
   public static final String DEFAULT_FILE_NAME = "subcollections.xml";
 
-  static final Logger LOG = org.apache.hadoop.util.LogFormatter.getLogger(CollectionManager.class
-      .getName());
+  static final Log LOG = LogFactory.getLog(CollectionManager.class);
 
   transient Map collectionMap = new HashMap();
 
@@ -70,8 +72,8 @@ public class CollectionManager extends Configured {
           getConf().get("subcollections.config", DEFAULT_FILE_NAME));
       parse(input);
     } catch (Exception e) {
-      LOG.info("Error occured:" + e);
-      e.printStackTrace(System.out);
+      LOG.warn("Error occured:" + e);
+      e.printStackTrace(LogUtil.getWarnStream(LOG));
     }
   }
 
@@ -168,7 +170,7 @@ public class CollectionManager extends Configured {
         collections += " " + subCol.name;
       }
     }
-    LOG.fine("subcollections:" + collections);
+    LOG.trace("subcollections:" + collections);
     
     return collections;
   }

@@ -17,7 +17,6 @@
 package org.apache.nutch.parse.html;
 
 import java.util.ArrayList;
-import java.util.logging.*;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.io.*;
@@ -29,17 +28,18 @@ import org.xml.sax.SAXException;
 import org.w3c.dom.*;
 import org.apache.html.dom.*;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
 import org.apache.hadoop.conf.*;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.util.*;
 
 public class HtmlParser implements Parser {
-  public static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.parse.html");
+  public static final Log LOG = LogFactory.getLog("org.apache.nutch.parse.html");
 
   // I used 1000 bytes at first, but  found that some documents have 
   // meta tag well past the first 1000 bytes. 
@@ -126,7 +126,7 @@ public class HtmlParser implements Parser {
         metadata.set(Metadata.ORIGINAL_CHAR_ENCODING, encoding);
         if ((encoding = StringUtil.resolveEncodingAlias(encoding)) != null) {
           metadata.set(Metadata.CHAR_ENCODING_FOR_CONVERSION, encoding);
-          LOG.fine(base + ": setting encoding to " + encoding);
+          LOG.trace(base + ": setting encoding to " + encoding);
         }
       }
 
@@ -137,7 +137,7 @@ public class HtmlParser implements Parser {
           metadata.set(Metadata.ORIGINAL_CHAR_ENCODING, encoding);
           if ((encoding = StringUtil.resolveEncodingAlias(encoding)) != null) {
             metadata.set(Metadata.CHAR_ENCODING_FOR_CONVERSION, encoding);
-            LOG.fine(base + ": setting encoding to " + encoding);
+            LOG.trace(base + ": setting encoding to " + encoding);
           }
         }
       }
@@ -151,10 +151,10 @@ public class HtmlParser implements Parser {
         // same share)
         encoding = defaultCharEncoding;
         metadata.set(Metadata.CHAR_ENCODING_FOR_CONVERSION, defaultCharEncoding);
-        LOG.fine(base + ": falling back to " + defaultCharEncoding);
+        LOG.trace(base + ": falling back to " + defaultCharEncoding);
       }
       input.setEncoding(encoding);
-      LOG.fine("Parsing...");
+      LOG.trace("Parsing...");
       root = parse(input);
     } catch (IOException e) {
       return new ParseStatus(e).getEmptyParse(getConf());
@@ -163,21 +163,21 @@ public class HtmlParser implements Parser {
     } catch (SAXException e) {
       return new ParseStatus(e).getEmptyParse(getConf());
     } catch (Exception e) {
-      e.printStackTrace();
+      e.printStackTrace(LogUtil.getWarnStream(LOG));
       return new ParseStatus(e).getEmptyParse(getConf());
     }
       
     // get meta directives
     HTMLMetaProcessor.getMetaTags(metaTags, root, base);
-    LOG.fine("Meta tags for " + base + ": " + metaTags.toString());
+    LOG.trace("Meta tags for " + base + ": " + metaTags.toString());
     // check meta directives
     if (!metaTags.getNoIndex()) {               // okay to index
       StringBuffer sb = new StringBuffer();
-      LOG.fine("Getting text...");
+      LOG.trace("Getting text...");
       utils.getText(sb, root);          // extract text
       text = sb.toString();
       sb.setLength(0);
-      LOG.fine("Getting title...");
+      LOG.trace("Getting title...");
       utils.getTitle(sb, root);         // extract title
       title = sb.toString().trim();
     }
@@ -185,10 +185,10 @@ public class HtmlParser implements Parser {
     if (!metaTags.getNoFollow()) {              // okay to follow links
       ArrayList l = new ArrayList();              // extract outlinks
       URL baseTag = utils.getBase(root);
-      LOG.fine("Getting links...");
+      LOG.trace("Getting links...");
       utils.getOutlinks(baseTag!=null?baseTag:base, l, root);
       outlinks = (Outlink[])l.toArray(new Outlink[l.size()]);
-      LOG.fine("found "+outlinks.length+" outlinks in "+content.getUrl());
+      LOG.trace("found "+outlinks.length+" outlinks in "+content.getUrl());
     }
     
     if (!metaTags.getNoCache()) {             // okay to cache
@@ -259,12 +259,12 @@ public class HtmlParser implements Parser {
         LOG.info(" - new frag, " + frag.getChildNodes().getLength() + " nodes.");
         res.appendChild(frag);
       }
-    } catch (Exception x) { x.printStackTrace();};
+    } catch (Exception x) { x.printStackTrace(LogUtil.getWarnStream(LOG));};
     return res;
   }
   
   public static void main(String[] args) throws Exception {
-    LOG.setLevel(Level.FINE);
+    //LOG.setLevel(Level.FINE);
     String name = args[0];
     String url = "file:"+name;
     File file = new File(name);

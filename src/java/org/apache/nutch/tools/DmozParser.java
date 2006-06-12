@@ -18,7 +18,6 @@ package org.apache.nutch.tools;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.*;
 import java.util.regex.*;
 
 import javax.xml.parsers.*;
@@ -26,15 +25,20 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 import org.apache.xerces.util.XMLChar;
 
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
+
 
 /** Utility that converts DMOZ RDF into a flat file of URLs to be injected. */
 public class DmozParser {
-  public static final Logger LOG = LogFormatter.getLogger("org.apache.nutch.tools.DmozParser");
+  public static final Log LOG = LogFactory.getLog(DmozParser.class);
   
     long pages = 0;
 
@@ -176,7 +180,7 @@ public class DmozParser {
           // Inc the number of pages, insert the page, and 
           // possibly print status.
           //
-          System.out.println(curURL);
+          LOG.info(curURL);
           pages++;
 
           //
@@ -232,25 +236,25 @@ public class DmozParser {
      * Emit the exception message
      */
     public void error(SAXParseException spe) {
-      LOG.severe("Error: " + spe.toString() + ": " + spe.getMessage());
-      spe.printStackTrace(System.err);
+      LOG.fatal("Error: " + spe.toString() + ": " + spe.getMessage());
+      spe.printStackTrace(LogUtil.getFatalStream(LOG));
     }
 
     /**
      * Emit the exception message, with line numbers
      */
     public void fatalError(SAXParseException spe) {
-      LOG.severe("Fatal err: " + spe.toString() + ": " + spe.getMessage());
-      LOG.severe("Last known line is " + location.getLineNumber() + ", column " + location.getColumnNumber());
-      spe.printStackTrace(System.err);
+      LOG.fatal("Fatal err: " + spe.toString() + ": " + spe.getMessage());
+      LOG.fatal("Last known line is " + location.getLineNumber() + ", column " + location.getColumnNumber());
+      spe.printStackTrace(LogUtil.getFatalStream(LOG));
     }
         
     /**
      * Emit exception warning message
      */
     public void warning(SAXParseException spe) {
-      LOG.warning("Warning: " + spe.toString() + ": " + spe.getMessage());
-      spe.printStackTrace(System.err);
+      LOG.warn("Warning: " + spe.toString() + ": " + spe.getMessage());
+      spe.printStackTrace(LogUtil.getFatalStream(LOG));
     }
   }
 
@@ -287,8 +291,8 @@ public class DmozParser {
       InputSource is = new InputSource(in);
       reader.parse(is);
     } catch (Exception e) {
-      LOG.severe(e.toString());
-      e.printStackTrace(System.err);
+      LOG.fatal(e.toString());
+      e.printStackTrace(LogUtil.getFatalStream(LOG));
       System.exit(0);
     } finally {
       in.close();
@@ -306,8 +310,8 @@ public class DmozParser {
       }
     } 
     catch (Exception e) {
-      LOG.severe(e.toString());
-      e.printStackTrace(System.out);
+      LOG.fatal(e.toString());
+      e.printStackTrace(LogUtil.getFatalStream(LOG));
       System.exit(0);
     } finally {
       in.close();

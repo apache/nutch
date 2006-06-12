@@ -3,19 +3,24 @@
 
 package org.apache.nutch.protocol.httpclient;
 
+// JDK imports
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
-import org.apache.nutch.metadata.Metadata;
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-import org.apache.hadoop.util.LogFormatter;
+// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configurable;
+
+// Nutch imports
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.util.LogUtil;
 
 
 /**
@@ -38,8 +43,7 @@ public class HttpAuthenticationFactory implements Configurable {
      */
     public static final String WWW_AUTHENTICATE = "WWW-Authenticate";
 	
-    public static final Logger LOG =
-		LogFormatter.getLogger(HttpAuthenticationFactory.class.getName());
+    public static final Log LOG = LogFactory.getLog(HttpAuthenticationFactory.class);
 
     private static Map auths = new TreeMap(); 
 
@@ -57,11 +61,11 @@ public class HttpAuthenticationFactory implements Configurable {
 
     public void setConf(Configuration conf) {
       this.conf = conf;
-      if (conf.getBoolean("http.auth.verbose", false)) {
-        LOG.setLevel(Level.FINE);
-      } else {
-        LOG.setLevel(Level.WARNING);
-      }
+      //if (conf.getBoolean("http.auth.verbose", false)) {
+      //  LOG.setLevel(Level.FINE);
+      //} else {
+      //  LOG.setLevel(Level.WARNING);
+      //}
     }
 
     public Configuration getConf() {
@@ -95,7 +99,7 @@ public class HttpAuthenticationFactory implements Configurable {
 				}
 			}
 			if (challenge == null) {
-				LOG.fine("Authentication challenge is null");
+				LOG.trace("Authentication challenge is null");
 				return null;
 			}
 			
@@ -107,14 +111,14 @@ public class HttpAuthenticationFactory implements Configurable {
 				   challengeString="Basic realm=techweb";
 		                  }
 		                
-		                LOG.fine("Checking challengeString=" + challengeString);
+		                LOG.trace("Checking challengeString=" + challengeString);
 				auth = HttpBasicAuthentication.getAuthentication(challengeString, conf);
 				if (auth != null) return auth;
 				
 				//TODO Add additional Authentication lookups here
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			e.printStackTrace(LogUtil.getErrorStream(LOG));
 		}
         return null;
     }

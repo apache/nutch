@@ -15,12 +15,12 @@
  */
 package org.apache.nutch.searcher;
 
-// JDK imports
-import java.util.logging.Logger;
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.util.LogFormatter;
 
 // Nutch imports
 import org.apache.nutch.plugin.Extension;
@@ -35,8 +35,7 @@ import org.apache.nutch.plugin.PluginRepository;
 public class SummarizerFactory {
 
   /** My logger */
-  public final static Logger LOG =
-    LogFormatter.getLogger(SummarizerFactory.class.getName());
+  public final static Log LOG = LogFactory.getLog(SummarizerFactory.class);
 
   /** The first available {@link Summarizer} */
   private Summarizer summarizer = null;
@@ -52,7 +51,7 @@ public class SummarizerFactory {
       LOG.info("Using the first summarizer extension found: " +
                extensions[0].getId());
     } catch (Exception e) {
-      LOG.warning(e.toString());
+      LOG.warn(e.toString());
     }
   }
 

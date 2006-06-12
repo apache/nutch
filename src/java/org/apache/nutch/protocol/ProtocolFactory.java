@@ -19,10 +19,12 @@ package org.apache.nutch.protocol;
 import java.net.URL;
 import java.net.MalformedURLException;
 
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.nutch.plugin.*;
 
-import java.util.logging.Logger;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 
 /** Creates and caches {@link Protocol} plugins.  Protocol plugins should
@@ -30,8 +32,7 @@ import org.apache.hadoop.conf.Configuration;
  * implement. */
 public class ProtocolFactory {
 
-  public static final Logger LOG = LogFormatter
-    .getLogger(ProtocolFactory.class.getName());
+  public static final Log LOG = LogFactory.getLog(ProtocolFactory.class);
 
   private ExtensionPoint extensionPoint;
   private Configuration conf;

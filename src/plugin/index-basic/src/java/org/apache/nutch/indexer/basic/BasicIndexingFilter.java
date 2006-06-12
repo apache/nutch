@@ -16,6 +16,9 @@
 
 package org.apache.nutch.indexer.basic;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
@@ -31,14 +34,11 @@ import org.apache.nutch.crawl.Inlinks;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.logging.Logger;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 
 /** Adds basic searchable fields to a document. */
 public class BasicIndexingFilter implements IndexingFilter {
-  public static final Logger LOG
-    = LogFormatter.getLogger(BasicIndexingFilter.class.getName());
+  public static final Log LOG = LogFactory.getLog(BasicIndexingFilter.class);
 
   private int MAX_TITLE_LENGTH;
   private Configuration conf;
@@ -75,7 +75,7 @@ public class BasicIndexingFilter implements IndexingFilter {
         doc.add(new Field("anchor", anchors[i], Field.Store.NO, Field.Index.TOKENIZED));
       }
     } catch (IOException ioe) {
-      LOG.warning("BasicIndexingFilter: can't get anchors for " + url.toString());
+      LOG.warn("BasicIndexingFilter: can't get anchors for " + url.toString());
     }
 
     // title

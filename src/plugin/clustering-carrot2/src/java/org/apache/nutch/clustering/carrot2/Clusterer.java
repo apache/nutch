@@ -17,12 +17,12 @@
 package org.apache.nutch.clustering.carrot2;
 
 import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.clustering.HitsCluster;
 import org.apache.nutch.clustering.OnlineClusterer;
 import org.apache.nutch.searcher.HitDetails;
@@ -66,8 +66,7 @@ public class Clusterer implements OnlineClusterer, Configurable {
   /** Internal clustering process ID in Carrot2 LocalController */
   private final static String PROCESS_ID = "nutch-lingo";
   
-  public static final Logger logger =
-    LogFormatter.getLogger(Clusterer.class.getName());  
+  public static final Log logger = LogFactory.getLog(Clusterer.class);  
 
   /** The LocalController instance used for clustering */
   private LocalController controller;
@@ -129,13 +128,13 @@ public class Clusterer implements OnlineClusterer, Configurable {
           try {
             Language lang = AllKnownLanguages.getLanguageForIsoCode(lcode);
             if (lang == null) {
-              logger.log(Level.WARNING, "Language not supported in Carrot2: " + lcode);
+              logger.warn("Language not supported in Carrot2: " + lcode);
             } else {
               languageList.add(lang);
-              logger.log(Level.FINE, "Language loaded: " + lcode);
+              logger.debug("Language loaded: " + lcode);
             }
           } catch (Throwable t) {
-            logger.log(Level.WARNING, "Language could not be loaded: " + lcode, t);
+            logger.warn("Language could not be loaded: " + lcode, t);
           }
         }
         return new LingoLocalFilterComponent(
@@ -223,8 +222,8 @@ public class Clusterer implements OnlineClusterer, Configurable {
       this.languages = conf.getStrings(CONF_PROP_LANGUAGES);
     }
 
-    logger.log(Level.INFO, "Default language: " + defaultLanguage);
-    logger.log(Level.INFO, "Enabled languages: " + Arrays.asList(languages));
+    logger.info("Default language: " + defaultLanguage);
+    logger.info("Enabled languages: " + Arrays.asList(languages));
 
     initialize();
   }

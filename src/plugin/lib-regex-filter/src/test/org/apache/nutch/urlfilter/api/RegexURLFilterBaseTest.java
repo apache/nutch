@@ -22,13 +22,13 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
 // JUnit imports
 import junit.framework.TestCase;
 
-// Hadoop imports
-import org.apache.hadoop.util.LogFormatter;
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 // Nutch imports
 import org.apache.nutch.net.URLFilter;
@@ -42,8 +42,7 @@ import org.apache.nutch.net.URLFilter;
 public abstract class RegexURLFilterBaseTest extends TestCase {
   
   /** My logger */
-  protected static final Logger LOG =
-    LogFormatter.getLogger(RegexURLFilterBaseTest.class.getName());  
+  protected static final Log LOG = LogFactory.getLog(RegexURLFilterBaseTest.class);  
 
   private final static String SEPARATOR = System.getProperty("file.separator");  
   private final static String SAMPLES = System.getProperty("test.data", ".");

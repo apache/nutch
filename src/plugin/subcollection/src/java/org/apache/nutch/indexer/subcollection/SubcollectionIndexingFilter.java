@@ -18,9 +18,11 @@ package org.apache.nutch.indexer.subcollection;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.UTF8;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.util.NutchConfiguration;
@@ -32,7 +34,6 @@ import org.apache.nutch.collection.CollectionManager;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 
-import java.util.logging.Logger;
 
 public class SubcollectionIndexingFilter extends Configured implements IndexingFilter {
 
@@ -52,8 +53,7 @@ public class SubcollectionIndexingFilter extends Configured implements IndexingF
   /**
    * Logger
    */
-  public static final Logger LOG = LogFormatter
-      .getLogger(SubcollectionIndexingFilter.class.getName());
+  public static final Log LOG = LogFactory.getLog(SubcollectionIndexingFilter.class);
 
   /**
    * "Mark" document to be a part of subcollection

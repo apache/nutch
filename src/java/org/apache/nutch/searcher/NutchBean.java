@@ -18,13 +18,14 @@ package org.apache.nutch.searcher;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.Logger;
 import javax.servlet.ServletContext;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.io.Closeable;
 import org.apache.hadoop.conf.*;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.indexer.*;
 import org.apache.nutch.crawl.Inlinks;
@@ -38,12 +39,11 @@ public class NutchBean
   implements Searcher, HitDetailer, HitSummarizer, HitContent, HitInlinks,
              DistributedSearch.Protocol, Closeable {
 
-  public static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.searcher.NutchBean");
+  public static final Log LOG = LogFactory.getLog(NutchBean.class);
 
-  static {
-    LogFormatter.setShowThreadIDs(true);
-  }
+//  static {
+//    LogFormatter.setShowThreadIDs(true);
+//  }
 
   private String[] segmentNames;
 

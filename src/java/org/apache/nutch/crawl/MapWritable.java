@@ -25,7 +25,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
-import java.util.logging.Logger;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.FloatWritable;
@@ -36,7 +39,6 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.ObjectWritable;
 import org.apache.hadoop.io.UTF8;
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.util.LogFormatter;
 
 /**
  * A writable map, with a similar behavior as <code>java.util.HashMap</code>.
@@ -52,8 +54,7 @@ import org.apache.hadoop.util.LogFormatter;
  */
 public class MapWritable implements Writable {
 
-  public static final Logger LOG = LogFormatter.getLogger(MapWritable.class
-      .getName());
+  public static final Log LOG = LogFactory.getLog(MapWritable.class);
 
   private KeyValueEntry fFirst;
 
@@ -312,7 +313,7 @@ public class MapWritable implements Writable {
           clazz = Class.forName(UTF8.readString(in));
           addIdEntry(id, clazz);
         } catch (Exception e) {
-          LOG.warning("MapWritable: unable to load internal map entry" + e.toString());
+          LOG.warn("MapWritable: unable to load internal map entry" + e.toString());
           fIdCount--;
         }
       }
@@ -328,8 +329,8 @@ public class MapWritable implements Writable {
             fLast = fLast.fNextEntry = entry;
           }
         } catch (IOException e) {
-          LOG.warning("MapWritable: unable to load meta data entry, ignoring.. : "
-              + e.toString());
+          LOG.warn("MapWritable: unable to load meta data entry, ignoring.. : "
+                 + e.toString());
           fSize--;
         }
       }

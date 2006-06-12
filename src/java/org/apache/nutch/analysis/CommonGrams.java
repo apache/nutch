@@ -22,10 +22,12 @@ import org.apache.lucene.analysis.Token;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.Logger;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.conf.*;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.searcher.Query.*;
 
@@ -34,8 +36,7 @@ import org.apache.nutch.searcher.Query.*;
  * too, with n-grams overlaid.  This is achieved through the use of {@link
  * Token#setPositionIncrement(int)}.*/
 public class CommonGrams {
-  private static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.analysis.CommonGrams");
+  private static final Log LOG = LogFactory.getLog(CommonGrams.class);
   private static final char SEPARATOR = '-';
   /** The key used to cache commonTerms in Configuration */
   private static final String KEY = CommonGrams.class.getName();
@@ -156,13 +157,13 @@ public class CommonGrams {
         TokenStream ts = new NutchDocumentTokenizer(new StringReader(line));
         Token token = ts.next();
         if (token == null) {
-          LOG.warning("Line does not contain a field name: " + line);
+          LOG.warn("Line does not contain a field name: " + line);
           continue;
         }
         String field = token.termText();
         token = ts.next();
         if (token == null) {
-          LOG.warning("Line contains only a field name, no word: " + line);
+          LOG.warn("Line contains only a field name, no word: " + line);
           continue;
         }
         String gram = token.termText();

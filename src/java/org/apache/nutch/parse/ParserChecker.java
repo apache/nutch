@@ -16,7 +16,9 @@
 
 package org.apache.nutch.parse;
 
-import org.apache.hadoop.util.LogFormatter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.hadoop.conf.Configuration;
 
 import org.apache.nutch.util.NutchConfiguration;
@@ -29,8 +31,6 @@ import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.Content;
 
-import java.util.logging.Logger;
-
 /**
  * Parser checker, useful for testing parser.
  * 
@@ -39,8 +39,7 @@ import java.util.logging.Logger;
 
 public class ParserChecker {
 
-  public static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.parse.ParserChecker");
+  public static final Log LOG = LogFactory.getLog(ParserChecker.class);
 
   public ParserChecker() {}
 

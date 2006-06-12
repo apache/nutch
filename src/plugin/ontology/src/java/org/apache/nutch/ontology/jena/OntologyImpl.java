@@ -17,7 +17,6 @@
 package org.apache.nutch.ontology.jena;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.ontology.*;
 import org.apache.nutch.util.NutchConfiguration;
 
@@ -32,6 +31,9 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.shared.PrefixMapping;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -39,7 +41,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedList;
 
-import java.util.logging.Logger;
 
 import java.io.PrintStream;
 
@@ -51,8 +52,7 @@ import java.io.PrintStream;
  * @author michael j pan
  */
 public class OntologyImpl implements org.apache.nutch.ontology.Ontology {
-  public static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.ontology.Ontology");
+  public static final Log LOG = LogFactory.getLog("org.apache.nutch.ontology.Ontology");
 
   public final static String DELIMITER_SEARCHTERM = " ";
 
@@ -104,11 +104,11 @@ public class OntologyImpl implements org.apache.nutch.ontology.Ontology {
       LOG.info( "reading "+url);
       ((OntModel)m).read(url);
     } catch (Exception e) {
-      LOG.severe("failed on attempting to read ontology "+url);
-      LOG.severe(e.getMessage());
+      LOG.fatal("failed on attempting to read ontology "+url);
+      LOG.fatal(e.getMessage());
       StackTraceElement[] traces = e.getStackTrace();
       for (int i=0; i<traces.length; i++) {
-        LOG.severe(traces[i].toString());
+        LOG.fatal(traces[i].toString());
       }
     }
   }
@@ -332,7 +332,7 @@ public class OntologyImpl implements org.apache.nutch.ontology.Ontology {
 
     String urls = conf.get("extension.ontology.urls");
     if (urls==null || urls.trim().equals("")) {
-      LOG.severe("No ontology url found.");
+      LOG.fatal("No ontology url found.");
       return;
     }
     ontology.load(urls.split("\\s+"));

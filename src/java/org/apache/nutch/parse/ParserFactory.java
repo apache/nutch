@@ -21,15 +21,20 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
-import java.util.logging.Logger;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+// Hadoop imports
+import org.apache.hadoop.conf.Configuration;
 
 // Nutch imports
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRuntimeException;
 import org.apache.nutch.plugin.PluginRepository;
-import org.apache.hadoop.util.LogFormatter;
-import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.mime.MimeType;
 import org.apache.nutch.util.mime.MimeTypeException;
 
@@ -37,8 +42,7 @@ import org.apache.nutch.util.mime.MimeTypeException;
 /** Creates and caches {@link Parser} plugins.*/
 public final class ParserFactory {
   
-  public static final Logger LOG =
-          LogFormatter.getLogger(ParserFactory.class.getName());
+  public static final Log LOG = LogFactory.getLog(ParserFactory.class);
   
   /** Wildcard for default plugins. */
   public static final String DEFAULT_PLUGIN = "*";
@@ -127,12 +131,12 @@ public final class ParserFactory {
         }
         parsers.add(p);
       } catch (PluginRuntimeException e) {
-          e.printStackTrace();
-        LOG.warning("ParserFactory:PluginRuntimeException when "
-                  + "initializing parser plugin "
-                  + ext.getDescriptor().getPluginId()
-                  + " instance in getParsers "
-                  + "function: attempting to continue instantiating parsers");
+          e.printStackTrace(LogUtil.getWarnStream(LOG));
+        LOG.warn("ParserFactory:PluginRuntimeException when "
+               + "initializing parser plugin "
+               + ext.getDescriptor().getPluginId()
+               + " instance in getParsers "
+               + "function: attempting to continue instantiating parsers");
       }
     }
     return (Parser[]) parsers.toArray(new Parser[]{});
@@ -185,9 +189,9 @@ public final class ParserFactory {
         this.conf.setObject(parserExt.getId(), p);
         return p;
       } catch (PluginRuntimeException e) {
-        LOG.warning("Canno initialize parser " +
-                    parserExt.getDescriptor().getPluginId() +
-                   " (cause: " + e.toString());
+        LOG.warn("Canno initialize parser " +
+                 parserExt.getDescriptor().getPluginId() +
+                 " (cause: " + e.toString());
         throw new ParserNotFound("Cannot init parser for id [" + id + "]");
       }
     }
@@ -207,8 +211,8 @@ public final class ParserFactory {
     try {
       type = MimeType.clean(contentType);
     } catch (MimeTypeException mte) {
-      LOG.fine("Could not clean the content-type [" + contentType +
-               "], Reason is [" + mte + "]. Using its raw version...");
+      LOG.debug("Could not clean the content-type [" + contentType +
+                "], Reason is [" + mte + "]. Using its raw version...");
       type = contentType;
     }
 
@@ -300,17 +304,17 @@ public final class ParserFactory {
             // plugin was enabled via plugin.includes
             // its plugin.xml just doesn't claim to support that
             // particular mimeType
-            LOG.warning("ParserFactory:Plugin: " + parsePluginId +
-                        " mapped to contentType " + contentType +
-                        " via parse-plugins.xml, but " + "its plugin.xml " +
-                        "file does not claim to support contentType: " +
-                        contentType);
+            LOG.warn("ParserFactory:Plugin: " + parsePluginId +
+                     " mapped to contentType " + contentType +
+                     " via parse-plugins.xml, but " + "its plugin.xml " +
+                     "file does not claim to support contentType: " +
+                     contentType);
           } else {
             // plugin wasn't enabled via plugin.includes
-            LOG.warning("ParserFactory: Plugin: " + parsePluginId + 
-                        " mapped to contentType " + contentType +
-                        " via parse-plugins.xml, but not enabled via " +
-                        "plugin.includes in nutch-default.xml");                     
+            LOG.warn("ParserFactory: Plugin: " + parsePluginId + 
+                     " mapped to contentType " + contentType +
+                     " via parse-plugins.xml, but not enabled via " +
+                     "plugin.includes in nutch-default.xml");                     
           }
         }
 
@@ -344,8 +348,8 @@ public final class ParserFactory {
                  contentType + ", but they are not mapped to it  in the " +
                  "parse-plugins.xml file");
       } else {
-        LOG.fine("ParserFactory:No parse plugins mapped or enabled for " +
-                 "contentType " + contentType);
+        LOG.debug("ParserFactory:No parse plugins mapped or enabled for " +
+                  "contentType " + contentType);
       }
     }
     

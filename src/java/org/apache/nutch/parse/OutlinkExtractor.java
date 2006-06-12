@@ -18,9 +18,10 @@ package org.apache.nutch.parse;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
-import org.apache.hadoop.util.LogFormatter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.oro.text.regex.MatchResult;
 import org.apache.oro.text.regex.Pattern;
@@ -45,8 +46,7 @@ import org.apache.oro.text.regex.Perl5Matcher;
  * @since 0.7
  */
 public class OutlinkExtractor {
-  private static final Logger LOG = LogFormatter
-      .getLogger(OutlinkExtractor.class.getName());
+  private static final Log LOG = LogFactory.getLog(OutlinkExtractor.class);
 
   /**
    * Regex pattern to get URLs within a plain text.
@@ -101,7 +101,7 @@ public class OutlinkExtractor {
         //   (SHOULD really check cpu time used so that heavily loaded systems
         //   do not unnecessarily hit this limit.)
         if (System.currentTimeMillis() - start >= 60000L) {
-          LOG.warning("Time limit exceeded for getOutLinks");
+          LOG.warn("Time limit exceeded for getOutLinks");
           break;
         }
         result = matcher.getMatch();
@@ -110,7 +110,7 @@ public class OutlinkExtractor {
       }
     } catch (Exception ex) {
       // if the matcher fails (perhaps a malformed URL) we just log it and move on
-      LOG.throwing(OutlinkExtractor.class.getName(), "getOutlinks", ex);
+      LOG.error("getOutlinks", ex);
     }
 
     final Outlink[] retval;
@@ -152,7 +152,7 @@ public class OutlinkExtractor {
     //
     // url = re.getParen(0);
     //
-    // LOG.finest("Extracted url: " + url);
+    // LOG.trace("Extracted url: " + url);
     //
     // try {
     //
@@ -162,7 +162,7 @@ public class OutlinkExtractor {
     // } catch (MalformedURLException ex) {
     // // if it is a malformed URL we just throw it away and continue with
     // // extraction.
-    // LOG.throwing(this.getClass().getName(), "getOutlinks", ex);
+    // LOG.error("getOutlinks", ex);
     // }
     //
     // pos = re.getParenEnd(0);
@@ -215,7 +215,7 @@ public class OutlinkExtractor {
     // } catch (MalformedURLException ex) {
     // // if it is a malformed URL we just throw it away and continue with
     // // extraction.
-    // LOG.throwing(this.getClass().getName(), "getOutlinks", ex);
+    // LOG.error("getOutlinks", ex);
     // }
     //
     // pos = re.getParenEnd(0);

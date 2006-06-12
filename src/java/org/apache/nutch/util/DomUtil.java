@@ -33,7 +33,14 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+
 public class DomUtil {
+
+  private final static Log LOG = LogFactory.getLog(DomUtil.class);
 
   /**
    * Returns parsed dom tree or null if any error
@@ -54,11 +61,11 @@ public class DomUtil {
       parser.parse(input);
       element = (Element) parser.getDocument().getChildNodes().item(0);
     } catch (FileNotFoundException e) {
-      e.printStackTrace();
+      e.printStackTrace(LogUtil.getWarnStream(LOG));
     } catch (SAXException e) {
-      e.printStackTrace();
+      e.printStackTrace(LogUtil.getWarnStream(LOG));
     } catch (IOException e) {
-      e.printStackTrace();
+      e.printStackTrace(LogUtil.getWarnStream(LOG));
     }
     return element;
   }
@@ -81,13 +88,13 @@ public class DomUtil {
       transformer.transform(source, result);
       os.flush();
     } catch (UnsupportedEncodingException e1) {
-      e1.printStackTrace();
+      e1.printStackTrace(LogUtil.getWarnStream(LOG));
     } catch (IOException e1) {
-      e1.printStackTrace();
+      e1.printStackTrace(LogUtil.getWarnStream(LOG));
     } catch (TransformerConfigurationException e2) {
-      e2.printStackTrace();
+      e2.printStackTrace(LogUtil.getWarnStream(LOG));
     } catch (TransformerException ex) {
-      ex.printStackTrace();
+      ex.printStackTrace(LogUtil.getWarnStream(LOG));
     }
   }
 }

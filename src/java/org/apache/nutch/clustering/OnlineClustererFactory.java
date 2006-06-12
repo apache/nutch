@@ -16,10 +16,12 @@
 
 package org.apache.nutch.clustering;
 
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.nutch.plugin.*;
 import org.apache.hadoop.conf.Configuration;
-import java.util.logging.Logger;
-import org.apache.hadoop.util.LogFormatter;
 
 /**
  * A factory for retrieving {@link OnlineClusterer} extensions.
@@ -28,8 +30,7 @@ import org.apache.hadoop.util.LogFormatter;
  * @version $Id: OnlineClustererFactory.java,v 1.2 2005/02/07 19:09:26 cutting Exp $
  */
 public class OnlineClustererFactory {
-  public static final Logger LOG = LogFormatter
-    .getLogger(OnlineClustererFactory.class.getName());
+  public static final Log LOG = LogFactory.getLog(OnlineClustererFactory.class);
   
   /**
    * Nutch configuration key specifying a particular clustering extension
@@ -78,8 +79,8 @@ public class OnlineClustererFactory {
         LOG.info("Using clustering extension: " + extensionName);
         return (OnlineClusterer) extension.getExtensionInstance();
       }
-      LOG.warning("Clustering extension not found: '" + extensionName 
-        + "', trying the default");
+      LOG.warn("Clustering extension not found: '" + extensionName 
+             + "', trying the default");
       // not found, fallback to the default, if available.
     }
 

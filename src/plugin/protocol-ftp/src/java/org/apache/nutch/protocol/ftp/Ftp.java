@@ -16,6 +16,8 @@
 
 package org.apache.nutch.protocol.ftp;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.commons.net.ftp.FTPFileEntryParser;
 
@@ -24,16 +26,12 @@ import org.apache.hadoop.io.UTF8;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
 
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import java.net.URL;
 
@@ -49,8 +47,7 @@ import java.io.IOException;
  ***********************************/
 public class Ftp implements Protocol {
 
-  public static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.protocol.ftp.Ftp");
+  public static final Log LOG = LogFactory.getLog(Ftp.class);
 
   static final int BUFFER_SIZE = 16384; // 16*1024 = 16384
 
@@ -135,9 +132,9 @@ public class Ftp implements Protocol {
             throw new FtpException("Too many redirects: " + url);
           u = new URL(response.getHeader("Location"));
           redirects++;                
-          if (LOG.isLoggable(Level.FINE))
-            LOG.fine("redirect to " + u); 
-  
+          if (LOG.isTraceEnabled()) {
+            LOG.trace("redirect to " + u); 
+          }
         } else {                                    // convert to exception
           throw new FtpError(code);
         }
@@ -208,7 +205,7 @@ public class Ftp implements Protocol {
       ftp.setMaxContentLength(maxContentLength);
 
     // set log level
-    LOG.setLevel(Level.parse((new String(logLevel)).toUpperCase()));
+    //LOG.setLevel(Level.parse((new String(logLevel)).toUpperCase()));
 
     Content content = ftp.getProtocolOutput(new UTF8(urlString), new CrawlDatum()).getContent();
 

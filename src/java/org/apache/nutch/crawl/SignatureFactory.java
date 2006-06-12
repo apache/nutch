@@ -16,9 +16,11 @@
 
 package org.apache.nutch.crawl;
 
-import java.util.logging.Logger;
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-import org.apache.hadoop.util.LogFormatter;
+// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -29,8 +31,7 @@ import org.apache.hadoop.conf.Configuration;
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
 public class SignatureFactory {
-  private static final Logger LOG =
-    LogFormatter.getLogger(SignatureFactory.class.getName());
+  private static final Log LOG = LogFactory.getLog(SignatureFactory.class);
 
   private SignatureFactory() {}                   // no public ctor
 

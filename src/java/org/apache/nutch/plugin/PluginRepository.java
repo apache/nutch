@@ -26,13 +26,18 @@ import java.util.WeakHashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
-// Nutch imports
-import org.apache.hadoop.util.LogFormatter;
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
+
+// Nutch imports
 import org.apache.nutch.util.NutchConfiguration;
+
 
 /**
  * The plugin repositority is a registry of all plugins.
@@ -60,8 +65,7 @@ public class PluginRepository {
     private Configuration conf;
 
     
-    public static final Logger LOG = LogFormatter
-            .getLogger("org.apache.nutch.plugin.PluginRepository");
+    public static final Log LOG = LogFactory.getLog(PluginRepository.class);
 
     /**
      * @throws PluginRuntimeException
@@ -87,7 +91,7 @@ public class PluginRepository {
       try {
         installExtensions(fRegisteredPlugins);
       } catch (PluginRuntimeException e) {
-         LOG.severe(e.toString());
+         LOG.fatal(e.toString());
          throw new RuntimeException(e.getMessage());
       }
       displayStatus();
@@ -115,7 +119,7 @@ public class PluginRepository {
         for (int j=0; j<points.length; j++) {
           ExtensionPoint point = points[j];
           String xpId = point.getId();
-          LOG.fine("Adding extension point " + xpId);
+          LOG.debug("Adding extension point " + xpId);
           fExtensionPoints.put(xpId, point);
         }
       }
@@ -206,10 +210,10 @@ public class PluginRepository {
           checked.put(plugin.getPluginId(), plugin);
         } catch (MissingDependencyException mde) {
           // Simply ignore this plugin
-          LOG.warning(mde.getMessage());
+          LOG.warn(mde.getMessage());
         } catch (CircularDependencyException cde) {
           // Simply ignore this plugin
-          LOG.warning(cde.getMessage());
+          LOG.warn(cde.getMessage());
         }
       }
       return new ArrayList(checked.values());
@@ -362,11 +366,11 @@ public class PluginRepository {
         if (id == null) { continue; }
         
         if (!includes.matcher(id).matches()) {
-          LOG.fine("not including: " + id);
+          LOG.debug("not including: " + id);
           continue;
         }
         if (excludes.matcher(id).matches()) {
-          LOG.fine("excluding: " + id);
+          LOG.debug("excluding: " + id);
           continue;
         }
         map.put(plugin.getPluginId(), plugin);

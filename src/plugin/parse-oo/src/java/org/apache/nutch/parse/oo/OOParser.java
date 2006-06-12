@@ -20,14 +20,16 @@ import java.io.*;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.zip.*;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.jaxen.*;
 import org.jaxen.jdom.JDOMXPath;
@@ -42,8 +44,7 @@ import org.jdom.input.*;
  * @author Andrzej Bialecki
  */
 public class OOParser implements Parser {
-  public static final Logger LOG =
-    LogFormatter.getLogger(OOParser.class.getName());
+  public static final Log LOG = LogFactory.getLog(OOParser.class);
   
   private Configuration conf;
 
@@ -84,7 +85,7 @@ public class OOParser implements Parser {
       }
       zis.close();
     } catch (Exception e) { // run time exception
-      e.printStackTrace();
+      e.printStackTrace(LogUtil.getWarnStream(LOG));
       return new ParseStatus(ParseStatus.FAILED,
               "Can't be handled as OO document. " + e).getEmptyParse(conf);
     }

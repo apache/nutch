@@ -16,15 +16,16 @@
 
 package org.apache.nutch.net;
 
-import org.apache.hadoop.conf.*;
-import org.apache.hadoop.util.LogFormatter;
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
-import java.util.logging.*;
+import org.apache.hadoop.conf.*;
+
 
 /** Factory to create a UrlNormalizer from "urlnormalizer.class" config property. */
 public class UrlNormalizerFactory {
-  private static final Logger LOG = LogFormatter
-      .getLogger("org.apache.nutch.net.UrlNormalizerFactory");
+  private static final Log LOG = LogFactory.getLog(UrlNormalizerFactory.class);
 
   private Configuration conf;
 

@@ -20,11 +20,13 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import java.text.*;
-import java.util.logging.*;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.conf.*;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.fs.Path;
 
@@ -38,8 +40,7 @@ import org.apache.nutch.util.NutchJob;
 /** Generates a subset of a crawl db to fetch. */
 public class Generator extends Configured {
 
-  public static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.crawl.Generator");
+  public static final Log LOG = LogFactory.getLog(Generator.class);
   
   public static class SelectorEntry implements Writable {
     public UTF8 url;
@@ -97,7 +98,7 @@ public class Generator extends Configured {
         if (filters.filter(url.toString()) == null)
           return;
       } catch (URLFilterException e) {
-        LOG.warning("Couldn't filter url: " + url + " (" + e.getMessage() + ")");
+        LOG.warn("Couldn't filter url: " + url + " (" + e.getMessage() + ")");
       }
       CrawlDatum crawlDatum = (CrawlDatum)value;
 
@@ -111,7 +112,7 @@ public class Generator extends Configured {
       try {
         sort = scfilters.generatorSortValue((UTF8)key, crawlDatum, sort);
       } catch (ScoringFilterException sfe) {
-        LOG.warning("Couldn't filter generatorSortValue for " + key + ": " + sfe);
+        LOG.warn("Couldn't filter generatorSortValue for " + key + ": " + sfe);
       }
       // sort by decreasing score
       sortValue.set(sort);
@@ -149,9 +150,9 @@ public class Generator extends Configured {
               InetAddress ia = InetAddress.getByName(host);
               host = ia.getHostAddress();
             } catch (UnknownHostException uhe) {
-              LOG.fine("DNS lookup failed: " + host + ", skipping.");
+              LOG.debug("DNS lookup failed: " + host + ", skipping.");
               dnsFailure++;
-              if (dnsFailure % 1000 == 0) LOG.warning("DNS failures: " + dnsFailure);
+              if (dnsFailure % 1000 == 0) LOG.warn("DNS failures: " + dnsFailure);
               continue;
             }
           }

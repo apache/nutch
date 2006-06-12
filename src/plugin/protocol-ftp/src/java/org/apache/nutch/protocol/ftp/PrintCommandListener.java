@@ -20,7 +20,8 @@ import java.io.BufferedReader;
 import java.io.StringReader;
 import java.io.IOException;
 
-import java.util.logging.Logger;
+import org.apache.commons.logging.Log;
+
 import org.apache.commons.net.ProtocolCommandEvent;
 import org.apache.commons.net.ProtocolCommandListener;
 
@@ -31,9 +32,9 @@ import org.apache.commons.net.ProtocolCommandListener;
  ***/
 public class PrintCommandListener implements ProtocolCommandListener
 {
-    private Logger __logger;
+    private Log __logger;
 
-    public PrintCommandListener(Logger logger)
+    public PrintCommandListener(Log logger)
     {
         __logger = logger;
     }
