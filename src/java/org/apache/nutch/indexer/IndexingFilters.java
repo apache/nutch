@@ -18,6 +18,10 @@ package org.apache.nutch.indexer;
 
 import java.util.HashMap;
 
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.lucene.document.Document;
 
 import org.apache.nutch.plugin.*;
@@ -29,6 +33,8 @@ import org.apache.hadoop.io.UTF8;
 
 /** Creates and caches {@link IndexingFilter} implementing plugins.*/
 public class IndexingFilters {
+
+  public final static Log LOG = LogFactory.getLog(IndexingFilters.class);
 
   private IndexingFilter[] indexingFilters;
 
@@ -44,7 +50,7 @@ public class IndexingFilters {
                 for (int i = 0; i < extensions.length; i++) {
                     Extension extension = extensions[i];
                     IndexingFilter filter = (IndexingFilter) extension.getExtensionInstance();
-                    System.out.println("-adding " + filter.getClass().getName());
+                    LOG.info("Adding " + filter.getClass().getName());
                     if (!filterMap.containsKey(filter.getClass().getName())) {
                         filterMap.put(filter.getClass().getName(), filter);
                     }

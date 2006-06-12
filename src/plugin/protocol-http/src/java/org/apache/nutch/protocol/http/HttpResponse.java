@@ -26,7 +26,6 @@ import java.io.PushbackInputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
-import java.util.logging.Level;
 
 // Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
@@ -35,6 +34,7 @@ import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.http.api.HttpBase;
 import org.apache.nutch.protocol.http.api.HttpException;
+import org.apache.nutch.util.LogUtil;
 
 
 /** An HTTP response. */
@@ -60,8 +60,9 @@ public class HttpResponse implements Response {
     if (!"http".equals(url.getProtocol()))
       throw new HttpException("Not an HTTP url:" + url);
 
-    if (Http.LOG.isLoggable(Level.FINE))
-      Http.LOG.fine("fetching " + url);
+    if (Http.LOG.isTraceEnabled()) {
+      Http.LOG.trace("fetching " + url);
+    }
 
     String path = "".equals(url.getFile()) ? "/" : url.getFile();
 
@@ -113,7 +114,7 @@ public class HttpResponse implements Response {
 
       String userAgent = http.getUserAgent();
       if ((userAgent == null) || (userAgent.length() == 0)) {
-        Http.LOG.severe("User-agent is not set!");
+        Http.LOG.fatal("User-agent is not set!");
       } else {
         reqStr.append("User-Agent: ");
         reqStr.append(userAgent);
@@ -148,8 +149,9 @@ public class HttpResponse implements Response {
       if ("gzip".equals(contentEncoding) || "x-gzip".equals(contentEncoding)) {
         content = http.processGzipEncoded(content, url);
       } else {
-        if (Http.LOG.isLoggable(Level.FINE))
-          Http.LOG.fine("fetched " + content.length + " bytes from " + url);
+        if (Http.LOG.isTraceEnabled()) {
+          Http.LOG.trace("fetched " + content.length + " bytes from " + url);
+        }
       }
 
     } finally {
@@ -228,19 +230,19 @@ public class HttpResponse implements Response {
     ByteArrayOutputStream out = new ByteArrayOutputStream(Http.BUFFER_SIZE);
 
     while (!doneChunks) {
-      Http.LOG.fine("Http: starting chunk");
+      Http.LOG.trace("Http: starting chunk");
 
       readLine(in, line, false);
 
       String chunkLenStr;
-      // LOG.fine("chunk-header: '" + line + "'");
+      // LOG.trace("chunk-header: '" + line + "'");
 
       int pos= line.indexOf(";");
       if (pos < 0) {
         chunkLenStr= line.toString();
       } else {
         chunkLenStr= line.substring(0, pos);
-        // LOG.fine("got chunk-ext: " + line.substring(pos+1));
+        // LOG.trace("got chunk-ext: " + line.substring(pos+1));
       }
       chunkLenStr= chunkLenStr.trim();
       int chunkLen;
@@ -274,7 +276,7 @@ public class HttpResponse implements Response {
 
         // DANGER!!! Will printed GZIPed stuff right to your
         // terminal!
-        // LOG.fine("read: " +  new String(bytes, 0, len));
+        // LOG.trace("read: " +  new String(bytes, 0, len));
 
         out.write(bytes, 0, len);
         chunkBytesRead+= len;  
@@ -370,7 +372,7 @@ public class HttpResponse implements Response {
           processHeaderLine(line);
         } catch (Exception e) {
           // fixme:
-          e.printStackTrace();
+          e.printStackTrace(LogUtil.getErrorStream(Http.LOG));
         }
         return;
       }

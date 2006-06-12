@@ -23,7 +23,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -33,9 +32,14 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-// Nutch imports
-import org.apache.hadoop.util.LogFormatter;
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
+
+// Nutch imports
 import org.apache.nutch.util.NutchConfiguration;
 
 
@@ -49,8 +53,7 @@ import org.apache.nutch.util.NutchConfiguration;
 class ParsePluginsReader {
   
   /* our log stream */
-  public static final Logger LOG = 
-          LogFormatter.getLogger(ParsePluginsReader.class.getName());
+  public static final Log LOG = LogFactory.getLog(ParsePluginsReader.class);
   
   /** The property name of the parse-plugins location */
   private static final String PP_FILE_PROP = "parse.plugin.file";
@@ -90,8 +93,8 @@ class ParsePluginsReader {
         parsePluginUrl = new URL(fParsePluginsFile);
         ppInputStream = parsePluginUrl.openStream();
       } catch (Exception e) {
-        LOG.warning("Unable to load parse plugins file from URL " +
-                    "[" + fParsePluginsFile + "]. Reason is [" + e + "]");
+        LOG.warn("Unable to load parse plugins file from URL " +
+                 "[" + fParsePluginsFile + "]. Reason is [" + e + "]");
         return pList;
       }
     } else {
@@ -106,8 +109,8 @@ class ParsePluginsReader {
       parser = factory.newDocumentBuilder();
       document = parser.parse(inputSource);
     } catch (Exception e) {
-      LOG.warning("Unable to parse [" + fParsePluginsFile + "]." +
-                  "Reason is [" + e + "]");
+      LOG.warn("Unable to parse [" + fParsePluginsFile + "]." +
+               "Reason is [" + e + "]");
       return null;
     }
     
@@ -161,8 +164,8 @@ class ParsePluginsReader {
         pList.setPluginList(mimeTypeStr, plugList);
         
       } else {
-        LOG.warning("ParsePluginsReader:ERROR:no plugins defined for mime type: "
-                    + mimeTypeStr + ", continuing parse");
+        LOG.warn("ParsePluginsReader:ERROR:no plugins defined for mime type: "
+                 + mimeTypeStr + ", continuing parse");
       }
     }
     return pList;
@@ -237,13 +240,13 @@ class ParsePluginsReader {
     NodeList aliasRoot = parsePluginsRoot.getElementsByTagName("aliases");
 	  
     if (aliasRoot == null || (aliasRoot != null && aliasRoot.getLength() == 0)) {
-      LOG.warning("No aliases defined in parse-plugins.xml!");
+      LOG.warn("No aliases defined in parse-plugins.xml!");
       return aliases;
     }
 	  
     if (aliasRoot.getLength() > 1) {
       // log a warning, but try and continue processing
-      LOG.warning("There should only be one \"aliases\" tag in parse-plugins.xml");
+      LOG.warn("There should only be one \"aliases\" tag in parse-plugins.xml");
     }
 	  
     Element aliasRootElem = (Element)aliasRoot.item(0);
@@ -254,8 +257,8 @@ class ParsePluginsReader {
         Element aliasElem = (Element)aliasElements.item(i);
 	String parsePluginId = aliasElem.getAttribute("name");
 	String extensionId = aliasElem.getAttribute("extension-id");
-        LOG.finest("Found alias: plugin-id: " + parsePluginId +
-                   ", extension-id: " + extensionId);
+        LOG.trace("Found alias: plugin-id: " + parsePluginId +
+                  ", extension-id: " + extensionId);
         if (parsePluginId != null && extensionId != null) {
           aliases.put(parsePluginId, extensionId);
         }

@@ -22,6 +22,9 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.hadoop.conf.Configuration;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.util.*;
 import java.io.*;
 import java.net.*;
@@ -29,13 +32,10 @@ import javax.xml.parsers.*;
 import org.xml.sax.InputSource;
 import org.w3c.dom.*;
 
-import java.util.logging.Logger;
-import org.apache.hadoop.util.LogFormatter;
 
 /** Adds metadata identifying the Creative Commons license used, if any. */
 public class CCParseFilter implements HtmlParseFilter {
-  public static final Logger LOG
-    = LogFormatter.getLogger(CCParseFilter.class.getName());
+  public static final Log LOG = LogFactory.getLog(CCParseFilter.class);
 
 
   /** Walks DOM tree, looking for RDF in comments and licenses in anchors.*/
@@ -175,7 +175,7 @@ public class CCParseFilter implements HtmlParseFilter {
         DocumentBuilder parser = FACTORY.newDocumentBuilder();
         doc = parser.parse(new InputSource(new StringReader(comment)));
       } catch (Exception e) {
-        LOG.warning("CC: Failed to parse RDF in "+base+": "+e);
+        LOG.warn("CC: Failed to parse RDF in "+base+": "+e);
         //e.printStackTrace();
         return;
       }
@@ -183,7 +183,7 @@ public class CCParseFilter implements HtmlParseFilter {
       // check that root is rdf:RDF
       NodeList roots = doc.getElementsByTagNameNS(RDF_NS, "RDF");
       if (roots.getLength() != 1) {
-        LOG.warning("CC: No RDF root in "+base);
+        LOG.warn("CC: No RDF root in "+base);
         return;
       }
       Element rdf = (Element)roots.item(0);

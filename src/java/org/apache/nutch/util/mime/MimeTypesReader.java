@@ -15,6 +15,10 @@
  */
 package org.apache.nutch.util.mime;
 
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 // DOM imports
 import org.w3c.dom.Text;
 import org.w3c.dom.Attr;
@@ -28,8 +32,6 @@ import org.xml.sax.InputSource;
 // JDK imports
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -42,12 +44,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
 final class MimeTypesReader {
 
     /** The logger to use */
-    private Logger logger = null;
+    private Log logger = null;
     
     
-    MimeTypesReader(Logger logger) {
+    MimeTypesReader(Log logger) {
         if (logger == null) {
-            this.logger = Logger.getLogger(this.getClass().getName());
+            this.logger = LogFactory.getLog(this.getClass());
         } else {
             this.logger = logger;
         }
@@ -66,7 +68,7 @@ final class MimeTypesReader {
             Document document = builder.parse(new InputSource(stream));
             types = visit(document);
         } catch (Exception e) {
-            logger.warning(e.toString() + " while loading mime-types");
+            logger.warn(e.toString() + " while loading mime-types");
             types = new MimeType[0];
         }
         return types;
@@ -121,8 +123,8 @@ final class MimeTypesReader {
             type = new MimeType(name);
         } catch (MimeTypeException mte) {
             // Mime Type not valid... just ignore it
-            if (logger.isLoggable(Level.INFO)) {
-                logger.log(Level.INFO, mte.toString() + " ... Ignoring!");
+            if (logger.isInfoEnabled()) {
+                logger.info(mte.toString() + " ... Ignoring!");
             }
             return null;
         }

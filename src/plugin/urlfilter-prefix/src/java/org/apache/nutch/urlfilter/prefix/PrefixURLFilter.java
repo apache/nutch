@@ -18,8 +18,10 @@
 
 package org.apache.nutch.urlfilter.prefix;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.net.*;
 
 import org.apache.nutch.util.PrefixStringMatcher;
@@ -36,7 +38,6 @@ import java.io.IOException;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 /**
  * Filters URLs based on a file of URL prefixes. The file is named by
@@ -48,8 +49,7 @@ import java.util.logging.Logger;
  */
 public class PrefixURLFilter implements URLFilter {
 
-  private static final Logger LOG =
-    LogFormatter.getLogger(PrefixURLFilter.class.getName());
+  private static final Log LOG = LogFactory.getLog(PrefixURLFilter.class);
 
   // read in attribute "file" of this plugin.
   private static String attributeFile = null;
@@ -134,7 +134,7 @@ public class PrefixURLFilter implements URLFilter {
       LOG.info("Attribute \"file\" is defined for plugin " + pluginName
           + " as " + attributeFile);
     } else {
-      // LOG.warning("Attribute \"file\" is not defined in plugin.xml for
+      // LOG.warn("Attribute \"file\" is not defined in plugin.xml for
       // plugin "+pluginName);
     }
 
@@ -150,7 +150,7 @@ public class PrefixURLFilter implements URLFilter {
       try {
         trie = readConfigurationFile(reader);
       } catch (IOException e) {
-        LOG.severe(e.getMessage());
+        LOG.fatal(e.getMessage());
         // TODO mb@media-style.com: throw Exception? Because broken api.
         throw new RuntimeException(e.getMessage(), e);
       }

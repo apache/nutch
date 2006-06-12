@@ -22,11 +22,16 @@ import java.io.IOException;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  *  A collection of utility methods for working on GZIPed data.
  */
 public class GZIPUtils {
-
+  
+  private static final Log LOG = LogFactory.getLog(GZIPUtils.class);
   private static final int EXPECTED_COMPRESSION_RATIO= 5;
   private static final int BUF_SIZE= 4096;
 
@@ -124,19 +129,19 @@ public class GZIPUtils {
       try {
         outStream.write(in);
       } catch (Exception e) {
-        e.printStackTrace();
+        e.printStackTrace(LogUtil.getWarnStream(LOG));
       }
 
       try {
         outStream.close();
       } catch (IOException e) {
-        e.printStackTrace();
+        e.printStackTrace(LogUtil.getWarnStream(LOG));
       }
 
       return byteOut.toByteArray();
 
     } catch (IOException e) {
-      e.printStackTrace();
+      e.printStackTrace(LogUtil.getWarnStream(LOG));
       return null;
     }
   }

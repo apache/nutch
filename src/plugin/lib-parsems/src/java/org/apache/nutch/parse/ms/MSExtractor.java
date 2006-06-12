@@ -19,10 +19,10 @@ package org.apache.nutch.parse.ms;
 import java.io.InputStream;
 import java.util.Date;
 import java.util.Properties;
-import java.util.logging.Logger;
 
-// Hadoop imports
-import org.apache.hadoop.util.LogFormatter;
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 // Nutch imports
 import org.apache.nutch.metadata.DublinCore;
@@ -47,8 +47,7 @@ import org.apache.poi.poifs.eventfilesystem.POIFSReaderListener;
  */
 public abstract class MSExtractor {
   
-  protected final static Logger LOG = 
-          LogFormatter.getLogger(MSExtractor.class.getName());
+  protected final static Log LOG = LogFactory.getLog(MSExtractor.class);
 
   private String text = null;
   private POIFSReader reader = null;

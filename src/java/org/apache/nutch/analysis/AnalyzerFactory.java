@@ -15,15 +15,15 @@
  */
 package org.apache.nutch.analysis;
 
-// JDK imports
-import java.util.logging.Logger;
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 // Nutch imports
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRuntimeException;
 import org.apache.nutch.plugin.PluginRepository;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 
 
@@ -36,7 +36,7 @@ public class AnalyzerFactory {
 
   private final static String KEY = AnalyzerFactory.class.getName();
   
-  public final static Logger LOG = LogFormatter.getLogger(KEY);
+  public final static Log LOG = LogFactory.getLog(KEY);
 
   
   private NutchAnalyzer DEFAULT_ANALYZER;

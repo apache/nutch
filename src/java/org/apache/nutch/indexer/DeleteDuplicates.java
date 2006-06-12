@@ -18,12 +18,13 @@ package org.apache.nutch.indexer;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.*;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.mapred.*;
 
 import org.apache.nutch.util.NutchConfiguration;
@@ -38,8 +39,7 @@ import org.apache.lucene.document.Document;
  ******************************************************************/
 public class DeleteDuplicates extends Configured
   implements Mapper, Reducer, OutputFormat {
-  private static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.indexer.DeleteDuplicates");
+  private static final Log LOG = LogFactory.getLog(DeleteDuplicates.class);
 
 //   Algorithm:
 //      

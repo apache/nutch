@@ -3,20 +3,25 @@
 
 package org.apache.nutch.protocol.httpclient;
 
+// JDK imports
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+// Commons Codec imports
 import org.apache.commons.codec.binary.Base64;
 
-import org.apache.hadoop.util.LogFormatter;
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configurable;
+
 
 /**
  * Implementation of RFC 2617 Basic Authentication.  Usernames and passwords are stored 
@@ -28,8 +33,7 @@ import org.apache.hadoop.conf.Configurable;
  */
 public class HttpBasicAuthentication implements HttpAuthentication, Configurable {
 
-    public static final Logger LOG =
-		LogFormatter.getLogger(HttpBasicAuthentication.class.getName());
+    public static final Log LOG = LogFactory.getLog(HttpBasicAuthentication.class);
 
     private static Pattern basic = Pattern.compile("[bB][aA][sS][iI][cC] [rR][eE][aA][lL][mM]=\"(\\w*)\"");
 	
@@ -53,13 +57,13 @@ public class HttpBasicAuthentication implements HttpAuthentication, Configurable
         
         setConf(conf);
         this.challenge = challenge;
-        LOG.fine("BasicAuthentication challenge is " + challenge);
+        LOG.trace("BasicAuthentication challenge is " + challenge);
         credentials = new ArrayList();
         
         String username = this.conf.get("http.auth.basic." + challenge + ".user");
-        LOG.fine("BasicAuthentication username=" + username);
+        LOG.trace("BasicAuthentication username=" + username);
         String password = this.conf.get("http.auth.basic." + challenge + ".password");
-        LOG.fine("BasicAuthentication password=" + password);
+        LOG.trace("BasicAuthentication password=" + password);
         
         if (username == null) {
         	throw new HttpAuthenticationException("Username for " + challenge + " is null");
@@ -71,7 +75,7 @@ public class HttpBasicAuthentication implements HttpAuthentication, Configurable
         
         byte[] credBytes = (username + ":" + password).getBytes();
         credentials.add("Authorization: Basic " + new String(Base64.encodeBase64(credBytes)));
-        LOG.fine("Basic credentials: " + credentials);
+        LOG.trace("Basic credentials: " + credentials);
     }
 
 
@@ -81,11 +85,11 @@ public class HttpBasicAuthentication implements HttpAuthentication, Configurable
 
     public void setConf(Configuration conf) {
       this.conf = conf;
-      if (conf.getBoolean("http.auth.verbose", false)) {
-        LOG.setLevel(Level.FINE);
-      } else {
-        LOG.setLevel(Level.WARNING);
-      }
+      //if (conf.getBoolean("http.auth.verbose", false)) {
+      //  LOG.setLevel(Level.FINE);
+      //} else {
+      //  LOG.setLevel(Level.WARNING);
+      //}
     }
 
     public Configuration getConf() {
@@ -141,7 +145,7 @@ public class HttpBasicAuthentication implements HttpAuthentication, Configurable
 	            try {
 	            	newAuth = new HttpBasicAuthentication(realm, conf);
 	            } catch (HttpAuthenticationException hae) { 
-	            	LOG.fine("HttpBasicAuthentication failed for " + challenge);
+	            	LOG.trace("HttpBasicAuthentication failed for " + challenge);
 	            }
 	            authMap.put(realm, newAuth);
 	            return newAuth;

@@ -24,11 +24,12 @@ import java.net.URL;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
+import org.apache.commons.logging.Log;
 
 import org.apache.hadoop.conf.Configuration;
 import org.w3c.dom.Document;
@@ -44,7 +45,7 @@ import org.xml.sax.SAXException;
  * @author joa23
  */
 public class PluginManifestParser {
-    public static final Logger LOG = PluginRepository.LOG;
+    public static final Log LOG = PluginRepository.LOG;
 
     private static final boolean WINDOWS = System.getProperty("os.name")
             .startsWith("Windows");
@@ -87,17 +88,17 @@ public class PluginManifestParser {
                     String manifestPath = oneSubFolder.getAbsolutePath()
                             + File.separator + "plugin.xml";
                     try {
-                        LOG.fine("parsing: " + manifestPath);
+                        LOG.debug("parsing: " + manifestPath);
                         PluginDescriptor p = parseManifestFile(manifestPath);
                         map.put(p.getPluginId(), p);
                     } catch (MalformedURLException e) {
-                        LOG.warning(e.toString());
+                        LOG.warn(e.toString());
                     } catch (SAXException e) {
-                        LOG.warning(e.toString());
+                        LOG.warn(e.toString());
                     } catch (IOException e) {
-                        LOG.warning(e.toString());
+                        LOG.warn(e.toString());
                     } catch (ParserConfigurationException e) {
-                        LOG.warning(e.toString());
+                        LOG.warn(e.toString());
                     }
                 }
             }
@@ -118,10 +119,10 @@ public class PluginManifestParser {
                 && directory.isDirectory() && directory.listFiles().length > 0) {
                 return directory; // relative path that is not in the classpath
             } else if (url == null) {
-                LOG.warning("Plugins: directory not found: " + name);
+                LOG.warn("Plugins: directory not found: " + name);
                 return null;
             } else if (!"file".equals(url.getProtocol())) {
-                LOG.warning("Plugins: not a file: url. Can't load plugins from: "
+                LOG.warn("Plugins: not a file: url. Can't load plugins from: "
                         + url);
                 return null;
             }
@@ -184,7 +185,7 @@ public class PluginManifestParser {
         }
         PluginDescriptor pluginDescriptor = new PluginDescriptor(id, version,
                 name, providerName, pluginClazz, pPath, this.conf);
-        LOG.fine("plugin: id="+id+" name="+name+" version="+version
+        LOG.debug("plugin: id="+id+" name="+name+" version="+version
                  +" provider="+providerName+"class="+pluginClazz);
         parseExtension(rootElement, pluginDescriptor);
         parseExtensionPoints(rootElement, pluginDescriptor);
@@ -259,7 +260,7 @@ public class PluginManifestParser {
                 String schema = oneExtensionPoint.getAttribute("schema");
                 ExtensionPoint extensionPoint = new ExtensionPoint(id, name,
                         schema);
-                //LOG.fine("plugin: point="+id);
+                //LOG.debug("plugin: point="+id);
                 pPluginDescriptor.addExtensionPoint(extensionPoint);
             }
         }
@@ -289,7 +290,7 @@ public class PluginManifestParser {
                         String id = oneImplementation.getAttribute("id");
                         String extensionClass = oneImplementation
                                 .getAttribute("class");
-                        LOG.fine("impl: point=" + pointId + " class="
+                        LOG.debug("impl: point=" + pointId + " class="
                                 + extensionClass);
                         Extension extension = new Extension(pPluginDescriptor,
                                 pointId, id, extensionClass, this.conf, this.pluginRepository);

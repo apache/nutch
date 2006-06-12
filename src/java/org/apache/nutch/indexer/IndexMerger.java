@@ -18,12 +18,14 @@ package org.apache.nutch.indexer;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.*;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
-import org.apache.hadoop.util.LogFormatter;
 
+import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
 
 import org.apache.lucene.store.Directory;
@@ -37,8 +39,7 @@ import org.apache.lucene.index.IndexWriter;
  * @author Mike Cafarella
  *************************************************************************/
 public class IndexMerger {
-  public static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.indexer.IndexMerger");
+  public static final Log LOG = LogFactory.getLog(IndexMerger.class);
 
   public static final String DONE_NAME = "merge.done";
 
@@ -88,7 +89,7 @@ public class IndexMerger {
     writer.setMaxBufferedDocs(conf.getInt("indexer.minMergeDocs", IndexWriter.DEFAULT_MAX_BUFFERED_DOCS));
     writer.setMaxMergeDocs(conf.getInt("indexer.maxMergeDocs", IndexWriter.DEFAULT_MAX_MERGE_DOCS));
     writer.setTermIndexInterval(conf.getInt("indexer.termIndexInterval", IndexWriter.DEFAULT_TERM_INDEX_INTERVAL));
-    writer.setInfoStream(LogFormatter.getLogStream(LOG, Level.FINE));
+    writer.setInfoStream(LogUtil.getDebugStream(LOG));
     writer.setUseCompoundFile(false);
     writer.setSimilarity(new NutchSimilarity());
     writer.addIndexes(dirs);

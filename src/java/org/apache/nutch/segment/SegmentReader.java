@@ -19,24 +19,26 @@ package org.apache.nutch.segment;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.logging.Logger;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
 
 /** Dump the content of a segment. */
 public class SegmentReader extends Configured implements Reducer {
 
-  public static final Logger LOG = LogFormatter.getLogger(SegmentReader.class.getName());
+  public static final Log LOG = LogFactory.getLog(SegmentReader.class);
 
   long recNo = 0L;
   
@@ -105,7 +107,7 @@ public class SegmentReader extends Configured implements Reducer {
     try {
       this.fs = FileSystem.get(getConf());
     } catch (IOException e) {
-      e.printStackTrace();
+      e.printStackTrace(LogUtil.getWarnStream(LOG));
     }
   }
 
@@ -120,7 +122,7 @@ public class SegmentReader extends Configured implements Reducer {
     try {
       this.fs = FileSystem.get(getConf());
     } catch (IOException e) {
-      e.printStackTrace();
+      e.printStackTrace(LogUtil.getWarnStream(LOG));
     }
   }
 
@@ -154,7 +156,7 @@ public class SegmentReader extends Configured implements Reducer {
       } else if (value instanceof ParseText) {
         dump.append("\nParseText::\n").append(((ParseText) value).toString());
       } else {
-        LOG.warning("Unrecognized type: " + value.getClass());
+        LOG.warn("Unrecognized type: " + value.getClass());
       }
     }
     output.collect(key, new ObjectWritable(dump.toString()));
@@ -206,8 +208,8 @@ public class SegmentReader extends Configured implements Reducer {
           try {
             currentRecordNumber = append(fs, job, partFile, writer, currentRecordNumber);
           } catch (IOException exception) {
-            LOG.warning("Couldn't copy the content of " + partFile.toString() + " into " + dumpFile.toString());
-            LOG.warning(exception.getMessage());
+            LOG.warn("Couldn't copy the content of " + partFile.toString() + " into " + dumpFile.toString());
+            LOG.warn(exception.getMessage());
           }
         }
       } finally {
@@ -256,7 +258,7 @@ public class SegmentReader extends Configured implements Reducer {
           List res = getMapRecords(new Path(segment, Content.DIR_NAME), key);
           results.put("co", res);
         } catch (Exception e) {
-          e.printStackTrace();
+          e.printStackTrace(LogUtil.getWarnStream(LOG));
         }
       }
     });
@@ -266,7 +268,7 @@ public class SegmentReader extends Configured implements Reducer {
           List res = getMapRecords(new Path(segment, CrawlDatum.FETCH_DIR_NAME), key);
           results.put("fe", res);
         } catch (Exception e) {
-          e.printStackTrace();
+          e.printStackTrace(LogUtil.getWarnStream(LOG));
         }
       }
     });
@@ -276,7 +278,7 @@ public class SegmentReader extends Configured implements Reducer {
           List res = getSeqRecords(new Path(segment, CrawlDatum.GENERATE_DIR_NAME), key);
           results.put("ge", res);
         } catch (Exception e) {
-          e.printStackTrace();
+          e.printStackTrace(LogUtil.getWarnStream(LOG));
         }
       }
     });
@@ -286,7 +288,7 @@ public class SegmentReader extends Configured implements Reducer {
           List res = getSeqRecords(new Path(segment, CrawlDatum.PARSE_DIR_NAME), key);
           results.put("pa", res);
         } catch (Exception e) {
-          e.printStackTrace();
+          e.printStackTrace(LogUtil.getWarnStream(LOG));
         }
       }
     });
@@ -296,7 +298,7 @@ public class SegmentReader extends Configured implements Reducer {
           List res = getMapRecords(new Path(segment, ParseData.DIR_NAME), key);
           results.put("pd", res);
         } catch (Exception e) {
-          e.printStackTrace();
+          e.printStackTrace(LogUtil.getWarnStream(LOG));
         }
       }
     });
@@ -306,7 +308,7 @@ public class SegmentReader extends Configured implements Reducer {
           List res = getMapRecords(new Path(segment, ParseText.DIR_NAME), key);
           results.put("pt", res);
         } catch (Exception e) {
-          e.printStackTrace();
+          e.printStackTrace(LogUtil.getWarnStream(LOG));
         }
       }
     });
@@ -321,7 +323,7 @@ public class SegmentReader extends Configured implements Reducer {
       while (it.hasNext()) {
         if (((Thread)it.next()).isAlive()) cnt++;
       }
-      if (cnt > 0) System.err.println("(" + cnt + " to retrieve)");
+      if (cnt > 0) LOG.debug("(" + cnt + " to retrieve)");
     } while (cnt > 0);
     for (int i = 0; i < keys.length; i++) {
       List res = (List)results.get(keys[i][0]);

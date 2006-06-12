@@ -19,9 +19,11 @@ package org.apache.nutch.parse.zip;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Properties;
-import java.util.logging.Logger;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
@@ -32,7 +34,6 @@ import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -43,8 +44,7 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class ZipParser implements Parser {
 
-  private static final Logger LOG = LogFormatter.getLogger(ZipParser.class
-      .getName());
+  private static final Log LOG = LogFactory.getLog(ZipParser.class);
   private Configuration conf;
 
   /** Creates a new instance of ZipParser */
@@ -62,7 +62,7 @@ public class ZipParser implements Parser {
     try {
       final String contentLen = content.getMetadata().get(Response.CONTENT_LENGTH);
       final int len = Integer.parseInt(contentLen);
-      System.out.println("ziplen: " + len);
+      LOG.debug("ziplen: " + len);
       final byte[] contentInBytes = content.getContent();
       final ByteArrayInputStream bainput = new ByteArrayInputStream(
           contentInBytes);
@@ -101,7 +101,7 @@ public class ZipParser implements Parser {
                                               content.getMetadata());
     parseData.setConf(this.conf);
 
-    LOG.finest("Zip file parsed sucessfully !!");
+    LOG.trace("Zip file parsed sucessfully !!");
     return new ParseImpl(resultText, parseData);
   }
 

@@ -18,7 +18,10 @@ package org.apache.nutch.crawl;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.logging.Logger;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -47,7 +50,7 @@ import org.apache.nutch.util.NutchJob;
  * @author Andrzej Bialecki
  */
 public class CrawlDbMerger extends Configured {
-  private static final Logger LOG = Logger.getLogger(CrawlDbMerger.class.getName());
+  private static final Log LOG = LogFactory.getLog(CrawlDbMerger.class);
 
   public static class Merger extends MapReduceBase implements Reducer {
     private URLFilters filters = null;
@@ -67,7 +70,7 @@ public class CrawlDbMerger extends Configured {
           if (filters.filter(((UTF8) key).toString()) == null)
             return;
         } catch (Exception e) {
-          LOG.fine("Can't filter " + key + ": " + e);
+          LOG.debug("Can't filter " + key + ": " + e);
         }
       }
       CrawlDatum res = null;

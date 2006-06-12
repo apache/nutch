@@ -18,6 +18,10 @@ package org.apache.nutch.scoring.opic;
 
 import java.util.List;
 
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.UTF8;
 import org.apache.lucene.document.Document;
@@ -30,6 +34,7 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.scoring.ScoringFilter;
 import org.apache.nutch.scoring.ScoringFilterException;
+import org.apache.nutch.util.LogUtil;
 
 /**
  * This plugin implements a variant of an Online Page Importance Computation
@@ -42,6 +47,9 @@ import org.apache.nutch.scoring.ScoringFilterException;
  * @author Andrzej Bialecki
  */
 public class OPICScoringFilter implements ScoringFilter {
+
+  private final static Log LOG = LogFactory.getLog(OPICScoringFilter.class);
+
   private Configuration conf;
   private float scoreInjected;
   private float scorePower;
@@ -96,7 +104,7 @@ public class OPICScoringFilter implements ScoringFilter {
       try {
         score = Float.parseFloat(scoreString);
       } catch (Exception e) {
-        e.printStackTrace();
+        e.printStackTrace(LogUtil.getWarnStream(LOG));
       }
     }
     if (countFiltered) {

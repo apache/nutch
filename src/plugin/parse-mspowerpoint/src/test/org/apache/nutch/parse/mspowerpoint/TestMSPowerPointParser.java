@@ -23,9 +23,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.util.logging.Logger;
 
 import junit.framework.TestCase;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
@@ -33,7 +35,6 @@ import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.util.NutchConfiguration;
 
 import org.apache.hadoop.io.UTF8;
@@ -54,8 +55,7 @@ import org.apache.nutch.crawl.CrawlDatum;
  * @version 1.0
  */
 public class TestMSPowerPointParser extends TestCase {
-  private static final Logger LOG = LogFormatter
-      .getLogger(TestMSPowerPointParser.class.getName());
+  private static final Log LOG = LogFactory.getLog(TestMSPowerPointParser.class);
 
   private static final String CHARSET = "UTF-8";
 

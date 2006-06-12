@@ -20,7 +20,10 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Logger;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 // Nutch imports
 import org.apache.nutch.metadata.Metadata;
@@ -30,7 +33,6 @@ import org.apache.nutch.parse.HtmlParseFilter;
 import org.apache.nutch.protocol.Content;
 
 // Hadoop imports
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 
 // DOM imports
@@ -47,8 +49,7 @@ import org.w3c.dom.NodeList;
  */
 public class HTMLLanguageParser implements HtmlParseFilter {
   
-  public static final Logger LOG = LogFormatter
-    .getLogger(HTMLLanguageParser.class.getName());
+  public static final Log LOG = LogFactory.getLog(HTMLLanguageParser.class);
 
   /* A static Map of ISO-639 language codes */
   private static Map LANGUAGES_MAP = new HashMap();
@@ -67,7 +68,7 @@ public class HTMLLanguageParser implements HtmlParseFilter {
         }
       }
     } catch (Exception e) {
-      LOG.severe(e.toString());
+      LOG.fatal(e.toString());
     }
   }
 

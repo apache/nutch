@@ -19,14 +19,15 @@ package org.apache.nutch.parse.rss;
 // JDK imports
 import java.io.ByteArrayInputStream;
 import java.net.MalformedURLException;
-import java.util.logging.Logger;
 import java.util.List;
 import java.util.Vector;
-import java.util.logging.Level;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 // Hadoop imports
 import org.apache.hadoop.io.UTF8;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 
 // Nutch imports
@@ -42,6 +43,7 @@ import org.apache.nutch.parse.rss.structs.RSSChannel;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
+import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
 
 // RSS parsing imports
@@ -60,34 +62,8 @@ import org.apache.commons.feedparser.FeedParserFactory;
  * </p>
  */
 public class RSSParser implements Parser {
-    public static final Logger LOG = LogFormatter
-            .getLogger("org.apache.nutch.parse.rss");
+    public static final Log LOG = LogFactory.getLog("org.apache.nutch.parse.rss");
     private Configuration conf;
-
-    /**
-     * <p>
-     * Default Constructor
-     * </p>
-     */
-    public RSSParser() {
-
-        // redirect org.apache.log4j.Logger to java's native logger, in order
-        // to, at least, suppress annoying log4j warnings.
-        // Note on 20040614 by Xing:
-        // log4j is used by pdfbox. This snippet'd better be moved
-        // to a common place shared by all parsers that use log4j.
-        org.apache.log4j.Logger rootLogger = org.apache.log4j.Logger
-                .getRootLogger();
-
-        rootLogger.setLevel(org.apache.log4j.Level.INFO);
-
-        org.apache.log4j.Appender appender = new org.apache.log4j.WriterAppender(
-                new org.apache.log4j.SimpleLayout(),
-                org.apache.hadoop.util.LogFormatter.getLogStream(this.LOG,
-                        java.util.logging.Level.INFO));
-
-        rootLogger.addAppender(appender);
-    }
 
     /**
      * <p>
@@ -119,8 +95,8 @@ public class RSSParser implements Parser {
             theRSSChannels = ((FeedParserListenerImpl) listener).getChannels();
 
         } catch (Exception e) { // run time exception
-            e.printStackTrace();
-            LOG.fine("nutch:parse-rss:RSSParser Exception: " + e.getMessage());
+            e.printStackTrace(LogUtil.getWarnStream(LOG));
+            LOG.trace("nutch:parse-rss:RSSParser Exception: " + e.getMessage());
             return new ParseStatus(ParseStatus.FAILED,
                     "Can't be handled as rss document. " + e).getEmptyParse(getConf());
         }
@@ -157,7 +133,7 @@ public class RSSParser implements Parser {
                         LOG.info("nutch:parse-rss:RSSParser Exception: MalformedURL: "
                                         + r.getLink()
                                         + ": Attempting to continue processing outlinks");
-                        e.printStackTrace();
+                        e.printStackTrace(LogUtil.getWarnStream(LOG));
                         continue;
                     }
                 }
@@ -187,7 +163,7 @@ public class RSSParser implements Parser {
                             LOG.info("nutch:parse-rss:RSSParser Exception: MalformedURL: "
                                             + whichLink
                                             + ": Attempting to continue processing outlinks");
-                            e.printStackTrace();
+                            e.printStackTrace(LogUtil.getWarnStream(LOG));
                             continue;
                         }
                     }
@@ -196,17 +172,17 @@ public class RSSParser implements Parser {
 
             }
 
-            LOG.fine("nutch:parse-rss:getParse:indexText=" + indexText);
-            LOG.fine("nutch:parse-rss:getParse:contentTitle=" + contentTitle);
+            LOG.trace("nutch:parse-rss:getParse:indexText=" + indexText);
+            LOG.trace("nutch:parse-rss:getParse:contentTitle=" + contentTitle);
 
         } else {
-            LOG.fine("nutch:parse-rss:Error:getParse: No RSS Channels recorded!");
+            LOG.trace("nutch:parse-rss:Error:getParse: No RSS Channels recorded!");
         }
 
         // format the outlinks
         Outlink[] outlinks = (Outlink[]) theOutlinks.toArray(new Outlink[theOutlinks.size()]);
 
-        LOG.fine("nutch:parse-rss:getParse:found " + outlinks.length + " outlinks");
+        LOG.trace("nutch:parse-rss:getParse:found " + outlinks.length + " outlinks");
         // LOG.info("Outlinks: "+outlinks);
 
         ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS,
@@ -224,7 +200,7 @@ public class RSSParser implements Parser {
   }
   
   public static void main(String[] args) throws Exception {
-    LOG.setLevel(Level.FINE);
+    //LOG.setLevel(Level.FINE);
     String url = args[0];
     Configuration conf = NutchConfiguration.create();
     RSSParser parser = new RSSParser();

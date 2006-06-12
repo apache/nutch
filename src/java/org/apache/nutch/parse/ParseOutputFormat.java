@@ -16,6 +16,10 @@
 
 package org.apache.nutch.parse;
 
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.hadoop.io.*;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.fetcher.Fetcher;
@@ -27,11 +31,10 @@ import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.net.*;
 
 import java.io.*;
-import java.util.logging.Logger;
 
 /* Parse content in a segment. */
 public class ParseOutputFormat implements OutputFormat {
-  private static final Logger LOG = Logger.getLogger(ParseOutputFormat.class.getName());
+  private static final Log LOG = LogFactory.getLog(ParseOutputFormat.class);
 
   private UrlNormalizer urlNormalizer;
   private URLFilters filters;
@@ -116,8 +119,8 @@ public class ParseOutputFormat implements OutputFormat {
               adjust = scfilters.distributeScoreToOutlink((UTF8)key, targetUrl,
                       parseData, target, null, links.length, validCount);
             } catch (ScoringFilterException e) {
-              LOG.warning("Cannot distribute score from " + key + " to " + targetUrl +
-                      " - skipped (" + e.getMessage());
+              LOG.warn("Cannot distribute score from " + key + " to " + targetUrl +
+                       " - skipped (" + e.getMessage());
               continue;
             }
             crawlOut.append(targetUrl, target);

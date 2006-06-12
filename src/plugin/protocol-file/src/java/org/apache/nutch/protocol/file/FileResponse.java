@@ -20,7 +20,6 @@ package org.apache.nutch.protocol.file;
 import java.net.URL;
 import java.util.Date;
 import java.util.TreeMap;
-import java.util.logging.Level;
 import java.io.IOException;
 
 // Nutch imports
@@ -97,11 +96,13 @@ public class FileResponse {
     if (!"file".equals(url.getProtocol()))
       throw new FileException("Not a file url:" + url);
 
-    if (File.LOG.isLoggable(Level.FINE))
-      File.LOG.fine("fetching " + url);
+    if (File.LOG.isTraceEnabled()) {
+      File.LOG.trace("fetching " + url);
+    }
 
-    if (url.getPath() != url.getFile())
-      File.LOG.warning("url.getPath() != url.getFile(): " + url);
+    if (url.getPath() != url.getFile()) {
+      File.LOG.warn("url.getPath() != url.getFile(): " + url);
+    }
 
     String path = "".equals(url.getPath()) ? "/" : url.getPath();
 
@@ -179,7 +180,7 @@ public class FileResponse {
       offset += n;
     }
     if (offset < len) // keep whatever already have, but issue a warning
-      File.LOG.warning("not enough bytes read from file: "+f.getPath());
+      File.LOG.warn("not enough bytes read from file: "+f.getPath());
     is.close(); 
 
     // set headers

@@ -106,7 +106,7 @@ public class RegexUrlNormalizer extends BasicUrlNormalizer
         .parse(filename);
       Element root = doc.getDocumentElement();
       if (!"regex-normalize".equals(root.getTagName()))
-        LOG.severe("bad conf file: top-level element not <regex-normalize>");
+        LOG.fatal("bad conf file: top-level element not <regex-normalize>");
       NodeList regexes = root.getChildNodes();
       for (int i = 0; i < regexes.getLength(); i++) {
         Node regexNode = regexes.item(i);
@@ -114,7 +114,7 @@ public class RegexUrlNormalizer extends BasicUrlNormalizer
           continue;
         Element regex = (Element)regexNode;
         if (!"regex".equals(regex.getTagName()))
-          LOG.warning("bad conf file: element not <regex>");
+          LOG.warn("bad conf file: element not <regex>");
         NodeList fields = regex.getChildNodes();
         String patternValue = null;
         String subValue = null;
@@ -139,7 +139,7 @@ public class RegexUrlNormalizer extends BasicUrlNormalizer
       }
         
     } catch (Exception e) {
-      LOG.severe("error parsing " + filename +" conf file: " + e);
+      LOG.fatal("error parsing " + filename +" conf file: " + e);
     }
     return rules;
   }

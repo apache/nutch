@@ -18,18 +18,20 @@ package org.apache.nutch.net;
 
 import java.net.URL;
 import java.net.MalformedURLException;
-// import java.net.URI;
-// import java.net.URISyntaxException;
 
-import java.util.logging.Logger;
-import org.apache.hadoop.util.LogFormatter;
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+// Nutch imports
+import org.apache.nutch.util.LogUtil;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.oro.text.regex.*;
 
 /** Converts URLs to a normal form . */
 public class BasicUrlNormalizer implements UrlNormalizer {
-    public static final Logger LOG =
-            LogFormatter.getLogger("org.apache.nutch.net.BasicUrlNormalizer");
+    public static final Log LOG = LogFactory.getLog(BasicUrlNormalizer.class);
 
     private Perl5Compiler compiler = new Perl5Compiler();
     private ThreadLocal matchers = new ThreadLocal() {
@@ -61,7 +63,7 @@ public class BasicUrlNormalizer implements UrlNormalizer {
         leadingRelativePathRule.substitution = new Perl5Substitution("/");
 
       } catch (MalformedPatternException e) {
-        e.printStackTrace();
+        e.printStackTrace(LogUtil.getWarnStream(LOG));
         throw new RuntimeException(e);
       }
     }

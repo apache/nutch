@@ -18,7 +18,9 @@ package org.apache.nutch.segment;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.logging.Logger;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.fs.FileSystem;
@@ -84,7 +86,7 @@ import org.apache.nutch.util.NutchConfiguration;
  * @author Andrzej Bialecki
  */
 public class SegmentMerger extends Configured implements Mapper, Reducer {
-  private static final Logger LOG = Logger.getLogger(SegmentMerger.class.getName());
+  private static final Log LOG = LogFactory.getLog(SegmentMerger.class);
 
   private static final UTF8 SEGMENT_PART_KEY = new UTF8("_PaRt_");
   private static final UTF8 SEGMENT_NAME_KEY = new UTF8("_NaMe_");
@@ -335,7 +337,7 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
           return;
         }
       } catch (Exception e) {
-        LOG.warning("Cannot filter key " + key + ": " + e.getMessage());
+        LOG.warn("Cannot filter key " + key + ": " + e.getMessage());
       }
     }
     output.collect(key, value);
@@ -545,7 +547,7 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
     boolean pt = true;
     for (int i = 0; i < segs.length; i++) {
       if (!fs.exists(segs[i])) {
-        LOG.warning("SegmentMerger: input dir " + segs[i] + " doesn't exist, skipping.");
+        LOG.warn("SegmentMerger: input dir " + segs[i] + " doesn't exist, skipping.");
         segs[i] = null;
         continue;
       }

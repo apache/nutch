@@ -26,12 +26,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
-import java.util.logging.Logger;
 
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 // Nutch imports
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configurable;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
@@ -48,8 +49,7 @@ import org.apache.nutch.protocol.ProtocolException;
  */
 public class RobotRulesParser implements Configurable {
   
-  public static final Logger LOG=
-    LogFormatter.getLogger(RobotRulesParser.class.getName());
+  public static final Log LOG = LogFactory.getLog(RobotRulesParser.class);
 
   private boolean allowForbidden = false;
 
@@ -206,11 +206,11 @@ public class RobotRulesParser implements Configurable {
     //
     if (agents.size() == 0) {
       agents.add(agentName);
-      LOG.severe("No agents listed in 'http.robots.agents' property!");
+      LOG.fatal("No agents listed in 'http.robots.agents' property!");
     } else if (!((String)agents.get(0)).equalsIgnoreCase(agentName)) {
       agents.add(0, agentName);
-      LOG.severe("Agent we advertise (" + agentName
-                 + ") not listed first in 'http.robots.agents' property!");
+      LOG.fatal("Agent we advertise (" + agentName
+              + ") not listed first in 'http.robots.agents' property!");
     }
     setRobotNames((String[]) agents.toArray(new String[agents.size()]));
   }
@@ -320,8 +320,7 @@ public class RobotRulesParser implements Configurable {
         try {
           path= URLDecoder.decode(path, CHARACTER_ENCODING);
         } catch (Exception e) {
-          LOG.warning("error parsing robots rules- can't decode path: "
-                      + path);
+          LOG.warn("error parsing robots rules- can't decode path: " + path);
         }
 
         if (path.length() == 0) { // "empty rule"
@@ -389,7 +388,7 @@ public class RobotRulesParser implements Configurable {
     RobotRuleSet robotRules = (RobotRuleSet)CACHE.get(host);
 
     if (robotRules == null) {                     // cache miss
-      LOG.fine("cache miss " + url);
+      LOG.trace("cache miss " + url);
       try {
         Response response = http.getResponse(new URL(url, "/robots.txt"),
                                              new CrawlDatum(), true);

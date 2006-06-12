@@ -19,9 +19,10 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Vector;
-import java.util.logging.Logger;
 
-import org.apache.hadoop.util.LogFormatter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.poi.hdf.extractor.Utils;
 import org.apache.poi.poifs.eventfilesystem.POIFSReaderEvent;
 import org.apache.poi.poifs.eventfilesystem.POIFSReaderListener;
@@ -40,8 +41,7 @@ import org.apache.poi.util.StringUtil;
  */
 class ContentReaderListener implements POIFSReaderListener {
 
-  private static final Logger LOG = LogFormatter
-      .getLogger(ContentReaderListener.class.getName());
+  private static final Log LOG = LogFactory.getLog(ContentReaderListener.class);
 
   /** Buffer holding the content of the file */
   protected final transient StringBuffer buf;
@@ -65,8 +65,8 @@ class ContentReaderListener implements POIFSReaderListener {
 
     if (event == null || event.getName() == null
         || !event.getName().startsWith(PPTConstants.POWERPOINT_DOCUMENT)) {
-      LOG.warning("Stream not processed. It is not a PowerPoint document: : "
-          + event.getName());
+      LOG.warn("Stream not processed. It is not a PowerPoint document: : "
+               + event.getName());
       return;
     }
 
@@ -108,14 +108,14 @@ class ContentReaderListener implements POIFSReaderListener {
           containerTextBox = extractTextBoxes(containerTextBox, offset,
               pptdata, offsetPD);
         } else if (PPTConstants.PPT_ATOM_DRAWINGGROUP == type) {
-          // LOG.finest("PPT_DRAWINGGROUP_ATOM ignored: " + type);
+          // LOG.trace("PPT_DRAWINGGROUP_ATOM ignored: " + type);
         } else if (PPTConstants.PPT_ATOM_TEXTBYTE == type) {
-          // LOG.finest("PPT_TEXTBYTE_ATOM ignored: " + type);
+          // LOG.trace("PPT_TEXTBYTE_ATOM ignored: " + type);
         } else if (PPTConstants.PPT_ATOM_TEXTCHAR == type) {
-          // LOG.finest("PPT_TEXTCHAR_ATOM ignored: " + type);
+          // LOG.trace("PPT_TEXTCHAR_ATOM ignored: " + type);
         } else {
           // no action
-          // LOG.finest("type not handled: " + type);
+          // LOG.trace("type not handled: " + type);
         }
       }
 
@@ -158,7 +158,7 @@ class ContentReaderListener implements POIFSReaderListener {
       }
     } catch (Throwable ex) {
       // because of not killing complete crawling all Throwables are catched.
-      LOG.throwing(this.getClass().getName(), "processPOIFSReaderEvent", ex);
+      LOG.error("processPOIFSReaderEvent", ex);
     }
   }
 
@@ -205,7 +205,7 @@ class ContentReaderListener implements POIFSReaderListener {
 
           if (currentID == PPTConstants.PPT_MASTERSLIDE) {
             // Ignore Master Slide objects
-            LOG.finest("Ignore master slide.");
+            LOG.trace("Ignore master slide.");
             i++;
             continue;
           }
@@ -226,7 +226,7 @@ class ContentReaderListener implements POIFSReaderListener {
            */
           if ((offsetPD - 20) != recordSize) {
             // TODO something wrong? Probably an OLE-Object, which we ignore.
-            LOG.finer("offsetPD - 20=" + (offsetPD - 20) + " recordsize="
+            LOG.debug("offsetPD - 20=" + (offsetPD - 20) + " recordsize="
                 + recordSize);
           } else {
             for (int startPos = i + 8; startPos < offsetPD - 20
@@ -290,10 +290,10 @@ class ContentReaderListener implements POIFSReaderListener {
 
                 } else {
                   // ignored
-                  // LOG.finest("Ignored atom type: " + type);
+                  // LOG.trace("Ignored atom type: " + type);
                 }
               } catch (Throwable e) {
-                LOG.throwing(this.getClass().getName(), "extractTextBoxes", e);
+                LOG.error("extractTextBoxes", e);
                 break;
               }
             }
@@ -302,10 +302,10 @@ class ContentReaderListener implements POIFSReaderListener {
           /*
            * Record type is ignored
            */
-          // LOG.finest("Ignored record type: " + type);
+          // LOG.trace("Ignored record type: " + type);
         }
       } catch (Throwable ee) {
-        LOG.throwing(this.getClass().getName(), "extractClientTextBoxes", ee);
+        LOG.error("extractClientTextBoxes", ee);
         break;
       }
     }
@@ -355,8 +355,8 @@ class ContentReaderListener implements POIFSReaderListener {
             byte value = pptdata[(int) ii + 2];
             outStream.write(value);
           } catch (ArrayIndexOutOfBoundsException ex) {
-            LOG.finest("size=" + pptdata.length);
-            LOG.throwing(this.getClass().getName(), "extractSlides", ex);
+            LOG.trace("size=" + pptdata.length);
+            LOG.error("extractSlides", ex);
           }
         }
 
@@ -401,11 +401,11 @@ class ContentReaderListener implements POIFSReaderListener {
         /*
          * Diagram records are ignored
          */
-        LOG.finest("Drawing Groups are ignored.");
+        LOG.trace("Drawing Groups are ignored.");
         break;
       } else {
         // ignored
-        // LOG.finest("Unhandled atomType: " + atomType);
+        // LOG.trace("Unhandled atomType: " + atomType);
       }
     }
 

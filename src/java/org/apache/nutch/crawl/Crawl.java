@@ -18,12 +18,14 @@ package org.apache.nutch.crawl;
 
 import java.util.*;
 import java.text.*;
-import java.util.logging.*;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.nutch.fetcher.Fetcher;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.mapred.*;
 import org.apache.nutch.parse.ParseSegment;
 import org.apache.nutch.indexer.DeleteDuplicates;
@@ -33,8 +35,7 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
 public class Crawl {
-  public static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.crawl.Crawl");
+  public static final Log LOG = LogFactory.getLog(Crawl.class);
 
   private static String getDate() {
     return new SimpleDateFormat("yyyyMMddHHmmss").format

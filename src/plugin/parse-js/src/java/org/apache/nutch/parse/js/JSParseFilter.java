@@ -8,7 +8,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Logger;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.HtmlParseFilter;
@@ -20,7 +22,6 @@ import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.oro.text.regex.MatchResult;
 import org.apache.oro.text.regex.Pattern;
@@ -44,8 +45,7 @@ import org.w3c.dom.NodeList;
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
 public class JSParseFilter implements HtmlParseFilter, Parser {
-  public static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.parse.js.JSParseFilter");
+  public static final Log LOG = LogFactory.getLog(JSParseFilter.class);
 
   private static final int MAX_TITLE_LEN = 80;
 
@@ -164,7 +164,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     try {
       baseURL = new URL(base);
     } catch (Exception e) {
-      LOG.throwing(JSParseFilter.class.getName(), "getJSLinks", e);
+      LOG.error("getJSLinks", e);
     }
 
     try {
@@ -189,20 +189,20 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
         url = result.group(2);
         PatternMatcherInput input1 = new PatternMatcherInput(url);
         if (!matcher1.matches(input1, pattern1)) {
-          //LOG.fine(" - invalid '" + url + "'");
+          //LOG.trace(" - invalid '" + url + "'");
           continue;
         }
         if (url.startsWith("www.")) {
             url = "http://" + url;
         } else url = new URL(baseURL, url).toString();
         url = url.replaceAll("&amp;", "&");
-        LOG.fine(" - outlink from JS: '" + url + "'");
+        LOG.trace(" - outlink from JS: '" + url + "'");
         outlinks.add(new Outlink(url, anchor, getConf()));
       }
     } catch (Exception ex) {
       // if it is a malformed URL we just throw it away and continue with
       // extraction.
-      LOG.throwing(JSParseFilter.class.getName(), "getJSLinks", ex);
+      LOG.error("getJSLinks", ex);
     }
 
     final Outlink[] retval;

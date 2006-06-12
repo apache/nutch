@@ -19,14 +19,15 @@ package org.apache.nutch.searcher;
 import java.net.InetSocketAddress;
 import java.io.*;
 import java.util.*;
-import java.util.logging.Logger;
 import java.lang.reflect.Method;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.crawl.Inlinks;
 
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.fs.Path;
@@ -36,8 +37,7 @@ import org.apache.nutch.util.NutchConfiguration;
 
 /** Implements the search API over IPC connnections. */
 public class DistributedSearch {
-  public static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.searcher.DistributedSearch");
+  public static final Log LOG = LogFactory.getLog(DistributedSearch.class);
 
   private DistributedSearch() {}                  // no public ctor
 
@@ -171,11 +171,11 @@ public class DistributedSearch {
         InetSocketAddress addr = defaultAddresses[i];
         String[] segments = results[i];
         if (segments == null) {
-          LOG.warning("Client: no segments from: " + addr);
+          LOG.warn("Client: no segments from: " + addr);
           continue;
         }
         for (int j = 0; j < segments.length; j++) {
-          LOG.finest("Client: segment "+segments[j]+" at "+addr);
+          LOG.trace("Client: segment "+segments[j]+" at "+addr);
           segmentToAddress.put(segments[j], addr);
         }
         liveAddresses.add(addr);
@@ -355,7 +355,7 @@ public class DistributedSearch {
           LOG.info("Querying segments from search servers...");
           updateSegments();
         } catch (IOException ioe) {
-          LOG.warning("No search servers available!");
+          LOG.warn("No search servers available!");
           liveAddresses=new InetSocketAddress[0];
         }
       }

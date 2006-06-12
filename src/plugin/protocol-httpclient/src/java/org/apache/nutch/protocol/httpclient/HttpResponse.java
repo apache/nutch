@@ -22,6 +22,10 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Date;
 
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 // HTTP Client imports
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpVersion;
@@ -34,12 +38,15 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.http.api.HttpBase;
+import org.apache.nutch.util.LogUtil;
 
 
 /**
  * An HTTP response.
  */
 public class HttpResponse implements Response {
+
+  public final static Log LOG = LogFactory.getLog(HttpResponse.class);
 
   private URL url;
   
@@ -121,7 +128,7 @@ public class HttpResponse implements Response {
         }
       }
     } catch (org.apache.commons.httpclient.ProtocolException pe) {
-      pe.printStackTrace();
+      pe.printStackTrace(LogUtil.getErrorStream(LOG));
       get.releaseConnection();
       throw new IOException(pe.toString());
     } finally {

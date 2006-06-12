@@ -23,6 +23,9 @@ import org.apache.oro.text.regex.PatternMatcher;
 import org.apache.oro.text.regex.MatchResult;
 import org.apache.oro.text.regex.MalformedPatternException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
@@ -46,9 +49,6 @@ import org.apache.nutch.util.mime.MimeTypeException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.UTF8;
-import org.apache.hadoop.util.LogFormatter;
-
-import java.util.logging.Logger;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -73,8 +73,7 @@ import org.apache.commons.lang.time.DateUtils;
  */
 
 public class MoreIndexingFilter implements IndexingFilter {
-  public static final Logger LOG
-    = LogFormatter.getLogger(MoreIndexingFilter.class.getName());
+  public static final Log LOG = LogFactory.getLog(MoreIndexingFilter.class);
 
   /** A flag that tells if magic resolution must be performed */
   private boolean MAGIC;
@@ -156,9 +155,9 @@ public class MoreIndexingFilter implements IndexingFilter {
 		      "dd.MM.yyyy zzz"
 		  });
 	    time = parsedDate.getTime();
-	    //	    LOG.warning(url + ": parsed date: " + date +" to:"+time);
+	    //	    LOG.warn(url + ": parsed date: " + date +" to:"+time);
 	} catch (Exception e2) {
-	    LOG.warning(url + ": can't parse erroneous date: " + date);
+	    LOG.warn(url + ": can't parse erroneous date: " + date);
 	}
     }
     return time;
@@ -195,7 +194,7 @@ public class MoreIndexingFilter implements IndexingFilter {
         try {
             mimeType = new MimeType(contentType);
         } catch (MimeTypeException e) {
-            LOG.warning(url + e.toString());
+            LOG.warn(url + e.toString());
             mimeType = null;
         }
     }

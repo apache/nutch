@@ -20,10 +20,16 @@ package org.apache.nutch.parse.zip;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.net.URL;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+// Hadoop imports
+import org.apache.hadoop.conf.Configuration;
 
 // Nutch imports
 import org.apache.nutch.metadata.Metadata;
@@ -34,8 +40,6 @@ import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.protocol.Content;
-import org.apache.hadoop.util.LogFormatter;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.mime.MimeTypes;
 
 
@@ -48,7 +52,7 @@ public class ZipTextExtractor {
   /** Get the MimeTypes resolver instance. */
   private MimeTypes MIME;
   
-  public static final Logger LOG = LogFormatter.getLogger(ZipTextExtractor.class.getName());
+  public static final Log LOG = LogFactory.getLog(ZipTextExtractor.class);
 
 private Configuration conf;
   

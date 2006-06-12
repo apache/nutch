@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 package org.apache.nutch.plugin;
+
+// JDK imports
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -25,8 +27,15 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
-import org.apache.hadoop.util.LogFormatter;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
+
+
 /**
  * The <code>PluginDescriptor</code> provide access to all meta information of
  * a nutch-plugin, as well to the internationalizable resources and the plugin
@@ -51,8 +60,7 @@ public class PluginDescriptor {
   private ArrayList fNotExportedLibs = new ArrayList();
   private ArrayList fExtensions = new ArrayList();
   private PluginClassLoader fClassLoader;
-  public static final Logger LOG = LogFormatter
-    .getLogger(PluginDescriptor.class.getName());
+  public static final Log LOG = LogFactory.getLog(PluginDescriptor.class);
   private Configuration fConf;
   
   /**
@@ -265,7 +273,7 @@ public class PluginDescriptor {
           arrayList.add(file2.getParentFile().toURL());
       }
     } catch (MalformedURLException e) {
-      LOG.fine(getPluginId() + " " + e.toString());
+      LOG.debug(getPluginId() + " " + e.toString());
     }
     URL[] urls = (URL[]) arrayList.toArray(new URL[arrayList.size()]);
     fClassLoader = new PluginClassLoader(urls, PluginDescriptor.class

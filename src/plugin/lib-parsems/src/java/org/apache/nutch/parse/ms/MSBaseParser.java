@@ -20,11 +20,13 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Properties;
-import java.util.logging.Logger;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.util.LogFormatter;
 
 // Nutch imports
 import org.apache.nutch.metadata.DublinCore;
@@ -38,6 +40,7 @@ import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
 
 
@@ -50,8 +53,7 @@ public abstract class MSBaseParser implements Parser {
   
   private Configuration conf;
   
-  protected static final Logger LOG =
-          LogFormatter.getLogger(MSBaseParser.class.getName());
+  protected static final Log LOG = LogFactory.getLog(MSBaseParser.class);
 
 
   /**
@@ -135,7 +137,7 @@ public abstract class MSBaseParser implements Parser {
       fin.close();
       return buffer;
     } catch (Exception err) {
-      err.printStackTrace();
+      err.printStackTrace(LogUtil.getErrorStream(LOG));
       return null;
     }
 

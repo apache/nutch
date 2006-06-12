@@ -32,13 +32,16 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
-// Nutch imports
-import org.apache.hadoop.util.LogFormatter;
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 // Lucene imports
 import org.apache.lucene.analysis.Token;
+
+// Nutch imports
+import org.apache.nutch.util.LogUtil;
 
 
 /**
@@ -54,8 +57,7 @@ import org.apache.lucene.analysis.Token;
  */
 public class NGramProfile {
 
-  public static final Logger LOG = LogFormatter
-      .getLogger("org.apache.nutch.analysis.lang.NGramProfile");
+  public static final Log LOG = LogFactory.getLog(NGramProfile.class);
 
   /** The minimum length allowed for a ngram. */
   final static int ABSOLUTE_MIN_NGRAM_LENGTH = 1;
@@ -317,7 +319,7 @@ public class NGramProfile {
         }
       }
     } catch (Exception e) {
-      LOG.severe(e.toString());
+      LOG.fatal(e.toString());
     }
     return sum;
   }
@@ -374,7 +376,7 @@ public class NGramProfile {
         text.append(new String(buffer, 0, len, encoding));
       }
     } catch (IOException e) {
-      e.printStackTrace();
+      e.printStackTrace(LogUtil.getWarnStream(LOG));
     }
 
     newProfile.analyze(text);
@@ -521,7 +523,7 @@ public class NGramProfile {
       }
 
     } catch (Exception e) {
-      LOG.severe("Caught an exception:" + e);
+      LOG.fatal("Caught an exception:" + e);
     }
   }
 

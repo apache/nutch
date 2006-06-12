@@ -21,11 +21,14 @@ import java.net.URLDecoder;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.logging.Logger;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 // Nutch imports
 import org.apache.nutch.metadata.Metadata;
@@ -37,7 +40,6 @@ import org.apache.nutch.util.StringUtil;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.util.LogFormatter;
 
 
 /**
@@ -49,8 +51,7 @@ import org.apache.hadoop.util.LogFormatter;
  */
 public class RelTagParser implements HtmlParseFilter {
   
-  public final static Logger LOG =
-          LogFormatter.getLogger(RelTagParser.class.getName());
+  public final static Log LOG = LogFactory.getLog(RelTagParser.class);
 
   public final static String REL_TAG = "Rel-Tag";
   

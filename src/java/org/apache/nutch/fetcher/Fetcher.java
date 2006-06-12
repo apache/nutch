@@ -18,10 +18,13 @@ package org.apache.nutch.fetcher;
 
 import java.io.IOException;
 
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.mapred.*;
 
 import org.apache.nutch.crawl.CrawlDatum;
@@ -33,13 +36,11 @@ import org.apache.nutch.parse.*;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.*;
 
-import java.util.logging.*;
 
 /** The fetcher. Most of the work is done by plugins. */
 public class Fetcher extends Configured implements MapRunnable { 
 
-  public static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.fetcher.Fetcher");
+  public static final Log LOG = LogFactory.getLog(Fetcher.class);
   
   public static final String SIGNATURE_KEY = "nutch.content.digest";
   public static final String SEGMENT_NAME_KEY = "nutch.segment.name";
@@ -103,16 +104,19 @@ public class Fetcher extends Configured implements MapRunnable {
         CrawlDatum datum = new CrawlDatum();
         
         while (true) {
-          if (LogFormatter.hasLoggedSevere())     // something bad happened
-            break;                                // exit
+          // TODO : NUTCH-258 ...
+          // If something bad happened, then exit
+          // if (conf.getBoolean("fetcher.exit", false)) {
+          //   break;
+          // ]
           
           try {                                   // get next entry from input
             if (!input.next(key, datum)) {
               break;                              // at eof, exit
             }
           } catch (IOException e) {
-            e.printStackTrace();
-            LOG.severe("fetcher caught:"+e.toString());
+            e.printStackTrace(LogUtil.getFatalStream(LOG));
+            LOG.fatal("fetcher caught:"+e.toString());
             break;
           }
 
@@ -130,7 +134,7 @@ public class Fetcher extends Configured implements MapRunnable {
             int redirectCount = 0;
             do {
               redirecting = false;
-              LOG.fine("redirectCount=" + redirectCount);
+              LOG.debug("redirectCount=" + redirectCount);
               Protocol protocol = this.protocolFactory.getProtocol(url.toString());
               ProtocolOutput output = protocol.getProtocolOutput(url, datum);
               ProtocolStatus status = output.getStatus();
@@ -151,9 +155,9 @@ public class Fetcher extends Configured implements MapRunnable {
                     url = new UTF8(newUrl);
                     redirecting = true;
                     redirectCount++;
-                    LOG.fine(" - content redirect to " + url);
+                    LOG.debug(" - content redirect to " + url);
                   } else {
-                    LOG.fine(" - content redirect skipped: " +
+                    LOG.debug(" - content redirect skipped: " +
                              (newUrl != null ? "to same url" : "filtered"));
                   }
                 }
@@ -168,9 +172,9 @@ public class Fetcher extends Configured implements MapRunnable {
                   url = new UTF8(newUrl);
                   redirecting = true;
                   redirectCount++;
-                  LOG.fine(" - protocol redirect to " + url);
+                  LOG.debug(" - protocol redirect to " + url);
                 } else {
-                  LOG.fine(" - protocol redirect skipped: " +
+                  LOG.debug(" - protocol redirect skipped: " +
                            (newUrl != null ? "to same url" : "filtered"));
                 }
                 break;
@@ -191,7 +195,7 @@ public class Fetcher extends Configured implements MapRunnable {
                 break;
 
               default:
-                LOG.warning("Unknown ProtocolStatus: " + status.getCode());
+                LOG.warn("Unknown ProtocolStatus: " + status.getCode());
                 output(url, datum, null, CrawlDatum.STATUS_FETCH_GONE);
               }
 
@@ -211,8 +215,8 @@ public class Fetcher extends Configured implements MapRunnable {
         }
 
       } catch (Throwable e) {
-        e.printStackTrace();
-        LOG.severe("fetcher caught:"+e.toString());
+        e.printStackTrace(LogUtil.getFatalStream(LOG));
+        LOG.fatal("fetcher caught:"+e.toString());
       } finally {
         synchronized (Fetcher.this) {activeThreads--;} // count threads
       }
@@ -242,8 +246,8 @@ public class Fetcher extends Configured implements MapRunnable {
       try {
         scfilters.passScoreBeforeParsing(key, datum, content);
       } catch (Exception e) {
-        e.printStackTrace();
-        LOG.warning("Couldn't pass score, url " + key + " (" + e + ")");
+        e.printStackTrace(LogUtil.getWarnStream(LOG));
+        LOG.warn("Couldn't pass score, url " + key + " (" + e + ")");
       }
 
       Parse parse = null;
@@ -256,7 +260,7 @@ public class Fetcher extends Configured implements MapRunnable {
           parseStatus = new ParseStatus(e);
         }
         if (!parseStatus.isSuccess()) {
-          LOG.warning("Error parsing: " + key + ": " + parseStatus);
+          LOG.warn("Error parsing: " + key + ": " + parseStatus);
           parse = parseStatus.getEmptyParse(getConf());
         }
         // Calculate page signature. For non-parsing fetchers this will
@@ -270,8 +274,8 @@ public class Fetcher extends Configured implements MapRunnable {
         try {
           scfilters.passScoreAfterParsing(key, content, parse);
         } catch (Exception e) {
-          e.printStackTrace();
-          LOG.warning("Couldn't pass score, url " + key + " (" + e + ")");
+          e.printStackTrace(LogUtil.getWarnStream(LOG));
+          LOG.warn("Couldn't pass score, url " + key + " (" + e + ")");
         }
         
       }
@@ -283,8 +287,8 @@ public class Fetcher extends Configured implements MapRunnable {
                              storingContent ? content : null,
                              parse != null ? new ParseImpl(parse) : null));
       } catch (IOException e) {
-        e.printStackTrace();
-        LOG.severe("fetcher caught:"+e.toString());
+        e.printStackTrace(LogUtil.getFatalStream(LOG));
+        LOG.fatal("fetcher caught:"+e.toString());
       }
       if (parse != null) return parse.getData().getStatus();
       else return null;
@@ -320,9 +324,9 @@ public class Fetcher extends Configured implements MapRunnable {
     this.storingContent = isStoringContent(job);
     this.parsing = isParsing(job);
 
-    if (job.getBoolean("fetcher.verbose", false)) {
-      LOG.setLevel(Level.FINE);
-    }
+//    if (job.getBoolean("fetcher.verbose", false)) {
+//      LOG.setLevel(Level.FINE);
+//    }
   }
 
   public void close() {}
@@ -364,7 +368,7 @@ public class Fetcher extends Configured implements MapRunnable {
       // some requests seem to hang, despite all intentions
       synchronized (this) {
         if ((System.currentTimeMillis() - lastRequestStart) > timeout) { 
-          LOG.warning("Aborting with "+activeThreads+" hung threads.");
+          LOG.warn("Aborting with "+activeThreads+" hung threads.");
           return;
         }
       }

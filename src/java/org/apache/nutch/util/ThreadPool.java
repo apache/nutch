@@ -17,8 +17,11 @@
 package org.apache.nutch.util;
 
 import java.util.*;
-import java.util.logging.*;
-import org.apache.hadoop.util.LogFormatter;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 
 /************************************************
  * ThreadPool.java                                                 
@@ -70,8 +73,8 @@ public class ThreadPool {
             TaskThread t = new TaskThread();
             t.start();
         }
-        Logger l = LogFormatter.getLogger("org.apache.nutch.util");
-        l.fine("ThreadPool created with " + numThreads + " threads.");
+        Log l = LogFactory.getLog("org.apache.nutch.util");
+        l.debug("ThreadPool created with " + numThreads + " threads.");
     }
 
     /**
@@ -126,7 +129,7 @@ public class ThreadPool {
      */
     public void shutdown() {
         running = false;
-        Logger l = LogFormatter.getLogger("org.apache.nutch.util");
-        l.fine("ThreadPool shutting down.");
+        Log l = LogFactory.getLog("org.apache.nutch.util");
+        l.debug("ThreadPool shutting down.");
     }
 }

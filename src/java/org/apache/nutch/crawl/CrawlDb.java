@@ -18,12 +18,14 @@ package org.apache.nutch.crawl;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.*;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.mapred.*;
 
 import org.apache.nutch.util.NutchConfiguration;
@@ -33,8 +35,7 @@ import org.apache.nutch.util.NutchJob;
  * crawled.  Useful for bootstrapping the system. */
 public class CrawlDb extends Configured {
 
-  public static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.crawl.CrawlDb");
+  public static final Log LOG = LogFactory.getLog(CrawlDb.class);
 
   /** Construct an CrawlDb. */
   public CrawlDb(Configuration conf) {

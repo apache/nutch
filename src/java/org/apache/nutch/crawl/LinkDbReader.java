@@ -18,22 +18,24 @@ package org.apache.nutch.crawl;
 
 import java.io.IOException;
 
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.mapred.lib.HashPartitioner;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
 import java.util.Iterator;
-import java.util.logging.Logger;
 
 /** . */
 public class LinkDbReader implements Closeable {
-  public static final Logger LOG = LogFormatter.getLogger(LinkDbReader.class.getName());
+  public static final Log LOG = LogFactory.getLog(LinkDbReader.class);
 
   private static final Partitioner PARTITIONER = new HashPartitioner();
 

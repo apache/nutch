@@ -18,14 +18,16 @@ package org.apache.nutch.crawl;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.*;
 import java.net.*;
+
+// Commons Logging imports
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.conf.*;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.mapred.*;
 
 import org.apache.nutch.net.URLFilters;
@@ -36,8 +38,7 @@ import org.apache.nutch.util.NutchJob;
 /** Maintains an inverted link map, listing incoming links for each url. */
 public class LinkDb extends Configured implements Mapper, Reducer {
 
-  public static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.crawl.LinkDb");
+  public static final Log LOG = LogFactory.getLog(LinkDb.class);
 
   public static String CURRENT_NAME = "current";
 
@@ -63,7 +64,7 @@ public class LinkDb extends Configured implements Mapper, Reducer {
           if (filters.filter(((UTF8)key).toString()) == null)
             return;
         } catch (Exception e) {
-          LOG.fine("Can't filter " + key + ": " + e);
+          LOG.debug("Can't filter " + key + ": " + e);
         }
       }
       Inlinks inlinks = null;
@@ -84,7 +85,7 @@ public class LinkDb extends Configured implements Mapper, Reducer {
               if (filters.filter(in.getFromUrl()) == null)
                 continue;
             } catch (Exception e) {
-              LOG.fine("Can't filter " + key + ": " + e);
+              LOG.debug("Can't filter " + key + ": " + e);
             }
           }
           inlinks.add(in);

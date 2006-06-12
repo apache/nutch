@@ -16,6 +16,8 @@
 
 package org.apache.nutch.protocol.file;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.hadoop.io.UTF8;
@@ -23,16 +25,12 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
 
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.conf.Configuration;
 
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import java.net.URL;
 
@@ -46,8 +44,7 @@ import java.net.URL;
  ***********************************/
 public class File implements Protocol {
 
-  public static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.protocol.file.File");
+  public static final Log LOG = LogFactory.getLog(File.class);
 
   static final int MAX_REDIRECTS = 5;
 
@@ -91,8 +88,9 @@ public class File implements Protocol {
             throw new FileException("Too many redirects: " + url);
           u = new URL(response.getHeader("Location"));
           redirects++;                
-          if (LOG.isLoggable(Level.FINE))
-            LOG.fine("redirect to " + u); 
+          if (LOG.isTraceEnabled()) {
+            LOG.trace("redirect to " + u); 
+          }
   
         } else {                                    // convert to exception
           throw new FileError(code);
@@ -141,7 +139,7 @@ public class File implements Protocol {
       file.setMaxContentLength(maxContentLength);
 
     // set log level
-    LOG.setLevel(Level.parse((new String(logLevel)).toUpperCase()));
+    //LOG.setLevel(Level.parse((new String(logLevel)).toUpperCase()));
 
     Content content = file.getProtocolOutput(new UTF8(urlString), new CrawlDatum()).getContent();
 

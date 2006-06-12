@@ -173,6 +173,7 @@
       </lib>
       <classes dir="${conf.dir}" excludes="**/*.template"/>
       <classes dir="${web.src.dir}/locale"/>
+      <classes file="${web.src.dir}/log4j.properties"/>
       <zipfileset prefix="WEB-INF/classes/plugins" dir="${build.plugins}"/>
       <webinf dir="${lib.dir}">
 	<include name="taglibs-*.tld"/>

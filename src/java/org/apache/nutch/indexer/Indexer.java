@@ -18,19 +18,21 @@ package org.apache.nutch.indexer;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.*;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.io.*;
 import org.apache.nutch.fetcher.Fetcher;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.hadoop.mapred.*;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.analysis.*;
 
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
+import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
@@ -47,8 +49,7 @@ public class Indexer extends Configured implements Reducer {
   
   public static final String DONE_NAME = "index.done";
 
-  public static final Logger LOG =
-    LogFormatter.getLogger("org.apache.nutch.crawl.Indexer");
+  public static final Log LOG = LogFactory.getLog(Indexer.class);
 
   /** Wraps inputs in an {@link ObjectWritable}, to permit merging different
    * types in reduce. */
@@ -96,7 +97,7 @@ public class Indexer extends Configured implements Reducer {
       writer.setTermIndexInterval
         (job.getInt("indexer.termIndexInterval", 128));
       writer.setMaxFieldLength(job.getInt("indexer.max.tokens", 10000));
-      writer.setInfoStream(LogFormatter.getLogStream(LOG, Level.INFO));
+      writer.setInfoStream(LogUtil.getInfoStream(LOG));
       writer.setUseCompoundFile(false);
       writer.setSimilarity(new NutchSimilarity());
 
@@ -195,7 +196,7 @@ public class Indexer extends Configured implements Reducer {
       } else if (value instanceof ParseText) {
         parseText = (ParseText)value;
       } else {
-        LOG.warning("Unrecognized type: "+value.getClass());
+        LOG.warn("Unrecognized type: "+value.getClass());
       }
     }      
 
@@ -227,7 +228,7 @@ public class Indexer extends Configured implements Reducer {
       // run indexing filters
       doc = this.filters.filter(doc, parse, (UTF8)key, fetchDatum, inlinks);
     } catch (IndexingException e) {
-      LOG.warning("Error indexing "+key+": "+e);
+      LOG.warn("Error indexing "+key+": "+e);
       return;
     }
 
@@ -237,7 +238,7 @@ public class Indexer extends Configured implements Reducer {
       boost = this.scfilters.indexerScore((UTF8)key, doc, dbDatum,
               fetchDatum, parse, inlinks, boost);
     } catch (ScoringFilterException e) {
-      LOG.warning("Error calculating score " + key + ": " + e);
+      LOG.warn("Error calculating score " + key + ": " + e);
       return;
     }
     // apply boost to all indexed fields.
