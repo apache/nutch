@@ -119,6 +119,7 @@ webapp
 				<include name="hadoop-*.jar" />
 				<include name="commons-lang-*.jar" />
 				<include name="commons-logging-*.jar" />
+				<include name="log4j-*.jar" />
 				<include name="xerces-*.jar" />
 			</lib>
 			<lib dir="${nutch.root}/lib/jetty-ext">
@@ -139,6 +140,9 @@ webapp
 				<include name="*.jar" />
 			</lib>
 			<classes dir="${conf.dir}" excludes="**/*.template" />
+			
+			<classes file="${nutch.root}/src/web/log4j.properties"/>
+
 			<!--
 			<zipfileset prefix="WEB-INF/classes/plugins" dir="${build.plugins}" >
 				<exclude name="parse-*/**"/>

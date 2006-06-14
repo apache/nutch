@@ -26,11 +26,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Iterator;
-import java.util.logging.Logger;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.searcher.Query;
 import org.apache.nutch.util.DomUtil;
 import org.apache.xerces.dom.DocumentImpl;
@@ -93,8 +93,7 @@ public class SimpleKeyMatcher extends Configured {
     }
   }
 
-  static final Logger LOG = LogFormatter.getLogger(SimpleKeyMatcher.class
-      .getName());
+  public static final Log LOG = LogFactory.getLog(SimpleKeyMatcher.class);
 
   public static final String TAG_KEYMATCH = "keymatch";
 
@@ -154,7 +153,7 @@ public class SimpleKeyMatcher extends Configured {
 
       final NodeList nodeList = root.getElementsByTagName(TAG_KEYMATCH);
 
-      LOG.fine("Configuration file has " + nodeList.getLength()
+      LOG.debug("Configuration file has " + nodeList.getLength()
           + " KeyMatch entries.");
       for (int i = 0; i < nodeList.getLength(); i++) {
         final Element element = (Element) nodeList.item(i);
@@ -181,7 +180,9 @@ public class SimpleKeyMatcher extends Configured {
       
     //"keyword"
     for(int i=0;i<terms.length;i++){
-      LOG.fine("keyword: '" + terms[i] + "'");
+      if(LOG.isDebugEnabled()){
+        LOG.debug("keyword: '" + terms[i] + "'");
+      }
 
       addMatches(currentMatches, matches.get(PREFIX_KEYWORD + terms[i]));
     }
@@ -195,8 +196,9 @@ public class SimpleKeyMatcher extends Configured {
             key+=terms[i];
             if(i!=p+l-1) key+=" ";
           }
-        
-          LOG.fine("phrase key: '" + key + "'");
+          if(LOG.isDebugEnabled()){
+            LOG.debug("phrase key: '" + key + "'");
+          }
           addMatches(currentMatches, matches.get(PREFIX_PHRASE + key));
         }
       }
@@ -204,7 +206,9 @@ public class SimpleKeyMatcher extends Configured {
 
     //"exact"
     String key=query.toString();
-    LOG.fine("exact key: '" + key + "'");
+    if(LOG.isDebugEnabled()){
+      LOG.debug("exact key: '" + key + "'");
+    }
 
     addMatches(currentMatches, matches.get(PREFIX_EXACT + key));
 

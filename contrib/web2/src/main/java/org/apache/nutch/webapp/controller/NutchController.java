@@ -18,14 +18,15 @@ package org.apache.nutch.webapp.controller;
 import java.io.IOException;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.hadoop.util.LogFormatter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.webapp.common.ServiceLocator;
 import org.apache.nutch.webapp.common.ServletContextServiceLocator;
 import org.apache.nutch.webapp.common.WebappInstanceServiceLocator;
@@ -37,8 +38,7 @@ import org.apache.struts.tiles.Controller;
  */
 public abstract class NutchController implements Controller {
 
-  public static Logger LOG = LogFormatter.getLogger(NutchController.class
-      .getName());
+  public static final Log LOG = LogFactory.getLog(NutchController.class);
   
   public final void execute(ComponentContext tileContext,
       HttpServletRequest request, HttpServletResponse response,
@@ -50,7 +50,7 @@ public abstract class NutchController implements Controller {
       nutchPerform(tileContext, request, response, servletContext);
     } catch (Exception e) {
       LOG.info("Exception occured while executing nutch controller:");
-      e.printStackTrace(System.err);
+      e.printStackTrace(LogUtil.getInfoStream(LOG));
     }
   }
   

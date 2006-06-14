@@ -22,12 +22,13 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.logging.Logger;
 
-import org.apache.hadoop.util.LogFormatter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginClassLoader;
+import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.webapp.extension.UIExtensionPoint;
 
 /**
@@ -88,17 +89,23 @@ public class PluginResourceLoader extends ClassLoader {
      * @see java.lang.ClassLoader#loadClass(java.lang.String)
      */
     public Class loadClass(String name) throws ClassNotFoundException {
-      LOG.info("loading class " + name + " from " + one);
+      if(LOG.isDebugEnabled()){
+        LOG.debug("loading class " + name + " from " + one);
+      }
       try {
         return one.loadClass(name);
       } catch (ClassNotFoundException e) {
       }
-      LOG.info("loading class " + name + " from " + two);
+      if(LOG.isDebugEnabled()){
+          LOG.debug("loading class " + name + " from " + two);
+      }
       try {
         return two.loadClass(name);
       } catch (ClassNotFoundException e) {
       }
-      LOG.info("could not find class, must throw Exception");
+      if(LOG.isDebugEnabled()){
+        LOG.info("could not find class, must throw Exception");
+      }
       throw new ClassNotFoundException(name);
     }
   }
@@ -107,8 +114,7 @@ public class PluginResourceLoader extends ClassLoader {
 
   ArrayList classloaders = new ArrayList();
 
-  public static Logger LOG = LogFormatter.getLogger(PluginResourceLoader.class
-      .getName());
+  public static Log LOG = LogFactory.getLog(PluginResourceLoader.class);
 
   public static PluginResourceLoader getInstance(ServiceLocator locator,
       ClassLoader parent) {
@@ -116,7 +122,7 @@ public class PluginResourceLoader extends ClassLoader {
         .getConfiguration().getObject(PluginResourceLoader.class.getName());
 
     if (loader == null) {
-      LOG.info("created new nutch loader with parent loader:" + parent);
+      LOG.info("Created new nutch loader with parent loader:" + parent);
       loader = new PluginResourceLoader(locator, parent);
       locator.getConfiguration().setObject(
           PluginResourceLoader.class.getName(), loader);
@@ -134,8 +140,9 @@ public class PluginResourceLoader extends ClassLoader {
 
     ArrayList paths = new ArrayList();
 
-    LOG
-        .info("PluginResourceLoader : dynamically setting jars based on plugins implementing UIExtensionPoint.");
+    if(LOG.isDebugEnabled()){
+      LOG.debug("PluginResourceLoader : dynamically setting jars based on plugins implementing UIExtensionPoint.");
+    }
 
     ExtensionPoint point = locator.getPluginRepository().getExtensionPoint(
         UIExtensionPoint.X_POINT_ID);
@@ -162,7 +169,9 @@ public class PluginResourceLoader extends ClassLoader {
         URL url = urls[k];
         if (!seen.contains(url)) {
           paths.add(url);
-          LOG.info("Adding to classpath:" + url);
+          if(LOG.isDebugEnabled()){
+            LOG.debug("Adding to classpath:" + url);
+          }
         }
         seen.add(url);
       }
@@ -255,7 +264,7 @@ public class PluginResourceLoader extends ClassLoader {
       // LOG.info("CUSTOM_LOADER_not found");
     } catch (Exception e) {
       LOG.info("Exception in loader " + e);
-      e.printStackTrace(System.out);
+      e.printStackTrace(LogUtil.getInfoStream(LOG));
     }
     throw new ClassNotFoundException(name);
   }

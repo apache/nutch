@@ -21,13 +21,14 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.logging.Logger;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.util.LogFormatter;
 
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.nutch.searcher.Query;
+import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
 
 /**
@@ -36,8 +37,7 @@ import org.apache.nutch.util.NutchConfiguration;
  * @author Andy Liu &lt;andyliu1227@gmail.com&gt
  */
 public class SpellCheckerBean {
-  public static final Logger LOG = LogFormatter
-      .getLogger(SpellCheckerBean.class.toString());
+  public static final Log LOG = LogFactory.getLog(SpellCheckerBean.class);
 
   IndexSearcher spellingSearcher;
 
@@ -84,7 +84,7 @@ public class SpellCheckerBean {
       spellingSearcher = new IndexSearcher(indexLocation);
     } catch (IOException ioe) {
       LOG.info("error opening spell checking index");
-      ioe.printStackTrace(System.out);
+      ioe.printStackTrace(LogUtil.getInfoStream(LOG));
     }
   }
 
@@ -152,7 +152,9 @@ public class SpellCheckerBean {
         Iterator it = lis.iterator();
 
         while (it.hasNext()) {
-          LOG.fine(it.next().toString());
+          if(LOG.isDebugEnabled()){
+            LOG.debug(it.next().toString());
+          }
         }
 
         if (suggestions.length > 0) {
