@@ -16,20 +16,19 @@
 package org.apache.nutch.webapp.common;
 
 import java.util.Locale;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.searcher.NutchBean;
 
 public class WebappInstanceServiceLocator implements ServiceLocator {
 
-  public static Logger LOG = LogFormatter
-      .getLogger(WebappInstanceServiceLocator.class.getName());
+  public static final Log LOG = LogFactory.getLog(WebappInstanceServiceLocator.class);
 
   HttpServletRequest request;
 

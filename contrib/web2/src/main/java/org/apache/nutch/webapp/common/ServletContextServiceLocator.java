@@ -2,12 +2,12 @@ package org.apache.nutch.webapp.common;
 
 import java.io.IOException;
 import java.util.Locale;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletContext;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.searcher.NutchBean;
 import org.apache.nutch.util.NutchConfiguration;
@@ -23,8 +23,7 @@ public abstract class ServletContextServiceLocator implements ServiceLocator {
   /**
    * Logger
    */
-  public static Logger LOG = LogFormatter
-      .getLogger(ServletContextServiceLocator.class.getName());
+  public static final Log LOG = LogFactory.getLog(ServletContextServiceLocator.class);
 
   /**
    * ServletContext this ServiceLocator is bound to

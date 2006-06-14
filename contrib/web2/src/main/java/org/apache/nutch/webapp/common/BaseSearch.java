@@ -18,10 +18,10 @@ package org.apache.nutch.webapp.common;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.logging.Logger;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.util.LogFormatter;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.webapp.extension.PostSearchExtensionPoint;
@@ -30,7 +30,7 @@ import org.apache.nutch.webapp.extension.SearchExtensionPoint;
 
 public class BaseSearch {
 
-  public static Logger LOG = LogFormatter.getLogger(BaseSearch.class.getName());
+  public static final Log LOG = LogFactory.getLog(BaseSearch.class);
 
   protected PreSearchExtensionPoint[] presearch;
 

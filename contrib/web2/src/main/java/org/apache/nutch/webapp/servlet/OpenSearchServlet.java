@@ -18,7 +18,6 @@ package org.apache.nutch.webapp.servlet;
 
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.logging.Level;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
@@ -128,7 +127,7 @@ public class OpenSearchServlet extends NutchHttpServlet {
       hits = getServiceLocator().getNutchBean().search(query, start + hitsPerPage, hitsPerDup, dedupField,
           sort, reverse);
     } catch (IOException e) {
-      NutchBean.LOG.log(Level.WARNING, "Search Error", e);
+      NutchBean.LOG.warn("Search Error", e);
       hits = new Hits(0, new Hit[0]);
     }
 

@@ -20,12 +20,12 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
 
-import org.apache.hadoop.util.LogFormatter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
@@ -52,8 +52,7 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
 
   private static final long serialVersionUID = 1L;
 
-  public static Logger LOG = LogFormatter
-      .getLogger(ExtendableDefinitionsFactory.class.getName());
+  public static final Log LOG = LogFactory.getLog(ExtendableDefinitionsFactory.class);
 
   DefinitionsFactoryConfig config;
 
@@ -172,7 +171,6 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
     
     try {
       xmlParser.parse(input, newSet);
-      preprocessDefinitions(newSet);
     } catch (IOException e) {
       LOG.info("IOException (" + e.getMessage() + ") parsing definitions "
           + info);
@@ -183,8 +181,8 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
       e.printStackTrace();
     }
 
-    LOG.info("Definitions:" + definitions.getDefinitions().size() + " : "
-        + definitions.toString());
+//    LOG.info("Definitions:" + definitions.getDefinitions().size() + " : "
+//        + definitions.toString());
     
     copySet(definitions,newSet);
     
@@ -228,25 +226,14 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
     this.definitions = definitions.getDefinitions();
   }
   
-  private void preprocessDefinitions(XmlDefinitionsSet set){
-    Map definitions=set.getDefinitions();
-    Iterator i=definitions.keySet().iterator();
-    
-    while(i.hasNext()){
-      String key=(String)i.next();
-      XmlDefinition definition=(XmlDefinition)definitions.get(key);
-      if(definition.getPath()!=null && definition.getPath().startsWith("@plugin@")){
-        definition.setPath("goooo" + definition.getPath());
-      }
-    }
-  }
-
   private void initDefinitions(XmlDefinitionsSet definitions) {
     Iterator i = definitions.getDefinitions().keySet().iterator();
 
     while (i.hasNext()) {
       String key = (String) i.next();
-      LOG.fine("Initializing controller: " + key);
+      if(LOG.isDebugEnabled()){
+        LOG.debug("Initializing controller: " + key);
+      }
       XmlDefinition d = definitions.getDefinition(key);
       try {
         Controller controller=d.getOrCreateController();

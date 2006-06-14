@@ -18,9 +18,9 @@ package org.apache.nutch.webapp.common;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
-import org.apache.hadoop.util.LogFormatter;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.nutch.html.Entities;
 import org.apache.nutch.searcher.Hit;
 import org.apache.nutch.searcher.HitDetails;
@@ -37,7 +37,7 @@ import org.apache.nutch.searcher.Summary;
  */
 public class Search {
   public static final String REQ_ATTR_SEARCH="nutchSearch";
-  public static Logger LOG = LogFormatter.getLogger(Search.class.getName());
+  public static final Log LOG = LogFactory.getLog(Search.class);
 
   String queryString;
 
