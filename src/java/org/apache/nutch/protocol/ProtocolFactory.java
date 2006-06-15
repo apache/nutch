@@ -47,38 +47,33 @@ public class ProtocolFactory {
   }                      
 
   /** Returns the appropriate {@link Protocol} implementation for a url. */
-  public Protocol getProtocol(String urlString)
-    throws ProtocolNotFound {
+  public Protocol getProtocol(String urlString) throws ProtocolNotFound {
     try {
       URL url = new URL(urlString);
       String protocolName = url.getProtocol();
       if (protocolName == null)
         throw new ProtocolNotFound(urlString);
-      Extension extension = getExtension(protocolName);
-      if (extension == null)
-        throw new ProtocolNotFound(protocolName);
-      Protocol protocol = (Protocol) extension.getExtensionInstance();
-      protocol.setConf(this.conf);
-      return protocol;
+
+      if (conf.getObject(protocolName) != null) {
+        return (Protocol) conf.getObject(protocolName);
+      } else {
+        Extension extension = findExtension(protocolName);
+        if (extension == null) {
+          throw new ProtocolNotFound(protocolName);
+        }
+
+        Protocol protocol = (Protocol) extension.getExtensionInstance();
+
+        conf.setObject(protocolName, protocol);
+
+        return protocol;
+      }
 
     } catch (MalformedURLException e) {
       throw new ProtocolNotFound(urlString, e.toString());
     } catch (PluginRuntimeException e) {
       throw new ProtocolNotFound(urlString, e.toString());
     }
-  }
-
-  private Extension getExtension(String name)
-    throws PluginRuntimeException {
-
-    if (this.conf.getObject(name) != null)
-      return (Extension)this.conf.getObject(name);
-    
-    Extension extension = findExtension(name);
-    
-    if (extension != null) this.conf.setObject(name, extension);
-    
-    return extension;
   }
 
   private Extension findExtension(String name)
