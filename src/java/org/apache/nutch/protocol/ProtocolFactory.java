@@ -27,9 +27,13 @@ import org.apache.nutch.plugin.*;
 
 import org.apache.hadoop.conf.Configuration;
 
-/** Creates and caches {@link Protocol} plugins.  Protocol plugins should
+/** 
+ * Creates and caches {@link Protocol} plugins.  Protocol plugins should
  * define the attribute "protocolName" with the name of the protocol that they
- * implement. */
+ * implement. Configuration object is used for caching. Cache key is
+ * constructed from appending protocol name (eg. http) to
+ * constant {@link Protocol#X_POINT_ID).
+ */
 public class ProtocolFactory {
 
   public static final Log LOG = LogFactory.getLog(ProtocolFactory.class);
@@ -46,16 +50,22 @@ public class ProtocolFactory {
         }
   }                      
 
-  /** Returns the appropriate {@link Protocol} implementation for a url. */
+  /**
+   * Returns the appropriate {@link Protocol} implementation for a url.    
+   * @param urlString Url String 
+   * @return
+   * @throws ProtocolNotFound when Protocol can not be found for urlString
+   */
   public Protocol getProtocol(String urlString) throws ProtocolNotFound {
     try {
       URL url = new URL(urlString);
       String protocolName = url.getProtocol();
+      String cacheId=Protocol.X_POINT_ID + protocolName;
       if (protocolName == null)
         throw new ProtocolNotFound(urlString);
 
-      if (conf.getObject(protocolName) != null) {
-        return (Protocol) conf.getObject(protocolName);
+      if (conf.getObject(cacheId) != null) {
+        return (Protocol) conf.getObject(cacheId);
       } else {
         Extension extension = findExtension(protocolName);
         if (extension == null) {
@@ -64,7 +74,7 @@ public class ProtocolFactory {
 
         Protocol protocol = (Protocol) extension.getExtensionInstance();
 
-        conf.setObject(protocolName, protocol);
+        conf.setObject(cacheId, protocol);
 
         return protocol;
       }
