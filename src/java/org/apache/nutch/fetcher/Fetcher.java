@@ -391,7 +391,7 @@ public class Fetcher extends Configured implements MapRunnable {
     job.setBoolean("fetcher.parse", parsing);
 
     // for politeness, don't permit parallel execution of a single task
-    job.setBoolean("mapred.speculative.execution", false);
+    job.setSpeculativeExecution(false);
 
     job.setInputPath(new Path(segment, CrawlDatum.GENERATE_DIR_NAME));
     job.setInputFormat(InputFormat.class);
