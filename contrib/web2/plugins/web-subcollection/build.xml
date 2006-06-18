@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+
+<project name="web-subcollection" default="jar-core">
+
+  <import file="../build-plugin.xml"/>
+  <property name="nutch.root" location="${root}/../../../../"/>
+
+  <!-- Add compilation dependencies to classpath -->
+  <path id="plugin.deps">
+    <fileset dir="${nutch.root}/build">
+      <include name="**/subcollection/*.jar" />
+    </fileset>
+  </path>
+	
+	<target name="init-plugin">
+		<echo>Copying resources templates</echo>
+		<copy todir="${build.classes}/resources">
+			<fileset dir="${resources.dir}" includes="**/*" />
+		</copy>
+		<echo>Copying UI configuration</echo>
+		<copy todir="${build.classes}">
+			<fileset dir="src/conf" includes="**/*" />
+		</copy>
+		<echo>Copying UI templates</echo>
+		<copy todir="${deploy.dir}/web">
+			<fileset dir="src/web" includes="**/*" />
+		</copy>
+	</target>
+	
+</project>

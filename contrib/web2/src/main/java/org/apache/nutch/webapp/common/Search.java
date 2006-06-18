@@ -232,7 +232,7 @@ public class Search {
    * @param query
    *          The query to set.
    */
-  protected void setQuery(Query query) {
+  public void setQuery(Query query) {
     this.query = query;
   }
 

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin id="web-subcollection" name="subcollection ui enhancements"
+ version="1.0.0" provider-name="apache.org">
+ <runtime>
+  <library name="web-subcollection.jar">
+   <export name="*" />
+  </library>
+ </runtime>
+ <requires>
+  <import plugin="nutch-extensionpoints" />
+  <import plugin="subcollection" />
+ </requires>
+ <extension id="org.apache.nutch.webapp.extension.UIExtensionPoint"
+  name="Nutch ui extension point"
+  point="org.apache.nutch.webapp.extension.UIExtensionPoint">
+  <implementation id="web-subcollection"
+   class="org.apache.nutch.webapp.extension.UIExtension.VoidImplementation" />
+ </extension>
+ <extension
+  id="org.apache.nutch.webapp.extension.PreSearchExtensionPoint"
+  name="Clustering extension for Web UI"
+  point="org.apache.nutch.webapp.extension.PreSearchExtensionPoint">
+  <implementation id="web-subcollection-presearch"
+   class="org.apache.nutch.webapp.subcollection.SubcollectionPreSearchExtension" />
+ </extension>
+</plugin>

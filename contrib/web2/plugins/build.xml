@@ -18,6 +18,7 @@
     <ant dir="web-keymatch" target="deploy"/>
     <ant dir="web-query-propose-ontology" target="deploy"/>
     <ant dir="web-query-propose-spellcheck" target="deploy"/>
+    <ant dir="web-subcollection" target="deploy"/>
   </target>
 
   <!-- ====================================================== -->
@@ -41,6 +42,7 @@
     <ant dir="web-clustering" target="clean"/>
     <ant dir="web-query-propose-ontology" target="clean"/>
     <ant dir="web-query-propose-spellcheck" target="clean"/>
+    <ant dir="web-subcollection" target="clean"/>
   </target>
 
 </project>

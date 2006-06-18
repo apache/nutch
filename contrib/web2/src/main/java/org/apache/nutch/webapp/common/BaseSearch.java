@@ -113,6 +113,7 @@ public class BaseSearch {
    * Call plugins participating PreSearch activities
    */
   void callPreSearch(ServiceLocator locator) {
+    LOG.info("presearch");
     for (int i = 0; i < presearch.length; i++) {
       presearch[i].doPreSearch(serviceLocator);
     }
@@ -131,6 +132,7 @@ public class BaseSearch {
    * Call plugins participating postSearch activities
    */
   void callPostSearch(ServiceLocator locator) {
+    LOG.info("postsearch");
     for (int i = 0; i < postsearch.length; i++) {
       postsearch[i].doPostSearch(serviceLocator);
     }
