@@ -15,12 +15,15 @@
  */
 package org.apache.nutch.webapp.common;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.io.Writable;
 import org.apache.nutch.html.Entities;
 import org.apache.nutch.searcher.Hit;
 import org.apache.nutch.searcher.HitDetails;
@@ -35,7 +38,10 @@ import org.apache.nutch.searcher.Summary;
  * results) might be a good candidate for caching ?
  * 
  */
-public class Search {
+public class Search implements Writable {
+
+  private static final long serialVersionUID = 1L;
+  
   public static final String REQ_ATTR_SEARCH="nutchSearch";
   public static final Log LOG = LogFactory.getLog(Search.class);
 
@@ -104,18 +110,8 @@ public class Search {
     int realEnd = (int) Math.min(hits.getLength(), getStartOffset()
         + getHitsRequired());
 
-    int endOffset=hits.getLength();
-    
+    init();
     show = hits.getHits(getStartOffset(), realEnd - getStartOffset());
-    
-    navigationHelper = new NavigationHelper(startOffset, endOffset, hitsPerPage, hits
-        .getTotal(), hits.totalIsExact());
-
-    // set offset to next page to form so it get's to ui
-    if (navigationHelper.hasNext()) {
-      form.setValue(SearchForm.NAME_START, Long.toString(navigationHelper
-          .getNextPageStart()));
-    }
 
     try {
       details = locator.getNutchBean().getDetails(show);
@@ -126,6 +122,20 @@ public class Search {
     }
   }
 
+  public void init(){
+    int endOffset=hits.getLength();
+    
+    navigationHelper = new NavigationHelper(startOffset, endOffset, hitsPerPage, hits
+        .getTotal(), hits.totalIsExact());
+
+    // set offset to next page to form so it get's to ui
+    if (navigationHelper.hasNext()) {
+      form.setValue(SearchForm.NAME_START, Long.toString(navigationHelper
+          .getNextPageStart()));
+    }
+  }
+  
+  
   /**
    * gets the results of search to display
    * 
@@ -155,6 +165,10 @@ public class Search {
       }
     }
     return ret;
+  }
+  
+  public Search(){
+    
   }
 
   public Search(ServiceLocator locator) {
@@ -463,5 +477,55 @@ public class Search {
   public void launchSearch() {
     BaseSearch bs=new BaseSearch(locator);
     bs.doSearch();
+  }
+
+  public void write(DataOutput out) throws IOException {
+    LOG.info("writing hits");
+    hits.write(out);
+    
+    
+    out.writeInt(show.length);
+
+    for(int i=0;i<show.length;i++){
+      show[i].write(out);
+    }
+
+    out.writeInt(details.length);
+    for(int i=0;i<details.length;i++){
+      details[i].write(out);
+    }
+
+    out.writeInt(summaries.length);
+    for(int i=0;i<summaries.length;i++){
+      summaries[i].write(out);
+    }
+
+  }
+
+  public void readFields(DataInput in) throws IOException {
+    hits=new Hits();
+    hits.readFields(in);
+    int showlength=in.readInt();
+    show=new Hit[showlength];
+    for(int i=0;i<showlength;i++){
+      show[i]=new Hit();
+      show[i].readFields(in);
+    }
+
+    int detailsLength=in.readInt();
+    details=new HitDetails[detailsLength];
+    for(int i=0;i<detailsLength;i++){
+      details[i]=new HitDetails();
+      details[i].readFields(in);
+    }
+
+    int summariesLength=in.readInt();
+    summaries=new Summary[summariesLength];
+    for(int i=0;i<summariesLength;i++){
+      summaries[i]=new Summary();
+      summaries[i].readFields(in);
+    }
+
+  
   }
 }

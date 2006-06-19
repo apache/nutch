@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.nutch.webapp.CacheManager;
 import org.apache.nutch.webapp.common.Search;
 import org.apache.nutch.webapp.common.ServiceLocator;
+import org.apache.nutch.webapp.common.Startable;
 import org.apache.nutch.webapp.controller.SearchController;
 import org.apache.struts.tiles.ComponentContext;
 
@@ -34,37 +35,51 @@ import com.opensymphony.oscache.base.NeedsRefreshException;
  * This naive search result caching implementation is just an example of
  * extending the web ui.
  */
-public class CachingSearchController extends SearchController {
+public class CachingSearchController extends SearchController implements Startable {
+
+  CacheManager manager=null;
 
   public void nutchPerform(ComponentContext tileContext,
       HttpServletRequest request, HttpServletResponse response,
       ServletContext servletContext) throws ServletException, IOException {
 
-    Search search = null;
-    boolean requiresUpdate = false;
-
-    // key used for caching
-    String key = request.getQueryString();
-
     ServiceLocator locator = getServiceLocator(request);
-
-    if (key != null) {
+    Search search;
+    
+    // key used for caching results, should really be something else but a part of user
+    // definable String
+    String key = request.getQueryString().replace("?","_").replace("&","_");
+    StringBuffer cacheKey=new StringBuffer(key.length()*2);
+    for(int i=0;i<key.length();i++){
+      cacheKey.append(key.charAt(i)).append(java.io.File.separatorChar);
+    }
+    
+    if(LOG.isDebugEnabled()){
+      LOG.debug("cache key:" + cacheKey);
+    }
+    if (cacheKey != null) {
       try {
-        search = CacheManager.getInstance(locator.getConfiguration())
-            .getSearch(key);
+        search = manager.getSearch(cacheKey.toString(), locator);
         request.setAttribute(Search.REQ_ATTR_SEARCH, search);
-        LOG.info("Using cached");
+        if(LOG.isDebugEnabled()) {
+          LOG.debug("Using cached");
+        }
       } catch (NeedsRefreshException e) {
-        requiresUpdate = true;
-        LOG.info("Cache update required");
+        try{
+          super.nutchPerform(tileContext, request, response, servletContext);
+          search = (Search) locator.getSearch();
+          manager.putSearch(cacheKey.toString(),
+            search);
+        } catch (Exception ex){
+          LOG.info("Cancelling update");
+          manager.cancelUpdate(cacheKey.toString());
+        }
       }
     }
-    if (key!=null && (search == null || requiresUpdate)) {
-      LOG.info("Cache miss");
-      super.nutchPerform(tileContext, request, response, servletContext);
-      search = (Search) locator.getSearch();
-      CacheManager.getInstance(locator.getConfiguration()).putSearch(key,
-          search);
-    }
+  }
+
+  public void start(ServletContext servletContext) {
+    ServiceLocator locator=getServiceLocator(servletContext);
+    manager=CacheManager.getInstance(locator.getConfiguration());
   }
 }
