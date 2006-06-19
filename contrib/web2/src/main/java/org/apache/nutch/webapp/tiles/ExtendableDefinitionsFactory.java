@@ -29,6 +29,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
+import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.webapp.common.PluginResourceLoader;
 import org.apache.nutch.webapp.common.ServletContextServiceLocator;
 import org.apache.nutch.webapp.common.Startable;
@@ -87,13 +88,13 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
     try {
       definition.getOrCreateController();
     } catch (Exception e) {
-      e.printStackTrace(System.out);
+      e.printStackTrace(LogUtil.getDebugStream(LOG));
     }
   }
 
   protected XmlDefinitionsSet getDefinitions() {
 
-    System.out.println("getDefinitions()");
+    LOG.debug("getDefinitions()");
     
     XmlDefinitionsSet definitions = new XmlDefinitionsSet();
     //
@@ -161,7 +162,7 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
     try {
       is.close();
     } catch (Exception e) {
-      e.printStackTrace(System.out);
+      e.printStackTrace(LogUtil.getDebugStream(LOG));
     }
   }
 
@@ -194,7 +195,7 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
     
     while(iterator.hasNext()){
       String key=(String)iterator.next();
-      System.out.println("adding: -----------> " + key);
+      LOG.info("adding: " + key);
       XmlDefinition value=newSet.getDefinition(key);
       definitions2.putDefinition(value);
     }
@@ -244,7 +245,7 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
           }
         }
       } catch (Exception e) {
-        e.printStackTrace(System.out);
+        e.printStackTrace(LogUtil.getDebugStream(LOG));
       }
     }
   }
