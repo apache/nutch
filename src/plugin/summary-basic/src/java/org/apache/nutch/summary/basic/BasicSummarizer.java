@@ -285,7 +285,9 @@ public class BasicSummarizer implements Summarizer {
    * </implementation:Summarizer> *
    * ---------------------------- */
   
-  
+  /** Maximun number of tokens inspect in a summary . */
+  private static final int token_deep = 2000;
+
   /**
    * Class Excerpt represents a single passage found in the document, with some
    * appropriate regions highlit.
@@ -354,7 +356,7 @@ public class BasicSummarizer implements Summarizer {
     ArrayList result = new ArrayList();
     TokenStream ts = analyzer.tokenStream("content", new StringReader(text));
     Token token = null;
-    while (true) {
+    while (result.size()<token_deep) {
       try {
         token = ts.next();
       } catch (IOException e) {
