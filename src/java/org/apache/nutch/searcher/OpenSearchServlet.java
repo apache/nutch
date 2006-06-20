@@ -262,23 +262,57 @@ public class OpenSearchServlet extends HttpServlet {
   private static void addNode(Document doc, Node parent,
                               String name, String text) {
     Element child = doc.createElement(name);
-    child.appendChild(doc.createTextNode(text));
+    child.appendChild(doc.createTextNode(getLegalXml(text)));
     parent.appendChild(child);
   }
 
   private static void addNode(Document doc, Node parent,
                               String ns, String name, String text) {
     Element child = doc.createElementNS((String)NS_MAP.get(ns), ns+":"+name);
-    child.appendChild(doc.createTextNode(text));
+    child.appendChild(doc.createTextNode(getLegalXml(text)));
     parent.appendChild(child);
   }
 
   private static void addAttribute(Document doc, Element node,
                                    String name, String value) {
     Attr attribute = doc.createAttribute(name);
-    attribute.setValue(value);
+    attribute.setValue(getLegalXml(value));
     node.getAttributes().setNamedItem(attribute);
   }
 
-}
+  /*
+   * Ensure string is legal xml.
+   * @param text String to verify.
+   * @return Passed <code>text</code> or a new string with illegal
+   * characters removed if any found in <code>text</code>.
+   * @see http://www.w3.org/TR/2000/REC-xml-20001006#NT-Char
+   */
+  protected static String getLegalXml(final String text) {
+      if (text == null) {
+          return null;
+      }
+      StringBuffer buffer = null;
+      for (int i = 0; i < text.length(); i++) {
+        char c = text.charAt(i);
+        if (!isLegalXml(c)) {
+	  if (buffer == null) {
+              // Start up a buffer.  Copy characters here from now on
+              // now we've found at least one bad character in original.
+	      buffer = new StringBuffer(text.length());
+              buffer.append(text.substring(0, i));
+          }
+        } else {
+           if (buffer != null) {
+             buffer.append(c);
+           }
+        }
+      }
+      return (buffer != null)? buffer.toString(): text;
+  }
+ 
+  private static boolean isLegalXml(final char c) {
+    return c == 0x9 || c == 0xa || c == 0xd || (c >= 0x20 && c <= 0xd7ff)
+        || (c >= 0xe000 && c <= 0xfffd) || (c >= 0x10000 && c <= 0x10ffff);
+  }
 
+}
