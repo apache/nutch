@@ -31,8 +31,10 @@ import org.apache.hadoop.mapred.*;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
-/** This class takes a flat file of URLs and adds them to the of pages to be
- * crawled.  Useful for bootstrapping the system. */
+/**
+ * This class takes the output of the fetcher and updates the
+ * crawldb accordingly.
+ */
 public class CrawlDb extends Configured {
 
   public static final Log LOG = LogFactory.getLog(CrawlDb.class);
