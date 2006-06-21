@@ -126,10 +126,10 @@ if [ "$NUTCH_LOG_DIR" = "" ]; then
   NUTCH_LOG_DIR="$NUTCH_HOME/logs"
 fi
 if [ "$NUTCH_LOGFILE" = "" ]; then
-  NUTCH_LOGFILE='nutch.log'
+  NUTCH_LOGFILE='hadoop.log'
 fi
-NUTCH_OPTS="$NUTCH_OPTS -Dnutch.log.dir=$NUTCH_LOG_DIR"
-NUTCH_OPTS="$NUTCH_OPTS -Dnutch.log.file=$NUTCH_LOGFILE"
+NUTCH_OPTS="$NUTCH_OPTS -Dhadoop.log.dir=$NUTCH_LOG_DIR"
+NUTCH_OPTS="$NUTCH_OPTS -Dhadoop.log.file=$NUTCH_LOGFILE"
 
 # figure out which class to run
 if [ "$COMMAND" = "crawl" ] ; then
