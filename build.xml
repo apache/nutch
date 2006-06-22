@@ -252,6 +252,9 @@
     <copy file="${test.src.dir}/nutch-site.xml"
           todir="${test.build.classes}"/>
 
+    <copy file="${test.src.dir}/log4j.properties"
+          todir="${test.build.classes}"/>
+
     <junit printsummary="yes" haltonfailure="no" fork="yes" dir="${basedir}"
       errorProperty="tests.failed" failureProperty="tests.failed">
       <sysproperty key="test.build.data" value="${test.build.data}"/>
