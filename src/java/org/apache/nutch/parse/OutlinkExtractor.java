@@ -101,7 +101,9 @@ public class OutlinkExtractor {
         //   (SHOULD really check cpu time used so that heavily loaded systems
         //   do not unnecessarily hit this limit.)
         if (System.currentTimeMillis() - start >= 60000L) {
-          LOG.warn("Time limit exceeded for getOutLinks");
+          if (LOG.isWarnEnabled()) {
+            LOG.warn("Time limit exceeded for getOutLinks");
+          }
           break;
         }
         result = matcher.getMatch();
@@ -110,7 +112,7 @@ public class OutlinkExtractor {
       }
     } catch (Exception ex) {
       // if the matcher fails (perhaps a malformed URL) we just log it and move on
-      LOG.error("getOutlinks", ex);
+      if (LOG.isErrorEnabled()) { LOG.error("getOutlinks", ex); }
     }
 
     final Outlink[] retval;
@@ -152,7 +154,9 @@ public class OutlinkExtractor {
     //
     // url = re.getParen(0);
     //
-    // LOG.trace("Extracted url: " + url);
+    // if (LOG.isTraceEnabled()) {
+    //   LOG.trace("Extracted url: " + url);
+    // }
     //
     // try {
     //
@@ -162,7 +166,7 @@ public class OutlinkExtractor {
     // } catch (MalformedURLException ex) {
     // // if it is a malformed URL we just throw it away and continue with
     // // extraction.
-    // LOG.error("getOutlinks", ex);
+    // if (LOG.isErrorEnabled()) { LOG.error("getOutlinks", ex); }
     // }
     //
     // pos = re.getParenEnd(0);
@@ -215,7 +219,7 @@ public class OutlinkExtractor {
     // } catch (MalformedURLException ex) {
     // // if it is a malformed URL we just throw it away and continue with
     // // extraction.
-    // LOG.error("getOutlinks", ex);
+    // if (LOG.isErrorEnabled()) { LOG.error("getOutlinks", ex); }
     // }
     //
     // pos = re.getParenEnd(0);

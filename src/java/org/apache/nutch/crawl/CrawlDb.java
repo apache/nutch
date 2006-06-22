@@ -45,19 +45,24 @@ public class CrawlDb extends Configured {
   }
 
   public void update(Path crawlDb, Path segment) throws IOException {
-    LOG.info("CrawlDb update: starting");
-    LOG.info("CrawlDb update: db: " + crawlDb);
-    LOG.info("CrawlDb update: segment: " + segment);
+    
+    if (LOG.isInfoEnabled()) {
+      LOG.info("CrawlDb update: starting");
+      LOG.info("CrawlDb update: db: " + crawlDb);
+      LOG.info("CrawlDb update: segment: " + segment);
+    }
 
     JobConf job = CrawlDb.createJob(getConf(), crawlDb);
     job.addInputPath(new Path(segment, CrawlDatum.FETCH_DIR_NAME));
     job.addInputPath(new Path(segment, CrawlDatum.PARSE_DIR_NAME));
 
-    LOG.info("CrawlDb update: Merging segment data into db.");
+    if (LOG.isInfoEnabled()) {
+      LOG.info("CrawlDb update: Merging segment data into db.");
+    }
     JobClient.runJob(job);
 
     CrawlDb.install(job, crawlDb);
-    LOG.info("CrawlDb update: done");
+    if (LOG.isInfoEnabled()) { LOG.info("CrawlDb update: done"); }
   }
 
   public static JobConf createJob(Configuration config, Path crawlDb) {

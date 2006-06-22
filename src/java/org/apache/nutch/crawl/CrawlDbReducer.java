@@ -108,8 +108,10 @@ public class CrawlDbReducer implements Reducer {
         try {
           scfilters.initialScore((UTF8)key, result);
         } catch (ScoringFilterException e) {
-          LOG.warn("Cannot filter init score for url " + key +
-                   ", using default: " + e.getMessage());
+          if (LOG.isWarnEnabled()) {
+            LOG.warn("Cannot filter init score for url " + key +
+                     ", using default: " + e.getMessage());
+          }
           result.setScore(scoreInjected);
         }
       }
@@ -122,7 +124,9 @@ public class CrawlDbReducer implements Reducer {
       break;
 
     case CrawlDatum.STATUS_SIGNATURE:
-      LOG.warn("Lone CrawlDatum.STATUS_SIGNATURE: " + key);   
+      if (LOG.isWarnEnabled()) {
+        LOG.warn("Lone CrawlDatum.STATUS_SIGNATURE: " + key);
+      }   
       return;
     case CrawlDatum.STATUS_FETCH_RETRY:           // temporary failure
       if (old != null)
@@ -147,7 +151,9 @@ public class CrawlDbReducer implements Reducer {
     try {
       scfilters.updateDbScore((UTF8)key, result, linked);
     } catch (Exception e) {
-      LOG.warn("Couldn't update score, key=" + key + ": " + e);
+      if (LOG.isWarnEnabled()) {
+        LOG.warn("Couldn't update score, key=" + key + ": " + e);
+      }
     }
     output.collect(key, result);
   }

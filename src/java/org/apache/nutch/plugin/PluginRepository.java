@@ -91,7 +91,7 @@ public class PluginRepository {
       try {
         installExtensions(fRegisteredPlugins);
       } catch (PluginRuntimeException e) {
-         LOG.fatal(e.toString());
+         if (LOG.isFatalEnabled()) { LOG.fatal(e.toString()); }
          throw new RuntimeException(e.getMessage());
       }
       displayStatus();
@@ -119,7 +119,9 @@ public class PluginRepository {
         for (int j=0; j<points.length; j++) {
           ExtensionPoint point = points[j];
           String xpId = point.getId();
-          LOG.debug("Adding extension point " + xpId);
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Adding extension point " + xpId);
+          }
           fExtensionPoints.put(xpId, point);
         }
       }
@@ -210,10 +212,10 @@ public class PluginRepository {
           checked.put(plugin.getPluginId(), plugin);
         } catch (MissingDependencyException mde) {
           // Simply ignore this plugin
-          LOG.warn(mde.getMessage());
+          if (LOG.isWarnEnabled()) { LOG.warn(mde.getMessage()); }
         } catch (CircularDependencyException cde) {
           // Simply ignore this plugin
-          LOG.warn(cde.getMessage());
+          if (LOG.isWarnEnabled()) { LOG.warn(cde.getMessage()); }
         }
       }
       return new ArrayList(checked.values());
@@ -326,9 +328,11 @@ public class PluginRepository {
     
     private void displayStatus() {
 
+      if (!LOG.isInfoEnabled()) { return; }
+      
       LOG.info("Plugin Auto-activation mode: [" + this.auto + "]");
-
       LOG.info("Registered Plugins:");
+
       if ((fRegisteredPlugins == null) || (fRegisteredPlugins.size() == 0)) {
         LOG.info("\tNONE");
       } else {
@@ -366,11 +370,11 @@ public class PluginRepository {
         if (id == null) { continue; }
         
         if (!includes.matcher(id).matches()) {
-          LOG.debug("not including: " + id);
+          if (LOG.isDebugEnabled()) { LOG.debug("not including: " + id); }
           continue;
         }
         if (excludes.matcher(id).matches()) {
-          LOG.debug("excluding: " + id);
+          if (LOG.isDebugEnabled()) { LOG.debug("excluding: " + id); }
           continue;
         }
         map.put(plugin.getPluginId(), plugin);

@@ -64,7 +64,9 @@ public class LinkDb extends Configured implements Mapper, Reducer {
           if (filters.filter(((UTF8)key).toString()) == null)
             return;
         } catch (Exception e) {
-          LOG.debug("Can't filter " + key + ": " + e);
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Can't filter " + key + ": " + e);
+          }
         }
       }
       Inlinks inlinks = null;
@@ -85,7 +87,9 @@ public class LinkDb extends Configured implements Mapper, Reducer {
               if (filters.filter(in.getFromUrl()) == null)
                 continue;
             } catch (Exception e) {
-              LOG.debug("Can't filter " + key + ": " + e);
+              if (LOG.isDebugEnabled()) {
+                LOG.debug("Can't filter " + key + ": " + e);
+              }
             }
           }
           inlinks.add(in);
@@ -193,17 +197,24 @@ public class LinkDb extends Configured implements Mapper, Reducer {
   }
 
   public void invert(Path linkDb, Path[] segments) throws IOException {
-    LOG.info("LinkDb: starting");
-    LOG.info("LinkDb: linkdb: " + linkDb);
+
+    if (LOG.isInfoEnabled()) {
+      LOG.info("LinkDb: starting");
+      LOG.info("LinkDb: linkdb: " + linkDb);
+    }
     JobConf job = LinkDb.createJob(getConf(), linkDb);
     for (int i = 0; i < segments.length; i++) {
-      LOG.info("LinkDb: adding segment: " + segments[i]);
+      if (LOG.isInfoEnabled()) {
+        LOG.info("LinkDb: adding segment: " + segments[i]);
+      }
       job.addInputPath(new Path(segments[i], ParseData.DIR_NAME));
     }
     JobClient.runJob(job);
     FileSystem fs = FileSystem.get(getConf());
     if (fs.exists(linkDb)) {
-      LOG.info("LinkDb: merging with existing linkdb: " + linkDb);
+      if (LOG.isInfoEnabled()) {
+        LOG.info("LinkDb: merging with existing linkdb: " + linkDb);
+      }
       // try to merge
       Path newLinkDb = job.getOutputPath();
       job = LinkDb.createMergeJob(getConf(), linkDb);
@@ -213,7 +224,7 @@ public class LinkDb extends Configured implements Mapper, Reducer {
       fs.delete(newLinkDb);
     }
     LinkDb.install(job, linkDb);
-    LOG.info("LinkDb: done");
+    if (LOG.isInfoEnabled()) { LOG.info("LinkDb: done"); }
   }
 
   private static JobConf createJob(Configuration config, Path linkDb) {

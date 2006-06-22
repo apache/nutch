@@ -43,7 +43,9 @@ public class PrintCommandListener implements ProtocolCommandListener
       try {
         __logIt(event);
       } catch (IOException e) {
-        __logger.info("PrintCommandListener.protocolCommandSent(): "+e);
+        if (__logger.isInfoEnabled()) {
+          __logger.info("PrintCommandListener.protocolCommandSent(): "+e);
+        }
       }
     }
 
@@ -51,11 +53,14 @@ public class PrintCommandListener implements ProtocolCommandListener
       try {
         __logIt(event);
       } catch (IOException e) {
-        __logger.info("PrintCommandListener.protocolReplyReceived(): "+e);
+        if (__logger.isInfoEnabled()) {
+          __logger.info("PrintCommandListener.protocolReplyReceived(): "+e);
+        }
       }
     }
 
     private void __logIt(ProtocolCommandEvent event) throws IOException {
+      if (!__logger.isInfoEnabled()) { return; }
       BufferedReader br =
         new BufferedReader(new StringReader(event.getMessage()));
       String line;

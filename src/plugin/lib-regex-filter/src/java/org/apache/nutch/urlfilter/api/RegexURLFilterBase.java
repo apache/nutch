@@ -134,12 +134,12 @@ public abstract class RegexURLFilterBase implements URLFilter {
     String file = getRulesFile(conf);
     Reader reader = conf.getConfResourceAsReader(file);
     if (reader == null) {
-      LOG.fatal("Can't find resource: " + file);
+      if (LOG.isFatalEnabled()) { LOG.fatal("Can't find resource: " + file); }
     } else {
       try {
         rules = readRulesFile(reader);
       } catch (IOException e) {
-        LOG.fatal(e.getMessage());
+        if (LOG.isFatalEnabled()) { LOG.fatal(e.getMessage()); }
         //TODO mb@media-style.com: throw Exception? Because broken api.
         throw new RuntimeException(e.getMessage(), e);
       }
@@ -187,7 +187,7 @@ public abstract class RegexURLFilterBase implements URLFilter {
       }
 
       String regex = line.substring(1);
-      LOG.trace("Adding rule [" + regex + "]");
+      if (LOG.isTraceEnabled()) { LOG.trace("Adding rule [" + regex + "]"); }
       RegexRule rule = createRule(sign, regex);
       rules.add(rule);
     }

@@ -131,11 +131,15 @@ public class PrefixURLFilter implements URLFilter {
     if (attributeFile != null && attributeFile.trim().equals(""))
       attributeFile = null;
     if (attributeFile != null) {
-      LOG.info("Attribute \"file\" is defined for plugin " + pluginName
-          + " as " + attributeFile);
+      if (LOG.isInfoEnabled()) {
+        LOG.info("Attribute \"file\" is defined for plugin " + pluginName
+            + " as " + attributeFile);
+      }
     } else {
-      // LOG.warn("Attribute \"file\" is not defined in plugin.xml for
-      // plugin "+pluginName);
+      // if (LOG.isWarnEnabled()) {
+      //   LOG.warn("Attribute \"file\" is not defined in plugin.xml for
+      //   plugin "+pluginName);
+      // }
     }
 
     String file = conf.get("urlfilter.prefix.file");
@@ -150,7 +154,7 @@ public class PrefixURLFilter implements URLFilter {
       try {
         trie = readConfigurationFile(reader);
       } catch (IOException e) {
-        LOG.fatal(e.getMessage());
+        if (LOG.isFatalEnabled()) { LOG.fatal(e.getMessage()); }
         // TODO mb@media-style.com: throw Exception? Because broken api.
         throw new RuntimeException(e.getMessage(), e);
       }

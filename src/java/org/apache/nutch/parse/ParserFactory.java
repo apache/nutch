@@ -131,12 +131,14 @@ public final class ParserFactory {
         }
         parsers.add(p);
       } catch (PluginRuntimeException e) {
+        if (LOG.isWarnEnabled()) {
           e.printStackTrace(LogUtil.getWarnStream(LOG));
-        LOG.warn("ParserFactory:PluginRuntimeException when "
-               + "initializing parser plugin "
-               + ext.getDescriptor().getPluginId()
-               + " instance in getParsers "
-               + "function: attempting to continue instantiating parsers");
+          LOG.warn("ParserFactory:PluginRuntimeException when "
+                 + "initializing parser plugin "
+                 + ext.getDescriptor().getPluginId()
+                 + " instance in getParsers "
+                 + "function: attempting to continue instantiating parsers");
+        }
       }
     }
     return (Parser[]) parsers.toArray(new Parser[]{});
@@ -189,9 +191,11 @@ public final class ParserFactory {
         this.conf.setObject(parserExt.getId(), p);
         return p;
       } catch (PluginRuntimeException e) {
-        LOG.warn("Canno initialize parser " +
-                 parserExt.getDescriptor().getPluginId() +
-                 " (cause: " + e.toString());
+        if (LOG.isWarnEnabled()) {
+          LOG.warn("Canno initialize parser " +
+                   parserExt.getDescriptor().getPluginId() +
+                   " (cause: " + e.toString());
+        }
         throw new ParserNotFound("Cannot init parser for id [" + id + "]");
       }
     }
@@ -211,8 +215,10 @@ public final class ParserFactory {
     try {
       type = MimeType.clean(contentType);
     } catch (MimeTypeException mte) {
-      LOG.debug("Could not clean the content-type [" + contentType +
-                "], Reason is [" + mte + "]. Using its raw version...");
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Could not clean the content-type [" + contentType +
+                  "], Reason is [" + mte + "]. Using its raw version...");
+      }
       type = contentType;
     }
 
@@ -299,22 +305,24 @@ public final class ParserFactory {
         if (ext == null) {
           //try to get it just by its pluginId
           ext = getExtension(extensions, parsePluginId);
-        
-          if (ext != null) {
-            // plugin was enabled via plugin.includes
-            // its plugin.xml just doesn't claim to support that
-            // particular mimeType
-            LOG.warn("ParserFactory:Plugin: " + parsePluginId +
-                     " mapped to contentType " + contentType +
-                     " via parse-plugins.xml, but " + "its plugin.xml " +
-                     "file does not claim to support contentType: " +
-                     contentType);
-          } else {
-            // plugin wasn't enabled via plugin.includes
-            LOG.warn("ParserFactory: Plugin: " + parsePluginId + 
-                     " mapped to contentType " + contentType +
-                     " via parse-plugins.xml, but not enabled via " +
-                     "plugin.includes in nutch-default.xml");                     
+          
+          if (LOG.isWarnEnabled()) { 
+            if (ext != null) {
+              // plugin was enabled via plugin.includes
+              // its plugin.xml just doesn't claim to support that
+              // particular mimeType
+              LOG.warn("ParserFactory:Plugin: " + parsePluginId +
+                       " mapped to contentType " + contentType +
+                       " via parse-plugins.xml, but " + "its plugin.xml " +
+                       "file does not claim to support contentType: " +
+                       contentType);
+            } else {
+              // plugin wasn't enabled via plugin.includes
+              LOG.warn("ParserFactory: Plugin: " + parsePluginId + 
+                       " mapped to contentType " + contentType +
+                       " via parse-plugins.xml, but not enabled via " +
+                       "plugin.includes in nutch-default.xml");                     
+            }
           }
         }
 
@@ -342,12 +350,14 @@ public final class ParserFactory {
       }
       
       if (extList.size() > 0) {
-        LOG.info("The parsing plugins: " + extList +
-                 " are enabled via the plugin.includes system " +
-                 "property, and all claim to support the content type " +
-                 contentType + ", but they are not mapped to it  in the " +
-                 "parse-plugins.xml file");
-      } else {
+        if (LOG.isInfoEnabled()) {
+          LOG.info("The parsing plugins: " + extList +
+                   " are enabled via the plugin.includes system " +
+                   "property, and all claim to support the content type " +
+                   contentType + ", but they are not mapped to it  in the " +
+                   "parse-plugins.xml file");
+        }
+      } else if (LOG.isDebugEnabled()) {
         LOG.debug("ParserFactory:No parse plugins mapped or enabled for " +
                   "contentType " + contentType);
       }

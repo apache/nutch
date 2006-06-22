@@ -51,7 +51,9 @@ public class LogUtil {
       ERROR = Log.class.getMethod("error", new Class[] { Object.class });
       FATAL = Log.class.getMethod("fatal", new Class[] { Object.class });
     } catch(Exception e) {
-      LOG.error("Cannot init log methods", e);
+      if (LOG.isErrorEnabled()) {
+        LOG.error("Cannot init log methods", e);
+      }
     }
   }
   
@@ -99,7 +101,9 @@ public class LogUtil {
           try {
             method.invoke(logger, new Object[] { toString().trim() });
           } catch (Exception e) {
-            LOG.fatal("Cannot log with method [" + method + "]", e);
+            if (LOG.isFatalEnabled()) {
+              LOG.fatal("Cannot log with method [" + method + "]", e);
+            }
           }
           reset();
           scan = 0;

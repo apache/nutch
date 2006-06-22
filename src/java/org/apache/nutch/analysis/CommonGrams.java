@@ -157,13 +157,17 @@ public class CommonGrams {
         TokenStream ts = new NutchDocumentTokenizer(new StringReader(line));
         Token token = ts.next();
         if (token == null) {
-          LOG.warn("Line does not contain a field name: " + line);
+          if (LOG.isWarnEnabled()) {
+            LOG.warn("Line does not contain a field name: " + line);
+          }
           continue;
         }
         String field = token.termText();
         token = ts.next();
         if (token == null) {
-          LOG.warn("Line contains only a field name, no word: " + line);
+          if (LOG.isWarnEnabled()) {
+            LOG.warn("Line contains only a field name, no word: " + line);
+          }
           continue;
         }
         String gram = token.termText();
@@ -208,7 +212,10 @@ public class CommonGrams {
 
   /** Optimizes phrase queries to use n-grams when possible. */
   public String[] optimizePhrase(Phrase phrase, String field) {
-    //LOG.info("Optimizing " + phrase + " for " + field);
+    
+    if (LOG.isTraceEnabled()) {
+      LOG.trace("Optimizing " + phrase + " for " + field);
+    }
     ArrayList result = new ArrayList();
     TokenStream ts = getFilter(new ArrayTokens(phrase), field);
     Token token, prev=null;

@@ -111,7 +111,9 @@ public class DistributedSearch {
             if (tokens.hasMoreTokens()) {
               String port = tokens.nextToken();
               addrs.add(new InetSocketAddress(host, Integer.parseInt(port)));
-              LOG.info("Client adding server "  + host + ":" + port);
+              if (LOG.isInfoEnabled()) {
+                LOG.info("Client adding server "  + host + ":" + port);
+              }
             }
           }
         }
@@ -171,11 +173,15 @@ public class DistributedSearch {
         InetSocketAddress addr = defaultAddresses[i];
         String[] segments = results[i];
         if (segments == null) {
-          LOG.warn("Client: no segments from: " + addr);
+          if (LOG.isWarnEnabled()) {
+            LOG.warn("Client: no segments from: " + addr);
+          }
           continue;
         }
         for (int j = 0; j < segments.length; j++) {
-          LOG.trace("Client: segment "+segments[j]+" at "+addr);
+          if (LOG.isTraceEnabled()) {
+            LOG.trace("Client: segment "+segments[j]+" at "+addr);
+          }
           segmentToAddress.put(segments[j], addr);
         }
         liveAddresses.add(addr);
@@ -184,9 +190,11 @@ public class DistributedSearch {
       }
 
       this.liveAddresses = (InetSocketAddress[]) // update liveAddresses
-        liveAddresses.toArray(new InetSocketAddress[liveAddresses.size()]);
+      liveAddresses.toArray(new InetSocketAddress[liveAddresses.size()]);
 
-      LOG.info("STATS: "+liveServers+" servers, "+liveSegments+" segments.");
+      if (LOG.isInfoEnabled()) {
+        LOG.info("STATS: "+liveServers+" servers, "+liveSegments+" segments.");
+      }
     }
 
     /** Return the names of segments searched. */
@@ -349,13 +357,17 @@ public class DistributedSearch {
         try{
           Thread.sleep(10000);
         } catch (InterruptedException ie){
-          LOG.info("Thread sleep interrupted.");
+          if (LOG.isInfoEnabled()) {
+            LOG.info("Thread sleep interrupted.");
+          }
         }
         try{
-          LOG.info("Querying segments from search servers...");
+          if (LOG.isInfoEnabled()) {
+            LOG.info("Querying segments from search servers...");
+          }
           updateSegments();
         } catch (IOException ioe) {
-          LOG.warn("No search servers available!");
+          if (LOG.isWarnEnabled()) { LOG.warn("No search servers available!"); }
           liveAddresses=new InetSocketAddress[0];
         }
       }

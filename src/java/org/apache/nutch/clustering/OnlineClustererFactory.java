@@ -76,18 +76,24 @@ public class OnlineClustererFactory {
     if (extensionName != null) {
       Extension extension = findExtension(extensionName);
       if (extension != null) {
-        LOG.info("Using clustering extension: " + extensionName);
+        if (LOG.isInfoEnabled()) {
+          LOG.info("Using clustering extension: " + extensionName);
+        }
         return (OnlineClusterer) extension.getExtensionInstance();
       }
-      LOG.warn("Clustering extension not found: '" + extensionName 
-             + "', trying the default");
+      if (LOG.isWarnEnabled()) {
+        LOG.warn("Clustering extension not found: '" + extensionName +
+                 "', trying the default");
+      }
       // not found, fallback to the default, if available.
     }
 
     final Extension[] extensions = this.extensionPoint.getExtensions();
     if (extensions.length > 0) {
-      LOG.info("Using the first clustering extension found: "
-        + extensions[0].getId());
+      if (LOG.isInfoEnabled()) {
+        LOG.info("Using the first clustering extension found: " +
+                 extensions[0].getId());
+      }
       return (OnlineClusterer) extensions[0].getExtensionInstance();
     } else {
       return null;

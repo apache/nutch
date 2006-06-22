@@ -106,8 +106,9 @@ private Configuration conf;
             
             resultText += entry.getName() + " " + parse.getText() + " ";
           } catch (ParseException e) {
-            
-            LOG.info("fetch okay, but can't parse " + fname + ", reason: " + e.getMessage());
+            if (LOG.isInfoEnabled()) { 
+              LOG.info("fetch okay, but can't parse " + fname + ", reason: " + e.getMessage());
+            }
           }
         }
       }

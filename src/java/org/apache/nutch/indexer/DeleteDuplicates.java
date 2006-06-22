@@ -291,7 +291,7 @@ public class DeleteDuplicates extends Configured
   public void dedup(Path[] indexDirs)
     throws IOException {
 
-    LOG.info("Dedup: starting");
+    if (LOG.isInfoEnabled()) { LOG.info("Dedup: starting"); }
 
     Path hashDir =
       new Path("dedup-hash-"+
@@ -300,7 +300,9 @@ public class DeleteDuplicates extends Configured
     JobConf job = new NutchJob(getConf());
 
     for (int i = 0; i < indexDirs.length; i++) {
-      LOG.info("Dedup: adding indexes in: " + indexDirs[i]);
+      if (LOG.isInfoEnabled()) {
+        LOG.info("Dedup: adding indexes in: " + indexDirs[i]);
+      }
       job.addInputPath(indexDirs[i]);
     }
     job.setJobName("dedup phase 1");
@@ -342,7 +344,7 @@ public class DeleteDuplicates extends Configured
 
     new JobClient(getConf()).getFs().delete(hashDir);
 
-    LOG.info("Dedup: done");
+    if (LOG.isInfoEnabled()) { LOG.info("Dedup: done"); }
   }
 
   public static void main(String[] args) throws Exception {

@@ -98,7 +98,9 @@ public class Generator extends Configured {
         if (filters.filter(url.toString()) == null)
           return;
       } catch (URLFilterException e) {
-        LOG.warn("Couldn't filter url: " + url + " (" + e.getMessage() + ")");
+        if (LOG.isWarnEnabled()) {
+          LOG.warn("Couldn't filter url: " + url + " (" + e.getMessage() + ")");
+        }
       }
       CrawlDatum crawlDatum = (CrawlDatum)value;
 
@@ -112,7 +114,9 @@ public class Generator extends Configured {
       try {
         sort = scfilters.generatorSortValue((UTF8)key, crawlDatum, sort);
       } catch (ScoringFilterException sfe) {
-        LOG.warn("Couldn't filter generatorSortValue for " + key + ": " + sfe);
+        if (LOG.isWarnEnabled()) {
+          LOG.warn("Couldn't filter generatorSortValue for " + key + ": " + sfe);
+        }
       }
       // sort by decreasing score
       sortValue.set(sort);
@@ -150,9 +154,13 @@ public class Generator extends Configured {
               InetAddress ia = InetAddress.getByName(host);
               host = ia.getHostAddress();
             } catch (UnknownHostException uhe) {
-              LOG.debug("DNS lookup failed: " + host + ", skipping.");
+              if (LOG.isDebugEnabled()) {
+                LOG.debug("DNS lookup failed: " + host + ", skipping.");
+              }
               dnsFailure++;
-              if (dnsFailure % 1000 == 0) LOG.warn("DNS failures: " + dnsFailure);
+              if ((dnsFailure % 1000 == 0) && (LOG.isWarnEnabled())) {
+                LOG.warn("DNS failures: " + dnsFailure);
+              }
               continue;
             }
           }
@@ -168,8 +176,10 @@ public class Generator extends Configured {
           // skip URL if above the limit per host.
           if (hostCount.get() > maxPerHost) {
             if (hostCount.get() == maxPerHost + 1) {
-              LOG.info("Host "+ host +" has more than "+ maxPerHost +" URLs."+
-                       " Skipping additional.");
+              if (LOG.isInfoEnabled()) {
+                LOG.info("Host " + host + " has more than " + maxPerHost +
+                         " URLs." + " Skipping additional.");
+              }
             }
             continue;
           }
@@ -257,11 +267,13 @@ public class Generator extends Configured {
     Path segment = new Path(segments, generateSegmentName());
     Path output = new Path(segment, CrawlDatum.GENERATE_DIR_NAME);
 
-    LOG.info("Generator: starting");
-    LOG.info("Generator: segment: " + segment);
+    if (LOG.isInfoEnabled()) {
+      LOG.info("Generator: starting");
+      LOG.info("Generator: segment: " + segment);
+      LOG.info("Generator: Selecting most-linked urls due for fetch.");
+    }
 
     // map to inverted subset due for fetch, sort by link count
-    LOG.info("Generator: Selecting most-linked urls due for fetch.");
     JobConf job = new NutchJob(getConf());
     job.setJobName("generate: select " + segment);
     
@@ -288,7 +300,9 @@ public class Generator extends Configured {
     JobClient.runJob(job);
 
     // invert again, paritition by host, sort by url hash
-    LOG.info("Generator: Partitioning selected urls by host, for politeness.");
+    if (LOG.isInfoEnabled()) {
+      LOG.info("Generator: Partitioning selected urls by host, for politeness.");
+    }
     job = new NutchJob(getConf());
     job.setJobName("generate: partition " + segment);
     
@@ -312,7 +326,7 @@ public class Generator extends Configured {
 
     new JobClient(getConf()).getFs().delete(tempDir);
 
-    LOG.info("Generator: done.");
+    if (LOG.isInfoEnabled()) { LOG.info("Generator: done."); }
 
     return segment;
   }
@@ -355,8 +369,9 @@ public class Generator extends Configured {
       }
     }
 
-    if (topN != Long.MAX_VALUE)
+    if ((LOG.isInfoEnabled()) && (topN != Long.MAX_VALUE)) {
       LOG.info("topN: " + topN);
+    }
     Generator gen = new Generator(NutchConfiguration.create());
     gen.generate(dbDir, segmentsDir, numFetchers, topN, curTime);
   }

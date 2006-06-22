@@ -155,9 +155,13 @@ public class MoreIndexingFilter implements IndexingFilter {
 		      "dd.MM.yyyy zzz"
 		  });
 	    time = parsedDate.getTime();
-	    //	    LOG.warn(url + ": parsed date: " + date +" to:"+time);
+            // if (LOG.isWarnEnabled()) {
+	    //   LOG.warn(url + ": parsed date: " + date +" to:"+time);
+            // }
 	} catch (Exception e2) {
-	    LOG.warn(url + ": can't parse erroneous date: " + date);
+            if (LOG.isWarnEnabled()) {
+	      LOG.warn(url + ": can't parse erroneous date: " + date);
+            }
 	}
     }
     return time;
@@ -194,7 +198,7 @@ public class MoreIndexingFilter implements IndexingFilter {
         try {
             mimeType = new MimeType(contentType);
         } catch (MimeTypeException e) {
-            LOG.warn(url + e.toString());
+            if (LOG.isWarnEnabled()) { LOG.warn(url + e.toString()); }
             mimeType = null;
         }
     }

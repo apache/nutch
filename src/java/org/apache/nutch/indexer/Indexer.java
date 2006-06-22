@@ -108,9 +108,11 @@ public class Indexer extends Configured implements Reducer {
             throws IOException {                  // unwrap & index doc
             Document doc = (Document)((ObjectWritable)value).get();
             NutchAnalyzer analyzer = factory.get(doc.get("lang"));
-            LOG.info(" Indexing [" + doc.getField("url").stringValue() + "]" +
-                     " with analyzer " + analyzer +
-                     " (" + doc.get("lang") + ")");
+            if (LOG.isInfoEnabled()) {
+              LOG.info(" Indexing [" + doc.getField("url").stringValue() + "]" +
+                       " with analyzer " + analyzer +
+                       " (" + doc.get("lang") + ")");
+            }
             writer.addDocument(doc, analyzer);
           }
           
@@ -130,7 +132,8 @@ public class Indexer extends Configured implements Reducer {
 
             try {
               prog.start();
-              LOG.info("Optimizing index.");        // optimize & close index
+              if (LOG.isInfoEnabled()) { LOG.info("Optimizing index."); }
+              // optimize & close index
               writer.optimize();
               writer.close();
               fs.completeLocalOutput(perm, temp);   // copy to dfs
@@ -195,7 +198,7 @@ public class Indexer extends Configured implements Reducer {
         parseData = (ParseData)value;
       } else if (value instanceof ParseText) {
         parseText = (ParseText)value;
-      } else {
+      } else if (LOG.isWarnEnabled()) {
         LOG.warn("Unrecognized type: "+value.getClass());
       }
     }      
@@ -216,11 +219,13 @@ public class Indexer extends Configured implements Reducer {
     doc.add(new Field("digest", metadata.get(Fetcher.SIGNATURE_KEY),
             Field.Store.YES, Field.Index.NO));
 
-//     LOG.info("Url: "+key.toString());
-//     LOG.info("Title: "+parseData.getTitle());
-//     LOG.info(crawlDatum.toString());
-//     if (inlinks != null) {
-//       LOG.info(inlinks.toString());
+//     if (LOG.isInfoEnabled()) {
+//       LOG.info("Url: "+key.toString());
+//       LOG.info("Title: "+parseData.getTitle());
+//       LOG.info(crawlDatum.toString());
+//       if (inlinks != null) {
+//         LOG.info(inlinks.toString());
+//       }
 //     }
 
     Parse parse = new ParseImpl(parseText, parseData);
@@ -228,7 +233,7 @@ public class Indexer extends Configured implements Reducer {
       // run indexing filters
       doc = this.filters.filter(doc, parse, (UTF8)key, fetchDatum, inlinks);
     } catch (IndexingException e) {
-      LOG.warn("Error indexing "+key+": "+e);
+      if (LOG.isWarnEnabled()) { LOG.warn("Error indexing "+key+": "+e); }
       return;
     }
 
@@ -238,7 +243,9 @@ public class Indexer extends Configured implements Reducer {
       boost = this.scfilters.indexerScore((UTF8)key, doc, dbDatum,
               fetchDatum, parse, inlinks, boost);
     } catch (ScoringFilterException e) {
-      LOG.warn("Error calculating score " + key + ": " + e);
+      if (LOG.isWarnEnabled()) {
+        LOG.warn("Error calculating score " + key + ": " + e);
+      }
       return;
     }
     // apply boost to all indexed fields.
@@ -253,14 +260,18 @@ public class Indexer extends Configured implements Reducer {
   public void index(Path indexDir, Path crawlDb, Path linkDb, Path[] segments)
     throws IOException {
 
-    LOG.info("Indexer: starting");
-    LOG.info("Indexer: linkdb: " + linkDb);
+    if (LOG.isInfoEnabled()) {
+      LOG.info("Indexer: starting");
+      LOG.info("Indexer: linkdb: " + linkDb);
+    }
 
     JobConf job = new NutchJob(getConf());
     job.setJobName("index " + indexDir);
 
     for (int i = 0; i < segments.length; i++) {
-      LOG.info("Indexer: adding segment: " + segments[i]);
+      if (LOG.isInfoEnabled()) {
+        LOG.info("Indexer: adding segment: " + segments[i]);
+      }
       job.addInputPath(new Path(segments[i], CrawlDatum.FETCH_DIR_NAME));
       job.addInputPath(new Path(segments[i], ParseData.DIR_NAME));
       job.addInputPath(new Path(segments[i], ParseText.DIR_NAME));
@@ -282,7 +293,7 @@ public class Indexer extends Configured implements Reducer {
     job.setOutputValueClass(ObjectWritable.class);
 
     JobClient.runJob(job);
-    LOG.info("Indexer: done");
+    if (LOG.isInfoEnabled()) { LOG.info("Indexer: done"); }
   }
 
   public static void main(String[] args) throws Exception {

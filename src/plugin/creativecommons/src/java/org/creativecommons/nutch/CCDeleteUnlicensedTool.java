@@ -95,7 +95,9 @@ public class CCDeleteUnlicensedTool {
 
     CCDeleteUnlicensedTool dd = new CCDeleteUnlicensedTool(readers);
     int count = dd.deleteUnlicensed();
-    LOG.info("CC: deleted "+count+" out of "+maxDoc);
+    if (LOG.isInfoEnabled()) {
+      LOG.info("CC: deleted "+count+" out of "+maxDoc);
+    }
     dd.close();
   }
 }

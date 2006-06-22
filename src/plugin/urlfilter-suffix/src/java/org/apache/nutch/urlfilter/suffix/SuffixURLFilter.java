@@ -159,7 +159,9 @@ public class SuffixURLFilter implements URLFilter {
 
     // handle missing config file
     if (reader == null) {
-      LOG.warn("Missing urlfilter.suffix.file, all URLs will be rejected!");
+      if (LOG.isWarnEnabled()) {
+        LOG.warn("Missing urlfilter.suffix.file, all URLs will be rejected!");
+      }
       suffixes = new SuffixStringMatcher(new String[0]);
       modeAccept = false;
       ignoreCase = false;
@@ -240,10 +242,14 @@ public class SuffixURLFilter implements URLFilter {
     }
     if (attributeFile != null && attributeFile.trim().equals("")) attributeFile = null;
     if (attributeFile != null) {
-      LOG.info("Attribute \"file\" is defined for plugin " + pluginName + " as " + attributeFile);
+      if (LOG.isInfoEnabled()) {
+        LOG.info("Attribute \"file\" is defined for plugin " + pluginName + " as " + attributeFile);
+      }
     } else {
-      // LOG.warn("Attribute \"file\" is not defined in plugin.xml for
-      // plugin "+pluginName);
+      // if (LOG.isWarnEnabled()) {
+      //   LOG.warn("Attribute \"file\" is not defined in plugin.xml for
+      //   plugin "+pluginName);
+      // }
     }
 
     String file = conf.get("urlfilter.suffix.file");
@@ -254,7 +260,7 @@ public class SuffixURLFilter implements URLFilter {
     try {
       readConfigurationFile(reader);
     } catch (IOException e) {
-      LOG.fatal(e.getMessage());
+      if (LOG.isFatalEnabled()) { LOG.fatal(e.getMessage()); }
       throw new RuntimeException(e.getMessage(), e);
     }
   }

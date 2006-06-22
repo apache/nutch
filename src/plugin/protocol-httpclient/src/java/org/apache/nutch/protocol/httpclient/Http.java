@@ -135,8 +135,10 @@ public class Http extends HttpBase {
       Credentials ntCreds = new NTCredentials(ntlmUsername, ntlmPassword, ntlmHost, ntlmDomain);
       client.getState().setCredentials(new AuthScope(ntlmHost, AuthScope.ANY_PORT), ntCreds);
 
-      LOG.info("Added NTLM credentials for " + ntlmUsername);
+      if (LOG.isInfoEnabled()) {
+        LOG.info("Added NTLM credentials for " + ntlmUsername);
+      }
     }
-    LOG.info("Configured Client");
+    if (LOG.isInfoEnabled()) { LOG.info("Configured Client"); }
   }
 }

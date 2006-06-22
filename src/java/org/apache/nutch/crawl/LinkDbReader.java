@@ -79,8 +79,11 @@ public class LinkDbReader implements Closeable {
   }
   
   public static void processDumpJob(String linkdb, String output, Configuration config) throws IOException {
-    LOG.info("LinkDb dump: starting");
-    LOG.info("LinkDb db: " + linkdb);
+
+    if (LOG.isInfoEnabled()) {
+      LOG.info("LinkDb dump: starting");
+      LOG.info("LinkDb db: " + linkdb);
+    }
     Path outFolder = new Path(output);
 
     JobConf job = new NutchJob(config);

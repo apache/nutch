@@ -66,8 +66,10 @@ public class QueryFilters {
           ArrayList fieldNames = parseFieldNames(extension, "fields");
           ArrayList rawFieldNames = parseFieldNames(extension, "raw-fields");
           if (fieldNames.size() == 0 && rawFieldNames.size() == 0) {
-            LOG.warn("QueryFilter: " + extension.getId()
-                + " names no fields.");
+            if (LOG.isWarnEnabled()) {
+              LOG.warn("QueryFilter: " + extension.getId()
+                     + " names no fields.");
+            }
             continue;
           }
           filters[i] = (QueryFilter) extension.getExtensionInstance();

@@ -70,7 +70,9 @@ public class CrawlDbMerger extends Configured {
           if (filters.filter(((UTF8) key).toString()) == null)
             return;
         } catch (Exception e) {
-          LOG.debug("Can't filter " + key + ": " + e);
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Can't filter " + key + ": " + e);
+          }
         }
       }
       CrawlDatum res = null;

@@ -75,7 +75,9 @@ public class BasicIndexingFilter implements IndexingFilter {
         doc.add(new Field("anchor", anchors[i], Field.Store.NO, Field.Index.TOKENIZED));
       }
     } catch (IOException ioe) {
-      LOG.warn("BasicIndexingFilter: can't get anchors for " + url.toString());
+      if (LOG.isWarnEnabled()) {
+        LOG.warn("BasicIndexingFilter: can't get anchors for " + url.toString());
+      }
     }
 
     // title

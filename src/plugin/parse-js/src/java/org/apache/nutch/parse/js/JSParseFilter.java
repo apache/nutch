@@ -87,7 +87,9 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
             if (i > 0) script.append('\n');
             script.append(nn.item(i).getNodeValue());
           }
-          //LOG.info("script: language=" + lang + ", text: " + script.toString());
+          // if (LOG.isInfoEnabled()) {
+          //   LOG.info("script: language=" + lang + ", text: " + script.toString());
+          // }
           Outlink[] links = getJSLinks(script.toString(), base, base);
           if (links != null && links.length > 0) outlinks.addAll(Arrays.asList(links));
           // no other children of interest here, go one level up.
@@ -164,7 +166,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     try {
       baseURL = new URL(base);
     } catch (Exception e) {
-      LOG.error("getJSLinks", e);
+      if (LOG.isErrorEnabled()) { LOG.error("getJSLinks", e); }
     }
 
     try {
@@ -189,20 +191,22 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
         url = result.group(2);
         PatternMatcherInput input1 = new PatternMatcherInput(url);
         if (!matcher1.matches(input1, pattern1)) {
-          //LOG.trace(" - invalid '" + url + "'");
+          //if (LOG.isTraceEnabled()) { LOG.trace(" - invalid '" + url + "'"); }
           continue;
         }
         if (url.startsWith("www.")) {
             url = "http://" + url;
         } else url = new URL(baseURL, url).toString();
         url = url.replaceAll("&amp;", "&");
-        LOG.trace(" - outlink from JS: '" + url + "'");
+        if (LOG.isTraceEnabled()) {
+          LOG.trace(" - outlink from JS: '" + url + "'");
+        }
         outlinks.add(new Outlink(url, anchor, getConf()));
       }
     } catch (Exception ex) {
       // if it is a malformed URL we just throw it away and continue with
       // extraction.
-      LOG.error("getJSLinks", ex);
+      if (LOG.isErrorEnabled()) { LOG.error("getJSLinks", ex); }
     }
 
     final Outlink[] retval;

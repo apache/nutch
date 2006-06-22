@@ -75,7 +75,7 @@ public class IndexMerger {
 
     Directory[] dirs = new Directory[indexes.length];
     for (int i = 0; i < indexes.length; i++) {
-      LOG.info("Adding " + indexes[i]);
+      if (LOG.isInfoEnabled()) { LOG.info("Adding " + indexes[i]); }
       dirs[i] = new FsDirectory(fs, indexes[i], false, this.conf);
     }
 
@@ -136,7 +136,9 @@ public class IndexMerger {
     //
     // Merge the indices
     //
-    LOG.info("merging indexes to: " + outputIndex);
+    if (LOG.isInfoEnabled()) {
+      LOG.info("merging indexes to: " + outputIndex);
+    }
 
     Path[] indexFiles = (Path[])indexDirs.toArray(new Path[indexDirs.size()]);
 
@@ -148,7 +150,7 @@ public class IndexMerger {
     IndexMerger merger =
       new IndexMerger(fs, indexFiles, outputIndex, workDir, conf);
     merger.merge();
-    LOG.info("done merging");
+    if (LOG.isInfoEnabled()) { LOG.info("done merging"); }
     localFs.delete(workDir);
   }
 }

@@ -41,7 +41,9 @@ public class SignatureFactory {
     Signature impl = (Signature)conf.getObject(clazz);
     if (impl == null) {
       try {
-        LOG.info("Using Signature impl: " + clazz);
+        if (LOG.isInfoEnabled()) {
+          LOG.info("Using Signature impl: " + clazz);
+        }
         Class implClass = Class.forName(clazz);
         impl = (Signature)implClass.newInstance();
         impl.setConf(conf);

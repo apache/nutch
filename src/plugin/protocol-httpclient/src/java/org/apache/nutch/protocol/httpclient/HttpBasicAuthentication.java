@@ -57,14 +57,17 @@ public class HttpBasicAuthentication implements HttpAuthentication, Configurable
         
         setConf(conf);
         this.challenge = challenge;
-        LOG.trace("BasicAuthentication challenge is " + challenge);
         credentials = new ArrayList();
         
         String username = this.conf.get("http.auth.basic." + challenge + ".user");
-        LOG.trace("BasicAuthentication username=" + username);
         String password = this.conf.get("http.auth.basic." + challenge + ".password");
-        LOG.trace("BasicAuthentication password=" + password);
         
+        if (LOG.isTraceEnabled()) {
+          LOG.trace("BasicAuthentication challenge is " + challenge);
+          LOG.trace("BasicAuthentication username=" + username);
+          LOG.trace("BasicAuthentication password=" + password);
+        }
+ 
         if (username == null) {
         	throw new HttpAuthenticationException("Username for " + challenge + " is null");
         }
@@ -75,7 +78,9 @@ public class HttpBasicAuthentication implements HttpAuthentication, Configurable
         
         byte[] credBytes = (username + ":" + password).getBytes();
         credentials.add("Authorization: Basic " + new String(Base64.encodeBase64(credBytes)));
-        LOG.trace("Basic credentials: " + credentials);
+        if (LOG.isTraceEnabled()) {
+          LOG.trace("Basic credentials: " + credentials);
+        }
     }
 
 
@@ -145,7 +150,9 @@ public class HttpBasicAuthentication implements HttpAuthentication, Configurable
 	            try {
 	            	newAuth = new HttpBasicAuthentication(realm, conf);
 	            } catch (HttpAuthenticationException hae) { 
-	            	LOG.trace("HttpBasicAuthentication failed for " + challenge);
+                        if (LOG.isTraceEnabled()) {
+	            	  LOG.trace("HttpBasicAuthentication failed for " + challenge);
+                        }
 	            }
 	            authMap.put(realm, newAuth);
 	            return newAuth;

@@ -67,22 +67,28 @@ public class ParseUtil {
     try {
       parsers = this.parserFactory.getParsers(content.getContentType(), "");
     } catch (ParserNotFound e) {
-      LOG.warn("No suitable parser found when trying to parse content " +
-               content);
+      if (LOG.isWarnEnabled()) {
+        LOG.warn("No suitable parser found when trying to parse content " +
+                 content);
+      }
       throw new ParseException(e.getMessage());
     }
     
     Parse parse = null;
     for (int i=0; i<parsers.length; i++) {
-      LOG.debug("Parsing [" + content.getUrl() + "] with [" + parsers[i] + "]");
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Parsing [" + content.getUrl() + "] with [" + parsers[i] + "]");
+      }
       parse = parsers[i].getParse(content);
       if ((parse != null) && (parse.getData().getStatus().isSuccess())) {
         return parse;
       }
     }
-    
-    LOG.warn("Unable to successfully parse content " + content.getUrl() +
-             " of type " + content.getContentType());
+   
+    if (LOG.isWarnEnabled()) { 
+      LOG.warn("Unable to successfully parse content " + content.getUrl() +
+               " of type " + content.getContentType());
+    }
 
     ParseStatus ps = (parse.getData() != null) ? parse.getData().getStatus() : null;
     return (ps == null) ? new ParseStatus().getEmptyParse(this.conf)
@@ -116,8 +122,10 @@ public class ParseUtil {
     try {
       p = this.parserFactory.getParserById(extId);
     } catch (ParserNotFound e) {
-      LOG.warn("No suitable parser found when trying to parse content " +
-               content);
+      if (LOG.isWarnEnabled()) {
+        LOG.warn("No suitable parser found when trying to parse content " +
+                 content);
+      }
       throw new ParseException(e.getMessage());
     }
     
@@ -126,8 +134,10 @@ public class ParseUtil {
     if (parse != null && parse.getData().getStatus().isSuccess()) {
       return parse;
     } else {
-      LOG.warn("Unable to successfully parse content " + content.getUrl() +
-               " of type " + content.getContentType());
+      if (LOG.isWarnEnabled()) {
+        LOG.warn("Unable to successfully parse content " + content.getUrl() +
+                 " of type " + content.getContentType());
+      }
       return new ParseStatus().getEmptyParse(this.conf);
     }
   }  

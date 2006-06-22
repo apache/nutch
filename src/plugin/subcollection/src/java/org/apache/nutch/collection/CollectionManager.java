@@ -63,7 +63,7 @@ public class CollectionManager extends Configured {
 
   protected void init(){
     try {
-      LOG.info("initializing CollectionManager");
+      if (LOG.isInfoEnabled()) { LOG.info("initializing CollectionManager"); }
       // initialize known subcollections
       configfile = getConf().getResource(
           getConf().get("subcollections.config", DEFAULT_FILE_NAME));
@@ -72,8 +72,10 @@ public class CollectionManager extends Configured {
           getConf().get("subcollections.config", DEFAULT_FILE_NAME));
       parse(input);
     } catch (Exception e) {
-      LOG.warn("Error occured:" + e);
-      e.printStackTrace(LogUtil.getWarnStream(LOG));
+      if (LOG.isWarnEnabled()) {
+        LOG.warn("Error occured:" + e);
+        e.printStackTrace(LogUtil.getWarnStream(LOG));
+      }
     }
   }
 
@@ -84,7 +86,9 @@ public class CollectionManager extends Configured {
       NodeList nodeList = collections
           .getElementsByTagName(Subcollection.TAG_COLLECTION);
 
-      LOG.info("file has" + nodeList.getLength() + " elements");
+      if (LOG.isInfoEnabled()) {
+        LOG.info("file has" + nodeList.getLength() + " elements");
+      }
       
       for (int i = 0; i < nodeList.getLength(); i++) {
         Element scElem = (Element) nodeList.item(i);
@@ -92,7 +96,7 @@ public class CollectionManager extends Configured {
         subCol.initialize(scElem);
         collectionMap.put(subCol.name, subCol);
       }
-    } else {
+    } else if (LOG.isInfoEnabled()) {
       LOG.info("Cannot find collections");
     }
   }
@@ -102,7 +106,9 @@ public class CollectionManager extends Configured {
     CollectionManager impl = (CollectionManager)conf.getObject(key);
     if (impl == null) {
       try {
-        LOG.info("Instantiating CollectionManager");
+        if (LOG.isInfoEnabled()) {
+          LOG.info("Instantiating CollectionManager");
+        }
         impl=new CollectionManager(conf);
         conf.setObject(key,impl);
       } catch (Exception e) {
@@ -170,7 +176,7 @@ public class CollectionManager extends Configured {
         collections += " " + subCol.name;
       }
     }
-    LOG.trace("subcollections:" + collections);
+    if (LOG.isTraceEnabled()) { LOG.trace("subcollections:" + collections); }
     
     return collections;
   }

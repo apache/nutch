@@ -273,7 +273,9 @@ public class PluginDescriptor {
           arrayList.add(file2.getParentFile().toURL());
       }
     } catch (MalformedURLException e) {
-      LOG.debug(getPluginId() + " " + e.toString());
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(getPluginId() + " " + e.toString());
+      }
     }
     URL[] urls = (URL[]) arrayList.toArray(new URL[arrayList.size()]);
     fClassLoader = new PluginClassLoader(urls, PluginDescriptor.class

@@ -189,7 +189,9 @@ public class PruneIndexTool implements Runnable {
         output.flush();
         output.close();
       } catch (Exception e) {
-        LOG.warn("Error closing: " + e.getMessage());
+        if (LOG.isWarnEnabled()) {
+          LOG.warn("Error closing: " + e.getMessage());
+        }
       }
     }
     
@@ -257,7 +259,9 @@ public class PruneIndexTool implements Runnable {
         }
         if (!dryrun) {
           IndexReader.unlock(dir);
-          LOG.debug(" - had to unlock index in " + dir);
+          if (LOG.isDebugEnabled()) {
+            LOG.debug(" - had to unlock index in " + dir);
+          }
         }
       }
       reader = IndexReader.open(dir);
@@ -270,26 +274,35 @@ public class PruneIndexTool implements Runnable {
           dir = FSDirectory.getDirectory(indexDirs[i], false);
           if (IndexReader.isLocked(dir)) {
             if (!unlock) {
-              LOG.warn(dr + "Index " + indexDirs[i] + " is locked. Skipping...");
+              if (LOG.isWarnEnabled()) {
+                LOG.warn(dr + "Index " + indexDirs[i] + " is locked. Skipping...");
+              }
               continue;
             }
             if (!dryrun) {
               IndexReader.unlock(dir);
-              LOG.debug(" - had to unlock index in " + dir);
+              if (LOG.isDebugEnabled()) {
+                LOG.debug(" - had to unlock index in " + dir);
+              }
             }
           }
           IndexReader r = IndexReader.open(dir);
           indexes.add(r);
           numIdx++;
         } catch (Exception e) {
-          LOG.warn(dr + "Invalid index in " + indexDirs[i] + " - skipping...");
+          if (LOG.isWarnEnabled()) {
+            LOG.warn(dr + "Invalid index in " + indexDirs[i] + " - skipping...");
+          }
         }
       }
       if (indexes.size() == 0) throw new Exception("No input indexes.");
       IndexReader[] readers = (IndexReader[])indexes.toArray(new IndexReader[0]);
       reader = new MultiReader(readers);
     }
-    LOG.info(dr + "Opened " + numIdx + " index(es) with total " + reader.numDocs() + " documents.");
+    if (LOG.isInfoEnabled()) {
+      LOG.info(dr + "Opened " + numIdx + " index(es) with total " +
+               reader.numDocs() + " documents.");
+    }
     searcher = new IndexSearcher(reader);
   }
   
@@ -322,19 +335,27 @@ public class PruneIndexTool implements Runnable {
     AllHitsCollector ahc = new AllHitsCollector(bits);
     boolean doDelete = false;
     for (int i = 0; i < queries.length; i++) {
-      LOG.info(dr + "Processing query: " + queries[i].toString());
+      if (LOG.isInfoEnabled()) {
+        LOG.info(dr + "Processing query: " + queries[i].toString());
+      }
       bits.clear();
       try {
         searcher.search(queries[i], ahc);
       } catch (IOException e) {
-        LOG.warn(dr + " - failed: " + e.getMessage());
+        if (LOG.isWarnEnabled()) {
+          LOG.warn(dr + " - failed: " + e.getMessage());
+        }
         continue;
       }
       if (bits.cardinality() == 0) {
-        LOG.info(dr + " - no matching documents.");
+        if (LOG.isInfoEnabled()) {
+          LOG.info(dr + " - no matching documents.");
+        }
         continue;
       }
-      LOG.info(dr + " - found " + bits.cardinality() + " document(s).");
+      if (LOG.isInfoEnabled()) {
+        LOG.info(dr + " - found " + bits.cardinality() + " document(s).");
+      }
       // Now delete all matching documents
       int docNum = -1, start = 0, cnt = 0;
       // probably faster than looping sequentially through all index values?
@@ -355,11 +376,15 @@ public class PruneIndexTool implements Runnable {
             cnt++;
           }
         } catch (Exception e) {
-          LOG.warn(dr + " - failed to delete doc #" + docNum);
+          if (LOG.isWarnEnabled()) {
+            LOG.warn(dr + " - failed to delete doc #" + docNum);
+          }
         }
         start = docNum + 1;
       }
-      LOG.info(dr + " - deleted " + cnt + " document(s).");
+      if (LOG.isInfoEnabled()) {
+        LOG.info(dr + " - deleted " + cnt + " document(s).");
+      }
     }
     // close checkers
     if (checkers != null) {
@@ -370,20 +395,22 @@ public class PruneIndexTool implements Runnable {
     try {
       reader.close();
     } catch (IOException e) {
-      LOG.warn(dr + "Exception when closing reader(s): " + e.getMessage());
+      if (LOG.isWarnEnabled()) {
+        LOG.warn(dr + "Exception when closing reader(s): " + e.getMessage());
+      }
     }
   }
   
   public static void main(String[] args) throws Exception {
     if (args.length == 0) {
       usage();
-      LOG.fatal("Missing arguments");
+      if (LOG.isFatalEnabled()) { LOG.fatal("Missing arguments"); }
       return;
     }
     File idx = new File(args[0]);
     if (!idx.isDirectory()) {
       usage();
-      LOG.fatal("Not a directory: " + idx);
+      if (LOG.isFatalEnabled()) { LOG.fatal("Not a directory: " + idx); }
       return;
     }
     Vector paths = new Vector();
@@ -398,7 +425,7 @@ public class PruneIndexTool implements Runnable {
       });
       if (dirs == null || dirs.length == 0) {
         usage();
-        LOG.fatal("No indexes in " + idx);
+        if (LOG.isFatalEnabled()) { LOG.fatal("No indexes in " + idx); }
         return;
       }
       for (int i = 0; i < dirs.length; i++) {
@@ -409,7 +436,9 @@ public class PruneIndexTool implements Runnable {
       }
       if (paths.size() == 0) {
         usage();
-        LOG.fatal("No indexes in " + idx + " or its subdirs.");
+        if (LOG.isFatalEnabled()) {
+          LOG.fatal("No indexes in " + idx + " or its subdirs.");
+        }
         return;
       }
     }
@@ -432,7 +461,9 @@ public class PruneIndexTool implements Runnable {
         dryrun = true;
       } else {
         usage();
-        LOG.fatal("Unrecognized option: " + args[i]);
+        if (LOG.isFatalEnabled()) {
+          LOG.fatal("Unrecognized option: " + args[i]);
+        }
         return;
       }
     }
@@ -465,20 +496,26 @@ public class PruneIndexTool implements Runnable {
         is = conf.getConfResourceAsInputStream(qPath);
     }
     if (is == null) {
-      LOG.fatal("Can't load queries from " + qPath);
+      if (LOG.isFatalEnabled()) {
+        LOG.fatal("Can't load queries from " + qPath);
+      }
       return;
     }
     try {
       queries = parseQueries(is);
     } catch (Exception e) {
-      LOG.fatal("Error parsing queries: " + e.getMessage());
+      if (LOG.isFatalEnabled()) {
+        LOG.fatal("Error parsing queries: " + e.getMessage());
+      }
       return;
     }
     try {
       PruneIndexTool pit = new PruneIndexTool(indexes, queries, checkers, force, dryrun);
       pit.run();
     } catch (Exception e) {
-      LOG.fatal("Error running PruneIndexTool: " + e.getMessage());
+      if (LOG.isFatalEnabled()) {
+        LOG.fatal("Error running PruneIndexTool: " + e.getMessage());
+      }
       return;
     }
   }

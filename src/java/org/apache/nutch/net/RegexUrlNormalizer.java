@@ -99,22 +99,25 @@ public class RegexUrlNormalizer extends BasicUrlNormalizer
     List rules=new ArrayList();
     try {
       
-      LOG.info("loading " + filename);
+      if (LOG.isInfoEnabled()) { LOG.info("loading " + filename); }
       // borrowed heavily from code in Configuration.java
       Document doc =
         DocumentBuilderFactory.newInstance().newDocumentBuilder()
         .parse(filename);
       Element root = doc.getDocumentElement();
-      if (!"regex-normalize".equals(root.getTagName()))
+      if ((!"regex-normalize".equals(root.getTagName())) &&
+          (LOG.isFatalEnabled())) {
         LOG.fatal("bad conf file: top-level element not <regex-normalize>");
+      }
       NodeList regexes = root.getChildNodes();
       for (int i = 0; i < regexes.getLength(); i++) {
         Node regexNode = regexes.item(i);
         if (!(regexNode instanceof Element))
           continue;
         Element regex = (Element)regexNode;
-        if (!"regex".equals(regex.getTagName()))
+        if ((!"regex".equals(regex.getTagName())) && (LOG.isWarnEnabled())) {
           LOG.warn("bad conf file: element not <regex>");
+        }
         NodeList fields = regex.getChildNodes();
         String patternValue = null;
         String subValue = null;
@@ -139,7 +142,9 @@ public class RegexUrlNormalizer extends BasicUrlNormalizer
       }
         
     } catch (Exception e) {
-      LOG.fatal("error parsing " + filename +" conf file: " + e);
+      if (LOG.isFatalEnabled()) {
+        LOG.fatal("error parsing " + filename +" conf file: " + e);
+      }
     }
     return rules;
   }

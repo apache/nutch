@@ -41,7 +41,9 @@ public class UrlNormalizerFactory {
     if (normalizer == null) {
       try {
         urlNormalizer = this.conf.get("urlnormalizer.class");
-        LOG.info("Using URL normalizer: " + urlNormalizer);
+        if (LOG.isInfoEnabled()) {
+          LOG.info("Using URL normalizer: " + urlNormalizer);
+        }
         Class normalizerClass = Class.forName(urlNormalizer);
         normalizer = (UrlNormalizer) normalizerClass.newInstance();
         normalizer.setConf(this.conf);

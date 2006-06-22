@@ -125,8 +125,10 @@ public class PdfParser implements Parser {
       return new ParseStatus(ParseStatus.FAILED,
               "Can't decrypt document - invalid password. " + e).getEmptyParse(getConf());
     } catch (Exception e) { // run time exception
-        LOG.warn("General exception in PDF parser: "+e.getMessage());
-        e.printStackTrace(LogUtil.getWarnStream(LOG));        
+        if (LOG.isWarnEnabled()) {
+          LOG.warn("General exception in PDF parser: "+e.getMessage());
+          e.printStackTrace(LogUtil.getWarnStream(LOG));        
+        }
       return new ParseStatus(ParseStatus.FAILED,
               "Can't be handled as pdf document. " + e).getEmptyParse(getConf());
     } finally {

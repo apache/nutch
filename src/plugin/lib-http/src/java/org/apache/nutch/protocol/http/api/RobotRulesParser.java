@@ -206,11 +206,15 @@ public class RobotRulesParser implements Configurable {
     //
     if (agents.size() == 0) {
       agents.add(agentName);
-      LOG.fatal("No agents listed in 'http.robots.agents' property!");
+      if (LOG.isFatalEnabled()) {
+        LOG.fatal("No agents listed in 'http.robots.agents' property!");
+      }
     } else if (!((String)agents.get(0)).equalsIgnoreCase(agentName)) {
       agents.add(0, agentName);
-      LOG.fatal("Agent we advertise (" + agentName
-              + ") not listed first in 'http.robots.agents' property!");
+      if (LOG.isFatalEnabled()) {
+        LOG.fatal("Agent we advertise (" + agentName
+                + ") not listed first in 'http.robots.agents' property!");
+      }
     }
     setRobotNames((String[]) agents.toArray(new String[agents.size()]));
   }
@@ -320,7 +324,9 @@ public class RobotRulesParser implements Configurable {
         try {
           path= URLDecoder.decode(path, CHARACTER_ENCODING);
         } catch (Exception e) {
-          LOG.warn("error parsing robots rules- can't decode path: " + path);
+          if (LOG.isWarnEnabled()) {
+            LOG.warn("error parsing robots rules- can't decode path: " + path);
+          }
         }
 
         if (path.length() == 0) { // "empty rule"
@@ -388,7 +394,7 @@ public class RobotRulesParser implements Configurable {
     RobotRuleSet robotRules = (RobotRuleSet)CACHE.get(host);
 
     if (robotRules == null) {                     // cache miss
-      LOG.trace("cache miss " + url);
+      if (LOG.isTraceEnabled()) { LOG.trace("cache miss " + url); }
       try {
         Response response = http.getResponse(new URL(url, "/robots.txt"),
                                              new CrawlDatum(), true);
@@ -400,7 +406,9 @@ public class RobotRulesParser implements Configurable {
         else                                        
           robotRules = EMPTY_RULES;                 // use default rules
       } catch (Throwable t) {
-        LOG.info("Couldn't get robots.txt for " + url + ": " + t.toString());
+        if (LOG.isInfoEnabled()) {
+          LOG.info("Couldn't get robots.txt for " + url + ": " + t.toString());
+        }
         robotRules = EMPTY_RULES;
       }
 
