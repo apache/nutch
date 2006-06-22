@@ -70,7 +70,7 @@ public class ParserChecker {
       }
     }
 
-    LOG.info("fetching: "+url);
+    if (LOG.isInfoEnabled()) { LOG.info("fetching: "+url); }
 
     Configuration conf = NutchConfiguration.create();
     ProtocolFactory factory = new ProtocolFactory(conf);
@@ -88,8 +88,10 @@ public class ParserChecker {
       System.exit(-1);
     }
 
-    LOG.info("parsing: "+url);
-    LOG.info("contentType: "+contentType);
+    if (LOG.isInfoEnabled()) {
+      LOG.info("parsing: "+url);
+      LOG.info("contentType: "+contentType);
+    }
 
     Parse parse = new ParseUtil(conf).parse(content);
 

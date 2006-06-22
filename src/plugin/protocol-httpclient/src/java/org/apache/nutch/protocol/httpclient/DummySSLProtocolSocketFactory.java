@@ -45,7 +45,7 @@ public class DummySSLProtocolSocketFactory implements ProtocolSocketFactory {
       context.init(null, new TrustManager[] { new DummyX509TrustManager(null) }, null);
       return context;
     } catch (Exception e) {
-      LOG.error(e.getMessage(), e);
+      if (LOG.isErrorEnabled()) { LOG.error(e.getMessage(), e); }
       throw new HttpClientError(e.toString());
     }
   }

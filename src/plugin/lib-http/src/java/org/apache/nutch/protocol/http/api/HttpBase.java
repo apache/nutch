@@ -178,7 +178,9 @@ public abstract class HttpBase implements Protocol {
         }
       } catch (Throwable e) {
         // XXX Maybe bogus: assume this is allowed.
-        logger.trace("Exception checking robot rules for " + url + ": " + e);
+        if (logger.isTraceEnabled()) {
+          logger.trace("Exception checking robot rules for " + url + ": " + e);
+        }
       }
       
       String host = blockAddr(u);
@@ -231,10 +233,10 @@ public abstract class HttpBase implements Protocol {
         // handle this in the higher layer.
         return new ProtocolOutput(c, new ProtocolStatus(protocolStatusCode, u));
       } else if (code == 400) { // bad request, mark as GONE
-        logger.trace("400 Bad request: " + u);
+        if (logger.isTraceEnabled()) { logger.trace("400 Bad request: " + u); }
         return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.GONE, u));
       } else if (code == 401) { // requires authorization, but no valid auth provided.
-        logger.trace("401 Authentication Required");
+        if (logger.isTraceEnabled()) { logger.trace("401 Authentication Required"); }
         return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.ACCESS_DENIED, "Authentication required: "
                 + urlString));
       } else if (code == 404) {
@@ -392,8 +394,12 @@ public abstract class HttpBase implements Protocol {
                                        String agentURL,
                                        String agentEmail) {
     
-    if ( (agentName == null) || (agentName.trim().length() == 0) )
-      LOGGER.fatal("No User-Agent string set (http.agent.name)!");
+    if ( (agentName == null) || (agentName.trim().length() == 0) ) {
+      // TODO : NUTCH-258
+      if (LOGGER.isFatalEnabled()) {
+        LOGGER.fatal("No User-Agent string set (http.agent.name)!");
+      }
+    }
     
     StringBuffer buf= new StringBuffer();
     
@@ -428,17 +434,20 @@ public abstract class HttpBase implements Protocol {
   }
 
   protected void logConf() {
-    logger.info("http.proxy.host = " + proxyHost);
-    logger.info("http.proxy.port = " + proxyPort);
-    logger.info("http.timeout = " + timeout);
-    logger.info("http.content.limit = " + maxContent);
-    logger.info("http.agent = " + userAgent);
-    logger.info("fetcher.server.delay = " + serverDelay);
-    logger.info("http.max.delays = " + maxDelays);
+    if (logger.isInfoEnabled()) {
+      logger.info("http.proxy.host = " + proxyHost);
+      logger.info("http.proxy.port = " + proxyPort);
+      logger.info("http.timeout = " + timeout);
+      logger.info("http.content.limit = " + maxContent);
+      logger.info("http.agent = " + userAgent);
+      logger.info("fetcher.server.delay = " + serverDelay);
+      logger.info("http.max.delays = " + maxDelays);
+    }
   }
   
   public byte[] processGzipEncoded(byte[] compressed, URL url) throws IOException {
-    LOGGER.trace("uncompressing....");
+
+    if (LOGGER.isTraceEnabled()) { LOGGER.trace("uncompressing...."); }
 
     byte[] content = GZIPUtils.unzipBestEffort(compressed, getMaxContent());
 

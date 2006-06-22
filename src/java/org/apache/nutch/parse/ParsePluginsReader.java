@@ -93,8 +93,10 @@ class ParsePluginsReader {
         parsePluginUrl = new URL(fParsePluginsFile);
         ppInputStream = parsePluginUrl.openStream();
       } catch (Exception e) {
-        LOG.warn("Unable to load parse plugins file from URL " +
-                 "[" + fParsePluginsFile + "]. Reason is [" + e + "]");
+        if (LOG.isWarnEnabled()) {
+          LOG.warn("Unable to load parse plugins file from URL " +
+                   "[" + fParsePluginsFile + "]. Reason is [" + e + "]");
+        }
         return pList;
       }
     } else {
@@ -109,8 +111,10 @@ class ParsePluginsReader {
       parser = factory.newDocumentBuilder();
       document = parser.parse(inputSource);
     } catch (Exception e) {
-      LOG.warn("Unable to parse [" + fParsePluginsFile + "]." +
-               "Reason is [" + e + "]");
+      if (LOG.isWarnEnabled()) {
+        LOG.warn("Unable to parse [" + fParsePluginsFile + "]." +
+                 "Reason is [" + e + "]");
+      }
       return null;
     }
     
@@ -163,7 +167,7 @@ class ParsePluginsReader {
         // now add the plugin list and map it to this mimeType
         pList.setPluginList(mimeTypeStr, plugList);
         
-      } else {
+      } else if (LOG.isWarnEnabled()) {
         LOG.warn("ParsePluginsReader:ERROR:no plugins defined for mime type: "
                  + mimeTypeStr + ", continuing parse");
       }
@@ -240,13 +244,17 @@ class ParsePluginsReader {
     NodeList aliasRoot = parsePluginsRoot.getElementsByTagName("aliases");
 	  
     if (aliasRoot == null || (aliasRoot != null && aliasRoot.getLength() == 0)) {
-      LOG.warn("No aliases defined in parse-plugins.xml!");
+      if (LOG.isWarnEnabled()) {
+        LOG.warn("No aliases defined in parse-plugins.xml!");
+      }
       return aliases;
     }
 	  
     if (aliasRoot.getLength() > 1) {
       // log a warning, but try and continue processing
-      LOG.warn("There should only be one \"aliases\" tag in parse-plugins.xml");
+      if (LOG.isWarnEnabled()) {
+        LOG.warn("There should only be one \"aliases\" tag in parse-plugins.xml");
+      }
     }
 	  
     Element aliasRootElem = (Element)aliasRoot.item(0);
@@ -257,8 +265,10 @@ class ParsePluginsReader {
         Element aliasElem = (Element)aliasElements.item(i);
 	String parsePluginId = aliasElem.getAttribute("name");
 	String extensionId = aliasElem.getAttribute("extension-id");
-        LOG.trace("Found alias: plugin-id: " + parsePluginId +
-                  ", extension-id: " + extensionId);
+        if (LOG.isTraceEnabled()) {
+          LOG.trace("Found alias: plugin-id: " + parsePluginId +
+                    ", extension-id: " + extensionId);
+        }
         if (parsePluginId != null && extensionId != null) {
           aliases.put(parsePluginId, extensionId);
         }

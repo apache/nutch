@@ -95,8 +95,10 @@ public class RSSParser implements Parser {
             theRSSChannels = ((FeedParserListenerImpl) listener).getChannels();
 
         } catch (Exception e) { // run time exception
-            e.printStackTrace(LogUtil.getWarnStream(LOG));
-            LOG.trace("nutch:parse-rss:RSSParser Exception: " + e.getMessage());
+            if (LOG.isWarnEnabled()) {
+              e.printStackTrace(LogUtil.getWarnStream(LOG));
+              LOG.warn("nutch:parse-rss:RSSParser Exception: " + e.getMessage());
+            }
             return new ParseStatus(ParseStatus.FAILED,
                     "Can't be handled as rss document. " + e).getEmptyParse(getConf());
         }
@@ -130,10 +132,11 @@ public class RSSParser implements Parser {
 			    theOutlinks.add(new Outlink(r.getLink(), "", getConf()));
 			}
                     } catch (MalformedURLException e) {
-                        LOG.info("nutch:parse-rss:RSSParser Exception: MalformedURL: "
-                                        + r.getLink()
-                                        + ": Attempting to continue processing outlinks");
-                        e.printStackTrace(LogUtil.getWarnStream(LOG));
+                        if (LOG.isWarnEnabled()) {
+                          LOG.warn("MalformedURL: " + r.getLink());
+                          LOG.warn("Attempting to continue processing outlinks");
+                          e.printStackTrace(LogUtil.getWarnStream(LOG));
+                        }
                         continue;
                     }
                 }
@@ -160,10 +163,11 @@ public class RSSParser implements Parser {
 				theOutlinks.add(new Outlink(whichLink, "", getConf()));
 			    }
                         } catch (MalformedURLException e) {
-                            LOG.info("nutch:parse-rss:RSSParser Exception: MalformedURL: "
-                                            + whichLink
-                                            + ": Attempting to continue processing outlinks");
-                            e.printStackTrace(LogUtil.getWarnStream(LOG));
+                            if (LOG.isWarnEnabled()) {
+                              LOG.warn("MalformedURL: " + whichLink);
+                              LOG.warn("Attempting to continue processing outlinks");
+                              e.printStackTrace(LogUtil.getWarnStream(LOG));
+                            }
                             continue;
                         }
                     }
@@ -172,18 +176,24 @@ public class RSSParser implements Parser {
 
             }
 
-            LOG.trace("nutch:parse-rss:getParse:indexText=" + indexText);
-            LOG.trace("nutch:parse-rss:getParse:contentTitle=" + contentTitle);
+            if (LOG.isTraceEnabled()) {
+              LOG.trace("nutch:parse-rss:getParse:indexText=" + indexText);
+              LOG.trace("nutch:parse-rss:getParse:contentTitle=" + contentTitle);
+            }
 
-        } else {
+        } else if (LOG.isTraceEnabled()) {
             LOG.trace("nutch:parse-rss:Error:getParse: No RSS Channels recorded!");
         }
 
         // format the outlinks
         Outlink[] outlinks = (Outlink[]) theOutlinks.toArray(new Outlink[theOutlinks.size()]);
 
-        LOG.trace("nutch:parse-rss:getParse:found " + outlinks.length + " outlinks");
-        // LOG.info("Outlinks: "+outlinks);
+        if (LOG.isTraceEnabled()) {
+          LOG.trace("nutch:parse-rss:getParse:found " + outlinks.length + " outlinks");
+        }
+        // if (LOG.isInfoEnabled()) {
+        //   LOG.info("Outlinks: "+outlinks);
+        // }
 
         ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS,
                 contentTitle.toString(), outlinks, content.getMetadata());

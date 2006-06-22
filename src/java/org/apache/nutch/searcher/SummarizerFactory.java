@@ -48,10 +48,12 @@ public class SummarizerFactory {
                                     .getExtensionPoint(Summarizer.X_POINT_ID)
                                     .getExtensions();
       summarizer = (Summarizer) extensions[0].getExtensionInstance();
-      LOG.info("Using the first summarizer extension found: " +
-               extensions[0].getId());
+      if (LOG.isInfoEnabled()) {
+        LOG.info("Using the first summarizer extension found: " +
+                 extensions[0].getId());
+      }
     } catch (Exception e) {
-      LOG.warn(e.toString());
+      if (LOG.isWarnEnabled()) { LOG.warn(e.toString()); }
     }
   }
 

@@ -77,12 +77,14 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
       try {
         scfilters.passScoreAfterParsing((UTF8)key, content, parse);
       } catch (ScoringFilterException e) {
-        e.printStackTrace(LogUtil.getWarnStream(LOG));
-        LOG.warn("Error passing score: "+key+": "+e.getMessage());
+        if (LOG.isWarnEnabled()) {
+          e.printStackTrace(LogUtil.getWarnStream(LOG));
+          LOG.warn("Error passing score: "+key+": "+e.getMessage());
+        }
         return;
       }
       output.collect(key, new ParseImpl(parse.getText(), parse.getData()));
-    } else {
+    } else if (LOG.isWarnEnabled()) {
       LOG.warn("Error parsing: "+key+": "+status.toString());
     }
   }
@@ -94,8 +96,11 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
   }
 
   public void parse(Path segment) throws IOException {
-    LOG.info("Parse: starting");
-    LOG.info("Parse: segment: " + segment);
+
+    if (LOG.isInfoEnabled()) {
+      LOG.info("Parse: starting");
+      LOG.info("Parse: segment: " + segment);
+    }
 
     JobConf job = new NutchJob(getConf());
     job.setJobName("parse " + segment);
@@ -113,7 +118,7 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
     job.setOutputValueClass(ParseImpl.class);
 
     JobClient.runJob(job);
-    LOG.info("Parse: done");
+    if (LOG.isInfoEnabled()) { LOG.info("Parse: done"); }
   }
 
 

@@ -180,7 +180,7 @@ public class DmozParser {
           // Inc the number of pages, insert the page, and 
           // possibly print status.
           //
-          LOG.info(curURL);
+          if (LOG.isInfoEnabled()) { LOG.info(curURL); }
           pages++;
 
           //
@@ -208,14 +208,16 @@ public class DmozParser {
      * When parsing begins
      */
     public void startDocument() {
-      LOG.info("Begin parse");
+      if (LOG.isInfoEnabled()) { LOG.info("Begin parse"); }
     }
 
     /**
      * When parsing ends
      */
     public void endDocument() {
-      LOG.info("Completed parse.  Found " + pages + " pages.");
+      if (LOG.isInfoEnabled()) {
+        LOG.info("Completed parse.  Found " + pages + " pages.");
+      }
     }
 
     /**
@@ -236,25 +238,32 @@ public class DmozParser {
      * Emit the exception message
      */
     public void error(SAXParseException spe) {
-      LOG.fatal("Error: " + spe.toString() + ": " + spe.getMessage());
-      spe.printStackTrace(LogUtil.getFatalStream(LOG));
+      if (LOG.isFatalEnabled()) {
+        LOG.fatal("Error: " + spe.toString() + ": " + spe.getMessage());
+        spe.printStackTrace(LogUtil.getFatalStream(LOG));
+      }
     }
 
     /**
      * Emit the exception message, with line numbers
      */
     public void fatalError(SAXParseException spe) {
-      LOG.fatal("Fatal err: " + spe.toString() + ": " + spe.getMessage());
-      LOG.fatal("Last known line is " + location.getLineNumber() + ", column " + location.getColumnNumber());
-      spe.printStackTrace(LogUtil.getFatalStream(LOG));
+      if (LOG.isFatalEnabled()) {
+        LOG.fatal("Fatal err: " + spe.toString() + ": " + spe.getMessage());
+        LOG.fatal("Last known line is " + location.getLineNumber() +
+                  ", column " + location.getColumnNumber());
+        spe.printStackTrace(LogUtil.getFatalStream(LOG));
+      }
     }
         
     /**
      * Emit exception warning message
      */
     public void warning(SAXParseException spe) {
-      LOG.warn("Warning: " + spe.toString() + ": " + spe.getMessage());
-      spe.printStackTrace(LogUtil.getFatalStream(LOG));
+      if (LOG.isWarnEnabled()) {
+        LOG.warn("Warning: " + spe.toString() + ": " + spe.getMessage());
+        spe.printStackTrace(LogUtil.getWarnStream(LOG));
+      }
     }
   }
 
@@ -279,7 +288,7 @@ public class DmozParser {
                        skew, topicPattern);
     reader.setContentHandler(rp);
     reader.setErrorHandler(rp);
-    LOG.info("skew = " + rp.hashSkew);
+    if (LOG.isInfoEnabled()) { LOG.info("skew = " + rp.hashSkew); }
 
     //
     // Open filtered text stream.  The UTF8Filter makes sure that
@@ -291,8 +300,10 @@ public class DmozParser {
       InputSource is = new InputSource(in);
       reader.parse(is);
     } catch (Exception e) {
-      LOG.fatal(e.toString());
-      e.printStackTrace(LogUtil.getFatalStream(LOG));
+      if (LOG.isFatalEnabled()) {
+        LOG.fatal(e.toString());
+        e.printStackTrace(LogUtil.getFatalStream(LOG));
+      }
       System.exit(0);
     } finally {
       in.close();
@@ -310,8 +321,10 @@ public class DmozParser {
       }
     } 
     catch (Exception e) {
-      LOG.fatal(e.toString());
-      e.printStackTrace(LogUtil.getFatalStream(LOG));
+      if (LOG.isFatalEnabled()) {
+        LOG.fatal(e.toString());
+        e.printStackTrace(LogUtil.getFatalStream(LOG));
+      }
       System.exit(0);
     } finally {
       in.close();
@@ -372,7 +385,9 @@ public class DmozParser {
         }
         regExp = regExp.concat((String) topics.get(j));
         regExp = regExp.concat(").*"); 
-        LOG.info("Topic selection pattern = " + regExp);
+        if (LOG.isInfoEnabled()) {
+          LOG.info("Topic selection pattern = " + regExp);
+        }
         topicPattern = Pattern.compile(regExp); 
       }
 

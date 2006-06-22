@@ -205,7 +205,11 @@ public class CrawlDbReader implements Closeable {
   }
   
   public void processStatJob(String crawlDb, Configuration config) throws IOException {
-    LOG.info("CrawlDb statistics start: " + crawlDb);
+
+    if (LOG.isInfoEnabled()) {
+      LOG.info("CrawlDb statistics start: " + crawlDb);
+    }
+    
     Path tmpFolder = new Path(crawlDb, "stat_tmp" + System.currentTimeMillis());
 
     JobConf job = new NutchJob(config);
@@ -252,27 +256,30 @@ public class CrawlDbReader implements Closeable {
         else if (k.startsWith("avg")) avg++;
       }
     }
-    LOG.info("Statistics for CrawlDb: " + crawlDb);
-    Iterator it = stats.keySet().iterator();
-    while (it.hasNext()) {
-      String k = (String) it.next();
-      LongWritable val = (LongWritable) stats.get(k);
-      if (k.indexOf("score") != -1) {
-        if (k.startsWith("min")) {
-          LOG.info(k + ":\t" + (float) ((float) (val.get() / min) / 1000.0f));
-        } else if (k.startsWith("max")) {
-          LOG.info(k + ":\t" + (float) ((float) (val.get() / max) / 1000.0f));
-        } else if (k.startsWith("avg")) {
-          LOG.info(k + ":\t" + (float) ((float) (val.get() / avg) / 1000.0f));
-        }
-      } else if (k.startsWith("status")) {
-        int code = Integer.parseInt(k.substring(k.indexOf(' ') + 1));
-        LOG.info(k + " (" + CrawlDatum.statNames[code] + "):\t" + val);
-      } else LOG.info(k + ":\t" + val);
+    
+    if (LOG.isInfoEnabled()) {
+      LOG.info("Statistics for CrawlDb: " + crawlDb);
+      Iterator it = stats.keySet().iterator();
+      while (it.hasNext()) {
+        String k = (String) it.next();
+        LongWritable val = (LongWritable) stats.get(k);
+        if (k.indexOf("score") != -1) {
+          if (k.startsWith("min")) {
+            LOG.info(k + ":\t" + (float) ((float) (val.get() / min) / 1000.0f));
+          } else if (k.startsWith("max")) {
+            LOG.info(k + ":\t" + (float) ((float) (val.get() / max) / 1000.0f));
+          } else if (k.startsWith("avg")) {
+            LOG.info(k + ":\t" + (float) ((float) (val.get() / avg) / 1000.0f));
+          }
+        } else if (k.startsWith("status")) {
+          int code = Integer.parseInt(k.substring(k.indexOf(' ') + 1));
+          LOG.info(k + " (" + CrawlDatum.statNames[code] + "):\t" + val);
+        } else LOG.info(k + ":\t" + val);
+      }
     }
     // removing the tmp folder
     fileSystem.delete(tmpFolder);
-    LOG.info("CrawlDb statistics: done");
+    if (LOG.isInfoEnabled()) { LOG.info("CrawlDb statistics: done"); }
 
   }
   
@@ -296,8 +303,11 @@ public class CrawlDbReader implements Closeable {
   
   public void processDumpJob(String crawlDb, String output, Configuration config) throws IOException {
 
-    LOG.info("CrawlDb dump: starting");
-    LOG.info("CrawlDb db: " + crawlDb);
+    if (LOG.isInfoEnabled()) {
+      LOG.info("CrawlDb dump: starting");
+      LOG.info("CrawlDb db: " + crawlDb);
+    }
+    
     Path outFolder = new Path(output);
 
     JobConf job = new NutchJob(config);
@@ -314,12 +324,16 @@ public class CrawlDbReader implements Closeable {
     job.setOutputValueClass(CrawlDatum.class);
 
     JobClient.runJob(job);
-    LOG.info("CrawlDb dump: done");
+    if (LOG.isInfoEnabled()) { LOG.info("CrawlDb dump: done"); }
   }
 
   public void processTopNJob(String crawlDb, long topN, float min, String output, Configuration config) throws IOException {
-    LOG.info("CrawlDb topN: starting (topN=" + topN + ", min=" + min + ")");
-    LOG.info("CrawlDb db: " + crawlDb);
+    
+    if (LOG.isInfoEnabled()) {
+      LOG.info("CrawlDb topN: starting (topN=" + topN + ", min=" + min + ")");
+      LOG.info("CrawlDb db: " + crawlDb);
+    }
+    
     Path outFolder = new Path(output);
     Path tempDir =
       new Path(config.get("mapred.temp.dir", ".") +
@@ -343,7 +357,9 @@ public class CrawlDbReader implements Closeable {
     job.setLong("CrawlDbReader.topN.min", Math.round(1000000.0 * min));
     JobClient.runJob(job); 
     
-    LOG.info("CrawlDb topN: collecting topN scores.");
+    if (LOG.isInfoEnabled()) {
+      LOG.info("CrawlDb topN: collecting topN scores.");
+    }
     job = new NutchJob(config);
     job.setLong("CrawlDbReader.topN", topN);
 
@@ -365,7 +381,7 @@ public class CrawlDbReader implements Closeable {
     JobClient.runJob(job);
     FileSystem fs = FileSystem.get(config);
     fs.delete(tempDir);
-    LOG.info("CrawlDb topN: done");
+    if (LOG.isInfoEnabled()) { LOG.info("CrawlDb topN: done"); }
 
   }
 

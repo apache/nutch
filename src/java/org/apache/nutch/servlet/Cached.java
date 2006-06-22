@@ -70,7 +70,9 @@ public class Cached extends HttpServlet {
     if (bean == null)
       return;
 
-    bean.LOG.info("request from " + request.getRemoteAddr());
+    if (bean.LOG.isInfoEnabled()) {
+      bean.LOG.info("request from " + request.getRemoteAddr());
+    }
 
     Hit hit = new Hit(Integer.parseInt(request.getParameter("idx")),
                       Integer.parseInt(request.getParameter("id")));

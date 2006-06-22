@@ -28,6 +28,7 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
+import org.apache.nutch.util.LogUtil;
 
 import org.apache.hadoop.conf.Configuration;
 
@@ -92,15 +93,20 @@ public class FtpResponse {
     if (!"ftp".equals(url.getProtocol()))
       throw new FtpException("Not a ftp url:" + url);
 
-    if (url.getPath() != url.getFile())
-      Ftp.LOG.warn("url.getPath() != url.getFile(): " + url);
+    if (url.getPath() != url.getFile()) {
+      if (Ftp.LOG.isWarnEnabled()) {
+        Ftp.LOG.warn("url.getPath() != url.getFile(): " + url);
+      }
+    }
 
     String path = "".equals(url.getPath()) ? "/" : url.getPath();
 
     try {
 
       if (ftp.followTalk) {
-        Ftp.LOG.info("fetching "+url);
+        if (Ftp.LOG.isInfoEnabled()) {
+          Ftp.LOG.info("fetching "+url);
+        }
       } else {
         if (Ftp.LOG.isTraceEnabled()) {
           Ftp.LOG.trace("fetching "+url);
@@ -113,14 +119,17 @@ public class FtpResponse {
       // should start anew.
       if (ftp.client != null && ftp.keepConnection
           && ftp.renewalTime < System.currentTimeMillis()) {
-        Ftp.LOG.info("delete client because idled too long");
+        if (Ftp.LOG.isInfoEnabled()) { 
+          Ftp.LOG.info("delete client because idled too long");
+        }
         ftp.client = null;
       }
 
       // start anew if needed
       if (ftp.client == null) {
-        if (ftp.followTalk)
+        if ((ftp.followTalk) && (Ftp.LOG.isInfoEnabled())) {
           Ftp.LOG.info("start client");
+        }
         // the real client
         ftp.client = new Client();
         // when to renew, take the lesser
@@ -142,9 +151,10 @@ public class FtpResponse {
       if (ftp.client.isConnected()) {
         InetAddress remoteAddress = ftp.client.getRemoteAddress();
         if (!addr.equals(remoteAddress)) {
-          if (ftp.followTalk)
+          if ((ftp.followTalk) && (Ftp.LOG.isInfoEnabled())) {
             Ftp.LOG.info("disconnect from "+remoteAddress
             +" before connect to "+addr);
+          }
           // quit from current site
           ftp.client.logout();
           ftp.client.disconnect();
@@ -154,20 +164,24 @@ public class FtpResponse {
       // connect to current site if needed
       if (!ftp.client.isConnected()) {
 
-        if (ftp.followTalk)
+        if ((ftp.followTalk) && (Ftp.LOG.isInfoEnabled())) {
           Ftp.LOG.info("connect to "+addr);
+        }
 
         ftp.client.connect(addr);
         if (!FTPReply.isPositiveCompletion(ftp.client.getReplyCode())) {
           ftp.client.disconnect();
-          Ftp.LOG.warn("ftp.client.connect() failed: "
-            + addr + " " + ftp.client.getReplyString());
+          if (Ftp.LOG.isWarnEnabled()) {
+            Ftp.LOG.warn("ftp.client.connect() failed: "
+              + addr + " " + ftp.client.getReplyString());
+          }
           this.code = 500; // http Internal Server Error
           return;
         }
 
-        if (ftp.followTalk)
+        if ((ftp.followTalk) && (Ftp.LOG.isInfoEnabled())) {
           Ftp.LOG.info("log into "+addr);
+        }
 
         if (!ftp.client.login(ftp.userName, ftp.passWord)) {
           // login failed.
@@ -176,7 +190,9 @@ public class FtpResponse {
           // but throw exception, which then will be handled by caller
           // (not dealt with here at all) .
           ftp.client.disconnect();
-          Ftp.LOG.warn("ftp.client.login() failed: "+addr);
+          if (Ftp.LOG.isWarnEnabled()) {
+            Ftp.LOG.warn("ftp.client.login() failed: "+addr);
+          }
           this.code = 401;  // http Unauthorized
           return;
         }
@@ -185,13 +201,16 @@ public class FtpResponse {
         if (!ftp.client.setFileType(FTP.BINARY_FILE_TYPE)) {
           ftp.client.logout();
           ftp.client.disconnect();
-          Ftp.LOG.warn("ftp.client.setFileType() failed: "+addr);
+          if (Ftp.LOG.isWarnEnabled()) {
+            Ftp.LOG.warn("ftp.client.setFileType() failed: "+addr);
+          }
           this.code = 500; // http Internal Server Error
           return;
         }
 
-        if (ftp.followTalk)
+        if ((ftp.followTalk) && (Ftp.LOG.isInfoEnabled())) {
           Ftp.LOG.info("set parser for "+addr);
+        }
 
         // SYST is valid only after login
         try {
@@ -203,18 +222,24 @@ public class FtpResponse {
           ftp.parser = (new DefaultFTPFileEntryParserFactory())
             .createFileEntryParser(parserKey);
         } catch (FtpExceptionBadSystResponse e) {
-          Ftp.LOG.warn("ftp.client.getSystemName() failed: "+addr+" "+e);
+          if (Ftp.LOG.isWarnEnabled()) {
+            Ftp.LOG.warn("ftp.client.getSystemName() failed: "+addr+" "+e);
+          }
           ftp.parser = null;
         } catch (ParserInitializationException e) {
           // ParserInitializationException is RuntimeException defined in
           // org.apache.commons.net.ftp.parser.ParserInitializationException
-          Ftp.LOG.warn("createFileEntryParser() failed. "+addr+" "+e);
+          if (Ftp.LOG.isWarnEnabled()) {
+            Ftp.LOG.warn("createFileEntryParser() failed. "+addr+" "+e);
+          }
           ftp.parser = null;
         } finally {
           if (ftp.parser == null) {
             // do not log as severe, otherwise
             // FetcherThread/RequestScheduler will abort
-            Ftp.LOG.warn("ftp.parser is null: "+addr);
+            if (Ftp.LOG.isWarnEnabled()) {
+              Ftp.LOG.warn("ftp.parser is null: "+addr);
+            }
             ftp.client.logout();
             ftp.client.disconnect();
             this.code = 500; // http Internal Server Error
@@ -223,8 +248,9 @@ public class FtpResponse {
         }
 
       } else {
-        if (ftp.followTalk)
+        if ((ftp.followTalk) && (Ftp.LOG.isInfoEnabled())) {
           Ftp.LOG.info("use existing connection");
+        }
       }
 
       this.content = null;
@@ -239,30 +265,32 @@ public class FtpResponse {
       if (ftp.client != null && ftp.keepConnection) {
         ftp.renewalTime = System.currentTimeMillis()
           + ((ftp.timeout<ftp.serverTimeout) ? ftp.timeout : ftp.serverTimeout);
-        if (ftp.followTalk)
+        if ((ftp.followTalk) && (Ftp.LOG.isInfoEnabled())) {
           Ftp.LOG.info("reset renewalTime to "
             +ftp.httpDateFormat.toString(ftp.renewalTime));
+        }
       }
 
       // getDirAsHttpResponse() or getFileAsHttpResponse() above
       // may have deleted ftp.client
       if (ftp.client != null && !ftp.keepConnection) {
-        if (ftp.followTalk)
+        if ((ftp.followTalk) && (Ftp.LOG.isInfoEnabled())) {
           Ftp.LOG.info("disconnect from "+addr);
+        }
         ftp.client.logout();
         ftp.client.disconnect();
       }
       
     } catch (Exception e) {
-      ftp.LOG.warn(""+e);
-      StackTraceElement stes[] = e.getStackTrace();
-      for (int i=0; i<stes.length; i++) {
-        ftp.LOG.warn("   "+stes[i].toString());
+      if (ftp.LOG.isWarnEnabled()) {
+        ftp.LOG.warn(""+e);
+        e.printStackTrace(LogUtil.getWarnStream(ftp.LOG));
       }
       // for any un-foreseen exception (run time exception or not),
       // do ultimate clean and leave ftp.client for garbage collection
-      if (ftp.followTalk)
+      if ((ftp.followTalk) && (Ftp.LOG.isInfoEnabled())) {
         Ftp.LOG.info("delete client due to exception");
+      }
       ftp.client = null;
       // or do explicit garbage collection?
       // System.gc();
@@ -313,17 +341,20 @@ public class FtpResponse {
 
       // control connection is off, clean up
       // ftp.client.disconnect();
-      if (ftp.followTalk)
+      if ((ftp.followTalk) && (Ftp.LOG.isInfoEnabled())) {
         Ftp.LOG.info("delete client because server cut off control channel: "+e);
+      }
       ftp.client = null;
 
       // in case this FtpExceptionControlClosedByForcedDataClose is
       // thrown by retrieveList() (not retrieveFile()) above,
       if (os == null) { // indicating throwing by retrieveList()
         //throw new FtpException("fail to get attibutes: "+path);
-        Ftp.LOG.warn(
-            "Please try larger maxContentLength for ftp.client.retrieveList(). "
-          + e);
+        if (Ftp.LOG.isWarnEnabled()) {
+          Ftp.LOG.warn(
+              "Please try larger maxContentLength for ftp.client.retrieveList(). "
+            + e);
+        }
         // in a way, this is our request fault
         this.code = 400;  // http Bad request
         return;
@@ -360,10 +391,12 @@ public class FtpResponse {
     } catch (FtpExceptionUnknownForcedDataClose e) {
       // Please note control channel is still live.
       // in a way, this is our request fault
-      Ftp.LOG.warn(
-          "Unrecognized reply after forced close of data channel. "
-        + "If this is acceptable, please modify Client.java accordingly. "
-        + e);
+      if (Ftp.LOG.isWarnEnabled()) {
+        Ftp.LOG.warn(
+            "Unrecognized reply after forced close of data channel. "
+          + "If this is acceptable, please modify Client.java accordingly. "
+          + e);
+      }
       this.code = 400; // http Bad Request
     }
 
@@ -403,8 +436,9 @@ public class FtpResponse {
 
       // control connection is off, clean up
       // ftp.client.disconnect();
-      if (ftp.followTalk)
+      if ((ftp.followTalk) && (Ftp.LOG.isInfoEnabled())) {
         Ftp.LOG.info("delete client because server cut off control channel: "+e);
+      }
       ftp.client = null;
 
       this.content = list2html(list, path, "/".equals(path) ? false : true);
@@ -424,13 +458,15 @@ public class FtpResponse {
     } catch (FtpExceptionUnknownForcedDataClose e) {
       // Please note control channel is still live.
       // in a way, this is our request fault
-      Ftp.LOG.warn(
-          "Unrecognized reply after forced close of data channel. "
-        + "If this is acceptable, please modify Client.java accordingly. "
-        + e);
+      if (Ftp.LOG.isWarnEnabled()) {
+        Ftp.LOG.warn(
+            "Unrecognized reply after forced close of data channel. "
+          + "If this is acceptable, please modify Client.java accordingly. "
+          + e);
+      }
       this.code = 400; // http Bad Request
     } catch (FtpExceptionCanNotHaveDataConnection e) {
-      Ftp.LOG.warn(""+ e);
+      if (Ftp.LOG.isWarnEnabled()) { Ftp.LOG.warn(""+ e); }
       this.code = 500; // http Iternal Server Error
     }
 

@@ -18,6 +18,7 @@ package org.apache.nutch.ontology.jena;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.ontology.*;
+import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
 
 import com.hp.hpl.jena.ontology.Individual;
@@ -71,7 +72,7 @@ public class OntologyImpl implements org.apache.nutch.ontology.Ontology {
     //only initialize all the static variables
     //if first time called to this ontology constructor
     if (ontology == null) {
-      LOG.info( "creating new ontology");
+      if (LOG.isInfoEnabled()) { LOG.info( "creating new ontology"); }
       parser = new OwlParser();
       ontology = this;
     }
@@ -101,14 +102,13 @@ public class OntologyImpl implements org.apache.nutch.ontology.Ontology {
 
   private void load (Object m, String url) {
     try {
-      LOG.info( "reading "+url);
+      if (LOG.isInfoEnabled()) { LOG.info( "reading "+url); }
       ((OntModel)m).read(url);
     } catch (Exception e) {
-      LOG.fatal("failed on attempting to read ontology "+url);
-      LOG.fatal(e.getMessage());
-      StackTraceElement[] traces = e.getStackTrace();
-      for (int i=0; i<traces.length; i++) {
-        LOG.fatal(traces[i].toString());
+      if (LOG.isFatalEnabled()) {
+        LOG.fatal("failed on attempting to read ontology "+url);
+        LOG.fatal(e.getMessage());
+        e.printStackTrace(LogUtil.getFatalStream(LOG));
       }
     }
   }
@@ -332,11 +332,11 @@ public class OntologyImpl implements org.apache.nutch.ontology.Ontology {
 
     String urls = conf.get("extension.ontology.urls");
     if (urls==null || urls.trim().equals("")) {
-      LOG.fatal("No ontology url found.");
+      if (LOG.isFatalEnabled()) { LOG.fatal("No ontology url found."); }
       return;
     }
     ontology.load(urls.split("\\s+"));
-    LOG.info( "created new ontology");
+    if (LOG.isInfoEnabled()) { LOG.info( "created new ontology"); }
     
     for (Iterator i = getParser().rootClasses( getModel() ); 
       i.hasNext(); ) {

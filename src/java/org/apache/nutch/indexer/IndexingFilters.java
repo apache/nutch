@@ -50,7 +50,9 @@ public class IndexingFilters {
                 for (int i = 0; i < extensions.length; i++) {
                     Extension extension = extensions[i];
                     IndexingFilter filter = (IndexingFilter) extension.getExtensionInstance();
-                    LOG.info("Adding " + filter.getClass().getName());
+                    if (LOG.isInfoEnabled()) {
+                      LOG.info("Adding " + filter.getClass().getName());
+                    }
                     if (!filterMap.containsKey(filter.getClass().getName())) {
                         filterMap.put(filter.getClass().getName(), filter);
                     }

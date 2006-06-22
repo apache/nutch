@@ -99,7 +99,9 @@ public class HttpAuthenticationFactory implements Configurable {
 				}
 			}
 			if (challenge == null) {
-				LOG.trace("Authentication challenge is null");
+                                if (LOG.isTraceEnabled()) {
+				  LOG.trace("Authentication challenge is null");
+                                }
 				return null;
 			}
 			
@@ -110,8 +112,10 @@ public class HttpAuthenticationFactory implements Configurable {
 				if (challengeString.equals("NTLM")) {
 				   challengeString="Basic realm=techweb";
 		                  }
-		                
-		                LOG.trace("Checking challengeString=" + challengeString);
+		               
+                                if (LOG.isTraceEnabled()) {  
+		                  LOG.trace("Checking challengeString=" + challengeString);
+                                }
 				auth = HttpBasicAuthentication.getAuthentication(challengeString, conf);
 				if (auth != null) return auth;
 				

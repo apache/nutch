@@ -74,7 +74,9 @@ public class ThreadPool {
             t.start();
         }
         Log l = LogFactory.getLog("org.apache.nutch.util");
-        l.debug("ThreadPool created with " + numThreads + " threads.");
+        if (l.isDebugEnabled()) {
+          l.debug("ThreadPool created with " + numThreads + " threads.");
+        }
     }
 
     /**
@@ -130,6 +132,8 @@ public class ThreadPool {
     public void shutdown() {
         running = false;
         Log l = LogFactory.getLog("org.apache.nutch.util");
-        l.debug("ThreadPool shutting down.");
+        if (l.isDebugEnabled()) {
+          l.debug("ThreadPool shutting down.");
+        }
     }
 }

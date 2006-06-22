@@ -71,7 +71,9 @@ public class OpenSearchServlet extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
 
-    NutchBean.LOG.info("query request from " + request.getRemoteAddr());
+    if (NutchBean.LOG.isInfoEnabled()) {
+      NutchBean.LOG.info("query request from " + request.getRemoteAddr());
+    }
 
     // get parameters from request
     request.setCharacterEncoding("UTF-8");
@@ -123,8 +125,10 @@ public class OpenSearchServlet extends HttpServlet {
         (dedupField == null ? "" : "&dedupField=" + dedupField));
 
     Query query = Query.parse(queryString, queryLang, this.conf);
-    NutchBean.LOG.info("query: " + queryString);
-    NutchBean.LOG.info("lang: " + queryLang);
+    if (NutchBean.LOG.isInfoEnabled()) {
+      NutchBean.LOG.info("query: " + queryString);
+      NutchBean.LOG.info("lang: " + queryLang);
+    }
 
     // execute the query
     Hits hits;
@@ -132,11 +136,15 @@ public class OpenSearchServlet extends HttpServlet {
       hits = bean.search(query, start + hitsPerPage, hitsPerDup, dedupField,
           sort, reverse);
     } catch (IOException e) {
-      NutchBean.LOG.warn("Search Error", e);
+      if (NutchBean.LOG.isWarnEnabled()) {
+        NutchBean.LOG.warn("Search Error", e);
+      }
       hits = new Hits(0,new Hit[0]);	
     }
 
-    NutchBean.LOG.info("total hits: " + hits.getTotal());
+    if (NutchBean.LOG.isInfoEnabled()) {
+      NutchBean.LOG.info("total hits: " + hits.getTotal());
+    }
 
     // generate xml results
     int end = (int)Math.min(hits.getLength(), start + hitsPerPage);

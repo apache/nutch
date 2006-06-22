@@ -121,11 +121,13 @@ public class LanguageIdentifier {
       p.load(this.getClass().getResourceAsStream("langmappings.properties"));
 
       Enumeration alllanguages = p.keys();
-      
-      LOG.info(new StringBuffer()
-                .append("Language identifier configuration [")
-                .append(minLength).append("-").append(maxLength)
-                .append("/").append(analyzeLength).append("]").toString());
+     
+      if (LOG.isInfoEnabled()) { 
+        LOG.info(new StringBuffer()
+                  .append("Language identifier configuration [")
+                  .append(minLength).append("-").append(maxLength)
+                  .append("/").append(analyzeLength).append("]").toString());
+      }
 
       StringBuffer list = new StringBuffer("Language identifier plugin supports:");
       HashMap tmpIdx = new HashMap();
@@ -155,7 +157,7 @@ public class LanguageIdentifier {
             list.append(" " + lang + "(" + ngrams.size() + ")");
             is.close();
           } catch (IOException e1) {
-            LOG.fatal(e1.toString());
+            if (LOG.isFatalEnabled()) { LOG.fatal(e1.toString()); }
           }
         }
       }
@@ -169,11 +171,11 @@ public class LanguageIdentifier {
           ngramsIdx.put(entry.getSeq(), array);
         }
       }
-      LOG.info(list.toString());
+      if (LOG.isInfoEnabled()) { LOG.info(list.toString()); }
       // Create the suspect profile
       suspect = new NGramProfile("suspect", minLength, maxLength);
     } catch (Exception e) {
-      LOG.fatal(e.toString());
+      if (LOG.isFatalEnabled()) { LOG.fatal(e.toString()); }
     }
   }
 

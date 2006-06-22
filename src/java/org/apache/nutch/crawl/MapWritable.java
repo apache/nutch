@@ -313,7 +313,9 @@ public class MapWritable implements Writable {
           clazz = Class.forName(UTF8.readString(in));
           addIdEntry(id, clazz);
         } catch (Exception e) {
-          LOG.warn("MapWritable: unable to load internal map entry" + e.toString());
+          if (LOG.isWarnEnabled()) { 
+            LOG.warn("Unable to load internal map entry" + e.toString());
+          }
           fIdCount--;
         }
       }
@@ -329,8 +331,10 @@ public class MapWritable implements Writable {
             fLast = fLast.fNextEntry = entry;
           }
         } catch (IOException e) {
-          LOG.warn("MapWritable: unable to load meta data entry, ignoring.. : "
-                 + e.toString());
+          if (LOG.isWarnEnabled()) {
+            LOG.warn("Unable to load meta data entry, ignoring.. : "  +
+                     e.toString());
+          }
           fSize--;
         }
       }

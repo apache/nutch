@@ -68,7 +68,9 @@ final class MimeTypesReader {
             Document document = builder.parse(new InputSource(stream));
             types = visit(document);
         } catch (Exception e) {
-            logger.warn(e.toString() + " while loading mime-types");
+            if (logger.isWarnEnabled()) {
+              logger.warn(e.toString() + " while loading mime-types");
+            }
             types = new MimeType[0];
         }
         return types;

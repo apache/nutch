@@ -119,8 +119,10 @@ public class ParseOutputFormat implements OutputFormat {
               adjust = scfilters.distributeScoreToOutlink((UTF8)key, targetUrl,
                       parseData, target, null, links.length, validCount);
             } catch (ScoringFilterException e) {
-              LOG.warn("Cannot distribute score from " + key + " to " + targetUrl +
-                       " - skipped (" + e.getMessage());
+              if (LOG.isWarnEnabled()) {
+                LOG.warn("Cannot distribute score from " + key + " to " +
+                         targetUrl + " - skipped (" + e.getMessage());
+              }
               continue;
             }
             crawlOut.append(targetUrl, target);

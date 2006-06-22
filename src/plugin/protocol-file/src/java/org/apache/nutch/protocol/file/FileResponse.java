@@ -101,7 +101,9 @@ public class FileResponse {
     }
 
     if (url.getPath() != url.getFile()) {
-      File.LOG.warn("url.getPath() != url.getFile(): " + url);
+      if (File.LOG.isWarnEnabled()) {
+        File.LOG.warn("url.getPath() != url.getFile(): " + url);
+      }
     }
 
     String path = "".equals(url.getPath()) ? "/" : url.getPath();
@@ -179,8 +181,11 @@ public class FileResponse {
       && (n = is.read(this.content, offset, len-offset)) >= 0) {
       offset += n;
     }
-    if (offset < len) // keep whatever already have, but issue a warning
-      File.LOG.warn("not enough bytes read from file: "+f.getPath());
+    if (offset < len) { // keep whatever already have, but issue a warning
+      if (File.LOG.isWarnEnabled()) {
+        File.LOG.warn("not enough bytes read from file: "+f.getPath());
+      }
+    }
     is.close(); 
 
     // set headers

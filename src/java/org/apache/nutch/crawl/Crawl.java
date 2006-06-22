@@ -84,14 +84,15 @@ public class Crawl {
       throw new RuntimeException(dir + " already exists.");
     }
 
-    LOG.info("crawl started in: " + dir);
-    LOG.info("rootUrlDir = " + rootUrlDir);
-    LOG.info("threads = " + threads);
-    LOG.info("depth = " + depth);
-
-    if (topN != Integer.MAX_VALUE)
-      LOG.info("topN = " + topN);
-
+    if (LOG.isInfoEnabled()) {
+      LOG.info("crawl started in: " + dir);
+      LOG.info("rootUrlDir = " + rootUrlDir);
+      LOG.info("threads = " + threads);
+      LOG.info("depth = " + depth);
+      if (topN != Integer.MAX_VALUE)
+        LOG.info("topN = " + topN);
+    }
+    
     Path crawlDb = new Path(dir + "/crawldb");
     Path linkDb = new Path(dir + "/linkdb");
     Path segments = new Path(dir + "/segments");
@@ -121,6 +122,6 @@ public class Crawl {
     new DeleteDuplicates(job).dedup(new Path[] { indexes });
     new IndexMerger(fs, fs.listPaths(indexes), index, tmpDir, job).merge();
 
-    LOG.info("crawl finished: " + dir);
+    if (LOG.isInfoEnabled()) { LOG.info("crawl finished: " + dir); }
   }
 }

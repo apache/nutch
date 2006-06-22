@@ -319,7 +319,7 @@ public class NGramProfile {
         }
       }
     } catch (Exception e) {
-      LOG.fatal(e.toString());
+      if (LOG.isFatalEnabled()) { LOG.fatal(e.toString()); }
     }
     return sum;
   }
@@ -523,7 +523,7 @@ public class NGramProfile {
       }
 
     } catch (Exception e) {
-      LOG.fatal("Caught an exception:" + e);
+      if (LOG.isFatalEnabled()) { LOG.fatal("Caught an exception:" + e); }
     }
   }
 

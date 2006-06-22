@@ -66,7 +66,7 @@ public class NutchBean
   public static NutchBean get(ServletContext app, Configuration conf) throws IOException {
     NutchBean bean = (NutchBean)app.getAttribute("nutchBean");
     if (bean == null) {
-      LOG.info("creating new bean");
+      if (LOG.isInfoEnabled()) { LOG.info("creating new bean"); }
       bean = new NutchBean(conf);
       app.setAttribute("nutchBean", bean);
     }
@@ -97,7 +97,9 @@ public class NutchBean
         }
         Path servers = new Path(dir, "search-servers.txt");
         if (fs.exists(servers)) {
-            LOG.info("searching servers in " + servers);
+            if (LOG.isInfoEnabled()) {
+              LOG.info("searching servers in " + servers);
+            }
             init(new DistributedSearch.Client(servers, conf));
         } else {
             init(new Path(dir, "index"), new Path(dir, "indexes"), new Path(
@@ -110,10 +112,14 @@ public class NutchBean
     throws IOException {
     IndexSearcher indexSearcher;
     if (this.fs.exists(indexDir)) {
-      LOG.info("opening merged index in " + indexDir);
+      if (LOG.isInfoEnabled()) {
+        LOG.info("opening merged index in " + indexDir);
+      }
       indexSearcher = new IndexSearcher(indexDir, this.conf);
     } else {
-      LOG.info("opening indexes in " + indexesDir);
+      if (LOG.isInfoEnabled()) {
+        LOG.info("opening indexes in " + indexesDir);
+      }
       
       Vector vDirs=new Vector();
       Path [] directories = fs.listPaths(indexesDir);
@@ -133,7 +139,9 @@ public class NutchBean
       indexSearcher = new IndexSearcher(directories, this.conf);
     }
 
-    LOG.info("opening segments in " + segmentsDir);
+    if (LOG.isInfoEnabled()) {
+      LOG.info("opening segments in " + segmentsDir);
+    }
     FetchedSegments segments = new FetchedSegments(this.fs, segmentsDir.toString(),this.conf);
     
     this.segmentNames = segments.getSegmentNames();
@@ -143,7 +151,7 @@ public class NutchBean
     this.summarizer = segments;
     this.content = segments;
 
-    LOG.info("opening linkdb in " + linkDb);
+    if (LOG.isInfoEnabled()) { LOG.info("opening linkdb in " + linkDb); }
     this.linkDb = new LinkDbInlinks(fs, linkDb, this.conf);
   }
 
@@ -235,7 +243,9 @@ public class NutchBean
 
     float rawHitsFactor = this.conf.getFloat("searcher.hostgrouping.rawhits.factor", 2.0f);
     int numHitsRaw = (int)(numHits * rawHitsFactor);
-    LOG.info("searching for "+numHitsRaw+" raw hits");
+    if (LOG.isInfoEnabled()) {
+      LOG.info("searching for "+numHitsRaw+" raw hits");
+    }
     Hits hits = searcher.search(query, numHitsRaw,
                                 dedupField, sortField, reverse);
     long total = hits.getTotal();
@@ -256,10 +266,14 @@ public class NutchBean
                                      dedupField);
         }
         numHitsRaw = (int)(numHitsRaw * rawHitsFactor);
-        LOG.info("re-searching for "+numHitsRaw+" raw hits, query: "+optQuery);
+        if (LOG.isInfoEnabled()) {
+          LOG.info("re-searching for "+numHitsRaw+" raw hits, query: "+optQuery);
+        }
         hits = searcher.search(optQuery, numHitsRaw,
                                dedupField, sortField, reverse);
-        LOG.info("found "+hits.getTotal()+" raw hits");
+        if (LOG.isInfoEnabled()) {
+          LOG.info("found "+hits.getTotal()+" raw hits");
+        }
         rawHitNum = -1;
         continue;
       }

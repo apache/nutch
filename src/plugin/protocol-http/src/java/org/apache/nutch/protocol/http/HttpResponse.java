@@ -114,7 +114,7 @@ public class HttpResponse implements Response {
 
       String userAgent = http.getUserAgent();
       if ((userAgent == null) || (userAgent.length() == 0)) {
-        Http.LOG.fatal("User-agent is not set!");
+        if (Http.LOG.isFatalEnabled()) { Http.LOG.fatal("User-agent is not set!"); }
       } else {
         reqStr.append("User-Agent: ");
         reqStr.append(userAgent);
@@ -230,19 +230,21 @@ public class HttpResponse implements Response {
     ByteArrayOutputStream out = new ByteArrayOutputStream(Http.BUFFER_SIZE);
 
     while (!doneChunks) {
-      Http.LOG.trace("Http: starting chunk");
+      if (Http.LOG.isTraceEnabled()) {
+        Http.LOG.trace("Http: starting chunk");
+      }
 
       readLine(in, line, false);
 
       String chunkLenStr;
-      // LOG.trace("chunk-header: '" + line + "'");
+      // if (LOG.isTraceEnabled()) { LOG.trace("chunk-header: '" + line + "'"); }
 
       int pos= line.indexOf(";");
       if (pos < 0) {
         chunkLenStr= line.toString();
       } else {
         chunkLenStr= line.substring(0, pos);
-        // LOG.trace("got chunk-ext: " + line.substring(pos+1));
+        // if (LOG.isTraceEnabled()) { LOG.trace("got chunk-ext: " + line.substring(pos+1)); }
       }
       chunkLenStr= chunkLenStr.trim();
       int chunkLen;
@@ -276,7 +278,7 @@ public class HttpResponse implements Response {
 
         // DANGER!!! Will printed GZIPed stuff right to your
         // terminal!
-        // LOG.trace("read: " +  new String(bytes, 0, len));
+        // if (LOG.isTraceEnabled()) { LOG.trace("read: " +  new String(bytes, 0, len)); }
 
         out.write(bytes, 0, len);
         chunkBytesRead+= len;  

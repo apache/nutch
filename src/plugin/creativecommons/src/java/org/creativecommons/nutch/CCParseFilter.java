@@ -76,13 +76,17 @@ public class CCParseFilter implements HtmlParseFilter {
 
       // add license to metadata
       if (licenseUrl != null) {
-        LOG.info("CC: found "+licenseUrl+" in "+licenseLocation+" of "+base);
+        if (LOG.isInfoEnabled()) {
+          LOG.info("CC: found "+licenseUrl+" in "+licenseLocation+" of "+base);
+        }
         metadata.add(CreativeCommons.LICENSE_URL, licenseUrl);
         metadata.add(CreativeCommons.LICENSE_LOCATION, licenseLocation);
       }
 
       if (walker.workType != null) {
-        LOG.info("CC: found "+walker.workType+" in "+base);
+        if (LOG.isInfoEnabled()) {
+          LOG.info("CC: found "+walker.workType+" in "+base);
+        }
         metadata.add(CreativeCommons.WORK_TYPE, walker.workType);
       }
 
@@ -175,7 +179,9 @@ public class CCParseFilter implements HtmlParseFilter {
         DocumentBuilder parser = FACTORY.newDocumentBuilder();
         doc = parser.parse(new InputSource(new StringReader(comment)));
       } catch (Exception e) {
-        LOG.warn("CC: Failed to parse RDF in "+base+": "+e);
+        if (LOG.isWarnEnabled()) {
+          LOG.warn("CC: Failed to parse RDF in "+base+": "+e);
+        }
         //e.printStackTrace();
         return;
       }
@@ -183,7 +189,7 @@ public class CCParseFilter implements HtmlParseFilter {
       // check that root is rdf:RDF
       NodeList roots = doc.getElementsByTagNameNS(RDF_NS, "RDF");
       if (roots.getLength() != 1) {
-        LOG.warn("CC: No RDF root in "+base);
+        if (LOG.isWarnEnabled()) { LOG.warn("CC: No RDF root in "+base); }
         return;
       }
       Element rdf = (Element)roots.item(0);
@@ -217,7 +223,9 @@ public class CCParseFilter implements HtmlParseFilter {
         
           // add object and predicate to metadata
           // metadata.put(object, predicate);
-          // LOG.info("CC: found: "+predicate+"="+object);
+          // if (LOG.isInfoEnabled()) {
+          //   LOG.info("CC: found: "+predicate+"="+object);
+          // }
         }
       }
 

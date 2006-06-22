@@ -68,7 +68,7 @@ public class HTMLLanguageParser implements HtmlParseFilter {
         }
       }
     } catch (Exception e) {
-      LOG.fatal(e.toString());
+      if (LOG.isFatalEnabled()) { LOG.fatal(e.toString()); }
     }
   }
 

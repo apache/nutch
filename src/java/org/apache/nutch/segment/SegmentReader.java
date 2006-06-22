@@ -155,7 +155,7 @@ public class SegmentReader extends Configured implements Reducer {
         dump.append("\nParseData::\n").append(((ParseData) value).toString());
       } else if (value instanceof ParseText) {
         dump.append("\nParseText::\n").append(((ParseText) value).toString());
-      } else {
+      } else if (LOG.isWarnEnabled()) {
         LOG.warn("Unrecognized type: " + value.getClass());
       }
     }
@@ -163,7 +163,10 @@ public class SegmentReader extends Configured implements Reducer {
   }
 
   public void dump(Path segment, Path output) throws IOException {
-    LOG.info("SegmentReader: dump segment: " + segment);
+    
+    if (LOG.isInfoEnabled()) {
+      LOG.info("SegmentReader: dump segment: " + segment);
+    }
 
     JobConf job = createJobConf();
     job.setJobName("read " + segment);
@@ -208,8 +211,11 @@ public class SegmentReader extends Configured implements Reducer {
           try {
             currentRecordNumber = append(fs, job, partFile, writer, currentRecordNumber);
           } catch (IOException exception) {
-            LOG.warn("Couldn't copy the content of " + partFile.toString() + " into " + dumpFile.toString());
-            LOG.warn(exception.getMessage());
+            if (LOG.isWarnEnabled()) {
+              LOG.warn("Couldn't copy the content of " + partFile.toString() +
+                       " into " + dumpFile.toString());
+              LOG.warn(exception.getMessage());
+            }
           }
         }
       } finally {
@@ -217,7 +223,7 @@ public class SegmentReader extends Configured implements Reducer {
       }
     }
     fs.delete(tempDir);
-    LOG.info("SegmentReader: done");
+    if (LOG.isInfoEnabled()) { LOG.info("SegmentReader: done"); }
   }
 
   /** Appends two files and updates the Recno counter */
@@ -250,7 +256,7 @@ public class SegmentReader extends Configured implements Reducer {
 
   public void get(final Path segment, final UTF8 key, Writer writer,
           final Map results) throws Exception {
-    LOG.info("SegmentReader: get '" + key + "'");
+    if (LOG.isInfoEnabled()) { LOG.info("SegmentReader: get '" + key + "'"); }
     ArrayList threads = new ArrayList();
     if (co) threads.add(new Thread() {
       public void run() {
@@ -323,7 +329,9 @@ public class SegmentReader extends Configured implements Reducer {
       while (it.hasNext()) {
         if (((Thread)it.next()).isAlive()) cnt++;
       }
-      if (cnt > 0) LOG.debug("(" + cnt + " to retrieve)");
+      if ((cnt > 0) && (LOG.isDebugEnabled())) {
+        LOG.debug("(" + cnt + " to retrieve)");
+      }
     } while (cnt > 0);
     for (int i = 0; i < keys.length; i++) {
       List res = (List)results.get(keys[i][0]);

@@ -126,7 +126,9 @@ public class HtmlParser implements Parser {
         metadata.set(Metadata.ORIGINAL_CHAR_ENCODING, encoding);
         if ((encoding = StringUtil.resolveEncodingAlias(encoding)) != null) {
           metadata.set(Metadata.CHAR_ENCODING_FOR_CONVERSION, encoding);
-          LOG.trace(base + ": setting encoding to " + encoding);
+          if (LOG.isTraceEnabled()) {
+            LOG.trace(base + ": setting encoding to " + encoding);
+          }
         }
       }
 
@@ -137,7 +139,9 @@ public class HtmlParser implements Parser {
           metadata.set(Metadata.ORIGINAL_CHAR_ENCODING, encoding);
           if ((encoding = StringUtil.resolveEncodingAlias(encoding)) != null) {
             metadata.set(Metadata.CHAR_ENCODING_FOR_CONVERSION, encoding);
-            LOG.trace(base + ": setting encoding to " + encoding);
+            if (LOG.isTraceEnabled()) {
+              LOG.trace(base + ": setting encoding to " + encoding);
+            }
           }
         }
       }
@@ -151,10 +155,12 @@ public class HtmlParser implements Parser {
         // same share)
         encoding = defaultCharEncoding;
         metadata.set(Metadata.CHAR_ENCODING_FOR_CONVERSION, defaultCharEncoding);
-        LOG.trace(base + ": falling back to " + defaultCharEncoding);
+        if (LOG.isTraceEnabled()) {
+          LOG.trace(base + ": falling back to " + defaultCharEncoding);
+        }
       }
       input.setEncoding(encoding);
-      LOG.trace("Parsing...");
+      if (LOG.isTraceEnabled()) { LOG.trace("Parsing..."); }
       root = parse(input);
     } catch (IOException e) {
       return new ParseStatus(e).getEmptyParse(getConf());
@@ -169,15 +175,17 @@ public class HtmlParser implements Parser {
       
     // get meta directives
     HTMLMetaProcessor.getMetaTags(metaTags, root, base);
-    LOG.trace("Meta tags for " + base + ": " + metaTags.toString());
+    if (LOG.isTraceEnabled()) {
+      LOG.trace("Meta tags for " + base + ": " + metaTags.toString());
+    }
     // check meta directives
     if (!metaTags.getNoIndex()) {               // okay to index
       StringBuffer sb = new StringBuffer();
-      LOG.trace("Getting text...");
+      if (LOG.isTraceEnabled()) { LOG.trace("Getting text..."); }
       utils.getText(sb, root);          // extract text
       text = sb.toString();
       sb.setLength(0);
-      LOG.trace("Getting title...");
+      if (LOG.isTraceEnabled()) { LOG.trace("Getting title..."); }
       utils.getTitle(sb, root);         // extract title
       title = sb.toString().trim();
     }
@@ -185,10 +193,12 @@ public class HtmlParser implements Parser {
     if (!metaTags.getNoFollow()) {              // okay to follow links
       ArrayList l = new ArrayList();              // extract outlinks
       URL baseTag = utils.getBase(root);
-      LOG.trace("Getting links...");
+      if (LOG.isTraceEnabled()) { LOG.trace("Getting links..."); }
       utils.getOutlinks(baseTag!=null?baseTag:base, l, root);
       outlinks = (Outlink[])l.toArray(new Outlink[l.size()]);
-      LOG.trace("found "+outlinks.length+" outlinks in "+content.getUrl());
+      if (LOG.isTraceEnabled()) {
+        LOG.trace("found "+outlinks.length+" outlinks in "+content.getUrl());
+      }
     }
     
     if (!metaTags.getNoCache()) {             // okay to cache
@@ -256,7 +266,9 @@ public class HtmlParser implements Parser {
         frag = doc.createDocumentFragment();
         parser.parse(input, frag);
         if (!frag.hasChildNodes()) break;
-        LOG.info(" - new frag, " + frag.getChildNodes().getLength() + " nodes.");
+        if (LOG.isInfoEnabled()) {
+          LOG.info(" - new frag, " + frag.getChildNodes().getLength() + " nodes.");
+        }
         res.appendChild(frag);
       }
     } catch (Exception x) { x.printStackTrace(LogUtil.getWarnStream(LOG));};

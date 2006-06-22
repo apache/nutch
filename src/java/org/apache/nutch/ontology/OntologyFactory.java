@@ -58,18 +58,24 @@ public class OntologyFactory {
     if (extensionName != null) {
       Extension extension = findExtension(extensionName);
       if (extension != null) {
-        LOG.info("Using ontology extension: " + extensionName);
+        if (LOG.isInfoEnabled()) {
+          LOG.info("Using ontology extension: " + extensionName);
+        }
         return (Ontology) extension.getExtensionInstance();
       }
-      LOG.warn("Ontology extension not found: '" + extensionName 
-             + "', trying the default");
+      if (LOG.isWarnEnabled()) {
+        LOG.warn("Ontology extension not found: '" + extensionName +
+                 "', trying the default");
+      }
       // not found, fallback to the default, if available.
     }
 
     Extension[] extensions = this.extensionPoint.getExtensions();
     if (extensions.length > 0) {
-      LOG.info("Using the first ontology extension found: "
-        + extensions[0].getId());
+      if (LOG.isInfoEnabled()) {
+        LOG.info("Using the first ontology extension found: " +
+                 extensions[0].getId());
+      }
       return (Ontology) extensions[0].getExtensionInstance();
     } else {
       return null;

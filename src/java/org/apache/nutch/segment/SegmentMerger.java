@@ -316,8 +316,9 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
     if (conf.getBoolean("segment.merger.filter", false))
       filters = new URLFilters(conf);
     sliceSize = conf.getLong("segment.merger.slice", -1);
-    if (sliceSize > 0)
+    if ((sliceSize > 0) && (LOG.isInfoEnabled())) {
       LOG.info("Slice size: " + sliceSize + " URLs.");
+    }
   }
 
   public void close() throws IOException {
@@ -337,7 +338,9 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
           return;
         }
       } catch (Exception e) {
-        LOG.warn("Cannot filter key " + key + ": " + e.getMessage());
+        if (LOG.isWarnEnabled()) {
+          LOG.warn("Cannot filter key " + key + ": " + e.getMessage());
+        }
       }
     }
     output.collect(key, value);
@@ -531,9 +534,11 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
 
   public void merge(Path out, Path[] segs, boolean filter, long slice) throws Exception {
     String segmentName = Generator.generateSegmentName();
+    if (LOG.isInfoEnabled()) {
+      LOG.info("Merging " + segs.length + " segments to " + out + "/" + segmentName);
+    }
     JobConf job = new JobConf(getConf());
     job.setJobName("mergesegs " + out + "/" + segmentName);
-    LOG.info("Merging " + segs.length + " segments to " + out + "/" + segmentName);
     job.setBoolean("segment.merger.filter", filter);
     job.setLong("segment.merger.slice", slice);
     job.set("segment.merger.segmentName", segmentName);
@@ -547,11 +552,15 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
     boolean pt = true;
     for (int i = 0; i < segs.length; i++) {
       if (!fs.exists(segs[i])) {
-        LOG.warn("SegmentMerger: input dir " + segs[i] + " doesn't exist, skipping.");
+        if (LOG.isWarnEnabled()) {
+          LOG.warn("Input dir " + segs[i] + " doesn't exist, skipping.");
+        }
         segs[i] = null;
         continue;
       }
-      LOG.info("SegmentMerger:   adding " + segs[i]);
+      if (LOG.isInfoEnabled()) {
+        LOG.info("SegmentMerger:   adding " + segs[i]);
+      }
       Path cDir = new Path(segs[i], Content.DIR_NAME);
       Path gDir = new Path(segs[i], CrawlDatum.GENERATE_DIR_NAME);
       Path fDir = new Path(segs[i], CrawlDatum.FETCH_DIR_NAME);
@@ -572,7 +581,9 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
     if (p) sb.append(" " + CrawlDatum.PARSE_DIR_NAME);
     if (pd) sb.append(" " + ParseData.DIR_NAME);
     if (pt) sb.append(" " + ParseText.DIR_NAME);
-    LOG.info("SegmentMerger: using segment data from:" + sb.toString());
+    if (LOG.isInfoEnabled()) {
+      LOG.info("SegmentMerger: using segment data from:" + sb.toString());
+    }
     for (int i = 0; i < segs.length; i++) {
       if (segs[i] == null) continue;
       if (g) {

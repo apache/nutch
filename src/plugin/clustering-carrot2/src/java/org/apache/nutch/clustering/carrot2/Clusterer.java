@@ -128,13 +128,19 @@ public class Clusterer implements OnlineClusterer, Configurable {
           try {
             Language lang = AllKnownLanguages.getLanguageForIsoCode(lcode);
             if (lang == null) {
-              logger.warn("Language not supported in Carrot2: " + lcode);
+              if (logger.isWarnEnabled()) {
+                logger.warn("Language not supported in Carrot2: " + lcode);
+              }
             } else {
               languageList.add(lang);
-              logger.debug("Language loaded: " + lcode);
+              if (logger.isDebugEnabled()) {
+                logger.debug("Language loaded: " + lcode);
+              }
             }
           } catch (Throwable t) {
-            logger.warn("Language could not be loaded: " + lcode, t);
+            if (logger.isWarnEnabled()) {
+              logger.warn("Language could not be loaded: " + lcode, t);
+            }
           }
         }
         return new LingoLocalFilterComponent(
@@ -222,8 +228,10 @@ public class Clusterer implements OnlineClusterer, Configurable {
       this.languages = conf.getStrings(CONF_PROP_LANGUAGES);
     }
 
-    logger.info("Default language: " + defaultLanguage);
-    logger.info("Enabled languages: " + Arrays.asList(languages));
+    if (logger.isInfoEnabled()) {
+      logger.info("Default language: " + defaultLanguage);
+      logger.info("Enabled languages: " + Arrays.asList(languages));
+    }
 
     initialize();
   }

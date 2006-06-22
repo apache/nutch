@@ -115,8 +115,10 @@ public class Fetcher extends Configured implements MapRunnable {
               break;                              // at eof, exit
             }
           } catch (IOException e) {
-            e.printStackTrace(LogUtil.getFatalStream(LOG));
-            LOG.fatal("fetcher caught:"+e.toString());
+            if (LOG.isFatalEnabled()) {
+              e.printStackTrace(LogUtil.getFatalStream(LOG));
+              LOG.fatal("fetcher caught:"+e.toString());
+            }
             break;
           }
 
@@ -128,13 +130,16 @@ public class Fetcher extends Configured implements MapRunnable {
           UTF8 url = new UTF8();
           url.set(key);
           try {
-            LOG.info("fetching " + url);            // fetch the page
-            
+            if (LOG.isInfoEnabled()) { LOG.info("fetching " + url); }
+
+            // fetch the page
             boolean redirecting;
             int redirectCount = 0;
             do {
+              if (LOG.isDebugEnabled()) {
+                LOG.debug("redirectCount=" + redirectCount);
+              }
               redirecting = false;
-              LOG.debug("redirectCount=" + redirectCount);
               Protocol protocol = this.protocolFactory.getProtocol(url.toString());
               ProtocolOutput output = protocol.getProtocolOutput(url, datum);
               ProtocolStatus status = output.getStatus();
@@ -155,8 +160,10 @@ public class Fetcher extends Configured implements MapRunnable {
                     url = new UTF8(newUrl);
                     redirecting = true;
                     redirectCount++;
-                    LOG.debug(" - content redirect to " + url);
-                  } else {
+                    if (LOG.isDebugEnabled()) {
+                      LOG.debug(" - content redirect to " + url);
+                    }
+                  } else if (LOG.isDebugEnabled()) {
                     LOG.debug(" - content redirect skipped: " +
                              (newUrl != null ? "to same url" : "filtered"));
                   }
@@ -172,8 +179,10 @@ public class Fetcher extends Configured implements MapRunnable {
                   url = new UTF8(newUrl);
                   redirecting = true;
                   redirectCount++;
-                  LOG.debug(" - protocol redirect to " + url);
-                } else {
+                  if (LOG.isDebugEnabled()) {
+                    LOG.debug(" - protocol redirect to " + url);
+                  }
+                } else if (LOG.isDebugEnabled()) {
                   LOG.debug(" - protocol redirect skipped: " +
                            (newUrl != null ? "to same url" : "filtered"));
                 }
@@ -195,12 +204,16 @@ public class Fetcher extends Configured implements MapRunnable {
                 break;
 
               default:
-                LOG.warn("Unknown ProtocolStatus: " + status.getCode());
+                if (LOG.isWarnEnabled()) {
+                  LOG.warn("Unknown ProtocolStatus: " + status.getCode());
+                }
                 output(url, datum, null, CrawlDatum.STATUS_FETCH_GONE);
               }
 
               if (redirecting && redirectCount >= maxRedirect) {
-                LOG.info(" - redirect count exceeded " + url);
+                if (LOG.isInfoEnabled()) {
+                  LOG.info(" - redirect count exceeded " + url);
+                }
                 output(url, datum, null, CrawlDatum.STATUS_FETCH_GONE);
               }
 
@@ -215,15 +228,19 @@ public class Fetcher extends Configured implements MapRunnable {
         }
 
       } catch (Throwable e) {
-        e.printStackTrace(LogUtil.getFatalStream(LOG));
-        LOG.fatal("fetcher caught:"+e.toString());
+        if (LOG.isFatalEnabled()) {
+          e.printStackTrace(LogUtil.getFatalStream(LOG));
+          LOG.fatal("fetcher caught:"+e.toString());
+        }
       } finally {
         synchronized (Fetcher.this) {activeThreads--;} // count threads
       }
     }
 
     private void logError(UTF8 url, String message) {
-      LOG.info("fetch of " + url + " failed with: " + message);
+      if (LOG.isInfoEnabled()) {
+        LOG.info("fetch of " + url + " failed with: " + message);
+      }
       synchronized (Fetcher.this) {               // record failure
         errors++;
       }
@@ -246,8 +263,10 @@ public class Fetcher extends Configured implements MapRunnable {
       try {
         scfilters.passScoreBeforeParsing(key, datum, content);
       } catch (Exception e) {
-        e.printStackTrace(LogUtil.getWarnStream(LOG));
-        LOG.warn("Couldn't pass score, url " + key + " (" + e + ")");
+        if (LOG.isWarnEnabled()) {
+          e.printStackTrace(LogUtil.getWarnStream(LOG));
+          LOG.warn("Couldn't pass score, url " + key + " (" + e + ")");
+        }
       }
 
       Parse parse = null;
@@ -260,7 +279,9 @@ public class Fetcher extends Configured implements MapRunnable {
           parseStatus = new ParseStatus(e);
         }
         if (!parseStatus.isSuccess()) {
-          LOG.warn("Error parsing: " + key + ": " + parseStatus);
+          if (LOG.isWarnEnabled()) {
+            LOG.warn("Error parsing: " + key + ": " + parseStatus);
+          }
           parse = parseStatus.getEmptyParse(getConf());
         }
         // Calculate page signature. For non-parsing fetchers this will
@@ -274,8 +295,10 @@ public class Fetcher extends Configured implements MapRunnable {
         try {
           scfilters.passScoreAfterParsing(key, content, parse);
         } catch (Exception e) {
-          e.printStackTrace(LogUtil.getWarnStream(LOG));
-          LOG.warn("Couldn't pass score, url " + key + " (" + e + ")");
+          if (LOG.isWarnEnabled()) {
+            e.printStackTrace(LogUtil.getWarnStream(LOG));
+            LOG.warn("Couldn't pass score, url " + key + " (" + e + ")");
+          }
         }
         
       }
@@ -287,8 +310,10 @@ public class Fetcher extends Configured implements MapRunnable {
                              storingContent ? content : null,
                              parse != null ? new ParseImpl(parse) : null));
       } catch (IOException e) {
-        e.printStackTrace(LogUtil.getFatalStream(LOG));
-        LOG.fatal("fetcher caught:"+e.toString());
+        if (LOG.isFatalEnabled()) {
+          e.printStackTrace(LogUtil.getFatalStream(LOG));
+          LOG.fatal("fetcher caught:"+e.toString());
+        }
       }
       if (parse != null) return parse.getData().getStatus();
       else return null;
@@ -349,7 +374,7 @@ public class Fetcher extends Configured implements MapRunnable {
     this.maxRedirect = getConf().getInt("http.redirect.max", 3);
     
     int threadCount = getConf().getInt("fetcher.threads.fetch", 10);
-    LOG.info("Fetcher: threads: " + threadCount);
+    if (LOG.isInfoEnabled()) { LOG.info("Fetcher: threads: " + threadCount); }
 
     for (int i = 0; i < threadCount; i++) {       // spawn threads
       new FetcherThread(getConf()).start();
@@ -367,8 +392,10 @@ public class Fetcher extends Configured implements MapRunnable {
 
       // some requests seem to hang, despite all intentions
       synchronized (this) {
-        if ((System.currentTimeMillis() - lastRequestStart) > timeout) { 
-          LOG.warn("Aborting with "+activeThreads+" hung threads.");
+        if ((System.currentTimeMillis() - lastRequestStart) > timeout) {
+          if (LOG.isWarnEnabled()) {
+            LOG.warn("Aborting with "+activeThreads+" hung threads.");
+          }
           return;
         }
       }
@@ -380,8 +407,10 @@ public class Fetcher extends Configured implements MapRunnable {
   public void fetch(Path segment, int threads, boolean parsing)
     throws IOException {
 
-    LOG.info("Fetcher: starting");
-    LOG.info("Fetcher: segment: " + segment);
+    if (LOG.isInfoEnabled()) {
+      LOG.info("Fetcher: starting");
+      LOG.info("Fetcher: segment: " + segment);
+    }
 
     JobConf job = new NutchJob(getConf());
     job.setJobName("fetch " + segment);
@@ -406,7 +435,7 @@ public class Fetcher extends Configured implements MapRunnable {
     job.setOutputValueClass(FetcherOutput.class);
 
     JobClient.runJob(job);
-    LOG.info("Fetcher: done");
+    if (LOG.isInfoEnabled()) { LOG.info("Fetcher: done"); }
   }
 
 

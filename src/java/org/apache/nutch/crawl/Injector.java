@@ -70,7 +70,7 @@ public class Injector extends Configured {
         url = urlNormalizer.normalize(url);       // normalize the url
         url = filters.filter(url);             // filter the url
       } catch (Exception e) {
-        LOG.warn("Skipping " +url+":"+e);
+        if (LOG.isWarnEnabled()) { LOG.warn("Skipping " +url+":"+e); }
         url = null;
       }
       if (url != null) {                          // if it passes
@@ -80,8 +80,10 @@ public class Injector extends Configured {
         try {
           scfilters.initialScore(value, datum);
         } catch (ScoringFilterException e) {
-          LOG.warn("Cannot filter init score for url " + url +
-                   ", using default (" + e.getMessage() + ")");
+          if (LOG.isWarnEnabled()) {
+            LOG.warn("Cannot filter init score for url " + url +
+                     ", using default (" + e.getMessage() + ")");
+          }
           datum.setScore(scoreInjected);
         }
         output.collect(value, datum);
@@ -107,9 +109,12 @@ public class Injector extends Configured {
   }
 
   public void inject(Path crawlDb, Path urlDir) throws IOException {
-    LOG.info("Injector: starting");
-    LOG.info("Injector: crawlDb: " + crawlDb);
-    LOG.info("Injector: urlDir: " + urlDir);
+
+    if (LOG.isInfoEnabled()) {
+      LOG.info("Injector: starting");
+      LOG.info("Injector: crawlDb: " + crawlDb);
+      LOG.info("Injector: urlDir: " + urlDir);
+    }
 
     Path tempDir =
       new Path(getConf().get("mapred.temp.dir", ".") +
@@ -117,7 +122,9 @@ public class Injector extends Configured {
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     // map text input file to a <url,CrawlDatum> file
-    LOG.info("Injector: Converting injected urls to crawl db entries.");
+    if (LOG.isInfoEnabled()) {
+      LOG.info("Injector: Converting injected urls to crawl db entries.");
+    }
     JobConf sortJob = new NutchJob(getConf());
     sortJob.setJobName("inject " + urlDir);
     sortJob.setInputPath(urlDir);
@@ -131,7 +138,9 @@ public class Injector extends Configured {
     JobClient.runJob(sortJob);
 
     // merge with existing crawl db
-    LOG.info("Injector: Merging injected urls into crawl db.");
+    if (LOG.isInfoEnabled()) {
+      LOG.info("Injector: Merging injected urls into crawl db.");
+    }
     JobConf mergeJob = CrawlDb.createJob(getConf(), crawlDb);
     mergeJob.addInputPath(tempDir);
     JobClient.runJob(mergeJob);
@@ -140,7 +149,7 @@ public class Injector extends Configured {
     // clean up
     FileSystem fs = new JobClient(getConf()).getFs();
     fs.delete(tempDir);
-    LOG.info("Injector: done");
+    if (LOG.isInfoEnabled()) { LOG.info("Injector: done"); }
 
   }
 
