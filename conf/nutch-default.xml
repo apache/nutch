@@ -546,6 +546,27 @@
   suffers little.</description>
 </property>
 
+<property>
+  <name>searcher.max.time.tick_count</name>
+  <value>-1</value>
+  <description>If positive value is defined here, limit search time for
+  every request to this number of elapsed ticks (see the tick_length
+  property below). The total maximum time for any search request will be
+  then limited to tick_count * tick_length milliseconds. When search time
+  is exceeded, partial results will be returned, and the total number of
+  hits will be estimated.
+  </description>
+</property>
+
+<property>
+  <name>searcher.max.time.tick_length</name>
+  <value>200</value>
+  <description>The number of milliseconds between ticks. Larger values
+  reduce the timer granularity (precision). Smaller values bring more
+  overhead.
+  </description>
+</property>
+
 <!-- URL normalizer properties -->
 
 <property>

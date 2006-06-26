@@ -37,32 +37,106 @@ import java.io.IOException;
  * which do not affect ranking but might otherwise slow search considerably. */
 class LuceneQueryOptimizer {
 
-  private static class LimitExceeded extends RuntimeException {
+  // This thread provides a pseudo-clock service to all searching
+  // threads, so that they can count elapsed time with less overhead than
+  // repeatedly calling System.currentTimeMillis.
+  private TimerThread timerThread = null;
+
+  private static class TimerThread extends Thread {
+    private int tick;
+    // NOTE: we can avoid explicit synchronization here for several reasons:
+    // * updates to 32-bit-sized variables are atomic
+    // * only single thread modifies this value
+    // * use of volatile keyword ensures that it does not reside in
+    //   a register, but in main memory (so that changes are visible to
+    //   other threads).
+    // * visibility of changes does not need to be instantanous, we can
+    //   afford losing a tick or two.
+    //
+    // See section 17 of the Java Language Specification for details.
+    public volatile int timeCounter = 0;
+
+    boolean running = true;
+
+    public TimerThread(int tick) {
+      super("LQO timer thread");
+      this.tick = tick;
+      this.setDaemon(true);
+    }
+
+    public void run() {
+      while(running) {
+        timeCounter++;
+        try {
+          Thread.sleep(tick);
+        } catch (InterruptedException ie) {};
+      }
+    }
+  }
+
+  private void initTimerThread(int p) {
+    if (timerThread == null || !timerThread.isAlive()) {
+      timerThread = new TimerThread(p);
+      timerThread.start();
+    }
+  }
+  
+
+  private static class TimeExceeded extends RuntimeException {
+    public long maxTime;
+    private int maxDoc;
+    public TimeExceeded(long maxTime, int maxDoc) {
+      super("Exceeded search time: " + maxTime + " ms.");
+      this.maxTime = maxTime;
+      this.maxDoc = maxDoc;
+    }
+  }
+
+  private static class LimitedCollector extends TopDocCollector {
+    private int maxHits;
+    private int maxTicks;
+    private int startTicks;
+    private TimerThread timer;
+    private int curTicks;
+
+    public LimitedCollector(int numHits, int maxHits, int maxTicks,
+            TimerThread timer) {
+      super(numHits);
+      this.maxHits = maxHits;
+      this.maxTicks = maxTicks;
+      this.timer = timer;
+      this.startTicks = timer.timeCounter;
+    }
+
+    public void collect(int doc, float score) {
+      if (maxHits > 0 && getTotalHits() >= maxHits) {
+        throw new LimitExceeded(doc);
+      }
+      if (timer != null) {
+        curTicks = timer.timeCounter;
+        // overflow check
+        if (curTicks < startTicks) curTicks += Integer.MAX_VALUE;
+        if (curTicks - startTicks > maxTicks) {
+          throw new TimeExceeded(timer.tick * (curTicks - startTicks), doc);
+        }
+      }
+      super.collect(doc, score);
+    }
+  }  private static class LimitExceeded extends RuntimeException {
     private int maxDoc;
     public LimitExceeded(int maxDoc) { this.maxDoc = maxDoc; }    
   }
   
-  private static class LimitedCollector extends TopDocCollector {
-    private int maxHits;
-    
-    public LimitedCollector(int numHits, int maxHits) {
-      super(numHits);
-      this.maxHits = maxHits;
-    }
-
-    public void collect(int doc, float score) {
-      if (getTotalHits() >= maxHits)
-        throw new LimitExceeded(doc);
-      super.collect(doc, score);
-    }
-  }
-
   private LinkedHashMap cache;                   // an LRU cache of QueryFilter
 
   private float threshold;
 
   private int searcherMaxHits;
 
+  private int tickLength;
+
+  private int maxTickCount;
+  
   /**
    * Construct an optimizer that caches and uses filters for required clauses
    * whose boost is zero.
@@ -82,6 +156,11 @@ class LuceneQueryOptimizer {
         return size() > cacheSize; // limit size of cache
       }
     };
+    this.tickLength = conf.getInt("searcher.max.time.tick_length", 200);
+    this.maxTickCount = conf.getInt("searcher.max.time.tick_count", -1);
+    if (this.maxTickCount > 0) {
+      initTimerThread(this.tickLength);
+    }
   }
 
   public TopDocs optimize(BooleanQuery original,
@@ -157,22 +236,29 @@ class LuceneQueryOptimizer {
     if (sortField == null && !reverse) {
 
       // no hit limit
-      if (this.searcherMaxHits <= 0) {
+      if (this.searcherMaxHits <= 0 && timerThread == null)  {
         return searcher.search(query, filter, numHits);
       }
 
-      // hits limited -- use a LimitedCollector
-      LimitedCollector collector = new LimitedCollector(numHits, searcherMaxHits);
+      // hits limited in time or in count -- use a LimitedCollector
+      LimitedCollector collector = new LimitedCollector(numHits, searcherMaxHits,
+              maxTickCount, timerThread);
       LimitExceeded exceeded = null;
+      TimeExceeded timeExceeded = null;
       try {
         searcher.search(query, filter, collector);
       } catch (LimitExceeded le) {
         exceeded = le;
+      } catch (TimeExceeded te) {
+        timeExceeded = te;
       }
       TopDocs results = collector.topDocs();
       if (exceeded != null) {                     // limit was exceeded
         results.totalHits = (int)                 // must estimate totalHits
           (results.totalHits*(searcher.maxDoc()/(float)exceeded.maxDoc));
+      } else if (timeExceeded != null) {
+        // Estimate total hits.
+        results.totalHits = (int)(results.totalHits * (searcher.maxDoc()/(float)timeExceeded.maxDoc));
       }
       return results;
 
