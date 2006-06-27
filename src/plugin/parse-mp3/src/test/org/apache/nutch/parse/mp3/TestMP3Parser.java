@@ -16,23 +16,20 @@
 
 package org.apache.nutch.parse.mp3;
 
-import junit.framework.TestCase;
-import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.ParseException;
-import org.apache.nutch.parse.ParseUtil;
-import org.apache.nutch.parse.ParserFactory;
-import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.Protocol;
-import org.apache.nutch.protocol.ProtocolException;
-import org.apache.nutch.protocol.ProtocolFactory;
-
-import java.util.Properties;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.UTF8;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.parse.Parser;
+import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseException;
+import org.apache.nutch.parse.ParseUtil;
+import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.Protocol;
+import org.apache.nutch.protocol.ProtocolException;
+import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.util.NutchConfiguration;
+
+import junit.framework.TestCase;
 
 /**
  * Unit tests for TestMP3Parser.  (Adapted from John Xing msword unit tests).
@@ -132,8 +129,8 @@ public class TestMP3Parser extends TestCase {
     protocol = new ProtocolFactory(conf).getProtocol(urlString);
     content = protocol.getProtocolOutput(new UTF8(urlString), new CrawlDatum())
                       .getContent();
-    parse = new ParseUtil(conf).parseByParserId("parse-mp3", content);
-    Metadata metadata = parse.getData().getParseMeta();
+    parse = new ParseUtil(conf).parseByExtensionId("parse-mp3", content);
+//    Metadata metadata = parse.getData().getParseMeta();
     if (parse.getData().getStatus().isSuccess()) {
       fail("Expected ParseException");
     }
