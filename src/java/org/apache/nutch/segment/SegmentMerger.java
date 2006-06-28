@@ -28,6 +28,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.PathFilter;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.util.Progressable;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Generator;
 import org.apache.nutch.fetcher.Fetcher;
@@ -168,7 +169,7 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
   public static class SegmentOutputFormat extends org.apache.hadoop.mapred.OutputFormatBase {
     private static final String DEFAULT_SLICE = "default";
     
-    public RecordWriter getRecordWriter(final FileSystem fs, final JobConf job, final String name) throws IOException {
+    public RecordWriter getRecordWriter(final FileSystem fs, final JobConf job, final String name, final Progressable progress) throws IOException {
       return new RecordWriter() {
         MapFile.Writer c_out = null;
         MapFile.Writer f_out = null;

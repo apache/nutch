@@ -26,6 +26,7 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.util.Progressable;
 
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
@@ -276,7 +277,8 @@ public class DeleteDuplicates extends Configured
   /** Write nothing. */
   public RecordWriter getRecordWriter(final FileSystem fs,
                                       final JobConf job,
-                                      final String name) throws IOException {
+                                      final String name,
+                                      final Progressable progress) throws IOException {
     return new RecordWriter() {                   
         public void write(WritableComparable key, Writable value)
           throws IOException {

@@ -27,6 +27,7 @@ import org.apache.nutch.fetcher.Fetcher;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.util.Progressable;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.analysis.*;
 
@@ -79,7 +80,7 @@ public class Indexer extends Configured implements Reducer {
   public static class OutputFormat
     extends org.apache.hadoop.mapred.OutputFormatBase {
     public RecordWriter getRecordWriter(final FileSystem fs, JobConf job,
-                                        String name) throws IOException {
+                                        String name, Progressable progress) throws IOException {
       final Path perm = new Path(job.getOutputPath(), name);
       final Path temp =
         job.getLocalPath("index/_"+Integer.toString(new Random().nextInt()));
