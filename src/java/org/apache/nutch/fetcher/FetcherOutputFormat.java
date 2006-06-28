@@ -31,6 +31,7 @@ import org.apache.hadoop.mapred.OutputFormat;
 import org.apache.hadoop.mapred.RecordWriter;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.util.Progressable;
 
 import org.apache.nutch.parse.ParseOutputFormat;
 import org.apache.nutch.protocol.Content;
@@ -45,7 +46,8 @@ public class FetcherOutputFormat implements OutputFormat {
 
   public RecordWriter getRecordWriter(final FileSystem fs,
                                       final JobConf job,
-                                      final String name) throws IOException {
+                                      final String name,
+                                      final Progressable progress) throws IOException {
 
     final Path fetch =
       new Path(new Path(job.getOutputPath(), CrawlDatum.FETCH_DIR_NAME), name);
@@ -66,7 +68,7 @@ public class FetcherOutputFormat implements OutputFormat {
           }
 
           if (Fetcher.isParsing(job)) {
-            parseOut = new ParseOutputFormat().getRecordWriter(fs, job, name);
+            parseOut = new ParseOutputFormat().getRecordWriter(fs, job, name, null);
           }
         }
 

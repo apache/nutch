@@ -28,6 +28,7 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.util.Progressable;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseText;
@@ -70,7 +71,7 @@ public class SegmentReader extends Configured implements Reducer {
 
   /** Implements a text output format */
   public static class TextOutputFormat extends org.apache.hadoop.mapred.OutputFormatBase {
-    public RecordWriter getRecordWriter(final FileSystem fs, JobConf job, String name) throws IOException {
+    public RecordWriter getRecordWriter(final FileSystem fs, JobConf job, String name, Progressable progress) throws IOException {
 
       final Path segmentDumpFile = new Path(job.getOutputPath(), name);
 

@@ -31,6 +31,7 @@ import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.net.*;
 
 import java.io.*;
+import org.apache.hadoop.util.Progressable;
 
 /* Parse content in a segment. */
 public class ParseOutputFormat implements OutputFormat {
@@ -46,7 +47,7 @@ public class ParseOutputFormat implements OutputFormat {
   }
 
   public RecordWriter getRecordWriter(FileSystem fs, JobConf job,
-                                      String name) throws IOException {
+                                      String name, Progressable progress) throws IOException {
 
     this.urlNormalizer = new UrlNormalizerFactory(job).getNormalizer();
     this.filters = new URLFilters(job);
