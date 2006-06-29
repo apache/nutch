@@ -67,7 +67,7 @@ import org.apache.commons.lang.time.DateUtils;
  * content-type is indexed to support query by type:
  * last-modifed is indexed to support query by date:
  *
- * Still need to make content-legnth searchable!
+ * Still need to make content-length searchable!
  *
  * @author John Xing
  */
