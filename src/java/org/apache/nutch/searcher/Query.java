@@ -428,7 +428,15 @@ public final class Query implements Writable, Cloneable, Configurable {
     return (String[])result.toArray(new String[result.size()]);
   }
 
-  /** Parse a query from a string. */
+  /**
+   * Parse a query from a string using a language specific analyzer.
+   *
+   * @param queryString is the raw query string to parse
+   * @param queryLang is a two-letters language code used to identify which
+   *        {@link org.apache.nutch.analysis.NutchAnalyzer} should be used
+   *        to parse the query string.
+   * @see org.apache.nutch.analysis.AnalyzerFactory
+   */
   public static Query parse(String queryString, String queryLang, Configuration conf)
   throws IOException {
     return fixup(NutchAnalysis.parseQuery(
