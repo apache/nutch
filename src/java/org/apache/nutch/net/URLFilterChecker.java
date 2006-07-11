@@ -28,11 +28,10 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
 /**
- * Checke one given filter or all filters.
+ * Checks one given filter or all filters.
  * 
  * @author John Xing
  */
-
 public class URLFilterChecker {
 
   private Configuration conf;
