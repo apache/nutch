@@ -31,14 +31,14 @@ Trunk (unreleased changes)
  9. NUTCH-145 - Build of war file fails on Chinese (zh) .xml files due
     to UTF-8 BOM (KuroSaka TeruHiko via siren)
 
-10.	NUTCH-121 - SegmentReader for mapred (Rod Taylor via ab)
+10. NUTCH-121 - SegmentReader for mapred (Rod Taylor via ab)
 
-11.	Added support for OpenSearch (cutting)
+11. Added support for OpenSearch (cutting)
 
 12. NUTCH-142 - NutchConf should use the thread context classloader
     (Mike Cannon-Brookes via pkosiorowski)
 
-13.	NUTCH-160 - Use standard Java Regex library rather than
+13. NUTCH-160 - Use standard Java Regex library rather than
     org.apache.oro.text.regex (Rod Taylor via cutting)
 
 14. NUTCH-151 - CommandRunner can hang after the main thread exec is
@@ -46,12 +46,12 @@ Trunk (unreleased changes)
 
 15. NUTCH-174 - Problem encountered with ant during compilation
 
-16.	NUTCH-190 - ParseUtil drops reason for failed parse
+16. NUTCH-190 - ParseUtil drops reason for failed parse
     (stack@archive.org via ab)
 
-17.	NUTCH-169 - Remove static NutchConf (Marko Bauhardt via ab)
+17. NUTCH-169 - Remove static NutchConf (Marko Bauhardt via ab)
 
-18.	NUTCH-194 - Nutch-169 introduced two tiny bugs (Marko Bauhardt via ab)
+18. NUTCH-194 - Nutch-169 introduced two tiny bugs (Marko Bauhardt via ab)
 
 19. NUTCH-178 - in search.jsp must be session creation "false"
     (YourSoft via siren)
@@ -62,7 +62,7 @@ Trunk (unreleased changes)
 21. NUTCH-81 - Webapp only works when deployed in root
     (AJ Banck, Michael Nebel via siren)
 
-22.	NUTCH-139 - Standard metadata property names in the ParseData
+22. NUTCH-139 - Standard metadata property names in the ParseData
     metadata (Chris A. Mattmann, jerome)
 
 23. NUTCH-192 - Meta data support for CrawlDatum
@@ -77,13 +77,13 @@ Trunk (unreleased changes)
 26. NUTCH-137 - footer is not displayed in search result page
     (KuroSaka TeruHiko via siren)
 
-27.	NUTCH-118 - FAQ link points to invalid URL
+27. NUTCH-118 - FAQ link points to invalid URL
     (Steve Betts via siren)
 
-28.	NUTCH-184 - Serbian (sr, Cyrilic) and Serbo-Croatian (sh, Latin)
+28. NUTCH-184 - Serbian (sr, Cyrilic) and Serbo-Croatian (sh, Latin)
     translation (Ivan Sekulovic via siren)
 
-29.	NUTCH-211 - FetchedSegments leave readers open (Stefan Groschupf
+29. NUTCH-211 - FetchedSegments leave readers open (Stefan Groschupf
     via cutting)
 
 30. NUTCH-140 - Add alias capability in parse-plugins.xml file that
@@ -95,7 +95,7 @@ Trunk (unreleased changes)
 32. NUTCH-204 - Multiple field values in HitDetails
     (Stefan Groschupf via jerome)
 
-33.	NUTCH-219 - file.content.limit & ftp.content.limit should be changed
+33. NUTCH-219 - file.content.limit & ftp.content.limit should be changed
     to -1 to be consistent with http (jerome)
     
 34. NUTCH-221 - Prepare nutch for upcoming lucene 2.0 (siren)
@@ -185,7 +185,7 @@ Trunk (unreleased changes)
 
 66. NUTCH-308 - Maximum search time limit (ab)
 
-67.	NUTCH-306 - DistributedSearch.Client liveAddresses concurrency problem
+67. NUTCH-306 - DistributedSearch.Client liveAddresses concurrency problem
     (Grant Glouser via siren)
 
 68. Update to hadoop-0.4 (Milind Bhandarkar, cutting)
