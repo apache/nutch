@@ -1,14 +1,200 @@
 Nutch Change Log
 
-Release 0.8
+Trunk (unreleased changes)
+
+ 0. Totally new architecture, based on hadoop
+    [http://lucene.apache.org/hadoop] (cutting)
 
  1. NUTCH-107 - Typo in plugin/urlfilter-*/plugin.xml. (Stephen Cross).
 
  2. NUTCH-108 - Log hosts that exceed generate.max.per.host.
-   (Rod Taylor via cutting)
+    (Rod Taylor via cutting)
 
- 3. Switch from using java.io.File to org.apache.hadoop.fs.Path.
+ 3. NUTCH-88 - Enhance ParserFactory plugin selection policy
+    (jerome)
+
+ 4. NUTCH-124 - Protocol-httpclient does not follow redirects when 
+    fetching robots.txt (cutting)
+
+ 5. NUTCH-130 - Be explicit about target JVM when building (1.4.x?)
+    (stack@archive.org, cutting)
+
+ 6. NUTCH-114 -	Getting number of urls and links from crawldb
+    (Stefan Groschupf via ab)
+
+ 7. NUTCH-112 - Link in cached.jsp page to cached content is an 
+    absolute link (Chris A. Mattmann via jerome)
+
+ 8. NUTCH-135 - Http header meta data are case insensitive in the
+    real world (Stefan Groschupf via jerome)
+
+ 9. NUTCH-145 - Build of war file fails on Chinese (zh) .xml files due
+    to UTF-8 BOM (KuroSaka TeruHiko via siren)
+
+10.	NUTCH-121 - SegmentReader for mapred (Rod Taylor via ab)
+
+11.	Added support for OpenSearch (cutting)
+
+12. NUTCH-142 - NutchConf should use the thread context classloader
+    (Mike Cannon-Brookes via pkosiorowski)
+
+13.	NUTCH-160 - Use standard Java Regex library rather than
+    org.apache.oro.text.regex (Rod Taylor via cutting)
+
+14. NUTCH-151 - CommandRunner can hang after the main thread exec is
+    finished and has inefficient busy loop (Paul Baclace via cutting)
+
+15. NUTCH-174 - Problem encountered with ant during compilation
+
+16.	NUTCH-190 - ParseUtil drops reason for failed parse
+    (stack@archive.org via ab)
+
+17.	NUTCH-169 - Remove static NutchConf (Marko Bauhardt via ab)
+
+18.	NUTCH-194 - Nutch-169 introduced two tiny bugs (Marko Bauhardt via ab)
+
+19. NUTCH-178 - in search.jsp must be session creation "false"
+    (YourSoft via siren)
+
+20. NUTCH-200 - OpenSearch Servlet ist broken
+    (Marko Bauhardt via siren)
+
+21. NUTCH-81 - Webapp only works when deployed in root
+    (AJ Banck, Michael Nebel via siren)
+
+22.	NUTCH-139 - Standard metadata property names in the ParseData
+    metadata (Chris A. Mattmann, jerome)
+
+23. NUTCH-192 - Meta data support for CrawlDatum
+    (Stefan Groschupf via ab)
+    
+24. NUTCH-52 - Parser plugin for MS Excel files
+    (Rohit Kulkarni via jerome)
+
+25. NUTCH-53 - 	Parser plugin for Zip files
+    (Rohit Kulkarni via jerome)
+
+26. NUTCH-137 - footer is not displayed in search result page
+    (KuroSaka TeruHiko via siren)
+
+27.	NUTCH-118 - FAQ link points to invalid URL
+    (Steve Betts via siren)
+
+28.	NUTCH-184 - Serbian (sr, Cyrilic) and Serbo-Croatian (sh, Latin)
+    translation (Ivan Sekulovic via siren)
+
+29.	NUTCH-211 - FetchedSegments leave readers open (Stefan Groschupf
+    via cutting)
+
+30. NUTCH-140 - Add alias capability in parse-plugins.xml file that
+    allows mimeType->extensionId mapping (Chris A. Mattmann via jerome)
+
+31. NUTCH-214 - Added Links to web site to search mailling list
+    (Jake Vanderdray via jerome)
+
+32. NUTCH-204 - Multiple field values in HitDetails
+    (Stefan Groschupf via jerome)
+
+33.	NUTCH-219 - file.content.limit & ftp.content.limit should be changed
+    to -1 to be consistent with http (jerome)
+    
+34. NUTCH-221 - Prepare nutch for upcoming lucene 2.0 (siren)
+
+35. NUTCH-91 - Empty encoding causes exception (Michael Nebel via
+    pkosiorowski)
+
+36. NUTCH-228 - Clustering plugin descriptor broken (Dawid Weiss via
+    jerome)
+
+37. NUTCH-229 - Improved handling of plugin folder configuration
+    (Stefan Groschupf via ab)
+
+38. NUTCH-206 - Search server throws InstantiationException (ab)
+    
+39. NUTCH-203 - ParseSegment throws InstantiationException (Marko Bauhardt
+    via ab)
+
+40. NUTCH-3 - Multi values of header discarded (Stefan Groschupf via ab)
+
+41. Update to lucene 1.9.1 (cutting)
+
+42. NUTCH-235 - Duplicate Inlink values (ab)
+
+43. NUTCH-234 - Clustering extension code cleanups and a real
+    JUnit test case for the current implementation (Dawid Weiss via ab)
+    
+44. NUTCH-210 - Context.xml file for Nutch web application
+    (Chris A. Mattmann via jerome)
+
+45. NUTCH-231 - Invalid CSS entries (AJ Banck via jerome)
+
+46. NUTCH-232 - Search.jsp has multiple search forms creating
+    invalid html / incorrect focus function (jerome)
+    
+47. NUTCH-196 - lib-xml and lib-log4j plugins (ab, jerome)
+
+48. NUTCH-244 - Inconsistent handling of property values
+    boundaries / unable to set db.max.outlinks.per.page to
+    infinite (jerome)
+    
+49. NUTCH-245 -	DTD for plugin.xml configuration files
+    (Chris A. Mattmann via jerome)
+
+50. NUTCH-250 - Generate to log truncation caused by
+    generate.max.per.host (Rod Taylor via cutting)
+    
+51. NUTCH-125 - OpenOffice Parser plugin (ab)
+
+52. Switch from using java.io.File to org.apache.hadoop.fs.Path.
     (cutting)
+
+53. NUTCH-240 - Scoring API: extension point, scoring filters and
+    an OPIC plugin (ab)
+    
+54. NUTCH-134 - Summarizer doesn't select the best snippets (jerome)
+
+55. NUTCH-268 - Generator and lib-http use different definitions of
+    "unique host" (ab)
+    
+56. NUTCH-280 - Url query causes NullPointerException (Grant Glouser
+    via siren)
+
+57. NUTCH-285 - LinkDb Fails rename doesn't create parent directories
+    (Dennis Kubes via ab)
+
+58. NUTCH-201 - Add support for subcollections
+    (siren)
+
+59. NUTCH-298 - If a 404 for a robots.txt is returned a NPE is thrown
+    (Stefan Groschupf via jerome)
+
+60. NUTCH-275 - Fetcher not parsing XHTML-pages at all (jerome)
+
+61. NUTCH-301 - CommonGrams loads analysis.common.terms.file for each query
+    (Stefan Groschupf via jerome)
+
+62. NUTCH-110 - OpenSearchServlet outputs illegal xml characters
+    (stack@archive.org via siren)
+
+63. NUTCH-292 - OpenSearchServlet: OutOfMemoryError: Java heap space
+    (Stefan Neufeind via siren)
+
+64. NUTCH-307 - Wrong configured log4j.properties (jerome)
+
+65. NUTCH-303 - Logging improvements (jerome)
+
+66. NUTCH-308 - Maximum search time limit (ab)
+
+67.	NUTCH-306 - DistributedSearch.Client liveAddresses concurrency problem
+    (Grant Glouser via siren)
+
+68. Update to hadoop-0.4 (Milind Bhandarkar, cutting)
+
+69. NUTCH-317 - Clarify what the queryLanguage argument of Query.parse(...)
+    means 	(jerome)
+
+70. Added alternative experimental web gui in contrib containing extensions like
+    subcollection, keymatch, user preferences, caching, implemented mainly using tiles and jstl (siren)
 
 
 Release 0.7 - 2005-08-17
