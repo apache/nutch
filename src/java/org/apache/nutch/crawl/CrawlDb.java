@@ -65,7 +65,8 @@ public class CrawlDb extends Configured {
     if (LOG.isInfoEnabled()) { LOG.info("CrawlDb update: done"); }
   }
 
-  public static JobConf createJob(Configuration config, Path crawlDb) {
+  public static JobConf createJob(Configuration config, Path crawlDb)
+    throws IOException {
     Path newCrawlDb =
       new Path(crawlDb,
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
@@ -73,7 +74,11 @@ public class CrawlDb extends Configured {
     JobConf job = new NutchJob(config);
     job.setJobName("crawldb " + crawlDb);
 
-    job.addInputPath(new Path(crawlDb, CrawlDatum.DB_DIR_NAME));
+
+    Path current = new Path(crawlDb, CrawlDatum.DB_DIR_NAME);
+    if (FileSystem.get(job).exists(current)) {
+      job.addInputPath(current);
+    }
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setInputKeyClass(UTF8.class);
     job.setInputValueClass(CrawlDatum.class);
