@@ -180,7 +180,7 @@ public class DmozParser {
           // Inc the number of pages, insert the page, and 
           // possibly print status.
           //
-          if (LOG.isInfoEnabled()) { LOG.info(curURL); }
+          System.out.println(curURL); 
           pages++;
 
           //
