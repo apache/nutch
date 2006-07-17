@@ -6,6 +6,7 @@
   <input type="checkbox" name="clustering" value="on" checked="checked"/>
  </c:when>
  <c:otherwise>
-  <input id="clustbox" type="checkbox" name="clustering" /><label for="clustbox"><fmt:message key="search.clustering"/></label>
+  <input id="clustbox" type="checkbox" name="clustering" />
  </c:otherwise>
 </c:choose>
+ <label for="clustbox"><fmt:message key="search.clustering"/></label>
