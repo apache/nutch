@@ -22,7 +22,6 @@ import org.apache.nutch.html.Entities;
 import org.apache.nutch.searcher.Hit;
 import org.apache.nutch.searcher.HitDetails;
 import org.apache.nutch.searcher.Summary;
-import org.apache.nutch.searcher.Summary.Fragment;
 
 /**
  * SearchResultBean contains information about one search result in easily
@@ -80,21 +79,7 @@ public class SearchResultBean {
    * @return
    */
   public String getSummary() {
-    
-    StringBuffer sum = new StringBuffer();
-    Fragment[] fragments = summary.getFragments();
-    for (int j=0; j<fragments.length; j++) {
-      if (fragments[j].isHighlight()) {
-        sum.append("<span class=\"highlight\">")
-           .append(Entities.encode(fragments[j].getText()))
-           .append("</span>");
-      } else if (fragments[j].isEllipsis()) {
-        sum.append("<span class=\"ellipsis\"> ... </span>");
-      } else {
-        sum.append(Entities.encode(fragments[j].getText()));
-      }
-    }
-    return sum.toString();
+    return summary.toHtml(true);
   }
 
   /**
