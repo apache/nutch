@@ -185,17 +185,20 @@ Trunk (unreleased changes)
 
 66. NUTCH-308 - Maximum search time limit (ab)
 
-67. NUTCH-306 - DistributedSearch.Client liveAddresses concurrency problem
-    (Grant Glouser via siren)
+67. NUTCH-306 - DistributedSearch.Client liveAddresses concurrency
+    problem (Grant Glouser via siren)
 
 68. Update to hadoop-0.4 (Milind Bhandarkar, cutting)
 
-69. NUTCH-317 - Clarify what the queryLanguage argument of Query.parse(...)
-    means 	(jerome)
+69. NUTCH-317 - Clarify what the queryLanguage argument of
+    Query.parse(...) means (jerome)
 
-70. Added alternative experimental web gui in contrib containing extensions like
-    subcollection, keymatch, user preferences, caching, implemented mainly using tiles and jstl (siren)
+70. Added alternative experimental web gui in contrib containing
+    extensions like subcollection, keymatch, user preferences,
+    caching, implemented mainly using tiles and jstl (siren)
 
+71. NUTCH-320 DmozParser does not output list of urls to stdout
+    but to a log file instead. Original functionality restored.
 
 Release 0.7 - 2005-08-17
 
