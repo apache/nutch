@@ -221,8 +221,17 @@
   <value>true</value>
   <description>If true, when adding new links to a page, links from
   the same host are ignored.  This is an effective way to limit the
-  size of the link database, keeping the only the highest quality
+  size of the link database, keeping only the highest quality
   links.
+  </description>
+</property>
+
+<property>
+  <name>db.ignore.external.links</name>
+  <value>false</value>
+  <description>If true, outlinks leading from a page to external hosts
+  will be ignored. This is an effective way to limit the crawl to include
+  only initially injected hosts, without creating complex URLFilters.
   </description>
 </property>
 
