@@ -100,9 +100,9 @@ public class ScoringFilters extends Configured implements ScoringFilter {
   }
 
   /** Calculate updated page score during CrawlDb.update(). */
-  public void updateDbScore(UTF8 url, CrawlDatum datum, List inlinked) throws ScoringFilterException {
+  public void updateDbScore(UTF8 url, CrawlDatum old, CrawlDatum datum, List inlinked) throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
-      this.filters[i].updateDbScore(url, datum, inlinked);
+      this.filters[i].updateDbScore(url, old, datum, inlinked);
     }
   }
 
