@@ -222,7 +222,7 @@ public class Fetcher extends Configured implements MapRunnable {
             
           } catch (Throwable t) {                 // unexpected exception
             logError(url, t.toString());
-            output(url, datum, null, CrawlDatum.STATUS_FETCH_GONE);
+            output(url, datum, null, CrawlDatum.STATUS_FETCH_RETRY);
             
           }
         }
