@@ -31,6 +31,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.io.BytesWritable;
+import org.apache.hadoop.io.DataInputBuffer;
+import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
@@ -39,6 +41,7 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.ObjectWritable;
 import org.apache.hadoop.io.UTF8;
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.util.StringUtils;
 
 /**
  * A writable map, with a similar behavior as <code>java.util.HashMap</code>.
@@ -96,6 +99,29 @@ public class MapWritable implements Writable {
   private static void addToMap(Class clazz, Byte byteId) {
     CLASS_ID_MAP.put(clazz, byteId);
     ID_CLASS_MAP.put(byteId, clazz);
+  }
+  
+  public MapWritable() { }
+  
+  /**
+   * Copy constructor. This constructor makes a deep copy, using serialization /
+   * deserialization to break any possible references to contained objects.
+   * 
+   * @param map map to copy from
+   */
+  public MapWritable(MapWritable map) {
+    if (map != null) {
+      try {
+        DataOutputBuffer dob = new DataOutputBuffer();
+        map.write(dob);
+        DataInputBuffer dib = new DataInputBuffer();
+        dib.reset(dob.getData(), dob.getLength());
+        readFields(dib);
+      } catch (IOException e) {
+        throw new IllegalArgumentException("this map cannot be copied: " +
+                StringUtils.stringifyException(e));
+      }
+    }
   }
 
   public void clear() {

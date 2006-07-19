@@ -210,7 +210,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     this.score = that.score;
     this.modifiedTime = that.modifiedTime;
     this.signature = that.signature;
-    this.metaData = that.metaData;
+    this.metaData = new MapWritable(that.metaData); // make a deep copy
   }
 
 
