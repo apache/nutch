@@ -31,6 +31,9 @@ import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.net.*;
 
 import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import org.apache.hadoop.util.Progressable;
 
 /* Parse content in a segment. */
@@ -53,6 +56,7 @@ public class ParseOutputFormat implements OutputFormat {
     this.filters = new URLFilters(job);
     this.scfilters = new ScoringFilters(job);
     final float interval = job.getFloat("db.default.fetch.interval", 30f);
+    final boolean ignoreExternalLinks = job.getBoolean("db.ignore.external.links", false);
     
     Path text =
       new Path(new Path(job.getOutputPath(), ParseText.DIR_NAME), name);
@@ -77,7 +81,9 @@ public class ParseOutputFormat implements OutputFormat {
           throws IOException {
           
           Parse parse = (Parse)value;
-          
+          String fromUrl = key.toString();
+          String fromHost = null; 
+          String toHost = null;          
           textOut.append(key, new ParseText(parse.getText()));
           
           ParseData parseData = parse.getData();
@@ -95,6 +101,15 @@ public class ParseOutputFormat implements OutputFormat {
 
           // collect outlinks for subsequent db update
           Outlink[] links = parseData.getOutlinks();
+          if (ignoreExternalLinks) {
+            try {
+              fromHost = new URL(fromUrl).getHost().toLowerCase();
+            } catch (MalformedURLException e) {
+              fromHost = null;
+            }
+          } else {
+            fromHost = null;
+          }
 
           String[] toUrls = new String[links.length];
           int validCount = 0;
@@ -113,6 +128,16 @@ public class ParseOutputFormat implements OutputFormat {
           // compute score contributions and adjustment to the original score
           for (int i = 0; i < toUrls.length; i++) {
             if (toUrls[i] == null) continue;
+            if (ignoreExternalLinks) {
+              try {
+                toHost = new URL(toUrls[i]).getHost().toLowerCase();
+              } catch (MalformedURLException e) {
+                toHost = null;
+              }
+              if (toHost == null || !toHost.equals(fromHost)) { // external links
+                continue; // skip it
+              }
+            }
             CrawlDatum target = new CrawlDatum(CrawlDatum.STATUS_LINKED, interval);
             UTF8 targetUrl = new UTF8(toUrls[i]);
             adjust = null;
