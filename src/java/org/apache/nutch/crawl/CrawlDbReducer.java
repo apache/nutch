@@ -149,7 +149,7 @@ public class CrawlDbReducer implements Reducer {
     }
 
     try {
-      scfilters.updateDbScore((UTF8)key, result, linked);
+      scfilters.updateDbScore((UTF8)key, old, result, linked);
     } catch (Exception e) {
       if (LOG.isWarnEnabled()) {
         LOG.warn("Couldn't update score, key=" + key + ": " + e);

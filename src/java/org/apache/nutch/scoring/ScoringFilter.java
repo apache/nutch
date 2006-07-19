@@ -111,12 +111,18 @@ public interface ScoringFilter extends Configurable, Pluggable {
    * initial value of the original CrawlDatum, and also score values contributed by
    * inlinked pages.
    * @param url url of the page
-   * @param datum original datum, with original score. Filters will update it in-place.
+   * @param old original datum, with original score. May be null if this is a newly
+   * discovered page. If not null, filters should use score values from this parameter
+   * as the starting values - the {@param datum} parameter may contain values that are
+   * no longer valid, if other updates occured between generation and this update.
+   * @param datum the new datum, with the original score saved at the time when
+   * fetchlist was generated. Filters should update this in-place, and it will be saved in
+   * the crawldb.
    * @param inlinked (partial) list of CrawlDatum-s (with their scores) from
    * links pointing to this page, found in the current update batch.
    * @throws ScoringFilterException
    */
-  public void updateDbScore(UTF8 url, CrawlDatum datum, List inlinked) throws ScoringFilterException;
+  public void updateDbScore(UTF8 url, CrawlDatum old, CrawlDatum datum, List inlinked) throws ScoringFilterException;
   
   /**
    * This method calculates a Lucene document boost.
