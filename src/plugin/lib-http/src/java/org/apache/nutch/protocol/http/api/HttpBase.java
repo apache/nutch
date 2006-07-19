@@ -183,12 +183,14 @@ public abstract class HttpBase implements Protocol {
         }
       }
       
-      String host = blockAddr(u);
+      long crawlDelay = robots.getCrawlDelay(this, u);
+      long delay = crawlDelay > 0 ? crawlDelay : serverDelay;
+      String host = blockAddr(u, delay);
       Response response;
       try {
         response = getResponse(u, datum, false); // make a request
       } finally {
-        unblockAddr(host);
+        unblockAddr(host, delay);
       }
       
       int code = response.getCode();
@@ -298,7 +300,7 @@ public abstract class HttpBase implements Protocol {
     return useHttp11;
   }
   
-  private String blockAddr(URL url) throws ProtocolException {
+  private String blockAddr(URL url, long crawlDelay) throws ProtocolException {
     
     String host;
     if (byIP) {
@@ -346,7 +348,7 @@ public abstract class HttpBase implements Protocol {
       long now = System.currentTimeMillis();
       long sleep = 0;
       if (done == 0) {                            // address is still in use
-        sleep = serverDelay;                      // wait at least delay
+        sleep = crawlDelay;                      // wait at least delay
         
       } else if (now < done) {                    // address is on hold
         sleep = done - now;                       // wait until its free
@@ -359,14 +361,14 @@ public abstract class HttpBase implements Protocol {
     }
   }
   
-  private void unblockAddr(String host) {
+  private void unblockAddr(String host, long crawlDelay) {
     synchronized (BLOCKED_ADDR_TO_TIME) {
       int addrCount = ((Integer)THREADS_PER_HOST_COUNT.get(host)).intValue();
       if (addrCount == 1) {
         THREADS_PER_HOST_COUNT.remove(host);
         BLOCKED_ADDR_QUEUE.addFirst(host);
         BLOCKED_ADDR_TO_TIME.put
-                (host, new Long(System.currentTimeMillis() + serverDelay));
+                (host, new Long(System.currentTimeMillis() + crawlDelay));
       } else {
         THREADS_PER_HOST_COUNT.put(host, new Integer(addrCount - 1));
       }

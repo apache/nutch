@@ -73,6 +73,7 @@ public class RobotRulesParser implements Configurable {
     ArrayList tmpEntries = new ArrayList();
     RobotsEntry[] entries = null;
     long expireTime;
+    long crawlDelay = -1;
 
     /**
      */
@@ -126,6 +127,20 @@ public class RobotRulesParser implements Configurable {
       return expireTime;
     }
 
+    /**
+     * Get Crawl-Delay, in milliseconds. This returns -1 if not set.
+     */
+    public long getCrawlDelay() {
+      return crawlDelay;
+    }
+    
+    /**
+     * Set Crawl-Delay, in milliseconds
+     */
+    public void setCrawlDelay(long crawlDelay) {
+      this.crawlDelay = crawlDelay;
+    }
+    
     /** 
      *  Returns <code>false</code> if the <code>robots.txt</code> file
      *  prohibits us from accessing the given <code>path</code>, or
@@ -352,6 +367,19 @@ public class RobotRulesParser implements Configurable {
           if (addRules)
             currentRules.addPrefix(path, true);
         }
+      } else if ( (line.length() >= 12)
+                  && (line.substring(0, 12).equalsIgnoreCase("Crawl-Delay:"))) {
+        doneAgents = true;
+        long crawlDelay = -1;
+        String delay = line.substring("Crawl-Delay:".length(), line.length()).trim();
+        if (delay.length() > 0) {
+          try {
+            crawlDelay = Long.parseLong(delay) * 1000; // sec to millisec
+          } catch (Exception e) {
+            LOG.info("can not parse Crawl-Delay:" + e.toString());
+          }
+          currentRules.setCrawlDelay(crawlDelay);
+        }
       }
     }
 
@@ -386,10 +414,9 @@ public class RobotRulesParser implements Configurable {
     return rules;
   }
   
-  public boolean isAllowed(HttpBase http, URL url)
-    throws ProtocolException, IOException {
+  private RobotRuleSet getRobotRulesSet(HttpBase http, URL url) {
 
-    String host = url.getHost();
+    String host = url.getHost().toLowerCase(); // normalize to lower case
 
     RobotRuleSet robotRules = (RobotRuleSet)CACHE.get(host);
 
@@ -414,13 +441,22 @@ public class RobotRulesParser implements Configurable {
 
       CACHE.put(host, robotRules);                // cache rules for host
     }
+    return robotRules;
+  }
 
+  public boolean isAllowed(HttpBase http, URL url)
+      throws ProtocolException, IOException {
     String path = url.getPath();                  // check rules
     if ((path == null) || "".equals(path)) {
       path= "/";
     }
 
-    return robotRules.isAllowed(path);
+    return getRobotRulesSet(http, url).isAllowed(path);
+  }
+  
+  public long getCrawlDelay(HttpBase http, URL url)
+      throws ProtocolException, IOException {
+    return getRobotRulesSet(http, url).getCrawlDelay();
   }
 
   private final static int BUFSIZE= 2048;

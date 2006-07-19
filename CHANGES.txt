@@ -200,6 +200,12 @@ Trunk (unreleased changes)
 71. NUTCH-320 DmozParser does not output list of urls to stdout
     but to a log file instead. Original functionality restored.
 
+72. NUTCH-271 - Add ability to limit crawling to the set of initially
+    injected hosts (db.ignore.external.links) (Philippe Eugene,
+    Stefan Neufeind via ab)
+
+73. NUTCH-293 - Support for Crawl-Delay (Stefan Groschupf via ab)
+
 Release 0.7 - 2005-08-17
 
  1. Added support for "type:" in queries. Search results are limited/qualified
