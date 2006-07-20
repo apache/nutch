@@ -289,6 +289,8 @@
 			extension-id="org.apache.nutch.parse.mspowerpoint.MSPowerPointParser" />
 		<alias name="parse-msword"
 			extension-id="org.apache.nutch.parse.msword.MSWordParser" />
+		<alias name="parse-oo"
+			extension-id="org.apache.nutch.parse.oo.OpenDocument.Text" />
 		<alias name="parse-pdf"
 			extension-id="org.apache.nutch.parse.pdf.PdfParser" />
 		<alias name="parse-rss"
