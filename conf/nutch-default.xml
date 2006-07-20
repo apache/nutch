@@ -33,15 +33,31 @@
 
 <property>
   <name>http.agent.name</name>
-  <value>NutchCVS</value>
-  <description>Our HTTP 'User-Agent' request header.</description>
+  <value></value>
+  <description>HTTP 'User-Agent' request header. MUST NOT be empty - 
+  please set this to a single word uniquely related to your organization.
+
+  NOTE: You should also check other related properties:
+
+	http.robots.agents
+	http.agent.description
+	http.agent.url
+	http.agent.email
+	http.agent.version
+
+  and set their values appropriately.
+
+  </description>
 </property>
 
 <property>
   <name>http.robots.agents</name>
-  <value>NutchCVS,Nutch,*</value>
+  <value>*</value>
   <description>The agent strings we'll look for in robots.txt files,
-  comma-separated, in decreasing order of precedence.</description>
+  comma-separated, in decreasing order of precedence. You should
+  put the value of http.agent.name as the first agent name, and keep the
+  default * at the end of the list. E.g.: BlurflDev,Blurfl,*
+  </description>
 </property>
 
 <property>
@@ -55,7 +71,7 @@
 
 <property>
   <name>http.agent.description</name>
-  <value>Nutch</value>
+  <value></value>
   <description>Further description of our bot- this text is used in
   the User-Agent header.  It appears in parenthesis after the agent name.
   </description>
@@ -63,22 +79,26 @@
 
 <property>
   <name>http.agent.url</name>
-  <value>http://lucene.apache.org/nutch/bot.html</value>
+  <value></value>
   <description>A URL to advertise in the User-Agent header.  This will 
-   appear in parenthesis after the agent name.
+   appear in parenthesis after the agent name. Custom dictates that this
+   should be a URL of a page explaining the purpose and behavior of this
+   crawler.
   </description>
 </property>
 
 <property>
   <name>http.agent.email</name>
-  <value>nutch-agent@lucene.apache.org</value>
+  <value></value>
   <description>An email address to advertise in the HTTP 'From' request
-   header and User-Agent header.</description>
+   header and User-Agent header. A good practice is to mangle this
+   address (e.g. 'info at example dot com') to avoid spamming.
+  </description>
 </property>
 
 <property>
   <name>http.agent.version</name>
-  <value>0.8-dev</value>
+  <value>Nutch-0.8-dev</value>
   <description>A version string to advertise in the User-Agent 
    header.</description>
 </property>
