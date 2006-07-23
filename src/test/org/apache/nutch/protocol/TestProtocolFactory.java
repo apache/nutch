@@ -24,6 +24,7 @@ public class TestProtocolFactory extends TestCase {
 
   public void testGetProtocol(){
     Configuration conf=NutchConfiguration.create();
+    conf.set("http.agent.name", "test-bot");
     
     ProtocolFactory factory=new ProtocolFactory(conf);
 
