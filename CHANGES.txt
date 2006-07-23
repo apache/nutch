@@ -206,6 +206,8 @@ Trunk (unreleased changes)
 
 73. NUTCH-293 - Support for Crawl-Delay (Stefan Groschupf via ab)
 
+74. NUTCH-327 - Fixed logging directory on cygwin (siren)
+
 Release 0.7 - 2005-08-17
 
  1. Added support for "type:" in queries. Search results are limited/qualified
