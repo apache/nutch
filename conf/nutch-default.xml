@@ -266,7 +266,8 @@
   <name>db.score.link.external</name>
   <value>1.0</value>
   <description>The score factor for new pages added due to a link from
-  another host relative to the referencing page's score.
+  another host relative to the referencing page's score. Scoring plugins
+  may use this value to affect initial scores of external links.
   </description>
 </property>
 
@@ -274,7 +275,8 @@
   <name>db.score.link.internal</name>
   <value>1.0</value>
   <description>The score factor for pages added due to a link from the
-  same host, relative to the referencing page's score.
+  same host, relative to the referencing page's score. Scoring plugins
+  may use this value to affect initial scores of internal links.
   </description>
 </property>
 

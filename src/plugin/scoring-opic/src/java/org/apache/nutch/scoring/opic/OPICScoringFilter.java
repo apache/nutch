@@ -16,6 +16,8 @@
 
 package org.apache.nutch.scoring.opic;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 
 // Commons Logging imports
@@ -53,6 +55,8 @@ public class OPICScoringFilter implements ScoringFilter {
   private Configuration conf;
   private float scoreInjected;
   private float scorePower;
+  private float internalScoreFactor;
+  private float externalScoreFactor;
   private boolean countFiltered;
 
   public Configuration getConf() {
@@ -63,6 +67,8 @@ public class OPICScoringFilter implements ScoringFilter {
     this.conf = conf;
     scoreInjected = conf.getFloat("db.score.injected", 1.0f);
     scorePower = conf.getFloat("indexer.score.power", 0.5f);
+    internalScoreFactor = conf.getFloat("db.score.link.internal", 1.0f);
+    externalScoreFactor = conf.getFloat("db.score.link.external", 1.0f);
     countFiltered = conf.getBoolean("db.score.count.filtered", false);
   }
 
@@ -112,6 +118,19 @@ public class OPICScoringFilter implements ScoringFilter {
       score /= allCount;
     } else {
       score /= validCount;
+    }
+    // internal or external score factor 
+    try {
+      String toHost = new URL(toUrl.toString()).getHost();
+      String fromHost = new URL(fromUrl.toString()).getHost();
+      if(toHost.equalsIgnoreCase(fromHost)){
+        score *= internalScoreFactor;
+      } else {
+        score *= externalScoreFactor;
+      }
+    } catch (MalformedURLException e) {
+       e.printStackTrace(LogUtil.getWarnStream(LOG));
+       score *= externalScoreFactor;
     }
     target.setScore(score);
     // XXX (ab) no adjustment? I think this is contrary to the algorithm descr.
