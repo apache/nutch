@@ -315,8 +315,8 @@ public abstract class HttpBase implements Protocol {
       host = url.getHost();
       if (host == null)
         throw new HttpException("Unknown host for url: " + url);
-      host = host.toLowerCase();
     }
+    host = host.toLowerCase();
     
     int delays = 0;
     while (true) {
@@ -383,8 +383,6 @@ public abstract class HttpBase implements Protocol {
         if (time <= System.currentTimeMillis()) {
           BLOCKED_ADDR_TO_TIME.remove(host);
           BLOCKED_ADDR_QUEUE.removeLast();
-        } else {
-          break;
         }
       }
     }
