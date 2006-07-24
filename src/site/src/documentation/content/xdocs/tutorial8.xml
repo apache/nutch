@@ -85,7 +85,59 @@ crawl.  For example, if you wished to limit the crawl to the
 </source>
 This will include any url in the domain <code>apache.org</code>.
 </li>
+<li>Edit the file <code>conf/nutch-site.xml</code>, insert at minimum
+following properties into it and edit in proper values for the properties:
+<source>
+<![CDATA[
+<property>
+  <name>http.agent.name</name>
+  <value></value>
+  <description>HTTP 'User-Agent' request header. MUST NOT be empty - 
+  please set this to a single word uniquely related to your organization.
 
+  NOTE: You should also check other related properties:
+
+	http.robots.agents
+	http.agent.description
+	http.agent.url
+	http.agent.email
+	http.agent.version
+
+  and set their values appropriately.
+
+  </description>
+</property>
+
+<property>
+  <name>http.agent.description</name>
+  <value></value>
+  <description>Further description of our bot- this text is used in
+  the User-Agent header.  It appears in parenthesis after the agent name.
+  </description>
+</property>
+
+<property>
+  <name>http.agent.url</name>
+  <value></value>
+  <description>A URL to advertise in the User-Agent header.  This will 
+   appear in parenthesis after the agent name. Custom dictates that this
+   should be a URL of a page explaining the purpose and behavior of this
+   crawler.
+  </description>
+</property>
+
+<property>
+  <name>http.agent.email</name>
+  <value></value>
+  <description>An email address to advertise in the HTTP 'From' request
+   header and User-Agent header. A good practice is to mangle this
+   address (e.g. 'info at example dot com') to avoid spamming.
+  </description>
+</property>
+
+]]>
+</source>
+</li>
 </ol>
 
 </section>
@@ -197,6 +249,61 @@ file.  Finally, we initialize the crawl db with the selected urls.</p>
 </section>
 <section>
 <title>Whole-web: Fetching</title>
+<p>
+Starting from 0.8 nutch user agent identifier needs to be configured
+before fetching. To do this you must edit the file <code>conf/nutch-site.xml</code>, insert at minimum
+following properties into it and edit in proper values for the properties:
+</p>
+<source>
+<![CDATA[
+<property>
+  <name>http.agent.name</name>
+  <value></value>
+  <description>HTTP 'User-Agent' request header. MUST NOT be empty - 
+  please set this to a single word uniquely related to your organization.
+
+  NOTE: You should also check other related properties:
+
+  http.robots.agents
+  http.agent.description
+  http.agent.url
+  http.agent.email
+  http.agent.version
+
+  and set their values appropriately.
+
+  </description>
+</property>
+
+<property>
+  <name>http.agent.description</name>
+  <value></value>
+  <description>Further description of our bot- this text is used in
+  the User-Agent header.  It appears in parenthesis after the agent name.
+  </description>
+</property>
+
+<property>
+  <name>http.agent.url</name>
+  <value></value>
+  <description>A URL to advertise in the User-Agent header.  This will 
+   appear in parenthesis after the agent name. Custom dictates that this
+   should be a URL of a page explaining the purpose and behavior of this
+   crawler.
+  </description>
+</property>
+
+<property>
+  <name>http.agent.email</name>
+  <value></value>
+  <description>An email address to advertise in the HTTP 'From' request
+   header and User-Agent header. A good practice is to mangle this
+   address (e.g. 'info at example dot com') to avoid spamming.
+  </description>
+</property>
+
+]]>
+</source>
 <p>To fetch, we first generate a fetchlist from the database:</p>
 <source>bin/nutch generate crawl/crawldb crawl/segments
 </source>
