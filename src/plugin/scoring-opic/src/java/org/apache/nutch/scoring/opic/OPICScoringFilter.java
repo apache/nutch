@@ -83,6 +83,7 @@ public class OPICScoringFilter implements ScoringFilter {
       CrawlDatum linked = (CrawlDatum)inlinked.get(i);
       adjust += linked.getScore();
     }
+    if (old == null) old = datum;
     datum.setScore(old.getScore() + adjust);
   }
 
