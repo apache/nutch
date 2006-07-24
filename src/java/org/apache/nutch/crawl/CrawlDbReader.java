@@ -341,6 +341,7 @@ public class CrawlDbReader implements Closeable {
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     JobConf job = new NutchJob(config);
+    job.setJobName("topN prepare " + crawlDb);
     job.addInputPath(new Path(crawlDb, CrawlDatum.DB_DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setInputKeyClass(UTF8.class);
@@ -361,6 +362,7 @@ public class CrawlDbReader implements Closeable {
       LOG.info("CrawlDb topN: collecting topN scores.");
     }
     job = new NutchJob(config);
+    job.setJobName("topN collect " + crawlDb);
     job.setLong("CrawlDbReader.topN", topN);
 
     job.addInputPath(tempDir);
