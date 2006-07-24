@@ -93,7 +93,7 @@ document.write("<text>Last Published:</text> " + document.lastModified);
 <a href="apidocs/index.html">API Docs ver. 0.7.2</a>
 </div>
 <div class="menuitem">
-<a href="nutch-nightly/docs/api/index.html">API Docs ver. 0.8</a>
+<a href="http://lucene.apache.org/nutch-nightly/docs/api/index.html">API Docs ver. 0.8</a>
 </div>
 </div>
 <div onclick="SwitchMenu('menu_1.3', 'skin/')" id="menu_1.3Title" class="menutitle">Resources</div>
@@ -256,9 +256,63 @@ crawl.  For example, if you wished to limit the crawl to the
 This will include any url in the domain <span class="codefrag">apache.org</span>.
 </li>
 
+<li>Edit the file <span class="codefrag">conf/nutch-site.xml</span>, insert at minimum
+following properties into it and edit in proper values for the properties:
+<pre class="code">
+
+&lt;property&gt;
+  &lt;name&gt;http.agent.name&lt;/name&gt;
+  &lt;value&gt;&lt;/value&gt;
+  &lt;description&gt;HTTP 'User-Agent' request header. MUST NOT be empty - 
+  please set this to a single word uniquely related to your organization.
+
+  NOTE: You should also check other related properties:
+
+	http.robots.agents
+	http.agent.description
+	http.agent.url
+	http.agent.email
+	http.agent.version
+
+  and set their values appropriately.
+
+  &lt;/description&gt;
+&lt;/property&gt;
+
+&lt;property&gt;
+  &lt;name&gt;http.agent.description&lt;/name&gt;
+  &lt;value&gt;&lt;/value&gt;
+  &lt;description&gt;Further description of our bot- this text is used in
+  the User-Agent header.  It appears in parenthesis after the agent name.
+  &lt;/description&gt;
+&lt;/property&gt;
+
+&lt;property&gt;
+  &lt;name&gt;http.agent.url&lt;/name&gt;
+  &lt;value&gt;&lt;/value&gt;
+  &lt;description&gt;A URL to advertise in the User-Agent header.  This will 
+   appear in parenthesis after the agent name. Custom dictates that this
+   should be a URL of a page explaining the purpose and behavior of this
+   crawler.
+  &lt;/description&gt;
+&lt;/property&gt;
+
+&lt;property&gt;
+  &lt;name&gt;http.agent.email&lt;/name&gt;
+  &lt;value&gt;&lt;/value&gt;
+  &lt;description&gt;An email address to advertise in the HTTP 'From' request
+   header and User-Agent header. A good practice is to mangle this
+   address (e.g. 'info at example dot com') to avoid spamming.
+  &lt;/description&gt;
+&lt;/property&gt;
+
+
+</pre>
+
+</li>
 
 </ol>
-<a name="N100A9"></a><a name="Intranet%3A+Running+the+Crawl"></a>
+<a name="N100B3"></a><a name="Intranet%3A+Running+the+Crawl"></a>
 <h3 class="h4">Intranet: Running the Crawl</h3>
 <p>Once things are configured, running the crawl is easy.  Just use the
 crawl command.  Its options include:</p>
@@ -297,12 +351,12 @@ below.</p>
 </div>
 
 
-<a name="N100EA"></a><a name="Whole-web+Crawling"></a>
+<a name="N100F4"></a><a name="Whole-web+Crawling"></a>
 <h2 class="h3">Whole-web Crawling</h2>
 <div class="section">
 <p>Whole-web crawling is designed to handle very large crawls which may
 take weeks to complete, running on multiple machines.</p>
-<a name="N100F3"></a><a name="Whole-web%3A+Concepts"></a>
+<a name="N100FD"></a><a name="Whole-web%3A+Concepts"></a>
 <h3 class="h4">Whole-web: Concepts</h3>
 <p>Nutch data is composed of:</p>
 <ol>
@@ -348,7 +402,7 @@ subdirectories:</li>
 
 
 </ol>
-<a name="N10140"></a><a name="Whole-web%3A+Boostrapping+the+Web+Database"></a>
+<a name="N1014A"></a><a name="Whole-web%3A+Boostrapping+the+Web+Database"></a>
 <h3 class="h4">Whole-web: Boostrapping the Web Database</h3>
 <p>The <em>injector</em> adds urls to the crawldb.  Let's inject URLs
 from the <a href="http://dmoz.org/">DMOZ</a> Open Directory. First we
@@ -367,8 +421,63 @@ bin/nutch org.apache.nutch.tools.DmozParser content.rdf.u8 -subset 5000 &gt; dmo
 file.  Finally, we initialize the crawl db with the selected urls.</p>
 <pre class="code">bin/nutch inject crawl/crawldb dmoz</pre>
 <p>Now we have a web database with around 1000 as-yet unfetched URLs in it.</p>
-<a name="N10166"></a><a name="Whole-web%3A+Fetching"></a>
+<a name="N10170"></a><a name="Whole-web%3A+Fetching"></a>
 <h3 class="h4">Whole-web: Fetching</h3>
+<p>
+Starting from 0.8 nutch user agent identifier needs to be configured
+before fetching. To do this you must edit the file <span class="codefrag">conf/nutch-site.xml</span>, insert at minimum
+following properties into it and edit in proper values for the properties:
+</p>
+<pre class="code">
+
+&lt;property&gt;
+  &lt;name&gt;http.agent.name&lt;/name&gt;
+  &lt;value&gt;&lt;/value&gt;
+  &lt;description&gt;HTTP 'User-Agent' request header. MUST NOT be empty - 
+  please set this to a single word uniquely related to your organization.
+
+  NOTE: You should also check other related properties:
+
+  http.robots.agents
+  http.agent.description
+  http.agent.url
+  http.agent.email
+  http.agent.version
+
+  and set their values appropriately.
+
+  &lt;/description&gt;
+&lt;/property&gt;
+
+&lt;property&gt;
+  &lt;name&gt;http.agent.description&lt;/name&gt;
+  &lt;value&gt;&lt;/value&gt;
+  &lt;description&gt;Further description of our bot- this text is used in
+  the User-Agent header.  It appears in parenthesis after the agent name.
+  &lt;/description&gt;
+&lt;/property&gt;
+
+&lt;property&gt;
+  &lt;name&gt;http.agent.url&lt;/name&gt;
+  &lt;value&gt;&lt;/value&gt;
+  &lt;description&gt;A URL to advertise in the User-Agent header.  This will 
+   appear in parenthesis after the agent name. Custom dictates that this
+   should be a URL of a page explaining the purpose and behavior of this
+   crawler.
+  &lt;/description&gt;
+&lt;/property&gt;
+
+&lt;property&gt;
+  &lt;name&gt;http.agent.email&lt;/name&gt;
+  &lt;value&gt;&lt;/value&gt;
+  &lt;description&gt;An email address to advertise in the HTTP 'From' request
+   header and User-Agent header. A good practice is to mangle this
+   address (e.g. 'info at example dot com') to avoid spamming.
+  &lt;/description&gt;
+&lt;/property&gt;
+
+
+</pre>
 <p>To fetch, we first generate a fetchlist from the database:</p>
 <pre class="code">bin/nutch generate crawl/crawldb crawl/segments
 </pre>
@@ -405,7 +514,7 @@ bin/nutch updatedb crawl/crawldb $s3
 </pre>
 <p>By this point we've fetched a few thousand pages.  Let's index
 them!</p>
-<a name="N101A0"></a><a name="Whole-web%3A+Indexing"></a>
+<a name="N101B4"></a><a name="Whole-web%3A+Indexing"></a>
 <h3 class="h4">Whole-web: Indexing</h3>
 <p>Before indexing we first invert all of the links, so that we may
 index incoming anchor text with the pages.</p>
@@ -413,7 +522,7 @@ index incoming anchor text with the pages.</p>
 <p>To index the segments we use the <span class="codefrag">index</span> command, as follows:</p>
 <pre class="code">bin/nutch index indexes crawl/linkdb crawl/segments/*</pre>
 <p>Now we're ready to search!</p>
-<a name="N101C1"></a><a name="Searching"></a>
+<a name="N101D5"></a><a name="Searching"></a>
 <h3 class="h4">Searching</h3>
 <p>To search you need to put the nutch war file into your servlet
 container.  (If instead of downloading a Nutch release you checked the
@@ -446,7 +555,7 @@ document.write("<text>Last Published:</text> " + document.lastModified);
 </div>
 <div class="copyright">
         Copyright &copy;
-         2005 <a href="http://www.apache.org/licenses/">The Apache Software Foundation.</a>
+         2006 <a href="http://www.apache.org/licenses/">The Apache Software Foundation.</a>
 </div>
 </div>
 </body>

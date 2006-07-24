@@ -50,7 +50,7 @@ See http://forrest.apache.org/docs/linking.html for more info.
 
   <external-refs>
     <lucene    href="http://lucene.apache.org/java/" />
-    <nightly-api    href="nutch-nightly/docs/api/index.html" />
+    <nightly-api    href="http://lucene.apache.org/nutch-nightly/docs/api/index.html" />
     <hadoop    href="http://lucene.apache.org/hadoop/" />
     <wiki      href="http://wiki.apache.org/nutch/" />
     <faq       href="http://wiki.apache.org/nutch/FAQ" /> 
