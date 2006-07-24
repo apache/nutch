@@ -117,7 +117,7 @@ public class OPICScoringFilter implements ScoringFilter {
     // XXX (ab) no adjustment? I think this is contrary to the algorithm descr.
     // XXX in the paper, where page "loses" its score if it's distributed to
     // XXX linked pages...
-    return null;
+    return adjust;
   }
 
   /** Dampen the boost value by scorePower.*/
