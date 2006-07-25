@@ -1,6 +1,6 @@
 Nutch Change Log
 
-Trunk (unreleased changes)
+Release 0.8 - 2006-07-25
 
  0. Totally new architecture, based on hadoop
     [http://lucene.apache.org/hadoop] (cutting)
