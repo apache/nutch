@@ -31,7 +31,7 @@ See http://forrest.apache.org/docs/linking.html for more info.
     <webmasters  label="Robot     "       href="bot.html" />
     <i18n        label="i18n"             href="i18n.html" />
     <apidocs     label="API Docs ver. 0.7.2"         href="apidocs/index.html" />
-    <devapidocs     label="API Docs ver. 0.8"        href="ext:nightly-api" />
+    <devapidocs  label="API Docs ver. 0.8"	href="ext:nightly-api" />
   </docs>
 
   <resources label="Resources">
@@ -50,7 +50,7 @@ See http://forrest.apache.org/docs/linking.html for more info.
 
   <external-refs>
     <lucene    href="http://lucene.apache.org/java/" />
-    <nightly-api    href="http://lucene.apache.org/nutch-nightly/docs/api/index.html" />
+    <nightly-api href="http://lucene.apache.org/nutch/nutch-nightly/docs/api/index.html" />
     <hadoop    href="http://lucene.apache.org/hadoop/" />
     <wiki      href="http://wiki.apache.org/nutch/" />
     <faq       href="http://wiki.apache.org/nutch/FAQ" /> 
