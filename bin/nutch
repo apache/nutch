@@ -40,7 +40,7 @@ if [ $# = 0 ]; then
   echo "  generate          generate new segments to fetch"
   echo "  fetch             fetch a segment's pages"
   echo "  parse             parse a segment's pages"
-  echo "  segread           read / dump segment data"
+  echo "  readseg           read / dump segment data"
   echo "  mergesegs         merge several segments, with optional filtering and slicing"
   echo "  updatedb          update crawl db from segments after fetching"
   echo "  invertlinks       create a linkdb from parsed segments"
@@ -158,7 +158,10 @@ elif [ "$COMMAND" = "mergedb" ] ; then
   CLASS=org.apache.nutch.crawl.CrawlDbMerger
 elif [ "$COMMAND" = "readlinkdb" ] ; then
   CLASS=org.apache.nutch.crawl.LinkDbReader
+elif [ "$COMMAND" = "readseg" ] ; then
+  CLASS=org.apache.nutch.segment.SegmentReader
 elif [ "$COMMAND" = "segread" ] ; then
+  echo "[DEPRECATED] Command 'segread' is deprecated, use 'readseg' instead."
   CLASS=org.apache.nutch.segment.SegmentReader
 elif [ "$COMMAND" = "mergesegs" ] ; then
   CLASS=org.apache.nutch.segment.SegmentMerger
