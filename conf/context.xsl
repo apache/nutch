@@ -24,7 +24,7 @@
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
 <xsl:template match="/">
-<Context path="/nutch" docBase="nutch-0.8.war"
+<Context path="/nutch" docBase="nutch-0.9-dev.war"
         debug="5" reloadable="true" crossContext="true">
 
 <xsl:for-each select="configuration/property">
