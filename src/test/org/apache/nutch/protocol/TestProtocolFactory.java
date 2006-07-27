@@ -22,10 +22,15 @@ import junit.framework.TestCase;
 
 public class TestProtocolFactory extends TestCase {
 
-  public void testGetProtocol(){
-    Configuration conf=NutchConfiguration.create();
+  Configuration conf;
+  
+  protected void setUp() throws Exception {
+    conf = NutchConfiguration.create();
+    conf.set("plugin.includes", ".*");
     conf.set("http.agent.name", "test-bot");
-    
+  }
+
+  public void testGetProtocol(){
     ProtocolFactory factory=new ProtocolFactory(conf);
 
     //non existing protocol
