@@ -1,5 +1,10 @@
 Nutch Change Log
 
+Release 0.8.1 ????-??-??
+
+ 1. Changed log4j confiquration to log to stdout on commandline
+    tools (siren)
+
 Release 0.8 - 2006-07-25
 
  0. Totally new architecture, based on hadoop
