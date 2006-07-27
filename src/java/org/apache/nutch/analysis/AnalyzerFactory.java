@@ -111,4 +111,11 @@ public class AnalyzerFactory {
     return null;
   }
 
+  /** 
+   * Method used by unit test
+   */
+  protected NutchAnalyzer getDefault() {
+    return DEFAULT_ANALYZER;
+  }
+
 }
