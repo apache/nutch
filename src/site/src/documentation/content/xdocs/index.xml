@@ -17,7 +17,7 @@
       <section>
       <title>25 July 2006: Nutch 0.8 Released</title>
       <p>The 0.8 release of Nutch is now available. This is the first release of Nutch based on
-      hadoop architecure. See <a href="http://svn.apache.org/viewcvs.cgi/lucene/nutch/branches/branch-0.8/CHANGES.txt?rev=390158">
+      hadoop architecure. See <a href="http://svn.apache.org/viewvc/lucene/nutch/tags/release-0.8/CHANGES.txt?view=markup">
       CHANGES.txt</a> for list of changes made in this version. The release is available
       <a href="http://lucene.apache.org/nutch/release/">here</a>.</p>
       </section>

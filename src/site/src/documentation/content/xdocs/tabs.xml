@@ -16,5 +16,6 @@
 
   <tab label="Main" dir=""/>  
   <tab label="Wiki" href="http://wiki.apache.org/nutch/"/>
+  <tab label="Jira" href="http://issues.apache.org/jira/browse/Nutch"/>
   
 </tabs>
