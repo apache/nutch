@@ -524,9 +524,9 @@ them!</p>
 <h3 class="h4">Whole-web: Indexing</h3>
 <p>Before indexing we first invert all of the links, so that we may
 index incoming anchor text with the pages.</p>
-<pre class="code">bin/nutch invertlinks crawl/linkdb crawl/segments</pre>
+<pre class="code">bin/nutch invertlinks crawl/linkdb crawl/segments/*</pre>
 <p>To index the segments we use the <span class="codefrag">index</span> command, as follows:</p>
-<pre class="code">bin/nutch index indexes crawl/linkdb crawl/segments/*</pre>
+<pre class="code">bin/nutch index crawl/indexes crawl/crawldb crawl/linkdb crawl/segments/*</pre>
 <p>Now we're ready to search!</p>
 <a name="N101D5"></a><a name="Searching"></a>
 <h3 class="h4">Searching</h3>

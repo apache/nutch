@@ -350,11 +350,11 @@ them!</p>
 <p>Before indexing we first invert all of the links, so that we may
 index incoming anchor text with the pages.</p>
 
-<source>bin/nutch invertlinks crawl/linkdb crawl/segments</source>
+<source>bin/nutch invertlinks crawl/linkdb crawl/segments/*</source>
 
 <p>To index the segments we use the <code>index</code> command, as follows:</p>
 
-<source>bin/nutch index indexes crawl/linkdb crawl/segments/*</source>
+<source>bin/nutch index crawl/indexes crawl/crawldb crawl/linkdb crawl/segments/*</source>
 
 <!-- <p>Then, before we can search a set of segments, we need to delete -->
 <!-- duplicate pages.  This is done with:</p> -->
