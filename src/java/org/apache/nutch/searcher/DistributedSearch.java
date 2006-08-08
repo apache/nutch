@@ -277,15 +277,18 @@ public class DistributedSearch {
       return new Hits(totalHits, (Hit[])queue.toArray(new Hit[queue.size()]));
     }
     
-    private Protocol getRemote(Hit hit) {
+    // version for hadoop-0.5.0.jar
+    public static final long versionID = 1L;
+    
+    private Protocol getRemote(Hit hit) throws IOException {
       return (Protocol)
-        RPC.getProxy(Protocol.class, defaultAddresses[hit.getIndexNo()], conf);
+        RPC.getProxy(Protocol.class, versionID, defaultAddresses[hit.getIndexNo()], conf);
     }
 
-    private Protocol getRemote(HitDetails hit) {
+    private Protocol getRemote(HitDetails hit) throws IOException {
       InetSocketAddress address =
         (InetSocketAddress)segmentToAddress.get(hit.getValue("segment"));
-      return (Protocol)RPC.getProxy(Protocol.class, address, conf);
+      return (Protocol)RPC.getProxy(Protocol.class, versionID, address, conf);
     }
 
     public String getExplanation(Query query, Hit hit) throws IOException {
