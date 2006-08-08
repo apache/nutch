@@ -6,6 +6,9 @@ Unreleased changes (0.9-dev)
     tools (siren)
 
  2. NUTCH-344 - Fix for thread blocking issue (Greg Kim via siren)
+ 
+ 3. NUTCH-260 - Update hadoop version to 0.5.0 (Renaud Richardet,
+    siren)
 
 Release 0.8 - 2006-07-25
 
