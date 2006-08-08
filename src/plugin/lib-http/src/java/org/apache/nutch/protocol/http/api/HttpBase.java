@@ -377,8 +377,8 @@ public abstract class HttpBase implements Protocol {
   
   private static void cleanExpiredServerBlocks() {
     synchronized (BLOCKED_ADDR_TO_TIME) {
-      while (!BLOCKED_ADDR_QUEUE.isEmpty()) {
-        String host = (String) BLOCKED_ADDR_QUEUE.getLast();
+      for(int i = BLOCKED_ADDR_QUEUE.size()-1; i >= 0; i--){
+	String host = (String) BLOCKED_ADDR_QUEUE.get(i);
         long time = ((Long) BLOCKED_ADDR_TO_TIME.get(host)).longValue();
         if (time <= System.currentTimeMillis()) {
           BLOCKED_ADDR_TO_TIME.remove(host);
