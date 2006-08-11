@@ -382,7 +382,7 @@ public abstract class HttpBase implements Protocol {
         long time = ((Long) BLOCKED_ADDR_TO_TIME.get(host)).longValue();
         if (time <= System.currentTimeMillis()) {
           BLOCKED_ADDR_TO_TIME.remove(host);
-          BLOCKED_ADDR_QUEUE.removeLast();
+          BLOCKED_ADDR_QUEUE.remove(i);
         }
       }
     }
