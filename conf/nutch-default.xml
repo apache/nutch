@@ -380,6 +380,18 @@
 </property>
 
 <property>
+ <name>fetcher.max.crawl.delay</name>
+ <value>30</value>
+ <description>
+ If the Crawl-Delay in robots.txt is set to greater than this value (in
+ seconds) then the fetcher will skip this page, generating an error report.
+ If set to -1 the fetcher will never skip such pages and will wait the
+ amount of time retrieved from robots.txt Crawl-Delay, however long that
+ might be.
+ </description>
+</property> 
+
+<property>
   <name>fetcher.threads.fetch</name>
   <value>10</value>
   <description>The number of FetcherThreads the fetcher should use.
