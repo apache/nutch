@@ -238,7 +238,7 @@ public class CrawlDbReader implements Closeable {
     LongWritable value = new LongWritable();
 
     TreeMap stats = new TreeMap();
-    int avg = 0, min = 0, max = 0;
+    int avg = 0;
     for (int i = 0; i < readers.length; i++) {
       SequenceFile.Reader reader = readers[i];
       while (reader.next(key, value)) {
@@ -246,14 +246,18 @@ public class CrawlDbReader implements Closeable {
         LongWritable val = (LongWritable) stats.get(k);
         if (val == null) {
           val = new LongWritable();
+          if (k.startsWith("max")) val.set(Long.MIN_VALUE);
+          else if (k.startsWith("min")) val.set(Long.MAX_VALUE);
           stats.put(k, val);
         }
-        val.set(val.get() + value.get());
-        if (k.startsWith("max"))
-          max++;
-        else if (k.startsWith("min"))
-          min++;
-        else if (k.startsWith("avg")) avg++;
+        if (k.startsWith("max")) {
+          if (value.get() > val.get()) val.set(value.get());
+        } else if (k.startsWith("min")) {
+          if (value.get() < val.get()) val.set(value.get());
+        } else {
+          val.set(val.get() + value.get());
+          avg++;
+        }
       }
     }
     
@@ -265,9 +269,9 @@ public class CrawlDbReader implements Closeable {
         LongWritable val = (LongWritable) stats.get(k);
         if (k.indexOf("score") != -1) {
           if (k.startsWith("min")) {
-            LOG.info(k + ":\t" + (float) ((float) (val.get() / min) / 1000.0f));
+            LOG.info(k + ":\t" + ((float) val.get() / 1000.0f));
           } else if (k.startsWith("max")) {
-            LOG.info(k + ":\t" + (float) ((float) (val.get() / max) / 1000.0f));
+            LOG.info(k + ":\t" + ((float) val.get() / 1000.0f));
           } else if (k.startsWith("avg")) {
             LOG.info(k + ":\t" + (float) ((float) (val.get() / avg) / 1000.0f));
           }
