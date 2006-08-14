@@ -199,6 +199,7 @@ public class Fetcher extends Configured implements MapRunnable {
               case ProtocolStatus.NOTFOUND:
               case ProtocolStatus.ACCESS_DENIED:
               case ProtocolStatus.ROBOTS_DENIED:
+              case ProtocolStatus.WOULDBLOCK:
               case ProtocolStatus.NOTMODIFIED:
                 output(url, datum, null, CrawlDatum.STATUS_FETCH_GONE);
                 break;
