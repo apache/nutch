@@ -25,7 +25,7 @@ import org.apache.hadoop.io.VersionedWritable;
 import org.apache.hadoop.io.WritableUtils;
 
 /**
- * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
+ * @author Andrzej Bialecki
  */
 public class ProtocolStatus extends VersionedWritable {
   
@@ -55,11 +55,15 @@ public class ProtocolStatus extends VersionedWritable {
   /** Access denied by robots.txt rules. */
   public static final int ROBOTS_DENIED        = 18;
   /** Too many redirects. */
-  public static final int REDIR_EXCEEDED         = 19;
+  public static final int REDIR_EXCEEDED       = 19;
   /** Not fetching. */
   public static final int NOTFETCHING          = 20;
   /** Unchanged since the last fetch. */
   public static final int NOTMODIFIED          = 21;
+  /** Request was refused by protocol plugins, because it would block.
+   * The expected number of milliseconds to wait before retry may be provided
+   * in args. */
+  public static final int WOULDBLOCK           = 22;
   
   // Useful static instances for status codes that don't usually require any
   // additional arguments.
@@ -72,6 +76,7 @@ public class ProtocolStatus extends VersionedWritable {
   public static final ProtocolStatus STATUS_REDIR_EXCEEDED = new ProtocolStatus(REDIR_EXCEEDED);
   public static final ProtocolStatus STATUS_NOTFETCHING = new ProtocolStatus(NOTFETCHING);
   public static final ProtocolStatus STATUS_NOTMODIFIED = new ProtocolStatus(NOTMODIFIED);
+  public static final ProtocolStatus STATUS_WOULDBLOCK = new ProtocolStatus(WOULDBLOCK);
   
   private int code;
   private long lastModified;
@@ -93,6 +98,7 @@ public class ProtocolStatus extends VersionedWritable {
     codeToName.put(new Integer(REDIR_EXCEEDED), "redir_exceeded");
     codeToName.put(new Integer(NOTFETCHING), "notfetching");
     codeToName.put(new Integer(NOTMODIFIED), "notmodified");
+    codeToName.put(new Integer(WOULDBLOCK), "wouldblock");
   }
   
   public ProtocolStatus() {
@@ -183,6 +189,7 @@ public class ProtocolStatus extends VersionedWritable {
         code == REDIR_EXCEEDED ||
         code == RETRY ||
         code == TEMP_MOVED ||
+        code == WOULDBLOCK ||
         code == PROTO_NOT_FOUND; 
   }
   

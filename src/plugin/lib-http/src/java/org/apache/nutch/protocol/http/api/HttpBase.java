@@ -125,6 +125,9 @@ public abstract class HttpBase implements Protocol {
  
   /** Do we use HTTP/1.1? */
   protected boolean useHttp11 = false;
+  
+  /** Skip page if Crawl-Delay longer than this value. */
+  protected long maxCrawlDelay = -1L;
 
   /** Creates a new instance of HttpBase */
   public HttpBase() {
@@ -152,6 +155,7 @@ public abstract class HttpBase implements Protocol {
         this.userAgent = getAgentString(conf.get("http.agent.name"), conf.get("http.agent.version"), conf
                 .get("http.agent.description"), conf.get("http.agent.url"), conf.get("http.agent.email"));
         this.serverDelay = (long) (conf.getFloat("fetcher.server.delay", 1.0f) * 1000);
+        this.maxCrawlDelay = (long)(conf.getInt("fetcher.max.crawl.delay", -1) * 1000);
         // backward-compatible default setting
         this.byIP = conf.getBoolean("fetcher.threads.per.host.by.ip", true);
         this.useHttp11 = conf.getBoolean("http.http11", false);
@@ -185,6 +189,14 @@ public abstract class HttpBase implements Protocol {
       
       long crawlDelay = robots.getCrawlDelay(this, u);
       long delay = crawlDelay > 0 ? crawlDelay : serverDelay;
+      if (maxCrawlDelay >= 0 && delay > maxCrawlDelay) {
+        // skip this page, otherwise the thread would block for too long.
+        LOGGER.info("Skipping: " + u + " exceeds fetcher.max.crawl.delay, max="
+                + (maxCrawlDelay / 1000) + ", Crawl-Delay=" + (delay / 1000));
+        Content c = new Content(u.toString(), u.toString(), EMPTY_CONTENT,
+                null, null, this.conf);
+        return new ProtocolOutput(c, ProtocolStatus.STATUS_WOULDBLOCK);
+      }
       String host = blockAddr(u, delay);
       Response response;
       try {
