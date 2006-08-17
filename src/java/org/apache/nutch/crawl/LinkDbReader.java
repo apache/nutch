@@ -104,7 +104,7 @@ public class LinkDbReader implements Closeable {
   
   public static void main(String[] args) throws Exception {
     if (args.length < 2) {
-      System.err.println("LinkDbReader <linkdb> {-dump <out_dir> | -url <url>)");
+      System.err.println("Usage: LinkDbReader <linkdb> {-dump <out_dir> | -url <url>)");
       System.err.println("\t-dump <out_dir>\tdump whole link db to a text file in <out_dir>");
       System.err.println("\t-url <url>\tprint information about <url> to System.out");
       return;
