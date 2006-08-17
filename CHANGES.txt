@@ -13,6 +13,12 @@ Unreleased changes (0.9-dev)
  4. Optionally skip pages with abnormally large values of Crawl-Delay
     (Dennis Kubes via ab)
 
+ 5. Change readdb -stats to use CombiningCollector (ab)
+
+ 6. NUTCH-348 - Fix Generator to select highest scoring pages (Chris
+    Schneider and Stefan Groschupf via ab)
+
+
 Release 0.8 - 2006-07-25
 
  0. Totally new architecture, based on hadoop
