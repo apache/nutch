@@ -59,7 +59,11 @@ public class Generator extends Configured {
     public void write(DataOutput out) throws IOException {
       url.write(out);
       datum.write(out);
-    }    
+    }
+    
+    public String toString() {
+      return "url=" + url.toString() + ", datum=" + datum.toString();
+    }
   }
 
   /** Selects entries due for fetch. */
@@ -118,7 +122,7 @@ public class Generator extends Configured {
           LOG.warn("Couldn't filter generatorSortValue for " + key + ": " + sfe);
         }
       }
-      // sort by decreasing score
+      // sort by decreasing score, using DecreasingFloatComparator
       sortValue.set(sort);
       entry.datum = crawlDatum;
       entry.url = (UTF8)key;
@@ -196,6 +200,20 @@ public class Generator extends Configured {
 
   }
 
+  public static class DecreasingFloatComparator extends WritableComparator {
+
+    public DecreasingFloatComparator() {
+      super(FloatWritable.class);
+    }
+
+    /** Compares two FloatWritables decreasing. */
+    public int compare(WritableComparable o1, WritableComparable o2) {
+      float thisValue = ((FloatWritable) o1).get();
+      float thatValue = ((FloatWritable) o2).get();
+      return (thisValue<thatValue ? 1 : (thisValue == thatValue ? 0 : -1));
+    }
+  }
+  
   public static class SelectorInverseMapper extends MapReduceBase implements Mapper {
 
     public void map(WritableComparable key, Writable value, OutputCollector output, Reporter reporter) throws IOException {
@@ -270,7 +288,7 @@ public class Generator extends Configured {
     if (LOG.isInfoEnabled()) {
       LOG.info("Generator: starting");
       LOG.info("Generator: segment: " + segment);
-      LOG.info("Generator: Selecting most-linked urls due for fetch.");
+      LOG.info("Generator: Selecting best-scoring urls due for fetch.");
     }
 
     // map to inverted subset due for fetch, sort by link count
@@ -296,6 +314,7 @@ public class Generator extends Configured {
     job.setOutputPath(tempDir);
     job.setOutputFormat(SequenceFileOutputFormat.class);
     job.setOutputKeyClass(FloatWritable.class);
+    job.setOutputKeyComparatorClass(DecreasingFloatComparator.class);
     job.setOutputValueClass(SelectorEntry.class);
     JobClient.runJob(job);
 
