@@ -23,15 +23,16 @@ import junit.framework.TestCase;
 public class TestProtocolFactory extends TestCase {
 
   Configuration conf;
+  ProtocolFactory factory;
   
   protected void setUp() throws Exception {
     conf = NutchConfiguration.create();
     conf.set("plugin.includes", ".*");
     conf.set("http.agent.name", "test-bot");
+    factory=new ProtocolFactory(conf);
   }
 
   public void testGetProtocol(){
-    ProtocolFactory factory=new ProtocolFactory(conf);
 
     //non existing protocol
     try {
@@ -64,6 +65,14 @@ public class TestProtocolFactory extends TestCase {
     } catch (ProtocolNotFound e) {
       fail("Must not throw any exception");
     }
+  }
+  
+  public void testContains(){
+    assertTrue(factory.contains("http", "http"));
+    assertTrue(factory.contains("http", "http,ftp"));
+    assertTrue(factory.contains("http", "   http ,   ftp"));
+    assertTrue(factory.contains("smb", "ftp,smb,http"));
+    assertFalse(factory.contains("smb", "smbb"));
   }
   
 }

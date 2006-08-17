@@ -27,40 +27,45 @@ import org.apache.nutch.plugin.*;
 
 import org.apache.hadoop.conf.Configuration;
 
-/** 
- * Creates and caches {@link Protocol} plugins.  Protocol plugins should
- * define the attribute "protocolName" with the name of the protocol that they
- * implement. Configuration object is used for caching. Cache key is
- * constructed from appending protocol name (eg. http) to
- * constant {@link Protocol#X_POINT_ID).
+/**
+ * Creates and caches {@link Protocol} plugins. Protocol plugins should define
+ * the attribute "protocolName" with the name of the protocol that they
+ * implement. Configuration object is used for caching. Cache key is constructed
+ * from appending protocol name (eg. http) to constant
+ * {@link Protocol#X_POINT_ID).
  */
 public class ProtocolFactory {
 
   public static final Log LOG = LogFactory.getLog(ProtocolFactory.class);
 
   private ExtensionPoint extensionPoint;
+
   private Configuration conf;
 
   public ProtocolFactory(Configuration conf) {
-      this.conf = conf;
-      this.extensionPoint = PluginRepository.get(conf)
-      .getExtensionPoint(Protocol.X_POINT_ID);
-      if (this.extensionPoint == null) {
-          throw new RuntimeException("x-point " + Protocol.X_POINT_ID + " not found.");
-        }
-  }                      
+    this.conf = conf;
+    this.extensionPoint = PluginRepository.get(conf).getExtensionPoint(
+        Protocol.X_POINT_ID);
+    if (this.extensionPoint == null) {
+      throw new RuntimeException("x-point " + Protocol.X_POINT_ID
+          + " not found.");
+    }
+  }
 
   /**
-   * Returns the appropriate {@link Protocol} implementation for a url.    
-   * @param urlString Url String 
+   * Returns the appropriate {@link Protocol} implementation for a url.
+   * 
+   * @param urlString
+   *          Url String
    * @return
-   * @throws ProtocolNotFound when Protocol can not be found for urlString
+   * @throws ProtocolNotFound
+   *           when Protocol can not be found for urlString
    */
   public Protocol getProtocol(String urlString) throws ProtocolNotFound {
     try {
       URL url = new URL(urlString);
       String protocolName = url.getProtocol();
-      String cacheId=Protocol.X_POINT_ID + protocolName;
+      String cacheId = Protocol.X_POINT_ID + protocolName;
       if (protocolName == null)
         throw new ProtocolNotFound(urlString);
 
@@ -86,17 +91,25 @@ public class ProtocolFactory {
     }
   }
 
-  private Extension findExtension(String name)
-    throws PluginRuntimeException {
+  private Extension findExtension(String name) throws PluginRuntimeException {
 
     Extension[] extensions = this.extensionPoint.getExtensions();
 
     for (int i = 0; i < extensions.length; i++) {
       Extension extension = extensions[i];
 
-      if (name.equals(extension.getAttribute("protocolName")))
+      if (contains(name, extension.getAttribute("protocolName")))
         return extension;
     }
     return null;
   }
+  
+  boolean contains(String what, String where){
+    String parts[]=where.split("[, ]");
+    for(int i=0;i<parts.length;i++) {
+      if(parts[i].equals(what)) return true;
+    }
+    return false;
+  }
+  
 }
