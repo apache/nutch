@@ -327,8 +327,8 @@ public abstract class HttpBase implements Protocol {
       host = url.getHost();
       if (host == null)
         throw new HttpException("Unknown host for url: " + url);
+      host = host.toLowerCase();
     }
-    host = host.toLowerCase();
     
     int delays = 0;
     while (true) {
@@ -389,8 +389,8 @@ public abstract class HttpBase implements Protocol {
   
   private static void cleanExpiredServerBlocks() {
     synchronized (BLOCKED_ADDR_TO_TIME) {
-      for(int i = BLOCKED_ADDR_QUEUE.size()-1; i >= 0; i--){
-	String host = (String) BLOCKED_ADDR_QUEUE.get(i);
+      for (int i = BLOCKED_ADDR_QUEUE.size() - 1; i >= 0; i--) {
+        String host = (String) BLOCKED_ADDR_QUEUE.get(i);
         long time = ((Long) BLOCKED_ADDR_TO_TIME.get(host)).longValue();
         if (time <= System.currentTimeMillis()) {
           BLOCKED_ADDR_TO_TIME.remove(host);
