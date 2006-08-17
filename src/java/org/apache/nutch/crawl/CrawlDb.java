@@ -109,7 +109,7 @@ public class CrawlDb extends Configured {
     CrawlDb crawlDb = new CrawlDb(NutchConfiguration.create());
     
     if (args.length < 2) {
-      System.err.println("Usage: <crawldb> <segment>");
+      System.err.println("Usage: CrawlDb <crawldb> <segment>");
       return;
     }
     

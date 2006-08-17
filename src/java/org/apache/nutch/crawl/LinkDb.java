@@ -291,7 +291,7 @@ public class LinkDb extends Configured implements Mapper, Reducer {
     LinkDb linkDb = new LinkDb(conf);
     
     if (args.length < 2) {
-      System.err.println("Usage: <linkdb> (-dir segmentsDir | segment1 segment2 ...)");
+      System.err.println("Usage: LinkDb <linkdb> (-dir segmentsDir | segment1 segment2 ...)");
       return;
     }
     Path segDir = null;
