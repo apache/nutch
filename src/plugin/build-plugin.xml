@@ -132,10 +132,16 @@
     <mkdir dir="${deploy.dir}"/>
     <copy file="plugin.xml" todir="${deploy.dir}" 
           preservelastmodified="true"/>
-    <copy file="${build.dir}/${name}.jar" todir="${deploy.dir}" failonerror="false"/>
+    <available property="lib-available"
+                 file="${build.dir}/${name}.jar"/>
+    <antcall target="copy-generated-lib"/>
     <copy todir="${deploy.dir}" flatten="true">
       <fileset refid="lib.jars"/>
     </copy>
+  </target>
+	
+  <target name="copy-generated-lib" if="lib-available">
+    <copy file="${build.dir}/${name}.jar" todir="${deploy.dir}" failonerror="false"/>
   </target>
 
   <!-- ================================================================== -->
