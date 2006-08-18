@@ -118,13 +118,13 @@ public class IndexMerger {
     //
     Configuration conf = NutchConfiguration.create();
     FileSystem fs = FileSystem.get(conf);
-    Path workDir = new Path("indexmerger");
+    Path workDir = new Path("indexmerger-" + System.currentTimeMillis());
     List indexDirs = new ArrayList();
 
     int i = 0;
     if ("-workingdir".equals(args[i])) {
       i++;
-      workDir = new Path(args[i++]);
+      workDir = new Path(args[i++], "indexmerger-" + System.currentTimeMillis());
     }
 
     Path outputIndex = new Path(args[i++]);
