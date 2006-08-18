@@ -18,6 +18,8 @@ Unreleased changes (0.9-dev)
  6. NUTCH-348 - Fix Generator to select highest scoring pages (Chris
     Schneider and Stefan Groschupf via ab)
 
+ 7. NUTCH-347 adjust plugin build script not to emit warnings when copying
+    dependant jars (siren)
 
 Release 0.8 - 2006-07-25
 
