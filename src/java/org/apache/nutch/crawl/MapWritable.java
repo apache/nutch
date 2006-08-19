@@ -426,6 +426,7 @@ public class MapWritable implements Writable {
         } else {
           fOld = entry.fNextEntry;
         }
+        entry.fNextEntry = null; // reset next entry
         return entry;
       }
       last = entry;
