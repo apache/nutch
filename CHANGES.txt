@@ -18,6 +18,9 @@ Unreleased changes (0.8.1)
 
  6. NUTCH-348 - Fix Generator to select highest scoring pages (Chris
     Schneider and Stefan Groschupf via ab)
+    
+ 7. NUTCH-338 - Remove the text parser as an option for parsing PDF files
+    in parse-plugins.xml (Chris A. Mattmann via siren)
 
 Release 0.8 - 2006-07-25
 
