@@ -37,7 +37,6 @@
 
 	<mimeType name="application/pdf">
 		<plugin id="parse-pdf" />
-		<plugin id="parse-text" />
 	</mimeType>
 
 	<mimeType name="application/postscript">
