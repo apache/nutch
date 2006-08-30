@@ -26,15 +26,17 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.mapred.lib.HashPartitioner;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.ToolBase;
 
 import java.util.Iterator;
 
 /** . */
-public class LinkDbReader implements Closeable {
+public class LinkDbReader extends ToolBase implements Closeable {
   public static final Log LOG = LogFactory.getLog(LinkDbReader.class);
 
   private static final Partitioner PARTITIONER = new HashPartitioner();
@@ -42,12 +44,19 @@ public class LinkDbReader implements Closeable {
   private FileSystem fs;
   private Path directory;
   private MapFile.Reader[] readers;
-  private Configuration conf;
 
-  public LinkDbReader(FileSystem fs, Path directory, Configuration conf) {
-    this.fs = fs;
+  public LinkDbReader() {
+    
+  }
+  
+  public LinkDbReader(Configuration conf, Path directory) throws Exception {
+    setConf(conf);
+    init(directory);
+  }
+  
+  public void init(Path directory) throws Exception {
+    this.fs = FileSystem.get(getConf());
     this.directory = directory;
-    this.conf = conf;
   }
 
   public String[] getAnchors(UTF8 url) throws IOException {
@@ -59,10 +68,10 @@ public class LinkDbReader implements Closeable {
 
   public Inlinks getInlinks(UTF8 url) throws IOException {
 
-    synchronized (this) {
-      if (readers == null) {
+    if (readers == null) {
+      synchronized(this) {
         readers = MapFileOutputFormat.getReaders
-          (fs, new Path(directory, LinkDb.CURRENT_NAME), this.conf);
+          (fs, new Path(directory, LinkDb.CURRENT_NAME), getConf());
       }
     }
     
@@ -78,7 +87,7 @@ public class LinkDbReader implements Closeable {
     }
   }
   
-  public static void processDumpJob(String linkdb, String output, Configuration config) throws IOException {
+  public void processDumpJob(String linkdb, String output) throws IOException {
 
     if (LOG.isInfoEnabled()) {
       LOG.info("LinkDb dump: starting");
@@ -86,7 +95,7 @@ public class LinkDbReader implements Closeable {
     }
     Path outFolder = new Path(output);
 
-    JobConf job = new NutchJob(config);
+    JobConf job = new NutchJob(getConf());
     job.setJobName("read " + linkdb);
 
     job.addInputPath(new Path(linkdb, LinkDb.CURRENT_NAME));
@@ -103,29 +112,40 @@ public class LinkDbReader implements Closeable {
   }
   
   public static void main(String[] args) throws Exception {
+    int res = new LinkDbReader().doMain(NutchConfiguration.create(), args);
+    System.exit(res);
+  }
+  
+  public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.err.println("Usage: LinkDbReader <linkdb> {-dump <out_dir> | -url <url>)");
       System.err.println("\t-dump <out_dir>\tdump whole link db to a text file in <out_dir>");
       System.err.println("\t-url <url>\tprint information about <url> to System.out");
-      return;
+      return -1;
     }
-    Configuration conf = NutchConfiguration.create();
-    if (args[1].equals("-dump")) {
-      LinkDbReader.processDumpJob(args[0], args[2], conf);
-    } else if (args[1].equals("-url")) {
-      LinkDbReader dbr = new LinkDbReader(FileSystem.get(NutchConfiguration.create()), new Path(args[0]), conf);
-      Inlinks links = dbr.getInlinks(new UTF8(args[2]));
-      if (links == null) {
-        System.out.println(" - no link information.");
-      } else {
-        Iterator it = links.iterator();
-        while (it.hasNext()) {
-          System.out.println(it.next().toString());
+    try {
+      if (args[1].equals("-dump")) {
+        processDumpJob(args[0], args[2]);
+        return 0;
+      } else if (args[1].equals("-url")) {
+        init(new Path(args[0]));
+        Inlinks links = getInlinks(new UTF8(args[2]));
+        if (links == null) {
+          System.out.println(" - no link information.");
+        } else {
+          Iterator it = links.iterator();
+          while (it.hasNext()) {
+            System.out.println(it.next().toString());
+          }
         }
+        return 0;
+      } else {
+        System.err.println("Error: wrong argument " + args[1]);
+        return -1;
       }
-    } else {
-      System.err.println("Error: wrong argument " + args[1]);
-      return;
+    } catch (Exception e) {
+      LOG.fatal("LinkDbReader: " + StringUtils.stringifyException(e));
+      return -1;
     }
   }
 }

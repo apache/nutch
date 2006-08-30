@@ -26,6 +26,7 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.util.StringUtils;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.SignatureFactory;
@@ -38,7 +39,7 @@ import org.apache.nutch.util.*;
 
 
 /** The fetcher. Most of the work is done by plugins. */
-public class Fetcher extends Configured implements MapRunnable { 
+public class Fetcher extends ToolBase implements MapRunnable { 
 
   public static final Log LOG = LogFactory.getLog(Fetcher.class);
   
@@ -322,10 +323,6 @@ public class Fetcher extends Configured implements MapRunnable {
     
   }
 
-  public Fetcher() { super(null); }
-
-  public Fetcher(Configuration conf) { super(conf); }
-
   private synchronized void updateStatus(int bytesInPage) throws IOException {
     pages++;
     bytes += bytesInPage;
@@ -343,6 +340,14 @@ public class Fetcher extends Configured implements MapRunnable {
     reporter.setStatus(status);
   }
 
+  public Fetcher() {
+    
+  }
+  
+  public Fetcher(Configuration conf) {
+    setConf(conf);
+  }
+  
   public void configure(JobConf job) {
     setConf(job);
 
@@ -442,19 +447,21 @@ public class Fetcher extends Configured implements MapRunnable {
 
   /** Run the fetcher. */
   public static void main(String[] args) throws Exception {
+    int res = new Fetcher().doMain(NutchConfiguration.create(), args);
+    System.exit(res);
+  }
+  
+  public int run(String[] args) throws Exception {
 
     String usage = "Usage: Fetcher <segment> [-threads n] [-noParsing]";
 
     if (args.length < 1) {
       System.err.println(usage);
-      System.exit(-1);
+      return -1;
     }
       
     Path segment = new Path(args[0]);
-
-    Configuration conf = NutchConfiguration.create();
-
-    int threads = conf.getInt("fetcher.threads.fetch", 10);
+    int threads = getConf().getInt("fetcher.threads.fetch", 10);
     boolean parsing = true;
 
     for (int i = 1; i < args.length; i++) {       // parse command line
@@ -463,13 +470,17 @@ public class Fetcher extends Configured implements MapRunnable {
       } else if (args[i].equals("-noParsing")) parsing = false;
     }
 
-    conf.setInt("fetcher.threads.fetch", threads);
+    getConf().setInt("fetcher.threads.fetch", threads);
     if (!parsing) {
-      conf.setBoolean("fetcher.parse", parsing);
+      getConf().setBoolean("fetcher.parse", parsing);
     }
-    Fetcher fetcher = new Fetcher(conf);          // make a Fetcher
-    
-    fetcher.fetch(segment, threads, parsing);              // run the Fetcher
+    try {
+      fetch(segment, threads, parsing);              // run the Fetcher
+      return 0;
+    } catch (Exception e) {
+      LOG.fatal("Fetcher: " + StringUtils.stringifyException(e));
+      return -1;
+    }
 
   }
 }

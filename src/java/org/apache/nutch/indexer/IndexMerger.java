@@ -23,10 +23,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.fs.*;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.conf.*;
 
 import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.ToolBase;
 
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.index.IndexWriter;
@@ -38,38 +40,38 @@ import org.apache.lucene.index.IndexWriter;
  * @author Doug Cutting
  * @author Mike Cafarella
  *************************************************************************/
-public class IndexMerger {
+public class IndexMerger extends ToolBase {
   public static final Log LOG = LogFactory.getLog(IndexMerger.class);
 
   public static final String DONE_NAME = "merge.done";
 
-  private FileSystem fs;
-  private Path outputIndex;
-  private Path localWorkingDir;
-  private Path[] indexes;
-  private Configuration conf;
-
-  /**
-   * Merge all of the indexes given
-   */
-  public IndexMerger(FileSystem fs, Path[] indexes, Path outputIndex, Path localWorkingDir, Configuration conf) throws IOException {
-      this.fs = fs;
-      this.indexes = indexes;
-      this.outputIndex = outputIndex;
-      this.localWorkingDir = localWorkingDir;
-      this.conf = conf;
+  public IndexMerger() {
+    
   }
-
+  
+  public IndexMerger(Configuration conf) {
+    setConf(conf);
+  }
+  
   /**
-   * All all input indexes to the single output index
+   * Merge all input indexes to the single output index
    */
-  public void merge() throws IOException {
-    //
-    // Open local copies of FS indices
-    //
+  public void merge(Path[] indexes, Path outputIndex, Path localWorkingDir) throws IOException {
+    if (LOG.isInfoEnabled()) {
+      LOG.info("merging indexes to: " + outputIndex);
+    }
+    FileSystem localFs = FileSystem.getNamed("local", getConf());
+    if (localWorkingDir == null) {
+      localWorkingDir = new Path("indexmerger-" + System.currentTimeMillis());
+    }
+    if (localFs.exists(localWorkingDir)) {
+      localFs.delete(localWorkingDir);
+    }
+    localFs.mkdirs(localWorkingDir);
 
     // Get local output target
     //
+    FileSystem fs = FileSystem.get(getConf());
     Path tmpLocalOutput = new Path(localWorkingDir, "merge-output");
     Path localOutput = fs.startLocalOutput(outputIndex, tmpLocalOutput);
 
@@ -99,28 +101,32 @@ public class IndexMerger {
     // Put target back
     //
     fs.completeLocalOutput(outputIndex, tmpLocalOutput);
-
     FileSystem.getNamed("local", conf).delete(localWorkingDir);
+    if (LOG.isInfoEnabled()) { LOG.info("done merging"); }
   }
 
   /** 
    * Create an index for the input files in the named directory. 
    */
   public static void main(String[] args) throws Exception {
+    int res = new IndexMerger().doMain(NutchConfiguration.create(), args);
+    System.exit(res);
+  }
+  
+  public int run(String[] args) throws Exception {
     String usage = "IndexMerger [-workingdir <workingdir>] outputIndex indexesDir...";
     if (args.length < 2) {
       System.err.println("Usage: " + usage);
-      return;
+      return -1;
     }
 
     //
     // Parse args, read all index directories to be processed
     //
-    Configuration conf = NutchConfiguration.create();
     FileSystem fs = FileSystem.get(conf);
-    Path workDir = new Path("indexmerger-" + System.currentTimeMillis());
     List indexDirs = new ArrayList();
 
+    Path workDir = null;
     int i = 0;
     if ("-workingdir".equals(args[i])) {
       i++;
@@ -136,21 +142,15 @@ public class IndexMerger {
     //
     // Merge the indices
     //
-    if (LOG.isInfoEnabled()) {
-      LOG.info("merging indexes to: " + outputIndex);
-    }
 
     Path[] indexFiles = (Path[])indexDirs.toArray(new Path[indexDirs.size()]);
 
-    FileSystem localFs = FileSystem.getNamed("local", conf);
-    if (localFs.exists(workDir)) {
-      localFs.delete(workDir);
+    try {
+      merge(indexFiles, outputIndex, workDir);
+      return 0;
+    } catch (Exception e) {
+      LOG.fatal("IndexMerger: " + StringUtils.stringifyException(e));
+      return -1;
     }
-    localFs.mkdirs(workDir);
-    IndexMerger merger =
-      new IndexMerger(fs, indexFiles, outputIndex, workDir, conf);
-    merger.merge();
-    if (LOG.isInfoEnabled()) { LOG.info("done merging"); }
-    localFs.delete(workDir);
   }
 }

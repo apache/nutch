@@ -114,9 +114,9 @@ public class TestLinkDbMerger extends TestCase {
     createLinkDb(fs, linkdb2, init2);
     LinkDbMerger merger = new LinkDbMerger(conf);
     LOG.fine("* merging linkdbs to " + output);
-    merger.merge(output, new Path[]{linkdb1, linkdb2}, false);
+    merger.merge(output, new Path[]{linkdb1, linkdb2}, false, false);
     LOG.fine("* reading linkdb: " + output);
-    reader = new LinkDbReader(fs, output, conf);
+    reader = new LinkDbReader(conf, output);
     Iterator it = expected.keySet().iterator();
     while (it.hasNext()) {
       String url = (String)it.next();

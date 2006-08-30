@@ -9,17 +9,24 @@ import java.io.IOException;
 
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.crawl.LinkDbReader;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.io.UTF8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 
 public class LinkDbInlinks implements HitInlinks {
+  private static final Log LOG = LogFactory.getLog(LinkDbInlinks.class);
   
   private LinkDbReader linkdb = null;
   
   public LinkDbInlinks(FileSystem fs, Path dir, Configuration conf) {
-    linkdb = new LinkDbReader(fs, dir, conf);
+    try {
+      linkdb = new LinkDbReader(conf, dir);
+    } catch (Exception e) {
+      LOG.warn("Could not create LinkDbReader: " + e);
+    }
   }
 
   public String[] getAnchors(HitDetails details) throws IOException {

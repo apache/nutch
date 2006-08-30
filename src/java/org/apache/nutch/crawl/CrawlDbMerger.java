@@ -30,9 +30,11 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.UTF8;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.ToolBase;
 
 /**
  * This tool merges several CrawlDb-s into one, optionally filtering
@@ -49,32 +51,19 @@ import org.apache.nutch.util.NutchJob;
  * 
  * @author Andrzej Bialecki
  */
-public class CrawlDbMerger extends Configured {
+public class CrawlDbMerger extends ToolBase {
   private static final Log LOG = LogFactory.getLog(CrawlDbMerger.class);
 
   public static class Merger extends MapReduceBase implements Reducer {
-    private URLFilters filters = null;
     MapWritable meta = new MapWritable();
 
     public void close() throws IOException {}
 
     public void configure(JobConf conf) {
-      if (conf.getBoolean("crawldb.merger.urlfilters", false))
-        filters = new URLFilters(conf);
     }
 
     public void reduce(WritableComparable key, Iterator values, OutputCollector output, Reporter reporter)
             throws IOException {
-      if (filters != null) {
-        try {
-          if (filters.filter(((UTF8) key).toString()) == null)
-            return;
-        } catch (Exception e) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Can't filter " + key + ": " + e);
-          }
-        }
-      }
       CrawlDatum res = null;
       long resTime = 0L;
       meta.clear();
@@ -103,14 +92,17 @@ public class CrawlDbMerger extends Configured {
       output.collect(key, res);
     }
   }
-
+  
+  public CrawlDbMerger() {
+    
+  }
+  
   public CrawlDbMerger(Configuration conf) {
-    super(conf);
+    setConf(conf);
   }
 
-  public void merge(Path output, Path[] dbs, boolean filter) throws Exception {
-    JobConf job = createMergeJob(getConf(), output);
-    job.setBoolean("crawldb.merger.urlfilters", filter);
+  public void merge(Path output, Path[] dbs, boolean normalize, boolean filter) throws Exception {
+    JobConf job = createMergeJob(getConf(), output, normalize, filter);
     for (int i = 0; i < dbs.length; i++) {
       job.addInputPath(new Path(dbs[i], CrawlDatum.DB_DIR_NAME));
     }
@@ -120,7 +112,7 @@ public class CrawlDbMerger extends Configured {
     fs.rename(job.getOutputPath(), new Path(output, CrawlDatum.DB_DIR_NAME));
   }
 
-  public static JobConf createMergeJob(Configuration conf, Path output) {
+  public static JobConf createMergeJob(Configuration conf, Path output, boolean normalize, boolean filter) {
     Path newCrawlDb = new Path("crawldb-merge-" + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     JobConf job = new NutchJob(conf);
@@ -130,6 +122,9 @@ public class CrawlDbMerger extends Configured {
     job.setInputKeyClass(UTF8.class);
     job.setInputValueClass(CrawlDatum.class);
 
+    job.setMapperClass(CrawlDbFilter.class);
+    job.setBoolean(CrawlDbFilter.URL_FILTERING, filter);
+    job.setBoolean(CrawlDbFilter.URL_NORMALIZING, normalize);
     job.setReducerClass(Merger.class);
 
     job.setOutputPath(newCrawlDb);
@@ -144,25 +139,39 @@ public class CrawlDbMerger extends Configured {
    * @param args
    */
   public static void main(String[] args) throws Exception {
+    int res = new CrawlDbMerger().doMain(NutchConfiguration.create(), args);
+    System.exit(res);
+  }
+  
+  public int run(String[] args) throws Exception {
     if (args.length < 2) {
-      System.err.println("CrawlDbMerger output_crawldb crawldb1 [crawldb2 crawldb3 ...] [-filter]");
+      System.err.println("Usage: CrawlDbMerger <output_crawldb> <crawldb1> [<crawldb2> <crawldb3> ...] [-normalize] [-filter]");
       System.err.println("\toutput_crawldb\toutput CrawlDb");
-      System.err.println("\tcrawldb1 ...\tinput CrawlDb-s");
+      System.err.println("\tcrawldb1 ...\tinput CrawlDb-s (single input CrawlDb is ok)");
+      System.err.println("\t-normalize\tuse URLNormalizer on urls in the crawldb(s) (usually not needed)");
       System.err.println("\t-filter\tuse URLFilters on urls in the crawldb(s)");
-      return;
+      return -1;
     }
-    Configuration conf = NutchConfiguration.create();
     Path output = new Path(args[0]);
     ArrayList dbs = new ArrayList();
     boolean filter = false;
+    boolean normalize = false;
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-filter")) {
         filter = true;
         continue;
+      } else if (args[i].equals("-normalize")) {
+        normalize = true;
+        continue;
       }
       dbs.add(new Path(args[i]));
     }
-    CrawlDbMerger merger = new CrawlDbMerger(conf);
-    merger.merge(output, (Path[]) dbs.toArray(new Path[dbs.size()]), filter);
+    try {
+      merge(output, (Path[]) dbs.toArray(new Path[dbs.size()]), normalize, filter);
+      return 0;
+    } catch (Exception e) {
+      LOG.fatal("CrawlDb merge: " + StringUtils.stringifyException(e));
+      return -1;
+    }
   }
 }

@@ -29,14 +29,18 @@ import org.apache.hadoop.fs.*;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.util.StringUtils;
 
 import org.apache.nutch.net.URLFilters;
+import org.apache.nutch.net.UrlNormalizer;
+import org.apache.nutch.net.UrlNormalizerFactory;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.ToolBase;
 
 /** Maintains an inverted link map, listing incoming links for each url. */
-public class LinkDb extends Configured implements Mapper, Reducer {
+public class LinkDb extends ToolBase implements Mapper, Reducer {
 
   public static final Log LOG = LogFactory.getLog(LinkDb.class);
 
@@ -45,30 +49,18 @@ public class LinkDb extends Configured implements Mapper, Reducer {
   private int maxAnchorLength;
   private int maxInlinks;
   private boolean ignoreInternalLinks;
+  private URLFilters urlFilters;
+  private UrlNormalizer urlNormalizer;
   
   public static class Merger extends MapReduceBase implements Reducer {
     private int _maxInlinks;
-    private URLFilters filters = null;
     
     public void configure(JobConf job) {
       super.configure(job);
       _maxInlinks = job.getInt("db.max.inlinks", 10000);
-      if (job.getBoolean("linkdb.merger.urlfilters", false)) {
-        filters = new URLFilters(job);
-      }
     }
 
     public void reduce(WritableComparable key, Iterator values, OutputCollector output, Reporter reporter) throws IOException {
-      if (filters != null) {
-        try {
-          if (filters.filter(((UTF8)key).toString()) == null)
-            return;
-        } catch (Exception e) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Can't filter " + key + ": " + e);
-          }
-        }
-      }
       Inlinks inlinks = null;
       while (values.hasNext()) {
         if (inlinks == null) {
@@ -82,16 +74,6 @@ public class LinkDb extends Configured implements Mapper, Reducer {
             return;
           }
           Inlink in = (Inlink)it.next();
-          if (filters != null) {
-            try {
-              if (filters.filter(in.getFromUrl()) == null)
-                continue;
-            } catch (Exception e) {
-              if (LOG.isDebugEnabled()) {
-                LOG.debug("Can't filter " + key + ": " + e);
-              }
-            }
-          }
           inlinks.add(in);
         }
       }
@@ -101,18 +83,23 @@ public class LinkDb extends Configured implements Mapper, Reducer {
   }
 
   public LinkDb() {
-    super(null);
+    
   }
-
-  /** Construct an LinkDb. */
+  
   public LinkDb(Configuration conf) {
-    super(conf);
+    setConf(conf);
   }
-
+  
   public void configure(JobConf job) {
     maxAnchorLength = job.getInt("db.max.anchor.length", 100);
     maxInlinks = job.getInt("db.max.inlinks", 10000);
     ignoreInternalLinks = job.getBoolean("db.ignore.internal.links", true);
+    if (job.getBoolean(LinkDbFilter.URL_FILTERING, false)) {
+      urlFilters = new URLFilters(job);
+    }
+    if (job.getBoolean(LinkDbFilter.URL_NORMALIZING, false)) {
+      urlNormalizer = new UrlNormalizerFactory(job).getNormalizer();
+    }
   }
 
   public void close() {}
@@ -122,7 +109,23 @@ public class LinkDb extends Configured implements Mapper, Reducer {
     throws IOException {
     String fromUrl = key.toString();
     String fromHost = getHost(fromUrl);
-
+    if (urlNormalizer != null) {
+      try {
+        fromUrl = urlNormalizer.normalize(fromUrl); // normalize the url
+      } catch (Exception e) {
+        LOG.warn("Skipping " + fromUrl + ":" + e);
+        fromUrl = null;
+      }
+    }
+    if (fromUrl != null && urlFilters != null) {
+      try {
+        fromUrl = urlFilters.filter(fromUrl); // filter the url
+      } catch (Exception e) {
+        LOG.warn("Skipping " + fromUrl + ":" + e);
+        fromUrl = null;
+      }
+    }
+    if (fromUrl == null) return; // discard all outlinks
     ParseData parseData = (ParseData)value;
     Outlink[] outlinks = parseData.getOutlinks();
     Inlinks inlinks = new Inlinks();
@@ -136,7 +139,23 @@ public class LinkDb extends Configured implements Mapper, Reducer {
           continue;                               // skip it
         }
       }
-
+      if (urlNormalizer != null) {
+        try {
+          toUrl = urlNormalizer.normalize(toUrl); // normalize the url
+        } catch (Exception e) {
+          LOG.warn("Skipping " + toUrl + ":" + e);
+          toUrl = null;
+        }
+      }
+      if (toUrl != null && urlFilters != null) {
+        try {
+          toUrl = urlFilters.filter(toUrl); // filter the url
+        } catch (Exception e) {
+          LOG.warn("Skipping " + toUrl + ":" + e);
+          toUrl = null;
+        }
+      }
+      if (toUrl == null) continue;
       inlinks.clear();
       String anchor = outlink.getAnchor();        // truncate long anchors
       if (anchor.length() > maxAnchorLength) {
@@ -183,7 +202,7 @@ public class LinkDb extends Configured implements Mapper, Reducer {
     output.collect(key, result);
   }
 
-  public void invert(Path linkDb, final Path segmentsDir) throws IOException {
+  public void invert(Path linkDb, final Path segmentsDir, boolean normalize, boolean filter) throws IOException {
     final FileSystem fs = FileSystem.get(getConf());
     Path[] files = fs.listPaths(segmentsDir, new PathFilter() {
       public boolean accept(Path f) {
@@ -193,16 +212,18 @@ public class LinkDb extends Configured implements Mapper, Reducer {
         return false;
       }
     });
-    invert(linkDb, files);
+    invert(linkDb, files, normalize, filter);
   }
 
-  public void invert(Path linkDb, Path[] segments) throws IOException {
+  public void invert(Path linkDb, Path[] segments, boolean normalize, boolean filter) throws IOException {
 
     if (LOG.isInfoEnabled()) {
       LOG.info("LinkDb: starting");
       LOG.info("LinkDb: linkdb: " + linkDb);
+      LOG.info("LinkDb: URL normalize: " + normalize);
+      LOG.info("LinkDb: URL filter: " + filter);
     }
-    JobConf job = LinkDb.createJob(getConf(), linkDb);
+    JobConf job = LinkDb.createJob(getConf(), linkDb, normalize, filter);
     for (int i = 0; i < segments.length; i++) {
       if (LOG.isInfoEnabled()) {
         LOG.info("LinkDb: adding segment: " + segments[i]);
@@ -217,7 +238,7 @@ public class LinkDb extends Configured implements Mapper, Reducer {
       }
       // try to merge
       Path newLinkDb = job.getOutputPath();
-      job = LinkDb.createMergeJob(getConf(), linkDb);
+      job = LinkDb.createMergeJob(getConf(), linkDb, normalize, filter);
       job.addInputPath(new Path(linkDb, CURRENT_NAME));
       job.addInputPath(newLinkDb);
       JobClient.runJob(job);
@@ -227,7 +248,7 @@ public class LinkDb extends Configured implements Mapper, Reducer {
     if (LOG.isInfoEnabled()) { LOG.info("LinkDb: done"); }
   }
 
-  private static JobConf createJob(Configuration config, Path linkDb) {
+  private static JobConf createJob(Configuration config, Path linkDb, boolean normalize, boolean filter) {
     Path newLinkDb =
       new Path("linkdb-" +
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
@@ -240,6 +261,18 @@ public class LinkDb extends Configured implements Mapper, Reducer {
     job.setInputValueClass(ParseData.class);
 
     job.setMapperClass(LinkDb.class);
+    // if we don't run the mergeJob, perform normalization/filtering now
+    if (normalize || filter) {
+      try {
+        FileSystem fs = FileSystem.get(config);
+        if (!fs.exists(linkDb)) {
+          job.setBoolean(LinkDbFilter.URL_FILTERING, filter);
+          job.setBoolean(LinkDbFilter.URL_NORMALIZING, normalize);
+        }
+      } catch (Exception e) {
+        LOG.warn("LinkDb createJob: " + e);
+      }
+    }
     job.setReducerClass(LinkDb.class);
 
     job.setOutputPath(newLinkDb);
@@ -251,7 +284,7 @@ public class LinkDb extends Configured implements Mapper, Reducer {
     return job;
   }
 
-  public static JobConf createMergeJob(Configuration config, Path linkDb) {
+  public static JobConf createMergeJob(Configuration config, Path linkDb, boolean normalize, boolean filter) {
     Path newLinkDb =
       new Path("linkdb-merge-" + 
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
@@ -263,6 +296,9 @@ public class LinkDb extends Configured implements Mapper, Reducer {
     job.setInputKeyClass(UTF8.class);
     job.setInputValueClass(Inlinks.class);
 
+    job.setMapperClass(LinkDbFilter.class);
+    job.setBoolean(LinkDbFilter.URL_NORMALIZING, normalize);
+    job.setBoolean(LinkDbFilter.URL_FILTERING, filter);
     job.setReducerClass(Merger.class);
 
     job.setOutputPath(newLinkDb);
@@ -287,17 +323,26 @@ public class LinkDb extends Configured implements Mapper, Reducer {
   }
 
   public static void main(String[] args) throws Exception {
-    Configuration conf = NutchConfiguration.create();
-    LinkDb linkDb = new LinkDb(conf);
-    
+    int res = new LinkDb().doMain(NutchConfiguration.create(), args);
+    System.exit(res);
+  }
+  
+  public int run(String[] args) throws Exception {
     if (args.length < 2) {
-      System.err.println("Usage: LinkDb <linkdb> (-dir segmentsDir | segment1 segment2 ...)");
-      return;
+      System.err.println("Usage: LinkDb <linkdb> (-dir <segmentsDir> | <seg1> <seg2> ...) [-noNormalizing] [-noFiltering]");
+      System.err.println("\tlinkdb\toutput LinkDb to create or update");
+      System.err.println("\t-dir segmentsDir\tparent directory of several segments, OR");
+      System.err.println("\tseg1 seg2 ...\t list of segment directories");
+      System.err.println("\t-noNormalizing\tdon't normalize link URLs");
+      System.err.println("\t-noFiltering\tdon't apply URLFilters to link URLs");
+      return -1;
     }
     Path segDir = null;
     final FileSystem fs = FileSystem.get(conf);
     Path db = new Path(args[0]);
     ArrayList segs = new ArrayList();
+    boolean filter = true;
+    boolean normalize = true;
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-dir")) {
         segDir = new Path(args[++i]);
@@ -311,9 +356,19 @@ public class LinkDb extends Configured implements Mapper, Reducer {
         });
         if (files != null) segs.addAll(Arrays.asList(files));
         break;
+      } else if (args[i].equalsIgnoreCase("-noNormalize")) {
+        normalize = false;
+      } else if (args[i].equalsIgnoreCase("-noFilter")) {
+        filter = false;
       } else segs.add(new Path(args[i]));
     }
-    linkDb.invert(db, (Path[])segs.toArray(new Path[segs.size()]));
+    try {
+      invert(db, (Path[])segs.toArray(new Path[segs.size()]), normalize, filter);
+      return 0;
+    } catch (Exception e) {
+      LOG.fatal("LinkDb: " + StringUtils.stringifyException(e));
+      return -1;
+    }
   }
 
 

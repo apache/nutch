@@ -27,32 +27,41 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.util.StringUtils;
 
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.ToolBase;
 
 /**
  * This class takes the output of the fetcher and updates the
  * crawldb accordingly.
  */
-public class CrawlDb extends Configured {
+public class CrawlDb extends ToolBase {
 
   public static final Log LOG = LogFactory.getLog(CrawlDb.class);
-
-  /** Construct an CrawlDb. */
+  
+  public CrawlDb() {
+    
+  }
+  
   public CrawlDb(Configuration conf) {
-    super(conf);
+    setConf(conf);
   }
 
-  public void update(Path crawlDb, Path segment) throws IOException {
+  public void update(Path crawlDb, Path segment, boolean normalize, boolean filter) throws IOException {
     
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb update: starting");
       LOG.info("CrawlDb update: db: " + crawlDb);
       LOG.info("CrawlDb update: segment: " + segment);
+      LOG.info("CrawlDb update: URL normalizing: " + normalize);
+      LOG.info("CrawlDb update: URL filtering: " + filter);
     }
 
     JobConf job = CrawlDb.createJob(getConf(), crawlDb);
+    job.setBoolean(CrawlDbFilter.URL_FILTERING, filter);
+    job.setBoolean(CrawlDbFilter.URL_NORMALIZING, normalize);
     job.addInputPath(new Path(segment, CrawlDatum.FETCH_DIR_NAME));
     job.addInputPath(new Path(segment, CrawlDatum.PARSE_DIR_NAME));
 
@@ -83,6 +92,7 @@ public class CrawlDb extends Configured {
     job.setInputKeyClass(UTF8.class);
     job.setInputValueClass(CrawlDatum.class);
 
+    job.setMapperClass(CrawlDbFilter.class);
     job.setReducerClass(CrawlDbReducer.class);
 
     job.setOutputPath(newCrawlDb);
@@ -106,16 +116,36 @@ public class CrawlDb extends Configured {
   }
 
   public static void main(String[] args) throws Exception {
-    CrawlDb crawlDb = new CrawlDb(NutchConfiguration.create());
-    
-    if (args.length < 2) {
-      System.err.println("Usage: CrawlDb <crawldb> <segment>");
-      return;
-    }
-    
-    crawlDb.update(new Path(args[0]), new Path(args[1]));
+    int res = new CrawlDb().doMain(NutchConfiguration.create(), args);
+    System.exit(res);
   }
 
-
-
+  public int run(String[] args) throws Exception {
+    if (args.length < 2) {
+      System.err.println("Usage: CrawlDb <crawldb> <segment> [-normalize] [-filter]");
+      System.err.println("\tcrawldb\tCrawlDb to update");
+      System.err.println("\tsegment\tsegment name to update from");
+      System.err.println("\t-normalize\tuse URLNormalizer on urls in CrawlDb and segment (usually not needed)");
+      System.err.println("\t-filter\tuse URLFilters on urls in CrawlDb and segment");
+      return -1;
+    }
+    boolean normalize = false;
+    boolean filter = false;
+    if (args.length > 2) {
+      for (int i = 2; i < args.length; i++) {
+        if (args[i].equals("-normalize")) {
+          normalize = true;
+        } else if (args[i].equals("-filter")) {
+          filter = true;
+        }
+      }
+    }
+    try {
+      update(new Path(args[0]), new Path(args[1]), normalize, filter);
+      return 0;
+    } catch (Exception e) {
+      LOG.fatal("CrawlDb update: " + StringUtils.stringifyException(e));
+      return -1;
+    }
+  }
 }

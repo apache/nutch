@@ -23,7 +23,9 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.ToolBase;
 
 /**
  * This tool merges several LinkDb-s into one, optionally filtering
@@ -43,15 +45,17 @@ import org.apache.nutch.util.NutchConfiguration;
  * 
  * @author Andrzej Bialecki
  */
-public class LinkDbMerger extends Configured {
-
-  public LinkDbMerger(Configuration conf) {
-    super(conf);
+public class LinkDbMerger extends ToolBase {
+  public LinkDbMerger() {
+    
   }
   
-  public void merge(Path output, Path[] dbs, boolean filter) throws Exception {
-    JobConf job = LinkDb.createMergeJob(getConf(), output);
-    job.setBoolean("linkdb.merger.urlfilters", filter);
+  public LinkDbMerger(Configuration conf) {
+    setConf(conf);
+  }
+
+  public void merge(Path output, Path[] dbs, boolean normalize, boolean filter) throws Exception {
+    JobConf job = LinkDb.createMergeJob(getConf(), output, normalize, filter);
     for (int i = 0; i < dbs.length; i++) {
       job.addInputPath(new Path(dbs[i], LinkDb.CURRENT_NAME));      
     }
@@ -64,26 +68,37 @@ public class LinkDbMerger extends Configured {
    * @param args
    */
   public static void main(String[] args) throws Exception {
+    int res = new LinkDbMerger().doMain(NutchConfiguration.create(), args);
+    System.exit(res);
+  }
+  
+  public int run(String[] args) throws Exception {
     if (args.length < 2) {
-      System.err.println("LinkDbMerger output_linkdb linkdb1 [linkdb2 linkdb3 ...] [-filter]");
+      System.err.println("Usage: LinkDbMerger <output_linkdb> <linkdb1> [<linkdb2> <linkdb3> ...] [-normalize] [-filter]");
       System.err.println("\toutput_linkdb\toutput LinkDb");
-      System.err.println("\tlinkdb1 ...\tinput LinkDb-s");
+      System.err.println("\tlinkdb1 ...\tinput LinkDb-s (single input LinkDb is ok)");
+      System.err.println("\t-normalize\tuse URLNormalizer on both fromUrls and toUrls in linkdb(s) (usually not needed)");
       System.err.println("\t-filter\tuse URLFilters on both fromUrls and toUrls in linkdb(s)");
-      return;
+      return -1;
     }
-    Configuration conf = NutchConfiguration.create();
     Path output = new Path(args[0]);
     ArrayList dbs = new ArrayList();
+    boolean normalize = false;
     boolean filter = false;
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-filter")) {
         filter = true;
-        continue;
-      }
-      dbs.add(new Path(args[i]));
+      } else if (args[i].equals("-normalize")) {
+        normalize = true;
+      } else dbs.add(new Path(args[i]));
     }
-    LinkDbMerger merger = new LinkDbMerger(conf);
-    merger.merge(output, (Path[])dbs.toArray(new Path[dbs.size()]), filter);
+    try {
+      merge(output, (Path[])dbs.toArray(new Path[dbs.size()]), normalize, filter);
+      return 0;
+    } catch (Exception e) {
+      LOG.fatal("LinkDbMerger: " + StringUtils.stringifyException(e));
+      return -1;
+    }
   }
 
 }

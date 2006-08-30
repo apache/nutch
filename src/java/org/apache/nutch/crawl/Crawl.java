@@ -100,27 +100,36 @@ public class Crawl {
     Path index = new Path(dir + "/index");
 
     Path tmpDir = job.getLocalPath("crawl"+Path.SEPARATOR+getDate());
+    Injector injector = new Injector(conf);
+    Generator generator = new Generator(conf);
+    Fetcher fetcher = new Fetcher(conf);
+    ParseSegment parseSegment = new ParseSegment(conf);
+    CrawlDb crawlDbTool = new CrawlDb(conf);
+    LinkDb linkDbTool = new LinkDb(conf);
+    Indexer indexer = new Indexer(conf);
+    DeleteDuplicates dedup = new DeleteDuplicates(conf);
+    IndexMerger merger = new IndexMerger(conf);
       
     // initialize crawlDb
-    new Injector(job).inject(crawlDb, rootUrlDir);
+    injector.inject(crawlDb, rootUrlDir);
       
     for (int i = 0; i < depth; i++) {             // generate new segment
       Path segment =
-        new Generator(job).generate(crawlDb, segments, -1,
+        generator.generate(crawlDb, segments, -1,
                                      topN, System.currentTimeMillis());
-      new Fetcher(job).fetch(segment, threads, Fetcher.isParsing(job));  // fetch it
+      fetcher.fetch(segment, threads, Fetcher.isParsing(job));  // fetch it
       if (!Fetcher.isParsing(job)) {
-        new ParseSegment(job).parse(segment);    // parse it, if needed
+        parseSegment.parse(segment);    // parse it, if needed
       }
-      new CrawlDb(job).update(crawlDb, segment); // update crawldb
+      crawlDbTool.update(crawlDb, segment, true, true); // update crawldb
     }
       
-    new LinkDb(job).invert(linkDb, segments); // invert links
+    linkDbTool.invert(linkDb, segments, true, true); // invert links
 
     // index, dedup & merge
-    new Indexer(job).index(indexes, crawlDb, linkDb, fs.listPaths(segments));
-    new DeleteDuplicates(job).dedup(new Path[] { indexes });
-    new IndexMerger(fs, fs.listPaths(indexes), index, tmpDir, job).merge();
+    indexer.index(indexes, crawlDb, linkDb, fs.listPaths(segments));
+    dedup.dedup(new Path[] { indexes });
+    merger.merge(fs.listPaths(indexes), index, tmpDir);
 
     if (LOG.isInfoEnabled()) { LOG.info("crawl finished: " + dir); }
   }
