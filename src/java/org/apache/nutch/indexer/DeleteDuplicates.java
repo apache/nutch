@@ -27,9 +27,11 @@ import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.Progressable;
+import org.apache.hadoop.util.StringUtils;
 
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.ToolBase;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.document.Document;
@@ -38,7 +40,7 @@ import org.apache.lucene.document.Document;
  * Deletes duplicate documents in a set of Lucene indexes.
  * Duplicates have either the same contents (via MD5 hash) or the same URL.
  ******************************************************************/
-public class DeleteDuplicates extends Configured
+public class DeleteDuplicates extends ToolBase
   implements Mapper, Reducer, OutputFormat {
   private static final Log LOG = LogFactory.getLog(DeleteDuplicates.class);
 
@@ -236,10 +238,6 @@ public class DeleteDuplicates extends Configured
     
   private FileSystem fs;
 
-  public DeleteDuplicates() { super(null); }
-
-  public DeleteDuplicates(Configuration conf) { super(conf); }
-
   public void configure(JobConf job) {
     setConf(job);
     try {
@@ -288,6 +286,14 @@ public class DeleteDuplicates extends Configured
       };
   }
 
+  public DeleteDuplicates() {
+    
+  }
+  
+  public DeleteDuplicates(Configuration conf) {
+    setConf(conf);
+  }
+  
   public void checkOutputSpecs(FileSystem fs, JobConf job) {}
 
   public void dedup(Path[] indexDirs)
@@ -350,19 +356,28 @@ public class DeleteDuplicates extends Configured
   }
 
   public static void main(String[] args) throws Exception {
-    DeleteDuplicates dedup = new DeleteDuplicates(NutchConfiguration.create());
+    int res = new DeleteDuplicates().doMain(NutchConfiguration.create(), args);
+    System.exit(res);
+  }
+  
+  public int run(String[] args) throws Exception {
     
     if (args.length < 1) {
       System.err.println("Usage: <indexes> ...");
-      return;
+      return -1;
     }
     
     Path[] indexes = new Path[args.length];
     for (int i = 0; i < args.length; i++) {
       indexes[i] = new Path(args[i]);
     }
-
-    dedup.dedup(indexes);
+    try {
+      dedup(indexes);
+      return 0;
+    } catch (Exception e) {
+      LOG.fatal("DeleteDuplicates: " + StringUtils.stringifyException(e));
+      return -1;
+    }
   }
 
 }

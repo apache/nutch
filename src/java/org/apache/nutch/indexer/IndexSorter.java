@@ -27,13 +27,18 @@ import org.apache.lucene.store.*;
 import org.apache.lucene.search.*;
 
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.ToolBase;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.util.StringUtils;
 
 /** Sort a Nutch index by page score.  Higher scoring documents are assigned
  * smaller document numbers. */
-public class IndexSorter {
-
+public class IndexSorter extends ToolBase {
+  private static final Log LOG = LogFactory.getLog(IndexSorter.class);
+  
   private static class PostingMap implements Comparable {
     private int newDoc;
     private long offset;
@@ -221,13 +226,18 @@ public class IndexSorter {
     }
   }
 
-  private File directory;
-
-  public IndexSorter(File directory) {
-    this.directory = directory;
+  public IndexSorter() {
+    
   }
-
-  public void sort(int termIndexInterval) throws IOException {
+  
+  public IndexSorter(Configuration conf) {
+    setConf(conf);
+  }
+  
+  public void sort(File directory) throws IOException {
+    LOG.info("IndexSorter: starting.");
+    Date start = new Date();
+    int termIndexInterval = getConf().getInt("indexer.termIndexInterval", 128);
     IndexReader reader = IndexReader.open(new File(directory, "index"));
 
     SortingReader sorter = new SortingReader(reader, oldToNew(reader));
@@ -238,6 +248,9 @@ public class IndexSorter {
     writer.setUseCompoundFile(false);
     writer.addIndexes(new IndexReader[] { sorter });
     writer.close();
+    Date end = new Date();
+    LOG.info("IndexSorter: done, " + (end.getTime() - start.getTime())
+        + " total milliseconds");
   }
 
   private static int[] oldToNew(IndexReader reader) throws IOException {
@@ -271,28 +284,29 @@ public class IndexSorter {
 
   /** */
   public static void main(String[] args) throws Exception {
+    int res = new IndexSorter().doMain(NutchConfiguration.create(), args);
+    System.exit(res);
+  }
+  
+  public int run(String[] args) throws Exception {
     File directory;
       
     String usage = "IndexSorter directory";
 
     if (args.length < 1) {
       System.err.println("Usage: " + usage);
-      return;
+      return -1;
     }
 
     directory = new File(args[0]);
 
-    IndexSorter sorter = new IndexSorter(directory);
-
-    Date start = new Date();
-    Configuration conf = NutchConfiguration.create();
-    int termIndexInterval = conf.getInt("indexer.termIndexInterval", 128);
-    sorter.sort(termIndexInterval);
-
-    Date end = new Date();
-
-    System.out.print(end.getTime() - start.getTime());
-    System.out.println(" total milliseconds");
+    try {
+      sort(directory);
+      return 0;
+    } catch (Exception e) {
+      LOG.fatal("IndexSorter: " + StringUtils.stringifyException(e));
+      return -1;
+    }
   }
 
 }

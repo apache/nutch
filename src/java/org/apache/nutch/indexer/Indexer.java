@@ -28,6 +28,7 @@ import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.Progressable;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.analysis.*;
 
@@ -36,6 +37,7 @@ import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.ToolBase;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
@@ -46,7 +48,7 @@ import org.apache.lucene.document.*;
 import org.apache.nutch.metadata.Metadata;
 
 /** Create indexes for segments. */
-public class Indexer extends Configured implements Reducer {
+public class Indexer extends ToolBase implements Reducer {
   
   public static final String DONE_NAME = "index.done";
 
@@ -151,14 +153,13 @@ public class Indexer extends Configured implements Reducer {
   private ScoringFilters scfilters;
 
   public Indexer() {
-    super(null);
+    
   }
-
-  /** Construct an Indexer. */
+  
   public Indexer(Configuration conf) {
-    super(conf);
+    setConf(conf);
   }
-
+  
   public void configure(JobConf job) {
     setConf(job);
     this.filters = new IndexingFilters(getConf());
@@ -298,11 +299,15 @@ public class Indexer extends Configured implements Reducer {
   }
 
   public static void main(String[] args) throws Exception {
-    Indexer indexer = new Indexer(NutchConfiguration.create());
+    int res = new Indexer().doMain(NutchConfiguration.create(), args);
+    System.exit(res);
+  }
+  
+  public int run(String[] args) throws Exception {
     
     if (args.length < 4) {
       System.err.println("Usage: <index> <crawldb> <linkdb> <segment> ...");
-      return;
+      return -1;
     }
     
     Path[] segments = new Path[args.length-3];
@@ -310,8 +315,14 @@ public class Indexer extends Configured implements Reducer {
       segments[i-3] = new Path(args[i]);
     }
 
-    indexer.index(new Path(args[0]), new Path(args[1]), new Path(args[2]),
+    try {
+      index(new Path(args[0]), new Path(args[1]), new Path(args[2]),
                   segments);
+      return 0;
+    } catch (Exception e) {
+      LOG.fatal("Indexer: " + StringUtils.stringifyException(e));
+      return -1;
+    }
   }
 
 }

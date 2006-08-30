@@ -28,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.fs.Path;
 
 import org.apache.nutch.net.URLFilterException;
@@ -36,9 +37,10 @@ import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.ToolBase;
 
 /** Generates a subset of a crawl db to fetch. */
-public class Generator extends Configured {
+public class Generator extends ToolBase {
 
   public static final Log LOG = LogFactory.getLog(Generator.class);
   
@@ -260,11 +262,14 @@ public class Generator extends Configured {
     }
   }
 
-  /** Construct a generator. */
-  public Generator(Configuration conf) {
-    super(conf);
+  public Generator() {
+    
   }
-
+  
+  public Generator(Configuration conf) {
+    setConf(conf);
+  }
+  
   /** Generate fetchlists in a segment. */
   public Path generate(Path dbDir, Path segments)
     throws IOException {
@@ -364,9 +369,14 @@ public class Generator extends Configured {
    * Generate a fetchlist from the pagedb and linkdb
    */
   public static void main(String args[]) throws Exception {
+    int res = new Generator().doMain(NutchConfiguration.create(), args);
+    System.exit(res);
+  }
+  
+  public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.out.println("Usage: Generator <crawldb> <segments_dir> [-topN N] [-numFetchers numFetchers] [-adddays numDays]");
-      return;
+      return -1;
     }
 
     Path dbDir = new Path(args[0]);
@@ -391,7 +401,12 @@ public class Generator extends Configured {
     if ((LOG.isInfoEnabled()) && (topN != Long.MAX_VALUE)) {
       LOG.info("topN: " + topN);
     }
-    Generator gen = new Generator(NutchConfiguration.create());
-    gen.generate(dbDir, segmentsDir, numFetchers, topN, curTime);
+    try {
+      generate(dbDir, segmentsDir, numFetchers, topN, curTime);
+      return 0;
+    } catch (Exception e) {
+      LOG.fatal("Generator: " + StringUtils.stringifyException(e));
+      return -1;
+    }
   }
 }

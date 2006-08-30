@@ -100,7 +100,7 @@ public class TestCrawlDbMerger extends TestCase {
     createCrawlDb(fs, crawldb2, init2, cd2);
     CrawlDbMerger merger = new CrawlDbMerger(conf);
     LOG.fine("* merging crawldbs to " + output);
-    merger.merge(output, new Path[]{crawldb1, crawldb2}, false);
+    merger.merge(output, new Path[]{crawldb1, crawldb2}, false, false);
     LOG.fine("* reading crawldb: " + output);
     reader = new CrawlDbReader();
     String crawlDb = output.toString();
