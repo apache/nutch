@@ -96,7 +96,8 @@ public class TestFetcher extends TestCase {
     time=System.currentTimeMillis()-time;
     
     //verify politeness, time taken should be more than (num_of_pages +1)*delay
-    assertTrue(1000*time > (urls.size() + 1 * conf.getInt("fetcher.server.delay",5)));
+    int minimumTime=(int) ((urls.size()+1)*1000*conf.getFloat("fetcher.server.delay",5));
+    assertTrue(time > minimumTime);
     
     //verify results
     Path content=new Path(new Path(generatedSegment, Content.DIR_NAME),"part-00000/data");
