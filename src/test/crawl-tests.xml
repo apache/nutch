@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<!-- Configuration overrides used during unit tests. -->
+
+<configuration>
+
+<property>
+  <name>plugin.includes</name>
+  <value>urlfilter-suffix|scoring-opic</value>
+  <description>Enable required plugins.</description>
+</property>
+
+</configuration>
