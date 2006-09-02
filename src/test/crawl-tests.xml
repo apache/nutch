@@ -18,14 +18,7 @@
 
 <property>
   <name>fetcher.server.delay</name>
-  <value>1.0</value>
-  <description>The number of seconds the fetcher will delay between 
-   successive requests to the same server.</description>
-</property>
-
-<property>
-  <name>fetcher.server.delay</name>
-  <value>1.0</value>
+  <value>0.2</value>
   <description>The number of seconds the fetcher will delay between 
    successive requests to the same server.</description>
 </property>
