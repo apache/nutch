@@ -18,11 +18,9 @@ package org.apache.nutch.crawl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
@@ -42,7 +40,6 @@ import junit.framework.TestCase;
  */
 public class TestInjector extends TestCase {
 
-  private FSDataOutputStream out;
   private Configuration conf;
   private FileSystem fs;
   final static Path testdir=new Path("build/test/inject-test");
@@ -50,7 +47,7 @@ public class TestInjector extends TestCase {
   Path urlPath;
   
   protected void setUp() throws Exception {
-    conf = CrawlDBTestUtil.create();
+    conf = CrawlDBTestUtil.createConfiguration();
     urlPath=new Path(testdir,"urls");
     crawldbPath=new Path(testdir,"crawldb");
     fs=FileSystem.get(conf);
@@ -66,7 +63,7 @@ public class TestInjector extends TestCase {
     for(int i=0;i<100;i++) {
       urls.add("http://zzz/" + i + ".html");
     }
-    generateSeedList(urls);
+    CrawlDBTestUtil.generateSeedList(fs, urlPath, urls);
     
     Injector injector=new Injector(conf);
     injector.inject(crawldbPath, urlPath);
@@ -87,7 +84,7 @@ public class TestInjector extends TestCase {
     for(int i=0;i<100;i++) {
       urls2.add("http://xxx/" + i + ".html");
     }
-    generateSeedList(urls2);
+    CrawlDBTestUtil.generateSeedList(fs, urlPath, urls2);
     injector.inject(crawldbPath, urlPath);
     urls.addAll(urls2);
     
@@ -103,24 +100,6 @@ public class TestInjector extends TestCase {
     assertTrue(read.containsAll(urls));
     assertTrue(urls.containsAll(read));
     
-  }
-  
-  /**
-   * Generate seedlist
-   * @throws IOException 
-   */
-  private void generateSeedList(List<String> contents) throws IOException{
-    Path file=new Path(urlPath,"urls.txt");
-    fs.mkdirs(urlPath);
-    out=fs.create(file);
-    Iterator<String> iterator=contents.iterator();
-    while(iterator.hasNext()){
-      String url=iterator.next();
-      out.writeBytes(url);
-      out.writeBytes("\n");
-    }
-    out.flush();
-    out.close();
   }
   
   private List<String> readCrawldb() throws IOException{
