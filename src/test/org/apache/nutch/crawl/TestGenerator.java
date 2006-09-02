@@ -50,7 +50,7 @@ public class TestGenerator extends TestCase {
   FileSystem fs;
 
   protected void setUp() throws Exception {
-    conf = CrawlDBTestUtil.create();
+    conf = CrawlDBTestUtil.createConfiguration();
   }
 
   protected void tearDown() {

@@ -6,8 +6,33 @@
 
 <property>
   <name>plugin.includes</name>
-  <value>urlfilter-suffix|scoring-opic</value>
+  <value>parse-html|protocol-http|urlfilter-suffix|scoring-opic</value>
   <description>Enable required plugins.</description>
+</property>
+
+<property>
+  <name>content.server.port</name>
+  <value>55000</value>
+  <description>Port of http server serving content.</description>
+</property>
+
+<property>
+  <name>fetcher.server.delay</name>
+  <value>1.0</value>
+  <description>The number of seconds the fetcher will delay between 
+   successive requests to the same server.</description>
+</property>
+
+<property>
+  <name>fetcher.server.delay</name>
+  <value>1.0</value>
+  <description>The number of seconds the fetcher will delay between 
+   successive requests to the same server.</description>
+</property>
+
+<property>
+  <name>http.agent.name</name>
+  <value>test-nutch</value>
 </property>
 
 </configuration>

@@ -15,16 +15,24 @@
  */
 package org.apache.nutch.crawl;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.UTF8;
+import org.mortbay.http.HttpContext;
+import org.mortbay.http.SocketListener;
+import org.mortbay.http.handler.ResourceHandler;
+import org.mortbay.jetty.Server;
 
 public class CrawlDBTestUtil {
 
@@ -62,8 +70,20 @@ public class CrawlDBTestUtil {
    * set values.
    * 
    * @return
+   * @deprecated Use {@link #createConfiguration()} instead
    */
   public static Configuration create(){
+    return createConfiguration();
+  }
+
+  /**
+   * For now we need to manually construct our Configuration, because we need to
+   * override the default one and it is currently not possible to use dynamically
+   * set values.
+   * 
+   * @return
+   */
+  public static Configuration createConfiguration(){
     Configuration conf=new Configuration();
     conf.addDefaultResource("nutch-default.xml");
     conf.addFinalResource("crawl-tests.xml");
@@ -80,5 +100,45 @@ public class CrawlDBTestUtil {
       this.url = url;
       this.datum = datum;
     }
+  }
+  
+  /**
+   * Generate seedlist
+   * @throws IOException 
+   */
+  public static void generateSeedList(FileSystem fs, Path urlPath, List<String> contents) throws IOException{
+    FSDataOutputStream out;
+    Path file=new Path(urlPath,"urls.txt");
+    fs.mkdirs(urlPath);
+    out=fs.create(file);
+    Iterator<String> iterator=contents.iterator();
+    while(iterator.hasNext()){
+      String url=iterator.next();
+      out.writeBytes(url);
+      out.writeBytes("\n");
+    }
+    out.flush();
+    out.close();
+  }
+  
+  /**
+   * Creates a new JettyServer with one static root context
+   * 
+   * @param port port to listen to
+   * @param staticContent folder where static content lives
+   * @throws UnknownHostException 
+   */
+  public static Server getServer(int port, String staticContent) throws UnknownHostException{
+    Server webServer = new org.mortbay.jetty.Server();
+    SocketListener listener = new SocketListener();
+    listener.setPort(port);
+    listener.setHost("127.0.0.1");
+    webServer.addListener(listener);
+    HttpContext staticContext = new HttpContext();
+    staticContext.setContextPath("/");
+    staticContext.setResourceBase(staticContent);
+    staticContext.addHandler(new ResourceHandler());
+    webServer.addContext(staticContext);
+    return webServer;
   }
 }
