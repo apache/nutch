@@ -49,13 +49,16 @@ public class TestGenerator extends TestCase {
 
   FileSystem fs;
 
+  final static Path testdir=new Path("build/test/generator-test");
+
   protected void setUp() throws Exception {
     conf = CrawlDBTestUtil.createConfiguration();
+    fs=FileSystem.get(conf);
+    fs.delete(testdir);
   }
 
   protected void tearDown() {
-    delete(dbDir);
-    delete(segmentsDir);
+    delete(testdir);
   }
 
   private void delete(Path p) {
@@ -73,7 +76,7 @@ public class TestGenerator extends TestCase {
   public void testGenerateHighest() throws Exception {
 
     int NUM_RESULTS=2;
-    
+ 
     ArrayList<URLCrawlDatum> list = new ArrayList<URLCrawlDatum>();
     
     for(int i=0;i<=100;i++){
@@ -81,9 +84,8 @@ public class TestGenerator extends TestCase {
         new CrawlDatum(CrawlDatum.STATUS_DB_UNFETCHED, 1, i)));
     }
     
-    fs = FileSystem.get(conf);
-    dbDir = new Path("test-crawldb-" + new java.util.Random().nextInt());
-    segmentsDir = new Path("test-crawldb-segments" + new java.util.Random().nextInt());
+    dbDir = new Path(testdir, "crawldb");
+    segmentsDir = new Path(testdir, "segments");
     fs.mkdirs(dbDir);
     fs.mkdirs(segmentsDir);
     
@@ -92,9 +94,9 @@ public class TestGenerator extends TestCase {
     
     // generate segment
     Generator g=new Generator(conf);
-    Path generatedSegment=g.generate(dbDir, segmentsDir,0,NUM_RESULTS, Long.MAX_VALUE);
+    Path generatedSegment=g.generate(dbDir, segmentsDir, -1, NUM_RESULTS, Long.MAX_VALUE);
     
-    Path fetchlist=new Path(new Path(generatedSegment, CrawlDatum.GENERATE_DIR_NAME),"part-00000");
+    Path fetchlist=new Path(new Path(generatedSegment, CrawlDatum.GENERATE_DIR_NAME), "part-00000");
     
     // verify results
     SequenceFile.Reader reader=new SequenceFile.Reader(fs, fetchlist, conf);
