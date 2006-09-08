@@ -180,6 +180,31 @@ public class TestMapWritable extends TestCase {
     assertEquals(before, after);
   }
 
+  public void testRecycling() throws Exception {
+    UTF8 value = new UTF8("value");
+    UTF8 key1 = new UTF8("a");
+    UTF8 key2 = new UTF8("b");
+
+    MapWritable writable = new MapWritable();
+    writable.put(key1, value);
+    assertEquals(writable.get(key1), value);
+    assertNull(writable.get(key2));
+
+    DataOutputBuffer dob = new DataOutputBuffer();
+    writable.write(dob);
+    writable.clear();
+    writable.put(key1, value);
+    writable.put(key2, value);
+    assertEquals(writable.get(key1), value);
+    assertEquals(writable.get(key2), value);
+
+    DataInputBuffer dib = new DataInputBuffer();
+    dib.reset(dob.getData(), dob.getLength());
+    writable.readFields(dib);
+    assertEquals(writable.get(key1), value);
+    assertNull(writable.get(key2));
+  }
+
   public static void main(String[] args) throws Exception {
     TestMapWritable writable = new TestMapWritable();
     writable.testPerformance();
