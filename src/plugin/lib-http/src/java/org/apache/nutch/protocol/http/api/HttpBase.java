@@ -158,7 +158,7 @@ public abstract class HttpBase implements Protocol {
         this.maxCrawlDelay = (long)(conf.getInt("fetcher.max.crawl.delay", -1) * 1000);
         // backward-compatible default setting
         this.byIP = conf.getBoolean("fetcher.threads.per.host.by.ip", true);
-        this.useHttp11 = conf.getBoolean("http.http11", false);
+        this.useHttp11 = conf.getBoolean("http.useHttp11", false);
         this.robots.setConf(conf);
         logConf();
     }
