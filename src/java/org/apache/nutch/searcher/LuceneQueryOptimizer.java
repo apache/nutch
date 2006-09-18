@@ -104,8 +104,10 @@ class LuceneQueryOptimizer {
       super(numHits);
       this.maxHits = maxHits;
       this.maxTicks = maxTicks;
-      this.timer = timer;
-      this.startTicks = timer.timeCounter;
+      if (timer != null) {
+    	this.timer = timer;
+        this.startTicks = timer.timeCounter;
+      }
     }
 
     public void collect(int doc, float score) {
