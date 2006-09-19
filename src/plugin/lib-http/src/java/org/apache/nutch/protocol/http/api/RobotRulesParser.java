@@ -420,6 +420,8 @@ public class RobotRulesParser implements Configurable {
 
     RobotRuleSet robotRules = (RobotRuleSet)CACHE.get(host);
 
+    boolean cacheRule = true;
+    
     if (robotRules == null) {                     // cache miss
       if (LOG.isTraceEnabled()) { LOG.trace("cache miss " + url); }
       try {
@@ -430,16 +432,22 @@ public class RobotRulesParser implements Configurable {
           robotRules = parseRules(response.getContent());
         else if ( (response.getCode() == 403) && (!allowForbidden) )
           robotRules = FORBID_ALL_RULES;            // use forbid all
-        else                                        
+        else if (response.getCode() >= 500) {
+	  cacheRule = false;
+	  robotRules = EMPTY_RULES;
+        }else                                        
           robotRules = EMPTY_RULES;                 // use default rules
       } catch (Throwable t) {
         if (LOG.isInfoEnabled()) {
           LOG.info("Couldn't get robots.txt for " + url + ": " + t.toString());
         }
+        cacheRule = false;
         robotRules = EMPTY_RULES;
       }
 
-      CACHE.put(host, robotRules);                // cache rules for host
+      if (cacheRule){
+	CACHE.put(host, robotRules);  // cache rules for host
+      }
     }
     return robotRules;
   }
