@@ -110,7 +110,10 @@ public class TestFetcher extends TestCase {
       UTF8 key=new UTF8();
       Content value=new Content();
       if(!reader.next(key, value)) break READ;
-      handledurls.add(key.toString());
+      String contentString=new String(value.getContent());
+      if(contentString.indexOf("Nutch fetcher test page")!=-1) { 
+        handledurls.add(key.toString());
+      }
     } while(true);
 
     reader.close();
