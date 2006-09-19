@@ -398,6 +398,14 @@ public class NutchBean
     }
   }
 
+  public long getProtocolVersion(String className, long arg1) throws IOException {
+    if(DistributedSearch.Protocol.class.getName().equals(className)){
+      return 1;
+    } else {
+      throw new IOException("Unknown Protocol classname:" + className);
+    }
+  }
+
 
 
 }
