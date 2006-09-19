@@ -30,6 +30,7 @@ import org.apache.nutch.crawl.Inlinks;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.ipc.RPC;
+import org.apache.hadoop.ipc.VersionedProtocol;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.FileSystem;
 
@@ -42,8 +43,8 @@ public class DistributedSearch {
   private DistributedSearch() {}                  // no public ctor
 
   /** The distributed search protocol. */
-  public interface Protocol
-    extends Searcher, HitDetailer, HitSummarizer, HitContent, HitInlinks {
+  public static interface Protocol
+    extends Searcher, HitDetailer, HitSummarizer, HitContent, HitInlinks, VersionedProtocol {
 
     /** The name of the segments searched by this node. */
     String[] getSegmentNames();
@@ -67,11 +68,15 @@ public class DistributedSearch {
       Path directory = new Path(args[1]);
 
       Configuration conf = NutchConfiguration.create();
-      NutchBean bean = new NutchBean(conf, directory);
 
-      org.apache.hadoop.ipc.Server server = RPC.getServer(bean, port, 10, true, conf);
+      org.apache.hadoop.ipc.Server server = getServer(conf, directory, port);
       server.start();
       server.join();
+    }
+    
+    static org.apache.hadoop.ipc.Server getServer(Configuration conf, Path directory, int port) throws IOException{
+      NutchBean bean = new NutchBean(conf, directory);
+      return RPC.getServer(bean, port, 10, true, conf);
     }
 
   }
