@@ -23,6 +23,9 @@ Unreleased changes (0.9-dev)
     
  8. NUTCH-338 - Remove the text parser as an option for parsing PDF files
     in parse-plugins.xml (Chris A. Mattmann via siren)
+    
+ 9. NUTCH-105 - Network error during robots.txt fetch causes file to
+    be ignored (Greg Kim via siren)
 
 Release 0.8 - 2006-07-25
 
