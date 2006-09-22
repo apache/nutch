@@ -29,6 +29,9 @@ Unreleased changes (0.9-dev)
     
 10. NUTCH-367 - DistributedSearch thown ClassCastException (siren)
 
+11. NUTCH-332 - Fix the problem of doubling scores caused by links pointing
+    to the current page (e.g. anchors). (Stefan Groschupf via ab)
+
 
 Release 0.8 - 2006-07-25
 
