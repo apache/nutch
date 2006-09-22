@@ -24,6 +24,10 @@ Unreleased changes (0.8.1)
 
  8. NUTCH-105 - Network error during robots.txt fetch causes file to
     beignored (Greg Kim via siren)
+
+ 9. Use a CombiningCollector when calculating readdb -stats. This
+    drastically reduces the size of intermediate data, resulting in
+    significant speed-ups for large databases (ab)
     
 Release 0.8 - 2006-07-25
 
