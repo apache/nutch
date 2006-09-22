@@ -19,15 +19,22 @@ package org.apache.nutch.crawl;
 import java.net.URL;
 import java.net.MalformedURLException;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
+import org.apache.nutch.net.URLNormalizers;
 
 /** Partition urls by hostname. */
 public class PartitionUrlByHost implements Partitioner {
+  private static final Log LOG = LogFactory.getLog(PartitionUrlByHost.class);
+  
   private int seed;
+  private URLNormalizers normalizers;
 
   public void configure(JobConf job) {
     seed = job.getInt("partition.url.by.host.seed", 0);
+    normalizers = new URLNormalizers(job, URLNormalizers.SCOPE_PARTITION);
   }
   
   public void close() {}
@@ -36,10 +43,16 @@ public class PartitionUrlByHost implements Partitioner {
   public int getPartition(WritableComparable key, Writable value,
                           int numReduceTasks) {
     String urlString = ((UTF8)key).toString();
+    try {
+      urlString = normalizers.normalize(urlString, URLNormalizers.SCOPE_PARTITION);
+    } catch (Exception e) {
+      LOG.warn("Malformed URL: '" + urlString + "'");
+    }
     URL url = null;
     try {
       url = new URL(urlString);
     } catch (MalformedURLException e) {
+      LOG.warn("Malformed URL: '" + urlString + "'");
     }
     int hashCode = (url==null ? urlString : url.getHost()).hashCode();
 

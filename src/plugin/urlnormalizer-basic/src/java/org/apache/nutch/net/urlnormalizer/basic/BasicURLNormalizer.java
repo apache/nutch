@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.net;
+package org.apache.nutch.net.urlnormalizer.basic;
 
 import java.net.URL;
 import java.net.MalformedURLException;
@@ -24,14 +24,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 // Nutch imports
+import org.apache.nutch.net.URLNormalizer;
 import org.apache.nutch.util.LogUtil;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.oro.text.regex.*;
 
 /** Converts URLs to a normal form . */
-public class BasicUrlNormalizer implements UrlNormalizer {
-    public static final Log LOG = LogFactory.getLog(BasicUrlNormalizer.class);
+public class BasicURLNormalizer implements URLNormalizer {
+    public static final Log LOG = LogFactory.getLog(BasicURLNormalizer.class);
 
     private Perl5Compiler compiler = new Perl5Compiler();
     private ThreadLocal matchers = new ThreadLocal() {
@@ -44,7 +45,7 @@ public class BasicUrlNormalizer implements UrlNormalizer {
 
     private Configuration conf;
 
-    public BasicUrlNormalizer() {
+    public BasicURLNormalizer() {
       try {
         // this pattern tries to find spots like "/xx/../" in the url, which
         // could be replaced by "/" xx consists of chars, different then "/"
@@ -68,7 +69,7 @@ public class BasicUrlNormalizer implements UrlNormalizer {
       }
     }
 
-    public String normalize(String urlString)
+    public String normalize(String urlString, String scope)
             throws MalformedURLException {
         if ("".equals(urlString))                     // permit empty
             return urlString;

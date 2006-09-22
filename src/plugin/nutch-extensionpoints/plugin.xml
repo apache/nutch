@@ -42,6 +42,10 @@
       name="Nutch URL Filter"/>
 
 <extension-point
+      id="org.apache.nutch.net.URLNormalizer"
+      name="Nutch URL Normalizer"/>
+
+<extension-point
       id="org.apache.nutch.analysis.NutchAnalyzer"
       name="Nutch Analysis"/>
 

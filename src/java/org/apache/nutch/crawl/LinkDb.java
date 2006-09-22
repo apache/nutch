@@ -32,8 +32,7 @@ import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.StringUtils;
 
 import org.apache.nutch.net.URLFilters;
-import org.apache.nutch.net.UrlNormalizer;
-import org.apache.nutch.net.UrlNormalizerFactory;
+import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
@@ -50,7 +49,7 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
   private int maxInlinks;
   private boolean ignoreInternalLinks;
   private URLFilters urlFilters;
-  private UrlNormalizer urlNormalizer;
+  private URLNormalizers urlNormalizers;
   
   public static class Merger extends MapReduceBase implements Reducer {
     private int _maxInlinks;
@@ -98,7 +97,7 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
       urlFilters = new URLFilters(job);
     }
     if (job.getBoolean(LinkDbFilter.URL_NORMALIZING, false)) {
-      urlNormalizer = new UrlNormalizerFactory(job).getNormalizer();
+      urlNormalizers = new URLNormalizers(job, URLNormalizers.SCOPE_LINKDB);
     }
   }
 
@@ -109,9 +108,9 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
     throws IOException {
     String fromUrl = key.toString();
     String fromHost = getHost(fromUrl);
-    if (urlNormalizer != null) {
+    if (urlNormalizers != null) {
       try {
-        fromUrl = urlNormalizer.normalize(fromUrl); // normalize the url
+        fromUrl = urlNormalizers.normalize(fromUrl, URLNormalizers.SCOPE_LINKDB); // normalize the url
       } catch (Exception e) {
         LOG.warn("Skipping " + fromUrl + ":" + e);
         fromUrl = null;
@@ -139,9 +138,9 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
           continue;                               // skip it
         }
       }
-      if (urlNormalizer != null) {
+      if (urlNormalizers != null) {
         try {
-          toUrl = urlNormalizer.normalize(toUrl); // normalize the url
+          toUrl = urlNormalizers.normalize(toUrl, URLNormalizers.SCOPE_LINKDB); // normalize the url
         } catch (Exception e) {
           LOG.warn("Skipping " + toUrl + ":" + e);
           toUrl = null;

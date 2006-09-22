@@ -40,7 +40,7 @@ import org.apache.hadoop.util.Progressable;
 public class ParseOutputFormat implements OutputFormat {
   private static final Log LOG = LogFactory.getLog(ParseOutputFormat.class);
 
-  private UrlNormalizer urlNormalizer;
+  private URLNormalizers urlNormalizers;
   private URLFilters filters;
   private ScoringFilters scfilters;
 
@@ -52,7 +52,7 @@ public class ParseOutputFormat implements OutputFormat {
   public RecordWriter getRecordWriter(FileSystem fs, JobConf job,
                                       String name, Progressable progress) throws IOException {
 
-    this.urlNormalizer = new UrlNormalizerFactory(job).getNormalizer();
+    this.urlNormalizers = new URLNormalizers(job, URLNormalizers.SCOPE_OUTLINK);
     this.filters = new URLFilters(job);
     this.scfilters = new ScoringFilters(job);
     final float interval = job.getFloat("db.default.fetch.interval", 30f);
@@ -116,7 +116,7 @@ public class ParseOutputFormat implements OutputFormat {
           for (int i = 0; i < links.length; i++) {
             String toUrl = links[i].getToUrl();
             try {
-              toUrl = urlNormalizer.normalize(toUrl); // normalize the url
+              toUrl = urlNormalizers.normalize(toUrl, URLNormalizers.SCOPE_OUTLINK); // normalize the url
               toUrl = filters.filter(toUrl);   // filter the url
             } catch (Exception e) {
               toUrl = null;

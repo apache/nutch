@@ -1,0 +1,11 @@
+# test simple removal of session id
+http://foo.com/foo.php?PHPSESSID=cdc993a493e899bed04f4d0c8a462a03 http://foo.com/foo.php
+
+# test removal of session id, and keep parameters before
+http://foo.com/foo.php?f=2&PHPSESSID=cdc993a493e899bed04f4d0c8a462a03 http://foo.com/foo.php?f=2
+
+# test removal of session id, and keep parameters after
+http://foo.com/foo.php?f=2&PHPSESSID=cdc993a493e899bed04f4d0c8a462a03&q=3 http://foo.com/foo.php?f=2&q=3
+
+# test removal of session id, and keep parameters after
+http://foo.com/foo.php?PHPSESSID=cdc993a493e899bed04f4d0c8a462a03&f=2 http://foo.com/foo.php?f=2

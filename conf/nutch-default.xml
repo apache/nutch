@@ -622,15 +622,29 @@
 <!-- URL normalizer properties -->
 
 <property>
-  <name>urlnormalizer.class</name>
-  <value>org.apache.nutch.net.BasicUrlNormalizer</value>
-  <description>Name of the class used to normalize URLs.</description>
+  <name>urlnormalizer.order</name>
+  <value>org.apache.nutch.net.urlnormalizer.basic.BasicURLNormalizer org.apache.nutch.net.urlnormalizer.regex.RegexURLNormalizer</value>
+  <description>Order in which normalizers will run. If any of these isn't
+  activated it will be silently skipped. If other normalizers not on the
+  list are activated, they will run in random order after the ones
+  specified here are run.
+  </description>
 </property>
 
 <property>
   <name>urlnormalizer.regex.file</name>
   <value>regex-normalize.xml</value>
-  <description>Name of the config file used by the RegexUrlNormalizer class.</description></property>
+  <description>Name of the config file used by the RegexUrlNormalizer class.
+  </description>
+</property>
+
+<property>
+  <name>urlnormalizer.loop.count</name>
+  <value>1</value>
+  <description>Optionally loop through normalizers several times, to make
+  sure that all transformations have been performed.
+  </description>
+</property>
 
 <!-- mime properties -->
 
@@ -669,7 +683,7 @@
 
 <property>
   <name>plugin.includes</name>
-  <value>protocol-http|urlfilter-regex|parse-(text|html|js)|index-basic|query-(basic|site|url)|summary-basic|scoring-opic</value>
+  <value>protocol-http|urlfilter-regex|parse-(text|html|js)|index-basic|query-(basic|site|url)|summary-basic|scoring-opic|urlnormalizer-(pass|regex|basic)</value>
   <description>Regular expression naming plugin directory names to
   include.  Any plugin not matching this expression is excluded.
   In any case you need at least include the nutch-extensionpoints plugin. By

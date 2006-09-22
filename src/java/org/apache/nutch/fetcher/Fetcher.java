@@ -83,7 +83,7 @@ public class Fetcher extends ToolBase implements MapRunnable {
     private URLFilters urlFilters;
     private ScoringFilters scfilters;
     private ParseUtil parseUtil;
-    private UrlNormalizer normalizer;
+    private URLNormalizers normalizers;
     private ProtocolFactory protocolFactory;
 
     public FetcherThread(Configuration conf) {
@@ -94,7 +94,7 @@ public class Fetcher extends ToolBase implements MapRunnable {
       this.scfilters = new ScoringFilters(conf);
       this.parseUtil = new ParseUtil(conf);
       this.protocolFactory = new ProtocolFactory(conf);
-      this.normalizer = new UrlNormalizerFactory(conf).getNormalizer();
+      this.normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_FETCHER);
     }
 
     public void run() {
@@ -155,7 +155,7 @@ public class Fetcher extends ToolBase implements MapRunnable {
                 if (pstatus != null && pstatus.isSuccess() &&
                         pstatus.getMinorCode() == ParseStatus.SUCCESS_REDIRECT) {
                   String newUrl = pstatus.getMessage();
-                  newUrl = normalizer.normalize(newUrl);
+                  newUrl = normalizers.normalize(newUrl, URLNormalizers.SCOPE_FETCHER);
                   newUrl = this.urlFilters.filter(newUrl);
                   if (newUrl != null && !newUrl.equals(url.toString())) {
                     url = new UTF8(newUrl);
@@ -174,7 +174,7 @@ public class Fetcher extends ToolBase implements MapRunnable {
               case ProtocolStatus.MOVED:         // redirect
               case ProtocolStatus.TEMP_MOVED:
                 String newUrl = status.getMessage();
-                newUrl = normalizer.normalize(newUrl);
+                newUrl = normalizers.normalize(newUrl, URLNormalizers.SCOPE_FETCHER);
                 newUrl = this.urlFilters.filter(newUrl);
                 if (newUrl != null && !newUrl.equals(url.toString())) {
                   url = new UTF8(newUrl);
