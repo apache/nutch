@@ -13,23 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.net;
+package org.apache.nutch.net.urlnormalizer.pass;
+
+
+import java.net.MalformedURLException;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
 
 import junit.framework.TestCase;
 
-public class TestUrlNormalizerFactory extends TestCase {
+public class TestPassURLNormalizer extends TestCase {
 
-  public void testGetNormalizer() {
-    Configuration conf=NutchConfiguration.create();
+  public void testPassURLNormalizer() {
+    Configuration conf = NutchConfiguration.create();
     
-    UrlNormalizerFactory factory=new UrlNormalizerFactory(conf);
+    PassURLNormalizer normalizer = new PassURLNormalizer();
+    normalizer.setConf(conf);
+    String url = "http://www.example.com/test/..//";
+    String result = null;
+    try {
+      result = normalizer.normalize(url, URLNormalizers.SCOPE_DEFAULT);
+    } catch (MalformedURLException mue) {
+      fail(mue.toString());
+    }
     
-    UrlNormalizer normalizer1=factory.getNormalizer();
-    UrlNormalizer normalizer2=factory.getNormalizer();
-    assertNotNull(normalizer1);
-    assertEquals(normalizer1, normalizer2);
+    assertEquals(url, result);
   }
 }

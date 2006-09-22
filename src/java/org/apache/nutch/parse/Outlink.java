@@ -20,7 +20,7 @@ import java.io.*;
 import java.net.MalformedURLException;
 
 import org.apache.hadoop.io.*;
-import org.apache.nutch.net.UrlNormalizerFactory;
+import org.apache.nutch.net.URLNormalizers;
 import org.apache.hadoop.conf.Configuration;
 
 /* An outgoing link from a page. */
@@ -32,7 +32,7 @@ public class Outlink implements Writable {
   public Outlink() {}
 
   public Outlink(String toUrl, String anchor, Configuration conf) throws MalformedURLException {
-    this.toUrl = new UrlNormalizerFactory(conf).getNormalizer().normalize(toUrl);
+    this.toUrl = new URLNormalizers(conf, URLNormalizers.SCOPE_OUTLINK).normalize(toUrl, URLNormalizers.SCOPE_OUTLINK);
     this.anchor = anchor;
   }
 

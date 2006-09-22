@@ -33,6 +33,7 @@ import org.apache.hadoop.fs.Path;
 
 import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
+import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.NutchConfiguration;
@@ -77,6 +78,7 @@ public class Generator extends ToolBase {
     private int maxPerHost;
     private Partitioner hostPartitioner = new PartitionUrlByHost();
     private URLFilters filters;
+    private URLNormalizers normalizers;
     private ScoringFilters scfilters;
     private SelectorEntry entry = new SelectorEntry();
     private FloatWritable sortValue = new FloatWritable();
@@ -89,7 +91,9 @@ public class Generator extends ToolBase {
       maxPerHost = job.getInt("generate.max.per.host", -1);
       byIP = job.getBoolean("generate.max.per.host.by.ip", false);
       filters = new URLFilters(job);
+      normalizers = new URLNormalizers(job, URLNormalizers.SCOPE_GENERATE_HOST_COUNT);
       scfilters = new ScoringFilters(job);
+      hostPartitioner.configure(job);
     }
 
     public void close() {}
@@ -169,6 +173,12 @@ public class Generator extends ToolBase {
               }
               continue;
             }
+          }
+          try {
+            host = normalizers.normalize(host, URLNormalizers.SCOPE_GENERATE_HOST_COUNT);
+            host = new URL(host).getHost().toLowerCase();
+          } catch (Exception e) {
+            LOG.warn("Malformed URL: '" + host + "', skipping");
           }
           IntWritable hostCount = (IntWritable)hostCounts.get(host);
           if (hostCount == null) {

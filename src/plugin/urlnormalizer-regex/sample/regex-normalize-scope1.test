@@ -1,0 +1,8 @@
+# test removal of subdomains
+http://www.foo.bar.com/ http://bar.com/
+
+# test removal of url path
+http://www.foo.bar.com/foo.php?PHPSESSID=cdc993a493e899bed04f4d0c8a462a03 http://bar.com/
+
+# test removal of urls in arguments
+https://www.foo.bar.com/foo.php?url=http://www.example.com/test.php https://bar.com/

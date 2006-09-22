@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!-- This is the configuration file for the RegexUrlNormalize Class.
+     This is intended so that users can specify substitutions to be
+     done on URLs. The regex engine that is used is Perl5 compatible.
+     The rules are applied to URLs in the order they occur in this file.  -->
+
+<!-- WATCH OUT: an xml parser reads this file an ampersands must be
+     expanded to &amp; -->
+
+<!-- The following rules show how to strip out session IDs 
+     that are 32 characters long and have the parameter 
+     name of PHPSESSID. Order does matter!  -->
+<regex-normalize>
+<regex>
+  <pattern>(\?|\&amp;|\&amp;amp;)PHPSESSID=[a-zA-Z0-9]{32}$</pattern>
+  <substitution></substitution>
+</regex>
+<regex>
+  <pattern>(\?|\&amp;|\&amp;amp;)PHPSESSID=[a-zA-Z0-9]{32}(\&amp;|\&amp;amp;)(.*)</pattern>
+  <substitution>$1$3</substitution>
+</regex>
+</regex-normalize>
+

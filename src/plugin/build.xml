@@ -58,6 +58,9 @@
      <ant dir="urlfilter-prefix" target="deploy"/>
      <ant dir="urlfilter-regex" target="deploy"/>
      <ant dir="urlfilter-suffix" target="deploy"/>
+     <ant dir="urlnormalizer-basic" target="deploy"/>
+     <ant dir="urlnormalizer-pass" target="deploy"/>
+     <ant dir="urlnormalizer-regex" target="deploy"/>
   </target>
 
   <!-- ====================================================== -->
@@ -85,6 +88,9 @@
      <ant dir="urlfilter-automaton" target="test"/>
      <ant dir="urlfilter-regex" target="test"/>
      <ant dir="urlfilter-suffix" target="test"/>
+     <ant dir="urlnormalizer-basic" target="test"/>
+     <ant dir="urlnormalizer-pass" target="test"/>
+     <ant dir="urlnormalizer-regex" target="test"/>
     </parallel>
   </target>
 
@@ -141,5 +147,8 @@
     <ant dir="urlfilter-prefix" target="clean"/>
     <ant dir="urlfilter-regex" target="clean"/>
     <ant dir="urlfilter-suffix" target="clean"/>
+    <ant dir="urlnormalizer-basic" target="clean"/>
+    <ant dir="urlnormalizer-pass" target="clean"/>
+    <ant dir="urlnormalizer-regex" target="clean"/>
   </target>
 </project>

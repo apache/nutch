@@ -44,16 +44,16 @@ public class Injector extends ToolBase {
 
   /** Normalize and filter injected urls. */
   public static class InjectMapper implements Mapper {
-    private UrlNormalizer urlNormalizer;
+    private URLNormalizers urlNormalizers;
     private float interval;
     private float scoreInjected;
     private JobConf jobConf;
     private URLFilters filters;
-    private ScoringFilters scfilters; 
+    private ScoringFilters scfilters;
 
     public void configure(JobConf job) {
       this.jobConf = job;
-      urlNormalizer = new UrlNormalizerFactory(jobConf).getNormalizer();
+      urlNormalizers = new URLNormalizers(job, URLNormalizers.SCOPE_INJECT);
       interval = jobConf.getFloat("db.default.fetch.interval", 30f);
       filters = new URLFilters(jobConf);
       scfilters = new ScoringFilters(jobConf);
@@ -69,7 +69,7 @@ public class Injector extends ToolBase {
       String url = value.toString();              // value is line of text
       // System.out.println("url: " +url);
       try {
-        url = urlNormalizer.normalize(url);       // normalize the url
+        url = urlNormalizers.normalize(url, URLNormalizers.SCOPE_INJECT);       // normalize the url
         url = filters.filter(url);             // filter the url
       } catch (Exception e) {
         if (LOG.isWarnEnabled()) { LOG.warn("Skipping " +url+":"+e); }

@@ -51,7 +51,8 @@ public class TestInjector extends TestCase {
     urlPath=new Path(testdir,"urls");
     crawldbPath=new Path(testdir,"crawldb");
     fs=FileSystem.get(conf);
-    
+    if (fs.exists(urlPath)) fs.delete(urlPath);
+    if (fs.exists(crawldbPath)) fs.delete(crawldbPath);
   }
   
   protected void tearDown() throws IOException{

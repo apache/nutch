@@ -28,8 +28,7 @@ import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.nutch.net.URLFilters;
-import org.apache.nutch.net.UrlNormalizer;
-import org.apache.nutch.net.UrlNormalizerFactory;
+import org.apache.nutch.net.URLNormalizers;
 
 /**
  * This class provides a way to separate the URL normalization
@@ -40,29 +39,34 @@ import org.apache.nutch.net.UrlNormalizerFactory;
 public class CrawlDbFilter implements Mapper {
   public static final String URL_FILTERING = "crawldb.url.filters";
 
-  public static final String URL_NORMALIZING = "crawldb.url.normalizer";
+  public static final String URL_NORMALIZING = "crawldb.url.normalizers";
+
+  public static final String URL_NORMALIZING_SCOPE = "crawldb.url.normalizers.scope";
 
   private boolean urlFiltering;
 
-  private boolean urlNormalizer;
+  private boolean urlNormalizers;
 
   private URLFilters filters;
 
-  private UrlNormalizer normalizer;
+  private URLNormalizers normalizers;
 
   private JobConf jobConf;
+  
+  private String scope;
 
   public static final Log LOG = LogFactory.getLog(CrawlDbFilter.class);
 
   public void configure(JobConf job) {
     this.jobConf = job;
     urlFiltering = job.getBoolean(URL_FILTERING, false);
-    urlNormalizer = job.getBoolean(URL_NORMALIZING, false);
+    urlNormalizers = job.getBoolean(URL_NORMALIZING, false);
     if (urlFiltering) {
       filters = new URLFilters(job);
     }
-    if (urlNormalizer) {
-      normalizer = new UrlNormalizerFactory(job).getNormalizer();
+    if (urlNormalizers) {
+      scope = job.get(URL_NORMALIZING_SCOPE, URLNormalizers.SCOPE_CRAWLDB);
+      normalizers = new URLNormalizers(job, scope);
     }
   }
 
@@ -71,9 +75,9 @@ public class CrawlDbFilter implements Mapper {
   public void map(WritableComparable key, Writable value, OutputCollector output, Reporter reporter) throws IOException {
 
     String url = key.toString();
-    if (urlNormalizer) {
+    if (urlNormalizers) {
       try {
-        url = normalizer.normalize(url); // normalize the url
+        url = normalizers.normalize(url, scope); // normalize the url
       } catch (Exception e) {
         LOG.warn("Skipping " + url + ":" + e);
         url = null;

@@ -14,15 +14,25 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.net;
+package org.apache.nutch.net.urlnormalizer.basic;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
 
 import junit.framework.TestCase;
 
-/** Unit tests for BasicUrlNormalizer. */
-public class TestBasicUrlNormalizer extends TestCase {
-  public TestBasicUrlNormalizer(String name) { super(name); }
+/** Unit tests for BasicURLNormalizer. */
+public class TestBasicURLNormalizer extends TestCase {
+  private BasicURLNormalizer normalizer;
+  private Configuration conf;
+  
+  public TestBasicURLNormalizer(String name) {
+    super(name);
+    normalizer = new BasicURLNormalizer();
+    conf = NutchConfiguration.create();
+    normalizer.setConf(conf);
+  }
 
   public void testNormalizer() throws Exception {
     // check that leading and trailing spaces are removed
@@ -82,11 +92,11 @@ public class TestBasicUrlNormalizer extends TestCase {
   }
 
   private void normalizeTest(String weird, String normal) throws Exception {
-    assertEquals(normal, new UrlNormalizerFactory(NutchConfiguration.create()).getNormalizer().normalize(weird));
+    assertEquals(normal, normalizer.normalize(weird, URLNormalizers.SCOPE_DEFAULT));
   }
 	
   public static void main(String[] args) throws Exception {
-    new TestBasicUrlNormalizer("test").testNormalizer();
+    new TestBasicURLNormalizer("test").testNormalizer();
   }
 
 

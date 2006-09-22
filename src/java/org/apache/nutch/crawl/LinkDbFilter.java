@@ -28,8 +28,7 @@ import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.nutch.net.URLFilters;
-import org.apache.nutch.net.UrlNormalizer;
-import org.apache.nutch.net.UrlNormalizerFactory;
+import org.apache.nutch.net.URLNormalizers;
 
 /**
  * This class provides a way to separate the URL normalization
@@ -42,15 +41,19 @@ public class LinkDbFilter implements Mapper {
 
   public static final String URL_NORMALIZING = "linkdb.url.normalizer";
 
+  public static final String URL_NORMALIZING_SCOPE = "linkdb.url.normalizer.scope";
+
   private boolean filter;
 
   private boolean normalize;
 
   private URLFilters filters;
 
-  private UrlNormalizer normalizer;
+  private URLNormalizers normalizers;
 
   private JobConf jobConf;
+  
+  private String scope;
   
   public static final Log LOG = LogFactory.getLog(LinkDbFilter.class);
   
@@ -62,7 +65,8 @@ public class LinkDbFilter implements Mapper {
       filters = new URLFilters(job);
     }
     if (normalize) {
-      normalizer = new UrlNormalizerFactory(job).getNormalizer();
+      scope = job.get(URL_NORMALIZING_SCOPE, URLNormalizers.SCOPE_LINKDB);
+      normalizers = new URLNormalizers(job, scope);
     }
   }
 
@@ -72,7 +76,7 @@ public class LinkDbFilter implements Mapper {
     String url = key.toString();
     if (normalize) {
       try {
-        url = normalizer.normalize(url); // normalize the url
+        url = normalizers.normalize(url, scope); // normalize the url
       } catch (Exception e) {
         LOG.warn("Skipping " + url + ":" + e);
         url = null;
@@ -95,7 +99,7 @@ public class LinkDbFilter implements Mapper {
       fromUrl = inlink.getFromUrl();
       if (normalize) {
         try {
-          fromUrl = normalizer.normalize(fromUrl); // normalize the url
+          fromUrl = normalizers.normalize(fromUrl, scope); // normalize the url
         } catch (Exception e) {
           LOG.warn("Skipping " + fromUrl + ":" + e);
           fromUrl = null;
