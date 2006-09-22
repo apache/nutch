@@ -28,6 +28,9 @@ Unreleased changes (0.8.1)
  9. Use a CombiningCollector when calculating readdb -stats. This
     drastically reduces the size of intermediate data, resulting in
     significant speed-ups for large databases (ab)
+
+10. NUTCH-332 - Fix doubling score caused by links to self (Stefan
+    Groschupf via ab)
     
 Release 0.8 - 2006-07-25
 

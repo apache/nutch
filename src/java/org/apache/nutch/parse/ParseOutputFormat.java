@@ -121,6 +121,8 @@ public class ParseOutputFormat implements OutputFormat {
             } catch (Exception e) {
               toUrl = null;
             }
+            // ignore links to self (or anchors within the page)
+            if (fromUrl.equals(toUrl)) toUrl = null;
             if (toUrl != null) validCount++;
             toUrls[i] = toUrl;
           }
