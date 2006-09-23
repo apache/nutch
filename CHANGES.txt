@@ -38,6 +38,9 @@ Unreleased changes (0.8.1)
 
 12. NUTCH-337 - Fetcher ignores the fetcher.parse value (Stefan Groschupf
     via ab)
+
+13. NUTCH-350 - Urls blocked by http.max.delays incorrectly marked as GONE
+    (Stefan Groschupf via ab)
     
 Release 0.8 - 2006-07-25
 
