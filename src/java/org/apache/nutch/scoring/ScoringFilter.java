@@ -41,7 +41,21 @@ public interface ScoringFilter extends Configurable, Pluggable {
   public final static String X_POINT_ID = ScoringFilter.class.getName();
   
   /**
-   * Set an initial score for newly injected pages.
+   * Set an initial score for newly injected pages. Note: newly injected pages
+   * may have no inlinks, so filter implementations may wish to set this 
+   * score to a non-zero value, to give newly injected pages some initial
+   * credit.
+   * @param url url of the page
+   * @param datum new datum. Filters will modify it in-place.
+   * @throws ScoringFilterException
+   */
+  public void injectedScore(UTF8 url, CrawlDatum datum) throws ScoringFilterException;
+  
+  /**
+   * Set an initial score for newly discovered pages. Note: newly discovered pages
+   * have at least one inlink with its score contribution, so filter implementations
+   * may choose to set initial score to zero (unknown value), and then the inlink
+   * score contribution will set the "real" value of the new page.
    * @param url url of the page
    * @param datum new datum. Filters will modify it in-place.
    * @throws ScoringFilterException
