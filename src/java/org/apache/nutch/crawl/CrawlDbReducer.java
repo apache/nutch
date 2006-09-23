@@ -36,12 +36,10 @@ public class CrawlDbReducer implements Reducer {
   private CrawlDatum result = new CrawlDatum();
   private ArrayList linked = new ArrayList();
   private ScoringFilters scfilters = null;
-  private float scoreInjected;
 
   public void configure(JobConf job) {
     retryMax = job.getInt("db.fetch.retry.max", 3);
     scfilters = new ScoringFilters(job);
-    scoreInjected = job.getFloat("db.score.injected", 1.0f);
   }
 
   public void close() {}
@@ -112,7 +110,7 @@ public class CrawlDbReducer implements Reducer {
             LOG.warn("Cannot filter init score for url " + key +
                      ", using default: " + e.getMessage());
           }
-          result.setScore(scoreInjected);
+          result.setScore(0.0f);
         }
       }
       break;
