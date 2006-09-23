@@ -188,18 +188,24 @@ public class Fetcher extends Configured implements MapRunnable {
                 }
                 break;
 
+              // failures - increase the retry counter
               case ProtocolStatus.EXCEPTION:
                 logError(url, status.getMessage());
+              /* FALLTHROUGH */
               case ProtocolStatus.RETRY:          // retry
                 datum.setRetriesSinceFetch(datum.getRetriesSinceFetch()+1);
+              /* FALLTHROUGH */
+              // intermittent blocking - retry without increasing the counter
+              case ProtocolStatus.WOULDBLOCK:
+              case ProtocolStatus.BLOCKED:
                 output(url, datum, null, CrawlDatum.STATUS_FETCH_RETRY);
                 break;
                 
+              // permanent failures
               case ProtocolStatus.GONE:           // gone
               case ProtocolStatus.NOTFOUND:
               case ProtocolStatus.ACCESS_DENIED:
               case ProtocolStatus.ROBOTS_DENIED:
-              case ProtocolStatus.WOULDBLOCK:
               case ProtocolStatus.NOTMODIFIED:
                 output(url, datum, null, CrawlDatum.STATUS_FETCH_GONE);
                 break;
