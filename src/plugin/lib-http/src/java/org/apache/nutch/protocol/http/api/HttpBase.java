@@ -197,7 +197,12 @@ public abstract class HttpBase implements Protocol {
                 null, null, this.conf);
         return new ProtocolOutput(c, ProtocolStatus.STATUS_WOULDBLOCK);
       }
-      String host = blockAddr(u, delay);
+      String host;
+      try {
+        host = blockAddr(u, delay);
+      } catch (BlockedException be) {
+        return new ProtocolOutput(null, ProtocolStatus.STATUS_BLOCKED);
+      }
       Response response;
       try {
         response = getResponse(u, datum, false); // make a request
@@ -354,7 +359,7 @@ public abstract class HttpBase implements Protocol {
       }
       
       if (delays == maxDelays)
-        throw new HttpException("Exceeded http.max.delays: retry later.");
+        throw new BlockedException("Exceeded http.max.delays: retry later.");
       
       long done = time.longValue();
       long now = System.currentTimeMillis();
