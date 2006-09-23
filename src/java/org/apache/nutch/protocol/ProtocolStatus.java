@@ -64,7 +64,9 @@ public class ProtocolStatus extends VersionedWritable {
    * The expected number of milliseconds to wait before retry may be provided
    * in args. */
   public static final int WOULDBLOCK           = 22;
-  
+  /** Thread was blocked http.max.delays times during fetching. */
+  public static final int BLOCKED              = 23;
+   
   // Useful static instances for status codes that don't usually require any
   // additional arguments.
   public static final ProtocolStatus STATUS_SUCCESS = new ProtocolStatus(SUCCESS);
@@ -77,6 +79,7 @@ public class ProtocolStatus extends VersionedWritable {
   public static final ProtocolStatus STATUS_NOTFETCHING = new ProtocolStatus(NOTFETCHING);
   public static final ProtocolStatus STATUS_NOTMODIFIED = new ProtocolStatus(NOTMODIFIED);
   public static final ProtocolStatus STATUS_WOULDBLOCK = new ProtocolStatus(WOULDBLOCK);
+  public static final ProtocolStatus STATUS_BLOCKED = new ProtocolStatus(BLOCKED);
   
   private int code;
   private long lastModified;
@@ -99,6 +102,7 @@ public class ProtocolStatus extends VersionedWritable {
     codeToName.put(new Integer(NOTFETCHING), "notfetching");
     codeToName.put(new Integer(NOTMODIFIED), "notmodified");
     codeToName.put(new Integer(WOULDBLOCK), "wouldblock");
+    codeToName.put(new Integer(BLOCKED), "blocked");
   }
   
   public ProtocolStatus() {

@@ -32,6 +32,18 @@ Unreleased changes (0.9-dev)
 11. NUTCH-332 - Fix the problem of doubling scores caused by links pointing
     to the current page (e.g. anchors). (Stefan Groschupf via ab)
 
+12. NUTCH-365 - Flexible URL normalization (ab)
+
+13. NUTCH-336 - Differentiate between newly discovered pages and newly
+    injected pages (Chris Schneider via ab) NOTE: this changes the
+    scoring API, filter implementations need to be updated.
+
+14. NUTCH-337 - Fetcher ignores the fetcher.parse value (Stefan Groschupf
+    via ab)
+
+15. NUTCH-350 - Urls blocked by http.max.delays incorrectly marked as GONE
+    (Stefan Groschupf via ab)
+
 
 Release 0.8 - 2006-07-25
 
