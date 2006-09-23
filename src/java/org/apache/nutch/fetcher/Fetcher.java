@@ -405,7 +405,7 @@ public class Fetcher extends Configured implements MapRunnable {
     
   }
 
-  public void fetch(Path segment, int threads, boolean parsing)
+  public void fetch(Path segment, int threads)
     throws IOException {
 
     if (LOG.isInfoEnabled()) {
@@ -418,7 +418,6 @@ public class Fetcher extends Configured implements MapRunnable {
 
     job.setInt("fetcher.threads.fetch", threads);
     job.set(SEGMENT_NAME_KEY, segment.getName());
-    job.setBoolean("fetcher.parse", parsing);
 
     // for politeness, don't permit parallel execution of a single task
     job.setSpeculativeExecution(false);
@@ -469,7 +468,7 @@ public class Fetcher extends Configured implements MapRunnable {
     }
     Fetcher fetcher = new Fetcher(conf);          // make a Fetcher
     
-    fetcher.fetch(segment, threads, parsing);              // run the Fetcher
+    fetcher.fetch(segment, threads);              // run the Fetcher
 
   }
 }
