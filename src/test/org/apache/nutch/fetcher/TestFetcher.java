@@ -90,8 +90,9 @@ public class TestFetcher extends TestCase {
 
     long time=System.currentTimeMillis();
     //fetch
+    conf.setBoolean("fetcher.parse", true);
     Fetcher fetcher=new Fetcher(conf);
-    fetcher.fetch(generatedSegment, 1, true);
+    fetcher.fetch(generatedSegment, 1);
 
     time=System.currentTimeMillis()-time;
     
