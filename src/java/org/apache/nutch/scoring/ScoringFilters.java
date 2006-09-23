@@ -92,10 +92,17 @@ public class ScoringFilters extends Configured implements ScoringFilter {
     return initSort;
   }
 
-  /** Calculate a new initial score, used when adding new pages. */
+  /** Calculate a new initial score, used when adding newly discovered pages. */
   public void initialScore(UTF8 url, CrawlDatum datum) throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
       this.filters[i].initialScore(url, datum);
+    }
+  }
+
+  /** Calculate a new initial score, used when injecting new pages. */
+  public void injectedScore(UTF8 url, CrawlDatum datum) throws ScoringFilterException {
+    for (int i = 0; i < this.filters.length; i++) {
+      this.filters[i].injectedScore(url, datum);
     }
   }
 

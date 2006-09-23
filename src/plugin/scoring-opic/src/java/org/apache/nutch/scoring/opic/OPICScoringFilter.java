@@ -73,8 +73,14 @@ public class OPICScoringFilter implements ScoringFilter {
   }
 
   /** Set to the value defined in config, 1.0f by default. */
-  public void initialScore(UTF8 url, CrawlDatum datum) throws ScoringFilterException {
+  public void injectedScore(UTF8 url, CrawlDatum datum) throws ScoringFilterException {
     datum.setScore(scoreInjected);
+  }
+
+  /** Set to 0.0f (unknown value) - inlink contributions will bring it to
+   * a correct level. Newly discovered pages have at least one inlink. */
+  public void initialScore(UTF8 url, CrawlDatum datum) throws ScoringFilterException {
+    datum.setScore(0.0f);
   }
 
   /** Use {@link CrawlDatum#getScore()}. */
