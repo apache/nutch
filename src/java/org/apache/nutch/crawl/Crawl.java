@@ -117,7 +117,7 @@ public class Crawl {
       Path segment =
         generator.generate(crawlDb, segments, -1,
                                      topN, System.currentTimeMillis());
-      fetcher.fetch(segment, threads, Fetcher.isParsing(job));  // fetch it
+      fetcher.fetch(segment, threads);  // fetch it
       if (!Fetcher.isParsing(job)) {
         parseSegment.parse(segment);    // parse it, if needed
       }
