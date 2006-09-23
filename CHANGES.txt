@@ -31,6 +31,10 @@ Unreleased changes (0.8.1)
 
 10. NUTCH-332 - Fix doubling score caused by links to self (Stefan
     Groschupf via ab)
+
+11. NUTCH-336 - Differentiate between newly discovered pages and newly
+    injected pages (Chris Schneider via ab) NOTE: this changes the
+    scoring API, filter implementations need to be updated.
     
 Release 0.8 - 2006-07-25
 

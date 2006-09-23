@@ -78,10 +78,10 @@ public class Injector extends Configured {
         CrawlDatum datum = new CrawlDatum(CrawlDatum.STATUS_DB_UNFETCHED, interval);
         datum.setScore(scoreInjected);
         try {
-          scfilters.initialScore(value, datum);
+          scfilters.injectedScore(value, datum);
         } catch (ScoringFilterException e) {
           if (LOG.isWarnEnabled()) {
-            LOG.warn("Cannot filter init score for url " + url +
+            LOG.warn("Cannot filter injected score for url " + url +
                      ", using default (" + e.getMessage() + ")");
           }
           datum.setScore(scoreInjected);
