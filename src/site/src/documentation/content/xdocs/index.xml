@@ -15,6 +15,14 @@
       <title>News</title>
 
       <section>
+      <title>24 September 2006: Nutch 0.8.1 Released</title>
+      <p>The 0.8.1 release of Nutch is now available. This is a maintenance release to 0.8 branch fixing many serous bugs found in version 0.8.
+      See <a href="http://www.apache.org/dist/lucene/nutch/CHANGES-0.8.1.txt">
+      list of changes</a>  made in this version. The release is available
+      <a href="http://lucene.apache.org/nutch/release/">here</a>.</p>
+      </section>
+
+      <section>
       <title>25 July 2006: Nutch 0.8 Released</title>
       <p>The 0.8 release of Nutch is now available. This is the first release of Nutch based on
       hadoop architecure. See <a href="http://svn.apache.org/viewvc/lucene/nutch/tags/release-0.8/CHANGES.txt?view=markup">

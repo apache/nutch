@@ -6,7 +6,7 @@
 <document>
 
 <header>
-  <title>Nutch version 0.8 tutorial</title> 
+  <title>Nutch version 0.8.x tutorial</title> 
 </header> 
 
 <body>
@@ -366,7 +366,14 @@ index incoming anchor text with the pages.</p>
 </section>
 <section>
 <title>Searching</title>
-
+<p>
+Simplest way to verify the integrity of your crawl is to launch NutchBean from command line:
+</p>
+<source>bin/nutch org.apache.nutch.searcher.NutchBean apache</source>
+<p>
+After you have verified that the above command returns results you can proceed to
+setting up the web interface.
+</p>
 <p>To search you need to put the nutch war file into your servlet
 container.  (If instead of downloading a Nutch release you checked the
 sources out of SVN, then you'll first need to build the war file, with
