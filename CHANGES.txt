@@ -1,5 +1,9 @@
 Nutch Change Log
 
+Unreleased changes (0.8.2)
+
+ 1.
+
 Release 0.8.1 - 2006-09-24
 
  1. Changed log4j confiquration to log to stdout on commandline
