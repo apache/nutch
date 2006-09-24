@@ -5,7 +5,7 @@
 <meta content="Apache Forrest" name="Generator">
 <meta name="Forrest-version" content="0.7">
 <meta name="Forrest-skin-name" content="pelt">
-<title>Nutch version 0.8 tutorial</title>
+<title>Nutch version 0.8.x tutorial</title>
 <link type="text/css" href="skin/basic.css" rel="stylesheet">
 <link media="screen" type="text/css" href="skin/screen.css" rel="stylesheet">
 <link media="print" type="text/css" href="skin/print.css" rel="stylesheet">
@@ -84,7 +84,7 @@ document.write("<text>Last Published:</text> " + document.lastModified);
 <a href="tutorial.html">Tutorial (0.7.2)</a>
 </div>
 <div class="menupage">
-<div class="menupagetitle">Tutorial (0.8)</div>
+<div class="menupagetitle">Tutorial (0.8.x)</div>
 </div>
 <div class="menuitem">
 <a href="bot.html">Robot     </a>
@@ -96,7 +96,7 @@ document.write("<text>Last Published:</text> " + document.lastModified);
 <a href="apidocs/index.html">API Docs (0.7.2)</a>
 </div>
 <div class="menuitem">
-<a href="apidocs-0.8/index.html">API Docs (0.8)</a>
+<a href="apidocs-0.8.x/index.html">API Docs (0.8.x)</a>
 </div>
 <div class="menuitem">
 <a href="http://lucene.apache.org/nutch/nutch-nightly/docs/api/index.html">API Docs (nightly)</a>
@@ -139,7 +139,7 @@ document.write("<text>Last Published:</text> " + document.lastModified);
 <a class="dida" href="tutorial8.pdf"><img alt="PDF -icon" src="skin/images/pdfdoc.gif" class="skin"><br>
         PDF</a>
 </div>
-<h1>Nutch version 0.8 tutorial</h1>
+<h1>Nutch version 0.8.x tutorial</h1>
 <div id="minitoc-area">
 <ul class="minitoc">
 <li>
@@ -530,6 +530,14 @@ index incoming anchor text with the pages.</p>
 <p>Now we're ready to search!</p>
 <a name="N101D5"></a><a name="Searching"></a>
 <h3 class="h4">Searching</h3>
+<p>
+Simplest way to verify the integrity of your crawl is to launch NutchBean from command line:
+</p>
+<pre class="code">bin/nutch org.apache.nutch.searcher.NutchBean apache</pre>
+<p>
+After you have verified that the above command returns results you can proceed to
+setting up the web interface.
+</p>
 <p>To search you need to put the nutch war file into your servlet
 container.  (If instead of downloading a Nutch release you checked the
 sources out of SVN, then you'll first need to build the war file, with
