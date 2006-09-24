@@ -1,6 +1,6 @@
 Nutch Change Log
 
-Release 0.8 - 2006-09-24
+Release 0.8.1 - 2006-09-24
 
  1. Changed log4j confiquration to log to stdout on commandline
     tools (siren)
