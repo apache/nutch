@@ -16,6 +16,7 @@
 
 package org.apache.nutch.parse;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,7 +109,13 @@ public class OutlinkExtractor {
         }
         result = matcher.getMatch();
         url = result.group(0);
-        outlinks.add(new Outlink(url, anchor, conf));
+        url = result.group(0);
+        try {
+          Outlink outlink = new Outlink(url, anchor, conf);
+          outlinks.add(new Outlink(url, anchor, conf));
+        } catch (MalformedURLException mue) {
+          LOG.warn("Invalid url: '" + url + "', skipping.");
+        }
       }
     } catch (Exception ex) {
       // if the matcher fails (perhaps a malformed URL) we just log it and move on
