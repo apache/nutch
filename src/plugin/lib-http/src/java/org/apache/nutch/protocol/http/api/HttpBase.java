@@ -193,9 +193,7 @@ public abstract class HttpBase implements Protocol {
         // skip this page, otherwise the thread would block for too long.
         LOGGER.info("Skipping: " + u + " exceeds fetcher.max.crawl.delay, max="
                 + (maxCrawlDelay / 1000) + ", Crawl-Delay=" + (delay / 1000));
-        Content c = new Content(u.toString(), u.toString(), EMPTY_CONTENT,
-                null, null, this.conf);
-        return new ProtocolOutput(c, ProtocolStatus.STATUS_WOULDBLOCK);
+        return new ProtocolOutput(null, ProtocolStatus.STATUS_WOULDBLOCK);
       }
       String host;
       try {
