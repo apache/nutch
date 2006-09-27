@@ -9,7 +9,7 @@ Release 0.8.1 - 2006-09-24
  1. Changed log4j confiquration to log to stdout on commandline
     tools (siren)
     
- 2. NUTCH-260 - Updated hadoop.jar to contain patch from HADOOP-387
+ 2. NUTCH-266 - Updated hadoop.jar to contain patch from HADOOP-387
     (siren)
     
  3. NUTCH-344 - Fix for thread blocking issue (Greg Kim via siren)
