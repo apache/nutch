@@ -38,6 +38,7 @@ import org.apache.nutch.util.ToolBase;
  * crawldb accordingly.
  */
 public class CrawlDb extends ToolBase {
+  public static final String CRAWLDB_ADDITIONS_ALLOWED = "db.update.additions.allowed";
 
   public static final Log LOG = LogFactory.getLog(CrawlDb.class);
   
@@ -50,16 +51,23 @@ public class CrawlDb extends ToolBase {
   }
 
   public void update(Path crawlDb, Path segment, boolean normalize, boolean filter) throws IOException {
+    boolean additionsAllowed = getConf().getBoolean(CRAWLDB_ADDITIONS_ALLOWED, true);    
+    update(crawlDb, segment, normalize, filter, additionsAllowed);
+  }
+  
+  public void update(Path crawlDb, Path segment, boolean normalize, boolean filter, boolean additionsAllowed) throws IOException {
     
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb update: starting");
       LOG.info("CrawlDb update: db: " + crawlDb);
       LOG.info("CrawlDb update: segment: " + segment);
+      LOG.info("CrawlDb update: additions allowed: " + additionsAllowed);
       LOG.info("CrawlDb update: URL normalizing: " + normalize);
       LOG.info("CrawlDb update: URL filtering: " + filter);
     }
 
     JobConf job = CrawlDb.createJob(getConf(), crawlDb);
+    job.setBoolean(CRAWLDB_ADDITIONS_ALLOWED, additionsAllowed);
     job.setBoolean(CrawlDbFilter.URL_FILTERING, filter);
     job.setBoolean(CrawlDbFilter.URL_NORMALIZING, normalize);
     job.addInputPath(new Path(segment, CrawlDatum.FETCH_DIR_NAME));
@@ -122,26 +130,30 @@ public class CrawlDb extends ToolBase {
 
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
-      System.err.println("Usage: CrawlDb <crawldb> <segment> [-normalize] [-filter]");
+      System.err.println("Usage: CrawlDb <crawldb> <segment> [-normalize] [-filter] [-noAdditions]");
       System.err.println("\tcrawldb\tCrawlDb to update");
       System.err.println("\tsegment\tsegment name to update from");
       System.err.println("\t-normalize\tuse URLNormalizer on urls in CrawlDb and segment (usually not needed)");
       System.err.println("\t-filter\tuse URLFilters on urls in CrawlDb and segment");
+      System.err.println("\t-noAdditions\tonly update already existing URLs, don't add any newly discovered URLs");
       return -1;
     }
     boolean normalize = false;
     boolean filter = false;
+    boolean additionsAllowed = getConf().getBoolean(CRAWLDB_ADDITIONS_ALLOWED, true);
     if (args.length > 2) {
       for (int i = 2; i < args.length; i++) {
         if (args[i].equals("-normalize")) {
           normalize = true;
         } else if (args[i].equals("-filter")) {
           filter = true;
+        } else if (args[i].equals("-noAdditions")) {
+          additionsAllowed = false;
         }
       }
     }
     try {
-      update(new Path(args[0]), new Path(args[1]), normalize, filter);
+      update(new Path(args[0]), new Path(args[1]), normalize, filter, additionsAllowed);
       return 0;
     } catch (Exception e) {
       LOG.fatal("CrawlDb update: " + StringUtils.stringifyException(e));
