@@ -237,6 +237,15 @@
 </property>
 
 <property>
+  <name>db.update.additions.allowed</name>
+  <value>true</value>
+  <description>If true, updatedb will add newly discovered URLs, if false
+  only already existing URLs in the CrawlDb will be updated and no new
+  URLs will be added.
+  </description>
+</property>
+
+<property>
   <name>db.ignore.internal.links</name>
   <value>true</value>
   <description>If true, when adding new links to a page, links from

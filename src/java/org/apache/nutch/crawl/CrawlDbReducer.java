@@ -36,10 +36,12 @@ public class CrawlDbReducer implements Reducer {
   private CrawlDatum result = new CrawlDatum();
   private ArrayList linked = new ArrayList();
   private ScoringFilters scfilters = null;
+  private boolean additionsAllowed;
 
   public void configure(JobConf job) {
     retryMax = job.getInt("db.fetch.retry.max", 3);
     scfilters = new ScoringFilters(job);
+    additionsAllowed = job.getBoolean(CrawlDb.CRAWLDB_ADDITIONS_ALLOWED, true);
   }
 
   public void close() {}
@@ -74,6 +76,9 @@ public class CrawlDbReducer implements Reducer {
       }
     }
 
+    // if it doesn't already exist, skip it
+    if (old == null && !additionsAllowed) return;
+    
     // initialize with the latest version
     result.set(highest);
     if (old != null) {
