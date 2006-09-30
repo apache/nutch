@@ -464,7 +464,12 @@ public abstract class HttpBase implements Protocol {
 
     if (LOGGER.isTraceEnabled()) { LOGGER.trace("uncompressing...."); }
 
-    byte[] content = GZIPUtils.unzipBestEffort(compressed, getMaxContent());
+    byte[] content;
+    if (getMaxContent() >= 0) {
+        content = GZIPUtils.unzipBestEffort(compressed, getMaxContent());
+    } else {
+        content = GZIPUtils.unzipBestEffort(compressed);
+    } 
 
     if (content == null)
       throw new IOException("unzipBestEffort returned null");
