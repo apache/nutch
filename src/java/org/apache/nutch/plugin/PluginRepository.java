@@ -196,9 +196,7 @@ public class PluginRepository {
         LOG.warn(mde.getMessage());
       } catch (CircularDependencyException cde) {
         // Simply ignore this plugin
-        if (LOG.isWarnEnabled()) {
-          LOG.warn(cde.getMessage());
-        }
+        LOG.warn(cde.getMessage());
       }
     }
     return new ArrayList<PluginDescriptor>(checked.values());
@@ -359,15 +357,11 @@ public class PluginRepository {
       }
 
       if (!includes.matcher(id).matches()) {
-        if (LOG.isDebugEnabled()) {
-          LOG.debug("not including: " + id);
-        }
+        LOG.debug("not including: " + id);
         continue;
       }
       if (excludes.matcher(id).matches()) {
-        if (LOG.isDebugEnabled()) {
-          LOG.debug("excluding: " + id);
-        }
+        LOG.debug("excluding: " + id);
         continue;
       }
       map.put(plugin.getPluginId(), plugin);
