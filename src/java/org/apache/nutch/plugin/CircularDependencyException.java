@@ -1,5 +1,4 @@
 /*
-/**
  * Copyright 2005 The Apache Software Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,6 +23,8 @@ package org.apache.nutch.plugin;
  * @author J&eacute;r&ocirc;me Charron
  */
 public class CircularDependencyException extends Exception {
+
+  private static final long serialVersionUID = 1L;
 
   public CircularDependencyException(Throwable cause) {
     super(cause);

@@ -1,5 +1,4 @@
 /*
-/**
  * Copyright 2005 The Apache Software Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +15,6 @@
  */
 package org.apache.nutch.plugin;
 
-// JDK imports
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -26,15 +24,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import java.util.logging.Logger;
-
-// Commons Logging imports
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
-
 
 /**
  * The <code>PluginDescriptor</code> provide access to all meta information of
@@ -54,15 +46,15 @@ public class PluginDescriptor {
   private String fName;
   private String fProviderName;
   private HashMap fMessages = new HashMap();
-  private ArrayList fExtensionPoints = new ArrayList();
-  private ArrayList fDependencies = new ArrayList();
-  private ArrayList fExportedLibs = new ArrayList();
-  private ArrayList fNotExportedLibs = new ArrayList();
-  private ArrayList fExtensions = new ArrayList();
+  private ArrayList<ExtensionPoint> fExtensionPoints = new ArrayList<ExtensionPoint>();
+  private ArrayList<String> fDependencies = new ArrayList<String>();
+  private ArrayList<URL> fExportedLibs = new ArrayList<URL>();
+  private ArrayList<URL> fNotExportedLibs = new ArrayList<URL>();
+  private ArrayList<Extension> fExtensions = new ArrayList<Extension>();
   private PluginClassLoader fClassLoader;
   public static final Log LOG = LogFactory.getLog(PluginDescriptor.class);
   private Configuration fConf;
-  
+
   /**
    * Constructor
    * 
@@ -74,7 +66,8 @@ public class PluginDescriptor {
    * @param pPath
    */
   public PluginDescriptor(String pId, String pVersion, String pName,
-                          String pProviderName, String pPluginclazz, String pPath, Configuration conf) {
+      String pProviderName, String pPluginclazz, String pPath,
+      Configuration conf) {
     setPath(pPath);
     setPluginId(pId);
     setVersion(pVersion);
@@ -86,12 +79,14 @@ public class PluginDescriptor {
 
     this.fConf = conf;
   }
+
   /**
    * @param pPath
    */
   private void setPath(String pPath) {
     fPluginPath = pPath;
   }
+
   /**
    * Returns the name of the plugin.
    * 
@@ -100,33 +95,38 @@ public class PluginDescriptor {
   public String getName() {
     return fName;
   }
+
   /**
    * @param providerName
    */
   private void setProvidername(String providerName) {
     fProviderName = providerName;
   }
+
   /**
    * @param name
    */
   private void setName(String name) {
     fName = name;
   }
+
   /**
    * @param version
    */
   private void setVersion(String version) {
     fVersion = version;
   }
+
   /**
-   * Returns the fully qualified name of the class which implements the
-   * abstarct <code>Plugin</code> class.
+   * Returns the fully qualified name of the class which implements the abstarct
+   * <code>Plugin</code> class.
    * 
    * @return the name of this plug-in's runtime class or <code>null</code>.
    */
   public String getPluginClass() {
     return fPluginClass;
   }
+
   /**
    * Returns the unique identifier of the plug-in or <code>null</code>.
    * 
@@ -135,15 +135,16 @@ public class PluginDescriptor {
   public String getPluginId() {
     return fPluginId;
   }
+
   /**
    * Returns an array of extensions.
    * 
    * @return Exception[]
    */
   public Extension[] getExtensions() {
-    return (Extension[]) fExtensions.toArray(new Extension[fExtensions
-                                                           .size()]);
+    return fExtensions.toArray(new Extension[fExtensions.size()]);
   }
+
   /**
    * Adds a extension.
    * 
@@ -152,24 +153,27 @@ public class PluginDescriptor {
   public void addExtension(Extension pExtension) {
     fExtensions.add(pExtension);
   }
+
   /**
    * Sets the pluginClass.
    * 
    * @param pluginClass
-   *            The pluginClass to set
+   *          The pluginClass to set
    */
   private void setPluginClass(String pluginClass) {
     fPluginClass = pluginClass;
   }
+
   /**
    * Sets the plugin Id.
    * 
    * @param pluginId
-   *            The pluginId to set
+   *          The pluginId to set
    */
   private void setPluginId(String pluginId) {
     fPluginId = pluginId;
   }
+
   /**
    * Adds a extension point.
    * 
@@ -178,43 +182,46 @@ public class PluginDescriptor {
   public void addExtensionPoint(ExtensionPoint extensionPoint) {
     fExtensionPoints.add(extensionPoint);
   }
+
   /**
    * Returns a array of extension points.
    * 
    * @return ExtensionPoint[]
    */
   public ExtensionPoint[] getExtenstionPoints() {
-    return (ExtensionPoint[]) fExtensionPoints
-      .toArray(new ExtensionPoint[fExtensionPoints.size()]);
+    return fExtensionPoints
+        .toArray(new ExtensionPoint[fExtensionPoints.size()]);
   }
+
   /**
    * Returns a array of plugin ids.
    * 
    * @return String[]
    */
   public String[] getDependencies() {
-    return (String[]) fDependencies
-      .toArray(new String[fDependencies.size()]);
+    return fDependencies.toArray(new String[fDependencies.size()]);
   }
+
   /**
    * Adds a dependency
    * 
-   * @param pId
-   *            id of the dependent plugin
+   * @param pId id of the dependent plugin
    */
   public void addDependency(String pId) {
     fDependencies.add(pId);
   }
+
   /**
    * Adds a exported library with a relative path to the plugin directory.
    * 
    * @param pLibPath
    */
   public void addExportedLibRelative(String pLibPath)
-    throws MalformedURLException {
+      throws MalformedURLException {
     URL url = new File(getPluginPath() + File.separator + pLibPath).toURL();
     fExportedLibs.add(url);
   }
+
   /**
    * Returns the directory path of the plugin.
    * 
@@ -223,94 +230,93 @@ public class PluginDescriptor {
   public String getPluginPath() {
     return fPluginPath;
   }
+
   /**
    * Returns a array exported librareis as URLs
    * 
    * @return URL[]
    */
   public URL[] getExportedLibUrls() {
-    return (URL[]) fExportedLibs.toArray(new URL[0]);
+    return fExportedLibs.toArray(new URL[0]);
   }
+
   /**
    * Adds a not exported library with a plugin directory relative path.
    * 
    * @param pLibPath
    */
   public void addNotExportedLibRelative(String pLibPath)
-    throws MalformedURLException {
+      throws MalformedURLException {
     URL url = new File(getPluginPath() + File.separator + pLibPath).toURL();
     fNotExportedLibs.add(url);
   }
+
   /**
    * Returns a array of libraries as URLs that are not exported by the plugin.
    * 
    * @return URL[]
    */
   public URL[] getNotExportedLibUrls() {
-    return (URL[]) fNotExportedLibs
-      .toArray(new URL[fNotExportedLibs.size()]);
+    return fNotExportedLibs.toArray(new URL[fNotExportedLibs.size()]);
   }
+
   /**
    * Returns a cached classloader for a plugin. Until classloader creation all
-   * needed libraries are collected. A classloader use as first the plugins
-   * own libraries and add then all exported libraries of dependend plugins.
+   * needed libraries are collected. A classloader use as first the plugins own
+   * libraries and add then all exported libraries of dependend plugins.
    * 
    * @return PluginClassLoader the classloader for the plugin
    */
   public PluginClassLoader getClassLoader() {
     if (fClassLoader != null)
       return fClassLoader;
-    ArrayList arrayList = new ArrayList();
+    ArrayList<URL> arrayList = new ArrayList<URL>();
     arrayList.addAll(fExportedLibs);
     arrayList.addAll(fNotExportedLibs);
     arrayList.addAll(getDependencyLibs());
     File file = new File(getPluginPath());
-    File[] files = file.listFiles();
     try {
-      for (int i = 0; i < files.length; i++) {
-        File file2 = files[i];
+      for (File file2 : file.listFiles()) {
         if (file2.getAbsolutePath().endsWith("properties"))
           arrayList.add(file2.getParentFile().toURL());
       }
     } catch (MalformedURLException e) {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug(getPluginId() + " " + e.toString());
-      }
+      LOG.debug(getPluginId() + " " + e.toString());
     }
-    URL[] urls = (URL[]) arrayList.toArray(new URL[arrayList.size()]);
+    URL[] urls = arrayList.toArray(new URL[arrayList.size()]);
     fClassLoader = new PluginClassLoader(urls, PluginDescriptor.class
-                                         .getClassLoader());
+        .getClassLoader());
     return fClassLoader;
   }
+
   /**
    * @return Collection
    */
-  private ArrayList getDependencyLibs() {
-    ArrayList list = new ArrayList();
+  private ArrayList<URL> getDependencyLibs() {
+    ArrayList<URL> list = new ArrayList<URL>();
     collectLibs(list, this);
     return list;
   }
+
   /**
    * @param pLibs
    * @param pDescriptor
    */
-  private void collectLibs(ArrayList pLibs, PluginDescriptor pDescriptor) {
-    String[] pPluginIds = pDescriptor.getDependencies();
-    for (int i = 0; i < pPluginIds.length; i++) {
-      String id = pPluginIds[i];
-      PluginDescriptor descriptor = PluginRepository.get(fConf).getPluginDescriptor(id);
-      URL[] libs = descriptor.getExportedLibUrls();
-      for (int j = 0; j < libs.length; j++) {
-        URL url = libs[j];
+  private void collectLibs(ArrayList<URL> pLibs, PluginDescriptor pDescriptor) {
+
+    for (String id : pDescriptor.getDependencies()) {
+      PluginDescriptor descriptor = PluginRepository.get(fConf)
+          .getPluginDescriptor(id);
+      for (URL url: descriptor.getExportedLibUrls()) {
         pLibs.add(url);
       }
       collectLibs(pLibs, descriptor);
     }
   }
+
   /**
-   * Returns a I18N'd resource string. The resource bundles could
-   * be stored in root directory of a plugin in the well know i18n file name
-   * conventions.
+   * Returns a I18N'd resource string. The resource bundles could be stored in
+   * root directory of a plugin in the well know i18n file name conventions.
    * 
    * @param pKey
    * @param pLocale
@@ -318,10 +324,10 @@ public class PluginDescriptor {
    * @throws IOException
    */
   public String getResourceString(String pKey, Locale pLocale)
-    throws IOException {
+      throws IOException {
     if (fMessages.containsKey(pLocale.toString())) {
-      ResourceBundle bundle = (ResourceBundle) fMessages.get(pLocale
-                                                             .toString());
+      ResourceBundle bundle = (ResourceBundle) fMessages
+          .get(pLocale.toString());
       try {
         return bundle.getString(pKey);
       } catch (MissingResourceException e) {
@@ -330,7 +336,7 @@ public class PluginDescriptor {
     }
     try {
       ResourceBundle res = ResourceBundle.getBundle("messages", pLocale,
-                                                    getClassLoader());
+          getClassLoader());
       return res.getString(pKey);
     } catch (MissingResourceException x) {
       return '!' + pKey + '!';
@@ -340,7 +346,7 @@ public class PluginDescriptor {
   public String getProviderName() {
     return fProviderName;
   }
-  
+
   public String getVersion() {
     return fVersion;
   }
