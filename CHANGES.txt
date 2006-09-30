@@ -44,6 +44,10 @@ Unreleased changes (0.9-dev)
 15. NUTCH-350 - Urls blocked by http.max.delays incorrectly marked as GONE
     (Stefan Groschupf via ab)
 
+16. NUTCH-374 - when http.content.limit be set to -1 and  
+    Response.CONTENT_ENCODING is gzip or x-gzip , it can not fetch any thing 
+    (King Kong via pkosiorowski)
+
 
 Release 0.8 - 2006-07-25
 
