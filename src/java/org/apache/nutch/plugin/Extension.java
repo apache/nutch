@@ -1,5 +1,4 @@
 /*
-/**
  * Copyright 2005 The Apache Software Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,10 +14,12 @@
  * limitations under the License.
  */
 package org.apache.nutch.plugin;
+
 import java.util.HashMap;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configurable;
+
 /**
  * An <code>Extension</code> is a kind of listener descriptor that will be
  * installed on a concrete <code>ExtensionPoint</code> that acts as kind of
@@ -31,20 +32,22 @@ public class Extension {
   private String fId;
   private String fTargetPoint;
   private String fClazz;
-  private HashMap fAttributes;
+  private HashMap<String, String> fAttributes;
   private Configuration conf;
   private PluginRepository pluginRepository;
+
   /**
    * @param pDescriptor
-   *            a plugin descriptor
+   *          a plugin descriptor
    * @param pExtensionPoint
-   *            an extension porin
+   *          an extension porin
    * @param pId
-   *            an unique id of the plugin
+   *          an unique id of the plugin
    */
   public Extension(PluginDescriptor pDescriptor, String pExtensionPoint,
-                   String pId, String pExtensionClass, Configuration conf, PluginRepository pluginRepository) {
-    fAttributes = new HashMap();
+      String pId, String pExtensionClass, Configuration conf,
+      PluginRepository pluginRepository) {
+    fAttributes = new HashMap<String, String>();
     setDescriptor(pDescriptor);
     setExtensionPoint(pExtensionPoint);
     setId(pId);
@@ -52,23 +55,26 @@ public class Extension {
     this.conf = conf;
     this.pluginRepository = pluginRepository;
   }
+
   /**
    * @param point
    */
   private void setExtensionPoint(String point) {
     fTargetPoint = point;
   }
+
   /**
    * Returns a attribute value, that is setuped in the manifest file and is
    * definied by the extension point xml schema.
    * 
    * @param pKey
-   *            a key
+   *          a key
    * @return String a value
    */
   public String getAttribute(String pKey) {
-    return (String) fAttributes.get(pKey);
+    return fAttributes.get(pKey);
   }
+
   /**
    * Returns the full class name of the extension point implementation
    * 
@@ -77,6 +83,7 @@ public class Extension {
   public String getClazz() {
     return fClazz;
   }
+
   /**
    * Return the unique id of the extension.
    * 
@@ -85,38 +92,38 @@ public class Extension {
   public String getId() {
     return fId;
   }
+
   /**
    * Adds a attribute and is only used until model creation at plugin system
    * start up.
    * 
-   * @param pKey
-   *            a key
-   * @param pValue
-   *            a value
+   * @param pKey a key
+   * @param pValue a value
    */
   public void addAttribute(String pKey, String pValue) {
     fAttributes.put(pKey, pValue);
   }
+
   /**
-   * Sets the Class that implement the concret extension and is only used
-   * until model creation at system start up.
+   * Sets the Class that implement the concret extension and is only used until
+   * model creation at system start up.
    * 
-   * @param extensionClazz
-   *            The extensionClazz to set
+   * @param extensionClazz The extensionClasname to set
    */
   public void setClazz(String extensionClazz) {
     fClazz = extensionClazz;
   }
+
   /**
    * Sets the unique extension Id and is only used until model creation at
    * system start up.
    * 
-   * @param extensionID
-   *            The extensionID to set
+   * @param extensionID The extensionID to set
    */
   public void setId(String extensionID) {
     fId = extensionID;
   }
+
   /**
    * Returns the Id of the extension point, that is implemented by this
    * extension.
@@ -124,14 +131,15 @@ public class Extension {
   public String getTargetPoint() {
     return fTargetPoint;
   }
+
   /**
    * Return an instance of the extension implementatio. Before we create a
    * extension instance we startup the plugin if it is not already done. The
    * plugin instance and the extension instance use the same
-   * <code>PluginClassLoader</code>. Each Plugin use its own classloader.
-   * The PluginClassLoader knows only own <i>Plugin runtime libraries </i>
-   * setuped in the plugin manifest file and exported libraries of the
-   * depenedend plugins.
+   * <code>PluginClassLoader</code>. Each Plugin use its own classloader. The
+   * PluginClassLoader knows only own <i>Plugin runtime libraries </i> setuped
+   * in the plugin manifest file and exported libraries of the depenedend
+   * plugins.
    * 
    * @return Object An instance of the extension implementation
    */
@@ -149,8 +157,8 @@ public class Extension {
         // already.
         this.pluginRepository.getPluginInstance(getDescriptor());
         Object object = extensionClazz.newInstance();
-        if(object instanceof Configurable) {
-            ((Configurable)object).setConf(this.conf);
+        if (object instanceof Configurable) {
+          ((Configurable) object).setConf(this.conf);
         }
         return object;
       } catch (ClassNotFoundException e) {
@@ -164,13 +172,6 @@ public class Extension {
   }
 
   /**
-   * @deprecated Use #{getDescriptor()} instead.
-   */
-  public PluginDescriptor getDiscriptor() {
-    return getDescriptor();
-  }
-
-  /**
    * return the plugin descriptor.
    * 
    * @return PluginDescriptor
@@ -178,6 +179,7 @@ public class Extension {
   public PluginDescriptor getDescriptor() {
     return fDescriptor;
   }
+
   /**
    * Sets the plugin descriptor and is only used until model creation at system
    * start up.

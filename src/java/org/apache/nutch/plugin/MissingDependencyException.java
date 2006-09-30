@@ -1,5 +1,4 @@
 /*
-/**
  * Copyright 2005 The Apache Software Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +15,6 @@
  */
 package org.apache.nutch.plugin;
 
-
 /**
  * <code>MissingDependencyException</code> will be thrown if a plugin
  * dependency cannot be found.
@@ -24,6 +22,8 @@ package org.apache.nutch.plugin;
  * @author J&eacute;r&ocirc;me Charron
  */
 public class MissingDependencyException extends Exception {
+
+  private static final long serialVersionUID = 1L;
 
   public MissingDependencyException(Throwable cause) {
     super(cause);

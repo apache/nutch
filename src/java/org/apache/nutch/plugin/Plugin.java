@@ -1,5 +1,4 @@
 /*
-/**
  * Copyright 2005 The Apache Software Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,28 +43,33 @@ public class Plugin {
 
   /**
    * Constructor
-   *  
+   * 
    */
   public Plugin(PluginDescriptor pDescriptor, Configuration conf) {
     setDescriptor(pDescriptor);
     this.conf = conf;
   }
+
   /**
    * Will be invoked until plugin start up. Since the nutch-plugin system use
    * lazy loading the start up is invoked until the first time a extension is
    * used.
    * 
    * @throws PluginRuntimeException
-   *             If the startup was without successs.
+   *           If the startup was without successs.
    */
-  public void startUp() throws PluginRuntimeException {}
+  public void startUp() throws PluginRuntimeException {
+  }
+
   /**
    * Shutdown the plugin. This happens until nutch will be stopped.
    * 
    * @throws PluginRuntimeException
-   *             if a problems occurs until shutdown the plugin.
+   *           if a problems occurs until shutdown the plugin.
    */
-  public void shutDown() throws PluginRuntimeException {}
+  public void shutDown() throws PluginRuntimeException {
+  }
+
   /**
    * Returns the plugin descriptor
    * 
@@ -74,18 +78,14 @@ public class Plugin {
   public PluginDescriptor getDescriptor() {
     return fDescriptor;
   }
+
   /**
-   * @param descriptor
-   *            The descriptor to set
+   * @param descriptor The descriptor to set
    */
   private void setDescriptor(PluginDescriptor descriptor) {
     fDescriptor = descriptor;
   }
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#finalize()
-   */
+
   protected void finalize() throws Throwable {
     super.finalize();
     shutDown();
