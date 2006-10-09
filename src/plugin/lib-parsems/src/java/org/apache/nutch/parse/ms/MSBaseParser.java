@@ -85,15 +85,17 @@ public abstract class MSBaseParser implements Parser {
       
     } catch (Exception e) {
       return new ParseStatus(ParseStatus.FAILED,
-                             "Can't be handled as micrsosoft document. " + e)
+                             "Can't be handled as Microsoft document. " + e)
                              .getEmptyParse(this.conf);
     }
     
     // collect meta data
     Metadata metadata = new Metadata();
-    title = properties.getProperty(DublinCore.TITLE);
-    properties.remove(DublinCore.TITLE);
-    metadata.setAll(properties);
+    if (properties != null) {
+      title = properties.getProperty(DublinCore.TITLE);
+      properties.remove(DublinCore.TITLE);
+      metadata.setAll(properties);
+    }
 
     if (text == null) { text = ""; }
     if (title == null) { title = ""; }
