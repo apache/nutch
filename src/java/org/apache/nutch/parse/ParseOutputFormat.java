@@ -66,13 +66,13 @@ public class ParseOutputFormat implements OutputFormat {
       new Path(new Path(job.getOutputPath(), CrawlDatum.PARSE_DIR_NAME), name);
     
     final MapFile.Writer textOut =
-      new MapFile.Writer(fs, text.toString(), UTF8.class, ParseText.class);
+      new MapFile.Writer(fs, text.toString(), Text.class, ParseText.class);
     
     final MapFile.Writer dataOut =
-      new MapFile.Writer(fs, data.toString(), UTF8.class,ParseData.class,true);
+      new MapFile.Writer(fs, data.toString(), Text.class,ParseData.class,true);
     
     final SequenceFile.Writer crawlOut =
-      new SequenceFile.Writer(fs, crawl, UTF8.class, CrawlDatum.class);
+      new SequenceFile.Writer(fs, crawl, Text.class, CrawlDatum.class);
     
     return new RecordWriter() {
 
@@ -141,10 +141,10 @@ public class ParseOutputFormat implements OutputFormat {
               }
             }
             CrawlDatum target = new CrawlDatum(CrawlDatum.STATUS_LINKED, interval);
-            UTF8 targetUrl = new UTF8(toUrls[i]);
+            Text targetUrl = new Text(toUrls[i]);
             adjust = null;
             try {
-              adjust = scfilters.distributeScoreToOutlink((UTF8)key, targetUrl,
+              adjust = scfilters.distributeScoreToOutlink((Text)key, targetUrl,
                       parseData, target, null, links.length, validCount);
             } catch (ScoringFilterException e) {
               if (LOG.isWarnEnabled()) {

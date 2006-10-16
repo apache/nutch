@@ -24,7 +24,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDBTestUtil.URLCrawlDatum;
 
 import junit.framework.TestCase;
@@ -80,7 +80,7 @@ public class TestGenerator extends TestCase {
     ArrayList<URLCrawlDatum> list = new ArrayList<URLCrawlDatum>();
     
     for(int i=0;i<=100;i++){
-      list.add(new CrawlDBTestUtil.URLCrawlDatum(new UTF8("http://aaa/" + pad(i)),
+      list.add(new CrawlDBTestUtil.URLCrawlDatum(new Text("http://aaa/" + pad(i)),
         new CrawlDatum(CrawlDatum.STATUS_DB_UNFETCHED, 1, i)));
     }
     
@@ -105,7 +105,7 @@ public class TestGenerator extends TestCase {
     
     READ:
       do {
-      UTF8 key=new UTF8();
+      Text key=new Text();
       CrawlDatum value=new CrawlDatum();
       if(!reader.next(key, value)) break READ;
       l.add(new URLCrawlDatum(key, value));

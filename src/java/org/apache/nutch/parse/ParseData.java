@@ -34,7 +34,7 @@ import org.apache.nutch.util.NutchConfiguration;
 public final class ParseData extends VersionedWritable implements Configurable {
   public static final String DIR_NAME = "parse_data";
 
-  private final static byte VERSION = 4;
+  private final static byte VERSION = 5;
 
   private String title;
   private Outlink[] outlinks;
@@ -42,6 +42,7 @@ public final class ParseData extends VersionedWritable implements Configurable {
   private Metadata parseMeta;
   private ParseStatus status;
   private Configuration conf;
+  private byte version = VERSION;
   
   // TODO mb@media-style.com: should we really implement Configurable or should we add the
   // parameter Configuration to the default-constructor. NOTE: The test
@@ -110,16 +111,16 @@ public final class ParseData extends VersionedWritable implements Configurable {
   // Writable methods
   //
 
-  public byte getVersion() { return VERSION; }
+  public byte getVersion() { return version; }
 
   public final void readFields(DataInput in) throws IOException {
 
-    byte version = in.readByte();
-    if (version > 1)
-      status = ParseStatus.read(in);
-    else
-      status = ParseStatus.STATUS_SUCCESS;
-    title = UTF8.readString(in);                   // read title
+    version = in.readByte();
+    // incompatible change from UTF8 (version < 5) to Text
+    if (version != VERSION)
+      throw new VersionMismatchException(VERSION, version);
+    status = ParseStatus.read(in);
+    title = Text.readString(in);                   // read title
 
     int totalOutlinks = in.readInt();             // read outlinks
     int maxOutlinksPerPage = this.conf.getInt("db.max.outlinks.per.page", 100);
@@ -139,7 +140,7 @@ public final class ParseData extends VersionedWritable implements Configurable {
       int propertyCount = in.readInt();             // read metadata
       contentMeta = new Metadata();
       for (int i = 0; i < propertyCount; i++) {
-        contentMeta.add(UTF8.readString(in), UTF8.readString(in));
+        contentMeta.add(Text.readString(in), Text.readString(in));
       }
     } else {
       contentMeta = new Metadata();
@@ -154,7 +155,7 @@ public final class ParseData extends VersionedWritable implements Configurable {
   public final void write(DataOutput out) throws IOException {
     out.writeByte(VERSION);                       // write version
     status.write(out);                            // write status
-    UTF8.writeString(out, title);                 // write title
+    Text.writeString(out, title);                 // write title
 
     out.writeInt(outlinks.length);                // write outlinks
     for (int i = 0; i < outlinks.length; i++) {
@@ -189,6 +190,7 @@ public final class ParseData extends VersionedWritable implements Configurable {
   public String toString() {
     StringBuffer buffer = new StringBuffer();
 
+    buffer.append("Version: " + version + "\n" );
     buffer.append("Status: " + status + "\n" );
     buffer.append("Title: " + title + "\n" );
 

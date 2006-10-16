@@ -23,7 +23,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDBTestUtil;
 import org.apache.nutch.crawl.Generator;
 import org.apache.nutch.crawl.Injector;
@@ -108,7 +108,7 @@ public class TestFetcher extends TestCase {
     
     READ:
       do {
-      UTF8 key=new UTF8();
+      Text key=new Text();
       Content value=new Content();
       if(!reader.next(key, value)) break READ;
       String contentString=new String(value.getContent());

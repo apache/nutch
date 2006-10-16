@@ -27,6 +27,7 @@ import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.ToolBase;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.SignatureFactory;
@@ -101,7 +102,7 @@ public class Fetcher extends ToolBase implements MapRunnable {
       synchronized (Fetcher.this) {activeThreads++;} // count threads
       
       try {
-        UTF8 key = new UTF8();
+        Text key = new Text();
         CrawlDatum datum = new CrawlDatum();
         
         while (true) {
@@ -128,7 +129,7 @@ public class Fetcher extends ToolBase implements MapRunnable {
           }
 
           // url may be changed through redirects.
-          UTF8 url = new UTF8();
+          Text url = new Text();
           url.set(key);
           try {
             if (LOG.isInfoEnabled()) { LOG.info("fetching " + url); }
@@ -158,7 +159,7 @@ public class Fetcher extends ToolBase implements MapRunnable {
                   newUrl = normalizers.normalize(newUrl, URLNormalizers.SCOPE_FETCHER);
                   newUrl = this.urlFilters.filter(newUrl);
                   if (newUrl != null && !newUrl.equals(url.toString())) {
-                    url = new UTF8(newUrl);
+                    url = new Text(newUrl);
                     redirecting = true;
                     redirectCount++;
                     if (LOG.isDebugEnabled()) {
@@ -177,7 +178,7 @@ public class Fetcher extends ToolBase implements MapRunnable {
                 newUrl = normalizers.normalize(newUrl, URLNormalizers.SCOPE_FETCHER);
                 newUrl = this.urlFilters.filter(newUrl);
                 if (newUrl != null && !newUrl.equals(url.toString())) {
-                  url = new UTF8(newUrl);
+                  url = new Text(newUrl);
                   redirecting = true;
                   redirectCount++;
                   if (LOG.isDebugEnabled()) {
@@ -245,7 +246,7 @@ public class Fetcher extends ToolBase implements MapRunnable {
       }
     }
 
-    private void logError(UTF8 url, String message) {
+    private void logError(Text url, String message) {
       if (LOG.isInfoEnabled()) {
         LOG.info("fetch of " + url + " failed with: " + message);
       }
@@ -254,7 +255,7 @@ public class Fetcher extends ToolBase implements MapRunnable {
       }
     }
 
-    private ParseStatus output(UTF8 key, CrawlDatum datum,
+    private ParseStatus output(Text key, CrawlDatum datum,
                         Content content, int status) {
 
       datum.setStatus(status);
@@ -435,14 +436,14 @@ public class Fetcher extends ToolBase implements MapRunnable {
 
     job.setInputPath(new Path(segment, CrawlDatum.GENERATE_DIR_NAME));
     job.setInputFormat(InputFormat.class);
-    job.setInputKeyClass(UTF8.class);
+    job.setInputKeyClass(Text.class);
     job.setInputValueClass(CrawlDatum.class);
 
     job.setMapRunnerClass(Fetcher.class);
 
     job.setOutputPath(segment);
     job.setOutputFormat(FetcherOutputFormat.class);
-    job.setOutputKeyClass(UTF8.class);
+    job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(FetcherOutput.class);
 
     JobClient.runJob(job);

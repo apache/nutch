@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 
 
 /** 
@@ -61,7 +61,7 @@ public class TestMSExcelParser extends TestCase {
       urlString = "file:" + sampleDir + fileSeparator + sampleFiles[i];
 
       protocol = factory.getProtocol(urlString);
-      content = protocol.getProtocolOutput(new UTF8(urlString),
+      content = protocol.getProtocolOutput(new Text(urlString),
                                            new CrawlDatum()).getContent();
       parse = parser.parseByExtensionId("parse-msexcel", content);
 

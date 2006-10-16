@@ -21,7 +21,7 @@ import org.apache.lucene.document.Document;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configurable;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 
 // Nutch imports
 import org.apache.nutch.parse.Parse;
@@ -50,6 +50,6 @@ public interface IndexingFilter extends Pluggable, Configurable {
    * @return modified (or a new) document instance
    * @throws IndexingException
    */
-  Document filter(Document doc, Parse parse, UTF8 url, CrawlDatum datum, Inlinks inlinks)
+  Document filter(Document doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
     throws IndexingException;
 }

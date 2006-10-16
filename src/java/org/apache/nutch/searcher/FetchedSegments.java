@@ -53,7 +53,7 @@ public class FetchedSegments implements HitSummarizer, HitContent {
       this.conf = conf;
     }
 
-    public CrawlDatum getCrawlDatum(UTF8 url) throws IOException {
+    public CrawlDatum getCrawlDatum(Text url) throws IOException {
       synchronized (this) {
         if (crawl == null)
           crawl = getReaders(CrawlDatum.FETCH_DIR_NAME);
@@ -61,7 +61,7 @@ public class FetchedSegments implements HitSummarizer, HitContent {
       return (CrawlDatum)getEntry(crawl, url, new CrawlDatum());
     }
     
-    public byte[] getContent(UTF8 url) throws IOException {
+    public byte[] getContent(Text url) throws IOException {
       synchronized (this) {
         if (content == null)
           content = getReaders(Content.DIR_NAME);
@@ -69,7 +69,7 @@ public class FetchedSegments implements HitSummarizer, HitContent {
       return ((Content)getEntry(content, url, new Content())).getContent();
     }
 
-    public ParseData getParseData(UTF8 url) throws IOException {
+    public ParseData getParseData(Text url) throws IOException {
       synchronized (this) {
         if (parseData == null)
           parseData = getReaders(ParseData.DIR_NAME);
@@ -77,7 +77,7 @@ public class FetchedSegments implements HitSummarizer, HitContent {
       return (ParseData)getEntry(parseData, url, new ParseData());
     }
 
-    public ParseText getParseText(UTF8 url) throws IOException {
+    public ParseText getParseText(Text url) throws IOException {
       synchronized (this) {
         if (parseText == null)
           parseText = getReaders(ParseText.DIR_NAME);
@@ -89,7 +89,7 @@ public class FetchedSegments implements HitSummarizer, HitContent {
       return MapFileOutputFormat.getReaders(fs, new Path(segmentDir, subDir), this.conf);
     }
 
-    private Writable getEntry(MapFile.Reader[] readers, UTF8 url,
+    private Writable getEntry(MapFile.Reader[] readers, Text url,
                               Writable entry) throws IOException {
       return MapFileOutputFormat.getEntry(readers, PARTITIONER, url, entry);
     }
@@ -212,8 +212,8 @@ public class FetchedSegments implements HitSummarizer, HitContent {
     return (Segment)segments.get(details.getValue("segment"));
   }
 
-  private UTF8 getUrl(HitDetails details) {
-    return new UTF8(details.getValue("url"));
+  private Text getUrl(HitDetails details) {
+    return new Text(details.getValue("url"));
   }
 
   public void close() throws IOException {

@@ -34,7 +34,7 @@ import org.apache.nutch.util.NutchConfiguration;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 
 
 /**
@@ -72,7 +72,7 @@ public class TestRTFParser extends TestCase {
     Configuration conf = NutchConfiguration.create();
     urlString = "file:" + sampleDir + fileSeparator + rtfFile;
     protocol = new ProtocolFactory(conf).getProtocol(urlString);
-    content = protocol.getProtocolOutput(new UTF8(urlString), new CrawlDatum())
+    content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum())
                       .getContent();
     parse = new ParseUtil(conf).parseByExtensionId("parse-rtf", content);
     String text = parse.getText();

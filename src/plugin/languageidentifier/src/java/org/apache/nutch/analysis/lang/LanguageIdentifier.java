@@ -37,7 +37,7 @@ import org.apache.commons.logging.LogFactory;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 
 // Nutch imports
 import org.apache.nutch.analysis.lang.NGramProfile.NGramEntry;
@@ -344,7 +344,7 @@ public class LanguageIdentifier {
     Protocol protocol;
     try {
       protocol = new ProtocolFactory(conf).getProtocol(url);
-      Content content = protocol.getProtocolOutput(new UTF8(url), new CrawlDatum()).getContent();
+      Content content = protocol.getProtocolOutput(new Text(url), new CrawlDatum()).getContent();
       Parse parse = new ParseUtil(conf).parse(content);
       System.out.println("text:" + parse.getText());
       return parse.getText();

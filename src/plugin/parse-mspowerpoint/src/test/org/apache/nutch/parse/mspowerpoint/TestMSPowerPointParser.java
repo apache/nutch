@@ -37,7 +37,7 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.util.NutchConfiguration;
 
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 
 /**
@@ -107,7 +107,7 @@ public class TestMSPowerPointParser extends TestCase {
 
     System.out.println("Testing file: " + this.urlString + "...");
     this.protocol =new ProtocolFactory(NutchConfiguration.create()).getProtocol(this.urlString);
-    this.content = this.protocol.getProtocolOutput(new UTF8(this.urlString), new CrawlDatum()).getContent();
+    this.content = this.protocol.getProtocolOutput(new Text(this.urlString), new CrawlDatum()).getContent();
   }
 
   /**

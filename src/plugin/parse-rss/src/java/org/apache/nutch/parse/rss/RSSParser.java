@@ -27,7 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 // Hadoop imports
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.conf.Configuration;
 
 // Nutch imports
@@ -216,7 +216,7 @@ public class RSSParser implements Parser {
     RSSParser parser = new RSSParser();
     parser.setConf(conf);
     Protocol protocol = new ProtocolFactory(conf).getProtocol(url);
-    Content content = protocol.getProtocolOutput(new UTF8(url), new CrawlDatum()).getContent();
+    Content content = protocol.getProtocolOutput(new Text(url), new CrawlDatum()).getContent();
     Parse parse = parser.getParse(content);
     System.out.println("data: "+ parse.getData());
     System.out.println("text: "+parse.getText());

@@ -19,6 +19,8 @@ package org.apache.nutch.indexer.basic;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.apache.lucene.document.DateField;
+import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
@@ -26,7 +28,7 @@ import org.apache.nutch.parse.Parse;
 
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
@@ -43,7 +45,7 @@ public class BasicIndexingFilter implements IndexingFilter {
   private int MAX_TITLE_LENGTH;
   private Configuration conf;
 
-  public Document filter(Document doc, Parse parse, UTF8 url, CrawlDatum datum, Inlinks inlinks)
+  public Document filter(Document doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
     throws IndexingException {
     
     String host = null;
@@ -87,6 +89,11 @@ public class BasicIndexingFilter implements IndexingFilter {
     }
     // add title indexed and stored so that it can be displayed
     doc.add(new Field("title", title, Field.Store.YES, Field.Index.TOKENIZED));
+    
+    // add timestamp when fetched, for deduplication
+    doc.add(new Field("tstamp",
+        DateTools.timeToString(datum.getFetchTime(), DateTools.Resolution.MILLISECOND),
+        Field.Store.YES, Field.Index.NO));
 
     return doc;
   }

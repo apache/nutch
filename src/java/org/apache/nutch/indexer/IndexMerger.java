@@ -24,11 +24,11 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.ToolBase;
 import org.apache.hadoop.conf.*;
 
 import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.ToolBase;
 
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.index.IndexWriter;

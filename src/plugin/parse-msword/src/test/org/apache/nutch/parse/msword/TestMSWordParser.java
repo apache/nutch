@@ -27,7 +27,7 @@ import org.apache.nutch.parse.ParseException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 
 import junit.framework.TestCase;
@@ -68,7 +68,7 @@ public class TestMSWordParser extends TestCase {
       urlString = "file:" + sampleDir + fileSeparator + sampleFiles[i];
 
       protocol = new ProtocolFactory(conf).getProtocol(urlString);
-      content = protocol.getProtocolOutput(new UTF8(urlString), new CrawlDatum()).getContent();
+      content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
       parse = new ParseUtil(conf).parseByExtensionId("parse-msword", content);
 
       assertTrue(parse.getText().startsWith(expectedText));

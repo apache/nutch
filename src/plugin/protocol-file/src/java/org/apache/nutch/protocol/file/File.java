@@ -20,7 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
@@ -67,7 +67,7 @@ public class File implements Protocol {
   /** Set the point at which content is truncated. */
   public void setMaxContentLength(int length) {maxContentLength = length;}
 
-  public ProtocolOutput getProtocolOutput(UTF8 url, CrawlDatum datum) {
+  public ProtocolOutput getProtocolOutput(Text url, CrawlDatum datum) {
     String urlString = url.toString();
     try {
       URL u = new URL(urlString);
@@ -141,7 +141,7 @@ public class File implements Protocol {
     // set log level
     //LOG.setLevel(Level.parse((new String(logLevel)).toUpperCase()));
 
-    Content content = file.getProtocolOutput(new UTF8(urlString), new CrawlDatum()).getContent();
+    Content content = file.getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
 
     System.err.println("Content-Type: " + content.getContentType());
     System.err.println("Content-Length: " +

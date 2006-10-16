@@ -152,7 +152,7 @@ public class IndexSearcher implements Searcher, HitDetailer {
         } else if (raw instanceof Float) {
           sortValue = new FloatWritable(((Float)raw).floatValue());
         } else if (raw instanceof String) {
-          sortValue = new UTF8((String)raw);
+          sortValue = new Text((String)raw);
         } else {
           throw new RuntimeException("Unknown sort value type!");
         }

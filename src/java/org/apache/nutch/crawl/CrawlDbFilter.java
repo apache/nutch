@@ -20,7 +20,7 @@ import java.io.IOException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapred.JobConf;
@@ -71,6 +71,8 @@ public class CrawlDbFilter implements Mapper {
   }
 
   public void close() {}
+  
+  private Text newKey = new Text();
 
   public void map(WritableComparable key, Writable value, OutputCollector output, Reporter reporter) throws IOException {
 
@@ -92,7 +94,6 @@ public class CrawlDbFilter implements Mapper {
       }
     }
     if (url != null) { // if it passes
-      UTF8 newKey = (UTF8) key;
       newKey.set(url); // collect it
       output.collect(newKey, value);
     }

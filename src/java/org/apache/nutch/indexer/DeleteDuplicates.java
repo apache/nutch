@@ -1,5 +1,5 @@
 /**
- * Copyright 2005 The Apache Software Foundation
+ * Copyright 2006 The Apache Software Foundation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 package org.apache.nutch.indexer;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.apache.commons.logging.Log;
@@ -28,106 +29,115 @@ import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.Progressable;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.ToolBase;
 
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
-import org.apache.nutch.util.ToolBase;
 
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
 
-/******************************************************************
- * Deletes duplicate documents in a set of Lucene indexes.
+/**
+ * Delete duplicate documents in a set of Lucene indexes.
  * Duplicates have either the same contents (via MD5 hash) or the same URL.
- ******************************************************************/
+ * 
+ * This tool uses the following algorithm:
+ * 
+ * <ul>
+ * <li><b>Phase 1 - remove URL duplicates:</b><br/>
+ * In this phase documents with the same URL
+ * are compared, and only the most recent document is retained -
+ * all other URL duplicates are scheduled for deletion.</li>
+ * <li><b>Phase 2 - remove content duplicates:</b><br/>
+ * In this phase documents with the same content hash are compared. If
+ * property "dedup.keep.highest.score" is set to true (default) then only
+ * the document with the highest score is retained. If this property is set
+ * to false, only the document with the shortest URL is retained - all other
+ * content duplicates are scheduled for deletion.</li>
+ * <li><b>Phase 3 - delete documents:</b><br/>
+ * In this phase documents scheduled for deletion are marked as deleted in
+ * Lucene index(es).</li>
+ * </ul>
+ * 
+ * @author Andrzej Bialecki
+ */
 public class DeleteDuplicates extends ToolBase
   implements Mapper, Reducer, OutputFormat {
   private static final Log LOG = LogFactory.getLog(DeleteDuplicates.class);
 
 //   Algorithm:
 //      
-//   1. map indexes -> <<md5, score, urlLen>, <index,doc>>
+//   1. map indexes -> <url, <md5, url, time, urlLen, index,doc>>
+//      reduce, deleting all but most recent
+//
+//   2. map indexes -> <md5, <md5, url, time, urlLen, index,doc>>
 //      partition by md5
-//      reduce, deleting all but largest score w/ shortest url
-//
-//   2. map indexes -> <<url, fetchdate>, <index,doc>>
-//      partition by url
-//      reduce, deleting all but most recent.
-//
-//   Part 2 is not yet implemented, but the Indexer currently only indexes one
-//   URL per page, so this is not a critical problem.
+//      reduce, deleting all but with highest score (or shortest url).
 
   public static class IndexDoc implements WritableComparable {
-    private UTF8 index;                           // the segment index
+    private Text url = new Text();
+    private int urlLen;
+    private float score;
+    private long time;
+    private MD5Hash hash = new MD5Hash();
+    private Text index = new Text();              // the segment index
     private int doc;                              // within the index
+    private boolean keep = true;                  // keep or discard
 
+    public String toString() {
+      return "[url=" + url + ",score=" + score + ",time=" + time
+        + ",hash=" + hash + ",index=" + index + ",doc=" + doc
+        + ",keep=" + keep + "]";
+    }
+    
     public void write(DataOutput out) throws IOException {
+      url.write(out);
+      out.writeFloat(score);
+      out.writeLong(time);
+      hash.write(out);
       index.write(out);
       out.writeInt(doc);
+      out.writeBoolean(keep);
     }
 
     public void readFields(DataInput in) throws IOException {
-      if (index == null) {
-        index = new UTF8();
-      }
-      index.readFields(in);
-      this.doc = in.readInt();
-    }
-
-    public int compareTo(Object o) {
-      IndexDoc that = (IndexDoc)o;
-      int indexCompare = this.index.compareTo(that.index);
-      if (indexCompare != 0) {                    // prefer later indexes
-        return indexCompare;
-      } else {
-        return this.doc - that.doc;               // prefer later docs
-      }
-    }
-
-    public boolean equals(Object o) {
-      IndexDoc that = (IndexDoc)o;
-      return this.index.equals(that.index) && this.doc == that.doc;
-    }
-
-  }
-
-  public static class HashScore implements WritableComparable {
-    private MD5Hash hash;
-    private float score;
-    private int urlLen;
-
-    public void write(DataOutput out) throws IOException {
-      hash.write(out);
-      out.writeFloat(score);
-      out.writeInt(urlLen);
-    }
-
-    public void readFields(DataInput in) throws IOException {
-      if (hash == null) {
-        hash = new MD5Hash();
-      }
-      hash.readFields(in);
+      url.readFields(in);
+      urlLen = url.getLength();
       score = in.readFloat();
-      urlLen = in.readInt();
+      time = in.readLong();
+      hash.readFields(in);
+      index.readFields(in);
+      doc = in.readInt();
+      keep = in.readBoolean();
     }
 
     public int compareTo(Object o) {
-      HashScore that = (HashScore)o;
-      if (!this.hash.equals(that.hash)) {         // order first by hash
+      IndexDoc that = (IndexDoc)o;
+      if (this.keep != that.keep) {
+        return this.keep ? 1 : -1; 
+      } else if (!this.hash.equals(that.hash)) {       // order first by hash
         return this.hash.compareTo(that.hash);
-      } else if (this.score != that.score) {      // prefer larger scores
-        return this.score < that.score ? 1 : -1 ;
-      } else {                                    // prefer shorter urls
+      } else if (this.time != that.time) {      // prefer more recent docs
+        return this.time > that.time ? 1 : -1 ;
+      } else if (this.urlLen != this.urlLen) {  // prefer shorter urls
         return this.urlLen - that.urlLen;
+      } else {
+        return this.score > that.score ? 1 : -1;
       }
     }
 
     public boolean equals(Object o) {
-      HashScore that = (HashScore)o;
-      return this.hash.equals(that.hash)
+      IndexDoc that = (IndexDoc)o;
+      return this.keep == that.keep
+        && this.hash.equals(that.hash)
+        && this.time == that.time
         && this.score == that.score
-        && this.urlLen == that.urlLen;
+        && this.urlLen == that.urlLen
+        && this.index.equals(that.index) 
+        && this.doc == that.doc;
     }
+
   }
 
   public static class InputFormat extends InputFormatBase {
@@ -145,94 +155,178 @@ public class DeleteDuplicates extends ToolBase
       return splits;
     }
 
+    public class DDRecordReader implements RecordReader {
+
+      private IndexReader indexReader;
+      private int maxDoc;
+      private int doc;
+      private Text index;
+      
+      public DDRecordReader(FileSystem fs, FileSplit split, JobConf job,
+          Text index) throws IOException {
+        indexReader = IndexReader.open(new FsDirectory(fs, split.getPath(), false, job));
+        maxDoc = indexReader.maxDoc();
+        this.index = index;
+      }
+
+      public boolean next(Writable key, Writable value)
+        throws IOException {
+
+        // skip deleted documents
+        while (indexReader.isDeleted(doc) && doc < maxDoc) doc++;
+        if (doc >= maxDoc)
+          return false;
+
+        Document document = indexReader.document(doc);
+
+        // fill in key
+        ((Text)key).set(document.get("url"));
+        // fill in value
+        IndexDoc indexDoc = (IndexDoc)value;
+        indexDoc.keep = true;
+        indexDoc.url.set(document.get("url"));
+        indexDoc.hash.setDigest(document.get("digest"));
+        indexDoc.score = Float.parseFloat(document.get("boost"));
+        try {
+          indexDoc.time = DateTools.stringToTime(document.get("tstamp"));
+        } catch (Exception e) {
+          // try to figure out the time from segment name
+          try {
+            String segname = document.get("segment");
+            indexDoc.time = new SimpleDateFormat("yyyyMMddHHmmss").parse(segname).getTime();
+            // make it unique
+            indexDoc.time += doc;
+          } catch (Exception e1) {
+            // use current time
+            indexDoc.time = System.currentTimeMillis();
+          }
+        }
+        indexDoc.index = index;
+        indexDoc.doc = doc;
+
+        doc++;
+
+        return true;
+      }
+
+      public long getPos() throws IOException {
+        return maxDoc==0 ? 0 : (doc*INDEX_LENGTH)/maxDoc;
+      }
+
+      public void close() throws IOException {
+        indexReader.close();
+      }
+      
+      public WritableComparable createKey() {
+        return new Text();
+      }
+      
+      public Writable createValue() {
+        return new IndexDoc();
+      }
+    }
+    
     /** Return each index as a split. */
     public RecordReader getRecordReader(final FileSystem fs,
                                         final FileSplit split,
                                         final JobConf job,
                                         Reporter reporter) throws IOException {
-      final UTF8 index = new UTF8(split.getPath().toString());
+      final Text index = new Text(split.getPath().toString());
       reporter.setStatus(index.toString());
-      return new RecordReader() {
-
-          private IndexReader indexReader =
-            IndexReader.open(new FsDirectory(fs, split.getPath(), false, job));
-
-          { indexReader.undeleteAll(); }
-
-          private final int maxDoc = indexReader.maxDoc();
-          private int doc;
-
-          public boolean next(Writable key, Writable value)
-            throws IOException {
-
-            if (doc >= maxDoc)
-              return false;
-
-            Document document = indexReader.document(doc);
-
-            // fill in key
-            if (key instanceof UTF8) {
-              ((UTF8)key).set(document.get("url"));
-            } else {
-              HashScore hashScore = (HashScore)key;
-              if (hashScore.hash == null) {
-                hashScore.hash = new MD5Hash();
-              }
-              hashScore.hash.setDigest(document.get("digest"));
-              hashScore.score = Float.parseFloat(document.get("boost"));
-              hashScore.urlLen = document.get("url").length();
-            }
-
-            // fill in value
-            IndexDoc indexDoc = (IndexDoc)value;
-            if (indexDoc.index == null) {
-              indexDoc.index = new UTF8();
-            }
-            indexDoc.index.set(index);
-            indexDoc.doc = doc;
-
-            doc++;
-
-            return true;
-          }
-
-          public long getPos() throws IOException {
-            return maxDoc==0 ? 0 : (doc*INDEX_LENGTH)/maxDoc;
-          }
-
-          public void close() throws IOException {
-            indexReader.close();
-          }
-        };
+      return new DDRecordReader(fs, split, job, index);
     }
   }
-
+  
   public static class HashPartitioner implements Partitioner {
     public void configure(JobConf job) {}
     public void close() {}
     public int getPartition(WritableComparable key, Writable value,
                             int numReduceTasks) {
-      int hashCode = ((HashScore)key).hash.hashCode();
+      int hashCode = ((MD5Hash)key).hashCode();
       return (hashCode & Integer.MAX_VALUE) % numReduceTasks;
     }
   }
 
-  public static class HashReducer implements Reducer {
-    private MD5Hash prevHash = new MD5Hash();
+  public static class UrlsReducer implements Reducer {
+    
     public void configure(JobConf job) {}
+    
+    public void close() {}
+    
+    public void reduce(WritableComparable key, Iterator values,
+        OutputCollector output, Reporter reporter) throws IOException {
+      IndexDoc latest = null;
+      while (values.hasNext()) {
+        IndexDoc value = (IndexDoc)values.next();
+        if (latest == null) {
+          latest = value;
+          continue;
+        }
+        if (value.time > latest.time) {
+          // discard current and use more recent
+          latest.keep = false;
+          LOG.debug("-discard " + latest + ", keep " + value);
+          output.collect(latest.hash, latest);
+          latest = value;
+        } else {
+          // discard
+          value.keep = false;
+          LOG.debug("-discard " + value + ", keep " + latest);
+          output.collect(value.hash, value);
+        }
+        
+      }
+      // keep the latest
+      latest.keep = true;
+      output.collect(latest.hash, latest);
+      
+    }
+  }
+  
+  public static class HashReducer implements Reducer {
+    boolean byScore;
+    
+    public void configure(JobConf job) {
+      byScore = job.getBoolean("dedup.keep.highest.score", true);
+    }
+    
     public void close() {}
     public void reduce(WritableComparable key, Iterator values,
                        OutputCollector output, Reporter reporter)
       throws IOException {
-      MD5Hash hash = ((HashScore)key).hash;
+      IndexDoc highest = null;
       while (values.hasNext()) {
-        Writable value = (Writable)values.next();
-        if (hash.equals(prevHash)) {                // collect all but first
-          output.collect(key, value);
+        IndexDoc value = (IndexDoc)values.next();
+        // skip already deleted
+        if (!value.keep) {
+          LOG.debug("-discard " + value + " (already marked)");
+          output.collect(value.url, value);
+          continue;
+        }
+        if (highest == null) {
+          highest = value;
+          continue;
+        }
+        if (byScore) {
+          if (value.score > highest.score) {
+            highest.keep = false;
+            LOG.debug("-discard " + highest + ", keep " + value);
+            output.collect(highest.url, highest);     // delete highest
+            highest = value;
+          }
         } else {
-          prevHash.set(hash);
+          if (value.urlLen < highest.urlLen) {
+            highest.keep = false;
+            LOG.debug("-discard " + highest + ", keep " + value);
+            output.collect(highest.url, highest);     // delete highest
+            highest = value;
+          }
         }
       }
+      LOG.debug("-keep " + highest);
+      // no need to add this - in phase 2 we only process docs to delete them
+      // highest.keep = true;
+      // output.collect(key, highest);
     }
   }
     
@@ -240,8 +334,12 @@ public class DeleteDuplicates extends ToolBase
 
   public void configure(JobConf job) {
     setConf(job);
+  }
+  
+  public void setConf(Configuration conf) {
+    super.setConf(conf);
     try {
-      fs = FileSystem.get(job);
+      fs = FileSystem.get(conf);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -254,6 +352,9 @@ public class DeleteDuplicates extends ToolBase
                   OutputCollector output, Reporter reporter)
     throws IOException {
     IndexDoc indexDoc = (IndexDoc)value;
+    // don't delete these
+    if (indexDoc.keep) return;
+    // delete all others
     output.collect(indexDoc.index, new IntWritable(indexDoc.doc));
   }
 
@@ -265,7 +366,9 @@ public class DeleteDuplicates extends ToolBase
     IndexReader reader = IndexReader.open(new FsDirectory(fs, index, false, getConf()));
     try {
       while (values.hasNext()) {
-        reader.deleteDocument(((IntWritable)values.next()).get());
+        IntWritable value = (IntWritable)values.next();
+        LOG.debug("-delete " + index + " doc=" + value);
+        reader.deleteDocument(value.get());
       }
     } finally {
       reader.close();
@@ -301,8 +404,8 @@ public class DeleteDuplicates extends ToolBase
 
     if (LOG.isInfoEnabled()) { LOG.info("Dedup: starting"); }
 
-    Path hashDir =
-      new Path("dedup-hash-"+
+    Path outDir1 =
+      new Path("dedup-urls-"+
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
     JobConf job = new NutchJob(getConf());
@@ -313,44 +416,65 @@ public class DeleteDuplicates extends ToolBase
       }
       job.addInputPath(indexDirs[i]);
     }
-    job.setJobName("dedup phase 1");
+    job.setJobName("dedup 1: urls by time");
 
-    job.setInputKeyClass(HashScore.class);
-    job.setInputValueClass(IndexDoc.class);
     job.setInputFormat(InputFormat.class);
-    job.setBoolean("mapred.speculative.execution", false);
+    job.setMapOutputKeyClass(Text.class);
+    job.setMapOutputValueClass(IndexDoc.class);
 
-    job.setPartitionerClass(HashPartitioner.class);
-    job.setReducerClass(HashReducer.class);
+    job.setReducerClass(UrlsReducer.class);
+    job.setOutputPath(outDir1);
 
-    job.setOutputPath(hashDir);
-
-    job.setOutputKeyClass(HashScore.class);
+    job.setOutputKeyClass(MD5Hash.class);
     job.setOutputValueClass(IndexDoc.class);
     job.setOutputFormat(SequenceFileOutputFormat.class);
 
     JobClient.runJob(job);
 
+    Path outDir2 =
+      new Path("dedup-hash-"+
+               Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
     job = new NutchJob(getConf());
-    job.setJobName("dedup phase 2");
+    job.setJobName("dedup 2: content by hash");
 
-    job.addInputPath(hashDir);
-
+    job.addInputPath(outDir1);
     job.setInputFormat(SequenceFileInputFormat.class);
-    job.setInputKeyClass(HashScore.class);
-    job.setInputValueClass(IndexDoc.class);
+    job.setMapOutputKeyClass(MD5Hash.class);
+    job.setMapOutputValueClass(IndexDoc.class);
+    job.setPartitionerClass(HashPartitioner.class);
+    job.setSpeculativeExecution(false);
+    
+    job.setReducerClass(HashReducer.class);
+    job.setOutputPath(outDir2);
+
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(IndexDoc.class);
+    job.setOutputFormat(SequenceFileOutputFormat.class);
+
+    JobClient.runJob(job);
+
+    // remove outDir1 - no longer needed
+    fs.delete(outDir1);
+    
+    job = new NutchJob(getConf());
+    job.setJobName("dedup 3: delete from index(es)");
+
+    job.addInputPath(outDir2);
+    job.setInputFormat(SequenceFileInputFormat.class);
+    //job.setInputKeyClass(Text.class);
+    //job.setInputValueClass(IndexDoc.class);
 
     job.setInt("io.file.buffer.size", 4096);
     job.setMapperClass(DeleteDuplicates.class);
     job.setReducerClass(DeleteDuplicates.class);
 
     job.setOutputFormat(DeleteDuplicates.class);
-    job.setOutputKeyClass(UTF8.class);
+    job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(IntWritable.class);
 
     JobClient.runJob(job);
 
-    new JobClient(getConf()).getFs().delete(hashDir);
+    fs.delete(outDir2);
 
     if (LOG.isInfoEnabled()) { LOG.info("Dedup: done"); }
   }
@@ -363,7 +487,7 @@ public class DeleteDuplicates extends ToolBase
   public int run(String[] args) throws Exception {
     
     if (args.length < 1) {
-      System.err.println("Usage: <indexes> ...");
+      System.err.println("Usage: DeleteDuplicates <indexes> ...");
       return -1;
     }
     

@@ -22,7 +22,7 @@ import java.io.IOException;
 
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 
 /** A set of hits matching a query. */
 public final class Hits implements Writable {
@@ -69,13 +69,13 @@ public final class Hits implements Writable {
     out.writeLong(total);                         // write total hits
     out.writeInt(top.length);                     // write hits returned
     if (top.length > 0)                           // write sort value class
-      UTF8.writeString(out, top[0].getSortValue().getClass().getName());
+      Text.writeString(out, top[0].getSortValue().getClass().getName());
                       
     for (int i = 0; i < top.length; i++) {
       Hit h = top[i];
       out.writeInt(h.getIndexDocNo());            // write indexDocNo
       h.getSortValue().write(out);                // write sortValue
-      UTF8.writeString(out, h.getDedupValue());   // write dedupValue
+      Text.writeString(out, h.getDedupValue());   // write dedupValue
     }
   }
 
@@ -85,7 +85,7 @@ public final class Hits implements Writable {
     Class sortClass = null;
     if (top.length > 0) {                         // read sort value class
       try {
-        sortClass = Class.forName(UTF8.readString(in));
+        sortClass = Class.forName(Text.readString(in));
       } catch (ClassNotFoundException e) {
         throw new IOException(e.toString());
       }
@@ -102,7 +102,7 @@ public final class Hits implements Writable {
       }
       sortValue.readFields(in);                   // read sortValue
 
-      String dedupValue = UTF8.readString(in);    // read dedupValue
+      String dedupValue = Text.readString(in);    // read dedupValue
 
       top[i] = new Hit(indexDocNo, sortValue, dedupValue);
     }

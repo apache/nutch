@@ -21,7 +21,7 @@ import java.io.InputStreamReader;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.protocol.*;
 
 import org.apache.nutch.parse.Parse;
@@ -87,7 +87,7 @@ public class TestOOParser extends TestCase {
       urlString = "file:" + sampleDir + fileSeparator + sampleFiles[i];
 
       protocol = factory.getProtocol(urlString);
-      content = protocol.getProtocolOutput(new UTF8(urlString), new CrawlDatum()).getContent();
+      content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
 
       parse = parser.getParse(content);
 

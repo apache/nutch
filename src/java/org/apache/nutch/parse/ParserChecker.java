@@ -24,7 +24,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.parse.ParseUtil;
 
 import org.apache.nutch.protocol.ProtocolFactory;
@@ -75,7 +75,7 @@ public class ParserChecker {
     Configuration conf = NutchConfiguration.create();
     ProtocolFactory factory = new ProtocolFactory(conf);
     Protocol protocol = factory.getProtocol(url);
-    Content content = protocol.getProtocolOutput(new UTF8(url), new CrawlDatum()).getContent();
+    Content content = protocol.getProtocolOutput(new Text(url), new CrawlDatum()).getContent();
 
     if (force) {
       content.setContentType(contentType);

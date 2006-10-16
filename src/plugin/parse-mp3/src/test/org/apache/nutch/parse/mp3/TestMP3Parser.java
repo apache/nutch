@@ -17,7 +17,7 @@
 package org.apache.nutch.parse.mp3;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Parse;
@@ -68,7 +68,7 @@ public class TestMP3Parser extends TestCase {
     Configuration conf = NutchConfiguration.create();
     urlString = "file:" + sampleDir + fileSeparator + id3v2;
     protocol = new ProtocolFactory(conf).getProtocol(urlString);
-    content = protocol.getProtocolOutput(new UTF8(urlString), new CrawlDatum())
+    content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum())
                       .getContent();
     parse = new ParseUtil(conf).parseByExtensionId("parse-mp3", content);
     Metadata metadata = parse.getData().getParseMeta();
@@ -100,7 +100,7 @@ public class TestMP3Parser extends TestCase {
     Configuration conf = NutchConfiguration.create();
     urlString = "file:" + sampleDir + fileSeparator + id3v1;
     protocol = new ProtocolFactory(conf).getProtocol(urlString);
-    content = protocol.getProtocolOutput(new UTF8(urlString), new CrawlDatum())
+    content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum())
                       .getContent();
     parse = new ParseUtil(conf).parseByExtensionId("parse-mp3", content);
 
@@ -127,7 +127,7 @@ public class TestMP3Parser extends TestCase {
     Configuration conf = NutchConfiguration.create();
     urlString = "file:" + sampleDir + fileSeparator + none;
     protocol = new ProtocolFactory(conf).getProtocol(urlString);
-    content = protocol.getProtocolOutput(new UTF8(urlString), new CrawlDatum())
+    content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum())
                       .getContent();
     parse = new ParseUtil(conf).parseByExtensionId("parse-mp3", content);
 //    Metadata metadata = parse.getData().getParseMeta();

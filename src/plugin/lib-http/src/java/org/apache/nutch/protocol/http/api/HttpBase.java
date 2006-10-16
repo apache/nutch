@@ -40,7 +40,7 @@ import org.apache.nutch.util.LogUtil;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 
 
 /**
@@ -170,7 +170,7 @@ public abstract class HttpBase implements Protocol {
    
   
   
-  public ProtocolOutput getProtocolOutput(UTF8 url, CrawlDatum datum) {
+  public ProtocolOutput getProtocolOutput(Text url, CrawlDatum datum) {
     
     String urlString = url.toString();
     try {
@@ -509,7 +509,7 @@ public abstract class HttpBase implements Protocol {
 //      LOGGER.setLevel(Level.FINE);
 //    }
     
-    ProtocolOutput out = http.getProtocolOutput(new UTF8(url), new CrawlDatum());
+    ProtocolOutput out = http.getProtocolOutput(new Text(url), new CrawlDatum());
     Content content = out.getContent();
     
     System.out.println("Status: " + out.getStatus());

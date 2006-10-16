@@ -32,7 +32,7 @@ public final class Content extends CompressedWritable {
 
   public static final String DIR_NAME = "content";
 
-  private final static byte VERSION = 1;
+  private final static byte VERSION = 2;
 
   private byte version;
   private String url;
@@ -64,31 +64,54 @@ public final class Content extends CompressedWritable {
 
   protected final void readFieldsCompressed(DataInput in) throws IOException {
     version = in.readByte();
-    if (version > VERSION)
-      throw new VersionMismatchException(VERSION, version);
-
-    url = UTF8.readString(in);                    // read url
-    base = UTF8.readString(in);                   // read base
-
-    content = new byte[in.readInt()];             // read content
-    in.readFully(content);
-
-    contentType = UTF8.readString(in);            // read contentType
-
     metadata = new Metadata();
-    metadata.readFields(in);                    // read meta data
+    switch (version) {
+    case 0:
+    case 1:
+      url = UTF8.readString(in);                    // read url
+      base = UTF8.readString(in);                   // read base
+
+      content = new byte[in.readInt()];             // read content
+      in.readFully(content);
+
+      contentType = UTF8.readString(in);            // read contentType
+      // reconstruct metadata
+      int keySize = in.readInt();
+      String key;
+      for (int i = 0; i < keySize; i++) {
+        key = UTF8.readString(in);
+        int valueSize = in.readInt();
+        for (int j = 0; j < valueSize; j++) {
+          metadata.add(key, UTF8.readString(in));
+        }
+      }
+      break;
+    case VERSION:
+      url = Text.readString(in);                    // read url
+      base = Text.readString(in);                   // read base
+
+      content = new byte[in.readInt()];             // read content
+      in.readFully(content);
+
+      contentType = Text.readString(in);            // read contentType
+      metadata.readFields(in);                    // read meta data
+      break;
+    default:
+      throw new VersionMismatchException(VERSION, version);
+    }
+    
   }
 
   protected final void writeCompressed(DataOutput out) throws IOException {
-    out.writeByte(version);
+    out.writeByte(VERSION);
 
-    UTF8.writeString(out, url);                   // write url
-    UTF8.writeString(out, base);                  // write base
+    Text.writeString(out, url);                   // write url
+    Text.writeString(out, base);                  // write base
 
     out.writeInt(content.length);                 // write content
     out.write(content);
 
-    UTF8.writeString(out, contentType);           // write contentType
+    Text.writeString(out, contentType);           // write contentType
     
     metadata.write(out);                           // write metadata
   }
@@ -171,6 +194,7 @@ public final class Content extends CompressedWritable {
     ensureInflated();
     StringBuffer buffer = new StringBuffer();
 
+    buffer.append("Version: " + version + "\n" );
     buffer.append("url: " + url + "\n" );
     buffer.append("base: " + base + "\n" );
     buffer.append("contentType: " + contentType + "\n" );

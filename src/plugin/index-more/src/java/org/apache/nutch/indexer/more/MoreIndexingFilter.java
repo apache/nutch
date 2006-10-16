@@ -48,7 +48,7 @@ import org.apache.nutch.util.mime.MimeTypes;
 import org.apache.nutch.util.mime.MimeTypeException;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -81,7 +81,7 @@ public class MoreIndexingFilter implements IndexingFilter {
   /** Get the MimeTypes resolver instance. */
   private MimeTypes MIME; 
   
-  public Document filter(Document doc, Parse parse, UTF8 url, CrawlDatum datum, Inlinks inlinks)
+  public Document filter(Document doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
     throws IndexingException {
 
     String url_s = url.toString();

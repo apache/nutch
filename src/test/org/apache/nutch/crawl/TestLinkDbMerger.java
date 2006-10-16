@@ -26,7 +26,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.util.NutchConfiguration;
 
 import junit.framework.TestCase;
@@ -122,7 +122,7 @@ public class TestLinkDbMerger extends TestCase {
       String url = (String)it.next();
       LOG.fine("url=" + url);
       String[] vals = (String[])expected.get(url);
-      Inlinks inlinks = reader.getInlinks(new UTF8(url));
+      Inlinks inlinks = reader.getInlinks(new Text(url));
       // may not be null
       assertNotNull(inlinks);
       ArrayList links = new ArrayList();
@@ -143,7 +143,7 @@ public class TestLinkDbMerger extends TestCase {
   private void createLinkDb(FileSystem fs, Path linkdb, TreeMap init) throws Exception {
     LOG.fine("* creating linkdb: " + linkdb);
     Path dir = new Path(linkdb, LinkDb.CURRENT_NAME);
-    MapFile.Writer writer = new MapFile.Writer(fs, new Path(dir, "part-00000").toString(), UTF8.class, Inlinks.class);
+    MapFile.Writer writer = new MapFile.Writer(fs, new Path(dir, "part-00000").toString(), Text.class, Inlinks.class);
     Iterator it = init.keySet().iterator();
     while (it.hasNext()) {
       String key = (String)it.next();
@@ -153,7 +153,7 @@ public class TestLinkDbMerger extends TestCase {
         Inlink in = new Inlink(vals[i], vals[i]);
         inlinks.add(in);
       }
-      writer.append(new UTF8(key), inlinks);
+      writer.append(new Text(key), inlinks);
     }
     writer.close();
   }

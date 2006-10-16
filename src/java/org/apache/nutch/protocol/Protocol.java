@@ -18,7 +18,7 @@ package org.apache.nutch.protocol;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configurable;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 
 // Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
@@ -32,5 +32,5 @@ public interface Protocol extends Pluggable, Configurable {
 
   /** Returns the {@link Content} for a fetchlist entry.
    */
-  ProtocolOutput getProtocolOutput(UTF8 url, CrawlDatum datum);
+  ProtocolOutput getProtocolOutput(Text url, CrawlDatum datum);
 }

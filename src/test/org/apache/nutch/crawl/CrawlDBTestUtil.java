@@ -28,7 +28,7 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.SocketListener;
 import org.mortbay.http.handler.ResourceHandler;
@@ -54,12 +54,12 @@ public class CrawlDBTestUtil {
     LOG.trace("* creating crawldb: " + crawldb);
     Path dir = new Path(crawldb, CrawlDatum.DB_DIR_NAME);
     MapFile.Writer writer = new MapFile.Writer(fs, new Path(dir, "part-00000")
-        .toString(), UTF8.class, CrawlDatum.class);
+        .toString(), Text.class, CrawlDatum.class);
     Iterator<URLCrawlDatum> it = init.iterator();
     while (it.hasNext()) {
       URLCrawlDatum row = it.next();
       LOG.info("adding:" + row.url.toString());
-      writer.append(new UTF8(row.url), row.datum);
+      writer.append(new Text(row.url), row.datum);
     }
     writer.close();
   }
@@ -92,11 +92,11 @@ public class CrawlDBTestUtil {
 
   public static class URLCrawlDatum {
 
-    UTF8 url;
+    Text url;
 
     CrawlDatum datum;
 
-    public URLCrawlDatum(UTF8 url, CrawlDatum datum) {
+    public URLCrawlDatum(Text url, CrawlDatum datum) {
       this.url = url;
       this.datum = datum;
     }

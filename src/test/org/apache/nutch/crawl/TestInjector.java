@@ -24,7 +24,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 
 import junit.framework.TestCase;
 
@@ -111,7 +111,7 @@ public class TestInjector extends TestCase {
     
     READ:
       do {
-      UTF8 key=new UTF8();
+      Text key=new Text();
       CrawlDatum value=new CrawlDatum();
       if(!reader.next(key, value)) break READ;
       read.add(key.toString());

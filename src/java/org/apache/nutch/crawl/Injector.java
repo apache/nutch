@@ -28,13 +28,13 @@ import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.ToolBase;
 
 import org.apache.nutch.net.*;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
-import org.apache.nutch.util.ToolBase;
 
 /** This class takes a flat file of URLs and adds them to the of pages to be
  * crawled.  Useful for bootstrapping the system. */
@@ -65,7 +65,7 @@ public class Injector extends ToolBase {
     public void map(WritableComparable key, Writable val,
                     OutputCollector output, Reporter reporter)
       throws IOException {
-      UTF8 value = (UTF8)val;
+      Text value = (Text)val;
       String url = value.toString();              // value is line of text
       // System.out.println("url: " +url);
       try {
@@ -138,7 +138,7 @@ public class Injector extends ToolBase {
 
     sortJob.setOutputPath(tempDir);
     sortJob.setOutputFormat(SequenceFileOutputFormat.class);
-    sortJob.setOutputKeyClass(UTF8.class);
+    sortJob.setOutputKeyClass(Text.class);
     sortJob.setOutputValueClass(CrawlDatum.class);
     JobClient.runJob(sortJob);
 

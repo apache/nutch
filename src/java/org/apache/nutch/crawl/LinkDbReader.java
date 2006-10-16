@@ -27,11 +27,11 @@ import org.apache.hadoop.fs.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.mapred.lib.HashPartitioner;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.ToolBase;
 import org.apache.hadoop.conf.Configuration;
 
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
-import org.apache.nutch.util.ToolBase;
 
 import java.util.Iterator;
 
@@ -59,14 +59,14 @@ public class LinkDbReader extends ToolBase implements Closeable {
     this.directory = directory;
   }
 
-  public String[] getAnchors(UTF8 url) throws IOException {
+  public String[] getAnchors(Text url) throws IOException {
     Inlinks inlinks = getInlinks(url);
     if (inlinks == null)
       return null;
     return inlinks.getAnchors();
   }
 
-  public Inlinks getInlinks(UTF8 url) throws IOException {
+  public Inlinks getInlinks(Text url) throws IOException {
 
     if (readers == null) {
       synchronized(this) {
@@ -100,12 +100,12 @@ public class LinkDbReader extends ToolBase implements Closeable {
 
     job.addInputPath(new Path(linkdb, LinkDb.CURRENT_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
-    job.setInputKeyClass(UTF8.class);
+    job.setInputKeyClass(Text.class);
     job.setInputValueClass(Inlinks.class);
 
     job.setOutputPath(outFolder);
     job.setOutputFormat(TextOutputFormat.class);
-    job.setOutputKeyClass(UTF8.class);
+    job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(Inlinks.class);
 
     JobClient.runJob(job);
@@ -129,7 +129,7 @@ public class LinkDbReader extends ToolBase implements Closeable {
         return 0;
       } else if (args[1].equals("-url")) {
         init(new Path(args[0]));
-        Inlinks links = getInlinks(new UTF8(args[2]));
+        Inlinks links = getInlinks(new Text(args[2]));
         if (links == null) {
           System.out.println(" - no link information.");
         } else {

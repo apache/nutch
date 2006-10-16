@@ -17,7 +17,7 @@ package org.apache.nutch.indexer.subcollection;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
@@ -66,7 +66,7 @@ public class SubcollectionIndexingFilter extends Configured implements IndexingF
     doc.add(new Field(FIELD_NAME, collname, Field.Store.YES, Field.Index.TOKENIZED));
   }
 
-  public Document filter(Document doc, Parse parse, UTF8 url, CrawlDatum datum, Inlinks inlinks) throws IndexingException {
+  public Document filter(Document doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks) throws IndexingException {
     String sUrl = url.toString();
     addSubCollectionField(doc, sUrl);
     return doc;

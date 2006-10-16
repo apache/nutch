@@ -18,7 +18,7 @@ package org.apache.nutch.scoring;
 import java.util.List;
 
 import org.apache.hadoop.conf.Configurable;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.apache.lucene.document.Document;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
@@ -49,7 +49,7 @@ public interface ScoringFilter extends Configurable, Pluggable {
    * @param datum new datum. Filters will modify it in-place.
    * @throws ScoringFilterException
    */
-  public void injectedScore(UTF8 url, CrawlDatum datum) throws ScoringFilterException;
+  public void injectedScore(Text url, CrawlDatum datum) throws ScoringFilterException;
   
   /**
    * Set an initial score for newly discovered pages. Note: newly discovered pages
@@ -60,7 +60,7 @@ public interface ScoringFilter extends Configurable, Pluggable {
    * @param datum new datum. Filters will modify it in-place.
    * @throws ScoringFilterException
    */
-  public void initialScore(UTF8 url, CrawlDatum datum) throws ScoringFilterException;
+  public void initialScore(Text url, CrawlDatum datum) throws ScoringFilterException;
   
   /**
    * This method prepares a sort value for the purpose of sorting and
@@ -69,7 +69,7 @@ public interface ScoringFilter extends Configurable, Pluggable {
    * @param datum page's datum, should not be modified
    * @param initSort initial sort value, or a value from previous filters in chain
    */
-  public float generatorSortValue(UTF8 url, CrawlDatum datum, float initSort) throws ScoringFilterException;
+  public float generatorSortValue(Text url, CrawlDatum datum, float initSort) throws ScoringFilterException;
   
   /**
    * This method takes all relevant score information from the current datum
@@ -82,7 +82,7 @@ public interface ScoringFilter extends Configurable, Pluggable {
    * @param content instance of content. Implementations may modify this
    * in-place, primarily by setting some metadata properties.
    */
-  public void passScoreBeforeParsing(UTF8 url, CrawlDatum datum, Content content) throws ScoringFilterException;
+  public void passScoreBeforeParsing(Text url, CrawlDatum datum, Content content) throws ScoringFilterException;
   
   /**
    * Currently a part of score distribution is performed using only data coming
@@ -93,7 +93,7 @@ public interface ScoringFilter extends Configurable, Pluggable {
    * @param parse target instance to copy the score information to. Implementations
    * may modify this in-place, primarily by setting some metadata properties.
    */
-  public void passScoreAfterParsing(UTF8 url, Content content, Parse parse) throws ScoringFilterException;
+  public void passScoreAfterParsing(Text url, Content content, Parse parse) throws ScoringFilterException;
   
   /**
    * Distribute score value from the current page to all its outlinked pages.
@@ -116,7 +116,7 @@ public interface ScoringFilter extends Configurable, Pluggable {
    * be null if not needed.
    * @throws ScoringFilterException
    */
-  public CrawlDatum distributeScoreToOutlink(UTF8 fromUrl, UTF8 toUrl,
+  public CrawlDatum distributeScoreToOutlink(Text fromUrl, Text toUrl,
           ParseData parseData, CrawlDatum target, CrawlDatum adjust,
           int allCount, int validCount) throws ScoringFilterException;
 
@@ -136,7 +136,7 @@ public interface ScoringFilter extends Configurable, Pluggable {
    * links pointing to this page, found in the current update batch.
    * @throws ScoringFilterException
    */
-  public void updateDbScore(UTF8 url, CrawlDatum old, CrawlDatum datum, List inlinked) throws ScoringFilterException;
+  public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum, List inlinked) throws ScoringFilterException;
   
   /**
    * This method calculates a Lucene document boost.
@@ -156,6 +156,6 @@ public interface ScoringFilter extends Configurable, Pluggable {
    * other scoring strategies by modifying Lucene document directly.
    * @throws ScoringFilterException
    */
-  public float indexerScore(UTF8 url, Document doc, CrawlDatum dbDatum,
+  public float indexerScore(Text url, Document doc, CrawlDatum dbDatum,
           CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore) throws ScoringFilterException;
 }

@@ -20,7 +20,7 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.Content;
@@ -85,7 +85,7 @@ public class TestSWFParser extends TestCase {
       urlString = "file:" + sampleDir + fileSeparator + sampleFiles[i];
 
       protocol = new ProtocolFactory(conf).getProtocol(urlString);
-      content = protocol.getProtocolOutput(new UTF8(urlString), new CrawlDatum()).getContent();
+      content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
 
       parse = new ParseUtil(conf).parse(content);
 
