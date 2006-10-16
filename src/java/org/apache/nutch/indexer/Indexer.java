@@ -29,6 +29,7 @@ import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.Progressable;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.ToolBase;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.analysis.*;
 
@@ -37,7 +38,6 @@ import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
-import org.apache.nutch.util.ToolBase;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
@@ -73,6 +73,11 @@ public class Indexer extends ToolBase implements Reducer {
               throw new IOException(e.toString());
             }
             return super.next(key, (Writable)wrapper.get());
+          }
+          
+          // override the default - we want ObjectWritable-s here
+          public Writable createValue() {
+            return new ObjectWritable();
           }
         };
     }
@@ -233,7 +238,7 @@ public class Indexer extends ToolBase implements Reducer {
     Parse parse = new ParseImpl(parseText, parseData);
     try {
       // run indexing filters
-      doc = this.filters.filter(doc, parse, (UTF8)key, fetchDatum, inlinks);
+      doc = this.filters.filter(doc, parse, (Text)key, fetchDatum, inlinks);
     } catch (IndexingException e) {
       if (LOG.isWarnEnabled()) { LOG.warn("Error indexing "+key+": "+e); }
       return;
@@ -242,7 +247,7 @@ public class Indexer extends ToolBase implements Reducer {
     float boost = 1.0f;
     // run scoring filters
     try {
-      boost = this.scfilters.indexerScore((UTF8)key, doc, dbDatum,
+      boost = this.scfilters.indexerScore((Text)key, doc, dbDatum,
               fetchDatum, parse, inlinks, boost);
     } catch (ScoringFilterException e) {
       if (LOG.isWarnEnabled()) {
@@ -283,15 +288,15 @@ public class Indexer extends ToolBase implements Reducer {
     job.addInputPath(new Path(linkDb, LinkDb.CURRENT_NAME));
 
     job.setInputFormat(InputFormat.class);
-    job.setInputKeyClass(UTF8.class);
-    job.setInputValueClass(ObjectWritable.class);
+    //job.setInputKeyClass(Text.class);
+    //job.setInputValueClass(ObjectWritable.class);
 
     //job.setCombinerClass(Indexer.class);
     job.setReducerClass(Indexer.class);
 
     job.setOutputPath(indexDir);
     job.setOutputFormat(OutputFormat.class);
-    job.setOutputKeyClass(UTF8.class);
+    job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(ObjectWritable.class);
 
     JobClient.runJob(job);

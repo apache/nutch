@@ -39,7 +39,7 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.MD5Hash;
 import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.ObjectWritable;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.StringUtils;
 
@@ -81,7 +81,7 @@ public class MapWritable implements Writable {
 
     addToMap(NullWritable.class, new Byte((byte) -127));
     addToMap(LongWritable.class, new Byte((byte) -126));
-    addToMap(UTF8.class, new Byte((byte) -125));
+    addToMap(Text.class, new Byte((byte) -125));
     addToMap(MD5Hash.class, new Byte((byte) -124));
     addToMap(org.apache.nutch.fetcher.FetcherOutput.class,
         new Byte((byte) -123));
@@ -305,7 +305,7 @@ public class MapWritable implements Writable {
         ClassIdEntry entry = fIdFirst;
         while (entry != null) {
           out.writeByte(entry.fId);
-          UTF8.writeString(out, entry.fclazz.getName());
+          Text.writeString(out, entry.fclazz.getName());
           entry = entry.fNextIdEntry;
         }
       }
@@ -336,7 +336,7 @@ public class MapWritable implements Writable {
       for (int i = 0; i < fIdCount; i++) {
         try {
           id = in.readByte();
-          clazz = Class.forName(UTF8.readString(in));
+          clazz = Class.forName(Text.readString(in));
           addIdEntry(id, clazz);
         } catch (Exception e) {
           if (LOG.isWarnEnabled()) { 

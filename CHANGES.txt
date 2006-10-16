@@ -48,6 +48,19 @@ Unreleased changes (0.9-dev)
     Response.CONTENT_ENCODING is gzip or x-gzip , it can not fetch any thing 
     (King Kong via pkosiorowski)
 
+17. NUTCH-383 - upgrade to Hadoop 0.7.1 and Lucene 2.0.0. (ab)
+
+  ****************************** WARNING !!! ********************************
+  * This upgrade breaks data format compatibility. A tool 'convertdb'       *
+  * was added to migrate existing CrawlDb-s to the new format. Segment data *
+  * can be partially migrated using 'mergesegs', however segments will      *
+  * require re-parsing (and consequently re-indexing).                      *
+  ****************************** WARNING !!! ********************************
+
+18. NUTCH-371 - DeleteDuplicates now correctly implements both parts of
+    the algorithm. (ab)
+
+
 
 Release 0.8 - 2006-07-25
 

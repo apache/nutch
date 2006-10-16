@@ -37,19 +37,19 @@ public class Outlink implements Writable {
   }
 
   public void readFields(DataInput in) throws IOException {
-    toUrl = UTF8.readString(in);
-    anchor = UTF8.readString(in);
+    toUrl = Text.readString(in);
+    anchor = Text.readString(in);
   }
 
   /** Skips over one Outlink in the input. */
   public static void skip(DataInput in) throws IOException {
-    UTF8.skip(in);                                // skip toUrl
-    UTF8.skip(in);                                // skip anchor
+    Text.skip(in);                                // skip toUrl
+    Text.skip(in);                                // skip anchor
   }
 
   public void write(DataOutput out) throws IOException {
-    UTF8.writeString(out, toUrl);
-    UTF8.writeString(out, anchor);
+    Text.writeString(out, toUrl);
+    Text.writeString(out, anchor);
   }
 
   public static Outlink read(DataInput in) throws IOException {

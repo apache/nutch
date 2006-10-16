@@ -27,12 +27,12 @@ import org.apache.lucene.store.*;
 import org.apache.lucene.search.*;
 
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.ToolBase;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.ToolBase;
 
 /** Sort a Nutch index by page score.  Higher scoring documents are assigned
  * smaller document numbers. */

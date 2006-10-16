@@ -27,14 +27,14 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.ToolBase;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
-import org.apache.nutch.util.ToolBase;
 
 /**
  * This tool merges several CrawlDb-s into one, optionally filtering
@@ -119,7 +119,7 @@ public class CrawlDbMerger extends ToolBase {
     job.setJobName("crawldb merge " + output);
 
     job.setInputFormat(SequenceFileInputFormat.class);
-    job.setInputKeyClass(UTF8.class);
+    job.setInputKeyClass(Text.class);
     job.setInputValueClass(CrawlDatum.class);
 
     job.setMapperClass(CrawlDbFilter.class);
@@ -129,7 +129,7 @@ public class CrawlDbMerger extends ToolBase {
 
     job.setOutputPath(newCrawlDb);
     job.setOutputFormat(MapFileOutputFormat.class);
-    job.setOutputKeyClass(UTF8.class);
+    job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);
 
     return job;

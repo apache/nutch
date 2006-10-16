@@ -28,10 +28,10 @@ import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.ToolBase;
 
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
-import org.apache.nutch.util.ToolBase;
 
 /**
  * This class takes the output of the fetcher and updates the
@@ -97,15 +97,13 @@ public class CrawlDb extends ToolBase {
       job.addInputPath(current);
     }
     job.setInputFormat(SequenceFileInputFormat.class);
-    job.setInputKeyClass(UTF8.class);
-    job.setInputValueClass(CrawlDatum.class);
 
     job.setMapperClass(CrawlDbFilter.class);
     job.setReducerClass(CrawlDbReducer.class);
 
     job.setOutputPath(newCrawlDb);
     job.setOutputFormat(MapFileOutputFormat.class);
-    job.setOutputKeyClass(UTF8.class);
+    job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);
 
     return job;

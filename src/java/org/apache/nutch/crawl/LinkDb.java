@@ -30,13 +30,13 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.ToolBase;
 
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
-import org.apache.nutch.util.ToolBase;
 
 /** Maintains an inverted link map, listing incoming links for each url. */
 public class LinkDb extends ToolBase implements Mapper, Reducer {
@@ -161,7 +161,7 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
         anchor = anchor.substring(0, maxAnchorLength);
       }
       inlinks.add(new Inlink(fromUrl, anchor));   // collect inverted link
-      output.collect(new UTF8(toUrl), inlinks);
+      output.collect(new Text(toUrl), inlinks);
     }
   }
 
@@ -256,7 +256,7 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
     job.setJobName("linkdb " + linkDb);
 
     job.setInputFormat(SequenceFileInputFormat.class);
-    job.setInputKeyClass(UTF8.class);
+    job.setInputKeyClass(Text.class);
     job.setInputValueClass(ParseData.class);
 
     job.setMapperClass(LinkDb.class);
@@ -277,7 +277,7 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
     job.setOutputPath(newLinkDb);
     job.setOutputFormat(MapFileOutputFormat.class);
     job.setBoolean("mapred.output.compress", true);
-    job.setOutputKeyClass(UTF8.class);
+    job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(Inlinks.class);
 
     return job;
@@ -292,7 +292,7 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
     job.setJobName("linkdb merge " + linkDb);
 
     job.setInputFormat(SequenceFileInputFormat.class);
-    job.setInputKeyClass(UTF8.class);
+    job.setInputKeyClass(Text.class);
     job.setInputValueClass(Inlinks.class);
 
     job.setMapperClass(LinkDbFilter.class);
@@ -303,7 +303,7 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
     job.setOutputPath(newLinkDb);
     job.setOutputFormat(MapFileOutputFormat.class);
     job.setBoolean("mapred.output.compress", true);
-    job.setOutputKeyClass(UTF8.class);
+    job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(Inlinks.class);
 
     return job;

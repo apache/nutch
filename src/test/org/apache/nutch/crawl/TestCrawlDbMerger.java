@@ -25,7 +25,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.util.NutchConfiguration;
 
 import junit.framework.TestCase;
@@ -61,12 +61,12 @@ public class TestCrawlDbMerger extends TestCase {
     cd1 = new CrawlDatum();
     cd1.setFetchInterval(1.0f);
     cd1.setFetchTime(time);
-    cd1.getMetaData().put(new UTF8("name"), new UTF8("cd1"));
-    cd1.getMetaData().put(new UTF8("cd1"), new UTF8("cd1"));
+    cd1.getMetaData().put(new Text("name"), new Text("cd1"));
+    cd1.getMetaData().put(new Text("cd1"), new Text("cd1"));
     cd2 = new CrawlDatum();
     cd2.setFetchInterval(1.0f);
     cd2.setFetchTime(time + 10000);
-    cd2.getMetaData().put(new UTF8("name"), new UTF8("cd2"));
+    cd2.getMetaData().put(new Text("name"), new Text("cd2"));
     cd3 = new CrawlDatum();
     cd3.setFetchInterval(1.0f);
     cd3.setFetchTime(time + 10000);
@@ -125,11 +125,11 @@ public class TestCrawlDbMerger extends TestCase {
   private void createCrawlDb(FileSystem fs, Path crawldb, TreeSet init, CrawlDatum cd) throws Exception {
     LOG.fine("* creating crawldb: " + crawldb);
     Path dir = new Path(crawldb, CrawlDatum.DB_DIR_NAME);
-    MapFile.Writer writer = new MapFile.Writer(fs, new Path(dir, "part-00000").toString(), UTF8.class, CrawlDatum.class);
+    MapFile.Writer writer = new MapFile.Writer(fs, new Path(dir, "part-00000").toString(), Text.class, CrawlDatum.class);
     Iterator it = init.iterator();
     while (it.hasNext()) {
       String key = (String)it.next();
-      writer.append(new UTF8(key), cd);
+      writer.append(new Text(key), cd);
     }
     writer.close();
   }

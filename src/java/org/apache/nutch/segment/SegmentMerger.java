@@ -89,10 +89,10 @@ import org.apache.nutch.util.NutchConfiguration;
 public class SegmentMerger extends Configured implements Mapper, Reducer {
   private static final Log LOG = LogFactory.getLog(SegmentMerger.class);
 
-  private static final UTF8 SEGMENT_PART_KEY = new UTF8("_PaRt_");
-  private static final UTF8 SEGMENT_NAME_KEY = new UTF8("_NaMe_");
+  private static final Text SEGMENT_PART_KEY = new Text("_PaRt_");
+  private static final Text SEGMENT_NAME_KEY = new Text("_NaMe_");
   private static final String nameMarker = SEGMENT_NAME_KEY.toString();
-  private static final UTF8 SEGMENT_SLICE_KEY = new UTF8("_SlIcE_");
+  private static final Text SEGMENT_SLICE_KEY = new Text("_SlIcE_");
   private static final String sliceMarker = SEGMENT_SLICE_KEY.toString();
 
   private URLFilters filters = null;
@@ -140,8 +140,8 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
           Object o = wrapper.get();
           if (o instanceof CrawlDatum) {
             // record which part of segment this comes from
-            ((CrawlDatum)o).getMetaData().put(SEGMENT_PART_KEY, new UTF8(part));
-            ((CrawlDatum)o).getMetaData().put(SEGMENT_NAME_KEY, new UTF8(segment));
+            ((CrawlDatum)o).getMetaData().put(SEGMENT_PART_KEY, new Text(part));
+            ((CrawlDatum)o).getMetaData().put(SEGMENT_NAME_KEY, new Text(segment));
           } else if (o instanceof Content) {
             if (((Content)o).getMetadata() == null) {
               ((Content)o).setMetadata(new Metadata());
@@ -161,6 +161,10 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
             throw new IOException("Unknown value type: " + o.getClass().getName() + "(" + o + ")");
           }
           return res;
+        }
+        
+        public Writable createValue() {
+          return new ObjectWritable();
         }
       };
     }
@@ -186,12 +190,12 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
           String slice = null;
           if (o instanceof CrawlDatum) {
             // check which output dir it should go into
-            UTF8 part = (UTF8)((CrawlDatum)o).getMetaData().get(SEGMENT_PART_KEY);
+            Text part = (Text)((CrawlDatum)o).getMetaData().get(SEGMENT_PART_KEY);
             ((CrawlDatum)o).getMetaData().remove(SEGMENT_PART_KEY);
             ((CrawlDatum)o).getMetaData().remove(SEGMENT_NAME_KEY);
             if (part == null)
               throw new IOException("Null segment part, key=" + key);
-            UTF8 uSlice = (UTF8)((CrawlDatum)o).getMetaData().get(SEGMENT_SLICE_KEY);
+            Text uSlice = (Text)((CrawlDatum)o).getMetaData().get(SEGMENT_SLICE_KEY);
             ((CrawlDatum)o).getMetaData().remove(SEGMENT_SLICE_KEY);
             if (uSlice != null) slice = uSlice.toString();
             String partString = part.toString();
@@ -267,7 +271,7 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
           } else {
             wname = new Path(new Path(new Path(job.getOutputPath(), segmentName + "-" + slice), dirName), name);
           }
-          res = new SequenceFile.Writer(fs, wname, UTF8.class, CrawlDatum.class);
+          res = new SequenceFile.Writer(fs, job, wname, Text.class, CrawlDatum.class);
           sliceWriters.put(slice + dirName, res);
           return res;
         }
@@ -283,7 +287,7 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
           } else {
             wname = new Path(new Path(new Path(job.getOutputPath(), segmentName + "-" + slice), dirName), name);
           }
-          res = new MapFile.Writer(fs, wname.toString(), UTF8.class, clazz);
+          res = new MapFile.Writer(fs, wname.toString(), Text.class, clazz);
           sliceWriters.put(slice + dirName, res);
           return res;
         }
@@ -332,10 +336,17 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
     }
   }
   
+  private Text newKey = new Text();
+  
   public void map(WritableComparable key, Writable value, OutputCollector output, Reporter reporter) throws IOException {
+    // convert on the fly from the old format
+    if (key instanceof UTF8) {
+      newKey.set(key.toString());
+      key = newKey;
+    }
     if (filters != null) {
       try {
-        if (filters.filter(((UTF8)key).toString()) == null) {
+        if (filters.filter(((Text)key).toString()) == null) {
           return;
         }
       } catch (Exception e) {
@@ -373,10 +384,10 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
       if (o instanceof CrawlDatum) {
         CrawlDatum val = (CrawlDatum)o;
         // check which output dir it belongs to
-        UTF8 part = (UTF8)val.getMetaData().get(SEGMENT_PART_KEY);
+        Text part = (Text)val.getMetaData().get(SEGMENT_PART_KEY);
         if (part == null)
           throw new IOException("Null segment part, key=" + key);
-        UTF8 uName = (UTF8)val.getMetaData().get(SEGMENT_NAME_KEY);
+        Text uName = (Text)val.getMetaData().get(SEGMENT_NAME_KEY);
         if (uName == null)
           throw new IOException("Null segment name, key=" + key);
         String name = uName.toString();
@@ -470,10 +481,10 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
       }
     }
     curCount++;
-    UTF8 sliceName = null;
+    Text sliceName = null;
     ObjectWritable wrapper = new ObjectWritable();
     if (sliceSize > 0) {
-      sliceName = new UTF8(String.valueOf(curCount / sliceSize));
+      sliceName = new Text(String.valueOf(curCount / sliceSize));
     }
     // now output the latest values
     if (lastG != null) {
@@ -613,12 +624,10 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
       }
     }
     job.setInputFormat(ObjectInputFormat.class);
-    job.setInputKeyClass(UTF8.class);
-    job.setInputValueClass(ObjectWritable.class);
     job.setMapperClass(SegmentMerger.class);
     job.setReducerClass(SegmentMerger.class);
     job.setOutputPath(out);
-    job.setOutputKeyClass(UTF8.class);
+    job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(ObjectWritable.class);
     job.setOutputFormat(SegmentOutputFormat.class);
     

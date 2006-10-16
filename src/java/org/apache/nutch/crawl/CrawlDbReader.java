@@ -33,7 +33,7 @@ import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.SequenceFile;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapred.JobClient;
@@ -88,10 +88,10 @@ public class CrawlDbReader implements Closeable {
     public void map(WritableComparable key, Writable value, OutputCollector output, Reporter reporter)
             throws IOException {
       CrawlDatum cd = (CrawlDatum) value;
-      output.collect(new UTF8("T"), COUNT_1);
-      output.collect(new UTF8("status " + cd.getStatus()), COUNT_1);
-      output.collect(new UTF8("retry " + cd.getRetriesSinceFetch()), COUNT_1);
-      output.collect(new UTF8("s"), new LongWritable((long) (cd.getScore() * 1000.0)));
+      output.collect(new Text("T"), COUNT_1);
+      output.collect(new Text("status " + cd.getStatus()), COUNT_1);
+      output.collect(new Text("retry " + cd.getRetriesSinceFetch()), COUNT_1);
+      output.collect(new Text("s"), new LongWritable((long) (cd.getScore() * 1000.0)));
     }
   }
   
@@ -104,7 +104,7 @@ public class CrawlDbReader implements Closeable {
     public void reduce(WritableComparable key, Iterator values, OutputCollector output, Reporter reporter)
         throws IOException {
       val.set(0L);
-      String k = ((UTF8)key).toString();
+      String k = ((Text)key).toString();
       if (!k.equals("s")) {
         while (values.hasNext()) {
           LongWritable cnt = (LongWritable)values.next();
@@ -121,9 +121,9 @@ public class CrawlDbReader implements Closeable {
           if (cnt.get() > max) max = cnt.get();
           total += cnt.get();
         }
-        output.collect(new UTF8("scn"), new LongWritable(min));
-        output.collect(new UTF8("scx"), new LongWritable(max));
-        output.collect(new UTF8("sct"), new LongWritable(total));
+        output.collect(new Text("scn"), new LongWritable(min));
+        output.collect(new Text("scx"), new LongWritable(max));
+        output.collect(new Text("sct"), new LongWritable(total));
       }
     }
   }
@@ -134,7 +134,7 @@ public class CrawlDbReader implements Closeable {
     public void reduce(WritableComparable key, Iterator values, OutputCollector output, Reporter reporter)
             throws IOException {
 
-      String k = ((UTF8) key).toString();
+      String k = ((Text) key).toString();
       if (k.equals("T")) {
         // sum all values for this key
         long sum = 0;
@@ -244,7 +244,7 @@ public class CrawlDbReader implements Closeable {
 
     job.addInputPath(new Path(crawlDb, CrawlDatum.DB_DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
-    job.setInputKeyClass(UTF8.class);
+    job.setInputKeyClass(Text.class);
     job.setInputValueClass(CrawlDatum.class);
 
     job.setMapperClass(CrawlDbStatMapper.class);
@@ -253,7 +253,7 @@ public class CrawlDbReader implements Closeable {
 
     job.setOutputPath(tmpFolder);
     job.setOutputFormat(SequenceFileOutputFormat.class);
-    job.setOutputKeyClass(UTF8.class);
+    job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(LongWritable.class);
 
     JobClient.runJob(job);
@@ -262,7 +262,7 @@ public class CrawlDbReader implements Closeable {
     FileSystem fileSystem = FileSystem.get(config);
     SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(config, tmpFolder);
 
-    UTF8 key = new UTF8();
+    Text key = new Text();
     LongWritable value = new LongWritable();
 
     TreeMap stats = new TreeMap();
@@ -315,7 +315,7 @@ public class CrawlDbReader implements Closeable {
   }
   
   public CrawlDatum get(String crawlDb, String url, Configuration config) throws IOException {
-    UTF8 key = new UTF8(url);
+    Text key = new Text(url);
     CrawlDatum val = new CrawlDatum();
     openReaders(crawlDb, config);
     CrawlDatum res = (CrawlDatum)MapFileOutputFormat.getEntry(readers, new HashPartitioner(), key, val);
@@ -346,12 +346,12 @@ public class CrawlDbReader implements Closeable {
 
     job.addInputPath(new Path(crawlDb, CrawlDatum.DB_DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
-    job.setInputKeyClass(UTF8.class);
+    job.setInputKeyClass(Text.class);
     job.setInputValueClass(CrawlDatum.class);
 
     job.setOutputPath(outFolder);
     job.setOutputFormat(TextOutputFormat.class);
-    job.setOutputKeyClass(UTF8.class);
+    job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);
 
     JobClient.runJob(job);
@@ -375,7 +375,7 @@ public class CrawlDbReader implements Closeable {
     job.setJobName("topN prepare " + crawlDb);
     job.addInputPath(new Path(crawlDb, CrawlDatum.DB_DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
-    job.setInputKeyClass(UTF8.class);
+    job.setInputKeyClass(Text.class);
     job.setInputValueClass(CrawlDatum.class);
     job.setMapperClass(CrawlDbTopNMapper.class);
     job.setReducerClass(IdentityReducer.class);
@@ -383,7 +383,7 @@ public class CrawlDbReader implements Closeable {
     job.setOutputPath(tempDir);
     job.setOutputFormat(SequenceFileOutputFormat.class);
     job.setOutputKeyClass(FloatWritable.class);
-    job.setOutputValueClass(UTF8.class);
+    job.setOutputValueClass(Text.class);
 
     // XXX hmmm, no setFloat() in the API ... :(
     job.setLong("CrawlDbReader.topN.min", Math.round(1000000.0 * min));
@@ -399,14 +399,14 @@ public class CrawlDbReader implements Closeable {
     job.addInputPath(tempDir);
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setInputKeyClass(FloatWritable.class);
-    job.setInputValueClass(UTF8.class);
+    job.setInputValueClass(Text.class);
     job.setMapperClass(IdentityMapper.class);
     job.setReducerClass(CrawlDbTopNReducer.class);
 
     job.setOutputPath(outFolder);
     job.setOutputFormat(TextOutputFormat.class);
     job.setOutputKeyClass(FloatWritable.class);
-    job.setOutputValueClass(UTF8.class);
+    job.setOutputValueClass(Text.class);
 
     // XXX *sigh* this apparently doesn't work ... :-((
     job.setNumReduceTasks(1); // create a single file.

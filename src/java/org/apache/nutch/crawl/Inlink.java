@@ -33,19 +33,19 @@ public class Inlink implements Writable {
   }
 
   public void readFields(DataInput in) throws IOException {
-    fromUrl = UTF8.readString(in);
-    anchor = UTF8.readString(in);
+    fromUrl = Text.readString(in);
+    anchor = Text.readString(in);
   }
 
   /** Skips over one Inlink in the input. */
   public static void skip(DataInput in) throws IOException {
-    UTF8.skip(in);                                // skip fromUrl
-    UTF8.skip(in);                                // skip anchor
+    Text.skip(in);                                // skip fromUrl
+    Text.skip(in);                                // skip anchor
   }
 
   public void write(DataOutput out) throws IOException {
-    UTF8.writeString(out, fromUrl);
-    UTF8.writeString(out, anchor);
+    Text.writeString(out, fromUrl);
+    Text.writeString(out, anchor);
   }
 
   public static Inlink read(DataInput in) throws IOException {

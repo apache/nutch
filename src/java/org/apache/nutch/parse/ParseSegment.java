@@ -54,10 +54,17 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
   }
 
   public void close() {}
+  
+  private Text newKey = new Text();
 
   public void map(WritableComparable key, Writable value,
                   OutputCollector output, Reporter reporter)
     throws IOException {
+    // convert on the fly from old UTF8 keys
+    if (key instanceof UTF8) {
+      newKey.set(key.toString());
+      key = newKey;
+    }
     Content content = (Content)value;
 
     Parse parse = null;
@@ -75,7 +82,7 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
     
     if (status.isSuccess()) {
       try {
-        scfilters.passScoreAfterParsing((UTF8)key, content, parse);
+        scfilters.passScoreAfterParsing((Text)key, content, parse);
       } catch (ScoringFilterException e) {
         if (LOG.isWarnEnabled()) {
           e.printStackTrace(LogUtil.getWarnStream(LOG));
@@ -107,14 +114,14 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
 
     job.setInputPath(new Path(segment, Content.DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
-    job.setInputKeyClass(UTF8.class);
+    job.setInputKeyClass(Text.class);
     job.setInputValueClass(Content.class);
     job.setMapperClass(ParseSegment.class);
     job.setReducerClass(ParseSegment.class);
     
     job.setOutputPath(segment);
     job.setOutputFormat(ParseOutputFormat.class);
-    job.setOutputKeyClass(UTF8.class);
+    job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(ParseImpl.class);
 
     JobClient.runJob(job);

@@ -32,7 +32,7 @@ import org.apache.nutch.protocol.Content;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 
 /**
  * Creates and caches {@link ScoringFilter} implementing plugins.
@@ -85,7 +85,7 @@ public class ScoringFilters extends Configured implements ScoringFilter {
   }
 
   /** Calculate a sort value for Generate. */
-  public float generatorSortValue(UTF8 url, CrawlDatum datum, float initSort) throws ScoringFilterException {
+  public float generatorSortValue(Text url, CrawlDatum datum, float initSort) throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
       initSort = this.filters[i].generatorSortValue(url, datum, initSort);
     }
@@ -93,46 +93,46 @@ public class ScoringFilters extends Configured implements ScoringFilter {
   }
 
   /** Calculate a new initial score, used when adding newly discovered pages. */
-  public void initialScore(UTF8 url, CrawlDatum datum) throws ScoringFilterException {
+  public void initialScore(Text url, CrawlDatum datum) throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
       this.filters[i].initialScore(url, datum);
     }
   }
 
   /** Calculate a new initial score, used when injecting new pages. */
-  public void injectedScore(UTF8 url, CrawlDatum datum) throws ScoringFilterException {
+  public void injectedScore(Text url, CrawlDatum datum) throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
       this.filters[i].injectedScore(url, datum);
     }
   }
 
   /** Calculate updated page score during CrawlDb.update(). */
-  public void updateDbScore(UTF8 url, CrawlDatum old, CrawlDatum datum, List inlinked) throws ScoringFilterException {
+  public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum, List inlinked) throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
       this.filters[i].updateDbScore(url, old, datum, inlinked);
     }
   }
 
-  public void passScoreBeforeParsing(UTF8 url, CrawlDatum datum, Content content) throws ScoringFilterException {
+  public void passScoreBeforeParsing(Text url, CrawlDatum datum, Content content) throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
       this.filters[i].passScoreBeforeParsing(url, datum, content);
     }
   }
   
-  public void passScoreAfterParsing(UTF8 url, Content content, Parse parse) throws ScoringFilterException {
+  public void passScoreAfterParsing(Text url, Content content, Parse parse) throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
       this.filters[i].passScoreAfterParsing(url, content, parse);
     }
   }
   
-  public CrawlDatum distributeScoreToOutlink(UTF8 fromUrl, UTF8 toUrl, ParseData parseData, CrawlDatum target, CrawlDatum adjust, int allCount, int validCount) throws ScoringFilterException {
+  public CrawlDatum distributeScoreToOutlink(Text fromUrl, Text toUrl, ParseData parseData, CrawlDatum target, CrawlDatum adjust, int allCount, int validCount) throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
       adjust = this.filters[i].distributeScoreToOutlink(fromUrl, toUrl, parseData, target, adjust, allCount, validCount);
     }
     return adjust;
   }
 
-  public float indexerScore(UTF8 url, Document doc, CrawlDatum dbDatum, CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore) throws ScoringFilterException {
+  public float indexerScore(Text url, Document doc, CrawlDatum dbDatum, CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore) throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
       initScore = this.filters[i].indexerScore(url, doc, dbDatum, fetchDatum, parse, inlinks, initScore);
     }

@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 // Hadoop imports
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
 // Nutch imports
@@ -187,12 +187,12 @@ public class Summary implements Writable {
       fragment = (Fragment) fragments.get(i);
       if (fragment.isHighlight()) {
         out.writeByte(HIGHLIGHT);
-        UTF8.writeString(out, fragment.getText());
+        Text.writeString(out, fragment.getText());
       } else if (fragment.isEllipsis()) {
         out.writeByte(ELLIPSIS);
       } else {
         out.writeByte(FRAGMENT);
-        UTF8.writeString(out, fragment.getText());
+        Text.writeString(out, fragment.getText());
       }
     }
   }
@@ -204,11 +204,11 @@ public class Summary implements Writable {
     for (int i=0; i<nbFragments; i++) {
       int type = in.readByte();
       if (type == HIGHLIGHT) {
-        fragment = new Highlight(UTF8.readString(in));
+        fragment = new Highlight(Text.readString(in));
       } else if (type == ELLIPSIS) {
         fragment = new Ellipsis();
       } else {
-        fragment = new Fragment(UTF8.readString(in));
+        fragment = new Fragment(Text.readString(in));
       }
       fragments.add(fragment);
     }

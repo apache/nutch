@@ -25,7 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.apache.lucene.document.Document;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
@@ -73,23 +73,23 @@ public class OPICScoringFilter implements ScoringFilter {
   }
 
   /** Set to the value defined in config, 1.0f by default. */
-  public void injectedScore(UTF8 url, CrawlDatum datum) throws ScoringFilterException {
+  public void injectedScore(Text url, CrawlDatum datum) throws ScoringFilterException {
     datum.setScore(scoreInjected);
   }
 
   /** Set to 0.0f (unknown value) - inlink contributions will bring it to
    * a correct level. Newly discovered pages have at least one inlink. */
-  public void initialScore(UTF8 url, CrawlDatum datum) throws ScoringFilterException {
+  public void initialScore(Text url, CrawlDatum datum) throws ScoringFilterException {
     datum.setScore(0.0f);
   }
 
   /** Use {@link CrawlDatum#getScore()}. */
-  public float generatorSortValue(UTF8 url, CrawlDatum datum, float initSort) throws ScoringFilterException {
+  public float generatorSortValue(Text url, CrawlDatum datum, float initSort) throws ScoringFilterException {
     return datum.getScore();
   }
 
   /** Increase the score by a sum of inlinked scores. */
-  public void updateDbScore(UTF8 url, CrawlDatum old, CrawlDatum datum, List inlinked) throws ScoringFilterException {
+  public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum, List inlinked) throws ScoringFilterException {
     float adjust = 0.0f;
     for (int i = 0; i < inlinked.size(); i++) {
       CrawlDatum linked = (CrawlDatum)inlinked.get(i);
@@ -100,17 +100,17 @@ public class OPICScoringFilter implements ScoringFilter {
   }
 
   /** Store a float value of CrawlDatum.getScore() under Fetcher.SCORE_KEY. */
-  public void passScoreBeforeParsing(UTF8 url, CrawlDatum datum, Content content) {
+  public void passScoreBeforeParsing(Text url, CrawlDatum datum, Content content) {
     content.getMetadata().set(Fetcher.SCORE_KEY, "" + datum.getScore());
   }
 
   /** Copy the value from Content metadata under Fetcher.SCORE_KEY to parseData. */
-  public void passScoreAfterParsing(UTF8 url, Content content, Parse parse) {
+  public void passScoreAfterParsing(Text url, Content content, Parse parse) {
     parse.getData().getContentMeta().set(Fetcher.SCORE_KEY, content.getMetadata().get(Fetcher.SCORE_KEY));
   }
 
   /** Get a float value from Fetcher.SCORE_KEY, divide it by the number of outlinks and apply. */
-  public CrawlDatum distributeScoreToOutlink(UTF8 fromUrl, UTF8 toUrl, ParseData parseData, CrawlDatum target, CrawlDatum adjust, int allCount, int validCount) throws ScoringFilterException {
+  public CrawlDatum distributeScoreToOutlink(Text fromUrl, Text toUrl, ParseData parseData, CrawlDatum target, CrawlDatum adjust, int allCount, int validCount) throws ScoringFilterException {
     float score = scoreInjected;
     String scoreString = parseData.getContentMeta().get(Fetcher.SCORE_KEY);
     if (scoreString != null) {
@@ -146,7 +146,7 @@ public class OPICScoringFilter implements ScoringFilter {
   }
 
   /** Dampen the boost value by scorePower.*/
-  public float indexerScore(UTF8 url, Document doc, CrawlDatum dbDatum, CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore) throws ScoringFilterException {
+  public float indexerScore(Text url, Document doc, CrawlDatum dbDatum, CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore) throws ScoringFilterException {
     return (float)Math.pow(dbDatum.getScore(), scorePower);
   }
 }

@@ -17,6 +17,8 @@ package org.apache.nutch.crawl;
 
 import java.util.ArrayList;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
@@ -24,8 +26,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.ToolBase;
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.ToolBase;
 
 /**
  * This tool merges several LinkDb-s into one, optionally filtering
@@ -46,6 +48,8 @@ import org.apache.nutch.util.ToolBase;
  * @author Andrzej Bialecki
  */
 public class LinkDbMerger extends ToolBase {
+  private static final Log LOG = LogFactory.getLog(LinkDbMerger.class);
+  
   public LinkDbMerger() {
     
   }

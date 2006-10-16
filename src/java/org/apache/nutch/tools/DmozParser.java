@@ -291,8 +291,8 @@ public class DmozParser {
     if (LOG.isInfoEnabled()) { LOG.info("skew = " + rp.hashSkew); }
 
     //
-    // Open filtered text stream.  The UTF8Filter makes sure that
-    // only appropriate XML-approved UTF8 characters are received.
+    // Open filtered text stream.  The TextFilter makes sure that
+    // only appropriate XML-approved Text characters are received.
     // Any non-conforming characters are silently skipped.
     //
     XMLCharFilter in = new XMLCharFilter(new BufferedReader(new InputStreamReader(new BufferedInputStream(new FileInputStream(dmozFile)), "UTF-8")));

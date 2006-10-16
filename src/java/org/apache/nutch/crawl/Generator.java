@@ -29,6 +29,7 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.ToolBase;
 import org.apache.hadoop.fs.Path;
 
 import org.apache.nutch.net.URLFilterException;
@@ -38,7 +39,6 @@ import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
-import org.apache.nutch.util.ToolBase;
 
 /** Generates a subset of a crawl db to fetch. */
 public class Generator extends ToolBase {
@@ -46,11 +46,11 @@ public class Generator extends ToolBase {
   public static final Log LOG = LogFactory.getLog(Generator.class);
   
   public static class SelectorEntry implements Writable {
-    public UTF8 url;
+    public Text url;
     public CrawlDatum datum;
     
     public SelectorEntry() {
-      url = new UTF8();
+      url = new Text();
       datum = new CrawlDatum();
     }
 
@@ -102,7 +102,7 @@ public class Generator extends ToolBase {
     public void map(WritableComparable key, Writable value,
                     OutputCollector output, Reporter reporter)
       throws IOException {
-      UTF8 url = (UTF8)key;
+      Text url = (Text)key;
       // don't generate URLs that don't pass URLFilters
       try {
         if (filters.filter(url.toString()) == null)
@@ -122,7 +122,7 @@ public class Generator extends ToolBase {
 
       float sort = 1.0f;
       try {
-        sort = scfilters.generatorSortValue((UTF8)key, crawlDatum, sort);
+        sort = scfilters.generatorSortValue((Text)key, crawlDatum, sort);
       } catch (ScoringFilterException sfe) {
         if (LOG.isWarnEnabled()) {
           LOG.warn("Couldn't filter generatorSortValue for " + key + ": " + sfe);
@@ -131,7 +131,7 @@ public class Generator extends ToolBase {
       // sort by decreasing score, using DecreasingFloatComparator
       sortValue.set(sort);
       entry.datum = crawlDatum;
-      entry.url = (UTF8)key;
+      entry.url = (Text)key;
       output.collect(sortValue, entry);          // invert for sort by score
     }
 
@@ -150,7 +150,7 @@ public class Generator extends ToolBase {
       while (values.hasNext() && count < limit) {
 
         SelectorEntry entry = (SelectorEntry)values.next();
-        UTF8 url = entry.url;
+        Text url = entry.url;
 
         if (maxPerHost > 0) {                     // are we counting hosts?
           String host = new URL(url.toString()).getHost();
@@ -236,11 +236,11 @@ public class Generator extends ToolBase {
   
   /** Sort fetch lists by hash of URL. */
   public static class HashComparator extends WritableComparator {
-    public HashComparator() { super(UTF8.class); }
+    public HashComparator() { super(Text.class); }
 
     public int compare(WritableComparable a, WritableComparable b) {
-      UTF8 url1 = (UTF8)a;
-      UTF8 url2 = (UTF8)b;
+      Text url1 = (Text)a;
+      Text url2 = (Text)b;
       int hash1 = hash(url1.getBytes(), 0, url1.getLength());
       int hash2 = hash(url2.getBytes(), 0, url2.getLength());
       if (hash1 != hash2) {
@@ -252,14 +252,12 @@ public class Generator extends ToolBase {
 
 
     public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
-      int n1 = readUnsignedShort(b1, s1);
-      int n2 = readUnsignedShort(b2, s2);
-      int hash1 = hash(b1, s1+2, n1);
-      int hash2 = hash(b2, s2+2, n2);
+      int hash1 = hash(b1, s1, l1);
+      int hash2 = hash(b2, s2, l2);
       if (hash1 != hash2) {
         return hash1 - hash2;
       }
-      return compareBytes(b1, s1+2, n1, b2, s2+2, n2);
+      return compareBytes(b1, s1, l1, b2, s2, l2);
     }
 
     private static int hash(byte[] bytes, int start, int length) {
@@ -319,7 +317,7 @@ public class Generator extends ToolBase {
 
     job.setInputPath(new Path(dbDir, CrawlDatum.DB_DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
-    job.setInputKeyClass(UTF8.class);
+    job.setInputKeyClass(Text.class);
     job.setInputValueClass(CrawlDatum.class);
 
     job.setMapperClass(Selector.class);
@@ -353,7 +351,7 @@ public class Generator extends ToolBase {
 
     job.setOutputPath(output);
     job.setOutputFormat(SequenceFileOutputFormat.class);
-    job.setOutputKeyClass(UTF8.class);
+    job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);
     job.setOutputKeyComparatorClass(HashComparator.class);
     JobClient.runJob(job);

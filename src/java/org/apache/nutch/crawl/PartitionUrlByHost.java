@@ -42,7 +42,7 @@ public class PartitionUrlByHost implements Partitioner {
   /** Hash by hostname. */
   public int getPartition(WritableComparable key, Writable value,
                           int numReduceTasks) {
-    String urlString = ((UTF8)key).toString();
+    String urlString = ((Text)key).toString();
     try {
       urlString = normalizers.normalize(urlString, URLNormalizers.SCOPE_PARTITION);
     } catch (Exception e) {

@@ -22,7 +22,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.net.ftp.FTPFileEntryParser;
 
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
 
@@ -111,7 +111,7 @@ public class Ftp implements Protocol {
     this.keepConnection = keepConnection;
   }
 
-  public ProtocolOutput getProtocolOutput(UTF8 url, CrawlDatum datum) {
+  public ProtocolOutput getProtocolOutput(Text url, CrawlDatum datum) {
     String urlString = url.toString();
     try {
       URL u = new URL(urlString);
@@ -207,7 +207,7 @@ public class Ftp implements Protocol {
     // set log level
     //LOG.setLevel(Level.parse((new String(logLevel)).toUpperCase()));
 
-    Content content = ftp.getProtocolOutput(new UTF8(urlString), new CrawlDatum()).getContent();
+    Content content = ftp.getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
 
     System.err.println("Content-Type: " + content.getContentType());
     System.err.println("Content-Length: " +

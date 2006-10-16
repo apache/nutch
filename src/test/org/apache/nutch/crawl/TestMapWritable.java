@@ -25,7 +25,7 @@ import org.apache.hadoop.io.DataOutputBuffer;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.MapWritable;
@@ -39,11 +39,11 @@ public class TestMapWritable extends TestCase {
     MapWritable map = new MapWritable();
     assertTrue(map.isEmpty());
     for (int i = 0; i < 100; i++) {
-      UTF8 key = new UTF8("" + i);
+      Text key = new Text("" + i);
       IntWritable value = new IntWritable(i);
       map.put(key, value);
       assertEquals(i + 1, map.size());
-      assertTrue(map.containsKey(new UTF8("" + i)));
+      assertTrue(map.containsKey(new Text("" + i)));
       assertTrue(map.containsValue(new IntWritable(i)));
       map.remove(key);
       assertEquals(i, map.size());
@@ -64,14 +64,14 @@ public class TestMapWritable extends TestCase {
     map.clear();
     assertTrue(map.isEmpty());
     assertEquals(0, map.size());
-    assertFalse(map.containsKey(new UTF8("" + 1)));
+    assertFalse(map.containsKey(new Text("" + 1)));
 
   }
 
   public void testWritable() throws Exception {
     MapWritable datum1 = new MapWritable();
     for (int i = 0; i < 100; i++) {
-      datum1.put(new LongWritable(i), new UTF8("" + 1));
+      datum1.put(new LongWritable(i), new Text("" + 1));
     }
     assertEquals(100, datum1.size());
     testWritable(datum1);
@@ -86,7 +86,7 @@ public class TestMapWritable extends TestCase {
     CrawlDatum c = new CrawlDatum(CrawlDatum.STATUS_DB_FETCHED, 1f);
     c.setMetaData(new MapWritable());
     for (int i = 0; i < 100; i++) {
-      c.getMetaData().put(new LongWritable(i), new UTF8("" + 1));
+      c.getMetaData().put(new LongWritable(i), new Text("" + 1));
     }
     testWritable(c);
   }
@@ -94,10 +94,10 @@ public class TestMapWritable extends TestCase {
   public void testEquals() {
     MapWritable map1 = new MapWritable();
     MapWritable map2 = new MapWritable();
-    map1.put(new UTF8("key1"), new UTF8("val1"));
-    map1.put(new UTF8("key2"), new UTF8("val2"));
-    map2.put(new UTF8("key2"), new UTF8("val2"));
-    map2.put(new UTF8("key1"), new UTF8("val1"));
+    map1.put(new Text("key1"), new Text("val1"));
+    map1.put(new Text("key2"), new Text("val2"));
+    map2.put(new Text("key2"), new Text("val2"));
+    map2.put(new Text("key1"), new Text("val1"));
     assertTrue(map1.equals(map2));
   }
 
@@ -137,13 +137,13 @@ public class TestMapWritable extends TestCase {
     System.out.println("needed time for reading map's: " + needed);
     fs.delete(file);
 
-    // UTF8
+    // Text
     System.out.println("start writing utf8's");
-    writer = new SequenceFile.Writer(fs, file, IntWritable.class, UTF8.class);
+    writer = new SequenceFile.Writer(fs, file, IntWritable.class, Text.class);
     // write map
     start = System.currentTimeMillis();
     key = new IntWritable();
-    UTF8 value = new UTF8();
+    Text value = new Text();
     String s = "15726:15726";
     for (int i = 0; i < 1000000; i++) {
       key.set(i);
@@ -181,9 +181,9 @@ public class TestMapWritable extends TestCase {
   }
 
   public void testRecycling() throws Exception {
-    UTF8 value = new UTF8("value");
-    UTF8 key1 = new UTF8("a");
-    UTF8 key2 = new UTF8("b");
+    Text value = new Text("value");
+    Text key1 = new Text("a");
+    Text key2 = new Text("b");
 
     MapWritable writable = new MapWritable();
     writable.put(key1, value);

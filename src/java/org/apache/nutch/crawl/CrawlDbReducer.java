@@ -109,7 +109,7 @@ public class CrawlDbReducer implements Reducer {
       } else {
         result.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
         try {
-          scfilters.initialScore((UTF8)key, result);
+          scfilters.initialScore((Text)key, result);
         } catch (ScoringFilterException e) {
           if (LOG.isWarnEnabled()) {
             LOG.warn("Cannot filter init score for url " + key +
@@ -152,7 +152,7 @@ public class CrawlDbReducer implements Reducer {
     }
 
     try {
-      scfilters.updateDbScore((UTF8)key, old, result, linked);
+      scfilters.updateDbScore((Text)key, old, result, linked);
     } catch (Exception e) {
       if (LOG.isWarnEnabled()) {
         LOG.warn("Couldn't update score, key=" + key + ": " + e);

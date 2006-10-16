@@ -34,7 +34,7 @@ import java.util.Properties;
 import org.apache.commons.lang.StringUtils;
 
 // Hadoop imports
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
 
@@ -305,11 +305,11 @@ public class Metadata implements CreativeCommons,
     String[] values = null;
     String[] names = names();
     for (int i=0; i<names.length; i++) {
-      UTF8.writeString(out, names[i]);
+      Text.writeString(out, names[i]);
       values = getValues(names[i]);
       out.writeInt(values.length);
       for (int j=0; j<values.length; j++) {
-        UTF8.writeString(out, values[j]);
+        Text.writeString(out, values[j]);
       }
     }
   }
@@ -319,10 +319,10 @@ public class Metadata implements CreativeCommons,
     int keySize = in.readInt();
     String key;
     for (int i=0; i<keySize; i++) {
-      key = UTF8.readString(in);
+      key = Text.readString(in);
       int valueSize = in.readInt();
       for (int j=0; j<valueSize; j++) {
-        add(key, UTF8.readString(in));
+        add(key, Text.readString(in));
       }
     }
   }

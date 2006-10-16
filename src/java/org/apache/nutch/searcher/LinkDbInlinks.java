@@ -12,7 +12,7 @@ import org.apache.nutch.crawl.LinkDbReader;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 
@@ -30,11 +30,11 @@ public class LinkDbInlinks implements HitInlinks {
   }
 
   public String[] getAnchors(HitDetails details) throws IOException {
-    return linkdb.getAnchors(new UTF8(details.getValue("url")));
+    return linkdb.getAnchors(new Text(details.getValue("url")));
   }
 
   public Inlinks getInlinks(HitDetails details) throws IOException {
-    return linkdb.getInlinks(new UTF8(details.getValue("url")));
+    return linkdb.getInlinks(new Text(details.getValue("url")));
   }
 
   public void close() throws IOException {

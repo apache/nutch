@@ -65,8 +65,26 @@ public class SegmentReader extends Configured implements Reducer {
           }
           return super.next(key, (Writable) wrapper.get());
         }
+        
+        public Writable createValue() {
+          return new ObjectWritable();
+        }
       };
     }
+  }
+  
+  public static class InputCompatMapper extends MapReduceBase implements Mapper {
+    private Text newKey = new Text();
+
+    public void map(WritableComparable key, Writable value, OutputCollector collector, Reporter reporter) throws IOException {
+      // convert on the fly from old formats with UTF8 keys
+      if (key instanceof UTF8) {
+        newKey.set(key.toString());
+        key = newKey;
+      }
+      collector.collect(key, value);
+    }
+    
   }
 
   /** Implements a text output format */
@@ -180,9 +198,7 @@ public class SegmentReader extends Configured implements Reducer {
     if (pt) job.addInputPath(new Path(segment, ParseText.DIR_NAME));
 
     job.setInputFormat(InputFormat.class);
-    job.setInputKeyClass(UTF8.class);
-    job.setInputValueClass(ObjectWritable.class);
-
+    job.setMapperClass(InputCompatMapper.class);
     job.setReducerClass(SegmentReader.class);
 
     Path tempDir = new Path("/tmp/segread-" + new java.util.Random().nextInt());
@@ -190,7 +206,7 @@ public class SegmentReader extends Configured implements Reducer {
     
     job.setOutputPath(tempDir);
     job.setOutputFormat(TextOutputFormat.class);
-    job.setOutputKeyClass(UTF8.class);
+    job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(ObjectWritable.class);
 
     JobClient.runJob(job);
@@ -255,7 +271,7 @@ public class SegmentReader extends Configured implements Reducer {
           {"pt", "ParseText::\n"}
   };
 
-  public void get(final Path segment, final UTF8 key, Writer writer,
+  public void get(final Path segment, final Text key, Writer writer,
           final Map results) throws Exception {
     if (LOG.isInfoEnabled()) { LOG.info("SegmentReader: get '" + key + "'"); }
     ArrayList threads = new ArrayList();
@@ -346,12 +362,12 @@ public class SegmentReader extends Configured implements Reducer {
     }
   }
   
-  private List getMapRecords(Path dir, UTF8 key) throws Exception {
+  private List getMapRecords(Path dir, Text key) throws Exception {
     MapFile.Reader[] readers = MapFileOutputFormat.getReaders(fs, dir, getConf());
     ArrayList res = new ArrayList();
     Class keyClass = readers[0].getKeyClass();
     Class valueClass = readers[0].getValueClass();
-    if (!keyClass.getName().equals("org.apache.hadoop.io.UTF8"))
+    if (!keyClass.getName().equals("org.apache.hadoop.io.Text"))
       throw new IOException("Incompatible key (" + keyClass.getName() + ")");
     Writable value = (Writable)valueClass.newInstance();
     // we don't know the partitioning schema
@@ -363,12 +379,12 @@ public class SegmentReader extends Configured implements Reducer {
     return res;
   }
 
-  private List getSeqRecords(Path dir, UTF8 key) throws Exception {
+  private List getSeqRecords(Path dir, Text key) throws Exception {
     SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(getConf(), dir);
     ArrayList res = new ArrayList();
     Class keyClass = readers[0].getKeyClass();
     Class valueClass = readers[0].getValueClass();
-    if (!keyClass.getName().equals("org.apache.hadoop.io.UTF8"))
+    if (!keyClass.getName().equals("org.apache.hadoop.io.Text"))
       throw new IOException("Incompatible key (" + keyClass.getName() + ")");
     Writable aKey = (Writable)keyClass.newInstance();
     Writable value = (Writable)valueClass.newInstance();
@@ -423,7 +439,7 @@ public class SegmentReader extends Configured implements Reducer {
   public void getStats(Path segment, final SegmentReaderStats stats) throws Exception {
     SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(getConf(), new Path(segment, CrawlDatum.GENERATE_DIR_NAME));
     long cnt = 0L;
-    UTF8 key = new UTF8();
+    Text key = new Text();
     for (int i = 0; i < readers.length; i++) {
       while (readers[i].next(key)) cnt++;
       readers[i].close();
@@ -566,7 +582,7 @@ public class SegmentReader extends Configured implements Reducer {
           usage();
           return;
         }
-        segmentReader.get(new Path(input), new UTF8(key), new OutputStreamWriter(System.out, "UTF-8"), new HashMap());
+        segmentReader.get(new Path(input), new Text(key), new OutputStreamWriter(System.out, "UTF-8"), new HashMap());
         return;
       default:
         System.err.println("Invalid operation: " + args[0]);
