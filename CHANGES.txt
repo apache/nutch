@@ -63,7 +63,7 @@ Unreleased changes (0.9-dev)
 19. NUTCH-391 - ParseUtil logs file contents to log file when it cannot
     find parser (siren)
 
-20. NUTCH-391 - ParseUtil does not pass through the content's URL to the
+20. NUTCH-379 - ParseUtil does not pass through the content's URL to the
     ParserFactory (Chris A. Mattmann via siren)
 
 
