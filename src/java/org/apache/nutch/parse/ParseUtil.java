@@ -68,8 +68,8 @@ public class ParseUtil {
       parsers = this.parserFactory.getParsers(content.getContentType(), "");
     } catch (ParserNotFound e) {
       if (LOG.isWarnEnabled()) {
-        LOG.warn("No suitable parser found when trying to parse content " +
-                 content);
+        LOG.warn("No suitable parser found when trying to parse content " + content.getUrl() +
+               " of type " + content.getContentType());
       }
       throw new ParseException(e.getMessage());
     }
@@ -123,8 +123,8 @@ public class ParseUtil {
       p = this.parserFactory.getParserById(extId);
     } catch (ParserNotFound e) {
       if (LOG.isWarnEnabled()) {
-        LOG.warn("No suitable parser found when trying to parse content " +
-                 content);
+        LOG.warn("No suitable parser found when trying to parse content " + content.getUrl() +
+            " of type " + content.getContentType());
       }
       throw new ParseException(e.getMessage());
     }

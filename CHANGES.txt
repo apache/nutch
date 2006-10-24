@@ -50,6 +50,9 @@ Unreleased changes (0.9-dev)
 
 17. NUTCH-383 - upgrade to Hadoop 0.7.1 and Lucene 2.0.0. (ab)
 
+18. NUTCH-391 - ParseUtil logs file contents to log file when it cannot
+    find parser (siren)
+
   ****************************** WARNING !!! ********************************
   * This upgrade breaks data format compatibility. A tool 'convertdb'       *
   * was added to migrate existing CrawlDb-s to the new format. Segment data *
