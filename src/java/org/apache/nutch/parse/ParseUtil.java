@@ -65,7 +65,8 @@ public class ParseUtil {
     Parser[] parsers = null;
     
     try {
-      parsers = this.parserFactory.getParsers(content.getContentType(), "");
+      parsers = this.parserFactory.getParsers(content.getContentType(), 
+	         content.getUrl() != null ? content.getUrl():"");
     } catch (ParserNotFound e) {
       if (LOG.isWarnEnabled()) {
         LOG.warn("No suitable parser found when trying to parse content " + content.getUrl() +
