@@ -164,6 +164,7 @@
  	<include name="hadoop-*.jar"/>
 	<include name="dom4j-*.jar"/>
 	<include name="xerces-*.jar"/>
+        <include name="commons-cli-*.jar"/>
         <include name="commons-lang-*.jar"/>
         <include name="commons-logging-*.jar"/>
         <include name="log4j-*.jar"/>
