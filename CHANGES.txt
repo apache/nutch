@@ -66,6 +66,9 @@ Unreleased changes (0.9-dev)
 20. NUTCH-379 - ParseUtil does not pass through the content's URL to the
     ParserFactory (Chris A. Mattmann via siren)
 
+21. NUTCH-361, NUTCH-136 - When jobtracker is 'local' generate only one
+    partition. (ab)
+
 
 Release 0.8 - 2006-07-25
 
