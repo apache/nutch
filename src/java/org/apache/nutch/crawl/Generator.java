@@ -307,18 +307,20 @@ public class Generator extends ToolBase {
     // map to inverted subset due for fetch, sort by link count
     JobConf job = new NutchJob(getConf());
     job.setJobName("generate: select " + segment);
-    
+
     if (numLists == -1) {                         // for politeness make
       numLists = job.getNumMapTasks();            // a partition per fetch task
     }
-
+    if ("local".equals(job.get("mapred.job.tracker")) && numLists != 1) {
+      // override
+      LOG.info("Generator: jobtracker is 'local', generating exactly one partition.");
+      numLists = 1;
+    }
     job.setLong("crawl.gen.curTime", curTime);
     job.setLong("crawl.topN", topN);
 
     job.setInputPath(new Path(dbDir, CrawlDatum.DB_DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
-    job.setInputKeyClass(Text.class);
-    job.setInputValueClass(CrawlDatum.class);
 
     job.setMapperClass(Selector.class);
     job.setPartitionerClass(Selector.class);
@@ -342,8 +344,6 @@ public class Generator extends ToolBase {
 
     job.setInputPath(tempDir);
     job.setInputFormat(SequenceFileInputFormat.class);
-    job.setInputKeyClass(FloatWritable.class);
-    job.setInputValueClass(SelectorEntry.class);
 
     job.setMapperClass(SelectorInverseMapper.class);
     job.setPartitionerClass(PartitionUrlByHost.class);
