@@ -299,6 +299,12 @@ public class Generator extends Configured {
       numLists = job.getNumMapTasks();            // a partition per fetch task
     }
 
+    if ("local".equals(job.get("mapred.job.tracker")) && numLists != 1) {
+      // override
+      LOG.info("Generator: jobtracker is 'local', generating exactly one partition.");
+      numLists = 1;
+    }
+
     job.setLong("crawl.gen.curTime", curTime);
     job.setLong("crawl.topN", topN);
 
