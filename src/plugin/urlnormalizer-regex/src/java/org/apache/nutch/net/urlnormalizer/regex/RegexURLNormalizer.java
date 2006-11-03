@@ -153,8 +153,6 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
             LOG.warn("Couldn't load resource '" + resource + "': " + e);
           }
         }
-      } else {
-        LOG.warn("can't load rule file for scope '" + scope + "': " + configFile);
       }
       if (curRules == EMPTY_RULES || curRules == null) {
         LOG.warn("can't find rules for scope '" + scope + "', using default");
