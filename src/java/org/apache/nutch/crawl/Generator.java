@@ -153,7 +153,8 @@ public class Generator extends ToolBase {
         Text url = entry.url;
 
         if (maxPerHost > 0) {                     // are we counting hosts?
-          String host = new URL(url.toString()).getHost();
+          URL u = new URL(url.toString());
+          String host = u.getHost();
           if (host == null) {
             // unknown host, skip
             continue;
@@ -174,11 +175,15 @@ public class Generator extends ToolBase {
               continue;
             }
           }
+          u = new URL(u.getProtocol(), host, u.getPort(), u.getFile());
+          String urlString = u.toString();
           try {
-            host = normalizers.normalize(host, URLNormalizers.SCOPE_GENERATE_HOST_COUNT);
-            host = new URL(host).getHost().toLowerCase();
+            urlString = normalizers.normalize(urlString, URLNormalizers.SCOPE_GENERATE_HOST_COUNT);
+            host = new URL(urlString).getHost();
           } catch (Exception e) {
-            LOG.warn("Malformed URL: '" + host + "', skipping");
+            LOG.warn("Malformed URL: '" + urlString + "', skipping (" +
+                StringUtils.stringifyException(e) + ")");
+            continue;
           }
           IntWritable hostCount = (IntWritable)hostCounts.get(host);
           if (hostCount == null) {
