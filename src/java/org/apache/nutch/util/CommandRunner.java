@@ -33,10 +33,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.InterruptedIOException;
-
-import EDU.oswego.cs.dl.util.concurrent.BrokenBarrierException;
-import EDU.oswego.cs.dl.util.concurrent.CyclicBarrier;
-import EDU.oswego.cs.dl.util.concurrent.TimeoutException;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class CommandRunner {
 
@@ -116,9 +116,9 @@ public class CommandRunner {
     //
     try {
       if (_timeout == 0) {
-        _barrier.barrier(); // JDK 1.5: // _barrier.await();
+        _barrier.await();
       } else {
-        _barrier.attemptBarrier(_timeout * 1000); // JDK 1.5: //  _barrier.await(_timeout, TimeUnit.SECONDS);
+        _barrier.await(_timeout, TimeUnit.SECONDS);
       }
     } catch (TimeoutException ex) {
       _timedout = true;
@@ -217,7 +217,7 @@ public class CommandRunner {
         }
       }
       try {
-         _barrier.barrier();
+         _barrier.await();
        } catch (InterruptedException ie) {
          /* IGNORE */
        } catch (BrokenBarrierException bbe) {
