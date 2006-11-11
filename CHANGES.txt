@@ -69,6 +69,8 @@ Unreleased changes (0.9-dev)
 21. NUTCH-361, NUTCH-136 - When jobtracker is 'local' generate only one
     partition. (ab)
 
+22. NUTCH-399 - Change CommandRunner to use concurrent api from jdk (siren)
+
 
 Release 0.8 - 2006-07-25
 
