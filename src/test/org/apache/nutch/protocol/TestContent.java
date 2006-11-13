@@ -18,6 +18,7 @@
 package org.apache.nutch.protocol;
 
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.metadata.SpellCheckedMetadata;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.WritableTestUtils;
@@ -28,9 +29,9 @@ import junit.framework.TestCase;
 /** Unit tests for Content. */
 
 public class TestContent extends TestCase {
-    
+
   private static Configuration conf = NutchConfiguration.create();
-    
+
   public TestContent(String name) { super(name); }
 
   public void testContent() throws Exception {
@@ -39,13 +40,13 @@ public class TestContent extends TestCase {
 
     String url = "http://www.foo.com/";
 
-    Metadata metaData = new Metadata();
+    SpellCheckedMetadata metaData = new SpellCheckedMetadata();
     metaData.add("Host", "www.foo.com");
     metaData.add("Content-Type", "text/html");
 
     Content r = new Content(url, url, page.getBytes("UTF8"), "text/html",
                             metaData, conf);
-                        
+
     WritableTestUtils.testWritable(r);
     assertEquals("text/html", r.getMetadata().get("Content-Type"));
     assertEquals("text/html", r.getMetadata().get("content-type"));
@@ -105,5 +106,5 @@ public class TestContent extends TestCase {
                     null, p, conf);
     assertNull(c.getContentType());
   }
-	
+
 }

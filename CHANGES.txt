@@ -71,6 +71,7 @@ Unreleased changes (0.9-dev)
 
 22. NUTCH-399 - Change CommandRunner to use concurrent api from jdk (siren)
 
+23. NUTCH-395 - Increase fetching speed (siren)
 
 Release 0.8 - 2006-07-25
 
