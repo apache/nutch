@@ -17,17 +17,25 @@
 
 package org.apache.nutch.protocol;
 
-import java.util.*;
-import java.io.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
+import java.util.Arrays;
 
-import org.apache.hadoop.io.*;
-import org.apache.hadoop.fs.*;
-import org.apache.hadoop.conf.*;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.ArrayFile;
+import org.apache.hadoop.io.CompressedWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.UTF8;
+import org.apache.hadoop.io.VersionMismatchException;
 import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.util.mime.MimeType;
-import org.apache.nutch.util.mime.MimeTypes;
-import org.apache.nutch.util.mime.MimeTypeException;
+import org.apache.nutch.metadata.SpellCheckedMetadata;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.mime.MimeType;
+import org.apache.nutch.util.mime.MimeTypeException;
+import org.apache.nutch.util.mime.MimeTypes;
 
 public final class Content extends CompressedWritable {
 
@@ -36,23 +44,38 @@ public final class Content extends CompressedWritable {
   private final static byte VERSION = 2;
 
   private byte version;
+
   private String url;
+
   private String base;
+
   private byte[] content;
+
   private String contentType;
+
   private Metadata metadata;
+
   private boolean mimeTypeMagic;
+
   private MimeTypes mimeTypes;
 
-  public Content() {}
-    
-  public Content(String url, String base, byte[] content, String contentType,
-                 Metadata metadata, Configuration conf) {
+  private boolean inflated;
 
-    if (url == null) throw new IllegalArgumentException("null url");
-    if (base == null) throw new IllegalArgumentException("null base");
-    if (content == null) throw new IllegalArgumentException("null content");
-    if (metadata == null) throw new IllegalArgumentException("null metadata");
+  public Content() {
+    inflated = false;
+  }
+
+  public Content(String url, String base, byte[] content, String contentType,
+      Metadata metadata, Configuration conf) {
+
+    if (url == null)
+      throw new IllegalArgumentException("null url");
+    if (base == null)
+      throw new IllegalArgumentException("null base");
+    if (content == null)
+      throw new IllegalArgumentException("null content");
+    if (metadata == null)
+      throw new IllegalArgumentException("null metadata");
 
     this.url = url;
     this.base = base;
@@ -61,21 +84,30 @@ public final class Content extends CompressedWritable {
     this.mimeTypeMagic = conf.getBoolean("mime.type.magic", true);
     this.mimeTypes = MimeTypes.get(conf.get("mime.types.file"));
     this.contentType = getContentType(contentType, url, content);
+    inflated = true;
+  }
+
+  public void ensureInflated() {
+    if (inflated) {
+      return;
+    }
+    super.ensureInflated();
+    inflated = true;
   }
 
   protected final void readFieldsCompressed(DataInput in) throws IOException {
     version = in.readByte();
-    metadata = new Metadata();
+    metadata = new SpellCheckedMetadata();
     switch (version) {
     case 0:
     case 1:
-      url = UTF8.readString(in);                    // read url
-      base = UTF8.readString(in);                   // read base
+      url = UTF8.readString(in); // read url
+      base = UTF8.readString(in); // read base
 
-      content = new byte[in.readInt()];             // read content
+      content = new byte[in.readInt()]; // read content
       in.readFully(content);
 
-      contentType = UTF8.readString(in);            // read contentType
+      contentType = UTF8.readString(in); // read contentType
       // reconstruct metadata
       int keySize = in.readInt();
       String key;
@@ -88,33 +120,33 @@ public final class Content extends CompressedWritable {
       }
       break;
     case VERSION:
-      url = Text.readString(in);                    // read url
-      base = Text.readString(in);                   // read base
+      url = Text.readString(in); // read url
+      base = Text.readString(in); // read base
 
-      content = new byte[in.readInt()];             // read content
+      content = new byte[in.readInt()]; // read content
       in.readFully(content);
 
-      contentType = Text.readString(in);            // read contentType
-      metadata.readFields(in);                    // read meta data
+      contentType = Text.readString(in); // read contentType
+      metadata.readFields(in); // read meta data
       break;
     default:
       throw new VersionMismatchException(VERSION, version);
     }
-    
+
   }
 
   protected final void writeCompressed(DataOutput out) throws IOException {
     out.writeByte(VERSION);
 
-    Text.writeString(out, url);                   // write url
-    Text.writeString(out, base);                  // write base
+    Text.writeString(out, url); // write url
+    Text.writeString(out, base); // write base
 
-    out.writeInt(content.length);                 // write content
+    out.writeInt(content.length); // write content
     out.write(content);
 
-    Text.writeString(out, contentType);           // write contentType
-    
-    metadata.write(out);                           // write metadata
+    Text.writeString(out, contentType); // write contentType
+
+    metadata.write(out); // write metadata
   }
 
   public static Content read(DataInput in) throws IOException {
@@ -146,6 +178,7 @@ public final class Content extends CompressedWritable {
     ensureInflated();
     return content;
   }
+
   public void setContent(byte[] content) {
     ensureInflated();
     this.content = content;
@@ -159,6 +192,7 @@ public final class Content extends CompressedWritable {
     ensureInflated();
     return contentType;
   }
+
   public void setContentType(String contentType) {
     ensureInflated();
     this.contentType = contentType;
@@ -178,30 +212,28 @@ public final class Content extends CompressedWritable {
 
   public boolean equals(Object o) {
     ensureInflated();
-    if (!(o instanceof Content)){
+    if (!(o instanceof Content)) {
       return false;
     }
-    Content that = (Content)o;
+    Content that = (Content) o;
     that.ensureInflated();
-    return
-      this.url.equals(that.url) &&
-      this.base.equals(that.base) &&
-      Arrays.equals(this.getContent(), that.getContent()) &&
-      this.contentType.equals(that.contentType) &&
-      this.metadata.equals(that.metadata);
+    return this.url.equals(that.url) && this.base.equals(that.base)
+        && Arrays.equals(this.getContent(), that.getContent())
+        && this.contentType.equals(that.contentType)
+        && this.metadata.equals(that.metadata);
   }
 
   public String toString() {
     ensureInflated();
     StringBuffer buffer = new StringBuffer();
 
-    buffer.append("Version: " + version + "\n" );
-    buffer.append("url: " + url + "\n" );
-    buffer.append("base: " + base + "\n" );
-    buffer.append("contentType: " + contentType + "\n" );
-    buffer.append("metadata: " + metadata + "\n" );
+    buffer.append("Version: " + version + "\n");
+    buffer.append("url: " + url + "\n");
+    buffer.append("base: " + base + "\n");
+    buffer.append("contentType: " + contentType + "\n");
+    buffer.append("metadata: " + metadata + "\n");
     buffer.append("Content:\n");
-    buffer.append(new String(content));           // try default encoding
+    buffer.append(new String(content)); // try default encoding
 
     return buffer.toString();
 
@@ -210,7 +242,7 @@ public final class Content extends CompressedWritable {
   public static void main(String argv[]) throws Exception {
 
     String usage = "Content (-local | -dfs <namenode:port>) recno segment";
-    
+
     if (argv.length < 3) {
       System.out.println("usage:" + usage);
       return;
@@ -224,7 +256,8 @@ public final class Content extends CompressedWritable {
       Path file = new Path(segment, DIR_NAME);
       System.out.println("Reading from file: " + file);
 
-      ArrayFile.Reader contents = new ArrayFile.Reader(fs, file.toString(), conf);
+      ArrayFile.Reader contents = new ArrayFile.Reader(fs, file.toString(),
+          conf);
 
       Content content = new Content();
       contents.get(recno, content);
@@ -241,10 +274,10 @@ public final class Content extends CompressedWritable {
   private String getContentType(String typeName, String url, byte[] data) {
     MimeType type = null;
     try {
-        typeName = MimeType.clean(typeName);
-        type = typeName == null ? null : this.mimeTypes.forName(typeName);
+      typeName = MimeType.clean(typeName);
+      type = typeName == null ? null : this.mimeTypes.forName(typeName);
     } catch (MimeTypeException mte) {
-        // Seems to be a malformed mime type name...
+      // Seems to be a malformed mime type name...
     }
 
     if (typeName == null || type == null || !type.matches(url)) {
@@ -254,8 +287,8 @@ public final class Content extends CompressedWritable {
       type = this.mimeTypes.getMimeType(url);
       typeName = type == null ? typeName : type.getName();
     }
-    if (typeName == null || type == null ||
-        (this.mimeTypeMagic && type.hasMagic() && !type.matches(data))) {
+    if (typeName == null || type == null
+        || (this.mimeTypeMagic && type.hasMagic() && !type.matches(data))) {
       // If no mime-type already found, or the one found doesn't match
       // the magic bytes it should be, then, guess a mime-type from the
       // document content (magic bytes)
