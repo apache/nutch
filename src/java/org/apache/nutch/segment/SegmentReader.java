@@ -185,7 +185,7 @@ public class SegmentReader extends Configured implements Reducer {
 
     job.setReducerClass(SegmentReader.class);
 
-    Path tempDir = new Path("/tmp/segread-" + new java.util.Random().nextInt());
+    Path tempDir = new Path(job.get("mapred.temp.dir", "/tmp") + "/segread-" + new java.util.Random().nextInt());
     fs.delete(tempDir);
     
     job.setOutputPath(tempDir);
