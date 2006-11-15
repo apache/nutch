@@ -44,6 +44,10 @@ import org.apache.nutch.util.NutchJob;
 /** Generates a subset of a crawl db to fetch. */
 public class Generator extends ToolBase {
 
+  public static final String GENERATE_MAX_PER_HOST_BY_IP = "generate.max.per.host.by.ip";
+  public static final String GENERATE_MAX_PER_HOST = "generate.max.per.host";
+  public static final String CRAWL_TOP_N = "crawl.topN";
+  public static final String CRAWL_GEN_CUR_TIME = "crawl.gen.curTime";
   public static final Log LOG = LogFactory.getLog(Generator.class);
   
   public static class SelectorEntry implements Writable {
