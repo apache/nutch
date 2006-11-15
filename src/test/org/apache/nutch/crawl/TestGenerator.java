@@ -182,7 +182,8 @@ public class TestGenerator extends TestCase {
   }
   
   /**
-   * Test that generator obeys the property "generate.max.per.host".
+   * Test that generator obeys the property "generate.max.per.host" and
+   * "generate.max.per.host.by.ip".
    * @throws Exception 
    */
   public void testGenerateHostIPLimit() throws Exception{
