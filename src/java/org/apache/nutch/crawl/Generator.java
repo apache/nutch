@@ -91,10 +91,10 @@ public class Generator extends ToolBase {
     private long dnsFailure = 0L;
 
     public void configure(JobConf job) {
-      curTime = job.getLong("crawl.gen.curTime", System.currentTimeMillis());
-      limit = job.getLong("crawl.topN",Long.MAX_VALUE)/job.getNumReduceTasks();
-      maxPerHost = job.getInt("generate.max.per.host", -1);
-      byIP = job.getBoolean("generate.max.per.host.by.ip", false);
+      curTime = job.getLong(CRAWL_GEN_CUR_TIME, System.currentTimeMillis());
+      limit = job.getLong(CRAWL_TOP_N,Long.MAX_VALUE)/job.getNumReduceTasks();
+      maxPerHost = job.getInt(GENERATE_MAX_PER_HOST, -1);
+      byIP = job.getBoolean(GENERATE_MAX_PER_HOST_BY_IP, false);
       filters = new URLFilters(job);
       normalizers = new URLNormalizers(job, URLNormalizers.SCOPE_GENERATE_HOST_COUNT);
       scfilters = new ScoringFilters(job);
