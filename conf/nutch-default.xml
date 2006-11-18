@@ -780,7 +780,7 @@
   plugin-includes and plugin-excludes above) are loaded and applied in system
   defined order. If not empty, only named filters are loaded and applied
   in given order. For example, if this property has value:
-  org.apache.nutch.net.RegexURLFilter org.apache.nutch.net.PrefixURLFilter
+  org.apache.nutch.urlfilter.regex.RegexURLFilter org.apache.nutch.urlfilter.prefix.PrefixURLFilter
   then RegexURLFilter is applied first, and PrefixURLFilter second.
   Since all filters are AND'ed, filter ordering does not have impact
   on end result, but it may have performance implication, depending
