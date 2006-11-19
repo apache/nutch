@@ -329,12 +329,12 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
   
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
-      System.err.println("Usage: LinkDb <linkdb> (-dir <segmentsDir> | <seg1> <seg2> ...) [-noNormalizing] [-noFiltering]");
+      System.err.println("Usage: LinkDb <linkdb> (-dir <segmentsDir> | <seg1> <seg2> ...) [-noNormalize] [-noFilter]");
       System.err.println("\tlinkdb\toutput LinkDb to create or update");
       System.err.println("\t-dir segmentsDir\tparent directory of several segments, OR");
       System.err.println("\tseg1 seg2 ...\t list of segment directories");
-      System.err.println("\t-noNormalizing\tdon't normalize link URLs");
-      System.err.println("\t-noFiltering\tdon't apply URLFilters to link URLs");
+      System.err.println("\t-noNormalize\tdon't normalize link URLs");
+      System.err.println("\t-noFilter\tdon't apply URLFilters to link URLs");
       return -1;
     }
     Path segDir = null;
@@ -370,7 +370,5 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
       return -1;
     }
   }
-
-
 
 }
