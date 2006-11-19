@@ -76,6 +76,8 @@ Unreleased changes (0.9-dev)
 24. NUTCH-388 - nutch-default.xml has outdated example for urlfilter.order
     (reported by Jared Dunne)
 
+25. NUTCH-404 - Fix LinkDB Usage - implementation mismatch (siren)
+
 Release 0.8 - 2006-07-25
 
  0. Totally new architecture, based on hadoop
