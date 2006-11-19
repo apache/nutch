@@ -85,7 +85,7 @@ public class TestGenerator extends TestCase {
 
     createCrawlDB(list);
 
-    Path generatedSegment = generateFetchlist(NUM_RESULTS, conf);
+    Path generatedSegment = generateFetchlist(NUM_RESULTS, conf, false);
 
     Path fetchlist = new Path(new Path(generatedSegment,
         CrawlDatum.GENERATE_DIR_NAME), "part-00000");
@@ -145,7 +145,8 @@ public class TestGenerator extends TestCase {
 
     Configuration myConfiguration = new Configuration(conf);
     myConfiguration.setInt(Generator.GENERATE_MAX_PER_HOST, 1);
-    Path generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration);
+    Path generatedSegment = generateFetchlist(Integer.MAX_VALUE,
+        myConfiguration, false);
 
     Path fetchlistPath = new Path(new Path(generatedSegment,
         CrawlDatum.GENERATE_DIR_NAME), "part-00000");
@@ -155,10 +156,10 @@ public class TestGenerator extends TestCase {
     // verify we got right amount of records
     assertEquals(1, fetchList.size());
 
-    
     myConfiguration = new Configuration(conf);
     myConfiguration.setInt(Generator.GENERATE_MAX_PER_HOST, 2);
-    generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration);
+    generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration,
+        false);
 
     fetchlistPath = new Path(new Path(generatedSegment,
         CrawlDatum.GENERATE_DIR_NAME), "part-00000");
@@ -170,7 +171,8 @@ public class TestGenerator extends TestCase {
 
     myConfiguration = new Configuration(conf);
     myConfiguration.setInt(Generator.GENERATE_MAX_PER_HOST, 3);
-    generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration);
+    generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration,
+        false);
 
     fetchlistPath = new Path(new Path(generatedSegment,
         CrawlDatum.GENERATE_DIR_NAME), "part-00000");
@@ -180,7 +182,7 @@ public class TestGenerator extends TestCase {
     // verify we got right amount of records
     assertEquals(3, fetchList.size());
   }
-  
+
   /**
    * Test that generator obeys the property "generate.max.per.host" and
    * "generate.max.per.host.by.ip".
@@ -189,12 +191,9 @@ public class TestGenerator extends TestCase {
   public void testGenerateHostIPLimit() throws Exception{
     ArrayList<URLCrawlDatum> list = new ArrayList<URLCrawlDatum>();
 
-    list.add(createURLCrawlDatum("http://www.example.com/index.html",
-        1, 1));
-    list.add(createURLCrawlDatum("http://www.example.net/index.html",
-        1, 1));
-    list.add(createURLCrawlDatum("http://www.example.org/index.html",
-        1, 1));
+    list.add(createURLCrawlDatum("http://www.example.com/index.html", 1, 1));
+    list.add(createURLCrawlDatum("http://www.example.net/index.html", 1, 1));
+    list.add(createURLCrawlDatum("http://www.example.org/index.html", 1, 1));
 
     createCrawlDB(list);
 
@@ -202,7 +201,8 @@ public class TestGenerator extends TestCase {
     myConfiguration.setInt(Generator.GENERATE_MAX_PER_HOST, 1);
     myConfiguration.setBoolean(Generator.GENERATE_MAX_PER_HOST_BY_IP, true);
 
-    Path generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration);
+    Path generatedSegment = generateFetchlist(Integer.MAX_VALUE,
+        myConfiguration, false);
 
     Path fetchlistPath = new Path(new Path(generatedSegment,
         CrawlDatum.GENERATE_DIR_NAME), "part-00000");
@@ -214,7 +214,7 @@ public class TestGenerator extends TestCase {
 
     myConfiguration = new Configuration(myConfiguration);
     myConfiguration.setInt(Generator.GENERATE_MAX_PER_HOST, 2);
-    generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration);
+    generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
     fetchlistPath = new Path(new Path(generatedSegment,
         CrawlDatum.GENERATE_DIR_NAME), "part-00000");
@@ -226,7 +226,8 @@ public class TestGenerator extends TestCase {
 
     myConfiguration = new Configuration(myConfiguration);
     myConfiguration.setInt(Generator.GENERATE_MAX_PER_HOST, 3);
-    generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration);
+    generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration,
+        false);
 
     fetchlistPath = new Path(new Path(generatedSegment,
         CrawlDatum.GENERATE_DIR_NAME), "part-00000");
@@ -235,6 +236,47 @@ public class TestGenerator extends TestCase {
 
     // verify we got right amount of records
     assertEquals(3, fetchList.size());
+  }
+
+  /**
+   * Test generator obeys the filter setting.
+   * @throws Exception 
+   * @throws IOException 
+   */
+  public void testFilter() throws IOException, Exception{
+
+    ArrayList<URLCrawlDatum> list = new ArrayList<URLCrawlDatum>();
+
+    list.add(createURLCrawlDatum("http://www.example.com/index.html", 1, 1));
+    list.add(createURLCrawlDatum("http://www.example.net/index.html", 1, 1));
+    list.add(createURLCrawlDatum("http://www.example.org/index.html", 1, 1));
+
+    createCrawlDB(list);
+
+    Configuration myConfiguration = new Configuration(conf);
+    myConfiguration.set("urlfilter.suffix.file", "filter-all.txt");
+
+    Path generatedSegment = generateFetchlist(Integer.MAX_VALUE,
+        myConfiguration, true);
+
+    Path fetchlistPath = new Path(new Path(generatedSegment,
+        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
+
+    ArrayList<URLCrawlDatum> fetchList = readContents(fetchlistPath);
+
+    // verify all got filtered out
+    assertEquals(0, fetchList.size());
+
+    generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
+
+    fetchlistPath = new Path(new Path(generatedSegment,
+        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
+
+    fetchList = readContents(fetchlistPath);
+
+    // verify nothing got filtered
+    assertEquals(list.size(), fetchList.size());
+
   }
 
 
@@ -270,11 +312,12 @@ public class TestGenerator extends TestCase {
    * @return path to generated segment
    * @throws IOException
    */
-  private Path generateFetchlist(int numResults, Configuration config) throws IOException {
+  private Path generateFetchlist(int numResults, Configuration config,
+      boolean filter) throws IOException {
     // generate segment
     Generator g = new Generator(config);
     Path generatedSegment = g.generate(dbDir, segmentsDir, -1, numResults,
-        Long.MAX_VALUE);
+        Long.MAX_VALUE, filter);
     return generatedSegment;
   }
 

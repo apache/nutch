@@ -1,0 +1,7 @@
+# Config file for urlfilter-suffix plugin
+# Filter away all urls
+
+# case-insensitive, disallow unknown suffixes
+-I
+
+# allow these

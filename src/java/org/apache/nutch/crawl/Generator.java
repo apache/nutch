@@ -44,6 +44,7 @@ import org.apache.nutch.util.NutchJob;
 /** Generates a subset of a crawl db to fetch. */
 public class Generator extends ToolBase {
 
+  public static final String CRAWL_GENERATE_FILTER = "crawl.generate.filter";
   public static final String GENERATE_MAX_PER_HOST_BY_IP = "generate.max.per.host.by.ip";
   public static final String GENERATE_MAX_PER_HOST = "generate.max.per.host";
   public static final String CRAWL_TOP_N = "crawl.topN";
@@ -89,6 +90,7 @@ public class Generator extends ToolBase {
     private FloatWritable sortValue = new FloatWritable();
     private boolean byIP;
     private long dnsFailure = 0L;
+    private boolean filter;
 
     public void configure(JobConf job) {
       curTime = job.getLong(CRAWL_GEN_CUR_TIME, System.currentTimeMillis());
@@ -99,6 +101,7 @@ public class Generator extends ToolBase {
       normalizers = new URLNormalizers(job, URLNormalizers.SCOPE_GENERATE_HOST_COUNT);
       scfilters = new ScoringFilters(job);
       hostPartitioner.configure(job);
+      filter = job.getBoolean(CRAWL_GENERATE_FILTER, true);
     }
 
     public void close() {}
@@ -108,13 +111,16 @@ public class Generator extends ToolBase {
                     OutputCollector output, Reporter reporter)
       throws IOException {
       Text url = (Text)key;
-      // don't generate URLs that don't pass URLFilters
-      try {
-        if (filters.filter(url.toString()) == null)
-          return;
-      } catch (URLFilterException e) {
-        if (LOG.isWarnEnabled()) {
-          LOG.warn("Couldn't filter url: " + url + " (" + e.getMessage() + ")");
+      if (filter) {
+        // If filtering is on don't generate URLs that don't pass URLFilters
+        try {
+          if (filters.filter(url.toString()) == null)
+            return;
+        } catch (URLFilterException e) {
+          if (LOG.isWarnEnabled()) {
+            LOG.warn("Couldn't filter url: " + url + " (" + e.getMessage()
+                + ")");
+          }
         }
       }
       CrawlDatum crawlDatum = (CrawlDatum)value;
@@ -291,13 +297,13 @@ public class Generator extends ToolBase {
   /** Generate fetchlists in a segment. */
   public Path generate(Path dbDir, Path segments)
     throws IOException {
-    return generate(dbDir, segments,
-                    -1, Long.MAX_VALUE, System.currentTimeMillis());
+    return generate(dbDir, segments, -1, Long.MAX_VALUE, System
+        .currentTimeMillis(), true);
   }
 
   /** Generate fetchlists in a segment. */
   public Path generate(Path dbDir, Path segments,
-                       int numLists, long topN, long curTime)
+                       int numLists, long topN, long curTime, boolean filter)
     throws IOException {
 
     Path tempDir =
@@ -308,10 +314,12 @@ public class Generator extends ToolBase {
     Path segment = new Path(segments, generateSegmentName());
     Path output = new Path(segment, CrawlDatum.GENERATE_DIR_NAME);
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Generator: starting");
-      LOG.info("Generator: segment: " + segment);
-      LOG.info("Generator: Selecting best-scoring urls due for fetch.");
+    LOG.info("Generator: Selecting best-scoring urls due for fetch.");
+    LOG.info("Generator: starting");
+    LOG.info("Generator: segment: " + segment);
+    LOG.info("Generator: filtering: " + filter);
+    if (topN != Long.MAX_VALUE) {
+      LOG.info("Generator: topN: " + topN);
     }
 
     // map to inverted subset due for fetch, sort by link count
@@ -326,8 +334,9 @@ public class Generator extends ToolBase {
       LOG.info("Generator: jobtracker is 'local', generating exactly one partition.");
       numLists = 1;
     }
-    job.setLong("crawl.gen.curTime", curTime);
-    job.setLong("crawl.topN", topN);
+    job.setLong(CRAWL_GEN_CUR_TIME, curTime);
+    job.setLong(CRAWL_TOP_N, topN);
+    job.setBoolean(CRAWL_GENERATE_FILTER, filter);
 
     job.setInputPath(new Path(dbDir, CrawlDatum.DB_DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
@@ -393,7 +402,7 @@ public class Generator extends ToolBase {
   
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
-      System.out.println("Usage: Generator <crawldb> <segments_dir> [-topN N] [-numFetchers numFetchers] [-adddays numDays]");
+      System.out.println("Usage: Generator <crawldb> <segments_dir> [-topN N] [-numFetchers numFetchers] [-adddays numDays] [-noFilter]");
       return -1;
     }
 
@@ -402,6 +411,7 @@ public class Generator extends ToolBase {
     long curTime = System.currentTimeMillis();
     long topN = Long.MAX_VALUE;
     int numFetchers = -1;
+    boolean filter = true;
 
     for (int i = 2; i < args.length; i++) {
       if ("-topN".equals(args[i])) {
@@ -413,14 +423,14 @@ public class Generator extends ToolBase {
       } else if ("-adddays".equals(args[i])) {
         long numDays = Integer.parseInt(args[i+1]);
         curTime += numDays * 1000L * 60 * 60 * 24;
+      } else if ("-noFilter".equals(args[i])) {
+        filter = false;
       }
+      
     }
 
-    if ((LOG.isInfoEnabled()) && (topN != Long.MAX_VALUE)) {
-      LOG.info("topN: " + topN);
-    }
     try {
-      generate(dbDir, segmentsDir, numFetchers, topN, curTime);
+      generate(dbDir, segmentsDir, numFetchers, topN, curTime, filter);
       return 0;
     } catch (Exception e) {
       LOG.fatal("Generator: " + StringUtils.stringifyException(e));

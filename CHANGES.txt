@@ -78,6 +78,8 @@ Unreleased changes (0.9-dev)
 
 25. NUTCH-404 - Fix LinkDB Usage - implementation mismatch (siren)
 
+26. NUTCH-403 - Make URL filtering optional in Generator (siren)
+
 Release 0.8 - 2006-07-25
 
  0. Totally new architecture, based on hadoop
