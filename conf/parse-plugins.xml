@@ -22,16 +22,6 @@
 
 <parse-plugins>
 
-	<!--  by default if the mimeType is set to *, or 
-		can't be determined, use parse-text -->
-	<mimeType name="*">
-		<plugin id="parse-text" />
-	</mimeType>
-
-	<mimeType name="application/java">
-		<plugin id="parse-text" />
-	</mimeType>
-
 	<mimeType name="application/msword">
 		<plugin id="parse-msword" />
 	</mimeType>
@@ -46,7 +36,6 @@
 
 	<mimeType name="application/rss+xml">
 		<plugin id="parse-rss" />
-		<plugin id="parse-text" />
 	</mimeType>
 
 	<mimeType name="application/vnd.ms-excel">
@@ -113,20 +102,8 @@
 		<plugin id="parse-oo" />
 	</mimeType>
 
-	<mimeType name="application/vnd.wap.wbxml">
-		<plugin id="parse-text" />
-	</mimeType>
-
-	<mimeType name="application/vnd.wap.wmlc">
-		<plugin id="parse-text" />
-	</mimeType>
-
-	<mimeType name="application/vnd.wap.wmlscriptc">
-		<plugin id="parse-text" />
-	</mimeType>
-
 	<mimeType name="application/xhtml+xml">
-		<plugin id="parse-text" />
+		<plugin id="parse-html" />
 	</mimeType>
 
 	<mimeType name="application/x-bzip2">
@@ -145,7 +122,6 @@
 
 	<mimeType name="application/x-javascript">
 		<plugin id="parse-js" />
-		<plugin id="parse-text" />
 	</mimeType>
 
 	<mimeType name="application/x-kword">
@@ -158,64 +134,12 @@
 		<plugin id="parse-msexcel" />
 	</mimeType>
 
-	<mimeType name="application/x-latex">
-		<plugin id="parse-text" />
-	</mimeType>
-
-	<mimeType name="application/x-netcdf">
-		<plugin id="parse-text" />
-	</mimeType>
-
-	<mimeType name="application/x-sh">
-		<plugin id="parse-text" />
-	</mimeType>
-
 	<mimeType name="application/x-shockwave-flash">
 		<plugin id="parse-swf" />
 	</mimeType>
 
-	<mimeType name="application/x-tcl">
-		<plugin id="parse-text" />
-	</mimeType>
-
-	<mimeType name="application/x-tex">
-		<plugin id="parse-text" />
-	</mimeType>
-
-	<mimeType name="application/x-texinfo">
-		<plugin id="parse-text" />
-	</mimeType>
-
-	<mimeType name="application/x-troff">
-		<plugin id="parse-text" />
-	</mimeType>
-
-	<mimeType name="application/x-troff-man">
-		<plugin id="parse-text" />
-	</mimeType>
-
-	<mimeType name="application/x-troff-me">
-		<plugin id="parse-text" />
-	</mimeType>
-
-	<mimeType name="application/x-troff-ms">
-		<plugin id="parse-text" />
-	</mimeType>
-
 	<mimeType name="application/zip">
 		<plugin id="parse-zip" />
-	</mimeType>
-
-	<mimeType name="message/news">
-		<plugin id="parse-text" />
-	</mimeType>
-
-	<mimeType name="message/rfc822">
-		<plugin id="parse-text" />
-	</mimeType>
-
-	<mimeType name="text/css">
-		<plugin id="parse-text" />
 	</mimeType>
 
 	<mimeType name="text/html">
@@ -238,30 +162,15 @@
 
 	<mimeType name="text/sgml">
 		<plugin id="parse-html" />
-		<plugin id="parse-text" />
 	</mimeType>
 
 	<mimeType name="text/tab-separated-values">
 		<plugin id="parse-msexcel" />
-		<plugin id="parse-text" />
-	</mimeType>
-
-	<mimeType name="text/vnd.wap.wml">
-		<plugin id="parse-text" />
-	</mimeType>
-
-	<mimeType name="text/vnd.wap.wmlscript">
-		<plugin id="parse-text" />
 	</mimeType>
 
 	<mimeType name="text/xml">
-		<plugin id="parse-text" />
 		<plugin id="parse-html" />
 		<plugin id="parse-rss" />
-	</mimeType>
-
-	<mimeType name="text/x-setext">
-		<plugin id="parse-text" />
 	</mimeType>
 
        <!-- Types for parse-ext plugin: required for unit tests to pass. -->

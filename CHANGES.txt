@@ -83,6 +83,9 @@ Unreleased changes (0.9-dev)
 27. NUTCH-405 - Content object is not properly initialized in map method
     of ParseSegment (siren)
 
+28. NUTCH-362 - Remove parse-text from unsupported filetypes in
+    parse-plugins.xml (siren)
+
 Release 0.8 - 2006-07-25
 
  0. Totally new architecture, based on hadoop
