@@ -298,4 +298,12 @@ public final class Content extends CompressedWritable {
     return typeName;
   }
 
+  /**
+   * By calling this method caller forces the next access to any property (via
+   * getters and setters) to check if decompressing of data is really required.
+   */
+  public void forceInflate() {
+    inflated = false;
+  }
+
 }
