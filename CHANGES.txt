@@ -85,6 +85,10 @@ Unreleased changes (0.9-dev)
 
 28. NUTCH-362 - Remove parse-text from unsupported filetypes in
     parse-plugins.xml (siren)
+    
+29. NUTCH-305 - Update crawl and url filter lists to exclude
+    jpeg|JPEG|bmp|BMP, suffix-urlfilter.txt (contributed by Stefan
+    Neufeind) is also updated (siren)
 
 Release 0.8 - 2006-07-25
 
