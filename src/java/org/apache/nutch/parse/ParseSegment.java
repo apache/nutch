@@ -66,7 +66,8 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
       newKey.set(key.toString());
       key = newKey;
     }
-    Content content = (Content)value;
+    Content content = (Content) value;
+    content.forceInflate();
 
     Parse parse = null;
     ParseStatus status;
