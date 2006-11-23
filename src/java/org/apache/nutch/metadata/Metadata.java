@@ -19,7 +19,6 @@ package org.apache.nutch.metadata;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -216,7 +215,7 @@ DublinCore, HttpHeaders, Nutch, Office {
       // @since NUTCH-406: get the set
       // of non-null values, and work with
       // them to avoid NPE exception
-      String [] nonNullVals = getNonNullValues(values);
+      String[] nonNullVals = getNonNullValues(values);
       out.writeInt(nonNullVals.length);
       for (int j = 0; j < nonNullVals.length; j++) {
           Text.writeString(out, nonNullVals[j]);
@@ -237,18 +236,18 @@ DublinCore, HttpHeaders, Nutch, Office {
   }
   
   private String[] getNonNullValues(String[] values) {
-		if (values == null) {
-			return new String[0];
-		}
+    if (values == null) {
+      return new String[0];
+    }
 
-		List<String> nonNull = new Vector<String>();
-		for (int i = 0; i < values.length; i++) {
-			if (values[i] != null && !values[i].equals("")) {
-				nonNull.add(values[i]);
-			}
-		}
+    List<String> nonNull = new Vector<String>();
+    for (int i = 0; i < values.length; i++) {
+      if (values[i] != null && !values[i].equals("")) {
+        nonNull.add(values[i]);
+      }
+    }
 
-		return nonNull.toArray(new String[nonNull.size()]);
-	}
+    return nonNull.toArray(new String[nonNull.size()]);
+  }
 
 }

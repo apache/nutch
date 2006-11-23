@@ -45,6 +45,42 @@ public class TestMetadata extends TestCase {
   public static void main(String[] args) {
     TestRunner.run(suite());
   }
+  
+  /**
+   * Test to ensure that only non-null values get written when the
+   * {@link Metadata} object is written using a Writeable.
+   * 
+   * @since NUTCH-406
+   * 
+   */
+  public void testWriteNonNull() {
+    Metadata met = new Metadata();
+    met.add(CONTENTTYPE, null);
+    met.add(CONTENTTYPE, "text/bogus");
+    met.add(CONTENTTYPE, "text/bogus2");
+    met = writeRead(met);
+
+    assertNotNull(met);
+    assertEquals(met.size(), 1);
+
+    boolean hasBogus = false, hasBogus2 = false;
+
+    String[] values = met.getValues(CONTENTTYPE);
+    assertNotNull(values);
+    assertEquals(values.length, 2);
+
+    for (int i = 0; i < values.length; i++) {
+      if (values[i].equals("text/bogus")) {
+        hasBogus = true;
+      }
+
+      if (values[i].equals("text/bogus2")) {
+        hasBogus2 = true;
+      }
+    }
+
+    assertTrue(hasBogus && hasBogus2);
+  }
 
   /** Test for the <code>add(String, String)</code> method. */
   public void testAdd() {
