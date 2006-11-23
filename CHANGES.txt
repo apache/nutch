@@ -89,6 +89,8 @@ Unreleased changes (0.9-dev)
 29. NUTCH-305 - Update crawl and url filter lists to exclude
     jpeg|JPEG|bmp|BMP, suffix-urlfilter.txt (contributed by Stefan
     Neufeind) is also updated (siren)
+    
+30. NUTCH-406 - Metadata tries to write null values (mattmann)
 
 Release 0.8 - 2006-07-25
 
