@@ -33,6 +33,7 @@ import org.apache.hadoop.util.ToolBase;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.*;
 import org.apache.nutch.protocol.*;
 import org.apache.nutch.parse.*;
@@ -45,10 +46,6 @@ public class Fetcher extends ToolBase implements MapRunnable {
 
   public static final Log LOG = LogFactory.getLog(Fetcher.class);
   
-  public static final String SIGNATURE_KEY = "nutch.content.digest";
-  public static final String SEGMENT_NAME_KEY = "nutch.segment.name";
-  public static final String SCORE_KEY = "nutch.crawl.score";
-
   public static class InputFormat extends SequenceFileInputFormat {
     /** Don't split inputs, to keep things polite. */
     public FileSplit[] getSplits(FileSystem fs, JobConf job, int nSplits)
@@ -268,7 +265,7 @@ public class Fetcher extends ToolBase implements MapRunnable {
       }
       Metadata metadata = content.getMetadata();
       // add segment to metadata
-      metadata.set(SEGMENT_NAME_KEY, segmentName);
+      metadata.set(Nutch.SEGMENT_NAME_KEY, segmentName);
       // add score to content metadata so that ParseSegment can pick it up.
       try {
         scfilters.passScoreBeforeParsing(key, datum, content);
@@ -297,11 +294,11 @@ public class Fetcher extends ToolBase implements MapRunnable {
         // Calculate page signature. For non-parsing fetchers this will
         // be done in ParseSegment
         byte[] signature = SignatureFactory.getSignature(getConf()).calculate(content, parse);
-        metadata.set(SIGNATURE_KEY, StringUtil.toHexString(signature));
+        metadata.set(Nutch.SIGNATURE_KEY, StringUtil.toHexString(signature));
         datum.setSignature(signature);
         // Ensure segment name and score are in parseData metadata
-        parse.getData().getContentMeta().set(SEGMENT_NAME_KEY, segmentName);
-        parse.getData().getContentMeta().set(SIGNATURE_KEY, StringUtil.toHexString(signature));
+        parse.getData().getContentMeta().set(Nutch.SEGMENT_NAME_KEY, segmentName);
+        parse.getData().getContentMeta().set(Nutch.SIGNATURE_KEY, StringUtil.toHexString(signature));
         try {
           scfilters.passScoreAfterParsing(key, content, parse);
         } catch (Exception e) {
@@ -359,7 +356,7 @@ public class Fetcher extends ToolBase implements MapRunnable {
   public void configure(JobConf job) {
     setConf(job);
 
-    this.segmentName = job.get(SEGMENT_NAME_KEY);
+    this.segmentName = job.get(Nutch.SEGMENT_NAME_KEY);
     this.storingContent = isStoringContent(job);
     this.parsing = isParsing(job);
 
@@ -430,7 +427,7 @@ public class Fetcher extends ToolBase implements MapRunnable {
     job.setJobName("fetch " + segment);
 
     job.setInt("fetcher.threads.fetch", threads);
-    job.set(SEGMENT_NAME_KEY, segment.getName());
+    job.set(Nutch.SEGMENT_NAME_KEY, segment.getName());
 
     // for politeness, don't permit parallel execution of a single task
     job.setSpeculativeExecution(false);

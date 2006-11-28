@@ -47,6 +47,7 @@ import org.apache.nutch.crawl.LinkDb;
 import org.apache.lucene.index.*;
 import org.apache.lucene.document.*;
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.metadata.Nutch;
 
 /** Create indexes for segments. */
 public class Indexer extends ToolBase implements Reducer {
@@ -220,11 +221,11 @@ public class Indexer extends ToolBase implements Reducer {
     Metadata metadata = parseData.getContentMeta();
 
     // add segment, used to map from merged index back to segment files
-    doc.add(new Field("segment", metadata.get(Fetcher.SEGMENT_NAME_KEY),
+    doc.add(new Field("segment", metadata.get(Nutch.SEGMENT_NAME_KEY),
             Field.Store.YES, Field.Index.NO));
 
     // add digest, used by dedup
-    doc.add(new Field("digest", metadata.get(Fetcher.SIGNATURE_KEY),
+    doc.add(new Field("digest", metadata.get(Nutch.SIGNATURE_KEY),
             Field.Store.YES, Field.Index.NO));
 
 //     if (LOG.isInfoEnabled()) {

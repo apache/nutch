@@ -29,6 +29,7 @@ import org.apache.hadoop.mapred.*;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.StringUtil;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.*;
 
 import java.io.*;
@@ -89,7 +90,7 @@ public class ParseOutputFormat implements OutputFormat {
           
           ParseData parseData = parse.getData();
           // recover the signature prepared by Fetcher or ParseSegment
-          String sig = parseData.getContentMeta().get(Fetcher.SIGNATURE_KEY);
+          String sig = parseData.getContentMeta().get(Nutch.SIGNATURE_KEY);
           if (sig != null) {
             byte[] signature = StringUtil.fromHexString(sig);
             if (signature != null) {
