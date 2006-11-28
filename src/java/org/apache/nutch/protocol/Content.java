@@ -31,7 +31,6 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.UTF8;
 import org.apache.hadoop.io.VersionMismatchException;
 import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.metadata.SpellCheckedMetadata;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.mime.MimeType;
 import org.apache.nutch.util.mime.MimeTypeException;
@@ -97,7 +96,7 @@ public final class Content extends CompressedWritable {
 
   protected final void readFieldsCompressed(DataInput in) throws IOException {
     version = in.readByte();
-    metadata = new SpellCheckedMetadata();
+    metadata = new Metadata();
     switch (version) {
     case 0:
     case 1:

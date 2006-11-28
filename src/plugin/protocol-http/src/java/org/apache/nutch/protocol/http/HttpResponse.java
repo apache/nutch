@@ -31,6 +31,7 @@ import java.net.URL;
 // Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.metadata.SpellCheckedMetadata;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.http.api.HttpBase;
@@ -47,7 +48,7 @@ public class HttpResponse implements Response {
   private String base;
   private byte[] content;
   private int code;
-  private Metadata headers = new Metadata();
+  private Metadata headers = new SpellCheckedMetadata();
 
 
   public HttpResponse(HttpBase http, URL url, CrawlDatum datum)
