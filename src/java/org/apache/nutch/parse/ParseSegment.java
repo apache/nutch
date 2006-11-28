@@ -25,6 +25,7 @@ import org.apache.nutch.fetcher.Fetcher;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.conf.*;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.protocol.*;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
@@ -80,7 +81,7 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
 
     // compute the new signature
     byte[] signature = SignatureFactory.getSignature(getConf()).calculate(content, parse);
-    content.getMetadata().set(Fetcher.SIGNATURE_KEY, StringUtil.toHexString(signature));
+    content.getMetadata().set(Nutch.SIGNATURE_KEY, StringUtil.toHexString(signature));
     
     if (status.isSuccess()) {
       try {

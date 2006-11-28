@@ -32,6 +32,7 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.fetcher.Fetcher;
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.protocol.Content;
@@ -102,18 +103,18 @@ public class OPICScoringFilter implements ScoringFilter {
 
   /** Store a float value of CrawlDatum.getScore() under Fetcher.SCORE_KEY. */
   public void passScoreBeforeParsing(Text url, CrawlDatum datum, Content content) {
-    content.getMetadata().set(Fetcher.SCORE_KEY, "" + datum.getScore());
+    content.getMetadata().set(Nutch.SCORE_KEY, "" + datum.getScore());
   }
 
   /** Copy the value from Content metadata under Fetcher.SCORE_KEY to parseData. */
   public void passScoreAfterParsing(Text url, Content content, Parse parse) {
-    parse.getData().getContentMeta().set(Fetcher.SCORE_KEY, content.getMetadata().get(Fetcher.SCORE_KEY));
+    parse.getData().getContentMeta().set(Nutch.SCORE_KEY, content.getMetadata().get(Nutch.SCORE_KEY));
   }
 
   /** Get a float value from Fetcher.SCORE_KEY, divide it by the number of outlinks and apply. */
   public CrawlDatum distributeScoreToOutlink(Text fromUrl, Text toUrl, ParseData parseData, CrawlDatum target, CrawlDatum adjust, int allCount, int validCount) throws ScoringFilterException {
     float score = scoreInjected;
-    String scoreString = parseData.getContentMeta().get(Fetcher.SCORE_KEY);
+    String scoreString = parseData.getContentMeta().get(Nutch.SCORE_KEY);
     if (scoreString != null) {
       try {
         score = Float.parseFloat(scoreString);

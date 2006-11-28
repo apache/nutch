@@ -35,6 +35,7 @@ import org.apache.nutch.crawl.Generator;
 import org.apache.nutch.fetcher.Fetcher;
 import org.apache.nutch.metadata.MetaWrapper;
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseText;
@@ -170,9 +171,9 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
           } else if (o instanceof ParseData) {
             // update the segment name inside contentMeta - required by Indexer
             if (slice == null) {
-              ((ParseData)o).getContentMeta().set(Fetcher.SEGMENT_NAME_KEY, segmentName);
+              ((ParseData)o).getContentMeta().set(Nutch.SEGMENT_NAME_KEY, segmentName);
             } else {
-              ((ParseData)o).getContentMeta().set(Fetcher.SEGMENT_NAME_KEY, segmentName + "-" + slice);
+              ((ParseData)o).getContentMeta().set(Nutch.SEGMENT_NAME_KEY, segmentName + "-" + slice);
             }
             pd_out = ensureMapFile(slice, ParseData.DIR_NAME, ParseData.class);
             pd_out.append(key, o);
