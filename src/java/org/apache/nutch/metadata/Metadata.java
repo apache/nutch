@@ -92,6 +92,10 @@ DublinCore, HttpHeaders, Nutch, Office {
    * @return the values associated to a metadata name.
    */
   public String[] getValues(final String name) {
+    return _getValues(name);
+  }
+  
+  private String[] _getValues(final String name) {
     String[] values = metadata.get(name);
     if (values == null) {
       values = new String[0];
@@ -174,8 +178,8 @@ DublinCore, HttpHeaders, Nutch, Office {
 
     String[] names = names();
     for (int i = 0; i < names.length; i++) {
-      String[] otherValues = other.getValues(names[i]);
-      String[] thisValues = getValues(names[i]);
+      String[] otherValues = other._getValues(names[i]);
+      String[] thisValues = _getValues(names[i]);
       if (otherValues.length != thisValues.length) {
         return false;
       }
@@ -192,7 +196,7 @@ DublinCore, HttpHeaders, Nutch, Office {
     StringBuffer buf = new StringBuffer();
     String[] names = names();
     for (int i = 0; i < names.length; i++) {
-      String[] values = getValues(names[i]);
+      String[] values = _getValues(names[i]);
       for (int j = 0; j < values.length; j++) {
         buf.append(names[i])
            .append("=")
@@ -209,7 +213,7 @@ DublinCore, HttpHeaders, Nutch, Office {
     String[] names = names();
     for (int i = 0; i < names.length; i++) {
       Text.writeString(out, names[i]);
-      values = getValues(names[i]);
+      values = _getValues(names[i]);
       int cnt = 0;
       for (int j = 0; j < values.length; j++) {
         if (values[j] != null)
