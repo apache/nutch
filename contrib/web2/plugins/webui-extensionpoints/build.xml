@@ -15,25 +15,16 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<project name="web-resources" default="jar-core">
+<project name="webui-extensionpoints" default="jar">
 
   <import file="../build-plugin.xml" />
-  <property name="nutch.root" location="${root}/../../../../" />
 
-  <target name="init-plugin">
-    <echo>Copying resources templates</echo>
-    <copy todir="${build.classes}/resources">
-      <fileset dir="${resources.dir}" includes="**/*" />
-    </copy>
-    <echo>Copying UI configuration</echo>
-    <copy todir="${build.classes}">
-      <fileset dir="src/conf" includes="**/*" />
-    </copy>
-    <echo>Copying UI templates</echo>
-    <copy todir="${deploy.dir}/web">
-      <fileset dir="src/web" includes="**/*" />
-    </copy>
-  </target>
+  <!--
+    ! Override the compile and jar targets,
+    ! since there is nothing to compile here.
+    ! -->
+  <target name="compile" depends="init" />
 
+  <!--target name="jar" depends="compile"/-->
 
 </project>

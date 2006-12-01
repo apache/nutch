@@ -1,5 +1,20 @@
 <?xml version="1.0"?>
-
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+  
+  http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
 <project name="Nutch" default="deploy-core" basedir=".">
 
   <target name="deploy-core">
@@ -11,6 +26,7 @@
   <!-- Build & deploy all the plugin jars.                    -->
   <!-- ====================================================== -->
   <target name="deploy">
+    <ant dir="webui-extensionpoints" target="deploy"/>
     <ant dir="web-caching-oscache" target="deploy"/>
     <ant dir="web-more" target="deploy"/>
     <ant dir="web-resources" target="deploy"/>
@@ -35,6 +51,7 @@
   <!-- Clean all of the plugins.                              -->
   <!-- ====================================================== -->
   <target name="clean">
+    <ant dir="webui-extensionpoints" target="clean"/>
     <ant dir="web-caching-oscache" target="clean"/>
     <ant dir="web-resources" target="clean"/>
     <ant dir="web-more" target="clean"/>
