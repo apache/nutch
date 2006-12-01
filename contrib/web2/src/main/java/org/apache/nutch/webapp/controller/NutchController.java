@@ -40,11 +40,11 @@ import org.apache.struts.tiles.Controller;
 public abstract class NutchController implements Controller {
 
   public static final Log LOG = LogFactory.getLog(NutchController.class);
-  
+
   public final void execute(ComponentContext tileContext,
       HttpServletRequest request, HttpServletResponse response,
       ServletContext servletContext) throws ServletException, IOException {
-    
+
     request.setCharacterEncoding("UTF-8");
 
     try {
@@ -54,9 +54,9 @@ public abstract class NutchController implements Controller {
       e.printStackTrace(LogUtil.getInfoStream(LOG));
     }
   }
-  
+
   /**
-   * Nutch controllers overwrite this method
+   * Nutch controllers overwrite this method.
    * 
    * @param tileContext
    * @param request
@@ -70,8 +70,8 @@ public abstract class NutchController implements Controller {
       ServletContext servletContext) throws ServletException, IOException;
 
   /**
-   * Get Active service locator from request or create on if not exiting
-   * 
+   * Get Active service locator from request or create on if none exists.
+   *
    * @param request
    * @return
    */
@@ -107,13 +107,6 @@ public abstract class NutchController implements Controller {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.apache.struts.tiles.Controller#perform(org.apache.struts.tiles.ComponentContext,
-   *      javax.servlet.http.HttpServletRequest,
-   *      javax.servlet.http.HttpServletResponse, javax.servlet.ServletContext)
-   */
   public void perform(ComponentContext tileContext, HttpServletRequest request,
       HttpServletResponse response, ServletContext servletContext)
       throws ServletException, IOException {
@@ -123,7 +116,7 @@ public abstract class NutchController implements Controller {
   /**
    * Get servlet context service locator, this one cannot access request
    * specific information as preferences etc.
-   * 
+   *
    * @param servletContext
    * @return
    */

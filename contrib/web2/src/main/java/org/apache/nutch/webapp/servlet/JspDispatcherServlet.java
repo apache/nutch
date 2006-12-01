@@ -74,7 +74,7 @@ public class JspDispatcherServlet extends NutchHttpServlet {
    */
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
-    
+
     //get jsp include path_info from request object
     String relPath=(String)request.getAttribute("javax.servlet.include.path_info");
 

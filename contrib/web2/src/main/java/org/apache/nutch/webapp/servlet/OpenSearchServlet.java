@@ -19,17 +19,20 @@ package org.apache.nutch.webapp.servlet;
 
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.Map;
 import java.util.HashMap;
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-import javax.servlet.ServletException;
 import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import javax.xml.parsers.*;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.nutch.searcher.Hit;
 import org.apache.nutch.searcher.HitDetails;
@@ -37,17 +40,18 @@ import org.apache.nutch.searcher.Hits;
 import org.apache.nutch.searcher.NutchBean;
 import org.apache.nutch.searcher.Query;
 import org.apache.nutch.searcher.Summary;
-import org.w3c.dom.*;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 
 /**
  * Present search results using A9's OpenSearch extensions to RSS, plus a few
  * Nutch-specific extensions.
  */
 public class OpenSearchServlet extends NutchHttpServlet {
+  private static final int DEFAULT_NUMBER_OF_HITS = 10;
+
   private static final long serialVersionUID = 1L;
 
   private static final Map NS_MAP = new HashMap();
@@ -75,19 +79,22 @@ public class OpenSearchServlet extends NutchHttpServlet {
     // get parameters from request
     request.setCharacterEncoding("UTF-8");
     String queryString = request.getParameter("query");
-    if (queryString == null)
+    if (queryString == null) {
       queryString = "";
+    }
     String urlQuery = URLEncoder.encode(queryString, "UTF-8");
 
     int start = 0; // first hit to display
     String startString = request.getParameter("start");
-    if (startString != null)
+    if (startString != null) {
       start = Integer.parseInt(startString);
+    }
 
-    int hitsPerPage = 10; // number of hits to display
+    int hitsPerPage = DEFAULT_NUMBER_OF_HITS; // number of hits to display
     String hitsString = request.getParameter("hitsPerPage");
-    if (hitsString != null)
+    if (hitsString != null) {
       hitsPerPage = Integer.parseInt(hitsString);
+    }
 
     String sort = request.getParameter("sort");
     boolean reverse = sort != null
@@ -119,14 +126,15 @@ public class OpenSearchServlet extends NutchHttpServlet {
             + (reverse ? "&reverse=true" : "")
             + (dedupField == null ? "" : "&dedupField=" + dedupField));
 
-    Query query = Query.parse(queryString, getServiceLocator().getConfiguration());
+    Query query = Query.parse(queryString, getServiceLocator()
+        .getConfiguration());
     NutchBean.LOG.info("query: " + queryString);
 
     // execute the query
     Hits hits;
     try {
-      hits = getServiceLocator().getNutchBean().search(query, start + hitsPerPage, hitsPerDup, dedupField,
-          sort, reverse);
+      hits = getServiceLocator().getNutchBean().search(query,
+          start + hitsPerPage, hitsPerDup, dedupField, sort, reverse);
     } catch (IOException e) {
       NutchBean.LOG.warn("Search Error", e);
       hits = new Hits(0, new Hit[0]);
@@ -140,7 +148,8 @@ public class OpenSearchServlet extends NutchHttpServlet {
 
     Hit[] show = hits.getHits(start, end - start);
     HitDetails[] details = getServiceLocator().getNutchBean().getDetails(show);
-    Summary[] summaries = getServiceLocator().getNutchBean().getSummary(details, query);
+    Summary[] summaries = getServiceLocator().getNutchBean().getSummary(
+        details, query);
 
     String requestUrl = request.getRequestURL().toString();
     String base = requestUrl.substring(0, requestUrl.lastIndexOf('/'));
@@ -188,8 +197,10 @@ public class OpenSearchServlet extends NutchHttpServlet {
         String url = detail.getValue("url");
         String id = "idx=" + hit.getIndexNo() + "&id=" + hit.getIndexDocNo();
 
-        if (title == null || title.equals("")) // use url for docs w/o title
+        if (title == null || title.equals("")) {
+          // use url for docs w/o title
           title = url;
+        }
 
         Element item = addNode(doc, channel, "item");
 
@@ -212,8 +223,9 @@ public class OpenSearchServlet extends NutchHttpServlet {
 
         for (int j = 0; j < detail.getLength(); j++) { // add all from detail
           String field = detail.getField(j);
-          if (!SKIP_DETAILS.contains(field))
+          if (!SKIP_DETAILS.contains(field)) {
             addNode(doc, item, "nutch", field, detail.getValue(j));
+          }
         }
       }
 

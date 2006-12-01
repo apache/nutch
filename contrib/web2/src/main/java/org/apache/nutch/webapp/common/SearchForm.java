@@ -28,17 +28,17 @@ import java.util.Map;
  * SearchForm is a representation of query parameters submitted as part of
  * search form. It provides functionality to preserve all required parameters
  * for example when creating link to "next page"
- * 
+ *
  * Plugins participating in search
- * 
+ *
  * @see org.apache.nutch.webapp.extension.PreSearch,
  * @see org.apache.nutch.webapp.extension.Search,
  * @see org.apache.nutch.webapp.extension.PostSearch
- * 
+ *
  * can by reading (existing) or setting values to/from this map make sure that
  * those parameters are persisted to forms/links requiring them without any
  * special tricks.
- * 
+ *
  */
 public class SearchForm {
 
@@ -46,9 +46,9 @@ public class SearchForm {
    * General HTTP parameter name wich contains hits per page value
    */
   public static final String NAME_HITSPERPAGE = "hitsPerPage";
-  
-  public static final String NAME_HITSPERDUP ="hitsPerDup";
-  
+
+  public static final String NAME_HITSPERDUP = "hitsPerDup";
+
   public static final String NAME_START = "start";
 
   public static final String NAME_QUERYSTRING = "query";
@@ -68,8 +68,8 @@ public class SearchForm {
   ArrayList active;
 
   /**
-   * KeyValue presents a class that holds key value pair
-   * 
+   * KeyValue presents a class that holds key value pair.
+   *
    */
   public static class KeyValue {
 
@@ -140,8 +140,8 @@ public class SearchForm {
   }
 
   /**
-   * Sets value for provided key
-   * 
+   * Sets value for provided key.
+   *
    * @param key
    *          the key to set the value on
    * @param value
@@ -158,8 +158,8 @@ public class SearchForm {
   }
 
   /**
-   * Gets the real value contained in keyed KeyValue
-   * 
+   * Gets the real value contained in keyed KeyValue.
+   *
    * @param key
    * @return
    */
@@ -167,13 +167,14 @@ public class SearchForm {
     if (n_values.containsKey(key) && !active.contains(n_values.get(key))) {
       active.add(n_values.get(key));
       return (String) ((KeyValue) n_values.get(key)).getValue();
-    } else
+    } else {
       return null;
+    }
   }
 
   /**
-   * Gets the String value contained in keyed KeyValue
-   * 
+   * Gets the String value contained in keyed KeyValue.
+   *
    * @param key
    * @return Object.toString()
    */
@@ -184,8 +185,9 @@ public class SearchForm {
       // get only the 1st parameter
       n_values.put(key, new KeyValue(key, ((String[]) o_values.get(key))[0]));
       active.add(n_values.get(key));
-    } else
+    } else {
       return null;
+    }
 
     try {
       return (String) ((KeyValue) n_values.get(key)).getValue();
@@ -195,8 +197,8 @@ public class SearchForm {
   }
 
   /**
-   * Remove named key (and the KeyValue)
-   * 
+   * Remove named key (and the KeyValue).
+   *
    * @param key
    * @return
    */
@@ -204,12 +206,13 @@ public class SearchForm {
     if (n_values.containsKey(key)) {
       active.remove(n_values.get(key));
       return (KeyValue) n_values.remove(key);
-    } else
+    } else {
       return null;
+    }
   }
 
   /**
-   * Get named KeyValue object
+   * Get named KeyValue object.
    * 
    * @param key
    * @return named object or null if not existing
@@ -222,19 +225,14 @@ public class SearchForm {
   }
 
   /**
-   * returns list of KeyValue objects that have been read or set
-   * 
+   * Returns list of KeyValue objects that have been read or set.
+   *
    * @return List containing KeyValue objects
    */
   public List getActive() {
     return active;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.Object#toString()
-   */
   public String toString() {
 
     StringBuffer sb = new StringBuffer();
@@ -268,7 +266,7 @@ public class SearchForm {
    * Returns a string usable in urls that contains all active parameters and
    * their values, if submitted encoding does not work values are encoded with
    * utf-8 encoding.
-   * 
+   *
    * @param encoding
    * @return
    */
@@ -293,7 +291,7 @@ public class SearchForm {
         sb.append(URLEncoder.encode(kv.getKey(), encoding)).append("=").append(
             URLEncoder.encode(kv.getValue(), encoding));
       } else {
-        sb.append(URLEncoder.encode(kv.getKey(),"utf-8")).append("=").append(
+        sb.append(URLEncoder.encode(kv.getKey(), "utf-8")).append("=").append(
             URLEncoder.encode(kv.getValue(), "utf-8"));
       }
       if (i.hasNext()) {
@@ -302,7 +300,7 @@ public class SearchForm {
     }
     return sb.toString();
   }
-  
+
   public Object clone(){
     SearchForm newForm=new SearchForm(new HashMap());
     newForm.active.addAll(active);

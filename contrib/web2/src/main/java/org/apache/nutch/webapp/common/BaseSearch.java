@@ -111,7 +111,7 @@ public class BaseSearch {
   }
 
   /**
-   * Call plugins participating PreSearch activities
+   * Call plugins participating PreSearch activities.
    */
   void callPreSearch(ServiceLocator locator) {
     LOG.info("presearch");
@@ -121,7 +121,7 @@ public class BaseSearch {
   }
 
   /**
-   * Call plugins participating Search activities
+   * Call plugins participating Search activities.
    */
   void callSearch() {
     for (int i = 0; i < search.length; i++) {
@@ -130,7 +130,7 @@ public class BaseSearch {
   }
 
   /**
-   * Call plugins participating postSearch activities
+   * Call plugins participating postSearch activities.
    */
   void callPostSearch(ServiceLocator locator) {
     LOG.info("postsearch");
@@ -140,7 +140,7 @@ public class BaseSearch {
   }
 
   /**
-   * Entry point to execute the search
+   * Entry point to execute the search.
    */
   public void doSearch() {
     // create context

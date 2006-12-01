@@ -47,8 +47,8 @@ public class SearchResultBean {
   }
 
   /**
-   * Url of search result
-   * 
+   * Url of search result.
+   *
    * @return
    */
   public String getUrl() {
@@ -56,8 +56,8 @@ public class SearchResultBean {
   }
 
   /**
-   * Title of search result
-   * 
+   * Title of search result.
+   *
    * @return
    */
   public String getTitle() {
@@ -66,8 +66,8 @@ public class SearchResultBean {
   }
 
   /**
-   * Id of search result
-   * 
+   * Id of search result.
+   *
    * @return
    */
   public String getId() {
@@ -75,8 +75,8 @@ public class SearchResultBean {
   }
 
   /**
-   * Summary of search result
-   * 
+   * Summary of search result.
+   *
    * @return
    */
   public String getSummary() {
@@ -84,8 +84,8 @@ public class SearchResultBean {
   }
 
   /**
-   * Url of search result in encoded form
-   * 
+   * Url of search result in encoded form.
+   *
    * @return
    */
   public String getEncodedUrl() {
@@ -93,8 +93,8 @@ public class SearchResultBean {
   }
 
   /**
-   * Title of search result in encoded form
-   * 
+   * Title of search result in encoded form.
+   *
    * @return
    */
   public String getEncodedTitle() {
@@ -102,10 +102,10 @@ public class SearchResultBean {
   }
 
   /**
-   * "more" url this should be replaced with help of SearchForm
-   * 
+   * "more" url this should be replaced with help of SearchForm.
+   *
    * @return
-   * 
+   *
    */
   public String getMoreUrl() throws UnsupportedEncodingException {
     String more = "";
@@ -119,8 +119,8 @@ public class SearchResultBean {
   }
 
   /**
-   * Dedup field name
-   * 
+   * Dedup field name.
+   *
    * @return
    */
   public String getDedupValue() {
@@ -128,14 +128,15 @@ public class SearchResultBean {
   }
 
   /**
-   * QueryString in encoded form
-   * 
+   * QueryString in encoded form.
+   *
    * @return
    */
   public String getUrlEncodedQuery() {
     try {
-      if (search.getQueryString() != null)
+      if (search.getQueryString() != null) {
         return URLEncoder.encode(search.getQueryString(), "UTF-8");
+      }
     } catch (UnsupportedEncodingException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -144,8 +145,8 @@ public class SearchResultBean {
   }
 
   /**
-   * HitDetails of search result
-   * 
+   * HitDetails of search result.
+   *
    * @return
    */
   public HitDetails getDetails() {
@@ -153,8 +154,8 @@ public class SearchResultBean {
   }
 
   /**
-   * Hit of search result
-   * 
+   * Hit of search result.
+   *
    * @return
    */
   public Hit getHit() {
@@ -163,10 +164,10 @@ public class SearchResultBean {
 
   /**
    * Boolean indicating that there are other, lower-scoring hits with the same
-   * dedup value
-   * 
+   * dedup value.
+   *
    * @see Hit#moreFromDupExcluded()
-   * 
+   *
    * @return true if more dups available
    */
   public boolean getHasMore() {

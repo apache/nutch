@@ -141,8 +141,9 @@ public class PluginResourceLoader extends ClassLoader {
 
     ArrayList paths = new ArrayList();
 
-    if(LOG.isDebugEnabled()){
-      LOG.debug("PluginResourceLoader : dynamically setting jars based on plugins implementing UIExtensionPoint.");
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("PluginResourceLoader : dynamically setting jars based "
+          + "on plugins implementing UIExtensionPoint.");
     }
 
     ExtensionPoint point = locator.getPluginRepository().getExtensionPoint(
@@ -164,15 +165,13 @@ public class PluginResourceLoader extends ClassLoader {
 
       // classloaders.add(loader);
 
-      URL urls[] = loader.getURLs();
+      URL[] urls = loader.getURLs();
 
       for (int k = 0; k < urls.length; k++) {
         URL url = urls[k];
         if (!seen.contains(url)) {
           paths.add(url);
-          if(LOG.isDebugEnabled()){
-            LOG.debug("Adding to classpath:" + url);
-          }
+          LOG.debug("Adding to classpath:" + url);
         }
         seen.add(url);
       }
@@ -183,11 +182,6 @@ public class PluginResourceLoader extends ClassLoader {
 
   }
 
-  /*
-   * s (non-Javadoc)
-   * 
-   * @see java.lang.ClassLoader#getResource(java.lang.String)
-   */
   public URL getResource(String name) {
     Iterator i = classloaders.iterator();
 
@@ -201,11 +195,6 @@ public class PluginResourceLoader extends ClassLoader {
     return null;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.ClassLoader#getResourceAsStream(java.lang.String)
-   */
   public InputStream getResourceAsStream(String name) {
     Iterator i = classloaders.iterator();
 
@@ -219,11 +208,6 @@ public class PluginResourceLoader extends ClassLoader {
     return null;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.ClassLoader#getResources(java.lang.String)
-   */
   public Enumeration getResources(String name) throws IOException {
     Iterator i = classloaders.iterator();
 
@@ -237,11 +221,6 @@ public class PluginResourceLoader extends ClassLoader {
     return null;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see java.lang.ClassLoader#loadClass(java.lang.String)
-   */
   public Class loadClass(String name) throws ClassNotFoundException {
 
     try {

@@ -19,7 +19,7 @@ package org.apache.nutch.webapp.extension;
 /**
  * Plugins implementing UIExtensionPoint can provide
  * extensions web ui in form of layout components
- * or ui logic
+ * or ui logic.
  */
 public interface UIExtensionPoint {
 

@@ -37,33 +37,34 @@ public abstract class ServletContextServiceLocator implements ServiceLocator {
       .getName();
 
   /**
-   * Logger
+   * Logger.
    */
-  public static final Log LOG = LogFactory.getLog(ServletContextServiceLocator.class);
+  public static final Log LOG = LogFactory
+      .getLog(ServletContextServiceLocator.class);
 
   /**
-   * ServletContext this ServiceLocator is bound to
+   * ServletContext this ServiceLocator is bound to.
    */
   protected ServletContext servletContext;
 
   /**
-   * Active configuration
+   * Active configuration.
    */
   protected Configuration config;
 
   /**
-   * Active PluginRepository
+   * Active PluginRepository.
    */
   private PluginRepository repository;
 
   /**
-   * Active NutchBean
+   * Active NutchBean.
    */
   private NutchBean bean;
 
   /**
-   * Private Constructor used to create new ServiceLocator when needed
-   * 
+   * Private Constructor used to create new ServiceLocator when needed.
+   *
    * @param servletContext
    */
   private ServletContextServiceLocator(ServletContext servletContext) {
@@ -80,7 +81,7 @@ public abstract class ServletContextServiceLocator implements ServiceLocator {
   /**
    * Factory method to get handle to ServiceLocator, or if none exists in
    * ServletContext then one is created.
-   * 
+   *
    * @param context
    * @return ServiceLocator instance bound to ServletContext
    */
@@ -110,37 +111,18 @@ public abstract class ServletContextServiceLocator implements ServiceLocator {
     return locator;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.apache.nutch.webapp.common.ServiceLocator#getConfiguration()
-   */
   public Configuration getConfiguration() {
     return config;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.apache.nutch.webapp.common.ServiceLocator#getPluginRepository()
-   */public PluginRepository getPluginRepository() {
+  public PluginRepository getPluginRepository() {
     return repository;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.apache.nutch.webapp.common.ServiceLocator#getNutchBean()
-   */
   public NutchBean getNutchBean() {
     return bean;
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.apache.nutch.webapp.common.ServiceLocator#getPluginResourceLoader(java.lang.ClassLoader)
-   */
   public PluginResourceLoader getPluginResourceLoader(ClassLoader loader) {
     return PluginResourceLoader.getInstance(this, loader);
   }

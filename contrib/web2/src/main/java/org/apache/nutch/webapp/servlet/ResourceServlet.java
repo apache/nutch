@@ -28,11 +28,11 @@ import org.apache.nutch.plugin.PluginDescriptor;
 
 /**
  * Simple Servlet that serves resources from plugins.
- * 
+ *
  * Plugin must put resources to be exposed into path /resources/ for example
  * resource /resources/possible/sub/folder/resource.jpg will then be available
  * in location <contextPath>/resources/<plugin_id>/possible/sub/folder/resource.jpg
- * 
+ *
  */
 public class ResourceServlet extends NutchHttpServlet {
 
@@ -41,8 +41,8 @@ public class ResourceServlet extends NutchHttpServlet {
   private static final long serialVersionUID = 1L;
 
   /**
-   * Extract plugin id from path
-   * 
+   * Extract plugin id from path.
+   *
    * @param path
    * @return
    */
@@ -59,8 +59,8 @@ public class ResourceServlet extends NutchHttpServlet {
   }
 
   /**
-   * Extract plugin relative path from path
-   * 
+   * Extract plugin relative path from path.
+   *
    * @param path
    * @return
    */
@@ -96,7 +96,8 @@ public class ResourceServlet extends NutchHttpServlet {
             byte[] buffer = new byte[response.getBufferSize()];
 
             int len;
-            String contentType = getServletContext().getMimeType(path).toString();
+            String contentType = getServletContext().getMimeType(path)
+                .toString();
 
             response.setContentType(contentType);
             while ((len = is.read(buffer)) != -1) {
@@ -110,7 +111,7 @@ public class ResourceServlet extends NutchHttpServlet {
         }
       }
     }
-    
+
     //of no resource was found dispay error
     response.setContentType("text/plain");
     PrintWriter pw = response.getWriter();

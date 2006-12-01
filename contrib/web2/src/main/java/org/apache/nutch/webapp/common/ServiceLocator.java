@@ -30,54 +30,58 @@ import org.apache.nutch.searcher.NutchBean;
 public interface ServiceLocator {
 
   /**
-   * Return active Configuration instance (application context)
-   * 
+   * Return active Configuration instance (application context).
+   *
    * @return
    */
   public Configuration getConfiguration();
 
   /**
-   * Return active PluginRepsository instance (application instance)
-   * 
+   * Return active PluginRepsository instance (application instance).
+   *
    * @return
    */
   public PluginRepository getPluginRepository();
 
   /**
-   * Return active SearchForm (request instance)
-   * 
+   * Return active SearchForm (request instance).
+   *
    * @return
    */
   public SearchForm getSearchForm();
 
   /**
-   * Return active Preferences (request context)
-   * 
+   * Return active Preferences (request context).
+   *
    * @return
    */
   public Preferences getPreferences();
 
   /**
-   * Return active NutchBean (application context)
-   * 
+   * Return active NutchBean (application context).
+   *
    * @return
    */
   public NutchBean getNutchBean();
 
   /**
-   * Return active PluginResourceLoader (application context)
-   * 
+   * Return active PluginResourceLoader (application context).
+   *
    * @return
    */
   public PluginResourceLoader getPluginResourceLoader(ClassLoader loader);
 
   /**
-   * Return active Search (request context)
-   * 
+   * Return active Search (request context).
+   *
    * @return
    */
   public Search getSearch();
 
+  /**
+   * Return active locale
+   * @return
+   */
   public Locale getLocale();
-  
+
 }
