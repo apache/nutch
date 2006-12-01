@@ -47,12 +47,14 @@ See http://forrest.apache.org/docs/linking.html for more info.
   <projects label="Related Projects">
     <lucene     label="Lucene Java"      href="ext:lucene" />
     <hadoop     label="Hadoop"      href="ext:hadoop" />
+    <solr       label="Solr"      href="ext:solr" />
   </projects>
 
   <external-refs>
     <lucene    href="http://lucene.apache.org/java/" />
     <nightly-api href="http://lucene.apache.org/nutch/nutch-nightly/docs/api/index.html" />
     <hadoop    href="http://lucene.apache.org/hadoop/" />
+    <solr      href="http://incubator.apache.org/solr/" />
     <wiki      href="http://wiki.apache.org/nutch/" />
     <faq       href="http://wiki.apache.org/nutch/FAQ" /> 
     <store     href="http://www.cafepress.com/nutch/" />
