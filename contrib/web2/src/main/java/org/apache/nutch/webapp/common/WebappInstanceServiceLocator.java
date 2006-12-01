@@ -72,7 +72,6 @@ public class WebappInstanceServiceLocator implements ServiceLocator {
   }
 
   /**
-   * 
    * @param request
    * @return
    */
@@ -82,7 +81,6 @@ public class WebappInstanceServiceLocator implements ServiceLocator {
   }
 
   /**
-   * 
    * @param request
    * @param locator
    */
@@ -96,42 +94,22 @@ public class WebappInstanceServiceLocator implements ServiceLocator {
     }
   }
 
-  /*
-   *  (non-Javadoc)
-   * @see org.apache.nutch.webapp.common.ServiceLocator#getConfiguration()
-   */
   public Configuration getConfiguration() {
     return contextLocator.getConfiguration();
   }
 
-  /*
-   *  (non-Javadoc)
-   * @see org.apache.nutch.webapp.common.ServiceLocator#getPluginRepository()
-   */
   public PluginRepository getPluginRepository() {
     return contextLocator.getPluginRepository();
   }
 
-  /*
-   *  (non-Javadoc)
-   * @see org.apache.nutch.webapp.common.ServiceLocator#getNutchBean()
-   */
   public NutchBean getNutchBean() {
     return contextLocator.getNutchBean();
   }
 
-  /*
-   *  (non-Javadoc)
-   * @see org.apache.nutch.webapp.common.ServiceLocator#getPluginResourceLoader(java.lang.ClassLoader)
-   */
   public PluginResourceLoader getPluginResourceLoader(ClassLoader loader) {
     return contextLocator.getPluginResourceLoader(loader);
   }
 
-  /*
-   *  (non-Javadoc)
-   * @see org.apache.nutch.webapp.common.ServiceLocator#getLocale()
-   */
   public Locale getLocale() {
     return getPreferences().getLocale(request);
   }

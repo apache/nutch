@@ -33,13 +33,12 @@ import java.io.IOException;
 
 /**
  * A servlet that serves raw Content of any mime type.
- * 
+ *
  * If it fails with java.lang.OutOfMemoryError, you may have to increase heap
  * size when starting container, such as -Xms1024M -Xmx1024M
- * 
+ *
  * @author John Xing
  */
-
 public class CachedServlet extends NutchHttpServlet {
 
   private static final long serialVersionUID = 1L;
@@ -66,7 +65,8 @@ public class CachedServlet extends NutchHttpServlet {
     byte[] bytes = getServiceLocator().getNutchBean().getContent(details);
 
     // pass all original headers? only these for now.
-    Metadata metadata = getServiceLocator().getNutchBean().getParseData(details).getContentMeta();
+    Metadata metadata = getServiceLocator().getNutchBean()
+        .getParseData(details).getContentMeta();
     String contentType = metadata.get(Response.CONTENT_TYPE);
     // String lastModified = metadata.get(Metadata.LAST_MODIFIED);
     // String contentLength = metadata.get(Metadata.CONTENT_LENGTH);

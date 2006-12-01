@@ -28,7 +28,7 @@ import org.apache.nutch.webapp.common.ServiceLocator;
 import org.apache.struts.tiles.ComponentContext;
 
 /**
- * Simple controller for preferences page
+ * Simple controller for preferences page.
  */
 public class PreferencesController extends NutchController {
 
@@ -40,9 +40,9 @@ public class PreferencesController extends NutchController {
 
     if (tileContext.getAttribute("action").equals("save")) {
       LOG.info("save");
-      Preferences p=Preferences.parse(request.getQueryString(),"&", "=");
+      Preferences p = Preferences.parse(request.getQueryString(), "&", "=");
       LOG.info("setting cookie");
-      Preferences.setPreferencesCookie(request,response,p);
+      Preferences.setPreferencesCookie(request, response, p);
       LOG.info("setting attribute");
       request.setAttribute("preferences", p);
     } else {

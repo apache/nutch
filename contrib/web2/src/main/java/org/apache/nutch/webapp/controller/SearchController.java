@@ -27,17 +27,19 @@ import org.apache.nutch.webapp.common.Search;
 import org.apache.nutch.webapp.common.ServiceLocator;
 import org.apache.struts.tiles.ComponentContext;
 
-/* This is the main controller of nutch search application
+/**
+ *  This is the main controller of nutch search application.
  */
 public class SearchController extends NutchController {
-  
-  public void nutchPerform(ComponentContext tileContext, HttpServletRequest request,
-      HttpServletResponse response, ServletContext servletContext)
+
+  public void nutchPerform(ComponentContext tileContext,
+      HttpServletRequest request, HttpServletResponse response,
+      ServletContext servletContext)
       throws ServletException, IOException {
-    
-    ServiceLocator locator=getServiceLocator(request);
-    
-    Search search=locator.getSearch();
+
+    ServiceLocator locator = getServiceLocator(request);
+
+    Search search = locator.getSearch();
     search.launchSearch();
   }
 }

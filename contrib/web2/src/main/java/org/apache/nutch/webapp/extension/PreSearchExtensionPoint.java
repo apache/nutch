@@ -20,10 +20,10 @@ import org.apache.nutch.webapp.common.ServiceLocator;
 
 /**
  * Plugins extending this extension point are run before the actual
- * search
+ * search.
  */
 public interface PreSearchExtensionPoint {
-  
+
   public static final String X_POINT_ID=PreSearchExtensionPoint.class.getName();
 
   void doPreSearch(ServiceLocator locator);

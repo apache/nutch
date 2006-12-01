@@ -20,12 +20,12 @@ import org.apache.nutch.webapp.common.ServiceLocator;
 
 /**
  * Plugins extending this extension point are run after the actual
- * search
+ * search.
  */
 public interface PostSearchExtensionPoint {
 
   public static final String X_POINT_ID=PostSearchExtensionPoint.class.getName();
-  
+
   void doPostSearch(ServiceLocator locator);
-  
+
 }

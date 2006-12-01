@@ -18,9 +18,15 @@ package org.apache.nutch.webapp.common;
 
 import javax.servlet.ServletContext;
 
-/** Controllers wishing to be initialized must extend this interface
- * 
+/**
+ * Controllers wishing to be initialized must extend this interface.
  */
 public interface Startable {
-  public void start(ServletContext servletContext);
+
+  /**
+   * This method gets called when plugin initializes.
+   *
+   * @param servletContext
+   */
+  void start(ServletContext servletContext);
 }

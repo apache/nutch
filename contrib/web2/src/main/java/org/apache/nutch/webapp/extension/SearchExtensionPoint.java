@@ -20,11 +20,10 @@ import org.apache.nutch.webapp.common.ServiceLocator;
 
 /**
  * Plugins extending this interface can provide logic that
- * is run in parallel with the nutch search.                
- *
+ * is run in parallel with the nutch search.
  */
 public interface SearchExtensionPoint {
-  
+
   public static final String X_POINT_ID=SearchExtensionPoint.class.getName();
 
   void doSearch(ServiceLocator locator);

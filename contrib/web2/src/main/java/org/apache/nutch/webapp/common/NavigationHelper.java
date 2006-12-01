@@ -17,9 +17,7 @@
 package org.apache.nutch.webapp.common;
 
 /**
- * Helper class to aid when forming search result navigation
- * 
- * 
+ * Helper class to aid when forming search result navigation.
  */
 public class NavigationHelper {
 
@@ -50,8 +48,8 @@ public class NavigationHelper {
   }
 
   /**
-   * Is there a previous page available
-   * 
+   * Is there a previous page available.
+   *
    * @return
    */
   protected boolean hasPrev() {
@@ -66,16 +64,16 @@ public class NavigationHelper {
     return end < totalHits && (!getShowAllHits());
   }
 
-  /** 
-   * Proceed to next page
+  /**
+   * Proceed to next page.
    */
   protected void nextPage() {
     start += hitsPerPage;
   }
 
   /**
-   * Returns offset to next page
-   * 
+   * Returns offset to next page.
+   *
    * @return
    */
   public long getNextPageStart() {
@@ -83,14 +81,14 @@ public class NavigationHelper {
   }
 
   /**
-   * Proceed to previous page
+   * Proceed to previous page.
    */
   public void prev() {
     start -= hitsPerPage;
   }
 
   /**
-   * Get a page number
+   * Get a page number.
    * @return
    */
   public int getPageNumber() {
@@ -98,7 +96,6 @@ public class NavigationHelper {
   }
 
   /**
-   *  
    * @return
    */
   protected boolean getShowAllHits() {
@@ -106,7 +103,7 @@ public class NavigationHelper {
   }
 
   /**
-   * Returns the numer of last hit on page 
+   * Returns the number of last hit on page.
    * @return
    */
   public long getEnd() {

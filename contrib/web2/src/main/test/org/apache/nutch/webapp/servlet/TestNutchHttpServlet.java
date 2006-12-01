@@ -20,15 +20,15 @@ import junit.framework.TestCase;
 
 public class TestNutchHttpServlet extends TestCase {
 
-  /*
-   * Test method for 'org.apache.nutch.webapp.servlet.NutchHttpServlet.getMappingRelativePath(String)'
-   */
   public void testGetMappingRelativePath() {
-    
-    NutchHttpServlet servlet=new NutchHttpServlet(){};
 
-    assertEquals(null,servlet.getMappingRelativePath("test.jsp"));
-    assertEquals("/kissa.jsp",servlet.getMappingRelativePath("/somepath/kissa.jsp"));
-    assertEquals("/kissa.jsp",servlet.getMappingRelativePath("somepath/kissa.jsp"));
+    NutchHttpServlet servlet = new NutchHttpServlet() {
+    };
+
+    assertEquals(null, servlet.getMappingRelativePath("test.jsp"));
+    assertEquals("/kissa.jsp", servlet
+        .getMappingRelativePath("/somepath/kissa.jsp"));
+    assertEquals("/kissa.jsp", servlet
+        .getMappingRelativePath("somepath/kissa.jsp"));
   }
 }

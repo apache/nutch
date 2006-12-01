@@ -48,13 +48,14 @@ import org.apache.struts.tiles.xmlDefinition.XmlParser;
 import org.xml.sax.SAXException;
 
 /**
- * Tiles DefinitionsFactory that can be extended by activated plugins
+ * Tiles DefinitionsFactory that can be extended by activated plugins.
  */
 public class ExtendableDefinitionsFactory implements DefinitionsFactory {
 
   private static final long serialVersionUID = 1L;
 
-  public static final Log LOG = LogFactory.getLog(ExtendableDefinitionsFactory.class);
+  public static final Log LOG = LogFactory
+      .getLog(ExtendableDefinitionsFactory.class);
 
   DefinitionsFactoryConfig config;
 
@@ -66,23 +67,12 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
 
   HashMap locales = new HashMap();
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.apache.struts.tiles.DefinitionsFactory#getDefinition(java.lang.String,
-   *      javax.servlet.ServletRequest, javax.servlet.ServletContext)
-   */
   public ComponentDefinition getDefinition(String name, ServletRequest request,
       ServletContext servletContext) throws NoSuchDefinitionException,
       DefinitionsFactoryException {
     return (ComponentDefinition) definitions.get(name);
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.apache.struts.tiles.xmlDefinition.DefinitionsFactory#putDefinition(org.apache.struts.tiles.ComponentDefinition)
-   */
   public void putDefinition(ComponentDefinition definition) {
     LOG.info("putting definition:" + definition.getName());
     definitions.put(definition.getName(), definition);
@@ -96,7 +86,7 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
   protected XmlDefinitionsSet getDefinitions() {
 
     LOG.debug("getDefinitions()");
-    
+
     XmlDefinitionsSet definitions = new XmlDefinitionsSet();
     //
     // core definitions
@@ -109,9 +99,9 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
       InputStream input = servletContext.getResourceAsStream(files[i]);
 
       LOG.info("Stream: " + input);
-      
+
       if (input != null) {
-         parseXMLDefinitionSet(input, definitions, files[i], "nutch-core");
+        parseXMLDefinitionSet(input, definitions, files[i], "nutch-core");
       } else {
         LOG.info("Cannot find static " + files[i]);
       }
@@ -138,7 +128,8 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
         addToSet(definitions, extension);
       }
     } else {
-      LOG.info("Cannot find extension point '" + UIExtensionPoint.X_POINT_ID + "'");
+      LOG.info("Cannot find extension point '" + UIExtensionPoint.X_POINT_ID
+          + "'");
     }
 
     try {
@@ -169,8 +160,8 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
 
   protected void parseXMLDefinitionSet(InputStream input,
       XmlDefinitionsSet definitions, String info, String pluginid) {
-    XmlDefinitionsSet newSet=new XmlDefinitionsSet();
-    
+    XmlDefinitionsSet newSet = new XmlDefinitionsSet();
+
     try {
       xmlParser.parse(input, newSet);
     } catch (IOException e) {
@@ -183,31 +174,25 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
       e.printStackTrace();
     }
 
-//    LOG.info("Definitions:" + definitions.getDefinitions().size() + " : "
-//        + definitions.toString());
-    
-    copySet(definitions,newSet);
-    
+    // LOG.info("Definitions:" + definitions.getDefinitions().size() + " : "
+    // + definitions.toString());
+
+    copySet(definitions, newSet);
+
   }
 
   private void copySet(XmlDefinitionsSet definitions2, XmlDefinitionsSet newSet) {
-    
-    Iterator iterator=newSet.getDefinitions().keySet().iterator();
-    
-    while(iterator.hasNext()){
-      String key=(String)iterator.next();
+
+    Iterator iterator = newSet.getDefinitions().keySet().iterator();
+
+    while (iterator.hasNext()) {
+      String key = (String) iterator.next();
       LOG.info("adding: " + key);
-      XmlDefinition value=newSet.getDefinition(key);
+      XmlDefinition value = newSet.getDefinition(key);
       definitions2.putDefinition(value);
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.apache.struts.tiles.DefinitionsFactory#init(org.apache.struts.tiles.DefinitionsFactoryConfig,
-   *      javax.servlet.ServletContext)
-   */
   public void init(DefinitionsFactoryConfig config,
       ServletContext servletContext) throws DefinitionsFactoryException {
     this.config = config;
@@ -227,22 +212,23 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
 
     this.definitions = definitions.getDefinitions();
   }
-  
+
   private void initDefinitions(XmlDefinitionsSet definitions) {
     Iterator i = definitions.getDefinitions().keySet().iterator();
 
     while (i.hasNext()) {
       String key = (String) i.next();
-      if(LOG.isDebugEnabled()){
+      if (LOG.isDebugEnabled()) {
         LOG.debug("Initializing controller: " + key);
       }
       XmlDefinition d = definitions.getDefinition(key);
       try {
-        Controller controller=d.getOrCreateController();
-        if(controller!=null){
-          //check if it is implementing Startable, if so execute lifecycle method
-          if(controller instanceof Startable) {
-            ((Startable)controller).start(servletContext);
+        Controller controller = d.getOrCreateController();
+        if (controller != null) {
+          // check if it is implementing Startable, if so execute lifecycle
+          // method
+          if (controller instanceof Startable) {
+            ((Startable) controller).start(servletContext);
           }
         }
       } catch (Exception e) {
@@ -251,21 +237,10 @@ public class ExtendableDefinitionsFactory implements DefinitionsFactory {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.apache.struts.tiles.DefinitionsFactory#destroy()
-   */
   public void destroy() {
     LOG.info("destroy()");
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.apache.struts.tiles.DefinitionsFactory#setConfig(org.apache.struts.tiles.DefinitionsFactoryConfig,
-   *      javax.servlet.ServletContext)
-   */
   public void setConfig(DefinitionsFactoryConfig config,
       ServletContext servletContext) throws DefinitionsFactoryException {
     this.config = config;

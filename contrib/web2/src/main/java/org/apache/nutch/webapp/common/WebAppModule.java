@@ -42,7 +42,7 @@ import java.lang.ClassLoader;
 /**
  * This class is responsible for parsing web.xml definitions from plugins (put
  * there by jspc when precompiling jsp files).
- * 
+ *
  * Extracted information is used at runtime when dispatching requests targetted
  * to jsp resources to the precompiled servlet classes.
  */
@@ -120,7 +120,7 @@ public class WebAppModule {
 
   public WebAppModule(ClassLoader loader, ServletConfig config) {
     servletConfig = config;
-    this.loader=loader;
+    this.loader = loader;
     init(loader.getResourceAsStream("META-INF/jsp-servlet-mappings.xml"));
   }
 
@@ -175,7 +175,7 @@ public class WebAppModule {
    */
   public void dispatch(String relPath, HttpServletRequest request,
       HttpServletResponse response) {
-    
+
     HttpServlet servletObject;
     if (servletObjects.containsKey(relPath)) {
       servletObject = (HttpServlet) servletObjects.get(relPath);

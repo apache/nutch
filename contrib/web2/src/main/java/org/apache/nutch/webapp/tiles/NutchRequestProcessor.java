@@ -26,7 +26,7 @@ import org.apache.struts.tiles.TilesRequestProcessor;
 
 public class NutchRequestProcessor extends TilesRequestProcessor {
 
-  
+
   /**
    * Process locale, override the default functionality and prevent
    * session from being created.
@@ -34,12 +34,13 @@ public class NutchRequestProcessor extends TilesRequestProcessor {
   protected void processLocale(HttpServletRequest request,
       HttpServletResponse response) {
 
-    ServiceLocator locator=WebappInstanceServiceLocator.getFrom(request);
+    ServiceLocator locator = WebappInstanceServiceLocator.getFrom(request);
 
-    if(locator==null) {
-      locator=new WebappInstanceServiceLocator(request, getServletContext());
-      WebappInstanceServiceLocator.register(request, (WebappInstanceServiceLocator)locator);
-    } 
+    if (locator == null) {
+      locator = new WebappInstanceServiceLocator(request, getServletContext());
+      WebappInstanceServiceLocator.register(request,
+          (WebappInstanceServiceLocator) locator);
+    }
 
     Config.set(request, Config.FMT_LOCALE, locator.getLocale());
   }

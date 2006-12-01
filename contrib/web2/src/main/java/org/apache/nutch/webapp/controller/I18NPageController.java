@@ -56,8 +56,9 @@ public class I18NPageController extends NutchController {
     String attrName = (String) tileContext.getAttribute("attrName");
 
     // if not available use default
-    if (attrName == null)
+    if (attrName == null) {
       attrName = "content";
+    }
 
     // get users preferred locale
     Locale locale = locator.getLocale();
@@ -70,13 +71,15 @@ public class I18NPageController extends NutchController {
     if (content == null) {
       content = new StringBuffer();
       List suffixes = calculateSuffixes(locale);
-      
-      if(!suffixes.contains(servletContext.getInitParameter("javax.servlet.jsp.jstl.fmt.fallbackLocale"))){
-        suffixes.add(servletContext.getInitParameter("javax.servlet.jsp.jstl.fmt.fallbackLocale"));
+
+      if (!suffixes.contains(servletContext
+          .getInitParameter("javax.servlet.jsp.jstl.fmt.fallbackLocale"))) {
+        suffixes.add(servletContext
+            .getInitParameter("javax.servlet.jsp.jstl.fmt.fallbackLocale"));
       }
 
       Iterator iterator = suffixes.iterator();
-      
+
       while (iterator.hasNext()) {
         String postfix = (String) iterator.next();
         String name = concatPostfix(baseName, postfix);
@@ -145,13 +148,13 @@ public class I18NPageController extends NutchController {
    * Concat postfix to the name. Take care of existing filename extension.
    * Transform the given name "name.ext" to have "name" + "postfix" + "ext". If
    * there is no ext, return "name" + "postfix".
-   * 
+   *
    * @param name
    *          Filename.
    * @param postfix
    *          Postfix to add.
    * @return Concatenated filename.
-   * 
+   *
    * This method is borrowed from I18NFactorySet.java wich is part of tiles
    * (struts)
    */
@@ -161,5 +164,5 @@ public class I18NPageController extends NutchController {
     }
     return "/" + postfix + name;
   }
-  
+
 }

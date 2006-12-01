@@ -34,15 +34,15 @@ import org.apache.nutch.searcher.Summary;
 
 /**
  * Search is a bean that represents an ongoing search.
- * 
+ *
  * After search searchBean that represents the search user doing (also the
  * results) might be a good candidate for caching ?
- * 
+ *
  */
 public class Search implements Writable {
 
   private static final long serialVersionUID = 1L;
-  
+
   public static final String REQ_ATTR_SEARCH="nutchSearch";
   public static final Log LOG = LogFactory.getLog(Search.class);
 
@@ -58,11 +58,11 @@ public class Search implements Writable {
 
   // Number of results per page
   int hitsPerPage;
- 
+
   // Number of hits required, for example clustering plugin might require more
   // than hitsPerPage hits
   int hitsRequired=0;
- 
+
   String sortColumn;
 
   boolean sortDesc;
@@ -87,13 +87,13 @@ public class Search implements Writable {
 
   /**
    * Perform search described by this bean
-   * 
+   *
    * @param bean
    */
   public void performSearch() {
 
     LOG.info("performing search, requiring:" + getHitsRequired());
-    
+
     try {
       LOG.info("query:" + getQuery());
       LOG.info("endOffset:" + getStartOffset() + getHitsRequired());
@@ -101,9 +101,10 @@ public class Search implements Writable {
       LOG.info("dupField:" + getDupField());
       LOG.info("sortField:" + getSortColumn());
       LOG.info("descending:" + isSortDesc());
-      
-      hits = locator.getNutchBean().search(getQuery(), getStartOffset() + getHitsRequired(),
-          getHitsPerDup(), getDupField(), getSortColumn(), isSortDesc());
+
+      hits = locator.getNutchBean().search(getQuery(),
+          getStartOffset() + getHitsRequired(), getHitsPerDup(), getDupField(),
+          getSortColumn(), isSortDesc());
     } catch (IOException e) {
       hits = new Hits(0, new Hit[0]);
     }
@@ -125,7 +126,7 @@ public class Search implements Writable {
 
   public void init(){
     int endOffset=hits.getLength();
-    
+
     navigationHelper = new NavigationHelper(startOffset, endOffset, hitsPerPage, hits
         .getTotal(), hits.totalIsExact());
 
@@ -135,17 +136,16 @@ public class Search implements Writable {
           .getNextPageStart()));
     }
   }
-  
-  
+
   /**
-   * gets the results of search to display
-   * 
+   * Gets the results of search to display.
+   *
    * @return
    */
   public List getResults() {
-    
+
     int len=Math.min(details.length,getHitsPerPage());
-    
+
     if (results == null) {
       results = new ArrayList(len);
       for (int i = 0; i < len; i++) {
@@ -167,9 +167,9 @@ public class Search implements Writable {
     }
     return ret;
   }
-  
+
   public Search(){
-    
+
   }
 
   public Search(ServiceLocator locator) {
@@ -178,14 +178,16 @@ public class Search implements Writable {
     form = locator.getSearchForm();
 
     queryString = form.getValueString(SearchForm.NAME_QUERYSTRING);
-    if (queryString == null)
+    if (queryString == null) {
       queryString = "";
+    }
     htmlQueryString = Entities.encode(queryString);
 
     startOffset = parseInt(form.getValueString(SearchForm.NAME_START), 0);
     hitsPerPage = parseInt(form.getValueString(SearchForm.NAME_HITSPERPAGE),
         prefs.getInt(Preferences.KEY_RESULTS_PER_PAGE, 10));
-    hitsPerDup = parseInt(form.getValueString(SearchForm.NAME_HITSPERDUP), prefs.getInt(
+    hitsPerDup = parseInt(form.getValueString(SearchForm.NAME_HITSPERDUP),
+        prefs.getInt(
         Preferences.KEY_HITS_PER_DUP, 2));
 
     sortColumn = form.getValueString(SearchForm.NAME_SORTCOLUMN);
@@ -194,8 +196,9 @@ public class Search implements Writable {
         .getValueString(SearchForm.NAME_SORTREVERSE)));
 
     dupField = form.getValueString(SearchForm.NAME_DUPCOLUMN);
-    if (dupField == null)
+    if (dupField == null) {
       dupField = "site";
+    }
 
     try {
       query = Query.parse(queryString, locator.getConfiguration());
@@ -235,7 +238,7 @@ public class Search implements Writable {
   protected void setHitsPerSite(int hitsPerSite) {
     this.hitsPerDup = hitsPerSite;
   }
-  
+
   /**
    * @return Returns the query.
    */
@@ -267,8 +270,8 @@ public class Search implements Writable {
   }
 
   /**
-   * Returns true if sort is descending
-   * 
+   * Returns true if sort is descending.
+   *
    * @return Returns sort order
    */
   public boolean isSortDesc() {
@@ -276,8 +279,8 @@ public class Search implements Writable {
   }
 
   /**
-   * Set sort order
-   * 
+   * Set sort order.
+   *
    * @param sortAsc
    *          The sortAsc to set.
    */
@@ -392,7 +395,7 @@ public class Search implements Writable {
 
   /**
    * returns start, end, total, used for printing message on search page, this
-   * is why offset is +1'd
+   * is why offset is +1'd.
    */
   public String[] getResultInfo() {
     return new String[] { Long.toString(startOffset + 1),
@@ -423,7 +426,6 @@ public class Search implements Writable {
   }
 
   /**
-   * 
    * @return
    */
   public List getFormProperties() {
@@ -441,8 +443,8 @@ public class Search implements Writable {
   }
 
   /**
-   * return boolean if there are results
-   * 
+   * Return true if there are results.
+   *
    * @return
    */
   public boolean getHasResults() {
@@ -454,79 +456,76 @@ public class Search implements Writable {
   }
 
   /**
-   * Return number of hits required, if not specified defaults to HitsPerPage
+   * Return number of hits required, if not specified defaults to HitsPerPage.
    * @return
    */
   public int getHitsRequired() {
-    if(hitsRequired!=0) {
-    return hitsRequired;
-    } 
+    if (hitsRequired != 0) {
+      return hitsRequired;
+    }
     return getHitsPerPage();
   }
 
   /**
-   * Set number of hits required
+   * Set number of hits required.
    * @param hitsRequired
    */
   public void setHitsRequired(int hitsRequired) {
     this.hitsRequired = hitsRequired;
   }
 
-  /** 
-   * Launch search
+  /**
+   * Launch search.
    */
   public void launchSearch() {
-    BaseSearch bs=new BaseSearch(locator);
+    BaseSearch bs = new BaseSearch(locator);
     bs.doSearch();
   }
 
   public void write(DataOutput out) throws IOException {
     LOG.info("writing hits");
     hits.write(out);
-    
-    
     out.writeInt(show.length);
 
-    for(int i=0;i<show.length;i++){
+    for (int i = 0; i < show.length; i++) {
       show[i].write(out);
     }
 
     out.writeInt(details.length);
-    for(int i=0;i<details.length;i++){
+    for (int i = 0; i < details.length; i++) {
       details[i].write(out);
     }
 
     out.writeInt(summaries.length);
-    for(int i=0;i<summaries.length;i++){
+    for (int i = 0; i < summaries.length; i++) {
       summaries[i].write(out);
     }
 
   }
 
   public void readFields(DataInput in) throws IOException {
-    hits=new Hits();
+    hits = new Hits();
     hits.readFields(in);
-    int showlength=in.readInt();
-    show=new Hit[showlength];
-    for(int i=0;i<showlength;i++){
-      show[i]=new Hit();
+    int showlength = in.readInt();
+    show = new Hit[showlength];
+    for (int i = 0; i < showlength; i++) {
+      show[i] = new Hit();
       show[i].readFields(in);
     }
 
-    int detailsLength=in.readInt();
-    details=new HitDetails[detailsLength];
-    for(int i=0;i<detailsLength;i++){
-      details[i]=new HitDetails();
+    int detailsLength = in.readInt();
+    details = new HitDetails[detailsLength];
+    for (int i = 0; i < detailsLength; i++) {
+      details[i] = new HitDetails();
       details[i].readFields(in);
     }
 
-    int summariesLength=in.readInt();
-    summaries=new Summary[summariesLength];
-    for(int i=0;i<summariesLength;i++){
-      summaries[i]=new Summary();
+    int summariesLength = in.readInt();
+    summaries = new Summary[summariesLength];
+    for (int i = 0; i < summariesLength; i++) {
+      summaries[i] = new Summary();
       summaries[i].readFields(in);
     }
-
-  
   }
+  
 }
