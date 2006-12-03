@@ -1,92 +1,108 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+  
+  http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
 <!DOCTYPE web-app
     PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
     "dtd/web-app_2_3.dtd">
 <web-app>
-	<context-param>
-		<param-name>
-			javax.servlet.jsp.jstl.fmt.localizationContext
-		</param-name>
-		<param-value>org.nutch.jsp.resources</param-value>
-	</context-param>
-	<context-param>
-		<param-name>javax.servlet.jsp.jstl.fmt.fallbackLocale</param-name>
-		<param-value>en</param-value>
-	</context-param>
-	<servlet>
-		<servlet-name>action</servlet-name>
-		<servlet-class>
-			org.apache.struts.action.ActionServlet
-		</servlet-class>
-		<init-param>
-			<param-name>config</param-name>
-			<param-value>/WEB-INF/struts-config.xml</param-value>
-		</init-param>
-		<init-param>
-			<param-name>factoryClassname</param-name>
-			<param-value>
-				org.apache.nutch.webapp.tiles.ExtendableDefinitionsFactory
-			</param-value>
-		</init-param>
-		<load-on-startup>2</load-on-startup>
-	</servlet>
-	<servlet>
-		<servlet-name>Cached</servlet-name>
-		<servlet-class>
-			org.apache.nutch.webapp.servlet.CachedServlet
-		</servlet-class>
-	</servlet>
-	<servlet>
-		<servlet-name>OpenSearch</servlet-name>
-		<servlet-class>
-			org.apache.nutch.webapp.servlet.OpenSearchServlet
-		</servlet-class>
-	</servlet>
-	<servlet>
-		<servlet-name>PluginResourceServlet</servlet-name>
-		<servlet-class>
-			org.apache.nutch.webapp.servlet.ResourceServlet
-		</servlet-class>
-	</servlet>
-	<servlet>
-		<servlet-name>PluginJSPDispatcher</servlet-name>
-		<servlet-class>
-			org.apache.nutch.webapp.servlet.JspDispatcherServlet
-		</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>Cached</servlet-name>
-		<url-pattern>/servlet/cached</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>OpenSearch</servlet-name>
-		<url-pattern>/opensearch</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>action</servlet-name>
-		<url-pattern>*.do</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>PluginJSPDispatcher</servlet-name>
-		<url-pattern>/plugin/*</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>PluginResourceServlet</servlet-name>
-		<url-pattern>/resources/*</url-pattern>
-	</servlet-mapping>
-	<welcome-file-list>
-		<welcome-file>index.jsp</welcome-file>
-	</welcome-file-list>
-	<taglib>
-		<taglib-uri>/tags/struts-tiles</taglib-uri>
-		<taglib-location>/WEB-INF/tld/struts-tiles.tld</taglib-location>
-	</taglib>
-	<taglib>
-		<taglib-uri>/tags/jstl-c</taglib-uri>
-		<taglib-location>/WEB-INF/tld/c.tld</taglib-location>
-	</taglib>
-	<taglib>
-		<taglib-uri>/tags/jstl-fmt</taglib-uri>
-		<taglib-location>/WEB-INF/tld/fmt.tld</taglib-location>
-	</taglib>
+  <context-param>
+    <param-name>
+      javax.servlet.jsp.jstl.fmt.localizationContext
+    </param-name>
+    <param-value>org.nutch.jsp.resources</param-value>
+  </context-param>
+  <context-param>
+    <param-name>javax.servlet.jsp.jstl.fmt.fallbackLocale</param-name>
+    <param-value>en</param-value>
+  </context-param>
+  <servlet>
+    <servlet-name>action</servlet-name>
+    <servlet-class>
+      org.apache.struts.action.ActionServlet
+    </servlet-class>
+    <init-param>
+      <param-name>config</param-name>
+      <param-value>/WEB-INF/struts-config.xml</param-value>
+    </init-param>
+    <init-param>
+      <param-name>factoryClassname</param-name>
+      <param-value>
+        org.apache.nutch.webapp.tiles.ExtendableDefinitionsFactory
+      </param-value>
+    </init-param>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet>
+    <servlet-name>Cached</servlet-name>
+    <servlet-class>
+      org.apache.nutch.webapp.servlet.CachedServlet
+    </servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>OpenSearch</servlet-name>
+    <servlet-class>
+      org.apache.nutch.webapp.servlet.OpenSearchServlet
+    </servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>PluginResourceServlet</servlet-name>
+    <servlet-class>
+      org.apache.nutch.webapp.servlet.ResourceServlet
+    </servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>PluginJSPDispatcher</servlet-name>
+    <servlet-class>
+      org.apache.nutch.webapp.servlet.JspDispatcherServlet
+    </servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Cached</servlet-name>
+    <url-pattern>/servlet/cached</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>OpenSearch</servlet-name>
+    <url-pattern>/opensearch</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>action</servlet-name>
+    <url-pattern>*.do</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>PluginJSPDispatcher</servlet-name>
+    <url-pattern>/plugin/*</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>PluginResourceServlet</servlet-name>
+    <url-pattern>/resources/*</url-pattern>
+  </servlet-mapping>
+  <welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+  </welcome-file-list>
+  <taglib>
+    <taglib-uri>/tags/struts-tiles</taglib-uri>
+    <taglib-location>/WEB-INF/tld/struts-tiles.tld</taglib-location>
+  </taglib>
+  <taglib>
+    <taglib-uri>/tags/jstl-c</taglib-uri>
+    <taglib-location>/WEB-INF/tld/c.tld</taglib-location>
+  </taglib>
+  <taglib>
+    <taglib-uri>/tags/jstl-fmt</taglib-uri>
+    <taglib-location>/WEB-INF/tld/fmt.tld</taglib-location>
+  </taglib>
 </web-app>
