@@ -79,7 +79,7 @@
   <!--
     Compile Java files
   -->
-  <target name="compile" depends="init">
+  <target name="compile" depends="nutch-jar, nutch-plugins, init">
     <echo message="Compiling ${name}" />
     <javac encoding="${build.encoding}" srcdir="${src.dir}"
       includes="**/*.java" destdir="${build.classes}"
@@ -106,6 +106,19 @@
     </jar>
   </target>
 
+  <!-- 
+    compile nutch 
+  -->
+  <target name="nutch-jar">
+    <ant dir="${nutch.root}" target="jar" inheritAll="false" />
+
+  </target>
+  <target name="nutch-plugins">
+    <ant antfile="${nutch.root}/build.xml" dir="${nutch.root}"
+      target="compile-plugins" />
+
+  </target>
+
   <!--
     generate the nutch.xml (servlet context) file 
   -->
@@ -127,7 +140,8 @@
     <ant dir="plugins" target="deploy" inheritAll="false" />
   </target>
 
-  <target name="war" depends="generate-context, generate-pages, jar">
+  <target name="war"
+    depends="generate-context, generate-pages, jar">
     <war destfile="${build.dir}/${web.final.name}.war"
       webxml="src/main/webapp/WEB-INF/web.xml">
       <fileset dir="${web.src.dir}" excludes="WEB-INF/web.xml" />

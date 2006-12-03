@@ -23,34 +23,13 @@ WebApp extension can contain ui logic (in forms of tiles
 controllers and pojos, jar libraries), ui markup
 (in form of html, jsp), ui resources css, javascript.
 
-Before compiling core nutch plugins you must edit the
-core nutch plugin 'nutch-extensionpoints' plugin.xml
-and add following snippet into it:
-
-<extension-point
-      id="org.apache.nutch.webapp.extension.UIExtensionPoint"
-      name="UI extension"/>
-
-<extension-point
-      id="org.apache.nutch.webapp.extension.PreSearchExtensionPoint"
-      name="Pre search extension"/>
-
-<extension-point
-      id="org.apache.nutch.webapp.extension.PostSearchExtensionPoint"
-      name="Post search extension"/>
-
-<extension-point
-      id="org.apache.nutch.webapp.extension.SearchExtensionPoint"
-      name="Search Extension"/>
-
-To compile you need to fist build your nutch (core and plugins)
-after that run ant war to generate war.
-
 To compile web2 plugins you must issue command
 ant compile-plugins
 
 After compiling you must enable plugins, please refer to nutch
-documentation 
+documentation
+
+To build deployable .war issue command ant war.
 
 The nutch plugins are not included in the generated war and you
 need to properly configure where your plugins are. This is achieved
@@ -125,23 +104,21 @@ Referencing jsp resources inside nutch war
 
 absolute path, must start with /WEB-INF
 
-	<definition name="searchPage" extends=".layout"
-	            controllerClass="org.apache.nutch.webapp.controller.CachingSearchController">
-    <put name="title" value="cached search"/>
-		<put name="pageBody" value="/WEB-INF/jsp/search.jsp" />
-	</definition>
+<definition name="searchPage" extends=".layout"
+  controllerClass="org.apache.nutch.webapp.controller.CachingSearchController">
+  <put name="title" value="cached search"/>
+  <put name="pageBody" value="/WEB-INF/jsp/search.jsp" />
+</definition>
 
 Referencing jsp resources inside plugins
 
 absolute path, must start with /plugin/
 
-
-	<definition name="searchPage" extends=".layout"
-	            controllerClass="org.apache.nutch.webapp.controller.CachingSearchController">
-    <put name="title" value="cached search"/>
-		<put name="pageBody" value="/plugin/search.jsp" />
-	</definition>
-
+<definition name="searchPage" extends=".layout"
+  controllerClass="org.apache.nutch.webapp.controller.CachingSearchController">
+  <put name="title" value="cached search"/>
+  <put name="pageBody" value="/plugin/search.jsp" />
+</definition>
 
 Static resources
 
