@@ -30,9 +30,11 @@ import org.apache.nutch.net.protocols.Response;
 import org.apache.hadoop.conf.Configuration;
 
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.EmptyRobotRules;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
+import org.apache.nutch.protocol.RobotRules;
 
 import java.net.URL;
 
@@ -236,6 +238,10 @@ public class Ftp implements Protocol {
 
   public Configuration getConf() {
     return this.conf;
+  }
+
+  public RobotRules getRobotRules(Text url, CrawlDatum datum) {
+    return EmptyRobotRules.RULES;
   }
 
 }

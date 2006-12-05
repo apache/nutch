@@ -36,13 +36,13 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
+import org.apache.nutch.protocol.RobotRules;
 import org.apache.nutch.util.GZIPUtils;
 import org.apache.nutch.util.LogUtil;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
-
 
 /**
  * @author J&eacute;r&ocirc;me Charron
@@ -130,6 +130,12 @@ public abstract class HttpBase implements Protocol {
   /** Skip page if Crawl-Delay longer than this value. */
   protected long maxCrawlDelay = -1L;
 
+  /** Plugin should handle host blocking internally. */
+  protected boolean checkBlocking = true;
+  
+  /** Plugin should handle robot rules checking internally. */
+  protected boolean checkRobots = true;
+
   /** Creates a new instance of HttpBase */
   public HttpBase() {
     this(null);
@@ -161,6 +167,8 @@ public abstract class HttpBase implements Protocol {
         this.byIP = conf.getBoolean("fetcher.threads.per.host.by.ip", true);
         this.useHttp11 = conf.getBoolean("http.useHttp11", false);
         this.robots.setConf(conf);
+        this.checkBlocking = conf.getBoolean(Protocol.CHECK_BLOCKING, true);
+        this.checkRobots = conf.getBoolean(Protocol.CHECK_ROBOTS, true);
         logConf();
     }
 
@@ -177,36 +185,40 @@ public abstract class HttpBase implements Protocol {
     try {
       URL u = new URL(urlString);
       
-      try {
-        if (!robots.isAllowed(this, u)) {
-          return new ProtocolOutput(null, new ProtocolStatus(ProtocolStatus.ROBOTS_DENIED, url));
-        }
-      } catch (Throwable e) {
-        // XXX Maybe bogus: assume this is allowed.
-        if (logger.isTraceEnabled()) {
-          logger.trace("Exception checking robot rules for " + url + ": " + e);
+      if (checkRobots) {
+        try {
+          if (!robots.isAllowed(this, u)) {
+            return new ProtocolOutput(null, new ProtocolStatus(ProtocolStatus.ROBOTS_DENIED, url));
+          }
+        } catch (Throwable e) {
+          // XXX Maybe bogus: assume this is allowed.
+          if (logger.isTraceEnabled()) {
+            logger.trace("Exception checking robot rules for " + url + ": " + e);
+          }
         }
       }
       
       long crawlDelay = robots.getCrawlDelay(this, u);
       long delay = crawlDelay > 0 ? crawlDelay : serverDelay;
-      if (maxCrawlDelay >= 0 && delay > maxCrawlDelay) {
+      if (checkBlocking && maxCrawlDelay >= 0 && delay > maxCrawlDelay) {
         // skip this page, otherwise the thread would block for too long.
         LOGGER.info("Skipping: " + u + " exceeds fetcher.max.crawl.delay, max="
                 + (maxCrawlDelay / 1000) + ", Crawl-Delay=" + (delay / 1000));
         return new ProtocolOutput(null, ProtocolStatus.STATUS_WOULDBLOCK);
       }
-      String host;
-      try {
-        host = blockAddr(u, delay);
-      } catch (BlockedException be) {
-        return new ProtocolOutput(null, ProtocolStatus.STATUS_BLOCKED);
+      String host = null;
+      if (checkBlocking) {
+        try {
+          host = blockAddr(u, delay);
+        } catch (BlockedException be) {
+          return new ProtocolOutput(null, ProtocolStatus.STATUS_BLOCKED);
+        }
       }
       Response response;
       try {
         response = getResponse(u, datum, false); // make a request
       } finally {
-        unblockAddr(host, delay);
+        if (checkBlocking) unblockAddr(host, delay);
       }
       
       int code = response.getCode();
@@ -456,8 +468,12 @@ public abstract class HttpBase implements Protocol {
       logger.info("http.timeout = " + timeout);
       logger.info("http.content.limit = " + maxContent);
       logger.info("http.agent = " + userAgent);
-      logger.info("fetcher.server.delay = " + serverDelay);
-      logger.info("http.max.delays = " + maxDelays);
+      logger.info(Protocol.CHECK_BLOCKING + " = " + checkBlocking);
+      logger.info(Protocol.CHECK_ROBOTS + " = " + checkRobots);
+      if (checkBlocking) {
+        logger.info("fetcher.server.delay = " + serverDelay);
+        logger.info("http.max.delays = " + maxDelays);
+      }
     }
   }
   
@@ -530,5 +546,9 @@ public abstract class HttpBase implements Protocol {
                                           CrawlDatum datum,
                                           boolean followRedirects)
     throws ProtocolException, IOException;
+
+  public RobotRules getRobotRules(Text url, CrawlDatum datum) {
+    return robots.getRobotRulesSet(this, url);
+  }
 
 }

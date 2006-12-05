@@ -434,8 +434,6 @@ public class Fetcher extends ToolBase implements MapRunnable {
 
     job.setInputPath(new Path(segment, CrawlDatum.GENERATE_DIR_NAME));
     job.setInputFormat(InputFormat.class);
-    job.setInputKeyClass(Text.class);
-    job.setInputValueClass(CrawlDatum.class);
 
     job.setMapRunnerClass(Fetcher.class);
 
