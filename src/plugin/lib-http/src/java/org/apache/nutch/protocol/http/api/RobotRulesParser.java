@@ -34,9 +34,11 @@ import org.apache.commons.logging.LogFactory;
 // Nutch imports
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configurable;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
+import org.apache.nutch.protocol.RobotRules;
 
 
 /**
@@ -70,7 +72,7 @@ public class RobotRulesParser implements Configurable {
    * This class holds the rules which were parsed from a robots.txt
    * file, and can test paths against those rules.
    */
-  public static class RobotRuleSet {
+  public static class RobotRuleSet implements RobotRules {
     ArrayList tmpEntries = new ArrayList();
     RobotsEntry[] entries = null;
     long expireTime;
@@ -142,6 +144,19 @@ public class RobotRulesParser implements Configurable {
       this.crawlDelay = crawlDelay;
     }
     
+    /**
+     *  Returns <code>false</code> if the <code>robots.txt</code> file
+     *  prohibits us from accessing the given <code>url</code>, or
+     *  <code>true</code> otherwise.
+     */
+    public boolean isAllowed(URL url) {
+      String path = url.getPath();                  // check rules
+      if ((path == null) || "".equals(path)) {
+        path= "/";
+      }
+      return isAllowed(path);
+    }
+    
     /** 
      *  Returns <code>false</code> if the <code>robots.txt</code> file
      *  prohibits us from accessing the given <code>path</code>, or
@@ -154,7 +169,7 @@ public class RobotRulesParser implements Configurable {
         // just ignore it- we can still try to match 
         // path prefixes
       }
-
+      
       if (entries == null) {
         entries= new RobotsEntry[tmpEntries.size()];
         entries= (RobotsEntry[]) 
@@ -413,6 +428,16 @@ public class RobotRulesParser implements Configurable {
     RobotRuleSet rules= new RobotRuleSet();
     rules.addPrefix("", false);
     return rules;
+  }
+  
+  public RobotRuleSet getRobotRulesSet(HttpBase http, Text url) {
+    URL u = null;
+    try {
+      u = new URL(url.toString());
+    } catch (Exception e) {
+      return EMPTY_RULES;
+    }
+    return getRobotRulesSet(http, u);
   }
   
   private RobotRuleSet getRobotRulesSet(HttpBase http, URL url) {
