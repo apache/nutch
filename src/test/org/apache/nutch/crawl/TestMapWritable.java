@@ -106,8 +106,8 @@ public class TestMapWritable extends TestCase {
     FileSystem fs = FileSystem.get(configuration);
     Path file = new Path(System.getProperty("java.io.tmpdir"), "mapTestFile");
     fs.delete(file);
-    org.apache.hadoop.io.SequenceFile.Writer writer = new SequenceFile.Writer(
-        fs, file, IntWritable.class, MapWritable.class);
+    org.apache.hadoop.io.SequenceFile.Writer writer = SequenceFile.createWriter(
+        fs, configuration, file, IntWritable.class, MapWritable.class);
     // write map
     System.out.println("start writing map's");
     long start = System.currentTimeMillis();
@@ -139,8 +139,8 @@ public class TestMapWritable extends TestCase {
     fs.delete(file);
 
     // Text
-    System.out.println("start writing utf8's");
-    writer = new SequenceFile.Writer(fs, file, IntWritable.class, Text.class);
+    System.out.println("start writing Text's");
+    writer = SequenceFile.createWriter(fs, configuration, file, IntWritable.class, Text.class);
     // write map
     start = System.currentTimeMillis();
     key = new IntWritable();
@@ -153,17 +153,17 @@ public class TestMapWritable extends TestCase {
     }
     needed = System.currentTimeMillis() - start;
     writer.close();
-    System.out.println("needed time for writing utf8's: " + needed);
+    System.out.println("needed time for writing Text's: " + needed);
 
     // read map
-    System.out.println("start reading utf8's");
+    System.out.println("start reading Text's");
     reader = new SequenceFile.Reader(fs, file, configuration);
     start = System.currentTimeMillis();
     while (reader.next(key, value)) {
 
     }
     needed = System.currentTimeMillis() - start;
-    System.out.println("needed time for reading utf8: " + needed);
+    System.out.println("needed time for reading Text: " + needed);
     fs.delete(file);
   }
 

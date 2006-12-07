@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.io.*;
+import org.apache.hadoop.io.SequenceFile.CompressionType;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.fetcher.Fetcher;
 import org.apache.hadoop.fs.*;
@@ -68,13 +69,13 @@ public class ParseOutputFormat implements OutputFormat {
       new Path(new Path(job.getOutputPath(), CrawlDatum.PARSE_DIR_NAME), name);
     
     final MapFile.Writer textOut =
-      new MapFile.Writer(fs, text.toString(), Text.class, ParseText.class);
+      new MapFile.Writer(job, fs, text.toString(), Text.class, ParseText.class, CompressionType.RECORD);
     
     final MapFile.Writer dataOut =
-      new MapFile.Writer(fs, data.toString(), Text.class,ParseData.class,true);
+      new MapFile.Writer(job, fs, data.toString(), Text.class,ParseData.class);
     
     final SequenceFile.Writer crawlOut =
-      new SequenceFile.Writer(fs, crawl, Text.class, CrawlDatum.class);
+      SequenceFile.createWriter(fs, job, crawl, Text.class, CrawlDatum.class);
     
     return new RecordWriter() {
 
