@@ -36,6 +36,8 @@ import junit.textui.TestRunner;
  */
 public class TestSpellCheckedMetadata extends TestCase {
 
+  private static final int NUM_ITERATIONS = 10000;
+
   public TestSpellCheckedMetadata(String testName) {
     super(testName);
   }
@@ -63,7 +65,7 @@ public class TestSpellCheckedMetadata extends TestCase {
     assertEquals("Content-Type", SpellCheckedMetadata
         .getNormalizedName("contntype"));
   }
-
+  
   /** Test for the <code>add(String, String)</code> method. */
   public void testAdd() {
     String[] values = null;
@@ -237,18 +239,35 @@ public class TestSpellCheckedMetadata extends TestCase {
     assertEquals(0, result.size());
     meta.add("name-one", "value-1.1");
     result = writeRead(meta);
+    meta.add("Contenttype", "text/html");
     assertEquals(1, result.size());
     assertEquals(1, result.getValues("name-one").length);
     assertEquals("value-1.1", result.get("name-one"));
     meta.add("name-two", "value-2.1");
     meta.add("name-two", "value-2.2");
     result = writeRead(meta);
-    assertEquals(2, result.size());
+    assertEquals(3, result.size());
     assertEquals(1, result.getValues("name-one").length);
     assertEquals("value-1.1", result.getValues("name-one")[0]);
     assertEquals(2, result.getValues("name-two").length);
     assertEquals("value-2.1", result.getValues("name-two")[0]);
     assertEquals("value-2.2", result.getValues("name-two")[1]);
+    assertEquals("text/html", result.get(Metadata.CONTENT_TYPE));
+  }
+
+  /**
+   * IO Test method, usable only when you plan to do changes in metadata
+   * to measure relative performance impact.
+   */
+  public final void testHandlingSpeed() {
+    SpellCheckedMetadata result;
+    long start = System.currentTimeMillis();
+    for (int i = 0; i < NUM_ITERATIONS; i++) {
+      SpellCheckedMetadata scmd = constructSpellCheckedMetadata();
+      result = writeRead(scmd);
+    }
+    System.out.println(NUM_ITERATIONS + " spellchecked metadata I/O time:"
+        + (System.currentTimeMillis() - start) + "ms.");
   }
 
   private SpellCheckedMetadata writeRead(SpellCheckedMetadata meta) {
@@ -262,6 +281,24 @@ public class TestSpellCheckedMetadata extends TestCase {
       fail(ioe.toString());
     }
     return readed;
+  }
+
+  /**
+   * Assembles a Spellchecked metadata Object.
+   */
+  public static final SpellCheckedMetadata constructSpellCheckedMetadata() {
+    SpellCheckedMetadata scmd = new SpellCheckedMetadata();
+    scmd.add("Content-type", "foo/bar");
+    scmd.add("Connection", "close");
+    scmd.add("Last-Modified", "Sat, 09 Dec 2006 15:09:57 GMT");
+    scmd.add("Server", "Foobar");
+    scmd.add("Date", "Sat, 09 Dec 2006 18:07:20 GMT");
+    scmd.add("Accept-Ranges", "bytes");
+    scmd.add("ETag", "\"1234567-89-01234567\"");
+    scmd.add("Content-Length", "123");
+    scmd.add(Nutch.SEGMENT_NAME_KEY, "segmentzzz");
+    scmd.add(Nutch.SIGNATURE_KEY, "123");
+    return scmd;
   }
 
 }

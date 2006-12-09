@@ -25,10 +25,9 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * A decorator to Metadata that adds spellchecking capabilities to property
- * names.
- *
- * All the static String fields declared by this class are used as reference
- * names for syntax correction on meta-data naming.
+ * names. Currently used spelling vocabulary contains just the httpheaders from
+ * {@link HttpHeaders} class.
+ * 
  */
 public class SpellCheckedMetadata extends Metadata {
 
@@ -49,18 +48,23 @@ public class SpellCheckedMetadata extends Metadata {
    */
   private static String[] normalized = null;
 
-  // Uses self introspection to fill the metanames index and the
-  // metanames list.
   static {
-    for (Field field : SpellCheckedMetadata.class.getFields()) {
-      int mods = field.getModifiers();
-      if (Modifier.isFinal(mods) && Modifier.isPublic(mods)
-          && Modifier.isStatic(mods) && field.getType().equals(String.class)) {
-        try {
-          String val = (String) field.get(null);
-          NAMES_IDX.put(normalize(val), val);
-        } catch (Exception e) {
-          // Simply ignore...
+
+    // Uses following array to fill the metanames index and the
+    // metanames list.
+    Class[] spellthese = {HttpHeaders.class};
+
+    for (Class spellCheckedNames : spellthese) {
+      for (Field field : spellCheckedNames.getFields()) {
+        int mods = field.getModifiers();
+        if (Modifier.isFinal(mods) && Modifier.isPublic(mods)
+            && Modifier.isStatic(mods) && field.getType().equals(String.class)) {
+          try {
+            String val = (String) field.get(null);
+            NAMES_IDX.put(normalize(val), val);
+          } catch (Exception e) {
+            // Simply ignore...
+          }
         }
       }
     }
@@ -125,8 +129,7 @@ public class SpellCheckedMetadata extends Metadata {
 
   @Override
   public void add(final String name, final String value) {
-    String normalized = getNormalizedName(name);
-    super.add(normalized, value);
+    super.add(getNormalizedName(name), value);
   }
 
   @Override
