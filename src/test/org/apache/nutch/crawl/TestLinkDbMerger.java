@@ -87,7 +87,7 @@ public class TestLinkDbMerger extends TestCase {
     expected.put(url21, urls21_expected);
     conf = NutchConfiguration.create();
     fs = FileSystem.get(conf);
-    testDir = new Path("test-crawldb-" +
+    testDir = new Path("build/test/test-linkdb-" +
             new java.util.Random().nextInt());
     fs.mkdirs(testDir);
   }
@@ -105,8 +105,6 @@ public class TestLinkDbMerger extends TestCase {
   public void testMerge() throws Exception {
     Configuration conf = NutchConfiguration.create();
     FileSystem fs = FileSystem.get(conf);
-    Path testDir = new Path("test-linkdb-" +
-            new java.util.Random().nextInt());
     fs.mkdirs(testDir);
     Path linkdb1 = new Path(testDir, "linkdb1");
     Path linkdb2 = new Path(testDir, "linkdb2");

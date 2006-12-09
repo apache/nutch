@@ -31,7 +31,6 @@ import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.nutch.analysis.NutchDocumentAnalyzer;
-import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.util.NutchConfiguration;
 
 import junit.framework.TestCase;
@@ -47,7 +46,7 @@ public class TestDeleteDuplicates extends TestCase {
     conf = NutchConfiguration.create();
     conf.set("fs.default.name", "local");
     fs = FileSystem.get(conf);
-    root = new Path("dedup2-test-" + new Random().nextInt());
+    root = new Path("build/test/dedup2-test-" + new Random().nextInt());
     // create test indexes
     index1 = createIndex("index1", true, 1.0f, 10L);
     index2 = createIndex("index2", false, 2.0f, 20L);
