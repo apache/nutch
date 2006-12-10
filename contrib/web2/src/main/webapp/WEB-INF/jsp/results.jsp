@@ -20,7 +20,7 @@
  <b><a href="<c:out value="${hit.url}"/>"><c:out
   value="${hit.title}" /></a></b>
  <br />
- <tiles:insert name="more" />
+ <tiles:insert definition="more" ignore="true"/>
  <c:out value="${hit.summary}" escapeXml="false" />
  <br>
  <span class="url"><c:out value="${hit.encodedUrl}" /></span>
