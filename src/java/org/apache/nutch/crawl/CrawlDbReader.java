@@ -245,8 +245,6 @@ public class CrawlDbReader implements Closeable {
 
     job.addInputPath(new Path(crawlDb, CrawlDatum.DB_DIR_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
-    job.setInputKeyClass(Text.class);
-    job.setInputValueClass(CrawlDatum.class);
 
     job.setMapperClass(CrawlDbStatMapper.class);
     job.setCombinerClass(CrawlDbStatCombiner.class);
@@ -286,6 +284,7 @@ public class CrawlDbReader implements Closeable {
           val.set(val.get() + value.get());
         }
       }
+      reader.close();
     }
     
     if (LOG.isInfoEnabled()) {
@@ -302,7 +301,7 @@ public class CrawlDbReader implements Closeable {
         } else if (k.equals("scx")) {
           LOG.info("max score:\t" + (float) (val.get() / 1000.0f));
         } else if (k.equals("sct")) {
-          LOG.info("avg score:\t" + (float) ((float) (val.get() / (float)totalCnt.get()) / 1000.0f));
+          LOG.info("avg score:\t" + (float) ((float) (val.get() / totalCnt.get()) / 1000.0f));
         } else if (k.startsWith("status")) {
           int code = Integer.parseInt(k.substring(k.indexOf(' ') + 1));
           LOG.info(k + " (" + CrawlDatum.statNames[code] + "):\t" + val);
