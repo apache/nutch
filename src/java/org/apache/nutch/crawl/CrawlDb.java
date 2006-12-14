@@ -98,11 +98,13 @@ public class CrawlDb extends Configured {
     FileSystem fs = new JobClient(job).getFs();
     Path old = new Path(crawlDb, "old");
     Path current = new Path(crawlDb, CrawlDatum.DB_DIR_NAME);
-    fs.delete(old);
-    fs.rename(current, old);
+    if (fs.exists(current)) {
+      if (fs.exists(old)) fs.delete(old);
+      fs.rename(current, old);
+    }
     fs.mkdirs(crawlDb);
     fs.rename(newCrawlDb, current);
-    fs.delete(old);
+    if (fs.exists(old)) fs.delete(old);
   }
 
   public static void main(String[] args) throws Exception {
