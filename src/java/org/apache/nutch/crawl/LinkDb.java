@@ -315,11 +315,13 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
     FileSystem fs = new JobClient(job).getFs();
     Path old = new Path(linkDb, "old");
     Path current = new Path(linkDb, CURRENT_NAME);
-    fs.delete(old);
-    fs.rename(current, old);
+    if (fs.exists(current)) {
+      if (fs.exists(old)) fs.delete(old);
+      fs.rename(current, old);
+    }
     fs.mkdirs(linkDb);
     fs.rename(newLinkDb, current);
-    fs.delete(old);
+    if (fs.exists(old)) fs.delete(old);
   }
 
   public static void main(String[] args) throws Exception {
