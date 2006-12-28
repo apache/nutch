@@ -41,6 +41,7 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.crawl.LinkDb;
 
@@ -286,7 +287,7 @@ public class Indexer extends ToolBase implements Reducer {
       job.addInputPath(new Path(segments[i], ParseText.DIR_NAME));
     }
 
-    job.addInputPath(new Path(crawlDb, CrawlDatum.DB_DIR_NAME));
+    job.addInputPath(new Path(crawlDb, CrawlDb.CURRENT_NAME));
     job.addInputPath(new Path(linkDb, LinkDb.CURRENT_NAME));
 
     job.setInputFormat(InputFormat.class);

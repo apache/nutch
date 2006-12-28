@@ -88,7 +88,7 @@ public class TestFetcher extends TestCase {
     //generate
     Generator g=new Generator(conf);
     Path generatedSegment = g.generate(crawldbPath, segmentsPath, 1,
-        Long.MAX_VALUE, Long.MAX_VALUE, false);
+        Long.MAX_VALUE, Long.MAX_VALUE, false, false);
 
     long time=System.currentTimeMillis();
     //fetch

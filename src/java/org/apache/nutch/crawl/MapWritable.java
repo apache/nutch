@@ -43,6 +43,7 @@ import org.apache.hadoop.io.ObjectWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.nutch.protocol.ProtocolStatus;
 
 /**
  * A writable map, with a similar behavior as <code>java.util.HashMap</code>.
@@ -94,6 +95,7 @@ public class MapWritable implements Writable {
     addToMap(FloatWritable.class, new Byte((byte) -117));
     addToMap(IntWritable.class, new Byte((byte) -116));
     addToMap(ObjectWritable.class, new Byte((byte) -115));
+    addToMap(ProtocolStatus.class, new Byte((byte) -114));
 
   }
 

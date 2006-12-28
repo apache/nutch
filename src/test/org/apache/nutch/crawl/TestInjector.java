@@ -105,7 +105,7 @@ public class TestInjector extends TestCase {
   }
   
   private List<String> readCrawldb() throws IOException{
-    Path dbfile=new Path(crawldbPath,CrawlDatum.DB_DIR_NAME + "/part-00000/data");
+    Path dbfile=new Path(crawldbPath,CrawlDb.CURRENT_NAME + "/part-00000/data");
     System.out.println("reading:" + dbfile);
     SequenceFile.Reader reader=new SequenceFile.Reader(fs, dbfile, conf);
     ArrayList<String> read=new ArrayList<String>();

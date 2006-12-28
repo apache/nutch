@@ -95,7 +95,7 @@ public class SegmentReader extends Configured implements Reducer {
       final Path segmentDumpFile = new Path(job.getOutputPath(), name);
 
       // Get the old copy out of the way
-      fs.delete(segmentDumpFile);
+      if (fs.exists(segmentDumpFile)) fs.delete(segmentDumpFile);
 
       final PrintStream printStream = new PrintStream(fs.create(segmentDumpFile));
       return new RecordWriter() {

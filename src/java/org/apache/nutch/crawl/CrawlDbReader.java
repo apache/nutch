@@ -68,7 +68,7 @@ public class CrawlDbReader implements Closeable {
   private void openReaders(String crawlDb, Configuration config) throws IOException {
     if (readers != null) return;
     FileSystem fs = FileSystem.get(config);
-    readers = MapFileOutputFormat.getReaders(fs, new Path(crawlDb, CrawlDatum.DB_DIR_NAME), config);
+    readers = MapFileOutputFormat.getReaders(fs, new Path(crawlDb, CrawlDb.CURRENT_NAME), config);
   }
   
   private void closeReaders() {
@@ -243,7 +243,7 @@ public class CrawlDbReader implements Closeable {
     JobConf job = new NutchJob(config);
     job.setJobName("stats " + crawlDb);
 
-    job.addInputPath(new Path(crawlDb, CrawlDatum.DB_DIR_NAME));
+    job.addInputPath(new Path(crawlDb, CrawlDb.CURRENT_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
 
     job.setMapperClass(CrawlDbStatMapper.class);
@@ -301,10 +301,10 @@ public class CrawlDbReader implements Closeable {
         } else if (k.equals("scx")) {
           LOG.info("max score:\t" + (float) (val.get() / 1000.0f));
         } else if (k.equals("sct")) {
-          LOG.info("avg score:\t" + (float) ((float) (val.get() / totalCnt.get()) / 1000.0f));
+          LOG.info("avg score:\t" + (float) ((double) (val.get() / totalCnt.get()) / 1000.0));
         } else if (k.startsWith("status")) {
           int code = Integer.parseInt(k.substring(k.indexOf(' ') + 1));
-          LOG.info(k + " (" + CrawlDatum.statNames[code] + "):\t" + val);
+          LOG.info(k + " (" + CrawlDatum.getStatusName((byte)code) + "):\t" + val);
         } else LOG.info(k + ":\t" + val);
       }
     }
@@ -344,7 +344,7 @@ public class CrawlDbReader implements Closeable {
     JobConf job = new NutchJob(config);
     job.setJobName("dump " + crawlDb);
 
-    job.addInputPath(new Path(crawlDb, CrawlDatum.DB_DIR_NAME));
+    job.addInputPath(new Path(crawlDb, CrawlDb.CURRENT_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setInputKeyClass(Text.class);
     job.setInputValueClass(CrawlDatum.class);
@@ -373,10 +373,8 @@ public class CrawlDbReader implements Closeable {
 
     JobConf job = new NutchJob(config);
     job.setJobName("topN prepare " + crawlDb);
-    job.addInputPath(new Path(crawlDb, CrawlDatum.DB_DIR_NAME));
+    job.addInputPath(new Path(crawlDb, CrawlDb.CURRENT_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
-    job.setInputKeyClass(Text.class);
-    job.setInputValueClass(CrawlDatum.class);
     job.setMapperClass(CrawlDbTopNMapper.class);
     job.setReducerClass(IdentityReducer.class);
 

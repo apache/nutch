@@ -53,7 +53,7 @@ public class CrawlDBTestUtil {
   public static void createCrawlDb(FileSystem fs, Path crawldb, List<URLCrawlDatum> init)
       throws Exception {
     LOG.trace("* creating crawldb: " + crawldb);
-    Path dir = new Path(crawldb, CrawlDatum.DB_DIR_NAME);
+    Path dir = new Path(crawldb, CrawlDb.CURRENT_NAME);
     MapFile.Writer writer = new MapFile.Writer(fs, new Path(dir, "part-00000")
         .toString(), Text.class, CrawlDatum.class);
     Iterator<URLCrawlDatum> it = init.iterator();

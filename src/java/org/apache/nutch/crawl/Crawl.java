@@ -116,15 +116,15 @@ public class Crawl {
       
     for (int i = 0; i < depth; i++) {             // generate new segment
       Path segment = generator.generate(crawlDb, segments, -1, topN, System
-          .currentTimeMillis(), false);
+          .currentTimeMillis(), false, false);
       fetcher.fetch(segment, threads);  // fetch it
       if (!Fetcher.isParsing(job)) {
         parseSegment.parse(segment);    // parse it, if needed
       }
-      crawlDbTool.update(crawlDb, segment, true, true); // update crawldb
+      crawlDbTool.update(crawlDb, new Path[]{segment}, true, true); // update crawldb
     }
       
-    linkDbTool.invert(linkDb, segments, true, true); // invert links
+    linkDbTool.invert(linkDb, segments, true, true, false); // invert links
 
     // index, dedup & merge
     indexer.index(indexes, crawlDb, linkDb, fs.listPaths(segments));

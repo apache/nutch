@@ -147,9 +147,11 @@
 
 <property>
   <name>http.redirect.max</name>
-  <value>3</value>
+  <value>0</value>
   <description>The maximum number of redirects the fetcher will follow when
-    trying to fetch a page.</description>
+  trying to fetch a page. If set to negative or 0, fetcher won't immediately
+  follow redirected URLs, instead it will record them for later fetching.
+  </description>
 </property>
 
 <property>
@@ -377,6 +379,17 @@
   remote DNS servers, not to mention increased external traffic
   and latency. For these reasons when using this option it is
   required that a local caching DNS be used.</description>
+</property>
+
+<property>
+  <name>generate.update.crawldb</name>
+  <value>false</value>
+  <description>For highly-concurrent environments, where several
+  generate/fetch/update cycles may overlap, setting this to true ensures
+  that generate will create different fetchlists even without intervening
+  updatedb-s, at the cost of running an additional job to update CrawlDB.
+  If false, running generate twice without intervening
+  updatedb will generate identical fetchlists.</description>
 </property>
 
 <!-- fetcher properties -->

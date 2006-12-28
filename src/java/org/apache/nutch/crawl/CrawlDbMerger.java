@@ -105,12 +105,12 @@ public class CrawlDbMerger extends ToolBase {
   public void merge(Path output, Path[] dbs, boolean normalize, boolean filter) throws Exception {
     JobConf job = createMergeJob(getConf(), output, normalize, filter);
     for (int i = 0; i < dbs.length; i++) {
-      job.addInputPath(new Path(dbs[i], CrawlDatum.DB_DIR_NAME));
+      job.addInputPath(new Path(dbs[i], CrawlDb.CURRENT_NAME));
     }
     JobClient.runJob(job);
     FileSystem fs = FileSystem.get(getConf());
     fs.mkdirs(output);
-    fs.rename(job.getOutputPath(), new Path(output, CrawlDatum.DB_DIR_NAME));
+    fs.rename(job.getOutputPath(), new Path(output, CrawlDb.CURRENT_NAME));
   }
 
   public static JobConf createMergeJob(Configuration conf, Path output, boolean normalize, boolean filter) {

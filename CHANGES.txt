@@ -92,6 +92,29 @@ Unreleased changes (0.9-dev)
     
 30. NUTCH-406 - Metadata tries to write null values (mattmann)
 
+31. NUTCH-415 - Generator should mark selected records in CrawlDb. 
+    Due to increased resource consumption this step is optional. 
+    Application-level locking has been added to prevent concurrent
+    modification of databases. (ab)
+
+32. NUTCH-416 - CrawlDatum status and CrawlDbReducer refactoring. It is
+    now possible to correctly update CrawlDb from multiple segments.
+    Introduce new status codes for temporary and permanent
+    redirection. (ab)
+
+33. NUTCH-322 - Fix Fetcher to store redirected pages and to store
+    protocol-level status. This also should fix NUTCH-273. (ab)
+
+34. Change default Fetcher behavior not to follow redirects immediately.
+    Instead Fetcher will record redirects as new pages to be added to CrawlDb.
+    This also partially addresses NUTCH-273. (ab)
+
+35. Detect and report when Generator creates 0-sized segments. (ab)
+
+36. Fix Injector to preserve already existing CrawlDatum if the seed list
+    being injected also contains such URL. (ab)
+
+
 Release 0.8 - 2006-07-25
 
  0. Totally new architecture, based on hadoop

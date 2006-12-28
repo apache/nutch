@@ -149,7 +149,7 @@ public class Fetcher extends ToolBase implements MapRunnable {
               switch(status.getCode()) {
 
               case ProtocolStatus.SUCCESS:        // got a page
-                pstatus = output(url, datum, content, CrawlDatum.STATUS_FETCH_SUCCESS);
+                pstatus = output(url, datum, content, status, CrawlDatum.STATUS_FETCH_SUCCESS);
                 updateStatus(content.getContent().length);
                 if (pstatus != null && pstatus.isSuccess() &&
                         pstatus.getMinorCode() == ParseStatus.SUCCESS_REDIRECT) {
@@ -158,10 +158,17 @@ public class Fetcher extends ToolBase implements MapRunnable {
                   newUrl = this.urlFilters.filter(newUrl);
                   if (newUrl != null && !newUrl.equals(url.toString())) {
                     url = new Text(newUrl);
-                    redirecting = true;
-                    redirectCount++;
-                    if (LOG.isDebugEnabled()) {
-                      LOG.debug(" - content redirect to " + url);
+                    if (maxRedirect > 0) {
+                      redirecting = true;
+                      redirectCount++;
+                      if (LOG.isDebugEnabled()) {
+                        LOG.debug(" - content redirect to " + url + " (fetching now)");
+                      }
+                    } else {
+                      output(url, new CrawlDatum(), null, null, CrawlDatum.STATUS_FETCH_REDIR_TEMP);
+                      if (LOG.isDebugEnabled()) {
+                        LOG.debug(" - content redirect to " + url + " (fetching later)");
+                      }
                     }
                   } else if (LOG.isDebugEnabled()) {
                     LOG.debug(" - content redirect skipped: " +
@@ -172,15 +179,29 @@ public class Fetcher extends ToolBase implements MapRunnable {
 
               case ProtocolStatus.MOVED:         // redirect
               case ProtocolStatus.TEMP_MOVED:
+                int code;
+                if (status.getCode() == ProtocolStatus.MOVED) {
+                  code = CrawlDatum.STATUS_FETCH_REDIR_PERM;
+                } else {
+                  code = CrawlDatum.STATUS_FETCH_REDIR_TEMP;
+                }
+                output(url, datum, content, status, code);
                 String newUrl = status.getMessage();
                 newUrl = normalizers.normalize(newUrl, URLNormalizers.SCOPE_FETCHER);
                 newUrl = this.urlFilters.filter(newUrl);
                 if (newUrl != null && !newUrl.equals(url.toString())) {
                   url = new Text(newUrl);
-                  redirecting = true;
-                  redirectCount++;
-                  if (LOG.isDebugEnabled()) {
-                    LOG.debug(" - protocol redirect to " + url);
+                  if (maxRedirect > 0) {
+                    redirecting = true;
+                    redirectCount++;
+                    if (LOG.isDebugEnabled()) {
+                      LOG.debug(" - protocol redirect to " + url + " (fetching now)");
+                    }
+                  } else {
+                    output(url, new CrawlDatum(), null, null, code);
+                    if (LOG.isDebugEnabled()) {
+                      LOG.debug(" - protocol redirect to " + url + " (fetching later)");
+                    }
                   }
                 } else if (LOG.isDebugEnabled()) {
                   LOG.debug(" - protocol redirect skipped: " +
@@ -198,7 +219,7 @@ public class Fetcher extends ToolBase implements MapRunnable {
               // intermittent blocking - retry without increasing the counter
               case ProtocolStatus.WOULDBLOCK:
               case ProtocolStatus.BLOCKED:
-                output(url, datum, null, CrawlDatum.STATUS_FETCH_RETRY);
+                output(url, datum, null, status, CrawlDatum.STATUS_FETCH_RETRY);
                 break;
                 
               // permanent failures
@@ -207,21 +228,21 @@ public class Fetcher extends ToolBase implements MapRunnable {
               case ProtocolStatus.ACCESS_DENIED:
               case ProtocolStatus.ROBOTS_DENIED:
               case ProtocolStatus.NOTMODIFIED:
-                output(url, datum, null, CrawlDatum.STATUS_FETCH_GONE);
+                output(url, datum, null, status, CrawlDatum.STATUS_FETCH_GONE);
                 break;
 
               default:
                 if (LOG.isWarnEnabled()) {
                   LOG.warn("Unknown ProtocolStatus: " + status.getCode());
                 }
-                output(url, datum, null, CrawlDatum.STATUS_FETCH_GONE);
+                output(url, datum, null, status, CrawlDatum.STATUS_FETCH_GONE);
               }
 
               if (redirecting && redirectCount >= maxRedirect) {
                 if (LOG.isInfoEnabled()) {
                   LOG.info(" - redirect count exceeded " + url);
                 }
-                output(url, datum, null, CrawlDatum.STATUS_FETCH_GONE);
+                output(url, datum, null, status, CrawlDatum.STATUS_FETCH_GONE);
               }
 
             } while (redirecting && (redirectCount < maxRedirect));
@@ -229,7 +250,7 @@ public class Fetcher extends ToolBase implements MapRunnable {
             
           } catch (Throwable t) {                 // unexpected exception
             logError(url, t.toString());
-            output(url, datum, null, CrawlDatum.STATUS_FETCH_RETRY);
+            output(url, datum, null, null, CrawlDatum.STATUS_FETCH_RETRY);
             
           }
         }
@@ -254,10 +275,11 @@ public class Fetcher extends ToolBase implements MapRunnable {
     }
 
     private ParseStatus output(Text key, CrawlDatum datum,
-                        Content content, int status) {
+                        Content content, ProtocolStatus pstatus, int status) {
 
       datum.setStatus(status);
       datum.setFetchTime(System.currentTimeMillis());
+      if (pstatus != null) datum.getMetaData().put(Nutch.WRITABLE_PROTO_STATUS_KEY, pstatus);
 
       if (content == null) {
         String url = key.toString();
