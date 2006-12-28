@@ -78,7 +78,7 @@ public class Injector extends ToolBase {
       }
       if (url != null) {                          // if it passes
         value.set(url);                           // collect it
-        CrawlDatum datum = new CrawlDatum(CrawlDatum.STATUS_DB_UNFETCHED, interval);
+        CrawlDatum datum = new CrawlDatum(CrawlDatum.STATUS_INJECTED, interval);
         datum.setScore(scoreInjected);
         try {
           scfilters.injectedScore(value, datum);
@@ -102,7 +102,22 @@ public class Injector extends ToolBase {
     public void reduce(WritableComparable key, Iterator values,
                        OutputCollector output, Reporter reporter)
       throws IOException {
-      output.collect(key, (Writable)values.next()); // just collect first value
+      CrawlDatum old = null;
+      CrawlDatum injected = null;
+      while (values.hasNext()) {
+        CrawlDatum val = (CrawlDatum)values.next();
+        if (val.getStatus() == CrawlDatum.STATUS_INJECTED) {
+          injected = val;
+          injected.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
+        } else {
+          old = val;
+        }
+      }
+      CrawlDatum res = null;
+      if (old != null) res = old; // don't overwrite existing value
+      else res = injected;
+
+      output.collect(key, res);
     }
   }
 

@@ -31,6 +31,7 @@ import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.ToolBase;
 
+import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
@@ -39,9 +40,14 @@ import org.apache.nutch.util.NutchJob;
  * crawldb accordingly.
  */
 public class CrawlDb extends ToolBase {
+  public static final Log LOG = LogFactory.getLog(CrawlDb.class);
+
   public static final String CRAWLDB_ADDITIONS_ALLOWED = "db.update.additions.allowed";
 
-  public static final Log LOG = LogFactory.getLog(CrawlDb.class);
+  public static final String CURRENT_NAME = "current";
+  
+  public static final String LOCK_NAME = ".locked";
+
   
   public CrawlDb() {
     
@@ -51,17 +57,19 @@ public class CrawlDb extends ToolBase {
     setConf(conf);
   }
 
-  public void update(Path crawlDb, Path segment, boolean normalize, boolean filter) throws IOException {
+  public void update(Path crawlDb, Path[] segments, boolean normalize, boolean filter) throws IOException {
     boolean additionsAllowed = getConf().getBoolean(CRAWLDB_ADDITIONS_ALLOWED, true);    
-    update(crawlDb, segment, normalize, filter, additionsAllowed);
+    update(crawlDb, segments, normalize, filter, additionsAllowed, false);
   }
   
-  public void update(Path crawlDb, Path segment, boolean normalize, boolean filter, boolean additionsAllowed) throws IOException {
-    
+  public void update(Path crawlDb, Path[] segments, boolean normalize, boolean filter, boolean additionsAllowed, boolean force) throws IOException {
+    FileSystem fs = FileSystem.get(getConf());
+    Path lock = new Path(crawlDb, LOCK_NAME);
+    LockUtil.createLockFile(fs, lock, force);
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb update: starting");
       LOG.info("CrawlDb update: db: " + crawlDb);
-      LOG.info("CrawlDb update: segment: " + segment);
+      LOG.info("CrawlDb update: segments: " + Arrays.asList(segments));
       LOG.info("CrawlDb update: additions allowed: " + additionsAllowed);
       LOG.info("CrawlDb update: URL normalizing: " + normalize);
       LOG.info("CrawlDb update: URL filtering: " + filter);
@@ -71,13 +79,27 @@ public class CrawlDb extends ToolBase {
     job.setBoolean(CRAWLDB_ADDITIONS_ALLOWED, additionsAllowed);
     job.setBoolean(CrawlDbFilter.URL_FILTERING, filter);
     job.setBoolean(CrawlDbFilter.URL_NORMALIZING, normalize);
-    job.addInputPath(new Path(segment, CrawlDatum.FETCH_DIR_NAME));
-    job.addInputPath(new Path(segment, CrawlDatum.PARSE_DIR_NAME));
+    for (int i = 0; i < segments.length; i++) {
+      Path fetch = new Path(segments[i], CrawlDatum.FETCH_DIR_NAME);
+      Path parse = new Path(segments[i], CrawlDatum.PARSE_DIR_NAME);
+      if (fs.exists(fetch) && fs.exists(parse)) {
+        job.addInputPath(fetch);
+        job.addInputPath(parse);
+      } else {
+        LOG.info(" - skipping invalid segment " + segments[i]);
+      }
+    }
 
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb update: Merging segment data into db.");
     }
-    JobClient.runJob(job);
+    try {
+      JobClient.runJob(job);
+    } catch (IOException e) {
+      LockUtil.removeLockFile(fs, lock);
+      if (fs.exists(job.getOutputPath())) fs.delete(job.getOutputPath());
+      throw e;
+    }
 
     CrawlDb.install(job, crawlDb);
     if (LOG.isInfoEnabled()) { LOG.info("CrawlDb update: done"); }
@@ -93,7 +115,7 @@ public class CrawlDb extends ToolBase {
     job.setJobName("crawldb " + crawlDb);
 
 
-    Path current = new Path(crawlDb, CrawlDatum.DB_DIR_NAME);
+    Path current = new Path(crawlDb, CURRENT_NAME);
     if (FileSystem.get(job).exists(current)) {
       job.addInputPath(current);
     }
@@ -114,7 +136,7 @@ public class CrawlDb extends ToolBase {
     Path newCrawlDb = job.getOutputPath();
     FileSystem fs = new JobClient(job).getFs();
     Path old = new Path(crawlDb, "old");
-    Path current = new Path(crawlDb, CrawlDatum.DB_DIR_NAME);
+    Path current = new Path(crawlDb, CURRENT_NAME);
     if (fs.exists(current)) {
       if (fs.exists(old)) fs.delete(old);
       fs.rename(current, old);
@@ -122,6 +144,8 @@ public class CrawlDb extends ToolBase {
     fs.mkdirs(crawlDb);
     fs.rename(newCrawlDb, current);
     if (fs.exists(old)) fs.delete(old);
+    Path lock = new Path(crawlDb, LOCK_NAME);
+    LockUtil.removeLockFile(fs, lock);
   }
 
   public static void main(String[] args) throws Exception {
@@ -131,9 +155,11 @@ public class CrawlDb extends ToolBase {
 
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
-      System.err.println("Usage: CrawlDb <crawldb> <segment> [-normalize] [-filter] [-noAdditions]");
+      System.err.println("Usage: CrawlDb <crawldb> (-dir <segments> | <seg1> <seg2> ...) [-force] [-normalize] [-filter] [-noAdditions]");
       System.err.println("\tcrawldb\tCrawlDb to update");
-      System.err.println("\tsegment\tsegment name to update from");
+      System.err.println("\t-dir segments\tparent directory containing all segments to update from");
+      System.err.println("\tseg1 seg2 ...\tlist of segment names to update from");
+      System.err.println("\t-force\tforce update even if CrawlDb appears to be locked (CAUTION advised)");
       System.err.println("\t-normalize\tuse URLNormalizer on urls in CrawlDb and segment (usually not needed)");
       System.err.println("\t-filter\tuse URLFilters on urls in CrawlDb and segment");
       System.err.println("\t-noAdditions\tonly update already existing URLs, don't add any newly discovered URLs");
@@ -141,20 +167,36 @@ public class CrawlDb extends ToolBase {
     }
     boolean normalize = false;
     boolean filter = false;
+    boolean force = false;
+    final FileSystem fs = FileSystem.get(getConf());
     boolean additionsAllowed = getConf().getBoolean(CRAWLDB_ADDITIONS_ALLOWED, true);
-    if (args.length > 2) {
-      for (int i = 2; i < args.length; i++) {
-        if (args[i].equals("-normalize")) {
-          normalize = true;
-        } else if (args[i].equals("-filter")) {
-          filter = true;
-        } else if (args[i].equals("-noAdditions")) {
-          additionsAllowed = false;
-        }
+    HashSet<Path> dirs = new HashSet<Path>();
+    for (int i = 1; i < args.length; i++) {
+      if (args[i].equals("-normalize")) {
+        normalize = true;
+      } else if (args[i].equals("-filter")) {
+        filter = true;
+      } else if (args[i].equals("-force")) {
+        force = true;
+      } else if (args[i].equals("-noAdditions")) {
+        additionsAllowed = false;
+      } else if (args[i].equals("-dir")) {
+        Path[] paths = fs.listPaths(new Path(args[++i]), new PathFilter() {
+          public boolean accept(Path dir) {
+            try {
+              return fs.isDirectory(dir);
+            } catch (IOException ioe) {
+              return false;
+            }
+          }
+        });
+        dirs.addAll(Arrays.asList(paths));
+      } else {
+        dirs.add(new Path(args[i]));
       }
     }
     try {
-      update(new Path(args[0]), new Path(args[1]), normalize, filter, additionsAllowed);
+      update(new Path(args[0]), dirs.toArray(new Path[dirs.size()]), normalize, filter, additionsAllowed, force);
       return 0;
     } catch (Exception e) {
       LOG.fatal("CrawlDb update: " + StringUtils.stringifyException(e));

@@ -259,20 +259,14 @@ public class TestGenerator extends TestCase {
     Path generatedSegment = generateFetchlist(Integer.MAX_VALUE,
         myConfiguration, true);
 
+    assertNull("should be null (0 entries)", generatedSegment);
+
+    generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
+
     Path fetchlistPath = new Path(new Path(generatedSegment,
         CrawlDatum.GENERATE_DIR_NAME), "part-00000");
 
     ArrayList<URLCrawlDatum> fetchList = readContents(fetchlistPath);
-
-    // verify all got filtered out
-    assertEquals(0, fetchList.size());
-
-    generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
-
-    fetchlistPath = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
-
-    fetchList = readContents(fetchlistPath);
 
     // verify nothing got filtered
     assertEquals(list.size(), fetchList.size());
@@ -317,7 +311,7 @@ public class TestGenerator extends TestCase {
     // generate segment
     Generator g = new Generator(config);
     Path generatedSegment = g.generate(dbDir, segmentsDir, -1, numResults,
-        Long.MAX_VALUE, filter);
+        Long.MAX_VALUE, filter, false);
     return generatedSegment;
   }
 

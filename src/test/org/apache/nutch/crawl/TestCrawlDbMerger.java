@@ -125,7 +125,7 @@ public class TestCrawlDbMerger extends TestCase {
   
   private void createCrawlDb(FileSystem fs, Path crawldb, TreeSet init, CrawlDatum cd) throws Exception {
     LOG.fine("* creating crawldb: " + crawldb);
-    Path dir = new Path(crawldb, CrawlDatum.DB_DIR_NAME);
+    Path dir = new Path(crawldb, CrawlDb.CURRENT_NAME);
     MapFile.Writer writer = new MapFile.Writer(fs, new Path(dir, "part-00000").toString(), Text.class, CrawlDatum.class);
     Iterator it = init.iterator();
     while (it.hasNext()) {

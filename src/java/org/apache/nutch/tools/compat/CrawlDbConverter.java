@@ -104,13 +104,13 @@ public class CrawlDbConverter extends ToolBase implements Mapper {
     if (args.length == 0) {
       System.err.println("Usage: CrawlDbConverter <oldDb> <newDb> [-withMetadata]");
       System.err.println("\toldDb\tname of the crawldb that uses UTF8 class.");
-      System.err.println("\tnewDb\tname of the crawldb that will use Text class.");
-      System.err.println("\twithMetadata\tconvert also all metadata keys using UTF8 to Text.");
+      System.err.println("\tnewDb\tname of the output crawldb that will use Text class.");
+      System.err.println("\twithMetadata\tconvert also all metadata keys that use UTF8 to Text.");
       return -1;
     }
     JobConf job = new NutchJob(getConf());
     FileSystem fs = FileSystem.get(getConf());
-    Path oldDb = new Path(args[0], CrawlDatum.DB_DIR_NAME);
+    Path oldDb = new Path(args[0], CrawlDb.CURRENT_NAME);
     Path newDb =
       new Path(oldDb,
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));

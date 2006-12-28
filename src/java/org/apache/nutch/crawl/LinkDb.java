@@ -36,6 +36,7 @@ import org.apache.hadoop.util.ToolBase;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.parse.*;
+import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
@@ -44,7 +45,8 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
 
   public static final Log LOG = LogFactory.getLog(LinkDb.class);
 
-  public static String CURRENT_NAME = "current";
+  public static final String CURRENT_NAME = "current";
+  public static final String LOCK_NAME = ".locked";
 
   private int maxAnchorLength;
   private int maxInlinks;
@@ -178,19 +180,10 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
                      OutputCollector output, Reporter reporter)
     throws IOException {
 
-    Inlinks result = null;
+    Inlinks result = new Inlinks();
 
     while (values.hasNext()) {
       Inlinks inlinks = (Inlinks)values.next();
-
-      if (result == null) {                       // optimize a common case
-        if (inlinks.size() < maxInlinks) {
-          result = inlinks;
-          continue;
-        } else {
-          result = new Inlinks();
-        }
-      }
 
       int end = Math.min(maxInlinks - result.size(), inlinks.size());
       Iterator it = inlinks.iterator();
@@ -199,10 +192,11 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
         result.add((Inlink)it.next());
       }
     }
+    if (result.size() == 0) return;
     output.collect(key, result);
   }
 
-  public void invert(Path linkDb, final Path segmentsDir, boolean normalize, boolean filter) throws IOException {
+  public void invert(Path linkDb, final Path segmentsDir, boolean normalize, boolean filter, boolean force) throws IOException {
     final FileSystem fs = FileSystem.get(getConf());
     Path[] files = fs.listPaths(segmentsDir, new PathFilter() {
       public boolean accept(Path f) {
@@ -212,11 +206,14 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
         return false;
       }
     });
-    invert(linkDb, files, normalize, filter);
+    invert(linkDb, files, normalize, filter, force);
   }
 
-  public void invert(Path linkDb, Path[] segments, boolean normalize, boolean filter) throws IOException {
+  public void invert(Path linkDb, Path[] segments, boolean normalize, boolean filter, boolean force) throws IOException {
 
+    Path lock = new Path(linkDb, LOCK_NAME);
+    FileSystem fs = FileSystem.get(getConf());
+    LockUtil.createLockFile(fs, lock, force);
     if (LOG.isInfoEnabled()) {
       LOG.info("LinkDb: starting");
       LOG.info("LinkDb: linkdb: " + linkDb);
@@ -230,8 +227,12 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
       }
       job.addInputPath(new Path(segments[i], ParseData.DIR_NAME));
     }
-    JobClient.runJob(job);
-    FileSystem fs = FileSystem.get(getConf());
+    try {
+      JobClient.runJob(job);
+    } catch (IOException e) {
+      LockUtil.removeLockFile(fs, lock);
+      throw e;
+    }
     if (fs.exists(linkDb)) {
       if (LOG.isInfoEnabled()) {
         LOG.info("LinkDb: merging with existing linkdb: " + linkDb);
@@ -241,7 +242,13 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
       job = LinkDb.createMergeJob(getConf(), linkDb, normalize, filter);
       job.addInputPath(new Path(linkDb, CURRENT_NAME));
       job.addInputPath(newLinkDb);
-      JobClient.runJob(job);
+      try {
+        JobClient.runJob(job);
+      } catch (IOException e) {
+        LockUtil.removeLockFile(fs, lock);
+        fs.delete(newLinkDb);
+        throw e;
+      }
       fs.delete(newLinkDb);
     }
     LinkDb.install(job, linkDb);
@@ -257,8 +264,6 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
     job.setJobName("linkdb " + linkDb);
 
     job.setInputFormat(SequenceFileInputFormat.class);
-    job.setInputKeyClass(Text.class);
-    job.setInputValueClass(ParseData.class);
 
     job.setMapperClass(LinkDb.class);
     // if we don't run the mergeJob, perform normalization/filtering now
@@ -293,8 +298,6 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
     job.setJobName("linkdb merge " + linkDb);
 
     job.setInputFormat(SequenceFileInputFormat.class);
-    job.setInputKeyClass(Text.class);
-    job.setInputValueClass(Inlinks.class);
 
     job.setMapperClass(LinkDbFilter.class);
     job.setBoolean(LinkDbFilter.URL_NORMALIZING, normalize);
@@ -322,6 +325,7 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
     fs.mkdirs(linkDb);
     fs.rename(newLinkDb, current);
     if (fs.exists(old)) fs.delete(old);
+    LockUtil.removeLockFile(fs, new Path(linkDb, LOCK_NAME));
   }
 
   public static void main(String[] args) throws Exception {
@@ -331,10 +335,11 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
   
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
-      System.err.println("Usage: LinkDb <linkdb> (-dir <segmentsDir> | <seg1> <seg2> ...) [-noNormalize] [-noFilter]");
+      System.err.println("Usage: LinkDb <linkdb> (-dir <segmentsDir> | <seg1> <seg2> ...) [-force] [-noNormalize] [-noFilter]");
       System.err.println("\tlinkdb\toutput LinkDb to create or update");
       System.err.println("\t-dir segmentsDir\tparent directory of several segments, OR");
       System.err.println("\tseg1 seg2 ...\t list of segment directories");
+      System.err.println("\t-force\tforce update even if LinkDb appears to be locked (CAUTION advised)");
       System.err.println("\t-noNormalize\tdon't normalize link URLs");
       System.err.println("\t-noFilter\tdon't apply URLFilters to link URLs");
       return -1;
@@ -345,6 +350,7 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
     ArrayList segs = new ArrayList();
     boolean filter = true;
     boolean normalize = true;
+    boolean force = false;
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-dir")) {
         segDir = new Path(args[++i]);
@@ -362,10 +368,12 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
         normalize = false;
       } else if (args[i].equalsIgnoreCase("-noFilter")) {
         filter = false;
+      } else if (args[i].equalsIgnoreCase("-force")) {
+        force = true;
       } else segs.add(new Path(args[i]));
     }
     try {
-      invert(db, (Path[])segs.toArray(new Path[segs.size()]), normalize, filter);
+      invert(db, (Path[])segs.toArray(new Path[segs.size()]), normalize, filter, force);
       return 0;
     } catch (Exception e) {
       LOG.fatal("LinkDb: " + StringUtils.stringifyException(e));

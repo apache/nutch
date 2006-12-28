@@ -31,13 +31,16 @@ import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.ToolBase;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
+import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
@@ -47,8 +50,10 @@ public class Generator extends ToolBase {
   public static final String CRAWL_GENERATE_FILTER = "crawl.generate.filter";
   public static final String GENERATE_MAX_PER_HOST_BY_IP = "generate.max.per.host.by.ip";
   public static final String GENERATE_MAX_PER_HOST = "generate.max.per.host";
+  public static final String GENERATE_UPDATE_CRAWLDB = "generate.update.crawldb";
   public static final String CRAWL_TOP_N = "crawl.topN";
   public static final String CRAWL_GEN_CUR_TIME = "crawl.gen.curTime";
+  public static final String CRAWL_GEN_DELAY = "crawl.gen.delay";
   public static final Log LOG = LogFactory.getLog(Generator.class);
   
   public static class SelectorEntry implements Writable {
@@ -77,6 +82,7 @@ public class Generator extends ToolBase {
 
   /** Selects entries due for fetch. */
   public static class Selector implements Mapper, Partitioner, Reducer {
+    private LongWritable genTime = new LongWritable(System.currentTimeMillis());
     private long curTime;
     private long limit;
     private long count;
@@ -91,6 +97,8 @@ public class Generator extends ToolBase {
     private boolean byIP;
     private long dnsFailure = 0L;
     private boolean filter;
+    private long genDelay;
+    private boolean runUpdatedb;
 
     public void configure(JobConf job) {
       curTime = job.getLong(CRAWL_GEN_CUR_TIME, System.currentTimeMillis());
@@ -102,6 +110,10 @@ public class Generator extends ToolBase {
       scfilters = new ScoringFilters(job);
       hostPartitioner.configure(job);
       filter = job.getBoolean(CRAWL_GENERATE_FILTER, true);
+      genDelay = job.getLong(CRAWL_GEN_DELAY, 7L) * 3600L * 24L * 1000L;
+      long time = job.getLong(Nutch.GENERATE_TIME_KEY, 0L);
+      if (time > 0) genTime.set(time);
+      runUpdatedb = job.getBoolean(GENERATE_UPDATE_CRAWLDB, false);
     }
 
     public void close() {}
@@ -125,12 +137,18 @@ public class Generator extends ToolBase {
       }
       CrawlDatum crawlDatum = (CrawlDatum)value;
 
-      if (crawlDatum.getStatus() == CrawlDatum.STATUS_DB_GONE)
+      if (crawlDatum.getStatus() == CrawlDatum.STATUS_DB_GONE ||
+          crawlDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_PERM)
         return;                                   // don't retry
 
       if (crawlDatum.getFetchTime() > curTime)
         return;                                   // not time yet
 
+      LongWritable oldGenTime = (LongWritable)crawlDatum.getMetaData().get(Nutch.WRITABLE_GENERATE_TIME_KEY);
+      if (oldGenTime != null) { // awaiting fetch & update
+        if (oldGenTime.get() + genDelay > curTime) // still wait for update
+          return;
+      }
       float sort = 1.0f;
       try {
         sort = scfilters.generatorSortValue((Text)key, crawlDatum, sort);
@@ -141,6 +159,8 @@ public class Generator extends ToolBase {
       }
       // sort by decreasing score, using DecreasingFloatComparator
       sortValue.set(sort);
+      // record generation time
+      crawlDatum.getMetaData().put(Nutch.WRITABLE_GENERATE_TIME_KEY, genTime);
       entry.datum = crawlDatum;
       entry.url = (Text)key;
       output.collect(sortValue, entry);          // invert for sort by score
@@ -247,7 +267,7 @@ public class Generator extends ToolBase {
     public void map(WritableComparable key, Writable value, OutputCollector output, Reporter reporter) throws IOException {
       SelectorEntry entry = (SelectorEntry)value;
       output.collect(entry.url, entry.datum);
-    }    
+    }
   }
   
   /** Sort fetch lists by hash of URL. */
@@ -286,6 +306,38 @@ public class Generator extends ToolBase {
     }
   }
 
+  /**
+   * Update the CrawlDB so that the next generate won't include the same URLs.
+   */
+  public static class CrawlDbUpdater extends MapReduceBase implements Mapper, Reducer {
+    public void map(WritableComparable key, Writable value, OutputCollector output, Reporter reporter) throws IOException {
+      if (key instanceof FloatWritable) { // tempDir source
+        SelectorEntry se = (SelectorEntry)value;
+        output.collect(se.url, se.datum);
+      } else {
+        output.collect(key, value);
+      }
+    }
+
+    public void reduce(WritableComparable key, Iterator values, OutputCollector output, Reporter reporter) throws IOException {
+      CrawlDatum orig = null;
+      LongWritable genTime = null;
+      while (values.hasNext()) {
+        CrawlDatum val = (CrawlDatum)values.next();
+        if (val.getMetaData().containsKey(Nutch.WRITABLE_GENERATE_TIME_KEY)) {
+          genTime = (LongWritable)val.getMetaData().get(Nutch.WRITABLE_GENERATE_TIME_KEY);
+        } else {
+          orig = val;
+        }
+      }
+      if (genTime != null) {
+        orig.getMetaData().put(Nutch.WRITABLE_GENERATE_TIME_KEY, genTime);
+      }
+      output.collect(key, orig);
+    }
+    
+  }
+  
   public Generator() {
     
   }
@@ -298,21 +350,25 @@ public class Generator extends ToolBase {
   public Path generate(Path dbDir, Path segments)
     throws IOException {
     return generate(dbDir, segments, -1, Long.MAX_VALUE, System
-        .currentTimeMillis(), true);
+        .currentTimeMillis(), true, false);
   }
 
   /** Generate fetchlists in a segment. */
   public Path generate(Path dbDir, Path segments,
-                       int numLists, long topN, long curTime, boolean filter)
+                       int numLists, long topN, long curTime, boolean filter,
+                       boolean force)
     throws IOException {
 
     Path tempDir =
       new Path(getConf().get("mapred.temp.dir", ".") +
-               "/generate-temp-"+
-               Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
+               "/generate-temp-"+ System.currentTimeMillis());
 
     Path segment = new Path(segments, generateSegmentName());
     Path output = new Path(segment, CrawlDatum.GENERATE_DIR_NAME);
+    
+    Path lock = new Path(dbDir, CrawlDb.LOCK_NAME);
+    FileSystem fs = FileSystem.get(getConf());
+    LockUtil.createLockFile(fs, lock, force);
 
     LOG.info("Generator: Selecting best-scoring urls due for fetch.");
     LOG.info("Generator: starting");
@@ -322,7 +378,7 @@ public class Generator extends ToolBase {
       LOG.info("Generator: topN: " + topN);
     }
 
-    // map to inverted subset due for fetch, sort by link count
+    // map to inverted subset due for fetch, sort by score
     JobConf job = new NutchJob(getConf());
     job.setJobName("generate: select " + segment);
 
@@ -335,10 +391,12 @@ public class Generator extends ToolBase {
       numLists = 1;
     }
     job.setLong(CRAWL_GEN_CUR_TIME, curTime);
+    // record real generation time
+    job.setLong(Nutch.GENERATE_TIME_KEY, System.currentTimeMillis());
     job.setLong(CRAWL_TOP_N, topN);
     job.setBoolean(CRAWL_GENERATE_FILTER, filter);
 
-    job.setInputPath(new Path(dbDir, CrawlDatum.DB_DIR_NAME));
+    job.setInputPath(new Path(dbDir, CrawlDb.CURRENT_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
 
     job.setMapperClass(Selector.class);
@@ -350,7 +408,22 @@ public class Generator extends ToolBase {
     job.setOutputKeyClass(FloatWritable.class);
     job.setOutputKeyComparatorClass(DecreasingFloatComparator.class);
     job.setOutputValueClass(SelectorEntry.class);
-    JobClient.runJob(job);
+    try {
+      JobClient.runJob(job);
+    } catch (IOException e) {
+      LockUtil.removeLockFile(fs, lock);
+      throw e;
+    }
+    
+    // check that we selected at least some entries ...
+    SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(job, tempDir);
+    if (readers == null || readers.length == 0 || !readers[0].next(new FloatWritable())) {
+      LOG.warn("Generator: 0 records selected for fetching, exiting ...");
+      LockUtil.removeLockFile(fs, lock);
+      fs.delete(tempDir);
+      return null;
+    }
+    for (int i = 0; i < readers.length; i++) readers[i].close();
 
     // invert again, paritition by host, sort by url hash
     if (LOG.isInfoEnabled()) {
@@ -373,9 +446,43 @@ public class Generator extends ToolBase {
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);
     job.setOutputKeyComparatorClass(HashComparator.class);
-    JobClient.runJob(job);
-
-    new JobClient(getConf()).getFs().delete(tempDir);
+    try {
+      JobClient.runJob(job);
+    } catch (IOException e) {
+      LockUtil.removeLockFile(fs, lock);
+      fs.delete(tempDir);
+      throw e;
+    }
+    if (getConf().getBoolean(GENERATE_UPDATE_CRAWLDB, false)) {
+      // update the db from tempDir
+      Path tempDir2 =
+        new Path(getConf().get("mapred.temp.dir", ".") +
+                 "/generate-temp-"+ System.currentTimeMillis());
+  
+      job = new NutchJob(getConf());
+      job.setJobName("generate: updatedb " + dbDir);
+      job.addInputPath(tempDir);
+      job.addInputPath(new Path(dbDir, CrawlDb.CURRENT_NAME));
+      job.setInputFormat(SequenceFileInputFormat.class);
+      job.setMapperClass(CrawlDbUpdater.class);
+      job.setReducerClass(CrawlDbUpdater.class);
+      job.setOutputFormat(MapFileOutputFormat.class);
+      job.setOutputKeyClass(Text.class);
+      job.setOutputValueClass(CrawlDatum.class);
+      job.setOutputPath(tempDir2);
+      try {
+        JobClient.runJob(job);
+        CrawlDb.install(job, dbDir);
+      } catch (IOException e) {
+        LockUtil.removeLockFile(fs, lock);
+        fs.delete(tempDir);
+        fs.delete(tempDir2);
+        throw e;
+      }
+      fs.delete(tempDir2);
+    }
+    LockUtil.removeLockFile(fs, lock);
+    fs.delete(tempDir);
 
     if (LOG.isInfoEnabled()) { LOG.info("Generator: done."); }
 
@@ -402,7 +509,7 @@ public class Generator extends ToolBase {
   
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
-      System.out.println("Usage: Generator <crawldb> <segments_dir> [-topN N] [-numFetchers numFetchers] [-adddays numDays] [-noFilter]");
+      System.out.println("Usage: Generator <crawldb> <segments_dir> [-force] [-topN N] [-numFetchers numFetchers] [-adddays numDays] [-noFilter]");
       return -1;
     }
 
@@ -412,6 +519,7 @@ public class Generator extends ToolBase {
     long topN = Long.MAX_VALUE;
     int numFetchers = -1;
     boolean filter = true;
+    boolean force = false;
 
     for (int i = 2; i < args.length; i++) {
       if ("-topN".equals(args[i])) {
@@ -425,13 +533,16 @@ public class Generator extends ToolBase {
         curTime += numDays * 1000L * 60 * 60 * 24;
       } else if ("-noFilter".equals(args[i])) {
         filter = false;
+      } else if ("-force".equals(args[i])) {
+        force = true;
       }
       
     }
 
     try {
-      generate(dbDir, segmentsDir, numFetchers, topN, curTime, filter);
-      return 0;
+      Path seg = generate(dbDir, segmentsDir, numFetchers, topN, curTime, filter, force);
+      if (seg == null) return -2;
+      else return 0;
     } catch (Exception e) {
       LOG.fatal("Generator: " + StringUtils.stringifyException(e));
       return -1;

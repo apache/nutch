@@ -16,6 +16,8 @@
  */
 package org.apache.nutch.metadata;
 
+import org.apache.hadoop.io.Text;
+
 
 /**
  * A collection of Nutch internal metadata constants.
@@ -36,5 +38,13 @@ public interface Nutch {
   public static final String SEGMENT_NAME_KEY = "nutch.segment.name";
 
   public static final String SCORE_KEY = "nutch.crawl.score";
+
+  public static final String GENERATE_TIME_KEY = "_ngt_";
+
+  public static final Text WRITABLE_GENERATE_TIME_KEY = new Text(GENERATE_TIME_KEY);
+
+  public static final String PROTO_STATUS_KEY = "_pst_";
+
+  public static final Text WRITABLE_PROTO_STATUS_KEY = new Text(PROTO_STATUS_KEY);
 
 }

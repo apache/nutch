@@ -27,12 +27,14 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 
 /** Merge new page entries with existing entries. */
 public class CrawlDbReducer implements Reducer {
   public static final Log LOG = LogFactory.getLog(CrawlDbReducer.class);
+  
   private int retryMax;
   private CrawlDatum result = new CrawlDatum();
   private ArrayList linked = new ArrayList();
@@ -51,60 +53,81 @@ public class CrawlDbReducer implements Reducer {
                      OutputCollector output, Reporter reporter)
     throws IOException {
 
-    CrawlDatum highest = null;
+    CrawlDatum fetch = null;
     CrawlDatum old = null;
     byte[] signature = null;
     linked.clear();
 
     while (values.hasNext()) {
       CrawlDatum datum = (CrawlDatum)values.next();
-
-      if (highest == null || datum.getStatus() > highest.getStatus()) {
-        highest = datum;                          // find highest status
+      if (CrawlDatum.hasDbStatus(datum)) {
+        if (old == null) {
+          old = datum;
+        } else {
+          // always take the latest version
+          if (old.getFetchTime() < datum.getFetchTime()) old = datum;
+        }
+        continue;
       }
 
-      switch (datum.getStatus()) {                // find old entry, if any
-      case CrawlDatum.STATUS_DB_UNFETCHED:
-      case CrawlDatum.STATUS_DB_FETCHED:
-      case CrawlDatum.STATUS_DB_GONE:
-        old = datum;
-        break;
+      if (CrawlDatum.hasFetchStatus(datum)) {
+        if (fetch == null) {
+          fetch = datum;
+        } else {
+          // always take the latest version
+          if (fetch.getFetchTime() < datum.getFetchTime()) fetch = datum;
+        }
+        continue;
+      }
+
+      switch (datum.getStatus()) {                // collect other info
       case CrawlDatum.STATUS_LINKED:
         linked.add(datum);
         break;
       case CrawlDatum.STATUS_SIGNATURE:
         signature = datum.getSignature();
+        break;
+      default:
+        LOG.warn("Unknown status, key: " + key + ", datum: " + datum);
       }
     }
 
     // if it doesn't already exist, skip it
     if (old == null && !additionsAllowed) return;
     
-    // initialize with the latest version
-    result.set(highest);
+    // if there is no fetched datum, perhaps there is a link
+    if (fetch == null && linked.size() > 0) {
+      fetch = (CrawlDatum)linked.get(0);
+    }
+    
+    // still no new data - record only unchanged old data, if exists, and return
+    if (fetch == null) {
+      if (old != null) // at this point at least "old" should be present
+        output.collect(key, old);
+      else
+        LOG.warn("Missing fetch and old value, signature=" + signature);
+      return;
+    }
+    
+    // initialize with the latest version, be it fetch or link
+    result.set(fetch);
     if (old != null) {
       // copy metadata from old, if exists
       if (old.getMetaData().size() > 0) {
         result.getMetaData().putAll(old.getMetaData());
         // overlay with new, if any
-        if (highest.getMetaData().size() > 0)
-          result.getMetaData().putAll(highest.getMetaData());
+        if (fetch.getMetaData().size() > 0)
+          result.getMetaData().putAll(fetch.getMetaData());
       }
       // set the most recent valid value of modifiedTime
-      if (old.getModifiedTime() > 0 && highest.getModifiedTime() == 0) {
+      if (old.getModifiedTime() > 0 && fetch.getModifiedTime() == 0) {
         result.setModifiedTime(old.getModifiedTime());
       }
     }
+    
+    switch (fetch.getStatus()) {                // determine new status
 
-    switch (highest.getStatus()) {                // determine new status
-
-    case CrawlDatum.STATUS_DB_UNFETCHED:          // no new entry
-    case CrawlDatum.STATUS_DB_FETCHED:
-    case CrawlDatum.STATUS_DB_GONE:
-      result.set(old);                            // use old
-      break;
-
-    case CrawlDatum.STATUS_LINKED:                // highest was link
+    case CrawlDatum.STATUS_LINKED:                // it was link
       if (old != null) {                          // if old exists
         result.set(old);                          // use it
       } else {
@@ -122,11 +145,21 @@ public class CrawlDbReducer implements Reducer {
       break;
       
     case CrawlDatum.STATUS_FETCH_SUCCESS:         // succesful fetch
-      if (highest.getSignature() == null) result.setSignature(signature);
+      if (fetch.getSignature() == null) result.setSignature(signature);
       result.setStatus(CrawlDatum.STATUS_DB_FETCHED);
       result.setNextFetchTime();
       break;
 
+    case CrawlDatum.STATUS_FETCH_REDIR_TEMP:
+      if (fetch.getSignature() == null) result.setSignature(signature);
+      result.setStatus(CrawlDatum.STATUS_DB_REDIR_TEMP);
+      result.setNextFetchTime();
+      break;
+    case CrawlDatum.STATUS_FETCH_REDIR_PERM:
+      if (fetch.getSignature() == null) result.setSignature(signature);
+      result.setStatus(CrawlDatum.STATUS_DB_REDIR_PERM);
+      result.setNextFetchTime();
+      break;
     case CrawlDatum.STATUS_SIGNATURE:
       if (LOG.isWarnEnabled()) {
         LOG.warn("Lone CrawlDatum.STATUS_SIGNATURE: " + key);
@@ -135,7 +168,7 @@ public class CrawlDbReducer implements Reducer {
     case CrawlDatum.STATUS_FETCH_RETRY:           // temporary failure
       if (old != null)
         result.setSignature(old.getSignature());  // use old signature
-      if (highest.getRetriesSinceFetch() < retryMax) {
+      if (fetch.getRetriesSinceFetch() < retryMax) {
         result.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
       } else {
         result.setStatus(CrawlDatum.STATUS_DB_GONE);
@@ -149,7 +182,7 @@ public class CrawlDbReducer implements Reducer {
       break;
 
     default:
-      throw new RuntimeException("Unknown status: " + highest.getStatus() + " " + key);
+      throw new RuntimeException("Unknown status: " + fetch.getStatus() + " " + key);
     }
 
     try {
@@ -159,6 +192,8 @@ public class CrawlDbReducer implements Reducer {
         LOG.warn("Couldn't update score, key=" + key + ": " + e);
       }
     }
+    // remove generation time, if any
+    result.getMetaData().remove(Nutch.WRITABLE_GENERATE_TIME_KEY);
     output.collect(key, result);
   }
 

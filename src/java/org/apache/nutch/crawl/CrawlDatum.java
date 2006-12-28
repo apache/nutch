@@ -25,34 +25,86 @@ import org.apache.nutch.util.*;
 
 /* The crawl state of a url. */
 public class CrawlDatum implements WritableComparable, Cloneable {
-  public static final String DB_DIR_NAME = "current";
-
   public static final String GENERATE_DIR_NAME = "crawl_generate";
   public static final String FETCH_DIR_NAME = "crawl_fetch";
   public static final String PARSE_DIR_NAME = "crawl_parse";
 
-  private final static byte CUR_VERSION = 4;
+  private final static byte CUR_VERSION = 5;
 
-  public static final byte STATUS_SIGNATURE = 0;
-  public static final byte STATUS_DB_UNFETCHED = 1;
-  public static final byte STATUS_DB_FETCHED = 2;
-  public static final byte STATUS_DB_GONE = 3;
-  public static final byte STATUS_LINKED = 4;
-  public static final byte STATUS_FETCH_SUCCESS = 5;
-  public static final byte STATUS_FETCH_RETRY = 6;
-  public static final byte STATUS_FETCH_GONE = 7;
+  /** Compatibility values for on-the-fly conversion from versions < 5. */
+  private static final byte OLD_STATUS_SIGNATURE = 0;
+  private static final byte OLD_STATUS_DB_UNFETCHED = 1;
+  private static final byte OLD_STATUS_DB_FETCHED = 2;
+  private static final byte OLD_STATUS_DB_GONE = 3;
+  private static final byte OLD_STATUS_LINKED = 4;
+  private static final byte OLD_STATUS_FETCH_SUCCESS = 5;
+  private static final byte OLD_STATUS_FETCH_RETRY = 6;
+  private static final byte OLD_STATUS_FETCH_GONE = 7;
   
-  public static final String[] statNames = {
-    "signature",
-    "DB_unfetched",
-    "DB_fetched",
-    "DB_gone",
-    "linked",
-    "fetch_success",
-    "fetch_retry",
-    "fetch_gone"
-  };
-
+  private static HashMap<Byte, Byte> oldToNew = new HashMap<Byte, Byte>();
+  
+  /** Page was not fetched yet. */
+  public static final byte STATUS_DB_UNFETCHED      = 0x01;
+  /** Page was successfully fetched. */
+  public static final byte STATUS_DB_FETCHED        = 0x02;
+  /** Page no longer exists. */
+  public static final byte STATUS_DB_GONE           = 0x03;
+  /** Page temporarily redirects to other page. */
+  public static final byte STATUS_DB_REDIR_TEMP     = 0x04;
+  /** Page permanently redirects to other page. */
+  public static final byte STATUS_DB_REDIR_PERM     = 0x05;
+  
+  /** Maximum value of DB-related status. */
+  public static final byte STATUS_DB_MAX            = 0x1f;
+  
+  /** Fetching was successful. */
+  public static final byte STATUS_FETCH_SUCCESS     = 0x21;
+  /** Fetching unsuccessful, needs to be retried (transient errors). */
+  public static final byte STATUS_FETCH_RETRY       = 0x22;
+  /** Fetching temporarily redirected to other page. */
+  public static final byte STATUS_FETCH_REDIR_TEMP  = 0x23;
+  /** Fetching permanently redirected to other page. */
+  public static final byte STATUS_FETCH_REDIR_PERM  = 0x24;
+  /** Fetching unsuccessful - page is gone. */
+  public static final byte STATUS_FETCH_GONE        = 0x25;
+  
+  /** Maximum value of fetch-related status. */
+  public static final byte STATUS_FETCH_MAX         = 0x3f;
+  
+  /** Page signature. */
+  public static final byte STATUS_SIGNATURE         = 0x41;
+  /** Page was newly injected. */
+  public static final byte STATUS_INJECTED          = 0x42;
+  /** Page discovered through a link. */
+  public static final byte STATUS_LINKED            = 0x43;
+  
+  
+  public static final HashMap<Byte, String> statNames = new HashMap<Byte, String>();
+  static {
+    statNames.put(STATUS_DB_UNFETCHED, "db_unfetched");
+    statNames.put(STATUS_DB_FETCHED, "db_fetched");
+    statNames.put(STATUS_DB_GONE, "db_gone");
+    statNames.put(STATUS_DB_REDIR_TEMP, "db_redir_temp");
+    statNames.put(STATUS_DB_REDIR_PERM, "db_redir_perm");
+    statNames.put(STATUS_SIGNATURE, "signature");
+    statNames.put(STATUS_INJECTED, "injected");
+    statNames.put(STATUS_LINKED, "linked");
+    statNames.put(STATUS_FETCH_SUCCESS, "fetch_success");
+    statNames.put(STATUS_FETCH_RETRY, "fetch_retry");
+    statNames.put(STATUS_FETCH_REDIR_TEMP, "fetch_redir_temp");
+    statNames.put(STATUS_FETCH_REDIR_PERM, "fetch_redir_perm");
+    statNames.put(STATUS_FETCH_GONE, "fetch_gone");
+    
+    oldToNew.put(OLD_STATUS_DB_UNFETCHED, STATUS_DB_UNFETCHED);
+    oldToNew.put(OLD_STATUS_DB_FETCHED, STATUS_DB_FETCHED);
+    oldToNew.put(OLD_STATUS_DB_GONE, STATUS_DB_GONE);
+    oldToNew.put(OLD_STATUS_FETCH_GONE, STATUS_FETCH_GONE);
+    oldToNew.put(OLD_STATUS_FETCH_SUCCESS, STATUS_FETCH_SUCCESS);
+    oldToNew.put(OLD_STATUS_FETCH_RETRY, STATUS_FETCH_RETRY);
+    oldToNew.put(OLD_STATUS_LINKED, STATUS_LINKED);
+    oldToNew.put(OLD_STATUS_SIGNATURE, STATUS_SIGNATURE);
+  }
+  
   private static final float MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
 
   private byte status;
@@ -63,6 +115,16 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   private byte[] signature = null;
   private long modifiedTime;
   private MapWritable metaData;
+  
+  public static boolean hasDbStatus(CrawlDatum datum) {
+    if (datum.status <= STATUS_DB_MAX) return true;
+    return false;
+  }
+
+  public static boolean hasFetchStatus(CrawlDatum datum) {
+    if (datum.status > STATUS_DB_MAX && datum.status <= STATUS_FETCH_MAX) return true;
+    return false;
+  }
 
   public CrawlDatum() {}
 
@@ -81,6 +143,13 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   //
 
   public byte getStatus() { return status; }
+  
+  public static String getStatusName(byte value) {
+    String res = statNames.get(value);
+    if (res == null) res = "unknown";
+    return res;
+  }
+  
   public void setStatus(int status) { this.status = (byte)status; }
 
   public long getFetchTime() { return fetchTime; }
@@ -173,6 +242,14 @@ public class CrawlDatum implements WritableComparable, Cloneable {
           metaData.clear(); // at least clear old meta data
         }
       }
+    }
+    // translate status codes
+    if (version < 5) {
+      if (oldToNew.containsKey(status))
+        status = oldToNew.get(status);
+      else
+        status = STATUS_DB_UNFETCHED;
+      
     }
   }
 
@@ -285,7 +362,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   public String toString() {
     StringBuffer buf = new StringBuffer();
     buf.append("Version: " + CUR_VERSION + "\n");
-    buf.append("Status: " + getStatus() + " (" + statNames[getStatus()] + ")\n");
+    buf.append("Status: " + getStatus() + " (" + getStatusName(getStatus()) + ")\n");
     buf.append("Fetch time: " + new Date(getFetchTime()) + "\n");
     buf.append("Modified time: " + new Date(getModifiedTime()) + "\n");
     buf.append("Retries since fetch: " + getRetriesSinceFetch() + "\n");
