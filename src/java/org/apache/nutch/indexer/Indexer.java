@@ -190,20 +190,12 @@ public class Indexer extends ToolBase implements Reducer {
         inlinks = (Inlinks)value;
       } else if (value instanceof CrawlDatum) {
         CrawlDatum datum = (CrawlDatum)value;
-        switch (datum.getStatus()) {
-        case CrawlDatum.STATUS_DB_UNFETCHED:
-        case CrawlDatum.STATUS_DB_FETCHED:
-        case CrawlDatum.STATUS_DB_GONE:
+        if (CrawlDatum.hasDbStatus(datum))
           dbDatum = datum;
-          break;
-        case CrawlDatum.STATUS_FETCH_SUCCESS:
-        case CrawlDatum.STATUS_FETCH_RETRY:
-        case CrawlDatum.STATUS_FETCH_GONE:
+        else if (CrawlDatum.hasFetchStatus(datum))
           fetchDatum = datum;
-          break;
-        default:
+        else
           throw new RuntimeException("Unexpected status: "+datum.getStatus());
-        }
       } else if (value instanceof ParseData) {
         parseData = (ParseData)value;
       } else if (value instanceof ParseText) {
