@@ -214,6 +214,7 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
     Path lock = new Path(linkDb, LOCK_NAME);
     FileSystem fs = FileSystem.get(getConf());
     LockUtil.createLockFile(fs, lock, force);
+    Path currentLinkDb = new Path(linkDb, CURRENT_NAME);
     if (LOG.isInfoEnabled()) {
       LOG.info("LinkDb: starting");
       LOG.info("LinkDb: linkdb: " + linkDb);
@@ -233,14 +234,14 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
       LockUtil.removeLockFile(fs, lock);
       throw e;
     }
-    if (fs.exists(linkDb)) {
+    if (fs.exists(currentLinkDb)) {
       if (LOG.isInfoEnabled()) {
         LOG.info("LinkDb: merging with existing linkdb: " + linkDb);
       }
       // try to merge
       Path newLinkDb = job.getOutputPath();
       job = LinkDb.createMergeJob(getConf(), linkDb, normalize, filter);
-      job.addInputPath(new Path(linkDb, CURRENT_NAME));
+      job.addInputPath(currentLinkDb);
       job.addInputPath(newLinkDb);
       try {
         JobClient.runJob(job);
