@@ -157,6 +157,8 @@ public class Fetcher extends ToolBase implements MapRunnable {
                   newUrl = normalizers.normalize(newUrl, URLNormalizers.SCOPE_FETCHER);
                   newUrl = this.urlFilters.filter(newUrl);
                   if (newUrl != null && !newUrl.equals(url.toString())) {
+                    // record that we were redirected
+                    output(url, datum, null, status, CrawlDatum.STATUS_FETCH_REDIR_PERM);
                     url = new Text(newUrl);
                     if (maxRedirect > 0) {
                       redirecting = true;
@@ -165,7 +167,7 @@ public class Fetcher extends ToolBase implements MapRunnable {
                         LOG.debug(" - content redirect to " + url + " (fetching now)");
                       }
                     } else {
-                      output(url, new CrawlDatum(), null, null, CrawlDatum.STATUS_FETCH_REDIR_TEMP);
+                      output(url, new CrawlDatum(), null, null, CrawlDatum.STATUS_LINKED);
                       if (LOG.isDebugEnabled()) {
                         LOG.debug(" - content redirect to " + url + " (fetching later)");
                       }
@@ -198,7 +200,7 @@ public class Fetcher extends ToolBase implements MapRunnable {
                       LOG.debug(" - protocol redirect to " + url + " (fetching now)");
                     }
                   } else {
-                    output(url, new CrawlDatum(), null, null, code);
+                    output(url, new CrawlDatum(), null, null, CrawlDatum.STATUS_LINKED);
                     if (LOG.isDebugEnabled()) {
                       LOG.debug(" - protocol redirect to " + url + " (fetching later)");
                     }

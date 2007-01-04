@@ -117,6 +117,10 @@ public class Crawl {
     for (int i = 0; i < depth; i++) {             // generate new segment
       Path segment = generator.generate(crawlDb, segments, -1, topN, System
           .currentTimeMillis(), false, false);
+      if (segment == null) {
+        LOG.info("Stopping at depth=" + i + " - no more URLs to fetch.");
+        break;
+      }
       fetcher.fetch(segment, threads);  // fetch it
       if (!Fetcher.isParsing(job)) {
         parseSegment.parse(segment);    // parse it, if needed
