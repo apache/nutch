@@ -20,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -106,7 +107,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
           // if (LOG.isInfoEnabled()) {
           //   LOG.info("script: language=" + lang + ", text: " + script.toString());
           // }
-          Outlink[] links = getJSLinks(script.toString(), base, base);
+          Outlink[] links = getJSLinks(script.toString(), "", base);
           if (links != null && links.length > 0) outlinks.addAll(Arrays.asList(links));
           // no other children of interest here, go one level up.
           return;
@@ -123,11 +124,11 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
           Node anode = attrs.item(i);
           Outlink[] links = null;
           if (anode.getNodeName().startsWith("on")) {
-            links = getJSLinks(anode.getNodeValue(), base, base);
+            links = getJSLinks(anode.getNodeValue(), "", base);
           } else if (anode.getNodeName().equalsIgnoreCase("href")) {
             String val = anode.getNodeValue();
             if (val != null && val.toLowerCase().indexOf("javascript:") != -1) {
-              links = getJSLinks(val, base, base);
+              links = getJSLinks(val, "", base);
             }
           }
           if (links != null && links.length > 0) outlinks.addAll(Arrays.asList(links));
@@ -146,7 +147,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
       return new ParseStatus(ParseStatus.FAILED_INVALID_FORMAT,
               "Content not JavaScript: '" + type + "'").getEmptyParse(getConf());
     String script = new String(c.getContent());
-    Outlink[] outlinks = getJSLinks(script, c.getUrl(), c.getUrl());
+    Outlink[] outlinks = getJSLinks(script, "", c.getUrl());
     if (outlinks == null) outlinks = new Outlink[0];
     // Title? use the first line of the script...
     String title;
@@ -212,7 +213,19 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
         }
         if (url.startsWith("www.")) {
             url = "http://" + url;
-        } else url = new URL(baseURL, url).toString();
+        } else {
+          // See if candidate URL is parseable.  If not, pass and move on to
+          // the next match.
+          try {
+            url = new URL(baseURL, url).toString();
+          } catch (MalformedURLException ex) {
+            if (LOG.isTraceEnabled()) {
+              LOG.trace(" - failed URL parse '" + url + "' and baseURL '" +
+                  baseURL + "'", ex);
+            }
+            continue;
+          }
+        }
         url = url.replaceAll("&amp;", "&");
         if (LOG.isTraceEnabled()) {
           LOG.trace(" - outlink from JS: '" + url + "'");
@@ -249,7 +262,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     while ((line = br.readLine()) != null) sb.append(line + "\n");
     JSParseFilter parseFilter = new JSParseFilter();
     parseFilter.setConf(NutchConfiguration.create());
-    Outlink[] links = parseFilter.getJSLinks(sb.toString(), args[1], args[1]);
+    Outlink[] links = parseFilter.getJSLinks(sb.toString(), "", args[1]);
     System.out.println("Outlinks extracted: " + links.length);
     for (int i = 0; i < links.length; i++)
       System.out.println(" - " + links[i]);
