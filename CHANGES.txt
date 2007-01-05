@@ -114,6 +114,9 @@ Unreleased changes (0.9-dev)
 36. Fix Injector to preserve already existing CrawlDatum if the seed list
     being injected also contains such URL. (ab)
 
+37. NUTCH-425, NUTCH-426 - Fix anchors pollution. Continue after
+    skipping bad URLs. (Michael Stack via ab)
+
 
 Release 0.8 - 2006-07-25
 
