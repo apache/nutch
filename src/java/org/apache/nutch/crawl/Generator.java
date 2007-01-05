@@ -248,20 +248,15 @@ public class Generator extends ToolBase {
 
   }
 
-  public static class DecreasingFloatComparator extends WritableComparator {
-
-    public DecreasingFloatComparator() {
-      super(FloatWritable.class);
-    }
+  public static class DecreasingFloatComparator extends FloatWritable.Comparator {
 
     /** Compares two FloatWritables decreasing. */
-    public int compare(WritableComparable o1, WritableComparable o2) {
-      float thisValue = ((FloatWritable) o1).get();
-      float thatValue = ((FloatWritable) o2).get();
-      return (thisValue<thatValue ? 1 : (thisValue == thatValue ? 0 : -1));
+    public int compare(byte[] b1, int s1, int l1,
+        byte[] b2, int s2, int l2) {
+      return super.compare(b2, s2, l2, b1, s1, l1);
     }
   }
-  
+
   public static class SelectorInverseMapper extends MapReduceBase implements Mapper {
 
     public void map(WritableComparable key, Writable value, OutputCollector output, Reporter reporter) throws IOException {
