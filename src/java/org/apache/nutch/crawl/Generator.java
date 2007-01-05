@@ -353,7 +353,10 @@ public class Generator extends ToolBase {
         .currentTimeMillis(), true, false);
   }
 
-  /** Generate fetchlists in a segment. */
+  /**
+   * Generate fetchlists in a segment.
+   * @return Path to generated segment or null if no entries were selected.
+   * */
   public Path generate(Path dbDir, Path segments,
                        int numLists, long topN, long curTime, boolean filter,
                        boolean force)
