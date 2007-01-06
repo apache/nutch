@@ -17,6 +17,7 @@
 
 package org.apache.nutch.indexer;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 // Commons Logging imports
@@ -35,13 +36,22 @@ import org.apache.hadoop.io.Text;
 /** Creates and caches {@link IndexingFilter} implementing plugins.*/
 public class IndexingFilters {
 
+  public static final String INDEXINGFILTER_ORDER = "indexingfilter.order";
+
   public final static Log LOG = LogFactory.getLog(IndexingFilters.class);
 
   private IndexingFilter[] indexingFilters;
 
   public IndexingFilters(Configuration conf) {
+      /* Get indexingfilter.order property */
+      String order = conf.get(INDEXINGFILTER_ORDER);
       this.indexingFilters =(IndexingFilter[]) conf.getObject(IndexingFilter.class.getName()); 
       if (this.indexingFilters == null) {
+          /* If ordered filters are required, prepare array of filters based on property */
+          String[] orderedFilters = null;
+          if (order != null && !order.trim().equals("")) {
+              orderedFilters = order.split("\\s+");
+          }
             try {
                 ExtensionPoint point = PluginRepository.get(conf).getExtensionPoint(IndexingFilter.X_POINT_ID);
                 if (point == null)
@@ -58,7 +68,21 @@ public class IndexingFilters {
                         filterMap.put(filter.getClass().getName(), filter);
                     }
                 }
-                conf.setObject(IndexingFilter.class.getName(), (IndexingFilter[]) filterMap.values().toArray(new IndexingFilter[0]));
+                /* If no ordered filters required, just get the filters in an indeterminate order */
+                if (orderedFilters == null) {
+                    conf.setObject(IndexingFilter.class.getName(), (IndexingFilter[]) filterMap.values().toArray(new IndexingFilter[0]));
+                /* Otherwise run the filters in the required order */
+                } else {
+                    ArrayList<IndexingFilter> filters = new ArrayList<IndexingFilter>();
+                    for (int i = 0; i < orderedFilters.length; i++) {
+                        IndexingFilter filter = (IndexingFilter) filterMap
+                                .get(orderedFilters[i]);
+                        if (filter != null) {
+                          filters.add(filter);
+                        }
+                    }
+                    conf.setObject(IndexingFilter.class.getName(), filters.toArray(new IndexingFilter[filters.size()]));
+                }
             } catch (PluginRuntimeException e) {
                 throw new RuntimeException(e);
             }

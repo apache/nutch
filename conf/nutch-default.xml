@@ -536,6 +536,24 @@
   </description>
 </property>
 
+<!-- indexingfilter plugin properties -->
+
+<property>
+  <name>indexingfilter.order</name>
+  <value></value>
+  <description>The order by which index filters are applied.
+  If empty, all available index filters (as dictated by properties
+  plugin-includes and plugin-excludes above) are loaded and applied in system
+  defined order. If not empty, only named filters are loaded and applied
+  in given order. For example, if this property has value:
+  org.apache.nutch.indexer.basic.BasicIndexingFilter org.apache.nutch.indexer.more.MoreIndexingFilter
+  then BasicIndexingFilter is applied first, and MoreIndexingFilter second.
+  
+  Filter ordering might have impact on result if one filter depends on output of
+  another filter.
+  </description>
+</property>
+
 
 <!-- analysis properties -->
 
