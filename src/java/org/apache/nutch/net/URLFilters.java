@@ -33,53 +33,49 @@ public class URLFilters {
   private URLFilter[] filters;
 
   public URLFilters(Configuration conf) {
-      String order = conf.get(URLFILTER_ORDER);
-      this.filters = (URLFilter[]) conf.getObject(URLFilter.class.getName());
-      
-      if (this.filters == null) {
-            String[] orderedFilters = null;
-            if (order != null && !order.trim().equals("")) {
-                orderedFilters = order.split("\\s+");
-            }
+    String order = conf.get(URLFILTER_ORDER);
+    this.filters = (URLFilter[]) conf.getObject(URLFilter.class.getName());
 
-            try {
-                ExtensionPoint point = PluginRepository.get(conf)
-                        .getExtensionPoint(URLFilter.X_POINT_ID);
-                if (point == null)
-                    throw new RuntimeException(URLFilter.X_POINT_ID
-                            + " not found.");
-                Extension[] extensions = point.getExtensions();
-                HashMap filterMap = new HashMap();
-                for (int i = 0; i < extensions.length; i++) {
-                    Extension extension = extensions[i];
-                    URLFilter filter = (URLFilter) extension
-                            .getExtensionInstance();
-                    if (!filterMap.containsKey(filter.getClass().getName())) {
-                        filterMap.put(filter.getClass().getName(), filter);
-                    }
-                }
-                if (orderedFilters == null) {
-                    conf.setObject(URLFilter.class.getName(), filterMap
-                            .values().toArray(new URLFilter[0]));
-                } else {
-                    ArrayList filters = new ArrayList();
-                    for (int i = 0; i < orderedFilters.length; i++) {
-                      URLFilter filter = (URLFilter) filterMap
-                                .get(orderedFilters[i]);
-                      if(filter != null){
-                        filters.add(filter);
-                      }
-                    }
-                    conf.setObject(URLFilter.class.getName(), 
-                        filters.toArray(new URLFilter[filters.size()]));
-                }
-            } catch (PluginRuntimeException e) {
-                throw new RuntimeException(e);
-            }
-            this.filters = (URLFilter[]) conf.getObject(URLFilter.class
-                    .getName());
+    if (this.filters == null) {
+      String[] orderedFilters = null;
+      if (order != null && !order.trim().equals("")) {
+        orderedFilters = order.split("\\s+");
+      }
+
+      try {
+        ExtensionPoint point = PluginRepository.get(conf).getExtensionPoint(
+            URLFilter.X_POINT_ID);
+        if (point == null)
+          throw new RuntimeException(URLFilter.X_POINT_ID + " not found.");
+        Extension[] extensions = point.getExtensions();
+        HashMap filterMap = new HashMap();
+        for (int i = 0; i < extensions.length; i++) {
+          Extension extension = extensions[i];
+          URLFilter filter = (URLFilter) extension.getExtensionInstance();
+          if (!filterMap.containsKey(filter.getClass().getName())) {
+            filterMap.put(filter.getClass().getName(), filter);
+          }
         }
-  }  
+        if (orderedFilters == null) {
+          conf.setObject(URLFilter.class.getName(), filterMap.values().toArray(
+              new URLFilter[0]));
+        } else {
+          ArrayList filters = new ArrayList();
+          for (int i = 0; i < orderedFilters.length; i++) {
+            URLFilter filter = (URLFilter) filterMap.get(orderedFilters[i]);
+            if (filter != null) {
+              filters.add(filter);
+            }
+          }
+          conf.setObject(URLFilter.class.getName(), filters
+              .toArray(new URLFilter[filters.size()]));
+        }
+      } catch (PluginRuntimeException e) {
+        throw new RuntimeException(e);
+      }
+      this.filters = (URLFilter[]) conf.getObject(URLFilter.class.getName());
+    }
+  }
 
   /** Run all defined filters. Assume logical AND. */
   public String filter(String urlString) throws URLFilterException {
