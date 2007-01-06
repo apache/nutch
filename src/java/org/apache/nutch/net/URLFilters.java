@@ -17,6 +17,7 @@
 
 package org.apache.nutch.net;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.nutch.plugin.Extension;
@@ -28,10 +29,11 @@ import org.apache.hadoop.conf.Configuration;
 /** Creates and caches {@link URLFilter} implementing plugins.*/
 public class URLFilters {
 
+  public static final String URLFILTER_ORDER = "urlfilter.order";
   private URLFilter[] filters;
 
   public URLFilters(Configuration conf) {
-      String order = conf.get("urlfilter.order");
+      String order = conf.get(URLFILTER_ORDER);
       this.filters = (URLFilter[]) conf.getObject(URLFilter.class.getName());
       
       if (this.filters == null) {
@@ -60,12 +62,16 @@ public class URLFilters {
                     conf.setObject(URLFilter.class.getName(), filterMap
                             .values().toArray(new URLFilter[0]));
                 } else {
-                    URLFilter[] filter = new URLFilter[orderedFilters.length];
+                    ArrayList filters = new ArrayList();
                     for (int i = 0; i < orderedFilters.length; i++) {
-                        filter[i] = (URLFilter) filterMap
+                      URLFilter filter = (URLFilter) filterMap
                                 .get(orderedFilters[i]);
+                      if(filter != null){
+                        filters.add(filter);
+                      }
                     }
-                    conf.setObject(URLFilter.class.getName(), filter);
+                    conf.setObject(URLFilter.class.getName(), 
+                        filters.toArray(new URLFilter[filters.size()]));
                 }
             } catch (PluginRuntimeException e) {
                 throw new RuntimeException(e);

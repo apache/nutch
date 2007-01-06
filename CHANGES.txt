@@ -117,6 +117,9 @@ Unreleased changes (0.9-dev)
 37. NUTCH-425, NUTCH-426 - Fix anchors pollution. Continue after
     skipping bad URLs. (Michael Stack via ab)
 
+38. NUTCH-325 - UrlFilters.java throws NPE in case urlfilter.order contains
+    Filters that are not in plugin.includes (Stefan Groschupf, siren)
+
 
 Release 0.8 - 2006-07-25
 
