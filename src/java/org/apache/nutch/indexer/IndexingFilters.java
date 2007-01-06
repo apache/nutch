@@ -43,56 +43,69 @@ public class IndexingFilters {
   private IndexingFilter[] indexingFilters;
 
   public IndexingFilters(Configuration conf) {
-      /* Get indexingfilter.order property */
-      String order = conf.get(INDEXINGFILTER_ORDER);
-      this.indexingFilters =(IndexingFilter[]) conf.getObject(IndexingFilter.class.getName()); 
-      if (this.indexingFilters == null) {
-          /* If ordered filters are required, prepare array of filters based on property */
-          String[] orderedFilters = null;
-          if (order != null && !order.trim().equals("")) {
-              orderedFilters = order.split("\\s+");
+    /* Get indexingfilter.order property */
+    String order = conf.get(INDEXINGFILTER_ORDER);
+    this.indexingFilters = (IndexingFilter[]) conf
+        .getObject(IndexingFilter.class.getName());
+    if (this.indexingFilters == null) {
+      /*
+       * If ordered filters are required, prepare array of filters based on
+       * property
+       */
+      String[] orderedFilters = null;
+      if (order != null && !order.trim().equals("")) {
+        orderedFilters = order.split("\\s+");
+      }
+      try {
+        ExtensionPoint point = PluginRepository.get(conf).getExtensionPoint(
+            IndexingFilter.X_POINT_ID);
+        if (point == null)
+          throw new RuntimeException(IndexingFilter.X_POINT_ID + " not found.");
+        Extension[] extensions = point.getExtensions();
+        HashMap filterMap = new HashMap();
+        for (int i = 0; i < extensions.length; i++) {
+          Extension extension = extensions[i];
+          IndexingFilter filter = (IndexingFilter) extension
+              .getExtensionInstance();
+          if (LOG.isInfoEnabled()) {
+            LOG.info("Adding " + filter.getClass().getName());
           }
-            try {
-                ExtensionPoint point = PluginRepository.get(conf).getExtensionPoint(IndexingFilter.X_POINT_ID);
-                if (point == null)
-                    throw new RuntimeException(IndexingFilter.X_POINT_ID + " not found.");
-                Extension[] extensions = point.getExtensions();
-                HashMap filterMap = new HashMap();
-                for (int i = 0; i < extensions.length; i++) {
-                    Extension extension = extensions[i];
-                    IndexingFilter filter = (IndexingFilter) extension.getExtensionInstance();
-                    if (LOG.isInfoEnabled()) {
-                      LOG.info("Adding " + filter.getClass().getName());
-                    }
-                    if (!filterMap.containsKey(filter.getClass().getName())) {
-                        filterMap.put(filter.getClass().getName(), filter);
-                    }
-                }
-                /* If no ordered filters required, just get the filters in an indeterminate order */
-                if (orderedFilters == null) {
-                    conf.setObject(IndexingFilter.class.getName(), (IndexingFilter[]) filterMap.values().toArray(new IndexingFilter[0]));
-                /* Otherwise run the filters in the required order */
-                } else {
-                    ArrayList<IndexingFilter> filters = new ArrayList<IndexingFilter>();
-                    for (int i = 0; i < orderedFilters.length; i++) {
-                        IndexingFilter filter = (IndexingFilter) filterMap
-                                .get(orderedFilters[i]);
-                        if (filter != null) {
-                          filters.add(filter);
-                        }
-                    }
-                    conf.setObject(IndexingFilter.class.getName(), filters.toArray(new IndexingFilter[filters.size()]));
-                }
-            } catch (PluginRuntimeException e) {
-                throw new RuntimeException(e);
-            }
-            this.indexingFilters =(IndexingFilter[]) conf.getObject(IndexingFilter.class.getName());
+          if (!filterMap.containsKey(filter.getClass().getName())) {
+            filterMap.put(filter.getClass().getName(), filter);
+          }
         }
+        /*
+         * If no ordered filters required, just get the filters in an
+         * indeterminate order
+         */
+        if (orderedFilters == null) {
+          conf.setObject(IndexingFilter.class.getName(),
+              (IndexingFilter[]) filterMap.values().toArray(
+                  new IndexingFilter[0]));
+          /* Otherwise run the filters in the required order */
+        } else {
+          ArrayList<IndexingFilter> filters = new ArrayList<IndexingFilter>();
+          for (int i = 0; i < orderedFilters.length; i++) {
+            IndexingFilter filter = (IndexingFilter) filterMap
+                .get(orderedFilters[i]);
+            if (filter != null) {
+              filters.add(filter);
+            }
+          }
+          conf.setObject(IndexingFilter.class.getName(), filters
+              .toArray(new IndexingFilter[filters.size()]));
+        }
+      } catch (PluginRuntimeException e) {
+        throw new RuntimeException(e);
+      }
+      this.indexingFilters = (IndexingFilter[]) conf
+          .getObject(IndexingFilter.class.getName());
+    }
   }                  
 
   /** Run all defined filters. */
-  public Document filter(Document doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
-    throws IndexingException {
+  public Document filter(Document doc, Parse parse, Text url, CrawlDatum datum,
+      Inlinks inlinks) throws IndexingException {
     for (int i = 0; i < this.indexingFilters.length; i++) {
       doc = this.indexingFilters[i].filter(doc, parse, url, datum, inlinks);
     }
