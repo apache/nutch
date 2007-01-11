@@ -120,8 +120,6 @@ public class CrawlDbMerger extends ToolBase {
     job.setJobName("crawldb merge " + output);
 
     job.setInputFormat(SequenceFileInputFormat.class);
-    job.setInputKeyClass(Text.class);
-    job.setInputValueClass(CrawlDatum.class);
 
     job.setMapperClass(CrawlDbFilter.class);
     job.setBoolean(CrawlDbFilter.URL_FILTERING, filter);

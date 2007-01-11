@@ -145,13 +145,12 @@ public class DeleteDuplicates extends ToolBase
     private static final long INDEX_LENGTH = Integer.MAX_VALUE;
 
     /** Return each index as a split. */
-    public FileSplit[] getSplits(FileSystem fs, JobConf job,
-                                 int numSplits)
+    public InputSplit[] getSplits(JobConf job, int numSplits)
       throws IOException {
-      Path[] files = listPaths(fs, job);
-      FileSplit[] splits = new FileSplit[files.length];
+      Path[] files = listPaths(job);
+      InputSplit[] splits = new InputSplit[files.length];
       for (int i = 0; i < files.length; i++) {
-        splits[i] = new FileSplit(files[i], 0, INDEX_LENGTH);
+        splits[i] = new FileSplit(files[i], 0, INDEX_LENGTH, job);
       }
       return splits;
     }
@@ -163,9 +162,9 @@ public class DeleteDuplicates extends ToolBase
       private int doc;
       private Text index;
       
-      public DDRecordReader(FileSystem fs, FileSplit split, JobConf job,
+      public DDRecordReader(FileSplit split, JobConf job,
           Text index) throws IOException {
-        indexReader = IndexReader.open(new FsDirectory(fs, split.getPath(), false, job));
+        indexReader = IndexReader.open(new FsDirectory(FileSystem.get(job), split.getPath(), false, job));
         maxDoc = indexReader.maxDoc();
         this.index = index;
       }
@@ -211,7 +210,7 @@ public class DeleteDuplicates extends ToolBase
       }
 
       public long getPos() throws IOException {
-        return maxDoc==0 ? 0 : (doc*INDEX_LENGTH)/maxDoc;
+        return maxDoc == 0 ? 0 : (doc*INDEX_LENGTH)/maxDoc;
       }
 
       public void close() throws IOException {
@@ -225,16 +224,20 @@ public class DeleteDuplicates extends ToolBase
       public Writable createValue() {
         return new IndexDoc();
       }
+
+      public float getProgress() throws IOException {
+        return maxDoc == 0 ? 0.0f : (float)doc / (float)maxDoc;
+      }
     }
     
     /** Return each index as a split. */
-    public RecordReader getRecordReader(final FileSystem fs,
-                                        final FileSplit split,
-                                        final JobConf job,
+    public RecordReader getRecordReader(InputSplit split,
+                                        JobConf job,
                                         Reporter reporter) throws IOException {
-      final Text index = new Text(split.getPath().toString());
+      FileSplit fsplit = (FileSplit)split;
+      Text index = new Text(fsplit.getPath().toString());
       reporter.setStatus(index.toString());
-      return new DDRecordReader(fs, split, job, index);
+      return new DDRecordReader(fsplit, job, index);
     }
   }
   
