@@ -16,7 +16,6 @@
      <ant dir="index-basic" target="deploy"/>
      <ant dir="index-more" target="deploy"/>
      <ant dir="languageidentifier" target="deploy"/>
-     <ant dir="lib-commons-httpclient" target="deploy"/>
      <ant dir="lib-http" target="deploy"/>
      <ant dir="lib-jakarta-poi" target="deploy"/>
      <ant dir="lib-log4j" target="deploy"/>

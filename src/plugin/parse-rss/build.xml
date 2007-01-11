@@ -23,7 +23,6 @@
    <ant target="deploy" inheritall="false" dir="../lib-xml"/>
    <ant target="deploy" inheritall="false" dir="../lib-log4j"/>
    <ant target="deploy" inheritall="false" dir="../nutch-extensionpoints"/>
-   <ant target="deploy" inheritall="false" dir="../lib-commons-httpclient"/>
    <ant target="deploy" inheritall="false" dir="../protocol-file"/>
  </target>
 

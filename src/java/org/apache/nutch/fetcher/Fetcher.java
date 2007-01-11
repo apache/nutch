@@ -48,12 +48,12 @@ public class Fetcher extends ToolBase implements MapRunnable {
   
   public static class InputFormat extends SequenceFileInputFormat {
     /** Don't split inputs, to keep things polite. */
-    public FileSplit[] getSplits(FileSystem fs, JobConf job, int nSplits)
+    public InputSplit[] getSplits(FileSystem fs, JobConf job, int nSplits)
       throws IOException {
-      Path[] files = listPaths(fs, job);
-      FileSplit[] splits = new FileSplit[files.length];
+      Path[] files = listPaths(job);
+      InputSplit[] splits = new InputSplit[files.length];
       for (int i = 0; i < files.length; i++) {
-        splits[i] = new FileSplit(files[i], 0, fs.getLength(files[i]));
+        splits[i] = new FileSplit(files[i], 0, fs.getLength(files[i]), job);
       }
       return splits;
     }

@@ -10,13 +10,11 @@
       <library name="protocol-httpclient.jar">
          <export name="*"/>
       </library>
-      <library name="commons-codec.jar" />
    </runtime>
 
    <requires>
       <import plugin="nutch-extensionpoints"/>
       <import plugin="lib-http"/>
-      <import plugin="lib-commons-httpclient"/>
    </requires>
 
    <extension id="org.apache.nutch.protocol.httpclient"

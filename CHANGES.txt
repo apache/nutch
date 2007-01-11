@@ -126,6 +126,8 @@ Unreleased changes (0.9-dev)
 40. When indexing pages with redirection, drop all intermediate pages and
     index only the final page. (ab)
 
+41. Upgrade to Hadoop 0.10.1. (ab)
+
 
 Release 0.8 - 2006-07-25
 
