@@ -41,6 +41,7 @@ public class TestDeleteDuplicates extends TestCase {
   Path root;
   Path index1;
   Path index2;
+  Path index3;
   
   public void setUp() throws Exception {
     conf = NutchConfiguration.create();
@@ -48,11 +49,12 @@ public class TestDeleteDuplicates extends TestCase {
     fs = FileSystem.get(conf);
     root = new Path("build/test/dedup2-test-" + new Random().nextInt());
     // create test indexes
-    index1 = createIndex("index1", true, 1.0f, 10L);
-    index2 = createIndex("index2", false, 2.0f, 20L);
+    index1 = createIndex("index1", true, 1.0f, 10L, false);
+    index2 = createIndex("index2", false, 2.0f, 20L, true);
+    index3 = createIndex("index3", true, 1.0f, 10L, true);
   }
   
-  private Path createIndex(String name, boolean hashDup, float inc, long time) throws Exception {
+  private Path createIndex(String name, boolean hashDup, float inc, long time, boolean incFirst) throws Exception {
     Path idx = new Path(root, name);
     Path sub = new Path(idx, "part-0000");
     Directory dir = FSDirectory.getDirectory(sub.toString(), true);
@@ -60,18 +62,18 @@ public class TestDeleteDuplicates extends TestCase {
     Document doc = makeDoc(name,
         MD5Hash.digest("1").toString(),
         "http://www.example.com/1",
-        1.0f, time);
+        1.0f + (incFirst ? inc : 0.0f), time);
     writer.addDocument(doc);
     if (hashDup) {
       doc = makeDoc(name,
           MD5Hash.digest("1").toString(),
           "http://www.example.com/2",
-          1.0f + inc, time + 1);
+          1.0f + (!incFirst ? inc : 0.0f), time + 1);
     } else {
       doc = makeDoc(name,
           MD5Hash.digest("2").toString(),
           "http://www.example.com/1",
-          1.0f + inc, time + 1);
+          1.0f + (!incFirst ? inc : 0.0f), time + 1);
     }
     writer.addDocument(doc);
     writer.close();
@@ -93,10 +95,10 @@ public class TestDeleteDuplicates extends TestCase {
     fs.delete(root);
   }
 
-  public void testHashDuplicates() throws Exception {
+  private void hashDuplicatesHelper(Path index, String url) throws Exception {
     DeleteDuplicates dedup = new DeleteDuplicates(conf);
-    dedup.dedup(new Path[]{index1});
-    FsDirectory dir = new FsDirectory(fs, new Path(index1, "part-0000"), false, conf);
+    dedup.dedup(new Path[]{index});
+    FsDirectory dir = new FsDirectory(fs, new Path(index, "part-0000"), false, conf);
     IndexReader reader = IndexReader.open(dir);
     assertEquals("only one doc left", reader.numDocs(), 1);
     for (int i = 0; i < reader.maxDoc(); i++) {
@@ -106,10 +108,15 @@ public class TestDeleteDuplicates extends TestCase {
       }
       Document doc = reader.document(i);
       // make sure we got the right one
-      assertEquals("check url", "http://www.example.com/2", doc.get("url"));
+      assertEquals("check url", url, doc.get("url"));
       System.out.println(doc);
     }
     reader.close();
+  }
+  
+  public void testHashDuplicates() throws Exception {
+    hashDuplicatesHelper(index1, "http://www.example.com/2");
+    hashDuplicatesHelper(index3, "http://www.example.com/1");
   }
   
   public void testUrlDuplicates() throws Exception {
