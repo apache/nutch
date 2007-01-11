@@ -311,22 +311,25 @@ public class DeleteDuplicates extends ToolBase
           highest = value;
           continue;
         }
-        if (byScore) {
-          if (value.score > highest.score) {
-            highest.keep = false;
-            LOG.debug("-discard " + highest + ", keep " + value);
-            output.collect(highest.url, highest);     // delete highest
-            highest = value;
-          }
+        IndexDoc toDelete = null, toKeep = null;
+        boolean metric = byScore ? (value.score > highest.score) : 
+                                   (value.urlLen < highest.urlLen);
+        if (metric) {
+          toDelete = highest;
+          toKeep = value;
         } else {
-          if (value.urlLen < highest.urlLen) {
-            highest.keep = false;
-            LOG.debug("-discard " + highest + ", keep " + value);
-            output.collect(highest.url, highest);     // delete highest
-            highest = value;
-          }
+          toDelete = value;
+          toKeep = highest;
         }
-      }
+        
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("-discard " + toDelete + ", keep " + toKeep);
+        }
+        
+        toDelete.keep = false;
+        output.collect(toDelete.url, toDelete);
+        highest = toKeep;
+      }    
       LOG.debug("-keep " + highest);
       // no need to add this - in phase 2 we only process docs to delete them
       // highest.keep = true;

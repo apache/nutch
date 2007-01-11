@@ -128,6 +128,9 @@ Unreleased changes (0.9-dev)
 
 41. Upgrade to Hadoop 0.10.1. (ab)
 
+42. NUTCH-420 - Fix a bug in DeleteDuplicates where results depended on the
+    order in which IndexDoc-s are processed. (Dogacan Guney via ab)
+
 
 Release 0.8 - 2006-07-25
 
