@@ -182,6 +182,7 @@ public class Indexer extends ToolBase implements Reducer {
     Inlinks inlinks = null;
     CrawlDatum dbDatum = null;
     CrawlDatum fetchDatum = null;
+    CrawlDatum redir = null;
     ParseData parseData = null;
     ParseText parseText = null;
     while (values.hasNext()) {
@@ -194,6 +195,9 @@ public class Indexer extends ToolBase implements Reducer {
           dbDatum = datum;
         else if (CrawlDatum.hasFetchStatus(datum))
           fetchDatum = datum;
+        else if (CrawlDatum.STATUS_LINKED == datum.getStatus())
+          // redirected page
+          redir = datum;
         else
           throw new RuntimeException("Unexpected status: "+datum.getStatus());
       } else if (value instanceof ParseData) {
@@ -204,6 +208,11 @@ public class Indexer extends ToolBase implements Reducer {
         LOG.warn("Unrecognized type: "+value.getClass());
       }
     }      
+    if (redir != null) {
+      // XXX page was redirected - what should we do?
+      // XXX discard it for now
+      return;
+    }
 
     if (fetchDatum == null || dbDatum == null
         || parseText == null || parseData == null) {

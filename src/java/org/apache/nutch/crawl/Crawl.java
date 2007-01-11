@@ -113,8 +113,8 @@ public class Crawl {
       
     // initialize crawlDb
     injector.inject(crawlDb, rootUrlDir);
-      
-    for (int i = 0; i < depth; i++) {             // generate new segment
+    int i;
+    for (i = 0; i < depth; i++) {             // generate new segment
       Path segment = generator.generate(crawlDb, segments, -1, topN, System
           .currentTimeMillis(), false, false);
       if (segment == null) {
@@ -127,14 +127,16 @@ public class Crawl {
       }
       crawlDbTool.update(crawlDb, new Path[]{segment}, true, true); // update crawldb
     }
-      
-    linkDbTool.invert(linkDb, segments, true, true, false); // invert links
+    if (i > 0) {
+      linkDbTool.invert(linkDb, segments, true, true, false); // invert links
 
-    // index, dedup & merge
-    indexer.index(indexes, crawlDb, linkDb, fs.listPaths(segments));
-    dedup.dedup(new Path[] { indexes });
-    merger.merge(fs.listPaths(indexes), index, tmpDir);
-
+      // index, dedup & merge
+      indexer.index(indexes, crawlDb, linkDb, fs.listPaths(segments));
+      dedup.dedup(new Path[] { indexes });
+      merger.merge(fs.listPaths(indexes), index, tmpDir);
+    } else {
+      LOG.warn("No URLs to fetch - check your seed list and URL filters.");
+    }
     if (LOG.isInfoEnabled()) { LOG.info("crawl finished: " + dir); }
   }
 }
