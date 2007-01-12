@@ -131,6 +131,9 @@ Unreleased changes (0.9-dev)
 42. NUTCH-420 - Fix a bug in DeleteDuplicates where results depended on the
     order in which IndexDoc-s are processed. (Dogacan Guney via ab)
 
+43. NUTCH-428 - NullPointerException thrown when agent name is not
+    configured properly. Changed to throw RuntimeException instead.
+
 
 Release 0.8 - 2006-07-25
 
