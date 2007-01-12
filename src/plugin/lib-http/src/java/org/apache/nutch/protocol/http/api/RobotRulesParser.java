@@ -223,6 +223,9 @@ public class RobotRulesParser implements Configurable {
     // Grab the agent names we advertise to robots files.
     //
     String agentName = conf.get("http.agent.name");
+    if (null == agentName) {
+      throw new RuntimeException("Agent name not configured!");
+    }
     String agentNames = conf.get("http.robots.agents");
     StringTokenizer tok = new StringTokenizer(agentNames, ",");
     ArrayList agents = new ArrayList();
