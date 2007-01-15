@@ -299,6 +299,12 @@ public class Generator extends ToolBase {
    * Update the CrawlDB so that the next generate won't include the same URLs.
    */
   public static class CrawlDbUpdater extends MapReduceBase implements Mapper, Reducer {
+    long generateTime;
+    
+    public void configure(JobConf job) {
+      generateTime = job.getLong(Nutch.GENERATE_TIME_KEY, 0L);
+    }
+    
     public void map(WritableComparable key, Writable value, OutputCollector output, Reporter reporter) throws IOException {
       if (key instanceof FloatWritable) { // tempDir source
         SelectorEntry se = (SelectorEntry)value;
@@ -315,6 +321,11 @@ public class Generator extends ToolBase {
         CrawlDatum val = (CrawlDatum)values.next();
         if (val.getMetaData().containsKey(Nutch.WRITABLE_GENERATE_TIME_KEY)) {
           genTime = (LongWritable)val.getMetaData().get(Nutch.WRITABLE_GENERATE_TIME_KEY);
+          if (genTime.get() != generateTime) {
+            orig = val;
+            genTime = null;
+            continue;
+          }
         } else {
           orig = val;
         }
@@ -384,7 +395,8 @@ public class Generator extends ToolBase {
     }
     job.setLong(CRAWL_GEN_CUR_TIME, curTime);
     // record real generation time
-    job.setLong(Nutch.GENERATE_TIME_KEY, System.currentTimeMillis());
+    long generateTime = System.currentTimeMillis();
+    job.setLong(Nutch.GENERATE_TIME_KEY, generateTime);
     job.setLong(CRAWL_TOP_N, topN);
     job.setBoolean(CRAWL_GENERATE_FILTER, filter);
 
@@ -453,6 +465,7 @@ public class Generator extends ToolBase {
   
       job = new NutchJob(getConf());
       job.setJobName("generate: updatedb " + dbDir);
+      job.setLong(Nutch.GENERATE_TIME_KEY, generateTime);
       job.addInputPath(tempDir);
       job.addInputPath(new Path(dbDir, CrawlDb.CURRENT_NAME));
       job.setInputFormat(SequenceFileInputFormat.class);
@@ -492,7 +505,7 @@ public class Generator extends ToolBase {
   }
 
   /**
-   * Generate a fetchlist from the pagedb and linkdb
+   * Generate a fetchlist from the crawldb.
    */
   public static void main(String args[]) throws Exception {
     int res = new Generator().doMain(NutchConfiguration.create(), args);
