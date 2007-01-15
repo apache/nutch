@@ -264,39 +264,33 @@ public class Generator extends ToolBase {
       output.collect(entry.url, entry.datum);
     }
   }
-  
+
   /** Sort fetch lists by hash of URL. */
   public static class HashComparator extends WritableComparator {
-    public HashComparator() { super(Text.class); }
-
-    public int compare(WritableComparable a, WritableComparable b) {
-      Text url1 = (Text)a;
-      Text url2 = (Text)b;
-      int hash1 = hash(url1.getBytes(), 0, url1.getLength());
-      int hash2 = hash(url2.getBytes(), 0, url2.getLength());
-      if (hash1 != hash2) {
-        return hash1 - hash2;
-      }
-      return compareBytes(url1.getBytes(), 0, url1.getLength(),
-                          url2.getBytes(), 0, url2.getLength());
+    public HashComparator() {
+      super(Text.class);
     }
 
+    public int compare(WritableComparable a, WritableComparable b) {
+      Text url1 = (Text) a;
+      Text url2 = (Text) b;
+      int hash1 = hash(url1.getBytes(), 0, url1.getLength());
+      int hash2 = hash(url2.getBytes(), 0, url2.getLength());
+      return (hash1 < hash2 ? -1 : (hash1 == hash2 ? 0 : 1));
+    }
 
     public int compare(byte[] b1, int s1, int l1, byte[] b2, int s2, int l2) {
       int hash1 = hash(b1, s1, l1);
       int hash2 = hash(b2, s2, l2);
-      if (hash1 != hash2) {
-        return hash1 - hash2;
-      }
-      return compareBytes(b1, s1, l1, b2, s2, l2);
+      return (hash1 < hash2 ? -1 : (hash1 == hash2 ? 0 : 1));
     }
 
     private static int hash(byte[] bytes, int start, int length) {
       int hash = 1;
       // make later bytes more significant in hash code, so that sorting by
       // hashcode correlates less with by-host ordering.
-      for (int i = length-1; i >= 0; i--)
-        hash = (31 * hash) + (int)bytes[start+i];
+      for (int i = length - 1; i >= 0; i--)
+        hash = (31 * hash) + (int) bytes[start + i];
       return hash;
     }
   }
