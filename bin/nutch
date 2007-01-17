@@ -41,6 +41,7 @@ if [ $# = 0 ]; then
   echo "  generate          generate new segments to fetch from crawl db"
   echo "  freegen           generate new segments to fetch from text files"
   echo "  fetch             fetch a segment's pages"
+  echo "  fetch2            fetch a segment's pages using Fetcher2 implementation"
   echo "  parse             parse a segment's pages"
   echo "  readseg           read / dump segment data"
   echo "  mergesegs         merge several segments, with optional filtering and slicing"
@@ -177,6 +178,8 @@ elif [ "$COMMAND" = "freegen" ] ; then
   CLASS=org.apache.nutch.tools.FreeGenerator
 elif [ "$COMMAND" = "fetch" ] ; then
   CLASS=org.apache.nutch.fetcher.Fetcher
+elif [ "$COMMAND" = "fetch2" ] ; then
+  CLASS=org.apache.nutch.fetcher.Fetcher2
 elif [ "$COMMAND" = "parse" ] ; then
   CLASS=org.apache.nutch.parse.ParseSegment
 elif [ "$COMMAND" = "readdb" ] ; then
@@ -220,6 +223,5 @@ if $cygwin; then
 fi
 
 # run it
-echo "$JAVA" $JAVA_HEAP_MAX $NUTCH_OPTS -classpath "$CLASSPATH" $CLASS "$@"
 exec "$JAVA" $JAVA_HEAP_MAX $NUTCH_OPTS -classpath "$CLASSPATH" $CLASS "$@"
 
