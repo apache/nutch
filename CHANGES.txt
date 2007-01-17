@@ -137,6 +137,8 @@ Unreleased changes (0.9-dev)
 
 44. NUTCH-430 - Integer overflow in HashComparator.compare (siren)
 
+45. NUTCH-68 - Add a tool to generate arbitrary fetchlists. (ab)
+
 
 Release 0.8 - 2006-07-25
 
