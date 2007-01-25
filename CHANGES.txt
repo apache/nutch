@@ -142,6 +142,8 @@ Unreleased changes (0.9-dev)
 46. NUTCH-433 - java.io.EOFException in newer nightlies in mergesegs
     or indexing from hadoop.io.DataOutputBuffer (siren)
 
+47. NUTCH-339 - Fetcher2: a queue-based fetcher implementation. (ab)
+
 
 Release 0.8 - 2006-07-25
 
