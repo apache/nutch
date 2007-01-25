@@ -24,7 +24,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.io.*;
-import org.apache.nutch.fetcher.Fetcher;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
@@ -51,40 +50,11 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
 
 /** Create indexes for segments. */
-public class Indexer extends ToolBase implements Reducer {
+public class Indexer extends ToolBase implements Reducer, Mapper {
   
   public static final String DONE_NAME = "index.done";
 
   public static final Log LOG = LogFactory.getLog(Indexer.class);
-
-  /** Wraps inputs in an {@link ObjectWritable}, to permit merging different
-   * types in reduce. */
-  public static class InputFormat extends SequenceFileInputFormat {
-    public RecordReader getRecordReader(FileSystem fs, FileSplit split,
-                                        JobConf job, Reporter reporter)
-      throws IOException {
-
-      reporter.setStatus(split.toString());
-      
-      return new SequenceFileRecordReader(job, split) {
-          public synchronized boolean next(Writable key, Writable value)
-            throws IOException {
-            ObjectWritable wrapper = (ObjectWritable)value;
-            try {
-              wrapper.set(getValueClass().newInstance());
-            } catch (Exception e) {
-              throw new IOException(e.toString());
-            }
-            return super.next(key, (Writable)wrapper.get());
-          }
-          
-          // override the default - we want ObjectWritable-s here
-          public Writable createValue() {
-            return new ObjectWritable();
-          }
-        };
-    }
-  }
 
   /** Unwrap Lucene Documents created by reduce and add them to an index. */
   public static class OutputFormat
@@ -290,12 +260,9 @@ public class Indexer extends ToolBase implements Reducer {
 
     job.addInputPath(new Path(crawlDb, CrawlDb.CURRENT_NAME));
     job.addInputPath(new Path(linkDb, LinkDb.CURRENT_NAME));
+    job.setInputFormat(SequenceFileInputFormat.class);
 
-    job.setInputFormat(InputFormat.class);
-    //job.setInputKeyClass(Text.class);
-    //job.setInputValueClass(ObjectWritable.class);
-
-    //job.setCombinerClass(Indexer.class);
+    job.setMapperClass(Indexer.class);
     job.setReducerClass(Indexer.class);
 
     job.setOutputPath(indexDir);
@@ -332,6 +299,11 @@ public class Indexer extends ToolBase implements Reducer {
       LOG.fatal("Indexer: " + StringUtils.stringifyException(e));
       return -1;
     }
+  }
+
+  public void map(WritableComparable key, Writable value,
+      OutputCollector output, Reporter reporter) throws IOException {
+    output.collect(key, new ObjectWritable(value));
   }
 
 }

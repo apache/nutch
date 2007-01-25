@@ -47,33 +47,6 @@ public class SegmentReader extends Configured implements Reducer {
   private boolean co, fe, ge, pa, pd, pt;
   private FileSystem fs;
 
-  /**
-   * Wraps inputs in an {@link ObjectWritable}, to permit merging different
-   * types in reduce.
-   */
-  public static class InputFormat extends SequenceFileInputFormat {
-    public RecordReader getRecordReader(FileSystem fs, FileSplit split, JobConf job, Reporter reporter)
-            throws IOException {
-      reporter.setStatus(split.toString());
-
-      return new SequenceFileRecordReader(job, split) {
-        public synchronized boolean next(Writable key, Writable value) throws IOException {
-          ObjectWritable wrapper = (ObjectWritable) value;
-          try {
-            wrapper.set(getValueClass().newInstance());
-          } catch (Exception e) {
-            throw new IOException(e.toString());
-          }
-          return super.next(key, (Writable) wrapper.get());
-        }
-        
-        public Writable createValue() {
-          return new ObjectWritable();
-        }
-      };
-    }
-  }
-  
   public static class InputCompatMapper extends MapReduceBase implements Mapper {
     private Text newKey = new Text();
 
@@ -83,7 +56,7 @@ public class SegmentReader extends Configured implements Reducer {
         newKey.set(key.toString());
         key = newKey;
       }
-      collector.collect(key, value);
+      collector.collect(key, new ObjectWritable(value));
     }
     
   }
@@ -198,7 +171,7 @@ public class SegmentReader extends Configured implements Reducer {
     if (pd) job.addInputPath(new Path(segment, ParseData.DIR_NAME));
     if (pt) job.addInputPath(new Path(segment, ParseText.DIR_NAME));
 
-    job.setInputFormat(InputFormat.class);
+    job.setInputFormat(SequenceFileInputFormat.class);
     job.setMapperClass(InputCompatMapper.class);
     job.setReducerClass(SegmentReader.class);
 

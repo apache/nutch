@@ -32,9 +32,7 @@ import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.Progressable;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Generator;
-import org.apache.nutch.fetcher.Fetcher;
 import org.apache.nutch.metadata.MetaWrapper;
-import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.parse.ParseData;
@@ -104,37 +102,61 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
    * types in reduce and use additional metadata.
    */
   public static class ObjectInputFormat extends SequenceFileInputFormat {
-    public RecordReader getRecordReader(FileSystem fs, FileSplit split, JobConf job, Reporter reporter)
-            throws IOException {
+    
+    @Override
+    public RecordReader getRecordReader(InputSplit split,
+        JobConf job, Reporter reporter) {
 
-      reporter.setStatus(split.toString());
+      try{
+        reporter.setStatus(split.toString());
+      } catch (IOException e) {
+        throw new RuntimeException("Cannot set status for reported:", e);
+      }
       // find part name
-      final SegmentPart segmentPart = SegmentPart.get(split);
-      final String spString = segmentPart.toString();
+      SegmentPart segmentPart;
+      final String spString;
+      try {
+        segmentPart = SegmentPart.get((FileSplit) split);
+        spString = segmentPart.toString();
+      } catch (IOException e) {
+        throw new RuntimeException("Cannot identify segment:", e);
+      }
 
-      return new SequenceFileRecordReader(job, split) {
-        public synchronized boolean next(Writable key, Writable value) throws IOException {
-          MetaWrapper wrapper = (MetaWrapper) value;
-          try {
-            wrapper.set(getValueClass().newInstance());
-          } catch (Exception e) {
-            throw new IOException(e.toString());
+      try {
+        return new SequenceFileRecordReader(job, (FileSplit)split) {
+          
+          @Override
+          public synchronized boolean next(Writable key, Writable value) throws IOException {
+            LOG.debug("Running OIF.next()");
+            
+            MetaWrapper wrapper = (MetaWrapper) value;
+            try {
+              wrapper.set(getValueClass().newInstance());
+            } catch (Exception e) {
+              throw new IOException(e.toString());
+            }
+
+            boolean res = super.next(key, (Writable) wrapper.get());
+            wrapper.setMeta(SEGMENT_PART_KEY, spString);
+            return res;
           }
-          boolean res = super.next(key, (Writable) wrapper.get());
-          wrapper.setMeta(SEGMENT_PART_KEY, spString);
-          return res;
-        }
-        
-        public Writable createValue() {
-          return new MetaWrapper();
-        }
-      };
+          
+          @Override
+          public Writable createValue() {
+            return new MetaWrapper();
+          }
+          
+        };
+      } catch (IOException e) {
+        throw new RuntimeException("Cannot create RecordReader: ", e);
+      }
     }
   }
 
   public static class SegmentOutputFormat extends OutputFormatBase {
     private static final String DEFAULT_SLICE = "default";
     
+    @Override
     public RecordWriter getRecordWriter(final FileSystem fs, final JobConf job, final String name, final Progressable progress) throws IOException {
       return new RecordWriter() {
         MapFile.Writer c_out = null;
