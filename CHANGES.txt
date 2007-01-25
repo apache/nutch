@@ -139,6 +139,9 @@ Unreleased changes (0.9-dev)
 
 45. NUTCH-68 - Add a tool to generate arbitrary fetchlists. (ab)
 
+46. NUTCH-433 - java.io.EOFException in newer nightlies in mergesegs
+    or indexing from hadoop.io.DataOutputBuffer (siren)
+
 
 Release 0.8 - 2006-07-25
 
