@@ -745,7 +745,7 @@
   default Nutch includes crawling just HTML and plain text via HTTP,
   and basic indexing and search plugins. In order to use HTTPS please enable 
   protocol-httpclient, but be aware of possible intermittent problems with the 
-  underlying commons-httpclient library
+  underlying commons-httpclient library.
   </description>
 </property>
 
