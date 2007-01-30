@@ -69,7 +69,7 @@ public class PluginManifestParser {
    * 
    * @param pluginFolders
    *          folders to search plugins from
-   * @return
+   * @return A {@link Map} of all found {@link PluginDescriptor}s.
    */
   public Map<String, PluginDescriptor> parsePluginFolder(String[] pluginFolders) {
     Map<String, PluginDescriptor> map = new HashMap<String, PluginDescriptor>();

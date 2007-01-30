@@ -55,7 +55,7 @@ import org.apache.nutch.plugin.PluginRuntimeException;
  * "urlnormalizer.order.<scope_name>" property). If any of these properties are
  * missing, default settings are used for the global scope.</p>
  * <p>In case no normalizers are required for any given scope, a
- * {@link org.apache.nutch.net.urlnormalizer.pass.PassURLNormalizer} should be used.</p>
+ * <code>org.apache.nutch.net.urlnormalizer.pass.PassURLNormalizer</code> should be used.</p>
  * <p>Each normalizer may further select among many configurations, depending on
  * the scope in which it is called, because the scope name is passed as a parameter
  * to each normalizer. You can also use the same normalizer for many scopes.</p>
@@ -266,10 +266,10 @@ public final class URLNormalizers {
 
   /**
    * Normalize
-   * @param urlString
-   * @param scope
-   * @return
-   * @throws MalformedURLException
+   * @param urlString The URL string to normalize.
+   * @param scope The given scope.
+   * @return A normalized String, using the given <code>scope</code>
+   * @throws MalformedURLException If the given URL string is malformed.
    */
   public String normalize(String urlString, String scope)
           throws MalformedURLException {

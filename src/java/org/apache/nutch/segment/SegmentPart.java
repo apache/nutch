@@ -52,7 +52,8 @@ public class SegmentPart {
   /**
    * Create SegmentPart from a FileSplit.
    * @param split
-   * @return
+   * @return A {@link SegmentPart} resultant from a 
+   * {@link FileSplit}.
    * @throws Exception
    */
   public static SegmentPart get(FileSplit split) throws IOException {

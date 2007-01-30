@@ -47,7 +47,7 @@ public class DomUtil {
    * Returns parsed dom tree or null if any error
    * 
    * @param is
-   * @return
+   * @return A parsed DOM tree from the given {@link InputStream}.
    */
   public static Element getDom(InputStream is) {
 
