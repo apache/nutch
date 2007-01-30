@@ -128,7 +128,7 @@ public interface ScoringFilter extends Configurable, Pluggable {
    * @param url url of the page
    * @param old original datum, with original score. May be null if this is a newly
    * discovered page. If not null, filters should use score values from this parameter
-   * as the starting values - the {@param datum} parameter may contain values that are
+   * as the starting values - the <code>datum</code> parameter may contain values that are
    * no longer valid, if other updates occured between generation and this update.
    * @param datum the new datum, with the original score saved at the time when
    * fetchlist was generated. Filters should update this in-place, and it will be saved in

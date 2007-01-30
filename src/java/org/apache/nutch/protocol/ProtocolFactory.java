@@ -33,7 +33,7 @@ import org.apache.hadoop.conf.Configuration;
  * the attribute "protocolName" with the name of the protocol that they
  * implement. Configuration object is used for caching. Cache key is constructed
  * from appending protocol name (eg. http) to constant
- * {@link Protocol#X_POINT_ID).
+ * {@link Protocol#X_POINT_ID}.
  */
 public class ProtocolFactory {
 
@@ -58,7 +58,7 @@ public class ProtocolFactory {
    * 
    * @param urlString
    *          Url String
-   * @return
+   * @return The appropriate {@link Protocol} implementation for a given {@link URL}.
    * @throws ProtocolNotFound
    *           when Protocol can not be found for urlString
    */

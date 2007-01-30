@@ -144,6 +144,8 @@ Unreleased changes (0.9-dev)
 
 47. NUTCH-339 - Fetcher2: a queue-based fetcher implementation. (ab)
 
+48. NUTCH-390 - Javadoc warnings (mattmann)
+
 
 Release 0.8 - 2006-07-25
 
