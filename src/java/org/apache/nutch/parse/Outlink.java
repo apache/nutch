@@ -34,6 +34,7 @@ public class Outlink implements Writable {
 
   public Outlink(String toUrl, String anchor, Configuration conf) throws MalformedURLException {
     this.toUrl = new URLNormalizers(conf, URLNormalizers.SCOPE_OUTLINK).normalize(toUrl, URLNormalizers.SCOPE_OUTLINK);
+    if (anchor == null) anchor = "";
     this.anchor = anchor;
   }
 
