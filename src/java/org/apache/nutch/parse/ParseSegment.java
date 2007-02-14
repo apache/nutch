@@ -81,7 +81,10 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
 
     // compute the new signature
     byte[] signature = SignatureFactory.getSignature(getConf()).calculate(content, parse);
-    content.getMetadata().set(Nutch.SIGNATURE_KEY, StringUtil.toHexString(signature));
+    if (parse != null) {
+      parse.getData().getContentMeta().set(Nutch.SIGNATURE_KEY, StringUtil.toHexString(signature));
+      parse.getData().getContentMeta().set(Nutch.SEGMENT_NAME_KEY, getConf().get(Nutch.SEGMENT_NAME_KEY));
+    }
     
     if (status.isSuccess()) {
       try {
@@ -95,7 +98,7 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
       }
       output.collect(key, new ParseImpl(parse.getText(), parse.getData()));
     } else if (LOG.isWarnEnabled()) {
-      LOG.warn("Error parsing: "+key+": "+status.toString());
+      LOG.warn("Error parsing: " + key + ": "+status.toString());
     }
   }
 
@@ -116,9 +119,8 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
     job.setJobName("parse " + segment);
 
     job.setInputPath(new Path(segment, Content.DIR_NAME));
+    job.set(Nutch.SEGMENT_NAME_KEY, segment.getName());
     job.setInputFormat(SequenceFileInputFormat.class);
-    job.setInputKeyClass(Text.class);
-    job.setInputValueClass(Content.class);
     job.setMapperClass(ParseSegment.class);
     job.setReducerClass(ParseSegment.class);
     
