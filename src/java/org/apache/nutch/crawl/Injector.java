@@ -150,7 +150,6 @@ public class Injector extends ToolBase {
     sortJob.setJobName("inject " + urlDir);
     sortJob.setInputPath(urlDir);
     sortJob.setMapperClass(InjectMapper.class);
-    sortJob.setReducerClass(InjectReducer.class);
 
     sortJob.setOutputPath(tempDir);
     sortJob.setOutputFormat(SequenceFileOutputFormat.class);
@@ -164,6 +163,7 @@ public class Injector extends ToolBase {
     }
     JobConf mergeJob = CrawlDb.createJob(getConf(), crawlDb);
     mergeJob.addInputPath(tempDir);
+    mergeJob.setReducerClass(InjectReducer.class);
     JobClient.runJob(mergeJob);
     CrawlDb.install(mergeJob, crawlDb);
 
