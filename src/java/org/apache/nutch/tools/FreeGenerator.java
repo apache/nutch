@@ -39,6 +39,7 @@ import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.ToolBase;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Generator;
+import org.apache.nutch.crawl.PartitionUrlByHost;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.scoring.ScoringFilters;
@@ -141,12 +142,14 @@ public class FreeGenerator extends ToolBase {
     job.addInputPath(new Path(args[0]));
     job.setInputFormat(TextInputFormat.class);
     job.setMapperClass(FG.class);
-    job.setCombinerClass(FG.class);
+    job.setPartitionerClass(PartitionUrlByHost.class);
     job.setReducerClass(FG.class);
     String segName = Generator.generateSegmentName();
+    job.setNumReduceTasks(job.getNumMapTasks());
     job.setOutputFormat(SequenceFileOutputFormat.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);
+    job.setOutputKeyComparatorClass(Generator.HashComparator.class);
     job.setOutputPath(new Path(args[1], new Path(segName, CrawlDatum.GENERATE_DIR_NAME)));
     try {
       JobClient.runJob(job);
