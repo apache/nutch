@@ -22,6 +22,7 @@
   <property file="${user.home}/build.properties" />
   <property file="${basedir}/build.properties" />
   <property file="${basedir}/default.properties" />
+  <property name="test.junit.output.format" value="plain"/>
  
   <!-- the normal classpath -->
   <path id="classpath">
@@ -281,7 +282,7 @@
       <sysproperty key="test.build.data" value="${test.build.data}"/>
       <sysproperty key="test.src.dir" value="${test.src.dir}"/>
       <classpath refid="test.classpath"/>
-      <formatter type="plain" />
+      <formatter type="${test.junit.output.format}" />
       <batchtest todir="${test.build.dir}" unless="testcase">
         <fileset dir="${test.src.dir}"
                  includes="**/Test*.java" excludes="**/${test.exclude}.java" />
