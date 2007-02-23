@@ -146,6 +146,8 @@ Unreleased changes (0.9-dev)
 
 48. NUTCH-390 - Javadoc warnings (mattmann)
 
+49. NUTCH-449 - Make junit output format configurable. (nigel via cutting)
+
 
 Release 0.8 - 2006-07-25
 
