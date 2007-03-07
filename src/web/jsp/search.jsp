@@ -24,6 +24,7 @@
   import="java.net.*"
 
   import="org.apache.nutch.html.Entities"
+  import="org.apache.nutch.metadata.Nutch"
   import="org.apache.nutch.searcher.*"
   import="org.apache.nutch.plugin.*"
   import="org.apache.nutch.clustering.*"
@@ -194,7 +195,6 @@ function queryfocus() { document.search.query.focus(); }
    Hit[] show = hits.getHits(start, realEnd-start);
    HitDetails[] details = bean.getDetails(show);
    Summary[] summaries = bean.getSummary(details, query);
-
    bean.LOG.info("total hits: " + hits.getTotal());
 %>
 
@@ -228,6 +228,13 @@ out.flush();
     String url = detail.getValue("url");
     String id = "idx=" + hit.getIndexNo() + "&id=" + hit.getIndexDocNo();
     String summary = summaries[i].toHtml(true);
+    String caching = detail.getValue("cache");
+    boolean showSummary = true;
+    boolean showCached = true;
+    if (caching != null) {
+      showSummary = !caching.equals(Nutch.CACHING_FORBIDDEN_ALL);
+      showCached = !caching.equals(Nutch.CACHING_FORBIDDEN_NONE);
+    }
 
     if (title == null || title.equals("")) {      // use url for docs w/o title
       title = url;
@@ -235,12 +242,16 @@ out.flush();
     %>
     <b><a href="<%=url%>"><%=Entities.encode(title)%></a></b>
     <%@ include file="more.jsp" %>
-    <% if (!"".equals(summary)) { %>
+    <% if (!"".equals(summary) && showSummary) { %>
     <br><%=summary%>
     <% } %>
     <br>
     <span class="url"><%=Entities.encode(url)%></span>
-    (<a href="../cached.jsp?<%=id%>"><i18n:message key="cached"/></a>)
+    <%
+      if (showCached) {
+        %>(<a href="../cached.jsp?<%=id%>"><i18n:message key="cached"/></a>) <%
+    }
+    %>
     (<a href="../explain.jsp?<%=id%>&query=<%=URLEncoder.encode(queryString, "UTF-8")%>&lang=<%=queryLang%>"><i18n:message key="explain"/></a>)
     (<a href="../anchors.jsp?<%=id%>"><i18n:message key="anchors"/></a>)
     <% if (hit.moreFromDupExcluded()) {

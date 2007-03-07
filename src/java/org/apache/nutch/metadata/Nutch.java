@@ -47,4 +47,16 @@ public interface Nutch {
 
   public static final Text WRITABLE_PROTO_STATUS_KEY = new Text(PROTO_STATUS_KEY);
 
+  /** Sites may request that search engines don't provide access to cached documents. */
+  public static final String CACHING_FORBIDDEN_KEY = "caching.forbidden";
+
+  /** Show both original forbidden content and summaries (default). */
+  public static final String CACHING_FORBIDDEN_NONE = "none";
+
+  /** Don't show either original forbidden content or summaries. */
+  public static final String CACHING_FORBIDDEN_ALL = "all";
+
+  /** Don't show original forbidden content, but show summaries. */
+  public static final String CACHING_FORBIDDEN_CONTENT = "content";
+
 }

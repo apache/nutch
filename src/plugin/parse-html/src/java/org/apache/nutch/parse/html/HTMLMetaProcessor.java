@@ -105,6 +105,11 @@ public class HTMLMetaProcessor {
                 if (index >= 0) {
                   metaTags.setNoFollow();
                 }
+                
+                index = directives.indexOf("noarchive");
+                if (index >= 0) {
+                  metaTags.setNoCache();
+                }
               } 
   
             } // end if (name == robots)
