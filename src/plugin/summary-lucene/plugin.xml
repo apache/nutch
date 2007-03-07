@@ -25,7 +25,7 @@
       <library name="summary-lucene.jar">
          <export name="*"/>
       </library>
-      <library name="lucene-highlighter-2.0.0.jar"/>
+      <library name="lucene-highlighter-2.1.0.jar"/>
    </runtime>
 
    <requires>

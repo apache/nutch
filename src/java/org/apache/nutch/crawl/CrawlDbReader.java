@@ -346,8 +346,6 @@ public class CrawlDbReader implements Closeable {
 
     job.addInputPath(new Path(crawlDb, CrawlDb.CURRENT_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
-    job.setInputKeyClass(Text.class);
-    job.setInputValueClass(CrawlDatum.class);
 
     job.setOutputPath(outFolder);
     job.setOutputFormat(TextOutputFormat.class);
@@ -396,8 +394,6 @@ public class CrawlDbReader implements Closeable {
 
     job.addInputPath(tempDir);
     job.setInputFormat(SequenceFileInputFormat.class);
-    job.setInputKeyClass(FloatWritable.class);
-    job.setInputValueClass(Text.class);
     job.setMapperClass(IdentityMapper.class);
     job.setReducerClass(CrawlDbTopNReducer.class);
 

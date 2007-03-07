@@ -50,11 +50,11 @@ public class CrawlDBTestUtil {
    *          urls to be inserted, objects are of type URLCrawlDatum
    * @throws Exception
    */
-  public static void createCrawlDb(FileSystem fs, Path crawldb, List<URLCrawlDatum> init)
+  public static void createCrawlDb(Configuration conf, FileSystem fs, Path crawldb, List<URLCrawlDatum> init)
       throws Exception {
     LOG.trace("* creating crawldb: " + crawldb);
     Path dir = new Path(crawldb, CrawlDb.CURRENT_NAME);
-    MapFile.Writer writer = new MapFile.Writer(fs, new Path(dir, "part-00000")
+    MapFile.Writer writer = new MapFile.Writer(conf, fs, new Path(dir, "part-00000")
         .toString(), Text.class, CrawlDatum.class);
     Iterator<URLCrawlDatum> it = init.iterator();
     while (it.hasNext()) {
@@ -85,7 +85,7 @@ public class CrawlDBTestUtil {
    * @return
    */
   public static Configuration createConfiguration(){
-    Configuration conf=new Configuration();
+    Configuration conf = new Configuration();
     conf.addDefaultResource("nutch-default.xml");
     conf.addFinalResource("crawl-tests.xml");
     return conf;

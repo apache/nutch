@@ -232,7 +232,7 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
           } else {
             wname = new Path(new Path(new Path(job.getOutputPath(), segmentName + "-" + slice), dirName), name);
           }
-          res = new MapFile.Writer(fs, wname.toString(), Text.class, clazz);
+          res = new MapFile.Writer(job, fs, wname.toString(), Text.class, clazz);
           sliceWriters.put(slice + dirName, res);
           return res;
         }

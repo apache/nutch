@@ -46,7 +46,7 @@ public class ProtocolStatus extends VersionedWritable {
   /** Resource has moved temporarily. New url should be found in args. */
   public static final int TEMP_MOVED           = 13;
   /** Resource was not found. */
-  public static final int NOTFOUND            = 14;
+  public static final int NOTFOUND             = 14;
   /** Temporary failure. Application may retry immediately. */
   public static final int RETRY                = 15;
   /** Unspecified exception occured. Further information may be provided in args. */

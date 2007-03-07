@@ -97,8 +97,8 @@ public class TestCrawlDbMerger extends TestCase {
     Path crawldb1 = new Path(testDir, "crawldb1");
     Path crawldb2 = new Path(testDir, "crawldb2");
     Path output = new Path(testDir, "output");
-    createCrawlDb(fs, crawldb1, init1, cd1);
-    createCrawlDb(fs, crawldb2, init2, cd2);
+    createCrawlDb(conf, fs, crawldb1, init1, cd1);
+    createCrawlDb(conf, fs, crawldb2, init2, cd2);
     CrawlDbMerger merger = new CrawlDbMerger(conf);
     LOG.fine("* merging crawldbs to " + output);
     merger.merge(output, new Path[]{crawldb1, crawldb2}, false, false);
@@ -123,10 +123,10 @@ public class TestCrawlDbMerger extends TestCase {
     fs.delete(testDir);
   }
   
-  private void createCrawlDb(FileSystem fs, Path crawldb, TreeSet init, CrawlDatum cd) throws Exception {
+  private void createCrawlDb(Configuration config, FileSystem fs, Path crawldb, TreeSet init, CrawlDatum cd) throws Exception {
     LOG.fine("* creating crawldb: " + crawldb);
     Path dir = new Path(crawldb, CrawlDb.CURRENT_NAME);
-    MapFile.Writer writer = new MapFile.Writer(fs, new Path(dir, "part-00000").toString(), Text.class, CrawlDatum.class);
+    MapFile.Writer writer = new MapFile.Writer(config, fs, new Path(dir, "part-00000").toString(), Text.class, CrawlDatum.class);
     Iterator it = init.iterator();
     while (it.hasNext()) {
       String key = (String)it.next();

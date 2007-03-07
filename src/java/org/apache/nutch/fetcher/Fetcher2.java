@@ -343,7 +343,6 @@ public class Fetcher2 extends Configured implements MapRunnable {
     }
     
     public synchronized void dump() {
-      Iterator it = queues.keySet().iterator();
       for (String id : queues.keySet()) {
         FetchItemQueue fiq = queues.get(id);
         if (fiq.getQueueSize() == 0) continue;
