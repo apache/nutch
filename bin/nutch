@@ -125,11 +125,15 @@ for f in $NUTCH_HOME/lib/jetty-ext/*.jar; do
   CLASSPATH=${CLASSPATH}:$f;
 done
 
+# cygwin path translation
+if $cygwin; then
+  CLASSPATH=`cygpath -p -w "$CLASSPATH"`
+fi
 
 # setup 'java.library.path' for native-hadoop code if necessary
 JAVA_LIBRARY_PATH=''
 if [ -d "${NUTCH_HOME}/build/native" -o -d "${NUTCH_HOME}/lib/native" ]; then
-  JAVA_PLATFORM=`CLASSPATH=${CLASSPATH} ${JAVA} org.apache.hadoop.util.PlatformName`
+  JAVA_PLATFORM=`CLASSPATH=${CLASSPATH} ${JAVA} org.apache.hadoop.util.PlatformName | sed -e 's/ /_/g'`
   
   if [ -d "$NUTCH_HOME/build/native" ]; then
     JAVA_LIBRARY_PATH=${HADOOP_HOME}/build/native/${JAVA_PLATFORM}/lib
@@ -142,6 +146,10 @@ if [ -d "${NUTCH_HOME}/build/native" -o -d "${NUTCH_HOME}/lib/native" ]; then
       JAVA_LIBRARY_PATH=${NUTCH_HOME}/lib/native/${JAVA_PLATFORM}
     fi
   fi
+fi
+
+if [ $cygwin -a "X${JAVA_LIBRARY_PATH}" != "X" ]; then
+  JAVA_LIBRARY_PATH=`cygpath -p -w "$JAVA_LIBRARY_PATH"`
 fi
 
 # restore ordinary behaviour
@@ -215,11 +223,6 @@ elif [ "$COMMAND" = "server" ] ; then
   CLASS='org.apache.nutch.searcher.DistributedSearch$Server'
 else
   CLASS=$COMMAND
-fi
-
-# cygwin path translation
-if $cygwin; then
-  CLASSPATH=`cygpath -p -w "$CLASSPATH"`
 fi
 
 # run it
