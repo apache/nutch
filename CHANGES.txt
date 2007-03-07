@@ -151,6 +151,8 @@ Unreleased changes (0.9-dev)
 50. NUTCH-432 - Fix a bug where platform name with spaces would break the
     bin/nutch script. (Brian Whitman via ab)
 
+51. Upgrade to Hadoop 0.11.2 and Lucene 2.1.0 release.
+
 
 Release 0.8 - 2006-07-25
 

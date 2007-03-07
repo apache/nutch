@@ -25,7 +25,7 @@ import org.apache.hadoop.io.*;
 
 /** A list of {@link Inlink}s. */
 public class Inlinks implements Writable {
-  private HashSet inlinks = new HashSet(1);
+  private HashSet<Inlink> inlinks = new HashSet<Inlink>(1);
 
   public void add(Inlink inlink) { inlinks.add(inlink); }
 

@@ -330,7 +330,7 @@ public class TestGenerator extends TestCase {
     fs.mkdirs(segmentsDir);
 
     // create crawldb
-    CrawlDBTestUtil.createCrawlDb(fs, dbDir, list);
+    CrawlDBTestUtil.createCrawlDb(conf, fs, dbDir, list);
   }
 
   /**

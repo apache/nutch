@@ -61,7 +61,7 @@ public class IndexMerger extends ToolBase {
     if (LOG.isInfoEnabled()) {
       LOG.info("merging indexes to: " + outputIndex);
     }
-    FileSystem localFs = FileSystem.getNamed("local", getConf());
+    FileSystem localFs = FileSystem.getLocal(getConf());
     if (localWorkingDir == null) {
       localWorkingDir = new Path("indexmerger-" + System.currentTimeMillis());
     }
@@ -102,7 +102,7 @@ public class IndexMerger extends ToolBase {
     // Put target back
     //
     fs.completeLocalOutput(outputIndex, tmpLocalOutput);
-    FileSystem.getNamed("local", conf).delete(localWorkingDir);
+    FileSystem.getLocal(conf).delete(localWorkingDir);
     if (LOG.isInfoEnabled()) { LOG.info("done merging"); }
   }
 

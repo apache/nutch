@@ -56,7 +56,7 @@ public class FetcherOutputFormat implements OutputFormat {
       new Path(new Path(job.getOutputPath(), Content.DIR_NAME), name);
 
     final MapFile.Writer fetchOut =
-      new MapFile.Writer(fs, fetch.toString(), Text.class, CrawlDatum.class);
+      new MapFile.Writer(job, fs, fetch.toString(), Text.class, CrawlDatum.class);
     
     return new RecordWriter() {
         private MapFile.Writer contentOut;
@@ -64,7 +64,7 @@ public class FetcherOutputFormat implements OutputFormat {
 
         {
           if (Fetcher.isStoringContent(job)) {
-            contentOut = new MapFile.Writer(fs, content.toString(),
+            contentOut = new MapFile.Writer(job, fs, content.toString(),
                                             Text.class, Content.class);
           }
 

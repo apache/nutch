@@ -29,7 +29,7 @@
    provider-name="org.apache.lucene">
 
    <runtime>
-     <library name="lucene-analyzers-2.0.0.jar">
+     <library name="lucene-analyzers-2.1.0.jar">
         <export name="*"/>
      </library>
    </runtime>

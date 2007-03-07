@@ -109,8 +109,8 @@ public class TestLinkDbMerger extends TestCase {
     Path linkdb1 = new Path(testDir, "linkdb1");
     Path linkdb2 = new Path(testDir, "linkdb2");
     Path output = new Path(testDir, "output");
-    createLinkDb(fs, linkdb1, init1);
-    createLinkDb(fs, linkdb2, init2);
+    createLinkDb(conf, fs, linkdb1, init1);
+    createLinkDb(conf, fs, linkdb2, init2);
     LinkDbMerger merger = new LinkDbMerger(conf);
     LOG.fine("* merging linkdbs to " + output);
     merger.merge(output, new Path[]{linkdb1, linkdb2}, false, false);
@@ -139,10 +139,10 @@ public class TestLinkDbMerger extends TestCase {
     fs.delete(testDir);
   }
   
-  private void createLinkDb(FileSystem fs, Path linkdb, TreeMap init) throws Exception {
+  private void createLinkDb(Configuration config, FileSystem fs, Path linkdb, TreeMap init) throws Exception {
     LOG.fine("* creating linkdb: " + linkdb);
     Path dir = new Path(linkdb, LinkDb.CURRENT_NAME);
-    MapFile.Writer writer = new MapFile.Writer(fs, new Path(dir, "part-00000").toString(), Text.class, Inlinks.class);
+    MapFile.Writer writer = new MapFile.Writer(config, fs, new Path(dir, "part-00000").toString(), Text.class, Inlinks.class);
     Iterator it = init.keySet().iterator();
     while (it.hasNext()) {
       String key = (String)it.next();
