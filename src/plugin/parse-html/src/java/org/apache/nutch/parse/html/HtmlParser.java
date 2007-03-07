@@ -33,6 +33,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
 import org.apache.hadoop.conf.*;
@@ -100,7 +101,9 @@ public class HtmlParser implements Parser {
   private DOMContentUtils utils;
 
   private HtmlParseFilters htmlParseFilters;
-
+  
+  private String cachingPolicy;
+  
   public Parse getParse(Content content) {
     HTMLMetaTags metaTags = new HTMLMetaTags();
 
@@ -202,10 +205,6 @@ public class HtmlParser implements Parser {
       }
     }
     
-    if (!metaTags.getNoCache()) {             // okay to cache
-      // ??? FIXME ???
-    }
-    
     ParseStatus status = new ParseStatus(ParseStatus.SUCCESS);
     if (metaTags.getRefresh()) {
       status.setMinorCode(ParseStatus.SUCCESS_REDIRECT);
@@ -217,7 +216,11 @@ public class HtmlParser implements Parser {
     Parse parse = new ParseImpl(text, parseData);
 
     // run filters on parse
-    return this.htmlParseFilters.filter(content, parse, metaTags, root);
+    parse = this.htmlParseFilters.filter(content, parse, metaTags, root);
+    if (metaTags.getNoCache()) {             // not okay to cache
+      parse.getData().getParseMeta().set(Nutch.CACHING_FORBIDDEN_KEY, cachingPolicy);
+    }
+    return parse;
   }
 
   private DocumentFragment parse(InputSource input) throws Exception {
@@ -302,6 +305,8 @@ public class HtmlParser implements Parser {
     this.defaultCharEncoding = getConf().get(
         "parser.character.encoding.default", "windows-1252");
     this.utils = new DOMContentUtils(conf);
+    this.cachingPolicy = getConf().get("parser.caching.forbidden.policy",
+        Nutch.CACHING_FORBIDDEN_CONTENT);
   }
 
   public Configuration getConf() {

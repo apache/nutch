@@ -23,6 +23,7 @@
   import="org.apache.nutch.searcher.*"
   import="org.apache.nutch.parse.ParseData"
   import="org.apache.nutch.metadata.Metadata"
+  import="org.apache.nutch.metadata.Nutch"
   import="org.apache.hadoop.conf.Configuration"
   import="org.apache.nutch.util.NutchConfiguration"
 %><%
@@ -82,6 +83,17 @@
    FIXME: have to sanitize 'content' : e.g. removing unncessary part
         of head elememt
 -->
+<%
+   String caching = details.getValue("cache");
+   String url = details.getValue("url");
+   if (caching != null && !caching.equals(Nutch.CACHING_FORBIDDEN_NONE)) {
+%>
+Display of this content was administratively prohibited by the webmaster.
+You may visit the original page instead: <a href="<%=url%>"><%=url%></a>.
+<%
+     return;
+   }
+%>
 <% if (contentType.startsWith("text/html")) {%>
 
 <% if (content != null && !content.equals("")) {%>

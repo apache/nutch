@@ -24,6 +24,7 @@ import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.Parse;
 
 import org.apache.nutch.indexer.IndexingFilter;
@@ -89,6 +90,11 @@ public class BasicIndexingFilter implements IndexingFilter {
     }
     // add title indexed and stored so that it can be displayed
     doc.add(new Field("title", title, Field.Store.YES, Field.Index.TOKENIZED));
+    // add cached content/summary display policy, if available
+    String caching = parse.getData().getMeta(Nutch.CACHING_FORBIDDEN_KEY);
+    if (caching != null && !caching.equals(Nutch.CACHING_FORBIDDEN_NONE)) {
+      doc.add(new Field("cache", caching, Field.Store.YES, Field.Index.NO));
+    }
     
     // add timestamp when fetched, for deduplication
     doc.add(new Field("tstamp",

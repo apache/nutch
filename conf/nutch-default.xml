@@ -773,6 +773,17 @@
 </property>
 
 <property>
+  <name>parser.caching.forbidden.policy</name>
+  <value>content</value>
+  <description>If a site (or a page) requests through its robot metatags
+  that it should not be shown as cached content, apply this policy. Currently
+  three keywords are recognized: "none" ignores any "noarchive" directives.
+  "content" doesn't show the content, but shows summaries (snippets).
+  "all" doesn't show either content or summaries.</description>
+</property>
+
+
+<property>
   <name>parser.html.impl</name>
   <value>neko</value>
   <description>HTML Parser implementation. Currently the following keywords
