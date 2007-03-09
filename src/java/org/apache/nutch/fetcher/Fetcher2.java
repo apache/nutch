@@ -727,7 +727,7 @@ public class Fetcher2 extends Configured implements MapRunnable {
   private void reportStatus() throws IOException {
     String status;
     long elapsed = (System.currentTimeMillis() - start)/1000;
-    status = 
+    status = activeThreads + " threads, " +
       pages+" pages, "+errors+" errors, "
       + Math.round(((float)pages.get()*10)/elapsed)/10.0+" pages/s, "
       + Math.round(((((float)bytes.get())*8)/1024)/elapsed)+" kb/s, ";
