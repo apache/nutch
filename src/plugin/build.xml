@@ -89,6 +89,7 @@
      <ant dir="ontology" target="test"/>
      <!--ant dir="parse-ext" target="test"/-->
      <ant dir="parse-html" target="test"/>
+     <ant dir="parse-js" target="test"/>
      <!-- <ant dir="parse-mp3" target="test"/> -->
      <ant dir="parse-msexcel" target="test"/>
      <ant dir="parse-mspowerpoint" target="test"/>
