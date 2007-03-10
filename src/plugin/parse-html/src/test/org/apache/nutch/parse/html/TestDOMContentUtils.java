@@ -134,6 +134,20 @@ public class TestDOMContentUtils extends TestCase {
             + "<input type=submit><p>test1</p></form>"
             + "<form method='GET' action='/dummy.jsp'><input type=text>"
             + "<input type=submit><p>test2</p></form></body></html>"),
+    new String("<html><head><title> title </title>"
+      + "</head><body>"
+      + "<a href=\";x\">anchor1</a>"
+      + "<a href=\"g;x\">anchor2</a>"
+      + "<a href=\"g;x?y#s\">anchor3</a>"
+      + "</body></html>"),  
+    new String("<html><head><title> title </title>"
+        + "</head><body>"
+        + "<a href=\"g\">anchor1</a>"
+        + "<a href=\"g?y#s\">anchor2</a>"
+        + "<a href=\"?y=1\">anchor3</a>"
+        + "<a href=\"?y=1#s\">anchor4</a>"
+        + "<a href=\"?y=1;somethingelse\">anchor5</a>"
+        + "</body></html>"), 
   };
   
   private static int SKIP = 9;
@@ -149,6 +163,8 @@ public class TestDOMContentUtils extends TestCase {
     "http://www.nutch.org//",
     "http://www.nutch.org/",
     "http://www.nutch.org/",
+    "http://www.nutch.org/",
+    "http://www.nutch.org/;something"
   };
     
   private static final DocumentFragment testDOMs[]=
@@ -173,7 +189,9 @@ public class TestDOMContentUtils extends TestCase {
         + "End this madness ! . . . .",
     "ignore ignore",
     "test1 test2",
-    "test1 test2"
+    "test1 test2",
+    "title anchor1 anchor2 anchor3",
+    "title anchor1 anchor2 anchor3 anchor4 anchor5"
   };
 
   private static final String[] answerTitle= {
@@ -186,7 +204,9 @@ public class TestDOMContentUtils extends TestCase {
     "my title",
     "",
     "",
-    ""
+    "",
+    "title",
+    "title"
   };
 
   // note: should be in page-order
@@ -258,6 +278,18 @@ public class TestDOMContentUtils extends TestCase {
            new Outlink("http://www.nutch.org/dummy.jsp", "test2", conf),
          },
          {
+         },
+         {
+           new Outlink("http://www.nutch.org/;x", "anchor1", conf),
+           new Outlink("http://www.nutch.org/g;x", "anchor2", conf),
+           new Outlink("http://www.nutch.org/g;x?y#s", "anchor3", conf)
+         },
+         {
+           new Outlink("http://www.nutch.org/g;something", "anchor1", conf),
+           new Outlink("http://www.nutch.org/g;something?y#s", "anchor2", conf),
+           new Outlink("http://www.nutch.org/;something?y=1", "anchor3", conf),
+           new Outlink("http://www.nutch.org/;something?y=1#s", "anchor4", conf),
+           new Outlink("http://www.nutch.org/?y=1;somethingelse", "anchor5", conf)
          }
       };
    
