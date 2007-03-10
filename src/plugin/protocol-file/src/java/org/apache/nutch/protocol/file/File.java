@@ -34,6 +34,7 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.protocol.RobotRules;
+import org.apache.nutch.util.NutchConfiguration;
 
 import java.net.URL;
 
@@ -100,6 +101,7 @@ public class File implements Protocol {
         }
       } 
     } catch (Exception e) {
+      e.printStackTrace();
       return new ProtocolOutput(null, new ProtocolStatus(e));
     }
   }
@@ -137,6 +139,7 @@ public class File implements Protocol {
     }
 
     File file = new File();
+    file.setConf(NutchConfiguration.create());
 
     if (maxContentLength != Integer.MIN_VALUE) // set maxContentLength
       file.setMaxContentLength(maxContentLength);
