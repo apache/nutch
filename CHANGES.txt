@@ -158,6 +158,9 @@ Unreleased changes (0.9-dev)
 53. NUTCH-384 - Protocol-file plugin does not allow the parse plugins
     framework to operate properly (Heiko Dietze via mattmann)
 
+54. Change OutlinkExtractor to use Regular Expressions from JRE, get rid
+    of ORO dependency (siren)
+
 
 Release 0.8 - 2006-07-25
 
