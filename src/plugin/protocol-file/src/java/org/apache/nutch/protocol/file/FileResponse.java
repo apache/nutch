@@ -26,6 +26,8 @@ import java.io.IOException;
 // Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.mime.MimeType;
+import org.apache.nutch.util.mime.MimeTypes;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
 
@@ -191,9 +193,12 @@ public class FileResponse {
 
     // set headers
     headers.set(Response.CONTENT_LENGTH, new Long(size).toString());
-    headers.set(Response.LAST_MODIFIED,
-      this.file.httpDateFormat.toString(f.lastModified()));
-    headers.set(Response.CONTENT_TYPE, "");   // No Content-Type at file protocol level
+    headers.set(Response.LAST_MODIFIED, this.file.httpDateFormat.toString(f
+        .lastModified()));
+    MimeTypes mimeTypes = MimeTypes.get(conf.get("mime.types.file"));
+    MimeType mimeType = mimeTypes.getMimeType(f);
+    String mimeTypeString = mimeType != null ? mimeType.getName() : "";
+    headers.set(Response.CONTENT_TYPE, mimeTypeString);
 
     // response code
     this.code = 200; // http OK
