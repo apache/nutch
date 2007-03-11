@@ -50,13 +50,6 @@ Unreleased changes (0.9-dev)
 
 17. NUTCH-383 - upgrade to Hadoop 0.7.1 and Lucene 2.0.0. (ab)
 
-18. NUTCH-233 - Wrong regular expression hangs reduce process forever (Stefan
-    Groschupf via kubes)
-    
-19. NUTCH-436 - Incorrect handling of relative paths when the embedded URL 
-	path is empty (kubes)
-
-
   ****************************** WARNING !!! ********************************
   * This upgrade breaks data format compatibility. A tool 'convertdb'       *
   * was added to migrate existing CrawlDb-s to the new format. Segment data *
@@ -167,7 +160,12 @@ Unreleased changes (0.9-dev)
 
 54. Change OutlinkExtractor to use Regular Expressions from JRE (siren)
 
-
+55. NUTCH-233 - Wrong regular expression hangs reduce process forever (Stefan
+    Groschupf via kubes)
+    
+56. NUTCH-436 - Incorrect handling of relative paths when the embedded URL 
+	path is empty (kubes)
+	
 Release 0.8 - 2006-07-25
 
  0. Totally new architecture, based on hadoop
