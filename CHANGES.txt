@@ -166,6 +166,9 @@ Unreleased changes (0.9-dev)
 56. NUTCH-436 - Incorrect handling of relative paths when the embedded URL 
 	path is empty (kubes)
 	
+57. Replace oro with jre regular expressions in plugins, remove oro from
+    dependencies (siren)
+	
 Release 0.8 - 2006-07-25
 
  0. Totally new architecture, based on hadoop
