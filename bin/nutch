@@ -148,7 +148,7 @@ if [ -d "${NUTCH_HOME}/build/native" -o -d "${NUTCH_HOME}/lib/native" ]; then
   fi
 fi
 
-if $cygwin -a "X${JAVA_LIBRARY_PATH}" != "X"; then
+if [ $cygwin -a "X${JAVA_LIBRARY_PATH}" != "X" ]; then
   JAVA_LIBRARY_PATH=`cygpath -p -w "$JAVA_LIBRARY_PATH"`
 fi
 
