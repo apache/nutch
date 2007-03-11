@@ -148,8 +148,20 @@
     <jar jarfile="${build.dir}/${final.name}.job">
       <zipfileset dir="${build.classes}"/>
       <zipfileset dir="${conf.dir}" excludes="*.template"/>
-      <zipfileset dir="${lib.dir}" prefix="lib"
-                  includes="**/*.jar" excludes="hadoop-*.jar"/>
+      <zipfileset dir="${lib.dir}" prefix="lib" includes="**/*.jar">
+        <exclude name="hadoop-*.jar"/>
+        <exclude name="servlet-*.jar"/>
+        <exclude name="junit*.jar"/>
+        <exclude name="jetty-*.jar"/>
+        <exclude name="pmd-ext/*"/>
+        <exclude name="jetty-ext/*"/>
+        <exclude name="jets3t.jar"/>
+        <exclude name="taglib*.jar"/>
+        <exclude name="commons-cli*.jar"/>
+        <exclude name="xerces-*.jar"/>
+        <exclude name="commons-logging-1.0.4.jar"/>
+        <exclude name="log4j-1.2.13.jar"/>
+      </zipfileset>
       <zipfileset dir="${build.plugins}" prefix="plugins"/>
     </jar>
   </target>
