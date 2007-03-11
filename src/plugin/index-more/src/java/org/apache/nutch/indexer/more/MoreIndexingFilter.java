@@ -16,6 +16,14 @@
  */
 package org.apache.nutch.indexer.more;
 
+
+import org.apache.oro.text.regex.Perl5Compiler;
+import org.apache.oro.text.regex.Perl5Matcher;
+import org.apache.oro.text.regex.Perl5Pattern;
+import org.apache.oro.text.regex.PatternMatcher;
+import org.apache.oro.text.regex.MatchResult;
+import org.apache.oro.text.regex.MalformedPatternException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -48,8 +56,6 @@ import java.text.SimpleDateFormat;
 
 import java.util.Date;
 import java.util.TimeZone;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang.time.DateUtils;
 
@@ -238,15 +244,21 @@ public class MoreIndexingFilter implements IndexingFilter {
   // Patterns used to extract filename from possible non-standard
   // HTTP header "Content-Disposition". Typically it looks like:
   // Content-Disposition: inline; filename="foo.ppt"
+  private PatternMatcher matcher = new Perl5Matcher();
 
   private Configuration conf;
-  static Pattern patterns[] = new Pattern[2];
+  static Perl5Pattern patterns[] = {null, null};
   static {
+    Perl5Compiler compiler = new Perl5Compiler();
+    try {
       // order here is important
       patterns[0] =
-        Pattern.compile("\\bfilename=['\"](.+)['\"]");
+        (Perl5Pattern) compiler.compile("\\bfilename=['\"](.+)['\"]");
       patterns[1] =
-        Pattern.compile("\\bfilename=(\\S+)\\b");
+        (Perl5Pattern) compiler.compile("\\bfilename=(\\S+)\\b");
+    } catch (MalformedPatternException e) {
+      // just ignore
+    }
   }
 
   private Document resetTitle(Document doc, ParseData data, String url) {
@@ -254,28 +266,16 @@ public class MoreIndexingFilter implements IndexingFilter {
     if (contentDisposition == null)
       return doc;
 
-    String filename = getFileName(contentDisposition);
-
-    if (filename != null) {
-      doc.add(new Field("title", filename, Field.Store.YES, Field.Index.NO));
-    }
-
-    return doc;
-  }
-  
-  String getFileName(String value) {
-
-    String filename = null;
-
-    for (int i = 0; i < patterns.length; i++) {
-      Matcher matcher = patterns[i].matcher(value);
-      if(matcher.find()) {
-        filename = matcher.group(1);
+    MatchResult result;
+    for (int i=0; i<patterns.length; i++) {
+      if (matcher.contains(contentDisposition,patterns[i])) {
+        result = matcher.getMatch();
+        doc.add(new Field("title", result.group(1), Field.Store.YES, Field.Index.NO));
         break;
       }
     }
-    return filename;
 
+    return doc;
   }
 
   public void setConf(Configuration conf) {

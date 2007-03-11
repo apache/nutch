@@ -1,4 +1,4 @@
-/*
+/**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,62 +14,60 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package org.apache.nutch.net.urlnormalizer.basic;
 
 import java.net.URL;
 import java.net.MalformedURLException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
+// Commons Logging imports
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+// Nutch imports
 import org.apache.nutch.net.URLNormalizer;
+import org.apache.nutch.util.LogUtil;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.oro.text.regex.*;
 
-/**
- * Converts URLs to a normal form.
- * <p>
- * All substitutions will be done step by step, to ensure that certain
- * constellations will be normalized, too.
- * </p>
- * <p>
- * For example: "/aa/bb/../../cc/../foo.html will be normalized in the following
- * manner: "/aa/bb/../../cc/../foo.html" "/aa/../cc/../foo.html"
- * "/cc/../foo.html" "/foo.html".
- * </p>
- * <p>
- * The normalization also takes care of leading "/../", which will be replaced
- * by "/", because this is a rather a sign of bad webserver configuration than
- * of a wanted link. For example, urls like "http://www.foo.com/../" should
- * return a http 404 error instead of redirecting to "http://www.foo.com".
- * </p>
- */
+/** Converts URLs to a normal form . */
 public class BasicURLNormalizer implements URLNormalizer {
     public static final Log LOG = LogFactory.getLog(BasicURLNormalizer.class);
 
-    /**
-     * This pattern tries to find spots like "/xx/../" in the url, which could
-     * be replaced by "/" xx consists of chars, different then "/" (slash) and
-     * needs to have at least one char different from ".".
-     */
-    private static final Pattern RELATIVE_PATH_PATTERN = Pattern.compile("(/[^/]*[^/.]{1}[^/]*/\\.\\./)");
-
-    private static final String RELATIVE_PATH_SUBSTITUTION="/";
-    
-    /**
-     * This pattern tries to find spots like leading "/../" in the url, which
-     * could be replaced by "/".
-     */
-    private static final Pattern LEADING_RELATIVE_PATH_PATTERN = Pattern.compile("^(/\\.\\./)+");
-
-    private static final String LEADING_RELATIVE_PATH_SUBSTITUTION="/";
+    private Perl5Compiler compiler = new Perl5Compiler();
+    private ThreadLocal matchers = new ThreadLocal() {
+        protected synchronized Object initialValue() {
+          return new Perl5Matcher();
+        }
+      };
+    private Rule relativePathRule = null;
+    private Rule leadingRelativePathRule = null;
 
     private Configuration conf;
 
-
     public BasicURLNormalizer() {
+      try {
+        // this pattern tries to find spots like "/xx/../" in the url, which
+        // could be replaced by "/" xx consists of chars, different then "/"
+        // (slash) and needs to have at least one char different from "."
+        relativePathRule = new Rule();
+        relativePathRule.pattern = (Perl5Pattern)
+          compiler.compile("(/[^/]*[^/.]{1}[^/]*/\\.\\./)",
+                           Perl5Compiler.READ_ONLY_MASK);
+        relativePathRule.substitution = new Perl5Substitution("/");
+
+        // this pattern tries to find spots like leading "/../" in the url,
+        // which could be replaced by "/"
+        leadingRelativePathRule = new Rule();
+        leadingRelativePathRule.pattern = (Perl5Pattern)
+          compiler.compile("^(/\\.\\./)+", Perl5Compiler.READ_ONLY_MASK);
+        leadingRelativePathRule.substitution = new Perl5Substitution("/");
+
+      } catch (MalformedPatternException e) {
+        e.printStackTrace(LogUtil.getWarnStream(LOG));
+        throw new RuntimeException(e);
+      }
     }
 
     public String normalize(String urlString, String scope)
@@ -131,25 +129,56 @@ public class BasicURLNormalizer implements URLNormalizer {
         return urlString;
     }
 
-  private String substituteUnnecessaryRelativePaths(String file) {
-    String fileWorkCopy = file;
-    int oldLen = file.length();
-    int newLen = oldLen - 1;
-    Matcher m;
-    
-    while (oldLen != newLen) {
-      oldLen = fileWorkCopy.length();
-      m = RELATIVE_PATH_PATTERN.matcher(fileWorkCopy);
-      // substitue first occurence of "/xx/../" by "/"
-      fileWorkCopy = m.replaceFirst(RELATIVE_PATH_SUBSTITUTION);
-      m = LEADING_RELATIVE_PATH_PATTERN.matcher(fileWorkCopy);
-      // remove leading "/../"
-      fileWorkCopy = m.replaceFirst(LEADING_RELATIVE_PATH_SUBSTITUTION);
-      newLen = fileWorkCopy.length();
+    private String substituteUnnecessaryRelativePaths(String file) {
+        String fileWorkCopy = file;
+        int oldLen = file.length();
+        int newLen = oldLen - 1;
+
+        // All substitutions will be done step by step, to ensure that certain
+        // constellations will be normalized, too
+        //
+        // For example: "/aa/bb/../../cc/../foo.html will be normalized in the
+        // following manner:
+        //   "/aa/bb/../../cc/../foo.html"
+        //   "/aa/../cc/../foo.html"
+        //   "/cc/../foo.html"
+        //   "/foo.html"
+        //
+        // The normalization also takes care of leading "/../", which will be
+        // replaced by "/", because this is a rather a sign of bad webserver
+        // configuration than of a wanted link.  For example, urls like
+        // "http://www.foo.com/../" should return a http 404 error instead of
+        // redirecting to "http://www.foo.com".
+        //
+        Perl5Matcher matcher = (Perl5Matcher)matchers.get();
+
+        while (oldLen != newLen) {
+            // substitue first occurence of "/xx/../" by "/"
+            oldLen = fileWorkCopy.length();
+            fileWorkCopy = Util.substitute
+              (matcher, relativePathRule.pattern,
+               relativePathRule.substitution, fileWorkCopy, 1);
+
+            // remove leading "/../"
+            fileWorkCopy = Util.substitute
+              (matcher, leadingRelativePathRule.pattern,
+               leadingRelativePathRule.substitution, fileWorkCopy, 1);
+            newLen = fileWorkCopy.length();
+        }
+
+        return fileWorkCopy;
     }
 
-    return fileWorkCopy;
-  }
+
+    /**
+     * Class which holds a compiled pattern and its corresponding substition
+     * string.
+     */
+    private static class Rule {
+        public Perl5Pattern pattern;
+        public Perl5Substitution substitution;
+    }
+
 
   public void setConf(Configuration conf) {
     this.conf = conf;
@@ -160,3 +189,4 @@ public class BasicURLNormalizer implements URLNormalizer {
   }
 
 }
+

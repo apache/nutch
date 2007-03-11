@@ -158,18 +158,11 @@ Unreleased changes (0.9-dev)
 53. NUTCH-384 - Protocol-file plugin does not allow the parse plugins
     framework to operate properly (Heiko Dietze via mattmann)
 
-54. Change OutlinkExtractor to use Regular Expressions from JRE (siren)
-
-55. NUTCH-233 - Wrong regular expression hangs reduce process forever (Stefan
+54. NUTCH-233 - Wrong regular expression hangs reduce process forever (Stefan
     Groschupf via kubes)
     
-56. NUTCH-436 - Incorrect handling of relative paths when the embedded URL 
-	path is empty (kubes)
-	
-57. Replace oro with jre regular expressions in plugins, remove oro from
-    dependencies (siren)
-
-58. Remove redundant commons logging jars (siren)
+55. NUTCH-436 - Incorrect handling of relative paths when the embedded URL 
+    path is empty (kubes)
 	
 Release 0.8 - 2006-07-25
 
