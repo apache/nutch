@@ -25,8 +25,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,6 +40,13 @@ import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.oro.text.regex.MatchResult;
+import org.apache.oro.text.regex.Pattern;
+import org.apache.oro.text.regex.PatternCompiler;
+import org.apache.oro.text.regex.PatternMatcher;
+import org.apache.oro.text.regex.PatternMatcherInput;
+import org.apache.oro.text.regex.Perl5Compiler;
+import org.apache.oro.text.regex.Perl5Matcher;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -49,24 +54,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 /**
- * <p>
- * This class is a heuristic link extractor for JavaScript files and code
- * snippets. The general idea of a two-pass regex matching comes from Heritrix.
- * Parts of the code come from OutlinkExtractor.java by Stephan Strittmatter.
- * </p>
- * 
- * <p>
- * This Filter extracts javascript from following locations:
- * </p>
- * <li>from inside &lt;script> tags</li>
- * <li>from html 4.0 events like Window: onload,onunload, Form:
- * onchange,onsubmit,onreset,onselect,onblur,onfocus Keyboard:
- * onkeydown,onkeypress,onkeyup Mouse:
- * onclick,ondbclick,onmousedown,onmouseout,onmousover,onmouseup
- * </li>
- * <li>a href starting with literal "javascript"</li>
- * 
- * 
+ * This class is a heuristic link extractor for JavaScript files and
+ * code snippets. The general idea of a two-pass regex matching comes from
+ * Heritrix. Parts of the code come from OutlinkExtractor.java
+ * by Stephan Strittmatter.
+ *
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
 public class JSParseFilter implements HtmlParseFilter, Parser {
@@ -105,7 +97,6 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
         Node lNode = n.getAttributes().getNamedItem("language");
         if (lNode == null) lang = "javascript";
         else lang = lNode.getNodeValue();
-        //XXX lang is not checked??
         StringBuffer script = new StringBuffer();
         NodeList nn = n.getChildNodes();
         if (nn.getLength() > 0) {
@@ -113,9 +104,9 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
             if (i > 0) script.append('\n');
             script.append(nn.item(i).getNodeValue());
           }
-          if (LOG.isDebugEnabled()) {
-            LOG.info("script: language=" + lang + ", text: " + script.toString());
-          }
+          // if (LOG.isInfoEnabled()) {
+          //   LOG.info("script: language=" + lang + ", text: " + script.toString());
+          // }
           Outlink[] links = getJSLinks(script.toString(), "", base);
           if (links != null && links.length > 0) outlinks.addAll(Arrays.asList(links));
           // no other children of interest here, go one level up.
@@ -184,7 +175,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
   /**
    *  This method extracts URLs from literals embedded in JavaScript.
    */
-  Outlink[] getJSLinks(String plainText, String anchor, String base) {
+  private Outlink[] getJSLinks(String plainText, String anchor, String base) {
 
     final List outlinks = new ArrayList();
     URL baseURL = null;
@@ -196,27 +187,30 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     }
 
     try {
-      final Pattern stringPattern = Pattern.compile(STRING_PATTERN,
-          Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-      final Pattern urlPattern = Pattern.compile(URI_PATTERN,
-              Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
-      
-      final Matcher quoted = stringPattern.matcher(plainText);
+      final PatternCompiler cp = new Perl5Compiler();
+      final Pattern pattern = cp.compile(STRING_PATTERN,
+          Perl5Compiler.CASE_INSENSITIVE_MASK | Perl5Compiler.READ_ONLY_MASK
+              | Perl5Compiler.MULTILINE_MASK);
+      final Pattern pattern1 = cp.compile(URI_PATTERN,
+              Perl5Compiler.CASE_INSENSITIVE_MASK | Perl5Compiler.READ_ONLY_MASK
+                  | Perl5Compiler.MULTILINE_MASK);
+      final PatternMatcher matcher = new Perl5Matcher();
 
+      final PatternMatcher matcher1 = new Perl5Matcher();
+      final PatternMatcherInput input = new PatternMatcherInput(plainText);
+
+      MatchResult result;
       String url;
 
       //loop the matches
-      while (quoted.find()) {
-        String quotedString = quoted.group(2);
-        Matcher urls = urlPattern.matcher(quotedString);
-        
-        if (!urls.find()) {
+      while (matcher.contains(input, pattern)) {
+        result = matcher.getMatch();
+        url = result.group(2);
+        PatternMatcherInput input1 = new PatternMatcherInput(url);
+        if (!matcher1.matches(input1, pattern1)) {
           //if (LOG.isTraceEnabled()) { LOG.trace(" - invalid '" + url + "'"); }
           continue;
         }
-
-        url = urls.group();
-        
         if (url.startsWith("www.")) {
             url = "http://" + url;
         } else {
