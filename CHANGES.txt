@@ -168,6 +168,8 @@ Unreleased changes (0.9-dev)
 	
 57. Replace oro with jre regular expressions in plugins, remove oro from
     dependencies (siren)
+
+58. Remove redundant commons logging jars (siren)
 	
 Release 0.8 - 2006-07-25
 
