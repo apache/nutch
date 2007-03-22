@@ -51,6 +51,7 @@ public class Injector extends ToolBase {
     private JobConf jobConf;
     private URLFilters filters;
     private ScoringFilters scfilters;
+    private long curTime;
 
     public void configure(JobConf job) {
       this.jobConf = job;
@@ -59,6 +60,7 @@ public class Injector extends ToolBase {
       filters = new URLFilters(jobConf);
       scfilters = new ScoringFilters(jobConf);
       scoreInjected = jobConf.getFloat("db.score.injected", 1.0f);
+      curTime = job.getLong("injector.current.time", System.currentTimeMillis());
     }
 
     public void close() {}
@@ -79,6 +81,7 @@ public class Injector extends ToolBase {
       if (url != null) {                          // if it passes
         value.set(url);                           // collect it
         CrawlDatum datum = new CrawlDatum(CrawlDatum.STATUS_INJECTED, interval);
+        datum.setFetchTime(curTime);
         datum.setScore(scoreInjected);
         try {
           scfilters.injectedScore(value, datum);
@@ -96,7 +99,7 @@ public class Injector extends ToolBase {
 
   /** Combine multiple new entries for a url. */
   public static class InjectReducer implements Reducer {
-    public void configure(JobConf job) {}
+    public void configure(JobConf job) {}    
     public void close() {}
 
     public void reduce(WritableComparable key, Iterator values,
@@ -155,6 +158,7 @@ public class Injector extends ToolBase {
     sortJob.setOutputFormat(SequenceFileOutputFormat.class);
     sortJob.setOutputKeyClass(Text.class);
     sortJob.setOutputValueClass(CrawlDatum.class);
+    sortJob.setLong("injector.current.time", System.currentTimeMillis());
     JobClient.runJob(sortJob);
 
     // merge with existing crawl db

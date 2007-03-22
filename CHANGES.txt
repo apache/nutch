@@ -166,6 +166,9 @@ Unreleased changes (0.9-dev)
 
 56. Upgrade to Hadoop 0.12.1 release. (ab)
 
+57. NUTCH-246 - Incorrect segment size being generated due to time
+    synchronization issue (Stefan Groschupf via ab)
+
 	
 Release 0.8 - 2006-07-25
 
