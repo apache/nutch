@@ -75,6 +75,8 @@
     </unjar>
     
     <untar src="${build.dir}/hadoop/bin.tgz" dest="bin" compression="gzip"/>
+    <!-- fix broken library paths with spaces -->
+    <replace file="bin/hadoop" token="PlatformName" value="PlatformName | sed -e 's/ /_/g'"/>
     <chmod dir="bin" perm="ugo+rx" includes="*.sh,hadoop"/>
 
     <!-- unpack hadoop webapp from hadoop jar into build directory -->
