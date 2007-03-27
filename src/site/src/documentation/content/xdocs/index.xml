@@ -29,6 +29,17 @@
       <title>News</title>
 
       <section>
+      <title>26 March 2007: Nutch 0.9 Released</title>
+      <p>The 0.9 release of Nutch is now available. This is the second release of Nutch
+      based entirely on the underlying Hadoop platform. This release includes several critical
+      bug fixes, as well as key speedups described in more detail at 
+      <a href="http://blog.foofactory.fi/2007/03/twice-speed-half-size.html">Sami Siren's blog</a>.
+      See <a href="http://www.apache.org/dist/lucene/nutch/CHANGES-0.9.txt">
+      list of changes</a>  made in this version. The release is available
+      <a href="http://lucene.apache.org/nutch/release/">here</a>.</p>
+      </section>
+      
+      <section>
       <title>24 September 2006: Nutch 0.8.1 Released</title>
       <p>The 0.8.1 release of Nutch is now available. This is a maintenance release to 0.8 branch fixing many serous bugs found in version 0.8.
       See <a href="http://www.apache.org/dist/lucene/nutch/CHANGES-0.8.1.txt">
