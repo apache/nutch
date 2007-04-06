@@ -186,7 +186,7 @@ document.write("<text>Last Published:</text> " + document.lastModified);
 </div>
 
 
-<a name="N1000C"></a><a name="Requirements"></a>
+<a name="N1000D"></a><a name="Requirements"></a>
 <h2 class="h3">Requirements</h2>
 <div class="section">
 <ol>
@@ -209,7 +209,7 @@ an hour or so.
 </ol>
 </div>
 
-<a name="N10035"></a><a name="Getting+Started"></a>
+<a name="N10036"></a><a name="Getting+Started"></a>
 <h2 class="h3">Getting Started</h2>
 <div class="section">
 <p>First, you need to get a copy of the Nutch code.  You can download
@@ -232,12 +232,12 @@ and <span class="codefrag">updatedb</span> commands.</li>
 </ol>
 </div>
 
-<a name="N10070"></a><a name="Intranet+Crawling"></a>
+<a name="N10071"></a><a name="Intranet+Crawling"></a>
 <h2 class="h3">Intranet Crawling</h2>
 <div class="section">
 <p>Intranet crawling is more appropriate when you intend to crawl up to
 around one million pages on a handful of web servers.</p>
-<a name="N10079"></a><a name="Intranet%3A+Configuration"></a>
+<a name="N1007A"></a><a name="Intranet%3A+Configuration"></a>
 <h3 class="h4">Intranet: Configuration</h3>
 <p>To configure things for intranet crawling you must:</p>
 <ol>
@@ -321,7 +321,7 @@ following properties into it and edit in proper values for the properties:
 </li>
 
 </ol>
-<a name="N100B3"></a><a name="Intranet%3A+Running+the+Crawl"></a>
+<a name="N100B4"></a><a name="Intranet%3A+Running+the+Crawl"></a>
 <h3 class="h4">Intranet: Running the Crawl</h3>
 <p>Once things are configured, running the crawl is easy.  Just use the
 crawl command.  Its options include:</p>
@@ -360,12 +360,12 @@ below.</p>
 </div>
 
 
-<a name="N100F4"></a><a name="Whole-web+Crawling"></a>
+<a name="N100F5"></a><a name="Whole-web+Crawling"></a>
 <h2 class="h3">Whole-web Crawling</h2>
 <div class="section">
 <p>Whole-web crawling is designed to handle very large crawls which may
 take weeks to complete, running on multiple machines.</p>
-<a name="N100FD"></a><a name="Whole-web%3A+Concepts"></a>
+<a name="N100FE"></a><a name="Whole-web%3A+Concepts"></a>
 <h3 class="h4">Whole-web: Concepts</h3>
 <p>Nutch data is composed of:</p>
 <ol>
@@ -411,7 +411,7 @@ subdirectories:</li>
 
 
 </ol>
-<a name="N1014A"></a><a name="Whole-web%3A+Boostrapping+the+Web+Database"></a>
+<a name="N1014B"></a><a name="Whole-web%3A+Boostrapping+the+Web+Database"></a>
 <h3 class="h4">Whole-web: Boostrapping the Web Database</h3>
 <p>The <em>injector</em> adds urls to the crawldb.  Let's inject URLs
 from the <a href="http://dmoz.org/">DMOZ</a> Open Directory. First we
@@ -430,7 +430,7 @@ bin/nutch org.apache.nutch.tools.DmozParser content.rdf.u8 -subset 5000 &gt; dmo
 file.  Finally, we initialize the crawl db with the selected urls.</p>
 <pre class="code">bin/nutch inject crawl/crawldb dmoz</pre>
 <p>Now we have a web database with around 1000 as-yet unfetched URLs in it.</p>
-<a name="N10170"></a><a name="Whole-web%3A+Fetching"></a>
+<a name="N10171"></a><a name="Whole-web%3A+Fetching"></a>
 <h3 class="h4">Whole-web: Fetching</h3>
 <p>
 Starting from 0.8 nutch user agent identifier needs to be configured
@@ -523,7 +523,7 @@ bin/nutch updatedb crawl/crawldb $s3
 </pre>
 <p>By this point we've fetched a few thousand pages.  Let's index
 them!</p>
-<a name="N101B4"></a><a name="Whole-web%3A+Indexing"></a>
+<a name="N101B5"></a><a name="Whole-web%3A+Indexing"></a>
 <h3 class="h4">Whole-web: Indexing</h3>
 <p>Before indexing we first invert all of the links, so that we may
 index incoming anchor text with the pages.</p>
@@ -531,7 +531,7 @@ index incoming anchor text with the pages.</p>
 <p>To index the segments we use the <span class="codefrag">index</span> command, as follows:</p>
 <pre class="code">bin/nutch index crawl/indexes crawl/crawldb crawl/linkdb crawl/segments/*</pre>
 <p>Now we're ready to search!</p>
-<a name="N101D5"></a><a name="Searching"></a>
+<a name="N101D6"></a><a name="Searching"></a>
 <h3 class="h4">Searching</h3>
 <p>
 Simplest way to verify the integrity of your crawl is to launch NutchBean from command line:
