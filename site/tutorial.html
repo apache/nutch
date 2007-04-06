@@ -186,7 +186,7 @@ document.write("<text>Last Published:</text> " + document.lastModified);
 </div>
 
 
-<a name="N1000C"></a><a name="Requirements"></a>
+<a name="N1000D"></a><a name="Requirements"></a>
 <h2 class="h3">Requirements</h2>
 <div class="section">
 <ol>
@@ -209,7 +209,7 @@ an hour or so.
 </ol>
 </div>
 
-<a name="N10035"></a><a name="Getting+Started"></a>
+<a name="N10036"></a><a name="Getting+Started"></a>
 <h2 class="h3">Getting Started</h2>
 <div class="section">
 <p>First, you need to get a copy of the Nutch code.  You can download
@@ -232,12 +232,12 @@ and <span class="codefrag">updatedb</span> commands.</li>
 </ol>
 </div>
 
-<a name="N10070"></a><a name="Intranet+Crawling"></a>
+<a name="N10071"></a><a name="Intranet+Crawling"></a>
 <h2 class="h3">Intranet Crawling</h2>
 <div class="section">
 <p>Intranet crawling is more appropriate when you intend to crawl up to
 around one million pages on a handful of web servers.</p>
-<a name="N10079"></a><a name="Intranet%3A+Configuration"></a>
+<a name="N1007A"></a><a name="Intranet%3A+Configuration"></a>
 <h3 class="h4">Intranet: Configuration</h3>
 <p>To configure things for intranet crawling you must:</p>
 <ol>
@@ -267,7 +267,7 @@ This will include any url in the domain <span class="codefrag">apache.org</span>
 
 
 </ol>
-<a name="N100A9"></a><a name="Intranet%3A+Running+the+Crawl"></a>
+<a name="N100AA"></a><a name="Intranet%3A+Running+the+Crawl"></a>
 <h3 class="h4">Intranet: Running the Crawl</h3>
 <p>Once things are configured, running the crawl is easy.  Just use the
 crawl command.  Its options include:</p>
@@ -302,12 +302,12 @@ below.</p>
 </div>
 
 
-<a name="N100E4"></a><a name="Whole-web+Crawling"></a>
+<a name="N100E5"></a><a name="Whole-web+Crawling"></a>
 <h2 class="h3">Whole-web Crawling</h2>
 <div class="section">
 <p>Whole-web crawling is designed to handle very large crawls which may
 take weeks to complete, running on multiple machines.</p>
-<a name="N100ED"></a><a name="Whole-web%3A+Concepts"></a>
+<a name="N100EE"></a><a name="Whole-web%3A+Concepts"></a>
 <h3 class="h4">Whole-web: Concepts</h3>
 <p>Nutch data is of two types:</p>
 <ol>
@@ -340,7 +340,7 @@ named <span class="codefrag">db</span> and our segments
 in a directory named <span class="codefrag">segments</span>:</p>
 <pre class="code">mkdir db
 mkdir segments</pre>
-<a name="N10123"></a><a name="Whole-web%3A+Boostrapping+the+Web+Database"></a>
+<a name="N10124"></a><a name="Whole-web%3A+Boostrapping+the+Web+Database"></a>
 <h3 class="h4">Whole-web: Boostrapping the Web Database</h3>
 <p>The admin tool is used to create a new, empty database:</p>
 <pre class="code">bin/nutch admin db -create</pre>
@@ -359,7 +359,7 @@ around 1000 URLs:</p>
 <pre class="code">bin/nutch inject db -dmozfile content.rdf.u8 -subset 3000</pre>
 <p>This also takes a few minutes, as it must parse the full file.</p>
 <p>Now we have a web database with around 1000 as-yet unfetched URLs in it.</p>
-<a name="N1014C"></a><a name="Whole-web%3A+Fetching"></a>
+<a name="N1014D"></a><a name="Whole-web%3A+Fetching"></a>
 <h3 class="h4">Whole-web: Fetching</h3>
 <p>To fetch, we first generate a fetchlist from the database:</p>
 <pre class="code">bin/nutch generate db segments
@@ -397,7 +397,7 @@ bin/nutch updatedb db $s3
 </pre>
 <p>By this point we've fetched a few thousand pages.  Let's index
 them!</p>
-<a name="N10186"></a><a name="Whole-web%3A+Indexing"></a>
+<a name="N10187"></a><a name="Whole-web%3A+Indexing"></a>
 <h3 class="h4">Whole-web: Indexing</h3>
 <p>To index each segment we use the <span class="codefrag">index</span>
 command, as follows:</p>
@@ -408,7 +408,7 @@ bin/nutch index $s3</pre>
 duplicate pages.  This is done with:</p>
 <pre class="code">bin/nutch dedup segments dedup.tmp</pre>
 <p>Now we're ready to search!</p>
-<a name="N101A1"></a><a name="Searching"></a>
+<a name="N101A2"></a><a name="Searching"></a>
 <h3 class="h4">Searching</h3>
 <p>To search you need to put the nutch war file into your servlet
 container.  (If instead of downloading a Nutch release you checked the
