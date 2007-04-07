@@ -175,6 +175,7 @@ public class MapWritable implements Writable {
 
   public Set keySet() {
     HashSet set = new HashSet();
+    if (isEmpty()) return set;
     set.add(fFirst.fKey);
     KeyValueEntry entry = fFirst;
     while ((entry = entry.fNextEntry) != null) {
