@@ -158,19 +158,28 @@ public class DeleteDuplicates extends ToolBase
     public class DDRecordReader implements RecordReader {
 
       private IndexReader indexReader;
-      private int maxDoc;
-      private int doc;
+      private int maxDoc = 0;
+      private int doc = 0;
       private Text index;
       
       public DDRecordReader(FileSplit split, JobConf job,
           Text index) throws IOException {
-        indexReader = IndexReader.open(new FsDirectory(FileSystem.get(job), split.getPath(), false, job));
-        maxDoc = indexReader.maxDoc();
+        try {
+          indexReader = IndexReader.open(new FsDirectory(FileSystem.get(job), split.getPath(), false, job));
+          maxDoc = indexReader.maxDoc();
+        } catch (IOException ioe) {
+          LOG.warn("Can't open index at " + split + ", skipping. (" + ioe.getMessage() + ")");
+          indexReader = null;
+        }
         this.index = index;
       }
 
       public boolean next(Writable key, Writable value)
         throws IOException {
+        
+        // skip empty indexes
+        if (indexReader == null || maxDoc <= 0)
+          return false;
 
         // skip deleted documents
         while (indexReader.isDeleted(doc) && doc < maxDoc) doc++;
