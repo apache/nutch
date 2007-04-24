@@ -236,7 +236,7 @@ public class Fetcher2 extends Configured implements MapRunnable {
     public FetchItem getFetchItem() {
       if (inProgress.size() >= maxThreads) return null;
       long now = System.currentTimeMillis();
-      long last = endTime.get() + (maxThreads > 1 ? crawlDelay : minCrawlDelay);
+      long last = endTime.get() + (maxThreads > 1 ? minCrawlDelay : crawlDelay);
       if (last > now) return null;
       FetchItem it = null;
       if (queue.size() == 0) return null;
@@ -771,8 +771,8 @@ public class Fetcher2 extends Configured implements MapRunnable {
     feeder.start();
 
     // set non-blocking & no-robots mode for HTTP protocol plugins.
-    getConf().setBoolean("http.plugin.check.blocking", false);
-    getConf().setBoolean("http.plugin.check.robots", false);
+    getConf().setBoolean(Protocol.CHECK_BLOCKING, false);
+    getConf().setBoolean(Protocol.CHECK_ROBOTS, false);
     
     for (int i = 0; i < threadCount; i++) {       // spawn threads
       new FetcherThread(getConf()).start();
