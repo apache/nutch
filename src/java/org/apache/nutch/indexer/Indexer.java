@@ -218,6 +218,9 @@ public class Indexer extends ToolBase implements Reducer, Mapper {
       return;
     }
 
+    // skip documents discarded by indexing filters
+    if (doc == null) return;
+    
     float boost = 1.0f;
     // run scoring filters
     try {

@@ -108,6 +108,8 @@ public class IndexingFilters {
       Inlinks inlinks) throws IndexingException {
     for (int i = 0; i < this.indexingFilters.length; i++) {
       doc = this.indexingFilters[i].filter(doc, parse, url, datum, inlinks);
+      // break the loop if an indexing filter discards the doc
+      if (doc == null) return null;
     }
 
     return doc;

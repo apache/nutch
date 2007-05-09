@@ -41,14 +41,15 @@ public interface IndexingFilter extends Pluggable, Configurable {
 
   /**
    * Adds fields or otherwise modifies the document that will be indexed for a
-   * parse.
+   * parse. Unwanted documents can be removed from indexing by returning a null value.
    * 
    * @param doc document instance for collecting fields
    * @param parse parse data instance
    * @param url page url
    * @param datum crawl datum for the page
    * @param inlinks page inlinks
-   * @return modified (or a new) document instance
+   * @return modified (or a new) document instance, or null (meaning the document
+   * should be discarded)
    * @throws IndexingException
    */
   Document filter(Document doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
