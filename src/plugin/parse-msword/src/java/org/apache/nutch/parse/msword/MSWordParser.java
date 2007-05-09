@@ -18,7 +18,7 @@ package org.apache.nutch.parse.msword;
 
 // Nutch imports
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.parse.ms.MSBaseParser;
 
 
@@ -40,7 +40,7 @@ public class MSWordParser extends MSBaseParser {
   public static final String MIME_TYPE = "application/msword";
 
   
-  public Parse getParse(Content content) {
+  public ParseResult getParse(Content content) {
     return getParse(new WordExtractor(), content);
   }
 

@@ -159,6 +159,18 @@ public class ParseOutputFormat implements OutputFormat {
             if (adjust != null) crawlOut.append(key, adjust);
           }
           dataOut.append(key, parseData);
+          if (!parse.isCanonical()) {
+            CrawlDatum datum = new CrawlDatum();
+            datum.setStatus(CrawlDatum.STATUS_FETCH_SUCCESS);
+            String timeString = parse.getData().getContentMeta().get(Nutch.FETCH_TIME_KEY);
+            try {
+              datum.setFetchTime(Long.parseLong(timeString));
+            } catch (Exception e) {
+              LOG.warn("Can't read fetch time for: " + key);
+              datum.setFetchTime(System.currentTimeMillis());
+            }
+            crawlOut.append(key, datum);
+          }
         }
         
         public void close(Reporter reporter) throws IOException {

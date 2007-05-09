@@ -88,7 +88,7 @@ public class TestRSSParser extends TestCase {
 
             protocol = new ProtocolFactory(conf).getProtocol(urlString);
             content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
-            parse = new ParseUtil(conf).parseByExtensionId("parse-rss", content);
+            parse = new ParseUtil(conf).parseByExtensionId("parse-rss", content).get(content.getUrl());
 
             //check that there are 3 outlinks:
             //http://test.channel.com

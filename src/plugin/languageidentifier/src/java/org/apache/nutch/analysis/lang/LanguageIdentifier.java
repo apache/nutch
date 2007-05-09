@@ -346,7 +346,7 @@ public class LanguageIdentifier {
     try {
       protocol = new ProtocolFactory(conf).getProtocol(url);
       Content content = protocol.getProtocolOutput(new Text(url), new CrawlDatum()).getContent();
-      Parse parse = new ParseUtil(conf).parse(content);
+      Parse parse = new ParseUtil(conf).parse(content).get(content.getUrl());
       System.out.println("text:" + parse.getText());
       return parse.getText();
 

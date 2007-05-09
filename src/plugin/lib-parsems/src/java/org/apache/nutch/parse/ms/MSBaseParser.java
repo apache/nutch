@@ -35,9 +35,9 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.OutlinkExtractor;
-import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
+import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
@@ -61,7 +61,7 @@ public abstract class MSBaseParser implements Parser {
    * Parses a Content with a specific {@link MSExtractor Microsoft document
    * extractor}.
    */
-  protected Parse getParse(MSExtractor extractor, Content content) {
+  protected ParseResult getParse(MSExtractor extractor, Content content) {
     
     String text = null;
     String title = null;
@@ -77,7 +77,7 @@ public abstract class MSBaseParser implements Parser {
                                ParseStatus.FAILED_TRUNCATED,
                                "Content truncated at " + raw.length +" bytes. " +
                                "Parser can't handle incomplete file.")
-                               .getEmptyParse(this.conf);
+                               .getEmptyParseResult(content.getUrl(), this.conf);
       }
       extractor.extract(new ByteArrayInputStream(raw));
       text = extractor.getText();
@@ -87,7 +87,7 @@ public abstract class MSBaseParser implements Parser {
     } catch (Exception e) {
       return new ParseStatus(ParseStatus.FAILED,
                              "Can't be handled as Microsoft document. " + e)
-                             .getEmptyParse(this.conf);
+                             .getEmptyParseResult(content.getUrl(), this.conf);
     }
     
     // collect meta data
@@ -105,7 +105,8 @@ public abstract class MSBaseParser implements Parser {
                                         outlinks, content.getMetadata(),
                                         metadata);
     parseData.setConf(this.conf);
-    return new ParseImpl(text, parseData);
+    return ParseResult.createParseResult(content.getUrl(), 
+                                         new ParseImpl(text, parseData));
   }
 
   
@@ -127,7 +128,7 @@ public abstract class MSBaseParser implements Parser {
     Content content = new Content(file, file, raw, mime, meta,
                                   NutchConfiguration.create());
 
-    System.out.println(parser.getParse(content).getText());
+    System.out.println(parser.getParse(content).get(file).getText());
   }
 
   private final static byte[] getRawBytes(File f) {

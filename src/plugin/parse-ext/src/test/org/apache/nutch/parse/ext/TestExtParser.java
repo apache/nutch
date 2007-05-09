@@ -23,6 +23,7 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ProtocolException;
 
 import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
 import org.apache.hadoop.conf.Configuration;
@@ -112,13 +113,13 @@ public class TestExtParser extends TestCase {
       // check external parser that does 'cat'
       contentType = "application/vnd.nutch.example.cat";
       content.setContentType(contentType);
-      parse = new ParseUtil(conf).parseByExtensionId("parse-ext", content);
+      parse = new ParseUtil(conf).parseByExtensionId("parse-ext", content).get(content.getUrl());
       assertEquals(expectedText,parse.getText());
 
       // check external parser that does 'md5sum'
       contentType = "application/vnd.nutch.example.md5sum";
       content.setContentType(contentType);
-      parse = new ParseUtil(conf).parseByExtensionId("parse-ext", content);
+      parse = new ParseUtil(conf).parseByExtensionId("parse-ext", content).get(content.getUrl());
       assertTrue(parse.getText().startsWith(expectedMD5sum));
     }
   }

@@ -17,7 +17,7 @@
 package org.apache.nutch.parse.msexcel;
 
 // Nutch imports
-import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.parse.ms.MSBaseParser;
 import org.apache.nutch.protocol.Content;
 
@@ -37,7 +37,7 @@ public class MSExcelParser extends MSBaseParser {
   public static final String MIME_TYPE = "application/vnd.ms-excel";
 
   
-  public Parse getParse(Content content) {
+  public ParseResult getParse(Content content) {
     return getParse(new ExcelExtractor(), content);
   }
 

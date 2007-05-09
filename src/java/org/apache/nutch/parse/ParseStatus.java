@@ -185,6 +185,13 @@ public class ParseStatus extends VersionedWritable {
     return new EmptyParseImpl(this, conf);
   }
   
+  /** A convenience method. Creates an empty ParseResult,
+   * which contains this status.
+   */
+  public ParseResult getEmptyParseResult(String url, Configuration conf) {
+    return ParseResult.createParseResult(url, getEmptyParse(conf));
+  }
+  
   public String toString() {
     StringBuffer res = new StringBuffer();
     String name = null;
@@ -260,6 +267,10 @@ public class ParseStatus extends VersionedWritable {
 
     public String getText() {
       return "";
+    }
+    
+    public boolean isCanonical() {
+      return true;
     }
   }
 }

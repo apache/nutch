@@ -60,7 +60,7 @@ public class OOParser implements Parser {
     return conf;
   }
   
-  public Parse getParse(Content content) {
+  public ParseResult getParse(Content content) {
     String text = null;
     String title = null;
     Metadata metadata = new Metadata();
@@ -73,7 +73,7 @@ public class OOParser implements Parser {
             && raw.length != Integer.parseInt(contentLength)) {
           return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_TRUNCATED,
                   "Content truncated at "+raw.length
-            +" bytes. Parser can't handle incomplete files.").getEmptyParse(conf);
+            +" bytes. Parser can't handle incomplete files.").getEmptyParseResult(content.getUrl(), conf);
       }
       ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(raw));
       ZipEntry ze = null;
@@ -88,7 +88,7 @@ public class OOParser implements Parser {
     } catch (Exception e) { // run time exception
       e.printStackTrace(LogUtil.getWarnStream(LOG));
       return new ParseStatus(ParseStatus.FAILED,
-              "Can't be handled as OO document. " + e).getEmptyParse(conf);
+              "Can't be handled as OO document. " + e).getEmptyParseResult(content.getUrl(), conf);
     }
 
     title = metadata.get(Metadata.TITLE);
@@ -100,7 +100,7 @@ public class OOParser implements Parser {
 
     Outlink[] links = (Outlink[])outlinks.toArray(new Outlink[outlinks.size()]);
     ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title, links, metadata);
-    return new ParseImpl(text, parseData);
+    return ParseResult.createParseResult(content.getUrl(), new ParseImpl(text, parseData));
   }
   
   // extract as much plain text as possible.
@@ -206,7 +206,7 @@ public class OOParser implements Parser {
     fis.read(bytes);
     fis.close();
     Content c = new Content("local", "local", bytes, "application/vnd.oasis.opendocument.text", new Metadata(), conf);
-    Parse p = oo.getParse(c);
+    Parse p = oo.getParse(c).get(c.getUrl());
     System.out.println(p.getData());
     System.out.println("Text: '" + p.getText() + "'");
     /*

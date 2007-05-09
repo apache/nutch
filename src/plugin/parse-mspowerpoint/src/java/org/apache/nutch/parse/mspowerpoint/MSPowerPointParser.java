@@ -17,7 +17,7 @@
 package org.apache.nutch.parse.mspowerpoint;
 
 // Nutch imports
-import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.parse.ms.MSBaseParser;
 import org.apache.nutch.protocol.Content;
 
@@ -41,7 +41,7 @@ public class MSPowerPointParser extends MSBaseParser {
   public static final String MIME_TYPE = "application/vnd.ms-powerpoint";
 
 
-  public Parse getParse(final Content content) {
+  public ParseResult getParse(final Content content) {
     return getParse(new PPTExtractor(), content);
   }
   

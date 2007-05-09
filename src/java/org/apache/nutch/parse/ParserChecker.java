@@ -94,13 +94,18 @@ public class ParserChecker {
       LOG.info("contentType: "+contentType);
     }
 
-    Parse parse = new ParseUtil(conf).parse(content);
+    ParseResult parseResult = new ParseUtil(conf).parse(content);
 
-    System.out.print("---------\nParseData\n---------\n");
-    System.out.print(parse.getData().toString());
-    if (dumpText) {
-      System.out.print("---------\nParseText\n---------\n");
-      System.out.print(parse.getText());
+    for (java.util.Map.Entry<Text, Parse> entry : parseResult) {
+      Parse parse = entry.getValue();
+      System.out.print("---------\nUrl\n---------------\n");
+      System.out.print(entry.getKey());
+      System.out.print("---------\nParseData\n---------\n");
+      System.out.print(parse.getData().toString());
+      if (dumpText) {
+        System.out.print("---------\nParseText\n---------\n");
+        System.out.print(parse.getText());
+      }
     }
 
     System.exit(0);

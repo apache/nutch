@@ -34,9 +34,9 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
-import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.Outlink;
@@ -66,7 +66,7 @@ public class PdfParser implements Parser {
   public static final Log LOG = LogFactory.getLog("org.apache.nutch.parse.pdf");
   private Configuration conf;
 
-  public Parse getParse(Content content) {
+  public ParseResult getParse(Content content) {
 
     // in memory representation of pdf file
     PDDocument pdf = null;
@@ -84,7 +84,7 @@ public class PdfParser implements Parser {
             && raw.length != Integer.parseInt(contentLength)) {
           return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_TRUNCATED,
                   "Content truncated at "+raw.length
-            +" bytes. Parser can't handle incomplete pdf file.").getEmptyParse(getConf());
+            +" bytes. Parser can't handle incomplete pdf file.").getEmptyParseResult(content.getUrl(), getConf());
       }
 
       PDFParser parser = new PDFParser(new ByteArrayInputStream(raw));
@@ -121,17 +121,17 @@ public class PdfParser implements Parser {
 
     } catch (CryptographyException e) {
       return new ParseStatus(ParseStatus.FAILED,
-              "Error decrypting document. " + e).getEmptyParse(getConf());
+              "Error decrypting document. " + e).getEmptyParseResult(content.getUrl(), getConf());
     } catch (InvalidPasswordException e) {
       return new ParseStatus(ParseStatus.FAILED,
-              "Can't decrypt document - invalid password. " + e).getEmptyParse(getConf());
+              "Can't decrypt document - invalid password. " + e).getEmptyParseResult(content.getUrl(), getConf());
     } catch (Exception e) { // run time exception
         if (LOG.isWarnEnabled()) {
           LOG.warn("General exception in PDF parser: "+e.getMessage());
           e.printStackTrace(LogUtil.getWarnStream(LOG));        
         }
       return new ParseStatus(ParseStatus.FAILED,
-              "Can't be handled as pdf document. " + e).getEmptyParse(getConf());
+              "Can't be handled as pdf document. " + e).getEmptyParseResult(content.getUrl(), getConf());
     } finally {
       try {
         if (pdf != null)
@@ -154,7 +154,7 @@ public class PdfParser implements Parser {
                                         outlinks, content.getMetadata(),
                                         metadata);
     parseData.setConf(this.conf);
-    return new ParseImpl(text, parseData);
+    return ParseResult.createParseResult(content.getUrl(), new ParseImpl(text, parseData));
     // any filter?
     //return HtmlParseFilters.filter(content, parse, root);
   }

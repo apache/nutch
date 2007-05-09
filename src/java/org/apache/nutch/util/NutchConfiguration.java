@@ -39,8 +39,6 @@ public class NutchConfiguration {
   // for back-compatibility, add old aliases for these Writable classes
   // this may be removed after the 0.8 release
   static {
-    WritableName.addName(org.apache.nutch.fetcher.FetcherOutput.class,
-                         "FetcherOutput"); 
     WritableName.addName(org.apache.nutch.parse.ParseData.class, "ParseData"); 
     WritableName.addName(org.apache.nutch.parse.ParseText.class, "ParseText"); 
     WritableName.addName(org.apache.nutch.protocol.Content.class, "Content");

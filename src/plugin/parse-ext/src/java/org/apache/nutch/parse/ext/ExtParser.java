@@ -18,6 +18,7 @@
 package org.apache.nutch.parse.ext;
 
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.Parse;
@@ -65,14 +66,14 @@ public class ExtParser implements Parser {
 
   public ExtParser () { }
 
-  public Parse getParse(Content content) {
+  public ParseResult getParse(Content content) {
 
     String contentType = content.getContentType();
 
     String[] params = (String[]) TYPE_PARAMS_MAP.get(contentType);
     if (params == null)
       return new ParseStatus(ParseStatus.FAILED,
-                      "No external command defined for contentType: " + contentType).getEmptyParse(getConf());
+                      "No external command defined for contentType: " + contentType).getEmptyParseResult(content.getUrl(), getConf());
 
     String command = params[0];
     int timeout = Integer.parseInt(params[1]);
@@ -94,7 +95,7 @@ public class ExtParser implements Parser {
           return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_TRUNCATED,
                 "Content truncated at " + raw.length
             +" bytes. Parser can't handle incomplete "
-            + contentType + " file.").getEmptyParse(getConf());
+            + contentType + " file.").getEmptyParseResult(content.getUrl(), getConf());
       }
 
       ByteArrayOutputStream os = new ByteArrayOutputStream(BUFFER_SIZE);
@@ -114,12 +115,12 @@ public class ExtParser implements Parser {
       if (cr.getExitValue() != 0)
         return new ParseStatus(ParseStatus.FAILED,
                         "External command " + command
-                        + " failed with error: " + es.toString()).getEmptyParse(getConf());
+                        + " failed with error: " + es.toString()).getEmptyParseResult(content.getUrl(), getConf());
 
       text = os.toString();
 
     } catch (Exception e) { // run time exception
-      return new ParseStatus(e).getEmptyParse(getConf());
+      return new ParseStatus(e).getEmptyParseResult(content.getUrl(), getConf());
     }
 
     if (text == null)
@@ -134,7 +135,8 @@ public class ExtParser implements Parser {
     ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title,
                                         outlinks, content.getMetadata());
     parseData.setConf(this.conf);
-    return new ParseImpl(text, parseData);
+    return ParseResult.createParseResult(content.getUrl(), 
+                                         new ParseImpl(text, parseData));
   }
   
   public void setConf(Configuration conf) {

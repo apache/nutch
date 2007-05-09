@@ -33,6 +33,7 @@ import org.apache.hadoop.conf.Configuration;
 
 // Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseStatus;
@@ -76,7 +77,7 @@ public class RSSParser implements Parser {
      *            The content to parse (hopefully an RSS content stream)
      * @return A {@link ParseImpl}which implements the {@link Parse}interface.
      */
-    public Parse getParse(Content content) {
+    public ParseResult getParse(Content content) {
 
         List theRSSChannels = null;
 
@@ -101,7 +102,7 @@ public class RSSParser implements Parser {
               LOG.warn("nutch:parse-rss:RSSParser Exception: " + e.getMessage());
             }
             return new ParseStatus(ParseStatus.FAILED,
-                    "Can't be handled as rss document. " + e).getEmptyParse(getConf());
+                    "Can't be handled as rss document. " + e).getEmptyParseResult(content.getUrl(), getConf());
         }
 
         StringBuffer contentTitle = new StringBuffer(), indexText = new StringBuffer();
@@ -199,7 +200,7 @@ public class RSSParser implements Parser {
         ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS,
                 contentTitle.toString(), outlinks, content.getMetadata());
         parseData.setConf(this.conf);
-        return new ParseImpl(indexText.toString(), parseData);
+        return ParseResult.createParseResult(content.getUrl(), new ParseImpl(indexText.toString(), parseData));
     }
 
   public void setConf(Configuration conf) {
@@ -218,7 +219,7 @@ public class RSSParser implements Parser {
     parser.setConf(conf);
     Protocol protocol = new ProtocolFactory(conf).getProtocol(url);
     Content content = protocol.getProtocolOutput(new Text(url), new CrawlDatum()).getContent();
-    Parse parse = parser.getParse(content);
+    Parse parse = parser.getParse(content).get(content.getUrl());
     System.out.println("data: "+ parse.getData());
     System.out.println("text: "+parse.getText());
   }
