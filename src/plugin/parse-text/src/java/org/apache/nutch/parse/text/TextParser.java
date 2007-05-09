@@ -26,7 +26,7 @@ import org.apache.hadoop.conf.Configuration;
 public class TextParser implements Parser {
   private Configuration conf;
 
-  public Parse getParse(Content content) {
+  public ParseResult getParse(Content content) {
 
     // ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, "", new
     // Outlink[0], metadata);
@@ -38,7 +38,7 @@ public class TextParser implements Parser {
       try { // try to use named encoding
         text = new String(content.getContent(), encoding);
       } catch (java.io.UnsupportedEncodingException e) {
-        return new ParseStatus(e).getEmptyParse(getConf());
+        return new ParseStatus(e).getEmptyParseResult(content.getUrl(), getConf());
       }
     } else {
       // FIXME: implement charset detector. This code causes problem when
@@ -48,7 +48,7 @@ public class TextParser implements Parser {
     ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, "",
         OutlinkExtractor.getOutlinks(text, getConf()), content.getMetadata());
     parseData.setConf(this.conf);
-    return new ParseImpl(text, parseData);
+    return ParseResult.createParseResult(content.getUrl(), new ParseImpl(text, parseData));
     
   }
 

@@ -24,7 +24,6 @@ import junit.framework.TestCase;
 // Nutch imports
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.ParserFactory;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
@@ -53,7 +52,7 @@ public class TestHTMLLanguageParser extends TestCase {
       /* loop through the test documents and validate result */
       for (int t = 0; t < docs.length; t++) {
         Content content = getContent(docs[t]);
-        Parse parse = parser.parse(content);
+        Parse parse = parser.parse(content).get(content.getUrl());
         assertEquals(metalanguages[t], (String) parse.getData().getParseMeta().get(Metadata.LANGUAGE));
       }
     } catch (Exception e) {

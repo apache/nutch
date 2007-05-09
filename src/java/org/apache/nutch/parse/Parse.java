@@ -28,4 +28,7 @@ public interface Parse {
 
   /** Other data extracted from the page. */
   ParseData getData();
+  
+  /** Indicates if the parse is coming from a url or a sub-url */
+  boolean isCanonical();
 }

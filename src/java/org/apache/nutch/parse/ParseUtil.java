@@ -59,10 +59,10 @@ public class ParseUtil {
    * <code>WARNING</code> level, and an empty parse is returned.
    *
    * @param content The content to try and parse.
-   * @return A {@link Parse} object containing the parsed data.
+   * @return &lt;key, {@link Parse}&gt; pairs.
    * @throws ParseException If no suitable parser is found to perform the parse.
    */
-  public Parse parse(Content content) throws ParseException {
+  public ParseResult parse(Content content) throws ParseException {
     Parser[] parsers = null;
     
     try {
@@ -76,25 +76,21 @@ public class ParseUtil {
       throw new ParseException(e.getMessage());
     }
     
-    Parse parse = null;
+    ParseResult parseResult = null;
     for (int i=0; i<parsers.length; i++) {
       if (LOG.isDebugEnabled()) {
         LOG.debug("Parsing [" + content.getUrl() + "] with [" + parsers[i] + "]");
       }
-      parse = parsers[i].getParse(content);
-      if ((parse != null) && (parse.getData().getStatus().isSuccess())) {
-        return parse;
-      }
+      parseResult = parsers[i].getParse(content);
+      if (parseResult != null && !parseResult.isEmpty())
+        return parseResult;
     }
    
     if (LOG.isWarnEnabled()) { 
       LOG.warn("Unable to successfully parse content " + content.getUrl() +
                " of type " + content.getContentType());
     }
-
-    ParseStatus ps = (parse.getData() != null) ? parse.getData().getStatus() : null;
-    return (ps == null) ? new ParseStatus().getEmptyParse(this.conf)
-                        : ps.getEmptyParse(this.conf);
+    return null;
   }
     
   /**
@@ -110,15 +106,14 @@ public class ParseUtil {
    *              to parse the specified content.
    * @param content The content to parse.
    *
-   * @return A {@link Parse} object if the parse is successful, otherwise,
-   *         a <code>ParseStatus.getEmptyParse()</code>.
+   * @return &lt;key, {@link Parse}&gt; pairs if the parse is successful, otherwise,
+   *         a single &lt;key, <code>ParseStatus.getEmptyParse()</code>&gt; pair.
    *
    * @throws ParseException If there is no suitable {@link Parser} found
    *                        to perform the parse.
    */
-  public Parse parseByExtensionId(String extId, Content content)
+  public ParseResult parseByExtensionId(String extId, Content content)
   throws ParseException {
-    Parse parse = null;
     Parser p = null;
     
     try {
@@ -131,16 +126,15 @@ public class ParseUtil {
       throw new ParseException(e.getMessage());
     }
     
-    parse = p.getParse(content);
-    
-    if (parse != null && parse.getData().getStatus().isSuccess()) {
-      return parse;
+    ParseResult parseResult = p.getParse(content);
+    if (parseResult != null && !parseResult.isEmpty()) {
+      return parseResult;
     } else {
       if (LOG.isWarnEnabled()) {
         LOG.warn("Unable to successfully parse content " + content.getUrl() +
-                 " of type " + content.getContentType());
-      }
-      return new ParseStatus().getEmptyParse(this.conf);
+            " of type " + content.getContentType());
+      }  
+      return null;
     }
   }  
   

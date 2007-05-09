@@ -29,9 +29,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.parse.Outlink;
-import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
+import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
@@ -52,7 +52,7 @@ public class ZipParser implements Parser {
   public ZipParser() {
   }
 
-  public Parse getParse(final Content content) {
+  public ParseResult getParse(final Content content) {
 
     String resultText = null;
     String resultTitle = null;
@@ -74,7 +74,7 @@ public class ZipParser implements Parser {
             ParseStatus.FAILED_TRUNCATED, "Content truncated at "
                 + contentInBytes.length
                 + " bytes. Parser can't handle incomplete pdf file.")
-            .getEmptyParse(getConf());
+            .getEmptyParseResult(content.getUrl(), getConf());
       }
 
       ZipTextExtractor extractor = new ZipTextExtractor(getConf());
@@ -85,7 +85,7 @@ public class ZipParser implements Parser {
 
     } catch (Exception e) {
       return new ParseStatus(ParseStatus.FAILED,
-          "Can't be handled as Zip document. " + e).getEmptyParse(getConf());
+          "Can't be handled as Zip document. " + e).getEmptyParseResult(content.getUrl(), getConf());
     }
 
     if (resultText == null) {
@@ -103,7 +103,7 @@ public class ZipParser implements Parser {
     parseData.setConf(this.conf);
 
     if (LOG.isTraceEnabled()) { LOG.trace("Zip file parsed sucessfully !!"); }
-    return new ParseImpl(resultText, parseData);
+    return ParseResult.createParseResult(content.getUrl(), new ParseImpl(resultText, parseData));
   }
 
   public void setConf(Configuration conf) {

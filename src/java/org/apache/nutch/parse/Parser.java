@@ -32,6 +32,25 @@ public interface Parser extends Pluggable, Configurable {
   /** The name of the extension point. */
   public final static String X_POINT_ID = Parser.class.getName();
 
-  /** Creates the parse for some content. */
-  Parse getParse(Content c);
+  /** 
+   * <p>
+   * This method parses the given content and returns a map of
+   * &lt;key, parse&gt; pairs. {@link Parse} instances will be persisted 
+   * under the given key.
+   * </p>
+   * <p>
+   * Note: Meta-redirects should be followed only when they are coming from
+   * the original URL. That is: <br> 
+   * Assume fetcher is in parsing mode and is currently processing
+   * foo.bar.com/redirect.html. If this url contains a meta redirect
+   * to another url, fetcher should only follow the redirect if the map
+   * contains an entry of the form &lt;"foo.bar.com/redirect.html", 
+   * {@link Parse} with a {@link ParseStatus} indicating the redirect&gt;.
+   * </p>
+   * 
+   * @param c Content to be parsed
+   * @return a map containing &lt;key, parse&gt; pairs
+   * @since NUTCH-443
+   */
+   ParseResult getParse(Content c);
 }

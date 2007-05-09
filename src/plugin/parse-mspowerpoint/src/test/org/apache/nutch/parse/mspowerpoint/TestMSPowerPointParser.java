@@ -128,7 +128,8 @@ public class TestMSPowerPointParser extends TestCase {
   public void testContent() throws Exception {
 
     Parse parse = new ParseUtil(NutchConfiguration.create())
-                        .parseByExtensionId("parse-mspowerpoint", this.content);
+                        .parseByExtensionId("parse-mspowerpoint", this.content)
+                        .get(this.content.getUrl());
 
     ParseData data = parse.getData();
     String text = parse.getText();
@@ -166,7 +167,8 @@ public class TestMSPowerPointParser extends TestCase {
   public void testMeta() throws Exception {
 
     Parse parse = new ParseUtil(NutchConfiguration.create())
-                        .parseByExtensionId("parse-mspowerpoint", content);
+                        .parseByExtensionId("parse-mspowerpoint", content)
+                        .get(content.getUrl());
     
     ParseData data = parse.getData();
 

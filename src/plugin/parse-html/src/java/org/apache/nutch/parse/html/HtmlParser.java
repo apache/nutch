@@ -18,6 +18,7 @@
 package org.apache.nutch.parse.html;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.io.*;
@@ -104,14 +105,14 @@ public class HtmlParser implements Parser {
   
   private String cachingPolicy;
   
-  public Parse getParse(Content content) {
+  public ParseResult getParse(Content content) {
     HTMLMetaTags metaTags = new HTMLMetaTags();
 
     URL base;
     try {
       base = new URL(content.getBaseUrl());
     } catch (MalformedURLException e) {
-      return new ParseStatus(e).getEmptyParse(getConf());
+      return new ParseStatus(e).getEmptyParseResult(content.getUrl(), getConf());
     }
 
     String text = "";
@@ -167,14 +168,14 @@ public class HtmlParser implements Parser {
       if (LOG.isTraceEnabled()) { LOG.trace("Parsing..."); }
       root = parse(input);
     } catch (IOException e) {
-      return new ParseStatus(e).getEmptyParse(getConf());
+      return new ParseStatus(e).getEmptyParseResult(content.getUrl(), getConf());
     } catch (DOMException e) {
-      return new ParseStatus(e).getEmptyParse(getConf());
+      return new ParseStatus(e).getEmptyParseResult(content.getUrl(), getConf());
     } catch (SAXException e) {
-      return new ParseStatus(e).getEmptyParse(getConf());
+      return new ParseStatus(e).getEmptyParseResult(content.getUrl(), getConf());
     } catch (Exception e) {
       e.printStackTrace(LogUtil.getWarnStream(LOG));
-      return new ParseStatus(e).getEmptyParse(getConf());
+      return new ParseStatus(e).getEmptyParseResult(content.getUrl(), getConf());
     }
       
     // get meta directives
@@ -213,14 +214,18 @@ public class HtmlParser implements Parser {
     ParseData parseData = new ParseData(status, title, outlinks,
                                         content.getMetadata(), metadata);
     parseData.setConf(this.conf);
-    Parse parse = new ParseImpl(text, parseData);
+    ParseResult parseResult = ParseResult.createParseResult(content.getUrl(), 
+                                                 new ParseImpl(text, parseData));
 
     // run filters on parse
-    parse = this.htmlParseFilters.filter(content, parse, metaTags, root);
+    ParseResult filteredParse = this.htmlParseFilters.filter(content, parseResult, 
+                                                             metaTags, root);
     if (metaTags.getNoCache()) {             // not okay to cache
-      parse.getData().getParseMeta().set(Nutch.CACHING_FORBIDDEN_KEY, cachingPolicy);
+      for (Map.Entry<org.apache.hadoop.io.Text, Parse> entry : filteredParse) 
+        entry.getValue().getData().getParseMeta().set(Nutch.CACHING_FORBIDDEN_KEY, 
+                                                      cachingPolicy);
     }
-    return parse;
+    return filteredParse;
   }
 
   private DocumentFragment parse(InputSource input) throws Exception {
@@ -291,7 +296,7 @@ public class HtmlParser implements Parser {
     HtmlParser parser = new HtmlParser();
     parser.setConf(conf);
     Parse parse = parser.getParse(
-            new Content(url, url, bytes, "text/html", new Metadata(), conf));
+            new Content(url, url, bytes, "text/html", new Metadata(), conf)).get(url);
     System.out.println("data: "+parse.getData());
 
     System.out.println("text: "+parse.getText());

@@ -88,7 +88,7 @@ public class TestSWFParser extends TestCase {
       protocol = new ProtocolFactory(conf).getProtocol(urlString);
       content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
 
-      parse = new ParseUtil(conf).parse(content);
+      parse = new ParseUtil(conf).parse(content).get(content.getUrl());
 
       String text = parse.getText().replaceAll("[ \t\r\n]+", " ").trim();
       assertTrue(sampleTexts[i].equals(text));

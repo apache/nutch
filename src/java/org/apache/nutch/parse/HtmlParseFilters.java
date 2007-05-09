@@ -22,6 +22,7 @@ import java.util.HashMap;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.plugin.*;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
 
 import org.w3c.dom.DocumentFragment;
 
@@ -56,13 +57,20 @@ public class HtmlParseFilters {
     }                  
 
   /** Run all defined filters. */
-  public Parse filter(Content content, Parse parse, HTMLMetaTags metaTags, DocumentFragment doc) {
+  public ParseResult filter(Content content, ParseResult parseResult, HTMLMetaTags metaTags, DocumentFragment doc) {
 
-    for (int i = 0 ; i < this.htmlParseFilters.length; i++) {
-      parse = this.htmlParseFilters[i].filter(content, parse, metaTags, doc);
-      if (!parse.getData().getStatus().isSuccess()) break;
+    ParseResult filteredParseResult = new ParseResult(content.getUrl());
+    
+    for (java.util.Map.Entry<Text, Parse> entry : parseResult) {
+      Parse parse = entry.getValue();
+      for (int i = 0 ; i < this.htmlParseFilters.length; i++) {
+        parse = this.htmlParseFilters[i].filter(content, parse, metaTags, doc);
+        if (!parse.getData().getStatus().isSuccess()) break;
+      }
+      filteredParseResult.put(entry.getKey(), 
+                              new ParseText(parse.getText()), parse.getData());
     }
 
-    return parse;
+    return filteredParseResult;
   }
 }

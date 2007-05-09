@@ -21,6 +21,7 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.*;
+import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -32,6 +33,7 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.util.StringUtils;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.SignatureFactory;
@@ -662,54 +664,83 @@ public class Fetcher2 extends Configured implements MapRunnable {
         }
       }
 
-      Parse parse = null;
+      /* Note: Fetcher will only follow meta-redirects coming from the
+       * original URL. */ 
+      ParseResult parseResult = null;
       if (parsing && status == CrawlDatum.STATUS_FETCH_SUCCESS) {
-        ParseStatus parseStatus;
         try {
-          parse = this.parseUtil.parse(content);
-          parseStatus = parse.getData().getStatus();
+          parseResult = this.parseUtil.parse(content);
         } catch (Exception e) {
-          parseStatus = new ParseStatus(e);
+          LOG.warn("Error parsing: " + key + ": " + StringUtils.stringifyException(e));
         }
-        if (!parseStatus.isSuccess()) {
-          if (LOG.isWarnEnabled()) {
-            LOG.warn("Error parsing: " + key + ": " + parseStatus);
+
+        if (parseResult != null) {
+          for (Entry<Text, Parse> entry : parseResult) {
+            Text url = entry.getKey();
+            Parse parse = entry.getValue();
+            ParseStatus parseStatus = parse.getData().getStatus();
+
+            if (!parseStatus.isSuccess()) {
+              LOG.warn("Error parsing: " + key + ": " + parseStatus);
+              parse = parseStatus.getEmptyParse(getConf());
+            }
+
+            // Calculate page signature. For non-parsing fetchers this will
+            // be done in ParseSegment
+            byte[] signature = 
+              SignatureFactory.getSignature(getConf()).calculate(content, parse);
+            // Ensure segment name and score are in parseData metadata
+            parse.getData().getContentMeta().set(Nutch.SEGMENT_NAME_KEY, 
+                segmentName);
+            parse.getData().getContentMeta().set(Nutch.SIGNATURE_KEY, 
+                StringUtil.toHexString(signature));
+            // Pass fetch time to content meta
+            parse.getData().getContentMeta().set(Nutch.FETCH_TIME_KEY,
+                Long.toString(datum.getFetchTime()));
+            if (url.equals(key))
+              datum.setSignature(signature);
+            try {
+              scfilters.passScoreAfterParsing(url, content, parse);
+            } catch (Exception e) {
+              if (LOG.isWarnEnabled()) {
+                e.printStackTrace(LogUtil.getWarnStream(LOG));
+                LOG.warn("Couldn't pass score, url " + key + " (" + e + ")");
+              }
+            }
           }
-          parse = parseStatus.getEmptyParse(getConf());
+        } else {
+          byte[] signature = 
+            SignatureFactory.getSignature(getConf()).calculate(content, 
+                new ParseStatus().getEmptyParse(conf));
+          datum.setSignature(signature);
         }
-        // Calculate page signature. For non-parsing fetchers this will
-        // be done in ParseSegment
-        byte[] signature = SignatureFactory.getSignature(getConf()).calculate(content, parse);
-        metadata.set(Nutch.SIGNATURE_KEY, StringUtil.toHexString(signature));
-        datum.setSignature(signature);
-        // Ensure segment name and score are in parseData metadata
-        parse.getData().getContentMeta().set(Nutch.SEGMENT_NAME_KEY, segmentName);
-        parse.getData().getContentMeta().set(Nutch.SIGNATURE_KEY, StringUtil.toHexString(signature));
-        try {
-          scfilters.passScoreAfterParsing(key, content, parse);
-        } catch (Exception e) {
-          if (LOG.isWarnEnabled()) {
-            e.printStackTrace(LogUtil.getWarnStream(LOG));
-            LOG.warn("Couldn't pass score, url " + key + " (" + e + ")");
-          }
-        }
-        
       }
 
       try {
-        output.collect
-          (key,
-           new FetcherOutput(datum,
-                             storingContent ? content : null,
-                             parse != null ? new ParseImpl(parse) : null));
+        output.collect(key, new ObjectWritable(datum));
+        if (storingContent)
+          output.collect(key, new ObjectWritable(content));
+        if (parseResult != null) {
+          for (Entry<Text, Parse> entry : parseResult) {
+            output.collect(entry.getKey(), 
+                new ObjectWritable(new ParseImpl(entry.getValue())));
+          }
+        }
       } catch (IOException e) {
         if (LOG.isFatalEnabled()) {
           e.printStackTrace(LogUtil.getFatalStream(LOG));
           LOG.fatal("fetcher caught:"+e.toString());
         }
       }
-      if (parse != null) return parse.getData().getStatus();
-      else return null;
+
+      // return parse status if it exits
+      if (parseResult != null && !parseResult.isEmpty()) {
+        Parse p = parseResult.get(content.getUrl());
+        if (p != null) {
+          return p.getData().getStatus();
+        }
+      }
+      return null;
     }
     
   }
@@ -832,7 +863,7 @@ public class Fetcher2 extends Configured implements MapRunnable {
     job.setOutputPath(segment);
     job.setOutputFormat(FetcherOutputFormat.class);
     job.setOutputKeyClass(Text.class);
-    job.setOutputValueClass(FetcherOutput.class);
+    job.setOutputValueClass(ObjectWritable.class);
 
     JobClient.runJob(job);
     if (LOG.isInfoEnabled()) { LOG.info("Fetcher: done"); }

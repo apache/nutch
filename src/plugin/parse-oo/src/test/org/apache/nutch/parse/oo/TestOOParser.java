@@ -90,7 +90,7 @@ public class TestOOParser extends TestCase {
       protocol = factory.getProtocol(urlString);
       content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
 
-      parse = parser.getParse(content);
+      parse = parser.getParse(content).get(content.getUrl());
 
       String text = parse.getText().replaceAll("[ \t\r\n]+", " ");
       assertTrue(expectedText.equals(text));

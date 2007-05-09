@@ -61,7 +61,7 @@ public class SWFParser implements Parser {
     return conf;
   }
 
-  public Parse getParse(Content content) {
+  public ParseResult getParse(Content content) {
 
     String text = null;
     Vector outlinks = new Vector();
@@ -74,7 +74,7 @@ public class SWFParser implements Parser {
       if (contentLength != null && raw.length != Integer.parseInt(contentLength)) {
         return new ParseStatus(ParseStatus.FAILED, ParseStatus.FAILED_TRUNCATED,
                                "Content truncated at " + raw.length +
-                               " bytes. Parser can't handle incomplete files.").getEmptyParse(conf);
+                               " bytes. Parser can't handle incomplete files.").getEmptyParseResult(content.getUrl(), getConf());
       }
       ExtractText extractor = new ExtractText();
 
@@ -103,14 +103,14 @@ public class SWFParser implements Parser {
       }
     } catch (Exception e) { // run time exception
       e.printStackTrace(LogUtil.getErrorStream(LOG));
-      return new ParseStatus(ParseStatus.FAILED, "Can't be handled as SWF document. " + e).getEmptyParse(conf);
-    } finally {}
+      return new ParseStatus(ParseStatus.FAILED, "Can't be handled as SWF document. " + e).getEmptyParseResult(content.getUrl(), getConf());
+    } 
     if (text == null) text = "";
 
     Outlink[] links = (Outlink[]) outlinks.toArray(new Outlink[outlinks.size()]);
     ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, "", links,
                                         content.getMetadata());
-    return new ParseImpl(text, parseData);
+    return ParseResult.createParseResult(content.getUrl(), new ParseImpl(text, parseData));
   }
 
   /**
@@ -122,10 +122,11 @@ public class SWFParser implements Parser {
     byte[] buf = new byte[in.available()];
     in.read(buf);
     SWFParser parser = new SWFParser();
-    Parse p = parser.getParse(new Content("file:" + args[0], "file:" + args[0],
+    ParseResult parseResult = parser.getParse(new Content("file:" + args[0], "file:" + args[0],
                                           buf, "application/x-shockwave-flash",
                                           new Metadata(),
                                           NutchConfiguration.create()));
+    Parse p = parseResult.get("file:" + args[0]);
     System.out.println("Parse Text:");
     System.out.println(p.getText());
     System.out.println("Parse Data:");

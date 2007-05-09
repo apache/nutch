@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.conf.*;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.protocol.*;
@@ -33,6 +34,7 @@ import org.apache.hadoop.fs.Path;
 
 import java.io.*;
 import java.util.*;
+import java.util.Map.Entry;
 
 /* Parse content in a segment. */
 public class ParseSegment extends Configured implements Mapper, Reducer {
@@ -69,35 +71,44 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
     Content content = (Content) value;
     content.forceInflate();
 
-    Parse parse = null;
-    ParseStatus status;
+    ParseResult parseResult = null;
     try {
-      parse = new ParseUtil(getConf()).parse(content);
-      status = parse.getData().getStatus();
+      parseResult = new ParseUtil(getConf()).parse(content);
     } catch (Exception e) {
-      status = new ParseStatus(e);
+      LOG.warn("Error parsing: " + key + ": " + StringUtils.stringifyException(e));
+      return;
     }
 
-    // compute the new signature
-    byte[] signature = SignatureFactory.getSignature(getConf()).calculate(content, parse);
-    if (parse != null) {
-      parse.getData().getContentMeta().set(Nutch.SIGNATURE_KEY, StringUtil.toHexString(signature));
-      parse.getData().getContentMeta().set(Nutch.SEGMENT_NAME_KEY, getConf().get(Nutch.SEGMENT_NAME_KEY));
-    }
-    
-    if (status.isSuccess()) {
+    for (Entry<Text, Parse> entry : parseResult) {
+      Text url = entry.getKey();
+      Parse parse = entry.getValue();
+      ParseStatus parseStatus = parse.getData().getStatus();
+      
+      if (!parseStatus.isSuccess()) {
+        LOG.warn("Error parsing: " + key + ": " + parseStatus);
+        parse = parseStatus.getEmptyParse(getConf());
+      }
+
+      // pass segment name to parse data
+      parse.getData().getContentMeta().set(Nutch.SEGMENT_NAME_KEY, 
+                                           getConf().get(Nutch.SEGMENT_NAME_KEY));
+
+      // compute the new signature
+      byte[] signature = 
+        SignatureFactory.getSignature(getConf()).calculate(content, parse); 
+      parse.getData().getContentMeta().set(Nutch.SIGNATURE_KEY, 
+          StringUtil.toHexString(signature));
+      
       try {
-        scfilters.passScoreAfterParsing((Text)key, content, parse);
+        scfilters.passScoreAfterParsing(url, content, parse);
       } catch (ScoringFilterException e) {
         if (LOG.isWarnEnabled()) {
           e.printStackTrace(LogUtil.getWarnStream(LOG));
-          LOG.warn("Error passing score: "+key+": "+e.getMessage());
+          LOG.warn("Error passing score: "+ url +": "+e.getMessage());
         }
-        return;
       }
-      output.collect(key, new ParseImpl(parse.getText(), parse.getData()));
-    } else if (LOG.isWarnEnabled()) {
-      LOG.warn("Error parsing: " + key + ": "+status.toString());
+      output.collect(url, new ParseImpl(new ParseText(parse.getText()), 
+                                        parse.getData(), parse.isCanonical()));
     }
   }
 

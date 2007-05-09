@@ -35,6 +35,7 @@ import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
+import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
@@ -141,11 +142,11 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     }
   }
   
-  public Parse getParse(Content c) {
+  public ParseResult getParse(Content c) {
     String type = c.getContentType();
     if (type != null && !type.trim().equals("") && !type.toLowerCase().startsWith("application/x-javascript"))
       return new ParseStatus(ParseStatus.FAILED_INVALID_FORMAT,
-              "Content not JavaScript: '" + type + "'").getEmptyParse(getConf());
+              "Content not JavaScript: '" + type + "'").getEmptyParseResult(c.getUrl(), getConf());
     String script = new String(c.getContent());
     Outlink[] outlinks = getJSLinks(script, "", c.getUrl());
     if (outlinks == null) outlinks = new Outlink[0];
@@ -162,8 +163,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     ParseData pd = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks,
                                  c.getMetadata());
     pd.setConf(this.conf);
-    Parse parse = new ParseImpl(script, pd);
-    return parse;
+    return ParseResult.createParseResult(c.getUrl(), new ParseImpl(script, pd));
   }
   
   private static final String STRING_PATTERN = "(\\\\*(?:\"|\'))([^\\s\"\']+?)(?:\\1)";

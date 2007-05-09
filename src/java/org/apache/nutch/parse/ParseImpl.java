@@ -29,33 +29,43 @@ import org.apache.hadoop.conf.Configurable;
 public class ParseImpl implements Parse, Writable, Configurable {
   private ParseText text;
   private ParseData data;
+  private boolean isCanonical;
   private Configuration conf;
 
   public ParseImpl() {}
 
   public ParseImpl(Parse parse) {
-    this(parse.getText(), parse.getData());
+    this(new ParseText(parse.getText()), parse.getData(), true);
   }
 
   public ParseImpl(String text, ParseData data) {
-    this(new ParseText(text), data);
+    this(new ParseText(text), data, true);
+  }
+  
+  public ParseImpl(ParseText text, ParseData data) {
+    this(text, data, true);
   }
 
-  public ParseImpl(ParseText text, ParseData data) {
+  public ParseImpl(ParseText text, ParseData data, boolean isCanonical) {
     this.text = text;
     this.data = data;
+    this.isCanonical = isCanonical;
   }
 
   public String getText() { return text.getText(); }
 
   public ParseData getData() { return data; }
+
+  public boolean isCanonical() { return isCanonical; }
   
   public final void write(DataOutput out) throws IOException {
+    out.writeBoolean(isCanonical);
     text.write(out);
     data.write(out);
   }
 
   public void readFields(DataInput in) throws IOException {
+    isCanonical = in.readBoolean();
     text = new ParseText();
     text.readFields(in);
 
@@ -79,5 +89,6 @@ public class ParseImpl implements Parse, Writable, Configurable {
   public Configuration getConf() {
     return this.conf;
   }
+
 
 }

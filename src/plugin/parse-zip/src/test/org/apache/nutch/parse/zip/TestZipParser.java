@@ -23,6 +23,7 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ProtocolException;
 
 import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
 import org.apache.hadoop.conf.Configuration;
@@ -70,7 +71,7 @@ public class TestZipParser extends TestCase {
 
       protocol = new ProtocolFactory(conf).getProtocol(urlString);
       content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
-      parse = new ParseUtil(conf).parseByExtensionId("parse-zip",content);
+      parse = new ParseUtil(conf).parseByExtensionId("parse-zip",content).get(content.getUrl());
       assertTrue(parse.getText().equals(expectedText));
     }
   }

@@ -24,6 +24,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 import org.apache.hadoop.io.MapFile;
+import org.apache.hadoop.io.ObjectWritable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.Text;
@@ -34,6 +35,7 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.util.Progressable;
 
+import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseOutputFormat;
 import org.apache.nutch.protocol.Content;
 
@@ -76,18 +78,14 @@ public class FetcherOutputFormat implements OutputFormat {
         public void write(WritableComparable key, Writable value)
           throws IOException {
 
-          FetcherOutput fo = (FetcherOutput)value;
+          Writable w = (Writable)((ObjectWritable)value).get();
           
-          fetchOut.append(key, fo.getCrawlDatum());
-
-          if (fo.getContent() != null) {
-            contentOut.append(key, fo.getContent());
-          }
-
-          if (fo.getParse() != null) {
-            parseOut.write(key, fo.getParse());
-          }
-
+          if (w instanceof CrawlDatum)
+            fetchOut.append(key, w);
+          else if (w instanceof Content)
+            contentOut.append(key, w);
+          else if (w instanceof Parse)
+            parseOut.write(key, w);
         }
 
         public void close(Reporter reporter) throws IOException {

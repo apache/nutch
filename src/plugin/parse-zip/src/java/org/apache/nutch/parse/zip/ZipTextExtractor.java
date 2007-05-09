@@ -38,6 +38,7 @@ import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseUtil;
+import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.protocol.Content;
@@ -97,7 +98,7 @@ private Configuration conf;
             metadata.set(Response.CONTENT_LENGTH, Long.toString(entry.getSize()));
             metadata.set(Response.CONTENT_TYPE, contentType);
             Content content = new Content(newurl, base, b, contentType, metadata, this.conf);
-            Parse parse = new ParseUtil(this.conf).parse(content);
+            Parse parse = new ParseUtil(this.conf).parse(content).get(content.getUrl());
             ParseData theParseData = parse.getData();
             Outlink[] theOutlinks = theParseData.getOutlinks();
             
