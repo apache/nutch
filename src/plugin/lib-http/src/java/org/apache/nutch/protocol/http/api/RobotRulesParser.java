@@ -389,15 +389,17 @@ public class RobotRulesParser implements Configurable {
       } else if ( (line.length() >= 12)
                   && (line.substring(0, 12).equalsIgnoreCase("Crawl-Delay:"))) {
         doneAgents = true;
-        long crawlDelay = -1;
-        String delay = line.substring("Crawl-Delay:".length(), line.length()).trim();
-        if (delay.length() > 0) {
-          try {
-            crawlDelay = Long.parseLong(delay) * 1000; // sec to millisec
-          } catch (Exception e) {
-            LOG.info("can not parse Crawl-Delay:" + e.toString());
+        if (addRules) {
+          long crawlDelay = -1;
+          String delay = line.substring("Crawl-Delay:".length(), line.length()).trim();
+          if (delay.length() > 0) {
+            try {
+              crawlDelay = Long.parseLong(delay) * 1000; // sec to millisec
+            } catch (Exception e) {
+              LOG.info("can not parse Crawl-Delay:" + e.toString());
+            }
+            currentRules.setCrawlDelay(crawlDelay);
           }
-          currentRules.setCrawlDelay(crawlDelay);
         }
       }
     }
@@ -500,7 +502,7 @@ public class RobotRulesParser implements Configurable {
 
   /** command-line main for testing */
   public static void main(String[] argv) {
-    if (argv.length != 3) {
+    if (argv.length < 3) {
       System.out.println("Usage:");
       System.out.println("   java <robots-file> <url-file> <agent-name>+");
       System.out.println("");
@@ -513,7 +515,7 @@ public class RobotRulesParser implements Configurable {
     try { 
       FileInputStream robotsIn= new FileInputStream(argv[0]);
       LineNumberReader testsIn= new LineNumberReader(new FileReader(argv[1]));
-      String[] robotNames= new String[argv.length - 1];
+      String[] robotNames= new String[argv.length - 2];
 
       for (int i= 0; i < argv.length - 2; i++) 
         robotNames[i]= argv[i+2];
