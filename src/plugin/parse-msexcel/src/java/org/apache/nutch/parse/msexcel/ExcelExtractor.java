@@ -40,10 +40,10 @@ class ExcelExtractor extends MSExtractor {
   
   protected String extractText(InputStream input) throws Exception {
     
-    String resultText = "";
+    StringBuilder resultText = new StringBuilder();
     HSSFWorkbook wb = new HSSFWorkbook(input);
     if (wb == null) {
-      return resultText;
+      return resultText.toString();
     }
     
     HSSFSheet sheet;
@@ -69,25 +69,24 @@ class ExcelExtractor extends MSExtractor {
         for (int k=0; k<cNum; k++) {
           if ((cell = row.getCell((short) k)) != null) {
             /*if(HSSFDateUtil.isCellDateFormatted(cell) == true) {
-                resultText += cell.getDateCellValue().toString() + " ";
+                resultText.append(cell.getDateCellValue().toString())
               } else
              */
             if (cell.getCellType() == HSSFCell.CELL_TYPE_STRING) {
-              resultText += cell.getStringCellValue() + " ";
+              resultText.append(cell.getStringCellValue()).append(" ");
             } else if (cell.getCellType() == HSSFCell.CELL_TYPE_NUMERIC) {
-              Double d = new Double(cell.getNumericCellValue());
-              resultText += d.toString() + " ";
+              double d = cell.getNumericCellValue();
+              resultText.append(d).append(" ");
             }
             /* else if(cell.getCellType() == HSSFCell.CELL_TYPE_FORMULA){
-                 resultText += cell.getCellFormula() + " ";
+                 resultText.append(cell.getCellFormula());
                } 
              */
           }
         }
       }
     }
-    return resultText;
+    return resultText.toString();
   }
   
 }
-
