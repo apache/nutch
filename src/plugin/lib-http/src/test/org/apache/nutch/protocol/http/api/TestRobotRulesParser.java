@@ -262,6 +262,26 @@ public class TestRobotRulesParser extends TestCase {
       }
     }
   }
+  
+  public void testCrawlDelay() {
+    RobotRulesParser p = new RobotRulesParser(new String[] { "nutchbot" });
+    String delayRule1 = "User-agent: nutchbot" + CR +
+                        "Crawl-delay: 10" + CR +
+                        "User-agent: foobot" + CR +
+                        "Crawl-delay: 20" + CR +
+                        "User-agent: *" + CR + 
+                        "Disallow:/baz" + CR;
+    String delayRule2 = "User-agent: foobot" + CR +
+                        "Crawl-delay: 20" + CR +
+                        "User-agent: *" + CR + 
+                        "Disallow:/baz" + CR;
+    RobotRuleSet rules = p.parseRules(delayRule1.getBytes());
+    long crawlDelay = rules.getCrawlDelay();
+    assertTrue("testing crawl delay for agent nutchbot - rule 1", (crawlDelay == 10000));
+    rules = p.parseRules(delayRule2.getBytes());
+    crawlDelay = rules.getCrawlDelay();
+    assertTrue("testing crawl delay for agent nutchbot - rule 2", (crawlDelay == -1));
+  }
 
   // helper
 
