@@ -66,7 +66,7 @@ See http://forrest.apache.org/docs/linking.html for more info.
 
   <external-refs>
     <lucene    href="http://lucene.apache.org/java/" />
-    <nightly-api href="http://lucene.apache.org/nutch/nutch-nightly/docs/api/index.html" />
+    <nightly-api href="http://lucene.zones.apache.org:8080/hudson/job/Nutch-Nightly/ws/trunk/build/docs/api/index.html" />
     <hadoop    href="http://lucene.apache.org/hadoop/" />
     <solr      href="http://incubator.apache.org/solr/" />
     <wiki      href="http://wiki.apache.org/nutch/" />
