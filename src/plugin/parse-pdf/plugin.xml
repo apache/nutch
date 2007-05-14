@@ -27,12 +27,10 @@
          <export name="*"/>
       </library>
       <library name="PDFBox-0.7.2-log4j.jar"/>
-      <library name="log4j-1.2.9.jar"/>
    </runtime>
 
    <requires>
       <import plugin="nutch-extensionpoints"/>
-      <import plugin="lib-log4j"/>
    </requires>
 
    <extension id="org.apache.nutch.parse.pdf"
