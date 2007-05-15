@@ -24,35 +24,42 @@ import org.apache.nutch.util.*;
 import org.apache.hadoop.conf.Configuration;
 
 public class TextParser implements Parser {
+
   private Configuration conf;
+  
+  /**
+   * Encoding to be used when character set isn't specified
+   * as HTTP header.
+   */
+  private String defaultEncoding;
 
+  /**
+   * Parses plain text document. This code uses configured default encoding
+   * {@code parser.character.encoding.default} if character set isn't specified
+   * as HTTP header. FIXME: implement charset detector
+   */
   public ParseResult getParse(Content content) {
-
-    // ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, "", new
-    // Outlink[0], metadata);
 
     String encoding = StringUtil.parseCharacterEncoding(content
         .getContentType());
     String text;
-    if (encoding != null) { // found an encoding header
-      try { // try to use named encoding
-        text = new String(content.getContent(), encoding);
-      } catch (java.io.UnsupportedEncodingException e) {
-        return new ParseStatus(e).getEmptyParseResult(content.getUrl(), getConf());
-      }
-    } else {
-      // FIXME: implement charset detector. This code causes problem when
-      // character set isn't specified in HTTP header.
-      text = new String(content.getContent()); // use default encoding
+    try {
+      text = new String(content.getContent(), encoding != null ? encoding
+          : defaultEncoding);
+    } catch (java.io.UnsupportedEncodingException e) {
+      return new ParseStatus(e)
+          .getEmptyParseResult(content.getUrl(), getConf());
     }
+    
     ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, "",
         OutlinkExtractor.getOutlinks(text, getConf()), content.getMetadata());
     parseData.setConf(this.conf);
     return ParseResult.createParseResult(content.getUrl(), new ParseImpl(text, parseData));
-    
   }
 
   public void setConf(Configuration conf) {
+    defaultEncoding = conf.get("parser.character.encoding.default",
+        "windows-1252");
     this.conf = conf;
   }
 
