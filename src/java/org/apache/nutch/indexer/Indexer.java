@@ -163,9 +163,11 @@ public class Indexer extends ToolBase implements Reducer, Mapper {
         CrawlDatum datum = (CrawlDatum)value;
         if (CrawlDatum.hasDbStatus(datum))
           dbDatum = datum;
-        else if (CrawlDatum.hasFetchStatus(datum))
-          fetchDatum = datum;
-        else if (CrawlDatum.STATUS_LINKED == datum.getStatus())
+        else if (CrawlDatum.hasFetchStatus(datum)) {
+          // don't index unmodified (empty) pages
+          if (datum.getStatus() != CrawlDatum.STATUS_FETCH_NOTMODIFIED)
+            fetchDatum = datum;
+        } else if (CrawlDatum.STATUS_LINKED == datum.getStatus())
           // redirected page
           redir = datum;
         else

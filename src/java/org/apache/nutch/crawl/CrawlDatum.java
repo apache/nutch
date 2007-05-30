@@ -53,6 +53,8 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   public static final byte STATUS_DB_REDIR_TEMP     = 0x04;
   /** Page permanently redirects to other page. */
   public static final byte STATUS_DB_REDIR_PERM     = 0x05;
+  /** Page was successfully fetched and found not modified. */
+  public static final byte STATUS_DB_NOTMODIFIED    = 0x06;
   
   /** Maximum value of DB-related status. */
   public static final byte STATUS_DB_MAX            = 0x1f;
@@ -67,6 +69,8 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   public static final byte STATUS_FETCH_REDIR_PERM  = 0x24;
   /** Fetching unsuccessful - page is gone. */
   public static final byte STATUS_FETCH_GONE        = 0x25;
+  /** Fetching successful - page is not modified. */
+  public static final byte STATUS_FETCH_NOTMODIFIED = 0x26;
   
   /** Maximum value of fetch-related status. */
   public static final byte STATUS_FETCH_MAX         = 0x3f;
@@ -94,6 +98,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     statNames.put(STATUS_FETCH_REDIR_TEMP, "fetch_redir_temp");
     statNames.put(STATUS_FETCH_REDIR_PERM, "fetch_redir_perm");
     statNames.put(STATUS_FETCH_GONE, "fetch_gone");
+    statNames.put(STATUS_FETCH_NOTMODIFIED, "fetch_notmodified");
     
     oldToNew.put(OLD_STATUS_DB_UNFETCHED, STATUS_DB_UNFETCHED);
     oldToNew.put(OLD_STATUS_DB_FETCHED, STATUS_DB_FETCHED);
@@ -104,8 +109,6 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     oldToNew.put(OLD_STATUS_LINKED, STATUS_LINKED);
     oldToNew.put(OLD_STATUS_SIGNATURE, STATUS_SIGNATURE);
   }
-  
-  private static final float MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;
 
   private byte status;
   private long fetchTime = System.currentTimeMillis();
@@ -154,10 +157,6 @@ public class CrawlDatum implements WritableComparable, Cloneable {
 
   public long getFetchTime() { return fetchTime; }
   public void setFetchTime(long fetchTime) { this.fetchTime = fetchTime; }
-
-  public void setNextFetchTime() {
-    fetchTime += (long)(MILLISECONDS_PER_DAY*fetchInterval);
-  }
 
   public long getModifiedTime() {
     return modifiedTime;
@@ -366,7 +365,8 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     buf.append("Fetch time: " + new Date(getFetchTime()) + "\n");
     buf.append("Modified time: " + new Date(getModifiedTime()) + "\n");
     buf.append("Retries since fetch: " + getRetriesSinceFetch() + "\n");
-    buf.append("Retry interval: " + getFetchInterval() + " days\n");
+    buf.append("Retry interval: " + getFetchInterval() + " seconds (" +
+        (getFetchInterval() / FetchSchedule.SECONDS_PER_DAY) + " days)\n");
     buf.append("Score: " + getScore() + "\n");
     buf.append("Signature: " + StringUtil.toHexString(getSignature()) + "\n");
     buf.append("Metadata: " + (metaData != null ? metaData.toString() : "null") + "\n");

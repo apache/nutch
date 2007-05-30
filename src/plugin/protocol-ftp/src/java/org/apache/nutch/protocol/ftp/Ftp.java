@@ -79,19 +79,11 @@ public class Ftp implements Protocol {
   // ftp dir list entry parser
   FTPFileEntryParser parser = null;
 
-  // 20040412, xing
-  // the following three: HttpDateFormat, MimetypesFileTypeMap, MagicFile
-  // are placed in each thread before we check out if they're thread-safe.
-
-  // http date format
-  HttpDateFormat httpDateFormat = null;
-
   private Configuration conf;
 
 
   // constructor
   public Ftp() {
-    this.httpDateFormat = new HttpDateFormat();
   }
 
   /** Set the timeout. */

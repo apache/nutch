@@ -249,8 +249,78 @@
 <property>
   <name>db.default.fetch.interval</name>
   <value>30</value>
-  <description>The default number of days between re-fetches of a page.
+  <description>(DEPRECATED) The default number of days between re-fetches of a page.
   </description>
+</property>
+
+<property>
+  <name>db.fetch.interval.default</name>
+  <value>2592000</value>
+  <description>The default number of seconds between re-fetches of a page (30 days).
+  </description>
+</property>
+
+<property>
+  <name>db.fetch.interval.max</name>
+  <value>7776000</value>
+  <description>The maximum number of seconds between re-fetches of a page
+  (90 days). After this period every page in the db will be re-tried, no
+  matter what is its status.
+  </description>
+</property>
+
+<property>
+  <name>db.fetch.schedule.class</name>
+  <value>org.apache.nutch.crawl.DefaultFetchSchedule</value>
+  <description>The implementation of fetch schedule. DefaultFetchSchedule simply
+  adds the original fetchInterval to the last fetch time, regardless of
+  page changes.</description>
+</property>
+
+<property>
+  <name>db.fetch.schedule.adaptive.inc_rate</name>
+  <value>0.4</value>
+  <description>If a page is unmodified, its fetchInterval will be
+  increased by this rate. This value should not
+  exceed 0.5, otherwise the algorithm becomes unstable.</description>
+</property>
+
+<property>
+  <name>db.fetch.schedule.adaptive.dec_rate</name>
+  <value>0.2</value>
+  <description>If a page is modified, its fetchInterval will be
+  decreased by this rate. This value should not
+  exceed 0.5, otherwise the algorithm becomes unstable.</description>
+</property>
+
+<property>
+  <name>db.fetch.schedule.adaptive.min_interval</name>
+  <value>60.0</value>
+  <description>Minimum fetchInterval, in seconds.</description>
+</property>
+
+<property>
+  <name>db.fetch.schedule.adaptive.max_interval</name>
+  <value>31536000.0</value>
+  <description>Maximum fetchInterval, in seconds (365 days).
+  NOTE: this is limited by db.fetch.interval.max. Pages with
+  fetchInterval larger than db.fetch.interval.max
+  will be fetched anyway.</description>
+</property>
+
+<property>
+  <name>db.fetch.schedule.adaptive.sync_delta</name>
+  <value>true</value>
+  <description>If true, try to synchronize with the time of page change.
+  by shifting the next fetchTime by a fraction (sync_rate) of the difference
+  between the last modification time, and the last fetch time.</description>
+</property>
+
+<property>
+  <name>db.fetch.schedule.adaptive.sync_delta_rate</name>
+  <value>0.3</value>
+  <description>See sync_delta for description. This value should not
+  exceed 0.5, otherwise the algorithm becomes unstable.</description>
 </property>
 
 <property>

@@ -52,7 +52,7 @@ public class Http extends HttpBase {
   private static MultiThreadedHttpConnectionManager connectionManager =
           new MultiThreadedHttpConnectionManager();
 
-  // Since the Configuration has not yet been setted,
+  // Since the Configuration has not yet been set,
   // then an unconfigured client is returned.
   private static HttpClient client = new HttpClient(connectionManager);
 
@@ -78,13 +78,6 @@ public class Http extends HttpBase {
     this.ntlmPassword = conf.get("http.auth.ntlm.password", "");
     this.ntlmDomain = conf.get("http.auth.ntlm.domain", "");
     this.ntlmHost = conf.get("http.auth.ntlm.host", "");
-    //Level logLevel = Level.WARNING;
-    //if (conf.getBoolean("http.verbose", false)) {
-    //  logLevel = Level.FINE;
-    //}
-    //LOG.setLevel(logLevel);
-    //Logger.getLogger("org.apache.commons.httpclient.HttpMethodDirector")
-    //      .setLevel(logLevel);
     configureClient();
   }
 

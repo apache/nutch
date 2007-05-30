@@ -99,6 +99,7 @@ public class Generator extends ToolBase {
     private boolean filter;
     private long genDelay;
     private boolean runUpdatedb;
+    private FetchSchedule schedule;
 
     public void configure(JobConf job) {
       curTime = job.getLong(CRAWL_GEN_CUR_TIME, System.currentTimeMillis());
@@ -114,6 +115,7 @@ public class Generator extends ToolBase {
       long time = job.getLong(Nutch.GENERATE_TIME_KEY, 0L);
       if (time > 0) genTime.set(time);
       runUpdatedb = job.getBoolean(GENERATE_UPDATE_CRAWLDB, false);
+      schedule = FetchScheduleFactory.getFetchSchedule(job);
     }
 
     public void close() {}
@@ -137,12 +139,11 @@ public class Generator extends ToolBase {
       }
       CrawlDatum crawlDatum = (CrawlDatum)value;
 
-      if (crawlDatum.getStatus() == CrawlDatum.STATUS_DB_GONE ||
-          crawlDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_PERM)
-        return;                                   // don't retry
-
-      if (crawlDatum.getFetchTime() > curTime)
-        return;                                   // not time yet
+      // check fetch schedule
+      if (!schedule.shouldFetch(url, crawlDatum, curTime)) {
+        LOG.debug("-shouldFetch rejected '" + url+ "', fetchTime=" + crawlDatum.getFetchTime() + ", curTime=" + curTime);
+        return;
+      }
 
       LongWritable oldGenTime = (LongWritable)crawlDatum.getMetaData().get(Nutch.WRITABLE_GENERATE_TIME_KEY);
       if (oldGenTime != null) { // awaiting fetch & update

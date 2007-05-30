@@ -32,6 +32,7 @@ import java.net.URL;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.SpellCheckedMetadata;
+import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.http.api.HttpBase;
@@ -124,6 +125,11 @@ public class HttpResponse implements Response {
       }
 
       reqStr.append("\r\n");
+      if (datum.getModifiedTime() > 0) {
+        reqStr.append("If-Modified-Since: " + HttpDateFormat.toString(datum.getModifiedTime()));
+        reqStr.append("\r\n");
+      }
+      
       byte[] reqBytes= reqStr.toString().getBytes();
 
       req.write(reqBytes);
