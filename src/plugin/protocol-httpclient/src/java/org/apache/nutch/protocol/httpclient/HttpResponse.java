@@ -38,6 +38,7 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.SpellCheckedMetadata;
+import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.http.api.HttpBase;
 import org.apache.nutch.util.LogUtil;
@@ -78,6 +79,8 @@ public class HttpResponse implements Response {
     GetMethod get = new GetMethod(this.orig);
     get.setFollowRedirects(followRedirects);
     get.setRequestHeader("User-Agent", http.getUserAgent());
+    if (datum.getModifiedTime() > 0)
+      get.setRequestHeader("If-Modified-Since", HttpDateFormat.toString(datum.getModifiedTime()));
     HttpMethodParams params = get.getParams();
     if (http.getUseHttp11()) {
       params.setVersion(HttpVersion.HTTP_1_1);

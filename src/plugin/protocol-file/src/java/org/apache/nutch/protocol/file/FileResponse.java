@@ -29,6 +29,7 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.mime.MimeType;
 import org.apache.nutch.util.mime.MimeTypes;
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
 
 // Hadoop imports
@@ -66,6 +67,7 @@ public class FileResponse {
   private String orig;
   private String base;
   private byte[] content;
+  private static final byte[] EMPTY_CONTENT = new byte[0];
   private int code;
   private Metadata headers = new Metadata();
 
@@ -83,7 +85,7 @@ public class FileResponse {
   public byte[] getContent() { return content; }
 
   public Content toContent() {
-    return new Content(orig, base, content,
+    return new Content(orig, base, (content != null ? content : EMPTY_CONTENT),
                        getHeader(Response.CONTENT_TYPE),
                        headers, this.conf);
   }
@@ -140,6 +142,11 @@ public class FileResponse {
         this.code = 300;  // http redirect
         return;
       }
+      if (f.lastModified() <= datum.getModifiedTime()) {
+        this.code = 304;
+        this.headers.set("Last-Modified", HttpDateFormat.toString(f.lastModified()));
+        return;
+      }
 
       if (f.isDirectory()) {
         getDirAsHttpResponse(f);
@@ -193,7 +200,7 @@ public class FileResponse {
 
     // set headers
     headers.set(Response.CONTENT_LENGTH, new Long(size).toString());
-    headers.set(Response.LAST_MODIFIED, this.file.httpDateFormat.toString(f
+    headers.set(Response.LAST_MODIFIED, HttpDateFormat.toString(f
         .lastModified()));
     MimeTypes mimeTypes = MimeTypes.get(conf.get("mime.types.file"));
     MimeType mimeType = mimeTypes.getMimeType(f);
@@ -216,7 +223,7 @@ public class FileResponse {
       new Integer(this.content.length).toString());
     headers.set(Response.CONTENT_TYPE, "text/html");
     headers.set(Response.LAST_MODIFIED,
-      this.file.httpDateFormat.toString(f.lastModified()));
+      HttpDateFormat.toString(f.lastModified()));
 
     // response code
     this.code = 200; // http OK
@@ -240,7 +247,7 @@ public class FileResponse {
     for (int i=0; i<list.length; i++) {
       f = list[i];
       String name = f.getName();
-      String time = this.file.httpDateFormat.toString(f.lastModified());
+      String time = HttpDateFormat.toString(f.lastModified());
       if (f.isDirectory()) {
         // java 1.4.2 api says dir itself and parent dir are not listed
         // so the following is not needed.

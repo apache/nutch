@@ -231,10 +231,13 @@ public class Fetcher extends ToolBase implements MapRunnable {
               case ProtocolStatus.NOTFOUND:
               case ProtocolStatus.ACCESS_DENIED:
               case ProtocolStatus.ROBOTS_DENIED:
-              case ProtocolStatus.NOTMODIFIED:
                 output(url, datum, null, status, CrawlDatum.STATUS_FETCH_GONE);
                 break;
 
+              case ProtocolStatus.NOTMODIFIED:
+                output(url, datum, null, status, CrawlDatum.STATUS_FETCH_NOTMODIFIED);
+                break;
+                
               default:
                 if (LOG.isWarnEnabled()) {
                   LOG.warn("Unknown ProtocolStatus: " + status.getCode());

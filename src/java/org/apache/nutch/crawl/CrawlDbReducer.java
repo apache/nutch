@@ -40,11 +40,15 @@ public class CrawlDbReducer implements Reducer {
   private ArrayList linked = new ArrayList();
   private ScoringFilters scfilters = null;
   private boolean additionsAllowed;
+  private float maxInterval;
+  private FetchSchedule schedule;
 
   public void configure(JobConf job) {
     retryMax = job.getInt("db.fetch.retry.max", 3);
     scfilters = new ScoringFilters(job);
     additionsAllowed = job.getBoolean(CrawlDb.CRAWLDB_ADDITIONS_ALLOWED, true);
+    maxInterval = (float)(job.getInt("db.max.fetch.interval", 30) * 3600 * 24);
+    schedule = FetchScheduleFactory.getFetchSchedule(job);
   }
 
   public void close() {}
@@ -109,6 +113,10 @@ public class CrawlDbReducer implements Reducer {
       return;
     }
     
+    if (signature == null) signature = fetch.getSignature();
+    long prevModifiedTime = old != null ? old.getModifiedTime() : 0L;
+    long prevFetchTime = old != null ? old.getFetchTime() : 0L;
+
     // initialize with the latest version, be it fetch or link
     result.set(fetch);
     if (old != null) {
@@ -131,6 +139,7 @@ public class CrawlDbReducer implements Reducer {
       if (old != null) {                          // if old exists
         result.set(old);                          // use it
       } else {
+        result = schedule.initializeSchedule((Text)key, result);
         result.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
         try {
           scfilters.initialScore((Text)key, result);
@@ -145,20 +154,53 @@ public class CrawlDbReducer implements Reducer {
       break;
       
     case CrawlDatum.STATUS_FETCH_SUCCESS:         // succesful fetch
-      if (fetch.getSignature() == null) result.setSignature(signature);
-      result.setStatus(CrawlDatum.STATUS_DB_FETCHED);
-      result.setNextFetchTime();
-      break;
-
-    case CrawlDatum.STATUS_FETCH_REDIR_TEMP:
-      if (fetch.getSignature() == null) result.setSignature(signature);
-      result.setStatus(CrawlDatum.STATUS_DB_REDIR_TEMP);
-      result.setNextFetchTime();
-      break;
+    case CrawlDatum.STATUS_FETCH_REDIR_TEMP:      // successful fetch, redirected
     case CrawlDatum.STATUS_FETCH_REDIR_PERM:
-      if (fetch.getSignature() == null) result.setSignature(signature);
-      result.setStatus(CrawlDatum.STATUS_DB_REDIR_PERM);
-      result.setNextFetchTime();
+    case CrawlDatum.STATUS_FETCH_NOTMODIFIED:     // successful fetch, notmodified
+      // determine the modification status
+      int modified = FetchSchedule.STATUS_UNKNOWN;
+      if (fetch.getStatus() == CrawlDatum.STATUS_FETCH_NOTMODIFIED) {
+        modified = FetchSchedule.STATUS_NOTMODIFIED;
+      } else {
+        if (old != null && old.getSignature() != null && signature != null) {
+          if (SignatureComparator._compare(old.getSignature(), signature) != 0) {
+            modified = FetchSchedule.STATUS_MODIFIED;
+          } else {
+            modified = FetchSchedule.STATUS_NOTMODIFIED;
+          }
+        }
+      }
+      // set the schedule
+      result = schedule.setFetchSchedule((Text)key, result, prevFetchTime,
+          prevModifiedTime, fetch.getFetchTime(), fetch.getModifiedTime(), modified);
+      // set the result status and signature
+      if (modified == FetchSchedule.STATUS_NOTMODIFIED) {
+        result.setStatus(CrawlDatum.STATUS_DB_NOTMODIFIED);
+        if (old != null) result.setSignature(old.getSignature());
+      } else {
+        switch (fetch.getStatus()) {
+        case CrawlDatum.STATUS_FETCH_SUCCESS:
+          result.setStatus(CrawlDatum.STATUS_DB_FETCHED);
+          break;
+        case CrawlDatum.STATUS_FETCH_REDIR_PERM:
+          result.setStatus(CrawlDatum.STATUS_DB_REDIR_PERM);
+          break;
+        case CrawlDatum.STATUS_FETCH_REDIR_TEMP:
+          result.setStatus(CrawlDatum.STATUS_DB_REDIR_TEMP);
+          break;
+        default:
+          LOG.warn("Unexpected status: " + fetch.getStatus() + " resetting to old status.");
+          if (old != null) result.setStatus(old.getStatus());
+          else result.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
+        }
+        result.setSignature(signature);
+      }
+      // if fetchInterval is larger than the system-wide maximum, trigger
+      // an unconditional recrawl. This prevents the page to be stuck at
+      // NOTMODIFIED state, when the old fetched copy was already removed with
+      // old segments.
+      if (maxInterval < result.getFetchInterval())
+        result = schedule.forceRefetch((Text)key, result, false);
       break;
     case CrawlDatum.STATUS_SIGNATURE:
       if (LOG.isWarnEnabled()) {
@@ -173,12 +215,16 @@ public class CrawlDbReducer implements Reducer {
       } else {
         result.setStatus(CrawlDatum.STATUS_DB_GONE);
       }
+      result = schedule.setPageRetrySchedule((Text)key, result, prevFetchTime,
+          prevModifiedTime, fetch.getFetchTime());
       break;
 
     case CrawlDatum.STATUS_FETCH_GONE:            // permanent failure
       if (old != null)
         result.setSignature(old.getSignature());  // use old signature
       result.setStatus(CrawlDatum.STATUS_DB_GONE);
+      result = schedule.setPageGoneSchedule((Text)key, result, prevFetchTime,
+          prevModifiedTime, fetch.getFetchTime());
       break;
 
     default:

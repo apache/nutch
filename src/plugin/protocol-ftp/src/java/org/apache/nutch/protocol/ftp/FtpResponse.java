@@ -28,6 +28,7 @@ import org.apache.commons.net.ftp.parser.ParserInitializationException;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.util.LogUtil;
 
@@ -61,6 +62,7 @@ public class FtpResponse {
   private String orig;
   private String base;
   private byte[] content;
+  private static final byte[] EMPTY_CONTENT = new byte[0];
   private int code;
   private Metadata headers = new Metadata();
 
@@ -78,7 +80,7 @@ public class FtpResponse {
   public byte[] getContent() { return content; }
 
   public Content toContent() {
-    return new Content(orig, base, content,
+    return new Content(orig, base, (content != null ? content : EMPTY_CONTENT),
                        getHeader(Response.CONTENT_TYPE),
                        headers, this.conf);
   }
@@ -257,9 +259,9 @@ public class FtpResponse {
       this.content = null;
 
       if (path.endsWith("/")) {
-        getDirAsHttpResponse(path);
+        getDirAsHttpResponse(path, datum.getModifiedTime());
       } else {
-        getFileAsHttpResponse(path);
+        getFileAsHttpResponse(path, datum.getModifiedTime());
       }
 
       // reset next renewalTime, take the lesser
@@ -268,7 +270,7 @@ public class FtpResponse {
           + ((ftp.timeout<ftp.serverTimeout) ? ftp.timeout : ftp.serverTimeout);
         if ((ftp.followTalk) && (Ftp.LOG.isInfoEnabled())) {
           Ftp.LOG.info("reset renewalTime to "
-            +ftp.httpDateFormat.toString(ftp.renewalTime));
+            + HttpDateFormat.toString(ftp.renewalTime));
         }
       }
 
@@ -308,7 +310,7 @@ public class FtpResponse {
   }
 
   // get ftp file as http response
-  private void getFileAsHttpResponse(String path)
+  private void getFileAsHttpResponse(String path, long lastModified)
     throws IOException {
 
     ByteArrayOutputStream os = null;
@@ -319,15 +321,19 @@ public class FtpResponse {
       list = new LinkedList();
       ftp.client.retrieveList(path, list, ftp.maxContentLength, ftp.parser);
 
-      os = new ByteArrayOutputStream(ftp.BUFFER_SIZE);
-      ftp.client.retrieveFile(path, os, ftp.maxContentLength);
-
       FTPFile ftpFile = (FTPFile) list.get(0);
       this.headers.set(Response.CONTENT_LENGTH,
                        new Long(ftpFile.getSize()).toString());
-      //this.headers.put("content-type", "text/html");
       this.headers.set(Response.LAST_MODIFIED,
-                       ftp.httpDateFormat.toString(ftpFile.getTimestamp()));
+                       HttpDateFormat.toString(ftpFile.getTimestamp()));
+      // don't retrieve the file if not changed.
+      if (ftpFile.getTimestamp().getTimeInMillis() <= lastModified) {
+        code = 304;
+        return;
+      }
+      os = new ByteArrayOutputStream(ftp.BUFFER_SIZE);
+      ftp.client.retrieveFile(path, os, ftp.maxContentLength);
+
       this.content = os.toByteArray();
 
 //      // approximate bytes sent and read
@@ -366,8 +372,12 @@ public class FtpResponse {
                        new Long(ftpFile.getSize()).toString());
       //this.headers.put("content-type", "text/html");
       this.headers.set(Response.LAST_MODIFIED,
-                      ftp.httpDateFormat.toString(ftpFile.getTimestamp()));
+                      HttpDateFormat.toString(ftpFile.getTimestamp()));
       this.content = os.toByteArray();
+      if (ftpFile.getTimestamp().getTimeInMillis() <= lastModified) {
+        code = 304;
+        return;
+      }
 
 //      // approximate bytes sent and read
 //      if (this.httpAccounting != null) {
@@ -404,7 +414,7 @@ public class FtpResponse {
   }
 
   // get ftp dir list as http response
-  private void getDirAsHttpResponse(String path)
+  private void getDirAsHttpResponse(String path, long lastModified)
     throws IOException {
     List list = new LinkedList();
 
@@ -488,7 +498,7 @@ public class FtpResponse {
     for (int i=0; i<list.size(); i++) {
       FTPFile f = (FTPFile) list.get(i);
       String name = f.getName();
-      String time = ftp.httpDateFormat.toString(f.getTimestamp());
+      String time = HttpDateFormat.toString(f.getTimestamp());
       if (f.isDirectory()) {
         // some ftp server LIST "." and "..", we skip them here
         if (name.equals(".") || name.equals(".."))

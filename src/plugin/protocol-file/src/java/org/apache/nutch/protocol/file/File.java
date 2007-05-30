@@ -54,18 +54,10 @@ public class File implements Protocol {
 
   int maxContentLength;
 
-  // 20040412, xing
-  // the following three: HttpDateFormat, MimetypesFileTypeMap, MagicFile
-  // are placed in each thread before we check out if they're thread-safe.
-
-  // http date format
-  HttpDateFormat httpDateFormat = null;
-
   private Configuration conf;
 
   // constructor
   public File() {
-    this.httpDateFormat = new HttpDateFormat();
   }
 
   /** Set the point at which content is truncated. */
