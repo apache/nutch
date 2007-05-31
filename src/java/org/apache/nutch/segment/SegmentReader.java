@@ -94,7 +94,7 @@ public class SegmentReader extends Configured implements Reducer {
 
   /** Implements a text output format */
   public static class TextOutputFormat extends org.apache.hadoop.mapred.OutputFormatBase {
-    public RecordWriter getRecordWriter(final FileSystem fs, JobConf job, String name, Progressable progress) throws IOException {
+    public RecordWriter getRecordWriter(final FileSystem fs, JobConf job, String name, final Progressable progress) throws IOException {
 
       final Path segmentDumpFile = new Path(job.getOutputPath(), name);
 

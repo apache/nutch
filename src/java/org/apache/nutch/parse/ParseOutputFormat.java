@@ -68,13 +68,16 @@ public class ParseOutputFormat implements OutputFormat {
       new Path(new Path(job.getOutputPath(), CrawlDatum.PARSE_DIR_NAME), name);
     
     final MapFile.Writer textOut =
-      new MapFile.Writer(job, fs, text.toString(), Text.class, ParseText.class, CompressionType.RECORD);
+      new MapFile.Writer(job, fs, text.toString(), Text.class, ParseText.class,
+          CompressionType.RECORD, progress);
     
     final MapFile.Writer dataOut =
-      new MapFile.Writer(job, fs, data.toString(), Text.class,ParseData.class);
+      new MapFile.Writer(job, fs, data.toString(), Text.class, ParseData.class,
+          CompressionType.RECORD, progress);
     
     final SequenceFile.Writer crawlOut =
-      SequenceFile.createWriter(fs, job, crawl, Text.class, CrawlDatum.class);
+      SequenceFile.createWriter(fs, job, crawl, Text.class, CrawlDatum.class,
+          CompressionType.NONE, progress);
     
     return new RecordWriter() {
 

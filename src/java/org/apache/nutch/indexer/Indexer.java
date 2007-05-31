@@ -60,7 +60,7 @@ public class Indexer extends ToolBase implements Reducer, Mapper {
   public static class OutputFormat
     extends org.apache.hadoop.mapred.OutputFormatBase {
     public RecordWriter getRecordWriter(final FileSystem fs, JobConf job,
-                                        String name, Progressable progress) throws IOException {
+                                        String name, final Progressable progress) throws IOException {
       final Path perm = new Path(job.getOutputPath(), name);
       final Path temp =
         job.getLocalPath("index/_"+Integer.toString(new Random().nextInt()));
@@ -95,6 +95,7 @@ public class Indexer extends ToolBase implements Reducer, Mapper {
                        " (" + doc.get("lang") + ")");
             }
             writer.addDocument(doc, analyzer);
+            progress.progress();
           }
           
           public void close(final Reporter reporter) throws IOException {
