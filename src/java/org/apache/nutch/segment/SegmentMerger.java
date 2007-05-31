@@ -36,6 +36,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.UTF8;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.SequenceFile.CompressionType;
 import org.apache.hadoop.mapred.FileSplit;
 import org.apache.hadoop.mapred.InputSplit;
 import org.apache.hadoop.mapred.JobClient;
@@ -237,7 +238,7 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
           } else {
             wname = new Path(new Path(new Path(job.getOutputPath(), segmentName + "-" + slice), dirName), name);
           }
-          res = new SequenceFile.Writer(fs, job, wname, Text.class, CrawlDatum.class);
+          res = new SequenceFile.Writer(fs, job, wname, Text.class, CrawlDatum.class, progress, new SequenceFile.Metadata());
           sliceWriters.put(slice + dirName, res);
           return res;
         }
@@ -253,7 +254,7 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
           } else {
             wname = new Path(new Path(new Path(job.getOutputPath(), segmentName + "-" + slice), dirName), name);
           }
-          res = new MapFile.Writer(job, fs, wname.toString(), Text.class, clazz);
+          res = new MapFile.Writer(job, fs, wname.toString(), Text.class, clazz, CompressionType.RECORD, progress);
           sliceWriters.put(slice + dirName, res);
           return res;
         }
