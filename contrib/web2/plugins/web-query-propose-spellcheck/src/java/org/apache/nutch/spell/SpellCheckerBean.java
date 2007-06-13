@@ -150,14 +150,6 @@ public class SpellCheckerBean {
             , originalTerm, ng1, ng2, maxr, bStart, bEnd,
             bTransposition, maxd, lis, true);
 
-        Iterator it = lis.iterator();
-
-        while (it.hasNext()) {
-          if(LOG.isDebugEnabled()){
-            LOG.debug(it.next().toString());
-          }
-        }
-
         if (suggestions.length > 0) {
           currentTerm.setSuggestedTerm(suggestions[0]);
 
