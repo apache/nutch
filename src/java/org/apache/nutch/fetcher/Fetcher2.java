@@ -195,7 +195,7 @@ public class Fetcher2 extends Configured implements MapRunnable {
   private static class FetchItemQueue {
     List<FetchItem> queue = Collections.synchronizedList(new LinkedList<FetchItem>());
     Set<FetchItem>  inProgress = Collections.synchronizedSet(new HashSet<FetchItem>());
-    AtomicLong endTime = new AtomicLong();
+    AtomicLong nextFetchTime = new AtomicLong();
     long crawlDelay;
     long minCrawlDelay;
     int maxThreads;
@@ -207,7 +207,7 @@ public class Fetcher2 extends Configured implements MapRunnable {
       this.crawlDelay = crawlDelay;
       this.minCrawlDelay = minCrawlDelay;
       // ready to start
-      this.endTime.set(System.currentTimeMillis() - crawlDelay);
+      setEndTime(System.currentTimeMillis() - crawlDelay);
     }
     
     public int getQueueSize() {
@@ -218,10 +218,10 @@ public class Fetcher2 extends Configured implements MapRunnable {
       return inProgress.size();
     }
     
-    public void finishFetchItem(FetchItem it) {
+    public void finishFetchItem(FetchItem it, boolean asap) {
       if (it != null) {
         inProgress.remove(it);
-        endTime.set(System.currentTimeMillis());
+        setEndTime(System.currentTimeMillis(), asap);
       }
     }
     
@@ -238,8 +238,7 @@ public class Fetcher2 extends Configured implements MapRunnable {
     public FetchItem getFetchItem() {
       if (inProgress.size() >= maxThreads) return null;
       long now = System.currentTimeMillis();
-      long last = endTime.get() + (maxThreads > 1 ? minCrawlDelay : crawlDelay);
-      if (last > now) return null;
+      if (nextFetchTime.get() > now) return null;
       FetchItem it = null;
       if (queue.size() == 0) return null;
       try {
@@ -256,12 +255,23 @@ public class Fetcher2 extends Configured implements MapRunnable {
       LOG.info("  inProgress    = " + inProgress.size());
       LOG.info("  crawlDelay    = " + crawlDelay);
       LOG.info("  minCrawlDelay = " + minCrawlDelay);
-      LOG.info("  endTime       = " + endTime.get());
+      LOG.info("  nextFetchTime = " + nextFetchTime.get());
       LOG.info("  now           = " + System.currentTimeMillis());
       for (int i = 0; i < queue.size(); i++) {
         FetchItem it = queue.get(i);
         LOG.info("  " + i + ". " + it.url);
       }
+    }
+    
+    private void setEndTime(long endTime) {
+      setEndTime(endTime, false);
+    }
+    
+    private void setEndTime(long endTime, boolean asap) {
+      if (!asap)
+        nextFetchTime.set(endTime + (maxThreads > 1 ? minCrawlDelay : crawlDelay));
+      else
+        nextFetchTime.set(endTime);
     }
   }
   
@@ -308,12 +318,16 @@ public class Fetcher2 extends Configured implements MapRunnable {
     }
     
     public void finishFetchItem(FetchItem it) {
+      finishFetchItem(it, false);
+    }
+    
+    public void finishFetchItem(FetchItem it, boolean asap) {
       FetchItemQueue fiq = queues.get(it.queueID);
       if (fiq == null) {
         LOG.warn("Attempting to finish item from unknown queue: " + it);
         return;
       }
-      fiq.finishFetchItem(it);
+      fiq.finishFetchItem(it, asap);
     }
     
     public synchronized FetchItemQueue getFetchItemQueue(String id) {
@@ -474,7 +488,7 @@ public class Fetcher2 extends Configured implements MapRunnable {
               RobotRules rules = protocol.getRobotRules(fit.url, fit.datum);
               if (!rules.isAllowed(fit.u)) {
                 // unblock
-                fetchQueues.finishFetchItem(fit);
+                fetchQueues.finishFetchItem(fit, true);
                 if (LOG.isDebugEnabled()) {
                   LOG.debug("Denied by robots.txt: " + fit.url);
                 }
@@ -484,7 +498,7 @@ public class Fetcher2 extends Configured implements MapRunnable {
               if (rules.getCrawlDelay() > 0) {
                 if (rules.getCrawlDelay() > maxCrawlDelay) {
                   // unblock
-                  fetchQueues.finishFetchItem(fit);
+                  fetchQueues.finishFetchItem(fit, true);
                   LOG.debug("Crawl-Delay for " + fit.url + " too long (" + rules.getCrawlDelay() + "), skipping");
                   output(fit.url, fit.datum, null, ProtocolStatus.STATUS_ROBOTS_DENIED, CrawlDatum.STATUS_FETCH_GONE);
                   continue;
@@ -503,8 +517,6 @@ public class Fetcher2 extends Configured implements MapRunnable {
               switch(status.getCode()) {
                 
               case ProtocolStatus.WOULDBLOCK:
-                // unblock
-                fetchQueues.finishFetchItem(fit);
                 // retry ?
                 fetchQueues.addFetchItem(fit);
                 break;
