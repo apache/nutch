@@ -22,6 +22,7 @@ import org.apache.nutch.parse.*;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -263,24 +264,35 @@ public class CCParseFilter implements HtmlParseFilter {
 
   /** Adds metadata or otherwise modifies a parse of an HTML document, given
    * the DOM tree of a page. */
-  public Parse filter(Content content, Parse parse, HTMLMetaTags metaTags, DocumentFragment doc) {
+  public ParseResult filter(Content content, ParseResult parseResult, HTMLMetaTags metaTags, DocumentFragment doc) {
+
+    // get parse obj
+    Parse parse = parseResult.get(content.getUrl());
 
     // construct base url
     URL base;
     try {
       base = new URL(content.getBaseUrl());
     } catch (MalformedURLException e) {
-      return new ParseStatus(e).getEmptyParse(getConf());
+      Parse emptyParse = new ParseStatus(e).getEmptyParse(getConf());
+      parseResult.put(content.getUrl(), 
+                      new ParseText(emptyParse.getText()), 
+                      emptyParse.getData());
+      return parseResult;
     }
 
     try {
       // extract license metadata
       Walker.walk(doc, base, parse.getData().getParseMeta(), getConf());
     } catch (ParseException e) {
-      return new ParseStatus(e).getEmptyParse(getConf());
+      Parse emptyParse = new ParseStatus(e).getEmptyParse(getConf());
+      parseResult.put(content.getUrl(), 
+                      new ParseText(emptyParse.getText()), 
+                      emptyParse.getData());
+      return parseResult;
     }
 
-    return parse;
+    return parseResult;
   }
 
   public void setConf(Configuration conf) {

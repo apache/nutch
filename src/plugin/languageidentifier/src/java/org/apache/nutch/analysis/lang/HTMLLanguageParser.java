@@ -30,11 +30,13 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.parse.HtmlParseFilter;
 import org.apache.nutch.protocol.Content;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
 
 // DOM imports
 import org.w3c.dom.DocumentFragment;
@@ -84,8 +86,10 @@ public class HTMLLanguageParser implements HtmlParseFilter {
    * <li>3. meta http-equiv (content-language) (http://www.w3.org/TR/REC-html40/struct/global.html#h-7.4.4.2)
    * <br>Only the first occurence of language is stored.
    */
-  public Parse filter(Content content, Parse parse, HTMLMetaTags metaTags, DocumentFragment doc) {
+  public ParseResult filter(Content content, ParseResult parseResult, HTMLMetaTags metaTags, DocumentFragment doc) {
     
+    Parse parse = parseResult.get(content.getUrl());
+
     // Trying to find the document's language
     LanguageParser parser = new LanguageParser(doc);
     String lang = parser.getLanguage();
@@ -93,7 +97,7 @@ public class HTMLLanguageParser implements HtmlParseFilter {
     if (lang != null) {
       parse.getData().getParseMeta().set(Metadata.LANGUAGE, lang);
     }
-    return parse;
+    return parseResult;
   }
 
   static class LanguageParser {

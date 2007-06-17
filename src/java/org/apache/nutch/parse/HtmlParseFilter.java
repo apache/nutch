@@ -38,5 +38,5 @@ public interface HtmlParseFilter extends Pluggable, Configurable {
 
   /** Adds metadata or otherwise modifies a parse of HTML content, given
    * the DOM tree of a page. */
-  Parse filter(Content content, Parse parse, HTMLMetaTags metaTags, DocumentFragment doc);
+  ParseResult filter(Content content, ParseResult parseResult, HTMLMetaTags metaTags, DocumentFragment doc);
 }

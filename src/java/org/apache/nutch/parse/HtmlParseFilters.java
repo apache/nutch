@@ -59,18 +59,23 @@ public class HtmlParseFilters {
   /** Run all defined filters. */
   public ParseResult filter(Content content, ParseResult parseResult, HTMLMetaTags metaTags, DocumentFragment doc) {
 
-    ParseResult filteredParseResult = new ParseResult(content.getUrl());
-    
-    for (java.util.Map.Entry<Text, Parse> entry : parseResult) {
-      Parse parse = entry.getValue();
-      for (int i = 0 ; i < this.htmlParseFilters.length; i++) {
-        parse = this.htmlParseFilters[i].filter(content, parse, metaTags, doc);
-        if (!parse.getData().getStatus().isSuccess()) break;
+    // loop on each filter
+    for (int i = 0 ; i < this.htmlParseFilters.length; i++) {
+      // call filter interface
+      parseResult =
+        htmlParseFilters[i].filter(content, parseResult, metaTags, doc);
+
+      // any failure on parse obj, return
+      if (!parseResult.isSuccess()) {
+        // TODO: What happens when parseResult.isEmpty() ?
+        // Maybe clone parseResult and use parseResult as backup...
+
+        // remove failed parse before return
+        parseResult.filter();
+        return parseResult;
       }
-      filteredParseResult.put(entry.getKey(), 
-                              new ParseText(parse.getText()), parse.getData());
     }
 
-    return filteredParseResult;
+    return parseResult;
   }
 }
