@@ -153,7 +153,6 @@ public class Indexer extends ToolBase implements Reducer, Mapper {
     Inlinks inlinks = null;
     CrawlDatum dbDatum = null;
     CrawlDatum fetchDatum = null;
-    CrawlDatum redir = null;
     ParseData parseData = null;
     ParseText parseText = null;
     while (values.hasNext()) {
@@ -168,11 +167,12 @@ public class Indexer extends ToolBase implements Reducer, Mapper {
           // don't index unmodified (empty) pages
           if (datum.getStatus() != CrawlDatum.STATUS_FETCH_NOTMODIFIED)
             fetchDatum = datum;
-        } else if (CrawlDatum.STATUS_LINKED == datum.getStatus())
-          // redirected page
-          redir = datum;
-        else
+        } else if (CrawlDatum.STATUS_LINKED == datum.getStatus() ||
+                   CrawlDatum.STATUS_SIGNATURE == datum.getStatus()) {
+          continue;
+        } else {
           throw new RuntimeException("Unexpected status: "+datum.getStatus());
+        }
       } else if (value instanceof ParseData) {
         parseData = (ParseData)value;
       } else if (value instanceof ParseText) {
@@ -181,11 +181,6 @@ public class Indexer extends ToolBase implements Reducer, Mapper {
         LOG.warn("Unrecognized type: "+value.getClass());
       }
     }      
-    if (redir != null) {
-      // XXX page was redirected - what should we do?
-      // XXX discard it for now
-      return;
-    }
 
     if (fetchDatum == null || dbDatum == null
         || parseText == null || parseData == null) {
@@ -260,6 +255,7 @@ public class Indexer extends ToolBase implements Reducer, Mapper {
         LOG.info("Indexer: adding segment: " + segments[i]);
       }
       job.addInputPath(new Path(segments[i], CrawlDatum.FETCH_DIR_NAME));
+      job.addInputPath(new Path(segments[i], CrawlDatum.PARSE_DIR_NAME));
       job.addInputPath(new Path(segments[i], ParseData.DIR_NAME));
       job.addInputPath(new Path(segments[i], ParseText.DIR_NAME));
     }

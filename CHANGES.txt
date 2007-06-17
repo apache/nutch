@@ -32,6 +32,13 @@ Unreleased changes (1.0-dev)
 
 11. NUTCH-495 - Unnecessary delays in Fetcher2 (dogacan)
 
+12. NUTCH-443 - allow parsers to return multiple Parse object, this will speed 
+    up the rss parser (dogacan via mattmann). This update is a fix and semantics
+    change from the original patch for NUTCH-443. The original patch did not tell
+    the  Indexer to read crawl_parse too so that it can pickup sub-urls' fetch 
+    datums. This patch addresses that issue. Now, if Fetcher gets a null content, 
+    instead of pushing an empty content, it filters the null content.
+    
 Release 0.9 - 2007-04-02
 
  1. Changed log4j confiquration to log to stdout on commandline
