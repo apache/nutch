@@ -139,4 +139,18 @@ public class ParseResult implements Iterable<Map.Entry<Text, Parse>> {
     }
       
   }
+
+  /**
+   * A convenience method which returns true only if all parses are successful.
+   * Parse success is determined by {@link ParseStatus#isSuccess()}
+   */
+  public boolean isSuccess() {
+    for(Iterator<Entry<Text, Parse>> i = iterator(); i.hasNext();) {
+      Entry<Text, Parse> entry = i.next();
+      if (!entry.getValue().getData().getStatus().isSuccess()) {
+        return false;
+      }
+    }
+    return true;
+  }
 }

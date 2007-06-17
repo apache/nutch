@@ -35,12 +35,14 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.parse.HtmlParseFilter;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.StringUtil;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
 
 
 /**
@@ -63,8 +65,11 @@ public class RelTagParser implements HtmlParseFilter {
   /**
    * Scan the HTML document looking at possible rel-tags
    */
-  public Parse filter(Content content, Parse parse, HTMLMetaTags metaTags, DocumentFragment doc) {
+  public ParseResult filter(Content content, ParseResult parseResult,
+    HTMLMetaTags metaTags, DocumentFragment doc) {
     
+    // get parse obj
+    Parse parse = parseResult.get(content.getUrl());
     // Trying to find the document's rel-tags
     Parser parser = new Parser(doc);
     Set tags = parser.getRelTags();
@@ -73,7 +78,7 @@ public class RelTagParser implements HtmlParseFilter {
     while (iter.hasNext()) {
       metadata.add(REL_TAG, (String) iter.next());
     }
-    return parse;
+    return parseResult;
   }
 
   private static class Parser {

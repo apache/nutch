@@ -36,11 +36,13 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseResult;
+import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
 import org.apache.oro.text.regex.MatchResult;
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.PatternCompiler;
@@ -69,7 +71,11 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
 
   private Configuration conf;
   
-  public Parse filter(Content content, Parse parse, HTMLMetaTags metaTags, DocumentFragment doc) {
+  public ParseResult filter(Content content, ParseResult parseResult,
+    HTMLMetaTags metaTags, DocumentFragment doc) {
+
+    Parse parse = parseResult.get(content.getUrl());
+
     String url = content.getBaseUrl();
     ArrayList outlinks = new ArrayList();
     walk(doc, parse, metaTags, url, outlinks);
@@ -85,9 +91,11 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
                                           parse.getData().getContentMeta(),
                                           parse.getData().getParseMeta());
       parseData.setConf(this.conf);
-      parse = new ParseImpl(text, parseData);
+
+      // replace original parse obj with new one
+      parseResult.put(content.getUrl(), new ParseText(text), parseData);
     }
-    return parse;
+    return parseResult;
   }
   
   private void walk(Node n, Parse parse, HTMLMetaTags metaTags, String base, List outlinks) {
