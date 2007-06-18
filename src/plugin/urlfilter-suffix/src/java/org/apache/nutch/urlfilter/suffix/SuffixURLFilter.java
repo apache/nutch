@@ -22,7 +22,6 @@ import org.apache.nutch.net.*;
 
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.SuffixStringMatcher;
-import org.apache.nutch.util.TrieStringMatcher;
 
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
@@ -38,6 +37,9 @@ import java.io.IOException;
 
 import java.util.List;
 import java.util.ArrayList;
+
+import java.net.URL;
+import java.net.MalformedURLException;
 
 /**
  * Filters URLs based on a file of URL suffixes. The file is named by
@@ -127,7 +129,7 @@ public class SuffixURLFilter implements URLFilter {
 
   private SuffixStringMatcher suffixes;
   private boolean modeAccept = false;
-
+  private boolean filterFromPath = false;
   private boolean ignoreCase = false;
 
   private Configuration conf;
@@ -146,6 +148,15 @@ public class SuffixURLFilter implements URLFilter {
     if (ignoreCase)
       _url = url.toLowerCase();
     else _url = url;
+    if (filterFromPath) {
+      try {
+        URL pUrl = new URL(_url);
+        _url = pUrl.getPath();
+      } catch (MalformedURLException e) {
+        // don't care
+      }
+    }
+
     String a = suffixes.shortestMatch(_url);
     if (a == null) {
       if (modeAccept) return url;
@@ -185,12 +196,16 @@ public class SuffixURLFilter implements URLFilter {
           break;
         case '-':
           allow = false;
-          if (line.length() > 1 && line.charAt(1) == 'I')
+          if(line.contains("P"))
+            filterFromPath = true;
+          if(line.contains("I"))
             ignore = true;
           break;
         case '+':
           allow = true;
-          if (line.length() > 1 && line.charAt(1) == 'I')
+          if(line.contains("P"))
+            filterFromPath = true;
+          if(line.contains("I"))
             ignore = true;
           break;
         default:
@@ -284,5 +299,9 @@ public class SuffixURLFilter implements URLFilter {
 
   public void setIgnoreCase(boolean ignoreCase) {
     this.ignoreCase = ignoreCase;
+  }
+
+  public void setFilterFromPath(boolean filterFromPath) {
+    this.filterFromPath = filterFromPath;
   }
 }
