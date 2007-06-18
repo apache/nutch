@@ -35,7 +35,8 @@ public class TestSuffixURLFilter extends TestCase {
     "# this is a comment\n" +
     "\n" +
     ".gif\n" +
-    ".jpg\n";
+    ".jpg\n" +
+    ".js\n";
   
   private static final String[] urls = new String[] {
     "http://www.example.com/test.gif",
@@ -44,6 +45,8 @@ public class TestSuffixURLFilter extends TestCase {
     "http://www.example.com/test.JPG",
     "http://www.example.com/test.html",
     "http://www.example.com/test.HTML",
+    "http://www.example.com/test.html?q=abc.js",
+    "http://www.example.com/test.js?foo=bar&baz=bar#12333",
   };
   
   private static String[] urlsModeAccept = new String[] {
@@ -52,7 +55,9 @@ public class TestSuffixURLFilter extends TestCase {
     null,
     urls[3],
     urls[4],
-    urls[5]
+    urls[5],
+    null,
+    urls[7]
   };
   
   private static String[] urlsModeReject = new String[] {
@@ -61,6 +66,8 @@ public class TestSuffixURLFilter extends TestCase {
     urls[2],
     null,
     null,
+    null,
+    urls[6],
     null
   };
   
@@ -70,16 +77,42 @@ public class TestSuffixURLFilter extends TestCase {
     null,
     null,
     urls[4],
-    urls[5]
+    urls[5],
+    null,
+    urls[7]
   };
-  
+ 
   private static String[] urlsModeRejectIgnoreCase = new String[] {
     urls[0],
     urls[1],
     urls[2],
     urls[3],
     null,
+    null,
+    urls[6],
     null
+  };
+  
+  private static String[] urlsModeAcceptAndPathFilter = new String[] {
+    null,
+    urls[1],
+    null,
+    urls[3],
+    urls[4],
+    urls[5],
+    urls[6],
+    null
+  };
+  
+  private static String[] urlsModeAcceptAndNonPathFilter = new String[] {
+    null,
+    urls[1],
+    null,
+    urls[3],
+    urls[4],
+    urls[5],
+    null,
+    urls[7]
   };
   
   private SuffixURLFilter filter = null;
@@ -129,6 +162,22 @@ public class TestSuffixURLFilter extends TestCase {
     filter.setModeAccept(false);
     for (int i = 0; i < urls.length; i++) {
       assertTrue(urlsModeRejectIgnoreCase[i] == filter.filter(urls[i]));
+    }
+  }
+  
+  public void testModeAcceptAndNonPathFilter() {
+    filter.setModeAccept(true);
+    filter.setFilterFromPath(false);
+    for (int i = 0; i < urls.length; i++) {
+      assertTrue(urlsModeAcceptAndNonPathFilter[i] == filter.filter(urls[i]));
+    }
+  }
+  
+  public void testModeAcceptAndPathFilter() {
+    filter.setModeAccept(true);
+    filter.setFilterFromPath(true);
+    for (int i = 0; i < urls.length; i++) {
+      assertTrue(urlsModeAcceptAndPathFilter[i] == filter.filter(urls[i]));
     }
   }
 
