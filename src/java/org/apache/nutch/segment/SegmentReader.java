@@ -342,8 +342,9 @@ public class SegmentReader extends Configured implements Reducer {
     });
     Iterator it = threads.iterator();
     while (it.hasNext()) ((Thread)it.next()).start();
-    int cnt = 0;
+    int cnt;
     do {
+      cnt = 0;
       try {
         Thread.sleep(5000);
       } catch (Exception e) {};
