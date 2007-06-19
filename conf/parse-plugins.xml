@@ -35,7 +35,8 @@
 	</mimeType>
 
 	<mimeType name="application/rss+xml">
-		<plugin id="parse-rss" />
+	    <plugin id="parse-rss" />
+	    <plugin id="feed" />
 	</mimeType>
 
 	<mimeType name="application/vnd.ms-excel">
@@ -171,6 +172,7 @@
 	<mimeType name="text/xml">
 		<plugin id="parse-html" />
 		<plugin id="parse-rss" />
+        <plugin id="feed" />
 	</mimeType>
 
        <!-- Types for parse-ext plugin: required for unit tests to pass. -->
@@ -204,6 +206,8 @@
 			extension-id="org.apache.nutch.parse.pdf.PdfParser" />
 		<alias name="parse-rss"
 			extension-id="org.apache.nutch.parse.rss.RSSParser" />
+        <alias name="feed"
+            extension-id="org.apache.nutch.parse.feed.FeedParser" />
 		<alias name="parse-rtf"
 			extension-id="org.apache.nutch.parse.rtf.RTFParseFactory" />
 		<alias name="parse-swf"

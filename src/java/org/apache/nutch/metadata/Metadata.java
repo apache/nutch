@@ -36,7 +36,7 @@ import org.apache.hadoop.io.Writable;
  *
  */
 public class Metadata implements Writable, CreativeCommons,
-DublinCore, HttpHeaders, Nutch, Office {
+DublinCore, HttpHeaders, Nutch, Office, Feed {
 
   /**
    * A map of all metadata attributes.
