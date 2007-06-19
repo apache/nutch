@@ -28,6 +28,7 @@
   <target name="deploy">
      <ant dir="clustering-carrot2" target="deploy"/>
      <ant dir="creativecommons" target="deploy"/>
+     <ant dir="feed" target="deploy"/>
      <ant dir="index-basic" target="deploy"/>
      <ant dir="index-more" target="deploy"/>
      <ant dir="languageidentifier" target="deploy"/>
@@ -94,6 +95,7 @@
      <ant dir="parse-oo" target="test"/>
      <ant dir="parse-pdf" target="test"/>
      <ant dir="parse-rss" target="test"/>
+     <ant dir="feed" target="test"/>
  <!-- <ant dir="parse-rtf" target="test"/> -->
      <ant dir="parse-swf" target="test"/>
      <ant dir="parse-zip" target="test"/>
@@ -115,6 +117,7 @@
     <ant dir="analysis-fr" target="clean"/>
     <ant dir="clustering-carrot2" target="clean"/>
     <ant dir="creativecommons" target="clean"/>
+    <ant dir="feed" target="clean"/>
     <ant dir="index-basic" target="clean"/>
     <ant dir="index-more" target="clean"/>
     <ant dir="languageidentifier" target="clean"/>
