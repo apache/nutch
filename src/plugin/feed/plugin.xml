@@ -22,11 +22,11 @@
         <export name="*" />
       </library>
       <library name="rome-0.9.jar" />
-      <library name="jdom.jar" />
     </runtime>
     
     <requires>
       <import plugin="nutch-extensionpoints" />
+      <import plugin="lib-xml" />
     </requires>
     
     <extension id="org.apache.nutch.parse.feed" name="Feed Parser"
