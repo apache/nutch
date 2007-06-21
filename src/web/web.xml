@@ -22,6 +22,10 @@
 
 <!-- order is very important here -->
 
+<listener>
+  <listener-class>org.apache.nutch.searcher.NutchBean$NutchBeanConstructor</listener-class>
+</listener>
+
 <servlet>
   <servlet-name>Cached</servlet-name>
   <servlet-class>org.apache.nutch.servlet.Cached</servlet-class>

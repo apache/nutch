@@ -19,7 +19,7 @@ package org.apache.nutch.searcher;
 
 import java.io.*;
 import java.util.*;
-import javax.servlet.ServletContext;
+import javax.servlet.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -27,6 +27,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.io.Closeable;
 import org.apache.hadoop.conf.*;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.indexer.*;
 import org.apache.nutch.crawl.Inlinks;
@@ -41,6 +42,7 @@ public class NutchBean
              DistributedSearch.Protocol, Closeable {
 
   public static final Log LOG = LogFactory.getLog(NutchBean.class);
+  public static final String KEY = "nutchBean";
 
 //  static {
 //    LogFormatter.setShowThreadIDs(true);
@@ -63,14 +65,10 @@ public class NutchBean
 
   private FileSystem fs;
 
-  /** Cache in servlet context. */
+  /** Returns the cached instance in the servlet context. 
+   * @see NutchBeanConstructor*/
   public static NutchBean get(ServletContext app, Configuration conf) throws IOException {
-    NutchBean bean = (NutchBean)app.getAttribute("nutchBean");
-    if (bean == null) {
-      if (LOG.isInfoEnabled()) { LOG.info("creating new bean"); }
-      bean = new NutchBean(conf);
-      app.setAttribute("nutchBean", bean);
-    }
+    NutchBean bean = (NutchBean)app.getAttribute(KEY);
     return bean;
   }
 
@@ -407,6 +405,28 @@ public class NutchBean
     }
   }
 
+  /** Responsible for constructing a NutchBean singleton instance and 
+   *  caching it in the servlet context. This class should be registered in 
+   *  the deployment descriptor as a listener 
+   */
+  public static class NutchBeanConstructor implements ServletContextListener {
+    
+    public void contextDestroyed(ServletContextEvent sce) { }
 
+    public void contextInitialized(ServletContextEvent sce) {
+      ServletContext app = sce.getServletContext();
+      Configuration conf = NutchConfiguration.get(app);
+      
+      LOG.info("creating new bean");
+      NutchBean bean = null;
+      try {
+        bean = new NutchBean(conf);
+        app.setAttribute(KEY, bean);
+      }
+      catch (IOException ex) {
+        LOG.error(StringUtils.stringifyException(ex));
+      }
+    }
+  }
 
 }
