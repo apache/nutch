@@ -219,8 +219,8 @@ public class FsDirectory extends Directory {
       out = fs.create(path);
     }
 
-    public void flushBuffer(byte[] b, int size) throws IOException {
-      out.write(b, 0, size);
+    public void flushBuffer(byte[] b, int offset, int size) throws IOException {
+      out.write(b, offset, size);
     }
 
     public void close() throws IOException {

@@ -145,6 +145,18 @@ public class IndexSorter extends ToolBase {
       throw new UnsupportedOperationException();
     }
 
+    public byte[] getPayload(byte[] data, int offset) throws IOException {
+      return null;
+    }
+
+    public int getPayloadLength() {
+      return 0;
+    }
+
+    public boolean isPayloadAvailable() {
+      return false;
+    }
+
     public void close() throws IOException {
       original.close();
     }
