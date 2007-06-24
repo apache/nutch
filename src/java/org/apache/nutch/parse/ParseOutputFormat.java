@@ -35,6 +35,9 @@ import org.apache.nutch.net.*;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
 
 import org.apache.hadoop.util.Progressable;
 
@@ -45,6 +48,29 @@ public class ParseOutputFormat implements OutputFormat {
   private URLNormalizers urlNormalizers;
   private URLFilters filters;
   private ScoringFilters scfilters;
+  
+  private static class SimpleEntry implements Entry<Text, CrawlDatum> {
+    private Text key;
+    private CrawlDatum value;
+    
+    public SimpleEntry(Text key, CrawlDatum value) {
+      this.key = key;
+      this.value = value;
+    }
+    
+    public Text getKey() {
+      return key;
+    }
+    
+    public CrawlDatum getValue() {
+      return value;
+    }
+
+    public CrawlDatum setValue(CrawlDatum value) {
+      this.value = value;
+      return this.value;
+    }
+  }
 
   public void checkOutputSpecs(FileSystem fs, JobConf job) throws IOException {
     if (fs.exists(new Path(job.getOutputPath(), CrawlDatum.PARSE_DIR_NAME)))
@@ -132,6 +158,7 @@ public class ParseOutputFormat implements OutputFormat {
             toUrls[i] = toUrl;
           }
           CrawlDatum adjust = null;
+          List<Entry<Text, CrawlDatum>> targets = new ArrayList<Entry<Text, CrawlDatum>>();
           // compute score contributions and adjustment to the original score
           for (int i = 0; i < toUrls.length; i++) {
             if (toUrls[i] == null) continue;
@@ -147,20 +174,27 @@ public class ParseOutputFormat implements OutputFormat {
             }
             CrawlDatum target = new CrawlDatum(CrawlDatum.STATUS_LINKED, interval);
             Text targetUrl = new Text(toUrls[i]);
-            adjust = null;
             try {
-              adjust = scfilters.distributeScoreToOutlink((Text)key, targetUrl,
-                      parseData, target, null, links.length, validCount);
+              scfilters.initialScore(targetUrl, target);
             } catch (ScoringFilterException e) {
-              if (LOG.isWarnEnabled()) {
-                LOG.warn("Cannot distribute score from " + key + " to " +
-                         targetUrl + " - skipped (" + e.getMessage());
-              }
-              continue;
+              LOG.warn("Cannot filter init score for url " + key +
+                       ", using default: " + e.getMessage());
+              target.setScore(0.0f);
             }
-            crawlOut.append(targetUrl, target);
-            if (adjust != null) crawlOut.append(key, adjust);
+            
+            targets.add(new SimpleEntry(targetUrl, target));
           }
+          try {
+            adjust = scfilters.distributeScoreToOutlinks((Text)key, parseData, 
+                      targets, null, links.length);
+          } catch (ScoringFilterException e) {
+            LOG.warn("Cannot distribute score from " + key + ": " + e.getMessage());
+          }
+          for (Entry<Text, CrawlDatum> target : targets) {
+            crawlOut.append(target.getKey(), target.getValue());
+          }
+          if (adjust != null) crawlOut.append(key, adjust);
+
           dataOut.append(key, parseData);
           if (!parse.isCanonical()) {
             CrawlDatum datum = new CrawlDatum();

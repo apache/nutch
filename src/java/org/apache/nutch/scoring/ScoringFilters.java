@@ -17,8 +17,10 @@
 
 package org.apache.nutch.scoring;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.apache.lucene.document.Document;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -126,9 +128,9 @@ public class ScoringFilters extends Configured implements ScoringFilter {
     }
   }
   
-  public CrawlDatum distributeScoreToOutlink(Text fromUrl, Text toUrl, ParseData parseData, CrawlDatum target, CrawlDatum adjust, int allCount, int validCount) throws ScoringFilterException {
+  public CrawlDatum distributeScoreToOutlinks(Text fromUrl, ParseData parseData, Collection<Entry<Text, CrawlDatum>> targets, CrawlDatum adjust, int allCount) throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
-      adjust = this.filters[i].distributeScoreToOutlink(fromUrl, toUrl, parseData, target, adjust, allCount, validCount);
+      adjust = this.filters[i].distributeScoreToOutlinks(fromUrl, parseData, targets, adjust, allCount);
     }
     return adjust;
   }
