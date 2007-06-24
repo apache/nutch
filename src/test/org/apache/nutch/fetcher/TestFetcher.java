@@ -28,6 +28,9 @@ import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDBTestUtil;
 import org.apache.nutch.crawl.Generator;
 import org.apache.nutch.crawl.Injector;
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.protocol.Content;
 import org.mortbay.jetty.Server;
 
@@ -78,6 +81,7 @@ public class TestFetcher extends TestCase {
     addUrl(urls,"pagea.html");
     addUrl(urls,"pageb.html");
     addUrl(urls,"dup_of_pagea.html");
+    addUrl(urls,"exception.html");
     
     CrawlDBTestUtil.generateSeedList(fs, urlPath, urls);
     
@@ -102,17 +106,17 @@ public class TestFetcher extends TestCase {
     int minimumTime=(int) ((urls.size()+1)*1000*conf.getFloat("fetcher.server.delay",5));
     assertTrue(time > minimumTime);
     
-    //verify results
+    //verify content
     Path content=new Path(new Path(generatedSegment, Content.DIR_NAME),"part-00000/data");
     SequenceFile.Reader reader=new SequenceFile.Reader(fs, content, conf);
     
     ArrayList<String> handledurls=new ArrayList<String>();
     
-    READ:
+    READ_CONTENT:
       do {
       Text key=new Text();
       Content value=new Content();
-      if(!reader.next(key, value)) break READ;
+      if(!reader.next(key, value)) break READ_CONTENT;
       String contentString=new String(value.getContent());
       if(contentString.indexOf("Nutch fetcher test page")!=-1) { 
         handledurls.add(key.toString());
@@ -130,7 +134,33 @@ public class TestFetcher extends TestCase {
     //verify that correct pages were handled
     assertTrue(handledurls.containsAll(urls));
     assertTrue(urls.containsAll(handledurls));
+    
+    handledurls.clear();
 
+    //verify parse data
+    Path parseData = new Path(new Path(generatedSegment, ParseData.DIR_NAME),"part-00000/data");
+    reader = new SequenceFile.Reader(fs, parseData, conf);
+    
+    READ_PARSE_DATA:
+      do {
+      Text key = new Text();
+      ParseData value = new ParseData();
+      if(!reader.next(key, value)) break READ_PARSE_DATA;
+      // make sure they all contain "nutch.segment.name" and "nutch.content.digest" 
+      // keys in parse metadata
+      Metadata contentMeta = value.getContentMeta();
+      if (contentMeta.get(Nutch.SEGMENT_NAME_KEY) != null 
+            && contentMeta.get(Nutch.SIGNATURE_KEY) != null) {
+        handledurls.add(key.toString());
+      }
+    } while(true);
+    
+    Collections.sort(handledurls);
+
+    assertEquals(urls.size(), handledurls.size());
+
+    assertTrue(handledurls.containsAll(urls));
+    assertTrue(urls.containsAll(handledurls));
   }
 
   private void addUrl(ArrayList<String> urls, String page) {

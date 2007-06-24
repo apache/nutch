@@ -685,41 +685,7 @@ public class Fetcher2 extends Configured implements MapRunnable {
             LOG.warn("Error parsing: " + key + ": " + StringUtils.stringifyException(e));
           }
 
-          if (parseResult != null) {
-            for (Entry<Text, Parse> entry : parseResult) {
-              Text url = entry.getKey();
-              Parse parse = entry.getValue();
-              ParseStatus parseStatus = parse.getData().getStatus();
-
-              if (!parseStatus.isSuccess()) {
-                LOG.warn("Error parsing: " + key + ": " + parseStatus);
-                parse = parseStatus.getEmptyParse(getConf());
-              }
-
-              // Calculate page signature. For non-parsing fetchers this will
-              // be done in ParseSegment
-              byte[] signature = 
-                SignatureFactory.getSignature(getConf()).calculate(content, parse);
-              // Ensure segment name and score are in parseData metadata
-              parse.getData().getContentMeta().set(Nutch.SEGMENT_NAME_KEY, 
-                  segmentName);
-              parse.getData().getContentMeta().set(Nutch.SIGNATURE_KEY, 
-                  StringUtil.toHexString(signature));
-              // Pass fetch time to content meta
-              parse.getData().getContentMeta().set(Nutch.FETCH_TIME_KEY,
-                  Long.toString(datum.getFetchTime()));
-              if (url.equals(key))
-                datum.setSignature(signature);
-              try {
-                scfilters.passScoreAfterParsing(url, content, parse);
-              } catch (Exception e) {
-                if (LOG.isWarnEnabled()) {
-                  e.printStackTrace(LogUtil.getWarnStream(LOG));
-                  LOG.warn("Couldn't pass score, url " + key + " (" + e + ")");
-                }
-              }
-            }
-          } else {
+          if (parseResult == null) {
             byte[] signature = 
               SignatureFactory.getSignature(getConf()).calculate(content, 
                   new ParseStatus().getEmptyParse(conf));
@@ -730,12 +696,44 @@ public class Fetcher2 extends Configured implements MapRunnable {
 
       try {
         output.collect(key, new ObjectWritable(datum));
-        if (storingContent)
+        if (content != null && storingContent)
           output.collect(key, new ObjectWritable(content));
         if (parseResult != null) {
           for (Entry<Text, Parse> entry : parseResult) {
-            output.collect(entry.getKey(), 
-                new ObjectWritable(new ParseImpl(entry.getValue())));
+            Text url = entry.getKey();
+            Parse parse = entry.getValue();
+            ParseStatus parseStatus = parse.getData().getStatus();
+            
+            if (!parseStatus.isSuccess()) {
+              LOG.warn("Error parsing: " + key + ": " + parseStatus);
+              parse = parseStatus.getEmptyParse(getConf());
+            }
+
+            // Calculate page signature. For non-parsing fetchers this will
+            // be done in ParseSegment
+            byte[] signature = 
+              SignatureFactory.getSignature(getConf()).calculate(content, parse);
+            // Ensure segment name and score are in parseData metadata
+            parse.getData().getContentMeta().set(Nutch.SEGMENT_NAME_KEY, 
+                segmentName);
+            parse.getData().getContentMeta().set(Nutch.SIGNATURE_KEY, 
+                StringUtil.toHexString(signature));
+            // Pass fetch time to content meta
+            parse.getData().getContentMeta().set(Nutch.FETCH_TIME_KEY,
+                Long.toString(datum.getFetchTime()));
+            if (url.equals(key))
+              datum.setSignature(signature);
+            try {
+              scfilters.passScoreAfterParsing(url, content, parse);
+            } catch (Exception e) {
+              if (LOG.isWarnEnabled()) {
+                e.printStackTrace(LogUtil.getWarnStream(LOG));
+                LOG.warn("Couldn't pass score, url " + key + " (" + e + ")");
+              }
+            }
+            output.collect(url, new ObjectWritable(
+                    new ParseImpl(new ParseText(parse.getText()), 
+                                  parse.getData(), parse.isCanonical())));
           }
         }
       } catch (IOException e) {

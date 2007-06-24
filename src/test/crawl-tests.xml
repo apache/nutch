@@ -28,4 +28,10 @@
   <value>test-nutch</value>
 </property>
 
+<property>
+  <name>http.robots.agents</name>
+  <value>test-nutch,*</value>
+</property>
+
 </configuration>
+
