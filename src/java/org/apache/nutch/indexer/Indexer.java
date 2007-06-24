@@ -186,6 +186,10 @@ public class Indexer extends ToolBase implements Reducer, Mapper {
         || parseText == null || parseData == null) {
       return;                                     // only have inlinks
     }
+    
+    if (!parseData.getStatus().isSuccess()) {
+      return;
+    }
 
     Document doc = new Document();
     Metadata metadata = parseData.getContentMeta();
