@@ -16,7 +16,9 @@
  */
 package org.apache.nutch.scoring;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.io.Text;
@@ -99,27 +101,24 @@ public interface ScoringFilter extends Configurable, Pluggable {
   /**
    * Distribute score value from the current page to all its outlinked pages.
    * @param fromUrl url of the source page
-   * @param toUrl url of the target page
    * @param parseData ParseData instance, which stores relevant score value(s)
    * in its metadata. NOTE: filters may modify this in-place, all changes will
    * be persisted.
-   * @param target target CrawlDatum. NOTE: filters can modify this in-place,
+   * @param targets &lt;url, CrawlDatum&gt; pairs. NOTE: filters can modify this in-place,
    * all changes will be persisted.
    * @param adjust a CrawlDatum instance, initially null, which implementations
    * may use to pass adjustment values to the original CrawlDatum. When creating
    * this instance, set its status to {@link CrawlDatum#STATUS_LINKED}.
    * @param allCount number of all collected outlinks from the source page
-   * @param validCount number of valid outlinks from the source page, i.e.
-   * outlinks that are acceppted by current URLNormalizers and URLFilters.
    * @return if needed, implementations may return an instance of CrawlDatum,
    * with status {@link CrawlDatum#STATUS_LINKED}, which contains adjustments
    * to be applied to the original CrawlDatum score(s) and metadata. This can
    * be null if not needed.
    * @throws ScoringFilterException
    */
-  public CrawlDatum distributeScoreToOutlink(Text fromUrl, Text toUrl,
-          ParseData parseData, CrawlDatum target, CrawlDatum adjust,
-          int allCount, int validCount) throws ScoringFilterException;
+  public CrawlDatum distributeScoreToOutlinks(Text fromUrl, ParseData parseData, 
+          Collection<Entry<Text, CrawlDatum>> targets, CrawlDatum adjust,
+          int allCount) throws ScoringFilterException;
 
   /**
    * This method calculates a new score of CrawlDatum during CrawlDb update, based on the

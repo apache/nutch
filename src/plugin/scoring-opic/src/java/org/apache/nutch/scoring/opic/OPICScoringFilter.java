@@ -19,7 +19,9 @@ package org.apache.nutch.scoring.opic;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map.Entry;
 
 // Commons Logging imports
 import org.apache.commons.logging.Log;
@@ -112,7 +114,7 @@ public class OPICScoringFilter implements ScoringFilter {
   }
 
   /** Get a float value from Fetcher.SCORE_KEY, divide it by the number of outlinks and apply. */
-  public CrawlDatum distributeScoreToOutlink(Text fromUrl, Text toUrl, ParseData parseData, CrawlDatum target, CrawlDatum adjust, int allCount, int validCount) throws ScoringFilterException {
+  public CrawlDatum distributeScoreToOutlinks(Text fromUrl, ParseData parseData, Collection<Entry<Text, CrawlDatum>> targets, CrawlDatum adjust, int allCount) throws ScoringFilterException {
     float score = scoreInjected;
     String scoreString = parseData.getContentMeta().get(Nutch.SCORE_KEY);
     if (scoreString != null) {
@@ -122,25 +124,33 @@ public class OPICScoringFilter implements ScoringFilter {
         e.printStackTrace(LogUtil.getWarnStream(LOG));
       }
     }
+    int validCount = targets.size();
     if (countFiltered) {
       score /= allCount;
     } else {
+      if (validCount == 0) {
+        // no outlinks to distribute score, so just return adjust
+        return adjust;
+      }
       score /= validCount;
     }
-    // internal or external score factor 
-    try {
-      String toHost = new URL(toUrl.toString()).getHost();
-      String fromHost = new URL(fromUrl.toString()).getHost();
-      if(toHost.equalsIgnoreCase(fromHost)){
-        score *= internalScoreFactor;
-      } else {
-        score *= externalScoreFactor;
+    // internal and external score factor
+    float internalScore = score * internalScoreFactor;
+    float externalScore = score * externalScoreFactor;
+    for (Entry<Text, CrawlDatum> target : targets) {
+      try {
+        String toHost = new URL(target.getKey().toString()).getHost();
+        String fromHost = new URL(fromUrl.toString()).getHost();
+        if(toHost.equalsIgnoreCase(fromHost)){
+          target.getValue().setScore(internalScore);
+        } else {
+          target.getValue().setScore(externalScore);
+        }
+      } catch (MalformedURLException e) {
+        e.printStackTrace(LogUtil.getWarnStream(LOG));
+        target.getValue().setScore(externalScore);
       }
-    } catch (MalformedURLException e) {
-       e.printStackTrace(LogUtil.getWarnStream(LOG));
-       score *= externalScoreFactor;
     }
-    target.setScore(score);
     // XXX (ab) no adjustment? I think this is contrary to the algorithm descr.
     // XXX in the paper, where page "loses" its score if it's distributed to
     // XXX linked pages...
