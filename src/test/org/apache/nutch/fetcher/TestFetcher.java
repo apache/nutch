@@ -81,6 +81,7 @@ public class TestFetcher extends TestCase {
     addUrl(urls,"pagea.html");
     addUrl(urls,"pageb.html");
     addUrl(urls,"dup_of_pagea.html");
+    addUrl(urls,"nested_spider_trap.html");
     addUrl(urls,"exception.html");
     
     CrawlDBTestUtil.generateSeedList(fs, urlPath, urls);
