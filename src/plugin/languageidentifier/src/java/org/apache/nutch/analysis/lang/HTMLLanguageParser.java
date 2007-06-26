@@ -33,6 +33,7 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.parse.HtmlParseFilter;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.NodeWalker;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
@@ -120,55 +121,58 @@ public class HTMLLanguageParser implements HtmlParseFilter {
     
     void parse(Node node) {
 
-      String lang = null;
-      
-      if (node.getNodeType() == Node.ELEMENT_NODE) {
-
-        // Check for the lang HTML attribute
-        if (htmlAttribute == null) {
-          htmlAttribute = parseLanguage(((Element) node).getAttribute("lang"));
-        }
-
-        // Check for Meta
-        if ("meta".equalsIgnoreCase(node.getNodeName())) {
-          NamedNodeMap attrs = node.getAttributes();
+      NodeWalker walker = new NodeWalker(node);
+      while (walker.hasNext()) {
         
-          // Check for the dc.language Meta
-          if (dublinCore == null) {
-            for (int i=0; i<attrs.getLength(); i++) {
-              Node attrnode = attrs.item(i);
-              if ("name".equalsIgnoreCase(attrnode.getNodeName())) {
-                if ("dc.language".equalsIgnoreCase(attrnode.getNodeValue())) {
-                  Node valueattr = attrs.getNamedItem("content");
-                  if (valueattr != null) {
-                    dublinCore = parseLanguage(valueattr.getNodeValue());
+        Node currentNode = walker.nextNode();
+        String nodeName = currentNode.getNodeName();
+        short nodeType = currentNode.getNodeType();
+        
+        String lang = null;
+        
+        if (nodeType == Node.ELEMENT_NODE) {
+  
+          // Check for the lang HTML attribute
+          if (htmlAttribute == null) {
+            htmlAttribute = parseLanguage(((Element) currentNode).getAttribute("lang"));
+          }
+  
+          // Check for Meta
+          if ("meta".equalsIgnoreCase(nodeName)) {
+            NamedNodeMap attrs = currentNode.getAttributes();
+          
+            // Check for the dc.language Meta
+            if (dublinCore == null) {
+              for (int i=0; i<attrs.getLength(); i++) {
+                Node attrnode = attrs.item(i);
+                if ("name".equalsIgnoreCase(attrnode.getNodeName())) {
+                  if ("dc.language".equalsIgnoreCase(attrnode.getNodeValue())) {
+                    Node valueattr = attrs.getNamedItem("content");
+                    if (valueattr != null) {
+                      dublinCore = parseLanguage(valueattr.getNodeValue());
+                    }
                   }
                 }
               }
             }
-          }
-
-          // Check for the http-equiv content-language
-          if (httpEquiv == null) {
-            for (int i=0; i<attrs.getLength(); i++){
-              Node attrnode = attrs.item(i);
-              if ("http-equiv".equalsIgnoreCase(attrnode.getNodeName())) {
-                if ("content-language".equals(attrnode.getNodeValue().toLowerCase())) {
-                  Node valueattr = attrs.getNamedItem("content");
-                  if (valueattr != null) {
-                    httpEquiv = parseLanguage(valueattr.getNodeValue());
+  
+            // Check for the http-equiv content-language
+            if (httpEquiv == null) {
+              for (int i=0; i<attrs.getLength(); i++){
+                Node attrnode = attrs.item(i);
+                if ("http-equiv".equalsIgnoreCase(attrnode.getNodeName())) {
+                  if ("content-language".equals(attrnode.getNodeValue().toLowerCase())) {
+                    Node valueattr = attrs.getNamedItem("content");
+                    if (valueattr != null) {
+                      httpEquiv = parseLanguage(valueattr.getNodeValue());
+                    }
                   }
                 }
               }
             }
           }
         }
-      }
-      
-      // Recurse
-      NodeList children = node.getChildNodes();
-      for (int i=0; children != null && i<children.getLength(); i++) {
-        parse(children.item(i));
+        
         if ((dublinCore != null) &&
             (htmlAttribute != null) &&
             (httpEquiv != null)) {

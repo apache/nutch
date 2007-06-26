@@ -21,8 +21,10 @@ import java.net.URL;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Stack;
 
 import org.apache.nutch.parse.Outlink;
+import org.apache.nutch.util.NodeWalker;
 import org.apache.hadoop.conf.Configuration;
 
 import org.w3c.dom.*;
@@ -54,7 +56,6 @@ public class DOMContentUtils {
   
   private HashMap linkParams = new HashMap();
   private Configuration conf;
-  
   
   public DOMContentUtils(Configuration conf) {
     setConf(conf);
@@ -113,42 +114,43 @@ public class DOMContentUtils {
   private boolean getTextHelper(StringBuffer sb, Node node, 
                                              boolean abortOnNestedAnchors,
                                              int anchorDepth) {
-    if ("script".equalsIgnoreCase(node.getNodeName())) {
-      return false;
-    }
-    if ("style".equalsIgnoreCase(node.getNodeName())) {
-      return false;
-    }
-    if (abortOnNestedAnchors && "a".equalsIgnoreCase(node.getNodeName())) {
-      anchorDepth++;
-      if (anchorDepth > 1)
-        return true;
-    }
-    if (node.getNodeType() == Node.COMMENT_NODE) {
-      return false;
-    }
-    if (node.getNodeType() == Node.TEXT_NODE) {
-      // cleanup and trim the value
-      String text = node.getNodeValue();
-      text = text.replaceAll("\\s+", " ");
-      text = text.trim();
-      if (text.length() > 0) {
-        if (sb.length() > 0) sb.append(' ');
-      	sb.append(text);
-      }
-    }
     boolean abort = false;
-    NodeList children = node.getChildNodes();
-    if (children != null) {
-      int len = children.getLength();
-      for (int i = 0; i < len; i++) {
-        if (getTextHelper(sb, children.item(i), 
-                          abortOnNestedAnchors, anchorDepth)) {
+    NodeWalker walker = new NodeWalker(node);
+    
+    while (walker.hasNext()) {
+    
+      Node currentNode = walker.nextNode();
+      String nodeName = currentNode.getNodeName();
+      short nodeType = currentNode.getNodeType();
+      
+      if ("script".equalsIgnoreCase(nodeName)) {
+        walker.skipChildren();
+      }
+      if ("style".equalsIgnoreCase(nodeName)) {
+        walker.skipChildren();
+      }
+      if (abortOnNestedAnchors && "a".equalsIgnoreCase(nodeName)) {
+        anchorDepth++;
+        if (anchorDepth > 1) {
           abort = true;
           break;
+        }        
+      }
+      if (nodeType == Node.COMMENT_NODE) {
+        walker.skipChildren();
+      }
+      if (nodeType == Node.TEXT_NODE) {
+        // cleanup and trim the value
+        String text = currentNode.getNodeValue();
+        text = text.replaceAll("\\s+", " ");
+        text = text.trim();
+        if (text.length() > 0) {
+          if (sb.length() > 0) sb.append(' ');
+        	sb.append(text);
         }
       }
     }
+    
     return abort;
   }
 
@@ -160,58 +162,59 @@ public class DOMContentUtils {
    * @return true if a title node was found, false otherwise
    */
   public boolean getTitle(StringBuffer sb, Node node) {
-    if ("body".equalsIgnoreCase(node.getNodeName())) // stop after HEAD
-      return false;
-
-    if (node.getNodeType() == Node.ELEMENT_NODE) {
-      if ("title".equalsIgnoreCase(node.getNodeName())) {
-        getText(sb, node);
-        return true;
+    
+    NodeWalker walker = new NodeWalker(node);
+    
+    while (walker.hasNext()) {
+  
+      Node currentNode = walker.nextNode();
+      String nodeName = currentNode.getNodeName();
+      short nodeType = currentNode.getNodeType();
+      
+      if ("body".equalsIgnoreCase(nodeName)) { // stop after HEAD
+        return false;
       }
-    }
-    NodeList children = node.getChildNodes();
-    if (children != null) {
-      int len = children.getLength();
-      for (int i = 0; i < len; i++) {
-        if (getTitle(sb, children.item(i))) {
+  
+      if (nodeType == Node.ELEMENT_NODE) {
+        if ("title".equalsIgnoreCase(nodeName)) {
+          getText(sb, currentNode);
           return true;
         }
       }
-    }
+    }      
+    
     return false;
   }
 
   /** If Node contains a BASE tag then it's HREF is returned. */
   public URL getBase(Node node) {
 
-    // is this node a BASE tag?
-    if (node.getNodeType() == Node.ELEMENT_NODE) {
-
-      if ("body".equalsIgnoreCase(node.getNodeName())) // stop after HEAD
-        return null;
-
-
-      if ("base".equalsIgnoreCase(node.getNodeName())) {
-        NamedNodeMap attrs = node.getAttributes();
-        for (int i= 0; i < attrs.getLength(); i++ ) {
-          Node attr = attrs.item(i);
-          if ("href".equalsIgnoreCase(attr.getNodeName())) {
-            try {
-              return new URL(attr.getNodeValue());
-            } catch (MalformedURLException e) {}
+    NodeWalker walker = new NodeWalker(node);
+    
+    while (walker.hasNext()) {
+  
+      Node currentNode = walker.nextNode();
+      String nodeName = currentNode.getNodeName();
+      short nodeType = currentNode.getNodeType();
+      
+      // is this node a BASE tag?
+      if (nodeType == Node.ELEMENT_NODE) {
+  
+        if ("body".equalsIgnoreCase(nodeName)) { // stop after HEAD
+          return null;
+        }
+  
+        if ("base".equalsIgnoreCase(nodeName)) {
+          NamedNodeMap attrs = currentNode.getAttributes();
+          for (int i= 0; i < attrs.getLength(); i++ ) {
+            Node attr = attrs.item(i);
+            if ("href".equalsIgnoreCase(attr.getNodeName())) {
+              try {
+                return new URL(attr.getNodeValue());
+              } catch (MalformedURLException e) {}
+            }
           }
         }
-      }
-    }
-    
-    // does it contain a base tag?
-    NodeList children = node.getChildNodes();
-    if (children != null) {
-      int len = children.getLength();
-      for (int i = 0; i < len; i++) {
-        URL base = getBase(children.item(i));
-        if (base != null)
-          return base;
       }
     }
 
@@ -344,55 +347,58 @@ public class DOMContentUtils {
    */
   public void getOutlinks(URL base, ArrayList outlinks, 
                                        Node node) {
-
-    NodeList children = node.getChildNodes();
-    int childLen= 0;
-    if (children != null)
-      childLen= children.getLength();
+    
+    NodeWalker walker = new NodeWalker(node);
+    while (walker.hasNext()) {
+      
+      Node currentNode = walker.nextNode();
+      String nodeName = currentNode.getNodeName();
+      short nodeType = currentNode.getNodeType();      
+      NodeList children = currentNode.getChildNodes();
+      int childLen = (children != null) ? children.getLength() : 0; 
+      
+      if (nodeType == Node.ELEMENT_NODE) {
+        
+        nodeName = nodeName.toLowerCase();
+        LinkParams params = (LinkParams)linkParams.get(nodeName);
+        if (params != null) {
+          if (!shouldThrowAwayLink(currentNode, children, childLen, params)) {
   
-    if (node.getNodeType() == Node.ELEMENT_NODE) {
-      String nodeName = node.getNodeName().toLowerCase();
-      LinkParams params = (LinkParams)linkParams.get(nodeName);
-      if (params != null) {
-        if (!shouldThrowAwayLink(node, children, childLen, params)) {
-
-          StringBuffer linkText = new StringBuffer();
-          getText(linkText, node, true);
-
-          NamedNodeMap attrs = node.getAttributes();
-          String target = null;
-          boolean noFollow = false;
-          boolean post = false;
-          for (int i= 0; i < attrs.getLength(); i++ ) {
-            Node attr = attrs.item(i);
-            String attrName = attr.getNodeName();
-            if (params.attrName.equalsIgnoreCase(attrName)) {
-              target = attr.getNodeValue();
-            } else if ("rel".equalsIgnoreCase(attrName) &&
-                       "nofollow".equalsIgnoreCase(attr.getNodeValue())) {
-              noFollow = true;
-            } else if ("method".equalsIgnoreCase(attrName) &&
-                       "post".equalsIgnoreCase(attr.getNodeValue())) {
-              post = true;
+            StringBuffer linkText = new StringBuffer();
+            getText(linkText, currentNode, true);
+  
+            NamedNodeMap attrs = currentNode.getAttributes();
+            String target = null;
+            boolean noFollow = false;
+            boolean post = false;
+            for (int i= 0; i < attrs.getLength(); i++ ) {
+              Node attr = attrs.item(i);
+              String attrName = attr.getNodeName();
+              if (params.attrName.equalsIgnoreCase(attrName)) {
+                target = attr.getNodeValue();
+              } else if ("rel".equalsIgnoreCase(attrName) &&
+                         "nofollow".equalsIgnoreCase(attr.getNodeValue())) {
+                noFollow = true;
+              } else if ("method".equalsIgnoreCase(attrName) &&
+                         "post".equalsIgnoreCase(attr.getNodeValue())) {
+                post = true;
+              }
             }
+            if (target != null && !noFollow && !post)
+              try {
+                
+                URL url = (base.toString().indexOf(';') > 0) ? 
+                  fixEmbeddedParams(base, target) :  new URL(base, target);
+                outlinks.add(new Outlink(url.toString(),
+                                         linkText.toString().trim(), conf));
+              } catch (MalformedURLException e) {
+                // don't care
+              }
           }
-          if (target != null && !noFollow && !post)
-            try {
-              
-              URL url = (base.toString().indexOf(';') > 0) ? 
-                fixEmbeddedParams(base, target) :  new URL(base, target);
-              outlinks.add(new Outlink(url.toString(),
-                                       linkText.toString().trim(), conf));
-            } catch (MalformedURLException e) {
-              // don't care
-            }
+          // this should not have any children, skip them
+          if (params.childLen == 0) continue;
         }
-        // this should not have any children, skip them
-        if (params.childLen == 0) return;
       }
-    }
-    for ( int i = 0; i < childLen; i++ ) {
-      getOutlinks(base, outlinks, children.item(i));
     }
   }
 
