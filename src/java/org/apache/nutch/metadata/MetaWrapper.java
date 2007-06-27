@@ -22,17 +22,18 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.ObjectWritable;
+import org.apache.hadoop.io.Writable;
+import org.apache.nutch.crawl.NutchWritable;
 
 /**
- * This is a simple decorator that adds metadata to any Object-s that can be
- * serialized by <tt>ObjectWritable</tt>. This is useful when data needs to be
+ * This is a simple decorator that adds metadata to any Writable-s that can be
+ * serialized by <tt>NutchWritable</tt>. This is useful when data needs to be
  * temporarily enriched during processing, but this
  * temporary metadata doesn't need to be permanently stored after the job is done.
  * 
  * @author Andrzej Bialecki
  */
-public class MetaWrapper extends ObjectWritable {
+public class MetaWrapper extends NutchWritable {
   private Metadata metadata;
   
   public MetaWrapper() {
@@ -40,14 +41,14 @@ public class MetaWrapper extends ObjectWritable {
     metadata = new Metadata();
   }
   
-  public MetaWrapper(Object object, Configuration conf) {
-    super(object);
+  public MetaWrapper(Writable instance, Configuration conf) {
+    super(instance);
     metadata = new Metadata();
     setConf(conf);
   }
   
-  public MetaWrapper(Metadata metadata, Object object, Configuration conf) {
-    super(object);
+  public MetaWrapper(Metadata metadata, Writable instance, Configuration conf) {
+    super(instance);
     if (metadata == null) metadata = new Metadata();
     this.metadata = metadata;
     setConf(conf);

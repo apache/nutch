@@ -42,7 +42,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.fs.PathFilter;
 import org.apache.hadoop.io.MapFile;
-import org.apache.hadoop.io.ObjectWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.UTF8;
@@ -61,6 +60,7 @@ import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Progressable;
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
@@ -87,7 +87,7 @@ public class SegmentReader extends Configured implements Reducer {
         newKey.set(key.toString());
         key = newKey;
       }
-      collector.collect(key, new ObjectWritable(value));
+      collector.collect(key, new NutchWritable(value));
     }
     
   }
@@ -104,8 +104,7 @@ public class SegmentReader extends Configured implements Reducer {
       final PrintStream printStream = new PrintStream(fs.create(segmentDumpFile));
       return new RecordWriter() {
         public synchronized void write(WritableComparable key, Writable value) throws IOException {
-          ObjectWritable writable = (ObjectWritable) value;
-          printStream.println((String) writable.get());
+          printStream.println(value);
         }
 
         public synchronized void close(Reporter reporter) throws IOException {
@@ -170,7 +169,7 @@ public class SegmentReader extends Configured implements Reducer {
     dump.append("\nRecno:: ").append(recNo++).append("\n");
     dump.append("URL:: " + key.toString() + "\n");
     while (values.hasNext()) {
-      Object value = ((ObjectWritable) values.next()).get(); // unwrap
+      Writable value = ((NutchWritable) values.next()).get(); // unwrap
       if (value instanceof CrawlDatum) {
         dump.append("\nCrawlDatum::\n").append(((CrawlDatum) value).toString());
       } else if (value instanceof Content) {
@@ -183,7 +182,7 @@ public class SegmentReader extends Configured implements Reducer {
         LOG.warn("Unrecognized type: " + value.getClass());
       }
     }
-    output.collect(key, new ObjectWritable(dump.toString()));
+    output.collect(key, new Text(dump.toString()));
   }
 
   public void dump(Path segment, Path output) throws IOException {
@@ -212,7 +211,7 @@ public class SegmentReader extends Configured implements Reducer {
     job.setOutputPath(tempDir);
     job.setOutputFormat(TextOutputFormat.class);
     job.setOutputKeyClass(Text.class);
-    job.setOutputValueClass(ObjectWritable.class);
+    job.setOutputValueClass(NutchWritable.class);
 
     JobClient.runJob(job);
 

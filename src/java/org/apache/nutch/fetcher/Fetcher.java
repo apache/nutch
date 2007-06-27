@@ -32,6 +32,7 @@ import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.ToolBase;
 
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
@@ -321,9 +322,9 @@ public class Fetcher extends ToolBase implements MapRunnable {
       }
 
       try {
-        output.collect(key, new ObjectWritable(datum));
+        output.collect(key, new NutchWritable(datum));
         if (content != null && storingContent)
-          output.collect(key, new ObjectWritable(content));
+          output.collect(key, new NutchWritable(content));
         if (parseResult != null) {
           for (Entry<Text, Parse> entry : parseResult) {
             Text url = entry.getKey();
@@ -357,7 +358,7 @@ public class Fetcher extends ToolBase implements MapRunnable {
                 LOG.warn("Couldn't pass score, url " + key + " (" + e + ")");
               }
             }
-            output.collect(url, new ObjectWritable(
+            output.collect(url, new NutchWritable(
                     new ParseImpl(new ParseText(parse.getText()), 
                                   parse.getData(), parse.isCanonical())));
           }
@@ -493,7 +494,7 @@ public class Fetcher extends ToolBase implements MapRunnable {
     job.setOutputPath(segment);
     job.setOutputFormat(FetcherOutputFormat.class);
     job.setOutputKeyClass(Text.class);
-    job.setOutputValueClass(ObjectWritable.class);
+    job.setOutputValueClass(NutchWritable.class);
 
     JobClient.runJob(job);
     if (LOG.isInfoEnabled()) { LOG.info("Fetcher: done"); }

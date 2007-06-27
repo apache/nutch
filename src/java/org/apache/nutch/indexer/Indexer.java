@@ -43,6 +43,7 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.crawl.LinkDb;
+import org.apache.nutch.crawl.NutchWritable;
 
 import org.apache.lucene.index.*;
 import org.apache.lucene.document.*;
@@ -55,6 +56,32 @@ public class Indexer extends ToolBase implements Reducer, Mapper {
   public static final String DONE_NAME = "index.done";
 
   public static final Log LOG = LogFactory.getLog(Indexer.class);
+  
+  /** A utility class used to pass a lucene document from Indexer.reduce 
+   * to Indexer.OutputFormat.
+   * Note: Despite its name, it can't properly wrap a lucene document - it
+   * doesn't know how to serialize/deserialize a lucene document.
+   */
+  private static class LuceneDocumentWrapper implements Writable {
+    private Document doc;
+	  
+    public LuceneDocumentWrapper(Document doc) {
+      this.doc = doc;
+    }
+    
+    public Document get() {
+      return doc;
+    }
+
+    public void readFields(DataInput in) throws IOException { 
+      // intentionally left blank
+    }
+		
+    public void write(DataOutput out) throws IOException {
+      // intentionally left blank
+    }
+	  
+  }
 
   /** Unwrap Lucene Documents created by reduce and add them to an index. */
   public static class OutputFormat
@@ -87,7 +114,7 @@ public class Indexer extends ToolBase implements Reducer, Mapper {
 
           public void write(WritableComparable key, Writable value)
             throws IOException {                  // unwrap & index doc
-            Document doc = (Document)((ObjectWritable)value).get();
+            Document doc = ((LuceneDocumentWrapper) value).get();
             NutchAnalyzer analyzer = factory.get(doc.get("lang"));
             if (LOG.isInfoEnabled()) {
               LOG.info(" Indexing [" + doc.getField("url").stringValue() + "]" +
@@ -156,7 +183,7 @@ public class Indexer extends ToolBase implements Reducer, Mapper {
     ParseData parseData = null;
     ParseText parseText = null;
     while (values.hasNext()) {
-      Object value = ((ObjectWritable)values.next()).get(); // unwrap
+      Writable value = ((NutchWritable)values.next()).get(); // unwrap
       if (value instanceof Inlinks) {
         inlinks = (Inlinks)value;
       } else if (value instanceof CrawlDatum) {
@@ -240,7 +267,7 @@ public class Indexer extends ToolBase implements Reducer, Mapper {
     doc.add(new Field("boost", Float.toString(boost),
             Field.Store.YES, Field.Index.NO));
 
-    output.collect(key, new ObjectWritable(doc));
+    output.collect(key, new LuceneDocumentWrapper(doc));
   }
 
   public void index(Path indexDir, Path crawlDb, Path linkDb, Path[] segments)
@@ -274,7 +301,7 @@ public class Indexer extends ToolBase implements Reducer, Mapper {
     job.setOutputPath(indexDir);
     job.setOutputFormat(OutputFormat.class);
     job.setOutputKeyClass(Text.class);
-    job.setOutputValueClass(ObjectWritable.class);
+    job.setOutputValueClass(NutchWritable.class);
 
     JobClient.runJob(job);
     if (LOG.isInfoEnabled()) { LOG.info("Indexer: done"); }
@@ -309,7 +336,7 @@ public class Indexer extends ToolBase implements Reducer, Mapper {
 
   public void map(WritableComparable key, Writable value,
       OutputCollector output, Reporter reporter) throws IOException {
-    output.collect(key, new ObjectWritable(value));
+    output.collect(key, new NutchWritable(value));
   }
 
 }
