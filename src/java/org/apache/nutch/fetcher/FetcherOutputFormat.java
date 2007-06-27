@@ -20,11 +20,11 @@ package org.apache.nutch.fetcher;
 import java.io.IOException;
 
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.NutchWritable;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 import org.apache.hadoop.io.MapFile;
-import org.apache.hadoop.io.ObjectWritable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.Text;
@@ -81,7 +81,7 @@ public class FetcherOutputFormat implements OutputFormat {
         public void write(WritableComparable key, Writable value)
           throws IOException {
 
-          Writable w = (Writable)((ObjectWritable)value).get();
+          Writable w = ((NutchWritable)value).get();
           
           if (w instanceof CrawlDatum)
             fetchOut.append(key, w);

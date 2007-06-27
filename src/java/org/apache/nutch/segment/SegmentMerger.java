@@ -153,7 +153,7 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
             
             MetaWrapper wrapper = (MetaWrapper) value;
             try {
-              wrapper.set(getValueClass().newInstance());
+              wrapper.set((Writable)getValueClass().newInstance());
             } catch (Exception e) {
               throw new IOException(e.toString());
             }
