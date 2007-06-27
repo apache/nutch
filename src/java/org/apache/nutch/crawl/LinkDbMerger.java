@@ -16,18 +16,29 @@
  */
 package org.apache.nutch.crawl;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Random;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.MapFileOutputFormat;
+import org.apache.hadoop.mapred.OutputCollector;
+import org.apache.hadoop.mapred.Reducer;
+import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.ToolBase;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.NutchJob;
 
 /**
  * This tool merges several LinkDb-s into one, optionally filtering
@@ -47,8 +58,10 @@ import org.apache.nutch.util.NutchConfiguration;
  * 
  * @author Andrzej Bialecki
  */
-public class LinkDbMerger extends ToolBase {
+public class LinkDbMerger extends ToolBase implements Reducer {
   private static final Log LOG = LogFactory.getLog(LinkDbMerger.class);
+  
+  private int maxInlinks;
   
   public LinkDbMerger() {
     
@@ -58,8 +71,33 @@ public class LinkDbMerger extends ToolBase {
     setConf(conf);
   }
 
+  public void reduce(WritableComparable key, Iterator values, OutputCollector output, Reporter reporter) throws IOException {
+
+    Inlinks result = new Inlinks();
+
+    while (values.hasNext()) {
+      Inlinks inlinks = (Inlinks)values.next();
+
+      int end = Math.min(maxInlinks - result.size(), inlinks.size());
+      Iterator it = inlinks.iterator();
+      int i = 0;
+      while(it.hasNext() && i++ < end) {
+        result.add((Inlink)it.next());
+      }
+    }
+    if (result.size() == 0) return;
+    output.collect(key, result);
+    
+  }
+
+  public void configure(JobConf job) {
+    maxInlinks = job.getInt("db.max.inlinks", 10000);
+  }
+
+  public void close() throws IOException { }
+
   public void merge(Path output, Path[] dbs, boolean normalize, boolean filter) throws Exception {
-    JobConf job = LinkDb.createMergeJob(getConf(), output, normalize, filter);
+    JobConf job = createMergeJob(getConf(), output, normalize, filter);
     for (int i = 0; i < dbs.length; i++) {
       job.addInputPath(new Path(dbs[i], LinkDb.CURRENT_NAME));      
     }
@@ -68,6 +106,31 @@ public class LinkDbMerger extends ToolBase {
     fs.mkdirs(output);
     fs.rename(job.getOutputPath(), new Path(output, LinkDb.CURRENT_NAME));
   }
+
+  public static JobConf createMergeJob(Configuration config, Path linkDb, boolean normalize, boolean filter) {
+    Path newLinkDb =
+      new Path("linkdb-merge-" + 
+               Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
+
+    JobConf job = new NutchJob(config);
+    job.setJobName("linkdb merge " + linkDb);
+
+    job.setInputFormat(SequenceFileInputFormat.class);
+
+    job.setMapperClass(LinkDbFilter.class);
+    job.setBoolean(LinkDbFilter.URL_NORMALIZING, normalize);
+    job.setBoolean(LinkDbFilter.URL_FILTERING, filter);
+    job.setReducerClass(LinkDbMerger.class);
+
+    job.setOutputPath(newLinkDb);
+    job.setOutputFormat(MapFileOutputFormat.class);
+    job.setBoolean("mapred.output.compress", true);
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(Inlinks.class);
+
+    return job;
+  }
+  
   /**
    * @param args
    */
