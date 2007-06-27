@@ -215,6 +215,7 @@ public class LinkDb extends ToolBase implements Mapper {
     job.setInputFormat(SequenceFileInputFormat.class);
 
     job.setMapperClass(LinkDb.class);
+    job.setCombinerClass(LinkDbMerger.class);
     // if we don't run the mergeJob, perform normalization/filtering now
     if (normalize || filter) {
       try {
