@@ -41,7 +41,7 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
 /** Maintains an inverted link map, listing incoming links for each url. */
-public class LinkDb extends ToolBase implements Mapper, Reducer {
+public class LinkDb extends ToolBase implements Mapper {
 
   public static final Log LOG = LogFactory.getLog(LinkDb.class);
 
@@ -49,41 +49,10 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
   public static final String LOCK_NAME = ".locked";
 
   private int maxAnchorLength;
-  private int maxInlinks;
   private boolean ignoreInternalLinks;
   private URLFilters urlFilters;
   private URLNormalizers urlNormalizers;
   
-  public static class Merger extends MapReduceBase implements Reducer {
-    private int _maxInlinks;
-    
-    public void configure(JobConf job) {
-      super.configure(job);
-      _maxInlinks = job.getInt("db.max.inlinks", 10000);
-    }
-
-    public void reduce(WritableComparable key, Iterator values, OutputCollector output, Reporter reporter) throws IOException {
-      Inlinks inlinks = null;
-      while (values.hasNext()) {
-        if (inlinks == null) {
-          inlinks = (Inlinks)values.next();
-          continue;
-        }
-        Inlinks val = (Inlinks)values.next();
-        for (Iterator it = val.iterator(); it.hasNext(); ) {
-          if (inlinks.size() >= _maxInlinks) {
-            output.collect(key, inlinks);
-            return;
-          }
-          Inlink in = (Inlink)it.next();
-          inlinks.add(in);
-        }
-      }
-      if (inlinks.size() == 0) return;
-      output.collect(key, inlinks);
-    }
-  }
-
   public LinkDb() {
     
   }
@@ -94,7 +63,6 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
   
   public void configure(JobConf job) {
     maxAnchorLength = job.getInt("db.max.anchor.length", 100);
-    maxInlinks = job.getInt("db.max.inlinks", 10000);
     ignoreInternalLinks = job.getBoolean("db.ignore.internal.links", true);
     if (job.getBoolean(LinkDbFilter.URL_FILTERING, false)) {
       urlFilters = new URLFilters(job);
@@ -176,26 +144,6 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
     }
   }
 
-  public void reduce(WritableComparable key, Iterator values,
-                     OutputCollector output, Reporter reporter)
-    throws IOException {
-
-    Inlinks result = new Inlinks();
-
-    while (values.hasNext()) {
-      Inlinks inlinks = (Inlinks)values.next();
-
-      int end = Math.min(maxInlinks - result.size(), inlinks.size());
-      Iterator it = inlinks.iterator();
-      int i = 0;
-      while(it.hasNext() && i++ < end) {
-        result.add((Inlink)it.next());
-      }
-    }
-    if (result.size() == 0) return;
-    output.collect(key, result);
-  }
-
   public void invert(Path linkDb, final Path segmentsDir, boolean normalize, boolean filter, boolean force) throws IOException {
     final FileSystem fs = FileSystem.get(getConf());
     Path[] files = fs.listPaths(segmentsDir, new PathFilter() {
@@ -240,7 +188,7 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
       }
       // try to merge
       Path newLinkDb = job.getOutputPath();
-      job = LinkDb.createMergeJob(getConf(), linkDb, normalize, filter);
+      job = LinkDbMerger.createMergeJob(getConf(), linkDb, normalize, filter);
       job.addInputPath(currentLinkDb);
       job.addInputPath(newLinkDb);
       try {
@@ -279,31 +227,7 @@ public class LinkDb extends ToolBase implements Mapper, Reducer {
         LOG.warn("LinkDb createJob: " + e);
       }
     }
-    job.setReducerClass(LinkDb.class);
-
-    job.setOutputPath(newLinkDb);
-    job.setOutputFormat(MapFileOutputFormat.class);
-    job.setBoolean("mapred.output.compress", true);
-    job.setOutputKeyClass(Text.class);
-    job.setOutputValueClass(Inlinks.class);
-
-    return job;
-  }
-
-  public static JobConf createMergeJob(Configuration config, Path linkDb, boolean normalize, boolean filter) {
-    Path newLinkDb =
-      new Path("linkdb-merge-" + 
-               Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
-
-    JobConf job = new NutchJob(config);
-    job.setJobName("linkdb merge " + linkDb);
-
-    job.setInputFormat(SequenceFileInputFormat.class);
-
-    job.setMapperClass(LinkDbFilter.class);
-    job.setBoolean(LinkDbFilter.URL_NORMALIZING, normalize);
-    job.setBoolean(LinkDbFilter.URL_FILTERING, filter);
-    job.setReducerClass(Merger.class);
+    job.setReducerClass(LinkDbMerger.class);
 
     job.setOutputPath(newLinkDb);
     job.setOutputFormat(MapFileOutputFormat.class);
