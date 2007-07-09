@@ -422,7 +422,16 @@ public class Generator extends ToolBase {
     
     // check that we selected at least some entries ...
     SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(job, tempDir);
-    if (readers == null || readers.length == 0 || !readers[0].next(new FloatWritable())) {
+    boolean empty = true;
+    if (readers != null && readers.length > 0) {
+      for (int num = 0; num < readers.length; num++) {
+        if (readers[num].next(new FloatWritable())) {
+          empty = false;
+          break;
+        }
+      }
+    }
+    if (empty) {
       LOG.warn("Generator: 0 records selected for fetching, exiting ...");
       LockUtil.removeLockFile(fs, lock);
       fs.delete(tempDir);
