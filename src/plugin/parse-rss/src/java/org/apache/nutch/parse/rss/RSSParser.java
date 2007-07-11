@@ -199,7 +199,6 @@ public class RSSParser implements Parser {
 
         ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS,
                 contentTitle.toString(), outlinks, content.getMetadata());
-        parseData.setConf(this.conf);
         return ParseResult.createParseResult(content.getUrl(), new ParseImpl(indexText.toString(), parseData));
     }
 

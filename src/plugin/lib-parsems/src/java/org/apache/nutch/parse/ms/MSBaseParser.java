@@ -104,7 +104,6 @@ public abstract class MSBaseParser implements Parser {
     ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, title,
                                         outlinks, content.getMetadata(),
                                         metadata);
-    parseData.setConf(this.conf);
     return ParseResult.createParseResult(content.getUrl(), 
                                          new ParseImpl(text, parseData));
   }

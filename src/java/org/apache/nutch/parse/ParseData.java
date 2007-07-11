@@ -21,9 +21,8 @@ import java.io.*;
 import java.util.*;
 
 import org.apache.hadoop.io.*;
-import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configurable;
+import org.apache.hadoop.fs.*;
 
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.util.NutchConfiguration;
@@ -32,7 +31,7 @@ import org.apache.nutch.util.NutchConfiguration;
 /** Data extracted from a page's content.
  * @see Parse#getData()
  */
-public final class ParseData extends VersionedWritable implements Configurable {
+public final class ParseData extends VersionedWritable {
   public static final String DIR_NAME = "parse_data";
 
   private final static byte VERSION = 5;
@@ -42,13 +41,8 @@ public final class ParseData extends VersionedWritable implements Configurable {
   private Metadata contentMeta;
   private Metadata parseMeta;
   private ParseStatus status;
-  private Configuration conf;
   private byte version = VERSION;
   
-  // TODO mb@media-style.com: should we really implement Configurable or should we add the
-  // parameter Configuration to the default-constructor. NOTE: The test
-  // TestWriteable instantiates ParseData with Class.newInstance() -> the default
-  // constructor is called -> conf is null. The programmer which use this object may not forget to set the conf.
   public ParseData() {}
 
   public ParseData(ParseStatus status, String title, Outlink[] outlinks,
@@ -123,18 +117,10 @@ public final class ParseData extends VersionedWritable implements Configurable {
     status = ParseStatus.read(in);
     title = Text.readString(in);                   // read title
 
-    int totalOutlinks = in.readInt();             // read outlinks
-    int maxOutlinksPerPage = this.conf.getInt("db.max.outlinks.per.page", 100);
-    int outlinksToRead = totalOutlinks;
-    if (maxOutlinksPerPage >= 0) {
-      outlinksToRead = Math.min(maxOutlinksPerPage, totalOutlinks);
-    }
-    outlinks = new Outlink[outlinksToRead];
-    for (int i = 0; i < outlinksToRead; i++) {
+    int numOutlinks = in.readInt();    
+    outlinks = new Outlink[numOutlinks];
+    for (int i = 0; i < numOutlinks; i++) {
       outlinks[i] = Outlink.read(in);
-    }
-    for (int i = outlinksToRead; i < totalOutlinks; i++) {
-      Outlink.skip(in);
     }
     
     if (version < 3) {
@@ -239,11 +225,4 @@ public final class ParseData extends VersionedWritable implements Configurable {
     }
   }
 
-  public void setConf(Configuration conf) {
-    this.conf = conf;
-  }
-
-  public Configuration getConf() {
-    return this.conf;
-  }
 }

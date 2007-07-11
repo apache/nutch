@@ -53,7 +53,6 @@ public class TextParser implements Parser {
     
     ParseData parseData = new ParseData(ParseStatus.STATUS_SUCCESS, "",
         OutlinkExtractor.getOutlinks(text, getConf()), content.getMetadata());
-    parseData.setConf(this.conf);
     return ParseResult.createParseResult(content.getUrl(), new ParseImpl(text, parseData));
   }
 
