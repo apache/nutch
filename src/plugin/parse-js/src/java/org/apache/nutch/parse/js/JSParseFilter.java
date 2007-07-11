@@ -90,7 +90,6 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
       ParseData parseData = new ParseData(status, title, newlinks,
                                           parse.getData().getContentMeta(),
                                           parse.getData().getParseMeta());
-      parseData.setConf(this.conf);
 
       // replace original parse obj with new one
       parseResult.put(content.getUrl(), new ParseText(text), parseData);
@@ -170,7 +169,6 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     }
     ParseData pd = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks,
                                  c.getMetadata());
-    pd.setConf(this.conf);
     return ParseResult.createParseResult(c.getUrl(), new ParseImpl(script, pd));
   }
   

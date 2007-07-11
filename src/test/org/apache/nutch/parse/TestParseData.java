@@ -47,9 +47,8 @@ public class TestParseData extends TestCase {
     metaData.add("Charset", "UTF-8");
 
     ParseData r = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks, metaData);
-    r.setConf(conf);
                         
-    WritableTestUtils.testWritable(r, conf);
+    WritableTestUtils.testWritable(r, null);
   }
 	
   public void testMaxOutlinks() throws Exception {
@@ -61,22 +60,7 @@ public class TestParseData extends TestCase {
                                        "Max Outlinks Title",
                                        outlinks,
                                        new Metadata());
-    Configuration conf = NutchConfiguration.create();
-    // No Outlinks
-    conf.setInt("db.max.outlinks.per.page", 0);
-    ParseData data = (ParseData) WritableTestUtils.writeRead(original, conf);
-    assertEquals(0, data.getOutlinks().length);
-    // Only 100 Outlinks
-    conf.setInt("db.max.outlinks.per.page", 100);
-    data = (ParseData) WritableTestUtils.writeRead(original, conf);
-    assertEquals(100, data.getOutlinks().length);
-    // 256 Outlinks
-    conf.setInt("db.max.outlinks.per.page", 256);
-    data = (ParseData) WritableTestUtils.writeRead(original, conf);
-    assertEquals(outlinks.length, data.getOutlinks().length);
-    // All Outlinks
-    conf.setInt("db.max.outlinks.per.page", -1);
-    data = (ParseData) WritableTestUtils.writeRead(original, conf);
+    ParseData data = (ParseData) WritableTestUtils.writeRead(original, null);
     assertEquals(outlinks.length, data.getOutlinks().length);
   }
 }

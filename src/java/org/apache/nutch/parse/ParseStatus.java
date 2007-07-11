@@ -258,7 +258,6 @@ public class ParseStatus extends VersionedWritable {
     public EmptyParseImpl(ParseStatus status, Configuration conf) {
       data = new ParseData(status, "", new Outlink[0],
                            new Metadata(), new Metadata());
-      data.setConf(conf);
     }
     
     public ParseData getData() {

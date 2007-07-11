@@ -45,7 +45,6 @@ import org.apache.hadoop.util.Progressable;
 public class ParseOutputFormat implements OutputFormat {
   private static final Log LOG = LogFactory.getLog(ParseOutputFormat.class);
 
-  private URLNormalizers urlNormalizers;
   private URLFilters filters;
   private ScoringFilters scfilters;
   
@@ -80,11 +79,12 @@ public class ParseOutputFormat implements OutputFormat {
   public RecordWriter getRecordWriter(FileSystem fs, JobConf job,
                                       String name, Progressable progress) throws IOException {
 
-    this.urlNormalizers = new URLNormalizers(job, URLNormalizers.SCOPE_OUTLINK);
     this.filters = new URLFilters(job);
     this.scfilters = new ScoringFilters(job);
+    final UrlValidator validator = UrlValidator.get();
     final float interval = job.getFloat("db.default.fetch.interval", 30f);
     final boolean ignoreExternalLinks = job.getBoolean("db.ignore.external.links", false);
+    final int maxOutlinks = job.getInt("db.max.outlinks.per.page", 100);
     
     Path text =
       new Path(new Path(job.getOutputPath(), ParseText.DIR_NAME), name);
@@ -132,6 +132,7 @@ public class ParseOutputFormat implements OutputFormat {
 
           // collect outlinks for subsequent db update
           Outlink[] links = parseData.getOutlinks();
+          int outlinksToStore = Math.min(maxOutlinks, links.length);
           if (ignoreExternalLinks) {
             try {
               fromHost = new URL(fromUrl).getHost().toLowerCase();
@@ -142,29 +143,33 @@ public class ParseOutputFormat implements OutputFormat {
             fromHost = null;
           }
 
-          String[] toUrls = new String[links.length];
           int validCount = 0;
-          for (int i = 0; i < links.length; i++) {
-            String toUrl = links[i].getToUrl();
-            try {
-              toUrl = urlNormalizers.normalize(toUrl, URLNormalizers.SCOPE_OUTLINK); // normalize the url
-              toUrl = filters.filter(toUrl);   // filter the url
-            } catch (Exception e) {
-              toUrl = null;
-            }
-            // ignore links to self (or anchors within the page)
-            if (fromUrl.equals(toUrl)) toUrl = null;
-            if (toUrl != null) validCount++;
-            toUrls[i] = toUrl;
-          }
           CrawlDatum adjust = null;
           List<Entry<Text, CrawlDatum>> targets = new ArrayList<Entry<Text, CrawlDatum>>();
-          // compute score contributions and adjustment to the original score
-          for (int i = 0; i < toUrls.length; i++) {
-            if (toUrls[i] == null) continue;
+          List<Outlink> outlinkList = new ArrayList<Outlink>();
+          for (int i = 0; i < links.length && validCount < outlinksToStore; i++) {
+            String toUrl = links[i].getToUrl();
+            if (!validator.isValid(toUrl)) {
+              continue;
+            }
+            try {
+              // normalizing here is not necessary since outlinks 
+              // are already normalized in Outlink's constructor
+              toUrl = filters.filter(toUrl);   // filter the url
+              if (toUrl == null) {
+                continue;
+              }
+            } catch (Exception e) {
+              continue;
+            }
+            
+            // ignore links to self (or anchors within the page)
+            if (fromUrl.equals(toUrl)) {
+              continue;
+            }
             if (ignoreExternalLinks) {
               try {
-                toHost = new URL(toUrls[i]).getHost().toLowerCase();
+                toHost = new URL(toUrl).getHost().toLowerCase();
               } catch (MalformedURLException e) {
                 toHost = null;
               }
@@ -173,7 +178,7 @@ public class ParseOutputFormat implements OutputFormat {
               }
             }
             CrawlDatum target = new CrawlDatum(CrawlDatum.STATUS_LINKED, interval);
-            Text targetUrl = new Text(toUrls[i]);
+            Text targetUrl = new Text(toUrl);
             try {
               scfilters.initialScore(targetUrl, target);
             } catch (ScoringFilterException e) {
@@ -183,8 +188,11 @@ public class ParseOutputFormat implements OutputFormat {
             }
             
             targets.add(new SimpleEntry(targetUrl, target));
+            outlinkList.add(links[i]);
+            validCount++;
           }
           try {
+            // compute score contributions and adjustment to the original score
             adjust = scfilters.distributeScoreToOutlinks((Text)key, parseData, 
                       targets, null, links.length);
           } catch (ScoringFilterException e) {
@@ -195,6 +203,10 @@ public class ParseOutputFormat implements OutputFormat {
           }
           if (adjust != null) crawlOut.append(key, adjust);
 
+          Outlink[] filteredLinks = outlinkList.toArray(new Outlink[outlinkList.size()]);
+          parseData = new ParseData(parseData.getStatus(), parseData.getTitle(), 
+                                    filteredLinks, parseData.getContentMeta(), 
+                                    parseData.getParseMeta());
           dataOut.append(key, parseData);
           if (!parse.isCanonical()) {
             CrawlDatum datum = new CrawlDatum();

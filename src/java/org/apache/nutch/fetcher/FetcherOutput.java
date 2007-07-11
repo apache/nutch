@@ -23,15 +23,12 @@ import org.apache.hadoop.io.*;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.parse.*;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configurable;
 
 /* An entry in the fetcher's output. */
-public final class FetcherOutput implements Writable, Configurable {
+public final class FetcherOutput implements Writable {
   private CrawlDatum crawlDatum;
   private Content content;
   private ParseImpl parse;
-  private Configuration conf;
 
   public FetcherOutput() {}
 
@@ -45,7 +42,7 @@ public final class FetcherOutput implements Writable, Configurable {
   public final void readFields(DataInput in) throws IOException {
     this.crawlDatum = CrawlDatum.read(in);
     this.content = in.readBoolean() ? Content.read(in) : null;
-    this.parse = in.readBoolean() ? ParseImpl.read(in, this.conf) : null;
+    this.parse = in.readBoolean() ? ParseImpl.read(in) : null;
   }
 
   public final void write(DataOutput out) throws IOException {
@@ -79,14 +76,6 @@ public final class FetcherOutput implements Writable, Configurable {
     StringBuffer buffer = new StringBuffer();
     buffer.append("CrawlDatum: " + crawlDatum+"\n" );
     return buffer.toString();
-  }
-
-  public void setConf(Configuration conf) {
-    this.conf = conf;
-  }
-
-  public Configuration getConf() {
-    return this.conf;
   }
 
 }

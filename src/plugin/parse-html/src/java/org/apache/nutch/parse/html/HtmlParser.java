@@ -213,7 +213,6 @@ public class HtmlParser implements Parser {
     }
     ParseData parseData = new ParseData(status, title, outlinks,
                                         content.getMetadata(), metadata);
-    parseData.setConf(this.conf);
     ParseResult parseResult = ParseResult.createParseResult(content.getUrl(), 
                                                  new ParseImpl(text, parseData));
 
