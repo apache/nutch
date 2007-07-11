@@ -24,6 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.fs.*;
+import org.apache.hadoop.mapred.FileAlreadyExistsException;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.ToolBase;
 import org.apache.hadoop.conf.*;
@@ -58,13 +59,9 @@ public class IndexMerger extends ToolBase {
    * Merge all input indexes to the single output index
    */
   public void merge(Path[] indexes, Path outputIndex, Path localWorkingDir) throws IOException {
-    if (LOG.isInfoEnabled()) {
-      LOG.info("merging indexes to: " + outputIndex);
-    }
-    FileSystem localFs = FileSystem.getLocal(getConf());
-    if (localWorkingDir == null) {
-      localWorkingDir = new Path("indexmerger-" + System.currentTimeMillis());
-    }
+    LOG.info("merging indexes to: " + outputIndex);
+
+    FileSystem localFs = FileSystem.getLocal(getConf());  
     if (localFs.exists(localWorkingDir)) {
       localFs.delete(localWorkingDir);
     }
@@ -73,6 +70,10 @@ public class IndexMerger extends ToolBase {
     // Get local output target
     //
     FileSystem fs = FileSystem.get(getConf());
+    if (fs.exists(outputIndex)) {
+      throw new FileAlreadyExistsException("Output directory " + outputIndex + " already exists!");
+    }
+
     Path tmpLocalOutput = new Path(localWorkingDir, "merge-output");
     Path localOutput = fs.startLocalOutput(outputIndex, tmpLocalOutput);
 
@@ -81,8 +82,6 @@ public class IndexMerger extends ToolBase {
       if (LOG.isInfoEnabled()) { LOG.info("Adding " + indexes[i]); }
       dirs[i] = new FsDirectory(fs, indexes[i], false, this.conf);
     }
-
-    //
 
     //
     // Merge indices
@@ -102,8 +101,7 @@ public class IndexMerger extends ToolBase {
     // Put target back
     //
     fs.completeLocalOutput(outputIndex, tmpLocalOutput);
-    FileSystem.getLocal(conf).delete(localWorkingDir);
-    if (LOG.isInfoEnabled()) { LOG.info("done merging"); }
+    LOG.info("done merging");
   }
 
   /** 
@@ -125,9 +123,9 @@ public class IndexMerger extends ToolBase {
     // Parse args, read all index directories to be processed
     //
     FileSystem fs = FileSystem.get(conf);
-    List indexDirs = new ArrayList();
+    List<Path> indexDirs = new ArrayList<Path>();
 
-    Path workDir = null;
+    Path workDir = new Path("indexmerger-" + System.currentTimeMillis());  
     int i = 0;
     if ("-workingdir".equals(args[i])) {
       i++;
@@ -152,6 +150,8 @@ public class IndexMerger extends ToolBase {
     } catch (Exception e) {
       LOG.fatal("IndexMerger: " + StringUtils.stringifyException(e));
       return -1;
+    } finally {
+      FileSystem.getLocal(conf).delete(workDir);
     }
   }
 }
