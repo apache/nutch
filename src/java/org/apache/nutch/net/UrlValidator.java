@@ -16,7 +16,8 @@
  */
 package org.apache.nutch.net;
 
-import org.apache.oro.text.perl.Perl5Util;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * <p>Validates URLs.</p>
@@ -64,9 +65,8 @@ public class UrlValidator {
   /**
    * This expression derived/taken from the BNF for URI (RFC2396).
    */
-  private static final String URL_PATTERN =
-    "/^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?/";
-  //                                                                      12            3  4          5       6   7        8 9
+  private static final Pattern URL_PATTERN =
+    Pattern.compile("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
 
   /**
    * Schema/Protocol (ie. http:, ftp:, file:, etc).
@@ -85,11 +85,11 @@ public class UrlValidator {
   /**
    * Protocol (ie. http:, ftp:,https:).
    */
-  private static final String SCHEME_PATTERN = "/^[" + SCHEME_CHARS + "]/";
+  private static final Pattern SCHEME_PATTERN = 
+    Pattern.compile("^[" + SCHEME_CHARS + "]+");
 
-  private static final String AUTHORITY_PATTERN =
-    "/^([" + AUTHORITY_CHARS + "]*)(:\\d*)?(.*)?/";
-  //                                                                            1                          2  3       4
+  private static final Pattern AUTHORITY_PATTERN =
+    Pattern.compile("^([" + AUTHORITY_CHARS + "]*)(:\\d*)?(.*)?");
 
   private static final int PARSE_AUTHORITY_HOST_IP = 1;
 
@@ -100,23 +100,28 @@ public class UrlValidator {
    */
   private static final int PARSE_AUTHORITY_EXTRA = 3;
 
-  private static final String PATH_PATTERN = "/^(/[-\\w:@&?=+,.!/~*'%$_;]*)?$/";
+  private static final Pattern PATH_PATTERN = 
+    Pattern.compile("^(/[-\\w:@&?=+,.!/~*'%$_;\\(\\)]*)?$");
 
-  private static final String QUERY_PATTERN = "/^(.*)$/";
+  private static final Pattern QUERY_PATTERN = Pattern.compile("^(.*)$");
 
-  private static final String LEGAL_ASCII_PATTERN = "/^[\\000-\\177]+$/";
+  private static final Pattern LEGAL_ASCII_PATTERN = 
+    Pattern.compile("^[\\x20-\\x7E]+$");
 
-  private static final String IP_V4_DOMAIN_PATTERN =
-    "/^(\\d{1,3})[.](\\d{1,3})[.](\\d{1,3})[.](\\d{1,3})$/";
+  private static final Pattern IP_V4_DOMAIN_PATTERN =
+    Pattern.compile("^(\\d{1,3})[.](\\d{1,3})[.](\\d{1,3})[.](\\d{1,3})$");
 
-  private static final String DOMAIN_PATTERN =
-    "/^" + ATOM + "(\\." + ATOM + ")*$/";
+  private static final Pattern DOMAIN_PATTERN =
+    Pattern.compile("^" + ATOM + "(\\." + ATOM + ")*$");
 
-  private static final String PORT_PATTERN = "/^:(\\d{1,5})$/";
+  private static final Pattern PORT_PATTERN = 
+    Pattern.compile("^:(\\d{1,5})$");
 
-  private static final String ATOM_PATTERN = "/(" + ATOM + ")/";
+  private static final Pattern ATOM_PATTERN = 
+    Pattern.compile("(" + ATOM + ")");
 
-  private static final String ALPHA_PATTERN = "/^[" + ALPHA_CHARS + "]/";
+  private static final Pattern ALPHA_PATTERN = 
+    Pattern.compile("^[" + ALPHA_CHARS + "]");
   
   private static final UrlValidator VALIDATOR = new UrlValidator();
 
@@ -139,15 +144,13 @@ public class UrlValidator {
       return false;
     }
 
-    Perl5Util matchUrlPat = new Perl5Util();
-    Perl5Util matchAsciiPat = new Perl5Util();
-
-    if (!matchAsciiPat.match(LEGAL_ASCII_PATTERN, value)) {
+    Matcher matchUrlPat = URL_PATTERN.matcher(value);
+    if (!LEGAL_ASCII_PATTERN.matcher(value).matches()) {
       return false;
     }
 
     // Check the whole url address structure
-    if (!matchUrlPat.match(URL_PATTERN, value)) {
+    if (!matchUrlPat.matches()) {
       return false;
     }
 
@@ -183,12 +186,7 @@ public class UrlValidator {
       return false;
     }
 
-    Perl5Util schemeMatcher = new Perl5Util();
-    if (!schemeMatcher.match(SCHEME_PATTERN, scheme)) {
-      return false;
-    }
-
-    return true;
+    return SCHEME_PATTERN.matcher(scheme).matches();
   }
 
   /**
@@ -202,10 +200,8 @@ public class UrlValidator {
       return false;
     }
 
-    Perl5Util authorityMatcher = new Perl5Util();
-    Perl5Util matchIPV4Pat = new Perl5Util();
-
-    if (!authorityMatcher.match(AUTHORITY_PATTERN, authority)) {
+    Matcher authorityMatcher = AUTHORITY_PATTERN.matcher(authority);
+    if (!authorityMatcher.matches()) {
       return false;
     }
 
@@ -213,7 +209,8 @@ public class UrlValidator {
     boolean hostname = false;
     // check if authority is IP address or hostname
     String hostIP = authorityMatcher.group(PARSE_AUTHORITY_HOST_IP);
-    ipV4Address = matchIPV4Pat.match(IP_V4_DOMAIN_PATTERN, hostIP);
+    Matcher matchIPV4Pat = IP_V4_DOMAIN_PATTERN.matcher(hostIP);
+    ipV4Address = matchIPV4Pat.matches();
 
     if (ipV4Address) {
       // this is an IP address so check components
@@ -234,8 +231,7 @@ public class UrlValidator {
       }
     } else {
       // Domain is hostname name
-      Perl5Util domainMatcher = new Perl5Util();
-      hostname = domainMatcher.match(DOMAIN_PATTERN, hostIP);
+      hostname = DOMAIN_PATTERN.matcher(hostIP).matches();
     }
 
     // rightmost hostname will never start with a digit.
@@ -250,20 +246,16 @@ public class UrlValidator {
         }
       }
       String[] domainSegment = new String[size];
-      boolean match = true;
       int segCount = 0;
       int segLen = 0;
-      Perl5Util atomMatcher = new Perl5Util();
+      Matcher atomMatcher = ATOM_PATTERN.matcher(hostIP);
 
-      while (match) {
-        match = atomMatcher.match(ATOM_PATTERN, hostIP);
-        if (match) {
-          domainSegment[segCount] = atomMatcher.group(1);
-          segLen = domainSegment[segCount].length() + 1;
-          hostIP = (segLen >= hostIP.length()) ? "" 
-                                               : hostIP.substring(segLen);
-          segCount++;
-        }
+      while (atomMatcher.find()) {
+        domainSegment[segCount] = atomMatcher.group();
+        segLen = domainSegment[segCount].length() + 1;
+        hostIP = (segLen >= hostIP.length()) ? "" 
+                                             : hostIP.substring(segLen);
+        segCount++;
       }
       String topLevel = domainSegment[segCount - 1];
       if (topLevel.length() < 2 || topLevel.length() > 4) {
@@ -271,8 +263,7 @@ public class UrlValidator {
       }
 
       // First letter of top level must be a alpha
-      Perl5Util alphaMatcher = new Perl5Util();
-      if (!alphaMatcher.match(ALPHA_PATTERN, topLevel.substring(0, 1))) {
+      if (!ALPHA_PATTERN.matcher(topLevel.substring(0, 1)).matches()) {
         return false;
       }
 
@@ -288,18 +279,13 @@ public class UrlValidator {
 
     String port = authorityMatcher.group(PARSE_AUTHORITY_PORT);
     if (port != null) {
-      Perl5Util portMatcher = new Perl5Util();
-      if (!portMatcher.match(PORT_PATTERN, port)) {
+      if (!PORT_PATTERN.matcher(port).matches()) {
         return false;
       }
     }
 
     String extra = authorityMatcher.group(PARSE_AUTHORITY_EXTRA);
-    if (!isBlankOrNull(extra)) {
-      return false;
-    }
-
-    return true;
+    return isBlankOrNull(extra);
   }
 
   /**
@@ -323,23 +309,15 @@ public class UrlValidator {
       return false;
     }
 
-    Perl5Util pathMatcher = new Perl5Util();
-
-    if (!pathMatcher.match(PATH_PATTERN, path)) {
+    if (!PATH_PATTERN.matcher(path).matches()) {
       return false;
     }
 
     int slash2Count = countToken("//", path);
-
     int slashCount = countToken("/", path);
     int dot2Count = countToken("..", path);
-    if (dot2Count > 0) {
-      if ((slashCount - slash2Count - 1) <= dot2Count) {
-        return false;
-      }
-    }
-
-    return true;
+    
+    return (dot2Count <= 0) || ((slashCount - slash2Count - 1) > dot2Count);
   }
 
   /**
@@ -352,8 +330,7 @@ public class UrlValidator {
       return true;
     }
 
-    Perl5Util queryMatcher = new Perl5Util();
-    return queryMatcher.match(QUERY_PATTERN, query);
+    return QUERY_PATTERN.matcher(query).matches();
   }
 
   /**
