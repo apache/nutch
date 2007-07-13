@@ -145,24 +145,10 @@ public class ParseOutputFormat implements OutputFormat {
 
           int validCount = 0;
           CrawlDatum adjust = null;
-          List<Entry<Text, CrawlDatum>> targets = new ArrayList<Entry<Text, CrawlDatum>>();
-          List<Outlink> outlinkList = new ArrayList<Outlink>();
+          List<Entry<Text, CrawlDatum>> targets = new ArrayList<Entry<Text, CrawlDatum>>(outlinksToStore);
+          List<Outlink> outlinkList = new ArrayList<Outlink>(outlinksToStore);
           for (int i = 0; i < links.length && validCount < outlinksToStore; i++) {
             String toUrl = links[i].getToUrl();
-            if (!validator.isValid(toUrl)) {
-              continue;
-            }
-            try {
-              // normalizing here is not necessary since outlinks 
-              // are already normalized in Outlink's constructor
-              toUrl = filters.filter(toUrl);   // filter the url
-              if (toUrl == null) {
-                continue;
-              }
-            } catch (Exception e) {
-              continue;
-            }
-            
             // ignore links to self (or anchors within the page)
             if (fromUrl.equals(toUrl)) {
               continue;
@@ -176,6 +162,19 @@ public class ParseOutputFormat implements OutputFormat {
               if (toHost == null || !toHost.equals(fromHost)) { // external links
                 continue; // skip it
               }
+            }
+            if (!validator.isValid(toUrl)) {
+              continue;
+            }
+            try {
+              // normalizing here is not necessary since outlinks 
+              // are already normalized in Outlink's constructor
+              toUrl = filters.filter(toUrl);   // filter the url
+              if (toUrl == null) {
+                continue;
+              }
+            } catch (Exception e) {
+              continue;
             }
             CrawlDatum target = new CrawlDatum(CrawlDatum.STATUS_LINKED, interval);
             Text targetUrl = new Text(toUrl);
