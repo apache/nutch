@@ -85,6 +85,8 @@ Unreleased changes (1.0-dev)
 
 28. NUTCH-510 - IndexMerger delete working dir. (Enis Soztutar via dogacan)
 
+29. NUTCH-513 - suffix-urlfilter.txt does not have a template. (dogacan)
+
 Release 0.9 - 2007-04-02
 
  1. Changed log4j confiquration to log to stdout on commandline
