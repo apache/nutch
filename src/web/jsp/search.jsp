@@ -63,6 +63,8 @@
 --%>
 
 <%
+  // The Nutch bean instance is initialized through a ServletContextListener 
+  // that is setup in the web.xml file
   NutchBean bean = NutchBean.get(application, nutchConf);
   // set the character encoding to use when interpreting request values 
   request.setCharacterEncoding("UTF-8");
