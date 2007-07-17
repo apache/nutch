@@ -82,7 +82,7 @@ public class ParseOutputFormat implements OutputFormat {
     this.filters = new URLFilters(job);
     this.scfilters = new ScoringFilters(job);
     final UrlValidator validator = UrlValidator.get();
-    final float interval = job.getFloat("db.default.fetch.interval", 30f);
+    final float interval = job.getFloat("db.fetch.interval.default", 2592000.0f);
     final boolean ignoreExternalLinks = job.getBoolean("db.ignore.external.links", false);
     final int maxOutlinks = job.getInt("db.max.outlinks.per.page", 100);
     

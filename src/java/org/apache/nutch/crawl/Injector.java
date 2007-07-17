@@ -56,7 +56,7 @@ public class Injector extends ToolBase {
     public void configure(JobConf job) {
       this.jobConf = job;
       urlNormalizers = new URLNormalizers(job, URLNormalizers.SCOPE_INJECT);
-      interval = jobConf.getFloat("db.default.fetch.interval", 30f);
+      interval = jobConf.getFloat("db.fetch.interval.default", 2592000.0f);
       filters = new URLFilters(jobConf);
       scfilters = new ScoringFilters(jobConf);
       scoreInjected = jobConf.getFloat("db.score.injected", 1.0f);
