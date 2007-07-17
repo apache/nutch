@@ -69,7 +69,6 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
       key = newKey;
     }
     Content content = (Content) value;
-    content.forceInflate();
 
     ParseResult parseResult = null;
     try {

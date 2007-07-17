@@ -85,6 +85,7 @@ public class ParseOutputFormat implements OutputFormat {
     final float interval = job.getFloat("db.fetch.interval.default", 2592000.0f);
     final boolean ignoreExternalLinks = job.getBoolean("db.ignore.external.links", false);
     final int maxOutlinks = job.getInt("db.max.outlinks.per.page", 100);
+    final CompressionType compType = SequenceFile.getCompressionType(job);
     
     Path text =
       new Path(new Path(job.getOutputPath(), ParseText.DIR_NAME), name);
@@ -99,11 +100,11 @@ public class ParseOutputFormat implements OutputFormat {
     
     final MapFile.Writer dataOut =
       new MapFile.Writer(job, fs, data.toString(), Text.class, ParseData.class,
-          CompressionType.RECORD, progress);
+          compType, progress);
     
     final SequenceFile.Writer crawlOut =
       SequenceFile.createWriter(fs, job, crawl, Text.class, CrawlDatum.class,
-          CompressionType.NONE, progress);
+          compType, progress);
     
     return new RecordWriter() {
 

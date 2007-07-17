@@ -25,6 +25,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 import org.apache.hadoop.io.MapFile;
+import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.Text;
@@ -57,10 +58,12 @@ public class FetcherOutputFormat implements OutputFormat {
       new Path(new Path(job.getOutputPath(), CrawlDatum.FETCH_DIR_NAME), name);
     final Path content =
       new Path(new Path(job.getOutputPath(), Content.DIR_NAME), name);
+    
+    final CompressionType compType = SequenceFile.getCompressionType(job);
 
     final MapFile.Writer fetchOut =
       new MapFile.Writer(job, fs, fetch.toString(), Text.class, CrawlDatum.class,
-          CompressionType.NONE, progress);
+          compType, progress);
     
     return new RecordWriter() {
         private MapFile.Writer contentOut;
@@ -70,7 +73,7 @@ public class FetcherOutputFormat implements OutputFormat {
           if (Fetcher.isStoringContent(job)) {
             contentOut = new MapFile.Writer(job, fs, content.toString(),
                                             Text.class, Content.class,
-                                            CompressionType.NONE, progress);
+                                            compType, progress);
           }
 
           if (Fetcher.isParsing(job)) {

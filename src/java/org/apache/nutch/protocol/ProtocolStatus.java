@@ -22,15 +22,16 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.util.HashMap;
 
-import org.apache.hadoop.io.VersionedWritable;
+import org.apache.hadoop.io.VersionMismatchException;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableUtils;
 
 /**
  * @author Andrzej Bialecki
  */
-public class ProtocolStatus extends VersionedWritable {
+public class ProtocolStatus implements Writable {
   
-  private final static byte VERSION = 1;
+  private final static byte VERSION = 2;
   
   /** Content was retrieved without errors. */
   public static final int SUCCESS              = 1;
@@ -110,10 +111,6 @@ public class ProtocolStatus extends VersionedWritable {
     
   }
 
-  public byte getVersion() {
-    return VERSION;
-  }
-
   public ProtocolStatus(int code, String[] args) {
     this.code = code;
     this.args = args;
@@ -154,17 +151,32 @@ public class ProtocolStatus extends VersionedWritable {
   }
   
   public void readFields(DataInput in) throws IOException {
-    super.readFields(in);       // check version
-    code = in.readByte();
-    lastModified = in.readLong();
-    args = WritableUtils.readCompressedStringArray(in);
+    byte version = in.readByte();
+    switch(version) {
+    case 1:
+      code = in.readByte();
+      lastModified = in.readLong();
+      args = WritableUtils.readCompressedStringArray(in);
+      break;
+    case VERSION:
+      code = in.readByte();
+      lastModified = in.readLong();
+      args = WritableUtils.readStringArray(in);
+      break;
+    default:
+      throw new VersionMismatchException(VERSION, version);
+    }
   }
   
   public void write(DataOutput out) throws IOException {
-    super.write(out);           // write version
+    out.writeByte(VERSION);
     out.writeByte((byte)code);
     out.writeLong(lastModified);
-    WritableUtils.writeCompressedStringArray(out, args);
+    if (args == null) {
+      out.writeInt(-1);
+    } else {
+      WritableUtils.writeStringArray(out, args);
+    }
   }
 
   public void setArgs(String[] args) {

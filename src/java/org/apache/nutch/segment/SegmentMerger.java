@@ -238,13 +238,15 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
           } else {
             wname = new Path(new Path(new Path(job.getOutputPath(), segmentName + "-" + slice), dirName), name);
           }
-          res = new SequenceFile.Writer(fs, job, wname, Text.class, CrawlDatum.class, progress, new SequenceFile.Metadata());
+          res = SequenceFile.createWriter(fs, job, wname, Text.class, 
+                                          CrawlDatum.class, 
+                                          SequenceFile.getCompressionType(job), progress);
           sliceWriters.put(slice + dirName, res);
           return res;
         }
 
         // lazily create MapFile-s.
-        private MapFile.Writer ensureMapFile(String slice, String dirName, Class clazz) throws IOException {
+        private MapFile.Writer ensureMapFile(String slice, String dirName, Class<? extends Writable> clazz) throws IOException {
           if (slice == null) slice = DEFAULT_SLICE;
           MapFile.Writer res = (MapFile.Writer)sliceWriters.get(slice + dirName);
           if (res != null) return res;
@@ -254,7 +256,11 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
           } else {
             wname = new Path(new Path(new Path(job.getOutputPath(), segmentName + "-" + slice), dirName), name);
           }
-          res = new MapFile.Writer(job, fs, wname.toString(), Text.class, clazz, CompressionType.RECORD, progress);
+          CompressionType compType = SequenceFile.getCompressionType(job);
+          if (clazz.isAssignableFrom(ParseText.class)) {
+            compType = CompressionType.RECORD;
+          }
+          res = new MapFile.Writer(job, fs, wname.toString(), Text.class, clazz, compType, progress);
           sliceWriters.put(slice + dirName, res);
           return res;
         }
