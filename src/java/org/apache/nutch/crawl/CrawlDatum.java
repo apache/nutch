@@ -90,6 +90,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     statNames.put(STATUS_DB_GONE, "db_gone");
     statNames.put(STATUS_DB_REDIR_TEMP, "db_redir_temp");
     statNames.put(STATUS_DB_REDIR_PERM, "db_redir_perm");
+    statNames.put(STATUS_DB_NOTMODIFIED, "db_notmodified");
     statNames.put(STATUS_SIGNATURE, "signature");
     statNames.put(STATUS_INJECTED, "injected");
     statNames.put(STATUS_LINKED, "linked");
