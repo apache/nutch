@@ -17,32 +17,35 @@
 
 package org.apache.nutch.protocol;
 
+import java.io.ByteArrayInputStream;
 import java.io.DataInput;
+import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.zip.InflaterInputStream;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.ArrayFile;
-import org.apache.hadoop.io.CompressedWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.UTF8;
 import org.apache.hadoop.io.VersionMismatchException;
+import org.apache.hadoop.io.Writable;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.mime.MimeType;
 import org.apache.nutch.util.mime.MimeTypeException;
 import org.apache.nutch.util.mime.MimeTypes;
 
-public final class Content extends CompressedWritable {
+public final class Content implements Writable{
 
   public static final String DIR_NAME = "content";
 
-  private final static byte VERSION = 2;
+  private final static int VERSION = -1;
 
-  private byte version;
+  private int version;
 
   private String url;
 
@@ -58,10 +61,8 @@ public final class Content extends CompressedWritable {
 
   private MimeTypes mimeTypes;
 
-  private boolean inflated;
-
   public Content() {
-    inflated = false;
+    metadata = new Metadata();
   }
 
   public Content(String url, String base, byte[] content, String contentType,
@@ -83,21 +84,11 @@ public final class Content extends CompressedWritable {
     this.mimeTypeMagic = conf.getBoolean("mime.type.magic", true);
     this.mimeTypes = MimeTypes.get(conf.get("mime.types.file"));
     this.contentType = getContentType(contentType, url, content);
-    inflated = true;
   }
 
-  public void ensureInflated() {
-    if (inflated) {
-      return;
-    }
-    super.ensureInflated();
-    inflated = true;
-  }
-
-  protected final void readFieldsCompressed(DataInput in) throws IOException {
-    version = in.readByte();
-    metadata = new Metadata();
-    switch (version) {
+  private final void readFieldsCompressed(DataInput in) throws IOException {
+    byte oldVersion = in.readByte();
+    switch (oldVersion) {
     case 0:
     case 1:
       url = UTF8.readString(in); // read url
@@ -118,7 +109,7 @@ public final class Content extends CompressedWritable {
         }
       }
       break;
-    case VERSION:
+    case 2:
       url = Text.readString(in); // read url
       base = Text.readString(in); // read base
 
@@ -129,13 +120,41 @@ public final class Content extends CompressedWritable {
       metadata.readFields(in); // read meta data
       break;
     default:
-      throw new VersionMismatchException(VERSION, version);
+      throw new VersionMismatchException((byte)2, oldVersion);
     }
 
   }
+  
+  public final void readFields(DataInput in) throws IOException {
+    int sizeOrVersion = in.readInt();
+    if (sizeOrVersion < 0) { // version
+      version = sizeOrVersion;
+      switch (version) {
+      case VERSION:
+        url = Text.readString(in);
+        base = Text.readString(in);
 
-  protected final void writeCompressed(DataOutput out) throws IOException {
-    out.writeByte(VERSION);
+        content = new byte[in.readInt()];
+        in.readFully(content);
+
+        contentType = Text.readString(in);
+        metadata.readFields(in);
+        break;
+      default:
+        throw new VersionMismatchException((byte)VERSION, (byte)version);
+      }
+    } else { // size
+      byte[] compressed = new byte[sizeOrVersion];
+      in.readFully(compressed, 0, compressed.length);
+      ByteArrayInputStream deflated = new ByteArrayInputStream(compressed);
+      DataInput inflater =
+        new DataInputStream(new InflaterInputStream(deflated));
+      readFieldsCompressed(inflater);
+    }
+  }
+
+  public final void write(DataOutput out) throws IOException {
+    out.writeInt(VERSION);
 
     Text.writeString(out, url); // write url
     Text.writeString(out, base); // write base
@@ -160,7 +179,6 @@ public final class Content extends CompressedWritable {
 
   /** The url fetched. */
   public String getUrl() {
-    ensureInflated();
     return url;
   }
 
@@ -168,18 +186,15 @@ public final class Content extends CompressedWritable {
    * Maybe be different from url if the request redirected.
    */
   public String getBaseUrl() {
-    ensureInflated();
     return base;
   }
 
   /** The binary content retrieved. */
   public byte[] getContent() {
-    ensureInflated();
     return content;
   }
 
   public void setContent(byte[] content) {
-    ensureInflated();
     this.content = content;
   }
 
@@ -188,34 +203,28 @@ public final class Content extends CompressedWritable {
    *      http://www.iana.org/assignments/media-types/</a>
    */
   public String getContentType() {
-    ensureInflated();
     return contentType;
   }
 
   public void setContentType(String contentType) {
-    ensureInflated();
     this.contentType = contentType;
   }
 
   /** Other protocol-specific data. */
   public Metadata getMetadata() {
-    ensureInflated();
     return metadata;
   }
 
   /** Other protocol-specific data. */
   public void setMetadata(Metadata metadata) {
-    ensureInflated();
     this.metadata = metadata;
   }
 
   public boolean equals(Object o) {
-    ensureInflated();
     if (!(o instanceof Content)) {
       return false;
     }
     Content that = (Content) o;
-    that.ensureInflated();
     return this.url.equals(that.url) && this.base.equals(that.base)
         && Arrays.equals(this.getContent(), that.getContent())
         && this.contentType.equals(that.contentType)
@@ -223,7 +232,6 @@ public final class Content extends CompressedWritable {
   }
 
   public String toString() {
-    ensureInflated();
     StringBuffer buffer = new StringBuffer();
 
     buffer.append("Version: " + version + "\n");
@@ -296,13 +304,4 @@ public final class Content extends CompressedWritable {
     }
     return typeName;
   }
-
-  /**
-   * By calling this method caller forces the next access to any property (via
-   * getters and setters) to check if decompressing of data is really required.
-   */
-  public void forceInflate() {
-    inflated = false;
-  }
-
 }

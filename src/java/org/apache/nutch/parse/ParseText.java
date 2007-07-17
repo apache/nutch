@@ -26,10 +26,10 @@ import org.apache.nutch.util.NutchConfiguration;
 /* The text conversion of page's content, stored using gzip compression.
  * @see Parse#getText()
  */
-public final class ParseText extends VersionedWritable {
+public final class ParseText implements Writable {
   public static final String DIR_NAME = "parse_text";
 
-  private final static byte VERSION = 1;
+  private final static byte VERSION = 2;
 
   public ParseText() {}
   private String text;
@@ -38,18 +38,23 @@ public final class ParseText extends VersionedWritable {
     this.text = text;
   }
 
-  public byte getVersion() { return VERSION; }
-
   public void readFields(DataInput in) throws IOException {
-    super.readFields(in);                         // check version
-    text = WritableUtils.readCompressedString(in);
-    return;
+    byte version = in.readByte();
+    switch (version) {
+    case 1:
+      text = WritableUtils.readCompressedString(in);
+      break;
+    case VERSION:
+      text = Text.readString(in);
+      break;
+    default:
+      throw new VersionMismatchException(VERSION, version);
+    }
   }
 
   public final void write(DataOutput out) throws IOException {
-    super.write(out);                             // write version
-    WritableUtils.writeCompressedString(out, text);
-    return;
+    out.write(VERSION);
+    Text.writeString(out, text);
   }
 
   public final static ParseText read(DataInput in) throws IOException {

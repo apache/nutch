@@ -25,7 +25,8 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import org.apache.hadoop.io.VersionedWritable;
+import org.apache.hadoop.io.VersionMismatchException;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableUtils;
 import org.apache.hadoop.conf.Configuration;
 
@@ -35,9 +36,9 @@ import org.apache.nutch.metadata.Metadata;
 /**
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
-public class ParseStatus extends VersionedWritable {
+public class ParseStatus implements Writable {
   
-  private final static byte VERSION = 1;
+  private final static byte VERSION = 2;
   
   // Primary status codes:
   
@@ -136,17 +137,32 @@ public class ParseStatus extends VersionedWritable {
   }
   
   public void readFields(DataInput in) throws IOException {
-    super.readFields(in);     // check version
-    majorCode = in.readByte();
-    minorCode = in.readShort();
-    args = WritableUtils.readCompressedStringArray(in);
-  }
+    byte version = in.readByte();
+    switch(version) {
+    case 1:
+      majorCode = in.readByte();
+      minorCode = in.readShort();
+      args = WritableUtils.readCompressedStringArray(in);
+      break;
+    case 2:
+      majorCode = in.readByte();
+      minorCode = in.readShort();
+      args = WritableUtils.readStringArray(in);
+      break;
+    default:
+      throw new VersionMismatchException(VERSION, version);
+    }
+ }
   
   public void write(DataOutput out) throws IOException {
-    super.write(out);         // write out version
+    out.writeByte(VERSION);
     out.writeByte(majorCode);
     out.writeShort(minorCode);
-    WritableUtils.writeCompressedStringArray(out, args);
+    if (args == null) {
+      out.writeInt(-1);
+    } else {
+      WritableUtils.writeStringArray(out, args);
+    }
   }
   
   /** A convenience method. Returns true if majorCode is SUCCESS, false
