@@ -89,7 +89,7 @@ public class OPICScoringFilter implements ScoringFilter {
 
   /** Use {@link CrawlDatum#getScore()}. */
   public float generatorSortValue(Text url, CrawlDatum datum, float initSort) throws ScoringFilterException {
-    return datum.getScore();
+    return datum.getScore() * initSort;
   }
 
   /** Increase the score by a sum of inlinked scores. */
@@ -159,6 +159,6 @@ public class OPICScoringFilter implements ScoringFilter {
 
   /** Dampen the boost value by scorePower.*/
   public float indexerScore(Text url, Document doc, CrawlDatum dbDatum, CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore) throws ScoringFilterException {
-    return (float)Math.pow(dbDatum.getScore(), scorePower);
+    return (float)Math.pow(dbDatum.getScore(), scorePower) * initScore;
   }
 }
