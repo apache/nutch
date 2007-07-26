@@ -91,6 +91,7 @@ public abstract class AbstractFetchSchedule extends Configured implements FetchS
     // no page is truly GONE ... just increase the interval by 50%
     // and try much later.
     datum.setFetchInterval(datum.getFetchInterval() * 1.5f);
+    datum.setFetchTime(fetchTime + Math.round(datum.getFetchInterval() * 1000.0d));
     if (maxInterval < datum.getFetchInterval()) forceRefetch(url, datum, false);
     return datum;
   }
