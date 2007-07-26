@@ -42,6 +42,8 @@ public class TestDeleteDuplicates extends TestCase {
   Path index1;
   Path index2;
   Path index3;
+  Path index4;
+  Path index5;
   
   public void setUp() throws Exception {
     conf = NutchConfiguration.create();
@@ -52,6 +54,8 @@ public class TestDeleteDuplicates extends TestCase {
     index1 = createIndex("index1", true, 1.0f, 10L, false);
     index2 = createIndex("index2", false, 2.0f, 20L, true);
     index3 = createIndex("index3", true, 1.0f, 10L, true);
+    index4 = createSingleDocIndex("index4", 1.0f, 10L);
+    index5 = createSingleDocIndex("index5", 1.0f, 20L);
   }
   
   private Path createIndex(String name, boolean hashDup, float inc, long time, boolean incFirst) throws Exception {
@@ -75,6 +79,20 @@ public class TestDeleteDuplicates extends TestCase {
           "http://www.example.com/1",
           1.0f + (!incFirst ? inc : 0.0f), time + 1);
     }
+    writer.addDocument(doc);
+    writer.close();
+    return idx;
+  }
+  
+  private Path createSingleDocIndex(String name, float inc, long time) throws Exception {
+    Path idx = new Path(root, name);
+    Path sub = new Path(idx, "part-0000");
+    Directory dir = FSDirectory.getDirectory(sub.toString());
+    IndexWriter writer = new IndexWriter(dir, new NutchDocumentAnalyzer(conf), true);
+    Document doc = makeDoc(name,
+        MD5Hash.digest("1").toString(),
+        "http://www.example.com/1",
+       1.0f + inc, time + 1);
     writer.addDocument(doc);
     writer.close();
     return idx;
@@ -171,6 +189,12 @@ public class TestDeleteDuplicates extends TestCase {
       System.out.println(doc);
     }
     reader.close();
+  }
+  
+  public void testRededuplicate() throws Exception {
+    DeleteDuplicates dedup = new DeleteDuplicates(conf);
+    dedup.dedup(new Path[]{index4, index5});
+    dedup.dedup(new Path[]{index4, index5});
   }
   
 }
