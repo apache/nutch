@@ -32,7 +32,7 @@ public class DefaultFetchSchedule extends AbstractFetchSchedule {
   public CrawlDatum setFetchSchedule(Text url, CrawlDatum datum,
           long prevFetchTime, long prevModifiedTime,
           long fetchTime, long modifiedTime, int state) {
-    datum.setFetchTime(fetchTime + Math.round(datum.getFetchInterval() * 1000.0f));
+    datum.setFetchTime(fetchTime + Math.round(datum.getFetchInterval() * 1000.0d));
     datum.setModifiedTime(modifiedTime);
     return datum;
   }
