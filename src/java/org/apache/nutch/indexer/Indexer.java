@@ -214,7 +214,8 @@ public class Indexer extends ToolBase implements Reducer, Mapper {
       return;                                     // only have inlinks
     }
     
-    if (!parseData.getStatus().isSuccess()) {
+    if (!parseData.getStatus().isSuccess() || 
+        fetchDatum.getStatus() != CrawlDatum.STATUS_FETCH_SUCCESS) {
       return;
     }
 
