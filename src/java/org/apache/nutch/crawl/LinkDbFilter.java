@@ -22,6 +22,7 @@ import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapred.JobConf;
@@ -57,6 +58,8 @@ public class LinkDbFilter implements Mapper {
   private String scope;
   
   public static final Log LOG = LogFactory.getLog(LinkDbFilter.class);
+
+  private Text newKey = new Text();
   
   public void configure(JobConf job) {
     this.jobConf = job;
@@ -75,6 +78,7 @@ public class LinkDbFilter implements Mapper {
 
   public void map(WritableComparable key, Writable value, OutputCollector output, Reporter reporter) throws IOException {
     String url = key.toString();
+    Inlinks result = new Inlinks();
     if (normalize) {
       try {
         url = normalizers.normalize(url, scope); // normalize the url
@@ -114,11 +118,13 @@ public class LinkDbFilter implements Mapper {
           fromUrl = null;
         }
       }
-      if (fromUrl == null) { // should be discarded
-        it.remove();
+      if (fromUrl != null) { 
+        result.add(new Inlink(fromUrl, inlink.getAnchor()));
       }
     }
-    if (inlinks.size() == 0) return; // don't collect empy inlinks
-    output.collect(key, inlinks);
+    if (result.size() > 0) { // don't collect empty inlinks
+      newKey.set(url);
+      output.collect(newKey, result);
+    }
   }
 }
