@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -122,7 +121,7 @@ class ParsePluginsReader {
     Element parsePlugins = document.getDocumentElement();
     
     // build up the alias hash map
-    Map aliases = getAliases(parsePlugins);
+    Map<String, String> aliases = getAliases(parsePlugins);
     // And store it on the parse plugin list
     pList.setAliases(aliases);
      
@@ -142,12 +141,12 @@ class ParsePluginsReader {
       // a separate list, and then insert them into the final list at the
       // order specified
       if (pluginList != null && pluginList.getLength() > 0) {
-        List plugList = new ArrayList(pluginList.getLength());
+        List<String> plugList = new ArrayList<String>(pluginList.getLength());
         
         for (int j = 0; j<pluginList.getLength(); j++) {
           Element plugin = (Element) pluginList.item(j);
           String pluginId = plugin.getAttribute("id");
-          String extId = (String) aliases.get(pluginId);
+          String extId = aliases.get(pluginId);
           if (extId == null) {
             // Assume an extension id is directly specified
             extId = pluginId;
@@ -209,16 +208,15 @@ class ParsePluginsReader {
     
     ParsePluginList prefs = reader.parse(NutchConfiguration.create());
     
-    for (Iterator i = prefs.getSupportedMimeTypes().iterator(); i.hasNext();) {
-      String mimeType = (String) i.next();
+    for (String mimeType : prefs.getSupportedMimeTypes()) {
       
       System.out.println("MIMETYPE: " + mimeType);
-      List plugList = prefs.getPluginList(mimeType);
+      List<String> plugList = prefs.getPluginList(mimeType);
       
       System.out.println("EXTENSION IDs:");
       
-      for (Iterator j = plugList.iterator(); j.hasNext();) {
-        System.out.println((String) j.next());
+      for (String j : plugList) {
+        System.out.println(j);
       }
     }
     
@@ -239,9 +237,9 @@ class ParsePluginsReader {
     fParsePluginsFile = parsePluginsFile;
   }
   
-  private Map getAliases(Element parsePluginsRoot) {
+  private Map<String, String> getAliases(Element parsePluginsRoot) {
 
-    Map aliases = new HashMap();
+    Map<String, String> aliases = new HashMap<String, String>();
     NodeList aliasRoot = parsePluginsRoot.getElementsByTagName("aliases");
 	  
     if (aliasRoot == null || (aliasRoot != null && aliasRoot.getLength() == 0)) {

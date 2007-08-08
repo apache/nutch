@@ -45,7 +45,6 @@ public class NutchDocumentAnalyzer extends NutchAnalyzer {
   public static final int INTER_ANCHOR_GAP = 4;
   /** Analyzer used to analyze anchors. */
   private static Analyzer ANCHOR_ANALYZER;
-  private Configuration conf;
 
   /**
    * @param conf

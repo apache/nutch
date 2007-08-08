@@ -111,16 +111,14 @@ public class HttpDateFormat {
   }
 
   public static void main(String[] args) throws Exception {
-    HttpDateFormat format = new HttpDateFormat();
-
     Date now = new Date(System.currentTimeMillis());
 
-    String string = format.toString(now);
+    String string = HttpDateFormat.toString(now);
 
-    long time = format.toLong(string);
+    long time = HttpDateFormat.toLong(string);
 
     System.out.println(string);
-    System.out.println(format.toString(time));
+    System.out.println(HttpDateFormat.toString(time));
   }
 
 }

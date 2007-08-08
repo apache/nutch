@@ -209,16 +209,14 @@ public class DmozParser {
      * When parsing begins
      */
     public void startDocument() {
-      if (LOG.isInfoEnabled()) { LOG.info("Begin parse"); }
+      LOG.info("Begin parse");
     }
 
     /**
      * When parsing ends
      */
     public void endDocument() {
-      if (LOG.isInfoEnabled()) {
-        LOG.info("Completed parse.  Found " + pages + " pages.");
-      }
+      LOG.info("Completed parse.  Found " + pages + " pages.");
     }
 
     /**
@@ -289,7 +287,7 @@ public class DmozParser {
                        skew, topicPattern);
     reader.setContentHandler(rp);
     reader.setErrorHandler(rp);
-    if (LOG.isInfoEnabled()) { LOG.info("skew = " + rp.hashSkew); }
+    LOG.info("skew = " + rp.hashSkew);
 
     //
     // Open filtered text stream.  The TextFilter makes sure that
@@ -311,8 +309,9 @@ public class DmozParser {
     }
   }
 
-  private static void addTopicsFromFile(String topicFile, Vector topics)
-    throws IOException {
+  private static void addTopicsFromFile(String topicFile,
+                                        Vector<String> topics)
+  throws IOException {
     BufferedReader in = null;
     try {
       in = new BufferedReader(new InputStreamReader(new FileInputStream(topicFile), "UTF-8"));
@@ -352,7 +351,7 @@ public class DmozParser {
     String dmozFile = argv[0];
     boolean includeAdult = false;
     Pattern topicPattern = null; 
-    Vector topics = new Vector(); 
+    Vector<String> topics = new Vector<String>();
     
     Configuration conf = NutchConfiguration.create();
     FileSystem fs = FileSystem.get(conf);
@@ -381,14 +380,12 @@ public class DmozParser {
         String regExp = new String("^("); 
         int j = 0;
         for ( ; j < topics.size() - 1; ++j) {
-          regExp = regExp.concat((String) topics.get(j));
+          regExp = regExp.concat(topics.get(j));
           regExp = regExp.concat("|");
         }
-        regExp = regExp.concat((String) topics.get(j));
+        regExp = regExp.concat(topics.get(j));
         regExp = regExp.concat(").*"); 
-        if (LOG.isInfoEnabled()) {
-          LOG.info("Topic selection pattern = " + regExp);
-        }
+        LOG.info("Topic selection pattern = " + regExp);
         topicPattern = Pattern.compile(regExp); 
       }
 

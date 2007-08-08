@@ -62,14 +62,13 @@ public class IndexingFilters {
         if (point == null)
           throw new RuntimeException(IndexingFilter.X_POINT_ID + " not found.");
         Extension[] extensions = point.getExtensions();
-        HashMap filterMap = new HashMap();
+        HashMap<String, IndexingFilter> filterMap =
+          new HashMap<String, IndexingFilter>();
         for (int i = 0; i < extensions.length; i++) {
           Extension extension = extensions[i];
           IndexingFilter filter = (IndexingFilter) extension
               .getExtensionInstance();
-          if (LOG.isInfoEnabled()) {
-            LOG.info("Adding " + filter.getClass().getName());
-          }
+          LOG.info("Adding " + filter.getClass().getName());
           if (!filterMap.containsKey(filter.getClass().getName())) {
             filterMap.put(filter.getClass().getName(), filter);
           }
@@ -80,13 +79,13 @@ public class IndexingFilters {
          */
         if (orderedFilters == null) {
           conf.setObject(IndexingFilter.class.getName(),
-              (IndexingFilter[]) filterMap.values().toArray(
+              filterMap.values().toArray(
                   new IndexingFilter[0]));
           /* Otherwise run the filters in the required order */
         } else {
           ArrayList<IndexingFilter> filters = new ArrayList<IndexingFilter>();
           for (int i = 0; i < orderedFilters.length; i++) {
-            IndexingFilter filter = (IndexingFilter) filterMap
+            IndexingFilter filter = filterMap
                 .get(orderedFilters[i]);
             if (filter != null) {
               filters.add(filter);

@@ -17,6 +17,7 @@
 
 package org.apache.nutch.protocol;
 
+@SuppressWarnings("serial")
 public class ProtocolNotFound extends ProtocolException {
   private String url;
 

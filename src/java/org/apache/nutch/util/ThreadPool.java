@@ -58,7 +58,7 @@ public class ThreadPool {
 
     int numThreads;
     boolean running = false;
-    Vector jobs;
+    Vector<Runnable> jobs;
 
     /**
      * Creates a pool of numThreads size.
@@ -67,7 +67,7 @@ public class ThreadPool {
      */
     public ThreadPool(int numThreads) {
         this.numThreads = numThreads;
-        jobs = new Vector(37);
+        jobs = new Vector<Runnable>(37);
         running = true;
 
         for (int i = 0; i < numThreads; i++) {
@@ -99,7 +99,7 @@ public class ThreadPool {
                 }
 
                 if (jobs.size() > 0) {
-                    job = (Runnable) jobs.firstElement();
+                    job = jobs.firstElement();
                     jobs.removeElementAt(0);
                 }
             }

@@ -66,7 +66,7 @@ public class TextProfileSignature extends Signature {
   public byte[] calculate(Content content, Parse parse) {
     int MIN_TOKEN_LEN = getConf().getInt("db.signature.text_profile.min_token_len", 2);
     float QUANT_RATE = getConf().getFloat("db.signature.text_profile.quant_rate", 0.01f);
-    HashMap tokens = new HashMap();
+    HashMap<String, Token> tokens = new HashMap<String, Token>();
     String text = null;
     if (parse != null) text = parse.getText();
     if (text == null || text.length() == 0) return fallback.calculate(content, parse);
@@ -81,7 +81,7 @@ public class TextProfileSignature extends Signature {
           if (curToken.length() > MIN_TOKEN_LEN) {
             // add it
             String s = curToken.toString();
-            Token tok = (Token)tokens.get(s);
+            Token tok = tokens.get(s);
             if (tok == null) {
               tok = new Token(0, s);
               tokens.put(s, tok);
@@ -97,7 +97,7 @@ public class TextProfileSignature extends Signature {
     if (curToken.length() > MIN_TOKEN_LEN) {
       // add it
       String s = curToken.toString();
-      Token tok = (Token)tokens.get(s);
+      Token tok = tokens.get(s);
       if (tok == null) {
         tok = new Token(0, s);
         tokens.put(s, tok);
@@ -105,8 +105,8 @@ public class TextProfileSignature extends Signature {
       tok.cnt++;
       if (tok.cnt > maxFreq) maxFreq = tok.cnt;
     }
-    Iterator it = tokens.values().iterator();
-    ArrayList profile = new ArrayList();
+    Iterator<Token> it = tokens.values().iterator();
+    ArrayList<Token> profile = new ArrayList<Token>();
     // calculate the QUANT value
     int QUANT = Math.round(maxFreq * QUANT_RATE);
     if (QUANT < 2) {
@@ -114,7 +114,7 @@ public class TextProfileSignature extends Signature {
       else QUANT = 1;
     }
     while(it.hasNext()) {
-      Token t = (Token)it.next();
+      Token t = it.next();
       // round down to the nearest QUANT
       t.cnt = (t.cnt / QUANT) * QUANT;
       // discard the frequencies below the QUANT
@@ -127,7 +127,7 @@ public class TextProfileSignature extends Signature {
     StringBuffer newText = new StringBuffer();
     it = profile.iterator();
     while (it.hasNext()) {
-      Token t = (Token)it.next();
+      Token t = it.next();
       if (newText.length() > 0) newText.append("\n");
       newText.append(t.toString());
     }
@@ -148,10 +148,8 @@ public class TextProfileSignature extends Signature {
     }
   }
   
-  private static class TokenComparator implements Comparator {
-    public int compare(Object o1, Object o2) {
-      Token t1 = (Token)o1;
-      Token t2 = (Token)o2;
+  private static class TokenComparator implements Comparator<Token> {
+    public int compare(Token t1, Token t2) {
       return t2.cnt - t1.cnt;
     }
   }
@@ -159,7 +157,7 @@ public class TextProfileSignature extends Signature {
   public static void main(String[] args) throws Exception {
     TextProfileSignature sig = new TextProfileSignature();
     sig.setConf(NutchConfiguration.create());
-    HashMap res = new HashMap();
+    HashMap<String, byte[]> res = new HashMap<String, byte[]>();
     File[] files = new File(args[0]).listFiles();
     for (int i = 0; i < files.length; i++) {
       FileInputStream fis = new FileInputStream(files[i]);
@@ -174,10 +172,10 @@ public class TextProfileSignature extends Signature {
       byte[] signature = sig.calculate(null, new ParseImpl(text.toString(), null));
       res.put(files[i].toString(), signature);
     }
-    Iterator it = res.keySet().iterator();
+    Iterator<String> it = res.keySet().iterator();
     while (it.hasNext()) {
-      String name = (String)it.next();
-      byte[] signature = (byte[])res.get(name);
+      String name = it.next();
+      byte[] signature = res.get(name);
       System.out.println(name + "\t" + StringUtil.toHexString(signature));
     }
   }

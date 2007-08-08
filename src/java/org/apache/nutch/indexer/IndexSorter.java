@@ -40,12 +40,12 @@ import org.apache.hadoop.util.ToolBase;
 public class IndexSorter extends ToolBase {
   private static final Log LOG = LogFactory.getLog(IndexSorter.class);
   
-  private static class PostingMap implements Comparable {
+  private static class PostingMap implements Comparable<PostingMap> {
     private int newDoc;
     private long offset;
 
-    public int compareTo(Object o) {              // order by newDoc id
-      return this.newDoc - ((PostingMap)o).newDoc;
+    public int compareTo(PostingMap pm) {              // order by newDoc id
+      return this.newDoc - pm.newDoc;
     }
   }
 
@@ -225,12 +225,11 @@ public class IndexSorter extends ToolBase {
 
   }
 
-  private static class DocScore implements Comparable {
+  private static class DocScore implements Comparable<DocScore> {
     private int oldDoc;
     private float score;
 
-    public int compareTo(Object o) {              // order by score, oldDoc
-      DocScore that = (DocScore)o;
+    public int compareTo(DocScore that) {            // order by score, oldDoc
       if (this.score == that.score) {
         return this.oldDoc - that.oldDoc;
       } else {

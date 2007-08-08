@@ -40,7 +40,6 @@ public class ParseUtil {
   
   /* our log stream */
   public static final Log LOG = LogFactory.getLog(ParseUtil.class);
-  private Configuration conf;
   private ParserFactory parserFactory;
   
   /**
@@ -48,7 +47,6 @@ public class ParseUtil {
    * @param conf
    */
   public ParseUtil(Configuration conf) {
-    this.conf = conf;
     this.parserFactory = new ParserFactory(conf);
   }
   

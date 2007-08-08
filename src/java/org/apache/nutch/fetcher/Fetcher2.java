@@ -342,9 +342,10 @@ public class Fetcher2 extends Configured implements MapRunnable {
     }
     
     public synchronized FetchItem getFetchItem() {
-      Iterator it = queues.keySet().iterator();
+      Iterator<Map.Entry<String, FetchItemQueue>> it =
+        queues.entrySet().iterator();
       while (it.hasNext()) {
-        FetchItemQueue fiq = queues.get(it.next());
+        FetchItemQueue fiq = it.next().getValue();
         // reap empty queues
         if (fiq.getQueueSize() == 0 && fiq.getInProgressSize() == 0) {
           it.remove();

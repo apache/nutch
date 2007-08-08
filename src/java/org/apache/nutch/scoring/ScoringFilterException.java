@@ -21,6 +21,7 @@ package org.apache.nutch.scoring;
  * 
  * @author Andrzej Bialecki
  */
+@SuppressWarnings("serial")
 public class ScoringFilterException extends Exception {
 
   public ScoringFilterException() {

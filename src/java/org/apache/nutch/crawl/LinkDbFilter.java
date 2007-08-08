@@ -52,8 +52,6 @@ public class LinkDbFilter implements Mapper {
   private URLFilters filters;
 
   private URLNormalizers normalizers;
-
-  private JobConf jobConf;
   
   private String scope;
   
@@ -62,7 +60,6 @@ public class LinkDbFilter implements Mapper {
   private Text newKey = new Text();
   
   public void configure(JobConf job) {
-    this.jobConf = job;
     filter = job.getBoolean(URL_FILTERING, false);
     normalize = job.getBoolean(URL_NORMALIZING, false);
     if (filter) {
@@ -97,10 +94,10 @@ public class LinkDbFilter implements Mapper {
     }
     if (url == null) return; // didn't pass the filters
     Inlinks inlinks = (Inlinks)value;
-    Iterator it = inlinks.iterator();
+    Iterator<Inlink> it = inlinks.iterator();
     String fromUrl = null;
     while (it.hasNext()) {
-      Inlink inlink = (Inlink)it.next();
+      Inlink inlink = it.next();
       fromUrl = inlink.getFromUrl();
       if (normalize) {
         try {

@@ -17,7 +17,6 @@ import org.w3c.dom.NodeList;
 public class NodeWalker {
 
   // the root node the the stack holding the nodes
-  private Node rootNode;
   private Node currentNode;
   private NodeList currentChildren;
   private Stack<Node> nodes;
@@ -28,7 +27,6 @@ public class NodeWalker {
    * @param rootNode
    */
   public NodeWalker(Node rootNode) {
-    this.rootNode = rootNode;
 
     nodes = new Stack<Node>();
     nodes.add(rootNode);

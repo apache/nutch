@@ -86,7 +86,8 @@ public class Generator extends ToolBase {
     private long curTime;
     private long limit;
     private long count;
-    private HashMap hostCounts = new HashMap();
+    private HashMap<String, IntWritable> hostCounts =
+      new HashMap<String, IntWritable>();
     private int maxPerHost;
     private Partitioner hostPartitioner = new PartitionUrlByHost();
     private URLFilters filters;
@@ -98,7 +99,6 @@ public class Generator extends ToolBase {
     private long dnsFailure = 0L;
     private boolean filter;
     private long genDelay;
-    private boolean runUpdatedb;
     private FetchSchedule schedule;
 
     public void configure(JobConf job) {
@@ -114,7 +114,6 @@ public class Generator extends ToolBase {
       genDelay = job.getLong(CRAWL_GEN_DELAY, 7L) * 3600L * 24L * 1000L;
       long time = job.getLong(Nutch.GENERATE_TIME_KEY, 0L);
       if (time > 0) genTime.set(time);
-      runUpdatedb = job.getBoolean(GENERATE_UPDATE_CRAWLDB, false);
       schedule = FetchScheduleFactory.getFetchSchedule(job);
     }
 
@@ -217,7 +216,7 @@ public class Generator extends ToolBase {
                 StringUtils.stringifyException(e) + ")");
             continue;
           }
-          IntWritable hostCount = (IntWritable)hostCounts.get(host);
+          IntWritable hostCount = hostCounts.get(host);
           if (hostCount == null) {
             hostCount = new IntWritable();
             hostCounts.put(host, hostCount);

@@ -89,7 +89,7 @@ final class MimeTypesReader {
     
     /** Read Element named mime-types. */
     private MimeType[] readMimeTypes(Element element) {
-        ArrayList types = new ArrayList();
+        ArrayList<MimeType> types = new ArrayList<MimeType>();
         NodeList nodes = element.getChildNodes();
         for (int i=0; i<nodes.getLength(); i++) {
             Node node = nodes.item(i);
@@ -101,7 +101,7 @@ final class MimeTypesReader {
                 }
             }
         }
-        return (MimeType[]) types.toArray(new MimeType[types.size()]);
+        return types.toArray(new MimeType[types.size()]);
     }
     
     /** Read Element named mime-type. */

@@ -35,37 +35,37 @@ import java.util.Map;
 class ParsePluginList {
   
   /* a map to link mimeType to an ordered list of parsing plugins */
-  private Map fMimeTypeToPluginMap = null;
+  private Map<String, List<String>> fMimeTypeToPluginMap = null;
   
   /* A list of aliases */
-  private Map aliases = null;
+  private Map<String, String> aliases = null;
   
   
   /**
    * Constructs a new ParsePluginList
    */
   ParsePluginList() {
-    fMimeTypeToPluginMap = new HashMap();
-    aliases = new HashMap();
+    fMimeTypeToPluginMap = new HashMap<String, List<String>>();
+    aliases = new HashMap<String, String>();
   }
   
-  List getPluginList(String mimeType) {
-    return (List) fMimeTypeToPluginMap.get(mimeType);
+  List<String> getPluginList(String mimeType) {
+    return fMimeTypeToPluginMap.get(mimeType);
   }
 
-  void setAliases(Map aliases) {
+  void setAliases(Map<String, String> aliases) {
     this.aliases = aliases;
   }
   
-  Map getAliases() {
+  Map<String, String> getAliases() {
     return aliases;
   }
   
-  void setPluginList(String mimeType, List l) {
+  void setPluginList(String mimeType, List<String> l) {
     fMimeTypeToPluginMap.put(mimeType, l);
   }
   
-  List getSupportedMimeTypes() {
+  List<String> getSupportedMimeTypes() {
     return Arrays.asList(fMimeTypeToPluginMap.keySet().toArray(
             new String[] {}));
   }

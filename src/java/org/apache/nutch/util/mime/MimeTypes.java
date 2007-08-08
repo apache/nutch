@@ -42,16 +42,18 @@ public final class MimeTypes {
     public final static String DEFAULT = "application/octet-stream";
 
     /** All the registered MimeTypes */
-    private ArrayList types = new ArrayList();
+    private ArrayList<MimeType> types = new ArrayList<MimeType>();
 
     /** All the registered MimeType indexed by name */
-    private HashMap typesIdx = new HashMap();
+    private HashMap<String, MimeType> typesIdx =
+      new HashMap<String, MimeType>();
 
     /** MimeTypes indexed on the file extension */
-    private Map extIdx = new HashMap();
+    private Map<String, List<MimeType>> extIdx =
+      new HashMap<String, List<MimeType>>();
 
     /** List of MimeTypes containing a magic char sequence */
-    private List magicsIdx = new ArrayList();
+    private List<MimeType> magicsIdx = new ArrayList<MimeType>();
 
     /** The minimum length of data to provide to check all MimeTypes */
     private int minLength = 0;
@@ -63,7 +65,7 @@ public final class MimeTypes {
      * Key is the specified file path in the {@link #get(String)} method.
      * Value is the associated MimeType instance.
      */
-    private static Map instances = new HashMap();
+    private static Map<String, MimeTypes> instances = new HashMap<String, MimeTypes>();
     
     
     /** Should never be instanciated from outside */
@@ -81,7 +83,7 @@ public final class MimeTypes {
     public static MimeTypes get(String filepath) {
         MimeTypes instance = null;
         synchronized(instances) {
-            instance = (MimeTypes) instances.get(filepath);
+            instance = instances.get(filepath);
             if (instance == null) {
                 instance = new MimeTypes(filepath, null);
                 instances.put(filepath, instance);
@@ -99,7 +101,7 @@ public final class MimeTypes {
     public static MimeTypes get(String filepath, Log logger) {
         MimeTypes instance = null;
         synchronized(instances) {
-            instance = (MimeTypes) instances.get(filepath);
+            instance = instances.get(filepath);
             if (instance == null) {
                 instance = new MimeTypes(filepath, logger);
                 instances.put(filepath, instance);
@@ -164,7 +166,7 @@ public final class MimeTypes {
         if ((data == null) || (data.length < 1)) {
             return null;
         }
-        Iterator iter = magicsIdx.iterator();
+        Iterator<MimeType> iter = magicsIdx.iterator();
         MimeType type = null;
         // TODO: This is a very naive first approach (scanning all the magic
         //       bytes since one is matching.
@@ -173,7 +175,7 @@ public final class MimeTypes {
         // TODO: A second improvement could be to search for the most qualified
         //       (the longuest) magic sequence (not the first that is matching).
         while (iter.hasNext()) {
-            type = (MimeType) iter.next();
+            type = iter.next();
             if (type.matches(data)) {
                 return type;
             }
@@ -214,7 +216,7 @@ public final class MimeTypes {
     * Return a MimeType from its name.
     */
    public MimeType forName(String name) {
-      return (MimeType) typesIdx.get(name);
+      return typesIdx.get(name);
    }
 
     /**
@@ -254,11 +256,11 @@ public final class MimeTypes {
         String[] exts = type.getExtensions();
         if (exts != null) {
             for (int i=0; i<exts.length; i++) {
-                List list = (List) extIdx.get(exts[i]);
+                List<MimeType> list = extIdx.get(exts[i]);
                 if (list == null) {
                     // No type already registered for this extension...
                     // So, create a list of types
-                    list = new ArrayList();
+                    list = new ArrayList<MimeType>();
                     extIdx.put(exts[i], list);
                 }
                 list.add(type);
@@ -275,17 +277,17 @@ public final class MimeTypes {
      * (many MimeTypes can have the same registered extensions).
      */
     private MimeType[] getMimeTypes(String name) {
-        List mimeTypes = null;
+        List<MimeType> mimeTypes = null;
         int index = name.lastIndexOf('.');
         if ((index != -1) && (index != name.length()-1)) {
             // There's an extension, so try to find
             // the corresponding mime-types
             String ext = name.substring(index + 1);
-            mimeTypes = (List) extIdx.get(ext);
+            mimeTypes = extIdx.get(ext);
         }
         
         return (mimeTypes != null)
-                    ? (MimeType[]) mimeTypes.toArray(new MimeType[mimeTypes.size()])
+                    ? mimeTypes.toArray(new MimeType[mimeTypes.size()])
                     : null;
     }
     

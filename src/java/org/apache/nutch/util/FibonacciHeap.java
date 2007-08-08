@@ -31,7 +31,7 @@ import java.util.HashMap;
  */
 public class FibonacciHeap {
   private FibonacciHeapNode min;
-  private HashMap itemsToNodes;
+  private HashMap<Object, FibonacciHeapNode> itemsToNodes;
 
   // private node class
   private static class FibonacciHeapNode {
@@ -67,7 +67,7 @@ public class FibonacciHeap {
    */
   public FibonacciHeap() {
     this.min= null;
-    this.itemsToNodes= new HashMap();
+    this.itemsToNodes= new HashMap<Object, FibonacciHeapNode>();
   }
 
   /**
@@ -230,7 +230,7 @@ public class FibonacciHeap {
    */
   public void decreaseKey(Object item, int priority) {
     FibonacciHeapNode node= 
-      (FibonacciHeapNode) itemsToNodes.get(item);
+      itemsToNodes.get(item);
     if (node == null) 
       throw new IllegalStateException("No such element: " + item);
     if (node.priority < priority) 

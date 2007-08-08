@@ -31,7 +31,7 @@ public class Inlinks implements Writable {
 
   public void add(Inlinks inlinks) { this.inlinks.addAll(inlinks.inlinks); }
 
-  public Iterator iterator() {
+  public Iterator<Inlink> iterator() {
     return this.inlinks.iterator();
   }
   
@@ -49,16 +49,16 @@ public class Inlinks implements Writable {
 
   public void write(DataOutput out) throws IOException {
     out.writeInt(inlinks.size());
-    Iterator it = inlinks.iterator();
+    Iterator<Inlink> it = inlinks.iterator();
     while (it.hasNext()) {
-      ((Writable)it.next()).write(out);
+      it.next().write(out);
     }
   }
 
   public String toString() {
     StringBuffer buffer = new StringBuffer();
     buffer.append("Inlinks:\n");
-    Iterator it = inlinks.iterator();
+    Iterator<Inlink> it = inlinks.iterator();
     while (it.hasNext()) {
       buffer.append(" ");
       buffer.append(it.next());
@@ -70,11 +70,12 @@ public class Inlinks implements Writable {
   /** Return the set of anchor texts.  Only a single anchor with a given text
    * is permitted from a given domain. */
   public String[] getAnchors() throws IOException {
-    HashMap domainToAnchors = new HashMap();
-    ArrayList results = new ArrayList();
-    Iterator it = inlinks.iterator();
+    HashMap<String, Set<String>> domainToAnchors =
+      new HashMap<String, Set<String>>();
+    ArrayList<String> results = new ArrayList<String>();
+    Iterator<Inlink> it = inlinks.iterator();
     while (it.hasNext()) {
-      Inlink inlink = (Inlink)it.next();
+      Inlink inlink = it.next();
       String anchor = inlink.getAnchor();
 
       if (anchor.length() == 0)                   // skip empty anchors
@@ -83,9 +84,9 @@ public class Inlinks implements Writable {
       try {
         domain = new URL(inlink.getFromUrl()).getHost();
       } catch (MalformedURLException e) {}
-      Set domainAnchors = (Set)domainToAnchors.get(domain);
+      Set<String> domainAnchors = domainToAnchors.get(domain);
       if (domainAnchors == null) {
-        domainAnchors = new HashSet();
+        domainAnchors = new HashSet<String>();
         domainToAnchors.put(domain, domainAnchors);
       }
       if (domainAnchors.add(anchor)) {            // new anchor from domain
@@ -93,7 +94,7 @@ public class Inlinks implements Writable {
       }
     }
 
-    return (String[])results.toArray(new String[results.size()]);
+    return results.toArray(new String[results.size()]);
   }
 
 

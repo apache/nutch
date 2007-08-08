@@ -20,6 +20,7 @@ package org.apache.nutch.indexer;
 import org.apache.lucene.search.DefaultSimilarity;
 
 /** Similarity implementatation used by Nutch indexing and search. */
+@SuppressWarnings("serial")
 public class NutchSimilarity extends DefaultSimilarity  {
   private static final int MIN_CONTENT_LENGTH = 1000;
 

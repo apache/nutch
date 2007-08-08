@@ -42,7 +42,8 @@ public class CommonGrams {
   /** The key used to cache commonTerms in Configuration */
   private static final String KEY = CommonGrams.class.getName();
 
-  private HashMap commonTerms = new HashMap();
+  private HashMap<String, HashSet<String>> commonTerms =
+    new HashMap<String, HashSet<String>>();
   
   /**
    * The constructor.
@@ -53,14 +54,14 @@ public class CommonGrams {
   }
 
   private static class Filter extends TokenFilter {
-    private HashSet common;
+    private HashSet<String> common;
     private Token previous;
-    private LinkedList gramQueue = new LinkedList();
-    private LinkedList nextQueue = new LinkedList();
+    private LinkedList<Token> gramQueue = new LinkedList<Token>();
+    private LinkedList<Token> nextQueue = new LinkedList<Token>();
     private StringBuffer buffer = new StringBuffer();
 
     /** Construct an n-gram producing filter. */
-    public Filter(TokenStream input, HashSet common) {
+    public Filter(TokenStream input, HashSet<String> common) {
       super(input);
       this.common = common;
     }
@@ -68,7 +69,7 @@ public class CommonGrams {
     /** Inserts n-grams into a token stream. */
     public Token next() throws IOException {
       if (gramQueue.size() != 0)                  // consume any queued tokens
-        return (Token)gramQueue.removeFirst();
+        return gramQueue.removeFirst();
 
       final Token token = popNext();
       if (token == null)
@@ -81,7 +82,7 @@ public class CommonGrams {
 
       gramQueue.add(token);                       // queue the token
 
-      ListIterator i = nextQueue.listIterator();
+      ListIterator<Token> i = nextQueue.listIterator();
       Token gram = token;
       while (isCommon(gram)) {
         if (previous != null && !isCommon(previous)) // queue prev gram first
@@ -96,7 +97,7 @@ public class CommonGrams {
       }
 
       previous = token;
-      return (Token)gramQueue.removeFirst();
+      return gramQueue.removeFirst();
     }
 
     /** True iff token is for a common term. */
@@ -107,13 +108,13 @@ public class CommonGrams {
     /** Pops nextQueue or, if empty, reads a new token. */
     private Token popNext() throws IOException {
       if (nextQueue.size() > 0)
-        return (Token)nextQueue.removeFirst();
+        return nextQueue.removeFirst();
       else
         return input.next();
     }
 
     /** Return next token in nextQueue, extending it when empty. */
-    private Token peekNext(ListIterator i) throws IOException {
+    private Token peekNext(ListIterator<Token> i) throws IOException {
       if (!i.hasNext()) {
         Token next = input.next();
         if (next == null)
@@ -121,7 +122,7 @@ public class CommonGrams {
         i.add(next);
         i.previous();
       }
-      return (Token)i.next();
+      return i.next();
     }
 
     /** Construct a compound token. */
@@ -141,12 +142,12 @@ public class CommonGrams {
   /** Construct using the provided config file. */
   private void init(Configuration conf) {
     // First, try to retrieve some commonTerms cached in configuration.
-    commonTerms = (HashMap) conf.getObject(KEY);
+    commonTerms = (HashMap<String, HashSet<String>>) conf.getObject(KEY);
     if (commonTerms != null) { return; }
 
     // Otherwise, read the terms.file
     try {
-      commonTerms = new HashMap();
+      commonTerms = new HashMap<String, HashSet<String>>();
       Reader reader = conf.getConfResourceAsReader
         (conf.get("analysis.common.terms.file"));
       BufferedReader in = new BufferedReader(reader);
@@ -175,9 +176,9 @@ public class CommonGrams {
         while ((token = ts.next()) != null) {
           gram = gram + SEPARATOR + token.termText();
         }
-        HashSet table = (HashSet)commonTerms.get(field);
+        HashSet<String> table = commonTerms.get(field);
         if (table == null) {
-          table = new HashSet();
+          table = new HashSet<String>();
           commonTerms.put(field, table);
         }
         table.add(gram);
@@ -191,7 +192,7 @@ public class CommonGrams {
   /** Construct a token filter that inserts n-grams for common terms.  For use
    * while indexing documents.  */
   public TokenFilter getFilter(TokenStream ts, String field) {
-    return new Filter(ts, (HashSet)commonTerms.get(field));
+    return new Filter(ts, commonTerms.get(field));
   }
 
   /** Utility to convert an array of Query.Terms into a token stream. */
@@ -217,7 +218,7 @@ public class CommonGrams {
     if (LOG.isTraceEnabled()) {
       LOG.trace("Optimizing " + phrase + " for " + field);
     }
-    ArrayList result = new ArrayList();
+    ArrayList<String> result = new ArrayList<String>();
     TokenStream ts = getFilter(new ArrayTokens(phrase), field);
     Token token, prev=null;
     int position = 0;
@@ -236,7 +237,7 @@ public class CommonGrams {
     if (prev != null)
       result.add(prev.termText());
 
-    return (String[])result.toArray(new String[result.size()]);
+    return result.toArray(new String[result.size()]);
   }
 
   private int arity(String gram) {

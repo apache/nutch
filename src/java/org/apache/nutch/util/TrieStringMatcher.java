@@ -37,9 +37,9 @@ public abstract class TrieStringMatcher {
   /**
    * Node class for the character tree.
    */
-  protected class TrieNode implements Comparable {
+  protected class TrieNode implements Comparable<TrieNode> {
     protected TrieNode[] children;
-    protected LinkedList childrenList;
+    protected LinkedList<TrieNode> childrenList;
     protected char nodeChar;
     protected boolean terminal;
 
@@ -52,7 +52,7 @@ public abstract class TrieStringMatcher {
     TrieNode(char nodeChar, boolean isTerminal) {
       this.nodeChar= nodeChar;
       this.terminal= isTerminal;
-      this.childrenList= new LinkedList();
+      this.childrenList= new LinkedList<TrieNode>();
     }
 
     /**
@@ -71,7 +71,7 @@ public abstract class TrieStringMatcher {
      */
     TrieNode getChildAddIfNotPresent(char nextChar, boolean isTerminal) {
       if (childrenList == null) {
-        childrenList= new LinkedList();
+        childrenList= new LinkedList<TrieNode>();
         childrenList.addAll(Arrays.asList(children));
         children= null;
       }
@@ -82,10 +82,10 @@ public abstract class TrieStringMatcher {
         return newNode;
       }
 
-      ListIterator iter= childrenList.listIterator();
-      TrieNode node= (TrieNode) iter.next();
+      ListIterator<TrieNode> iter= childrenList.listIterator();
+      TrieNode node= iter.next();
       while ( (node.nodeChar < nextChar) && iter.hasNext() ) 
-        node= (TrieNode) iter.next();
+        node= iter.next();
                         
       if (node.nodeChar == nextChar) {
         node.terminal= node.terminal | isTerminal;
@@ -107,8 +107,7 @@ public abstract class TrieStringMatcher {
      */
     TrieNode getChild(char nextChar) {
       if (children == null) {
-        children= (TrieNode[]) 
-          childrenList.toArray(new TrieNode[childrenList.size()]);
+        children= childrenList.toArray(new TrieNode[childrenList.size()]);
         childrenList= null;
         Arrays.sort(children);
       }
@@ -133,8 +132,7 @@ public abstract class TrieStringMatcher {
       return null;
     }
 
-    public int compareTo(Object o) {
-      TrieNode other= (TrieNode) o;
+    public int compareTo(TrieNode other) {
       if (this.nodeChar < other.nodeChar) 
         return -1;
       if (this.nodeChar == other.nodeChar) 

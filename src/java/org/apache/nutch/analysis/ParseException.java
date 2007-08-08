@@ -10,6 +10,7 @@ package org.apache.nutch.analysis;
  * You can modify this class to customize your error reporting
  * mechanisms so long as you retain the public fields.
  */
+@SuppressWarnings("serial")
 class ParseException extends java.io.IOException  {
 
   /**

@@ -17,6 +17,7 @@
 
 package org.apache.nutch.indexer;
 
+@SuppressWarnings("serial")
 public class IndexingException extends Exception {
 
   public IndexingException() {

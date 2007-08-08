@@ -269,7 +269,7 @@ public class PruneIndexTool implements Runnable {
       numIdx = 1;
     } else {
       Directory dir;
-      Vector indexes = new Vector(indexDirs.length);
+      Vector<IndexReader> indexes = new Vector<IndexReader>(indexDirs.length);
       for (int i = 0; i < indexDirs.length; i++) {
         try {
           dir = FSDirectory.getDirectory(indexDirs[i], false);
@@ -297,7 +297,7 @@ public class PruneIndexTool implements Runnable {
         }
       }
       if (indexes.size() == 0) throw new Exception("No input indexes.");
-      IndexReader[] readers = (IndexReader[])indexes.toArray(new IndexReader[0]);
+      IndexReader[] readers = indexes.toArray(new IndexReader[0]);
       reader = new MultiReader(readers);
     }
     if (LOG.isInfoEnabled()) {
@@ -414,7 +414,7 @@ public class PruneIndexTool implements Runnable {
       if (LOG.isFatalEnabled()) { LOG.fatal("Not a directory: " + idx); }
       return;
     }
-    Vector paths = new Vector();
+    Vector<File> paths = new Vector<File>();
     if (IndexReader.indexExists(idx)) {
       paths.add(idx);
     } else {
@@ -443,7 +443,7 @@ public class PruneIndexTool implements Runnable {
         return;
       }
     }
-    File[] indexes = (File[])paths.toArray(new File[0]);
+    File[] indexes = paths.toArray(new File[0]);
     boolean force = false;
     boolean dryrun = false;
     String qPath = null;
@@ -468,12 +468,12 @@ public class PruneIndexTool implements Runnable {
         return;
       }
     }
-    Vector cv = new Vector();
+    Vector<PruneChecker> cv = new Vector<PruneChecker>();
     if (fList != null) {
       StringTokenizer st = new StringTokenizer(fList, ",");
-      Vector tokens = new Vector();
+      Vector<String> tokens = new Vector<String>();
       while (st.hasMoreTokens()) tokens.add(st.nextToken());
-      String[] fields = (String[])tokens.toArray(new String[0]);
+      String[] fields = tokens.toArray(new String[0]);
       PruneChecker pc = new PrintFieldsChecker(System.out, fields);
       cv.add(pc);
     }
@@ -485,7 +485,7 @@ public class PruneIndexTool implements Runnable {
 
     PruneChecker[] checkers = null;
     if (cv.size() > 0) {
-      checkers = (PruneChecker[])cv.toArray(new PruneChecker[0]);
+      checkers = cv.toArray(new PruneChecker[0]);
     }
     Query[] queries = null;
     InputStream is = null;
@@ -535,7 +535,7 @@ public class PruneIndexTool implements Runnable {
     BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
     String line = null;
     QueryParser qp = new QueryParser("url", new WhitespaceAnalyzer());
-    Vector queries = new Vector();
+    Vector<Query> queries = new Vector<Query>();
     while ((line = br.readLine()) != null) {
       line = line.trim();
       //skip blanks and comments
@@ -543,7 +543,7 @@ public class PruneIndexTool implements Runnable {
       Query q = qp.parse(line);
       queries.add(q);
     }
-    return (Query[])queries.toArray(new Query[0]);
+    return queries.toArray(new Query[0]);
   }
   
   private static void usage() {

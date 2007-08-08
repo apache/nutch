@@ -102,7 +102,7 @@ public final class ParserFactory {
   public Parser[] getParsers(String contentType, String url)
   throws ParserNotFound {
     
-    List parsers = null;
+    List<Parser> parsers = null;
     List parserExts = null;
     
     // TODO once the MimeTypes is available
@@ -118,7 +118,7 @@ public final class ParserFactory {
       throw new ParserNotFound(url, contentType);
     }
 
-    parsers = new Vector(parserExts.size());
+    parsers = new Vector<Parser>(parserExts.size());
     for (Iterator i=parserExts.iterator(); i.hasNext(); ){
       Extension ext = (Extension) i.next();
       Parser p = null;
@@ -142,7 +142,7 @@ public final class ParserFactory {
         }
       }
     }
-    return (Parser[]) parsers.toArray(new Parser[]{});
+    return parsers.toArray(new Parser[]{});
   }
     
   /**
@@ -209,7 +209,7 @@ public final class ParserFactory {
    * @return a list of extensions to be used for this contentType.
    *         If none, returns <code>null</code>.
    */
-  protected List getExtensions(String contentType) {
+  protected List<Extension> getExtensions(String contentType) {
     
     // First of all, tries to clean the content-type
     String type = null;
@@ -223,7 +223,7 @@ public final class ParserFactory {
       type = contentType;
     }
 
-    List extensions = (List) this.conf.getObject(type);
+    List<Extension> extensions = (List<Extension>) this.conf.getObject(type);
 
     // Just compare the reference:
     // if this is the empty list, we know we will find no extension.
@@ -253,13 +253,15 @@ public final class ParserFactory {
    * @return List - List of extensions to be used for this contentType.
    *                If none, returns null.
    */
-  private List findExtensions(String contentType) {
+  private List<Extension> findExtensions(String contentType) {
     
     Extension[] extensions = this.extensionPoint.getExtensions();
     
     // Look for a preferred plugin.
-    List parsePluginList = this.parsePluginList.getPluginList(contentType);
-    List extensionList = matchExtensions(parsePluginList, extensions, contentType);
+    List<String> parsePluginList =
+      this.parsePluginList.getPluginList(contentType);
+    List<Extension> extensionList =
+      matchExtensions(parsePluginList, extensions, contentType);
     if (extensionList != null) {
       return extensionList;
     }
@@ -283,15 +285,14 @@ public final class ParserFactory {
    * @return List - List of extensions to be used for this contentType.
    *                If none, returns null.
    */
-  private List matchExtensions(List plugins,
+  private List<Extension> matchExtensions(List<String> plugins,
                                Extension[] extensions,
                                String contentType) {
     
-    List extList = new ArrayList();
+    List<Extension> extList = new ArrayList<Extension>();
     if (plugins != null) {
       
-      for (Iterator i = plugins.iterator(); i.hasNext();) {
-        String parsePluginId = (String) i.next();
+      for (String parsePluginId : plugins) {
         
         Extension ext = getExtension(extensions, parsePluginId, contentType);
         // the extension returned may be null
@@ -346,7 +347,7 @@ public final class ParserFactory {
         if (extensions[i].getAttribute("contentType") != null
             && extensions[i].getAttribute("contentType").equals(
                 contentType)) {
-          extList.add(extensions[i].getId());
+          extList.add(extensions[i]);
         }
       }
       
@@ -393,7 +394,7 @@ public final class ParserFactory {
   }
   
   private Extension getExtensionFromAlias(Extension[] list, String id) {
-    return getExtension(list, (String) parsePluginList.getAliases().get(id));
+    return getExtension(list, parsePluginList.getAliases().get(id));
   }
 
 }

@@ -101,8 +101,6 @@ public class LinkDbReader extends ToolBase implements Closeable {
 
     job.addInputPath(new Path(linkdb, LinkDb.CURRENT_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
-    job.setInputKeyClass(Text.class);
-    job.setInputValueClass(Inlinks.class);
 
     job.setOutputPath(outFolder);
     job.setOutputFormat(TextOutputFormat.class);
@@ -134,7 +132,7 @@ public class LinkDbReader extends ToolBase implements Closeable {
         if (links == null) {
           System.out.println(" - no link information.");
         } else {
-          Iterator it = links.iterator();
+          Iterator<Inlink> it = links.iterator();
           while (it.hasNext()) {
             System.out.println(it.next().toString());
           }

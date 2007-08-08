@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
 
 // Commons Logging imports
@@ -75,9 +76,9 @@ public class MapWritable implements Writable {
 
   private ClassIdEntry fIdFirst;
 
-  private static HashMap CLASS_ID_MAP = new HashMap();
+  private static Map<Class, Byte> CLASS_ID_MAP = new HashMap<Class, Byte>();
 
-  private static HashMap ID_CLASS_MAP = new HashMap();
+  private static Map<Byte, Class> ID_CLASS_MAP = new HashMap<Byte, Class>();
 
   static {
 
@@ -173,8 +174,8 @@ public class MapWritable implements Writable {
     return fFirst == null;
   }
 
-  public Set keySet() {
-    HashSet set = new HashSet();
+  public Set<Writable> keySet() {
+    HashSet<Writable> set = new HashSet<Writable>();
     if (isEmpty()) return set;
     set.add(fFirst.fKey);
     KeyValueEntry entry = fFirst;
@@ -206,9 +207,9 @@ public class MapWritable implements Writable {
     if (map == null || map.size() == 0) {
       return;
     }
-    Iterator iterator = map.keySet().iterator();
+    Iterator<Writable> iterator = map.keySet().iterator();
     while (iterator.hasNext()) {
-      Writable key = (Writable) iterator.next();
+      Writable key = iterator.next();
       Writable value = map.get(key);
       put(key, value);
     }
@@ -242,8 +243,8 @@ public class MapWritable implements Writable {
     return fSize;
   }
 
-  public Collection values() {
-    LinkedList list = new LinkedList();
+  public Collection<Writable> values() {
+    LinkedList<Writable> list = new LinkedList<Writable>();
     KeyValueEntry entry = fFirst;
     while (entry != null) {
       list.add(entry.fValue);
@@ -256,13 +257,13 @@ public class MapWritable implements Writable {
     if (obj instanceof MapWritable) {
       MapWritable map = (MapWritable) obj;
       if (fSize != map.fSize) return false;
-      HashSet set1 = new HashSet();
+      HashSet<KeyValueEntry> set1 = new HashSet<KeyValueEntry>();
       KeyValueEntry e1 = fFirst;
       while (e1 != null) {
         set1.add(e1);
         e1 = e1.fNextEntry;
       }
-      HashSet set2 = new HashSet();
+      HashSet<KeyValueEntry> set2 = new HashSet<KeyValueEntry>();
       KeyValueEntry e2 = map.fFirst;
       while (e2 != null) {
         set2.add(e2);
@@ -401,7 +402,7 @@ public class MapWritable implements Writable {
   }
 
   private byte getClassId(Class clazz) {
-    Byte classId = (Byte) CLASS_ID_MAP.get(clazz);
+    Byte classId = CLASS_ID_MAP.get(clazz);
     if (classId != null) {
       return classId.byteValue();
     }
@@ -448,7 +449,7 @@ public class MapWritable implements Writable {
   }
 
   private Class getClass(final byte id) throws IOException {
-    Class clazz = (Class) ID_CLASS_MAP.get(new Byte(id));
+    Class clazz = ID_CLASS_MAP.get(new Byte(id));
     if (clazz == null) {
       ClassIdEntry entry = fIdFirst;
       while (entry != null) {
