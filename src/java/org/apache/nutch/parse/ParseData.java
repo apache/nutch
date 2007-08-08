@@ -43,7 +43,10 @@ public final class ParseData extends VersionedWritable {
   private ParseStatus status;
   private byte version = VERSION;
   
-  public ParseData() {}
+  public ParseData() {
+    contentMeta = new Metadata();
+    parseMeta = new Metadata();
+  }
 
   public ParseData(ParseStatus status, String title, Outlink[] outlinks,
                    Metadata contentMeta) {
@@ -125,16 +128,16 @@ public final class ParseData extends VersionedWritable {
     
     if (version < 3) {
       int propertyCount = in.readInt();             // read metadata
-      contentMeta = new Metadata();
+      contentMeta.clear();
       for (int i = 0; i < propertyCount; i++) {
         contentMeta.add(Text.readString(in), Text.readString(in));
       }
     } else {
-      contentMeta = new Metadata();
+      contentMeta.clear();
       contentMeta.readFields(in);
     }
     if (version > 3) {
-      parseMeta = new Metadata();
+      parseMeta.clear();
       parseMeta.readFields(in);
     }
   }

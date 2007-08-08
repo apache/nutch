@@ -126,6 +126,7 @@ public final class Content implements Writable{
   }
   
   public final void readFields(DataInput in) throws IOException {
+    metadata.clear();
     int sizeOrVersion = in.readInt();
     if (sizeOrVersion < 0) { // version
       version = sizeOrVersion;

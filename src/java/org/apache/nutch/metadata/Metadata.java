@@ -162,6 +162,11 @@ DublinCore, HttpHeaders, Nutch, Office, Feed {
   public int size() {
     return metadata.size();
   }
+  
+  /** Remove all mappings from metadata. */
+  public void clear() {
+    metadata.clear();
+  }
 
   public boolean equals(Object o) {
 
