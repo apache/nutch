@@ -63,7 +63,7 @@ public class TestInjector extends TestCase {
   public void testInject() throws IOException {
     ArrayList<String> urls=new ArrayList<String>();
     for(int i=0;i<100;i++) {
-      urls.add("http://zzz/" + i + ".html");
+      urls.add("http://zzz.com/" + i + ".html");
     }
     CrawlDBTestUtil.generateSeedList(fs, urlPath, urls);
     
@@ -84,7 +84,7 @@ public class TestInjector extends TestCase {
     //inject more urls
     ArrayList<String> urls2=new ArrayList<String>();
     for(int i=0;i<100;i++) {
-      urls2.add("http://xxx/" + i + ".html");
+      urls2.add("http://xxx.com/" + i + ".html");
     }
     CrawlDBTestUtil.generateSeedList(fs, urlPath, urls2);
     injector.inject(crawldbPath, urlPath);
