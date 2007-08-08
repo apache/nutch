@@ -106,7 +106,7 @@ public class UrlValidator {
   private static final Pattern QUERY_PATTERN = Pattern.compile("^(.*)$");
 
   private static final Pattern LEGAL_ASCII_PATTERN = 
-    Pattern.compile("^[\\x20-\\x7E]+$");
+    Pattern.compile("^[\\x21-\\x7E]+$");
 
   private static final Pattern IP_V4_DOMAIN_PATTERN =
     Pattern.compile("^(\\d{1,3})[.](\\d{1,3})[.](\\d{1,3})[.](\\d{1,3})$");
