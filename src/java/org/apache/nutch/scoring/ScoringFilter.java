@@ -136,7 +136,7 @@ public interface ScoringFilter extends Configurable, Pluggable {
    * links pointing to this page, found in the current update batch.
    * @throws ScoringFilterException
    */
-  public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum, List inlinked) throws ScoringFilterException;
+  public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum, List<CrawlDatum> inlinked) throws ScoringFilterException;
   
   /**
    * This method calculates a Lucene document boost.

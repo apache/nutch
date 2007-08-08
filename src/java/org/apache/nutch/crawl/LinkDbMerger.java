@@ -79,10 +79,10 @@ public class LinkDbMerger extends ToolBase implements Reducer {
       Inlinks inlinks = (Inlinks)values.next();
 
       int end = Math.min(maxInlinks - result.size(), inlinks.size());
-      Iterator it = inlinks.iterator();
+      Iterator<Inlink> it = inlinks.iterator();
       int i = 0;
       while(it.hasNext() && i++ < end) {
-        result.add((Inlink)it.next());
+        result.add(it.next());
       }
     }
     if (result.size() == 0) return;
@@ -149,7 +149,7 @@ public class LinkDbMerger extends ToolBase implements Reducer {
       return -1;
     }
     Path output = new Path(args[0]);
-    ArrayList dbs = new ArrayList();
+    ArrayList<Path> dbs = new ArrayList<Path>();
     boolean normalize = false;
     boolean filter = false;
     for (int i = 1; i < args.length; i++) {
@@ -160,7 +160,7 @@ public class LinkDbMerger extends ToolBase implements Reducer {
       } else dbs.add(new Path(args[i]));
     }
     try {
-      merge(output, (Path[])dbs.toArray(new Path[dbs.size()]), normalize, filter);
+      merge(output, dbs.toArray(new Path[dbs.size()]), normalize, filter);
       return 0;
     } catch (Exception e) {
       LOG.fatal("LinkDbMerger: " + StringUtils.stringifyException(e));

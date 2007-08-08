@@ -19,6 +19,7 @@ package org.apache.nutch.crawl;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
 
@@ -264,12 +265,12 @@ public class CrawlDbReader implements Closeable {
     Text key = new Text();
     LongWritable value = new LongWritable();
 
-    TreeMap stats = new TreeMap();
+    TreeMap<String, LongWritable> stats = new TreeMap<String, LongWritable>();
     for (int i = 0; i < readers.length; i++) {
       SequenceFile.Reader reader = readers[i];
       while (reader.next(key, value)) {
         String k = key.toString();
-        LongWritable val = (LongWritable) stats.get(k);
+        LongWritable val = stats.get(k);
         if (val == null) {
           val = new LongWritable();
           if (k.equals("scx")) val.set(Long.MIN_VALUE);
@@ -289,13 +290,12 @@ public class CrawlDbReader implements Closeable {
     
     if (LOG.isInfoEnabled()) {
       LOG.info("Statistics for CrawlDb: " + crawlDb);
-      LongWritable totalCnt = (LongWritable)stats.get("T");
+      LongWritable totalCnt = stats.get("T");
       stats.remove("T");
       LOG.info("TOTAL urls:\t" + totalCnt.get());
-      Iterator it = stats.keySet().iterator();
-      while (it.hasNext()) {
-        String k = (String) it.next();
-        LongWritable val = (LongWritable) stats.get(k);
+      for (Map.Entry<String, LongWritable> entry : stats.entrySet()) {
+        String k = entry.getKey();
+        LongWritable val = entry.getValue();
         if (k.equals("scn")) {
           LOG.info("min score:\t" + (float) (val.get() / 1000.0f));
         } else if (k.equals("scx")) {

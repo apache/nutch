@@ -37,7 +37,7 @@ public class CrawlDbReducer implements Reducer {
   
   private int retryMax;
   private CrawlDatum result = new CrawlDatum();
-  private ArrayList linked = new ArrayList();
+  private ArrayList<CrawlDatum> linked = new ArrayList<CrawlDatum>();
   private ScoringFilters scfilters = null;
   private boolean additionsAllowed;
   private float maxInterval;
@@ -101,7 +101,7 @@ public class CrawlDbReducer implements Reducer {
     
     // if there is no fetched datum, perhaps there is a link
     if (fetch == null && linked.size() > 0) {
-      fetch = (CrawlDatum)linked.get(0);
+      fetch = linked.get(0);
     }
     
     // still no new data - record only unchanged old data, if exists, and return

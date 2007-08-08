@@ -17,6 +17,7 @@
 
 package org.apache.nutch.protocol;
 
+@SuppressWarnings("serial")
 public class ProtocolException extends Exception {
 
   public ProtocolException() {

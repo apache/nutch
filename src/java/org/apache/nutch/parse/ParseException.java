@@ -17,6 +17,7 @@
 
 package org.apache.nutch.parse;
 
+@SuppressWarnings("serial")
 public class ParseException extends Exception {
 
   public ParseException() {

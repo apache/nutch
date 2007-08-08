@@ -273,7 +273,7 @@ public class LinkDb extends ToolBase implements Mapper {
     Path segDir = null;
     final FileSystem fs = FileSystem.get(conf);
     Path db = new Path(args[0]);
-    ArrayList segs = new ArrayList();
+    ArrayList<Path> segs = new ArrayList<Path>();
     boolean filter = true;
     boolean normalize = true;
     boolean force = false;
@@ -299,7 +299,7 @@ public class LinkDb extends ToolBase implements Mapper {
       } else segs.add(new Path(args[i]));
     }
     try {
-      invert(db, (Path[])segs.toArray(new Path[segs.size()]), normalize, filter, force);
+      invert(db, segs.toArray(new Path[segs.size()]), normalize, filter, force);
       return 0;
     } catch (Exception e) {
       LOG.fatal("LinkDb: " + StringUtils.stringifyException(e));

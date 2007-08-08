@@ -17,6 +17,7 @@
 
 package org.apache.nutch.net;
 
+@SuppressWarnings("serial")
 public class URLFilterException extends Exception {
 
   public URLFilterException() {

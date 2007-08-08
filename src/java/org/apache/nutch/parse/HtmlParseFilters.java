@@ -22,7 +22,6 @@ import java.util.HashMap;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.plugin.*;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Text;
 
 import org.w3c.dom.DocumentFragment;
 
@@ -34,7 +33,8 @@ public class HtmlParseFilters {
   public HtmlParseFilters(Configuration conf) {
         this.htmlParseFilters = (HtmlParseFilter[]) conf.getObject(HtmlParseFilter.class.getName());
         if (htmlParseFilters == null) {
-            HashMap filters = new HashMap();
+            HashMap<String, HtmlParseFilter> filters =
+              new HashMap<String, HtmlParseFilter>();
             try {
                 ExtensionPoint point = PluginRepository.get(conf).getExtensionPoint(HtmlParseFilter.X_POINT_ID);
                 if (point == null)
@@ -47,7 +47,7 @@ public class HtmlParseFilters {
                         filters.put(parseFilter.getClass().getName(), parseFilter);
                     }
                 }
-                HtmlParseFilter[] htmlParseFilters = (HtmlParseFilter[]) filters.values().toArray(new HtmlParseFilter[filters.size()]);
+                HtmlParseFilter[] htmlParseFilters = filters.values().toArray(new HtmlParseFilter[filters.size()]);
                 conf.setObject(HtmlParseFilter.class.getName(), htmlParseFilters);
             } catch (PluginRuntimeException e) {
                 throw new RuntimeException(e);

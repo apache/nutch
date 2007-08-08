@@ -51,10 +51,10 @@ public final class MimeType {
     private String description = null;
     
     /** The Mime-Type associated extensions */
-    private ArrayList extensions = null;
+    private ArrayList<String> extensions = null;
     
     /** The magic bytes associated to this Mime-Type */
-    private ArrayList magics = null;
+    private ArrayList<Magic> magics = null;
     
     /** The minimum length of data to provides for magic analyzis */
     private int minLength = 0;
@@ -109,8 +109,8 @@ public final class MimeType {
         this.name = primary + SEPARATOR + clearedSub;
         this.primary = primary;
         this.sub = clearedSub;
-        this.extensions = new ArrayList();
-        this.magics = new ArrayList();
+        this.extensions = new ArrayList<String>();
+        this.magics = new ArrayList<Magic>();
     }
 
     /**
@@ -209,7 +209,7 @@ public final class MimeType {
      * @return the extensions associated to this mime-type.
      */
     String[] getExtensions() {
-        return (String[]) extensions.toArray(new String[extensions.size()]);
+        return extensions.toArray(new String[extensions.size()]);
     }
     
     void addMagic(int offset, String type, String magic) {
@@ -247,7 +247,7 @@ public final class MimeType {
         
         Magic tested = null;
         for (int i=0; i<magics.size(); i++) {
-            tested = (Magic) magics.get(i);
+            tested = magics.get(i);
             if (tested.matches(data)) {
                 return true;
             }

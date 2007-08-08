@@ -266,7 +266,7 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
         }
 
         public void close(Reporter reporter) throws IOException {
-          Iterator it = sliceWriters.values().iterator();
+          Iterator<Object> it = sliceWriters.values().iterator();
           while (it.hasNext()) {
             Object o = it.next();
             if (o instanceof SequenceFile.Writer) {
@@ -350,7 +350,8 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
     String lastCname = null;
     String lastPDname = null;
     String lastPTname = null;
-    TreeMap linked = new TreeMap();
+    TreeMap<String, ArrayList<CrawlDatum>> linked =
+      new TreeMap<String, ArrayList<CrawlDatum>>();
     while (values.hasNext()) {
       MetaWrapper wrapper = (MetaWrapper)values.next();
       Object o = wrapper.get();
@@ -399,9 +400,9 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
             continue;
           }
           // collect all LINKED values from the latest segment
-          ArrayList segLinked = (ArrayList)linked.get(sp.segmentName);
+          ArrayList<CrawlDatum> segLinked = linked.get(sp.segmentName);
           if (segLinked == null) {
-            segLinked = new ArrayList();
+            segLinked = new ArrayList<CrawlDatum>();
             linked.put(sp.segmentName, segLinked);
           }
           segLinked.add(val);
@@ -492,13 +493,13 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
       output.collect(key, wrapper);
     }
     if (linked.size() > 0) {
-      String name = (String)linked.lastKey();
+      String name = linked.lastKey();
       sp.partName = CrawlDatum.PARSE_DIR_NAME;
       sp.segmentName = name;
       wrapper.setMeta(SEGMENT_PART_KEY, sp.toString());
-      ArrayList segLinked = (ArrayList)linked.get(name);
+      ArrayList<CrawlDatum> segLinked = linked.get(name);
       for (int i = 0; i < segLinked.size(); i++) {
-        CrawlDatum link = (CrawlDatum)segLinked.get(i);
+        CrawlDatum link = segLinked.get(i);
         wrapper.set(link);
         output.collect(key, wrapper);
       }
@@ -613,7 +614,7 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
     Configuration conf = NutchConfiguration.create();
     final FileSystem fs = FileSystem.get(conf);
     Path out = new Path(args[0]);
-    ArrayList segs = new ArrayList();
+    ArrayList<Path> segs = new ArrayList<Path>();
     long sliceSize = 0;
     boolean filter = false;
     for (int i = 1; i < args.length; i++) {
@@ -642,7 +643,7 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
       return;
     }
     SegmentMerger merger = new SegmentMerger(conf);
-    merger.merge(out, (Path[]) segs.toArray(new Path[segs.size()]), filter, sliceSize);
+    merger.merge(out, segs.toArray(new Path[segs.size()]), filter, sliceSize);
   }
 
 }

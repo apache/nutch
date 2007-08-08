@@ -61,7 +61,8 @@ public class ScoringFilters extends Configured implements ScoringFilter {
         ExtensionPoint point = PluginRepository.get(conf).getExtensionPoint(ScoringFilter.X_POINT_ID);
         if (point == null) throw new RuntimeException(ScoringFilter.X_POINT_ID + " not found.");
         Extension[] extensions = point.getExtensions();
-        HashMap filterMap = new HashMap();
+        HashMap<String, ScoringFilter> filterMap =
+          new HashMap<String, ScoringFilter>();
         for (int i = 0; i < extensions.length; i++) {
           Extension extension = extensions[i];
           ScoringFilter filter = (ScoringFilter) extension.getExtensionInstance();
@@ -74,7 +75,7 @@ public class ScoringFilters extends Configured implements ScoringFilter {
         } else {
           ScoringFilter[] filter = new ScoringFilter[orderedFilters.length];
           for (int i = 0; i < orderedFilters.length; i++) {
-            filter[i] = (ScoringFilter) filterMap.get(orderedFilters[i]);
+            filter[i] = filterMap.get(orderedFilters[i]);
           }
           conf.setObject(ScoringFilter.class.getName(), filter);
         }
@@ -110,7 +111,7 @@ public class ScoringFilters extends Configured implements ScoringFilter {
   }
 
   /** Calculate updated page score during CrawlDb.update(). */
-  public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum, List inlinked) throws ScoringFilterException {
+  public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum, List<CrawlDatum> inlinked) throws ScoringFilterException {
     for (int i = 0; i < this.filters.length; i++) {
       this.filters[i].updateDbScore(url, old, datum, inlinked);
     }

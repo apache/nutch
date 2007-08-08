@@ -22,6 +22,7 @@ package org.apache.nutch.util.mime;
  * @author Hari Kodungallur
  * @author Jerome Charron - http://frutch.free.fr/
  */
+@SuppressWarnings("serial")
 public class MimeTypeException extends Exception {
 
     /**

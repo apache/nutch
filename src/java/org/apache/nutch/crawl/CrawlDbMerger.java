@@ -150,7 +150,7 @@ public class CrawlDbMerger extends ToolBase {
       return -1;
     }
     Path output = new Path(args[0]);
-    ArrayList dbs = new ArrayList();
+    ArrayList<Path> dbs = new ArrayList<Path>();
     boolean filter = false;
     boolean normalize = false;
     for (int i = 1; i < args.length; i++) {
@@ -164,7 +164,7 @@ public class CrawlDbMerger extends ToolBase {
       dbs.add(new Path(args[i]));
     }
     try {
-      merge(output, (Path[]) dbs.toArray(new Path[dbs.size()]), normalize, filter);
+      merge(output, dbs.toArray(new Path[dbs.size()]), normalize, filter);
       return 0;
     } catch (Exception e) {
       LOG.fatal("CrawlDb merge: " + StringUtils.stringifyException(e));

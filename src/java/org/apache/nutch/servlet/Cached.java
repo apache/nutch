@@ -43,6 +43,7 @@ import java.io.IOException;
  * @author John Xing
  */
 
+@SuppressWarnings("serial")
 public class Cached extends HttpServlet {
 
   NutchBean bean = null;
@@ -71,8 +72,8 @@ public class Cached extends HttpServlet {
     if (bean == null)
       return;
 
-    if (bean.LOG.isInfoEnabled()) {
-      bean.LOG.info("request from " + request.getRemoteAddr());
+    if (NutchBean.LOG.isInfoEnabled()) {
+      NutchBean.LOG.info("request from " + request.getRemoteAddr());
     }
 
     Hit hit = new Hit(Integer.parseInt(request.getParameter("idx")),

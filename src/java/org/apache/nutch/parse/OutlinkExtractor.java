@@ -83,7 +83,7 @@ public class OutlinkExtractor {
    */
   public static Outlink[] getOutlinks(final String plainText, String anchor, Configuration conf) {
     long start = System.currentTimeMillis();
-    final List outlinks = new ArrayList();
+    final List<Outlink> outlinks = new ArrayList<Outlink>();
 
     try {
       final PatternCompiler cp = new Perl5Compiler();
@@ -111,7 +111,6 @@ public class OutlinkExtractor {
         result = matcher.getMatch();
         url = result.group(0);
         try {
-          Outlink outlink = new Outlink(url, anchor, conf);
           outlinks.add(new Outlink(url, anchor, conf));
         } catch (MalformedURLException mue) {
           LOG.warn("Invalid url: '" + url + "', skipping.");
@@ -126,7 +125,7 @@ public class OutlinkExtractor {
 
     //create array of the Outlinks
     if (outlinks != null && outlinks.size() > 0) {
-      retval = (Outlink[]) outlinks.toArray(new Outlink[0]);
+      retval = outlinks.toArray(new Outlink[0]);
     } else {
       retval = new Outlink[0];
     }

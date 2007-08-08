@@ -72,7 +72,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
 /** Parse a query. */
   final public Query parse(Configuration conf) throws ParseException {
   Query query = new Query(conf);
-  ArrayList terms;
+  ArrayList<String> terms;
   Token token;
   String field;
   boolean stop;
@@ -140,7 +140,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
         throw new ParseException();
       }
       nonOpOrTerm();
-      String[] array = (String[])terms.toArray(new String[terms.size()]);
+      String[] array = terms.toArray(new String[terms.size()]);
 
       if (stop
           && field == Clause.DEFAULT_FIELD
@@ -160,10 +160,10 @@ public class NutchAnalysis implements NutchAnalysisConstants {
 
 /** Parse an explcitly quoted phrase query.  Note that this may return a single
  * term, a trivial phrase.*/
-  final public ArrayList phrase(String field) throws ParseException {
+  final public ArrayList<String> phrase(String field) throws ParseException {
   int start;
   int end;
-  ArrayList result = new ArrayList();
+  ArrayList<String> result = new ArrayList<String>();
   String term;
     jj_consume_token(QUOTE);
     start = token.endColumn;
@@ -244,9 +244,9 @@ public class NutchAnalysis implements NutchAnalysisConstants {
 /** Parse a compound term that is interpreted as an implicit phrase query.
  * Compounds are a sequence of terms separated by infix characters.  Note that
  * htis may return a single term, a trivial compound. */
-  final public ArrayList compound(String field) throws ParseException {
+  final public ArrayList<String> compound(String field) throws ParseException {
   int start;
-  ArrayList result = new ArrayList();
+  ArrayList<String> result = new ArrayList<String>();
   String term;
   StringBuffer terms = new StringBuffer();
     start = token.endColumn;
@@ -709,7 +709,6 @@ public class NutchAnalysis implements NutchAnalysisConstants {
   private Token jj_scanpos, jj_lastpos;
   private int jj_la;
   public boolean lookingAhead = false;
-  private boolean jj_semLA;
   private int jj_gen;
   final private int[] jj_la1 = new int[16];
   static private int[] jj_la1_0;
@@ -783,6 +782,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     throw generateParseException();
   }
 
+  @SuppressWarnings("serial")
   static private final class LookaheadSuccess extends java.lang.Error { }
   final private LookaheadSuccess jj_ls = new LookaheadSuccess();
   final private boolean jj_scan_token(int kind) {
@@ -830,7 +830,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
       return (jj_ntk = jj_nt.kind);
   }
 
-  private java.util.Vector jj_expentries = new java.util.Vector();
+  private java.util.Vector<int[]> jj_expentries = new java.util.Vector<int[]>();
   private int[] jj_expentry;
   private int jj_kind = -1;
   private int[] jj_lasttokens = new int[100];
@@ -846,8 +846,8 @@ public class NutchAnalysis implements NutchAnalysisConstants {
         jj_expentry[i] = jj_lasttokens[i];
       }
       boolean exists = false;
-      for (java.util.Enumeration e = jj_expentries.elements(); e.hasMoreElements();) {
-        int[] oldentry = (int[])(e.nextElement());
+      for (java.util.Enumeration<int[]> e = jj_expentries.elements(); e.hasMoreElements();) {
+        int[] oldentry = (e.nextElement());
         if (oldentry.length == jj_expentry.length) {
           exists = true;
           for (int i = 0; i < jj_expentry.length; i++) {
@@ -895,7 +895,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     jj_add_error_token(0, 0);
     int[][] exptokseq = new int[jj_expentries.size()][];
     for (int i = 0; i < jj_expentries.size(); i++) {
-      exptokseq[i] = (int[])jj_expentries.elementAt(i);
+      exptokseq[i] = jj_expentries.elementAt(i);
     }
     return new ParseException(token, exptokseq, tokenImage);
   }

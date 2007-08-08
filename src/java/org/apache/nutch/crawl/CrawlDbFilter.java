@@ -51,15 +51,12 @@ public class CrawlDbFilter implements Mapper {
   private URLFilters filters;
 
   private URLNormalizers normalizers;
-
-  private JobConf jobConf;
   
   private String scope;
 
   public static final Log LOG = LogFactory.getLog(CrawlDbFilter.class);
 
   public void configure(JobConf job) {
-    this.jobConf = job;
     urlFiltering = job.getBoolean(URL_FILTERING, false);
     urlNormalizers = job.getBoolean(URL_NORMALIZING, false);
     if (urlFiltering) {

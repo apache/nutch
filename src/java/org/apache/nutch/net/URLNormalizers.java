@@ -99,7 +99,7 @@ public final class URLNormalizers {
   public static final Log LOG = LogFactory.getLog(URLNormalizers.class);
 
   /* Empty extension list for caching purposes. */
-  private final List EMPTY_EXTENSION_LIST = Collections.EMPTY_LIST;
+  private final List<Extension> EMPTY_EXTENSION_LIST = Collections.EMPTY_LIST;
   
   private final URLNormalizer[] EMPTY_NORMALIZERS = new URLNormalizer[0];
 
@@ -147,17 +147,17 @@ public final class URLNormalizers {
    * @throws PluginRuntimeException
    */
   URLNormalizer[] getURLNormalizers(String scope) {
-    List extensions = getExtensions(scope);
+    List<Extension> extensions = getExtensions(scope);
     
     if (extensions == EMPTY_EXTENSION_LIST) {
       return EMPTY_NORMALIZERS;
     }
     
-    List normalizers = new Vector(extensions.size());
+    List<URLNormalizer> normalizers = new Vector<URLNormalizer>(extensions.size());
 
-    Iterator it = extensions.iterator();
+    Iterator<Extension> it = extensions.iterator();
     while (it.hasNext()) {
-      Extension ext = (Extension) it.next();
+      Extension ext = it.next();
       URLNormalizer normalizer = null;
       try {
         // check to see if we've cached this URLNormalizer instance yet
@@ -177,7 +177,7 @@ public final class URLNormalizers {
                 + "function: attempting to continue instantiating plugins");
       }
     }
-    return (URLNormalizer[]) normalizers.toArray(new URLNormalizer[normalizers
+    return normalizers.toArray(new URLNormalizer[normalizers
             .size()]);
   }
 
@@ -190,9 +190,9 @@ public final class URLNormalizers {
    *         empty list.
    * @throws PluginRuntimeException
    */
-  private List getExtensions(String scope) {
+  private List<Extension> getExtensions(String scope) {
 
-    List extensions = (List) this.conf.getObject(URLNormalizer.X_POINT_ID + "_x_"
+    List<Extension> extensions = (List<Extension>) this.conf.getObject(URLNormalizer.X_POINT_ID + "_x_"
             + scope);
 
     // Just compare the reference:
@@ -224,7 +224,7 @@ public final class URLNormalizers {
    *         returns null.
    * @throws PluginRuntimeException
    */
-  private List findExtensions(String scope) {
+  private List<Extension> findExtensions(String scope) {
 
     String[] orders = null;
     String orderlist = conf.get("urlnormalizer.order." + scope);
@@ -233,26 +233,26 @@ public final class URLNormalizers {
       orders = orderlist.split("\\s+");
     }
     String scopelist = conf.get("urlnormalizer.scope." + scope);
-    Set impls = null;
+    Set<String> impls = null;
     if (scopelist != null && !scopelist.trim().equals("")) {
       String[] names = scopelist.split("\\s+");
-      impls = new HashSet(Arrays.asList(names));
+      impls = new HashSet<String>(Arrays.asList(names));
     }
     Extension[] extensions = this.extensionPoint.getExtensions();
-    HashMap normalizerExtensions = new HashMap();
+    HashMap<String, Extension> normalizerExtensions = new HashMap<String, Extension>();
     for (int i = 0; i < extensions.length; i++) {
       Extension extension = extensions[i];
       if (impls != null && !impls.contains(extension.getClazz()))
         continue;
       normalizerExtensions.put(extension.getClazz(), extension);
     }
-    List res = new ArrayList();
+    List<Extension> res = new ArrayList<Extension>();
     if (orders == null) {
       res.addAll(normalizerExtensions.values());
     } else {
       // first add those explicitly named in correct order
       for (int i = 0; i < orders.length; i++) {
-        Extension e = (Extension)normalizerExtensions.get(orders[i]);
+        Extension e = normalizerExtensions.get(orders[i]);
         if (e != null) {
           res.add(e);
           normalizerExtensions.remove(orders[i]);

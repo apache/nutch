@@ -276,13 +276,13 @@ public class SegmentReader extends Configured implements Reducer {
   };
 
   public void get(final Path segment, final Text key, Writer writer,
-          final Map results) throws Exception {
-    if (LOG.isInfoEnabled()) { LOG.info("SegmentReader: get '" + key + "'"); }
-    ArrayList threads = new ArrayList();
+          final Map<String, List<Writable>> results) throws Exception {
+    LOG.info("SegmentReader: get '" + key + "'");
+    ArrayList<Thread> threads = new ArrayList<Thread>();
     if (co) threads.add(new Thread() {
       public void run() {
         try {
-          List res = getMapRecords(new Path(segment, Content.DIR_NAME), key);
+          List<Writable> res = getMapRecords(new Path(segment, Content.DIR_NAME), key);
           results.put("co", res);
         } catch (Exception e) {
           e.printStackTrace(LogUtil.getWarnStream(LOG));
@@ -292,7 +292,7 @@ public class SegmentReader extends Configured implements Reducer {
     if (fe) threads.add(new Thread() {
       public void run() {
         try {
-          List res = getMapRecords(new Path(segment, CrawlDatum.FETCH_DIR_NAME), key);
+          List<Writable> res = getMapRecords(new Path(segment, CrawlDatum.FETCH_DIR_NAME), key);
           results.put("fe", res);
         } catch (Exception e) {
           e.printStackTrace(LogUtil.getWarnStream(LOG));
@@ -302,7 +302,7 @@ public class SegmentReader extends Configured implements Reducer {
     if (ge) threads.add(new Thread() {
       public void run() {
         try {
-          List res = getSeqRecords(new Path(segment, CrawlDatum.GENERATE_DIR_NAME), key);
+          List<Writable> res = getSeqRecords(new Path(segment, CrawlDatum.GENERATE_DIR_NAME), key);
           results.put("ge", res);
         } catch (Exception e) {
           e.printStackTrace(LogUtil.getWarnStream(LOG));
@@ -312,7 +312,7 @@ public class SegmentReader extends Configured implements Reducer {
     if (pa) threads.add(new Thread() {
       public void run() {
         try {
-          List res = getSeqRecords(new Path(segment, CrawlDatum.PARSE_DIR_NAME), key);
+          List<Writable> res = getSeqRecords(new Path(segment, CrawlDatum.PARSE_DIR_NAME), key);
           results.put("pa", res);
         } catch (Exception e) {
           e.printStackTrace(LogUtil.getWarnStream(LOG));
@@ -322,7 +322,7 @@ public class SegmentReader extends Configured implements Reducer {
     if (pd) threads.add(new Thread() {
       public void run() {
         try {
-          List res = getMapRecords(new Path(segment, ParseData.DIR_NAME), key);
+          List<Writable> res = getMapRecords(new Path(segment, ParseData.DIR_NAME), key);
           results.put("pd", res);
         } catch (Exception e) {
           e.printStackTrace(LogUtil.getWarnStream(LOG));
@@ -332,15 +332,15 @@ public class SegmentReader extends Configured implements Reducer {
     if (pt) threads.add(new Thread() {
       public void run() {
         try {
-          List res = getMapRecords(new Path(segment, ParseText.DIR_NAME), key);
+          List<Writable> res = getMapRecords(new Path(segment, ParseText.DIR_NAME), key);
           results.put("pt", res);
         } catch (Exception e) {
           e.printStackTrace(LogUtil.getWarnStream(LOG));
         }
       }
     });
-    Iterator it = threads.iterator();
-    while (it.hasNext()) ((Thread)it.next()).start();
+    Iterator<Thread> it = threads.iterator();
+    while (it.hasNext()) it.next().start();
     int cnt;
     do {
       cnt = 0;
@@ -349,14 +349,14 @@ public class SegmentReader extends Configured implements Reducer {
       } catch (Exception e) {};
       it = threads.iterator();
       while (it.hasNext()) {
-        if (((Thread)it.next()).isAlive()) cnt++;
+        if (it.next().isAlive()) cnt++;
       }
       if ((cnt > 0) && (LOG.isDebugEnabled())) {
         LOG.debug("(" + cnt + " to retrieve)");
       }
     } while (cnt > 0);
     for (int i = 0; i < keys.length; i++) {
-      List res = (List)results.get(keys[i][0]);
+      List<Writable> res = results.get(keys[i][0]);
       if (res != null && res.size() > 0) {
         for (int k = 0; k < res.size(); k++) {
           writer.write(keys[i][1]);
@@ -367,9 +367,9 @@ public class SegmentReader extends Configured implements Reducer {
     }
   }
   
-  private List getMapRecords(Path dir, Text key) throws Exception {
+  private List<Writable> getMapRecords(Path dir, Text key) throws Exception {
     MapFile.Reader[] readers = MapFileOutputFormat.getReaders(fs, dir, getConf());
-    ArrayList res = new ArrayList();
+    ArrayList<Writable> res = new ArrayList<Writable>();
     Class keyClass = readers[0].getKeyClass();
     Class valueClass = readers[0].getValueClass();
     if (!keyClass.getName().equals("org.apache.hadoop.io.Text"))
@@ -384,9 +384,9 @@ public class SegmentReader extends Configured implements Reducer {
     return res;
   }
 
-  private List getSeqRecords(Path dir, Text key) throws Exception {
+  private List<Writable> getSeqRecords(Path dir, Text key) throws Exception {
     SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(getConf(), dir);
-    ArrayList res = new ArrayList();
+    ArrayList<Writable> res = new ArrayList<Writable>();
     Class keyClass = readers[0].getKeyClass();
     Class valueClass = readers[0].getValueClass();
     if (!keyClass.getName().equals("org.apache.hadoop.io.Text"))
@@ -415,10 +415,10 @@ public class SegmentReader extends Configured implements Reducer {
   
   SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
   
-  public void list(List dirs, Writer writer) throws Exception {
+  public void list(List<Path> dirs, Writer writer) throws Exception {
     writer.write("NAME\t\tGENERATED\tFETCHER START\t\tFETCHER END\t\tFETCHED\tPARSED\n");
     for (int i = 0; i < dirs.size(); i++) {
-      Path dir = (Path)dirs.get(i);
+      Path dir = dirs.get(i);
       SegmentReaderStats stats = new SegmentReaderStats();
       getStats(dir, stats);
       writer.write(dir.getName() + "\t");
@@ -554,7 +554,7 @@ public class SegmentReader extends Configured implements Reducer {
         segmentReader.dump(new Path(input), new Path(output));
         return;
       case MODE_LIST:
-        ArrayList dirs = new ArrayList();
+        ArrayList<Path> dirs = new ArrayList<Path>();
         for (int i = 1; i < args.length; i++) {
           if (args[i] == null) continue;
           if (args[i].equals("-dir")) {
@@ -587,7 +587,7 @@ public class SegmentReader extends Configured implements Reducer {
           usage();
           return;
         }
-        segmentReader.get(new Path(input), new Text(key), new OutputStreamWriter(System.out, "UTF-8"), new HashMap());
+        segmentReader.get(new Path(input), new Text(key), new OutputStreamWriter(System.out, "UTF-8"), new HashMap<String, List<Writable>>());
         return;
       default:
         System.err.println("Invalid operation: " + args[0]);
