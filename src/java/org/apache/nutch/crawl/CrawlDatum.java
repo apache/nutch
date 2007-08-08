@@ -130,7 +130,9 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     return false;
   }
 
-  public CrawlDatum() {}
+  public CrawlDatum() {
+    metaData = new MapWritable();
+  }
 
   public CrawlDatum(int status, float fetchInterval) {
     this.status = (byte)status;
@@ -230,17 +232,9 @@ public class CrawlDatum implements WritableComparable, Cloneable {
       } else signature = null;
     }
     if (version > 3) {
+      metaData.clear();
       if (in.readBoolean()) {
-        if (metaData == null) {
-          metaData = new MapWritable(); 
-        } else {
-           metaData.clear();
-        }
         metaData.readFields(in);
-      } else {
-        if (metaData != null) {
-          metaData.clear(); // at least clear old meta data
-        }
       }
     }
     // translate status codes
