@@ -68,6 +68,7 @@
      <ant dir="summary-basic" target="deploy"/>
      <ant dir="subcollection" target="deploy"/>
      <ant dir="summary-lucene" target="deploy"/>
+     <ant dir="tld" target="deploy"/>
      <ant dir="urlfilter-automaton" target="deploy"/>
      <ant dir="urlfilter-prefix" target="deploy"/>
      <ant dir="urlfilter-regex" target="deploy"/>
@@ -158,6 +159,7 @@
     <ant dir="subcollection" target="clean"/>
     <ant dir="summary-basic" target="clean"/>
     <ant dir="summary-lucene" target="clean"/>
+    <ant dir="tld" target="clean"/>
     <ant dir="urlfilter-automaton" target="clean"/>
     <ant dir="urlfilter-prefix" target="clean"/>
     <ant dir="urlfilter-regex" target="clean"/>

@@ -1,0 +1,4354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+  
+  http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+
+<!--
+  Document   : domain-suffixes.xml
+  Author     : Enis Soztutar - enis.soz.nutch@gmail.com
+  Description: This document contains top level domains 
+  as described by the Internet Assigned Numbers
+  Authotiry (IANA), and second or third level domains that 
+  are known to be managed by domain registerers. People at 
+  Mozilla community call these public suffixes or effective 
+  tlds. There is no algorithmic way of knowing whether a suffix 
+  is a public domain suffix, or not. So this large file is used 
+  for this purpose. The entries in the file is used to find the
+  domain of a url, which may not the same thing as the host of 
+  the url. For example for "http://lucene.apache.org/nutch" the 
+  hostname is lucene.apache.org, however the domain name for this
+  url would be apache.org. Domain names can be quite handy for 
+  statistical analysis, and fighting against spam.    
+  
+  The list of TLDs is constructed from IANA, and the 
+  list of "effective tlds" are constructed from Wikipedia, 
+  http://wiki.mozilla.org/TLD_List, and http://publicsuffix.org/
+  The list may not include all the suffixes, but some
+  effort has been spent to make it comprehensive. Please forward 
+  any improvements for this list to nutch-dev mailing list, or 
+  nutch JIRA. 
+  
+  Top level domains(tlds) are grouped
+  to three, namely infrastrusture, generic and country 
+  code tlds. Infrastrusture tlds are only used for 
+  technical reasons. Generic tlds represents the type 
+  of the organization that they represent. Those in 
+  current use and those waiting for approval is listed.
+  Most of the country code tlds correspond to the two 
+  letter ISO-3166-1 country codes. 
+  Each tld is listed with its domain (such as com), a 
+  status enumeration describing the status of the tld, 
+  and optionally a description or description for convenience.
+  cctlds are listed with additional country name field.
+  
+  status and boost elements are optional, with default values IN_USE 
+  and 1.0 respectively. see domain-suffixes.xsd for the xml schema.
+  
+  
+  References : 
+  http://www.iana.org
+  http://www.iana.org/gtld/gtld.htm
+  http://www.iana.org/root-whois/index.html
+  http://en.wikipedia.org/wiki/Top-level_domain
+  http://en.wikipedia.org/wiki/List_of_Internet_top-level_domains
+  http://wiki.mozilla.org/TLD_List
+  http://publicsuffix.org/
+  https://bugzilla.mozilla.org/show_bug.cgi?id=331510
+  http://www.neuhaus.com/domaincheck/domain_list.htm
+-->
+
+<domains xmlns="http://lucene.apache.org/nutch"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://lucene.apache.org/nutch domain-suffixes.xsd">
+
+  <tlds>
+    <!--  Infrastructure Top Level Domains -->
+    <itlds>
+      <tld domain="root">
+        <status>INFRASTRUCTURE</status>
+        <description>
+          (from http://en.wikipedia.org/wiki/.root)
+          vrsn-end-of-zone-marker-dummy-record.root is a domain name
+          listed in the DNS root zone as a diagnostic marker, whose
+          presence demonstrates the root zone was not truncated upon
+          loading by a root nameserver. It could be argued it represents
+          a top-level domain of .root, although technically no such
+          delegation exists.
+        </description>
+      </tld>
+
+      <tld domain="arpa">
+        <status>INFRASTRUCTURE</status>
+        <description>
+          (from http://en.wikipedia.org/wiki/.arpa) .arpa is an Internet
+          top-level domain (TLD) used exclusively for
+          Internet-infrastructure purposes. It does not function as a
+          normal TLD where websites are registered, but rather as a
+          meta-TLD used to look up addresses, and for other purposes.
+        </description>
+      </tld>
+    </itlds><!--  Generic Top Level Domains -->
+    <gtlds>
+      <!-- 
+        The following gTLDs are in actual use
+      -->
+
+      <tld domain="aero">
+        <status>SPONSORED</status>
+        <description>for the air transport industry</description>
+      </tld>
+
+      <tld domain="biz">
+        <status>UNSPONSORED</status>
+        <description>for business use</description>
+      </tld>
+
+      <tld domain="cat">
+        <status>SPONSORED</status>
+        <description>for Catalan language/culture</description>
+      </tld>
+
+      <tld domain="com">
+        <status>UNSPONSORED</status>
+        <description>
+          for commercial organizations, but unrestricted
+        </description>
+      </tld>
+
+      <tld domain="coop">
+        <status>SPONSORED</status>
+        <description>for cooperatives</description>
+      </tld>
+
+      <tld domain="edu">
+        <status>UNSPONSORED</status>
+        <boost>1.0</boost>
+        <description>
+          for post-secondary educational establishments
+        </description>
+      </tld>
+
+      <tld domain="gov">
+        <status>UNSPONSORED</status>
+        <description>
+          for governments and their agencies in the United States
+        </description>
+      </tld>
+
+      <tld domain="info">
+        <status>UNSPONSORED</status>
+        <description>
+          for informational sites, but unrestricted
+        </description>
+      </tld>
+
+      <tld domain="int">
+        <status>UNSPONSORED</status>
+        <description>
+          for international organizations established by treaty
+        </description>
+      </tld>
+
+      <tld domain="jobs">
+        <status>SPONSORED</status>
+        <description>for employment-related sites</description>
+      </tld>
+
+      <tld domain="mil">
+        <status>UNSPONSORED</status>
+        <description>for the US military</description>
+      </tld>
+
+      <tld domain="mobi">
+        <status>SPONSORED</status>
+        <description>for sites catering to mobile devices</description>
+      </tld>
+
+      <tld domain="museum">
+        <status>SPONSORED</status>
+        <description>for museums</description>
+      </tld>
+
+      <tld domain="name">
+        <status>UNSPONSORED</status>
+        <description>for families and individuals</description>
+      </tld>
+
+      <tld domain="net">
+        <status>UNSPONSORED</status>
+        <description>
+          originally for network infrastructures, now unrestricted
+        </description>
+      </tld>
+
+      <tld domain="org">
+        <status>UNSPONSORED</status>
+        <description>
+          originally for organizations not clearly falling within the
+          other gTLDs, now unrestricted
+        </description>
+      </tld>
+
+      <tld domain="pro">
+        <status>SPONSORED</status>
+        <description>for certain professions</description>
+      </tld>
+
+      <tld domain="travel">
+        <status>SPONSORED</status>
+        <description>
+          for travel agents, airlines, hoteliers, tourism bureaus, etc.
+        </description>
+      </tld>
+
+      <!-- 
+        The following gTLDs are in the process of being approved, 
+        and may be added to the root nameservers in the near future 
+      -->
+
+      <tld domain="asia">
+        <status>STARTUP</status>
+        <description>for the Asian community</description>
+      </tld>
+
+      <tld domain="post">
+        <status>PROPOSED</status>
+        <description>for postal services</description>
+      </tld>
+
+      <tld domain="tel">
+        <status>STARTUP</status>
+        <description>
+          for services involving connections between the telephone
+          network and the Internet
+        </description>
+      </tld>
+
+      <tld domain="geo">
+        <status>PROPOSED</status>
+        <description>for geographically related sites</description>
+      </tld>
+
+      <tld domain="gal">
+        <status>PROPOSED</status>
+        <description>for Galicia, a country within Spain</description>
+      </tld>
+
+      <tld domain="cym">
+        <status>PROPOSED</status>
+        <description>for Wales, a country within the UK</description>
+      </tld>
+
+      <tld domain="sco">
+        <status>PROPOSED</status>
+        <description>for Scotland, a country within the UK</description>
+      </tld>
+
+      <tld domain="kid">
+        <status>PROPOSED</status>
+        <description>for websites designed for children</description>
+      </tld>
+
+      <tld domain="kids">
+        <status>PROPOSED</status>
+        <description>for websites designed for children</description>
+      </tld>
+
+      <tld domain="mail">
+        <status>PROPOSED</status>
+        <description>http://en.wikipedia.org/wiki/.mail</description>
+      </tld>
+
+      <tld domain="web">
+        <status>PROPOSED</status>
+        <description>For Web sites of all sorts</description>
+      </tld>
+
+      <tld domain="xxx">
+        <status>PROPOSED</status>
+        <description>For Adult entertainment sites</description>
+      </tld>
+
+      <!-- 
+        The following gTLDs are removed from the registry
+      -->
+      <tld domain="nato">
+        <status>DELETED</status>
+        <description>
+          for NATO sites and operations. Replaced by .int
+        </description>
+      </tld>
+
+      <!-- 
+        The following gTLDs are PSEUDO_DOMAINs
+      -->
+      <tld domain="bitnet">
+        <status>PSEUDO_DOMAIN</status>
+        <description>
+          identifying a hostname not connected directly to the Internet,
+          but a bitnet network
+        </description>
+      </tld>
+
+      <tld domain="csnet">
+        <status>PSEUDO_DOMAIN</status>
+        <description>
+          identifying a hostname not connected directly to the Internet,
+          but a csnet network
+        </description>
+      </tld>
+
+      <tld domain="uucp">
+        <status>PSEUDO_DOMAIN</status>
+        <description>
+          identifying a hostname not connected directly to the Internet,
+          but a bitnet network
+        </description>
+      </tld>
+
+      <tld domain="local">
+        <status>PSEUDO_DOMAIN</status>
+        <description>
+          .local is a pseudo top-level domain used by Apple, Inc.'s
+          Bonjour protocol.
+        </description>
+      </tld>
+
+      <tld domain="internal">
+        <status>PSEUDO_DOMAIN</status>
+        <description>alias of .local</description>
+      </tld>
+
+      <tld domain="onion">
+        <status>PSEUDO_DOMAIN</status>
+        <description>
+          designates an anonymous or pseudonymous address reachable via
+          the Tor network.
+        </description>
+      </tld>
+    </gtlds><!--  Country Code Top Level Domains -->
+
+    <cctlds>
+      <tld domain="ac">
+        <country>Ascension Island</country>
+      </tld>
+
+      <tld domain="ad">
+        <country>Andorra</country>
+      </tld>
+
+      <tld domain="ae">
+        <country>United Arab Emirates</country>
+      </tld>
+
+      <tld domain="af">
+        <country>Afghanistan</country>
+      </tld>
+
+      <tld domain="ag">
+        <country>Antigua and Barbuda</country>
+      </tld>
+
+      <tld domain="ai">
+        <country>Anguilla</country>
+      </tld>
+
+      <tld domain="al">
+        <country>Albania</country>
+      </tld>
+
+      <tld domain="am">
+        <country>Armenia</country>
+      </tld>
+
+      <tld domain="an">
+        <country>Netherlands Antilles</country>
+      </tld>
+
+      <tld domain="ao">
+        <country>Angola</country>
+      </tld>
+
+      <tld domain="aq">
+        <country>Antarctica</country>
+      </tld>
+
+      <tld domain="ar">
+        <country>Argentina</country>
+      </tld>
+
+      <tld domain="as">
+        <country>American Samoa</country>
+      </tld>
+
+      <tld domain="at">
+        <country>Austria</country>
+      </tld>
+
+      <tld domain="au">
+        <country>Australia</country>
+      </tld>
+
+      <tld domain="aw">
+        <country>Aruba</country>
+      </tld>
+
+      <tld domain="ax">
+        <country>Aland Islands</country>
+      </tld>
+
+      <tld domain="az">
+        <country>Azerbaijan</country>
+      </tld>
+
+      <tld domain="ba">
+        <country>Bosnia and Herzegovina</country>
+      </tld>
+
+      <tld domain="bb">
+        <country>Barbados</country>
+      </tld>
+
+      <tld domain="bd">
+        <country>Bangladesh</country>
+      </tld>
+
+      <tld domain="be">
+        <country>Belgium</country>
+      </tld>
+
+      <tld domain="bf">
+        <country>Burkina Faso</country>
+      </tld>
+
+      <tld domain="bg">
+        <country>Bulgaria</country>
+      </tld>
+
+      <tld domain="bh">
+        <country>Bahrain</country>
+      </tld>
+
+      <tld domain="bi">
+        <country>Burundi</country>
+      </tld>
+
+      <tld domain="bj">
+        <country>Benin</country>
+      </tld>
+
+      <tld domain="bm">
+        <country>Bermuda</country>
+      </tld>
+
+      <tld domain="bn">
+        <country>Brunei</country>
+      </tld>
+
+      <tld domain="bo">
+        <country>Bolivia</country>
+      </tld>
+
+      <tld domain="br">
+        <country>Brazil</country>
+      </tld>
+
+      <tld domain="bs">
+        <country>Bahamas</country>
+      </tld>
+
+      <tld domain="bt">
+        <country>Bhutan</country>
+      </tld>
+
+      <tld domain="bu">
+        <country>Burma</country>
+        <status>NOT_IN_USE</status>
+        <description>
+          not in use since re-naming of country to Myanmar, see .mm
+        </description>
+      </tld>
+
+      <tld domain="bv">
+        <country>Bouvet Island</country>
+        <status>NOT_IN_USE</status>
+        <description>not in use; no registrations</description>
+      </tld>
+
+      <tld domain="bw">
+        <country>Botswana</country>
+      </tld>
+
+      <tld domain="by">
+        <country>Belarus</country>
+      </tld>
+
+      <tld domain="bz">
+        <country>Belize</country>
+      </tld>
+
+      <tld domain="ca">
+        <country>Canada</country>
+      </tld>
+
+      <tld domain="cc">
+        <country>Cocos Keeling Islands</country>
+      </tld>
+
+      <tld domain="cd">
+        <country>Democratic Republic of the Congo</country>
+        <description>formerly .zr - Zaire</description>
+      </tld>
+
+      <tld domain="cf">
+        <country>Central African Republic</country>
+      </tld>
+
+      <tld domain="cg">
+        <country>Republic of the Congo</country>
+      </tld>
+
+      <tld domain="ch">
+        <country>Switzerland</country>
+      </tld>
+
+      <tld domain="ci">
+        <country>Côte d'Ivoire</country>
+        <description>Ivory Coast</description>
+      </tld>
+
+      <tld domain="ck">
+        <country>Cook Islands</country>
+      </tld>
+
+      <tld domain="cl">
+        <country>Chile</country>
+      </tld>
+
+      <tld domain="cm">
+        <country>Cameroon</country>
+      </tld>
+
+      <tld domain="cn">
+        <country>People s Republic of China</country>
+      </tld>
+
+      <tld domain="co">
+        <country>Colombia</country>
+      </tld>
+
+      <tld domain="cr">
+        <country>Costa Rica</country>
+      </tld>
+
+      <tld domain="cs">
+        <country>Serbia and Montenegro</country>
+        <status>DELETED</status>
+        <description>
+          formerly .yu - Yugoslavia; description: on June 3, 2006,
+          Montenegro declared independence, thus dissolving the state
+          union) (.cs code not assigned; no DNS) (.cs code previously
+          used for Czechoslovakia
+        </description>
+      </tld>
+
+      <tld domain="cu">
+        <country>Cuba</country>
+      </tld>
+
+      <tld domain="cv">
+        <country>Cape Verde</country>
+      </tld>
+
+      <tld domain="cx">
+        <country>Christmas Island</country>
+      </tld>
+
+      <tld domain="cy">
+        <country>Cyprus</country>
+      </tld>
+
+      <tld domain="cz">
+        <country>Czech Republic</country>
+      </tld>
+
+      <tld domain="dd">
+        <country>German Democratic Republic(East Germany)</country>
+        <status>DELETED</status>
+        <description>deleted in 1990</description>
+      </tld>
+
+      <tld domain="de">
+        <country>Germany</country>
+      </tld>
+
+      <tld domain="dj">
+        <country>Djibouti</country>
+      </tld>
+
+      <tld domain="dk">
+        <country>Denmark</country>
+      </tld>
+
+      <tld domain="dm">
+        <country>Dominica</country>
+      </tld>
+
+      <tld domain="do">
+        <country>Dominican Republic</country>
+      </tld>
+
+      <tld domain="dz">
+        <country>Algeria</country>
+      </tld>
+
+      <tld domain="ec">
+        <country>Ecuador</country>
+      </tld>
+
+      <tld domain="ee">
+        <country>Estonia</country>
+      </tld>
+
+      <tld domain="eg">
+        <country>Egypt</country>
+      </tld>
+
+      <tld domain="eh">
+        <country>Western Sahara</country>
+        <status>NOT_IN_USE</status>
+        <description>not assigned; no DNS</description>
+      </tld>
+
+      <tld domain="er">
+        <country>Eritrea</country>
+      </tld>
+
+      <tld domain="es">
+        <country>Spain</country>
+      </tld>
+
+      <tld domain="et">
+        <country>Ethiopia</country>
+      </tld>
+
+      <tld domain="eu">
+        <country>European Union</country>
+        <description>
+          code "exceptionally reserved" by ISO 3166-1
+        </description>
+      </tld>
+
+      <tld domain="fi">
+        <country>Finland</country>
+      </tld>
+
+      <tld domain="fj">
+        <country>Fiji</country>
+      </tld>
+
+      <tld domain="fk">
+        <country>Falkland Islands</country>
+      </tld>
+
+      <tld domain="fm">
+        <country>Federated States of Micronesia</country>
+      </tld>
+
+      <tld domain="fo">
+        <country>Faroe Islands</country>
+      </tld>
+
+      <tld domain="fr">
+        <country>France</country>
+      </tld>
+
+      <tld domain="ga">
+        <country>Gabon</country>
+      </tld>
+
+      <tld domain="gb">
+        <country>United Kingdom</country>
+        <description>
+          Reserved domain by IANA; deprecated – see .uk
+        </description>
+      </tld>
+
+      <tld domain="gd">
+        <country>Grenada</country>
+      </tld>
+
+      <tld domain="ge">
+        <country>Georgia</country>
+      </tld>
+
+      <tld domain="gf">
+        <country>French Guiana</country>
+      </tld>
+
+      <tld domain="gg">
+        <country>Guernsey</country>
+      </tld>
+
+      <tld domain="gh">
+        <country>Ghana</country>
+      </tld>
+
+      <tld domain="gi">
+        <country>Gibraltar</country>
+      </tld>
+
+      <tld domain="gl">
+        <country>Greenland</country>
+      </tld>
+
+      <tld domain="gm">
+        <country>Gambia</country>
+      </tld>
+
+      <tld domain="gn">
+        <country>Guinea</country>
+      </tld>
+
+      <tld domain="gp">
+        <country>Guadeloupe</country>
+      </tld>
+
+      <tld domain="gq">
+        <country>Equatorial Guinea</country>
+      </tld>
+
+      <tld domain="gr">
+        <country>Greece</country>
+      </tld>
+
+      <tld domain="gs">
+        <country>South Georgia and the South Sandwich Islands</country>
+      </tld>
+
+      <tld domain="gt">
+        <country>Guatemala</country>
+      </tld>
+
+      <tld domain="gu">
+        <country>Guam</country>
+      </tld>
+
+      <tld domain="gw">
+        <country>Guinea Bissau</country>
+      </tld>
+
+      <tld domain="gy">
+        <country>Guyana</country>
+      </tld>
+
+      <tld domain="hk">
+        <country>Hong Kong</country>
+      </tld>
+
+      <tld domain="hm">
+        <country>Heard Island and McDonald Islands</country>
+      </tld>
+
+      <tld domain="hn">
+        <country>Honduras</country>
+      </tld>
+
+      <tld domain="hr">
+        <country>Croatia</country>
+      </tld>
+
+      <tld domain="ht">
+        <country>Haiti</country>
+      </tld>
+
+      <tld domain="hu">
+        <country>Hungary</country>
+      </tld>
+
+      <tld domain="id">
+        <country>Indonesia</country>
+      </tld>
+
+      <tld domain="ie">
+        <country>Ireland</country>
+      </tld>
+
+      <tld domain="il">
+        <country>Israel</country>
+      </tld>
+
+      <tld domain="im">
+        <country>Isle of Man</country>
+      </tld>
+
+      <tld domain="in">
+        <country>India</country>
+      </tld>
+
+      <tld domain="io">
+        <country>British Indian Ocean Territory</country>
+      </tld>
+
+      <tld domain="iq">
+        <country>Iraq</country>
+      </tld>
+
+      <tld domain="ir">
+        <country>Iran</country>
+      </tld>
+
+      <tld domain="is">
+        <country>Iceland</country>
+      </tld>
+
+      <tld domain="it">
+        <country>Italy</country>
+      </tld>
+
+      <tld domain="je">
+        <country>Jersey</country>
+      </tld>
+
+      <tld domain="jm">
+        <country>Jamaica</country>
+      </tld>
+
+      <tld domain="jo">
+        <country>Jordan</country>
+      </tld>
+
+      <tld domain="jp">
+        <country>Japan</country>
+      </tld>
+
+      <tld domain="ke">
+        <country>Kenya</country>
+      </tld>
+
+      <tld domain="kg">
+        <country>Kyrgyzstan</country>
+      </tld>
+
+      <tld domain="kh">
+        <country>Cambodia</country>
+      </tld>
+
+      <tld domain="ki">
+        <country>Kiribati</country>
+      </tld>
+
+      <tld domain="km">
+        <country>Comoros</country>
+      </tld>
+
+      <tld domain="kn">
+        <country>Saint Kitts and Nevis</country>
+      </tld>
+
+      <tld domain="kp">
+        <country>North Korea</country>
+        <status>NOT_IN_USE</status>
+
+        <description>not assigned; no DNS</description>
+      </tld>
+
+      <tld domain="kr">
+        <country>South Korea</country>
+      </tld>
+
+      <tld domain="kw">
+        <country>Kuwait</country>
+      </tld>
+
+      <tld domain="ky">
+        <country>Cayman Islands</country>
+      </tld>
+
+      <tld domain="kz">
+        <country>Kazakhstan</country>
+      </tld>
+
+      <tld domain="la">
+        <country>Laos</country>
+      </tld>
+
+      <tld domain="lb">
+        <country>Lebanon</country>
+      </tld>
+
+      <tld domain="lc">
+        <country>Saint Lucia</country>
+      </tld>
+
+      <tld domain="li">
+        <country>Liechtenstein</country>
+      </tld>
+
+      <tld domain="lk">
+        <country>Sri Lanka</country>
+      </tld>
+
+      <tld domain="lr">
+        <country>Liberia</country>
+      </tld>
+
+      <tld domain="ls">
+        <country>Lesotho</country>
+      </tld>
+
+      <tld domain="lt">
+        <country>Lithuania</country>
+      </tld>
+
+      <tld domain="lu">
+        <country>Luxembourg</country>
+      </tld>
+
+      <tld domain="lv">
+        <country>Latvia</country>
+      </tld>
+
+      <tld domain="ly">
+        <country>Libya</country>
+      </tld>
+
+      <tld domain="ma">
+        <country>Morocco</country>
+      </tld>
+
+      <tld domain="mc">
+        <country>Monaco</country>
+      </tld>
+
+      <tld domain="md">
+        <country>Moldova</country>
+      </tld>
+
+      <tld domain="me">
+        <country>Montenegro</country>
+      </tld>
+
+      <tld domain="mg">
+        <country>Madagascar</country>
+      </tld>
+
+      <tld domain="mh">
+        <country>Marshall Islands</country>
+      </tld>
+
+      <tld domain="mk">
+        <country>Republic of Macedonia</country>
+      </tld>
+
+      <tld domain="ml">
+        <country>Mali</country>
+      </tld>
+
+      <tld domain="mm">
+        <country>Myanmar</country>
+        <description>formerly .bu - Burma</description>
+      </tld>
+
+      <tld domain="mn">
+        <country>Mongolia</country>
+      </tld>
+
+      <tld domain="mo">
+        <country>Macau</country>
+      </tld>
+
+      <tld domain="mp">
+        <country>Northern Mariana Islands</country>
+      </tld>
+
+      <tld domain="mq">
+        <country>Martinique</country>
+      </tld>
+
+      <tld domain="mr">
+        <country>Mauritania</country>
+      </tld>
+
+      <tld domain="ms">
+        <country>Montserrat</country>
+      </tld>
+
+      <tld domain="mt">
+        <country>Malta</country>
+      </tld>
+
+      <tld domain="mu">
+        <country>Mauritius</country>
+      </tld>
+
+      <tld domain="mv">
+        <country>Maldives</country>
+      </tld>
+
+      <tld domain="mw">
+        <country>Malawi</country>
+      </tld>
+
+      <tld domain="mx">
+        <country>Mexico</country>
+      </tld>
+
+      <tld domain="my">
+        <country>Malaysia</country>
+      </tld>
+
+      <tld domain="mz">
+        <country>Mozambique</country>
+      </tld>
+
+      <tld domain="na">
+        <country>Namibia</country>
+      </tld>
+
+      <tld domain="nc">
+        <country>New Caledonia</country>
+      </tld>
+
+      <tld domain="ne">
+        <country>Niger</country>
+      </tld>
+
+      <tld domain="nf">
+        <country>Norfolk Island</country>
+      </tld>
+
+      <tld domain="ng">
+        <country>Nigeria</country>
+      </tld>
+
+      <tld domain="ni">
+        <country>Nicaragua</country>
+      </tld>
+
+      <tld domain="nl">
+        <country>Netherlands</country>
+      </tld>
+
+      <tld domain="no">
+        <country>Norway</country>
+      </tld>
+
+      <tld domain="np">
+        <country>Nepal</country>
+      </tld>
+
+      <tld domain="nr">
+        <country>Nauru</country>
+      </tld>
+
+      <tld domain="nu">
+        <country>Niue</country>
+      </tld>
+
+      <tld domain="nz">
+        <country>New Zealand</country>
+      </tld>
+
+      <tld domain="om">
+        <country>Oman</country>
+      </tld>
+
+      <tld domain="pa">
+        <country>Panama</country>
+      </tld>
+
+      <tld domain="pe">
+        <country>Peru</country>
+      </tld>
+
+      <tld domain="pf">
+        <country>French Polynesia</country>
+      </tld>
+
+      <tld domain="pg">
+        <country>Papua New Guinea</country>
+      </tld>
+
+      <tld domain="ph">
+        <country>Philippines</country>
+      </tld>
+
+      <tld domain="pk">
+        <country>Pakistan</country>
+      </tld>
+
+      <tld domain="pl">
+        <country>Poland</country>
+      </tld>
+
+      <tld domain="pm">
+        <country>Saint Pierre and Miquelon</country>
+      </tld>
+
+      <tld domain="pn">
+        <country>Pitcairn Islands</country>
+      </tld>
+
+      <tld domain="pr">
+        <country>Puerto Rico</country>
+      </tld>
+
+      <tld domain="ps">
+        <country>Palestinian territories</country>
+      </tld>
+
+      <tld domain="pt">
+        <country>Portugal</country>
+      </tld>
+
+      <tld domain="pw">
+        <country>Palau</country>
+      </tld>
+
+      <tld domain="py">
+        <country>Paraguay</country>
+      </tld>
+
+      <tld domain="qa">
+        <country>Qatar</country>
+      </tld>
+
+      <tld domain="re">
+        <country>Réunion</country>
+      </tld>
+
+      <tld domain="ro">
+        <country>Romania</country>
+      </tld>
+
+      <tld domain="rs">
+        <country>Serbia</country>
+      </tld>
+
+      <tld domain="ru">
+        <country>Russia</country>
+      </tld>
+
+      <tld domain="rw">
+        <country>Rwanda</country>
+      </tld>
+
+      <tld domain="sa">
+        <country>Saudi Arabia</country>
+      </tld>
+
+      <tld domain="sb">
+        <country>Solomon Islands</country>
+      </tld>
+
+      <tld domain="sc">
+        <country>Seychelles</country>
+      </tld>
+
+      <tld domain="sd">
+        <country>Sudan</country>
+      </tld>
+
+      <tld domain="se">
+        <country>Sweden</country>
+      </tld>
+
+      <tld domain="sg">
+        <country>Singapore</country>
+      </tld>
+
+      <tld domain="sh">
+        <country>Saint Helena</country>
+      </tld>
+
+      <tld domain="si">
+        <country>Slovenia</country>
+      </tld>
+
+      <tld domain="sj">
+        <country>Svalbard and Jan Mayen Islands</country>
+        <status>NOT_IN_USE</status>
+        <description>not in use; no registrations</description>
+      </tld>
+
+      <tld domain="sk">
+        <country>Slovakia</country>
+      </tld>
+
+      <tld domain="sl">
+        <country>Sierra Leone</country>
+      </tld>
+
+      <tld domain="sm">
+        <country>San Marino</country>
+      </tld>
+
+      <tld domain="sn">
+        <country>Senegal</country>
+      </tld>
+
+      <tld domain="so">
+        <country>Somalia</country>
+      </tld>
+
+      <tld domain="sr">
+        <country>Suriname</country>
+      </tld>
+
+      <tld domain="st">
+        <country>São Tomé and Príncipe</country>
+      </tld>
+
+      <tld domain="su">
+        <country>Soviet Union</country>
+        <status>DELETED</status>
+        <description>
+          deprecated; being phased out; code "transitionally reserved"
+          by ISO 3166-1
+        </description>
+      </tld>
+
+      <tld domain="sv">
+        <country>El Salvador</country>
+      </tld>
+
+      <tld domain="sy">
+        <country>Syria</country>
+      </tld>
+
+      <tld domain="sz">
+        <country>Swaziland</country>
+      </tld>
+
+      <tld domain="tc">
+        <country>Turks and Caicos Islands</country>
+      </tld>
+
+      <tld domain="td">
+        <country>Chad</country>
+      </tld>
+
+      <tld domain="tf">
+        <country>French Southern Territories</country>
+      </tld>
+
+      <tld domain="tg">
+        <country>Togo</country>
+      </tld>
+
+      <tld domain="th">
+        <country>Thailand</country>
+      </tld>
+
+      <tld domain="tj">
+        <country>Tajikistan</country>
+      </tld>
+
+      <tld domain="tk">
+        <country>Tokelau</country>
+      </tld>
+
+      <tld domain="tl">
+        <country>East Timor</country>
+        <description>formerly .tp</description>
+      </tld>
+
+      <tld domain="tm">
+        <country>Turkmenistan</country>
+      </tld>
+
+      <tld domain="tn">
+        <country>Tunisia</country>
+      </tld>
+
+      <tld domain="to">
+        <country>Tonga</country>
+      </tld>
+
+      <tld domain="tp">
+        <country>East Timor</country>
+        <status>DELETED</status>
+        <description>
+          deprecated - use .tl; code "transitionally reserved" by ISO
+          3166-1
+        </description>
+      </tld>
+
+      <tld domain="tr">
+        <country>Turkey</country>
+      </tld>
+
+      <tld domain="tt">
+        <country>Trinidad and Tobago</country>
+      </tld>
+
+      <tld domain="tv">
+        <country>Tuvalu</country>
+      </tld>
+
+      <tld domain="tw">
+        <country>Republic of China</country>
+        <description>Taiwan</description>
+      </tld>
+
+      <tld domain="tz">
+        <country>Tanzania</country>
+      </tld>
+
+      <tld domain="ua">
+        <country>Ukraine</country>
+      </tld>
+
+      <tld domain="ug">
+        <country>Uganda</country>
+      </tld>
+
+      <tld domain="uk">
+        <country>United Kingdom</country>
+        <description>
+          code "exceptionally reserved" by ISO 3166-1 (see also .gb)
+        </description>
+      </tld>
+
+      <tld domain="um">
+        <country>United States Minor Outlying Islands</country>
+        <status>DELETED</status>
+        <description>see http://en.wikipedia.org/wiki/.um</description>
+      </tld>
+
+      <tld domain="us">
+        <country>United States</country>
+      </tld>
+
+      <tld domain="uy">
+        <country>Uruguay</country>
+      </tld>
+
+      <tld domain="uz">
+        <country>Uzbekistan</country>
+      </tld>
+
+      <tld domain="va">
+        <country>Vatican City</country>
+      </tld>
+
+      <tld domain="vc">
+        <country>Saint Vincent and the Grenadines</country>
+      </tld>
+
+      <tld domain="ve">
+        <country>Venezuela</country>
+      </tld>
+
+      <tld domain="vg">
+        <country>British Virgin Islands</country>
+      </tld>
+
+      <tld domain="vi">
+        <country>United States Virgin Islands</country>
+      </tld>
+
+      <tld domain="vn">
+        <country>Vietnam</country>
+      </tld>
+
+      <tld domain="vu">
+        <country>Vanuatu</country>
+      </tld>
+
+      <tld domain="wf">
+        <country>Wallis and Futuna</country>
+      </tld>
+
+      <tld domain="ws">
+        <country>Samoa</country>
+        <description>formerly Western Samoa</description>
+      </tld>
+
+      <tld domain="ye">
+        <country>Yemen</country>
+      </tld>
+
+      <tld domain="yt">
+        <country>Mayotte</country>
+      </tld>
+
+      <tld domain="yu">
+        <country>Yugoslavia</country>
+        <description>
+          subsequently renamed Serbia and Montenegro (code officially
+          replaced by .cs (see above) but still used; code
+          "transitionally reserved" by ISO 3166-1)
+        </description>
+      </tld>
+
+      <tld domain="za">
+        <country>South Africa</country>
+      </tld>
+
+      <tld domain="zm">
+        <country>Zambia</country>
+      </tld>
+
+      <tld domain="zr">
+        <country>Zaire</country>
+        <status>DELETED</status>
+        <description>replaced by .cd</description>
+      </tld>
+
+      <tld domain="zw">
+        <country>Zimbabwe</country>
+      </tld>
+    </cctlds>
+  </tlds>
+
+  <!--  Second Level Domains -->
+  <suffixes>
+
+    <!-- .us Second Level Domains -->
+    <suffix domain="as.us" />
+    <suffix domain="gu.us" />
+    <suffix domain="pr.us" />
+    <suffix domain="vi.us" />
+
+    <!-- .uk Second Level Domains -->
+    <suffix domain="ac.uk" />
+    <suffix domain="co.uk" />
+    <suffix domain="gov.uk" />
+    <suffix domain="ltd.uk" />
+    <suffix domain="me.uk" />
+    <suffix domain="mod.uk" />
+    <suffix domain="net.uk" />
+    <suffix domain="nic.uk" />
+    <suffix domain="nhs.uk" />
+    <suffix domain="org.uk" />
+    <suffix domain="pic.uk" />
+    <suffix domain="police.uk" />
+    <suffix domain="govt.uk">
+      <status>DELETED</status>
+    </suffix>
+    <suffix domain="orgn.uk">
+      <status>DELETED</status>
+    </suffix>
+    <suffix domain="mil.uk">
+      <status>DELETED</status>
+    </suffix>
+    <suffix domain="lea.uk">
+      <status>DELETED</status>
+    </suffix>
+
+
+    <!-- .tr Second Level Domains -->
+    <suffix domain="com.tr" />
+    <suffix domain="gen.tr" />
+    <suffix domain="org.tr"/>
+    <suffix domain="biz.tr" />
+    <suffix domain="info.tr" />
+    <suffix domain="av.tr" />
+    <suffix domain="dr.tr" />
+    <suffix domain="pol.tr" />
+    <suffix domain="bel.tr" />
+    <suffix domain="mil.tr" />
+    <suffix domain="mil.tr" />
+    <suffix domain="bbs.tr" />
+    <suffix domain="k12.tr" />
+    <suffix domain="edu.tr"/>
+    <suffix domain="name.tr" />
+    <suffix domain="net.tr" />
+    <suffix domain="gov.tr" />
+    <suffix domain="gov.tr" />
+    <suffix domain="web.tr" />
+    <suffix domain="tel.tr" />
+    <suffix domain="tv.tr" />
+
+    <!-- .hk Second Level Domains -->
+    <suffix domain="ust.hk" />
+    <suffix domain="hku.hk" />
+    <suffix domain="cuhk.hk" />
+
+    <!-- .it Second Level Domains -->
+
+    <suffix domain="edu.it" />
+    <suffix domain="gov.it" />
+    <suffix domain="italy.it" />
+
+    <!-- .az Second Level Domains -->
+    <suffix domain="pro.az" />
+
+    <!-- .au Second Level Domains -->
+
+    <suffix domain="com.au" />
+    <suffix domain="net.au" />
+    <suffix domain="gov.au" />
+    <suffix domain="org.au" />
+    <suffix domain="edu.au" />
+    <suffix domain="csiro.au" />
+    <suffix domain="asn.au" />
+    <suffix domain="id.au" />
+    <!--  New second level domains -->
+    <suffix domain="act.au" />
+    <suffix domain="nsw.au" />
+    <suffix domain="nt.au" />
+    <suffix domain="qld.au" />
+    <suffix domain="sa.au" />
+    <suffix domain="tas.au" />
+    <suffix domain="vic.au" />
+    <suffix domain="wa.au" />
+
+    <!-- .int Second Level Domains -->
+    <suffix domain="eu.int" />
+
+    <!-- .br Second Level Domains -->
+    <suffix domain="adm.br" />
+    <suffix domain="adv.br" />
+    <suffix domain="agr.br" />
+    <suffix domain="am.br" />
+    <suffix domain="arq.br" />
+    <suffix domain="art.br" />
+    <suffix domain="ato.br" />
+    <suffix domain="bio.br" />
+    <suffix domain="blog.br" />
+    <suffix domain="bmd.br" />
+    <suffix domain="cim.br" />
+    <suffix domain="cng.br" />
+    <suffix domain="cnt.br" />
+    <suffix domain="com.br" />
+    <suffix domain="coop.br" />
+    <suffix domain="ecn.br" />
+    <suffix domain="edu.br" />
+    <suffix domain="eng.br" />
+    <suffix domain="esp.br" />
+    <suffix domain="etc.br" />
+    <suffix domain="eti.br" />
+    <suffix domain="far.br" />
+    <suffix domain="flog.br" />
+    <suffix domain="fm.br" />
+    <suffix domain="fnd.br" />
+    <suffix domain="fot.br" />
+    <suffix domain="fst.br" />
+    <suffix domain="g12.br" />
+    <suffix domain="ggf.br" />
+    <suffix domain="gov.br" />
+    <suffix domain="imb.br" />
+    <suffix domain="ind.br" />
+    <suffix domain="inf.br" />
+    <suffix domain="jor.br" />
+    <suffix domain="lel.br" />
+    <suffix domain="mat.br" />
+    <suffix domain="med.br" />
+    <suffix domain="mil.br" />
+    <suffix domain="mus.br" />
+    <suffix domain="net.br" />
+    <suffix domain="nom.br" />
+    <suffix domain="not.br" />
+    <suffix domain="ntr.br" />
+    <suffix domain="odo.br" />
+    <suffix domain="org.br" />
+    <suffix domain="ppg.br" />
+    <suffix domain="pro.br" />
+    <suffix domain="psc.br" />
+    <suffix domain="psi.br" />
+    <suffix domain="qsl.br" />
+    <suffix domain="rec.br" />
+    <suffix domain="slg.br" />
+    <suffix domain="srv.br" />
+    <suffix domain="tmp.br" />
+    <suffix domain="trd.br" />
+    <suffix domain="tur.br" />
+    <suffix domain="tv.br" />
+    <suffix domain="vet.br" />
+    <suffix domain="vlog.br" />
+    <suffix domain="wiki.br" />
+    <suffix domain="zlg.br" />
+
+    <!-- 
+      Below elements are generated from the file 
+      at http://publicsuffix.org/.  
+      see org.apache.nutch.util.domain.MozillaPublicSuffixListParser.java
+    -->
+
+    <!--  ac : http://en.wikipedia.org/wiki/.am-->
+    <suffix domain="com.ac" />
+    <suffix domain="edu.ac" />
+    <suffix domain="gov.ac" />
+    <suffix domain="net.ac" />
+    <suffix domain="mil.ac" />
+    <suffix domain="org.ac" />
+
+    <!--  ad : http://en.wikipedia.org/wiki/.ad-->
+    <suffix domain="nom.ad" />
+
+    <!--  ae : http://en.wikipedia.org/wiki/.ae-->
+    <suffix domain="net.ae" />
+    <suffix domain="gov.ae" />
+    <suffix domain="ac.ae" />
+    <suffix domain="sch.ae" />
+    <suffix domain="org.ae" />
+    <suffix domain="mil.ae" />
+    <suffix domain="pro.ae" />
+    <suffix domain="name.ae" />
+
+    <!--  aero : see http://www.information.aero/index.php?id=66-->
+    <suffix domain="accident-investigation.aero" />
+    <suffix domain="accident-prevention.aero" />
+    <suffix domain="aerobatic.aero" />
+    <suffix domain="aeroclub.aero" />
+    <suffix domain="aerodrome.aero" />
+    <suffix domain="agents.aero" />
+    <suffix domain="aircraft.aero" />
+    <suffix domain="airline.aero" />
+    <suffix domain="airport.aero" />
+    <suffix domain="air-surveillance.aero" />
+    <suffix domain="airtraffic.aero" />
+    <suffix domain="air-traffic-control.aero" />
+    <suffix domain="ambulance.aero" />
+    <suffix domain="amusement.aero" />
+    <suffix domain="association.aero" />
+    <suffix domain="author.aero" />
+    <suffix domain="ballooning.aero" />
+    <suffix domain="broker.aero" />
+    <suffix domain="caa.aero" />
+    <suffix domain="cargo.aero" />
+    <suffix domain="catering.aero" />
+    <suffix domain="certification.aero" />
+    <suffix domain="championship.aero" />
+    <suffix domain="charter.aero" />
+    <suffix domain="civilaviation.aero" />
+    <suffix domain="club.aero" />
+    <suffix domain="conference.aero" />
+    <suffix domain="consultant.aero" />
+    <suffix domain="consulting.aero" />
+    <suffix domain="control.aero" />
+    <suffix domain="council.aero" />
+    <suffix domain="crew.aero" />
+    <suffix domain="design.aero" />
+    <suffix domain="dgca.aero" />
+    <suffix domain="educator.aero" />
+    <suffix domain="emergency.aero" />
+    <suffix domain="engine.aero" />
+    <suffix domain="engineer.aero" />
+    <suffix domain="entertainment.aero" />
+    <suffix domain="equipment.aero" />
+    <suffix domain="exchange.aero" />
+    <suffix domain="express.aero" />
+    <suffix domain="federation.aero" />
+    <suffix domain="flight.aero" />
+    <suffix domain="freight.aero" />
+    <suffix domain="fuel.aero" />
+    <suffix domain="gliding.aero" />
+    <suffix domain="government.aero" />
+    <suffix domain="groundhandling.aero" />
+    <suffix domain="group.aero" />
+    <suffix domain="hanggliding.aero" />
+    <suffix domain="homebuilt.aero" />
+    <suffix domain="insurance.aero" />
+    <suffix domain="journal.aero" />
+    <suffix domain="journalist.aero" />
+    <suffix domain="leasing.aero" />
+    <suffix domain="logistics.aero" />
+    <suffix domain="magazine.aero" />
+    <suffix domain="maintenance.aero" />
+    <suffix domain="marketplace.aero" />
+    <suffix domain="media.aero" />
+    <suffix domain="microlight.aero" />
+    <suffix domain="modelling.aero" />
+    <suffix domain="navigation.aero" />
+    <suffix domain="parachuting.aero" />
+    <suffix domain="paragliding.aero" />
+    <suffix domain="passenger-association.aero" />
+    <suffix domain="pilot.aero" />
+    <suffix domain="press.aero" />
+    <suffix domain="production.aero" />
+    <suffix domain="recreation.aero" />
+    <suffix domain="repbody.aero" />
+    <suffix domain="res.aero" />
+    <suffix domain="research.aero" />
+    <suffix domain="rotorcraft.aero" />
+    <suffix domain="safety.aero" />
+    <suffix domain="scientist.aero" />
+    <suffix domain="services.aero" />
+    <suffix domain="show.aero" />
+    <suffix domain="skydiving.aero" />
+    <suffix domain="software.aero" />
+    <suffix domain="student.aero" />
+    <suffix domain="taxi.aero" />
+    <suffix domain="trader.aero" />
+    <suffix domain="trading.aero" />
+    <suffix domain="trainer.aero" />
+    <suffix domain="union.aero" />
+    <suffix domain="workinggroup.aero" />
+    <suffix domain="works.aero" />
+
+    <!--  af : http://www.nic.af/help.jsp-->
+    <suffix domain="gov.af" />
+    <suffix domain="com.af" />
+    <suffix domain="org.af" />
+    <suffix domain="net.af" />
+    <suffix domain="edu.af" />
+
+    <!--  ag : http://www.nic.ag/prices.htm-->
+    <suffix domain="com.ag" />
+    <suffix domain="org.ag" />
+    <suffix domain="net.ag" />
+    <suffix domain="co.ag" />
+    <suffix domain="nom.ag" />
+
+    <!--  ai : http://nic.com.ai/-->
+    <suffix domain="off.ai" />
+    <suffix domain="com.ai" />
+    <suffix domain="net.ai" />
+    <suffix domain="org.ai" />
+
+    <!--  al : http://www.inima.al/Domains.html-->
+    <suffix domain="gov.al" />
+    <suffix domain="edu.al" />
+    <suffix domain="org.al" />
+    <suffix domain="com.al" />
+    <suffix domain="net.al" />
+
+    <!--  am : http://en.wikipedia.org/wiki/.am-->
+
+    <!--  an : http://www.una.an/an_domreg/default.asp-->
+    <suffix domain="com.an" />
+    <suffix domain="net.an" />
+    <suffix domain="org.an" />
+    <suffix domain="edu.an" />
+
+    <!--  ao : http://en.wikipedia.org/wiki/.ao-->
+    <!--  list of 2nd level TLDs ?-->
+
+    <!--  aq : http://en.wikipedia.org/wiki/.aq-->
+
+    <!--  ar : http://en.wikipedia.org/wiki/.ar-->
+    <suffix domain="congresodelalengua3.ar" />
+    <suffix domain="educ.ar" />
+    <suffix domain="gobiernoelectronico.ar" />
+    <suffix domain="mecon.ar" />
+    <suffix domain="nacion.ar" />
+    <suffix domain="nic.ar" />
+    <suffix domain="promocion.ar" />
+    <suffix domain="retina.ar" />
+    <suffix domain="uba.ar" />
+
+    <!--  arpa : http://en.wikipedia.org/wiki/.arpa-->
+    <suffix domain="e164.arpa" />
+    <suffix domain="in-addr.arpa" />
+    <suffix domain="ip6.arpa" />
+    <suffix domain="uri.arpa" />
+    <suffix domain="urn.arpa" />
+
+    <!--  as : http://en.wikipedia.org/wiki/.as-->
+
+    <!--  at : http://en.wikipedia.org/wiki/.at-->
+    <suffix domain="gv.at" />
+    <suffix domain="ac.at" />
+    <suffix domain="co.at" />
+    <suffix domain="or.at" />
+
+    <!--  au : http://en.wikipedia.org/wiki/.au-->
+    <!--  au geographical names (vic.au etc... are covered above)-->
+    <suffix domain="act.edu.au" />
+    <suffix domain="nsw.edu.au" />
+    <suffix domain="nt.edu.au" />
+    <suffix domain="qld.edu.au" />
+    <suffix domain="sa.edu.au" />
+    <suffix domain="tas.edu.au" />
+    <suffix domain="vic.edu.au" />
+    <suffix domain="wa.edu.au" />
+    <suffix domain="act.gov.au" />
+    <suffix domain="nsw.gov.au" />
+    <suffix domain="nt.gov.au" />
+    <suffix domain="qld.gov.au" />
+    <suffix domain="sa.gov.au" />
+    <suffix domain="tas.gov.au" />
+    <suffix domain="vic.gov.au" />
+    <suffix domain="wa.gov.au" />
+
+    <!--  aw : http://en.wikipedia.org/wiki/.aw-->
+    <suffix domain="com.aw" />
+
+    <!--  ax : http://en.wikipedia.org/wiki/.ax-->
+
+    <!--  az : http://en.wikipedia.org/wiki/.az-->
+    <suffix domain="com.az" />
+    <suffix domain="net.az" />
+    <suffix domain="int.az" />
+    <suffix domain="gov.az" />
+    <suffix domain="org.az" />
+    <suffix domain="edu.az" />
+    <suffix domain="info.az" />
+    <suffix domain="pp.az" />
+    <suffix domain="mil.az" />
+    <suffix domain="name.az" />
+    <suffix domain="biz.az" />
+
+    <!--  ba : http://en.wikipedia.org/wiki/.ba-->
+    <suffix domain="org.ba" />
+    <suffix domain="net.ba" />
+    <suffix domain="edu.ba" />
+    <suffix domain="gov.ba" />
+    <suffix domain="mil.ba" />
+    <suffix domain="unsa.ba" />
+    <suffix domain="unbi.ba" />
+    <suffix domain="co.ba" />
+    <suffix domain="com.ba" />
+    <suffix domain="rs.ba" />
+
+    <!--  bb : http://en.wikipedia.org/wiki/.bb-->
+    <suffix domain="com.bb" />
+    <suffix domain="edu.bb" />
+    <suffix domain="gov.bb" />
+    <suffix domain="net.bb" />
+    <suffix domain="org.bb" />
+
+    <!--  bd : http://en.wikipedia.org/wiki/.bd-->
+
+    <!--  be : http://en.wikipedia.org/wiki/.be-->
+    <suffix domain="ac.be" />
+
+    <!--  bf : http://en.wikipedia.org/wiki/.bf-->
+
+    <!--  bg : http://en.wikipedia.org/wiki/.bg-->
+
+    <!--  bh : http://en.wikipedia.org/wiki/.bh-->
+    <!--  list of 2nd level tlds ?-->
+
+    <!--  bi : http://en.wikipedia.org/wiki/.bi-->
+    <!--  list of 2nd level tlds ?-->
+
+    <!--  biz : http://en.wikipedia.org/wiki/.biz-->
+
+    <!--  bj : http://en.wikipedia.org/wiki/.bj-->
+    <!--  list of 2nd level tlds ?-->
+
+    <!--  bm : http://www.bermudanic.bm/dnr-text.txt-->
+    <suffix domain="com.bm" />
+    <suffix domain="edu.bm" />
+    <suffix domain="gov.bm" />
+    <suffix domain="net.bm" />
+    <suffix domain="org.bm" />
+
+    <!--  bn : http://en.wikipedia.org/wiki/.bn-->
+
+    <!--  bo : http://www.nic.bo/-->
+    <suffix domain="com.bo" />
+    <suffix domain="edu.bo" />
+    <suffix domain="gov.bo" />
+    <suffix domain="gob.bo" />
+    <suffix domain="int.bo" />
+    <suffix domain="org.bo" />
+    <suffix domain="net.bo" />
+    <suffix domain="mil.bo" />
+    <suffix domain="tv.bo" />
+
+    <!--  br : http://en.wikipedia.org/wiki/.br-->
+
+    <!--  bs : http://www.nic.bs/rules.html-->
+    <suffix domain="com.bs" />
+    <suffix domain="net.bs" />
+    <suffix domain="org.bs" />
+    <suffix domain="edu.bs" />
+    <suffix domain="gov.bs" />
+
+    <!--  bt : http://en.wikipedia.org/wiki/.bt-->
+
+    <!--  bw : http://en.wikipedia.org/wiki/.bw-->
+    <!--  list of 2nd level tlds ?-->
+
+    <!--  by : http://en.wikipedia.org/wiki/.by-->
+    <!--  list of 2nd level tlds ?-->
+
+    <!--  bz : http://en.wikipedia.org/wiki/.bz-->
+    <!--  list of 2nd level tlds ?-->
+
+    <!--  ca : http://en.wikipedia.org/wiki/.ca-->
+    <!--  ca geographical names-->
+    <suffix domain="ab.ca" />
+    <suffix domain="bc.ca" />
+    <suffix domain="mb.ca" />
+    <suffix domain="nb.ca" />
+    <suffix domain="nf.ca" />
+    <suffix domain="nl.ca" />
+    <suffix domain="ns.ca" />
+    <suffix domain="nt.ca" />
+    <suffix domain="nu.ca" />
+    <suffix domain="on.ca" />
+    <suffix domain="pe.ca" />
+    <suffix domain="qc.ca" />
+    <suffix domain="sk.ca" />
+    <suffix domain="yk.ca" />
+
+    <!--  cat : http://en.wikipedia.org/wiki/.cat-->
+
+    <!--  cc : http://en.wikipedia.org/wiki/.cc-->
+
+    <!--  cd : http://en.wikipedia.org/wiki/.cd-->
+
+    <!--  cf : http://en.wikipedia.org/wiki/.cf-->
+
+    <!--  cg : http://en.wikipedia.org/wiki/.cg-->
+
+    <!--  ch : http://en.wikipedia.org/wiki/.ch-->
+
+    <!--  ci : http://en.wikipedia.org/wiki/.ci-->
+    <!--  list of 2nd level tlds ?-->
+
+    <!--  ck : http://en.wikipedia.org/wiki/.ck-->
+
+    <!--  cl : http://en.wikipedia.org/wiki/.cl-->
+
+    <!--  cm : http://en.wikipedia.org/wiki/.cm-->
+
+    <!--  cn : http://en.wikipedia.org/wiki/.cn-->
+    <suffix domain="ac.cn" />
+    <suffix domain="com.cn" />
+    <suffix domain="edu.cn" />
+    <suffix domain="gov.cn" />
+    <suffix domain="net.cn" />
+    <suffix domain="org.cn" />
+    <!--  cn geographic names-->
+    <suffix domain="ah.cn" />
+    <suffix domain="bj.cn" />
+    <suffix domain="cq.cn" />
+    <suffix domain="fj.cn" />
+    <suffix domain="gd.cn" />
+    <suffix domain="gs.cn" />
+    <suffix domain="gz.cn" />
+    <suffix domain="gx.cn" />
+    <suffix domain="ha.cn" />
+    <suffix domain="hb.cn" />
+    <suffix domain="he.cn" />
+    <suffix domain="hi.cn" />
+    <suffix domain="hl.cn" />
+    <suffix domain="hn.cn" />
+    <suffix domain="jl.cn" />
+    <suffix domain="js.cn" />
+    <suffix domain="jx.cn" />
+    <suffix domain="ln.cn" />
+    <suffix domain="nm.cn" />
+    <suffix domain="nx.cn" />
+    <suffix domain="qh.cn" />
+    <suffix domain="sc.cn" />
+    <suffix domain="sd.cn" />
+    <suffix domain="sh.cn" />
+    <suffix domain="sn.cn" />
+    <suffix domain="sx.cn" />
+    <suffix domain="tj.cn" />
+    <suffix domain="xj.cn" />
+    <suffix domain="xz.cn" />
+    <suffix domain="yn.cn" />
+    <suffix domain="zj.cn" />
+
+    <!--  co : http://en.wikipedia.org/wiki/.co-->
+
+    <!--  com : http://en.wikipedia.org/wiki/.com-->
+
+    <!--  coop : http://en.wikipedia.org/wiki/.coop-->
+
+    <!--  cr : http://en.wikipedia.org/wiki/.cr-->
+
+    <!--  cu : http://en.wikipedia.org/wiki/.cu-->
+    <suffix domain="com.cu" />
+    <suffix domain="edu.cu" />
+    <suffix domain="org.cu" />
+    <suffix domain="net.cu" />
+    <suffix domain="gov.cu" />
+    <suffix domain="inf.cu" />
+
+    <!--  cv : http://en.wikipedia.org/wiki/.cv-->
+
+    <!--  cx : http://en.wikipedia.org/wiki/.cx-->
+
+    <!--  cy : http://en.wikipedia.org/wiki/.cy-->
+
+    <!--  cz : http://en.wikipedia.org/wiki/.cz-->
+
+    <!--  de : http://en.wikipedia.org/wiki/.de-->
+
+    <!--  dj : http://en.wikipedia.org/wiki/.dj-->
+
+    <!--  dk : http://en.wikipedia.org/wiki/.dk-->
+
+    <!--  dm : http://en.wikipedia.org/wiki/.dm-->
+    <suffix domain="com.dm" />
+    <suffix domain="net.dm" />
+    <suffix domain="org.dm" />
+
+    <!--  do : http://en.wikipedia.org/wiki/.do-->
+
+    <!--  dz : http://en.wikipedia.org/wiki/.dz-->
+    <suffix domain="com.dz" />
+    <suffix domain="org.dz" />
+    <suffix domain="net.dz" />
+    <suffix domain="gov.dz" />
+    <suffix domain="edu.dz" />
+    <suffix domain="asso.dz" />
+    <suffix domain="pol.dz" />
+    <suffix domain="art.dz" />
+
+    <!--  ec : http://www.nic.ec/reg/paso1.asp-->
+    <suffix domain="com.ec" />
+    <suffix domain="info.ec" />
+    <suffix domain="net.ec" />
+    <suffix domain="fin.ec" />
+    <suffix domain="med.ec" />
+    <suffix domain="pro.ec" />
+    <suffix domain="org.ec" />
+    <suffix domain="edu.ec" />
+    <suffix domain="gov.ec" />
+    <suffix domain="mil.ec" />
+
+    <!--  edu : http://en.wikipedia.org/wiki/.edu-->
+
+    <!--  ee : http://www3.eenet.ee/ee/application.html-->
+    <suffix domain="com.ee" />
+    <suffix domain="org.ee" />
+    <suffix domain="fie.ee" />
+    <suffix domain="pri.ee" />
+
+    <!--  eg : http://en.wikipedia.org/wiki/.eg-->
+
+    <!--  er : http://en.wikipedia.org/wiki/.er-->
+
+    <!--  es : https://www.nic.es/site_ingles/ingles/dominios/index.html-->
+    <suffix domain="com.es" />
+    <suffix domain="nom.es" />
+    <suffix domain="org.es" />
+    <suffix domain="gob.es" />
+    <suffix domain="edu.es" />
+
+    <!--  et : http://en.wikipedia.org/wiki/.et-->
+
+    <!--  eu : http://en.wikipedia.org/wiki/.eu-->
+
+    <!--  fi : http://en.wikipedia.org/wiki/.fi-->
+
+    <!--  fj : http://en.wikipedia.org/wiki/.fj-->
+
+    <!--  fk : http://en.wikipedia.org/wiki/.fk-->
+
+    <!--  fm : http://en.wikipedia.org/wiki/.fm-->
+
+    <!--  fo : http://en.wikipedia.org/wiki/.fo-->
+
+    <!--  fr : http://www.afnic.fr/-->
+    <!--  domaines descriptifs : http://www.afnic.fr/obtenir/chartes/nommage-fr/annexe-descriptifs-->
+    <suffix domain="com.fr" />
+    <suffix domain="asso.fr" />
+    <suffix domain="nom.fr" />
+    <suffix domain="prd.fr" />
+    <suffix domain="presse.fr" />
+    <suffix domain="tm.fr" />
+    <!--  domaines sectoriels : http://www.afnic.fr/obtenir/chartes/nommage-fr/annexe-sectoriels-->
+    <suffix domain="aeroport.fr" />
+    <suffix domain="assedic.fr" />
+    <suffix domain="avocat.fr" />
+    <suffix domain="avoues.fr" />
+    <suffix domain="cci.fr" />
+    <suffix domain="chambagri.fr" />
+    <suffix domain="chirurgiens-dentistes.fr" />
+    <suffix domain="experts-comptables.fr" />
+    <suffix domain="geometre-expert.fr" />
+    <suffix domain="gouv.fr" />
+    <suffix domain="greta.fr" />
+    <suffix domain="huissier-justice.fr" />
+    <suffix domain="medecin.fr" />
+    <suffix domain="notaires.fr" />
+    <suffix domain="pharmacien.fr" />
+    <suffix domain="port.fr" />
+    <suffix domain="veterinaire.fr" />
+
+    <!--  ga : http://en.wikipedia.org/wiki/.ga-->
+
+    <!--  gd : http://en.wikipedia.org/wiki/.gd-->
+
+    <!--  ge : http://www.nic.net.ge/policy_en.pdf-->
+    <suffix domain="com.ge" />
+    <suffix domain="edu.ge" />
+    <suffix domain="gov.ge" />
+    <suffix domain="org.ge" />
+    <suffix domain="mil.ge" />
+    <suffix domain="net.ge" />
+    <suffix domain="pvt.ge" />
+
+    <!--  gf : http://en.wikipedia.org/wiki/.gf-->
+
+    <!--  gg : http://www.channelisles.net/tandc.shtml-->
+    <suffix domain="co.gg" />
+    <suffix domain="org.gg" />
+    <suffix domain="net.gg" />
+    <suffix domain="sch.gg" />
+    <suffix domain="gov.gg" />
+
+    <!--  gh : http://www.ghana.com/domain.htm-->
+
+    <!--  gi : http://www.nic.gi/rules.html-->
+    <suffix domain="com.gi" />
+    <suffix domain="ltd.gi" />
+    <suffix domain="gov.gi" />
+    <suffix domain="mod.gi" />
+    <suffix domain="edu.gi" />
+    <suffix domain="org.gi" />
+
+    <!--  gl : http://en.wikipedia.org/wiki/.gl-->
+
+    <!--  gm : http://www.nic.gm/htmlpages%5Cgm-policy.htm-->
+
+    <!--  gn : http://psg.com/dns/gn/gn.txt-->
+
+    <!--  gov : http://en.wikipedia.org/wiki/.gov-->
+
+    <!--  gp : http://www.nic.gp/index_en.php?url=charte_en.php-->
+    <suffix domain="com.gp" />
+    <suffix domain="net.gp" />
+    <suffix domain="edu.gp" />
+    <suffix domain="org.gp" />
+
+    <!--  gq : http://en.wikipedia.org/wiki/.gq-->
+
+    <!--  gr : https://grweb.ics.forth.gr/english/1617-B-2002.html-->
+    <suffix domain="com.gr" />
+    <suffix domain="edu.gr" />
+    <suffix domain="net.gr" />
+    <suffix domain="org.gr" />
+    <suffix domain="gov.gr" />
+
+    <!--  gs : http://en.wikipedia.org/wiki/.gs-->
+
+    <!--  gt : http://www.gt/politicas.html-->
+
+    <!--  gu : http://gadao.gov.gu/registration.txt-->
+
+    <!--  gw : http://en.wikipedia.org/wiki/.gw-->
+
+    <!--  gy : http://en.wikipedia.org/wiki/.gy-->
+
+    <!--  hk : http://en.wikipedia.org/wiki/.hk-->
+    <suffix domain="com.hk" />
+    <suffix domain="edu.hk" />
+    <suffix domain="gov.hk" />
+    <suffix domain="idv.hk" />
+    <suffix domain="net.hk" />
+    <suffix domain="org.hk" />
+
+    <!--  hm : http://en.wikipedia.org/wiki/.hm-->
+
+    <!--  hn : http://www.nic.hn/politicas/ps02,,05.html-->
+    <suffix domain="com.hn" />
+    <suffix domain="edu.hn" />
+    <suffix domain="org.hn" />
+    <suffix domain="net.hn" />
+    <suffix domain="mil.hn" />
+    <suffix domain="gob.hn" />
+
+    <!--  hr : http://www.dns.hr/documents/pdf/HRTLD-regulations.pdf-->
+    <suffix domain="iz.hr" />
+    <suffix domain="from.hr" />
+    <suffix domain="name.hr" />
+    <suffix domain="com.hr" />
+
+    <!--  ht : http://www.nic.ht/info/charte.cfm-->
+    <suffix domain="com.ht" />
+    <suffix domain="shop.ht" />
+    <suffix domain="firm.ht" />
+    <suffix domain="info.ht" />
+    <suffix domain="adult.ht" />
+    <suffix domain="net.ht" />
+    <suffix domain="pro.ht" />
+    <suffix domain="org.ht" />
+    <suffix domain="med.ht" />
+    <suffix domain="art.ht" />
+    <suffix domain="coop.ht" />
+    <suffix domain="pol.ht" />
+    <suffix domain="asso.ht" />
+    <suffix domain="edu.ht" />
+    <suffix domain="rel.ht" />
+    <suffix domain="gouv.ht" />
+    <suffix domain="perso.ht" />
+
+    <!--  hu : http://www.domain.hu/domain/English/sld.html-->
+    <suffix domain="co.hu" />
+    <suffix domain="info.hu" />
+    <suffix domain="org.hu" />
+    <suffix domain="priv.hu" />
+    <suffix domain="sport.hu" />
+    <suffix domain="tm.hu" />
+    <suffix domain="2000.hu" />
+    <suffix domain="agrar.hu" />
+    <suffix domain="bolt.hu" />
+    <suffix domain="casino.hu" />
+    <suffix domain="city.hu" />
+    <suffix domain="erotica.hu" />
+    <suffix domain="erotika.hu" />
+    <suffix domain="film.hu" />
+    <suffix domain="forum.hu" />
+    <suffix domain="games.hu" />
+    <suffix domain="hotel.hu" />
+    <suffix domain="ingatlan.hu" />
+    <suffix domain="jogasz.hu" />
+    <suffix domain="konyvelo.hu" />
+    <suffix domain="lakas.hu" />
+    <suffix domain="media.hu" />
+    <suffix domain="news.hu" />
+    <suffix domain="reklam.hu" />
+    <suffix domain="sex.hu" />
+    <suffix domain="shop.hu" />
+    <suffix domain="suli.hu" />
+    <suffix domain="szex.hu" />
+    <suffix domain="tozsde.hu" />
+    <suffix domain="utazas.hu" />
+    <suffix domain="video.hu" />
+
+    <!--  id : http://en.wikipedia.org/wiki/.id-->
+
+    <!--  ie : http://en.wikipedia.org/wiki/.ie-->
+
+    <!--  il : http://en.wikipedia.org/wiki/.il-->
+
+    <!--  im : https://www.nic.im/pdfs/imfaqs.pdf-->
+    <suffix domain="co.im" />
+    <suffix domain="ltd.co.im" />
+    <suffix domain="plc.co.im" />
+    <suffix domain="net.im" />
+    <suffix domain="gov.im" />
+    <suffix domain="org.im" />
+    <suffix domain="nic.im" />
+    <suffix domain="ac.im" />
+
+    <!--  in : http://en.wikipedia.org/wiki/.in-->
+    <suffix domain="co.in" />
+    <suffix domain="firm.in" />
+    <suffix domain="net.in" />
+    <suffix domain="org.in" />
+    <suffix domain="gen.in" />
+    <suffix domain="ind.in" />
+    <suffix domain="nic.in" />
+    <suffix domain="ac.in" />
+    <suffix domain="edu.in" />
+    <suffix domain="res.in" />
+    <suffix domain="gov.in" />
+    <suffix domain="mil.in" />
+
+    <!--  info : http://en.wikipedia.org/wiki/.info-->
+
+    <!--  int : http://en.wikipedia.org/wiki/.int-->
+
+    <!--  io : http://www.nic.io/rules.html-->
+    <!--  list of 2nd level tlds ?-->
+
+    <!--  iq : http://en.wikipedia.org/wiki/.iq-->
+    <!--  no registrar website found, but google shows .gov.iq and .edu.iq websites-->
+    <suffix domain="gov.iq" />
+    <suffix domain="edu.iq" />
+
+    <!--  ir : http://www.nic.ir/ascii/Appendix1.htm-->
+    <suffix domain="ac.ir" />
+    <suffix domain="co.ir" />
+    <suffix domain="gov.ir" />
+    <suffix domain="id.ir" />
+    <suffix domain="net.ir" />
+    <suffix domain="org.ir" />
+    <suffix domain="sch.ir" />
+
+    <!--  is : http://www.isnic.is/domain/rules.php-->
+    <suffix domain="net.is" />
+    <suffix domain="com.is" />
+    <suffix domain="edu.is" />
+    <suffix domain="gov.is" />
+    <suffix domain="org.is" />
+    <suffix domain="int.is" />
+
+    <!--  it : http://en.wikipedia.org/wiki/.it-->
+    <suffix domain="gov.edu" />
+    <!--  geo-names found at http://www.nic.it/RA/en/domini/regole/nomi-riservati.pdf-->
+    <suffix domain="agrigento.it" />
+    <suffix domain="ag.it" />
+    <suffix domain="alessandria.it" />
+    <suffix domain="al.it" />
+    <suffix domain="ancona.it" />
+    <suffix domain="an.it" />
+    <suffix domain="aosta.it" />
+    <suffix domain="aoste.it" />
+    <suffix domain="ao.it" />
+    <suffix domain="arezzo.it" />
+    <suffix domain="ar.it" />
+    <suffix domain="ascoli-piceno.it" />
+    <suffix domain="ascolipiceno.it" />
+    <suffix domain="ap.it" />
+    <suffix domain="asti.it" />
+    <suffix domain="at.it" />
+    <suffix domain="avellino.it" />
+    <suffix domain="av.it" />
+    <suffix domain="bari.it" />
+    <suffix domain="ba.it" />
+    <suffix domain="barlettaandriatrani.it" />
+    <suffix domain="barletta-andria-trani.it" />
+    <suffix domain="belluno.it" />
+    <suffix domain="bl.it" />
+    <suffix domain="benevento.it" />
+    <suffix domain="bn.it" />
+    <suffix domain="bergamo.it" />
+    <suffix domain="bg.it" />
+    <suffix domain="biella.it" />
+    <suffix domain="bi.it" />
+    <suffix domain="bologna.it" />
+    <suffix domain="bo.it" />
+    <suffix domain="bolzano.it" />
+    <suffix domain="bozen.it" />
+    <suffix domain="balsan.it" />
+    <suffix domain="alto-adige.it" />
+    <suffix domain="altoadige.it" />
+    <suffix domain="suedtirol.it" />
+    <suffix domain="bz.it" />
+    <suffix domain="brescia.it" />
+    <suffix domain="bs.it" />
+    <suffix domain="brindisi.it" />
+    <suffix domain="br.it" />
+    <suffix domain="cagliari.it" />
+    <suffix domain="ca.it" />
+    <suffix domain="caltanissetta.it" />
+    <suffix domain="cl.it" />
+    <suffix domain="campobasso.it" />
+    <suffix domain="cb.it" />
+    <suffix domain="caserta.it" />
+    <suffix domain="ce.it" />
+    <suffix domain="catania.it" />
+    <suffix domain="ct.it" />
+    <suffix domain="catanzaro.it" />
+    <suffix domain="cz.it" />
+    <suffix domain="chieti.it" />
+    <suffix domain="ch.it" />
+    <suffix domain="como.it" />
+    <suffix domain="co.it" />
+    <suffix domain="cosenza.it" />
+    <suffix domain="cs.it" />
+    <suffix domain="cremona.it" />
+    <suffix domain="cr.it" />
+    <suffix domain="crotone.it" />
+    <suffix domain="kr.it" />
+    <suffix domain="cuneo.it" />
+    <suffix domain="cn.it" />
+    <suffix domain="enna.it" />
+    <suffix domain="en.it" />
+    <suffix domain="fermo.it" />
+    <suffix domain="ferrara.it" />
+    <suffix domain="fe.it" />
+    <suffix domain="firenze.it" />
+    <suffix domain="florence.it" />
+    <suffix domain="fi.it" />
+    <suffix domain="foggia.it" />
+    <suffix domain="fg.it" />
+    <suffix domain="forli-cesena.it" />
+    <suffix domain="forlicesena.it" />
+    <suffix domain="fc.it" />
+    <suffix domain="frosinone.it" />
+    <suffix domain="fr.it" />
+    <suffix domain="genova.it" />
+    <suffix domain="genoa.it" />
+    <suffix domain="ge.it" />
+    <suffix domain="gorizia.it" />
+    <suffix domain="go.it" />
+    <suffix domain="grosseto.it" />
+    <suffix domain="gr.it" />
+    <suffix domain="imperia.it" />
+    <suffix domain="im.it" />
+    <suffix domain="isernia.it" />
+    <suffix domain="is.it" />
+    <suffix domain="laquila.it" />
+    <suffix domain="aquila.it" />
+    <suffix domain="aq.it" />
+    <suffix domain="la-spezia.it" />
+    <suffix domain="laspezia.it" />
+    <suffix domain="sp.it" />
+    <suffix domain="latina.it" />
+    <suffix domain="lt.it" />
+    <suffix domain="lecce.it" />
+    <suffix domain="le.it" />
+    <suffix domain="lecco.it" />
+    <suffix domain="lc.it" />
+    <suffix domain="livorno.it" />
+    <suffix domain="li.it" />
+    <suffix domain="lodi.it" />
+    <suffix domain="lo.it" />
+    <suffix domain="lucca.it" />
+    <suffix domain="lu.it" />
+    <suffix domain="macerata.it" />
+    <suffix domain="mc.it" />
+    <suffix domain="mantova.it" />
+    <suffix domain="mn.it" />
+    <suffix domain="massa-carrara.it" />
+    <suffix domain="massacarrara.it" />
+    <suffix domain="ms.it" />
+    <suffix domain="matera.it" />
+    <suffix domain="mt.it" />
+    <suffix domain="messina.it" />
+    <suffix domain="me.it" />
+    <suffix domain="milano.it" />
+    <suffix domain="milan.it" />
+    <suffix domain="mi.it" />
+    <suffix domain="modena.it" />
+    <suffix domain="mo.it" />
+    <suffix domain="monza.it" />
+    <suffix domain="napoli.it" />
+    <suffix domain="naples.it" />
+    <suffix domain="na.it" />
+    <suffix domain="novara.it" />
+    <suffix domain="no.it" />
+    <suffix domain="nuoro.it" />
+    <suffix domain="nu.it" />
+    <suffix domain="oristano.it" />
+    <suffix domain="or.it" />
+    <suffix domain="padova.it" />
+    <suffix domain="padua.it" />
+    <suffix domain="pd.it" />
+    <suffix domain="palermo.it" />
+    <suffix domain="pa.it" />
+    <suffix domain="parma.it" />
+    <suffix domain="pr.it" />
+    <suffix domain="pavia.it" />
+    <suffix domain="pv.it" />
+    <suffix domain="perugia.it" />
+    <suffix domain="pg.it" />
+    <suffix domain="pescara.it" />
+    <suffix domain="pe.it" />
+    <suffix domain="pesaro-urbino.it" />
+    <suffix domain="pesarourbino.it" />
+    <suffix domain="pu.it" />
+    <suffix domain="piacenza.it" />
+    <suffix domain="pc.it" />
+    <suffix domain="pisa.it" />
+    <suffix domain="pi.it" />
+    <suffix domain="pistoia.it" />
+    <suffix domain="pt.it" />
+    <suffix domain="pordenone.it" />
+    <suffix domain="pn.it" />
+    <suffix domain="potenza.it" />
+    <suffix domain="pz.it" />
+    <suffix domain="prato.it" />
+    <suffix domain="po.it" />
+    <suffix domain="ragusa.it" />
+    <suffix domain="rg.it" />
+    <suffix domain="ravenna.it" />
+    <suffix domain="ra.it" />
+    <suffix domain="reggio-calabria.it" />
+    <suffix domain="reggiocalabria.it" />
+    <suffix domain="rc.it" />
+    <suffix domain="reggio-emilia.it" />
+    <suffix domain="reggioemilia.it" />
+    <suffix domain="re.it" />
+    <suffix domain="rieti.it" />
+    <suffix domain="ri.it" />
+    <suffix domain="rimini.it" />
+    <suffix domain="rn.it" />
+    <suffix domain="roma.it" />
+    <suffix domain="rome.it" />
+    <suffix domain="rm.it" />
+    <suffix domain="rovigo.it" />
+    <suffix domain="ro.it" />
+    <suffix domain="salerno.it" />
+    <suffix domain="sa.it" />
+    <suffix domain="sassari.it" />
+    <suffix domain="ss.it" />
+    <suffix domain="savona.it" />
+    <suffix domain="sv.it" />
+    <suffix domain="siena.it" />
+    <suffix domain="si.it" />
+    <suffix domain="siracusa.it" />
+    <suffix domain="sr.it" />
+    <suffix domain="sondrio.it" />
+    <suffix domain="so.it" />
+    <suffix domain="taranto.it" />
+    <suffix domain="ta.it" />
+    <suffix domain="teramo.it" />
+    <suffix domain="te.it" />
+    <suffix domain="terni.it" />
+    <suffix domain="tr.it" />
+    <suffix domain="torino.it" />
+    <suffix domain="turin.it" />
+    <suffix domain="to.it" />
+    <suffix domain="trapani.it" />
+    <suffix domain="tp.it" />
+    <suffix domain="trento.it" />
+    <suffix domain="trentino.it" />
+    <suffix domain="tn.it" />
+    <suffix domain="treviso.it" />
+    <suffix domain="tv.it" />
+    <suffix domain="trieste.it" />
+    <suffix domain="ts.it" />
+    <suffix domain="udine.it" />
+    <suffix domain="ud.it" />
+    <suffix domain="varese.it" />
+    <suffix domain="va.it" />
+    <suffix domain="venezia.it" />
+    <suffix domain="venice.it" />
+    <suffix domain="ve.it" />
+    <suffix domain="verbania.it" />
+    <suffix domain="vb.it" />
+    <suffix domain="vercelli.it" />
+    <suffix domain="vc.it" />
+    <suffix domain="verona.it" />
+    <suffix domain="vr.it" />
+    <suffix domain="vibo-valentia.it" />
+    <suffix domain="vibovalentia.it" />
+    <suffix domain="vv.it" />
+    <suffix domain="vicenza.it" />
+    <suffix domain="vi.it" />
+    <suffix domain="viterbo.it" />
+    <suffix domain="vt.it" />
+
+    <!--  je : http://www.channelisles.net/tandc.shtml-->
+    <suffix domain="co.je" />
+    <suffix domain="org.je" />
+    <suffix domain="net.je" />
+    <suffix domain="sch.je" />
+    <suffix domain="gov.je" />
+
+    <!--  jm : http://www.com.jm/register.html-->
+
+    <!--  jo : http://www.nis.gov.jo/dns/reg.html-->
+    <suffix domain="com.jo" />
+    <suffix domain="org.jo" />
+    <suffix domain="net.jo" />
+    <suffix domain="edu.jo" />
+    <suffix domain="gov.jo" />
+    <suffix domain="mil.jo" />
+    <suffix domain="myname.jo" />
+
+    <!--  jobs : http://en.wikipedia.org/wiki/.jobs-->
+
+    <!--  jp : http://en.wikipedia.org/wiki/.jp-->
+    <suffix domain="ac.jp" />
+    <suffix domain="ad.jp" />
+    <suffix domain="co.jp" />
+    <suffix domain="ed.jp" />
+    <suffix domain="go.jp" />
+    <suffix domain="gr.jp" />
+    <suffix domain="lg.jp" />
+    <suffix domain="ne.jp" />
+    <suffix domain="or.jp" />
+    <!--  jp geographical names-->
+    <!--  I can't find an official english explanantrion, but used https://bugzilla.mozilla.org/show_bug.cgi?id=252342#c31-->
+    <suffix domain="aichi.jp" />
+    <suffix domain="akita.jp" />
+    <suffix domain="aomori.jp" />
+    <suffix domain="chiba.jp" />
+    <suffix domain="ehime.jp" />
+    <suffix domain="fukui.jp" />
+    <suffix domain="fukuoka.jp" />
+    <suffix domain="fukushima.jp" />
+    <suffix domain="gifu.jp" />
+    <suffix domain="gunma.jp" />
+    <suffix domain="hiroshima.jp" />
+    <suffix domain="hokkaido.jp" />
+    <suffix domain="hyogo.jp" />
+    <suffix domain="ibaraki.jp" />
+    <suffix domain="ishikawa.jp" />
+    <suffix domain="iwate.jp" />
+    <suffix domain="kagawa.jp" />
+    <suffix domain="kagoshima.jp" />
+    <suffix domain="kanagawa.jp" />
+    <suffix domain="kawasaki.jp" />
+    <suffix domain="kitakyushu.jp" />
+    <suffix domain="kobe.jp" />
+    <suffix domain="kochi.jp" />
+    <suffix domain="kumamoto.jp" />
+    <suffix domain="kyoto.jp" />
+    <suffix domain="mie.jp" />
+    <suffix domain="miyagi.jp" />
+    <suffix domain="miyazaki.jp" />
+    <suffix domain="nagano.jp" />
+    <suffix domain="nagasaki.jp" />
+    <suffix domain="nagoya.jp" />
+    <suffix domain="nara.jp" />
+    <suffix domain="niigata.jp" />
+    <suffix domain="oita.jp" />
+    <suffix domain="okayama.jp" />
+    <suffix domain="okinawa.jp" />
+    <suffix domain="osaka.jp" />
+    <suffix domain="saga.jp" />
+    <suffix domain="saitama.jp" />
+    <suffix domain="sapporo.jp" />
+    <suffix domain="sendai.jp" />
+    <suffix domain="shiga.jp" />
+    <suffix domain="shimane.jp" />
+    <suffix domain="shizuoka.jp" />
+    <suffix domain="tochigi.jp" />
+    <suffix domain="tokushima.jp" />
+    <suffix domain="tokyo.jp" />
+    <suffix domain="tottori.jp" />
+    <suffix domain="toyama.jp" />
+    <suffix domain="wakayama.jp" />
+    <suffix domain="yamagata.jp" />
+    <suffix domain="yamaguchi.jp" />
+    <suffix domain="yamanashi.jp" />
+    <suffix domain="yokohama.jp" />
+    <suffix domain="metro.tokyo.jp" />
+    <suffix domain="pref.aichi.jp" />
+    <suffix domain="pref.akita.jp" />
+    <suffix domain="pref.aomori.jp" />
+    <suffix domain="pref.chiba.jp" />
+    <suffix domain="pref.ehime.jp" />
+    <suffix domain="pref.fukui.jp" />
+    <suffix domain="pref.fukuoka.jp" />
+    <suffix domain="pref.fukushima.jp" />
+    <suffix domain="pref.gifu.jp" />
+    <suffix domain="pref.gunma.jp" />
+    <suffix domain="pref.hiroshima.jp" />
+    <suffix domain="pref.hokkaido.jp" />
+    <suffix domain="pref.hyogo.jp" />
+    <suffix domain="pref.ibaraki.jp" />
+    <suffix domain="pref.ishikawa.jp" />
+    <suffix domain="pref.iwate.jp" />
+    <suffix domain="pref.kagawa.jp" />
+    <suffix domain="pref.kagoshima.jp" />
+    <suffix domain="pref.kanagawa.jp" />
+    <suffix domain="pref.kochi.jp" />
+    <suffix domain="pref.kumamoto.jp" />
+    <suffix domain="pref.kyoto.jp" />
+    <suffix domain="pref.mie.jp" />
+    <suffix domain="pref.miyagi.jp" />
+    <suffix domain="pref.miyazaki.jp" />
+    <suffix domain="pref.nagano.jp" />
+    <suffix domain="pref.nagasaki.jp" />
+    <suffix domain="pref.nara.jp" />
+    <suffix domain="pref.niigata.jp" />
+    <suffix domain="pref.oita.jp" />
+    <suffix domain="pref.okayama.jp" />
+    <suffix domain="pref.okinawa.jp" />
+    <suffix domain="pref.osaka.jp" />
+    <suffix domain="pref.saga.jp" />
+    <suffix domain="pref.saitama.jp" />
+    <suffix domain="pref.shiga.jp" />
+    <suffix domain="pref.shimane.jp" />
+    <suffix domain="pref.shizuoka.jp" />
+    <suffix domain="pref.tochigi.jp" />
+    <suffix domain="pref.tokushima.jp" />
+    <suffix domain="pref.tottori.jp" />
+    <suffix domain="pref.toyama.jp" />
+    <suffix domain="pref.wakayama.jp" />
+    <suffix domain="pref.yamagata.jp" />
+    <suffix domain="pref.yamaguchi.jp" />
+    <suffix domain="pref.yamanashi.jp" />
+    <suffix domain="city.chiba.jp" />
+    <suffix domain="city.fukuoka.jp" />
+    <suffix domain="city.hiroshima.jp" />
+    <suffix domain="city.kawasaki.jp" />
+    <suffix domain="city.kitakyushu.jp" />
+    <suffix domain="city.kobe.jp" />
+    <suffix domain="city.kyoto.jp" />
+    <suffix domain="city.nagoya.jp" />
+    <suffix domain="city.osaka.jp" />
+    <suffix domain="city.saitama.jp" />
+    <suffix domain="city.sapporo.jp" />
+    <suffix domain="city.sendai.jp" />
+    <suffix domain="city.shizuoka.jp" />
+    <suffix domain="city.yokohama.jp" />
+
+    <!--  ke : http://www.kenic.or.ke/index.php?option=com_content&task=view&id=117&Itemid=145-->
+
+    <!--  kg : http://www.domain.kg/dmn_n.html-->
+    <suffix domain="org.kg" />
+    <suffix domain="net.kg" />
+    <suffix domain="com.kg" />
+    <suffix domain="edu.kg" />
+    <suffix domain="gov.kg" />
+    <suffix domain="mil.kg" />
+
+    <!--  kh : http://www.mptc.gov.kh/dns_registration.htm-->
+
+    <!--  ki : http://www.ki/dns/index.html-->
+    <suffix domain="edu.ki" />
+    <suffix domain="biz.ki" />
+    <suffix domain="net.ki" />
+    <suffix domain="org.ki" />
+    <suffix domain="gov.ki" />
+    <suffix domain="info.ki" />
+    <suffix domain="com.ki" />
+
+    <!--  km : http://en.wikipedia.org/wiki/.km-->
+
+    <!--  kn : http://en.wikipedia.org/wiki/.kn-->
+
+    <!--  kr : http://domain.nida.or.kr/eng/structure.jsp-->
+    <suffix domain="ac.kr" />
+    <suffix domain="co.kr" />
+    <suffix domain="go.kr" />
+    <suffix domain="ne.kr" />
+    <suffix domain="or.kr" />
+    <suffix domain="re.kr" />
+    <suffix domain="pe.kr" />
+    <suffix domain="한글.kr" />
+
+    <!--  kw : http://en.wikipedia.org/wiki/.kw-->
+
+    <!--  ky : http://www.icta.ky/da_ky_reg_dom.php-->
+    <suffix domain="edu.ky" />
+    <suffix domain="gov.ky" />
+    <suffix domain="com.ky" />
+    <suffix domain="org.ky" />
+    <suffix domain="net.ky" />
+
+    <!--  kz : http://en.wikipedia.org/wiki/.kz-->
+    <suffix domain="org.kz" />
+    <suffix domain="edu.kz" />
+    <suffix domain="net.kz" />
+    <suffix domain="gov.kz" />
+    <suffix domain="mil.kz" />
+    <suffix domain="com.kz" />
+
+    <!--  la : http://en.wikipedia.org/wiki/.la-->
+
+    <!--  lb : http://en.wikipedia.org/wiki/.lb-->
+
+    <!--  lc : http://en.wikipedia.org/wiki/.lc-->
+    <suffix domain="com.lc" />
+    <suffix domain="org.lc" />
+    <suffix domain="edu.lc" />
+    <suffix domain="gov.lc" />
+
+    <!--  li : http://en.wikipedia.org/wiki/.li-->
+
+    <!--  lk : http://www.nic.lk/seclevpr.html-->
+    <suffix domain="gov.lk" />
+    <suffix domain="sch.lk" />
+    <suffix domain="net.lk" />
+    <suffix domain="int.lk" />
+    <suffix domain="com.lk" />
+    <suffix domain="org.lk" />
+    <suffix domain="edu.lk" />
+    <suffix domain="ngo.lk" />
+    <suffix domain="soc.lk" />
+    <suffix domain="web.lk" />
+    <suffix domain="ltd.lk" />
+    <suffix domain="assn.lk" />
+    <suffix domain="grp.lk" />
+    <suffix domain="hotel.lk" />
+
+    <!--  lr : http://psg.com/dns/lr/lr.txt-->
+
+    <!--  ls : http://en.wikipedia.org/wiki/.ls-->
+    <suffix domain="co.ls" />
+    <suffix domain="org.ls" />
+
+    <!--  lt : http://en.wikipedia.org/wiki/.lt-->
+
+    <!--  lu : http://www.dns.lu/en/-->
+
+    <!--  lv : http://www.nic.lv/DNS/En/generic.php-->
+    <suffix domain="com.lv" />
+    <suffix domain="edu.lv" />
+    <suffix domain="gov.lv" />
+    <suffix domain="org.lv" />
+    <suffix domain="mil.lv" />
+    <suffix domain="id.lv" />
+    <suffix domain="net.lv" />
+    <suffix domain="asn.lv" />
+    <suffix domain="conf.lv" />
+
+    <!--  ly : http://www.nic.ly/regulations.php-->
+    <suffix domain="com.ly" />
+    <suffix domain="net.ly" />
+    <suffix domain="gov.ly" />
+    <suffix domain="plc.ly" />
+    <suffix domain="edu.ly" />
+    <suffix domain="sch.ly" />
+    <suffix domain="med.ly" />
+    <suffix domain="org.ly" />
+    <suffix domain="id.ly" />
+
+    <!--  ma : http://en.wikipedia.org/wiki/.ma-->
+    <!--  list of 2nd level tlds ?-->
+    <suffix domain="co.ma" />
+    <suffix domain="net.ma" />
+    <suffix domain="gov.ma" />
+    <suffix domain="org.ma" />
+
+    <!--  mc : http://www.nic.mc/-->
+    <suffix domain="tm.mc" />
+    <suffix domain="asso.mc" />
+
+    <!--  md : http://en.wikipedia.org/wiki/.md-->
+
+    <!--  mg : http://www.nic.mg/tarif.htm-->
+    <suffix domain="org.mg" />
+    <suffix domain="nom.mg" />
+    <suffix domain="gov.mg" />
+    <suffix domain="prd.mg" />
+    <suffix domain="tm.mg" />
+    <suffix domain="edu.mg" />
+    <suffix domain="mil.mg" />
+    <suffix domain="com.mg" />
+
+    <!--  mh : http://en.wikipedia.org/wiki/.mh-->
+
+    <!--  mil : http://en.wikipedia.org/wiki/.mil-->
+
+    <!--  mk : http://en.wikipedia.org/wiki/.mk-->
+    <!--  list of 2nd level tlds ?-->
+    <suffix domain="com.mk" />
+    <suffix domain="gov.mk" />
+    <suffix domain="org.mk" />
+    <suffix domain="net.mk" />
+    <suffix domain="edu.mk" />
+
+    <!--  ml : http://www.gobin.info/domainname/ml-template.doc-->
+
+    <!--  mm : http://en.wikipedia.org/wiki/.mm-->
+
+    <!--  mn : http://en.wikipedia.org/wiki/.mn-->
+    <suffix domain="gov.mn" />
+    <suffix domain="edu.mn" />
+    <suffix domain="org.mn" />
+
+    <!--  mo : http://www.monic.net.mo/-->
+    <suffix domain="com.mo" />
+    <suffix domain="net.mo" />
+    <suffix domain="org.mo" />
+    <suffix domain="edu.mo" />
+    <suffix domain="gov.mo" />
+
+    <!--  mobi : http://en.wikipedia.org/wiki/.mobi-->
+
+    <!--  mp : http://www.dot.mp/-->
+
+    <!--  mq : http://en.wikipedia.org/wiki/.mq-->
+
+    <!--  mr : http://en.wikipedia.org/wiki/.mr-->
+
+    <!--  ms : http://en.wikipedia.org/wiki/.ms-->
+
+    <!--  mt : https://www.nic.org.mt/dotmt/-->
+
+    <!--  mu : http://en.wikipedia.org/wiki/.mu-->
+    <!--  list of 2nd level tlds ?-->
+
+    <!--  museum : http://about.museum/naming/-->
+    <!--  there are 2nd-level TLD's, but there's no list-->
+
+    <!--  mv : http://en.wikipedia.org/wiki/.mv-->
+
+    <!--  mw : http://www.registrar.mw/-->
+    <suffix domain="ac.mw" />
+    <suffix domain="biz.mw" />
+    <suffix domain="co.mw" />
+    <suffix domain="com.mw" />
+    <suffix domain="coop.mw" />
+    <suffix domain="edu.mw" />
+    <suffix domain="gov.mw" />
+    <suffix domain="int.mw" />
+    <suffix domain="net.mw" />
+    <suffix domain="org.mw" />
+
+    <!--  mx : http://www.nic.mx/-->
+
+    <!--  my : http://www.mynic.net.my/-->
+
+    <!--  mz : http://www.gobin.info/domainname/mz-template.doc-->
+
+    <!--  na : http://www.na-nic.com.na/-->
+    <!--  list of 2nd level tlds ?-->
+
+    <!--  name : has 2nd-level tlds, but there's no list of them-->
+
+    <!--  nc : http://www.cctld.nc/-->
+
+    <!--  ne : http://en.wikipedia.org/wiki/.ne-->
+
+    <!--  net : http://en.wikipedia.org/wiki/.net-->
+
+    <!--  nf : http://en.wikipedia.org/wiki/.nf-->
+    <suffix domain="com.nf" />
+    <suffix domain="net.nf" />
+    <suffix domain="per.nf" />
+    <suffix domain="rec.nf" />
+    <suffix domain="web.nf" />
+    <suffix domain="arts.nf" />
+    <suffix domain="firm.nf" />
+    <suffix domain="info.nf" />
+    <suffix domain="other.nf" />
+    <suffix domain="store.nf" />
+
+    <!--  ng : http://psg.com/dns/ng/-->
+
+    <!--  ni : http://www.nic.ni/dominios.htm-->
+
+    <!--  nl : http://www.domain-registry.nl/ace.php/c,728,122,,,,Home.html-->
+
+    <!--  no : http://www.norid.no/regelverk/index.en.html-->
+    <suffix domain="fhs.no" />
+    <suffix domain="vgs.no" />
+    <suffix domain="fylkesbibl.no" />
+    <suffix domain="folkebibl.no" />
+    <suffix domain="museum.no" />
+    <suffix domain="idrett.no" />
+    <suffix domain="mil.no" />
+    <suffix domain="stat.no" />
+    <suffix domain="dep.no" />
+    <suffix domain="kommune.no" />
+    <suffix domain="herad.no" />
+    <suffix domain="priv.no" />
+    <!--  no geographical names : http://www.norid.no/regelverk/vedlegg-b.en.html-->
+    <!--  counties-->
+    <suffix domain="aa.no" />
+    <suffix domain="ah.no" />
+    <suffix domain="bu.no" />
+    <suffix domain="fm.no" />
+    <suffix domain="hl.no" />
+    <suffix domain="hm.no" />
+    <suffix domain="jan-mayen.no" />
+    <suffix domain="mr.no" />
+    <suffix domain="nl.no" />
+    <suffix domain="nt.no" />
+    <suffix domain="of.no" />
+    <suffix domain="ol.no" />
+    <suffix domain="oslo.no" />
+    <suffix domain="rl.no" />
+    <suffix domain="sf.no" />
+    <suffix domain="st.no" />
+    <suffix domain="svalbard.no" />
+    <suffix domain="tm.no" />
+    <suffix domain="tr.no" />
+    <suffix domain="va.no" />
+    <suffix domain="vf.no" />
+    <!--  primary and lower secondary schools per county-->
+    <suffix domain="gs.aa.no" />
+    <suffix domain="gs.ah.no" />
+    <suffix domain="gs.bu.no" />
+    <suffix domain="gs.fm.no" />
+    <suffix domain="gs.hl.no" />
+    <suffix domain="gs.hm.no" />
+    <suffix domain="gs.jan-mayen.no" />
+    <suffix domain="gs.mr.no" />
+    <suffix domain="gs.nl.no" />
+    <suffix domain="gs.nt.no" />
+    <suffix domain="gs.of.no" />
+    <suffix domain="gs.ol.no" />
+    <suffix domain="gs.oslo.no" />
+    <suffix domain="gs.rl.no" />
+    <suffix domain="gs.sf.no" />
+    <suffix domain="gs.st.no" />
+    <suffix domain="gs.svalbard.no" />
+    <suffix domain="gs.tm.no" />
+    <suffix domain="gs.tr.no" />
+    <suffix domain="gs.va.no" />
+    <suffix domain="gs.vf.no" />
+    <!--  cities-->
+    <suffix domain="akrehamn.no" />
+    <suffix domain="åkrehamn.no" />
+    <suffix domain="algard.no" />
+    <suffix domain="ålgård.no" />
+    <suffix domain="arna.no" />
+    <suffix domain="brumunddal.no" />
+    <suffix domain="bryne.no" />
+    <suffix domain="bronnoysund.no" />
+    <suffix domain="brønnøysund.no" />
+    <suffix domain="drobak.no" />
+    <suffix domain="drøbak.no" />
+    <suffix domain="egersund.no" />
+    <suffix domain="fetsund.no" />
+    <suffix domain="floro.no" />
+    <suffix domain="florø.no" />
+    <suffix domain="fredrikstad.no" />
+    <suffix domain="hokksund.no" />
+    <suffix domain="honefoss.no" />
+    <suffix domain="hønefoss.no" />
+    <suffix domain="jessheim.no" />
+    <suffix domain="jorpeland.no" />
+    <suffix domain="jørpeland.no" />
+    <suffix domain="kirkenes.no" />
+    <suffix domain="kopervik.no" />
+    <suffix domain="krokstadelva.no" />
+    <suffix domain="langevag.no" />
+    <suffix domain="langevåg.no" />
+    <suffix domain="leirvik.no" />
+    <suffix domain="mjondalen.no" />
+    <suffix domain="mjøndalen.no" />
+    <suffix domain="mo-i-rana.no" />
+    <suffix domain="mosjoen.no" />
+    <suffix domain="mosjøen.no" />
+    <suffix domain="nesoddtangen.no" />
+    <suffix domain="orkanger.no" />
+    <suffix domain="osoyro.no" />
+    <suffix domain="osøyro.no" />
+    <suffix domain="raholt.no" />
+    <suffix domain="råholt.no" />
+    <suffix domain="sandnessjoen.no" />
+    <suffix domain="sandnessjøen.no" />
+    <suffix domain="skedsmokorset.no" />
+    <suffix domain="slattum.no" />
+    <suffix domain="spjelkavik.no" />
+    <suffix domain="stathelle.no" />
+    <suffix domain="stavern.no" />
+    <suffix domain="stjordalshalsen.no" />
+    <suffix domain="stjørdalshalsen.no" />
+    <suffix domain="tananger.no" />
+    <suffix domain="tranby.no" />
+    <suffix domain="vossevangen.no" />
+    <!--  communities-->
+    <suffix domain="afjord.no" />
+    <suffix domain="åfjord.no" />
+    <suffix domain="agdenes.no" />
+    <suffix domain="al.no" />
+    <suffix domain="ål.no" />
+    <suffix domain="alesund.no" />
+    <suffix domain="ålesund.no" />
+    <suffix domain="alstahaug.no" />
+    <suffix domain="alta.no" />
+    <suffix domain="áltá.no" />
+    <suffix domain="alaheadju.no" />
+    <suffix domain="álaheadju.no" />
+    <suffix domain="alvdal.no" />
+    <suffix domain="amli.no" />
+    <suffix domain="åmli.no" />
+    <suffix domain="amot.no" />
+    <suffix domain="åmot.no" />
+    <suffix domain="andebu.no" />
+    <suffix domain="andoy.no" />
+    <suffix domain="andøy.no" />
+    <suffix domain="andasuolo.no" />
+    <suffix domain="ardal.no" />
+    <suffix domain="årdal.no" />
+    <suffix domain="aremark.no" />
+    <suffix domain="arendal.no" />
+    <suffix domain="ås.no" />
+    <suffix domain="aseral.no" />
+    <suffix domain="åseral.no" />
+    <suffix domain="asker.no" />
+    <suffix domain="askim.no" />
+    <suffix domain="askvoll.no" />
+    <suffix domain="askoy.no" />
+    <suffix domain="askøy.no" />
+    <suffix domain="asnes.no" />
+    <suffix domain="åsnes.no" />
+    <suffix domain="audnedaln.no" />
+    <suffix domain="aukra.no" />
+    <suffix domain="aure.no" />
+    <suffix domain="aurland.no" />
+    <suffix domain="aurskog-holand.no" />
+    <suffix domain="aurskog-høland.no" />
+    <suffix domain="austevoll.no" />
+    <suffix domain="austrheim.no" />
+    <suffix domain="averoy.no" />
+    <suffix domain="averøy.no" />
+    <suffix domain="balestrand.no" />
+    <suffix domain="ballangen.no" />
+    <suffix domain="balat.no" />
+    <suffix domain="bálát.no" />
+    <suffix domain="balsfjord.no" />
+    <suffix domain="bahccavuotna.no" />
+    <suffix domain="báhccavuotna.no" />
+    <suffix domain="bamble.no" />
+    <suffix domain="bardu.no" />
+    <suffix domain="beardu.no" />
+    <suffix domain="beiarn.no" />
+    <suffix domain="bajddar.no" />
+    <suffix domain="bájddar.no" />
+    <suffix domain="baidar.no" />
+    <suffix domain="báidár.no" />
+    <suffix domain="berg.no" />
+    <suffix domain="bergen.no" />
+    <suffix domain="berlevag.no" />
+    <suffix domain="berlevåg.no" />
+    <suffix domain="bearalvahki.no" />
+    <suffix domain="bearalváhki.no" />
+    <suffix domain="bindal.no" />
+    <suffix domain="birkenes.no" />
+    <suffix domain="bjarkoy.no" />
+    <suffix domain="bjarkøy.no" />
+    <suffix domain="bjerkreim.no" />
+    <suffix domain="bjugn.no" />
+    <suffix domain="bodo.no" />
+    <suffix domain="bodø.no" />
+    <suffix domain="badaddja.no" />
+    <suffix domain="bådåddjå.no" />
+    <suffix domain="budejju.no" />
+    <suffix domain="bokn.no" />
+    <suffix domain="bremanger.no" />
+    <suffix domain="bronnoy.no" />
+    <suffix domain="brønnøy.no" />
+    <suffix domain="bygland.no" />
+    <suffix domain="bykle.no" />
+    <suffix domain="barum.no" />
+    <suffix domain="bærum.no" />
+    <suffix domain="bo.telemark.no" />
+    <suffix domain="bø.telemark.no" />
+    <suffix domain="bo.nordland.no" />
+    <suffix domain="bø.nordland.no" />
+    <suffix domain="bievat.no" />
+    <suffix domain="bievát.no" />
+    <suffix domain="bomlo.no" />
+    <suffix domain="bømlo.no" />
+    <suffix domain="batsfjord.no" />
+    <suffix domain="båtsfjord.no" />
+    <suffix domain="bahcavuotna.no" />
+    <suffix domain="báhcavuotna.no" />
+    <suffix domain="dovre.no" />
+    <suffix domain="drammen.no" />
+    <suffix domain="drangedal.no" />
+    <suffix domain="dyroy.no" />
+    <suffix domain="dyrøy.no" />
+    <suffix domain="donna.no" />
+    <suffix domain="dønna.no" />
+    <suffix domain="eid.no" />
+    <suffix domain="eidfjord.no" />
+    <suffix domain="eidsberg.no" />
+    <suffix domain="eidskog.no" />
+    <suffix domain="eidsvoll.no" />
+    <suffix domain="eigersund.no" />
+    <suffix domain="elverum.no" />
+    <suffix domain="enebakk.no" />
+    <suffix domain="engerdal.no" />
+    <suffix domain="etne.no" />
+    <suffix domain="etnedal.no" />
+    <suffix domain="evenes.no" />
+    <suffix domain="evenassi.no" />
+    <suffix domain="evenášši.no" />
+    <suffix domain="evje-og-hornnes.no" />
+    <suffix domain="farsund.no" />
+    <suffix domain="fauske.no" />
+    <suffix domain="fuossko.no" />
+    <suffix domain="fuoisku.no" />
+    <suffix domain="fedje.no" />
+    <suffix domain="fet.no" />
+    <suffix domain="finnoy.no" />
+    <suffix domain="finnøy.no" />
+    <suffix domain="fitjar.no" />
+    <suffix domain="fjaler.no" />
+    <suffix domain="fjell.no" />
+    <suffix domain="flakstad.no" />
+    <suffix domain="flatanger.no" />
+    <suffix domain="flekkefjord.no" />
+    <suffix domain="flesberg.no" />
+    <suffix domain="flora.no" />
+    <suffix domain="fla.no" />
+    <suffix domain="flå.no" />
+    <suffix domain="folldal.no" />
+    <suffix domain="forsand.no" />
+    <suffix domain="fosnes.no" />
+    <suffix domain="fredrikstad.no" />
+    <suffix domain="frei.no" />
+    <suffix domain="frogn.no" />
+    <suffix domain="froland.no" />
+    <suffix domain="frosta.no" />
+    <suffix domain="frana.no" />
+    <suffix domain="fræna.no" />
+    <suffix domain="froya.no" />
+    <suffix domain="frøya.no" />
+    <suffix domain="fusa.no" />
+    <suffix domain="fyresdal.no" />
+    <suffix domain="forde.no" />
+    <suffix domain="førde.no" />
+    <suffix domain="gamvik.no" />
+    <suffix domain="gangaviika.no" />
+    <suffix domain="gaular.no" />
+    <suffix domain="gausdal.no" />
+    <suffix domain="gildeskal.no" />
+    <suffix domain="gildeskål.no" />
+    <suffix domain="giske.no" />
+    <suffix domain="gjemnes.no" />
+    <suffix domain="gjerdrum.no" />
+    <suffix domain="gjerstad.no" />
+    <suffix domain="gjesdal.no" />
+    <suffix domain="gjovik.no" />
+    <suffix domain="gjøvik.no" />
+    <suffix domain="gloppen.no" />
+    <suffix domain="gol.no" />
+    <suffix domain="gran.no" />
+    <suffix domain="grane.no" />
+    <suffix domain="granvin.no" />
+    <suffix domain="gratangen.no" />
+    <suffix domain="grimstad.no" />
+    <suffix domain="grong.no" />
+    <suffix domain="kraanghke.no" />
+    <suffix domain="kråanghke.no" />
+    <suffix domain="grue.no" />
+    <suffix domain="gulen.no" />
+    <suffix domain="hadsel.no" />
+    <suffix domain="halden.no" />
+    <suffix domain="halsa.no" />
+    <suffix domain="hamar.no" />
+    <suffix domain="hamaroy.no" />
+    <suffix domain="habmer.no" />
+    <suffix domain="hábmer.no" />
+    <suffix domain="hapmir.no" />
+    <suffix domain="hápmir.no" />
+    <suffix domain="hammerfest.no" />
+    <suffix domain="hammarfeasta.no" />
+    <suffix domain="hámmárfeasta.no" />
+    <suffix domain="haram.no" />
+    <suffix domain="hareid.no" />
+    <suffix domain="harstad.no" />
+    <suffix domain="hasvik.no" />
+    <suffix domain="aknoluokta.no" />
+    <suffix domain="ákŋoluokta.no" />
+    <suffix domain="hattfjelldal.no" />
+    <suffix domain="aarborte.no" />
+    <suffix domain="haugesund.no" />
+    <suffix domain="hemne.no" />
+    <suffix domain="hemnes.no" />
+    <suffix domain="hemsedal.no" />
+    <suffix domain="heroy.more-og-romsdal.no" />
+    <suffix domain="herøy.møre-og-romsdal.no" />
+    <suffix domain="heroy.nordland.no" />
+    <suffix domain="herøy.nordland.no" />
+    <suffix domain="hitra.no" />
+    <suffix domain="hjartdal.no" />
+    <suffix domain="hjelmeland.no" />
+    <suffix domain="hobol.no" />
+    <suffix domain="hobøl.no" />
+    <suffix domain="hof.no" />
+    <suffix domain="hol.no" />
+    <suffix domain="hole.no" />
+    <suffix domain="holmestrand.no" />
+    <suffix domain="holtalen.no" />
+    <suffix domain="holtålen.no" />
+    <suffix domain="hornindal.no" />
+    <suffix domain="horten.no" />
+    <suffix domain="hurdal.no" />
+    <suffix domain="hurum.no" />
+    <suffix domain="hvaler.no" />
+    <suffix domain="hyllestad.no" />
+    <suffix domain="hagebostad.no" />
+    <suffix domain="hægebostad.no" />
+    <suffix domain="hoyanger.no" />
+    <suffix domain="høyanger.no" />
+    <suffix domain="hoylandet.no" />
+    <suffix domain="høylandet.no" />
+    <suffix domain="ha.no" />
+    <suffix domain="hå.no" />
+    <suffix domain="ibestad.no" />
+    <suffix domain="inderoy.no" />
+    <suffix domain="inderøy.no" />
+    <suffix domain="iveland.no" />
+    <suffix domain="jevnaker.no" />
+    <suffix domain="jondal.no" />
+    <suffix domain="jolster.no" />
+    <suffix domain="jølster.no" />
+    <suffix domain="karasjok.no" />
+    <suffix domain="karasjohka.no" />
+    <suffix domain="kárášjohka.no" />
+    <suffix domain="karlsoy.no" />
+    <suffix domain="galsa.no" />
+    <suffix domain="gálsá.no" />
+    <suffix domain="karmoy.no" />
+    <suffix domain="karmøy.no" />
+    <suffix domain="kautokeino.no" />
+    <suffix domain="guovdageaidnu.no" />
+    <suffix domain="klepp.no" />
+    <suffix domain="klabu.no" />
+    <suffix domain="klæbu.no" />
+    <suffix domain="kongsberg.no" />
+    <suffix domain="kongsvinger.no" />
+    <suffix domain="kragero.no" />
+    <suffix domain="kragerø.no" />
+    <suffix domain="kristiansand.no" />
+    <suffix domain="kristiansund.no" />
+    <suffix domain="krodsherad.no" />
+    <suffix domain="krødsherad.no" />
+    <suffix domain="kvalsund.no" />
+    <suffix domain="rahkkeravju.no" />
+    <suffix domain="ráhkkerávju.no" />
+    <suffix domain="kvam.no" />
+    <suffix domain="kvinesdal.no" />
+    <suffix domain="kvinnherad.no" />
+    <suffix domain="kviteseid.no" />
+    <suffix domain="kvitsoy.no" />
+    <suffix domain="kvitsøy.no" />
+    <suffix domain="kvafjord.no" />
+    <suffix domain="kvæfjord.no" />
+    <suffix domain="giehtavuoatna.no" />
+    <suffix domain="kvanangen.no" />
+    <suffix domain="kvænangen.no" />
+    <suffix domain="navuotna.no" />
+    <suffix domain="návuotna.no" />
+    <suffix domain="kafjord.no" />
+    <suffix domain="kåfjord.no" />
+    <suffix domain="gaivuotna.no" />
+    <suffix domain="gáivuotna.no" />
+    <suffix domain="larvik.no" />
+    <suffix domain="lavangen.no" />
+    <suffix domain="lavagis.no" />
+    <suffix domain="loabat.no" />
+    <suffix domain="loabát.no" />
+    <suffix domain="lebesby.no" />
+    <suffix domain="davvesiida.no" />
+    <suffix domain="leikanger.no" />
+    <suffix domain="leirfjord.no" />
+    <suffix domain="leka.no" />
+    <suffix domain="leksvik.no" />
+    <suffix domain="lenvik.no" />
+    <suffix domain="leangaviika.no" />
+    <suffix domain="lea?gaviika.no" />
+    <suffix domain="lesja.no" />
+    <suffix domain="levanger.no" />
+    <suffix domain="lier.no" />
+    <suffix domain="lierne.no" />
+    <suffix domain="lillehammer.no" />
+    <suffix domain="lillesand.no" />
+    <suffix domain="lindesnes.no" />
+    <suffix domain="lindas.no" />
+    <suffix domain="lindås.no" />
+    <suffix domain="lom.no" />
+    <suffix domain="loppa.no" />
+    <suffix domain="lahppi.no" />
+    <suffix domain="láhppi.no" />
+    <suffix domain="lund.no" />
+    <suffix domain="lunner.no" />
+    <suffix domain="luroy.no" />
+    <suffix domain="lurøy.no" />
+    <suffix domain="luster.no" />
+    <suffix domain="lyngdal.no" />
+    <suffix domain="lyngen.no" />
+    <suffix domain="ivgu.no" />
+    <suffix domain="lardal.no" />
+    <suffix domain="lerdal.no" />
+    <suffix domain="lærdal.no" />
+    <suffix domain="lodingen.no" />
+    <suffix domain="lødingen.no" />
+    <suffix domain="lorenskog.no" />
+    <suffix domain="lørenskog.no" />
+    <suffix domain="loten.no" />
+    <suffix domain="løten.no" />
+    <suffix domain="malvik.no" />
+    <suffix domain="masoy.no" />
+    <suffix domain="måsøy.no" />
+    <suffix domain="muosat.no" />
+    <suffix domain="muosát.no" />
+    <suffix domain="mandal.no" />
+    <suffix domain="marker.no" />
+    <suffix domain="marnardal.no" />
+    <suffix domain="masfjorden.no" />
+    <suffix domain="meland.no" />
+    <suffix domain="meldal.no" />
+    <suffix domain="melhus.no" />
+    <suffix domain="meloy.no" />
+    <suffix domain="meløy.no" />
+    <suffix domain="meraker.no" />
+    <suffix domain="meråker.no" />
+    <suffix domain="moareke.no" />
+    <suffix domain="moåreke.no" />
+    <suffix domain="midsund.no" />
+    <suffix domain="midtre-gauldal.no" />
+    <suffix domain="modalen.no" />
+    <suffix domain="modum.no" />
+    <suffix domain="molde.no" />
+    <suffix domain="moskenes.no" />
+    <suffix domain="moss.no" />
+    <suffix domain="mosvik.no" />
+    <suffix domain="malselv.no" />
+    <suffix domain="målselv.no" />
+    <suffix domain="malatvuopmi.no" />
+    <suffix domain="málatvuopmi.no" />
+    <suffix domain="namdalseid.no" />
+    <suffix domain="aejrie.no" />
+    <suffix domain="namsos.no" />
+    <suffix domain="namsskogan.no" />
+    <suffix domain="naamesjevuemie.no" />
+    <suffix domain="nååmesjevuemie.no" />
+    <suffix domain="laakesvuemie.no" />
+    <suffix domain="nannestad.no" />
+    <suffix domain="narvik.no" />
+    <suffix domain="narviika.no" />
+    <suffix domain="naustdal.no" />
+    <suffix domain="nedre-eiker.no" />
+    <suffix domain="nes.akershus.no" />
+    <suffix domain="nes.buskerud.no" />
+    <suffix domain="nesna.no" />
+    <suffix domain="nesodden.no" />
+    <suffix domain="nesseby.no" />
+    <suffix domain="unjarga.no" />
+    <suffix domain="unjárga.no" />
+    <suffix domain="nesset.no" />
+    <suffix domain="nissedal.no" />
+    <suffix domain="nittedal.no" />
+    <suffix domain="nord-aurdal.no" />
+    <suffix domain="nord-fron.no" />
+    <suffix domain="nord-odal.no" />
+    <suffix domain="norddal.no" />
+    <suffix domain="nordkapp.no" />
+    <suffix domain="davvenjarga.no" />
+    <suffix domain="davvenjárga.no" />
+    <suffix domain="nordre-land.no" />
+    <suffix domain="nordreisa.no" />
+    <suffix domain="raisa.no" />
+    <suffix domain="ráisa.no" />
+    <suffix domain="nore-og-uvdal.no" />
+    <suffix domain="notodden.no" />
+    <suffix domain="naroy.no" />
+    <suffix domain="nærøy.no" />
+    <suffix domain="notteroy.no" />
+    <suffix domain="nøtterøy.no" />
+    <suffix domain="odda.no" />
+    <suffix domain="oksnes.no" />
+    <suffix domain="`øksnes.no" />
+    <suffix domain="oppdal.no" />
+    <suffix domain="oppegard.no" />
+    <suffix domain="oppegård.no" />
+    <suffix domain="orkdal.no" />
+    <suffix domain="orland.no" />
+    <suffix domain="ørland.no" />
+    <suffix domain="orskog.no" />
+    <suffix domain="ørskog.no" />
+    <suffix domain="orsta.no" />
+    <suffix domain="ørsta.no" />
+    <suffix domain="os.hedmark.no" />
+    <suffix domain="os.hordaland.no" />
+    <suffix domain="osen.no" />
+    <suffix domain="osteroy.no" />
+    <suffix domain="osterøy.no" />
+    <suffix domain="ostre-toten.no" />
+    <suffix domain="østre-toten.no" />
+    <suffix domain="overhalla.no" />
+    <suffix domain="ovre-eiker.no" />
+    <suffix domain="øvre-eiker.no" />
+    <suffix domain="oyer.no" />
+    <suffix domain="øyer.no" />
+    <suffix domain="oygarden.no" />
+    <suffix domain="øygarden.no" />
+    <suffix domain="oystre-slidre.no" />
+    <suffix domain="øystre-slidre.no" />
+    <suffix domain="porsanger.no" />
+    <suffix domain="porsangu.no" />
+    <suffix domain="porsáŋgu.no" />
+    <suffix domain="porsgrunn.no" />
+    <suffix domain="radoy.no" />
+    <suffix domain="radøy.no" />
+    <suffix domain="rakkestad.no" />
+    <suffix domain="rana.no" />
+    <suffix domain="ruovat.no" />
+    <suffix domain="randaberg.no" />
+    <suffix domain="rauma.no" />
+    <suffix domain="rendalen.no" />
+    <suffix domain="rennebu.no" />
+    <suffix domain="rennesoy.no" />
+    <suffix domain="rennesøy.no" />
+    <suffix domain="rindal.no" />
+    <suffix domain="ringebu.no" />
+    <suffix domain="ringerike.no" />
+    <suffix domain="ringsaker.no" />
+    <suffix domain="rissa.no" />
+    <suffix domain="risor.no" />
+    <suffix domain="risør.no" />
+    <suffix domain="roan.no" />
+    <suffix domain="rollag.no" />
+    <suffix domain="rygge.no" />
+    <suffix domain="ralingen.no" />
+    <suffix domain="rælingen.no" />
+    <suffix domain="rodoy.no" />
+    <suffix domain="rødøy.no" />
+    <suffix domain="romskog.no" />
+    <suffix domain="rømskog.no" />
+    <suffix domain="roros.no" />
+    <suffix domain="røros.no" />
+    <suffix domain="rost.no" />
+    <suffix domain="røst.no" />
+    <suffix domain="royken.no" />
+    <suffix domain="røyken.no" />
+    <suffix domain="royrvik.no" />
+    <suffix domain="røyrvik.no" />
+    <suffix domain="rade.no" />
+    <suffix domain="råde.no" />
+    <suffix domain="salangen.no" />
+    <suffix domain="siellak.no" />
+    <suffix domain="saltdal.no" />
+    <suffix domain="sálát.no" />
+    <suffix domain="sálat.no" />
+    <suffix domain="samnanger.no" />
+    <suffix domain="sande.more-og-romsdal.no" />
+    <suffix domain="sande.møre-og-romsdal.no" />
+    <suffix domain="sande.vestfold.no" />
+    <suffix domain="sandefjord.no" />
+    <suffix domain="sandnes.no" />
+    <suffix domain="sandoy.no" />
+    <suffix domain="sandøy.no" />
+    <suffix domain="sarpsborg.no" />
+    <suffix domain="sauda.no" />
+    <suffix domain="sauherad.no" />
+    <suffix domain="sel.no" />
+    <suffix domain="selbu.no" />
+    <suffix domain="selje.no" />
+    <suffix domain="seljord.no" />
+    <suffix domain="sigdal.no" />
+    <suffix domain="siljan.no" />
+    <suffix domain="sirdal.no" />
+    <suffix domain="skaun.no" />
+    <suffix domain="skedsmo.no" />
+    <suffix domain="ski.no" />
+    <suffix domain="skien.no" />
+    <suffix domain="skiptvet.no" />
+    <suffix domain="skjervoy.no" />
+    <suffix domain="skjervøy.no" />
+    <suffix domain="skierva.no" />
+    <suffix domain="skiervá.no" />
+    <suffix domain="skjak.no" />
+    <suffix domain="skjåk.no" />
+    <suffix domain="skodje.no" />
+    <suffix domain="skanland.no" />
+    <suffix domain="skånland.no" />
+    <suffix domain="skanit.no" />
+    <suffix domain="skánit.no" />
+    <suffix domain="smola.no" />
+    <suffix domain="smøla.no" />
+    <suffix domain="snillfjord.no" />
+    <suffix domain="snasa.no" />
+    <suffix domain="snåsa.no" />
+    <suffix domain="snoasa.no" />
+    <suffix domain="snaase.no" />
+    <suffix domain="snåase.no" />
+    <suffix domain="sogndal.no" />
+    <suffix domain="sokndal.no" />
+    <suffix domain="sola.no" />
+    <suffix domain="solund.no" />
+    <suffix domain="songdalen.no" />
+    <suffix domain="sortland.no" />
+    <suffix domain="spydeberg.no" />
+    <suffix domain="stange.no" />
+    <suffix domain="stavanger.no" />
+    <suffix domain="steigen.no" />
+    <suffix domain="steinkjer.no" />
+    <suffix domain="stjordal.no" />
+    <suffix domain="stjørdal.no" />
+    <suffix domain="stokke.no" />
+    <suffix domain="stor-elvdal.no" />
+    <suffix domain="stord.no" />
+    <suffix domain="stordal.no" />
+    <suffix domain="storfjord.no" />
+    <suffix domain="omasvuotna.no" />
+    <suffix domain="strand.no" />
+    <suffix domain="stranda.no" />
+    <suffix domain="stryn.no" />
+    <suffix domain="sula.no" />
+    <suffix domain="suldal.no" />
+    <suffix domain="sund.no" />
+    <suffix domain="sunndal.no" />
+    <suffix domain="surnadal.no" />
+    <suffix domain="sveio.no" />
+    <suffix domain="svelvik.no" />
+    <suffix domain="sykkylven.no" />
+    <suffix domain="sogne.no" />
+    <suffix domain="søgne.no" />
+    <suffix domain="somna.no" />
+    <suffix domain="sømna.no" />
+    <suffix domain="sondre-land.no" />
+    <suffix domain="søndre-land.no" />
+    <suffix domain="sor-aurdal.no" />
+    <suffix domain="sør-aurdal.no" />
+    <suffix domain="sor-fron.no" />
+    <suffix domain="sør-fron.no" />
+    <suffix domain="sor-odal.no" />
+    <suffix domain="sør-odal.no" />
+    <suffix domain="sor-varanger.no" />
+    <suffix domain="sør-varanger.no" />
+    <suffix domain="matta-varjjat.no" />
+    <suffix domain="mátta-várjjat.no" />
+    <suffix domain="sorfold.no" />
+    <suffix domain="sørfold.no" />
+    <suffix domain="sorreisa.no" />
+    <suffix domain="sørreisa.no" />
+    <suffix domain="sorum.no" />
+    <suffix domain="sørum.no" />
+    <suffix domain="tana.no" />
+    <suffix domain="deatnu.no" />
+    <suffix domain="time.no" />
+    <suffix domain="tingvoll.no" />
+    <suffix domain="tinn.no" />
+    <suffix domain="tjeldsund.no" />
+    <suffix domain="dielddanuorri.no" />
+    <suffix domain="tjome.no" />
+    <suffix domain="tjøme.no" />
+    <suffix domain="tokke.no" />
+    <suffix domain="tolga.no" />
+    <suffix domain="torsken.no" />
+    <suffix domain="tranoy.no" />
+    <suffix domain="tranøy.no" />
+    <suffix domain="tromso.no" />
+    <suffix domain="tromsø.no" />
+    <suffix domain="tromsa.no" />
+    <suffix domain="romsa.no" />
+    <suffix domain="trondheim.no" />
+    <suffix domain="troandin.no" />
+    <suffix domain="trysil.no" />
+    <suffix domain="trana.no" />
+    <suffix domain="træna.no" />
+    <suffix domain="trogstad.no" />
+    <suffix domain="trøgstad.no" />
+    <suffix domain="tvedestrand.no" />
+    <suffix domain="tydal.no" />
+    <suffix domain="tynset.no" />
+    <suffix domain="tysfjord.no" />
+    <suffix domain="divtasvuodna.no" />
+    <suffix domain="divttasvuotna.no" />
+    <suffix domain="tysnes.no" />
+    <suffix domain="tysvar.no" />
+    <suffix domain="tysvær.no" />
+    <suffix domain="tonsberg.no" />
+    <suffix domain="tønsberg.no" />
+    <suffix domain="ullensaker.no" />
+    <suffix domain="ullensvang.no" />
+    <suffix domain="ulvik.no" />
+    <suffix domain="utsira.no" />
+    <suffix domain="vadso.no" />
+    <suffix domain="vadsø.no" />
+    <suffix domain="cahcesuolo.no" />
+    <suffix domain="cáhcesuolo.no" />
+    <suffix domain="vaksdal.no" />
+    <suffix domain="valle.no" />
+    <suffix domain="vang.no" />
+    <suffix domain="vanylven.no" />
+    <suffix domain="vardo.no" />
+    <suffix domain="vardø.no" />
+    <suffix domain="varggat.no" />
+    <suffix domain="várggát.no" />
+    <suffix domain="vefsn.no" />
+    <suffix domain="vaapste.no" />
+    <suffix domain="vega.no" />
+    <suffix domain="vegarshei.no" />
+    <suffix domain="vegårshei.no" />
+    <suffix domain="vennesla.no" />
+    <suffix domain="verdal.no" />
+    <suffix domain="verran.no" />
+    <suffix domain="vestby.no" />
+    <suffix domain="vestnes.no" />
+    <suffix domain="vestre-slidre.no" />
+    <suffix domain="vestre-toten.no" />
+    <suffix domain="vestvagoy.no" />
+    <suffix domain="vestvågøy.no" />
+    <suffix domain="vevelstad.no" />
+    <suffix domain="vik.no" />
+    <suffix domain="vikna.no" />
+    <suffix domain="vindafjord.no" />
+    <suffix domain="volda.no" />
+    <suffix domain="voss.no" />
+    <suffix domain="varoy.no" />
+    <suffix domain="værøy.no" />
+    <suffix domain="vagan.no" />
+    <suffix domain="vågan.no" />
+    <suffix domain="voagat.no" />
+    <suffix domain="vagsoy.no" />
+    <suffix domain="vågsøy.no" />
+    <suffix domain="vaga.no" />
+    <suffix domain="vågå.no" />
+    <suffix domain="valer.ostfold.no" />
+    <suffix domain="våler.østfold.no" />
+    <suffix domain="valer.hedmark.no" />
+    <suffix domain="våler.hedmark.no" />
+
+    <!--  np : http://www.mos.com.np/register.html-->
+
+    <!--  nr : http://cenpac.net.nr/dns/index.html-->
+    <suffix domain="biz.nr" />
+    <suffix domain="info.nr" />
+    <suffix domain="gov.nr" />
+    <suffix domain="edu.nr" />
+    <suffix domain="org.nr" />
+    <suffix domain="net.nr" />
+    <suffix domain="com.nr" />
+
+    <!--  nu : http://en.wikipedia.org/wiki/.nu-->
+
+    <!--  nz : http://en.wikipedia.org/wiki/.nz-->
+
+    <!--  om : http://en.wikipedia.org/wiki/.om-->
+
+    <!--  org : http://en.wikipedia.org/wiki/.og-->
+
+    <!--  pa : http://www.nic.pa/-->
+
+    <!--  pe : http://www.nic.pe/normas-proced-i.htm-->
+
+    <!--  pf : http://www.gobin.info/domainname/formulaire-pf.pdf-->
+    <suffix domain="com.pf" />
+    <suffix domain="org.pf" />
+    <suffix domain="edu.pf" />
+
+    <!--  pg : http://en.wikipedia.org/wiki/.pg-->
+
+    <!--  ph : http://www.domains.ph/FAQ2.asp-->
+    <!--  list of 2nd level tlds ?-->
+    <suffix domain="com.ph" />
+    <suffix domain="net.ph" />
+    <suffix domain="org.ph" />
+    <suffix domain="gov.ph" />
+    <suffix domain="edu.ph" />
+    <suffix domain="ngo.ph" />
+    <suffix domain="mil.ph" />
+
+    <!--  pk : http://pk5.pknic.net.pk/pk5/msgNamepk.PK-->
+    <suffix domain="com.pk" />
+    <suffix domain="net.pk" />
+    <suffix domain="edu.pk" />
+    <suffix domain="org.pk" />
+    <suffix domain="fam.pk" />
+    <suffix domain="biz.pk" />
+    <suffix domain="web.pk" />
+    <suffix domain="gov.pk" />
+    <suffix domain="gob.pk" />
+    <suffix domain="gok.pk" />
+    <suffix domain="gon.pk" />
+    <suffix domain="gop.pk" />
+    <suffix domain="gos.pk" />
+    <suffix domain="goa.pk" />
+    <suffix domain="info.pk" />
+
+    <!--  pl : http://www.dns.pl/english/-->
+    <!--  NASK functional domains (nask.pl / dns.pl) : http://www.dns.pl/english/dns-funk.html-->
+    <suffix domain="aid.pl" />
+    <suffix domain="agro.pl" />
+    <suffix domain="atm.pl" />
+    <suffix domain="auto.pl" />
+    <suffix domain="biz.pl" />
+    <suffix domain="com.pl" />
+    <suffix domain="edu.pl" />
+    <suffix domain="gmina.pl" />
+    <suffix domain="gsm.pl" />
+    <suffix domain="info.pl" />
+    <suffix domain="mail.pl" />
+    <suffix domain="miasta.pl" />
+    <suffix domain="media.pl" />
+    <suffix domain="mil.pl" />
+    <suffix domain="net.pl" />
+    <suffix domain="nieruchomosci.pl" />
+    <suffix domain="nom.pl" />
+    <suffix domain="org.pl" />
+    <suffix domain="pc.pl" />
+    <suffix domain="powiat.pl" />
+    <suffix domain="priv.pl" />
+    <suffix domain="realestate.pl" />
+    <suffix domain="rel.pl" />
+    <suffix domain="sex.pl" />
+    <suffix domain="shop.pl" />
+    <suffix domain="sklep.pl" />
+    <suffix domain="sos.pl" />
+    <suffix domain="szkola.pl" />
+    <suffix domain="targi.pl" />
+    <suffix domain="tm.pl" />
+    <suffix domain="tourism.pl" />
+    <suffix domain="travel.pl" />
+    <suffix domain="turystyka.pl" />
+    <!--  ICM functional domains (icm.edu.pl)-->
+    <suffix domain="6bone.pl" />
+    <suffix domain="art.pl" />
+    <suffix domain="mbone.pl" />
+    <!--  Government domains (administred by ippt.gov.pl)-->
+    <suffix domain="gov.pl" />
+    <suffix domain="uw.gov.pl" />
+    <suffix domain="um.gov.pl" />
+    <suffix domain="ug.gov.pl" />
+    <suffix domain="upow.gov.pl" />
+    <suffix domain="starostwo.gov.pl" />
+    <suffix domain="so.gov.pl" />
+    <suffix domain="sr.gov.pl" />
+    <suffix domain="po.gov.pl" />
+    <suffix domain="pa.gov.pl" />
+    <!--  other functional domains-->
+    <suffix domain="med.pl" />
+    <suffix domain="ngo.pl" />
+    <suffix domain="irc.pl" />
+    <suffix domain="usenet.pl" />
+    <!--  NASK geographical domains : http://www.dns.pl/english/dns-regiony.html-->
+    <suffix domain="augustow.pl" />
+    <suffix domain="babia-gora.pl" />
+    <suffix domain="bedzin.pl" />
+    <suffix domain="beskidy.pl" />
+    <suffix domain="bialowieza.pl" />
+    <suffix domain="bialystok.pl" />
+    <suffix domain="bielawa.pl" />
+    <suffix domain="bieszczady.pl" />
+    <suffix domain="boleslawiec.pl" />
+    <suffix domain="bydgoszcz.pl" />
+    <suffix domain="bytom.pl" />
+    <suffix domain="cieszyn.pl" />
+    <suffix domain="czeladz.pl" />
+    <suffix domain="czest.pl" />
+    <suffix domain="dlugoleka.pl" />
+    <suffix domain="elblag.pl" />
+    <suffix domain="elk.pl" />
+    <suffix domain="glogow.pl" />
+    <suffix domain="gniezno.pl" />
+    <suffix domain="gorlice.pl" />
+    <suffix domain="grajewo.pl" />
+    <suffix domain="ilawa.pl" />
+    <suffix domain="jaworzno.pl" />
+    <suffix domain="jelenia-gora.pl" />
+    <suffix domain="jgora.pl" />
+    <suffix domain="kalisz.pl" />
+    <suffix domain="kazimierz-dolny.pl" />
+    <suffix domain="karpacz.pl" />
+    <suffix domain="kartuzy.pl" />
+    <suffix domain="kaszuby.pl" />
+    <suffix domain="katowice.pl" />
+    <suffix domain="kepno.pl" />
+    <suffix domain="ketrzyn.pl" />
+    <suffix domain="klodzko.pl" />
+    <suffix domain="kobierzyce.pl" />
+    <suffix domain="kolobrzeg.pl" />
+    <suffix domain="konin.pl" />
+    <suffix domain="konskowola.pl" />
+    <suffix domain="kutno.pl" />
+    <suffix domain="lapy.pl" />
+    <suffix domain="lebork.pl" />
+    <suffix domain="legnica.pl" />
+    <suffix domain="lezajsk.pl" />
+    <suffix domain="limanowa.pl" />
+    <suffix domain="lomza.pl" />
+    <suffix domain="lowicz.pl" />
+    <suffix domain="lubin.pl" />
+    <suffix domain="lukow.pl" />
+    <suffix domain="malbork.pl" />
+    <suffix domain="malopolska.pl" />
+    <suffix domain="mazowsze.pl" />
+    <suffix domain="mazury.pl" />
+    <suffix domain="mielec.pl" />
+    <suffix domain="mielno.pl" />
+    <suffix domain="mragowo.pl" />
+    <suffix domain="naklo.pl" />
+    <suffix domain="nowaruda.pl" />
+    <suffix domain="nysa.pl" />
+    <suffix domain="olawa.pl" />
+    <suffix domain="olecko.pl" />
+    <suffix domain="olkusz.pl" />
+    <suffix domain="olsztyn.pl" />
+    <suffix domain="opoczno.pl" />
+    <suffix domain="opole.pl" />
+    <suffix domain="ostroda.pl" />
+    <suffix domain="ostroleka.pl" />
+    <suffix domain="ostrowiec.pl" />
+    <suffix domain="ostrowwlkp.pl" />
+    <suffix domain="pila.pl" />
+    <suffix domain="pisz.pl" />
+    <suffix domain="podhale.pl" />
+    <suffix domain="podlasie.pl" />
+    <suffix domain="polkowice.pl" />
+    <suffix domain="pomorze.pl" />
+    <suffix domain="pomorskie.pl" />
+    <suffix domain="prochowice.pl" />
+    <suffix domain="pruszkow.pl" />
+    <suffix domain="przeworsk.pl" />
+    <suffix domain="pulawy.pl" />
+    <suffix domain="radom.pl" />
+    <suffix domain="rawa-maz.pl" />
+    <suffix domain="rybnik.pl" />
+    <suffix domain="rzeszow.pl" />
+    <suffix domain="sanok.pl" />
+    <suffix domain="sejny.pl" />
+    <suffix domain="slask.pl" />
+    <suffix domain="slupsk.pl" />
+    <suffix domain="sosnowiec.pl" />
+    <suffix domain="stalowa-wola.pl" />
+    <suffix domain="skoczow.pl" />
+    <suffix domain="starachowice.pl" />
+    <suffix domain="stargard.pl" />
+    <suffix domain="suwalki.pl" />
+    <suffix domain="swidnica.pl" />
+    <suffix domain="swiebodzin.pl" />
+    <suffix domain="swinoujscie.pl" />
+    <suffix domain="szczecin.pl" />
+    <suffix domain="szczytno.pl" />
+    <suffix domain="tarnobrzeg.pl" />
+    <suffix domain="tgory.pl" />
+    <suffix domain="turek.pl" />
+    <suffix domain="tychy.pl" />
+    <suffix domain="ustka.pl" />
+    <suffix domain="walbrzych.pl" />
+    <suffix domain="warmia.pl" />
+    <suffix domain="warszawa.pl" />
+    <suffix domain="waw.pl" />
+    <suffix domain="wegrow.pl" />
+    <suffix domain="wielun.pl" />
+    <suffix domain="wlocl.pl" />
+    <suffix domain="wloclawek.pl" />
+    <suffix domain="wodzislaw.pl" />
+    <suffix domain="wolomin.pl" />
+    <suffix domain="wroclaw.pl" />
+    <suffix domain="zachpomor.pl" />
+    <suffix domain="zagan.pl" />
+    <suffix domain="zarow.pl" />
+    <suffix domain="zgora.pl" />
+    <suffix domain="zgorzelec.pl" />
+    <!--  TASK geographical domains (www.task.gda.pl/uslugi/dns)-->
+    <suffix domain="gda.pl" />
+    <suffix domain="gdansk.pl" />
+    <suffix domain="gdynia.pl" />
+    <suffix domain="sopot.pl" />
+    <!--  other geographical domains-->
+    <suffix domain="gliwice.pl" />
+    <suffix domain="krakow.pl" />
+    <suffix domain="poznan.pl" />
+    <suffix domain="wroc.pl" />
+    <suffix domain="zakopane.pl" />
+
+    <!--  pn : http://www.government.pn/PnRegistry/policies.htm-->
+    <suffix domain="gov.pn" />
+    <suffix domain="co.pn" />
+    <suffix domain="org.pn" />
+    <suffix domain="edu.pn" />
+    <suffix domain="net.pn" />
+
+    <!--  pr : http://www.nic.pr/index.asp?f=1-->
+    <suffix domain="com.pr" />
+    <suffix domain="net.pr" />
+    <suffix domain="org.pr" />
+    <suffix domain="gov.pr" />
+    <suffix domain="edu.pr" />
+    <suffix domain="isla.pr" />
+    <suffix domain="pro.pr" />
+    <suffix domain="biz.pr" />
+    <suffix domain="info.pr" />
+    <suffix domain="name.pr" />
+    <!--  these aren't mentioned on nic.pr, but on http://en.wikipedia.org/wiki/.pr-->
+    <suffix domain="est.pr" />
+    <suffix domain="prof.pr" />
+    <suffix domain="ac.pr" />
+
+    <!--  pro : http://www.nic.pro/support_faq.htm-->
+    <suffix domain="aca.pro" />
+    <suffix domain="bar.pro" />
+    <suffix domain="cpa.pro" />
+    <suffix domain="jur.pro" />
+    <suffix domain="law.pro" />
+    <suffix domain="med.pro" />
+    <suffix domain="eng.pro" />
+
+    <!--  ps : http://en.wikipedia.org/wiki/.ps-->
+    <!--  list of 2nd level tlds ?-->
+    <suffix domain="edu.ps" />
+    <suffix domain="gov.ps" />
+    <suffix domain="sec.ps" />
+    <suffix domain="plo.ps" />
+    <suffix domain="com.ps" />
+    <suffix domain="org.ps" />
+    <suffix domain="net.ps" />
+
+    <!--  pt : http://online.dns.pt/dns/start_dns-->
+    <suffix domain="net.pt" />
+    <suffix domain="gov.pt" />
+    <suffix domain="org.pt" />
+    <suffix domain="edu.pt" />
+    <suffix domain="int.pt" />
+    <suffix domain="publ.pt" />
+    <suffix domain="com.pt" />
+    <suffix domain="nome.pt" />
+
+    <!--  pw : http://en.wikipedia.org/wiki/.pw-->
+
+    <!--  py : http://www.nic.py/faq_a.html#faq_b-->
+
+    <!--  qa : http://www.qatar.net.qa/services/virtual.htm-->
+
+    <!--  re : http://www.afnic.re/obtenir/chartes/nommage-re/annexe-descriptifs-->
+    <suffix domain="com.re" />
+    <suffix domain="asso.re" />
+    <suffix domain="nom.re" />
+
+    <!--  ro : http://www.rotld.ro/-->
+    <suffix domain="com.ro" />
+    <suffix domain="org.ro" />
+    <suffix domain="tm.ro" />
+    <suffix domain="nt.ro" />
+    <suffix domain="nom.ro" />
+    <suffix domain="info.ro" />
+    <suffix domain="rec.ro" />
+    <suffix domain="arts.ro" />
+    <suffix domain="firm.ro" />
+    <suffix domain="store.ro" />
+    <suffix domain="www.ro" />
+
+    <!--  ru : http://en.wikipedia.org/wiki/.ru-->
+    <suffix domain="com.ru" />
+    <suffix domain="net.ru" />
+    <suffix domain="org.ru" />
+    <suffix domain="pp.ru" />
+    <suffix domain="int.ru" />
+    <!--  there should be geo-names like msk.ru, but I didn't find a list-->
+
+    <!--  rw : http://www.nic.rw/cgi-bin/policy.pl-->
+    <suffix domain="gov.rw" />
+    <suffix domain="net.rw" />
+    <suffix domain="edu.rw" />
+    <suffix domain="ac.rw" />
+    <suffix domain="com.rw" />
+    <suffix domain="co.rw" />
+    <suffix domain="int.rw" />
+    <suffix domain="mil.rw" />
+    <suffix domain="gouv.rw" />
+
+    <!--  sa : http://www.saudinic.net.sa/page.php?page=1&lang=1-->
+
+    <!--  sb : http://www.sbnic.net.sb/-->
+
+    <!--  sc : http://www.nic.sc/-->
+    <suffix domain="com.sc" />
+    <suffix domain="gov.sc" />
+    <suffix domain="net.sc" />
+    <suffix domain="org.sc" />
+    <suffix domain="edu.sc" />
+
+    <!--  sd : http://www.isoc.sd/sudanic.isoc.sd/billing_pricing.htm-->
+    <suffix domain="com.sd" />
+    <suffix domain="net.sd" />
+    <suffix domain="org.sd" />
+    <suffix domain="edu.sd" />
+    <suffix domain="med.sd" />
+    <suffix domain="tv.sd" />
+    <suffix domain="gov.sd" />
+    <suffix domain="info.sd" />
+
+    <!--  se : http://en.wikipedia.org/wiki/.se-->
+    <suffix domain="org.se" />
+    <suffix domain="pp.se" />
+    <suffix domain="tm.se" />
+    <suffix domain="parti.se" />
+    <suffix domain="press.se" />
+    <suffix domain="mil.se" />
+    <!--  se geographical names-->
+    <suffix domain="ab.se" />
+    <suffix domain="c.se" />
+    <suffix domain="d.se" />
+    <suffix domain="e.se" />
+    <suffix domain="f.se" />
+    <suffix domain="g.se" />
+    <suffix domain="h.se" />
+    <suffix domain="i.se" />
+    <suffix domain="k.se" />
+    <suffix domain="m.se" />
+    <suffix domain="n.se" />
+    <suffix domain="o.se" />
+    <suffix domain="s.se" />
+    <suffix domain="t.se" />
+    <suffix domain="u.se" />
+    <suffix domain="w.se" />
+    <suffix domain="x.se" />
+    <suffix domain="y.se" />
+    <suffix domain="z.se" />
+    <suffix domain="ac.se" />
+    <suffix domain="bd.se" />
+
+    <!--  sg : http://www.nic.net.sg/sub_policies_agreement/2ld.html-->
+    <suffix domain="com.sg" />
+    <suffix domain="net.sg" />
+    <suffix domain="org.sg" />
+    <suffix domain="gov.sg" />
+    <suffix domain="edu.sg" />
+    <suffix domain="per.sg" />
+
+    <!--  sh : http://www.nic.sh/rules.html-->
+    <!--  list of 2nd level domains ?-->
+
+    <!--  si : http://en.wikipedia.org/wiki/.si-->
+
+    <!--  sk : http://en.wikipedia.org/wiki/.sk-->
+
+    <!--  sl : http://en.wikipedia.org/wiki/.sl-->
+    <!--  list of 2nd level domains ?-->
+
+    <!--  sm : http://en.wikipedia.org/wiki/.sm-->
+
+    <!--  sn : http://en.wikipedia.org/wiki/.sn-->
+    <!--  list of 2nd level domains ?-->
+
+    <!--  sr : http://en.wikipedia.org/wiki/.sr-->
+
+    <!--  st : http://www.nic.st/html/policyrules/-->
+
+    <!--  su : http://en.wikipedia.org/wiki/.su-->
+
+    <!--  sv : http://www.svnet.org.sv/svpolicy.html-->
+
+    <!--  sy : http://www.gobin.info/domainname/sy.doc-->
+
+    <!--  sz : http://en.wikipedia.org/wiki/.sz-->
+    <!--  list of 2nd level domains ?-->
+
+    <!--  tc : http://en.wikipedia.org/wiki/.tc-->
+
+    <!--  td : http://en.wikipedia.org/wiki/.td-->
+
+    <!--  tf : http://en.wikipedia.org/wiki/.tf-->
+
+    <!--  tg : http://en.wikipedia.org/wiki/.tg-->
+    <!--  list of 2nd level domains ?-->
+
+    <!--  th : http://en.wikipedia.org/wiki/.th-->
+
+    <!--  tj : http://www.nic.tj/policy.htm-->
+    <suffix domain="ac.tj" />
+    <suffix domain="biz.tj" />
+    <suffix domain="com.tj" />
+    <suffix domain="co.tj" />
+    <suffix domain="edu.tj" />
+    <suffix domain="int.tj" />
+    <suffix domain="name.tj" />
+    <suffix domain="net.tj" />
+    <suffix domain="org.tj" />
+    <suffix domain="web.tj" />
+    <suffix domain="gov.tj" />
+    <suffix domain="go.tj" />
+    <suffix domain="mil.tj" />
+
+    <!--  tk : http://en.wikipedia.org/wiki/.tk-->
+
+    <!--  tl : http://en.wikipedia.org/wiki/.tl-->
+    <!--  list of 2nd level tlds ?-->
+
+    <!--  tm : http://www.nic.tm/rules.html-->
+    <!--  list of 2nd level tlds ?-->
+
+    <!--  tn : http://en.wikipedia.org/wiki/.tn-->
+    <!--  list of 2nd level tlds ?-->
+
+    <!--  to : http://en.wikipedia.org/wiki/.to-->
+    <!--  list of 2nd level tlds ?-->
+
+    <!--  tr : http://en.wikipedia.org/wiki/.tr-->
+
+    <!--  travel : http://en.wikipedia.org/wiki/.travel-->
+
+    <!--  tt : http://www.nic.tt/-->
+    <suffix domain="co.tt" />
+    <suffix domain="com.tt" />
+    <suffix domain="org.tt" />
+    <suffix domain="net.tt" />
+    <suffix domain="biz.tt" />
+    <suffix domain="info.tt" />
+    <suffix domain="pro.tt" />
+    <suffix domain="int.tt" />
+    <suffix domain="coop.tt" />
+    <suffix domain="jobs.tt" />
+    <suffix domain="mobi.tt" />
+    <suffix domain="travel.tt" />
+    <suffix domain="museum.tt" />
+    <suffix domain="aero.tt" />
+    <suffix domain="name.tt" />
+    <suffix domain="gov.tt" />
+    <suffix domain="edu.tt" />
+
+    <!--  tv : http://en.wikipedia.org/wiki/.tv-->
+    <!--  list of 2nd level tlds ?-->
+
+    <!--  tw : http://en.wikipedia.org/wiki/.tw-->
+    <suffix domain="edu.tw" />
+    <suffix domain="gov.tw" />
+    <suffix domain="mil.tw" />
+    <suffix domain="com.tw" />
+    <suffix domain="net.tw" />
+    <suffix domain="org.tw" />
+    <suffix domain="idv.tw" />
+    <suffix domain="game.tw" />
+    <suffix domain="ebiz.tw" />
+    <suffix domain="club.tw" />
+    <suffix domain="網路.tw" />
+    <suffix domain="組織.tw" />
+    <suffix domain="商業.tw" />
+
+    <!--  tz : http://en.wikipedia.org/wiki/.tz-->
+
+    <!--  ua : http://www.nic.net.ua/-->
+    <suffix domain="com.ua" />
+    <suffix domain="edu.ua" />
+    <suffix domain="gov.ua" />
+    <suffix domain="net.ua" />
+    <suffix domain="org.ua" />
+    <!--  ua geo-names-->
+    <suffix domain="cherkassy.ua" />
+    <suffix domain="chernigov.ua" />
+    <suffix domain="chernovtsy.ua" />
+    <suffix domain="ck.ua" />
+    <suffix domain="cn.ua" />
+    <suffix domain="crimea.ua" />
+    <suffix domain="cv.ua" />
+    <suffix domain="dn.ua" />
+    <suffix domain="dnepropetrovsk.ua" />
+    <suffix domain="donetsk.ua" />
+    <suffix domain="dp.ua" />
+    <suffix domain="if.ua" />
+    <suffix domain="ivano-frankivsk.ua" />
+    <suffix domain="kh.ua" />
+    <suffix domain="kharkov.ua" />
+    <suffix domain="kherson.ua" />
+    <suffix domain="kiev.ua" />
+    <suffix domain="kirovograd.ua" />
+    <suffix domain="km.ua" />
+    <suffix domain="kr.ua" />
+    <suffix domain="ks.ua" />
+    <suffix domain="lg.ua" />
+    <suffix domain="lugansk.ua" />
+    <suffix domain="lutsk.ua" />
+    <suffix domain="lviv.ua" />
+    <suffix domain="mk.ua" />
+    <suffix domain="nikolaev.ua" />
+    <suffix domain="od.ua" />
+    <suffix domain="odessa.ua" />
+    <suffix domain="pl.ua" />
+    <suffix domain="poltava.ua" />
+    <suffix domain="rovno.ua" />
+    <suffix domain="rv.ua" />
+    <suffix domain="sebastopol.ua" />
+    <suffix domain="sumy.ua" />
+    <suffix domain="te.ua" />
+    <suffix domain="ternopil.ua" />
+    <suffix domain="vinnica.ua" />
+    <suffix domain="vn.ua" />
+    <suffix domain="zaporizhzhe.ua" />
+    <suffix domain="zp.ua" />
+    <suffix domain="uz.ua" />
+    <suffix domain="uzhgorod.ua" />
+    <suffix domain="zhitomir.ua" />
+    <suffix domain="zt.ua" />
+
+    <!--  ug : http://www.registry.co.ug/-->
+    <suffix domain="co.ug" />
+    <suffix domain="ac.ug" />
+    <suffix domain="sc.ug" />
+    <suffix domain="go.ug" />
+    <suffix domain="ne.ug" />
+    <suffix domain="or.ug" />
+
+    <!--  uk : http://en.wikipedia.org/wiki/.uk-->
+    <suffix domain="sch.uk" />
+    <suffix domain="bl.uk" />
+    <suffix domain="british-library.uk" />
+    <suffix domain="icnet.uk" />
+    <suffix domain="jet.uk" />
+    <suffix domain="nel.uk" />
+    <suffix domain="nls.uk" />
+    <suffix domain="national-library-scotland.uk" />
+    <suffix domain="parliament.uk" />
+
+    <!--  us : http://en.wikipedia.org/wiki/.us-->
+    <suffix domain="dni.us" />
+    <suffix domain="fed.us" />
+    <suffix domain="isa.us" />
+    <suffix domain="kids.us" />
+    <suffix domain="nsn.us" />
+    <!--  us geographic names-->
+    <suffix domain="ak.us" />
+    <suffix domain="al.us" />
+    <suffix domain="ar.us" />
+    <suffix domain="az.us" />
+    <suffix domain="ca.us" />
+    <suffix domain="co.us" />
+    <suffix domain="ct.us" />
+    <suffix domain="dc.us" />
+    <suffix domain="de.us" />
+    <suffix domain="fl.us" />
+    <suffix domain="ga.us" />
+    <suffix domain="hi.us" />
+    <suffix domain="ia.us" />
+    <suffix domain="id.us" />
+    <suffix domain="il.us" />
+    <suffix domain="in.us" />
+    <suffix domain="ks.us" />
+    <suffix domain="ky.us" />
+    <suffix domain="la.us" />
+    <suffix domain="ma.us" />
+    <suffix domain="md.us" />
+    <suffix domain="me.us" />
+    <suffix domain="mi.us" />
+    <suffix domain="mn.us" />
+    <suffix domain="mo.us" />
+    <suffix domain="ms.us" />
+    <suffix domain="mt.us" />
+    <suffix domain="nc.us" />
+    <suffix domain="nd.us" />
+    <suffix domain="ne.us" />
+    <suffix domain="nh.us" />
+    <suffix domain="nj.us" />
+    <suffix domain="nm.us" />
+    <suffix domain="nv.us" />
+    <suffix domain="ny.us" />
+    <suffix domain="oh.us" />
+    <suffix domain="ok.us" />
+    <suffix domain="or.us" />
+    <suffix domain="pa.us" />
+    <suffix domain="ri.us" />
+    <suffix domain="sc.us" />
+    <suffix domain="sd.us" />
+    <suffix domain="tn.us" />
+    <suffix domain="tx.us" />
+    <suffix domain="ut.us" />
+    <suffix domain="vt.us" />
+    <suffix domain="va.us" />
+    <suffix domain="wa.us" />
+    <suffix domain="wi.us" />
+    <suffix domain="wv.us" />
+    <suffix domain="wy.us" />
+    <!--  the following rules would be only valid under the geo-name, but we can't express that-->
+    <!--  *.*.us          cities, counties, parishes, and townships (locality.state.us)-->
+    <!--  !ci.*.*.us       city government agencies (subdomain under locality)-->
+    <!--  !town.*.*.us     town government agencies (subdomain under locality)-->
+    <!--  !co.*.*.us       county government agencies (subdomain under locality)-->
+    <!--  k12.*.us      public school districts-->
+    <!--  pvt.k12.*.us  private schools-->
+    <!--  cc.*.us       community colleges-->
+    <!--  tec.*.us      technical and vocational schools-->
+    <!--  lib.*.us      state, regional, city, and county libraries-->
+    <!--  state.*.us    state government agencies-->
+    <!--  gen.*.us      general independent entities (groups not fitting into the above categories)-->
+
+    <!--  uy : http://www.antel.com.uy/-->
+
+    <!--  uz : http://www.reg.uz/registerr.html-->
+    <!--  are there other 2nd level tlds ?-->
+    <suffix domain="com.uz" />
+    <suffix domain="co.uz" />
+
+    <!--  va : http://en.wikipedia.org/wiki/.va-->
+
+    <!--  vc : http://en.wikipedia.org/wiki/.vc-->
+    <!--  list of 2nd level tlds ?-->
+
+    <!--  ve : http://registro.nic.ve/nicve/registro/index.html-->
+
+    <!--  vg : http://en.wikipedia.org/wiki/.vg-->
+
+    <!--  vi : http://www.nic.vi/Domain_Rules/body_domain_rules.html-->
+    <suffix domain="com.vi" />
+    <suffix domain="org.vi" />
+    <suffix domain="edu.vi" />
+    <suffix domain="gov.vi" />
+
+    <!--  vn : https://www.dot.vn/vnnic/vnnic/domainregistration.jsp-->
+    <suffix domain="com.vn" />
+    <suffix domain="net.vn" />
+    <suffix domain="org.vn" />
+    <suffix domain="edu.vn" />
+    <suffix domain="gov.vn" />
+    <suffix domain="int.vn" />
+    <suffix domain="ac.vn" />
+    <suffix domain="biz.vn" />
+    <suffix domain="info.vn" />
+    <suffix domain="name.vn" />
+    <suffix domain="pro.vn" />
+    <suffix domain="health.vn" />
+
+    <!--  vu : http://en.wikipedia.org/wiki/.vu-->
+    <!--  list of 2nd level tlds ?-->
+
+    <!--  ws : http://en.wikipedia.org/wiki/.ws-->
+
+    <!--  ye : http://www.y.net.ye/services/domain_name.htm-->
+
+    <!--  yu : http://www.nic.yu/pravilnik-e.html-->
+
+    <!--  za : http://www.zadna.org.za/slds.html-->
+
+    <!--  zm : http://en.wikipedia.org/wiki/.zm-->
+
+    <!--  zw : http://en.wikipedia.org/wiki/.zw-->
+
+  </suffixes>
+</domains>
