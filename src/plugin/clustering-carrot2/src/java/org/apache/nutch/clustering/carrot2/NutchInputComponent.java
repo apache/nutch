@@ -16,35 +16,23 @@
  */
 package org.apache.nutch.clustering.carrot2;
 
-import java.io.StringReader;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Map;
-
-import org.apache.xerces.parsers.AbstractSAXParser;
-import org.cyberneko.html.HTMLConfiguration;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
+import java.util.Set;
 
 import org.apache.nutch.searcher.HitDetails;
-
-import com.dawidweiss.carrot.core.local.LocalInputComponentBase;
-import com.dawidweiss.carrot.core.local.ProcessingException;
-import com.dawidweiss.carrot.core.local.RequestContext;
-import com.dawidweiss.carrot.core.local.clustering.*;
+import org.carrot2.core.LocalInputComponentBase;
+import org.carrot2.core.ProcessingException;
+import org.carrot2.core.RequestContext;
+import org.carrot2.core.clustering.RawDocumentsConsumer;
+import org.carrot2.core.clustering.RawDocumentsProducer;
 
 /**
- * A local input component that ignores the query passed from the
+ * An input component that ignores the query passed from the
  * controller and instead looks for data stored in the request context.
  * This enables us to reuse the same physical component implementation
- * for data that has already been acquired from Nutch.    
- *
- * @author Dawid Weiss
- * @version $Id: LocalNutchInputComponent.java,v 1.1 2004/08/09 23:23:53 johnnx Exp $
+ * for data that has already been acquired from Nutch.
  */
-public class LocalNutchInputComponent extends LocalInputComponentBase {
+public class NutchInputComponent extends LocalInputComponentBase {
   public final static String NUTCH_INPUT_HIT_DETAILS_ARRAY
     = "NUTCH_INPUT_HIT_DETAILS_ARRAY";
 
@@ -52,12 +40,10 @@ public class LocalNutchInputComponent extends LocalInputComponentBase {
     = "NUTCH_INPUT_SUMMARIES_ARRAY";
 
   /** Capabilities required from the next component in the chain */
-  private final static Set SUCCESSOR_CAPABILITIES 
-    = new HashSet(Arrays.asList(new Object [] { RawDocumentsConsumer.class }));
+  private final static Set SUCCESSOR_CAPABILITIES = toSet(RawDocumentsConsumer.class);
 
   /** This component's capabilities */
-  private final static Set COMPONENT_CAPABILITIES 
-    = new HashSet(Arrays.asList(new Object [] { RawDocumentsProducer.class }));
+  private final static Set COMPONENT_CAPABILITIES = toSet(RawDocumentsProducer.class);
 
   /**
    * Default language code for hits that don't have their own.
@@ -67,7 +53,7 @@ public class LocalNutchInputComponent extends LocalInputComponentBase {
   /**
    * Creates an input component with the given default language code.
    */
-  public LocalNutchInputComponent(String defaultLanguage) {
+  public NutchInputComponent(String defaultLanguage) {
     this.defaultLanguage = defaultLanguage;
   }
 
@@ -89,19 +75,19 @@ public class LocalNutchInputComponent extends LocalInputComponentBase {
     final Map params = context.getRequestParameters();
     final HitDetails [] details = (HitDetails[]) params.get(NUTCH_INPUT_HIT_DETAILS_ARRAY);
     final String [] summaries = (String[]) params.get(NUTCH_INPUT_SUMMARIES_ARRAY);
-    
+
     if (details == null)
       throw new ProcessingException("Details array must not be null.");
 
     if (summaries == null)
       throw new ProcessingException("Summaries array must not be null.");
-    
+
     if (summaries.length != details.length)
       throw new ProcessingException("Summaries and details must be of the same length.");
     
     // produce 'documents' for successor components.
     final RawDocumentsConsumer consumer = (RawDocumentsConsumer) next;
-    for (int i=0;i<summaries.length;i++) {
+    for (int i = 0; i < summaries.length; i++) {
       consumer.addDocument(new NutchDocument(i, details[i], summaries[i], defaultLanguage));
     }
   }
@@ -119,5 +105,4 @@ public class LocalNutchInputComponent extends LocalInputComponentBase {
   public Set getRequiredSuccessorCapabilities() {
     return SUCCESSOR_CAPABILITIES;
   }
-
 }

@@ -16,43 +16,59 @@
  */
 package org.apache.nutch.clustering.carrot2;
 
-import java.util.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.nutch.clustering.HitsCluster;
 import org.apache.nutch.clustering.OnlineClusterer;
 import org.apache.nutch.searcher.HitDetails;
+import org.carrot2.core.DuplicatedKeyException;
+import org.carrot2.core.InitializationException;
+import org.carrot2.core.LocalComponent;
+import org.carrot2.core.LocalComponentFactory;
+import org.carrot2.core.LocalControllerBase;
+import org.carrot2.core.LocalProcess;
+import org.carrot2.core.LocalProcessBase;
+import org.carrot2.core.MissingComponentException;
+import org.carrot2.core.MissingProcessException;
+import org.carrot2.core.ProcessingResult;
+import org.carrot2.core.clustering.RawCluster;
+import org.carrot2.core.controller.ControllerHelper;
+import org.carrot2.core.controller.LoaderExtensionUnknownException;
+import org.carrot2.core.impl.ArrayOutputComponent;
+import org.carrot2.core.linguistic.Language;
+import org.carrot2.filter.lingo.local.LingoLocalFilterComponent;
+import org.carrot2.util.tokenizer.languages.AllKnownLanguages;
 
-import com.dawidweiss.carrot.core.local.*;
-import com.dawidweiss.carrot.core.local.clustering.RawCluster;
-import com.dawidweiss.carrot.core.local.impl.ClustersConsumerOutputComponent;
-import com.dawidweiss.carrot.core.local.linguistic.Language;
-import com.dawidweiss.carrot.util.tokenizer.languages.AllKnownLanguages;
-import com.stachoodev.carrot.filter.lingo.local.LingoLocalFilterComponent;
 
 
 /**
- * An plugin providing an implementation of {@link OnlineClusterer} 
+ * This plugin provides an implementation of {@link OnlineClusterer} 
  * extension using clustering components of the Carrot2 project
- * (<a href="http://carrot2.sourceforge.net">http://carrot2.sourceforge.net</a>).
+ * (<a href="http://www.carrot2.org">http://www.carrot2.org</a>).
  * 
- * We hardcode the following Carrot2 process:
+ * <p>This class hardcodes an equivalent of the following Carrot2 process:
  * <pre><![CDATA[
  * <local-process id="yahoo-lingo">
  *   <name>Yahoo Search API -- Lingo Classic Clusterer</name>
  * 
- *   <input  component-key="input-localnutch" />
+ *   <input  component-key="input-nutch" />
  *   <filter component-key="filter-lingo" />
  *   <output component-key="output-clustersConsumer" />
  * </local-process>
  * ]]></pre>
- *
- * @author Dawid Weiss
- * @version $Id: Clusterer.java,v 1.1 2004/08/09 23:23:53 johnnx Exp $
  */
 public class Clusterer implements OnlineClusterer, Configurable {
   /** Default language property name. */
@@ -69,7 +85,7 @@ public class Clusterer implements OnlineClusterer, Configurable {
   public static final Log logger = LogFactory.getLog(Clusterer.class);  
 
   /** The LocalController instance used for clustering */
-  private LocalController controller;
+  private LocalControllerBase controller;
 
   /** Nutch configuration. */
   private Configuration conf;
@@ -91,100 +107,22 @@ public class Clusterer implements OnlineClusterer, Configurable {
    * of the clusterer.
    */
   public Clusterer() {
-    initialize();
+    // Don't forget to call {@link #setConf(Configuration)}.
   }
 
-  private synchronized void initialize() {
-    controller = new LocalControllerBase();
-    addComponentFactories();
-    addProcesses();
-  }
-
-  /** Adds the required component factories to a local Carrot2 controller. */
-  private void addComponentFactories() {
-    //  *   <input  component-key="input-localnutch" />
-    LocalComponentFactory nutchInputFactory = new LocalComponentFactoryBase() {
-      public LocalComponent getInstance() {
-        return new LocalNutchInputComponent(defaultLanguage);
-      }
-    };
-    controller.addLocalComponentFactory("input-localnutch", nutchInputFactory);
-
-    // *   <filter component-key="filter-lingo" />
-    LocalComponentFactory lingoFactory = new LocalComponentFactoryBase() {
-      public LocalComponent getInstance() {
-        HashMap defaults = new HashMap();
-
-        // These are adjustments settings for the clustering algorithm.
-        // If you try the live WebStart demo of Carrot2 you can see how they affect
-        // the final clustering: http://www.carrot2.org/webstart 
-        defaults.put("lsi.threshold.clusterAssignment", "0.150");
-        defaults.put("lsi.threshold.candidateCluster",  "0.775");
-
-        // Initialize a new Lingo clustering component.
-        ArrayList languageList = new ArrayList(languages.length);
-        for (int i = 0; i < languages.length; i++) {
-          final String lcode = languages[i];
-          try {
-            Language lang = AllKnownLanguages.getLanguageForIsoCode(lcode);
-            if (lang == null) {
-              if (logger.isWarnEnabled()) {
-                logger.warn("Language not supported in Carrot2: " + lcode);
-              }
-            } else {
-              languageList.add(lang);
-              if (logger.isDebugEnabled()) {
-                logger.debug("Language loaded: " + lcode);
-              }
-            }
-          } catch (Throwable t) {
-            if (logger.isWarnEnabled()) {
-              logger.warn("Language could not be loaded: " + lcode, t);
-            }
-          }
-        }
-        return new LingoLocalFilterComponent(
-          (Language []) languageList.toArray(new Language [languageList.size()]), defaults);
-      }
-    };
-    controller.addLocalComponentFactory("filter-lingo", lingoFactory);
-
-    // *   <output component-key="output-clustersConsumer" />
-    LocalComponentFactory clusterConsumerOutputFactory = new LocalComponentFactoryBase() {
-      public LocalComponent getInstance() {
-        return new ClustersConsumerOutputComponent();
-      }
-    };
-    controller.addLocalComponentFactory("output-clustersConsumer", 
-      clusterConsumerOutputFactory);
-  }
-
-  /** 
-   * Adds a hardcoded clustering process to the local controller.
-   */  
-  private void addProcesses() {
-    LocalProcessBase process = new LocalProcessBase(
-        "input-localnutch",                                   // input
-        "output-clustersConsumer",                            // output
-        new String [] {"filter-lingo"},                       // filters
-        "The Lingo clustering algorithm (www.carrot2.org).",
-        "");
-
-    try {
-      controller.addProcess(PROCESS_ID, process);
-    } catch (Exception e) {
-      throw new RuntimeException("Could not assemble clustering process.", e);
-    }
-  }
-  
   /**
    * See {@link OnlineClusterer} for documentation.
    */
   public HitsCluster [] clusterHits(HitDetails [] hitDetails, String [] descriptions) {
-    Map requestParams = new HashMap();
-    requestParams.put(LocalNutchInputComponent.NUTCH_INPUT_HIT_DETAILS_ARRAY,
+    if (this.controller == null) {
+      logger.error("initialize() not called.");
+      return new HitsCluster[0];
+    }
+
+    final Map requestParams = new HashMap();
+    requestParams.put(NutchInputComponent.NUTCH_INPUT_HIT_DETAILS_ARRAY,
       hitDetails);
-    requestParams.put(LocalNutchInputComponent.NUTCH_INPUT_SUMMARIES_ARRAY,
+    requestParams.put(NutchInputComponent.NUTCH_INPUT_SUMMARIES_ARRAY,
       descriptions);
 
     try {
@@ -192,8 +130,8 @@ public class Clusterer implements OnlineClusterer, Configurable {
       final ProcessingResult result = 
         controller.query(PROCESS_ID, "no-query", requestParams);
 
-      final ClustersConsumerOutputComponent.Result output =
-        (ClustersConsumerOutputComponent.Result) result.getQueryResult();
+      final ArrayOutputComponent.Result output =
+        (ArrayOutputComponent.Result) result.getQueryResult();
 
       final List outputClusters = output.clusters;
       final HitsCluster [] clusters = new HitsCluster[ outputClusters.size() ];
@@ -218,7 +156,7 @@ public class Clusterer implements OnlineClusterer, Configurable {
    */
   public void setConf(Configuration conf) {
     this.conf = conf;
-    
+
     // Configure default language and other component settings.
     if (conf.get(CONF_PROP_DEFAULT_LANGUAGE) != null) {
       // Change the default language.
@@ -242,4 +180,151 @@ public class Clusterer implements OnlineClusterer, Configurable {
   public Configuration getConf() {
     return conf;
   }
+  
+  /**
+   * Initialize clustering processes and Carrot2 components.
+   */
+  private synchronized void initialize() {
+    // Initialize language list, temporarily switching off logging
+    // of warnings. This is a bit of a hack, but we don't want to
+    // redistribute the entire Carrot2 distro and this prevents
+    // nasty ClassNotFound warnings.
+    final Logger c2Logger = Logger.getLogger("org.carrot2");
+    final Level original = c2Logger.getLevel();
+    c2Logger.setLevel(Level.ERROR);
+    AllKnownLanguages.getLanguageCodes();
+    c2Logger.setLevel(original);
+
+    // Initialize the controller.    
+    controller = new LocalControllerBase();
+
+    final Configuration nutchConf = getConf();
+    final String processResource = nutchConf.get(
+        "extension.clustering.carrot2.process-resource");
+
+    if (processResource == null) {
+      logger.info("Using default clustering algorithm (Lingo).");
+      addDefaultProcess();
+    } else {
+      logger.info("Using custom clustering process: " + processResource);
+      controller.setComponentAutoload(true);
+      
+      final ControllerHelper helper = new ControllerHelper();
+      final InputStream is = Thread.currentThread()
+        .getContextClassLoader().getResourceAsStream(processResource);
+      if (is != null) {
+        try {
+          final LocalComponentFactory nutchInputFactory = new LocalComponentFactory() {
+            public LocalComponent getInstance() {
+              return new NutchInputComponent(defaultLanguage);
+            }
+          };
+          controller.addLocalComponentFactory("input-nutch", nutchInputFactory);
+          
+          final LocalProcess process = helper.loadProcess(
+              helper.getExtension(processResource), is).getProcess();
+          controller.addProcess(PROCESS_ID, process);
+          is.close();
+        } catch (IOException e) {
+          logger.error("Could not load process resource: " + processResource, e);
+        } catch (LoaderExtensionUnknownException e) {
+          logger.error("Unrecognized extension of process resource: " + processResource);
+        } catch (InstantiationException e) {
+          logger.error("Could not instantiate process: " + processResource, e);
+        } catch (InitializationException e) {
+          logger.error("Could not initialize process: " + processResource, e);
+        } catch (DuplicatedKeyException e) {
+          logger.error("Duplicated key (unreachable?): " + processResource, e);
+        } catch (MissingComponentException e) {
+          logger.error("Some components are missing, could not initialize process: " 
+              + processResource, e);
+        }
+      } else {
+        logger.error("Could not find process resource: " + processResource);
+      }
+    }
+  }
+
+  /**
+   * Adds a default clustering process using Lingo algorithm.
+   */
+  private void addDefaultProcess() {
+    try {
+      addComponentFactories();
+      addProcesses();
+    } catch (DuplicatedKeyException e) {
+      logger.fatal("Duplicated component or process identifier.", e);
+    }
+  }
+
+  /** Adds the required component factories to a local Carrot2 controller. */
+  private void addComponentFactories() throws DuplicatedKeyException {
+    //  *   <input  component-key="input-nutch" />
+    LocalComponentFactory nutchInputFactory = new LocalComponentFactory() {
+      public LocalComponent getInstance() {
+        return new NutchInputComponent(defaultLanguage);
+      }
+    };
+    controller.addLocalComponentFactory("input-nutch", nutchInputFactory);
+
+    // *   <filter component-key="filter-lingo" />
+    LocalComponentFactory lingoFactory = new LocalComponentFactory() {
+      public LocalComponent getInstance() {
+        final HashMap defaults = new HashMap();
+
+        // These are adjustments settings for the clustering algorithm.
+        // If you try the live WebStart demo of Carrot2 you can see how they affect
+        // the final clustering: http://www.carrot2.org 
+        defaults.put("lsi.threshold.clusterAssignment", "0.150");
+        defaults.put("lsi.threshold.candidateCluster",  "0.775");
+
+        // Initialize a new Lingo clustering component.
+        ArrayList languageList = new ArrayList(languages.length);
+        for (int i = 0; i < languages.length; i++) {
+          final String lcode = languages[i];
+          try {
+            final Language lang = AllKnownLanguages.getLanguageForIsoCode(lcode);
+            if (lang == null) {
+              logger.warn("Language not supported in Carrot2: " + lcode);
+            } else {
+              languageList.add(lang);
+              logger.debug("Language loaded: " + lcode);
+            }
+          } catch (Throwable t) {
+              logger.warn("Language could not be loaded: " + lcode, t);
+          }
+        }
+        return new LingoLocalFilterComponent(
+          (Language []) languageList.toArray(new Language [languageList.size()]), defaults);
+      }
+    };
+    controller.addLocalComponentFactory("filter-lingo", lingoFactory);
+
+    // *   <output component-key="output-clustersConsumer" />
+    LocalComponentFactory clusterConsumerOutputFactory = new LocalComponentFactory() {
+      public LocalComponent getInstance() {
+        return new ArrayOutputComponent();
+      }
+    };
+    controller.addLocalComponentFactory("output-array", 
+      clusterConsumerOutputFactory);
+  }
+
+  /** 
+   * Adds a hardcoded clustering process to the local controller.
+   */  
+  private void addProcesses() {
+    final LocalProcessBase process = new LocalProcessBase(
+        "input-nutch",
+        "output-array",
+        new String [] {"filter-lingo"},
+        "The Lingo clustering algorithm (www.carrot2.org).",
+        "");
+
+    try {
+      controller.addProcess(PROCESS_ID, process);
+    } catch (Exception e) {
+      throw new RuntimeException("Could not assemble clustering process.", e);
+    }
+  }  
 }

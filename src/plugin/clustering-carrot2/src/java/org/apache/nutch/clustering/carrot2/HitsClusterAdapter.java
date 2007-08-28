@@ -19,18 +19,14 @@ package org.apache.nutch.clustering.carrot2;
 import java.util.Iterator;
 import java.util.List;
 
-import com.dawidweiss.carrot.core.local.clustering.RawCluster;
-import com.dawidweiss.carrot.core.local.clustering.RawDocument;
-
 import org.apache.nutch.clustering.HitsCluster;
 import org.apache.nutch.searcher.HitDetails;
+import org.carrot2.core.clustering.RawCluster;
+import org.carrot2.core.clustering.RawDocument;
 
 /**
  * An adapter of Carrot2's {@link RawCluster} interface to
  * {@link HitsCluster} interface. 
- *
- * @author Dawid Weiss
- * @version $Id: HitsClusterAdapter.java,v 1.1 2004/08/09 23:23:53 johnnx Exp $
  */
 public class HitsClusterAdapter implements HitsCluster {
   private RawCluster rawCluster;
@@ -59,7 +55,7 @@ public class HitsClusterAdapter implements HitsCluster {
    */
   public HitsCluster[] getSubclusters() {
     if (this.subclusters == null) {
-      List rawSubclusters = rawCluster.getSubclusters();
+      final List rawSubclusters = rawCluster.getSubclusters();
       if (rawSubclusters == null || rawSubclusters.size() == 0) {
         subclusters = null;
       } else {

@@ -17,15 +17,11 @@
 package org.apache.nutch.clustering.carrot2;
 
 import org.apache.nutch.searcher.HitDetails;
-
-import com.dawidweiss.carrot.core.local.clustering.RawDocument;
-import com.dawidweiss.carrot.core.local.clustering.RawDocumentBase;
+import org.carrot2.core.clustering.RawDocument;
+import org.carrot2.core.clustering.RawDocumentBase;
 
 /**
  * An adapter class that implements {@link RawDocument} required for Carrot2.  
- *
- * @author Dawid Weiss
- * @version $Id: NutchDocument.java,v 1.2 2004/08/10 00:18:43 johnnx Exp $
  */
 public class NutchDocument extends RawDocumentBase {
   /**
@@ -39,28 +35,25 @@ public class NutchDocument extends RawDocumentBase {
    * a <code>details</code> hit details.
    */
   public NutchDocument(int id, HitDetails details, String summary, String defaultLanguage) {
-    super.setProperty(RawDocument.PROPERTY_URL, details.getValue("url"));
-    super.setProperty(RawDocument.PROPERTY_SNIPPET, summary);
+    super(details.getValue("url"), details.getValue("title"), summary);
 
-    final String title = details.getValue("title");
-    if (title != null && !"".equals(title)) {
-      super.setProperty(RawDocument.PROPERTY_TITLE, title);
-    }
-    
+    // Handle document language -- attempt to extract it from the details,
+    // otherwise set to the default.
     String lang = details.getValue("lang");
     if (lang == null) {
       // No default language. Take the default from the configuration file.
       lang = defaultLanguage;
     }
+
     // Use this language for the snippet. Truncate longer ISO codes
     // to only include two-letter language code.
     if (lang.length() > 2) {
       lang = lang.substring(0, 2);
     }
-    lang = lang.toLowerCase();
+    lang = lang.toLowerCase();    
     super.setProperty(RawDocument.PROPERTY_LANGUAGE, lang);
 
-    this.id = new Integer(id);
+    this.id = Integer.valueOf(id);
   }
 
   /*

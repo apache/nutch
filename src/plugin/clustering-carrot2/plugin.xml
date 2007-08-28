@@ -17,24 +17,29 @@
 -->
 <plugin
    id="clustering-carrot2"
-   name="Online Search Results Clustering using Carrot2's Lingo component"
-   version="1.0.2"
-   provider-name="carrot2.sourceforge.net">
+   name="Online Search Results Clustering using Carrot2's components"
+   version="1.0.3"
+   provider-name="www.carrot2.org">
 
    <runtime>
       <library name="clustering-carrot2.jar">
          <export name="*"/>
       </library>
 
+      <!--
+	   The defaults for Lingo. If you plan to use another clustering
+	   algorithm from the Carrot2 project, you'll need all the JARs
+	   required for that algorithm.
+	-->
       <library name="carrot2-filter-lingo.jar"/>
       <library name="carrot2-local-core.jar"/>
       <library name="carrot2-snowball-stemmers.jar"/>
       <library name="carrot2-util-common.jar"/>
       <library name="carrot2-util-tokenizer.jar"/>
 
-      <library name="commons-collections-3.1-patched.jar"/>
-      <library name="commons-pool-1.1.jar"/>
-      <library name="Jama-1.0.1-patched.jar"/>
+      <library name="commons-collections-3.2.jar"/>
+      <library name="commons-pool-1.3.jar"/>
+      <library name="Jama-1.0.2.jar"/>
       <library name="violinstrings-1.0.2.jar"/>
    </runtime>
 
@@ -45,8 +50,7 @@
    <extension id="org.apache.nutch.clustering.carrot2"
               name="Carrot2 Clusterer"
               point="org.apache.nutch.clustering.OnlineClusterer">
-
-      <implementation id="Carrot2-Lingo"
+      <implementation id="Carrot2"
                       class="org.apache.nutch.clustering.carrot2.Clusterer"/>
    </extension>
 </plugin>

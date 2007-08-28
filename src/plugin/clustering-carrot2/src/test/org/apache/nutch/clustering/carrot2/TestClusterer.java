@@ -17,6 +17,7 @@
 
 package org.apache.nutch.clustering.carrot2;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -24,6 +25,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import junit.framework.TestCase;
 
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.clustering.HitsCluster;
 import org.apache.nutch.searcher.HitDetails;
 import org.w3c.dom.Document;
@@ -33,26 +35,24 @@ import org.w3c.dom.NodeList;
 
 /**
  * A test case for the Carrot2-based clusterer plugin to Nutch.
- *
- * @author Dawid Weiss
- * @version $Id: ClustererTest.java,v 1.1 2004/08/09 23:23:53 johnnx Exp $
  */
-public class ClustererTest extends TestCase {
-
-  public ClustererTest(String s) {
-    super(s);
+public class TestClusterer extends TestCase {
+  private Clusterer c;
+  
+  public TestClusterer(String testName) {
+    super(testName);
   }
   
-  public ClustererTest() {
-    super();
+  protected void setUp() throws Exception {
+    c = new Clusterer();
+    c.setConf(new Configuration());
   }
-
+  
   /**
    * The clusterer should not fail on empty input, returning
    * an empty array of {@link HitsCluster}.
    */
   public void testEmptyInput() {
-    final Clusterer c = new Clusterer();
     final HitDetails [] hitDetails = new HitDetails[0];
     final String [] descriptions = new String [0];
     final HitsCluster [] clusters = c.clusterHits(hitDetails, descriptions);
@@ -65,8 +65,10 @@ public class ClustererTest extends TestCase {
   public void testOnCachedData() throws Exception {
     final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     final DocumentBuilder parser = factory.newDocumentBuilder();
-    final Document document = parser.parse(
-        getClass().getResourceAsStream("test-input.xml"));
+    final InputStream is = getClass().getResourceAsStream("test-input.xml");
+    assertNotNull("test-input.xml not found", is);
+    final Document document = parser.parse(is);
+    is.close();
 
     final Element data = document.getDocumentElement();
     final NodeList docs = data.getElementsByTagName("document");
@@ -88,7 +90,6 @@ public class ClustererTest extends TestCase {
           new String [] {toText(urlElement)}));
     }
 
-    final Clusterer c = new Clusterer();
     HitsCluster [] clusters = c.clusterHits(
         (HitDetails[]) hitDetails.toArray(new HitDetails[hitDetails.size()]),
         (String[]) summaries.toArray(new String[summaries.size()]));
