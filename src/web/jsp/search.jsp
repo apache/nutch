@@ -22,6 +22,8 @@
   import="java.io.*"
   import="java.util.*"
   import="java.net.*"
+  import="javax.servlet.http.*"
+  import="javax.servlet.*"
 
   import="org.apache.nutch.html.Entities"
   import="org.apache.nutch.metadata.Nutch"
@@ -30,30 +32,40 @@
   import="org.apache.nutch.clustering.*"
   import="org.apache.hadoop.conf.*"
   import="org.apache.nutch.util.NutchConfiguration"
-
-%><%
-  Configuration nutchConf = NutchConfiguration.get(application);
-  
+%><%!
   /**
    * Number of hits to retrieve and cluster if clustering extension is available
    * and clustering is on. By default, 100. Configurable via nutch-conf.xml.
    */
-  int HITS_TO_CLUSTER = 
-    nutchConf.getInt("extension.clustering.hits-to-cluster", 100);
+  private int HITS_TO_CLUSTER;
 
   /**
    * An instance of the clustering extension, if available.
    */
-  OnlineClusterer clusterer = null;
-  try {
-    clusterer = new OnlineClustererFactory(nutchConf).getOnlineClusterer();
-  } catch (PluginRuntimeException e) {
-    // NOTE: Dawid Weiss
-    // should we ignore plugin exceptions, or rethrow it? Rethrowing
-    // it effectively prevents the servlet class from being loaded into
-    // the JVM
-  }
+  private OnlineClusterer clusterer;
   
+  /**
+   * Nutch configuration for this servlet.
+   */
+  private Configuration nutchConf;
+
+  /**
+   * Initialize search bean.
+   */
+  public void jspInit() {
+    super.jspInit();
+    
+    final ServletContext application = getServletContext(); 
+    nutchConf = NutchConfiguration.get(application);
+
+	HITS_TO_CLUSTER = nutchConf.getInt("extension.clustering.hits-to-cluster", 100);
+
+    try {
+      clusterer = new OnlineClustererFactory(nutchConf).getOnlineClusterer();
+    } catch (PluginRuntimeException e) {
+      NutchBean.LOG("Could not initialize online clusterer: " + e.toString());
+    }
+  }
 %>
 
 <%--
