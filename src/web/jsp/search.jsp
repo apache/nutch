@@ -63,7 +63,7 @@
     try {
       clusterer = new OnlineClustererFactory(nutchConf).getOnlineClusterer();
     } catch (PluginRuntimeException e) {
-      NutchBean.LOG("Could not initialize online clusterer: " + e.toString());
+      super.log("Could not initialize online clusterer: " + e.toString());
     }
   }
 %>
