@@ -35,7 +35,7 @@ public interface FetchSchedule extends Configurable {
   /** Page is known to remain unmodified since our last visit. */
   public static final int STATUS_NOTMODIFIED    = 2;
   
-  public static final float SECONDS_PER_DAY = 3600.0f * 24.0f;
+  public static final int SECONDS_PER_DAY = 3600 * 24;
   /**
    * Initialize fetch schedule related data. Implementations should at least
    * set the <code>fetchTime</code> and <code>fetchInterval</code>. The default
@@ -111,6 +111,12 @@ public interface FetchSchedule extends Configurable {
   public CrawlDatum setPageRetrySchedule(Text url, CrawlDatum datum,
           long prevFetchTime, long prevModifiedTime, long fetchTime);
   
+  /**
+   * Calculates last fetch time of the given CrawlDatum.
+   * @return the date as a long.
+   */
+  public long calculateLastFetchTime(CrawlDatum datum);
+
   /**
    * This method provides information whether the page is suitable for
    * selection in the current fetchlist. NOTE: a true return value does not

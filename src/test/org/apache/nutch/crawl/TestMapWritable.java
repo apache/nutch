@@ -84,7 +84,7 @@ public class TestMapWritable extends TestCase {
     assertEquals(100, datum2.size());
     testWritable(datum2);
 
-    CrawlDatum c = new CrawlDatum(CrawlDatum.STATUS_DB_FETCHED, 1f);
+    CrawlDatum c = new CrawlDatum(CrawlDatum.STATUS_DB_FETCHED, 1);
     c.setMetaData(new MapWritable());
     for (int i = 0; i < 100; i++) {
       c.getMetaData().put(new LongWritable(i), new Text("" + 1));

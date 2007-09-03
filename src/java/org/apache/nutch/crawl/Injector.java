@@ -46,7 +46,7 @@ public class Injector extends ToolBase {
   /** Normalize and filter injected urls. */
   public static class InjectMapper implements Mapper {
     private URLNormalizers urlNormalizers;
-    private float interval;
+    private int interval;
     private float scoreInjected;
     private JobConf jobConf;
     private URLFilters filters;
@@ -57,7 +57,7 @@ public class Injector extends ToolBase {
     public void configure(JobConf job) {
       this.jobConf = job;
       urlNormalizers = new URLNormalizers(job, URLNormalizers.SCOPE_INJECT);
-      interval = jobConf.getFloat("db.fetch.interval.default", 2592000.0f);
+      interval = jobConf.getInt("db.fetch.interval.default", 2592000);
       filters = new URLFilters(jobConf);
       scfilters = new ScoringFilters(jobConf);
       scoreInjected = jobConf.getFloat("db.score.injected", 1.0f);

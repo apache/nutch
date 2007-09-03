@@ -29,7 +29,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   public static final String FETCH_DIR_NAME = "crawl_fetch";
   public static final String PARSE_DIR_NAME = "crawl_parse";
 
-  private final static byte CUR_VERSION = 5;
+  private final static byte CUR_VERSION = 6;
 
   /** Compatibility values for on-the-fly conversion from versions < 5. */
   private static final byte OLD_STATUS_SIGNATURE = 0;
@@ -114,7 +114,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   private byte status;
   private long fetchTime = System.currentTimeMillis();
   private byte retries;
-  private float fetchInterval;
+  private int fetchInterval;
   private float score = 1.0f;
   private byte[] signature = null;
   private long modifiedTime;
@@ -134,12 +134,12 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     metaData = new MapWritable();
   }
 
-  public CrawlDatum(int status, float fetchInterval) {
+  public CrawlDatum(int status, int fetchInterval) {
     this.status = (byte)status;
     this.fetchInterval = fetchInterval;
   }
 
-  public CrawlDatum(int status, float fetchInterval, float score) {
+  public CrawlDatum(int status, int fetchInterval, float score) {
     this(status, fetchInterval);
     this.score = score;
   }
@@ -172,9 +172,12 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   public byte getRetriesSinceFetch() { return retries; }
   public void setRetriesSinceFetch(int retries) {this.retries = (byte)retries;}
 
-  public float getFetchInterval() { return fetchInterval; }
-  public void setFetchInterval(float fetchInterval) {
+  public int getFetchInterval() { return fetchInterval; }
+  public void setFetchInterval(int fetchInterval) {
     this.fetchInterval = fetchInterval;
+  }
+  public void setFetchInterval(float fetchInterval) {
+    this.fetchInterval = Math.round(fetchInterval);
   }
 
   public float getScore() { return score; }
@@ -221,7 +224,9 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     status = in.readByte();
     fetchTime = in.readLong();
     retries = in.readByte();
-    fetchInterval = in.readFloat();
+    if (version > 5) {
+      fetchInterval = in.readInt();
+    } else fetchInterval = Math.round(in.readFloat());
     score = in.readFloat();
     if (version > 2) {
       modifiedTime = in.readLong();
@@ -256,7 +261,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     out.writeByte(status);
     out.writeLong(fetchTime);
     out.writeByte(retries);
-    out.writeFloat(fetchInterval);
+    out.writeInt(fetchInterval);
     out.writeFloat(score);
     out.writeLong(modifiedTime);
     if (signature == null) {
@@ -330,8 +335,8 @@ public class CrawlDatum implements WritableComparable, Cloneable {
       int retries2 = b2[s2+1+1+8];
       if (retries2 != retries1)
         return retries2 - retries1;
-      float fetchInterval1 = readFloat(b1, s1+1+1+8+1);
-      float fetchInterval2 = readFloat(b2, s2+1+1+8+1);
+      int fetchInterval1 = readInt(b1, s1+1+1+8+1);
+      int fetchInterval2 = readInt(b2, s2+1+1+8+1);
       if (fetchInterval2 != fetchInterval1)
         return (fetchInterval2 - fetchInterval1) > 0 ? 1 : -1;
       long modifiedTime1 = readLong(b1, s1 + SCORE_OFFSET + 4);
@@ -409,7 +414,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
       ((int)fetchTime) ^
       ((int)modifiedTime) ^
       retries ^
-      Float.floatToIntBits(fetchInterval) ^
+      fetchInterval ^
       Float.floatToIntBits(score);
   }
 

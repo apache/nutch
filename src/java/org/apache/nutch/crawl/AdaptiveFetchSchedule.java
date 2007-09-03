@@ -57,9 +57,9 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
 
   private float DEC_RATE;
 
-  private float MAX_INTERVAL;
+  private int MAX_INTERVAL;
 
-  private float MIN_INTERVAL;
+  private int MIN_INTERVAL;
   
   private boolean SYNC_DELTA;
 
@@ -70,8 +70,8 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
     if (conf == null) return;
     INC_RATE = conf.getFloat("db.fetch.schedule.adaptive.inc_rate", 0.2f);
     DEC_RATE = conf.getFloat("db.fetch.schedule.adaptive.dec_rate", 0.2f);
-    MIN_INTERVAL = conf.getFloat("db.fetch.schedule.adaptive.min_interval", 60.0f);
-    MAX_INTERVAL = conf.getFloat("db.fetch.schedule.adaptive.max_interval", (float) (3600 * 24 * 365)); // 1 year
+    MIN_INTERVAL = conf.getInt("db.fetch.schedule.adaptive.min_interval", 60);
+    MAX_INTERVAL = conf.getInt("db.fetch.schedule.adaptive.max_interval", SECONDS_PER_DAY * 365 ); // 1 year
     SYNC_DELTA = conf.getBoolean("db.fetch.schedule.adaptive.sync_delta", true);
     SYNC_DELTA_RATE = conf.getFloat("db.fetch.schedule.adaptive.sync_delta_rate", 0.2f);
   }
@@ -101,7 +101,7 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
     }
     if (interval < MIN_INTERVAL) interval = MIN_INTERVAL;
     if (interval > MAX_INTERVAL) interval = MAX_INTERVAL;
-    datum.setFetchTime(refTime + Math.round(1000.0f * datum.getFetchInterval()));
+    datum.setFetchTime(refTime + (long)datum.getFetchInterval() * 1000 );
     datum.setModifiedTime(modifiedTime);
     return datum;
   }
@@ -134,14 +134,14 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
         lastModified = curTime;
       }
       System.out.println(i + ". " + changed + "\twill fetch at " + (p.getFetchTime() / delta) + "\tinterval "
-              + (p.getFetchInterval() / (float) (3600 * 24)) + " days" + "\t missed " + miss);
+              + (p.getFetchInterval() / SECONDS_PER_DAY ) + " days" + "\t missed " + miss);
       if (p.getFetchTime() <= curTime) {
         fetchCnt++;
         fs.setFetchSchedule(new Text("http://www.example.com"), p,
                 p.getFetchTime(), p.getModifiedTime(), curTime, lastModified,
                 changed ? FetchSchedule.STATUS_MODIFIED : FetchSchedule.STATUS_NOTMODIFIED);
         System.out.println("\tfetched & adjusted: " + "\twill fetch at " + (p.getFetchTime() / delta) + "\tinterval "
-                + (p.getFetchInterval() / (float) (3600 * 24)) + " days");
+                + (p.getFetchInterval() / SECONDS_PER_DAY ) + " days");
         if (!changed) miss++;
         if (miss > maxMiss) maxMiss = miss;
         changed = false;
