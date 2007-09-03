@@ -82,7 +82,7 @@ public class ParseOutputFormat implements OutputFormat {
     this.filters = new URLFilters(job);
     this.scfilters = new ScoringFilters(job);
     final UrlValidator validator = UrlValidator.get();
-    final float interval = job.getFloat("db.fetch.interval.default", 2592000.0f);
+    final int interval = job.getInt("db.fetch.interval.default", 2592000);
     final boolean ignoreExternalLinks = job.getBoolean("db.ignore.external.links", false);
     final int maxOutlinks = job.getInt("db.max.outlinks.per.page", 100);
     final CompressionType compType = SequenceFile.getCompressionType(job);
@@ -125,7 +125,7 @@ public class ParseOutputFormat implements OutputFormat {
             byte[] signature = StringUtil.fromHexString(sig);
             if (signature != null) {
               // append a CrawlDatum with a signature
-              CrawlDatum d = new CrawlDatum(CrawlDatum.STATUS_SIGNATURE, 0.0f);
+              CrawlDatum d = new CrawlDatum(CrawlDatum.STATUS_SIGNATURE, 0);
               d.setSignature(signature);
               crawlOut.append(key, d);
             }

@@ -341,7 +341,7 @@ public class TestGenerator extends TestCase {
    * @return Constructed object
    */
   private URLCrawlDatum createURLCrawlDatum(final String url,
-      final float fetchInterval, final float score) {
+      final int fetchInterval, final float score) {
     return new CrawlDBTestUtil.URLCrawlDatum(new Text(url), new CrawlDatum(
         CrawlDatum.STATUS_DB_UNFETCHED, fetchInterval, score));
   }

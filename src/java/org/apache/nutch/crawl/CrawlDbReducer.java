@@ -40,14 +40,16 @@ public class CrawlDbReducer implements Reducer {
   private ArrayList<CrawlDatum> linked = new ArrayList<CrawlDatum>();
   private ScoringFilters scfilters = null;
   private boolean additionsAllowed;
-  private float maxInterval;
+  private int maxInterval;
   private FetchSchedule schedule;
 
   public void configure(JobConf job) {
     retryMax = job.getInt("db.fetch.retry.max", 3);
     scfilters = new ScoringFilters(job);
     additionsAllowed = job.getBoolean(CrawlDb.CRAWLDB_ADDITIONS_ALLOWED, true);
-    maxInterval = (float)(job.getInt("db.max.fetch.interval", 30) * 3600 * 24);
+    int oldMaxInterval = job.getInt("db.max.fetch.interval", 0);
+    maxInterval = job.getInt("db.fetch.interval.max", 0 );
+    if (oldMaxInterval > 0 && maxInterval == 0) maxInterval = oldMaxInterval * FetchSchedule.SECONDS_PER_DAY;
     schedule = FetchScheduleFactory.getFetchSchedule(job);
   }
 

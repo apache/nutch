@@ -55,10 +55,12 @@ public class CrawlDbMerger extends ToolBase {
 
   public static class Merger extends MapReduceBase implements Reducer {
     MapWritable meta = new MapWritable();
+    private FetchSchedule schedule;
 
     public void close() throws IOException {}
 
     public void configure(JobConf conf) {
+      schedule = FetchScheduleFactory.getFetchSchedule(conf);
     }
 
     public void reduce(WritableComparable key, Iterator values, OutputCollector output, Reporter reporter)
@@ -70,17 +72,17 @@ public class CrawlDbMerger extends ToolBase {
         CrawlDatum val = (CrawlDatum) values.next();
         if (res == null) {
           res = val;
-          resTime = res.getFetchTime() - Math.round(res.getFetchInterval() * 3600 * 24 * 1000);
+          resTime = schedule.calculateLastFetchTime(res);
           meta.putAll(res.getMetaData());
           continue;
         }
         // compute last fetch time, and pick the latest
-        long valTime = val.getFetchTime() - Math.round(val.getFetchInterval() * 3600 * 24 * 1000);
+        long valTime = schedule.calculateLastFetchTime(val);
         if (valTime > resTime) {
           // collect all metadata, newer values override older values
           meta.putAll(val.getMetaData());
           res = val;
-          resTime = res.getFetchTime() - Math.round(res.getFetchInterval() * 3600 * 24 * 1000);
+          resTime = valTime ;
         } else {
           // insert older metadata before newer
           val.getMetaData().putAll(meta);

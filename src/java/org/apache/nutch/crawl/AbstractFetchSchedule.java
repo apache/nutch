@@ -33,8 +33,8 @@ import org.apache.nutch.crawl.CrawlDatum;
 public abstract class AbstractFetchSchedule extends Configured implements FetchSchedule {
   private static final Log LOG = LogFactory.getLog(AbstractFetchSchedule.class);
   
-  private float defaultInterval;
-  private float maxInterval;
+  private int defaultInterval;
+  private int maxInterval;
   
   public AbstractFetchSchedule() {
     super(null);
@@ -48,9 +48,11 @@ public abstract class AbstractFetchSchedule extends Configured implements FetchS
     super.setConf(conf);
     if (conf == null) return;
     int oldDefaultInterval = conf.getInt("db.default.fetch.interval", 0);
-    defaultInterval = conf.getFloat("db.fetch.interval.default", 0);
+    defaultInterval = conf.getInt("db.fetch.interval.default", 0);
     if (oldDefaultInterval > 0 && defaultInterval == 0) defaultInterval = oldDefaultInterval * SECONDS_PER_DAY;
-    maxInterval = conf.getFloat("db.fetch.interval.max", 30.0f * SECONDS_PER_DAY);
+    int oldMaxInterval = conf.getInt("db.max.fetch.interval", 0);
+    maxInterval = conf.getInt("db.fetch.interval.max", 0 );
+    if (oldMaxInterval > 0 && maxInterval == 0) maxInterval = oldMaxInterval * FetchSchedule.SECONDS_PER_DAY;
     LOG.info("defaultInterval=" + defaultInterval);
     LOG.info("maxInterval=" + maxInterval);
   }
@@ -91,7 +93,7 @@ public abstract class AbstractFetchSchedule extends Configured implements FetchS
     // no page is truly GONE ... just increase the interval by 50%
     // and try much later.
     datum.setFetchInterval(datum.getFetchInterval() * 1.5f);
-    datum.setFetchTime(fetchTime + Math.round(datum.getFetchInterval() * 1000.0d));
+    datum.setFetchTime(fetchTime + (long)datum.getFetchInterval() * 1000);
     if (maxInterval < datum.getFetchInterval()) forceRefetch(url, datum, false);
     return datum;
   }
@@ -117,6 +119,14 @@ public abstract class AbstractFetchSchedule extends Configured implements FetchS
   }
   
   /**
+   * This method return the last fetch time of the CrawlDatum
+   * @return the date as a long.
+   */
+  public long calculateLastFetchTime(CrawlDatum datum){
+    return  datum.getFetchTime() - (long)datum.getFetchInterval() * 1000;
+  }
+
+  /**
    * This method provides information whether the page is suitable for
    * selection in the current fetchlist. NOTE: a true return value does not
    * guarantee that the page will be fetched, it just allows it to be
@@ -136,7 +146,7 @@ public abstract class AbstractFetchSchedule extends Configured implements FetchS
     // pages are never truly GONE - we have to check them from time to time.
     // pages with too long fetchInterval are adjusted so that they fit within
     // maximum fetchInterval (segment retention period).
-    if (datum.getFetchTime() - curTime > maxInterval * 1000) {
+    if (datum.getFetchTime() - curTime > (long) maxInterval * 1000) {
       datum.setFetchInterval(maxInterval * 0.9f);
       datum.setFetchTime(curTime);
     }
