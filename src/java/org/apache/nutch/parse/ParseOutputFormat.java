@@ -84,7 +84,9 @@ public class ParseOutputFormat implements OutputFormat {
     final UrlValidator validator = UrlValidator.get();
     final int interval = job.getInt("db.fetch.interval.default", 2592000);
     final boolean ignoreExternalLinks = job.getBoolean("db.ignore.external.links", false);
-    final int maxOutlinks = job.getInt("db.max.outlinks.per.page", 100);
+    int maxOutlinksPerPage = job.getInt("db.max.outlinks.per.page", 100);
+    final int maxOutlinks = (maxOutlinksPerPage < 0) ? Integer.MAX_VALUE
+                                                     : maxOutlinksPerPage;
     final CompressionType compType = SequenceFile.getCompressionType(job);
     
     Path text =
