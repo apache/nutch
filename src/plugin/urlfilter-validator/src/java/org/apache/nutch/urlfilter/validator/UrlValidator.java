@@ -14,17 +14,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.net;
+package org.apache.nutch.urlfilter.validator;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.net.URLFilter;
+
 /**
  * <p>Validates URLs.</p>
  *
- * <p>Originally based in on php script by Debbie Dyer, validation.php v1.2b, Date: 03/07/02,
- * http://javascript.internet.com. However, this validation now bears little resemblance
- * to the php original.</p>
+ * <p>Originally based in on php script by Debbie Dyer, validation.php v1.2b,
+ * Date: 03/07/02,
+ * http://javascript.internet.com. However, this validation now bears little
+ * resemblance to the php original.</p>
  * <pre>
  *   Example of usage:
  *    UrlValidator urlValidator = UrlValidator.get();
@@ -36,16 +40,16 @@ import java.util.regex.Pattern;
  *
  *   prints out "url is valid"
  *  </pre>
- *  
+ *
  * <p>Based on UrlValidator code from Apache commons-validator.</p>
  *
  * @see
  * <a href='http://www.ietf.org/rfc/rfc2396.txt' >
  *  Uniform Resource Identifiers (URI): Generic Syntax
  * </a>
- * 
+ *
  */
-public class UrlValidator {
+public class UrlValidator implements URLFilter {
 
   private static final String ALPHA_CHARS = "a-zA-Z";
 
@@ -66,7 +70,8 @@ public class UrlValidator {
    * This expression derived/taken from the BNF for URI (RFC2396).
    */
   private static final Pattern URL_PATTERN =
-    Pattern.compile("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?");
+    Pattern.compile("^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)" +
+                    "(\\?([^#]*))?(#(.*))?");
 
   /**
    * Schema/Protocol (ie. http:, ftp:, file:, etc).
@@ -85,7 +90,7 @@ public class UrlValidator {
   /**
    * Protocol (ie. http:, ftp:,https:).
    */
-  private static final Pattern SCHEME_PATTERN = 
+  private static final Pattern SCHEME_PATTERN =
     Pattern.compile("^[" + SCHEME_CHARS + "]+");
 
   private static final Pattern AUTHORITY_PATTERN =
@@ -100,12 +105,12 @@ public class UrlValidator {
    */
   private static final int PARSE_AUTHORITY_EXTRA = 3;
 
-  private static final Pattern PATH_PATTERN = 
+  private static final Pattern PATH_PATTERN =
     Pattern.compile("^(/[-\\w:@&?=+,.!/~*'%$_;\\(\\)]*)?$");
 
   private static final Pattern QUERY_PATTERN = Pattern.compile("^(.*)$");
 
-  private static final Pattern LEGAL_ASCII_PATTERN = 
+  private static final Pattern LEGAL_ASCII_PATTERN =
     Pattern.compile("^[\\x21-\\x7E]+$");
 
   private static final Pattern IP_V4_DOMAIN_PATTERN =
@@ -114,32 +119,40 @@ public class UrlValidator {
   private static final Pattern DOMAIN_PATTERN =
     Pattern.compile("^" + ATOM + "(\\." + ATOM + ")*$");
 
-  private static final Pattern PORT_PATTERN = 
+  private static final Pattern PORT_PATTERN =
     Pattern.compile("^:(\\d{1,5})$");
 
-  private static final Pattern ATOM_PATTERN = 
+  private static final Pattern ATOM_PATTERN =
     Pattern.compile("(" + ATOM + ")");
 
-  private static final Pattern ALPHA_PATTERN = 
+  private static final Pattern ALPHA_PATTERN =
     Pattern.compile("^[" + ALPHA_CHARS + "]");
-  
-  private static final UrlValidator VALIDATOR = new UrlValidator();
 
-  private UrlValidator() { 
+  private Configuration conf;
+
+  @Override
+  public String filter(String urlString) {
+    return isValid(urlString) ? urlString : null;
   }
-  
-  public static UrlValidator get() {
-    return VALIDATOR;
+
+  @Override
+  public Configuration getConf() {
+    return conf;
+  }
+
+  @Override
+  public void setConf(Configuration conf) {
+    this.conf = conf;
   }
 
   /**
    * <p>Checks if a field has a valid url address.</p>
    *
-   * @param value The value validation is being performed on.  A <code>null</code>
-   * value is considered invalid.
+   * @param value The value validation is being performed on.
+   * A <code>null</code> value is considered invalid.
    * @return true if the url is valid.
    */
-  public boolean isValid(String value) {
+  private boolean isValid(String value) {
     if (value == null) {
       return false;
     }
@@ -177,11 +190,11 @@ public class UrlValidator {
    * Validate scheme. If schemes[] was initialized to a non null,
    * then only those scheme's are allowed.  Note this is slightly different
    * than for the constructor.
-   * @param scheme The scheme to validate.  A <code>null</code> value is considered
-   * invalid.
+   * @param scheme The scheme to validate.  A <code>null</code> value is
+   * considered invalid.
    * @return true if valid.
    */
-  protected boolean isValidScheme(String scheme) {
+  private boolean isValidScheme(String scheme) {
     if (scheme == null) {
       return false;
     }
@@ -190,12 +203,13 @@ public class UrlValidator {
   }
 
   /**
-   * Returns true if the authority is properly formatted.  An authority is the combination
-   * of hostname and port.  A <code>null</code> authority value is considered invalid.
+   * Returns true if the authority is properly formatted.  An authority is
+   * the combination of hostname and port.  A <code>null</code> authority
+   * value is considered invalid.
    * @param authority Authority value to validate.
    * @return true if authority (hostname and port) is valid.
    */
-  protected boolean isValidAuthority(String authority) {
+  private boolean isValidAuthority(String authority) {
     if (authority == null) {
       return false;
     }
@@ -253,7 +267,7 @@ public class UrlValidator {
       while (atomMatcher.find()) {
         domainSegment[segCount] = atomMatcher.group();
         segLen = domainSegment[segCount].length() + 1;
-        hostIP = (segLen >= hostIP.length()) ? "" 
+        hostIP = (segLen >= hostIP.length()) ? ""
                                              : hostIP.substring(segLen);
         segCount++;
       }
@@ -289,7 +303,7 @@ public class UrlValidator {
   }
 
   /**
-   * <p>Checks if the field isn't null and length of the field is greater 
+   * <p>Checks if the field isn't null and length of the field is greater
    * than zero not including whitespace.</p>
    *
    * @param value The value validation is being performed on.
@@ -300,11 +314,12 @@ public class UrlValidator {
   }
 
   /**
-   * Returns true if the path is valid.  A <code>null</code> value is considered invalid.
+   * Returns true if the path is valid.  A <code>null</code> value is
+   * considered invalid.
    * @param path Path value to validate.
    * @return true if path is valid.
    */
-  protected boolean isValidPath(String path) {
+  private boolean isValidPath(String path) {
     if (path == null) {
       return false;
     }
@@ -316,16 +331,17 @@ public class UrlValidator {
     int slash2Count = countToken("//", path);
     int slashCount = countToken("/", path);
     int dot2Count = countToken("..", path);
-    
+
     return (dot2Count <= 0) || ((slashCount - slash2Count - 1) > dot2Count);
   }
 
   /**
-   * Returns true if the query is null or it's a properly formatted query string.
+   * Returns true if the query is null or it's a properly formatted query
+   * string.
    * @param query Query value to validate.
    * @return true if query is valid.
    */
-  protected boolean isValidQuery(String query) {
+  private boolean isValidQuery(String query) {
     if (query == null) {
       return true;
     }
@@ -339,7 +355,7 @@ public class UrlValidator {
    * @param target Target value to count tokens in.
    * @return the number of tokens.
    */
-  protected int countToken(String token, String target) {
+  private int countToken(String token, String target) {
     int tokenIndex = 0;
     int count = 0;
     while (tokenIndex != -1) {
@@ -351,4 +367,5 @@ public class UrlValidator {
     }
     return count;
   }
+
 }
