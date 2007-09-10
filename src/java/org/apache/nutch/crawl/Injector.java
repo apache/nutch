@@ -52,7 +52,6 @@ public class Injector extends ToolBase {
     private URLFilters filters;
     private ScoringFilters scfilters;
     private long curTime;
-    final UrlValidator validator = UrlValidator.get();
 
     public void configure(JobConf job) {
       this.jobConf = job;
@@ -73,10 +72,7 @@ public class Injector extends ToolBase {
       String url = value.toString();              // value is line of text
       // System.out.println("url: " +url);
       try {
-        url = urlNormalizers.normalize(url, URLNormalizers.SCOPE_INJECT);       // normalize the url
-        if (!validator.isValid(url)) {
-    	  return;
-        }
+        url = urlNormalizers.normalize(url, URLNormalizers.SCOPE_INJECT);
         url = filters.filter(url);             // filter the url
       } catch (Exception e) {
         if (LOG.isWarnEnabled()) { LOG.warn("Skipping " +url+":"+e); }

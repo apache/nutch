@@ -81,7 +81,6 @@ public class ParseOutputFormat implements OutputFormat {
 
     this.filters = new URLFilters(job);
     this.scfilters = new ScoringFilters(job);
-    final UrlValidator validator = UrlValidator.get();
     final int interval = job.getInt("db.fetch.interval.default", 2592000);
     final boolean ignoreExternalLinks = job.getBoolean("db.ignore.external.links", false);
     int maxOutlinksPerPage = job.getInt("db.max.outlinks.per.page", 100);
@@ -165,9 +164,6 @@ public class ParseOutputFormat implements OutputFormat {
               if (toHost == null || !toHost.equals(fromHost)) { // external links
                 continue; // skip it
               }
-            }
-            if (!validator.isValid(toUrl)) {
-              continue;
             }
             try {
               // normalizing here is not necessary since outlinks 
