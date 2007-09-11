@@ -130,17 +130,14 @@ public class UrlValidator implements URLFilter {
 
   private Configuration conf;
 
-  @Override
   public String filter(String urlString) {
     return isValid(urlString) ? urlString : null;
   }
 
-  @Override
   public Configuration getConf() {
     return conf;
   }
 
-  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
