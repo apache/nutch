@@ -184,7 +184,13 @@ public class Generator extends ToolBase {
         Text url = entry.url;
 
         if (maxPerHost > 0) {                     // are we counting hosts?
-          URL u = new URL(url.toString());
+          URL u = null;
+          try {
+            u = new URL(url.toString());
+          } catch (MalformedURLException e) {
+            LOG.info("Bad protocol in url: " + url.toString());
+            continue;
+          }
           String host = u.getHost();
           if (host == null) {
             // unknown host, skip
