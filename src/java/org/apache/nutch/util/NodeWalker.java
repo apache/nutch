@@ -77,8 +77,7 @@ public class NodeWalker {
     
     int childLen = (currentChildren != null) ? currentChildren.getLength() : 0;
     
-    // put the children node on the stack in first to last order
-    for (int i = childLen - 1; i >= 0; i--) {
+    for (int i = 0 ; i < childLen ; i++) {
       Node child = nodes.peek();
       if (child.equals(currentChildren.item(i))) {
         nodes.pop();
