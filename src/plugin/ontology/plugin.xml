@@ -28,7 +28,6 @@
       </library>
 
       <library name="commons-logging-1.0.3.jar"/>
-      <library name="icu4j_2_6_1.jar"/>
       <library name="jena-2.1.jar"/>
 
    </runtime>

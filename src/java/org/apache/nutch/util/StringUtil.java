@@ -17,9 +17,6 @@
 
 package org.apache.nutch.util;
 
-import java.util.HashMap;
-import java.nio.charset.Charset;
-
 /**
  * A collection of String processing utility methods. 
  */
@@ -123,71 +120,10 @@ public class StringUtil {
   }
 
   /**
-   * Parse the character encoding from the specified content type header.
-   * If the content type is null, or there is no explicit character encoding,
-   * <code>null</code> is returned.
-   * <br />
-   * This method was copy from org.apache.catalina.util.RequestUtil 
-   * is licensed under the Apache License, Version 2.0 (the "License").
-   *
-   * @param contentType a content type header
-   */
-  public static String parseCharacterEncoding(String contentType) {
-    if (contentType == null)
-      return (null);
-    int start = contentType.indexOf("charset=");
-    if (start < 0)
-      return (null);
-    String encoding = contentType.substring(start + 8);
-    int end = encoding.indexOf(';');
-    if (end >= 0)
-      encoding = encoding.substring(0, end);
-    encoding = encoding.trim();
-    if ((encoding.length() > 2) && (encoding.startsWith("\""))
-      && (encoding.endsWith("\"")))
-      encoding = encoding.substring(1, encoding.length() - 1);
-    return (encoding.trim());
-
-  }
-
-  /**
    * Checks if a string is empty (ie is null or empty).
    */
   public static boolean isEmpty(String str) {
     return (str == null) || (str.equals(""));
-  }
-  
-  
-  private static HashMap encodingAliases = new HashMap();
-
-  /** 
-   * the following map is not an alias mapping table, but
-   * maps character encodings which are often used in mislabelled
-   * documents to their correct encodings. For instance,
-   * there are a lot of documents labelled 'ISO-8859-1' which contain
-   * characters not covered by ISO-8859-1 but covered by windows-1252. 
-   * Because windows-1252 is a superset of ISO-8859-1 (sharing code points
-   * for the common part), it's better to treat ISO-8859-1 as
-   * synonymous with windows-1252 than to reject, as invalid, documents
-   * labelled as ISO-8859-1 that have characters outside ISO-8859-1.
-   */
-  static {
-    encodingAliases.put("ISO-8859-1", "windows-1252"); 
-    encodingAliases.put("EUC-KR", "x-windows-949"); 
-    encodingAliases.put("x-EUC-CN", "GB18030"); 
-    encodingAliases.put("GBK", "GB18030"); 
- // encodingAliases.put("Big5", "Big5HKSCS"); 
- // encodingAliases.put("TIS620", "Cp874"); 
- // encodingAliases.put("ISO-8859-11", "Cp874"); 
-
-  }
-
-  public static String resolveEncodingAlias(String encoding) {
-    if (!Charset.isSupported(encoding))
-      return null;
-    String canonicalName = new String(Charset.forName(encoding).name());
-    return encodingAliases.containsKey(canonicalName) ? 
-           (String) encodingAliases.get(canonicalName) : canonicalName; 
   }
 
   public static void main(String[] args) {
@@ -195,6 +131,6 @@ public class StringUtil {
       System.out.println("Usage: StringUtil <encoding name>");
     else 
       System.out.println(args[0] + " is resolved to " +
-                         resolveEncodingAlias(args[0])); 
+                         EncodingDetector.resolveEncodingAlias(args[0]));
   }
 }

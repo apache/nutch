@@ -47,6 +47,7 @@ import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.ParserFactory;
 import org.apache.nutch.parse.ParserNotFound;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.EncodingDetector;
 import org.apache.nutch.util.NutchConfiguration;
 import org.xml.sax.InputSource;
 
@@ -88,6 +89,8 @@ public class FeedParser implements Parser {
 
   private URLFilters filters;
 
+  private String defaultEncoding;
+
   /**
    * Parses the given feed and extracts out and parsers all linked items within
    * the feed, using the underlying ROME feed parsing library.
@@ -103,9 +106,14 @@ public class FeedParser implements Parser {
   public ParseResult getParse(Content content) {
     SyndFeed feed = null;
     ParseResult parseResult = new ParseResult(content.getUrl());
+
+    EncodingDetector detector = new EncodingDetector(conf);
+    detector.autoDetectClues(content, true);
+    String encoding = detector.guessEncoding(content, defaultEncoding);
     try {
       InputSource input = new InputSource(new ByteArrayInputStream(content
           .getContent()));
+      input.setEncoding(encoding);
       SyndFeedInput feedInput = new SyndFeedInput();
       feed = feedInput.build(input);
     } catch (Exception e) {
@@ -163,6 +171,8 @@ public class FeedParser implements Parser {
     this.parserFactory = new ParserFactory(conf);
     this.normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_OUTLINK);
     this.filters = new URLFilters(conf);
+    this.defaultEncoding =
+      conf.get("parser.character.encoding.default", "windows-1252");
   }
 
   /**

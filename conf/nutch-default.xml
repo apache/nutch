@@ -852,6 +852,14 @@
 </property>
 
 <property>
+  <name>encodingdetector.charset.min.confidence</name>
+  <value>-1</value>
+  <description>A integer between 0-100 indicating minimum confidence value
+  for charset auto-detection. Any negative value disables auto-detection.
+  </description>
+</property>
+
+<property>
   <name>parser.caching.forbidden.policy</name>
   <value>content</value>
   <description>If a site (or a page) requests through its robot metatags
