@@ -36,16 +36,15 @@ public class TextParser implements Parser {
   /**
    * Parses plain text document. This code uses configured default encoding
    * {@code parser.character.encoding.default} if character set isn't specified
-   * as HTTP header. FIXME: implement charset detector
+   * as HTTP header.
    */
   public ParseResult getParse(Content content) {
-
-    String encoding = StringUtil.parseCharacterEncoding(content
-        .getContentType());
+    EncodingDetector detector = new EncodingDetector(conf);
+    detector.autoDetectClues(content, false);
+    String encoding = detector.guessEncoding(content, defaultEncoding);
     String text;
     try {
-      text = new String(content.getContent(), encoding != null ? encoding
-          : defaultEncoding);
+      text = new String(content.getContent(), encoding);
     } catch (java.io.UnsupportedEncodingException e) {
       return new ParseStatus(e)
           .getEmptyParseResult(content.getUrl(), getConf());
@@ -57,9 +56,9 @@ public class TextParser implements Parser {
   }
 
   public void setConf(Configuration conf) {
+    this.conf = conf;
     defaultEncoding = conf.get("parser.character.encoding.default",
         "windows-1252");
-    this.conf = conf;
   }
 
   public Configuration getConf() {
