@@ -81,7 +81,14 @@ public class HtmlParser implements Parser {
     // to just inflate each byte to a 16-bit value by padding. 
     // For instance, the sequence {0x41, 0x82, 0xb7} will be turned into 
     // {U+0041, U+0082, U+00B7}. 
-    String str = new String(content, 0, length, Charset.forName("ASCII"));
+    String str = "";
+    try {
+      str = new String(content, 0, length,
+                       Charset.forName("ASCII").toString());
+    } catch (UnsupportedEncodingException e) {
+      // code should never come here, but just in case... 
+      return null;
+    }
 
     Matcher metaMatcher = metaPattern.matcher(str);
     String encoding = null;
