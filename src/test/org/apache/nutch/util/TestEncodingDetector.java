@@ -1,7 +1,6 @@
 package org.apache.nutch.util;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
@@ -58,9 +57,9 @@ public class TestEncodingDetector extends TestCase {
         contentInOctets, "text/plain", metadata, conf);
     detector = new EncodingDetector(conf);
     detector.autoDetectClues(content, true);
-    detector.addClue("utf-32", "sniffed");
+    detector.addClue("windows-1254", "sniffed");
     encoding = detector.guessEncoding(content, "windows-1252");
-    assertEquals("utf-32", encoding.toLowerCase());
+    assertEquals("windows-1254", encoding.toLowerCase());
 
     // enable autodetection
     conf.setInt(EncodingDetector.MIN_CONFIDENCE_KEY, 50);
