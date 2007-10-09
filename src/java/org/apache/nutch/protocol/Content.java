@@ -17,6 +17,7 @@
 
 package org.apache.nutch.protocol;
 
+//JDK imports
 import java.io.ByteArrayInputStream;
 import java.io.DataInput;
 import java.io.DataInputStream;
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.zip.InflaterInputStream;
 
+//Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -33,11 +35,16 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.UTF8;
 import org.apache.hadoop.io.VersionMismatchException;
 import org.apache.hadoop.io.Writable;
+
+//Nutch imports
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.mime.MimeType;
-import org.apache.nutch.util.mime.MimeTypeException;
-import org.apache.nutch.util.mime.MimeTypes;
+
+//Tika imports
+import org.apache.tika.mime.MimeType;
+import org.apache.tika.mime.MimeTypeException;
+import org.apache.tika.mime.MimeUtils;
+
 
 public final class Content implements Writable{
 
@@ -59,7 +66,7 @@ public final class Content implements Writable{
 
   private boolean mimeTypeMagic;
 
-  private MimeTypes mimeTypes;
+  private static MimeUtils mimeTypes;
 
   public Content() {
     metadata = new Metadata();
@@ -82,7 +89,9 @@ public final class Content implements Writable{
     this.content = content;
     this.metadata = metadata;
     this.mimeTypeMagic = conf.getBoolean("mime.type.magic", true);
-    this.mimeTypes = MimeTypes.get(conf.get("mime.types.file"));
+    if(this.mimeTypes == null){
+      this.mimeTypes = new MimeUtils(conf.get("mime.types.file"), this.mimeTypeMagic);
+    }
     this.contentType = getContentType(contentType, url, content);
   }
 
@@ -281,28 +290,40 @@ public final class Content implements Writable{
 
   private String getContentType(String typeName, String url, byte[] data) {
     MimeType type = null;
+    String cleanedMimeType = null;
+
     try {
-      typeName = MimeType.clean(typeName);
-      type = typeName == null ? null : this.mimeTypes.forName(typeName);
+      cleanedMimeType = MimeType.clean(typeName);
     } catch (MimeTypeException mte) {
       // Seems to be a malformed mime type name...
     }
 
-    if (typeName == null || type == null || !type.matches(url)) {
+    // first try to get the type from the cleaned type name
+    type = cleanedMimeType != null ? this.mimeTypes.getRepository().forName(
+        cleanedMimeType) : null;
+
+    // if returned null, then try url resolution
+    if (type == null) {
       // If no mime-type header, or cannot find a corresponding registered
-      // mime-type, or the one found doesn't match the url pattern
-      // it shouldbe, then guess a mime-type from the url pattern
-      type = this.mimeTypes.getMimeType(url);
-      typeName = type == null ? typeName : type.getName();
+      // mime-type, then guess a mime-type from the url pattern
+      type = this.mimeTypes.getRepository().getMimeType(url) != null ? this.mimeTypes
+          .getRepository().getMimeType(url)
+          : type;
     }
-    if (typeName == null || type == null
-        || (this.mimeTypeMagic && type.hasMagic() && !type.matches(data))) {
-      // If no mime-type already found, or the one found doesn't match
-      // the magic bytes it should be, then, guess a mime-type from the
-      // document content (magic bytes)
-      type = this.mimeTypes.getMimeType(data);
-      typeName = type == null ? typeName : type.getName();
+
+    // if magic is enabled use mime magic to guess if the mime type returned
+    // from the magic guess is different than the one that's already set so far
+    // if it is, go with the mime type returned by the magic
+    if (this.mimeTypeMagic) {
+      MimeType magicType = this.mimeTypes.getRepository().getMimeType(data);
+      if (magicType != null && !type.getName().equals(magicType.getName())) {
+        // If magic enabled and the current mime type differs from that of the
+        // one returned from the magic, take the magic mimeType
+
+        type = magicType;
+      }
     }
-    return typeName;
+
+    return type.getName();
   }
 }

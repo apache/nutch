@@ -784,7 +784,7 @@
 
 <property>
   <name>mime.types.file</name>
-  <value>mime-types.xml</value>
+  <value>tika-mimetypes.xml</value>
   <description>Name of file in CLASSPATH containing filename extension and
   magic sequence to mime types mapping information</description>
 </property>
