@@ -36,8 +36,10 @@ import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRuntimeException;
 import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.util.LogUtil;
-import org.apache.nutch.util.mime.MimeType;
-import org.apache.nutch.util.mime.MimeTypeException;
+
+// Tika imports
+import org.apache.tika.mime.MimeType;
+import org.apache.tika.mime.MimeTypeException;
 
 
 /** Creates and caches {@link Parser} plugins.*/

@@ -23,6 +23,9 @@ import org.apache.oro.text.regex.Perl5Pattern;
 import org.apache.oro.text.regex.PatternMatcher;
 import org.apache.oro.text.regex.MatchResult;
 import org.apache.oro.text.regex.MalformedPatternException;
+import org.apache.tika.mime.MimeType;
+import org.apache.tika.mime.MimeTypeException;
+import org.apache.tika.mime.MimeUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,10 +46,6 @@ import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.parse.ParseData;
-
-import org.apache.nutch.util.mime.MimeType;
-import org.apache.nutch.util.mime.MimeTypes;
-import org.apache.nutch.util.mime.MimeTypeException;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
@@ -80,7 +79,7 @@ public class MoreIndexingFilter implements IndexingFilter {
   private boolean MAGIC;
 
   /** Get the MimeTypes resolver instance. */
-  private MimeTypes MIME; 
+  private static MimeUtils MIME; 
   
   public Document filter(Document doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
     throws IndexingException {
@@ -194,7 +193,7 @@ public class MoreIndexingFilter implements IndexingFilter {
         // } else {
         //   contentType = MIME.getMimeType(url);
         // }
-        mimeType = MIME.getMimeType(url);
+        mimeType = MIME.getRepository().getMimeType(url);
     } else {
         try {
             mimeType = new MimeType(contentType);
@@ -281,7 +280,8 @@ public class MoreIndexingFilter implements IndexingFilter {
   public void setConf(Configuration conf) {
     this.conf = conf;
     MAGIC = conf.getBoolean("mime.type.magic", true);
-    MIME = MimeTypes.get(getConf().get("mime.types.file"));
+    if(MIME == null)
+      MIME = new MimeUtils(getConf().get("mime.types.file"), MAGIC);
   }
 
   public Configuration getConf() {

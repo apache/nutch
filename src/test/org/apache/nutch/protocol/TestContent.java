@@ -22,6 +22,7 @@ import org.apache.nutch.metadata.SpellCheckedMetadata;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.WritableTestUtils;
+import org.apache.tika.mime.MimeTypes;
 
 import junit.framework.TestCase;
 
@@ -98,13 +99,13 @@ public class TestContent extends TestCase {
                     "http://www.foo.com/",
                     "".getBytes("UTF8"),
                     "", p, conf);
-    assertEquals("", c.getContentType());
+    assertEquals(MimeTypes.DEFAULT, c.getContentType());
 
     c = new Content("http://www.foo.com/",
                     "http://www.foo.com/",
                     "".getBytes("UTF8"),
                     null, p, conf);
-    assertNull(c.getContentType());
+    assertNotNull(c.getContentType());
   }
 
 }
