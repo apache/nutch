@@ -887,6 +887,16 @@
   be ignored.</description>
 </property>
 
+<property>
+  <name>parser.html.outlinks.ignore_tags</name>
+  <value></value>
+  <description>Comma separated list of HTML tags, from which outlinks 
+  shouldn't be extracted. Nutch takes links from: a, area, form, frame, 
+  iframe, script, link, img. If you add any of those tags here, it
+  won't be taken. Default is empty list. Probably reasonable value
+  for most people would be "img,script,link".</description>
+</property>
+
 
 <!-- urlfilter plugin properties -->
 
