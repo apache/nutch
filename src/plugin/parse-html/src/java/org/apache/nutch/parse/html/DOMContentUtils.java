@@ -19,6 +19,7 @@ package org.apache.nutch.parse.html;
 
 import java.net.URL;
 import java.net.MalformedURLException;
+import java.util.Collection;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Stack;
@@ -62,18 +63,30 @@ public class DOMContentUtils {
   }
   
   public void setConf(Configuration conf) {
+    // forceTags is used to override configurable tag ignoring, later on
+    Collection<String> forceTags = new ArrayList<String>(1);
+
     this.conf = conf;
     linkParams.clear();
     linkParams.put("a", new LinkParams("a", "href", 1));
     linkParams.put("area", new LinkParams("area", "href", 0));
-    if (conf.getBoolean("parser.html.form.use_action", false)) {
+    if (conf.getBoolean("parser.html.form.use_action", true)) {
       linkParams.put("form", new LinkParams("form", "action", 1));
+      if (conf.get("parser.html.form.use_action") != null)
+        forceTags.add("form");
     }
     linkParams.put("frame", new LinkParams("frame", "src", 0));
     linkParams.put("iframe", new LinkParams("iframe", "src", 0));
     linkParams.put("script", new LinkParams("script", "src", 0));
     linkParams.put("link", new LinkParams("link", "href", 0));
     linkParams.put("img", new LinkParams("img", "src", 0));
+
+    // remove unwanted link tags from the linkParams map
+    String[] ignoreTags = conf.getStrings("parser.html.outlinks.ignore_tags");
+    for ( int i = 0 ; ignoreTags != null && i < ignoreTags.length ; i++ ) {
+      if ( ! forceTags.contains(ignoreTags[i]) )
+        linkParams.remove(ignoreTags[i]);
+    }
   }
   
   /**
