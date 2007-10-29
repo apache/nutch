@@ -35,6 +35,7 @@ import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.plugin.PluginRuntimeException;
+import org.apache.nutch.util.ObjectCache;
 
 /**
  * This class uses a "chained filter" pattern to run defined normalizers.
@@ -115,18 +116,19 @@ public final class URLNormalizers {
     this.conf = conf;
     this.extensionPoint = PluginRepository.get(conf).getExtensionPoint(
             URLNormalizer.X_POINT_ID);
-
+    ObjectCache objectCache = ObjectCache.get(conf);
+    
     if (this.extensionPoint == null) {
       throw new RuntimeException("x point " + URLNormalizer.X_POINT_ID
               + " not found.");
     }
 
-    normalizers = (URLNormalizer[])conf.getObject(URLNormalizer.X_POINT_ID + "_" + scope);
+    normalizers = (URLNormalizer[])objectCache.getObject(URLNormalizer.X_POINT_ID + "_" + scope);
     if (normalizers == null) {
       normalizers = getURLNormalizers(scope);
     }
     if (normalizers == EMPTY_NORMALIZERS) {
-      normalizers = (URLNormalizer[])conf.getObject(URLNormalizer.X_POINT_ID + "_" + SCOPE_DEFAULT);
+      normalizers = (URLNormalizer[])objectCache.getObject(URLNormalizer.X_POINT_ID + "_" + SCOPE_DEFAULT);
       if (normalizers == null) {
         normalizers = getURLNormalizers(SCOPE_DEFAULT);
       }
@@ -148,6 +150,7 @@ public final class URLNormalizers {
    */
   URLNormalizer[] getURLNormalizers(String scope) {
     List<Extension> extensions = getExtensions(scope);
+    ObjectCache objectCache = ObjectCache.get(conf);
     
     if (extensions == EMPTY_EXTENSION_LIST) {
       return EMPTY_NORMALIZERS;
@@ -161,11 +164,11 @@ public final class URLNormalizers {
       URLNormalizer normalizer = null;
       try {
         // check to see if we've cached this URLNormalizer instance yet
-        normalizer = (URLNormalizer) this.conf.getObject(ext.getId());
+        normalizer = (URLNormalizer) objectCache.getObject(ext.getId());
         if (normalizer == null) {
           // go ahead and instantiate it and then cache it
           normalizer = (URLNormalizer) ext.getExtensionInstance();
-          this.conf.setObject(ext.getId(), normalizer);
+          objectCache.setObject(ext.getId(), normalizer);
         }
         normalizers.add(normalizer);
       } catch (PluginRuntimeException e) {
@@ -191,9 +194,10 @@ public final class URLNormalizers {
    * @throws PluginRuntimeException
    */
   private List<Extension> getExtensions(String scope) {
-
-    List<Extension> extensions = (List<Extension>) this.conf.getObject(URLNormalizer.X_POINT_ID + "_x_"
-            + scope);
+    ObjectCache objectCache = ObjectCache.get(conf);
+    List<Extension> extensions = 
+      (List<Extension>) objectCache.getObject(URLNormalizer.X_POINT_ID + "_x_"
+                                                + scope);
 
     // Just compare the reference:
     // if this is the empty list, we know we will find no extension.
@@ -204,11 +208,11 @@ public final class URLNormalizers {
     if (extensions == null) {
       extensions = findExtensions(scope);
       if (extensions != null) {
-        this.conf.setObject(URLNormalizer.X_POINT_ID + "_x_" + scope, extensions);
+        objectCache.setObject(URLNormalizer.X_POINT_ID + "_x_" + scope, extensions);
       } else {
         // Put the empty extension list into cache
         // to remember we don't know any related extension.
-        this.conf.setObject(URLNormalizer.X_POINT_ID + "_x_" + scope, EMPTY_EXTENSION_LIST);
+        objectCache.setObject(URLNormalizer.X_POINT_ID + "_x_" + scope, EMPTY_EXTENSION_LIST);
         extensions = EMPTY_EXTENSION_LIST;
       }
     }

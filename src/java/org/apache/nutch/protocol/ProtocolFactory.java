@@ -25,6 +25,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.nutch.plugin.*;
+import org.apache.nutch.util.ObjectCache;
 
 import org.apache.hadoop.conf.Configuration;
 
@@ -63,6 +64,7 @@ public class ProtocolFactory {
    *           when Protocol can not be found for urlString
    */
   public Protocol getProtocol(String urlString) throws ProtocolNotFound {
+    ObjectCache objectCache = ObjectCache.get(conf);
     try {
       URL url = new URL(urlString);
       String protocolName = url.getProtocol();
@@ -70,8 +72,8 @@ public class ProtocolFactory {
       if (protocolName == null)
         throw new ProtocolNotFound(urlString);
 
-      if (conf.getObject(cacheId) != null) {
-        return (Protocol) conf.getObject(cacheId);
+      if (objectCache.getObject(cacheId) != null) {
+        return (Protocol) objectCache.getObject(cacheId);
       } else {
         Extension extension = findExtension(protocolName);
         if (extension == null) {
@@ -80,7 +82,7 @@ public class ProtocolFactory {
 
         Protocol protocol = (Protocol) extension.getExtensionInstance();
 
-        conf.setObject(cacheId, protocol);
+        objectCache.setObject(cacheId, protocol);
 
         return protocol;
       }

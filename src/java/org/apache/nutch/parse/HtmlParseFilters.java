@@ -21,6 +21,7 @@ import java.util.HashMap;
 
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.plugin.*;
+import org.apache.nutch.util.ObjectCache;
 import org.apache.hadoop.conf.Configuration;
 
 import org.w3c.dom.DocumentFragment;
@@ -31,7 +32,8 @@ public class HtmlParseFilters {
   private HtmlParseFilter[] htmlParseFilters;
 
   public HtmlParseFilters(Configuration conf) {
-        this.htmlParseFilters = (HtmlParseFilter[]) conf.getObject(HtmlParseFilter.class.getName());
+        ObjectCache objectCache = ObjectCache.get(conf);
+        this.htmlParseFilters = (HtmlParseFilter[]) objectCache.getObject(HtmlParseFilter.class.getName());
         if (htmlParseFilters == null) {
             HashMap<String, HtmlParseFilter> filters =
               new HashMap<String, HtmlParseFilter>();
@@ -48,11 +50,11 @@ public class HtmlParseFilters {
                     }
                 }
                 HtmlParseFilter[] htmlParseFilters = filters.values().toArray(new HtmlParseFilter[filters.size()]);
-                conf.setObject(HtmlParseFilter.class.getName(), htmlParseFilters);
+                objectCache.setObject(HtmlParseFilter.class.getName(), htmlParseFilters);
             } catch (PluginRuntimeException e) {
                 throw new RuntimeException(e);
             }
-            this.htmlParseFilters = (HtmlParseFilter[]) conf.getObject(HtmlParseFilter.class.getName());
+            this.htmlParseFilters = (HtmlParseFilter[]) objectCache.getObject(HtmlParseFilter.class.getName());
         }
     }                  
 

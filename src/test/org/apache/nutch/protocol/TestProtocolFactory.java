@@ -18,6 +18,7 @@ package org.apache.nutch.protocol;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.ObjectCache;
 
 import junit.framework.TestCase;
 
@@ -56,7 +57,7 @@ public class TestProtocolFactory extends TestCase {
     }
 
     //cache key
-    Object protocol=conf.getObject(Protocol.X_POINT_ID + "http");
+    Object protocol = ObjectCache.get(conf).getObject(Protocol.X_POINT_ID + "http");
     assertNotNull(protocol);
     assertEquals(httpProtocol, protocol);
     

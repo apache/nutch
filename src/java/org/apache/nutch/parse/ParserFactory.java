@@ -36,6 +36,7 @@ import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRuntimeException;
 import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.util.LogUtil;
+import org.apache.nutch.util.ObjectCache;
 
 // Tika imports
 import org.apache.tika.mime.MimeType;
@@ -59,12 +60,13 @@ public final class ParserFactory {
 
   public ParserFactory(Configuration conf) {
     this.conf = conf;
+    ObjectCache objectCache = ObjectCache.get(conf);
     this.extensionPoint = PluginRepository.get(conf).getExtensionPoint(
         Parser.X_POINT_ID);
-    this.parsePluginList = (ParsePluginList)conf.getObject(ParsePluginList.class.getName());
+    this.parsePluginList = (ParsePluginList)objectCache.getObject(ParsePluginList.class.getName());
     if (this.parsePluginList == null) {
       this.parsePluginList = new ParsePluginsReader().parse(conf);
-      conf.setObject(ParsePluginList.class.getName(), this.parsePluginList);
+      objectCache.setObject(ParsePluginList.class.getName(), this.parsePluginList);
     }
 
     if (this.extensionPoint == null) {
@@ -107,6 +109,8 @@ public final class ParserFactory {
     List<Parser> parsers = null;
     List parserExts = null;
     
+    ObjectCache objectCache = ObjectCache.get(conf);
+    
     // TODO once the MimeTypes is available
     // parsers = getExtensions(MimeUtils.map(contentType));
     // if (parsers != null) {
@@ -126,11 +130,11 @@ public final class ParserFactory {
       Parser p = null;
       try {
         //check to see if we've cached this parser instance yet
-        p = (Parser) this.conf.getObject(ext.getId());
+        p = (Parser) objectCache.getObject(ext.getId());
         if (p == null) {
           // go ahead and instantiate it and then cache it
           p = (Parser) ext.getExtensionInstance();
-          this.conf.setObject(ext.getId(),p);
+          objectCache.setObject(ext.getId(),p);
         }
         parsers.add(p);
       } catch (PluginRuntimeException e) {
@@ -172,6 +176,8 @@ public final class ParserFactory {
     Extension[] extensions = this.extensionPoint.getExtensions();
     Extension parserExt = null;
 
+    ObjectCache objectCache = ObjectCache.get(conf);
+    
     if (id != null) {
       parserExt = getExtension(extensions, id);
     }
@@ -184,14 +190,14 @@ public final class ParserFactory {
     }
     
     // first check the cache	    	   
-    if (this.conf.getObject(parserExt.getId()) != null) {
-      return (Parser) this.conf.getObject(parserExt.getId());
+    if (objectCache.getObject(parserExt.getId()) != null) {
+      return (Parser) objectCache.getObject(parserExt.getId());
 
     // if not found in cache, instantiate the Parser    
     } else {
       try {
         Parser p = (Parser) parserExt.getExtensionInstance();
-        this.conf.setObject(parserExt.getId(), p);
+        objectCache.setObject(parserExt.getId(), p);
         return p;
       } catch (PluginRuntimeException e) {
         if (LOG.isWarnEnabled()) {
@@ -213,6 +219,7 @@ public final class ParserFactory {
    */
   protected List<Extension> getExtensions(String contentType) {
     
+    ObjectCache objectCache = ObjectCache.get(conf);
     // First of all, tries to clean the content-type
     String type = null;
     try {
@@ -225,7 +232,7 @@ public final class ParserFactory {
       type = contentType;
     }
 
-    List<Extension> extensions = (List<Extension>) this.conf.getObject(type);
+    List<Extension> extensions = (List<Extension>) objectCache.getObject(type);
 
     // Just compare the reference:
     // if this is the empty list, we know we will find no extension.
@@ -236,11 +243,11 @@ public final class ParserFactory {
     if (extensions == null) {
       extensions = findExtensions(type);
       if (extensions != null) {
-        this.conf.setObject(type, extensions);
+        objectCache.setObject(type, extensions);
       } else {
       	// Put the empty extension list into cache
       	// to remember we don't know any related extension.
-      	this.conf.setObject(type, EMPTY_EXTENSION_LIST);
+        objectCache.setObject(type, EMPTY_EXTENSION_LIST);
       }
     }
     return extensions;
