@@ -35,6 +35,7 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.nutch.util.DomUtil;
 import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.ObjectCache;
 import org.apache.xerces.dom.DocumentImpl;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -104,14 +105,15 @@ public class CollectionManager extends Configured {
   
   public static CollectionManager getCollectionManager(Configuration conf) {
     String key = "collectionmanager";
-    CollectionManager impl = (CollectionManager)conf.getObject(key);
+    ObjectCache objectCache = ObjectCache.get(conf);
+    CollectionManager impl = (CollectionManager)objectCache.getObject(key);
     if (impl == null) {
       try {
         if (LOG.isInfoEnabled()) {
           LOG.info("Instantiating CollectionManager");
         }
         impl=new CollectionManager(conf);
-        conf.setObject(key,impl);
+        objectCache.setObject(key,impl);
       } catch (Exception e) {
         throw new RuntimeException("Couldn't create CollectionManager",e);
       }

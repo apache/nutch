@@ -20,6 +20,7 @@ package org.apache.nutch.crawl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.ObjectCache;
 
 /** Creates and caches a {@link FetchSchedule} implementation. */
 public class FetchScheduleFactory {
@@ -31,14 +32,15 @@ public class FetchScheduleFactory {
   /** Return the FetchSchedule implementation. */
   public static FetchSchedule getFetchSchedule(Configuration conf) {
     String clazz = conf.get("db.fetch.schedule.class", DefaultFetchSchedule.class.getName());
-    FetchSchedule impl = (FetchSchedule)conf.getObject(clazz);
+    ObjectCache objectCache = ObjectCache.get(conf);
+    FetchSchedule impl = (FetchSchedule)objectCache.getObject(clazz);
     if (impl == null) {
       try {
         LOG.info("Using FetchSchedule impl: " + clazz);
         Class implClass = Class.forName(clazz);
         impl = (FetchSchedule)implClass.newInstance();
         impl.setConf(conf);
-        conf.setObject(clazz, impl);
+        objectCache.setObject(clazz, impl);
       } catch (Exception e) {
         throw new RuntimeException("Couldn't create " + clazz, e);
       }

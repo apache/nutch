@@ -30,6 +30,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.conf.*;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.ObjectCache;
 import org.apache.nutch.searcher.Query.*;
 
 /** Construct n-grams for frequently occuring terms and phrases while indexing.
@@ -141,8 +142,9 @@ public class CommonGrams {
 
   /** Construct using the provided config file. */
   private void init(Configuration conf) {
+    ObjectCache objectCache = ObjectCache.get(conf);
     // First, try to retrieve some commonTerms cached in configuration.
-    commonTerms = (HashMap<String, HashSet<String>>) conf.getObject(KEY);
+    commonTerms = (HashMap<String, HashSet<String>>) objectCache.getObject(KEY);
     if (commonTerms != null) { return; }
 
     // Otherwise, read the terms.file
@@ -183,7 +185,7 @@ public class CommonGrams {
         }
         table.add(gram);
       }
-      conf.setObject(KEY, commonTerms);
+      objectCache.setObject(KEY, commonTerms);
     } catch (IOException e) {
       throw new RuntimeException(e.toString());
     }

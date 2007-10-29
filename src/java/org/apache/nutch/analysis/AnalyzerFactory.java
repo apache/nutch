@@ -25,6 +25,7 @@ import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRuntimeException;
 import org.apache.nutch.plugin.PluginRepository;
+import org.apache.nutch.util.ObjectCache;
 import org.apache.hadoop.conf.Configuration;
 
 
@@ -56,10 +57,11 @@ public class AnalyzerFactory {
   }
 
   public static AnalyzerFactory get(Configuration conf) {
-    AnalyzerFactory factory = (AnalyzerFactory) conf.getObject(KEY);
+    ObjectCache objectCache = ObjectCache.get(conf);
+    AnalyzerFactory factory = (AnalyzerFactory) objectCache.getObject(KEY);
     if (factory == null) {
       factory = new AnalyzerFactory(conf);
-      conf.setObject(KEY, factory);
+      objectCache.setObject(KEY, factory);
     }
     return factory;
   }
@@ -87,13 +89,13 @@ public class AnalyzerFactory {
   }
 
   private Extension getExtension(String lang) {
-
+    ObjectCache objectCache = ObjectCache.get(conf);
     if (lang == null) { return null; }
-    Extension extension = (Extension) this.conf.getObject(lang);
+    Extension extension = (Extension) objectCache.getObject(lang);
     if (extension == null) {
       extension = findExtension(lang);
       if (extension != null) {
-        this.conf.setObject(lang, extension);
+        objectCache.setObject(lang, extension);
       }
     }
     return extension;

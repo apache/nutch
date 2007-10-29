@@ -28,6 +28,7 @@ import org.apache.lucene.document.Document;
 
 import org.apache.nutch.plugin.*;
 import org.apache.nutch.parse.Parse;
+import org.apache.nutch.util.ObjectCache;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
@@ -45,7 +46,8 @@ public class IndexingFilters {
   public IndexingFilters(Configuration conf) {
     /* Get indexingfilter.order property */
     String order = conf.get(INDEXINGFILTER_ORDER);
-    this.indexingFilters = (IndexingFilter[]) conf
+    ObjectCache objectCache = ObjectCache.get(conf);
+    this.indexingFilters = (IndexingFilter[]) objectCache
         .getObject(IndexingFilter.class.getName());
     if (this.indexingFilters == null) {
       /*
@@ -78,7 +80,7 @@ public class IndexingFilters {
          * indeterminate order
          */
         if (orderedFilters == null) {
-          conf.setObject(IndexingFilter.class.getName(),
+          objectCache.setObject(IndexingFilter.class.getName(),
               filterMap.values().toArray(
                   new IndexingFilter[0]));
           /* Otherwise run the filters in the required order */
@@ -91,13 +93,13 @@ public class IndexingFilters {
               filters.add(filter);
             }
           }
-          conf.setObject(IndexingFilter.class.getName(), filters
+          objectCache.setObject(IndexingFilter.class.getName(), filters
               .toArray(new IndexingFilter[filters.size()]));
         }
       } catch (PluginRuntimeException e) {
         throw new RuntimeException(e);
       }
-      this.indexingFilters = (IndexingFilter[]) conf
+      this.indexingFilters = (IndexingFilter[]) objectCache
           .getObject(IndexingFilter.class.getName());
     }
   }                  

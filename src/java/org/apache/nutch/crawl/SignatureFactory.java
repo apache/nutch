@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.ObjectCache;
 
 /**
  * Factory class, which instantiates a Signature implementation according to the
@@ -39,7 +40,8 @@ public class SignatureFactory {
   /** Return the default Signature implementation. */
   public static Signature getSignature(Configuration conf) {
     String clazz = conf.get("db.signature.class", MD5Signature.class.getName());
-    Signature impl = (Signature)conf.getObject(clazz);
+    ObjectCache objectCache = ObjectCache.get(conf);
+    Signature impl = (Signature)objectCache.getObject(clazz);
     if (impl == null) {
       try {
         if (LOG.isInfoEnabled()) {
@@ -48,7 +50,7 @@ public class SignatureFactory {
         Class implClass = Class.forName(clazz);
         impl = (Signature)implClass.newInstance();
         impl.setConf(conf);
-        conf.setObject(clazz, impl);
+        objectCache.setObject(clazz, impl);
       } catch (Exception e) {
         throw new RuntimeException("Couldn't create " + clazz, e);
       }

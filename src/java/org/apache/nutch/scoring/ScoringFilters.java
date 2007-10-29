@@ -32,6 +32,7 @@ import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRuntimeException;
 import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.ObjectCache;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -48,8 +49,9 @@ public class ScoringFilters extends Configured implements ScoringFilter {
 
   public ScoringFilters(Configuration conf) {
     super(conf);
+    ObjectCache objectCache = ObjectCache.get(conf);
     String order = conf.get("scoring.filter.order");
-    this.filters = (ScoringFilter[]) conf.getObject(ScoringFilter.class.getName());
+    this.filters = (ScoringFilter[]) objectCache.getObject(ScoringFilter.class.getName());
 
     if (this.filters == null) {
       String[] orderedFilters = null;
@@ -71,18 +73,18 @@ public class ScoringFilters extends Configured implements ScoringFilter {
           }
         }
         if (orderedFilters == null) {
-          conf.setObject(ScoringFilter.class.getName(), filterMap.values().toArray(new ScoringFilter[0]));
+          objectCache.setObject(ScoringFilter.class.getName(), filterMap.values().toArray(new ScoringFilter[0]));
         } else {
           ScoringFilter[] filter = new ScoringFilter[orderedFilters.length];
           for (int i = 0; i < orderedFilters.length; i++) {
             filter[i] = filterMap.get(orderedFilters[i]);
           }
-          conf.setObject(ScoringFilter.class.getName(), filter);
+          objectCache.setObject(ScoringFilter.class.getName(), filter);
         }
       } catch (PluginRuntimeException e) {
         throw new RuntimeException(e);
       }
-      this.filters = (ScoringFilter[]) conf.getObject(ScoringFilter.class.getName());
+      this.filters = (ScoringFilter[]) objectCache.getObject(ScoringFilter.class.getName());
     }
     if (this.filters == null || this.filters.length == 0)
       throw new RuntimeException("No scoring plugins - at least one scoring plugin is required!");

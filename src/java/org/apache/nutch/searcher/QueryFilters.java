@@ -22,6 +22,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.nutch.plugin.*;
 import org.apache.nutch.searcher.Query.Clause;
+import org.apache.nutch.util.ObjectCache;
 import org.apache.hadoop.conf.Configuration;
 
 import java.util.*;
@@ -50,7 +51,8 @@ public class QueryFilters {
   }
 
   public QueryFilters(Configuration conf) {
-    this.queryFilters = (QueryFilter[]) conf.getObject(QueryFilter.class
+    ObjectCache objectCache = ObjectCache.get(conf);
+    this.queryFilters = (QueryFilter[]) objectCache.getObject(QueryFilter.class
         .getName());
     if (this.queryFilters == null) {
       try {
@@ -76,20 +78,20 @@ public class QueryFilters {
           filters[i] = (QueryFilter) extension.getExtensionInstance();
           FIELD_NAMES.addAll(fieldNames);
           FIELD_NAMES.addAll(rawFieldNames);
-          conf.setObject("FIELD_NAMES", FIELD_NAMES);
+          objectCache.setObject("FIELD_NAMES", FIELD_NAMES);
           RAW_FIELD_NAMES.addAll(rawFieldNames);
-          conf.setObject("RAW_FIELD_NAMES", RAW_FIELD_NAMES);
+          objectCache.setObject("RAW_FIELD_NAMES", RAW_FIELD_NAMES);
         }
-        conf.setObject(QueryFilter.class.getName(), filters);
+        objectCache.setObject(QueryFilter.class.getName(), filters);
       } catch (PluginRuntimeException e) {
         throw new RuntimeException(e);
       }
-      this.queryFilters = (QueryFilter[]) conf.getObject(QueryFilter.class
+      this.queryFilters = (QueryFilter[]) objectCache.getObject(QueryFilter.class
           .getName());
     } else {
       // cache already filled
-      FIELD_NAMES = (HashSet) conf.getObject("FIELD_NAMES");
-      RAW_FIELD_NAMES = (HashSet) conf.getObject("RAW_FIELD_NAMES");
+      FIELD_NAMES = (HashSet) objectCache.getObject("FIELD_NAMES");
+      RAW_FIELD_NAMES = (HashSet) objectCache.getObject("RAW_FIELD_NAMES");
     }
   }              
 
