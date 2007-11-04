@@ -174,7 +174,7 @@ public class DeleteDuplicates extends ToolBase
         this.index = index;
       }
 
-      public boolean next(Writable key, Writable value)
+      public boolean next(WritableComparable key, Writable value)
         throws IOException {
         
         // skip empty indexes

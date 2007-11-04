@@ -118,19 +118,9 @@ public class FsDirectory extends Directory {
   public Lock makeLock(final String name) {
     return new Lock() {
       public boolean obtain() {
-        try {
-          fs.lock(new Path(directory, name), false);
-          return true;
-        } catch (IOException e) {
-          return false;
-        }
+        return true;
       }
       public void release() {
-        try {
-          fs.release(new Path(directory, name));
-        } catch (IOException e) {
-          throw new RuntimeException(e);
-        }
       }
       public boolean isLocked() {
         throw new UnsupportedOperationException();

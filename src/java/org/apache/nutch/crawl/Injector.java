@@ -172,7 +172,7 @@ public class Injector extends ToolBase {
     CrawlDb.install(mergeJob, crawlDb);
 
     // clean up
-    FileSystem fs = new JobClient(getConf()).getFs();
+    FileSystem fs = FileSystem.get(getConf());
     fs.delete(tempDir);
     if (LOG.isInfoEnabled()) { LOG.info("Injector: done"); }
 

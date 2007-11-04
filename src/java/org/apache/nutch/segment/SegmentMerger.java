@@ -129,11 +129,8 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
     public RecordReader getRecordReader(InputSplit split,
         JobConf job, Reporter reporter) {
 
-      try{
-        reporter.setStatus(split.toString());
-      } catch (IOException e) {
-        throw new RuntimeException("Cannot set status for reported:", e);
-      }
+      reporter.setStatus(split.toString());
+
       // find part name
       SegmentPart segmentPart;
       final String spString;
@@ -148,7 +145,7 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
         return new SequenceFileRecordReader(job, (FileSplit)split) {
           
           @Override
-          public synchronized boolean next(Writable key, Writable value) throws IOException {
+          public synchronized boolean next(WritableComparable key, Writable value) throws IOException {
             LOG.debug("Running OIF.next()");
             
             MetaWrapper wrapper = (MetaWrapper) value;
