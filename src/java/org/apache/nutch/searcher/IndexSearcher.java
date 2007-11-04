@@ -17,7 +17,9 @@
 
 package org.apache.nutch.searcher;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -81,7 +83,8 @@ public class IndexSearcher implements Searcher, HitDetailer {
 
   private Directory getDirectory(Path file) throws IOException {
     if ("local".equals(this.fs.getName())) {
-      return FSDirectory.getDirectory(file.toString(), false);
+      URI fileUri = file.toUri();      
+      return FSDirectory.getDirectory(new File(fileUri).toString(), false);
     } else {
       return new FsDirectory(this.fs, file, false, this.conf);
     }
