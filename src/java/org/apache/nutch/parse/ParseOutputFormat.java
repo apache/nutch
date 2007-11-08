@@ -24,11 +24,13 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.io.SequenceFile.CompressionType;
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.fetcher.Fetcher;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.StringUtil;
+import org.apache.nutch.util.URLUtil;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.*;
 
@@ -45,6 +47,7 @@ import org.apache.hadoop.util.Progressable;
 public class ParseOutputFormat implements OutputFormat {
   private static final Log LOG = LogFactory.getLog(ParseOutputFormat.class);
 
+  private URLNormalizers normalizers;
   private URLFilters filters;
   private ScoringFilters scfilters;
   
@@ -79,6 +82,8 @@ public class ParseOutputFormat implements OutputFormat {
   public RecordWriter getRecordWriter(FileSystem fs, JobConf job,
                                       String name, Progressable progress) throws IOException {
 
+    this.normalizers = new URLNormalizers(job,
+                                          URLNormalizers.SCOPE_OUTLINK);
     this.filters = new URLFilters(job);
     this.scfilters = new ScoringFilters(job);
     final int interval = job.getInt("db.fetch.interval.default", 2592000);
@@ -130,6 +135,33 @@ public class ParseOutputFormat implements OutputFormat {
               d.setSignature(signature);
               crawlOut.append(key, d);
             }
+          }
+
+          try {
+            ParseStatus pstatus = parseData.getStatus();
+            if (pstatus != null && pstatus.isSuccess() &&
+                pstatus.getMinorCode() == ParseStatus.SUCCESS_REDIRECT) {
+              String newUrl = pstatus.getMessage();
+              int refreshTime = Integer.valueOf(pstatus.getArgs()[1]);
+              newUrl = normalizers.normalize(newUrl,
+                                             URLNormalizers.SCOPE_FETCHER);
+              newUrl = filters.filter(newUrl);
+              String url = key.toString();
+              if (newUrl != null && !newUrl.equals(url)) {
+                String reprUrl =
+                  URLUtil.chooseRepr(url, newUrl,
+                                     refreshTime < Fetcher.PERM_REFRESH_TIME);
+                CrawlDatum newDatum = new CrawlDatum();
+                newDatum.setStatus(CrawlDatum.STATUS_LINKED);
+                if (!reprUrl.equals(newUrl)) {
+                  newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
+                                             new Text(reprUrl));
+                }
+                crawlOut.append(new Text(newUrl), newDatum);
+              }
+            }
+          } catch (URLFilterException e) {
+            // ignore
           }
 
           // collect outlinks for subsequent db update

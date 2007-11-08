@@ -141,6 +141,59 @@ public class URLUtil {
    return getHostSegments(new URL(url));
   }
 
+  /** Given two urls (source and destination of the redirect),
+   * returns the representative one.
+   *
+   * <p>Implements the algorithm described here:
+   * <br>
+   * <a href="http://help.yahoo.com/l/nz/yahooxtra/search/webcrawler/slurp-11.html">
+   * How does the Yahoo! webcrawler handle redirects?</a>
+   * <br><br>
+   * The algorithm is as follows:
+   * <ol>
+   *  <li>Choose target url if either url is malformed.</li>
+   *  <li>When a page in one domain redirects to a page in another domain,
+   *  choose the "target" URL.</li>
+   *  <li>When a top-level page in a domain presents a permanent redirect
+   *  to a page deep within the same domain, choose the "source" URL.</li>
+   *  <li>When a page deep within a domain presents a permanent redirect
+   *  to a page deep within the same domain, choose the "target" URL.</li>
+   *  <li>When a page in a domain presents a temporary redirect to
+   *  another page in the same domain, choose the "source" URL.<li>
+   * <ol>
+   * </p>
+   *
+   * @param src Source url of redirect
+   * @param dst Destination url of redirect
+   * @param temp Flag to indicate if redirect is temporary
+   * @return Representative url (either src or dst)
+   */
+  public static String chooseRepr(String src, String dst, boolean temp) {
+    URL srcUrl;
+    URL dstUrl;
+    try {
+      srcUrl = new URL(src);
+      dstUrl = new URL(dst);
+    } catch (MalformedURLException e) {
+      return dst;
+    }
+
+    String srcDomain = URLUtil.getDomainName(srcUrl);
+    String dstDomain = URLUtil.getDomainName(dstUrl);
+
+    if (!srcDomain.equals(dstDomain)) {
+      return dst;
+    }
+
+    String srcFile = srcUrl.getFile();
+
+    if (!temp && srcFile.equals("/")) {
+      return src;
+    }
+
+    return temp ? src : dst;
+  }
+
   /** For testing */
   public static void main(String[] args){
     

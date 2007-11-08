@@ -18,6 +18,7 @@
 package org.apache.nutch.fetcher;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.Map.Entry;
 
 // Commons Logging imports
@@ -48,6 +49,12 @@ public class Fetcher extends ToolBase implements MapRunnable {
 
   public static final Log LOG = LogFactory.getLog(Fetcher.class);
   
+  public static final int PERM_REFRESH_TIME = 5;
+
+  public static final String CONTENT_REDIR = "content";
+
+  public static final String PROTOCOL_REDIR = "protocol";
+
   public static class InputFormat extends SequenceFileInputFormat {
     /** Don't split inputs, to keep things polite. */
     public InputSplit[] getSplits(JobConf job, int nSplits)
@@ -87,6 +94,9 @@ public class Fetcher extends ToolBase implements MapRunnable {
     private ParseUtil parseUtil;
     private URLNormalizers normalizers;
     private ProtocolFactory protocolFactory;
+    private boolean redirecting;
+    private int redirectCount;
+    private String reprUrl;
 
     public FetcherThread(Configuration conf) {
       this.setDaemon(true);                       // don't hang JVM on exit
@@ -130,14 +140,21 @@ public class Fetcher extends ToolBase implements MapRunnable {
           }
 
           // url may be changed through redirects.
-          Text url = new Text();
-          url.set(key);
+          Text url = new Text(key);
+
+          Text reprUrlWritable =
+            (Text) datum.getMetaData().get(Nutch.WRITABLE_REPR_URL_KEY);
+          if (reprUrlWritable == null) {
+            reprUrl = key.toString();
+          } else {
+            reprUrl = reprUrlWritable.toString();
+          }
+
           try {
             if (LOG.isInfoEnabled()) { LOG.info("fetching " + url); }
 
             // fetch the page
-            boolean redirecting;
-            int redirectCount = 0;
+            redirectCount = 0;
             do {
               if (LOG.isDebugEnabled()) {
                 LOG.debug("redirectCount=" + redirectCount);
@@ -149,6 +166,12 @@ public class Fetcher extends ToolBase implements MapRunnable {
               Content content = output.getContent();
               ParseStatus pstatus = null;
 
+              String urlString = url.toString();
+              if (reprUrl != null && !reprUrl.equals(urlString)) {
+                datum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
+                    new Text(reprUrl));
+              }
+
               switch(status.getCode()) {
 
               case ProtocolStatus.SUCCESS:        // got a page
@@ -157,61 +180,28 @@ public class Fetcher extends ToolBase implements MapRunnable {
                 if (pstatus != null && pstatus.isSuccess() &&
                         pstatus.getMinorCode() == ParseStatus.SUCCESS_REDIRECT) {
                   String newUrl = pstatus.getMessage();
-                  newUrl = normalizers.normalize(newUrl, URLNormalizers.SCOPE_FETCHER);
-                  newUrl = this.urlFilters.filter(newUrl);
-                  if (newUrl != null && !newUrl.equals(url.toString())) {
-                    // record that we were redirected
-                    output(url, datum, null, status, CrawlDatum.STATUS_FETCH_REDIR_PERM);
-                    url = new Text(newUrl);
-                    if (maxRedirect > 0) {
-                      redirecting = true;
-                      redirectCount++;
-                      if (LOG.isDebugEnabled()) {
-                        LOG.debug(" - content redirect to " + url + " (fetching now)");
-                      }
-                    } else {
-                      output(url, new CrawlDatum(), null, null, CrawlDatum.STATUS_LINKED);
-                      if (LOG.isDebugEnabled()) {
-                        LOG.debug(" - content redirect to " + url + " (fetching later)");
-                      }
-                    }
-                  } else if (LOG.isDebugEnabled()) {
-                    LOG.debug(" - content redirect skipped: " +
-                             (newUrl != null ? "to same url" : "filtered"));
-                  }
+                  int refreshTime = Integer.valueOf(pstatus.getArgs()[1]);
+                  url = handleRedirect(url, datum, urlString, newUrl,
+                                       refreshTime < PERM_REFRESH_TIME,
+                                       CONTENT_REDIR);
                 }
                 break;
 
               case ProtocolStatus.MOVED:         // redirect
               case ProtocolStatus.TEMP_MOVED:
                 int code;
+                boolean temp;
                 if (status.getCode() == ProtocolStatus.MOVED) {
                   code = CrawlDatum.STATUS_FETCH_REDIR_PERM;
+                  temp = false;
                 } else {
                   code = CrawlDatum.STATUS_FETCH_REDIR_TEMP;
+                  temp = true;
                 }
                 output(url, datum, content, status, code);
                 String newUrl = status.getMessage();
-                newUrl = normalizers.normalize(newUrl, URLNormalizers.SCOPE_FETCHER);
-                newUrl = this.urlFilters.filter(newUrl);
-                if (newUrl != null && !newUrl.equals(url.toString())) {
-                  url = new Text(newUrl);
-                  if (maxRedirect > 0) {
-                    redirecting = true;
-                    redirectCount++;
-                    if (LOG.isDebugEnabled()) {
-                      LOG.debug(" - protocol redirect to " + url + " (fetching now)");
-                    }
-                  } else {
-                    output(url, new CrawlDatum(), null, null, CrawlDatum.STATUS_LINKED);
-                    if (LOG.isDebugEnabled()) {
-                      LOG.debug(" - protocol redirect to " + url + " (fetching later)");
-                    }
-                  }
-                } else if (LOG.isDebugEnabled()) {
-                  LOG.debug(" - protocol redirect skipped: " +
-                           (newUrl != null ? "to same url" : "filtered"));
-                }
+                url = handleRedirect(url, datum, urlString, newUrl,
+                                     temp, PROTOCOL_REDIR);
                 break;
 
               // failures - increase the retry counter
@@ -270,6 +260,43 @@ public class Fetcher extends ToolBase implements MapRunnable {
         }
       } finally {
         synchronized (Fetcher.this) {activeThreads--;} // count threads
+      }
+    }
+
+    private Text handleRedirect(Text url, CrawlDatum datum,
+                                String urlString, String newUrl,
+                                boolean temp, String redirType)
+    throws MalformedURLException, URLFilterException {
+      newUrl = normalizers.normalize(newUrl, URLNormalizers.SCOPE_FETCHER);
+      newUrl = urlFilters.filter(newUrl);
+      if (newUrl != null && !newUrl.equals(urlString)) {
+        reprUrl = URLUtil.chooseRepr(reprUrl, newUrl, temp);
+        url = new Text(newUrl);
+        if (maxRedirect > 0) {
+          redirecting = true;
+          redirectCount++;
+          if (LOG.isDebugEnabled()) {
+            LOG.debug(" - " + redirType + " redirect to " +
+                      url + " (fetching now)");
+          }
+          return url;
+        } else {
+          CrawlDatum newDatum = new CrawlDatum();
+          newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
+              new Text(reprUrl));
+          output(url, newDatum, null, null, CrawlDatum.STATUS_LINKED);
+          if (LOG.isDebugEnabled()) {
+            LOG.debug(" - " + redirType + " redirect to " +
+                      url + " (fetching later)");
+          }
+          return null;
+        }
+      } else {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug(" - " + redirType + " redirect skipped: " +
+              (newUrl != null ? "to same url" : "filtered"));
+        }
+        return null;
       }
     }
 

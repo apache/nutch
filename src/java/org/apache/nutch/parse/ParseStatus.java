@@ -24,6 +24,7 @@ package org.apache.nutch.parse;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.apache.hadoop.io.VersionMismatchException;
 import org.apache.hadoop.io.Writable;
@@ -178,7 +179,7 @@ public class ParseStatus implements Writable {
    */
   public String getMessage() {
     if (args != null && args.length > 0 && args[0] != null)
-      return args[0].toString();
+      return args[0];
     return null;
   }
   
