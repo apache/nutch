@@ -48,10 +48,19 @@ public class BasicIndexingFilter implements IndexingFilter {
 
   public Document filter(Document doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
     throws IndexingException {
+
+    Text reprUrl = (Text) datum.getMetaData().get(Nutch.WRITABLE_REPR_URL_KEY);
+    String reprUrlString = reprUrl != null ? reprUrl.toString() : null;
+    String urlString = url.toString();
     
     String host = null;
     try {
-      URL u = new URL(url.toString());
+      URL u;
+      if (reprUrlString != null) {
+        u = new URL(reprUrlString);
+      } else {
+        u = new URL(urlString);
+      }
       host = u.getHost();
     } catch (MalformedURLException e) {
       throw new IndexingException(e);
@@ -64,10 +73,17 @@ public class BasicIndexingFilter implements IndexingFilter {
       doc.add(new Field("site", host, Field.Store.NO, Field.Index.UN_TOKENIZED));
     }
 
-
     // url is both stored and indexed, so it's both searchable and returned
-    doc.add(new Field("url", url.toString(), Field.Store.YES, Field.Index.TOKENIZED));
+    doc.add(new Field("url",
+                      reprUrlString == null ? urlString : reprUrlString,
+                      Field.Store.YES, Field.Index.TOKENIZED));
     
+    if (reprUrlString != null) {
+      // also store original url as both stored and indexes
+      doc.add(new Field("orig", urlString,
+                        Field.Store.YES, Field.Index.TOKENIZED));
+    }
+
     // content is indexed, so that it's searchable, but not stored in index
     doc.add(new Field("content", parse.getText(), Field.Store.NO, Field.Index.TOKENIZED));
     

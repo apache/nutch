@@ -241,6 +241,12 @@ public class Indexer extends ToolBase implements Reducer, Mapper {
 
     Parse parse = new ParseImpl(parseText, parseData);
     try {
+      // extract information from dbDatum and pass it to
+      // fetchDatum so that indexing filters can use it
+      Text url = (Text) dbDatum.getMetaData().get(Nutch.WRITABLE_REPR_URL_KEY);
+      if (url != null) {
+        fetchDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY, url);
+      }
       // run indexing filters
       doc = this.filters.filter(doc, parse, (Text)key, fetchDatum, inlinks);
     } catch (IndexingException e) {

@@ -185,7 +185,8 @@ public class HtmlParser implements Parser {
     ParseStatus status = new ParseStatus(ParseStatus.SUCCESS);
     if (metaTags.getRefresh()) {
       status.setMinorCode(ParseStatus.SUCCESS_REDIRECT);
-      status.setMessage(metaTags.getRefreshHref().toString());
+      status.setArgs(new String[] {metaTags.getRefreshHref().toString(),
+        Integer.toString(metaTags.getRefreshTime())});      
     }
     ParseData parseData = new ParseData(status, title, outlinks,
                                         content.getMetadata(), metadata);

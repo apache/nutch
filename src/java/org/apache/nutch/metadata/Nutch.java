@@ -61,4 +61,7 @@ public interface Nutch {
   /** Don't show original forbidden content, but show summaries. */
   public static final String CACHING_FORBIDDEN_CONTENT = "content";
 
+  public static final String REPR_URL_KEY = "_repr_";
+
+  public static final Text WRITABLE_REPR_URL_KEY = new Text(REPR_URL_KEY);
 }
