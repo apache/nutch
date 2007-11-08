@@ -111,7 +111,7 @@ public class OutlinkExtractor {
         result = matcher.getMatch();
         url = result.group(0);
         try {
-          outlinks.add(new Outlink(url, anchor, conf));
+          outlinks.add(new Outlink(url, anchor));
         } catch (MalformedURLException mue) {
           LOG.warn("Invalid url: '" + url + "', skipping.");
         }

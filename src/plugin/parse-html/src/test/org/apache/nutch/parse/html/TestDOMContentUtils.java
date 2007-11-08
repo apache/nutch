@@ -241,55 +241,55 @@ public class TestDOMContentUtils extends TestCase {
     try {
      answerOutlinks = new Outlink[][]{ 
          {
-           new Outlink("http://www.nutch.org", "anchor", conf),
+           new Outlink("http://www.nutch.org", "anchor"),
          },
          {
-           new Outlink("http://www.nutch.org/", "home", conf),
-           new Outlink("http://www.nutch.org/docs/bot.html", "bots", conf),
+           new Outlink("http://www.nutch.org/", "home"),
+           new Outlink("http://www.nutch.org/docs/bot.html", "bots"),
          },
          {
-           new Outlink("http://www.nutch.org/", "separate this", conf),
-           new Outlink("http://www.nutch.org/docs/ok", "from this", conf),
+           new Outlink("http://www.nutch.org/", "separate this"),
+           new Outlink("http://www.nutch.org/docs/ok", "from this"),
          },
          {
-           new Outlink("http://www.nutch.org/", "home", conf),
-           new Outlink("http://www.nutch.org/docs/1", "1", conf),
-           new Outlink("http://www.nutch.org/docs/2", "2", conf),
+           new Outlink("http://www.nutch.org/", "home"),
+           new Outlink("http://www.nutch.org/docs/1", "1"),
+           new Outlink("http://www.nutch.org/docs/2", "2"),
          },
          {
-           new Outlink("http://www.nutch.org/frames/top.html", "", conf),
-           new Outlink("http://www.nutch.org/frames/left.html", "", conf),
-           new Outlink("http://www.nutch.org/frames/invalid.html", "", conf),
-           new Outlink("http://www.nutch.org/frames/right.html", "", conf),
+           new Outlink("http://www.nutch.org/frames/top.html", ""),
+           new Outlink("http://www.nutch.org/frames/left.html", ""),
+           new Outlink("http://www.nutch.org/frames/invalid.html", ""),
+           new Outlink("http://www.nutch.org/frames/right.html", ""),
          },
          {
-           new Outlink("http://www.nutch.org/maps/logo.gif", "", conf),
-           new Outlink("http://www.nutch.org/index.html", "", conf),
-           new Outlink("http://www.nutch.org/maps/#bottom", "", conf),
-           new Outlink("http://www.nutch.org/bot.html", "", conf),
-           new Outlink("http://www.nutch.org/docs/index.html", "", conf),
+           new Outlink("http://www.nutch.org/maps/logo.gif", ""),
+           new Outlink("http://www.nutch.org/index.html", ""),
+           new Outlink("http://www.nutch.org/maps/#bottom", ""),
+           new Outlink("http://www.nutch.org/bot.html", ""),
+           new Outlink("http://www.nutch.org/docs/index.html", ""),
          },
          {
-             new Outlink("http://www.nutch.org/index.html", "whitespace test", conf),
-         },
-         {
-         },
-         {
-           new Outlink("http://www.nutch.org/dummy.jsp", "test2", conf),
+             new Outlink("http://www.nutch.org/index.html", "whitespace test"),
          },
          {
          },
          {
-           new Outlink("http://www.nutch.org/;x", "anchor1", conf),
-           new Outlink("http://www.nutch.org/g;x", "anchor2", conf),
-           new Outlink("http://www.nutch.org/g;x?y#s", "anchor3", conf)
+           new Outlink("http://www.nutch.org/dummy.jsp", "test2"),
          },
          {
-           new Outlink("http://www.nutch.org/g;something", "anchor1", conf),
-           new Outlink("http://www.nutch.org/g;something?y#s", "anchor2", conf),
-           new Outlink("http://www.nutch.org/;something?y=1", "anchor3", conf),
-           new Outlink("http://www.nutch.org/;something?y=1#s", "anchor4", conf),
-           new Outlink("http://www.nutch.org/?y=1;somethingelse", "anchor5", conf)
+         },
+         {
+           new Outlink("http://www.nutch.org/;x", "anchor1"),
+           new Outlink("http://www.nutch.org/g;x", "anchor2"),
+           new Outlink("http://www.nutch.org/g;x?y#s", "anchor3")
+         },
+         {
+           new Outlink("http://www.nutch.org/g;something", "anchor1"),
+           new Outlink("http://www.nutch.org/g;something?y#s", "anchor2"),
+           new Outlink("http://www.nutch.org/;something?y=1", "anchor3"),
+           new Outlink("http://www.nutch.org/;something?y=1#s", "anchor4"),
+           new Outlink("http://www.nutch.org/?y=1;somethingelse", "anchor5")
          }
       };
    

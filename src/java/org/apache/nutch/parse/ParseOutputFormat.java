@@ -47,8 +47,8 @@ import org.apache.hadoop.util.Progressable;
 public class ParseOutputFormat implements OutputFormat {
   private static final Log LOG = LogFactory.getLog(ParseOutputFormat.class);
 
-  private URLNormalizers normalizers;
   private URLFilters filters;
+  private URLNormalizers normalizers;
   private ScoringFilters scfilters;
   
   private static class SimpleEntry implements Entry<Text, CrawlDatum> {
@@ -82,9 +82,8 @@ public class ParseOutputFormat implements OutputFormat {
   public RecordWriter getRecordWriter(FileSystem fs, JobConf job,
                                       String name, Progressable progress) throws IOException {
 
-    this.normalizers = new URLNormalizers(job,
-                                          URLNormalizers.SCOPE_OUTLINK);
     this.filters = new URLFilters(job);
+    this.normalizers = new URLNormalizers(job, URLNormalizers.SCOPE_OUTLINK);
     this.scfilters = new ScoringFilters(job);
     final int interval = job.getInt("db.fetch.interval.default", 2592000);
     final boolean ignoreExternalLinks = job.getBoolean("db.ignore.external.links", false);
@@ -198,8 +197,8 @@ public class ParseOutputFormat implements OutputFormat {
               }
             }
             try {
-              // normalizing here is not necessary since outlinks 
-              // are already normalized in Outlink's constructor
+              toUrl = normalizers.normalize(toUrl,
+                          URLNormalizers.SCOPE_OUTLINK); // normalize the url
               toUrl = filters.filter(toUrl);   // filter the url
               if (toUrl == null) {
                 continue;

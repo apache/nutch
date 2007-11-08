@@ -403,7 +403,7 @@ public class DOMContentUtils {
                 URL url = (base.toString().indexOf(';') > 0) ? 
                   fixEmbeddedParams(base, target) :  new URL(base, target);
                 outlinks.add(new Outlink(url.toString(),
-                                         linkText.toString().trim(), conf));
+                                         linkText.toString().trim()));
               } catch (MalformedURLException e) {
                 // don't care
               }
