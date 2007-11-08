@@ -121,7 +121,7 @@ public class DeleteDuplicates extends ToolBase
         return this.hash.compareTo(that.hash);
       } else if (this.time != that.time) {      // prefer more recent docs
         return this.time > that.time ? 1 : -1 ;
-      } else if (this.urlLen != this.urlLen) {  // prefer shorter urls
+      } else if (this.urlLen != that.urlLen) {  // prefer shorter urls
         return this.urlLen - that.urlLen;
       } else {
         return this.score > that.score ? 1 : -1;
