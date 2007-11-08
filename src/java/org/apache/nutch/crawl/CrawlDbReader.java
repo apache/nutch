@@ -301,7 +301,7 @@ public class CrawlDbReader implements Closeable {
         } else if (k.equals("scx")) {
           LOG.info("max score:\t" + (float) (val.get() / 1000.0f));
         } else if (k.equals("sct")) {
-          LOG.info("avg score:\t" + (float) ((double) (val.get() / totalCnt.get()) / 1000.0));
+          LOG.info("avg score:\t" + (float) ((((double)val.get()) / totalCnt.get()) / 1000.0));
         } else if (k.startsWith("status")) {
           int code = Integer.parseInt(k.substring(k.indexOf(' ') + 1));
           LOG.info(k + " (" + CrawlDatum.getStatusName((byte)code) + "):\t" + val);
