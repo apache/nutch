@@ -94,7 +94,7 @@ public class SWFParser implements Parser {
       // harvest potential outlinks
       String[] links = extractor.getUrls();
       for (int i = 0; i < links.length; i++) {
-        Outlink out = new Outlink(links[i], "", conf);
+        Outlink out = new Outlink(links[i], "");
         outlinks.add(out);
       }
       Outlink[] olinks = OutlinkExtractor.getOutlinks(text, conf);
