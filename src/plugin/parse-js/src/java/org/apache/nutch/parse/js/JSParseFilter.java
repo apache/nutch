@@ -236,7 +236,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
         if (LOG.isTraceEnabled()) {
           LOG.trace(" - outlink from JS: '" + url + "'");
         }
-        outlinks.add(new Outlink(url, anchor, getConf()));
+        outlinks.add(new Outlink(url, anchor));
       }
     } catch (Exception ex) {
       // if it is a malformed URL we just throw it away and continue with
