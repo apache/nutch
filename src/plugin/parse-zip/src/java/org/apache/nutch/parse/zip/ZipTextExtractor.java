@@ -107,7 +107,7 @@ public class ZipTextExtractor {
             Outlink[] theOutlinks = theParseData.getOutlinks();
             
             for(int count = 0; count < theOutlinks.length; count++) {
-              outLinksList.add(new Outlink(theOutlinks[count].getToUrl(), theOutlinks[count].getAnchor(), this.conf));
+              outLinksList.add(new Outlink(theOutlinks[count].getToUrl(), theOutlinks[count].getAnchor()));
             }
             
             resultText += entry.getName() + " " + parse.getText() + " ";

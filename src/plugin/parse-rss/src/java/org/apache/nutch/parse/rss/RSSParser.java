@@ -129,9 +129,9 @@ public class RSSParser implements Parser {
                     try {
                         // get the outlink
 			if (r.getDescription()!= null ) {
-			    theOutlinks.add(new Outlink(r.getLink(), r.getDescription(), getConf()));
+			    theOutlinks.add(new Outlink(r.getLink(), r.getDescription()));
 			} else {
-			    theOutlinks.add(new Outlink(r.getLink(), "", getConf()));
+			    theOutlinks.add(new Outlink(r.getLink(), ""));
 			}
                     } catch (MalformedURLException e) {
                         if (LOG.isWarnEnabled()) {
@@ -160,9 +160,9 @@ public class RSSParser implements Parser {
                     if (whichLink != null) {
                         try {
 			    if (theRSSItem.getDescription()!=null) {
-				theOutlinks.add(new Outlink(whichLink, theRSSItem.getDescription(), getConf()));
+				theOutlinks.add(new Outlink(whichLink, theRSSItem.getDescription()));
 			    } else {
-				theOutlinks.add(new Outlink(whichLink, "", getConf()));
+				theOutlinks.add(new Outlink(whichLink, ""));
 			    }
                         } catch (MalformedURLException e) {
                             if (LOG.isWarnEnabled()) {
