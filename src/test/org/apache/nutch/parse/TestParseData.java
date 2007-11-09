@@ -38,8 +38,8 @@ public class TestParseData extends TestCase {
     String title = "The Foo Page";
 
     Outlink[] outlinks = new Outlink[] {
-      new Outlink("http://foo.com/", "Foo", conf),
-      new Outlink("http://bar.com/", "Bar", conf)
+      new Outlink("http://foo.com/", "Foo"),
+      new Outlink("http://bar.com/", "Bar")
     };
 
     Metadata metaData = new Metadata();
@@ -54,7 +54,7 @@ public class TestParseData extends TestCase {
   public void testMaxOutlinks() throws Exception {
     Outlink[] outlinks = new Outlink[128];
     for (int i=0; i<outlinks.length; i++) {
-      outlinks[i] = new Outlink("http://outlink.com/" + i, "Outlink" + i, conf);
+      outlinks[i] = new Outlink("http://outlink.com/" + i, "Outlink" + i);
     }
     ParseData original = new ParseData(ParseStatus.STATUS_SUCCESS,
                                        "Max Outlinks Title",

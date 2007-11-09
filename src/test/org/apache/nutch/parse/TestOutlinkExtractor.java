@@ -54,7 +54,7 @@ public class TestOutlinkExtractor extends TestCase {
     
     assertTrue("Url not found!", outlinks.length == 3);
     assertEquals("Wrong URL", "http://www.nutch.org/index.html", outlinks[0].getToUrl());
-    assertEquals("Wrong URL", "http://www.google.de/", outlinks[1].getToUrl());
+    assertEquals("Wrong URL", "http://www.google.de", outlinks[1].getToUrl());
     assertEquals("Wrong URL", "http://www.sybit.com/solutions/portals.html", outlinks[2].getToUrl());
   }
   
@@ -66,7 +66,7 @@ public class TestOutlinkExtractor extends TestCase {
     
     assertTrue("Url not found!", outlinks.length == 3);
     assertEquals("Wrong URL", "http://www.nutch.org/index.html", outlinks[0].getToUrl());
-    assertEquals("Wrong URL", "http://www.google.de/", outlinks[1].getToUrl());
+    assertEquals("Wrong URL", "http://www.google.de", outlinks[1].getToUrl());
     assertEquals("Wrong URL", "http://www.sybit.com/solutions/portals.html", outlinks[2].getToUrl());
   }
   public void testGetOutlinksFtp() {
@@ -75,7 +75,7 @@ public class TestOutlinkExtractor extends TestCase {
         "What about www.google.com at ftp://www.google.de", conf);
     
     assertTrue("Url not found!", outlinks.length >1);
-    assertEquals("Wrong URL", "ftp://www.nutch.org/", outlinks[0].getToUrl());
-    assertEquals("Wrong URL", "ftp://www.google.de/", outlinks[1].getToUrl());
+    assertEquals("Wrong URL", "ftp://www.nutch.org", outlinks[0].getToUrl());
+    assertEquals("Wrong URL", "ftp://www.google.de", outlinks[1].getToUrl());
   }
 }
