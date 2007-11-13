@@ -34,7 +34,6 @@ import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.apache.hadoop.conf.Configuration;
@@ -87,18 +86,6 @@ public class BasicIndexingFilter implements IndexingFilter {
     // content is indexed, so that it's searchable, but not stored in index
     doc.add(new Field("content", parse.getText(), Field.Store.NO, Field.Index.TOKENIZED));
     
-    // anchors are indexed, so they're searchable, but not stored in index
-    try {
-      String[] anchors = (inlinks != null ? inlinks.getAnchors() : new String[0]);
-      for (int i = 0; i < anchors.length; i++) {
-        doc.add(new Field("anchor", anchors[i], Field.Store.NO, Field.Index.TOKENIZED));
-      }
-    } catch (IOException ioe) {
-      if (LOG.isWarnEnabled()) {
-        LOG.warn("BasicIndexingFilter: can't get anchors for " + url.toString());
-      }
-    }
-
     // title
     String title = parse.getData().getTitle();
     if (title.length() > MAX_TITLE_LENGTH) {      // truncate title if needed
