@@ -96,6 +96,7 @@ public class TestFeedParser extends TestCase {
     Configuration conf = NutchConfiguration.create();
     for (int i = 0; i < sampleFiles.length; i++) {
       urlString = "file:" + sampleDir + fileSeparator + sampleFiles[i];
+      urlString = urlString.replace('\\', '/');
 
       protocol = new ProtocolFactory(conf).getProtocol(urlString);
       content = protocol.getProtocolOutput(new Text(urlString),
