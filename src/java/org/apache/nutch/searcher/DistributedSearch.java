@@ -17,24 +17,27 @@
 
 package org.apache.nutch.searcher;
 
-import java.net.InetSocketAddress;
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.StringTokenizer;
+import java.util.TreeSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.apache.nutch.parse.ParseData;
-import org.apache.nutch.parse.ParseText;
-import org.apache.nutch.crawl.Inlinks;
-
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.ipc.RPC;
 import org.apache.hadoop.ipc.VersionedProtocol;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.FileSystem;
-
+import org.apache.nutch.crawl.Inlinks;
+import org.apache.nutch.parse.ParseData;
+import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.util.NutchConfiguration;
 
 /** Implements the search API over IPC connnections. */
@@ -94,12 +97,19 @@ public class DistributedSearch {
     private boolean running = true;
     private Configuration conf;
 
+    private Path file;
+    private long timestamp;
+    private FileSystem fs;
+    
     /** Construct a client talking to servers listed in the named file.
      * Each line in the file lists a server hostname and port, separated by
      * whitespace. 
      */
-    public Client(Path file, Configuration conf) throws IOException {
+    public Client(Path file, Configuration conf) 
+      throws IOException {
       this(readConfig(file, conf), conf);
+      this.file = file;
+      this.timestamp = fs.getFileStatus(file).getModificationTime();
     }
 
     private static InetSocketAddress[] readConfig(Path path, Configuration conf)
@@ -135,6 +145,7 @@ public class DistributedSearch {
       this.conf = conf;
       this.defaultAddresses = addresses;
       this.liveServer = new boolean[addresses.length];
+      this.fs = FileSystem.get(conf);
       updateSegments();
       setDaemon(true);
       start();
@@ -160,6 +171,24 @@ public class DistributedSearch {
       }
     }
 
+    /**
+     * Check to see if search-servers file has been modified
+     * 
+     * @throws IOException
+     */
+    public boolean isFileModified()
+      throws IOException {
+
+      if (file != null) {        
+        long modTime = fs.getFileStatus(file).getModificationTime();
+        if (timestamp < modTime) {
+          this.timestamp = fs.getFileStatus(file).getModificationTime();
+          return true;
+        }
+      }
+
+      return false;
+    }
 
     /** Updates segment names.
      * 
@@ -167,8 +196,12 @@ public class DistributedSearch {
      */
     public void updateSegments() throws IOException {
       
-      int liveServers=0;
-      int liveSegments=0;
+      int liveServers = 0;
+      int liveSegments = 0;
+      
+      if (isFileModified()) {
+        defaultAddresses = readConfig(file, conf);
+      }
       
       // Create new array of flags so they can all be updated at once.
       boolean[] updatedLiveServer = new boolean[defaultAddresses.length];
@@ -188,15 +221,17 @@ public class DistributedSearch {
           }
           continue;
         }
+        
         for (int j = 0; j < segments.length; j++) {
           if (LOG.isTraceEnabled()) {
             LOG.trace("Client: segment "+segments[j]+" at "+addr);
           }
           segmentToAddress.put(segments[j], addr);
         }
+        
         updatedLiveServer[i] = true;
         liveServers++;
-        liveSegments+=segments.length;
+        liveSegments += segments.length;
       }
 
       // Now update live server flags.
@@ -412,6 +447,10 @@ public class DistributedSearch {
     public void close() {
       running = false;
       interrupt();
+    }
+
+    public boolean[] getLiveServer() {
+      return liveServer;
     }
   }
 }
