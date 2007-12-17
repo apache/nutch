@@ -30,7 +30,7 @@ done
 
 # if no args specified, show usage
 if [ $# = 0 ]; then
-  echo "Usage: nutch COMMAND"
+  echo "Usage: nutch [-core] COMMAND"
   echo "where COMMAND is one of:"
   echo "  crawl             one-step crawler for intranets"
   echo "  readdb            read / dump crawl db"
@@ -56,7 +56,18 @@ if [ $# = 0 ]; then
   echo " or"
   echo "  CLASSNAME         run the class named CLASSNAME"
   echo "Most commands print help when invoked w/o parameters."
+  echo ""
+  echo "Expert: -core option is for developers only. It avoids building the job jar, "
+  echo "        instead it simply includes classes compiled with ant compile-core. "
+  echo "        NOTE: this works only for jobs executed in 'local' mode"
   exit 1
+fi
+
+IS_CORE=0
+#check for -core option
+if [ "$1" == "-core" ] ; then
+  IS_CORE=1
+  shift
 fi
 
 # get arguments
@@ -99,17 +110,23 @@ IFS=
 if [ -d "$NUTCH_HOME/build/plugins" ]; then
   CLASSPATH=${CLASSPATH}:$NUTCH_HOME/build
 fi
-for f in $NUTCH_HOME/build/nutch-*.job; do
-  CLASSPATH=${CLASSPATH}:$f;
-done
 if [ -d "$NUTCH_HOME/build/test/classes" ]; then
   CLASSPATH=${CLASSPATH}:$NUTCH_HOME/build/test/classes
 fi
 
-# for releases, add Nutch job to CLASSPATH
-for f in $NUTCH_HOME/nutch-*.job; do
-  CLASSPATH=${CLASSPATH}:$f;
-done
+if [ $IS_CORE == 0 ] 
+then
+  for f in $NUTCH_HOME/build/nutch-*.job; do
+    CLASSPATH=${CLASSPATH}:$f;
+  done
+
+  # for releases, add Nutch job to CLASSPATH
+  for f in $NUTCH_HOME/nutch-*.job; do
+    CLASSPATH=${CLASSPATH}:$f;
+  done
+else
+  CLASSPATH=${CLASSPATH}:$NUTCH_HOME/build/classes
+fi
 
 # add plugins to classpath
 if [ -d "$NUTCH_HOME/plugins" ]; then
