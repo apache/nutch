@@ -154,9 +154,13 @@ public class FetchedSegments implements HitSummarizer, HitContent {
 
   public Summary getSummary(HitDetails details, Query query)
     throws IOException {
-
+    
     if (this.summarizer == null) { return new Summary(); }
-    String text = getSegment(details).getParseText(getUrl(details)).getText();
+    
+    Segment segment = getSegment(details);
+    ParseText parseText = segment.getParseText(getUrl(details));
+    String text = (parseText != null) ? parseText.getText() : "";
+    
     return this.summarizer.getSummary(text, query);
   }
     
