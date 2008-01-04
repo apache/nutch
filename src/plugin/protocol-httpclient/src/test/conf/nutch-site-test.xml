@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+
+<property>
+  <name>http.robots.agents</name>
+  <value>Nutch-Test,*</value>
+  <description></description>
+</property>
+
+<property>
+  <name>http.agent.name</name>
+  <value>Nutch-Test</value>
+  <description></description>
+</property>
+
+<property>
+  <name>http.agent.description</name>
+  <value>Nutch protocol-httpclient test</value>
+  <description></description>
+</property>
+
+<property>
+  <name>http.auth.file</name>
+  <value>httpclient-auth-test.xml</value>
+  <description></description>
+</property>
+
+<property>
+  <name>http.timeout</name>
+  <value>60000</value>
+  <description></description>
+</property>
+
+</configuration>

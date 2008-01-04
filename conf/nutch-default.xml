@@ -119,6 +119,15 @@
 </property>
 
 <property>
+  <name>http.agent.host</name>
+  <value></value>
+  <description>Name or IP address of the host on which the Nutch crawler
+  would be running. Currently this is used by 'protocol-httpclient'
+  plugin.
+  </description>
+</property>
+
+<property>
   <name>http.timeout</name>
   <value>10000</value>
   <description>The default network timeout, in milliseconds.</description>
@@ -152,6 +161,48 @@
   <name>http.proxy.port</name>
   <value></value>
   <description>The proxy port.</description>
+</property>
+
+<property>
+  <name>http.proxy.username</name>
+  <value></value>
+  <description>Username for proxy. This will be used by
+  'protocol-httpclient', if the proxy server requests basic, digest
+  and/or NTLM authentication. To use this, 'protocol-httpclient' must
+  be present in the value of 'plugin.includes' property.
+  NOTE: For NTLM authentication, do not prefix the username with the
+  domain, i.e. 'susam' is correct whereas 'DOMAIN\susam' is incorrect.
+  </description>
+</property>
+
+<property>
+  <name>http.proxy.password</name>
+  <value></value>
+  <description>Password for proxy. This will be used by
+  'protocol-httpclient', if the proxy server requests basic, digest
+  and/or NTLM authentication. To use this, 'protocol-httpclient' must
+  be present in the value of 'plugin.includes' property.
+  </description>
+</property>
+
+<property>
+  <name>http.proxy.realm</name>
+  <value></value>
+  <description>Authentication realm for proxy. Do not define a value
+  if realm is not required or authentication should take place for any
+  realm. NTLM does not use the notion of realms. Specify the domain name
+  of NTLM authentication as the value for this property. To use this,
+  'protocol-httpclient' must be present in the value of
+  'plugin.includes' property.
+  </description>
+</property>
+
+<property>
+  <name>http.auth.file</name>
+  <value>httpclient-auth.xml</value>
+  <description>Authentication configuration file for
+  'protocol-httpclient' plugin.
+  </description>
 </property>
 
 <property>
