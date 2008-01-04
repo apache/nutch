@@ -27,6 +27,23 @@
     <fileset dir="${nutch.root}/build">
       <include name="**/lib-http/*.jar" />
     </fileset>
+    <fileset dir="${nutch.root}/lib/jetty-ext">
+      <include name="*.jar"/>
+      <exclude name="ant.jar"/>
+    </fileset>
+    <pathelement location="${build.dir}/test/conf"/>
   </path>
+
+  <target name="deps-test">
+    <copy toDir="${build.test}">
+      <fileset dir="${src.test}" excludes="**/*.java"/>
+    </copy>
+  </target>
+
+  <!-- for junit test -->
+  <mkdir dir="${build.test}/data" />
+  <copy todir="${build.test}/data">
+      <fileset dir="jsp"/>
+   </copy>
 
 </project>

@@ -21,11 +21,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Date;
-
-// Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 // HTTP Client imports
 import org.apache.commons.httpclient.Header;
@@ -33,6 +28,7 @@ import org.apache.commons.httpclient.HttpVersion;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.httpclient.HttpException;
 
 // Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
@@ -41,46 +37,45 @@ import org.apache.nutch.metadata.SpellCheckedMetadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.http.api.HttpBase;
-import org.apache.nutch.util.LogUtil;
-
 
 /**
  * An HTTP response.
+ *
+ * @author Susam Pal
  */
 public class HttpResponse implements Response {
 
-  public final static Log LOG = LogFactory.getLog(HttpResponse.class);
-
   private URL url;
-  
-  private String orig;
-
-  private String base;
-
   private byte[] content;
-
-  private HttpBase http;
-
   private int code;
-
   private Metadata headers = new SpellCheckedMetadata();
 
-  
-  public HttpResponse(HttpBase http, URL url, CrawlDatum datum) throws IOException {
-    this(http, url, datum, false);
-  }
+  /**
+   * Fetches the given <code>url</code> and prepares HTTP response.
+   *
+   * @param http                An instance of the implementation class
+   *                            of this plugin
+   * @param url                 URL to be fetched
+   * @param datum               Crawl data
+   * @param followRedirects     Whether to follow redirects; follows
+   *                            redirect if and only if this is true
+   * @return                    HTTP response
+   * @throws IOException        When an error occurs
+   */
+  HttpResponse(Http http, URL url, CrawlDatum datum,
+      boolean followRedirects) throws IOException {
 
-  
-  HttpResponse(HttpBase http, URL url, CrawlDatum datum, boolean followRedirects) throws IOException {
-    this.http = http;
+    // Prepare GET method for HTTP request
     this.url = url;
-    this.base = url.toString();
-    this.orig = url.toString();
-    GetMethod get = new GetMethod(this.orig);
+    GetMethod get = new GetMethod(url.toString());
     get.setFollowRedirects(followRedirects);
-    get.setRequestHeader("User-Agent", http.getUserAgent());
-    if (datum.getModifiedTime() > 0)
-      get.setRequestHeader("If-Modified-Since", HttpDateFormat.toString(datum.getModifiedTime()));
+    get.setDoAuthentication(true);
+    if (datum.getModifiedTime() > 0) {
+      get.setRequestHeader("If-Modified-Since",
+          HttpDateFormat.toString(datum.getModifiedTime()));
+    }
+
+    // Set HTTP parameters
     HttpMethodParams params = get.getParams();
     if (http.getUseHttp11()) {
       params.setVersion(HttpVersion.HTTP_1_1);
@@ -104,38 +99,75 @@ public class HttpResponse implements Response {
         headers.set(heads[i].getName(), heads[i].getValue());
       }
       
+      // Limit download size
+      int contentLength = Integer.MAX_VALUE;
+      String contentLengthString = headers.get(Response.CONTENT_LENGTH);
+      if (contentLengthString != null) {
+        try {
+          contentLength = Integer.parseInt(contentLengthString.trim());
+        } catch (NumberFormatException ex) {
+          throw new HttpException("bad content length: " +
+              contentLengthString);
+        }
+      }
+      if (http.getMaxContent() >= 0 &&
+          contentLength > http.getMaxContent()) {
+        contentLength = http.getMaxContent();
+      }
+
       // always read content. Sometimes content is useful to find a cause
       // for error.
+      InputStream in = get.getResponseBodyAsStream();
       try {
-        InputStream in = get.getResponseBodyAsStream();
-        byte[] buffer = new byte[http.BUFFER_SIZE];
+        byte[] buffer = new byte[HttpBase.BUFFER_SIZE];
         int bufferFilled = 0;
         int totalRead = 0;
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        int tryAndRead = calculateTryToRead(totalRead);
-        while ((bufferFilled = in.read(buffer, 0, buffer.length)) != -1 && tryAndRead > 0) {
+        while ((bufferFilled = in.read(buffer, 0, buffer.length)) != -1
+            && totalRead < contentLength) {
           totalRead += bufferFilled;
           out.write(buffer, 0, bufferFilled);
-          tryAndRead = calculateTryToRead(totalRead);
         }
 
         content = out.toByteArray();
-        in.close();
       } catch (Exception e) {
         if (code == 200) throw new IOException(e.toString());
         // for codes other than 200 OK, we are fine with empty content
+      } finally {
+        in.close();
+        get.abort();
       }
+      
+      StringBuilder fetchTrace = null;
+      if (Http.LOG.isTraceEnabled()) {
+        // Trace message
+        fetchTrace = new StringBuilder("url: " + url +
+            "; status code: " + code +
+            "; bytes received: " + content.length);
+        if (getHeader(Response.CONTENT_LENGTH) != null)
+          fetchTrace.append("; Content-Length: " +
+              getHeader(Response.CONTENT_LENGTH));
+        if (getHeader(Response.LOCATION) != null)
+          fetchTrace.append("; Location: " + getHeader(Response.LOCATION));
+      }
+      // Extract gzip and x-gzip files
       if (content != null) {
         // check if we have to uncompress it
         String contentEncoding = headers.get(Response.CONTENT_ENCODING);
-        if ("gzip".equals(contentEncoding) || "x-gzip".equals(contentEncoding)) {
+        if (contentEncoding != null && Http.LOG.isTraceEnabled())
+          fetchTrace.append("; Content-Encoding: " + contentEncoding);
+        if ("gzip".equals(contentEncoding) ||
+            "x-gzip".equals(contentEncoding)) {
           content = http.processGzipEncoded(content, url);
+          if (Http.LOG.isTraceEnabled())
+            fetchTrace.append("; extracted to " + content.length + " bytes");
         }
       }
-    } catch (org.apache.commons.httpclient.ProtocolException pe) {
-      pe.printStackTrace(LogUtil.getErrorStream(LOG));
-      get.releaseConnection();
-      throw new IOException(pe.toString());
+
+      // Log trace message
+      if (Http.LOG.isTraceEnabled()) {
+        Http.LOG.trace(fetchTrace);
+      }
     } finally {
       get.releaseConnection();
     }
@@ -169,17 +201,5 @@ public class HttpResponse implements Response {
   /* -------------------------- *
    * </implementation:Response> *
    * -------------------------- */
-
-  
-
-  private int calculateTryToRead(int totalRead) {
-    int tryToRead = Http.BUFFER_SIZE;
-    if (http.getMaxContent() <= 0) {
-      return http.BUFFER_SIZE;
-    } else if (http.getMaxContent() - totalRead < http.BUFFER_SIZE) {
-      tryToRead = http.getMaxContent() - totalRead;
-    }
-    return tryToRead;
-  }
-
 }
+
