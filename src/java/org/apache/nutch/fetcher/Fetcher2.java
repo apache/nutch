@@ -553,9 +553,14 @@ public class Fetcher2 extends Configured implements MapRunnable {
                     newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
                         new Text(reprUrl));
                     fit = FetchItem.create(redirUrl, newDatum, byIP);
-                    FetchItemQueue fiq =
-                      fetchQueues.getFetchItemQueue(fit.queueID);
-                    fiq.addInProgressFetchItem(fit);
+                    if (fit != null) {
+                      FetchItemQueue fiq =
+                        fetchQueues.getFetchItemQueue(fit.queueID);
+                      fiq.addInProgressFetchItem(fit);
+                    } else {
+                      // stop redirecting
+                      redirecting = false;
+                    }
                   }
                 }
                 break;
@@ -581,9 +586,14 @@ public class Fetcher2 extends Configured implements MapRunnable {
                 newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
                     new Text(reprUrl));
                 fit = FetchItem.create(redirUrl, newDatum, byIP);
-                FetchItemQueue fiq =
-                  fetchQueues.getFetchItemQueue(fit.queueID);
-                fiq.addInProgressFetchItem(fit);
+                if (fit != null) {
+                  FetchItemQueue fiq =
+                    fetchQueues.getFetchItemQueue(fit.queueID);
+                  fiq.addInProgressFetchItem(fit);
+                } else {
+                  // stop redirecting
+                  redirecting = false;
+                }
                 break;
 
               case ProtocolStatus.EXCEPTION:
