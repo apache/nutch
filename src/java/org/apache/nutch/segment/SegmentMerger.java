@@ -56,6 +56,7 @@ import org.apache.nutch.crawl.Generator;
 import org.apache.nutch.metadata.MetaWrapper;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.URLFilters;
+import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
@@ -116,6 +117,7 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
   private static final String SEGMENT_SLICE_KEY = "slice";
 
   private URLFilters filters = null;
+  private URLNormalizers normalizers = null;
   private long sliceSize = -1;
   private long curCount = 0;
   
@@ -290,6 +292,8 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
     if (conf == null) return;
     if (conf.getBoolean("segment.merger.filter", false))
       filters = new URLFilters(conf);
+    if (conf.getBoolean("segment.merger.normalizer", false))
+      normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_DEFAULT);
     sliceSize = conf.getLong("segment.merger.slice", -1);
     if ((sliceSize > 0) && (LOG.isInfoEnabled())) {
       LOG.info("Slice size: " + sliceSize + " URLs.");
@@ -309,23 +313,27 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
   private Text newKey = new Text();
   
   public void map(WritableComparable key, Writable value, OutputCollector output, Reporter reporter) throws IOException {
-    // convert on the fly from the old format
-    if (key instanceof UTF8) {
-      newKey.set(key.toString());
-      key = newKey;
-    }
-    if (filters != null) {
+    String url = key.toString();
+    if (normalizers != null) {
       try {
-        if (filters.filter(((Text)key).toString()) == null) {
-          return;
-        }
+        url = normalizers.normalize(url, URLNormalizers.SCOPE_DEFAULT); // normalize the url
       } catch (Exception e) {
-        if (LOG.isWarnEnabled()) {
-          LOG.warn("Cannot filter key " + key + ": " + e.getMessage());
-        }
+        LOG.warn("Skipping " + url + ":" + e.getMessage());
+        url = null;
       }
     }
-    output.collect(key, value);
+    if (url != null && filters != null) {
+      try {
+        url = filters.filter(url);
+      } catch (Exception e) {
+        LOG.warn("Skipping key " + url + ": " + e.getMessage());
+        url = null;
+      }
+    }
+    if(url != null) {
+      newKey.set(url);
+      output.collect(newKey, value);
+    }
   }
 
   /**
@@ -503,7 +511,7 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
     }
   }
 
-  public void merge(Path out, Path[] segs, boolean filter, long slice) throws Exception {
+  public void merge(Path out, Path[] segs, boolean filter, boolean normalize, long slice) throws Exception {
     String segmentName = Generator.generateSegmentName();
     if (LOG.isInfoEnabled()) {
       LOG.info("Merging " + segs.length + " segments to " + out + "/" + segmentName);
@@ -511,6 +519,7 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
     JobConf job = new NutchJob(getConf());
     job.setJobName("mergesegs " + out + "/" + segmentName);
     job.setBoolean("segment.merger.filter", filter);
+    job.setBoolean("segment.merger.normalizer", normalize);
     job.setLong("segment.merger.slice", slice);
     job.set("segment.merger.segmentName", segmentName);
     FileSystem fs = FileSystem.get(getConf());
@@ -614,6 +623,7 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
     ArrayList<Path> segs = new ArrayList<Path>();
     long sliceSize = 0;
     boolean filter = false;
+    boolean normalize = false;
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-dir")) {
         Path[] files = fs.listPaths(new Path(args[++i]), new PathFilter() {
@@ -629,6 +639,8 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
           segs.add(files[j]);
       } else if (args[i].equals("-filter")) {
         filter = true;
+      } else if (args[i].equals("-normalize")) {
+        normalize = true;
       } else if (args[i].equals("-slice")) {
         sliceSize = Long.parseLong(args[++i]);
       } else {
@@ -640,7 +652,7 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
       return;
     }
     SegmentMerger merger = new SegmentMerger(conf);
-    merger.merge(out, segs.toArray(new Path[segs.size()]), filter, sliceSize);
+    merger.merge(out, segs.toArray(new Path[segs.size()]), filter, normalize, sliceSize);
   }
 
 }
