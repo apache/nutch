@@ -18,7 +18,9 @@
 package org.apache.nutch.tools;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -77,6 +79,8 @@ public class FreeGenerator extends ToolBase {
         normalizers = new URLNormalizers(job, URLNormalizers.SCOPE_INJECT);
       }
     }
+    
+    Generator.SelectorEntry entry = new Generator.SelectorEntry();
 
     public void map(WritableComparable key, Writable value, OutputCollector output, Reporter reporter) throws IOException {
       // value is a line of text
@@ -102,12 +106,22 @@ public class FreeGenerator extends ToolBase {
         }
         return;
       }
-      output.collect(url, datum);
+      entry.datum = datum;
+      entry.url = url;
+      output.collect(url, entry);
     }
 
     public void reduce(WritableComparable key, Iterator values, OutputCollector output, Reporter reporter) throws IOException {
-      // pick just one (discard duplicates)
-      output.collect(key, (Writable)values.next());
+      // pick unique urls from values - discard the reduce key due to hash collisions
+      HashMap<Text, CrawlDatum> unique = new HashMap<Text, CrawlDatum>();
+      while (values.hasNext()) {
+        Generator.SelectorEntry entry = (Generator.SelectorEntry)values.next();
+        unique.put(entry.url, entry.datum);
+      }
+      // output unique urls
+      for (Entry<Text, CrawlDatum> e : unique.entrySet()) {
+        output.collect(e.getKey(), e.getValue());
+      }
     }
   }
   
@@ -142,6 +156,8 @@ public class FreeGenerator extends ToolBase {
     job.addInputPath(new Path(args[0]));
     job.setInputFormat(TextInputFormat.class);
     job.setMapperClass(FG.class);
+    job.setMapOutputKeyClass(Text.class);
+    job.setMapOutputValueClass(Generator.SelectorEntry.class);
     job.setPartitionerClass(PartitionUrlByHost.class);
     job.setReducerClass(FG.class);
     String segName = Generator.generateSegmentName();

@@ -267,8 +267,22 @@ public class Generator extends ToolBase {
 
     public void map(WritableComparable key, Writable value, OutputCollector output, Reporter reporter) throws IOException {
       SelectorEntry entry = (SelectorEntry)value;
-      output.collect(entry.url, entry.datum);
+      output.collect(entry.url, entry);
     }
+  }
+  
+  public static class PartitionReducer extends MapReduceBase implements Reducer {
+
+    public void reduce(WritableComparable key, Iterator values,
+        OutputCollector output, Reporter reporter) throws IOException {
+      // if using HashComparator, we get only one input key in case of hash collision
+      // so use only URLs from values
+      while (values.hasNext()) {
+        SelectorEntry entry = (SelectorEntry)values.next();
+        output.collect(entry.url, entry.datum);
+      }
+    }
+    
   }
 
   /** Sort fetch lists by hash of URL. */
@@ -457,7 +471,10 @@ public class Generator extends ToolBase {
     job.setInputFormat(SequenceFileInputFormat.class);
 
     job.setMapperClass(SelectorInverseMapper.class);
+    job.setMapOutputKeyClass(Text.class);
+    job.setMapOutputValueClass(SelectorEntry.class);
     job.setPartitionerClass(PartitionUrlByHost.class);
+    job.setReducerClass(PartitionReducer.class);
     job.setNumReduceTasks(numLists);
 
     job.setOutputPath(output);
