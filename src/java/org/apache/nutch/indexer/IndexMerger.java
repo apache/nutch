@@ -29,6 +29,7 @@ import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.ToolBase;
 import org.apache.hadoop.conf.*;
 
+import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
 
@@ -135,7 +136,7 @@ public class IndexMerger extends ToolBase {
     Path outputIndex = new Path(args[i++]);
 
     for (; i < args.length; i++) {
-      indexDirs.addAll(Arrays.asList(fs.listPaths(new Path(args[i]))));
+      indexDirs.addAll(Arrays.asList(fs.listPaths(new Path(args[i]), HadoopFSUtil.getPassAllFilter())));
     }
 
     //

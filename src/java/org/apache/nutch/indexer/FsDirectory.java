@@ -19,6 +19,7 @@ package org.apache.nutch.indexer;
 
 import java.io.*;
 import org.apache.lucene.store.*;
+import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.Configuration;
 
@@ -40,7 +41,7 @@ public class FsDirectory extends Directory {
       create();
     }
 
-    if (!fs.isDirectory(directory))
+    if (!fs.getFileStatus(directory).isDir())
       throw new IOException(directory + " not a directory");
   }
 
@@ -49,11 +50,11 @@ public class FsDirectory extends Directory {
       fs.mkdirs(directory);
     }
 
-    if (!fs.isDirectory(directory))
+    if (!fs.getFileStatus(directory).isDir())
       throw new IOException(directory + " not a directory");
 
     // clear old files
-    Path[] files = fs.listPaths(directory);
+    Path[] files = fs.listPaths(directory, HadoopFSUtil.getPassAllFilter());
     for (int i = 0; i < files.length; i++) {
       if (!fs.delete(files[i]))
         throw new IOException("Cannot delete " + files[i]);
@@ -61,7 +62,7 @@ public class FsDirectory extends Directory {
   }
 
   public String[] list() throws IOException {
-    Path[] files = fs.listPaths(directory);
+    Path[] files = fs.listPaths(directory, HadoopFSUtil.getPassAllFilter());
     if (files == null) return null;
 
     String[] result = new String[files.length];
@@ -84,7 +85,7 @@ public class FsDirectory extends Directory {
   }
 
   public long fileLength(String name) throws IOException {
-    return fs.getLength(new Path(directory, name));
+    return fs.getFileStatus(new Path(directory, name)).getLen();
   }
 
   public void deleteFile(String name) throws IOException {
@@ -157,7 +158,7 @@ public class FsDirectory extends Directory {
 
     public DfsIndexInput(Path path, int ioFileBufferSize) throws IOException {
       descriptor = new Descriptor(path,ioFileBufferSize);
-      length = fs.getLength(path);
+      length = fs.getFileStatus(path).getLen();
     }
 
     protected void readInternal(byte[] b, int offset, int len)

@@ -31,6 +31,7 @@ import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.indexer.*;
 import org.apache.nutch.crawl.Inlinks;
+import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.NutchConfiguration;
 
 /** 
@@ -121,8 +122,8 @@ public class NutchBean
       }
       
       Vector vDirs=new Vector();
-      Path [] directories = fs.listPaths(indexesDir);
-      for(int i = 0; i < fs.listPaths(indexesDir).length; i++) {
+      Path [] directories = fs.listPaths(indexesDir, HadoopFSUtil.getPassDirectoriesFilter(fs));
+      for(int i = 0; i < directories.length; i++) {
         Path indexdone = new Path(directories[i], Indexer.DONE_NAME);
         if(fs.isFile(indexdone)) {
           vDirs.add(directories[i]);

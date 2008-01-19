@@ -63,7 +63,7 @@ public class Fetcher extends ToolBase implements MapRunnable {
       FileSystem fs = FileSystem.get(job);
       InputSplit[] splits = new InputSplit[files.length];
       for (int i = 0; i < files.length; i++) {
-        splits[i] = new FileSplit(files[i], 0, fs.getLength(files[i]), job);
+        splits[i] = new FileSplit(files[i], 0, fs.getFileStatus(files[i]).getLen(), job);
       }
       return splits;
     }

@@ -29,7 +29,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.PathFilter;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
@@ -60,6 +59,7 @@ import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
@@ -626,15 +626,7 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
     boolean normalize = false;
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-dir")) {
-        Path[] files = fs.listPaths(new Path(args[++i]), new PathFilter() {
-          public boolean accept(Path f) {
-            try {
-              if (fs.isDirectory(f)) return true;
-            } catch (IOException e) {}
-            ;
-            return false;
-          }
-        });
+        Path[] files = fs.listPaths(new Path(args[++i]), HadoopFSUtil.getPassDirectoriesFilter(fs));
         for (int j = 0; j < files.length; j++)
           segs.add(files[j]);
       } else if (args[i].equals("-filter")) {

@@ -42,7 +42,7 @@ public class LockUtil {
     if (fs.exists(lockFile)) {
       if(!accept)
         throw new IOException("lock file " + lockFile + " already exists.");
-      if (fs.isDirectory(lockFile))
+      if (fs.getFileStatus(lockFile).isDir())
         throw new IOException("lock file " + lockFile + " already exists and is a directory.");
       // do nothing - the file already exists.
     } else {
@@ -63,7 +63,7 @@ public class LockUtil {
    */
   public static boolean removeLockFile(FileSystem fs, Path lockFile) throws IOException {
     if (!fs.exists(lockFile)) return false;
-    if (fs.isDirectory(lockFile))
+    if (fs.getFileStatus(lockFile).isDir())
       throw new IOException("lock file " + lockFile + " exists but is a directory!");
     return fs.delete(lockFile);
   }

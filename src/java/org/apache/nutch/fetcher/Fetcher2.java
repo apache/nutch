@@ -95,7 +95,7 @@ public class Fetcher2 extends Configured implements MapRunnable {
       FileSplit[] splits = new FileSplit[files.length];
       FileSystem fs = FileSystem.get(job);
       for (int i = 0; i < files.length; i++) {
-        splits[i] = new FileSplit(files[i], 0, fs.getLength(files[i]), job);
+        splits[i] = new FileSplit(files[i], 0, fs.getFileStatus(files[i]).getLen(), job);
       }
       return splits;
     }
