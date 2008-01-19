@@ -40,7 +40,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.PathFilter;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
@@ -64,6 +63,7 @@ import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
@@ -220,7 +220,7 @@ public class SegmentReader extends Configured implements Reducer {
 
     // remove the old file
     fs.delete(dumpFile);
-    Path[] files = fs.listPaths(tempDir);
+    Path[] files = fs.listPaths(tempDir, HadoopFSUtil.getPassAllFilter());
 
     PrintWriter writer = null;
     int currentRecordNumber = 0;
@@ -451,7 +451,7 @@ public class SegmentReader extends Configured implements Reducer {
     }
     stats.generated = cnt;
     Path fetchDir = new Path(segment, CrawlDatum.FETCH_DIR_NAME);
-    if (fs.exists(fetchDir) && fs.isDirectory(fetchDir)) {
+    if (fs.exists(fetchDir) && fs.getFileStatus(fetchDir).isDir()) {
       cnt = 0L;
       long start = Long.MAX_VALUE;
       long end = Long.MIN_VALUE;
@@ -470,7 +470,7 @@ public class SegmentReader extends Configured implements Reducer {
       stats.fetched = cnt;
     }
     Path parseDir = new Path(segment, ParseData.DIR_NAME);
-    if (fs.exists(fetchDir) && fs.isDirectory(fetchDir)) {
+    if (fs.exists(fetchDir) && fs.getFileStatus(fetchDir).isDir()) {
       cnt = 0L;
       long errors = 0L;
       ParseData value = new ParseData();
@@ -559,14 +559,7 @@ public class SegmentReader extends Configured implements Reducer {
           if (args[i] == null) continue;
           if (args[i].equals("-dir")) {
             Path dir = new Path(args[++i]);
-            Path[] files = fs.listPaths(dir, new PathFilter() {
-              public boolean accept(Path pathname) {
-                try {
-                  if (fs.isDirectory(pathname)) return true;
-                } catch (IOException e) {};
-                return false;
-              }
-            });
+            Path[] files = fs.listPaths(dir, HadoopFSUtil.getPassDirectoriesFilter(fs));
             if (files != null && files.length > 0) {
               dirs.addAll(Arrays.asList(files));
             }

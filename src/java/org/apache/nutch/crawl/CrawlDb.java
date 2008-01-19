@@ -31,6 +31,7 @@ import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.ToolBase;
 
+import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
@@ -181,15 +182,7 @@ public class CrawlDb extends ToolBase {
       } else if (args[i].equals("-noAdditions")) {
         additionsAllowed = false;
       } else if (args[i].equals("-dir")) {
-        Path[] paths = fs.listPaths(new Path(args[++i]), new PathFilter() {
-          public boolean accept(Path dir) {
-            try {
-              return fs.isDirectory(dir);
-            } catch (IOException ioe) {
-              return false;
-            }
-          }
-        });
+        Path[] paths = fs.listPaths(new Path(args[++i]), HadoopFSUtil.getPassDirectoriesFilter(fs));
         dirs.addAll(Arrays.asList(paths));
       } else {
         dirs.add(new Path(args[i]));

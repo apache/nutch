@@ -32,6 +32,7 @@ import org.apache.nutch.parse.ParseSegment;
 import org.apache.nutch.indexer.DeleteDuplicates;
 import org.apache.nutch.indexer.IndexMerger;
 import org.apache.nutch.indexer.Indexer;
+import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
@@ -131,9 +132,9 @@ public class Crawl {
       linkDbTool.invert(linkDb, segments, true, true, false); // invert links
 
       // index, dedup & merge
-      indexer.index(indexes, crawlDb, linkDb, fs.listPaths(segments));
+      indexer.index(indexes, crawlDb, linkDb, fs.listPaths(segments, HadoopFSUtil.getPassAllFilter()));
       dedup.dedup(new Path[] { indexes });
-      merger.merge(fs.listPaths(indexes), index, tmpDir);
+      merger.merge(fs.listPaths(indexes, HadoopFSUtil.getPassAllFilter()), index, tmpDir);
     } else {
       LOG.warn("No URLs to fetch - check your seed list and URL filters.");
     }

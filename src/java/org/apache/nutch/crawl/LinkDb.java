@@ -36,6 +36,7 @@ import org.apache.hadoop.util.ToolBase;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.parse.*;
+import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
@@ -146,14 +147,7 @@ public class LinkDb extends ToolBase implements Mapper {
 
   public void invert(Path linkDb, final Path segmentsDir, boolean normalize, boolean filter, boolean force) throws IOException {
     final FileSystem fs = FileSystem.get(getConf());
-    Path[] files = fs.listPaths(segmentsDir, new PathFilter() {
-      public boolean accept(Path f) {
-        try {
-          if (fs.isDirectory(f)) return true;
-        } catch (IOException ioe) {};
-        return false;
-      }
-    });
+    Path[] files = fs.listPaths(segmentsDir, HadoopFSUtil.getPassDirectoriesFilter(fs));
     invert(linkDb, files, normalize, filter, force);
   }
 
@@ -283,7 +277,7 @@ public class LinkDb extends ToolBase implements Mapper {
         Path[] files = fs.listPaths(segDir, new PathFilter() {
           public boolean accept(Path f) {
             try {
-              if (fs.isDirectory(f)) return true;
+              if (fs.getFileStatus(f).isDir()) return true;
             } catch (IOException ioe) {};
             return false;
           }

@@ -82,7 +82,7 @@ public class IndexSearcher implements Searcher, HitDetailer {
   }
 
   private Directory getDirectory(Path file) throws IOException {
-    if ("local".equals(this.fs.getName())) {
+    if ("file".equals(this.fs.getUri().getScheme())) {
       Path qualified = file.makeQualified(FileSystem.getLocal(conf));
       File fsLocal = new File(qualified.toUri());
       return FSDirectory.getDirectory(fsLocal.getAbsolutePath(), false);
