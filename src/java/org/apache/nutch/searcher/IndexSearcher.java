@@ -19,29 +19,27 @@ package org.apache.nutch.searcher;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
+import java.util.List;
 
-import java.util.ArrayList;
-import java.util.Enumeration;
-
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
-
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.MultiReader;
-
-import org.apache.lucene.search.TopDocs;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.FieldDoc;
-import org.apache.lucene.search.FieldCache;
-
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.FloatWritable;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.WritableComparable;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
-
-import org.apache.hadoop.fs.*;
-import org.apache.hadoop.io.*;
-import org.apache.hadoop.conf.*;
-import org.apache.nutch.indexer.*;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.MultiReader;
+import org.apache.lucene.search.FieldCache;
+import org.apache.lucene.search.FieldDoc;
+import org.apache.lucene.search.ScoreDoc;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
+import org.apache.nutch.indexer.FsDirectory;
+import org.apache.nutch.indexer.NutchSimilarity;
 
 /** Implements {@link Searcher} and {@link HitDetailer} for either a single
  * merged index, or a set of indexes. */
@@ -85,7 +83,7 @@ public class IndexSearcher implements Searcher, HitDetailer {
     if ("file".equals(this.fs.getUri().getScheme())) {
       Path qualified = file.makeQualified(FileSystem.getLocal(conf));
       File fsLocal = new File(qualified.toUri());
-      return FSDirectory.getDirectory(fsLocal.getAbsolutePath(), false);
+      return FSDirectory.getDirectory(fsLocal.getAbsolutePath());
     } else {
       return new FsDirectory(this.fs, file, false, this.conf);
     }
@@ -109,20 +107,19 @@ public class IndexSearcher implements Searcher, HitDetailer {
   }
 
   public HitDetails getDetails(Hit hit) throws IOException {
-    ArrayList fields = new ArrayList();
-    ArrayList values = new ArrayList();
 
     Document doc = luceneSearcher.doc(hit.getIndexDocNo());
 
-    Enumeration e = doc.fields();
-    while (e.hasMoreElements()) {
-      Field field = (Field)e.nextElement();
-      fields.add(field.name());
-      values.add(field.stringValue());
+    List docFields = doc.getFields();
+    String[] fields = new String[docFields.size()];
+    String[] values = new String[docFields.size()];
+    for (int i = 0; i < docFields.size(); i++) {
+      Field field = (Field)docFields.get(i);
+      fields[i] = field.name();
+      values[i] = field.stringValue();
     }
 
-    return new HitDetails((String[])fields.toArray(new String[fields.size()]),
-                          (String[])values.toArray(new String[values.size()]));
+    return new HitDetails(fields, values);
   }
 
   public HitDetails[] getDetails(Hit[] hits) throws IOException {
