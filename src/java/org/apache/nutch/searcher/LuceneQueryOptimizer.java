@@ -125,13 +125,15 @@ class LuceneQueryOptimizer {
       }
       super.collect(doc, score);
     }
-  }  private static class LimitExceeded extends RuntimeException {
+  }
+  
+  private static class LimitExceeded extends RuntimeException {
     private int maxDoc;
     public LimitExceeded(int maxDoc) { this.maxDoc = maxDoc; }    
   }
   
-  private LinkedHashMap cache;                   // an LRU cache of QueryFilter
-
+  private LinkedHashMap<BooleanQuery, Filter> cache;                   // an LRU cache of QueryFilter
+  
   private float threshold;
 
   private int searcherMaxHits;
@@ -154,7 +156,7 @@ class LuceneQueryOptimizer {
     this.threshold = conf.getFloat("searcher.filter.cache.threshold",
         0.05f);
     this.searcherMaxHits = conf.getInt("searcher.max.hits", -1);
-    this.cache = new LinkedHashMap(cacheSize, 0.75f, true) {
+    this.cache = new LinkedHashMap<BooleanQuery, Filter>(cacheSize, 0.75f, true) {
       protected boolean removeEldestEntry(Map.Entry eldest) {
         return size() > cacheSize; // limit size of cache
       }
@@ -174,7 +176,7 @@ class LuceneQueryOptimizer {
     BooleanQuery query = new BooleanQuery();
     BooleanQuery cacheQuery = new BooleanQuery();
     BooleanQuery filterQuery = new BooleanQuery();
-    ArrayList filters = new ArrayList();
+    ArrayList<Filter> filters = new ArrayList<Filter>();
 
     BooleanClause[] clauses = original.getClauses();
     for (int i = 0; i < clauses.length; i++) {
@@ -214,12 +216,12 @@ class LuceneQueryOptimizer {
     Filter filter = null;
     if (cacheQuery.getClauses().length != 0) {
       synchronized (cache) {                      // check cache
-        filter = (Filter)cache.get(cacheQuery);
+        filter = cache.get(cacheQuery);
       }
       if (filter == null) {                       // miss
 
         if (filterQuery.getClauses().length != 0) // add filterQuery to filters
-          filters.add(new QueryFilter(filterQuery));
+          filters.add(new CachingWrapperFilter(new QueryWrapperFilter(filterQuery)));
 
         if (filters.size() == 1) {                // convert filters to filter
           filter = (Filter)filters.get(0);
@@ -228,7 +230,7 @@ class LuceneQueryOptimizer {
                                      (new Filter[filters.size()]),
                                      ChainedFilter.AND);
         }
-        if (!(filter instanceof QueryFilter))     // make sure bits are cached
+        if (!(filter instanceof CachingWrapperFilter))     // make sure bits are cached
           filter = new CachingWrapperFilter(filter);
         
         synchronized (cache) {

@@ -63,13 +63,17 @@ public class IndexSorter extends ToolBase {
 
     private static final String TEMP_FILE = "temp";
     private final RAMDirectory tempDir = new RAMDirectory();
-    private final RAMOutputStream out =
-      (RAMOutputStream)tempDir.createOutput(TEMP_FILE);
+    private RAMOutputStream out;
     private IndexInput in;
 
     public SortedTermPositions(TermPositions original, int[] oldToNew) {
       this.original = original;
       this.oldToNew = oldToNew;
+      try {
+        out = (RAMOutputStream)tempDir.createOutput(TEMP_FILE);
+      } catch (IOException ioe) {
+        LOG.warn("Error creating temporary output: " + StringUtils.stringifyException(ioe));
+      }
     }
 
     public void seek(Term term) throws IOException {
