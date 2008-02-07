@@ -80,7 +80,8 @@ public class DistributedSearch {
     
     static org.apache.hadoop.ipc.Server getServer(Configuration conf, Path directory, int port) throws IOException{
       NutchBean bean = new NutchBean(conf, directory);
-      return RPC.getServer(bean, "0.0.0.0", port, 10, true, conf);
+      int numHandlers = conf.getInt("searcher.num.handlers", 10);      
+      return RPC.getServer(bean, "0.0.0.0", port, numHandlers, true, conf);
     }
 
   }
