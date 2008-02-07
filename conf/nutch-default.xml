@@ -804,6 +804,13 @@
   </description>
 </property>
 
+<property>
+  <name>searcher.num.handlers</name>
+  <value>10</value>
+  <description>The number of handlers for the distributed search server.
+  </description>
+</property>
+
 <!-- URL normalizer properties -->
 
 <property>
