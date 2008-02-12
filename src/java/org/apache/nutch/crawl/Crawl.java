@@ -54,7 +54,7 @@ public class Crawl {
     }
 
     Configuration conf = NutchConfiguration.create();
-    conf.addDefaultResource("crawl-tool.xml");
+    conf.addResource("crawl-tool.xml");
     JobConf job = new NutchJob(conf);
 
     Path rootUrlDir = null;
