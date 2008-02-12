@@ -181,56 +181,63 @@ public class Generator extends ToolBase {
       while (values.hasNext() && count < limit) {
 
         SelectorEntry entry = (SelectorEntry)values.next();
-        Text url = entry.url;
-
-        if (maxPerHost > 0) {                     // are we counting hosts?
-          URL u = null;
+        Text url = entry.url;        
+        String urlString = url.toString();        
+        URL u = null;
+        
+        // skip bad urls, including empty and null urls
+        try {
+          u = new URL(url.toString());
+        } catch (MalformedURLException e) {
+          LOG.info("Bad protocol in url: " + url.toString());
+          continue;
+        }
+        
+        String host = u.getHost();
+        host = host.toLowerCase();
+        
+        // partitioning by ip will generate lots of DNS requests here, and will 
+        // be up to double the overall dns load, do not run this way unless you
+        // are running a local caching DNS server or a two layer DNS cache
+        if (byIP) {
           try {
-            u = new URL(url.toString());
-          } catch (MalformedURLException e) {
-            LOG.info("Bad protocol in url: " + url.toString());
-            continue;
-          }
-          String host = u.getHost();
-          if (host == null) {
-            // unknown host, skip
-            continue;
-          }
-          host = host.toLowerCase();
-          if (byIP) {
-            try {
-              InetAddress ia = InetAddress.getByName(host);
-              host = ia.getHostAddress();
-            } catch (UnknownHostException uhe) {
-              if (LOG.isDebugEnabled()) {
-                LOG.debug("DNS lookup failed: " + host + ", skipping.");
-              }
-              dnsFailure++;
-              if ((dnsFailure % 1000 == 0) && (LOG.isWarnEnabled())) {
-                LOG.warn("DNS failures: " + dnsFailure);
-              }
-              continue;
+            InetAddress ia = InetAddress.getByName(host);
+            host = ia.getHostAddress();
+            urlString = new URL(u.getProtocol(), host, u.getPort(), u.getFile()).toString();
+          } 
+          catch (UnknownHostException uhe) {
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("DNS lookup failed: " + host + ", skipping.");
             }
-          }
-          u = new URL(u.getProtocol(), host, u.getPort(), u.getFile());
-          String urlString = u.toString();
-          try {
-            urlString = normalizers.normalize(urlString, URLNormalizers.SCOPE_GENERATE_HOST_COUNT);
-            host = new URL(urlString).getHost();
-          } catch (Exception e) {
-            LOG.warn("Malformed URL: '" + urlString + "', skipping (" +
-                StringUtils.stringifyException(e) + ")");
+            dnsFailure++;
+            if ((dnsFailure % 1000 == 0) && (LOG.isWarnEnabled())) {
+              LOG.warn("DNS failures: " + dnsFailure);
+            }
             continue;
           }
+        }
+        
+        try {
+          urlString = normalizers.normalize(urlString, URLNormalizers.SCOPE_GENERATE_HOST_COUNT);
+          host = new URL(urlString).getHost();
+        } catch (Exception e) {
+          LOG.warn("Malformed URL: '" + urlString + "', skipping (" +
+              StringUtils.stringifyException(e) + ")");
+          continue;
+        }
+        
+        // only filter if we are counting hosts
+        if (maxPerHost > 0) {
+          
           IntWritable hostCount = hostCounts.get(host);
           if (hostCount == null) {
             hostCount = new IntWritable();
             hostCounts.put(host, hostCount);
           }
-
+  
           // increment hostCount
           hostCount.set(hostCount.get() + 1);
-
+  
           // skip URL if above the limit per host.
           if (hostCount.get() > maxPerHost) {
             if (hostCount.get() == maxPerHost + 1) {
@@ -249,9 +256,7 @@ public class Generator extends ToolBase {
         // maxPerHost may cause us to skip it.
         count++;
       }
-
     }
-
   }
 
   public static class DecreasingFloatComparator extends FloatWritable.Comparator {
@@ -450,13 +455,15 @@ public class Generator extends ToolBase {
         }
       }
     }
+    
+    for (int i = 0; i < readers.length; i++) readers[i].close();
+    
     if (empty) {
       LOG.warn("Generator: 0 records selected for fetching, exiting ...");
       LockUtil.removeLockFile(fs, lock);
       fs.delete(tempDir);
       return null;
     }
-    for (int i = 0; i < readers.length; i++) readers[i].close();
 
     // invert again, paritition by host, sort by url hash
     if (LOG.isInfoEnabled()) {
