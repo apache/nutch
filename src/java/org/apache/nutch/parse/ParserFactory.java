@@ -36,11 +36,8 @@ import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRuntimeException;
 import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.util.LogUtil;
+import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.ObjectCache;
-
-// Tika imports
-import org.apache.tika.mime.MimeType;
-import org.apache.tika.mime.MimeTypeException;
 
 
 /** Creates and caches {@link Parser} plugins.*/
@@ -222,15 +219,8 @@ public final class ParserFactory {
     ObjectCache objectCache = ObjectCache.get(conf);
     // First of all, tries to clean the content-type
     String type = null;
-    try {
-      type = MimeType.clean(contentType);
-    } catch (MimeTypeException mte) {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Could not clean the content-type [" + contentType +
-                  "], Reason is [" + mte + "]. Using its raw version...");
-      }
-      type = contentType;
-    }
+    type = MimeUtil.cleanMimeType(contentType);
+
 
     List<Extension> extensions = (List<Extension>) objectCache.getObject(type);
 

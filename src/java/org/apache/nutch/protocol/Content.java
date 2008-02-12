@@ -38,13 +38,8 @@ import org.apache.hadoop.io.Writable;
 
 //Nutch imports
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
-
-//Tika imports
-import org.apache.tika.mime.MimeType;
-import org.apache.tika.mime.MimeTypeException;
-import org.apache.tika.mime.MimeUtils;
-
 
 public final class Content implements Writable{
 
@@ -64,9 +59,7 @@ public final class Content implements Writable{
 
   private Metadata metadata;
 
-  private boolean mimeTypeMagic;
-
-  private static MimeUtils mimeTypes;
+  private MimeUtil mimeTypes;
 
   public Content() {
     metadata = new Metadata();
@@ -88,10 +81,8 @@ public final class Content implements Writable{
     this.base = base;
     this.content = content;
     this.metadata = metadata;
-    this.mimeTypeMagic = conf.getBoolean("mime.type.magic", true);
-    if(this.mimeTypes == null){
-      this.mimeTypes = new MimeUtils(conf.get("mime.types.file"), this.mimeTypeMagic);
-    }
+
+    this.mimeTypes = new MimeUtil(conf);
     this.contentType = getContentType(contentType, url, content);
   }
 
@@ -289,41 +280,7 @@ public final class Content implements Writable{
   }
 
   private String getContentType(String typeName, String url, byte[] data) {
-    MimeType type = null;
-    String cleanedMimeType = null;
-
-    try {
-      cleanedMimeType = MimeType.clean(typeName);
-    } catch (MimeTypeException mte) {
-      // Seems to be a malformed mime type name...
-    }
-
-    // first try to get the type from the cleaned type name
-    type = cleanedMimeType != null ? this.mimeTypes.getRepository().forName(
-        cleanedMimeType) : null;
-
-    // if returned null, then try url resolution
-    if (type == null) {
-      // If no mime-type header, or cannot find a corresponding registered
-      // mime-type, then guess a mime-type from the url pattern
-      type = this.mimeTypes.getRepository().getMimeType(url) != null ? this.mimeTypes
-          .getRepository().getMimeType(url)
-          : type;
-    }
-
-    // if magic is enabled use mime magic to guess if the mime type returned
-    // from the magic guess is different than the one that's already set so far
-    // if it is, go with the mime type returned by the magic
-    if (this.mimeTypeMagic) {
-      MimeType magicType = this.mimeTypes.getRepository().getMimeType(data);
-      if (magicType != null && !type.getName().equals(magicType.getName())) {
-        // If magic enabled and the current mime type differs from that of the
-        // one returned from the magic, take the magic mimeType
-
-        type = magicType;
-      }
-    }
-
-    return type.getName();
+    return this.mimeTypes.autoResolveContentType(typeName, url, data);
   }
+
 }

@@ -26,13 +26,13 @@ import java.io.IOException;
 // Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
 
 // Tika imports
 import org.apache.tika.mime.MimeType;
-import org.apache.tika.mime.MimeUtils;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
@@ -76,7 +76,7 @@ public class FileResponse {
   private final File file;
   private Configuration conf;
   
-  private static MimeUtils MIME;
+  private MimeUtil MIME;
 
   /** Returns the response code. */
   public int getCode() { return code; }
@@ -102,8 +102,7 @@ public class FileResponse {
     this.file = file;
     this.conf = conf;
     
-    if(MIME == null)
-      MIME = new MimeUtils(conf.get("mime.types.file"),conf.getBoolean("mime.type.magic", true));
+    MIME = new MimeUtil(conf);
 
     if (!"file".equals(url.getProtocol()))
       throw new FileException("Not a file url:" + url);
@@ -210,7 +209,7 @@ public class FileResponse {
     headers.set(Response.LAST_MODIFIED, HttpDateFormat.toString(f
         .lastModified()));
     
-    MimeType mimeType = MIME.getRepository().getMimeType(f);
+    MimeType mimeType = MIME.getMimeType(f);
     String mimeTypeString = mimeType != null ? mimeType.getName() : "";
     headers.set(Response.CONTENT_TYPE, mimeTypeString);
 
