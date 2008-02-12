@@ -81,8 +81,8 @@ public class NutchConfiguration {
   
   /** Add the standard Nutch resources to {@link Configuration}. */
   public static Configuration addNutchResources(Configuration conf) {
-    conf.addDefaultResource("nutch-default.xml");
-    conf.addFinalResource("nutch-site.xml");
+    conf.addResource("nutch-default.xml");
+    conf.addResource("nutch-site.xml");
     return conf;
   }
   

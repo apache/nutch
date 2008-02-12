@@ -86,8 +86,8 @@ public class CrawlDBTestUtil {
    */
   public static Configuration createConfiguration(){
     Configuration conf = new Configuration();
-    conf.addDefaultResource("nutch-default.xml");
-    conf.addFinalResource("crawl-tests.xml");
+    conf.addResource("nutch-default.xml");
+    conf.addResource("crawl-tests.xml");
     return conf;
   }
 
