@@ -54,7 +54,7 @@ public class TestProtocolHttpClient extends TestCase {
     server.addContext(context);
 
     conf = new Configuration();
-    conf.addDefaultResource("nutch-default.xml");
+    conf.addResource("nutch-default.xml");
     conf.addResource("nutch-site-test.xml");
     
     http = new Http();
