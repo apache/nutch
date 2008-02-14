@@ -91,8 +91,11 @@ public class TestRegexURLNormalizer extends TestCase {
 
   private void normalizeTest(NormalizedURL[] urls, String scope) throws Exception {
     for (int i = 0; i < urls.length; i++) {
-      assertEquals(urls[i].expectedURL,
-              normalizer.normalize(urls[i].url, scope));
+      String url = urls[i].url;
+      String normalized = normalizer.normalize(urls[i].url, scope);
+      String expected = urls[i].expectedURL;
+      LOG.info("scope: " + scope + " url: " + url + " | normalized: " + normalized + " | expected: " + expected);
+      assertEquals(urls[i].expectedURL, normalized);
     }
   }
 	
