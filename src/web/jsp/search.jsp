@@ -40,6 +40,11 @@
   private int HITS_TO_CLUSTER;
 
   /**
+   * Maximum hits per page to be displayed.
+   */
+  private int MAX_HITS_PER_PAGE;
+
+  /**
    * An instance of the clustering extension, if available.
    */
   private OnlineClusterer clusterer;
@@ -57,8 +62,8 @@
     
     final ServletContext application = getServletContext(); 
     nutchConf = NutchConfiguration.get(application);
-
-	HITS_TO_CLUSTER = nutchConf.getInt("extension.clustering.hits-to-cluster", 100);
+	  HITS_TO_CLUSTER = nutchConf.getInt("extension.clustering.hits-to-cluster", 100);
+    MAX_HITS_PER_PAGE = nutchConf.getInt("searcher.max.hits.per.page", -1);
 
     try {
       clusterer = new OnlineClustererFactory(nutchConf).getOnlineClusterer();
@@ -105,6 +110,8 @@
   String hitsString = request.getParameter("hitsPerPage");
   if (hitsString != null)
     hitsPerPage = Integer.parseInt(hitsString);
+  if(MAX_HITS_PER_PAGE > 0 && hitsPerPage > MAX_HITS_PER_PAGE)
+    hitsPerPage = MAX_HITS_PER_PAGE;
 
   int hitsPerSite = 2;                            // max hits per site
   String hitsPerSiteString = request.getParameter("hitsPerSite");
