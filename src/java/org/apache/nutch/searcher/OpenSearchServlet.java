@@ -45,6 +45,7 @@ import javax.xml.transform.stream.StreamResult;
  * Nutch-specific extensions. */   
 public class OpenSearchServlet extends HttpServlet {
   private static final Map NS_MAP = new HashMap();
+  private int MAX_HITS_PER_PAGE;
 
   static {
     NS_MAP.put("opensearch", "http://a9.com/-/spec/opensearchrss/1.0/");
@@ -67,6 +68,7 @@ public class OpenSearchServlet extends HttpServlet {
     } catch (IOException e) {
       throw new ServletException(e);
     }
+    MAX_HITS_PER_PAGE = conf.getInt("searcher.max.hits.per.page", -1);
   }
 
   public void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -95,6 +97,8 @@ public class OpenSearchServlet extends HttpServlet {
     String hitsString = request.getParameter("hitsPerPage");
     if (hitsString != null)
       hitsPerPage = Integer.parseInt(hitsString);
+    if(MAX_HITS_PER_PAGE > 0 && hitsPerPage > MAX_HITS_PER_PAGE)
+      hitsPerPage = MAX_HITS_PER_PAGE;
 
     String sort = request.getParameter("sort");
     boolean reverse =

@@ -811,6 +811,17 @@
   </description>
 </property>
 
+<property>
+  <name>searcher.max.hits.per.page</name>
+  <value>1000</value>
+  <description> The maximum number of hits to show per page. -1 if
+    unlimited. If the number of hits requested by the user (via
+    hitsPerPage parameter in the query string) is more than the value
+    specified in this property, then this value is assumed as the number
+    of hits per page.
+  </description>
+</property>
+
 <!-- URL normalizer properties -->
 
 <property>
