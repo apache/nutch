@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.nutch.protocol.*;
@@ -218,7 +219,11 @@ public class FetchedSegments implements HitSummarizer, HitContent {
   }
 
   private Text getUrl(HitDetails details) {
-    return new Text(details.getValue("url"));
+    String url = details.getValue("orig");
+    if (StringUtils.isBlank(url)) {
+      url = details.getValue("url");
+    }
+    return new Text(url);
   }
 
   public void close() throws IOException {
