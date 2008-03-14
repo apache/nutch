@@ -371,11 +371,28 @@ public class Generator extends ToolBase {
     setConf(conf);
   }
   
-  /** Generate fetchlists in a segment. */
-  public Path generate(Path dbDir, Path segments)
-    throws IOException {
-    return generate(dbDir, segments, -1, Long.MAX_VALUE, System
-        .currentTimeMillis(), true, false);
+  /**
+   * Generate fetchlists in a segment. Whether to filter URLs or not is
+   * read from the crawl.generate.filter property in the configuration
+   * files. If the property is not found, the URLs are filtered.
+   *
+   * @param dbDir     Crawl database directory
+   * @param segments  Segments directory
+   * @param numLists  Number of reduce tasks
+   * @param topN      Number of top URLs to be selected
+   * @param curTime   Current time in milliseconds
+   *
+   * @return Path to generated segment or null if no entries were
+   *         selected
+   *
+   * @throws IOException When an I/O error occurs
+   */
+  public Path generate(Path dbDir, Path segments, int numLists,
+                       long topN, long curTime) throws IOException {
+
+    JobConf job = new NutchJob(getConf());
+    boolean filter = job.getBoolean(CRAWL_GENERATE_FILTER, true);
+    return generate(dbDir, segments, numLists, topN, curTime, filter, false);
   }
 
   /**
