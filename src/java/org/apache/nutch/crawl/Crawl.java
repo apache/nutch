@@ -82,9 +82,6 @@ public class Crawl {
     }
 
     FileSystem fs = FileSystem.get(job);
-    if (fs.exists(dir)) {
-      throw new RuntimeException(dir + " already exists.");
-    }
 
     if (LOG.isInfoEnabled()) {
       LOG.info("crawl started in: " + dir);
@@ -130,6 +127,18 @@ public class Crawl {
     }
     if (i > 0) {
       linkDbTool.invert(linkDb, segments, true, true, false); // invert links
+
+      // Delete old indexes
+      if (fs.exists(indexes)) {
+        LOG.info("Deleting old indexes: " + indexes);
+        fs.delete(indexes);
+      }
+
+      // Delete old index
+      if (fs.exists(index)) {
+        LOG.info("Deleting old merged index: " + index);
+        fs.delete(index);
+      }
 
       // index, dedup & merge
       indexer.index(indexes, crawlDb, linkDb, fs.listPaths(segments, HadoopFSUtil.getPassAllFilter()));
