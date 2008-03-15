@@ -34,14 +34,14 @@ import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.HttpClientError;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.ControllerThreadSocketFactory;
-import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
+import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
-public class DummySSLProtocolSocketFactory implements ProtocolSocketFactory {
+public class DummySSLProtocolSocketFactory implements SecureProtocolSocketFactory {
 
   /** Log object for this class. */
   private static final Log LOG = LogFactory.getLog(DummySSLProtocolSocketFactory.class);
