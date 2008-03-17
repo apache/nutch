@@ -76,9 +76,12 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
     SYNC_DELTA_RATE = conf.getFloat("db.fetch.schedule.adaptive.sync_delta_rate", 0.2f);
   }
 
+  @Override
   public CrawlDatum setFetchSchedule(Text url, CrawlDatum datum,
           long prevFetchTime, long prevModifiedTime,
           long fetchTime, long modifiedTime, int state) {
+    super.setFetchSchedule(url, datum, prevFetchTime, prevModifiedTime,
+        fetchTime, modifiedTime, state);
     long refTime = fetchTime;
     if (modifiedTime <= 0) modifiedTime = fetchTime;
     float interval = datum.getFetchInterval();

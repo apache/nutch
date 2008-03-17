@@ -210,15 +210,16 @@ public class CrawlDbReducer implements Reducer {
       }   
       return;
     case CrawlDatum.STATUS_FETCH_RETRY:           // temporary failure
-      if (old != null)
+      if (old != null) {
         result.setSignature(old.getSignature());  // use old signature
-      if (fetch.getRetriesSinceFetch() < retryMax) {
+      }
+      result = schedule.setPageRetrySchedule((Text)key, result, prevFetchTime,
+          prevModifiedTime, fetch.getFetchTime());
+      if (result.getRetriesSinceFetch() < retryMax) {
         result.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
       } else {
         result.setStatus(CrawlDatum.STATUS_DB_GONE);
       }
-      result = schedule.setPageRetrySchedule((Text)key, result, prevFetchTime,
-          prevModifiedTime, fetch.getFetchTime());
       break;
 
     case CrawlDatum.STATUS_FETCH_GONE:            // permanent failure

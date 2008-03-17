@@ -29,9 +29,12 @@ import org.apache.hadoop.io.Text;
  */
 public class DefaultFetchSchedule extends AbstractFetchSchedule {
 
+  @Override
   public CrawlDatum setFetchSchedule(Text url, CrawlDatum datum,
           long prevFetchTime, long prevModifiedTime,
           long fetchTime, long modifiedTime, int state) {
+    datum = super.setFetchSchedule(url, datum, prevFetchTime, prevModifiedTime,
+        fetchTime, modifiedTime, state);
     datum.setFetchTime(fetchTime + (long)datum.getFetchInterval() * 1000);
     datum.setModifiedTime(modifiedTime);
     return datum;
