@@ -149,7 +149,7 @@
   <target name="job" depends="compile">
     <jar jarfile="${build.dir}/${final.name}.job">
       <zipfileset dir="${build.classes}"/>
-      <zipfileset dir="${conf.dir}" excludes="*.template"/>
+      <zipfileset dir="${conf.dir}" excludes="*.template,hadoop*.*"/>
       <zipfileset dir="${lib.dir}" prefix="lib"
                   includes="**/*.jar" excludes="hadoop-*.jar"/>
       <zipfileset dir="${build.plugins}" prefix="plugins"/>
