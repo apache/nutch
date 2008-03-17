@@ -26,7 +26,8 @@
       <library name="parse-pdf.jar">
          <export name="*"/>
       </library>
-      <library name="PDFBox-0.7.2-log4j.jar"/>
+      <library name="PDFBox-0.7.3.jar"/>
+      <library name="FontBox-0.1.0-dev.jar"/>
    </runtime>
 
    <requires>
