@@ -152,7 +152,7 @@ public class ParseOutputFormat implements OutputFormat {
                                      refreshTime < Fetcher.PERM_REFRESH_TIME);
                 CrawlDatum newDatum = new CrawlDatum();
                 newDatum.setStatus(CrawlDatum.STATUS_LINKED);
-                if (!reprUrl.equals(newUrl)) {
+                if (reprUrl != null && !reprUrl.equals(newUrl)) {
                   newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
                                              new Text(reprUrl));
                 }

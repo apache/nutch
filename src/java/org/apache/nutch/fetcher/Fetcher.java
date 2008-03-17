@@ -282,8 +282,10 @@ public class Fetcher extends ToolBase implements MapRunnable {
           return url;
         } else {
           CrawlDatum newDatum = new CrawlDatum();
-          newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
-              new Text(reprUrl));
+          if (reprUrl != null) {
+            newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
+                new Text(reprUrl));
+          }
           output(url, newDatum, null, null, CrawlDatum.STATUS_LINKED);
           if (LOG.isDebugEnabled()) {
             LOG.debug(" - " + redirType + " redirect to " +
