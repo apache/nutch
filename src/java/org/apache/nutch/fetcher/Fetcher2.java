@@ -549,9 +549,12 @@ public class Fetcher2 extends Configured implements MapRunnable {
                                    refreshTime < Fetcher.PERM_REFRESH_TIME,
                                    Fetcher.CONTENT_REDIR);
                   if (redirUrl != null) {
-                    CrawlDatum newDatum = new CrawlDatum();
-                    newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
-                        new Text(reprUrl));
+                    CrawlDatum newDatum = new CrawlDatum(CrawlDatum.STATUS_DB_UNFETCHED,
+                        fit.datum.getFetchInterval(), fit.datum.getScore());
+                    if (reprUrl != null) {
+                      newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
+                          new Text(reprUrl));
+                    }
                     fit = FetchItem.create(redirUrl, newDatum, byIP);
                     if (fit != null) {
                       FetchItemQueue fiq =
@@ -582,14 +585,22 @@ public class Fetcher2 extends Configured implements MapRunnable {
                   handleRedirect(fit.url, fit.datum,
                                  urlString, newUrl, temp,
                                  Fetcher.PROTOCOL_REDIR);
-                CrawlDatum newDatum = new CrawlDatum();
-                newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
-                    new Text(reprUrl));
-                fit = FetchItem.create(redirUrl, newDatum, byIP);
-                if (fit != null) {
-                  FetchItemQueue fiq =
-                    fetchQueues.getFetchItemQueue(fit.queueID);
-                  fiq.addInProgressFetchItem(fit);
+                if (redirUrl != null) {
+                  CrawlDatum newDatum = new CrawlDatum(CrawlDatum.STATUS_DB_UNFETCHED,
+                      fit.datum.getFetchInterval(), fit.datum.getScore());
+                  if (reprUrl != null) {
+                    newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
+                        new Text(reprUrl));
+                  }
+                  fit = FetchItem.create(redirUrl, newDatum, byIP);
+                  if (fit != null) {
+                    FetchItemQueue fiq =
+                      fetchQueues.getFetchItemQueue(fit.queueID);
+                    fiq.addInProgressFetchItem(fit);
+                  } else {
+                    // stop redirecting
+                    redirecting = false;
+                  }
                 } else {
                   // stop redirecting
                   redirecting = false;
@@ -622,7 +633,7 @@ public class Fetcher2 extends Configured implements MapRunnable {
                 if (LOG.isWarnEnabled()) {
                   LOG.warn("Unknown ProtocolStatus: " + status.getCode());
                 }
-                output(fit.url, fit.datum, null, status, CrawlDatum.STATUS_FETCH_GONE);
+                output(fit.url, fit.datum, null, status, CrawlDatum.STATUS_FETCH_RETRY);
               }
 
               if (redirecting && redirectCount >= maxRedirect) {
@@ -674,8 +685,10 @@ public class Fetcher2 extends Configured implements MapRunnable {
           return url;
         } else {
           CrawlDatum newDatum = new CrawlDatum();
-          newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
-              new Text(reprUrl));
+          if (reprUrl != null) {
+            newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
+                new Text(reprUrl));
+          }
           output(url, newDatum, null, null, CrawlDatum.STATUS_LINKED);
           if (LOG.isDebugEnabled()) {
             LOG.debug(" - " + redirType + " redirect to " +
