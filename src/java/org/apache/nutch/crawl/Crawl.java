@@ -61,7 +61,7 @@ public class Crawl {
     Path dir = new Path("crawl-" + getDate());
     int threads = job.getInt("fetcher.threads.fetch", 10);
     int depth = 5;
-    int topN = Integer.MAX_VALUE;
+    long topN = Long.MAX_VALUE;
 
     for (int i = 0; i < args.length; i++) {
       if ("-dir".equals(args[i])) {
@@ -88,7 +88,7 @@ public class Crawl {
       LOG.info("rootUrlDir = " + rootUrlDir);
       LOG.info("threads = " + threads);
       LOG.info("depth = " + depth);
-      if (topN != Integer.MAX_VALUE)
+      if (topN != Long.MAX_VALUE)
         LOG.info("topN = " + topN);
     }
     
