@@ -52,7 +52,8 @@ public interface FetchSchedule extends Configurable {
   public CrawlDatum initializeSchedule(Text url, CrawlDatum datum);
   
   /**
-   * Sets the <code>fetchInterval</code> and <code>fetchTime</code> on a page.
+   * Sets the <code>fetchInterval</code> and <code>fetchTime</code> on a
+   * successfully fetched page.
    * Implementations may use supplied arguments to support different re-fetching
    * schedules.
    * 
@@ -97,7 +98,8 @@ public interface FetchSchedule extends Configurable {
   /**
    * This method adjusts the fetch schedule if fetching needs to be
    * re-tried due to transient errors. The default implementation
-   * sets the next fetch time 1 day in the future.
+   * sets the next fetch time 1 day in the future and increases the
+   * retry counter.
    * @param url URL of the page
    * @param datum page information
    * @param prevFetchTime previous fetch time

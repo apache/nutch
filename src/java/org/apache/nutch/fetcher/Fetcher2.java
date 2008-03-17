@@ -611,9 +611,6 @@ public class Fetcher2 extends Configured implements MapRunnable {
                 logError(fit.url, status.getMessage());
                 /* FALLTHROUGH */
               case ProtocolStatus.RETRY:          // retry
-                fit.datum.setRetriesSinceFetch(fit.datum.getRetriesSinceFetch()+1);
-                /* FALLTHROUGH */
-                // intermittent blocking - retry without increasing the counter
               case ProtocolStatus.BLOCKED:
                 output(fit.url, fit.datum, null, status, CrawlDatum.STATUS_FETCH_RETRY);
                 break;

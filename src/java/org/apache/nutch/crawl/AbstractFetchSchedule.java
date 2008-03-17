@@ -33,8 +33,8 @@ import org.apache.nutch.crawl.CrawlDatum;
 public abstract class AbstractFetchSchedule extends Configured implements FetchSchedule {
   private static final Log LOG = LogFactory.getLog(AbstractFetchSchedule.class);
   
-  private int defaultInterval;
-  private int maxInterval;
+  protected int defaultInterval;
+  protected int maxInterval;
   
   public AbstractFetchSchedule() {
     super(null);
@@ -69,12 +69,22 @@ public abstract class AbstractFetchSchedule extends Configured implements FetchS
   public CrawlDatum initializeSchedule(Text url, CrawlDatum datum) {
     datum.setFetchTime(System.currentTimeMillis());
     datum.setFetchInterval(defaultInterval);
+    datum.setRetriesSinceFetch(0);
     return datum;
   }
   
-  public abstract CrawlDatum setFetchSchedule(Text url, CrawlDatum datum,
+  /**
+   * Sets the <code>fetchInterval</code> and <code>fetchTime</code> on a
+   * successfully fetched page. NOTE: this implementation resets the
+   * retry counter - extending classes should call super.setFetchSchedule() to
+   * preserve this behavior.
+   */
+  public CrawlDatum setFetchSchedule(Text url, CrawlDatum datum,
           long prevFetchTime, long prevModifiedTime,
-          long fetchTime, long modifiedTime, int state);
+          long fetchTime, long modifiedTime, int state) {
+    datum.setRetriesSinceFetch(0);
+    return datum;
+  }
   
   /**
    * This method specifies how to schedule refetching of pages
@@ -101,7 +111,8 @@ public abstract class AbstractFetchSchedule extends Configured implements FetchS
   /**
    * This method adjusts the fetch schedule if fetching needs to be
    * re-tried due to transient errors. The default implementation
-   * sets the next fetch time 1 day in the future.
+   * sets the next fetch time 1 day in the future and increases
+   * the retry counter.
    * @param url URL of the page
    * @param datum page information
    * @param prevFetchTime previous fetch time
@@ -115,6 +126,7 @@ public abstract class AbstractFetchSchedule extends Configured implements FetchS
   public CrawlDatum setPageRetrySchedule(Text url, CrawlDatum datum,
           long prevFetchTime, long prevModifiedTime, long fetchTime) {
     datum.setFetchTime(fetchTime + (long)SECONDS_PER_DAY);
+    datum.setRetriesSinceFetch(datum.getRetriesSinceFetch() + 1);
     return datum;
   }
   
@@ -122,7 +134,7 @@ public abstract class AbstractFetchSchedule extends Configured implements FetchS
    * This method return the last fetch time of the CrawlDatum
    * @return the date as a long.
    */
-  public long calculateLastFetchTime(CrawlDatum datum){
+  public long calculateLastFetchTime(CrawlDatum datum) {
     return  datum.getFetchTime() - (long)datum.getFetchInterval() * 1000;
   }
 
@@ -157,8 +169,8 @@ public abstract class AbstractFetchSchedule extends Configured implements FetchS
   }
   
   /**
-   * This method resets fetchTime, fetchInterval, modifiedTime and
-   * page signature, so that it forces refetching.
+   * This method resets fetchTime, fetchInterval, modifiedTime,
+   * retriesSinceFetch and page signature, so that it forces refetching.
    * @param url URL of the page
    * @param datum datum instance
    * @param asap if true, force refetch as soon as possible - this sets
@@ -170,6 +182,7 @@ public abstract class AbstractFetchSchedule extends Configured implements FetchS
     if (datum.getFetchInterval() > maxInterval)
       datum.setFetchInterval(maxInterval * 0.9f);
     datum.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
+    datum.setRetriesSinceFetch(0);
     datum.setSignature(null);
     datum.setModifiedTime(0L);
     if (asap) datum.setFetchTime(System.currentTimeMillis());

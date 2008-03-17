@@ -209,9 +209,6 @@ public class Fetcher extends ToolBase implements MapRunnable {
                 logError(url, status.getMessage());
               /* FALLTHROUGH */
               case ProtocolStatus.RETRY:          // retry
-                datum.setRetriesSinceFetch(datum.getRetriesSinceFetch()+1);
-              /* FALLTHROUGH */
-              // intermittent blocking - retry without increasing the counter
               case ProtocolStatus.WOULDBLOCK:
               case ProtocolStatus.BLOCKED:
                 output(url, datum, null, status, CrawlDatum.STATUS_FETCH_RETRY);
