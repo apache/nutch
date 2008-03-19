@@ -29,8 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
-import org.apache.hadoop.util.StringUtils;
-import org.apache.hadoop.util.ToolBase;
+import org.apache.hadoop.util.*;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
@@ -45,7 +44,7 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
 /** Generates a subset of a crawl db to fetch. */
-public class Generator extends ToolBase {
+public class Generator extends Configured implements Tool {
 
   public static final String CRAWL_GENERATE_FILTER = "crawl.generate.filter";
   public static final String GENERATE_MAX_PER_HOST_BY_IP = "generate.max.per.host.by.ip";
@@ -81,7 +80,7 @@ public class Generator extends ToolBase {
   }
 
   /** Selects entries due for fetch. */
-  public static class Selector implements Mapper, Partitioner, Reducer {
+  public static class Selector implements Mapper<Text, CrawlDatum, FloatWritable, SelectorEntry>, Partitioner<FloatWritable, Writable>, Reducer<FloatWritable, SelectorEntry, FloatWritable, SelectorEntry> {
     private LongWritable genTime = new LongWritable(System.currentTimeMillis());
     private long curTime;
     private long limit;
@@ -89,7 +88,7 @@ public class Generator extends ToolBase {
     private HashMap<String, IntWritable> hostCounts =
       new HashMap<String, IntWritable>();
     private int maxPerHost;
-    private Partitioner hostPartitioner = new PartitionUrlByHost();
+    private Partitioner<Text, Writable> hostPartitioner = new PartitionUrlByHost();
     private URLFilters filters;
     private URLNormalizers normalizers;
     private ScoringFilters scfilters;
@@ -120,10 +119,10 @@ public class Generator extends ToolBase {
     public void close() {}
 
     /** Select & invert subset due for fetch. */
-    public void map(WritableComparable key, Writable value,
-                    OutputCollector output, Reporter reporter)
+    public void map(Text key, CrawlDatum value,
+                    OutputCollector<FloatWritable, SelectorEntry> output, Reporter reporter)
       throws IOException {
-      Text url = (Text)key;
+      Text url = key;
       if (filter) {
         // If filtering is on don't generate URLs that don't pass URLFilters
         try {
@@ -136,7 +135,7 @@ public class Generator extends ToolBase {
           }
         }
       }
-      CrawlDatum crawlDatum = (CrawlDatum)value;
+      CrawlDatum crawlDatum = value;
 
       // check fetch schedule
       if (!schedule.shouldFetch(url, crawlDatum, curTime)) {
@@ -167,20 +166,21 @@ public class Generator extends ToolBase {
     }
 
     /** Partition by host. */
-    public int getPartition(WritableComparable key, Writable value,
+    public int getPartition(FloatWritable key, Writable value,
                             int numReduceTasks) {
       return hostPartitioner.getPartition(((SelectorEntry)value).url, key,
                                           numReduceTasks);
     }
 
     /** Collect until limit is reached. */
-    public void reduce(WritableComparable key, Iterator values,
-                       OutputCollector output, Reporter reporter)
+    public void reduce(FloatWritable key, Iterator<SelectorEntry> values,
+                       OutputCollector<FloatWritable, SelectorEntry> output,
+                       Reporter reporter)
       throws IOException {
 
       while (values.hasNext() && count < limit) {
 
-        SelectorEntry entry = (SelectorEntry)values.next();
+        SelectorEntry entry = values.next();
         Text url = entry.url;        
         String urlString = url.toString();        
         URL u = null;
@@ -268,22 +268,23 @@ public class Generator extends ToolBase {
     }
   }
 
-  public static class SelectorInverseMapper extends MapReduceBase implements Mapper {
+  public static class SelectorInverseMapper extends MapReduceBase implements Mapper<FloatWritable, SelectorEntry, Text, SelectorEntry> {
 
-    public void map(WritableComparable key, Writable value, OutputCollector output, Reporter reporter) throws IOException {
+    public void map(FloatWritable key, SelectorEntry value, OutputCollector<Text, SelectorEntry> output, Reporter reporter) throws IOException {
       SelectorEntry entry = (SelectorEntry)value;
       output.collect(entry.url, entry);
     }
   }
   
-  public static class PartitionReducer extends MapReduceBase implements Reducer {
+  public static class PartitionReducer extends MapReduceBase
+      implements Reducer<Text, SelectorEntry, Text, CrawlDatum> {
 
-    public void reduce(WritableComparable key, Iterator values,
-        OutputCollector output, Reporter reporter) throws IOException {
+    public void reduce(Text key, Iterator<SelectorEntry> values,
+        OutputCollector<Text, CrawlDatum> output, Reporter reporter) throws IOException {
       // if using HashComparator, we get only one input key in case of hash collision
       // so use only URLs from values
       while (values.hasNext()) {
-        SelectorEntry entry = (SelectorEntry)values.next();
+        SelectorEntry entry = values.next();
         output.collect(entry.url, entry.datum);
       }
     }
@@ -323,27 +324,27 @@ public class Generator extends ToolBase {
   /**
    * Update the CrawlDB so that the next generate won't include the same URLs.
    */
-  public static class CrawlDbUpdater extends MapReduceBase implements Mapper, Reducer {
+  public static class CrawlDbUpdater extends MapReduceBase implements Mapper<WritableComparable, Writable, Text, CrawlDatum>, Reducer<Text, CrawlDatum, Text, CrawlDatum> {
     long generateTime;
     
     public void configure(JobConf job) {
       generateTime = job.getLong(Nutch.GENERATE_TIME_KEY, 0L);
     }
     
-    public void map(WritableComparable key, Writable value, OutputCollector output, Reporter reporter) throws IOException {
+    public void map(WritableComparable key, Writable value, OutputCollector<Text, CrawlDatum> output, Reporter reporter) throws IOException {
       if (key instanceof FloatWritable) { // tempDir source
         SelectorEntry se = (SelectorEntry)value;
         output.collect(se.url, se.datum);
       } else {
-        output.collect(key, value);
+        output.collect((Text)key, (CrawlDatum)value);
       }
     }
 
-    public void reduce(WritableComparable key, Iterator values, OutputCollector output, Reporter reporter) throws IOException {
+    public void reduce(Text key, Iterator<CrawlDatum> values, OutputCollector<Text, CrawlDatum> output, Reporter reporter) throws IOException {
       CrawlDatum orig = null;
       LongWritable genTime = null;
       while (values.hasNext()) {
-        CrawlDatum val = (CrawlDatum)values.next();
+        CrawlDatum val = values.next();
         if (val.getMetaData().containsKey(Nutch.WRITABLE_GENERATE_TIME_KEY)) {
           genTime = (LongWritable)val.getMetaData().get(Nutch.WRITABLE_GENERATE_TIME_KEY);
           if (genTime.get() != generateTime) {
@@ -359,13 +360,10 @@ public class Generator extends ToolBase {
         orig.getMetaData().put(Nutch.WRITABLE_GENERATE_TIME_KEY, genTime);
       }
       output.collect(key, orig);
-    }
-    
+    }    
   }
   
-  public Generator() {
-    
-  }
+  public Generator() {}
   
   public Generator(Configuration conf) {
     setConf(conf);
@@ -564,7 +562,7 @@ public class Generator extends ToolBase {
    * Generate a fetchlist from the crawldb.
    */
   public static void main(String args[]) throws Exception {
-    int res = new Generator().doMain(NutchConfiguration.create(), args);
+    int res = ToolRunner.run(NutchConfiguration.create(), new Generator(), args);
     System.exit(res);
   }
   

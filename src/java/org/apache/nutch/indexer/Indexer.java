@@ -27,9 +27,7 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
-import org.apache.hadoop.util.Progressable;
-import org.apache.hadoop.util.StringUtils;
-import org.apache.hadoop.util.ToolBase;
+import org.apache.hadoop.util.*;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.analysis.*;
 
@@ -51,7 +49,7 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
 
 /** Create indexes for segments. */
-public class Indexer extends ToolBase implements Reducer, Mapper {
+public class Indexer extends Configured implements Tool, Reducer<Text, NutchWritable, Text, Writable>, Mapper<Text, Writable, Text, NutchWritable> {
   
   public static final String DONE_NAME = "index.done";
 
@@ -85,8 +83,8 @@ public class Indexer extends ToolBase implements Reducer, Mapper {
 
   /** Unwrap Lucene Documents created by reduce and add them to an index. */
   public static class OutputFormat
-    extends org.apache.hadoop.mapred.OutputFormatBase {
-    public RecordWriter getRecordWriter(final FileSystem fs, JobConf job,
+    extends org.apache.hadoop.mapred.OutputFormatBase<WritableComparable, LuceneDocumentWrapper> {
+    public RecordWriter<WritableComparable, LuceneDocumentWrapper> getRecordWriter(final FileSystem fs, JobConf job,
                                         String name, final Progressable progress) throws IOException {
       final Path perm = new Path(job.getOutputPath(), name);
       final Path temp =
@@ -109,12 +107,12 @@ public class Indexer extends ToolBase implements Reducer, Mapper {
       writer.setUseCompoundFile(false);
       writer.setSimilarity(new NutchSimilarity());
 
-      return new RecordWriter() {
+      return new RecordWriter<WritableComparable, LuceneDocumentWrapper>() {
           boolean closed;
 
-          public void write(WritableComparable key, Writable value)
+          public void write(WritableComparable key, LuceneDocumentWrapper value)
             throws IOException {                  // unwrap & index doc
-            Document doc = ((LuceneDocumentWrapper) value).get();
+            Document doc = value.get();
             NutchAnalyzer analyzer = factory.get(doc.get("lang"));
             if (LOG.isInfoEnabled()) {
               LOG.info(" Indexing [" + doc.getField("url").stringValue() + "]" +
@@ -174,8 +172,8 @@ public class Indexer extends ToolBase implements Reducer, Mapper {
 
   public void close() {}
 
-  public void reduce(WritableComparable key, Iterator values,
-                     OutputCollector output, Reporter reporter)
+  public void reduce(Text key, Iterator<NutchWritable> values,
+                     OutputCollector<Text, Writable> output, Reporter reporter)
     throws IOException {
     Inlinks inlinks = null;
     CrawlDatum dbDatum = null;
@@ -183,7 +181,7 @@ public class Indexer extends ToolBase implements Reducer, Mapper {
     ParseData parseData = null;
     ParseText parseText = null;
     while (values.hasNext()) {
-      Writable value = ((NutchWritable)values.next()).get(); // unwrap
+      Writable value = values.next().get(); // unwrap
       if (value instanceof Inlinks) {
         inlinks = (Inlinks)value;
       } else if (value instanceof CrawlDatum) {
@@ -248,7 +246,7 @@ public class Indexer extends ToolBase implements Reducer, Mapper {
         fetchDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY, url);
       }
       // run indexing filters
-      doc = this.filters.filter(doc, parse, (Text)key, fetchDatum, inlinks);
+      doc = this.filters.filter(doc, parse, key, fetchDatum, inlinks);
     } catch (IndexingException e) {
       if (LOG.isWarnEnabled()) { LOG.warn("Error indexing "+key+": "+e); }
       return;
@@ -315,7 +313,7 @@ public class Indexer extends ToolBase implements Reducer, Mapper {
   }
 
   public static void main(String[] args) throws Exception {
-    int res = new Indexer().doMain(NutchConfiguration.create(), args);
+    int res = ToolRunner.run(NutchConfiguration.create(), new Indexer(), args);
     System.exit(res);
   }
   
@@ -341,8 +339,8 @@ public class Indexer extends ToolBase implements Reducer, Mapper {
     }
   }
 
-  public void map(WritableComparable key, Writable value,
-      OutputCollector output, Reporter reporter) throws IOException {
+  public void map(Text key, Writable value,
+      OutputCollector<Text, NutchWritable> output, Reporter reporter) throws IOException {
     output.collect(key, new NutchWritable(value));
   }
 

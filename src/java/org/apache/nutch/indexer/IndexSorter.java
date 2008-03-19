@@ -32,12 +32,12 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.util.StringUtils;
-import org.apache.hadoop.util.ToolBase;
+import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.util.*;
 
 /** Sort a Nutch index by page score.  Higher scoring documents are assigned
  * smaller document numbers. */
-public class IndexSorter extends ToolBase {
+public class IndexSorter extends Configured implements Tool {
   private static final Log LOG = LogFactory.getLog(IndexSorter.class);
   
   private static class PostingMap implements Comparable<PostingMap> {
@@ -300,7 +300,7 @@ public class IndexSorter extends ToolBase {
 
   /** */
   public static void main(String[] args) throws Exception {
-    int res = new IndexSorter().doMain(NutchConfiguration.create(), args);
+    int res = ToolRunner.run(NutchConfiguration.create(), new IndexSorter(), args);
     System.exit(res);
   }
   
