@@ -30,8 +30,7 @@ import org.apache.hadoop.fs.*;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
-import org.apache.hadoop.util.StringUtils;
-import org.apache.hadoop.util.ToolBase;
+import org.apache.hadoop.util.*;
 
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
@@ -42,7 +41,7 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
 /** Maintains an inverted link map, listing incoming links for each url. */
-public class LinkDb extends ToolBase implements Mapper {
+public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, Text, Inlinks> {
 
   public static final Log LOG = LogFactory.getLog(LinkDb.class);
 
@@ -54,9 +53,7 @@ public class LinkDb extends ToolBase implements Mapper {
   private URLFilters urlFilters;
   private URLNormalizers urlNormalizers;
   
-  public LinkDb() {
-    
-  }
+  public LinkDb() {}
   
   public LinkDb(Configuration conf) {
     setConf(conf);
@@ -75,8 +72,8 @@ public class LinkDb extends ToolBase implements Mapper {
 
   public void close() {}
 
-  public void map(WritableComparable key, Writable value,
-                  OutputCollector output, Reporter reporter)
+  public void map(Text key, ParseData parseData,
+                  OutputCollector<Text, Inlinks> output, Reporter reporter)
     throws IOException {
     String fromUrl = key.toString();
     String fromHost = getHost(fromUrl);
@@ -97,7 +94,6 @@ public class LinkDb extends ToolBase implements Mapper {
       }
     }
     if (fromUrl == null) return; // discard all outlinks
-    ParseData parseData = (ParseData)value;
     Outlink[] outlinks = parseData.getOutlinks();
     Inlinks inlinks = new Inlinks();
     for (int i = 0; i < outlinks.length; i++) {
@@ -147,8 +143,8 @@ public class LinkDb extends ToolBase implements Mapper {
 
   public void invert(Path linkDb, final Path segmentsDir, boolean normalize, boolean filter, boolean force) throws IOException {
     final FileSystem fs = FileSystem.get(getConf());
-    Path[] files = fs.listPaths(segmentsDir, HadoopFSUtil.getPassDirectoriesFilter(fs));
-    invert(linkDb, files, normalize, filter, force);
+    FileStatus[] files = fs.listStatus(segmentsDir, HadoopFSUtil.getPassDirectoriesFilter(fs));
+    invert(linkDb, HadoopFSUtil.getPaths(files), normalize, filter, force);
   }
 
   public void invert(Path linkDb, Path[] segments, boolean normalize, boolean filter, boolean force) throws IOException {
@@ -249,7 +245,7 @@ public class LinkDb extends ToolBase implements Mapper {
   }
 
   public static void main(String[] args) throws Exception {
-    int res = new LinkDb().doMain(NutchConfiguration.create(), args);
+    int res = ToolRunner.run(NutchConfiguration.create(), new LinkDb(), args);
     System.exit(res);
   }
   
@@ -265,7 +261,7 @@ public class LinkDb extends ToolBase implements Mapper {
       return -1;
     }
     Path segDir = null;
-    final FileSystem fs = FileSystem.get(conf);
+    final FileSystem fs = FileSystem.get(getConf());
     Path db = new Path(args[0]);
     ArrayList<Path> segs = new ArrayList<Path>();
     boolean filter = true;
@@ -274,15 +270,8 @@ public class LinkDb extends ToolBase implements Mapper {
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-dir")) {
         segDir = new Path(args[++i]);
-        Path[] files = fs.listPaths(segDir, new PathFilter() {
-          public boolean accept(Path f) {
-            try {
-              if (fs.getFileStatus(f).isDir()) return true;
-            } catch (IOException ioe) {};
-            return false;
-          }
-        });
-        if (files != null) segs.addAll(Arrays.asList(files));
+        FileStatus[] files = fs.listStatus(segDir, HadoopFSUtil.getPassDirectoriesFilter(fs));
+        if (files != null) segs.addAll(Arrays.asList(HadoopFSUtil.getPaths(files)));
         break;
       } else if (args[i].equalsIgnoreCase("-noNormalize")) {
         normalize = false;

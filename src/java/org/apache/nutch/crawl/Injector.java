@@ -28,8 +28,7 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
-import org.apache.hadoop.util.StringUtils;
-import org.apache.hadoop.util.ToolBase;
+import org.apache.hadoop.util.*;
 
 import org.apache.nutch.net.*;
 import org.apache.nutch.scoring.ScoringFilterException;
@@ -39,12 +38,12 @@ import org.apache.nutch.util.NutchJob;
 
 /** This class takes a flat file of URLs and adds them to the of pages to be
  * crawled.  Useful for bootstrapping the system. */
-public class Injector extends ToolBase {
+public class Injector extends Configured implements Tool {
   public static final Log LOG = LogFactory.getLog(Injector.class);
 
 
   /** Normalize and filter injected urls. */
-  public static class InjectMapper implements Mapper {
+  public static class InjectMapper implements Mapper<WritableComparable, Text, Text, CrawlDatum> {
     private URLNormalizers urlNormalizers;
     private int interval;
     private float scoreInjected;
@@ -65,12 +64,10 @@ public class Injector extends ToolBase {
 
     public void close() {}
 
-    public void map(WritableComparable key, Writable val,
-                    OutputCollector output, Reporter reporter)
+    public void map(WritableComparable key, Text value,
+                    OutputCollector<Text, CrawlDatum> output, Reporter reporter)
       throws IOException {
-      Text value = (Text)val;
       String url = value.toString();              // value is line of text
-      // System.out.println("url: " +url);
       try {
         url = urlNormalizers.normalize(url, URLNormalizers.SCOPE_INJECT);
         url = filters.filter(url);             // filter the url
@@ -98,17 +95,17 @@ public class Injector extends ToolBase {
   }
 
   /** Combine multiple new entries for a url. */
-  public static class InjectReducer implements Reducer {
+  public static class InjectReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatum> {
     public void configure(JobConf job) {}    
     public void close() {}
 
-    public void reduce(WritableComparable key, Iterator values,
-                       OutputCollector output, Reporter reporter)
+    public void reduce(Text key, Iterator<CrawlDatum> values,
+                       OutputCollector<Text, CrawlDatum> output, Reporter reporter)
       throws IOException {
       CrawlDatum old = null;
       CrawlDatum injected = null;
       while (values.hasNext()) {
-        CrawlDatum val = (CrawlDatum)values.next();
+        CrawlDatum val = values.next();
         if (val.getStatus() == CrawlDatum.STATUS_INJECTED) {
           injected = val;
           injected.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
@@ -124,9 +121,7 @@ public class Injector extends ToolBase {
     }
   }
 
-  public Injector() {
-    
-  }
+  public Injector() {}
   
   public Injector(Configuration conf) {
     setConf(conf);
@@ -179,7 +174,7 @@ public class Injector extends ToolBase {
   }
 
   public static void main(String[] args) throws Exception {
-    int res = new Injector().doMain(NutchConfiguration.create(), args);
+    int res = ToolRunner.run(NutchConfiguration.create(), new Injector(), args);
     System.exit(res);
   }
   

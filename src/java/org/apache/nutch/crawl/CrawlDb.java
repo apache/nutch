@@ -28,8 +28,7 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
-import org.apache.hadoop.util.StringUtils;
-import org.apache.hadoop.util.ToolBase;
+import org.apache.hadoop.util.*;
 
 import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.LockUtil;
@@ -40,7 +39,7 @@ import org.apache.nutch.util.NutchJob;
  * This class takes the output of the fetcher and updates the
  * crawldb accordingly.
  */
-public class CrawlDb extends ToolBase {
+public class CrawlDb extends Configured implements Tool {
   public static final Log LOG = LogFactory.getLog(CrawlDb.class);
 
   public static final String CRAWLDB_ADDITIONS_ALLOWED = "db.update.additions.allowed";
@@ -48,11 +47,8 @@ public class CrawlDb extends ToolBase {
   public static final String CURRENT_NAME = "current";
   
   public static final String LOCK_NAME = ".locked";
-
   
-  public CrawlDb() {
-    
-  }
+  public CrawlDb() {}
   
   public CrawlDb(Configuration conf) {
     setConf(conf);
@@ -150,7 +146,7 @@ public class CrawlDb extends ToolBase {
   }
 
   public static void main(String[] args) throws Exception {
-    int res = new CrawlDb().doMain(NutchConfiguration.create(), args);
+    int res = ToolRunner.run(NutchConfiguration.create(), new CrawlDb(), args);
     System.exit(res);
   }
 
@@ -182,8 +178,8 @@ public class CrawlDb extends ToolBase {
       } else if (args[i].equals("-noAdditions")) {
         additionsAllowed = false;
       } else if (args[i].equals("-dir")) {
-        Path[] paths = fs.listPaths(new Path(args[++i]), HadoopFSUtil.getPassDirectoriesFilter(fs));
-        dirs.addAll(Arrays.asList(paths));
+        FileStatus[] paths = fs.listStatus(new Path(args[++i]), HadoopFSUtil.getPassDirectoriesFilter(fs));
+        dirs.addAll(Arrays.asList(HadoopFSUtil.getPaths(paths)));
       } else {
         dirs.add(new Path(args[i]));
       }

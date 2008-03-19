@@ -27,7 +27,7 @@ import org.apache.hadoop.mapred.*;
 import org.apache.nutch.net.URLNormalizers;
 
 /** Partition urls by hostname. */
-public class PartitionUrlByHost implements Partitioner {
+public class PartitionUrlByHost implements Partitioner<Text, Writable> {
   private static final Log LOG = LogFactory.getLog(PartitionUrlByHost.class);
   
   private int seed;
@@ -41,9 +41,9 @@ public class PartitionUrlByHost implements Partitioner {
   public void close() {}
 
   /** Hash by hostname. */
-  public int getPartition(WritableComparable key, Writable value,
+  public int getPartition(Text key, Writable value,
                           int numReduceTasks) {
-    String urlString = ((Text)key).toString();
+    String urlString = key.toString();
     try {
       urlString = normalizers.normalize(urlString, URLNormalizers.SCOPE_PARTITION);
     } catch (Exception e) {

@@ -29,8 +29,7 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
-import org.apache.hadoop.util.StringUtils;
-import org.apache.hadoop.util.ToolBase;
+import org.apache.hadoop.util.*;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
@@ -45,7 +44,7 @@ import org.apache.nutch.util.*;
 
 
 /** The fetcher. Most of the work is done by plugins. */
-public class Fetcher extends ToolBase implements MapRunnable { 
+public class Fetcher extends Configured implements Tool, MapRunnable<WritableComparable, Writable, Text, NutchWritable> { 
 
   public static final Log LOG = LogFactory.getLog(Fetcher.class);
   
@@ -55,7 +54,7 @@ public class Fetcher extends ToolBase implements MapRunnable {
 
   public static final String PROTOCOL_REDIR = "protocol";
 
-  public static class InputFormat extends SequenceFileInputFormat {
+  public static class InputFormat extends SequenceFileInputFormat<WritableComparable, Writable> {
     /** Don't split inputs, to keep things polite. */
     public InputSplit[] getSplits(JobConf job, int nSplits)
       throws IOException {
@@ -69,8 +68,8 @@ public class Fetcher extends ToolBase implements MapRunnable {
     }
   }
 
-  private RecordReader input;
-  private OutputCollector output;
+  private RecordReader<WritableComparable, Writable> input;
+  private OutputCollector<Text, NutchWritable> output;
   private Reporter reporter;
 
   private String segmentName;
@@ -455,7 +454,7 @@ public class Fetcher extends ToolBase implements MapRunnable {
     return conf.getBoolean("fetcher.store.content", true);
   }
 
-  public void run(RecordReader input, OutputCollector output,
+  public void run(RecordReader<WritableComparable, Writable> input, OutputCollector<Text, NutchWritable> output,
                   Reporter reporter) throws IOException {
 
     this.input = input;
@@ -529,7 +528,7 @@ public class Fetcher extends ToolBase implements MapRunnable {
 
   /** Run the fetcher. */
   public static void main(String[] args) throws Exception {
-    int res = new Fetcher().doMain(NutchConfiguration.create(), args);
+    int res = ToolRunner.run(NutchConfiguration.create(), new Fetcher(), args);
     System.exit(res);
   }
   

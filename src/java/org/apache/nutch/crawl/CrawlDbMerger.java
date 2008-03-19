@@ -28,10 +28,9 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapred.*;
-import org.apache.hadoop.util.StringUtils;
-import org.apache.hadoop.util.ToolBase;
+import org.apache.hadoop.util.*;
+import org.apache.hadoop.conf.*;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
@@ -50,10 +49,10 @@ import org.apache.nutch.util.NutchJob;
  * 
  * @author Andrzej Bialecki
  */
-public class CrawlDbMerger extends ToolBase {
+public class CrawlDbMerger extends Configured implements Tool {
   private static final Log LOG = LogFactory.getLog(CrawlDbMerger.class);
 
-  public static class Merger extends MapReduceBase implements Reducer {
+  public static class Merger extends MapReduceBase implements Reducer<Text, CrawlDatum, Text, CrawlDatum> {
     MapWritable meta = new MapWritable();
     private FetchSchedule schedule;
 
@@ -63,13 +62,13 @@ public class CrawlDbMerger extends ToolBase {
       schedule = FetchScheduleFactory.getFetchSchedule(conf);
     }
 
-    public void reduce(WritableComparable key, Iterator values, OutputCollector output, Reporter reporter)
+    public void reduce(Text key, Iterator<CrawlDatum> values, OutputCollector<Text, CrawlDatum> output, Reporter reporter)
             throws IOException {
       CrawlDatum res = null;
       long resTime = 0L;
       meta.clear();
       while (values.hasNext()) {
-        CrawlDatum val = (CrawlDatum) values.next();
+        CrawlDatum val = values.next();
         if (res == null) {
           res = val;
           resTime = schedule.calculateLastFetchTime(res);
@@ -138,7 +137,7 @@ public class CrawlDbMerger extends ToolBase {
    * @param args
    */
   public static void main(String[] args) throws Exception {
-    int res = new CrawlDbMerger().doMain(NutchConfiguration.create(), args);
+    int res = ToolRunner.run(NutchConfiguration.create(), new CrawlDbMerger(), args);
     System.exit(res);
   }
   

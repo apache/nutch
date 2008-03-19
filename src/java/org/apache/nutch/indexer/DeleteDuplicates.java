@@ -28,9 +28,7 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
-import org.apache.hadoop.util.Progressable;
-import org.apache.hadoop.util.StringUtils;
-import org.apache.hadoop.util.ToolBase;
+import org.apache.hadoop.util.*;
 
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
@@ -63,8 +61,8 @@ import org.apache.lucene.document.Document;
  * 
  * @author Andrzej Bialecki
  */
-public class DeleteDuplicates extends ToolBase
-  implements Mapper, Reducer, OutputFormat {
+public class DeleteDuplicates extends Configured
+  implements Tool, Mapper<WritableComparable, Writable, Text, IntWritable>, Reducer<Text, IntWritable, WritableComparable, Writable>, OutputFormat<WritableComparable, Writable> {
   private static final Log LOG = LogFactory.getLog(DeleteDuplicates.class);
 
 //   Algorithm:
@@ -141,7 +139,7 @@ public class DeleteDuplicates extends ToolBase
 
   }
 
-  public static class InputFormat extends InputFormatBase {
+  public static class InputFormat extends FileInputFormat<Text, IndexDoc> {
     private static final long INDEX_LENGTH = Integer.MAX_VALUE;
 
     /** Return each index as a split. */
@@ -155,7 +153,7 @@ public class DeleteDuplicates extends ToolBase
       return splits;
     }
 
-    public class DDRecordReader implements RecordReader {
+    public class DDRecordReader implements RecordReader<Text, IndexDoc> {
 
       private IndexReader indexReader;
       private int maxDoc = 0;
@@ -174,7 +172,7 @@ public class DeleteDuplicates extends ToolBase
         this.index = index;
       }
 
-      public boolean next(WritableComparable key, Writable value)
+      public boolean next(Text key, IndexDoc indexDoc)
         throws IOException {
         
         // skip empty indexes
@@ -189,9 +187,8 @@ public class DeleteDuplicates extends ToolBase
         Document document = indexReader.document(doc);
 
         // fill in key
-        ((Text)key).set(document.get("url"));
+        key.set(document.get("url"));
         // fill in value
-        IndexDoc indexDoc = (IndexDoc)value;
         indexDoc.keep = true;
         indexDoc.url.set(document.get("url"));
         indexDoc.hash.setDigest(document.get("digest"));
@@ -226,11 +223,11 @@ public class DeleteDuplicates extends ToolBase
         indexReader.close();
       }
       
-      public WritableComparable createKey() {
+      public Text createKey() {
         return new Text();
       }
       
-      public Writable createValue() {
+      public IndexDoc createValue() {
         return new IndexDoc();
       }
 
@@ -240,7 +237,7 @@ public class DeleteDuplicates extends ToolBase
     }
     
     /** Return each index as a split. */
-    public RecordReader getRecordReader(InputSplit split,
+    public RecordReader<Text, IndexDoc> getRecordReader(InputSplit split,
                                         JobConf job,
                                         Reporter reporter) throws IOException {
       FileSplit fsplit = (FileSplit)split;
@@ -250,27 +247,27 @@ public class DeleteDuplicates extends ToolBase
     }
   }
   
-  public static class HashPartitioner implements Partitioner {
+  public static class HashPartitioner implements Partitioner<MD5Hash, Writable> {
     public void configure(JobConf job) {}
     public void close() {}
-    public int getPartition(WritableComparable key, Writable value,
+    public int getPartition(MD5Hash key, Writable value,
                             int numReduceTasks) {
-      int hashCode = ((MD5Hash)key).hashCode();
+      int hashCode = key.hashCode();
       return (hashCode & Integer.MAX_VALUE) % numReduceTasks;
     }
   }
 
-  public static class UrlsReducer implements Reducer {
+  public static class UrlsReducer implements Reducer<Text, IndexDoc, MD5Hash, IndexDoc> {
     
     public void configure(JobConf job) {}
     
     public void close() {}
     
-    public void reduce(WritableComparable key, Iterator values,
-        OutputCollector output, Reporter reporter) throws IOException {
+    public void reduce(Text key, Iterator<IndexDoc> values,
+        OutputCollector<MD5Hash, IndexDoc> output, Reporter reporter) throws IOException {
       IndexDoc latest = null;
       while (values.hasNext()) {
-        IndexDoc value = (IndexDoc)values.next();
+        IndexDoc value = values.next();
         if (latest == null) {
           latest = value;
           continue;
@@ -296,7 +293,7 @@ public class DeleteDuplicates extends ToolBase
     }
   }
   
-  public static class HashReducer implements Reducer {
+  public static class HashReducer implements Reducer<MD5Hash, IndexDoc, Text, IndexDoc> {
     boolean byScore;
     
     public void configure(JobConf job) {
@@ -304,12 +301,12 @@ public class DeleteDuplicates extends ToolBase
     }
     
     public void close() {}
-    public void reduce(WritableComparable key, Iterator values,
-                       OutputCollector output, Reporter reporter)
+    public void reduce(MD5Hash key, Iterator<IndexDoc> values,
+                       OutputCollector<Text, IndexDoc> output, Reporter reporter)
       throws IOException {
       IndexDoc highest = null;
       while (values.hasNext()) {
-        IndexDoc value = (IndexDoc)values.next();
+        IndexDoc value = values.next();
         // skip already deleted
         if (!value.keep) {
           LOG.debug("-discard " + value + " (already marked)");
@@ -355,7 +352,7 @@ public class DeleteDuplicates extends ToolBase
   public void setConf(Configuration conf) {
     super.setConf(conf);
     try {
-      fs = FileSystem.get(conf);
+      if(conf != null) fs = FileSystem.get(conf);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
@@ -365,7 +362,7 @@ public class DeleteDuplicates extends ToolBase
 
   /** Map [*,IndexDoc] pairs to [index,doc] pairs. */
   public void map(WritableComparable key, Writable value,
-                  OutputCollector output, Reporter reporter)
+                  OutputCollector<Text, IntWritable> output, Reporter reporter)
     throws IOException {
     IndexDoc indexDoc = (IndexDoc)value;
     // don't delete these
@@ -375,14 +372,14 @@ public class DeleteDuplicates extends ToolBase
   }
 
   /** Delete docs named in values from index named in key. */
-  public void reduce(WritableComparable key, Iterator values,
-                     OutputCollector output, Reporter reporter)
+  public void reduce(Text key, Iterator<IntWritable> values,
+                     OutputCollector<WritableComparable, Writable> output, Reporter reporter)
     throws IOException {
     Path index = new Path(key.toString());
     IndexReader reader = IndexReader.open(new FsDirectory(fs, index, false, getConf()));
     try {
       while (values.hasNext()) {
-        IntWritable value = (IntWritable)values.next();
+        IntWritable value = values.next();
         LOG.debug("-delete " + index + " doc=" + value);
         reader.deleteDocument(value.get());
       }
@@ -392,11 +389,11 @@ public class DeleteDuplicates extends ToolBase
   }
 
   /** Write nothing. */
-  public RecordWriter getRecordWriter(final FileSystem fs,
+  public RecordWriter<WritableComparable, Writable> getRecordWriter(final FileSystem fs,
                                       final JobConf job,
                                       final String name,
                                       final Progressable progress) throws IOException {
-    return new RecordWriter() {                   
+    return new RecordWriter<WritableComparable, Writable>() {                   
         public void write(WritableComparable key, Writable value)
           throws IOException {
           throw new UnsupportedOperationException();
@@ -496,7 +493,7 @@ public class DeleteDuplicates extends ToolBase
   }
 
   public static void main(String[] args) throws Exception {
-    int res = new DeleteDuplicates().doMain(NutchConfiguration.create(), args);
+    int res = ToolRunner.run(NutchConfiguration.create(), new DeleteDuplicates(), args);
     System.exit(res);
   }
   

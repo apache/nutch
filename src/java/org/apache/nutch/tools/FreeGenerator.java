@@ -25,8 +25,8 @@ import java.util.Map.Entry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
@@ -38,7 +38,8 @@ import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 import org.apache.hadoop.mapred.TextInputFormat;
 import org.apache.hadoop.util.StringUtils;
-import org.apache.hadoop.util.ToolBase;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Generator;
 import org.apache.nutch.crawl.PartitionUrlByHost;
@@ -55,13 +56,15 @@ import org.apache.nutch.util.NutchJob;
  * 
  * @author Andrzej Bialecki
  */
-public class FreeGenerator extends ToolBase {
+public class FreeGenerator extends Configured implements Tool {
   private static final Log LOG = LogFactory.getLog(FreeGenerator.class);
   
   private static final String FILTER_KEY = "free.generator.filter";
   private static final String NORMALIZE_KEY = "free.generator.normalize";
 
-  public static class FG extends MapReduceBase implements Mapper, Reducer {
+  public static class FG extends MapReduceBase
+  implements Mapper<WritableComparable, Text, Text, Generator.SelectorEntry>,
+  Reducer<Text, Generator.SelectorEntry, Text, CrawlDatum> {
     private URLNormalizers normalizers = null;
     private URLFilters filters = null;
     private ScoringFilters scfilters;
@@ -82,7 +85,8 @@ public class FreeGenerator extends ToolBase {
     
     Generator.SelectorEntry entry = new Generator.SelectorEntry();
 
-    public void map(WritableComparable key, Writable value, OutputCollector output, Reporter reporter) throws IOException {
+    public void map(WritableComparable key, Text value, OutputCollector<Text,
+        Generator.SelectorEntry> output, Reporter reporter) throws IOException {
       // value is a line of text
       String urlString = value.toString();
       try {
@@ -111,7 +115,8 @@ public class FreeGenerator extends ToolBase {
       output.collect(url, entry);
     }
 
-    public void reduce(WritableComparable key, Iterator values, OutputCollector output, Reporter reporter) throws IOException {
+    public void reduce(Text key, Iterator<Generator.SelectorEntry> values,
+        OutputCollector<Text, CrawlDatum> output, Reporter reporter) throws IOException {
       // pick unique urls from values - discard the reduce key due to hash collisions
       HashMap<Text, CrawlDatum> unique = new HashMap<Text, CrawlDatum>();
       while (values.hasNext()) {
@@ -177,7 +182,7 @@ public class FreeGenerator extends ToolBase {
   }
 
   public static void main(String[] args) throws Exception {
-    int res = new FreeGenerator().doMain(NutchConfiguration.create(), args);
+    int res = ToolRunner.run(NutchConfiguration.create(), new FreeGenerator(), args);
     System.exit(res);
   }
 }

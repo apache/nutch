@@ -23,7 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
-import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.*;
 import org.apache.hadoop.conf.*;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.protocol.*;
@@ -37,7 +37,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 /* Parse content in a segment. */
-public class ParseSegment extends Configured implements Mapper, Reducer {
+public class ParseSegment extends Configured implements Tool, Mapper<WritableComparable, Content, Text, ParseImpl>, Reducer<Text, Writable, Text, Writable> {
 
   public static final Log LOG = LogFactory.getLog(Parser.class);
   
@@ -60,15 +60,14 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
   
   private Text newKey = new Text();
 
-  public void map(WritableComparable key, Writable value,
-                  OutputCollector output, Reporter reporter)
+  public void map(WritableComparable key, Content content,
+                  OutputCollector<Text, ParseImpl> output, Reporter reporter)
     throws IOException {
     // convert on the fly from old UTF8 keys
     if (key instanceof UTF8) {
       newKey.set(key.toString());
       key = newKey;
     }
-    Content content = (Content) value;
 
     ParseResult parseResult = null;
     try {
@@ -111,8 +110,8 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
     }
   }
 
-  public void reduce(WritableComparable key, Iterator values,
-                     OutputCollector output, Reporter reporter)
+  public void reduce(Text key, Iterator<Writable> values,
+                     OutputCollector<Text, Writable> output, Reporter reporter)
     throws IOException {
     output.collect(key, (Writable)values.next()); // collect first value
   }
@@ -144,6 +143,11 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
 
 
   public static void main(String[] args) throws Exception {
+	int res = ToolRunner.run(NutchConfiguration.create(), new ParseSegment(), args);
+	System.exit(res);
+  }
+	  
+  public int run(String[] args) throws Exception {
     Path segment;
 
     String usage = "Usage: ParseSegment segment";
@@ -151,11 +155,9 @@ public class ParseSegment extends Configured implements Mapper, Reducer {
     if (args.length == 0) {
       System.err.println(usage);
       System.exit(-1);
-    }
-      
+    }      
     segment = new Path(args[0]);
-
-    ParseSegment parseSegment = new ParseSegment(NutchConfiguration.create());
-    parseSegment.parse(segment);
+    parse(segment);
+    return 0;
   }
 }

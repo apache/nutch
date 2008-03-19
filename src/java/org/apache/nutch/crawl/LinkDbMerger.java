@@ -24,10 +24,10 @@ import java.util.Random;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MapFileOutputFormat;
@@ -36,7 +36,8 @@ import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.util.StringUtils;
-import org.apache.hadoop.util.ToolBase;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
@@ -58,7 +59,7 @@ import org.apache.nutch.util.NutchJob;
  * 
  * @author Andrzej Bialecki
  */
-public class LinkDbMerger extends ToolBase implements Reducer {
+public class LinkDbMerger extends Configured implements Tool, Reducer<Text, Inlinks, Text, Inlinks> {
   private static final Log LOG = LogFactory.getLog(LinkDbMerger.class);
   
   private int maxInlinks;
@@ -71,12 +72,12 @@ public class LinkDbMerger extends ToolBase implements Reducer {
     setConf(conf);
   }
 
-  public void reduce(WritableComparable key, Iterator values, OutputCollector output, Reporter reporter) throws IOException {
+  public void reduce(Text key, Iterator<Inlinks> values, OutputCollector<Text, Inlinks> output, Reporter reporter) throws IOException {
 
     Inlinks result = new Inlinks();
 
     while (values.hasNext()) {
-      Inlinks inlinks = (Inlinks)values.next();
+      Inlinks inlinks = values.next();
 
       int end = Math.min(maxInlinks - result.size(), inlinks.size());
       Iterator<Inlink> it = inlinks.iterator();
@@ -135,7 +136,7 @@ public class LinkDbMerger extends ToolBase implements Reducer {
    * @param args
    */
   public static void main(String[] args) throws Exception {
-    int res = new LinkDbMerger().doMain(NutchConfiguration.create(), args);
+    int res = ToolRunner.run(NutchConfiguration.create(), new LinkDbMerger(), args);
     System.exit(res);
   }
   

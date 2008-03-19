@@ -25,8 +25,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.mapred.FileAlreadyExistsException;
-import org.apache.hadoop.util.StringUtils;
-import org.apache.hadoop.util.ToolBase;
+import org.apache.hadoop.util.*;
 import org.apache.hadoop.conf.*;
 
 import org.apache.nutch.util.HadoopFSUtil;
@@ -43,7 +42,7 @@ import org.apache.lucene.index.IndexWriter;
  * @author Doug Cutting
  * @author Mike Cafarella
  *************************************************************************/
-public class IndexMerger extends ToolBase {
+public class IndexMerger extends Configured implements Tool {
   public static final Log LOG = LogFactory.getLog(IndexMerger.class);
 
   public static final String DONE_NAME = "merge.done";
@@ -81,17 +80,17 @@ public class IndexMerger extends ToolBase {
     Directory[] dirs = new Directory[indexes.length];
     for (int i = 0; i < indexes.length; i++) {
       if (LOG.isInfoEnabled()) { LOG.info("Adding " + indexes[i]); }
-      dirs[i] = new FsDirectory(fs, indexes[i], false, this.conf);
+      dirs[i] = new FsDirectory(fs, indexes[i], false, getConf());
     }
 
     //
     // Merge indices
     //
     IndexWriter writer = new IndexWriter(localOutput.toString(), null, true);
-    writer.setMergeFactor(conf.getInt("indexer.mergeFactor", IndexWriter.DEFAULT_MERGE_FACTOR));
-    writer.setMaxBufferedDocs(conf.getInt("indexer.minMergeDocs", IndexWriter.DEFAULT_MAX_BUFFERED_DOCS));
-    writer.setMaxMergeDocs(conf.getInt("indexer.maxMergeDocs", IndexWriter.DEFAULT_MAX_MERGE_DOCS));
-    writer.setTermIndexInterval(conf.getInt("indexer.termIndexInterval", IndexWriter.DEFAULT_TERM_INDEX_INTERVAL));
+    writer.setMergeFactor(getConf().getInt("indexer.mergeFactor", IndexWriter.DEFAULT_MERGE_FACTOR));
+    writer.setMaxBufferedDocs(getConf().getInt("indexer.minMergeDocs", IndexWriter.DEFAULT_MAX_BUFFERED_DOCS));
+    writer.setMaxMergeDocs(getConf().getInt("indexer.maxMergeDocs", IndexWriter.DEFAULT_MAX_MERGE_DOCS));
+    writer.setTermIndexInterval(getConf().getInt("indexer.termIndexInterval", IndexWriter.DEFAULT_TERM_INDEX_INTERVAL));
     writer.setInfoStream(LogUtil.getDebugStream(LOG));
     writer.setUseCompoundFile(false);
     writer.setSimilarity(new NutchSimilarity());
@@ -109,7 +108,7 @@ public class IndexMerger extends ToolBase {
    * Create an index for the input files in the named directory. 
    */
   public static void main(String[] args) throws Exception {
-    int res = new IndexMerger().doMain(NutchConfiguration.create(), args);
+    int res = ToolRunner.run(NutchConfiguration.create(), new IndexMerger(), args);
     System.exit(res);
   }
   
@@ -123,7 +122,7 @@ public class IndexMerger extends ToolBase {
     //
     // Parse args, read all index directories to be processed
     //
-    FileSystem fs = FileSystem.get(conf);
+    FileSystem fs = FileSystem.get(getConf());
     List<Path> indexDirs = new ArrayList<Path>();
 
     Path workDir = new Path("indexmerger-" + System.currentTimeMillis());  
@@ -152,7 +151,7 @@ public class IndexMerger extends ToolBase {
       LOG.fatal("IndexMerger: " + StringUtils.stringifyException(e));
       return -1;
     } finally {
-      FileSystem.getLocal(conf).delete(workDir);
+      FileSystem.getLocal(getConf()).delete(workDir);
     }
   }
 }

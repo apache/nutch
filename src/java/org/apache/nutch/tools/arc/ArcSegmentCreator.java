@@ -24,18 +24,18 @@ import java.util.Map.Entry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.util.StringUtils;
-import org.apache.hadoop.util.ToolBase;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.crawl.SignatureFactory;
@@ -65,11 +65,10 @@ import org.apache.nutch.util.StringUtil;
  * <p>Arc files are tars of compressed gzips which are produced by both the
  * internet archive project and the grub distributed crawler project.</p>
  * 
- * TODO: This class needs to be changed to use ToolRunner instead of ToolBase.
  */
 public class ArcSegmentCreator
-  extends ToolBase
-  implements Mapper {
+  extends Configured
+  implements Tool, Mapper<Text, BytesWritable, Text, NutchWritable> {
 
   public static final Log LOG = LogFactory.getLog(ArcSegmentCreator.class);
   public static final String URL_VERSION = "arc.url.version";
@@ -145,7 +144,7 @@ public class ArcSegmentCreator
    * 
    * @return The result of the parse in a ParseStatus object.
    */
-  private ParseStatus output(OutputCollector output, String segmentName,
+  private ParseStatus output(OutputCollector<Text, NutchWritable> output, String segmentName,
     Text key, CrawlDatum datum, Content content, ProtocolStatus pstatus,
     int status) {
 
@@ -184,7 +183,7 @@ public class ArcSegmentCreator
       // set the content signature
       if (parseResult == null) {
         byte[] signature = SignatureFactory.getSignature(getConf()).calculate(
-          content, new ParseStatus().getEmptyParse(conf));
+          content, new ParseStatus().getEmptyParse(getConf()));
         datum.setSignature(signature);
       }
 
@@ -266,12 +265,12 @@ public class ArcSegmentCreator
    * segments.</p>
    * 
    * @param key The arc record header.
-   * @param value The arc record raw content bytes.
+   * @param bytes The arc record raw content bytes.
    * @param output The output collecter.
    * @param reporter The progress reporter.
    */
-  public void map(WritableComparable key, Writable value,
-    OutputCollector output, Reporter reporter)
+  public void map(Text key, BytesWritable bytes,
+    OutputCollector<Text, NutchWritable> output, Reporter reporter)
     throws IOException {
 
     String[] headers = key.toString().split("\\s+");
@@ -289,7 +288,6 @@ public class ArcSegmentCreator
 
     // get the raw  bytes from the arc file, create a new crawldatum
     Text url = new Text();
-    BytesWritable bytes = (BytesWritable)value;
     CrawlDatum datum = new CrawlDatum(CrawlDatum.STATUS_DB_FETCHED, interval,
       1.0f);
     String segmentName = getConf().get(Nutch.SEGMENT_NAME_KEY);
@@ -371,7 +369,7 @@ public class ArcSegmentCreator
 
   public static void main(String args[])
     throws Exception {
-    int res = new ArcSegmentCreator().doMain(NutchConfiguration.create(), args);
+    int res = ToolRunner.run(NutchConfiguration.create(), new ArcSegmentCreator(), args);
     System.exit(res);
   }
 

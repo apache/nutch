@@ -23,12 +23,12 @@ import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.mapred.lib.HashPartitioner;
-import org.apache.hadoop.util.StringUtils;
-import org.apache.hadoop.util.ToolBase;
+import org.apache.hadoop.util.*;
 import org.apache.hadoop.conf.Configuration;
 
 import org.apache.nutch.util.NutchConfiguration;
@@ -37,10 +37,10 @@ import org.apache.nutch.util.NutchJob;
 import java.util.Iterator;
 
 /** . */
-public class LinkDbReader extends ToolBase implements Closeable {
+public class LinkDbReader extends Configured implements Tool, Closeable {
   public static final Log LOG = LogFactory.getLog(LinkDbReader.class);
 
-  private static final Partitioner PARTITIONER = new HashPartitioner();
+  private static final Partitioner<WritableComparable, Writable> PARTITIONER = new HashPartitioner<WritableComparable, Writable>();
 
   private FileSystem fs;
   private Path directory;
@@ -111,7 +111,7 @@ public class LinkDbReader extends ToolBase implements Closeable {
   }
   
   public static void main(String[] args) throws Exception {
-    int res = new LinkDbReader().doMain(NutchConfiguration.create(), args);
+    int res = ToolRunner.run(NutchConfiguration.create(), new LinkDbReader(), args);
     System.exit(res);
   }
   
