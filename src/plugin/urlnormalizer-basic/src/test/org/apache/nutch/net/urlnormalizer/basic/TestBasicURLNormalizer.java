@@ -90,12 +90,22 @@ public class TestBasicURLNormalizer extends TestCase {
                   "http://foo.com/foo.html" );
     normalizeTest("http://foo.com/foo.foo/../foo.html",
                   "http://foo.com/foo.html" );
+    normalizeTest("http://foo.com//aa/bb/foo.html",
+                  "http://foo.com/aa/bb/foo.html" );
+    normalizeTest("http://foo.com/aa//bb/foo.html",
+                  "http://foo.com/aa/bb/foo.html" );
+    normalizeTest("http://foo.com/aa/bb//foo.html",
+                  "http://foo.com/aa/bb/foo.html" );
+    normalizeTest("http://foo.com//aa//bb//foo.html",
+                  "http://foo.com/aa/bb/foo.html" );
+    normalizeTest("http://foo.com////aa////bb////foo.html",
+                  "http://foo.com/aa/bb/foo.html" );
   }
 
   private void normalizeTest(String weird, String normal) throws Exception {
     assertEquals(normal, normalizer.normalize(weird, URLNormalizers.SCOPE_DEFAULT));
   }
-	
+
   public static void main(String[] args) throws Exception {
     new TestBasicURLNormalizer("test").testNormalizer();
   }
