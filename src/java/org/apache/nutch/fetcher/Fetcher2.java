@@ -76,7 +76,7 @@ import org.apache.nutch.util.*;
  * queues may return eligible items or null if for "politeness" reasons this
  * host's queue is not yet ready.
  * 
- * <p>If there are still unfetched items on the queues, but none of the items
+ * <p>If there are still unfetched items in the queues, but none of the items
  * are ready, FetcherThread-s will spin-wait until either some items become
  * available, or a timeout is reached (at which point the Fetcher will abort,
  * assuming the task is hung).
@@ -247,7 +247,7 @@ public class Fetcher2 extends Configured implements MapRunnable {
         it = queue.remove(0);
         inProgress.add(it);
       } catch (Exception e) {
-        
+        LOG.error("Cannot remove FetchItem from queue or cannot add it to inProgress queue", e);
       }
       return it;
     }
@@ -471,7 +471,7 @@ public class Fetcher2 extends Configured implements MapRunnable {
               try {
                 Thread.sleep(500);
               } catch (Exception e) {}
-              spinWaiting.decrementAndGet();
+                spinWaiting.decrementAndGet();
               continue;
             } else {
               // all done, finish this thread
