@@ -464,8 +464,8 @@ public class RobotRulesParser implements Configurable {
         else if ( (response.getCode() == 403) && (!allowForbidden) )
           robotRules = FORBID_ALL_RULES;            // use forbid all
         else if (response.getCode() >= 500) {
-	  cacheRule = false;
-	  robotRules = EMPTY_RULES;
+          cacheRule = false;
+          robotRules = EMPTY_RULES;
         }else                                        
           robotRules = EMPTY_RULES;                 // use default rules
       } catch (Throwable t) {
@@ -477,7 +477,7 @@ public class RobotRulesParser implements Configurable {
       }
 
       if (cacheRule){
-	CACHE.put(host, robotRules);  // cache rules for host
+        CACHE.put(host, robotRules);  // cache rules for host
       }
     }
     return robotRules;
