@@ -746,6 +746,14 @@ public class Fetcher2 extends Configured implements MapRunnable {
             datum.setSignature(signature);
           }
         }
+        
+        if (!parsing) {
+          /* Store status code in content if we are not parsing in fetcher. 
+           * So we can read this value during parsing (as a separate job) and
+           * decide to parse or not.
+           * */
+          content.getMetadata().add(Nutch.FETCH_STATUS_KEY, Integer.toString(status));
+        }
       }
 
       try {
