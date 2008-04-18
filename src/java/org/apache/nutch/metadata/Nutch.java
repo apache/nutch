@@ -48,6 +48,8 @@ public interface Nutch {
   public static final Text WRITABLE_PROTO_STATUS_KEY = new Text(PROTO_STATUS_KEY);
   
   public static final String FETCH_TIME_KEY = "_ftk_";
+  
+  public static final String FETCH_STATUS_KEY = "_fst_";
 
   /** Sites may request that search engines don't provide access to cached documents. */
   public static final String CACHING_FORBIDDEN_KEY = "caching.forbidden";

@@ -20,6 +20,7 @@ package org.apache.nutch.parse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
@@ -67,6 +68,14 @@ public class ParseSegment extends Configured implements Tool, Mapper<WritableCom
     if (key instanceof UTF8) {
       newKey.set(key.toString());
       key = newKey;
+    }
+    
+    int status =
+      Integer.parseInt(content.getMetadata().get(Nutch.FETCH_STATUS_KEY));
+    if (status != CrawlDatum.STATUS_FETCH_SUCCESS) {
+      // content not fetched successfully, skip document
+      LOG.debug("Skipping " + key + " as content is not fetched successfully");
+      return;
     }
 
     ParseResult parseResult = null;
