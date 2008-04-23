@@ -158,7 +158,15 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   
   public void setStatus(int status) { this.status = (byte)status; }
 
+  /**
+   * Returns either the time of the last fetch, or the next fetch time,
+   * depending on whether Fetcher or CrawlDbReducer set the time.
+   */
   public long getFetchTime() { return fetchTime; }
+  /**
+   * Sets either the time of the last fetch or the next fetch time,
+   * depending on whether Fetcher or CrawlDbReducer set the time.
+   */
   public void setFetchTime(long fetchTime) { this.fetchTime = fetchTime; }
 
   public long getModifiedTime() {
