@@ -55,8 +55,17 @@ public final class MimeUtil {
   private static final Logger LOG = Logger.getLogger(MimeUtil.class.getName());
 
   public MimeUtil(Configuration conf) {
-    this.mimeTypes = MimeTypesFactory.create(conf
-        .getConfResourceAsInputStream(conf.get("mime.types.file")));
+    ObjectCache objectCache = ObjectCache.get(conf);
+    MimeTypes mimeTypez = (MimeTypes) objectCache.getObject(MimeTypes.class
+        .getName());
+    if (mimeTypez == null) {
+      mimeTypez = MimeTypesFactory.create(conf
+          .getConfResourceAsInputStream(conf.get("mime.types.file")));
+      objectCache.setObject(MimeTypes.class.getName(), mimeTypez);
+
+    }
+    
+    this.mimeTypes = mimeTypez;
     this.mimeMagic = conf.getBoolean("mime.type.magic", true);
   }
 

@@ -58,7 +58,6 @@
 	</mime-type>
 
 	<mime-type type="application/xhtml+xml">
-		<sub-class-of type="text/xml" />
 		<glob pattern="*.xhtml" />
 		<root-XML namespaceURI='http://www.w3.org/1999/xhtml'
 			localName='html' />
@@ -245,7 +244,7 @@
 		</mime-type> -->
 
 	<mime-type type="application/x-ms-dos-executable">
-		<alias type="application/x-dosexec;exe" />
+		<alias type="application/x-dosexec" />
 	</mime-type>
 
 	<mime-type type="application/ogg">
