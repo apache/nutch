@@ -220,7 +220,7 @@ public class DeleteDuplicates extends Configured
       }
 
       public void close() throws IOException {
-        indexReader.close();
+        if (indexReader != null) indexReader.close();
       }
       
       public Text createKey() {
