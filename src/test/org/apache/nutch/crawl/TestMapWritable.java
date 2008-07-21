@@ -105,7 +105,7 @@ public class TestMapWritable extends TestCase {
   public void testPerformance() throws Exception {
     FileSystem fs = FileSystem.get(configuration);
     Path file = new Path(System.getProperty("java.io.tmpdir"), "mapTestFile");
-    fs.delete(file);
+    fs.delete(file, false);
     org.apache.hadoop.io.SequenceFile.Writer writer = SequenceFile.createWriter(
         fs, configuration, file, IntWritable.class, MapWritable.class);
     // write map
@@ -164,7 +164,7 @@ public class TestMapWritable extends TestCase {
     }
     needed = System.currentTimeMillis() - start;
     System.out.println("needed time for reading Text: " + needed);
-    fs.delete(file);
+    fs.delete(file, false);
   }
 
   /** Utility method for testing writables, from hadoop code */

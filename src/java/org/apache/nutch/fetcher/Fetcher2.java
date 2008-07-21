@@ -83,11 +83,12 @@ import org.apache.nutch.util.*;
  * 
  * @author Andrzej Bialecki
  */
-public class Fetcher2 extends Configured implements MapRunnable { 
+public class Fetcher2 extends Configured implements
+    MapRunnable<Text, CrawlDatum, Text, NutchWritable> { 
 
   public static final Log LOG = LogFactory.getLog(Fetcher2.class);
   
-  public static class InputFormat extends SequenceFileInputFormat {
+  public static class InputFormat extends SequenceFileInputFormat<Text, CrawlDatum> {
     /** Don't split inputs, to keep things polite. */
     public InputSplit[] getSplits(JobConf job, int nSplits)
       throws IOException {
@@ -95,13 +96,14 @@ public class Fetcher2 extends Configured implements MapRunnable {
       FileSplit[] splits = new FileSplit[files.length];
       FileSystem fs = FileSystem.get(job);
       for (int i = 0; i < files.length; i++) {
-        splits[i] = new FileSplit(files[i], 0, fs.getFileStatus(files[i]).getLen(), job);
+        splits[i] = new FileSplit(files[i], 0,
+            fs.getFileStatus(files[i]).getLen(), (String[])null);
       }
       return splits;
     }
   }
 
-  private OutputCollector output;
+  private OutputCollector<Text, NutchWritable> output;
   private Reporter reporter;
   
   private String segmentName;
@@ -376,11 +378,12 @@ public class Fetcher2 extends Configured implements MapRunnable {
    * items are consumed by FetcherThread-s.
    */
   private static class QueueFeeder extends Thread {
-    private RecordReader reader;
+    private RecordReader<Text, CrawlDatum> reader;
     private FetchItemQueues queues;
     private int size;
     
-    public QueueFeeder(RecordReader reader, FetchItemQueues queues, int size) {
+    public QueueFeeder(RecordReader<Text, CrawlDatum> reader,
+        FetchItemQueues queues, int size) {
       this.reader = reader;
       this.queues = queues;
       this.size = size;
@@ -681,7 +684,8 @@ public class Fetcher2 extends Configured implements MapRunnable {
           }
           return url;
         } else {
-          CrawlDatum newDatum = new CrawlDatum();
+          CrawlDatum newDatum = new CrawlDatum(CrawlDatum.STATUS_LINKED,
+              datum.getFetchInterval());
           if (reprUrl != null) {
             newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
                 new Text(reprUrl));
@@ -859,7 +863,8 @@ public class Fetcher2 extends Configured implements MapRunnable {
     return conf.getBoolean("fetcher.store.content", true);
   }
 
-  public void run(RecordReader input, OutputCollector output,
+  public void run(RecordReader<Text, CrawlDatum> input,
+      OutputCollector<Text, NutchWritable> output,
                   Reporter reporter) throws IOException {
 
     this.output = output;
@@ -927,12 +932,12 @@ public class Fetcher2 extends Configured implements MapRunnable {
     // for politeness, don't permit parallel execution of a single task
     job.setSpeculativeExecution(false);
 
-    job.setInputPath(new Path(segment, CrawlDatum.GENERATE_DIR_NAME));
+    FileInputFormat.addInputPath(job, new Path(segment, CrawlDatum.GENERATE_DIR_NAME));
     job.setInputFormat(InputFormat.class);
 
     job.setMapRunnerClass(Fetcher2.class);
 
-    job.setOutputPath(segment);
+    FileOutputFormat.setOutputPath(job, segment);
     job.setOutputFormat(FetcherOutputFormat.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(NutchWritable.class);

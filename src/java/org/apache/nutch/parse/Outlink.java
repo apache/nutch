@@ -21,8 +21,6 @@ import java.io.*;
 import java.net.MalformedURLException;
 
 import org.apache.hadoop.io.*;
-import org.apache.nutch.net.URLNormalizers;
-import org.apache.hadoop.conf.Configuration;
 
 /* An outgoing link from a page. */
 public class Outlink implements Writable {

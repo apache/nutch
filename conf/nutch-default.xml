@@ -1189,4 +1189,17 @@
   </description>
 </property>
 
+<!-- Temporary Hadoop 0.17.x workaround. -->
+
+<property>
+  <name>hadoop.job.history.user.location</name>
+  <value>${hadoop.log.dir}/history/user</value>
+  <description>Hadoop 0.17.x comes with a default setting to create
+     user logs inside the output path of the job. This breaks some
+     Hadoop classes, which expect the output to contain only
+     part-XXXXX files. This setting changes the output to a
+     subdirectory of the regular log directory.
+  </description>
+</property>
+
 </configuration>

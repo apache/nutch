@@ -80,8 +80,8 @@ public class CrawlDb extends Configured implements Tool {
       Path fetch = new Path(segments[i], CrawlDatum.FETCH_DIR_NAME);
       Path parse = new Path(segments[i], CrawlDatum.PARSE_DIR_NAME);
       if (fs.exists(fetch) && fs.exists(parse)) {
-        job.addInputPath(fetch);
-        job.addInputPath(parse);
+        FileInputFormat.addInputPath(job, fetch);
+        FileInputFormat.addInputPath(job, parse);
       } else {
         LOG.info(" - skipping invalid segment " + segments[i]);
       }
@@ -94,7 +94,8 @@ public class CrawlDb extends Configured implements Tool {
       JobClient.runJob(job);
     } catch (IOException e) {
       LockUtil.removeLockFile(fs, lock);
-      if (fs.exists(job.getOutputPath())) fs.delete(job.getOutputPath());
+      Path outPath = FileOutputFormat.getOutputPath(job);
+      if (fs.exists(outPath) ) fs.delete(outPath, true);
       throw e;
     }
 
@@ -114,14 +115,14 @@ public class CrawlDb extends Configured implements Tool {
 
     Path current = new Path(crawlDb, CURRENT_NAME);
     if (FileSystem.get(job).exists(current)) {
-      job.addInputPath(current);
+      FileInputFormat.addInputPath(job, current);
     }
     job.setInputFormat(SequenceFileInputFormat.class);
 
     job.setMapperClass(CrawlDbFilter.class);
     job.setReducerClass(CrawlDbReducer.class);
 
-    job.setOutputPath(newCrawlDb);
+    FileOutputFormat.setOutputPath(job, newCrawlDb);
     job.setOutputFormat(MapFileOutputFormat.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);
@@ -130,17 +131,17 @@ public class CrawlDb extends Configured implements Tool {
   }
 
   public static void install(JobConf job, Path crawlDb) throws IOException {
-    Path newCrawlDb = job.getOutputPath();
+    Path newCrawlDb = FileOutputFormat.getOutputPath(job);
     FileSystem fs = new JobClient(job).getFs();
     Path old = new Path(crawlDb, "old");
     Path current = new Path(crawlDb, CURRENT_NAME);
     if (fs.exists(current)) {
-      if (fs.exists(old)) fs.delete(old);
+      if (fs.exists(old)) fs.delete(old, true);
       fs.rename(current, old);
     }
     fs.mkdirs(crawlDb);
     fs.rename(newCrawlDb, current);
-    if (fs.exists(old)) fs.delete(old);
+    if (fs.exists(old)) fs.delete(old, true);
     Path lock = new Path(crawlDb, LOCK_NAME);
     LockUtil.removeLockFile(fs, lock);
   }

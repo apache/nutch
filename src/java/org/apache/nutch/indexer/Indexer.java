@@ -83,14 +83,14 @@ public class Indexer extends Configured implements Tool, Reducer<Text, NutchWrit
 
   /** Unwrap Lucene Documents created by reduce and add them to an index. */
   public static class OutputFormat
-    extends org.apache.hadoop.mapred.OutputFormatBase<WritableComparable, LuceneDocumentWrapper> {
+    extends org.apache.hadoop.mapred.FileOutputFormat<WritableComparable, LuceneDocumentWrapper> {
     public RecordWriter<WritableComparable, LuceneDocumentWrapper> getRecordWriter(final FileSystem fs, JobConf job,
                                         String name, final Progressable progress) throws IOException {
-      final Path perm = new Path(job.getOutputPath(), name);
+      final Path perm = new Path(FileOutputFormat.getOutputPath(job), name);
       final Path temp =
         job.getLocalPath("index/_"+Integer.toString(new Random().nextInt()));
 
-      fs.delete(perm);                            // delete old, if any
+      fs.delete(perm, true);                            // delete old, if any
 
       final AnalyzerFactory factory = new AnalyzerFactory(job);
       final IndexWriter writer =                  // build locally first
@@ -290,20 +290,20 @@ public class Indexer extends Configured implements Tool, Reducer<Text, NutchWrit
       if (LOG.isInfoEnabled()) {
         LOG.info("Indexer: adding segment: " + segments[i]);
       }
-      job.addInputPath(new Path(segments[i], CrawlDatum.FETCH_DIR_NAME));
-      job.addInputPath(new Path(segments[i], CrawlDatum.PARSE_DIR_NAME));
-      job.addInputPath(new Path(segments[i], ParseData.DIR_NAME));
-      job.addInputPath(new Path(segments[i], ParseText.DIR_NAME));
+      FileInputFormat.addInputPath(job, new Path(segments[i], CrawlDatum.FETCH_DIR_NAME));
+      FileInputFormat.addInputPath(job, new Path(segments[i], CrawlDatum.PARSE_DIR_NAME));
+      FileInputFormat.addInputPath(job, new Path(segments[i], ParseData.DIR_NAME));
+      FileInputFormat.addInputPath(job, new Path(segments[i], ParseText.DIR_NAME));
     }
 
-    job.addInputPath(new Path(crawlDb, CrawlDb.CURRENT_NAME));
-    job.addInputPath(new Path(linkDb, LinkDb.CURRENT_NAME));
+    FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
+    FileInputFormat.addInputPath(job, new Path(linkDb, LinkDb.CURRENT_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
 
     job.setMapperClass(Indexer.class);
     job.setReducerClass(Indexer.class);
 
-    job.setOutputPath(indexDir);
+    FileOutputFormat.setOutputPath(job, indexDir);
     job.setOutputFormat(OutputFormat.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(NutchWritable.class);

@@ -148,7 +148,7 @@ public class DeleteDuplicates extends Configured
       Path[] files = listPaths(job);
       InputSplit[] splits = new InputSplit[files.length];
       for (int i = 0; i < files.length; i++) {
-        splits[i] = new FileSplit(files[i], 0, INDEX_LENGTH, job);
+        splits[i] = new FileSplit(files[i], 0, INDEX_LENGTH, (String[])null);
       }
       return splits;
     }
@@ -263,21 +263,19 @@ public class DeleteDuplicates extends Configured
     
     public void close() {}
     
+    private IndexDoc latest = new IndexDoc();
+    
     public void reduce(Text key, Iterator<IndexDoc> values,
         OutputCollector<MD5Hash, IndexDoc> output, Reporter reporter) throws IOException {
-      IndexDoc latest = null;
+      WritableUtils.cloneInto(latest, values.next());
       while (values.hasNext()) {
         IndexDoc value = values.next();
-        if (latest == null) {
-          latest = value;
-          continue;
-        }
         if (value.time > latest.time) {
           // discard current and use more recent
           latest.keep = false;
           LOG.debug("-discard " + latest + ", keep " + value);
           output.collect(latest.hash, latest);
-          latest = value;
+          WritableUtils.cloneInto(latest, value);
         } else {
           // discard
           value.keep = false;
@@ -301,10 +299,13 @@ public class DeleteDuplicates extends Configured
     }
     
     public void close() {}
+    
+    private IndexDoc highest = new IndexDoc();
+    
     public void reduce(MD5Hash key, Iterator<IndexDoc> values,
                        OutputCollector<Text, IndexDoc> output, Reporter reporter)
       throws IOException {
-      IndexDoc highest = null;
+      boolean highestSet = false;
       while (values.hasNext()) {
         IndexDoc value = values.next();
         // skip already deleted
@@ -313,8 +314,9 @@ public class DeleteDuplicates extends Configured
           output.collect(value.url, value);
           continue;
         }
-        if (highest == null) {
-          highest = value;
+        if (!highestSet) {
+          WritableUtils.cloneInto(highest, value);
+          highestSet = true;
           continue;
         }
         IndexDoc toDelete = null, toKeep = null;
@@ -334,7 +336,7 @@ public class DeleteDuplicates extends Configured
         
         toDelete.keep = false;
         output.collect(toDelete.url, toDelete);
-        highest = toKeep;
+        WritableUtils.cloneInto(highest, toKeep);
       }    
       LOG.debug("-keep " + highest);
       // no need to add this - in phase 2 we only process docs to delete them
@@ -427,7 +429,7 @@ public class DeleteDuplicates extends Configured
       if (LOG.isInfoEnabled()) {
         LOG.info("Dedup: adding indexes in: " + indexDirs[i]);
       }
-      job.addInputPath(indexDirs[i]);
+      FileInputFormat.addInputPath(job, indexDirs[i]);
     }
     job.setJobName("dedup 1: urls by time");
 
@@ -436,7 +438,7 @@ public class DeleteDuplicates extends Configured
     job.setMapOutputValueClass(IndexDoc.class);
 
     job.setReducerClass(UrlsReducer.class);
-    job.setOutputPath(outDir1);
+    FileOutputFormat.setOutputPath(job, outDir1);
 
     job.setOutputKeyClass(MD5Hash.class);
     job.setOutputValueClass(IndexDoc.class);
@@ -450,7 +452,7 @@ public class DeleteDuplicates extends Configured
     job = new NutchJob(getConf());
     job.setJobName("dedup 2: content by hash");
 
-    job.addInputPath(outDir1);
+    FileInputFormat.addInputPath(job, outDir1);
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setMapOutputKeyClass(MD5Hash.class);
     job.setMapOutputValueClass(IndexDoc.class);
@@ -458,7 +460,7 @@ public class DeleteDuplicates extends Configured
     job.setSpeculativeExecution(false);
     
     job.setReducerClass(HashReducer.class);
-    job.setOutputPath(outDir2);
+    FileOutputFormat.setOutputPath(job, outDir2);
 
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(IndexDoc.class);
@@ -467,12 +469,12 @@ public class DeleteDuplicates extends Configured
     JobClient.runJob(job);
 
     // remove outDir1 - no longer needed
-    fs.delete(outDir1);
+    fs.delete(outDir1, true);
     
     job = new NutchJob(getConf());
     job.setJobName("dedup 3: delete from index(es)");
 
-    job.addInputPath(outDir2);
+    FileInputFormat.addInputPath(job, outDir2);
     job.setInputFormat(SequenceFileInputFormat.class);
     //job.setInputKeyClass(Text.class);
     //job.setInputValueClass(IndexDoc.class);
@@ -487,7 +489,7 @@ public class DeleteDuplicates extends Configured
 
     JobClient.runJob(job);
 
-    fs.delete(outDir2);
+    fs.delete(outDir2, true);
 
     if (LOG.isInfoEnabled()) { LOG.info("Dedup: done"); }
   }

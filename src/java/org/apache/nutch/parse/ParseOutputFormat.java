@@ -44,7 +44,7 @@ import java.util.Map.Entry;
 import org.apache.hadoop.util.Progressable;
 
 /* Parse content in a segment. */
-public class ParseOutputFormat implements OutputFormat {
+public class ParseOutputFormat implements OutputFormat<Text, Parse> {
   private static final Log LOG = LogFactory.getLog(ParseOutputFormat.class);
 
   private URLFilters filters;
@@ -75,11 +75,12 @@ public class ParseOutputFormat implements OutputFormat {
   }
 
   public void checkOutputSpecs(FileSystem fs, JobConf job) throws IOException {
-    if (fs.exists(new Path(job.getOutputPath(), CrawlDatum.PARSE_DIR_NAME)))
+    Path out = FileOutputFormat.getOutputPath(job);
+    if (fs.exists(new Path(out, CrawlDatum.PARSE_DIR_NAME)))
       throw new IOException("Segment already parsed!");
   }
 
-  public RecordWriter getRecordWriter(FileSystem fs, JobConf job,
+  public RecordWriter<Text, Parse> getRecordWriter(FileSystem fs, JobConf job,
                                       String name, Progressable progress) throws IOException {
 
     this.filters = new URLFilters(job);
@@ -90,14 +91,12 @@ public class ParseOutputFormat implements OutputFormat {
     int maxOutlinksPerPage = job.getInt("db.max.outlinks.per.page", 100);
     final int maxOutlinks = (maxOutlinksPerPage < 0) ? Integer.MAX_VALUE
                                                      : maxOutlinksPerPage;
-    final CompressionType compType = SequenceFile.getCompressionType(job);
+    final CompressionType compType = SequenceFileOutputFormat.getOutputCompressionType(job);
+    Path out = FileOutputFormat.getOutputPath(job);
     
-    Path text =
-      new Path(new Path(job.getOutputPath(), ParseText.DIR_NAME), name);
-    Path data =
-      new Path(new Path(job.getOutputPath(), ParseData.DIR_NAME), name);
-    Path crawl =
-      new Path(new Path(job.getOutputPath(), CrawlDatum.PARSE_DIR_NAME), name);
+    Path text = new Path(new Path(out, ParseText.DIR_NAME), name);
+    Path data = new Path(new Path(out, ParseData.DIR_NAME), name);
+    Path crawl = new Path(new Path(out, CrawlDatum.PARSE_DIR_NAME), name);
     
     final MapFile.Writer textOut =
       new MapFile.Writer(job, fs, text.toString(), Text.class, ParseText.class,
@@ -111,13 +110,12 @@ public class ParseOutputFormat implements OutputFormat {
       SequenceFile.createWriter(fs, job, crawl, Text.class, CrawlDatum.class,
           compType, progress);
     
-    return new RecordWriter() {
+    return new RecordWriter<Text, Parse>() {
 
 
-        public void write(WritableComparable key, Writable value)
+        public void write(Text key, Parse parse)
           throws IOException {
           
-          Parse parse = (Parse)value;
           String fromUrl = key.toString();
           String fromHost = null; 
           String toHost = null;          

@@ -95,7 +95,7 @@ public class TestLinkDbMerger extends TestCase {
   public void tearDown() {
     try {
       if (fs.exists(testDir))
-        fs.delete(testDir);
+        fs.delete(testDir, true);
     } catch (Exception e) { }
     try {
       reader.close();
@@ -136,7 +136,7 @@ public class TestLinkDbMerger extends TestCase {
       }
     }
     reader.close();
-    fs.delete(testDir);
+    fs.delete(testDir, true);
   }
   
   private void createLinkDb(Configuration config, FileSystem fs, Path linkdb, TreeMap init) throws Exception {

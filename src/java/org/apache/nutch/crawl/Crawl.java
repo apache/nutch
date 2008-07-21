@@ -131,19 +131,21 @@ public class Crawl {
       // Delete old indexes
       if (fs.exists(indexes)) {
         LOG.info("Deleting old indexes: " + indexes);
-        fs.delete(indexes);
+        fs.delete(indexes, true);
       }
 
       // Delete old index
       if (fs.exists(index)) {
         LOG.info("Deleting old merged index: " + index);
-        fs.delete(index);
+        fs.delete(index, true);
       }
 
       // index, dedup & merge
-      indexer.index(indexes, crawlDb, linkDb, fs.listPaths(segments, HadoopFSUtil.getPassAllFilter()));
+      FileStatus[] fstats = fs.listStatus(segments, HadoopFSUtil.getPassDirectoriesFilter(fs));
+      indexer.index(indexes, crawlDb, linkDb, HadoopFSUtil.getPaths(fstats));
       dedup.dedup(new Path[] { indexes });
-      merger.merge(fs.listPaths(indexes, HadoopFSUtil.getPassAllFilter()), index, tmpDir);
+      fstats = fs.listStatus(indexes, HadoopFSUtil.getPassDirectoriesFilter(fs));
+      merger.merge(HadoopFSUtil.getPaths(fstats), index, tmpDir);
     } else {
       LOG.warn("No URLs to fetch - check your seed list and URL filters.");
     }

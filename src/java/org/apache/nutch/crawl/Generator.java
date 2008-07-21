@@ -339,24 +339,25 @@ public class Generator extends Configured implements Tool {
         output.collect((Text)key, (CrawlDatum)value);
       }
     }
+    private CrawlDatum orig = new CrawlDatum();
+    private LongWritable genTime = new LongWritable(0L);
 
     public void reduce(Text key, Iterator<CrawlDatum> values, OutputCollector<Text, CrawlDatum> output, Reporter reporter) throws IOException {
-      CrawlDatum orig = null;
-      LongWritable genTime = null;
       while (values.hasNext()) {
         CrawlDatum val = values.next();
         if (val.getMetaData().containsKey(Nutch.WRITABLE_GENERATE_TIME_KEY)) {
-          genTime = (LongWritable)val.getMetaData().get(Nutch.WRITABLE_GENERATE_TIME_KEY);
+          LongWritable gt = (LongWritable)val.getMetaData().get(Nutch.WRITABLE_GENERATE_TIME_KEY);
+          genTime.set(gt.get());
           if (genTime.get() != generateTime) {
-            orig = val;
-            genTime = null;
+            orig.set(val);
+            genTime.set(0L);
             continue;
           }
         } else {
-          orig = val;
+          orig.set(val);
         }
       }
-      if (genTime != null) {
+      if (genTime.get() != 0L) {
         orig.getMetaData().put(Nutch.WRITABLE_GENERATE_TIME_KEY, genTime);
       }
       output.collect(key, orig);
@@ -440,14 +441,14 @@ public class Generator extends Configured implements Tool {
     job.setLong(CRAWL_TOP_N, topN);
     job.setBoolean(CRAWL_GENERATE_FILTER, filter);
 
-    job.setInputPath(new Path(dbDir, CrawlDb.CURRENT_NAME));
+    FileInputFormat.addInputPath(job, new Path(dbDir, CrawlDb.CURRENT_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
 
     job.setMapperClass(Selector.class);
     job.setPartitionerClass(Selector.class);
     job.setReducerClass(Selector.class);
 
-    job.setOutputPath(tempDir);
+    FileOutputFormat.setOutputPath(job, tempDir);
     job.setOutputFormat(SequenceFileOutputFormat.class);
     job.setOutputKeyClass(FloatWritable.class);
     job.setOutputKeyComparatorClass(DecreasingFloatComparator.class);
@@ -476,7 +477,7 @@ public class Generator extends Configured implements Tool {
     if (empty) {
       LOG.warn("Generator: 0 records selected for fetching, exiting ...");
       LockUtil.removeLockFile(fs, lock);
-      fs.delete(tempDir);
+      fs.delete(tempDir, true);
       return null;
     }
 
@@ -489,7 +490,7 @@ public class Generator extends Configured implements Tool {
     
     job.setInt("partition.url.by.host.seed", new Random().nextInt());
 
-    job.setInputPath(tempDir);
+    FileInputFormat.addInputPath(job, tempDir);
     job.setInputFormat(SequenceFileInputFormat.class);
 
     job.setMapperClass(SelectorInverseMapper.class);
@@ -499,7 +500,7 @@ public class Generator extends Configured implements Tool {
     job.setReducerClass(PartitionReducer.class);
     job.setNumReduceTasks(numLists);
 
-    job.setOutputPath(output);
+    FileOutputFormat.setOutputPath(job, output);
     job.setOutputFormat(SequenceFileOutputFormat.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);
@@ -508,7 +509,7 @@ public class Generator extends Configured implements Tool {
       JobClient.runJob(job);
     } catch (IOException e) {
       LockUtil.removeLockFile(fs, lock);
-      fs.delete(tempDir);
+      fs.delete(tempDir, true);
       throw e;
     }
     if (getConf().getBoolean(GENERATE_UPDATE_CRAWLDB, false)) {
@@ -520,28 +521,28 @@ public class Generator extends Configured implements Tool {
       job = new NutchJob(getConf());
       job.setJobName("generate: updatedb " + dbDir);
       job.setLong(Nutch.GENERATE_TIME_KEY, generateTime);
-      job.addInputPath(tempDir);
-      job.addInputPath(new Path(dbDir, CrawlDb.CURRENT_NAME));
+      FileInputFormat.addInputPath(job, tempDir);
+      FileInputFormat.addInputPath(job, new Path(dbDir, CrawlDb.CURRENT_NAME));
       job.setInputFormat(SequenceFileInputFormat.class);
       job.setMapperClass(CrawlDbUpdater.class);
       job.setReducerClass(CrawlDbUpdater.class);
       job.setOutputFormat(MapFileOutputFormat.class);
       job.setOutputKeyClass(Text.class);
       job.setOutputValueClass(CrawlDatum.class);
-      job.setOutputPath(tempDir2);
+      FileOutputFormat.setOutputPath(job, tempDir2);
       try {
         JobClient.runJob(job);
         CrawlDb.install(job, dbDir);
       } catch (IOException e) {
         LockUtil.removeLockFile(fs, lock);
-        fs.delete(tempDir);
-        fs.delete(tempDir2);
+        fs.delete(tempDir, true);
+        fs.delete(tempDir2, true);
         throw e;
       }
-      fs.delete(tempDir2);
+      fs.delete(tempDir2, true);
     }
     LockUtil.removeLockFile(fs, lock);
-    fs.delete(tempDir);
+    fs.delete(tempDir, true);
 
     if (LOG.isInfoEnabled()) { LOG.info("Generator: done."); }
 

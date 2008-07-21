@@ -25,16 +25,16 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 import org.apache.hadoop.io.MapFile;
-import org.apache.hadoop.io.SequenceFile;
-import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.SequenceFile.CompressionType;
 
+import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.OutputFormat;
 import org.apache.hadoop.mapred.RecordWriter;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 import org.apache.hadoop.util.Progressable;
 
 import org.apache.nutch.parse.Parse;
@@ -42,32 +42,34 @@ import org.apache.nutch.parse.ParseOutputFormat;
 import org.apache.nutch.protocol.Content;
 
 /** Splits FetcherOutput entries into multiple map files. */
-public class FetcherOutputFormat implements OutputFormat {
+public class FetcherOutputFormat implements OutputFormat<Text, NutchWritable> {
 
   public void checkOutputSpecs(FileSystem fs, JobConf job) throws IOException {
-    if (fs.exists(new Path(job.getOutputPath(), CrawlDatum.FETCH_DIR_NAME)))
+    Path out = FileOutputFormat.getOutputPath(job);
+    if (fs.exists(new Path(out, CrawlDatum.FETCH_DIR_NAME)))
       throw new IOException("Segment already fetched!");
   }
 
-  public RecordWriter getRecordWriter(final FileSystem fs,
+  public RecordWriter<Text, NutchWritable> getRecordWriter(final FileSystem fs,
                                       final JobConf job,
                                       final String name,
                                       final Progressable progress) throws IOException {
 
+    Path out = FileOutputFormat.getOutputPath(job);
     final Path fetch =
-      new Path(new Path(job.getOutputPath(), CrawlDatum.FETCH_DIR_NAME), name);
+      new Path(new Path(out, CrawlDatum.FETCH_DIR_NAME), name);
     final Path content =
-      new Path(new Path(job.getOutputPath(), Content.DIR_NAME), name);
+      new Path(new Path(out, Content.DIR_NAME), name);
     
-    final CompressionType compType = SequenceFile.getCompressionType(job);
+    final CompressionType compType = SequenceFileOutputFormat.getOutputCompressionType(job);
 
     final MapFile.Writer fetchOut =
       new MapFile.Writer(job, fs, fetch.toString(), Text.class, CrawlDatum.class,
           compType, progress);
     
-    return new RecordWriter() {
+    return new RecordWriter<Text, NutchWritable>() {
         private MapFile.Writer contentOut;
-        private RecordWriter parseOut;
+        private RecordWriter<Text, Parse> parseOut;
 
         {
           if (Fetcher.isStoringContent(job)) {
@@ -81,17 +83,17 @@ public class FetcherOutputFormat implements OutputFormat {
           }
         }
 
-        public void write(WritableComparable key, Writable value)
+        public void write(Text key, NutchWritable value)
           throws IOException {
 
-          Writable w = ((NutchWritable)value).get();
+          Writable w = value.get();
           
           if (w instanceof CrawlDatum)
             fetchOut.append(key, w);
           else if (w instanceof Content)
             contentOut.append(key, w);
           else if (w instanceof Parse)
-            parseOut.write(key, w);
+            parseOut.write(key, (Parse)w);
         }
 
         public void close(Reporter reporter) throws IOException {

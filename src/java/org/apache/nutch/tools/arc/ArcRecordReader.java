@@ -28,8 +28,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapred.FileSplit;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.util.ReflectionUtils;
@@ -50,7 +48,7 @@ import org.apache.hadoop.util.StringUtils;
  * @see http://www.grub.org/
  */
 public class ArcRecordReader
-  implements RecordReader {
+  implements RecordReader<Text, BytesWritable> {
 
   public static final Log LOG = LogFactory.getLog(ArcRecordReader.class);
 
@@ -123,15 +121,15 @@ public class ArcRecordReader
   /**
    * Creates a new instance of the <code>Text</code> object for the key.
    */
-  public WritableComparable createKey() {
-    return (WritableComparable)ReflectionUtils.newInstance(Text.class, conf);
+  public Text createKey() {
+    return (Text)ReflectionUtils.newInstance(Text.class, conf);
   }
 
   /**
    * Creates a new instance of the <code>BytesWritable</code> object for the key
    */
-  public Writable createValue() {
-    return (Writable)ReflectionUtils.newInstance(BytesWritable.class, conf);
+  public BytesWritable createValue() {
+    return (BytesWritable)ReflectionUtils.newInstance(BytesWritable.class, conf);
   }
 
   /**
@@ -175,7 +173,7 @@ public class ArcRecordReader
    * 
    * @throws IOException If an error occurs while reading the record value.
    */
-  public boolean next(WritableComparable key, Writable value)
+  public boolean next(Text key, BytesWritable value)
     throws IOException {
 
     try {

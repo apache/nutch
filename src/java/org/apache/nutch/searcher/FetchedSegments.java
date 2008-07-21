@@ -27,6 +27,7 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.nutch.protocol.*;
 import org.apache.nutch.parse.*;
+import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.mapred.lib.*;
@@ -116,7 +117,9 @@ public class FetchedSegments implements HitSummarizer, HitContent {
 
   /** Construct given a directory containing fetcher output. */
   public FetchedSegments(FileSystem fs, String segmentsDir, Configuration conf) throws IOException {
-    Path[] segmentDirs = fs.listPaths(new Path(segmentsDir));
+    FileStatus[] fstats = fs.listStatus(new Path(segmentsDir), 
+        HadoopFSUtil.getPassDirectoriesFilter(fs));
+    Path[] segmentDirs = HadoopFSUtil.getPaths(fstats);
     this.summarizer = new SummarizerFactory(conf).getSummarizer();
 
     if (segmentDirs != null) {

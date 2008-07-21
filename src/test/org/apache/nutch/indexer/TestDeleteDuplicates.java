@@ -110,7 +110,7 @@ public class TestDeleteDuplicates extends TestCase {
   }
   
   public void tearDown() throws Exception {
-    fs.delete(root);
+    fs.delete(root, true);
   }
 
   private void hashDuplicatesHelper(Path index, String url) throws Exception {

@@ -63,7 +63,7 @@ public class IndexMerger extends Configured implements Tool {
 
     FileSystem localFs = FileSystem.getLocal(getConf());  
     if (localFs.exists(localWorkingDir)) {
-      localFs.delete(localWorkingDir);
+      localFs.delete(localWorkingDir, true);
     }
     localFs.mkdirs(localWorkingDir);
 
@@ -135,7 +135,8 @@ public class IndexMerger extends Configured implements Tool {
     Path outputIndex = new Path(args[i++]);
 
     for (; i < args.length; i++) {
-      indexDirs.addAll(Arrays.asList(fs.listPaths(new Path(args[i]), HadoopFSUtil.getPassAllFilter())));
+      FileStatus[] fstats = fs.listStatus(new Path(args[i]), HadoopFSUtil.getPassDirectoriesFilter(fs));
+      indexDirs.addAll(Arrays.asList(HadoopFSUtil.getPaths(fstats)));
     }
 
     //
@@ -151,7 +152,7 @@ public class IndexMerger extends Configured implements Tool {
       LOG.fatal("IndexMerger: " + StringUtils.stringifyException(e));
       return -1;
     } finally {
-      FileSystem.getLocal(getConf()).delete(workDir);
+      FileSystem.getLocal(getConf()).delete(workDir, true);
     }
   }
 }

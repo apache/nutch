@@ -54,15 +54,17 @@ public class FsDirectory extends Directory {
       throw new IOException(directory + " not a directory");
 
     // clear old files
-    Path[] files = fs.listPaths(directory, HadoopFSUtil.getPassAllFilter());
+    FileStatus[] fstats = fs.listStatus(directory, HadoopFSUtil.getPassAllFilter());
+    Path[] files = HadoopFSUtil.getPaths(fstats);
     for (int i = 0; i < files.length; i++) {
-      if (!fs.delete(files[i]))
+      if (!fs.delete(files[i], false))
         throw new IOException("Cannot delete " + files[i]);
     }
   }
 
   public String[] list() throws IOException {
-    Path[] files = fs.listPaths(directory, HadoopFSUtil.getPassAllFilter());
+    FileStatus[] fstats = fs.listStatus(directory, HadoopFSUtil.getPassAllFilter());
+    Path[] files = HadoopFSUtil.getPaths(fstats);
     if (files == null) return null;
 
     String[] result = new String[files.length];
@@ -89,7 +91,7 @@ public class FsDirectory extends Directory {
   }
 
   public void deleteFile(String name) throws IOException {
-    if (!fs.delete(new Path(directory, name)))
+    if (!fs.delete(new Path(directory, name), false))
       throw new IOException("Cannot delete " + name);
   }
 
@@ -98,14 +100,14 @@ public class FsDirectory extends Directory {
     // so we explicitly delete the target first.
     Path target = new Path(directory, to);
     if (fs.exists(target)) {
-      fs.delete(target);
+      fs.delete(target, false);
     }
     fs.rename(new Path(directory, from), target);
   }
 
   public IndexOutput createOutput(String name) throws IOException {
     Path file = new Path(directory, name);
-    if (fs.exists(file) && !fs.delete(file))      // delete existing, if any
+    if (fs.exists(file) && !fs.delete(file, false))      // delete existing, if any
       throw new IOException("Cannot overwrite: " + file);
 
     return new DfsIndexOutput(file, this.ioFileBufferSize);

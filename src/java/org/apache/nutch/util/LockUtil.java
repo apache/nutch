@@ -65,6 +65,6 @@ public class LockUtil {
     if (!fs.exists(lockFile)) return false;
     if (fs.getFileStatus(lockFile).isDir())
       throw new IOException("lock file " + lockFile + " exists but is a directory!");
-    return fs.delete(lockFile);
+    return fs.delete(lockFile, false);
   }
 }

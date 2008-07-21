@@ -104,7 +104,7 @@ public final class ParserFactory {
   throws ParserNotFound {
     
     List<Parser> parsers = null;
-    List parserExts = null;
+    List<Extension> parserExts = null;
     
     ObjectCache objectCache = ObjectCache.get(conf);
     

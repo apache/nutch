@@ -62,7 +62,8 @@ public class Fetcher extends Configured implements Tool, MapRunnable<WritableCom
       FileSystem fs = FileSystem.get(job);
       InputSplit[] splits = new InputSplit[files.length];
       for (int i = 0; i < files.length; i++) {
-        splits[i] = new FileSplit(files[i], 0, fs.getFileStatus(files[i]).getLen(), job);
+        splits[i] = new FileSplit(files[i], 0,
+            fs.getFileStatus(files[i]).getLen(), (String[])null);
       }
       return splits;
     }
@@ -519,12 +520,12 @@ public class Fetcher extends Configured implements Tool, MapRunnable<WritableCom
     // for politeness, don't permit parallel execution of a single task
     job.setSpeculativeExecution(false);
 
-    job.setInputPath(new Path(segment, CrawlDatum.GENERATE_DIR_NAME));
+    FileInputFormat.addInputPath(job, new Path(segment, CrawlDatum.GENERATE_DIR_NAME));
     job.setInputFormat(InputFormat.class);
 
     job.setMapRunnerClass(Fetcher.class);
 
-    job.setOutputPath(segment);
+    FileOutputFormat.setOutputPath(job, segment);
     job.setOutputFormat(FetcherOutputFormat.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(NutchWritable.class);

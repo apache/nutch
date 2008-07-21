@@ -139,6 +139,6 @@ public class TestDistributedSearch
       server2.stop();
     }
     
-    fs.delete(testServersPath);    
+    fs.delete(testServersPath, true);    
   }
 }

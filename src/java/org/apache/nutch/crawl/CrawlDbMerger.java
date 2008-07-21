@@ -53,7 +53,8 @@ public class CrawlDbMerger extends Configured implements Tool {
   private static final Log LOG = LogFactory.getLog(CrawlDbMerger.class);
 
   public static class Merger extends MapReduceBase implements Reducer<Text, CrawlDatum, Text, CrawlDatum> {
-    MapWritable meta = new MapWritable();
+    private MapWritable meta = new MapWritable();
+    private CrawlDatum res = new CrawlDatum();
     private FetchSchedule schedule;
 
     public void close() throws IOException {}
@@ -64,13 +65,14 @@ public class CrawlDbMerger extends Configured implements Tool {
 
     public void reduce(Text key, Iterator<CrawlDatum> values, OutputCollector<Text, CrawlDatum> output, Reporter reporter)
             throws IOException {
-      CrawlDatum res = null;
       long resTime = 0L;
+      boolean resSet = false;
       meta.clear();
       while (values.hasNext()) {
         CrawlDatum val = values.next();
-        if (res == null) {
-          res = val;
+        if (!resSet) {
+          res.set(val);
+          resSet = true;
           resTime = schedule.calculateLastFetchTime(res);
           meta.putAll(res.getMetaData());
           continue;
@@ -80,7 +82,7 @@ public class CrawlDbMerger extends Configured implements Tool {
         if (valTime > resTime) {
           // collect all metadata, newer values override older values
           meta.putAll(val.getMetaData());
-          res = val;
+          res.set(val);
           resTime = valTime ;
         } else {
           // insert older metadata before newer
@@ -104,12 +106,12 @@ public class CrawlDbMerger extends Configured implements Tool {
   public void merge(Path output, Path[] dbs, boolean normalize, boolean filter) throws Exception {
     JobConf job = createMergeJob(getConf(), output, normalize, filter);
     for (int i = 0; i < dbs.length; i++) {
-      job.addInputPath(new Path(dbs[i], CrawlDb.CURRENT_NAME));
+      FileInputFormat.addInputPath(job, new Path(dbs[i], CrawlDb.CURRENT_NAME));
     }
     JobClient.runJob(job);
     FileSystem fs = FileSystem.get(getConf());
     fs.mkdirs(output);
-    fs.rename(job.getOutputPath(), new Path(output, CrawlDb.CURRENT_NAME));
+    fs.rename(FileOutputFormat.getOutputPath(job), new Path(output, CrawlDb.CURRENT_NAME));
   }
 
   public static JobConf createMergeJob(Configuration conf, Path output, boolean normalize, boolean filter) {
@@ -125,7 +127,7 @@ public class CrawlDbMerger extends Configured implements Tool {
     job.setBoolean(CrawlDbFilter.URL_NORMALIZING, normalize);
     job.setReducerClass(Merger.class);
 
-    job.setOutputPath(newCrawlDb);
+    FileOutputFormat.setOutputPath(job, newCrawlDb);
     job.setOutputFormat(MapFileOutputFormat.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);

@@ -27,6 +27,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
@@ -36,6 +37,8 @@ import org.apache.hadoop.io.UTF8;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.SequenceFile.CompressionType;
+import org.apache.hadoop.mapred.FileInputFormat;
+import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.FileSplit;
 import org.apache.hadoop.mapred.InputSplit;
 import org.apache.hadoop.mapred.JobClient;
@@ -48,6 +51,7 @@ import org.apache.hadoop.mapred.RecordWriter;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
+import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 import org.apache.hadoop.mapred.SequenceFileRecordReader;
 import org.apache.hadoop.util.Progressable;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -110,7 +114,9 @@ import org.apache.nutch.util.NutchJob;
  * 
  * @author Andrzej Bialecki
  */
-public class SegmentMerger extends Configured implements Mapper, Reducer {
+public class SegmentMerger extends Configured implements
+    Mapper<Text, MetaWrapper, Text, MetaWrapper>,
+    Reducer<Text, MetaWrapper, Text, MetaWrapper> {
   private static final Log LOG = LogFactory.getLog(SegmentMerger.class);
 
   private static final String SEGMENT_PART_KEY = "part";
@@ -125,10 +131,11 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
    * Wraps inputs in an {@link MetaWrapper}, to permit merging different
    * types in reduce and use additional metadata.
    */
-  public static class ObjectInputFormat extends SequenceFileInputFormat {
+  public static class ObjectInputFormat extends
+    SequenceFileInputFormat<Text, MetaWrapper> {
     
     @Override
-    public RecordReader getRecordReader(InputSplit split,
+    public RecordReader<Text, MetaWrapper> getRecordReader(InputSplit split,
         JobConf job, Reporter reporter) {
 
       reporter.setStatus(split.toString());
@@ -174,12 +181,12 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
     }
   }
 
-  public static class SegmentOutputFormat extends OutputFormatBase {
+  public static class SegmentOutputFormat extends FileOutputFormat<Text, MetaWrapper> {
     private static final String DEFAULT_SLICE = "default";
     
     @Override
-    public RecordWriter getRecordWriter(final FileSystem fs, final JobConf job, final String name, final Progressable progress) throws IOException {
-      return new RecordWriter() {
+    public RecordWriter<Text, MetaWrapper> getRecordWriter(final FileSystem fs, final JobConf job, final String name, final Progressable progress) throws IOException {
+      return new RecordWriter<Text, MetaWrapper>() {
         MapFile.Writer c_out = null;
         MapFile.Writer f_out = null;
         MapFile.Writer pd_out = null;
@@ -189,9 +196,8 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
         HashMap sliceWriters = new HashMap();
         String segmentName = job.get("segment.merger.segmentName");
         
-        public void write(WritableComparable key, Writable value) throws IOException {
+        public void write(Text key, MetaWrapper wrapper) throws IOException {
           // unwrap
-          MetaWrapper wrapper = (MetaWrapper)value;
           SegmentPart sp = SegmentPart.parse(wrapper.getMeta(SEGMENT_PART_KEY));
           Writable o = (Writable)wrapper.get();
           String slice = wrapper.getMeta(SEGMENT_SLICE_KEY);
@@ -232,14 +238,15 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
           SequenceFile.Writer res = (SequenceFile.Writer)sliceWriters.get(slice + dirName);
           if (res != null) return res;
           Path wname;
+          Path out = FileOutputFormat.getOutputPath(job);
           if (slice == DEFAULT_SLICE) {
-            wname = new Path(new Path(new Path(job.getOutputPath(), segmentName), dirName), name);
+            wname = new Path(new Path(new Path(out, segmentName), dirName), name);
           } else {
-            wname = new Path(new Path(new Path(job.getOutputPath(), segmentName + "-" + slice), dirName), name);
+            wname = new Path(new Path(new Path(out, segmentName + "-" + slice), dirName), name);
           }
           res = SequenceFile.createWriter(fs, job, wname, Text.class, 
-                                          CrawlDatum.class, 
-                                          SequenceFile.getCompressionType(job), progress);
+              CrawlDatum.class,
+              SequenceFileOutputFormat.getOutputCompressionType(job), progress);
           sliceWriters.put(slice + dirName, res);
           return res;
         }
@@ -250,12 +257,14 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
           MapFile.Writer res = (MapFile.Writer)sliceWriters.get(slice + dirName);
           if (res != null) return res;
           Path wname;
+          Path out = FileOutputFormat.getOutputPath(job);
           if (slice == DEFAULT_SLICE) {
-            wname = new Path(new Path(new Path(job.getOutputPath(), segmentName), dirName), name);
+            wname = new Path(new Path(new Path(out, segmentName), dirName), name);
           } else {
-            wname = new Path(new Path(new Path(job.getOutputPath(), segmentName + "-" + slice), dirName), name);
+            wname = new Path(new Path(new Path(out, segmentName + "-" + slice), dirName), name);
           }
-          CompressionType compType = SequenceFile.getCompressionType(job);
+          CompressionType compType = 
+              SequenceFileOutputFormat.getOutputCompressionType(job);
           if (clazz.isAssignableFrom(ParseText.class)) {
             compType = CompressionType.RECORD;
           }
@@ -312,7 +321,8 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
   
   private Text newKey = new Text();
   
-  public void map(WritableComparable key, Writable value, OutputCollector output, Reporter reporter) throws IOException {
+  public void map(Text key, MetaWrapper value,
+      OutputCollector<Text, MetaWrapper> output, Reporter reporter) throws IOException {
     String url = key.toString();
     if (normalizers != null) {
       try {
@@ -342,7 +352,8 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
    * important that segments be named in an increasing lexicographic order as
    * their creation time increases.
    */
-  public void reduce(WritableComparable key, Iterator values, OutputCollector output, Reporter reporter) throws IOException {
+  public void reduce(Text key, Iterator<MetaWrapper> values,
+      OutputCollector<Text, MetaWrapper> output, Reporter reporter) throws IOException {
     CrawlDatum lastG = null;
     CrawlDatum lastF = null;
     CrawlDatum lastSig = null;
@@ -358,7 +369,7 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
     TreeMap<String, ArrayList<CrawlDatum>> linked =
       new TreeMap<String, ArrayList<CrawlDatum>>();
     while (values.hasNext()) {
-      MetaWrapper wrapper = (MetaWrapper)values.next();
+      MetaWrapper wrapper = values.next();
       Object o = wrapper.get();
       String spString = wrapper.getMeta(SEGMENT_PART_KEY);
       if (spString == null) {
@@ -568,33 +579,33 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
       if (segs[i] == null) continue;
       if (g) {
         Path gDir = new Path(segs[i], CrawlDatum.GENERATE_DIR_NAME);
-        job.addInputPath(gDir);
+        FileInputFormat.addInputPath(job, gDir);
       }
       if (c) {
         Path cDir = new Path(segs[i], Content.DIR_NAME);
-        job.addInputPath(cDir);
+        FileInputFormat.addInputPath(job, cDir);
       }
       if (f) {
         Path fDir = new Path(segs[i], CrawlDatum.FETCH_DIR_NAME);
-        job.addInputPath(fDir);
+        FileInputFormat.addInputPath(job, fDir);
       }
       if (p) {
         Path pDir = new Path(segs[i], CrawlDatum.PARSE_DIR_NAME);
-        job.addInputPath(pDir);
+        FileInputFormat.addInputPath(job, pDir);
       }
       if (pd) {
         Path pdDir = new Path(segs[i], ParseData.DIR_NAME);
-        job.addInputPath(pdDir);
+        FileInputFormat.addInputPath(job, pdDir);
       }
       if (pt) {
         Path ptDir = new Path(segs[i], ParseText.DIR_NAME);
-        job.addInputPath(ptDir);
+        FileInputFormat.addInputPath(job, ptDir);
       }
     }
     job.setInputFormat(ObjectInputFormat.class);
     job.setMapperClass(SegmentMerger.class);
     job.setReducerClass(SegmentMerger.class);
-    job.setOutputPath(out);
+    FileOutputFormat.setOutputPath(job, out);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(MetaWrapper.class);
     job.setOutputFormat(SegmentOutputFormat.class);
@@ -626,7 +637,9 @@ public class SegmentMerger extends Configured implements Mapper, Reducer {
     boolean normalize = false;
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-dir")) {
-        Path[] files = fs.listPaths(new Path(args[++i]), HadoopFSUtil.getPassDirectoriesFilter(fs));
+        FileStatus[] fstats = fs.listStatus(new Path(args[++i]),
+            HadoopFSUtil.getPassDirectoriesFilter(fs));
+        Path[] files = HadoopFSUtil.getPaths(fstats);
         for (int j = 0; j < files.length; j++)
           segs.add(files[j]);
       } else if (args[i].equals("-filter")) {
