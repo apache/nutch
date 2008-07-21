@@ -122,7 +122,9 @@ public class NutchBean
       }
       
       Vector vDirs=new Vector();
-      Path [] directories = fs.listPaths(indexesDir, HadoopFSUtil.getPassDirectoriesFilter(fs));
+      FileStatus[] fstats = fs.listStatus(indexesDir,
+          HadoopFSUtil.getPassDirectoriesFilter(fs));
+      Path [] directories = HadoopFSUtil.getPaths(fstats);
       for(int i = 0; i < directories.length; i++) {
         Path indexdone = new Path(directories[i], Indexer.DONE_NAME);
         if(fs.isFile(indexdone)) {

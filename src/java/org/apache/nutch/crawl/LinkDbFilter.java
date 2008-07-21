@@ -23,8 +23,6 @@ import java.util.Iterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
@@ -38,7 +36,7 @@ import org.apache.nutch.net.URLNormalizers;
  * 
  * @author Andrzej Bialecki
  */
-public class LinkDbFilter implements Mapper {
+public class LinkDbFilter implements Mapper<Text, Inlinks, Text, Inlinks> {
   public static final String URL_FILTERING = "linkdb.url.filters";
 
   public static final String URL_NORMALIZING = "linkdb.url.normalizer";
@@ -73,7 +71,8 @@ public class LinkDbFilter implements Mapper {
 
   public void close() {}
 
-  public void map(WritableComparable key, Writable value, OutputCollector output, Reporter reporter) throws IOException {
+  public void map(Text key, Inlinks value,
+      OutputCollector<Text, Inlinks> output, Reporter reporter) throws IOException {
     String url = key.toString();
     Inlinks result = new Inlinks();
     if (normalize) {
@@ -93,8 +92,7 @@ public class LinkDbFilter implements Mapper {
       }
     }
     if (url == null) return; // didn't pass the filters
-    Inlinks inlinks = (Inlinks)value;
-    Iterator<Inlink> it = inlinks.iterator();
+    Iterator<Inlink> it = value.iterator();
     String fromUrl = null;
     while (it.hasNext()) {
       Inlink inlink = it.next();

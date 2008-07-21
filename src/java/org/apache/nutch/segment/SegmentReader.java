@@ -38,6 +38,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
@@ -46,6 +47,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.UTF8;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MapFileOutputFormat;
@@ -69,7 +71,8 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
 /** Dump the content of a segment. */
-public class SegmentReader extends Configured implements Reducer {
+public class SegmentReader extends Configured implements
+    Reducer<Text, NutchWritable, Text, Text> {
 
   public static final Log LOG = LogFactory.getLog(SegmentReader.class);
 
@@ -78,31 +81,36 @@ public class SegmentReader extends Configured implements Reducer {
   private boolean co, fe, ge, pa, pd, pt;
   private FileSystem fs;
 
-  public static class InputCompatMapper extends MapReduceBase implements Mapper {
+  public static class InputCompatMapper extends MapReduceBase implements
+      Mapper<WritableComparable, Writable, Text, NutchWritable> {
     private Text newKey = new Text();
 
-    public void map(WritableComparable key, Writable value, OutputCollector collector, Reporter reporter) throws IOException {
+    public void map(WritableComparable key, Writable value,
+        OutputCollector<Text, NutchWritable> collector, Reporter reporter) throws IOException {
       // convert on the fly from old formats with UTF8 keys
       if (key instanceof UTF8) {
         newKey.set(key.toString());
         key = newKey;
       }
-      collector.collect(key, new NutchWritable(value));
+      collector.collect((Text)key, new NutchWritable(value));
     }
     
   }
 
   /** Implements a text output format */
-  public static class TextOutputFormat extends org.apache.hadoop.mapred.OutputFormatBase {
-    public RecordWriter getRecordWriter(final FileSystem fs, JobConf job, String name, final Progressable progress) throws IOException {
+  public static class TextOutputFormat extends
+      FileOutputFormat<WritableComparable, Writable> {
+    public RecordWriter<WritableComparable, Writable> getRecordWriter(
+        final FileSystem fs, JobConf job,
+        String name, final Progressable progress) throws IOException {
 
-      final Path segmentDumpFile = new Path(job.getOutputPath(), name);
+      final Path segmentDumpFile = new Path(FileOutputFormat.getOutputPath(job), name);
 
       // Get the old copy out of the way
-      if (fs.exists(segmentDumpFile)) fs.delete(segmentDumpFile);
+      if (fs.exists(segmentDumpFile)) fs.delete(segmentDumpFile, true);
 
       final PrintStream printStream = new PrintStream(fs.create(segmentDumpFile));
-      return new RecordWriter() {
+      return new RecordWriter<WritableComparable, Writable>() {
         public synchronized void write(WritableComparable key, Writable value) throws IOException {
           printStream.println(value);
         }
@@ -162,14 +170,15 @@ public class SegmentReader extends Configured implements Reducer {
   
   public void close() {}
 
-  public void reduce(WritableComparable key, Iterator values, OutputCollector output, Reporter reporter)
+  public void reduce(Text key, Iterator<NutchWritable> values,
+      OutputCollector<Text, Text> output, Reporter reporter)
           throws IOException {
     StringBuffer dump = new StringBuffer();
 
     dump.append("\nRecno:: ").append(recNo++).append("\n");
     dump.append("URL:: " + key.toString() + "\n");
     while (values.hasNext()) {
-      Writable value = ((NutchWritable) values.next()).get(); // unwrap
+      Writable value = values.next().get(); // unwrap
       if (value instanceof CrawlDatum) {
         dump.append("\nCrawlDatum::\n").append(((CrawlDatum) value).toString());
       } else if (value instanceof Content) {
@@ -219,8 +228,9 @@ public class SegmentReader extends Configured implements Reducer {
     Path dumpFile = new Path(output, job.get("segment.dump.dir", "dump"));
 
     // remove the old file
-    fs.delete(dumpFile);
-    Path[] files = fs.listPaths(tempDir, HadoopFSUtil.getPassAllFilter());
+    fs.delete(dumpFile, true);
+    FileStatus[] fstats = fs.listStatus(tempDir, HadoopFSUtil.getPassAllFilter());
+    Path[] files = HadoopFSUtil.getPaths(fstats);
 
     PrintWriter writer = null;
     int currentRecordNumber = 0;
@@ -559,7 +569,8 @@ public class SegmentReader extends Configured implements Reducer {
           if (args[i] == null) continue;
           if (args[i].equals("-dir")) {
             Path dir = new Path(args[++i]);
-            Path[] files = fs.listPaths(dir, HadoopFSUtil.getPassDirectoriesFilter(fs));
+            FileStatus[] fstats = fs.listStatus(dir, HadoopFSUtil.getPassDirectoriesFilter(fs));
+            Path[] files = HadoopFSUtil.getPaths(fstats);
             if (files != null && files.length > 0) {
               dirs.addAll(Arrays.asList(files));
             }

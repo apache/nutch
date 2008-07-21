@@ -28,6 +28,8 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.mapred.FileInputFormat;
+import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MapReduceBase;
@@ -158,7 +160,7 @@ public class FreeGenerator extends Configured implements Tool {
     JobConf job = new NutchJob(getConf());
     job.setBoolean(FILTER_KEY, filter);
     job.setBoolean(NORMALIZE_KEY, normalize);
-    job.addInputPath(new Path(args[0]));
+    FileInputFormat.addInputPath(job, new Path(args[0]));
     job.setInputFormat(TextInputFormat.class);
     job.setMapperClass(FG.class);
     job.setMapOutputKeyClass(Text.class);
@@ -171,7 +173,8 @@ public class FreeGenerator extends Configured implements Tool {
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);
     job.setOutputKeyComparatorClass(Generator.HashComparator.class);
-    job.setOutputPath(new Path(args[1], new Path(segName, CrawlDatum.GENERATE_DIR_NAME)));
+    FileOutputFormat.setOutputPath(job, new Path(args[1],
+        new Path(segName, CrawlDatum.GENERATE_DIR_NAME)));
     try {
       JobClient.runJob(job);
       return 0;

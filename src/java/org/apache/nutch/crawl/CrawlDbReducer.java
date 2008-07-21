@@ -32,7 +32,7 @@ import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 
 /** Merge new page entries with existing entries. */
-public class CrawlDbReducer implements Reducer {
+public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatum> {
   public static final Log LOG = LogFactory.getLog(CrawlDbReducer.class);
   
   private int retryMax;
@@ -42,6 +42,8 @@ public class CrawlDbReducer implements Reducer {
   private boolean additionsAllowed;
   private int maxInterval;
   private FetchSchedule schedule;
+  private CrawlDatum fetch = new CrawlDatum();
+  private CrawlDatum old = new CrawlDatum();
 
   public void configure(JobConf job) {
     retryMax = job.getInt("db.fetch.retry.max", 3);
@@ -55,40 +57,44 @@ public class CrawlDbReducer implements Reducer {
 
   public void close() {}
 
-  public void reduce(WritableComparable key, Iterator values,
-                     OutputCollector output, Reporter reporter)
+  public void reduce(Text key, Iterator<CrawlDatum> values,
+                     OutputCollector<Text, CrawlDatum> output, Reporter reporter)
     throws IOException {
 
-    CrawlDatum fetch = null;
-    CrawlDatum old = null;
+    boolean fetchSet = false;
+    boolean oldSet = false;
     byte[] signature = null;
     linked.clear();
 
     while (values.hasNext()) {
       CrawlDatum datum = (CrawlDatum)values.next();
       if (CrawlDatum.hasDbStatus(datum)) {
-        if (old == null) {
-          old = datum;
+        if (!oldSet) {
+          old.set(datum);
+          oldSet = true;
         } else {
           // always take the latest version
-          if (old.getFetchTime() < datum.getFetchTime()) old = datum;
+          if (old.getFetchTime() < datum.getFetchTime()) old.set(datum);
         }
         continue;
       }
 
       if (CrawlDatum.hasFetchStatus(datum)) {
-        if (fetch == null) {
-          fetch = datum;
+        if (!fetchSet) {
+          fetch.set(datum);
+          fetchSet = true;
         } else {
           // always take the latest version
-          if (fetch.getFetchTime() < datum.getFetchTime()) fetch = datum;
+          if (fetch.getFetchTime() < datum.getFetchTime()) fetch.set(datum);
         }
         continue;
       }
 
       switch (datum.getStatus()) {                // collect other info
       case CrawlDatum.STATUS_LINKED:
-        linked.add(datum);
+        CrawlDatum link = new CrawlDatum();
+        link.set(datum);
+        linked.add(link);
         break;
       case CrawlDatum.STATUS_SIGNATURE:
         signature = datum.getSignature();
@@ -99,16 +105,17 @@ public class CrawlDbReducer implements Reducer {
     }
 
     // if it doesn't already exist, skip it
-    if (old == null && !additionsAllowed) return;
+    if (!oldSet && !additionsAllowed) return;
     
     // if there is no fetched datum, perhaps there is a link
-    if (fetch == null && linked.size() > 0) {
+    if (!fetchSet && linked.size() > 0) {
       fetch = linked.get(0);
+      fetchSet = true;
     }
     
     // still no new data - record only unchanged old data, if exists, and return
-    if (fetch == null) {
-      if (old != null) // at this point at least "old" should be present
+    if (!fetchSet) {
+      if (oldSet) // at this point at least "old" should be present
         output.collect(key, old);
       else
         LOG.warn("Missing fetch and old value, signature=" + signature);
@@ -116,12 +123,12 @@ public class CrawlDbReducer implements Reducer {
     }
     
     if (signature == null) signature = fetch.getSignature();
-    long prevModifiedTime = old != null ? old.getModifiedTime() : 0L;
-    long prevFetchTime = old != null ? old.getFetchTime() : 0L;
+    long prevModifiedTime = oldSet ? old.getModifiedTime() : 0L;
+    long prevFetchTime = oldSet ? old.getFetchTime() : 0L;
 
     // initialize with the latest version, be it fetch or link
     result.set(fetch);
-    if (old != null) {
+    if (oldSet) {
       // copy metadata from old, if exists
       if (old.getMetaData().size() > 0) {
         result.getMetaData().putAll(old.getMetaData());
@@ -138,7 +145,7 @@ public class CrawlDbReducer implements Reducer {
     switch (fetch.getStatus()) {                // determine new status
 
     case CrawlDatum.STATUS_LINKED:                // it was link
-      if (old != null) {                          // if old exists
+      if (oldSet) {                          // if old exists
         result.set(old);                          // use it
       } else {
         result = schedule.initializeSchedule((Text)key, result);
@@ -164,7 +171,7 @@ public class CrawlDbReducer implements Reducer {
       if (fetch.getStatus() == CrawlDatum.STATUS_FETCH_NOTMODIFIED) {
         modified = FetchSchedule.STATUS_NOTMODIFIED;
       } else {
-        if (old != null && old.getSignature() != null && signature != null) {
+        if (oldSet && old.getSignature() != null && signature != null) {
           if (SignatureComparator._compare(old.getSignature(), signature) != 0) {
             modified = FetchSchedule.STATUS_MODIFIED;
           } else {
@@ -178,7 +185,7 @@ public class CrawlDbReducer implements Reducer {
       // set the result status and signature
       if (modified == FetchSchedule.STATUS_NOTMODIFIED) {
         result.setStatus(CrawlDatum.STATUS_DB_NOTMODIFIED);
-        if (old != null) result.setSignature(old.getSignature());
+        if (oldSet) result.setSignature(old.getSignature());
       } else {
         switch (fetch.getStatus()) {
         case CrawlDatum.STATUS_FETCH_SUCCESS:
@@ -192,7 +199,7 @@ public class CrawlDbReducer implements Reducer {
           break;
         default:
           LOG.warn("Unexpected status: " + fetch.getStatus() + " resetting to old status.");
-          if (old != null) result.setStatus(old.getStatus());
+          if (oldSet) result.setStatus(old.getStatus());
           else result.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
         }
         result.setSignature(signature);
@@ -210,7 +217,7 @@ public class CrawlDbReducer implements Reducer {
       }   
       return;
     case CrawlDatum.STATUS_FETCH_RETRY:           // temporary failure
-      if (old != null) {
+      if (oldSet) {
         result.setSignature(old.getSignature());  // use old signature
       }
       result = schedule.setPageRetrySchedule((Text)key, result, prevFetchTime,
@@ -223,7 +230,7 @@ public class CrawlDbReducer implements Reducer {
       break;
 
     case CrawlDatum.STATUS_FETCH_GONE:            // permanent failure
-      if (old != null)
+      if (oldSet)
         result.setSignature(old.getSignature());  // use old signature
       result.setStatus(CrawlDatum.STATUS_DB_GONE);
       result = schedule.setPageGoneSchedule((Text)key, result, prevFetchTime,
@@ -235,7 +242,7 @@ public class CrawlDbReducer implements Reducer {
     }
 
     try {
-      scfilters.updateDbScore((Text)key, old, result, linked);
+      scfilters.updateDbScore((Text)key, oldSet ? old : null, result, linked);
     } catch (Exception e) {
       if (LOG.isWarnEnabled()) {
         LOG.warn("Couldn't update score, key=" + key + ": " + e);

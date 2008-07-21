@@ -38,7 +38,9 @@ import java.util.*;
 import java.util.Map.Entry;
 
 /* Parse content in a segment. */
-public class ParseSegment extends Configured implements Tool, Mapper<WritableComparable, Content, Text, ParseImpl>, Reducer<Text, Writable, Text, Writable> {
+public class ParseSegment extends Configured implements Tool,
+    Mapper<WritableComparable, Content, Text, ParseImpl>,
+    Reducer<Text, Writable, Text, Writable> {
 
   public static final Log LOG = LogFactory.getLog(Parser.class);
   
@@ -135,13 +137,13 @@ public class ParseSegment extends Configured implements Tool, Mapper<WritableCom
     JobConf job = new NutchJob(getConf());
     job.setJobName("parse " + segment);
 
-    job.setInputPath(new Path(segment, Content.DIR_NAME));
+    FileInputFormat.addInputPath(job, new Path(segment, Content.DIR_NAME));
     job.set(Nutch.SEGMENT_NAME_KEY, segment.getName());
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setMapperClass(ParseSegment.class);
     job.setReducerClass(ParseSegment.class);
     
-    job.setOutputPath(segment);
+    FileOutputFormat.setOutputPath(job, segment);
     job.setOutputFormat(ParseOutputFormat.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(ParseImpl.class);

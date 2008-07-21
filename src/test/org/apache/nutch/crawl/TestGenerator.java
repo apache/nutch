@@ -53,7 +53,7 @@ public class TestGenerator extends TestCase {
   protected void setUp() throws Exception {
     conf = CrawlDBTestUtil.createConfiguration();
     fs = FileSystem.get(conf);
-    fs.delete(testdir);
+    fs.delete(testdir, true);
   }
 
   protected void tearDown() {
@@ -62,7 +62,7 @@ public class TestGenerator extends TestCase {
 
   private void delete(Path p) {
     try {
-      fs.delete(p);
+      fs.delete(p, true);
     } catch (IOException e) {
     }
   }

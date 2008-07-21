@@ -164,7 +164,7 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
       if (LOG.isInfoEnabled()) {
         LOG.info("LinkDb: adding segment: " + segments[i]);
       }
-      job.addInputPath(new Path(segments[i], ParseData.DIR_NAME));
+      FileInputFormat.addInputPath(job, new Path(segments[i], ParseData.DIR_NAME));
     }
     try {
       JobClient.runJob(job);
@@ -177,18 +177,18 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
         LOG.info("LinkDb: merging with existing linkdb: " + linkDb);
       }
       // try to merge
-      Path newLinkDb = job.getOutputPath();
+      Path newLinkDb = FileOutputFormat.getOutputPath(job);
       job = LinkDbMerger.createMergeJob(getConf(), linkDb, normalize, filter);
-      job.addInputPath(currentLinkDb);
-      job.addInputPath(newLinkDb);
+      FileInputFormat.addInputPath(job, currentLinkDb);
+      FileInputFormat.addInputPath(job, newLinkDb);
       try {
         JobClient.runJob(job);
       } catch (IOException e) {
         LockUtil.removeLockFile(fs, lock);
-        fs.delete(newLinkDb);
+        fs.delete(newLinkDb, true);
         throw e;
       }
-      fs.delete(newLinkDb);
+      fs.delete(newLinkDb, true);
     }
     LinkDb.install(job, linkDb);
     if (LOG.isInfoEnabled()) { LOG.info("LinkDb: done"); }
@@ -220,7 +220,7 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
     }
     job.setReducerClass(LinkDbMerger.class);
 
-    job.setOutputPath(newLinkDb);
+    FileOutputFormat.setOutputPath(job, newLinkDb);
     job.setOutputFormat(MapFileOutputFormat.class);
     job.setBoolean("mapred.output.compress", true);
     job.setOutputKeyClass(Text.class);
@@ -230,17 +230,17 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
   }
 
   public static void install(JobConf job, Path linkDb) throws IOException {
-    Path newLinkDb = job.getOutputPath();
+    Path newLinkDb = FileOutputFormat.getOutputPath(job);
     FileSystem fs = new JobClient(job).getFs();
     Path old = new Path(linkDb, "old");
     Path current = new Path(linkDb, CURRENT_NAME);
     if (fs.exists(current)) {
-      if (fs.exists(old)) fs.delete(old);
+      if (fs.exists(old)) fs.delete(old, true);
       fs.rename(current, old);
     }
     fs.mkdirs(linkDb);
     fs.rename(newLinkDb, current);
-    if (fs.exists(old)) fs.delete(old);
+    if (fs.exists(old)) fs.delete(old, true);
     LockUtil.removeLockFile(fs, new Path(linkDb, LOCK_NAME));
   }
 

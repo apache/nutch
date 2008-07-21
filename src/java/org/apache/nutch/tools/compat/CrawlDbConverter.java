@@ -23,12 +23,15 @@ import java.util.Random;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.UTF8;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.mapred.FileInputFormat;
+import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MapFileOutputFormat;
@@ -37,7 +40,8 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
 import org.apache.hadoop.util.StringUtils;
-import org.apache.hadoop.util.ToolBase;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.crawl.MapWritable;
@@ -52,7 +56,8 @@ import org.apache.nutch.util.NutchJob;
  * 
  * @author Andrzej Bialecki
  */
-public class CrawlDbConverter extends ToolBase implements Mapper {
+public class CrawlDbConverter extends Configured implements Tool,
+    Mapper<WritableComparable, CrawlDatum, Text, CrawlDatum> {
   private static final Log LOG = LogFactory.getLog(CrawlDbConverter.class);
   
   private static final String CONVERT_META_KEY = "db.converter.with.metadata";
@@ -66,7 +71,8 @@ public class CrawlDbConverter extends ToolBase implements Mapper {
     newKey = new Text();
   }
 
-  public void map(WritableComparable key, Writable value, OutputCollector output,
+  public void map(WritableComparable key, CrawlDatum value,
+      OutputCollector<Text, CrawlDatum> output,
       Reporter reporter) throws IOException {
     newKey.set(key.toString());
     if (withMetadata) {
@@ -97,7 +103,8 @@ public class CrawlDbConverter extends ToolBase implements Mapper {
    * @param args
    */
   public static void main(String[] args) throws Exception {
-    int res = new CrawlDbConverter().doMain(NutchConfiguration.create(), args);
+    int res = ToolRunner.run(NutchConfiguration.create(), new CrawlDbConverter(), args);
+    System.exit(res);
   }
 
   public int run(String[] args) throws Exception {
@@ -123,13 +130,13 @@ public class CrawlDbConverter extends ToolBase implements Mapper {
       withMetadata = true;
     
     job.setBoolean(CONVERT_META_KEY, withMetadata);
-    job.setInputPath(oldDb);
+    FileInputFormat.addInputPath(job, oldDb);
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setMapperClass(CrawlDbConverter.class);
     job.setOutputFormat(MapFileOutputFormat.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);
-    job.setOutputPath(newDb);
+    FileOutputFormat.setOutputPath(job, newDb);
     try {
       JobClient.runJob(job);
       CrawlDb.install(job, new Path(args[1]));

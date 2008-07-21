@@ -99,22 +99,25 @@ public class Injector extends Configured implements Tool {
     public void configure(JobConf job) {}    
     public void close() {}
 
+    private CrawlDatum old = new CrawlDatum();
+    private CrawlDatum injected = new CrawlDatum();
+    
     public void reduce(Text key, Iterator<CrawlDatum> values,
                        OutputCollector<Text, CrawlDatum> output, Reporter reporter)
       throws IOException {
-      CrawlDatum old = null;
-      CrawlDatum injected = null;
+      boolean oldSet = false;
       while (values.hasNext()) {
         CrawlDatum val = values.next();
         if (val.getStatus() == CrawlDatum.STATUS_INJECTED) {
-          injected = val;
+          injected.set(val);
           injected.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
         } else {
-          old = val;
+          old.set(val);
+          oldSet = true;
         }
       }
       CrawlDatum res = null;
-      if (old != null) res = old; // don't overwrite existing value
+      if (oldSet) res = old; // don't overwrite existing value
       else res = injected;
 
       output.collect(key, res);
@@ -146,10 +149,10 @@ public class Injector extends Configured implements Tool {
     }
     JobConf sortJob = new NutchJob(getConf());
     sortJob.setJobName("inject " + urlDir);
-    sortJob.setInputPath(urlDir);
+    FileInputFormat.addInputPath(sortJob, urlDir);
     sortJob.setMapperClass(InjectMapper.class);
 
-    sortJob.setOutputPath(tempDir);
+    FileOutputFormat.setOutputPath(sortJob, tempDir);
     sortJob.setOutputFormat(SequenceFileOutputFormat.class);
     sortJob.setOutputKeyClass(Text.class);
     sortJob.setOutputValueClass(CrawlDatum.class);
@@ -161,14 +164,14 @@ public class Injector extends Configured implements Tool {
       LOG.info("Injector: Merging injected urls into crawl db.");
     }
     JobConf mergeJob = CrawlDb.createJob(getConf(), crawlDb);
-    mergeJob.addInputPath(tempDir);
+    FileInputFormat.addInputPath(mergeJob, tempDir);
     mergeJob.setReducerClass(InjectReducer.class);
     JobClient.runJob(mergeJob);
     CrawlDb.install(mergeJob, crawlDb);
 
     // clean up
     FileSystem fs = FileSystem.get(getConf());
-    fs.delete(tempDir);
+    fs.delete(tempDir, true);
     if (LOG.isInfoEnabled()) { LOG.info("Injector: done"); }
 
   }

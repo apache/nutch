@@ -39,12 +39,13 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.FileInputFormat;
+import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MapFileOutputFormat;
 import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.OutputFormatBase;
 import org.apache.hadoop.mapred.RecordWriter;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
@@ -77,7 +78,8 @@ public class CrawlDbReader implements Closeable {
   private void openReaders(String crawlDb, Configuration config) throws IOException {
     if (readers != null) return;
     FileSystem fs = FileSystem.get(config);
-    readers = MapFileOutputFormat.getReaders(fs, new Path(crawlDb, CrawlDb.CURRENT_NAME), config);
+    readers = MapFileOutputFormat.getReaders(fs, new Path(crawlDb,
+        CrawlDb.CURRENT_NAME), config);
   }
   
   private void closeReaders() {
@@ -91,7 +93,7 @@ public class CrawlDbReader implements Closeable {
     }
   }
   
-  public static class CrawlDatumCsvOutputFormat extends OutputFormatBase<Text,CrawlDatum> {
+  public static class CrawlDatumCsvOutputFormat extends FileOutputFormat<Text,CrawlDatum> {
     protected static class LineRecordWriter implements RecordWriter<Text,CrawlDatum> {
       private DataOutputStream out;
 
@@ -138,7 +140,7 @@ public class CrawlDbReader implements Closeable {
 
     public RecordWriter<Text,CrawlDatum> getRecordWriter(FileSystem fs, JobConf job, String name,
         Progressable progress) throws IOException {
-      Path dir = job.getOutputPath();
+      Path dir = FileOutputFormat.getOutputPath(job);
       DataOutputStream fileOut = fs.create(new Path(dir, name), progress);
       return new LineRecordWriter(fileOut);
    }
@@ -299,14 +301,14 @@ public class CrawlDbReader implements Closeable {
     job.setJobName("stats " + crawlDb);
     job.setBoolean("db.reader.stats.sort", sort);
 
-    job.addInputPath(new Path(crawlDb, CrawlDb.CURRENT_NAME));
+    FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
 
     job.setMapperClass(CrawlDbStatMapper.class);
     job.setCombinerClass(CrawlDbStatCombiner.class);
     job.setReducerClass(CrawlDbStatReducer.class);
 
-    job.setOutputPath(tmpFolder);
+    FileOutputFormat.setOutputPath(job, tmpFolder);
     job.setOutputFormat(SequenceFileOutputFormat.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(LongWritable.class);
@@ -366,7 +368,7 @@ public class CrawlDbReader implements Closeable {
       }
     }
     // removing the tmp folder
-    fileSystem.delete(tmpFolder);
+    fileSystem.delete(tmpFolder, true);
     if (LOG.isInfoEnabled()) { LOG.info("CrawlDb statistics: done"); }
 
   }
@@ -375,7 +377,8 @@ public class CrawlDbReader implements Closeable {
     Text key = new Text(url);
     CrawlDatum val = new CrawlDatum();
     openReaders(crawlDb, config);
-    CrawlDatum res = (CrawlDatum)MapFileOutputFormat.getEntry(readers, new HashPartitioner(), key, val);
+    CrawlDatum res = (CrawlDatum)MapFileOutputFormat.getEntry(readers,
+        new HashPartitioner<Text, CrawlDatum>(), key, val);
     return res;
   }
 
@@ -401,10 +404,10 @@ public class CrawlDbReader implements Closeable {
     JobConf job = new NutchJob(config);
     job.setJobName("dump " + crawlDb);
 
-    job.addInputPath(new Path(crawlDb, CrawlDb.CURRENT_NAME));
+    FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
 
-    job.setOutputPath(outFolder);
+    FileOutputFormat.setOutputPath(job, outFolder);
     if(format == CSV_FORMAT) job.setOutputFormat(CrawlDatumCsvOutputFormat.class);
     else job.setOutputFormat(TextOutputFormat.class);
     job.setOutputKeyClass(Text.class);
@@ -429,12 +432,12 @@ public class CrawlDbReader implements Closeable {
 
     JobConf job = new NutchJob(config);
     job.setJobName("topN prepare " + crawlDb);
-    job.addInputPath(new Path(crawlDb, CrawlDb.CURRENT_NAME));
+    FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setMapperClass(CrawlDbTopNMapper.class);
     job.setReducerClass(IdentityReducer.class);
 
-    job.setOutputPath(tempDir);
+    FileOutputFormat.setOutputPath(job, tempDir);
     job.setOutputFormat(SequenceFileOutputFormat.class);
     job.setOutputKeyClass(FloatWritable.class);
     job.setOutputValueClass(Text.class);
@@ -450,22 +453,21 @@ public class CrawlDbReader implements Closeable {
     job.setJobName("topN collect " + crawlDb);
     job.setLong("db.reader.topn", topN);
 
-    job.addInputPath(tempDir);
+    FileInputFormat.addInputPath(job, tempDir);
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setMapperClass(IdentityMapper.class);
     job.setReducerClass(CrawlDbTopNReducer.class);
 
-    job.setOutputPath(outFolder);
+    FileOutputFormat.setOutputPath(job, outFolder);
     job.setOutputFormat(TextOutputFormat.class);
     job.setOutputKeyClass(FloatWritable.class);
     job.setOutputValueClass(Text.class);
 
-    // XXX *sigh* this apparently doesn't work ... :-((
     job.setNumReduceTasks(1); // create a single file.
     
     JobClient.runJob(job);
     FileSystem fs = FileSystem.get(config);
-    fs.delete(tempDir);
+    fs.delete(tempDir, true);
     if (LOG.isInfoEnabled()) { LOG.info("CrawlDb topN: done"); }
 
   }

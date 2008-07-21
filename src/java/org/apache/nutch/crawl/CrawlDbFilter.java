@@ -22,8 +22,6 @@ import java.io.IOException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
@@ -37,7 +35,7 @@ import org.apache.nutch.net.URLNormalizers;
  * 
  * @author Andrzej Bialecki
  */
-public class CrawlDbFilter implements Mapper {
+public class CrawlDbFilter implements Mapper<Text, CrawlDatum, Text, CrawlDatum> {
   public static final String URL_FILTERING = "crawldb.url.filters";
 
   public static final String URL_NORMALIZING = "crawldb.url.normalizers";
@@ -72,7 +70,9 @@ public class CrawlDbFilter implements Mapper {
   
   private Text newKey = new Text();
 
-  public void map(WritableComparable key, Writable value, OutputCollector output, Reporter reporter) throws IOException {
+  public void map(Text key, CrawlDatum value,
+      OutputCollector<Text, CrawlDatum> output,
+      Reporter reporter) throws IOException {
 
     String url = key.toString();
     if (urlNormalizers) {

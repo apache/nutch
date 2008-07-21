@@ -28,6 +28,8 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.FileInputFormat;
+import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.MapFileOutputFormat;
@@ -100,12 +102,12 @@ public class LinkDbMerger extends Configured implements Tool, Reducer<Text, Inli
   public void merge(Path output, Path[] dbs, boolean normalize, boolean filter) throws Exception {
     JobConf job = createMergeJob(getConf(), output, normalize, filter);
     for (int i = 0; i < dbs.length; i++) {
-      job.addInputPath(new Path(dbs[i], LinkDb.CURRENT_NAME));      
+      FileInputFormat.addInputPath(job, new Path(dbs[i], LinkDb.CURRENT_NAME));      
     }
     JobClient.runJob(job);
     FileSystem fs = FileSystem.get(getConf());
     fs.mkdirs(output);
-    fs.rename(job.getOutputPath(), new Path(output, LinkDb.CURRENT_NAME));
+    fs.rename(FileOutputFormat.getOutputPath(job), new Path(output, LinkDb.CURRENT_NAME));
   }
 
   public static JobConf createMergeJob(Configuration config, Path linkDb, boolean normalize, boolean filter) {
@@ -123,7 +125,7 @@ public class LinkDbMerger extends Configured implements Tool, Reducer<Text, Inli
     job.setBoolean(LinkDbFilter.URL_FILTERING, filter);
     job.setReducerClass(LinkDbMerger.class);
 
-    job.setOutputPath(newLinkDb);
+    FileOutputFormat.setOutputPath(job, newLinkDb);
     job.setOutputFormat(MapFileOutputFormat.class);
     job.setBoolean("mapred.output.compress", true);
     job.setOutputKeyClass(Text.class);

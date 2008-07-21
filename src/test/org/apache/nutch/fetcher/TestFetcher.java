@@ -59,7 +59,7 @@ public class TestFetcher extends TestCase {
   protected void setUp() throws Exception{
     conf=CrawlDBTestUtil.createConfiguration();
     fs=FileSystem.get(conf);
-    fs.delete(testdir);
+    fs.delete(testdir, true);
     urlPath=new Path(testdir,"urls");
     crawldbPath=new Path(testdir,"crawldb");
     segmentsPath=new Path(testdir,"segments");
@@ -69,7 +69,7 @@ public class TestFetcher extends TestCase {
 
   protected void tearDown() throws InterruptedException, IOException{
     server.stop();
-    fs.delete(testdir);
+    fs.delete(testdir, true);
   }
   
   public void testFetch() throws IOException {
