@@ -191,6 +191,11 @@ public class IndexSorter extends Configured implements Tool {
       return super.document(newToOld[n]);
     }
 
+    public Document document(int n, FieldSelector fieldSelector)
+        throws CorruptIndexException, IOException {
+      return super.document(newToOld[n], fieldSelector);
+    }
+
     public boolean isDeleted(int n) {
       return false;
     }
@@ -239,6 +244,10 @@ public class IndexSorter extends Configured implements Tool {
       } else {
         return this.score < that.score ? 1 : -1 ;
       }
+    }
+    
+    public String toString() {
+      return "oldDoc=" + oldDoc + ",score=" + score;
     }
   }
 
