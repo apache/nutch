@@ -178,10 +178,11 @@ class ExtractText extends SWFTagTypesImpl {
 
   public String getActionText() {
     StringBuffer res = new StringBuffer();
-    Iterator it = actionStrings.iterator();
-    while (it.hasNext()) {
-      if (res.length() > 0) res.append('\n');
-      res.append(it.next());
+    String[] strings = (String[])actionStrings.toArray(new String[actionStrings.size()]);
+    Arrays.sort(strings);
+    for (int i = 0; i < strings.length; i++) {
+      if (i > 0) res.append('\n');
+      res.append(strings[i]);
     }
     return res.toString();
   }
