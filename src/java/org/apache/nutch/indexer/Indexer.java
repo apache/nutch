@@ -60,7 +60,7 @@ public class Indexer extends Configured implements Tool, Reducer<Text, NutchWrit
    * Note: Despite its name, it can't properly wrap a lucene document - it
    * doesn't know how to serialize/deserialize a lucene document.
    */
-  private static class LuceneDocumentWrapper implements Writable {
+  public static class LuceneDocumentWrapper implements Writable {
     private Document doc;
 	  
     public LuceneDocumentWrapper(Document doc) {
