@@ -113,7 +113,7 @@ public class HttpResponse implements Response {
       reqStr.append(portString);
       reqStr.append("\r\n");
 
-      reqStr.append("Accept-Encoding: x-gzip, gzip\r\n");
+      reqStr.append("Accept-Encoding: x-gzip, gzip, deflate\r\n");
 
       String userAgent = http.getUserAgent();
       if ((userAgent == null) || (userAgent.length() == 0)) {
@@ -156,6 +156,8 @@ public class HttpResponse implements Response {
       String contentEncoding = getHeader(Response.CONTENT_ENCODING);
       if ("gzip".equals(contentEncoding) || "x-gzip".equals(contentEncoding)) {
         content = http.processGzipEncoded(content, url);
+      } else if ("deflate".equals(contentEncoding)) {
+       content = http.processDeflateEncoded(content, url);
       } else {
         if (Http.LOG.isTraceEnabled()) {
           Http.LOG.trace("fetched " + content.length + " bytes from " + url);

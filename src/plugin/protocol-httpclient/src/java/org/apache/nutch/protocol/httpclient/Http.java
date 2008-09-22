@@ -188,7 +188,7 @@ public class Http extends HttpBase {
     headers.add(new Header("Accept",
             "text/html,application/xml;q=0.9,application/xhtml+xml,text/xml;q=0.9,text/plain;q=0.8,image/png,*/*;q=0.5"));
     // accept gzipped content
-    headers.add(new Header("Accept-Encoding", "x-gzip, gzip"));
+    headers.add(new Header("Accept-Encoding", "x-gzip, gzip, deflate"));
     hostConf.getParams().setParameter("http.default-headers", headers);
 
     // HTTP proxy server details

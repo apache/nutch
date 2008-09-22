@@ -38,6 +38,7 @@ import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.protocol.RobotRules;
 import org.apache.nutch.util.GZIPUtils;
+import org.apache.nutch.util.DeflateUtils;
 import org.apache.nutch.util.LogUtil;
 
 // Hadoop imports
@@ -498,7 +499,24 @@ public abstract class HttpBase implements Protocol {
     }
     return content;
   }
-  
+
+  public byte[] processDeflateEncoded(byte[] compressed, URL url) throws IOException {
+
+    if (LOGGER.isTraceEnabled()) { LOGGER.trace("inflating...."); }
+
+    byte[] content = DeflateUtils.inflateBestEffort(compressed, getMaxContent());
+
+    if (content == null)
+      throw new IOException("inflateBestEffort returned null");
+
+    if (LOGGER.isTraceEnabled()) {
+      LOGGER.trace("fetched " + compressed.length
+                 + " bytes of compressed content (expanded to "
+                 + content.length + " bytes) from " + url);
+    }
+    return content;
+  }
+
   protected static void main(HttpBase http, String[] args) throws Exception {
     boolean verbose = false;
     String url = null;

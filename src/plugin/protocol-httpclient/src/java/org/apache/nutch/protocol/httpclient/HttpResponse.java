@@ -150,7 +150,7 @@ public class HttpResponse implements Response {
         if (getHeader(Response.LOCATION) != null)
           fetchTrace.append("; Location: " + getHeader(Response.LOCATION));
       }
-      // Extract gzip and x-gzip files
+      // Extract gzip, x-gzip and deflate content
       if (content != null) {
         // check if we have to uncompress it
         String contentEncoding = headers.get(Response.CONTENT_ENCODING);
@@ -159,6 +159,10 @@ public class HttpResponse implements Response {
         if ("gzip".equals(contentEncoding) ||
             "x-gzip".equals(contentEncoding)) {
           content = http.processGzipEncoded(content, url);
+          if (Http.LOG.isTraceEnabled())
+            fetchTrace.append("; extracted to " + content.length + " bytes");
+        } else if ("deflate".equals(contentEncoding)) {
+          content = http.processDeflateEncoded(content, url);
           if (Http.LOG.isTraceEnabled())
             fetchTrace.append("; extracted to " + content.length + " bytes");
         }

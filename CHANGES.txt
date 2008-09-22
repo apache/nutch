@@ -268,6 +268,9 @@ Unreleased changes (1.0-dev)
 98. NUTCH-651 - Remove bin/{start|stop}-balancer.sh from svn
     tracking. (dogacan)
 
+99. NUTCH-375 - Add support for Content-Encoding: deflated
+    (Pascal Beis, ab)
+
 Release 0.9 - 2007-04-02
 
  1. Changed log4j confiquration to log to stdout on commandline
