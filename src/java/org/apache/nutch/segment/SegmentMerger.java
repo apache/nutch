@@ -33,9 +33,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.UTF8;
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.SequenceFile.CompressionType;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.FileOutputFormat;
@@ -45,7 +43,6 @@ import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.OutputFormatBase;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.RecordWriter;
 import org.apache.hadoop.mapred.Reducer;
@@ -135,42 +132,52 @@ public class SegmentMerger extends Configured implements
     SequenceFileInputFormat<Text, MetaWrapper> {
     
     @Override
-    public RecordReader<Text, MetaWrapper> getRecordReader(InputSplit split,
-        JobConf job, Reporter reporter) {
+    public RecordReader<Text, MetaWrapper> getRecordReader(final InputSplit split,
+        final JobConf job, Reporter reporter) throws IOException {
 
       reporter.setStatus(split.toString());
-
+      
       // find part name
       SegmentPart segmentPart;
       final String spString;
+      final FileSplit fSplit = (FileSplit) split;
       try {
-        segmentPart = SegmentPart.get((FileSplit) split);
+        segmentPart = SegmentPart.get(fSplit);
         spString = segmentPart.toString();
       } catch (IOException e) {
         throw new RuntimeException("Cannot identify segment:", e);
       }
+      
+      final SequenceFile.Reader reader =
+        new SequenceFile.Reader(FileSystem.get(job), fSplit.getPath(), job);
+      
+      final Writable w;
+      try {
+        w = (Writable) reader.getValueClass().newInstance();
+      } catch (Exception e) {
+        throw new IOException(e.toString());
+      }
 
       try {
-        return new SequenceFileRecordReader(job, (FileSplit)split) {
+        return new SequenceFileRecordReader<Text, MetaWrapper>(job, fSplit) {
           
           @Override
-          public synchronized boolean next(WritableComparable key, Writable value) throws IOException {
+          public synchronized boolean next(Text key, MetaWrapper wrapper) throws IOException {
             LOG.debug("Running OIF.next()");
-            
-            MetaWrapper wrapper = (MetaWrapper) value;
-            try {
-              wrapper.set((Writable)getValueClass().newInstance());
-            } catch (Exception e) {
-              throw new IOException(e.toString());
-            }
 
-            boolean res = super.next(key, (Writable) wrapper.get());
+            boolean res = reader.next(key, w);
+            wrapper.set(w);
             wrapper.setMeta(SEGMENT_PART_KEY, spString);
             return res;
           }
           
           @Override
-          public Writable createValue() {
+          public synchronized void close() throws IOException {
+            reader.close();
+          }
+          
+          @Override
+          public MetaWrapper createValue() {
             return new MetaWrapper();
           }
           
