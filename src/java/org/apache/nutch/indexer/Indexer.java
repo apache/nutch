@@ -90,6 +90,9 @@ public class Indexer extends Configured implements Tool, Reducer<Text, NutchWrit
       final Path temp =
         job.getLocalPath("index/_"+Integer.toString(new Random().nextInt()));
 
+      int maxTokens = job.getInt("indexer.max.tokens", 10000);
+      if (maxTokens < 0) maxTokens = Integer.MAX_VALUE;
+
       fs.delete(perm, true);                            // delete old, if any
 
       final AnalyzerFactory factory = new AnalyzerFactory(job);
@@ -102,7 +105,7 @@ public class Indexer extends Configured implements Tool, Reducer<Text, NutchWrit
       writer.setMaxMergeDocs(job.getInt("indexer.maxMergeDocs", Integer.MAX_VALUE));
       writer.setTermIndexInterval
         (job.getInt("indexer.termIndexInterval", 128));
-      writer.setMaxFieldLength(job.getInt("indexer.max.tokens", 10000));
+      writer.setMaxFieldLength(maxTokens);
       writer.setInfoStream(LogUtil.getInfoStream(LOG));
       writer.setUseCompoundFile(false);
       writer.setSimilarity(new NutchSimilarity());
