@@ -634,8 +634,8 @@
   from the index tokens that occur further in the document. If you
   know your source documents are large, be sure to set this value
   high enough to accomodate the expected size. If you set it to
-  Integer.MAX_VALUE, then the only limit is your memory, but you
-  should anticipate an OutOfMemoryError.
+  -1, then the only limit is your memory, but you should anticipate
+  an OutOfMemoryError.
   </description>
 </property>
 
