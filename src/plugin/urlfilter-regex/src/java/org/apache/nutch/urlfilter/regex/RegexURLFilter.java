@@ -27,6 +27,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.*;
 import org.apache.nutch.urlfilter.api.RegexRule;
 import org.apache.nutch.urlfilter.api.RegexURLFilterBase;
+import org.apache.nutch.util.NutchConfiguration;
 
 
 /**
@@ -70,7 +71,9 @@ public class RegexURLFilter extends RegexURLFilterBase {
 
   
   public static void main(String args[]) throws IOException {
-    main(new RegexURLFilter(), args);
+    RegexURLFilter filter = new RegexURLFilter();
+    filter.setConf(NutchConfiguration.create());
+    main(filter, args);
   }
 
 
