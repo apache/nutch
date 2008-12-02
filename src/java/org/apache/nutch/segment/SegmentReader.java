@@ -47,6 +47,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.UTF8;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapred.JobConf;
@@ -203,21 +204,21 @@ public class SegmentReader extends Configured implements
     JobConf job = createJobConf();
     job.setJobName("read " + segment);
 
-    if (ge) job.addInputPath(new Path(segment, CrawlDatum.GENERATE_DIR_NAME));
-    if (fe) job.addInputPath(new Path(segment, CrawlDatum.FETCH_DIR_NAME));
-    if (pa) job.addInputPath(new Path(segment, CrawlDatum.PARSE_DIR_NAME));
-    if (co) job.addInputPath(new Path(segment, Content.DIR_NAME));
-    if (pd) job.addInputPath(new Path(segment, ParseData.DIR_NAME));
-    if (pt) job.addInputPath(new Path(segment, ParseText.DIR_NAME));
+    if (ge) FileInputFormat.addInputPath(job, new Path(segment, CrawlDatum.GENERATE_DIR_NAME));
+    if (fe) FileInputFormat.addInputPath(job, new Path(segment, CrawlDatum.FETCH_DIR_NAME));
+    if (pa) FileInputFormat.addInputPath(job, new Path(segment, CrawlDatum.PARSE_DIR_NAME));
+    if (co) FileInputFormat.addInputPath(job, new Path(segment, Content.DIR_NAME));
+    if (pd) FileInputFormat.addInputPath(job, new Path(segment, ParseData.DIR_NAME));
+    if (pt) FileInputFormat.addInputPath(job, new Path(segment, ParseText.DIR_NAME));
 
     job.setInputFormat(SequenceFileInputFormat.class);
     job.setMapperClass(InputCompatMapper.class);
     job.setReducerClass(SegmentReader.class);
 
     Path tempDir = new Path(job.get("hadoop.tmp.dir", "/tmp") + "/segread-" + new java.util.Random().nextInt());
-    fs.delete(tempDir);
+    fs.delete(tempDir, true);
     
-    job.setOutputPath(tempDir);
+    FileOutputFormat.setOutputPath(job, tempDir);
     job.setOutputFormat(TextOutputFormat.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(NutchWritable.class);
