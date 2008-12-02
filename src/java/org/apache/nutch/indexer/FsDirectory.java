@@ -18,6 +18,8 @@
 package org.apache.nutch.indexer;
 
 import java.io.*;
+import java.util.Random;
+
 import org.apache.lucene.store.*;
 import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.hadoop.fs.*;
@@ -207,30 +209,45 @@ public class FsDirectory extends Directory {
 
   private class DfsIndexOutput extends BufferedIndexOutput {
     private FSDataOutputStream out;
+    private RandomAccessFile local;
+    private File localFile;
 
     public DfsIndexOutput(Path path, int ioFileBufferSize) throws IOException {
+      
+      // create a temporary local file and set it to delete on exit
+      String randStr = Integer.toString(new Random().nextInt(Integer.MAX_VALUE));
+      localFile = File.createTempFile("index_" + randStr, ".tmp");
+      localFile.deleteOnExit();
+      local = new RandomAccessFile(localFile, "rw");
+
       out = fs.create(path);
     }
 
     public void flushBuffer(byte[] b, int offset, int size) throws IOException {
-      out.write(b, offset, size);
+      local.write(b, offset, size);
     }
 
     public void close() throws IOException {
       super.close();
+      
+      // transfer to dfs from local
+      byte[] buffer = new byte[4096];
+      local.seek(0);
+      int read = -1;
+      while ((read = local.read(buffer)) != -1) {
+        out.write(buffer, 0, read);
+      }
       out.close();
+      local.close();
     }
 
     public void seek(long pos) throws IOException {
-      throw new UnsupportedOperationException();
+      super.seek(pos);
+      local.seek(pos);
     }
 
     public long length() throws IOException {
-      return out.getPos();
-    }
-
-    protected void finalize() throws IOException {
-      out.close();                                // close the file
+      return local.length();
     }
 
   }
