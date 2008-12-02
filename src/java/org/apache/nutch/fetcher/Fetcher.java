@@ -58,12 +58,13 @@ public class Fetcher extends Configured implements Tool, MapRunnable<WritableCom
     /** Don't split inputs, to keep things polite. */
     public InputSplit[] getSplits(JobConf job, int nSplits)
       throws IOException {
-      Path[] files = listPaths(job);
+      FileStatus[] files = listStatus(job);
       FileSystem fs = FileSystem.get(job);
       InputSplit[] splits = new InputSplit[files.length];
       for (int i = 0; i < files.length; i++) {
-        splits[i] = new FileSplit(files[i], 0,
-            fs.getFileStatus(files[i]).getLen(), (String[])null);
+        FileStatus cur = files[i];
+        splits[i] = new FileSplit(cur.getPath(), 0,
+            cur.getLen(), (String[])null);
       }
       return splits;
     }

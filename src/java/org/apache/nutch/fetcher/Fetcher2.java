@@ -92,12 +92,13 @@ public class Fetcher2 extends Configured implements
     /** Don't split inputs, to keep things polite. */
     public InputSplit[] getSplits(JobConf job, int nSplits)
       throws IOException {
-      Path[] files = listPaths(job);
+      FileStatus[] files = listStatus(job);
       FileSplit[] splits = new FileSplit[files.length];
       FileSystem fs = FileSystem.get(job);
       for (int i = 0; i < files.length; i++) {
-        splits[i] = new FileSplit(files[i], 0,
-            fs.getFileStatus(files[i]).getLen(), (String[])null);
+        FileStatus cur = files[i];
+        splits[i] = new FileSplit(cur.getPath(), 0,
+            cur.getLen(), (String[])null);
       }
       return splits;
     }

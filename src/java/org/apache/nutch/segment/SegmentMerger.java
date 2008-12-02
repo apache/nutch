@@ -161,7 +161,6 @@ public class SegmentMerger extends Configured implements
       try {
         return new SequenceFileRecordReader<Text, MetaWrapper>(job, fSplit) {
           
-          @Override
           public synchronized boolean next(Text key, MetaWrapper wrapper) throws IOException {
             LOG.debug("Running OIF.next()");
 
