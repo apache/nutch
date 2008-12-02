@@ -145,10 +145,11 @@ public class DeleteDuplicates extends Configured
     /** Return each index as a split. */
     public InputSplit[] getSplits(JobConf job, int numSplits)
       throws IOException {
-      Path[] files = listPaths(job);
+      FileStatus[] files = listStatus(job);
       InputSplit[] splits = new InputSplit[files.length];
       for (int i = 0; i < files.length; i++) {
-        splits[i] = new FileSplit(files[i], 0, INDEX_LENGTH, (String[])null);
+        FileStatus cur = files[i];
+        splits[i] = new FileSplit(cur.getPath(), 0, INDEX_LENGTH, (String[])null);
       }
       return splits;
     }
