@@ -66,6 +66,7 @@
      <ant dir="query-site" target="deploy"/>
      <ant dir="query-url" target="deploy"/>
      <ant dir="scoring-opic" target="deploy"/>
+  	 <ant dir="scoring-link" target="deploy"/>
      <ant dir="summary-basic" target="deploy"/>
      <ant dir="subcollection" target="deploy"/>
      <ant dir="summary-lucene" target="deploy"/>
@@ -160,6 +161,7 @@
     <ant dir="query-site" target="clean"/>
     <ant dir="query-url" target="clean"/>
     <ant dir="scoring-opic" target="clean"/>
+  	<ant dir="scoring-link" target="clean"/>
     <ant dir="subcollection" target="clean"/>
     <ant dir="summary-basic" target="clean"/>
     <ant dir="summary-lucene" target="clean"/>

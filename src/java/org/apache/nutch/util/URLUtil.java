@@ -141,57 +141,160 @@ public class URLUtil {
    return getHostSegments(new URL(url));
   }
 
-  /** Given two urls (source and destination of the redirect),
-   * returns the representative one.
-   *
-   * <p>Implements the algorithm described here:
+  /**
+   * <p>Given two urls, a src and a destination of a redirect, it returns the 
+   * representative url.<p>
+   * 
+   * <p>This method implements an extended version of the algorithm used by the
+   * Yahoo! Slurp crawler described here:<br>
+   * <a href=
+   * "http://help.yahoo.com/l/nz/yahooxtra/search/webcrawler/slurp-11.html"> How
+   * does the Yahoo! webcrawler handle redirects?</a> <br>
    * <br>
-   * <a href="http://help.yahoo.com/l/nz/yahooxtra/search/webcrawler/slurp-11.html">
-   * How does the Yahoo! webcrawler handle redirects?</a>
-   * <br><br>
-   * The algorithm is as follows:
    * <ol>
-   *  <li>Choose target url if either url is malformed.</li>
-   *  <li>When a page in one domain redirects to a page in another domain,
-   *  choose the "target" URL.</li>
-   *  <li>When a top-level page in a domain presents a permanent redirect
-   *  to a page deep within the same domain, choose the "source" URL.</li>
-   *  <li>When a page deep within a domain presents a permanent redirect
-   *  to a page deep within the same domain, choose the "target" URL.</li>
-   *  <li>When a page in a domain presents a temporary redirect to
-   *  another page in the same domain, choose the "source" URL.<li>
-   * <ol>
-   * </p>
-   *
-   * @param src Source url of redirect
-   * @param dst Destination url of redirect
-   * @param temp Flag to indicate if redirect is temporary
-   * @return Representative url (either src or dst)
+   * <li>Choose target url if either url is malformed.</li>
+   * <li>If different domains the keep the destination whether or not the 
+   * redirect is temp or perm</li>
+   * <ul><li>a.com -> b.com*</li></ul>
+   * <li>If the redirect is permanent and the source is root, keep the source.</li>
+   * <ul><li>*a.com -> a.com?y=1 || *a.com -> a.com/xyz/index.html</li></ul>
+   * <li>If the redirect is permanent and the source is not root and the 
+   * destination is root, keep the destination</li>
+   * <ul><li>a.com/xyz/index.html -> a.com*</li></ul>
+   * <li>If the redirect is permanent and neither the source nor the destination
+   * is root, then keep the destination</li>
+   * <ul><li>a.com/xyz/index.html -> a.com/abc/page.html*</li></ul>
+   * <li>If the redirect is temporary and source is root and destination is not
+   * root, then keep the source</li>
+   * <ul><li>*a.com -> a.com/xyz/index.html</li></ul>
+   * <li>If the redirect is temporary and source is not root and destination is
+   * root, then keep the destination</li>
+   * <ul><li>a.com/xyz/index.html -> a.com*</li></ul>
+   * <li>If the redirect is temporary and neither the source or the destination
+   * is root, then keep the shortest url.  First check for the shortest host,
+   * and if both are equal then check by path.  Path is first by length then by
+   * the number of / path separators.</li>
+   * <ul>
+   * <li>a.com/xyz/index.html -> a.com/abc/page.html*</li>
+   * <li>*www.a.com/xyz/index.html -> www.news.a.com/xyz/index.html</li>
+   * </ul>
+   * <li>If the redirect is temporary and both the source and the destination
+   * are root, then keep the shortest sub-domain</li>
+   * <ul><li>*www.a.com -> www.news.a.com</li></ul>
+   * <br>
+   * While not in this logic there is a further piece of representative url 
+   * logic that occurs during indexing and after scoring.  During creation of 
+   * the basic fields before indexing, if a url has a representative url stored
+   * we check both the url and its representative url (which should never be 
+   * the same) against their linkrank scores and the highest scoring one is 
+   * kept as the url and the lower scoring one is held as the orig url inside 
+   * of the index.
+   * 
+   * @param src The source url.
+   * @param dst The destination url.
+   * @param temp Is the redirect a temporary redirect.
+   * 
+   * @return String The representative url.
    */
   public static String chooseRepr(String src, String dst, boolean temp) {
+
+    // validate both are well formed urls
     URL srcUrl;
     URL dstUrl;
     try {
       srcUrl = new URL(src);
       dstUrl = new URL(dst);
-    } catch (MalformedURLException e) {
+    }
+    catch (MalformedURLException e) {
       return dst;
     }
 
+    // get the source and destination domain, host, and page
     String srcDomain = URLUtil.getDomainName(srcUrl);
     String dstDomain = URLUtil.getDomainName(dstUrl);
+    String srcHost = srcUrl.getHost();
+    String dstHost = dstUrl.getHost();
+    String srcFile = srcUrl.getFile();
+    String dstFile = dstUrl.getFile();
 
+    // are the source and destination the root path url.com/ or url.com
+    boolean srcRoot = (srcFile.equals("/") || srcFile.length() == 0);
+    boolean destRoot = (dstFile.equals("/") || dstFile.length() == 0);
+
+    // 1) different domain them keep dest, temp or perm
+    // a.com -> b.com*
+    //    
+    // 2) permanent and root, keep src
+    // *a.com -> a.com?y=1 || *a.com -> a.com/xyz/index.html
+    //      
+    // 3) permanent and not root and dest root, keep dest
+    // a.com/xyz/index.html -> a.com*
+    //      
+    // 4) permanent and neither root keep dest
+    // a.com/xyz/index.html -> a.com/abc/page.html*
+    //      
+    // 5) temp and root and dest not root keep src
+    // *a.com -> a.com/xyz/index.html
+    //  
+    // 7) temp and not root and dest root keep dest
+    // a.com/xyz/index.html -> a.com*
+    //  
+    // 8) temp and neither root, keep shortest, if hosts equal by path else by
+    // hosts. paths are first by length then by number of / separators
+    // a.com/xyz/index.html -> a.com/abc/page.html*
+    // *www.a.com/xyz/index.html -> www.news.a.com/xyz/index.html
+    //  
+    // 9) temp and both root keep shortest sub domain
+    // *www.a.com -> www.news.a.com
+
+    // if we are dealing with a redirect from one domain to another keep the
+    // destination
     if (!srcDomain.equals(dstDomain)) {
       return dst;
     }
 
-    String srcFile = srcUrl.getFile();
-
-    if (!temp && srcFile.equals("/")) {
-      return src;
+    // if it is a permanent redirect
+    if (!temp) {
+      
+      // if source is root return source, otherwise destination
+      if (srcRoot) {
+        return src;
+      }
+      else {
+        return dst;
+      }
     }
+    else { // temporary redirect
 
-    return temp ? src : dst;
+      // source root and destination not root
+      if (srcRoot && !destRoot) {
+        return src;
+      }
+      else if (!srcRoot && destRoot) { // destination root and source not
+        return dst;
+      }
+      else if (!srcRoot && !destRoot && (srcHost.equals(dstHost))) {
+
+        // source and destination hosts are the same, check paths, host length
+        int numSrcPaths = srcFile.split("/").length;
+        int numDstPaths = dstFile.split("/").length;
+        if (numSrcPaths != numDstPaths) {
+          return (numDstPaths < numSrcPaths ? dst : src);
+        }
+        else {
+          int srcPathLength = srcFile.length();
+          int dstPathLength = dstFile.length();
+          return (dstPathLength < srcPathLength ? dst : src);
+        }
+      }
+      else {
+
+        // different host names and both root take the shortest
+        int numSrcSubs = srcHost.split("\\.").length;
+        int numDstSubs = dstHost.split("\\.").length;
+        return (numDstSubs < numSrcSubs ? dst : src);
+      }
+    }
   }
 
   /**
