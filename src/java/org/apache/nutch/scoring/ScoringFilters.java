@@ -86,8 +86,6 @@ public class ScoringFilters extends Configured implements ScoringFilter {
       }
       this.filters = (ScoringFilter[]) objectCache.getObject(ScoringFilter.class.getName());
     }
-    if (this.filters == null || this.filters.length == 0)
-      throw new RuntimeException("No scoring plugins - at least one scoring plugin is required!");
   }
 
   /** Calculate a sort value for Generate. */
