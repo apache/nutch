@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+  <!--<entry key="field.name">lang</entry>
+  <entry key="field.indexed">yes</entry>
+  <entry key="field.stored">yes</entry>
+  <entry key="field.tokenized">no</entry>
+  <entry key="field.boost">1.0</entry>
+  <entry key="field.multi">false</entry>-->
+</properties>
