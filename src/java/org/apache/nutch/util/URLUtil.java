@@ -194,6 +194,42 @@ public class URLUtil {
     return temp ? src : dst;
   }
 
+  /**
+   * Returns the lowercased hostname for the url or null if the url is not well
+   * formed.
+   * 
+   * @param url The url to check.
+   * @return String The hostname for the url.
+   */
+  public static String getHost(String url) {
+    try {
+      return new URL(url).getHost().toLowerCase();
+    }
+    catch (MalformedURLException e) {
+      return null;
+    }
+  }
+
+  /**
+   * Returns the page for the url.  The page consists of the protocol, host,
+   * and path, but does not include the query string.  The host is lowercased
+   * but the path is not.
+   * 
+   * @param url The url to check.
+   * @return String The page for the url.
+   */
+  public static String getPage(String url) {
+    try {
+      // get the full url, and replace the query string with and empty string
+      url = url.toLowerCase();
+      String queryStr = new URL(url).getQuery();
+      return (queryStr != null) ? url.replace("?" + queryStr, "") : url;
+    }
+    catch (MalformedURLException e) {
+      return null;
+    }
+  }
+  
   /** For testing */
   public static void main(String[] args){
     
