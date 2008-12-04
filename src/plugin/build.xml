@@ -32,6 +32,8 @@
      <ant dir="index-basic" target="deploy"/>
      <ant dir="index-anchor" target="deploy"/>
      <ant dir="index-more" target="deploy"/>
+  	 <ant dir="field-basic" target="deploy"/>
+  	 <ant dir="field-boost" target="deploy"/>
      <ant dir="languageidentifier" target="deploy"/>
      <ant dir="lib-http" target="deploy"/>
      <ant dir="lib-jakarta-poi" target="deploy"/>
@@ -64,6 +66,7 @@
      <ant dir="query-basic" target="deploy"/>
      <ant dir="query-more" target="deploy"/>
      <ant dir="query-site" target="deploy"/>
+  	 <ant dir="query-custom" target="deploy"/>
      <ant dir="query-url" target="deploy"/>
      <ant dir="scoring-opic" target="deploy"/>
   	 <ant dir="scoring-link" target="deploy"/>
@@ -126,6 +129,8 @@
     <ant dir="index-basic" target="clean"/>
     <ant dir="index-anchor" target="clean"/>
     <ant dir="index-more" target="clean"/>
+    <ant dir="field-basic" target="clean"/>
+    <ant dir="field-boost" target="clean"/>  	
     <ant dir="languageidentifier" target="clean"/>
     <ant dir="lib-commons-httpclient" target="clean"/>
     <ant dir="lib-http" target="clean"/>
@@ -160,6 +165,7 @@
     <ant dir="query-more" target="clean"/>
     <ant dir="query-site" target="clean"/>
     <ant dir="query-url" target="clean"/>
+  	<ant dir="query-custom" target="clean"/>
     <ant dir="scoring-opic" target="clean"/>
   	<ant dir="scoring-link" target="clean"/>
     <ant dir="subcollection" target="clean"/>
