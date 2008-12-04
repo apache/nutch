@@ -29,6 +29,10 @@
       name="Nutch Online Search Results Clustering Plugin"/>
 
 <extension-point
+      id="org.apache.nutch.indexer.field.FieldFilter"
+      name="Nutch Field Filter"/>
+      
+<extension-point
       id="org.apache.nutch.indexer.IndexingFilter"
       name="Nutch Indexing Filter"/>
 
