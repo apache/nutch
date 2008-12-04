@@ -28,6 +28,7 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.document.DateTools.Resolution;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.nutch.analysis.NutchDocumentAnalyzer;
@@ -47,7 +48,7 @@ public class TestDeleteDuplicates extends TestCase {
   
   public void setUp() throws Exception {
     conf = NutchConfiguration.create();
-    conf.set("fs.default.name", "local");
+    conf.set("fs.default.name", "file:///");
     fs = FileSystem.get(conf);
     root = new Path("build/test/dedup2-test-" + new Random().nextInt());
     // create test indexes
@@ -62,7 +63,8 @@ public class TestDeleteDuplicates extends TestCase {
     Path idx = new Path(root, name);
     Path sub = new Path(idx, "part-0000");
     Directory dir = FSDirectory.getDirectory(sub.toString());
-    IndexWriter writer = new IndexWriter(dir, new NutchDocumentAnalyzer(conf), true);
+    IndexWriter writer = new IndexWriter(dir, new NutchDocumentAnalyzer(conf), true, 
+      MaxFieldLength.UNLIMITED);
     Document doc = makeDoc(name,
         MD5Hash.digest("1").toString(),
         "http://www.example.com/1",
@@ -88,7 +90,8 @@ public class TestDeleteDuplicates extends TestCase {
     Path idx = new Path(root, name);
     Path sub = new Path(idx, "part-0000");
     Directory dir = FSDirectory.getDirectory(sub.toString());
-    IndexWriter writer = new IndexWriter(dir, new NutchDocumentAnalyzer(conf), true);
+    IndexWriter writer = new IndexWriter(dir, new NutchDocumentAnalyzer(conf), true, 
+      MaxFieldLength.UNLIMITED);
     Document doc = makeDoc(name,
         MD5Hash.digest("1").toString(),
         "http://www.example.com/1",
