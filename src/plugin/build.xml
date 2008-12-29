@@ -75,6 +75,7 @@
      <ant dir="summary-lucene" target="deploy"/>
      <ant dir="tld" target="deploy"/>
      <ant dir="urlfilter-automaton" target="deploy"/>
+     <ant dir="urlfilter-domain" target="deploy" />
      <ant dir="urlfilter-prefix" target="deploy"/>
      <ant dir="urlfilter-regex" target="deploy"/>
      <ant dir="urlfilter-suffix" target="deploy"/>
@@ -109,6 +110,7 @@
      <ant dir="parse-zip" target="test"/>
      <ant dir="query-url" target="test"/>
      <ant dir="urlfilter-automaton" target="test"/>
+     <ant dir="urlfilter-domain" target="test" />
      <ant dir="urlfilter-regex" target="test"/>
      <ant dir="urlfilter-suffix" target="test"/>
      <ant dir="urlnormalizer-basic" target="test"/>
@@ -173,6 +175,7 @@
     <ant dir="summary-lucene" target="clean"/>
     <ant dir="tld" target="clean"/>
     <ant dir="urlfilter-automaton" target="clean"/>
+    <ant dir="urlfilter-domain" target="clean" />
     <ant dir="urlfilter-prefix" target="clean"/>
     <ant dir="urlfilter-regex" target="clean"/>
     <ant dir="urlfilter-suffix" target="clean"/>
