@@ -970,6 +970,13 @@
 <!-- urlfilter plugin properties -->
 
 <property>
+  <name>urlfilter.domain.file</name>
+  <value>domain-urlfilter.txt</value>
+  <description>Name of file on CLASSPATH containing either top level domains or
+  hostnames used by urlfilter-domain (DomainURLFilter) plugin.</description>
+</property>
+
+<property>
   <name>urlfilter.regex.file</name>
   <value>regex-urlfilter.txt</value>
   <description>Name of file on CLASSPATH containing regular expressions
