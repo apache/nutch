@@ -172,32 +172,34 @@
     	<outputproperty name="indent" value="yes"/>
     </xslt>
     <war destfile="${build.dir}/${final.name}.war"
-	 webxml="${web.src.dir}/web.xml">
+    	webxml="${web.src.dir}/web.xml">
       <fileset dir="${web.src.dir}/jsp"/>
       <zipfileset dir="${docs.src}" includes="include/*.html"/>
       <zipfileset dir="${build.docs}" includes="*/include/*.html"/>
       <fileset dir="${docs.dir}"/>
       <lib dir="${lib.dir}">
-	<include name="lucene*.jar"/>
-	<include name="taglibs-*.jar"/>
- 	<include name="hadoop-*.jar"/>
-	<include name="dom4j-*.jar"/>
-	<include name="xerces-*.jar"/>
-        <include name="tika-*.jar"/>      	
+        <include name="lucene*.jar"/>
+        <include name="taglibs-*.jar"/>
+        <include name="hadoop-*.jar"/>
+        <include name="dom4j-*.jar"/>
+        <include name="xerces-*.jar"/>
+        <include name="tika-*.jar"/>
+        <include name="commons-collections-*.jar"/>
+        <include name="commons-beanutils-*.jar"/>
         <include name="commons-cli-*.jar"/>
         <include name="commons-lang-*.jar"/>
         <include name="commons-logging-*.jar"/>
         <include name="log4j-*.jar"/>
       </lib>
       <lib dir="${build.dir}">
-	<include name="${final.name}.jar"/>
+	      <include name="${final.name}.jar"/>
       </lib>
       <classes dir="${conf.dir}" excludes="**/*.template"/>
       <classes dir="${web.src.dir}/locale"/>
       <classes file="${web.src.dir}/log4j.properties"/>
       <zipfileset prefix="WEB-INF/classes/plugins" dir="${build.plugins}"/>
       <webinf dir="${lib.dir}">
-	<include name="taglibs-*.tld"/>
+	      <include name="taglibs-*.tld"/>
       </webinf>
     </war>
    </target>
