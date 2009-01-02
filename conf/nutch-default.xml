@@ -886,7 +886,7 @@
 
 <property>
   <name>plugin.includes</name>
-  <value>protocol-http|urlfilter-regex|parse-(text|html|js)|index-(basic|anchor)|query-(basic|site|url)|summary-basic|scoring-opic|urlnormalizer-(pass|regex|basic)</value>
+  <value>protocol-http|urlfilter-regex|parse-(text|html|js)|index-(basic|anchor)|query-(basic|site|url)|response-(json|xml)|summary-basic|scoring-opic|urlnormalizer-(pass|regex|basic)</value>
   <description>Regular expression naming plugin directory names to
   include.  Any plugin not matching this expression is excluded.
   In any case you need at least include the nutch-extensionpoints plugin. By
@@ -1206,6 +1206,65 @@
      Hadoop classes, which expect the output to contain only
      part-XXXXX files. This setting changes the output to a
      subdirectory of the regular log directory.
+  </description>
+</property>
+
+<!-- response writer properties -->
+
+<property>
+  <name>search.response.default.type</name>
+  <value>xml</value>
+  <description>
+  The default response type returned if none is specified.
+  </description>
+</property>
+
+<property>
+  <name>search.response.default.lang</name>
+  <value>en</value>
+  <description>
+  The default response language if none is specified.
+  </description>
+</property>
+
+<property>
+  <name>search.response.default.numrows</name>
+  <value>10</value>
+  <description>
+  The default number of rows to return if none is specified.
+  </description>
+</property>
+
+<property>
+  <name>search.response.default.dedupfield</name>
+  <value>site</value>
+  <description>
+  The default dedup field if none is specified.
+  </description>
+</property>
+
+<property>
+  <name>search.response.default.numdupes</name>
+  <value>1</value>
+  <description>
+  The default number of duplicates returned if none is specified.
+  </description>
+</property>
+
+<property>
+  <name>searcher.response.maxage</name>
+  <value>86400</value>
+  <description>
+  The maxage of a response in seconds. Used in caching headers.
+  </description>
+</property>
+
+<property>
+  <name>searcher.response.prettyprint</name>
+  <value>true</value>
+  <description>
+  Should the response output be pretty printed.  Setting to true enables better
+  debugging, false removes unneeded spaces and gives better throughput.
   </description>
 </property>
 

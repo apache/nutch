@@ -69,6 +69,10 @@
       name="Nutch Analysis"/>
 
 <extension-point
+      id="org.apache.nutch.searcher.response.ResponseWriter"
+      name="Nutch Search Results Response Writer"/>
+      
+<extension-point
       id="org.apache.nutch.searcher.Summarizer"
       name="Nutch Summarizer"/>
 
