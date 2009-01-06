@@ -1,135 +1,186 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta content="Apache Forrest" name="Generator">
-<meta name="Forrest-version" content="0.7">
+<meta name="Forrest-version" content="0.8">
 <meta name="Forrest-skin-name" content="pelt">
-<title>Welcome to Nutch!</title>
+<title>Welcome to MyProj</title>
 <link type="text/css" href="skin/basic.css" rel="stylesheet">
 <link media="screen" type="text/css" href="skin/screen.css" rel="stylesheet">
 <link media="print" type="text/css" href="skin/print.css" rel="stylesheet">
 <link type="text/css" href="skin/profile.css" rel="stylesheet">
 <script src="skin/getBlank.js" language="javascript" type="text/javascript"></script><script src="skin/getMenu.js" language="javascript" type="text/javascript"></script><script src="skin/fontsize.js" language="javascript" type="text/javascript"></script>
-<link rel="shortcut icon" href="images/favicon.ico">
+<link rel="shortcut icon" href="">
 </head>
 <body onload="init()">
 <script type="text/javascript">ndeSetTextSize();</script>
 <div id="top">
+<!--+
+    |breadtrail
+    +-->
 <div class="breadtrail">
-<a href="http://www.apache.org/">Apache</a> &gt; <a href="http://lucene.apache.org/">Lucene</a> &gt; <a href="http://lucene.apache.org/nutch/">Nutch</a><script src="skin/breadcrumbs.js" language="JavaScript" type="text/javascript"></script>
+<a href="http://www.apache.org/">myGroup</a> &gt; <a href="http://forrest.apache.org/">myProject</a><script src="skin/breadcrumbs.js" language="JavaScript" type="text/javascript"></script>
 </div>
+<!--+
+    |header
+    +-->
 <div class="header">
+<!--+
+    |start group logo
+    +-->
 <div class="grouplogo">
-<a href="http://lucene.apache.org/"><img class="logoImage" alt="Lucene" src="images/lucene_green_150.gif" title="Apache Lucene"></a>
+<a href="http://mygroup.org"><img class="logoImage" alt="MyGroup" src="images/group.png" title="MyGroup Description"></a>
 </div>
+<!--+
+    |end group logo
+    +-->
+<!--+
+    |start Project Logo
+    +-->
 <div class="projectlogo">
-<a href="http://lucene.apache.org/nutch/"><img class="logoImage" alt="Nutch" src="images/nutch-logo.gif" title="Open Source Web Search Software"></a>
+<a href="http://myproj.mygroup.org/"><img class="logoImage" alt="MyProject" src="images/project.png" title="MyProject Description"></a>
 </div>
+<!--+
+    |end Project Logo
+    +-->
+<!--+
+    |start Search
+    +-->
 <div class="searchbox">
 <form action="http://www.google.com/search" method="get" class="roundtopsmall">
-<input value="lucene.apache.org" name="sitesearch" type="hidden"><input onFocus="getBlank (this, 'Search the site with google');" size="25" name="q" id="query" type="text" value="Search the site with google">&nbsp; 
-                    <input attr="value" name="Search" value="Search" type="submit">
+<input value="mydomain" name="sitesearch" type="hidden"><input onFocus="getBlank (this, 'Search the site with google');" size="25" name="q" id="query" type="text" value="Search the site with google">&nbsp; 
+                    <input name="Search" value="Search" type="submit">
 </form>
 </div>
+<!--+
+    |end search
+    +-->
+<!--+
+    |start Tabs
+    +-->
 <ul id="tabs">
 <li class="current">
-<a class="base-selected" href="index.html">Main</a>
+<a class="selected" href="index.html">Home</a>
 </li>
 <li>
-<a class="base-not-selected" href="http://wiki.apache.org/nutch/">Wiki</a>
+<a class="unselected" href="samples/sample.html">Samples</a>
 </li>
 <li>
-<a class="base-not-selected" href="http://issues.apache.org/jira/browse/Nutch">Jira</a>
+<a class="unselected" href="http://xml.apache.org">Apache XML Projects</a>
+</li>
+<li>
+<a class="unselected" href="pluginDocs/plugins_0_80/index.html">Plugins</a>
 </li>
 </ul>
+<!--+
+    |end Tabs
+    +-->
 </div>
 </div>
 <div id="main">
 <div id="publishedStrip">
+<!--+
+    |start Subtabs
+    +-->
 <div id="level2tabs"></div>
+<!--+
+    |end Endtabs
+    +-->
 <script type="text/javascript"><!--
-document.write("<text>Last Published:</text> " + document.lastModified);
+document.write("Last Published: " + document.lastModified);
 //  --></script>
 </div>
+<!--+
+    |breadtrail
+    +-->
 <div class="breadtrail">
-             
+
              &nbsp;
            </div>
+<!--+
+    |start Menu, mainarea
+    +-->
+<!--+
+    |start Menu
+    +-->
 <div id="menu">
-<div onclick="SwitchMenu('menu_selected_1.1', 'skin/')" id="menu_selected_1.1Title" class="menutitle" style="background-image: url('skin/images/chapter_open.gif');">Project</div>
+<div onclick="SwitchMenu('menu_selected_1.1', 'skin/')" id="menu_selected_1.1Title" class="menutitle" style="background-image: url('skin/images/chapter_open.gif');">About</div>
 <div id="menu_selected_1.1" class="selectedmenuitemgroup" style="display: block;">
 <div class="menupage">
-<div class="menupagetitle">News</div>
+<div class="menupagetitle">Index</div>
 </div>
 <div class="menuitem">
-<a href="about.html">About</a>
-</div>
-<div class="menuitem">
-<a href="credits.html">Credits</a>
-</div>
-<div class="menuitem">
-<a href="http://www.cafepress.com/nutch/">Buy Stuff</a>
+<a href="linkmap.html" title="Table of Contents for this example site">Documentation ToC</a>
 </div>
 </div>
-<div onclick="SwitchMenu('menu_1.2', 'skin/')" id="menu_1.2Title" class="menutitle">Documentation</div>
+<div onclick="SwitchMenu('menu_1.2', 'skin/')" id="menu_1.2Title" class="menutitle">Samples</div>
 <div id="menu_1.2" class="menuitemgroup">
 <div class="menuitem">
-<a href="http://wiki.apache.org/nutch/FAQ">FAQ</a>
+<a href="samples/index.html">Overview</a>
 </div>
 <div class="menuitem">
-<a href="http://wiki.apache.org/nutch/">Wiki</a>
+<a href="samples/sample.html" title="A nonsense       document using all possible elements in the current document v2.0">Apache doc v2.0</a>
 </div>
 <div class="menuitem">
-<a href="tutorial.html">Tutorial (0.7.2)</a>
+<a href="samples/static.html" title="Static raw       un-processed content">Static content</a>
 </div>
 <div class="menuitem">
-<a href="tutorial8.html">Tutorial (0.8.x)</a>
+<a href="samples/linking.html" title="Linking explained       and demonstrated">Linking</a>
 </div>
 <div class="menuitem">
-<a href="bot.html">Robot     </a>
+<a href="samples/howto-howto.html" title="Test of How To documents">How To</a>
 </div>
 <div class="menuitem">
-<a href="i18n.html">i18n</a>
+<a href="samples/embedded_html.html" title="Test of Embedded HTML">Embedded HTML</a>
 </div>
 <div class="menuitem">
-<a href="apidocs/index.html">API Docs (0.7.2)</a>
+<a href="samples/ascii-art.html" title="Sample Ascii Art page">ascii-art page</a>
 </div>
 <div class="menuitem">
-<a href="apidocs-0.8.x/index.html">API Docs (0.8.x)</a>
+<a href="samples/svg.html" title="Using Scalable Vector Graphics (SVG)">Using SVG</a>
 </div>
 <div class="menuitem">
-<a href="http://lucene.zones.apache.org:8080/hudson/job/Nutch-Nightly/ws/trunk/build/docs/api/index.html">API Docs (nightly)</a>
+<a href="samples/usemap.html" title="Client-side       imagemap">usemap</a>
+</div>
+<div class="menuitem">
+<a href="samples/i18n.html">Internationalisation (i18n)</a>
+</div>
+<div class="menuitem">
+<a href="samples/demo-i18n.html">i18n demonstration</a>
+</div>
+<div class="menuitem">
+<a href="samples/customSchema.html" title="Custom XML schema and doctypes">Custom Schema</a>
+</div>
+<div class="menuitem">
+<a href="samples/xml-entities.html" title="Using XML entities for character replacements">XML entities</a>
+</div>
+<div class="menuitem">
+<a href="samples/faq.html" title="Frequently Asked Questions">FAQ</a>
+</div>
+<div class="menuitem">
+<a href="samples/locationmap/index.html" title="Locationmaps allow the user URL space to be different from       the storage URL Space">Locationmap</a>
+</div>
+<div onclick="SwitchMenu('menu_1.2.16', 'skin/')" id="menu_1.2.16Title" class="menutitle">Subdir</div>
+<div id="menu_1.2.16" class="menuitemgroup">
+<div class="menuitem">
+<a href="samples/subdir/index.html" title="Page generated from a         sub-directory">Index</a>
 </div>
 </div>
-<div onclick="SwitchMenu('menu_1.3', 'skin/')" id="menu_1.3Title" class="menutitle">Resources</div>
+<div onclick="SwitchMenu('menu_1.2.17', 'skin/')" id="menu_1.2.17Title" class="menutitle">Conditional display of menuitems</div>
+<div id="menu_1.2.17" class="menuitemgroup">
+<div class="menuitem">
+<a href="samples/showonlywhenselected/page1.html">Always visible page</a>
+</div>
+<div class="menuitem">
+<a href="samples/showonlywhenselected/page2.html">Visible only when current</a>
+</div>
+</div>
+</div>
+<div onclick="SwitchMenu('menu_1.3', 'skin/')" id="menu_1.3Title" class="menutitle">Plugins</div>
 <div id="menu_1.3" class="menuitemgroup">
 <div class="menuitem">
-<a href="release/">Download</a>
-</div>
-<div class="menuitem">
-<a href="nightly.html">Nightly builds</a>
-</div>
-<div class="menuitem">
-<a href="mailing_lists.html">Mailing Lists</a>
-</div>
-<div class="menuitem">
-<a href="issue_tracking.html">Issue Tracking</a>
-</div>
-<div class="menuitem">
-<a href="version_control.html">Version Control</a>
-</div>
-</div>
-<div onclick="SwitchMenu('menu_1.4', 'skin/')" id="menu_1.4Title" class="menutitle">Related Projects</div>
-<div id="menu_1.4" class="menuitemgroup">
-<div class="menuitem">
-<a href="http://lucene.apache.org/java/">Lucene Java</a>
-</div>
-<div class="menuitem">
-<a href="http://lucene.apache.org/hadoop/">Hadoop</a>
-</div>
-<div class="menuitem">
-<a href="http://incubator.apache.org/solr/">Solr</a>
+<a href="pluginDocs/plugins_0_70/index.html" title="List of plugins       available for Forrest">Index</a>
 </div>
 </div>
 <div id="credit">
@@ -138,147 +189,96 @@ document.write("<text>Last Published:</text> " + document.lastModified);
 </div>
 <div id="roundbottom">
 <img style="display: none" class="corner" height="15" width="15" alt="" src="skin/images/rc-b-l-15-1body-2menu-3menu.png"></div>
+<!--+
+  |alternative credits
+  +-->
 <div id="credit2"></div>
 </div>
+<!--+
+    |end Menu
+    +-->
+<!--+
+    |start content
+    +-->
 <div id="content">
 <div title="Portable Document Format" class="pdflink">
 <a class="dida" href="index.pdf"><img alt="PDF -icon" src="skin/images/pdfdoc.gif" class="skin"><br>
         PDF</a>
 </div>
-<h1>Welcome to Nutch!</h1>
+<h1>Welcome to MyProj</h1>
 <div id="minitoc-area">
 <ul class="minitoc">
 <li>
-<a href="#News">News</a>
-<ul class="minitoc">
-<li>
-<a href="#2+April+2007%3A+Nutch+0.9+Released">2 April 2007: Nutch 0.9 Released</a>
+<a href="#status">Congratulations</a>
 </li>
 <li>
-<a href="#24+September+2006%3A+Nutch+0.8.1+Released">24 September 2006: Nutch 0.8.1 Released</a>
-</li>
-<li>
-<a href="#25+July+2006%3A+Nutch+0.8+Released">25 July 2006: Nutch 0.8 Released</a>
-</li>
-<li>
-<a href="#31+March+2006%3A+Nutch+0.7.2+Released">31 March 2006: Nutch 0.7.2 Released</a>
-</li>
-<li>
-<a href="#1+October+2005%3A+Nutch+0.7.1+Released">1 October 2005: Nutch 0.7.1 Released</a>
-</li>
-<li>
-<a href="#17+August+2005%3A+Nutch+0.7+Released">17 August 2005: Nutch 0.7 Released</a>
-</li>
-<li>
-<a href="#June+2005%3A+Nutch+graduates+from+Incubator">June 2005: Nutch graduates from Incubator</a>
-</li>
-<li>
-<a href="#January+2005%3A+Nutch+Joins+Apache+Incubator">January 2005: Nutch Joins Apache Incubator</a>
-</li>
-<li>
-<a href="#September+2004%3A+Creative+Commons+launches+Nutch-based+Search">September 2004: Creative Commons launches Nutch-based Search</a>
-</li>
-<li>
-<a href="#September+2004%3A+Oregon+State+University+switches+to+Nutch">September 2004: Oregon State University switches to Nutch</a>
+<a href="#examples">Using examples as templates</a>
 </li>
 </ul>
-</li>
-</ul>
-</div> 
-
-    
-<a name="N1000D"></a><a name="News"></a>
-<h2 class="h3">News</h2>
-<div class="section">
-<a name="N10013"></a><a name="2+April+2007%3A+Nutch+0.9+Released"></a>
-<h3 class="h4">2 April 2007: Nutch 0.9 Released</h3>
-<p>The 0.9 release of Nutch is now available. This is the second release of Nutch
-      based entirely on the underlying Hadoop platform. This release includes several critical
-      bug fixes, as well as key speedups described in more detail at 
-      <a href="http://blog.foofactory.fi/2007/03/twice-speed-half-size.html">Sami Siren's blog</a>.
-      See <a href="http://www.apache.org/dist/lucene/nutch/CHANGES-0.9.txt">
-      list of changes</a>  made in this version. The release is available
-      <a href="http://lucene.apache.org/nutch/release/">here</a>.</p>
-<a name="N10029"></a><a name="24+September+2006%3A+Nutch+0.8.1+Released"></a>
-<h3 class="h4">24 September 2006: Nutch 0.8.1 Released</h3>
-<p>The 0.8.1 release of Nutch is now available. This is a maintenance release to 0.8 branch fixing many serous bugs found in version 0.8.
-      See <a href="http://www.apache.org/dist/lucene/nutch/CHANGES-0.8.1.txt">
-      list of changes</a>  made in this version. The release is available
-      <a href="http://lucene.apache.org/nutch/release/">here</a>.</p>
-<a name="N1003B"></a><a name="25+July+2006%3A+Nutch+0.8+Released"></a>
-<h3 class="h4">25 July 2006: Nutch 0.8 Released</h3>
-<p>The 0.8 release of Nutch is now available. This is the first release of Nutch based on
-      hadoop architecure. See <a href="http://svn.apache.org/viewvc/lucene/nutch/tags/release-0.8/CHANGES.txt?view=markup">
-      CHANGES.txt</a> for list of changes made in this version. The release is available
-      <a href="http://lucene.apache.org/nutch/release/">here</a>.</p>
-<a name="N1004D"></a><a name="31+March+2006%3A+Nutch+0.7.2+Released"></a>
-<h3 class="h4">31 March 2006: Nutch 0.7.2 Released</h3>
-<p>The 0.7.2 release of Nutch is now available. This is a bug fix release for 0.7 branch. See
-      <a href="http://svn.apache.org/viewcvs.cgi/lucene/nutch/branches/branch-0.7/CHANGES.txt?rev=390158">
-      CHANGES.txt</a> for details. The release is available
-      <a href="http://lucene.apache.org/nutch/release/">here</a>.</p>
-<a name="N1005F"></a><a name="1+October+2005%3A+Nutch+0.7.1+Released"></a>
-<h3 class="h4">1 October 2005: Nutch 0.7.1 Released</h3>
-<p>The 0.7.1 release of Nutch is now available. This is a bug fix release. See
-      <a href="http://svn.apache.org/viewcvs.cgi/lucene/nutch/branches/branch-0.7/CHANGES.txt?rev=292986">
-      CHANGES.txt</a> for details. The release is available
-      <a href="http://lucene.apache.org/nutch/release/">here</a>.</p>
-<a name="N10071"></a><a name="17+August+2005%3A+Nutch+0.7+Released"></a>
-<h3 class="h4">17 August 2005: Nutch 0.7 Released</h3>
-<p>This is the first Nutch release as an Apache Lucene sub-project. See 
-      <a href="http://svn.apache.org/viewcvs.cgi/lucene/nutch/trunk/CHANGES.txt?rev=233150">
-      CHANGES.txt</a> for details. The release is available 
-      <a href="http://lucene.apache.org/nutch/release/">here</a>.</p>
-<a name="N10083"></a><a name="June+2005%3A+Nutch+graduates+from+Incubator"></a>
-<h3 class="h4">June 2005: Nutch graduates from Incubator</h3>
-<p>Nutch has now graduated from the Apache incubator, and is now
-      a Subproject of Lucene.</p>
-<a name="N1008D"></a><a name="January+2005%3A+Nutch+Joins+Apache+Incubator"></a>
-<h3 class="h4">January 2005: Nutch Joins Apache Incubator</h3>
-<p>Nutch is a two-year-old open source project, previously
-        hosted at Sourceforge and backed by its own non-profit
-        organization. The non-profit was founded in order to assign
-        copyright, so that we could retain the right to change the
-        license. We have now determined that the Apache license is the
-        appropriate license for Nutch and no longer require the
-        overhead of an independent non-profit organization. Nutch's
-        board of directors and its developers were both polled and
-        supported the move to the Apache foundation.</p>
-<a name="N10097"></a><a name="September+2004%3A+Creative+Commons+launches+Nutch-based+Search"></a>
-<h3 class="h4">September 2004: Creative Commons launches Nutch-based Search</h3>
-<p>Creative Commons unveiled a beta version of its search
-      engine, which scours the web for text, images, audio, and video
-      free to re-use on certain terms a search refinement offered by
-      no other company or organization.</p>
-<p>See the <a href="http://creativecommons.org/press-releases/entry/5064">Creative
-      Commons Press Release</a> for more details.</p>
-<a name="N100A8"></a><a name="September+2004%3A+Oregon+State+University+switches+to+Nutch"></a>
-<h3 class="h4">September 2004: Oregon State University switches to Nutch</h3>
-<p>Oregon State University is converting its searching
-      infrastructure from Googletm to the open source project
-      Nutch. The effort to replace the Googletm will realize
-      significant cost savings for Oregon State University, while
-      promoting both the Nutch Search Engine and transparency in
-      search engine use and management.</p>
-<p>For more details see the announcement by OSU's <a href="http://osuosl.org/news_folder/nutch">Open Source
-      Lab</a>.</p>
 </div>
-
+    
+<a name="N1000D"></a><a name="status"></a>
+<h2 class="boxed">Congratulations</h2>
+<div class="section">
+<p>
+        You have successfully generated and rendered an
+        <a href="http://forrest.apache.org/">Apache Forrest</a> site. This page is
+        from the site template. It is found in
+        <span class="codefrag">src/documentation/content/xdocs/index.xml</span> Please edit it
+        and replace this text with content of your own.
+      </p>
+</div>
+    
+<a name="N1001E"></a><a name="examples"></a>
+<h2 class="boxed">Using examples as templates</h2>
+<div class="section">
+<p>
+        This demo site has many examples. See the menu at the left. The sources
+        for these examples are in the directory
+        <span class="codefrag">src/documentation/content/xdocs/</span>
+      
+</p>
+<p>
+        The sources for the Apache Forrest website are also included in your
+        distribution at <span class="codefrag">$FORREST_HOME/site-author/</span>
+      
+</p>
+<p>
+        You can also extend the functionality of Forrest via
+        <a href="pluginDocs/plugins_0_70/">plugins</a>, these will often come with more
+        samples for you to out.
+      </p>
+</div>
   
 </div>
+<!--+
+    |end content
+    +-->
 <div class="clearboth">&nbsp;</div>
 </div>
 <div id="footer">
+<!--+
+    |start bottomstrip
+    +-->
 <div class="lastmodified">
 <script type="text/javascript"><!--
-document.write("<text>Last Published:</text> " + document.lastModified);
+document.write("Last Published: " + document.lastModified);
 //  --></script>
 </div>
 <div class="copyright">
         Copyright &copy;
-         2006 <a href="http://www.apache.org/licenses/">The Apache Software Foundation.</a>
+         2005-2009 <a href="http://www.example.org/">The Example Organisation.</a>
 </div>
-<div id="logos"></div>
+<div id="logos">
+<a href="http://validator.w3.org/check/referer"><img style="height: 31px; width: 88px;" title="Valid HTML 4.01!" alt="Valid HTML 4.01!" src="skin/images/valid-html401.png" class="logoImage"></a><a href="http://jigsaw.w3.org/css-validator/check/referer"><img style="height: 31px; width: 88px;" title="Valid CSS!" alt="Valid CSS!" src="skin/images/vcss.png" class="logoImage"></a>
+</div>
+<div id="feedback">
+    Send feedback about the website to:
+  <a id="feedbackto" href="mailto:webmaster@foo.com?subject=Feedback%C2%A0index.html">webmaster@foo.com</a>
+</div>
+<!--+
+    |end bottomstrip
+    +-->
 </div>
 </body>
 </html>
