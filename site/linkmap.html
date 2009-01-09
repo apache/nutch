@@ -11,7 +11,7 @@
 <link media="print" type="text/css" href="skin/print.css" rel="stylesheet">
 <link type="text/css" href="skin/profile.css" rel="stylesheet">
 <script src="skin/getBlank.js" language="javascript" type="text/javascript"></script><script src="skin/getMenu.js" language="javascript" type="text/javascript"></script><script src="skin/fontsize.js" language="javascript" type="text/javascript"></script>
-<link rel="shortcut icon" href="">
+<link rel="shortcut icon" href="images/favicon.ico">
 </head>
 <body onload="init()">
 <script type="text/javascript">ndeSetTextSize();</script>
@@ -20,7 +20,7 @@
     |breadtrail
     +-->
 <div class="breadtrail">
-<a href="http://www.apache.org/">myGroup</a> &gt; <a href="http://forrest.apache.org/">myProject</a><script src="skin/breadcrumbs.js" language="JavaScript" type="text/javascript"></script>
+<a href="http://www.apache.org/">Apache</a> &gt; <a href="http://lucene.apache.org/">Lucene</a> &gt; <a href="http://lucene.apache.org/nutch/">Nutch</a><script src="skin/breadcrumbs.js" language="JavaScript" type="text/javascript"></script>
 </div>
 <!--+
     |header
@@ -30,7 +30,7 @@
     |start group logo
     +-->
 <div class="grouplogo">
-<a href="http://mygroup.org"><img class="logoImage" alt="MyGroup" src="images/group.png" title="MyGroup Description"></a>
+<a href="http://lucene.apache.org/"><img class="logoImage" alt="Lucene" src="images/lucene_green_150.gif" title="Apache Lucene"></a>
 </div>
 <!--+
     |end group logo
@@ -39,7 +39,7 @@
     |start Project Logo
     +-->
 <div class="projectlogo">
-<a href="http://myproj.mygroup.org/"><img class="logoImage" alt="MyProject" src="images/project.png" title="MyProject Description"></a>
+<a href="http://lucene.apache.org/nutch/"><img class="logoImage" alt="Nutch" src="images/nutch-logo.gif" title="Open Source Web Search Software"></a>
 </div>
 <!--+
     |end Project Logo
@@ -49,7 +49,7 @@
     +-->
 <div class="searchbox">
 <form action="http://www.google.com/search" method="get" class="roundtopsmall">
-<input value="mydomain" name="sitesearch" type="hidden"><input onFocus="getBlank (this, 'Search the site with google');" size="25" name="q" id="query" type="text" value="Search the site with google">&nbsp; 
+<input value="lucene.apache.org" name="sitesearch" type="hidden"><input onFocus="getBlank (this, 'Search the site with google');" size="25" name="q" id="query" type="text" value="Search the site with google">&nbsp; 
                     <input name="Search" value="Search" type="submit">
 </form>
 </div>
@@ -61,16 +61,13 @@
     +-->
 <ul id="tabs">
 <li class="current">
-<a class="selected" href="index.html">Home</a>
+<a class="selected" href="index.html">Main</a>
 </li>
 <li>
-<a class="unselected" href="samples/sample.html">Samples</a>
+<a class="unselected" href="http://wiki.apache.org/nutch/">Wiki</a>
 </li>
 <li>
-<a class="unselected" href="http://xml.apache.org">Apache XML Projects</a>
-</li>
-<li>
-<a class="unselected" href="pluginDocs/plugins_0_80/index.html">Plugins</a>
+<a class="unselected" href="http://issues.apache.org/jira/browse/Nutch">Jira</a>
 </li>
 </ul>
 <!--+
@@ -105,82 +102,82 @@ document.write("Last Published: " + document.lastModified);
     |start Menu
     +-->
 <div id="menu">
-<div onclick="SwitchMenu('menu_selected_1.1', 'skin/')" id="menu_selected_1.1Title" class="menutitle" style="background-image: url('skin/images/chapter_open.gif');">About</div>
-<div id="menu_selected_1.1" class="selectedmenuitemgroup" style="display: block;">
+<div onclick="SwitchMenu('menu_1.1', 'skin/')" id="menu_1.1Title" class="menutitle">Project</div>
+<div id="menu_1.1" class="menuitemgroup">
 <div class="menuitem">
-<a href="index.html" title="Welcome to MyProj">Index</a>
+<a href="index.html">News</a>
 </div>
-<div class="menupage">
-<div class="menupagetitle">Documentation ToC</div>
+<div class="menuitem">
+<a href="about.html">About</a>
+</div>
+<div class="menuitem">
+<a href="credits.html">Credits</a>
+</div>
+<div class="menuitem">
+<a href="http://www.cafepress.com/nutch/">Buy Stuff</a>
 </div>
 </div>
-<div onclick="SwitchMenu('menu_1.2', 'skin/')" id="menu_1.2Title" class="menutitle">Samples</div>
+<div onclick="SwitchMenu('menu_1.2', 'skin/')" id="menu_1.2Title" class="menutitle">Documentation</div>
 <div id="menu_1.2" class="menuitemgroup">
 <div class="menuitem">
-<a href="samples/index.html">Overview</a>
+<a href="http://wiki.apache.org/nutch/FAQ">FAQ</a>
 </div>
 <div class="menuitem">
-<a href="samples/sample.html" title="A nonsense       document using all possible elements in the current document v2.0">Apache doc v2.0</a>
+<a href="http://wiki.apache.org/nutch/">Wiki</a>
 </div>
 <div class="menuitem">
-<a href="samples/static.html" title="Static raw       un-processed content">Static content</a>
+<a href="tutorial.html">Tutorial (0.7.2)</a>
 </div>
 <div class="menuitem">
-<a href="samples/linking.html" title="Linking explained       and demonstrated">Linking</a>
+<a href="tutorial8.html">Tutorial (0.8.x)</a>
 </div>
 <div class="menuitem">
-<a href="samples/howto-howto.html" title="Test of How To documents">How To</a>
+<a href="bot.html">Robot     </a>
 </div>
 <div class="menuitem">
-<a href="samples/embedded_html.html" title="Test of Embedded HTML">Embedded HTML</a>
+<a href="i18n.html">i18n</a>
 </div>
 <div class="menuitem">
-<a href="samples/ascii-art.html" title="Sample Ascii Art page">ascii-art page</a>
+<a href="apidocs/index.html">API Docs (0.7.2)</a>
 </div>
 <div class="menuitem">
-<a href="samples/svg.html" title="Using Scalable Vector Graphics (SVG)">Using SVG</a>
+<a href="apidocs-0.8.x/index.html">API Docs (0.8.x)</a>
 </div>
 <div class="menuitem">
-<a href="samples/usemap.html" title="Client-side       imagemap">usemap</a>
+<a href="apidocs-0.9/index.html">API Docs (0.9)</a>
 </div>
 <div class="menuitem">
-<a href="samples/i18n.html">Internationalisation (i18n)</a>
-</div>
-<div class="menuitem">
-<a href="samples/demo-i18n.html">i18n demonstration</a>
-</div>
-<div class="menuitem">
-<a href="samples/customSchema.html" title="Custom XML schema and doctypes">Custom Schema</a>
-</div>
-<div class="menuitem">
-<a href="samples/xml-entities.html" title="Using XML entities for character replacements">XML entities</a>
-</div>
-<div class="menuitem">
-<a href="samples/faq.html" title="Frequently Asked Questions">FAQ</a>
-</div>
-<div class="menuitem">
-<a href="samples/locationmap/index.html" title="Locationmaps allow the user URL space to be different from       the storage URL Space">Locationmap</a>
-</div>
-<div onclick="SwitchMenu('menu_1.2.16', 'skin/')" id="menu_1.2.16Title" class="menutitle">Subdir</div>
-<div id="menu_1.2.16" class="menuitemgroup">
-<div class="menuitem">
-<a href="samples/subdir/index.html" title="Page generated from a         sub-directory">Index</a>
+<a href="http://lucene.zones.apache.org:8080/hudson/job/Nutch-Nightly/ws/trunk/build/docs/api/index.html">API Docs (nightly)</a>
 </div>
 </div>
-<div onclick="SwitchMenu('menu_1.2.17', 'skin/')" id="menu_1.2.17Title" class="menutitle">Conditional display of menuitems</div>
-<div id="menu_1.2.17" class="menuitemgroup">
-<div class="menuitem">
-<a href="samples/showonlywhenselected/page1.html">Always visible page</a>
-</div>
-<div class="menuitem">
-<a href="samples/showonlywhenselected/page2.html">Visible only when current</a>
-</div>
-</div>
-</div>
-<div onclick="SwitchMenu('menu_1.3', 'skin/')" id="menu_1.3Title" class="menutitle">Plugins</div>
+<div onclick="SwitchMenu('menu_1.3', 'skin/')" id="menu_1.3Title" class="menutitle">Resources</div>
 <div id="menu_1.3" class="menuitemgroup">
 <div class="menuitem">
-<a href="pluginDocs/plugins_0_70/index.html" title="List of plugins       available for Forrest">Index</a>
+<a href="release/">Download</a>
+</div>
+<div class="menuitem">
+<a href="nightly.html">Nightly builds</a>
+</div>
+<div class="menuitem">
+<a href="mailing_lists.html">Mailing Lists</a>
+</div>
+<div class="menuitem">
+<a href="issue_tracking.html">Issue Tracking</a>
+</div>
+<div class="menuitem">
+<a href="version_control.html">Version Control</a>
+</div>
+</div>
+<div onclick="SwitchMenu('menu_1.4', 'skin/')" id="menu_1.4Title" class="menutitle">Related Projects</div>
+<div id="menu_1.4" class="menuitemgroup">
+<div class="menuitem">
+<a href="http://lucene.apache.org/java/">Lucene Java</a>
+</div>
+<div class="menuitem">
+<a href="http://lucene.apache.org/hadoop/">Hadoop</a>
+</div>
+<div class="menuitem">
+<a href="http://incubator.apache.org/solr/">Solr</a>
 </div>
 </div>
 <div id="credit"></div>
@@ -208,173 +205,185 @@ document.write("Last Published: " + document.lastModified);
         </p>
 <ul>
 <li>
-<a>MyProj</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>site</em>
+<a>Nutch</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>site</em>
 </li>
 <ul>
-  
-<ul>
-<li>
-<a>About</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>about</em>
-</li>
-<ul>
-    
-<ul>
-<li>
-<a href="index.html">Index</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>index</em>&nbsp;: Welcome to MyProj</li>
-</ul>
-    
-<ul>
-<li>
-<a href="linkmap.html">Documentation ToC</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>linkmap</em>&nbsp;: Table of Contents for this example site</li>
-</ul>
-  
-</ul>
-</ul>
-  
-<ul>
-<li>
-<a href="samples/">Samples</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>samples</em>
-</li>
-<ul>
-    
-<ul>
-<li>
-<a href="samples/index.html">Overview</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>index</em>
-</li>
-</ul>
-    
-<ul>
-<li>
-<a href="samples/sample.html">Apache doc v2.0</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>sample</em>&nbsp;: A nonsense document using all possible elements in the current document v2.0</li>
-<ul>
-      
-      
-    
-</ul>
-</ul>
-    
-<ul>
-<li>
-<a href="samples/static.html">Static content</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>static</em>&nbsp;: Static raw un-processed content</li>
-</ul>
-    
-<ul>
-<li>
-<a href="samples/linking.html">Linking</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>linking</em>&nbsp;: Linking explained and demonstrated</li>
-</ul>
-    
-<ul>
-<li>
-<a href="samples/howto-howto.html">How To</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>sample-howto</em>&nbsp;: Test of How To documents</li>
-</ul>
-    
-<ul>
-<li>
-<a href="samples/embedded_html.html">Embedded HTML</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>sample-html</em>&nbsp;: Test of Embedded HTML</li>
-</ul>
-    
-<ul>
-<li>
-<a href="samples/ascii-art.html">ascii-art page</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>sample-ascii-art</em>&nbsp;: Sample Ascii Art page</li>
-</ul>
-    
-<ul>
-<li>
-<a href="samples/svg.html">Using SVG</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>svg</em>&nbsp;: Using Scalable Vector Graphics (SVG)</li>
-</ul>
-    
-<ul>
-<li>
-<a href="samples/usemap.html">usemap</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>sample-usemap</em>&nbsp;: Client-side imagemap</li>
-</ul>
-    
-<ul>
-<li>
-<a href="samples/i18n.html">Internationalisation (i18n)</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>i18n</em>
-</li>
-</ul>
-    
-<ul>
-<li>
-<a href="samples/demo-i18n.html">i18n demonstration</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>i18n-demo</em>
-</li>
-</ul>
-    
-<ul>
-<li>
-<a href="samples/customSchema.html">Custom Schema</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>sample-custom</em>&nbsp;: Custom XML schema and doctypes</li>
-</ul>
-    
-    
-<ul>
-<li>
-<a href="samples/xml-entities.html">XML entities</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>xml-entities</em>&nbsp;: Using XML entities for character replacements</li>
-</ul>
-    
-<ul>
-<li>
-<a href="samples/faq.html">FAQ</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>faq</em>&nbsp;: Frequently Asked Questions</li>
-</ul>
-    
-<ul>
-<li>
-<a href="samples/locationmap/index.html">Locationmap</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>locationmap</em>&nbsp;: Locationmaps allow the user URL space to be different from the storage URL Space</li>
-</ul>
-    
-<ul>
-<li>
-<a href="samples/subdir/">Subdir</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>subdir</em>
-</li>
-<ul>
-      
-<ul>
-<li>
-<a href="samples/subdir/index.html">Index</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>index</em>&nbsp;: Page generated from a sub-directory</li>
-</ul>
-    
-</ul>
-</ul>
-    
-<ul>
-<li>
-<a href="samples/showonlywhenselected/">Conditional display of menuitems</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>showonlywhenselected</em>
-</li>
-<ul>
-      
-<ul>
-<li>
-<a href="samples/showonlywhenselected/page1.html">Always visible page</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>page1</em>
-</li>
-</ul>
-      
-<ul>
-<li>
-<a href="samples/showonlywhenselected/page2.html">Visible only when current</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>page2</em>
-</li>
-</ul>
-    
-</ul>
-</ul>
-  
-</ul>
-</ul>
-  
-<ul>
-<li>
-<a href="pluginDocs/plugins_0_70/">Plugins</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>plugins</em>
-</li>
-<ul>
-    
-<ul>
-<li>
-<a href="pluginDocs/plugins_0_70/index.html">Index</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>index</em>&nbsp;: List of plugins available for Forrest</li>
-</ul>
-  
-</ul>
-</ul>
-  
 
   
+<ul>
+<li>
+<a>Project</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>project</em>
+</li>
+<ul>
+    
+<ul>
+<li>
+<a href="index.html">News</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>news</em>
+</li>
+</ul>    
+    
+<ul>
+<li>
+<a href="about.html">About</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>about</em>
+</li>
+</ul>    
+    
+<ul>
+<li>
+<a href="credits.html">Credits</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>credits</em>
+</li>
+</ul>    
+    
+<ul>
+<li>
+<a href="http://www.cafepress.com/nutch/">Buy Stuff</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>store</em>
+</li>
+</ul>    
+  
+</ul>
+</ul>
+
+  
+<ul>
+<li>
+<a>Documentation</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>docs</em>
+</li>
+<ul>    
+    
+<ul>
+<li>
+<a href="http://wiki.apache.org/nutch/FAQ">FAQ</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>faq</em>
+</li>
+</ul>    
+    
+<ul>
+<li>
+<a href="http://wiki.apache.org/nutch/">Wiki</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>wiki</em>
+</li>
+</ul>    
+    
+<ul>
+<li>
+<a href="tutorial.html">Tutorial (0.7.2)</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>tutorial</em>
+</li>
+</ul>
+    
+<ul>
+<li>
+<a href="tutorial8.html">Tutorial (0.8.x)</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>tutorial8</em>
+</li>
+</ul>
+    
+<ul>
+<li>
+<a href="bot.html">Robot     </a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>webmasters</em>
+</li>
+</ul>
+    
+<ul>
+<li>
+<a href="i18n.html">i18n</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>i18n</em>
+</li>
+</ul>
+    
+<ul>
+<li>
+<a href="apidocs/index.html">API Docs (0.7.2)</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>apidocs</em>
+</li>
+</ul>
+    
+<ul>
+<li>
+<a href="apidocs-0.8.x/index.html">API Docs (0.8.x)</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>apidocs</em>
+</li>
+</ul>
+    
+<ul>
+<li>
+<a href="apidocs-0.9/index.html">API Docs (0.9)</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>apidocs</em>
+</li>
+</ul>
+    
+<ul>
+<li>
+<a href="http://lucene.zones.apache.org:8080/hudson/job/Nutch-Nightly/ws/trunk/build/docs/api/index.html">API Docs (nightly)</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>apidocs</em>
+</li>
+</ul>
+  
+</ul>
+</ul>
+
+  
+<ul>
+<li>
+<a>Resources</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>resources</em>
+</li>
+<ul>
+    
+<ul>
+<li>
+<a href="release/">Download</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>download</em>
+</li>
+</ul>
+    
+<ul>
+<li>
+<a href="nightly.html">Nightly builds</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>nightly</em>
+</li>
+</ul>
+    
+<ul>
+<li>
+<a href="mailing_lists.html">Mailing Lists</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>contact</em>
+</li>
+</ul>
+    
+<ul>
+<li>
+<a href="issue_tracking.html">Issue Tracking</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>issues</em>
+</li>
+</ul>
+    
+<ul>
+<li>
+<a href="version_control.html">Version Control</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>vcs</em>
+</li>
+</ul>
+  
+</ul>
+</ul>
+
+
+  
+<ul>
+<li>
+<a>Related Projects</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>projects</em>
+</li>
+<ul>
+    
+<ul>
+<li>
+<a href="http://lucene.apache.org/java/">Lucene Java</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>lucene</em>
+</li>
+</ul>
+    
+<ul>
+<li>
+<a href="http://lucene.apache.org/hadoop/">Hadoop</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>hadoop</em>
+</li>
+</ul>
+    
+<ul>
+<li>
+<a href="http://incubator.apache.org/solr/">Solr</a>&nbsp;&nbsp;___________________&nbsp;&nbsp;<em>solr</em>
+</li>
+</ul>
+  
+</ul>
+</ul>
+
+  
+ 
 
 </ul>
 </ul>
@@ -395,11 +404,7 @@ document.write("Last Published: " + document.lastModified);
 </div>
 <div class="copyright">
         Copyright &copy;
-         2005-2009 <a href="http://www.example.org/">The Example Organisation.</a>
-</div>
-<div id="feedback">
-    Send feedback about the website to:
-  <a id="feedbackto" href="mailto:webmaster@foo.com?subject=Feedback%C2%A0linkmap.html">webmaster@foo.com</a>
+         2006 <a href="http://www.apache.org/licenses/">The Apache Software Foundation.</a>
 </div>
 <!--+
     |end bottomstrip
