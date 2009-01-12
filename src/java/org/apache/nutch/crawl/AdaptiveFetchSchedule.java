@@ -63,7 +63,7 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
   
   private boolean SYNC_DELTA;
 
-  private float SYNC_DELTA_RATE;
+  private double SYNC_DELTA_RATE;
   
   public void setConf(Configuration conf) {
     super.setConf(conf);
@@ -95,16 +95,19 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
       case FetchSchedule.STATUS_UNKNOWN:
         break;
     }
-    datum.setFetchInterval(interval);
     if (SYNC_DELTA) {
       // try to synchronize with the time of change
-      long delta = fetchTime - modifiedTime;
+      long delta = (fetchTime - modifiedTime) / 1000L;
       if (delta > interval) interval = delta;
-      refTime = fetchTime - Math.round(delta * SYNC_DELTA_RATE);
+      refTime = fetchTime - Math.round(delta * SYNC_DELTA_RATE * 1000);
     }
-    if (interval < MIN_INTERVAL) interval = MIN_INTERVAL;
-    if (interval > MAX_INTERVAL) interval = MAX_INTERVAL;
-    datum.setFetchTime(refTime + (long)datum.getFetchInterval() * 1000 );
+    if (interval < MIN_INTERVAL) {
+      interval = MIN_INTERVAL;
+    } else if (interval > MAX_INTERVAL) {
+      interval = MAX_INTERVAL;
+    }
+    datum.setFetchInterval(interval);
+    datum.setFetchTime(refTime + Math.round(interval * 1000.0));
     datum.setModifiedTime(modifiedTime);
     return datum;
   }
