@@ -47,6 +47,8 @@ public class SolrIndexer extends Configured implements Tool {
 
     NutchIndexWriterFactory.addClassToConf(job, SolrWriter.class);
 
+    job.setReduceSpeculativeExecution(false);
+
     final Path tmp = new Path("tmp_" + System.currentTimeMillis() + "-" +
                          new Random().nextInt());
 
