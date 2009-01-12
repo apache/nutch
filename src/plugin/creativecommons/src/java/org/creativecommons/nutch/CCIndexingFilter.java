@@ -17,20 +17,19 @@
 
 package org.creativecommons.nutch;
 
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.apache.nutch.metadata.CreativeCommons;
 
 import org.apache.nutch.parse.Parse;
 
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
+import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.indexer.lucene.LuceneWriter;
 import org.apache.hadoop.io.Text;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.metadata.CreativeCommons;
 
 import org.apache.hadoop.conf.Configuration;
 
@@ -50,7 +49,7 @@ public class CCIndexingFilter implements IndexingFilter {
 
   private Configuration conf;
 
-  public Document filter(Document doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
     throws IndexingException {
     
     Metadata metadata = parse.getData().getParseMeta();
@@ -86,7 +85,7 @@ public class CCIndexingFilter implements IndexingFilter {
   /** Add the features represented by a license URL.  Urls are of the form
    * "http://creativecommons.org/licenses/xx-xx/xx/xx", where "xx" names a
    * license feature. */
-  public void addUrlFeatures(Document doc, String urlString) {
+  public void addUrlFeatures(NutchDocument doc, String urlString) {
     try {
       URL url = new URL(urlString);
 
@@ -108,8 +107,12 @@ public class CCIndexingFilter implements IndexingFilter {
     }
   }
   
-  private void addFeature(Document doc, String feature) {
-    doc.add(new Field(FIELD, feature, Field.Store.YES, Field.Index.UN_TOKENIZED));
+  private void addFeature(NutchDocument doc, String feature) {
+    doc.add(FIELD, feature);
+  }
+
+  public void addIndexBackendOptions(Configuration conf) {
+    LuceneWriter.addFieldOptions(FIELD, LuceneWriter.STORE.YES, LuceneWriter.INDEX.UNTOKENIZED, conf);
   }
 
   public void setConf(Configuration conf) {

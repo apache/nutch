@@ -24,8 +24,6 @@ import java.util.HashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.lucene.document.Document;
-
 import org.apache.nutch.plugin.*;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.util.ObjectCache;
@@ -72,6 +70,7 @@ public class IndexingFilters {
               .getExtensionInstance();
           LOG.info("Adding " + filter.getClass().getName());
           if (!filterMap.containsKey(filter.getClass().getName())) {
+            filter.addIndexBackendOptions(conf);
             filterMap.put(filter.getClass().getName(), filter);
           }
         }
@@ -90,6 +89,7 @@ public class IndexingFilters {
             IndexingFilter filter = filterMap
                 .get(orderedFilters[i]);
             if (filter != null) {
+              filter.addIndexBackendOptions(conf);
               filters.add(filter);
             }
           }
@@ -105,7 +105,7 @@ public class IndexingFilters {
   }                  
 
   /** Run all defined filters. */
-  public Document filter(Document doc, Parse parse, Text url, CrawlDatum datum,
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum,
       Inlinks inlinks) throws IndexingException {
     for (int i = 0; i < this.indexingFilters.length; i++) {
       doc = this.indexingFilters[i].filter(doc, parse, url, datum, inlinks);
@@ -115,4 +115,5 @@ public class IndexingFilters {
 
     return doc;
   }
+
 }

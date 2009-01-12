@@ -31,9 +31,9 @@
   NutchBean bean = NutchBean.get(application, nutchConf);
   bean.LOG.info("cache request from " + request.getRemoteAddr());
   Hit hit = new Hit(Integer.parseInt(request.getParameter("idx")),
-                    Integer.parseInt(request.getParameter("id")));
+                    request.getParameter("id"));
   HitDetails details = bean.getDetails(hit);
-  String id = "idx=" + hit.getIndexNo() + "&id=" + hit.getIndexDocNo();
+  String id = "idx=" + hit.getIndexNo() + "&id=" + hit.getUniqueKey();
 
   String language =
     ResourceBundle.getBundle("org.nutch.jsp.cached", request.getLocale())

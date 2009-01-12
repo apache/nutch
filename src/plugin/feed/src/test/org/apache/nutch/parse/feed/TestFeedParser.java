@@ -101,6 +101,7 @@ public class TestFeedParser extends TestCase {
       protocol = new ProtocolFactory(conf).getProtocol(urlString);
       content = protocol.getProtocolOutput(new Text(urlString),
           new CrawlDatum()).getContent();
+
       parseResult = new ParseUtil(conf).parseByExtensionId("feed", content);
 
       assertEquals(3, parseResult.size());

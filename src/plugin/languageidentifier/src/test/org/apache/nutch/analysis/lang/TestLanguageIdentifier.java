@@ -23,7 +23,6 @@ import java.io.InputStreamReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.List;
-import java.util.Iterator;
 
 // JUnit imports
 import junit.framework.Test;
@@ -34,6 +33,7 @@ import junit.textui.TestRunner;
 // Lucene imports
 import org.apache.lucene.analysis.Token;
 
+import org.apache.nutch.analysis.lang.NGramProfile.NGramEntry;
 import org.apache.nutch.util.NutchConfiguration;
 
 /**
@@ -87,7 +87,7 @@ public class TestLanguageIdentifier extends TestCase {
     String tokencontent = "testmeagain";
 
     NGramProfile p = new NGramProfile("test", 1, 1);
-    p.analyze(new StringBuffer(tokencontent));
+    p.analyze(new StringBuilder(tokencontent));
 
     //test that profile size is ok, eg 9 different NGramEntries "tesmagin"
     assertEquals(8, p.getSorted().size());
@@ -118,7 +118,7 @@ public class TestLanguageIdentifier extends TestCase {
     String teststring = "AAaaBbbC";
 
     NGramProfile p = new NGramProfile("test", 1, 1);
-    p.analyze(new StringBuffer(teststring));
+    p.analyze(new StringBuilder(teststring));
 
     //test size of profile
     assertEquals(3, p.getSorted().size());
@@ -132,8 +132,8 @@ public class TestLanguageIdentifier extends TestCase {
     NGramProfile a = new NGramProfile("a", 1, 1);
     NGramProfile b = new NGramProfile("b", 1, 1);
     
-    a.analyze(new StringBuffer(tokencontent1));
-    b.analyze(new StringBuffer(tokencontent2));
+    a.analyze(new StringBuilder(tokencontent1));
+    b.analyze(new StringBuilder(tokencontent2));
 
     //because of rounding errors might slightly return different results
     assertEquals(a.getSimilarity(b), b.getSimilarity(a), 0.0000002);
@@ -143,7 +143,7 @@ public class TestLanguageIdentifier extends TestCase {
   public void testExactMatch() {
     NGramProfile a = new NGramProfile("a", 1, 1);
     
-    a.analyze(new StringBuffer(tokencontent1));
+    a.analyze(new StringBuilder(tokencontent1));
 
     assertEquals(a.getSimilarity(a), 0, 0);
 
@@ -153,7 +153,7 @@ public class TestLanguageIdentifier extends TestCase {
   public void testIO() {
     //Create profile and set some contents
     NGramProfile a = new NGramProfile("a", 1, 1);
-    a.analyze(new StringBuffer(this.tokencontent1));
+    a.analyze(new StringBuilder(this.tokencontent1));
 
     NGramProfile b = new NGramProfile("a_from_inputstream", 1, 1);
 
@@ -181,23 +181,19 @@ public class TestLanguageIdentifier extends TestCase {
     testContents(b.getSorted(), chars1);
   }
 
-  private void testContents(List entries, String contents[]) {
+  private void testContents(List<NGramEntry> entries, String contents[]) {
     int c = 0;
-    Iterator i = entries.iterator();
 
-    while (i.hasNext()) {
-      NGramProfile.NGramEntry nge = (NGramProfile.NGramEntry) i.next();
+    for (NGramEntry nge : entries) {
       assertEquals(contents[c], nge.getSeq().toString());
       c++;
     }
   }
 
-  private void testCounts(List entries, int counts[]) {
+  private void testCounts(List<NGramEntry> entries, int counts[]) {
     int c = 0;
-    Iterator i = entries.iterator();
 
-    while (i.hasNext()) {
-      NGramProfile.NGramEntry nge = (NGramProfile.NGramEntry) i.next();
+    for (NGramEntry nge : entries) {
       System.out.println(nge);
       assertEquals(counts[c], nge.getCount());
       c++;

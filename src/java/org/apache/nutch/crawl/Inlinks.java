@@ -69,7 +69,7 @@ public class Inlinks implements Writable {
 
   /** Return the set of anchor texts.  Only a single anchor with a given text
    * is permitted from a given domain. */
-  public String[] getAnchors() throws IOException {
+  public String[] getAnchors() {
     HashMap<String, Set<String>> domainToAnchors =
       new HashMap<String, Set<String>>();
     ArrayList<String> results = new ArrayList<String>();
@@ -96,6 +96,5 @@ public class Inlinks implements Writable {
 
     return results.toArray(new String[results.size()]);
   }
-
 
 }

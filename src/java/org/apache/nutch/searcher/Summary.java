@@ -88,7 +88,7 @@ public class Summary implements Writable {
     public boolean isEllipsis() { return true; }
   }
 
-  private ArrayList fragments = new ArrayList();
+  private ArrayList<Fragment> fragments = new ArrayList<Fragment>();
 
   private static final Fragment[] FRAGMENT_PROTO = new Fragment[0];
 
@@ -100,7 +100,7 @@ public class Summary implements Writable {
 
   /** Returns an array of all of this summary's fragments.*/
   public Fragment[] getFragments() {
-    return (Fragment[])fragments.toArray(FRAGMENT_PROTO);
+    return fragments.toArray(FRAGMENT_PROTO);
   }
 
   /** Returns a String representation of this Summary. */
@@ -126,7 +126,7 @@ public class Summary implements Writable {
     Fragment fragment = null;
     StringBuffer buf = new StringBuffer();
     for (int i=0; i<fragments.size(); i++) {
-      fragment = (Fragment) fragments.get(i);
+      fragment = fragments.get(i);
       if (fragment.isHighlight()) {
         buf.append("<span class=\"highlight\">")
            .append(encode ? Entities.encode(fragment.getText())
@@ -185,7 +185,7 @@ public class Summary implements Writable {
     out.writeInt(fragments.size());
     Fragment fragment = null;
     for (int i=0; i<fragments.size(); i++) {
-      fragment = (Fragment) fragments.get(i);
+      fragment = fragments.get(i);
       if (fragment.isHighlight()) {
         out.writeByte(HIGHLIGHT);
         Text.writeString(out, fragment.getText());

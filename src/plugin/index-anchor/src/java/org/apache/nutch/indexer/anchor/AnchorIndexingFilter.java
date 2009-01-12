@@ -16,18 +16,16 @@
  */
 package org.apache.nutch.indexer.anchor;
 
-import java.io.IOException;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
+import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.indexer.lucene.LuceneWriter;
 import org.apache.nutch.parse.Parse;
 
 /**
@@ -47,23 +45,21 @@ public class AnchorIndexingFilter
     return this.conf;
   }
 
-  public Document filter(Document doc, Parse parse, Text url, CrawlDatum datum,
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum,
     Inlinks inlinks) throws IndexingException {
 
-    try {
-      String[] anchors = (inlinks != null ? inlinks.getAnchors()
-        : new String[0]);
-      for (int i = 0; i < anchors.length; i++) {
-        doc.add(new Field("anchor", anchors[i], Field.Store.NO,
-          Field.Index.TOKENIZED));
-      }
-    } catch (IOException ioe) {
-      if (LOG.isWarnEnabled()) {
-        LOG.warn("AnchorIndexingFilter: can't get anchors for "
-          + url.toString());
-      }
+    String[] anchors = (inlinks != null ? inlinks.getAnchors()
+      : new String[0]);
+    for (int i = 0; i < anchors.length; i++) {
+      doc.add("anchor", anchors[i]);
     }
 
     return doc;
   }
+
+  public void addIndexBackendOptions(Configuration conf) {
+    LuceneWriter.addFieldOptions("anchor", LuceneWriter.STORE.NO,
+        LuceneWriter.INDEX.TOKENIZED, conf);
+  }
+
 }

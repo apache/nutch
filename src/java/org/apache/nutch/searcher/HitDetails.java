@@ -73,14 +73,14 @@ public final class HitDetails implements Writable {
 
   /** Returns all the values with the specified name. */
   public String[] getValues(String field) {
-   ArrayList vals = new ArrayList();
+   ArrayList<String> vals = new ArrayList<String>();
    for (int i=0; i<length; i++) {
      if (fields[i].equals(field)) {
        vals.add(values[i]);
      }
    }
    return (vals.size() > 0)
-            ? (String[]) vals.toArray(new String[vals.size()])
+            ? vals.toArray(new String[vals.size()])
             : null;
 }
 

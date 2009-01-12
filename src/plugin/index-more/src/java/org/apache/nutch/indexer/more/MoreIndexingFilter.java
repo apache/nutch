@@ -28,9 +28,6 @@ import org.apache.tika.mime.MimeType;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
-
 import org.apache.nutch.metadata.Metadata;
 
 import org.apache.nutch.net.protocols.HttpDateFormat;
@@ -40,6 +37,8 @@ import org.apache.nutch.parse.Parse;
 
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
+import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.indexer.lucene.LuceneWriter;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
@@ -80,7 +79,7 @@ public class MoreIndexingFilter implements IndexingFilter {
   /** Get the MimeTypes resolver instance. */
   private MimeUtil MIME; 
   
-  public Document filter(Document doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
     throws IndexingException {
 
     String url_s = url.toString();
@@ -95,7 +94,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     
   // Add time related meta info.  Add last-modified if present.  Index date as
   // last-modified, or, if that's not present, use fetch time.
-  private Document addTime(Document doc, ParseData data,
+  private NutchDocument addTime(NutchDocument doc, ParseData data,
                            String url, CrawlDatum datum) {
     long time = -1;
 
@@ -103,7 +102,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     if (lastModified != null) {                   // try parse last-modified
       time = getTime(lastModified,url);           // use as time
                                                   // store as string
-      doc.add(new Field("lastModified", new Long(time).toString(), Field.Store.YES, Field.Index.NO));
+      doc.add("lastModified", Long.toString(time));
     }
 
     if (time == -1) {                             // if no last-modified
@@ -117,7 +116,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     String dateString = sdf.format(new Date(time));
 
     // un-stored, indexed and un-tokenized
-    doc.add(new Field("date", dateString, Field.Store.NO, Field.Index.UN_TOKENIZED));
+    doc.add("date", dateString);
 
     return doc;
   }
@@ -167,17 +166,17 @@ public class MoreIndexingFilter implements IndexingFilter {
   }
 
   // Add Content-Length
-  private Document addLength(Document doc, ParseData data, String url) {
+  private NutchDocument addLength(NutchDocument doc, ParseData data, String url) {
     String contentLength = data.getMeta(Response.CONTENT_LENGTH);
 
     if (contentLength != null)
-      doc.add(new Field("contentLength", contentLength, Field.Store.YES, Field.Index.NO));
+      doc.add("contentLength", contentLength);
 
     return doc;
   }
 
   // Add Content-Type and its primaryType and subType
-  private Document addType(Document doc, ParseData data, String url) {
+  private NutchDocument addType(NutchDocument doc, ParseData data, String url) {
     MimeType mimeType = null;
     String contentType = data.getMeta(Response.CONTENT_TYPE);
     if (contentType == null) {
@@ -218,14 +217,13 @@ public class MoreIndexingFilter implements IndexingFilter {
     // type:vnd.ms-powerpoint
     // all case insensitive.
     // The query filter is implemented in TypeQueryFilter.java
-    doc.add(new Field("type", contentType, Field.Store.NO, Field.Index.UN_TOKENIZED));
-    doc.add(new Field("type", primaryType, Field.Store.NO, Field.Index.UN_TOKENIZED));
-    doc.add(new Field("type", subType, Field.Store.NO, Field.Index.UN_TOKENIZED));
+    doc.add("type", contentType);
+    doc.add("type", primaryType);
+    doc.add("type", subType);
 
     // add its primaryType and subType to respective fields
-    // as stored, indexed and un-tokenized
-    doc.add(new Field("primaryType", primaryType, Field.Store.YES, Field.Index.UN_TOKENIZED));
-    doc.add(new Field("subType", subType, Field.Store.YES, Field.Index.UN_TOKENIZED));
+    doc.add("primaryType", primaryType);
+    doc.add("subType", subType);
 
     return doc;
   }
@@ -254,7 +252,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     }
   }
 
-  private Document resetTitle(Document doc, ParseData data, String url) {
+  private NutchDocument resetTitle(NutchDocument doc, ParseData data, String url) {
     String contentDisposition = data.getMeta(Metadata.CONTENT_DISPOSITION);
     if (contentDisposition == null)
       return doc;
@@ -263,12 +261,38 @@ public class MoreIndexingFilter implements IndexingFilter {
     for (int i=0; i<patterns.length; i++) {
       if (matcher.contains(contentDisposition,patterns[i])) {
         result = matcher.getMatch();
-        doc.add(new Field("title", result.group(1), Field.Store.YES, Field.Index.NO));
+        doc.add("title", result.group(1));
         break;
       }
     }
 
     return doc;
+  }
+
+  public void addIndexBackendOptions(Configuration conf) {
+
+    ///////////////////////////
+    //    add lucene options //
+    ///////////////////////////
+
+    LuceneWriter.addFieldOptions("type", LuceneWriter.STORE.NO,
+        LuceneWriter.INDEX.UNTOKENIZED, conf);
+
+    // primaryType and subType are stored, indexed and un-tokenized
+    LuceneWriter.addFieldOptions("primaryType", LuceneWriter.STORE.YES,
+        LuceneWriter.INDEX.UNTOKENIZED, conf);
+    LuceneWriter.addFieldOptions("subType", LuceneWriter.STORE.YES,
+        LuceneWriter.INDEX.UNTOKENIZED, conf);
+
+    LuceneWriter.addFieldOptions("contentLength", LuceneWriter.STORE.YES,
+        LuceneWriter.INDEX.NO, conf);
+
+    LuceneWriter.addFieldOptions("lastModified", LuceneWriter.STORE.YES,
+        LuceneWriter.INDEX.NO, conf);
+
+    // un-stored, indexed and un-tokenized
+    LuceneWriter.addFieldOptions("date", LuceneWriter.STORE.NO,
+        LuceneWriter.INDEX.UNTOKENIZED, conf);
   }
 
   public void setConf(Configuration conf) {

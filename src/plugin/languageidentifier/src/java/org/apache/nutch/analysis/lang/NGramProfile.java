@@ -88,7 +88,7 @@ public class NGramProfile {
   private String name = null;
 
   /** The NGrams of this profile sorted on the number of occurences */
-  private List sorted = null;
+  private List<NGramEntry> sorted = null;
 
   /** The min length of ngram */
   private int minLength = DEFAULT_MIN_NGRAM_LENGTH;
@@ -100,7 +100,7 @@ public class NGramProfile {
   private int[] ngramcounts = null;
 
   /** An index of the ngrams of the profile */
-  private Map ngrams = null;
+  private Map<CharSequence, NGramEntry> ngrams = null;
 
   /** A StringBuffer used during analysis */
   private QuickStringBuffer word = new QuickStringBuffer();
@@ -115,7 +115,7 @@ public class NGramProfile {
    */
   public NGramProfile(String name, int minlen, int maxlen) {
     // TODO: Compute the initial capacity using minlen and maxlen.
-    this.ngrams = new HashMap(4000);
+    this.ngrams = new HashMap<CharSequence, NGramEntry>(4000);
     this.minLength = minlen;
     this.maxLength = maxlen;
     this.name = name;
@@ -135,7 +135,7 @@ public class NGramProfile {
    */
   public void add(Token t) {
     add(new StringBuffer().append(SEPARATOR)
-                          .append(t.termText())
+                          .append(t.term())
                           .append(SEPARATOR));
   }
 
@@ -172,7 +172,7 @@ public class NGramProfile {
   private void add(CharSequence cs) {
 
     if (cs.equals(SEP_CHARSEQ)) { return; }
-    NGramEntry nge = (NGramEntry) ngrams.get(cs);
+    NGramEntry nge = ngrams.get(cs);
     if (nge == null) {
       nge = new NGramEntry(cs);
       ngrams.put(cs, nge);
@@ -185,7 +185,7 @@ public class NGramProfile {
    * 
    * @param text the text to be analyzed
    */
-  public void analyze(StringBuffer text) {
+  public void analyze(StringBuilder text) {
 
     if (ngrams != null) {
       ngrams.clear();
@@ -233,20 +233,20 @@ public class NGramProfile {
 
     NGramEntry e = null;
     //List sorted = getSorted();
-    Iterator i = ngrams.values().iterator();
+    Iterator<NGramEntry> i = ngrams.values().iterator();
 
     // Calculate ngramcount if not already done
     if (ngramcounts == null) {
       ngramcounts = new int[maxLength+1];
       while (i.hasNext()) {
-        e = (NGramEntry) i.next();
+        e = i.next();
         ngramcounts[e.size()] += e.count;
       }
     }
     
     i = ngrams.values().iterator();
     while (i.hasNext()) {
-      e = (NGramEntry) i.next();
+      e = i.next();
       e.frequency = (float) e.count / (float) ngramcounts[e.size()];
     }
   }
@@ -256,10 +256,10 @@ public class NGramProfile {
    * 
    * @return sorted vector of ngrams
    */
-  public List getSorted() {
+  public List<NGramEntry> getSorted() {
     // make sure sorting is done only once
     if (sorted == null) {
-      sorted = new ArrayList(ngrams.values());
+      sorted = new ArrayList<NGramEntry>(ngrams.values());
       Collections.sort(sorted);
 
       // trim at NGRAM_LENGTH entries
@@ -276,10 +276,10 @@ public class NGramProfile {
     StringBuffer s = new StringBuffer().append("NGramProfile: ")
                                        .append(name).append("\n");
 
-    Iterator i = getSorted().iterator();
+    Iterator<NGramEntry> i = getSorted().iterator();
 
     while (i.hasNext()) {
-      NGramEntry entry = (NGramEntry) i.next();
+      NGramEntry entry = i.next();
       s.append("[").append(entry.seq)
        .append("/").append(entry.count)
        .append("/").append(entry.frequency).append("]\n");
@@ -299,22 +299,22 @@ public class NGramProfile {
     float sum = 0;
 
     try {
-      Iterator i = another.getSorted().iterator();
+      Iterator<NGramEntry> i = another.getSorted().iterator();
       while (i.hasNext()) {
-        NGramEntry other = (NGramEntry) i.next();
+        NGramEntry other = i.next();
         if (ngrams.containsKey(other.seq)) {
           sum += Math.abs((other.frequency -
-                          ((NGramEntry) ngrams.get(other.seq)).frequency)) / 2;
+                          ngrams.get(other.seq).frequency)) / 2;
         } else {
           sum += other.frequency;
         }
       }
       i = getSorted().iterator();
       while (i.hasNext()) {
-        NGramEntry other = (NGramEntry) i.next();
+        NGramEntry other = i.next();
         if (another.ngrams.containsKey(other.seq)) {
           sum += Math.abs((other.frequency -
-                          ((NGramEntry) another.ngrams.get(other.seq)).frequency)) / 2;
+                          another.ngrams.get(other.seq).frequency)) / 2;
         } else {
           sum += other.frequency;
         }
@@ -369,7 +369,7 @@ public class NGramProfile {
     BufferedInputStream bis = new BufferedInputStream(is);
 
     byte buffer[] = new byte[4096];
-    StringBuffer text = new StringBuffer();
+    StringBuilder text = new StringBuilder();
     int len;
 
     try {
@@ -402,10 +402,9 @@ public class NGramProfile {
     // First dispatch ngrams in many lists depending on their size
     // (one list for each size, in order to store MAX_SIZE ngrams for each
     // size of ngram)
-    int count = 0;
-    List list = new ArrayList();
-    List sublist = new ArrayList();
-    NGramEntry[] entries = (NGramEntry[]) ngrams.values().toArray(new NGramEntry[ngrams.size()]);
+    List<NGramEntry> list = new ArrayList<NGramEntry>();
+    List<NGramEntry> sublist = new ArrayList<NGramEntry>();
+    NGramEntry[] entries = ngrams.values().toArray(new NGramEntry[ngrams.size()]);
     for (int i=minLength; i<=maxLength; i++) {
       for (int j=0; j<entries.length; j++) {
         if (entries[j].getSeq().length() == i) {
@@ -420,7 +419,7 @@ public class NGramProfile {
       sublist.clear();
     }
     for (int i=0; i<list.size(); i++) {
-      NGramEntry e = (NGramEntry) list.get(i);
+      NGramEntry e = list.get(i);
       String line = e.toString() + " " + e.getCount() + "\n";
       os.write(line.getBytes("UTF-8"));
     }
@@ -532,7 +531,7 @@ public class NGramProfile {
   /**
    * Inner class that describes a NGram
    */
-  class NGramEntry implements Comparable {
+  class NGramEntry implements Comparable<NGramEntry> {
 
     /** The NGRamProfile this NGram is related to */
     private NGramProfile profile = null;
@@ -599,8 +598,7 @@ public class NGramProfile {
     }
     
     // Inherited JavaDoc
-    public int compareTo(Object o) {
-      NGramEntry ngram = (NGramEntry) o;
+    public int compareTo(NGramEntry ngram) {
       int diff = Float.compare(ngram.getFrequency(), frequency);
       if (diff != 0) {
         return diff;

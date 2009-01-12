@@ -25,12 +25,12 @@ import java.util.TimeZone;
 //APACHE imports
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
+import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.indexer.lucene.LuceneWriter;
 import org.apache.nutch.metadata.Feed;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Parse;
@@ -71,7 +71,7 @@ public class FeedIndexingFilter implements IndexingFilter {
    * index.
    *  
    */
-  public Document filter(Document doc, Parse parse, Text url, CrawlDatum datum,
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum,
                          Inlinks inlinks) throws IndexingException {
     ParseData parseData = parse.getData();
     Metadata parseMeta = parseData.getParseMeta();
@@ -84,35 +84,31 @@ public class FeedIndexingFilter implements IndexingFilter {
     
     if (authors != null) {
       for (String author : authors) {
-        doc.add(new Field(Feed.FEED_AUTHOR, author, 
-            Field.Store.YES, Field.Index.TOKENIZED));
+        doc.add(Feed.FEED_AUTHOR, author);
       }
     }
     
     if (tags != null) {
       for (String tag : tags) {
-        doc.add(new Field(Feed.FEED_TAGS, tag, 
-            Field.Store.YES, Field.Index.TOKENIZED));
+        doc.add(Feed.FEED_TAGS, tag);
       }
     }
     
     if (feed != null)
-      doc.add(new Field(Feed.FEED, feed, Field.Store.YES, Field.Index.TOKENIZED));
+      doc.add(Feed.FEED, feed);
     
     SimpleDateFormat sdf = new SimpleDateFormat(dateFormatStr);
     sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
     if (published != null) {
       Date date = new Date(Long.parseLong(published));
       String dateString = sdf.format(date);
-      doc.add(new Field(PUBLISHED_DATE, dateString, 
-                        Field.Store.YES, Field.Index.NO_NORMS));
+      doc.add(PUBLISHED_DATE, dateString);
     }
     
     if (updated != null) {
       Date date = new Date(Long.parseLong(updated));
       String dateString = sdf.format(date);
-      doc.add(new Field(UPDATED_DATE, dateString, 
-                        Field.Store.YES, Field.Index.NO_NORMS));
+      doc.add(UPDATED_DATE, dateString);
     }
         
     return doc;
@@ -124,6 +120,24 @@ public class FeedIndexingFilter implements IndexingFilter {
    */
   public Configuration getConf() {
     return conf;
+  }
+
+  public void addIndexBackendOptions(Configuration conf) {
+    LuceneWriter.addFieldOptions(Feed.FEED_AUTHOR,
+        LuceneWriter.STORE.YES, LuceneWriter.INDEX.TOKENIZED, conf);
+
+    LuceneWriter.addFieldOptions(Feed.FEED_TAGS,
+        LuceneWriter.STORE.YES, LuceneWriter.INDEX.TOKENIZED, conf);
+
+    LuceneWriter.addFieldOptions(Feed.FEED,
+        LuceneWriter.STORE.YES, LuceneWriter.INDEX.TOKENIZED, conf);
+
+    LuceneWriter.addFieldOptions(PUBLISHED_DATE,
+        LuceneWriter.STORE.YES, LuceneWriter.INDEX.NO_NORMS, conf);
+
+    LuceneWriter.addFieldOptions(UPDATED_DATE,
+        LuceneWriter.STORE.YES, LuceneWriter.INDEX.NO_NORMS, conf);
+
   }
 
   /**

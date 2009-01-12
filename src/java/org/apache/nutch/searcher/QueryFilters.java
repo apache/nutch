@@ -40,14 +40,14 @@ public class QueryFilters {
   private static final Log LOG = LogFactory.getLog(QueryFilters.class);
 
   private QueryFilter[] queryFilters;
-  private HashSet FIELD_NAMES ;
-  private HashSet RAW_FIELD_NAMES;
+  private HashSet<String> FIELD_NAMES ;
+  private HashSet<String> RAW_FIELD_NAMES;
 
-  private static ArrayList parseFieldNames(Extension extension,
+  private static List<String> parseFieldNames(Extension extension,
                                            String attribute) {
     String fields = extension.getAttribute(attribute);
     if (fields == null) fields = "";
-    return Collections.list(new StringTokenizer(fields, " ,\t\n\r"));
+    return Arrays.asList(fields.split("[,\\s]"));
   }
 
   public QueryFilters(Configuration conf) {
@@ -61,13 +61,14 @@ public class QueryFilters {
         if (point == null)
           throw new RuntimeException(QueryFilter.X_POINT_ID + " not found.");
         Extension[] extensions = point.getExtensions();
-        FIELD_NAMES = new HashSet();
-        RAW_FIELD_NAMES = new HashSet();
+        FIELD_NAMES = new HashSet<String>();
+        RAW_FIELD_NAMES = new HashSet<String>();
         QueryFilter[] filters = new QueryFilter[extensions.length];
         for (int i = 0; i < extensions.length; i++) {
           Extension extension = extensions[i];
-          ArrayList fieldNames = parseFieldNames(extension, "fields");
-          ArrayList rawFieldNames = parseFieldNames(extension, "raw-fields");
+          List<String> fieldNames = parseFieldNames(extension, "fields");
+          List<String> rawFieldNames =
+            parseFieldNames(extension, "raw-fields");
           if (fieldNames.size() == 0 && rawFieldNames.size() == 0) {
             if (LOG.isWarnEnabled()) {
               LOG.warn("QueryFilter: " + extension.getId()
@@ -90,8 +91,8 @@ public class QueryFilters {
           .getName());
     } else {
       // cache already filled
-      FIELD_NAMES = (HashSet) objectCache.getObject("FIELD_NAMES");
-      RAW_FIELD_NAMES = (HashSet) objectCache.getObject("RAW_FIELD_NAMES");
+      FIELD_NAMES = (HashSet<String>) objectCache.getObject("FIELD_NAMES");
+      RAW_FIELD_NAMES = (HashSet<String>) objectCache.getObject("RAW_FIELD_NAMES");
     }
   }              
 

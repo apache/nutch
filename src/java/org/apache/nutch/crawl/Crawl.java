@@ -62,7 +62,6 @@ public class Crawl {
     int threads = job.getInt("fetcher.threads.fetch", 10);
     int depth = 5;
     long topN = Long.MAX_VALUE;
-
     for (int i = 0; i < args.length; i++) {
       if ("-dir".equals(args[i])) {
         dir = new Path(args[i+1]);
@@ -74,8 +73,8 @@ public class Crawl {
         depth = Integer.parseInt(args[i+1]);
         i++;
       } else if ("-topN".equals(args[i])) {
-        topN = Integer.parseInt(args[i+1]);
-        i++;
+          topN = Integer.parseInt(args[i+1]);
+          i++;
       } else if (args[i] != null) {
         rootUrlDir = new Path(args[i]);
       }
@@ -128,24 +127,28 @@ public class Crawl {
     if (i > 0) {
       linkDbTool.invert(linkDb, segments, true, true, false); // invert links
 
-      // Delete old indexes
-      if (fs.exists(indexes)) {
-        LOG.info("Deleting old indexes: " + indexes);
-        fs.delete(indexes, true);
-      }
+      if(indexes != null) {
+        // Delete old indexes
+        if (fs.exists(indexes)) {
+          LOG.info("Deleting old indexes: " + indexes);
+          fs.delete(indexes, true);
+        }
 
-      // Delete old index
-      if (fs.exists(index)) {
-        LOG.info("Deleting old merged index: " + index);
-        fs.delete(index, true);
+        // Delete old index
+        if (fs.exists(index)) {
+          LOG.info("Deleting old merged index: " + index);
+          fs.delete(index, true);
+        }
       }
 
       // index, dedup & merge
       FileStatus[] fstats = fs.listStatus(segments, HadoopFSUtil.getPassDirectoriesFilter(fs));
-      indexer.index(indexes, crawlDb, linkDb, HadoopFSUtil.getPaths(fstats));
-      dedup.dedup(new Path[] { indexes });
-      fstats = fs.listStatus(indexes, HadoopFSUtil.getPassDirectoriesFilter(fs));
-      merger.merge(HadoopFSUtil.getPaths(fstats), index, tmpDir);
+      indexer.index(indexes, crawlDb, linkDb, Arrays.asList(HadoopFSUtil.getPaths(fstats)));
+      if(indexes != null) {
+        dedup.dedup(new Path[] { indexes });
+        fstats = fs.listStatus(indexes, HadoopFSUtil.getPassDirectoriesFilter(fs));
+        merger.merge(HadoopFSUtil.getPaths(fstats), index, tmpDir);
+      }
     } else {
       LOG.warn("No URLs to fetch - check your seed list and URL filters.");
     }

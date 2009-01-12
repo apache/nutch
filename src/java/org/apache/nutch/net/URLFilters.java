@@ -86,6 +86,7 @@ public class URLFilters {
       if (urlString == null)
         return null;
       urlString = this.filters[i].filter(urlString);
+
     }
     return urlString;
   }

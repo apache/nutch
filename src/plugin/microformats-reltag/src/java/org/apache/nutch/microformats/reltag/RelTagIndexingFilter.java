@@ -22,15 +22,13 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
+import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.indexer.lucene.LuceneWriter;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.parse.Parse;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
-
-// Lucene imports
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.Document;
 
 
 /**
@@ -48,21 +46,24 @@ public class RelTagIndexingFilter implements IndexingFilter {
 
 
   // Inherited JavaDoc
-  public Document filter(Document doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
     throws IndexingException {
 
     // Check if some Rel-Tags found, possibly put there by RelTagParser
     String[] tags = parse.getData().getParseMeta().getValues(RelTagParser.REL_TAG);
     if (tags != null) {
       for (int i=0; i<tags.length; i++) {
-        doc.add(new Field("tag", tags[i],
-                          Field.Store.YES, Field.Index.UN_TOKENIZED));
+        doc.add("tag", tags[i]);
       }
     }
 
     return doc;
   }
 
+  public void addIndexBackendOptions(Configuration conf) {
+    LuceneWriter.addFieldOptions("tag", LuceneWriter.STORE.YES,
+        LuceneWriter.INDEX.UNTOKENIZED, conf);
+  }
   
   /* ----------------------------- *
    * <implementation:Configurable> *

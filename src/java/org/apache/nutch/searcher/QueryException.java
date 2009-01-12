@@ -17,6 +17,7 @@
 
 package org.apache.nutch.searcher;
 
+@SuppressWarnings("serial")
 public class QueryException extends java.io.IOException {
   public QueryException(String message) {
     super(message);

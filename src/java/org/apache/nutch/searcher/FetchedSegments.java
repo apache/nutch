@@ -19,8 +19,16 @@ package org.apache.nutch.searcher;
 
 import java.io.IOException;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.io.*;
@@ -35,20 +43,89 @@ import org.apache.nutch.crawl.*;
 
 /** Implements {@link HitSummarizer} and {@link HitContent} for a set of
  * fetched segments. */
-public class FetchedSegments implements HitSummarizer, HitContent {
+public class FetchedSegments implements RPCSegmentBean {
 
-  private static class Segment implements Closeable {
-    
-    private static final Partitioner PARTITIONER = new HashPartitioner();
+  public static final long VERSION = 1L;
 
-    private FileSystem fs;
-    private Path segmentDir;
+  private static final ExecutorService executor =
+    Executors.newCachedThreadPool();
+
+  private class SummaryTask implements Callable<Summary> {
+    private final HitDetails details;
+    private final Query query;
+
+    public SummaryTask(HitDetails details, Query query) {
+      this.details = details;
+      this.query = query;
+    }
+
+    public Summary call() throws Exception {
+      return getSummary(details, query);
+    }
+  }
+
+  private class SegmentUpdater extends Thread {
+
+    @Override
+    public void run() {
+      while (true) {
+        try {
+          final FileStatus[] fstats = fs.listStatus(segmentsDir,
+              HadoopFSUtil.getPassDirectoriesFilter(fs));
+          final Path[] segmentDirs = HadoopFSUtil.getPaths(fstats);
+          final Iterator<Map.Entry<String, Segment>> i =
+            segments.entrySet().iterator();
+          while (i.hasNext()) {
+            final Map.Entry<String, Segment> entry = i.next();
+            final Segment seg = entry.getValue();
+            if (!fs.exists(seg.segmentDir)) {
+              try {
+                seg.close();
+              } catch (final Exception e) {
+                /* A segment may fail to close
+                 * since it may already be deleted from
+                 * file system. So we just ignore the
+                 * exception and remove the mapping from
+                 * 'segments'.
+                 */
+              } finally {
+                i.remove();
+              }
+            }
+          }
+
+          if (segmentDirs != null) {
+            for (final Path segmentDir : segmentDirs) {
+              segments.putIfAbsent(segmentDir.getName(),
+                  new Segment(fs, segmentDir, conf));
+            }
+          }
+
+          Thread.sleep(60000);
+        } catch (final InterruptedException e) {
+          // ignore
+        } catch (final IOException e) {
+          // ignore
+        }
+      }
+    }
+
+  }
+
+
+  private static class Segment implements java.io.Closeable {
+
+    private static final Partitioner<Text, Writable> PARTITIONER =
+      new HashPartitioner<Text, Writable>();
+
+    private final FileSystem fs;
+    private final Path segmentDir;
 
     private MapFile.Reader[] content;
     private MapFile.Reader[] parseText;
     private MapFile.Reader[] parseData;
     private MapFile.Reader[] crawl;
-    private Configuration conf;
+    private final Configuration conf;
 
     public Segment(FileSystem fs, Path segmentDir, Configuration conf) throws IOException {
       this.fs = fs;
@@ -63,7 +140,7 @@ public class FetchedSegments implements HitSummarizer, HitContent {
       }
       return (CrawlDatum)getEntry(crawl, url, new CrawlDatum());
     }
-    
+
     public byte[] getContent(Text url) throws IOException {
       synchronized (this) {
         if (content == null)
@@ -87,7 +164,7 @@ public class FetchedSegments implements HitSummarizer, HitContent {
       }
       return (ParseText)getEntry(parseText, url, new ParseText());
     }
-    
+
     private MapFile.Reader[] getReaders(String subDir) throws IOException {
       return MapFileOutputFormat.getReaders(fs, new Path(segmentDir, subDir), this.conf);
     }
@@ -112,31 +189,37 @@ public class FetchedSegments implements HitSummarizer, HitContent {
 
   }
 
-  private HashMap segments = new HashMap();
-  private Summarizer summarizer;
+  private final ConcurrentMap<String, Segment> segments =
+    new ConcurrentHashMap<String, Segment>();
+  private final FileSystem fs;
+  private final Configuration conf;
+  private final Path segmentsDir;
+  private final SegmentUpdater segUpdater;
+  private final Summarizer summarizer;
 
   /** Construct given a directory containing fetcher output. */
-  public FetchedSegments(FileSystem fs, String segmentsDir, Configuration conf) throws IOException {
-    FileStatus[] fstats = fs.listStatus(new Path(segmentsDir), 
+  public FetchedSegments(Configuration conf, Path segmentsDir)
+  throws IOException {
+    this.conf = conf;
+    this.fs = FileSystem.get(this.conf);
+    final FileStatus[] fstats = fs.listStatus(segmentsDir,
         HadoopFSUtil.getPassDirectoriesFilter(fs));
-    Path[] segmentDirs = HadoopFSUtil.getPaths(fstats);
-    this.summarizer = new SummarizerFactory(conf).getSummarizer();
+    final Path[] segmentDirs = HadoopFSUtil.getPaths(fstats);
+    this.summarizer = new SummarizerFactory(this.conf).getSummarizer();
+    this.segmentsDir = segmentsDir;
+    this.segUpdater = new SegmentUpdater();
 
     if (segmentDirs != null) {
-        for (int i = 0; i < segmentDirs.length; i++) {
-            Path segmentDir = segmentDirs[i];
-//             Path indexdone = new Path(segmentDir, IndexSegment.DONE_NAME);
-//             if (fs.exists(indexdone) && fs.isFile(indexdone)) {
-//             	segments.put(segmentDir.getName(), new Segment(fs, segmentDir));
-//             }
-            segments.put(segmentDir.getName(), new Segment(fs, segmentDir, conf));
-
-        }
+      for (final Path segmentDir : segmentDirs) {
+        segments.put(segmentDir.getName(),
+          new Segment(this.fs, segmentDir, this.conf));
+      }
     }
+    this.segUpdater.start();
   }
 
   public String[] getSegmentNames() {
-    return (String[])segments.keySet().toArray(new String[segments.size()]);
+    return segments.keySet().toArray(new String[segments.size()]);
   }
 
   public byte[] getContent(HitDetails details) throws IOException {
@@ -158,67 +241,57 @@ public class FetchedSegments implements HitSummarizer, HitContent {
 
   public Summary getSummary(HitDetails details, Query query)
     throws IOException {
-    
+
     if (this.summarizer == null) { return new Summary(); }
-    
-    Segment segment = getSegment(details);
-    ParseText parseText = segment.getParseText(getUrl(details));
-    String text = (parseText != null) ? parseText.getText() : "";
-    
+
+    final Segment segment = getSegment(details);
+    final ParseText parseText = segment.getParseText(getUrl(details));
+    final String text = (parseText != null) ? parseText.getText() : "";
+
     return this.summarizer.getSummary(text, query);
   }
-    
-  private class SummaryThread extends Thread {
-    private HitDetails details;
-    private Query query;
 
-    private Summary summary;
-    private Throwable throwable;
-
-    public SummaryThread(HitDetails details, Query query) {
-      this.details = details;
-      this.query = query;
-    }
-
-    public void run() {
-      try {
-        this.summary = getSummary(details, query);
-      } catch (Throwable throwable) {
-        this.throwable = throwable;
-      }
-    }
-
+  public long getProtocolVersion(String protocol, long clientVersion)
+  throws IOException {
+    return VERSION;
   }
-
 
   public Summary[] getSummary(HitDetails[] details, Query query)
     throws IOException {
-    SummaryThread[] threads = new SummaryThread[details.length];
-    for (int i = 0; i < threads.length; i++) {
-      threads[i] = new SummaryThread(details[i], query);
-      threads[i].start();
+    final List<Callable<Summary>> tasks =
+      new ArrayList<Callable<Summary>>(details.length);
+    for (int i = 0; i < details.length; i++) {
+      tasks.add(new SummaryTask(details[i], query));
     }
 
-    Summary[] results = new Summary[details.length];
-    for (int i = 0; i < threads.length; i++) {
+    List<Future<Summary>> summaries;
+    try {
+      summaries = executor.invokeAll(tasks);
+    } catch (final InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+
+
+    final Summary[] results = new Summary[details.length];
+    for (int i = 0; i < details.length; i++) {
+      final Future<Summary> f = summaries.get(i);
+      Summary summary;
       try {
-        threads[i].join();
-      } catch (InterruptedException e) {
+        summary = f.get();
+      } catch (final Exception e) {
+        if (e.getCause() instanceof IOException) {
+          throw (IOException) e.getCause();
+        }
         throw new RuntimeException(e);
       }
-      if (threads[i].throwable instanceof IOException) {
-        throw (IOException)threads[i].throwable;
-      } else if (threads[i].throwable != null) {
-        throw new RuntimeException(threads[i].throwable);
-      }
-      results[i] = threads[i].summary;
+      results[i] = summary;
     }
     return results;
   }
 
 
   private Segment getSegment(HitDetails details) {
-    return (Segment)segments.get(details.getValue("segment"));
+    return segments.get(details.getValue("segment"));
   }
 
   private Text getUrl(HitDetails details) {
@@ -230,10 +303,10 @@ public class FetchedSegments implements HitSummarizer, HitContent {
   }
 
   public void close() throws IOException {
-    Iterator iterator = segments.values().iterator();
+    final Iterator<Segment> iterator = segments.values().iterator();
     while (iterator.hasNext()) {
-      ((Segment) iterator.next()).close();
+      iterator.next().close();
     }
   }
-  
+
 }

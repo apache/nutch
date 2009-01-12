@@ -18,7 +18,6 @@ package org.apache.nutch.indexer;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
-import org.apache.lucene.document.Document;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.metadata.Metadata;
@@ -43,7 +42,7 @@ public class TestIndexingFilters extends TestCase {
     conf.set(IndexingFilters.INDEXINGFILTER_ORDER, class1 + " " + class2);
 
     IndexingFilters filters = new IndexingFilters(conf);
-    filters.filter(new Document(), new ParseImpl("text", new ParseData(
+    filters.filter(new NutchDocument(), new ParseImpl("text", new ParseData(
         new ParseStatus(), "title", new Outlink[0], new Metadata())), new Text(
         "http://www.example.com/"), new CrawlDatum(), new Inlinks());
   }

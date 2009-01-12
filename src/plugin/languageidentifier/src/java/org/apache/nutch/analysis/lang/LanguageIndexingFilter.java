@@ -22,6 +22,8 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
+import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.indexer.lucene.LuceneWriter;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.metadata.Metadata;
@@ -29,10 +31,6 @@ import org.apache.nutch.net.protocols.Response;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
-
-// Lucene imports
-import org.apache.lucene.document.Field;
-import org.apache.lucene.document.Document;
 
 
 /**
@@ -65,7 +63,7 @@ public class LanguageIndexingFilter implements IndexingFilter {
   }
 
   // Inherited JavaDoc
-  public Document filter(Document doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
     throws IndexingException {
 
     // check if LANGUAGE found, possibly put there by HTMLLanguageParser
@@ -77,7 +75,7 @@ public class LanguageIndexingFilter implements IndexingFilter {
     }
     
     if (lang == null) {
-      StringBuffer text = new StringBuffer();
+      StringBuilder text = new StringBuilder();
       /*
        * String[] anchors = fo.getAnchors(); for (int i = 0; i < anchors.length;
        * i++) { text+=anchors[i] + " "; }
@@ -92,9 +90,14 @@ public class LanguageIndexingFilter implements IndexingFilter {
       lang = "unknown";
     }
 
-    doc.add(new Field("lang", lang, Field.Store.YES, Field.Index.UN_TOKENIZED));
+    doc.add("lang", lang);
 
     return doc;
+  }
+
+  public void addIndexBackendOptions(Configuration conf) {
+    LuceneWriter.addFieldOptions("lang", LuceneWriter.STORE.YES,
+        LuceneWriter.INDEX.UNTOKENIZED, conf);
   }
   
   public void setConf(Configuration conf) {
@@ -105,4 +108,5 @@ public class LanguageIndexingFilter implements IndexingFilter {
   public Configuration getConf() {
     return this.conf;
   }
+
 }

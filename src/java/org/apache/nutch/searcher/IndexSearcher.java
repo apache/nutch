@@ -103,12 +103,12 @@ public class IndexSearcher implements Searcher, HitDetailer {
 
   public String getExplanation(Query query, Hit hit) throws IOException {
     return luceneSearcher.explain(this.queryFilters.filter(query),
-                                  hit.getIndexDocNo()).toHtml();
+        Integer.valueOf(hit.getUniqueKey())).toHtml();
   }
 
   public HitDetails getDetails(Hit hit) throws IOException {
 
-    Document doc = luceneSearcher.doc(hit.getIndexDocNo());
+    Document doc = luceneSearcher.doc(Integer.valueOf(hit.getUniqueKey()));
 
     List docFields = doc.getFields();
     String[] fields = new String[docFields.size()];
@@ -162,7 +162,7 @@ public class IndexSearcher implements Searcher, HitDetailer {
 
       String dedupValue = dedupValues == null ? null : dedupValues[doc];
 
-      hits[i] = new Hit(doc, sortValue, dedupValue);
+      hits[i] = new Hit(Integer.toString(doc), sortValue, dedupValue);
     }
     return new Hits(topDocs.totalHits, hits);
   }

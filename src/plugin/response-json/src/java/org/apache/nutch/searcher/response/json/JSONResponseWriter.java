@@ -85,7 +85,7 @@ public class JSONResponseWriter
       HitDetails detail = details[i];
       Hit hit = hits[i];
       result.accumulate("indexno", hit.getIndexNo());
-      result.accumulate("indexdocno", hit.getIndexDocNo());
+      result.accumulate("indexkey", hit.getUniqueKey());
       
       // don't add summaries not including summaries
       if (summaries != null && results.isWithSummary()) {

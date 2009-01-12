@@ -18,7 +18,6 @@
 package org.apache.nutch.searcher;
 
 import org.apache.lucene.search.Searcher;
-import org.apache.lucene.search.QueryFilter;
 import org.apache.lucene.search.*;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.misc.ChainedFilter;
@@ -83,6 +82,7 @@ class LuceneQueryOptimizer {
   }
   
 
+  @SuppressWarnings("serial")
   private static class TimeExceeded extends RuntimeException {
     public long maxTime;
     private int maxDoc;
@@ -127,7 +127,8 @@ class LuceneQueryOptimizer {
     }
   }
   
-  private static class LimitExceeded extends RuntimeException {
+  @SuppressWarnings("serial")
+private static class LimitExceeded extends RuntimeException {
     private int maxDoc;
     public LimitExceeded(int maxDoc) { this.maxDoc = maxDoc; }    
   }
@@ -151,13 +152,14 @@ class LuceneQueryOptimizer {
    * @param threshold
    *          the fraction of documents which must contain a term
    */
-  public LuceneQueryOptimizer(Configuration conf) {
+  @SuppressWarnings("serial")
+public LuceneQueryOptimizer(Configuration conf) {
     final int cacheSize = conf.getInt("searcher.filter.cache.size", 16);
     this.threshold = conf.getFloat("searcher.filter.cache.threshold",
         0.05f);
     this.searcherMaxHits = conf.getInt("searcher.max.hits", -1);
     this.cache = new LinkedHashMap<BooleanQuery, Filter>(cacheSize, 0.75f, true) {
-      protected boolean removeEldestEntry(Map.Entry eldest) {
+      protected boolean removeEldestEntry(Map.Entry<BooleanQuery, Filter> eldest) {
         return size() > cacheSize; // limit size of cache
       }
     };
