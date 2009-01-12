@@ -31,9 +31,8 @@
   request.setCharacterEncoding("UTF-8");
   bean.LOG.info("explain request from " + request.getRemoteAddr());
   Hit hit = new Hit(Integer.parseInt(request.getParameter("idx")),
-                    Integer.parseInt(request.getParameter("id")));
+                    request.getParameter("id"));
   HitDetails details = bean.getDetails(hit);
-  // get the lang from request
   // get the lang from request
   String queryLang = request.getParameter("lang");
   if (queryLang == null) { queryLang = ""; }

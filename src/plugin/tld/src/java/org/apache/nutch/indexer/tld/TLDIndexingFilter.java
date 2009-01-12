@@ -23,12 +23,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
+import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.indexer.lucene.LuceneWriter;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.util.URLUtil;
 import org.apache.nutch.util.domain.DomainSuffix;
@@ -42,15 +42,14 @@ public class TLDIndexingFilter implements IndexingFilter {
 
   private Configuration conf;
 
-  public Document filter(Document doc, Parse parse, Text urlText, CrawlDatum datum, Inlinks inlinks)
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text urlText, CrawlDatum datum, Inlinks inlinks)
   throws IndexingException {
 
     try {
       URL url = new URL(urlText.toString());
       DomainSuffix d = URLUtil.getDomainSuffix(url);
       
-      // store, no index
-      doc.add(new Field("tld", d.getDomain(), Field.Store.YES, Field.Index.NO));
+      doc.add("tld", d.getDomain());
       
     }catch (Exception ex) {
       LOG.warn(ex);
@@ -65,5 +64,11 @@ public class TLDIndexingFilter implements IndexingFilter {
 
   public Configuration getConf() {
     return this.conf;
+  }
+
+  public void addIndexBackendOptions(Configuration conf) {
+    // store, no index
+    LuceneWriter.addFieldOptions("tld", LuceneWriter.STORE.YES,
+                                 LuceneWriter.INDEX.NO, conf);
   }
 }

@@ -49,6 +49,7 @@ if [ $# = 0 ]; then
   echo "  invertlinks       create a linkdb from parsed segments"
   echo "  mergelinkdb       merge linkdb-s, with optional filtering"
   echo "  index             run the indexer on parsed segments and linkdb"
+  echo "  solrindex         run the solr indexer on parsed segments and linkdb"
   echo "  merge             merge several segment indexes"
   echo "  dedup             remove duplicates from a set of segment indexes"
   echo "  plugin            load a plugin and run one of its classes main()"
@@ -230,6 +231,8 @@ elif [ "$COMMAND" = "mergelinkdb" ] ; then
   CLASS=org.apache.nutch.crawl.LinkDbMerger
 elif [ "$COMMAND" = "index" ] ; then
   CLASS=org.apache.nutch.indexer.Indexer
+elif [ "$COMMAND" = "solrindex" ] ; then
+  CLASS=org.apache.nutch.indexer.solr.SolrIndexer
 elif [ "$COMMAND" = "dedup" ] ; then
   CLASS=org.apache.nutch.indexer.DeleteDuplicates
 elif [ "$COMMAND" = "merge" ] ; then

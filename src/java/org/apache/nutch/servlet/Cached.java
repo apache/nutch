@@ -77,7 +77,7 @@ public class Cached extends HttpServlet {
     }
 
     Hit hit = new Hit(Integer.parseInt(request.getParameter("idx")),
-                      Integer.parseInt(request.getParameter("id")));
+                      request.getParameter("id"));
     HitDetails details = bean.getDetails(hit);
 
     // raw bytes

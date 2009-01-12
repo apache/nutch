@@ -29,11 +29,9 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
-import org.apache.lucene.document.Document;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
-import org.apache.nutch.fetcher.Fetcher;
-import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
@@ -158,7 +156,7 @@ public class OPICScoringFilter implements ScoringFilter {
   }
 
   /** Dampen the boost value by scorePower.*/
-  public float indexerScore(Text url, Document doc, CrawlDatum dbDatum, CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore) throws ScoringFilterException {
+  public float indexerScore(Text url, NutchDocument doc, CrawlDatum dbDatum, CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore) throws ScoringFilterException {
     return (float)Math.pow(dbDatum.getScore(), scorePower) * initScore;
   }
 }

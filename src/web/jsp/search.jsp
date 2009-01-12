@@ -169,7 +169,7 @@ function queryfocus() { document.search.query.focus(); }
 
 <body onLoad="queryfocus();">
 
-<jsp:include page="<%= language + "/include/header.html"%>"/>
+<jsp:include page="<%= language + \"/include/header.html\"%>"/>
 
  <form name="search" action="../search.jsp" method="get">
  <input name="query" size=44 value="<%=htmlQueryString%>">
@@ -247,7 +247,7 @@ out.flush();
     HitDetails detail = details[i];
     String title = detail.getValue("title");
     String url = detail.getValue("url");
-    String id = "idx=" + hit.getIndexNo() + "&id=" + hit.getIndexDocNo();
+    String id = "idx=" + hit.getIndexNo() + "&id=" + hit.getUniqueKey();
     String summary = summaries[i].toHtml(true);
     String caching = detail.getValue("cache");
     boolean showSummary = true;

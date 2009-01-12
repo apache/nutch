@@ -21,14 +21,14 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.lucene.document.DateTools;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.Parse;
 
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
+import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.indexer.lucene.LuceneWriter;
 import org.apache.hadoop.io.Text;
 
 import org.apache.nutch.crawl.CrawlDatum;
@@ -45,7 +45,7 @@ public class BasicIndexingFilter implements IndexingFilter {
   private int MAX_TITLE_LENGTH;
   private Configuration conf;
 
-  public Document filter(Document doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
     throws IndexingException {
 
     Text reprUrl = (Text) datum.getMetaData().get(Nutch.WRITABLE_REPR_URL_KEY);
@@ -66,45 +66,66 @@ public class BasicIndexingFilter implements IndexingFilter {
     }
 
     if (host != null) {
-      // add host as un-stored, indexed and tokenized
-      doc.add(new Field("host", host, Field.Store.NO, Field.Index.TOKENIZED));
-      // add site as un-stored, indexed and un-tokenized
-      doc.add(new Field("site", host, Field.Store.NO, Field.Index.UN_TOKENIZED));
+      doc.add("host", host);
+      doc.add("site", host);
     }
 
-    // url is both stored and indexed, so it's both searchable and returned
-    doc.add(new Field("url",
-                      reprUrlString == null ? urlString : reprUrlString,
-                      Field.Store.YES, Field.Index.TOKENIZED));
-    
-    if (reprUrlString != null) {
-      // also store original url as both stored and indexes
-      doc.add(new Field("orig", urlString,
-                        Field.Store.YES, Field.Index.TOKENIZED));
-    }
-
-    // content is indexed, so that it's searchable, but not stored in index
-    doc.add(new Field("content", parse.getText(), Field.Store.NO, Field.Index.TOKENIZED));
+    doc.add("url", reprUrlString == null ? urlString : reprUrlString);
+    doc.add("content", parse.getText());
     
     // title
     String title = parse.getData().getTitle();
     if (title.length() > MAX_TITLE_LENGTH) {      // truncate title if needed
       title = title.substring(0, MAX_TITLE_LENGTH);
     }
-    // add title indexed and stored so that it can be displayed
-    doc.add(new Field("title", title, Field.Store.YES, Field.Index.TOKENIZED));
+    doc.add("title", title);
+
     // add cached content/summary display policy, if available
     String caching = parse.getData().getMeta(Nutch.CACHING_FORBIDDEN_KEY);
     if (caching != null && !caching.equals(Nutch.CACHING_FORBIDDEN_NONE)) {
-      doc.add(new Field("cache", caching, Field.Store.YES, Field.Index.NO));
+      doc.add("cache", caching);
     }
     
     // add timestamp when fetched, for deduplication
-    doc.add(new Field("tstamp",
-        DateTools.timeToString(datum.getFetchTime(), DateTools.Resolution.MILLISECOND),
-        Field.Store.YES, Field.Index.NO));
+    doc.add("tstamp",
+            DateTools.timeToString(datum.getFetchTime(),
+            DateTools.Resolution.MILLISECOND));
 
     return doc;
+  }
+
+  public void addIndexBackendOptions(Configuration conf) {
+
+    ///////////////////////////
+    //    add lucene options   //
+    ///////////////////////////
+
+    // host is un-stored, indexed and tokenized
+    LuceneWriter.addFieldOptions("host", LuceneWriter.STORE.NO,
+        LuceneWriter.INDEX.TOKENIZED, conf);
+
+    // site is un-stored, indexed and un-tokenized
+    LuceneWriter.addFieldOptions("site", LuceneWriter.STORE.NO,
+        LuceneWriter.INDEX.UNTOKENIZED, conf);
+
+    // url is both stored and indexed, so it's both searchable and returned
+    LuceneWriter.addFieldOptions("url", LuceneWriter.STORE.YES,
+        LuceneWriter.INDEX.TOKENIZED, conf);
+
+    // content is indexed, so that it's searchable, but not stored in index
+    LuceneWriter.addFieldOptions("content", LuceneWriter.STORE.NO,
+        LuceneWriter.INDEX.TOKENIZED, conf);
+
+    // anchors are indexed, so they're searchable, but not stored in index
+    LuceneWriter.addFieldOptions("anchor", LuceneWriter.STORE.NO,
+        LuceneWriter.INDEX.TOKENIZED, conf);
+
+    // title is indexed and stored so that it can be displayed
+    LuceneWriter.addFieldOptions("title", LuceneWriter.STORE.YES,
+        LuceneWriter.INDEX.TOKENIZED, conf);
+
+    LuceneWriter.addFieldOptions("cache", LuceneWriter.STORE.YES, LuceneWriter.INDEX.NO, conf);
+    LuceneWriter.addFieldOptions("tstamp", LuceneWriter.STORE.YES, LuceneWriter.INDEX.NO, conf);
   }
 
   public void setConf(Configuration conf) {

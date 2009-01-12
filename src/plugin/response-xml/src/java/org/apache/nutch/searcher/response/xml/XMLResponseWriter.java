@@ -198,8 +198,8 @@ public class XMLResponseWriter
         Element document = addNode(xmldoc, documents, "document");
         addAttribute(xmldoc, document, "indexno",
           String.valueOf(hits[i].getIndexNo()));
-        addAttribute(xmldoc, document, "indexdocno",
-          String.valueOf(hits[i].getIndexDocNo()));
+        addAttribute(xmldoc, document, "indexkey",
+          String.valueOf(hits[i].getUniqueKey()));
         
         // don't add summaries not including summaries
         if (summaries != null && results.isWithSummary()) {

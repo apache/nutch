@@ -282,7 +282,7 @@ public final class Query implements Writable, Cloneable, Configurable {
   }
 
 
-  private ArrayList clauses = new ArrayList();
+  private ArrayList<Clause> clauses = new ArrayList<Clause>();
 
   private Configuration conf;
 
@@ -305,7 +305,7 @@ public final class Query implements Writable, Cloneable, Configurable {
   
   /** Return all clauses. */
   public Clause[] getClauses() {
-    return (Clause[])clauses.toArray(CLAUSES_PROTO);
+    return clauses.toArray(CLAUSES_PROTO);
   }
 
   /** Add a required term in the default field. */
@@ -361,7 +361,7 @@ public final class Query implements Writable, Cloneable, Configurable {
   public void write(DataOutput out) throws IOException {
     out.writeByte(clauses.size());
     for (int i = 0; i < clauses.size(); i++)
-      ((Clause)clauses.get(i)).write(out);
+      clauses.get(i).write(out);
   }
   
   public static Query read(DataInput in, Configuration conf) throws IOException {
@@ -404,7 +404,7 @@ public final class Query implements Writable, Cloneable, Configurable {
     } catch (CloneNotSupportedException e) {
       throw new RuntimeException(e);
     }
-    clone.clauses = (ArrayList)clauses.clone();
+    clone.clauses = (ArrayList<Clause>)clauses.clone();
     return clone;
   }
 
@@ -412,9 +412,9 @@ public final class Query implements Writable, Cloneable, Configurable {
   /** Flattens a query into the set of text terms that it contains.  These are
    * terms which should be higlighted in matching documents. */
   public String[] getTerms() {
-    ArrayList result = new ArrayList();
+    ArrayList<String> result = new ArrayList<String>();
     for (int i = 0; i < clauses.size(); i++) {
-      Clause clause = (Clause)clauses.get(i);
+      Clause clause = clauses.get(i);
       if (!clause.isProhibited()) {
         if (clause.isPhrase()) {
           Term[] terms = clause.getPhrase().getTerms();
@@ -426,7 +426,7 @@ public final class Query implements Writable, Cloneable, Configurable {
         }
       }
     }
-    return (String[])result.toArray(new String[result.size()]);
+    return result.toArray(new String[result.size()]);
   }
 
   /**
@@ -457,7 +457,7 @@ public final class Query implements Writable, Cloneable, Configurable {
     for (int i = 0; i < clauses.length; i++) {
       Clause c = clauses[i];
       if (!new QueryFilters(conf).isField(c.getField())) {  // unknown field
-        ArrayList terms = new ArrayList();        // add name to query
+        ArrayList<Term> terms = new ArrayList<Term>();        // add name to query
         if (c.isPhrase()) {                       
           terms.addAll(Arrays.asList(c.getPhrase().getTerms()));
         } else {
@@ -467,7 +467,7 @@ public final class Query implements Writable, Cloneable, Configurable {
         c = (Clause)c.clone();
         c.field = Clause.DEFAULT_FIELD;           // use default field instead
         c.termOrPhrase
-          = new Phrase((Term[])terms.toArray(new Term[terms.size()]));
+          = new Phrase(terms.toArray(new Term[terms.size()]));
       }
       output.clauses.add(c);                    // copy clause to output
     }

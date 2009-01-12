@@ -43,8 +43,10 @@ import javax.xml.transform.stream.StreamResult;
 
 /** Present search results using A9's OpenSearch extensions to RSS, plus a few
  * Nutch-specific extensions. */   
+@SuppressWarnings("serial")
 public class OpenSearchServlet extends HttpServlet {
-  private static final Map NS_MAP = new HashMap();
+  private static final Map<String, String> NS_MAP =
+	  new HashMap<String, String>();
   private int MAX_HITS_PER_PAGE;
 
   static {
@@ -52,7 +54,7 @@ public class OpenSearchServlet extends HttpServlet {
     NS_MAP.put("nutch", "http://www.nutch.org/opensearchrss/1.0/");
   }
 
-  private static final Set SKIP_DETAILS = new HashSet();
+  private static final Set<String> SKIP_DETAILS = new HashSet<String>();
   static {
     SKIP_DETAILS.add("url");                   // redundant with RSS link
     SKIP_DETAILS.add("title");                 // redundant with RSS title
@@ -171,8 +173,8 @@ public class OpenSearchServlet extends HttpServlet {
       Element rss = addNode(doc, doc, "rss");
       addAttribute(doc, rss, "version", "2.0");
       addAttribute(doc, rss, "xmlns:opensearch",
-                   (String)NS_MAP.get("opensearch"));
-      addAttribute(doc, rss, "xmlns:nutch", (String)NS_MAP.get("nutch"));
+                   NS_MAP.get("opensearch"));
+      addAttribute(doc, rss, "xmlns:nutch", NS_MAP.get("nutch"));
 
       Element channel = addNode(doc, rss, "channel");
     
@@ -214,7 +216,7 @@ public class OpenSearchServlet extends HttpServlet {
         HitDetails detail = details[i];
         String title = detail.getValue("title");
         String url = detail.getValue("url");
-        String id = "idx=" + hit.getIndexNo() + "&id=" + hit.getIndexDocNo();
+        String id = "idx=" + hit.getIndexNo() + "&id=" + hit.getUniqueKey();
       
         if (title == null || title.equals("")) {   // use url for docs w/o title
           title = url;
@@ -283,7 +285,7 @@ public class OpenSearchServlet extends HttpServlet {
 
   private static void addNode(Document doc, Node parent,
                               String ns, String name, String text) {
-    Element child = doc.createElementNS((String)NS_MAP.get(ns), ns+":"+name);
+    Element child = doc.createElementNS(NS_MAP.get(ns), ns+":"+name);
     child.appendChild(doc.createTextNode(getLegalXml(text)));
     parent.appendChild(child);
   }

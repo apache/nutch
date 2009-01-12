@@ -17,16 +17,15 @@
 
 package org.apache.nutch.scoring.tld;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Collection;
 import java.util.Map.Entry;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
-import org.apache.lucene.document.Document;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
+import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.protocol.Content;
@@ -49,11 +48,11 @@ public class TLDScoringFilter implements ScoringFilter {
     tldEntries = DomainSuffixes.getInstance();
   }
 
-  public float indexerScore(Text url, Document doc, CrawlDatum dbDatum,
+  public float indexerScore(Text url, NutchDocument doc, CrawlDatum dbDatum,
       CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore)
       throws ScoringFilterException {
 
-    String[] tlds = doc.getValues("tld");
+    List<String> tlds = doc.getFieldValues("tld");
     float boost = 1.0f;
 
     if(tlds != null) {
@@ -93,8 +92,9 @@ public class TLDScoringFilter implements ScoringFilter {
       throws ScoringFilterException {
   }
 
-  public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum,
-      List inlinked) throws ScoringFilterException {
+  public void updateDbScore(Text url, CrawlDatum old,
+                            CrawlDatum datum, List<CrawlDatum> inlinked)
+  throws ScoringFilterException {
   }
 
   public Configuration getConf() {

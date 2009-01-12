@@ -184,6 +184,9 @@
         <include name="dom4j-*.jar"/>
         <include name="xerces-*.jar"/>
         <include name="tika-*.jar"/>
+        <include name="apache-solr-*.jar"/>
+        <include name="commons-httpclient-*.jar"/>
+        <include name="commons-codec-*.jar"/>
         <include name="commons-collections-*.jar"/>
         <include name="commons-beanutils-*.jar"/>
         <include name="commons-cli-*.jar"/>

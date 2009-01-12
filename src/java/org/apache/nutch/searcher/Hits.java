@@ -65,7 +65,6 @@ public final class Hits implements Writable {
     return results;
   }
 
-
   public void write(DataOutput out) throws IOException {
     out.writeLong(total);                         // write total hits
     out.writeInt(top.length);                     // write hits returned
@@ -74,12 +73,13 @@ public final class Hits implements Writable {
                       
     for (int i = 0; i < top.length; i++) {
       Hit h = top[i];
-      out.writeInt(h.getIndexDocNo());            // write indexDocNo
+      Text.writeString(out, h.getUniqueKey());    // write uniqueKey
       h.getSortValue().write(out);                // write sortValue
       Text.writeString(out, h.getDedupValue());   // write dedupValue
     }
   }
 
+  @SuppressWarnings("unchecked")
   public void readFields(DataInput in) throws IOException {
     total = in.readLong();                        // read total hits
     top = new Hit[in.readInt()];                  // read hits returned
@@ -93,7 +93,7 @@ public final class Hits implements Writable {
     }
 
     for (int i = 0; i < top.length; i++) {
-      int indexDocNo = in.readInt();              // read indexDocNo
+      String uniqueKey = Text.readString(in);            // read uniqueKey
 
       WritableComparable sortValue = null;
       try {
@@ -105,7 +105,7 @@ public final class Hits implements Writable {
 
       String dedupValue = Text.readString(in);    // read dedupValue
 
-      top[i] = new Hit(indexDocNo, sortValue, dedupValue);
+      top[i] = new Hit(uniqueKey, sortValue, dedupValue);
     }
   }
 

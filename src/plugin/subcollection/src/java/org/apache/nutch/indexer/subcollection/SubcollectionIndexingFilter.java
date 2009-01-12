@@ -19,8 +19,6 @@ package org.apache.nutch.indexer.subcollection;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.Text;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -30,6 +28,8 @@ import org.apache.nutch.util.NutchConfiguration;
 
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
+import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.indexer.lucene.LuceneWriter;
 
 import org.apache.nutch.collection.CollectionManager;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -62,14 +62,19 @@ public class SubcollectionIndexingFilter extends Configured implements IndexingF
    * @param doc
    * @param url
    */
-  private void addSubCollectionField(Document doc, String url) {
+  private void addSubCollectionField(NutchDocument doc, String url) {
     String collname = CollectionManager.getCollectionManager(getConf()).getSubCollections(url);
-    doc.add(new Field(FIELD_NAME, collname, Field.Store.YES, Field.Index.TOKENIZED));
+    doc.add(FIELD_NAME, collname);
   }
 
-  public Document filter(Document doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks) throws IndexingException {
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks) throws IndexingException {
     String sUrl = url.toString();
     addSubCollectionField(doc, sUrl);
     return doc;
+  }
+
+  public void addIndexBackendOptions(Configuration conf) {
+    LuceneWriter.addFieldOptions(FIELD_NAME, LuceneWriter.STORE.YES,
+        LuceneWriter.INDEX.UNTOKENIZED, conf);
   }
 }

@@ -227,9 +227,11 @@ public class FeedParser implements Parser {
 
     try {
       link = normalizers.normalize(link, URLNormalizers.SCOPE_OUTLINK);
+
       if (link != null)
         link = filters.filter(link);
     } catch (Exception e) {
+      e.printStackTrace();
       return;
     }
 

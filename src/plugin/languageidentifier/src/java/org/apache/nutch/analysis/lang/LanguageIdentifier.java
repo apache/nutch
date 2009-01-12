@@ -68,14 +68,12 @@ public class LanguageIdentifier {
   
  
   private final static int DEFAULT_ANALYSIS_LENGTH = 0;    // 0 means full content
-  
-  private final static float SCORE_THRESOLD = 0.00F;
 
   private final static Log LOG = LogFactory.getLog(LanguageIdentifier.class);
   
-  private ArrayList languages = new ArrayList();
+  private ArrayList<NGramProfile> languages = new ArrayList<NGramProfile>();
 
-  private ArrayList supportedLanguages = new ArrayList();
+  private ArrayList<String> supportedLanguages = new ArrayList<String>();
 
   /** Minimum size of NGrams */
   private int minLength = NGramProfile.DEFAULT_MIN_NGRAM_LENGTH;
@@ -87,13 +85,10 @@ public class LanguageIdentifier {
   private int analyzeLength = DEFAULT_ANALYSIS_LENGTH;
   
   /** A global index of ngrams of all supported languages */
-  private HashMap ngramsIdx = new HashMap();
+  private HashMap<CharSequence, NGramEntry[]> ngramsIdx = new HashMap<CharSequence, NGramEntry[]>();
 
   /** The NGramProfile used for identification */
   private NGramProfile suspect = null;
-
-  /** My singleton instance */
-  private static LanguageIdentifier identifier = null;
 
 
   /**
@@ -131,7 +126,7 @@ public class LanguageIdentifier {
       }
 
       StringBuffer list = new StringBuffer("Language identifier plugin supports:");
-      HashMap tmpIdx = new HashMap();
+      HashMap<NGramEntry, List<NGramEntry>> tmpIdx = new HashMap<NGramEntry, List<NGramEntry>>();
       while (alllanguages.hasMoreElements()) {
         String lang = (String) (alllanguages.nextElement());
 
@@ -144,12 +139,12 @@ public class LanguageIdentifier {
             profile.load(is);
             languages.add(profile);
             supportedLanguages.add(lang);
-            List ngrams = profile.getSorted();
+            List<NGramEntry> ngrams = profile.getSorted();
             for (int i=0; i<ngrams.size(); i++) {
-                NGramEntry entry = (NGramEntry) ngrams.get(i);
-                List registered = (List) tmpIdx.get(entry);
+                NGramEntry entry = ngrams.get(i);
+                List<NGramEntry> registered = tmpIdx.get(entry);
                 if (registered == null) {
-                    registered = new ArrayList();
+                    registered = new ArrayList<NGramEntry>();
                     tmpIdx.put(entry, registered);
                 }
                 registered.add(entry);
@@ -163,12 +158,12 @@ public class LanguageIdentifier {
         }
       }
       // transform all ngrams lists to arrays for performances
-      Iterator keys = tmpIdx.keySet().iterator();
+      Iterator<NGramEntry> keys = tmpIdx.keySet().iterator();
       while (keys.hasNext()) {
-        NGramEntry entry = (NGramEntry) keys.next();
-        List l = (List) tmpIdx.get(entry);
+        NGramEntry entry = keys.next();
+        List<NGramEntry> l = tmpIdx.get(entry);
         if (l != null) {
-          NGramEntry[] array = (NGramEntry[]) l.toArray(new NGramEntry[l.size()]);
+          NGramEntry[] array = l.toArray(new NGramEntry[l.size()]);
           ngramsIdx.put(entry.getSeq(), array);
         }
       }
@@ -209,10 +204,9 @@ public class LanguageIdentifier {
     final int IDFILESET = 4;
     final int IDROWS = 5;
 
-    Vector fileset = new Vector();
+    Vector<String> fileset = new Vector<String>();
     String filename = "";
     String charset = "";
-    String url = "";
     String text = "";
     int max = 0;
 
@@ -312,10 +306,10 @@ public class LanguageIdentifier {
             long start = System.currentTimeMillis();
             idfr.analyzeLength = j; */
           System.out.println("FILESET");
-          Iterator i = fileset.iterator();
+          Iterator<String> i = fileset.iterator();
           while (i.hasNext()) {
             try {
-              filename = (String) i.next();
+              filename = i.next();
               f = new File(filename);
               fis = new FileInputStream(f);
               lang = idfr.identify(fis, charset);
@@ -352,8 +346,6 @@ public class LanguageIdentifier {
 
     } catch (ProtocolNotFound e) {
       e.printStackTrace();
-    } catch (ProtocolException e) {
-      e.printStackTrace();
     } catch (ParserNotFound e) {
       e.printStackTrace();
     } catch (ParseException e) {
@@ -372,7 +364,7 @@ public class LanguageIdentifier {
    *         matches the specified content.
    */
   public String identify(String content) {
-    return identify(new StringBuffer(content));
+    return identify(new StringBuilder(content));
   }
 
   /**
@@ -384,28 +376,28 @@ public class LanguageIdentifier {
    *         language code</a> (en, fi, sv, ...) of the language that best
    *         matches the specified content.
    */
-  public String identify(StringBuffer content) {
+  public String identify(StringBuilder content) {
 
-    StringBuffer text = content;
+	StringBuilder text = content;
     if ((analyzeLength > 0) && (content.length() > analyzeLength)) {
-        text = new StringBuffer().append(content);
+        text = new StringBuilder().append(content);
         text.setLength(analyzeLength);
     }
 
     suspect.analyze(text);
-    Iterator iter = suspect.getSorted().iterator();
+    Iterator<NGramEntry> iter = suspect.getSorted().iterator();
     float topscore = Float.MIN_VALUE;
     String lang = "";
-    HashMap scores = new HashMap();
+    HashMap<NGramProfile, Float> scores = new HashMap<NGramProfile, Float>();
     NGramEntry searched = null;
     
     while (iter.hasNext()) {
-        searched = (NGramEntry) iter.next();
-        NGramEntry[] ngrams = (NGramEntry[]) ngramsIdx.get(searched.getSeq());
+        searched = iter.next();
+        NGramEntry[] ngrams = ngramsIdx.get(searched.getSeq());
         if (ngrams != null) {
             for (int j=0; j<ngrams.length; j++) {
                 NGramProfile profile = ngrams[j].getProfile();
-                Float pScore = (Float) scores.get(profile);
+                Float pScore = scores.get(profile);
                 if (pScore == null) {
                     pScore = new Float(0);
                 }

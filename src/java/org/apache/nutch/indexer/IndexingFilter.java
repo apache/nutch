@@ -17,11 +17,9 @@
 
 package org.apache.nutch.indexer;
 
-// Lucene imports
-import org.apache.lucene.document.Document;
-
 // Hadoop imports
 import org.apache.hadoop.conf.Configurable;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 
 // Nutch imports
@@ -52,6 +50,15 @@ public interface IndexingFilter extends Pluggable, Configurable {
    * should be discarded)
    * @throws IndexingException
    */
-  Document filter(Document doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
+  NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
     throws IndexingException;
+
+  /** Adds index-level configuraition options.
+   * Implementations can update given configuration to pass document-independent
+   * information to indexing backends. As a rule of thumb, prefix meta keys
+   * with the name of the backend intended. For example, when
+   * passing information to lucene backend, prefix keys with "lucene.".
+   * @param conf Configuration instance.
+   * */
+  public void addIndexBackendOptions(Configuration conf);
 }

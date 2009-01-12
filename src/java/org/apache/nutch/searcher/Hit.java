@@ -21,31 +21,33 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 
 /** A document which matched a query in an index. */
-public class Hit implements Writable, Comparable {
+@SuppressWarnings("unchecked")
+public class Hit implements Writable, Comparable<Hit> {
 
   private int indexNo;                            // index id
-  private int indexDocNo;                         // index-relative id
+  private String uniqueKey;
   private WritableComparable sortValue;           // value sorted on
   private String dedupValue;                      // value to dedup on
   private boolean moreFromDupExcluded;
 
   public Hit() {}
 
-  public Hit(int indexNo, int indexDocNo) {
-    this(indexNo, indexDocNo, null, null);
+  public Hit(int indexNo, String uniqueKey) {
+    this(indexNo, uniqueKey, null, null);
   }
-  public Hit(int indexNo, int indexDocNo,
-             WritableComparable sortValue,
+  public Hit(int indexNo, String uniqueKey,
+      WritableComparable sortValue,
              String dedupValue) {
-    this(indexDocNo, sortValue, dedupValue);
+    this(uniqueKey, sortValue, dedupValue);
     this.indexNo = indexNo;
   }
-  public Hit(int indexDocNo, WritableComparable sortValue, String dedupValue) {
-    this.indexDocNo = indexDocNo;
+  public Hit(String uniqueKey, WritableComparable sortValue, String dedupValue) {
+    this.uniqueKey = uniqueKey;
     this.sortValue = sortValue;
     this.dedupValue = dedupValue == null ? "" : dedupValue;
   }
@@ -54,8 +56,8 @@ public class Hit implements Writable, Comparable {
   public int getIndexNo() { return indexNo; }
   public void setIndexNo(int indexNo) { this.indexNo = indexNo; }
 
-  /** Return the document number of this hit within an index. */
-  public int getIndexDocNo() { return indexDocNo; }
+  /** Return the unique identifier of this hit within an index. */
+  public String getUniqueKey() { return uniqueKey; }
 
   /** Return the value of the field that hits are sorted on. */
   public WritableComparable getSortValue() { return sortValue; }
@@ -73,39 +75,26 @@ public class Hit implements Writable, Comparable {
 
   /** Display as a string. */
   public String toString() {
-    return "#" + indexDocNo;
+    return "#" + uniqueKey;
   }
 
-  public boolean equals(Object o) {
-    if (!(o instanceof Hit))
-      return false;
-    Hit other = (Hit)o;
-    return this.indexNo == other.indexNo
-      && this.indexDocNo == other.indexDocNo;
-  }
-
-  public int hashCode() {
-    return indexNo ^ indexDocNo;
-  }
-
-  public int compareTo(Object o) {
-    Hit other = (Hit)o;
+  public int compareTo(Hit other) {
     int compare = sortValue.compareTo(other.sortValue);
     if (compare != 0) {
       return compare;                             // use sortValue
     } else if (other.indexNo != this.indexNo) {
       return other.indexNo - this.indexNo;        // prefer later indexes
     } else {
-      return other.indexDocNo - this.indexDocNo;  // prefer later docs
+      return other.uniqueKey.compareTo(this.uniqueKey);  // prefer later doc
     }
   }
 
   public void write(DataOutput out) throws IOException {
-    out.writeInt(indexDocNo);
+    Text.writeString(out, uniqueKey);
   }
 
   public void readFields(DataInput in) throws IOException {
-    indexDocNo = in.readInt();
+    uniqueKey = Text.readString(in);
   }
 
 }
