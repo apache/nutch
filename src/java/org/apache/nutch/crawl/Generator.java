@@ -88,6 +88,8 @@ public class Generator extends Configured implements Tool {
     private HashMap<String, IntWritable> hostCounts =
       new HashMap<String, IntWritable>();
     private int maxPerHost;
+    private HashSet<String> maxedHosts = new HashSet<String>();
+    private HashSet<String> dnsFailureHosts = new HashSet<String>();
     private Partitioner<Text, Writable> hostPartitioner = new PartitionUrlByHost();
     private URLFilters filters;
     private URLNormalizers normalizers;
@@ -195,17 +197,28 @@ public class Generator extends Configured implements Tool {
         
         String host = u.getHost();
         host = host.toLowerCase();
-        
+        String hostname = host;
+
         // partitioning by ip will generate lots of DNS requests here, and will 
         // be up to double the overall dns load, do not run this way unless you
         // are running a local caching DNS server or a two layer DNS cache
         if (byIP) {
+          if (maxedHosts.contains(host)) {
+            if (LOG.isDebugEnabled()) { LOG.debug("Host already maxed out: " + host); }
+            continue;
+          }
+          if (dnsFailureHosts.contains(host)) {
+            if (LOG.isDebugEnabled()) { LOG.debug("Host name lookup already failed: " + host); }
+            continue;
+          }
           try {
             InetAddress ia = InetAddress.getByName(host);
             host = ia.getHostAddress();
             urlString = new URL(u.getProtocol(), host, u.getPort(), u.getFile()).toString();
           } 
           catch (UnknownHostException uhe) {
+            // remember hostnames that could not be looked up
+            dnsFailureHosts.add(hostname);
             if (LOG.isDebugEnabled()) {
               LOG.debug("DNS lookup failed: " + host + ", skipping.");
             }
@@ -241,6 +254,8 @@ public class Generator extends Configured implements Tool {
           // skip URL if above the limit per host.
           if (hostCount.get() > maxPerHost) {
             if (hostCount.get() == maxPerHost + 1) {
+              // remember the raw hostname that is maxed out
+              maxedHosts.add(hostname);
               if (LOG.isInfoEnabled()) {
                 LOG.info("Host " + host + " has more than " + maxPerHost +
                          " URLs." + " Skipping additional.");
