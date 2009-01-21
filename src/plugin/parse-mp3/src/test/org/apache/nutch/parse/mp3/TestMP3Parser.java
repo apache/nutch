@@ -71,7 +71,7 @@ public class TestMP3Parser extends TestCase {
     protocol = new ProtocolFactory(conf).getProtocol(urlString);
     content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum())
                       .getContent();
-    parse = new ParseUtil(conf).parseByExtensionId("parse-mp3", content);
+    parse = new ParseUtil(conf).parseByExtensionId("parse-mp3", content).get(urlString);
     Metadata metadata = parse.getData().getParseMeta();
     assertEquals("postgresql comment id3v2", metadata.get("COMM-Text"));
     assertEquals("postgresql composer id3v2", metadata.get("TCOM-Text"));
@@ -103,7 +103,7 @@ public class TestMP3Parser extends TestCase {
     protocol = new ProtocolFactory(conf).getProtocol(urlString);
     content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum())
                       .getContent();
-    parse = new ParseUtil(conf).parseByExtensionId("parse-mp3", content);
+    parse = new ParseUtil(conf).parseByExtensionId("parse-mp3", content).get(urlString);
 
     Metadata metadata = parse.getData().getParseMeta();
     assertEquals("postgresql comment id3v1", metadata.get("COMM-Text"));
@@ -130,7 +130,7 @@ public class TestMP3Parser extends TestCase {
     protocol = new ProtocolFactory(conf).getProtocol(urlString);
     content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum())
                       .getContent();
-    parse = new ParseUtil(conf).parseByExtensionId("parse-mp3", content);
+    parse = new ParseUtil(conf).parseByExtensionId("parse-mp3", content).get(urlString);
 //    Metadata metadata = parse.getData().getParseMeta();
     if (parse.getData().getStatus().isSuccess()) {
       fail("Expected ParseException");
