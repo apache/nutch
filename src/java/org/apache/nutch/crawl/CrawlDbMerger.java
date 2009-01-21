@@ -53,7 +53,7 @@ public class CrawlDbMerger extends Configured implements Tool {
   private static final Log LOG = LogFactory.getLog(CrawlDbMerger.class);
 
   public static class Merger extends MapReduceBase implements Reducer<Text, CrawlDatum, Text, CrawlDatum> {
-    private MapWritable meta = new MapWritable();
+    private org.apache.hadoop.io.MapWritable meta = new org.apache.hadoop.io.MapWritable();
     private CrawlDatum res = new CrawlDatum();
     private FetchSchedule schedule;
 
