@@ -33,6 +33,7 @@ public class MD5Signature extends Signature {
   public byte[] calculate(Content content, Parse parse) {
     byte[] data = content.getContent();
     if (data == null) data = content.getUrl().getBytes();
-    return MD5Hash.digest(data).getDigest();
+    StringBuilder buf = new StringBuilder().append(data).append(parse.getText());
+    return MD5Hash.digest(buf.toString().getBytes()).getDigest();
   }
 }
