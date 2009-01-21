@@ -313,6 +313,9 @@ Unreleased changes (1.0-dev)
 
 117. NUTCH-678 - Hadoop 0.19 requires an update of jets3t.
                  (julien nioche via dogacan)
+
+118. NUTCH-681 - parse-mp3 compilation problem. 
+                 (Wildan Maulana via dogacan)
      
 Release 0.9 - 2007-04-02
 

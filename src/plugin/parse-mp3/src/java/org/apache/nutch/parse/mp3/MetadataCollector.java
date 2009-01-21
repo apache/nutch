@@ -34,7 +34,7 @@ public class MetadataCollector {
   private String title = null;
   private String artist = null;
   private String album = null;
-  private ArrayList links = new ArrayList();
+  private ArrayList<Outlink> links = new ArrayList<Outlink>();
   private String text = "";
   private Configuration conf;
 
@@ -51,7 +51,7 @@ public class MetadataCollector {
       setArtist(value);
 
     if (name.indexOf("URL Link") > -1) {
-      links.add(new Outlink(value, "", this.conf));
+      links.add(new Outlink(value, ""));
     } else if (name.indexOf("Text") > -1) {
       text += value + "\n";
     }
