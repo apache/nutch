@@ -57,6 +57,7 @@ import org.apache.nutch.protocol.ProtocolStatus;
  * into the header of each MapWritable that uses these types.
  *
  * @author Stefan Groschupf
+ * @deprecated Use org.apache.hadoop.io.MapWritable instead.
  */
 public class MapWritable implements Writable {
 

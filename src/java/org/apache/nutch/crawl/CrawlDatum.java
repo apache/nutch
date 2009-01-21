@@ -19,17 +19,18 @@ package org.apache.nutch.crawl;
 
 import java.io.*;
 import java.util.*;
+import java.util.Map.Entry;
 
 import org.apache.hadoop.io.*;
 import org.apache.nutch.util.*;
 
 /* The crawl state of a url. */
-public class CrawlDatum implements WritableComparable, Cloneable {
+public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
   public static final String GENERATE_DIR_NAME = "crawl_generate";
   public static final String FETCH_DIR_NAME = "crawl_fetch";
   public static final String PARSE_DIR_NAME = "crawl_parse";
 
-  private final static byte CUR_VERSION = 6;
+  private final static byte CUR_VERSION = 7;
 
   /** Compatibility values for on-the-fly conversion from versions < 5. */
   private static final byte OLD_STATUS_SIGNATURE = 0;
@@ -118,7 +119,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   private float score = 1.0f;
   private byte[] signature = null;
   private long modifiedTime;
-  private MapWritable metaData;
+  private org.apache.hadoop.io.MapWritable metaData;
   
   public static boolean hasDbStatus(CrawlDatum datum) {
     if (datum.status <= STATUS_DB_MAX) return true;
@@ -131,10 +132,11 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   }
 
   public CrawlDatum() {
-    metaData = new MapWritable();
+    metaData = new org.apache.hadoop.io.MapWritable();
   }
 
   public CrawlDatum(int status, int fetchInterval) {
+    this();
     this.status = (byte)status;
     this.fetchInterval = fetchInterval;
   }
@@ -201,14 +203,16 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     this.signature = signature;
   }
   
-   public void setMetaData(MapWritable mapWritable) {this.metaData = mapWritable; }
+   public void setMetaData(org.apache.hadoop.io.MapWritable mapWritable) {
+     this.metaData = mapWritable;
+   }
 
   /**
    * returns a MapWritable if it was set or read in @see readFields(DataInput), 
    * returns empty map in case CrawlDatum was freshly created (lazily instantiated).
    */
-  public MapWritable getMetaData() {
-    if (this.metaData == null) this.metaData = new MapWritable();
+  public org.apache.hadoop.io.MapWritable getMetaData() {
+    if (this.metaData == null) this.metaData = new org.apache.hadoop.io.MapWritable();
     return this.metaData;
   }
   
@@ -222,7 +226,6 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     result.readFields(in);
     return result;
   }
-
 
   public void readFields(DataInput in) throws IOException {
     byte version = in.readByte();                 // read version
@@ -244,10 +247,20 @@ public class CrawlDatum implements WritableComparable, Cloneable {
         in.readFully(signature);
       } else signature = null;
     }
+    metaData = new org.apache.hadoop.io.MapWritable();
     if (version > 3) {
-      metaData.clear();
-      if (in.readBoolean()) {
-        metaData.readFields(in);
+      if (version < 7) {
+        MapWritable oldMetaData = new MapWritable();
+        if (in.readBoolean()) {
+          oldMetaData.readFields(in);
+        }
+        for (Writable key : oldMetaData.keySet()) {
+          metaData.put(key, oldMetaData.get(key));
+        }
+      } else {
+        if (in.readBoolean()) {
+          metaData.readFields(in);
+        }
       }
     }
     // translate status codes
@@ -278,7 +291,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
       out.writeByte(signature.length);
       out.write(signature);
     }
-    if (metaData != null && metaData.size() > 0) {
+    if (metaData.size() > 0) {
       out.writeBoolean(true);
       metaData.write(out);
     } else {
@@ -295,7 +308,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
     this.score = that.score;
     this.modifiedTime = that.modifiedTime;
     this.signature = that.signature;
-    this.metaData = new MapWritable(that.metaData); // make a deep copy
+    this.metaData = new org.apache.hadoop.io.MapWritable(that.metaData); // make a deep copy
   }
 
 
@@ -304,8 +317,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   //
   
   /** Sort by decreasing score. */
-  public int compareTo(Object o) {
-    CrawlDatum that = (CrawlDatum)o; 
+  public int compareTo(CrawlDatum that) {
     if (that.score != this.score)
       return (that.score - this.score) > 0 ? 1 : -1;
     if (that.status != this.status)
@@ -367,7 +379,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
   //
 
   public String toString() {
-    StringBuffer buf = new StringBuffer();
+    StringBuilder buf = new StringBuilder();
     buf.append("Version: " + CUR_VERSION + "\n");
     buf.append("Status: " + getStatus() + " (" + getStatusName(getStatus()) + ")\n");
     buf.append("Fetch time: " + new Date(getFetchTime()) + "\n");
@@ -377,8 +389,22 @@ public class CrawlDatum implements WritableComparable, Cloneable {
         (getFetchInterval() / FetchSchedule.SECONDS_PER_DAY) + " days)\n");
     buf.append("Score: " + getScore() + "\n");
     buf.append("Signature: " + StringUtil.toHexString(getSignature()) + "\n");
-    buf.append("Metadata: " + (metaData != null ? metaData.toString() : "null") + "\n");
+    buf.append("Metadata: ");
+    for (Entry<Writable, Writable> e : metaData.entrySet()) {
+      buf.append(e.getKey());
+      buf.append(": ");
+      buf.append(e.getValue());
+    }
+    buf.append('\n');
     return buf.toString();
+  }
+  
+  private boolean metadataEquals(org.apache.hadoop.io.MapWritable otherMetaData) {
+    HashSet<Entry<Writable, Writable>> set1 =
+      new HashSet<Entry<Writable,Writable>>(metaData.entrySet());
+    HashSet<Entry<Writable, Writable>> set2 =
+      new HashSet<Entry<Writable,Writable>>(otherMetaData.entrySet());
+    return set1.equals(set2);
   }
 
   public boolean equals(Object o) {
@@ -394,18 +420,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
       (SignatureComparator._compare(this.signature, other.signature) == 0) &&
       (this.score == other.score);
     if (!res) return res;
-    // allow zero-sized metadata to be equal to null metadata
-    if (this.metaData == null) {
-      if (other.metaData != null && other.metaData.size() > 0) return false;
-      else return true;
-    } else {
-      if (other.metaData == null) {
-        if (this.metaData.size() == 0) return true;
-        else return false;
-      } else {
-        return this.metaData.equals(other.metaData);
-      }
-    }
+    return metadataEquals(other.metaData);
   }
 
   public int hashCode() {
@@ -416,7 +431,7 @@ public class CrawlDatum implements WritableComparable, Cloneable {
                 signature[i+2] << 8 + signature[i+3]);
       }
     }
-    if (metaData != null) res ^= metaData.hashCode();
+    res ^= metaData.entrySet().hashCode();
     return
       res ^ status ^
       ((int)fetchTime) ^
