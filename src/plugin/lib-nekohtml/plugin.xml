@@ -25,11 +25,11 @@
 <plugin
    id="lib-nekohtml"
    name="CyberNeko HTML Parser"
-   version="0.9.4"
+   version="1.9.11"
    provider-name="org.cyberneko">
 
    <runtime>
-     <library name="nekohtml-0.9.4.jar">
+     <library name="nekohtml-1.9.11.jar">
         <export name="*"/>
      </library>
    </runtime>
