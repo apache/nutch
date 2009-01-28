@@ -76,7 +76,7 @@ public class MetadataCollector {
       if (!text.equals("")) {
         text += " - " + album;
       } else {
-        text = title;
+        text = album;
       }
     }
     if (artist != null) {
