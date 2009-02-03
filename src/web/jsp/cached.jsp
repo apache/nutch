@@ -75,7 +75,7 @@
 <h2 style="{color: rgb(255, 153, 0)}"><i18n:message key="title"/></h2>
 <h3>
 <i18n:message key="page">
-  <i18n:messageArg value="<%=details.getValue("url")%>"/>
+  <i18n:messageArg value="<%=details.getValue(\"url\")%>"/>
 </i18n:message>
 </h3>
 <hr>

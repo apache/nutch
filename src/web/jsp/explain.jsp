@@ -62,7 +62,7 @@
 
 <body>
 
-<jsp:include page="<%= language + "/include/header.html"%>"/>
+<jsp:include page="<%= language + \"/include/header.html\"%>"/>
 
 <h3><i18n:message key="page"/></h3>
 

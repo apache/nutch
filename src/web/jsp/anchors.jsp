@@ -60,11 +60,11 @@
 
 <body>
 
-<jsp:include page="<%= language + "/include/header.html"%>"/>
+<jsp:include page="<%= language + \"/include/header.html\"%>"/>
 
 <h3>
 <i18n:message key="page">
-  <i18n:messageArg value="<%=details.getValue("url")%>"/>
+  <i18n:messageArg value="<%=details.getValue(\"url\")%>"/>
 </i18n:message>
 </h3>
 
