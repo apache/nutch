@@ -44,11 +44,12 @@ public class DummyX509TrustManager implements X509TrustManager
      */
     public DummyX509TrustManager(KeyStore keystore) throws NoSuchAlgorithmException, KeyStoreException {
         super();
-        TrustManagerFactory factory = TrustManagerFactory.getInstance("SunX509");
+        String algo = TrustManagerFactory.getDefaultAlgorithm();
+        TrustManagerFactory factory = TrustManagerFactory.getInstance(algo);
         factory.init(keystore);
         TrustManager[] trustmanagers = factory.getTrustManagers();
         if (trustmanagers.length == 0) {
-            throw new NoSuchAlgorithmException("SunX509 trust manager not supported");
+            throw new NoSuchAlgorithmException(algo + " trust manager not supported");
         }
         this.standardTrustManager = (X509TrustManager)trustmanagers[0];
     }
