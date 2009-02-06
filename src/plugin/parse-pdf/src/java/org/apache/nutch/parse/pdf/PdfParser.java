@@ -17,14 +17,14 @@
 
 package org.apache.nutch.parse.pdf;
 
-import org.pdfbox.encryption.DocumentEncryption;
 import org.pdfbox.pdfparser.PDFParser;
 import org.pdfbox.pdmodel.PDDocument;
 import org.pdfbox.pdmodel.PDDocumentInformation;
+import org.pdfbox.pdmodel.encryption.BadSecurityHandlerException;
+import org.pdfbox.pdmodel.encryption.StandardDecryptionMaterial;
 import org.pdfbox.util.PDFTextStripper;
 
 import org.pdfbox.exceptions.CryptographyException;
-import org.pdfbox.exceptions.InvalidPasswordException;
 
 // Commons Logging imports
 import org.apache.commons.logging.Log;
@@ -93,9 +93,8 @@ public class PdfParser implements Parser {
       pdf = parser.getPDDocument();
 
       if (pdf.isEncrypted()) {
-        DocumentEncryption decryptor = new DocumentEncryption(pdf);
         //Just try using the default password and move on
-        decryptor.decryptDocument("");
+        pdf.openProtection(new StandardDecryptionMaterial(""));
       }
 
       // collect text
@@ -106,7 +105,7 @@ public class PdfParser implements Parser {
       PDDocumentInformation info = pdf.getDocumentInformation();
       title = info.getTitle();
       // more useful info, currently not used. please keep them for future use.
-      metadata.add(Metadata.PAGE_COUNT, String.valueOf(pdf.getPageCount()));
+      metadata.add(Metadata.PAGE_COUNT, String.valueOf(pdf.getNumberOfPages()));
       metadata.add(Metadata.AUTHOR, info.getAuthor());
       metadata.add(Metadata.SUBJECT, info.getSubject());
       metadata.add(Metadata.KEYWORDS, info.getKeywords());
@@ -122,9 +121,9 @@ public class PdfParser implements Parser {
     } catch (CryptographyException e) {
       return new ParseStatus(ParseStatus.FAILED,
               "Error decrypting document. " + e).getEmptyParseResult(content.getUrl(), getConf());
-    } catch (InvalidPasswordException e) {
+    } catch (BadSecurityHandlerException e) {
       return new ParseStatus(ParseStatus.FAILED,
-              "Can't decrypt document - invalid password. " + e).getEmptyParseResult(content.getUrl(), getConf());
+              "Error decrypting document. " + e).getEmptyParseResult(content.getUrl(), getConf());
     } catch (Exception e) { // run time exception
         if (LOG.isWarnEnabled()) {
           LOG.warn("General exception in PDF parser: "+e.getMessage());
