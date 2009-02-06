@@ -26,8 +26,12 @@
       <library name="parse-pdf.jar">
          <export name="*"/>
       </library>
-      <library name="PDFBox-0.7.3.jar"/>
-      <library name="FontBox-0.1.0-dev.jar"/>
+      <library name="PDFBox-0.7.4-dev.jar"/>
+      <library name="FontBox-0.2.0-dev.jar"/>
+      <library name="JempBox-0.2.0-dev.jar"/>
+      <library name="bcprov-jdk14-132.jar"/>
+      <library name="jai_codec.jar"/>
+      <library name="jai_core.jar"/>
    </runtime>
 
    <requires>

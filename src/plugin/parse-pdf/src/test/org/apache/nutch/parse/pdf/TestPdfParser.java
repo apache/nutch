@@ -46,7 +46,10 @@ public class TestPdfParser extends TestCase {
   // Make sure sample files are copied to "test.data" as specified in
   // ./src/plugin/parse-pdf/build.xml during plugin compilation.
   // Check ./src/plugin/parse-pdf/sample/README.txt for what they are.
-  private String[] sampleFiles = {"pdftest.pdf"};
+  private String[] sampleFiles = {
+      "pdftest.pdf",
+      "encrypted.pdf"
+  };
 
   private String expectedText = "A VERY SMALL PDF FILE";
 
@@ -64,7 +67,7 @@ public class TestPdfParser extends TestCase {
     Content content;
     Parse parse;
 
-    for (int i=0; i<sampleFiles.length; i++) {
+    for (int i = 0; i < sampleFiles.length; i++) {
       urlString = "file:" + sampleDir + fileSeparator + sampleFiles[i];
 
       Configuration conf = NutchConfiguration.create();
