@@ -19,6 +19,7 @@ package org.apache.nutch.crawl;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.Map.Entry;
 
 // Commons Logging imports
 import org.apache.commons.logging.Log;
@@ -28,6 +29,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
 import org.apache.hadoop.conf.*;
@@ -53,7 +55,7 @@ public class CrawlDbMerger extends Configured implements Tool {
   private static final Log LOG = LogFactory.getLog(CrawlDbMerger.class);
 
   public static class Merger extends MapReduceBase implements Reducer<Text, CrawlDatum, Text, CrawlDatum> {
-    private org.apache.hadoop.io.MapWritable meta = new org.apache.hadoop.io.MapWritable();
+    private org.apache.hadoop.io.MapWritable meta;
     private CrawlDatum res = new CrawlDatum();
     private FetchSchedule schedule;
 
@@ -67,26 +69,32 @@ public class CrawlDbMerger extends Configured implements Tool {
             throws IOException {
       long resTime = 0L;
       boolean resSet = false;
-      meta.clear();
+      meta = new org.apache.hadoop.io.MapWritable();
       while (values.hasNext()) {
         CrawlDatum val = values.next();
         if (!resSet) {
           res.set(val);
           resSet = true;
           resTime = schedule.calculateLastFetchTime(res);
-          meta.putAll(res.getMetaData());
+          for (Entry<Writable, Writable> e : res.getMetaData().entrySet()) {
+            meta.put(e.getKey(), e.getValue());
+          }
           continue;
         }
         // compute last fetch time, and pick the latest
         long valTime = schedule.calculateLastFetchTime(val);
         if (valTime > resTime) {
           // collect all metadata, newer values override older values
-          meta.putAll(val.getMetaData());
+          for (Entry<Writable, Writable> e : val.getMetaData().entrySet()) {
+            meta.put(e.getKey(), e.getValue());
+          }
           res.set(val);
           resTime = valTime ;
         } else {
           // insert older metadata before newer
-          val.getMetaData().putAll(meta);
+          for (Entry<Writable, Writable> e : meta.entrySet()) {
+            val.getMetaData().put(e.getKey(), e.getValue());
+          }
           meta = val.getMetaData();
         }
       }
