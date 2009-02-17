@@ -175,12 +175,31 @@ public class MoreIndexingFilter implements IndexingFilter {
     return doc;
   }
 
-  // Add Content-Type and its primaryType and subType
+  /**
+   * <p>
+   * Add Content-Type and its primaryType and subType add contentType,
+   * primaryType and subType to field "type" as un-stored, indexed and
+   * un-tokenized, so that search results can be confined by contentType or its
+   * primaryType or its subType.
+   * </p>
+   * <p>
+   * For example, if contentType is application/vnd.ms-powerpoint, search can be
+   * done with one of the following qualifiers
+   * type:application/vnd.ms-powerpoint type:application type:vnd.ms-powerpoint
+   * all case insensitive. The query filter is implemented in
+   * {@link TypeQueryFilter}.
+   * </p>
+   * 
+   * @param doc
+   * @param data
+   * @param url
+   * @return
+   */
   private NutchDocument addType(NutchDocument doc, ParseData data, String url) {
     MimeType mimeType = null;
     String contentType = data.getMeta(Response.CONTENT_TYPE);
     if (contentType == null) {
-	// Note by Jerome Charron on 20050415:
+        // Note by Jerome Charron on 20050415:
         // Content Type not solved by a previous plugin
         // Or unable to solve it... Trying to find it
         // Should be better to use the doc content too
@@ -202,30 +221,29 @@ public class MoreIndexingFilter implements IndexingFilter {
     }
 
     contentType = mimeType.getName();
-    String primaryType = mimeType.getSuperType().getName();
-    String subType = mimeType.getSubTypes().first().getName();
+    
+    doc.add("type", contentType);
+
+    String[] parts = getParts(contentType);
+
+    for(String part: parts) {
+      doc.add("type", part);
+    }
+    
     // leave this for future improvement
     //MimeTypeParameterList parameterList = mimeType.getParameters()
 
-    // add contentType, primaryType and subType to field "type"
-    // as un-stored, indexed and un-tokenized, so that search results
-    // can be confined by contentType or its primaryType or its subType.
-    // For example, if contentType is application/vnd.ms-powerpoint,
-    // search can be done with one of the following qualifiers
-    // type:application/vnd.ms-powerpoint
-    // type:application
-    // type:vnd.ms-powerpoint
-    // all case insensitive.
-    // The query filter is implemented in TypeQueryFilter.java
-    doc.add("type", contentType);
-    doc.add("type", primaryType);
-    doc.add("type", subType);
-
-    // add its primaryType and subType to respective fields
-    doc.add("primaryType", primaryType);
-    doc.add("subType", subType);
-
     return doc;
+  }
+
+  
+  /**
+   * Utility method for splitting mime type into type and subtype.
+   * @param mimeType
+   * @return
+   */
+  static String[] getParts(String mimeType) {
+    return mimeType.split("/");
   }
 
   // Reset title if we see non-standard HTTP header "Content-Disposition".

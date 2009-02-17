@@ -93,6 +93,7 @@
   <target name="test">
     <parallel threadCount="2">
      <ant dir="creativecommons" target="test"/>
+     <ant dir="index-more" target="test"/>
      <ant dir="languageidentifier" target="test"/>
      <ant dir="lib-http" target="test"/>
      <ant dir="ontology" target="test"/>
