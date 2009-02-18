@@ -610,4 +610,23 @@
     <delete dir="${build.dir}"/>
   </target>
 
+  <!-- ================================================================== -->
+  <!-- RAT targets                                                        -->
+  <!-- ================================================================== -->
+  <target name="rat-sources-typedef">
+    <typedef resource="org/apache/rat/anttasks/antlib.xml" >
+      <classpath>
+        <fileset dir="." includes="rat*.jar"/>
+      </classpath>
+    </typedef>
+  </target>
+
+  <target name="rat-sources" depends="rat-sources-typedef"
+	  description="runs the tasks over src/java">
+    <rat:report xmlns:rat="antlib:org.apache.rat.anttasks">
+      <fileset dir="src/java">
+      </fileset>
+    </rat:report>
+  </target>
+	
 </project>
