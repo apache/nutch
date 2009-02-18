@@ -29,10 +29,10 @@
    provider-name="jakarta.apache.org">
 
    <runtime>
-     <library name="poi-3.0-alpha1-20050704.jar">
+     <library name="poi-3.5-beta4-20081128.jar">
         <export name="*"/>
      </library>
-     <library name="poi-scratchpad-3.0-alpha1-20050704.jar">
+     <library name="poi-scratchpad-3.5-beta4-20081128.jar">
         <export name="*"/>
      </library>
    </runtime>

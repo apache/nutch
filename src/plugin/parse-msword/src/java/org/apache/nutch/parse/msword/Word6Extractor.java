@@ -53,8 +53,9 @@ class Word6Extractor
     int chpTableSize = LittleEndian.getInt(mainStream, 0xbc);
 
     // get a list of character properties
+    
     Word6CHPBinTable chpTable = new Word6CHPBinTable(mainStream, chpTableOffset,
-      chpTableSize, fcMin);
+      chpTableSize, fcMin, new TextPieceTable());
     List textRuns = chpTable.getTextRuns();
 
     // iterate through the

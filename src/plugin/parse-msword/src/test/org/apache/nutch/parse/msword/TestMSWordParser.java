@@ -32,6 +32,9 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 
+import java.io.File;
+import java.io.FilenameFilter;
+
 import junit.framework.TestCase;
 
 /** 
@@ -50,31 +53,38 @@ public class TestMSWordParser extends TestCase {
   private String[] sampleFiles = {"word95.doc","word97.doc"};
 
   private String expectedText = "This is a sample doc file prepared for nutch.";
+  
+  private Configuration conf;
 
   public TestMSWordParser(String name) { 
     super(name); 
   }
 
-  protected void setUp() {}
+  protected void setUp() {
+    conf = NutchConfiguration.create();
+    conf.set("file.content.limit", "-1");
+  }
 
   protected void tearDown() {}
 
+  public String getTextContent(String fileName) throws ProtocolException, ParseException {
+    String urlString = "file:" + sampleDir + fileSeparator + fileName;
+    Protocol protocol = new ProtocolFactory(conf).getProtocol(urlString);
+    Content content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
+    Parse parse = new ParseUtil(conf).parseByExtensionId("parse-msword", content).get(content.getUrl());
+    return parse.getText();
+  }
+  
   public void testIt() throws ProtocolException, ParseException {
-    String urlString;
-    Protocol protocol;
-    Content content;
-    Parse parse;
-
-    Configuration conf = NutchConfiguration.create();
     for (int i=0; i<sampleFiles.length; i++) {
-      urlString = "file:" + sampleDir + fileSeparator + sampleFiles[i];
-
-      protocol = new ProtocolFactory(conf).getProtocol(urlString);
-      content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
-      parse = new ParseUtil(conf).parseByExtensionId("parse-msword", content).get(content.getUrl());
-
-      assertTrue(parse.getText().startsWith(expectedText));
+      assertTrue(getTextContent(sampleFiles[i]).startsWith(expectedText));
     }
   }
 
+  public void testOpeningDocs() throws ProtocolException, ParseException {
+    String[] filenames = new File(sampleDir).list();
+      for (int i = 0; i < filenames.length; i++) {
+        assertTrue("cann't read content of " + filenames[i], getTextContent(filenames[i]).length() > 0);
+      }      
+  }
 }
