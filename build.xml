@@ -624,7 +624,9 @@
   <target name="rat-sources" depends="rat-sources-typedef"
 	  description="runs the tasks over src/java">
     <rat:report xmlns:rat="antlib:org.apache.rat.anttasks">
-      <fileset dir="src/java">
+      <fileset dir="src">
+      	<include name="java/**/*"/>
+      	<include name="plugin/**/src/**/*"/>
       </fileset>
     </rat:report>
   </target>
