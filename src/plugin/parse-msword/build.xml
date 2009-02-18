@@ -44,7 +44,8 @@
 
   <!-- for junit test -->
   <mkdir dir="${build.test}/data"/>
-  <copy file="sample/word95.doc" todir="${build.test}/data"/>
-  <copy file="sample/word97.doc" todir="${build.test}/data"/>
+  <copy todir="${build.test}/data">
+    <fileset dir="sample" includes="*.doc" />
+  </copy>
 
 </project>

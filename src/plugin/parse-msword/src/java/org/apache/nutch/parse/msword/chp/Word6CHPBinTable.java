@@ -45,7 +45,7 @@ public class Word6CHPBinTable
    * @param fcMin The start of text in the main stream.
    */
   public Word6CHPBinTable(byte[] documentStream, int offset,
-                     int size, int fcMin)
+                     int size, int fcMin, TextPieceTable tpt)
   {
     PlexOfCps binTable = new PlexOfCps(documentStream, offset, size, 2);
 
@@ -58,7 +58,7 @@ public class Word6CHPBinTable
       int pageOffset = POIFSConstants.BIG_BLOCK_SIZE * pageNum;
 
       CHPFormattedDiskPage cfkp = new CHPFormattedDiskPage(documentStream,
-        pageOffset, fcMin);
+        pageOffset, fcMin, tpt);
 
       int fkpSize = cfkp.size();
 

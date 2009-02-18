@@ -119,11 +119,12 @@ class WordExtractor extends MSExtractor {
     int chpOffset = LittleEndian.getInt(header, 0xfa);
     int chpSize = LittleEndian.getInt(header, 0xfe);
     int fcMin = LittleEndian.getInt(header, 0x18);
-    CHPBinTable cbt = new CHPBinTable(header, tableStream, chpOffset, chpSize, fcMin);
 
     // load our text pieces and our character runs
     ComplexFileTable cft = new ComplexFileTable(header, tableStream, complexOffset, fcMin);
     TextPieceTable tpt = cft.getTextPieceTable();
+    CHPBinTable cbt = new CHPBinTable(header, tableStream, chpOffset, chpSize, fcMin, tpt);
+
     List textPieces = tpt.getTextPieces();
 
     // make the POIFS objects available for garbage collection
