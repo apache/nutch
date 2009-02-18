@@ -1119,6 +1119,15 @@
   </description>
 </property>
 
+<!--
+<property>
+  <name>query.basic.description.boost</name>
+  <value>1.0</value>
+  <description> Declares a custom field and its boost to be added to the default fields of the Lucene query.
+  </description>
+</property>
+-->
+
 <!-- creative-commons plugin properties -->
 
 <property>
