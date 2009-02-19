@@ -199,20 +199,20 @@ public class MoreIndexingFilter implements IndexingFilter {
     MimeType mimeType = null;
     String contentType = data.getMeta(Response.CONTENT_TYPE);
     if (contentType == null) {
-        // Note by Jerome Charron on 20050415:
-        // Content Type not solved by a previous plugin
-        // Or unable to solve it... Trying to find it
-        // Should be better to use the doc content too
-        // (using MimeTypes.getMimeType(byte[], String), but I don't know
-        // which field it is?
-        // if (MAGIC) {
-        //   contentType = MIME.getMimeType(url, content);
-        // } else {
-        //   contentType = MIME.getMimeType(url);
-        // }
-        mimeType = MIME.getMimeType(url);
+      // Note by Jerome Charron on 20050415:
+      // Content Type not solved by a previous plugin
+      // Or unable to solve it... Trying to find it
+      // Should be better to use the doc content too
+      // (using MimeTypes.getMimeType(byte[], String), but I don't know
+      // which field it is?
+      // if (MAGIC) {
+      //   contentType = MIME.getMimeType(url, content);
+      // } else {
+      //   contentType = MIME.getMimeType(url);
+      // }
+      mimeType = MIME.getMimeType(url);
     } else {
-            mimeType = MIME.forName(contentType);
+      mimeType = MIME.forName(MimeUtil.cleanMimeType(contentType));
     }
         
     // Checks if we solved the content-type.

@@ -16,10 +16,30 @@
  */
 package org.apache.nutch.indexer.more;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.Inlinks;
+import org.apache.nutch.indexer.IndexingException;
+import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.net.protocols.Response;
+import org.apache.nutch.parse.Outlink;
+import org.apache.nutch.parse.ParseData;
+import org.apache.nutch.parse.ParseImpl;
+import org.apache.nutch.parse.ParseStatus;
+import org.apache.nutch.util.NutchConfiguration;
+
 import junit.framework.TestCase;
 
 public class TestMoreIndexingFilter extends TestCase {
 
+  public void testContentType() throws IndexingException {
+    Configuration conf = NutchConfiguration.create();
+    assertContentType(conf, "text/html", "text/html");
+    assertContentType(conf, "text/html; charset=UTF-8", "text/html");
+  }
+  
   public void testGetParts() {
     String[] parts = MoreIndexingFilter.getParts("text/html");
     assertParts(parts, 2, "text", "html");
@@ -31,5 +51,16 @@ public class TestMoreIndexingFilter extends TestCase {
     for (int i = 0; i < expected.length; i++) {
       assertEquals(expected[i], parts[i]);
     }
+  }
+  
+  private void assertContentType(Configuration conf, String source, String expected) throws IndexingException {
+    Metadata metadata = new Metadata();
+    metadata.add(Response.CONTENT_TYPE, source);
+    MoreIndexingFilter filter = new MoreIndexingFilter();
+    filter.setConf(conf);
+    NutchDocument doc = filter.filter(new NutchDocument(), new ParseImpl("text", new ParseData(
+        new ParseStatus(), "title", new Outlink[0], metadata)), new Text(
+        "http://www.example.com/"), new CrawlDatum(), new Inlinks());
+    assertEquals("mime type not detected", expected, doc.getFieldValue("type"));
   }
 }
