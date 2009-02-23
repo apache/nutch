@@ -48,12 +48,9 @@ implements SearchBean, SegmentBean, HitInlinks, Closeable {
 //    LogFormatter.setShowThreadIDs(true);
 //  }
 
-  private String[] segmentNames;
-
   private SearchBean searchBean;
   private SegmentBean segmentBean;
   private final HitInlinks linkDb;
-
 
   /** BooleanQuery won't permit more than 32 required/prohibited clauses.  We
    * don't want to use too many of those. */
@@ -149,8 +146,8 @@ implements SearchBean, SegmentBean, HitInlinks, Closeable {
     }
   }
 
-  public String[] getSegmentNames() {
-    return segmentNames;
+  public String[] getSegmentNames() throws IOException {
+    return segmentBean.getSegmentNames();
   }
 
   public Hits search(Query query, int numHits) throws IOException {
@@ -374,17 +371,23 @@ implements SearchBean, SegmentBean, HitInlinks, Closeable {
 
     final Configuration conf = NutchConfiguration.create();
     final NutchBean bean = new NutchBean(conf);
-    final Query query = Query.parse(args[0], conf);
-    final Hits hits = bean.search(query, 10);
-    System.out.println("Total hits: " + hits.getTotal());
-    final int length = (int)Math.min(hits.getTotal(), 10);
-    final Hit[] show = hits.getHits(0, length);
-    final HitDetails[] details = bean.getDetails(show);
-    final Summary[] summaries = bean.getSummary(details, query);
+    try {
+      final Query query = Query.parse(args[0], conf);
+      final Hits hits = bean.search(query, 10);
+      System.out.println("Total hits: " + hits.getTotal());
+      final int length = (int)Math.min(hits.getTotal(), 10);
+      final Hit[] show = hits.getHits(0, length);
+      final HitDetails[] details = bean.getDetails(show);
+      final Summary[] summaries = bean.getSummary(details, query);
 
-    for (int i = 0; i < hits.getLength(); i++) {
-      System.out.println(" " + i + " " + details[i] + "\n" + summaries[i]);
+      for (int i = 0; i < hits.getLength(); i++) {
+        System.out.println(" " + i + " " + details[i] + "\n" + summaries[i]);
+      }
+    } catch (Throwable t) {
+       LOG.error("Exception occured while executing search: " + t, t);
+       System.exit(1);
     }
+    System.exit(0);
   }
 
   public long getProtocolVersion(String className, long clientVersion)
@@ -394,7 +397,7 @@ implements SearchBean, SegmentBean, HitInlinks, Closeable {
 
       final RPCSearchBean rpcBean = (RPCSearchBean)searchBean;
       return rpcBean.getProtocolVersion(className, clientVersion);
-    } else if (SegmentBean.class.getName().equals(className) &&
+    } else if (RPCSegmentBean.class.getName().equals(className) &&
                segmentBean instanceof RPCSegmentBean) {
 
       final RPCSegmentBean rpcBean = (RPCSegmentBean)segmentBean;
