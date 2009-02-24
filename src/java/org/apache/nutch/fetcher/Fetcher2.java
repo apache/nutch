@@ -94,7 +94,6 @@ public class Fetcher2 extends Configured implements
       throws IOException {
       FileStatus[] files = listStatus(job);
       FileSplit[] splits = new FileSplit[files.length];
-      FileSystem fs = FileSystem.get(job);
       for (int i = 0; i < files.length; i++) {
         FileStatus cur = files[i];
         splits[i] = new FileSplit(cur.getPath(), 0,
@@ -443,6 +442,7 @@ public class Fetcher2 extends Configured implements
     private String reprUrl;
     private boolean redirecting;
     private int redirectCount;
+    private boolean ignoreExternalLinks;
 
     public FetcherThread(Configuration conf) {
       this.setDaemon(true);                       // don't hang JVM on exit
@@ -457,6 +457,8 @@ public class Fetcher2 extends Configured implements
       // backward-compatible default setting
       this.byIP = conf.getBoolean("fetcher.threads.per.host.by.ip", true);
       this.maxRedirect = conf.getInt("http.redirect.max", 3);
+      this.ignoreExternalLinks = 
+        conf.getBoolean("db.ignore.external.links", false);
     }
 
     public void run() {
@@ -673,6 +675,22 @@ public class Fetcher2 extends Configured implements
     throws MalformedURLException, URLFilterException {
       newUrl = normalizers.normalize(newUrl, URLNormalizers.SCOPE_FETCHER);
       newUrl = urlFilters.filter(newUrl);
+      
+      if (ignoreExternalLinks) {
+        try {
+          String origHost = new URL(urlString).getHost().toLowerCase();
+          String newHost = new URL(newUrl).getHost().toLowerCase();
+          if (!origHost.equals(newHost)) {
+            if (LOG.isDebugEnabled()) {
+              LOG.debug(" - ignoring redirect " + redirType + " from " +
+                          urlString + " to " + newUrl +
+                          " because external links are ignored");
+            }
+            return null;
+          }
+        } catch (MalformedURLException e) { }
+      }
+      
       if (newUrl != null && !newUrl.equals(urlString)) {
         reprUrl = URLUtil.chooseRepr(reprUrl, newUrl, temp);
         url = new Text(newUrl);
