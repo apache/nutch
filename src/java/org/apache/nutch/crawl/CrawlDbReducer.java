@@ -131,10 +131,10 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
     if (oldSet) {
       // copy metadata from old, if exists
       if (old.getMetaData().size() > 0) {
-        result.getMetaData().putAll(old.getMetaData());
+        result.putAllMetaData(old);
         // overlay with new, if any
         if (fetch.getMetaData().size() > 0)
-          result.getMetaData().putAll(fetch.getMetaData());
+          result.putAllMetaData(fetch);
       }
       // set the most recent valid value of modifiedTime
       if (old.getModifiedTime() > 0 && fetch.getModifiedTime() == 0) {

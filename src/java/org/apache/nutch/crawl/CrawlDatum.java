@@ -204,7 +204,17 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
   }
   
    public void setMetaData(org.apache.hadoop.io.MapWritable mapWritable) {
-     this.metaData = mapWritable;
+     this.metaData = new org.apache.hadoop.io.MapWritable(mapWritable);
+   }
+   
+   /** Add all metadata from other CrawlDatum to this CrawlDatum.
+    * 
+    * @param other CrawlDatum
+    */
+   public void putAllMetaData(CrawlDatum other) {
+     for (Entry<Writable, Writable> e : other.getMetaData().entrySet()) {
+       metaData.put(e.getKey(), e.getValue());
+     }
    }
 
   /**
