@@ -167,5 +167,24 @@ public class TestFetcher extends TestCase {
   private void addUrl(ArrayList<String> urls, String page) {
     urls.add("http://127.0.0.1:" + server.getListeners()[0].getPort() + "/" + page);
   }
+  
+  public void testAgentNameCheck() {
+
+    boolean failedNoAgentName = false;
+    conf.set("http.agent.name", "");
+
+    try {
+      conf.setBoolean("fetcher.parse", true);
+      Fetcher2 fetcher = new Fetcher2(conf);
+      fetcher.fetch(null, 1, false);
+    } catch (IllegalArgumentException iae) {
+      String message = iae.getMessage();
+      failedNoAgentName = message.equals("Fetcher: No agents listed in "
+          + "'http.agent.name' property.");
+    } catch (Exception e) {
+    }
+
+    assertTrue(failedNoAgentName);
+  }
 
 }
