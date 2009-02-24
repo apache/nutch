@@ -223,9 +223,6 @@ public class RobotRulesParser implements Configurable {
     // Grab the agent names we advertise to robots files.
     //
     String agentName = conf.get("http.agent.name");
-    if (null == agentName) {
-      throw new RuntimeException("Agent name not configured!");
-    }
     String agentNames = conf.get("http.robots.agents");
     StringTokenizer tok = new StringTokenizer(agentNames, ",");
     ArrayList agents = new ArrayList();
@@ -233,23 +230,6 @@ public class RobotRulesParser implements Configurable {
       agents.add(tok.nextToken().trim());
     }
 
-    //
-    // If there are no agents for robots-parsing, use our
-    // default agent-string.  If both are present, our agent-string
-    // should be the first one we advertise to robots-parsing.
-    //
-    if (agents.size() == 0) {
-      agents.add(agentName);
-      if (LOG.isFatalEnabled()) {
-        LOG.fatal("No agents listed in 'http.robots.agents' property!");
-      }
-    } else if (!((String)agents.get(0)).equalsIgnoreCase(agentName)) {
-      agents.add(0, agentName);
-      if (LOG.isFatalEnabled()) {
-        LOG.fatal("Agent we advertise (" + agentName
-                + ") not listed first in 'http.robots.agents' property!");
-      }
-    }
     setRobotNames((String[]) agents.toArray(new String[agents.size()]));
   }
 

@@ -33,5 +33,20 @@
   <value>test-nutch,*</value>
 </property>
 
+<property>
+  <name>http.agent.name.check</name>
+  <value>true</value>
+</property>
+
+<property>                                                                                                                                                   
+  <name>http.robots.agents</name>                                                                                                                            
+  <value>test-nutch,*</value>                                                                                                                                
+  <description>The agent strings we'll look for in robots.txt files,                                                                                         
+  comma-separated, in decreasing order of precedence. You should                                                                                             
+  put the value of http.agent.name as the first agent name, and keep the                                                                                     
+  default * at the end of the list. E.g.: BlurflDev,Blurfl,*                                                                                                 
+  </description>                                                                                                                                             
+</property>
+
 </configuration>
 
