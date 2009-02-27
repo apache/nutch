@@ -361,6 +361,9 @@ Unreleased changes (1.0-dev)
 
 135. NUTCH-698 - CrawlDb is corrupted after a few crawl cycles (dogacan
      via siren)
+     
+136. NUTCH-699 - Add an "official" solr schema for solr integration (dogacan,
+     Dmitry Lihachev via siren)
 
 Release 0.9 - 2007-04-02
 
