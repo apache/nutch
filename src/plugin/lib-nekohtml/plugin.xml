@@ -29,7 +29,7 @@
    provider-name="org.cyberneko">
 
    <runtime>
-     <library name="nekohtml-1.9.11.jar">
+     <library name="nekohtml-0.9.4.jar">
         <export name="*"/>
      </library>
    </runtime>
