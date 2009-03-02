@@ -24,7 +24,6 @@ import java.text.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.nutch.fetcher.Fetcher;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
@@ -35,6 +34,8 @@ import org.apache.nutch.indexer.Indexer;
 import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+
+import org.apache.nutch.fetcher.Fetcher;
 
 public class Crawl {
   public static final Log LOG = LogFactory.getLog(Crawl.class);
@@ -118,7 +119,7 @@ public class Crawl {
         LOG.info("Stopping at depth=" + i + " - no more URLs to fetch.");
         break;
       }
-      fetcher.fetch(segment, threads);  // fetch it
+      fetcher.fetch(segment, threads, org.apache.nutch.fetcher.Fetcher.isParsing(conf));  // fetch it
       if (!Fetcher.isParsing(job)) {
         parseSegment.parse(segment);    // parse it, if needed
       }
