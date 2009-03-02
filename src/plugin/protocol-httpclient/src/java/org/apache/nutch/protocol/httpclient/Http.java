@@ -176,6 +176,10 @@ public class Http extends HttpBase {
       params.setDefaultMaxConnectionsPerHost(maxThreadsTotal);
     }
 
+    // executeMethod(HttpMethod) seems to ignore the connection timeout on the connection manager.
+    // set it explicitly on the HttpClient.
+    client.getParams().setConnectionManagerTimeout(timeout);
+
     HostConfiguration hostConf = client.getHostConfiguration();
     ArrayList headers = new ArrayList();
     // Set the User Agent in the header
