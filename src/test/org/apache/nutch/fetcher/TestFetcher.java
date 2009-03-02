@@ -97,9 +97,8 @@ public class TestFetcher extends TestCase {
 
     long time=System.currentTimeMillis();
     //fetch
-    conf.setBoolean("fetcher.parse", true);
     Fetcher fetcher=new Fetcher(conf);
-    fetcher.fetch(generatedSegment, 1);
+    fetcher.fetch(generatedSegment, 1, true);
 
     time=System.currentTimeMillis()-time;
     
@@ -175,7 +174,7 @@ public class TestFetcher extends TestCase {
 
     try {
       conf.setBoolean("fetcher.parse", true);
-      Fetcher2 fetcher = new Fetcher2(conf);
+      Fetcher fetcher = new Fetcher(conf);
       fetcher.fetch(null, 1, false);
     } catch (IllegalArgumentException iae) {
       String message = iae.getMessage();

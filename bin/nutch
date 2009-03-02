@@ -41,7 +41,6 @@ if [ $# = 0 ]; then
   echo "  generate          generate new segments to fetch from crawl db"
   echo "  freegen           generate new segments to fetch from text files"
   echo "  fetch             fetch a segment's pages"
-  echo "  fetch2            fetch a segment's pages using Fetcher2 implementation"
   echo "  parse             parse a segment's pages"
   echo "  readseg           read / dump segment data"
   echo "  mergesegs         merge several segments, with optional filtering and slicing"
