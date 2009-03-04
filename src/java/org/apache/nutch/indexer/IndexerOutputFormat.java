@@ -31,6 +31,10 @@ public class IndexerOutputFormat extends FileOutputFormat<Text, NutchDocument> {
   @Override
   public RecordWriter<Text, NutchDocument> getRecordWriter(FileSystem ignored,
       JobConf job, String name, Progressable progress) throws IOException {
+    
+    // populate JobConf with field indexing options
+    IndexingFilters filters = new IndexingFilters(job);
+    
     final NutchIndexWriter[] writers =
       NutchIndexWriterFactory.getNutchIndexWriters(job);
 
