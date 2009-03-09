@@ -51,6 +51,7 @@ if [ $# = 0 ]; then
   echo "  solrindex         run the solr indexer on parsed segments and linkdb"
   echo "  merge             merge several segment indexes"
   echo "  dedup             remove duplicates from a set of segment indexes"
+  echo "  solrdedup         remove duplicates from solr"
   echo "  plugin            load a plugin and run one of its classes main()"
   echo "  server            run a search server"
   echo " or"
@@ -234,6 +235,8 @@ elif [ "$COMMAND" = "solrindex" ] ; then
   CLASS=org.apache.nutch.indexer.solr.SolrIndexer
 elif [ "$COMMAND" = "dedup" ] ; then
   CLASS=org.apache.nutch.indexer.DeleteDuplicates
+elif [ "$COMMAND" = "solrdedup" ] ; then
+  CLASS=org.apache.nutch.indexer.solr.SolrDeleteDuplicates
 elif [ "$COMMAND" = "merge" ] ; then
   CLASS=org.apache.nutch.indexer.IndexMerger
 elif [ "$COMMAND" = "plugin" ] ; then
