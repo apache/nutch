@@ -22,5 +22,15 @@ public interface SolrConstants {
   public static final String SERVER_URL = SOLR_PREFIX + "server.url";
 
   public static final String COMMIT_SIZE = SOLR_PREFIX + "commit.size";
+  
+  public static final String ID_FIELD = "id";
+  
+  public static final String URL_FIELD = "url";
+  
+  public static final String BOOST_FIELD = "boost";
+  
+  public static final String TIMESTAMP_FIELD = "tstamp";
+  
+  public static final String DIGEST_FIELD = "digest";
 
 }
