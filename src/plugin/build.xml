@@ -112,6 +112,7 @@
      <ant dir="parse-swf" target="test"/>
      <ant dir="parse-zip" target="test"/>
      <ant dir="query-url" target="test"/>
+     <ant dir="subcollection" target="test"/>
      <ant dir="urlfilter-automaton" target="test"/>
      <ant dir="urlfilter-domain" target="test" />
      <ant dir="urlfilter-regex" target="test"/>

@@ -60,7 +60,11 @@ public class DomUtil {
       input = new InputSource(is);
       input.setEncoding("UTF-8");
       parser.parse(input);
-      element = (Element) parser.getDocument().getChildNodes().item(0);
+      int i = 0;
+      while (! (parser.getDocument().getChildNodes().item(i) instanceof Element)) {
+       i++;
+      } 
+      element = (Element)parser.getDocument().getChildNodes().item(i);
     } catch (FileNotFoundException e) {
       e.printStackTrace(LogUtil.getWarnStream(LOG));
     } catch (SAXException e) {
