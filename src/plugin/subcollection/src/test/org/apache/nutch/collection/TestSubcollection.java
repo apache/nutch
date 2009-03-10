@@ -49,6 +49,7 @@ public class TestSubcollection extends TestCase {
   public void testInput(){
     StringBuffer xml=new StringBuffer();
     xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    xml.append("<!-- just a comment -->");
     xml.append("<subcollections>");
     xml.append("<subcollection>");
     xml.append("<name>nutch collection</name>");
