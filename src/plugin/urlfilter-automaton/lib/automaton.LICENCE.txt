@@ -1,0 +1,17 @@
+dk.brics.automaton
+------------------
+
+Copyright (C) 2001-2004 Anders Moeller
+
+This source code in this package may be used under the terms of the
+BSD license.  Please read the file 'COPYING' for details.
+
+This package contains a full DFA/NFA implementation with Unicode
+alphabet and support for all standard regular expression operations.
+
+For more information, go to the package home page at
+http://www.brics.dk/~amoeller/automaton/
+
+
+Anders Moeller
+amoeller@brics.dk
