@@ -1,4 +1,4 @@
-Nutch README
+Apache Nutch README
 
 Interesting files include:
 
