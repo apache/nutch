@@ -71,4 +71,5 @@ This product includes software developed by Douglas Crockford
 Nutch includes Automaton:
 This package is Copyright © 2001-2008 Anders Møller. All rights reserved.
 
- 
+Nutch includes Rome:
+Copyright 2004 Sun Microsystems, Inc. 
