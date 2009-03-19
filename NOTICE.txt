@@ -1,2 +1,74 @@
+Apache Nutch
+Copyright 2009 The Apache Software Foundation
+
 This product includes software developed by The Apache Software
 Foundation (http://www.apache.org/).
+
+This product includes software developed by the following copyright owners:
+
+Nutch includes icu4j:
+Copyright (c) 1995-2006 International Business Machines Corporation and
+others
+
+Nutch includes Carrot2:
+Copyright (C) 2002-2006, Dawid Weiss, Stanis�aw Osi�ski.
+awid Weiss; Project administrator, various components, core; 2002; Poland
+Stanisław, Osiński; Lingo clustering component, ODP Input; 2003; Poland
+Karol Gołembniak, Irmina Masłowska; HAOG clustering component; 2006; Poznan University of Technology; Poland
+Michał, Wróblewski [*]; AHC clustering components; 2003; Poznan University of Technology, Poland
+Paweł, Kowalik [*]; Inductive search engine wrapper; 2003; Poznan University of Technology, Poland
+Steven, Schockaert [*]; Fuzzy Ants clustering component; 2004; University of Gent, Belgium
+Lang, Ngo Chi [*]; Fuzzy Rough set clustering component; 2004; Warsaw University, Poland
+
+Nutch includes Saxpath:
+Copyright (C) 2000-2002 werken digital. All rights reserved.
+
+Nutch includes jaxen:
+Copyright 2003-2006 The Werken Company. All Rights Reserved.
+
+Nutch includes Jdom:
+Copyright (C) 2000-2004 Jason Hunter & Brett McLaughlin.
+All rights reserved
+
+Nutch includes SaxPath:
+Copyright (C) 2000-2002 werken digital. All rights reserved.
+ 
+Nutch includes Snowball:
+Copyright (c) 2001, Dr Martin Porter
+(for the Java developments) Copyright (c) 2002, Richard Boulton. 
+
+Nutch includes ViolinStrings:
+Copyright (c) Michael Schmeling 1998, 2000 - All Rights Reserve
+
+Nutch includes Cyperneko:
+(C) Copyright 2002,2003, Andy Clark.  All rights reserved.
+
+Nutch includes Jena:
+(c) Copyright 2000, 2001, 2002, 2003, 2004 Hewlett-Packard Development Company, LP
+All rights reserved.
+
+Nutch includes BouncyCastle:
+Copyright (c) 2000 - 2008 The Legion Of The Bouncy Castle (http://www.bouncycastle.org)
+
+Nutch includes FontBox:
+Copyright (c) 2003-2005, www.fontbox.org
+
+Nutch includes JempBox:
+Copyright (c) 2006-2007, www.jempbox.org
+All rights reserved.
+
+Nutch includes PDFBox:
+Copyright (c) 2003-2005, www.pdfbox.org
+All rights reserved.
+
+Nutch includes JavaSWF:
+Copyright (c) 2001-2005, David N. Main, All rights reserved.
+
+Nutch includes Json Lib:
+This product includes software developed by Douglas Crockford 
+(http://www.crockford.com).
+
+Nutch includes Automaton:
+This package is Copyright © 2001-2008 Anders Møller. All rights reserved.
+
+ 
