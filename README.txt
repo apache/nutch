@@ -1,5 +1,19 @@
 Apache Nutch README
 
+Important note: Due to licensing issues we cannot provide two libraries that
+are normally provided with PDFBox (jai_core.jar, jai_codec.jar), the parser
+library we use for parsing PDF files. If you encounter unexpected problems when
+working with PDF files please
+
+1. download the two missing libraries  from:
+   http://pdfbox.cvs.sourceforge.net/viewvc/pdfbox/pdfbox/external/
+
+2. Put them to directory src/plugin/parse-pdf/lib
+3. follow the instructions in file src/plugin/parse-pdf/plugin.xml
+4. Rebuild nutch.
+
+
+
 Interesting files include:
 
 
