@@ -30,8 +30,12 @@
       <library name="FontBox-0.2.0-dev.jar"/>
       <library name="JempBox-0.2.0-dev.jar"/>
       <library name="bcprov-jdk14-132.jar"/>
+      <!-- Uncomment the following two lines after you have downloaded the
+           libraries, see README.txt for more details.-->
+      <!--
       <library name="jai_codec.jar"/>
       <library name="jai_core.jar"/>
+      -->
    </runtime>
 
    <requires>
