@@ -28,6 +28,15 @@
     <section>
       <title>News</title>
 
+   <section>
+      <title>23 March 2009 - Apache Nutch 1.0 Released</title>
+      <p>The 1.0 release of Nutch is now available. This release includes several major feature improvements
+      such as new indexing framework, new scoring framework, Apache Solr integration just to mention a few.
+      See <a href="http://www.apache.org/dist/lucene/nutch/CHANGES-1.0.txt">
+      list of changes</a>  made in this version. The release is available
+      <a href="http://lucene.apache.org/nutch/release/">here</a>.</p>
+    </section>
+   
 	<section>
 		<title>09 February 2009 - Lucene at ApacheCon Europe 2009 in
 			Amsterdam</title>

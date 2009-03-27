@@ -33,6 +33,14 @@
     <wiki rdf:resource="http://wiki.apache.org/nutch/"/>
     <release>
       <Version>
+        <branch>branch-1.0</branch>
+        <name>nutch-1.0</name>
+        <created>2009-03-23</created>
+        <revision>1.0</revision>
+      </Version>
+    </release>
+    <release>
+      <Version>
         <branch>branch-0.9</branch>
         <name>nutch-0.9</name>
         <created>2007-04-01</created>
