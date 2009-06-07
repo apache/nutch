@@ -47,7 +47,17 @@ public class NutchConfiguration {
   /** Create a {@link Configuration} for Nutch. */
   public static Configuration create() {
     Configuration conf = new Configuration();
-    addNutchResources(conf);
+    addNutchResources(conf, false);
+    return conf;
+  }
+
+  /**
+   * Create a {@link Configuration for Nutch invoked with the command
+   * line crawl command, i.e. bin/nutch crawl ...
+   */
+  public static Configuration createCrawlConfiguration() {
+    Configuration conf = new Configuration();
+    addNutchResources(conf, true);
     return conf;
   }
 
@@ -79,12 +89,23 @@ public class NutchConfiguration {
     return conf;
   }
   
-  /** Add the standard Nutch resources to {@link Configuration}. */
-  public static Configuration addNutchResources(Configuration conf) {
+  /**
+   * Add the standard Nutch resources to {@link Configuration}.
+   * 
+   * @param conf               Configuration object to which
+   *                           configuration is to be added.
+   * @param crawlConfiguration Whether configuration for command line
+   *                           crawl using 'bin/nutch crawl' command
+   *                           should be added.
+   */
+  private static Configuration addNutchResources(Configuration conf,
+                                                 boolean crawlConfiguration) {
     conf.addResource("nutch-default.xml");
+    if (crawlConfiguration) {
+      conf.addResource("crawl-tool.xml");
+    }
     conf.addResource("nutch-site.xml");
     return conf;
   }
-  
 }
 
