@@ -35,8 +35,7 @@ public class TestNodeWalker extends TestCase {
 
   /* a snapshot of the nutch webpage */
   private final static String WEBPAGE= 
-  "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\">"
-  + "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\"><head><title>Nutch</title></head>"
+  "<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\"><head><title>Nutch</title></head>"
   + "<body>"
   + "<ul>"
   + "<li>crawl several billion pages per month</li>"
