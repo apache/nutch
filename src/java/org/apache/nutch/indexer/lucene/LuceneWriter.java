@@ -27,11 +27,12 @@ import java.util.Map.Entry;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.nutch.analysis.AnalyzerFactory;
 import org.apache.nutch.analysis.NutchAnalyzer;
 import org.apache.nutch.analysis.NutchDocumentAnalyzer;
@@ -39,6 +40,7 @@ import org.apache.nutch.indexer.Indexer;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.indexer.NutchIndexWriter;
 import org.apache.nutch.indexer.NutchSimilarity;
+import org.apache.nutch.indexer.lucene.LuceneConstants;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.util.LogUtil;
 
@@ -108,13 +110,13 @@ public class LuceneWriter implements NutchIndexWriter {
           } else if (LuceneConstants.STORE_NO.equals(val)) {
             store = Field.Store.NO;
           } else if (LuceneConstants.INDEX_TOKENIZED.equals(val)) {
-            index = Field.Index.TOKENIZED;
+            index = Field.Index.ANALYZED;
           } else if (LuceneConstants.INDEX_NO.equals(val)) {
             index = Field.Index.NO;
           } else if (LuceneConstants.INDEX_UNTOKENIZED.equals(val)) {
-            index = Field.Index.UN_TOKENIZED;
+            index = Field.Index.NOT_ANALYZED;
           } else if (LuceneConstants.INDEX_NO_NORMS.equals(val)) {
-            index = Field.Index.NO_NORMS;
+            index = Field.Index.ANALYZED_NO_NORMS;
           } else if (LuceneConstants.VECTOR_NO.equals(val)) {
             vector = Field.TermVector.NO;
           } else if (LuceneConstants.VECTOR_YES.equals(val)) {
@@ -169,13 +171,13 @@ public class LuceneWriter implements NutchIndexWriter {
           fieldIndex.put(field, Field.Index.NO);
           break;
         case NO_NORMS:
-          fieldIndex.put(field, Field.Index.NO_NORMS);
+          fieldIndex.put(field, Field.Index.ANALYZED_NO_NORMS);
           break;
         case TOKENIZED:
-          fieldIndex.put(field, Field.Index.TOKENIZED);
+          fieldIndex.put(field, Field.Index.ANALYZED);
           break;
         case UNTOKENIZED:
-          fieldIndex.put(field, Field.Index.UN_TOKENIZED);
+          fieldIndex.put(field, Field.Index.NOT_ANALYZED);
           break;
         }
       } else if (key.startsWith(LuceneConstants.FIELD_VECTOR_PREFIX)) {
@@ -203,32 +205,35 @@ public class LuceneWriter implements NutchIndexWriter {
     }
   }
 
-  public void open(JobConf job, String name)
+  public void open(TaskAttemptContext job, String name)
   throws IOException {
-    this.fs = FileSystem.get(job);
+    Configuration conf = job.getConfiguration();
+    this.fs = FileSystem.get(conf);
     perm = new Path(FileOutputFormat.getOutputPath(job), name);
-    temp = job.getLocalPath("index/_"  +
+    temp = conf.getLocalPath("mapred.local.dir", "index/_" +
                       Integer.toString(new Random().nextInt()));
 
     fs.delete(perm, true); // delete old, if any
-    analyzerFactory = new AnalyzerFactory(job);
+    analyzerFactory = new AnalyzerFactory(conf);
+    MaxFieldLength mfl = new MaxFieldLength(IndexWriter.DEFAULT_MAX_FIELD_LENGTH);
     writer = new IndexWriter(fs.startLocalOutput(perm, temp).toString(),
-        new NutchDocumentAnalyzer(job), true);
+        new NutchDocumentAnalyzer(conf), true, mfl);
 
-    writer.setMergeFactor(job.getInt("indexer.mergeFactor", 10));
-    writer.setMaxBufferedDocs(job.getInt("indexer.minMergeDocs", 100));
-    writer.setMaxMergeDocs(job
+    writer.setMergeFactor(conf.getInt("indexer.mergeFactor", 10));
+    writer.setMaxBufferedDocs(conf.getInt("indexer.minMergeDocs", 100));
+    writer.setMaxMergeDocs(conf
         .getInt("indexer.maxMergeDocs", Integer.MAX_VALUE));
-    writer.setTermIndexInterval(job.getInt("indexer.termIndexInterval", 128));
-    writer.setMaxFieldLength(job.getInt("indexer.max.tokens", 10000));
+    writer.setTermIndexInterval(conf.getInt("indexer.termIndexInterval", 128));
+    writer.setMaxFieldLength(conf.getInt("indexer.max.tokens", 10000));
     writer.setInfoStream(LogUtil.getDebugStream(Indexer.LOG));
     writer.setUseCompoundFile(false);
     writer.setSimilarity(new NutchSimilarity());
 
-    processOptions(job);
+    processOptions(conf);
   }
 
   public void close() throws IOException {
+    writer.commit();
     writer.optimize();
     writer.close();
     fs.completeLocalOutput(perm, temp); // copy to dfs

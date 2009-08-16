@@ -18,41 +18,41 @@ package org.apache.nutch.indexer;
 
 import java.io.IOException;
 
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.FileOutputFormat;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.RecordWriter;
-import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.util.Progressable;
+import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.mapreduce.RecordWriter;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.nutch.indexer.NutchDocument;
 
-public class IndexerOutputFormat extends FileOutputFormat<Text, NutchDocument> {
+public class IndexerOutputFormat
+extends FileOutputFormat<WritableComparable<?>, NutchDocument> {
 
   @Override
-  public RecordWriter<Text, NutchDocument> getRecordWriter(FileSystem ignored,
-      JobConf job, String name, Progressable progress) throws IOException {
-    
-    // populate JobConf with field indexing options
-    IndexingFilters filters = new IndexingFilters(job);
-    
+  public RecordWriter<WritableComparable<?>, NutchDocument> getRecordWriter(
+      TaskAttemptContext job) throws IOException, InterruptedException {
+
     final NutchIndexWriter[] writers =
-      NutchIndexWriterFactory.getNutchIndexWriters(job);
+      NutchIndexWriterFactory.getNutchIndexWriters(job.getConfiguration());
 
     for (final NutchIndexWriter writer : writers) {
-      writer.open(job, name);
+      writer.open(job, FileOutputFormat.getUniqueFile(job, "part", ""));
     }
-    return new RecordWriter<Text, NutchDocument>() {
 
-      public void close(Reporter reporter) throws IOException {
-        for (final NutchIndexWriter writer : writers) {
-          writer.close();
-        }
-      }
+    return new RecordWriter<WritableComparable<?>, NutchDocument>() {
 
-      public void write(Text key, NutchDocument doc) throws IOException {
+      @Override
+      public void write(WritableComparable<?> key, NutchDocument doc) throws IOException {
         for (final NutchIndexWriter writer : writers) {
           writer.write(doc);
         }
+      }
+
+      @Override
+      public void close(TaskAttemptContext context) throws IOException,
+      InterruptedException {
+        for (final NutchIndexWriter writer : writers) {
+          writer.close();
+        }      
       }
     };
   }

@@ -19,12 +19,14 @@ package org.apache.nutch.analysis;
 // JDK imports
 import java.io.Reader;
 import java.io.IOException;
+import java.util.Collection;
 
 // Lucene imports
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.Token;
+import org.apache.nutch.util.hbase.HbaseColumn;
 import org.apache.hadoop.conf.Configuration;
 
 /**

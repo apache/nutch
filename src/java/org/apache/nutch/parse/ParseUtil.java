@@ -21,11 +21,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 // Nutch Imports
-import org.apache.nutch.protocol.Content;
+import org.apache.nutch.parse.ParseException;
+import org.apache.nutch.parse.ParserNotFound;
+import org.apache.nutch.util.hbase.WebTableRow;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
-
 
 /**
  * A Utility class containing methods to simply perform parsing utilities such
@@ -56,84 +57,37 @@ public class ParseUtil {
    * returned. If the parse is unsuccessful, a message is logged to the
    * <code>WARNING</code> level, and an empty parse is returned.
    *
-   * @param content The content to try and parse.
-   * @return &lt;key, {@link Parse}&gt; pairs.
    * @throws ParseException If no suitable parser is found to perform the parse.
    */
-  public ParseResult parse(Content content) throws ParseException {
+  public Parse parse(String url, WebTableRow row) throws ParseException {
     Parser[] parsers = null;
     
+    String contentType = row.getContentType();
+    
     try {
-      parsers = this.parserFactory.getParsers(content.getContentType(), 
-	         content.getUrl() != null ? content.getUrl():"");
+      parsers = this.parserFactory.getParsers(contentType, url);
     } catch (ParserNotFound e) {
       if (LOG.isWarnEnabled()) {
-        LOG.warn("No suitable parser found when trying to parse content " + content.getUrl() +
-               " of type " + content.getContentType());
+        LOG.warn("No suitable parser found when trying to parse content " + url +
+               " of type " + contentType);
       }
       throw new ParseException(e.getMessage());
     }
     
-    ParseResult parseResult = null;
+    Parse parse = null;
     for (int i=0; i<parsers.length; i++) {
       if (LOG.isDebugEnabled()) {
-        LOG.debug("Parsing [" + content.getUrl() + "] with [" + parsers[i] + "]");
+        LOG.debug("Parsing [" + url + "] with [" + parsers[i] + "]");
       }
-      parseResult = parsers[i].getParse(content);
-      if (parseResult != null && !parseResult.isEmpty())
-        return parseResult;
+      parse = parsers[i].getParse(url, row);
+      if (parse != null)
+        return parse;
     }
    
     if (LOG.isWarnEnabled()) { 
-      LOG.warn("Unable to successfully parse content " + content.getUrl() +
-               " of type " + content.getContentType());
+      LOG.warn("Unable to successfully parse content " + url +
+               " of type " + contentType);
     }
     return null;
   }
-    
-  /**
-   * Method parses a {@link Content} object using the {@link Parser} specified
-   * by the parameter <code>extId</code>, i.e., the Parser's extension ID.
-   * If a suitable {@link Parser} is not found, then a <code>WARNING</code>
-   * level message is logged, and a ParseException is thrown. If the parse is
-   * uncessful for any other reason, then a <code>WARNING</code> level
-   * message is logged, and a <code>ParseStatus.getEmptyParse()</code> is
-   * returned.
-   *
-   * @param extId The extension implementation ID of the {@link Parser} to use
-   *              to parse the specified content.
-   * @param content The content to parse.
-   *
-   * @return &lt;key, {@link Parse}&gt; pairs if the parse is successful, otherwise,
-   *         a single &lt;key, <code>ParseStatus.getEmptyParse()</code>&gt; pair.
-   *
-   * @throws ParseException If there is no suitable {@link Parser} found
-   *                        to perform the parse.
-   */
-  public ParseResult parseByExtensionId(String extId, Content content)
-  throws ParseException {
-    Parser p = null;
-    
-    try {
-      p = this.parserFactory.getParserById(extId);
-    } catch (ParserNotFound e) {
-      if (LOG.isWarnEnabled()) {
-        LOG.warn("No suitable parser found when trying to parse content " + content.getUrl() +
-            " of type " + content.getContentType());
-      }
-      throw new ParseException(e.getMessage());
-    }
-    
-    ParseResult parseResult = p.getParse(content);
-    if (parseResult != null && !parseResult.isEmpty()) {
-      return parseResult;
-    } else {
-      if (LOG.isWarnEnabled()) {
-        LOG.warn("Unable to successfully parse content " + content.getUrl() +
-            " of type " + content.getContentType());
-      }  
-      return null;
-    }
-  }  
-  
 }

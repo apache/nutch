@@ -19,13 +19,17 @@ package org.apache.nutch.protocol;
 
 import java.net.URL;
 import java.net.MalformedURLException;
+import java.util.Collection;
+import java.util.HashSet;
 
 // Commons Logging imports
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.apache.nutch.plugin.*;
+import org.apache.nutch.protocol.ProtocolNotFound;
 import org.apache.nutch.util.ObjectCache;
+import org.apache.nutch.util.hbase.HbaseColumn;
 
 import org.apache.hadoop.conf.Configuration;
 
@@ -100,7 +104,6 @@ public class ProtocolFactory {
 
     for (int i = 0; i < extensions.length; i++) {
       Extension extension = extensions[i];
-
       if (contains(name, extension.getAttribute("protocolName")))
         return extension;
     }
@@ -113,6 +116,20 @@ public class ProtocolFactory {
       if(parts[i].equals(what)) return true;
     }
     return false;
+  }
+  
+  public Collection<HbaseColumn> getColumnSet() {
+    Collection<HbaseColumn> columns = new HashSet<HbaseColumn>();
+    for (Extension extension : this.extensionPoint.getExtensions()) {
+      Protocol protocol;
+      try {
+        protocol = (Protocol) extension.getExtensionInstance();
+        columns.addAll(protocol.getColumns());
+      } catch (PluginRuntimeException e) {
+        // ignore
+      }
+    }
+    return columns;
   }
   
 }

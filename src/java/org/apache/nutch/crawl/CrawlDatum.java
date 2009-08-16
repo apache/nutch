@@ -340,7 +340,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
       return (that.fetchInterval - this.fetchInterval) > 0 ? 1 : -1;
     if (that.modifiedTime != this.modifiedTime)
       return (that.modifiedTime - this.modifiedTime) > 0 ? 1 : -1;
-    return SignatureComparator._compare(this, that);
+    return SignatureComparator.compare(this.signature, that.signature);
   }
 
   /** A Comparator optimized for CrawlDatum. */ 
@@ -427,7 +427,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
       (this.modifiedTime == other.modifiedTime) &&
       (this.retries == other.retries) &&
       (this.fetchInterval == other.fetchInterval) &&
-      (SignatureComparator._compare(this.signature, other.signature) == 0) &&
+      (SignatureComparator.compare(this.signature, other.signature) == 0) &&
       (this.score == other.score);
     if (!res) return res;
     return metadataEquals(other.metaData);

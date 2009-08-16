@@ -26,17 +26,17 @@
   <!-- Build & deploy all the plugin jars.                    -->
   <!-- ====================================================== -->
   <target name="deploy">
-     <ant dir="clustering-carrot2" target="deploy"/>
+     <!--<ant dir="clustering-carrot2" target="deploy"/>
      <ant dir="creativecommons" target="deploy"/>
-     <ant dir="feed" target="deploy"/>
+     <ant dir="feed" target="deploy"/>-->
      <ant dir="index-basic" target="deploy"/>
-     <ant dir="index-anchor" target="deploy"/>
+     <!--<ant dir="index-anchor" target="deploy"/>
      <ant dir="index-more" target="deploy"/>
   	 <ant dir="field-basic" target="deploy"/>
   	 <ant dir="field-boost" target="deploy"/>
-     <ant dir="languageidentifier" target="deploy"/>
+     <ant dir="languageidentifier" target="deploy"/>-->
      <ant dir="lib-http" target="deploy"/>
-     <ant dir="lib-jakarta-poi" target="deploy"/>
+     <!--<ant dir="lib-jakarta-poi" target="deploy"/>
      <ant dir="lib-lucene-analyzers" target="deploy"/>
      <ant dir="lib-nekohtml" target="deploy"/>
      <ant dir="lib-parsems" target="deploy"/>
@@ -46,36 +46,42 @@
      <ant dir="nutch-extensionpoints" target="deploy"/>
      <ant dir="ontology" target="deploy"/>
      <ant dir="protocol-file" target="deploy"/>
-     <ant dir="protocol-ftp" target="deploy"/>
+     <ant dir="protocol-ftp" target="deploy"/>-->
      <ant dir="protocol-http" target="deploy"/>
-     <ant dir="protocol-httpclient" target="deploy"/>
-     <ant dir="parse-ext" target="deploy"/>
+     <!--<ant dir="protocol-httpclient" target="deploy"/>
+     <ant dir="parse-ext" target="deploy"/>-->
      <ant dir="parse-html" target="deploy"/>
      <ant dir="parse-js" target="deploy"/>
      <!-- <ant dir="parse-mp3" target="deploy"/> -->
-     <ant dir="parse-msexcel" target="deploy"/>
+     <!--<ant dir="parse-msexcel" target="deploy"/>
      <ant dir="parse-mspowerpoint" target="deploy"/>
      <ant dir="parse-msword" target="deploy"/>
      <ant dir="parse-oo" target="deploy"/>
      <ant dir="parse-pdf" target="deploy"/>
-     <ant dir="parse-rss" target="deploy"/>
+     <ant dir="parse-rss" target="deploy"/>-->
      <!-- <ant dir="parse-rtf" target="deploy"/> -->
-     <ant dir="parse-swf" target="deploy"/>
+     <!--<ant dir="parse-swf" target="deploy"/>
      <ant dir="parse-text" target="deploy"/>
      <ant dir="parse-zip" target="deploy"/>
+     -->
      <ant dir="query-basic" target="deploy"/>
      <ant dir="query-more" target="deploy"/>
      <ant dir="query-site" target="deploy"/>
-  	 <ant dir="query-custom" target="deploy"/>
+  	 <!--<ant dir="query-custom" target="deploy"/>-->
      <ant dir="query-url" target="deploy"/>
+     <!--
      <ant dir="response-json" target="deploy"/>
      <ant dir="response-xml" target="deploy"/>
+     -->
      <ant dir="scoring-opic" target="deploy"/>
+     <!--
   	 <ant dir="scoring-link" target="deploy"/>
+  	 -->
      <ant dir="summary-basic" target="deploy"/>
-     <ant dir="subcollection" target="deploy"/>
      <ant dir="summary-lucene" target="deploy"/>
-     <ant dir="tld" target="deploy"/>
+     <!--
+     <ant dir="subcollection" target="deploy"/>
+     <ant dir="tld" target="deploy"/>-->
      <ant dir="urlfilter-automaton" target="deploy"/>
      <ant dir="urlfilter-domain" target="deploy" />
      <ant dir="urlfilter-prefix" target="deploy"/>
@@ -133,6 +139,7 @@
     <ant dir="creativecommons" target="clean"/>
     <ant dir="feed" target="clean"/>
     <ant dir="index-basic" target="clean"/>
+    <ant dir="index-basichbase" target="clean"/>
     <ant dir="index-anchor" target="clean"/>
     <ant dir="index-more" target="clean"/>
     <ant dir="field-basic" target="clean"/>
@@ -140,6 +147,7 @@
     <ant dir="languageidentifier" target="clean"/>
     <ant dir="lib-commons-httpclient" target="clean"/>
     <ant dir="lib-http" target="clean"/>
+    <ant dir="lib-httphbase" target="clean"/>
     <ant dir="lib-jakarta-poi" target="clean"/>
     <ant dir="lib-lucene-analyzers" target="clean"/>
     <ant dir="lib-nekohtml" target="clean"/>
@@ -152,10 +160,13 @@
     <ant dir="protocol-file" target="clean"/>
     <ant dir="protocol-ftp" target="clean"/>
     <ant dir="protocol-http" target="clean"/>
+    <ant dir="protocol-httphbase" target="clean"/>
     <ant dir="protocol-httpclient" target="clean"/>
     <ant dir="parse-ext" target="clean"/>
     <ant dir="parse-html" target="clean"/>
+    <ant dir="parse-htmlhbase" target="clean"/>
     <ant dir="parse-js" target="clean"/>
+    <ant dir="parse-jshbase" target="clean"/>
     <ant dir="parse-mp3" target="clean"/>
     <ant dir="parse-msexcel" target="clean"/>
     <ant dir="parse-mspowerpoint" target="clean"/>

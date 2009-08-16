@@ -144,12 +144,8 @@ public class OOParser implements Parser {
         }
         String u = el.getAttributeValue("href", xlink);
         if (u == null) u = a; // often anchors are URLs
-        try {
-          Outlink o = new Outlink(u, a);
-          outlinks.add(o);
-        } catch (MalformedURLException mue) {
-          // skip
-        }
+        Outlink o = new Outlink(u, a);
+        outlinks.add(o);
         if (a != null && !a.equals("")) {
           if (!lastp) res.append(' ');
           res.append(a);

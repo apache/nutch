@@ -17,65 +17,16 @@
 
 package org.apache.nutch.fetcher;
 
-import java.io.*;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 
-import org.apache.hadoop.io.*;
-import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.protocol.Content;
-import org.apache.nutch.parse.*;
+import org.apache.hadoop.io.Writable;
 
 /* An entry in the fetcher's output. */
 public final class FetcherOutput implements Writable {
-  private CrawlDatum crawlDatum;
-  private Content content;
-  private ParseImpl parse;
 
-  public FetcherOutput() {}
+  public final void readFields(DataInput in) throws IOException { }
 
-  public FetcherOutput(CrawlDatum crawlDatum, Content content,
-                       ParseImpl parse) {
-    this.crawlDatum = crawlDatum;
-    this.content = content;
-    this.parse = parse;
-  }
-
-  public final void readFields(DataInput in) throws IOException {
-    this.crawlDatum = CrawlDatum.read(in);
-    this.content = in.readBoolean() ? Content.read(in) : null;
-    this.parse = in.readBoolean() ? ParseImpl.read(in) : null;
-  }
-
-  public final void write(DataOutput out) throws IOException {
-    crawlDatum.write(out);
-
-    out.writeBoolean(content != null);
-    if (content != null) {
-      content.write(out);
-    }
-
-    out.writeBoolean(parse != null);
-    if (parse != null) {
-      parse.write(out);
-    }
-  }
-
-  public CrawlDatum getCrawlDatum() { return crawlDatum; }
-  public Content getContent() { return content; }
-  public ParseImpl getParse() { return parse; }
-
-  public boolean equals(Object o) {
-    if (!(o instanceof FetcherOutput))
-      return false;
-    FetcherOutput other = (FetcherOutput)o;
-    return
-      this.crawlDatum.equals(other.crawlDatum) &&
-      this.content.equals(other.content);
-  }
-
-  public String toString() {
-    StringBuffer buffer = new StringBuffer();
-    buffer.append("CrawlDatum: " + crawlDatum+"\n" );
-    return buffer.toString();
-  }
-
+  public final void write(DataOutput out) throws IOException { }
 }

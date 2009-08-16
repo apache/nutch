@@ -68,7 +68,7 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.NutchJobConf;
 
 /** Dump the content of a segment. */
 public class SegmentReader extends Configured implements
@@ -158,7 +158,7 @@ public class SegmentReader extends Configured implements
   }
 
   private JobConf createJobConf() {
-    JobConf job = new NutchJob(getConf());
+    JobConf job = new NutchJobConf(getConf());
     job.setBoolean("segment.reader.co", this.co);
     job.setBoolean("segment.reader.fe", this.fe);
     job.setBoolean("segment.reader.ge", this.ge);

@@ -20,25 +20,23 @@ package org.apache.nutch.scoring.opic;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.Set;
 
-// Commons Logging imports
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Text;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.metadata.Nutch;
-import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.ParseData;
-import org.apache.nutch.protocol.Content;
+import org.apache.nutch.scoring.ScoreDatum;
 import org.apache.nutch.scoring.ScoringFilter;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.util.LogUtil;
+import org.apache.nutch.util.hbase.HbaseColumn;
+import org.apache.nutch.util.hbase.WebTableRow;
+import org.apache.nutch.util.hbase.WebTableColumns;
 
 /**
  * This plugin implements a variant of an Online Page Importance Computation
@@ -53,12 +51,22 @@ import org.apache.nutch.util.LogUtil;
 public class OPICScoringFilter implements ScoringFilter {
 
   private final static Log LOG = LogFactory.getLog(OPICScoringFilter.class);
+  
+  private final static byte[] CASH_KEY = Bytes.toBytes("_csh_");
+  
+  private final static Set<HbaseColumn> COLUMNS = new HashSet<HbaseColumn>();
+  
+  static {
+    COLUMNS.add(new HbaseColumn(WebTableColumns.METADATA, CASH_KEY));
+    COLUMNS.add(new HbaseColumn(WebTableColumns.SCORE, CASH_KEY));
+  }
 
   private Configuration conf;
   private float scoreInjected;
   private float scorePower;
   private float internalScoreFactor;
   private float externalScoreFactor;
+  @SuppressWarnings("unused")
   private boolean countFiltered;
 
   public Configuration getConf() {
@@ -75,88 +83,79 @@ public class OPICScoringFilter implements ScoringFilter {
   }
 
   /** Set to the value defined in config, 1.0f by default. */
-  public void injectedScore(Text url, CrawlDatum datum) throws ScoringFilterException {
-    datum.setScore(scoreInjected);
+  @Override
+  public void injectedScore(String url, WebTableRow row)
+  throws ScoringFilterException {
+    row.setScore(scoreInjected);
+    row.putMeta(CASH_KEY, Bytes.toBytes(scoreInjected));
   }
 
   /** Set to 0.0f (unknown value) - inlink contributions will bring it to
    * a correct level. Newly discovered pages have at least one inlink. */
-  public void initialScore(Text url, CrawlDatum datum) throws ScoringFilterException {
-    datum.setScore(0.0f);
+  @Override
+  public void initialScore(String url, WebTableRow row) throws ScoringFilterException {
+    row.setScore(0.0f);
+    row.putMeta(CASH_KEY, Bytes.toBytes(0.0f));
   }
 
   /** Use {@link CrawlDatum#getScore()}. */
-  public float generatorSortValue(Text url, CrawlDatum datum, float initSort) throws ScoringFilterException {
-    return datum.getScore() * initSort;
+  @Override
+  public float generatorSortValue(String url, WebTableRow row, float initSort) throws ScoringFilterException {
+    return row.getScore() * initSort;
   }
 
   /** Increase the score by a sum of inlinked scores. */
-  public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum, List inlinked) throws ScoringFilterException {
+  @Override
+  public void updateScore(String url, WebTableRow row, List<ScoreDatum> inlinkedScoreData) {
     float adjust = 0.0f;
-    for (int i = 0; i < inlinked.size(); i++) {
-      CrawlDatum linked = (CrawlDatum)inlinked.get(i);
-      adjust += linked.getScore();
+    for (ScoreDatum scoreDatum : inlinkedScoreData) {
+      adjust += scoreDatum.getScore();
     }
-    if (old == null) old = datum;
-    datum.setScore(old.getScore() + adjust);
+    float oldScore = row.getScore();
+    row.setScore(oldScore + adjust);
+    float cash = Bytes.toFloat(row.getMeta(CASH_KEY));
+    row.putMeta(CASH_KEY, Bytes.toBytes(cash + adjust));
   }
 
-  /** Store a float value of CrawlDatum.getScore() under Fetcher.SCORE_KEY. */
-  public void passScoreBeforeParsing(Text url, CrawlDatum datum, Content content) {
-    content.getMetadata().set(Nutch.SCORE_KEY, "" + datum.getScore());
-  }
-
-  /** Copy the value from Content metadata under Fetcher.SCORE_KEY to parseData. */
-  public void passScoreAfterParsing(Text url, Content content, Parse parse) {
-    parse.getData().getContentMeta().set(Nutch.SCORE_KEY, content.getMetadata().get(Nutch.SCORE_KEY));
-  }
-
-  /** Get a float value from Fetcher.SCORE_KEY, divide it by the number of outlinks and apply. */
-  public CrawlDatum distributeScoreToOutlinks(Text fromUrl, ParseData parseData, Collection<Entry<Text, CrawlDatum>> targets, CrawlDatum adjust, int allCount) throws ScoringFilterException {
-    float score = scoreInjected;
-    String scoreString = parseData.getContentMeta().get(Nutch.SCORE_KEY);
-    if (scoreString != null) {
-      try {
-        score = Float.parseFloat(scoreString);
-      } catch (Exception e) {
-        e.printStackTrace(LogUtil.getWarnStream(LOG));
-      }
+  /** Get cash on hand, divide it by the number of outlinks and apply. */
+  @Override
+  public void distributeScoreToOutlinks(String fromUrl,
+      WebTableRow row, Collection<ScoreDatum> scoreData,
+      int allCount) {
+    float cash = Bytes.toFloat(row.getMeta(CASH_KEY));
+    if (cash == 0) {
+      return;
     }
-    int validCount = targets.size();
-    if (countFiltered) {
-      score /= allCount;
-    } else {
-      if (validCount == 0) {
-        // no outlinks to distribute score, so just return adjust
-        return adjust;
-      }
-      score /= validCount;
-    }
+    // TODO: count filtered vs. all count for outlinks
+    float scoreUnit = cash / allCount;
     // internal and external score factor
-    float internalScore = score * internalScoreFactor;
-    float externalScore = score * externalScoreFactor;
-    for (Entry<Text, CrawlDatum> target : targets) {
+    float internalScore = scoreUnit * internalScoreFactor;
+    float externalScore = scoreUnit * externalScoreFactor;
+    for (ScoreDatum scoreDatum : scoreData) {
       try {
-        String toHost = new URL(target.getKey().toString()).getHost();
+        String toHost = new URL(scoreDatum.getUrl()).getHost();
         String fromHost = new URL(fromUrl.toString()).getHost();
         if(toHost.equalsIgnoreCase(fromHost)){
-          target.getValue().setScore(internalScore);
+          scoreDatum.setScore(internalScore);
         } else {
-          target.getValue().setScore(externalScore);
+          scoreDatum.setScore(externalScore);
         }
       } catch (MalformedURLException e) {
         e.printStackTrace(LogUtil.getWarnStream(LOG));
-        target.getValue().setScore(externalScore);
+        scoreDatum.setScore(externalScore);
       }
     }
-    // XXX (ab) no adjustment? I think this is contrary to the algorithm descr.
-    // XXX in the paper, where page "loses" its score if it's distributed to
-    // XXX linked pages...
-    return adjust;
+    // reset cash to zero
+    row.putMeta(CASH_KEY, Bytes.toBytes(0.0f));
   }
 
   /** Dampen the boost value by scorePower.*/
-  public float indexerScore(Text url, NutchDocument doc, CrawlDatum dbDatum, CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore) throws ScoringFilterException {
-    return (float)Math.pow(dbDatum.getScore(), scorePower) * initScore;
+  public float indexerScore(String url, NutchDocument doc, WebTableRow row, float initScore) {
+    return (float)Math.pow(row.getScore(), scorePower) * initScore;
+  }
+
+  @Override
+  public Collection<HbaseColumn> getColumns() {
+    return COLUMNS;
   }
 }

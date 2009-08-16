@@ -17,9 +17,14 @@
 
 package org.apache.nutch.crawl;
 
+import java.util.Collection;
+import java.util.HashSet;
+
 import org.apache.hadoop.io.MD5Hash;
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.protocol.Content;
+import org.apache.nutch.util.hbase.HbaseColumn;
+import org.apache.nutch.util.hbase.WebTableColumns;
+import org.apache.nutch.util.hbase.WebTableRow;
 
 /**
  * Default implementation of a page signature. It calculates an MD5 hash
@@ -30,10 +35,20 @@ import org.apache.nutch.protocol.Content;
  */
 public class MD5Signature extends Signature {
 
-  public byte[] calculate(Content content, Parse parse) {
-    byte[] data = content.getContent();
-    if (data == null) data = content.getUrl().getBytes();
-    StringBuilder buf = new StringBuilder().append(data).append(parse.getText());
-    return MD5Hash.digest(buf.toString().getBytes()).getDigest();
+  private final static Collection<HbaseColumn> COLUMNS = new HashSet<HbaseColumn>();
+  
+  static {
+    COLUMNS.add(new HbaseColumn(WebTableColumns.CONTENT));
+  }
+  
+  @Override
+  public byte[] calculate(WebTableRow row, Parse parse) {
+    byte[] data = row.getContent();
+    return MD5Hash.digest(data).getDigest();
+  }
+
+  @Override
+  public Collection<HbaseColumn> getColumns() {
+    return COLUMNS;
   }
 }

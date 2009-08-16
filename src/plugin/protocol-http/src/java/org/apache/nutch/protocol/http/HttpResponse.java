@@ -28,8 +28,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
 
-// Nutch imports
-import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.SpellCheckedMetadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
@@ -38,6 +36,8 @@ import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.http.api.HttpBase;
 import org.apache.nutch.protocol.http.api.HttpException;
 import org.apache.nutch.util.LogUtil;
+import org.apache.nutch.util.hbase.WebTableColumns;
+import org.apache.nutch.util.hbase.WebTableRow;
 
 
 /** An HTTP response. */
@@ -45,20 +45,16 @@ public class HttpResponse implements Response {
  
   private HttpBase http; 
   private URL url;
-  private String orig;
-  private String base;
   private byte[] content;
   private int code;
   private Metadata headers = new SpellCheckedMetadata();
 
 
-  public HttpResponse(HttpBase http, URL url, CrawlDatum datum)
+  public HttpResponse(HttpBase http, URL url, WebTableRow row)
     throws ProtocolException, IOException {
 
     this.http = http;
     this.url = url;
-    this.orig = url.toString();
-    this.base = url.toString();
 
     if (!"http".equals(url.getProtocol()))
       throw new HttpException("Not an HTTP url:" + url);
@@ -113,7 +109,7 @@ public class HttpResponse implements Response {
       reqStr.append(portString);
       reqStr.append("\r\n");
 
-      reqStr.append("Accept-Encoding: x-gzip, gzip, deflate\r\n");
+      reqStr.append("Accept-Encoding: x-gzip, gzip\r\n");
 
       String userAgent = http.getUserAgent();
       if ((userAgent == null) || (userAgent.length() == 0)) {
@@ -125,8 +121,9 @@ public class HttpResponse implements Response {
       }
 
       reqStr.append("\r\n");
-      if (datum.getModifiedTime() > 0) {
-        reqStr.append("If-Modified-Since: " + HttpDateFormat.toString(datum.getModifiedTime()));
+      if (row.hasColumn(WebTableColumns.MODIFIED_TIME, null)) {
+        reqStr.append("If-Modified-Since: " +
+                      HttpDateFormat.toString(row.getModifiedTime()));
         reqStr.append("\r\n");
       }
       
@@ -156,12 +153,16 @@ public class HttpResponse implements Response {
       String contentEncoding = getHeader(Response.CONTENT_ENCODING);
       if ("gzip".equals(contentEncoding) || "x-gzip".equals(contentEncoding)) {
         content = http.processGzipEncoded(content, url);
-      } else if ("deflate".equals(contentEncoding)) {
-       content = http.processDeflateEncoded(content, url);
       } else {
         if (Http.LOG.isTraceEnabled()) {
           Http.LOG.trace("fetched " + content.length + " bytes from " + url);
         }
+      }
+      
+      // add headers in metadata to row
+      row.deleteHeaders();
+      for (String key : headers.names()) {
+        row.addHeader(key, headers.get(key));
       }
 
     } finally {
@@ -229,84 +230,6 @@ public class HttpResponse implements Response {
         break;
     }
     content = out.toByteArray();
-  }
-
-  private void readChunkedContent(PushbackInputStream in,  
-                                  StringBuffer line) 
-    throws HttpException, IOException {
-    boolean doneChunks= false;
-    int contentBytesRead= 0;
-    byte[] bytes = new byte[Http.BUFFER_SIZE];
-    ByteArrayOutputStream out = new ByteArrayOutputStream(Http.BUFFER_SIZE);
-
-    while (!doneChunks) {
-      if (Http.LOG.isTraceEnabled()) {
-        Http.LOG.trace("Http: starting chunk");
-      }
-
-      readLine(in, line, false);
-
-      String chunkLenStr;
-      // if (LOG.isTraceEnabled()) { LOG.trace("chunk-header: '" + line + "'"); }
-
-      int pos= line.indexOf(";");
-      if (pos < 0) {
-        chunkLenStr= line.toString();
-      } else {
-        chunkLenStr= line.substring(0, pos);
-        // if (LOG.isTraceEnabled()) { LOG.trace("got chunk-ext: " + line.substring(pos+1)); }
-      }
-      chunkLenStr= chunkLenStr.trim();
-      int chunkLen;
-      try {
-        chunkLen= Integer.parseInt(chunkLenStr, 16);
-      } catch (NumberFormatException e){ 
-        throw new HttpException("bad chunk length: "+line.toString());
-      }
-
-      if (chunkLen == 0) {
-        doneChunks= true;
-        break;
-      }
-
-      if ( (contentBytesRead + chunkLen) > http.getMaxContent() )
-        chunkLen= http.getMaxContent() - contentBytesRead;
-
-      // read one chunk
-      int chunkBytesRead= 0;
-      while (chunkBytesRead < chunkLen) {
-
-        int toRead= (chunkLen - chunkBytesRead) < Http.BUFFER_SIZE ?
-                    (chunkLen - chunkBytesRead) : Http.BUFFER_SIZE;
-        int len= in.read(bytes, 0, toRead);
-
-        if (len == -1) 
-          throw new HttpException("chunk eof after " + contentBytesRead
-                                      + " bytes in successful chunks"
-                                      + " and " + chunkBytesRead 
-                                      + " in current chunk");
-
-        // DANGER!!! Will printed GZIPed stuff right to your
-        // terminal!
-        // if (LOG.isTraceEnabled()) { LOG.trace("read: " +  new String(bytes, 0, len)); }
-
-        out.write(bytes, 0, len);
-        chunkBytesRead+= len;  
-      }
-
-      readLine(in, line, false);
-
-    }
-
-    if (!doneChunks) {
-      if (contentBytesRead != http.getMaxContent()) 
-        throw new HttpException("chunk eof: !doneChunk && didn't max out");
-      return;
-    }
-
-    content = out.toByteArray();
-    parseHeaders(in, line);
-
   }
 
   private int parseStatusLine(PushbackInputStream in, StringBuffer line)

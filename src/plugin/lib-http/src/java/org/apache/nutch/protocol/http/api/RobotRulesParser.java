@@ -19,8 +19,8 @@ package org.apache.nutch.protocol.http.api;
 // JDK imports
 import java.io.FileInputStream;
 import java.io.FileReader;
-import java.io.LineNumberReader;
 import java.io.IOException;
+import java.io.LineNumberReader;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.ArrayList;
@@ -28,17 +28,14 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
-// Commons Logging imports
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-// Nutch imports
-import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configurable;
-import org.apache.hadoop.io.Text;
-import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.RobotRules;
+import org.apache.nutch.util.hbase.WebTableRow;
 
 
 /**
@@ -223,6 +220,9 @@ public class RobotRulesParser implements Configurable {
     // Grab the agent names we advertise to robots files.
     //
     String agentName = conf.get("http.agent.name");
+    if (null == agentName) {
+      throw new RuntimeException("Agent name not configured!");
+    }
     String agentNames = conf.get("http.robots.agents");
     StringTokenizer tok = new StringTokenizer(agentNames, ",");
     ArrayList agents = new ArrayList();
@@ -230,6 +230,23 @@ public class RobotRulesParser implements Configurable {
       agents.add(tok.nextToken().trim());
     }
 
+    //
+    // If there are no agents for robots-parsing, use our
+    // default agent-string.  If both are present, our agent-string
+    // should be the first one we advertise to robots-parsing.
+    //
+    if (agents.size() == 0) {
+      agents.add(agentName);
+      if (LOG.isFatalEnabled()) {
+        LOG.fatal("No agents listed in 'http.robots.agents' property!");
+      }
+    } else if (!((String)agents.get(0)).equalsIgnoreCase(agentName)) {
+      agents.add(0, agentName);
+      if (LOG.isFatalEnabled()) {
+        LOG.fatal("Agent we advertise (" + agentName
+                + ") not listed first in 'http.robots.agents' property!");
+      }
+    }
     setRobotNames((String[]) agents.toArray(new String[agents.size()]));
   }
 
@@ -415,10 +432,10 @@ public class RobotRulesParser implements Configurable {
     return rules;
   }
   
-  public RobotRuleSet getRobotRulesSet(HttpBase http, Text url) {
+  public RobotRuleSet getRobotRulesSet(HttpBase http, String url) {
     URL u = null;
     try {
-      u = new URL(url.toString());
+      u = new URL(url);
     } catch (Exception e) {
       return EMPTY_RULES;
     }
@@ -437,7 +454,7 @@ public class RobotRulesParser implements Configurable {
       if (LOG.isTraceEnabled()) { LOG.trace("cache miss " + url); }
       try {
         Response response = http.getResponse(new URL(url, "/robots.txt"),
-                                             new CrawlDatum(), true);
+                                             new WebTableRow(), true);
 
         if (response.getCode() == 200)               // found rules: parse them
           robotRules = parseRules(response.getContent());

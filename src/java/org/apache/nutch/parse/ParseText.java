@@ -19,6 +19,7 @@ package org.apache.nutch.parse;
 
 import java.io.*;
 import org.apache.hadoop.io.*;
+import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.nutch.util.NutchConfiguration;
@@ -79,16 +80,20 @@ public final class ParseText implements Writable {
     return text;
   }
 
-  public static void main(String argv[]) throws Exception {
+  public static void main(String args[]) throws Exception {
     String usage = "ParseText (-local | -dfs <namenode:port>) recno segment";
 
-    if (argv.length < 3) {
+    if (args.length < 3) {
       System.out.println("usage:" + usage);
       return;
     }
+    
+    GenericOptionsParser optParser =
+      new GenericOptionsParser(NutchConfiguration.create(), args);
+    String[] argv = optParser.getRemainingArgs();
+    Configuration conf = optParser.getConfiguration();
 
-    Configuration conf = NutchConfiguration.create();
-    FileSystem fs = FileSystem.parseArgs(argv, 0, conf);
+    FileSystem fs = FileSystem.get(conf);
     try {
       int recno = Integer.parseInt(argv[0]);
       String segment = argv[1];

@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -33,16 +34,14 @@ import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.HtmlParseFilter;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.ParseData;
-import org.apache.nutch.parse.ParseImpl;
-import org.apache.nutch.parse.ParseResult;
-import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
-import org.apache.nutch.protocol.Content;
+import org.apache.nutch.plugin.Pluggable;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.hbase.HbaseColumn;
+import org.apache.nutch.util.hbase.WebTableRow;
+import org.apache.nutch.util.hbase.WebTableRow;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Text;
 import org.apache.oro.text.regex.MatchResult;
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.PatternCompiler;
@@ -71,36 +70,30 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
 
   private Configuration conf;
   
-  public ParseResult filter(Content content, ParseResult parseResult,
+  @Override
+  public Parse filter(String url, WebTableRow row, Parse parse,
     HTMLMetaTags metaTags, DocumentFragment doc) {
 
-    Parse parse = parseResult.get(content.getUrl());
-
-    String url = content.getBaseUrl();
-    ArrayList outlinks = new ArrayList();
+    ArrayList<Outlink> outlinks = new ArrayList<Outlink>();
     walk(doc, parse, metaTags, url, outlinks);
     if (outlinks.size() > 0) {
-      Outlink[] old = parse.getData().getOutlinks();
-      String title = parse.getData().getTitle();
-      List list = Arrays.asList(old);
+      Outlink[] old = parse.getOutlinks();
+      String title = parse.getTitle();
+      List<Outlink> list = Arrays.asList(old);
       outlinks.addAll(list);
-      ParseStatus status = parse.getData().getStatus();
+      ParseStatus status = parse.getParseStatus();
       String text = parse.getText();
-      Outlink[] newlinks = (Outlink[])outlinks.toArray(new Outlink[outlinks.size()]);
-      ParseData parseData = new ParseData(status, title, newlinks,
-                                          parse.getData().getContentMeta(),
-                                          parse.getData().getParseMeta());
-
-      // replace original parse obj with new one
-      parseResult.put(content.getUrl(), new ParseText(text), parseData);
+      Outlink[] newlinks = outlinks.toArray(new Outlink[outlinks.size()]);
+      return new Parse(text, title, newlinks, status);
     }
-    return parseResult;
+    return parse;
   }
   
-  private void walk(Node n, Parse parse, HTMLMetaTags metaTags, String base, List outlinks) {
+  private void walk(Node n, Parse parse, HTMLMetaTags metaTags, String base, List<Outlink> outlinks) {
     if (n instanceof Element) {
       String name = n.getNodeName();
       if (name.equalsIgnoreCase("script")) {
+        @SuppressWarnings("unused")
         String lang = null;
         Node lNode = n.getAttributes().getNamedItem("language");
         if (lNode == null) lang = "javascript";
@@ -149,13 +142,14 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     }
   }
   
-  public ParseResult getParse(Content c) {
-    String type = c.getContentType();
+  @Override
+  public Parse getParse(String url, WebTableRow row) {
+    String type = row.getContentType();
     if (type != null && !type.trim().equals("") && !type.toLowerCase().startsWith("application/x-javascript"))
       return new ParseStatus(ParseStatus.FAILED_INVALID_FORMAT,
-              "Content not JavaScript: '" + type + "'").getEmptyParseResult(c.getUrl(), getConf());
-    String script = new String(c.getContent());
-    Outlink[] outlinks = getJSLinks(script, "", c.getUrl());
+              "Content not JavaScript: '" + type + "'").getEmptyParseHbase(getConf());
+    String script = new String(row.getContent());
+    Outlink[] outlinks = getJSLinks(script, "", url);
     if (outlinks == null) outlinks = new Outlink[0];
     // Title? use the first line of the script...
     String title;
@@ -167,9 +161,9 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
       idx = Math.min(MAX_TITLE_LEN, script.length());
       title = script.substring(0, idx);
     }
-    ParseData pd = new ParseData(ParseStatus.STATUS_SUCCESS, title, outlinks,
-                                 c.getMetadata());
-    return ParseResult.createParseResult(c.getUrl(), new ParseImpl(script, pd));
+    Parse parse =
+      new Parse(script, title, outlinks, ParseStatus.STATUS_SUCCESS);
+    return parse;
   }
   
   private static final String STRING_PATTERN = "(\\\\*(?:\"|\'))([^\\s\"\']+?)(?:\\1)";
@@ -183,7 +177,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
    */
   private Outlink[] getJSLinks(String plainText, String anchor, String base) {
 
-    final List outlinks = new ArrayList();
+    final List<Outlink> outlinks = new ArrayList<Outlink>();
     URL baseURL = null;
     
     try {
@@ -248,7 +242,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
 
     //create array of the Outlinks
     if (outlinks != null && outlinks.size() > 0) {
-      retval = (Outlink[]) outlinks.toArray(new Outlink[0]);
+      retval = outlinks.toArray(new Outlink[0]);
     } else {
       retval = new Outlink[0];
     }
@@ -281,4 +275,9 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
   public Configuration getConf() {
     return this.conf;
   }
+
+  public Collection<HbaseColumn> getColumns() {
+    return EMPTY_COLUMNS;
+  }
+
 }

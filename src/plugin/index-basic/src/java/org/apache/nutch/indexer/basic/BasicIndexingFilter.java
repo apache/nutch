@@ -22,20 +22,21 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.lucene.document.DateTools;
 
-import org.apache.nutch.metadata.Nutch;
-import org.apache.nutch.parse.Parse;
-
-import org.apache.nutch.indexer.IndexingFilter;
+import org.apache.nutch.crawl.Inlink;
 import org.apache.nutch.indexer.IndexingException;
+import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.indexer.lucene.LuceneWriter;
-import org.apache.hadoop.io.Text;
-
-import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.crawl.Inlinks;
+import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.util.hbase.HbaseColumn;
+import org.apache.nutch.util.hbase.WebTableColumns;
+import org.apache.nutch.util.hbase.WebTableRow;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Collection;
+import java.util.HashSet;
+
 import org.apache.hadoop.conf.Configuration;
 
 /** Adds basic searchable fields to a document. */
@@ -44,21 +45,30 @@ public class BasicIndexingFilter implements IndexingFilter {
 
   private int MAX_TITLE_LENGTH;
   private Configuration conf;
+  
+  private static final Collection<HbaseColumn> COLUMNS = new HashSet<HbaseColumn>();
+  
+  static {
+    COLUMNS.add(new HbaseColumn(WebTableColumns.TITLE));
+    COLUMNS.add(new HbaseColumn(WebTableColumns.TEXT));
+    COLUMNS.add(new HbaseColumn(WebTableColumns.FETCH_TIME));
+    COLUMNS.add(new HbaseColumn(WebTableColumns.INLINKS));
+  }
 
-  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
+  public NutchDocument filter(NutchDocument doc, String url, WebTableRow row)
     throws IndexingException {
 
-    Text reprUrl = (Text) datum.getMetaData().get(Nutch.WRITABLE_REPR_URL_KEY);
-    String reprUrlString = reprUrl != null ? reprUrl.toString() : null;
-    String urlString = url.toString();
+    String reprUrl = null;
+    if (row.hasColumn(WebTableColumns.REPR_URL, null))
+      reprUrl = row.getReprUrl();
     
     String host = null;
     try {
       URL u;
-      if (reprUrlString != null) {
-        u = new URL(reprUrlString);
+      if (reprUrl!= null) {
+        u = new URL(reprUrl);
       } else {
-        u = new URL(urlString);
+        u = new URL(url);
       }
       host = u.getHost();
     } catch (MalformedURLException e) {
@@ -66,34 +76,48 @@ public class BasicIndexingFilter implements IndexingFilter {
     }
 
     if (host != null) {
+      // add host as un-stored, indexed and tokenized
       doc.add("host", host);
+      // add site as un-stored, indexed and un-tokenized
       doc.add("site", host);
     }
 
-    doc.add("url", reprUrlString == null ? urlString : reprUrlString);
-    doc.add("content", parse.getText());
+    // url is both stored and indexed, so it's both searchable and returned
+    doc.add("url", reprUrl == null ? url : reprUrl);
+    
+    if (reprUrl != null) {
+      // also store original url as both stored and indexes
+      doc.add("orig", url);
+    }
+
+    // content is indexed, so that it's searchable, but not stored in index
+    doc.add("content", row.getText());
     
     // title
-    String title = parse.getData().getTitle();
+    String title = row.getTitle();
     if (title.length() > MAX_TITLE_LENGTH) {      // truncate title if needed
       title = title.substring(0, MAX_TITLE_LENGTH);
     }
+    // add title indexed and stored so that it can be displayed
     doc.add("title", title);
-
     // add cached content/summary display policy, if available
-    String caching = parse.getData().getMeta(Nutch.CACHING_FORBIDDEN_KEY);
-    if (caching != null && !caching.equals(Nutch.CACHING_FORBIDDEN_NONE)) {
+    String caching = row.getMetaAsString(Nutch.CACHING_FORBIDDEN_KEY);
+    if (caching != null && !caching.equals(Nutch.CACHING_FORBIDDEN_NONE)) {    
       doc.add("cache", caching);
     }
     
     // add timestamp when fetched, for deduplication
     doc.add("tstamp",
-            DateTools.timeToString(datum.getFetchTime(),
-            DateTools.Resolution.MILLISECOND));
-
+        DateTools.timeToString(row.getFetchTime(), DateTools.Resolution.MILLISECOND));
+    
+    // TODO: move anchors to its own plugin
+    for (Inlink inlink : row.getInlinks()) {
+      doc.add("anchor", inlink.getAnchor());
+    }
+    
     return doc;
   }
-
+  
   public void addIndexBackendOptions(Configuration conf) {
 
     ///////////////////////////
@@ -135,6 +159,10 @@ public class BasicIndexingFilter implements IndexingFilter {
 
   public Configuration getConf() {
     return this.conf;
+  }
+
+  public Collection<HbaseColumn> getColumns() {
+    return COLUMNS;
   }
 
 }

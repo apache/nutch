@@ -42,7 +42,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.NutchJobConf;
 import org.apache.nutch.util.URLUtil;
 
 /**
@@ -81,7 +81,7 @@ implements Tool, Mapper<Text, CrawlDatum, Text, LongWritable>,
       numOfReducers = Integer.parseInt(args[3]);
     }
 
-    JobConf job = new NutchJob(getConf());
+    JobConf job = new NutchJobConf(getConf());
     job.setJobName("Domain statistics");
 
     int mode = 0;

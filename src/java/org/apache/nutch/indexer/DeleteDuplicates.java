@@ -31,7 +31,7 @@ import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
 
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.NutchJobConf;
 
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.document.DateTools;
@@ -424,7 +424,7 @@ public class DeleteDuplicates extends Configured
       new Path("dedup-urls-"+
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
-    JobConf job = new NutchJob(getConf());
+    JobConf job = new NutchJobConf(getConf());
 
     for (int i = 0; i < indexDirs.length; i++) {
       if (LOG.isInfoEnabled()) {
@@ -450,7 +450,7 @@ public class DeleteDuplicates extends Configured
     Path outDir2 =
       new Path("dedup-hash-"+
                Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
-    job = new NutchJob(getConf());
+    job = new NutchJobConf(getConf());
     job.setJobName("dedup 2: content by hash");
 
     FileInputFormat.addInputPath(job, outDir1);
@@ -472,7 +472,7 @@ public class DeleteDuplicates extends Configured
     // remove outDir1 - no longer needed
     fs.delete(outDir1, true);
     
-    job = new NutchJob(getConf());
+    job = new NutchJobConf(getConf());
     job.setJobName("dedup 3: delete from index(es)");
 
     FileInputFormat.addInputPath(job, outDir2);

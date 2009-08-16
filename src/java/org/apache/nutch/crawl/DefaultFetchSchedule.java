@@ -17,7 +17,7 @@
 
 package org.apache.nutch.crawl;
 
-import org.apache.hadoop.io.Text;
+import org.apache.nutch.util.hbase.WebTableRow;
 
 /**
  * This class implements the default re-fetch schedule. That is, no matter
@@ -30,13 +30,13 @@ import org.apache.hadoop.io.Text;
 public class DefaultFetchSchedule extends AbstractFetchSchedule {
 
   @Override
-  public CrawlDatum setFetchSchedule(Text url, CrawlDatum datum,
+  public void setFetchSchedule(String url, WebTableRow row,
           long prevFetchTime, long prevModifiedTime,
           long fetchTime, long modifiedTime, int state) {
-    datum = super.setFetchSchedule(url, datum, prevFetchTime, prevModifiedTime,
+    super.setFetchSchedule(url, row, prevFetchTime, prevModifiedTime,
         fetchTime, modifiedTime, state);
-    datum.setFetchTime(fetchTime + (long)datum.getFetchInterval() * 1000);
-    datum.setModifiedTime(modifiedTime);
-    return datum;
+    row.setFetchTime(fetchTime + row.getFetchInterval() * 1000L);
+    row.setModifiedTime(modifiedTime);
   }
+
 }

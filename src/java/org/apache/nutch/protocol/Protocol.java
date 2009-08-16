@@ -18,16 +18,18 @@
 package org.apache.nutch.protocol;
 
 // Hadoop imports
+
 import org.apache.hadoop.conf.Configurable;
-import org.apache.hadoop.io.Text;
 
 // Nutch imports
-import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.plugin.Pluggable;
-
+import org.apache.nutch.plugin.TablePluggable;
+import org.apache.nutch.protocol.ProtocolOutput;
+import org.apache.nutch.protocol.RobotRules;
+import org.apache.nutch.util.hbase.WebTableRow;
+import org.apache.nutch.util.hbase.WebTableRow;
 
 /** A retriever of url content.  Implemented by protocol extensions. */
-public interface Protocol extends Pluggable, Configurable {
+public interface Protocol extends TablePluggable, Configurable {
   /** The name of the extension point. */
   public final static String X_POINT_ID = Protocol.class.getName();
   
@@ -51,13 +53,13 @@ public interface Protocol extends Pluggable, Configurable {
 
   /** Returns the {@link Content} for a fetchlist entry.
    */
-  ProtocolOutput getProtocolOutput(Text url, CrawlDatum datum);
+  ProtocolOutput getProtocolOutput(String url, WebTableRow row);
 
   /**
    * Retrieve robot rules applicable for this url.
    * @param url url to check
-   * @param datum page datum
+   * @param row Row
    * @return robot rules (specific for this url or default), never null
    */
-  RobotRules getRobotRules(Text url, CrawlDatum datum);
+  RobotRules getRobotRules(String url, WebTableRow row);  
 }

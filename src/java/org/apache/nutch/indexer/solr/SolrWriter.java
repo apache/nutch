@@ -21,7 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.indexer.NutchIndexWriter;
 import org.apache.solr.client.solrj.SolrServer;
@@ -38,12 +39,15 @@ public class SolrWriter implements NutchIndexWriter {
 
   private int commitSize;
 
-  public void open(JobConf job, String name)
+  @Override
+  public void open(TaskAttemptContext job, String name)
   throws IOException {
-    solr = new CommonsHttpSolrServer(job.get(SolrConstants.SERVER_URL));
-    commitSize = job.getInt(SolrConstants.COMMIT_SIZE, 1000);
+    Configuration conf = job.getConfiguration();
+    solr = new CommonsHttpSolrServer(conf.get(SolrConstants.SERVER_URL));
+    commitSize = conf.getInt(SolrConstants.COMMIT_SIZE, 1000);
   }
 
+  @Override
   public void write(NutchDocument doc) throws IOException {
     final SolrInputDocument inputDoc = new SolrInputDocument();
     for(final Entry<String, List<String>> e : doc) {
@@ -57,12 +61,13 @@ public class SolrWriter implements NutchIndexWriter {
       try {
         solr.add(inputDocs);
       } catch (final SolrServerException e) {
-        throw makeIOException(e);
+        throw new IOException(e);
       }
       inputDocs.clear();
     }
   }
 
+  @Override
   public void close() throws IOException {
     try {
       if (!inputDocs.isEmpty()) {
@@ -71,14 +76,8 @@ public class SolrWriter implements NutchIndexWriter {
       }
       solr.commit();
     } catch (final SolrServerException e) {
-      throw makeIOException(e);
+      throw new IOException(e);
     }
-  }
-
-  public static IOException makeIOException(SolrServerException e) {
-    final IOException ioe = new IOException();
-    ioe.initCause(e);
-    return ioe;
   }
 
 }

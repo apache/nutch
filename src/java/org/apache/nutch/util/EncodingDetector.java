@@ -34,6 +34,7 @@ import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.hbase.WebTableRow;
 
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
@@ -81,10 +82,12 @@ public class EncodingDetector {
       this.confidence = confidence;
     }
 
+    @SuppressWarnings("unused")
     public String getSource() {
       return source;
     }
 
+    @SuppressWarnings("unused")
     public String getValue() {
       return value;
     }
@@ -163,9 +166,20 @@ public class EncodingDetector {
   }
 
   public void autoDetectClues(Content content, boolean filter) {
-    byte[] data = content.getContent();
+    autoDetectClues(content.getContent(), content.getContentType(), 
+      parseCharacterEncoding(content.getMetadata().get(Response.CONTENT_TYPE)),
+      filter);
+  }
+  
+  public void autoDetectClues(WebTableRow row, boolean filter) {
+    autoDetectClues(row.getContent(), row.getContentType(),
+        parseCharacterEncoding(row.getHeader(Response.CONTENT_TYPE)), filter);
+  }
+  
+  private void autoDetectClues(byte[] data, String type,
+                               String encoding, boolean filter) {
 
-    if (minConfidence >= 0 && DETECTABLES.contains(content.getContentType())
+    if (minConfidence >= 0 && DETECTABLES.contains(type)
         && data.length > MIN_LENGTH) {
       CharsetMatch[] matches = null;
 
@@ -190,8 +204,7 @@ public class EncodingDetector {
     }
 
     // add character encoding coming from HTTP response header
-    addClue(parseCharacterEncoding(
-        content.getMetadata().get(Response.CONTENT_TYPE)), "header");
+    addClue(encoding, "header");
   }
 
   public void addClue(String value, String source, int confidence) {
@@ -207,7 +220,7 @@ public class EncodingDetector {
   public void addClue(String value, String source) {
     addClue(value, source, NO_THRESHOLD);
   }
-
+  
   /**
    * Guess the encoding with the previously specified list of clues.
    *
@@ -219,6 +232,34 @@ public class EncodingDetector {
    * @return Guessed encoding or defaultValue
    */
   public String guessEncoding(Content content, String defaultValue) {
+    return guessEncoding(content.getBaseUrl(), defaultValue);
+  }
+  
+  /**
+   * Guess the encoding with the previously specified list of clues.
+   *
+   * @param row URL's row
+   * @param defaultValue Default encoding to return if no encoding can be
+   * detected with enough confidence. Note that this will <b>not</b> be
+   * normalized with {@link EncodingDetector#resolveEncodingAlias}
+   *
+   * @return Guessed encoding or defaultValue
+   */
+  public String guessEncoding(WebTableRow row, String defaultValue) {
+    return guessEncoding(row.getBaseUrl(), defaultValue);
+  }
+  
+  /**
+   * Guess the encoding with the previously specified list of clues.
+   *
+   * @param baseUrl Base URL
+   * @param defaultValue Default encoding to return if no encoding can be
+   * detected with enough confidence. Note that this will <b>not</b> be
+   * normalized with {@link EncodingDetector#resolveEncodingAlias}
+   *
+   * @return Guessed encoding or defaultValue
+   */
+  private String guessEncoding(String baseUrl, String defaultValue) {
     /*
      * This algorithm could be replaced by something more sophisticated;
      * ideally we would gather a bunch of data on where various clues
@@ -227,10 +268,9 @@ public class EncodingDetector {
      * to generate a better heuristic.
      */
 
-    String base = content.getBaseUrl();
 
     if (LOG.isTraceEnabled()) {
-      findDisagreements(base, clues);
+      findDisagreements(baseUrl, clues);
     }
 
     /*
@@ -244,12 +284,12 @@ public class EncodingDetector {
 
     for (EncodingClue clue : clues) {
       if (LOG.isTraceEnabled()) {
-        LOG.trace(base + ": charset " + clue);
+        LOG.trace(baseUrl + ": charset " + clue);
       }
       String charset = clue.value;
       if (minConfidence >= 0 && clue.confidence >= minConfidence) {
         if (LOG.isTraceEnabled()) {
-          LOG.trace(base + ": Choosing encoding: " + charset +
+          LOG.trace(baseUrl + ": Choosing encoding: " + charset +
                     " with confidence " + clue.confidence);
         }
         return resolveEncodingAlias(charset).toLowerCase();
@@ -259,7 +299,7 @@ public class EncodingDetector {
     }
 
     if (LOG.isTraceEnabled()) {
-      LOG.trace(base + ": Choosing encoding: " + bestClue);
+      LOG.trace(baseUrl + ": Choosing encoding: " + bestClue);
     }
     return bestClue.value.toLowerCase();
   }
@@ -371,10 +411,11 @@ public class EncodingDetector {
     }
 
     byte[] data = ostr.toByteArray();
+    MimeUtil mimeTypes = new MimeUtil(conf);
 
     // make a fake Content
     Content content =
-      new Content("", "", data, "text/html", new Metadata(), conf);
+      new Content("", "", data, "text/html", new Metadata(), mimeTypes);
 
     detector.autoDetectClues(content, true);
     String encoding = detector.guessEncoding(content,

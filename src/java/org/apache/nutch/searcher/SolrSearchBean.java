@@ -35,7 +35,6 @@ import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.util.ToStringUtils;
-import org.apache.nutch.indexer.solr.SolrWriter;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -87,7 +86,7 @@ public class SolrSearchBean implements SearchBean {
     try {
       response = solr.query(solrQuery);
     } catch (final SolrServerException e) {
-      throw SolrWriter.makeIOException(e);
+      throw new IOException(e);
     }
 
     final SolrDocumentList docList = response.getResults();
@@ -115,7 +114,7 @@ public class SolrSearchBean implements SearchBean {
 
       final String uniqueKey = (String )solrDoc.getFirstValue("id");
 
-      hitArr[i] = new Hit(uniqueKey, sortValue, dedupValue);
+      hitArr[i] = new Hit(0, uniqueKey, sortValue, dedupValue);
     }
 
     return new Hits(docList.getNumFound(), hitArr);
@@ -126,7 +125,7 @@ public class SolrSearchBean implements SearchBean {
     try {
       response = solr.query(new SolrQuery("id:\"" + hit.getUniqueKey() + "\""));
     } catch (final SolrServerException e) {
-      throw SolrWriter.makeIOException(e);
+      throw new IOException(e);
     }
 
     final SolrDocumentList docList = response.getResults();
@@ -146,15 +145,16 @@ public class SolrSearchBean implements SearchBean {
       buf.append("\"");
     }
     buf.append(")");
-
+    
     QueryResponse response;
     try {
       response = solr.query(new SolrQuery(buf.toString()));
     } catch (final SolrServerException e) {
-      throw SolrWriter.makeIOException(e);
+      throw new IOException(e);
     }
 
     final SolrDocumentList docList = response.getResults();
+
     if (docList.size() < hits.length) {
       throw new RuntimeException("Missing hit details! Found: " +
                                  docList.size() + ", expecting: " +
@@ -184,7 +184,7 @@ public class SolrSearchBean implements SearchBean {
     try {
       return solr.ping().getStatus() == 0;
     } catch (final SolrServerException e) {
-      throw SolrWriter.makeIOException(e);
+      throw new IOException(e);
     }
   }
 

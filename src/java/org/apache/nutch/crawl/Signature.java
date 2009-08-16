@@ -17,21 +17,16 @@
 
 package org.apache.nutch.crawl;
 
+import java.util.Collection;
+
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.protocol.Content;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configurable;
+import org.apache.nutch.util.hbase.HbaseColumn;
+import org.apache.nutch.util.hbase.WebTableRow;
+import org.apache.hadoop.conf.Configured;
 
-public abstract class Signature implements Configurable {
-  protected Configuration conf;
+public abstract class Signature extends Configured {
   
-  public abstract byte[] calculate(Content content, Parse parse);
-
-  public Configuration getConf() {
-    return conf;
-  }
-
-  public void setConf(Configuration conf) {
-    this.conf = conf;
-  }
+  public abstract byte[] calculate(WebTableRow row, Parse parse);
+  
+  public abstract Collection<HbaseColumn> getColumns();
 }

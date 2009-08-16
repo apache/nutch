@@ -32,21 +32,22 @@ done
 if [ $# = 0 ]; then
   echo "Usage: nutch [-core] COMMAND"
   echo "where COMMAND is one of:"
-  echo "  crawl             one-step crawler for intranets"
-  echo "  readdb            read / dump crawl db"
-  echo "  convdb            convert crawl db from pre-0.9 format"
-  echo "  mergedb           merge crawldb-s, with optional filtering"
-  echo "  readlinkdb        read / dump link db"
+#  echo "  crawl             one-step crawler for intranets"
+#  echo "  readdb            read / dump crawl db"
+#  echo "  convdb            convert crawl db from pre-0.9 format"
+#  echo "  mergedb           merge crawldb-s, with optional filtering"
+#  echo "  readlinkdb        read / dump link db"
+  echo "  createtable       create a new webtable in hbase"
   echo "  inject            inject new urls into the database"
   echo "  generate          generate new segments to fetch from crawl db"
-  echo "  freegen           generate new segments to fetch from text files"
-  echo "  fetch             fetch a segment's pages"
-  echo "  parse             parse a segment's pages"
-  echo "  readseg           read / dump segment data"
-  echo "  mergesegs         merge several segments, with optional filtering and slicing"
-  echo "  updatedb          update crawl db from segments after fetching"
-  echo "  invertlinks       create a linkdb from parsed segments"
-  echo "  mergelinkdb       merge linkdb-s, with optional filtering"
+#  echo "  freegen           generate new segments to fetch from text files"
+  echo "  fetch             fetch URLs marked during generate"
+  echo "  parse             parse URLs marked during fetch"
+#  echo "  readseg           read / dump segment data"
+#  echo "  mergesegs         merge several segments, with optional filtering and slicing"
+#  echo "  updatedb          update crawl db from segments after fetching"
+#  echo "  invertlinks       create a linkdb from parsed segments"
+#  echo "  mergelinkdb       merge linkdb-s, with optional filtering"
   echo "  index             run the indexer on parsed segments and linkdb"
   echo "  solrindex         run the solr indexer on parsed segments and linkdb"
   echo "  merge             merge several segment indexes"
@@ -186,7 +187,7 @@ if $cygwin; then
   NUTCH_LOG_DIR=`cygpath -p -w "$NUTCH_LOG_DIR"`
 fi
 
-NUTCH_OPTS="$NUTCH_OPTS -Dhadoop.log.dir=$NUTCH_LOG_DIR"
+NUTCH_OPTS="$NUTCH_OPTS -Dhadoop.log.dir=$NUTCH_LOG_DIR -Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"
 NUTCH_OPTS="$NUTCH_OPTS -Dhadoop.log.file=$NUTCH_LOGFILE"
 
 if [ "x$JAVA_LIBRARY_PATH" != "x" ]; then
@@ -196,39 +197,39 @@ fi
 # figure out which class to run
 if [ "$COMMAND" = "crawl" ] ; then
   CLASS=org.apache.nutch.crawl.Crawl
+elif [ "$COMMAND" = "createtable" ] ; then
+  CLASS=org.apache.nutch.util.hbase.WebTableCreator
 elif [ "$COMMAND" = "inject" ] ; then
   CLASS=org.apache.nutch.crawl.Injector
 elif [ "$COMMAND" = "generate" ] ; then
   CLASS=org.apache.nutch.crawl.Generator
-elif [ "$COMMAND" = "freegen" ] ; then
-  CLASS=org.apache.nutch.tools.FreeGenerator
+#elif [ "$COMMAND" = "freegen" ] ; then
+#  CLASS=org.apache.nutch.tools.FreeGenerator
 elif [ "$COMMAND" = "fetch" ] ; then
   CLASS=org.apache.nutch.fetcher.Fetcher
-elif [ "$COMMAND" = "fetch2" ] ; then
-  CLASS=org.apache.nutch.fetcher.Fetcher2
 elif [ "$COMMAND" = "parse" ] ; then
-  CLASS=org.apache.nutch.parse.ParseSegment
-elif [ "$COMMAND" = "readdb" ] ; then
-  CLASS=org.apache.nutch.crawl.CrawlDbReader
-elif [ "$COMMAND" = "convdb" ] ; then
-  CLASS=org.apache.nutch.tools.compat.CrawlDbConverter
-elif [ "$COMMAND" = "mergedb" ] ; then
-  CLASS=org.apache.nutch.crawl.CrawlDbMerger
-elif [ "$COMMAND" = "readlinkdb" ] ; then
-  CLASS=org.apache.nutch.crawl.LinkDbReader
-elif [ "$COMMAND" = "readseg" ] ; then
-  CLASS=org.apache.nutch.segment.SegmentReader
-elif [ "$COMMAND" = "segread" ] ; then
-  echo "[DEPRECATED] Command 'segread' is deprecated, use 'readseg' instead."
-  CLASS=org.apache.nutch.segment.SegmentReader
-elif [ "$COMMAND" = "mergesegs" ] ; then
-  CLASS=org.apache.nutch.segment.SegmentMerger
-elif [ "$COMMAND" = "updatedb" ] ; then
-  CLASS=org.apache.nutch.crawl.CrawlDb
-elif [ "$COMMAND" = "invertlinks" ] ; then
-  CLASS=org.apache.nutch.crawl.LinkDb
-elif [ "$COMMAND" = "mergelinkdb" ] ; then
-  CLASS=org.apache.nutch.crawl.LinkDbMerger
+  CLASS=org.apache.nutch.parse.TableParser
+#elif [ "$COMMAND" = "readdb" ] ; then
+#  CLASS=org.apache.nutch.crawl.CrawlDbReader
+#elif [ "$COMMAND" = "convdb" ] ; then
+#  CLASS=org.apache.nutch.tools.compat.CrawlDbConverter
+#elif [ "$COMMAND" = "mergedb" ] ; then
+#  CLASS=org.apache.nutch.crawl.CrawlDbMerger
+#elif [ "$COMMAND" = "readlinkdb" ] ; then
+#  CLASS=org.apache.nutch.crawl.LinkDbReader
+#elif [ "$COMMAND" = "readseg" ] ; then
+#  CLASS=org.apache.nutch.segment.SegmentReader
+#elif [ "$COMMAND" = "segread" ] ; then
+#  echo "[DEPRECATED] Command 'segread' is deprecated, use 'readseg' instead."
+#  CLASS=org.apache.nutch.segment.SegmentReader
+#elif [ "$COMMAND" = "mergesegs" ] ; then
+#  CLASS=org.apache.nutch.segment.SegmentMerger
+elif [ "$COMMAND" = "updatetable" ] ; then
+  CLASS=org.apache.nutch.crawl.TableUpdater
+#elif [ "$COMMAND" = "invertlinks" ] ; then
+#  CLASS=org.apache.nutch.crawl.LinkDb
+#elif [ "$COMMAND" = "mergelinkdb" ] ; then
+#  CLASS=org.apache.nutch.crawl.LinkDbMerger
 elif [ "$COMMAND" = "index" ] ; then
   CLASS=org.apache.nutch.indexer.Indexer
 elif [ "$COMMAND" = "solrindex" ] ; then

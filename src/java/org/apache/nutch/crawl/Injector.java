@@ -1,198 +1,223 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package org.apache.nutch.crawl;
 
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 
-// Commons Logging imports
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.apache.hadoop.io.*;
-import org.apache.hadoop.fs.*;
-import org.apache.hadoop.conf.*;
-import org.apache.hadoop.mapred.*;
-import org.apache.hadoop.util.*;
-
-import org.apache.nutch.net.*;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.Scan;
+import org.apache.hadoop.hbase.filter.ValueFilter;
+import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
+import org.apache.hadoop.hbase.mapreduce.IdentityTableReducer;
+import org.apache.hadoop.hbase.mapreduce.TableInputFormat;
+import org.apache.hadoop.hbase.mapreduce.TableMapReduceUtil;
+import org.apache.hadoop.hbase.mapreduce.TableMapper;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.io.LongWritable;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
+import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
+import org.apache.nutch.net.URLFilters;
+import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
+import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.hbase.HbaseColumn;
+import org.apache.nutch.util.hbase.WebTableRow;
+import org.apache.nutch.util.hbase.WebTableColumns;
+import org.apache.nutch.util.hbase.TableUtil;
 
-/** This class takes a flat file of URLs and adds them to the of pages to be
- * crawled.  Useful for bootstrapping the system. */
-public class Injector extends Configured implements Tool {
+public class Injector
+implements Tool {
+
   public static final Log LOG = LogFactory.getLog(Injector.class);
-
-
-  /** Normalize and filter injected urls. */
-  public static class InjectMapper implements Mapper<WritableComparable, Text, Text, CrawlDatum> {
+  
+  private static final String INJECT_KEY_STR = "__injkey__";
+  public static final byte[] INJECT_KEY =
+    Bytes.toBytes(INJECT_KEY_STR);
+  
+  private static final Set<HbaseColumn> COLUMNS = new HashSet<HbaseColumn>();
+  
+  static {
+    COLUMNS.add(new HbaseColumn(WebTableColumns.METADATA, INJECT_KEY));
+    COLUMNS.add(new HbaseColumn(WebTableColumns.STATUS));
+  }
+  
+  private Configuration conf;
+  
+  public static class UrlMapper
+  extends Mapper<LongWritable, Text, Text, Text> {
     private URLNormalizers urlNormalizers;
-    private int interval;
-    private float scoreInjected;
-    private JobConf jobConf;
     private URLFilters filters;
-    private ScoringFilters scfilters;
-    private long curTime;
+    private HTable table;
+    private HBaseConfiguration hbaseConf;
 
-    public void configure(JobConf job) {
-      this.jobConf = job;
-      urlNormalizers = new URLNormalizers(job, URLNormalizers.SCOPE_INJECT);
-      interval = jobConf.getInt("db.fetch.interval.default", 2592000);
-      filters = new URLFilters(jobConf);
-      scfilters = new ScoringFilters(jobConf);
-      scoreInjected = jobConf.getFloat("db.score.injected", 1.0f);
-      curTime = job.getLong("injector.current.time", System.currentTimeMillis());
-    }
-
-    public void close() {}
-
-    public void map(WritableComparable key, Text value,
-                    OutputCollector<Text, CrawlDatum> output, Reporter reporter)
-      throws IOException {
-      String url = value.toString();              // value is line of text
+    @Override
+    public void map(LongWritable key, Text value, Context context) 
+    throws IOException {
+      if (table == null) {
+        throw new IOException("Can not connect to hbase table");
+      }
+      String url = value.toString();
+      String reversedUrl;
       try {
         url = urlNormalizers.normalize(url, URLNormalizers.SCOPE_INJECT);
-        url = filters.filter(url);             // filter the url
+        url = filters.filter(url);
+        if (url == null) {
+          return;
+        }
+        reversedUrl = TableUtil.reverseUrl(url);
       } catch (Exception e) {
-        if (LOG.isWarnEnabled()) { LOG.warn("Skipping " +url+":"+e); }
-        url = null;
+        LOG.warn("Skipping " + url + ":" + e);
+        return;
       }
-      if (url != null) {                          // if it passes
-        value.set(url);                           // collect it
-        CrawlDatum datum = new CrawlDatum(CrawlDatum.STATUS_INJECTED, interval);
-        datum.setFetchTime(curTime);
-        datum.setScore(scoreInjected);
-        try {
-          scfilters.injectedScore(value, datum);
-        } catch (ScoringFilterException e) {
-          if (LOG.isWarnEnabled()) {
-            LOG.warn("Cannot filter injected score for url " + url +
-                     ", using default (" + e.getMessage() + ")");
-          }
-          datum.setScore(scoreInjected);
-        }
-        output.collect(value, datum);
-      }
+
+      Put put = new Put(Bytes.toBytes(reversedUrl));
+      put.add(WebTableColumns.METADATA, INJECT_KEY, TableUtil.YES_VAL);
+
+      table.put(put);
     }
-  }
 
-  /** Combine multiple new entries for a url. */
-  public static class InjectReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatum> {
-    public void configure(JobConf job) {}    
-    public void close() {}
+    @Override
+    public void setup(Context context) {  
+      Configuration conf = context.getConfiguration();
+      urlNormalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_INJECT);
+      filters = new URLFilters(conf);
+      hbaseConf = new HBaseConfiguration();
+      try {
+        table = new HTable(hbaseConf, conf.get("input.table") );
+      } catch (IOException e) {
+        e.printStackTrace(LogUtil.getFatalStream(LOG));
+      }
 
-    private CrawlDatum old = new CrawlDatum();
-    private CrawlDatum injected = new CrawlDatum();
+    }
     
-    public void reduce(Text key, Iterator<CrawlDatum> values,
-                       OutputCollector<Text, CrawlDatum> output, Reporter reporter)
-      throws IOException {
-      boolean oldSet = false;
-      while (values.hasNext()) {
-        CrawlDatum val = values.next();
-        if (val.getStatus() == CrawlDatum.STATUS_INJECTED) {
-          injected.set(val);
-          injected.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
-        } else {
-          old.set(val);
-          oldSet = true;
+    @Override
+    public void cleanup(Context context) throws IOException {
+      table.close();
+    }
+
+  }
+  
+  public static class InjectorMapper
+  extends TableMapper<Text, Text> {
+    private HTable table;
+    private float scoreInjected;
+    private FetchSchedule schedule;
+    private ScoringFilters scoringFilters;
+    
+    @Override
+    public void setup(Context context) throws IOException {
+      Configuration conf = context.getConfiguration();
+      schedule = FetchScheduleFactory.getFetchSchedule(conf);
+      table = new HTable(conf.get(TableInputFormat.INPUT_TABLE));
+      scoreInjected = conf.getFloat("db.score.injected", 1.0f);
+      scoringFilters = new ScoringFilters(conf);
+    }
+    
+    @Override
+    public void map(ImmutableBytesWritable key, Result result, Context context)
+    throws IOException {
+      WebTableRow row = new WebTableRow(result);
+      row.deleteMeta(INJECT_KEY);
+      if (!row.hasColumn(WebTableColumns.STATUS, null)) {
+        String url = TableUtil.unreverseUrl(Bytes.toString(key.get()));
+        // this is a new column so add necessary fields
+        row.setStatus(CrawlDatumHbase.STATUS_UNFETCHED);
+        schedule.initializeSchedule(url, row);
+        try {
+          scoringFilters.injectedScore(url, row);
+        } catch (ScoringFilterException e) {
+          row.setScore(scoreInjected);
         }
       }
-      CrawlDatum res = null;
-      if (oldSet) res = old; // don't overwrite existing value
-      else res = injected;
-
-      output.collect(key, res);
+      row.makeRowMutation().commit(table);
+    }
+    
+    @Override
+    public void cleanup(Context context) throws IOException {
+      table.close();
     }
   }
 
-  public Injector() {}
-  
-  public Injector(Configuration conf) {
-    setConf(conf);
-  }
-  
-  public void inject(Path crawlDb, Path urlDir) throws IOException {
+  public boolean inject(String table, Path urlDir)
+  throws IOException, InterruptedException, ClassNotFoundException {
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Injector: starting");
-      LOG.info("Injector: crawlDb: " + crawlDb);
-      LOG.info("Injector: urlDir: " + urlDir);
+    LOG.info("Injector: starting");
+    LOG.info("Injector: urlDir: " + urlDir);
+
+    getConf().setLong("injector.current.time", System.currentTimeMillis());
+    getConf().set("input.table", table);
+    Job job = new NutchJob(getConf(), "inject-hbase-p1 " + urlDir);
+    FileInputFormat.addInputPath(job, urlDir);
+    job.setMapperClass(UrlMapper.class);
+    TableMapReduceUtil.initTableReducerJob(table,
+        IdentityTableReducer.class, job);
+    job.setOutputFormatClass(NullOutputFormat.class);
+
+    if (!job.waitForCompletion(true)) {
+      LOG.warn("Injecting new users failed!");
+      return false;
     }
+    job = new NutchJob(getConf(), "inject-hbase-p2 " + urlDir);
 
-    Path tempDir =
-      new Path(getConf().get("mapred.temp.dir", ".") +
-               "/inject-temp-"+
-               Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
-
-    // map text input file to a <url,CrawlDatum> file
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Injector: Converting injected urls to crawl db entries.");
+    Scan scan = TableUtil.createScanFromColumns(COLUMNS);
+    scan.setFilter(new ValueFilter(WebTableColumns.METADATA, INJECT_KEY, ValueFilter.CompareOp.EQUAL, TableUtil.YES_VAL, true));
+    TableMapReduceUtil.initTableMapperJob(table,
+        scan, InjectorMapper.class, Text.class, Text.class, job);
+    TableMapReduceUtil.initTableReducerJob(table,
+        IdentityTableReducer.class, job);
+    if (job.waitForCompletion(true)) {
+      LOG.info("Injector: done");
+      return true;
     }
-    JobConf sortJob = new NutchJob(getConf());
-    sortJob.setJobName("inject " + urlDir);
-    FileInputFormat.addInputPath(sortJob, urlDir);
-    sortJob.setMapperClass(InjectMapper.class);
-
-    FileOutputFormat.setOutputPath(sortJob, tempDir);
-    sortJob.setOutputFormat(SequenceFileOutputFormat.class);
-    sortJob.setOutputKeyClass(Text.class);
-    sortJob.setOutputValueClass(CrawlDatum.class);
-    sortJob.setLong("injector.current.time", System.currentTimeMillis());
-    JobClient.runJob(sortJob);
-
-    // merge with existing crawl db
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Injector: Merging injected urls into crawl db.");
-    }
-    JobConf mergeJob = CrawlDb.createJob(getConf(), crawlDb);
-    FileInputFormat.addInputPath(mergeJob, tempDir);
-    mergeJob.setReducerClass(InjectReducer.class);
-    JobClient.runJob(mergeJob);
-    CrawlDb.install(mergeJob, crawlDb);
-
-    // clean up
-    FileSystem fs = FileSystem.get(getConf());
-    fs.delete(tempDir, true);
-    if (LOG.isInfoEnabled()) { LOG.info("Injector: done"); }
-
-  }
-
-  public static void main(String[] args) throws Exception {
-    int res = ToolRunner.run(NutchConfiguration.create(), new Injector(), args);
-    System.exit(res);
+    return false;
   }
   
+
+  @Override
+  public Configuration getConf() {
+    return conf;
+  }
+
+  @Override
+  public void setConf(Configuration conf) {
+    this.conf = conf;
+  }
+
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
-      System.err.println("Usage: Injector <crawldb> <url_dir>");
+      System.err.println("Usage: Injector <webtable> <url_dir>");
       return -1;
     }
     try {
-      inject(new Path(args[0]), new Path(args[1]));
-      return 0;
+      if (inject(args[0], new Path(args[1]))) {
+        return 0;
+      }
+      return -1;
     } catch (Exception e) {
       LOG.fatal("Injector: " + StringUtils.stringifyException(e));
       return -1;
     }
   }
 
+  public static void main(String[] args) throws Exception {
+    int res = ToolRunner.run(NutchConfiguration.create(),
+        new Injector(), args);
+    System.exit(res);
+  }
 }

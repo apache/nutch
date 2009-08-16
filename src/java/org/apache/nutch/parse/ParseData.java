@@ -21,6 +21,7 @@ import java.io.*;
 import java.util.*;
 
 import org.apache.hadoop.io.*;
+import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
 
@@ -197,16 +198,20 @@ public final class ParseData extends VersionedWritable {
     return buffer.toString();
   }
 
-  public static void main(String argv[]) throws Exception {
-    String usage = "ParseData (-local | -dfs <namenode:port>) recno segment";
+  public static void main(String args[]) throws Exception {
+    String usage = "ParseData (-fs <local|namenode:port>) recno segment";
     
-    if (argv.length < 3) {
+    if (args.length < 3) {
       System.out.println("usage:" + usage);
       return;
     }
 
-    Configuration conf = NutchConfiguration.create();
-    FileSystem fs = FileSystem.parseArgs(argv, 0, conf);
+    GenericOptionsParser optParser =
+      new GenericOptionsParser(NutchConfiguration.create(), args);
+    String[] argv = optParser.getRemainingArgs();
+    Configuration conf = optParser.getConfiguration();
+
+    FileSystem fs = FileSystem.get(conf);
     try {
       int recno = Integer.parseInt(argv[0]);
       String segment = argv[1];

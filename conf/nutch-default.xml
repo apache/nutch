@@ -886,8 +886,8 @@
 
 <property>
   <name>plugin.includes</name>
-  <value>protocol-http|urlfilter-regex|parse-(text|html|js)|index-(basic|anchor)|query-(basic|site|url)|response-(json|xml)|summary-basic|scoring-opic|urlnormalizer-(pass|regex|basic)</value>
-  <description>Regular expression naming plugin directory names to
+ <value>protocol-http|urlfilter-regex|parse-(html|js)|index-basic|urlnormalizer-(pass|regex|basic)|scoring-opic|query-(basic|site|url)|summary-basic</value>
+ <description>Regular expression naming plugin directory names to
   include.  Any plugin not matching this expression is excluded.
   In any case you need at least include the nutch-extensionpoints plugin. By
   default Nutch includes crawling just HTML and plain text via HTTP,

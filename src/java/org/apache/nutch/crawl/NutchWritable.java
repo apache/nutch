@@ -41,13 +41,15 @@ public class NutchWritable extends GenericWritableConfigurable {
       org.apache.nutch.parse.Outlink.class,
       org.apache.nutch.parse.ParseText.class,
       org.apache.nutch.parse.ParseData.class,
-      org.apache.nutch.parse.ParseImpl.class,
       org.apache.nutch.parse.ParseStatus.class,
       org.apache.nutch.protocol.Content.class,
       org.apache.nutch.protocol.ProtocolStatus.class,
       org.apache.nutch.searcher.Hit.class,
       org.apache.nutch.searcher.HitDetails.class,
-      org.apache.nutch.searcher.Hits.class
+      org.apache.nutch.searcher.Hits.class,
+      org.apache.nutch.scoring.ScoreDatum.class,
+      org.apache.nutch.util.hbase.WebTableRow.class,
+      org.apache.hadoop.hbase.client.Result.class
     };
   }
 

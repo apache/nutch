@@ -28,11 +28,15 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.hbase.WebTableColumns;
 
 /**
  * One stop shopping for search-related functionality.
@@ -49,8 +53,10 @@ implements SearchBean, SegmentBean, HitInlinks, Closeable {
 //  }
 
   private SearchBean searchBean;
-  private SegmentBean segmentBean;
-  private final HitInlinks linkDb;
+  
+  private HTable table;
+  
+  private SummarizerFactory summarizerFactory;
 
   /** BooleanQuery won't permit more than 32 required/prohibited clauses.  We
    * don't want to use too many of those. */
@@ -92,7 +98,6 @@ implements SearchBean, SegmentBean, HitInlinks, Closeable {
     }
     final Path luceneConfig = new Path(dir, "search-servers.txt");
     final Path solrConfig = new Path(dir, "solr-servers.txt");
-    final Path segmentConfig = new Path(dir, "segment-servers.txt");
 
     if (fs.exists(luceneConfig) || fs.exists(solrConfig)) {
       searchBean = new DistributedSearchBean(conf, luceneConfig, solrConfig);
@@ -101,16 +106,11 @@ implements SearchBean, SegmentBean, HitInlinks, Closeable {
       final Path indexesDir = new Path(dir, "indexes");
       searchBean = new LuceneSearchBean(conf, indexDir, indexesDir);
     }
-
-    if (fs.exists(segmentConfig)) {
-      segmentBean = new DistributedSegmentBean(conf, segmentConfig);
-    } else if (fs.exists(luceneConfig)) {
-      segmentBean = new DistributedSegmentBean(conf, luceneConfig);
-    } else {
-      segmentBean = new FetchedSegments(conf, new Path(dir, "segments"));
-    }
-
-    linkDb = new LinkDbInlinks(fs, new Path(dir, "linkdb"), conf);
+    
+    String tableName = conf.get("table.name", "webtable");
+    table = new HTable(tableName);
+    
+    summarizerFactory = new SummarizerFactory(conf);
   }
 
   public static List<InetSocketAddress> readAddresses(Path path,
@@ -144,10 +144,6 @@ implements SearchBean, SegmentBean, HitInlinks, Closeable {
     } finally {
       reader.close();
     }
-  }
-
-  public String[] getSegmentNames() throws IOException {
-    return segmentBean.getSegmentNames();
   }
 
   public Hits search(Query query, int numHits) throws IOException {
@@ -317,42 +313,56 @@ implements SearchBean, SegmentBean, HitInlinks, Closeable {
   }
 
   public Summary getSummary(HitDetails hit, Query query) throws IOException {
-    return segmentBean.getSummary(hit, query);
+    return summarizerFactory.getSummarizer().getSummary(getText(hit), query);
   }
 
   public Summary[] getSummary(HitDetails[] hits, Query query)
-    throws IOException {
-    return segmentBean.getSummary(hits, query);
+  throws IOException {
+    Summary[] summaries = new Summary[hits.length];
+    for (int i = 0; i < hits.length; i++) {
+      summaries[i] = getSummary(hits[i], query);
+    }
+    return summaries;
+  }
+  
+  private byte[] getRowId(HitDetails hitDetails) {
+    return Bytes.toBytes(hitDetails.getValue("id"));
   }
 
-  public byte[] getContent(HitDetails hit) throws IOException {
-    return segmentBean.getContent(hit);
+  public byte[] getContent(HitDetails hitDetails) throws IOException {
+    Get get = new Get(getRowId(hitDetails));
+    get.addColumn(WebTableColumns.CONTENT, null);
+    return table.get(get).getValue(WebTableColumns.CONTENT, null);
   }
 
   public ParseData getParseData(HitDetails hit) throws IOException {
-    return segmentBean.getParseData(hit);
+    return null; // TODO
   }
 
   public ParseText getParseText(HitDetails hit) throws IOException {
-    return segmentBean.getParseText(hit);
+    return null; // TODO
+  }
+  
+  public String getText(HitDetails hitDetails) throws IOException {
+    Get get = new Get(getRowId(hitDetails));
+    get.addColumn(WebTableColumns.TEXT, null);
+    return Bytes.toString(table.get(get).getValue(WebTableColumns.TEXT, null));
   }
 
   public String[] getAnchors(HitDetails hit) throws IOException {
-    return linkDb.getAnchors(hit);
+    return null; // TODO
   }
 
   public Inlinks getInlinks(HitDetails hit) throws IOException {
-    return linkDb.getInlinks(hit);
+    return null; // TODO
   }
 
   public long getFetchDate(HitDetails hit) throws IOException {
-    return segmentBean.getFetchDate(hit);
+    return -1L; // TODO
   }
 
   public void close() throws IOException {
     if (searchBean != null) { searchBean.close(); }
-    if (segmentBean != null) { segmentBean.close(); }
-    if (linkDb != null) { linkDb.close(); }
     if (fs != null) { fs.close(); }
   }
 
@@ -396,11 +406,6 @@ implements SearchBean, SegmentBean, HitInlinks, Closeable {
        searchBean instanceof RPCSearchBean) {
 
       final RPCSearchBean rpcBean = (RPCSearchBean)searchBean;
-      return rpcBean.getProtocolVersion(className, clientVersion);
-    } else if (RPCSegmentBean.class.getName().equals(className) &&
-               segmentBean instanceof RPCSegmentBean) {
-
-      final RPCSegmentBean rpcBean = (RPCSegmentBean)segmentBean;
       return rpcBean.getProtocolVersion(className, clientVersion);
     } else {
       throw new IOException("Unknown Protocol classname:" + className);

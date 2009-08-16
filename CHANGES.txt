@@ -5,6 +5,8 @@ Unreleased Changes
  1. NUTCH-735 - crawl-tool.xml must be read before nutch-site.xml when
     invoked using crawl command (Susam Pal via dogacan)
 
+ 2. NUTCH-650 - Hbase Integration (dogacan)
+
 Release 1.0 - 2009-03-23
 
  1. NUTCH-474 - Fetcher2 crawlDelay and blocking fix (Dogacan Guney via ab)

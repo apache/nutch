@@ -17,29 +17,48 @@
 
 package org.apache.nutch.parse.html;
 
-import java.util.ArrayList;
-import java.util.Map;
-import java.net.URL;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.charset.Charset;
-import java.io.*;
-import java.util.regex.*;
-
-import org.cyberneko.html.parsers.*;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.w3c.dom.*;
-import org.apache.html.dom.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.html.dom.HTMLDocumentImpl;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
-import org.apache.nutch.protocol.Content;
-import org.apache.hadoop.conf.*;
-import org.apache.nutch.parse.*;
-import org.apache.nutch.util.*;
+import org.apache.nutch.parse.HTMLMetaTags;
+import org.apache.nutch.parse.HtmlParseFilters;
+import org.apache.nutch.parse.Outlink;
+import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseStatus;
+import org.apache.nutch.parse.Parser;
+import org.apache.nutch.util.EncodingDetector;
+import org.apache.nutch.util.LogUtil;
+import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.hbase.HbaseColumn;
+import org.apache.nutch.util.hbase.TableUtil;
+import org.apache.nutch.util.hbase.WebTableRow;
+import org.apache.nutch.util.hbase.WebTableColumns;
+import org.cyberneko.html.parsers.DOMFragmentParser;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.DocumentFragment;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 public class HtmlParser implements Parser {
   public static final Log LOG = LogFactory.getLog("org.apache.nutch.parse.html");
@@ -54,6 +73,12 @@ public class HtmlParser implements Parser {
   private static Pattern charsetPattern =
     Pattern.compile("charset=\\s*([a-z][_\\-0-9a-z]*)",
                     Pattern.CASE_INSENSITIVE);
+  
+  private static Collection<HbaseColumn> COLUMNS = new HashSet<HbaseColumn>();
+  
+  static {
+    COLUMNS.add(new HbaseColumn(WebTableColumns.BASE_URL));
+  }
   
   private String parserImpl;
 
@@ -110,15 +135,16 @@ public class HtmlParser implements Parser {
   private HtmlParseFilters htmlParseFilters;
   
   private String cachingPolicy;
-  
-  public ParseResult getParse(Content content) {
+
+  public Parse getParse(String url, WebTableRow row) {
     HTMLMetaTags metaTags = new HTMLMetaTags();
 
+    String baseUrl = row.getBaseUrl();
     URL base;
     try {
-      base = new URL(content.getBaseUrl());
+      base = new URL(baseUrl);
     } catch (MalformedURLException e) {
-      return new ParseStatus(e).getEmptyParseResult(content.getUrl(), getConf());
+      return new ParseStatus(e).getEmptyParseHbase(getConf());
     }
 
     String text = "";
@@ -129,13 +155,13 @@ public class HtmlParser implements Parser {
     // parse the content
     DocumentFragment root;
     try {
-      byte[] contentInOctets = content.getContent();
+      byte[] contentInOctets = row.getContent();
       InputSource input = new InputSource(new ByteArrayInputStream(contentInOctets));
 
       EncodingDetector detector = new EncodingDetector(conf);
-      detector.autoDetectClues(content, true);
+      detector.autoDetectClues(row, true);
       detector.addClue(sniffCharacterEncoding(contentInOctets), "sniffed");
-      String encoding = detector.guessEncoding(content, defaultCharEncoding);
+      String encoding = detector.guessEncoding(row, defaultCharEncoding);
 
       metadata.set(Metadata.ORIGINAL_CHAR_ENCODING, encoding);
       metadata.set(Metadata.CHAR_ENCODING_FOR_CONVERSION, encoding);
@@ -144,14 +170,14 @@ public class HtmlParser implements Parser {
       if (LOG.isTraceEnabled()) { LOG.trace("Parsing..."); }
       root = parse(input);
     } catch (IOException e) {
-      return new ParseStatus(e).getEmptyParseResult(content.getUrl(), getConf());
+      return new ParseStatus(e).getEmptyParseHbase(getConf());
     } catch (DOMException e) {
-      return new ParseStatus(e).getEmptyParseResult(content.getUrl(), getConf());
+      return new ParseStatus(e).getEmptyParseHbase(getConf());
     } catch (SAXException e) {
-      return new ParseStatus(e).getEmptyParseResult(content.getUrl(), getConf());
+      return new ParseStatus(e).getEmptyParseHbase(getConf());
     } catch (Exception e) {
       e.printStackTrace(LogUtil.getWarnStream(LOG));
-      return new ParseStatus(e).getEmptyParseResult(content.getUrl(), getConf());
+      return new ParseStatus(e).getEmptyParseHbase(getConf());
     }
       
     // get meta directives
@@ -161,7 +187,7 @@ public class HtmlParser implements Parser {
     }
     // check meta directives
     if (!metaTags.getNoIndex()) {               // okay to index
-      StringBuffer sb = new StringBuffer();
+      StringBuilder sb = new StringBuilder();
       if (LOG.isTraceEnabled()) { LOG.trace("Getting text..."); }
       utils.getText(sb, root);          // extract text
       text = sb.toString();
@@ -178,7 +204,7 @@ public class HtmlParser implements Parser {
       utils.getOutlinks(baseTag!=null?baseTag:base, l, root);
       outlinks = l.toArray(new Outlink[l.size()]);
       if (LOG.isTraceEnabled()) {
-        LOG.trace("found "+outlinks.length+" outlinks in "+content.getUrl());
+        LOG.trace("found "+outlinks.length+" outlinks in "+ url);
       }
     }
     
@@ -188,20 +214,15 @@ public class HtmlParser implements Parser {
       status.setArgs(new String[] {metaTags.getRefreshHref().toString(),
         Integer.toString(metaTags.getRefreshTime())});      
     }
-    ParseData parseData = new ParseData(status, title, outlinks,
-                                        content.getMetadata(), metadata);
-    ParseResult parseResult = ParseResult.createParseResult(content.getUrl(), 
-                                                 new ParseImpl(text, parseData));
-
-    // run filters on parse
-    ParseResult filteredParse = this.htmlParseFilters.filter(content, parseResult, 
-                                                             metaTags, root);
+    
+    Parse parse = new Parse(text, title, outlinks, status);
+    parse = htmlParseFilters.filter(url, row, parse, metaTags, root);
+    
     if (metaTags.getNoCache()) {             // not okay to cache
-      for (Map.Entry<org.apache.hadoop.io.Text, Parse> entry : filteredParse) 
-        entry.getValue().getData().getParseMeta().set(Nutch.CACHING_FORBIDDEN_KEY, 
-                                                      cachingPolicy);
+      row.putMeta(Nutch.CACHING_FORBIDDEN_KEY, Bytes.toBytes(cachingPolicy));
     }
-    return filteredParse;
+    
+    return parse;
   }
 
   private DocumentFragment parse(InputSource input) throws Exception {
@@ -260,25 +281,6 @@ public class HtmlParser implements Parser {
     } catch (Exception x) { x.printStackTrace(LogUtil.getWarnStream(LOG));};
     return res;
   }
-  
-  public static void main(String[] args) throws Exception {
-    //LOG.setLevel(Level.FINE);
-    String name = args[0];
-    String url = "file:"+name;
-    File file = new File(name);
-    byte[] bytes = new byte[(int)file.length()];
-    DataInputStream in = new DataInputStream(new FileInputStream(file));
-    in.readFully(bytes);
-    Configuration conf = NutchConfiguration.create();
-    HtmlParser parser = new HtmlParser();
-    parser.setConf(conf);
-    Parse parse = parser.getParse(
-            new Content(url, url, bytes, "text/html", new Metadata(), conf)).get(url);
-    System.out.println("data: "+parse.getData());
-
-    System.out.println("text: "+parse.getText());
-    
-  }
 
   public void setConf(Configuration conf) {
     this.conf = conf;
@@ -294,4 +296,31 @@ public class HtmlParser implements Parser {
   public Configuration getConf() {
     return this.conf;
   }
+
+  public Collection<HbaseColumn> getColumns() {
+    return COLUMNS;
+  }
+  
+  public static void main(String[] args) throws Exception {
+    //LOG.setLevel(Level.FINE);
+    String name = args[0];
+    String url = "file:"+name;
+    File file = new File(name);
+    byte[] bytes = new byte[(int)file.length()];
+    DataInputStream in = new DataInputStream(new FileInputStream(file));
+    in.readFully(bytes);
+    Configuration conf = NutchConfiguration.create();
+    HtmlParser parser = new HtmlParser();
+    parser.setConf(conf);
+    WebTableRow row = new WebTableRow(Bytes.toBytes(TableUtil.reverseUrl(url)));
+    row.setBaseUrl(url);
+    row.setContent(bytes);
+    row.setContentType("text/html");
+    Parse parse = parser.getParse(url, row);
+    System.out.println("title: "+parse.getTitle());
+    System.out.println("text: "+parse.getText());
+    System.out.println("outlinks: " + Arrays.toString(parse.getOutlinks()));
+    
+  }
+
 }

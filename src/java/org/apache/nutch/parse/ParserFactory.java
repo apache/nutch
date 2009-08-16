@@ -18,10 +18,10 @@ package org.apache.nutch.parse;
 
 // JDK imports
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Vector;
+import java.util.Set;
 
 // Commons Logging imports
 import org.apache.commons.logging.Log;
@@ -31,6 +31,9 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 
 // Nutch imports
+import org.apache.nutch.parse.ParsePluginList;
+import org.apache.nutch.parse.ParsePluginsReader;
+import org.apache.nutch.parse.ParserNotFound;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRuntimeException;
@@ -38,6 +41,7 @@ import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.ObjectCache;
+import org.apache.nutch.util.hbase.HbaseColumn;
 
 
 /** Creates and caches {@link Parser} plugins.*/
@@ -49,7 +53,8 @@ public final class ParserFactory {
   public static final String DEFAULT_PLUGIN = "*";
   
   /** Empty extension list for caching purposes. */
-  private final List EMPTY_EXTENSION_LIST = Collections.EMPTY_LIST;
+  private final List<Extension> EMPTY_EXTENSION_LIST =
+    new ArrayList<Extension>();
   
   private Configuration conf;
   private ExtensionPoint extensionPoint;
@@ -121,9 +126,8 @@ public final class ParserFactory {
       throw new ParserNotFound(url, contentType);
     }
 
-    parsers = new Vector<Parser>(parserExts.size());
-    for (Iterator i=parserExts.iterator(); i.hasNext(); ){
-      Extension ext = (Extension) i.next();
+    parsers = new ArrayList<Parser>(parserExts.size());
+    for (Extension ext : parserExts){
       Parser p = null;
       try {
         //check to see if we've cached this parser instance yet
@@ -207,6 +211,20 @@ public final class ParserFactory {
     }
   }
   
+  public Collection<HbaseColumn> getColumns() {
+    Set<HbaseColumn> columns = new HashSet<HbaseColumn>();
+    Extension[] extensions = this.extensionPoint.getExtensions();
+    for (Extension ext : extensions) {
+      try {
+        Parser parser = (Parser) ext.getExtensionInstance();
+        columns.addAll(parser.getColumns());
+      } catch (PluginRuntimeException e) {
+        // ignore
+      }
+    }
+    return columns;
+  }
+  
   /**
    * Finds the best-suited parse plugin for a given contentType.
    * 
@@ -214,13 +232,13 @@ public final class ParserFactory {
    * @return a list of extensions to be used for this contentType.
    *         If none, returns <code>null</code>.
    */
+  @SuppressWarnings("unchecked")
   protected List<Extension> getExtensions(String contentType) {
     
     ObjectCache objectCache = ObjectCache.get(conf);
     // First of all, tries to clean the content-type
     String type = null;
     type = MimeUtil.cleanMimeType(contentType);
-
 
     List<Extension> extensions = (List<Extension>) objectCache.getObject(type);
 

@@ -35,6 +35,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.UTF8;
 import org.apache.hadoop.io.VersionMismatchException;
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.util.GenericOptionsParser;
 
 //Nutch imports
 import org.apache.nutch.metadata.Metadata;
@@ -83,6 +84,27 @@ public final class Content implements Writable{
     this.metadata = metadata;
 
     this.mimeTypes = new MimeUtil(conf);
+    this.contentType = getContentType(contentType, url, content);
+  }
+  
+  public Content(String url, String base, byte[] content, String contentType,
+      Metadata metadata, MimeUtil mimeTypes) {
+
+    if (url == null)
+      throw new IllegalArgumentException("null url");
+    if (base == null)
+      throw new IllegalArgumentException("null base");
+    if (content == null)
+      throw new IllegalArgumentException("null content");
+    if (metadata == null)
+      throw new IllegalArgumentException("null metadata");
+
+    this.url = url;
+    this.base = base;
+    this.content = content;
+    this.metadata = metadata;
+
+    this.mimeTypes = mimeTypes;
     this.contentType = getContentType(contentType, url, content);
   }
 
@@ -247,16 +269,21 @@ public final class Content implements Writable{
 
   }
 
-  public static void main(String argv[]) throws Exception {
+  public static void main(String args[]) throws Exception {
 
     String usage = "Content (-local | -dfs <namenode:port>) recno segment";
 
-    if (argv.length < 3) {
+    if (args.length < 3) {
       System.out.println("usage:" + usage);
       return;
     }
-    Configuration conf = NutchConfiguration.create();
-    FileSystem fs = FileSystem.parseArgs(argv, 0, conf);
+    
+    GenericOptionsParser optParser =
+      new GenericOptionsParser(NutchConfiguration.create(), args);
+    String[] argv = optParser.getRemainingArgs();
+    Configuration conf = optParser.getConfiguration();
+
+    FileSystem fs = FileSystem.get(conf);
     try {
       int recno = Integer.parseInt(argv[0]);
       String segment = argv[1];

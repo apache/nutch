@@ -19,27 +19,31 @@ package org.apache.nutch.protocol.http;
 // JDK imports
 import java.io.IOException;
 import java.net.URL;
+import java.util.Collection;
+import java.util.HashSet;
 
-// Commons Logging imports
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
-
-// Nutch imports
-import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.http.api.HttpBase;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.hbase.HbaseColumn;
+import org.apache.nutch.util.hbase.WebTableColumns;
+import org.apache.nutch.util.hbase.WebTableRow;
 
 
 public class Http extends HttpBase {
 
   public static final Log LOG = LogFactory.getLog(Http.class);
 
-
+  private static final Collection<HbaseColumn> COLUMNS = new HashSet<HbaseColumn>();
+  
+  static {
+    COLUMNS.add(new HbaseColumn(WebTableColumns.MODIFIED_TIME));
+  }
+  
   public Http() {
     super(LOG);
   }
@@ -59,9 +63,14 @@ public class Http extends HttpBase {
     main(http, args);
   }
 
-  protected Response getResponse(URL url, CrawlDatum datum, boolean redirect)
+  @Override
+  protected Response getResponse(URL url, WebTableRow row, boolean redirect)
     throws ProtocolException, IOException {
-    return new HttpResponse(this, url, datum);
+    return new HttpResponse(this, url, row);
+  }
+  
+  public Collection<HbaseColumn> getColumns() {
+    return COLUMNS;
   }
 
 }

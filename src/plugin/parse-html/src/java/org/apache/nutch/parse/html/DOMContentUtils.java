@@ -22,7 +22,6 @@ import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Stack;
 
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.util.NodeWalker;
@@ -55,8 +54,7 @@ public class DOMContentUtils {
       }
   }
   
-  private HashMap linkParams = new HashMap();
-  private Configuration conf;
+  private HashMap<String, LinkParams> linkParams = new HashMap<String, LinkParams>();
   
   public DOMContentUtils(Configuration conf) {
     setConf(conf);
@@ -66,7 +64,6 @@ public class DOMContentUtils {
     // forceTags is used to override configurable tag ignoring, later on
     Collection<String> forceTags = new ArrayList<String>(1);
 
-    this.conf = conf;
     linkParams.clear();
     linkParams.put("a", new LinkParams("a", "href", 1));
     linkParams.put("area", new LinkParams("area", "href", 0));
@@ -90,9 +87,9 @@ public class DOMContentUtils {
   }
   
   /**
-   * This method takes a {@link StringBuffer} and a DOM {@link Node},
+   * This method takes a {@link StringBuilder} and a DOM {@link Node},
    * and will append all the content text found beneath the DOM node to 
-   * the <code>StringBuffer</code>.
+   * the <code>StringBuilder</code>.
    *
    * <p>
    *
@@ -104,7 +101,7 @@ public class DOMContentUtils {
    *
    * @return true if nested anchors were found
    */
-  public boolean getText(StringBuffer sb, Node node, 
+  public boolean getText(StringBuilder sb, Node node, 
                                       boolean abortOnNestedAnchors) {
     if (getTextHelper(sb, node, abortOnNestedAnchors, 0)) {
       return true;
@@ -118,13 +115,13 @@ public class DOMContentUtils {
    * #getText(StringBuffer,Node,boolean) getText(sb, node, false)}.
    * 
    */
-  public void getText(StringBuffer sb, Node node) {
+  public void getText(StringBuilder sb, Node node) {
     getText(sb, node, false);
   }
 
   // returns true if abortOnNestedAnchors is true and we find nested 
   // anchors
-  private boolean getTextHelper(StringBuffer sb, Node node, 
+  private boolean getTextHelper(StringBuilder sb, Node node, 
                                              boolean abortOnNestedAnchors,
                                              int anchorDepth) {
     boolean abort = false;
@@ -174,7 +171,7 @@ public class DOMContentUtils {
    *
    * @return true if a title node was found, false otherwise
    */
-  public boolean getTitle(StringBuffer sb, Node node) {
+  public boolean getTitle(StringBuilder sb, Node node) {
     
     NodeWalker walker = new NodeWalker(node);
     
@@ -358,7 +355,7 @@ public class DOMContentUtils {
    * nodes (this is a common DOM-fixup artifact, at least with
    * nekohtml).
    */
-  public void getOutlinks(URL base, ArrayList outlinks, 
+  public void getOutlinks(URL base, ArrayList<Outlink> outlinks, 
                                        Node node) {
     
     NodeWalker walker = new NodeWalker(node);
@@ -373,11 +370,11 @@ public class DOMContentUtils {
       if (nodeType == Node.ELEMENT_NODE) {
         
         nodeName = nodeName.toLowerCase();
-        LinkParams params = (LinkParams)linkParams.get(nodeName);
+        LinkParams params = linkParams.get(nodeName);
         if (params != null) {
           if (!shouldThrowAwayLink(currentNode, children, childLen, params)) {
   
-            StringBuffer linkText = new StringBuffer();
+            StringBuilder linkText = new StringBuilder();
             getText(linkText, currentNode, true);
   
             NamedNodeMap attrs = currentNode.getAttributes();

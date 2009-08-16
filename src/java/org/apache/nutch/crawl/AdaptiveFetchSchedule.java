@@ -18,9 +18,8 @@
 package org.apache.nutch.crawl;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Text;
-import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.crawl.FetchSchedule;
+import org.apache.nutch.util.hbase.WebTableRow;
 
 /**
  * This class implements an adaptive re-fetch algorithm. This works as follows:
@@ -63,7 +62,7 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
   
   private boolean SYNC_DELTA;
 
-  private double SYNC_DELTA_RATE;
+  private float SYNC_DELTA_RATE;
   
   public void setConf(Configuration conf) {
     super.setConf(conf);
@@ -71,20 +70,22 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
     INC_RATE = conf.getFloat("db.fetch.schedule.adaptive.inc_rate", 0.2f);
     DEC_RATE = conf.getFloat("db.fetch.schedule.adaptive.dec_rate", 0.2f);
     MIN_INTERVAL = conf.getInt("db.fetch.schedule.adaptive.min_interval", 60);
-    MAX_INTERVAL = conf.getInt("db.fetch.schedule.adaptive.max_interval", SECONDS_PER_DAY * 365 ); // 1 year
+    MAX_INTERVAL =
+      conf.getInt("db.fetch.schedule.adaptive.max_interval",
+                  FetchSchedule.SECONDS_PER_DAY * 365 ); // 1 year
     SYNC_DELTA = conf.getBoolean("db.fetch.schedule.adaptive.sync_delta", true);
     SYNC_DELTA_RATE = conf.getFloat("db.fetch.schedule.adaptive.sync_delta_rate", 0.2f);
   }
 
   @Override
-  public CrawlDatum setFetchSchedule(Text url, CrawlDatum datum,
+  public void setFetchSchedule(String url, WebTableRow row,
           long prevFetchTime, long prevModifiedTime,
           long fetchTime, long modifiedTime, int state) {
-    super.setFetchSchedule(url, datum, prevFetchTime, prevModifiedTime,
+    super.setFetchSchedule(url, row, prevFetchTime, prevModifiedTime,
         fetchTime, modifiedTime, state);
     long refTime = fetchTime;
     if (modifiedTime <= 0) modifiedTime = fetchTime;
-    float interval = datum.getFetchInterval();
+    int interval = row.getFetchInterval();
     switch (state) {
       case FetchSchedule.STATUS_MODIFIED:
         interval *= (1.0f - DEC_RATE);
@@ -95,69 +96,19 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
       case FetchSchedule.STATUS_UNKNOWN:
         break;
     }
+    row.setFetchInterval(interval);
     if (SYNC_DELTA) {
       // try to synchronize with the time of change
-      long delta = (fetchTime - modifiedTime) / 1000L;
+      // TODO: different from normal class (is delta in seconds)? 
+      int delta = (int) ((fetchTime - modifiedTime) / 1000L) ;
       if (delta > interval) interval = delta;
-      refTime = fetchTime - Math.round(delta * SYNC_DELTA_RATE * 1000);
+      refTime = fetchTime - Math.round(delta * SYNC_DELTA_RATE);
     }
-    if (interval < MIN_INTERVAL) {
-      interval = MIN_INTERVAL;
-    } else if (interval > MAX_INTERVAL) {
-      interval = MAX_INTERVAL;
-    }
-    datum.setFetchInterval(interval);
-    datum.setFetchTime(refTime + Math.round(interval * 1000.0));
-    datum.setModifiedTime(modifiedTime);
-    return datum;
+    if (interval < MIN_INTERVAL) interval = MIN_INTERVAL;
+    if (interval > MAX_INTERVAL) interval = MAX_INTERVAL;
+    row.setFetchTime(refTime + interval * 1000L);
+    row.setModifiedTime(modifiedTime);
   }
 
-  public static void main(String[] args) throws Exception {
-    FetchSchedule fs = new AdaptiveFetchSchedule();
-    fs.setConf(NutchConfiguration.create());
-    // we start the time at 0, for simplicity
-    long curTime = 0;
-    long delta = 1000L * 3600L * 24L; // 2 hours
-    // we trigger the update of the page every 30 days
-    long update = 1000L * 3600L * 24L * 30L; // 30 days
-    boolean changed = true;
-    long lastModified = 0;
-    int miss = 0;
-    int totalMiss = 0;
-    int maxMiss = 0;
-    int fetchCnt = 0;
-    int changeCnt = 0;
-    // initial fetchInterval is 10 days
-    CrawlDatum p = new CrawlDatum(1, 3600 * 24 * 30, 1.0f);
-    p.setFetchTime(0);
-    System.out.println(p);
-    // let's move the timeline a couple of deltas
-    for (int i = 0; i < 10000; i++) {
-      if (lastModified + update < curTime) {
-        //System.out.println("i=" + i + ", lastModified=" + lastModified + ", update=" + update + ", curTime=" + curTime);
-        changed = true;
-        changeCnt++;
-        lastModified = curTime;
-      }
-      System.out.println(i + ". " + changed + "\twill fetch at " + (p.getFetchTime() / delta) + "\tinterval "
-              + (p.getFetchInterval() / SECONDS_PER_DAY ) + " days" + "\t missed " + miss);
-      if (p.getFetchTime() <= curTime) {
-        fetchCnt++;
-        fs.setFetchSchedule(new Text("http://www.example.com"), p,
-                p.getFetchTime(), p.getModifiedTime(), curTime, lastModified,
-                changed ? FetchSchedule.STATUS_MODIFIED : FetchSchedule.STATUS_NOTMODIFIED);
-        System.out.println("\tfetched & adjusted: " + "\twill fetch at " + (p.getFetchTime() / delta) + "\tinterval "
-                + (p.getFetchInterval() / SECONDS_PER_DAY ) + " days");
-        if (!changed) miss++;
-        if (miss > maxMiss) maxMiss = miss;
-        changed = false;
-        totalMiss += miss;
-        miss = 0;
-      }
-      if (changed) miss++;
-      curTime += delta;
-    }
-    System.out.println("Total missed: " + totalMiss + ", max miss: " + maxMiss);
-    System.out.println("Page changed " + changeCnt + " times, fetched " + fetchCnt + " times.");
-  }
+
 }

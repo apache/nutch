@@ -30,8 +30,6 @@ import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableUtils;
 import org.apache.hadoop.conf.Configuration;
 
-import org.apache.nutch.metadata.Metadata;
-
 
 /**
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
@@ -201,12 +199,19 @@ public class ParseStatus implements Writable {
     return new EmptyParseImpl(this, conf);
   }
   
+  /** A convenience method. Creates an empty ParseHbase instance,
+   * which returns this status.
+   */
+  public Parse getEmptyParseHbase(Configuration conf) {
+    return new Parse("", "", new Outlink[0], this);
+  }
+  
   /** A convenience method. Creates an empty ParseResult,
    * which contains this status.
    */
-  public ParseResult getEmptyParseResult(String url, Configuration conf) {
-    return ParseResult.createParseResult(url, getEmptyParse(conf));
-  }
+  //public ParseResult getEmptyParseResult(String url, Configuration conf) {
+   // return ParseResult.createParseResult(url, getEmptyParse(conf));
+  //}
   
   public String toString() {
     StringBuffer res = new StringBuffer();
@@ -267,25 +272,10 @@ public class ParseStatus implements Writable {
     return true;
   }
   
-  private static class EmptyParseImpl implements Parse {
+  private static class EmptyParseImpl extends Parse {
     
-    private ParseData data = null;
-    
-    public EmptyParseImpl(ParseStatus status, Configuration conf) {
-      data = new ParseData(status, "", new Outlink[0],
-                           new Metadata(), new Metadata());
-    }
-    
-    public ParseData getData() {
-      return data;
-    }
-
-    public String getText() {
-      return "";
-    }
-    
-    public boolean isCanonical() {
-      return true;
+    public EmptyParseImpl(ParseStatus parseStatus, Configuration conf) {
+      super("", "", new Outlink[0], parseStatus);
     }
   }
 }

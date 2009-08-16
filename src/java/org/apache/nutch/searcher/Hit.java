@@ -89,6 +89,44 @@ public class Hit implements Writable, Comparable<Hit> {
     }
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result
+        + ((dedupValue == null) ? 0 : dedupValue.hashCode());
+    result = prime * result + indexNo;
+    result = prime * result + (moreFromDupExcluded ? 1231 : 1237);
+    result = prime * result + ((sortValue == null) ? 0 : sortValue.hashCode());
+    result = prime * result + uniqueKey.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    Hit other = (Hit) obj;
+    if (!uniqueKey.equals(other.uniqueKey))
+      return false;
+    if (dedupValue == null) {
+      if (other.dedupValue != null)
+        return false;
+    } else if (!dedupValue.equals(other.dedupValue))
+      return false;
+    if (indexNo != other.indexNo)
+      return false;
+    if (moreFromDupExcluded != other.moreFromDupExcluded)
+      return false;
+    if (sortValue == null) {
+      if (other.sortValue != null)
+        return false;
+    } else if (!sortValue.equals(other.sortValue))
+      return false;
+    return true;
+  }
+
+
   public void write(DataOutput out) throws IOException {
     Text.writeString(out, uniqueKey);
   }

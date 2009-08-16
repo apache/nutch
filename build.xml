@@ -99,6 +99,7 @@
      encoding="${build.encoding}" 
      srcdir="${src.dir}"
      includes="org/apache/nutch/**/*.java"
+     excludes="org/apache/nutch/scoring/webgraph/**/*.java,org/apache/nutch/tools/compat/**/*.java,org/apache/nutch/tools/arc/**/*.java,org/apache/nutch/indexer/field/**/*.java"
      destdir="${build.classes}"
      debug="${javac.debug}"
      optimize="${javac.optimize}"
@@ -181,6 +182,8 @@
         <include name="lucene*.jar"/>
         <include name="taglibs-*.jar"/>
         <include name="hadoop-*.jar"/>
+        <include name="hbase-*.jar"/>
+        <include name="zookeeper-*.jar"/>
         <include name="dom4j-*.jar"/>
         <include name="xerces-*.jar"/>
         <include name="tika-*.jar"/>
@@ -215,7 +218,8 @@
     <javac 
      encoding="${build.encoding}" 
      srcdir="${test.src.dir}"
-     includes="org/apache/nutch/**/*.java"
+     includes="org/apache/nutch*/**/*.java"
+     excludes="org/apache/nutch/scoring/webgraph/**/*.java,org/apache/nutch/tools/compat/**/*.java,org/apache/nutch/tools/arc/**/*.java"
      destdir="${test.build.classes}"
      debug="${javac.debug}"
      optimize="${javac.optimize}"

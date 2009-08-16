@@ -29,7 +29,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 // Nutch imports
-import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
@@ -38,12 +37,14 @@ import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.protocol.RobotRules;
 import org.apache.nutch.util.GZIPUtils;
-import org.apache.nutch.util.DeflateUtils;
 import org.apache.nutch.util.LogUtil;
+import org.apache.nutch.util.MimeUtil;
+import org.apache.nutch.util.hbase.TableUtil;
+import org.apache.nutch.util.hbase.WebTableRow;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Text;
+import org.apache.hadoop.hbase.util.Bytes;
 
 /**
  * @author J&eacute;r&ocirc;me Charron
@@ -100,18 +101,20 @@ public abstract class HttpBase implements Protocol {
    * a request finishes.  This way only one thread at a time accesses a
    * host.
    */
-  private static HashMap BLOCKED_ADDR_TO_TIME = new HashMap();
+  private static HashMap<String, Long> BLOCKED_ADDR_TO_TIME =
+    new HashMap<String, Long>();
   
   /**
    * Maps a host to the number of threads accessing that host.
    */
-  private static HashMap THREADS_PER_HOST_COUNT = new HashMap();
+  private static HashMap<String, Integer> THREADS_PER_HOST_COUNT =
+    new HashMap<String, Integer>();
   
   /**
    * Queue of blocked hosts.  This contains all of the non-zero entries
    * from BLOCKED_ADDR_TO_TIME, ordered by increasing time.
    */
-  private static LinkedList BLOCKED_ADDR_QUEUE = new LinkedList();
+  private static LinkedList<String> BLOCKED_ADDR_QUEUE = new LinkedList<String>();
   
   /** The default logger */
   private final static Log LOGGER = LogFactory.getLog(HttpBase.class);
@@ -124,6 +127,8 @@ public abstract class HttpBase implements Protocol {
   
   /** Do we block by IP addresses or by hostnames? */
   private boolean byIP = true;
+  
+  private MimeUtil mimeTypes;
  
   /** Do we use HTTP/1.1? */
   protected boolean useHttp11 = false;
@@ -166,6 +171,7 @@ public abstract class HttpBase implements Protocol {
         this.maxCrawlDelay = (long)(conf.getInt("fetcher.max.crawl.delay", -1) * 1000);
         // backward-compatible default setting
         this.byIP = conf.getBoolean("fetcher.threads.per.host.by.ip", true);
+        this.mimeTypes = new MimeUtil(conf);
         this.useHttp11 = conf.getBoolean("http.useHttp11", false);
         this.robots.setConf(conf);
         this.checkBlocking = conf.getBoolean(Protocol.CHECK_BLOCKING, true);
@@ -180,11 +186,10 @@ public abstract class HttpBase implements Protocol {
    
   
   
-  public ProtocolOutput getProtocolOutput(Text url, CrawlDatum datum) {
+  public ProtocolOutput getProtocolOutput(String url, WebTableRow row) {
     
-    String urlString = url.toString();
     try {
-      URL u = new URL(urlString);
+      URL u = new URL(url);
       
       if (checkRobots) {
         try {
@@ -217,7 +222,7 @@ public abstract class HttpBase implements Protocol {
       }
       Response response;
       try {
-        response = getResponse(u, datum, false); // make a request
+        response = getResponse(u, row, false); // make a request
       } finally {
         if (checkBlocking) unblockAddr(host, delay);
       }
@@ -227,7 +232,7 @@ public abstract class HttpBase implements Protocol {
       Content c = new Content(u.toString(), u.toString(),
                               (content == null ? EMPTY_CONTENT : content),
                               response.getHeader("Content-Type"),
-                              response.getHeaders(), this.conf);
+                              response.getHeaders(), mimeTypes);
       
       if (code == 200) { // got a good response
         return new ProtocolOutput(c); // return it
@@ -269,7 +274,7 @@ public abstract class HttpBase implements Protocol {
       } else if (code == 401) { // requires authorization, but no valid auth provided.
         if (logger.isTraceEnabled()) { logger.trace("401 Authentication Required"); }
         return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.ACCESS_DENIED, "Authentication required: "
-                + urlString));
+                + url));
       } else if (code == 404) {
         return new ProtocolOutput(c, new ProtocolStatus(ProtocolStatus.NOTFOUND, u));
       } else if (code == 410) { // permanently GONE
@@ -353,11 +358,11 @@ public abstract class HttpBase implements Protocol {
       
       Long time;
       synchronized (BLOCKED_ADDR_TO_TIME) {
-        time = (Long) BLOCKED_ADDR_TO_TIME.get(host);
+        time = BLOCKED_ADDR_TO_TIME.get(host);
         if (time == null) {                       // address is free
           
           // get # of threads already accessing this addr
-          Integer counter = (Integer)THREADS_PER_HOST_COUNT.get(host);
+          Integer counter = THREADS_PER_HOST_COUNT.get(host);
           int count = (counter == null) ? 0 : counter.intValue();
           
           count++;                              // increment & store
@@ -392,7 +397,7 @@ public abstract class HttpBase implements Protocol {
   
   private void unblockAddr(String host, long crawlDelay) {
     synchronized (BLOCKED_ADDR_TO_TIME) {
-      int addrCount = ((Integer)THREADS_PER_HOST_COUNT.get(host)).intValue();
+      int addrCount = THREADS_PER_HOST_COUNT.get(host).intValue();
       if (addrCount == 1) {
         THREADS_PER_HOST_COUNT.remove(host);
         BLOCKED_ADDR_QUEUE.addFirst(host);
@@ -407,8 +412,8 @@ public abstract class HttpBase implements Protocol {
   private static void cleanExpiredServerBlocks() {
     synchronized (BLOCKED_ADDR_TO_TIME) {
       for (int i = BLOCKED_ADDR_QUEUE.size() - 1; i >= 0; i--) {
-        String host = (String) BLOCKED_ADDR_QUEUE.get(i);
-        long time = ((Long) BLOCKED_ADDR_TO_TIME.get(host)).longValue();
+        String host = BLOCKED_ADDR_QUEUE.get(i);
+        long time = BLOCKED_ADDR_TO_TIME.get(host).longValue();
         if (time <= System.currentTimeMillis()) {
           BLOCKED_ADDR_TO_TIME.remove(host);
           BLOCKED_ADDR_QUEUE.remove(i);
@@ -499,25 +504,9 @@ public abstract class HttpBase implements Protocol {
     }
     return content;
   }
-
-  public byte[] processDeflateEncoded(byte[] compressed, URL url) throws IOException {
-
-    if (LOGGER.isTraceEnabled()) { LOGGER.trace("inflating...."); }
-
-    byte[] content = DeflateUtils.inflateBestEffort(compressed, getMaxContent());
-
-    if (content == null)
-      throw new IOException("inflateBestEffort returned null");
-
-    if (LOGGER.isTraceEnabled()) {
-      LOGGER.trace("fetched " + compressed.length
-                 + " bytes of compressed content (expanded to "
-                 + content.length + " bytes) from " + url);
-    }
-    return content;
-  }
-
+  
   protected static void main(HttpBase http, String[] args) throws Exception {
+    @SuppressWarnings("unused")
     boolean verbose = false;
     String url = null;
     
@@ -544,7 +533,7 @@ public abstract class HttpBase implements Protocol {
 //      LOGGER.setLevel(Level.FINE);
 //    }
     
-    ProtocolOutput out = http.getProtocolOutput(new Text(url), new CrawlDatum());
+    ProtocolOutput out = http.getProtocolOutput(url, new WebTableRow(Bytes.toBytes(TableUtil.reverseUrl(url))));
     Content content = out.getContent();
     
     System.out.println("Status: " + out.getStatus());
@@ -561,11 +550,12 @@ public abstract class HttpBase implements Protocol {
   
   
   protected abstract Response getResponse(URL url,
-                                          CrawlDatum datum,
+                                          WebTableRow row,
                                           boolean followRedirects)
     throws ProtocolException, IOException;
 
-  public RobotRules getRobotRules(Text url, CrawlDatum datum) {
+  @Override
+  public RobotRules getRobotRules(String url, WebTableRow row) {
     return robots.getRobotRulesSet(this, url);
   }
 

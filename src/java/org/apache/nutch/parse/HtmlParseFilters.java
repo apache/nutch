@@ -17,11 +17,15 @@
 
 package org.apache.nutch.parse;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 
-import org.apache.nutch.protocol.Content;
+import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.plugin.*;
 import org.apache.nutch.util.ObjectCache;
+import org.apache.nutch.util.hbase.HbaseColumn;
+import org.apache.nutch.util.hbase.WebTableRow;
 import org.apache.hadoop.conf.Configuration;
 
 import org.w3c.dom.DocumentFragment;
@@ -33,51 +37,59 @@ public class HtmlParseFilters {
 
   public HtmlParseFilters(Configuration conf) {
         ObjectCache objectCache = ObjectCache.get(conf);
-        this.htmlParseFilters = (HtmlParseFilter[]) objectCache.getObject(HtmlParseFilter.class.getName());
+        this.htmlParseFilters =
+          (HtmlParseFilter[]) objectCache.getObject(HtmlParseFilter.class.getName());
         if (htmlParseFilters == null) {
             HashMap<String, HtmlParseFilter> filters =
               new HashMap<String, HtmlParseFilter>();
             try {
-                ExtensionPoint point = PluginRepository.get(conf).getExtensionPoint(HtmlParseFilter.X_POINT_ID);
+                ExtensionPoint point =
+                  PluginRepository.get(conf).getExtensionPoint(HtmlParseFilter.X_POINT_ID);
                 if (point == null)
                     throw new RuntimeException(HtmlParseFilter.X_POINT_ID + " not found.");
                 Extension[] extensions = point.getExtensions();
                 for (int i = 0; i < extensions.length; i++) {
                     Extension extension = extensions[i];
-                    HtmlParseFilter parseFilter = (HtmlParseFilter) extension.getExtensionInstance();
+                    HtmlParseFilter parseFilter =
+                      (HtmlParseFilter) extension.getExtensionInstance();
                     if (!filters.containsKey(parseFilter.getClass().getName())) {
                         filters.put(parseFilter.getClass().getName(), parseFilter);
                     }
                 }
-                HtmlParseFilter[] htmlParseFilters = filters.values().toArray(new HtmlParseFilter[filters.size()]);
+                HtmlParseFilter[] htmlParseFilters =
+                  filters.values().toArray(new HtmlParseFilter[filters.size()]);
                 objectCache.setObject(HtmlParseFilter.class.getName(), htmlParseFilters);
             } catch (PluginRuntimeException e) {
                 throw new RuntimeException(e);
             }
-            this.htmlParseFilters = (HtmlParseFilter[]) objectCache.getObject(HtmlParseFilter.class.getName());
+            this.htmlParseFilters =
+              (HtmlParseFilter[])objectCache.getObject(HtmlParseFilter.class.getName());
         }
     }                  
 
   /** Run all defined filters. */
-  public ParseResult filter(Content content, ParseResult parseResult, HTMLMetaTags metaTags, DocumentFragment doc) {
+  public Parse filter(String url, WebTableRow row, Parse parse,
+                           HTMLMetaTags metaTags, DocumentFragment doc) {
 
     // loop on each filter
-    for (int i = 0 ; i < this.htmlParseFilters.length; i++) {
+    for (HtmlParseFilter htmlParseFilter : htmlParseFilters) {
       // call filter interface
-      parseResult =
-        htmlParseFilters[i].filter(content, parseResult, metaTags, doc);
+      parse = htmlParseFilter.filter(url, row, parse, metaTags, doc);
 
       // any failure on parse obj, return
-      if (!parseResult.isSuccess()) {
-        // TODO: What happens when parseResult.isEmpty() ?
-        // Maybe clone parseResult and use parseResult as backup...
-
-        // remove failed parse before return
-        parseResult.filter();
-        return parseResult;
+      if (!parse.getParseStatus().isSuccess()) {
+        return parse;
       }
     }
 
-    return parseResult;
+    return parse;
+  }
+
+  public Collection<HbaseColumn> getColumns() {
+    Collection<HbaseColumn> columns = new HashSet<HbaseColumn>();
+    for (HtmlParseFilter htmlParseFilter : htmlParseFilters) {
+      columns.addAll(htmlParseFilter.getColumns());
+    }
+    return columns;
   }
 }
