@@ -460,8 +460,7 @@ public class Fetcher extends Configured implements
       this.protocolFactory = new ProtocolFactory(conf);
       this.normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_FETCHER);
       this.maxCrawlDelay = conf.getInt("fetcher.max.crawl.delay", 30) * 1000;
-      // backward-compatible default setting
-      this.byIP = conf.getBoolean("fetcher.threads.per.host.by.ip", true);
+      this.byIP = conf.getBoolean("fetcher.threads.per.host.by.ip", false);
       this.maxRedirect = conf.getInt("http.redirect.max", 3);
       this.ignoreExternalLinks = 
         conf.getBoolean("db.ignore.external.links", false);
