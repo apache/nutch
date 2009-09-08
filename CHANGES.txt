@@ -7,6 +7,8 @@ Unreleased Changes
 
  2. NUTCH-721 - Fetcher2 Slow (Julien Nioche via dogacan)
 
+ 3. NUTCH-702 - Lazy Instanciation of Metadata in CrawlDatum (Julien Nioche via dogacan)
+
 Release 1.0 - 2009-03-23
 
  1. NUTCH-474 - Fetcher2 crawlDelay and blocking fix (Dogacan Guney via ab)
