@@ -434,10 +434,29 @@ public class RobotRulesParser implements Configurable {
     boolean cacheRule = true;
     
     if (robotRules == null) {                     // cache miss
+      URL redir = null;
       if (LOG.isTraceEnabled()) { LOG.trace("cache miss " + url); }
       try {
         Response response = http.getResponse(new URL(url, "/robots.txt"),
                                              new CrawlDatum(), true);
+        // try one level of redirection ?
+        if (response.getCode() == 301 || response.getCode() == 302) {
+          String redirection = response.getHeader("Location");
+          if (redirection == null) {
+            // some versions of MS IIS are known to mangle this header
+            redirection = response.getHeader("location");
+          }
+          if (redirection != null) {
+            if (!redirection.startsWith("http")) {
+              // RFC says it should be absolute, but apparently it isn't
+              redir = new URL(url, redirection);
+            } else {
+              redir = new URL(redirection);
+            }
+            
+            response = http.getResponse(redir, new CrawlDatum(), true);
+          }
+        }
 
         if (response.getCode() == 200)               // found rules: parse them
           robotRules = parseRules(response.getContent());
@@ -456,8 +475,12 @@ public class RobotRulesParser implements Configurable {
         robotRules = EMPTY_RULES;
       }
 
-      if (cacheRule){
+      if (cacheRule) {
         CACHE.put(host, robotRules);  // cache rules for host
+        if (redir != null && !redir.getHost().equals(host)) {
+          // cache also for the redirected host
+          CACHE.put(redir.getHost(), robotRules);
+        }
       }
     }
     return robotRules;
