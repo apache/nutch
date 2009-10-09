@@ -66,9 +66,9 @@ public class RequestUtils {
     if (parameterExists(request, param)) {
       String value = request.getParameter(param);
       if (StringUtils.isNotBlank(value)
-        && (StringUtils.equals(param, "1")
-          || StringUtils.equalsIgnoreCase(param, "true") || StringUtils.equalsIgnoreCase(
-          param, "yes"))) {
+        && (StringUtils.equals(value, "1")
+          || StringUtils.equalsIgnoreCase(value, "true") || StringUtils.equalsIgnoreCase(
+          value, "yes"))) {
         return true;
       }
     }
@@ -79,9 +79,9 @@ public class RequestUtils {
     String param, Boolean def) {
     if (parameterExists(request, param)) {
       String value = request.getParameter(param);
-      return (StringUtils.isNotBlank(value) && (StringUtils.equals(param, "1")
-        || StringUtils.equalsIgnoreCase(param, "true") || StringUtils.equalsIgnoreCase(
-        param, "yes")));
+      return (StringUtils.isNotBlank(value) && (StringUtils.equals(value, "1")
+        || StringUtils.equalsIgnoreCase(value, "true") || StringUtils.equalsIgnoreCase(
+        value, "yes")));
     }
     return def;
   }
