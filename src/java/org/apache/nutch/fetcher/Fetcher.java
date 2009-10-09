@@ -35,6 +35,8 @@ import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.NutchWritable;
@@ -83,7 +85,7 @@ import org.apache.nutch.util.*;
  * 
  * @author Andrzej Bialecki
  */
-public class Fetcher extends Configured implements
+public class Fetcher extends Configured implements Tool,
     MapRunnable<Text, CrawlDatum, Text, NutchWritable> { 
 
   public static final int PERM_REFRESH_TIME = 5;
@@ -972,19 +974,22 @@ public class Fetcher extends Configured implements
 
   /** Run the fetcher. */
   public static void main(String[] args) throws Exception {
+    int res = ToolRunner.run(NutchConfiguration.create(), new Fetcher(), args);
+    System.exit(res);
+  }
+  
+  public int run(String[] args) throws Exception {
 
     String usage = "Usage: Fetcher <segment> [-threads n] [-noParsing]";
 
     if (args.length < 1) {
       System.err.println(usage);
-      System.exit(-1);
+      return -1;
     }
       
     Path segment = new Path(args[0]);
 
-    Configuration conf = NutchConfiguration.create();
-
-    int threads = conf.getInt("fetcher.threads.fetch", 10);
+    int threads = getConf().getInt("fetcher.threads.fetch", 10);
     boolean parsing = true;
 
     for (int i = 1; i < args.length; i++) {       // parse command line
@@ -993,13 +998,17 @@ public class Fetcher extends Configured implements
       } else if (args[i].equals("-noParsing")) parsing = false;
     }
 
-    conf.setInt("fetcher.threads.fetch", threads);
+    getConf().setInt("fetcher.threads.fetch", threads);
     if (!parsing) {
-      conf.setBoolean("fetcher.parse", parsing);
+      getConf().setBoolean("fetcher.parse", parsing);
     }
-    Fetcher fetcher = new Fetcher(conf);          // make a Fetcher
-    
-    fetcher.fetch(segment, threads, parsing);              // run the Fetcher
+    try {
+      fetch(segment, threads, parsing);
+      return 0;
+    } catch (Exception e) {
+      LOG.fatal("Fetcher: " + StringUtils.stringifyException(e));
+      return -1;
+    }
 
   }
 
