@@ -20,9 +20,12 @@ package org.apache.nutch.parse;
 import java.io.*;
 import java.util.*;
 
+import org.apache.commons.cli.Options;
 import org.apache.hadoop.io.*;
+import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.FileSystem;
 
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.util.NutchConfiguration;
@@ -205,11 +208,18 @@ public final class ParseData extends VersionedWritable {
       return;
     }
 
+    Options opts = new Options();
     Configuration conf = NutchConfiguration.create();
-    FileSystem fs = FileSystem.parseArgs(argv, 0, conf);
+    
+    GenericOptionsParser parser =
+      new GenericOptionsParser(conf, opts, argv);
+    
+    String[] remainingArgs = parser.getRemainingArgs();
+    FileSystem fs = FileSystem.get(conf);
+    
     try {
-      int recno = Integer.parseInt(argv[0]);
-      String segment = argv[1];
+      int recno = Integer.parseInt(remainingArgs[0]);
+      String segment = remainingArgs[1];
 
       Path file = new Path(segment, DIR_NAME);
       System.out.println("Reading from file: " + file);

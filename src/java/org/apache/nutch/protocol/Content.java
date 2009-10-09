@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.zip.InflaterInputStream;
 
 //Hadoop imports
+import org.apache.commons.cli.Options;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -35,6 +36,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.UTF8;
 import org.apache.hadoop.io.VersionMismatchException;
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.util.GenericOptionsParser;
 
 //Nutch imports
 import org.apache.nutch.metadata.Metadata;
@@ -255,11 +257,18 @@ public final class Content implements Writable{
       System.out.println("usage:" + usage);
       return;
     }
+    Options opts = new Options();
     Configuration conf = NutchConfiguration.create();
-    FileSystem fs = FileSystem.parseArgs(argv, 0, conf);
+    
+    GenericOptionsParser parser =
+      new GenericOptionsParser(conf, opts, argv);
+    
+    String[] remainingArgs = parser.getRemainingArgs();
+    FileSystem fs = FileSystem.get(conf);
+    
     try {
-      int recno = Integer.parseInt(argv[0]);
-      String segment = argv[1];
+      int recno = Integer.parseInt(remainingArgs[0]);
+      String segment = remainingArgs[1];
 
       Path file = new Path(segment, DIR_NAME);
       System.out.println("Reading from file: " + file);
