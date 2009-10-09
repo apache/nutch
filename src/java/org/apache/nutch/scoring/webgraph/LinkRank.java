@@ -122,7 +122,13 @@ public class LinkRank
     BufferedReader buffer = new BufferedReader(new InputStreamReader(readLinks));
     String numLinksLine = buffer.readLine();
     readLinks.close();
-
+    
+    // check if there are links to process, if none, webgraph might be empty
+    if (numLinksLine == null || numLinksLine.length() == 0) {
+      fs.delete(numLinksPath, true);
+      throw new IOException("No links to process, is the webgraph empty?");
+    }
+    
     // delete temp file and convert and return the number of links as an int
     LOG.info("Deleting numlinks temp file");
     fs.delete(numLinksPath, true);

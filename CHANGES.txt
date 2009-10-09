@@ -12,6 +12,9 @@ Unreleased Changes
 * NUTCH-707 - Generation of multiple segments in multiple runs returns only 1 segment
   (Michael Chen, ab)
 
+* NUTCH-730 - NPE in LinkRank if no nodes with which to create the WebGraph
+  (Dennis Kubes via ab)
+
 Release 1.0 - 2009-03-23
 
  1. NUTCH-474 - Fetcher2 crawlDelay and blocking fix (Dogacan Guney via ab)
