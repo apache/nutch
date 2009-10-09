@@ -23,6 +23,9 @@ Unreleased Changes
 * NUTCH-754 - Use GenericOptionsParser instead of FileSystem.parseArgs() (Julien
   Nioche via ab)
 
+* NUTCH-756 - CrawlDatum.set() does not reset Metadata if it is null (Julien Nioche
+  via ab)
+
 Release 1.0 - 2009-03-23
 
  1. NUTCH-474 - Fetcher2 crawlDelay and blocking fix (Dogacan Guney via ab)

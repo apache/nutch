@@ -324,6 +324,8 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
     this.signature = that.signature;
     if (that.metaData != null) {
       this.metaData = new org.apache.hadoop.io.MapWritable(that.metaData); // make a deep copy
+    } else {
+      this.metaData = null;
     }
   }
 
