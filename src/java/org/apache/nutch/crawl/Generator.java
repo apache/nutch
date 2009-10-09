@@ -339,25 +339,22 @@ public class Generator extends Configured implements Tool {
   /**
    * Update the CrawlDB so that the next generate won't include the same URLs.
    */
-  public static class CrawlDbUpdater extends MapReduceBase implements Mapper<WritableComparable, Writable, Text, CrawlDatum>, Reducer<Text, CrawlDatum, Text, CrawlDatum> {
+  public static class CrawlDbUpdater extends MapReduceBase implements Mapper<Text, CrawlDatum, Text, CrawlDatum>, Reducer<Text, CrawlDatum, Text, CrawlDatum> {
     long generateTime;
     
     public void configure(JobConf job) {
       generateTime = job.getLong(Nutch.GENERATE_TIME_KEY, 0L);
     }
     
-    public void map(WritableComparable key, Writable value, OutputCollector<Text, CrawlDatum> output, Reporter reporter) throws IOException {
-      if (key instanceof FloatWritable) { // tempDir source
-        SelectorEntry se = (SelectorEntry)value;
-        output.collect(se.url, se.datum);
-      } else {
-        output.collect((Text)key, (CrawlDatum)value);
-      }
+    public void map(Text key, CrawlDatum value, OutputCollector<Text, CrawlDatum> output, Reporter reporter) throws IOException {
+        output.collect(key, value);
     }
+    
     private CrawlDatum orig = new CrawlDatum();
     private LongWritable genTime = new LongWritable(0L);
 
     public void reduce(Text key, Iterator<CrawlDatum> values, OutputCollector<Text, CrawlDatum> output, Reporter reporter) throws IOException {
+      genTime.set(0L);
       while (values.hasNext()) {
         CrawlDatum val = values.next();
         if (val.getMetaData().containsKey(Nutch.WRITABLE_GENERATE_TIME_KEY)) {
@@ -536,7 +533,7 @@ public class Generator extends Configured implements Tool {
       job = new NutchJob(getConf());
       job.setJobName("generate: updatedb " + dbDir);
       job.setLong(Nutch.GENERATE_TIME_KEY, generateTime);
-      FileInputFormat.addInputPath(job, tempDir);
+      FileInputFormat.addInputPath(job, output);
       FileInputFormat.addInputPath(job, new Path(dbDir, CrawlDb.CURRENT_NAME));
       job.setInputFormat(SequenceFileInputFormat.class);
       job.setMapperClass(CrawlDbUpdater.class);
