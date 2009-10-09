@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-// $Id: PrefixURLFilter.java,v 1.2 2005/02/07 19:10:37 cutting Exp $
+// $Id$
 
 package org.apache.nutch.urlfilter.prefix;
 

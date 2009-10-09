@@ -21,7 +21,7 @@
  * limitations under the License.
  */
 /*
- * $Id: DOMBuilder.java,v 1.19 2004/02/25 13:07:51 aruny Exp $
+ * $Id$
  */
 package org.apache.nutch.parse.html;
 

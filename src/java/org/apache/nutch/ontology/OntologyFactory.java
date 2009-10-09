@@ -28,7 +28,7 @@ import org.apache.hadoop.conf.Configuration;
  * A factory for retrieving {@link Ontology} extensions.
  *
  * @author Michael Pan
- * @version $Id: OntologyFactory.java,v 1.2 2005/02/07 19:09:58 cutting Exp $
+ * @version $Id$
  */
 public class OntologyFactory {
   public final static Log LOG = LogFactory.getLog(OntologyFactory.class);

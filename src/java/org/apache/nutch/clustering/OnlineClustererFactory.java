@@ -28,7 +28,7 @@ import org.apache.hadoop.conf.Configuration;
  * A factory for retrieving {@link OnlineClusterer} extensions.
  *
  * @author Dawid Weiss
- * @version $Id: OnlineClustererFactory.java,v 1.2 2005/02/07 19:09:26 cutting Exp $
+ * @version $Id$
  */
 public class OnlineClustererFactory {
   public static final Log LOG = LogFactory.getLog(OnlineClustererFactory.class);

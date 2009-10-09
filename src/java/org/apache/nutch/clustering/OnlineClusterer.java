@@ -35,7 +35,7 @@ import org.apache.nutch.searcher.HitDetails;
  * preclustered groups, but I do not investigate those any further here.</p>
  *
  * @author Dawid Weiss
- * @version $Id: OnlineClusterer.java,v 1.1 2004/08/09 23:23:52 johnnx Exp $
+ * @version $Id$
  */
 public interface OnlineClusterer extends Pluggable {
   /** The name of the extension point. */

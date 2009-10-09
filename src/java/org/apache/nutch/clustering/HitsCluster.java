@@ -29,7 +29,7 @@ import org.apache.nutch.searcher.HitDetails;
  * see an explicit group of documents that didn't belong anywhere else.</p>
  *
  * @author Dawid Weiss
- * @version $Id: HitsCluster.java,v 1.1 2004/08/09 23:23:52 johnnx Exp $
+ * @version $Id$
  */
 public interface HitsCluster {
   /**

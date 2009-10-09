@@ -36,7 +36,7 @@ import org.apache.nutch.util.NutchConfiguration;
 
 /**
  * One stop shopping for search-related functionality.
- * @version $Id: NutchBean.java,v 1.19 2005/02/07 19:10:08 cutting Exp $
+ * @version $Id$
  */
 public class NutchBean
 implements SearchBean, SegmentBean, HitInlinks, Closeable {

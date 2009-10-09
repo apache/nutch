@@ -28,6 +28,8 @@ Unreleased Changes
 
 * NUTCH-679 - Fetcher2 implementing Tool (Julien Nioche via ab)
 
+* NUTCH-758 - Set subversion eol-style to "native" (Niall Pemberton via ab)
+
 Release 1.0 - 2009-03-23
 
  1. NUTCH-474 - Fetcher2 crawlDelay and blocking fix (Dogacan Guney via ab)
