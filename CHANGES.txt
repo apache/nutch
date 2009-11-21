@@ -2,6 +2,8 @@ Nutch Change Log
 
 Unreleased Changes
 
+* NUTCH-765 - Allow Crawl class to call Either Solr or Lucene Indexer (kubes)
+
 * NUTCH-735 - crawl-tool.xml must be read before nutch-site.xml when
   invoked using crawl command (Susam Pal via dogacan)
 
