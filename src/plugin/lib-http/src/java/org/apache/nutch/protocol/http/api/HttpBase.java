@@ -185,6 +185,7 @@ public abstract class HttpBase implements Protocol {
     String urlString = url.toString();
     try {
       URL u = new URL(urlString);
+      long delay = serverDelay;
       
       if (checkRobots) {
         try {
@@ -197,10 +198,10 @@ public abstract class HttpBase implements Protocol {
             logger.trace("Exception checking robot rules for " + url + ": " + e);
           }
         }
+
+        long crawlDelay = robots.getCrawlDelay(this, u);
+        delay = crawlDelay > 0 ? crawlDelay : serverDelay;
       }
-      
-      long crawlDelay = robots.getCrawlDelay(this, u);
-      long delay = crawlDelay > 0 ? crawlDelay : serverDelay;
       if (checkBlocking && maxCrawlDelay >= 0 && delay > maxCrawlDelay) {
         // skip this page, otherwise the thread would block for too long.
         LOGGER.info("Skipping: " + u + " exceeds fetcher.max.crawl.delay, max="
