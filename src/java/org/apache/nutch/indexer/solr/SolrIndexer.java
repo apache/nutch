@@ -50,7 +50,7 @@ public class SolrIndexer extends Configured implements Tool {
     super(conf);
   }
 
-  private void indexSolr(String solrUrl, Path crawlDb, Path linkDb,
+  public void indexSolr(String solrUrl, Path crawlDb, Path linkDb,
       List<Path> segments) throws IOException {
     LOG.info("SolrIndexer: starting");
 
