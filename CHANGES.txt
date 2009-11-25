@@ -2,6 +2,8 @@ Nutch Change Log
 
 Unreleased Changes
 
+* NUTCH-761 Avoid cloning CrawlDatum in CrawlDbReducer (Julien Nioche, ab)
+
 * NUTCH-753 Prevent new Fetcher from retrieving the robots twice (Julien Nioche via ab)
 
 * NUTCH-773 - Some minor bugs in AbstractFetchSchedule (Reinhard Schwab via ab)

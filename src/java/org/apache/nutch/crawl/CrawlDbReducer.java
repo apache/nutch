@@ -64,13 +64,20 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
     boolean fetchSet = false;
     boolean oldSet = false;
     byte[] signature = null;
+    boolean multiple = false; // avoid deep copy when only single value exists
     linked.clear();
 
     while (values.hasNext()) {
       CrawlDatum datum = (CrawlDatum)values.next();
+      if (!multiple && values.hasNext()) multiple = true;
       if (CrawlDatum.hasDbStatus(datum)) {
         if (!oldSet) {
-          old.set(datum);
+          if (multiple) {
+            old.set(datum);
+          } else {
+            // no need for a deep copy - this is the only value
+            old = datum;
+          }
           oldSet = true;
         } else {
           // always take the latest version
@@ -81,7 +88,11 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
 
       if (CrawlDatum.hasFetchStatus(datum)) {
         if (!fetchSet) {
-          fetch.set(datum);
+          if (multiple) {
+            fetch.set(datum);
+          } else {
+            fetch = datum;
+          }
           fetchSet = true;
         } else {
           // always take the latest version
@@ -92,8 +103,13 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
 
       switch (datum.getStatus()) {                // collect other info
       case CrawlDatum.STATUS_LINKED:
-        CrawlDatum link = new CrawlDatum();
-        link.set(datum);
+        CrawlDatum link;
+        if (multiple) {
+          link = new CrawlDatum();
+          link.set(datum);
+        } else {
+          link = datum;
+        }
         linked.add(link);
         break;
       case CrawlDatum.STATUS_SIGNATURE:
@@ -115,10 +131,11 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
     
     // still no new data - record only unchanged old data, if exists, and return
     if (!fetchSet) {
-      if (oldSet) // at this point at least "old" should be present
+      if (oldSet) {// at this point at least "old" should be present
         output.collect(key, old);
-      else
+      } else {
         LOG.warn("Missing fetch and old value, signature=" + signature);
+      }
       return;
     }
     
