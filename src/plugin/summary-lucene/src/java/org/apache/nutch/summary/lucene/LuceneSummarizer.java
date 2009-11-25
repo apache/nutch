@@ -30,6 +30,7 @@ import org.apache.lucene.search.highlight.Highlighter;
 import org.apache.lucene.search.highlight.QueryScorer;
 import org.apache.lucene.search.highlight.SimpleHTMLFormatter;
 import org.apache.lucene.search.highlight.WeightedTerm;
+import org.apache.lucene.search.highlight.WeightedSpanTerm;
 
 // Nutch imports
 import org.apache.nutch.analysis.NutchDocumentAnalyzer;
@@ -84,9 +85,9 @@ public class LuceneSummarizer implements Summarizer {
   public Summary getSummary(String text, Query query) {
 
     String[] terms = query.getTerms();
-    WeightedTerm[] weighted = new WeightedTerm[terms.length];
+    WeightedSpanTerm[] weighted = new WeightedSpanTerm[terms.length];
     for (int i=0; i<terms.length; i++) {
-      weighted[i] = new WeightedTerm(1.0f, terms[i]);
+      weighted[i] = new WeightedSpanTerm(1.0f, terms[i]);
     }
     Highlighter highlighter = new Highlighter(FORMATTER, new QueryScorer(weighted));
     TokenStream tokens = analyzer.tokenStream("content", new StringReader(text));
