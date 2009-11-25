@@ -35,6 +35,7 @@ import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.util.ToStringUtils;
+import org.apache.nutch.indexer.solr.SolrMappingReader;
 import org.apache.nutch.indexer.solr.SolrWriter;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -52,11 +53,15 @@ public class SolrSearchBean implements SearchBean {
   private final SolrServer solr;
 
   private final QueryFilters filters;
+  
+  private String searchUID;
 
   public SolrSearchBean(Configuration conf, String solrServer)
   throws IOException {
     solr = new CommonsHttpSolrServer(solrServer);
     filters = new QueryFilters(conf);
+    SolrMappingReader mapping = SolrMappingReader.getInstance(conf);
+    searchUID = mapping.getUniqueKey();
   }
 
   public String getExplanation(Query query, Hit hit) throws IOException {
@@ -76,10 +81,10 @@ public class SolrSearchBean implements SearchBean {
     solrQuery.setRows(numHits);
 
     if (sortField == null) {
-      solrQuery.setFields(dedupField, "score", "id");
+      solrQuery.setFields(dedupField, "score", searchUID);
       sortField = "score";
     } else {
-      solrQuery.setFields(dedupField, sortField, "id");
+      solrQuery.setFields(dedupField, sortField, searchUID);
       solrQuery.setSortField(sortField, reverse ? ORDER.asc : ORDER.desc);
     }
 
@@ -113,7 +118,7 @@ public class SolrSearchBean implements SearchBean {
 
       final String dedupValue = (String) solrDoc.getFirstValue(dedupField);
 
-      final String uniqueKey = (String )solrDoc.getFirstValue("id");
+      final String uniqueKey = (String )solrDoc.getFirstValue(searchUID);
 
       hitArr[i] = new Hit(uniqueKey, sortValue, dedupValue);
     }
@@ -124,7 +129,7 @@ public class SolrSearchBean implements SearchBean {
   public HitDetails getDetails(Hit hit) throws IOException {
     QueryResponse response;
     try {
-      response = solr.query(new SolrQuery("id:\"" + hit.getUniqueKey() + "\""));
+      response = solr.query(new SolrQuery(searchUID + ":\"" + hit.getUniqueKey() + "\""));
     } catch (final SolrServerException e) {
       throw SolrWriter.makeIOException(e);
     }
@@ -141,7 +146,7 @@ public class SolrSearchBean implements SearchBean {
     final StringBuilder buf = new StringBuilder();
     buf.append("(");
     for (final Hit hit : hits) {
-      buf.append(" id:\"");
+      buf.append(" " + searchUID + ":\"");
       buf.append(hit.getUniqueKey());
       buf.append("\"");
     }
@@ -169,7 +174,7 @@ public class SolrSearchBean implements SearchBean {
       new HashMap<String, HitDetails>(hits.length);
     for (final SolrDocument solrDoc : docList) {
       final HitDetails details = buildDetails(solrDoc);
-      detailsMap.put(details.getValue("id"), details);
+      detailsMap.put(details.getValue(searchUID), details);
     }
 
     final HitDetails[] detailsArr = new HitDetails[hits.length];

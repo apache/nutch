@@ -2,6 +2,8 @@ Nutch Change Log
 
 Unreleased Changes
 
+* NUTCH-760 Allow field mapping from Nutch to Solr index (David Stuart, ab)
+
 * NUTCH-761 Avoid cloning CrawlDatum in CrawlDbReducer (Julien Nioche, ab)
 
 * NUTCH-753 Prevent new Fetcher from retrieving the robots twice (Julien Nioche via ab)
