@@ -125,7 +125,7 @@ public abstract class AbstractFetchSchedule extends Configured implements FetchS
    */
   public CrawlDatum setPageRetrySchedule(Text url, CrawlDatum datum,
           long prevFetchTime, long prevModifiedTime, long fetchTime) {
-    datum.setFetchTime(fetchTime + (long)SECONDS_PER_DAY);
+    datum.setFetchTime(fetchTime + (long)SECONDS_PER_DAY*1000);
     datum.setRetriesSinceFetch(datum.getRetriesSinceFetch() + 1);
     return datum;
   }
@@ -159,7 +159,9 @@ public abstract class AbstractFetchSchedule extends Configured implements FetchS
     // pages with too long fetchInterval are adjusted so that they fit within
     // maximum fetchInterval (segment retention period).
     if (datum.getFetchTime() - curTime > (long) maxInterval * 1000) {
-      datum.setFetchInterval(maxInterval * 0.9f);
+      if (datum.getFetchInterval() > maxInterval) {
+        datum.setFetchInterval(maxInterval * 0.9f);
+      }
       datum.setFetchTime(curTime);
     }
     if (datum.getFetchTime() > curTime) {
