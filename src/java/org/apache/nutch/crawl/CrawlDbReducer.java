@@ -42,8 +42,6 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
   private boolean additionsAllowed;
   private int maxInterval;
   private FetchSchedule schedule;
-  private CrawlDatum fetch = new CrawlDatum();
-  private CrawlDatum old = new CrawlDatum();
 
   public void configure(JobConf job) {
     retryMax = job.getInt("db.fetch.retry.max", 3);
@@ -60,6 +58,9 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
   public void reduce(Text key, Iterator<CrawlDatum> values,
                      OutputCollector<Text, CrawlDatum> output, Reporter reporter)
     throws IOException {
+
+    CrawlDatum fetch = new CrawlDatum();
+    CrawlDatum old = new CrawlDatum();
 
     boolean fetchSet = false;
     boolean oldSet = false;
