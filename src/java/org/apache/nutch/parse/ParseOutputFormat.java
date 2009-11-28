@@ -140,9 +140,13 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
                 pstatus.getMinorCode() == ParseStatus.SUCCESS_REDIRECT) {
               String newUrl = pstatus.getMessage();
               int refreshTime = Integer.valueOf(pstatus.getArgs()[1]);
-              newUrl = normalizers.normalize(newUrl,
-                                             URLNormalizers.SCOPE_FETCHER);
-              newUrl = filters.filter(newUrl);
+              try {
+                newUrl = normalizers.normalize(newUrl,
+                    URLNormalizers.SCOPE_FETCHER);
+              } catch (MalformedURLException mfue) {
+                newUrl = null;
+              }
+              if (newUrl != null) newUrl = filters.filter(newUrl);
               String url = key.toString();
               if (newUrl != null && !newUrl.equals(url)) {
                 String reprUrl =

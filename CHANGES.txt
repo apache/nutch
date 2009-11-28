@@ -2,6 +2,9 @@ Nutch Change Log
 
 Unreleased Changes
 
+* NUTCH-712 ParseOutputFormat should catch java.net.MalformedURLException
+  coming from normalizers (Julien Nioche via ab)
+
 * NUTCH-741 Job file includes multiple copies of nutch config files
   (Kirby Bohling via ab)
 
