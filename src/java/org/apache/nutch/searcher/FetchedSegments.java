@@ -66,9 +66,19 @@ public class FetchedSegments implements RPCSegmentBean {
 
   private class SegmentUpdater extends Thread {
 
+    private volatile boolean stopRequested = false;
+
+    @Override
+    public void interrupt() {
+      super.interrupt();
+      stopRequested = true;
+    }
+
+
     @Override
     public void run() {
-      while (true) {
+
+      while (!stopRequested && !Thread.currentThread().isInterrupted()) {
         try {
           final FileStatus[] fstats = fs.listStatus(segmentsDir,
               HadoopFSUtil.getPassDirectoriesFilter(fs));
@@ -194,7 +204,9 @@ public class FetchedSegments implements RPCSegmentBean {
   private final FileSystem fs;
   private final Configuration conf;
   private final Path segmentsDir;
-  private final SegmentUpdater segUpdater;
+  
+  // This must be nullable upon close, so do not declare final.
+  private SegmentUpdater segUpdater;
   private final Summarizer summarizer;
 
   /** Construct given a directory containing fetcher output. */
@@ -303,6 +315,13 @@ public class FetchedSegments implements RPCSegmentBean {
   }
 
   public void close() throws IOException {
+    // Interrupt that thread to convince it to stop running.
+    segUpdater.interrupt();
+
+    // Break reference cycle, otherwise this points to segUpdater, and 
+    // segUpdater.$0 points to this.  It appeared to keep the thread from
+    // being GC'ed/reaped.
+    segUpdater = null;
     final Iterator<Segment> iterator = segments.values().iterator();
     while (iterator.hasNext()) {
       iterator.next().close();
