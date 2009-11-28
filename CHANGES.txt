@@ -2,8 +2,10 @@ Nutch Change Log
 
 Unreleased Changes
 
+* NUTCH-739 SolrDeleteDuplications too slow when using hadoop (Dmitry Lihachev via ab)
+
 * NUTCH-738 Close SegmentUpdater when FetchedSegments is closed
-  (Martina Kich, Kirby Bohling via ab)
+  (Martina Koch, Kirby Bohling via ab)
 
 * NUTCH-746 NutchBeanConstructor does not close NutchBean upon contextDestroyed,
   causing resource leak in the container. (Kirby Bohling via ab)

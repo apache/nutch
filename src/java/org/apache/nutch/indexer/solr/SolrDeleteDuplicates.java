@@ -298,7 +298,6 @@ Tool {
       if (numDeletes > 0) {
         updateRequest.process(solr);
       }
-      solr.optimize();
     } catch (SolrServerException e) {
       throw new IOException(e);
     }
