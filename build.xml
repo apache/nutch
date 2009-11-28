@@ -149,7 +149,12 @@
   <!-- ================================================================== -->
   <target name="job" depends="compile">
     <jar jarfile="${build.dir}/${final.name}.job">
-      <zipfileset dir="${build.classes}"/>
+      <!-- If the build.classes has the nutch config files because the jar
+           command command has run, exclude them.  The conf directory has 
+           them.
+      -->
+      <zipfileset dir="${build.classes}"
+                  excludes="nutch-default.xml,nutch-site.xml"/>
       <zipfileset dir="${conf.dir}" excludes="*.template,hadoop*.*"/>
       <zipfileset dir="${lib.dir}" prefix="lib"
                   includes="**/*.jar" excludes="hadoop-*.jar"/>

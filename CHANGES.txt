@@ -2,6 +2,9 @@ Nutch Change Log
 
 Unreleased Changes
 
+* NUTCH-741 Job file includes multiple copies of nutch config files
+  (Kirby Bohling via ab)
+
 * NUTCH-739 SolrDeleteDuplications too slow when using hadoop (Dmitry Lihachev via ab)
 
 * NUTCH-738 Close SegmentUpdater when FetchedSegments is closed
