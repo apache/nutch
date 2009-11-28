@@ -413,7 +413,24 @@ implements SearchBean, SegmentBean, HitInlinks, Closeable {
    */
   public static class NutchBeanConstructor implements ServletContextListener {
 
-    public void contextDestroyed(ServletContextEvent sce) { }
+    public void contextDestroyed(ServletContextEvent sce) {
+      final ServletContext context = sce.getServletContext();
+
+      LOG.info("Closing Bean");
+      try {
+        Object tmp = context.getAttribute(NutchBean.KEY);
+
+        if (tmp instanceof NutchBean) {
+          NutchBean bean = (NutchBean) tmp;
+          bean.close();
+        } else {
+          LOG.warn("No bean configured, or the wrong type?  Potential PermGen leak, or startup problem.");
+        }
+      }
+      catch (final IOException ex) {
+        LOG.error(StringUtils.stringifyException(ex));
+      }
+    }
 
     public void contextInitialized(ServletContextEvent sce) {
       final ServletContext app = sce.getServletContext();

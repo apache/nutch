@@ -2,6 +2,11 @@ Nutch Change Log
 
 Unreleased Changes
 
+* NUTCH-746 NutchBeanConstructor does not close NutchBean upon contextDestroyed,
+  causing resource leak in the container. (Kirby Bohling via ab)
+
+* NUTCH-772 Upgrade Nutch to use Lucene 2.9.1 (ab)
+
 * NUTCH-760 Allow field mapping from Nutch to Solr index (David Stuart, ab)
 
 * NUTCH-761 Avoid cloning CrawlDatum in CrawlDbReducer (Julien Nioche, ab)
