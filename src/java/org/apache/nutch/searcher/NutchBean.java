@@ -39,7 +39,8 @@ import org.apache.nutch.util.NutchConfiguration;
  * @version $Id$
  */
 public class NutchBean
-implements SearchBean, SegmentBean, HitInlinks, Closeable {
+implements SearchBean, RPCSearchBean, SegmentBean, RPCSegmentBean, 
+HitInlinks, Closeable {
 
   public static final Log LOG = LogFactory.getLog(NutchBean.class);
   public static final String KEY = "nutchBean";

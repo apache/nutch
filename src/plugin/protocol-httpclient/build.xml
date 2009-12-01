@@ -27,9 +27,8 @@
     <fileset dir="${nutch.root}/build">
       <include name="**/lib-http/*.jar" />
     </fileset>
-    <fileset dir="${nutch.root}/lib/jetty-ext">
+    <fileset dir="${nutch.root}/lib/jsp-2.1">
       <include name="*.jar"/>
-      <exclude name="ant.jar"/>
     </fileset>
     <pathelement location="${build.dir}/test/conf"/>
   </path>

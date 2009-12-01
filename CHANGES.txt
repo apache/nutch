@@ -2,6 +2,9 @@ Nutch Change Log
 
 Unreleased Changes
 
+* NUTCH-768 - Upgrade Nutch 1.0 to use Hadoop 0.20.1, also upgrades Xerces to 
+  version 2.9.1. (kubes)
+  
 * NUTCH-712 ParseOutputFormat should catch java.net.MalformedURLException
   coming from normalizers (Julien Nioche via ab)
 
