@@ -208,6 +208,7 @@ public class Fetcher extends Configured implements Tool,
     List<FetchItem> queue = Collections.synchronizedList(new LinkedList<FetchItem>());
     Set<FetchItem>  inProgress = Collections.synchronizedSet(new HashSet<FetchItem>());
     AtomicLong nextFetchTime = new AtomicLong();
+    AtomicInteger exceptionCounter = new AtomicInteger();
     long crawlDelay;
     long minCrawlDelay;
     int maxThreads;
@@ -234,6 +235,10 @@ public class Fetcher extends Configured implements Tool,
     
     public int getInProgressSize() {
       return inProgress.size();
+    }
+    
+    public int incrementExceptionCounter() {
+      return exceptionCounter.incrementAndGet();
     }
     
     public void finishFetchItem(FetchItem it, boolean asap) {
@@ -306,6 +311,7 @@ public class Fetcher extends Configured implements Tool,
     long crawlDelay;
     long minCrawlDelay;
     long timelimit = -1;
+    int maxExceptionsPerQueue = -1;
     Configuration conf;    
     
     public FetchItemQueues(Configuration conf) {
@@ -316,6 +322,7 @@ public class Fetcher extends Configured implements Tool,
       this.crawlDelay = (long) (conf.getFloat("fetcher.server.delay", 1.0f) * 1000);
       this.minCrawlDelay = (long) (conf.getFloat("fetcher.server.min.delay", 0.0f) * 1000);
       this.timelimit = conf.getLong("fetcher.timelimit.mins", -1);
+      this.maxExceptionsPerQueue = conf.getInt("fetcher.max.exceptions.per.queue", -1);
     }
     
     public int getTotalSize() {
@@ -401,6 +408,36 @@ public class Fetcher extends Configured implements Tool,
       }
       return count;
     }
+    
+    /**
+     * Increment the exception counter of a queue in case of an exception e.g.
+     * timeout; when higher than a given threshold simply empty the queue.
+     *
+     * @param queueid
+     * @return number of purged items
+     */
+    public synchronized int checkExceptionThreshold(String queueid) {
+      FetchItemQueue fiq = queues.get(queueid);
+      if (fiq == null) {
+        return 0;
+      }
+      if (fiq.getQueueSize() == 0) {
+        return 0;
+      }
+      int excCount = fiq.incrementExceptionCounter();
+      if (maxExceptionsPerQueue!= -1 && excCount >= maxExceptionsPerQueue) {
+        // too many exceptions for items in this queue - purge it
+        int deleted = fiq.emptyQueue();
+        LOG.info("* queue: " + queueid + " >> removed " + deleted
+            + " URLs from queue because " + excCount + " exceptions occurred");
+        for (int i = 0; i < deleted; i++) {
+          totalSize.decrementAndGet();
+        }
+        return deleted;
+      }
+      return 0;
+    }
+
     
     public synchronized void dump() {
       for (String id : queues.keySet()) {
@@ -673,6 +710,8 @@ public class Fetcher extends Configured implements Tool,
 
               case ProtocolStatus.EXCEPTION:
                 logError(fit.url, status.getMessage());
+                int killedURLs = fetchQueues.checkExceptionThreshold(fit.getQueueID());
+                reporter.incrCounter("FetcherStatus", "Exceptions", killedURLs);
                 /* FALLTHROUGH */
               case ProtocolStatus.RETRY:          // retry
               case ProtocolStatus.BLOCKED:
