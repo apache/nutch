@@ -601,6 +601,15 @@
   <description>If true, fetcher will store content.</description>
 </property>
 
+<property>
+  <name>fetcher.timelimit.mins</name>
+  <value>-1</value>
+  <description>This is the number of minutes allocated to the fetching.
+  Once this value is reached, any remaining entry from the input URL list is skipped 
+  and all active queues are emptied. The default value of -1 deactivates the time limit.
+  </description>
+</property>
+
 <!-- indexer properties -->
 
 <property>
@@ -1274,6 +1283,16 @@
   <description>
   Should the response output be pretty printed.  Setting to true enables better
   debugging, false removes unneeded spaces and gives better throughput.
+  </description>
+</property>
+
+<!-- solr index properties -->
+<property>
+  <name>solrindex.mapping.file</name>
+  <value>solrindex-mapping.xml</value>
+  <description>
+  Defines the name of the file that will be used in the mapping of internal
+  nutch field names to solr index fields as specified in the target Solr schema.
   </description>
 </property>
 
