@@ -2,6 +2,8 @@ Nutch Change Log
 
 Unreleased Changes
 
+* NUTCH-767 Update Tika to v0.5 for the MimeType detection (Julien Nioche via ab)
+
 * NUTCH-769 Fetcher to skip queues for URLS getting repeated exceptions
   (Julien Nioche via ab)
 
