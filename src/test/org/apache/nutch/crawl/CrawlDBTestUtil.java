@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.crawl;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Iterator;
@@ -30,10 +29,12 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.Text;
-import org.mortbay.http.HttpContext;
-import org.mortbay.http.SocketListener;
-import org.mortbay.http.handler.ResourceHandler;
+
 import org.mortbay.jetty.Server;
+import org.mortbay.jetty.bio.SocketConnector;
+import org.mortbay.jetty.handler.ContextHandler;
+import org.mortbay.jetty.handler.ResourceHandler;
+
 
 public class CrawlDBTestUtil {
 
@@ -131,15 +132,15 @@ public class CrawlDBTestUtil {
    */
   public static Server getServer(int port, String staticContent) throws UnknownHostException{
     Server webServer = new org.mortbay.jetty.Server();
-    SocketListener listener = new SocketListener();
+    SocketConnector listener = new SocketConnector();
     listener.setPort(port);
     listener.setHost("127.0.0.1");
-    webServer.addListener(listener);
-    HttpContext staticContext = new HttpContext();
+    webServer.addConnector(listener);
+    ContextHandler staticContext = new ContextHandler();
     staticContext.setContextPath("/");
     staticContext.setResourceBase(staticContent);
     staticContext.addHandler(new ResourceHandler());
-    webServer.addContext(staticContext);
+    webServer.addHandler(staticContext);
     return webServer;
   }
 }

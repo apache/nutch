@@ -21,10 +21,11 @@ import java.net.URL;
 import java.net.MalformedURLException;
 import junit.framework.TestCase;
 import org.mortbay.jetty.Server;
-import org.mortbay.jetty.servlet.ServletHttpContext;
+import org.mortbay.jetty.bio.SocketConnector;
+import org.mortbay.jetty.handler.ContextHandler;
+import org.mortbay.jetty.handler.ResourceHandler;
 import org.mortbay.jetty.servlet.ServletHandler;
-import org.mortbay.http.SocketListener;
-import org.mortbay.http.handler.ResourceHandler;
+import org.mortbay.jetty.servlet.SessionHandler;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
@@ -44,14 +45,16 @@ public class TestProtocolHttpClient extends TestCase {
 
   protected void setUp() throws Exception {
 
-    ServletHttpContext context = new ServletHttpContext();
+    ContextHandler context = new ContextHandler();
     context.setContextPath("/");
     context.setResourceBase(RES_DIR);
-    context.addServlet("JSP", "*.jsp", "org.apache.jasper.servlet.JspServlet");
-    context.addHandler(new ResourceHandler());
+    ServletHandler sh = new ServletHandler();
+    sh.addServlet("org.apache.jasper.servlet.JspServlet", "*.jsp");
+    context.addHandler(sh);
+    context.addHandler(new SessionHandler());
 
     server = new Server();
-    server.addContext(context);
+    server.addHandler(context);
 
     conf = new Configuration();
     conf.addResource("nutch-default.xml");
@@ -152,10 +155,10 @@ public class TestProtocolHttpClient extends TestCase {
    */
   private void startServer(int portno) throws Exception {
     port = portno;
-    SocketListener listener = new SocketListener();
+    SocketConnector listener = new SocketConnector();
     listener.setHost("127.0.0.1");
     listener.setPort(port);
-    server.addListener(listener);
+    server.addConnector(listener);
     server.start();
   }
 

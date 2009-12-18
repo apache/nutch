@@ -2,6 +2,8 @@ Nutch Change Log
 
 Unreleased Changes
 
+* NUTCH-777 Upgrading to jetty6 broke unit tests (mattmann)
+
 * NUTCH-767 Update Tika to v0.5 for the MimeType detection (Julien Nioche via ab)
 
 * NUTCH-769 Fetcher to skip queues for URLS getting repeated exceptions

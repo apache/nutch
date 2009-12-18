@@ -67,7 +67,7 @@ public class TestFetcher extends TestCase {
     server.start();
   }
 
-  protected void tearDown() throws InterruptedException, IOException{
+  protected void tearDown() throws Exception{
     server.stop();
     fs.delete(testdir, true);
   }
@@ -164,7 +164,7 @@ public class TestFetcher extends TestCase {
   }
 
   private void addUrl(ArrayList<String> urls, String page) {
-    urls.add("http://127.0.0.1:" + server.getListeners()[0].getPort() + "/" + page);
+    urls.add("http://127.0.0.1:" + server.getConnectors()[0].getPort() + "/" + page);
   }
   
   public void testAgentNameCheck() {
