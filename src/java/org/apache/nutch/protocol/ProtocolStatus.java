@@ -191,6 +191,10 @@ public class ProtocolStatus implements Writable {
   public int getCode() {
     return code;
   }
+
+  public String getName() {
+    return codeToName.get(this.code);
+  }
   
   public void setCode(int code) {
     this.code = code;

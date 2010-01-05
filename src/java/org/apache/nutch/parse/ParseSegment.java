@@ -93,6 +93,8 @@ public class ParseSegment extends Configured implements Tool,
       Parse parse = entry.getValue();
       ParseStatus parseStatus = parse.getData().getStatus();
       
+      reporter.incrCounter("ParserStatus", ParseStatus.majorCodes[parseStatus.getMajorCode()], 1);
+      
       if (!parseStatus.isSuccess()) {
         LOG.warn("Error parsing: " + key + ": " + parseStatus);
         parse = parseStatus.getEmptyParse(getConf());

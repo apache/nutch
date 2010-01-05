@@ -607,6 +607,7 @@ public class Fetcher extends Configured implements Tool,
                   LOG.debug("Denied by robots.txt: " + fit.url);
                 }
                 output(fit.url, fit.datum, null, ProtocolStatus.STATUS_ROBOTS_DENIED, CrawlDatum.STATUS_FETCH_GONE);
+                reporter.incrCounter("FetcherStatus", "robots_denied", 1);
                 continue;
               }
               if (rules.getCrawlDelay() > 0) {
@@ -615,6 +616,7 @@ public class Fetcher extends Configured implements Tool,
                   fetchQueues.finishFetchItem(fit, true);
                   LOG.debug("Crawl-Delay for " + fit.url + " too long (" + rules.getCrawlDelay() + "), skipping");
                   output(fit.url, fit.datum, null, ProtocolStatus.STATUS_ROBOTS_DENIED, CrawlDatum.STATUS_FETCH_GONE);
+                  reporter.incrCounter("FetcherStatus", "robots_denied_maxcrawldelay", 1);
                   continue;
                 } else {
                   FetchItemQueue fiq = fetchQueues.getFetchItemQueue(fit.queueID);
@@ -630,6 +632,8 @@ public class Fetcher extends Configured implements Tool,
 
               String urlString = fit.url.toString();
 
+              reporter.incrCounter("FetcherStatus", status.getName(), 1);
+              
               switch(status.getCode()) {
                 
               case ProtocolStatus.WOULDBLOCK:
@@ -664,6 +668,7 @@ public class Fetcher extends Configured implements Tool,
                     } else {
                       // stop redirecting
                       redirecting = false;
+                      reporter.incrCounter("FetcherStatus", "FetchItem.notCreated.redirect", 1);
                     }
                   }
                 }
@@ -701,6 +706,7 @@ public class Fetcher extends Configured implements Tool,
                   } else {
                     // stop redirecting
                     redirecting = false;
+                    reporter.incrCounter("FetcherStatus", "FetchItem.notCreated.redirect", 1);
                   }
                 } else {
                   // stop redirecting
@@ -926,6 +932,7 @@ public class Fetcher extends Configured implements Tool,
       if (parseResult != null && !parseResult.isEmpty()) {
         Parse p = parseResult.get(content.getUrl());
         if (p != null) {
+          reporter.incrCounter("ParserStatus", ParseStatus.majorCodes[p.getData().getStatus().getMajorCode()], 1);
           return p.getData().getStatus();
         }
       }
