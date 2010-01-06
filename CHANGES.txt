@@ -2,6 +2,8 @@ Nutch Change Log
 
 Unreleased Changes
 
+* NUTCH-655 Injecting Crawl metadata (jnioche)
+
 * NUTCH-658 Use counters to report fetching and parsing status (jnioche)
 
 * NUTCH-777 Upgrading to jetty6 broke unit tests (mattmann)

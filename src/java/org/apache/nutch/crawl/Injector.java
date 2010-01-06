@@ -37,10 +37,21 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
 /** This class takes a flat file of URLs and adds them to the of pages to be
- * crawled.  Useful for bootstrapping the system. */
+ * crawled.  Useful for bootstrapping the system. 
+ * The URL files contain one URL per line, optionally followed by custom metadata 
+ * separated by tabs with the metadata key separated from the corresponding value by '='. <br>
+ * Note that some metadata keys are reserved : <br>
+ * - <i>nutch.score</i> : allows to set a custom score for a specific URL <br>
+ * - <i>nutch.fetchInterval</i> : allows to set a custom fetch interval for a specific URL <br>
+ * e.g. http://www.nutch.org/ \t nutch.score=10 \t nutch.fetchInterval=2592000 \t userType=open_source
+ **/
 public class Injector extends Configured implements Tool {
   public static final Log LOG = LogFactory.getLog(Injector.class);
-
+  
+  /** metadata key reserved for setting a custom score for a specific URL */
+  public static String nutchScoreMDName = "nutch.score";
+  /** metadata key reserved for setting a custom fetchInterval for a specific URL */
+  public static String nutchFetchIntervalMDName = "nutch.fetchInterval";
 
   /** Normalize and filter injected urls. */
   public static class InjectMapper implements Mapper<WritableComparable, Text, Text, CrawlDatum> {
@@ -68,6 +79,36 @@ public class Injector extends Configured implements Tool {
                     OutputCollector<Text, CrawlDatum> output, Reporter reporter)
       throws IOException {
       String url = value.toString();              // value is line of text
+      // if tabs : metadata that could be stored
+      // must be name=value and separated by \t
+      float customScore = -1f;
+      int customInterval = interval;
+      Map<String,String> metadata = new TreeMap<String,String>();
+      if (url.indexOf("\t")!=-1){
+    	  String[] splits = url.split("\t");
+    	  url = splits[0];
+    	  for (int s=1;s<splits.length;s++){
+    		  // find separation between name and value
+    		  int indexEquals = splits[s].indexOf("=");
+    		  if (indexEquals==-1) {
+    			  // skip anything without a =
+    			  continue;		    
+    		  }
+    		  String metaname = splits[s].substring(0, indexEquals);
+    		  String metavalue = splits[s].substring(indexEquals+1);
+    		  if (metaname.equals(nutchScoreMDName)) {
+    			  try {
+    			  customScore = Float.parseFloat(metavalue);}
+    			  catch (NumberFormatException nfe){}
+    		  }
+    		  else if (metaname.equals(nutchFetchIntervalMDName)) {
+    			  try {
+    				  customInterval = Integer.parseInt(metavalue);}
+    			  catch (NumberFormatException nfe){}
+    		  }
+    		  else metadata.put(metaname,metavalue);
+    	  }
+      }
       try {
         url = urlNormalizers.normalize(url, URLNormalizers.SCOPE_INJECT);
         url = filters.filter(url);             // filter the url
@@ -77,17 +118,27 @@ public class Injector extends Configured implements Tool {
       }
       if (url != null) {                          // if it passes
         value.set(url);                           // collect it
-        CrawlDatum datum = new CrawlDatum(CrawlDatum.STATUS_INJECTED, interval);
+        CrawlDatum datum = new CrawlDatum(CrawlDatum.STATUS_INJECTED, customInterval);
         datum.setFetchTime(curTime);
-        datum.setScore(scoreInjected);
-        try {
-          scfilters.injectedScore(value, datum);
-        } catch (ScoringFilterException e) {
-          if (LOG.isWarnEnabled()) {
-            LOG.warn("Cannot filter injected score for url " + url +
-                     ", using default (" + e.getMessage() + ")");
-          }
+        if (customScore != -1) datum.setScore(customScore);
+        else {
           datum.setScore(scoreInjected);
+          try {
+            scfilters.injectedScore(value, datum);
+          } catch (ScoringFilterException e) {
+            if (LOG.isWarnEnabled()) {
+              LOG.warn("Cannot filter injected score for url " + url
+                  + ", using default (" + e.getMessage() + ")");
+            }
+            datum.setScore(scoreInjected);
+          }
+        }
+        // now add the metadata
+        Iterator<String> keysIter = metadata.keySet().iterator();
+        while (keysIter.hasNext()){
+        	String keymd = keysIter.next();
+        	String valuemd = metadata.get(keymd);
+        	datum.getMetaData().put(new Text(keymd), new Text(valuemd));
         }
         output.collect(value, datum);
       }
