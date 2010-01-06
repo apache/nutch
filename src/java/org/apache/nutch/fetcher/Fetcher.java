@@ -717,7 +717,8 @@ public class Fetcher extends Configured implements Tool,
               case ProtocolStatus.EXCEPTION:
                 logError(fit.url, status.getMessage());
                 int killedURLs = fetchQueues.checkExceptionThreshold(fit.getQueueID());
-                reporter.incrCounter("FetcherStatus", "Exceptions", killedURLs);
+                if (killedURLs!=0)
+                   reporter.incrCounter("FetcherStatus", "AboveExceptionThresholdInQueue", killedURLs);
                 /* FALLTHROUGH */
               case ProtocolStatus.RETRY:          // retry
               case ProtocolStatus.BLOCKED:
