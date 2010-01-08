@@ -19,6 +19,7 @@ package org.apache.nutch.crawl;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.io.IOException;
 
 // Commons Logging imports
@@ -27,6 +28,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.util.PriorityQueue;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
@@ -37,7 +39,7 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
   
   private int retryMax;
   private CrawlDatum result = new CrawlDatum();
-  private ArrayList<CrawlDatum> linked = new ArrayList<CrawlDatum>();
+  private InlinkPriorityQueue linked = null;
   private ScoringFilters scfilters = null;
   private boolean additionsAllowed;
   private int maxInterval;
@@ -51,6 +53,8 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
     maxInterval = job.getInt("db.fetch.interval.max", 0 );
     if (oldMaxInterval > 0 && maxInterval == 0) maxInterval = oldMaxInterval * FetchSchedule.SECONDS_PER_DAY;
     schedule = FetchScheduleFactory.getFetchSchedule(job);
+    int maxLinks = job.getInt("db.update.max.inlinks", 10000);
+    linked = new InlinkPriorityQueue(maxLinks);
   }
 
   public void close() {}
@@ -111,7 +115,7 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
         } else {
           link = datum;
         }
-        linked.add(link);
+        linked.insert(link);
         break;
       case CrawlDatum.STATUS_SIGNATURE:
         signature = datum.getSignature();
@@ -120,13 +124,21 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
         LOG.warn("Unknown status, key: " + key + ", datum: " + datum);
       }
     }
-
+    
+    // copy the content of the queue into a List
+    // in reversed order
+    int numLinks = linked.size();
+    List<CrawlDatum> linkList = new ArrayList<CrawlDatum>(numLinks);
+    for (int i = numLinks - 1; i >= 0; i--) {
+      linkList.add(linked.pop());
+    }
+    
     // if it doesn't already exist, skip it
     if (!oldSet && !additionsAllowed) return;
     
     // if there is no fetched datum, perhaps there is a link
-    if (!fetchSet && linked.size() > 0) {
-      fetch = linked.get(0);
+    if (!fetchSet && linkList.size() > 0) {
+      fetch = linkList.get(0);
       fetchSet = true;
     }
     
@@ -260,7 +272,7 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
     }
 
     try {
-      scfilters.updateDbScore((Text)key, oldSet ? old : null, result, linked);
+      scfilters.updateDbScore((Text)key, oldSet ? old : null, result, linkList);
     } catch (Exception e) {
       if (LOG.isWarnEnabled()) {
         LOG.warn("Couldn't update score, key=" + key + ": " + e);
@@ -270,5 +282,20 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
     result.getMetaData().remove(Nutch.WRITABLE_GENERATE_TIME_KEY);
     output.collect(key, result);
   }
+  
+}
 
+class InlinkPriorityQueue extends PriorityQueue<CrawlDatum> {
+  
+  public InlinkPriorityQueue(int maxSize) {
+    initialize(maxSize);
+  }
+  
+  /** Determines the ordering of objects in this priority queue. **/
+  protected boolean lessThan(Object arg0, Object arg1) {
+    CrawlDatum candidate = (CrawlDatum) arg0;
+    CrawlDatum least = (CrawlDatum) arg1;
+    return candidate.getScore() > least.getScore();
+  }
+  
 }

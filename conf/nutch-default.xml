@@ -384,6 +384,14 @@
 </property>
 
 <property>
+  <name>db.update.max.inlinks</name>
+  <value>10000</value>
+  <description>Maximum number of inlinks to take into account when updating 
+  a URL score in the crawlDB. Only the best scoring inlinks are kept. 
+  </description>
+</property>
+
+<property>
   <name>db.ignore.internal.links</name>
   <value>true</value>
   <description>If true, when adding new links to a page, links from

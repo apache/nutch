@@ -2,6 +2,8 @@ Nutch Change Log
 
 Unreleased Changes
 
+* NUTCH-269 CrawlDbReducer: OOME because no upper-bound on inlinks count (stack + jnioche)
+
 * NUTCH-655 Injecting Crawl metadata (jnioche)
 
 * NUTCH-658 Use counters to report fetching and parsing status (jnioche)
