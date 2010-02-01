@@ -23,10 +23,20 @@ import org.apache.hadoop.io.Closeable;
 
 /** Service that searches. */
 public interface Searcher extends Closeable {
-  /** Return the top-scoring hits for a query. */
-  Hits search(Query query, int numHits,
-              String dedupField, String sortField, boolean reverse)
-    throws IOException;
+  /**
+   * Return the top-scoring hits for a query.
+   * 
+   * @deprecated since 1.1, use {@link #search(Query)} instead.
+   * */
+  Hits search(Query query, int numHits, String dedupField, String sortField,
+      boolean reverse) throws IOException;
+
+  /**
+   * Return the top-scoring hits for a query.
+   * 
+   * @since 1.1
+   */
+  Hits search(Query query) throws IOException;
 
   /** Return an HTML-formatted explanation of how a query scored. */
   String getExplanation(Query query, Hit hit) throws IOException;

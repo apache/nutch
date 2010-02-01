@@ -41,6 +41,16 @@ import org.apache.nutch.util.NutchConfiguration;
 public final class Query implements Writable, Cloneable, Configurable {
   public static final Log LOG = LogFactory.getLog(Query.class);
 
+  private QueryParams params = new QueryParams();
+  
+  public void setParams(QueryParams context) {
+    this.params = context;
+  }
+
+  public QueryParams getParams() {
+    return params;
+  }
+
   /** A query clause. */
   public static class Clause implements Cloneable {
     public static final String DEFAULT_FIELD = "DEFAULT";
@@ -362,6 +372,7 @@ public final class Query implements Writable, Cloneable, Configurable {
     out.writeByte(clauses.size());
     for (int i = 0; i < clauses.size(); i++)
       clauses.get(i).write(out);
+    params.write(out);
   }
   
   public static Query read(DataInput in, Configuration conf) throws IOException {
@@ -375,6 +386,8 @@ public final class Query implements Writable, Cloneable, Configurable {
     int length = in.readByte();
     for (int i = 0; i < length; i++)
       clauses.add(Clause.read(in, this.conf));
+    
+    params.readFields(in);
   }
 
   public String toString() {
@@ -390,7 +403,7 @@ public final class Query implements Writable, Cloneable, Configurable {
   public boolean equals(Object o) {
     if (!(o instanceof Query)) return false;
     Query other = (Query)o;
-    return this.clauses.equals(other.clauses);
+    return this.clauses.equals(other.clauses) && this.params.equals(other.params);
   }
   
   public int hashCode() {

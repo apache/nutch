@@ -204,8 +204,8 @@ function queryfocus() { document.search.query.focus(); }
     // position.... this is good, bad?... ugly?....
    Hits hits;
    try{
-     hits = bean.search(query, start + hitsToRetrieve, hitsPerSite, "site",
-                        sort, reverse);
+      query.getParams.initFrom(start + hitsToRetrieve, hitsPerSite, "site", sort, reverse);
+     hits = bean.search(query);
    } catch (IOException e){
      hits = new Hits(0,new Hit[0]);	
    }

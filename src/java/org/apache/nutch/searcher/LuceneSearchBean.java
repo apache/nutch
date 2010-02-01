@@ -78,10 +78,19 @@ public class LuceneSearchBean implements RPCSearchBean {
     }
   }
 
+
+  @Override
+  @Deprecated
   public Hits search(Query query, int numHits, String dedupField,
                      String sortField, boolean reverse)
   throws IOException {
-    return searcher.search(query, numHits, dedupField, sortField, reverse);
+    query.setParams(new QueryParams(numHits, QueryParams.DEFAULT_MAX_HITS_PER_DUP, dedupField, sortField, reverse));
+    return searcher.search(query);
+  }
+  
+  @Override
+  public Hits search(Query query) throws IOException {
+    return searcher.search(query);
   }
 
   public String getExplanation(Query query, Hit hit) throws IOException {

@@ -151,15 +151,105 @@ HitInlinks, Closeable {
     return segmentBean.getSegmentNames();
   }
 
+  /**
+   * @deprecated since 1.1, use {@link #search(Query)} instead
+   */
   public Hits search(Query query, int numHits) throws IOException {
     return search(query, numHits, null, null, false);
   }
 
+  /**
+   * @deprecated since 1.1, use {@link #search(Query)} instead
+   */
   public Hits search(Query query, int numHits,
                      String dedupField, String sortField, boolean reverse)
     throws IOException {
 
-    return searchBean.search(query, numHits, dedupField, sortField, reverse);
+    query.getParams().initFrom(numHits, QueryParams.DEFAULT_MAX_HITS_PER_DUP, dedupField, sortField, reverse);
+    return search(query);
+  }
+  
+  @Override
+  public Hits search(Query query) throws IOException {
+    if (query.getParams().getMaxHitsPerDup() <= 0)                      // disable dup checking
+      return searchBean.search(query);
+
+    final float rawHitsFactor = this.conf.getFloat("searcher.hostgrouping.rawhits.factor", 2.0f);
+    int numHitsRaw = (int)(query.getParams().getNumHits() * rawHitsFactor);
+    if (LOG.isInfoEnabled()) {
+      LOG.info("searching for "+numHitsRaw+" raw hits");
+    }
+    Hits hits = searchBean.search(query);
+    final long total = hits.getTotal();
+    final Map<String, DupHits> dupToHits = new HashMap<String, DupHits>();
+    final List<Hit> resultList = new ArrayList<Hit>();
+    final Set<Hit> seen = new HashSet<Hit>();
+    final List<String> excludedValues = new ArrayList<String>();
+    boolean totalIsExact = true;
+    for (int rawHitNum = 0; rawHitNum < hits.getTotal(); rawHitNum++) {
+      // get the next raw hit
+      if (rawHitNum >= hits.getLength()) {
+        // optimize query by prohibiting more matches on some excluded values
+        final Query optQuery = (Query)query.clone();
+        for (int i = 0; i < excludedValues.size(); i++) {
+          if (i == MAX_PROHIBITED_TERMS)
+            break;
+          optQuery.addProhibitedTerm(excludedValues.get(i),
+                                     query.getParams().getDedupField());
+        }
+        numHitsRaw = (int)(numHitsRaw * rawHitsFactor);
+        if (LOG.isInfoEnabled()) {
+          LOG.info("re-searching for "+numHitsRaw+" raw hits, query: "+optQuery);
+        }
+        hits = searchBean.search(optQuery);
+        if (LOG.isInfoEnabled()) {
+          LOG.info("found "+hits.getTotal()+" raw hits");
+        }
+        rawHitNum = -1;
+        continue;
+      }
+
+      final Hit hit = hits.getHit(rawHitNum);
+      if (seen.contains(hit))
+        continue;
+      seen.add(hit);
+
+      // get dup hits for its value
+      final String value = hit.getDedupValue();
+      DupHits dupHits = dupToHits.get(value);
+      if (dupHits == null)
+        dupToHits.put(value, dupHits = new DupHits());
+
+      // does this hit exceed maxHitsPerDup?
+      if (dupHits.size() == query.getParams().getMaxHitsPerDup()) {      // yes -- ignore the hit
+        if (!dupHits.maxSizeExceeded) {
+
+          // mark prior hits with moreFromDupExcluded
+          for (int i = 0; i < dupHits.size(); i++) {
+            dupHits.get(i).setMoreFromDupExcluded(true);
+          }
+          dupHits.maxSizeExceeded = true;
+
+          excludedValues.add(value);              // exclude dup
+        }
+        totalIsExact = false;
+      } else {                                    // no -- collect the hit
+        resultList.add(hit);
+        dupHits.add(hit);
+
+        // are we done?
+        // we need to find one more than asked for, so that we can tell if
+        // there are more hits to be shown
+        if (resultList.size() > query.getParams().getNumHits())
+          break;
+      }
+    }
+
+    final Hits results =
+      new Hits(total,
+               resultList.toArray(new Hit[resultList.size()]));
+    results.setTotalIsExact(totalIsExact);
+    return results;
   }
 
   @SuppressWarnings("serial")
@@ -178,6 +268,8 @@ HitInlinks, Closeable {
    * @param maxHitsPerDup the maximum hits returned with matching values, or zero
    * @return Hits the matching hits
    * @throws IOException
+   * @deprecated since 1.1, use {@link #search(Query)} instead
+   * 
    */
   public Hits search(Query query, int numHits, int maxHitsPerDup)
        throws IOException {
@@ -196,6 +288,7 @@ HitInlinks, Closeable {
    * @param dedupField field name to check for duplicates
    * @return Hits the matching hits
    * @throws IOException
+   * @deprecated since 1.1, use {@link #search(Query)} instead
    */
   public Hits search(Query query, int numHits,
                      int maxHitsPerDup, String dedupField)
@@ -216,92 +309,14 @@ HitInlinks, Closeable {
    * @param reverse True if we are to reverse sort by <code>sortField</code>.
    * @return Hits the matching hits
    * @throws IOException
+   * @deprecated since 1.1, use {@link #search(Query)} instead
    */
   public Hits search(Query query, int numHits,
                      int maxHitsPerDup, String dedupField,
                      String sortField, boolean reverse)
        throws IOException {
-    if (maxHitsPerDup <= 0)                      // disable dup checking
-      return search(query, numHits, dedupField, sortField, reverse);
-
-    final float rawHitsFactor = this.conf.getFloat("searcher.hostgrouping.rawhits.factor", 2.0f);
-    int numHitsRaw = (int)(numHits * rawHitsFactor);
-    if (LOG.isInfoEnabled()) {
-      LOG.info("searching for "+numHitsRaw+" raw hits");
-    }
-    Hits hits = searchBean.search(query, numHitsRaw,
-                                dedupField, sortField, reverse);
-    final long total = hits.getTotal();
-    final Map<String, DupHits> dupToHits = new HashMap<String, DupHits>();
-    final List<Hit> resultList = new ArrayList<Hit>();
-    final Set<Hit> seen = new HashSet<Hit>();
-    final List<String> excludedValues = new ArrayList<String>();
-    boolean totalIsExact = true;
-    for (int rawHitNum = 0; rawHitNum < hits.getTotal(); rawHitNum++) {
-      // get the next raw hit
-      if (rawHitNum >= hits.getLength()) {
-        // optimize query by prohibiting more matches on some excluded values
-        final Query optQuery = (Query)query.clone();
-        for (int i = 0; i < excludedValues.size(); i++) {
-          if (i == MAX_PROHIBITED_TERMS)
-            break;
-          optQuery.addProhibitedTerm(excludedValues.get(i),
-                                     dedupField);
-        }
-        numHitsRaw = (int)(numHitsRaw * rawHitsFactor);
-        if (LOG.isInfoEnabled()) {
-          LOG.info("re-searching for "+numHitsRaw+" raw hits, query: "+optQuery);
-        }
-        hits = searchBean.search(optQuery, numHitsRaw,
-                               dedupField, sortField, reverse);
-        if (LOG.isInfoEnabled()) {
-          LOG.info("found "+hits.getTotal()+" raw hits");
-        }
-        rawHitNum = -1;
-        continue;
-      }
-
-      final Hit hit = hits.getHit(rawHitNum);
-      if (seen.contains(hit))
-        continue;
-      seen.add(hit);
-
-      // get dup hits for its value
-      final String value = hit.getDedupValue();
-      DupHits dupHits = dupToHits.get(value);
-      if (dupHits == null)
-        dupToHits.put(value, dupHits = new DupHits());
-
-      // does this hit exceed maxHitsPerDup?
-      if (dupHits.size() == maxHitsPerDup) {      // yes -- ignore the hit
-        if (!dupHits.maxSizeExceeded) {
-
-          // mark prior hits with moreFromDupExcluded
-          for (int i = 0; i < dupHits.size(); i++) {
-            dupHits.get(i).setMoreFromDupExcluded(true);
-          }
-          dupHits.maxSizeExceeded = true;
-
-          excludedValues.add(value);              // exclude dup
-        }
-        totalIsExact = false;
-      } else {                                    // no -- collect the hit
-        resultList.add(hit);
-        dupHits.add(hit);
-
-        // are we done?
-        // we need to find one more than asked for, so that we can tell if
-        // there are more hits to be shown
-        if (resultList.size() > numHits)
-          break;
-      }
-    }
-
-    final Hits results =
-      new Hits(total,
-               resultList.toArray(new Hit[resultList.size()]));
-    results.setTotalIsExact(totalIsExact);
-    return results;
+    query.setParams(new QueryParams(numHits, maxHitsPerDup, dedupField, sortField, reverse));
+    return search(query);
   }
 
 
@@ -374,9 +389,10 @@ HitInlinks, Closeable {
     final NutchBean bean = new NutchBean(conf);
     try {
       final Query query = Query.parse(args[0], conf);
-      final Hits hits = bean.search(query, 10);
+      query.getParams().setMaxHitsPerDup(0);
+      final Hits hits = bean.search(query);
       System.out.println("Total hits: " + hits.getTotal());
-      final int length = (int)Math.min(hits.getTotal(), 10);
+      final int length = (int)Math.min(hits.getLength(), 10);
       final Hit[] show = hits.getHits(0, length);
       final HitDetails[] details = bean.getDetails(show);
       final Summary[] summaries = bean.getSummary(details, query);

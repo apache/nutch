@@ -68,24 +68,23 @@ public class SolrSearchBean implements SearchBean {
     return "SOLR backend does not support explanations yet.";
   }
 
-  @SuppressWarnings("unchecked")
-  public Hits search(Query query, int numHits, String dedupField,
-                     String sortField, boolean reverse)
-  throws IOException {
-
+  
+  public Hits search(Query query) throws IOException {
     // filter query string
     final BooleanQuery bQuery = filters.filter(query);
 
     final SolrQuery solrQuery = new SolrQuery(stringify(bQuery));
 
-    solrQuery.setRows(numHits);
+    solrQuery.setRows(query.getParams().getNumHits());
 
-    if (sortField == null) {
-      solrQuery.setFields(dedupField, "score", searchUID);
-      sortField = "score";
+    if (query.getParams().getSortField() == null) {
+      solrQuery.setFields(query.getParams().getDedupField(), "score", searchUID);
+      query.getParams().setSortField("score");
     } else {
-      solrQuery.setFields(dedupField, sortField, searchUID);
-      solrQuery.setSortField(sortField, reverse ? ORDER.asc : ORDER.desc);
+      solrQuery.setFields(query.getParams().getDedupField(), query
+          .getParams().getSortField(), searchUID);
+      solrQuery.setSortField(query.getParams().getSortField(), query
+          .getParams().isReverse() ? ORDER.asc : ORDER.desc);
     }
 
     QueryResponse response;
@@ -101,7 +100,7 @@ public class SolrSearchBean implements SearchBean {
     for (int i = 0; i < hitArr.length; i++) {
       final SolrDocument solrDoc = docList.get(i);
 
-      final Object raw = solrDoc.getFirstValue(sortField);
+      final Object raw = solrDoc.getFirstValue(query.getParams().getSortField());
       WritableComparable sortValue;
 
       if (raw instanceof Integer) {
@@ -116,7 +115,7 @@ public class SolrSearchBean implements SearchBean {
         throw new RuntimeException("Unknown sort value type!");
       }
 
-      final String dedupValue = (String) solrDoc.getFirstValue(dedupField);
+      final String dedupValue = (String) solrDoc.getFirstValue(query.getParams().getDedupField());
 
       final String uniqueKey = (String )solrDoc.getFirstValue(searchUID);
 
@@ -124,6 +123,18 @@ public class SolrSearchBean implements SearchBean {
     }
 
     return new Hits(docList.getNumFound(), hitArr);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Deprecated
+  public Hits search(Query query, int numHits, String dedupField,
+                     String sortField, boolean reverse)
+  throws IOException {
+    query.getParams().setNumHits(numHits); 
+    query.getParams().setDedupField(dedupField); 
+    query.getParams().setSortField(sortField); 
+    query.getParams().setReverse(reverse);
+    return search(query);
   }
 
   public HitDetails getDetails(Hit hit) throws IOException {

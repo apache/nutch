@@ -89,17 +89,27 @@ public class IndexSearcher implements Searcher, HitDetailer {
     }
   }
 
+  @Override
+  @Deprecated
   public Hits search(Query query, int numHits,
                      String dedupField, String sortField, boolean reverse)
 
     throws IOException {
+    query.setParams(new QueryParams(numHits,
+        QueryParams.DEFAULT_MAX_HITS_PER_DUP, dedupField, sortField, reverse));
+    return search(query);
+  }
+  
+  @Override
+  public Hits search(Query query) throws IOException {
     org.apache.lucene.search.BooleanQuery luceneQuery =
       this.queryFilters.filter(query);
-    return translateHits
-      (optimizer.optimize(luceneQuery, luceneSearcher, numHits,
-                          sortField, reverse),
-       dedupField, sortField);
+    return translateHits(optimizer.optimize(luceneQuery, luceneSearcher, query
+        .getParams().getNumHits(), query.getParams().getSortField(), query
+        .getParams().isReverse()), query.getParams().getDedupField(), query
+        .getParams().getSortField());
   }
+
 
   public String getExplanation(Query query, Hit hit) throws IOException {
     return luceneSearcher.explain(this.queryFilters.filter(query),

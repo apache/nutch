@@ -49,10 +49,6 @@ public class DistributedSearchBean implements SearchBean {
     private int id;
 
     private Query query;
-    private int numHits;
-    private String dedupField;
-    private String sortField;
-    private boolean reverse;
 
     public SearchTask(int id) {
       this.id = id;
@@ -62,16 +58,20 @@ public class DistributedSearchBean implements SearchBean {
       if (!liveServers[id]) {
         return null;
       }
-      return beans[id].search(query, numHits, dedupField, sortField, reverse);
+      return beans[id].search(query);
     }
 
+    /**
+     * @deprecated since 1.1, use {@link #setSearchArgs(Query)} instead
+     */
     public void setSearchArgs(Query query, int numHits, String dedupField,
                               String sortField, boolean reverse) {
       this.query = query;
-      this.numHits = numHits;
-      this.dedupField = dedupField;
-      this.sortField = sortField;
-      this.reverse = reverse;
+      query.setParams(new QueryParams(numHits, QueryParams.DEFAULT_MAX_HITS_PER_DUP, dedupField, sortField, reverse));
+    }
+
+    private void setSearchArgs(Query query) {
+      this.query = query;
     }
 
   }
@@ -199,12 +199,10 @@ public class DistributedSearchBean implements SearchBean {
     return beans[hit.getIndexNo()].getExplanation(query, hit);
   }
 
-  public Hits search(Query query, int numHits, String dedupField,
-                     String sortField, boolean reverse) throws IOException {
-
+  @Override
+  public Hits search(Query query) throws IOException {
     for (Callable<Hits> task : searchTasks) {
-      ((SearchTask)task).setSearchArgs(query, numHits, dedupField, sortField,
-          reverse);
+      ((SearchTask)task).setSearchArgs(query);
     }
 
     List<Future<Hits>> allHits;
@@ -216,10 +214,12 @@ public class DistributedSearchBean implements SearchBean {
     }
 
     PriorityQueue<Hit> queue;            // cull top hits from results
-    if (sortField == null || reverse) {
-      queue = new PriorityQueue<Hit>(numHits);
+    if (query.getParams().getSortField() == null
+        || query.getParams().isReverse()) {
+      queue = new PriorityQueue<Hit>(query.getParams().getNumHits());
     } else {
-      queue = new PriorityQueue<Hit>(numHits, new Comparator<Hit>() {
+      queue = new PriorityQueue<Hit>(query.getParams().getNumHits(),
+          new Comparator<Hit>() {
         public int compare(Hit h1, Hit h2) {
           return h2.compareTo(h1); // reverse natural order
         }
@@ -251,7 +251,8 @@ public class DistributedSearchBean implements SearchBean {
         Hit newHit = new Hit(i, hit.getUniqueKey(),
                              hit.getSortValue(), hit.getDedupValue());
         queue.add(newHit);
-        if (queue.size() > numHits) {         // if hit queue overfull
+        if (queue.size() > query.getParams().getNumHits()) {
+          // if hit queue overfull
           queue.remove();
         }
       }
@@ -263,6 +264,15 @@ public class DistributedSearchBean implements SearchBean {
     Arrays.sort(culledResults, Collections.reverseOrder(queue.comparator()));
 
     return new Hits(totalHits, culledResults);
+  }
+
+  @Override
+  @Deprecated
+  public Hits search(Query query, int numHits, String dedupField,
+                     String sortField, boolean reverse) throws IOException {
+
+    query.setParams(new QueryParams(numHits, QueryParams.DEFAULT_MAX_HITS_PER_DUP, dedupField, sortField, reverse));
+    return search(query);
   }
 
   public void close() throws IOException {
