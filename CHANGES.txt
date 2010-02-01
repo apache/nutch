@@ -2,6 +2,8 @@ Nutch Change Log
 
 Unreleased Changes
 
+* NUTCH-781 Update Tika to v0.6 (jnioche)
+
 * NUTCH-269 CrawlDbReducer: OOME because no upper-bound on inlinks count (stack + jnioche)
 
 * NUTCH-655 Injecting Crawl metadata (jnioche)
