@@ -1,0 +1,20 @@
+<ivy-module version="2.0">
+    <info organisation="apache" module="parse-tika"/>
+    <dependencies>
+	<dependency org="org.apache.tika" name="tika-parsers" rev="0.6">
+		<exclude module="lucene-*"/>
+		<exclude module="tika-core"/>
+		<exclude module="log4j"/>
+		<exclude org="org.apache.tika" module="tika-parsers" name="*" type="javadoc" ext="*" conf="" matcher="exact"/>
+		<exclude org="org.apache.tika" module="tika-parsers" name="*" type="source" ext="*" conf="" matcher="exact"/>
+	</dependency>
+	<dependency org="bouncycastle" name="bcprov-jdk14" rev="136">
+		<exclude org="bouncycastle" module="bcprov-jdk14" name="*" type="javadoc" ext="*" conf="" matcher="exact"/>
+		<exclude org="bouncycastle" module="bcprov-jdk14" name="*" type="source" ext="*" conf="" matcher="exact"/>
+	</dependency>
+	<dependency org="bouncycastle" name="bcmail-jdk14" rev="136">
+		<exclude org="bouncycastle" module="bcmail-jdk14" name="*" type="javadoc" ext="*" conf="" matcher="exact"/>
+		<exclude org="bouncycastle" module="bcmail-jdk14" name="*" type="source" ext="*" conf="" matcher="exact"/>
+	</dependency>
+    </dependencies>
+</ivy-module>

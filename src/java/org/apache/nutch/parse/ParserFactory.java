@@ -343,16 +343,24 @@ public final class ParserFactory {
       // NotMappedParserException
       
       for (int i=0; i<extensions.length; i++) {
-        if (extensions[i].getAttribute("contentType") != null
+        if ((extensions[i].getAttribute("contentType") != null
             && extensions[i].getAttribute("contentType").equals(
-                contentType)) {
+                contentType)) || "*".equals(extensions[i].getAttribute("contentType") )) {
           extList.add(extensions[i]);
         }
       }
       
       if (extList.size() > 0) {
         if (LOG.isInfoEnabled()) {
-          LOG.info("The parsing plugins: " + extList +
+          StringBuffer extensionsIDs = new StringBuffer("[");
+          boolean isFirst = true;
+          for (Extension ext : extList){
+        	  if (!isFirst) extensionsIDs.append(" - ");
+        	  else isFirst=false;
+        	  extensionsIDs.append(ext.getId());
+          }
+    	  extensionsIDs.append("]");
+          LOG.info("The parsing plugins: " + extensionsIDs.toString() +
                    " are enabled via the plugin.includes system " +
                    "property, and all claim to support the content type " +
                    contentType + ", but they are not mapped to it  in the " +
@@ -369,7 +377,7 @@ public final class ParserFactory {
 
   private boolean match(Extension extension, String id, String type) {
     return ((id.equals(extension.getId())) &&
-            (type.equals(extension.getAttribute("contentType")) ||
+            (type.equals(extension.getAttribute("contentType")) || extension.getAttribute("contentType").equals("*") ||
              type.equals(DEFAULT_PLUGIN)));
   }
   

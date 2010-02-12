@@ -62,6 +62,7 @@
      <!-- <ant dir="parse-rtf" target="deploy"/> -->
      <ant dir="parse-swf" target="deploy"/>
      <ant dir="parse-text" target="deploy"/>
+     <ant dir="parse-tika" target="deploy"/>
      <ant dir="parse-zip" target="deploy"/>
      <ant dir="query-basic" target="deploy"/>
      <ant dir="query-more" target="deploy"/>
@@ -110,6 +111,7 @@
      <ant dir="feed" target="test"/>
      <!-- <ant dir="parse-rtf" target="test"/> -->
      <ant dir="parse-swf" target="test"/>
+     <ant dir="parse-tika" target="test"/>
      <ant dir="parse-zip" target="test"/>
      <ant dir="query-url" target="test"/>
      <ant dir="subcollection" target="test"/>
@@ -166,6 +168,7 @@
     <ant dir="parse-rtf" target="clean"/>
     <ant dir="parse-swf" target="clean"/>
     <ant dir="parse-text" target="clean"/>
+    <ant dir="parse-tika" target="clean"/>
     <ant dir="parse-zip" target="clean"/>
     <ant dir="query-basic" target="clean"/>
     <ant dir="query-more" target="clean"/>

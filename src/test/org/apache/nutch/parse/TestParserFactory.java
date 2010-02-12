@@ -54,7 +54,7 @@ public class TestParserFactory extends TestCase {
     ext = (Extension) parserFactory.getExtensions("text/html; charset=ISO-8859-1").get(0);
     assertEquals("parse-html", ext.getDescriptor().getPluginId());
     ext = (Extension)parserFactory.getExtensions("foo/bar").get(0);
-    assertEquals("parse-text", ext.getDescriptor().getPluginId());
+    assertEquals("parse-tika", ext.getDescriptor().getPluginId());
   }
   
   /** Unit test to check <code>getParsers</code> method */
