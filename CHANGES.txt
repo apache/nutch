@@ -2,6 +2,8 @@ Nutch Change Log
 
 Unreleased Changes
 
+* NUTCH-790 Some external javadoc links are broken (siren)
+
 * NUTCH-766 Tika parser (jnioche via mattmann)
 
 * NUTCH-786 Improvement to the list of suffix domains (jnioche)
