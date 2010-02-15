@@ -343,10 +343,13 @@ public final class ParserFactory {
       // NotMappedParserException
       
       for (int i=0; i<extensions.length; i++) {
-        if ((extensions[i].getAttribute("contentType") != null
+        if (extensions[i].getAttribute("contentType") != null
             && extensions[i].getAttribute("contentType").equals(
-                contentType)) || "*".equals(extensions[i].getAttribute("contentType") )) {
+                contentType)) {
           extList.add(extensions[i]);
+        }
+        else if ("*".equals(extensions[i].getAttribute("contentType"))){
+          extList.add(0, extensions[i]);
         }
       }
       
