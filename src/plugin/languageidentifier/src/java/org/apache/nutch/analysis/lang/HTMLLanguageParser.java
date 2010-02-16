@@ -91,14 +91,32 @@ public class HTMLLanguageParser implements HtmlParseFilter {
     
     Parse parse = parseResult.get(content.getUrl());
 
+    String lang = getLanguageFromMetadata(parse.getData().getParseMeta());
+    if (lang != null) {
+      parse.getData().getParseMeta().set(Metadata.LANGUAGE, lang);
+      return parseResult;
+    }
+    
     // Trying to find the document's language
     LanguageParser parser = new LanguageParser(doc);
-    String lang = parser.getLanguage();
+    lang = parser.getLanguage();
 
     if (lang != null) {
       parse.getData().getParseMeta().set(Metadata.LANGUAGE, lang);
     }
     return parseResult;
+  }
+  
+  // Check in the metadata whether the language has already been stored there by Tika
+  private static String getLanguageFromMetadata(Metadata parseMD){
+    // dublin core 
+    String lang = parseMD.get("dc.language");
+    if (lang!=null) return lang;
+    // meta content-language
+    lang = parseMD.get("content-language");
+    if (lang!=null) return lang;
+    // lang attribute
+    return parseMD.get("lang");
   }
 
   static class LanguageParser {
