@@ -338,7 +338,7 @@ public class Fetcher extends Configured implements Tool,
       if (it != null) addFetchItem(it);
     }
     
-    public void addFetchItem(FetchItem it) {
+    public synchronized void addFetchItem(FetchItem it) {
       FetchItemQueue fiq = getFetchItemQueue(it.queueID);
       fiq.addFetchItem(it);
       totalSize.incrementAndGet();
