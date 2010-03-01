@@ -2,6 +2,8 @@ Nutch Change Log
 
 Unreleased Changes
 
+* NUTCH-782 Ability to order htmlparsefilters (jnioche)
+
 * NUTCH-719 fetchQueues.totalSize incorrect in Fetcher (Steven Denny via jnioche) 
 
 * NUTCH-790 Some external javadoc links are broken (siren)

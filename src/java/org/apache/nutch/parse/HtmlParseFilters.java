@@ -17,6 +17,7 @@
 
 package org.apache.nutch.parse;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.nutch.protocol.Content;
@@ -30,12 +31,23 @@ import org.w3c.dom.DocumentFragment;
 public class HtmlParseFilters {
 
   private HtmlParseFilter[] htmlParseFilters;
+  
+  public static final String HTMLPARSEFILTER_ORDER = "htmlparsefilter.order";
 
   public HtmlParseFilters(Configuration conf) {
+        String order = conf.get(HTMLPARSEFILTER_ORDER);
         ObjectCache objectCache = ObjectCache.get(conf);
         this.htmlParseFilters = (HtmlParseFilter[]) objectCache.getObject(HtmlParseFilter.class.getName());
         if (htmlParseFilters == null) {
-            HashMap<String, HtmlParseFilter> filters =
+          /*
+           * If ordered filters are required, prepare array of filters based on
+           * property
+           */
+          String[] orderedFilters = null;
+          if (order != null && !order.trim().equals("")) {
+            orderedFilters = order.split("\\s+");
+          }
+            HashMap<String, HtmlParseFilter> filterMap =
               new HashMap<String, HtmlParseFilter>();
             try {
                 ExtensionPoint point = PluginRepository.get(conf).getExtensionPoint(HtmlParseFilter.X_POINT_ID);
@@ -45,12 +57,31 @@ public class HtmlParseFilters {
                 for (int i = 0; i < extensions.length; i++) {
                     Extension extension = extensions[i];
                     HtmlParseFilter parseFilter = (HtmlParseFilter) extension.getExtensionInstance();
-                    if (!filters.containsKey(parseFilter.getClass().getName())) {
-                        filters.put(parseFilter.getClass().getName(), parseFilter);
+                    if (!filterMap.containsKey(parseFilter.getClass().getName())) {
+                        filterMap.put(parseFilter.getClass().getName(), parseFilter);
                     }
                 }
-                HtmlParseFilter[] htmlParseFilters = filters.values().toArray(new HtmlParseFilter[filters.size()]);
-                objectCache.setObject(HtmlParseFilter.class.getName(), htmlParseFilters);
+                HtmlParseFilter[] htmlParseFilters = filterMap.values().toArray(new HtmlParseFilter[filterMap.size()]);
+                /*
+                 * If no ordered filters required, just get the filters in an
+                 * indeterminate order
+                 */
+                if (orderedFilters == null) {
+                  objectCache.setObject(HtmlParseFilter.class.getName(), htmlParseFilters);
+                }
+                /* Otherwise run the filters in the required order */
+                else {
+                  ArrayList<HtmlParseFilter> filters = new ArrayList<HtmlParseFilter>();
+                  for (int i = 0; i < orderedFilters.length; i++) {
+                    HtmlParseFilter filter = filterMap
+                        .get(orderedFilters[i]);
+                    if (filter != null) {
+                      filters.add(filter);
+                    }
+                  }
+                  objectCache.setObject(HtmlParseFilter.class.getName(), filters
+                      .toArray(new HtmlParseFilter[filters.size()]));
+                }
             } catch (PluginRuntimeException e) {
                 throw new RuntimeException(e);
             }
