@@ -74,7 +74,7 @@ public class SolrWriter implements NutchIndexWriter {
         solr.add(inputDocs);
         inputDocs.clear();
       }
-      solr.commit();
+      // solr.commit();
     } catch (final SolrServerException e) {
       throw makeIOException(e);
     }

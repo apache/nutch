@@ -37,6 +37,8 @@ import org.apache.nutch.indexer.IndexerMapReduce;
 import org.apache.nutch.indexer.NutchIndexWriterFactory;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
 
 public class SolrIndexer extends Configured implements Tool {
 
@@ -71,6 +73,12 @@ public class SolrIndexer extends Configured implements Tool {
     FileOutputFormat.setOutputPath(job, tmp);
     try {
       JobClient.runJob(job);
+      // do the commits once and for all the reducers in one go
+      SolrServer solr =  new CommonsHttpSolrServer(solrUrl);
+      solr.commit();
+    } 
+    catch (Exception e){
+      LOG.error(e);
     } finally {
       FileSystem.get(job).delete(tmp, true);
     }
