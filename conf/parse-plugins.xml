@@ -124,13 +124,11 @@
 	</mimeType>
 
 	<mimeType name="text/richtext">
-		<plugin id="parse-rtf" />
-		<plugin id="parse-msword" />
+		<plugin id="parse-tika" />
 	</mimeType>
 
 	<mimeType name="text/rtf">
-		<plugin id="parse-rtf" />
-		<plugin id="parse-msword" />
+		<plugin id="parse-tika" />
 	</mimeType>
 
 	<mimeType name="text/sgml">
@@ -198,8 +196,6 @@
 		<alias name="parse-html"
 			extension-id="org.apache.nutch.parse.html.HtmlParser" />
 		<alias name="parse-js" extension-id="JSParser" />
-		<alias name="parse-mp3"
-			extension-id="org.apache.nutch.parse.mp3.MP3Parser" />
 		<alias name="parse-msexcel"
 			extension-id="org.apache.nutch.parse.msexcel.MSExcelParser" />
 		<alias name="parse-mspowerpoint"
@@ -212,10 +208,8 @@
 			extension-id="org.apache.nutch.parse.pdf.PdfParser" />
 		<alias name="parse-rss"
 			extension-id="org.apache.nutch.parse.rss.RSSParser" />
-        <alias name="feed"
-            extension-id="org.apache.nutch.parse.feed.FeedParser" />
-		<alias name="parse-rtf"
-			extension-id="org.apache.nutch.parse.rtf.RTFParseFactory" />
+		<alias name="feed"
+			extension-id="org.apache.nutch.parse.feed.FeedParser" />
 		<alias name="parse-swf"
 			extension-id="org.apache.nutch.parse.swf.SWFParser" />
 		<alias name="parse-text"

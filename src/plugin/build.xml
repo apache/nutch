@@ -52,14 +52,12 @@
      <ant dir="parse-ext" target="deploy"/>
      <ant dir="parse-html" target="deploy"/>
      <ant dir="parse-js" target="deploy"/>
-     <!-- <ant dir="parse-mp3" target="deploy"/> -->
      <ant dir="parse-msexcel" target="deploy"/>
      <ant dir="parse-mspowerpoint" target="deploy"/>
      <ant dir="parse-msword" target="deploy"/>
      <ant dir="parse-oo" target="deploy"/>
      <ant dir="parse-pdf" target="deploy"/>
      <ant dir="parse-rss" target="deploy"/>
-     <!-- <ant dir="parse-rtf" target="deploy"/> -->
      <ant dir="parse-swf" target="deploy"/>
      <ant dir="parse-text" target="deploy"/>
      <ant dir="parse-tika" target="deploy"/>
