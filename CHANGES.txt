@@ -2,6 +2,8 @@ Nutch Change Log
 
 Unreleased Changes
 
+* NUTCH-796 Zero results problems difficult to troubleshoot due to lack of logging (ab)
+
 * NUTCH-801 Remove RTF and MP3 parse plugins (jnioche)
 
 * NUTCH-798 Upgrade to SOLR1.4 and its dependencies (jnioche)

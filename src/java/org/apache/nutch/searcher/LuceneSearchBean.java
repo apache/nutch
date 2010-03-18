@@ -53,12 +53,19 @@ public class LuceneSearchBean implements RPCSearchBean {
 
   private void init(Path indexDir, Path indexesDir)
   throws IOException {
+    Path absIndexDir = indexDir.makeQualified(indexDir.getFileSystem(conf));
+    Path absIndexesDir = indexesDir.makeQualified(indexesDir.getFileSystem(conf));
     if (this.fs.exists(indexDir)) {
-      LOG.info("opening merged index in " + indexDir);
+      LOG.info("opening merged index in " + absIndexDir.toUri());
       this.searcher = new IndexSearcher(indexDir, this.conf);
     } else {
-      LOG.info("opening indexes in " + indexesDir);
-
+      if (!this.fs.exists(indexesDir)) {
+        // should throw exception ?
+        LOG.warn("Neither " + absIndexDir.toUri() + " nor " +
+                absIndexesDir.toUri() + " found!");
+      } else {
+        LOG.info("opening indexes in " + absIndexesDir.toUri());
+      }
       List<Path> vDirs = new ArrayList<Path>();
       FileStatus[] fstats = fs.listStatus(indexesDir, HadoopFSUtil.getPassDirectoriesFilter(fs));
       Path[] directories = HadoopFSUtil.getPaths(fstats);

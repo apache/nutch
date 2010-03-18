@@ -140,12 +140,17 @@ public class DistributedSearchBean implements SearchBean {
     List<SearchBean> beanList = new ArrayList<SearchBean>();
 
     if (fs.exists(luceneConfig)) {
+      LOG.info("Adding Nutch searchers in " +
+              luceneConfig.makeQualified(fs).toUri());
       addLuceneBeans(beanList, luceneConfig, conf);
     }
 
     if (fs.exists(solrConfig)) {
+      LOG.info("Adding Solr searchers in " +
+              solrConfig.makeQualified(fs).toUri());
       addSolrBeans(beanList, solrConfig, conf);
     }
+    LOG.info("Added " + beanList.size() + " remote searchers.");
 
     beans = beanList.toArray(new SearchBean[beanList.size()]);
 
