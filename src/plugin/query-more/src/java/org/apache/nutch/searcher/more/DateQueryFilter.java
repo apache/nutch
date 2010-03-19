@@ -29,8 +29,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.RangeQuery;
-import org.apache.lucene.index.Term;
+import org.apache.lucene.search.TermRangeQuery;
 
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -74,11 +73,12 @@ public class DateQueryFilter implements QueryFilter {
       }
 
       // do it as lucene RangeQuery
-      Term xLower = new Term(FIELD_NAME, matcher.group(1));
-      Term xUpper = new Term(FIELD_NAME, matcher.group(2));
+      String xLower = matcher.group(1);
+      String xUpper = matcher.group(2);
 
       // inclusive
-      RangeQuery rangeQuery = new RangeQuery(xLower, xUpper, true);
+      TermRangeQuery rangeQuery = new TermRangeQuery(
+    		  c.getField(), xLower, xUpper, true, true);
 
       rangeQuery.setBoost(0.0f);                  // trigger filterization
           

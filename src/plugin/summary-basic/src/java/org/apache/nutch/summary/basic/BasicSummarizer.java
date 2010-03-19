@@ -39,6 +39,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.lucene.analysis.Token;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.*;
 
 // Nutch imports
 import org.apache.nutch.analysis.NutchDocumentAnalyzer;
@@ -152,7 +153,7 @@ public class BasicSummarizer implements Summarizer {
       //
       // If we find a term that's in the query...
       //
-      if (highlight.contains(tokens[i].termText())) {
+      if (highlight.contains(tokens[i].term())) {
         //
         // Start searching at a point SUM_CONTEXT terms back,
         // and move SUM_CONTEXT terms into the future.
@@ -182,8 +183,8 @@ public class BasicSummarizer implements Summarizer {
           // Now grab the hit-element, if present
           //
           Token t = tokens[j];
-          if (highlight.contains(t.termText())) {
-            excerpt.addToken(t.termText());
+          if (highlight.contains(t.term())) {
+            excerpt.addToken(t.term());
             excerpt.add(new Fragment(text.substring(offset, t.startOffset())));
             excerpt.add(new Highlight(text.substring(t.startOffset(),t.endOffset())));
             offset = t.endOffset();
@@ -354,18 +355,25 @@ public class BasicSummarizer implements Summarizer {
   
   
   private Token[] getTokens(String text) {
-    ArrayList result = new ArrayList();
+    ArrayList<Token> result = new ArrayList<Token>();
     TokenStream ts = analyzer.tokenStream("content", new StringReader(text));
-    Token token = null;
-    while (result.size()<token_deep) {
-      try {
-        token = ts.next();
-      } catch (IOException e) {
-        token = null;
+    TermAttribute termAtt = ts.getAttribute(TermAttribute.class);
+    OffsetAttribute offsetAtt = ts.getAttribute(OffsetAttribute.class);
+    PositionIncrementAttribute posIncrAtt = ts.getAttribute(PositionIncrementAttribute.class);
+    TypeAttribute typeAtt = ts.getAttribute(TypeAttribute.class);
+    try {
+      while (result.size() < token_deep && ts.incrementToken()) {
+        final Token token = new Token(
+            termAtt.termBuffer(), 0, termAtt.termLength(), 
+            offsetAtt.startOffset(), offsetAtt.endOffset());
+        token.setType(typeAtt.type());
+        token.setPositionIncrement(posIncrAtt.getPositionIncrement());
+        result.add(token);
       }
-      if (token == null) { break; }
-      result.add(token);
+    } catch (IOException e) {
+      // Ignore (?)
     }
+
     try {
       ts.close();
     } catch (IOException e) {

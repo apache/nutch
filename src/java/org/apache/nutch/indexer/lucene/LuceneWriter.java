@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.indexer.lucene;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -32,6 +33,8 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriter.MaxFieldLength;
+import org.apache.lucene.store.FSDirectory;
 import org.apache.nutch.analysis.AnalyzerFactory;
 import org.apache.nutch.analysis.NutchAnalyzer;
 import org.apache.nutch.analysis.NutchDocumentAnalyzer;
@@ -108,13 +111,13 @@ public class LuceneWriter implements NutchIndexWriter {
           } else if (LuceneConstants.STORE_NO.equals(val)) {
             store = Field.Store.NO;
           } else if (LuceneConstants.INDEX_TOKENIZED.equals(val)) {
-            index = Field.Index.TOKENIZED;
+            index = Field.Index.ANALYZED;
           } else if (LuceneConstants.INDEX_NO.equals(val)) {
             index = Field.Index.NO;
           } else if (LuceneConstants.INDEX_UNTOKENIZED.equals(val)) {
-            index = Field.Index.UN_TOKENIZED;
+            index = Field.Index.NOT_ANALYZED;
           } else if (LuceneConstants.INDEX_NO_NORMS.equals(val)) {
-            index = Field.Index.NO_NORMS;
+            index = Field.Index.ANALYZED_NO_NORMS;
           } else if (LuceneConstants.VECTOR_NO.equals(val)) {
             vector = Field.TermVector.NO;
           } else if (LuceneConstants.VECTOR_YES.equals(val)) {
@@ -151,13 +154,11 @@ public class LuceneWriter implements NutchIndexWriter {
         final LuceneWriter.STORE store = LuceneWriter.STORE.valueOf(conf.get(key));
         switch (store) {
         case YES:
+        case COMPRESS:
           fieldStore.put(field, Field.Store.YES);
           break;
         case NO:
           fieldStore.put(field, Field.Store.NO);
-          break;
-        case COMPRESS:
-          fieldStore.put(field, Field.Store.COMPRESS);
           break;
         }
       } else if (key.startsWith(LuceneConstants.FIELD_INDEX_PREFIX)) {
@@ -169,13 +170,13 @@ public class LuceneWriter implements NutchIndexWriter {
           fieldIndex.put(field, Field.Index.NO);
           break;
         case NO_NORMS:
-          fieldIndex.put(field, Field.Index.NO_NORMS);
+          fieldIndex.put(field, Field.Index.NOT_ANALYZED_NO_NORMS);
           break;
         case TOKENIZED:
-          fieldIndex.put(field, Field.Index.TOKENIZED);
+          fieldIndex.put(field, Field.Index.ANALYZED);
           break;
         case UNTOKENIZED:
-          fieldIndex.put(field, Field.Index.UN_TOKENIZED);
+          fieldIndex.put(field, Field.Index.NOT_ANALYZED);
           break;
         }
       } else if (key.startsWith(LuceneConstants.FIELD_VECTOR_PREFIX)) {
@@ -212,8 +213,9 @@ public class LuceneWriter implements NutchIndexWriter {
 
     fs.delete(perm, true); // delete old, if any
     analyzerFactory = new AnalyzerFactory(job);
-    writer = new IndexWriter(fs.startLocalOutput(perm, temp).toString(),
-        new NutchDocumentAnalyzer(job), true);
+    writer = new IndexWriter(
+        FSDirectory.open(new File(fs.startLocalOutput(perm, temp).toString())),
+        new NutchDocumentAnalyzer(job), true, MaxFieldLength.UNLIMITED);
 
     writer.setMergeFactor(job.getInt("indexer.mergeFactor", 10));
     writer.setMaxBufferedDocs(job.getInt("indexer.minMergeDocs", 100));
@@ -266,8 +268,6 @@ public class LuceneWriter implements NutchIndexWriter {
     final Metadata documentMeta = doc.getDocumentMeta();
     if (f.isStored()) {
       documentMeta.add(key, LuceneConstants.STORE_YES);
-    } else if (f.isCompressed()) {
-      documentMeta.add(key, LuceneConstants.STORE_COMPRESS);
     } else {
       documentMeta.add(key, LuceneConstants.STORE_NO);
     }

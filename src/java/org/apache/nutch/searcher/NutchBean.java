@@ -378,7 +378,7 @@ HitInlinks, Closeable {
 
   /** For debugging. */
   public static void main(String[] args) throws Exception {
-    final String usage = "NutchBean query";
+    final String usage = "NutchBean query [<searcher.dir>]";
 
     if (args.length == 0) {
       System.err.println(usage);
@@ -386,6 +386,9 @@ HitInlinks, Closeable {
     }
 
     final Configuration conf = NutchConfiguration.create();
+    if (args.length > 1) {
+      conf.set("searcher.dir", args[1]);
+    }
     final NutchBean bean = new NutchBean(conf);
     try {
       final Query query = Query.parse(args[0], conf);

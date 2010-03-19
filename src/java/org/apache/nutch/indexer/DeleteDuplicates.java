@@ -379,7 +379,7 @@ public class DeleteDuplicates extends Configured
                      OutputCollector<WritableComparable, Writable> output, Reporter reporter)
     throws IOException {
     Path index = new Path(key.toString());
-    IndexReader reader = IndexReader.open(new FsDirectory(fs, index, false, getConf()));
+    IndexReader reader = IndexReader.open(new FsDirectory(fs, index, false, getConf()), false);
     try {
       while (values.hasNext()) {
         IntWritable value = values.next();

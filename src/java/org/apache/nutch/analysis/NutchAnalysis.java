@@ -10,6 +10,7 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.StopFilter;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 
 import java.io.*;
 import java.util.*;
@@ -72,7 +73,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
 /** Parse a query. */
   final public Query parse(Configuration conf) throws ParseException {
   Query query = new Query(conf);
-  ArrayList<String> terms;
+  ArrayList terms;
   Token token;
   String field;
   boolean stop;
@@ -140,7 +141,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
         throw new ParseException();
       }
       nonOpOrTerm();
-      String[] array = terms.toArray(new String[terms.size()]);
+      String[] array = (String[])terms.toArray(new String[terms.size()]);
 
       if (stop
           && field == Clause.DEFAULT_FIELD
@@ -160,10 +161,10 @@ public class NutchAnalysis implements NutchAnalysisConstants {
 
 /** Parse an explcitly quoted phrase query.  Note that this may return a single
  * term, a trivial phrase.*/
-  final public ArrayList<String> phrase(String field) throws ParseException {
+  final public ArrayList phrase(String field) throws ParseException {
   int start;
   int end;
-  ArrayList<String> result = new ArrayList<String>();
+  ArrayList result = new ArrayList();
   String term;
     jj_consume_token(QUOTE);
     start = token.endColumn;
@@ -243,10 +244,10 @@ public class NutchAnalysis implements NutchAnalysisConstants {
 
 /** Parse a compound term that is interpreted as an implicit phrase query.
  * Compounds are a sequence of terms separated by infix characters.  Note that
- * htis may return a single term, a trivial compound. */
-  final public ArrayList<String> compound(String field) throws ParseException {
+ * this may return a single term, a trivial compound. */
+  final public ArrayList compound(String field) throws ParseException {
   int start;
-  ArrayList<String> result = new ArrayList<String>();
+  ArrayList result = new ArrayList();
   String term;
   StringBuffer terms = new StringBuffer();
     start = token.endColumn;
@@ -289,19 +290,23 @@ public class NutchAnalysis implements NutchAnalysisConstants {
       result.add(queryString.substring(start, token.endColumn));
 
     } else {
-      org.apache.lucene.analysis.Token token;
       TokenStream tokens = analyzer.tokenStream(
                               field, new StringReader(terms.toString()));
 
-      while (true) {
-        try {
-          token = tokens.next();
-        } catch (IOException e) {
-          token = null;
+      TermAttribute ta = tokens.getAttribute(TermAttribute.class);
+      try
+      {
+        String termText;
+        while (tokens.incrementToken())
+        {
+          if ((termText = ta.term()) == null)
+            break;
+          result.add(termText);
         }
-        if (token == null) { break; }
-        result.add(token.termText());
+      } catch (IOException e) {
+        // ignore (?)
       }
+//
       try {
         tokens.close();
       } catch (IOException e) {
@@ -470,53 +475,28 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     }
   }
 
-  final private boolean jj_2_1(int xla) {
+  private boolean jj_2_1(int xla) {
     jj_la = xla; jj_lastpos = jj_scanpos = token;
     try { return !jj_3_1(); }
     catch(LookaheadSuccess ls) { return true; }
     finally { jj_save(0, xla); }
   }
 
-  final private boolean jj_2_2(int xla) {
+  private boolean jj_2_2(int xla) {
     jj_la = xla; jj_lastpos = jj_scanpos = token;
     try { return !jj_3_2(); }
     catch(LookaheadSuccess ls) { return true; }
     finally { jj_save(1, xla); }
   }
 
-  final private boolean jj_2_3(int xla) {
+  private boolean jj_2_3(int xla) {
     jj_la = xla; jj_lastpos = jj_scanpos = token;
     try { return !jj_3_3(); }
     catch(LookaheadSuccess ls) { return true; }
     finally { jj_save(2, xla); }
   }
 
-  final private boolean jj_3_1() {
-    if (jj_scan_token(WORD)) return true;
-    if (jj_scan_token(COLON)) return true;
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_3R_8()) {
-    jj_scanpos = xsp;
-    if (jj_3R_9()) return true;
-    }
-    return false;
-  }
-
-  final private boolean jj_3R_16() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(7)) {
-    jj_scanpos = xsp;
-    if (jj_scan_token(8)) {
-    jj_scanpos = xsp;
-    if (jj_3R_22()) return true;
-    }
-    }
-    return false;
-  }
-
-  final private boolean jj_3_3() {
+  private boolean jj_3_3() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_scan_token(15)) {
@@ -529,53 +509,22 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     return false;
   }
 
-  final private boolean jj_3R_25() {
-    if (jj_3R_24()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_27() {
+  private boolean jj_3R_27() {
     if (jj_3R_16()) return true;
     return false;
   }
 
-  final private boolean jj_3R_20() {
-    if (jj_3R_11()) return true;
-    Token xsp;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_25()) { jj_scanpos = xsp; break; }
-    }
-    return false;
-  }
-
-  final private boolean jj_3R_10() {
-    if (jj_3R_16()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_19() {
+  private boolean jj_3R_25() {
     if (jj_3R_24()) return true;
     return false;
   }
 
-  final private boolean jj_3_2() {
-    Token xsp;
-    if (jj_3R_10()) return true;
-    while (true) {
-      xsp = jj_scanpos;
-      if (jj_3R_10()) { jj_scanpos = xsp; break; }
-    }
-    if (jj_3R_11()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_23() {
+  private boolean jj_3R_23() {
     if (jj_3R_24()) return true;
     return false;
   }
 
-  final private boolean jj_3R_18() {
+  private boolean jj_3R_18() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_3R_23()) {
@@ -585,7 +534,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     return false;
   }
 
-  final private boolean jj_3R_13() {
+  private boolean jj_3R_13() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_scan_token(7)) {
@@ -596,12 +545,53 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     return false;
   }
 
-  final private boolean jj_3R_9() {
+  private boolean jj_3R_20() {
+    if (jj_3R_11()) return true;
+    Token xsp;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_25()) { jj_scanpos = xsp; break; }
+    }
+    return false;
+  }
+
+  private boolean jj_3R_10() {
+    if (jj_3R_16()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_19() {
+    if (jj_3R_24()) return true;
+    return false;
+  }
+
+  private boolean jj_3_2() {
+    Token xsp;
+    if (jj_3R_10()) return true;
+    while (true) {
+      xsp = jj_scanpos;
+      if (jj_3R_10()) { jj_scanpos = xsp; break; }
+    }
+    if (jj_3R_11()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_9() {
     if (jj_3R_15()) return true;
     return false;
   }
 
-  final private boolean jj_3R_14() {
+  private boolean jj_3R_24() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(15)) {
+    jj_scanpos = xsp;
+    if (jj_3R_27()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_14() {
     if (jj_scan_token(QUOTE)) return true;
     Token xsp;
     while (true) {
@@ -620,22 +610,17 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     return false;
   }
 
-  final private boolean jj_3R_24() {
-    Token xsp;
-    xsp = jj_scanpos;
-    if (jj_scan_token(15)) {
-    jj_scanpos = xsp;
-    if (jj_3R_27()) return true;
-    }
-    return false;
-  }
-
-  final private boolean jj_3R_26() {
+  private boolean jj_3R_26() {
     if (jj_3R_16()) return true;
     return false;
   }
 
-  final private boolean jj_3R_21() {
+  private boolean jj_3R_22() {
+    if (jj_3R_17()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_21() {
     Token xsp;
     if (jj_3R_26()) return true;
     while (true) {
@@ -646,22 +631,12 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     return false;
   }
 
-  final private boolean jj_3R_22() {
+  private boolean jj_3R_12() {
     if (jj_3R_17()) return true;
     return false;
   }
 
-  final private boolean jj_3R_8() {
-    if (jj_3R_14()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_12() {
-    if (jj_3R_17()) return true;
-    return false;
-  }
-
-  final private boolean jj_3R_11() {
+  private boolean jj_3R_11() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_scan_token(1)) {
@@ -674,7 +649,12 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     return false;
   }
 
-  final private boolean jj_3R_15() {
+  private boolean jj_3R_8() {
+    if (jj_3R_14()) return true;
+    return false;
+  }
+
+  private boolean jj_3R_15() {
     if (jj_3R_11()) return true;
     Token xsp;
     while (true) {
@@ -684,7 +664,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     return false;
   }
 
-  final private boolean jj_3R_17() {
+  private boolean jj_3R_17() {
     Token xsp;
     xsp = jj_scanpos;
     if (jj_scan_token(10)) {
@@ -703,25 +683,54 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     return false;
   }
 
+  private boolean jj_3_1() {
+    if (jj_scan_token(WORD)) return true;
+    if (jj_scan_token(COLON)) return true;
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_3R_8()) {
+    jj_scanpos = xsp;
+    if (jj_3R_9()) return true;
+    }
+    return false;
+  }
+
+  private boolean jj_3R_16() {
+    Token xsp;
+    xsp = jj_scanpos;
+    if (jj_scan_token(7)) {
+    jj_scanpos = xsp;
+    if (jj_scan_token(8)) {
+    jj_scanpos = xsp;
+    if (jj_3R_22()) return true;
+    }
+    }
+    return false;
+  }
+
+  /** Generated Token Manager. */
   public NutchAnalysisTokenManager token_source;
-  public Token token, jj_nt;
+  /** Current token. */
+  public Token token;
+  /** Next token. */
+  public Token jj_nt;
   private int jj_ntk;
   private Token jj_scanpos, jj_lastpos;
   private int jj_la;
-  public boolean lookingAhead = false;
   private int jj_gen;
   final private int[] jj_la1 = new int[16];
   static private int[] jj_la1_0;
   static {
-      jj_la1_0();
+      jj_la1_init_0();
    }
-   private static void jj_la1_0() {
+   private static void jj_la1_init_0() {
       jj_la1_0 = new int[] {0x38e,0x180,0x180,0x20e,0xfd80,0xe,0xfd80,0x201,0x7d80,0xe,0xfd80,0xfd81,0x180,0xfd80,0x7d80,0x7c00,};
    }
   final private JJCalls[] jj_2_rtns = new JJCalls[3];
   private boolean jj_rescan = false;
   private int jj_gc = 0;
 
+  /** Constructor with user supplied CharStream. */
   public NutchAnalysis(CharStream stream) {
     token_source = new NutchAnalysisTokenManager(stream);
     token = new Token();
@@ -731,6 +740,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
+  /** Reinitialise. */
   public void ReInit(CharStream stream) {
     token_source.ReInit(stream);
     token = new Token();
@@ -740,6 +750,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
+  /** Constructor with generated Token Manager. */
   public NutchAnalysis(NutchAnalysisTokenManager tm) {
     token_source = tm;
     token = new Token();
@@ -749,6 +760,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
+  /** Reinitialise. */
   public void ReInit(NutchAnalysisTokenManager tm) {
     token_source = tm;
     token = new Token();
@@ -758,7 +770,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     for (int i = 0; i < jj_2_rtns.length; i++) jj_2_rtns[i] = new JJCalls();
   }
 
-  final private Token jj_consume_token(int kind) throws ParseException {
+  private Token jj_consume_token(int kind) throws ParseException {
     Token oldToken;
     if ((oldToken = token).next != null) token = token.next;
     else token = token.next = token_source.getNextToken();
@@ -782,10 +794,9 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     throw generateParseException();
   }
 
-  @SuppressWarnings("serial")
   static private final class LookaheadSuccess extends java.lang.Error { }
   final private LookaheadSuccess jj_ls = new LookaheadSuccess();
-  final private boolean jj_scan_token(int kind) {
+  private boolean jj_scan_token(int kind) {
     if (jj_scanpos == jj_lastpos) {
       jj_la--;
       if (jj_scanpos.next == null) {
@@ -806,6 +817,8 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     return false;
   }
 
+
+/** Get the next Token. */
   final public Token getNextToken() {
     if (token.next != null) token = token.next;
     else token = token.next = token_source.getNextToken();
@@ -814,8 +827,9 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     return token;
   }
 
+/** Get the specific Token. */
   final public Token getToken(int index) {
-    Token t = lookingAhead ? jj_scanpos : token;
+    Token t = token;
     for (int i = 0; i < index; i++) {
       if (t.next != null) t = t.next;
       else t = t.next = token_source.getNextToken();
@@ -823,14 +837,14 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     return t;
   }
 
-  final private int jj_ntk() {
+  private int jj_ntk() {
     if ((jj_nt=token.next) == null)
       return (jj_ntk = (token.next=token_source.getNextToken()).kind);
     else
       return (jj_ntk = jj_nt.kind);
   }
 
-  private java.util.Vector<int[]> jj_expentries = new java.util.Vector<int[]>();
+  private java.util.List jj_expentries = new java.util.ArrayList();
   private int[] jj_expentry;
   private int jj_kind = -1;
   private int[] jj_lasttokens = new int[100];
@@ -845,31 +859,26 @@ public class NutchAnalysis implements NutchAnalysisConstants {
       for (int i = 0; i < jj_endpos; i++) {
         jj_expentry[i] = jj_lasttokens[i];
       }
-      boolean exists = false;
-      for (java.util.Enumeration<int[]> e = jj_expentries.elements(); e.hasMoreElements();) {
-        int[] oldentry = (e.nextElement());
+      jj_entries_loop: for (java.util.Iterator it = jj_expentries.iterator(); it.hasNext();) {
+        int[] oldentry = (int[])(it.next());
         if (oldentry.length == jj_expentry.length) {
-          exists = true;
           for (int i = 0; i < jj_expentry.length; i++) {
             if (oldentry[i] != jj_expentry[i]) {
-              exists = false;
-              break;
+              continue jj_entries_loop;
             }
           }
-          if (exists) break;
+          jj_expentries.add(jj_expentry);
+          break jj_entries_loop;
         }
       }
-      if (!exists) jj_expentries.addElement(jj_expentry);
       if (pos != 0) jj_lasttokens[(jj_endpos = pos) - 1] = kind;
     }
   }
 
+  /** Generate ParseException. */
   public ParseException generateParseException() {
-    jj_expentries.removeAllElements();
+    jj_expentries.clear();
     boolean[] la1tokens = new boolean[20];
-    for (int i = 0; i < 20; i++) {
-      la1tokens[i] = false;
-    }
     if (jj_kind >= 0) {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
@@ -887,7 +896,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
       if (la1tokens[i]) {
         jj_expentry = new int[1];
         jj_expentry[0] = i;
-        jj_expentries.addElement(jj_expentry);
+        jj_expentries.add(jj_expentry);
       }
     }
     jj_endpos = 0;
@@ -895,18 +904,20 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     jj_add_error_token(0, 0);
     int[][] exptokseq = new int[jj_expentries.size()][];
     for (int i = 0; i < jj_expentries.size(); i++) {
-      exptokseq[i] = jj_expentries.elementAt(i);
+      exptokseq[i] = (int[])jj_expentries.get(i);
     }
     return new ParseException(token, exptokseq, tokenImage);
   }
 
+  /** Enable tracing. */
   final public void enable_tracing() {
   }
 
+  /** Disable tracing. */
   final public void disable_tracing() {
   }
 
-  final private void jj_rescan_token() {
+  private void jj_rescan_token() {
     jj_rescan = true;
     for (int i = 0; i < 3; i++) {
     try {
@@ -927,7 +938,7 @@ public class NutchAnalysis implements NutchAnalysisConstants {
     jj_rescan = false;
   }
 
-  final private void jj_save(int index, int xla) {
+  private void jj_save(int index, int xla) {
     JJCalls p = jj_2_rtns[index];
     while (p.gen > jj_gen) {
       if (p.next == null) { p = p.next = new JJCalls(); break; }

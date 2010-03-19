@@ -64,7 +64,7 @@ public class FsDirectory extends Directory {
     }
   }
 
-  public String[] list() throws IOException {
+  public String[] listAll() throws IOException {
     FileStatus[] fstats = fs.listStatus(directory, HadoopFSUtil.getPassAllFilter());
     Path[] files = HadoopFSUtil.getPaths(fstats);
     if (files == null) return null;

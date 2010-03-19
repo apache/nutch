@@ -29,6 +29,7 @@ import org.apache.lucene.document.Field.Index;
 import org.apache.lucene.document.Field.Store;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.search.Similarity;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
@@ -67,8 +68,9 @@ public class TestIndexSorter extends TestCase {
     }
     LOG.info("Creating test index: " + testDir.getAbsolutePath());
     File plain = new File(testDir, INDEX_PLAIN);
-    Directory dir = FSDirectory.getDirectory(plain);
-    IndexWriter writer = new IndexWriter(dir, new NutchDocumentAnalyzer(conf), true);
+    Directory dir = FSDirectory.open(plain);
+    IndexWriter writer = new IndexWriter(dir, new NutchDocumentAnalyzer(conf), true,
+    		MaxFieldLength.UNLIMITED);
     // create test documents
     for (int i = 0; i < NUM_DOCS; i++) {
       Document doc = new Document();
@@ -79,19 +81,19 @@ public class TestIndexSorter extends TestCase {
         String val = null;
         if (fieldNames[k].equals("id")) {
           s = Store.YES;
-          ix = Index.UN_TOKENIZED;
+          ix = Index.NOT_ANALYZED;
           val = String.valueOf(i);
         } else if (fieldNames[k].equals("host")) {
           s = Store.YES;
-          ix = Index.UN_TOKENIZED;
+          ix = Index.NOT_ANALYZED;
           val = "www.example" + i + ".com";
         } else if (fieldNames[k].equals("site")) {
           s = Store.NO;
-          ix = Index.UN_TOKENIZED;
+          ix = Index.NOT_ANALYZED;
           val = "www.example" + i + ".com";
         } else if (fieldNames[k].equals("content")) {
           s = Store.NO;
-          ix = Index.TOKENIZED;
+          ix = Index.ANALYZED;
           val = "This is the content of the " + i + "-th document.";
         } else if (fieldNames[k].equals("boost")) {
           s = Store.YES;
@@ -104,7 +106,7 @@ public class TestIndexSorter extends TestCase {
           doc.setBoost(boost);
         } else {
           s = Store.YES;
-          ix = Index.TOKENIZED;
+          ix = Index.ANALYZED;
           if (fieldNames[k].equals("anchor")) {
             val = "anchors to " + i + "-th page.";
           } else if (fieldNames[k].equals("url")) {
@@ -127,8 +129,9 @@ public class TestIndexSorter extends TestCase {
   public void testSorting() throws Exception {
     IndexSorter sorter = new IndexSorter(conf);
     sorter.sort(testDir);
+    
     // read back documents
-    IndexReader reader = IndexReader.open(new File(testDir, INDEX_SORTED));
+    IndexReader reader = IndexReader.open(FSDirectory.open(new File(testDir, INDEX_SORTED)));
     assertEquals(reader.numDocs(), NUM_DOCS);
     for (int i = 0; i < reader.maxDoc(); i++) {
       Document doc = reader.document(i);

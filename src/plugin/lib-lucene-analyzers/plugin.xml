@@ -25,11 +25,11 @@
 <plugin
    id="lib-lucene-analyzers"
    name="Lucene Analysers"
-   version="2.9.1"
+   version="3.0.1"
    provider-name="org.apache.lucene">
 
    <runtime>
-     <library name="lucene-analyzers-2.9.1.jar">
+     <library name="lucene-analyzers-3.0.1.jar">
         <export name="*"/>
      </library>
    </runtime>

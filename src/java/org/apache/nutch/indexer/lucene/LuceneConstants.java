@@ -35,10 +35,13 @@ public interface LuceneConstants {
 
   public static final String INDEX_NO = "index.no";
 
+  // TODO: -> ANALYZED_NO_NORMS
   public static final String INDEX_NO_NORMS = "index.no_norms";
 
+  // TODO: -> ANALYZED
   public static final String INDEX_TOKENIZED = "index.tokenized";
 
+  // TODO: -> NOT_ANALYZED
   public static final String INDEX_UNTOKENIZED = "index.untokenized";
 
   public static final String VECTOR_NO = "vector.no";

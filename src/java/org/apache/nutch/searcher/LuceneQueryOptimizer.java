@@ -17,18 +17,14 @@
 
 package org.apache.nutch.searcher;
 
-import org.apache.lucene.search.Searcher;
-import org.apache.lucene.search.*;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.misc.ChainedFilter;
+import java.io.IOException;
+import java.util.*;
 
 import org.apache.hadoop.conf.Configuration;
-
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.ArrayList;
-
-import java.io.IOException;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.misc.ChainedFilter;
+import org.apache.lucene.search.*;
+import org.apache.lucene.search.Searcher;
 
 /** Utility which converts certain query clauses into {@link QueryFilter}s and
  * caches these.  Only required clauses whose boost is zero are converted to
@@ -93,16 +89,18 @@ class LuceneQueryOptimizer {
     }
   }
 
-  private static class LimitedCollector extends TopDocCollector {
+  private static class LimitedCollector extends Collector {
     private int maxHits;
     private int maxTicks;
     private int startTicks;
     private TimerThread timer;
     private int curTicks;
+    private TopDocsCollector<ScoreDoc> delegate;
 
     public LimitedCollector(int numHits, int maxHits, int maxTicks,
             TimerThread timer) {
-      super(numHits);
+      final boolean docsScoredInOrder = true;
+      delegate = TopScoreDocCollector.create(numHits, docsScoredInOrder);
       this.maxHits = maxHits;
       this.maxTicks = maxTicks;
       if (timer != null) {
@@ -111,8 +109,14 @@ class LuceneQueryOptimizer {
       }
     }
 
-    public void collect(int doc, float score) {
-      if (maxHits > 0 && getTotalHits() >= maxHits) {
+    @Override
+    public boolean acceptsDocsOutOfOrder() {
+      return delegate.acceptsDocsOutOfOrder();
+    }
+
+    @Override
+    public void collect(int doc) throws IOException {
+      if (maxHits > 0 && delegate.getTotalHits() >= maxHits) {
         throw new LimitExceeded(doc);
       }
       if (timer != null) {
@@ -123,7 +127,22 @@ class LuceneQueryOptimizer {
           throw new TimeExceeded(timer.tick * (curTicks - startTicks), doc);
         }
       }
-      super.collect(doc, score);
+      delegate.collect(doc);
+    }
+
+    @Override
+    public void setNextReader(IndexReader r, int base)
+        throws IOException {
+      delegate.setNextReader(r, base);
+    }
+
+    @Override
+    public void setScorer(Scorer scorer) throws IOException {
+      delegate.setScorer(scorer);
+    }
+
+    public TopDocs topDocs() {
+      return delegate.topDocs();
     }
   }
   
@@ -193,15 +212,11 @@ public LuceneQueryOptimizer(Configuration conf) {
           continue;
         }
           
-        if (c.getQuery() instanceof RangeQuery) { // RangeQuery
-          RangeQuery range = (RangeQuery)c.getQuery();
-          boolean inclusive = range.isInclusive();// convert to RangeFilter
-          Term lower = range.getLowerTerm();
-          Term upper = range.getUpperTerm();
-          filters.add(new RangeFilter(lower!=null?lower.field():upper.field(),
-                                      lower != null ? lower.text() : null,
-                                      upper != null ? upper.text() : null,
-                                      inclusive, inclusive));
+        if (c.getQuery() instanceof TermRangeQuery) { // RangeQuery
+          TermRangeQuery range = (TermRangeQuery)c.getQuery();
+          filters.add(new TermRangeFilter(range.getField(), 
+              range.getLowerTerm(), range.getUpperTerm(), 
+              range.includesLower(), range.includesUpper()));
           cacheQuery.add(c.getQuery(), BooleanClause.Occur.MUST); // cache it
           continue;
         }
@@ -271,7 +286,7 @@ public LuceneQueryOptimizer(Configuration conf) {
 
     } else {
       return searcher.search(query, filter, numHits,
-                             new Sort(sortField, reverse));
+                             new Sort(new SortField(sortField, SortField.STRING, reverse)));
     }
   }
 }

@@ -20,6 +20,7 @@ package org.creativecommons.nutch;
 import org.apache.nutch.indexer.Indexer;
 
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.document.Document;
 
 import org.apache.commons.logging.Log;
@@ -83,7 +84,7 @@ public class CCDeleteUnlicensedTool {
       File indexDone = new File(directories[i], Indexer.DONE_NAME);
       if (indexDone.exists() && indexDone.isFile()){
         File indexDir = new File(directories[i], "index");
-      	IndexReader reader = IndexReader.open(indexDir);
+      	IndexReader reader = IndexReader.open(FSDirectory.open(indexDir));
         maxDoc += reader.maxDoc();
         vReaders.add(reader);
       }

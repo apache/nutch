@@ -23,6 +23,7 @@ import java.io.Reader;
 // Lucene imports
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.util.Version;
 
 // Nutch imports
 import org.apache.nutch.analysis.NutchAnalyzer;
@@ -35,7 +36,7 @@ import org.apache.nutch.analysis.NutchAnalyzer;
 public class FrenchAnalyzer extends NutchAnalyzer {
     
     private final static Analyzer ANALYZER = 
-            new org.apache.lucene.analysis.fr.FrenchAnalyzer();
+            new org.apache.lucene.analysis.fr.FrenchAnalyzer(Version.LUCENE_CURRENT);
 
     
     /** Creates a new instance of FrenchAnalyzer */

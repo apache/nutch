@@ -17,11 +17,13 @@
 
 package org.apache.nutch.indexer;
 
+import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.PriorityQueue;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.index.TermEnum;
 
+import java.io.File;
 import java.io.OutputStreamWriter;
 
 /** Lists the most frequent terms in an index. */
@@ -37,14 +39,12 @@ public class HighFreqTerms {
     Term term;
   }
 
-  private static class TermFreqQueue extends PriorityQueue {
+  private static class TermFreqQueue extends PriorityQueue<TermFreq> {
     TermFreqQueue(int size) {
       initialize(size);
     }
 
-    protected final boolean lessThan(Object a, Object b) {
-      TermFreq termInfoA = (TermFreq)a;
-      TermFreq termInfoB = (TermFreq)b;
+    protected final boolean lessThan(TermFreq termInfoA, TermFreq termInfoB) {
       return termInfoA.docFreq < termInfoB.docFreq;
     }
   }
@@ -66,7 +66,7 @@ public class HighFreqTerms {
       } else if (args[i].equals("-nofreqs")) {    // found -nofreqs option
         noFreqs = true;
       } else {
-        reader = IndexReader.open(args[i]);
+        reader = IndexReader.open(FSDirectory.open(new File(args[i])));
       }
     }
 
@@ -76,10 +76,10 @@ public class HighFreqTerms {
     int minFreq = 0;
     while (terms.next()) {
       if (terms.docFreq() > minFreq) {
-        tiq.put(new TermFreq(terms.term(), terms.docFreq()));
+        TermFreq top = tiq.add(new TermFreq(terms.term(), terms.docFreq()));
         if (tiq.size() >= count) {                 // if tiq overfull
           tiq.pop();                              // remove lowest in tiq
-          minFreq = ((TermFreq)tiq.top()).docFreq; // reset minFreq
+          minFreq = top.docFreq; // reset minFreq
         }
       }
     }

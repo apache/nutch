@@ -24,7 +24,7 @@ import java.io.IOException;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenFilter;
 import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.Token;
+import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -71,21 +71,24 @@ public class NutchDocumentAnalyzer extends NutchAnalyzer {
   }
 
   private static class AnchorFilter extends TokenFilter {
+    private final PositionIncrementAttribute posAttr;
     private boolean first = true;
 
     public AnchorFilter(TokenStream input) {
       super(input);
+      // The super filter must have positional information.
+      posAttr = input.getAttribute(PositionIncrementAttribute.class);
     }
 
-    public final Token next() throws IOException {
-      Token result = input.next();
-      if (result == null)
-        return result;
-      if (first) {
-        result.setPositionIncrement(INTER_ANCHOR_GAP);
-        first = false;
+    public boolean incrementToken() throws IOException {
+      boolean hasNext = input.incrementToken(); 
+      if (hasNext) {
+        if (first) {
+          posAttr.setPositionIncrement(INTER_ANCHOR_GAP);
+          first = false;
+        }
       }
-      return result;
+      return false;
     }
   }
 

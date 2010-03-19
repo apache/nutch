@@ -17,23 +17,21 @@
 
 package org.apache.nutch.analysis;
 
-import org.apache.lucene.analysis.TokenFilter;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.Token;
-
 import java.io.*;
 import java.util.*;
 
-// Commons Logging imports
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.apache.hadoop.conf.*;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.lucene.analysis.*;
+import org.apache.lucene.analysis.Token;
+import org.apache.lucene.analysis.tokenattributes.*;
+import org.apache.nutch.searcher.Query.Phrase;
+import org.apache.nutch.searcher.Query.Term;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.ObjectCache;
-import org.apache.nutch.searcher.Query.*;
 
-/** Construct n-grams for frequently occuring terms and phrases while indexing.
+/** Construct n-grams for frequently occurring terms and phrases while indexing.
  * Optimize phrase queries to use the n-grams. Single terms are still indexed
  * too, with n-grams overlaid.  This is achieved through the use of {@link
  * Token#setPositionIncrement(int)}.*/
@@ -61,10 +59,44 @@ public class CommonGrams {
     private LinkedList<Token> nextQueue = new LinkedList<Token>();
     private StringBuffer buffer = new StringBuffer();
 
+    private final TermAttribute termAtt;
+    private final PositionIncrementAttribute posIncrAtt;
+    private final TypeAttribute typeAtt;
+    private final OffsetAttribute offsetAtt;
+
     /** Construct an n-gram producing filter. */
     public Filter(TokenStream input, HashSet<String> common) {
       super(input);
       this.common = common;
+      this.termAtt = getAttribute(TermAttribute.class);
+      this.offsetAtt = getAttribute(OffsetAttribute.class);
+      this.posIncrAtt = getAttribute(PositionIncrementAttribute.class);
+      this.typeAtt = addAttribute(TypeAttribute.class);
+    }
+
+    @Override
+    public boolean incrementToken() throws IOException {
+      clearAttributes();
+      Token t = next();
+      if (t != null) {
+        termAtt.setTermBuffer(t.termBuffer(), 0, t.termLength());
+        offsetAtt.setOffset(t.startOffset(), t.endOffset());
+        posIncrAtt.setPositionIncrement(t.getPositionIncrement());
+        typeAtt.setType(t.type());
+      }     
+      return t != null;
+    }
+
+    private Token inputNext() throws IOException {
+      if (super.input.incrementToken()) {
+        Token t = new Token(
+            termAtt.termBuffer(), 0, termAtt.termLength(),
+            offsetAtt.startOffset(), offsetAtt.endOffset());
+        t.setPositionIncrement(posIncrAtt.getPositionIncrement());
+        t.setType(typeAtt.type());
+        return t;
+      }
+      return null;
     }
 
     /** Inserts n-grams into a token stream. */
@@ -103,7 +135,7 @@ public class CommonGrams {
 
     /** True iff token is for a common term. */
     private boolean isCommon(Token token) {
-      return common != null && common.contains(token.termText());
+      return common != null && common.contains(token.term());
     }
 
     /** Pops nextQueue or, if empty, reads a new token. */
@@ -111,13 +143,13 @@ public class CommonGrams {
       if (nextQueue.size() > 0)
         return nextQueue.removeFirst();
       else
-        return input.next();
+        return inputNext();
     }
 
     /** Return next token in nextQueue, extending it when empty. */
     private Token peekNext(ListIterator<Token> i) throws IOException {
       if (!i.hasNext()) {
-        Token next = input.next();
+        Token next = inputNext();
         if (next == null)
           return null;
         i.add(next);
@@ -129,9 +161,9 @@ public class CommonGrams {
     /** Construct a compound token. */
     private Token gramToken(Token first, Token second) {
       buffer.setLength(0);
-      buffer.append(first.termText());
+      buffer.append(first.term());
       buffer.append(SEPARATOR);
-      buffer.append(second.termText());
+      buffer.append(second.term());
       Token result = new Token(buffer.toString(),
                                first.startOffset(), second.endOffset(),
                                "gram");
@@ -159,24 +191,23 @@ public class CommonGrams {
         if (line.startsWith("#") || "".equals(line)) // skip comments
           continue;
         TokenStream ts = new NutchDocumentTokenizer(new StringReader(line));
-        Token token = ts.next();
-        if (token == null) {
+        TermAttribute ta = ts.getAttribute(TermAttribute.class);
+        if (!ts.incrementToken()) {
           if (LOG.isWarnEnabled()) {
             LOG.warn("Line does not contain a field name: " + line);
           }
           continue;
         }
-        String field = token.termText();
-        token = ts.next();
-        if (token == null) {
+        String field = ta.term();
+        if (!ts.incrementToken()) {
           if (LOG.isWarnEnabled()) {
             LOG.warn("Line contains only a field name, no word: " + line);
           }
           continue;
         }
-        String gram = token.termText();
-        while ((token = ts.next()) != null) {
-          gram = gram + SEPARATOR + token.termText();
+        String gram = ta.term();
+        while (ts.incrementToken()) {
+          gram = gram + SEPARATOR + ta.term();
         }
         HashSet<String> table = commonTerms.get(field);
         if (table == null) {
@@ -201,16 +232,27 @@ public class CommonGrams {
   private static class ArrayTokens extends TokenStream {
     private Term[] terms;
     private int index;
+    private final TermAttribute termAttr;
+    private final PositionIncrementAttribute posAttr;
+    private final OffsetAttribute offsetAttr;
 
     public ArrayTokens(Phrase phrase) {
       this.terms = phrase.getTerms();
+      this.termAttr = addAttribute(TermAttribute.class);
+      this.posAttr = addAttribute(PositionIncrementAttribute.class);
+      this.offsetAttr = addAttribute(OffsetAttribute.class);
     }
 
-    public Token next() {
+    @Override
+    public boolean incrementToken() throws IOException {
       if (index == terms.length)
-        return null;
-      else
-        return new Token(terms[index].toString(), index, ++index);
+        return false;
+
+      clearAttributes();
+      termAttr.setTermBuffer(terms[index].toString());
+      posAttr.setPositionIncrement(1);
+      offsetAttr.setOffset(index, ++index);
+      return true;
     }
   }
 
@@ -222,22 +264,24 @@ public class CommonGrams {
     }
     ArrayList<String> result = new ArrayList<String>();
     TokenStream ts = getFilter(new ArrayTokens(phrase), field);
-    Token token, prev=null;
+    String prev = null;
+    TermAttribute ta = ts.getAttribute(TermAttribute.class);
+    PositionIncrementAttribute pa = ts.getAttribute(PositionIncrementAttribute.class);
     int position = 0;
     try {
-      while ((token = ts.next()) != null) {
-        if (token.getPositionIncrement() != 0 && prev != null)
-          result.add(prev.termText());
-        prev = token;
-        position += token.getPositionIncrement();
-        if ((position + arity(token.termText())) == phrase.getTerms().length)
+      while (ts.incrementToken()) {
+        if (pa.getPositionIncrement() != 0 && prev != null)
+          result.add(prev);
+        prev = ta.term();
+        position += pa.getPositionIncrement();
+        if ((position + arity(ta.term())) == phrase.getTerms().length)
           break;
       }
     } catch (IOException e) {
       throw new RuntimeException(e.toString());
     }
     if (prev != null)
-      result.add(prev.termText());
+      result.add(prev);
 
     return result.toArray(new String[result.size()]);
   }
@@ -261,9 +305,12 @@ public class CommonGrams {
     TokenStream ts = new NutchDocumentTokenizer(new StringReader(text.toString()));
     CommonGrams commonGrams = new CommonGrams(NutchConfiguration.create());
     ts = commonGrams.getFilter(ts, "url");
-    Token token;
-    while ((token = ts.next()) != null) {
-      System.out.println("Token: " + token);
+    TermAttribute ta = ts.getAttribute(TermAttribute.class);
+    OffsetAttribute oa = ts.getAttribute(OffsetAttribute.class);
+    PositionIncrementAttribute pia = ts.getAttribute(PositionIncrementAttribute.class);
+    while (ts.incrementToken()) {
+      System.out.println("Token: " + ta.term() + " offs:" + oa.startOffset() + "-" + oa.endOffset()
+          + " incr: " + pia.getPositionIncrement());
     }
     String[] optimized = commonGrams.optimizePhrase(new Phrase(args), "url");
     System.out.print("Optimized: ");

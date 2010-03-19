@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.Arrays;
 
 import org.apache.lucene.index.*;
+import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 import org.apache.lucene.document.*;
 import org.apache.lucene.store.*;
 import org.apache.lucene.search.*;
@@ -188,7 +189,7 @@ public class IndexSorter extends Configured implements Tool {
     }
 
     public Document document(int n) throws IOException {
-      return super.document(newToOld[n]);
+      return document(n, null);
     }
 
     public Document document(int n, FieldSelector fieldSelector)
@@ -263,11 +264,13 @@ public class IndexSorter extends Configured implements Tool {
     LOG.info("IndexSorter: starting.");
     Date start = new Date();
     int termIndexInterval = getConf().getInt("indexer.termIndexInterval", 128);
-    IndexReader reader = IndexReader.open(new File(directory, "index"));
+    IndexReader reader = IndexReader.open(
+    		FSDirectory.open(new File(directory, "index")));
 
     SortingReader sorter = new SortingReader(reader, oldToNew(reader));
-    IndexWriter writer = new IndexWriter(new File(directory, "index-sorted"),
-                                         null, true);
+    IndexWriter writer = new IndexWriter(
+    		FSDirectory.open(new File(directory, "index-sorted")),
+    			null, true, MaxFieldLength.UNLIMITED);
     writer.setTermIndexInterval
       (termIndexInterval);
     writer.setUseCompoundFile(false);

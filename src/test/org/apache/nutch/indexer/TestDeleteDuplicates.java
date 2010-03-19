@@ -16,6 +16,7 @@
 */
 package org.apache.nutch.indexer;
 
+import java.io.File;
 import java.util.Random;
 
 import org.apache.hadoop.conf.Configuration;
@@ -62,7 +63,7 @@ public class TestDeleteDuplicates extends TestCase {
   private Path createIndex(String name, boolean hashDup, float inc, long time, boolean incFirst) throws Exception {
     Path idx = new Path(root, name);
     Path sub = new Path(idx, "part-0000");
-    Directory dir = FSDirectory.getDirectory(sub.toString());
+    Directory dir = FSDirectory.open(new File(sub.toString()));
     IndexWriter writer = new IndexWriter(dir, new NutchDocumentAnalyzer(conf), true, 
       MaxFieldLength.UNLIMITED);
     Document doc = makeDoc(name,
@@ -89,7 +90,7 @@ public class TestDeleteDuplicates extends TestCase {
   private Path createSingleDocIndex(String name, float inc, long time) throws Exception {
     Path idx = new Path(root, name);
     Path sub = new Path(idx, "part-0000");
-    Directory dir = FSDirectory.getDirectory(sub.toString());
+    Directory dir = FSDirectory.open(new File(sub.toString()));
     IndexWriter writer = new IndexWriter(dir, new NutchDocumentAnalyzer(conf), true, 
       MaxFieldLength.UNLIMITED);
     Document doc = makeDoc(name,
@@ -105,7 +106,7 @@ public class TestDeleteDuplicates extends TestCase {
     Document doc = new Document();
     doc.add(new Field("segment", segment, Field.Store.YES, Field.Index.NO));
     doc.add(new Field("digest", digest, Field.Store.YES, Field.Index.NO));
-    doc.add(new Field("url", url, Field.Store.YES, Field.Index.TOKENIZED));
+    doc.add(new Field("url", url, Field.Store.YES, Field.Index.ANALYZED));
     doc.setBoost(boost);
     doc.add(new Field("boost", "" + boost, Field.Store.YES, Field.Index.NO));
     doc.add(new Field("tstamp", DateTools.timeToString(time, Resolution.MILLISECOND), Field.Store.YES, Field.Index.NO));

@@ -22,38 +22,21 @@
 
 package org.apache.nutch.tools;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileFilter;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintStream;
-import java.util.BitSet;
-import java.util.StringTokenizer;
-import java.util.Vector;
+import java.io.*;
+import java.util.*;
 
-// Commons Logging imports
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.util.NutchConfiguration;
-
 import org.apache.lucene.analysis.WhitespaceAnalyzer;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.MultiReader;
+import org.apache.lucene.index.*;
 import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.search.HitCollector;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
+import org.apache.lucene.search.*;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.Version;
+import org.apache.nutch.util.NutchConfiguration;
 
 /**
  * This tool prunes existing Nutch indexes of unwanted content. The main method
@@ -253,13 +236,13 @@ public class PruneIndexTool implements Runnable {
     if (dryrun) dr = "[DRY RUN] ";
     int numIdx = 0;
     if (indexDirs.length == 1) {
-      Directory dir = FSDirectory.getDirectory(indexDirs[0], false);
-      if (IndexReader.isLocked(dir)) {
+      Directory dir = FSDirectory.open(indexDirs[0]);
+      if (IndexWriter.isLocked(dir)) {
         if (!unlock) {
           throw new Exception("Index " + indexDirs[0] + " is locked.");
         }
         if (!dryrun) {
-          IndexReader.unlock(dir);
+          IndexWriter.unlock(dir);
           if (LOG.isDebugEnabled()) {
             LOG.debug(" - had to unlock index in " + dir);
           }
@@ -272,8 +255,8 @@ public class PruneIndexTool implements Runnable {
       Vector<IndexReader> indexes = new Vector<IndexReader>(indexDirs.length);
       for (int i = 0; i < indexDirs.length; i++) {
         try {
-          dir = FSDirectory.getDirectory(indexDirs[i], false);
-          if (IndexReader.isLocked(dir)) {
+          dir = FSDirectory.open(indexDirs[i]);
+          if (IndexWriter.isLocked(dir)) {
             if (!unlock) {
               if (LOG.isWarnEnabled()) {
                 LOG.warn(dr + "Index " + indexDirs[i] + " is locked. Skipping...");
@@ -281,7 +264,7 @@ public class PruneIndexTool implements Runnable {
               continue;
             }
             if (!dryrun) {
-              IndexReader.unlock(dir);
+              IndexWriter.unlock(dir);
               if (LOG.isDebugEnabled()) {
                 LOG.debug(" - had to unlock index in " + dir);
               }
@@ -315,14 +298,30 @@ public class PruneIndexTool implements Runnable {
    * 
    * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
    */
-  private static class AllHitsCollector extends HitCollector {
+  private static class AllHitsCollector extends Collector {
     private BitSet bits;
     
     public AllHitsCollector(BitSet bits) {
       this.bits = bits;
     }
-    public void collect(int doc, float score) {
+
+    public void collect(int doc) {
       bits.set(doc);
+    }
+
+    @Override
+    public boolean acceptsDocsOutOfOrder() {
+      return false;
+    }
+
+    @Override
+    public void setNextReader(IndexReader paramIndexReader, int paramInt) throws IOException {
+      // Do nothing.
+    }
+
+    @Override
+    public void setScorer(Scorer paramScorer) throws IOException {
+      // Do nothing.
     }
   }
   
@@ -415,7 +414,7 @@ public class PruneIndexTool implements Runnable {
       return;
     }
     Vector<File> paths = new Vector<File>();
-    if (IndexReader.indexExists(idx)) {
+    if (IndexReader.indexExists(FSDirectory.open(idx))) {
       paths.add(idx);
     } else {
       // try and see if there are segments inside, with index dirs
@@ -431,7 +430,8 @@ public class PruneIndexTool implements Runnable {
       }
       for (int i = 0; i < dirs.length; i++) {
         File sidx = new File(dirs[i], "index");
-        if (sidx.exists() && sidx.isDirectory() && IndexReader.indexExists(sidx)) {
+        if (sidx.exists() && sidx.isDirectory() 
+            && IndexReader.indexExists(FSDirectory.open(sidx))) {
           paths.add(sidx);
         }
       }
@@ -534,7 +534,7 @@ public class PruneIndexTool implements Runnable {
   public static Query[] parseQueries(InputStream is) throws Exception {
     BufferedReader br = new BufferedReader(new InputStreamReader(is, "UTF-8"));
     String line = null;
-    QueryParser qp = new QueryParser("url", new WhitespaceAnalyzer());
+    QueryParser qp = new QueryParser(Version.LUCENE_CURRENT, "url", new WhitespaceAnalyzer());
     Vector<Query> queries = new Vector<Query>();
     while ((line = br.readLine()) != null) {
       line = line.trim();

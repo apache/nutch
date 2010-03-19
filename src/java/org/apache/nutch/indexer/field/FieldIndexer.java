@@ -18,6 +18,7 @@ package org.apache.nutch.indexer.field;
 
 import java.io.DataInput;
 import java.io.DataOutput;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -57,6 +58,8 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriter.MaxFieldLength;
+import org.apache.lucene.store.FSDirectory;
 import org.apache.nutch.analysis.AnalyzerFactory;
 import org.apache.nutch.analysis.NutchAnalyzer;
 import org.apache.nutch.analysis.NutchDocumentAnalyzer;
@@ -115,8 +118,10 @@ public class FieldIndexer
 
       final AnalyzerFactory factory = new AnalyzerFactory(job);
       final IndexWriter writer = // build locally first
-      new IndexWriter(fs.startLocalOutput(perm, temp).toString(),
-        new NutchDocumentAnalyzer(job), true);
+      new IndexWriter(
+        FSDirectory.open(new File(fs.startLocalOutput(perm, temp).toString())),
+        new NutchDocumentAnalyzer(job), true, 
+        new MaxFieldLength(IndexWriter.DEFAULT_MAX_FIELD_LENGTH));
 
       writer.setMergeFactor(job.getInt("indexer.mergeFactor", 10));
       writer.setMaxBufferedDocs(job.getInt("indexer.minMergeDocs", 100));

@@ -30,6 +30,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.document.Fieldable;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.MultiReader;
 import org.apache.lucene.search.FieldCache;
@@ -83,7 +84,7 @@ public class IndexSearcher implements Searcher, HitDetailer {
     if ("file".equals(this.fs.getUri().getScheme())) {
       Path qualified = file.makeQualified(FileSystem.getLocal(conf));
       File fsLocal = new File(qualified.toUri());
-      return FSDirectory.getDirectory(fsLocal.getAbsolutePath());
+      return FSDirectory.open(new File(fsLocal.getAbsolutePath()));
     } else {
       return new FsDirectory(this.fs, file, false, this.conf);
     }
@@ -120,11 +121,11 @@ public class IndexSearcher implements Searcher, HitDetailer {
 
     Document doc = luceneSearcher.doc(Integer.valueOf(hit.getUniqueKey()));
 
-    List docFields = doc.getFields();
+    List<Fieldable> docFields = doc.getFields();
     String[] fields = new String[docFields.size()];
     String[] values = new String[docFields.size()];
     for (int i = 0; i < docFields.size(); i++) {
-      Field field = (Field)docFields.get(i);
+      Fieldable field = docFields.get(i);
       fields[i] = field.name();
       values[i] = field.stringValue();
     }

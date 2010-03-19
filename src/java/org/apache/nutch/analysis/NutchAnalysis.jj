@@ -38,6 +38,7 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.StopFilter;
 import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.TermAttribute;
 
 import java.io.*;
 import java.util.*;
@@ -277,7 +278,7 @@ ArrayList phrase(String field) :
 
 /** Parse a compound term that is interpreted as an implicit phrase query.
  * Compounds are a sequence of terms separated by infix characters.  Note that
- * htis may return a single term, a trivial compound. */
+ * this may return a single term, a trivial compound. */
 ArrayList compound(String field) :
 {
   int start;
@@ -305,19 +306,23 @@ ArrayList compound(String field) :
       result.add(queryString.substring(start, token.endColumn));
 
     } else {
-      org.apache.lucene.analysis.Token token;
       TokenStream tokens = analyzer.tokenStream(
                               field, new StringReader(terms.toString()));
 
-      while (true) {
-        try {
-          token = tokens.next();
-        } catch (IOException e) {
-          token = null;
+      TermAttribute ta = tokens.getAttribute(TermAttribute.class);
+      try
+      {
+        String termText;
+        while (tokens.incrementToken())
+        {
+          if ((termText = ta.term()) == null)
+            break;
+          result.add(termText);
         }
-        if (token == null) { break; }
-        result.add(token.termText());
+      } catch (IOException e) {
+        // ignore (?)
       }
+//
       try {
         tokens.close();
       } catch (IOException e) {

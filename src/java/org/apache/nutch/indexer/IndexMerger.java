@@ -33,7 +33,10 @@ import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
 
 import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.LogMergePolicy;
+import org.apache.lucene.index.IndexWriter.MaxFieldLength;
 
 /*************************************************************************
  * IndexMerger creates an index for the output corresponding to a 
@@ -86,15 +89,18 @@ public class IndexMerger extends Configured implements Tool {
     //
     // Merge indices
     //
-    IndexWriter writer = new IndexWriter(localOutput.toString(), null, true);
-    writer.setMergeFactor(getConf().getInt("indexer.mergeFactor", IndexWriter.DEFAULT_MERGE_FACTOR));
+    IndexWriter writer = new IndexWriter(
+    		FSDirectory.open(new File(localOutput.toString())), null, true,
+    				MaxFieldLength.UNLIMITED);
+    writer.setMergeFactor(getConf().getInt("indexer.mergeFactor", LogMergePolicy.DEFAULT_MERGE_FACTOR));
     writer.setMaxBufferedDocs(getConf().getInt("indexer.minMergeDocs", IndexWriter.DEFAULT_MAX_BUFFERED_DOCS));
-    writer.setMaxMergeDocs(getConf().getInt("indexer.maxMergeDocs", IndexWriter.DEFAULT_MAX_MERGE_DOCS));
+    writer.setMaxMergeDocs(getConf().getInt("indexer.maxMergeDocs", LogMergePolicy.DEFAULT_MAX_MERGE_DOCS));
     writer.setTermIndexInterval(getConf().getInt("indexer.termIndexInterval", IndexWriter.DEFAULT_TERM_INDEX_INTERVAL));
     writer.setInfoStream(LogUtil.getDebugStream(LOG));
     writer.setUseCompoundFile(false);
     writer.setSimilarity(new NutchSimilarity());
-    writer.addIndexes(dirs);
+    writer.addIndexesNoOptimize(dirs);
+    writer.optimize();
     writer.close();
 
     //

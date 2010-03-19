@@ -80,8 +80,10 @@ public class BasicFieldFilter
           // create lucene fields from the FieldWritable objects
           Field.Store store = field.isStored() ? Field.Store.YES
             : Field.Store.NO;
-          Field.Index indexed = field.isIndexed() ? field.isTokenized()
-            ? Field.Index.TOKENIZED : Field.Index.UN_TOKENIZED : Field.Index.NO;
+          Field.Index indexed = 
+        	  field.isIndexed() 
+        	  	? field.isTokenized() ? Field.Index.ANALYZED : Field.Index.NOT_ANALYZED 
+        		: Field.Index.NO;
           Field docField = new Field(fieldName, field.getValue(), store,
             indexed);
 

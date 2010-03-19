@@ -2,6 +2,8 @@ Nutch Change Log
 
 Unreleased Changes
 
+* NUTCH-787 Upgrade Lucene to 3.0.1. (Dawid Weiss via ab)
+
 * NUTCH-796 Zero results problems difficult to troubleshoot due to lack of logging (ab)
 
 * NUTCH-801 Remove RTF and MP3 parse plugins (jnioche)
