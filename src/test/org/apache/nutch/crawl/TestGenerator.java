@@ -144,7 +144,7 @@ public class TestGenerator extends TestCase {
     createCrawlDB(list);
 
     Configuration myConfiguration = new Configuration(conf);
-    myConfiguration.setInt(Generator.GENERATE_MAX_PER_HOST, 1);
+    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 1);
     Path generatedSegment = generateFetchlist(Integer.MAX_VALUE,
         myConfiguration, false);
 
@@ -157,7 +157,7 @@ public class TestGenerator extends TestCase {
     assertEquals(1, fetchList.size());
 
     myConfiguration = new Configuration(conf);
-    myConfiguration.setInt(Generator.GENERATE_MAX_PER_HOST, 2);
+    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 2);
     generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration,
         false);
 
@@ -170,7 +170,7 @@ public class TestGenerator extends TestCase {
     assertEquals(2, fetchList.size());
 
     myConfiguration = new Configuration(conf);
-    myConfiguration.setInt(Generator.GENERATE_MAX_PER_HOST, 3);
+    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 3);
     generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration,
         false);
 
@@ -184,22 +184,22 @@ public class TestGenerator extends TestCase {
   }
 
   /**
-   * Test that generator obeys the property "generate.max.per.host" and
-   * "generate.max.per.host.by.ip".
+   * Test that generator obeys the property "generator.max.count" and
+   * "generator.count.per.domain".
    * @throws Exception 
    */
-  public void testGenerateHostIPLimit() throws Exception{
+  public void testGenerateDomainLimit() throws Exception{
     ArrayList<URLCrawlDatum> list = new ArrayList<URLCrawlDatum>();
 
-    list.add(createURLCrawlDatum("http://www.example.com/index.html", 1, 1));
-    list.add(createURLCrawlDatum("http://www.example.net/index.html", 1, 1));
-    list.add(createURLCrawlDatum("http://www.example.org/index.html", 1, 1));
+    list.add(createURLCrawlDatum("http://a.example.com/index.html", 1, 1));
+    list.add(createURLCrawlDatum("http://b.example.com/index.html", 1, 1));
+    list.add(createURLCrawlDatum("http://c.example.com/index.html", 1, 1));
 
     createCrawlDB(list);
 
     Configuration myConfiguration = new Configuration(conf);
-    myConfiguration.setInt(Generator.GENERATE_MAX_PER_HOST, 1);
-    myConfiguration.setBoolean(Generator.GENERATE_MAX_PER_HOST_BY_IP, true);
+    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 1);
+    myConfiguration.set(Generator.GENERATOR_COUNT_MODE, Generator.GENERATOR_COUNT_VALUE_DOMAIN);
 
     Path generatedSegment = generateFetchlist(Integer.MAX_VALUE,
         myConfiguration, false);
@@ -213,7 +213,7 @@ public class TestGenerator extends TestCase {
     assertEquals(1, fetchList.size());
 
     myConfiguration = new Configuration(myConfiguration);
-    myConfiguration.setInt(Generator.GENERATE_MAX_PER_HOST, 2);
+    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 2);
     generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
     fetchlistPath = new Path(new Path(generatedSegment,
@@ -225,7 +225,7 @@ public class TestGenerator extends TestCase {
     assertEquals(2, fetchList.size());
 
     myConfiguration = new Configuration(myConfiguration);
-    myConfiguration.setInt(Generator.GENERATE_MAX_PER_HOST, 3);
+    myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 3);
     generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration,
         false);
 
@@ -310,9 +310,10 @@ public class TestGenerator extends TestCase {
       boolean filter) throws IOException {
     // generate segment
     Generator g = new Generator(config);
-    Path generatedSegment = g.generate(dbDir, segmentsDir, -1, numResults,
+    Path[] generatedSegment = g.generate(dbDir, segmentsDir, -1, numResults,
         Long.MAX_VALUE, filter, false);
-    return generatedSegment;
+    if (generatedSegment==null) return null;
+    return generatedSegment[0];
   }
 
   /**

@@ -514,24 +514,21 @@
 <!-- generate properties -->
 
 <property>
-  <name>generate.max.per.host</name>
+  <name>generate.max.count</name>
   <value>-1</value>
-  <description>The maximum number of urls per host in a single
-  fetchlist.  -1 if unlimited.</description>
+  <description>The maximum number of urls in a single
+  fetchlist.  -1 if unlimited. The urls are counted according
+  to the value of the parameter generator.count.mode.
+  </description>
 </property>
 
 <property>
-  <name>generate.max.per.host.by.ip</name>
-  <value>false</value>
-  <description>If false, same host names are counted. If true,
-  hosts' IP addresses are resolved and the same IP-s are counted.
-  
-  -+-+-+- WARNING !!! -+-+-+-
-  When set to true, Generator will create a lot of DNS lookup
-  requests, rapidly. This may cause a DOS attack on
-  remote DNS servers, not to mention increased external traffic
-  and latency. For these reasons when using this option it is
-  required that a local caching DNS be used.</description>
+  <name>generate.count.mode</name>
+  <value>host</value>
+  <description>Determines how the URLs are counted for generator.max.count.
+  Default value is 'host' but can be 'domain'. Note that we do not count 
+  per IP in the new version of the Generator.
+  </description>
 </property>
 
 <property>
@@ -543,6 +540,34 @@
   updatedb-s, at the cost of running an additional job to update CrawlDB.
   If false, running generate twice without intervening
   updatedb will generate identical fetchlists.</description>
+</property>
+
+<property>
+  <name>generate.max.per.host</name>
+  <value>-1</value>
+  <description>(Deprecated). Use generate.max.count and generate.count.mode instead.
+  The maximum number of urls per host in a single
+  fetchlist.  -1 if unlimited.</description>
+</property>
+
+<!-- urlpartitioner properties -->
+<property>
+  <name>partition.url.mode</name>
+  <value>byHost</value>
+  <description>Determines how to partition URLs. Default value is 'byHost', 
+  also takes 'byDomain' or 'byIP'. 
+  </description>
+</property>
+
+<property>
+  <name>crawl.gen.delay</name>
+  <value>604800000</value>
+  <description>
+   This value, expressed in days, defines how long we should keep the lock on records 
+   in CrawlDb that were just selected for fetching. If these records are not updated 
+   in the meantime, the lock is canceled, i.e. the become eligible for selecting. 
+   Default value of this is 7 days.
+  </description>
 </property>
 
 <!-- fetcher properties -->

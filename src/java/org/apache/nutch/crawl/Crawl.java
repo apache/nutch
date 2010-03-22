@@ -124,17 +124,17 @@ public class Crawl {
     injector.inject(crawlDb, rootUrlDir);
     int i;
     for (i = 0; i < depth; i++) {             // generate new segment
-      Path segment = generator.generate(crawlDb, segments, -1, topN, System
+      Path[] segs = generator.generate(crawlDb, segments, -1, topN, System
           .currentTimeMillis());
-      if (segment == null) {
+      if (segments == null) {
         LOG.info("Stopping at depth=" + i + " - no more URLs to fetch.");
         break;
       }
-      fetcher.fetch(segment, threads, org.apache.nutch.fetcher.Fetcher.isParsing(conf));  // fetch it
+      fetcher.fetch(segs[0], threads, org.apache.nutch.fetcher.Fetcher.isParsing(conf));  // fetch it
       if (!Fetcher.isParsing(job)) {
-        parseSegment.parse(segment);    // parse it, if needed
+        parseSegment.parse(segs[0]);    // parse it, if needed
       }
-      crawlDbTool.update(crawlDb, new Path[]{segment}, true, true); // update crawldb
+      crawlDbTool.update(crawlDb, segs, true, true); // update crawldb
     }
     if (i > 0) {
       linkDbTool.invert(linkDb, segments, true, true, false); // invert links

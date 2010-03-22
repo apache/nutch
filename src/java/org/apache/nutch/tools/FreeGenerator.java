@@ -44,7 +44,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Generator;
-import org.apache.nutch.crawl.PartitionUrlByHost;
+import org.apache.nutch.crawl.URLPartitioner;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.scoring.ScoringFilters;
@@ -165,7 +165,7 @@ public class FreeGenerator extends Configured implements Tool {
     job.setMapperClass(FG.class);
     job.setMapOutputKeyClass(Text.class);
     job.setMapOutputValueClass(Generator.SelectorEntry.class);
-    job.setPartitionerClass(PartitionUrlByHost.class);
+    job.setPartitionerClass(URLPartitioner.class);
     job.setReducerClass(FG.class);
     String segName = Generator.generateSegmentName();
     job.setNumReduceTasks(job.getNumMapTasks());

@@ -79,7 +79,7 @@ public final class URLNormalizers {
    * this scope will be used.
    */
   public static final String SCOPE_DEFAULT = "default";
-  /** Scope used by {@link org.apache.nutch.crawl.PartitionUrlByHost}. */
+  /** Scope used by {@link org.apache.nutch.crawl.URLPartitioner}. */
   public static final String SCOPE_PARTITION = "partition";
   /** Scope used by {@link org.apache.nutch.crawl.Generator}. */
   public static final String SCOPE_GENERATE_HOST_COUNT = "generate_host_count";

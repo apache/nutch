@@ -92,13 +92,13 @@ public class TestFetcher extends TestCase {
 
     //generate
     Generator g=new Generator(conf);
-    Path generatedSegment = g.generate(crawldbPath, segmentsPath, 1,
+    Path[] generatedSegment = g.generate(crawldbPath, segmentsPath, 1,
         Long.MAX_VALUE, Long.MAX_VALUE, false, false);
 
     long time=System.currentTimeMillis();
     //fetch
     Fetcher fetcher=new Fetcher(conf);
-    fetcher.fetch(generatedSegment, 1, true);
+    fetcher.fetch(generatedSegment[0], 1, true);
 
     time=System.currentTimeMillis()-time;
     
@@ -107,7 +107,7 @@ public class TestFetcher extends TestCase {
     assertTrue(time > minimumTime);
     
     //verify content
-    Path content=new Path(new Path(generatedSegment, Content.DIR_NAME),"part-00000/data");
+    Path content=new Path(new Path(generatedSegment[0], Content.DIR_NAME),"part-00000/data");
     SequenceFile.Reader reader=new SequenceFile.Reader(fs, content, conf);
     
     ArrayList<String> handledurls=new ArrayList<String>();
@@ -138,7 +138,7 @@ public class TestFetcher extends TestCase {
     handledurls.clear();
 
     //verify parse data
-    Path parseData = new Path(new Path(generatedSegment, ParseData.DIR_NAME),"part-00000/data");
+    Path parseData = new Path(new Path(generatedSegment[0], ParseData.DIR_NAME),"part-00000/data");
     reader = new SequenceFile.Reader(fs, parseData, conf);
     
     READ_PARSE_DATA:
