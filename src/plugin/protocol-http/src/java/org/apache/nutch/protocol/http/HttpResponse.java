@@ -123,6 +123,10 @@ public class HttpResponse implements Response {
         reqStr.append(userAgent);
         reqStr.append("\r\n");
       }
+      
+      reqStr.append("Accept-Language: ");
+      reqStr.append(this.http.getAcceptLanguage());
+      reqStr.append("\r\n");
 
       reqStr.append("\r\n");
       if (datum.getModifiedTime() > 0) {

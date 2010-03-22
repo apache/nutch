@@ -228,6 +228,15 @@
   </description>
 </property>
 
+<property>
+  <name>http.accept.language</name>
+  <value>en-us,en-gb,en;q=0.7,*;q=0.3</value>
+  <description>Value of the "Accept-Language" request header field.
+  This allows selecting non-English language as default one to retrieve.
+  It is a useful setting for search engines build for certain national group.
+  </description>
+</property>
+
 <!-- FTP properties -->
 
 <property>
