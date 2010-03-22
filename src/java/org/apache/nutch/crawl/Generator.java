@@ -480,7 +480,7 @@ public class Generator extends Configured implements Tool {
       LOG.info("Generator: topN: " + topN);
     }
     
-    if (getConf().get(GENERATE_MAX_PER_HOST_BY_IP).equals("true")){
+    if ("true".equals(getConf().get(GENERATE_MAX_PER_HOST_BY_IP))){
       LOG.info("Generator: GENERATE_MAX_PER_HOST_BY_IP will be ignored, use partition.url.mode instead");
     }
 
