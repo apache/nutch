@@ -2,6 +2,8 @@ Nutch Change Log
 
 Unreleased Changes
 
+* NUTCH-779 Mechanism for passing metadata from parse to crawldb (jnioche)
+
 * NUTCH-784 CrawlDBScanner (jnioche)
 
 * NUTCH-762 Generator can generate several segments in one parse of the crawlDB (jnioche)

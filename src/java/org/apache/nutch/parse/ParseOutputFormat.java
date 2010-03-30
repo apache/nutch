@@ -98,6 +98,8 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
     Path data = new Path(new Path(out, ParseData.DIR_NAME), name);
     Path crawl = new Path(new Path(out, CrawlDatum.PARSE_DIR_NAME), name);
     
+    final String[] parseMDtoCrawlDB = job.get("db.parsemeta.to.crawldb","").split(" *, *");
+    
     final MapFile.Writer textOut =
       new MapFile.Writer(job, fs, text.toString(), Text.class, ParseText.class,
           CompressionType.RECORD, progress);
@@ -133,6 +135,20 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
               crawlOut.append(key, d);
             }
           }
+          
+        // see if the parse metadata contain things that we'd like
+        // to pass to the metadata of the crawlDB entry
+        CrawlDatum parseMDCrawlDatum = null;
+        for (String mdname : parseMDtoCrawlDB) {
+          String mdvalue = parse.getData().getParseMeta().get(mdname);
+          if (mdvalue != null) {
+            if (parseMDCrawlDatum == null) parseMDCrawlDatum = new CrawlDatum(
+                CrawlDatum.STATUS_PARSE_META, 0);
+            parseMDCrawlDatum.getMetaData().put(new Text(mdname),
+                new Text(mdvalue));
+          }
+        }
+        if (parseMDCrawlDatum != null) crawlOut.append(key, parseMDCrawlDatum);
 
           try {
             ParseStatus pstatus = parseData.getStatus();

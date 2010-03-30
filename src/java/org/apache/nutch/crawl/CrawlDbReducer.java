@@ -20,6 +20,7 @@ package org.apache.nutch.crawl;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.io.IOException;
 
 // Commons Logging imports
@@ -71,7 +72,8 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
     byte[] signature = null;
     boolean multiple = false; // avoid deep copy when only single value exists
     linked.clear();
-
+    org.apache.hadoop.io.MapWritable metaFromParse = null;
+    
     while (values.hasNext()) {
       CrawlDatum datum = (CrawlDatum)values.next();
       if (!multiple && values.hasNext()) multiple = true;
@@ -119,6 +121,9 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
         break;
       case CrawlDatum.STATUS_SIGNATURE:
         signature = datum.getSignature();
+        break;
+      case CrawlDatum.STATUS_PARSE_META:
+        metaFromParse = datum.getMetaData();
         break;
       default:
         LOG.warn("Unknown status, key: " + key + ", datum: " + datum);
@@ -233,6 +238,11 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
           else result.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
         }
         result.setSignature(signature);
+        if (metaFromParse != null) {
+            for (Entry<Writable, Writable> e : metaFromParse.entrySet()) {
+              result.getMetaData().put(e.getKey(), e.getValue());
+            }
+          }
       }
       // if fetchInterval is larger than the system-wide maximum, trigger
       // an unconditional recrawl. This prevents the page to be stuck at

@@ -82,6 +82,8 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
   public static final byte STATUS_INJECTED          = 0x42;
   /** Page discovered through a link. */
   public static final byte STATUS_LINKED            = 0x43;
+  /** Page got metadata from a parser */
+  public static final byte STATUS_PARSE_META        = 0x44;
   
   
   public static final HashMap<Byte, String> statNames = new HashMap<Byte, String>();
@@ -101,6 +103,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
     statNames.put(STATUS_FETCH_REDIR_PERM, "fetch_redir_perm");
     statNames.put(STATUS_FETCH_GONE, "fetch_gone");
     statNames.put(STATUS_FETCH_NOTMODIFIED, "fetch_notmodified");
+    statNames.put(STATUS_PARSE_META, "parse_metadata");
     
     oldToNew.put(OLD_STATUS_DB_UNFETCHED, STATUS_DB_UNFETCHED);
     oldToNew.put(OLD_STATUS_DB_FETCHED, STATUS_DB_FETCHED);

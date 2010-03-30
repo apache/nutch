@@ -88,7 +88,8 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
           if (datum.getStatus() != CrawlDatum.STATUS_FETCH_NOTMODIFIED)
             fetchDatum = datum;
         } else if (CrawlDatum.STATUS_LINKED == datum.getStatus() ||
-                   CrawlDatum.STATUS_SIGNATURE == datum.getStatus()) {
+                   CrawlDatum.STATUS_SIGNATURE == datum.getStatus() ||
+                   CrawlDatum.STATUS_PARSE_META == datum.getStatus()) {
           continue;
         } else {
           throw new RuntimeException("Unexpected status: "+datum.getStatus());

@@ -479,6 +479,15 @@
   </description>
 </property>
 
+ <property>
+  <name>db.parsemeta.to.crawldb</name>
+  <value></value>
+  <description>Comma-separated list of parse metadata keys to transfer to the crawldb (NUTCH-779).
+   Assuming for instance that the languageidentifier plugin is enabled, setting the value to 'lang' 
+   will copy both the key 'lang' and its value to the corresponding entry in the crawldb.
+  </description>
+</property>
+
 <property>
   <name>db.fetch.retry.max</name>
   <value>3</value>
