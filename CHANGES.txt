@@ -2,6 +2,8 @@ Nutch Change Log
 
 Unreleased Changes
 
+* NUTCH-785 Copy metadata from origin URL when redirecting in Fetcher + call scfilters.initialScore on newly created URL (jnioche)
+
 * NUTCH-779 Mechanism for passing metadata from parse to crawldb (jnioche)
 
 * NUTCH-784 CrawlDBScanner (jnioche)

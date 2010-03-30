@@ -46,6 +46,7 @@ import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.*;
 import org.apache.nutch.protocol.*;
 import org.apache.nutch.parse.*;
+import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.*;
 
@@ -656,6 +657,9 @@ public class Fetcher extends Configured implements Tool,
                   if (redirUrl != null) {
                     CrawlDatum newDatum = new CrawlDatum(CrawlDatum.STATUS_DB_UNFETCHED,
                         fit.datum.getFetchInterval(), fit.datum.getScore());
+                    // transfer existing metadata to the redir
+                    newDatum.getMetaData().putAll(fit.datum.getMetaData());
+                    scfilters.initialScore(redirUrl, newDatum);
                     if (reprUrl != null) {
                       newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
                           new Text(reprUrl));
@@ -694,6 +698,9 @@ public class Fetcher extends Configured implements Tool,
                 if (redirUrl != null) {
                   CrawlDatum newDatum = new CrawlDatum(CrawlDatum.STATUS_DB_UNFETCHED,
                       fit.datum.getFetchInterval(), fit.datum.getScore());
+                  // transfer existing metadata
+                  newDatum.getMetaData().putAll(fit.datum.getMetaData());
+                  scfilters.initialScore(redirUrl, newDatum);
                   if (reprUrl != null) {
                     newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
                         new Text(reprUrl));
@@ -809,6 +816,13 @@ public class Fetcher extends Configured implements Tool,
         } else {
           CrawlDatum newDatum = new CrawlDatum(CrawlDatum.STATUS_LINKED,
               datum.getFetchInterval());
+          // transfer existing metadata 
+          newDatum.getMetaData().putAll(datum.getMetaData());
+          try {
+            scfilters.initialScore(url, newDatum);
+          } catch (ScoringFilterException e) {
+            e.printStackTrace();
+          }
           if (reprUrl != null) {
             newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
                 new Text(reprUrl));
