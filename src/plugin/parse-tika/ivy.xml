@@ -1,7 +1,7 @@
 <ivy-module version="2.0">
     <info organisation="apache" module="parse-tika"/>
     <dependencies>
-	<dependency org="org.apache.tika" name="tika-parsers" rev="0.6">
+	<dependency org="org.apache.tika" name="tika-parsers" rev="0.7">
 		<exclude module="lucene-*"/>
 		<exclude module="tika-core"/>
 		<exclude module="log4j"/>

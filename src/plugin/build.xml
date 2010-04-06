@@ -32,8 +32,8 @@
      <ant dir="index-basic" target="deploy"/>
      <ant dir="index-anchor" target="deploy"/>
      <ant dir="index-more" target="deploy"/>
-  	 <ant dir="field-basic" target="deploy"/>
-  	 <ant dir="field-boost" target="deploy"/>
+     <ant dir="field-basic" target="deploy"/>
+     <ant dir="field-boost" target="deploy"/>
      <ant dir="languageidentifier" target="deploy"/>
      <ant dir="lib-http" target="deploy"/>
      <ant dir="lib-jakarta-poi" target="deploy"/>
@@ -65,12 +65,12 @@
      <ant dir="query-basic" target="deploy"/>
      <ant dir="query-more" target="deploy"/>
      <ant dir="query-site" target="deploy"/>
-  	 <ant dir="query-custom" target="deploy"/>
+     <ant dir="query-custom" target="deploy"/>
      <ant dir="query-url" target="deploy"/>
      <ant dir="response-json" target="deploy"/>
      <ant dir="response-xml" target="deploy"/>
      <ant dir="scoring-opic" target="deploy"/>
-  	 <ant dir="scoring-link" target="deploy"/>
+     <ant dir="scoring-link" target="deploy"/>
      <ant dir="summary-basic" target="deploy"/>
      <ant dir="subcollection" target="deploy"/>
      <ant dir="summary-lucene" target="deploy"/>
@@ -99,7 +99,6 @@
      <ant dir="protocol-httpclient" target="test"/>
      <!--ant dir="parse-ext" target="test"/-->
      <ant dir="parse-html" target="test"/>
-     <!-- <ant dir="parse-mp3" target="test"/> -->
      <ant dir="parse-msexcel" target="test"/>
      <ant dir="parse-mspowerpoint" target="test"/>
      <ant dir="parse-msword" target="test"/>
@@ -107,7 +106,6 @@
      <ant dir="parse-pdf" target="test"/>
      <ant dir="parse-rss" target="test"/>
      <ant dir="feed" target="test"/>
-     <!-- <ant dir="parse-rtf" target="test"/> -->
      <ant dir="parse-swf" target="test"/>
      <ant dir="parse-tika" target="test"/>
      <ant dir="parse-zip" target="test"/>
@@ -172,11 +170,11 @@
     <ant dir="query-more" target="clean"/>
     <ant dir="query-site" target="clean"/>
     <ant dir="query-url" target="clean"/>
-  	<ant dir="query-custom" target="clean"/>
+    <ant dir="query-custom" target="clean"/>
     <ant dir="response-json" target="clean"/>
     <ant dir="response-xml" target="clean"/>
     <ant dir="scoring-opic" target="clean"/>
-  	<ant dir="scoring-link" target="clean"/>
+    <ant dir="scoring-link" target="clean"/>
     <ant dir="subcollection" target="clean"/>
     <ant dir="summary-basic" target="clean"/>
     <ant dir="summary-lucene" target="clean"/>

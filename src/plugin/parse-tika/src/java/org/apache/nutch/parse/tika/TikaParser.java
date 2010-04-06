@@ -170,6 +170,8 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
 		this.tikaConfig = null;
 
 		// do we want a custom Tika configuration file
+		// deprecated since Tika 0.7 which is based on 
+		// a service provider based configuration
 		String customConfFile = conf.get("tika.config.file");
 		if (customConfFile != null) {
 			try {
