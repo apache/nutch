@@ -1,6 +1,6 @@
 Nutch Change Log
 
-Unreleased Changes
+Release 1.1 - 2010-04-06
 
 * NUTCH-810 Upgrade to Tika 0.7 (jnioche)
 
