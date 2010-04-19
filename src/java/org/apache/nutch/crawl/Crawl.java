@@ -126,7 +126,7 @@ public class Crawl {
     for (i = 0; i < depth; i++) {             // generate new segment
       Path[] segs = generator.generate(crawlDb, segments, -1, topN, System
           .currentTimeMillis());
-      if (segments == null) {
+      if (segs == null) {
         LOG.info("Stopping at depth=" + i + " - no more URLs to fetch.");
         break;
       }
