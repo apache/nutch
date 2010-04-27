@@ -170,18 +170,21 @@ public class CollectionManager extends Configured {
    * @return Space delimited string of collection names url is part of
    */
   public String getSubCollections(final String url) {
-    String collections = "";
+    StringBuilder collections = new StringBuilder();
     final Iterator iterator = collectionMap.values().iterator();
 
     while (iterator.hasNext()) {
       final Subcollection subCol = (Subcollection) iterator.next();
       if (subCol.filter(url) != null) {
-        collections += " " + subCol.name;
+        if (collections.length() > 0) {
+          collections.append(' ');
+        }
+        collections.append(subCol.name);
       }
     }
     if (LOG.isTraceEnabled()) { LOG.trace("subcollections:" + collections); }
     
-    return collections;
+    return collections.toString();
   }
 
   /**

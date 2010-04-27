@@ -75,6 +75,6 @@ public class SubcollectionIndexingFilter extends Configured implements IndexingF
 
   public void addIndexBackendOptions(Configuration conf) {
     LuceneWriter.addFieldOptions(FIELD_NAME, LuceneWriter.STORE.YES,
-        LuceneWriter.INDEX.UNTOKENIZED, conf);
+        LuceneWriter.INDEX.TOKENIZED, conf);
   }
 }

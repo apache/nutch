@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.1 - 2010-04-06
 
+* NUTCH-732 Subcollection plugin not working (Filipe Antunes, ab)
+
 * NUTCH-815 Invalid blank line before If-Modified-Since header (Pascal Dimassimo via ab)
 
 * NUTCH-814 SegmentMerger bug (Rob Bradshaw, ab)
