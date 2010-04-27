@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.1 - 2010-04-06
 
+* NUTCH-814 SegmentMerger bug (Rob Bradshaw, ab)
+
 * NUTCH-812 Crawl.java incorrectly uses the Generator API resulting in NPE (Phil Barnett via mattmann and ab)
 
 * NUTCH-810 Upgrade to Tika 0.7 (jnioche)

@@ -147,7 +147,7 @@ public class SegmentMerger extends Configured implements
         throw new RuntimeException("Cannot identify segment:", e);
       }
       
-      final SequenceFile.Reader reader =
+      SequenceFile.Reader reader =
         new SequenceFile.Reader(FileSystem.get(job), fSplit.getPath(), job);
       
       final Writable w;
@@ -155,7 +155,15 @@ public class SegmentMerger extends Configured implements
         w = (Writable) reader.getValueClass().newInstance();
       } catch (Exception e) {
         throw new IOException(e.toString());
+      } finally {
+        try {
+          reader.close();
+        } catch (Exception e) {
+          // ignore
+        }
       }
+      final SequenceFileRecordReader<Text,Writable> splitReader =
+        new SequenceFileRecordReader<Text,Writable>(job, (FileSplit)split);
 
       try {
         return new SequenceFileRecordReader<Text, MetaWrapper>(job, fSplit) {
@@ -163,7 +171,7 @@ public class SegmentMerger extends Configured implements
           public synchronized boolean next(Text key, MetaWrapper wrapper) throws IOException {
             LOG.debug("Running OIF.next()");
 
-            boolean res = reader.next(key, w);
+            boolean res = splitReader.next(key, w);
             wrapper.set(w);
             wrapper.setMeta(SEGMENT_PART_KEY, spString);
             return res;
@@ -171,7 +179,7 @@ public class SegmentMerger extends Configured implements
           
           @Override
           public synchronized void close() throws IOException {
-            reader.close();
+            splitReader.close();
           }
           
           @Override
