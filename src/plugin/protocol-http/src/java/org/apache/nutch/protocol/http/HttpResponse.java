@@ -128,11 +128,11 @@ public class HttpResponse implements Response {
       reqStr.append(this.http.getAcceptLanguage());
       reqStr.append("\r\n");
 
-      reqStr.append("\r\n");
       if (datum.getModifiedTime() > 0) {
         reqStr.append("If-Modified-Since: " + HttpDateFormat.toString(datum.getModifiedTime()));
         reqStr.append("\r\n");
       }
+      reqStr.append("\r\n");
       
       byte[] reqBytes= reqStr.toString().getBytes();
 

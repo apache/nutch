@@ -1,6 +1,14 @@
 Nutch Change Log
 
-Release 1.1 - 2010-04-06
+Release 1.1 - 2010-05-08
+
+* NUTCH-816 Add zip target to build.xml (mattmann)
+
+* NUTCH-732 Subcollection plugin not working (Filipe Antunes, ab)
+
+* NUTCH-815 Invalid blank line before If-Modified-Since header (Pascal Dimassimo via ab)
+
+* NUTCH-814 SegmentMerger bug (Rob Bradshaw, ab)
 
 * NUTCH-812 Crawl.java incorrectly uses the Generator API resulting in NPE (Phil Barnett via mattmann and ab)
 
