@@ -608,6 +608,21 @@
       </tarfileset>
     </tar>
   </target>
+
+  <!-- ================================================================== -->
+  <!-- Make release tarball                                               -->
+  <!-- ================================================================== -->
+  <target name="zip" depends="package">
+  	<zip compress="true" casesensitive="yes" destfile="${build.dir}/${final.name}.zip">
+  	 <zipfileset dir="${build.dir}" filemode="664">
+  	  <exclude name="${final.name}/bin/*" />
+  	  <include name="${final.name}/**" />  	
+  	 </zipfileset>
+  	 <zipfileset dir="${build.dir}" filemode="755">
+       <include name="${final.name}/bin/*" />  	
+  	 </zipfileset>
+   </zip>
+  </target>
 	
   <!-- ================================================================== -->
   <!-- Clean.  Delete the build files, and their directories              -->
