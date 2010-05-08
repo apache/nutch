@@ -1,6 +1,6 @@
 Nutch Change Log
 
-Release 1.1 - 2010-04-06
+Release 1.1 - 2010-05-08
 
 * NUTCH-816 Add zip target to build.xml (mattmann)
 
