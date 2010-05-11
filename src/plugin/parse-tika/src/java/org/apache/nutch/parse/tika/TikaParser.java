@@ -77,7 +77,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
 			String message = "Can't retrieve Tika parser for mime-type "
 					+ mimeType;
 			LOG.error(message);
-			return new ParseStatus(ParseStatus.FAILED_EXCEPTION, message)
+			return new ParseStatus(ParseStatus.FAILED, message)
 					.getEmptyParseResult(content.getUrl(), getConf());
 		}
 
@@ -95,7 +95,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
 		  parser.parse(new ByteArrayInputStream(raw), domhandler, tikamd,context);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return new ParseStatus(ParseStatus.FAILED_EXCEPTION, e.getMessage())
+			return new ParseStatus(ParseStatus.FAILED, e.getMessage())
 					.getEmptyParseResult(content.getUrl(), getConf());
 		}
 

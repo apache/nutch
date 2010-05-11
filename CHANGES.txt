@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.1 - 2010-05-08
 
+* NUTCH-818 Bugfix : Parse-tika uses minorCodes instead of majorCodes in ParseStatus (jnioche)
+
 * NUTCH-816 Add zip target to build.xml (mattmann)
 
 * NUTCH-732 Subcollection plugin not working (Filipe Antunes, ab)
