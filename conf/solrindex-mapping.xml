@@ -42,5 +42,5 @@
 		<field dest="id" source="url"/>
 		<copyField source="url" dest="url"/>
 	</fields>
-	<uniqueKey>id_url</uniqueKey>
+	<uniqueKey>id</uniqueKey>
 </mapping>
