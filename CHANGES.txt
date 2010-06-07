@@ -1,6 +1,6 @@
 Nutch Change Log
 
-Release 1.1 - 2010-05-11
+Release 1.1 - 2010-06-06
 
 * NUTCH-819 Included Solr schema.xml and solrindex-mapping.xml don't play together (ab)
 
