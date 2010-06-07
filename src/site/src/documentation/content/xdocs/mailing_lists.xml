@@ -32,13 +32,14 @@
 
       <p>
         The Nutch user mailing list is :
-        <a href="mailto:nutch-user@lucene.apache.org">nutch-user@lucene.apache.org</a>.
+        <a href="mailto:user@nutch.apache.org">user@nutch.apache.org</a>.
       </p>      
       <ul>
-        <li><a href="mailto:nutch-user-subscribe@lucene.apache.org">Subscribe to List</a></li>
-        <li><a href="mailto:nutch-user-unsubscribe@lucene.apache.org">Unsubscribe from List</a></li>
-        <li><a href="http://www.mail-archive.com/nutch-user%40lucene.apache.org/">Search List Archive</a></li>
-        <li><a href="http://lucene.apache.org/mail/nutch-user/">View List Archive</a></li>
+        <li><a href="mailto:user-subscribe@nutch.apache.org">Subscribe to List</a></li>
+        <li><a href="mailto:user-unsubscribe@nutch.apache.org">Unsubscribe from List</a></li>
+        <li><a href="http://www.mail-archive.com/user%40nutch.apache.org/">Search List Archive</a></li>
+        <li><a href="http://www.mail-archive.com/nutch-user%40lucene.apache.org/">Search Old List Archive</a></li>
+        <li><a href="http://nutch.apache.org/mail/user/">View List Archive</a></li>
       </ul>
       <note>In order to post to the list, it is necessary to first subscribe to it.</note>
     </section>
@@ -51,13 +52,14 @@
 
       <p>
         The Nutch developer mailing list is :
-        <a href="mailto:nutch-dev@lucene.apache.org">nutch-dev@lucene.apache.org</a>.
+        <a href="mailto:dev@nutch.apache.org">dev@nutch.apache.org</a>.
       </p>      
       <ul>
-        <li><a href="mailto:nutch-dev-subscribe@lucene.apache.org">Subscribe to List</a></li>
-        <li><a href="mailto:nutch-dev-unsubscribe@lucene.apache.org">Unsubscribe from List</a></li>
-        <li><a href="http://www.mail-archive.com/nutch-dev%40lucene.apache.org/">Search List Archive</a></li>
-        <li><a href="http://lucene.apache.org/mail/nutch-dev/">View List Archive</a></li>
+        <li><a href="mailto:dev-subscribe@nutch.apache.org">Subscribe to List</a></li>
+        <li><a href="mailto:dev-unsubscribe@nutch.apache.org">Unsubscribe from List</a></li>
+        <li><a href="http://www.mail-archive.com/dev%40nutch.apache.org/">Search List Archive</a></li>
+        <li><a href="http://www.mail-archive.com/nutch-dev%40lucene.apache.org/">Search Old List Archive</a></li>
+        <li><a href="http://nutch.apache.org/mail/dev/">View List Archive</a></li>
       </ul>
       <note>In order to post to the list, it is necessary to first subscribe to it.</note>
     </section>
@@ -70,10 +72,11 @@
       then subscribe to the Nutch commit mailing list.</p>
 
       <ul>
-        <li><a href="mailto:nutch-commits-subscribe@lucene.apache.org">Subscribe to List</a></li>
-        <li><a href="mailto:nutch-commits-unsubscribe@lucene.apache.org">Unsubscribe from List</a></li>
-        <li><a href="http://www.mail-archive.com/nutch-commits%40lucene.apache.org/">Search List Archive</a></li>
-        <li><a href="http://lucene.apache.org/mail/nutch-commits/">View List Archive</a></li>
+        <li><a href="mailto:commits-subscribe@nutch.apache.org">Subscribe to List</a></li>
+        <li><a href="mailto:commits-unsubscribe@nutch.apache.org">Unsubscribe from List</a></li>
+        <li><a href="http://www.mail-archive.com/commits%40nutch.apache.org/">Search List Archive</a></li>
+        <li><a href="http://www.mail-archive.com/nutch-commits%40lucene.apache.org/">Search Old List Archive</a></li>
+        <li><a href="http://nutch.apache.org/mail/commits/">View List Archive</a></li>
       </ul>
     </section>
   
@@ -87,13 +90,14 @@
 
       <p>
         The Nutch agent mailing list is :
-        <a href="mailto:nutch-agent@lucene.apache.org">nutch-agent@lucene.apache.org</a>.
+        <a href="mailto:nutch-agent@nutch.apache.org">agent@nutch.apache.org</a>.
       </p>      
       <ul>
-        <li><a href="mailto:nutch-agent-subscribe@lucene.apache.org">Subscribe to List</a></li>
-        <li><a href="mailto:nutch-agent-unsubscribe@lucene.apache.org">Unsubscribe from List</a></li>
-        <li><a href="http://www.mail-archive.com/nutch-agent%40lucene.apache.org/">Search List Archive</a></li>
-        <li><a href="http://lucene.apache.org/mail/nutch-agent/">View List Archive</a></li>
+        <li><a href="mailto:agent-subscribe@nutch.apache.org">Subscribe to List</a></li>
+        <li><a href="mailto:agent-unsubscribe@nutch.apache.org">Unsubscribe from List</a></li>
+        <li><a href="http://www.mail-archive.com/agent%40nutch.apache.org/">Search List Archive</a></li>
+        <li><a href="http://www.mail-archive.com/nutch-agent%40lucene.apache.org/">Search Old List Archive</a></li>
+        <li><a href="http://nutch.apache.org/mail/agent/">View List Archive</a></li>
       </ul>
 
     </section>

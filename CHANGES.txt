@@ -1,6 +1,10 @@
 Nutch Change Log
 
-Release 1.1 - 2010-05-08
+Release 1.1 - 2010-06-06
+
+* NUTCH-819 Included Solr schema.xml and solrindex-mapping.xml don't play together (ab)
+
+* NUTCH-818 Bugfix : Parse-tika uses minorCodes instead of majorCodes in ParseStatus (jnioche)
 
 * NUTCH-816 Add zip target to build.xml (mattmann)
 
