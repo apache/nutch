@@ -1,5 +1,10 @@
 Nutch Change Log
 
+Release 1.2 - Current Development
+
+* NUTCH-832 Website menu has lots of broken links - in particular the API docs (Alex McLintock via mattmann)
+
+
 Release 1.1 - 2010-06-06
 
 * NUTCH-819 Included Solr schema.xml and solrindex-mapping.xml don't play together (ab)
