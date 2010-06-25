@@ -56,7 +56,7 @@ search result pages.</li>
 </ol>
 
 <p>If you'd like to provide a translation, simply post translations of
-these five files to <a href="mailto:nutch-dev@lucene.apache.org">nutch-dev@lucene.apache.org</a>
+these five files to <a href="mailto:dev@nutch.apache.org">dev@nutch.apache.org</a>
 as an attachment.</p>
 
 </section>
@@ -85,7 +85,7 @@ top-level pages in the translation.</p>
 
 <p>For example, the header file for an English translation is filed
 as <a
-href="http://svn.apache.org/repos/asf/lucene/nutch/trunk/src/web/include/en/header.xml"><tt>src/web/include/en/header.xml</tt></a>.</p>
+href="http://svn.apache.org/viewvc/nutch/trunk/src/web/include/en/header.xml"><tt>src/web/include/en/header.xml</tt></a>.</p>
 
 
 </section>
@@ -125,7 +125,7 @@ existing translations for examples of this.</p>
 
 <p>For example, the English language "about" page is filed
 as <a
-href="http://svn.apache.org/repos/asf/lucene/nutch/trunk/src/web/pages/en/about.xml"><tt>src/web/pages/en/about.xml</tt></a>.</p>
+href="http://svn.apache.org/viewvc/nutch/trunk/src/web/pages/en/about.xml"><tt>src/web/pages/en/about.xml</tt></a>.</p>
 
 </section>
 
@@ -143,12 +143,12 @@ page.</p>
 <p>These property files are filed as
 <tt>src/web/locale/org/nutch/jsp/<i>page</i>_<i>language</i>.xml</tt>
 where <i>page</i> is the name of the JSP page in <a
-href="http://svn.apache.org/repos/asf/lucene/nutch/trunk/src/web/jsp/"><tt>src/web/jsp/</tt></a>
+href="http://svn.apache.org/viewvc/nutch/trunk/src/web/jsp/"><tt>src/web/jsp/</tt></a>
 and <i>language</i> is the IS0639 language code, as above.</p>
 
 <p>For example, text for the English language search results page is filed
 as <a
-href="http://svn.apache.org/repos/asf/lucene/nutch/trunk/src/web/locale/org/nutch/jsp/search_en.properties"><tt>src/web/locale/org/nutch/jsp/search_en.properties</tt></a>.
+href="http://svn.apache.org/viewvc/nutch/trunk/src/web/locale/org/nutch/jsp/search_en.properties"><tt>src/web/locale/org/nutch/jsp/search_en.properties</tt></a>.
  This contains something like:</p>
 
 <pre>
@@ -178,7 +178,7 @@ encoding.</p>
  href="http://java.sun.com/j2se/downloads.html">Java</a>, <a
  href="http://ant.apache.org/">Ant</a> and Nutch installed.  To
  install Nutch, either download and unpack the latest <a
- href="http://lucene.apache.org/nutch/release/nightly/">release</a>, or check it
+ href="http://nutch.apache.org/nightly.html">release</a>, or check it
  out from <a
  href="version_control.html">Subversion</a>.</p>
 
@@ -203,12 +203,11 @@ own translation of the header and a few of the static pages.</p>
 href="http://jakarta.apache.org/tomcat/">Tomcat</a> installed.</p>
 
 <p>An index is also required.  You can collect your own by working
-through the <a href="http://lucene.apache.org/nutch/tutorial.html">tutorial</a>.
+through the <a href="http://nutch.apache.org/tutorial.html">tutorial</a>.
 Once you have an index, follow the steps outlined at the end of the
 tutorial for searching.</p>
 
-<i>This documentation needs more detail.  Could someone
-please submit a list of the actual steps required here?</i>
+<p>For the latest documentation and training it is best to search the wiki for user contributed material</p>
 
 </section>
 

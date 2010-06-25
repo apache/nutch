@@ -30,12 +30,12 @@
 
 
    <section>
-      <title>06 April 2010 - Apache Nutch 1.1 Released</title>
+      <title>06 June 2010 - Apache Nutch 1.1 Released</title>
       <p>The 1.1 release of Nutch is now available. This release includes several major upgrades of existing
       libraries (Hadoop, Solr, Tika, etc.) on which Nutch depends. Various bug fixes, and speedups (e.g., to
-      Fetcher2) have also been included. See <a href="http://www.apache.org/dist/lucene/nutch/CHANGES-1.1.txt">
+      Fetcher2) have also been included. See <a href="http://www.apache.org/dist/nutch/CHANGES-1.1.txt">
       list of changes</a>  made in this version. The release is available
-      <a href="http://lucene.apache.org/nutch/release/">here</a>.</p>
+      <a href="http://www.apache.org/dyn/closer.cgi/nutch/">here</a>.</p>
     </section>
     
     <section>

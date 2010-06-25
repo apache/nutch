@@ -44,9 +44,10 @@ See http://forrest.apache.org/docs/linking.html for more info.
     <tutorial8   label="Tutorial (0.8.x)"     href="tutorial8.html" />
     <webmasters  label="Robot     "       href="bot.html" />
     <i18n        label="i18n"             href="i18n.html" />
+    <apidocs     label="API Docs (1.1)"         href="apidocs-1.1/index.html" />
     <apidocs     label="API Docs (1.0)"         href="apidocs-1.0/index.html" />
     <apidocs     label="API Docs (0.9)"         href="apidocs-0.9/index.html" />
-    <apidocs     label="API Docs (0.8.x)"         href="apidocs-0.8.x/index.html" />
+    <apidocs     label="API Docs (0.8.x)"       href="apidocs-0.8.x/index.html" />
     <apidocs     label="API Docs (0.7.2)"       href="apidocs/index.html" />
     <apidocs     label="API Docs (nightly)"	href="ext:nightly-api" />
   </docs>
@@ -61,15 +62,15 @@ See http://forrest.apache.org/docs/linking.html for more info.
 
 
   <projects label="Related Projects">
-    <lucene     label="Lucene Java"      href="ext:lucene" />
+    <lucene     label="Lucene"      href="ext:lucene" />
     <hadoop     label="Hadoop"      href="ext:hadoop" />
     <solr       label="Solr"      href="ext:solr" />
   </projects>
 
   <external-refs>
     <lucene    href="http://lucene.apache.org/java/" />
-    <nightly-api href="http://lucene.zones.apache.org:8080/hudson/job/Nutch-Nightly/ws/trunk/build/docs/api/index.html" />
-    <hadoop    href="http://lucene.apache.org/hadoop/" />
+    <nightly-api href="http://hudson.zones.apache.org/hudson/job/Nutch-trunk/javadoc/" />
+    <hadoop    href="http://hadoop.apache.org/" />
     <solr      href="http://incubator.apache.org/solr/" />
     <wiki      href="http://wiki.apache.org/nutch/" />
     <faq       href="http://wiki.apache.org/nutch/FAQ" /> 

@@ -29,13 +29,13 @@
     be functional. 
     </p>
     <p>
-    You can track the progress of 1.1-dev version from a <a href="http://issues.apache.org/jira/browse/NUTCH?report=com.atlassian.jira.plugin.system.project:roadmap-panel">jira report</a> 
+    You can track the progress of our current development versions from a <a href="http://issues.apache.org/jira/browse/NUTCH?report=com.atlassian.jira.plugin.system.project:roadmap-panel">jira report</a> 
     </p>
     <p>
     To report bugs see <a href="issue_tracking.html">issue tracking</a>
     </p>
     <p>
-    <a href="http://people.apache.org/builds/lucene/nutch/nightly/">Nutch nightly builds</a> (1.1-dev)
+    <a href="http://people.apache.org/builds/lucene/nutch/nightly/">Nutch nightly builds</a>
     </p>
   </body>
   

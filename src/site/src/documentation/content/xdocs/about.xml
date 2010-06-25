@@ -27,12 +27,20 @@
 
     <section>
       <title>Overview</title> <p>Nutch is open source web-search
-      software.  It builds on <a href="ext:lucene">Lucene Java</a>,
+      software.  It builds on <a href="ext:lucene">Lucene and SolR</a>,
       adding web-specifics, such as a crawler, a link-graph database,
       parsers for HTML and other document formats, etc.</p>
 
+      <p>Nutch can run on a single machine, but gains a lot of its
+      strength from running in a <a href="ext:hadoop">Hadoop cluster</a></p>
+
+      <p>The system can be enhanced (eg other document formats can be 
+      parsed) using a plugin mechanism</p>
+
       <p>For more information about Nutch, please see the <a
       href="ext:wiki">Nutch wiki.</a></p>
+
+      
 
     </section>
 
