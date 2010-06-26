@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <!--
-  Copyright 2002-2004 The Apache Software Foundation or its licensors,
-  as applicable.
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
 
       http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,14 +17,11 @@
 -->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:import href="corner-imports.svg.xslt" />
-
-  <!-- Rounded corner -->
+<!-- Rounded corner -->
   <xsl:template name="figure">
-		<g transform="translate(0.5 0.5)">
-			<ellipse cx="{$smallersize}" cy="{$smallersize}" rx="{$smallersize}" ry="{$smallersize}"
+    <g transform="translate(0.5 0.5)">
+      <ellipse cx="{$smallersize}" cy="{$smallersize}" rx="{$smallersize}" ry="{$smallersize}"
 				 style="{$fill}{$stroke}stroke-width:1"/>
-		</g>
+    </g>
   </xsl:template>
-      
 </xsl:stylesheet>
-

@@ -148,14 +148,11 @@ a:hover { color:#6587ff}
  
 #footer       { background-color: #E5E4D9;} 
 /* extra-css */
-
+    
     p.quote {
       margin-left: 2em;
       padding: .5em;
       background-color: #f0f0f0;
       font-family: monospace;
     }
-    
-    #footer a { color: #0F3660; }
-    #footer a:visited { color: #009999; }
   

@@ -4,7 +4,7 @@
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <meta content="Apache Forrest" name="Generator">
 <meta name="Forrest-version" content="0.8">
-<meta name="Forrest-skin-name" content="lucene">
+<meta name="Forrest-skin-name" content="nutch">
 <title>Nightly builds</title>
 <link type="text/css" href="skin/basic.css" rel="stylesheet">
 <link media="screen" type="text/css" href="skin/screen.css" rel="stylesheet">
@@ -20,7 +20,7 @@
     |breadtrail
     +-->
 <div class="breadtrail">
-<a href="http://www.apache.org/">Apache</a> &gt; <a href="http://lucene.apache.org/">Lucene</a> &gt; <a href="http://lucene.apache.org/nutch/">Nutch</a><script src="skin/breadcrumbs.js" language="JavaScript" type="text/javascript"></script>
+<a href="http://www.apache.org/">Apache</a> &gt; <a href="http://nutch.apache.org">Nutch</a> &gt; <a href="http://nutch.apache.org">Home</a><script src="skin/breadcrumbs.js" language="JavaScript" type="text/javascript"></script>
 </div>
 <!--+
     |header
@@ -30,7 +30,7 @@
     |start group logo
     +-->
 <div class="grouplogo">
-<a href="http://lucene.apache.org/"><img class="logoImage" alt="Lucene" src="images/lucene_green_150.gif" title="Apache Lucene"></a>
+<a href="http://www.apache.org/"><img class="logoImage" alt="Apache" src="http://www.apache.org/images/feather-small.gif" title="Apache Software Foundation"></a>
 </div>
 <!--+
     |end group logo
@@ -39,7 +39,7 @@
     |start Project Logo
     +-->
 <div class="projectlogo">
-<a href="http://lucene.apache.org/nutch/"><img class="logoImage" alt="Nutch" src="images/nutch-logo.gif" title="Open Source Web Search Software"></a>
+<a href="http://nutch.apache.org/"><img class="logoImage" alt="Nutch" src="images/nutch-logo.gif" title="Open Source Web Search Software"></a>
 </div>
 <!--+
     |end Project Logo
@@ -69,7 +69,7 @@
 <a class="unselected" href="http://wiki.apache.org/nutch/">Wiki</a>
 </li>
 <li>
-<a class="unselected" href="http://issues.apache.org/jira/browse/Nutch">Jira</a>
+<a class="unselected" href="http://issues.apache.org/jira/browse/NUTCH">Jira</a>
 </li>
 </ul>
 <!--+
@@ -128,10 +128,7 @@ document.write("Last Published: " + document.lastModified);
 <a href="http://wiki.apache.org/nutch/">Wiki</a>
 </div>
 <div class="menuitem">
-<a href="tutorial.html">Tutorial (0.7.2)</a>
-</div>
-<div class="menuitem">
-<a href="tutorial8.html">Tutorial (0.8.x)</a>
+<a href="http://wiki.apache.org/nutch/NutchTutorial">Tutorial</a>
 </div>
 <div class="menuitem">
 <a href="bot.html">Robot     </a>
@@ -140,25 +137,16 @@ document.write("Last Published: " + document.lastModified);
 <a href="i18n.html">i18n</a>
 </div>
 <div class="menuitem">
-<a href="apidocs-1.0/index.html">API Docs (1.0)</a>
+<a href="apidocs-1.1/index.html">API Docs (1.1)</a>
 </div>
 <div class="menuitem">
-<a href="apidocs-0.9/index.html">API Docs (0.9)</a>
-</div>
-<div class="menuitem">
-<a href="apidocs-0.8.x/index.html">API Docs (0.8.x)</a>
-</div>
-<div class="menuitem">
-<a href="apidocs/index.html">API Docs (0.7.2)</a>
-</div>
-<div class="menuitem">
-<a href="http://lucene.zones.apache.org:8080/hudson/job/Nutch-Nightly/ws/trunk/build/docs/api/index.html">API Docs (nightly)</a>
+<a href="http://hudson.zones.apache.org/hudson/job/Nutch-trunk/javadoc/">API Docs (nightly)</a>
 </div>
 </div>
 <div onclick="SwitchMenu('menu_selected_1.3', 'skin/')" id="menu_selected_1.3Title" class="menutitle" style="background-image: url('skin/images/chapter_open.gif');">Resources</div>
 <div id="menu_selected_1.3" class="selectedmenuitemgroup" style="display: block;">
 <div class="menuitem">
-<a href="release/">Download</a>
+<a href="http://www.apache.org/dyn/closer.cgi/nutch/">Download</a>
 </div>
 <div class="menupage">
 <div class="menupagetitle">Nightly builds</div>
@@ -176,13 +164,16 @@ document.write("Last Published: " + document.lastModified);
 <div onclick="SwitchMenu('menu_1.4', 'skin/')" id="menu_1.4Title" class="menutitle">Related Projects</div>
 <div id="menu_1.4" class="menuitemgroup">
 <div class="menuitem">
-<a href="http://lucene.apache.org/java/">Lucene Java</a>
+<a href="http://lucene.apache.org/java/">Lucene</a>
 </div>
 <div class="menuitem">
-<a href="http://lucene.apache.org/hadoop/">Hadoop</a>
+<a href="http://hadoop.apache.org/">Hadoop</a>
 </div>
 <div class="menuitem">
 <a href="http://incubator.apache.org/solr/">Solr</a>
+</div>
+<div class="menuitem">
+<a href="http://tika.apache.org/">Tika</a>
 </div>
 </div>
 <div id="credit"></div>
@@ -213,7 +204,7 @@ document.write("Last Published: " + document.lastModified);
     </p>
     
 <p>
-    You can track the progress of 1.1-dev version from a <a href="http://issues.apache.org/jira/browse/NUTCH?report=com.atlassian.jira.plugin.system.project:roadmap-panel">jira report</a> 
+    You can track the progress of our current development versions from a <a href="http://issues.apache.org/jira/browse/NUTCH?report=com.atlassian.jira.plugin.system.project:roadmap-panel">jira report</a> 
     
 </p>
     
@@ -224,8 +215,9 @@ document.write("Last Published: " + document.lastModified);
     
 <p>
     
-<a href="http://people.apache.org/builds/lucene/nutch/nightly/">Nutch nightly builds</a> (1.1-dev)
-    </p>
+<a href="http://hudson.zones.apache.org/hudson/view/Nutch/job/Nutch-trunk/lastSuccessfulBuild/artifact/">Nutch nightly builds</a>
+    
+</p>
   
 </div>
 <!--+
@@ -244,7 +236,7 @@ document.write("Last Published: " + document.lastModified);
 </div>
 <div class="copyright">
         Copyright &copy;
-         2006 <a href="http://www.apache.org/licenses/">The Apache Software Foundation.</a>
+         2010 <a href="http://www.apache.org/licenses/">The Apache Software Foundation.</a>
 </div>
 <!--+
     |end bottomstrip

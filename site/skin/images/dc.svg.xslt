@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
 <!--
-  Copyright 2002-2004 The Apache Software Foundation or its licensors,
-  as applicable.
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
 
       http://www.apache.org/licenses/LICENSE-2.0
 
@@ -17,15 +17,12 @@
 -->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
   <xsl:import href="corner-imports.svg.xslt" />
-  
-  <!-- Diagonal 45 degrees corner -->
+<!-- Diagonal 45 degrees corner -->
   <xsl:template name="figure">
-        <xsl:variable name="biggersize" select="number($size)+number($size)"/>     
-		<g transform="translate(0 0.5)">
-           <polygon points="0,{$size} {$size},0 {$biggersize},0 {$biggersize},{$biggersize} 0,{$biggersize}"
+    <xsl:variable name="biggersize" select="number($size)+number($size)"/>
+    <g transform="translate(0 0.5)">
+      <polygon points="0,{$size} {$size},0 {$biggersize},0 {$biggersize},{$biggersize} 0,{$biggersize}"
                     style="{$fill}{$stroke}stroke-width:1"/>
-		</g>
+    </g>
   </xsl:template>
-      
 </xsl:stylesheet>
-

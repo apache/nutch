@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!--
-  Copyright 2002-2004 The Apache Software Foundation or its licensors,
-  as applicable.
-
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
 
       http://www.apache.org/licenses/LICENSE-2.0
 
@@ -30,13 +30,11 @@
        gradientUnits="objectBoundingBox" spreadMethod="pad" />
     <path d="M 0 0 L 200 0" style="stroke:#000000;stroke-width:1pt;" id="hr"/>
   </defs>
-
   <g transform="scale(0.08)">
     <g transform="translate(40, 0)">
       <rect width="230" height="300" x="0" y="0"
             style="fill:url(#pageshade);fill-rule:evenodd;
             stroke:#000000;stroke-width:1.25;"/>
-
       <g transform="translate(15, 60)">
         <use xlink:href="#hr" x="0" y="0"/>
         <use xlink:href="#hr" x="0" y="60"/>
@@ -44,7 +42,6 @@
         <use xlink:href="#hr" x="0" y="180"/>
       </g>
     </g>
-
     <g transform="translate(0,70),scale(1.1,1.6)">
       <rect width="200" height="100" x="0" y="0"
          style="fill:#ff0000;fill-rule:evenodd;
