@@ -35,7 +35,7 @@
     To report bugs see <a href="issue_tracking.html">issue tracking</a>
     </p>
     <p>
-    <a href="http://people.apache.org/builds/lucene/nutch/nightly/">Nutch nightly builds</a>
+    <a href="http://hudson.zones.apache.org/hudson/view/Nutch/job/Nutch-trunk/lastSuccessfulBuild/artifact/">Nutch nightly builds</a>
     </p>
   </body>
   

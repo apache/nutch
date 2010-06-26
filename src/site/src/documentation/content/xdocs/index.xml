@@ -123,9 +123,9 @@
       <title>23 March 2009 - Apache Nutch 1.0 Released</title>
       <p>The 1.0 release of Nutch is now available. This release includes several major feature improvements
       such as new indexing framework, new scoring framework, Apache Solr integration just to mention a few.
-      See <a href="http://www.apache.org/dist/lucene/nutch/CHANGES-1.0.txt">
+      See <a href="http://www.apache.org/dist/nutch/CHANGES-1.0.txt">
       list of changes</a>  made in this version. The release is available
-      <a href="http://lucene.apache.org/nutch/release/">here</a>.</p>
+      <a href="http://www.apache.org/dyn/closer.cgi/nutch/">here</a>.</p>
     </section>
    
 	<section>
@@ -163,49 +163,49 @@
       based entirely on the underlying Hadoop platform. This release includes several critical
       bug fixes, as well as key speedups described in more detail at 
       <a href="http://blog.foofactory.fi/2007/03/twice-speed-half-size.html">Sami Siren's blog</a>.
-      See <a href="http://www.apache.org/dist/lucene/nutch/CHANGES-0.9.txt">
+      See <a href="http://www.apache.org/dist/nutch/CHANGES-0.9.txt">
       list of changes</a>  made in this version. The release is available
-      <a href="http://lucene.apache.org/nutch/release/">here</a>.</p>
+      <a href="http://www.apache.org/dyn/closer.cgi/nutch/">here</a>.</p>
       </section>
       
       <section>
       <title>24 September 2006: Nutch 0.8.1 Released</title>
       <p>The 0.8.1 release of Nutch is now available. This is a maintenance release to 0.8 branch fixing many serous bugs found in version 0.8.
-      See <a href="http://www.apache.org/dist/lucene/nutch/CHANGES-0.8.1.txt">
+      See <a href="http://www.apache.org/dist/nutch/CHANGES-0.8.1.txt">
       list of changes</a>  made in this version. The release is available
-      <a href="http://lucene.apache.org/nutch/release/">here</a>.</p>
+      <a href="http://www.apache.org/dyn/closer.cgi/nutch/">here</a>.</p>
       </section>
 
       <section>
       <title>25 July 2006: Nutch 0.8 Released</title>
       <p>The 0.8 release of Nutch is now available. This is the first release of Nutch based on
-      hadoop architecure. See <a href="http://svn.apache.org/viewvc/lucene/nutch/tags/release-0.8/CHANGES.txt?view=markup">
+      hadoop architecure. See <a href="http://svn.apache.org/viewvc/nutch/tags/release-0.8/CHANGES.txt?view=markup">
       CHANGES.txt</a> for list of changes made in this version. The release is available
-      <a href="http://lucene.apache.org/nutch/release/">here</a>.</p>
+      <a href="http://www.apache.org/dyn/closer.cgi/nutch/">here</a>.</p>
       </section>
 
       <section>
       <title>31 March 2006: Nutch 0.7.2 Released</title>
       <p>The 0.7.2 release of Nutch is now available. This is a bug fix release for 0.7 branch. See
-      <a href="http://svn.apache.org/viewcvs.cgi/lucene/nutch/branches/branch-0.7/CHANGES.txt?rev=390158">
+      <a href="http://svn.apache.org/viewcvs.cgi/nutch/branches/branch-0.7/CHANGES.txt?rev=390158">
       CHANGES.txt</a> for details. The release is available
-      <a href="http://lucene.apache.org/nutch/release/">here</a>.</p>
+      <a href="http://www.apache.org/dyn/closer.cgi/nutch/">here</a>.</p>
       </section>
    
       <section>
       <title>1 October 2005: Nutch 0.7.1 Released</title>
       <p>The 0.7.1 release of Nutch is now available. This is a bug fix release. See
-      <a href="http://svn.apache.org/viewcvs.cgi/lucene/nutch/branches/branch-0.7/CHANGES.txt?rev=292986">
+      <a href="http://svn.apache.org/viewcvs.cgi/nutch/branches/branch-0.7/CHANGES.txt?rev=292986">
       CHANGES.txt</a> for details. The release is available
-      <a href="http://lucene.apache.org/nutch/release/">here</a>.</p>
+      <a href="http://www.apache.org/dyn/closer.cgi/nutch/">here</a>.</p>
       </section>
 
       <section>
       <title>17 August 2005: Nutch 0.7 Released</title>
       <p>This is the first Nutch release as an Apache Lucene sub-project. See 
-      <a href="http://svn.apache.org/viewcvs.cgi/lucene/nutch/trunk/CHANGES.txt?rev=233150">
+      <a href="http://svn.apache.org/viewcvs.cgi/nutch/trunk/CHANGES.txt?rev=233150">
       CHANGES.txt</a> for details. The release is available 
-      <a href="http://lucene.apache.org/nutch/release/">here</a>.</p>
+      <a href="http://www.apache.org/dyn/closer.cgi/nutch/">here</a>.</p>
       </section>
 
 
