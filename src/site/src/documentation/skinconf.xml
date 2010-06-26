@@ -67,14 +67,14 @@ which will be used to configure the chosen Forrest skin.
   <!-- project logo -->
   <project-name>Nutch</project-name>
   <project-description>Open Source Web Search Software</project-description>
-  <project-url>http://lucene.apache.org/nutch/</project-url>
+  <project-url>http://nutch.apache.org/</project-url>
   <project-logo>images/nutch-logo.gif</project-logo>
 
   <!-- group logo -->
-  <group-name>Lucene</group-name>
-  <group-description>Apache Lucene</group-description>
-  <group-url>http://lucene.apache.org/</group-url>
-  <group-logo>images/lucene_green_150.gif</group-logo>
+  <group-name>Apache</group-name>
+  <group-description>Apache Software Foundation</group-description>
+  <group-url>http://www.apache.org/</group-url>
+  <group-logo>http://www.apache.org/images/feather-small.gif</group-logo>
 
   <!-- optional host logo (e.g. sourceforge logo)
        default skin: renders it at the bottom-left corner -->
@@ -85,7 +85,7 @@ which will be used to configure the chosen Forrest skin.
   <favicon-url>images/favicon.ico</favicon-url>
 
   <!-- The following are used to construct a copyright statement -->
-  <year>2006</year>
+  <year>2010</year>
   <vendor>The Apache Software Foundation.</vendor>
   <copyright-link>http://www.apache.org/licenses/</copyright-link>
 
@@ -98,7 +98,6 @@ which will be used to configure the chosen Forrest skin.
   -->
   <trail>
     <link1 name="Apache" href="http://www.apache.org/"/>
-    <link2 name="Lucene" href="http://lucene.apache.org/"/>
     <link3 name="Nutch" href="http://lucene.apache.org/nutch/"/>
   </trail>
 
