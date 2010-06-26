@@ -972,7 +972,7 @@ public class Fetcher extends Configured implements Tool,
     status = activeThreads + " threads, " +
       pages+" pages, "+errors+" errors, "
       + Math.round(((float)pages.get()*10)/elapsed)/10.0+" pages/s, "
-      + Math.round(((((float)bytes.get())*8)/1024)/elapsed)+" kb/s, ";
+      + Math.round(((((float)bytes.get())*8)/1000)/elapsed)+" kbits/s, ";
     reporter.setStatus(status);
   }
 
