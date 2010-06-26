@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.2 - Current Development
 
+* NUTCH-833 Website is still Lucene branded (mattmann, Alex McLintock)
+
 * NUTCH-832 Website menu has lots of broken links - in particular the API docs (Alex McLintock via mattmann)
 
 
