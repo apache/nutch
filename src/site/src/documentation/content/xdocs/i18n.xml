@@ -200,10 +200,10 @@ own translation of the header and a few of the static pages.</p>
 <section><title>Testing Dynamic Pages</title>
 
 <p>To test the dynamic pages you must also have <a
-href="http://jakarta.apache.org/tomcat/">Tomcat</a> installed.</p>
+href="http://tomcat.apache.org">Tomcat</a> installed.</p>
 
 <p>An index is also required.  You can collect your own by working
-through the <a href="http://nutch.apache.org/tutorial.html">tutorial</a>.
+through the <a href="http://wiki.apache.org/nutch/NutchTutorial">tutorial</a>.
 Once you have an index, follow the steps outlined at the end of the
 tutorial for searching.</p>
 

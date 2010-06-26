@@ -98,7 +98,8 @@ which will be used to configure the chosen Forrest skin.
   -->
   <trail>
     <link1 name="Apache" href="http://www.apache.org/"/>
-    <link3 name="Nutch" href="http://lucene.apache.org/nutch/"/>
+    <link2 name="Nutch"  href="http://nutch.apache.org"/>
+    <link3 name="Home"   href="http://nutch.apache.org"/>
   </trail>
 
   <!-- Configure the TOC, i.e. the Table of Contents.
