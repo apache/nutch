@@ -68,7 +68,7 @@ See http://forrest.apache.org/docs/linking.html for more info.
     <tika      href="http://tika.apache.org/"/>
     <nightly-api href="http://hudson.zones.apache.org/hudson/job/Nutch-trunk/javadoc/" />
     <hadoop    href="http://hadoop.apache.org/" />
-    <solr      href="http://incubator.apache.org/solr/" />
+    <solr      href="http://lucene.apache.org/solr/" />
     <wiki      href="http://wiki.apache.org/nutch/" />
     <faq       href="http://wiki.apache.org/nutch/FAQ" /> 
     <store     href="http://www.cafepress.com/nutch/" />
