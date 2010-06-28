@@ -28,7 +28,6 @@
     <section>
       <title>News</title>
 
-
    <section>
       <title>06 June 2010 - Apache Nutch 1.1 Released</title>
       <p>The 1.1 release of Nutch is now available. This release includes several major upgrades of existing
@@ -36,6 +35,14 @@
       Fetcher2) have also been included. See <a href="http://www.apache.org/dist/nutch/CHANGES-1.1.txt">
       list of changes</a>  made in this version. The release is available
       <a href="http://www.apache.org/dyn/closer.cgi/nutch/">here</a>.</p>
+    </section>
+    
+    <section>
+      <title>21 April 2010 - Apache Nutch graduates to TLP</title>
+      <p><a href="http://www.apache.org/foundation/records/minutes/2010/board_minutes_2010_04_21.txt">Passed by 
+      unanimous approval of the Apache Board</a>, Nutch graduated to TLP status. We are in the process of updating 
+      the website, and moving things around, so if you notice anything out of place, <a href="./mailing_lists.html">
+      please let us know.</a></p>
     </section>
     
     <section>
