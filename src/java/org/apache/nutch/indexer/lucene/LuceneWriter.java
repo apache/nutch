@@ -300,9 +300,16 @@ public class LuceneWriter implements NutchIndexWriter {
   public static void addFieldOptions(String field, LuceneWriter.STORE store,
       LuceneWriter.INDEX index, LuceneWriter.VECTOR vector, Configuration conf) {
 
-    conf.set(LuceneConstants.FIELD_STORE_PREFIX + field, store.toString());
-    conf.set(LuceneConstants.FIELD_INDEX_PREFIX + field, index.toString());
-    conf.set(LuceneConstants.FIELD_VECTOR_PREFIX + field, vector.toString());
+    /* Only set the field options if none have been configured already */
+    if (conf.get(LuceneConstants.FIELD_STORE_PREFIX + field) == null) {
+    	conf.set(LuceneConstants.FIELD_STORE_PREFIX + field, store.toString());
+    }
+    if (conf.get(LuceneConstants.FIELD_INDEX_PREFIX + field) == null) {
+	    conf.set(LuceneConstants.FIELD_INDEX_PREFIX + field, index.toString());
+    }
+    if (conf.get(LuceneConstants.FIELD_VECTOR_PREFIX + field) == null) {
+	    conf.set(LuceneConstants.FIELD_VECTOR_PREFIX + field, vector.toString());
+    }
   }
 
   public static void addFieldOptions(String field, LuceneWriter.STORE store,
