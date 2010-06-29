@@ -1,6 +1,6 @@
 Nutch Change Log
 
-Release 1.2 - Current Development
+Release 2.0 - Current Development
 
 * NUTCH-278 Fetcher-status might need clarification: kbit/s instead of kb/s shown (Alex McLintock via mattmann)
 
