@@ -2,6 +2,9 @@ Nutch Change Log
 
 Release 1.2 - Current Development
 
+* NUTCH-831 Allow configuration of how fields crawled by Nutch are stored / indexed / 
+  tokenized (Jeroen van Vianen via mattmann)
+
 * NUTCH-278 Fetcher-status might need clarification: kbit/s instead of kb/s shown (Alex McLintock via mattmann)
 
 * NUTCH-833 Website is still Lucene branded (mattmann, Alex McLintock)
