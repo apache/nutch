@@ -70,8 +70,6 @@
     <dependency org="xerces" name="xmlParserAPIs" rev="${xmlParserAPIs.version}"/>
     <dependency org="oro" name="oro" rev="2.0.8"/>
 
-    <dependency org="org.gora" name="gora-hbase" rev="0.1" changing="true" conf="*->compile"/>
-
     <!--Configuration: test -->
 
     <!--artifacts needed for testing -->
