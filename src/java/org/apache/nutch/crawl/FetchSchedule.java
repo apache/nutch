@@ -17,17 +17,16 @@
 
 package org.apache.nutch.crawl;
 
-import java.util.Set;
+import java.util.Collection;
 
 import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.io.Text;
-import org.apache.nutch.util.hbase.HbaseColumn;
-import org.apache.nutch.util.hbase.WebTableRow;
+import org.apache.nutch.storage.WebPage;
 
 /**
  * This interface defines the contract for implementations that manipulate
  * fetch times and re-fetch intervals.
- * 
+ *
  * @author Andrzej Bialecki
  */
 public interface FetchSchedule extends Configurable {
@@ -46,20 +45,20 @@ public interface FetchSchedule extends Configurable {
    * set the <code>fetchTime</code> and <code>fetchInterval</code>. The default
    * implementation set the <code>fetchTime</code> to now, using the
    * default <code>fetchInterval</code>.
-   * 
+   *
    * @param url URL of the page.
-   * @param row url's row
+   * @param page
    */
-  public void initializeSchedule(String url, WebTableRow row);
+  public void initializeSchedule(String url, WebPage page);
 
   /**
    * Sets the <code>fetchInterval</code> and <code>fetchTime</code> on a
    * successfully fetched page.
    * Implementations may use supplied arguments to support different re-fetching
    * schedules.
-   * 
+   *
    * @param url url of the page
-   * @param row url's row
+   * @param page
    * @param prevFetchTime previous value of fetch time, or -1 if not available
    * @param prevModifiedTime previous value of modifiedTime, or -1 if not available
    * @param fetchTime the latest time, when the page was recently re-fetched. Most FetchSchedule
@@ -73,7 +72,7 @@ public interface FetchSchedule extends Configurable {
    * is set to {@link #STATUS_UNKNOWN}, then it is unknown whether the page was changed; implementations
    * are free to follow a sensible default behavior.
    */
-  public void setFetchSchedule(String url, WebTableRow row,
+  public void setFetchSchedule(String url, WebPage page,
       long prevFetchTime, long prevModifiedTime,
       long fetchTime, long modifiedTime, int state);
 
@@ -83,30 +82,30 @@ public interface FetchSchedule extends Configurable {
    * and if it exceeds the <code>maxInterval</code> it calls
    * {@link #forceRefetch(Text, CrawlDatum, boolean)}.
    * @param url URL of the page
-   * @param row url's row
+   * @param page
    */
-  public void setPageGoneSchedule(String url, WebTableRow row,
+  public void setPageGoneSchedule(String url, WebPage page,
       long prevFetchTime, long prevModifiedTime, long fetchTime);
 
   /**
    * This method adjusts the fetch schedule if fetching needs to be
    * re-tried due to transient errors. The default implementation
    * sets the next fetch time 1 day in the future and increases the
-   * retry counter.
+   * retry counter.Set
    * @param url URL of the page
-   * @param row url's row
+   * @param page
    * @param prevFetchTime previous fetch time
    * @param prevModifiedTime previous modified time
    * @param fetchTime current fetch time
    */
-  public void setPageRetrySchedule(String url, WebTableRow row,
+  public void setPageRetrySchedule(String url, WebPage page,
       long prevFetchTime, long prevModifiedTime, long fetchTime);
 
   /**
    * Calculates last fetch time of the given CrawlDatum.
    * @return the date as a long.
    */
-  public long calculateLastFetchTime(WebTableRow row);
+  public long calculateLastFetchTime(WebPage page);
 
   /**
    * This method provides information whether the page is suitable for
@@ -124,18 +123,18 @@ public interface FetchSchedule extends Configurable {
    * @return true, if the page should be considered for inclusion in the current
    * fetchlist, otherwise false.
    */
-  public boolean shouldFetch(String url, WebTableRow row, long curTime);
+  public boolean shouldFetch(String url, WebPage page, long curTime);
 
   /**
    * This method resets fetchTime, fetchInterval, modifiedTime and
    * page signature, so that it forces refetching.
    * @param url URL of the page
-   * @param row url's row
+   * @param page
    * @param asap if true, force refetch as soon as possible - this sets
    * the fetchTime to now. If false, force refetch whenever the next fetch
    * time is set.
    */
-  public void forceRefetch(String url, WebTableRow row, boolean asap);
+  public void forceRefetch(String url, WebPage row, boolean asap);
 
-  public Set<HbaseColumn> getColumns();
+  public Collection<WebPage.Field> getFields();
 }

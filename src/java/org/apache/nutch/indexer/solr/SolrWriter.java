@@ -33,6 +33,7 @@ import org.apache.solr.common.SolrInputDocument;
 public class SolrWriter implements NutchIndexWriter {
 
   private SolrServer solr;
+  private SolrMappingReader solrMapping;
 
   private final List<SolrInputDocument> inputDocs =
     new ArrayList<SolrInputDocument>();
@@ -45,6 +46,7 @@ public class SolrWriter implements NutchIndexWriter {
     Configuration conf = job.getConfiguration();
     solr = new CommonsHttpSolrServer(conf.get(SolrConstants.SERVER_URL));
     commitSize = conf.getInt(SolrConstants.COMMIT_SIZE, 1000);
+    solrMapping = SolrMappingReader.getInstance(conf);
   }
 
   @Override
@@ -52,7 +54,11 @@ public class SolrWriter implements NutchIndexWriter {
     final SolrInputDocument inputDoc = new SolrInputDocument();
     for(final Entry<String, List<String>> e : doc) {
       for (final String val : e.getValue()) {
-        inputDoc.addField(e.getKey(), val);
+        inputDoc.addField(solrMapping.mapKey(e.getKey()), val);
+        String sCopy = solrMapping.mapCopyKey(e.getKey());
+        if (sCopy != e.getKey()) {
+        	inputDoc.addField(sCopy, val);
+        }
       }
     }
     inputDoc.setDocumentBoost(doc.getScore());
@@ -74,7 +80,6 @@ public class SolrWriter implements NutchIndexWriter {
         solr.add(inputDocs);
         inputDocs.clear();
       }
-      solr.commit();
     } catch (final SolrServerException e) {
       throw new IOException(e);
     }

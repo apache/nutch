@@ -26,11 +26,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import org.apache.hadoop.io.MD5Hash;
-
-import org.apache.nutch.parse.Parse;
-import org.apache.nutch.util.hbase.HbaseColumn;
-import org.apache.nutch.util.hbase.WebTableColumns;
-import org.apache.nutch.util.hbase.WebTableRow;
+import org.apache.nutch.storage.WebPage;
 
 /**
  * <p>An implementation of a page signature. It calculates an MD5 hash
@@ -54,26 +50,27 @@ import org.apache.nutch.util.hbase.WebTableRow;
  * in the order of decreasing frequency.</li>
  * </ul>
  * This list is then submitted to an MD5 hash calculation.
- * 
+ *
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
 public class TextProfileSignature extends Signature {
 
-  private final static Collection<HbaseColumn> COLUMNS = new HashSet<HbaseColumn>();
-  
+  private final static Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
+
   static {
-    COLUMNS.add(new HbaseColumn(WebTableColumns.CONTENT));
+    FIELDS.add(WebPage.Field.CONTENT);
   }
-  
+
   Signature fallback = new MD5Signature();
 
-  public byte[] calculate(WebTableRow row, Parse parse) {
+  @Override
+  public byte[] calculate(WebPage page) {
     int MIN_TOKEN_LEN = getConf().getInt("db.signature.text_profile.min_token_len", 2);
     float QUANT_RATE = getConf().getFloat("db.signature.text_profile.quant_rate", 0.01f);
     HashMap<String, Token> tokens = new HashMap<String, Token>();
     String text = null;
-    if (parse != null) text = parse.getText();
-    if (text == null || text.length() == 0) return fallback.calculate(row, parse);
+    if (page.getText() != null) text = page.getText().toString();
+    if (text == null || text.length() == 0) return fallback.calculate(page);
     StringBuffer curToken = new StringBuffer();
     int maxFreq = 0;
     for (int i = 0; i < text.length(); i++) {
@@ -138,24 +135,26 @@ public class TextProfileSignature extends Signature {
     return MD5Hash.digest(newText.toString()).getDigest();
   }
 
-  public Collection<HbaseColumn> getColumns() {
-    return COLUMNS;
+  @Override
+  public Collection<WebPage.Field> getFields() {
+    return FIELDS;
   }
-  
+
   private static class Token {
     public int cnt;
     public String val;
-    
+
     public Token(int cnt, String val) {
       this.cnt = cnt;
       this.val = val;
     }
-    
+
+    @Override
     public String toString() {
       return val + " " + cnt;
     }
   }
-  
+
   private static class TokenComparator implements Comparator<Token> {
     public int compare(Token t1, Token t2) {
       return t2.cnt - t1.cnt;

@@ -16,25 +16,19 @@
  */
 package org.apache.nutch.util;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
+import org.apache.avro.util.Utf8;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
-import org.apache.nutch.protocol.Content;
-import org.apache.nutch.util.LogUtil;
-import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.hbase.WebTableRow;
+import org.apache.nutch.storage.WebPage;
 
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
@@ -66,10 +60,12 @@ import com.ibm.icu.text.CharsetMatch;
  */
 public class EncodingDetector {
 
+  public final static Utf8 CONTENT_TYPE_UTF8 = new Utf8(Response.CONTENT_TYPE);
+
   private class EncodingClue {
-    private String value;
-    private String source;
-    private int confidence;
+    private final String value;
+    private final String source;
+    private final int confidence;
 
     // Constructor for clues with no confidence values (ignore thresholds)
     public EncodingClue(String value, String source) {
@@ -92,6 +88,7 @@ public class EncodingDetector {
       return value;
     }
 
+    @Override
     public String toString() {
       return value + " (" + source +
            ((confidence >= 0) ? ", " + confidence + "% confidence" : "") + ")";
@@ -153,11 +150,11 @@ public class EncodingDetector {
 
   }
 
-  private int minConfidence;
+  private final int minConfidence;
 
-  private CharsetDetector detector;
+  private final CharsetDetector detector;
 
-  private List<EncodingClue> clues;
+  private final List<EncodingClue> clues;
 
   public EncodingDetector(Configuration conf) {
     minConfidence = conf.getInt(MIN_CONFIDENCE_KEY, -1);
@@ -165,19 +162,15 @@ public class EncodingDetector {
     clues = new ArrayList<EncodingClue>();
   }
 
-  public void autoDetectClues(Content content, boolean filter) {
-    autoDetectClues(content.getContent(), content.getContentType(), 
-      parseCharacterEncoding(content.getMetadata().get(Response.CONTENT_TYPE)),
-      filter);
+  public void autoDetectClues(WebPage page, boolean filter) {
+    autoDetectClues(page.getContent(), page.getContentType(),
+        parseCharacterEncoding(page.getFromHeaders(CONTENT_TYPE_UTF8)), filter);
   }
-  
-  public void autoDetectClues(WebTableRow row, boolean filter) {
-    autoDetectClues(row.getContent(), row.getContentType(),
-        parseCharacterEncoding(row.getHeader(Response.CONTENT_TYPE)), filter);
-  }
-  
-  private void autoDetectClues(byte[] data, String type,
+
+  private void autoDetectClues(ByteBuffer dataBuffer, Utf8 typeUtf8,
                                String encoding, boolean filter) {
+    byte[] data = dataBuffer.array();
+    String type = TableUtil.toString(typeUtf8);
 
     if (minConfidence >= 0 && DETECTABLES.contains(type)
         && data.length > MIN_LENGTH) {
@@ -220,21 +213,7 @@ public class EncodingDetector {
   public void addClue(String value, String source) {
     addClue(value, source, NO_THRESHOLD);
   }
-  
-  /**
-   * Guess the encoding with the previously specified list of clues.
-   *
-   * @param content Content instance
-   * @param defaultValue Default encoding to return if no encoding can be
-   * detected with enough confidence. Note that this will <b>not</b> be
-   * normalized with {@link EncodingDetector#resolveEncodingAlias}
-   *
-   * @return Guessed encoding or defaultValue
-   */
-  public String guessEncoding(Content content, String defaultValue) {
-    return guessEncoding(content.getBaseUrl(), defaultValue);
-  }
-  
+
   /**
    * Guess the encoding with the previously specified list of clues.
    *
@@ -245,10 +224,12 @@ public class EncodingDetector {
    *
    * @return Guessed encoding or defaultValue
    */
-  public String guessEncoding(WebTableRow row, String defaultValue) {
-    return guessEncoding(row.getBaseUrl(), defaultValue);
+  public String guessEncoding(WebPage page, String defaultValue) {
+    Utf8 baseUrlUtf8 = page.getBaseUrl();
+    String baseUrl = TableUtil.toString(baseUrlUtf8);
+    return guessEncoding(baseUrl, defaultValue);
   }
-  
+
   /**
    * Guess the encoding with the previously specified list of clues.
    *
@@ -364,9 +345,10 @@ public class EncodingDetector {
    *
    * @param contentType a content type header
    */
-  public static String parseCharacterEncoding(String contentType) {
-    if (contentType == null)
+  public static String parseCharacterEncoding(Utf8 contentTypeUtf8) {
+    if (contentTypeUtf8 == null)
       return (null);
+    String contentType = contentTypeUtf8.toString();
     int start = contentType.indexOf("charset=");
     if (start < 0)
       return (null);
@@ -382,7 +364,7 @@ public class EncodingDetector {
 
   }
 
-  public static void main(String[] args) throws IOException {
+  /*public static void main(String[] args) throws IOException {
     if (args.length != 1) {
       System.err.println("Usage: EncodingDetector <file>");
       System.exit(1);
@@ -421,6 +403,6 @@ public class EncodingDetector {
     String encoding = detector.guessEncoding(content,
         conf.get("parser.character.encoding.default"));
     System.out.println("Guessed encoding: " + encoding);
-  }
+  }*/
 
 }

@@ -1,19 +1,19 @@
 /*
-* Licensed to the Apache Software Foundation (ASF) under one or more
-* contributor license agreements.  See the NOTICE file distributed with
-* this work for additional information regarding copyright ownership.
-* The ASF licenses this file to You under the Apache License, Version 2.0
-* (the "License"); you may not use this file except in compliance with
-* the License.  You may obtain a copy of the License at
-*
-*     http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing, software
-* distributed under the License is distributed on an "AS IS" BASIS,
-* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-* See the License for the specific language governing permissions and
-* limitations under the License.
-*/
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.apache.nutch.parse.js;
 
 import java.io.BufferedReader;
@@ -29,19 +29,18 @@ import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.HtmlParseFilter;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.ParseStatus;
+import org.apache.nutch.parse.ParseStatusCodes;
+import org.apache.nutch.parse.ParseStatusUtils;
 import org.apache.nutch.parse.Parser;
-import org.apache.nutch.plugin.Pluggable;
+import org.apache.nutch.storage.ParseStatus;
+import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.hbase.HbaseColumn;
-import org.apache.nutch.util.hbase.WebTableRow;
-import org.apache.nutch.util.hbase.WebTableRow;
-import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.TableUtil;
 import org.apache.oro.text.regex.MatchResult;
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.PatternCompiler;
@@ -69,10 +68,10 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
   private static final int MAX_TITLE_LEN = 80;
 
   private Configuration conf;
-  
+
   @Override
-  public Parse filter(String url, WebTableRow row, Parse parse,
-    HTMLMetaTags metaTags, DocumentFragment doc) {
+  public Parse filter(String url, WebPage page, Parse parse,
+      HTMLMetaTags metaTags, DocumentFragment doc) {
 
     ArrayList<Outlink> outlinks = new ArrayList<Outlink>();
     walk(doc, parse, metaTags, url, outlinks);
@@ -88,7 +87,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     }
     return parse;
   }
-  
+
   private void walk(Node n, Parse parse, HTMLMetaTags metaTags, String base, List<Outlink> outlinks) {
     if (n instanceof Element) {
       String name = n.getNodeName();
@@ -141,14 +140,14 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
       walk(nl.item(i), parse, metaTags, base, outlinks);
     }
   }
-  
+
   @Override
-  public Parse getParse(String url, WebTableRow row) {
-    String type = row.getContentType();
+  public Parse getParse(String url, WebPage page) {
+    String type = TableUtil.toString(page.getContentType());
     if (type != null && !type.trim().equals("") && !type.toLowerCase().startsWith("application/x-javascript"))
-      return new ParseStatus(ParseStatus.FAILED_INVALID_FORMAT,
-              "Content not JavaScript: '" + type + "'").getEmptyParseHbase(getConf());
-    String script = new String(row.getContent());
+      return ParseStatusUtils.getEmptyParse(ParseStatusCodes.FAILED_INVALID_FORMAT,
+          "Content not JavaScript: '" + type + "'", getConf());
+    String script = new String(page.getContent().array());
     Outlink[] outlinks = getJSLinks(script, "", url);
     if (outlinks == null) outlinks = new Outlink[0];
     // Title? use the first line of the script...
@@ -162,16 +161,16 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
       title = script.substring(0, idx);
     }
     Parse parse =
-      new Parse(script, title, outlinks, ParseStatus.STATUS_SUCCESS);
+      new Parse(script, title, outlinks, ParseStatusUtils.STATUS_SUCCESS);
     return parse;
   }
-  
+
   private static final String STRING_PATTERN = "(\\\\*(?:\"|\'))([^\\s\"\']+?)(?:\\1)";
   // A simple pattern. This allows also invalid URL characters.
   private static final String URI_PATTERN = "(^|\\s*?)/?\\S+?[/\\.]\\S+($|\\s*)";
   // Alternative pattern, which limits valid url characters.
   //private static final String URI_PATTERN = "(^|\\s*?)[A-Za-z0-9/](([A-Za-z0-9$_.+!*,;/?:@&~=-])|%[A-Fa-f0-9]{2})+[/.](([A-Za-z0-9$_.+!*,;/?:@&~=-])|%[A-Fa-f0-9]{2})+(#([a-zA-Z0-9][a-zA-Z0-9$_.+!*,;/?:@&~=%-]*))?($|\\s*)";
-  
+
   /**
    *  This method extracts URLs from literals embedded in JavaScript.
    */
@@ -179,7 +178,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
 
     final List<Outlink> outlinks = new ArrayList<Outlink>();
     URL baseURL = null;
-    
+
     try {
       baseURL = new URL(base);
     } catch (Exception e) {
@@ -190,10 +189,10 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
       final PatternCompiler cp = new Perl5Compiler();
       final Pattern pattern = cp.compile(STRING_PATTERN,
           Perl5Compiler.CASE_INSENSITIVE_MASK | Perl5Compiler.READ_ONLY_MASK
-              | Perl5Compiler.MULTILINE_MASK);
+          | Perl5Compiler.MULTILINE_MASK);
       final Pattern pattern1 = cp.compile(URI_PATTERN,
-              Perl5Compiler.CASE_INSENSITIVE_MASK | Perl5Compiler.READ_ONLY_MASK
-                  | Perl5Compiler.MULTILINE_MASK);
+          Perl5Compiler.CASE_INSENSITIVE_MASK | Perl5Compiler.READ_ONLY_MASK
+          | Perl5Compiler.MULTILINE_MASK);
       final PatternMatcher matcher = new Perl5Matcher();
 
       final PatternMatcher matcher1 = new Perl5Matcher();
@@ -212,7 +211,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
           continue;
         }
         if (url.startsWith("www.")) {
-            url = "http://" + url;
+          url = "http://" + url;
         } else {
           // See if candidate URL is parseable.  If not, pass and move on to
           // the next match.
@@ -249,7 +248,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
 
     return retval;
   }
-  
+
   public static void main(String[] args) throws Exception {
     if (args.length < 2) {
       System.err.println(JSParseFilter.class.getName() + " file.js baseURL");
@@ -276,8 +275,9 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     return this.conf;
   }
 
-  public Collection<HbaseColumn> getColumns() {
-    return EMPTY_COLUMNS;
+  @Override
+  public Collection<WebPage.Field> getFields() {
+    return null;
   }
 
 }

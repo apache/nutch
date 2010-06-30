@@ -15,7 +15,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project name="Nutch" default="job">
+<project name="Nutch" default="job" xmlns:ivy="antlib:org.apache.ivy.ant">
 
   <!-- Load all the default properties, and any the user wants    -->
   <!-- to contribute (without having to type -D or edit this file -->
@@ -23,11 +23,12 @@
   <property file="${basedir}/build.properties" />
   <property file="${basedir}/default.properties" />
   <property name="test.junit.output.format" value="plain"/>
+  <loadproperties srcfile="${ivy.dir}/libraries.properties"/>
  
   <!-- the normal classpath -->
   <path id="classpath">
     <pathelement location="${build.classes}"/>
-    <fileset dir="${lib.dir}">
+    <fileset dir="${build.lib.dir}">
       <include name="*.jar" />
     </fileset>
   </path>
@@ -41,18 +42,15 @@
     <pathelement location="${plugins.classpath.dir}"/>
     <path refid="classpath"/>
     <pathelement location="${build.dir}/${final.name}.job" />
+    <fileset dir="${build.lib.dir}">
+      <include name="*.jar" />
+    </fileset>
   </path>
-
-  <!-- xmlcatalog definition for xslt task -->
-  <xmlcatalog id="docDTDs">
-     <dtd publicId="-//W3C//DTD XHTML 1.0 Transitional//EN"            
-          location="${xmlcatalog.dir}/xhtml1-transitional.dtd"/> 
-  </xmlcatalog> 
 
   <!-- ====================================================== -->
   <!-- Stuff needed by all targets                            -->
   <!-- ====================================================== -->
-  <target name="init">
+  <target name="init" depends="ivy-init">
     <mkdir dir="${build.dir}"/>
     <mkdir dir="${build.classes}"/>
 
@@ -67,11 +65,13 @@
       <fileset dir="${conf.dir}" includes="**/*.template"/>
       <mapper type="glob" from="*.template" to="*"/>
     </copy>
+  </target>
 
+  <target name="extract-hadoop" depends="ivy-init">
     <!-- unpack hadoop scripts from hadoop jar into bin directory -->
     <mkdir dir="${build.dir}/hadoop"/>
     <unjar dest="${build.dir}/hadoop">
-      <fileset dir="${lib.dir}" includes="hadoop*.jar"/>
+      <fileset dir="${build.lib.dir}" includes="hadoop*.jar"/>
       <patternset includes="bin.tgz"/>
     </unjar>
     
@@ -80,21 +80,14 @@
     <replace file="bin/hadoop" token="PlatformName" value="PlatformName | sed -e 's/ /_/g'"/>
     <chmod dir="bin" perm="ugo+rx" includes="*.sh,hadoop"/>
 
-    <!-- unpack hadoop webapp from hadoop jar into build directory -->
-    <mkdir dir="${build.dir}/webapps"/>
-    <unjar dest="${build.dir}">
-      <fileset dir="${lib.dir}" includes="hadoop*.jar"/>
-      <patternset includes="webapps/**"/>
-    </unjar>
-
   </target>
 
   <!-- ====================================================== -->
   <!-- Compile the Java files                                 -->
   <!-- ====================================================== -->
-  <target name="compile" depends="compile-core, compile-plugins"/>
+  <target name="compile" depends="compile-core, compile-plugins, extract-hadoop"/>
 
-  <target name="compile-core" depends="init">
+  <target name="compile-core" depends="init, resolve-default">
     <javac 
      encoding="${build.encoding}" 
      srcdir="${src.dir}"
@@ -112,18 +105,6 @@
 
   <target name="compile-plugins">
     <ant dir="src/plugin" target="deploy" inheritAll="false"/>
-  </target>
-
-  <target name="generate-src" depends="init">
-    <javacc target="${src.dir}/org/apache/nutch/analysis/NutchAnalysis.jj"
-            javacchome="${javacc.home}">
-    </javacc>
-
-    <fixcrlf srcdir="${src.dir}" eol="lf" includes="**/*.java"/>
-
-  </target>
-
-  <target name="dynamic" depends="generate-src, compile">
   </target>
 
   <!-- ================================================================== -->
@@ -152,69 +133,17 @@
     <jar jarfile="${build.dir}/${final.name}.job">
       <zipfileset dir="${build.classes}"/>
       <zipfileset dir="${conf.dir}" excludes="*.template,hadoop*.*"/>
-      <zipfileset dir="${lib.dir}" prefix="lib"
+      <zipfileset dir="${build.lib.dir}" prefix="lib"
                   includes="**/*.jar" excludes="hadoop-*.jar"/>
       <zipfileset dir="${build.plugins}" prefix="plugins"/>
     </jar>
   </target>
 
-  <!-- ================================================================== -->
-  <!-- Make nutch.war                                                     -->
-  <!-- ================================================================== -->
-  <!--                                                                    -->
-  <!-- ================================================================== -->
-  <target name="war" depends="jar,compile,generate-docs">
-
-    <!-- generate the nutch.xml (servlet context) file -->
-    <xslt in="${basedir}/conf/nutch-default.xml"
-          out="${build.dir}/nutch.xml"
-          style="${basedir}/conf/context.xsl">
-        <xmlcatalog refid="docDTDs"/>
-    	<outputproperty name="indent" value="yes"/>
-    </xslt>
-    <war destfile="${build.dir}/${final.name}.war"
-    	webxml="${web.src.dir}/web.xml">
-      <fileset dir="${web.src.dir}/jsp"/>
-      <zipfileset dir="${docs.src}" includes="include/*.html"/>
-      <zipfileset dir="${build.docs}" includes="*/include/*.html"/>
-      <fileset dir="${docs.dir}"/>
-      <lib dir="${lib.dir}">
-        <include name="lucene*.jar"/>
-        <include name="taglibs-*.jar"/>
-        <include name="hadoop-*.jar"/>
-        <include name="hbase-*.jar"/>
-        <include name="zookeeper-*.jar"/>
-        <include name="dom4j-*.jar"/>
-        <include name="xerces-*.jar"/>
-        <include name="tika-*.jar"/>
-        <include name="apache-solr-*.jar"/>
-        <include name="commons-httpclient-*.jar"/>
-        <include name="commons-codec-*.jar"/>
-        <include name="commons-collections-*.jar"/>
-        <include name="commons-beanutils-*.jar"/>
-        <include name="commons-cli-*.jar"/>
-        <include name="commons-lang-*.jar"/>
-        <include name="commons-logging-*.jar"/>
-        <include name="log4j-*.jar"/>
-      </lib>
-      <lib dir="${build.dir}">
-	      <include name="${final.name}.jar"/>
-      </lib>
-      <classes dir="${conf.dir}" excludes="**/*.template"/>
-      <classes dir="${web.src.dir}/locale"/>
-      <classes file="${web.src.dir}/log4j.properties"/>
-      <zipfileset prefix="WEB-INF/classes/plugins" dir="${build.plugins}"/>
-      <webinf dir="${lib.dir}">
-	      <include name="taglibs-*.tld"/>
-      </webinf>
-    </war>
-   </target>
-
 
   <!-- ================================================================== -->
   <!-- Compile test code                                                  --> 
   <!-- ================================================================== -->
-  <target name="compile-core-test" depends="compile-core">
+  <target name="compile-core-test" depends="compile-core, resolve-test">
     <javac 
      encoding="${build.encoding}" 
      srcdir="${test.src.dir}"
@@ -231,13 +160,358 @@
   </target>
 
   <!-- ================================================================== -->
+  <!-- Run unit tests                                                     --> 
+  <!-- ================================================================== -->
+  <target name="test" depends="test-core, test-plugins"/>
+
+  <target name="test-core" depends="job, compile-core-test">
+
+    <delete dir="${test.build.data}"/>
+    <mkdir dir="${test.build.data}"/>
+    <!-- 
+     copy resources needed in junit tests
+    -->
+    <copy todir="${test.build.data}">
+      <fileset dir="src/testresources" includes="**/*"/>
+    </copy>
+    <copy file="${test.src.dir}/nutch-site.xml"
+          todir="${test.build.classes}"/>
+
+    <copy file="${test.src.dir}/log4j.properties"
+          todir="${test.build.classes}"/>
+
+    <junit printsummary="yes" haltonfailure="no" fork="yes" dir="${basedir}"
+      errorProperty="tests.failed" failureProperty="tests.failed" maxmemory="1000m">
+      <sysproperty key="test.build.data" value="${test.build.data}"/>
+      <sysproperty key="test.src.dir" value="${test.src.dir}"/>
+      <sysproperty key="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/> 
+      <classpath refid="test.classpath"/>
+      <formatter type="${test.junit.output.format}" />
+      <batchtest todir="${test.build.dir}" unless="testcase">
+        <fileset dir="${test.src.dir}"
+                 includes="**/Test*.java" excludes="**/${test.exclude}.java" />
+      </batchtest>
+      <batchtest todir="${test.build.dir}" if="testcase">
+        <fileset dir="${test.src.dir}" includes="**/${testcase}.java"/>
+      </batchtest>
+    </junit>
+
+    <fail if="tests.failed">Tests failed!</fail>
+
+  </target>   
+
+  <target name="test-plugins" depends="compile">
+    <ant dir="src/plugin" target="test" inheritAll="false"/>
+  </target>
+
+  <target name="nightly" depends="test, tar">
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Ivy targets                                                        -->
+  <!-- ================================================================== -->
+
+  <!-- target: resolve  ================================================= -->
+  <target name="resolve-default" depends="clean-lib" description="--> resolve and retrieve dependencies with ivy">
+    <ivy:resolve file="${ivy.file}" conf="default" log="download-only"/>
+    <ivy:retrieve pattern="${build.lib.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
+    <antcall target="copy-libs"/>
+  </target>
+
+  <target name="resolve-test" depends="clean-lib" description="--> resolve and retrieve dependencies with ivy">
+    <ivy:resolve file="${ivy.file}" conf="test" log="download-only"/>
+    <ivy:retrieve pattern="${build.lib.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
+    <antcall target="copy-libs"/>
+  </target>
+
+  <target name="copy-libs">
+    <!-- copy the libs in lib, which are not ivy enabled-->
+    <copy todir="${build.lib.dir}/" failonerror="false">
+      <fileset dir="${lib.dir}" includes="**/*.jar"/>
+    </copy>
+  </target>
+
+  <!-- target: publish-local  =========================================== -->
+  <target name="publish-local" depends="jar" description="--> publish this project in the local ivy repository">
+    <ivy:publish artifactspattern="${build.dir}/[artifact]-${version}.[ext]" 
+                    resolver="local"
+                    pubrevision="${version}"
+          pubdate="${now}"
+                    status="integration"
+              forcedeliver="true"
+              overwrite="true"
+        />
+    <echo message="project ${ant.project.name} published locally with version ${version}" />
+  </target>
+
+  <!-- target: report  ================================================== -->
+  <target name="report" depends="resolve-test" description="--> generates a report of dependencies">
+    <ivy:report todir="${build.dir}"/>
+  </target>
+
+  <!-- target: ivy-init  ================================================ -->
+  <target name="ivy-init" depends="ivy-probe-antlib, ivy-init-antlib">
+    <ivy:settings file="${ivy.dir}/ivysettings.xml" />
+  </target>
+
+  <!-- target: ivy-probe-antlib  ======================================== -->
+  <target name="ivy-probe-antlib">
+    <condition property="ivy.found">
+      <typefound uri="antlib:org.apache.ivy.ant" name="cleancache" />
+    </condition>
+  </target>
+
+  <!-- target: ivy-download  ============================================ -->
+  <target name="ivy-download" description="Download ivy">
+    <available file="${ivy.jar}" property="ivy.jar.found"/>
+    <antcall target="-ivy-download-unchecked"/>
+  </target>
+
+  <!-- target: ivy-download-unchecked  ================================== -->
+  <target name="-ivy-download-unchecked" unless="ivy.jar.found">
+    <get src="${ivy.repo.url}" dest="${ivy.jar}" usetimestamp="true" />
+  </target>
+
+  <!-- target: ivy-init-antlib  ========================================= -->
+  <target name="ivy-init-antlib" depends="ivy-download" unless="ivy.found">
+    <typedef uri="antlib:org.apache.ivy.ant" onerror="fail" loaderRef="ivyLoader">
+      <classpath>
+        <pathelement location="${ivy.jar}" />
+      </classpath>
+    </typedef>
+    <fail>
+      <condition>
+        <not>
+          <typefound uri="antlib:org.apache.ivy.ant" name="cleancache" />
+        </not>
+      </condition>
+      You need Apache Ivy 2.0 or later from http://ant.apache.org/
+      It could not be loaded from ${ivy.repo.url}
+    </fail>
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Documentation                                                      -->
+  <!-- ================================================================== -->
+  <target name="javadoc" depends="compile">
+    <mkdir dir="${build.javadoc}"/>
+    <javadoc
+      overview="${src.dir}/overview.html"
+      destdir="${build.javadoc}"
+      author="true"
+      version="true"
+      use="true"
+      windowtitle="${Name} ${version} API"
+      doctitle="${Name} ${version} API"
+      bottom="Copyright &amp;copy; ${year} The Apache Software Foundation"
+      >
+        <arg value="${javadoc.proxy.host}"/>
+        <arg value="${javadoc.proxy.port}"/>
+
+      <packageset dir="${src.dir}"/>
+      <packageset dir="${plugins.dir}/lib-http/src/java"/>
+      <packageset dir="${plugins.dir}/lib-regex-filter/src/java"/>
+      <packageset dir="${plugins.dir}/microformats-reltag/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-file/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-ftp/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-http/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-httpclient/src/java"/>
+      <packageset dir="${plugins.dir}/parse-tika/src/java"/>
+      <packageset dir="${plugins.dir}/parse-ext/src/java"/>
+      <packageset dir="${plugins.dir}/parse-html/src/java"/>
+      <packageset dir="${plugins.dir}/parse-js/src/java"/>
+      <packageset dir="${plugins.dir}/parse-rss/src/java"/>
+      <packageset dir="${plugins.dir}/parse-swf/src/java"/>
+      <packageset dir="${plugins.dir}/parse-zip/src/java"/>
+      <packageset dir="${plugins.dir}/index-basic/src/java"/>
+      <packageset dir="${plugins.dir}/index-more/src/java"/>
+      <packageset dir="${plugins.dir}/scoring-opic/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-automaton/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-regex/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
+      <packageset dir="${plugins.dir}/creativecommons/src/java"/>
+      <packageset dir="${plugins.dir}/languageidentifier/src/java"/>
+      
+      <link href="${javadoc.link.java}"/>
+      <link href="${javadoc.link.lucene}"/>
+      <link href="${javadoc.link.hadoop}"/>
+      
+      <classpath refid="classpath"/>
+    	<classpath>
+    		<fileset dir="${plugins.dir}" >
+    			<include name="**/*.jar"/>
+    		</fileset>
+    	</classpath>
+    	
+      <group title="Core" packages="org.apache.nutch.*"/>
+      <group title="Plugins API" packages="${plugins.api}"/>
+      <group title="Protocol Plugins" packages="${plugins.protocol}"/>
+      <group title="URL Filter Plugins" packages="${plugins.urlfilter}"/>
+      <group title="Scoring Plugins" packages="${plugins.scoring}"/>
+      <group title="Parse Plugins" packages="${plugins.parse}"/>
+      <group title="Indexing Filter Plugins" packages="${plugins.index}"/>
+      <group title="Misc. Plugins" packages="${plugins.misc}"/>
+    </javadoc>
+    <!-- Copy the plugin.dtd file to the plugin doc-files dir -->
+    <copy file="${plugins.dir}/plugin.dtd"
+          todir="${build.javadoc}/org/apache/nutch/plugin/doc-files"/>
+  </target>	
+	
+  <!-- ================================================================== -->
+  <!-- D I S T R I B U T I O N                                            -->
+  <!-- ================================================================== -->
+  <!--                                                                    -->
+  <!-- ================================================================== -->
+  <target name="package" depends="jar, job, javadoc">
+    <mkdir dir="${dist.version.dir}"/>
+    <mkdir dir="${dist.version.dir}/lib"/>
+    <mkdir dir="${dist.version.dir}/bin"/>
+    <mkdir dir="${dist.version.dir}/docs"/>
+    <mkdir dir="${dist.version.dir}/docs/api"/>
+    <mkdir dir="${dist.version.dir}/plugins"/>
+
+    <copy todir="${dist.version.dir}/lib" includeEmptyDirs="false">
+      <fileset dir="${build.lib.dir}"/>
+    </copy>
+
+    <copy todir="${dist.version.dir}/plugins">
+      <fileset dir="${build.plugins}"/>
+    </copy>
+
+    <copy file="${build.dir}/${final.name}.jar" todir="${dist.version.dir}"/>
+    <copy file="${build.dir}/${final.name}.job" todir="${dist.version.dir}"/>
+   
+    <copy todir="${dist.version.dir}/bin">
+      <fileset dir="bin"/>
+    </copy>
+
+    <copy todir="${dist.version.dir}/conf">
+      <fileset dir="${conf.dir}" excludes="**/*.template"/>
+    </copy>
+
+    <chmod perm="ugo+x" type="file">
+        <fileset dir="${dist.version.dir}/bin"/>
+    </chmod>
+
+    <copy todir="${dist.version.dir}/docs">
+      <fileset dir="site" />
+    </copy>
+
+    <copy todir="${dist.version.dir}/docs/api">
+      <fileset dir="${build.javadoc}"/>
+    </copy>
+
+    <copy todir="${dist.version.dir}">
+      <fileset dir=".">
+        <include name="*.txt" />
+        <include name="KEYS" />
+      </fileset>
+    </copy>
+
+    <copy todir="${dist.version.dir}/src" includeEmptyDirs="true">
+      <fileset dir="src"/>
+    </copy>
+
+    <copy todir="${dist.version.dir}/" file="build.xml"/>
+    <copy todir="${dist.version.dir}/" file="default.properties"/>
+
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Make release tarball                                               -->
+  <!-- ================================================================== -->
+  <target name="tar" depends="package">
+    <tar compression="gzip" longfile="gnu"
+      destfile="${dist.dir}/${final.name}.tar.gz">
+      <tarfileset dir="${dist.dir}" mode="664">
+	<exclude name="${final.name}/bin/*" />
+        <include name="${final.name}/**" />
+      </tarfileset>
+      <tarfileset dir="${dist.dir}" mode="755">
+        <include name="${final.name}/bin/*" />
+      </tarfileset>
+    </tar>
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Make release tarball -->
+  <!-- ================================================================== -->
+  <target name="zip" depends="package">
+   <zip compress="true" casesensitive="yes" destfile="${dist.dir}/${final.name}.zip">
+   <zipfileset dir="${dist.dir}" filemode="664">
+       <exclude name="${final.name}/bin/*" />
+       <include name="${final.name}/**" />
+   </zipfileset>
+   <zipfileset dir="${dist.dir}" filemode="755">
+       <include name="${final.name}/bin/*" />
+   </zipfileset>
+   </zip>
+  </target>
+	
+  <!-- ================================================================== -->
+  <!-- Clean.  Delete the build files, and their directories              -->
+  <!-- ================================================================== -->
+
+  <!-- target: clean  =================================================== -->
+  <target name="clean" depends="clean-build, clean-lib, clean-dist" description="--> clean the project" />
+
+  <!-- target: clean-local  ============================================= -->
+  <target name="clean-local" depends="" 
+                description="--> cleans the local repository for the current module">
+    <delete dir="${ivy.local.default.root}/${ivy.organisation}/${ivy.module}"/>
+  </target>
+
+  <!-- target: clean-lib  =============================================== -->
+  <target name="clean-lib" description="--> clean the project libraries directory (dependencies)">
+    <delete includeemptydirs="true" dir="${build.lib.dir}"/>
+  </target>
+
+  <!-- target: clean-build  ============================================= -->
+  <target name="clean-build" description="--> clean the project built files">
+    <delete includeemptydirs="true" dir="${build.dir}"/>
+  </target>
+
+  <!-- target: clean-dist   ============================================= -->
+  <target name="clean-dist" description="--> clean the project dist files">
+    <delete includeemptydirs="true" dir="${dist.dir}"/>
+  </target>
+
+  <!-- target: clean-cache  ============================================= -->
+  <target name="clean-cache" depends=""
+                        description="delete ivy cache">
+    <ivy:cleancache />
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- RAT targets                                                        -->
+  <!-- ================================================================== -->
+  <target name="rat-sources-typedef">
+    <typedef resource="org/apache/rat/anttasks/antlib.xml" >
+      <classpath>
+        <fileset dir="." includes="rat*.jar"/>
+      </classpath>
+    </typedef>
+  </target>
+
+  <target name="rat-sources" depends="rat-sources-typedef"
+	  description="runs the tasks over src/java">
+    <rat:report xmlns:rat="antlib:org.apache.rat.anttasks">
+      <fileset dir="src">
+      	<include name="java/**/*"/>
+      	<include name="plugin/**/src/**/*"/>
+      </fileset>
+    </rat:report>
+  </target>
+
+
+  <!-- ================================================================== -->
   <!-- Run code checks (PMD)                                              --> 
   <!-- ================================================================== -->
   <target name="pmd" depends="compile">
 	<property name="pmd.report" location="${build.dir}/pmd-report.html" />
 	<taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask">
 	  <classpath>
-		  <fileset dir="${lib.dir}">
+		  <fileset dir="${build.lib.dir}">
             <include name="pmd-ext/*.jar" />
             <include name="xerces*.jar" />
           </fileset>
@@ -267,373 +541,6 @@
       </and>
 	</condition>
 	<fail if="pmd.stop">FAILURE: PMD shows ${pmd.failures} rule violations. See ${pmd.report} for details.</fail>
-  </target>
-
-  <!-- ================================================================== -->
-  <!-- Run unit tests                                                     --> 
-  <!-- ================================================================== -->
-  <target name="test" depends="test-core, test-plugins"/>
-
-  <target name="test-core" depends="job, compile-core-test">
-
-    <delete dir="${test.build.data}"/>
-    <mkdir dir="${test.build.data}"/>
-    <!-- 
-     copy resources needed in junit tests
-    -->
-    <copy todir="${test.build.data}">
-      <fileset dir="src/testresources" includes="**/*"/>
-    </copy>
-    <copy file="${test.src.dir}/nutch-site.xml"
-          todir="${test.build.classes}"/>
-
-    <copy file="${test.src.dir}/log4j.properties"
-          todir="${test.build.classes}"/>
-
-    <junit printsummary="yes" haltonfailure="no" fork="yes" dir="${basedir}"
-      errorProperty="tests.failed" failureProperty="tests.failed" maxmemory="1000m">
-      <sysproperty key="test.build.data" value="${test.build.data}"/>
-      <sysproperty key="test.src.dir" value="${test.src.dir}"/>
-      <classpath refid="test.classpath"/>
-      <formatter type="${test.junit.output.format}" />
-      <batchtest todir="${test.build.dir}" unless="testcase">
-        <fileset dir="${test.src.dir}"
-                 includes="**/Test*.java" excludes="**/${test.exclude}.java" />
-      </batchtest>
-      <batchtest todir="${test.build.dir}" if="testcase">
-        <fileset dir="${test.src.dir}" includes="**/${testcase}.java"/>
-      </batchtest>
-    </junit>
-
-    <fail if="tests.failed">Tests failed!</fail>
-
-  </target>   
-
-  <target name="test-plugins" depends="compile">
-    <ant dir="src/plugin" target="test" inheritAll="false"/>
-  </target>
-
-  <target name="nightly" depends="test, tar">
-  </target>
-
-  <!-- ================================================================== -->
-  <!-- Documentation                                                      -->
-  <!-- ================================================================== -->
-  <target name="javadoc" depends="compile">
-    <mkdir dir="${build.javadoc}"/>
-    <javadoc
-      overview="${src.dir}/overview.html"
-      destdir="${build.javadoc}"
-      author="true"
-      version="true"
-      use="true"
-      windowtitle="${Name} ${version} API"
-      doctitle="${Name} ${version} API"
-      bottom="Copyright &amp;copy; ${year} The Apache Software Foundation"
-      >
-        <arg value="${javadoc.proxy.host}"/>
-        <arg value="${javadoc.proxy.port}"/>
-
-      <packageset dir="${src.dir}"/>
-      <packageset dir="${plugins.dir}/lib-http/src/java"/>
-      <packageset dir="${plugins.dir}/lib-parsems/src/java"/>
-      <packageset dir="${plugins.dir}/lib-regex-filter/src/java"/>
-      <packageset dir="${plugins.dir}/microformats-reltag/src/java"/>
-      <packageset dir="${plugins.dir}/ontology/src/java"/>
-      <packageset dir="${plugins.dir}/protocol-file/src/java"/>
-      <packageset dir="${plugins.dir}/protocol-ftp/src/java"/>
-      <packageset dir="${plugins.dir}/protocol-http/src/java"/>
-      <packageset dir="${plugins.dir}/protocol-httpclient/src/java"/>
-      <packageset dir="${plugins.dir}/parse-ext/src/java"/>
-      <packageset dir="${plugins.dir}/parse-html/src/java"/>
-      <packageset dir="${plugins.dir}/parse-js/src/java"/>
-      <packageset dir="${plugins.dir}/parse-text/src/java"/>
-      <packageset dir="${plugins.dir}/parse-pdf/src/java"/>
-<!--  <packageset dir="${plugins.dir}/parse-rtf/src/java"/> plugin excluded from build due to licensing issues-->
-<!--  <packageset dir="${plugins.dir}/parse-mp3/src/java"/> plugin excluded from build due to licensing issues-->
-      <packageset dir="${plugins.dir}/parse-msexcel/src/java"/>
-      <packageset dir="${plugins.dir}/parse-mspowerpoint/src/java"/>
-      <packageset dir="${plugins.dir}/parse-msword/src/java"/>
-      <packageset dir="${plugins.dir}/parse-oo/src/java"/>
-      <packageset dir="${plugins.dir}/parse-rss/src/java"/>
-      <packageset dir="${plugins.dir}/parse-swf/src/java"/>
-      <packageset dir="${plugins.dir}/parse-zip/src/java"/>
-      <packageset dir="${plugins.dir}/index-basic/src/java"/>
-      <packageset dir="${plugins.dir}/index-more/src/java"/>
-      <packageset dir="${plugins.dir}/query-basic/src/java"/>
-      <packageset dir="${plugins.dir}/query-more/src/java"/>
-      <packageset dir="${plugins.dir}/query-site/src/java"/>
-      <packageset dir="${plugins.dir}/query-url/src/java"/>
-      <packageset dir="${plugins.dir}/scoring-opic/src/java"/>
-      <packageset dir="${plugins.dir}/summary-basic/src/java"/>
-      <packageset dir="${plugins.dir}/summary-lucene/src/java"/>
-      <packageset dir="${plugins.dir}/urlfilter-automaton/src/java"/>
-      <packageset dir="${plugins.dir}/urlfilter-regex/src/java"/>
-      <packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
-      <packageset dir="${plugins.dir}/creativecommons/src/java"/>
-      <packageset dir="${plugins.dir}/languageidentifier/src/java"/>
-      <packageset dir="${plugins.dir}/clustering-carrot2/src/java"/>
-      <packageset dir="${plugins.dir}/ontology/src/java"/>
-      
-      <link href="${javadoc.link.java}"/>
-      <link href="${javadoc.link.lucene}"/>
-      <link href="${javadoc.link.hadoop}"/>
-      
-      <classpath refid="classpath"/>
-    	<classpath>
-    		<fileset dir="${plugins.dir}" >
-    			<include name="**/*.jar"/>
-    		</fileset>
-    	</classpath>
-    	
-      <group title="Core" packages="org.apache.nutch.*"/>
-      <group title="Plugins API" packages="${plugins.api}"/>
-      <group title="Protocol Plugins" packages="${plugins.protocol}"/>
-      <group title="URL Filter Plugins" packages="${plugins.urlfilter}"/>
-      <group title="Scoring Plugins" packages="${plugins.scoring}"/>
-      <group title="Parse Plugins" packages="${plugins.parse}"/>
-      <group title="Analysis Plugins" packages="${plugins.analysis}"/>
-      <group title="Indexing Filter Plugins" packages="${plugins.index}"/>
-      <group title="Query Filter Plugins" packages="${plugins.query}"/>
-      <group title="Summary Plugins" packages="${plugins.summary}"/>
-      <group title="Clustering Plugins" packages="${plugins.clustering}"/>
-      <group title="Ontology Plugins" packages="${plugins.ontology}"/>
-      <group title="Misc. Plugins" packages="${plugins.misc}"/>
-    </javadoc>
-    <!-- Copy the plugin.dtd file to the plugin doc-files dir -->
-    <copy file="${plugins.dir}/plugin.dtd"
-          todir="${build.javadoc}/org/apache/nutch/plugin/doc-files"/>
-  </target>	
-	
-  <target name="default-doc">
-    <style basedir="${conf.dir}" destdir="${docs.dir}"
-           includes="nutch-default.xml" style="conf/nutch-conf.xsl"/>
-  </target>
-
-  <target name="generate-locale" if="doc.locale">
-    <echo message="Generating docs for locale=${doc.locale}"/>
-
-    <mkdir dir="${build.docs}/${doc.locale}/include"/>
-    <xslt in="${docs.src}/include/${doc.locale}/header.xml"
-          out="${build.docs}/${doc.locale}/include/header.html"
-          style="${docs.src}/style/nutch-header.xsl">
-        <xmlcatalog refid="docDTDs"/>
-    </xslt>
-
-    <dependset>
-       <srcfileset dir="${docs.src}/include/${doc.locale}" includes="*.xml"/>
-       <srcfileset dir="${docs.src}/style" includes="*.xsl"/>
-       <targetfileset dir="${docs.dir}/${doc.locale}" includes="*.html"/>
-    </dependset>  
-
-    <copy file="${docs.src}/style/nutch-page.xsl"
-          todir="${build.docs}/${doc.locale}"
-          preservelastmodified="true"/>
-
-    <xslt basedir="${docs.src}/pages/${doc.locale}"
-          destdir="${docs.dir}/${doc.locale}"
-          includes="*.xml"
-          style="${build.docs}/${doc.locale}/nutch-page.xsl">
-         <xmlcatalog refid="docDTDs"/>
-    </xslt>
-  </target>
-
-
-  <target name="generate-docs" depends="init">
-    <dependset>
-       <srcfileset dir="${docs.src}/include" includes="*.html"/>
-       <targetfileset dir="${docs.dir}" includes="**/*.html"/>
-    </dependset>  
-
-    <mkdir dir="${build.docs}/include"/>
-    <copy todir="${build.docs}/include">
-      <fileset dir="${docs.src}/include"/>
-    </copy>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="ca"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="de"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="en"/>
-    </antcall>
-    
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="es"/>
-    </antcall>
-    
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="fi"/>
-    </antcall>
-    
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="fr"/>
-    </antcall>
-    
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="hu"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="it"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="jp"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="ms"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="nl"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="pl"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="pt"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="sh"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="sr"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="sv"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="th"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="zh"/>
-    </antcall>
-
-    <fixcrlf srcdir="${docs.dir}" eol="lf" encoding="utf-8"
-             includes="**/*.html"/>
-
-  </target>
-
-  <!-- ================================================================== -->
-  <!-- D I S T R I B U T I O N                                            -->
-  <!-- ================================================================== -->
-  <!--                                                                    -->
-  <!-- ================================================================== -->
-  <target name="package" depends="jar, job, war, javadoc">
-    <mkdir dir="${dist.dir}"/>
-    <mkdir dir="${dist.dir}/lib"/>
-    <mkdir dir="${dist.dir}/bin"/>
-    <mkdir dir="${dist.dir}/docs"/>
-    <mkdir dir="${dist.dir}/docs/api"/>
-    <mkdir dir="${dist.dir}/plugins"/>
-
-    <copy todir="${dist.dir}/lib" includeEmptyDirs="false">
-      <fileset dir="lib"/>
-    </copy>
-
-    <copy todir="${dist.dir}/plugins">
-      <fileset dir="${build.plugins}"/>
-    </copy>
-
-    <copy todir="${dist.dir}/webapps">
-      <fileset dir="${build.webapps}"/>
-    </copy>
-
-    <copy file="${build.dir}/${final.name}.jar" todir="${dist.dir}"/>
-    <copy file="${build.dir}/${final.name}.job" todir="${dist.dir}"/>
-    <copy file="${build.dir}/${final.name}.war" todir="${dist.dir}"/>
-
-    <copy todir="${dist.dir}/bin">
-      <fileset dir="bin"/>
-    </copy>
-
-    <copy todir="${dist.dir}/conf">
-      <fileset dir="${conf.dir}" excludes="**/*.template"/>
-    </copy>
-
-    <chmod perm="ugo+x" type="file">
-        <fileset dir="${dist.dir}/bin"/>
-    </chmod>
-
-    <copy todir="${dist.dir}/docs">
-      <fileset dir="${docs.dir}"/>
-    </copy>
-
-    <copy todir="${dist.dir}/docs/api">
-      <fileset dir="${build.javadoc}"/>
-    </copy>
-
-    <copy todir="${dist.dir}">
-      <fileset dir=".">
-        <include name="*.txt" />
-        <include name="KEYS" />
-      </fileset>
-    </copy>
-
-    <copy todir="${dist.dir}/src" includeEmptyDirs="true">
-      <fileset dir="src"/>
-    </copy>
-
-    <copy todir="${dist.dir}/" file="build.xml"/>
-    <copy todir="${dist.dir}/" file="default.properties"/>
-
-  </target>
-
-  <!-- ================================================================== -->
-  <!-- Make release tarball                                               -->
-  <!-- ================================================================== -->
-  <target name="tar" depends="package">
-    <tar compression="gzip" longfile="gnu"
-      destfile="${build.dir}/${final.name}.tar.gz">
-      <tarfileset dir="${build.dir}" mode="664">
-	<exclude name="${final.name}/bin/*" />
-        <include name="${final.name}/**" />
-      </tarfileset>
-      <tarfileset dir="${build.dir}" mode="755">
-        <include name="${final.name}/bin/*" />
-      </tarfileset>
-    </tar>
-  </target>
-	
-  <!-- ================================================================== -->
-  <!-- Clean.  Delete the build files, and their directories              -->
-  <!-- ================================================================== -->
-  <target name="clean">
-    <delete dir="${build.dir}"/>
-  </target>
-
-  <!-- ================================================================== -->
-  <!-- RAT targets                                                        -->
-  <!-- ================================================================== -->
-  <target name="rat-sources-typedef">
-    <typedef resource="org/apache/rat/anttasks/antlib.xml" >
-      <classpath>
-        <fileset dir="." includes="rat*.jar"/>
-      </classpath>
-    </typedef>
-  </target>
-
-  <target name="rat-sources" depends="rat-sources-typedef"
-	  description="runs the tasks over src/java">
-    <rat:report xmlns:rat="antlib:org.apache.rat.anttasks">
-      <fileset dir="src">
-      	<include name="java/**/*"/>
-      	<include name="plugin/**/src/**/*"/>
-      </fileset>
-    </rat:report>
   </target>
 	
 </project>

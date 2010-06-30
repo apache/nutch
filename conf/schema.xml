@@ -105,5 +105,4 @@
     <uniqueKey>id</uniqueKey>
     <defaultSearchField>content</defaultSearchField>
     <solrQueryParser defaultOperator="OR"/>
-    <copyField source="url" dest="id"/>
 </schema>

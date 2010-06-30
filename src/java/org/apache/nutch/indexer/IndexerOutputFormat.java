@@ -18,17 +18,15 @@ package org.apache.nutch.indexer;
 
 import java.io.IOException;
 
-import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
-import org.apache.nutch.indexer.NutchDocument;
 
 public class IndexerOutputFormat
-extends FileOutputFormat<WritableComparable<?>, NutchDocument> {
+extends FileOutputFormat<String, NutchDocument> {
 
   @Override
-  public RecordWriter<WritableComparable<?>, NutchDocument> getRecordWriter(
+  public RecordWriter<String, NutchDocument> getRecordWriter(
       TaskAttemptContext job) throws IOException, InterruptedException {
 
     final NutchIndexWriter[] writers =
@@ -38,10 +36,10 @@ extends FileOutputFormat<WritableComparable<?>, NutchDocument> {
       writer.open(job, FileOutputFormat.getUniqueFile(job, "part", ""));
     }
 
-    return new RecordWriter<WritableComparable<?>, NutchDocument>() {
+    return new RecordWriter<String, NutchDocument>() {
 
       @Override
-      public void write(WritableComparable<?> key, NutchDocument doc) throws IOException {
+      public void write(String key, NutchDocument doc) throws IOException {
         for (final NutchIndexWriter writer : writers) {
           writer.write(doc);
         }
@@ -52,7 +50,7 @@ extends FileOutputFormat<WritableComparable<?>, NutchDocument> {
       InterruptedException {
         for (final NutchIndexWriter writer : writers) {
           writer.close();
-        }      
+        }
       }
     };
   }

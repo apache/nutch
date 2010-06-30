@@ -18,24 +18,17 @@
 package org.apache.nutch.protocol.file;
 
 // JDK imports
-import java.net.URL;
-import java.util.Date;
-import java.util.TreeMap;
 import java.io.IOException;
+import java.net.URL;
 
-// Nutch imports
-import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.protocol.Content;
-import org.apache.nutch.util.MimeUtil;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
-
-// Tika imports
+import org.apache.nutch.protocol.Content;
+import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.util.MimeUtil;
 import org.apache.tika.mime.MimeType;
-
-// Hadoop imports
-import org.apache.hadoop.conf.Configuration;
 
 
 /************************************
@@ -94,7 +87,7 @@ public class FileResponse {
                        headers, this.conf);
   }
   
-  public FileResponse(URL url, CrawlDatum datum, File file, Configuration conf)
+  public FileResponse(URL url, WebPage page, File file, Configuration conf)
     throws FileException, IOException {
 
     this.orig = url.toString();
@@ -148,7 +141,7 @@ public class FileResponse {
         this.code = 300;  // http redirect
         return;
       }
-      if (f.lastModified() <= datum.getModifiedTime()) {
+      if (f.lastModified() <= page.getModifiedTime()) {
         this.code = 304;
         this.headers.set("Last-Modified", HttpDateFormat.toString(f.lastModified()));
         return;

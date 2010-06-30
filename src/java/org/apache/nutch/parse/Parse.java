@@ -1,26 +1,18 @@
 package org.apache.nutch.parse;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
 
-import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.Writable;
-import org.apache.nutch.parse.Outlink;
-import org.apache.nutch.parse.ParseStatus;
-
-public class Parse implements Writable {
+public class Parse {
 
   private String text;
   private String title;
   private Outlink[] outlinks;
-  private ParseStatus parseStatus;
+  private org.apache.nutch.storage.ParseStatus parseStatus;
 
   public Parse() {
   }
-  
+
   public Parse(String text, String title, Outlink[] outlinks,
-                    ParseStatus parseStatus) {
+      org.apache.nutch.storage.ParseStatus parseStatus) {
     this.text = text;
     this.title = title;
     this.outlinks = outlinks;
@@ -39,10 +31,10 @@ public class Parse implements Writable {
     return outlinks;
   }
 
-  public ParseStatus getParseStatus() {
+  public org.apache.nutch.storage.ParseStatus getParseStatus() {
     return parseStatus;
   }
-  
+
   public void setText(String text) {
     this.text = text;
   }
@@ -55,28 +47,7 @@ public class Parse implements Writable {
     this.outlinks = outlinks;
   }
 
-  public void setParseStatus(ParseStatus parseStatus) {
+  public void setParseStatus(org.apache.nutch.storage.ParseStatus parseStatus) {
     this.parseStatus = parseStatus;
-  }
-  
-  public void readFields(DataInput in) throws IOException {
-    text = Text.readString(in);
-    title = Text.readString(in);
-    int numOutlinks = in.readInt();
-    outlinks = new Outlink[numOutlinks];
-    for (int i = 0; i < numOutlinks; i++) {
-      outlinks[i] = Outlink.read(in);
-    }
-    parseStatus = ParseStatus.read(in);
-  }
-
-  public void write(DataOutput out) throws IOException {
-    Text.writeString(out, text);
-    Text.writeString(out, title);
-    out.writeInt(outlinks.length);
-    for (Outlink outlink : outlinks) {
-      outlink.write(out);
-    }
-    parseStatus.write(out);
   }
 }

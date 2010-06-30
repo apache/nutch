@@ -21,50 +21,51 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.SequenceFile;
-import org.apache.hadoop.io.Text;
-import org.apache.nutch.crawl.CrawlDBTestUtil.URLCrawlDatum;
-
-import junit.framework.TestCase;
+import org.apache.hadoop.hbase.HBaseClusterTestCase;
+import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.nutch.storage.Mark;
+import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.util.TableUtil;
+import org.gora.hbase.store.HBaseStore;
+import org.gora.query.Query;
+import org.gora.query.Result;
+import org.gora.store.DataStore;
+import org.gora.store.DataStoreFactory;
 
 /**
- * Basic generator test. 1. Insert entries in crawldb 2. Generates entries to
+ * Basic generator test. 1. Insert entries in webtable 2. Generates entries to
  * fetch 3. Verifies that number of generated urls match 4. Verifies that
  * highest scoring urls are generated
  *
  * @author nutch-dev <nutch-dev at lucene.apache.org>
+ * @param <URLWebPage>
  *
  */
-public class TestGenerator extends TestCase {
+public class TestGenerator extends HBaseClusterTestCase {
+
+  public static final Log LOG = LogFactory.getLog(TestGenerator.class);
 
   Configuration conf;
 
-  Path dbDir;
+  private DataStore<String, WebPage> webPageStore;
 
-  Path segmentsDir;
-
-  FileSystem fs;
-
-  final static Path testdir = new Path("build/test/generator-test");
-
+  @Override
   protected void setUp() throws Exception {
     conf = CrawlDBTestUtil.createConfiguration();
-    fs = FileSystem.get(conf);
-    fs.delete(testdir, true);
+    super.conf = new HBaseConfiguration(conf);
+    super.setUp();
+    webPageStore = DataStoreFactory.getDataStore(HBaseStore.class,
+        String.class, WebPage.class);
   }
 
-  protected void tearDown() {
-    delete(testdir);
-  }
-
-  private void delete(Path p) {
-    try {
-      fs.delete(p, true);
-    } catch (IOException e) {
-    }
+  @Override
+  protected void tearDown() throws Exception {
+    webPageStore.close();
+    super.tearDown();
+    super.cluster.shutdown();
   }
 
   /**
@@ -76,22 +77,20 @@ public class TestGenerator extends TestCase {
 
     final int NUM_RESULTS = 2;
 
-    ArrayList<URLCrawlDatum> list = new ArrayList<URLCrawlDatum>();
+    ArrayList<URLWebPage> list = new ArrayList<URLWebPage>();
 
     for (int i = 0; i <= 100; i++) {
-      list.add(createURLCrawlDatum("http://aaa/" + pad(i),
-          1, i));
+      list.add(createURLWebPage("http://aaa/" + pad(i), 1, i));
     }
 
-    createCrawlDB(list);
+    for (URLWebPage uwp : list) {
+      webPageStore.put(TableUtil.reverseUrl(uwp.getUrl()), uwp.getDatum());
+    }
 
-    Path generatedSegment = generateFetchlist(NUM_RESULTS, conf, false);
+    generateFetchlist(NUM_RESULTS, conf, false);
 
-    Path fetchlist = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
+    ArrayList<URLWebPage> l = readContents();
 
-    ArrayList<URLCrawlDatum> l = readContents(fetchlist);
-    
     // sort urls by score desc
     Collections.sort(l, new ScoreComparator());
 
@@ -99,8 +98,8 @@ public class TestGenerator extends TestCase {
     assertEquals(NUM_RESULTS, l.size());
 
     // verify we have the highest scoring urls
-    assertEquals("http://aaa/100", (l.get(0).url.toString()));
-    assertEquals("http://aaa/099", (l.get(1).url.toString()));
+    assertEquals("http://aaa/100", (l.get(0).getUrl().toString()));
+    assertEquals("http://aaa/099", (l.get(1).getUrl().toString()));
   }
 
   private String pad(int i) {
@@ -114,13 +113,13 @@ public class TestGenerator extends TestCase {
   /**
    * Comparator that sorts by score desc.
    */
-  public class ScoreComparator implements Comparator<URLCrawlDatum> {
+  public class ScoreComparator implements Comparator<URLWebPage> {
 
-    public int compare(URLCrawlDatum tuple1, URLCrawlDatum tuple2) {
-      if (tuple2.datum.getScore() - tuple1.datum.getScore() < 0) {
+    public int compare(URLWebPage tuple1, URLWebPage tuple2) {
+      if (tuple2.getDatum().getScore() - tuple1.getDatum().getScore() < 0) {
         return -1;
       }
-      if (tuple2.datum.getScore() - tuple1.datum.getScore() > 0) {
+      if (tuple2.getDatum().getScore() - tuple1.getDatum().getScore() > 0) {
         return 1;
       }
       return 0;
@@ -129,55 +128,43 @@ public class TestGenerator extends TestCase {
 
   /**
    * Test that generator obeys the property "generate.max.per.host".
-   * @throws Exception 
+   *
+   * @throws Exception
    */
-  public void testGenerateHostLimit() throws Exception{
-    ArrayList<URLCrawlDatum> list = new ArrayList<URLCrawlDatum>();
+  public void testGenerateHostLimit() throws Exception {
+    ArrayList<URLWebPage> list = new ArrayList<URLWebPage>();
 
-    list.add(createURLCrawlDatum("http://www.example.com/index1.html",
-        1, 1));
-    list.add(createURLCrawlDatum("http://www.example.com/index2.html",
-        1, 1));
-    list.add(createURLCrawlDatum("http://www.example.com/index3.html",
-        1, 1));
+    list.add(createURLWebPage("http://www.example.com/index1.html", 1, 1));
+    list.add(createURLWebPage("http://www.example.com/index2.html", 1, 1));
+    list.add(createURLWebPage("http://www.example.com/index3.html", 1, 1));
 
-    createCrawlDB(list);
+    for (URLWebPage uwp : list) {
+      webPageStore.put(TableUtil.reverseUrl(uwp.getUrl()), uwp.getDatum());
+    }
 
     Configuration myConfiguration = new Configuration(conf);
-    myConfiguration.setInt(Generator.GENERATE_MAX_PER_HOST, 1);
-    Path generatedSegment = generateFetchlist(Integer.MAX_VALUE,
-        myConfiguration, false);
+    myConfiguration.setInt(GeneratorJob.GENERATE_MAX_PER_HOST, 1);
+    generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    Path fetchlistPath = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
-
-    ArrayList<URLCrawlDatum> fetchList = readContents(fetchlistPath);
+    ArrayList<URLWebPage> fetchList = readContents();
 
     // verify we got right amount of records
     assertEquals(1, fetchList.size());
 
     myConfiguration = new Configuration(conf);
-    myConfiguration.setInt(Generator.GENERATE_MAX_PER_HOST, 2);
-    generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration,
-        false);
+    myConfiguration.setInt(GeneratorJob.GENERATE_MAX_PER_HOST, 2);
+    generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    fetchlistPath = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
-
-    fetchList = readContents(fetchlistPath);
+    fetchList = readContents();
 
     // verify we got right amount of records
     assertEquals(2, fetchList.size());
 
     myConfiguration = new Configuration(conf);
-    myConfiguration.setInt(Generator.GENERATE_MAX_PER_HOST, 3);
-    generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration,
-        false);
+    myConfiguration.setInt(GeneratorJob.GENERATE_MAX_PER_HOST, 3);
+    generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    fetchlistPath = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
-
-    fetchList = readContents(fetchlistPath);
+    fetchList = readContents();
 
     // verify we got right amount of records
     assertEquals(3, fetchList.size());
@@ -186,53 +173,45 @@ public class TestGenerator extends TestCase {
   /**
    * Test that generator obeys the property "generate.max.per.host" and
    * "generate.max.per.host.by.ip".
-   * @throws Exception 
+   *
+   * @throws Exception
    */
-  public void testGenerateHostIPLimit() throws Exception{
-    ArrayList<URLCrawlDatum> list = new ArrayList<URLCrawlDatum>();
+  public void toastGenerateHostIPLimit() throws Exception {
+    ArrayList<URLWebPage> list = new ArrayList<URLWebPage>();
 
-    list.add(createURLCrawlDatum("http://www.example.com/index.html", 1, 1));
-    list.add(createURLCrawlDatum("http://www.example.net/index.html", 1, 1));
-    list.add(createURLCrawlDatum("http://www.example.org/index.html", 1, 1));
+    list.add(createURLWebPage("http://www.example.com/index.html", 1, 1));
+    list.add(createURLWebPage("http://www.example.net/index.html", 1, 1));
+    list.add(createURLWebPage("http://www.example.org/index.html", 1, 1));
 
-    createCrawlDB(list);
+    for (URLWebPage uwp : list) {
+      webPageStore.put(TableUtil.reverseUrl(uwp.getUrl()), uwp.getDatum());
+    }
 
     Configuration myConfiguration = new Configuration(conf);
-    myConfiguration.setInt(Generator.GENERATE_MAX_PER_HOST, 1);
-    myConfiguration.setBoolean(Generator.GENERATE_MAX_PER_HOST_BY_IP, true);
+    myConfiguration.setInt(GeneratorJob.GENERATE_MAX_PER_HOST, 1);
+    myConfiguration.setBoolean(GeneratorJob.GENERATE_MAX_PER_HOST_BY_IP, true);
 
-    Path generatedSegment = generateFetchlist(Integer.MAX_VALUE,
-        myConfiguration, false);
+    generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    Path fetchlistPath = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
-
-    ArrayList<URLCrawlDatum> fetchList = readContents(fetchlistPath);
+    ArrayList<URLWebPage> fetchList = readContents();
 
     // verify we got right amount of records
     assertEquals(1, fetchList.size());
 
     myConfiguration = new Configuration(myConfiguration);
-    myConfiguration.setInt(Generator.GENERATE_MAX_PER_HOST, 2);
-    generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
+    myConfiguration.setInt(GeneratorJob.GENERATE_MAX_PER_HOST, 2);
+    generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    fetchlistPath = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
-
-    fetchList = readContents(fetchlistPath);
+    fetchList = readContents();
 
     // verify we got right amount of records
     assertEquals(2, fetchList.size());
 
     myConfiguration = new Configuration(myConfiguration);
-    myConfiguration.setInt(Generator.GENERATE_MAX_PER_HOST, 3);
-    generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration,
-        false);
+    myConfiguration.setInt(GeneratorJob.GENERATE_MAX_PER_HOST, 3);
+    generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    fetchlistPath = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
-
-    fetchList = readContents(fetchlistPath);
+    fetchList = readContents();
 
     // verify we got right amount of records
     assertEquals(3, fetchList.size());
@@ -240,109 +219,108 @@ public class TestGenerator extends TestCase {
 
   /**
    * Test generator obeys the filter setting.
-   * @throws Exception 
-   * @throws IOException 
+   *
+   * @throws Exception
+   * @throws IOException
    */
-  public void testFilter() throws IOException, Exception{
+  public void testFilter() throws IOException, Exception {
 
-    ArrayList<URLCrawlDatum> list = new ArrayList<URLCrawlDatum>();
+    ArrayList<URLWebPage> list = new ArrayList<URLWebPage>();
 
-    list.add(createURLCrawlDatum("http://www.example.com/index.html", 1, 1));
-    list.add(createURLCrawlDatum("http://www.example.net/index.html", 1, 1));
-    list.add(createURLCrawlDatum("http://www.example.org/index.html", 1, 1));
+    list.add(createURLWebPage("http://www.example.com/index.html", 1, 1));
+    list.add(createURLWebPage("http://www.example.net/index.html", 1, 1));
+    list.add(createURLWebPage("http://www.example.org/index.html", 1, 1));
 
-    createCrawlDB(list);
+    for (URLWebPage uwp : list) {
+      webPageStore.put(TableUtil.reverseUrl(uwp.getUrl()), uwp.getDatum());
+    }
 
     Configuration myConfiguration = new Configuration(conf);
     myConfiguration.set("urlfilter.suffix.file", "filter-all.txt");
 
-    Path generatedSegment = generateFetchlist(Integer.MAX_VALUE,
-        myConfiguration, true);
+    generateFetchlist(Integer.MAX_VALUE, myConfiguration, true);
 
-    assertNull("should be null (0 entries)", generatedSegment);
+    ArrayList<URLWebPage> fetchList = readContents();
 
-    generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
+    assertEquals(0, fetchList.size());
 
-    Path fetchlistPath = new Path(new Path(generatedSegment,
-        CrawlDatum.GENERATE_DIR_NAME), "part-00000");
+    generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    ArrayList<URLCrawlDatum> fetchList = readContents(fetchlistPath);
+    fetchList = readContents();
 
     // verify nothing got filtered
     assertEquals(list.size(), fetchList.size());
 
   }
 
-
   /**
-   * Read contents of fetchlist.
-   * @param fetchlist  path to Generated fetchlist
-   * @return Generated {@link URLCrawlDatum} objects
+   * Read entries marked as fetchable
+   *
+   * @return Generated {@link URLWebPage} objects
    * @throws IOException
    */
-  private ArrayList<URLCrawlDatum> readContents(Path fetchlist) throws IOException {
-    // verify results
-    SequenceFile.Reader reader = new SequenceFile.Reader(fs, fetchlist, conf);
+  private ArrayList<URLWebPage> readContents() throws IOException {
+    ArrayList<URLWebPage> l = new ArrayList<URLWebPage>();
 
-    ArrayList<URLCrawlDatum> l = new ArrayList<URLCrawlDatum>();
+    Query<String, WebPage> query = webPageStore.newQuery();
+    query.setFields(WebPage.Field.MARKERS.getName());
 
-    READ: do {
-      Text key = new Text();
-      CrawlDatum value = new CrawlDatum();
-      if (!reader.next(key, value)) {
-        break READ;
-      }
-      l.add(new URLCrawlDatum(key, value));
-    } while (true);
+    Result<String, WebPage> results = webPageStore.execute(query);
 
-    reader.close();
+    while (results.next()) {
+      WebPage page = results.get();
+      String url = results.getKey();
+      LOG.info("FOUND IN TABLE :" + url);
+
+      if (page == null)
+        continue;
+
+      if (Mark.GENERATE_MARK.checkMark(page) == null)
+        continue;
+
+      // it has been marked as generated so it is ready for the fetch
+      l.add(new URLWebPage(TableUtil.unreverseUrl(url), page));
+    }
+
     return l;
   }
 
   /**
    * Generate Fetchlist.
-   * @param numResults number of results to generate
-   * @param config Configuration to use
+   *
+   * @param numResults
+   *          number of results to generate
+   * @param config
+   *          Configuration to use
    * @return path to generated segment
    * @throws IOException
    */
-  private Path generateFetchlist(int numResults, Configuration config,
-      boolean filter) throws IOException {
+  private void generateFetchlist(int numResults, Configuration config,
+      boolean filter) throws Exception {
     // generate segment
-    Generator g = new Generator(config);
-    Path generatedSegment = g.generate(dbDir, segmentsDir, -1, numResults,
-        Long.MAX_VALUE, filter, false);
-    return generatedSegment;
+    GeneratorJob g = new GeneratorJob();
+    g.setConf(config);
+    String crawlId = g.generate(numResults, Long.MAX_VALUE, filter, false);
+    if (crawlId == null)
+      throw new RuntimeException("Generator failed");
   }
 
   /**
-   * Creates CrawlDB.
+   * Constructs new {@link URLWebPage} from submitted parameters.
    *
-   * @param list database contents
-   * @throws IOException
-   * @throws Exception
-   */
-  private void createCrawlDB(ArrayList<URLCrawlDatum> list) throws IOException,
-      Exception {
-    dbDir = new Path(testdir, "crawldb");
-    segmentsDir = new Path(testdir, "segments");
-    fs.mkdirs(dbDir);
-    fs.mkdirs(segmentsDir);
-
-    // create crawldb
-    CrawlDBTestUtil.createCrawlDb(conf, fs, dbDir, list);
-  }
-
-  /**
-   * Constructs new {@link URLCrawlDatum} from submitted parameters.
-   * @param url url to use
-   * @param fetchInterval {@link CrawlDatum#setFetchInterval(float)}
-   * @param score {@link CrawlDatum#setScore(float)}
+   * @param url
+   *          url to use
+   * @param fetchInterval
+   * @param score
    * @return Constructed object
    */
-  private URLCrawlDatum createURLCrawlDatum(final String url,
+  private URLWebPage createURLWebPage(final String url,
       final int fetchInterval, final float score) {
-    return new CrawlDBTestUtil.URLCrawlDatum(new Text(url), new CrawlDatum(
-        CrawlDatum.STATUS_DB_UNFETCHED, fetchInterval, score));
+    WebPage page = new WebPage();
+    page.setFetchInterval(fetchInterval);
+    page.setScore(score);
+    page.setStatus(CrawlStatus.STATUS_UNFETCHED);
+    return new URLWebPage(url, page);
   }
+
 }

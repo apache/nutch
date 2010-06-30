@@ -22,17 +22,15 @@ import java.util.Collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.ObjectCache;
-import org.apache.nutch.util.hbase.HbaseColumn;
 
 /**
  * Factory class, which instantiates a Signature implementation according to the
  * current Configuration configuration. This newly created instance is cached in the
  * Configuration instance, so that it could be later retrieved.
- * 
+ *
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
 public class SignatureFactory {
@@ -58,9 +56,9 @@ public class SignatureFactory {
     }
     return impl;
   }
-  
-  public static Collection<HbaseColumn> getColumns(Configuration conf) {
+
+  public static Collection<WebPage.Field> getFields(Configuration conf) {
     Signature impl = getSignature(conf);
-    return impl.getColumns();
+    return impl.getFields();
   }
 }

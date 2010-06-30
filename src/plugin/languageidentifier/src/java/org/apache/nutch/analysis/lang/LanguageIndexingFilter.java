@@ -16,73 +16,81 @@
  */
 package org.apache.nutch.analysis.lang;
 
-
 // Nutch imports
-import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.crawl.Inlinks;
-import org.apache.nutch.indexer.IndexingFilter;
+import java.nio.ByteBuffer;
+import java.util.Collection;
+import java.util.HashSet;
+
+import org.apache.avro.util.Utf8;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.nutch.indexer.IndexingException;
+import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.indexer.lucene.LuceneWriter;
-import org.apache.hadoop.io.Text;
-import org.apache.nutch.parse.Parse;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
-
-// Hadoop imports
-import org.apache.hadoop.conf.Configuration;
-
+import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.storage.WebPage.Field;
 
 /**
- * An {@link org.apache.nutch.indexer.IndexingFilter} that 
- * add a <code>lang</code> (language) field to the document.
- *
+ * An {@link org.apache.nutch.indexer.IndexingFilter} that add a
+ * <code>lang</code> (language) field to the document.
+ * 
  * It tries to find the language of the document by:
  * <ul>
- *   <li>First, checking if {@link HTMLLanguageParser} add some language
- *       information</li>
- *   <li>Then, checking if a <code>Content-Language</code> HTTP header can be
- *       found</li>
- *   <li>Finaly by analyzing the document content</li>
+ * <li>First, checking if {@link HTMLLanguageParser} add some language
+ * information</li>
+ * <li>Then, checking if a <code>Content-Language</code> HTTP header can be
+ * found</li>
+ * <li>Finaly by analyzing the document content</li>
  * </ul>
- *   
+ * 
  * @author Sami Siren
  * @author Jerome Charron
  */
 public class LanguageIndexingFilter implements IndexingFilter {
-  
 
   private Configuration conf;
   private LanguageIdentifier languageIdentifier;
 
-/**
+  private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
+
+  static {
+    FIELDS.add(WebPage.Field.TITLE);
+    FIELDS.add(WebPage.Field.TEXT);
+    FIELDS.add(WebPage.Field.HEADERS);
+    FIELDS.add(WebPage.Field.METADATA);
+  }
+
+  /**
    * Constructs a new Language Indexing Filter.
    */
   public LanguageIndexingFilter() {
 
   }
 
-  // Inherited JavaDoc
-  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
-    throws IndexingException {
+  public NutchDocument filter(NutchDocument doc, String url, WebPage page)
+      throws IndexingException {
 
     // check if LANGUAGE found, possibly put there by HTMLLanguageParser
-    String lang = parse.getData().getParseMeta().get(Metadata.LANGUAGE);
-
-    // check if HTTP-header tels us the language
-    if (lang == null) {
-        lang = parse.getData().getContentMeta().get(Response.CONTENT_LANGUAGE);
+    String lang = null;
+    ByteBuffer blang = page.getFromMetadata(new Utf8(Metadata.LANGUAGE));
+    if (blang != null) {
+      lang = Bytes.toString(blang.array());
     }
-    
+
+    // check if HTTP-header tells us the language
+    if (lang == null) {
+      Utf8 ulang = page.getFromHeaders(new Utf8(Response.CONTENT_LANGUAGE));
+      if (ulang != null) {
+        lang = ulang.toString();
+      }
+    }
+
     if (lang == null) {
       StringBuilder text = new StringBuilder();
-      /*
-       * String[] anchors = fo.getAnchors(); for (int i = 0; i < anchors.length;
-       * i++) { text+=anchors[i] + " "; }
-       */
-      text.append(parse.getData().getTitle())
-          .append(" ")
-          .append(parse.getText());
+      text.append(page.getTitle().toString()).append(" ").append(
+          page.getText().toString());
       lang = this.languageIdentifier.identify(text);
     }
 
@@ -95,11 +103,13 @@ public class LanguageIndexingFilter implements IndexingFilter {
     return doc;
   }
 
-  public void addIndexBackendOptions(Configuration conf) {
-    LuceneWriter.addFieldOptions("lang", LuceneWriter.STORE.YES,
-        LuceneWriter.INDEX.UNTOKENIZED, conf);
+  public Collection<Field> getFields() {
+    return FIELDS;
   }
-  
+
+  public void addIndexBackendOptions(Configuration conf) {
+  }
+
   public void setConf(Configuration conf) {
     this.conf = conf;
     this.languageIdentifier = new LanguageIdentifier(conf);

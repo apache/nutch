@@ -24,7 +24,6 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.nutch.indexer.DeleteDuplicates;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
@@ -60,7 +59,7 @@ import org.apache.solr.common.SolrDocumentList;
  * </li>
  * </ul>
  * 
- * Note that unlike {@link DeleteDuplicates} we assume that two documents in
+ * Note that we assume that two documents in
  * a solr index will never have the same URL. So this class only deals with
  * documents with <b>different</b> URLs but the same digest. 
  */

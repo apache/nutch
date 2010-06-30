@@ -28,6 +28,7 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
 
+import org.apache.avro.util.Utf8;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.SpellCheckedMetadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
@@ -35,23 +36,21 @@ import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.http.api.HttpBase;
 import org.apache.nutch.protocol.http.api.HttpException;
+import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.LogUtil;
-import org.apache.nutch.util.hbase.WebTableColumns;
-import org.apache.nutch.util.hbase.WebTableRow;
-
 
 /** An HTTP response. */
 public class HttpResponse implements Response {
- 
-  private HttpBase http; 
-  private URL url;
+
+  private final HttpBase http;
+  private final URL url;
   private byte[] content;
   private int code;
-  private Metadata headers = new SpellCheckedMetadata();
+  private final Metadata headers = new SpellCheckedMetadata();
 
 
-  public HttpResponse(HttpBase http, URL url, WebTableRow row)
-    throws ProtocolException, IOException {
+  public HttpResponse(HttpBase http, URL url, WebPage page)
+  throws ProtocolException, IOException {
 
     this.http = http;
     this.url = url;
@@ -120,21 +119,21 @@ public class HttpResponse implements Response {
         reqStr.append("\r\n");
       }
 
-      reqStr.append("\r\n");
-      if (row.hasColumn(WebTableColumns.MODIFIED_TIME, null)) {
+      if (page.isReadable(WebPage.Field.MODIFIED_TIME.getIndex())) {
         reqStr.append("If-Modified-Since: " +
-                      HttpDateFormat.toString(row.getModifiedTime()));
+                      HttpDateFormat.toString(page.getModifiedTime()));
         reqStr.append("\r\n");
       }
-      
+      reqStr.append("\r\n");
+
       byte[] reqBytes= reqStr.toString().getBytes();
 
       req.write(reqBytes);
       req.flush();
-        
+
       PushbackInputStream in =                  // process response
         new PushbackInputStream(
-          new BufferedInputStream(socket.getInputStream(), Http.BUFFER_SIZE), 
+          new BufferedInputStream(socket.getInputStream(), Http.BUFFER_SIZE),
           Http.BUFFER_SIZE) ;
 
       StringBuffer line = new StringBuffer();
@@ -142,7 +141,7 @@ public class HttpResponse implements Response {
       boolean haveSeenNonContinueStatus= false;
       while (!haveSeenNonContinueStatus) {
         // parse status code line
-        this.code = parseStatusLine(in, line); 
+        this.code = parseStatusLine(in, line);
         // parse headers
         parseHeaders(in, line);
         haveSeenNonContinueStatus= code != 100; // 100 is "Continue"
@@ -158,11 +157,13 @@ public class HttpResponse implements Response {
           Http.LOG.trace("fetched " + content.length + " bytes from " + url);
         }
       }
-      
+
       // add headers in metadata to row
-      row.deleteHeaders();
+      if (page.getHeaders() != null) {
+        page.getHeaders().clear();
+      }
       for (String key : headers.names()) {
-        row.addHeader(key, headers.get(key));
+        page.putToHeaders(new Utf8(key), new Utf8(headers.get(key)));
       }
 
     } finally {
@@ -172,15 +173,15 @@ public class HttpResponse implements Response {
 
   }
 
-  
+
   /* ------------------------- *
    * <implementation:Response> *
    * ------------------------- */
-  
+
   public URL getUrl() {
     return url;
   }
-  
+
   public int getCode() {
     return code;
   }
@@ -188,7 +189,7 @@ public class HttpResponse implements Response {
   public String getHeader(String name) {
     return headers.get(name);
   }
-  
+
   public Metadata getHeaders() {
     return headers;
   }
@@ -200,9 +201,9 @@ public class HttpResponse implements Response {
   /* ------------------------- *
    * <implementation:Response> *
    * ------------------------- */
-  
 
-  private void readPlainContent(InputStream in) 
+
+  private void readPlainContent(InputStream in)
     throws HttpException, IOException {
 
     int contentLength = Integer.MAX_VALUE;    // get content length
@@ -241,14 +242,14 @@ public class HttpResponse implements Response {
 
     // handle lines with no plaintext result code, ie:
     // "HTTP/1.1 200" vs "HTTP/1.1 200 OK"
-    if (codeEnd == -1) 
+    if (codeEnd == -1)
       codeEnd= line.length();
 
     int code;
     try {
       code= Integer.parseInt(line.substring(codeStart+1, codeEnd));
     } catch (NumberFormatException e) {
-      throw new HttpException("bad status line '" + line 
+      throw new HttpException("bad status line '" + line
                               + "': " + e.getMessage(), e);
     }
 
@@ -291,8 +292,8 @@ public class HttpResponse implements Response {
 
       // handle HTTP responses with missing blank line after headers
       int pos;
-      if ( ((pos= line.indexOf("<!DOCTYPE")) != -1) 
-           || ((pos= line.indexOf("<HTML")) != -1) 
+      if ( ((pos= line.indexOf("<!DOCTYPE")) != -1)
+           || ((pos= line.indexOf("<HTML")) != -1)
            || ((pos= line.indexOf("<html")) != -1) ) {
 
         in.unread(line.substring(pos).getBytes("UTF-8"));
@@ -326,11 +327,11 @@ public class HttpResponse implements Response {
           if (peek(in) == '\n') {
             in.read();
           }
-        case '\n': 
+        case '\n':
           if (line.length() > 0) {
             // at EOL -- check for continued line if the current
             // (possibly continued) line wasn't blank
-            if (allowContinuedLine) 
+            if (allowContinuedLine)
               switch (peek(in)) {
                 case ' ' : case '\t':                   // line is continued
                   in.read();

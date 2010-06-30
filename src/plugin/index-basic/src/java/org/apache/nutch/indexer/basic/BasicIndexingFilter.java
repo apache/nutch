@@ -17,27 +17,23 @@
 
 package org.apache.nutch.indexer.basic;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import org.apache.lucene.document.DateTools;
-
-import org.apache.nutch.crawl.Inlink;
-import org.apache.nutch.indexer.IndexingException;
-import org.apache.nutch.indexer.IndexingFilter;
-import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.indexer.lucene.LuceneWriter;
-import org.apache.nutch.metadata.Nutch;
-import org.apache.nutch.util.hbase.HbaseColumn;
-import org.apache.nutch.util.hbase.WebTableColumns;
-import org.apache.nutch.util.hbase.WebTableRow;
-
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.lucene.document.DateTools;
+import org.apache.nutch.indexer.IndexingException;
+import org.apache.nutch.indexer.IndexingFilter;
+import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.util.TableUtil;
 
 /** Adds basic searchable fields to a document. */
 public class BasicIndexingFilter implements IndexingFilter {
@@ -45,27 +41,27 @@ public class BasicIndexingFilter implements IndexingFilter {
 
   private int MAX_TITLE_LENGTH;
   private Configuration conf;
-  
-  private static final Collection<HbaseColumn> COLUMNS = new HashSet<HbaseColumn>();
-  
+
+  private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
+
   static {
-    COLUMNS.add(new HbaseColumn(WebTableColumns.TITLE));
-    COLUMNS.add(new HbaseColumn(WebTableColumns.TEXT));
-    COLUMNS.add(new HbaseColumn(WebTableColumns.FETCH_TIME));
-    COLUMNS.add(new HbaseColumn(WebTableColumns.INLINKS));
+    FIELDS.add(WebPage.Field.TITLE);
+    FIELDS.add(WebPage.Field.TEXT);
+    FIELDS.add(WebPage.Field.FETCH_TIME);
   }
 
-  public NutchDocument filter(NutchDocument doc, String url, WebTableRow row)
-    throws IndexingException {
+  public NutchDocument filter(NutchDocument doc, String url, WebPage page)
+      throws IndexingException {
 
     String reprUrl = null;
-    if (row.hasColumn(WebTableColumns.REPR_URL, null))
-      reprUrl = row.getReprUrl();
-    
+    if (page.isReadable(WebPage.Field.REPR_URL.getIndex())) {
+      reprUrl = TableUtil.toString(page.getReprUrl());
+    }
+
     String host = null;
     try {
       URL u;
-      if (reprUrl!= null) {
+      if (reprUrl != null) {
         u = new URL(reprUrl);
       } else {
         u = new URL(url);
@@ -84,72 +80,39 @@ public class BasicIndexingFilter implements IndexingFilter {
 
     // url is both stored and indexed, so it's both searchable and returned
     doc.add("url", reprUrl == null ? url : reprUrl);
-    
+
     if (reprUrl != null) {
       // also store original url as both stored and indexes
       doc.add("orig", url);
     }
 
     // content is indexed, so that it's searchable, but not stored in index
-    doc.add("content", row.getText());
-    
+    doc.add("content", TableUtil.toString(page.getText()));
+
     // title
-    String title = row.getTitle();
-    if (title.length() > MAX_TITLE_LENGTH) {      // truncate title if needed
+    String title = TableUtil.toString(page.getTitle());
+    if (title.length() > MAX_TITLE_LENGTH) { // truncate title if needed
       title = title.substring(0, MAX_TITLE_LENGTH);
     }
     // add title indexed and stored so that it can be displayed
     doc.add("title", title);
     // add cached content/summary display policy, if available
-    String caching = row.getMetaAsString(Nutch.CACHING_FORBIDDEN_KEY);
-    if (caching != null && !caching.equals(Nutch.CACHING_FORBIDDEN_NONE)) {    
+    ByteBuffer cachingRaw = page
+        .getFromMetadata(Nutch.CACHING_FORBIDDEN_KEY_UTF8);
+    String caching = (cachingRaw == null ? null : Bytes.toString(cachingRaw
+        .array()));
+    if (caching != null && !caching.equals(Nutch.CACHING_FORBIDDEN_NONE)) {
       doc.add("cache", caching);
     }
-    
+
     // add timestamp when fetched, for deduplication
-    doc.add("tstamp",
-        DateTools.timeToString(row.getFetchTime(), DateTools.Resolution.MILLISECOND));
-    
-    // TODO: move anchors to its own plugin
-    for (Inlink inlink : row.getInlinks()) {
-      doc.add("anchor", inlink.getAnchor());
-    }
-    
+    doc.add("tstamp", DateTools.timeToString(page.getFetchTime(),
+        DateTools.Resolution.MILLISECOND));
+
     return doc;
   }
-  
+
   public void addIndexBackendOptions(Configuration conf) {
-
-    ///////////////////////////
-    //    add lucene options   //
-    ///////////////////////////
-
-    // host is un-stored, indexed and tokenized
-    LuceneWriter.addFieldOptions("host", LuceneWriter.STORE.NO,
-        LuceneWriter.INDEX.TOKENIZED, conf);
-
-    // site is un-stored, indexed and un-tokenized
-    LuceneWriter.addFieldOptions("site", LuceneWriter.STORE.NO,
-        LuceneWriter.INDEX.UNTOKENIZED, conf);
-
-    // url is both stored and indexed, so it's both searchable and returned
-    LuceneWriter.addFieldOptions("url", LuceneWriter.STORE.YES,
-        LuceneWriter.INDEX.TOKENIZED, conf);
-
-    // content is indexed, so that it's searchable, but not stored in index
-    LuceneWriter.addFieldOptions("content", LuceneWriter.STORE.NO,
-        LuceneWriter.INDEX.TOKENIZED, conf);
-
-    // anchors are indexed, so they're searchable, but not stored in index
-    LuceneWriter.addFieldOptions("anchor", LuceneWriter.STORE.NO,
-        LuceneWriter.INDEX.TOKENIZED, conf);
-
-    // title is indexed and stored so that it can be displayed
-    LuceneWriter.addFieldOptions("title", LuceneWriter.STORE.YES,
-        LuceneWriter.INDEX.TOKENIZED, conf);
-
-    LuceneWriter.addFieldOptions("cache", LuceneWriter.STORE.YES, LuceneWriter.INDEX.NO, conf);
-    LuceneWriter.addFieldOptions("tstamp", LuceneWriter.STORE.YES, LuceneWriter.INDEX.NO, conf);
   }
 
   public void setConf(Configuration conf) {
@@ -161,8 +124,9 @@ public class BasicIndexingFilter implements IndexingFilter {
     return this.conf;
   }
 
-  public Collection<HbaseColumn> getColumns() {
-    return COLUMNS;
+  @Override
+  public Collection<WebPage.Field> getFields() {
+    return FIELDS;
   }
 
 }

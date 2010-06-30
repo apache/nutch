@@ -4,46 +4,45 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
+import org.apache.nutch.storage.WebPage;
+import org.gora.util.IOUtils;
 
-public class FetchEntry implements Writable {
+public class FetchEntry extends Configured implements Writable {
 
-  private ImmutableBytesWritable key;
-  private Result row;
-  
+  private String key;
+  private WebPage page;
+
   public FetchEntry() {
-    key = new ImmutableBytesWritable();
-    row = new Result();
+    super(null);
   }
-  
-  public FetchEntry(FetchEntry fe) {
-    this.key = new ImmutableBytesWritable(fe.key.get().clone());
-  }
-  
-  public FetchEntry(ImmutableBytesWritable key, Result row) {
+
+  public FetchEntry(Configuration conf, String key, WebPage page) {
+    super(conf);
     this.key = key;
-    this.row = row;
+    this.page = page;
   }
-  
+
   @Override
   public void readFields(DataInput in) throws IOException {
-    key.readFields(in);
-    row.readFields(in);
+    key = Text.readString(in);
+    page = IOUtils.deserialize(getConf(), in, null, WebPage.class);
   }
 
   @Override
   public void write(DataOutput out) throws IOException {
-    key.write(out);
-    row.write(out);
+    Text.writeString(out, key);
+    IOUtils.serialize(getConf(), out, page, WebPage.class);
   }
 
-  public ImmutableBytesWritable getKey() {
+  public String getKey() {
     return key;
   }
 
-  public Result getRow() {
-    return row;
+  public WebPage getWebPage() {
+    return page;
   }
 }

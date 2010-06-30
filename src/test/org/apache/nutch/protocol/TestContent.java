@@ -99,7 +99,7 @@ public class TestContent extends TestCase {
                     "http://www.foo.com/",
                     "".getBytes("UTF8"),
                     "", p, conf);
-    assertEquals(MimeTypes.DEFAULT, c.getContentType());
+    assertEquals(MimeTypes.OCTET_STREAM, c.getContentType());
 
     c = new Content("http://www.foo.com/",
                     "http://www.foo.com/",

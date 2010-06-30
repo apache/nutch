@@ -22,17 +22,15 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 
-// Commons Logging imports
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.apache.nutch.plugin.*;
-import org.apache.nutch.util.ObjectCache;
-import org.apache.nutch.util.hbase.HbaseColumn;
-import org.apache.nutch.util.hbase.WebTableRow;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.indexer.IndexingException;
-import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.plugin.Extension;
+import org.apache.nutch.plugin.ExtensionPoint;
+import org.apache.nutch.plugin.PluginRepository;
+import org.apache.nutch.plugin.PluginRuntimeException;
+import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.util.ObjectCache;
 
 /** Creates and caches {@link IndexingFilter} implementing plugins.*/
 public class IndexingFilters {
@@ -103,12 +101,12 @@ public class IndexingFilters {
       this.indexingFilters = (IndexingFilter[]) objectCache
           .getObject(IndexingFilter.class.getName());
     }
-  }  
+  }
   /** Run all defined filters. */
-  public NutchDocument filter(NutchDocument doc, String url, WebTableRow row)
+  public NutchDocument filter(NutchDocument doc, String url, WebPage page)
   throws IndexingException {
     for (IndexingFilter indexingFilter : indexingFilters) {
-      doc = indexingFilter.filter(doc, url, row);
+      doc = indexingFilter.filter(doc, url, page);
       // break the loop if an indexing filter discards the doc
       if (doc == null) return null;
     }
@@ -116,12 +114,15 @@ public class IndexingFilters {
     return doc;
   }
 
-  public Collection<HbaseColumn> getColumns() {
-    Collection<HbaseColumn> columns = new HashSet<HbaseColumn>();
+  public Collection<WebPage.Field> getFields() {
+    Collection<WebPage.Field> columns = new HashSet<WebPage.Field>();
     for (IndexingFilter indexingFilter : indexingFilters) {
-      columns.addAll(indexingFilter.getColumns());
+      Collection<WebPage.Field> fields = indexingFilter.getFields();
+      if (fields != null) {
+        columns.addAll(fields);
+      }
     }
-    return columns;  
+    return columns;
   }
-  
+
 }

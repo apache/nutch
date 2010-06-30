@@ -19,24 +19,23 @@ package org.apache.nutch.scoring.opic;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.avro.util.Utf8;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.scoring.ScoreDatum;
 import org.apache.nutch.scoring.ScoringFilter;
 import org.apache.nutch.scoring.ScoringFilterException;
+import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.LogUtil;
-import org.apache.nutch.util.hbase.HbaseColumn;
-import org.apache.nutch.util.hbase.WebTableRow;
-import org.apache.nutch.util.hbase.WebTableColumns;
 
 /**
  * This plugin implements a variant of an Online Page Importance Computation
@@ -45,20 +44,20 @@ import org.apache.nutch.util.hbase.WebTableColumns;
  * Abiteboul, Serge and Preda, Mihai and Cobena, Gregory (2003),
  * Adaptive On-Line Page Importance Computation
  * </a>.
- * 
+ *
  * @author Andrzej Bialecki
  */
 public class OPICScoringFilter implements ScoringFilter {
 
   private final static Log LOG = LogFactory.getLog(OPICScoringFilter.class);
-  
-  private final static byte[] CASH_KEY = Bytes.toBytes("_csh_");
-  
-  private final static Set<HbaseColumn> COLUMNS = new HashSet<HbaseColumn>();
-  
+
+  private final static Utf8 CASH_KEY = new Utf8("_csh_");
+
+  private final static Set<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
+
   static {
-    COLUMNS.add(new HbaseColumn(WebTableColumns.METADATA, CASH_KEY));
-    COLUMNS.add(new HbaseColumn(WebTableColumns.SCORE, CASH_KEY));
+    FIELDS.add(WebPage.Field.METADATA);
+    FIELDS.add(WebPage.Field.SCORE);
   }
 
   private Configuration conf;
@@ -84,45 +83,53 @@ public class OPICScoringFilter implements ScoringFilter {
 
   /** Set to the value defined in config, 1.0f by default. */
   @Override
-  public void injectedScore(String url, WebTableRow row)
+  public void injectedScore(String url, WebPage row)
   throws ScoringFilterException {
     row.setScore(scoreInjected);
-    row.putMeta(CASH_KEY, Bytes.toBytes(scoreInjected));
+    row.putToMetadata(CASH_KEY, ByteBuffer.wrap(Bytes.toBytes(scoreInjected)));
   }
 
   /** Set to 0.0f (unknown value) - inlink contributions will bring it to
    * a correct level. Newly discovered pages have at least one inlink. */
   @Override
-  public void initialScore(String url, WebTableRow row) throws ScoringFilterException {
+  public void initialScore(String url, WebPage row) throws ScoringFilterException {
     row.setScore(0.0f);
-    row.putMeta(CASH_KEY, Bytes.toBytes(0.0f));
+    row.putToMetadata(CASH_KEY, ByteBuffer.wrap(Bytes.toBytes(0.0f)));
   }
 
-  /** Use {@link CrawlDatum#getScore()}. */
+  /** Use {@link WebPage#getScore()}. */
   @Override
-  public float generatorSortValue(String url, WebTableRow row, float initSort) throws ScoringFilterException {
+  public float generatorSortValue(String url, WebPage row, float initSort) throws ScoringFilterException {
     return row.getScore() * initSort;
   }
 
   /** Increase the score by a sum of inlinked scores. */
   @Override
-  public void updateScore(String url, WebTableRow row, List<ScoreDatum> inlinkedScoreData) {
+  public void updateScore(String url, WebPage row, List<ScoreDatum> inlinkedScoreData) {
     float adjust = 0.0f;
     for (ScoreDatum scoreDatum : inlinkedScoreData) {
       adjust += scoreDatum.getScore();
     }
     float oldScore = row.getScore();
     row.setScore(oldScore + adjust);
-    float cash = Bytes.toFloat(row.getMeta(CASH_KEY));
-    row.putMeta(CASH_KEY, Bytes.toBytes(cash + adjust));
+    ByteBuffer cashRaw = row.getFromMetadata(CASH_KEY);
+    float cash = 0.0f;
+    if (cashRaw != null) {
+      cash = Bytes.toFloat(cashRaw.array());
+    }
+    row.putToMetadata(CASH_KEY, ByteBuffer.wrap(Bytes.toBytes(cash + adjust)));
   }
 
   /** Get cash on hand, divide it by the number of outlinks and apply. */
   @Override
   public void distributeScoreToOutlinks(String fromUrl,
-      WebTableRow row, Collection<ScoreDatum> scoreData,
+      WebPage row, Collection<ScoreDatum> scoreData,
       int allCount) {
-    float cash = Bytes.toFloat(row.getMeta(CASH_KEY));
+    ByteBuffer cashRaw = row.getFromMetadata(CASH_KEY);
+    if (cashRaw == null) {
+      return;
+    }
+    float cash = Bytes.toFloat(cashRaw.array());
     if (cash == 0) {
       return;
     }
@@ -146,16 +153,16 @@ public class OPICScoringFilter implements ScoringFilter {
       }
     }
     // reset cash to zero
-    row.putMeta(CASH_KEY, Bytes.toBytes(0.0f));
+    row.putToMetadata(CASH_KEY, ByteBuffer.wrap(Bytes.toBytes(0.0f)));
   }
 
   /** Dampen the boost value by scorePower.*/
-  public float indexerScore(String url, NutchDocument doc, WebTableRow row, float initScore) {
+  public float indexerScore(String url, NutchDocument doc, WebPage row, float initScore) {
     return (float)Math.pow(row.getScore(), scorePower) * initScore;
   }
 
   @Override
-  public Collection<HbaseColumn> getColumns() {
-    return COLUMNS;
+  public Collection<WebPage.Field> getFields() {
+    return FIELDS;
   }
 }

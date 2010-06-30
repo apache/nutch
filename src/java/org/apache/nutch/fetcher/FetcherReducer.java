@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,34 +17,35 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.apache.avro.util.Utf8;
 import org.apache.commons.logging.Log;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
-import org.apache.hadoop.hbase.mapreduce.TableReducer;
-import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.hadoop.hbase.util.Writables;
-import org.apache.nutch.crawl.CrawlDatumHbase;
-import org.apache.nutch.fetcher.Fetcher;
+import org.apache.hadoop.io.IntWritable;
+import org.apache.nutch.crawl.CrawlStatus;
+import org.apache.nutch.crawl.URLWebPage;
 import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
+import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.ProtocolOutput;
-import org.apache.nutch.protocol.ProtocolStatus;
+import org.apache.nutch.protocol.ProtocolStatusCodes;
 import org.apache.nutch.protocol.RobotRules;
+import org.apache.nutch.storage.Mark;
+import org.apache.nutch.storage.ProtocolStatus;
+import org.apache.nutch.storage.ProtocolStatusUtils;
+import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.LogUtil;
+import org.apache.nutch.util.TableUtil;
 import org.apache.nutch.util.URLUtil;
-import org.apache.nutch.util.hbase.WebTableColumns;
-import org.apache.nutch.util.hbase.TableUtil;
-import org.apache.nutch.util.hbase.WebTableRow;
+import org.gora.mapreduce.GoraReducer;
 
 public class FetcherReducer
-extends TableReducer<ImmutableBytesWritable, FetchEntry, ImmutableBytesWritable> {
+extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
 
-  public static final Log LOG = Fetcher.LOG;
+  public static final Log LOG = FetcherJob.LOG;
 
   private final AtomicInteger activeThreads = new AtomicInteger(0);
   private final AtomicInteger spinWaiting = new AtomicInteger(0);
@@ -57,34 +59,35 @@ extends TableReducer<ImmutableBytesWritable, FetchEntry, ImmutableBytesWritable>
 
   private QueueFeeder feeder;
 
-  private List<FetcherThread> fetcherThreads = new ArrayList<FetcherThread>();
+  private final List<FetcherThread> fetcherThreads = new ArrayList<FetcherThread>();
 
   private FetchItemQueues fetchQueues;
-  
-  private static final ImmutableBytesWritable REDUCE_KEY =
-    new ImmutableBytesWritable(TableUtil.YES_VAL);
+
+  private boolean isParsing;
+
+  private ParseUtil parseUtil;
 
   /**
    * This class described the item to be fetched.
    */
   private static class FetchItem {
-    WebTableRow row;
+    WebPage page;
     String queueID;
     String url;
     URL u;
 
-    public FetchItem(String url, WebTableRow row, URL u, String queueID) {
-      this.row = row;
+    public FetchItem(String url, WebPage page, URL u, String queueID) {
+      this.page = page;
       this.url = url;
       this.u = u;
       this.queueID = queueID;
     }
 
-    /** Create an item. Queue id will be created based on <code>byIP</code>
-     * argument, either as a protocol + hostname pair, or protocol + IP
-     * address pair.
+    /** Create an item. Queue id will be created based on <code>queueMode</code>
+     * argument, either as a protocol + hostname pair, protocol + IP
+     * address pair or protocol+domain pair.
      */
-    public static FetchItem create(String url, WebTableRow row, boolean byIP) {
+    public static FetchItem create(String url, WebPage page, String queueMode) {
       String queueID;
       URL u = null;
       try {
@@ -95,7 +98,7 @@ extends TableReducer<ImmutableBytesWritable, FetchEntry, ImmutableBytesWritable>
       }
       final String proto = u.getProtocol().toLowerCase();
       String host;
-      if (byIP) {
+      if (FetchItemQueues.QUEUE_MODE_IP.equalsIgnoreCase(queueMode)) {
         try {
           final InetAddress addr = InetAddress.getByName(u.getHost());
           host = addr.getHostAddress();
@@ -104,16 +107,23 @@ extends TableReducer<ImmutableBytesWritable, FetchEntry, ImmutableBytesWritable>
           LOG.warn("Unable to resolve: " + u.getHost() + ", skipping.");
           return null;
         }
-      } else {
+      }
+      else if (FetchItemQueues.QUEUE_MODE_DOMAIN.equalsIgnoreCase(queueMode)){
+        host = URLUtil.getDomainName(u);
+        if (host == null) {
+          LOG.warn("Unknown domain for url: " + url + ", using URL string as key");
+          host=u.toExternalForm();
+        }
+      }
+      else {
         host = u.getHost();
         if (host == null) {
-          LOG.warn("Unknown host for url: " + url + ", skipping.");
-          return null;
+          LOG.warn("Unknown host for url: " + url + ", using URL string as key");
+          host=u.toExternalForm();
         }
-        host = host.toLowerCase();
       }
-      queueID = proto + "://" + host;
-      return new FetchItem(url, row, u, queueID);
+      queueID = proto + "://" + host.toLowerCase();
+      return new FetchItem(url, page, u, queueID);
     }
 
   }
@@ -203,6 +213,12 @@ extends TableReducer<ImmutableBytesWritable, FetchEntry, ImmutableBytesWritable>
       else
         nextFetchTime.set(endTime);
     }
+    
+    public synchronized int emptyQueue() {
+      int presize = queue.size();
+      queue.clear();
+      return presize;
+    }
   }
 
   /**
@@ -215,18 +231,30 @@ extends TableReducer<ImmutableBytesWritable, FetchEntry, ImmutableBytesWritable>
     Map<String, FetchItemQueue> queues = new HashMap<String, FetchItemQueue>();
     AtomicInteger totalSize = new AtomicInteger(0);
     int maxThreads;
-    boolean byIP;
+    String queueMode;
     long crawlDelay;
     long minCrawlDelay;
     Configuration conf;
+    long timelimit = -1;
+
+    public static final String QUEUE_MODE_HOST = "byHost";
+    public static final String QUEUE_MODE_DOMAIN = "byDomain";
+    public static final String QUEUE_MODE_IP = "byIP";
 
     public FetchItemQueues(Configuration conf) {
       this.conf = conf;
-      this.maxThreads = conf.getInt("fetcher.threads.per.host", 1);
-      // backward-compatible default setting
-      this.byIP = conf.getBoolean("fetcher.threads.per.host.by.ip", false);
+      this.maxThreads = conf.getInt("fetcher.threads.per.queue", 1);
+      queueMode = conf.get("fetcher.queue.mode", QUEUE_MODE_HOST);
+      // check that the mode is known
+      if (!queueMode.equals(QUEUE_MODE_IP) && !queueMode.equals(QUEUE_MODE_DOMAIN)
+          && !queueMode.equals(QUEUE_MODE_HOST)) {
+        LOG.error("Unknown partition mode : " + queueMode + " - forcing to byHost");
+        queueMode = QUEUE_MODE_HOST;
+      }
+      LOG.info("Using queue mode : "+queueMode);
       this.crawlDelay = (long) (conf.getFloat("fetcher.server.delay", 1.0f) * 1000);
       this.minCrawlDelay = (long) (conf.getFloat("fetcher.server.min.delay", 0.0f) * 1000);
+      this.timelimit = conf.getLong("fetcher.timelimit", -1);
     }
 
     public int getTotalSize() {
@@ -237,8 +265,8 @@ extends TableReducer<ImmutableBytesWritable, FetchEntry, ImmutableBytesWritable>
       return queues.size();
     }
 
-    public void addFetchItem(String url, WebTableRow row) {
-      final FetchItem it = FetchItem.create(url, row, byIP);
+    public void addFetchItem(String url, WebPage page) {
+      final FetchItem it = FetchItem.create(url, page, queueMode);
       if (it != null) addFetchItem(it);
     }
 
@@ -290,6 +318,29 @@ extends TableReducer<ImmutableBytesWritable, FetchEntry, ImmutableBytesWritable>
       }
       return null;
     }
+    
+    public synchronized int checkTimelimit() {
+      int count = 0;
+      if (System.currentTimeMillis() >= timelimit && timelimit != -1) {
+        // emptying the queues
+        for (String id : queues.keySet()) {
+          FetchItemQueue fiq = queues.get(id);
+          if (fiq.getQueueSize() == 0) continue;
+          LOG.info("* queue: " + id + " >> timelimit! ");
+          int deleted = fiq.emptyQueue();
+          for (int i = 0; i < deleted; i++) {
+            totalSize.decrementAndGet();
+          }
+          count += deleted;
+        }
+        // there might also be a case where totalsize !=0 but number of queues
+        // == 0
+        // in which case we simply force it to 0 to avoid blocking
+        if (totalSize.get() != 0 && queues.size() == 0) totalSize.set(0);
+      }
+      return count;
+    }
+    
 
     public synchronized void dump() {
       for (final String id : queues.keySet()) {
@@ -315,7 +366,7 @@ extends TableReducer<ImmutableBytesWritable, FetchEntry, ImmutableBytesWritable>
     private String reprUrl;
     private boolean redirecting;
     private int redirectCount;
-    private Context context;
+    private final Context context;
 
     public FetcherThread(Context context, int num) {
       this.setDaemon(true);                       // don't hang JVM on exit
@@ -358,10 +409,10 @@ extends TableReducer<ImmutableBytesWritable, FetchEntry, ImmutableBytesWritable>
             }
           }
           lastRequestStart.set(System.currentTimeMillis());
-          if (!fit.row.hasColumn(WebTableColumns.REPR_URL, null)) {
-            reprUrl = fit.url.toString();
+          if (!fit.page.isReadable(WebPage.Field.REPR_URL.getIndex())) {
+            reprUrl = fit.url;
           } else {
-            reprUrl = fit.row.getReprUrl();
+            reprUrl = TableUtil.toString(fit.page.getReprUrl());
           }
           try {
             LOG.info("fetching " + fit.url);
@@ -375,15 +426,15 @@ extends TableReducer<ImmutableBytesWritable, FetchEntry, ImmutableBytesWritable>
               }
               redirecting = false;
               final Protocol protocol = this.protocolFactory.getProtocol(fit.url);
-              final RobotRules rules = protocol.getRobotRules(fit.url, fit.row);
+              final RobotRules rules = protocol.getRobotRules(fit.url, fit.page);
               if (!rules.isAllowed(fit.u)) {
                 // unblock
                 fetchQueues.finishFetchItem(fit, true);
                 if (LOG.isDebugEnabled()) {
                   LOG.debug("Denied by robots.txt: " + fit.url);
                 }
-                output(fit, null, ProtocolStatus.STATUS_ROBOTS_DENIED,
-                    CrawlDatumHbase.STATUS_GONE);
+                output(fit, null, ProtocolStatusUtils.STATUS_ROBOTS_DENIED,
+                    CrawlStatus.STATUS_GONE);
                 continue;
               }
               if (rules.getCrawlDelay() > 0) {
@@ -391,79 +442,83 @@ extends TableReducer<ImmutableBytesWritable, FetchEntry, ImmutableBytesWritable>
                   // unblock
                   fetchQueues.finishFetchItem(fit, true);
                   LOG.debug("Crawl-Delay for " + fit.url + " too long (" + rules.getCrawlDelay() + "), skipping");
-                  output(fit, null, ProtocolStatus.STATUS_ROBOTS_DENIED, CrawlDatumHbase.STATUS_GONE);
+                  output(fit, null, ProtocolStatusUtils.STATUS_ROBOTS_DENIED, CrawlStatus.STATUS_GONE);
                   continue;
                 } else {
                   final FetchItemQueue fiq = fetchQueues.getFetchItemQueue(fit.queueID);
                   fiq.crawlDelay = rules.getCrawlDelay();
                 }
               }
-              final ProtocolOutput output = protocol.getProtocolOutput(fit.url, fit.row);
+              final ProtocolOutput output = protocol.getProtocolOutput(fit.url, fit.page);
               final ProtocolStatus status = output.getStatus();
               final Content content = output.getContent();
               // unblock queue
               fetchQueues.finishFetchItem(fit);
 
+              context.getCounter("FetcherStatus", "code_"+status.getCode()).increment(1);
+
+              int length = 0;
+              if (content!=null && content.getContent()!=null) length= content.getContent().length;
+              updateStatus(length);
+
               switch(status.getCode()) {
 
-              case ProtocolStatus.WOULDBLOCK:
+              case ProtocolStatusCodes.WOULDBLOCK:
                 // retry ?
                 fetchQueues.addFetchItem(fit);
                 break;
 
-              case ProtocolStatus.SUCCESS:        // got a page
-                output(fit, content, status, CrawlDatumHbase.STATUS_FETCHED);
-                updateStatus(content.getContent().length);
+              case ProtocolStatusCodes.SUCCESS:        // got a page
+                output(fit, content, status, CrawlStatus.STATUS_FETCHED);
                 break;
 
-              case ProtocolStatus.MOVED:         // redirect
-              case ProtocolStatus.TEMP_MOVED:
+              case ProtocolStatusCodes.MOVED:         // redirect
+              case ProtocolStatusCodes.TEMP_MOVED:
                 byte code;
                 boolean temp;
-                if (status.getCode() == ProtocolStatus.MOVED) {
-                  code = CrawlDatumHbase.STATUS_REDIR_PERM;
+                if (status.getCode() == ProtocolStatusCodes.MOVED) {
+                  code = CrawlStatus.STATUS_REDIR_PERM;
                   temp = false;
                 } else {
-                  code = CrawlDatumHbase.STATUS_REDIR_TEMP;
+                  code = CrawlStatus.STATUS_REDIR_TEMP;
                   temp = true;
                 }
                 output(fit, content, status, code);
-                final String newUrl = status.getMessage();
-                handleRedirect(fit.url, newUrl, temp,  Fetcher.PROTOCOL_REDIR);
+                final String newUrl = ProtocolStatusUtils.getMessage(status);
+                handleRedirect(fit.url, newUrl, temp,  FetcherJob.PROTOCOL_REDIR);
                 redirecting = false;
                 break;
-              case ProtocolStatus.EXCEPTION:
-                logError(fit.url, status.getMessage());
+              case ProtocolStatusCodes.EXCEPTION:
+                logError(fit.url, ProtocolStatusUtils.getMessage(status));
                 /* FALLTHROUGH */
-              case ProtocolStatus.RETRY:          // retry
-              case ProtocolStatus.BLOCKED:
-                output(fit, null, status, CrawlDatumHbase.STATUS_RETRY);
+              case ProtocolStatusCodes.RETRY:          // retry
+              case ProtocolStatusCodes.BLOCKED:
+                output(fit, null, status, CrawlStatus.STATUS_RETRY);
                 break;
 
-              case ProtocolStatus.GONE:           // gone
-              case ProtocolStatus.NOTFOUND:
-              case ProtocolStatus.ACCESS_DENIED:
-              case ProtocolStatus.ROBOTS_DENIED:
-                output(fit, null, status, CrawlDatumHbase.STATUS_GONE);
+              case ProtocolStatusCodes.GONE:           // gone
+              case ProtocolStatusCodes.NOTFOUND:
+              case ProtocolStatusCodes.ACCESS_DENIED:
+              case ProtocolStatusCodes.ROBOTS_DENIED:
+                output(fit, null, status, CrawlStatus.STATUS_GONE);
                 break;
 
-              case ProtocolStatus.NOTMODIFIED:
-                output(fit, null, status, CrawlDatumHbase.STATUS_NOTMODIFIED);
+              case ProtocolStatusCodes.NOTMODIFIED:
+                output(fit, null, status, CrawlStatus.STATUS_NOTMODIFIED);
                 break;
 
               default:
                 if (LOG.isWarnEnabled()) {
                   LOG.warn("Unknown ProtocolStatus: " + status.getCode());
                 }
-                output(fit, null, status, CrawlDatumHbase.STATUS_RETRY);
+                output(fit, null, status, CrawlStatus.STATUS_RETRY);
               }
 
               if (redirecting && redirectCount >= maxRedirect) {
                 fetchQueues.finishFetchItem(fit);
-                if (LOG.isInfoEnabled()) {
-                  LOG.info(" - redirect count exceeded " + fit.url);
-                }
-                output(fit, null, ProtocolStatus.STATUS_REDIR_EXCEEDED, CrawlDatumHbase.STATUS_GONE);
+                LOG.info(" - redirect count exceeded " + fit.url);
+                output(fit, null, ProtocolStatusUtils.STATUS_REDIR_EXCEEDED,
+                    CrawlStatus.STATUS_GONE);
               }
 
             } while (redirecting && (redirectCount < maxRedirect));
@@ -471,17 +526,16 @@ extends TableReducer<ImmutableBytesWritable, FetchEntry, ImmutableBytesWritable>
           } catch (final Throwable t) {                 // unexpected exception
             // unblock
             fetchQueues.finishFetchItem(fit);
-            t.printStackTrace();
             logError(fit.url, t.toString());
-            output(fit, null, ProtocolStatus.STATUS_FAILED, CrawlDatumHbase.STATUS_RETRY);
+            t.printStackTrace(LogUtil.getDebugStream(LOG));
+            output(fit, null, ProtocolStatusUtils.STATUS_FAILED,
+                CrawlStatus.STATUS_RETRY);
           }
         }
 
       } catch (final Throwable e) {
-        if (LOG.isFatalEnabled()) {
-          e.printStackTrace(LogUtil.getFatalStream(LOG));
-          LOG.fatal("fetcher caught:"+e.toString());
-        }
+        LOG.fatal("fetcher caught:"+e.toString());
+        e.printStackTrace(LogUtil.getFatalStream(LOG));
       } finally {
         if (fit != null) fetchQueues.finishFetchItem(fit);
         activeThreads.decrementAndGet(); // count threads
@@ -499,14 +553,12 @@ extends TableReducer<ImmutableBytesWritable, FetchEntry, ImmutableBytesWritable>
       }
       reprUrl = URLUtil.chooseRepr(reprUrl, newUrl, temp);
       final String reversedNewUrl = TableUtil.reverseUrl(newUrl);
-      // TODO: Find a way to use MutablWebTableRow here
-      Put put = new Put(Bytes.toBytes(reversedNewUrl));
+      WebPage newWebPage = new WebPage();
       if (!reprUrl.equals(url)) {
-        put.add(WebTableColumns.REPR_URL, null, Bytes.toBytes(reprUrl));
+        newWebPage.setReprUrl(new Utf8(reprUrl));
       }
-      put.add(WebTableColumns.METADATA,
-              Fetcher.REDIRECT_DISCOVERED, TableUtil.YES_VAL);
-      context.write(REDUCE_KEY, put);
+      newWebPage.putToMetadata(FetcherJob.REDIRECT_DISCOVERED, TableUtil.YES_VAL);
+      context.write(reversedNewUrl, newWebPage);
       if (LOG.isDebugEnabled()) {
         LOG.debug(" - " + redirType + " redirect to " +
             reprUrl + " (fetching later)");
@@ -522,27 +574,34 @@ extends TableReducer<ImmutableBytesWritable, FetchEntry, ImmutableBytesWritable>
     private void output(FetchItem fit, Content content,
         ProtocolStatus pstatus, byte status)
     throws IOException, InterruptedException {
-      fit.row.setStatus(status);
-      final long prevFetchTime = fit.row.getFetchTime();
-      fit.row.setPrevFetchTime(prevFetchTime);
-      fit.row.setFetchTime(System.currentTimeMillis());
+      fit.page.setStatus(status);
+      final long prevFetchTime = fit.page.getFetchTime();
+      fit.page.setPrevFetchTime(prevFetchTime);
+      fit.page.setFetchTime(System.currentTimeMillis());
       if (pstatus != null) {
-        fit.row.setProtocolStatus(pstatus);
+        fit.page.setProtocolStatus(pstatus);
       }
 
       if (content != null) {
-        fit.row.setContent(content.getContent());
-        fit.row.setContentType(content.getContentType());
-        fit.row.setBaseUrl(content.getBaseUrl());
+        fit.page.setContent(ByteBuffer.wrap(content.getContent()));
+        fit.page.setContentType(new Utf8(content.getContentType()));
+        fit.page.setBaseUrl(new Utf8(content.getBaseUrl()));
       }
-      fit.row.putMeta(Fetcher.FETCH_MARK, TableUtil.YES_VAL);
-      fit.row.makeRowMutation().writeToContext(REDUCE_KEY, context);
+      Mark.FETCH_MARK.putMark(fit.page, Mark.GENERATE_MARK.checkMark(fit.page));
+      String key = TableUtil.reverseUrl(fit.url);
+
+      if (isParsing) {
+        URLWebPage redirectedPage = parseUtil.process(key, fit.page);
+        if (redirectedPage != null) {
+          context.write(TableUtil.reverseUrl(redirectedPage.getUrl()),
+                        redirectedPage.getDatum());
+        }
+      }
+      context.write(key, fit.page);
     }
 
     private void logError(String url, String message) {
-      if (LOG.isInfoEnabled()) {
-        LOG.info("fetch of " + url + " failed with: " + message);
-      }
+      LOG.info("fetch of " + url + " failed with: " + message);
       errors.incrementAndGet();
     }
   }
@@ -557,6 +616,7 @@ extends TableReducer<ImmutableBytesWritable, FetchEntry, ImmutableBytesWritable>
     private final int size;
     private Iterator<FetchEntry> currentIter;
     boolean hasMore;
+    private long timelimit = -1;
 
     public QueueFeeder(Context context,
         FetchItemQueues queues, int size)
@@ -570,13 +630,29 @@ extends TableReducer<ImmutableBytesWritable, FetchEntry, ImmutableBytesWritable>
       if (hasMore) {
         currentIter = context.getValues().iterator();
       }
+      // the value of the time limit is either -1 or the time where it should finish
+      timelimit = context.getConfiguration().getLong("fetcher.timelimit", -1); 
     }
 
     @Override
     public void run() {
       int cnt = 0;
+      int timelimitcount = 0;
       try {
         while (hasMore) {
+          if (System.currentTimeMillis() >= timelimit && timelimit != -1) {
+            // enough .. lets' simply
+            // read all the entries from the input without processing them
+            while (currentIter.hasNext()) {
+              currentIter.next();
+              timelimitcount++;
+            }
+            hasMore = context.nextKey();
+            if (hasMore) {
+              currentIter = context.getValues().iterator();
+            }
+            continue;
+          }
           int feed = size - queues.getTotalSize();
           if (feed <= 0) {
             // queues are full - spin-wait until they have some free space
@@ -584,19 +660,15 @@ extends TableReducer<ImmutableBytesWritable, FetchEntry, ImmutableBytesWritable>
               Thread.sleep(1000);
             } catch (final Exception e) {};
             continue;
-          } 
+          }
           if (LOG.isDebugEnabled()) {
             LOG.debug("-feeding " + feed + " input urls ...");
           }
           while (feed > 0 && currentIter.hasNext()) {
-            FetchEntry entry = new FetchEntry();
-            // since currentIter.next() reuses the same
-            // FetchEntry object we need to clone it
-            Writables.copyWritable(currentIter.next(), entry);
-            WebTableRow row = new WebTableRow(entry.getRow());
+            FetchEntry entry = currentIter.next();
             final String url =
-              TableUtil.unreverseUrl(Bytes.toString(entry.getKey().get()));
-            queues.addFetchItem(url, row);
+              TableUtil.unreverseUrl(entry.getKey());
+            queues.addFetchItem(url, entry.getWebPage());
             feed--;
             cnt++;
           }
@@ -612,8 +684,22 @@ extends TableReducer<ImmutableBytesWritable, FetchEntry, ImmutableBytesWritable>
         LOG.fatal("QueueFeeder error reading input, record " + cnt, e);
         return;
       }
-      LOG.info("QueueFeeder finished: total " + cnt + " records.");
+      LOG.info("QueueFeeder finished: total " + cnt + " records. Hit by time limit :"
+          + timelimitcount);
+      context.getCounter("FetcherStatus","HitByTimeLimit-QueueFeeder").increment(timelimitcount);
     }
+  }
+
+  private void reportStatus(Context context) throws IOException {
+    StringBuffer status = new StringBuffer();
+    long elapsed = (System.currentTimeMillis() - start)/1000;
+    status.append(spinWaiting).append("/").append(activeThreads).append(" threads spinwaiting\n");
+    status.append(pages).append(" pages, ").append(errors).append(" errors, ");
+    status.append(Math.round(((float)pages.get()*10)/elapsed)/10.0).append(" pages/s, ");
+    status.append(Math.round(((((float)bytes.get())*8)/1024)/elapsed)).append(" kb/s, ");
+    status.append(this.fetchQueues.getTotalSize()).append(" URLs in ");
+    status.append(this.fetchQueues.getQueueCount()).append(" queues");
+    context.setStatus(status.toString());
   }
 
   @Override
@@ -621,8 +707,12 @@ extends TableReducer<ImmutableBytesWritable, FetchEntry, ImmutableBytesWritable>
   throws IOException, InterruptedException {
     Configuration conf = context.getConfiguration();
     this.fetchQueues = new FetchItemQueues(conf);
-    final int threadCount = conf.getInt("fetcher.threads.fetch", 10);
-    LOG.info("FetcherHbase: threads: " + threadCount);
+    int threadCount = conf.getInt("fetcher.threads.fetch", 10);
+    isParsing = conf.getBoolean("fetcher.parse", true);
+    if (isParsing) {
+      parseUtil = new ParseUtil(conf);
+    }
+    LOG.info("Fetcher: threads: " + threadCount);
 
     // set non-blocking & no-robots mode for HTTP protocol plugins.
     conf.setBoolean(Protocol.CHECK_BLOCKING, false);
@@ -645,12 +735,20 @@ extends TableReducer<ImmutableBytesWritable, FetchEntry, ImmutableBytesWritable>
       } catch (final InterruptedException e) {}
 
       context.progress();
+      reportStatus(context);
       LOG.info("-activeThreads=" + activeThreads + ", spinWaiting=" + spinWaiting.get()
           + ", fetchQueues= " + fetchQueues.getQueueCount() +", fetchQueues.totalSize=" + fetchQueues.getTotalSize());
 
       if (!feeder.isAlive() && fetchQueues.getTotalSize() < 5) {
         fetchQueues.dump();
       }
+      
+      // check timelimit
+      if (!feeder.isAlive()) {
+        int hitByTimeLimit = fetchQueues.checkTimelimit();
+        if (hitByTimeLimit != 0) context.getCounter("FetcherStatus","HitByTimeLimit-Queues").increment(hitByTimeLimit);
+      }
+      
       // some requests seem to hang, despite all intentions
       if ((System.currentTimeMillis() - lastRequestStart.get()) > timeout) {
         LOG.warn("Aborting with " + activeThreads + " hung threads.");

@@ -19,14 +19,12 @@ package org.apache.nutch.crawl;
 
 import java.util.Collection;
 
-import org.apache.nutch.parse.Parse;
-import org.apache.nutch.util.hbase.HbaseColumn;
-import org.apache.nutch.util.hbase.WebTableRow;
 import org.apache.hadoop.conf.Configured;
+import org.apache.nutch.storage.WebPage;
 
 public abstract class Signature extends Configured {
-  
-  public abstract byte[] calculate(WebTableRow row, Parse parse);
-  
-  public abstract Collection<HbaseColumn> getColumns();
+
+  public abstract byte[] calculate(WebPage page);
+
+  public abstract Collection<WebPage.Field> getFields();
 }

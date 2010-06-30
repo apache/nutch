@@ -22,6 +22,11 @@
 
 <parse-plugins>
 
+<!-- 
+	The following mimetype are now handled by the default parser (parse-tika).
+	You can uncomment the associations below to override parse-tika
+	and chose which plugin should be used for a given content type
+
 	<mimeType name="application/msword">
 		<plugin id="parse-msword" />
 	</mimeType>
@@ -32,11 +37,6 @@
 
 	<mimeType name="application/postscript">
 		<plugin id="parse-pdf" />
-	</mimeType>
-
-	<mimeType name="application/rss+xml">
-	    <plugin id="parse-rss" />
-	    <plugin id="feed" />
 	</mimeType>
 
 	<mimeType name="application/vnd.ms-excel">
@@ -102,18 +102,56 @@
 	<mimeType name="application/vnd.sun.xml.writer.template">
 		<plugin id="parse-oo" />
 	</mimeType>
+	
+	<mimeType name="application/x-csh">
+		<plugin id="parse-text" />
+	</mimeType>
 
-	<mimeType name="application/xhtml+xml">
+	<mimeType name="application/x-kword">
+		<plugin id="parse-msword" />
+	</mimeType>
+
+	<mimeType name="application/x-kspread">
+		<plugin id="parse-msexcel" />
+	</mimeType>
+	
+	<mimeType name="text/html">
 		<plugin id="parse-html" />
+	</mimeType>
+
+	<mimeType name="text/plain">
+		<plugin id="parse-text" />
+	</mimeType>
+
+	<mimeType name="text/richtext">
+		<plugin id="parse-tika" />
+	</mimeType>
+
+	<mimeType name="text/rtf">
+		<plugin id="parse-tika" />
+	</mimeType>
+
+	<mimeType name="text/sgml">
+		<plugin id="parse-html" />
+	</mimeType>
+
+	<mimeType name="text/tab-separated-values">
+		<plugin id="parse-msexcel" />
+	</mimeType>
+-->
+
+    <mimeType name="application/xhtml+xml">
+		<plugin id="parse-html" />
+	</mimeType>
+
+	<mimeType name="application/rss+xml">
+	    <plugin id="parse-rss" />
+	    <plugin id="feed" />
 	</mimeType>
 
 	<mimeType name="application/x-bzip2">
 		<!--  try and parse it with the zip parser -->
 		<plugin id="parse-zip" />
-	</mimeType>
-
-	<mimeType name="application/x-csh">
-		<plugin id="parse-text" />
 	</mimeType>
 
 	<mimeType name="application/x-gzip">
@@ -125,48 +163,12 @@
 		<plugin id="parse-js" />
 	</mimeType>
 
-	<mimeType name="application/x-kword">
-		<!--  try and parse it with the word parser -->
-		<plugin id="parse-msword" />
-	</mimeType>
-
-	<mimeType name="application/x-kspread">
-		<!--  try and parse it with the msexcel parser -->
-		<plugin id="parse-msexcel" />
-	</mimeType>
-
 	<mimeType name="application/x-shockwave-flash">
 		<plugin id="parse-swf" />
 	</mimeType>
 
 	<mimeType name="application/zip">
 		<plugin id="parse-zip" />
-	</mimeType>
-
-	<mimeType name="text/html">
-		<plugin id="parse-html" />
-	</mimeType>
-
-	<mimeType name="text/plain">
-		<plugin id="parse-text" />
-	</mimeType>
-
-	<mimeType name="text/richtext">
-		<plugin id="parse-rtf" />
-		<plugin id="parse-msword" />
-	</mimeType>
-
-	<mimeType name="text/rtf">
-		<plugin id="parse-rtf" />
-		<plugin id="parse-msword" />
-	</mimeType>
-
-	<mimeType name="text/sgml">
-		<plugin id="parse-html" />
-	</mimeType>
-
-	<mimeType name="text/tab-separated-values">
-		<plugin id="parse-msexcel" />
 	</mimeType>
 
 	<mimeType name="text/xml">
@@ -188,12 +190,12 @@
 	<!--  alias mappings for parse-xxx names to the actual extension implementation 
 	ids described in each plugin's plugin.xml file -->
 	<aliases>
+	    <alias name="parse-tika" 
+	        extension-id="org.apache.nutch.parse.tika.Parser" />
 		<alias name="parse-ext" extension-id="ExtParser" />
 		<alias name="parse-html"
 			extension-id="org.apache.nutch.parse.html.HtmlParser" />
 		<alias name="parse-js" extension-id="JSParser" />
-		<alias name="parse-mp3"
-			extension-id="org.apache.nutch.parse.mp3.MP3Parser" />
 		<alias name="parse-msexcel"
 			extension-id="org.apache.nutch.parse.msexcel.MSExcelParser" />
 		<alias name="parse-mspowerpoint"
@@ -206,10 +208,8 @@
 			extension-id="org.apache.nutch.parse.pdf.PdfParser" />
 		<alias name="parse-rss"
 			extension-id="org.apache.nutch.parse.rss.RSSParser" />
-        <alias name="feed"
-            extension-id="org.apache.nutch.parse.feed.FeedParser" />
-		<alias name="parse-rtf"
-			extension-id="org.apache.nutch.parse.rtf.RTFParseFactory" />
+		<alias name="feed"
+			extension-id="org.apache.nutch.parse.feed.FeedParser" />
 		<alias name="parse-swf"
 			extension-id="org.apache.nutch.parse.swf.SWFParser" />
 		<alias name="parse-text"

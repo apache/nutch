@@ -17,45 +17,41 @@
 package org.apache.nutch.analysis.lang;
 
 // JDK imports
-import java.io.InputStream;
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.List;
 
-// JUnit imports
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
-// Lucene imports
 import org.apache.lucene.analysis.Token;
-
 import org.apache.nutch.analysis.lang.NGramProfile.NGramEntry;
 import org.apache.nutch.util.NutchConfiguration;
 
 /**
  * JUnit based test of class {@link LanguageIdentifier}.
- *
+ * 
  * @author Sami Siren
  * @author Jerome Charron - http://frutch.free.fr/
  */
 public class TestLanguageIdentifier extends TestCase {
-    
-    
-    public TestLanguageIdentifier(String testName) {
-        super(testName);
-    }
 
-    public static Test suite() {
-        return new TestSuite(TestLanguageIdentifier.class);
-    }
-    
-    public static void main(String[] args) {
-        TestRunner.run(suite());
-    }
+  public TestLanguageIdentifier(String testName) {
+    super(testName);
+  }
+
+  public static Test suite() {
+    return new TestSuite(TestLanguageIdentifier.class);
+  }
+
+  public static void main(String[] args) {
+    TestRunner.run(suite());
+  }
 
   String tokencontent1 = "testaddtoken";
   String tokencontent2 = "anotherteststring";
@@ -66,7 +62,7 @@ public class TestLanguageIdentifier extends TestCase {
 
   /**
    * Test addFromToken method
-   *
+   * 
    */
   public void testAddToken() {
 
@@ -75,7 +71,7 @@ public class TestLanguageIdentifier extends TestCase {
     Token t = new Token(tokencontent1, 0, tokencontent1.length());
     p.add(t);
     p.normalize();
-    
+
     testCounts(p.getSorted(), counts1);
     testContents(p.getSorted(), chars1);
   }
@@ -89,13 +85,13 @@ public class TestLanguageIdentifier extends TestCase {
     NGramProfile p = new NGramProfile("test", 1, 1);
     p.analyze(new StringBuilder(tokencontent));
 
-    //test that profile size is ok, eg 9 different NGramEntries "tesmagin"
+    // test that profile size is ok, eg 9 different NGramEntries "tesmagin"
     assertEquals(8, p.getSorted().size());
   }
 
   /**
    * Test addNGrams method with StringBuffer argument
-   *
+   * 
    */
   public void testAddNGramsStringBuffer() {
     String tokencontent = "testmeagain";
@@ -103,7 +99,7 @@ public class TestLanguageIdentifier extends TestCase {
     NGramProfile p = new NGramProfile("test", 1, 1);
     p.add(new StringBuffer(tokencontent));
 
-    //test that profile size is ok, eg 8 different NGramEntries "tesmagin"
+    // test that profile size is ok, eg 8 different NGramEntries "tesmagin"
     assertEquals(8, p.getSorted().size());
 
   }
@@ -120,7 +116,7 @@ public class TestLanguageIdentifier extends TestCase {
     NGramProfile p = new NGramProfile("test", 1, 1);
     p.analyze(new StringBuilder(teststring));
 
-    //test size of profile
+    // test size of profile
     assertEquals(3, p.getSorted().size());
 
     testCounts(p.getSorted(), count);
@@ -131,33 +127,32 @@ public class TestLanguageIdentifier extends TestCase {
   public void testGetSimilarity() {
     NGramProfile a = new NGramProfile("a", 1, 1);
     NGramProfile b = new NGramProfile("b", 1, 1);
-    
+
     a.analyze(new StringBuilder(tokencontent1));
     b.analyze(new StringBuilder(tokencontent2));
 
-    //because of rounding errors might slightly return different results
+    // because of rounding errors might slightly return different results
     assertEquals(a.getSimilarity(b), b.getSimilarity(a), 0.0000002);
 
   }
 
   public void testExactMatch() {
     NGramProfile a = new NGramProfile("a", 1, 1);
-    
+
     a.analyze(new StringBuilder(tokencontent1));
 
     assertEquals(a.getSimilarity(a), 0, 0);
 
   }
 
-  
   public void testIO() {
-    //Create profile and set some contents
+    // Create profile and set some contents
     NGramProfile a = new NGramProfile("a", 1, 1);
     a.analyze(new StringBuilder(this.tokencontent1));
 
     NGramProfile b = new NGramProfile("a_from_inputstream", 1, 1);
 
-    //save profile
+    // save profile
     ByteArrayOutputStream os = new ByteArrayOutputStream();
 
     try {
@@ -167,7 +162,7 @@ public class TestLanguageIdentifier extends TestCase {
       fail();
     }
 
-    //load profile
+    // load profile
     InputStream is = new ByteArrayInputStream(os.toByteArray());
     try {
       b.load(is);
@@ -176,7 +171,7 @@ public class TestLanguageIdentifier extends TestCase {
       fail();
     }
 
-    //check it
+    // check it
     testCounts(b.getSorted(), counts1);
     testContents(b.getSorted(), chars1);
   }
@@ -198,43 +193,45 @@ public class TestLanguageIdentifier extends TestCase {
       assertEquals(counts[c], nge.getCount());
       c++;
     }
-  }    
-    public void testIdentify() {
-        try {
-            long total = 0;
-            LanguageIdentifier idfr = new LanguageIdentifier(NutchConfiguration.create());
-            BufferedReader in = new BufferedReader(new InputStreamReader(
-                        this.getClass().getResourceAsStream("test-referencial.txt")));
-            String line = null;
-            while((line = in.readLine()) != null) {
-                String[] tokens = line.split(";");
-                if (!tokens[0].equals("")) {
-                    long start = System.currentTimeMillis();
-                    // Identify the whole file
-                    String lang = idfr.identify(this.getClass().getResourceAsStream(tokens[0]), "UTF-8");
-                    total += System.currentTimeMillis() - start;
-                    assertEquals(tokens[1], lang);
-                    // Then, each line of the file...
-                    BufferedReader testFile = new BufferedReader(
-                            new InputStreamReader(
-                                this.getClass().getResourceAsStream(tokens[0]), "UTF-8"));
-                    String testLine = null;
-                    while((testLine = testFile.readLine()) != null) {
-                        testLine = testLine.trim();
-                        if (testLine.length() > 256) {
-                            lang = idfr.identify(testLine);
-                            assertEquals(tokens[1], lang);
-                        }
-                    }
-                    testFile.close();
-                }
+  }
+
+  public void testIdentify() {
+    try {
+      long total = 0;
+      LanguageIdentifier idfr = new LanguageIdentifier(NutchConfiguration
+          .create());
+      BufferedReader in = new BufferedReader(new InputStreamReader(this
+          .getClass().getResourceAsStream("test-referencial.txt")));
+      String line = null;
+      while ((line = in.readLine()) != null) {
+        String[] tokens = line.split(";");
+        if (!tokens[0].equals("")) {
+          long start = System.currentTimeMillis();
+          // Identify the whole file
+          String lang = idfr.identify(this.getClass().getResourceAsStream(
+              tokens[0]), "UTF-8");
+          total += System.currentTimeMillis() - start;
+          assertEquals(tokens[1], lang);
+          // Then, each line of the file...
+          BufferedReader testFile = new BufferedReader(new InputStreamReader(
+              this.getClass().getResourceAsStream(tokens[0]), "UTF-8"));
+          String testLine = null;
+          while ((testLine = testFile.readLine()) != null) {
+            testLine = testLine.trim();
+            if (testLine.length() > 256) {
+              lang = idfr.identify(testLine);
+              assertEquals(tokens[1], lang);
             }
-            in.close();
-            System.out.println("Total Time=" + total);
-        } catch(Exception e) {
-            e.printStackTrace();
-            fail(e.toString());
+          }
+          testFile.close();
         }
+      }
+      in.close();
+      System.out.println("Total Time=" + total);
+    } catch (Exception e) {
+      e.printStackTrace();
+      fail(e.toString());
     }
+  }
 
 }

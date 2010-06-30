@@ -28,26 +28,25 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.http.api.HttpBase;
+import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.hbase.HbaseColumn;
-import org.apache.nutch.util.hbase.WebTableColumns;
-import org.apache.nutch.util.hbase.WebTableRow;
-
 
 public class Http extends HttpBase {
 
   public static final Log LOG = LogFactory.getLog(Http.class);
 
-  private static final Collection<HbaseColumn> COLUMNS = new HashSet<HbaseColumn>();
-  
+  private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
+
   static {
-    COLUMNS.add(new HbaseColumn(WebTableColumns.MODIFIED_TIME));
+    FIELDS.add(WebPage.Field.MODIFIED_TIME);
+    FIELDS.add(WebPage.Field.HEADERS);
   }
-  
+
   public Http() {
     super(LOG);
   }
 
+  @Override
   public void setConf(Configuration conf) {
     super.setConf(conf);
 //    Level logLevel = Level.WARNING;
@@ -64,13 +63,13 @@ public class Http extends HttpBase {
   }
 
   @Override
-  protected Response getResponse(URL url, WebTableRow row, boolean redirect)
+  protected Response getResponse(URL url, WebPage page, boolean redirect)
     throws ProtocolException, IOException {
-    return new HttpResponse(this, url, row);
+    return new HttpResponse(this, url, page);
   }
-  
-  public Collection<HbaseColumn> getColumns() {
-    return COLUMNS;
+
+  public Collection<WebPage.Field> getFields() {
+    return FIELDS;
   }
 
 }

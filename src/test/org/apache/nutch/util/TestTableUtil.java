@@ -1,6 +1,6 @@
 package org.apache.nutch.util;
 
-import org.apache.nutch.util.hbase.TableUtil;
+import org.apache.nutch.util.TableUtil;
 import junit.framework.TestCase;
 
 public class TestTableUtil extends TestCase {
@@ -41,11 +41,11 @@ public class TestTableUtil extends TestCase {
 
   private static void assertReverse(String url, String expectedReversedUrl) throws Exception {
     String reversed = TableUtil.reverseUrl(url);
-    assertEquals(reversed, expectedReversedUrl);
+    assertEquals(expectedReversedUrl, reversed);
   }
 
   private static void assertUnreverse(String reversedUrl, String expectedUrl) {
     String unreversed = TableUtil.unreverseUrl(reversedUrl);
-    assertEquals(unreversed, expectedUrl);
+    assertEquals(expectedUrl, unreversed);
   }
 }

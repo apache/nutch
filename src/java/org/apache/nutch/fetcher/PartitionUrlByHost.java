@@ -2,17 +2,17 @@ package org.apache.nutch.fetcher;
 
 import java.net.URL;
 
-import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
-import org.apache.hadoop.hbase.util.Bytes;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Partitioner;
+import org.apache.nutch.util.TableUtil;
 
 public class PartitionUrlByHost
-extends Partitioner<ImmutableBytesWritable, FetchEntry> {
+extends Partitioner<IntWritable, FetchEntry> {
 
   @Override
-  public int getPartition(ImmutableBytesWritable key,
+  public int getPartition(IntWritable key,
       FetchEntry value, int numPartitions) {
-    String urlString = Bytes.toString(value.getKey().get());
+    String urlString = TableUtil.unreverseUrl(value.getKey());
 
     URL url = null;
 

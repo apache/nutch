@@ -20,19 +20,14 @@ package org.apache.nutch.protocol;
 // Hadoop imports
 
 import org.apache.hadoop.conf.Configurable;
-
-// Nutch imports
-import org.apache.nutch.plugin.TablePluggable;
-import org.apache.nutch.protocol.ProtocolOutput;
-import org.apache.nutch.protocol.RobotRules;
-import org.apache.nutch.util.hbase.WebTableRow;
-import org.apache.nutch.util.hbase.WebTableRow;
+import org.apache.nutch.plugin.FieldPluggable;
+import org.apache.nutch.storage.WebPage;
 
 /** A retriever of url content.  Implemented by protocol extensions. */
-public interface Protocol extends TablePluggable, Configurable {
+public interface Protocol extends FieldPluggable, Configurable {
   /** The name of the extension point. */
   public final static String X_POINT_ID = Protocol.class.getName();
-  
+
   /**
    * Property name. If in the current configuration this property is set to
    * true, protocol implementations should handle "politeness" limits
@@ -53,13 +48,13 @@ public interface Protocol extends TablePluggable, Configurable {
 
   /** Returns the {@link Content} for a fetchlist entry.
    */
-  ProtocolOutput getProtocolOutput(String url, WebTableRow row);
+  ProtocolOutput getProtocolOutput(String url, WebPage page);
 
   /**
    * Retrieve robot rules applicable for this url.
    * @param url url to check
-   * @param row Row
+   * @param page
    * @return robot rules (specific for this url or default), never null
    */
-  RobotRules getRobotRules(String url, WebTableRow row);  
+  RobotRules getRobotRules(String url, WebPage page);
 }

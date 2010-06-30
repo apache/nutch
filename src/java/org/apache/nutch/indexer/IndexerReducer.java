@@ -2,57 +2,59 @@ package org.apache.nutch.indexer;
 
 import java.io.IOException;
 
+import org.apache.avro.util.Utf8;
 import org.apache.commons.logging.Log;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.client.HTable;
-import org.apache.hadoop.hbase.io.ImmutableBytesWritable;
-import org.apache.hadoop.hbase.mapreduce.TableInputFormat;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.nutch.indexer.IndexingException;
-import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
+import org.apache.nutch.storage.Mark;
+import org.apache.nutch.storage.StorageUtils;
+import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.StringUtil;
-import org.apache.nutch.util.hbase.WebTableRow;
-import org.apache.nutch.util.hbase.TableUtil;
+import org.apache.nutch.util.TableUtil;
+import org.gora.store.DataStore;
 
 public class IndexerReducer
-extends Reducer<ImmutableBytesWritable, WebTableRow, ImmutableBytesWritable, NutchDocument> {
+extends Reducer<String, WebPage, String, NutchDocument> {
 
-  public static final Log LOG = Indexer.LOG;
-  
+  public static final Log LOG = IndexerJob.LOG;
+
   private IndexingFilters filters;
-  
+
   private ScoringFilters scoringFilters;
-  
-  private HTable table;
-  
+
+  private DataStore<String, WebPage> store;
+
   @Override
   protected void setup(Context context) throws IOException {
     Configuration conf = context.getConfiguration();
     filters = new IndexingFilters(conf);
-    table = new HTable(conf.get(TableInputFormat.INPUT_TABLE));
     scoringFilters = new ScoringFilters(conf);
+    try {
+      store = StorageUtils.createDataStore(conf, String.class, WebPage.class);
+    } catch (ClassNotFoundException e) {
+      throw new IOException(e);
+    }
   }
-  
+
   @Override
-  protected void reduce(ImmutableBytesWritable key, Iterable<WebTableRow> values,
+  protected void reduce(String key, Iterable<WebPage> values,
       Context context) throws IOException, InterruptedException {
-    WebTableRow row = values.iterator().next();
+    WebPage page = values.iterator().next();
     NutchDocument doc = new NutchDocument();
 
-    doc.add("id", Bytes.toString(key.get()));
-    doc.add("digest", StringUtil.toHexString(row.getSignature()));
+    doc.add("id", key);
+    doc.add("digest", StringUtil.toHexString(page.getSignature().array()));
 
-    String url = TableUtil.unreverseUrl(Bytes.toString(key.get()));
+    String url = TableUtil.unreverseUrl(key);
 
     if (LOG.isDebugEnabled()) {
       LOG.debug("Indexing URL: " + url);
     }
 
     try {
-      doc = filters.filter(doc, url, row);
+      doc = filters.filter(doc, url, page);
     } catch (IndexingException e) {
       LOG.warn("Error indexing "+key+": "+e);
       return;
@@ -64,7 +66,7 @@ extends Reducer<ImmutableBytesWritable, WebTableRow, ImmutableBytesWritable, Nut
     float boost = 1.0f;
     // run scoring filters
     try {
-      boost = scoringFilters.indexerScore(url, doc, row, boost);
+      boost = scoringFilters.indexerScore(url, doc, page, boost);
     } catch (final ScoringFilterException e) {
       LOG.warn("Error calculating score " + key + ": " + e);
       return;
@@ -74,14 +76,17 @@ extends Reducer<ImmutableBytesWritable, WebTableRow, ImmutableBytesWritable, Nut
     // store boost for use by explain and dedup
     doc.add("boost", Float.toString(boost));
 
-    row.putMeta(Indexer.INDEX_MARK, TableUtil.YES_VAL);
-    row.makeRowMutation().commit(table);
+    Utf8 mark = Mark.UPDATEDB_MARK.checkMark(page);
+    if (mark != null) {
+      Mark.INDEX_MARK.putMark(page, Mark.UPDATEDB_MARK.checkMark(page));
+      store.put(key, page);
+    }
     context.write(key, doc);
   }
-  
+
   @Override
   public void cleanup(Context context) throws IOException {
-    table.close();
+    store.close();
   }
 
 }

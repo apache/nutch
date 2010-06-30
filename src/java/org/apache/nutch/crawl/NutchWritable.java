@@ -20,12 +20,12 @@ import org.apache.hadoop.io.Writable;
 import org.apache.nutch.util.GenericWritableConfigurable;
 
 public class NutchWritable extends GenericWritableConfigurable {
-  
+
   private static Class<? extends Writable>[] CLASSES = null;
-  
+
   static {
     CLASSES = new Class[] {
-      org.apache.hadoop.io.NullWritable.class, 
+      org.apache.hadoop.io.NullWritable.class,
       org.apache.hadoop.io.LongWritable.class,
       org.apache.hadoop.io.BytesWritable.class,
       org.apache.hadoop.io.FloatWritable.class,
@@ -44,17 +44,16 @@ public class NutchWritable extends GenericWritableConfigurable {
       org.apache.nutch.parse.ParseStatus.class,
       org.apache.nutch.protocol.Content.class,
       org.apache.nutch.protocol.ProtocolStatus.class,
-      org.apache.nutch.searcher.Hit.class,
-      org.apache.nutch.searcher.HitDetails.class,
-      org.apache.nutch.searcher.Hits.class,
+//      org.apache.nutch.searcher.Hit.class,
+//      org.apache.nutch.searcher.HitDetails.class,
+//      org.apache.nutch.searcher.Hits.class,
       org.apache.nutch.scoring.ScoreDatum.class,
-      org.apache.nutch.util.hbase.WebTableRow.class,
-      org.apache.hadoop.hbase.client.Result.class
+      org.apache.nutch.util.WebPageWritable.class,
     };
   }
 
   public NutchWritable() { }
-  
+
   public NutchWritable(Writable instance) {
     set(instance);
   }

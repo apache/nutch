@@ -21,34 +21,31 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.apache.hadoop.io.MD5Hash;
-import org.apache.nutch.parse.Parse;
-import org.apache.nutch.util.hbase.HbaseColumn;
-import org.apache.nutch.util.hbase.WebTableColumns;
-import org.apache.nutch.util.hbase.WebTableRow;
+import org.apache.nutch.storage.WebPage;
 
 /**
  * Default implementation of a page signature. It calculates an MD5 hash
  * of the raw binary content of a page. In case there is no content, it
  * calculates a hash from the page's URL.
- * 
+ *
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
 public class MD5Signature extends Signature {
 
-  private final static Collection<HbaseColumn> COLUMNS = new HashSet<HbaseColumn>();
-  
+  private final static Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
+
   static {
-    COLUMNS.add(new HbaseColumn(WebTableColumns.CONTENT));
+    FIELDS.add(WebPage.Field.CONTENT);
   }
-  
+
   @Override
-  public byte[] calculate(WebTableRow row, Parse parse) {
-    byte[] data = row.getContent();
+  public byte[] calculate(WebPage page) {
+    byte[] data = page.getContent().array();
     return MD5Hash.digest(data).getDigest();
   }
 
   @Override
-  public Collection<HbaseColumn> getColumns() {
-    return COLUMNS;
+  public Collection<WebPage.Field> getFields() {
+    return FIELDS;
   }
 }

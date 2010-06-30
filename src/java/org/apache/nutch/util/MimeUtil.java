@@ -19,6 +19,7 @@ package org.apache.nutch.util;
 
 // JDK imports
 import java.io.File;
+import java.io.IOException;
 import java.util.logging.Logger;
 
 // Hadoop imports
@@ -59,8 +60,13 @@ public final class MimeUtil {
     MimeTypes mimeTypez = (MimeTypes) objectCache.getObject(MimeTypes.class
         .getName());
     if (mimeTypez == null) {
-      mimeTypez = MimeTypesFactory.create(conf
-          .getConfResourceAsInputStream(conf.get("mime.types.file")));
+      try {
+        mimeTypez = MimeTypesFactory.create(conf
+            .getConfResourceAsInputStream(conf.get("mime.types.file")));
+      } catch (Exception e) {
+        e.printStackTrace();
+        throw new RuntimeException(e);
+      }
       objectCache.setObject(MimeTypes.class.getName(), mimeTypez);
 
     }
@@ -139,7 +145,7 @@ public final class MimeUtil {
 
     // if returned null, or if it's the default type then try url resolution
     if (type == null
-        || (type != null && type.getName().equals(MimeTypes.DEFAULT))) {
+        || (type != null && type.getName().equals(MimeTypes.OCTET_STREAM))) {
       // If no mime-type header, or cannot find a corresponding registered
       // mime-type, then guess a mime-type from the url pattern
       type = this.mimeTypes.getMimeType(url) != null ? this.mimeTypes
@@ -152,7 +158,8 @@ public final class MimeUtil {
     // returned by the magic
     if (this.mimeMagic) {
       MimeType magicType = this.mimeTypes.getMimeType(data);
-      if (magicType != null && !magicType.getName().equals(MimeTypes.DEFAULT)
+      if (magicType != null && !magicType.getName().equals(MimeTypes.OCTET_STREAM)
+          && !magicType.getName().equals(MimeTypes.PLAIN_TEXT)
           && type != null && !type.getName().equals(magicType.getName())) {
         // If magic enabled and the current mime type differs from that of the
         // one returned from the magic, take the magic mimeType
@@ -163,7 +170,7 @@ public final class MimeUtil {
       // default type
       if (type == null) {
         try {
-          type = this.mimeTypes.forName(MimeTypes.DEFAULT);
+          type = this.mimeTypes.forName(MimeTypes.OCTET_STREAM);
         } catch (Exception ignore) {
         }
       }

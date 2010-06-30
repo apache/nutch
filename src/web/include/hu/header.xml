@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="ISO-8859-1"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-
-<header-menu>
- <item><a href="about.html">A Nutch-ról</a></item>
- <item><a href="http://wiki.apache.org/nutch/FAQ">GYIK</a></item>
-</header-menu>

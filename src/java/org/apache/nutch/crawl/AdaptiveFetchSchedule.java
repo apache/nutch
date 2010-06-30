@@ -18,8 +18,7 @@
 package org.apache.nutch.crawl;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.crawl.FetchSchedule;
-import org.apache.nutch.util.hbase.WebTableRow;
+import org.apache.nutch.storage.WebPage;
 
 /**
  * This class implements an adaptive re-fetch algorithm. This works as follows:
@@ -47,7 +46,7 @@ import org.apache.nutch.util.hbase.WebTableRow;
  * so that the fetch interval either increases or decreases infinitely, with little
  * relevance to the page changes. Please use {@link #main(String[])} method to
  * test the values before applying them in a production system.</p>
- * 
+ *
  * @author Andrzej Bialecki
  */
 public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
@@ -59,11 +58,12 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
   private int MAX_INTERVAL;
 
   private int MIN_INTERVAL;
-  
+
   private boolean SYNC_DELTA;
 
   private float SYNC_DELTA_RATE;
-  
+
+  @Override
   public void setConf(Configuration conf) {
     super.setConf(conf);
     if (conf == null) return;
@@ -78,14 +78,14 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
   }
 
   @Override
-  public void setFetchSchedule(String url, WebTableRow row,
+  public void setFetchSchedule(String url, WebPage page,
           long prevFetchTime, long prevModifiedTime,
           long fetchTime, long modifiedTime, int state) {
-    super.setFetchSchedule(url, row, prevFetchTime, prevModifiedTime,
+    super.setFetchSchedule(url, page, prevFetchTime, prevModifiedTime,
         fetchTime, modifiedTime, state);
     long refTime = fetchTime;
     if (modifiedTime <= 0) modifiedTime = fetchTime;
-    int interval = row.getFetchInterval();
+    int interval = page.getFetchInterval();
     switch (state) {
       case FetchSchedule.STATUS_MODIFIED:
         interval *= (1.0f - DEC_RATE);
@@ -96,18 +96,18 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
       case FetchSchedule.STATUS_UNKNOWN:
         break;
     }
-    row.setFetchInterval(interval);
+    page.setFetchInterval(interval);
     if (SYNC_DELTA) {
       // try to synchronize with the time of change
-      // TODO: different from normal class (is delta in seconds)? 
+      // TODO: different from normal class (is delta in seconds)?
       int delta = (int) ((fetchTime - modifiedTime) / 1000L) ;
       if (delta > interval) interval = delta;
       refTime = fetchTime - Math.round(delta * SYNC_DELTA_RATE);
     }
     if (interval < MIN_INTERVAL) interval = MIN_INTERVAL;
     if (interval > MAX_INTERVAL) interval = MAX_INTERVAL;
-    row.setFetchTime(refTime + interval * 1000L);
-    row.setModifiedTime(modifiedTime);
+    page.setFetchTime(refTime + interval * 1000L);
+    page.setModifiedTime(modifiedTime);
   }
 
 
