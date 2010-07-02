@@ -956,17 +956,14 @@
 
 <property>
   <name>plugin.includes</name>
-  <value>protocol-http|urlfilter-regex|parse-(text|html|js|tika)|index-(basic|anchor)|query-(basic|site|url)|response-(json|xml)|summary-basic|scoring-opic|urlnormalizer-(pass|regex|basic)</value>
+  <value>protocol-http|urlfilter-regex|parse-tika|index-(basic|anchor)|query-(basic|site|url)|response-(json|xml)|summary-basic|scoring-opic|urlnormalizer-(pass|regex|basic)</value>
   <description>Regular expression naming plugin directory names to
   include.  Any plugin not matching this expression is excluded.
   In any case you need at least include the nutch-extensionpoints plugin. By
   default Nutch includes crawling just HTML and plain text via HTTP,
   and basic indexing and search plugins. In order to use HTTPS please enable 
   protocol-httpclient, but be aware of possible intermittent problems with the 
-  underlying commons-httpclient library. Nutch now also includes integration with Tika
-  to leverage Tika's parsing capabilities for multiple content types. The existing Nutch
-  parser implementations will likely be phased out in the next release or so, as such, it is
-  a good idea to begin migrating away from anything not provided by parse-tika.
+  underlying commons-httpclient library.
   </description>
 </property>
 

@@ -36,10 +36,8 @@
      <ant dir="field-boost" target="deploy"/>
      <ant dir="languageidentifier" target="deploy"/>
      <ant dir="lib-http" target="deploy"/>
-     <ant dir="lib-jakarta-poi" target="deploy"/>
      <ant dir="lib-lucene-analyzers" target="deploy"/>
      <ant dir="lib-nekohtml" target="deploy"/>
-     <ant dir="lib-parsems" target="deploy"/>
      <ant dir="lib-regex-filter" target="deploy"/>
      <ant dir="lib-xml" target="deploy"/>
      <ant dir="microformats-reltag" target="deploy"/>
@@ -50,16 +48,9 @@
      <ant dir="protocol-http" target="deploy"/>
      <ant dir="protocol-httpclient" target="deploy"/>
      <ant dir="parse-ext" target="deploy"/>
-     <ant dir="parse-html" target="deploy"/>
      <ant dir="parse-js" target="deploy"/>
-     <ant dir="parse-msexcel" target="deploy"/>
-     <ant dir="parse-mspowerpoint" target="deploy"/>
-     <ant dir="parse-msword" target="deploy"/>
-     <ant dir="parse-oo" target="deploy"/>
-     <ant dir="parse-pdf" target="deploy"/>
      <ant dir="parse-rss" target="deploy"/>
      <ant dir="parse-swf" target="deploy"/>
-     <ant dir="parse-text" target="deploy"/>
      <ant dir="parse-tika" target="deploy"/>
      <ant dir="parse-zip" target="deploy"/>
      <ant dir="query-basic" target="deploy"/>
@@ -98,12 +89,6 @@
      <ant dir="ontology" target="test"/>
      <ant dir="protocol-httpclient" target="test"/>
      <!--ant dir="parse-ext" target="test"/-->
-     <ant dir="parse-html" target="test"/>
-     <ant dir="parse-msexcel" target="test"/>
-     <ant dir="parse-mspowerpoint" target="test"/>
-     <ant dir="parse-msword" target="test"/>
-     <ant dir="parse-oo" target="test"/>
-     <ant dir="parse-pdf" target="test"/>
      <ant dir="parse-rss" target="test"/>
      <ant dir="feed" target="test"/>
      <ant dir="parse-swf" target="test"/>
@@ -138,10 +123,8 @@
     <ant dir="languageidentifier" target="clean"/>
     <ant dir="lib-commons-httpclient" target="clean"/>
     <ant dir="lib-http" target="clean"/>
-    <ant dir="lib-jakarta-poi" target="clean"/>
     <ant dir="lib-lucene-analyzers" target="clean"/>
     <ant dir="lib-nekohtml" target="clean"/>
-    <ant dir="lib-parsems" target="clean"/>
     <ant dir="lib-regex-filter" target="clean"/>
     <ant dir="lib-xml" target="clean"/>
     <ant dir="microformats-reltag" target="clean"/>
@@ -152,18 +135,9 @@
     <ant dir="protocol-http" target="clean"/>
     <ant dir="protocol-httpclient" target="clean"/>
     <ant dir="parse-ext" target="clean"/>
-    <ant dir="parse-html" target="clean"/>
     <ant dir="parse-js" target="clean"/>
-    <ant dir="parse-mp3" target="clean"/>
-    <ant dir="parse-msexcel" target="clean"/>
-    <ant dir="parse-mspowerpoint" target="clean"/>
-    <ant dir="parse-msword" target="clean"/>
-    <ant dir="parse-oo" target="clean"/>
-    <ant dir="parse-pdf" target="clean"/>
     <ant dir="parse-rss" target="clean"/>
-    <ant dir="parse-rtf" target="clean"/>
     <ant dir="parse-swf" target="clean"/>
-    <ant dir="parse-text" target="clean"/>
     <ant dir="parse-tika" target="clean"/>
     <ant dir="parse-zip" target="clean"/>
     <ant dir="query-basic" target="clean"/>

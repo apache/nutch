@@ -6,7 +6,7 @@
 
 <property>
   <name>plugin.includes</name>
-  <value>parse-html|protocol-http|urlfilter-suffix|scoring-opic</value>
+  <value>parse-tika|protocol-http|urlfilter-suffix|scoring-opic</value>
   <description>Enable required plugins.</description>
 </property>
 

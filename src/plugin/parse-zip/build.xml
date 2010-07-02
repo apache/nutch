@@ -23,7 +23,7 @@
   <target name="deps-test">
     <ant target="deploy" inheritall="false" dir="../nutch-extensionpoints"/>
     <ant target="deploy" inheritall="false" dir="../protocol-file"/>
-    <ant target="deploy" inheritall="false" dir="../parse-text"/>
+   <!-- <ant target="deploy" inheritall="false" dir="../parse-text"/>-->
   </target>
 
 

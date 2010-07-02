@@ -1,6 +1,0 @@
-This plugin uses an unreleased version of PDFBox, obtained from SourceForce
-CVS repository (HEAD revision as of Feb 3 2009), because the last released
-version contains a bug related to document decryption (see NUTCH-643).
-
-The libraries should be updated to a regular PDFBox release whenever that
-becomes available.

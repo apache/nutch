@@ -58,7 +58,7 @@
               id="org.apache.nutch.parse.tika"
               name="TikaParser">
 
-      <implementation id="org.apache.nutch.parse.tika.Parser"
+      <implementation id="org.apache.nutch.parse.tika.TikaParser"
                       class="org.apache.nutch.parse.tika.TikaParser">
        <parameter name="contentType" value="*"/>
       </implementation>
