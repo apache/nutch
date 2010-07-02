@@ -23,7 +23,6 @@ import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.indexer.lucene.LuceneWriter;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.metadata.Metadata;
@@ -95,11 +94,6 @@ public class LanguageIndexingFilter implements IndexingFilter {
     return doc;
   }
 
-  public void addIndexBackendOptions(Configuration conf) {
-    LuceneWriter.addFieldOptions("lang", LuceneWriter.STORE.YES,
-        LuceneWriter.INDEX.UNTOKENIZED, conf);
-  }
-  
   public void setConf(Configuration conf) {
     this.conf = conf;
     this.languageIdentifier = new LanguageIdentifier(conf);

@@ -25,7 +25,6 @@ import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.indexer.lucene.LuceneWriter;
 import org.apache.nutch.parse.Parse;
 
 /**
@@ -55,11 +54,6 @@ public class AnchorIndexingFilter
     }
 
     return doc;
-  }
-
-  public void addIndexBackendOptions(Configuration conf) {
-    LuceneWriter.addFieldOptions("anchor", LuceneWriter.STORE.NO,
-        LuceneWriter.INDEX.TOKENIZED, conf);
   }
 
 }

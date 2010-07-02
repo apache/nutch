@@ -26,6 +26,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.indexer.NutchField;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.protocol.Content;
@@ -52,12 +53,12 @@ public class TLDScoringFilter implements ScoringFilter {
       CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore)
       throws ScoringFilterException {
 
-    List<String> tlds = doc.getFieldValues("tld");
+    NutchField tlds = doc.getField("tld");
     float boost = 1.0f;
 
     if(tlds != null) {
-      for(String tld : tlds) {
-        DomainSuffix entry = tldEntries.get(tld);
+      for(Object tld : tlds.getValues()) {
+        DomainSuffix entry = tldEntries.get(tld.toString());
         if(entry != null)
           boost *= entry.getBoost();
       }

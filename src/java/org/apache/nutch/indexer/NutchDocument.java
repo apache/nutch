@@ -19,11 +19,9 @@ package org.apache.nutch.indexer;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -35,51 +33,48 @@ import org.apache.nutch.metadata.Metadata;
 
 /** A {@link NutchDocument} is the unit of indexing.*/
 public class NutchDocument
-implements Writable, Iterable<Entry<String, List<String>>> {
+implements Writable, Iterable<Entry<String, NutchField>> {
 
-  public static final byte VERSION = 1;
-
-  private Map<String, List<String>> fields;
+  public static final byte VERSION = 2;
+  
+  private Map<String, NutchField> fields;
 
   private Metadata documentMeta;
 
-  private float score;
+  private float weight;
 
   public NutchDocument() {
-    fields = new HashMap<String, List<String>>();
+    fields = new HashMap<String, NutchField>();
     documentMeta = new Metadata();
-    score = 0.0f;
+    weight = 1.0f;
   }
 
-  public void add(String name, String value) {
-    List<String> fieldValues = fields.get(name);
-    if (fieldValues == null) {
-      fieldValues = new ArrayList<String>();
+  public void add(String name, Object value) {
+    NutchField field = fields.get(name);
+    if (field == null) {
+      field = new NutchField(value);
+      fields.put(name, field);
+    } else {
+      field.add(value);
     }
-    fieldValues.add(value);
-    fields.put(name, fieldValues);
   }
 
-  private void addFieldUnprotected(String name, String value) {
-    fields.get(name).add(value);
-  }
-
-  public String getFieldValue(String name) {
-    List<String> fieldValues = fields.get(name);
-    if (fieldValues == null) {
+  public Object getFieldValue(String name) {
+    NutchField field = fields.get(name);
+    if (field == null) {
       return null;
     }
-    if (fieldValues.size() == 0) {
+    if (field.getValues().size() == 0) {
       return null;
     }
-    return fieldValues.get(0);
+    return field.getValues().get(0);
   }
 
-  public List<String> getFieldValues(String name) {
+  public NutchField getField(String name) {
     return fields.get(name);
   }
 
-  public List<String> removeField(String name) {
+  public NutchField removeField(String name) {
     return fields.remove(name);
   }
 
@@ -88,16 +83,16 @@ implements Writable, Iterable<Entry<String, List<String>>> {
   }
 
   /** Iterate over all fields. */
-  public Iterator<Entry<String, List<String>>> iterator() {
+  public Iterator<Entry<String, NutchField>> iterator() {
     return fields.entrySet().iterator();
   }
 
-  public float getScore() {
-    return score;
+  public float getWeight() {
+    return weight;
   }
 
-  public void setScore(float score) {
-    this.score = score;
+  public void setWeight(float weight) {
+    this.weight = weight;
   }
 
   public Metadata getDocumentMeta() {
@@ -105,6 +100,7 @@ implements Writable, Iterable<Entry<String, List<String>>> {
   }
 
   public void readFields(DataInput in) throws IOException {
+    fields.clear();
     byte version = in.readByte();
     if (version != VERSION) {
       throw new VersionMismatchException(VERSION, version);
@@ -112,30 +108,23 @@ implements Writable, Iterable<Entry<String, List<String>>> {
     int size = WritableUtils.readVInt(in);
     for (int i = 0; i < size; i++) {
       String name = Text.readString(in);
-      int numValues = WritableUtils.readVInt(in);
-      fields.put(name, new ArrayList<String>());
-      for (int j = 0; j < numValues; j++) {
-        String value = Text.readString(in);
-        addFieldUnprotected(name, value);
-      }
+      NutchField field = new NutchField();
+      field.readFields(in);
+      fields.put(name, field);
     }
-    score = in.readFloat();
+    weight = in.readFloat();
     documentMeta.readFields(in);
   }
 
   public void write(DataOutput out) throws IOException {
     out.writeByte(VERSION);
     WritableUtils.writeVInt(out, fields.size());
-    for (Map.Entry<String, List<String>> entry : fields.entrySet()) {
+    for (Map.Entry<String, NutchField> entry : fields.entrySet()) {
       Text.writeString(out, entry.getKey());
-      List<String> values = entry.getValue();
-      WritableUtils.writeVInt(out, values.size());
-      for (String value : values) {
-        Text.writeString(out, value);
-      }
+      NutchField field = entry.getValue();
+      field.write(out);
     }
-    out.writeFloat(score);
+    out.writeFloat(weight);
     documentMeta.write(out);
   }
-
 }

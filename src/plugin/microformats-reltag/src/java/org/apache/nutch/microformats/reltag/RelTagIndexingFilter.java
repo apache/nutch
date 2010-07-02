@@ -23,7 +23,6 @@ import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.indexer.lucene.LuceneWriter;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.parse.Parse;
 
@@ -60,11 +59,6 @@ public class RelTagIndexingFilter implements IndexingFilter {
     return doc;
   }
 
-  public void addIndexBackendOptions(Configuration conf) {
-    LuceneWriter.addFieldOptions("tag", LuceneWriter.STORE.YES,
-        LuceneWriter.INDEX.UNTOKENIZED, conf);
-  }
-  
   /* ----------------------------- *
    * <implementation:Configurable> *
    * ----------------------------- */

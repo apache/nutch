@@ -24,7 +24,6 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.indexer.lucene.LuceneWriter;
 import org.apache.hadoop.io.Text;
 
 import org.apache.nutch.crawl.CrawlDatum;
@@ -109,10 +108,6 @@ public class CCIndexingFilter implements IndexingFilter {
   
   private void addFeature(NutchDocument doc, String feature) {
     doc.add(FIELD, feature);
-  }
-
-  public void addIndexBackendOptions(Configuration conf) {
-    LuceneWriter.addFieldOptions(FIELD, LuceneWriter.STORE.YES, LuceneWriter.INDEX.UNTOKENIZED, conf);
   }
 
   public void setConf(Configuration conf) {

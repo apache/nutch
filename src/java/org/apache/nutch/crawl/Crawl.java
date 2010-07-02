@@ -29,9 +29,7 @@ import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.nutch.parse.ParseSegment;
-import org.apache.nutch.indexer.DeleteDuplicates;
-import org.apache.nutch.indexer.IndexMerger;
-import org.apache.nutch.indexer.Indexer;
+import org.apache.nutch.indexer.solr.SolrDeleteDuplicates;
 import org.apache.nutch.indexer.solr.SolrIndexer;
 import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.NutchConfiguration;
@@ -52,8 +50,7 @@ public class Crawl {
   public static void main(String args[]) throws Exception {
     if (args.length < 1) {
       System.out.println
-      ("Usage: Crawl <urlDir> [-dir d] [-threads n] [-depth i] [-topN N]" +
-        " [-solr solrURL]");
+      ("Usage: Crawl <urlDir> -solr <solrURL> [-dir d] [-threads n] [-depth i] [-topN N]");
       return;
     }
 
@@ -65,7 +62,6 @@ public class Crawl {
     int threads = job.getInt("fetcher.threads.fetch", 10);
     int depth = 5;
     long topN = Long.MAX_VALUE;
-    String indexerName = "lucene";
     String solrUrl = null;
     
     for (int i = 0; i < args.length; i++) {
@@ -82,15 +78,17 @@ public class Crawl {
           topN = Integer.parseInt(args[i+1]);
           i++;
       } else if ("-solr".equals(args[i])) {
-        indexerName = "solr";
         solrUrl = StringUtils.lowerCase(args[i + 1]);
         i++;
       } else if (args[i] != null) {
         rootUrlDir = new Path(args[i]);
       }
     }
+    
+    if (solrUrl == null) {
+      LOG.warn("solrUrl is not set, indexing will be skipped...");
+    }
 
-    boolean isSolrIndex = StringUtils.equalsIgnoreCase(indexerName, "solr");
     FileSystem fs = FileSystem.get(job);
 
     if (LOG.isInfoEnabled()) {
@@ -98,10 +96,7 @@ public class Crawl {
       LOG.info("rootUrlDir = " + rootUrlDir);
       LOG.info("threads = " + threads);
       LOG.info("depth = " + depth);      
-      LOG.info("indexer=" + indexerName);
-      if (isSolrIndex) {
-        LOG.info("solrUrl=" + solrUrl);
-      }
+      LOG.info("solrUrl=" + solrUrl);
       if (topN != Long.MAX_VALUE)
         LOG.info("topN = " + topN);
     }
@@ -139,41 +134,16 @@ public class Crawl {
     if (i > 0) {
       linkDbTool.invert(linkDb, segments, true, true, false); // invert links
 
-      // index, dedup & merge
-      FileStatus[] fstats = fs.listStatus(segments, HadoopFSUtil.getPassDirectoriesFilter(fs));
-      if (isSolrIndex) {
+      if (solrUrl != null) {
+        // index, dedup & merge
+        FileStatus[] fstats = fs.listStatus(segments, HadoopFSUtil.getPassDirectoriesFilter(fs));
         SolrIndexer indexer = new SolrIndexer(conf);
         indexer.indexSolr(solrUrl, crawlDb, linkDb, 
-            Arrays.asList(HadoopFSUtil.getPaths(fstats)));
+          Arrays.asList(HadoopFSUtil.getPaths(fstats)));
+        SolrDeleteDuplicates dedup = new SolrDeleteDuplicates();
+        dedup.setConf(conf);
+        dedup.dedup(solrUrl);
       }
-      else {
-        
-        DeleteDuplicates dedup = new DeleteDuplicates(conf);        
-        if(indexes != null) {
-          // Delete old indexes
-          if (fs.exists(indexes)) {
-            LOG.info("Deleting old indexes: " + indexes);
-            fs.delete(indexes, true);
-          }
-
-          // Delete old index
-          if (fs.exists(index)) {
-            LOG.info("Deleting old merged index: " + index);
-            fs.delete(index, true);
-          }
-        }
-        
-        Indexer indexer = new Indexer(conf);
-        indexer.index(indexes, crawlDb, linkDb, 
-            Arrays.asList(HadoopFSUtil.getPaths(fstats)));
-        
-        IndexMerger merger = new IndexMerger(conf);
-        if(indexes != null) {
-          dedup.dedup(new Path[] { indexes });
-          fstats = fs.listStatus(indexes, HadoopFSUtil.getPassDirectoriesFilter(fs));
-          merger.merge(HadoopFSUtil.getPaths(fstats), index, tmpDir);
-        }
-      }    
       
     } else {
       LOG.warn("No URLs to fetch - check your seed list and URL filters.");

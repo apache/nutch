@@ -28,7 +28,6 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.indexer.lucene.LuceneWriter;
 import org.apache.hadoop.io.Text;
 
 import org.apache.nutch.crawl.CrawlDatum;
@@ -92,40 +91,6 @@ public class BasicIndexingFilter implements IndexingFilter {
             DateTools.Resolution.MILLISECOND));
 
     return doc;
-  }
-
-  public void addIndexBackendOptions(Configuration conf) {
-
-    ///////////////////////////
-    //    add lucene options   //
-    ///////////////////////////
-
-    // host is un-stored, indexed and tokenized
-    LuceneWriter.addFieldOptions("host", LuceneWriter.STORE.NO,
-        LuceneWriter.INDEX.TOKENIZED, conf);
-
-    // site is un-stored, indexed and un-tokenized
-    LuceneWriter.addFieldOptions("site", LuceneWriter.STORE.NO,
-        LuceneWriter.INDEX.UNTOKENIZED, conf);
-
-    // url is both stored and indexed, so it's both searchable and returned
-    LuceneWriter.addFieldOptions("url", LuceneWriter.STORE.YES,
-        LuceneWriter.INDEX.TOKENIZED, conf);
-
-    // content is indexed, so that it's searchable, but not stored in index
-    LuceneWriter.addFieldOptions("content", LuceneWriter.STORE.NO,
-        LuceneWriter.INDEX.TOKENIZED, conf);
-
-    // anchors are indexed, so they're searchable, but not stored in index
-    LuceneWriter.addFieldOptions("anchor", LuceneWriter.STORE.NO,
-        LuceneWriter.INDEX.TOKENIZED, conf);
-
-    // title is indexed and stored so that it can be displayed
-    LuceneWriter.addFieldOptions("title", LuceneWriter.STORE.YES,
-        LuceneWriter.INDEX.TOKENIZED, conf);
-
-    LuceneWriter.addFieldOptions("cache", LuceneWriter.STORE.YES, LuceneWriter.INDEX.NO, conf);
-    LuceneWriter.addFieldOptions("tstamp", LuceneWriter.STORE.YES, LuceneWriter.INDEX.NO, conf);
   }
 
   public void setConf(Configuration conf) {

@@ -769,129 +769,6 @@
   </description>
 </property>
 
-
-<!-- analysis properties -->
-
-<property>
-  <name>analysis.common.terms.file</name>
-  <value>common-terms.utf8</value>
-  <description>The name of a file containing a list of common terms
-  that should be indexed in n-grams.</description>
-</property>
-
-<!-- searcher properties -->
-
-<property>
-  <name>searcher.dir</name>
-  <value>crawl</value>
-  <description>
-  Path to root of crawl.  This directory is searched (in
-  order) for either the file search-servers.txt, containing a list of
-  distributed search servers, or the directory "index" containing
-  merged indexes, or the directory "segments" containing segment
-  indexes.
-  </description>
-</property>
-
-<property>
-  <name>searcher.filter.cache.size</name>
-  <value>16</value>
-  <description>
-  Maximum number of filters to cache.  Filters can accelerate certain
-  field-based queries, like language, document format, etc.  Each
-  filter requires one bit of RAM per page.  So, with a 10 million page
-  index, a cache size of 16 consumes two bytes per page, or 20MB.
-  </description>
-</property>
-
-<property>
-  <name>searcher.filter.cache.threshold</name>
-  <value>0.05</value>
-  <description>
-  Filters are cached when their term is matched by more than this
-  fraction of pages.  For example, with a threshold of 0.05, and 10
-  million pages, the term must match more than 1/20, or 50,000 pages.
-  So, if out of 10 million pages, 50% of pages are in English, and 2%
-  are in Finnish, then, with a threshold of 0.05, searches for
-  "lang:en" will use a cached filter, while searches for "lang:fi"
-  will score all 20,000 finnish documents.
-  </description>
-</property>
-
-<property>
-  <name>searcher.hostgrouping.rawhits.factor</name>
-  <value>2.0</value>
-  <description>
-  A factor that is used to determine the number of raw hits
-  initially fetched, before host grouping is done.
-  </description>
-</property>
-
-<property>
-  <name>searcher.summary.context</name>
-  <value>5</value>
-  <description>
-  The number of context terms to display preceding and following
-  matching terms in a hit summary.
-  </description>
-</property>
-
-<property>
-  <name>searcher.summary.length</name>
-  <value>20</value>
-  <description>
-  The total number of terms to display in a hit summary.
-  </description>
-</property>
-
-<property>
-  <name>searcher.max.hits</name>
-  <value>-1</value>
-  <description>If positive, search stops after this many hits are
-  found.  Setting this to small, positive values (e.g., 1000) can make
-  searches much faster.  With a sorted index, the quality of the hits
-  suffers little.</description>
-</property>
-
-<property>
-  <name>searcher.max.time.tick_count</name>
-  <value>-1</value>
-  <description>If positive value is defined here, limit search time for
-  every request to this number of elapsed ticks (see the tick_length
-  property below). The total maximum time for any search request will be
-  then limited to tick_count * tick_length milliseconds. When search time
-  is exceeded, partial results will be returned, and the total number of
-  hits will be estimated.
-  </description>
-</property>
-
-<property>
-  <name>searcher.max.time.tick_length</name>
-  <value>200</value>
-  <description>The number of milliseconds between ticks. Larger values
-  reduce the timer granularity (precision). Smaller values bring more
-  overhead.
-  </description>
-</property>
-
-<property>
-  <name>searcher.num.handlers</name>
-  <value>10</value>
-  <description>The number of handlers for the distributed search server.
-  </description>
-</property>
-
-<property>
-  <name>searcher.max.hits.per.page</name>
-  <value>1000</value>
-  <description> The maximum number of hits to show per page. -1 if
-    unlimited. If the number of hits requested by the user (via
-    hitsPerPage parameter in the query string) is more than the value
-    specified in this property, then this value is assumed as the number
-    of hits per page.
-  </description>
-</property>
-
 <!-- URL normalizer properties -->
 
 <property>
@@ -956,7 +833,7 @@
 
 <property>
   <name>plugin.includes</name>
-  <value>protocol-http|urlfilter-regex|parse-tika|index-(basic|anchor)|query-(basic|site|url)|response-(json|xml)|summary-basic|scoring-opic|urlnormalizer-(pass|regex|basic)</value>
+  <value>protocol-http|urlfilter-regex|parse-tika|index-(basic|anchor)|scoring-opic|urlnormalizer-(pass|regex|basic)</value>
   <description>Regular expression naming plugin directory names to
   include.  Any plugin not matching this expression is excluded.
   In any case you need at least include the nutch-extensionpoints plugin. By
@@ -1115,137 +992,6 @@
   </description>
 </property>
 
-<!-- clustering extension properties -->
-
-<property>
-  <name>extension.clustering.hits-to-cluster</name>
-  <value>100</value>
-  <description>Number of snippets retrieved for the clustering extension
-  if clustering extension is available and user requested results
-  to be clustered.</description>
-</property>
-
-<property>
-  <name>extension.clustering.extension-name</name>
-  <value></value>
-  <description>Use the specified online clustering extension. If empty,
-  the first available extension will be used. The "name" here refers to an 'id'
-  attribute of the 'implementation' element in the plugin descriptor XML
-  file.</description>
-</property>
-
-<!-- ontology extension properties -->
-
-<property>
-  <name>extension.ontology.extension-name</name>
-  <value></value>
-  <description>Use the specified online ontology extension. If empty,
-  the first available extension will be used. The "name" here refers to an 'id'
-  attribute of the 'implementation' element in the plugin descriptor XML
-  file.</description>
-</property>
-
-<property>
-  <name>extension.ontology.urls</name>
-  <value>
-  </value>
-  <description>Urls of owl files, separated by spaces, such as
-  http://www.example.com/ontology/time.owl
-  http://www.example.com/ontology/space.owl
-  http://www.example.com/ontology/wine.owl
-  Or
-  file:/ontology/time.owl
-  file:/ontology/space.owl
-  file:/ontology/wine.owl
-  You have to make sure each url is valid.
-  By default, there is no owl file, so query refinement based on ontology
-  is silently ignored.
-  </description>
-</property>
-
-<!-- query-basic plugin properties -->
-
-<property>
-  <name>query.url.boost</name>
-  <value>4.0</value>
-  <description> Used as a boost for url field in Lucene query.
-  </description>
-</property>
-
-<property>
-  <name>query.anchor.boost</name>
-  <value>2.0</value>
-  <description> Used as a boost for anchor field in Lucene query.
-  </description>
-</property>
-
-<property>
-  <name>query.title.boost</name>
-  <value>1.5</value>
-  <description> Used as a boost for title field in Lucene query.
-  </description>
-</property>
-
-<property>
-  <name>query.host.boost</name>
-  <value>2.0</value>
-  <description> Used as a boost for host field in Lucene query.
-  </description>
-</property>
-
-<property>
-  <name>query.phrase.boost</name>
-  <value>1.0</value>
-  <description> Used as a boost for phrase in Lucene query.
-  Multiplied by boost for field phrase is matched in.
-  </description>
-</property>
-
-<!--
-<property>
-  <name>query.basic.description.boost</name>
-  <value>1.0</value>
-  <description> Declares a custom field and its boost to be added to the default fields of the Lucene query.
-  </description>
-</property>
--->
-
-<!-- creative-commons plugin properties -->
-
-<property>
-  <name>query.cc.boost</name>
-  <value>0.0</value>
-  <description> Used as a boost for cc field in Lucene query.
-  </description>
-</property>
-
-<!-- query-more plugin properties -->
-
-<property>
-  <name>query.type.boost</name>
-  <value>0.0</value>
-  <description> Used as a boost for type field in Lucene query.
-  </description>
-</property>
-
-<!-- query-site plugin properties -->
-
-<property>
-  <name>query.site.boost</name>
-  <value>0.0</value>
-  <description> Used as a boost for site field in Lucene query.
-  </description>
-</property>
-
-<!-- microformats-reltag plugin properties -->
-
-<property>
-  <name>query.tag.boost</name>
-  <value>1.0</value>
-  <description> Used as a boost for tag field in Lucene query.
-  </description>
-</property>
-
 <!-- language-identifier plugin properties -->
 
 <property>
@@ -1280,13 +1026,6 @@
   </description>
 </property>
 
-<property>
-  <name>query.lang.boost</name>
-  <value>0.0</value>
-  <description> Used as a boost for lang field in Lucene query.
-  </description>
-</property>
-
 <!-- Temporary Hadoop 0.17.x workaround. -->
 
 <property>
@@ -1297,65 +1036,6 @@
      Hadoop classes, which expect the output to contain only
      part-XXXXX files. This setting changes the output to a
      subdirectory of the regular log directory.
-  </description>
-</property>
-
-<!-- response writer properties -->
-
-<property>
-  <name>search.response.default.type</name>
-  <value>xml</value>
-  <description>
-  The default response type returned if none is specified.
-  </description>
-</property>
-
-<property>
-  <name>search.response.default.lang</name>
-  <value>en</value>
-  <description>
-  The default response language if none is specified.
-  </description>
-</property>
-
-<property>
-  <name>search.response.default.numrows</name>
-  <value>10</value>
-  <description>
-  The default number of rows to return if none is specified.
-  </description>
-</property>
-
-<property>
-  <name>search.response.default.dedupfield</name>
-  <value>site</value>
-  <description>
-  The default dedup field if none is specified.
-  </description>
-</property>
-
-<property>
-  <name>search.response.default.numdupes</name>
-  <value>1</value>
-  <description>
-  The default number of duplicates returned if none is specified.
-  </description>
-</property>
-
-<property>
-  <name>searcher.response.maxage</name>
-  <value>86400</value>
-  <description>
-  The maxage of a response in seconds. Used in caching headers.
-  </description>
-</property>
-
-<property>
-  <name>searcher.response.prettyprint</name>
-  <value>true</value>
-  <description>
-  Should the response output be pretty printed.  Setting to true enables better
-  debugging, false removes unneeded spaces and gives better throughput.
   </description>
 </property>
 

@@ -45,16 +45,5 @@
                       class="org.apache.nutch.analysis.lang.LanguageIndexingFilter"/>
    </extension>
 
-
-   <extension id="org.apache.nutch.analysis.lang.LanguageQueryFilter"
-              name="Nutch Language Query Filter"
-              point="org.apache.nutch.searcher.QueryFilter">
-      <implementation id="LanguageQueryFilter"
-                      class="org.apache.nutch.analysis.lang.LanguageQueryFilter">
-        <parameter name="raw-fields" value="lang"/>
-      </implementation>
-   </extension>
-
-
 </plugin>
 

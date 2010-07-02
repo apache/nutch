@@ -38,7 +38,6 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.indexer.lucene.LuceneWriter;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
@@ -285,32 +284,6 @@ public class MoreIndexingFilter implements IndexingFilter {
     }
 
     return doc;
-  }
-
-  public void addIndexBackendOptions(Configuration conf) {
-
-    ///////////////////////////
-    //    add lucene options //
-    ///////////////////////////
-
-    LuceneWriter.addFieldOptions("type", LuceneWriter.STORE.NO,
-        LuceneWriter.INDEX.UNTOKENIZED, conf);
-
-    // primaryType and subType are stored, indexed and un-tokenized
-    LuceneWriter.addFieldOptions("primaryType", LuceneWriter.STORE.YES,
-        LuceneWriter.INDEX.UNTOKENIZED, conf);
-    LuceneWriter.addFieldOptions("subType", LuceneWriter.STORE.YES,
-        LuceneWriter.INDEX.UNTOKENIZED, conf);
-
-    LuceneWriter.addFieldOptions("contentLength", LuceneWriter.STORE.YES,
-        LuceneWriter.INDEX.NO, conf);
-
-    LuceneWriter.addFieldOptions("lastModified", LuceneWriter.STORE.YES,
-        LuceneWriter.INDEX.NO, conf);
-
-    // un-stored, indexed and un-tokenized
-    LuceneWriter.addFieldOptions("date", LuceneWriter.STORE.NO,
-        LuceneWriter.INDEX.UNTOKENIZED, conf);
   }
 
   public void setConf(Configuration conf) {

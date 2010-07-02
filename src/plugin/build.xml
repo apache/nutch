@@ -26,14 +26,11 @@
   <!-- Build & deploy all the plugin jars.                    -->
   <!-- ====================================================== -->
   <target name="deploy">
-     <ant dir="clustering-carrot2" target="deploy"/>
      <ant dir="creativecommons" target="deploy"/>
      <ant dir="feed" target="deploy"/>
      <ant dir="index-basic" target="deploy"/>
      <ant dir="index-anchor" target="deploy"/>
      <ant dir="index-more" target="deploy"/>
-     <ant dir="field-basic" target="deploy"/>
-     <ant dir="field-boost" target="deploy"/>
      <ant dir="languageidentifier" target="deploy"/>
      <ant dir="lib-http" target="deploy"/>
      <ant dir="lib-lucene-analyzers" target="deploy"/>
@@ -42,7 +39,6 @@
      <ant dir="lib-xml" target="deploy"/>
      <ant dir="microformats-reltag" target="deploy"/>
      <ant dir="nutch-extensionpoints" target="deploy"/>
-     <ant dir="ontology" target="deploy"/>
      <ant dir="protocol-file" target="deploy"/>
      <ant dir="protocol-ftp" target="deploy"/>
      <ant dir="protocol-http" target="deploy"/>
@@ -53,18 +49,9 @@
      <ant dir="parse-swf" target="deploy"/>
      <ant dir="parse-tika" target="deploy"/>
      <ant dir="parse-zip" target="deploy"/>
-     <ant dir="query-basic" target="deploy"/>
-     <ant dir="query-more" target="deploy"/>
-     <ant dir="query-site" target="deploy"/>
-     <ant dir="query-custom" target="deploy"/>
-     <ant dir="query-url" target="deploy"/>
-     <ant dir="response-json" target="deploy"/>
-     <ant dir="response-xml" target="deploy"/>
      <ant dir="scoring-opic" target="deploy"/>
      <ant dir="scoring-link" target="deploy"/>
-     <ant dir="summary-basic" target="deploy"/>
      <ant dir="subcollection" target="deploy"/>
-     <ant dir="summary-lucene" target="deploy"/>
      <ant dir="tld" target="deploy"/>
      <ant dir="urlfilter-automaton" target="deploy"/>
      <ant dir="urlfilter-domain" target="deploy" />
@@ -86,7 +73,6 @@
      <ant dir="index-more" target="test"/>
      <ant dir="languageidentifier" target="test"/>
      <ant dir="lib-http" target="test"/>
-     <ant dir="ontology" target="test"/>
      <ant dir="protocol-httpclient" target="test"/>
      <!--ant dir="parse-ext" target="test"/-->
      <ant dir="parse-rss" target="test"/>
@@ -94,7 +80,6 @@
      <ant dir="parse-swf" target="test"/>
      <ant dir="parse-tika" target="test"/>
      <ant dir="parse-zip" target="test"/>
-     <ant dir="query-url" target="test"/>
      <ant dir="subcollection" target="test"/>
      <ant dir="urlfilter-automaton" target="test"/>
      <ant dir="urlfilter-domain" target="test" />
@@ -110,16 +95,11 @@
   <!-- Clean all of the plugins.                              -->
   <!-- ====================================================== -->
   <target name="clean">
-    <ant dir="analysis-de" target="clean"/>
-    <ant dir="analysis-fr" target="clean"/>
-    <ant dir="clustering-carrot2" target="clean"/>
     <ant dir="creativecommons" target="clean"/>
     <ant dir="feed" target="clean"/>
     <ant dir="index-basic" target="clean"/>
     <ant dir="index-anchor" target="clean"/>
     <ant dir="index-more" target="clean"/>
-    <ant dir="field-basic" target="clean"/>
-    <ant dir="field-boost" target="clean"/>  	
     <ant dir="languageidentifier" target="clean"/>
     <ant dir="lib-commons-httpclient" target="clean"/>
     <ant dir="lib-http" target="clean"/>
@@ -129,7 +109,6 @@
     <ant dir="lib-xml" target="clean"/>
     <ant dir="microformats-reltag" target="clean"/>
     <ant dir="nutch-extensionpoints" target="clean"/>
-    <ant dir="ontology" target="clean"/>
     <ant dir="protocol-file" target="clean"/>
     <ant dir="protocol-ftp" target="clean"/>
     <ant dir="protocol-http" target="clean"/>
@@ -140,18 +119,9 @@
     <ant dir="parse-swf" target="clean"/>
     <ant dir="parse-tika" target="clean"/>
     <ant dir="parse-zip" target="clean"/>
-    <ant dir="query-basic" target="clean"/>
-    <ant dir="query-more" target="clean"/>
-    <ant dir="query-site" target="clean"/>
-    <ant dir="query-url" target="clean"/>
-    <ant dir="query-custom" target="clean"/>
-    <ant dir="response-json" target="clean"/>
-    <ant dir="response-xml" target="clean"/>
     <ant dir="scoring-opic" target="clean"/>
     <ant dir="scoring-link" target="clean"/>
     <ant dir="subcollection" target="clean"/>
-    <ant dir="summary-basic" target="clean"/>
-    <ant dir="summary-lucene" target="clean"/>
     <ant dir="tld" target="clean"/>
     <ant dir="urlfilter-automaton" target="clean"/>
     <ant dir="urlfilter-domain" target="clean" />

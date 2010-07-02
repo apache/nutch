@@ -43,12 +43,6 @@
     <pathelement location="${build.dir}/${final.name}.job" />
   </path>
 
-  <!-- xmlcatalog definition for xslt task -->
-  <xmlcatalog id="docDTDs">
-     <dtd publicId="-//W3C//DTD XHTML 1.0 Transitional//EN"            
-          location="${xmlcatalog.dir}/xhtml1-transitional.dtd"/> 
-  </xmlcatalog> 
-
   <!-- ====================================================== -->
   <!-- Stuff needed by all targets                            -->
   <!-- ====================================================== -->
@@ -113,18 +107,6 @@
     <ant dir="src/plugin" target="deploy" inheritAll="false"/>
   </target>
 
-  <target name="generate-src" depends="init">
-    <javacc target="${src.dir}/org/apache/nutch/analysis/NutchAnalysis.jj"
-            javacchome="${javacc.home}">
-    </javacc>
-
-    <fixcrlf srcdir="${src.dir}" eol="lf" includes="**/*.java"/>
-
-  </target>
-
-  <target name="dynamic" depends="generate-src, compile">
-  </target>
-
   <!-- ================================================================== -->
   <!-- Make nutch.jar                                                     -->
   <!-- ================================================================== -->
@@ -161,57 +143,6 @@
       <zipfileset dir="${build.plugins}" prefix="plugins"/>
     </jar>
   </target>
-
-  <!-- ================================================================== -->
-  <!-- Make nutch.war                                                     -->
-  <!-- ================================================================== -->
-  <!--                                                                    -->
-  <!-- ================================================================== -->
-  <target name="war" depends="jar,compile,generate-docs">
-
-    <!-- generate the nutch.xml (servlet context) file -->
-    <xslt in="${basedir}/conf/nutch-default.xml"
-          out="${build.dir}/nutch.xml"
-          style="${basedir}/conf/context.xsl">
-        <xmlcatalog refid="docDTDs"/>
-    	<outputproperty name="indent" value="yes"/>
-    </xslt>
-    <war destfile="${build.dir}/${final.name}.war"
-    	webxml="${web.src.dir}/web.xml">
-      <fileset dir="${web.src.dir}/jsp"/>
-      <zipfileset dir="${docs.src}" includes="include/*.html"/>
-      <zipfileset dir="${build.docs}" includes="*/include/*.html"/>
-      <fileset dir="${docs.dir}"/>
-      <lib dir="${lib.dir}">
-        <include name="lucene*.jar"/>
-        <include name="taglibs-*.jar"/>
-        <include name="hadoop-*.jar"/>
-        <include name="dom4j-*.jar"/>
-        <include name="xerces-*.jar"/>
-        <include name="tika-*.jar"/>
-        <include name="apache-solr-*.jar"/>
-        <include name="commons-httpclient-*.jar"/>
-        <include name="commons-codec-*.jar"/>
-        <include name="commons-collections-*.jar"/>
-        <include name="commons-beanutils-*.jar"/>
-        <include name="commons-cli-*.jar"/>
-        <include name="commons-lang-*.jar"/>
-        <include name="commons-logging-*.jar"/>
-        <include name="log4j-*.jar"/>
-      </lib>
-      <lib dir="${build.dir}">
-	      <include name="${final.name}.jar"/>
-      </lib>
-      <classes dir="${conf.dir}" excludes="**/*.template"/>
-      <classes dir="${web.src.dir}/locale"/>
-      <classes file="${web.src.dir}/log4j.properties"/>
-      <zipfileset prefix="WEB-INF/classes/plugins" dir="${build.plugins}"/>
-      <webinf dir="${lib.dir}">
-	      <include name="taglibs-*.tld"/>
-      </webinf>
-    </war>
-   </target>
-
 
   <!-- ================================================================== -->
   <!-- Compile test code                                                  --> 
@@ -254,9 +185,6 @@
 	<fileset dir="${basedir}/src">
         	<include name="java/**/*.java"/>
 	        <include name="plugin/**/*.java"/>
-		<!-- Exclude generated sources -->
-		<exclude name="**/NutchAnalysis.java" />
-		<exclude name="**/NutchAnalysisTokenManager.java" />
       </fileset>
     </pmd>
 	<condition property="pmd.stop" value="true">
@@ -337,44 +265,25 @@
 
       <packageset dir="${src.dir}"/>
       <packageset dir="${plugins.dir}/lib-http/src/java"/>
-      <packageset dir="${plugins.dir}/lib-parsems/src/java"/>
       <packageset dir="${plugins.dir}/lib-regex-filter/src/java"/>
       <packageset dir="${plugins.dir}/microformats-reltag/src/java"/>
-      <packageset dir="${plugins.dir}/ontology/src/java"/>
       <packageset dir="${plugins.dir}/protocol-file/src/java"/>
       <packageset dir="${plugins.dir}/protocol-ftp/src/java"/>
       <packageset dir="${plugins.dir}/protocol-http/src/java"/>
       <packageset dir="${plugins.dir}/protocol-httpclient/src/java"/>
       <packageset dir="${plugins.dir}/parse-ext/src/java"/>
-      <packageset dir="${plugins.dir}/parse-html/src/java"/>
       <packageset dir="${plugins.dir}/parse-js/src/java"/>
-      <packageset dir="${plugins.dir}/parse-text/src/java"/>
-      <packageset dir="${plugins.dir}/parse-pdf/src/java"/>
-<!--  <packageset dir="${plugins.dir}/parse-rtf/src/java"/> plugin excluded from build due to licensing issues-->
-<!--  <packageset dir="${plugins.dir}/parse-mp3/src/java"/> plugin excluded from build due to licensing issues-->
-      <packageset dir="${plugins.dir}/parse-msexcel/src/java"/>
-      <packageset dir="${plugins.dir}/parse-mspowerpoint/src/java"/>
-      <packageset dir="${plugins.dir}/parse-msword/src/java"/>
-      <packageset dir="${plugins.dir}/parse-oo/src/java"/>
       <packageset dir="${plugins.dir}/parse-rss/src/java"/>
       <packageset dir="${plugins.dir}/parse-swf/src/java"/>
       <packageset dir="${plugins.dir}/parse-zip/src/java"/>
       <packageset dir="${plugins.dir}/index-basic/src/java"/>
       <packageset dir="${plugins.dir}/index-more/src/java"/>
-      <packageset dir="${plugins.dir}/query-basic/src/java"/>
-      <packageset dir="${plugins.dir}/query-more/src/java"/>
-      <packageset dir="${plugins.dir}/query-site/src/java"/>
-      <packageset dir="${plugins.dir}/query-url/src/java"/>
       <packageset dir="${plugins.dir}/scoring-opic/src/java"/>
-      <packageset dir="${plugins.dir}/summary-basic/src/java"/>
-      <packageset dir="${plugins.dir}/summary-lucene/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-automaton/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-regex/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
       <packageset dir="${plugins.dir}/languageidentifier/src/java"/>
-      <packageset dir="${plugins.dir}/clustering-carrot2/src/java"/>
-      <packageset dir="${plugins.dir}/ontology/src/java"/>
       
       <link href="${javadoc.link.java}"/>
       <link href="${javadoc.link.lucene}"/>
@@ -393,12 +302,7 @@
       <group title="URL Filter Plugins" packages="${plugins.urlfilter}"/>
       <group title="Scoring Plugins" packages="${plugins.scoring}"/>
       <group title="Parse Plugins" packages="${plugins.parse}"/>
-      <group title="Analysis Plugins" packages="${plugins.analysis}"/>
       <group title="Indexing Filter Plugins" packages="${plugins.index}"/>
-      <group title="Query Filter Plugins" packages="${plugins.query}"/>
-      <group title="Summary Plugins" packages="${plugins.summary}"/>
-      <group title="Clustering Plugins" packages="${plugins.clustering}"/>
-      <group title="Ontology Plugins" packages="${plugins.ontology}"/>
       <group title="Misc. Plugins" packages="${plugins.misc}"/>
     </javadoc>
     <!-- Copy the plugin.dtd file to the plugin doc-files dir -->
@@ -411,129 +315,12 @@
            includes="nutch-default.xml" style="conf/nutch-conf.xsl"/>
   </target>
 
-  <target name="generate-locale" if="doc.locale">
-    <echo message="Generating docs for locale=${doc.locale}"/>
-
-    <mkdir dir="${build.docs}/${doc.locale}/include"/>
-    <xslt in="${docs.src}/include/${doc.locale}/header.xml"
-          out="${build.docs}/${doc.locale}/include/header.html"
-          style="${docs.src}/style/nutch-header.xsl">
-        <xmlcatalog refid="docDTDs"/>
-    </xslt>
-
-    <dependset>
-       <srcfileset dir="${docs.src}/include/${doc.locale}" includes="*.xml"/>
-       <srcfileset dir="${docs.src}/style" includes="*.xsl"/>
-       <targetfileset dir="${docs.dir}/${doc.locale}" includes="*.html"/>
-    </dependset>  
-
-    <copy file="${docs.src}/style/nutch-page.xsl"
-          todir="${build.docs}/${doc.locale}"
-          preservelastmodified="true"/>
-
-    <xslt basedir="${docs.src}/pages/${doc.locale}"
-          destdir="${docs.dir}/${doc.locale}"
-          includes="*.xml"
-          style="${build.docs}/${doc.locale}/nutch-page.xsl">
-         <xmlcatalog refid="docDTDs"/>
-    </xslt>
-  </target>
-
-
-  <target name="generate-docs" depends="init">
-    <dependset>
-       <srcfileset dir="${docs.src}/include" includes="*.html"/>
-       <targetfileset dir="${docs.dir}" includes="**/*.html"/>
-    </dependset>  
-
-    <mkdir dir="${build.docs}/include"/>
-    <copy todir="${build.docs}/include">
-      <fileset dir="${docs.src}/include"/>
-    </copy>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="ca"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="de"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="en"/>
-    </antcall>
-    
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="es"/>
-    </antcall>
-    
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="fi"/>
-    </antcall>
-    
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="fr"/>
-    </antcall>
-    
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="hu"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="it"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="jp"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="ms"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="nl"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="pl"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="pt"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="sh"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="sr"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="sv"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="th"/>
-    </antcall>
-
-    <antcall target="generate-locale">
-      <param name="doc.locale" value="zh"/>
-    </antcall>
-
-    <fixcrlf srcdir="${docs.dir}" eol="lf" encoding="utf-8"
-             includes="**/*.html"/>
-
-  </target>
-
   <!-- ================================================================== -->
   <!-- D I S T R I B U T I O N                                            -->
   <!-- ================================================================== -->
   <!--                                                                    -->
   <!-- ================================================================== -->
-  <target name="package" depends="jar, job, war, javadoc">
+  <target name="package" depends="jar, job, javadoc">
     <mkdir dir="${dist.dir}"/>
     <mkdir dir="${dist.dir}/lib"/>
     <mkdir dir="${dist.dir}/bin"/>
@@ -549,13 +336,8 @@
       <fileset dir="${build.plugins}"/>
     </copy>
 
-    <copy todir="${dist.dir}/webapps">
-      <fileset dir="${build.webapps}"/>
-    </copy>
-
     <copy file="${build.dir}/${final.name}.jar" todir="${dist.dir}"/>
     <copy file="${build.dir}/${final.name}.job" todir="${dist.dir}"/>
-    <copy file="${build.dir}/${final.name}.war" todir="${dist.dir}"/>
 
     <copy todir="${dist.dir}/bin">
       <fileset dir="bin"/>

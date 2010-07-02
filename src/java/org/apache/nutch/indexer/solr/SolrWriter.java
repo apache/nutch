@@ -23,6 +23,7 @@ import java.util.Map.Entry;
 
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.indexer.NutchField;
 import org.apache.nutch.indexer.NutchIndexWriter;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -47,16 +48,16 @@ public class SolrWriter implements NutchIndexWriter {
 
   public void write(NutchDocument doc) throws IOException {
     final SolrInputDocument inputDoc = new SolrInputDocument();
-    for(final Entry<String, List<String>> e : doc) {
-      for (final String val : e.getValue()) {
-        inputDoc.addField(solrMapping.mapKey(e.getKey()), val);
+    for(final Entry<String, NutchField> e : doc) {
+      for (final Object val : e.getValue().getValues()) {
+        inputDoc.addField(solrMapping.mapKey(e.getKey()), val, e.getValue().getWeight());
         String sCopy = solrMapping.mapCopyKey(e.getKey());
         if (sCopy != e.getKey()) {
         	inputDoc.addField(sCopy, val);	
         }
       }
     }
-    inputDoc.setDocumentBoost(doc.getScore());
+    inputDoc.setDocumentBoost(doc.getWeight());
     inputDocs.add(inputDoc);
     if (inputDocs.size() > commitSize) {
       try {
