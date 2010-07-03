@@ -351,10 +351,6 @@
         <fileset dir="${dist.dir}/bin"/>
     </chmod>
 
-    <copy todir="${dist.dir}/docs">
-      <fileset dir="${docs.dir}"/>
-    </copy>
-
     <copy todir="${dist.dir}/docs/api">
       <fileset dir="${build.javadoc}"/>
     </copy>
