@@ -59,6 +59,7 @@ import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.StringUtil;
+import org.apache.nutch.util.TimingUtil;
 
 /**
  * <p>The <code>ArcSegmentCreator</code> is a replacement for fetcher that will
@@ -346,8 +347,10 @@ public class ArcSegmentCreator
   public void createSegments(Path arcFiles, Path segmentsOutDir)
     throws IOException {
 
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
     if (LOG.isInfoEnabled()) {
-      LOG.info("ArcSegmentCreator: starting");
+      LOG.info("ArcSegmentCreator: starting at " + sdf.format(start));
       LOG.info("ArcSegmentCreator: arc files dir: " + arcFiles);
     }
 
@@ -364,9 +367,9 @@ public class ArcSegmentCreator
     job.setOutputValueClass(NutchWritable.class);
 
     JobClient.runJob(job);
-    if (LOG.isInfoEnabled()) {
-      LOG.info("ArcSegmentCreator: done");
-    }
+
+    long end = System.currentTimeMillis();
+    LOG.info("ArcSegmentCreator: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
   public static void main(String args[])

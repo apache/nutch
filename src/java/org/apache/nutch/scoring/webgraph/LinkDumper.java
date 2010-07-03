@@ -19,6 +19,7 @@ package org.apache.nutch.scoring.webgraph;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -62,6 +63,7 @@ import org.apache.nutch.scoring.webgraph.Loops.LoopSet;
 import org.apache.nutch.util.FSUtils;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 
 /**
  * The LinkDumper tool creates a database of node to inlink information that can
@@ -346,7 +348,9 @@ public class LinkDumper
   public void dumpLinks(Path webGraphDb)
     throws IOException {
 
-    LOG.info("NodeDumper: starting");
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("NodeDumper: starting at " + sdf.format(start));
     Configuration conf = getConf();
     FileSystem fs = FileSystem.get(conf);
 
@@ -410,6 +414,8 @@ public class LinkDumper
     }
 
     fs.delete(tempInverted, true);
+    long end = System.currentTimeMillis();
+    LOG.info("LinkDumper: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
   public static void main(String[] args)

@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-838 Add timing information to all Tool classes (Jeroen van Vianen, mattmann)
+
 * NUTCH-837 Remove search servers and Lucene dependencies (ab)
 
 * NUTCH-836 Remove deprecated parse plugins (jnioche)

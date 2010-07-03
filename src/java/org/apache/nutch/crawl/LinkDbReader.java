@@ -33,7 +33,9 @@ import org.apache.hadoop.conf.Configuration;
 
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 
 /** . */
@@ -89,10 +91,11 @@ public class LinkDbReader extends Configured implements Tool, Closeable {
   }
   
   public void processDumpJob(String linkdb, String output) throws IOException {
-
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
     if (LOG.isInfoEnabled()) {
-      LOG.info("LinkDb dump: starting");
-      LOG.info("LinkDb db: " + linkdb);
+      LOG.info("LinkDb dump: starting at " + sdf.format(start));
+      LOG.info("LinkDb dump: db: " + linkdb);
     }
     Path outFolder = new Path(output);
 
@@ -108,6 +111,9 @@ public class LinkDbReader extends Configured implements Tool, Closeable {
     job.setOutputValueClass(Inlinks.class);
 
     JobClient.runJob(job);
+
+    long end = System.currentTimeMillis();
+    LOG.info("LinkDb dump: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
   
   public static void main(String[] args) throws Exception {

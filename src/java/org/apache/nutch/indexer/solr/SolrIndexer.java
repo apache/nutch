@@ -16,11 +16,6 @@
  */
 package org.apache.nutch.indexer.solr;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -37,8 +32,15 @@ import org.apache.nutch.indexer.IndexerMapReduce;
 import org.apache.nutch.indexer.NutchIndexWriterFactory;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class SolrIndexer extends Configured implements Tool {
 
@@ -54,7 +56,9 @@ public class SolrIndexer extends Configured implements Tool {
 
   public void indexSolr(String solrUrl, Path crawlDb, Path linkDb,
       List<Path> segments) throws IOException {
-    LOG.info("SolrIndexer: starting");
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("SolrIndexer: starting at " + sdf.format(start));
 
     final JobConf job = new NutchJob(getConf());
     job.setJobName("index-solr " + solrUrl);
@@ -76,13 +80,14 @@ public class SolrIndexer extends Configured implements Tool {
       // do the commits once and for all the reducers in one go
       SolrServer solr =  new CommonsHttpSolrServer(solrUrl);
       solr.commit();
-    } 
+      long end = System.currentTimeMillis();
+      LOG.info("SolrIndexer: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
+    }
     catch (Exception e){
       LOG.error(e);
     } finally {
       FileSystem.get(job).delete(tmp, true);
     }
-    LOG.info("SolrIndexer: done");
   }
 
   public int run(String[] args) throws Exception {

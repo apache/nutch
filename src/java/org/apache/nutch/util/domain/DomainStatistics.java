@@ -19,6 +19,7 @@ package org.apache.nutch.util.domain;
 
 import java.io.IOException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
@@ -43,6 +44,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.URLUtil;
 
 /**
@@ -70,7 +72,7 @@ implements Tool, Mapper<Text, CrawlDatum, Text, LongWritable>,
   
   public int run(String[] args) throws IOException {
     if (args.length < 3) {
-      System.out.println("usage: inputDirs outDir host|domain|suffix [numOfReducer]");
+      System.out.println("usage: DomainStatistics inputDirs outDir host|domain|suffix [numOfReducer]");
       return 1;
     }
     String inputDir = args[0];
@@ -80,6 +82,10 @@ implements Tool, Mapper<Text, CrawlDatum, Text, LongWritable>,
     if (args.length > 3) {
       numOfReducers = Integer.parseInt(args[3]);
     }
+
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("DomainStatistics: starting at " + sdf.format(start));
 
     JobConf job = new NutchJob(getConf());
     job.setJobName("Domain statistics");
@@ -112,6 +118,8 @@ implements Tool, Mapper<Text, CrawlDatum, Text, LongWritable>,
     
     JobClient.runJob(job);
     
+    long end = System.currentTimeMillis();
+    LOG.info("DomainStatistics: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
     return 0;
   }
 
@@ -122,12 +130,10 @@ implements Tool, Mapper<Text, CrawlDatum, Text, LongWritable>,
   }
   
 
-  @Override
   public Configuration getConf() {
     return conf;
   }
 
-  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
   }

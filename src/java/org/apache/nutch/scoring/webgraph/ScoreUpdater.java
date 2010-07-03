@@ -17,6 +17,7 @@
 package org.apache.nutch.scoring.webgraph;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -53,6 +54,7 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 
 /**
  * Updates the score from the WebGraph node database into the crawl database.
@@ -151,6 +153,10 @@ public class ScoreUpdater
   public void update(Path crawlDb, Path webGraphDb)
     throws IOException {
 
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("ScoreUpdater: starting at " + sdf.format(start));
+
     Configuration conf = getConf();
     FileSystem fs = FileSystem.get(conf);
 
@@ -190,8 +196,11 @@ public class ScoreUpdater
     }
 
     // install the temp crawl database
-    LOG.info("Installing new crawldb " + crawlDb);
+    LOG.info("ScoreUpdater: installing new crawldb " + crawlDb);
     CrawlDb.install(updater, crawlDb);
+
+    long end = System.currentTimeMillis();
+    LOG.info("ScoreUpdater: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
   public static void main(String[] args)

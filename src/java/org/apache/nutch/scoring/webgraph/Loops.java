@@ -19,6 +19,7 @@ package org.apache.nutch.scoring.webgraph;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -61,6 +62,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.FSUtils;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 
 /**
  * The Loops job identifies cycles of loops inside of the web graph. This is
@@ -466,8 +468,10 @@ public class Loops
   public void findLoops(Path webGraphDb)
     throws IOException {
 
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
     if (LOG.isInfoEnabled()) {
-      LOG.info("Loops: starting");
+      LOG.info("Loops: starting at " + sdf.format(start));
       LOG.info("Loops: webgraphdb: " + webGraphDb);
     }
 
@@ -495,11 +499,11 @@ public class Loops
     init.setOutputFormat(SequenceFileOutputFormat.class);
 
     try {
-      LOG.info("Initializer: running");
+      LOG.info("Loops: starting initializer");
       JobClient.runJob(init);
-      LOG.info("Initializer: installing " + routes);
+      LOG.info("Loops: installing initializer " + routes);
       FSUtils.replace(fs, routes, tempRoute, true);
-      LOG.info("Initializer: finished");
+      LOG.info("Loops: finished initializer");
     }
     catch (IOException e) {
       LOG.error(StringUtils.stringifyException(e));
@@ -527,11 +531,11 @@ public class Loops
       looper.setBoolean("last", i == (depth - 1));
 
       try {
-        LOG.info("Looper: running");
+        LOG.info("Loops: starting looper");
         JobClient.runJob(looper);
-        LOG.info("Looper: installing " + routes);
+        LOG.info("Loops: installing looper " + routes);
         FSUtils.replace(fs, routes, tempRoute, true);
-        LOG.info("Looper: finished");
+        LOG.info("Loops: finished looper");
       }
       catch (IOException e) {
         LOG.error(StringUtils.stringifyException(e));
@@ -554,14 +558,16 @@ public class Loops
     finalizer.setOutputFormat(MapFileOutputFormat.class);
 
     try {
-      LOG.info("Finalizer: running");
+      LOG.info("Loops: starting finalizer");
       JobClient.runJob(finalizer);
-      LOG.info("Finalizer: finished");
+      LOG.info("Loops: finished finalizer");
     }
     catch (IOException e) {
       LOG.error(StringUtils.stringifyException(e));
       throw e;
     }
+    long end = System.currentTimeMillis();
+    LOG.info("Loops: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
   public static void main(String[] args)

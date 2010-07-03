@@ -17,6 +17,7 @@
 package org.apache.nutch.scoring.webgraph;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -63,6 +64,7 @@ import org.apache.nutch.util.FSUtils;
 import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.URLUtil;
 
 /**
@@ -437,8 +439,10 @@ public class WebGraph
   public void createWebGraph(Path webGraphDb, Path[] segments)
     throws IOException {
 
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
     if (LOG.isInfoEnabled()) {
-      LOG.info("WebGraphDb: starting");
+      LOG.info("WebGraphDb: starting at " + sdf.format(start));
       LOG.info("WebGraphDb: webgraphdb: " + webGraphDb);
     }
 
@@ -590,6 +594,9 @@ public class WebGraph
 
     // remove the lock file for the webgraph
     LockUtil.removeLockFile(fs, lock);
+
+    long end = System.currentTimeMillis();
+    LOG.info("WebGraphDb: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
   public static void main(String[] args)

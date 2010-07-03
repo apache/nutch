@@ -44,6 +44,7 @@ import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.URLUtil;
 
 /**
@@ -472,8 +473,10 @@ public class Generator extends Configured implements Tool {
     FileSystem fs = FileSystem.get(getConf());
     LockUtil.createLockFile(fs, lock, force);
 
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("Generator: starting at " + sdf.format(start));
     LOG.info("Generator: Selecting best-scoring urls due for fetch.");
-    LOG.info("Generator: starting");
     LOG.info("Generator: filtering: " + filter);
     LOG.info("Generator: normalizing: " + norm);
     if (topN != Long.MAX_VALUE) {
@@ -586,9 +589,8 @@ public class Generator extends Configured implements Tool {
     LockUtil.removeLockFile(fs, lock);
     fs.delete(tempDir, true);
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Generator: done.");
-    }
+    long end = System.currentTimeMillis();
+    LOG.info("Generator: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
 
     Path[] patharray = new Path[generatedSegments.size()];
     return generatedSegments.toArray(patharray);

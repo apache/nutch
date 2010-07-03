@@ -18,6 +18,7 @@
 package org.apache.nutch.crawl;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -35,6 +36,7 @@ import org.apache.hadoop.util.*;
 import org.apache.hadoop.conf.*;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 
 /**
  * This tool merges several CrawlDb-s into one, optionally filtering
@@ -112,6 +114,10 @@ public class CrawlDbMerger extends Configured implements Tool {
   }
 
   public void merge(Path output, Path[] dbs, boolean normalize, boolean filter) throws Exception {
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("CrawlDb merge: starting at " + sdf.format(start));
+
     JobConf job = createMergeJob(getConf(), output, normalize, filter);
     for (int i = 0; i < dbs.length; i++) {
       FileInputFormat.addInputPath(job, new Path(dbs[i], CrawlDb.CURRENT_NAME));
@@ -120,6 +126,8 @@ public class CrawlDbMerger extends Configured implements Tool {
     FileSystem fs = FileSystem.get(getConf());
     fs.mkdirs(output);
     fs.rename(FileOutputFormat.getOutputPath(job), new Path(output, CrawlDb.CURRENT_NAME));
+    long end = System.currentTimeMillis();
+    LOG.info("CrawlDb merge: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
   public static JobConf createMergeJob(Configuration conf, Path output, boolean normalize, boolean filter) {

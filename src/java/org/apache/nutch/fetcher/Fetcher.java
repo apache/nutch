@@ -21,6 +21,7 @@ import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -1066,8 +1067,10 @@ public class Fetcher extends Configured implements Tool,
 
     checkConfiguration();
 
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
     if (LOG.isInfoEnabled()) {
-      LOG.info("Fetcher: starting");
+      LOG.info("Fetcher: starting at " + sdf.format(start));
       LOG.info("Fetcher: segment: " + segment);
     }
 
@@ -1102,7 +1105,9 @@ public class Fetcher extends Configured implements Tool,
     job.setOutputValueClass(NutchWritable.class);
 
     JobClient.runJob(job);
-    if (LOG.isInfoEnabled()) { LOG.info("Fetcher: done"); }
+
+    long end = System.currentTimeMillis();
+    LOG.info("Fetcher: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
 

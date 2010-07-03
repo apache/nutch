@@ -18,6 +18,7 @@
 package org.apache.nutch.crawl;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 // Commons Logging imports
@@ -34,6 +35,7 @@ import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 
 /**
  * This class takes the output of the fetcher and updates the
@@ -63,8 +65,10 @@ public class CrawlDb extends Configured implements Tool {
     FileSystem fs = FileSystem.get(getConf());
     Path lock = new Path(crawlDb, LOCK_NAME);
     LockUtil.createLockFile(fs, lock, force);
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
     if (LOG.isInfoEnabled()) {
-      LOG.info("CrawlDb update: starting");
+      LOG.info("CrawlDb update: starting at " + sdf.format(start));
       LOG.info("CrawlDb update: db: " + crawlDb);
       LOG.info("CrawlDb update: segments: " + Arrays.asList(segments));
       LOG.info("CrawlDb update: additions allowed: " + additionsAllowed);
@@ -100,7 +104,8 @@ public class CrawlDb extends Configured implements Tool {
     }
 
     CrawlDb.install(job, crawlDb);
-    if (LOG.isInfoEnabled()) { LOG.info("CrawlDb update: done"); }
+    long end = System.currentTimeMillis();
+    LOG.info("CrawlDb update: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
   public static JobConf createJob(Configuration config, Path crawlDb)
