@@ -17,6 +17,7 @@
 package org.apache.nutch.scoring.webgraph;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 
 import org.apache.commons.cli.CommandLine;
@@ -49,6 +50,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 
 /**
  * A tools that dumps out the top urls by number of inlinks, number of outlinks,
@@ -152,9 +154,6 @@ public class NodeDumper
    * 
    * @param webGraphDb The WebGraph from which to pull values.
    * 
-   * @param inlinks
-   * @param outlinks
-   * @param scores
    * @param topN
    * @param output
    * 
@@ -163,7 +162,9 @@ public class NodeDumper
   public void dumpNodes(Path webGraphDb, DumpType type, long topN, Path output)
     throws IOException {
 
-    LOG.info("NodeDumper: starting");
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("NodeDumper: starting at " + sdf.format(start));
     Path nodeDb = new Path(webGraphDb, WebGraph.NODE_DIR);
     Configuration conf = getConf();
 
@@ -193,6 +194,8 @@ public class NodeDumper
       LOG.error(StringUtils.stringifyException(e));
       throw e;
     }
+    long end = System.currentTimeMillis();
+    LOG.info("NodeDumper: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
   public static void main(String[] args)

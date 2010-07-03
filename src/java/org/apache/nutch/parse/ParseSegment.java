@@ -34,6 +34,7 @@ import org.apache.nutch.util.*;
 import org.apache.hadoop.fs.Path;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -42,7 +43,7 @@ public class ParseSegment extends Configured implements Tool,
     Mapper<WritableComparable, Content, Text, ParseImpl>,
     Reducer<Text, Writable, Text, Writable> {
 
-  public static final Log LOG = LogFactory.getLog(Parser.class);
+  public static final Log LOG = LogFactory.getLog(ParseSegment.class);
   
   private ScoringFilters scfilters;
   
@@ -131,9 +132,11 @@ public class ParseSegment extends Configured implements Tool,
 
   public void parse(Path segment) throws IOException {
 
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
     if (LOG.isInfoEnabled()) {
-      LOG.info("Parse: starting");
-      LOG.info("Parse: segment: " + segment);
+      LOG.info("ParseSegment: starting at " + sdf.format(start));
+      LOG.info("ParseSegment: segment: " + segment);
     }
 
     JobConf job = new NutchJob(getConf());
@@ -151,7 +154,8 @@ public class ParseSegment extends Configured implements Tool,
     job.setOutputValueClass(ParseImpl.class);
 
     JobClient.runJob(job);
-    if (LOG.isInfoEnabled()) { LOG.info("Parse: done"); }
+    long end = System.currentTimeMillis();
+    LOG.info("ParseSegment: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
 

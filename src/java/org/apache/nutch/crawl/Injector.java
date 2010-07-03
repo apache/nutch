@@ -18,6 +18,7 @@
 package org.apache.nutch.crawl;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 // Commons Logging imports
@@ -35,6 +36,7 @@ import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 
 /** This class takes a flat file of URLs and adds them to the of pages to be
  * crawled.  Useful for bootstrapping the system. 
@@ -79,6 +81,12 @@ public class Injector extends Configured implements Tool {
                     OutputCollector<Text, CrawlDatum> output, Reporter reporter)
       throws IOException {
       String url = value.toString();              // value is line of text
+
+      if (url != null && url.trim().startsWith("#")) {
+          /* Ignore line that start with # */
+          return;
+      }
+
       // if tabs : metadata that could be stored
       // must be name=value and separated by \t
       float customScore = -1f;
@@ -182,9 +190,10 @@ public class Injector extends Configured implements Tool {
   }
   
   public void inject(Path crawlDb, Path urlDir) throws IOException {
-
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
     if (LOG.isInfoEnabled()) {
-      LOG.info("Injector: starting");
+      LOG.info("Injector: starting at " + sdf.format(start));
       LOG.info("Injector: crawlDb: " + crawlDb);
       LOG.info("Injector: urlDir: " + urlDir);
     }
@@ -223,8 +232,9 @@ public class Injector extends Configured implements Tool {
     // clean up
     FileSystem fs = FileSystem.get(getConf());
     fs.delete(tempDir, true);
-    if (LOG.isInfoEnabled()) { LOG.info("Injector: done"); }
 
+    long end = System.currentTimeMillis();
+    LOG.info("Injector: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
   public static void main(String[] args) throws Exception {

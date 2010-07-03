@@ -19,6 +19,7 @@ package org.apache.nutch.tools.compat;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -59,6 +60,7 @@ import org.apache.nutch.scoring.webgraph.Node;
 import org.apache.nutch.util.FSUtils;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.URLUtil;
 
 /**
@@ -157,13 +159,17 @@ public class ReprUrlFixer
   public void update(Path crawlDb, Path[] segments)
     throws IOException {
 
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("ReprUrlFixer: starting at " + sdf.format(start));
+
     Configuration conf = getConf();
     FileSystem fs = FileSystem.get(conf);
 
     // run the crawl database through the repr fixer
     if (crawlDb != null) {
 
-      LOG.info("Running ReprUtilFixer " + crawlDb);
+      LOG.info("ReprUrlFixer: crawlDb " + crawlDb);
       Path crawlDbCurrent = new Path(crawlDb, CrawlDb.CURRENT_NAME);
       Path newCrawlDb = new Path(crawlDb,
         Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
@@ -180,7 +186,7 @@ public class ReprUrlFixer
 
       try {
         JobClient.runJob(updater);
-        LOG.info("Installing new crawldb " + crawlDb);
+        LOG.info("ReprUrlFixer: installing new crawldb " + crawlDb);
         CrawlDb.install(updater, crawlDb);
       }
       catch (IOException e) {
@@ -196,13 +202,13 @@ public class ReprUrlFixer
       for (int i = 0; i < segments.length; i++) {
 
         Path segment = segments[i];
-        LOG.info("Running ReprUtilFixer " + segment + " fetch");
+        LOG.info("ReprUrlFixer: fetching segment " + segment);
         Path segFetch = new Path(segment, CrawlDatum.FETCH_DIR_NAME);
         Path newSegFetch = new Path(segment, CrawlDatum.FETCH_DIR_NAME + "-"
           + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
         JobConf fetch = new NutchJob(conf);
-        fetch.setJobName("ReprUtilFixer: " + segment.toString());
+        fetch.setJobName("ReprUrlFixer: " + segment.toString());
         FileInputFormat.addInputPath(fetch, segFetch);
         FileOutputFormat.setOutputPath(fetch, newSegFetch);
         fetch.setInputFormat(SequenceFileInputFormat.class);
@@ -213,7 +219,7 @@ public class ReprUrlFixer
 
         try {
           JobClient.runJob(fetch);
-          LOG.info("Installing new segment fetch directory " + newSegFetch);
+          LOG.info("ReprUrlFixer: installing new segment fetch directory " + newSegFetch);
           FSUtils.replace(fs, segFetch, newSegFetch, true);
           LOG.info("ReprUrlFixer: finished installing segment fetch directory");
         }
@@ -222,13 +228,13 @@ public class ReprUrlFixer
           throw e;
         }
 
-        LOG.info("Running ReprUtilFixer " + segment + " parse");
+        LOG.info("ReprUrlFixer: parsing segment " + segment);
         Path segParse = new Path(segment, CrawlDatum.PARSE_DIR_NAME);
         Path newSegParse = new Path(segment, CrawlDatum.PARSE_DIR_NAME + "-"
           + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
         JobConf parse = new NutchJob(conf);
-        parse.setJobName("ReprUtilFixer: " + segment.toString());
+        parse.setJobName("ReprUrlFixer: " + segment.toString());
         FileInputFormat.addInputPath(parse, segParse);
         FileOutputFormat.setOutputPath(parse, newSegParse);
         parse.setInputFormat(SequenceFileInputFormat.class);
@@ -239,7 +245,7 @@ public class ReprUrlFixer
 
         try {
           JobClient.runJob(parse);
-          LOG.info("Installing new segment parse directry " + newSegParse);
+          LOG.info("ReprUrlFixer: installing new segment parse directry " + newSegParse);
           FSUtils.replace(fs, segParse, newSegParse, true);
           LOG.info("ReprUrlFixer: finished installing segment parse directory");
         }
@@ -249,6 +255,9 @@ public class ReprUrlFixer
         }
       }
     }
+
+    long end = System.currentTimeMillis();
+    LOG.info("ReprUrlFixer: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
   /**

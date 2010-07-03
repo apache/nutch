@@ -19,6 +19,7 @@ package org.apache.nutch.scoring.webgraph;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -64,6 +65,7 @@ import org.apache.nutch.scoring.webgraph.Loops.LoopSet;
 import org.apache.nutch.util.FSUtils;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.URLUtil;
 
 public class LinkRank
@@ -579,6 +581,10 @@ public class LinkRank
   public void analyze(Path webGraphDb)
     throws IOException {
 
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("Analysis: starting at " + sdf.format(start));
+
     // store the link rank under the webgraphdb temporarily, final scores get
     // upddated into the nodedb
     Path linkRank = new Path(webGraphDb, "linkrank");
@@ -606,8 +612,8 @@ public class LinkRank
     float rankOneScore = (1f / (float)numLinks);
 
     if (LOG.isInfoEnabled()) {
-      LOG.info("Number of links " + numLinks);
-      LOG.info("Rank One " + rankOneScore);
+      LOG.info("Analysis: Number of links: " + numLinks);
+      LOG.info("Analysis: Rank One: " + rankOneScore);
     }
 
     // run invert and analysis for a given number of iterations to allow the
@@ -616,7 +622,7 @@ public class LinkRank
     for (int i = 0; i < numIterations; i++) {
 
       // the input to inverting is always the previous output from analysis
-      LOG.info("Running iteration " + (i + 1) + " of " + numIterations);
+      LOG.info("Analysis: Starting iteration " + (i + 1) + " of " + numIterations);
       Path tempRank = new Path(linkRank + "-"
         + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
       fs.mkdirs(tempRank);
@@ -629,19 +635,20 @@ public class LinkRank
         rankOneScore);
 
       // replace the temporary NodeDb with the output from analysis
-      LOG.info("Installing new link scores");
+      LOG.info("Analysis: Installing new link scores");
       FSUtils.replace(fs, linkRank, tempRank, true);
-      LOG.info("Finished analysis iteration " + (i + 1) + " of "
+      LOG.info("Analysis: finished iteration " + (i + 1) + " of "
         + numIterations);
     }
 
     // replace the NodeDb in the WebGraph with the final output of analysis
-    LOG.info("Installing web graph nodes");
+    LOG.info("Analysis: Installing web graph nodes");
     FSUtils.replace(fs, wgNodeDb, nodeDb, true);
 
     // remove the temporary link rank folder
     fs.delete(linkRank, true);
-    LOG.info("Finished analysis");
+    long end = System.currentTimeMillis();
+    LOG.info("Analysis: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
   public static void main(String[] args)

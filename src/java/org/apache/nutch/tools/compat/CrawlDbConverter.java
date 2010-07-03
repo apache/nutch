@@ -18,6 +18,7 @@
 package org.apache.nutch.tools.compat;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.Random;
 
@@ -47,6 +48,7 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 
 /**
  * This tool converts CrawlDb created in old &lt;UTF8, CrawlDatum&gt; format
@@ -129,6 +131,10 @@ public class CrawlDbConverter extends Configured implements Tool,
     if (args.length > 2 && args[2].equalsIgnoreCase("-withMetadata"))
       withMetadata = true;
     
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("CrawlDbConverter: starting at " + sdf.format(start));
+
     job.setBoolean(CONVERT_META_KEY, withMetadata);
     FileInputFormat.addInputPath(job, oldDb);
     job.setInputFormat(SequenceFileInputFormat.class);
@@ -140,10 +146,13 @@ public class CrawlDbConverter extends Configured implements Tool,
     try {
       JobClient.runJob(job);
       CrawlDb.install(job, new Path(args[1]));
-      return 0;
     } catch (Exception e) {
       LOG.fatal("Error: " + StringUtils.stringifyException(e));
       return -1;
     }
+
+    long end = System.currentTimeMillis();
+    LOG.info("CrawlDb scanner: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
+    return 0;
   }
 }

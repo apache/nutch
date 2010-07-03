@@ -18,6 +18,7 @@ package org.apache.nutch.indexer.field;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -62,6 +63,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 
 /**
  * Creates custom FieldWritable objects from a text file containing field
@@ -375,6 +377,10 @@ public class CustomFields
   void createFields(Path basicFields, Path[] inputs, Path output)
     throws IOException {
 
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("CustomerFields: starting at " + sdf.format(start));
+
     Configuration conf = getConf();
     FileSystem fs = FileSystem.get(conf);
     Path tempFields = new Path(output + "-"
@@ -382,6 +388,8 @@ public class CustomFields
     runConverter(inputs, tempFields);
     runCollector(basicFields, tempFields, output);
     fs.delete(tempFields, true);
+    long end = System.currentTimeMillis();
+    LOG.info("CommonFields: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
   public static void main(String[] args)

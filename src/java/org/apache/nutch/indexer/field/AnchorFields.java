@@ -17,6 +17,7 @@
 package org.apache.nutch.indexer.field;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -58,6 +59,7 @@ import org.apache.nutch.scoring.webgraph.Node;
 import org.apache.nutch.scoring.webgraph.WebGraph;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 
 /**
  * Creates FieldWritable objects for inbound anchor text.   These FieldWritable
@@ -357,6 +359,9 @@ public class AnchorFields
    */
   public void createFields(Path webGraphDb, Path basicFields, Path output)
     throws IOException {
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("AnchorFields: starting at " + sdf.format(start));
 
     Configuration conf = getConf();
     FileSystem fs = FileSystem.get(conf);
@@ -365,6 +370,8 @@ public class AnchorFields
     runExtractor(webGraphDb, tempLinks);
     runCollector(basicFields, tempLinks, output);
     fs.delete(tempLinks, true);
+    long end = System.currentTimeMillis();
+    LOG.info("AnchorFields: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
   public static void main(String[] args)

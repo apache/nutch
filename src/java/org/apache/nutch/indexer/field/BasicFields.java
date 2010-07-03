@@ -17,6 +17,7 @@
 package org.apache.nutch.indexer.field;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -65,6 +66,7 @@ import org.apache.nutch.scoring.webgraph.Node;
 import org.apache.nutch.scoring.webgraph.WebGraph;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.URLUtil;
 
 /**
@@ -691,6 +693,10 @@ public class BasicFields
   public void createFields(Path nodeDb, Path[] segments, Path output)
     throws IOException {
 
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("BasicFields: starting at " + sdf.format(start));
+
     Configuration conf = getConf();
     FileSystem fs = FileSystem.get(conf);
     Path tempOutput = new Path(output.toString() + "-temp");
@@ -720,6 +726,8 @@ public class BasicFields
     // merge all of the segments and delete any temporary output
     runMerger(basicFields, output);
     fs.delete(tempOutput, true);
+    long end = System.currentTimeMillis();
+    LOG.info("BasicFields: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
   public static void main(String[] args)

@@ -17,6 +17,7 @@
 package org.apache.nutch.tools;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
@@ -43,6 +44,7 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 
 /**
  * Dumps all the entries matching a regular expression on their URL. Generates a
@@ -99,6 +101,10 @@ public class CrawlDBScanner extends Configured implements Tool,
   private void scan(Path crawlDb, Path outputPath, String regex, String status,
       boolean text) throws IOException {
 
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("CrawlDB scanner: starting at " + sdf.format(start));
+
     JobConf job = new NutchJob(getConf());
 
     job.setJobName("Scan : " + crawlDb + " for URLS matching : " + regex);
@@ -139,6 +145,9 @@ public class CrawlDBScanner extends Configured implements Tool,
     } catch (IOException e) {
       throw e;
     }
+
+    long end = System.currentTimeMillis();
+    LOG.info("CrawlDb scanner: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
   public static void main(String args[]) throws Exception {

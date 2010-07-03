@@ -18,6 +18,7 @@
 package org.apache.nutch.indexer;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.apache.commons.logging.Log;
@@ -37,6 +38,7 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.LogMergePolicy;
 import org.apache.lucene.index.IndexWriter.MaxFieldLength;
+import org.apache.nutch.util.TimingUtil;
 
 /*************************************************************************
  * IndexMerger creates an index for the output corresponding to a 
@@ -62,7 +64,12 @@ public class IndexMerger extends Configured implements Tool {
    * Merge all input indexes to the single output index
    */
   public void merge(Path[] indexes, Path outputIndex, Path localWorkingDir) throws IOException {
-    LOG.info("merging indexes to: " + outputIndex);
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    if (LOG.isInfoEnabled()) {
+      LOG.info("IndexMerger: starting at " + sdf.format(start));
+      LOG.info("IndexMerger: merging indexes to: " + outputIndex);
+    }
 
     FileSystem localFs = FileSystem.getLocal(getConf());  
     if (localFs.exists(localWorkingDir)) {
@@ -107,7 +114,8 @@ public class IndexMerger extends Configured implements Tool {
     // Put target back
     //
     fs.completeLocalOutput(outputIndex, tmpLocalOutput);
-    LOG.info("done merging");
+    long end = System.currentTimeMillis();
+    LOG.info("IndexMerger: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
   /** 

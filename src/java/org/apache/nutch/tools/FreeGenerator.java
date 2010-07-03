@@ -18,6 +18,7 @@
 package org.apache.nutch.tools;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
@@ -50,6 +51,7 @@ import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 
 /**
  * This tool generates fetchlists (segments to be fetched) from plain text
@@ -157,6 +159,10 @@ public class FreeGenerator extends Configured implements Tool {
       }
     }
     
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("FreeGenerator: starting at " + sdf.format(start));
+
     JobConf job = new NutchJob(getConf());
     job.setBoolean(FILTER_KEY, filter);
     job.setBoolean(NORMALIZE_KEY, normalize);
@@ -177,11 +183,13 @@ public class FreeGenerator extends Configured implements Tool {
         new Path(segName, CrawlDatum.GENERATE_DIR_NAME)));
     try {
       JobClient.runJob(job);
-      return 0;
     } catch (Exception e) {
       LOG.fatal("FAILED: " + StringUtils.stringifyException(e));
       return -1;
     }
+    long end = System.currentTimeMillis();
+    LOG.info("FreeGenerator: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
+    return 0;
   }
 
   public static void main(String[] args) throws Exception {

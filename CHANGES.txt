@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.2 - Current Development
 
+* NUTCH-838 Add timing information to all Tool classes (Jeroen van Vianen, mattmann)
+
 * NUTCH-835 Document deduplication failed using MD5Signature (Sebastian Nagel via ab)
 
 * NUTCH-831 Allow configuration of how fields crawled by Nutch are stored / indexed / 

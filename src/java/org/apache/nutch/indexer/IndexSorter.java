@@ -19,6 +19,7 @@ package org.apache.nutch.indexer;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Arrays;
 
@@ -35,6 +36,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.util.*;
+import org.apache.nutch.util.TimingUtil;
 
 /** Sort a Nutch index by page score.  Higher scoring documents are assigned
  * smaller document numbers. */
@@ -261,8 +263,9 @@ public class IndexSorter extends Configured implements Tool {
   }
   
   public void sort(File directory) throws IOException {
-    LOG.info("IndexSorter: starting.");
-    Date start = new Date();
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("IndexSorter: starting at " + sdf.format(start));
     int termIndexInterval = getConf().getInt("indexer.termIndexInterval", 128);
     IndexReader reader = IndexReader.open(
     		FSDirectory.open(new File(directory, "index")));
@@ -276,9 +279,8 @@ public class IndexSorter extends Configured implements Tool {
     writer.setUseCompoundFile(false);
     writer.addIndexes(new IndexReader[] { sorter });
     writer.close();
-    Date end = new Date();
-    LOG.info("IndexSorter: done, " + (end.getTime() - start.getTime())
-        + " total milliseconds");
+    long end = System.currentTimeMillis();
+    LOG.info("IndexSorter: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
   private static int[] oldToNew(IndexReader reader) throws IOException {

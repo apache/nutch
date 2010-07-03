@@ -18,6 +18,7 @@
 package org.apache.nutch.crawl;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.net.*;
 
@@ -39,6 +40,7 @@ import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 
 /** Maintains an inverted link map, listing incoming links for each url. */
 public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, Text, Inlinks> {
@@ -153,8 +155,11 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
     FileSystem fs = FileSystem.get(getConf());
     LockUtil.createLockFile(fs, lock, force);
     Path currentLinkDb = new Path(linkDb, CURRENT_NAME);
+
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
     if (LOG.isInfoEnabled()) {
-      LOG.info("LinkDb: starting");
+      LOG.info("LinkDb: starting at " + sdf.format(start));
       LOG.info("LinkDb: linkdb: " + linkDb);
       LOG.info("LinkDb: URL normalize: " + normalize);
       LOG.info("LinkDb: URL filter: " + filter);
@@ -191,7 +196,9 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
       fs.delete(newLinkDb, true);
     }
     LinkDb.install(job, linkDb);
-    if (LOG.isInfoEnabled()) { LOG.info("LinkDb: done"); }
+
+    long end = System.currentTimeMillis();
+    LOG.info("LinkDb: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
   private static JobConf createJob(Configuration config, Path linkDb, boolean normalize, boolean filter) {

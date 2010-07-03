@@ -20,6 +20,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
@@ -42,6 +43,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.indexer.DeleteDuplicates;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -122,14 +124,12 @@ Tool {
       tstamp = (Long)doc.getFieldValue(SolrConstants.TIMESTAMP_FIELD);
     }
 
-    @Override
     public void readFields(DataInput in) throws IOException {
       id = Text.readString(in);
       boost = in.readFloat();
       tstamp = in.readLong();
     }
 
-    @Override
     public void write(DataOutput out) throws IOException {
       Text.writeString(out, id);
       out.writeFloat(boost);
@@ -157,23 +157,19 @@ Tool {
       return numDocs;
     }
 
-    @Override
     public long getLength() throws IOException {
       return numDocs;
     }
 
-    @Override
     public String[] getLocations() throws IOException {
       return new String[] {} ;
     }
 
-    @Override
     public void readFields(DataInput in) throws IOException {
       docBegin = in.readInt();
       numDocs = in.readInt();
     }
 
-    @Override
     public void write(DataOutput out) throws IOException {
       out.writeInt(docBegin);
       out.writeInt(numDocs);
@@ -239,30 +235,24 @@ Tool {
 
         private int currentDoc = 0;
 
-        @Override
         public void close() throws IOException { }
 
-        @Override
         public Text createKey() {
           return new Text();
         }
 
-        @Override
         public SolrRecord createValue() {
           return new SolrRecord();
         }
 
-        @Override
         public long getPos() throws IOException {
           return currentDoc;
         }
 
-        @Override
         public float getProgress() throws IOException {
           return currentDoc / (float) numDocs;
         }
 
-        @Override
         public boolean next(Text key, SolrRecord value) throws IOException {
           if (currentDoc >= numDocs) {
             return false;
@@ -288,17 +278,14 @@ Tool {
 
   private UpdateRequest updateRequest = new UpdateRequest();
 
-  @Override
   public Configuration getConf() {
     return conf;
   }
 
-  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
 
-  @Override
   public void configure(JobConf job) {
     try {
       solr = new CommonsHttpSolrServer(job.get(SolrConstants.SERVER_URL));
@@ -308,10 +295,10 @@ Tool {
   }
 
 
-  @Override
   public void close() throws IOException {
     try {
       if (numDeletes > 0) {
+        LOG.info("SolrDeleteDuplicates: deleting " + numDeletes + " duplicates");
         updateRequest.process(solr);
       }
     } catch (SolrServerException e) {
@@ -319,7 +306,6 @@ Tool {
     }
   }
 
-  @Override
   public void reduce(Text key, Iterator<SolrRecord> values,
       OutputCollector<Text, SolrRecord> output, Reporter reporter)
   throws IOException {
@@ -337,6 +323,7 @@ Tool {
       numDeletes++;
       if (numDeletes >= NUM_MAX_DELETE_REQUEST) {
         try {
+          LOG.info("SolrDeleteDuplicates: deleting " + numDeletes + " duplicates");
           updateRequest.process(solr);
         } catch (SolrServerException e) {
           throw new IOException(e);
@@ -348,7 +335,9 @@ Tool {
   }
 
   public void dedup(String solrUrl) throws IOException {
-    LOG.info("SolrDeleteDuplicates: starting...");
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("SolrDeleteDuplicates: starting at " + sdf.format(start));
     LOG.info("SolrDeleteDuplicates: Solr url: " + solrUrl);
     
     JobConf job = new NutchJob(getConf());
@@ -362,8 +351,9 @@ Tool {
     job.setReducerClass(SolrDeleteDuplicates.class);
 
     JobClient.runJob(job);
-    
-    LOG.info("SolrDeleteDuplicates: done.");
+
+    long end = System.currentTimeMillis();
+    LOG.info("SolrDeleteDuplicates: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
   public int run(String[] args) throws IOException {

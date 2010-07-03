@@ -19,6 +19,7 @@ package org.apache.nutch.fetcher;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.text.SimpleDateFormat;
 import java.util.Map.Entry;
 
 // Commons Logging imports
@@ -504,8 +505,10 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
   public void fetch(Path segment, int threads)
     throws IOException {
 
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
     if (LOG.isInfoEnabled()) {
-      LOG.info("OldFetcher: starting");
+      LOG.info("OldFetcher: starting at " + sdf.format(start));
       LOG.info("OldFetcher: segment: " + segment);
     }
 
@@ -529,7 +532,8 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
     job.setOutputValueClass(NutchWritable.class);
 
     JobClient.runJob(job);
-    if (LOG.isInfoEnabled()) { LOG.info("OldFetcher: done"); }
+    long end = System.currentTimeMillis();
+    LOG.info("OldFetcher: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
 

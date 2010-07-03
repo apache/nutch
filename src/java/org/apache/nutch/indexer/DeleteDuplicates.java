@@ -36,6 +36,7 @@ import org.apache.nutch.util.NutchJob;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.document.DateTools;
 import org.apache.lucene.document.Document;
+import org.apache.nutch.util.TimingUtil;
 
 /**
  * Delete duplicate documents in a set of Lucene indexes.
@@ -418,7 +419,9 @@ public class DeleteDuplicates extends Configured
   public void dedup(Path[] indexDirs)
     throws IOException {
 
-    if (LOG.isInfoEnabled()) { LOG.info("Dedup: starting"); }
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("Dedup: starting at " + sdf.format(start));
 
     Path outDir1 =
       new Path("dedup-urls-"+
@@ -492,7 +495,8 @@ public class DeleteDuplicates extends Configured
 
     fs.delete(outDir2, true);
 
-    if (LOG.isInfoEnabled()) { LOG.info("Dedup: done"); }
+    long end = System.currentTimeMillis();
+    LOG.info("Dedup: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
   public static void main(String[] args) throws Exception {

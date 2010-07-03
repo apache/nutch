@@ -17,6 +17,7 @@
 package org.apache.nutch.crawl;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
@@ -42,6 +43,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 
 /**
  * This tool merges several LinkDb-s into one, optionally filtering
@@ -100,6 +102,10 @@ public class LinkDbMerger extends Configured implements Tool, Reducer<Text, Inli
   public void close() throws IOException { }
 
   public void merge(Path output, Path[] dbs, boolean normalize, boolean filter) throws Exception {
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("LinkDb merge: starting at " + sdf.format(start));
+
     JobConf job = createMergeJob(getConf(), output, normalize, filter);
     for (int i = 0; i < dbs.length; i++) {
       FileInputFormat.addInputPath(job, new Path(dbs[i], LinkDb.CURRENT_NAME));      
@@ -108,6 +114,9 @@ public class LinkDbMerger extends Configured implements Tool, Reducer<Text, Inli
     FileSystem fs = FileSystem.get(getConf());
     fs.mkdirs(output);
     fs.rename(FileOutputFormat.getOutputPath(job), new Path(output, LinkDb.CURRENT_NAME));
+
+    long end = System.currentTimeMillis();
+    LOG.info("LinkDb merge: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
   public static JobConf createMergeJob(Configuration config, Path linkDb, boolean normalize, boolean filter) {

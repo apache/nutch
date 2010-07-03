@@ -20,6 +20,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -68,6 +69,7 @@ import org.apache.nutch.indexer.NutchSimilarity;
 import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 
 public class FieldIndexer
   extends Configured
@@ -248,7 +250,9 @@ public class FieldIndexer
   public void index(Path[] fields, Path indexDir)
     throws IOException {
 
-    LOG.info("FieldIndexer: starting");
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("FieldIndexer: starting at " + sdf.format(start));
 
     JobConf job = new NutchJob(getConf());
     job.setJobName("FieldIndexer: " + indexDir);
@@ -270,9 +274,8 @@ public class FieldIndexer
     job.setOutputValueClass(LuceneDocumentWrapper.class);
 
     JobClient.runJob(job);
-    if (LOG.isInfoEnabled()) {
-      LOG.info("FieldIndexer: done");
-    }
+    long end = System.currentTimeMillis();
+    LOG.info("FieldIndexer: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
   public static void main(String[] args)

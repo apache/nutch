@@ -18,6 +18,7 @@
 package org.apache.nutch.indexer;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +36,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.indexer.lucene.LuceneWriter;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 
 /** Create indexes for segments. */
 public class Indexer extends Configured implements Tool {
@@ -54,7 +56,9 @@ public class Indexer extends Configured implements Tool {
   public void index(Path luceneDir, Path crawlDb,
                     Path linkDb, List<Path> segments)
   throws IOException {
-    LOG.info("Indexer: starting");
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("Indexer: starting at " + sdf.format(start));
 
     final JobConf job = new NutchJob(getConf());
     job.setJobName("index-lucene " + luceneDir);
@@ -70,7 +74,8 @@ public class Indexer extends Configured implements Tool {
     NutchIndexWriterFactory.addClassToConf(job, LuceneWriter.class);
 
     JobClient.runJob(job);
-    LOG.info("Indexer: done");
+    long end = System.currentTimeMillis();
+    LOG.info("Indexer: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
 
   public int run(String[] args) throws Exception {
