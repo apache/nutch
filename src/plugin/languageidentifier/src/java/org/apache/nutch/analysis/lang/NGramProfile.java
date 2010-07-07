@@ -38,9 +38,6 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-// Lucene imports
-import org.apache.lucene.analysis.Token;
-
 // Nutch imports
 import org.apache.nutch.util.LogUtil;
 
@@ -133,9 +130,9 @@ public class NGramProfile {
    * 
    * @param t is the Token to be added
    */
-  public void add(Token t) {
+  public void add(String token) {
     add(new StringBuffer().append(SEPARATOR)
-                          .append(t.term())
+                          .append(token)
                           .append(SEPARATOR));
   }
 

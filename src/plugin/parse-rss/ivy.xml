@@ -36,8 +36,7 @@
   </publications>
 
   <dependencies>
-    <dependency org="org.apache.poi" name="poi-scratchpad" rev="3.6" conf="*->master"/>
-    <dependency org="org.apache.tika" name="tika-parsers" rev="0.7" conf="*->default"/>
+    <dependency org="xmlrpc" name="xmlrpc" rev="1.2" conf="*->master"/>
   </dependencies>
   
 </ivy-module>

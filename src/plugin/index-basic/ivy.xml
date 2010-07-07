@@ -27,7 +27,7 @@
   </info>
 
   <configurations>
-    <include file="${nutch.root}/ivy/ivy-configurations.xml"/>
+      <include file="${nutch.root}/ivy/ivy-configurations.xml"/>
   </configurations>
 
   <publications>
@@ -36,8 +36,6 @@
   </publications>
 
   <dependencies>
-    <dependency org="org.apache.poi" name="poi-scratchpad" rev="3.6" conf="*->master"/>
-    <dependency org="org.apache.tika" name="tika-parsers" rev="0.7" conf="*->default"/>
   </dependencies>
   
 </ivy-module>

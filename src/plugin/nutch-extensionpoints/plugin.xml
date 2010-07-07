@@ -18,7 +18,7 @@
 <plugin
    id="nutch-extensionpoints"
    name="the nutch core extension points"
-   version="0.8.0"
+   version="2.0.0"
    provider-name="nutch.org">
 
    <!-- this file hosts all extension points nutch core code offers. 

@@ -16,7 +16,7 @@
  limitations under the License.
 -->
 <!-- Imported by plugin build.xml files to define default targets. -->
-<project>
+<project xmlns:ivy="antlib:org.apache.ivy.ant">
 
   <property name="name" value="${ant.project.name}"/>
   <property name="root" value="${basedir}"/>
@@ -43,6 +43,8 @@
   <!-- load nutch defaults last so that they can be overridden above -->
   <property file="${nutch.root}/default.properties" />
 
+  <ivy:settings id="ivy.instance" file="${nutch.root}/ivy/ivysettings.xml" />
+
   <path id="plugin.deps"/>
 
   <fileset id="lib.jars" dir="${root}" includes="lib/*.jar"/>
@@ -52,10 +54,13 @@
     <pathelement location="${build.classes}"/>
     <fileset refid="lib.jars"/>
     <pathelement location="${nutch.root}/build/classes"/>
-    <fileset dir="${nutch.root}/lib">
+    <fileset dir="${nutch.root}/build/lib">
       <include name="*.jar" />
     </fileset>
     <path refid="plugin.deps"/>
+    <fileset dir="${deploy.dir}">
+      <include name="*.jar" />
+    </fileset>
   </path>
 
   <!-- the unit test classpath -->
@@ -75,6 +80,7 @@
     <mkdir dir="${build.dir}"/>
     <mkdir dir="${build.classes}"/>
     <mkdir dir="${build.test}"/>
+    <mkdir dir="${deploy.dir}"/>
 
     <antcall target="init-plugin"/>
   </target>
@@ -97,7 +103,7 @@
   <!-- ====================================================== -->
   <!-- Compile the Java files                                 -->
   <!-- ====================================================== -->
-  <target name="compile" depends="init,deps-jar">
+  <target name="compile" depends="init,deps-jar, resolve-default">
     <echo message="Compiling plugin: ${name}"/>
     <javac 
      encoding="${build.encoding}" 
@@ -186,6 +192,7 @@
       errorProperty="tests.failed" failureProperty="tests.failed">
       <sysproperty key="test.data" value="${build.test}/data"/>
       <sysproperty key="test.input" value="${root}/data"/>
+      <sysproperty key="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/> 
       <classpath refid="test.classpath"/>
       <formatter type="plain" />
       <batchtest todir="${build.test}" unless="testcase">
@@ -201,12 +208,32 @@
 
   </target>   
 
+  <!-- target: resolve  ================================================= -->
+  <target name="resolve-default" depends="clean-lib" description="resolve and retrieve dependencies with ivy">
+    <ivy:resolve file="ivy.xml" conf="default" log="download-only"/>
+    <ivy:retrieve pattern="${deploy.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
+  </target>
+
+  <target name="resolve-test" depends="clean-lib" description="resolve and retrieve dependencies with ivy">
+    <ivy:resolve file="ivy.xml" conf="test" log="download-only"/>
+    <ivy:retrieve pattern="${deploy.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
+  </target>
+
   <!-- ================================================================== -->
   <!-- Clean.  Delete the build files, and their directories              -->
   <!-- ================================================================== -->
-  <target name="clean">
-    <delete dir="${build.dir}"/>
-    <delete dir="${deploy.dir}"/>
+  <!-- target: clean  =================================================== -->
+  <target name="clean" depends="clean-build, clean-lib" description="--> clean the project" />
+
+  <!-- target: clean-lib  =============================================== -->
+  <target name="clean-lib" description="--> clean the project libraries directory (dependencies)">
+    <delete includeemptydirs="true" dir="${build.lib.dir}"/>
+  </target>
+
+  <!-- target: clean-build  ============================================= -->
+  <target name="clean-build" description="--> clean the project built files">
+    <delete includeemptydirs="true" dir="${build.dir}"/>
+    <delete includeemptydirs="true" dir="${deploy.dir}"/>
   </target>
 
 </project>

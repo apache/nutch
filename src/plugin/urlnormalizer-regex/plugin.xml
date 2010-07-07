@@ -28,7 +28,7 @@
    </runtime>
 
    <requires>
-      <import plugin="nutch-extensionpoints"/>
+    <include file="${nutch.root}/ivy/ivy-configurations.xml"/>
    </requires>
 
    <extension id="org.apache.nutch.net.urlnormalizer.regex"
