@@ -15,7 +15,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project name="Nutch" default="job" xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="Nutch" default="runtime" xmlns:ivy="antlib:org.apache.ivy.ant">
 
   <!-- Load all the default properties, and any the user wants    -->
   <!-- to contribute (without having to type -D or edit this file -->
@@ -141,6 +141,39 @@
                   includes="**/*.jar" excludes="hadoop-*.jar"/>
       <zipfileset dir="${build.plugins}" prefix="plugins"/>
     </jar>
+  </target>
+
+  <target name="runtime" depends="jar, job">
+    <mkdir dir="${runtime.dir}"/>
+    <mkdir dir="${runtime.local}"/>
+    <mkdir dir="${runtime.deploy}"/>
+    <!-- deploy area -->
+    <copy file="${build.dir}/${final.name}.job"
+          todir="${runtime.deploy}"/>
+    <copy todir="${runtime.deploy}/bin">
+      <fileset dir="src/bin"/>
+    </copy>
+    <chmod perm="ugo+x" type="file">
+        <fileset dir="${runtime.deploy}/bin"/>
+    </chmod>
+    <!-- local area -->
+    <copy file="${build.dir}/${final.name}.jar"
+          todir="${runtime.local}/lib"/>
+    <copy todir="${runtime.local}/conf">
+      <fileset dir="conf"/>
+    </copy>
+    <copy todir="${runtime.local}/bin">
+      <fileset dir="src/bin"/>
+    </copy>
+    <chmod perm="ugo+x" type="file">
+        <fileset dir="${runtime.deploy}/bin"/>
+    </chmod>
+    <copy todir="${runtime.local}/lib">
+      <fileset dir="${build.dir}/lib"/>
+    </copy>
+    <copy todir="${runtime.local}/plugins">
+      <fileset dir="${build.dir}/plugins"/>
+    </copy>
   </target>
 
   <!-- ================================================================== -->
@@ -495,7 +528,7 @@
   <!-- ================================================================== -->
 
   <!-- target: clean  =================================================== -->
-  <target name="clean" depends="clean-build, clean-lib, clean-dist" description="--> clean the project" />
+  <target name="clean" depends="clean-build, clean-lib, clean-dist, clean-runtime" description="--> clean the project" />
 
   <!-- target: clean-local  ============================================= -->
   <target name="clean-local" depends="" 
@@ -522,6 +555,10 @@
   <target name="clean-cache" depends=""
                         description="delete ivy cache">
     <ivy:cleancache />
+  </target>
+
+  <target name="clean-runtime" description="--> clean the project runtime area">
+    <delete includeemptydirs="true" dir="${runtime.dir}"/>
   </target>
 
   <!-- ================================================================== -->

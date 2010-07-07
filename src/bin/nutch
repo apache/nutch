@@ -64,13 +64,6 @@ if [ $# = 0 ]; then
   exit 1
 fi
 
-IS_CORE=0
-#check for -core option
-if [ "$1" == "-core" ] ; then
-  IS_CORE=1
-  shift
-fi
-
 # get arguments
 COMMAND=$1
 shift
@@ -107,41 +100,25 @@ CLASSPATH=${CLASSPATH}:$JAVA_HOME/lib/tools.jar
 # so that filenames w/ spaces are handled correctly in loops below
 IFS=
 
-# for developers, add plugins, job & test code to CLASSPATH
-if [ -d "$NUTCH_HOME/build/plugins" ]; then
-  CLASSPATH=${CLASSPATH}:$NUTCH_HOME/build
-fi
-if [ -d "$NUTCH_HOME/build/test/classes" ]; then
-  CLASSPATH=${CLASSPATH}:$NUTCH_HOME/build/test/classes
-fi
-
-if [ $IS_CORE == 0 ] 
-then
-  for f in $NUTCH_HOME/build/nutch-*.job; do
-    CLASSPATH=${CLASSPATH}:$f;
-  done
-
-  # for releases, add Nutch job to CLASSPATH
-  for f in $NUTCH_HOME/nutch-*.job; do
-    CLASSPATH=${CLASSPATH}:$f;
-  done
-else
-  CLASSPATH=${CLASSPATH}:$NUTCH_HOME/build/classes
-fi
-
-# add plugins to classpath
-if [ -d "$NUTCH_HOME/plugins" ]; then
-  CLASSPATH=${NUTCH_HOME}:${CLASSPATH}
-fi
-
 # add libs to CLASSPATH
 for f in $NUTCH_HOME/lib/*.jar; do
   CLASSPATH=${CLASSPATH}:$f;
 done
-
-for f in $NUTCH_HOME/lib/jsp-2.1/*.jar; do
-  CLASSPATH=${CLASSPATH}:$f;
-done
+if [ -f ${NUTCH_HOME}/nutch-*.job ]; then
+  # distributed runtime
+  for f in $NUTCH_HOME/nutch-*.job; do
+    CLASSPATH=${CLASSPATH}:$f;
+  done
+  for f in $NUTCH_HOME/hadoop-*.jar; do
+    CLASSPATH=${CLASSPATH}:$f;
+  done
+else
+  # local runtime
+  # add plugins to classpath
+  if [ -d "$NUTCH_HOME/plugins" ]; then
+    CLASSPATH=${NUTCH_HOME}:${CLASSPATH}
+  fi
+fi
 
 # cygwin path translation
 if $cygwin; then
@@ -150,12 +127,8 @@ fi
 
 # setup 'java.library.path' for native-hadoop code if necessary
 JAVA_LIBRARY_PATH=''
-if [ -d "${NUTCH_HOME}/build/native" -o -d "${NUTCH_HOME}/lib/native" ]; then
+if [ -d "${NUTCH_HOME}/lib/native" ]; then
   JAVA_PLATFORM=`CLASSPATH=${CLASSPATH} ${JAVA} org.apache.hadoop.util.PlatformName | sed -e 's/ /_/g'`
-  
-  if [ -d "$NUTCH_HOME/build/native" ]; then
-    JAVA_LIBRARY_PATH=${HADOOP_HOME}/build/native/${JAVA_PLATFORM}/lib
-  fi
   
   if [ -d "${NUTCH_HOME}/lib/native" ]; then
     if [ "x$JAVA_LIBRARY_PATH" != "x" ]; then

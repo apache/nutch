@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-843 Separate the build and runtime environments (ab)
+
 * NUTCH-821 Use ivy in nutch builds (Enis Soztutar, jnioche)
 
 * NUTCH-838 Add timing information to all Tool classes (Jeroen van Vianen, mattmann)
