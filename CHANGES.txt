@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-845 Native hadoop libs not available through maven (ab)
+
 * NUTCH-843 Separate the build and runtime environments (ab)
 
 * NUTCH-821 Use ivy in nutch builds (Enis Soztutar, jnioche)

@@ -159,6 +159,9 @@
     <!-- local area -->
     <copy file="${build.dir}/${final.name}.jar"
           todir="${runtime.local}/lib"/>
+    <copy todir="${runtime.local}/lib/native">
+      <fileset dir="lib/native"/>
+    </copy>
     <copy todir="${runtime.local}/conf">
       <fileset dir="conf"/>
     </copy>
