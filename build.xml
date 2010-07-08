@@ -468,10 +468,6 @@
         <fileset dir="${dist.version.dir}/bin"/>
     </chmod>
 
-    <copy todir="${dist.version.dir}/docs">
-      <fileset dir="site" />
-    </copy>
-
     <copy todir="${dist.version.dir}/docs/api">
       <fileset dir="${build.javadoc}"/>
     </copy>
