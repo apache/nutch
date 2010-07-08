@@ -169,7 +169,7 @@
       <fileset dir="src/bin"/>
     </copy>
     <chmod perm="ugo+x" type="file">
-        <fileset dir="${runtime.deploy}/bin"/>
+        <fileset dir="${runtime.local}/bin"/>
     </chmod>
     <copy todir="${runtime.local}/lib">
       <fileset dir="${build.dir}/lib"/>
