@@ -98,6 +98,12 @@ Tool {
     private String id;
 
     public SolrRecord() { }
+    
+    public SolrRecord(SolrRecord old) {
+	this.id = old.id;
+	this.boost = old.boost;
+	this.tstamp = old.tstamp;
+    }
 
     public SolrRecord(String id, float boost, long tstamp) {
       this.id = id;
@@ -308,14 +314,14 @@ Tool {
   public void reduce(Text key, Iterator<SolrRecord> values,
       OutputCollector<Text, SolrRecord> output, Reporter reporter)
   throws IOException {
-    SolrRecord recordToKeep = values.next();
+    SolrRecord recordToKeep = new SolrRecord(values.next());
     while (values.hasNext()) {
       SolrRecord solrRecord = values.next();
       if (solrRecord.getBoost() > recordToKeep.getBoost() ||
           (solrRecord.getBoost() == recordToKeep.getBoost() && 
               solrRecord.getTstamp() > recordToKeep.getTstamp())) {
         updateRequest.deleteById(recordToKeep.id);
-        recordToKeep = solrRecord;
+        recordToKeep = new SolrRecord(solrRecord);
       } else {
         updateRequest.deleteById(solrRecord.id);
       }
