@@ -67,25 +67,10 @@
     </copy>
   </target>
 
-  <target name="extract-hadoop" depends="ivy-init">
-    <!-- unpack hadoop scripts from hadoop jar into bin directory -->
-    <mkdir dir="${build.dir}/hadoop"/>
-    <unjar dest="${build.dir}/hadoop">
-      <fileset dir="${build.lib.dir}" includes="hadoop*.jar"/>
-      <patternset includes="bin.tgz"/>
-    </unjar>
-    
-    <untar src="${build.dir}/hadoop/bin.tgz" dest="bin" compression="gzip"/>
-    <!-- fix broken library paths with spaces -->
-    <replace file="bin/hadoop" token="PlatformName" value="PlatformName | sed -e 's/ /_/g'"/>
-    <chmod dir="bin" perm="ugo+rx" includes="*.sh,hadoop"/>
-
-  </target>
-
   <!-- ====================================================== -->
   <!-- Compile the Java files                                 -->
   <!-- ====================================================== -->
-  <target name="compile" depends="compile-core, compile-plugins, extract-hadoop"/>
+  <target name="compile" depends="compile-core, compile-plugins"/>
 
   <target name="compile-core" depends="init, resolve-default">
     <javac 
