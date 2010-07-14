@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.2 - Current Development
 
+* NUTCH-697 Generate log output for solr indexer and dedup (Dmitry Lihachev, Jeroen van Vianen via mattmann)
+
 * NUTCH-850 SolrDeleteDuplicates needs to clone the SolrRecord objects (jnioche)
 
 * NUTCH-838 Add timing information to all Tool classes (Jeroen van Vianen, mattmann)
