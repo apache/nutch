@@ -28,6 +28,8 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
 import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.parse.ParseSegment;
 import org.apache.nutch.indexer.solr.SolrDeleteDuplicates;
 import org.apache.nutch.indexer.solr.SolrIndexer;
@@ -37,7 +39,7 @@ import org.apache.nutch.util.NutchJob;
 
 import org.apache.nutch.fetcher.Fetcher;
 
-public class Crawl {
+public class Crawl extends Configured implements Tool {
   public static final Log LOG = LogFactory.getLog(Crawl.class);
 
   private static String getDate() {
@@ -48,18 +50,21 @@ public class Crawl {
 
   /* Perform complete crawling and indexing given a set of root urls. */
   public static void main(String args[]) throws Exception {
+    Configuration conf = NutchConfiguration.create();
+    int res = ToolRunner.run(conf, new Crawl(), args);
+    System.exit(res);
+  }
+  
+  @Override
+  public int run(String[] args) throws Exception {
     if (args.length < 1) {
       System.out.println
       ("Usage: Crawl <urlDir> -solr <solrURL> [-dir d] [-threads n] [-depth i] [-topN N]");
-      return;
+      return -1;
     }
-
-    Configuration conf = NutchConfiguration.createCrawlConfiguration();
-    JobConf job = new NutchJob(conf);
-
     Path rootUrlDir = null;
     Path dir = new Path("crawl-" + getDate());
-    int threads = job.getInt("fetcher.threads.fetch", 10);
+    int threads = getConf().getInt("fetcher.threads.fetch", 10);
     int depth = 5;
     long topN = Long.MAX_VALUE;
     String solrUrl = null;
@@ -85,6 +90,8 @@ public class Crawl {
       }
     }
     
+    JobConf job = new NutchJob(getConf());
+
     if (solrUrl == null) {
       LOG.warn("solrUrl is not set, indexing will be skipped...");
     }
@@ -108,12 +115,12 @@ public class Crawl {
     Path index = new Path(dir + "/index");
 
     Path tmpDir = job.getLocalPath("crawl"+Path.SEPARATOR+getDate());
-    Injector injector = new Injector(conf);
-    Generator generator = new Generator(conf);
-    Fetcher fetcher = new Fetcher(conf);
-    ParseSegment parseSegment = new ParseSegment(conf);
-    CrawlDb crawlDbTool = new CrawlDb(conf);
-    LinkDb linkDbTool = new LinkDb(conf);
+    Injector injector = new Injector(getConf());
+    Generator generator = new Generator(getConf());
+    Fetcher fetcher = new Fetcher(getConf());
+    ParseSegment parseSegment = new ParseSegment(getConf());
+    CrawlDb crawlDbTool = new CrawlDb(getConf());
+    LinkDb linkDbTool = new LinkDb(getConf());
       
     // initialize crawlDb
     injector.inject(crawlDb, rootUrlDir);
@@ -125,7 +132,7 @@ public class Crawl {
         LOG.info("Stopping at depth=" + i + " - no more URLs to fetch.");
         break;
       }
-      fetcher.fetch(segs[0], threads, org.apache.nutch.fetcher.Fetcher.isParsing(conf));  // fetch it
+      fetcher.fetch(segs[0], threads, org.apache.nutch.fetcher.Fetcher.isParsing(getConf()));  // fetch it
       if (!Fetcher.isParsing(job)) {
         parseSegment.parse(segs[0]);    // parse it, if needed
       }
@@ -137,11 +144,11 @@ public class Crawl {
       if (solrUrl != null) {
         // index, dedup & merge
         FileStatus[] fstats = fs.listStatus(segments, HadoopFSUtil.getPassDirectoriesFilter(fs));
-        SolrIndexer indexer = new SolrIndexer(conf);
+        SolrIndexer indexer = new SolrIndexer(getConf());
         indexer.indexSolr(solrUrl, crawlDb, linkDb, 
           Arrays.asList(HadoopFSUtil.getPaths(fstats)));
         SolrDeleteDuplicates dedup = new SolrDeleteDuplicates();
-        dedup.setConf(conf);
+        dedup.setConf(getConf());
         dedup.dedup(solrUrl);
       }
       
@@ -149,5 +156,8 @@ public class Crawl {
       LOG.warn("No URLs to fetch - check your seed list and URL filters.");
     }
     if (LOG.isInfoEnabled()) { LOG.info("crawl finished: " + dir); }
+    return 0;
   }
+
+
 }

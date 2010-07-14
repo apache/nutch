@@ -43,7 +43,7 @@ import org.apache.nutch.util.NutchConfiguration;
  * @author joa23
  */
 public class PluginRepository {
-  private static final WeakHashMap<Configuration, PluginRepository> CACHE = new WeakHashMap<Configuration, PluginRepository>();
+  private static final WeakHashMap<String, PluginRepository> CACHE = new WeakHashMap<String, PluginRepository>();
 
   private boolean auto;
 
@@ -90,10 +90,14 @@ public class PluginRepository {
    * @return a cached instance of the plugin repository
    */
   public static synchronized PluginRepository get(Configuration conf) {
-    PluginRepository result = CACHE.get(conf);
+    String uuid = NutchConfiguration.getUUID(conf);
+    if (uuid == null) {
+      uuid = "nonNutchConf@" + conf.hashCode(); // fallback
+    }
+    PluginRepository result = CACHE.get(uuid);
     if (result == null) {
       result = new PluginRepository(conf);
-      CACHE.put(conf, result);
+      CACHE.put(uuid, result);
     }
     return result;
   }

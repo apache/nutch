@@ -26,6 +26,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
@@ -39,12 +40,19 @@ import org.apache.nutch.util.NutchConfiguration;
  * Reads and prints to system out information for a single node from the NodeDb 
  * in the WebGraph.
  */
-public class NodeReader {
+public class NodeReader extends Configured {
 
-  private Configuration conf;
   private FileSystem fs;
   private MapFile.Reader[] nodeReaders;
 
+  public NodeReader() {
+    
+  }
+  
+  public NodeReader(Configuration conf) {
+    super(conf);
+  }
+  
   /**
    * Prints the content of the Node represented by the url to system out.
    * 
@@ -56,10 +64,9 @@ public class NodeReader {
   public void dumpUrl(Path webGraphDb, String url)
     throws IOException {
 
-    conf = NutchConfiguration.create();
-    fs = FileSystem.get(conf);
+    fs = FileSystem.get(getConf());
     nodeReaders = MapFileOutputFormat.getReaders(fs, new Path(webGraphDb,
-      WebGraph.NODE_DIR), conf);
+      WebGraph.NODE_DIR), getConf());
 
     // open the readers, get the node, print out the info, and close the readers
     Text key = new Text(url);
@@ -108,7 +115,7 @@ public class NodeReader {
       // dump the values to system out and return
       String webGraphDb = line.getOptionValue("webgraphdb");
       String url = line.getOptionValue("url");
-      NodeReader reader = new NodeReader();
+      NodeReader reader = new NodeReader(NutchConfiguration.create());
       reader.dumpUrl(new Path(webGraphDb), url);
       
       return;

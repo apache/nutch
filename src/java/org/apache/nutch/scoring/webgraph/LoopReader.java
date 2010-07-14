@@ -26,6 +26,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
@@ -39,11 +40,18 @@ import org.apache.nutch.util.NutchConfiguration;
 /**
  * The LoopReader tool prints the loopset information for a single url.
  */
-public class LoopReader {
+public class LoopReader extends Configured {
 
-  private Configuration conf;
   private FileSystem fs;
   private MapFile.Reader[] loopReaders;
+  
+  public LoopReader() {
+    
+  }
+  
+  public LoopReader(Configuration conf) {
+    super(conf);
+  }
 
   /**
    * Prints loopset for a single url.  The loopset information will show any
@@ -58,10 +66,9 @@ public class LoopReader {
     throws IOException {
 
     // open the readers
-    conf = NutchConfiguration.create();
-    fs = FileSystem.get(conf);
+    fs = FileSystem.get(getConf());
     loopReaders = MapFileOutputFormat.getReaders(fs, new Path(webGraphDb,
-      Loops.LOOPS_DIR), conf);
+      Loops.LOOPS_DIR), getConf());
 
     // get the loopset for a given url, if any
     Text key = new Text(url);
@@ -110,7 +117,7 @@ public class LoopReader {
 
       String webGraphDb = line.getOptionValue("webgraphdb");
       String url = line.getOptionValue("url");
-      LoopReader reader = new LoopReader();
+      LoopReader reader = new LoopReader(NutchConfiguration.create());
       reader.dumpUrl(new Path(webGraphDb), url);
       return;
     }

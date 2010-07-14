@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-844 Improve NutchConfiguration (ab)
+
 * NUTCH-850 SolrDeleteDuplicates needs to clone the SolrRecord objects (jnioche)
 
 * NUTCH-845 Native hadoop libs not available through maven (ab)

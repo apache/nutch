@@ -29,7 +29,9 @@ import java.util.Properties;
 import junit.framework.TestCase;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapred.JobConf;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.NutchJob;
 
 /**
  * Unit tests for the plugin system
@@ -93,6 +95,22 @@ public class TestPluginSystem extends TestCase {
             assertEquals(1, descriptor.getExportedLibUrls().length);
             assertEquals(1, descriptor.getNotExportedLibUrls().length);
         }
+    }
+
+    public void testRepositoryCache() {
+      Configuration config = NutchConfiguration.create();
+      PluginRepository repo = PluginRepository.get(config);
+      JobConf job = new NutchJob(config);
+      PluginRepository repo1 = PluginRepository.get(job);
+      assertTrue(repo == repo1);
+      // now construct a config without UUID
+      config = new Configuration();
+      config.addResource("nutch-default.xml");
+      config.addResource("nutch-site.xml");
+      repo = PluginRepository.get(config);
+      job = new NutchJob(config);
+      repo1 = PluginRepository.get(job);
+      assertTrue(repo1 != repo);
     }
 
     /**
