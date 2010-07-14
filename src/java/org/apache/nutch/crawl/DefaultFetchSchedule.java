@@ -35,6 +35,9 @@ public class DefaultFetchSchedule extends AbstractFetchSchedule {
           long fetchTime, long modifiedTime, int state) {
     datum = super.setFetchSchedule(url, datum, prevFetchTime, prevModifiedTime,
         fetchTime, modifiedTime, state);
+    if (datum.getFetchInterval() == 0 ) {
+      datum.setFetchInterval(defaultInterval);
+    }
     datum.setFetchTime(fetchTime + (long)datum.getFetchInterval() * 1000);
     datum.setModifiedTime(modifiedTime);
     return datum;
