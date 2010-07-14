@@ -145,7 +145,7 @@ public abstract class AbstractFetchSchedule extends Configured implements FetchS
    * included in the further selection process based on scores. The default
    * implementation checks <code>fetchTime</code>, if it is higher than the
    * {@param curTime} it returns false, and true otherwise. It will also
-   * check that fetchTime is not too remote (more than <code>maxInterval</code),
+   * check that fetchTime is not too remote (more than <code>maxInterval</code>,
    * in which case it lowers the interval and returns true.
    * @param url URL of the page
    * @param datum datum instance

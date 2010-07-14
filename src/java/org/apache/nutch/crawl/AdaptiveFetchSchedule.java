@@ -40,7 +40,7 @@ import org.apache.nutch.util.NutchConfiguration;
  * </ul>
  * </li>
  * <li>the minimum value of fetchInterval may not be smaller than MIN_INTERVAL
- * (default is 1s).</li>
+ * (default is 1 minute).</li>
  * <li>the maximum value of fetchInterval may not be bigger than MAX_INTERVAL
  * (default is 365 days).</li>
  * </ul>
