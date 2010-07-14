@@ -47,13 +47,9 @@ if [ $# = 0 ]; then
   echo "  updatedb          update crawl db from segments after fetching"
   echo "  invertlinks       create a linkdb from parsed segments"
   echo "  mergelinkdb       merge linkdb-s, with optional filtering"
-  echo "  index             run the indexer on parsed segments and linkdb"
   echo "  solrindex         run the solr indexer on parsed segments and linkdb"
-  echo "  merge             merge several segment indexes"
-  echo "  dedup             remove duplicates from a set of segment indexes"
   echo "  solrdedup         remove duplicates from solr"
   echo "  plugin            load a plugin and run one of its classes main()"
-  echo "  server            run a search server"
   echo " or"
   echo "  CLASSNAME         run the class named CLASSNAME"
   echo "Most commands print help when invoked w/o parameters."
@@ -190,8 +186,6 @@ elif [ "$COMMAND" = "freegen" ] ; then
   CLASS=org.apache.nutch.tools.FreeGenerator
 elif [ "$COMMAND" = "fetch" ] ; then
   CLASS=org.apache.nutch.fetcher.Fetcher
-elif [ "$COMMAND" = "fetch2" ] ; then
-  CLASS=org.apache.nutch.fetcher.Fetcher2
 elif [ "$COMMAND" = "parse" ] ; then
   CLASS=org.apache.nutch.parse.ParseSegment
 elif [ "$COMMAND" = "readdb" ] ; then
@@ -204,9 +198,6 @@ elif [ "$COMMAND" = "readlinkdb" ] ; then
   CLASS=org.apache.nutch.crawl.LinkDbReader
 elif [ "$COMMAND" = "readseg" ] ; then
   CLASS=org.apache.nutch.segment.SegmentReader
-elif [ "$COMMAND" = "segread" ] ; then
-  echo "[DEPRECATED] Command 'segread' is deprecated, use 'readseg' instead."
-  CLASS=org.apache.nutch.segment.SegmentReader
 elif [ "$COMMAND" = "mergesegs" ] ; then
   CLASS=org.apache.nutch.segment.SegmentMerger
 elif [ "$COMMAND" = "updatedb" ] ; then
@@ -215,20 +206,12 @@ elif [ "$COMMAND" = "invertlinks" ] ; then
   CLASS=org.apache.nutch.crawl.LinkDb
 elif [ "$COMMAND" = "mergelinkdb" ] ; then
   CLASS=org.apache.nutch.crawl.LinkDbMerger
-elif [ "$COMMAND" = "index" ] ; then
-  CLASS=org.apache.nutch.indexer.Indexer
 elif [ "$COMMAND" = "solrindex" ] ; then
   CLASS=org.apache.nutch.indexer.solr.SolrIndexer
-elif [ "$COMMAND" = "dedup" ] ; then
-  CLASS=org.apache.nutch.indexer.DeleteDuplicates
 elif [ "$COMMAND" = "solrdedup" ] ; then
   CLASS=org.apache.nutch.indexer.solr.SolrDeleteDuplicates
-elif [ "$COMMAND" = "merge" ] ; then
-  CLASS=org.apache.nutch.indexer.IndexMerger
 elif [ "$COMMAND" = "plugin" ] ; then
   CLASS=org.apache.nutch.plugin.PluginRepository
-elif [ "$COMMAND" = "server" ] ; then
-  CLASS='org.apache.nutch.searcher.DistributedSearch$Server'
 else
   CLASS=$COMMAND
 fi
