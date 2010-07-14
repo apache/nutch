@@ -148,7 +148,7 @@
       <fileset dir="lib/native"/>
     </copy>
     <copy todir="${runtime.local}/conf">
-      <fileset dir="conf"/>
+      <fileset dir="conf" excludes="*.template"/>
     </copy>
     <copy todir="${runtime.local}/bin">
       <fileset dir="src/bin"/>
