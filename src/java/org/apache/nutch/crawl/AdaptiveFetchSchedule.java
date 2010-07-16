@@ -38,7 +38,7 @@ import org.apache.nutch.storage.WebPage;
  * </ul>
  * </li>
  * <li>the minimum value of fetchInterval may not be smaller than MIN_INTERVAL
- * (default is 1s).</li>
+ * (default is 1 minute).</li>
  * <li>the maximum value of fetchInterval may not be bigger than MAX_INTERVAL
  * (default is 365 days).</li>
  * </ul>
@@ -46,7 +46,7 @@ import org.apache.nutch.storage.WebPage;
  * so that the fetch interval either increases or decreases infinitely, with little
  * relevance to the page changes. Please use {@link #main(String[])} method to
  * test the values before applying them in a production system.</p>
- *
+ * 
  * @author Andrzej Bialecki
  */
 public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
@@ -58,21 +58,18 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
   private int MAX_INTERVAL;
 
   private int MIN_INTERVAL;
-
+  
   private boolean SYNC_DELTA;
 
-  private float SYNC_DELTA_RATE;
-
-  @Override
+  private double SYNC_DELTA_RATE;
+  
   public void setConf(Configuration conf) {
     super.setConf(conf);
     if (conf == null) return;
     INC_RATE = conf.getFloat("db.fetch.schedule.adaptive.inc_rate", 0.2f);
     DEC_RATE = conf.getFloat("db.fetch.schedule.adaptive.dec_rate", 0.2f);
     MIN_INTERVAL = conf.getInt("db.fetch.schedule.adaptive.min_interval", 60);
-    MAX_INTERVAL =
-      conf.getInt("db.fetch.schedule.adaptive.max_interval",
-                  FetchSchedule.SECONDS_PER_DAY * 365 ); // 1 year
+    MAX_INTERVAL = conf.getInt("db.fetch.schedule.adaptive.max_interval", SECONDS_PER_DAY * 365 ); // 1 year
     SYNC_DELTA = conf.getBoolean("db.fetch.schedule.adaptive.sync_delta", true);
     SYNC_DELTA_RATE = conf.getFloat("db.fetch.schedule.adaptive.sync_delta_rate", 0.2f);
   }

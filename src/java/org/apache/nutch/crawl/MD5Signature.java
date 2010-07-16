@@ -41,6 +41,7 @@ public class MD5Signature extends Signature {
   @Override
   public byte[] calculate(WebPage page) {
     byte[] data = page.getContent().array();
+    if (data == null && page.getBaseUrl()!=null) data = page.getBaseUrl().getBytes();
     return MD5Hash.digest(data).getDigest();
   }
 

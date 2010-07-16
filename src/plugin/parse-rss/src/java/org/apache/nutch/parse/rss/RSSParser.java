@@ -19,6 +19,7 @@ package org.apache.nutch.parse.rss;
 
 // JDK imports
 import java.io.ByteArrayInputStream;
+import java.net.MalformedURLException;
 import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.HashSet;
@@ -121,12 +122,21 @@ public class RSSParser implements Parser {
         indexText.append(" ");
 
         if (r.getLink() != null) {
+            try {
           // get the outlink
           if (r.getDescription() != null) {
             theOutlinks.add(new Outlink(r.getLink(), r.getDescription()));
           } else {
             theOutlinks.add(new Outlink(r.getLink(), ""));
-          }
+          } 
+          } catch (MalformedURLException e) {
+              if (LOG.isWarnEnabled()) {
+                  LOG.warn("MalformedURL: " + r.getLink());
+                  LOG.warn("Attempting to continue processing outlinks");
+                  e.printStackTrace(LogUtil.getWarnStream(LOG));
+                }
+                continue;
+            }
         }
 
         // now get the descriptions of all the underlying RSS Items and
@@ -142,12 +152,20 @@ public class RSSParser implements Parser {
           else whichLink = theRSSItem.getLink();
 
           if (whichLink != null) {
+        	  try {
             if (theRSSItem.getDescription() != null) {
               theOutlinks.add(new Outlink(whichLink, theRSSItem.getDescription()));
             } else {
               theOutlinks.add(new Outlink(whichLink, ""));
             }
-
+        	  } catch (MalformedURLException e) {
+                  if (LOG.isWarnEnabled()) {
+                    LOG.warn("MalformedURL: " + whichLink);
+                    LOG.warn("Attempting to continue processing outlinks");
+                    e.printStackTrace(LogUtil.getWarnStream(LOG));
+                  }
+                  continue;
+              }
           }
 
         }

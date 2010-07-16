@@ -31,16 +31,6 @@
       </library>
    </runtime>
    
-   <extension id="org.apache.nutch.searcher.subcollection.query"
-              name="Subcollection Query Filter"
-              point="org.apache.nutch.searcher.QueryFilter">
-    <implementation id="SubcollectionQueryFilter"
-               class="org.apache.nutch.searcher.subcollection.SubcollectionQueryFilter">
-         <parameter name="raw-fields" value="subcollection"/>
-         </implementation>
-               
-   </extension>      
-
    <extension id="org.apache.nutch.indexer.subcollection.indexing"
               name="Subcollection Indexing Filter"
               point="org.apache.nutch.indexer.IndexingFilter">

@@ -25,10 +25,6 @@
    ! -->
   <target name="compile" depends="init, resolve-default"/>
 
-  <target name="jar" depends="compile">
-    <copy todir="${build.dir}" verbose="true">
-      <fileset dir="./lib" includes="**/*.jar"/>
-    </copy>
-  </target>
+  <target name="jar" depends="compile"/>
 
 </project>

@@ -50,9 +50,9 @@ public class TestParserFactory extends TestCase {
   /** Unit test for <code>getExtensions(String)</code> method. */
   public void testGetExtensions() throws Exception {
     Extension ext = (Extension)parserFactory.getExtensions("text/html").get(0);
-    assertEquals("parse-html", ext.getDescriptor().getPluginId());
+    assertEquals("parse-tika", ext.getDescriptor().getPluginId());
     ext = (Extension) parserFactory.getExtensions("text/html; charset=ISO-8859-1").get(0);
-    assertEquals("parse-html", ext.getDescriptor().getPluginId());
+    assertEquals("parse-tika", ext.getDescriptor().getPluginId());
     ext = (Extension)parserFactory.getExtensions("foo/bar").get(0);
     assertEquals("parse-tika", ext.getDescriptor().getPluginId());
   }
@@ -62,14 +62,14 @@ public class TestParserFactory extends TestCase {
     Parser [] parsers = parserFactory.getParsers("text/html", "http://foo.com");
     assertNotNull(parsers);
     assertEquals(1, parsers.length);
-    assertEquals("org.apache.nutch.parse.html.HtmlParser",
+    assertEquals("org.apache.nutch.parse.tika.TikaParser",
                  parsers[0].getClass().getName());
 
     parsers = parserFactory.getParsers("text/html; charset=ISO-8859-1",
                                        "http://foo.com");
     assertNotNull(parsers);
     assertEquals(1, parsers.length);
-    assertEquals("org.apache.nutch.parse.html.HtmlParser",
+    assertEquals("org.apache.nutch.parse.tika.TikaParser",
                  parsers[0].getClass().getName());
     
     parsers = parserFactory.getParsers("application/x-javascript",

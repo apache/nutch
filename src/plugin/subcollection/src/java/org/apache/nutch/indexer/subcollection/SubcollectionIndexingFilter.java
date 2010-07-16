@@ -29,7 +29,6 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.indexer.lucene.LuceneWriter;
 
 import org.apache.nutch.collection.CollectionManager;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -71,10 +70,5 @@ public class SubcollectionIndexingFilter extends Configured implements IndexingF
     String sUrl = url.toString();
     addSubCollectionField(doc, sUrl);
     return doc;
-  }
-
-  public void addIndexBackendOptions(Configuration conf) {
-    LuceneWriter.addFieldOptions(FIELD_NAME, LuceneWriter.STORE.YES,
-        LuceneWriter.INDEX.UNTOKENIZED, conf);
   }
 }

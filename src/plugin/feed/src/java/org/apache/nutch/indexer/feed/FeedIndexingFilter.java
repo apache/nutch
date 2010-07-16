@@ -30,7 +30,6 @@ import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.indexer.lucene.LuceneWriter;
 import org.apache.nutch.metadata.Feed;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Parse;
@@ -120,24 +119,6 @@ public class FeedIndexingFilter implements IndexingFilter {
    */
   public Configuration getConf() {
     return conf;
-  }
-
-  public void addIndexBackendOptions(Configuration conf) {
-    LuceneWriter.addFieldOptions(Feed.FEED_AUTHOR,
-        LuceneWriter.STORE.YES, LuceneWriter.INDEX.TOKENIZED, conf);
-
-    LuceneWriter.addFieldOptions(Feed.FEED_TAGS,
-        LuceneWriter.STORE.YES, LuceneWriter.INDEX.TOKENIZED, conf);
-
-    LuceneWriter.addFieldOptions(Feed.FEED,
-        LuceneWriter.STORE.YES, LuceneWriter.INDEX.TOKENIZED, conf);
-
-    LuceneWriter.addFieldOptions(PUBLISHED_DATE,
-        LuceneWriter.STORE.YES, LuceneWriter.INDEX.NO_NORMS, conf);
-
-    LuceneWriter.addFieldOptions(UPDATED_DATE,
-        LuceneWriter.STORE.YES, LuceneWriter.INDEX.NO_NORMS, conf);
-
   }
 
   /**

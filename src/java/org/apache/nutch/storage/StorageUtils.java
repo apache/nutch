@@ -67,6 +67,7 @@ public class StorageUtils {
   throws ClassNotFoundException, IOException {
     DataStore<String, WebPage> store =
       createDataStore(job.getConfiguration(), String.class, WebPage.class);
+    if (store==null) throw new RuntimeException("Could not create datastore");
     Query<String, WebPage> query = store.newQuery();
     query.setFields(toStringArray(fields));
     GoraMapper.initMapperJob(job, query, store,

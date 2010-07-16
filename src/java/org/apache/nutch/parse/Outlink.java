@@ -18,6 +18,7 @@
 package org.apache.nutch.parse;
 
 import java.io.*;
+import java.net.MalformedURLException;
 
 import org.apache.hadoop.io.*;
 
@@ -29,7 +30,7 @@ public class Outlink implements Writable {
 
   public Outlink() {}
 
-  public Outlink(String toUrl, String anchor) {
+  public Outlink(String toUrl, String anchor) throws MalformedURLException {
     this.toUrl = toUrl;
     if (anchor == null) anchor = "";
     this.anchor = anchor;

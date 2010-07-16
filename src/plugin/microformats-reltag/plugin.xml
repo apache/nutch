@@ -45,17 +45,5 @@
                       class="org.apache.nutch.microformats.reltag.RelTagIndexingFilter"/>
    </extension>
 
-
-   <extension id="org.apache.nutch.microformats.reltag.RelTagQueryFilter"
-              name="Rel-Tag query filter"
-              point="org.apache.nutch.searcher.QueryFilter">
-      <implementation id="RelTagQueryFilter"
-                      class="org.apache.nutch.microformats.reltag.RelTagQueryFilter">
-        <parameter name="raw-fields" value="tag"/>
-      </implementation>
-      
-   </extension>
-
-
 </plugin>
 

@@ -21,19 +21,20 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hbase.HBaseClusterTestCase;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.TableUtil;
-import org.gora.hbase.store.HBaseStore;
 import org.gora.query.Query;
 import org.gora.query.Result;
+import org.gora.sql.store.SqlStore;
 import org.gora.store.DataStore;
 import org.gora.store.DataStoreFactory;
+import org.gora.util.ByteUtils;
 import org.junit.Before;
 
 /**
@@ -43,7 +44,7 @@ import org.junit.Before;
  * 
  * @author nutch-dev <nutch-dev at lucene.apache.org>
  */
-public class TestInjector extends HBaseClusterTestCase {
+public class TestInjector extends TestCase {
 
   private Configuration conf;
   private FileSystem fs;
@@ -60,7 +61,9 @@ public class TestInjector extends HBaseClusterTestCase {
     fs = FileSystem.get(conf);
     if (fs.exists(urlPath))
       fs.delete(urlPath, false);
-    webPageStore = DataStoreFactory.getDataStore(HBaseStore.class,
+    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.driver","org.hsqldb.jdbcDriver");
+    DataStoreFactory.properties.setProperty("gora.gora.sqlstore.jdbc.url","jdbc:hsqldb:hsql://localhost/nutchtest");
+    webPageStore = DataStoreFactory.getDataStore(SqlStore.class,
         String.class, WebPage.class);
   }
 
@@ -135,7 +138,7 @@ public class TestInjector extends HBaseClusterTestCase {
       ByteBuffer bb = page.getFromMetadata(new Utf8("custom.attribute"));
       if (bb != null) {
         representation += "\tnutch.score=" + (int) fscore;
-        representation += "\tcustom.attribute=" + Bytes.toString(bb.array());
+        representation += "\tcustom.attribute=" + ByteUtils.toString(bb.array());
       }
       read.add(representation);
     }

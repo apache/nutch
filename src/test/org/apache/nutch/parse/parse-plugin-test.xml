@@ -34,12 +34,6 @@
      ! it should not block the process and then the next one is used
      !-->
     <plugin id="parse-plugin-that-not-exist"/>
-    <plugin id="parse-html"/>
-  </mimeType>
-	
-  <mimeType name="text/plain">
-    <!-- Test that an extension-id can be directly used here -->
-    <plugin id="org.apache.nutch.parse.tika.TikaParser"/>
   </mimeType>
  	 
   <mimeType name="application/x-javascript">
@@ -47,14 +41,13 @@
   </mimeType>
  	 
   <mimeType name="text/rss">
-    <plugin id="parse-rss"/>
+    <!-- Test that an extension-id can be directly used here -->
+    <plugin id="org.apache.nutch.parse.rss.RSSParser"/>
   </mimeType>
 
   <!--  alias mappings for parse-xxx names to the actual extension implementation 
   ids described in each plugin's plugin.xml file -->
   <aliases>
-    <alias name="parse-html"
-           extension-id="org.apache.nutch.parse.html.HtmlParser" />
     <alias name="parse-js"
            extension-id="JSParser" />
     <alias name="parse-rss"

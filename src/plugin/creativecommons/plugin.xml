@@ -45,13 +45,4 @@
                       class="org.creativecommons.nutch.CCIndexingFilter"/>
    </extension>
 
-   <extension id="org.creativecommons.nutch.CCQueryFilter"
-              name="Creative Commmons Query Filter"
-              point="org.apache.nutch.searcher.QueryFilter">
-      <implementation id="CCQueryFilter"
-                      class="org.creativecommons.nutch.CCQueryFilter">
-        <parameter name="fields" value="cc"/>
-      </implementation>
-   </extension>
-
 </plugin>

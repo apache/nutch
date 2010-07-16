@@ -45,7 +45,6 @@
      <ant dir="protocol-http" target="deploy"/>
      <!--<ant dir="protocol-httpclient" target="deploy"/>
      <ant dir="parse-ext" target="deploy"/>-->
-     <ant dir="parse-html" target="deploy"/>
      <ant dir="parse-js" target="deploy"/>
      <ant dir="parse-rss" target="deploy"/>
      <!--<ant dir="parse-swf" target="deploy"/>
@@ -93,7 +92,6 @@
      <ant dir="protocol-httpclient" target="test"/>
      <ant dir="creativecommons" target="test"/>
      <ant dir="parse-ext" target="test"/>
-     <ant dir="parse-html" target="test"/>
      <ant dir="feed" target="test"/>
      <ant dir="parse-swf" target="test"/>
      <ant dir="parse-zip" target="test"/>
@@ -107,19 +105,14 @@
   <!-- Clean all of the plugins.                              -->
   <!-- ====================================================== -->
   <target name="clean">
-    <ant dir="analysis-de" target="clean"/>
-    <ant dir="analysis-fr" target="clean"/>
     <ant dir="creativecommons" target="clean"/>
     <ant dir="feed" target="clean"/>
     <ant dir="index-basic" target="clean"/>
     <ant dir="index-anchor" target="clean"/>
     <ant dir="index-more" target="clean"/>
-    <ant dir="field-basic" target="clean"/>
-    <ant dir="field-boost" target="clean"/>  	
     <ant dir="languageidentifier" target="clean"/>
     <ant dir="lib-commons-httpclient" target="clean"/>
     <ant dir="lib-http" target="clean"/>
-    <ant dir="lib-httphbase" target="clean"/>
     <ant dir="lib-lucene-analyzers" target="clean"/>
     <ant dir="lib-nekohtml" target="clean"/>
     <ant dir="lib-regex-filter" target="clean"/>
@@ -131,14 +124,11 @@
     <ant dir="protocol-http" target="clean"/>
     <ant dir="protocol-httpclient" target="clean"/>
     <ant dir="parse-ext" target="clean"/>
-    <ant dir="parse-html" target="clean"/>
     <ant dir="parse-js" target="clean"/>
     <ant dir="parse-rss" target="clean"/>
     <ant dir="parse-swf" target="clean"/>
     <ant dir="parse-tika" target="clean"/>
     <ant dir="parse-zip" target="clean"/>
-    <ant dir="response-json" target="clean"/>
-    <ant dir="response-xml" target="clean"/>
     <ant dir="scoring-opic" target="clean"/>
     <ant dir="scoring-link" target="clean"/>
     <ant dir="subcollection" target="clean"/>

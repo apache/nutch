@@ -58,7 +58,10 @@ public class TestNodeWalker extends TestCase {
 
   public void testSkipChildren() {
     DOMParser parser= new DOMParser();
+    
     try {
+      parser.setFeature("http://xml.org/sax/features/validation", false);
+      parser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
       parser.parse(new InputSource(new ByteArrayInputStream(WEBPAGE.getBytes())));
     } catch (Exception e) {
       e.printStackTrace();

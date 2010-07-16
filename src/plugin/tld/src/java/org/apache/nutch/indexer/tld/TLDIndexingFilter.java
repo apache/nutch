@@ -67,12 +67,6 @@ public class TLDIndexingFilter implements IndexingFilter {
     return this.conf;
   }
 
-  public void addIndexBackendOptions(Configuration conf) {
-    // store, no index
-    LuceneWriter.addFieldOptions("tld", LuceneWriter.STORE.YES,
-        LuceneWriter.INDEX.NO, conf);
-  }
-
   @Override
   public Collection<Field> getFields() {
     return fields;

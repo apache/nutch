@@ -17,93 +17,77 @@
 
 package org.apache.nutch.util;
 
-// JDK imports
-import java.util.Enumeration;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.UUID;
 
-// Servlet imports
-import javax.servlet.ServletContext;
-
-// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.WritableName;
 
 
 /** Utility to create Hadoop {@link Configuration}s that include Nutch-specific
  * resources.  */
 public class NutchConfiguration {
-  
-  private final static String KEY = NutchConfiguration.class.getName();
+  public static final String UUID_KEY = "nutch.conf.uuid";
   
   private NutchConfiguration() {}                 // singleton
-
-  // for back-compatibility, add old aliases for these Writable classes
-  // this may be removed after the 0.8 release
-  static {
-    WritableName.addName(org.apache.nutch.parse.ParseData.class, "ParseData"); 
-    WritableName.addName(org.apache.nutch.parse.ParseText.class, "ParseText"); 
-    WritableName.addName(org.apache.nutch.protocol.Content.class, "Content");
+  
+  /*
+   * Configuration.hashCode() doesn't return values that
+   * correspond to a unique set of parameters. This is a workaround
+   * so that we can track instances of Configuration created by Nutch.
+   */
+  private static void setUUID(Configuration conf) {
+    UUID uuid = UUID.randomUUID();
+    conf.set(UUID_KEY, uuid.toString());
+  }
+  
+  /**
+   * Retrieve a Nutch UUID of this configuration object, or null
+   * if the configuration was created elsewhere.
+   * @param conf configuration instance
+   * @return uuid or null
+   */
+  public static String getUUID(Configuration conf) {
+    return conf.get(UUID_KEY);
   }
 
-  /** Create a {@link Configuration} for Nutch. */
+  /** Create a {@link Configuration} for Nutch. This will load the standard
+   * Nutch resources, <code>nutch-default.xml</code> and
+   * <code>nutch-site.xml</code> overrides.
+   */
   public static Configuration create() {
     Configuration conf = new Configuration();
-    addNutchResources(conf, false);
+    setUUID(conf);
+    addNutchResources(conf);
     return conf;
   }
-
-  /**
-   * Create a {@link Configuration for Nutch invoked with the command
-   * line crawl command, i.e. bin/nutch crawl ...
+  
+  /** Create a {@link Configuration} from supplied properties.
+   * @param addNutchResources if true, then first <code>nutch-default.xml</code>,
+   * and then <code>nutch-site.xml</code> will be loaded prior to applying the
+   * properties. Otherwise these resources won't be used.
+   * @param nutchProperties a set of properties to define (or override)
    */
-  public static Configuration createCrawlConfiguration() {
+  public static Configuration create(boolean addNutchResources, Properties nutchProperties) {
     Configuration conf = new Configuration();
-    addNutchResources(conf, true);
-    return conf;
-  }
-
-  /**
-   * Create a {@link Configuration} for Nutch front-end.
-   *
-   * If a {@link Configuration} is found in the
-   * {@link javax.servlet.ServletContext} it is simply returned, otherwise,
-   * a new {@link Configuration} is created using the {@link #create()} method,
-   * and then all the init parameters found in the
-   * {@link javax.servlet.ServletContext} are added to the {@link Configuration}
-   * (the created {@link Configuration} is then saved into the
-   * {@link javax.servlet.ServletContext}).
-   *
-   * @param application is the ServletContext whose init parameters
-   *        must override those of Nutch.
-   */
-  public static Configuration get(ServletContext application) {
-    Configuration conf = (Configuration) application.getAttribute(KEY);
-    if (conf == null) {
-      conf = create();
-      Enumeration e = application.getInitParameterNames();
-      while (e.hasMoreElements()) {
-        String name = (String) e.nextElement();
-        conf.set(name, application.getInitParameter(name));
-      }
-      application.setAttribute(KEY, conf);
+    setUUID(conf);
+    if (addNutchResources) {
+      addNutchResources(conf);
+    }
+    for (Entry<Object, Object> e : nutchProperties.entrySet()) {
+      conf.set(e.getKey().toString(), e.getValue().toString());
     }
     return conf;
   }
-  
+
   /**
    * Add the standard Nutch resources to {@link Configuration}.
    * 
    * @param conf               Configuration object to which
    *                           configuration is to be added.
-   * @param crawlConfiguration Whether configuration for command line
-   *                           crawl using 'bin/nutch crawl' command
-   *                           should be added.
    */
-  private static Configuration addNutchResources(Configuration conf,
-                                                 boolean crawlConfiguration) {
+  private static Configuration addNutchResources(Configuration conf) {
     conf.addResource("nutch-default.xml");
-    if (crawlConfiguration) {
-      conf.addResource("crawl-tool.xml");
-    }
     conf.addResource("nutch-site.xml");
     return conf;
   }

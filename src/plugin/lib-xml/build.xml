@@ -17,18 +17,20 @@
 -->
 <project name="lib-xml" default="jar">
 
-  <import file="../build-plugin.xml"/>
+	<import file="../build-plugin.xml" />
 
-  <!--
+	<!--
    ! Override the compile and jar targets,
    ! since there is nothing to compile here.
    ! -->
-  <target name="compile" depends="init, resolve-default"/>
+	<target name="compile" depends="init, resolve-default" />
 
-  <target name="jar" depends="compile">
-    <copy todir="${build.dir}" verbose="true">
-      <fileset dir="./lib" includes="**/*.jar"/>
-    </copy>
-  </target>
+	<!--
+	<target name="jar" depends="compile">
+		<copy todir="${build.dir}" verbose="true">
+			<fileset dir="./lib" includes="**/*.jar" />
+		</copy>
+	</target>
+	-->
 
 </project>

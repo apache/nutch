@@ -16,4 +16,10 @@
   <description>TCP port used during junit testing.</description>
 </property>
 
+<property>
+  <name>storage.data.store.class</name>
+  <value>org.gora.sql.store.SqlStore</value>
+  <description>Default class for storing data</description>
+</property>
+
 </configuration>

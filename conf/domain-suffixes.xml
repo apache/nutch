@@ -1744,6 +1744,16 @@
     <suffix domain="retina.ar" />
     <suffix domain="uba.ar" />
 
+    <suffix domain="com.ar" />
+    <suffix domain="edu.ar" />
+    <suffix domain="gob.ar" />
+    <suffix domain="gov.ar" />
+    <suffix domain="int.ar" />
+    <suffix domain="mil.ar" />
+    <suffix domain="net.ar" />
+    <suffix domain="org.ar" />
+    <suffix domain="tur.ar" />
+
     <!--  arpa : http://en.wikipedia.org/wiki/.arpa-->
     <suffix domain="e164.arpa" />
     <suffix domain="in-addr.arpa" />
@@ -1954,6 +1964,14 @@
     <suffix domain="zj.cn" />
 
     <!--  co : http://en.wikipedia.org/wiki/.co-->
+
+    <suffix domain="com.co" />
+    <suffix domain="org.co" />
+    <suffix domain="edu.co" />
+    <suffix domain="gov.co" />
+    <suffix domain="net.co" />
+    <suffix domain="mil.co" />
+    <suffix domain="nom.co" />
 
     <!--  com : http://en.wikipedia.org/wiki/.com-->
 
@@ -2215,9 +2233,26 @@
 
     <!--  id : http://en.wikipedia.org/wiki/.id-->
 
+    <suffix domain="ac.id" />
+    <suffix domain="co.id" />
+    <suffix domain="net.id" />
+    <suffix domain="or.id" />
+    <suffix domain="web.id" />
+    <suffix domain="sch.id" />
+    <suffix domain="mil.id" />
+    <suffix domain="go.id" />
+
     <!--  ie : http://en.wikipedia.org/wiki/.ie-->
 
     <!--  il : http://en.wikipedia.org/wiki/.il-->
+   <suffix domain="ac.il" />
+   <suffix domain="co.il" />
+   <suffix domain="org.il" />
+   <suffix domain="net.il" />
+   <suffix domain="k12.il" />
+   <suffix domain="gov.il" />
+   <suffix domain="muni.il" />
+   <suffix domain="idf.il" />
 
     <!--  im : https://www.nic.im/pdfs/imfaqs.pdf-->
     <suffix domain="co.im" />
@@ -2854,6 +2889,11 @@
     <suffix domain="org.mw" />
 
     <!--  mx : http://www.nic.mx/-->
+    <suffix domain="com.mx" />
+    <suffix domain="edu.mx" />
+    <suffix domain="gob.mx" />
+    <suffix domain="net.mx" />
+    <suffix domain="org.mx" />
 
     <!--  my : http://www.mynic.net.my/-->
 
@@ -3661,6 +3701,19 @@
     <!--  nu : http://en.wikipedia.org/wiki/.nu-->
 
     <!--  nz : http://en.wikipedia.org/wiki/.nz-->
+   <suffix domain="ac.nz" />
+   <suffix domain="co.nz" />
+   <suffix domain="cri.nz" />
+   <suffix domain="geek.nz" />
+   <suffix domain="gen.nz" />
+   <suffix domain="govt.nz" />
+   <suffix domain="iwi.nz" />
+   <suffix domain="maori.nz" />
+   <suffix domain="mil.nz" />
+   <suffix domain="net.nz" />
+   <suffix domain="org.nz" />
+   <suffix domain="parliament.nz" />
+   <suffix domain="school.nz" />
 
     <!--  om : http://en.wikipedia.org/wiki/.om-->
 
@@ -4344,7 +4397,28 @@
 
     <!--  yu : http://www.nic.yu/pravilnik-e.html-->
 
-    <!--  za : http://www.zadna.org.za/slds.html-->
+    <!--  za : http://www.zadna.org.za/slds.html
+               http://en.wikipedia.org/wiki/.za
+     -->
+    <suffix domain="ac.za" />
+    <suffix domain="city.za" />
+    <suffix domain="co.za" />
+    <suffix domain="edu.za" />
+    <suffix domain="gov.za" />
+    <suffix domain="law.za" />
+    <suffix domain="mil.za" />
+    <suffix domain="nom.za" />
+    <suffix domain="org.za" />
+    <suffix domain="school.za" />
+    <suffix domain="ecape.school.za" />
+    <suffix domain="fs.school.za" />
+    <suffix domain="gp.school.za" />
+    <suffix domain="kzn.school.za" />
+    <suffix domain="mpm.school.za" />
+    <suffix domain="ncape.school.za" />
+    <suffix domain="lp.school.za" />
+    <suffix domain="nw.school.za" />
+    <suffix domain="wcape.school.za" />
 
     <!--  zm : http://en.wikipedia.org/wiki/.zm-->
 

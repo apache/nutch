@@ -70,7 +70,6 @@ public class IndexingFilters {
               .getExtensionInstance();
           LOG.info("Adding " + filter.getClass().getName());
           if (!filterMap.containsKey(filter.getClass().getName())) {
-            filter.addIndexBackendOptions(conf);
             filterMap.put(filter.getClass().getName(), filter);
           }
         }
@@ -88,7 +87,6 @@ public class IndexingFilters {
           for (int i = 0; i < orderedFilters.length; i++) {
             IndexingFilter filter = filterMap.get(orderedFilters[i]);
             if (filter != null) {
-              filter.addIndexBackendOptions(conf);
               filters.add(filter);
             }
           }

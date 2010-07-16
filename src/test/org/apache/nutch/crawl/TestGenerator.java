@@ -21,11 +21,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
+import junit.framework.TestCase;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.HBaseClusterTestCase;
-import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.TableUtil;
@@ -44,7 +44,7 @@ import org.gora.store.DataStoreFactory;
  * @param <URLWebPage>
  *
  */
-public class TestGenerator extends HBaseClusterTestCase {
+public class TestGenerator extends TestCase {
 
   public static final Log LOG = LogFactory.getLog(TestGenerator.class);
 
@@ -54,9 +54,10 @@ public class TestGenerator extends HBaseClusterTestCase {
 
   @Override
   protected void setUp() throws Exception {
-    conf = CrawlDBTestUtil.createConfiguration();
-    super.conf = new HBaseConfiguration(conf);
     super.setUp();
+    conf = CrawlDBTestUtil.createConfiguration();
+    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.driver","org.hsqldb.jdbcDriver");
+    DataStoreFactory.properties.setProperty("gora.gora.sqlstore.jdbc.url","jdbc:hsqldb:hsql://localhost/nutchtest");
     webPageStore = DataStoreFactory.getDataStore(HBaseStore.class,
         String.class, WebPage.class);
   }
@@ -65,7 +66,6 @@ public class TestGenerator extends HBaseClusterTestCase {
   protected void tearDown() throws Exception {
     webPageStore.close();
     super.tearDown();
-    super.cluster.shutdown();
   }
 
   /**

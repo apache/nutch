@@ -1,11 +1,159 @@
 Nutch Change Log
 
-Unreleased Changes
+Release 2.0 - Current Development
 
- 1. NUTCH-735 - crawl-tool.xml must be read before nutch-site.xml when
-    invoked using crawl command (Susam Pal via dogacan)
+* NUTCH-774 Retry interval in crawl date is set to 0 (Reinhard Schwab via mattmann)
 
- 2. NUTCH-650 - Hbase Integration (dogacan)
+* NUTCH-697 Generate log output for solr indexer and dedup (Dmitry Lihachev, Jeroen van Vianen via mattmann)
+
+* NUTCH-844 Improve NutchConfiguration (ab)
+
+* NUTCH-850 SolrDeleteDuplicates needs to clone the SolrRecord objects (jnioche)
+
+* NUTCH-845 Native hadoop libs not available through maven (ab)
+
+* NUTCH-843 Separate the build and runtime environments (ab)
+
+* NUTCH-821 Use ivy in nutch builds (Enis Soztutar, jnioche)
+
+* NUTCH-838 Add timing information to all Tool classes (Jeroen van Vianen, mattmann)
+
+* NUTCH-837 Remove search servers and Lucene dependencies (ab)
+
+* NUTCH-836 Remove deprecated parse plugins (jnioche)
+
+* NUTCH-835 Document deduplication failed using MD5Signature (Sebastian Nagel via ab)
+
+* NUTCH-278 Fetcher-status might need clarification: kbit/s instead of kb/s shown (Alex McLintock via mattmann)
+
+* NUTCH-833 Website is still Lucene branded (mattmann, Alex McLintock)
+
+* NUTCH-832 Website menu has lots of broken links - in particular the API docs (Alex McLintock via mattmann)
+
+
+Release 1.1 - 2010-06-06
+
+* NUTCH-819 Included Solr schema.xml and solrindex-mapping.xml don't play together (ab)
+
+* NUTCH-818 Bugfix : Parse-tika uses minorCodes instead of majorCodes in ParseStatus (jnioche)
+
+* NUTCH-816 Add zip target to build.xml (mattmann)
+
+* NUTCH-732 Subcollection plugin not working (Filipe Antunes, ab)
+
+* NUTCH-815 Invalid blank line before If-Modified-Since header (Pascal Dimassimo via ab)
+
+* NUTCH-814 SegmentMerger bug (Rob Bradshaw, ab)
+
+* NUTCH-812 Crawl.java incorrectly uses the Generator API resulting in NPE (Phil Barnett via mattmann and ab)
+
+* NUTCH-810 Upgrade to Tika 0.7 (jnioche)
+
+* NUTCH-785 Copy metadata from origin URL when redirecting in Fetcher + call scfilters.initialScore on newly created URL (jnioche)
+
+* NUTCH-779 Mechanism for passing metadata from parse to crawldb (jnioche)
+
+* NUTCH-784 CrawlDBScanner (jnioche)
+
+* NUTCH-762 Generator can generate several segments in one parse of the crawlDB (jnioche)
+
+* NUTCH-740 Configuration option to override default language for fetched pages (Marcin Okraszewski via jnioche)
+
+* NUTCH-803 Upgrade to Hadoop 0.20.2 (ab)
+
+* NUTCH-787 Upgrade Lucene to 3.0.1. (Dawid Weiss via ab)
+
+* NUTCH-796 Zero results problems difficult to troubleshoot due to lack of logging (ab)
+
+* NUTCH-801 Remove RTF and MP3 parse plugins (jnioche)
+
+* NUTCH-798 Upgrade to SOLR1.4 and its dependencies (jnioche)
+
+* NUTCH-799 SOLRIndexer to commit once all reducers have finished (jnioche)
+
+* NUTCH-782 Ability to order htmlparsefilters (jnioche)
+
+* NUTCH-719 fetchQueues.totalSize incorrect in Fetcher (Steven Denny via jnioche) 
+
+* NUTCH-790 Some external javadoc links are broken (siren)
+
+* NUTCH-766 Tika parser (jnioche via mattmann)
+
+* NUTCH-786 Improvement to the list of suffix domains (jnioche)
+
+* NUTCH-775 Enhance searcher interface (siren)
+
+* NUTCH-781 Update Tika to v0.6 (jnioche)
+
+* NUTCH-269 CrawlDbReducer: OOME because no upper-bound on inlinks count (stack + jnioche)
+
+* NUTCH-655 Injecting Crawl metadata (jnioche)
+
+* NUTCH-658 Use counters to report fetching and parsing status (jnioche)
+
+* NUTCH-777 Upgrading to jetty6 broke unit tests (mattmann)
+
+* NUTCH-767 Update Tika to v0.5 for the MimeType detection (Julien Nioche via ab)
+
+* NUTCH-769 Fetcher to skip queues for URLS getting repeated exceptions
+  (Julien Nioche via ab)
+
+* NUTCH-768 - Upgrade Nutch 1.0 to use Hadoop 0.20.1, also upgrades Xerces to 
+  version 2.9.1. (kubes)
+  
+* NUTCH-712 ParseOutputFormat should catch java.net.MalformedURLException
+  coming from normalizers (Julien Nioche via ab)
+
+* NUTCH-741 Job file includes multiple copies of nutch config files
+  (Kirby Bohling via ab)
+
+* NUTCH-739 SolrDeleteDuplications too slow when using hadoop (Dmitry Lihachev via ab)
+
+* NUTCH-738 Close SegmentUpdater when FetchedSegments is closed
+  (Martina Koch, Kirby Bohling via ab)
+
+* NUTCH-746 NutchBeanConstructor does not close NutchBean upon contextDestroyed,
+  causing resource leak in the container. (Kirby Bohling via ab)
+
+* NUTCH-772 Upgrade Nutch to use Lucene 2.9.1 (ab)
+
+* NUTCH-760 Allow field mapping from Nutch to Solr index (David Stuart, ab)
+
+* NUTCH-761 Avoid cloning CrawlDatum in CrawlDbReducer (Julien Nioche, ab)
+
+* NUTCH-753 Prevent new Fetcher from retrieving the robots twice (Julien Nioche via ab)
+
+* NUTCH-773 - Some minor bugs in AbstractFetchSchedule (Reinhard Schwab via ab)
+
+* NUTCH-765 - Allow Crawl class to call Either Solr or Lucene Indexer (kubes)
+
+* NUTCH-735 - crawl-tool.xml must be read before nutch-site.xml when
+  invoked using crawl command (Susam Pal via dogacan)
+
+* NUTCH-721 - Fetcher2 Slow (Julien Nioche via dogacan)
+
+* NUTCH-702 - Lazy Instanciation of Metadata in CrawlDatum (Julien Nioche via dogacan)
+
+* NUTCH-707 - Generation of multiple segments in multiple runs returns only 1 segment
+  (Michael Chen, ab)
+
+* NUTCH-730 - NPE in LinkRank if no nodes with which to create the WebGraph
+  (Dennis Kubes via ab)
+
+* NUTCH-731 - Redirection of robots.txt in RobotRulesParser (Julien Nioche via ab)
+
+* NUTCH-757 - RequestUtils getBooleanParameter() always returns false
+  (Niall Pemberton via ab)
+
+* NUTCH-754 - Use GenericOptionsParser instead of FileSystem.parseArgs() (Julien
+  Nioche via ab)
+
+* NUTCH-756 - CrawlDatum.set() does not reset Metadata if it is null (Julien Nioche
+  via ab)
+
+* NUTCH-679 - Fetcher2 implementing Tool (Julien Nioche via ab)
+
+* NUTCH-758 - Set subversion eol-style to "native" (Niall Pemberton via ab)
 
 Release 1.0 - 2009-03-23
 
