@@ -23,6 +23,8 @@ import org.gora.mapreduce.GoraReducer;
 public class DbUpdateReducer
 extends GoraReducer<String, NutchWritable, String, WebPage> {
 
+  public static final String CRAWLDB_ADDITIONS_ALLOWED = "db.update.additions.allowed";	
+	
   public static final Log LOG = DbUpdaterJob.LOG;
 
   private int retryMax;
@@ -36,7 +38,7 @@ extends GoraReducer<String, NutchWritable, String, WebPage> {
   protected void setup(Context context) throws IOException, InterruptedException {
     Configuration conf = context.getConfiguration();
     retryMax = conf.getInt("db.fetch.retry.max", 3);
-    additionsAllowed = conf.getBoolean(CrawlDb.CRAWLDB_ADDITIONS_ALLOWED, true);
+    additionsAllowed = conf.getBoolean(CRAWLDB_ADDITIONS_ALLOWED, true);
     maxInterval = conf.getInt("db.fetch.interval.max", 0 );
     schedule = FetchScheduleFactory.getFetchSchedule(conf);
     scoringFilters = new ScoringFilters(conf);

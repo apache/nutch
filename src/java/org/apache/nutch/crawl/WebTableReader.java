@@ -16,7 +16,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
@@ -37,6 +36,7 @@ import org.gora.mapreduce.GoraMapper;
 import org.gora.query.Query;
 import org.gora.query.Result;
 import org.gora.store.DataStore;
+import org.apache.hadoop.hbase.util.Bytes;
 
 /**
  * Displays information about the entries of the webtable
@@ -281,7 +281,7 @@ public class WebTableReader extends Configured implements Tool {
             LOG.info("   " + st[2] + " :\t" + val);
           else
             LOG.info(st[0] + " " + code + " ("
-                + CrawlDatum.getStatusName((byte) code) + "):\t" + val);
+                + CrawlStatus.getName((byte) code) + "):\t" + val);
         } else
           LOG.info(k + ":\t" + val);
       }
