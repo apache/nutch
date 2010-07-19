@@ -26,8 +26,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.Text;
-import org.apache.nutch.storage.WebPage;
 
 public class CrawlDBTestUtil {
 
@@ -82,8 +80,8 @@ public class CrawlDBTestUtil {
   public static Configuration createConfiguration() {
     Configuration conf = new Configuration();
     conf.addResource("nutch-default.xml");
+    conf.addResource("nutch-site.xml");
     conf.addResource("crawl-tests.xml");
-    conf.addResource("hbase-site.xml");
     return conf;
   }
 

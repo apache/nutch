@@ -29,9 +29,9 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.TableUtil;
-import org.gora.hbase.store.HBaseStore;
 import org.gora.query.Query;
 import org.gora.query.Result;
+import org.gora.sql.store.SqlStore;
 import org.gora.store.DataStore;
 import org.gora.store.DataStoreFactory;
 
@@ -58,7 +58,7 @@ public class TestGenerator extends TestCase {
     conf = CrawlDBTestUtil.createConfiguration();
     DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.driver","org.hsqldb.jdbcDriver");
     DataStoreFactory.properties.setProperty("gora.gora.sqlstore.jdbc.url","jdbc:hsqldb:hsql://localhost/nutchtest");
-    webPageStore = DataStoreFactory.getDataStore(HBaseStore.class,
+    webPageStore = DataStoreFactory.getDataStore(SqlStore.class,
         String.class, WebPage.class);
   }
 
@@ -176,7 +176,7 @@ public class TestGenerator extends TestCase {
    *
    * @throws Exception
    */
-  public void toastGenerateHostIPLimit() throws Exception {
+  public void testGenerateHostIPLimit() throws Exception {
     ArrayList<URLWebPage> list = new ArrayList<URLWebPage>();
 
     list.add(createURLWebPage("http://www.example.com/index.html", 1, 1));
