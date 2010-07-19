@@ -29,6 +29,9 @@ public class ParserJob extends GoraMapper<String, WebPage, String, WebPage>
     implements Tool {
 
   public static final Log LOG = LogFactory.getLog(ParserJob.class);
+  
+  private static final String RESUME_KEY = "parse.job.resume";
+  private static final String FORCE_KEY = "parse.job.force";
 
   private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
@@ -46,7 +49,9 @@ public class ParserJob extends GoraMapper<String, WebPage, String, WebPage>
 
   private ParseUtil parseUtil;
 
-  private boolean shouldContinue;
+  private boolean shouldResume;
+  
+  private boolean force;
 
   private Utf8 crawlId;
 
@@ -54,7 +59,8 @@ public class ParserJob extends GoraMapper<String, WebPage, String, WebPage>
   public void setup(Context context) throws IOException {
     Configuration conf = context.getConfiguration();
     parseUtil = new ParseUtil(conf);
-    shouldContinue = conf.getBoolean("job.continue", false);
+    shouldResume = conf.getBoolean(RESUME_KEY, false);
+    force = conf.getBoolean(FORCE_KEY, false);    
     crawlId = new Utf8(conf.get(GeneratorJob.CRAWL_ID, Nutch.ALL_CRAWL_ID_STR));
   }
 
@@ -68,11 +74,17 @@ public class ParserJob extends GoraMapper<String, WebPage, String, WebPage>
       }
       return;
     }
-    if (shouldContinue && Mark.PARSE_MARK.checkMark(page) != null) {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; already parsed");
+    if (shouldResume && Mark.PARSE_MARK.checkMark(page) != null) {
+      if (force) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Forced parsing " + TableUtil.unreverseUrl(key) + "; already parsed");
+        }        
+      } else {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; already parsed");
+        }
+        return;
       }
-      return;
     }
 
     URLWebPage redirectedPage = parseUtil.process(key, page);
@@ -123,17 +135,21 @@ public class ParserJob extends GoraMapper<String, WebPage, String, WebPage>
     this.conf = conf;
   }
 
-  public int parse(String crawlId, boolean shouldContinue) throws Exception {
+  public int parse(String crawlId, boolean shouldResume, boolean force) throws Exception {
     LOG.info("ParserJob: starting");
 
-    getConf().set(GeneratorJob.CRAWL_ID, crawlId);
-    getConf().setBoolean("job.continue", shouldContinue);
+    if (crawlId != null) {
+      getConf().set(GeneratorJob.CRAWL_ID, crawlId);
+    }
+    getConf().setBoolean(RESUME_KEY, shouldResume);
+    getConf().setBoolean(FORCE_KEY, force);
 
-    LOG.info("ParserJob: continuing: " + getConf().getBoolean("job.continue", false));
-    if (crawlId.equals(Nutch.ALL_CRAWL_ID_STR)) {
+    LOG.info("ParserJob: resuming:\t" + getConf().getBoolean(RESUME_KEY, false));
+    LOG.info("ParserJob: forced reparse:\t" + getConf().getBoolean(FORCE_KEY, false));
+    if (crawlId == null || crawlId.equals(Nutch.ALL_CRAWL_ID_STR)) {
       LOG.info("ParserJob: parsing all");
     } else {
-      LOG.info("ParserJob: crawlId: " + crawlId);
+      LOG.info("ParserJob: crawlId:\t" + crawlId);
     }
 
     final Job job = new NutchJob(getConf(), "parse");
@@ -153,27 +169,38 @@ public class ParserJob extends GoraMapper<String, WebPage, String, WebPage>
   }
 
   public int run(String[] args) throws Exception {
-    boolean shouldContinue = false;
-    String crawlId;
-
-    String usage = "Usage: ParserJob (<crawl id> | -all) [-continue]";
+    boolean shouldResume = false;
+    boolean force = false;
+    String crawlId = null;
 
     if (args.length < 1) {
-      System.err.println(usage);
-      return 1;
+      System.err.println("Usage: ParserJob (<crawlId> | -all) [-resume] [-force]");
+      System.err.println("\tcrawlId\tsymbolic crawl ID created by Generator");
+      System.err.println("\t-all\tconsider pages from all crawl jobs");
+      System.err.println("-resume\tresume a previous incomplete job");
+      System.err.println("-force\tforce re-parsing even if a page is already parsed");
+      return -1;
     }
-
-    crawlId = args[0];
-    if (crawlId.equals("-continue")) {
-      System.err.println(usage);
-      return 1;
+    for (String s : args) {
+      if ("-resume".equals(s)) {
+        shouldResume = true;
+      } else if ("-force".equals(s)) {
+        force = true;
+      } else if ("-all".equals(s)) {
+        crawlId = s;
+      } else {
+        if (crawlId != null) {
+          System.err.println("CrawlId already set to '" + crawlId + "'!");
+          return -1;
+        }
+        crawlId = s;
+      }
     }
-
-    if (args.length >= 1 && "-continue".equals(args[0])) {
-      shouldContinue = true;
+    if (crawlId == null) {
+      System.err.println("CrawlId not set (or -all not specified)!");
+      return -1;
     }
-
-    return parse(crawlId, shouldContinue);
+    return parse(crawlId, shouldResume, force);
   }
 
   public static void main(String[] args) throws Exception {
