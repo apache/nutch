@@ -25,190 +25,217 @@ import java.util.Iterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.FileInputFormat;
-import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
-import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MapReduceBase;
-import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.OutputCollector;
-import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
-import org.apache.hadoop.mapred.SequenceFileInputFormat;
-import org.apache.hadoop.mapred.TextOutputFormat;
+import org.apache.hadoop.mapreduce.Mapper;
+import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.hadoop.mapreduce.Mapper.Context;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.CrawlStatus;
+import org.apache.nutch.crawl.WebTableReader.WebTableRegexMapper;
+import org.apache.nutch.storage.StorageUtils;
+import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchJobConf;
+import org.apache.nutch.util.TableUtil;
 import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.URLUtil;
+import org.gora.mapreduce.GoraMapper;
+import org.gora.query.Query;
+import org.gora.store.DataStore;
 
 /**
- * Extracts some very basic statistics about domains from the crawldb 
+ * Extracts some very basic statistics about domains from the crawldb
  */
-public class DomainStatistics
-extends MapReduceBase
-implements Tool, Mapper<Text, CrawlDatum, Text, LongWritable>,
-           Reducer<Text, LongWritable, LongWritable, Text> {
+public class DomainStatistics extends Configured implements Tool {
 
-  private static final Log LOG = LogFactory.getLog(DomainStatistics.class);
-  
-  private static final Text FETCHED_TEXT = new Text("FETCHED");
-  private static final Text NOT_FETCHED_TEXT = new Text("NOT_FETCHED");
-  
-  public static enum MyCounter {FETCHED, NOT_FETCHED, EMPTY_RESULT};
-  
-  private static final int MODE_HOST = 1;
-  private static final int MODE_DOMAIN = 2;
-  private static final int MODE_SUFFIX = 3;
-  
-  private int mode = 0;
-  
-  private Configuration conf;
-  
-  public int run(String[] args) throws IOException {
-    if (args.length < 3) {
-      System.out.println("usage: DomainStatistics inputDirs outDir host|domain|suffix [numOfReducer]");
-      return 1;
-    }
-    String inputDir = args[0];
-    String outputDir = args[1];
-    int numOfReducers = 1;
-    
-    if (args.length > 3) {
-      numOfReducers = Integer.parseInt(args[3]);
-    }
+	private static final Log LOG = LogFactory.getLog(DomainStatistics.class);
 
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    long start = System.currentTimeMillis();
-    LOG.info("DomainStatistics: starting at " + sdf.format(start));
+	private static final Text FETCHED_TEXT = new Text("FETCHED");
+	private static final Text NOT_FETCHED_TEXT = new Text("NOT_FETCHED");
 
-    JobConf job = new NutchJobConf(getConf());
-    job.setJobName("Domain statistics");
+	public static enum MyCounter {
+		FETCHED, NOT_FETCHED, EMPTY_RESULT
+	};
 
-    int mode = 0;
-    if(args[2].equals("host"))
-      mode = MODE_HOST;
-    else if(args[2].equals("domain"))
-      mode = MODE_DOMAIN;
-    else if(args[2].equals("suffix"))
-      mode = MODE_SUFFIX;
-    job.setInt("domain.statistics.mode", mode);
-    
-    String[] inputDirsSpecs = inputDir.split(",");
-    for (int i = 0; i < inputDirsSpecs.length; i++) {
-      FileInputFormat.addInputPath(job, new Path(inputDirsSpecs[i]));
-    }
+	private static final int MODE_HOST = 1;
+	private static final int MODE_DOMAIN = 2;
+	private static final int MODE_SUFFIX = 3;
 
-    job.setInputFormat(SequenceFileInputFormat.class);
-    job.setMapperClass(DomainStatistics.class);
-    FileOutputFormat.setOutputPath(job, new Path(outputDir));
-    job.setOutputFormat(TextOutputFormat.class);
-    job.setMapOutputKeyClass(Text.class);
-    job.setMapOutputValueClass(LongWritable.class);
-    job.setOutputKeyClass(Text.class);
-    job.setOutputValueClass(LongWritable.class);
-    job.setReducerClass(DomainStatistics.class);
-    job.setCombinerClass(DomainStatisticsCombiner.class);
-    job.setNumReduceTasks(numOfReducers);
-    
-    JobClient.runJob(job);
-    
-    long end = System.currentTimeMillis();
-    LOG.info("DomainStatistics: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
-    return 0;
-  }
+	private Configuration conf;
 
-  @Override
-  public void configure(JobConf job) {
-    super.configure(job);
-    mode = job.getInt("domain.statistics.mode", MODE_DOMAIN);
-  }
-  
+	public int run(String[] args) throws IOException, ClassNotFoundException,
+			InterruptedException {
+		if (args.length < 3) {
+			System.out
+					.println("usage: DomainStatistics outDir host|domain|suffix [numOfReducer]");
+			return 1;
+		}
+		String outputDir = args[0];
+		int numOfReducers = 1;
 
-  public Configuration getConf() {
-    return conf;
-  }
+		if (args.length > 2) {
+			numOfReducers = Integer.parseInt(args[2]);
+		}
 
-  public void setConf(Configuration conf) {
-    this.conf = conf;
-  }
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		long start = System.currentTimeMillis();
+		LOG.info("DomainStatistics: starting at " + sdf.format(start));
 
-  public void map(Text urlText, CrawlDatum datum,
-      OutputCollector<Text, LongWritable> output, Reporter reporter)
-  throws IOException {
-    
-    if(datum.getStatus() == CrawlDatum.STATUS_DB_FETCHED 
-        || datum.getStatus() == CrawlDatum.STATUS_FETCH_SUCCESS) {
-      try {
-        URL url = new URL(urlText.toString());
-        String out = null;
-        switch (mode) {
-          case MODE_HOST:
-            out = url.getHost();
-            break;
-          case MODE_DOMAIN:
-            out = URLUtil.getDomainName(url);
-            break;
-          case MODE_SUFFIX:
-            out = URLUtil.getDomainSuffix(url).getDomain();
-            break;
-        }
-        if(out.trim().equals("")) {
-          LOG.info("url : " + url);
-          reporter.incrCounter(MyCounter.EMPTY_RESULT, 1);
-        }
-        
-        output.collect(new Text(out), new LongWritable(1));
-      } catch (Exception ex) { }
-      reporter.incrCounter(MyCounter.FETCHED, 1);
-      output.collect(FETCHED_TEXT, new LongWritable(1));
-    }
-    else {
-      reporter.incrCounter(MyCounter.NOT_FETCHED, 1);
-      output.collect(NOT_FETCHED_TEXT, new LongWritable(1));
-    }
-  }
+		Job job = new NutchJob(getConf(), "Domain statistics");
 
-  public void reduce(Text key, Iterator<LongWritable> values,
-      OutputCollector<LongWritable, Text> output, Reporter reporter)
-  throws IOException {
-    
-    long total = 0;
-    
-    while(values.hasNext()) {
-      LongWritable val = values.next();
-      total += val.get();
-    }
-    //invert output 
-    output.collect(new LongWritable(total), key);
-  }
-    
-  
-  public static class DomainStatisticsCombiner extends MapReduceBase
-  implements Reducer<Text, LongWritable, Text, LongWritable> {
+		int mode = 0;
+		if (args[1].equals("host"))
+			mode = MODE_HOST;
+		else if (args[1].equals("domain"))
+			mode = MODE_DOMAIN;
+		else if (args[1].equals("suffix"))
+			mode = MODE_SUFFIX;
+		job.getConfiguration().setInt("domain.statistics.mode", mode);
 
-    public void reduce(Text key, Iterator<LongWritable> values,
-        OutputCollector<Text, LongWritable> output, Reporter reporter)
-    throws IOException {
-      long total = 0;
-      
-      while(values.hasNext()) {
-        LongWritable val = values.next();
-        total += val.get();
-      } 
-      output.collect(key, new LongWritable(total));
-    }
+		DataStore<String, WebPage> store = StorageUtils.createDataStore(
+				job.getConfiguration(), String.class, WebPage.class);
 
-  }
+		Query<String, WebPage> query = store.newQuery();
+		query.setFields(WebPage._ALL_FIELDS);
 
-  public static void main(String[] args) throws Exception {
-    ToolRunner.run(NutchConfiguration.create(), new DomainStatistics(), args);
-  }
-  
+		GoraMapper.initMapperJob(job, query, store, Text.class, LongWritable.class,
+				DomainStatisticsMapper.class, null, true);
+
+		FileOutputFormat.setOutputPath(job, new Path(outputDir));
+
+		job.setOutputFormatClass(TextOutputFormat.class);
+		job.setMapOutputKeyClass(Text.class);
+		job.setMapOutputValueClass(LongWritable.class);
+		job.setOutputKeyClass(Text.class);
+		job.setOutputValueClass(LongWritable.class);
+
+		job.setReducerClass(DomainStatisticsReducer.class);
+		job.setCombinerClass(DomainStatisticsCombiner.class);
+		job.setNumReduceTasks(numOfReducers);
+
+		boolean success = job.waitForCompletion(true);
+
+		long end = System.currentTimeMillis();
+		LOG.info("DomainStatistics: finished at " + sdf.format(end)
+				+ ", elapsed: " + TimingUtil.elapsedTime(start, end));
+
+		if (!success)
+			return -1;
+		return 0;
+	}
+
+	public Configuration getConf() {
+		return conf;
+	}
+
+	public void setConf(Configuration conf) {
+		this.conf = conf;
+	}
+
+	public static class DomainStatisticsCombiner extends
+			Reducer<Text, LongWritable, Text, LongWritable> {
+
+		@Override
+		public void reduce(Text key, Iterable<LongWritable> values,
+				Context context) throws IOException, InterruptedException {
+
+			long total = 0;
+
+			for (LongWritable val : values)
+				total += val.get();
+
+			context.write(key, new LongWritable(total));
+		}
+
+	}
+
+	public static class DomainStatisticsReducer extends
+			Reducer<Text, LongWritable, LongWritable, Text> {
+
+		@Override
+		public void reduce(Text key, Iterable<LongWritable> values,
+				Context context) throws IOException, InterruptedException {
+
+			long total = 0;
+
+			for (LongWritable val : values)
+				total += val.get();
+
+			// invert output
+			context.write(new LongWritable(total), key);
+		}
+	}
+
+	public static class DomainStatisticsMapper extends
+			GoraMapper<String, WebPage, Text, LongWritable> {
+		LongWritable COUNT_1 = new LongWritable(1);
+
+		private int mode = 0;
+
+		public DomainStatisticsMapper() {
+		}
+
+		public void setup(Context context) {
+			mode = context.getConfiguration().getInt("domain.statistics.mode",
+					MODE_DOMAIN);
+		}
+
+		public void close() {
+		}
+
+		@Override
+		protected void map(
+				String key,
+				WebPage value,
+				org.apache.hadoop.mapreduce.Mapper<String, WebPage, Text, LongWritable>.Context context)
+				throws IOException, InterruptedException {
+			if (value.getStatus() == CrawlStatus.STATUS_FETCHED) {
+				try {
+					URL url = new URL(key.toString());
+					String out = null;
+					switch (mode) {
+					case MODE_HOST:
+						out = url.getHost();
+						break;
+					case MODE_DOMAIN:
+						out = URLUtil.getDomainName(url);
+						break;
+					case MODE_SUFFIX:
+						out = URLUtil.getDomainSuffix(url).getDomain();
+						break;
+					}
+					if (out.trim().equals("")) {
+						LOG.info("url : " + url);
+						context.getCounter(MyCounter.EMPTY_RESULT).increment(1);
+					}
+
+					context.write(new Text(out), COUNT_1);
+				} catch (Exception ex) {
+				}
+				context.getCounter(MyCounter.FETCHED).increment(1);
+				context.write(FETCHED_TEXT, COUNT_1);
+			} else {
+				context.getCounter(MyCounter.FETCHED).increment(1);
+				context.write(NOT_FETCHED_TEXT, COUNT_1);
+			}
+
+		}
+	}
+
+	public static void main(String[] args) throws Exception {
+		ToolRunner.run(NutchConfiguration.create(), new DomainStatistics(),
+				args);
+	}
+
 }

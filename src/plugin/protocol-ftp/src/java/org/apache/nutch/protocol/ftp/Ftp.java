@@ -26,8 +26,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.net.ftp.FTPFileEntryParser;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Text;
-import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.EmptyRobotRules;
@@ -38,7 +36,6 @@ import org.apache.nutch.protocol.RobotRules;
 import org.apache.nutch.storage.ProtocolStatus;
 import org.apache.nutch.storage.ProtocolStatusUtils;
 import org.apache.nutch.storage.WebPage;
-import org.apache.nutch.storage.WebPage.Field;
 
 /************************************
  * Ftp.java deals with ftp: scheme.
