@@ -56,8 +56,11 @@ public class TestGenerator extends TestCase {
   protected void setUp() throws Exception {
     super.setUp();
     conf = CrawlDBTestUtil.createConfiguration();
+    // using hsqldb in memory
     DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.driver","org.hsqldb.jdbcDriver");
-    DataStoreFactory.properties.setProperty("gora.gora.sqlstore.jdbc.url","jdbc:hsqldb:hsql://localhost/nutchtest");
+    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.url","jdbc:hsqldb:mem:.");
+    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.user","sa");
+    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.password","");
     webPageStore = DataStoreFactory.getDataStore(SqlStore.class,
         String.class, WebPage.class);
   }

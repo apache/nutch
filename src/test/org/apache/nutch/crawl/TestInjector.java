@@ -61,17 +61,20 @@ public class TestInjector extends TestCase {
     fs = FileSystem.get(conf);
     if (fs.exists(urlPath))
       fs.delete(urlPath, false);
+    // using hsqldb in memory
     DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.driver","org.hsqldb.jdbcDriver");
-    DataStoreFactory.properties.setProperty("gora.gora.sqlstore.jdbc.url","jdbc:hsqldb:hsql://localhost/nutchtest");
+    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.url","jdbc:hsqldb:mem:.");
+    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.user","sa");
+    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.password","");
     webPageStore = DataStoreFactory.getDataStore(SqlStore.class,
         String.class, WebPage.class);
   }
 
   @Override
   public void tearDown() throws Exception {
-    fs.delete(testdir, true);
     webPageStore.close();
     super.tearDown();
+    fs.delete(testdir, true);
   }
 
   public void testInject() throws Exception {
