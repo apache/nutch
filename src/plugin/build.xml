@@ -43,6 +43,7 @@
      <ant dir="parse-tika" target="deploy"/>
      <ant dir="scoring-opic" target="deploy"/>
      <ant dir="subcollection" target="deploy"/>
+     <ant dir="tld" target="deploy"/>
      <ant dir="urlfilter-automaton" target="deploy"/>
      <ant dir="urlfilter-domain" target="deploy" />
      <ant dir="urlfilter-prefix" target="deploy"/>
@@ -61,7 +62,6 @@
      <ant dir="parse-zip" target="deploy"/>
      <ant dir="protocol-httpclient" target="deploy"/>
      <ant dir="scoring-link" target="deploy"/>
-     <ant dir="tld" target="deploy"/>
      -->
   </target>
 
