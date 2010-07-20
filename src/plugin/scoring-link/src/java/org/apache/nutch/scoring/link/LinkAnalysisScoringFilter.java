@@ -17,85 +17,81 @@
 package org.apache.nutch.scoring.link;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Text;
-import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.metadata.Nutch;
-import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.ParseData;
-import org.apache.nutch.protocol.Content;
+import org.apache.nutch.scoring.ScoreDatum;
 import org.apache.nutch.scoring.ScoringFilter;
 import org.apache.nutch.scoring.ScoringFilterException;
+import org.apache.nutch.storage.WebPage;
 
-public class LinkAnalysisScoringFilter
-  implements ScoringFilter {
+public class LinkAnalysisScoringFilter implements ScoringFilter {
 
-  private Configuration conf;
-  private float scoreInjected = 0.001f;
-  private float normalizedScore = 1.00f;
+	private Configuration conf;
+	private float scoreInjected = 0.001f;
+	private float normalizedScore = 1.00f;
 
-  public LinkAnalysisScoringFilter() {
+	private final static Set<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
-  }
+	static {
+		FIELDS.add(WebPage.Field.METADATA);
+		FIELDS.add(WebPage.Field.SCORE);
+	}
 
-  public Configuration getConf() {
-    return conf;
-  }
+	public LinkAnalysisScoringFilter() {
+	}
 
-  public void setConf(Configuration conf) {
-    this.conf = conf;
-    normalizedScore = conf.getFloat("link.analyze.normalize.score", 1.00f);
-    scoreInjected = conf.getFloat("link.analyze.injected.score", 1.00f);
-  }
+	public Configuration getConf() {
+		return conf;
+	}
 
-  public CrawlDatum distributeScoreToOutlinks(Text fromUrl,
-    ParseData parseData, Collection<Entry<Text, CrawlDatum>> targets,
-    CrawlDatum adjust, int allCount)
-    throws ScoringFilterException {
-    return adjust;
-  }
+	public void setConf(Configuration conf) {
+		this.conf = conf;
+		normalizedScore = conf.getFloat("link.analyze.normalize.score", 1.00f);
+		scoreInjected = conf.getFloat("link.analyze.injected.score", 1.00f);
+	}
 
-  public float generatorSortValue(Text url, CrawlDatum datum, float initSort)
-    throws ScoringFilterException {
-    return datum.getScore() * initSort;
-  }
+	@Override
+	public Collection<WebPage.Field> getFields() {
+		return FIELDS;
+	}
 
-  public float indexerScore(Text url, NutchDocument doc, CrawlDatum dbDatum,
-    CrawlDatum fetchDatum, Parse parse, Inlinks inlinks, float initScore)
-    throws ScoringFilterException {
-    return (normalizedScore * dbDatum.getScore());
-  }
+	@Override
+	public void injectedScore(String url, WebPage page)
+			throws ScoringFilterException {
+		page.setScore(scoreInjected);
+	}
 
-  public void initialScore(Text url, CrawlDatum datum)
-    throws ScoringFilterException {
-    datum.setScore(0.0f);
-  }
+	@Override
+	public void initialScore(String url, WebPage page)
+			throws ScoringFilterException {
+		page.setScore(0.0f);
+	}
 
-  public void injectedScore(Text url, CrawlDatum datum)
-    throws ScoringFilterException {
-    datum.setScore(scoreInjected);
-  }
+	@Override
+	public float generatorSortValue(String url, WebPage page, float initSort)
+			throws ScoringFilterException {
+		return page.getScore() * initSort;
+	}
 
-  public void passScoreAfterParsing(Text url, Content content, Parse parse)
-    throws ScoringFilterException {
-    parse.getData().getContentMeta().set(Nutch.SCORE_KEY,
-      content.getMetadata().get(Nutch.SCORE_KEY));
-  }
+	@Override
+	public void distributeScoreToOutlinks(String fromUrl, WebPage page,
+			Collection<ScoreDatum> scoreData, int allCount)
+			throws ScoringFilterException {
+	}
 
-  public void passScoreBeforeParsing(Text url, CrawlDatum datum, Content content)
-    throws ScoringFilterException {
-    content.getMetadata().set(Nutch.SCORE_KEY, "" + datum.getScore());
-  }
+	@Override
+	public void updateScore(String url, WebPage page,
+			List<ScoreDatum> inlinkedScoreData) throws ScoringFilterException {
+	}
 
-  public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum,
-    List<CrawlDatum> inlinked)
-    throws ScoringFilterException {
-    // nothing to do
-  }
+	@Override
+	public float indexerScore(String url, NutchDocument doc, WebPage page,
+			float initScore) throws ScoringFilterException {
+		return (normalizedScore * page.getScore());
+	}
 
 }
