@@ -35,6 +35,7 @@
      <ant dir="lib-nekohtml" target="deploy"/>
      <ant dir="lib-regex-filter" target="deploy"/>
      <ant dir="lib-xml" target="deploy"/>
+     <ant dir="microformats-reltag" target="deploy"/>
      <ant dir="nutch-extensionpoints" target="deploy"/>
      <ant dir="protocol-ftp" target="deploy"/>
      <ant dir="protocol-file" target="deploy"/>
@@ -57,7 +58,6 @@
      <ant dir="urlnormalizer-regex" target="deploy"/>
      <!--
      <ant dir="feed" target="deploy"/>
-     <ant dir="microformats-reltag" target="deploy"/>
      <ant dir="parse-ext" target="deploy"/>
      <ant dir="parse-swf" target="deploy"/>
      <ant dir="parse-zip" target="deploy"/>
