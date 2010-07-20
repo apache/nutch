@@ -36,7 +36,6 @@ import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
 
 import org.apache.hadoop.io.Text;
-import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.tika.mime.MimeType;
 
 import junit.framework.TestCase;
