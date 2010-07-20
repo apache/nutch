@@ -26,13 +26,13 @@ import java.util.HashSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.util.Bytes;
 import org.apache.lucene.document.DateTools;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.util.Bytes;
 import org.apache.nutch.util.TableUtil;
 
 /** Adds basic searchable fields to a document. */

@@ -27,7 +27,6 @@ import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
-import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.Outlink;
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
@@ -35,7 +34,6 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
 
-import org.apache.hadoop.io.Text;
 import org.apache.tika.mime.MimeType;
 
 import junit.framework.TestCase;

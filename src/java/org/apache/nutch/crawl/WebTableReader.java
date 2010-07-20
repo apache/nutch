@@ -5,8 +5,8 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import org.apache.avro.util.Utf8;
@@ -29,6 +29,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.storage.StorageUtils;
 import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.util.Bytes;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TableUtil;
@@ -36,7 +37,6 @@ import org.gora.mapreduce.GoraMapper;
 import org.gora.query.Query;
 import org.gora.query.Result;
 import org.gora.store.DataStore;
-import org.apache.hadoop.hbase.util.Bytes;
 
 /**
  * Displays information about the entries of the webtable
