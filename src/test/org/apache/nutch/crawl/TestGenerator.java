@@ -26,6 +26,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.AbstractNutchTest;
+import org.apache.nutch.util.CrawlTestUtil;
 import org.apache.nutch.util.TableUtil;
 
 /**
@@ -68,7 +69,7 @@ public class TestGenerator extends AbstractNutchTest {
 
     generateFetchlist(NUM_RESULTS, conf, false);
 
-    ArrayList<URLWebPage> l = readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
+    ArrayList<URLWebPage> l = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
 
     // sort urls by score desc
     Collections.sort(l, new ScoreComparator());
@@ -127,7 +128,7 @@ public class TestGenerator extends AbstractNutchTest {
     myConfiguration.set(GeneratorJob.GENERATOR_COUNT_MODE, GeneratorJob.GENERATOR_COUNT_VALUE_HOST);
     generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    ArrayList<URLWebPage> fetchList = readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
+    ArrayList<URLWebPage> fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
 
     // verify we got right amount of records
     assertEquals(1, fetchList.size());
@@ -136,7 +137,7 @@ public class TestGenerator extends AbstractNutchTest {
     myConfiguration.setInt(GeneratorJob.GENERATOR_MAX_COUNT, 2);
     generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    fetchList = readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
+    fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
 
     // verify we got right amount of records
     assertEquals(2, fetchList.size());
@@ -145,7 +146,7 @@ public class TestGenerator extends AbstractNutchTest {
     myConfiguration.setInt(GeneratorJob.GENERATOR_MAX_COUNT, 3);
     generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    fetchList = readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
+    fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
 
     // verify we got right amount of records
     assertEquals(3, fetchList.size());
@@ -178,7 +179,7 @@ public class TestGenerator extends AbstractNutchTest {
 
     generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    ArrayList<URLWebPage> fetchList = readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
+    ArrayList<URLWebPage> fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
 
     // verify we got right amount of records
     assertEquals(1, fetchList.size());
@@ -187,7 +188,7 @@ public class TestGenerator extends AbstractNutchTest {
     myConfiguration.setInt(GeneratorJob.GENERATOR_MAX_COUNT, 2);
     generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    fetchList = readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
+    fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
 
     // verify we got right amount of records
     assertEquals(2, fetchList.size());
@@ -196,7 +197,7 @@ public class TestGenerator extends AbstractNutchTest {
     myConfiguration.setInt(GeneratorJob.GENERATOR_MAX_COUNT, 3);
     generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    fetchList = readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
+    fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
 
     // verify we got right amount of records
     assertEquals(3, fetchList.size());
@@ -226,13 +227,13 @@ public class TestGenerator extends AbstractNutchTest {
 
     generateFetchlist(Integer.MAX_VALUE, myConfiguration, true);
 
-    ArrayList<URLWebPage> fetchList = readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
+    ArrayList<URLWebPage> fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
 
     assertEquals(0, fetchList.size());
 
     generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    fetchList = readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
+    fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
 
     // verify nothing got filtered
     assertEquals(list.size(), fetchList.size());

@@ -18,6 +18,7 @@ package org.apache.nutch.util;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -27,6 +28,12 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.nutch.crawl.URLWebPage;
+import org.apache.nutch.storage.Mark;
+import org.apache.nutch.storage.WebPage;
+import org.gora.query.Query;
+import org.gora.query.Result;
+import org.gora.store.DataStore;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.DefaultHandler;
@@ -88,6 +95,39 @@ public class CrawlTestUtil {
     out.flush();
     out.close();
   }
+  
+  /**
+   * Read entries from a data store
+   *
+   * @return list of matching {@link URLWebPage} objects
+   * @throws IOException
+   */
+  public static ArrayList<URLWebPage> readContents(DataStore<String,WebPage> store,
+      Mark requiredMark, String... fields) throws IOException {
+    ArrayList<URLWebPage> l = new ArrayList<URLWebPage>();
+
+    Query<String, WebPage> query = store.newQuery();
+    if (fields != null) {
+      query.setFields(fields);
+    }
+
+    Result<String, WebPage> results = store.execute(query);
+    while (results.next()) {
+      WebPage page = results.get();
+      String url = results.getKey();
+
+      if (page == null)
+        continue;
+
+      if (requiredMark != null && requiredMark.checkMark(page) == null)
+        continue;
+
+      l.add(new URLWebPage(TableUtil.unreverseUrl(url), (WebPage)page.clone()));
+    }
+
+    return l;
+  }
+
 
   /**
    * Creates a new JettyServer with one static root context

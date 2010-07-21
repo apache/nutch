@@ -94,7 +94,7 @@ public class TestFetcher extends AbstractNutchTest {
         conf.getFloat("fetcher.server.delay", 5));
     assertTrue(time > minimumTime);
     
-    List<URLWebPage> pages = readContents(webPageStore, Mark.FETCH_MARK, null);
+    List<URLWebPage> pages = CrawlTestUtil.readContents(webPageStore, Mark.FETCH_MARK, (String[])null);
     assertEquals(urls.size(), pages.size());
     List<String> handledurls = new ArrayList<String>();
     for (URLWebPage up : pages) {

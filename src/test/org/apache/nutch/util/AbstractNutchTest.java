@@ -39,11 +39,8 @@ import org.gora.store.DataStoreFactory;
 import org.gora.util.ByteUtils;
 
 /**
- * Basic injector test: 1. Creates a text file with urls 2. Injects them into
- * crawldb 3. Reads crawldb entries and verifies contents 4. Injects more urls
- * into webdb 5. Reads crawldb entries and verifies contents
- * 
- * @author nutch-dev <nutch-dev at lucene.apache.org>
+ * This class provides common routines for setup/teardown of an in-memory data
+ * store.
  */
 public class AbstractNutchTest extends TestCase {
 
@@ -85,35 +82,4 @@ public class AbstractNutchTest extends TestCase {
     fs.delete(testdir, true);
   }
 
-  /**
-   * Read entries from a data store
-   *
-   * @return list of matching {@link URLWebPage} objects
-   * @throws IOException
-   */
-  public static ArrayList<URLWebPage> readContents(DataStore<String,WebPage> store,
-      Mark requiredMark, String... fields) throws IOException {
-    ArrayList<URLWebPage> l = new ArrayList<URLWebPage>();
-
-    Query<String, WebPage> query = store.newQuery();
-    if (fields != null) {
-      query.setFields(fields);
-    }
-
-    Result<String, WebPage> results = store.execute(query);
-    while (results.next()) {
-      WebPage page = results.get();
-      String url = results.getKey();
-
-      if (page == null)
-        continue;
-
-      if (requiredMark != null && requiredMark.checkMark(page) == null)
-        continue;
-
-      l.add(new URLWebPage(TableUtil.unreverseUrl(url), (WebPage)page.clone()));
-    }
-
-    return l;
-  }
 }
