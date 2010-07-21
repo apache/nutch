@@ -169,6 +169,14 @@ public class InjectorJob extends GoraMapper<String, WebPage, String, WebPage>
     }
   }
 
+  public InjectorJob() {
+    
+  }
+  
+  public InjectorJob(Configuration conf) {
+    setConf(conf);
+  }
+  
   @Override
   public Configuration getConf() {
     return conf;
@@ -202,7 +210,7 @@ public class InjectorJob extends GoraMapper<String, WebPage, String, WebPage>
     context.write(key, row);
   }
 
-  void inject(Path urlDir) throws Exception {
+  public void inject(Path urlDir) throws Exception {
     LOG.info("InjectorJob: starting");
     LOG.info("InjectorJob: urlDir: " + urlDir);
 

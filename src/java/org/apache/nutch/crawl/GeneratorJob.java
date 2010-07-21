@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
@@ -32,15 +33,12 @@ public class GeneratorJob extends Configured implements Tool {
   public static final String GENERATOR_COUNT_MODE = "generate.count.mode";
   public static final String GENERATOR_COUNT_VALUE_DOMAIN = "domain";
   public static final String GENERATOR_COUNT_VALUE_HOST = "host";
+  public static final String GENERATOR_COUNT_VALUE_IP = "ip";
   public static final String GENERATOR_TOP_N = "generate.topN";
   public static final String GENERATOR_CUR_TIME = "generate.curTime";
   public static final String GENERATOR_DELAY = "crawl.gen.delay";
   public static final String GENERATOR_RANDOM_SEED = "generate.partition.seed";
   public static final String CRAWL_ID = "generate.crawl.id";
-
-  // deprecated parameters
-  public static final String GENERATE_MAX_PER_HOST_BY_IP = "generate.max.per.host.by.ip";
-  public static final String GENERATE_MAX_PER_HOST = "generate.max.per.host";
 
   private static final Set<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
@@ -115,13 +113,21 @@ public class GeneratorJob extends Configured implements Tool {
                               new SelectorEntryComparator());
   }
 
+  public GeneratorJob() {
+    
+  }
+  
+  public GeneratorJob(Configuration conf) {
+    setConf(conf);
+  }
+  
   /**
    * Mark URLs ready for fetching.
    * @throws ClassNotFoundException
    * @throws InterruptedException
    * */
   public String generate(long topN, long curTime, boolean filter, boolean norm)
-  throws Exception {
+      throws Exception {
 
     LOG.info("GeneratorJob: Selecting best-scoring urls due for fetch.");
     LOG.info("GeneratorJob: starting");
@@ -140,6 +146,16 @@ public class GeneratorJob extends Configured implements Tool {
     getConf().set(CRAWL_ID, crawlId);
     getConf().setLong(Nutch.GENERATE_TIME_KEY, System.currentTimeMillis());
     getConf().setBoolean(GENERATOR_NORMALISE, norm);
+    String mode = getConf().get(GENERATOR_COUNT_MODE, GENERATOR_COUNT_VALUE_HOST);
+    if (GENERATOR_COUNT_VALUE_HOST.equalsIgnoreCase(mode)) {
+      getConf().set(URLPartitioner.PARTITION_MODE_KEY, URLPartitioner.PARTITION_MODE_HOST);
+    } else if (GENERATOR_COUNT_VALUE_DOMAIN.equalsIgnoreCase(mode)) {
+        getConf().set(URLPartitioner.PARTITION_MODE_KEY, URLPartitioner.PARTITION_MODE_DOMAIN);
+    } else {
+      LOG.warn("Unknown generator.max.count mode '" + mode + "', using mode=" + GENERATOR_COUNT_VALUE_HOST);
+      getConf().set(GENERATOR_COUNT_MODE, GENERATOR_COUNT_VALUE_HOST);
+      getConf().set(URLPartitioner.PARTITION_MODE_KEY, URLPartitioner.PARTITION_MODE_HOST);
+    }
 
     Job job = new NutchJob(getConf(), "generate: " + crawlId);
     StorageUtils.initMapperJob(job, FIELDS, SelectorEntry.class, WebPage.class,

@@ -14,9 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.crawl;
+package org.apache.nutch.util;
 
 import java.io.IOException;
+import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -26,37 +27,18 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.mortbay.jetty.Handler;
+import org.mortbay.jetty.Server;
+import org.mortbay.jetty.handler.DefaultHandler;
+import org.mortbay.jetty.handler.HandlerList;
+import org.mortbay.jetty.handler.ResourceHandler;
+import org.mortbay.jetty.servlet.Context;
 
-public class CrawlDBTestUtil {
+import com.sun.net.httpserver.HttpContext;
 
-  private static final Log LOG = LogFactory.getLog(CrawlDBTestUtil.class);
+public class CrawlTestUtil {
 
-  /**
-   * Creates synthetic crawldb
-   * 
-   * @param fs
-   *          filesystem where db will be created
-   * @param crawldb
-   *          path were db will be created
-   * @param init
-   *          urls to be inserted, objects are of type URLCrawlDatum
-   * @throws Exception
-   * @see TestGenerator
-   **/
-  // public static void oldcreateCrawlDb(Configuration conf, FileSystem fs,
-  // Path crawldb, List<URLWebPage> init) throws Exception {
-  // LOG.trace("* creating crawldb: " + crawldb);
-  // Path dir = new Path(crawldb, CrawlDb.CURRENT_NAME);
-  // MapFile.Writer writer = new MapFile.Writer(conf, fs, new Path(dir,
-  // "part-00000").toString(), Text.class, CrawlDatum.class);
-  // Iterator<URLWebPage> it = init.iterator();
-  // while (it.hasNext()) {
-  // URLWebPage row = it.next();
-  // LOG.info("adding:" + row.url.toString());
-  // writer.append(new Text(row.url), row.datum);
-  // }
-  // writer.close();
-  // }
+  private static final Log LOG = LogFactory.getLog(CrawlTestUtil.class);
 
   /**
    * For now we need to manually construct our Configuration, because we need to
@@ -107,25 +89,23 @@ public class CrawlDBTestUtil {
     out.close();
   }
 
-  // /**
-  // * Creates a new JettyServer with one static root context
-  // *
-  // * @param port port to listen to
-  // * @param staticContent folder where static content lives
-  // * @throws UnknownHostException
-  // */
-  // public static Server getServer(int port, String staticContent) throws
-  // UnknownHostException{
-  // Server webServer = new org.mortbay.jetty.Server();
-  // SocketListener listener = new SocketListener();
-  // listener.setPort(port);
-  // listener.setHost("127.0.0.1");
-  // webServer.addListener(listener);
-  // HttpContext staticContext = new HttpContext();
-  // staticContext.setContextPath("/");
-  // staticContext.setResourceBase(staticContent);
-  // staticContext.addHandler(new ResourceHandler());
-  // webServer.addContext(staticContext);
-  // return webServer;
-  // }
+  /**
+   * Creates a new JettyServer with one static root context
+   * 
+   * @param port
+   *          port to listen to
+   * @param staticContent
+   *          folder where static content lives
+   * @throws UnknownHostException
+   */
+  public static Server getServer(int port, String staticContent)
+      throws UnknownHostException {
+    Server webServer = new org.mortbay.jetty.Server(port);
+    ResourceHandler handler = new ResourceHandler();
+    handler.setResourceBase(staticContent);
+    HandlerList handlers = new HandlerList();
+    handlers.setHandlers(new Handler[]{handler, new DefaultHandler()});
+    webServer.setHandler(handlers);
+    return webServer;
+  }
 }

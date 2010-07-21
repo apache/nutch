@@ -38,6 +38,10 @@ public class FetcherJob implements Tool {
   public static final int PERM_REFRESH_TIME = 5;
 
   public static final Utf8 REDIRECT_DISCOVERED = new Utf8("___rdrdsc__");
+  
+  public static final String RESUME_KEY = "fetcher.job.resume";
+  public static final String PARSE_KEY = "fetcher.parse";
+  public static final String THREADS_KEY = "fetcher.threads.fetch";
 
   private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
@@ -103,6 +107,14 @@ public class FetcherJob implements Tool {
   public static final Log LOG = LogFactory.getLog(FetcherJob.class);
 
   private Configuration conf;
+  
+  public FetcherJob() {
+    
+  }
+  
+  public FetcherJob(Configuration conf) {
+    setConf(conf);
+  }
 
   @Override
   public Configuration getConf() {
@@ -116,7 +128,7 @@ public class FetcherJob implements Tool {
 
   public Collection<WebPage.Field> getFields(Job job) {
     Collection<WebPage.Field> fields = new HashSet<WebPage.Field>(FIELDS);
-    if (job.getConfiguration().getBoolean("fetcher.parse", true)) {
+    if (job.getConfiguration().getBoolean(PARSE_KEY, true)) {
       ParserJob parserJob = new ParserJob();
       fields.addAll(parserJob.getFields(job));
     }
@@ -126,18 +138,18 @@ public class FetcherJob implements Tool {
     return fields;
   }
 
-  private void fetch(int threads, String crawlId, boolean shouldContinue, boolean isParsing)
-  throws Exception {
+  public  void fetch(int threads, String crawlId, boolean shouldResume, boolean isParsing)
+      throws Exception {
     LOG.info("FetcherJob: starting");
 
     checkConfiguration();
 
     if (threads > 0) {
-      getConf().setInt("fetcher.threads.fetch", threads);
+      getConf().setInt(THREADS_KEY, threads);
     }
     getConf().set(GeneratorJob.CRAWL_ID, crawlId);
-    getConf().setBoolean("fetcher.parse", isParsing);
-    getConf().setBoolean("job.continue", shouldContinue);
+    getConf().setBoolean(PARSE_KEY, isParsing);
+    getConf().setBoolean(RESUME_KEY, shouldResume);
     
     // set the actual time for the timelimit relative
     // to the beginning of the whole job and not of a specific task
@@ -149,9 +161,9 @@ public class FetcherJob implements Tool {
     }
 
     LOG.info("FetcherJob : timelimit set for : " + timelimit);
-    LOG.info("FetcherJob: threads: " + getConf().getInt("fetcher.threads.fetch", 10));
-    LOG.info("FetcherJob: parsing: " + getConf().getBoolean("fetcher.parse", true));
-    LOG.info("FetcherJob: continuing: " + getConf().getBoolean("job.continue", false));
+    LOG.info("FetcherJob: threads: " + getConf().getInt(THREADS_KEY, 10));
+    LOG.info("FetcherJob: parsing: " + getConf().getBoolean(PARSE_KEY, true));
+    LOG.info("FetcherJob: resuming: " + getConf().getBoolean(RESUME_KEY, false));
     if (crawlId.equals(Nutch.ALL_CRAWL_ID_STR)) {
       LOG.info("FetcherJob: fetching all");
     } else {
@@ -170,7 +182,7 @@ public class FetcherJob implements Tool {
     LOG.info("FetcherJob: done");
   }
 
-  private void checkConfiguration() {
+  void checkConfiguration() {
 
     // ensure that a value has been set for the agent name and that that
     // agent name is the first value in the agents we advertise for robot
@@ -206,34 +218,34 @@ public class FetcherJob implements Tool {
   @Override
   public int run(String[] args) throws Exception {
     int threads = -1;
-    boolean shouldContinue = false;
+    boolean shouldResume = false;
     boolean isParsing = true;
     String crawlId;
 
-    String usage = "Usage: FetcherJob (<crawl id> | -all) [-threads N] [-noParsing] [-continue]";
+    String usage = "Usage: FetcherJob (<crawl id> | -all) [-threads N] [-noParsing] [-resume]";
 
     if (args.length == 0) {
       System.err.println(usage);
-      return 1;
+      return -1;
     }
 
     crawlId = args[0];
-    if (crawlId.equals("-threads") || crawlId.equals("-continue") || crawlId.equals("-noParsing")) {
+    if (crawlId.equals("-threads") || crawlId.equals("-resume") || crawlId.equals("-noParsing")) {
       System.err.println(usage);
-      return 1;
+      return -1;
     }
     for (int i = 1; i < args.length; i++) {
       if ("-threads".equals(args[i])) {
         // found -threads option
         threads = Integer.parseInt(args[++i]);
-      } else if ("-continue".equals(args[i])) {
-        shouldContinue = true;
+      } else if ("-resume".equals(args[i])) {
+        shouldResume = true;
       } else if ("-noParsing".equals(args[i])) {
         isParsing = false;
       }
     }
 
-    fetch(threads, crawlId, shouldContinue, isParsing); // run the Fetcher
+    fetch(threads, crawlId, shouldResume, isParsing); // run the Fetcher
 
     return 0;
   }

@@ -27,7 +27,10 @@ import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.util.AbstractNutchTest;
+import org.apache.nutch.util.CrawlTestUtil;
 import org.apache.nutch.util.TableUtil;
 import org.gora.query.Query;
 import org.gora.query.Result;
@@ -44,37 +47,14 @@ import org.junit.Before;
  * 
  * @author nutch-dev <nutch-dev at lucene.apache.org>
  */
-public class TestInjector extends TestCase {
-
-  private Configuration conf;
-  private FileSystem fs;
-  final static Path testdir = new Path("build/test/inject-test");
-  private DataStore<String, WebPage> webPageStore;
+public class TestInjector extends AbstractNutchTest {
   Path urlPath;
 
   @Before
   @Override
   public void setUp() throws Exception {
     super.setUp();
-    conf = CrawlDBTestUtil.createConfiguration();
     urlPath = new Path(testdir, "urls");
-    fs = FileSystem.get(conf);
-    if (fs.exists(urlPath))
-      fs.delete(urlPath, false);
-    // using hsqldb in memory
-    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.driver","org.hsqldb.jdbcDriver");
-    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.url","jdbc:hsqldb:mem:.");
-    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.user","sa");
-    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.password","");
-    webPageStore = DataStoreFactory.getDataStore(SqlStore.class,
-        String.class, WebPage.class);
-  }
-
-  @Override
-  public void tearDown() throws Exception {
-    webPageStore.close();
-    super.tearDown();
-    fs.delete(testdir, true);
   }
 
   public void testInject() throws Exception {
@@ -83,14 +63,14 @@ public class TestInjector extends TestCase {
       urls.add("http://zzz.com/" + i + ".html\tnutch.score=" + i
           + "\tcustom.attribute=" + i);
     }
-    CrawlDBTestUtil.generateSeedList(fs, urlPath, urls);
+    CrawlTestUtil.generateSeedList(fs, urlPath, urls);
 
     InjectorJob injector = new InjectorJob();
     injector.setConf(conf);
     injector.inject(urlPath);
 
     // verify results
-    List<String> read = readCrawldb();
+    List<String> read = readDb();
 
     Collections.sort(read);
     Collections.sort(urls);
@@ -102,15 +82,18 @@ public class TestInjector extends TestCase {
 
     // inject more urls
     ArrayList<String> urls2 = new ArrayList<String>();
+    ArrayList<String> urlsCheck = new ArrayList<String>();
     for (int i = 0; i < 100; i++) {
-      urls2.add("http://xxx.com/" + i + ".html");
+      String u = "http://xxx.com/" + i + ".html";
+      urls2.add(u);
+      urlsCheck.add(u + "\tnutch.score=1");
     }
-    CrawlDBTestUtil.generateSeedList(fs, urlPath, urls2);
+    CrawlTestUtil.generateSeedList(fs, urlPath, urls2);
     injector.inject(urlPath);
-    urls.addAll(urls2);
+    urls.addAll(urlsCheck);
 
     // verify results
-    read = readCrawldb();
+    read = readDb();
 
     Collections.sort(read);
     Collections.sort(urls);
@@ -121,32 +104,26 @@ public class TestInjector extends TestCase {
     assertTrue(urls.containsAll(read));
 
   }
-
-  /**
-   * Read from a Gora datastore + make sure we get the score and custom metadata
-   * 
-   * @throws ClassNotFoundException
-   **/
-  private List<String> readCrawldb() throws Exception {
+  
+  private static final String[] fields = new String[] {
+    WebPage.Field.MARKERS.getName(),
+    WebPage.Field.METADATA.getName(),
+    WebPage.Field.SCORE.getName()
+  };
+  
+  private List<String> readDb() throws Exception {
+    List<URLWebPage> pages = readContents(webPageStore, null, fields);
     ArrayList<String> read = new ArrayList<String>();
-
-    Query<String, WebPage> query = webPageStore.newQuery();
-    Result<String, WebPage> result = webPageStore.execute(query);
-
-    while (result.next()) {
-      String skey = result.getKey();
-      WebPage page = result.get();
-      float fscore = page.getScore();
-      String representation = TableUtil.unreverseUrl(skey);
+    for (URLWebPage up : pages) {
+      WebPage page = up.getDatum();
+      String representation = up.getUrl();
+      representation += "\tnutch.score=" + (int)page.getScore();
       ByteBuffer bb = page.getFromMetadata(new Utf8("custom.attribute"));
       if (bb != null) {
-        representation += "\tnutch.score=" + (int) fscore;
         representation += "\tcustom.attribute=" + ByteUtils.toString(bb.array());
       }
       read.add(representation);
     }
-    result.close();
     return read;
   }
-
 }

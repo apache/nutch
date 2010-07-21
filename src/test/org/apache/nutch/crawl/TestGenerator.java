@@ -20,20 +20,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-
-import junit.framework.TestCase;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.util.AbstractNutchTest;
 import org.apache.nutch.util.TableUtil;
-import org.gora.query.Query;
-import org.gora.query.Result;
-import org.gora.sql.store.SqlStore;
-import org.gora.store.DataStore;
-import org.gora.store.DataStoreFactory;
 
 /**
  * Basic generator test. 1. Insert entries in webtable 2. Generates entries to
@@ -44,32 +37,14 @@ import org.gora.store.DataStoreFactory;
  * @param <URLWebPage>
  *
  */
-public class TestGenerator extends TestCase {
+public class TestGenerator extends AbstractNutchTest {
 
   public static final Log LOG = LogFactory.getLog(TestGenerator.class);
-
-  Configuration conf;
-
-  private DataStore<String, WebPage> webPageStore;
-
-  @Override
-  protected void setUp() throws Exception {
-    super.setUp();
-    conf = CrawlDBTestUtil.createConfiguration();
-    // using hsqldb in memory
-    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.driver","org.hsqldb.jdbcDriver");
-    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.url","jdbc:hsqldb:mem:.");
-    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.user","sa");
-    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.password","");
-    webPageStore = DataStoreFactory.getDataStore(SqlStore.class,
-        String.class, WebPage.class);
-  }
-
-  @Override
-  protected void tearDown() throws Exception {
-    webPageStore.close();
-    super.tearDown();
-  }
+  
+  private static String[] FIELDS = new String[] {
+    WebPage.Field.MARKERS.getName(),
+    WebPage.Field.SCORE.getName()
+  };
 
   /**
    * Test that generator generates fetchlish ordered by score (desc).
@@ -89,10 +64,11 @@ public class TestGenerator extends TestCase {
     for (URLWebPage uwp : list) {
       webPageStore.put(TableUtil.reverseUrl(uwp.getUrl()), uwp.getDatum());
     }
+    webPageStore.flush();
 
     generateFetchlist(NUM_RESULTS, conf, false);
 
-    ArrayList<URLWebPage> l = readContents();
+    ArrayList<URLWebPage> l = readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
 
     // sort urls by score desc
     Collections.sort(l, new ScoreComparator());
@@ -144,77 +120,83 @@ public class TestGenerator extends TestCase {
     for (URLWebPage uwp : list) {
       webPageStore.put(TableUtil.reverseUrl(uwp.getUrl()), uwp.getDatum());
     }
+    webPageStore.flush();
 
     Configuration myConfiguration = new Configuration(conf);
-    myConfiguration.setInt(GeneratorJob.GENERATE_MAX_PER_HOST, 1);
+    myConfiguration.setInt(GeneratorJob.GENERATOR_MAX_COUNT, 1);
+    myConfiguration.set(GeneratorJob.GENERATOR_COUNT_MODE, GeneratorJob.GENERATOR_COUNT_VALUE_HOST);
     generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    ArrayList<URLWebPage> fetchList = readContents();
+    ArrayList<URLWebPage> fetchList = readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
 
     // verify we got right amount of records
     assertEquals(1, fetchList.size());
 
     myConfiguration = new Configuration(conf);
-    myConfiguration.setInt(GeneratorJob.GENERATE_MAX_PER_HOST, 2);
+    myConfiguration.setInt(GeneratorJob.GENERATOR_MAX_COUNT, 2);
     generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    fetchList = readContents();
+    fetchList = readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
 
     // verify we got right amount of records
     assertEquals(2, fetchList.size());
 
     myConfiguration = new Configuration(conf);
-    myConfiguration.setInt(GeneratorJob.GENERATE_MAX_PER_HOST, 3);
+    myConfiguration.setInt(GeneratorJob.GENERATOR_MAX_COUNT, 3);
     generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    fetchList = readContents();
+    fetchList = readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
 
     // verify we got right amount of records
     assertEquals(3, fetchList.size());
   }
 
   /**
-   * Test that generator obeys the property "generate.max.per.host" and
-   * "generate.max.per.host.by.ip".
+   * Test that generator obeys the property "generator.max.count" and
+   * "generator.count.value=domain".
    *
    * @throws Exception
    */
-  public void testGenerateHostIPLimit() throws Exception {
+  public void testGenerateDomainLimit() throws Exception {
     ArrayList<URLWebPage> list = new ArrayList<URLWebPage>();
 
-    list.add(createURLWebPage("http://www.example.com/index.html", 1, 1));
-    list.add(createURLWebPage("http://www.example.net/index.html", 1, 1));
-    list.add(createURLWebPage("http://www.example.org/index.html", 1, 1));
+    list.add(createURLWebPage("http://one.example.com/index.html", 1, 1));
+    list.add(createURLWebPage("http://one.example.com/index1.html", 1, 1));
+    list.add(createURLWebPage("http://two.example.com/index.html", 1, 1));
+    list.add(createURLWebPage("http://two.example.com/index1.html", 1, 1));
+    list.add(createURLWebPage("http://three.example.com/index.html", 1, 1));
+    list.add(createURLWebPage("http://three.example.com/index1.html", 1, 1));
 
     for (URLWebPage uwp : list) {
       webPageStore.put(TableUtil.reverseUrl(uwp.getUrl()), uwp.getDatum());
     }
-
+    webPageStore.flush();
+    
     Configuration myConfiguration = new Configuration(conf);
-    myConfiguration.setInt(GeneratorJob.GENERATE_MAX_PER_HOST, 1);
-    myConfiguration.setBoolean(GeneratorJob.GENERATE_MAX_PER_HOST_BY_IP, true);
+    myConfiguration.setInt(GeneratorJob.GENERATOR_MAX_COUNT, 1);
+    myConfiguration.set(GeneratorJob.GENERATOR_COUNT_MODE, GeneratorJob.GENERATOR_COUNT_VALUE_DOMAIN);
 
     generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    ArrayList<URLWebPage> fetchList = readContents();
+    ArrayList<URLWebPage> fetchList = readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
 
     // verify we got right amount of records
     assertEquals(1, fetchList.size());
 
     myConfiguration = new Configuration(myConfiguration);
-    myConfiguration.setInt(GeneratorJob.GENERATE_MAX_PER_HOST, 2);
+    myConfiguration.setInt(GeneratorJob.GENERATOR_MAX_COUNT, 2);
     generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    fetchList = readContents();
+    fetchList = readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
 
     // verify we got right amount of records
     assertEquals(2, fetchList.size());
 
     myConfiguration = new Configuration(myConfiguration);
-    myConfiguration.setInt(GeneratorJob.GENERATE_MAX_PER_HOST, 3);
+    myConfiguration.setInt(GeneratorJob.GENERATOR_MAX_COUNT, 3);
     generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    fetchList = readContents();
+    fetchList = readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
 
     // verify we got right amount of records
     assertEquals(3, fetchList.size());
@@ -237,55 +219,24 @@ public class TestGenerator extends TestCase {
     for (URLWebPage uwp : list) {
       webPageStore.put(TableUtil.reverseUrl(uwp.getUrl()), uwp.getDatum());
     }
+    webPageStore.flush();
 
     Configuration myConfiguration = new Configuration(conf);
     myConfiguration.set("urlfilter.suffix.file", "filter-all.txt");
 
     generateFetchlist(Integer.MAX_VALUE, myConfiguration, true);
 
-    ArrayList<URLWebPage> fetchList = readContents();
+    ArrayList<URLWebPage> fetchList = readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
 
     assertEquals(0, fetchList.size());
 
     generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
-    fetchList = readContents();
+    fetchList = readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
 
     // verify nothing got filtered
     assertEquals(list.size(), fetchList.size());
 
-  }
-
-  /**
-   * Read entries marked as fetchable
-   *
-   * @return Generated {@link URLWebPage} objects
-   * @throws IOException
-   */
-  private ArrayList<URLWebPage> readContents() throws IOException {
-    ArrayList<URLWebPage> l = new ArrayList<URLWebPage>();
-
-    Query<String, WebPage> query = webPageStore.newQuery();
-    query.setFields(WebPage.Field.MARKERS.getName());
-
-    Result<String, WebPage> results = webPageStore.execute(query);
-
-    while (results.next()) {
-      WebPage page = results.get();
-      String url = results.getKey();
-      LOG.info("FOUND IN TABLE :" + url);
-
-      if (page == null)
-        continue;
-
-      if (Mark.GENERATE_MARK.checkMark(page) == null)
-        continue;
-
-      // it has been marked as generated so it is ready for the fetch
-      l.add(new URLWebPage(TableUtil.unreverseUrl(url), page));
-    }
-
-    return l;
   }
 
   /**
@@ -303,7 +254,7 @@ public class TestGenerator extends TestCase {
     // generate segment
     GeneratorJob g = new GeneratorJob();
     g.setConf(config);
-    String crawlId = g.generate(numResults, Long.MAX_VALUE, filter, false);
+    String crawlId = g.generate(numResults, System.currentTimeMillis(), filter, false);
     if (crawlId == null)
       throw new RuntimeException("Generator failed");
   }
