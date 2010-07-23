@@ -52,8 +52,6 @@
 			rev="3.1" conf="*->master" />
 		<dependency org="commons-codec" name="commons-codec" rev="1.3"
 			conf="*->default" />
-		<dependency org="commons-codec" name="commons-codec" rev="1.3"
-			conf="*->default" />
 
 		<dependency org="org.apache.hadoop" name="hadoop-core" rev="0.20.2"
 			conf="*->default">
