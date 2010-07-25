@@ -2,6 +2,9 @@ Nutch Change Log
 
 Release 1.2 - Current Development
 
+* NUTCH-855 ScoringFilter and IndexingFilter: To allow for the propagation of URL Metatags 
+  and their subsequent indexing (Scott Gonyea via mattmann)
+
 * NUTCH-677 Segment merge filering based on segment content (Marcin Okraszewski via mattmann)
 
 * NUTCH-774 Retry interval in crawl date is set to 0 (Reinhard Schwab via mattmann)

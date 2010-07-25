@@ -977,6 +977,18 @@
   </description>
 </property>
 
+<property>
+  <name>urlmeta.tags</name>
+  <value></value>
+  <description>
+    To be used in conjunction with features introduced in NUTCH-655, which allows
+    for custom metatags to be injected alongside your crawl URLs. Specifying those
+    custom tags here will allow for their propagation into a pages outlinks, as
+    well as allow for them to be included as part of an index.
+    Values should be comma-delimited. ("tag1, tag2, tag3")
+  </description>
+</property>
+
 <!-- parser properties -->
 
 <property>
