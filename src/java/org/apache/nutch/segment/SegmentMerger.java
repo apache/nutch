@@ -120,6 +120,7 @@ public class SegmentMerger extends Configured implements
 
   private URLFilters filters = null;
   private URLNormalizers normalizers = null;
+  private SegmentMergeFilters mergeFilters = null;
   private long sliceSize = -1;
   private long curCount = 0;
   
@@ -312,8 +313,10 @@ public class SegmentMerger extends Configured implements
   public void setConf(Configuration conf) {
     super.setConf(conf);
     if (conf == null) return;
-    if (conf.getBoolean("segment.merger.filter", false))
+    if (conf.getBoolean("segment.merger.filter", false)) {
       filters = new URLFilters(conf);
+      mergeFilters = new SegmentMergeFilters(conf);
+    }
     if (conf.getBoolean("segment.merger.normalizer", false))
       normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_DEFAULT);
     sliceSize = conf.getLong("segment.merger.slice", -1);
@@ -470,6 +473,13 @@ public class SegmentMerger extends Configured implements
         }
       }
     }
+	// perform filtering based on full merge record
+    if (mergeFilters != null && 
+    	 !mergeFilters.filter(key, lastG, lastF, lastSig, lastC, lastPD, lastPT, 
+    			 			   linked.isEmpty() ? null : linked.lastEntry().getValue())){
+      return;
+    }
+    	
     curCount++;
     String sliceName = null;
     MetaWrapper wrapper = new MetaWrapper();
