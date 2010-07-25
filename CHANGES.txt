@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.2 - Current Development
 
+* NUTCH-677 Segment merge filering based on segment content (Marcin Okraszewski via mattmann)
+
 * NUTCH-774 Retry interval in crawl date is set to 0 (Reinhard Schwab via mattmann)
 
 * NUTCH-697 Generate log output for solr indexer and dedup (Dmitry Lihachev, Jeroen van Vianen via mattmann)

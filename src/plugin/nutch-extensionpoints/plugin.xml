@@ -80,4 +80,8 @@
       id="org.apache.nutch.scoring.ScoringFilter"
       name="Nutch Scoring"/>
 
+<extension-point
+      id="org.apache.nutch.segment.SegmentMergeFilter"
+      name="Nutch Segment Merge Filter"/>
+
 </plugin>
