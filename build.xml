@@ -427,10 +427,10 @@
   <!-- ================================================================== -->
   <!--                                                                    -->
   <!-- ================================================================== -->
-  <target name="package" depends="jar, job, javadoc">
+  <target name="package" depends="runtime, javadoc">
     <mkdir dir="${dist.version.dir}"/>
     <mkdir dir="${dist.version.dir}/lib"/>
-    <mkdir dir="${dist.version.dir}/bin"/>
+    <mkdir dir="${dist.version.dir}/runtime"/>
     <mkdir dir="${dist.version.dir}/docs"/>
     <mkdir dir="${dist.version.dir}/docs/api"/>
     <mkdir dir="${dist.version.dir}/plugins"/>
@@ -446,17 +446,18 @@
     <copy file="${build.dir}/${final.name}.jar" todir="${dist.version.dir}"/>
     <copy file="${build.dir}/${final.name}.job" todir="${dist.version.dir}"/>
    
-    <copy todir="${dist.version.dir}/bin">
-      <fileset dir="bin"/>
+    <copy todir="${dist.version.dir}/runtime">
+      <fileset dir="runtime"/>
     </copy>
+
+    <chmod perm="ugo+x" type="file">
+        <fileset dir="${dist.version.dir}/runtime/deploy/bin"/>
+        <fileset dir="${dist.version.dir}/runtime/local/bin"/>
+    </chmod>
 
     <copy todir="${dist.version.dir}/conf">
       <fileset dir="${conf.dir}" excludes="**/*.template"/>
     </copy>
-
-    <chmod perm="ugo+x" type="file">
-        <fileset dir="${dist.version.dir}/bin"/>
-    </chmod>
 
     <copy todir="${dist.version.dir}/docs/api">
       <fileset dir="${build.javadoc}"/>
