@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.2 - Current Development
 
+* NUTCH-857 DistributedBeans should not close their RPC counterparts (kubes)
+  
 * NUTCH-855 ScoringFilter and IndexingFilter: To allow for the propagation of URL Metatags 
   and their subsequent indexing (Scott Gonyea via mattmann)
 

@@ -283,9 +283,6 @@ public class DistributedSearchBean implements SearchBean {
   public void close() throws IOException {
     executor.shutdown();
     pingService.shutdown();
-    for (SearchBean bean : beans) {
-      bean.close();
-    }
   }
 
   public HitDetails getDetails(Hit hit) throws IOException {

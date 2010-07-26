@@ -166,9 +166,6 @@ public class DistributedSegmentBean implements SegmentBean {
   public void close() throws IOException {
     executor.shutdown();
     pingService.shutdown();
-    for (SegmentBean bean : beans) {
-      bean.close();
-    }
   }
 
   public Summary getSummary(HitDetails details, Query query)
