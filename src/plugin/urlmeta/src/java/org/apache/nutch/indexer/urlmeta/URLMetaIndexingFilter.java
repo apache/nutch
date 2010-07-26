@@ -56,9 +56,9 @@ import org.apache.nutch.parse.Parse;
  *      1. As of Nutch 1.2, the property "plugin.includes" looks as follows:
  *      <value>protocol-http|urlfilter-regex|parse-(text|html|js|tika|rss)|index
  *      -(basic|anchor)|query-(basic|site|url)|response-(json|xml)|summary-basic
- *      |scoring-opic|urlnormalizer-(pass|regex|basic)</value> You must change
- *      "index-(basic|anchor)" to "index-(basic|anchor|urlmeta)", in order to
- *      call this plugin.
+ *      |scoring-opic|urlnormalizer-(pass|regex|basic)</value> You should add
+ *      urlmeta as an OR'ed option (e.g., using |) to the plugin list", in order to
+ *      call both pieces (the indexer and the scoring parts) of this plugin.
  *      
  *      2. You must also specify the property "urlmeta.tags", who's values are
  *      comma-delimited <value>key1, key2, key3</value>
