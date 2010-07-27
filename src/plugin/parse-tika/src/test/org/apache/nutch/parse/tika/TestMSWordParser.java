@@ -1,5 +1,3 @@
-package org.apache.nutch.tika;
-
 /**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -17,7 +15,8 @@ package org.apache.nutch.tika;
  * limitations under the License.
  */
 
-// JUnit imports
+package org.apache.nutch.parse.tika;
+
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -38,63 +37,73 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.tika.mime.MimeType;
 
 /**
- * Unit tests for TestRTFParser. (Adapted from John Xing msword unit tests).
+ * Unit tests for MSWordParser.
  * 
- * @author Andy Hedges
+ * @author John Xing
  */
-public class TestRTFParser extends TestCase {
+public class TestMSWordParser extends TestCase {
 
     private String fileSeparator = System.getProperty("file.separator");
     // This system property is defined in ./src/plugin/build-plugin.xml
     private String sampleDir = System.getProperty("test.data", ".");
     // Make sure sample files are copied to "test.data" as specified in
-    // ./src/plugin/parse-rtf/build.xml during plugin compilation.
-    // Check ./src/plugin/parse-rtf/sample/README.txt for what they are.
-    private String rtfFile = "test.rtf";
+    // ./src/plugin/parse-msword/build.xml during plugin compilation.
+    // Check ./src/plugin/parse-msword/sample/README.txt for what they are.
+    private String[] sampleFiles = { "word97.doc" };
 
-    public TestRTFParser(String name) {
+    private String expectedText = "This is a sample doc file prepared for nutch.";
+
+    private Configuration conf;
+
+    public TestMSWordParser(String name) {
 	super(name);
     }
 
     protected void setUp() {
+	conf = NutchConfiguration.create();
+	conf.set("file.content.limit", "-1");
     }
 
     protected void tearDown() {
     }
 
-    public void testIt() throws ProtocolException, ParseException, IOException {
+    public String getTextContent(String fileName) throws ProtocolException,
+	    ParseException, IOException {
+	String urlString = sampleDir + fileSeparator + fileName;
 
-	String urlString;
-	Parse parse;
-	Configuration conf = NutchConfiguration.create();
-	MimeUtil mimeutil = new MimeUtil(conf);
-
-	urlString = "file:" + sampleDir + fileSeparator + rtfFile;
-
-	File file = new File(sampleDir + fileSeparator + rtfFile);
+	File file = new File(urlString);
 	byte[] bytes = new byte[(int) file.length()];
 	DataInputStream in = new DataInputStream(new FileInputStream(file));
 	in.readFully(bytes);
 	in.close();
-
+	Parse parse;
 	WebPage page = new WebPage();
-	page.setBaseUrl(new Utf8(urlString));
+	page.setBaseUrl(new Utf8("file:"+urlString));
 	page.setContent(ByteBuffer.wrap(bytes));
+	// set the content type?
+	MimeUtil mimeutil = new MimeUtil(conf);
 	MimeType mtype = mimeutil.getMimeType(file);
 	page.setContentType(new Utf8(mtype.getName()));
-
-	parse = new ParseUtil(conf).parse(urlString, page);
-
-	String text = parse.getText();
-	assertEquals("The quick brown fox jumps over the lazy dog", text.trim());
-
-	String title = parse.getTitle();
-	// HOW DO WE GET THE PARSE METADATA?
-	// Metadata meta = parse();
-
-	// METADATA extraction is not yet supported in Tika
-	// assertEquals("test rft document", title);
-	// assertEquals("tests", meta.get(DublinCore.SUBJECT));
+		
+	parse = new ParseUtil(conf).parse("file:"+urlString, page);
+	return parse.getText();
     }
 
+    public void testIt() throws ProtocolException, ParseException, IOException {
+	for (int i = 0; i < sampleFiles.length; i++) {
+	    String found = getTextContent(sampleFiles[i]);
+	    assertTrue("text found : '" + found + "'", found
+		    .startsWith(expectedText));
+	}
+    }
+
+    public void testOpeningDocs() throws ProtocolException, ParseException, IOException {
+	String[] filenames = new File(sampleDir).list();
+	for (int i = 0; i < filenames.length; i++) {
+	    if (filenames[i].endsWith(".doc") == false)
+		continue;
+	    assertTrue("cann't read content of " + filenames[i],
+		    getTextContent(filenames[i]).length() > 0);
+	}
+    }
 }

@@ -53,6 +53,8 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
+import org.apache.tika.parser.html.HtmlMapper;
+import org.apache.tika.parser.html.IdentityHtmlMapper;
 import org.w3c.dom.DocumentFragment;
 
 /**
@@ -110,6 +112,8 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     DocumentFragment root = doc.createDocumentFragment();
     DOMBuilder domhandler = new DOMBuilder(doc, root);
     ParseContext context = new ParseContext();
+    // to add once available in Tika
+    // context.set(HtmlMapper.class, IdentityHtmlMapper.INSTANCE);
     try {
       parser.parse(new ByteArrayInputStream(raw), domhandler, tikamd, context);
     } catch (Exception e) {
@@ -211,6 +215,10 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
         Nutch.CACHING_FORBIDDEN_CONTENT);
   }
 
+  public TikaConfig getTikaConfig(){
+	  return this.tikaConfig;
+  }
+  
   public Configuration getConf() {
     return this.conf;
   }
