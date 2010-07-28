@@ -262,6 +262,7 @@ public class WebTableReader extends Configured implements Tool {
     if (LOG.isInfoEnabled()) {
       LOG.info("Statistics for WebTable: ");
       LongWritable totalCnt = stats.get("T");
+      if (totalCnt==null)totalCnt=new LongWritable(0);
       stats.remove("T");
       LOG.info("TOTAL urls:\t" + totalCnt.get());
       for (Map.Entry<String, LongWritable> entry : stats.entrySet()) {
