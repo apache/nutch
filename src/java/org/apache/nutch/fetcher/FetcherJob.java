@@ -138,7 +138,7 @@ public class FetcherJob implements Tool {
     return fields;
   }
 
-  public  void fetch(int threads, String crawlId, boolean shouldResume, boolean isParsing)
+  public  int fetch(int threads, String crawlId, boolean shouldResume, boolean isParsing)
       throws Exception {
     LOG.info("FetcherJob: starting");
 
@@ -177,9 +177,14 @@ public class FetcherJob implements Tool {
         FetchEntry.class, FetcherMapper.class, PartitionUrlByHost.class, false);
     StorageUtils.initReducerJob(job, FetcherReducer.class);
 
-    job.waitForCompletion(true);
+    boolean success = job.waitForCompletion(true);
+    if (!success) {
+        LOG.info("FetcherJob: failed");
+    	return -1;
+    }
 
     LOG.info("FetcherJob: done");
+    return 0;
   }
 
   void checkConfiguration() {
@@ -245,9 +250,9 @@ public class FetcherJob implements Tool {
       }
     }
 
-    fetch(threads, crawlId, shouldResume, isParsing); // run the Fetcher
+    int fetchcode = fetch(threads, crawlId, shouldResume, isParsing); // run the Fetcher
 
-    return 0;
+    return fetchcode;
   }
 
   public static void main(String[] args) throws Exception {
