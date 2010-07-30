@@ -455,7 +455,7 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
               // unblock queue
               fetchQueues.finishFetchItem(fit);
 
-              context.getCounter("FetcherStatus", "code_"+status.getCode()).increment(1);
+              context.getCounter("FetcherStatus", ProtocolStatusUtils.getName(status.getCode())).increment(1);
 
               int length = 0;
               if (content!=null && content.getContent()!=null) length= content.getContent().length;
