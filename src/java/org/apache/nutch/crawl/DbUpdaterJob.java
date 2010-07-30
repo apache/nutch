@@ -42,7 +42,7 @@ implements Tool {
     FIELDS.add(WebPage.Field.PREV_SIGNATURE);
   }
 
-  private void updateTable() throws Exception {
+  private int updateTable() throws Exception {
     LOG.info("DbUpdaterJob: starting");
     Job job = new NutchJob(getConf(), "update-table");
     //job.setBoolean(ALL, updateAll);
@@ -56,13 +56,17 @@ implements Tool {
         NutchWritable.class, DbUpdateMapper.class);
     StorageUtils.initReducerJob(job, DbUpdateReducer.class);
 
-    job.waitForCompletion(true);
+    boolean success = job.waitForCompletion(true);
+    if (!success){
+    	LOG.info("DbUpdaterJob: failed");
+    	return -1;
+    }
     LOG.info("DbUpdaterJob: done");
+    return 0;
   }
 
   public int run(String[] args) throws Exception {
-    updateTable();
-    return 0;
+	return updateTable();
   }
 
   public static void main(String[] args) throws Exception {
