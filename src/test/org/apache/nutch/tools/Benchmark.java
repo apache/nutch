@@ -17,6 +17,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.Crawl;
 import org.apache.nutch.crawl.CrawlDb;
+import org.apache.nutch.crawl.CrawlDbReader;
 import org.apache.nutch.crawl.Generator;
 import org.apache.nutch.crawl.Injector;
 import org.apache.nutch.crawl.LinkDb;
@@ -61,7 +62,7 @@ public class Benchmark extends Configured implements Tool {
     long topN = Long.MAX_VALUE;
     
     if (args.length == 0) {
-      System.err.println("Usage: Benchmark [-seeds NN] [-depth NN] [-threads NN] [-keep] [-plugins <regex>]");
+      System.err.println("Usage: Benchmark [-seeds NN] [-depth NN] [-threads NN] [-keep] [-maxPerHost NN] [-plugins <regex>]");
       System.err.println("\t-seeds NN\tcreate NN unique hosts in a seed list (default: 1)");
       System.err.println("\t-depth NN\tperform NN crawl cycles (default: 10)");
       System.err.println("\t-threads NN\tuse NN threads per Fetcher task (default: 10)");
@@ -69,8 +70,10 @@ public class Benchmark extends Configured implements Tool {
       System.err.println("\t-plugins <regex>\toverride 'plugin.includes'.");
       System.err.println("\tNOTE: if not specified, this is reset to: " + plugins);
       System.err.println("\tNOTE: if 'default' is specified then a value set in nutch-default/nutch-site is used.");
+      System.err.println("\t-maxPerHost NN\tmax. # of URLs per host in a fetchlist");
       return -1;
     }
+    int maxPerHost = Integer.MAX_VALUE;
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("-seeds")) {
         seeds = Integer.parseInt(args[++i]);
@@ -82,6 +85,8 @@ public class Benchmark extends Configured implements Tool {
         delete = false;
       } else if (args[i].equals("-plugins")) {
         plugins = args[++i];
+      } else if (args[i].equalsIgnoreCase("-maxPerHost")) {
+        maxPerHost = Integer.parseInt(args[++i]);
       } else {
         LOG.fatal("Invalid argument: '" + args[i] + "'");
         return -1;
@@ -91,9 +96,12 @@ public class Benchmark extends Configured implements Tool {
     conf.set("http.proxy.host", "localhost");
     conf.setInt("http.proxy.port", 8181);
     conf.set("http.agent.name", "test");
+    conf.set("http.robots.agents", "test,*");
     if (!plugins.equals("default")) {
       conf.set("plugin.includes", plugins);
     }
+    conf.setInt(Generator.GENERATOR_MAX_COUNT, maxPerHost);
+    conf.set(Generator.GENERATOR_COUNT_MODE, Generator.GENERATOR_COUNT_VALUE_HOST);
     JobConf job = new NutchJob(getConf());    
     FileSystem fs = FileSystem.get(job);
     Path dir = new Path(getConf().get("hadoop.tmp.dir"),
@@ -136,6 +144,7 @@ public class Benchmark extends Configured implements Tool {
         parseSegment.parse(segs[0]);    // parse it, if needed
       }
       crawlDbTool.update(crawlDb, segs, true, true); // update crawldb
+      linkDbTool.invert(linkDb, segs, true, true, false); // invert links
       // delete data
       if (delete) {
         for (Path p : segs) {
@@ -143,14 +152,14 @@ public class Benchmark extends Configured implements Tool {
         }
       }
     }
-    if (i > 0) {
-      linkDbTool.invert(linkDb, segments, true, true, false); // invert links
-    } else {
+    if (i == 0) {
       LOG.warn("No URLs to fetch - check your seed list and URL filters.");
     }
     if (LOG.isInfoEnabled()) { LOG.info("crawl finished: " + dir); }
     long end = System.currentTimeMillis();
     LOG.info("TOTAL TIME: " + (end - start)/1000 + " sec");
+    CrawlDbReader dbreader = new CrawlDbReader();
+    dbreader.processStatJob(crawlDb.toString(), conf, false);
     return 0;
   }
 

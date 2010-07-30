@@ -234,8 +234,12 @@
     <java classname="org.apache.nutch.tools.Benchmark" fork="true">
       <classpath refid="test.classpath"/>
       <jvmarg line="-Xmx512m -Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
-      <arg value="-seeds"/>
+      <arg value="-maxPerHost"/>
       <arg value="10"/>
+      <arg value="-seeds"/>
+      <arg value="1"/>
+      <arg value="-depth"/>
+      <arg value="5"/>
     </java>
   </target>
 

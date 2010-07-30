@@ -63,7 +63,7 @@ public class FakeHandler extends AbstractTestbedHandler {
       // fake some links
       String base;
       if (u.getPath().length() > 5) {
-        base = u.getPath().substring(0, uri.length() - 5);
+        base = u.getPath().substring(0, u.getPath().length() - 5);
       } else {
         base = u.getPath();
       }
@@ -79,12 +79,14 @@ public class FakeHandler extends AbstractTestbedHandler {
         link += i + ".html'>outlink " + i + "</a></p>\r\n";
         os.write(link.getBytes());
       }
-      // fake a link to a random nonexistent host
-      int h = r.nextInt(1000000); // 1 mln hosts
-      String link = "<p><a href='http://www.fake-" + h + ".com/'>fake host " + h + "</a></p>\r\n";
-      os.write(link.getBytes());
+      // fake a few links to random nonexistent hosts
+      for (int i = 0; i < 5; i++) {
+        int h = r.nextInt(1000000); // 1 mln hosts
+        String link = "<p><a href='http://www.fake-" + h + ".com/'>fake host " + h + "</a></p>\r\n";
+        os.write(link.getBytes());
+      }
       // fake a link to the root URL
-      link = "<p><a href='" + u.getScheme() + "://" + u.getHost();
+      String link = "<p><a href='" + u.getScheme() + "://" + u.getHost();
       if (u.getPort() != 80 && u.getPort() != -1) link += ":" + u.getPort();
       link += "/'>site " + u.getHost() + "</a></p>\r\n";
       os.write(link.getBytes());
