@@ -218,6 +218,27 @@
 	<fail if="pmd.stop">FAILURE: PMD shows ${pmd.failures} rule violations. See ${pmd.report} for details.</fail>
   </target>
 
+  <target name="proxy" depends="job, compile-core-test">
+    <java classname="org.apache.nutch.tools.proxy.TestbedProxy" fork="true">
+      <classpath refid="test.classpath"/>
+      <arg value="-fake"/>
+<!--
+      <arg value="-delay"/>
+      <arg value="-200"/>
+-->
+      <jvmarg line="-Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
+    </java>
+  </target>
+
+  <target name="benchmark">
+    <java classname="org.apache.nutch.tools.Benchmark" fork="true">
+      <classpath refid="test.classpath"/>
+      <jvmarg line="-Xmx512m -Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
+      <arg value="-seeds"/>
+      <arg value="10"/>
+    </java>
+  </target>
+
   <!-- ================================================================== -->
   <!-- Run unit tests                                                     --> 
   <!-- ================================================================== -->

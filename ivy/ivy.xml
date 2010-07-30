@@ -82,6 +82,8 @@
 
 		<dependency org="org.mortbay.jetty" name="jetty" rev="6.1.22"
 			conf="test->default" />
+		<dependency org="org.mortbay.jetty" name="jetty-client" rev="6.1.22"
+			conf="test->default" />
 		<dependency org="org.mortbay.jetty" name="jetty-util" rev="6.1.22"
 			conf="test->default" />
 
