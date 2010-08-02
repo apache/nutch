@@ -36,6 +36,7 @@ import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.storage.Mark;
+import org.apache.nutch.storage.ParseStatus;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.TableUtil;
 import org.apache.nutch.util.URLUtil;
@@ -122,7 +123,7 @@ public class ParseUtil extends Configured {
 
     LOG.warn("Unable to successfully parse content " + url +
         " of type " + contentType);
-    return null;
+    return ParseStatusUtils.getEmptyParse(new ParseException("Unable to successfully parse content"), null);
   }
 
   /**
