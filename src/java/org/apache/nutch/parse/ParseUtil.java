@@ -88,7 +88,8 @@ public class ParseUtil {
       LOG.warn("Unable to successfully parse content " + content.getUrl() +
                " of type " + content.getContentType());
     }
-    return null;
+    
+    return new ParseStatus(new ParseException("Unable to successfully parse content")).getEmptyParseResult(content.getUrl(), null);
   }
     
   /**
@@ -132,7 +133,7 @@ public class ParseUtil {
         LOG.warn("Unable to successfully parse content " + content.getUrl() +
             " of type " + content.getContentType());
       }  
-      return null;
+      return new ParseStatus(new ParseException("Unable to successfully parse content")).getEmptyParseResult(content.getUrl(), null);
     }
   }  
   
