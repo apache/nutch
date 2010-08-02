@@ -54,7 +54,6 @@ import org.apache.tika.mime.MimeType;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.html.HtmlMapper;
-import org.apache.tika.parser.html.IdentityHtmlMapper;
 import org.w3c.dom.DocumentFragment;
 
 /**

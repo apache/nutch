@@ -30,7 +30,7 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.apache.tika.parser.html.HtmlMapper;
-import org.apache.tika.parser.html.IdentityHtmlMapper;
+// import org.apache.tika.parser.html.IdentityHtmlMapper;
 import org.apache.xml.serialize.DOMSerializerImpl;
 import org.mortbay.log.Log;
 import org.w3c.dom.DocumentFragment;
@@ -43,7 +43,7 @@ import java.util.StringTokenizer;
 /**
  * Unit tests for DOMContentUtils.
  */
-public class TestDOMContentUtils extends TestCase {
+public class DOMContentUtilsTest extends TestCase {
 
 	private static final String[] testPages = {
 			// 0.
@@ -197,7 +197,7 @@ public class TestDOMContentUtils extends TestCase {
 	private static Configuration conf;
 	private static DOMContentUtils utils = null;
 
-	public TestDOMContentUtils(String name) {
+	public DOMContentUtilsTest(String name) {
 		super(name);
 	}
 
