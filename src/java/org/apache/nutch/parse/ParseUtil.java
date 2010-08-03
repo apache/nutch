@@ -20,6 +20,9 @@ package org.apache.nutch.parse;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.apache.avro.util.Utf8;
 import org.apache.commons.logging.Log;
@@ -63,7 +66,8 @@ public class ParseUtil extends Configured {
   private int maxOutlinks;
   private boolean ignoreExternalLinks;
   private ParserFactory parserFactory;
-
+  /** Parser timeout set to 30 sec by default. Set -1 to deactivate **/
+  private int MAX_PARSE_TIME = 30;
   /**
    *
    * @param conf
@@ -82,6 +86,7 @@ public class ParseUtil extends Configured {
   public void setConf(Configuration conf) {
     this.conf = conf;
     parserFactory = new ParserFactory(conf);
+    MAX_PARSE_TIME=conf.getInt("parser.timeout", 30);
     sig = SignatureFactory.getSignature(conf);
     filters = new URLFilters(conf);
     normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_OUTLINK);
@@ -115,7 +120,13 @@ public class ParseUtil extends Configured {
       if (LOG.isDebugEnabled()) {
         LOG.debug("Parsing [" + url + "] with [" + parsers[i] + "]");
       }
-      Parse parse = parsers[i].getParse(url, page);
+      Parse parse = null;
+      
+      if (MAX_PARSE_TIME!=-1)
+    	  parse = runParser(parsers[i], url, page);
+      else 
+    	  parse = parsers[i].getParse(url, page);
+      
       if (ParseStatusUtils.isSuccess(parse.getParseStatus())) {
         return parse;
       }
@@ -124,6 +135,27 @@ public class ParseUtil extends Configured {
     LOG.warn("Unable to successfully parse content " + url +
         " of type " + contentType);
     return ParseStatusUtils.getEmptyParse(new ParseException("Unable to successfully parse content"), null);
+  }
+  
+  private Parse runParser(Parser p, String url, WebPage page) {
+	  ParseCallable pc = new ParseCallable(p, page, url);
+	  FutureTask<Parse> task = new FutureTask<Parse>(pc);
+	  Parse res = null;
+	  Thread t = new Thread(task);
+	  t.start();
+	  try {
+		  res = task.get(MAX_PARSE_TIME, TimeUnit.SECONDS);
+	  } catch (TimeoutException e) {
+		  LOG.warn("TIMEOUT parsing " + url + " with " + p);
+	  } catch (Exception e) {
+		  task.cancel(true);
+		  res = null;
+		  t.interrupt();
+	  } finally {
+		  t = null;
+		  pc = null;
+	  }
+	  return res;
   }
 
   /**
