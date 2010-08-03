@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-871 MoreIndexingFilter missing date format (Max	Lynch via mattmann)
+
 * NUTCH-696 Timeout for Parser (ab, jnioche)
 
 * NUTCH-863 Benchmark and a testbed proxy server (ab)

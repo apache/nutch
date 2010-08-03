@@ -131,6 +131,7 @@ public class MoreIndexingFilter implements IndexingFilter {
 		  new String [] {
 		      "EEE MMM dd HH:mm:ss yyyy",
 		      "EEE MMM dd HH:mm:ss yyyy zzz",
+		      "EEE MMM dd HH:mm:ss zzz yyyy",
 		      "EEE, MMM dd HH:mm:ss yyyy zzz",
 		      "EEE, dd MMM yyyy HH:mm:ss zzz",
 		      "EEE,dd MMM yyyy HH:mm:ss zzz",
