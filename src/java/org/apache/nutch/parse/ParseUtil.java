@@ -17,14 +17,15 @@
 package org.apache.nutch.parse;
 
 // Commons Logging imports
+
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-// Nutch Imports
-import org.apache.nutch.protocol.Content;
-
-// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.protocol.Content;
 
 
 /**
@@ -41,6 +42,8 @@ public class ParseUtil {
   /* our log stream */
   public static final Log LOG = LogFactory.getLog(ParseUtil.class);
   private ParserFactory parserFactory;
+  /** Parser timeout set to 30 sec by default. Set -1 to deactivate **/
+  private int MAX_PARSE_TIME = 30;
   
   /**
    * 
@@ -48,6 +51,7 @@ public class ParseUtil {
    */
   public ParseUtil(Configuration conf) {
     this.parserFactory = new ParserFactory(conf);
+    MAX_PARSE_TIME=conf.getInt("parser.timeout", 30);
   }
   
   /**
@@ -79,7 +83,11 @@ public class ParseUtil {
       if (LOG.isDebugEnabled()) {
         LOG.debug("Parsing [" + content.getUrl() + "] with [" + parsers[i] + "]");
       }
-      parseResult = parsers[i].getParse(content);
+      if (MAX_PARSE_TIME!=-1)
+      	parseResult = runParser(parsers[i], content);
+      else 
+      	parseResult = parsers[i].getParse(content);
+
       if (parseResult != null && !parseResult.isEmpty())
         return parseResult;
     }
@@ -124,7 +132,11 @@ public class ParseUtil {
       throw new ParseException(e.getMessage());
     }
     
-    ParseResult parseResult = p.getParse(content);
+    ParseResult parseResult = null;
+    if (MAX_PARSE_TIME!=-1)
+    	parseResult = runParser(p, content);
+    else 
+    	parseResult = p.getParse(content);
     if (parseResult != null && !parseResult.isEmpty()) {
       return parseResult;
     } else {
@@ -134,6 +146,27 @@ public class ParseUtil {
       }  
       return new ParseStatus(new ParseException("Unable to successfully parse content")).getEmptyParseResult(content.getUrl(), null);
     }
-  }  
+  }
+
+  private ParseResult runParser(Parser p, Content content) {
+    ParseCallable pc = new ParseCallable(p, content);
+    FutureTask<ParseResult> task = new FutureTask<ParseResult>(pc);
+    ParseResult res = null;
+    Thread t = new Thread(task);
+    t.start();
+    try {
+      res = task.get(MAX_PARSE_TIME, TimeUnit.SECONDS);
+    } catch (TimeoutException e) {
+      LOG.warn("TIMEOUT parsing " + content.getUrl() + " with " + p);
+    } catch (Exception e) {
+      task.cancel(true);
+      res = null;
+      t.interrupt();
+    } finally {
+      t = null;
+      pc = null;
+    }
+    return res;
+  }
   
 }

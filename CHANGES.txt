@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-696 Timeout for Parser (ab, jnioche)
+
 * NUTCH-863 Benchmark and a testbed proxy server (ab)
 
 * NUTCH-677 Segment merge filtering based on segment content (Marcin Okraszewski via mattmann)
