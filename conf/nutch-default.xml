@@ -1064,6 +1064,16 @@
   </description>
 </property>
 
+<property>
+  <name>parser.timeout</name>
+  <value>30</value>
+  <description>Timeout in seconds for the parsing of a document, otherwise treats it as an exception and 
+  moves on the the following documents. This parameter is applied to any Parser implementation. 
+  Set to -1 to deactivate, bearing in mind that this could cause
+  the parsing to crash because of a very long or corrupted document.
+  </description>
+</property>
+
 <!-- urlfilter plugin properties -->
 
 <property>
