@@ -118,7 +118,7 @@ public class MoreIndexingFilter implements IndexingFilter {
       try {
         Date parsedDate = DateUtils.parseDate(date, new String[] {
             "EEE MMM dd HH:mm:ss yyyy", "EEE MMM dd HH:mm:ss yyyy zzz",
-            "EEE, MMM dd HH:mm:ss yyyy zzz", "EEE, dd MMM yyyy HH:mm:ss zzz",
+            "EEE MMM dd HH:mm:ss zzz yyyy", "EEE, dd MMM yyyy HH:mm:ss zzz",
             "EEE,dd MMM yyyy HH:mm:ss zzz", "EEE, dd MMM yyyy HH:mm:sszzz",
             "EEE, dd MMM yyyy HH:mm:ss", "EEE, dd-MMM-yy HH:mm:ss zzz",
             "yyyy/MM/dd HH:mm:ss.SSS zzz", "yyyy/MM/dd HH:mm:ss.SSS",
