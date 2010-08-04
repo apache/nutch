@@ -66,8 +66,17 @@
 		<dependency org="org.apache.lucene" name="lucene-core" rev="3.0.2"/> 
 		<dependency org="org.apache.lucene" name="lucene-misc" rev="3.0.2"/>
 		<dependency org="org.apache.tika" name="tika-core" rev="0.7" />
+		<dependency org="org.apache.tika" name="tika-parsers" rev="0.7" >
+			<exclude org="com.sun.jdmk"/>
+			<exclude org="com.sun.jmx"/>
+			<exclude org="javax.jms"/>
+		</dependency>
 
-		<dependency org="log4j" name="log4j" rev="1.2.15" conf="*->master" />
+		<dependency org="log4j" name="log4j" rev="1.2.15" conf="*->master" >
+			<exclude org="com.sun.jdmk"/>
+			<exclude org="com.sun.jmx"/>
+			<exclude org="javax.jms"/>
+		</dependency>
 
 		<dependency org="xerces" name="xercesImpl" rev="2.6.2" />
 		<dependency org="xerces" name="xmlParserAPIs" rev="2.6.2" />
@@ -96,7 +105,7 @@
 		<dependency org="org.mortbay.jetty" name="jetty-util" rev="6.1.22"
 			conf="test->default" />
 
-		<dependency org="org.hsqldb" name="hsqldb" rev="2.0.0" conf="test->default"/>
+		<dependency org="org.hsqldb" name="hsqldb" rev="2.0.0" conf="*->default"/>
 		<dependency org="org.jdom" name="jdom" rev="1.1" conf="test->default"/>
 
 	</dependencies>
