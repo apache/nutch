@@ -66,6 +66,7 @@
 		<dependency org="org.apache.lucene" name="lucene-core" rev="3.0.2"/> 
 		<dependency org="org.apache.lucene" name="lucene-misc" rev="3.0.2"/>
 		<dependency org="org.apache.tika" name="tika-core" rev="0.7" />
+		<dependency org="org.mortbay.jetty" name="jetty-client" rev="6.1.22" />
 
 		<dependency org="log4j" name="log4j" rev="1.2.15" conf="*->master" />
 
@@ -81,8 +82,6 @@
 			conf="test->default" />
 
 		<dependency org="org.mortbay.jetty" name="jetty" rev="6.1.22"
-			conf="test->default" />
-		<dependency org="org.mortbay.jetty" name="jetty-client" rev="6.1.22"
 			conf="test->default" />
 		<dependency org="org.mortbay.jetty" name="jetty-util" rev="6.1.22"
 			conf="test->default" />
