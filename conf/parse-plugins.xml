@@ -140,7 +140,11 @@
 	</mimeType>
 -->
 
-    <mimeType name="application/xhtml+xml">
+	<mimeType name="text/html">
+		<plugin id="parse-html" />
+	</mimeType>
+
+        <mimeType name="application/xhtml+xml">
 		<plugin id="parse-html" />
 	</mimeType>
 
