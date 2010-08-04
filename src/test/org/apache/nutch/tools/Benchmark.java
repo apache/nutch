@@ -2,30 +2,24 @@ package org.apache.nutch.tools;
 
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.nutch.crawl.Crawl;
 import org.apache.nutch.crawl.CrawlDb;
 import org.apache.nutch.crawl.CrawlDbReader;
 import org.apache.nutch.crawl.Generator;
 import org.apache.nutch.crawl.Injector;
 import org.apache.nutch.crawl.LinkDb;
 import org.apache.nutch.fetcher.Fetcher;
-import org.apache.nutch.indexer.solr.SolrDeleteDuplicates;
-import org.apache.nutch.indexer.solr.SolrIndexer;
 import org.apache.nutch.parse.ParseSegment;
-import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
