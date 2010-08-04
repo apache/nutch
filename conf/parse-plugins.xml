@@ -55,6 +55,14 @@
 		<plugin id="parse-zip" />
 	</mimeType>
 
+	<mimeType name="text/html">
+		<plugin id="parse-html" />
+	</mimeType>
+
+        <mimeType name="application/xhtml+xml">
+		<plugin id="parse-html" />
+	</mimeType>
+
 	<mimeType name="text/xml">
 		<plugin id="parse-tika" />
 		<plugin id="parse-rss" />
@@ -77,6 +85,8 @@
 		<alias name="parse-tika" 
 			extension-id="org.apache.nutch.parse.tika.TikaParser" />
 		<alias name="parse-ext" extension-id="ExtParser" />
+		<alias name="parse-html"
+			extension-id="org.apache.nutch.parse.html.HtmlParser" />
 		<alias name="parse-js" extension-id="JSParser" />
 		<alias name="parse-rss"
 			extension-id="org.apache.nutch.parse.rss.RSSParser" />

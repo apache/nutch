@@ -41,11 +41,11 @@ public class TestCCParseFilter extends TestCase {
     // Tika returns <a> whereas parse-html returns <rel>
     // check later
     pageTest(new File(testDir, "rel.html"), "http://foo.com/",
-             "http://creativecommons.org/licenses/by-nc/2.0", "a", null);
+             "http://creativecommons.org/licenses/by-nc/2.0", "rel", null);
     // Tika returns <a> whereas parse-html returns <rdf>
     // check later
     pageTest(new File(testDir, "rdf.html"), "http://foo.com/",
-             "http://creativecommons.org/licenses/by-nc/1.0", "a", null);
+             "http://creativecommons.org/licenses/by-nc/1.0", "rdf", "text");
   }
 
   public void pageTest(File file, String url,
