@@ -127,7 +127,7 @@ public class ParseUtil extends Configured {
       else 
     	  parse = parsers[i].getParse(url, page);
       
-      if (ParseStatusUtils.isSuccess(parse.getParseStatus())) {
+      if (parse!=null && ParseStatusUtils.isSuccess(parse.getParseStatus())) {
         return parse;
       }
     }

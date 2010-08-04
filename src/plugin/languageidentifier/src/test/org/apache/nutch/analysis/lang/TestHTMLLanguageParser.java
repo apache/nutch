@@ -41,7 +41,7 @@ public class TestHTMLLanguageParser extends TestCase {
       "<html><head><meta name=\"dc.language\" content=\"en\"><title>document 3 title</head><body>this is english</body></html>" };
 
   // known issue with attributed not being passed by Tika
-  String metalanguages[] = { null, "en", "en" };
+  String metalanguages[] = { "fi", "en", "en" };
 
   /**
    * Test parsing of language identifiers from html

@@ -42,6 +42,7 @@
      <ant dir="protocol-http" target="deploy"/>
      <ant dir="protocol-httpclient" target="deploy"/>
      <ant dir="parse-js" target="deploy"/>
+     <ant dir="parse-html" target="deploy"/>
      <ant dir="parse-rss" target="deploy"/>
      <ant dir="parse-tika" target="deploy"/>
      <ant dir="scoring-link" target="deploy"/>
@@ -73,6 +74,7 @@
      <ant dir="parse-rss" target="test"/>
      <ant dir="parse-tika" target="test"/>
      <ant dir="protocol-file" target="test"/>
+     <ant dir="parse-html" target="test"/>
      <ant dir="parse-rss" target="test"/>
      <ant dir="index-more" target="test"/>
      <ant dir="languageidentifier" target="test"/>
@@ -113,6 +115,7 @@
     <ant dir="nutch-extensionpoints" target="clean"/>
     <ant dir="parse-ext" target="clean"/>
     <ant dir="parse-js" target="clean"/>
+    <ant dir="parse-html" target="clean"/>
     <ant dir="parse-rss" target="clean"/>
     <ant dir="parse-swf" target="clean"/>
     <ant dir="parse-tika" target="clean"/>

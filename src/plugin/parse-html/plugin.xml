@@ -15,23 +15,34 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<!--
- ! NekoHTML is a simple HTML scanner and tag balancer.
- ! (http://people.apache.org/~andyc/neko/doc/html/index.html)
- ! 
- ! Dowload : http://people.apache.org/~andyc/neko/doc/html/index.html
- ! License : http://people.apache.org/~andyc/neko/LICENSE
- !-->
 <plugin
-   id="lib-nekohtml"
-   name="CyberNeko HTML Parser"
-   version="1.9.11"
-   provider-name="org.cyberneko">
+   id="parse-html"
+   name="Html Parse Plug-in"
+   version="1.0.0"
+   provider-name="nutch.org">
 
    <runtime>
-     <library name="nekohtml-0.9.5.jar">
-        <export name="*"/>
-     </library>
+      <library name="parse-html.jar">
+         <export name="*"/>
+      </library>
+      <library name="tagsoup-1.2.jar"/>
    </runtime>
+
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+      <import plugin="lib-nekohtml"/>
+   </requires>
+
+   <extension id="org.apache.nutch.parse.html"
+              name="HtmlParse"
+              point="org.apache.nutch.parse.Parser">
+
+      <implementation id="org.apache.nutch.parse.html.HtmlParser"
+                      class="org.apache.nutch.parse.html.HtmlParser">
+        <parameter name="contentType" value="text/html"/>
+        <parameter name="pathSuffix" value=""/>
+      </implementation>
+
+   </extension>
 
 </plugin>

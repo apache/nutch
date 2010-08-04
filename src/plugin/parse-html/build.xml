@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <!--
  Licensed to the Apache Software Foundation (ASF) under one or more
  contributor license agreements.  See the NOTICE file distributed with
@@ -15,23 +15,26 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<!--
- ! NekoHTML is a simple HTML scanner and tag balancer.
- ! (http://people.apache.org/~andyc/neko/doc/html/index.html)
- ! 
- ! Dowload : http://people.apache.org/~andyc/neko/doc/html/index.html
- ! License : http://people.apache.org/~andyc/neko/LICENSE
- !-->
-<plugin
-   id="lib-nekohtml"
-   name="CyberNeko HTML Parser"
-   version="1.9.11"
-   provider-name="org.cyberneko">
+<project name="parse-html" default="jar-core">
 
-   <runtime>
-     <library name="nekohtml-0.9.5.jar">
-        <export name="*"/>
-     </library>
-   </runtime>
+  <import file="../build-plugin.xml"/>
 
-</plugin>
+  <!-- Build compilation dependencies -->
+  <target name="deps-jar">
+    <ant target="jar" inheritall="false" dir="../lib-nekohtml"/>
+  </target>
+
+  <!-- Add compilation dependencies to classpath -->
+  <path id="plugin.deps">
+    <fileset dir="${nutch.root}/build">
+      <include name="**/lib-nekohtml/*.jar" />
+    </fileset>
+  </path>
+
+  <!-- Deploy Unit test dependencies -->
+  <target name="deps-test">
+    <ant target="deploy" inheritall="false" dir="../lib-nekohtml"/>
+    <ant target="deploy" inheritall="false" dir="../nutch-extensionpoints"/>
+  </target>
+
+</project>
