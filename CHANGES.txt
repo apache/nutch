@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-867 Port Nutch benchmark to Nutchbase (ab)
+
 * NUTCH-869 Add parse-html back (jnioche)
 
 * NUTCH-871 MoreIndexingFilter missing date format (Max	Lynch via mattmann)

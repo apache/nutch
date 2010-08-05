@@ -5,6 +5,7 @@ import java.util.HashSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.RawComparator;
 import org.apache.hadoop.mapreduce.Job;
@@ -40,6 +41,14 @@ implements Tool {
     FIELDS.add(WebPage.Field.FETCH_INTERVAL);
     FIELDS.add(WebPage.Field.PREV_FETCH_TIME);
     FIELDS.add(WebPage.Field.PREV_SIGNATURE);
+  }
+  
+  public DbUpdaterJob() {
+    
+  }
+  
+  public DbUpdaterJob(Configuration conf) {
+    setConf(conf);
   }
 
   private int updateTable() throws Exception {

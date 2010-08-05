@@ -54,6 +54,14 @@ public class ParserJob extends GoraMapper<String, WebPage, String, WebPage>
   private boolean force;
 
   private Utf8 crawlId;
+  
+  public ParserJob() {
+    
+  }
+  
+  public ParserJob(Configuration conf) {
+    setConf(conf);
+  }
 
   @Override
   public void setup(Context context) throws IOException {

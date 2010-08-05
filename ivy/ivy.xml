@@ -104,6 +104,7 @@
 			conf="test->default" />
 		<dependency org="org.mortbay.jetty" name="jetty-util" rev="6.1.22"
 			conf="test->default" />
+		<dependency org="org.mortbay.jetty" name="jetty-client" rev="6.1.22" />
 
 		<dependency org="org.hsqldb" name="hsqldb" rev="2.0.0" conf="*->default"/>
 		<dependency org="org.jdom" name="jdom" rev="1.1" conf="test->default"/>
