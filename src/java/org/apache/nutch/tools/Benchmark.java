@@ -1,6 +1,10 @@
 package org.apache.nutch.tools;
 
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,6 +41,61 @@ public class Benchmark extends Configured implements Tool {
     }
     os.flush();
     os.close();
+  }
+  
+  public static final class BenchmarkResults {
+    Map<String,Map<String,Long>> timings = new HashMap<String,Map<String,Long>>();
+    List<String> runs = new ArrayList<String>();
+    List<String> stages = new ArrayList<String>();
+    int seeds, depth, threads;
+    long topN;
+    long elapsed;
+    String plugins;
+    
+    public void addTiming(String stage, String run, long timing) {
+      if (!runs.contains(run)) {
+        runs.add(run);
+      }
+      if (!stages.contains(stage)) {
+        stages.add(stage);
+      }
+      Map<String,Long> t = timings.get(stage);
+      if (t == null) {
+        t = new HashMap<String,Long>();
+        timings.put(stage, t);
+      }
+      t.put(run, timing);
+    }
+    
+    public String toString() {
+      StringBuilder sb = new StringBuilder();
+      sb.append("* Plugins:\t" + plugins + "\n");
+      sb.append("* Seeds:\t" + seeds + "\n");
+      sb.append("* Depth:\t" + depth + "\n");
+      sb.append("* Threads:\t" + threads + "\n");
+      sb.append("* TopN:\t" + topN + "\n");
+      sb.append("* TOTAL ELAPSED:\t" + elapsed + "\n");
+      for (String stage : stages) {
+        Map<String,Long> timing = timings.get(stage);
+        if (timing == null) continue;
+        sb.append("- stage: " + stage + "\n");
+        for (String r : runs) {
+          Long Time = timing.get(r);
+          if (Time == null) {
+            continue;
+          }
+          sb.append("\trun " + r + "\t" + Time + "\n");
+        }
+      }
+      return sb.toString();
+    }
+    
+    public List<String> getStages() {
+      return stages;
+    }
+    public List<String> getRuns() {
+      return runs;
+    }
   }
   
   public int run(String[] args) throws Exception {
@@ -77,6 +136,13 @@ public class Benchmark extends Configured implements Tool {
         return -1;
       }
     }
+    BenchmarkResults res = benchmark(seeds, depth, threads, maxPerHost, topN, plugins);
+    System.out.println(res);
+    return 0;
+  }
+  
+  public BenchmarkResults benchmark(int seeds, int depth, int threads, int maxPerHost,
+        long topN, String plugins) throws Exception {
     Configuration conf = getConf();
     conf.set("http.proxy.host", "localhost");
     conf.setInt("http.proxy.port", 8181);
@@ -103,7 +169,14 @@ public class Benchmark extends Configured implements Tool {
       LOG.info("depth = " + depth);      
     }
     
-    long start = System.currentTimeMillis();
+    BenchmarkResults res = new BenchmarkResults();
+    res.depth = depth;
+    res.plugins = plugins;
+    res.seeds = seeds;
+    res.threads = threads;
+    res.topN = topN;
+    
+    res.elapsed = System.currentTimeMillis();
     InjectorJob injector = new InjectorJob(conf);
     GeneratorJob generator = new GeneratorJob(conf);
     FetcherJob fetcher = new FetcherJob(conf);
@@ -111,34 +184,48 @@ public class Benchmark extends Configured implements Tool {
     DbUpdaterJob crawlDbTool = new DbUpdaterJob(conf);
     // not needed in the new API
     //LinkDb linkDbTool = new LinkDb(getConf());
-      
+    
+    long start = System.currentTimeMillis();
     // initialize crawlDb
     injector.inject(rootUrlDir);
+    long delta = System.currentTimeMillis() - start;
+    res.addTiming("inject", "0", delta);
     int i;
     for (i = 0; i < depth; i++) {             // generate new segment
+      start = System.currentTimeMillis();
       String crawlId = generator.generate(topN, System.currentTimeMillis(),
               false, false);
+      delta = System.currentTimeMillis() - start;
+      res.addTiming("generate", i + "", delta);
       if (crawlId == null) {
         LOG.info("Stopping at depth=" + i + " - no more URLs to fetch.");
         break;
       }
       boolean isParsing = getConf().getBoolean("fetcher.parse", true);
+      start = System.currentTimeMillis();
       fetcher.fetch(threads, crawlId, false, isParsing);  // fetch it
+      delta = System.currentTimeMillis() - start;
+      res.addTiming("fetch", i + "", delta);
       if (!isParsing) {
+        start = System.currentTimeMillis();
         parseSegment.parse(crawlId, false, false);    // parse it, if needed
+        delta = System.currentTimeMillis() - start;
+        res.addTiming("parse", i + "", delta);
       }
+      start = System.currentTimeMillis();
       crawlDbTool.run(new String[0]); // update crawldb
+      delta = System.currentTimeMillis() - start;
+      res.addTiming("update", i + "", delta);
     }
     if (i == 0) {
       LOG.warn("No URLs to fetch - check your seed list and URL filters.");
     }
     if (LOG.isInfoEnabled()) { LOG.info("crawl finished: " + dir); }
-    long end = System.currentTimeMillis();
-    LOG.info("TOTAL TIME: " + (end - start)/1000 + " sec");
+    res.elapsed = System.currentTimeMillis() - res.elapsed;
     WebTableReader dbreader = new WebTableReader();
     dbreader.setConf(conf);
     dbreader.processStatJob(false);
-    return 0;
+    return res;
   }
 
 }
