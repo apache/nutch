@@ -40,6 +40,7 @@ import org.apache.nutch.analysis.NutchAnalyzer;
 import org.apache.nutch.analysis.NutchDocumentAnalyzer;
 import org.apache.nutch.indexer.Indexer;
 import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.indexer.NutchField;
 import org.apache.nutch.indexer.NutchIndexWriter;
 import org.apache.nutch.indexer.NutchSimilarity;
 import org.apache.nutch.metadata.Metadata;
@@ -78,10 +79,10 @@ public class LuceneWriter implements NutchIndexWriter {
   private Document createLuceneDoc(NutchDocument doc) {
     final Document out = new Document();
 
-    out.setBoost(doc.getScore());
+    out.setBoost(doc.getWeight());
 
     final Metadata documentMeta = doc.getDocumentMeta();
-    for (final Entry<String, List<String>> entry : doc) {
+    for (final Entry<String, NutchField> entry : doc) {
       final String fieldName = entry.getKey();
 
       Field.Store store = fieldStore.get(fieldName);
@@ -132,8 +133,10 @@ public class LuceneWriter implements NutchIndexWriter {
         }
       }
 
-      for (final String fieldValue : entry.getValue()) {
-        out.add(new Field(fieldName, fieldValue, store, index, vector));
+      for (final Object fieldValue : entry.getValue().getValues()) {
+        Field f = new Field(fieldName, fieldValue.toString(), store, index, vector);
+        f.setBoost(entry.getValue().getWeight());
+        out.add(f);
       }
     }
 

@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.2 - Current Development
 
+* NUTCH-858 No longer able to set per-field boosts on lucene documents (ab)
+
 * NUTCH-869 Add parse-html back (jnioche)
 
 * NUTCH-871 MoreIndexingFilter missing date format (Max Lynch via mattmann)

@@ -152,7 +152,7 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
       return;
     }
     // apply boost to all indexed fields.
-    doc.setScore(boost);
+    doc.setWeight(boost);
     // store boost for use by explain and dedup
     doc.add("boost", Float.toString(boost));
 
