@@ -16,25 +16,19 @@
  */
 package org.apache.nutch.fetcher;
 
-import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.SequenceFile;
-import org.apache.hadoop.io.Text;
-import org.apache.nutch.crawl.CrawlDBTestUtil;
-import org.apache.nutch.crawl.Generator;
-import org.apache.nutch.crawl.Injector;
-import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.metadata.Nutch;
-import org.apache.nutch.parse.ParseData;
-import org.apache.nutch.protocol.Content;
+import org.apache.nutch.crawl.GeneratorJob;
+import org.apache.nutch.crawl.InjectorJob;
+import org.apache.nutch.crawl.URLWebPage;
+import org.apache.nutch.storage.Mark;
+import org.apache.nutch.util.AbstractNutchTest;
+import org.apache.nutch.util.CrawlTestUtil;
 import org.mortbay.jetty.Server;
-
-import junit.framework.TestCase;
 
 /**
  * Basic fetcher test
@@ -46,36 +40,28 @@ import junit.framework.TestCase;
  * @author nutch-dev <nutch-dev at lucene.apache.org>
  *
  */
-public class TestFetcher extends TestCase {
+public class TestFetcher extends AbstractNutchTest {
 
   final static Path testdir=new Path("build/test/fetch-test");
-  Configuration conf;
-  FileSystem fs;
-  Path crawldbPath;
-  Path segmentsPath;
   Path urlPath;
   Server server;
 
-  protected void setUp() throws Exception{
-    conf=CrawlDBTestUtil.createConfiguration();
-    fs=FileSystem.get(conf);
-    fs.delete(testdir, true);
-    urlPath=new Path(testdir,"urls");
-    crawldbPath=new Path(testdir,"crawldb");
-    segmentsPath=new Path(testdir,"segments");
-    server=CrawlDBTestUtil.getServer(conf.getInt("content.server.port",50000), "build/test/data/fetch-test-site");
+  public void setUp() throws Exception{
+    super.setUp();
+    urlPath = new Path(testdir, "urls");
+    server = CrawlTestUtil.getServer(conf.getInt("content.server.port",50000), "build/test/data/fetch-test-site");
     server.start();
   }
 
-  protected void tearDown() throws Exception{
+  public void tearDown() throws Exception{
     server.stop();
     fs.delete(testdir, true);
   }
   
-  public void testFetch() throws IOException {
+  public void testFetch() throws Exception {
     
     //generate seedlist
-    ArrayList<String> urls=new ArrayList<String>();
+    ArrayList<String> urls = new ArrayList<String>();
     
     addUrl(urls,"index.html");
     addUrl(urls,"pagea.html");
@@ -84,47 +70,43 @@ public class TestFetcher extends TestCase {
     addUrl(urls,"nested_spider_trap.html");
     addUrl(urls,"exception.html");
     
-    CrawlDBTestUtil.generateSeedList(fs, urlPath, urls);
+    CrawlTestUtil.generateSeedList(fs, urlPath, urls);
     
     //inject
-    Injector injector=new Injector(conf);
-    injector.inject(crawldbPath, urlPath);
+    InjectorJob injector = new InjectorJob(conf);
+    injector.inject(urlPath);
 
     //generate
-    Generator g=new Generator(conf);
-    Path[] generatedSegment = g.generate(crawldbPath, segmentsPath, 1,
-        Long.MAX_VALUE, Long.MAX_VALUE, false, false);
+    long time = System.currentTimeMillis();
+    GeneratorJob g = new GeneratorJob(conf);
+    String crawlId = g.generate(Long.MAX_VALUE, time, false, false);
 
-    long time=System.currentTimeMillis();
     //fetch
-    Fetcher fetcher=new Fetcher(conf);
-    fetcher.fetch(generatedSegment[0], 1, true);
+    time = System.currentTimeMillis();
+    conf.setBoolean(FetcherJob.PARSE_KEY, true);
+    FetcherJob fetcher = new FetcherJob(conf);
+    fetcher.fetch(1, crawlId, false, true);
 
-    time=System.currentTimeMillis()-time;
+    time = System.currentTimeMillis() - time;
     
     //verify politeness, time taken should be more than (num_of_pages +1)*delay
-    int minimumTime=(int) ((urls.size()+1)*1000*conf.getFloat("fetcher.server.delay",5));
+    int minimumTime = (int) ((urls.size() + 1) * 1000 *
+        conf.getFloat("fetcher.server.delay", 5));
     assertTrue(time > minimumTime);
     
-    //verify content
-    Path content=new Path(new Path(generatedSegment[0], Content.DIR_NAME),"part-00000/data");
-    SequenceFile.Reader reader=new SequenceFile.Reader(fs, content, conf);
-    
-    ArrayList<String> handledurls=new ArrayList<String>();
-    
-    READ_CONTENT:
-      do {
-      Text key=new Text();
-      Content value=new Content();
-      if(!reader.next(key, value)) break READ_CONTENT;
-      String contentString=new String(value.getContent());
-      if(contentString.indexOf("Nutch fetcher test page")!=-1) { 
-        handledurls.add(key.toString());
+    List<URLWebPage> pages = CrawlTestUtil.readContents(webPageStore, Mark.FETCH_MARK, (String[])null);
+    assertEquals(urls.size(), pages.size());
+    List<String> handledurls = new ArrayList<String>();
+    for (URLWebPage up : pages) {
+      ByteBuffer bb = up.getDatum().getContent();
+      if (bb == null) {
+        continue;
       }
-    } while(true);
-
-    reader.close();
-
+      String content = new String(bb.array());
+      if (content.indexOf("Nutch fetcher test page")!=-1) {
+        handledurls.add(up.getUrl());        
+      }
+    }
     Collections.sort(urls);
     Collections.sort(handledurls);
 
@@ -132,33 +114,6 @@ public class TestFetcher extends TestCase {
     assertEquals(urls.size(), handledurls.size());
 
     //verify that correct pages were handled
-    assertTrue(handledurls.containsAll(urls));
-    assertTrue(urls.containsAll(handledurls));
-    
-    handledurls.clear();
-
-    //verify parse data
-    Path parseData = new Path(new Path(generatedSegment[0], ParseData.DIR_NAME),"part-00000/data");
-    reader = new SequenceFile.Reader(fs, parseData, conf);
-    
-    READ_PARSE_DATA:
-      do {
-      Text key = new Text();
-      ParseData value = new ParseData();
-      if(!reader.next(key, value)) break READ_PARSE_DATA;
-      // make sure they all contain "nutch.segment.name" and "nutch.content.digest" 
-      // keys in parse metadata
-      Metadata contentMeta = value.getContentMeta();
-      if (contentMeta.get(Nutch.SEGMENT_NAME_KEY) != null 
-            && contentMeta.get(Nutch.SIGNATURE_KEY) != null) {
-        handledurls.add(key.toString());
-      }
-    } while(true);
-    
-    Collections.sort(handledurls);
-
-    assertEquals(urls.size(), handledurls.size());
-
     assertTrue(handledurls.containsAll(urls));
     assertTrue(urls.containsAll(handledurls));
   }
@@ -173,9 +128,9 @@ public class TestFetcher extends TestCase {
     conf.set("http.agent.name", "");
 
     try {
-      conf.setBoolean("fetcher.parse", true);
-      Fetcher fetcher = new Fetcher(conf);
-      fetcher.fetch(null, 1, false);
+      conf.setBoolean(FetcherJob.PARSE_KEY, true);
+      FetcherJob fetcher = new FetcherJob(conf);
+      fetcher.checkConfiguration();
     } catch (IllegalArgumentException iae) {
       String message = iae.getMessage();
       failedNoAgentName = message.equals("Fetcher: No agents listed in "

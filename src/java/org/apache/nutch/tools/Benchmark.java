@@ -1,9 +1,7 @@
 package org.apache.nutch.tools;
 
 import java.io.OutputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,16 +12,15 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.Tool;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.nutch.crawl.CrawlDb;
-import org.apache.nutch.crawl.CrawlDbReader;
-import org.apache.nutch.crawl.Generator;
-import org.apache.nutch.crawl.Injector;
-import org.apache.nutch.crawl.LinkDb;
-import org.apache.nutch.fetcher.Fetcher;
-import org.apache.nutch.parse.ParseSegment;
+import org.apache.nutch.crawl.DbUpdaterJob;
+import org.apache.nutch.crawl.GeneratorJob;
+import org.apache.nutch.crawl.InjectorJob;
+import org.apache.nutch.crawl.WebTableReader;
+import org.apache.nutch.fetcher.FetcherJob;
+import org.apache.nutch.parse.ParserJob;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
@@ -36,11 +33,6 @@ public class Benchmark extends Configured implements Tool {
     System.exit(res);
   }
   
-  private static String getDate() {
-    return new SimpleDateFormat("yyyyMMddHHmmss").format
-      (new Date(System.currentTimeMillis()));
-  }
- 
   private void createSeeds(FileSystem fs, Path seedsDir, int count) throws Exception {
     OutputStream os = fs.create(new Path(seedsDir, "seeds"));
     for (int i = 0; i < count; i++) {
@@ -56,7 +48,6 @@ public class Benchmark extends Configured implements Tool {
     List<String> runs = new ArrayList<String>();
     List<String> stages = new ArrayList<String>();
     int seeds, depth, threads;
-    boolean delete;
     long topN;
     long elapsed;
     String plugins;
@@ -83,7 +74,6 @@ public class Benchmark extends Configured implements Tool {
       sb.append("* Depth:\t" + depth + "\n");
       sb.append("* Threads:\t" + threads + "\n");
       sb.append("* TopN:\t" + topN + "\n");
-      sb.append("* Delete:\t" + delete + "\n");
       sb.append("* TOTAL ELAPSED:\t" + elapsed + "\n");
       for (String stage : stages) {
         Map<String,Long> timing = timings.get(stage);
@@ -113,15 +103,16 @@ public class Benchmark extends Configured implements Tool {
     int seeds = 1;
     int depth = 10;
     int threads = 10;
-    boolean delete = true;
+    //boolean delete = true;
     long topN = Long.MAX_VALUE;
     
     if (args.length == 0) {
-      System.err.println("Usage: Benchmark [-seeds NN] [-depth NN] [-threads NN] [-keep] [-maxPerHost NN] [-plugins <regex>]");
+      System.err.println("Usage: Benchmark [-seeds NN] [-depth NN] [-threads NN] [-maxPerHost NN] [-plugins <regex>]");
       System.err.println("\t-seeds NN\tcreate NN unique hosts in a seed list (default: 1)");
       System.err.println("\t-depth NN\tperform NN crawl cycles (default: 10)");
       System.err.println("\t-threads NN\tuse NN threads per Fetcher task (default: 10)");
-      System.err.println("\t-keep\tkeep segment data (default: delete after updatedb)");
+      // XXX what is the equivalent here? not an additional job...
+      // System.err.println("\t-keep\tkeep segment data (default: delete after updatedb)");
       System.err.println("\t-plugins <regex>\toverride 'plugin.includes'.");
       System.err.println("\tNOTE: if not specified, this is reset to: " + plugins);
       System.err.println("\tNOTE: if 'default' is specified then a value set in nutch-default/nutch-site is used.");
@@ -136,8 +127,6 @@ public class Benchmark extends Configured implements Tool {
         threads = Integer.parseInt(args[++i]);
       } else if (args[i].equals("-depth")) {
         depth = Integer.parseInt(args[++i]);
-      } else if (args[i].equals("-keep")) {
-        delete = false;
       } else if (args[i].equals("-plugins")) {
         plugins = args[++i];
       } else if (args[i].equalsIgnoreCase("-maxPerHost")) {
@@ -147,13 +136,13 @@ public class Benchmark extends Configured implements Tool {
         return -1;
       }
     }
-    BenchmarkResults res = benchmark(seeds, depth, threads, maxPerHost, topN, delete, plugins);
+    BenchmarkResults res = benchmark(seeds, depth, threads, maxPerHost, topN, plugins);
     System.out.println(res);
     return 0;
   }
   
   public BenchmarkResults benchmark(int seeds, int depth, int threads, int maxPerHost,
-        long topN, boolean delete, String plugins) throws Exception {
+        long topN, String plugins) throws Exception {
     Configuration conf = getConf();
     conf.set("http.proxy.host", "localhost");
     conf.setInt("http.proxy.port", 8181);
@@ -162,10 +151,10 @@ public class Benchmark extends Configured implements Tool {
     if (!plugins.equals("default")) {
       conf.set("plugin.includes", plugins);
     }
-    conf.setInt(Generator.GENERATOR_MAX_COUNT, maxPerHost);
-    conf.set(Generator.GENERATOR_COUNT_MODE, Generator.GENERATOR_COUNT_VALUE_HOST);
-    JobConf job = new NutchJob(getConf());    
-    FileSystem fs = FileSystem.get(job);
+    conf.setInt(GeneratorJob.GENERATOR_MAX_COUNT, maxPerHost);
+    conf.set(GeneratorJob.GENERATOR_COUNT_MODE, GeneratorJob.GENERATOR_COUNT_VALUE_HOST);
+    Job job = new NutchJob(conf);    
+    FileSystem fs = FileSystem.get(job.getConfiguration());
     Path dir = new Path(getConf().get("hadoop.tmp.dir"),
             "bench-" + System.currentTimeMillis());
     fs.mkdirs(dir);
@@ -179,72 +168,63 @@ public class Benchmark extends Configured implements Tool {
       LOG.info("threads = " + threads);
       LOG.info("depth = " + depth);      
     }
+    
     BenchmarkResults res = new BenchmarkResults();
-    res.delete = delete;
     res.depth = depth;
     res.plugins = plugins;
     res.seeds = seeds;
     res.threads = threads;
     res.topN = topN;
-    Path crawlDb = new Path(dir + "/crawldb");
-    Path linkDb = new Path(dir + "/linkdb");
-    Path segments = new Path(dir + "/segments");
+    
     res.elapsed = System.currentTimeMillis();
-    Injector injector = new Injector(getConf());
-    Generator generator = new Generator(getConf());
-    Fetcher fetcher = new Fetcher(getConf());
-    ParseSegment parseSegment = new ParseSegment(getConf());
-    CrawlDb crawlDbTool = new CrawlDb(getConf());
-    LinkDb linkDbTool = new LinkDb(getConf());
-      
-    // initialize crawlDb
+    InjectorJob injector = new InjectorJob(conf);
+    GeneratorJob generator = new GeneratorJob(conf);
+    FetcherJob fetcher = new FetcherJob(conf);
+    ParserJob parseSegment = new ParserJob(conf);
+    DbUpdaterJob crawlDbTool = new DbUpdaterJob(conf);
+    // not needed in the new API
+    //LinkDb linkDbTool = new LinkDb(getConf());
+    
     long start = System.currentTimeMillis();
-    injector.inject(crawlDb, rootUrlDir);
+    // initialize crawlDb
+    injector.inject(rootUrlDir);
     long delta = System.currentTimeMillis() - start;
     res.addTiming("inject", "0", delta);
     int i;
     for (i = 0; i < depth; i++) {             // generate new segment
       start = System.currentTimeMillis();
-      Path[] segs = generator.generate(crawlDb, segments, -1, topN, System
-          .currentTimeMillis());
+      String crawlId = generator.generate(topN, System.currentTimeMillis(),
+              false, false);
       delta = System.currentTimeMillis() - start;
       res.addTiming("generate", i + "", delta);
-      if (segs == null) {
+      if (crawlId == null) {
         LOG.info("Stopping at depth=" + i + " - no more URLs to fetch.");
         break;
       }
+      boolean isParsing = getConf().getBoolean("fetcher.parse", true);
       start = System.currentTimeMillis();
-      fetcher.fetch(segs[0], threads, org.apache.nutch.fetcher.Fetcher.isParsing(getConf()));  // fetch it
+      fetcher.fetch(threads, crawlId, false, isParsing);  // fetch it
       delta = System.currentTimeMillis() - start;
       res.addTiming("fetch", i + "", delta);
-      if (!Fetcher.isParsing(job)) {
+      if (!isParsing) {
         start = System.currentTimeMillis();
-        parseSegment.parse(segs[0]);    // parse it, if needed
+        parseSegment.parse(crawlId, false, false);    // parse it, if needed
         delta = System.currentTimeMillis() - start;
         res.addTiming("parse", i + "", delta);
       }
       start = System.currentTimeMillis();
-      crawlDbTool.update(crawlDb, segs, true, true); // update crawldb
+      crawlDbTool.run(new String[0]); // update crawldb
       delta = System.currentTimeMillis() - start;
       res.addTiming("update", i + "", delta);
-      start = System.currentTimeMillis();
-      linkDbTool.invert(linkDb, segs, true, true, false); // invert links
-      delta = System.currentTimeMillis() - start;
-      res.addTiming("invert", i + "", delta);
-      // delete data
-      if (delete) {
-        for (Path p : segs) {
-          fs.delete(p, true);
-        }
-      }
     }
     if (i == 0) {
       LOG.warn("No URLs to fetch - check your seed list and URL filters.");
     }
     if (LOG.isInfoEnabled()) { LOG.info("crawl finished: " + dir); }
     res.elapsed = System.currentTimeMillis() - res.elapsed;
-    CrawlDbReader dbreader = new CrawlDbReader();
-    dbreader.processStatJob(crawlDb.toString(), conf, false);
+    WebTableReader dbreader = new WebTableReader();
+    dbreader.setConf(conf);
+    dbreader.processStatJob(false);
     return res;
   }
 

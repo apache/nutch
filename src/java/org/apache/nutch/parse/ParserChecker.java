@@ -17,20 +17,21 @@
 
 package org.apache.nutch.parse;
 
+import java.nio.ByteBuffer;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.avro.util.Utf8;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.hadoop.conf.Configuration;
-
-import org.apache.nutch.util.NutchConfiguration;
-
-import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.hadoop.io.Text;
-import org.apache.nutch.parse.ParseUtil;
-
-import org.apache.nutch.protocol.ProtocolFactory;
-import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.Protocol;
+import org.apache.nutch.protocol.ProtocolFactory;
+import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.util.Bytes;
+import org.apache.nutch.util.NutchConfiguration;
 
 /**
  * Parser checker, useful for testing parser.
@@ -42,7 +43,8 @@ public class ParserChecker {
 
   public static final Log LOG = LogFactory.getLog(ParserChecker.class);
 
-  public ParserChecker() {}
+  public ParserChecker() {
+  }
 
   public static void main(String[] args) throws Exception {
     boolean dumpText = false;
@@ -63,7 +65,7 @@ public class ParserChecker {
         contentType = args[++i];
       } else if (args[i].equals("-dumpText")) {
         dumpText = true;
-      } else if (i != args.length-1) {
+      } else if (i != args.length - 1) {
         System.err.println(usage);
         System.exit(-1);
       } else {
@@ -71,13 +73,18 @@ public class ParserChecker {
       }
     }
 
-    if (LOG.isInfoEnabled()) { LOG.info("fetching: "+url); }
+    if (LOG.isInfoEnabled()) {
+      LOG.info("fetching: " + url);
+    }
 
     Configuration conf = NutchConfiguration.create();
     ProtocolFactory factory = new ProtocolFactory(conf);
     Protocol protocol = factory.getProtocol(url);
-    Content content = protocol.getProtocolOutput(new Text(url), new CrawlDatum()).getContent();
-
+    WebPage page = new WebPage();
+    Content content = protocol.getProtocolOutput(url, page).getContent();
+    page.setBaseUrl(new org.apache.avro.util.Utf8(url));
+    page.setContent(ByteBuffer.wrap(content.getContent()));
+    
     if (force) {
       content.setContentType(contentType);
     } else {
@@ -90,22 +97,37 @@ public class ParserChecker {
     }
 
     if (LOG.isInfoEnabled()) {
-      LOG.info("parsing: "+url);
-      LOG.info("contentType: "+contentType);
+      LOG.info("parsing: " + url);
+      LOG.info("contentType: " + contentType);
     }
+    
+    page.setContentType(new Utf8(contentType));
 
-    ParseResult parseResult = new ParseUtil(conf).parse(content);
+    Parse parse = new ParseUtil(conf).parse(url, page);
 
-    for (java.util.Map.Entry<Text, Parse> entry : parseResult) {
-      Parse parse = entry.getValue();
-      System.out.print("---------\nUrl\n---------------\n");
-      System.out.print(entry.getKey());
-      System.out.print("---------\nParseData\n---------\n");
-      System.out.print(parse.getData().toString());
-      if (dumpText) {
-        System.out.print("---------\nParseText\n---------\n");
-        System.out.print(parse.getText());
+    if (parse==null){
+      System.err.println("Problem with parse - check log");
+      System.exit(-1);
+    }
+    
+    System.out.print("---------\nUrl\n---------------\n");
+    System.out.print(url+"\n");
+    System.out.print("---------\nMetadata\n---------\n");
+    Map<Utf8, ByteBuffer> metadata = page.getMetadata();
+    StringBuffer sb = new StringBuffer();
+    if (metadata != null) {
+      Iterator<Entry<Utf8, ByteBuffer>> iterator = metadata.entrySet()
+          .iterator();
+      while (iterator.hasNext()) {
+        Entry<Utf8, ByteBuffer> entry = iterator.next();
+        sb.append(entry.getKey().toString()).append(" : \t")
+            .append(Bytes.toString(entry.getValue().array())).append("\n");
       }
+      System.out.print(sb.toString());
+    }
+    if (dumpText) {
+      System.out.print("---------\nParseText\n---------\n");
+      System.out.print(parse.getText());
     }
 
     System.exit(0);

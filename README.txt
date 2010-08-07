@@ -1,8 +1,32 @@
 Apache Nutch README
 
+Important note: Due to licensing issues we cannot provide two libraries that
+are normally provided with PDFBox (jai_core.jar, jai_codec.jar), the parser
+library we use for parsing PDF files. If you encounter unexpected problems when
+working with PDF files please
+
+1. download the two missing libraries  from:
+   http://pdfbox.cvs.sourceforge.net/viewvc/pdfbox/pdfbox/external/
+
+2. Put them to directory src/plugin/parse-pdf/lib
+3. follow the instructions in file src/plugin/parse-pdf/plugin.xml
+4. Rebuild nutch.
+
+
+
+Interesting files include:
+
+
+  docs/api/index.html
+      Javadocs for the Nutch software.
+
+  CHANGES.txt
+      Log of changes to Nutch.
+
+
 For the latest information about Nutch, please visit our website at:
 
-   http://nutch.apache.org
+   http://lucene.apache.org/nutch/
 
 and our wiki, at:
 
@@ -10,7 +34,7 @@ and our wiki, at:
 
 To get started using Nutch read Tutorial:
 
-   http://wiki.apache.org/nutch/NutchTutorial
+   http://lucene.apache.org/nutch/tutorial.html
    
 Export Control
 
@@ -31,6 +55,6 @@ Section 740.13) for both object code and source code.
 
 The following provides more details on the included cryptographic software:
 
-Apache Nutch uses the PDFBox API in its parse-tika plugin for extracting textual content 
-and metadata from encrypted PDF files. See http://pdfbox.apache.org for more 
+Apache Nutch uses the PDFBox API in its parse-pdf plugin for extracting textual content 
+and metadata from encrypted PDF files. See http://incubator.apache.org/pdfbox/ for more 
 details on PDFBox.

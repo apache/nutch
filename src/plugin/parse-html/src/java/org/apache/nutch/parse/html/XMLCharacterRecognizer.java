@@ -21,7 +21,7 @@
  * limitations under the License.
  */
 /*
- * $Id$
+ * $Id: XMLCharacterRecognizer.java,v 1.7 2004/02/17 04:21:14 minchau Exp $
  */
 package org.apache.nutch.parse.html;
 

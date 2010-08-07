@@ -16,25 +16,33 @@
  */
 package org.apache.nutch.indexer.anchor;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map.Entry;
+
+import org.apache.avro.util.Utf8;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Text;
-import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.parse.Parse;
+import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.util.TableUtil;
 
 /**
- * Indexing filter that indexes all inbound anchor text for a document. 
+ * Indexing filter that indexes all inbound anchor text for a document.
  */
-public class AnchorIndexingFilter
-  implements IndexingFilter {
+public class AnchorIndexingFilter implements IndexingFilter {
 
   public static final Log LOG = LogFactory.getLog(AnchorIndexingFilter.class);
   private Configuration conf;
+
+  private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
+
+  static {
+    FIELDS.add(WebPage.Field.INLINKS);
+  }
 
   public void setConf(Configuration conf) {
     this.conf = conf;
@@ -44,16 +52,23 @@ public class AnchorIndexingFilter
     return this.conf;
   }
 
-  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum,
-    Inlinks inlinks) throws IndexingException {
+  public void addIndexBackendOptions(Configuration conf) {
+  }
 
-    String[] anchors = (inlinks != null ? inlinks.getAnchors()
-      : new String[0]);
-    for (int i = 0; i < anchors.length; i++) {
-      doc.add("anchor", anchors[i]);
+  @Override
+  public NutchDocument filter(NutchDocument doc, String url, WebPage page)
+      throws IndexingException {
+
+    for (Entry<Utf8, Utf8> e : page.getInlinks().entrySet()) {
+      doc.add("anchor", TableUtil.toString(e.getValue()));
     }
 
     return doc;
+  }
+
+  @Override
+  public Collection<WebPage.Field> getFields() {
+    return FIELDS;
   }
 
 }

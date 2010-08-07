@@ -18,24 +18,24 @@
 package org.apache.nutch.indexer;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 
-// Commons Logging imports
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.apache.nutch.plugin.*;
-import org.apache.nutch.parse.Parse;
-import org.apache.nutch.util.ObjectCache;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.crawl.Inlinks;
-import org.apache.hadoop.io.Text;
+import org.apache.nutch.plugin.Extension;
+import org.apache.nutch.plugin.ExtensionPoint;
+import org.apache.nutch.plugin.PluginRepository;
+import org.apache.nutch.plugin.PluginRuntimeException;
+import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.util.ObjectCache;
 
 /** Creates and caches {@link IndexingFilter} implementing plugins.*/
 public class IndexingFilters {
 
-  public static final String INDEXINGFILTER_ORDER = "indexingfilter.order";
+  public static final String INDEXINGFILTER_ORDER = "indexingfilterhbase.order";
 
   public final static Log LOG = LogFactory.getLog(IndexingFilters.class);
 
@@ -85,8 +85,7 @@ public class IndexingFilters {
         } else {
           ArrayList<IndexingFilter> filters = new ArrayList<IndexingFilter>();
           for (int i = 0; i < orderedFilters.length; i++) {
-            IndexingFilter filter = filterMap
-                .get(orderedFilters[i]);
+            IndexingFilter filter = filterMap.get(orderedFilters[i]);
             if (filter != null) {
               filters.add(filter);
             }
@@ -100,18 +99,28 @@ public class IndexingFilters {
       this.indexingFilters = (IndexingFilter[]) objectCache
           .getObject(IndexingFilter.class.getName());
     }
-  }                  
-
+  }
   /** Run all defined filters. */
-  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum,
-      Inlinks inlinks) throws IndexingException {
-    for (int i = 0; i < this.indexingFilters.length; i++) {
-      doc = this.indexingFilters[i].filter(doc, parse, url, datum, inlinks);
+  public NutchDocument filter(NutchDocument doc, String url, WebPage page)
+  throws IndexingException {
+    for (IndexingFilter indexingFilter : indexingFilters) {
+      doc = indexingFilter.filter(doc, url, page);
       // break the loop if an indexing filter discards the doc
       if (doc == null) return null;
     }
 
     return doc;
+  }
+
+  public Collection<WebPage.Field> getFields() {
+    Collection<WebPage.Field> columns = new HashSet<WebPage.Field>();
+    for (IndexingFilter indexingFilter : indexingFilters) {
+      Collection<WebPage.Field> fields = indexingFilter.getFields();
+      if (fields != null) {
+        columns.addAll(fields);
+      }
+    }
+    return columns;
   }
 
 }

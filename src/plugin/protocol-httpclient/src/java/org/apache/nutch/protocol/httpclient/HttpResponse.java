@@ -31,12 +31,12 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.HttpException;
 
 // Nutch imports
-import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.SpellCheckedMetadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.http.api.HttpBase;
+import org.apache.nutch.storage.WebPage;
 
 /**
  * An HTTP response.
@@ -56,13 +56,13 @@ public class HttpResponse implements Response {
    * @param http                An instance of the implementation class
    *                            of this plugin
    * @param url                 URL to be fetched
-   * @param datum               Crawl data
+   * @param page                WebPage
    * @param followRedirects     Whether to follow redirects; follows
    *                            redirect if and only if this is true
    * @return                    HTTP response
    * @throws IOException        When an error occurs
    */
-  HttpResponse(Http http, URL url, CrawlDatum datum,
+  HttpResponse(Http http, URL url, WebPage page,
       boolean followRedirects) throws IOException {
 
     // Prepare GET method for HTTP request
@@ -70,9 +70,9 @@ public class HttpResponse implements Response {
     GetMethod get = new GetMethod(url.toString());
     get.setFollowRedirects(followRedirects);
     get.setDoAuthentication(true);
-    if (datum.getModifiedTime() > 0) {
+    if (page.getModifiedTime() > 0) {
       get.setRequestHeader("If-Modified-Since",
-          HttpDateFormat.toString(datum.getModifiedTime()));
+          HttpDateFormat.toString(page.getModifiedTime()));
     }
 
     // Set HTTP parameters

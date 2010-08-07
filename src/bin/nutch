@@ -32,31 +32,22 @@ done
 if [ $# = 0 ]; then
   echo "Usage: nutch [-core] COMMAND"
   echo "where COMMAND is one of:"
-  echo "  crawl             one-step crawler for intranets"
-  echo "  readdb            read / dump crawl db"
-  echo "  convdb            convert crawl db from pre-0.9 format"
-  echo "  mergedb           merge crawldb-s, with optional filtering"
-  echo "  readlinkdb        read / dump link db"
-  echo "  inject            inject new urls into the database"
-  echo "  generate          generate new segments to fetch from crawl db"
-  echo "  freegen           generate new segments to fetch from text files"
-  echo "  fetch             fetch a segment's pages"
-  echo "  parse             parse a segment's pages"
-  echo "  readseg           read / dump segment data"
-  echo "  mergesegs         merge several segments, with optional filtering and slicing"
-  echo "  updatedb          update crawl db from segments after fetching"
-  echo "  invertlinks       create a linkdb from parsed segments"
-  echo "  mergelinkdb       merge linkdb-s, with optional filtering"
-  echo "  solrindex         run the solr indexer on parsed segments and linkdb"
-  echo "  solrdedup         remove duplicates from solr"
-  echo "  plugin            load a plugin and run one of its classes main()"
+# echo " crawl one-step crawler for intranets"
+  echo " inject inject new urls into the database"
+  echo " generate generate new segments to fetch from crawl db"
+  echo " fetch fetch URLs marked during generate"
+  echo " parse parse URLs marked during fetch"
+  echo " updatedb update web table after parsing"
+  echo " solrindex run the solr indexer on parsed segments and linkdb"
+  echo " solrdedup remove duplicates from solr"
+  echo " plugin load a plugin and run one of its classes main()"
   echo " or"
-  echo "  CLASSNAME         run the class named CLASSNAME"
+  echo " CLASSNAME run the class named CLASSNAME"
   echo "Most commands print help when invoked w/o parameters."
   echo ""
   echo "Expert: -core option is for developers only. It avoids building the job jar, "
-  echo "        instead it simply includes classes compiled with ant compile-core. "
-  echo "        NOTE: this works only for jobs executed in 'local' mode"
+  echo " instead it simply includes classes compiled with ant compile-core. "
+  echo " NOTE: this works only for jobs executed in 'local' mode"
   exit 1
 fi
 
@@ -84,7 +75,6 @@ if [ "$JAVA_HOME" = "" ]; then
   exit 1
 fi
 
-local=true
 
 # NUTCH_JOB 
 if [ -f ${NUTCH_HOME}/nutch-*.job ]; then
@@ -92,6 +82,8 @@ if [ -f ${NUTCH_HOME}/nutch-*.job ]; then
   for f in $NUTCH_HOME/nutch-*.job; do
     NUTCH_JOB=$f;
   done
+else
+  local=true
 fi
 
 # cygwin path translation
@@ -177,49 +169,31 @@ fi
 
 # figure out which class to run
 if [ "$COMMAND" = "crawl" ] ; then
-  CLASS=org.apache.nutch.crawl.Crawl
+CLASS=org.apache.nutch.crawl.Crawl
 elif [ "$COMMAND" = "inject" ] ; then
-  CLASS=org.apache.nutch.crawl.Injector
+CLASS=org.apache.nutch.crawl.InjectorJob
 elif [ "$COMMAND" = "generate" ] ; then
-  CLASS=org.apache.nutch.crawl.Generator
-elif [ "$COMMAND" = "freegen" ] ; then
-  CLASS=org.apache.nutch.tools.FreeGenerator
+CLASS=org.apache.nutch.crawl.GeneratorJob
 elif [ "$COMMAND" = "fetch" ] ; then
-  CLASS=org.apache.nutch.fetcher.Fetcher
+CLASS=org.apache.nutch.fetcher.FetcherJob
 elif [ "$COMMAND" = "parse" ] ; then
-  CLASS=org.apache.nutch.parse.ParseSegment
-elif [ "$COMMAND" = "readdb" ] ; then
-  CLASS=org.apache.nutch.crawl.CrawlDbReader
-elif [ "$COMMAND" = "convdb" ] ; then
-  CLASS=org.apache.nutch.tools.compat.CrawlDbConverter
-elif [ "$COMMAND" = "mergedb" ] ; then
-  CLASS=org.apache.nutch.crawl.CrawlDbMerger
-elif [ "$COMMAND" = "readlinkdb" ] ; then
-  CLASS=org.apache.nutch.crawl.LinkDbReader
-elif [ "$COMMAND" = "readseg" ] ; then
-  CLASS=org.apache.nutch.segment.SegmentReader
-elif [ "$COMMAND" = "mergesegs" ] ; then
-  CLASS=org.apache.nutch.segment.SegmentMerger
+CLASS=org.apache.nutch.parse.ParserJob
 elif [ "$COMMAND" = "updatedb" ] ; then
-  CLASS=org.apache.nutch.crawl.CrawlDb
-elif [ "$COMMAND" = "invertlinks" ] ; then
-  CLASS=org.apache.nutch.crawl.LinkDb
-elif [ "$COMMAND" = "mergelinkdb" ] ; then
-  CLASS=org.apache.nutch.crawl.LinkDbMerger
+CLASS=org.apache.nutch.crawl.DbUpdaterJob
 elif [ "$COMMAND" = "solrindex" ] ; then
-  CLASS=org.apache.nutch.indexer.solr.SolrIndexer
+CLASS=org.apache.nutch.indexer.solr.SolrIndexerJob
 elif [ "$COMMAND" = "solrdedup" ] ; then
-  CLASS=org.apache.nutch.indexer.solr.SolrDeleteDuplicates
+CLASS=org.apache.nutch.indexer.solr.SolrDeleteDuplicates
 elif [ "$COMMAND" = "plugin" ] ; then
-  CLASS=org.apache.nutch.plugin.PluginRepository
+CLASS=org.apache.nutch.plugin.PluginRepository
 else
-  CLASS=$COMMAND
+CLASS=$COMMAND
 fi
 
-# distributed mode
-EXEC_CALL="$HADOOP_HOME/bin/hadoop jar $NUTCH_JOB"
 
 if $local; then
+ # fix for the external Xerces lib issue with SAXParserFactory
+ NUTCH_OPTS="-Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl $NUTCH_OPTS"
  EXEC_CALL="$JAVA $JAVA_HEAP_MAX $NUTCH_OPTS -classpath $CLASSPATH"
 else
  # check that we are really in a hadoop config
@@ -227,6 +201,8 @@ else
     echo "Can't find Hadoop scripts. Set HADOOP_HOME to a valid home of Hadoop installation."
     exit -1;
  fi
+ # distributed mode
+ EXEC_CALL="$HADOOP_HOME/bin/hadoop jar $NUTCH_JOB"
 fi
 
 # run it

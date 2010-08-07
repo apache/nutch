@@ -21,7 +21,7 @@
  * limitations under the License.
  */
 /*
- * $Id$
+ * $Id: DOMBuilder.java,v 1.19 2004/02/25 13:07:51 aruny Exp $
  */
 package org.apache.nutch.parse.html;
 
@@ -58,7 +58,7 @@ public class DOMBuilder
   public DocumentFragment m_docFrag = null;
 
   /** Vector of element nodes          */
-  protected Stack m_elemStack = new Stack();
+  protected Stack<Element> m_elemStack = new Stack<Element>();
 
   /**
    * DOMBuilder instance constructor... it will add the DOM nodes
@@ -347,7 +347,7 @@ public class DOMBuilder
           throws org.xml.sax.SAXException
   {
     m_elemStack.pop();
-    m_currentNode = m_elemStack.isEmpty() ? null : (Node)m_elemStack.peek();
+    m_currentNode = m_elemStack.isEmpty() ? null : m_elemStack.peek();
   }
 
   /**

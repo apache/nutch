@@ -27,7 +27,6 @@ import java.util.Arrays;
 import java.util.zip.InflaterInputStream;
 
 //Hadoop imports
-import org.apache.commons.cli.Options;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -85,6 +84,27 @@ public final class Content implements Writable{
     this.metadata = metadata;
 
     this.mimeTypes = new MimeUtil(conf);
+    this.contentType = getContentType(contentType, url, content);
+  }
+  
+  public Content(String url, String base, byte[] content, String contentType,
+      Metadata metadata, MimeUtil mimeTypes) {
+
+    if (url == null)
+      throw new IllegalArgumentException("null url");
+    if (base == null)
+      throw new IllegalArgumentException("null base");
+    if (content == null)
+      throw new IllegalArgumentException("null content");
+    if (metadata == null)
+      throw new IllegalArgumentException("null metadata");
+
+    this.url = url;
+    this.base = base;
+    this.content = content;
+    this.metadata = metadata;
+
+    this.mimeTypes = mimeTypes;
     this.contentType = getContentType(contentType, url, content);
   }
 
@@ -249,26 +269,24 @@ public final class Content implements Writable{
 
   }
 
-  public static void main(String argv[]) throws Exception {
+  public static void main(String args[]) throws Exception {
 
     String usage = "Content (-local | -dfs <namenode:port>) recno segment";
 
-    if (argv.length < 3) {
+    if (args.length < 3) {
       System.out.println("usage:" + usage);
       return;
     }
-    Options opts = new Options();
-    Configuration conf = NutchConfiguration.create();
     
-    GenericOptionsParser parser =
-      new GenericOptionsParser(conf, opts, argv);
-    
-    String[] remainingArgs = parser.getRemainingArgs();
+    GenericOptionsParser optParser =
+      new GenericOptionsParser(NutchConfiguration.create(), args);
+    String[] argv = optParser.getRemainingArgs();
+    Configuration conf = optParser.getConfiguration();
+
     FileSystem fs = FileSystem.get(conf);
-    
     try {
-      int recno = Integer.parseInt(remainingArgs[0]);
-      String segment = remainingArgs[1];
+      int recno = Integer.parseInt(argv[0]);
+      String segment = argv[1];
 
       Path file = new Path(segment, DIR_NAME);
       System.out.println("Reading from file: " + file);

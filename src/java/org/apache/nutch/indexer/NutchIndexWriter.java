@@ -18,10 +18,11 @@ package org.apache.nutch.indexer;
 
 import java.io.IOException;
 
-import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
+import org.apache.nutch.indexer.NutchDocument;
 
 public interface NutchIndexWriter {
-  public void open(JobConf job, String name) throws IOException;
+  public void open(TaskAttemptContext job, String name) throws IOException;
 
   public void write(NutchDocument doc) throws IOException;
 

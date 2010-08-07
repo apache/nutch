@@ -16,59 +16,64 @@
  */
 package org.apache.nutch.indexer.subcollection;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.io.Text;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.apache.nutch.parse.Parse;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
+import org.apache.nutch.collection.CollectionManager;
+import org.apache.nutch.indexer.IndexingException;
+import org.apache.nutch.indexer.IndexingFilter;
+import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.storage.WebPage.Field;
 import org.apache.nutch.util.NutchConfiguration;
 
-import org.apache.nutch.indexer.IndexingFilter;
-import org.apache.nutch.indexer.IndexingException;
-import org.apache.nutch.indexer.NutchDocument;
+public class SubcollectionIndexingFilter extends Configured implements
+		IndexingFilter {
 
-import org.apache.nutch.collection.CollectionManager;
-import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.crawl.Inlinks;
+	public SubcollectionIndexingFilter() {
+		super(NutchConfiguration.create());
+	}
 
+	public SubcollectionIndexingFilter(Configuration conf) {
+		super(conf);
+	}
 
-public class SubcollectionIndexingFilter extends Configured implements IndexingFilter {
+	/**
+	 * Doc field name
+	 */
+	public static final String FIELD_NAME = "subcollection";
 
-  public SubcollectionIndexingFilter(){
-    super(NutchConfiguration.create());
-  }
-  
-  public SubcollectionIndexingFilter(Configuration conf) {
-    super(conf);
-  }
+	/**
+	 * Logger
+	 */
+	public static final Log LOG = LogFactory
+			.getLog(SubcollectionIndexingFilter.class);
 
-  /**
-   * Doc field name
-   */
-  public static final String FIELD_NAME = "subcollection";
+	/**
+	 * "Mark" document to be a part of subcollection
+	 * 
+	 * @param doc
+	 * @param url
+	 */
+	private void addSubCollectionField(NutchDocument doc, String url) {
+		String collname = CollectionManager.getCollectionManager(getConf())
+				.getSubCollections(url);
+		doc.add(FIELD_NAME, collname);
+	}
 
-  /**
-   * Logger
-   */
-  public static final Log LOG = LogFactory.getLog(SubcollectionIndexingFilter.class);
+	@Override
+	public Collection<Field> getFields() {
+		return new ArrayList<Field>();
+	}
 
-  /**
-   * "Mark" document to be a part of subcollection
-   * 
-   * @param doc
-   * @param url
-   */
-  private void addSubCollectionField(NutchDocument doc, String url) {
-    String collname = CollectionManager.getCollectionManager(getConf()).getSubCollections(url);
-    doc.add(FIELD_NAME, collname);
-  }
-
-  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks) throws IndexingException {
-    String sUrl = url.toString();
-    addSubCollectionField(doc, sUrl);
-    return doc;
-  }
+	@Override
+	public NutchDocument filter(NutchDocument doc, String url, WebPage page)
+			throws IndexingException {
+		addSubCollectionField(doc, url);
+		return doc;
+	}
 }

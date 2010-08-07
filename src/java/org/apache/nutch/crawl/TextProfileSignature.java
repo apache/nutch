@@ -17,22 +17,16 @@
 
 package org.apache.nutch.crawl;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 
 import org.apache.hadoop.io.MD5Hash;
-import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.ParseImpl;
-import org.apache.nutch.protocol.Content;
-import org.apache.nutch.util.StringUtil;
-import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.storage.WebPage;
 
 /**
  * <p>An implementation of a page signature. It calculates an MD5 hash
@@ -56,20 +50,27 @@ import org.apache.nutch.util.NutchConfiguration;
  * in the order of decreasing frequency.</li>
  * </ul>
  * This list is then submitted to an MD5 hash calculation.
- * 
+ *
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
 public class TextProfileSignature extends Signature {
-  
+
+  private final static Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
+
+  static {
+    FIELDS.add(WebPage.Field.CONTENT);
+  }
+
   Signature fallback = new MD5Signature();
 
-  public byte[] calculate(Content content, Parse parse) {
+  @Override
+  public byte[] calculate(WebPage page) {
     int MIN_TOKEN_LEN = getConf().getInt("db.signature.text_profile.min_token_len", 2);
     float QUANT_RATE = getConf().getFloat("db.signature.text_profile.quant_rate", 0.01f);
     HashMap<String, Token> tokens = new HashMap<String, Token>();
     String text = null;
-    if (parse != null) text = parse.getText();
-    if (text == null || text.length() == 0) return fallback.calculate(content, parse);
+    if (page.getText() != null) text = page.getText().toString();
+    if (text == null || text.length() == 0) return fallback.calculate(page);
     StringBuffer curToken = new StringBuffer();
     int maxFreq = 0;
     for (int i = 0; i < text.length(); i++) {
@@ -133,50 +134,30 @@ public class TextProfileSignature extends Signature {
     }
     return MD5Hash.digest(newText.toString()).getDigest();
   }
-  
+
+  @Override
+  public Collection<WebPage.Field> getFields() {
+    return FIELDS;
+  }
+
   private static class Token {
     public int cnt;
     public String val;
-    
+
     public Token(int cnt, String val) {
       this.cnt = cnt;
       this.val = val;
     }
-    
+
+    @Override
     public String toString() {
       return val + " " + cnt;
     }
   }
-  
+
   private static class TokenComparator implements Comparator<Token> {
     public int compare(Token t1, Token t2) {
       return t2.cnt - t1.cnt;
-    }
-  }
-  
-  public static void main(String[] args) throws Exception {
-    TextProfileSignature sig = new TextProfileSignature();
-    sig.setConf(NutchConfiguration.create());
-    HashMap<String, byte[]> res = new HashMap<String, byte[]>();
-    File[] files = new File(args[0]).listFiles();
-    for (int i = 0; i < files.length; i++) {
-      FileInputStream fis = new FileInputStream(files[i]);
-      BufferedReader br = new BufferedReader(new InputStreamReader(fis, "UTF-8"));
-      StringBuffer text = new StringBuffer();
-      String line = null;
-      while ((line = br.readLine()) != null) {
-        if (text.length() > 0) text.append("\n");
-        text.append(line);
-      }
-      br.close();
-      byte[] signature = sig.calculate(null, new ParseImpl(text.toString(), null));
-      res.put(files[i].toString(), signature);
-    }
-    Iterator<String> it = res.keySet().iterator();
-    while (it.hasNext()) {
-      String name = it.next();
-      byte[] signature = res.get(name);
-      System.out.println(name + "\t" + StringUtil.toHexString(signature));
     }
   }
 }

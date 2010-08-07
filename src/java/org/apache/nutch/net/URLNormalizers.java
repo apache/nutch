@@ -81,9 +81,9 @@ public final class URLNormalizers {
   public static final String SCOPE_DEFAULT = "default";
   /** Scope used by {@link org.apache.nutch.crawl.URLPartitioner}. */
   public static final String SCOPE_PARTITION = "partition";
-  /** Scope used by {@link org.apache.nutch.crawl.Generator}. */
+  /** Scope used by {@link org.apache.nutch.crawl.GeneratorJob}. */
   public static final String SCOPE_GENERATE_HOST_COUNT = "generate_host_count";
-  /** Scope used by {@link org.apache.nutch.fetcher.Fetcher} when processing
+  /** Scope used by {@link org.apache.nutch.fetcher.FetcherJob} when processing
    * redirect URLs.
    */
   public static final String SCOPE_FETCHER = "fetcher";
@@ -91,7 +91,7 @@ public final class URLNormalizers {
   public static final String SCOPE_CRAWLDB = "crawldb";
   /** Scope used when updating the LinkDb with new URLs. */
   public static final String SCOPE_LINKDB = "linkdb";
-  /** Scope used by {@link org.apache.nutch.crawl.Injector}. */
+  /** Scope used by {@link org.apache.nutch.crawl.InjectorJob}. */
   public static final String SCOPE_INJECT = "inject";
   /** Scope used when constructing new {@link org.apache.nutch.parse.Outlink} instances. */
   public static final String SCOPE_OUTLINK = "outlink";

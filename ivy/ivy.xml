@@ -66,25 +66,48 @@
 		<dependency org="org.apache.lucene" name="lucene-core" rev="3.0.2"/> 
 		<dependency org="org.apache.lucene" name="lucene-misc" rev="3.0.2"/>
 		<dependency org="org.apache.tika" name="tika-core" rev="0.7" />
-		<dependency org="org.mortbay.jetty" name="jetty-client" rev="6.1.22" />
+		<dependency org="org.apache.tika" name="tika-parsers" rev="0.7" >
+			<exclude org="com.sun.jdmk"/>
+			<exclude org="com.sun.jmx"/>
+			<exclude org="javax.jms"/>
+		</dependency>
 
-		<dependency org="log4j" name="log4j" rev="1.2.15" conf="*->master" />
+		<dependency org="log4j" name="log4j" rev="1.2.15" conf="*->master" >
+			<exclude org="com.sun.jdmk"/>
+			<exclude org="com.sun.jmx"/>
+			<exclude org="javax.jms"/>
+		</dependency>
 
 		<dependency org="xerces" name="xercesImpl" rev="2.6.2" />
 		<dependency org="xerces" name="xmlParserAPIs" rev="2.6.2" />
 		<dependency org="oro" name="oro" rev="2.0.8" />
 
+    		<dependency org="com.healthmarketscience.sqlbuilder" name="sqlbuilder" rev="2.0.6"
+			conf="*->default"/>
+		<dependency org="org.jdom" name="jdom" rev="1.1" conf="*->default"/>
+
 		<!--Configuration: test -->
 
 		<!--artifacts needed for testing -->
 		<dependency org="junit" name="junit" rev="3.8.1" conf="test->default" />
+
 		<dependency org="org.apache.hadoop" name="hadoop-test" rev="0.20.2"
-			conf="test->default" />
+			conf="test->default">
+			<exclude org="hsqldb" name="hsqldb" />
+			<exclude org="net.sf.kosmosfs" name="kfs" />
+			<exclude org="net.java.dev.jets3t" name="jets3t" />
+			<exclude org="org.eclipse.jdt" name="core" />
+			<exclude org="org.mortbay.jetty" name="jsp-*" />
+		</dependency>
 
 		<dependency org="org.mortbay.jetty" name="jetty" rev="6.1.22"
 			conf="test->default" />
 		<dependency org="org.mortbay.jetty" name="jetty-util" rev="6.1.22"
 			conf="test->default" />
+		<dependency org="org.mortbay.jetty" name="jetty-client" rev="6.1.22" />
+
+		<dependency org="org.hsqldb" name="hsqldb" rev="2.0.0" conf="*->default"/>
+		<dependency org="org.jdom" name="jdom" rev="1.1" conf="test->default"/>
 
 	</dependencies>
 

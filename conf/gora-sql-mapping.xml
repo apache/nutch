@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<gora-orm>
+
+<class name="org.apache.nutch.storage.WebPage" keyClass="java.lang.String" table="webpage">
+  <primarykey column="id" length="512"/>
+    <field name="baseUrl" column="baseUrl" length="512"/>    
+    <field name="status" column="status"/>
+    <field name="prevFetchTime" column="prevFetchTime"/>
+    <field name="fetchTime" column="fetchTime"/>
+    <field name="fetchInterval" column="fetchInterval"/>
+    <field name="retriesSinceFetch" column="retriesSinceFetch"/>
+    <field name="reprUrl" column="reprUrl" length="512"/>
+    <field name="content" column="content"/>
+    <field name="contentType" column="typ" length="32"/>    
+    <field name="protocolStatus" column="protocolStatus"/>
+    <field name="modifiedTime" column="modifiedTime"/>
+
+    <!-- parse fields                                       -->
+    <field name="title" column="title" length="512"/>
+    <field name="text" column="text" length="32000"/>
+    <field name="parseStatus" column="parseStatus"/>
+    <field name="signature" column="signature"/>
+    <field name="prevSignature" column="prevSignature"/>
+
+    <!-- score fields                                       -->
+    <field name="score" column="score"/>
+
+    <field name="headers" column="headers"/>
+
+    <field name="inlinks" column="inlinks"/>
+    
+    <field name="outlinks" column="outlinks"/>
+    
+    <field name="metadata" column="metadata"/>
+
+    <field name="markers" column="markers"/>
+</class>
+
+</gora-orm>

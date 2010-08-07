@@ -44,9 +44,7 @@ public class TestbedProxy {
    */
   public static void main(String[] args) throws Exception {
     if (args.length == 0) {
-      System.err.println("TestbedProxy [-seg <segment_name> | -segdir <segments>] [-port <nnn>] [-forward] [-fake] [-delay nnn] [-debug]");
-      System.err.println("-seg <segment_name>\tpath to a single segment (can be specified multiple times)");
-      System.err.println("-segdir <segments>\tpath to a parent directory of multiple segments (as above)");
+      System.err.println("TestbedProxy [-port <nnn>] [-forward] [-fake] [-delay nnn] [-debug]");
       System.err.println("-port <nnn>\trun the proxy on port <nnn> (special permissions may be needed for ports < 1024)");
       System.err.println("-forward\tif specified, requests to all unknown urls will be passed to");
       System.err.println("\t\toriginal servers. If false (default) unknown urls generate 404 Not Found.");
@@ -63,14 +61,8 @@ public class TestbedProxy {
     boolean debug = false;
     int delayVal = 0;
     
-    HashSet<Path> segs = new HashSet<Path>();
     for (int i = 0; i < args.length; i++) {
-      if (args[i].equals("-segdir")) {
-        FileSystem fs = FileSystem.get(conf);
-        FileStatus[] fstats = fs.listStatus(new Path(args[++i]));
-        Path[] paths = HadoopFSUtil.getPaths(fstats);
-        segs.addAll(Arrays.asList(paths));
-      } else if (args[i].equals("-port")) {
+      if (args[i].equals("-port")) {
         port = Integer.parseInt(args[++i]);
       } else if (args[i].equals("-forward")) {
         forward = true;
@@ -81,8 +73,6 @@ public class TestbedProxy {
         fake = true;
       } else if (args[i].equals("-debug")) {
         debug = true;
-      } else if (args[i].equals("-seg")) {
-        segs.add(new Path(args[++i]));
       } else {
         LOG.fatal("Unknown argument: " + args[i]);
         System.exit(-1);
@@ -114,17 +104,6 @@ public class TestbedProxy {
     // XXX to activate handler plugins and redirect requests to appropriate
     // XXX handlers ... Here we always load these handlers
 
-    Iterator<Path> it = segs.iterator();
-    while (it.hasNext()) {
-      Path p = it.next();
-      try {
-        SegmentHandler segment = new SegmentHandler(conf, p);
-        list.addHandler(segment);
-        LOG.info("* Added segment handler for: " + p);
-      } catch (Exception e) {
-        LOG.warn("Skipping segment '" + p + "': " + StringUtils.stringifyException(e));
-      }
-    }
     if (forward) {
       LOG.info("* Adding forwarding proxy for all unknown urls ...");
       ServletHandler servlets = new ServletHandler();

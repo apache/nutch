@@ -17,15 +17,34 @@
 
 package org.apache.nutch.util;
 
+import java.io.IOException;
+
+import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapreduce.Job;
+import org.apache.nutch.metadata.Nutch;
 
-/** A {@link JobConf} for Nutch jobs.  */
-public class NutchJob extends JobConf {
+/** A {@link Job} for Nutch jobs.  */
+public class NutchJob extends Job {
 
-  public NutchJob(Configuration conf) {
-    super(conf, NutchJob.class);
+  public NutchJob(Configuration conf) throws IOException {
+    super(conf);
+    setJarByClass(this.getClass());
   }
 
-}
+  public NutchJob(Configuration conf, String jobName) throws IOException {
+    super(conf, jobName);
+    setJarByClass(this.getClass());
+  }
 
+  public static boolean shouldProcess(Utf8 mark, Utf8 crawlId) {
+    if (mark == null) {
+      return false;
+    }
+    boolean isAll = crawlId.equals(Nutch.ALL_CRAWL_ID);
+    if (!isAll && !mark.equals(crawlId)) {
+      return false;
+    }
+    return true;
+  }
+}

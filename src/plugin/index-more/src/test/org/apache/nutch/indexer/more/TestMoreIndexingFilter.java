@@ -16,21 +16,17 @@
  */
 package org.apache.nutch.indexer.more;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Text;
-import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.nutch.crawl.Inlinks;
-import org.apache.nutch.indexer.IndexingException;
-import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.net.protocols.Response;
-import org.apache.nutch.parse.Outlink;
-import org.apache.nutch.parse.ParseData;
-import org.apache.nutch.parse.ParseImpl;
-import org.apache.nutch.parse.ParseStatus;
-import org.apache.nutch.util.NutchConfiguration;
+import java.nio.ByteBuffer;
 
 import junit.framework.TestCase;
+
+import org.apache.avro.util.Utf8;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.indexer.IndexingException;
+import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.util.EncodingDetector;
+import org.apache.nutch.util.NutchConfiguration;
 
 public class TestMoreIndexingFilter extends TestCase {
 
@@ -54,13 +50,14 @@ public class TestMoreIndexingFilter extends TestCase {
   }
   
   private void assertContentType(Configuration conf, String source, String expected) throws IndexingException {
-    Metadata metadata = new Metadata();
-    metadata.add(Response.CONTENT_TYPE, source);
     MoreIndexingFilter filter = new MoreIndexingFilter();
     filter.setConf(conf);
-    NutchDocument doc = filter.filter(new NutchDocument(), new ParseImpl("text", new ParseData(
-        new ParseStatus(), "title", new Outlink[0], metadata)), new Text(
-        "http://www.example.com/"), new CrawlDatum(), new Inlinks());
+    WebPage page = new WebPage();
+    String url = "http://www.example.com/";
+    page.setContent(ByteBuffer.wrap("text".getBytes()));
+    page.setTitle(new Utf8("title"));
+    page.putToHeaders(EncodingDetector.CONTENT_TYPE_UTF8, new Utf8(source));
+    NutchDocument doc = filter.filter(new NutchDocument(), url, page);
     assertEquals("mime type not detected", expected, doc.getFieldValue("type"));
   }
 }

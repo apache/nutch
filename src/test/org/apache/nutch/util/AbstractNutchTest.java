@@ -1,0 +1,85 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package org.apache.nutch.util;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+
+import junit.framework.TestCase;
+
+import org.apache.avro.util.Utf8;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.nutch.crawl.URLWebPage;
+import org.apache.nutch.storage.Mark;
+import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.util.TableUtil;
+import org.gora.query.Query;
+import org.gora.query.Result;
+import org.gora.sql.store.SqlStore;
+import org.gora.store.DataStore;
+import org.gora.store.DataStoreFactory;
+import org.gora.util.ByteUtils;
+
+/**
+ * This class provides common routines for setup/teardown of an in-memory data
+ * store.
+ */
+public class AbstractNutchTest extends TestCase {
+
+  protected Configuration conf;
+  protected FileSystem fs;
+  protected Path testdir = new Path("build/test/inject-test");
+  protected DataStore<String, WebPage> webPageStore;
+  protected boolean persistentDataStore = false;
+  
+  @Override
+  public void setUp() throws Exception {
+    super.setUp();
+    conf = CrawlTestUtil.createConfiguration();
+    fs = FileSystem.get(conf);
+    // using hsqldb in memory
+    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.driver","org.hsqldb.jdbcDriver");
+    // use separate in-memory db-s for tests
+    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.url","jdbc:hsqldb:mem:" + getClass().getName());
+    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.user","sa");
+    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.password","");
+    if (persistentDataStore) {
+      webPageStore = DataStoreFactory.getDataStore(SqlStore.class,
+          String.class, WebPage.class);      
+    } else {
+      webPageStore = DataStoreFactory.createDataStore(SqlStore.class,
+          String.class, WebPage.class);
+    }
+  }
+
+  @Override
+  public void tearDown() throws Exception {
+    // empty the database after test
+    if (!persistentDataStore) {
+      webPageStore.deleteByQuery(webPageStore.newQuery());
+      webPageStore.flush();
+      webPageStore.close();
+    }
+    super.tearDown();
+    fs.delete(testdir, true);
+  }
+
+}

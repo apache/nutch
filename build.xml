@@ -171,7 +171,7 @@
     <javac 
      encoding="${build.encoding}" 
      srcdir="${test.src.dir}"
-     includes="org/apache/nutch/**/*.java"
+     includes="org/apache/nutch*/**/*.java"
      destdir="${test.build.classes}"
      debug="${javac.debug}"
      optimize="${javac.optimize}"
@@ -218,7 +218,7 @@
 	<fail if="pmd.stop">FAILURE: PMD shows ${pmd.failures} rule violations. See ${pmd.report} for details.</fail>
   </target>
 
-  <target name="proxy" depends="job, compile-core-test">
+  <target name="proxy" depends="job">
     <java classname="org.apache.nutch.tools.proxy.TestbedProxy" fork="true">
       <classpath refid="test.classpath"/>
       <arg value="-fake"/>
@@ -227,6 +227,16 @@
       <arg value="-200"/>
 -->
       <jvmarg line="-Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
+    </java>
+  </target>
+
+  <target name="rundb">
+    <java classname="org.hsqldb.server.Server" fork="true">
+      <classpath refid="test.classpath"/>
+      <arg value="--database.0"/>
+      <arg value="file:data/benchmark"/>
+      <arg value="--dbname.0"/>
+      <arg value="nutchtest"/>
     </java>
   </target>
 
@@ -242,6 +252,7 @@
       <arg value="5"/>
     </java>
   </target>
+
 
   <!-- ================================================================== -->
   <!-- Run unit tests                                                     --> 
@@ -296,13 +307,13 @@
   <!-- ================================================================== -->
 
   <!-- target: resolve  ================================================= -->
-  <target name="resolve-default" depends="clean-lib" description="--> resolve and retrieve dependencies with ivy">
+  <target name="resolve-default" depends="clean-lib, init" description="--> resolve and retrieve dependencies with ivy">
     <ivy:resolve file="${ivy.file}" conf="default" log="download-only"/>
     <ivy:retrieve pattern="${build.lib.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
     <antcall target="copy-libs"/>
   </target>
 
-  <target name="resolve-test" depends="clean-lib" description="--> resolve and retrieve dependencies with ivy">
+  <target name="resolve-test" depends="clean-lib, init" description="--> resolve and retrieve dependencies with ivy">
     <ivy:resolve file="${ivy.file}" conf="test" log="download-only"/>
     <ivy:retrieve pattern="${build.lib.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
     <antcall target="copy-libs"/>

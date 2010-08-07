@@ -17,79 +17,70 @@
 package org.apache.nutch.analysis.lang;
 
 // JDK imports
-import java.io.File;
-import java.io.InputStream;
-import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.List;
-import java.util.Vector;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
-import java.util.Enumeration;
+import java.util.Vector;
 
-// Commons Logging imports
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Text;
-
-// Nutch imports
 import org.apache.nutch.analysis.lang.NGramProfile.NGramEntry;
-import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
+import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParserNotFound;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.ProtocolNotFound;
-import org.apache.nutch.protocol.ProtocolException;
+import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
-
 
 /**
  * Identify the language of a content, based on statistical analysis.
- *
- * @see <a href="http://www.w3.org/WAI/ER/IG/ert/iso639.htm">ISO 639
- *      Language Codes</a>
+ * 
+ * @see <a href="http://www.w3.org/WAI/ER/IG/ert/iso639.htm">ISO 639 Language
+ *      Codes</a>
  * 
  * @author Sami Siren
  * @author J&eacute;r&ocirc;me Charron
  */
 public class LanguageIdentifier {
-  
- 
-  private final static int DEFAULT_ANALYSIS_LENGTH = 0;    // 0 means full content
+
+  private final static int DEFAULT_ANALYSIS_LENGTH = 0; // 0 means full content
 
   private final static Log LOG = LogFactory.getLog(LanguageIdentifier.class);
-  
+
   private ArrayList<NGramProfile> languages = new ArrayList<NGramProfile>();
 
   private ArrayList<String> supportedLanguages = new ArrayList<String>();
 
   /** Minimum size of NGrams */
   private int minLength = NGramProfile.DEFAULT_MIN_NGRAM_LENGTH;
-  
+
   /** Maximum size of NGrams */
   private int maxLength = NGramProfile.DEFAULT_MAX_NGRAM_LENGTH;
-  
+
   /** The maximum amount of data to analyze */
   private int analyzeLength = DEFAULT_ANALYSIS_LENGTH;
-  
+
   /** A global index of ngrams of all supported languages */
   private HashMap<CharSequence, NGramEntry[]> ngramsIdx = new HashMap<CharSequence, NGramEntry[]>();
 
   /** The NGramProfile used for identification */
   private NGramProfile suspect = null;
-
 
   /**
    * Constructs a new Language Identifier.
@@ -98,9 +89,9 @@ public class LanguageIdentifier {
 
     // Gets ngram sizes to take into account from the Nutch Config
     minLength = conf.getInt("lang.ngram.min.length",
-                                       NGramProfile.DEFAULT_MIN_NGRAM_LENGTH);
+        NGramProfile.DEFAULT_MIN_NGRAM_LENGTH);
     maxLength = conf.getInt("lang.ngram.max.length",
-                                       NGramProfile.DEFAULT_MAX_NGRAM_LENGTH);
+        NGramProfile.DEFAULT_MAX_NGRAM_LENGTH);
     // Ensure the min and max values are in an acceptale range
     // (ie min >= DEFAULT_MIN_NGRAM_LENGTH and max <= DEFAULT_MAX_NGRAM_LENGTH)
     maxLength = Math.min(maxLength, NGramProfile.ABSOLUTE_MAX_NGRAM_LENGTH);
@@ -110,28 +101,30 @@ public class LanguageIdentifier {
 
     // Gets the value of the maximum size of data to analyze
     analyzeLength = conf.getInt("lang.analyze.max.length",
-                                           DEFAULT_ANALYSIS_LENGTH);
-    
+        DEFAULT_ANALYSIS_LENGTH);
+
     Properties p = new Properties();
     try {
       p.load(this.getClass().getResourceAsStream("langmappings.properties"));
 
       Enumeration alllanguages = p.keys();
-     
-      if (LOG.isInfoEnabled()) { 
-        LOG.info(new StringBuffer()
-                  .append("Language identifier configuration [")
-                  .append(minLength).append("-").append(maxLength)
-                  .append("/").append(analyzeLength).append("]").toString());
+
+      if (LOG.isInfoEnabled()) {
+        LOG.info(new StringBuffer().append(
+            "Language identifier configuration [").append(minLength)
+            .append("-").append(maxLength).append("/").append(analyzeLength)
+            .append("]").toString());
       }
 
-      StringBuffer list = new StringBuffer("Language identifier plugin supports:");
+      StringBuffer list = new StringBuffer(
+          "Language identifier plugin supports:");
       HashMap<NGramEntry, List<NGramEntry>> tmpIdx = new HashMap<NGramEntry, List<NGramEntry>>();
       while (alllanguages.hasMoreElements()) {
         String lang = (String) (alllanguages.nextElement());
 
         InputStream is = this.getClass().getClassLoader().getResourceAsStream(
-                "org/apache/nutch/analysis/lang/" + lang + "." + NGramProfile.FILE_EXTENSION);
+            "org/apache/nutch/analysis/lang/" + lang + "."
+                + NGramProfile.FILE_EXTENSION);
 
         if (is != null) {
           NGramProfile profile = new NGramProfile(lang, minLength, maxLength);
@@ -140,20 +133,22 @@ public class LanguageIdentifier {
             languages.add(profile);
             supportedLanguages.add(lang);
             List<NGramEntry> ngrams = profile.getSorted();
-            for (int i=0; i<ngrams.size(); i++) {
-                NGramEntry entry = ngrams.get(i);
-                List<NGramEntry> registered = tmpIdx.get(entry);
-                if (registered == null) {
-                    registered = new ArrayList<NGramEntry>();
-                    tmpIdx.put(entry, registered);
-                }
-                registered.add(entry);
-                entry.setProfile(profile);
+            for (int i = 0; i < ngrams.size(); i++) {
+              NGramEntry entry = ngrams.get(i);
+              List<NGramEntry> registered = tmpIdx.get(entry);
+              if (registered == null) {
+                registered = new ArrayList<NGramEntry>();
+                tmpIdx.put(entry, registered);
+              }
+              registered.add(entry);
+              entry.setProfile(profile);
             }
             list.append(" " + lang + "(" + ngrams.size() + ")");
             is.close();
           } catch (IOException e1) {
-            if (LOG.isFatalEnabled()) { LOG.fatal(e1.toString()); }
+            if (LOG.isFatalEnabled()) {
+              LOG.fatal(e1.toString());
+            }
           }
         }
       }
@@ -167,18 +162,22 @@ public class LanguageIdentifier {
           ngramsIdx.put(entry.getSeq(), array);
         }
       }
-      if (LOG.isInfoEnabled()) { LOG.info(list.toString()); }
+      if (LOG.isInfoEnabled()) {
+        LOG.info(list.toString());
+      }
       // Create the suspect profile
       suspect = new NGramProfile("suspect", minLength, maxLength);
     } catch (Exception e) {
-      if (LOG.isFatalEnabled()) { LOG.fatal(e.toString()); }
+      if (LOG.isFatalEnabled()) {
+        LOG.fatal(e.toString());
+      }
     }
   }
 
-
   /**
-   * Main method used for command line process.
-   * <br/>Usage is:
+   * Main method used for command line process. <br/>
+   * Usage is:
+   * 
    * <pre>
    * LanguageIdentifier [-identifyrows filename maxlines]
    *                    [-identifyfile charset filename]
@@ -186,16 +185,17 @@ public class LanguageIdentifier {
    *                    [-identifytext text]
    *                    [-identifyurl url]
    * </pre>
-   * @param args arguments.
+   * 
+   * @param args
+   *          arguments.
    */
   public static void main(String args[]) {
 
-    String usage = "Usage: LanguageIdentifier "            +
-                      "[-identifyrows filename maxlines] " +
-                      "[-identifyfile charset filename] "  +
-                      "[-identifyfileset charset files] "  +
-                      "[-identifytext text] "              +
-                      "[-identifyurl url]";
+    String usage = "Usage: LanguageIdentifier "
+        + "[-identifyrows filename maxlines] "
+        + "[-identifyfile charset filename] "
+        + "[-identifyfileset charset files] " + "[-identifytext text] "
+        + "[-identifyurl url]";
     int command = 0;
 
     final int IDFILE = 1;
@@ -246,11 +246,11 @@ public class LanguageIdentifier {
           File[] files = null;
           File f = new File(args[i]);
           if (f.isDirectory()) {
-              files = f.listFiles();
+            files = f.listFiles();
           } else {
-              files = new File[] { f };
+            files = new File[] { f };
           }
-          for (int j=0; j<files.length; j++) {
+          for (int j = 0; j < files.length; j++) {
             fileset.add(files[j].getAbsolutePath());
           }
         }
@@ -260,70 +260,72 @@ public class LanguageIdentifier {
 
     Configuration conf = NutchConfiguration.create();
     String lang = null;
-    //LanguageIdentifier idfr = LanguageIdentifier.getInstance();
+    // LanguageIdentifier idfr = LanguageIdentifier.getInstance();
     LanguageIdentifier idfr = new LanguageIdentifier(conf);
     File f;
     FileInputStream fis;
     try {
       switch (command) {
 
-        case IDTEXT:
-          lang = idfr.identify(text);
-          break;
+      case IDTEXT:
+        lang = idfr.identify(text);
+        break;
 
-        case IDFILE:
-          f = new File(filename);
-          fis = new FileInputStream(f);
-          lang = idfr.identify(fis, charset);
-          fis.close();
-          break;
+      case IDFILE:
+        f = new File(filename);
+        fis = new FileInputStream(f);
+        lang = idfr.identify(fis, charset);
+        fis.close();
+        break;
 
-        case IDURL:
-          text = getUrlContent(filename, conf);
-          lang = idfr.identify(text);
-          break;
+      case IDURL:
+        text = getUrlContent(filename, conf);
+        lang = idfr.identify(text);
+        break;
 
-        case IDROWS:
-          f = new File(filename);
-          BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(f)));
-          String line;
-          while (max > 0 && (line = br.readLine()) != null) {
-            line = line.trim();
-            if (line.length() > 2) {
-              max--;
-              lang = idfr.identify(line);
-              System.out.println("R=" + lang + ":" + line);
-            }
+      case IDROWS:
+        f = new File(filename);
+        BufferedReader br = new BufferedReader(new InputStreamReader(
+            new FileInputStream(f)));
+        String line;
+        while (max > 0 && (line = br.readLine()) != null) {
+          line = line.trim();
+          if (line.length() > 2) {
+            max--;
+            lang = idfr.identify(line);
+            System.out.println("R=" + lang + ":" + line);
           }
+        }
 
-          br.close();
-          System.exit(0);
-          break;
+        br.close();
+        System.exit(0);
+        break;
 
-        case IDFILESET:
-          /* used for benchs
-          for (int j=128; j<=524288; j*=2) {
-            long start = System.currentTimeMillis();
-            idfr.analyzeLength = j; */
-          System.out.println("FILESET");
-          Iterator<String> i = fileset.iterator();
-          while (i.hasNext()) {
-            try {
-              filename = i.next();
-              f = new File(filename);
-              fis = new FileInputStream(f);
-              lang = idfr.identify(fis, charset);
-              fis.close();
-            } catch (Exception e) {
-              System.out.println(e);
-            }
-            System.out.println(filename + " was identified as " + lang);
+      case IDFILESET:
+        /*
+         * used for benchs for (int j=128; j<=524288; j*=2) { long start =
+         * System.currentTimeMillis(); idfr.analyzeLength = j;
+         */
+        System.out.println("FILESET");
+        Iterator<String> i = fileset.iterator();
+        while (i.hasNext()) {
+          try {
+            filename = i.next();
+            f = new File(filename);
+            fis = new FileInputStream(f);
+            lang = idfr.identify(fis, charset);
+            fis.close();
+          } catch (Exception e) {
+            System.out.println(e);
           }
-          /* used for benchs
-            System.out.println(j + "/" + (System.currentTimeMillis()-start));
-          } */
-          System.exit(0);
-          break;
+          System.out.println(filename + " was identified as " + lang);
+        }
+        /*
+         * used for benchs System.out.println(j + "/" +
+         * (System.currentTimeMillis()-start)); }
+         */
+        System.exit(0);
+        break;
       }
     } catch (Exception e) {
       System.out.println(e);
@@ -339,8 +341,10 @@ public class LanguageIdentifier {
     Protocol protocol;
     try {
       protocol = new ProtocolFactory(conf).getProtocol(url);
-      Content content = protocol.getProtocolOutput(new Text(url), new CrawlDatum()).getContent();
-      Parse parse = new ParseUtil(conf).parse(content).get(content.getUrl());
+      WebPage page = new WebPage();
+      Content content = protocol.getProtocolOutput(url, page).getContent();
+      page.setContent(ByteBuffer.wrap(content.getContent()));
+      Parse parse = new ParseUtil(conf).parse(url, page);
       System.out.println("text:" + parse.getText());
       return parse.getText();
 
@@ -357,11 +361,12 @@ public class LanguageIdentifier {
   /**
    * Identify language of a content.
    * 
-   * @param content is the content to analyze.
-   * @return The 2 letter
-   *         <a href="http://www.w3.org/WAI/ER/IG/ert/iso639.htm">ISO 639
-   *         language code</a> (en, fi, sv, ...) of the language that best
-   *         matches the specified content.
+   * @param content
+   *          is the content to analyze.
+   * @return The 2 letter <a
+   *         href="http://www.w3.org/WAI/ER/IG/ert/iso639.htm">ISO 639 language
+   *         code</a> (en, fi, sv, ...) of the language that best matches the
+   *         specified content.
    */
   public String identify(String content) {
     return identify(new StringBuilder(content));
@@ -370,18 +375,19 @@ public class LanguageIdentifier {
   /**
    * Identify language of a content.
    * 
-   * @param content is the content to analyze.
-   * @return The 2 letter
-   *         <a href="http://www.w3.org/WAI/ER/IG/ert/iso639.htm">ISO 639
-   *         language code</a> (en, fi, sv, ...) of the language that best
-   *         matches the specified content.
+   * @param content
+   *          is the content to analyze.
+   * @return The 2 letter <a
+   *         href="http://www.w3.org/WAI/ER/IG/ert/iso639.htm">ISO 639 language
+   *         code</a> (en, fi, sv, ...) of the language that best matches the
+   *         specified content.
    */
   public String identify(StringBuilder content) {
 
-	StringBuilder text = content;
+    StringBuilder text = content;
     if ((analyzeLength > 0) && (content.length() > analyzeLength)) {
-        text = new StringBuilder().append(content);
-        text.setLength(analyzeLength);
+      text = new StringBuilder().append(content);
+      text.setLength(analyzeLength);
     }
 
     suspect.analyze(text);
@@ -390,57 +396,61 @@ public class LanguageIdentifier {
     String lang = "";
     HashMap<NGramProfile, Float> scores = new HashMap<NGramProfile, Float>();
     NGramEntry searched = null;
-    
+
     while (iter.hasNext()) {
-        searched = iter.next();
-        NGramEntry[] ngrams = ngramsIdx.get(searched.getSeq());
-        if (ngrams != null) {
-            for (int j=0; j<ngrams.length; j++) {
-                NGramProfile profile = ngrams[j].getProfile();
-                Float pScore = scores.get(profile);
-                if (pScore == null) {
-                    pScore = new Float(0);
-                }
-                float plScore = pScore.floatValue();
-                plScore += ngrams[j].getFrequency() + searched.getFrequency();
-                scores.put(profile, new Float(plScore));
-                if (plScore > topscore) {
-                    topscore = plScore;
-                    lang = profile.getName();
-                }
-            }
+      searched = iter.next();
+      NGramEntry[] ngrams = ngramsIdx.get(searched.getSeq());
+      if (ngrams != null) {
+        for (int j = 0; j < ngrams.length; j++) {
+          NGramProfile profile = ngrams[j].getProfile();
+          Float pScore = scores.get(profile);
+          if (pScore == null) {
+            pScore = new Float(0);
+          }
+          float plScore = pScore.floatValue();
+          plScore += ngrams[j].getFrequency() + searched.getFrequency();
+          scores.put(profile, new Float(plScore));
+          if (plScore > topscore) {
+            topscore = plScore;
+            lang = profile.getName();
+          }
         }
+      }
     }
     return lang;
   }
 
   /**
-   * Identify language from input stream.
-   * This method uses the platform default encoding to read the input stream.
-   * For using a specific encoding, use the
+   * Identify language from input stream. This method uses the platform default
+   * encoding to read the input stream. For using a specific encoding, use the
    * {@link #identify(InputStream, String)} method.
-   *
-   * @param is is the input stream to analyze.
-   * @return The 2 letter
-   *         <a href="http://www.w3.org/WAI/ER/IG/ert/iso639.htm">ISO 639
-   *         language code</a> (en, fi, sv, ...) of the language that best
-   *         matches the content of the specified input stream.
-   * @throws IOException if something wrong occurs on the input stream.
+   * 
+   * @param is
+   *          is the input stream to analyze.
+   * @return The 2 letter <a
+   *         href="http://www.w3.org/WAI/ER/IG/ert/iso639.htm">ISO 639 language
+   *         code</a> (en, fi, sv, ...) of the language that best matches the
+   *         content of the specified input stream.
+   * @throws IOException
+   *           if something wrong occurs on the input stream.
    */
   public String identify(InputStream is) throws IOException {
     return identify(is, null);
   }
-  
+
   /**
    * Identify language from input stream.
    * 
-   * @param is is the input stream to analyze.
-   * @param charset is the charset to use to read the input stream.
-   * @return The 2 letter
-   *         <a href="http://www.w3.org/WAI/ER/IG/ert/iso639.htm">ISO 639
-   *         language code</a> (en, fi, sv, ...) of the language that best
-   *         matches the content of the specified input stream.
-   * @throws IOException if something wrong occurs on the input stream.
+   * @param is
+   *          is the input stream to analyze.
+   * @param charset
+   *          is the charset to use to read the input stream.
+   * @return The 2 letter <a
+   *         href="http://www.w3.org/WAI/ER/IG/ert/iso639.htm">ISO 639 language
+   *         code</a> (en, fi, sv, ...) of the language that best matches the
+   *         content of the specified input stream.
+   * @throws IOException
+   *           if something wrong occurs on the input stream.
    */
   public String identify(InputStream is, String charset) throws IOException {
 
@@ -448,15 +458,14 @@ public class LanguageIdentifier {
     byte[] buffer = new byte[2048];
     int len = 0;
 
-    while (((len = is.read(buffer)) != -1) &&
-           ((analyzeLength == 0) || (out.size() < analyzeLength))) {
+    while (((len = is.read(buffer)) != -1)
+        && ((analyzeLength == 0) || (out.size() < analyzeLength))) {
       if (analyzeLength != 0) {
-          len = Math.min(len, analyzeLength - out.size());
+        len = Math.min(len, analyzeLength - out.size());
       }
       out.write(buffer, 0, len);
     }
-    return identify((charset == null) ? out.toString()
-                                      : out.toString(charset));
+    return identify((charset == null) ? out.toString() : out.toString(charset));
   }
 
 }

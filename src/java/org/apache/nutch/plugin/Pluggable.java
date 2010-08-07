@@ -28,5 +28,4 @@ package org.apache.nutch.plugin;
  *      plugin package description</a>
  */
 public interface Pluggable {
-  
 }

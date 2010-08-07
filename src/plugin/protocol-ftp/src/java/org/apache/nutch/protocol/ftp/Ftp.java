@@ -17,40 +17,44 @@
 
 package org.apache.nutch.protocol.ftp;
 
+import java.io.IOException;
+import java.net.URL;
+import java.util.Collection;
+import java.util.HashSet;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.commons.net.ftp.FTPFileEntryParser;
-
-import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.hadoop.io.Text;
-import org.apache.nutch.net.protocols.HttpDateFormat;
-import org.apache.nutch.net.protocols.Response;
-
 import org.apache.hadoop.conf.Configuration;
-
+import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.EmptyRobotRules;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolOutput;
-import org.apache.nutch.protocol.ProtocolStatus;
+import org.apache.nutch.protocol.ProtocolStatusCodes;
 import org.apache.nutch.protocol.RobotRules;
-
-import java.net.URL;
-
-import java.io.IOException;
+import org.apache.nutch.storage.ProtocolStatus;
+import org.apache.nutch.storage.ProtocolStatusUtils;
+import org.apache.nutch.storage.WebPage;
 
 /************************************
  * Ftp.java deals with ftp: scheme.
- *
- * Configurable parameters are defined under "FTP properties" section
- * in ./conf/nutch-default.xml or similar.
- *
+ * 
+ * Configurable parameters are defined under "FTP properties" section in
+ * ./conf/nutch-default.xml or similar.
+ * 
  * @author John Xing
  ***********************************/
 public class Ftp implements Protocol {
 
   public static final Log LOG = LogFactory.getLog(Ftp.class);
+
+  private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
+
+  static {
+    FIELDS.add(WebPage.Field.MODIFIED_TIME);
+    FIELDS.add(WebPage.Field.HEADERS);
+  }
 
   static final int BUFFER_SIZE = 16384; // 16*1024 = 16384
 
@@ -61,7 +65,7 @@ public class Ftp implements Protocol {
   int maxContentLength;
 
   String userName;
-  String passWord; 
+  String passWord;
 
   // typical/default server timeout is 120*1000 millisec.
   // better be conservative here
@@ -80,7 +84,6 @@ public class Ftp implements Protocol {
   FTPFileEntryParser parser = null;
 
   private Configuration conf;
-
 
   // constructor
   public Ftp() {
@@ -106,40 +109,41 @@ public class Ftp implements Protocol {
     this.keepConnection = keepConnection;
   }
 
-  public ProtocolOutput getProtocolOutput(Text url, CrawlDatum datum) {
-    String urlString = url.toString();
+  public ProtocolOutput getProtocolOutput(String url, WebPage page) {
     try {
-      URL u = new URL(urlString);
-  
+      URL u = new URL(url);
+
       int redirects = 0;
-  
+
       while (true) {
         FtpResponse response;
-        response = new FtpResponse(u, datum, this, getConf());   // make a request
-  
+        response = new FtpResponse(u, page, this, getConf()); // make a request
+
         int code = response.getCode();
-  
-        if (code == 200) {                          // got a good response
-          return new ProtocolOutput(response.toContent());              // return it
-  
-        } else if (code >= 300 && code < 400) {     // handle redirect
+
+        if (code == 200) { // got a good response
+          return new ProtocolOutput(response.toContent()); // return it
+
+        } else if (code >= 300 && code < 400) { // handle redirect
           if (redirects == MAX_REDIRECTS)
             throw new FtpException("Too many redirects: " + url);
           u = new URL(response.getHeader("Location"));
-          redirects++;                
+          redirects++;
           if (LOG.isTraceEnabled()) {
-            LOG.trace("redirect to " + u); 
+            LOG.trace("redirect to " + u);
           }
-        } else {                                    // convert to exception
+        } else { // convert to exception
           throw new FtpError(code);
         }
-      } 
+      }
     } catch (Exception e) {
-      return new ProtocolOutput(null, new ProtocolStatus(e));
+      ProtocolStatus ps = ProtocolStatusUtils.makeStatus(
+          ProtocolStatusCodes.EXCEPTION, e.toString());
+      return new ProtocolOutput(null, ps);
     }
   }
 
-  protected void finalize () {
+  protected void finalize() {
     try {
       if (this.client != null && this.client.isConnected()) {
         this.client.logout();
@@ -148,6 +152,25 @@ public class Ftp implements Protocol {
     } catch (IOException e) {
       // do nothing
     }
+  }
+
+  public void setConf(Configuration conf) {
+    this.conf = conf;
+    this.maxContentLength = conf.getInt("ftp.content.limit", 64 * 1024);
+    this.timeout = conf.getInt("ftp.timeout", 10000);
+    this.userName = conf.get("ftp.username", "anonymous");
+    this.passWord = conf.get("ftp.password", "anonymous@example.com");
+    this.serverTimeout = conf.getInt("ftp.server.timeout", 60 * 1000);
+    this.keepConnection = conf.getBoolean("ftp.keep.connection", false);
+    this.followTalk = conf.getBoolean("ftp.follow.talk", false);
+  }
+
+  public Configuration getConf() {
+    return this.conf;
+  }
+
+  public RobotRules getRobotRules(String url, WebPage page) {
+    return EmptyRobotRules.RULES;
   }
 
   /** For debugging. */
@@ -166,7 +189,7 @@ public class Ftp implements Protocol {
       System.err.println(usage);
       System.exit(-1);
     }
-      
+
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("-logLevel")) {
         logLevel = args[++i];
@@ -180,7 +203,7 @@ public class Ftp implements Protocol {
         maxContentLength = Integer.parseInt(args[++i]);
       } else if (args[i].equals("-dumpContent")) {
         dumpContent = true;
-      } else if (i != args.length-1) {
+      } else if (i != args.length - 1) {
         System.err.println(usage);
         System.exit(-1);
       } else {
@@ -200,15 +223,16 @@ public class Ftp implements Protocol {
       ftp.setMaxContentLength(maxContentLength);
 
     // set log level
-    //LOG.setLevel(Level.parse((new String(logLevel)).toUpperCase()));
+    // LOG.setLevel(Level.parse((new String(logLevel)).toUpperCase()));
 
-    Content content = ftp.getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
+    Content content = ftp.getProtocolOutput(urlString, new WebPage())
+        .getContent();
 
     System.err.println("Content-Type: " + content.getContentType());
-    System.err.println("Content-Length: " +
-                       content.getMetadata().get(Response.CONTENT_LENGTH));
-    System.err.println("Last-Modified: " +
-                      content.getMetadata().get(Response.LAST_MODIFIED));
+    System.err.println("Content-Length: "
+        + content.getMetadata().get(Response.CONTENT_LENGTH));
+    System.err.println("Last-Modified: "
+        + content.getMetadata().get(Response.LAST_MODIFIED));
     if (dumpContent) {
       System.out.print(new String(content.getContent()));
     }
@@ -216,24 +240,8 @@ public class Ftp implements Protocol {
     ftp = null;
   }
 
-  
-  public void setConf(Configuration conf) {
-    this.conf = conf;
-    this.maxContentLength = conf.getInt("ftp.content.limit", 64 * 1024);
-    this.timeout = conf.getInt("ftp.timeout", 10000);
-    this.userName = conf.get("ftp.username", "anonymous");
-    this.passWord = conf.get("ftp.password", "anonymous@example.com");
-    this.serverTimeout = conf.getInt("ftp.server.timeout", 60 * 1000);
-    this.keepConnection = conf.getBoolean("ftp.keep.connection", false);
-    this.followTalk = conf.getBoolean("ftp.follow.talk", false);
-  }
-
-  public Configuration getConf() {
-    return this.conf;
-  }
-
-  public RobotRules getRobotRules(Text url, CrawlDatum datum) {
-    return EmptyRobotRules.RULES;
+  public Collection<WebPage.Field> getFields() {
+    return FIELDS;
   }
 
 }

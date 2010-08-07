@@ -18,18 +18,19 @@
 package org.apache.nutch.crawl;
 
 // Commons Logging imports
+import java.util.Collection;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.ObjectCache;
 
 /**
  * Factory class, which instantiates a Signature implementation according to the
  * current Configuration configuration. This newly created instance is cached in the
  * Configuration instance, so that it could be later retrieved.
- * 
+ *
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
 public class SignatureFactory {
@@ -44,10 +45,8 @@ public class SignatureFactory {
     Signature impl = (Signature)objectCache.getObject(clazz);
     if (impl == null) {
       try {
-        if (LOG.isInfoEnabled()) {
-          LOG.info("Using Signature impl: " + clazz);
-        }
-        Class implClass = Class.forName(clazz);
+        LOG.info("Using Signature impl: " + clazz);
+        Class<?> implClass = Class.forName(clazz);
         impl = (Signature)implClass.newInstance();
         impl.setConf(conf);
         objectCache.setObject(clazz, impl);
@@ -56,5 +55,10 @@ public class SignatureFactory {
       }
     }
     return impl;
+  }
+
+  public static Collection<WebPage.Field> getFields(Configuration conf) {
+    Signature impl = getSignature(conf);
+    return impl.getFields();
   }
 }

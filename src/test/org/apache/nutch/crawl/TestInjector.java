@@ -16,109 +16,114 @@
  */
 package org.apache.nutch.crawl;
 
-import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import junit.framework.TestCase;
+
+import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.SequenceFile;
-import org.apache.hadoop.io.Text;
-
-import junit.framework.TestCase;
+import org.apache.nutch.storage.Mark;
+import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.util.AbstractNutchTest;
+import org.apache.nutch.util.CrawlTestUtil;
+import org.apache.nutch.util.TableUtil;
+import org.gora.query.Query;
+import org.gora.query.Result;
+import org.gora.sql.store.SqlStore;
+import org.gora.store.DataStore;
+import org.gora.store.DataStoreFactory;
+import org.gora.util.ByteUtils;
+import org.junit.Before;
 
 /**
- * Basic injector test:
- * 1. Creates a text file with urls
- * 2. Injects them into crawldb
- * 3. Reads crawldb entries and verifies contents
- * 4. Injects more urls into webdb
- * 5. Reads crawldb entries and verifies contents
+ * Basic injector test: 1. Creates a text file with urls 2. Injects them into
+ * crawldb 3. Reads crawldb entries and verifies contents 4. Injects more urls
+ * into webdb 5. Reads crawldb entries and verifies contents
  * 
  * @author nutch-dev <nutch-dev at lucene.apache.org>
  */
-public class TestInjector extends TestCase {
-
-  private Configuration conf;
-  private FileSystem fs;
-  final static Path testdir=new Path("build/test/inject-test");
-  Path crawldbPath;
+public class TestInjector extends AbstractNutchTest {
   Path urlPath;
-  
-  protected void setUp() throws Exception {
-    conf = CrawlDBTestUtil.createConfiguration();
-    urlPath=new Path(testdir,"urls");
-    crawldbPath=new Path(testdir,"crawldb");
-    fs=FileSystem.get(conf);
-    if (fs.exists(urlPath)) fs.delete(urlPath, false);
-    if (fs.exists(crawldbPath)) fs.delete(crawldbPath, true);
-  }
-  
-  protected void tearDown() throws IOException{
-    fs.delete(testdir, true);
+
+  @Before
+  @Override
+  public void setUp() throws Exception {
+    super.setUp();
+    urlPath = new Path(testdir, "urls");
   }
 
-  public void testInject() throws IOException {
-    ArrayList<String> urls=new ArrayList<String>();
-    for(int i=0;i<100;i++) {
-      urls.add("http://zzz.com/" + i + ".html");
+  public void testInject() throws Exception {
+    ArrayList<String> urls = new ArrayList<String>();
+    for (int i = 0; i < 100; i++) {
+      urls.add("http://zzz.com/" + i + ".html\tnutch.score=" + i
+          + "\tcustom.attribute=" + i);
     }
-    CrawlDBTestUtil.generateSeedList(fs, urlPath, urls);
-    
-    Injector injector=new Injector(conf);
-    injector.inject(crawldbPath, urlPath);
-    
-    // verify results
-    List<String>read=readCrawldb();
-    
-    Collections.sort(read);
-    Collections.sort(urls);
+    CrawlTestUtil.generateSeedList(fs, urlPath, urls);
 
-    assertEquals(urls.size(), read.size());
-    
-    assertTrue(read.containsAll(urls));
-    assertTrue(urls.containsAll(read));
-    
-    //inject more urls
-    ArrayList<String> urls2=new ArrayList<String>();
-    for(int i=0;i<100;i++) {
-      urls2.add("http://xxx.com/" + i + ".html");
-    }
-    CrawlDBTestUtil.generateSeedList(fs, urlPath, urls2);
-    injector.inject(crawldbPath, urlPath);
-    urls.addAll(urls2);
-    
+    InjectorJob injector = new InjectorJob();
+    injector.setConf(conf);
+    injector.inject(urlPath);
+
     // verify results
-    read=readCrawldb();
-    
+    List<String> read = readDb();
 
     Collections.sort(read);
     Collections.sort(urls);
 
     assertEquals(urls.size(), read.size());
-    
+
+    assertTrue(urls.containsAll(read));
+    assertTrue(read.containsAll(urls));
+
+    // inject more urls
+    ArrayList<String> urls2 = new ArrayList<String>();
+    ArrayList<String> urlsCheck = new ArrayList<String>();
+    for (int i = 0; i < 100; i++) {
+      String u = "http://xxx.com/" + i + ".html";
+      urls2.add(u);
+      urlsCheck.add(u + "\tnutch.score=1");
+    }
+    CrawlTestUtil.generateSeedList(fs, urlPath, urls2);
+    injector.inject(urlPath);
+    urls.addAll(urlsCheck);
+
+    // verify results
+    read = readDb();
+
+    Collections.sort(read);
+    Collections.sort(urls);
+
+    assertEquals(urls.size(), read.size());
+
     assertTrue(read.containsAll(urls));
     assertTrue(urls.containsAll(read));
-    
+
   }
   
-  private List<String> readCrawldb() throws IOException{
-    Path dbfile=new Path(crawldbPath,CrawlDb.CURRENT_NAME + "/part-00000/data");
-    System.out.println("reading:" + dbfile);
-    SequenceFile.Reader reader=new SequenceFile.Reader(fs, dbfile, conf);
-    ArrayList<String> read=new ArrayList<String>();
-    
-    READ:
-      do {
-      Text key=new Text();
-      CrawlDatum value=new CrawlDatum();
-      if(!reader.next(key, value)) break READ;
-      read.add(key.toString());
-    } while(true);
-
+  private static final String[] fields = new String[] {
+    WebPage.Field.MARKERS.getName(),
+    WebPage.Field.METADATA.getName(),
+    WebPage.Field.SCORE.getName()
+  };
+  
+  private List<String> readDb() throws Exception {
+    List<URLWebPage> pages = CrawlTestUtil.readContents(webPageStore, null, fields);
+    ArrayList<String> read = new ArrayList<String>();
+    for (URLWebPage up : pages) {
+      WebPage page = up.getDatum();
+      String representation = up.getUrl();
+      representation += "\tnutch.score=" + (int)page.getScore();
+      ByteBuffer bb = page.getFromMetadata(new Utf8("custom.attribute"));
+      if (bb != null) {
+        representation += "\tcustom.attribute=" + ByteUtils.toString(bb.array());
+      }
+      read.add(representation);
+    }
     return read;
   }
-
 }

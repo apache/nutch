@@ -113,7 +113,7 @@
 
 <property>
   <name>http.agent.version</name>
-  <value>Nutch-1.3-dev</value>
+  <value>Nutch-2.0-dev</value>
   <description>A version string to advertise in the User-Agent 
    header.</description>
 </property>
@@ -618,20 +618,19 @@
 </property>
 
 <property>
-  <name>fetcher.threads.per.host</name>
+  <name>fetcher.threads.per.queue</name>
   <value>1</value>
   <description>This number is the maximum number of threads that
-    should be allowed to access a host at one time.</description>
+    should be allowed to access a queue at one time.</description>
 </property>
 
 <property>
-  <name>fetcher.threads.per.host.by.ip</name>
-  <value>false</value>
-  <description>If true, then fetcher will count threads by IP address,
-  to which the URL's host name resolves. If false, only host name will be
-  used. NOTE: this should be set to the same value as
-  "generate.max.per.host.by.ip" - default settings are different only for
-  reasons of backward-compatibility.</description>
+  <name>fetcher.queue.mode</name>
+  <value>byHost</value>
+  <description>Determines how the URLs are placed into queues. 
+   Allowed values are 'byHost', 'byDomain' and 'byIP'.
+   The value would usually correspond to that of 'partition.url.mode'.
+  </description>
 </property>
 
 <property>
@@ -833,8 +832,8 @@
 
 <property>
   <name>plugin.includes</name>
-  <value>protocol-http|urlfilter-regex|parse-(html|tika)|index-(basic|anchor)|scoring-opic|urlnormalizer-(pass|regex|basic)</value>
-  <description>Regular expression naming plugin directory names to
+ <value>protocol-http|urlfilter-regex|parse-(html|tika)|index-(basic|anchor)|urlnormalizer-(pass|regex|basic)|scoring-opic</value>
+ <description>Regular expression naming plugin directory names to
   include.  Any plugin not matching this expression is excluded.
   In any case you need at least include the nutch-extensionpoints plugin. By
   default Nutch includes crawling just HTML and plain text via HTTP,
@@ -1057,6 +1056,14 @@
   Defines the name of the file that will be used in the mapping of internal
   nutch field names to solr index fields as specified in the target Solr schema.
   </description>
+</property>
+
+<!-- storage properties -->
+
+<property>
+  <name>storage.data.store.class</name>
+  <value>org.gora.sql.store.SqlStore</value>
+  <description>Default class for storing data</description>
 </property>
 
 </configuration>

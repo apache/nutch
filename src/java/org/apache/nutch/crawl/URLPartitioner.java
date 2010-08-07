@@ -18,22 +18,27 @@
 package org.apache.nutch.crawl;
 
 import java.net.InetAddress;
-import java.net.URL;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.net.UnknownHostException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hadoop.io.*;
-import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.conf.Configurable;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapreduce.Partitioner;
+import org.apache.nutch.crawl.GeneratorJob.SelectorEntry;
 import org.apache.nutch.net.URLNormalizers;
+import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.URLUtil;
 
 /**
  * Partition urls by host, domain name or IP depending on the value of the
  * parameter 'partition.url.mode' which can be 'byHost', 'byDomain' or 'byIP'
  */
-public class URLPartitioner implements Partitioner<Text,Writable> {
+public class URLPartitioner
+extends Partitioner<SelectorEntry, WebPage>
+implements Configurable {
   private static final Log LOG = LogFactory.getLog(URLPartitioner.class);
 
   public static final String PARTITION_MODE_KEY = "partition.url.mode";
@@ -42,27 +47,38 @@ public class URLPartitioner implements Partitioner<Text,Writable> {
   public static final String PARTITION_MODE_DOMAIN = "byDomain";
   public static final String PARTITION_MODE_IP = "byIP";
 
+  private Configuration conf;
+
   private int seed;
   private URLNormalizers normalizers;
   private String mode = PARTITION_MODE_HOST;
 
-  public void configure(JobConf job) {
-    seed = job.getInt("partition.url.seed", 0);
-    mode = job.get(PARTITION_MODE_KEY, PARTITION_MODE_HOST);
+  @Override
+  public Configuration getConf() {
+    return conf;
+  }
+
+  @Override
+  public void setConf(Configuration conf) {
+    this.conf = conf;
+    seed = conf.getInt("partition.url.seed", 0);
+    mode = conf.get(PARTITION_MODE_KEY, PARTITION_MODE_HOST);
     // check that the mode is known
     if (!mode.equals(PARTITION_MODE_IP) && !mode.equals(PARTITION_MODE_DOMAIN)
         && !mode.equals(PARTITION_MODE_HOST)) {
       LOG.error("Unknown partition mode : " + mode + " - forcing to byHost");
       mode = PARTITION_MODE_HOST;
     }
-    normalizers = new URLNormalizers(job, URLNormalizers.SCOPE_PARTITION);
+    normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_PARTITION);
   }
 
-  public void close() {}
+  public void setup(Configuration conf) {
 
-  /** Hash by domain name. */
-  public int getPartition(Text key, Writable value, int numReduceTasks) {
-    String urlString = key.toString();
+  }
+
+  @Override
+  public int getPartition(SelectorEntry key, WebPage value, int numReduceTasks) {
+    String urlString = key.url;
     URL url = null;
     int hashCode = urlString.hashCode();
     try {
@@ -80,7 +96,7 @@ public class URLPartitioner implements Partitioner<Text,Writable> {
         InetAddress address = InetAddress.getByName(url.getHost());
         hashCode = address.getHostAddress().hashCode();
       } catch (UnknownHostException e) {
-        Generator.LOG.info("Couldn't find IP for host: " + url.getHost());
+        GeneratorJob.LOG.info("Couldn't find IP for host: " + url.getHost());
       }
     }
 
@@ -89,5 +105,4 @@ public class URLPartitioner implements Partitioner<Text,Writable> {
 
     return (hashCode & Integer.MAX_VALUE) % numReduceTasks;
   }
-
 }

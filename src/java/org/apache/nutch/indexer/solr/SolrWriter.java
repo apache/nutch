@@ -21,9 +21,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.indexer.NutchField;
 import org.apache.nutch.indexer.NutchIndexWriter;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
@@ -40,51 +40,49 @@ public class SolrWriter implements NutchIndexWriter {
 
   private int commitSize;
 
-  public void open(JobConf job, String name) throws IOException {
-    solr = new CommonsHttpSolrServer(job.get(SolrConstants.SERVER_URL));
-    commitSize = job.getInt(SolrConstants.COMMIT_SIZE, 1000);
-    solrMapping = SolrMappingReader.getInstance(job);
+  @Override
+  public void open(TaskAttemptContext job, String name)
+  throws IOException {
+    Configuration conf = job.getConfiguration();
+    solr = new CommonsHttpSolrServer(conf.get(SolrConstants.SERVER_URL));
+    commitSize = conf.getInt(SolrConstants.COMMIT_SIZE, 1000);
+    solrMapping = SolrMappingReader.getInstance(conf);
   }
 
+  @Override
   public void write(NutchDocument doc) throws IOException {
     final SolrInputDocument inputDoc = new SolrInputDocument();
-    for(final Entry<String, NutchField> e : doc) {
-      for (final Object val : e.getValue().getValues()) {
-        inputDoc.addField(solrMapping.mapKey(e.getKey()), val, e.getValue().getWeight());
+    for(final Entry<String, List<String>> e : doc) {
+      for (final String val : e.getValue()) {
+        inputDoc.addField(solrMapping.mapKey(e.getKey()), val);
         String sCopy = solrMapping.mapCopyKey(e.getKey());
         if (sCopy != e.getKey()) {
-        	inputDoc.addField(sCopy, val);	
+        	inputDoc.addField(sCopy, val);
         }
       }
     }
-    inputDoc.setDocumentBoost(doc.getWeight());
+    inputDoc.setDocumentBoost(doc.getScore());
     inputDocs.add(inputDoc);
     if (inputDocs.size() > commitSize) {
       try {
         solr.add(inputDocs);
       } catch (final SolrServerException e) {
-        throw makeIOException(e);
+        throw new IOException(e);
       }
       inputDocs.clear();
     }
   }
 
+  @Override
   public void close() throws IOException {
     try {
       if (!inputDocs.isEmpty()) {
         solr.add(inputDocs);
         inputDocs.clear();
       }
-      // solr.commit();
     } catch (final SolrServerException e) {
-      throw makeIOException(e);
+      throw new IOException(e);
     }
-  }
-
-  public static IOException makeIOException(SolrServerException e) {
-    final IOException ioe = new IOException();
-    ioe.initCause(e);
-    return ioe;
   }
 
 }

@@ -17,17 +17,20 @@
 
 package org.apache.nutch.protocol;
 
-import java.net.URL;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collection;
+import java.util.HashSet;
 
-// Commons Logging imports
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.apache.nutch.plugin.*;
-import org.apache.nutch.util.ObjectCache;
-
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.plugin.Extension;
+import org.apache.nutch.plugin.ExtensionPoint;
+import org.apache.nutch.plugin.PluginRepository;
+import org.apache.nutch.plugin.PluginRuntimeException;
+import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.util.ObjectCache;
 
 /**
  * Creates and caches {@link Protocol} plugins. Protocol plugins should define
@@ -40,9 +43,9 @@ public class ProtocolFactory {
 
   public static final Log LOG = LogFactory.getLog(ProtocolFactory.class);
 
-  private ExtensionPoint extensionPoint;
+  private final ExtensionPoint extensionPoint;
 
-  private Configuration conf;
+  private final Configuration conf;
 
   public ProtocolFactory(Configuration conf) {
     this.conf = conf;
@@ -56,7 +59,7 @@ public class ProtocolFactory {
 
   /**
    * Returns the appropriate {@link Protocol} implementation for a url.
-   * 
+   *
    * @param urlString
    *          Url String
    * @return The appropriate {@link Protocol} implementation for a given {@link URL}.
@@ -100,13 +103,12 @@ public class ProtocolFactory {
 
     for (int i = 0; i < extensions.length; i++) {
       Extension extension = extensions[i];
-
       if (contains(name, extension.getAttribute("protocolName")))
         return extension;
     }
     return null;
   }
-  
+
   boolean contains(String what, String where){
     String parts[]=where.split("[, ]");
     for(int i=0;i<parts.length;i++) {
@@ -114,5 +116,22 @@ public class ProtocolFactory {
     }
     return false;
   }
-  
+
+  public Collection<WebPage.Field> getFields() {
+    Collection<WebPage.Field> fields = new HashSet<WebPage.Field>();
+    for (Extension extension : this.extensionPoint.getExtensions()) {
+      Protocol protocol;
+      try {
+        protocol = (Protocol) extension.getExtensionInstance();
+        Collection<WebPage.Field> pluginFields = protocol.getFields();
+        if (pluginFields != null) {
+          fields.addAll(pluginFields);
+        }
+      } catch (PluginRuntimeException e) {
+        // ignore
+      }
+    }
+    return fields;
+  }
+
 }

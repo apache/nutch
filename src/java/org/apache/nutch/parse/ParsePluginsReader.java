@@ -50,7 +50,7 @@ import org.apache.nutch.util.NutchConfiguration;
  * @author mattmann
  * @version 1.0
  */
-class ParsePluginsReader {
+public class ParsePluginsReader {
   
   /* our log stream */
   public static final Log LOG = LogFactory.getLog(ParsePluginsReader.class);

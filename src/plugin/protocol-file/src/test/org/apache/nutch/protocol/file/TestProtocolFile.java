@@ -18,17 +18,13 @@
 package org.apache.nutch.protocol.file;
 
 // Hadoop imports
-import org.apache.hadoop.io.Text;
+import junit.framework.TestCase;
 
-// Nutch imports
-import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolOutput;
-import org.apache.nutch.protocol.ProtocolStatus;
+import org.apache.nutch.protocol.ProtocolStatusCodes;
+import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
-
-// Junit imports
-import junit.framework.TestCase;
 
 /**
  * @author mattmann
@@ -45,14 +41,16 @@ public class TestProtocolFile extends TestCase {
 
   private static final String testTextFile = "testprotocolfile.txt";
 
-  private static final CrawlDatum datum = new CrawlDatum();
-
   private static final String expectedMimeType = "text/plain";
 
   static {
     fileProtocol.setConf(NutchConfiguration.create());
   }
 
+  private String fileSeparator = System.getProperty("file.separator");
+  // This system property is defined in ./src/plugin/build-plugin.xml
+  private String sampleDir = System.getProperty("test.data", ".");
+  
   /**
    * Tests the setting of the <code>Response.CONTENT_TYPE</code> metadata
    * field.
@@ -61,14 +59,14 @@ public class TestProtocolFile extends TestCase {
    * 
    */
   public void testSetContentType() {
-    Text fileUrl = new Text(this.getClass().getResource(testTextFile)
-        .toString());
-    assertNotNull(fileUrl);
-    ProtocolOutput output = fileProtocol.getProtocolOutput(fileUrl, datum);
+    String fileURL = "file:"+sampleDir + fileSeparator + testTextFile;
+    assertNotNull(fileURL);
+    WebPage datum = new WebPage();
+    ProtocolOutput output = fileProtocol.getProtocolOutput(fileURL, datum);
     assertNotNull(output);
     assertEquals("Status code: [" + output.getStatus().getCode()
-        + "], not equal to: [" + ProtocolStatus.SUCCESS + "]: args: ["
-        + output.getStatus().getArgs() + "]", ProtocolStatus.SUCCESS, output
+        + "], not equal to: [" + ProtocolStatusCodes.SUCCESS + "]: args: ["
+        + output.getStatus().getArgs() + "]", ProtocolStatusCodes.SUCCESS, output
         .getStatus().getCode());
     assertNotNull(output.getContent());
     assertNotNull(output.getContent().getContentType());

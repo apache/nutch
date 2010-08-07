@@ -1,18 +1,16 @@
 Nutch Change Log
 
-Release 1.3 - Current Development
+Release 2.0 - Current Development
 
 * NUTCH-870 Injector should add the metadata before calling injectedScore (jnioche via mattmann)
+
+* NUTCH-867 Port Nutch benchmark to Nutchbase (ab)
 
 * NUTCH-869 Add parse-html back (jnioche)
 
 * NUTCH-871 MoreIndexingFilter missing date format (Max	Lynch via mattmann)
 
 * NUTCH-696 Timeout for Parser (ab, jnioche)
-
-* NUTCH-863 Benchmark and a testbed proxy server (ab)
-
-* NUTCH-677 Segment merge filtering based on segment content (Marcin Okraszewski via mattmann)
 
 * NUTCH-774 Retry interval in crawl date is set to 0 (Reinhard Schwab via mattmann)
 

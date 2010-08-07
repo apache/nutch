@@ -28,7 +28,7 @@ import org.w3c.dom.*;
  * noindex), finding BASE HREF tags, and HTTP-EQUIV no-cache
  * instructions. All meta directives are stored in a HTMLMetaTags instance.
  */
-class HTMLMetaProcessor {
+public class HTMLMetaProcessor {
 
   /**
    * Utility class with indicators for the robots directives "noindex"
@@ -40,7 +40,7 @@ class HTMLMetaProcessor {
    * values, based on any META tags found under the given
    * <code>node</code>.
    */
-  static final void getMetaTags (
+  public static final void getMetaTags (
     HTMLMetaTags metaTags, Node node, URL currURL) {
 
     metaTags.reset();
