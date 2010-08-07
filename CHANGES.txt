@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-873 Ivy configuration settings don't include Gora (mattmann)
+
 * NUTCH-870 Injector should add the metadata before calling injectedScore (jnioche via mattmann)
 
 * NUTCH-867 Port Nutch benchmark to Nutchbase (ab)

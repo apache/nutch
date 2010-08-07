@@ -71,6 +71,12 @@
 			<exclude org="com.sun.jmx"/>
 			<exclude org="javax.jms"/>
 		</dependency>
+		
+		<dependency org="org.gora" name="gora-core" rev="0.1" conf="*->compile">
+			<exclude org="com.sun.jdmk"/>
+			<exclude org="com.sun.jmx"/>
+			<exclude org="javax.jms"/>		
+		</dependency>
 
 		<dependency org="log4j" name="log4j" rev="1.2.15" conf="*->master" >
 			<exclude org="com.sun.jdmk"/>

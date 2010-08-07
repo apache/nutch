@@ -75,5 +75,6 @@
     rather than look for them online.
     -->
     <module organisation="org.apache.nutch" name=".*" resolver="internal"/>
+    <module organisation="org.gora" name=".*" resolver="internal"/>
   </modules>
 </ivysettings>
