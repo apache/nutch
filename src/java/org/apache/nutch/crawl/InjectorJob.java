@@ -143,6 +143,16 @@ public class InjectorJob extends GoraMapper<String, WebPage, String, WebPage>
       WebPage row = new WebPage();
       row.setFetchTime(curTime);
       row.setFetchInterval(customInterval);
+
+      // now add the metadata
+      Iterator<String> keysIter = metadata.keySet().iterator();
+      while (keysIter.hasNext()) {
+          String keymd = keysIter.next();
+          String valuemd = metadata.get(keymd);
+          row.putToMetadata(new Utf8(keymd), ByteBuffer.wrap(valuemd.getBytes()));
+      }
+
+
       if (customScore != -1)
         row.setScore(customScore);
       else {
@@ -157,13 +167,7 @@ public class InjectorJob extends GoraMapper<String, WebPage, String, WebPage>
           row.setScore(scoreInjected);
         }
       }
-      // now add the metadata
-      Iterator<String> keysIter = metadata.keySet().iterator();
-      while (keysIter.hasNext()) {
-        String keymd = keysIter.next();
-        String valuemd = metadata.get(keymd);
-        row.putToMetadata(new Utf8(keymd), ByteBuffer.wrap(valuemd.getBytes()));
-      }
+
       Mark.INJECT_MARK.putMark(row, YES_STRING);
       context.write(reversedUrl, row);
     }
