@@ -985,7 +985,8 @@
     for custom metatags to be injected alongside your crawl URLs. Specifying those
     custom tags here will allow for their propagation into a pages outlinks, as
     well as allow for them to be included as part of an index.
-    Values should be comma-delimited. ("tag1, tag2, tag3")
+    Values should be comma-delimited. ("tag1,tag2,tag3") Do not pad the tags with
+    white-space at their boundaries, if you are using anything earlier than Hadoop-0.21. 
   </description>
 </property>
 
