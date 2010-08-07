@@ -128,25 +128,22 @@ public class Injector extends Configured implements Tool {
         value.set(url);                           // collect it
         CrawlDatum datum = new CrawlDatum(CrawlDatum.STATUS_INJECTED, customInterval);
         datum.setFetchTime(curTime);
-        if (customScore != -1) datum.setScore(customScore);
-        else {
-          datum.setScore(scoreInjected);
-          try {
-            scfilters.injectedScore(value, datum);
-          } catch (ScoringFilterException e) {
-            if (LOG.isWarnEnabled()) {
-              LOG.warn("Cannot filter injected score for url " + url
-                  + ", using default (" + e.getMessage() + ")");
-            }
-            datum.setScore(scoreInjected);
-          }
-        }
         // now add the metadata
         Iterator<String> keysIter = metadata.keySet().iterator();
         while (keysIter.hasNext()){
         	String keymd = keysIter.next();
         	String valuemd = metadata.get(keymd);
         	datum.getMetaData().put(new Text(keymd), new Text(valuemd));
+        }
+        if (customScore != -1) datum.setScore(customScore);
+        else datum.setScore(scoreInjected);
+        try {
+        	scfilters.injectedScore(value, datum);
+        } catch (ScoringFilterException e) {
+        	if (LOG.isWarnEnabled()) {
+        		LOG.warn("Cannot filter injected score for url " + url
+        				+ ", using default (" + e.getMessage() + ")");
+        	}
         }
         output.collect(value, datum);
       }
