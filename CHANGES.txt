@@ -1,6 +1,6 @@
 Nutch Change Log
 
-Release 1.2 - Current Development
+Release 1.2 - 08/07/2010
 
 * NUTCH-870 Injector should add the metadata before calling injectedScore (jnioche via mattmann)
 
