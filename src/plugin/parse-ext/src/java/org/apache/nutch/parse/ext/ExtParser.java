@@ -42,6 +42,7 @@ import java.util.Hashtable;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.Charset;
 
 /**
  * A wrapper that invokes external command to do real parsing job.
@@ -57,7 +58,7 @@ public class ExtParser implements Parser {
 
   static final int TIMEOUT_DEFAULT = 30; // in seconds
 
-  // handy map from String contentType to String[] {command, timeoutString}
+  // handy map from String contentType to String[] {command, timeoutString, encoding}
   Hashtable TYPE_PARAMS_MAP = new Hashtable();
 
   private Configuration conf;  
@@ -77,6 +78,7 @@ public class ExtParser implements Parser {
 
     String command = params[0];
     int timeout = Integer.parseInt(params[1]);
+    String encoding = params[2];
 
     if (LOG.isTraceEnabled()) {
       LOG.trace("Use "+command+ " with timeout="+timeout+"secs");
@@ -117,7 +119,7 @@ public class ExtParser implements Parser {
                         "External command " + command
                         + " failed with error: " + es.toString()).getEmptyParseResult(content.getUrl(), getConf());
 
-      text = os.toString();
+      text = os.toString(encoding);
 
     } catch (Exception e) { // run time exception
       return new ParseStatus(e).getEmptyParseResult(content.getUrl(), getConf());
@@ -143,7 +145,7 @@ public class ExtParser implements Parser {
     Extension[] extensions = PluginRepository.get(conf).getExtensionPoint(
         "org.apache.nutch.parse.Parser").getExtensions();
 
-    String contentType, command, timeoutString;
+    String contentType, command, timeoutString, encoding;
 
     for (int i = 0; i < extensions.length; i++) {
       Extension extension = extensions[i];
@@ -160,11 +162,16 @@ public class ExtParser implements Parser {
       if (command == null || command.equals(""))
         continue;
 
+      // null encoding means default
+      encoding = extension.getAttribute("encoding");
+      if (encoding == null)
+          encoding = Charset.defaultCharset().name();
+
       timeoutString = extension.getAttribute("timeout");
       if (timeoutString == null || timeoutString.equals(""))
         timeoutString = "" + TIMEOUT_DEFAULT;
 
-      TYPE_PARAMS_MAP.put(contentType, new String[] { command, timeoutString });
+      TYPE_PARAMS_MAP.put(contentType, new String[] { command, timeoutString, encoding });
     }
   }
 
