@@ -31,7 +31,6 @@ import org.apache.nutch.storage.WebPage;
 public class LinkAnalysisScoringFilter implements ScoringFilter {
 
 	private Configuration conf;
-	private float scoreInjected = 0.001f;
 	private float normalizedScore = 1.00f;
 
 	private final static Set<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
@@ -51,7 +50,6 @@ public class LinkAnalysisScoringFilter implements ScoringFilter {
 	public void setConf(Configuration conf) {
 		this.conf = conf;
 		normalizedScore = conf.getFloat("link.analyze.normalize.score", 1.00f);
-		scoreInjected = conf.getFloat("link.analyze.injected.score", 1.00f);
 	}
 
 	@Override
@@ -62,7 +60,6 @@ public class LinkAnalysisScoringFilter implements ScoringFilter {
 	@Override
 	public void injectedScore(String url, WebPage page)
 			throws ScoringFilterException {
-		page.setScore(scoreInjected);
 	}
 
 	@Override

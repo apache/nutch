@@ -152,20 +152,18 @@ public class InjectorJob extends GoraMapper<String, WebPage, String, WebPage>
           row.putToMetadata(new Utf8(keymd), ByteBuffer.wrap(valuemd.getBytes()));
       }
 
-
       if (customScore != -1)
-        row.setScore(customScore);
-      else {
-        row.setScore(scoreInjected);
-        try {
-          scfilters.injectedScore(url, row);
-        } catch (ScoringFilterException e) {
-          if (LOG.isWarnEnabled()) {
-            LOG.warn("Cannot filter injected score for url " + url
-                + ", using default (" + e.getMessage() + ")");
-          }
-          row.setScore(scoreInjected);
-        }
+    	  row.setScore(customScore);
+      else
+    	  row.setScore(scoreInjected);
+
+      try {
+    	  scfilters.injectedScore(url, row);
+      } catch (ScoringFilterException e) {
+    	  if (LOG.isWarnEnabled()) {
+    		  LOG.warn("Cannot filter injected score for url " + url
+    				  + ", using default (" + e.getMessage() + ")");
+    	  }
       }
 
       Mark.INJECT_MARK.putMark(row, YES_STRING);
