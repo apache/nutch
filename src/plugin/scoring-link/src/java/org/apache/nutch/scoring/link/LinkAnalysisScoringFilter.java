@@ -36,7 +36,6 @@ public class LinkAnalysisScoringFilter
   implements ScoringFilter {
 
   private Configuration conf;
-  private float scoreInjected = 0.001f;
   private float normalizedScore = 1.00f;
 
   public LinkAnalysisScoringFilter() {
@@ -50,7 +49,6 @@ public class LinkAnalysisScoringFilter
   public void setConf(Configuration conf) {
     this.conf = conf;
     normalizedScore = conf.getFloat("link.analyze.normalize.score", 1.00f);
-    scoreInjected = conf.getFloat("link.analyze.injected.score", 1.00f);
   }
 
   public CrawlDatum distributeScoreToOutlinks(Text fromUrl,
@@ -78,7 +76,6 @@ public class LinkAnalysisScoringFilter
 
   public void injectedScore(Text url, CrawlDatum datum)
     throws ScoringFilterException {
-    datum.setScore(scoreInjected);
   }
 
   public void passScoreAfterParsing(Text url, Content content, Parse parse)

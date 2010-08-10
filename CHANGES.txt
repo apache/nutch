@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.2 - 08/07/2010
 
+* NUTCH-878 ScoringFilters should not override the injected score 
+
 * NUTCH-870 Injector should add the metadata before calling injectedScore (jnioche via mattmann)
 
 * NUTCH-858 No longer able to set per-field boosts on lucene documents (ab)
