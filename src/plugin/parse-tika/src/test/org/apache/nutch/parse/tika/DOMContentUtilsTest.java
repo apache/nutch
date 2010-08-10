@@ -29,10 +29,10 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
-import org.apache.tika.parser.html.HtmlMapper;
-// import org.apache.tika.parser.html.IdentityHtmlMapper;
 import org.apache.xml.serialize.DOMSerializerImpl;
-import org.mortbay.log.Log;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DocumentFragment;
 
 import java.io.ByteArrayInputStream;
@@ -196,6 +196,8 @@ public class DOMContentUtilsTest extends TestCase {
 
 	private static Configuration conf;
 	private static DOMContentUtils utils = null;
+	
+	public static final Logger Logger = LoggerFactory.getLogger(DOMContentUtilsTest.class);
 
 	public DOMContentUtilsTest(String name) {
 		super(name);
@@ -298,13 +300,13 @@ public class DOMContentUtilsTest extends TestCase {
 
 		while (st1.hasMoreTokens()) {
 			if (!st2.hasMoreTokens()) {
-				Log.info("st1+ '" + st1.nextToken() + "'");
+			 Logger.info("st1+ '" + st1.nextToken() + "'");
 				return false;
 			}
 			String st1Token = st1.nextToken();
 			String st2Token = st2.nextToken();
 			if (!st1Token.equals(st2Token)) {
-				Log.info("st1:'" + st1Token + "' != st2:'" + st2Token + "'");
+			 Logger.info("st1:'" + st1Token + "' != st2:'" + st2Token + "'");
 				return false;
 			}
 		}

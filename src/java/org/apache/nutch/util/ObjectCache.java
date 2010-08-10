@@ -19,13 +19,13 @@ package org.apache.nutch.util;
 import java.util.HashMap;
 import java.util.WeakHashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 
 public class ObjectCache {
   
-  private static final Log LOG = LogFactory.getLog(ObjectCache.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ObjectCache.class);
   
   private static final WeakHashMap<Configuration, ObjectCache> CACHE = 
     new WeakHashMap<Configuration, ObjectCache>();

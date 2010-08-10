@@ -33,8 +33,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.util.URLUtil;
 
@@ -46,7 +46,7 @@ import org.apache.nutch.util.URLUtil;
  */
 public class ResolveUrls {
 
-  public static final Log LOG = LogFactory.getLog(ResolveUrls.class);
+  public static final Logger LOG = LoggerFactory.getLogger(ResolveUrls.class);
 
   private String urlsFile = null;
   private int numThreads = 100;
@@ -193,7 +193,7 @@ public class ResolveUrls {
       resolve.resolveUrls();
     }
     catch (Exception e) {
-      LOG.fatal("ResolveUrls: " + StringUtils.stringifyException(e));
+      LOG.error("ResolveUrls: " + StringUtils.stringifyException(e));
     }
   }
 

@@ -29,8 +29,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.avro.util.Utf8;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.CreativeCommons;
 import org.apache.nutch.parse.HTMLMetaTags;
@@ -50,7 +50,7 @@ import org.xml.sax.InputSource;
 
 /** Adds metadata identifying the Creative Commons license used, if any. */
 public class CCParseFilter implements HtmlParseFilter {
-	public static final Log LOG = LogFactory.getLog(CCParseFilter.class);
+	public static final Logger LOG = LoggerFactory.getLogger(CCParseFilter.class);
 
 	/** Walks DOM tree, looking for RDF in comments and licenses in anchors. */
 	public static class Walker {

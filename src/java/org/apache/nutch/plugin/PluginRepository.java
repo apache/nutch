@@ -25,8 +25,8 @@ import java.util.WeakHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
@@ -55,7 +55,7 @@ public class PluginRepository {
 
   private Configuration conf;
 
-  public static final Log LOG = LogFactory.getLog(PluginRepository.class);
+  public static final Logger LOG = LoggerFactory.getLogger(PluginRepository.class);
 
   /**
    * @throws PluginRuntimeException
@@ -80,7 +80,7 @@ public class PluginRepository {
     try {
       installExtensions(fRegisteredPlugins);
     } catch (PluginRuntimeException e) {
-        LOG.fatal(e.toString());
+        LOG.error(e.toString());
       throw new RuntimeException(e.getMessage());
     }
     displayStatus();
@@ -197,7 +197,7 @@ public class PluginRepository {
         checked.putAll(getPluginCheckedDependencies(plugin, all));
         checked.put(plugin.getPluginId(), plugin);
       } catch (MissingDependencyException mde) {
-        // Log exception and ignore plugin
+        // Logger exception and ignore plugin
         LOG.warn(mde.getMessage());
       } catch (CircularDependencyException cde) {
         // Simply ignore this plugin

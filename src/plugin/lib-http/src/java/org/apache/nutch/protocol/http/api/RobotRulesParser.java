@@ -28,8 +28,8 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.StringTokenizer;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.protocols.Response;
@@ -49,7 +49,7 @@ import org.apache.nutch.storage.WebPage;
  */
 public class RobotRulesParser implements Configurable {
 
-  public static final Log LOG = LogFactory.getLog(RobotRulesParser.class);
+  public static final Logger LOG = LoggerFactory.getLogger(RobotRulesParser.class);
 
   private boolean allowForbidden = false;
 
@@ -238,13 +238,13 @@ public class RobotRulesParser implements Configurable {
     //
     if (agents.size() == 0) {
       agents.add(agentName);
-      if (LOG.isFatalEnabled()) {
-        LOG.fatal("No agents listed in 'http.robots.agents' property!");
+      if (LOG.isErrorEnabled()) {
+        LOG.error("No agents listed in 'http.robots.agents' property!");
       }
     } else if (!(agents.get(0)).equalsIgnoreCase(agentName)) {
       agents.add(0, agentName);
-      if (LOG.isFatalEnabled()) {
-        LOG.fatal("Agent we advertise (" + agentName
+      if (LOG.isErrorEnabled()) {
+        LOG.error("Agent we advertise (" + agentName
                 + ") not listed first in 'http.robots.agents' property!");
       }
     }

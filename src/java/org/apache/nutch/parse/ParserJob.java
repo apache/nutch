@@ -5,8 +5,8 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.apache.avro.util.Utf8;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.Tool;
@@ -28,7 +28,7 @@ import org.gora.mapreduce.GoraMapper;
 public class ParserJob extends GoraMapper<String, WebPage, String, WebPage>
     implements Tool {
 
-  public static final Log LOG = LogFactory.getLog(ParserJob.class);
+  public static final Logger LOG = LoggerFactory.getLogger(ParserJob.class);
   
   private static final String RESUME_KEY = "parse.job.resume";
   private static final String FORCE_KEY = "parse.job.force";

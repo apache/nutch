@@ -34,8 +34,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.lucene.analysis.Token;
 import org.apache.nutch.util.LogUtil;
 
@@ -52,7 +52,7 @@ import org.apache.nutch.util.LogUtil;
  */
 public class NGramProfile {
 
-  public static final Log LOG = LogFactory.getLog(NGramProfile.class);
+  public static final Logger LOG = LoggerFactory.getLogger(NGramProfile.class);
 
   /** The minimum length allowed for a ngram. */
   final static int ABSOLUTE_MIN_NGRAM_LENGTH = 1;
@@ -319,8 +319,8 @@ public class NGramProfile {
         }
       }
     } catch (Exception e) {
-      if (LOG.isFatalEnabled()) {
-        LOG.fatal(e.toString());
+      if (LOG.isErrorEnabled()) {
+        LOG.error(e.toString());
       }
     }
     return sum;
@@ -535,8 +535,8 @@ public class NGramProfile {
       }
 
     } catch (Exception e) {
-      if (LOG.isFatalEnabled()) {
-        LOG.fatal("Caught an exception:" + e);
+      if (LOG.isErrorEnabled()) {
+        LOG.error("Caught an exception:" + e);
       }
     }
   }

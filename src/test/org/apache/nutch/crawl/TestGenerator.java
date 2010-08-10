@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.WebPage;
@@ -40,7 +40,7 @@ import org.apache.nutch.util.TableUtil;
  */
 public class TestGenerator extends AbstractNutchTest {
 
-  public static final Log LOG = LogFactory.getLog(TestGenerator.class);
+  public static final Logger LOG = LoggerFactory.getLogger(TestGenerator.class);
   
   private static String[] FIELDS = new String[] {
     WebPage.Field.MARKERS.getName(),

@@ -10,8 +10,8 @@ import java.util.TreeMap;
 import java.util.regex.Pattern;
 
 import org.apache.avro.util.Utf8;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
@@ -44,7 +44,7 @@ import org.gora.store.DataStore;
 
 public class WebTableReader extends Configured implements Tool {
 
-  public static final Log LOG = LogFactory.getLog(WebTableReader.class);
+  public static final Logger LOG = LoggerFactory.getLogger(WebTableReader.class);
 
   public static class WebTableStatMapper extends
       GoraMapper<String, WebPage, Text, LongWritable> {
@@ -458,7 +458,7 @@ public class WebTableReader extends Configured implements Tool {
         }
       }
     } catch (Exception e) {
-      LOG.fatal("WebTableReader: " + StringUtils.stringifyException(e));
+      LOG.error("WebTableReader: " + StringUtils.stringifyException(e));
       return -1;
     }
     return 0;

@@ -9,8 +9,8 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.avro.util.Utf8;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -47,7 +47,7 @@ import org.gora.mapreduce.GoraOutputFormat;
 public class InjectorJob extends GoraMapper<String, WebPage, String, WebPage>
     implements Tool {
 
-  public static final Log LOG = LogFactory.getLog(InjectorJob.class);
+  public static final Logger LOG = LoggerFactory.getLogger(InjectorJob.class);
 
   private Configuration conf;
 
@@ -249,7 +249,7 @@ public class InjectorJob extends GoraMapper<String, WebPage, String, WebPage>
       LOG.info("InjectorJob: finished");
       return -0;
     } catch (Exception e) {
-      LOG.fatal("InjectorJob: " + StringUtils.stringifyException(e));
+      LOG.error("InjectorJob: " + StringUtils.stringifyException(e));
       return -1;
     }
   }

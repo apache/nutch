@@ -24,8 +24,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLFilter;
 import org.apache.nutch.plugin.Extension;
@@ -61,7 +61,7 @@ import org.apache.nutch.util.URLUtil;
 public class DomainURLFilter
   implements URLFilter {
 
-  private static final Log LOG = LogFactory.getLog(DomainURLFilter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DomainURLFilter.class);
 
   // read in attribute "file" of this plugin.
   private static String attributeFile = null;

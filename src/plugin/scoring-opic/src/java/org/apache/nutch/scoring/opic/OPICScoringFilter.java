@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.avro.util.Utf8;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.scoring.ScoreDatum;
@@ -49,7 +49,7 @@ import org.apache.nutch.util.LogUtil;
  */
 public class OPICScoringFilter implements ScoringFilter {
 
-  private final static Log LOG = LogFactory.getLog(OPICScoringFilter.class);
+  private final static Logger LOG = LoggerFactory.getLogger(OPICScoringFilter.class);
 
   private final static Utf8 CASH_KEY = new Utf8("_csh_");
 

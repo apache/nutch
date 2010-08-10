@@ -39,11 +39,6 @@
 			<exclude org="ant" name="ant" />
 		</dependency>
 
-		<dependency org="commons-logging" name="commons-logging"
-			rev="1.0.4" conf="*->master" />
-		<dependency org="commons-logging" name="commons-logging-api"
-			rev="1.0.4" conf="*->master" />
-
 		<dependency org="commons-lang" name="commons-lang" rev="2.4"
 			conf="*->default" />
 		<dependency org="commons-collections" name="commons-collections"

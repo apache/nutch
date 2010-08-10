@@ -29,8 +29,8 @@ import java.nio.ByteBuffer;
 import java.util.Comparator;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.io.RawComparator;
 import org.apache.hadoop.io.WritableComparator;
 import org.apache.hadoop.io.WritableUtils;
@@ -42,7 +42,7 @@ import org.apache.hadoop.io.WritableUtils;
  */
 public class Bytes {
 
-	private static final Log LOG = LogFactory.getLog(Bytes.class);
+	private static final Logger LOG = LoggerFactory.getLogger(Bytes.class);
 
 	/** When we encode strings, we always specify UTF8 encoding */
 	public static final String UTF8_ENCODING = "UTF-8";

@@ -22,8 +22,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 // APACHE imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -59,7 +59,7 @@ public class TestFeedParser extends TestCase {
 
   private String[] sampleFiles = { "rsstest.rss" };
 
-  public static final Log LOG = LogFactory.getLog(TestFeedParser.class
+  public static final Logger LOG = LoggerFactory.getLogger(TestFeedParser.class
       .getName());
 
   /**

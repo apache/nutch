@@ -24,15 +24,15 @@ import java.util.zip.InflaterInputStream;
 import java.util.zip.DeflaterOutputStream;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *  A collection of utility methods for working on deflated data.
  */
 public class DeflateUtils {
   
-  private static final Log LOG = LogFactory.getLog(DeflateUtils.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DeflateUtils.class);
   private static final int EXPECTED_COMPRESSION_RATIO = 5;
   private static final int BUF_SIZE = 4096;
 

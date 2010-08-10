@@ -26,8 +26,8 @@ import java.util.List;
 import java.util.ArrayList;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
@@ -56,7 +56,7 @@ import org.apache.nutch.net.*;
 public abstract class RegexURLFilterBase implements URLFilter {
 
   /** My logger */
-  private final static Log LOG = LogFactory.getLog(RegexURLFilterBase.class);
+  private final static Logger LOG = LoggerFactory.getLogger(RegexURLFilterBase.class);
 
   /** An array of applicable rules */
   private RegexRule[] rules;
@@ -135,12 +135,12 @@ public abstract class RegexURLFilterBase implements URLFilter {
     String file = getRulesFile(conf);
     Reader reader = conf.getConfResourceAsReader(file);
     if (reader == null) {
-      if (LOG.isFatalEnabled()) { LOG.fatal("Can't find resource: " + file); }
+      if (LOG.isErrorEnabled()) { LOG.error("Can't find resource: " + file); }
     } else {
       try {
         rules = readRulesFile(reader);
       } catch (IOException e) {
-        if (LOG.isFatalEnabled()) { LOG.fatal(e.getMessage()); }
+        if (LOG.isErrorEnabled()) { LOG.error(e.getMessage()); }
         //TODO mb@media-style.com: throw Exception? Because broken api.
         throw new RuntimeException(e.getMessage(), e);
       }

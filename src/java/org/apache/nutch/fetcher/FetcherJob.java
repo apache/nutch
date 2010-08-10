@@ -8,8 +8,8 @@ import java.util.Random;
 import java.util.StringTokenizer;
 
 import org.apache.avro.util.Utf8;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.mapreduce.Job;
@@ -104,7 +104,7 @@ public class FetcherJob implements Tool {
     }
   }
 
-  public static final Log LOG = LogFactory.getLog(FetcherJob.class);
+  public static final Logger LOG = LoggerFactory.getLogger(FetcherJob.class);
 
   private Configuration conf;
   
@@ -196,8 +196,8 @@ public class FetcherJob implements Tool {
     if (agentName == null || agentName.trim().length() == 0) {
       String message = "Fetcher: No agents listed in 'http.agent.name'"
           + " property.";
-      if (LOG.isFatalEnabled()) {
-        LOG.fatal(message);
+      if (LOG.isErrorEnabled()) {
+        LOG.error(message);
       }
       throw new IllegalArgumentException(message);
     } else {

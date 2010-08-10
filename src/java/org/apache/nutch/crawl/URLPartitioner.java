@@ -22,8 +22,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.Partitioner;
@@ -39,7 +39,7 @@ import org.apache.nutch.util.URLUtil;
 public class URLPartitioner
 extends Partitioner<SelectorEntry, WebPage>
 implements Configurable {
-  private static final Log LOG = LogFactory.getLog(URLPartitioner.class);
+  private static final Logger LOG = LoggerFactory.getLogger(URLPartitioner.class);
 
   public static final String PARTITION_MODE_KEY = "partition.url.mode";
 

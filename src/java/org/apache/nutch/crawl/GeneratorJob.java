@@ -7,8 +7,8 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.Text;
@@ -49,7 +49,7 @@ public class GeneratorJob extends Configured implements Tool {
     FIELDS.add(WebPage.Field.MARKERS);
   }
 
-  public static final Log LOG = LogFactory.getLog(GeneratorJob.class);
+  public static final Logger LOG = LoggerFactory.getLogger(GeneratorJob.class);
 
   public static class SelectorEntry
   implements WritableComparable<SelectorEntry> {
@@ -187,7 +187,7 @@ public class GeneratorJob extends Configured implements Tool {
     try {
       return (generate(topN, curTime, filter, norm) != null) ? 0 : -1;
     } catch (Exception e) {
-      LOG.fatal("GeneratorJob: " + StringUtils.stringifyException(e));
+      LOG.error("GeneratorJob: " + StringUtils.stringifyException(e));
       return -1;
     }
   }

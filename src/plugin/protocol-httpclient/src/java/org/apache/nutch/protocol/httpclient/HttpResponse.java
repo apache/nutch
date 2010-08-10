@@ -168,9 +168,9 @@ public class HttpResponse implements Response {
         }
       }
 
-      // Log trace message
+      // Logger trace message
       if (Http.LOG.isTraceEnabled()) {
-        Http.LOG.trace(fetchTrace);
+        Http.LOG.trace(fetchTrace.toString());
       }
     } finally {
       get.releaseConnection();

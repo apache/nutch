@@ -28,8 +28,8 @@ import java.util.List;
 import junit.framework.TestCase;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Nutch imports
 import org.apache.nutch.net.URLFilter;
@@ -43,7 +43,7 @@ import org.apache.nutch.net.URLFilter;
 public abstract class RegexURLFilterBaseTest extends TestCase {
   
   /** My logger */
-  protected static final Log LOG = LogFactory.getLog(RegexURLFilterBaseTest.class);  
+  protected static final Logger LOG = LoggerFactory.getLogger(RegexURLFilterBaseTest.class);  
 
   private final static String SEPARATOR = System.getProperty("file.separator");  
   private final static String SAMPLES = System.getProperty("test.data", ".");

@@ -25,8 +25,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.apache.avro.util.Utf8;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.util.StringUtils;
@@ -56,7 +56,7 @@ import org.apache.nutch.util.URLUtil;
 public class ParseUtil extends Configured {
 
   /* our log stream */
-  public static final Log LOG = LogFactory.getLog(ParseUtil.class);
+  public static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);
 
   private Configuration conf;
 

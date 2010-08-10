@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -45,7 +45,7 @@ import com.sun.net.httpserver.HttpContext;
 
 public class CrawlTestUtil {
 
-  private static final Log LOG = LogFactory.getLog(CrawlTestUtil.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CrawlTestUtil.class);
 
   /**
    * For now we need to manually construct our Configuration, because we need to

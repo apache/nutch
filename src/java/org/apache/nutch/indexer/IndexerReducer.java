@@ -3,7 +3,7 @@ package org.apache.nutch.indexer;
 import java.io.IOException;
 
 import org.apache.avro.util.Utf8;
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.nutch.scoring.ScoringFilterException;
@@ -18,7 +18,7 @@ import org.gora.store.DataStore;
 public class IndexerReducer
 extends Reducer<String, WebPage, String, NutchDocument> {
 
-  public static final Log LOG = IndexerJob.LOG;
+  public static final Logger LOG = IndexerJob.LOG;
 
   private IndexingFilters filters;
 

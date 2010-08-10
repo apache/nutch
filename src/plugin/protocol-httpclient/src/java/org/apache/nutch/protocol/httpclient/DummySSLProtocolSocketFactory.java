@@ -35,16 +35,16 @@ import org.apache.commons.httpclient.HttpClientError;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.ControllerThreadSocketFactory;
 import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 
 public class DummySSLProtocolSocketFactory implements SecureProtocolSocketFactory {
 
-  /** Log object for this class. */
-  private static final Log LOG = LogFactory.getLog(DummySSLProtocolSocketFactory.class);
+  /** Logger object for this class. */
+  private static final Logger LOG = LoggerFactory.getLogger(DummySSLProtocolSocketFactory.class);
 
   private SSLContext sslcontext = null;
 

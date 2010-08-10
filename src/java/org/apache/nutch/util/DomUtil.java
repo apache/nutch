@@ -35,13 +35,13 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class DomUtil {
 
-  private final static Log LOG = LogFactory.getLog(DomUtil.class);
+  private final static Logger LOG = LoggerFactory.getLogger(DomUtil.class);
 
   /**
    * Returns parsed dom tree or null if any error

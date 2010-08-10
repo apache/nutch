@@ -33,8 +33,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
@@ -53,7 +53,7 @@ import org.apache.nutch.util.NutchConfiguration;
 public class ParsePluginsReader {
   
   /* our log stream */
-  public static final Log LOG = LogFactory.getLog(ParsePluginsReader.class);
+  public static final Logger LOG = LoggerFactory.getLogger(ParsePluginsReader.class);
   
   /** The property name of the parse-plugins location */
   private static final String PP_FILE_PROP = "parse.plugin.file";

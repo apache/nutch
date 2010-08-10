@@ -3,8 +3,8 @@ package org.apache.nutch.crawl;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.RawComparator;
@@ -21,7 +21,7 @@ import org.gora.mapreduce.StringComparator;
 public class DbUpdaterJob extends Configured
 implements Tool {
 
-  public static final Log LOG = LogFactory.getLog(DbUpdaterJob.class);
+  public static final Logger LOG = LoggerFactory.getLogger(DbUpdaterJob.class);
 
 
   private static final Collection<WebPage.Field> FIELDS =

@@ -27,8 +27,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.avro.util.Utf8;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.HtmlParseFilter;
@@ -50,7 +50,7 @@ import org.w3c.dom.NodeList;
  */
 public class RelTagParser implements HtmlParseFilter {
 
-	public final static Log LOG = LogFactory.getLog(RelTagParser.class);
+	public final static Logger LOG = LoggerFactory.getLogger(RelTagParser.class);
 
 	public final static String REL_TAG = "Rel-Tag";
 

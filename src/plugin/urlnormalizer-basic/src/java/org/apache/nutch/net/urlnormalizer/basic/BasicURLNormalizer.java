@@ -21,8 +21,8 @@ import java.net.URL;
 import java.net.MalformedURLException;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Nutch imports
 import org.apache.nutch.net.URLNormalizer;
@@ -33,7 +33,7 @@ import org.apache.oro.text.regex.*;
 
 /** Converts URLs to a normal form . */
 public class BasicURLNormalizer implements URLNormalizer {
-    public static final Log LOG = LogFactory.getLog(BasicURLNormalizer.class);
+    public static final Logger LOG = LoggerFactory.getLogger(BasicURLNormalizer.class);
 
     private Perl5Compiler compiler = new Perl5Compiler();
     private ThreadLocal matchers = new ThreadLocal() {

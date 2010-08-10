@@ -29,8 +29,8 @@ import java.util.Vector;
 import org.apache.commons.feedparser.FeedParser;
 import org.apache.commons.feedparser.FeedParserFactory;
 import org.apache.commons.feedparser.FeedParserListener;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.Parse;
@@ -55,7 +55,7 @@ import org.apache.nutch.util.NutchConfiguration;
  *          </p>
  */
 public class RSSParser implements Parser {
-  public static final Log LOG = LogFactory.getLog("org.apache.nutch.parse.rss");
+  public static final Logger LOG = LoggerFactory.getLogger("org.apache.nutch.parse.rss");
   private Configuration conf;
 
   private static Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();

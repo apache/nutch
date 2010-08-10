@@ -26,8 +26,8 @@ import org.apache.nutch.util.SuffixStringMatcher;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Reader;
 import java.io.FileReader;
@@ -122,7 +122,7 @@ import java.net.MalformedURLException;
  */
 public class SuffixURLFilter implements URLFilter {
 
-  private static final Log LOG = LogFactory.getLog(SuffixURLFilter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SuffixURLFilter.class);
 
   // read in attribute "file" of this plugin.
   private String attributeFile = null;
@@ -276,7 +276,7 @@ public class SuffixURLFilter implements URLFilter {
     try {
       readConfigurationFile(reader);
     } catch (IOException e) {
-      if (LOG.isFatalEnabled()) { LOG.fatal(e.getMessage()); }
+      if (LOG.isErrorEnabled()) { LOG.error(e.getMessage()); }
       throw new RuntimeException(e.getMessage(), e);
     }
   }

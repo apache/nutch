@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.avro.util.Utf8;
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.scoring.ScoreDatum;
 import org.apache.nutch.scoring.ScoringFilterException;
@@ -19,7 +19,7 @@ import org.gora.mapreduce.GoraMapper;
 
 public class DbUpdateMapper
 extends GoraMapper<String, WebPage, String, NutchWritable> {
-  public static final Log LOG = DbUpdaterJob.LOG;
+  public static final Logger LOG = DbUpdaterJob.LOG;
 
   private ScoringFilters scoringFilters;
 

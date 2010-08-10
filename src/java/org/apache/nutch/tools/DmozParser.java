@@ -27,8 +27,8 @@ import org.xml.sax.helpers.*;
 import org.apache.xerces.util.XMLChar;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
@@ -39,7 +39,7 @@ import org.apache.nutch.util.NutchConfiguration;
 
 /** Utility that converts DMOZ RDF into a flat file of URLs to be injected. */
 public class DmozParser {
-  public static final Log LOG = LogFactory.getLog(DmozParser.class);
+  public static final Logger LOG = LoggerFactory.getLogger(DmozParser.class);
   
     long pages = 0;
 
@@ -237,8 +237,8 @@ public class DmozParser {
      * Emit the exception message
      */
     public void error(SAXParseException spe) {
-      if (LOG.isFatalEnabled()) {
-        LOG.fatal("Error: " + spe.toString() + ": " + spe.getMessage());
+      if (LOG.isErrorEnabled()) {
+        LOG.error("Error: " + spe.toString() + ": " + spe.getMessage());
         spe.printStackTrace(LogUtil.getFatalStream(LOG));
       }
     }
@@ -247,9 +247,9 @@ public class DmozParser {
      * Emit the exception message, with line numbers
      */
     public void fatalError(SAXParseException spe) {
-      if (LOG.isFatalEnabled()) {
-        LOG.fatal("Fatal err: " + spe.toString() + ": " + spe.getMessage());
-        LOG.fatal("Last known line is " + location.getLineNumber() +
+      if (LOG.isErrorEnabled()) {
+        LOG.error("Fatal err: " + spe.toString() + ": " + spe.getMessage());
+        LOG.error("Last known line is " + location.getLineNumber() +
                   ", column " + location.getColumnNumber());
         spe.printStackTrace(LogUtil.getFatalStream(LOG));
       }
@@ -299,8 +299,8 @@ public class DmozParser {
       InputSource is = new InputSource(in);
       reader.parse(is);
     } catch (Exception e) {
-      if (LOG.isFatalEnabled()) {
-        LOG.fatal(e.toString());
+      if (LOG.isErrorEnabled()) {
+        LOG.error(e.toString());
         e.printStackTrace(LogUtil.getFatalStream(LOG));
       }
       System.exit(0);
@@ -321,8 +321,8 @@ public class DmozParser {
       }
     } 
     catch (Exception e) {
-      if (LOG.isFatalEnabled()) {
-        LOG.fatal(e.toString());
+      if (LOG.isErrorEnabled()) {
+        LOG.error(e.toString());
         e.printStackTrace(LogUtil.getFatalStream(LOG));
       }
       System.exit(0);

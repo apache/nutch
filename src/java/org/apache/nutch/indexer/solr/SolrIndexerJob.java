@@ -18,8 +18,8 @@ package org.apache.nutch.indexer.solr;
 
 import java.util.Random;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapreduce.Job;
@@ -34,7 +34,7 @@ import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
 
 public class SolrIndexerJob extends IndexerJob {
 
-  public static Log LOG = LogFactory.getLog(SolrIndexerJob.class);
+  public static Logger LOG = LoggerFactory.getLogger(SolrIndexerJob.class);
 
   private void indexSolr(String solrUrl, String crawlId) throws Exception {
     LOG.info("SolrIndexerJob: starting");
@@ -69,7 +69,7 @@ public class SolrIndexerJob extends IndexerJob {
       indexSolr(args[0], args[1]);
       return 0;
     } catch (final Exception e) {
-      LOG.fatal("SolrIndexerJob: " + StringUtils.stringifyException(e));
+      LOG.error("SolrIndexerJob: " + StringUtils.stringifyException(e));
       return -1;
     }
   }

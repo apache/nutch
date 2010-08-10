@@ -33,8 +33,8 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // HTTP Client imports
 import org.apache.commons.httpclient.Header;
@@ -66,7 +66,7 @@ import org.apache.nutch.util.NutchConfiguration;
  */
 public class Http extends HttpBase {
 
-	public static final Log LOG = LogFactory.getLog(Http.class);
+	public static final Logger LOG = LoggerFactory.getLogger(Http.class);
 
 	private static MultiThreadedHttpConnectionManager connectionManager = new MultiThreadedHttpConnectionManager();
 
@@ -136,8 +136,8 @@ public class Http extends HttpBase {
 		try {
 			setCredentials();
 		} catch (Exception ex) {
-			if (LOG.isFatalEnabled()) {
-				LOG.fatal("Could not read " + authFile + " : "
+			if (LOG.isErrorEnabled()) {
+				LOG.error("Could not read " + authFile + " : "
 						+ ex.getMessage());
 				ex.printStackTrace(LogUtil.getErrorStream(LOG));
 			}

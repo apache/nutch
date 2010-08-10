@@ -29,8 +29,8 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.apache.avro.util.Utf8;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.Bytes;
 import org.apache.html.dom.HTMLDocumentImpl;
@@ -63,7 +63,7 @@ import org.w3c.dom.DocumentFragment;
 
 public class TikaParser implements org.apache.nutch.parse.Parser {
 
-  public static final Log LOG = LogFactory.getLog(TikaParser.class);
+  public static final Logger LOG = LoggerFactory.getLogger(TikaParser.class);
 
   private static Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 

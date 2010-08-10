@@ -29,8 +29,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 
@@ -58,7 +58,7 @@ import org.apache.oro.text.regex.*;
  */
 public class RegexURLNormalizer extends Configured implements URLNormalizer {
 
-  private static final Log LOG = LogFactory.getLog(RegexURLNormalizer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(RegexURLNormalizer.class);
 
   /**
    * Class which holds a compiled pattern and its corresponding substition
@@ -188,7 +188,7 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
       FileInputStream fis = new FileInputStream(filename);
       return readConfiguration(fis);
     } catch (Exception e) {
-      LOG.fatal("Error loading rules from '" + filename + "': " + e);
+      LOG.error("Error loading rules from '" + filename + "': " + e);
       return EMPTY_RULES;
     }
   }
@@ -203,8 +203,8 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
               .parse(is);
       Element root = doc.getDocumentElement();
       if ((!"regex-normalize".equals(root.getTagName()))
-              && (LOG.isFatalEnabled())) {
-        LOG.fatal("bad conf file: top-level element not <regex-normalize>");
+              && (LOG.isErrorEnabled())) {
+        LOG.error("bad conf file: top-level element not <regex-normalize>");
       }
       NodeList regexes = root.getChildNodes();
       for (int i = 0; i < regexes.getLength(); i++) {
@@ -239,8 +239,8 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
         }
       }
     } catch (Exception e) {
-      if (LOG.isFatalEnabled()) {
-        LOG.fatal("error parsing conf file: " + e);
+      if (LOG.isErrorEnabled()) {
+        LOG.error("error parsing conf file: " + e);
       }
       return EMPTY_RULES;
     }

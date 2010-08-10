@@ -5,8 +5,8 @@ import java.util.Collection;
 import java.util.HashSet;
 
 import org.apache.avro.util.Utf8;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.RawComparator;
 import org.apache.hadoop.mapreduce.Job;
@@ -29,7 +29,7 @@ public abstract class IndexerJob
 extends GoraMapper<String, WebPage, String, WebPage>
 implements Tool {
 
-  public static final Log LOG = LogFactory.getLog(IndexerJob.class);
+  public static final Logger LOG = LoggerFactory.getLogger(IndexerJob.class);
 
   private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 

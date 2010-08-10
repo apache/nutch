@@ -26,12 +26,12 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.mortbay.jetty.Request;
 
 public class LogDebugHandler extends AbstractTestbedHandler implements Filter {
-  private static final Log LOG = LogFactory.getLog(LogDebugHandler.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LogDebugHandler.class);
 
   @Override
   public void handle(Request req, HttpServletResponse res, String target,

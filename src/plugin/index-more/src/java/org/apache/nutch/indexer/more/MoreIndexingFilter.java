@@ -25,8 +25,8 @@ import java.util.TimeZone;
 
 import org.apache.avro.util.Utf8;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
@@ -57,7 +57,7 @@ import org.apache.tika.mime.MimeType;
  */
 
 public class MoreIndexingFilter implements IndexingFilter {
-  public static final Log LOG = LogFactory.getLog(MoreIndexingFilter.class);
+  public static final Logger LOG = LoggerFactory.getLogger(MoreIndexingFilter.class);
 
   /** Get the MimeTypes resolver instance. */
   private MimeUtil MIME;

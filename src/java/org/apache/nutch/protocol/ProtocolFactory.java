@@ -22,8 +22,8 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
@@ -41,7 +41,7 @@ import org.apache.nutch.util.ObjectCache;
  */
 public class ProtocolFactory {
 
-  public static final Log LOG = LogFactory.getLog(ProtocolFactory.class);
+  public static final Logger LOG = LoggerFactory.getLogger(ProtocolFactory.class);
 
   private final ExtensionPoint extensionPoint;
 

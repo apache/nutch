@@ -25,8 +25,8 @@ import java.util.HashSet;
 import java.util.StringTokenizer;
 
 import org.apache.avro.util.Utf8;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
@@ -37,7 +37,7 @@ import org.apache.nutch.storage.WebPage.Field;
 
 /** Adds basic searchable fields to a document. */
 public class CCIndexingFilter implements IndexingFilter {
-	public static final Log LOG = LogFactory.getLog(CCIndexingFilter.class);
+	public static final Logger LOG = LoggerFactory.getLogger(CCIndexingFilter.class);
 
 	/** The name of the document field we use. */
 	public static String FIELD = "cc";

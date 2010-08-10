@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.avro.util.Utf8;
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.nutch.crawl.CrawlStatus;
@@ -45,7 +45,7 @@ import org.gora.mapreduce.GoraReducer;
 public class FetcherReducer
 extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
 
-  public static final Log LOG = FetcherJob.LOG;
+  public static final Logger LOG = FetcherJob.LOG;
 
   private final AtomicInteger activeThreads = new AtomicInteger(0);
   private final AtomicInteger spinWaiting = new AtomicInteger(0);
@@ -534,7 +534,7 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
         }
 
       } catch (final Throwable e) {
-        LOG.fatal("fetcher caught:"+e.toString());
+        LOG.error("fetcher caught:"+e.toString());
         e.printStackTrace(LogUtil.getFatalStream(LOG));
       } finally {
         if (fit != null) fetchQueues.finishFetchItem(fit);
@@ -681,7 +681,7 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
           }
         }
       } catch (Exception e) {
-        LOG.fatal("QueueFeeder error reading input, record " + cnt, e);
+        LOG.error("QueueFeeder error reading input, record " + cnt, e);
         return;
       }
       LOG.info("QueueFeeder finished: total " + cnt + " records. Hit by time limit :"

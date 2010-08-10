@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-851 Port logging to slf4j (jnioche)
+
 * NUTCH-564 External parser supports encoding attribute (Antony Bowesman, mattmann)
 
 * NUTCH-873 Ivy configuration settings don't include Gora (mattmann)

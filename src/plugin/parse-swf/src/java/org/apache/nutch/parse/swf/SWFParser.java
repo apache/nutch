@@ -21,8 +21,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
@@ -47,7 +47,7 @@ import com.anotherbigidea.io.InStream;
  * @author Andrzej Bialecki
  */
 public class SWFParser implements Parser {
-  public static final Log LOG = LogFactory.getLog("org.apache.nutch.parse.swf");
+  public static final Logger LOG = LoggerFactory.getLogger("org.apache.nutch.parse.swf");
 
   private Configuration conf = null;
 

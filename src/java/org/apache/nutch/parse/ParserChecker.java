@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.avro.util.Utf8;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
@@ -41,7 +41,7 @@ import org.apache.nutch.util.NutchConfiguration;
 
 public class ParserChecker {
 
-  public static final Log LOG = LogFactory.getLog(ParserChecker.class);
+  public static final Logger LOG = LoggerFactory.getLogger(ParserChecker.class);
 
   public ParserChecker() {
   }

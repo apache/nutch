@@ -19,8 +19,8 @@
 
 package org.apache.nutch.urlfilter.prefix;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.*;
@@ -50,7 +50,7 @@ import java.util.ArrayList;
  */
 public class PrefixURLFilter implements URLFilter {
 
-  private static final Log LOG = LogFactory.getLog(PrefixURLFilter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PrefixURLFilter.class);
 
   // read in attribute "file" of this plugin.
   private static String attributeFile = null;
@@ -155,7 +155,7 @@ public class PrefixURLFilter implements URLFilter {
       try {
         trie = readConfigurationFile(reader);
       } catch (IOException e) {
-        if (LOG.isFatalEnabled()) { LOG.fatal(e.getMessage()); }
+        if (LOG.isErrorEnabled()) { LOG.error(e.getMessage()); }
         // TODO mb@media-style.com: throw Exception? Because broken api.
         throw new RuntimeException(e.getMessage(), e);
       }

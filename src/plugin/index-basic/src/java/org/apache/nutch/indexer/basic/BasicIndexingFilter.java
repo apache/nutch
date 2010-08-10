@@ -23,8 +23,8 @@ import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.HashSet;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.lucene.document.DateTools;
 import org.apache.nutch.indexer.IndexingException;
@@ -37,7 +37,7 @@ import org.apache.nutch.util.TableUtil;
 
 /** Adds basic searchable fields to a document. */
 public class BasicIndexingFilter implements IndexingFilter {
-  public static final Log LOG = LogFactory.getLog(BasicIndexingFilter.class);
+  public static final Logger LOG = LoggerFactory.getLogger(BasicIndexingFilter.class);
 
   private int MAX_TITLE_LENGTH;
   private Configuration conf;

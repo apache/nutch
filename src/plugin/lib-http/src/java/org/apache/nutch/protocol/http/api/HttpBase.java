@@ -24,8 +24,8 @@ import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
@@ -115,10 +115,10 @@ public abstract class HttpBase implements Protocol {
   private static LinkedList<String> BLOCKED_ADDR_QUEUE = new LinkedList<String>();
 
   /** The default logger */
-  private final static Log LOGGER = LogFactory.getLog(HttpBase.class);
+  private final static Logger LOGGER = LoggerFactory.getLogger(HttpBase.class);
 
   /** The specified logger */
-  private Log logger = LOGGER;
+  private Logger logger = LOGGER;
 
   /** The nutch configuration */
   private Configuration conf = null;
@@ -146,7 +146,7 @@ public abstract class HttpBase implements Protocol {
   }
 
   /** Creates a new instance of HttpBase */
-  public HttpBase(Log logger) {
+  public HttpBase(Logger logger) {
     if (logger != null) {
       this.logger = logger;
     }
@@ -442,8 +442,8 @@ public abstract class HttpBase implements Protocol {
 
     if ( (agentName == null) || (agentName.trim().length() == 0) ) {
       // TODO : NUTCH-258
-      if (LOGGER.isFatalEnabled()) {
-        LOGGER.fatal("No User-Agent string set (http.agent.name)!");
+      if (LOGGER.isErrorEnabled()) {
+        LOGGER.error("No User-Agent string set (http.agent.name)!");
       }
     }
 

@@ -18,15 +18,15 @@ package org.apache.nutch.urlfilter.domain;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
 public class TestDomainURLFilter
   extends TestCase {
 
-  protected static final Log LOG = LogFactory.getLog(TestDomainURLFilter.class);
+  protected static final Logger LOG = LoggerFactory.getLogger(TestDomainURLFilter.class);
 
   private final static String SEPARATOR = System.getProperty("file.separator");
   private final static String SAMPLES = System.getProperty("test.data", ".");

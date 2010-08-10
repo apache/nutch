@@ -29,8 +29,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
@@ -39,7 +39,7 @@ import junit.framework.TestCase;
 
 /** Unit tests for RegexUrlNormalizer. */
 public class TestRegexURLNormalizer extends TestCase {
-  private static final Log LOG = LogFactory.getLog(TestRegexURLNormalizer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(TestRegexURLNormalizer.class);
   
   private RegexURLNormalizer normalizer;
   private Configuration conf;

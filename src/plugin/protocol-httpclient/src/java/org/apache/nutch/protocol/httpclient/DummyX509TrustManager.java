@@ -29,15 +29,15 @@ import java.security.cert.X509Certificate;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import org.apache.commons.logging.Log; 
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger; 
+import org.slf4j.LoggerFactory;
 
 public class DummyX509TrustManager implements X509TrustManager
 {
     private X509TrustManager standardTrustManager = null;
 
-    /** Log object for this class. */
-    private static final Log LOG = LogFactory.getLog(DummyX509TrustManager.class);
+    /** Logger object for this class. */
+    private static final Logger LOG = LoggerFactory.getLogger(DummyX509TrustManager.class);
 
     /**
      * Constructor for DummyX509TrustManager.

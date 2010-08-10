@@ -26,8 +26,8 @@ import java.util.Map;
 import java.util.Properties;
 
 import org.apache.avro.util.Utf8;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.HTMLMetaTags;
@@ -48,7 +48,7 @@ import org.w3c.dom.Node;
  */
 public class HTMLLanguageParser implements HtmlParseFilter {
 
-  public static final Log LOG = LogFactory.getLog(HTMLLanguageParser.class);
+  public static final Logger LOG = LoggerFactory.getLogger(HTMLLanguageParser.class);
 
   private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
@@ -69,8 +69,8 @@ public class HTMLLanguageParser implements HtmlParseFilter {
         }
       }
     } catch (Exception e) {
-      if (LOG.isFatalEnabled()) {
-        LOG.fatal(e.toString());
+      if (LOG.isErrorEnabled()) {
+        LOG.error(e.toString());
       }
     }
   }

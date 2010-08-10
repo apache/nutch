@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
@@ -25,7 +25,7 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
 public class Benchmark extends Configured implements Tool {
-  private static final Log LOG = LogFactory.getLog(Benchmark.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Benchmark.class);
 
   public static void main(String[] args) throws Exception {
     Configuration conf = NutchConfiguration.create();
@@ -132,7 +132,7 @@ public class Benchmark extends Configured implements Tool {
       } else if (args[i].equalsIgnoreCase("-maxPerHost")) {
         maxPerHost = Integer.parseInt(args[++i]);
       } else {
-        LOG.fatal("Invalid argument: '" + args[i] + "'");
+        LOG.error("Invalid argument: '" + args[i] + "'");
         return -1;
       }
     }

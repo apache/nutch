@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.avro.util.Utf8;
-import org.apache.commons.logging.Log;
+import org.slf4j.Logger;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.StringUtils;
@@ -25,7 +25,7 @@ extends GoraReducer<String, NutchWritable, String, WebPage> {
 
   public static final String CRAWLDB_ADDITIONS_ALLOWED = "db.update.additions.allowed";	
 	
-  public static final Log LOG = DbUpdaterJob.LOG;
+  public static final Logger LOG = DbUpdaterJob.LOG;
 
   private int retryMax;
   private boolean additionsAllowed;

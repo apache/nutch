@@ -33,8 +33,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.analysis.lang.NGramProfile.NGramEntry;
 import org.apache.nutch.parse.Parse;
@@ -61,7 +61,7 @@ public class LanguageIdentifier {
 
   private final static int DEFAULT_ANALYSIS_LENGTH = 0; // 0 means full content
 
-  private final static Log LOG = LogFactory.getLog(LanguageIdentifier.class);
+  private final static Logger LOG = LoggerFactory.getLogger(LanguageIdentifier.class);
 
   private ArrayList<NGramProfile> languages = new ArrayList<NGramProfile>();
 
@@ -146,8 +146,8 @@ public class LanguageIdentifier {
             list.append(" " + lang + "(" + ngrams.size() + ")");
             is.close();
           } catch (IOException e1) {
-            if (LOG.isFatalEnabled()) {
-              LOG.fatal(e1.toString());
+            if (LOG.isErrorEnabled()) {
+              LOG.error(e1.toString());
             }
           }
         }
@@ -168,8 +168,8 @@ public class LanguageIdentifier {
       // Create the suspect profile
       suspect = new NGramProfile("suspect", minLength, maxLength);
     } catch (Exception e) {
-      if (LOG.isFatalEnabled()) {
-        LOG.fatal(e.toString());
+      if (LOG.isErrorEnabled()) {
+        LOG.error(e.toString());
       }
     }
   }
