@@ -190,11 +190,6 @@ public class Http extends HttpBase {
 		params.setSendBufferSize(BUFFER_SIZE);
 		params.setReceiveBufferSize(BUFFER_SIZE);
 		params.setMaxTotalConnections(maxThreadsTotal);
-		if (maxThreadsTotal > maxThreadsPerHost) {
-			params.setDefaultMaxConnectionsPerHost(maxThreadsPerHost);
-		} else {
-			params.setDefaultMaxConnectionsPerHost(maxThreadsTotal);
-		}
 
 		// executeMethod(HttpMethod) seems to ignore the connection timeout on
 		// the connection manager.

@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-876 Remove remaining robots/IP blocking code in lib-http (ab)
+
 * NUTCH-851 Port logging to slf4j (jnioche)
 
 * NUTCH-564 External parser supports encoding attribute (Antony Bowesman, mattmann)
