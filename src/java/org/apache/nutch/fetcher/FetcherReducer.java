@@ -63,7 +63,7 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
 
   private FetchItemQueues fetchQueues;
 
-  private boolean isParsing;
+  private boolean parse;
 
   private ParseUtil parseUtil;
 
@@ -590,7 +590,7 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
       Mark.FETCH_MARK.putMark(fit.page, Mark.GENERATE_MARK.checkMark(fit.page));
       String key = TableUtil.reverseUrl(fit.url);
 
-      if (isParsing) {
+      if (parse) {
         URLWebPage redirectedPage = parseUtil.process(key, fit.page);
         if (redirectedPage != null) {
           context.write(TableUtil.reverseUrl(redirectedPage.getUrl()),
@@ -708,15 +708,11 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
     Configuration conf = context.getConfiguration();
     this.fetchQueues = new FetchItemQueues(conf);
     int threadCount = conf.getInt("fetcher.threads.fetch", 10);
-    isParsing = conf.getBoolean("fetcher.parse", true);
-    if (isParsing) {
+    parse = conf.getBoolean(FetcherJob.PARSE_KEY, false);
+    if (parse) {
       parseUtil = new ParseUtil(conf);
     }
     LOG.info("Fetcher: threads: " + threadCount);
-
-    // set non-blocking & no-robots mode for HTTP protocol plugins.
-    conf.setBoolean(Protocol.CHECK_BLOCKING, false);
-    conf.setBoolean(Protocol.CHECK_ROBOTS, false);
 
     feeder = new QueueFeeder(context, fetchQueues, threadCount * 50);
     feeder.start();

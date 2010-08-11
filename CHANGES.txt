@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-872 Change the default fetcher.parse to FALSE (ab).
+
 * NUTCH-861 Renamed HTMLParseFilter into ParseFilter 
 
 * NUTCH-876 Remove remaining robots/IP blocking code in lib-http (ab)

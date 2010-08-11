@@ -641,8 +641,9 @@
 
 <property>
   <name>fetcher.parse</name>
-  <value>true</value>
-  <description>If true, fetcher will parse content.</description>
+  <value>false</value>
+  <description>If true, fetcher will parse content. NOTE: previous releases would
+  default to true. Since 2.0 this is set to false as a safer default.</description>
 </property>
 
 <property>

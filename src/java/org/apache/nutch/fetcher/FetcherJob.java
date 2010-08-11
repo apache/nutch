@@ -138,7 +138,17 @@ public class FetcherJob implements Tool {
     return fields;
   }
 
-  public  int fetch(int threads, String crawlId, boolean shouldResume, boolean isParsing)
+  /**
+   * Run fetcher.
+   * @param threads number of threads per map task
+   * @param crawlId crawlId (obtained from Generator) or null to fetch all generated fetchlists
+   * @param shouldResume
+   * @param parse if true, then parse content immediately, if false then a separate
+   * run of {@link ParserJob} will be needed.
+   * @return 0 on success
+   * @throws Exception
+   */
+  public int fetch(int threads, String crawlId, boolean shouldResume, boolean parse)
       throws Exception {
     LOG.info("FetcherJob: starting");
 
@@ -148,7 +158,7 @@ public class FetcherJob implements Tool {
       getConf().setInt(THREADS_KEY, threads);
     }
     getConf().set(GeneratorJob.CRAWL_ID, crawlId);
-    getConf().setBoolean(PARSE_KEY, isParsing);
+    getConf().setBoolean(PARSE_KEY, parse);
     getConf().setBoolean(RESUME_KEY, shouldResume);
     
     // set the actual time for the timelimit relative
@@ -224,10 +234,10 @@ public class FetcherJob implements Tool {
   public int run(String[] args) throws Exception {
     int threads = -1;
     boolean shouldResume = false;
-    boolean isParsing = true;
+    boolean parse = getConf().getBoolean(PARSE_KEY, false);
     String crawlId;
 
-    String usage = "Usage: FetcherJob (<crawl id> | -all) [-threads N] [-noParsing] [-resume]";
+    String usage = "Usage: FetcherJob (<crawl id> | -all) [-threads N] [-parse] [-resume]";
 
     if (args.length == 0) {
       System.err.println(usage);
@@ -235,7 +245,7 @@ public class FetcherJob implements Tool {
     }
 
     crawlId = args[0];
-    if (crawlId.equals("-threads") || crawlId.equals("-resume") || crawlId.equals("-noParsing")) {
+    if (crawlId.equals("-threads") || crawlId.equals("-resume") || crawlId.equals("-parse")) {
       System.err.println(usage);
       return -1;
     }
@@ -245,12 +255,12 @@ public class FetcherJob implements Tool {
         threads = Integer.parseInt(args[++i]);
       } else if ("-resume".equals(args[i])) {
         shouldResume = true;
-      } else if ("-noParsing".equals(args[i])) {
-        isParsing = false;
+      } else if ("-parse".equals(args[i])) {
+        parse = true;
       }
     }
 
-    int fetchcode = fetch(threads, crawlId, shouldResume, isParsing); // run the Fetcher
+    int fetchcode = fetch(threads, crawlId, shouldResume, parse); // run the Fetcher
 
     return fetchcode;
   }
