@@ -122,8 +122,11 @@
       <zipfileset dir="${build.classes}"
                   excludes="nutch-default.xml,nutch-site.xml"/>
       <zipfileset dir="${conf.dir}" excludes="*.template,hadoop*.*"/>
+      <!-- need to exclude hsqldb.jar due to a conflicting version already
+           present in Hadoop/lib.
+      -->
       <zipfileset dir="${build.lib.dir}" prefix="lib"
-                  includes="**/*.jar" excludes="hadoop-*.jar"/>
+                  includes="**/*.jar" excludes="hadoop-*.jar,hsqldb*.jar"/>
       <zipfileset dir="${build.plugins}" prefix="plugins"/>
     </jar>
   </target>
