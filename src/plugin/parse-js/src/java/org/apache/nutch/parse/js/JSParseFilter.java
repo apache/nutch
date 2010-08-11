@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.parse.HTMLMetaTags;
-import org.apache.nutch.parse.HtmlParseFilter;
+import org.apache.nutch.parse.ParseFilter;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseStatusCodes;
@@ -62,7 +62,7 @@ import org.w3c.dom.NodeList;
  *
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
-public class JSParseFilter implements HtmlParseFilter, Parser {
+public class JSParseFilter implements ParseFilter, Parser {
   public static final Logger LOG = LoggerFactory.getLogger(JSParseFilter.class);
 
   private static final int MAX_TITLE_LEN = 80;

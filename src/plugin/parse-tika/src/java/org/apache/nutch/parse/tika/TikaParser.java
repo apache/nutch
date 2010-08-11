@@ -36,7 +36,7 @@ import org.apache.nutch.util.Bytes;
 import org.apache.html.dom.HTMLDocumentImpl;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.HTMLMetaTags;
-import org.apache.nutch.parse.HtmlParseFilters;
+import org.apache.nutch.parse.ParseFilters;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.OutlinkExtractor;
 import org.apache.nutch.parse.Parse;
@@ -75,7 +75,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
   private Configuration conf;
   private TikaConfig tikaConfig = null;
   private DOMContentUtils utils;
-  private HtmlParseFilters htmlParseFilters;
+  private ParseFilters htmlParseFilters;
   private String cachingPolicy;
 
   @Override
@@ -208,7 +208,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
       throw new RuntimeException(e2);
     }
 
-    this.htmlParseFilters = new HtmlParseFilters(getConf());
+    this.htmlParseFilters = new ParseFilters(getConf());
     this.utils = new DOMContentUtils(conf);
     this.cachingPolicy = getConf().get("parser.caching.forbidden.policy",
         Nutch.CACHING_FORBIDDEN_CONTENT);

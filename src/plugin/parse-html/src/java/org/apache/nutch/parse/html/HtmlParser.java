@@ -42,7 +42,7 @@ import org.apache.html.dom.HTMLDocumentImpl;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.HTMLMetaTags;
-import org.apache.nutch.parse.HtmlParseFilters;
+import org.apache.nutch.parse.ParseFilters;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseStatusCodes;
@@ -133,7 +133,7 @@ public class HtmlParser implements Parser {
 
   private DOMContentUtils utils;
 
-  private HtmlParseFilters htmlParseFilters;
+  private ParseFilters htmlParseFilters;
 
   private String cachingPolicy;
 
@@ -287,7 +287,7 @@ public class HtmlParser implements Parser {
 
   public void setConf(Configuration conf) {
     this.conf = conf;
-    this.htmlParseFilters = new HtmlParseFilters(getConf());
+    this.htmlParseFilters = new ParseFilters(getConf());
     this.parserImpl = getConf().get("parser.html.impl", "neko");
     this.defaultCharEncoding = getConf().get(
         "parser.character.encoding.default", "windows-1252");

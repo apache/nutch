@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.HTMLMetaTags;
-import org.apache.nutch.parse.HtmlParseFilter;
+import org.apache.nutch.parse.ParseFilter;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.storage.WebPage.Field;
@@ -46,7 +46,7 @@ import org.w3c.dom.Node;
  * Adds metadata identifying language of document if found We could also run
  * statistical analysis here but we'd miss all other formats
  */
-public class HTMLLanguageParser implements HtmlParseFilter {
+public class HTMLLanguageParser implements ParseFilter {
 
   public static final Logger LOG = LoggerFactory.getLogger(HTMLLanguageParser.class);
 

@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.parse.HTMLMetaTags;
-import org.apache.nutch.parse.HtmlParseFilter;
+import org.apache.nutch.parse.ParseFilter;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.storage.WebPage.Field;
@@ -48,7 +48,7 @@ import org.w3c.dom.NodeList;
  *      http://www.microformats.org/wiki/rel-tag</a>
  * @author J&eacute;r&ocirc;me Charron
  */
-public class RelTagParser implements HtmlParseFilter {
+public class RelTagParser implements ParseFilter {
 
 	public final static Logger LOG = LoggerFactory.getLogger(RelTagParser.class);
 

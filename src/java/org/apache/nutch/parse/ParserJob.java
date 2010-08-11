@@ -113,7 +113,7 @@ public class ParserJob extends GoraMapper<String, WebPage, String, WebPage>
     Configuration conf = job.getConfiguration();
     Collection<WebPage.Field> fields = new HashSet<WebPage.Field>(FIELDS);
     ParserFactory parserFactory = new ParserFactory(conf);
-    HtmlParseFilters parseFilters = new HtmlParseFilters(conf);
+    ParseFilters parseFilters = new ParseFilters(conf);
 
     Collection<WebPage.Field> parsePluginFields = parserFactory.getFields();
     Collection<WebPage.Field> signaturePluginFields =

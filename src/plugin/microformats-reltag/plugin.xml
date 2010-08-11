@@ -33,7 +33,7 @@
 
    <extension id="org.apache.nutch.microformats.reltag.RelTagParser"
               name="Rel-Tag parser"
-              point="org.apache.nutch.parse.HtmlParseFilter">
+              point="org.apache.nutch.parse.ParseFilter">
       <implementation id="RelTagParser"
                       class="org.apache.nutch.microformats.reltag.RelTagParser"/>
    </extension>

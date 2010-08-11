@@ -33,7 +33,7 @@
 
    <extension id="org.apache.nutch.analysis.lang.LanguageParser"
               name="Nutch language Parser"
-              point="org.apache.nutch.parse.HtmlParseFilter">
+              point="org.apache.nutch.parse.ParseFilter">
       <implementation id="LanguageParser"
                       class="org.apache.nutch.analysis.lang.HTMLLanguageParser"/>
    </extension>
