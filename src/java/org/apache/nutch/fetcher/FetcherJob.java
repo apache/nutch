@@ -257,7 +257,7 @@ public class FetcherJob implements Tool {
     }
 
     crawlId = args[0];
-    if (!crawlId.equals("-all") || crawlId.startsWith("-")) {
+    if (!crawlId.equals("-all") && crawlId.startsWith("-")) {
       System.err.println(usage);
       return -1;
     }
