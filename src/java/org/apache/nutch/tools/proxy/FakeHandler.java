@@ -19,6 +19,7 @@ package org.apache.nutch.tools.proxy;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
@@ -27,7 +28,20 @@ import org.mortbay.jetty.HttpURI;
 import org.mortbay.jetty.Request;
 
 public class FakeHandler extends AbstractTestbedHandler {
+  /** Create links to hosts generated from a pool of numHosts/numPages random names. */
+  public static enum Mode {UNIQUE, RANDOM};
+    
+  int numInternalLinks;
+  int numExternalLinks;
+  Mode hostMode;
+  Mode pageMode;
+  AtomicLong hostSeq = new AtomicLong(0);
+  AtomicLong pageSeq = new AtomicLong(0);
+  int numHosts;
+  int numPages;
+  
   Random r = new Random(1234567890L); // predictable
+  Random pageR;
 
   private static final String testA = 
     "<html><body><h1>Internet Weather Forecast Accuracy</h1>\n" + 
@@ -39,12 +53,33 @@ public class FakeHandler extends AbstractTestbedHandler {
     "<p>The hail, rain and lightning eventually subsided, but the most alarming news was waiting on cell phone voicemail. A friend who lived in the area had called frantically, knowing we were at the park, as the local news was reporting multiple people had been by struck by lightning at Schlitterbahn during the storm.</p>" +
     "<p>'So much for the 0% chance of rain,' I repeated.</p></body></html>";
 
+  /**
+   * Create fake pages.
+   * @param hostMode if UNIQUE then each external outlink will use a unique host name. If
+   * RANDOM then each outlink will use a host name allocated from pool of numHosts.
+   * @param pageMode if UNIQUE then each internal outlinks will use a unique page name.
+   * if RANDOM then each outlink will use a page name allocated from pool of numPages.
+   * @param numInternalLinks
+   * @param numExternalLinks
+   * @param numHosts
+   * @param numPages
+   */
+  public FakeHandler(Mode hostMode, Mode pageMode,
+      int numInternalLinks, int numExternalLinks,
+      int numHosts, int numPages) {
+    this.numExternalLinks = numExternalLinks;
+    this.numInternalLinks = numInternalLinks;
+    this.numHosts = numHosts;
+    this.numPages = numPages;
+    this.hostMode = hostMode;
+    this.pageMode = pageMode;
+  }
+  
   @Override
   public void handle(Request req, HttpServletResponse res, String target, 
           int dispatch) throws IOException, ServletException {
     HttpURI u = req.getUri();
     String uri = u.toString();
-    //System.err.println("-faking " + uri.toString());
     addMyHeader(res, "URI", uri);
     // don't pass it down the chain
     req.setHandled(true);
@@ -61,32 +96,51 @@ public class FakeHandler extends AbstractTestbedHandler {
       String p = "<p>URI: " + uri + "</p>\r\n";
       os.write(p.getBytes());
       // fake some links
-      String base;
+      String basePath;
+      String baseDomain;
       if (u.getPath().length() > 5) {
-        base = u.getPath().substring(0, u.getPath().length() - 5);
+        basePath = u.getPath().substring(0, u.getPath().length() - 5);
       } else {
-        base = u.getPath();
+        basePath = u.getPath();
       }
-      String prefix = u.getScheme() + "://" + u.getHost();
-      if (u.getPort() != 80 && u.getPort() != -1) base += ":" + u.getPort();
-      if (!base.startsWith("/")) prefix += "/";
-      prefix = prefix + base;
-      for (int i = 0; i < 10; i++) {
-        String link = "<p><a href='" + prefix;
-        if (!prefix.endsWith("/")) {
-          link += "/";
+      // internal links
+      if (pageMode.equals(Mode.RANDOM)) { // initialize random per host
+        pageR = new Random(u.getHost().hashCode());
+      }
+      for (int i = 0; i < numInternalLinks; i++) {
+        String link = "<p><a href='";
+        if (pageMode.equals(Mode.RANDOM)) {
+          link += pageR.nextInt (numPages) + ".html'>";
+        } else {
+          if (!basePath.endsWith("/")) {
+            link += "/";
+          }
+          link += pageSeq.getAndIncrement() + ".html'>";
         }
-        link += i + ".html'>outlink " + i + "</a></p>\r\n";
+        link += "outlink " + i + "</a></p>\r\n";
         os.write(link.getBytes());
       }
-      // fake a few links to random nonexistent hosts
-      for (int i = 0; i < 5; i++) {
-        int h = r.nextInt(1000000); // 1 mln hosts
-        String link = "<p><a href='http://www.fake-" + h + ".com/'>fake host " + h + "</a></p>\r\n";
+      baseDomain = u.getHost();
+      // chop off the TLD
+      int pos = baseDomain.lastIndexOf('.');
+      String tld = baseDomain.substring(pos);
+      baseDomain = baseDomain.substring(0, pos);
+      String link;
+      // external links
+      for (int i = 0; i < numExternalLinks; i++) {
+        String host;
+        if (hostMode.equals(Mode.RANDOM)) {
+          host = "www.rnd-" + r.nextInt(numHosts) + ".com";
+          link = "http://" + host + "/";
+        } else {
+          host = baseDomain + "-" + hostSeq.getAndIncrement() + ".com";
+          link = "http://" + host + "/";
+        }
+        link = "<p><a href='" + link + "'>fake host " + host + "</a></p>\r\n";
         os.write(link.getBytes());
       }
       // fake a link to the root URL
-      String link = "<p><a href='" + u.getScheme() + "://" + u.getHost();
+      link = "<p><a href='" + u.getScheme() + "://" + u.getHost();
       if (u.getPort() != 80 && u.getPort() != -1) link += ":" + u.getPort();
       link += "/'>site " + u.getHost() + "</a></p>\r\n";
       os.write(link.getBytes());

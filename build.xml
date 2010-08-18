@@ -225,6 +225,11 @@
     <java classname="org.apache.nutch.tools.proxy.TestbedProxy" fork="true">
       <classpath refid="test.classpath"/>
       <arg value="-fake"/>
+      <arg value="-hostMode"/>
+      <arg value="u"/>
+      <arg value="-pageMode"/>
+      <arg value="u"/>
+      <arg value="-debug"/>
 <!--
       <arg value="-delay"/>
       <arg value="-200"/>

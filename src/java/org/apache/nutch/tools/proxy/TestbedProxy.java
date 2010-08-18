@@ -27,6 +27,7 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.util.StringUtils;
+import org.apache.nutch.tools.proxy.FakeHandler.Mode;
 import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.mortbay.jetty.Handler;
@@ -44,12 +45,26 @@ public class TestbedProxy {
    */
   public static void main(String[] args) throws Exception {
     if (args.length == 0) {
-      System.err.println("TestbedProxy [-port <nnn>] [-forward] [-fake] [-delay nnn] [-debug]");
+      System.err.println("TestbedProxy [-port <nnn>] [-forward] [-fake [...]] [-delay nnn] [-debug]");
       System.err.println("-port <nnn>\trun the proxy on port <nnn> (special permissions may be needed for ports < 1024)");
       System.err.println("-forward\tif specified, requests to all unknown urls will be passed to");
       System.err.println("\t\toriginal servers. If false (default) unknown urls generate 404 Not Found.");
       System.err.println("-delay\tdelay every response by nnn seconds. If delay is negative use a random value up to nnn");
       System.err.println("-fake\tif specified, requests to all unknown urls will succeed with fake content");
+      System.err.println("\nAdditional options for -fake handler (all optional):");
+      System.err.println("\t-hostMode (u | r)\tcreate unique host names, or pick random from a pool");
+      System.err.println("\t-pageMode (u | r)\tcreate unique page names, or pick random from a pool");
+      System.err.println("\t-numHosts N\ttotal number of hosts when using hostMode r");
+      System.err.println("\t-numPages N\ttotal number of pages per host when using pageMode r");
+      System.err.println("\t-intLinks N\tnumber of internal (same host) links per page");
+      System.err.println("\t-extLinks N\tnumber of external (other host) links per page");
+      System.err.println("\nDefaults for -fake handler:");
+      System.err.println("\t-hostMode r");
+      System.err.println("\t-pageMode r");
+      System.err.println("\t-numHosts 1000000");
+      System.err.println("\t-numPages 10000");
+      System.err.println("\t-intLinks 10");
+      System.err.println("\t-extLinks 5");
       System.exit(-1);
     }
     
@@ -60,6 +75,12 @@ public class TestbedProxy {
     boolean delay = false;
     boolean debug = false;
     int delayVal = 0;
+    Mode pageMode = Mode.RANDOM;
+    Mode hostMode = Mode.RANDOM;
+    int numHosts = 1000000;
+    int numPages = 10000;
+    int intLinks = 10;
+    int extLinks = 5;
     
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("-port")) {
@@ -71,6 +92,22 @@ public class TestbedProxy {
         delayVal = Integer.parseInt(args[++i]);
       } else if (args[i].equals("-fake")) {
         fake = true;
+      } else if (args[i].equals("-hostMode")) {
+        if (args[++i].equals("u")) {
+          hostMode = Mode.UNIQUE;
+        }
+      } else if (args[i].equals("-pageMode")) {
+        if (args[++i].equals("u")) {
+          pageMode = Mode.UNIQUE;
+        }
+      } else if (args[i].equals("-numHosts")) {
+        numHosts = Integer.parseInt(args[++i]);
+      } else if (args[i].equals("-numPages")) {
+        numPages = Integer.parseInt(args[++i]);
+      } else if (args[i].equals("-intLinks")) {
+        intLinks = Integer.parseInt(args[++i]);
+      } else if (args[i].equals("-extLinks")) {
+        extLinks = Integer.parseInt(args[++i]);
       } else if (args[i].equals("-debug")) {
         debug = true;
       } else {
@@ -113,7 +150,8 @@ public class TestbedProxy {
     }
     if (fake) {
       LOG.info("* Added fake handler for remaining URLs.");
-      list.addHandler(new FakeHandler());
+      list.addHandler(new FakeHandler(hostMode, pageMode, intLinks, extLinks,
+          numHosts, numPages));
     }
     list.addHandler(new NotFoundHandler());
     // Start the http server
