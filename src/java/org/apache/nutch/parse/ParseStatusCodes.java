@@ -1,5 +1,7 @@
 package org.apache.nutch.parse;
 
+import java.util.HashMap;
+
 public interface ParseStatusCodes {
   // Primary status codes:
 
@@ -41,4 +43,5 @@ public interface ParseStatusCodes {
    * by errors at protocol stage.
    */
   public static final short FAILED_MISSING_CONTENT    = 205;
+  
 }

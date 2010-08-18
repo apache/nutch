@@ -27,11 +27,13 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.nutch.parse.ParseStatusUtils;
 import org.apache.nutch.storage.StorageUtils;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.Bytes;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.TableUtil;
 import org.gora.mapreduce.GoraMapper;
 import org.gora.query.Query;
@@ -296,7 +298,8 @@ public class WebTableReader extends Configured implements Tool {
   }
 
   /** Prints out the entry to the standard out **/
-  private void read(String key) throws ClassNotFoundException, IOException {
+  private void read(String key, boolean dumpContent, boolean dumpHeaders,
+      boolean dumpLinks, boolean dumpText) throws ClassNotFoundException, IOException {
     DataStore<String, WebPage> datastore = StorageUtils.createDataStore(getConf(),
         String.class, WebPage.class);
 
@@ -315,7 +318,8 @@ public class WebTableReader extends Configured implements Tool {
         break;
       found = true;
       String url = TableUtil.unreverseUrl(skey);
-      System.out.println(getPageRepresentation(url, page));
+      System.out.println(getPageRepresentation(url, page, dumpContent,
+          dumpHeaders, dumpLinks, dumpText));
     }
     if (!found)
       System.out.println(key + " not found");
@@ -328,11 +332,16 @@ public class WebTableReader extends Configured implements Tool {
       GoraMapper<String, WebPage, Text, Text> {
 
     static final String regexParamName = "webtable.url.regex";
+    static final String contentParamName = "webtable.dump.content";
+    static final String linksParamName = "webtable.dump.links";
+    static final String textParamName = "webtable.dump.text";
+    static final String headersParamName = "webtable.dump.headers";
 
     public WebTableRegexMapper() {
     }
 
     private Pattern regex = null;
+    private boolean dumpContent, dumpHeaders, dumpLinks, dumpText;
 
     @Override
     protected void map(
@@ -344,7 +353,8 @@ public class WebTableReader extends Configured implements Tool {
       String url = TableUtil.unreverseUrl(key.toString());
       if (regex.matcher(url).matches()) {
         context.write(new Text(url),
-            new Text(getPageRepresentation(key, value)));
+            new Text(getPageRepresentation(key, value, dumpContent, dumpHeaders,
+                dumpLinks, dumpText)));
       }
     }
 
@@ -354,11 +364,16 @@ public class WebTableReader extends Configured implements Tool {
         throws IOException, InterruptedException {
       regex = Pattern.compile(context.getConfiguration().get(regexParamName,
           ".+"));
+      dumpContent = context.getConfiguration().getBoolean(contentParamName, false);
+      dumpHeaders = context.getConfiguration().getBoolean(headersParamName, false);
+      dumpLinks = context.getConfiguration().getBoolean(linksParamName, false);
+      dumpText = context.getConfiguration().getBoolean(textParamName, false);
     }
 
   }
 
-  public void processDumpJob(String output, Configuration config, String regex)
+  public void processDumpJob(String output, Configuration config, String regex,
+      boolean content, boolean headers, boolean links, boolean text)
       throws IOException, ClassNotFoundException, InterruptedException {
 
     if (LOG.isInfoEnabled()) {
@@ -367,9 +382,13 @@ public class WebTableReader extends Configured implements Tool {
 
     Path outFolder = new Path(output);
     Job job = new NutchJob(getConf(), "db_dump");
-
-    job.getConfiguration().set(WebTableRegexMapper.regexParamName, regex);
-
+    Configuration cfg = job.getConfiguration();
+    cfg.set(WebTableRegexMapper.regexParamName, regex);
+    cfg.setBoolean(WebTableRegexMapper.contentParamName, content);
+    cfg.setBoolean(WebTableRegexMapper.headersParamName, headers);
+    cfg.setBoolean(WebTableRegexMapper.linksParamName, links);
+    cfg.setBoolean(WebTableRegexMapper.textParamName, text);
+    
     DataStore<String, WebPage> store = StorageUtils.createDataStore(job
         .getConfiguration(), String.class, WebPage.class);
     Query<String, WebPage> query = store.newQuery();
@@ -391,15 +410,28 @@ public class WebTableReader extends Configured implements Tool {
     }
   }
 
-  private static String getPageRepresentation(String key, WebPage page) {
+  private static String getPageRepresentation(String key, WebPage page,
+      boolean dumpContent, boolean dumpHeaders, boolean dumpLinks, boolean dumpText) {
     StringBuffer sb = new StringBuffer();
-    sb.append(key).append("\n");
+    sb.append("key:\t" + key).append("\n");
     sb.append("baseUrl:\t" + page.getBaseUrl()).append("\n");
     sb.append("status:\t").append(page.getStatus()).append(" (").append(
         CrawlStatus.getName((byte) page.getStatus())).append(")\n");
-    sb.append("parse_status:\t" + page.getParseStatus()).append("\n");
+    sb.append("fetchInterval:\t" + page.getFetchInterval()).append("\n");
+    sb.append("fetchTime:\t" + page.getFetchTime()).append("\n");
+    sb.append("prevFetchTime:\t" + page.getPrevFetchTime()).append("\n");
+    sb.append("retries:\t" + page.getRetriesSinceFetch()).append("\n");
+    sb.append("modifiedTime:\t" + page.getModifiedTime()).append("\n");
+    sb.append("parse_status:\t" + 
+        ParseStatusUtils.toString(page.getParseStatus())).append("\n");
     sb.append("title:\t" + page.getTitle()).append("\n");
     sb.append("score:\t" + page.getScore()).append("\n");
+    ByteBuffer sig = page.getSignature();
+    if (sig != null) {
+      sb.append("signature:\t" + StringUtil.toHexString(sig.array())).append("\n");
+    }
+    Map<Utf8, Utf8> markers = page.getMarkers();
+    sb.append("markers:\t" + markers).append("\n");
 
     Map<Utf8, ByteBuffer> metadata = page.getMetadata();
     if (metadata != null) {
@@ -411,6 +443,42 @@ public class WebTableReader extends Configured implements Tool {
             .append(Bytes.toString(entry.getValue().array())).append("\n");
       }
     }
+    if (dumpLinks) {
+      Map<Utf8,Utf8> inlinks = page.getInlinks();
+      Map<Utf8,Utf8> outlinks = page.getOutlinks();
+      if (outlinks != null) {
+        for (Entry<Utf8,Utf8> e : outlinks.entrySet()) {
+          sb.append("outlink:\t" + e.getKey() + "\t" + e.getValue() + "\n");
+        }
+      }
+      if (inlinks != null) {
+        for (Entry<Utf8,Utf8> e : inlinks.entrySet()) {
+          sb.append("inlink:\t" + e.getKey() + "\t" + e.getValue() + "\n");
+        }
+      }
+    }
+    if (dumpHeaders) {
+      Map<Utf8,Utf8> headers = page.getHeaders();
+      if (headers != null) {
+        for (Entry<Utf8,Utf8> e : headers.entrySet()) {
+          sb.append("header:\t" + e.getKey() + "\t" + e.getValue() + "\n");
+        }        
+      }
+    }
+    ByteBuffer content = page.getContent();
+    if (content != null && dumpContent) {
+      sb.append("contentType:\t" + page.getContentType()).append("\n");
+      sb.append("content:start:\n");
+      sb.append(Bytes.toString(content.array()));
+      sb.append("\ncontent:end:\n");
+    }
+    Utf8 text = page.getText();
+    if (text != null && dumpText) {
+      sb.append("text:start:\n");
+      sb.append(text.toString());
+      sb.append("\ntext:end:\n");      
+    }
+    
     return sb.toString();
   }
 
@@ -419,11 +487,13 @@ public class WebTableReader extends Configured implements Tool {
         args);
     System.exit(res);
   }
+  
+  private static enum Op {READ, STAT, DUMP};
 
   public int run(String[] args) throws Exception {
     if (args.length < 1) {
       System.err
-          .println("Usage: WebTableReader (-stats | -url [url] | -dump <out_dir> [-regex regex])");
+          .println("Usage: WebTableReader (-stats | -url [url] | -dump <out_dir> [-regex regex]) [-content] [-headers] [-links] [-text]");
       System.err
           .println("\t-stats [-sort] \tprint overall statistics to System.out");
       System.err.println("\t\t[-sort]\tlist status sorted by host");
@@ -431,37 +501,67 @@ public class WebTableReader extends Configured implements Tool {
           .println("\t-url <url>\tprint information on <url> to System.out");
       System.err
           .println("\t-dump <out_dir> [-regex regex]\tdump the webtable to a text file in <out_dir>");
+      System.err.println("\t\t-content\tdump also raw content");
+      System.err.println("\t\t-headers\tdump protocol headers");
+      System.err.println("\t\t-links\tdump links");
+      System.err.println("\t\t-text\tdump extracted text");
       System.err
           .println("\t\t[-regex]\tfilter on the URL of the webtable entry");
       return -1;
     }
     String param = null;
+    boolean content = false;
+    boolean links = false;
+    boolean text = false;
+    boolean headers = false;
+    boolean toSort = false;
+    String regex = ".+";
+    Op op = null;
     try {
       for (int i = 0; i < args.length; i++) {
         if (args[i].equals("-url")) {
           param = args[++i];
-          read(param);
-          return 0;
+          op = Op.READ;
+          //read(param);
+          //return 0;
         } else if (args[i].equals("-stats")) {
-          boolean toSort = false;
-          if (i < args.length - 1 && "-sort".equals(args[i + 1])) {
-            toSort = true;
-            i++;
-          }
-          processStatJob(toSort);
+          op = op.STAT;
+        } else if (args[i].equals("-sort")) {
+          toSort = true;
         } else if (args[i].equals("-dump")) {
+          op = Op.DUMP;
           param = args[++i];
-          String regex = ".+";
-          if (i < args.length - 1 && "-regex".equals(args[i + 1]))
-            regex = args[i = i + 2];
-          processDumpJob(param, getConf(), regex);
+        } else if (args[i].equals("-content")) {
+          content = true;
+        } else if (args[i].equals("-headers")) {
+          headers = true;
+        } else if (args[i].equals("-links")) {
+          links = true;
+        } else if (args[i].equals("-text")) {
+          text = true;
+        } else if (args[i].equals("-regex")) {
+          regex = args[++i];
         }
       }
+      if (op == null) {
+        throw new Exception("Select one of -url | -stat | -dump");
+      }
+      switch (op) {
+      case READ:
+        read(param, content, headers, links, text);
+        break;
+      case STAT:
+        processStatJob(toSort);
+        break;
+      case DUMP:
+        processDumpJob(param, getConf(), regex, content, headers, links, text);
+        break;
+      }
+      return 0;
     } catch (Exception e) {
       LOG.error("WebTableReader: " + StringUtils.stringifyException(e));
       return -1;
     }
-    return 0;
   }
 
 }
