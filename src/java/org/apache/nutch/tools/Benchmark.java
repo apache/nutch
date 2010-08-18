@@ -203,7 +203,7 @@ public class Benchmark extends Configured implements Tool {
       }
       boolean isParsing = getConf().getBoolean("fetcher.parse", true);
       start = System.currentTimeMillis();
-      fetcher.fetch(threads, crawlId, false, isParsing);  // fetch it
+      fetcher.fetch(crawlId, threads, false, isParsing, -1);  // fetch it
       delta = System.currentTimeMillis() - start;
       res.addTiming("fetch", i + "", delta);
       if (!isParsing) {

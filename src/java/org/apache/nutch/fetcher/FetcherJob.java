@@ -140,15 +140,17 @@ public class FetcherJob implements Tool {
 
   /**
    * Run fetcher.
-   * @param threads number of threads per map task
    * @param crawlId crawlId (obtained from Generator) or null to fetch all generated fetchlists
+   * @param threads number of threads per map task
    * @param shouldResume
    * @param parse if true, then parse content immediately, if false then a separate
    * run of {@link ParserJob} will be needed.
+   * @param numTasks number of fetching tasks (reducers). If set to < 1 then use the default,
+   * which is mapred.map.tasks.
    * @return 0 on success
    * @throws Exception
    */
-  public int fetch(int threads, String crawlId, boolean shouldResume, boolean parse)
+  public int fetch(String crawlId, int threads, boolean shouldResume, boolean parse, int numTasks)
       throws Exception {
     LOG.info("FetcherJob: starting");
 
@@ -181,11 +183,16 @@ public class FetcherJob implements Tool {
     }
 
     Job job = new NutchJob(getConf(), "fetch");
-
     Collection<WebPage.Field> fields = getFields(job);
     StorageUtils.initMapperJob(job, fields, IntWritable.class,
         FetchEntry.class, FetcherMapper.class, PartitionUrlByHost.class, false);
     StorageUtils.initReducerJob(job, FetcherReducer.class);
+    if (numTasks < 1) {
+      job.setNumReduceTasks(job.getConfiguration().getInt("mapred.map.tasks",
+          job.getNumReduceTasks()));
+    } else {
+      job.setNumReduceTasks(numTasks);
+    }
 
     boolean success = job.waitForCompletion(true);
     if (!success) {
@@ -237,7 +244,12 @@ public class FetcherJob implements Tool {
     boolean parse = getConf().getBoolean(PARSE_KEY, false);
     String crawlId;
 
-    String usage = "Usage: FetcherJob (<crawl id> | -all) [-threads N] [-parse] [-resume]";
+    String usage = "Usage: FetcherJob (<crawl id> | -all) [-threads N] [-parse] [-resume] [-numTasks N]\n" +
+      "\tcrawlId\tcrawl identifier returned by Generator, or -all for all generated crawlId-s\n" +
+      "\t-threads N\tnumber of fetching threads per task\n" +
+      "\t-parse\tif specified then fetcher will immediately parse fetched content\n" +
+      "\t-resume\tresume interrupted job\n" +
+      "\t-numTasks N\tif N > 0 then use this many reduce tasks for fetching (default: mapred.map.tasks)";
 
     if (args.length == 0) {
       System.err.println(usage);
@@ -245,10 +257,11 @@ public class FetcherJob implements Tool {
     }
 
     crawlId = args[0];
-    if (crawlId.equals("-threads") || crawlId.equals("-resume") || crawlId.equals("-parse")) {
+    if (!crawlId.equals("-all") || crawlId.startsWith("-")) {
       System.err.println(usage);
       return -1;
     }
+    int numTasks = -1;
     for (int i = 1; i < args.length; i++) {
       if ("-threads".equals(args[i])) {
         // found -threads option
@@ -257,10 +270,12 @@ public class FetcherJob implements Tool {
         shouldResume = true;
       } else if ("-parse".equals(args[i])) {
         parse = true;
+      } else if ("-numTasks".equals(args[i])) {
+      		numTasks = Integer.parseInt(args[++i]);
       }
     }
 
-    int fetchcode = fetch(threads, crawlId, shouldResume, parse); // run the Fetcher
+    int fetchcode = fetch(crawlId, threads, shouldResume, parse, numTasks); // run the Fetcher
 
     return fetchcode;
   }

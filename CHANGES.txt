@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-884 FetcherJob should run more reduce tasks than default (ab)
+
 * NUTCH-883 Remove unused parameters from nutch-default.xml (jnioche)
 
 * NUTCH-886 A .gitignore file for Nutch (dogacan)
