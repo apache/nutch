@@ -1,10 +1,11 @@
-package org.apache.nutch.storage;
+package org.apache.nutch.protocol;
 
 import java.net.URL;
+import java.util.Iterator;
 
 import org.apache.avro.generic.GenericArray;
 import org.apache.avro.util.Utf8;
-import org.apache.nutch.protocol.ProtocolStatusCodes;
+import org.apache.nutch.storage.ProtocolStatus;
 import org.apache.nutch.util.TableUtil;
 
 public class ProtocolStatusUtils implements ProtocolStatusCodes {
@@ -81,5 +82,26 @@ public class ProtocolStatusUtils implements ProtocolStatusCodes {
       return null;
     }
     return TableUtil.toString(args.iterator().next());
+  }
+  
+  public static String toString(ProtocolStatus status) {
+    if (status == null) {
+      return "(null)";
+    }
+    StringBuilder sb = new StringBuilder();
+    sb.append(getName(status.getCode()));
+    sb.append(", args=[");
+    GenericArray<Utf8> args = status.getArgs();
+    if (args != null) {
+      int i = 0;
+      Iterator<Utf8> it = args.iterator();
+      while (it.hasNext()) {
+        if (i > 0) sb.append(',');
+        sb.append(it.next());
+        i++;
+      }
+    }
+    sb.append("]");
+    return sb.toString();
   }
 }

@@ -43,6 +43,7 @@ public class ParserJob extends GoraMapper<String, WebPage, String, WebPage>
     FIELDS.add(WebPage.Field.CONTENT_TYPE);
     FIELDS.add(WebPage.Field.SIGNATURE);
     FIELDS.add(WebPage.Field.MARKERS);
+    FIELDS.add(WebPage.Field.PARSE_STATUS);
     FIELDS.add(WebPage.Field.OUTLINKS);
     FIELDS.add(WebPage.Field.METADATA);
   }

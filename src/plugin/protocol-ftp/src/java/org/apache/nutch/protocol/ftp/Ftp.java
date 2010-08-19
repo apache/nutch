@@ -32,9 +32,9 @@ import org.apache.nutch.protocol.EmptyRobotRules;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatusCodes;
+import org.apache.nutch.protocol.ProtocolStatusUtils;
 import org.apache.nutch.protocol.RobotRules;
 import org.apache.nutch.storage.ProtocolStatus;
-import org.apache.nutch.storage.ProtocolStatusUtils;
 import org.apache.nutch.storage.WebPage;
 
 /************************************

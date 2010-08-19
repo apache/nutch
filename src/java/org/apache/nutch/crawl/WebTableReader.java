@@ -28,6 +28,9 @@ import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.parse.ParseStatusUtils;
+import org.apache.nutch.protocol.ProtocolStatusUtils;
+import org.apache.nutch.storage.ParseStatus;
+import org.apache.nutch.storage.ProtocolStatus;
 import org.apache.nutch.storage.StorageUtils;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.Bytes;
@@ -422,7 +425,9 @@ public class WebTableReader extends Configured implements Tool {
     sb.append("prevFetchTime:\t" + page.getPrevFetchTime()).append("\n");
     sb.append("retries:\t" + page.getRetriesSinceFetch()).append("\n");
     sb.append("modifiedTime:\t" + page.getModifiedTime()).append("\n");
-    sb.append("parse_status:\t" + 
+    sb.append("protocolStatus:\t" + 
+        ProtocolStatusUtils.toString(page.getProtocolStatus())).append("\n");
+    sb.append("parseStatus:\t" + 
         ParseStatusUtils.toString(page.getParseStatus())).append("\n");
     sb.append("title:\t" + page.getTitle()).append("\n");
     sb.append("score:\t" + page.getScore()).append("\n");

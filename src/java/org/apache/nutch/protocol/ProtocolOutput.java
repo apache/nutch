@@ -17,7 +17,6 @@
 
 package org.apache.nutch.protocol;
 
-import org.apache.nutch.storage.ProtocolStatusUtils;
 
 /**
  * Simple aggregate to pass from protocol plugins both content and
