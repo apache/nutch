@@ -60,9 +60,9 @@ public class SubcollectionIndexingFilter extends Configured implements
 	 * @param url
 	 */
 	private void addSubCollectionField(NutchDocument doc, String url) {
-		String collname = CollectionManager.getCollectionManager(getConf())
-				.getSubCollections(url);
-		doc.add(FIELD_NAME, collname);
+		for (String collname: CollectionManager.getCollectionManager(getConf()).getSubCollections(url)) {
+			doc.add(FIELD_NAME, collname);
+		}
 	}
 
 	@Override
