@@ -1227,6 +1227,14 @@
   </description>
 </property>
 
+<property>
+  <name>query.phrase.slop</name>
+  <value>5</value>
+  <description> The slop value used when checking for phrase queries without
+  quote values.
+  </description>
+</property>
+
 <!--
 <property>
   <name>query.basic.description.boost</name>
