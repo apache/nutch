@@ -45,6 +45,17 @@
   </description>
 </property>
 
+<property>
+  <name>file.crawl.parent</name>
+  <value>true</value>
+  <description>The crawler is not restricted to the directories that you specified in the
+    urls file but it is jumping into the parent directories as well. For your own crawling you can
+    change this behavior (set to false) the way that only directories beneath the directories that you specify get
+    crawled.
+  </description>
+</property>
+
+
 <!-- HTTP properties -->
 
 <property>
