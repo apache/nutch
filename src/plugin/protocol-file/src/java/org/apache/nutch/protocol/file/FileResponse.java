@@ -222,7 +222,10 @@ public class FileResponse {
     throws IOException {
 
     String path = f.toString();
-    this.content = list2html(f.listFiles(), path, "/".equals(path) ? false : true);
+    if (this.file.crawlParents)
+        this.content = list2html(f.listFiles(), path, "/".equals(path) ? false : true);
+    else
+        this.content = list2html(f.listFiles(), path, false);
 
     // set headers
     headers.set(Response.CONTENT_LENGTH,
