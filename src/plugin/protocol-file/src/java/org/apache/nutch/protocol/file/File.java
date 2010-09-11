@@ -53,6 +53,8 @@ public class File implements Protocol {
   static final int MAX_REDIRECTS = 5;
 
   int maxContentLength;
+  
+  boolean crawlParents;
 
   private Configuration conf;
 
@@ -156,6 +158,7 @@ public class File implements Protocol {
   public void setConf(Configuration conf) {
     this.conf = conf;
     this.maxContentLength = conf.getInt("file.content.limit", 64 * 1024);
+    this.crawlParents = conf.getBoolean("file.crawl.parent", true);
   }
 
   public Configuration getConf() {

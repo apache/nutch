@@ -22,9 +22,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -89,7 +92,7 @@ public class CollectionManager extends Configured {
           .getElementsByTagName(Subcollection.TAG_COLLECTION);
 
       if (LOG.isInfoEnabled()) {
-        LOG.info("file has" + nodeList.getLength() + " elements");
+        LOG.info("file has " + nodeList.getLength() + " elements");
       }
       
       for (int i = 0; i < nodeList.getLength(); i++) {
@@ -115,7 +118,7 @@ public class CollectionManager extends Configured {
         impl=new CollectionManager(conf);
         objectCache.setObject(key,impl);
       } catch (Exception e) {
-        throw new RuntimeException("Couldn't create CollectionManager",e);
+        throw new RuntimeException("Couldn't create CollectionManager", e);
       }
     }
     return impl;
@@ -169,22 +172,21 @@ public class CollectionManager extends Configured {
    *          The url to test against Collections
    * @return Space delimited string of collection names url is part of
    */
-  public String getSubCollections(final String url) {
-    StringBuilder collections = new StringBuilder();
+  public List<String> getSubCollections(final String url) {
+    List<String> collections = new ArrayList<String>();
     final Iterator iterator = collectionMap.values().iterator();
 
     while (iterator.hasNext()) {
       final Subcollection subCol = (Subcollection) iterator.next();
       if (subCol.filter(url) != null) {
-        if (collections.length() > 0) {
-          collections.append(' ');
-        }
-        collections.append(subCol.name);
+        collections.add(subCol.name);
       }
     }
-    if (LOG.isTraceEnabled()) { LOG.trace("subcollections:" + collections); }
+    if (LOG.isTraceEnabled()) { 
+      LOG.trace("subcollections:" + Arrays.toString(collections.toArray())); 
+    }
     
-    return collections.toString();
+    return collections;
   }
 
   /**

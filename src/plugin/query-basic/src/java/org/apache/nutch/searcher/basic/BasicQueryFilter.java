@@ -189,6 +189,7 @@ public class BasicQueryFilter implements QueryFilter {
     this.FIELD_BOOSTS[TITLE_BOOST] = conf.getFloat("query.title.boost", 1.5f);
     this.FIELD_BOOSTS[HOST_BOOST] = conf.getFloat("query.host.boost", 2.0f);
     this.PHRASE_BOOST = conf.getFloat("query.phrase.boost", 1.0f);
+    this.SLOP = conf.getInt("query.phrase.slop", Integer.MAX_VALUE);
     findAdditionalFields(conf);
   }
 
