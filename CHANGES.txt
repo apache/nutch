@@ -2,6 +2,9 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-904 "-resume" option is always processed as "false" in FetcherJob
+  (Faruk Berksöz via dogacan)
+
 * NUTCH-905 Configurable file protocol parent directory crawling (Thorsten Scherler, mattmann, ab)
 
 * NUTCH-716 Make subcollection index filed multivalued (Dmitry Lihachev via jnioche)

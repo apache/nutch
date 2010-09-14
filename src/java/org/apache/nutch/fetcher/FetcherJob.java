@@ -79,7 +79,7 @@ public class FetcherJob implements Tool {
     @Override
     protected void setup(Context context) {
       Configuration conf = context.getConfiguration();
-      shouldContinue = conf.getBoolean("job.continue", false);
+      shouldContinue = conf.getBoolean(RESUME_KEY, false);
       crawlId = new Utf8(conf.get(GeneratorJob.CRAWL_ID, Nutch.ALL_CRAWL_ID_STR));
     }
 
