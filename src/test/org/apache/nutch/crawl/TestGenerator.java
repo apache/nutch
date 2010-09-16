@@ -48,7 +48,7 @@ public class TestGenerator extends AbstractNutchTest {
   };
 
   /**
-   * Test that generator generates fetchlish ordered by score (desc).
+   * Test that generator generates fetchlist ordered by score (desc).
    *
    * @throws Exception
    */
