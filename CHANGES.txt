@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.2 - 08/07/2010
 
+* NUTCH-906 Nutch OpenSearch sometimes raises DOMExceptions (Asheesh Laroia via ab)
+
 * NUTCH-862 HttpClient null pointer exception (Sebastian Nagel via ab)
 
 * NUTCH-905 Configurable file protocol parent directory crawling (Thorsten Scherler, mattmann, ab)

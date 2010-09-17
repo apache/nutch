@@ -30,4 +30,24 @@ public class TestOpenSearchServlet extends TestCase {
     assertEquals("hello",OpenSearchServlet.getLegalXml("\u0000he\u0000llo\u0000"));
   }
   
+  /**
+   * Test turning Lucene column names into valid XML names.
+   * 
+   * The Nutch FAQ explains that OpenSearch includes "all fields that are available
+   * at search result time." However, some Lucene column names can start
+   * with numbers. Valid XML tags cannot. If Nutch is generating OpenSearch results
+   * for a document with a Lucene document column whose name starts with numbers,
+   * the underlying Xerces library throws this exception:
+   * 
+   *  
+   * org.w3c.dom.DOMException: INVALID_CHARACTER_ERR: An invalid or illegal XML character is specified. 
+   * 
+   * Therefore, we test here that Nutch can turn strings into valid XML tags.
+   */
+  public void testGetLegalTagName(){
+	  assertEquals("nutch_000_numbers_first", OpenSearchServlet.getLegalTagName("000_numbers_first"));
+	  assertEquals("letters_first_000", OpenSearchServlet.getLegalTagName("letters_first_000"));
+  }
+  
+
 }
