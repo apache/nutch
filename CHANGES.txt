@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.2 - 08/07/2010
 
+* NUTCH-862 HttpClient null pointer exception (Sebastian Nagel via ab)
+
 * NUTCH-905 Configurable file protocol parent directory crawling (Thorsten Scherler, mattmann, ab)
 
 * NUTCH-877 Allow setting of slop values for non-quote phrase queries on query-basic plugin (kubes via jnioche)
