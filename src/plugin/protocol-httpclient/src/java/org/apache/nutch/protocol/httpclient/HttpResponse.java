@@ -134,7 +134,9 @@ public class HttpResponse implements Response {
         if (code == 200) throw new IOException(e.toString());
         // for codes other than 200 OK, we are fine with empty content
       } finally {
-        in.close();
+        if (in != null) {
+          in.close();
+        }
         get.abort();
       }
       
