@@ -1,6 +1,8 @@
 Nutch Change Log
 
-Release 1.2 - 08/07/2010
+Release 1.2 - 09/18/2010
+
+* NUTCH-908 Infinite Loop and Null Pointer Bugs in Searching (kubes via mattmann)
 
 * NUTCH-906 Nutch OpenSearch sometimes raises DOMExceptions (Asheesh Laroia via ab)
 

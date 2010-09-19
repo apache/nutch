@@ -56,6 +56,9 @@ HitInlinks, Closeable {
   /** BooleanQuery won't permit more than 32 required/prohibited clauses.  We
    * don't want to use too many of those. */
   private static final int MAX_PROHIBITED_TERMS = 20;
+  
+  // don't let the optimize fall into an infinite loop
+  private static final int MAX_OPTIMIZE_LOOPS = 3;
 
   private final Configuration conf;
 
@@ -186,9 +189,15 @@ HitInlinks, Closeable {
     final Set<Hit> seen = new HashSet<Hit>();
     final List<String> excludedValues = new ArrayList<String>();
     boolean totalIsExact = true;
-    for (int rawHitNum = 0; rawHitNum < hits.getTotal(); rawHitNum++) {
+    int optimizeNum = 0;
+    
+    for (int rawHitNum = 0; rawHitNum < hits.getLength(); rawHitNum++) {
       // get the next raw hit
-      if (rawHitNum >= hits.getLength()) {
+      if (rawHitNum == (hits.getLength() - 1) && (optimizeNum < MAX_OPTIMIZE_LOOPS)) {
+        
+        // increment the loop
+        optimizeNum++;
+        
         // optimize query by prohibiting more matches on some excluded values
         final Query optQuery = (Query)query.clone();
         for (int i = 0; i < excludedValues.size(); i++) {

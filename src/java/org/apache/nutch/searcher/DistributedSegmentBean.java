@@ -181,7 +181,10 @@ public class DistributedSegmentBean implements SegmentBean {
       detailsList[i] = new ArrayList<HitDetails>();
     }
     for (HitDetails details : detailsArr) {
-      detailsList[segmentMap.get(details.getValue("segment"))].add(details);
+      String segment = details.getValue("segment");
+      if (segmentMap.containsKey(segment)) {
+        detailsList[segmentMap.get(segment)].add(details);
+      }      
     }
     for (int i = 0; i < summaryTasks.size(); i++) {
       DistSummmaryTask task = (DistSummmaryTask)summaryTasks.get(i);
