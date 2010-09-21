@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-901 Make index-more plug-in configurable (Markus Jelsma via mattmann)
+
 * NUTCH-862 HttpClient null pointer exception (Sebastian Nagel via ab)
 
 * NUTCH-904 "-resume" option is always processed as "false" in FetcherJob

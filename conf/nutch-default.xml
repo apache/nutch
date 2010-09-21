@@ -713,6 +713,19 @@
   </description>
 </property>
 
+
+<!-- moreindexingfilter plugin properties -->
+
+<property>
+  <name>moreIndexingFilter.indexMimeTypeParts</name>
+  <value>true</value>
+  <description>Determines whether the index-more plugin will split the mime-type
+  in sub parts, this requires the type field to be multi valued. Set to true for backward
+  compatibility. False will not split the mime-type.
+  </description>
+</property>
+
+
 <!-- URL normalizer properties -->
 
 <property>
