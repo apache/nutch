@@ -46,6 +46,31 @@ public class TestMoreIndexingFilter extends TestCase {
 
   }
 
+    /**
+     * @since NUTCH-901
+     */
+    public void testNoParts(){
+	Configuration conf = NutchConfiguration.create();
+	conf.setBoolean("moreIndexingFilter.indexMimeTypeParts", false);
+	MoreIndexingFilter filter = new MoreIndexingFilter();
+	filter.setConf(conf);
+	assertNotNull(filter);
+	NutchDocument doc = new NutchDocument();
+        ParseImpl parse = new ParseImpl("foo bar", new ParseData());
+        
+	try{
+	    filter.filter(doc, parse, new Text("http://nutch.apache.org/index.html"), new CrawlDatum(), new Inlinks());
+	}
+        catch(Exception e){
+	    e.printStackTrace();
+	    fail(e.getMessage());
+	}
+	assertNotNull(doc);
+	assertTrue(doc.getFieldNames().contains("type"));
+	assertEquals(1, doc.getField("type").getValues().size());
+	assertEquals("text/html", doc.getFieldValue("type"));     
+    }
+
   private void assertParts(String[] parts, int count, String... expected) {
     assertEquals(count, parts.length);
     for (int i = 0; i < expected.length; i++) {

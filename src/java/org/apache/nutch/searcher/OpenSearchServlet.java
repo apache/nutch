@@ -271,21 +271,21 @@ public class OpenSearchServlet extends HttpServlet {
   }
 
   private static Element addNode(Document doc, Node parent, String name) {
-    Element child = doc.createElement(name);
+    Element child = doc.createElement(getLegalTagName(name));
     parent.appendChild(child);
     return child;
   }
 
   private static void addNode(Document doc, Node parent,
                               String name, String text) {
-    Element child = doc.createElement(name);
+    Element child = doc.createElement(getLegalTagName(name));
     child.appendChild(doc.createTextNode(getLegalXml(text)));
     parent.appendChild(child);
   }
 
   private static void addNode(Document doc, Node parent,
                               String ns, String name, String text) {
-    Element child = doc.createElementNS(NS_MAP.get(ns), ns+":"+name);
+    Element child = doc.createElementNS(NS_MAP.get(ns), ns+":"+getLegalTagName(name));
     child.appendChild(doc.createTextNode(getLegalXml(text)));
     parent.appendChild(child);
   }
@@ -332,4 +332,12 @@ public class OpenSearchServlet extends HttpServlet {
         || (c >= 0xe000 && c <= 0xfffd) || (c >= 0x10000 && c <= 0x10ffff);
   }
 
+  static String getLegalTagName(String string) {
+	  char firstChar = string.charAt(0);
+	  if (firstChar >= '0' &&
+		  firstChar <= '9') {
+		  string = "nutch_" + string;
+	  }
+	  return string;
+  }
 }
