@@ -2,6 +2,9 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-894 Move statistical language identification from indexing to parsing step
+  (Sertan Alkan via dogacan)
+
 * NUTCH-901 Make index-more plug-in configurable (Markus Jelsma via mattmann)
 
 * NUTCH-862 HttpClient null pointer exception (Sebastian Nagel via ab)

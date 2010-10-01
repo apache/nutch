@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.ParseFilter;
 import org.apache.nutch.parse.Parse;
@@ -37,6 +38,7 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.storage.WebPage.Field;
 import org.apache.nutch.util.Bytes;
 import org.apache.nutch.util.NodeWalker;
+import org.apache.tika.language.LanguageIdentifier;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
@@ -52,14 +54,16 @@ public class HTMLLanguageParser implements ParseFilter {
 
   private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
+  private int detect = -1, identify = -1;
+
   /* A static Map of ISO-639 language codes */
-  private static Map LANGUAGES_MAP = new HashMap();
+  private static Map<String, String> LANGUAGES_MAP = new HashMap<String, String>();
   static {
     try {
       Properties p = new Properties();
       p.load(HTMLLanguageParser.class
           .getResourceAsStream("langmappings.properties"));
-      Enumeration keys = p.keys();
+      Enumeration<?> keys = p.keys();
       while (keys.hasMoreElements()) {
         String key = (String) keys.nextElement();
         String[] values = p.getProperty(key).split(",", -1);
@@ -85,26 +89,82 @@ public class HTMLLanguageParser implements ParseFilter {
    * (http://dublincore.org/documents/2000/07/16/usageguide/qualified
    * -html.shtml#language) <li>3. meta http-equiv (content-language)
    * (http://www.w3.org/TR/REC-html40/struct/global.html#h-7.4.4.2) <br>
-   * Only the first occurence of language is stored.
    */
   public Parse filter(String url, WebPage page, Parse parse,
       HTMLMetaTags metaTags, DocumentFragment doc) {
     String lang = null;
+
+    if (detect >= 0 && identify < 0) {
+      lang = detectLanguage(page, doc);
+    } else if (detect < 0 && identify >= 0) {
+      lang = identifyLanguage(parse);
+    } else if (detect < identify) {
+      lang = detectLanguage(page, doc);
+      if (lang == null) {
+        lang = identifyLanguage(parse);
+      }
+    } else if (identify < detect) {
+      lang = identifyLanguage(parse);
+      if (lang == null) {
+        lang = detectLanguage(page, doc);
+      }
+    } else {
+      LOG.warn("No configuration for language extraction policy is provided");
+      return parse;
+    }
+
+    if (lang != null) {
+      page.putToMetadata(new Utf8(Metadata.LANGUAGE), ByteBuffer.wrap(lang
+          .getBytes()));
+      return parse;
+    }
+
+    return parse;
+  }
+
+  /** Try to find the document's language from page headers and metadata */
+  private String detectLanguage(WebPage page, DocumentFragment doc) {
+    String lang = null;
     ByteBuffer blang = getLanguageFromMetadata(page.getMetadata());
     if (blang == null) {
-      // Trying to find the document's language
       LanguageParser parser = new LanguageParser(doc);
       lang = parser.getLanguage();
     } else
       lang = Bytes.toString(blang.array());
 
     if (lang != null) {
-      // parse..getParseMeta().set(Metadata.LANGUAGE, lang);
-      // TODO where to we store it? in parse or doc?
-      page.putToMetadata(new Utf8(Metadata.LANGUAGE), ByteBuffer.wrap(lang
-          .getBytes()));
+      return lang;
     }
-    return parse;
+
+    Utf8 ulang = page.getFromHeaders(new Utf8(Response.CONTENT_LANGUAGE));
+    if (ulang != null) {
+      lang = ulang.toString();
+    }
+
+    return lang;
+  }
+
+  /** Use statistical language identification to extract page language */
+  private String identifyLanguage(Parse parse) {
+    StringBuilder text = new StringBuilder();
+    if (parse != null) {
+      String title = parse.getTitle();
+      if (title != null) {
+        text.append(title.toString());
+      }
+
+      String content = parse.getText();
+      if (content != null) {
+       text.append(" ").append(content.toString());
+      }
+
+      LanguageIdentifier identifier = new LanguageIdentifier(text.toString());
+
+      if (identifier.isReasonablyCertain()) {
+        return identifier.getLanguage();
+      }
+    }
+    return null;
   }
 
   // Check in the metadata whether the language has already been stored there by
@@ -156,8 +216,6 @@ public class HTMLLanguageParser implements ParseFilter {
         Node currentNode = walker.nextNode();
         String nodeName = currentNode.getNodeName();
         short nodeType = currentNode.getNodeType();
-
-        String lang = null;
 
         if (nodeType == Node.ELEMENT_NODE) {
 
@@ -244,6 +302,14 @@ public class HTMLLanguageParser implements ParseFilter {
 
   public void setConf(Configuration conf) {
     this.conf = conf;
+    String[] policy = conf.getStrings("lang.extraction.policy");
+    for (int i = 0; i < policy.length; i++) {
+      if (policy[i].equals("detect")) {
+        detect = i;
+      } else if (policy[i].equals("identify")) {
+        identify = i;
+      }
+    }
   }
 
   public Configuration getConf() {

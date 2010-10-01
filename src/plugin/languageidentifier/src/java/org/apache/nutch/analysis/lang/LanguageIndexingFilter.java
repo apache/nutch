@@ -27,31 +27,24 @@ import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.storage.WebPage.Field;
 import org.apache.nutch.util.Bytes;
 
 /**
- * An {@link org.apache.nutch.indexer.IndexingFilter} that add a
+ * An {@link org.apache.nutch.indexer.IndexingFilter} that adds a
  * <code>lang</code> (language) field to the document.
- * 
- * It tries to find the language of the document by:
- * <ul>
- * <li>First, checking if {@link HTMLLanguageParser} add some language
- * information</li>
- * <li>Then, checking if a <code>Content-Language</code> HTTP header can be
- * found</li>
- * <li>Finaly by analyzing the document content</li>
- * </ul>
- * 
+ *
+ * It tries to find the language of the document by checking
+ * if {@link HTMLLanguageParser} has added some language
+ * information
+ *
  * @author Sami Siren
  * @author Jerome Charron
  */
 public class LanguageIndexingFilter implements IndexingFilter {
 
   private Configuration conf;
-  private LanguageIdentifier languageIdentifier;
 
   private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
@@ -65,9 +58,7 @@ public class LanguageIndexingFilter implements IndexingFilter {
   /**
    * Constructs a new Language Indexing Filter.
    */
-  public LanguageIndexingFilter() {
-
-  }
+  public LanguageIndexingFilter() {}
 
   public NutchDocument filter(NutchDocument doc, String url, WebPage page)
       throws IndexingException {
@@ -77,21 +68,6 @@ public class LanguageIndexingFilter implements IndexingFilter {
     ByteBuffer blang = page.getFromMetadata(new Utf8(Metadata.LANGUAGE));
     if (blang != null) {
       lang = Bytes.toString(blang.array());
-    }
-
-    // check if HTTP-header tells us the language
-    if (lang == null) {
-      Utf8 ulang = page.getFromHeaders(new Utf8(Response.CONTENT_LANGUAGE));
-      if (ulang != null) {
-        lang = ulang.toString();
-      }
-    }
-
-    if (lang == null) {
-      StringBuilder text = new StringBuilder();
-      text.append(page.getTitle().toString()).append(" ").append(
-          page.getText().toString());
-      lang = this.languageIdentifier.identify(text);
     }
 
     if (lang == null) {
@@ -112,7 +88,6 @@ public class LanguageIndexingFilter implements IndexingFilter {
 
   public void setConf(Configuration conf) {
     this.conf = conf;
-    this.languageIdentifier = new LanguageIdentifier(conf);
   }
 
   public Configuration getConf() {

@@ -993,6 +993,23 @@
   </description>
 </property>
 
+<property>
+  <name>lang.extraction.policy</name>
+  <value>detect,identify</value>
+  <description>This determines when the plugin uses detection and
+  statistical identification mechanisms. The order in which the
+  detect and identify are written will determine the extraction
+  policy. Default case (detect,identify)  means the plugin will
+  first try to extract language info from page headers and metadata,
+  if this is not successful it will try using tika language
+  identification. Possible values are:
+    detect
+    identify
+    detect,identify
+    identify,detect
+  </description>
+</property>
+
 <!-- Temporary Hadoop 0.17.x workaround. -->
 
 <property>
