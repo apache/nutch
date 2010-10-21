@@ -28,7 +28,7 @@ extends GoraReducer<SelectorEntry, WebPage, String, WebPage> {
   private long count = 0;
   private boolean byDomain = false;
   private Map<String, Integer> hostCountMap = new HashMap<String, Integer>();
-  private Utf8 crawlId;
+  private Utf8 batchId;
 
   @Override
   protected void reduce(SelectorEntry key, Iterable<WebPage> values,
@@ -56,7 +56,7 @@ extends GoraReducer<SelectorEntry, WebPage, String, WebPage> {
         return;
       }
 
-      Mark.GENERATE_MARK.putMark(page, crawlId);
+      Mark.GENERATE_MARK.putMark(page, batchId);
       context.write(TableUtil.reverseUrl(key.url), page);
       context.getCounter("Generator", "GENERATE_MARK").increment(1);
       count++;
@@ -74,7 +74,7 @@ extends GoraReducer<SelectorEntry, WebPage, String, WebPage> {
       limit = totalLimit / context.getNumReduceTasks();
     }
     maxCount = conf.getLong(GeneratorJob.GENERATOR_MAX_COUNT, -2);
-    crawlId = new Utf8(conf.get(GeneratorJob.CRAWL_ID));
+    batchId = new Utf8(conf.get(GeneratorJob.BATCH_ID));
     String countMode =
       conf.get(GeneratorJob.GENERATOR_COUNT_MODE, GeneratorJob.GENERATOR_COUNT_VALUE_HOST);
     if (countMode.equals(GeneratorJob.GENERATOR_COUNT_VALUE_DOMAIN)) {

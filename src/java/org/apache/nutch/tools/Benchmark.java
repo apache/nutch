@@ -20,6 +20,7 @@ import org.apache.nutch.crawl.GeneratorJob;
 import org.apache.nutch.crawl.InjectorJob;
 import org.apache.nutch.crawl.WebTableReader;
 import org.apache.nutch.fetcher.FetcherJob;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.ParserJob;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
@@ -32,7 +33,7 @@ public class Benchmark extends Configured implements Tool {
     int res = ToolRunner.run(conf, new Benchmark(), args);
     System.exit(res);
   }
-  
+
   private void createSeeds(FileSystem fs, Path seedsDir, int count) throws Exception {
     OutputStream os = fs.create(new Path(seedsDir, "seeds"));
     for (int i = 0; i < count; i++) {
@@ -42,7 +43,7 @@ public class Benchmark extends Configured implements Tool {
     os.flush();
     os.close();
   }
-  
+
   public static final class BenchmarkResults {
     Map<String,Map<String,Long>> timings = new HashMap<String,Map<String,Long>>();
     List<String> runs = new ArrayList<String>();
@@ -51,7 +52,7 @@ public class Benchmark extends Configured implements Tool {
     long topN;
     long elapsed;
     String plugins;
-    
+
     public void addTiming(String stage, String run, long timing) {
       if (!runs.contains(run)) {
         runs.add(run);
@@ -66,7 +67,8 @@ public class Benchmark extends Configured implements Tool {
       }
       t.put(run, timing);
     }
-    
+
+    @Override
     public String toString() {
       StringBuilder sb = new StringBuilder();
       sb.append("* Plugins:\t" + plugins + "\n");
@@ -89,7 +91,7 @@ public class Benchmark extends Configured implements Tool {
       }
       return sb.toString();
     }
-    
+
     public List<String> getStages() {
       return stages;
     }
@@ -97,7 +99,7 @@ public class Benchmark extends Configured implements Tool {
       return runs;
     }
   }
-  
+
   public int run(String[] args) throws Exception {
     String plugins = "protocol-http|parse-tika|scoring-opic|urlfilter-regex|urlnormalizer-pass";
     int seeds = 1;
@@ -105,9 +107,10 @@ public class Benchmark extends Configured implements Tool {
     int threads = 10;
     //boolean delete = true;
     long topN = Long.MAX_VALUE;
-    
+
     if (args.length == 0) {
-      System.err.println("Usage: Benchmark [-seeds NN] [-depth NN] [-threads NN] [-maxPerHost NN] [-plugins <regex>]");
+      System.err.println("Usage: Benchmark [-crawlId <id>] [-seeds NN] [-depth NN] [-threads NN] [-maxPerHost NN] [-plugins <regex>]");
+      System.err.println("\t-crawlId id\t the id to prefix the schemas to operate on, (default: storage.crawl.id)");
       System.err.println("\t-seeds NN\tcreate NN unique hosts in a seed list (default: 1)");
       System.err.println("\t-depth NN\tperform NN crawl cycles (default: 10)");
       System.err.println("\t-threads NN\tuse NN threads per Fetcher task (default: 10)");
@@ -121,7 +124,9 @@ public class Benchmark extends Configured implements Tool {
     }
     int maxPerHost = Integer.MAX_VALUE;
     for (int i = 0; i < args.length; i++) {
-      if (args[i].equals("-seeds")) {
+      if (args[i].equals("-crawlId")) {
+        getConf().set(Nutch.CRAWL_ID_KEY, args[++i]);
+      } else if (args[i].equals("-seeds")) {
         seeds = Integer.parseInt(args[++i]);
       } else if (args[i].equals("-threads")) {
         threads = Integer.parseInt(args[++i]);
@@ -140,7 +145,7 @@ public class Benchmark extends Configured implements Tool {
     System.out.println(res);
     return 0;
   }
-  
+
   public BenchmarkResults benchmark(int seeds, int depth, int threads, int maxPerHost,
         long topN, String plugins) throws Exception {
     Configuration conf = getConf();
@@ -153,7 +158,7 @@ public class Benchmark extends Configured implements Tool {
     }
     conf.setInt(GeneratorJob.GENERATOR_MAX_COUNT, maxPerHost);
     conf.set(GeneratorJob.GENERATOR_COUNT_MODE, GeneratorJob.GENERATOR_COUNT_VALUE_HOST);
-    Job job = new NutchJob(conf);    
+    Job job = new NutchJob(conf);
     FileSystem fs = FileSystem.get(job.getConfiguration());
     Path dir = new Path(getConf().get("hadoop.tmp.dir"),
             "bench-" + System.currentTimeMillis());
@@ -166,16 +171,16 @@ public class Benchmark extends Configured implements Tool {
       LOG.info("crawl started in: " + dir);
       LOG.info("rootUrlDir = " + rootUrlDir);
       LOG.info("threads = " + threads);
-      LOG.info("depth = " + depth);      
+      LOG.info("depth = " + depth);
     }
-    
+
     BenchmarkResults res = new BenchmarkResults();
     res.depth = depth;
     res.plugins = plugins;
     res.seeds = seeds;
     res.threads = threads;
     res.topN = topN;
-    
+
     res.elapsed = System.currentTimeMillis();
     InjectorJob injector = new InjectorJob(conf);
     GeneratorJob generator = new GeneratorJob(conf);
@@ -184,7 +189,7 @@ public class Benchmark extends Configured implements Tool {
     DbUpdaterJob crawlDbTool = new DbUpdaterJob(conf);
     // not needed in the new API
     //LinkDb linkDbTool = new LinkDb(getConf());
-    
+
     long start = System.currentTimeMillis();
     // initialize crawlDb
     injector.inject(rootUrlDir);
@@ -193,22 +198,22 @@ public class Benchmark extends Configured implements Tool {
     int i;
     for (i = 0; i < depth; i++) {             // generate new segment
       start = System.currentTimeMillis();
-      String crawlId = generator.generate(topN, System.currentTimeMillis(),
+      String batchId = generator.generate(topN, System.currentTimeMillis(),
               false, false);
       delta = System.currentTimeMillis() - start;
       res.addTiming("generate", i + "", delta);
-      if (crawlId == null) {
+      if (batchId == null) {
         LOG.info("Stopping at depth=" + i + " - no more URLs to fetch.");
         break;
       }
       boolean isParsing = getConf().getBoolean("fetcher.parse", true);
       start = System.currentTimeMillis();
-      fetcher.fetch(crawlId, threads, false, isParsing, -1);  // fetch it
+      fetcher.fetch(batchId, threads, false, isParsing, -1);  // fetch it
       delta = System.currentTimeMillis() - start;
       res.addTiming("fetch", i + "", delta);
       if (!isParsing) {
         start = System.currentTimeMillis();
-        parseSegment.parse(crawlId, false, false);    // parse it, if needed
+        parseSegment.parse(batchId, false, false);    // parse it, if needed
         delta = System.currentTimeMillis() - start;
         res.addTiming("parse", i + "", delta);
       }

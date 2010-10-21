@@ -22,6 +22,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.scoring.ScoringFilterException;
@@ -34,6 +35,7 @@ import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TableUtil;
 import org.gora.mapreduce.GoraMapper;
 import org.gora.mapreduce.GoraOutputFormat;
+import org.gora.store.DataStore;
 
 /** This class takes a flat file of URLs and adds them to the of pages to be
  * crawled.  Useful for bootstrapping the system.
@@ -172,13 +174,13 @@ public class InjectorJob extends GoraMapper<String, WebPage, String, WebPage>
   }
 
   public InjectorJob() {
-    
+
   }
-  
+
   public InjectorJob(Configuration conf) {
     setConf(conf);
   }
-  
+
   @Override
   public Configuration getConf() {
     return conf;
@@ -223,15 +225,16 @@ public class InjectorJob extends GoraMapper<String, WebPage, String, WebPage>
     job.setMapOutputKeyClass(String.class);
     job.setMapOutputValueClass(WebPage.class);
     job.setOutputFormatClass(GoraOutputFormat.class);
-    GoraOutputFormat.setOutput(job, String.class,
-        WebPage.class, StorageUtils.getDataStoreClass(getConf()), true);
+    DataStore<String, WebPage> store = StorageUtils.createWebStore(job.getConfiguration(),
+        String.class, WebPage.class);
+    GoraOutputFormat.setOutput(job, store, true);
     job.setReducerClass(Reducer.class);
     job.setNumReduceTasks(0);
     job.waitForCompletion(true);
 
     job = new NutchJob(getConf(), "inject-p2 " + urlDir);
-    StorageUtils.initMapperJob(job, FIELDS, String.class, WebPage.class,
-        InjectorJob.class);
+    StorageUtils.initMapperJob(job, FIELDS, String.class,
+        WebPage.class, InjectorJob.class);
     job.setNumReduceTasks(0);
     job.waitForCompletion(true);
   }
@@ -239,9 +242,13 @@ public class InjectorJob extends GoraMapper<String, WebPage, String, WebPage>
   @Override
   public int run(String[] args) throws Exception {
     if (args.length < 1) {
-      System.err.println("Usage: InjectorJob <url_dir>");
+      System.err.println("Usage: InjectorJob <url_dir> [-crawlId <id>]");
       return -1;
     }
+    if (args.length == 3 && "-crawlId".equals(args[1])) {
+      getConf().set(Nutch.CRAWL_ID_KEY, args[2]);
+    }
+
     try {
       inject(new Path(args[0]));
       LOG.info("InjectorJob: finished");

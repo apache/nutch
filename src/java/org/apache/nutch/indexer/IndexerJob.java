@@ -37,7 +37,7 @@ implements Tool {
 
   private Configuration conf;
 
-  protected Utf8 crawlId;
+  protected Utf8 batchId;
 
   static {
     FIELDS.add(WebPage.Field.SIGNATURE);
@@ -59,7 +59,7 @@ implements Tool {
   @Override
   public void setup(Context context) throws IOException {
     Configuration conf = context.getConfiguration();
-    crawlId = new Utf8(conf.get(GeneratorJob.CRAWL_ID, Nutch.ALL_CRAWL_ID_STR));
+    batchId = new Utf8(conf.get(GeneratorJob.BATCH_ID, Nutch.ALL_BATCH_ID_STR));
   }
 
   @Override
@@ -72,10 +72,10 @@ implements Tool {
     }
 
     Utf8 mark = Mark.UPDATEDB_MARK.checkMark(page);
-    if (!crawlId.equals(REINDEX)) {
-      if (!NutchJob.shouldProcess(mark, crawlId)) {
+    if (!batchId.equals(REINDEX)) {
+      if (!NutchJob.shouldProcess(mark, batchId)) {
         if (LOG.isDebugEnabled()) {
-          LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; different crawl id");
+          LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; different batch id");
         }
         return;
       }
@@ -94,9 +94,9 @@ implements Tool {
     return columns;
   }
 
-  protected Job createIndexJob(Configuration conf, String jobName, String crawlId)
+  protected Job createIndexJob(Configuration conf, String jobName, String batchId)
   throws IOException, ClassNotFoundException {
-    conf.set(GeneratorJob.CRAWL_ID, crawlId);
+    conf.set(GeneratorJob.BATCH_ID, batchId);
     Job job = new NutchJob(conf, jobName);
     // TODO: Figure out why this needs to be here
     job.getConfiguration().setClass("mapred.output.key.comparator.class",

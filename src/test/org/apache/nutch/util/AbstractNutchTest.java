@@ -29,6 +29,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.nutch.crawl.URLWebPage;
 import org.apache.nutch.storage.Mark;
+import org.apache.nutch.storage.StorageUtils;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.TableUtil;
 import org.gora.query.Query;
@@ -49,11 +50,12 @@ public class AbstractNutchTest extends TestCase {
   protected Path testdir = new Path("build/test/inject-test");
   protected DataStore<String, WebPage> webPageStore;
   protected boolean persistentDataStore = false;
-  
+
   @Override
   public void setUp() throws Exception {
     super.setUp();
     conf = CrawlTestUtil.createConfiguration();
+    conf.set("storage.data.store.class", "org.gora.sql.store.SqlStore");
     fs = FileSystem.get(conf);
     // using hsqldb in memory
     DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.driver","org.hsqldb.jdbcDriver");
@@ -61,13 +63,8 @@ public class AbstractNutchTest extends TestCase {
     DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.url","jdbc:hsqldb:mem:" + getClass().getName());
     DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.user","sa");
     DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.password","");
-    if (persistentDataStore) {
-      webPageStore = DataStoreFactory.getDataStore(SqlStore.class,
-          String.class, WebPage.class);      
-    } else {
-      webPageStore = DataStoreFactory.createDataStore(SqlStore.class,
-          String.class, WebPage.class);
-    }
+    webPageStore = StorageUtils.createWebStore(conf, String.class,
+        WebPage.class);
   }
 
   @Override

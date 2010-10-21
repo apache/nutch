@@ -27,6 +27,7 @@ import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.ParseStatusUtils;
 import org.apache.nutch.protocol.ProtocolStatusUtils;
 import org.apache.nutch.storage.ParseStatus;
@@ -59,6 +60,7 @@ public class WebTableReader extends Configured implements Tool {
     public WebTableStatMapper() {
     }
 
+    @Override
     public void setup(Context context) {
       sort = context.getConfiguration().getBoolean("db.reader.stats.sort",
           false);
@@ -92,9 +94,11 @@ public class WebTableReader extends Configured implements Tool {
       Reducer<Text, LongWritable, Text, LongWritable> {
     LongWritable val = new LongWritable();
 
+    @Override
     public void setup(Context context) {
     }
 
+    @Override
     public void cleanup(Context context) {
     }
 
@@ -136,6 +140,7 @@ public class WebTableReader extends Configured implements Tool {
   public static class WebTableStatReducer extends
       Reducer<Text, LongWritable, Text, LongWritable> {
 
+    @Override
     public void cleanup(Context context) {
     }
 
@@ -204,7 +209,7 @@ public class WebTableReader extends Configured implements Tool {
 
     job.getConfiguration().setBoolean("db.reader.stats.sort", sort);
 
-    DataStore<String, WebPage> store = StorageUtils.createDataStore(job
+    DataStore<String, WebPage> store = StorageUtils.createWebStore(job
         .getConfiguration(), String.class, WebPage.class);
     Query<String, WebPage> query = store.newQuery();
     query.setFields(WebPage._ALL_FIELDS);
@@ -303,7 +308,7 @@ public class WebTableReader extends Configured implements Tool {
   /** Prints out the entry to the standard out **/
   private void read(String key, boolean dumpContent, boolean dumpHeaders,
       boolean dumpLinks, boolean dumpText) throws ClassNotFoundException, IOException {
-    DataStore<String, WebPage> datastore = StorageUtils.createDataStore(getConf(),
+    DataStore<String, WebPage> datastore = StorageUtils.createWebStore(getConf(),
         String.class, WebPage.class);
 
     Query<String, WebPage> query = datastore.newQuery();
@@ -391,8 +396,8 @@ public class WebTableReader extends Configured implements Tool {
     cfg.setBoolean(WebTableRegexMapper.headersParamName, headers);
     cfg.setBoolean(WebTableRegexMapper.linksParamName, links);
     cfg.setBoolean(WebTableRegexMapper.textParamName, text);
-    
-    DataStore<String, WebPage> store = StorageUtils.createDataStore(job
+
+    DataStore<String, WebPage> store = StorageUtils.createWebStore(job
         .getConfiguration(), String.class, WebPage.class);
     Query<String, WebPage> query = store.newQuery();
     query.setFields(WebPage._ALL_FIELDS);
@@ -425,9 +430,9 @@ public class WebTableReader extends Configured implements Tool {
     sb.append("prevFetchTime:\t" + page.getPrevFetchTime()).append("\n");
     sb.append("retries:\t" + page.getRetriesSinceFetch()).append("\n");
     sb.append("modifiedTime:\t" + page.getModifiedTime()).append("\n");
-    sb.append("protocolStatus:\t" + 
+    sb.append("protocolStatus:\t" +
         ProtocolStatusUtils.toString(page.getProtocolStatus())).append("\n");
-    sb.append("parseStatus:\t" + 
+    sb.append("parseStatus:\t" +
         ParseStatusUtils.toString(page.getParseStatus())).append("\n");
     sb.append("title:\t" + page.getTitle()).append("\n");
     sb.append("score:\t" + page.getScore()).append("\n");
@@ -467,7 +472,7 @@ public class WebTableReader extends Configured implements Tool {
       if (headers != null) {
         for (Entry<Utf8,Utf8> e : headers.entrySet()) {
           sb.append("header:\t" + e.getKey() + "\t" + e.getValue() + "\n");
-        }        
+        }
       }
     }
     ByteBuffer content = page.getContent();
@@ -481,9 +486,9 @@ public class WebTableReader extends Configured implements Tool {
     if (text != null && dumpText) {
       sb.append("text:start:\n");
       sb.append(text.toString());
-      sb.append("\ntext:end:\n");      
+      sb.append("\ntext:end:\n");
     }
-    
+
     return sb.toString();
   }
 
@@ -492,13 +497,14 @@ public class WebTableReader extends Configured implements Tool {
         args);
     System.exit(res);
   }
-  
+
   private static enum Op {READ, STAT, DUMP};
 
   public int run(String[] args) throws Exception {
     if (args.length < 1) {
       System.err
-          .println("Usage: WebTableReader (-stats | -url [url] | -dump <out_dir> [-regex regex]) [-content] [-headers] [-links] [-text]");
+          .println("Usage: WebTableReader (-stats | -url [url] | -dump <out_dir> [-regex regex]) [-crawlId <id>] [-content] [-headers] [-links] [-text]");
+      System.err.println("\t-crawlId <id>\t the id to prefix the schemas to operate on, (default: storage.crawl.id)");
       System.err
           .println("\t-stats [-sort] \tprint overall statistics to System.out");
       System.err.println("\t\t[-sort]\tlist status sorted by host");
@@ -530,7 +536,7 @@ public class WebTableReader extends Configured implements Tool {
           //read(param);
           //return 0;
         } else if (args[i].equals("-stats")) {
-          op = op.STAT;
+          op = Op.STAT;
         } else if (args[i].equals("-sort")) {
           toSort = true;
         } else if (args[i].equals("-dump")) {
@@ -546,6 +552,8 @@ public class WebTableReader extends Configured implements Tool {
           text = true;
         } else if (args[i].equals("-regex")) {
           regex = args[++i];
+        } else if (args[i].equals("-crawlId")) {
+          getConf().set(Nutch.CRAWL_ID_KEY, args[++i]);
         }
       }
       if (op == null) {

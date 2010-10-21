@@ -38,7 +38,7 @@ public class FetcherJob implements Tool {
   public static final int PERM_REFRESH_TIME = 5;
 
   public static final Utf8 REDIRECT_DISCOVERED = new Utf8("___rdrdsc__");
-  
+
   public static final String RESUME_KEY = "fetcher.job.resume";
   public static final String PARSE_KEY = "fetcher.parse";
   public static final String THREADS_KEY = "fetcher.threads.fetch";
@@ -72,7 +72,7 @@ public class FetcherJob implements Tool {
 
     private boolean shouldContinue;
 
-    private Utf8 crawlId;
+    private Utf8 batchId;
 
     private Random random = new Random();
 
@@ -80,16 +80,16 @@ public class FetcherJob implements Tool {
     protected void setup(Context context) {
       Configuration conf = context.getConfiguration();
       shouldContinue = conf.getBoolean(RESUME_KEY, false);
-      crawlId = new Utf8(conf.get(GeneratorJob.CRAWL_ID, Nutch.ALL_CRAWL_ID_STR));
+      batchId = new Utf8(conf.get(GeneratorJob.BATCH_ID, Nutch.ALL_BATCH_ID_STR));
     }
 
     @Override
     protected void map(String key, WebPage page, Context context)
         throws IOException, InterruptedException {
       Utf8 mark = Mark.GENERATE_MARK.checkMark(page);
-      if (!NutchJob.shouldProcess(mark, crawlId)) {
+      if (!NutchJob.shouldProcess(mark, batchId)) {
         if (LOG.isDebugEnabled()) {
-          LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; different crawl id");
+          LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; different batch id");
         }
         return;
       }
@@ -107,11 +107,11 @@ public class FetcherJob implements Tool {
   public static final Logger LOG = LoggerFactory.getLogger(FetcherJob.class);
 
   private Configuration conf;
-  
+
   public FetcherJob() {
-    
+
   }
-  
+
   public FetcherJob(Configuration conf) {
     setConf(conf);
   }
@@ -140,7 +140,7 @@ public class FetcherJob implements Tool {
 
   /**
    * Run fetcher.
-   * @param crawlId crawlId (obtained from Generator) or null to fetch all generated fetchlists
+   * @param batchId batchId (obtained from Generator) or null to fetch all generated fetchlists
    * @param threads number of threads per map task
    * @param shouldResume
    * @param parse if true, then parse content immediately, if false then a separate
@@ -150,7 +150,8 @@ public class FetcherJob implements Tool {
    * @return 0 on success
    * @throws Exception
    */
-  public int fetch(String crawlId, int threads, boolean shouldResume, boolean parse, int numTasks)
+  public int fetch(String batchId, int threads,
+      boolean shouldResume, boolean parse, int numTasks)
       throws Exception {
     LOG.info("FetcherJob: starting");
 
@@ -159,10 +160,10 @@ public class FetcherJob implements Tool {
     if (threads > 0) {
       getConf().setInt(THREADS_KEY, threads);
     }
-    getConf().set(GeneratorJob.CRAWL_ID, crawlId);
+    getConf().set(GeneratorJob.BATCH_ID, batchId);
     getConf().setBoolean(PARSE_KEY, parse);
     getConf().setBoolean(RESUME_KEY, shouldResume);
-    
+
     // set the actual time for the timelimit relative
     // to the beginning of the whole job and not of a specific task
     // otherwise it keeps trying again if a task fails
@@ -176,10 +177,10 @@ public class FetcherJob implements Tool {
     LOG.info("FetcherJob: threads: " + getConf().getInt(THREADS_KEY, 10));
     LOG.info("FetcherJob: parsing: " + getConf().getBoolean(PARSE_KEY, true));
     LOG.info("FetcherJob: resuming: " + getConf().getBoolean(RESUME_KEY, false));
-    if (crawlId.equals(Nutch.ALL_CRAWL_ID_STR)) {
+    if (batchId.equals(Nutch.ALL_BATCH_ID_STR)) {
       LOG.info("FetcherJob: fetching all");
     } else {
-      LOG.info("FetcherJob: crawlId: " + crawlId);
+      LOG.info("FetcherJob: batchId: " + batchId);
     }
 
     Job job = new NutchJob(getConf(), "fetch");
@@ -242,10 +243,12 @@ public class FetcherJob implements Tool {
     int threads = -1;
     boolean shouldResume = false;
     boolean parse = getConf().getBoolean(PARSE_KEY, false);
-    String crawlId;
+    String batchId;
 
-    String usage = "Usage: FetcherJob (<crawl id> | -all) [-threads N] [-parse] [-resume] [-numTasks N]\n" +
-      "\tcrawlId\tcrawl identifier returned by Generator, or -all for all generated crawlId-s\n" +
+    String usage = "Usage: FetcherJob (<batchId> | -all) [-crawlId <id>] " +
+      "[-threads N] [-parse] [-resume] [-numTasks N]\n" +
+      "\tbatchId\tcrawl identifier returned by Generator, or -all for all generated batchId-s\n" +
+      "\t-crawlId <id>\t the id to prefix the schemas to operate on, (default: storage.crawl.id)\n" +
       "\t-threads N\tnumber of fetching threads per task\n" +
       "\t-parse\tif specified then fetcher will immediately parse fetched content\n" +
       "\t-resume\tresume interrupted job\n" +
@@ -256,8 +259,8 @@ public class FetcherJob implements Tool {
       return -1;
     }
 
-    crawlId = args[0];
-    if (!crawlId.equals("-all") && crawlId.startsWith("-")) {
+    batchId = args[0];
+    if (!batchId.equals("-all") && batchId.startsWith("-")) {
       System.err.println(usage);
       return -1;
     }
@@ -271,11 +274,13 @@ public class FetcherJob implements Tool {
       } else if ("-parse".equals(args[i])) {
         parse = true;
       } else if ("-numTasks".equals(args[i])) {
-      		numTasks = Integer.parseInt(args[++i]);
+        numTasks = Integer.parseInt(args[++i]);
+      } else if ("-crawlId".equals(args[i])) {
+        getConf().set(Nutch.CRAWL_ID_KEY, args[++i]);
       }
     }
 
-    int fetchcode = fetch(crawlId, threads, shouldResume, parse, numTasks); // run the Fetcher
+    int fetchcode = fetch(batchId, threads, shouldResume, parse, numTasks); // run the Fetcher
 
     return fetchcode;
   }

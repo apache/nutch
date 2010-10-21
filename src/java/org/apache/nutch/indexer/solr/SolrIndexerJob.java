@@ -28,6 +28,7 @@ import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.indexer.IndexerJob;
 import org.apache.nutch.indexer.NutchIndexWriterFactory;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
@@ -36,13 +37,13 @@ public class SolrIndexerJob extends IndexerJob {
 
   public static Logger LOG = LoggerFactory.getLogger(SolrIndexerJob.class);
 
-  private void indexSolr(String solrUrl, String crawlId) throws Exception {
+  private void indexSolr(String solrUrl, String batchId) throws Exception {
     LOG.info("SolrIndexerJob: starting");
 
     NutchIndexWriterFactory.addClassToConf(getConf(), SolrWriter.class);
     getConf().set(SolrConstants.SERVER_URL, solrUrl);
 
-    Job job = createIndexJob(getConf(), "solr-index", crawlId);
+    Job job = createIndexJob(getConf(), "solr-index", batchId);
     Path tmp = new Path("tmp_" + System.currentTimeMillis() + "-"
                 + new Random().nextInt());
 
@@ -61,10 +62,13 @@ public class SolrIndexerJob extends IndexerJob {
 
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
-      System.err.println("Usage: SolrIndexerJob <solr url> (<crawl id> | -all | -reindex)");
+      System.err.println("Usage: SolrIndexerJob <solr url> (<batch id> | -all | -reindex) [-crawlId <id>]");
       return -1;
     }
 
+    if (args.length == 4 && "-crawlId".equals(args[2])) {
+      getConf().set(Nutch.CRAWL_ID_KEY, args[3]);
+    }
     try {
       indexSolr(args[0], args[1]);
       return 0;

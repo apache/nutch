@@ -38,7 +38,7 @@ public class GeneratorJob extends Configured implements Tool {
   public static final String GENERATOR_CUR_TIME = "generate.curTime";
   public static final String GENERATOR_DELAY = "crawl.gen.delay";
   public static final String GENERATOR_RANDOM_SEED = "generate.partition.seed";
-  public static final String CRAWL_ID = "generate.crawl.id";
+  public static final String BATCH_ID = "generate.batch.id";
 
   private static final Set<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
@@ -114,13 +114,13 @@ public class GeneratorJob extends Configured implements Tool {
   }
 
   public GeneratorJob() {
-    
+
   }
-  
+
   public GeneratorJob(Configuration conf) {
     setConf(conf);
   }
-  
+
   /**
    * Mark URLs ready for fetching.
    * @throws ClassNotFoundException
@@ -141,9 +141,9 @@ public class GeneratorJob extends Configured implements Tool {
     getConf().setLong(GENERATOR_TOP_N, topN);
     getConf().setBoolean(GENERATOR_FILTER, filter);
     int randomSeed = Math.abs(new Random().nextInt());
-    String crawlId = (curTime / 1000) + "-" + randomSeed;
+    String batchId = (curTime / 1000) + "-" + randomSeed;
     getConf().setInt(GENERATOR_RANDOM_SEED, randomSeed);
-    getConf().set(CRAWL_ID, crawlId);
+    getConf().set(BATCH_ID, batchId);
     getConf().setLong(Nutch.GENERATE_TIME_KEY, System.currentTimeMillis());
     getConf().setBoolean(GENERATOR_NORMALISE, norm);
     String mode = getConf().get(GENERATOR_COUNT_MODE, GENERATOR_COUNT_VALUE_HOST);
@@ -157,17 +157,17 @@ public class GeneratorJob extends Configured implements Tool {
       getConf().set(URLPartitioner.PARTITION_MODE_KEY, URLPartitioner.PARTITION_MODE_HOST);
     }
 
-    Job job = new NutchJob(getConf(), "generate: " + crawlId);
-    StorageUtils.initMapperJob(job, FIELDS, SelectorEntry.class, WebPage.class,
-        GeneratorMapper.class, URLPartitioner.class);
+    Job job = new NutchJob(getConf(), "generate: " + batchId);
+    StorageUtils.initMapperJob(job, FIELDS, SelectorEntry.class,
+        WebPage.class, GeneratorMapper.class, URLPartitioner.class, true);
     StorageUtils.initReducerJob(job, GeneratorReducer.class);
 
     boolean success = job.waitForCompletion(true);
     if (!success) return null;
 
     LOG.info("GeneratorJob: done");
-    LOG.info("GeneratorJob: generated crawl id: " + crawlId);
-    return crawlId;
+    LOG.info("GeneratorJob: generated batch id: " + batchId);
+    return batchId;
   }
 
   public int run(String[] args) throws Exception {
@@ -181,6 +181,8 @@ public class GeneratorJob extends Configured implements Tool {
         filter = false;
       } else if ("-noNorm".equals(args[i])) {
         norm = false;
+      } else if ("-crawlId".equals(args[i])) {
+        getConf().set(Nutch.CRAWL_ID_KEY, args[++i]);
       }
     }
 

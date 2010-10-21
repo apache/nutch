@@ -1041,4 +1041,25 @@
   <description>Default class for storing data</description>
 </property>
 
+<property>
+  <name>storage.schema</name>
+  <value>webpage</value>
+  <description>This value holds the schema name used for Nutch web db.
+  Note that Nutch ignores the value in the gora mapping files, and uses
+  this as the schema name.
+  </description>
+</property>
+
+<property>
+  <name>storage.crawl.id</name>
+  <value></value>
+  <description>This value helps differentiate between the datasets that
+  the jobs in the crawl cycle generate and operate on. The value will
+  be input to all the jobs which then will use it as a prefix when
+  accessing to the schemas. The default configuration uses no id to prefix
+  the schemas. The value could also be given as a command line argument
+  to each job.
+  </description>
+</property>
+
 </configuration>

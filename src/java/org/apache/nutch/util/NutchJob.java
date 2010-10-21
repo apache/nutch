@@ -37,12 +37,12 @@ public class NutchJob extends Job {
     setJarByClass(this.getClass());
   }
 
-  public static boolean shouldProcess(Utf8 mark, Utf8 crawlId) {
+  public static boolean shouldProcess(Utf8 mark, Utf8 batchId) {
     if (mark == null) {
       return false;
     }
-    boolean isAll = crawlId.equals(Nutch.ALL_CRAWL_ID);
-    if (!isAll && !mark.equals(crawlId)) {
+    boolean isAll = batchId.equals(Nutch.ALL_CRAWL_ID);
+    if (!isAll && !mark.equals(batchId)) {
       return false;
     }
     return true;

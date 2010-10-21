@@ -44,7 +44,7 @@ import org.junit.Before;
  * Basic injector test: 1. Creates a text file with urls 2. Injects them into
  * crawldb 3. Reads crawldb entries and verifies contents 4. Injects more urls
  * into webdb 5. Reads crawldb entries and verifies contents
- * 
+ *
  * @author nutch-dev <nutch-dev at lucene.apache.org>
  */
 public class TestInjector extends AbstractNutchTest {
@@ -104,13 +104,13 @@ public class TestInjector extends AbstractNutchTest {
     assertTrue(urls.containsAll(read));
 
   }
-  
+
   private static final String[] fields = new String[] {
     WebPage.Field.MARKERS.getName(),
     WebPage.Field.METADATA.getName(),
     WebPage.Field.SCORE.getName()
   };
-  
+
   private List<String> readDb() throws Exception {
     List<URLWebPage> pages = CrawlTestUtil.readContents(webPageStore, null, fields);
     ArrayList<String> read = new ArrayList<String>();

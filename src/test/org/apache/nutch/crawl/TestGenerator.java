@@ -41,7 +41,7 @@ import org.apache.nutch.util.TableUtil;
 public class TestGenerator extends AbstractNutchTest {
 
   public static final Logger LOG = LoggerFactory.getLogger(TestGenerator.class);
-  
+
   private static String[] FIELDS = new String[] {
     WebPage.Field.MARKERS.getName(),
     WebPage.Field.SCORE.getName()
@@ -172,7 +172,7 @@ public class TestGenerator extends AbstractNutchTest {
       webPageStore.put(TableUtil.reverseUrl(uwp.getUrl()), uwp.getDatum());
     }
     webPageStore.flush();
-    
+
     Configuration myConfiguration = new Configuration(conf);
     myConfiguration.setInt(GeneratorJob.GENERATOR_MAX_COUNT, 1);
     myConfiguration.set(GeneratorJob.GENERATOR_COUNT_MODE, GeneratorJob.GENERATOR_COUNT_VALUE_DOMAIN);
@@ -255,8 +255,8 @@ public class TestGenerator extends AbstractNutchTest {
     // generate segment
     GeneratorJob g = new GeneratorJob();
     g.setConf(config);
-    String crawlId = g.generate(numResults, System.currentTimeMillis(), filter, false);
-    if (crawlId == null)
+    String batchId = g.generate(numResults, System.currentTimeMillis(), filter, false);
+    if (batchId == null)
       throw new RuntimeException("Generator failed");
   }
 

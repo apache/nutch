@@ -70,7 +70,9 @@ public interface Nutch {
 
   public static final Text WRITABLE_REPR_URL_KEY = new Text(REPR_URL_KEY);
 
-  public static final String ALL_CRAWL_ID_STR = "-all";
+  public static final String ALL_BATCH_ID_STR = "-all";
 
-  public static final Utf8 ALL_CRAWL_ID = new Utf8(ALL_CRAWL_ID_STR);
+  public static final Utf8 ALL_CRAWL_ID = new Utf8(ALL_BATCH_ID_STR);
+
+  public static final String CRAWL_ID_KEY = "storage.crawl.id";
 }

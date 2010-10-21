@@ -11,6 +11,7 @@ import org.apache.hadoop.io.RawComparator;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.storage.StorageUtils;
 import org.apache.nutch.storage.WebPage;
@@ -42,11 +43,11 @@ implements Tool {
     FIELDS.add(WebPage.Field.PREV_FETCH_TIME);
     FIELDS.add(WebPage.Field.PREV_SIGNATURE);
   }
-  
+
   public DbUpdaterJob() {
-    
+
   }
-  
+
   public DbUpdaterJob(Configuration conf) {
     setConf(conf);
   }
@@ -75,7 +76,10 @@ implements Tool {
   }
 
   public int run(String[] args) throws Exception {
-	return updateTable();
+    if (args.length == 2 && "-crawlId".equals(args[0])) {
+      getConf().set(Nutch.CRAWL_ID_KEY, args[1]);
+    }
+    return updateTable();
   }
 
   public static void main(String[] args) throws Exception {
