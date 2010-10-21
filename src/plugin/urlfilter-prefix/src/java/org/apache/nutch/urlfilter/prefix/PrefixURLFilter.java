@@ -36,6 +36,7 @@ import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.StringReader;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -63,8 +64,8 @@ public class PrefixURLFilter implements URLFilter {
    
   }
 
-  public PrefixURLFilter(String filename) throws IOException {
-    trie = readConfigurationFile(new FileReader(filename));
+  public PrefixURLFilter(String stringRules) throws IOException {
+    trie = readConfiguration(new StringReader(stringRules));
   }
 
   public String filter(String url) {
@@ -74,7 +75,7 @@ public class PrefixURLFilter implements URLFilter {
       return url;
   }
 
-  private TrieStringMatcher readConfigurationFile(Reader reader)
+  private TrieStringMatcher readConfiguration(Reader reader)
     throws IOException {
     
     BufferedReader in=new BufferedReader(reader);
@@ -144,16 +145,22 @@ public class PrefixURLFilter implements URLFilter {
     }
 
     String file = conf.get("urlfilter.prefix.file");
+    String stringRules = conf.get("urlfilter.prefix.rules");
     // attribute "file" takes precedence if defined
     if (attributeFile != null)
       file = attributeFile;
-    Reader reader = conf.getConfResourceAsReader(file);
+    Reader reader = null;
+    if (stringRules != null) { // takes precedence over files
+      reader = new StringReader(stringRules);
+    } else {
+      reader = conf.getConfResourceAsReader(file);
+    }
 
     if (reader == null) {
       trie = new PrefixStringMatcher(new String[0]);
     } else {
       try {
-        trie = readConfigurationFile(reader);
+        trie = readConfiguration(reader);
       } catch (IOException e) {
         if (LOG.isErrorEnabled()) { LOG.error(e.getMessage()); }
         // TODO mb@media-style.com: throw Exception? Because broken api.

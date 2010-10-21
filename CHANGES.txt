@@ -72,6 +72,8 @@ Release 2.0 - Current Development
 
 * NUTCH-832 Website menu has lots of broken links - in particular the API docs (Alex McLintock via mattmann)
 
+* NUTCH-921 Reduce dependency of Nutch on config files (ab)
+
 
 Release 1.1 - 2010-06-06
 

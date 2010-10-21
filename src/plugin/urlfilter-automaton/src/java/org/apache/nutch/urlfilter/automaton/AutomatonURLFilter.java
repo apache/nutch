@@ -19,6 +19,7 @@ package org.apache.nutch.urlfilter.automaton;
 // JDK imports
 import java.io.Reader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.regex.PatternSyntaxException;
 
 // Hadoop imports
@@ -41,6 +42,8 @@ import org.apache.nutch.urlfilter.api.RegexURLFilterBase;
  * @see <a href="http://www.brics.dk/automaton/">dk.brics.automaton</a>
  */
 public class AutomatonURLFilter extends RegexURLFilterBase {
+  public static final String URLFILTER_AUTOMATON_FILE = "urlfilter.automaton.file";
+  public static final String URLFILTER_AUTOMATON_RULES = "urlfilter.automaton.rules";
 
   public AutomatonURLFilter() {
     super();
@@ -61,9 +64,17 @@ public class AutomatonURLFilter extends RegexURLFilterBase {
    * <implementation:RegexURLFilterBase> *
    * ----------------------------------- */
   
-  // Inherited Javadoc
-  protected String getRulesFile(Configuration conf) {
-    return conf.get("urlfilter.automaton.file");
+  /**
+   * Rules specified as a config property will override rules specified
+   * as a config file.
+   */
+  protected Reader getRulesReader(Configuration conf) throws IOException {
+    String stringRules = conf.get(URLFILTER_AUTOMATON_RULES);
+    if (stringRules != null) {
+      return new StringReader(stringRules);
+    }
+    String fileRules = conf.get(URLFILTER_AUTOMATON_FILE);
+    return conf.getConfResourceAsReader(fileRules);
   }
 
   // Inherited Javadoc

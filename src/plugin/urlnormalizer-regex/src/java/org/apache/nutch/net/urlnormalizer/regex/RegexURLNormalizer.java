@@ -20,8 +20,11 @@ package org.apache.nutch.net.urlnormalizer.regex;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
+import java.io.StringReader;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,6 +43,7 @@ import org.apache.nutch.util.NutchConfiguration;
 
 import javax.xml.parsers.*;
 import org.w3c.dom.*;
+import org.xml.sax.InputSource;
 import org.apache.oro.text.regex.*;
 
 /**
@@ -106,17 +110,23 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
     // the default constructor was called
     if (this.scopedRules == null) {
       String filename = getConf().get("urlnormalizer.regex.file");
+      String stringRules = getConf().get("urlnormalizer.regex.rules");
       scopedRules = new HashMap();
-      URL url = getConf().getResource(filename);
+      Reader reader = null;
+      if (stringRules != null) {
+        reader = new StringReader(stringRules);
+      } else {
+        reader = getConf().getConfResourceAsReader(filename);
+      }
       List rules = null;
-      if (url == null) {
-        LOG.warn("Can't load the default config file! " + filename);
+      if (reader == null) {
+        LOG.warn("Can't load the default rules! ");
         rules = EMPTY_RULES;
       } else {
         try {
-          rules = readConfiguration(url.openStream());
+          rules = readConfiguration(reader);
         } catch (Exception e) {
-          LOG.warn("Couldn't read default config from '" + url + "': " + e);
+          LOG.warn("Couldn't read default config: " + e);
           rules = EMPTY_RULES;
         }
       }
@@ -125,8 +135,8 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
   }
 
   // used in JUnit test.
-  void setConfiguration(InputStream is, String scope) {
-    List rules = readConfiguration(is);
+  void setConfiguration(Reader reader, String scope) {
+    List rules = readConfiguration(reader);
     scopedRules.put(scope, rules);
     LOG.debug("Set config for scope '" + scope + "': " + rules.size() + " rules.");
   }
@@ -141,17 +151,16 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
       // try to populate
       String configFile = getConf().get("urlnormalizer.regex.file." + scope);
       if (configFile != null) {
-        URL resource = getConf().getResource(configFile);
-        LOG.debug("resource for scope '" + scope + "': " + resource);
-        if (resource == null) {
+        LOG.debug("resource for scope '" + scope + "': " + configFile);
+        if (configFile == null) {
           LOG.warn("Can't load resource for config file: " + configFile);
         } else {
           try {
-            InputStream is = resource.openStream();
-            curRules = readConfiguration(resource.openStream());
+            Reader reader = getConf().getConfResourceAsReader(configFile);
+            curRules = readConfiguration(reader);
             scopedRules.put(scope, curRules);
           } catch (Exception e) {
-            LOG.warn("Couldn't load resource '" + resource + "': " + e);
+            LOG.warn("Couldn't load resource '" + configFile + "': " + e);
           }
         }
       }
@@ -185,22 +194,22 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
       LOG.info("loading " + filename);
     }
     try {
-      FileInputStream fis = new FileInputStream(filename);
-      return readConfiguration(fis);
+      FileReader reader = new FileReader(filename);
+      return readConfiguration(reader);
     } catch (Exception e) {
       LOG.error("Error loading rules from '" + filename + "': " + e);
       return EMPTY_RULES;
     }
   }
   
-  private List readConfiguration(InputStream is) {
+  private List readConfiguration(Reader reader) {
     Perl5Compiler compiler = new Perl5Compiler();
     List rules = new ArrayList();
     try {
 
       // borrowed heavily from code in Configuration.java
       Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-              .parse(is);
+              .parse(new InputSource(reader));
       Element root = doc.getDocumentElement();
       if ((!"regex-normalize".equals(root.getTagName()))
               && (LOG.isErrorEnabled())) {
