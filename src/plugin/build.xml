@@ -41,6 +41,7 @@
      <ant dir="protocol-file" target="deploy"/>
      <ant dir="protocol-http" target="deploy"/>
      <ant dir="protocol-httpclient" target="deploy"/>
+  	 <ant dir="protocol-sftp" target="deploy"/>
      <ant dir="parse-js" target="deploy"/>
      <ant dir="parse-html" target="deploy"/>
      <ant dir="parse-rss" target="deploy"/>
@@ -124,6 +125,7 @@
     <ant dir="protocol-ftp" target="clean"/>
     <ant dir="protocol-httpclient" target="clean"/>
     <ant dir="protocol-http" target="clean"/>
+  	<ant dir="protocol-sftp" target="clean"/>
     <ant dir="scoring-link" target="clean"/>
     <ant dir="scoring-opic" target="clean"/>
     <ant dir="subcollection" target="clean"/>
