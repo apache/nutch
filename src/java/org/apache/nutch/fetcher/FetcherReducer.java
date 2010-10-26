@@ -40,7 +40,7 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.TableUtil;
 import org.apache.nutch.util.URLUtil;
-import org.gora.mapreduce.GoraReducer;
+import org.apache.gora.mapreduce.GoraReducer;
 
 public class FetcherReducer
 extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {

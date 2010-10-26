@@ -9,7 +9,7 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 import org.apache.nutch.storage.WebPage;
-import org.gora.util.IOUtils;
+import org.apache.gora.util.IOUtils;
 
 public class FetchEntry extends Configured implements Writable {
 

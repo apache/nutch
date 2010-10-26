@@ -22,8 +22,8 @@ import org.apache.nutch.storage.StorageUtils;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TableUtil;
-import org.gora.mapreduce.GoraMapper;
-import org.gora.mapreduce.StringComparator;
+import org.apache.gora.mapreduce.GoraMapper;
+import org.apache.gora.mapreduce.StringComparator;
 
 public abstract class IndexerJob
 extends GoraMapper<String, WebPage, String, WebPage>

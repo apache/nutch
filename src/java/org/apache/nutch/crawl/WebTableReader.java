@@ -39,10 +39,10 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.TableUtil;
-import org.gora.mapreduce.GoraMapper;
-import org.gora.query.Query;
-import org.gora.query.Result;
-import org.gora.store.DataStore;
+import org.apache.gora.mapreduce.GoraMapper;
+import org.apache.gora.query.Query;
+import org.apache.gora.query.Result;
+import org.apache.gora.store.DataStore;
 
 /**
  * Displays information about the entries of the webtable

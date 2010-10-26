@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-913 Nutch should use new namespace for Gora (dogacan)
+
 * NUTCH-714 Need a SFTP and SCP Protocol Handler (Sanjoy Ghosh, mattmann)
 
 * NUTCH-894 Move statistical language identification from indexing to parsing step

@@ -18,7 +18,7 @@ import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.TableUtil;
 import org.apache.nutch.util.WebPageWritable;
-import org.gora.mapreduce.GoraReducer;
+import org.apache.gora.mapreduce.GoraReducer;
 
 public class DbUpdateReducer
 extends GoraReducer<String, NutchWritable, String, WebPage> {

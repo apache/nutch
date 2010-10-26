@@ -25,7 +25,7 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TableUtil;
-import org.gora.mapreduce.GoraMapper;
+import org.apache.gora.mapreduce.GoraMapper;
 
 /**
  * Multi-threaded fetcher.

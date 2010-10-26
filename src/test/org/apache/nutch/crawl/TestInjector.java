@@ -32,12 +32,12 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.AbstractNutchTest;
 import org.apache.nutch.util.CrawlTestUtil;
 import org.apache.nutch.util.TableUtil;
-import org.gora.query.Query;
-import org.gora.query.Result;
-import org.gora.sql.store.SqlStore;
-import org.gora.store.DataStore;
-import org.gora.store.DataStoreFactory;
-import org.gora.util.ByteUtils;
+import org.apache.gora.query.Query;
+import org.apache.gora.query.Result;
+import org.apache.gora.sql.store.SqlStore;
+import org.apache.gora.store.DataStore;
+import org.apache.gora.store.DataStoreFactory;
+import org.apache.gora.util.ByteUtils;
 import org.junit.Before;
 
 /**

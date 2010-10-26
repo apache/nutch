@@ -11,6 +11,9 @@ import java.util.TreeMap;
 import org.apache.avro.util.Utf8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.gora.mapreduce.GoraMapper;
+import org.apache.gora.mapreduce.GoraOutputFormat;
+import org.apache.gora.store.DataStore;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -33,9 +36,6 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TableUtil;
-import org.gora.mapreduce.GoraMapper;
-import org.gora.mapreduce.GoraOutputFormat;
-import org.gora.store.DataStore;
 
 /** This class takes a flat file of URLs and adds them to the of pages to be
  * crawled.  Useful for bootstrapping the system.

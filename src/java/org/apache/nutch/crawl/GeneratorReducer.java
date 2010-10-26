@@ -12,7 +12,7 @@ import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.TableUtil;
 import org.apache.nutch.util.URLUtil;
-import org.gora.mapreduce.GoraReducer;
+import org.apache.gora.mapreduce.GoraReducer;
 
 /** Reduce class for generate
  *

@@ -15,7 +15,7 @@ import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.TableUtil;
 import org.apache.nutch.util.WebPageWritable;
-import org.gora.mapreduce.GoraMapper;
+import org.apache.gora.mapreduce.GoraMapper;
 
 public class DbUpdateMapper
 extends GoraMapper<String, WebPage, String, NutchWritable> {

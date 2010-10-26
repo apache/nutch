@@ -4,17 +4,17 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 
+import org.apache.gora.mapreduce.GoraMapper;
+import org.apache.gora.mapreduce.GoraOutputFormat;
+import org.apache.gora.mapreduce.GoraReducer;
+import org.apache.gora.persistency.Persistent;
+import org.apache.gora.query.Query;
+import org.apache.gora.store.DataStore;
+import org.apache.gora.store.DataStoreFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.nutch.metadata.Nutch;
-import org.gora.mapreduce.GoraMapper;
-import org.gora.mapreduce.GoraOutputFormat;
-import org.gora.mapreduce.GoraReducer;
-import org.gora.persistency.Persistent;
-import org.gora.query.Query;
-import org.gora.store.DataStore;
-import org.gora.store.DataStoreFactory;
 
 public class StorageUtils {
 
@@ -48,7 +48,7 @@ public class StorageUtils {
   getDataStoreClass(Configuration conf)  throws ClassNotFoundException {
     return (Class<? extends DataStore<K, V>>)
       Class.forName(conf.get("storage.data.store.class",
-          "org.gora.hbase.store.HBaseStore"));
+          "org.apache.gora.sql.store.SqlStore"));
   }
 
   public static <K, V> void initMapperJob(Job job,

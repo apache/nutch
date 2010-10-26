@@ -1,7 +1,7 @@
 package org.apache.nutch.storage;
 
 import org.apache.nutch.util.NutchConfiguration;
-import org.gora.store.DataStore;
+import org.apache.gora.store.DataStore;
 
 public class WebTableCreator {
   public static void main(String[] args) throws Exception {

@@ -13,7 +13,7 @@ import org.apache.nutch.storage.StorageUtils;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.TableUtil;
-import org.gora.store.DataStore;
+import org.apache.gora.store.DataStore;
 
 public class IndexerReducer
 extends Reducer<String, WebPage, String, NutchDocument> {

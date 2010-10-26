@@ -67,7 +67,7 @@
 			<exclude org="javax.jms"/>
 		</dependency>
 		
-		<dependency org="org.gora" name="gora-core" rev="0.1" conf="*->compile">
+		<dependency org="org.apache.gora" name="gora-core" rev="0.1" conf="*->compile">
 			<exclude org="com.sun.jdmk"/>
 			<exclude org="com.sun.jmx"/>
 			<exclude org="javax.jms"/>		
@@ -110,7 +110,7 @@
 		<dependency org="org.hsqldb" name="hsqldb" rev="2.0.0" conf="*->default"/>
 		<dependency org="org.jdom" name="jdom" rev="1.1" conf="test->default"/>
 
-		<dependency org="org.gora" name="gora-sql" rev="0.1" conf="test->compile">
+		<dependency org="org.apache.gora" name="gora-sql" rev="0.1" conf="test->compile">
 			<exclude org="com.sun.jdmk"/>
 			<exclude org="com.sun.jmx"/>
 			<exclude org="javax.jms"/>		

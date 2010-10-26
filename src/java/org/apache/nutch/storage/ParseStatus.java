@@ -14,11 +14,11 @@ import org.apache.avro.specific.SpecificExceptionBase;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.avro.specific.SpecificRecord;
 import org.apache.avro.specific.SpecificFixed;
-import org.gora.persistency.StateManager;
-import org.gora.persistency.impl.PersistentBase;
-import org.gora.persistency.impl.StateManagerImpl;
-import org.gora.persistency.StatefulHashMap;
-import org.gora.persistency.ListGenericArray;
+import org.apache.gora.persistency.StateManager;
+import org.apache.gora.persistency.impl.PersistentBase;
+import org.apache.gora.persistency.impl.StateManagerImpl;
+import org.apache.gora.persistency.StatefulHashMap;
+import org.apache.gora.persistency.ListGenericArray;
 
 @SuppressWarnings("all")
 public class ParseStatus extends PersistentBase {
@@ -63,6 +63,7 @@ public class ParseStatus extends PersistentBase {
   }
   @SuppressWarnings(value="unchecked")
   public void put(int _field, Object _value) {
+    if(isFieldEqual(_field, _value)) return;
     getStateManager().setDirty(this, _field);
     switch (_field) {
     case 0:majorCode = (Integer)_value; break;

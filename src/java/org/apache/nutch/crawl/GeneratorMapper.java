@@ -12,7 +12,7 @@ import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.TableUtil;
-import org.gora.mapreduce.GoraMapper;
+import org.apache.gora.mapreduce.GoraMapper;
 
 public class GeneratorMapper
 extends GoraMapper<String, WebPage, SelectorEntry, WebPage> {

@@ -23,7 +23,7 @@ import org.apache.nutch.util.IdentityPageReducer;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TableUtil;
-import org.gora.mapreduce.GoraMapper;
+import org.apache.gora.mapreduce.GoraMapper;
 
 public class ParserJob extends GoraMapper<String, WebPage, String, WebPage>
     implements Tool {

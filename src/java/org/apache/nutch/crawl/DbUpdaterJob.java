@@ -17,7 +17,7 @@ import org.apache.nutch.storage.StorageUtils;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
-import org.gora.mapreduce.StringComparator;
+import org.apache.gora.mapreduce.StringComparator;
 
 public class DbUpdaterJob extends Configured
 implements Tool {

@@ -24,6 +24,9 @@ import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.gora.mapreduce.GoraMapper;
+import org.apache.gora.query.Query;
+import org.apache.gora.store.DataStore;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -50,9 +53,6 @@ import org.apache.nutch.util.NutchJobConf;
 import org.apache.nutch.util.TableUtil;
 import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.URLUtil;
-import org.gora.mapreduce.GoraMapper;
-import org.gora.query.Query;
-import org.gora.store.DataStore;
 
 /**
  * Extracts some very basic statistics about domains from the crawldb

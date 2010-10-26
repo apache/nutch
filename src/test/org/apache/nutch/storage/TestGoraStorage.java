@@ -12,8 +12,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
-import org.gora.query.Result;
-import org.gora.store.DataStore;
+import org.apache.gora.query.Result;
+import org.apache.gora.store.DataStore;
 
 import junit.framework.TestCase;
 
