@@ -224,10 +224,13 @@ public class MoreIndexingFilter implements IndexingFilter {
     
     doc.add("type", contentType);
 
-    String[] parts = getParts(contentType);
+    // Check if we need to split the content type in sub parts
+    if (conf.getBoolean("moreIndexingFilter.indexMimeTypeParts", true)) {
+      String[] parts = getParts(contentType.toString());
 
-    for(String part: parts) {
-      doc.add("type", part);
+      for(String part: parts) {
+        doc.add("type", part);
+      }
     }
     
     // leave this for future improvement
