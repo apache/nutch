@@ -80,6 +80,8 @@ Release 2.0 - Current Development
 
 * NUTCH-907 DataStore API doesn't support multiple storage areas for multiple disjoint crawls (Sertan Alkan via ab)
 
+* NUTCH-880 REST API for Nutch (ab)
+
 
 Release 1.1 - 2010-06-06
 

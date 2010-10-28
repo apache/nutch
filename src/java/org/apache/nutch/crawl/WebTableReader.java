@@ -37,6 +37,7 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.Bytes;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.TableUtil;
 import org.apache.gora.mapreduce.GoraMapper;
@@ -48,7 +49,7 @@ import org.apache.gora.store.DataStore;
  * Displays information about the entries of the webtable
  **/
 
-public class WebTableReader extends Configured implements Tool {
+public class WebTableReader extends Configured implements Tool, NutchTool {
 
   public static final Logger LOG = LoggerFactory.getLogger(WebTableReader.class);
 
@@ -195,114 +196,15 @@ public class WebTableReader extends Configured implements Tool {
 
   }
 
-  public void processStatJob(boolean sort) throws IOException,
-      ClassNotFoundException, InterruptedException {
+  public void processStatJob(boolean sort) throws Exception {
 
+    Job[] jobs = createJobs(sort);
+    
     if (LOG.isInfoEnabled()) {
       LOG.info("WebTable statistics start");
     }
-
-    Path tmpFolder = new Path(getConf().get("mapred.temp.dir", ".")
-        + "stat_tmp" + System.currentTimeMillis());
-
-    Job job = new NutchJob(getConf(), "db_stats");
-
-    job.getConfiguration().setBoolean("db.reader.stats.sort", sort);
-
-    DataStore<String, WebPage> store = StorageUtils.createWebStore(job
-        .getConfiguration(), String.class, WebPage.class);
-    Query<String, WebPage> query = store.newQuery();
-    query.setFields(WebPage._ALL_FIELDS);
-
-    GoraMapper.initMapperJob(job, query, store, Text.class, LongWritable.class,
-        WebTableStatMapper.class, null, true);
-
-    job.setCombinerClass(WebTableStatCombiner.class);
-    job.setReducerClass(WebTableStatReducer.class);
-
-    FileOutputFormat.setOutputPath(job, tmpFolder);
-
-    job.setOutputFormatClass(SequenceFileOutputFormat.class);
-
-    job.setOutputKeyClass(Text.class);
-    job.setOutputValueClass(LongWritable.class);
-
-    boolean success = job.waitForCompletion(true);
-
-    FileSystem fileSystem = FileSystem.get(getConf());
-
-    if (!success) {
-      fileSystem.delete(tmpFolder, true);
-      return;
-    }
-
-    Text key = new Text();
-    LongWritable value = new LongWritable();
-
-    SequenceFile.Reader[] readers = org.apache.hadoop.mapred.SequenceFileOutputFormat
-        .getReaders(getConf(), tmpFolder);
-
-    TreeMap<String, LongWritable> stats = new TreeMap<String, LongWritable>();
-    for (int i = 0; i < readers.length; i++) {
-      SequenceFile.Reader reader = readers[i];
-      while (reader.next(key, value)) {
-        String k = key.toString();
-        LongWritable val = stats.get(k);
-        if (val == null) {
-          val = new LongWritable();
-          if (k.equals("scx"))
-            val.set(Long.MIN_VALUE);
-          if (k.equals("scn"))
-            val.set(Long.MAX_VALUE);
-          stats.put(k, val);
-        }
-        if (k.equals("scx")) {
-          if (val.get() < value.get())
-            val.set(value.get());
-        } else if (k.equals("scn")) {
-          if (val.get() > value.get())
-            val.set(value.get());
-        } else {
-          val.set(val.get() + value.get());
-        }
-      }
-      reader.close();
-    }
-
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Statistics for WebTable: ");
-      LongWritable totalCnt = stats.get("T");
-      if (totalCnt==null)totalCnt=new LongWritable(0);
-      stats.remove("T");
-      LOG.info("TOTAL urls:\t" + totalCnt.get());
-      for (Map.Entry<String, LongWritable> entry : stats.entrySet()) {
-        String k = entry.getKey();
-        LongWritable val = entry.getValue();
-        if (k.equals("scn")) {
-          LOG.info("min score:\t" + (float) (val.get() / 1000.0f));
-        } else if (k.equals("scx")) {
-          LOG.info("max score:\t" + (float) (val.get() / 1000.0f));
-        } else if (k.equals("sct")) {
-          LOG.info("avg score:\t"
-              + (float) ((((double) val.get()) / totalCnt.get()) / 1000.0));
-        } else if (k.startsWith("status")) {
-          String[] st = k.split(" ");
-          int code = Integer.parseInt(st[1]);
-          if (st.length > 2)
-            LOG.info("   " + st[2] + " :\t" + val);
-          else
-            LOG.info(st[0] + " " + code + " ("
-                + CrawlStatus.getName((byte) code) + "):\t" + val);
-        } else
-          LOG.info(k + ":\t" + val);
-      }
-    }
-    // removing the tmp folder
-    fileSystem.delete(tmpFolder, true);
-    if (LOG.isInfoEnabled()) {
-      LOG.info("WebTable statistics: done");
-    }
-
+    boolean success = jobs[0].waitForCompletion(true);
+    postJob(0, jobs[0]);
   }
 
   /** Prints out the entry to the standard out **/
@@ -575,6 +477,133 @@ public class WebTableReader extends Configured implements Tool {
       LOG.error("WebTableReader: " + StringUtils.stringifyException(e));
       return -1;
     }
+  }
+
+  @Override
+  public Map<String, Object> prepare() throws Exception {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  // for now handles only -stat
+  @Override
+  public Job[] createJobs(Object... args) throws Exception {
+    Path tmpFolder = new Path(getConf().get("mapred.temp.dir", ".")
+        + "stat_tmp" + System.currentTimeMillis());
+
+    Job job = new NutchJob(getConf(), "db_stats");
+
+    boolean sort = false;
+    if (args != null && args.length > 0) {
+      sort = (Boolean)args[0];
+    }
+    job.getConfiguration().setBoolean("db.reader.stats.sort", sort);
+
+    DataStore<String, WebPage> store = StorageUtils.createWebStore(job
+        .getConfiguration(), String.class, WebPage.class);
+    Query<String, WebPage> query = store.newQuery();
+    query.setFields(WebPage._ALL_FIELDS);
+
+    GoraMapper.initMapperJob(job, query, store, Text.class, LongWritable.class,
+        WebTableStatMapper.class, null, true);
+
+    job.setCombinerClass(WebTableStatCombiner.class);
+    job.setReducerClass(WebTableStatReducer.class);
+
+    FileOutputFormat.setOutputPath(job, tmpFolder);
+
+    job.setOutputFormatClass(SequenceFileOutputFormat.class);
+
+    job.setOutputKeyClass(Text.class);
+    job.setOutputValueClass(LongWritable.class);
+
+    return new Job[]{job};
+  }
+
+  @Override
+  public Map<String, Object> postJob(int jobIndex, Job job) throws Exception {
+    Path tmpFolder = FileOutputFormat.getOutputPath(job);
+
+    FileSystem fileSystem = FileSystem.get(getConf());
+
+    if (!job.isSuccessful()) {
+      fileSystem.delete(tmpFolder, true);
+      return null;
+    }
+
+    Text key = new Text();
+    LongWritable value = new LongWritable();
+
+    SequenceFile.Reader[] readers = org.apache.hadoop.mapred.SequenceFileOutputFormat
+        .getReaders(getConf(), tmpFolder);
+
+    TreeMap<String, LongWritable> stats = new TreeMap<String, LongWritable>();
+    for (int i = 0; i < readers.length; i++) {
+      SequenceFile.Reader reader = readers[i];
+      while (reader.next(key, value)) {
+        String k = key.toString();
+        LongWritable val = stats.get(k);
+        if (val == null) {
+          val = new LongWritable();
+          if (k.equals("scx"))
+            val.set(Long.MIN_VALUE);
+          if (k.equals("scn"))
+            val.set(Long.MAX_VALUE);
+          stats.put(k, val);
+        }
+        if (k.equals("scx")) {
+          if (val.get() < value.get())
+            val.set(value.get());
+        } else if (k.equals("scn")) {
+          if (val.get() > value.get())
+            val.set(value.get());
+        } else {
+          val.set(val.get() + value.get());
+        }
+      }
+      reader.close();
+    }
+
+    if (LOG.isInfoEnabled()) {
+      LOG.info("Statistics for WebTable: ");
+      LongWritable totalCnt = stats.get("T");
+      if (totalCnt==null)totalCnt=new LongWritable(0);
+      stats.remove("T");
+      LOG.info("TOTAL urls:\t" + totalCnt.get());
+      for (Map.Entry<String, LongWritable> entry : stats.entrySet()) {
+        String k = entry.getKey();
+        LongWritable val = entry.getValue();
+        if (k.equals("scn")) {
+          LOG.info("min score:\t" + (float) (val.get() / 1000.0f));
+        } else if (k.equals("scx")) {
+          LOG.info("max score:\t" + (float) (val.get() / 1000.0f));
+        } else if (k.equals("sct")) {
+          LOG.info("avg score:\t"
+              + (float) ((((double) val.get()) / totalCnt.get()) / 1000.0));
+        } else if (k.startsWith("status")) {
+          String[] st = k.split(" ");
+          int code = Integer.parseInt(st[1]);
+          if (st.length > 2)
+            LOG.info("   " + st[2] + " :\t" + val);
+          else
+            LOG.info(st[0] + " " + code + " ("
+                + CrawlStatus.getName((byte) code) + "):\t" + val);
+        } else
+          LOG.info(k + ":\t" + val);
+      }
+    }
+    // removing the tmp folder
+    fileSystem.delete(tmpFolder, true);
+    if (LOG.isInfoEnabled()) {
+      LOG.info("WebTable statistics: done");
+    }
+    return null;
+  }
+
+  @Override
+  public Map<String, Object> finish() throws Exception {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

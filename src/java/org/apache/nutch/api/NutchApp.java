@@ -1,0 +1,45 @@
+package org.apache.nutch.api;
+
+import java.util.logging.Level;
+
+import org.apache.nutch.api.impl.RAMConfManager;
+import org.apache.nutch.api.impl.RAMJobManager;
+import org.restlet.Application;
+import org.restlet.Restlet;
+import org.restlet.routing.Router;
+
+public class NutchApp extends Application {
+  public static ConfManager confMgr;
+  public static JobManager jobMgr;
+  
+  static {
+    confMgr = new RAMConfManager();
+    jobMgr = new RAMJobManager();
+  }
+  
+  /**
+   * Creates a root Restlet that will receive all incoming calls.
+   */
+  @Override
+  public synchronized Restlet createInboundRoot() {
+      getTunnelService().setEnabled(true);
+      getTunnelService().setExtensionsTunnel(true);
+      Router router = new Router(getContext());
+      router.getLogger().setLevel(Level.FINEST);
+      // configs
+      router.attach("/", APIInfoResource.class);
+      router.attach("/" + ConfResource.PATH, ConfResource.class);
+      router.attach("/" + ConfResource.PATH + "/{"+ Params.CONF_ID +
+          "}", ConfResource.class);
+      router.attach("/" + ConfResource.PATH + "/{" + Params.CONF_ID +
+          "}/{" + Params.PROP_NAME + "}", ConfResource.class);
+      // jobs
+      router.attach("/" + JobResource.PATH, JobResource.class);
+      router.attach("/" + JobResource.PATH + "/{" + Params.JOB_ID + "}",
+          JobResource.class);
+      router.attach("/" + JobResource.PATH, JobResource.class);
+      router.attach("/" + JobResource.PATH + "/{" + Params.JOB_ID + "}/{" +
+          Params.CMD + "}", JobResource.class);
+      return router;
+  }
+}

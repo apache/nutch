@@ -3,7 +3,9 @@ package org.apache.nutch.crawl;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -23,8 +25,9 @@ import org.apache.nutch.storage.StorageUtils;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.NutchTool;
 
-public class GeneratorJob extends Configured implements Tool {
+public class GeneratorJob extends Configured implements Tool, NutchTool {
   public static final String GENERATE_UPDATE_CRAWLDB = "generate.update.crawldb";
   public static final String GENERATOR_MIN_SCORE = "generate.min.score";
   public static final String GENERATOR_FILTER = "generate.filter";
@@ -121,21 +124,26 @@ public class GeneratorJob extends Configured implements Tool {
     setConf(conf);
   }
 
-  /**
-   * Mark URLs ready for fetching.
-   * @throws ClassNotFoundException
-   * @throws InterruptedException
-   * */
-  public String generate(long topN, long curTime, boolean filter, boolean norm)
-      throws Exception {
+  public Map<String,Object> prepare() throws Exception {
+    return null;
+  }
+  
+  public Map<String,Object> postJob(int jobIndex, Job job) throws Exception {
+    return null;
+  }
+  
+  public Map<String,Object> finish() throws Exception {
+    HashMap<String,Object> res = new HashMap<String,Object>();
+    res.put(BATCH_ID, batchId);
+    return res;
+  }
 
-    LOG.info("GeneratorJob: Selecting best-scoring urls due for fetch.");
-    LOG.info("GeneratorJob: starting");
-    LOG.info("GeneratorJob: filtering: " + filter);
-    if (topN != Long.MAX_VALUE) {
-      LOG.info("GeneratorJob: topN: " + topN);
-    }
-
+  public Job[] createJobs(Object... args) throws Exception {
+    // map to inverted subset due for fetch, sort by score
+    long topN = (Long)args[0];
+    long curTime = (Long)args[1];
+    boolean filter = (Boolean)args[2];
+    boolean norm = (Boolean)args[3];
     // map to inverted subset due for fetch, sort by score
     getConf().setLong(GENERATOR_CUR_TIME, curTime);
     getConf().setLong(GENERATOR_TOP_N, topN);
@@ -161,9 +169,30 @@ public class GeneratorJob extends Configured implements Tool {
     StorageUtils.initMapperJob(job, FIELDS, SelectorEntry.class,
         WebPage.class, GeneratorMapper.class, URLPartitioner.class, true);
     StorageUtils.initReducerJob(job, GeneratorReducer.class);
+    return new Job[]{job};
+  }
+  
+  private String batchId;
+  
+  /**
+   * Mark URLs ready for fetching.
+   * @throws ClassNotFoundException
+   * @throws InterruptedException
+   * */
+  public String generate(long topN, long curTime, boolean filter, boolean norm)
+      throws Exception {
 
-    boolean success = job.waitForCompletion(true);
+    LOG.info("GeneratorJob: Selecting best-scoring urls due for fetch.");
+    LOG.info("GeneratorJob: starting");
+    LOG.info("GeneratorJob: filtering: " + filter);
+    if (topN != Long.MAX_VALUE) {
+      LOG.info("GeneratorJob: topN: " + topN);
+    }
+    Job[] jobs = createJobs(topN, curTime, filter, norm);
+    boolean success = jobs[0].waitForCompletion(true);
     if (!success) return null;
+    
+    batchId =  getConf().get(BATCH_ID);
 
     LOG.info("GeneratorJob: done");
     LOG.info("GeneratorJob: generated batch id: " + batchId);

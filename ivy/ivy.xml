@@ -110,12 +110,18 @@
 		<dependency org="org.hsqldb" name="hsqldb" rev="2.0.0" conf="*->default"/>
 		<dependency org="org.jdom" name="jdom" rev="1.1" conf="test->default"/>
 
-		<dependency org="org.apache.gora" name="gora-sql" rev="0.1" conf="test->compile">
+		<dependency org="org.apache.gora" name="gora-sql" rev="0.1" conf="*->compile">
 			<exclude org="com.sun.jdmk"/>
 			<exclude org="com.sun.jmx"/>
 			<exclude org="javax.jms"/>		
 		</dependency>		
-
+		<dependency org="org.apache.gora" name="gora-solr" rev="0.1" conf="*->compile">
+			<exclude org="com.sun.jdmk"/>
+			<exclude org="com.sun.jmx"/>
+			<exclude org="javax.jms"/>		
+		</dependency>		
+                <dependency org="org.restlet.jse" name="org.restlet" rev="2.0.1" conf="*->default"/>
+                <dependency org="org.restlet.jse" name="org.restlet.ext.jackson" rev="2.0.1" conf="*->default"/>
 	</dependencies>
 
 </ivy-module>

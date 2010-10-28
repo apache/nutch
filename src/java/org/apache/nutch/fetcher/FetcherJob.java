@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Random;
 import java.util.StringTokenizer;
 
@@ -24,6 +25,7 @@ import org.apache.nutch.storage.StorageUtils;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.TableUtil;
 import org.apache.gora.mapreduce.GoraMapper;
 
@@ -31,7 +33,7 @@ import org.apache.gora.mapreduce.GoraMapper;
  * Multi-threaded fetcher.
  *
  */
-public class FetcherJob implements Tool {
+public class FetcherJob implements Tool, NutchTool {
 
   public static final String PROTOCOL_REDIR = "protocol";
 
@@ -138,25 +140,26 @@ public class FetcherJob implements Tool {
     return fields;
   }
 
-  /**
-   * Run fetcher.
-   * @param batchId batchId (obtained from Generator) or null to fetch all generated fetchlists
-   * @param threads number of threads per map task
-   * @param shouldResume
-   * @param parse if true, then parse content immediately, if false then a separate
-   * run of {@link ParserJob} will be needed.
-   * @param numTasks number of fetching tasks (reducers). If set to < 1 then use the default,
-   * which is mapred.map.tasks.
-   * @return 0 on success
-   * @throws Exception
-   */
-  public int fetch(String batchId, int threads,
-      boolean shouldResume, boolean parse, int numTasks)
-      throws Exception {
-    LOG.info("FetcherJob: starting");
-
+  public Map<String,Object> prepare() throws Exception {
+    return null;
+  }
+  
+  public Map<String,Object> postJob(int jobIndex, Job job) throws Exception {
+    return null;
+  }
+ 
+  public Map<String,Object> finish() throws Exception {
+    return null;
+  }
+  
+  public Job[] createJobs(Object... args) throws Exception {
     checkConfiguration();
-
+    String batchId = (String)args[0];
+    int threads = (Integer)args[1];
+    boolean shouldResume = (Boolean)args[2];
+    boolean parse = (Boolean)args[3];
+    int numTasks = (Integer)args[4];
+ 
     if (threads > 0) {
       getConf().setInt(THREADS_KEY, threads);
     }
@@ -173,16 +176,6 @@ public class FetcherJob implements Tool {
       getConf().setLong("fetcher.timelimit", timelimit);
     }
 
-    LOG.info("FetcherJob : timelimit set for : " + timelimit);
-    LOG.info("FetcherJob: threads: " + getConf().getInt(THREADS_KEY, 10));
-    LOG.info("FetcherJob: parsing: " + getConf().getBoolean(PARSE_KEY, true));
-    LOG.info("FetcherJob: resuming: " + getConf().getBoolean(RESUME_KEY, false));
-    if (batchId.equals(Nutch.ALL_BATCH_ID_STR)) {
-      LOG.info("FetcherJob: fetching all");
-    } else {
-      LOG.info("FetcherJob: batchId: " + batchId);
-    }
-
     Job job = new NutchJob(getConf(), "fetch");
     Collection<WebPage.Field> fields = getFields(job);
     StorageUtils.initMapperJob(job, fields, IntWritable.class,
@@ -194,8 +187,37 @@ public class FetcherJob implements Tool {
     } else {
       job.setNumReduceTasks(numTasks);
     }
+    return new Job[]{job};
+  }
 
-    boolean success = job.waitForCompletion(true);
+  /**
+   * Run fetcher.
+   * @param batchId batchId (obtained from Generator) or null to fetch all generated fetchlists
+   * @param threads number of threads per map task
+   * @param shouldResume
+   * @param parse if true, then parse content immediately, if false then a separate
+   * run of {@link ParserJob} will be needed.
+   * @param numTasks number of fetching tasks (reducers). If set to < 1 then use the default,
+   * which is mapred.map.tasks.
+   * @return 0 on success
+   * @throws Exception
+   */
+  public int fetch(String batchId, int threads, boolean shouldResume, boolean parse, int numTasks)
+      throws Exception {
+    LOG.info("FetcherJob: starting");
+
+    LOG.info("FetcherJob : timelimit set for : " + getConf().getLong("fetcher.timelimit", -1));
+    LOG.info("FetcherJob: threads: " + getConf().getInt(THREADS_KEY, 10));
+    LOG.info("FetcherJob: parsing: " + getConf().getBoolean(PARSE_KEY, true));
+    LOG.info("FetcherJob: resuming: " + getConf().getBoolean(RESUME_KEY, false));
+    if (batchId.equals(Nutch.ALL_BATCH_ID_STR)) {
+      LOG.info("FetcherJob: fetching all");
+    } else {
+      LOG.info("FetcherJob: batchId: " + batchId);
+    }
+
+    Job[] jobs = createJobs(batchId, threads, shouldResume, parse, numTasks);
+    boolean success = jobs[0].waitForCompletion(true);
     if (!success) {
         LOG.info("FetcherJob: failed");
     	return -1;

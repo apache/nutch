@@ -53,6 +53,11 @@
       pattern="${maven2.pattern.ext}"
       m2compatible="true"
       />
+    <ibiblio name="restlet"
+      root="http://maven.restlet.org"
+      pattern="${maven2.pattern.ext}"
+      m2compatible="true"
+      />
     <chain name="default" dual="true">
       <resolver ref="local"/>
       <resolver ref="maven2"/>
@@ -67,6 +72,9 @@
       <resolver ref="maven2"/>
       <resolver ref="apache-snapshot"/>
     </chain>
+    <chain name="restlet">
+      <resolver ref="restlet"/>
+    </chain>
   </resolvers>
   <modules>
 
@@ -76,5 +84,7 @@
     -->
     <module organisation="org.apache.nutch" name=".*" resolver="internal"/>
     <module organisation="org.apache.gora" name=".*" resolver="internal"/>
+    <module organisation="org.restlet" name=".*" resolver="restlet"/>
+    <module organisation="org.restlet.jse" name=".*" resolver="restlet"/>
   </modules>
 </ivysettings>

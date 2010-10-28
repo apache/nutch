@@ -2,6 +2,7 @@ package org.apache.nutch.crawl;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,10 +18,11 @@ import org.apache.nutch.storage.StorageUtils;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.NutchTool;
 import org.apache.gora.mapreduce.StringComparator;
 
 public class DbUpdaterJob extends Configured
-implements Tool {
+implements Tool, NutchTool {
 
   public static final Logger LOG = LoggerFactory.getLogger(DbUpdaterJob.class);
 
@@ -51,10 +53,28 @@ implements Tool {
   public DbUpdaterJob(Configuration conf) {
     setConf(conf);
   }
+  
+  public Map<String,Object> prepare() throws Exception {
+    return null;
+  }
+  
+  public Map<String,Object> postJob(int jobIndex, Job job) throws Exception {
+    return null;
+  }
 
-  private int updateTable() throws Exception {
-    LOG.info("DbUpdaterJob: starting");
+  public Map<String,Object> finish() throws Exception {
+    return null;
+  }
+  
+  public Job[] createJobs(Object... args) throws Exception {
+    String crawlId = null;
+    if (args.length > 0) {
+      crawlId = (String)args[0];
+    }
     Job job = new NutchJob(getConf(), "update-table");
+    if (crawlId != null) {
+      job.getConfiguration().set(Nutch.CRAWL_ID_KEY, crawlId);
+    }
     //job.setBoolean(ALL, updateAll);
     ScoringFilters scoringFilters = new ScoringFilters(getConf());
     HashSet<WebPage.Field> fields = new HashSet<WebPage.Field>(FIELDS);
@@ -65,8 +85,13 @@ implements Tool {
     StorageUtils.initMapperJob(job, fields, String.class,
         NutchWritable.class, DbUpdateMapper.class);
     StorageUtils.initReducerJob(job, DbUpdateReducer.class);
-
-    boolean success = job.waitForCompletion(true);
+    return new Job[]{job};
+  }
+  
+  private int updateTable(String batchId) throws Exception {
+    LOG.info("DbUpdaterJob: starting");
+    Job[] jobs = createJobs(new Object[]{batchId});
+    boolean success = jobs[0].waitForCompletion(true);
     if (!success){
     	LOG.info("DbUpdaterJob: failed");
     	return -1;
@@ -76,10 +101,11 @@ implements Tool {
   }
 
   public int run(String[] args) throws Exception {
+    String crawlId = null;
     if (args.length == 2 && "-crawlId".equals(args[0])) {
-      getConf().set(Nutch.CRAWL_ID_KEY, args[1]);
+      crawlId = args[1];
     }
-    return updateTable();
+    return updateTable(crawlId);
   }
 
   public static void main(String[] args) throws Exception {

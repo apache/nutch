@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.indexer.solr;
 
+import java.util.Map;
 import java.util.Random;
 
 import org.slf4j.Logger;
@@ -30,16 +31,29 @@ import org.apache.nutch.indexer.IndexerJob;
 import org.apache.nutch.indexer.NutchIndexWriterFactory;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.NutchTool;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
 
-public class SolrIndexerJob extends IndexerJob {
+public class SolrIndexerJob extends IndexerJob implements NutchTool {
 
   public static Logger LOG = LoggerFactory.getLogger(SolrIndexerJob.class);
 
-  private void indexSolr(String solrUrl, String batchId) throws Exception {
-    LOG.info("SolrIndexerJob: starting");
-
+  public Map<String,Object> prepare() throws Exception {
+    return null;
+  }
+  
+  public Map<String,Object> postJob(int jobIndex, Job job) throws Exception {
+    return null;
+  }
+ 
+  public Map<String,Object> finish() throws Exception {
+    return null;
+  }
+  
+  public Job[] createJobs(Object... args) throws Exception {
+    String solrUrl = (String)args[0];
+    String batchId = (String)args[1];
     NutchIndexWriterFactory.addClassToConf(getConf(), SolrWriter.class);
     getConf().set(SolrConstants.SERVER_URL, solrUrl);
 
@@ -48,21 +62,28 @@ public class SolrIndexerJob extends IndexerJob {
                 + new Random().nextInt());
 
     FileOutputFormat.setOutputPath(job, tmp);
+    return new Job[]{job};
+  }
+
+  private void indexSolr(String solrUrl, String crawlId) throws Exception {
+    LOG.info("SolrIndexerJob: starting");
+
+    Job[] jobs = createJobs(solrUrl, crawlId);
     boolean success = false;
     try {
-      success = job.waitForCompletion(true);
+      success = jobs[0].waitForCompletion(true);
       // do the commits once and for all the reducers in one go
       SolrServer solr = new CommonsHttpSolrServer(solrUrl);
       solr.commit();
     } finally {
-      FileSystem.get(getConf()).delete(tmp, true);
+      FileSystem.get(getConf()).delete(FileOutputFormat.getOutputPath(jobs[0]), true);
     }
     LOG.info("SolrIndexerJob: " + (success ? "done" : "failed"));
   }
 
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
-      System.err.println("Usage: SolrIndexerJob <solr url> (<batch id> | -all | -reindex) [-crawlId <id>]");
+      System.err.println("Usage: SolrIndexerJob <solr url> (<batchId> | -all | -reindex) [-crawlId <id>]");
       return -1;
     }
 

@@ -100,7 +100,7 @@ public class LogUtil {
           if (!hasNewline())
             return;
           try {
-            method.invoke(logger, new String[] { toString().trim() });
+            method.invoke(logger, new Object[] { toString().trim() });
           } catch (Exception e) {
             if (LOG.isErrorEnabled()) {
               LOG.error("Cannot log with method [" + method + "]", e);

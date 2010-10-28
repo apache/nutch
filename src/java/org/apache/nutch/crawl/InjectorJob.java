@@ -35,6 +35,7 @@ import org.apache.nutch.storage.StorageUtils;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.TableUtil;
 
 /** This class takes a flat file of URLs and adds them to the of pages to be
@@ -47,7 +48,7 @@ import org.apache.nutch.util.TableUtil;
  * e.g. http://www.nutch.org/ \t nutch.score=10 \t nutch.fetchInterval=2592000 \t userType=open_source
  **/
 public class InjectorJob extends GoraMapper<String, WebPage, String, WebPage>
-    implements Tool {
+    implements Tool, NutchTool {
 
   public static final Logger LOG = LoggerFactory.getLogger(InjectorJob.class);
 
@@ -213,14 +214,24 @@ public class InjectorJob extends GoraMapper<String, WebPage, String, WebPage>
 
     context.write(key, row);
   }
+  
+  public Map<String,Object> prepare() throws Exception {
+    return null;
+  }
+  
+  public Map<String,Object> postJob(int jobIndex, Job job) throws Exception {
+    return null;
+  }
 
-  public void inject(Path urlDir) throws Exception {
-    LOG.info("InjectorJob: starting");
-    LOG.info("InjectorJob: urlDir: " + urlDir);
-
+  public Map<String,Object> finish() throws Exception {
+    return null;
+  }
+  
+  public Job[] createJobs(Object... args) throws Exception {
+    Job[] jobs = new Job[2];
     getConf().setLong("injector.current.time", System.currentTimeMillis());
-    Job job = new NutchJob(getConf(), "inject-p1 " + urlDir);
-    FileInputFormat.addInputPath(job, urlDir);
+    Job job = new NutchJob(getConf(), "inject-p1 " + args[0]);
+    FileInputFormat.addInputPath(job, (Path)args[0]);
     job.setMapperClass(UrlMapper.class);
     job.setMapOutputKeyClass(String.class);
     job.setMapOutputValueClass(WebPage.class);
@@ -232,11 +243,22 @@ public class InjectorJob extends GoraMapper<String, WebPage, String, WebPage>
     job.setNumReduceTasks(0);
     job.waitForCompletion(true);
 
-    job = new NutchJob(getConf(), "inject-p2 " + urlDir);
+    job = new NutchJob(getConf(), "inject-p2 " + args[0]);
     StorageUtils.initMapperJob(job, FIELDS, String.class,
         WebPage.class, InjectorJob.class);
     job.setNumReduceTasks(0);
-    job.waitForCompletion(true);
+    jobs[1] = job;
+    return jobs;
+  }
+
+  public void inject(Path urlDir) throws Exception {
+    LOG.info("InjectorJob: starting");
+    LOG.info("InjectorJob: urlDir: " + urlDir);
+
+    Job[] jobs = createJobs(urlDir);
+    jobs[0].waitForCompletion(true);
+
+    jobs[1].waitForCompletion(true);
   }
 
   @Override

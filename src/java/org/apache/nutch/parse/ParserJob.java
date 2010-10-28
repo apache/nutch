@@ -3,6 +3,7 @@ package org.apache.nutch.parse;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.apache.avro.util.Utf8;
 import org.slf4j.Logger;
@@ -22,11 +23,12 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.IdentityPageReducer;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.TableUtil;
 import org.apache.gora.mapreduce.GoraMapper;
 
 public class ParserJob extends GoraMapper<String, WebPage, String, WebPage>
-    implements Tool {
+    implements Tool, NutchTool {
 
   public static final Logger LOG = LoggerFactory.getLogger(ParserJob.class);
 
@@ -144,14 +146,43 @@ public class ParserJob extends GoraMapper<String, WebPage, String, WebPage>
     this.conf = conf;
   }
 
-  public int parse(String batchId, boolean shouldResume, boolean force) throws Exception {
-    LOG.info("ParserJob: starting");
-
+  public Map<String,Object> prepare() throws Exception {
+    return null;
+  }
+  
+  public Map<String,Object> postJob(int jobIndex, Job job) throws Exception {
+    return null;
+  }
+ 
+  public Map<String,Object> finish() throws Exception {
+    return null;
+  }
+  
+  public Job[] createJobs(Object... args) throws Exception {
+    String batchId = (String)args[0];
+    boolean shouldResume = (Boolean)args[1];
+    boolean force = (Boolean)args[2];
+    
     if (batchId != null) {
       getConf().set(GeneratorJob.BATCH_ID, batchId);
     }
     getConf().setBoolean(RESUME_KEY, shouldResume);
     getConf().setBoolean(FORCE_KEY, force);
+    final Job job = new NutchJob(getConf(), "parse");
+    
+    Collection<WebPage.Field> fields = getFields(job);
+    StorageUtils.initMapperJob(job, fields, String.class, WebPage.class,
+        ParserJob.class);
+    StorageUtils.initReducerJob(job, IdentityPageReducer.class);
+    job.setNumReduceTasks(0);
+
+    return new Job[]{job};
+  }
+
+  public int parse(String crawlId, boolean shouldResume, boolean force) throws Exception {
+    Job[] jobs = createJobs(crawlId, shouldResume, force);
+
+    LOG.info("ParserJob: starting");
 
     LOG.info("ParserJob: resuming:\t" + getConf().getBoolean(RESUME_KEY, false));
     LOG.info("ParserJob: forced reparse:\t" + getConf().getBoolean(FORCE_KEY, false));
@@ -160,15 +191,7 @@ public class ParserJob extends GoraMapper<String, WebPage, String, WebPage>
     } else {
       LOG.info("ParserJob: batchId:\t" + batchId);
     }
-
-    final Job job = new NutchJob(getConf(), "parse");
-
-    Collection<WebPage.Field> fields = getFields(job);
-    StorageUtils.initMapperJob(job, fields, String.class, WebPage.class,
-        ParserJob.class);
-    StorageUtils.initReducerJob(job, IdentityPageReducer.class);
-    job.setNumReduceTasks(0);
-    boolean success = job.waitForCompletion(true);
+    boolean success = jobs[0].waitForCompletion(true);
     if (!success){
       LOG.info("ParserJob: failed");
       return -1;
