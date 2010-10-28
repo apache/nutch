@@ -58,8 +58,6 @@
 		</dependency>
 
 		<dependency org="com.ibm.icu" name="icu4j" rev="4.0.1" />
-		<dependency org="org.apache.lucene" name="lucene-core" rev="3.0.2"/> 
-		<dependency org="org.apache.lucene" name="lucene-misc" rev="3.0.2"/>
 		<dependency org="org.apache.tika" name="tika-core" rev="0.7" />
 		<dependency org="org.apache.tika" name="tika-parsers" rev="0.7" >
 			<exclude org="com.sun.jdmk"/>

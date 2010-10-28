@@ -21,12 +21,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.lucene.document.DateTools;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.NutchDocument;
@@ -34,6 +34,7 @@ import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.Bytes;
 import org.apache.nutch.util.TableUtil;
+import org.apache.solr.common.util.DateUtil;
 
 /** Adds basic searchable fields to a document. */
 public class BasicIndexingFilter implements IndexingFilter {
@@ -106,8 +107,8 @@ public class BasicIndexingFilter implements IndexingFilter {
     }
 
     // add timestamp when fetched, for deduplication
-    doc.add("tstamp", DateTools.timeToString(page.getFetchTime(),
-        DateTools.Resolution.MILLISECOND));
+    String tstamp = DateUtil.getThreadLocalDateFormat().format(new Date(page.getFetchTime()));
+    doc.add("tstamp", tstamp);
 
     return doc;
   }
