@@ -257,7 +257,7 @@
            present in Hadoop/lib.
       -->
       <zipfileset dir="${build.lib.dir}" prefix="lib"
-                  includes="**/*.jar" excludes="hadoop-*.jar,hsqldb*.jar"/>
+                  includes="**/*.jar" excludes="hadoop-*.jar,hbase*test*.jar,ant*jar,hsqldb*.jar"/>
       <zipfileset dir="${build.plugins}" prefix="plugins"/>
     </jar>
   </target>
@@ -291,7 +291,7 @@
         <fileset dir="${runtime.local}/bin"/>
     </chmod>
     <copy todir="${runtime.local}/lib">
-      <fileset dir="${build.dir}/lib"/>
+      <fileset dir="${build.dir}/lib" excludes="ant*.jar,hadoop*test*.jar,hbase*test*.jar"/>
     </copy>
     <copy todir="${runtime.local}/plugins">
       <fileset dir="${build.dir}/plugins"/>
