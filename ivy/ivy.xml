@@ -115,11 +115,6 @@
 			<exclude org="com.sun.jmx"/>
 			<exclude org="javax.jms"/>		
 		</dependency>		
-		<dependency org="org.apache.gora" name="gora-solr" rev="0.1" conf="*->compile">
-			<exclude org="com.sun.jdmk"/>
-			<exclude org="com.sun.jmx"/>
-			<exclude org="javax.jms"/>		
-		</dependency>		
                 <dependency org="org.restlet.jse" name="org.restlet" rev="2.0.1" conf="*->default"/>
                 <dependency org="org.restlet.jse" name="org.restlet.ext.jackson" rev="2.0.1" conf="*->default"/>
 	</dependencies>
