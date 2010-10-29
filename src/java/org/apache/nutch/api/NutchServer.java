@@ -21,14 +21,15 @@ public class NutchServer {
     this.port = port;
     // Create a new Component. 
     component = new Component();
-    component.getLogger().setLevel(Level.FINEST);
+    //component.getLogger().setLevel(Level.FINEST);
    
     // Add a new HTTP server listening on port 8182. 
     component.getServers().add(Protocol.HTTP, port); 
    
     // Attach the application. 
     app = new NutchApp();
-    component.getDefaultHost().attach("/nutch", app); 
+    component.getDefaultHost().attach("/nutch", app);
+    NutchApp.server = this;
   }
   
   public boolean isRunning() {
@@ -36,19 +37,27 @@ public class NutchServer {
   }
   
   public void start() throws Exception {
-    LOG.info("Statring NutchServer on port " + port + "...");
+    LOG.info("Starting NutchServer on port " + port + "...");
     component.start();
     LOG.info("Started NutchServer on port " + port);
     running = true;
+    NutchApp.started = System.currentTimeMillis();
+  }
+  
+  public boolean canStop() throws Exception {
+    List<JobStatus> jobs = NutchApp.jobMgr.list(null, State.RUNNING);
+    if (!jobs.isEmpty()) {
+      return false;
+    }
+    return true;
   }
   
   public boolean stop(boolean force) throws Exception {
     if (!running) {
       return true;
     }
-    List<JobStatus> jobs = NutchApp.jobMgr.list(null, State.RUNNING);
-    if (!jobs.isEmpty() && !force) {
-      LOG.warn("There are running jobs - NOT stopping at this time...");
+    if (!canStop() && !force) {
+      LOG.warn("Running jobs - can't stop now.");
       return false;
     }
     LOG.info("Stopping NutchServer on port " + port + "...");

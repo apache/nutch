@@ -1,7 +1,5 @@
 package org.apache.nutch.api;
 
-import java.util.logging.Level;
-
 import org.apache.nutch.api.impl.RAMConfManager;
 import org.apache.nutch.api.impl.RAMJobManager;
 import org.restlet.Application;
@@ -11,6 +9,8 @@ import org.restlet.routing.Router;
 public class NutchApp extends Application {
   public static ConfManager confMgr;
   public static JobManager jobMgr;
+  public static NutchServer server;
+  public static long started;
   
   static {
     confMgr = new RAMConfManager();
@@ -25,9 +25,12 @@ public class NutchApp extends Application {
       getTunnelService().setEnabled(true);
       getTunnelService().setExtensionsTunnel(true);
       Router router = new Router(getContext());
-      router.getLogger().setLevel(Level.FINEST);
+      //router.getLogger().setLevel(Level.FINEST);
       // configs
       router.attach("/", APIInfoResource.class);
+      router.attach("/" + AdminResource.PATH, AdminResource.class);
+      router.attach("/" + AdminResource.PATH + "/{" + Params.CMD + 
+          "}", AdminResource.class);
       router.attach("/" + ConfResource.PATH, ConfResource.class);
       router.attach("/" + ConfResource.PATH + "/{"+ Params.CONF_ID +
           "}", ConfResource.class);

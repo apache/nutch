@@ -11,6 +11,7 @@ public class APIInfoResource extends ServerResource {
   private static final List<String[]> info = new ArrayList<String[]>();
   
   static {
+    info.add(new String[]{AdminResource.PATH, AdminResource.DESCR});
     info.add(new String[]{ConfResource.PATH, ConfResource.DESCR});
     info.add(new String[]{JobResource.PATH, JobResource.DESCR});
   }

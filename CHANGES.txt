@@ -86,6 +86,8 @@ Release 2.0 - Current Development
 
 * NUTCH-930 Remove remaining dependencies on Lucene API (ab)
 
+* NUTCH-931 Simple admin API to fetch status and stop the service (ab)
+
 Release 1.1 - 2010-06-06
 
 * NUTCH-819 Included Solr schema.xml and solrindex-mapping.xml don't play together (ab)
