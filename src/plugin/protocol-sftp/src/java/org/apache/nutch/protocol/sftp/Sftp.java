@@ -236,6 +236,10 @@ public class Sftp implements Protocol {
     user = configuration.get("sftp.user", "anonymous");
     password = configuration.get("sftp.password", "guest");
 
+    if (server == null) {
+      return;
+    }
+    
     if (channelSftpByHostMap.containsKey(server)) {
       return;
     }
