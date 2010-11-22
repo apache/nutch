@@ -85,7 +85,7 @@ public class LanguageIndexingFilter implements IndexingFilter {
       lang = this.languageIdentifier.identify(text);
     }
 
-    if (lang == null) {
+    if (lang == null || lang.length() == 0) {
       lang = "unknown";
     }
 
