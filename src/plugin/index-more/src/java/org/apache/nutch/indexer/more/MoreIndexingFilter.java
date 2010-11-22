@@ -150,7 +150,8 @@ public class MoreIndexingFilter implements IndexingFilter {
 		      "dd MM yyyy HH:mm:ss zzz",
 		      "dd.MM.yyyy; HH:mm:ss",
 		      "dd.MM.yyyy HH:mm:ss",
-		      "dd.MM.yyyy zzz"
+		      "dd.MM.yyyy zzz",
+		      "yyyy-MM-dd'T'HH:mm:ss'Z'"
 		  });
 	    time = parsedDate.getTime();
             // if (LOG.isWarnEnabled()) {
