@@ -21,13 +21,12 @@ import org.apache.nutch.storage.ParseStatus;
 import org.apache.nutch.storage.StorageUtils;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.TableUtil;
 import org.apache.gora.mapreduce.GoraMapper;
 import org.apache.gora.mapreduce.StringComparator;
 
-public abstract class IndexerJob
-extends GoraMapper<String, WebPage, String, WebPage>
-implements Tool {
+public abstract class IndexerJob extends NutchTool implements Tool {
 
   public static final Logger LOG = LoggerFactory.getLogger(IndexerJob.class);
 
@@ -35,54 +34,46 @@ implements Tool {
 
   private static final Utf8 REINDEX = new Utf8("-reindex");
 
-  private Configuration conf;
-
-  protected Utf8 batchId;
-
   static {
     FIELDS.add(WebPage.Field.SIGNATURE);
     FIELDS.add(WebPage.Field.PARSE_STATUS);
     FIELDS.add(WebPage.Field.SCORE);
     FIELDS.add(WebPage.Field.MARKERS);
   }
+  
+  public static class IndexerMapper
+      extends GoraMapper<String, WebPage, String, WebPage> {
+    protected Utf8 batchId;
 
-  @Override
-  public Configuration getConf() {
-    return conf;
-  }
-
-  @Override
-  public void setConf(Configuration conf) {
-    this.conf = conf;
-  }
-
-  @Override
-  public void setup(Context context) throws IOException {
-    Configuration conf = context.getConfiguration();
-    batchId = new Utf8(conf.get(GeneratorJob.BATCH_ID, Nutch.ALL_BATCH_ID_STR));
-  }
-
-  @Override
-  public void map(String key, WebPage page, Context context)
-  throws IOException, InterruptedException {
-    ParseStatus pstatus = page.getParseStatus();
-    if (pstatus == null || !ParseStatusUtils.isSuccess(pstatus)
-        || pstatus.getMinorCode() == ParseStatusCodes.SUCCESS_REDIRECT) {
-      return; // filter urls not parsed
+    @Override
+    public void setup(Context context) throws IOException {
+      Configuration conf = context.getConfiguration();
+      batchId = new Utf8(conf.get(GeneratorJob.BATCH_ID, Nutch.ALL_BATCH_ID_STR));
     }
 
-    Utf8 mark = Mark.UPDATEDB_MARK.checkMark(page);
-    if (!batchId.equals(REINDEX)) {
-      if (!NutchJob.shouldProcess(mark, batchId)) {
-        if (LOG.isDebugEnabled()) {
-          LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; different batch id");
-        }
-        return;
+    @Override
+    public void map(String key, WebPage page, Context context)
+    throws IOException, InterruptedException {
+      ParseStatus pstatus = page.getParseStatus();
+      if (pstatus == null || !ParseStatusUtils.isSuccess(pstatus)
+          || pstatus.getMinorCode() == ParseStatusCodes.SUCCESS_REDIRECT) {
+        return; // filter urls not parsed
       }
-    }
 
-    context.write(key, page);
+      Utf8 mark = Mark.UPDATEDB_MARK.checkMark(page);
+      if (!batchId.equals(REINDEX)) {
+        if (!NutchJob.shouldProcess(mark, batchId)) {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; different batch id");
+          }
+          return;
+        }
+      }
+
+      context.write(key, page);
+    }    
   }
+
 
   private static Collection<WebPage.Field> getFields(Job job) {
     Configuration conf = job.getConfiguration();
@@ -103,7 +94,8 @@ implements Tool {
         StringComparator.class, RawComparator.class);
 
     Collection<WebPage.Field> fields = getFields(job);
-    StorageUtils.initMapperJob(job, fields, String.class, WebPage.class, this.getClass());
+    StorageUtils.initMapperJob(job, fields, String.class, WebPage.class,
+        IndexerMapper.class);
     job.setReducerClass(IndexerReducer.class);
     job.setOutputFormatClass(IndexerOutputFormat.class);
     return job;

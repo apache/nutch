@@ -12,9 +12,10 @@ public interface JobManager {
 
   public List<JobStatus> list(String crawlId, State state) throws Exception;
   
-  public Map<String,String> get(String crawlId, String id) throws Exception;
+  public JobStatus get(String crawlId, String id) throws Exception;
   
-  public String create(String crawlId, JobType type, String confId, Object... args) throws Exception;
+  public String create(String crawlId, JobType type, String confId,
+      Map<String,Object> args) throws Exception;
   
   public boolean abort(String crawlId, String id) throws Exception;
   

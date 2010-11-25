@@ -75,4 +75,53 @@ public interface Nutch {
   public static final Utf8 ALL_CRAWL_ID = new Utf8(ALL_BATCH_ID_STR);
 
   public static final String CRAWL_ID_KEY = "storage.crawl.id";
+  
+  
+  // short constants for cmd-line args
+  /** Batch id to select. */
+  public static final String ARG_BATCH = "batch";
+  /** Crawl id to use. */
+  public static final String ARG_CRAWL = "crawl";
+  /** Resume previously aborted op. */
+  public static final String ARG_RESUME = "resume";
+  /** Force processing even if there are locks or inconsistencies. */
+  public static final String ARG_FORCE = "force";
+  /** Parse during fetching. */
+  public static final String ARG_PARSE = "parse";
+  /** Sort statistics. */
+  public static final String ARG_SORT = "sort";
+  /** Solr URL. */
+  public static final String ARG_SOLR = "solr";
+  /** Number of fetcher threads (per map task). */
+  public static final String ARG_THREADS = "threads";
+  /** Number of fetcher tasks. */
+  public static final String ARG_NUMTASKS = "numTasks";
+  /** Generate topN scoring URLs. */
+  public static final String ARG_TOPN = "topN";
+  /** The notion of current time. */
+  public static final String ARG_CURTIME = "curTime";
+  /** Apply URLFilters. */
+  public static final String ARG_FILTER = "filter";
+  /** Apply URLNormalizers. */
+  public static final String ARG_NORMALIZE = "normalize";
+  /** Whitespace-separated list of seed URLs. */
+  public static final String ARG_SEEDLIST = "seed";
+  /** a path to a directory containing a list of seed URLs. */
+  public static final String ARG_SEEDDIR = "seedDir";
+  /** Class to run as a NutchTool. */
+  public static final String ARG_CLASS = "class";
+  /** Depth (number of cycles) of a crawl. */
+  public static final String ARG_DEPTH = "depth";
+  
+  // short constants for status / results fields
+  /** Status / result message. */
+  public static final String STAT_MESSAGE = "msg";
+  /** Phase of processing. */
+  public static final String STAT_PHASE = "phase";
+  /** Progress (float). */
+  public static final String STAT_PROGRESS = "progress";
+  /** Jobs. */
+  public static final String STAT_JOBS = "jobs";
+  /** Counters. */
+  public static final String STAT_COUNTERS = "counters";
 }

@@ -16,6 +16,7 @@ public class ParseStatusUtils {
 
   static {
     STATUS_SUCCESS.setMajorCode(ParseStatusCodes.SUCCESS);
+    minorCodes.put(ParseStatusCodes.SUCCESS_OK, "ok");
     minorCodes.put(ParseStatusCodes.SUCCESS_REDIRECT, "redirect");
     minorCodes.put(ParseStatusCodes.FAILED_EXCEPTION, "exception");
     minorCodes.put(ParseStatusCodes.FAILED_INVALID_FORMAT, "invalid_format");
@@ -81,7 +82,7 @@ public class ParseStatusUtils {
     }
     StringBuilder sb = new StringBuilder();
     sb.append(ParseStatusCodes.majorCodes[status.getMajorCode()] +
-        "/" + minorCodes.get(status.getMinorCode()));
+        "/" + minorCodes.get((short)status.getMinorCode()));
     sb.append(" (" + status.getMajorCode() + "/" + status.getMinorCode() + ")");
     sb.append(", args=[");
     GenericArray<Utf8> args = status.getArgs();

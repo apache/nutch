@@ -1,6 +1,9 @@
 package org.apache.nutch.crawl;
 
+import java.io.IOException;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -19,10 +22,10 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
+import org.apache.nutch.util.ToolUtil;
 import org.apache.gora.mapreduce.StringComparator;
 
-public class DbUpdaterJob extends Configured
-implements Tool, NutchTool {
+public class DbUpdaterJob extends NutchTool implements Tool {
 
   public static final Logger LOG = LoggerFactory.getLogger(DbUpdaterJob.class);
 
@@ -53,49 +56,33 @@ implements Tool, NutchTool {
   public DbUpdaterJob(Configuration conf) {
     setConf(conf);
   }
-  
-  public Map<String,Object> prepare() throws Exception {
-    return null;
-  }
-  
-  public Map<String,Object> postJob(int jobIndex, Job job) throws Exception {
-    return null;
-  }
-
-  public Map<String,Object> finish() throws Exception {
-    return null;
-  }
-  
-  public Job[] createJobs(Object... args) throws Exception {
-    String crawlId = null;
-    if (args.length > 0) {
-      crawlId = (String)args[0];
-    }
-    Job job = new NutchJob(getConf(), "update-table");
+    
+  public Map<String,Object> run(Map<String,Object> args) throws Exception {
+    String crawlId = (String)args.get(Nutch.ARG_CRAWL);
+    numJobs = 1;
+    currentJobNum = 0;
+    currentJob = new NutchJob(getConf(), "update-table");
     if (crawlId != null) {
-      job.getConfiguration().set(Nutch.CRAWL_ID_KEY, crawlId);
+      currentJob.getConfiguration().set(Nutch.CRAWL_ID_KEY, crawlId);
     }
     //job.setBoolean(ALL, updateAll);
     ScoringFilters scoringFilters = new ScoringFilters(getConf());
     HashSet<WebPage.Field> fields = new HashSet<WebPage.Field>(FIELDS);
     fields.addAll(scoringFilters.getFields());
     // TODO: Figure out why this needs to be here
-    job.getConfiguration().setClass("mapred.output.key.comparator.class",
+    currentJob.getConfiguration().setClass("mapred.output.key.comparator.class",
         StringComparator.class, RawComparator.class);
-    StorageUtils.initMapperJob(job, fields, String.class,
+    StorageUtils.initMapperJob(currentJob, fields, String.class,
         NutchWritable.class, DbUpdateMapper.class);
-    StorageUtils.initReducerJob(job, DbUpdateReducer.class);
-    return new Job[]{job};
+    StorageUtils.initReducerJob(currentJob, DbUpdateReducer.class);
+    currentJob.waitForCompletion(true);
+    ToolUtil.recordJobStatus(null, currentJob, results);
+    return results;
   }
   
-  private int updateTable(String batchId) throws Exception {
+  private int updateTable(String crawlId) throws Exception {
     LOG.info("DbUpdaterJob: starting");
-    Job[] jobs = createJobs(new Object[]{batchId});
-    boolean success = jobs[0].waitForCompletion(true);
-    if (!success){
-    	LOG.info("DbUpdaterJob: failed");
-    	return -1;
-    }
+    run(ToolUtil.toArgMap(Nutch.ARG_CRAWL, crawlId));
     LOG.info("DbUpdaterJob: done");
     return 0;
   }

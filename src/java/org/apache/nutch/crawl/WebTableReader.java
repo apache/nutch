@@ -13,7 +13,6 @@ import org.apache.avro.util.Utf8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -30,8 +29,6 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.ParseStatusUtils;
 import org.apache.nutch.protocol.ProtocolStatusUtils;
-import org.apache.nutch.storage.ParseStatus;
-import org.apache.nutch.storage.ProtocolStatus;
 import org.apache.nutch.storage.StorageUtils;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.Bytes;
@@ -40,6 +37,7 @@ import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.TableUtil;
+import org.apache.nutch.util.ToolUtil;
 import org.apache.gora.mapreduce.GoraMapper;
 import org.apache.gora.query.Query;
 import org.apache.gora.query.Result;
@@ -49,7 +47,7 @@ import org.apache.gora.store.DataStore;
  * Displays information about the entries of the webtable
  **/
 
-public class WebTableReader extends Configured implements Tool, NutchTool {
+public class WebTableReader extends NutchTool implements Tool {
 
   public static final Logger LOG = LoggerFactory.getLogger(WebTableReader.class);
 
@@ -198,13 +196,13 @@ public class WebTableReader extends Configured implements Tool, NutchTool {
 
   public void processStatJob(boolean sort) throws Exception {
 
-    Job[] jobs = createJobs(sort);
-    
     if (LOG.isInfoEnabled()) {
       LOG.info("WebTable statistics start");
     }
-    boolean success = jobs[0].waitForCompletion(true);
-    postJob(0, jobs[0]);
+    run(ToolUtil.toArgMap(Nutch.ARG_SORT, sort));
+    for (Entry<String,Object> e : results.entrySet()) {
+      LOG.info(e.getKey() + ":\t" + e.getValue());
+    }
   }
 
   /** Prints out the entry to the standard out **/
@@ -479,56 +477,46 @@ public class WebTableReader extends Configured implements Tool, NutchTool {
     }
   }
 
-  @Override
-  public Map<String, Object> prepare() throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
   // for now handles only -stat
   @Override
-  public Job[] createJobs(Object... args) throws Exception {
+  public Map<String,Object> run(Map<String,Object> args) throws Exception {
     Path tmpFolder = new Path(getConf().get("mapred.temp.dir", ".")
         + "stat_tmp" + System.currentTimeMillis());
 
-    Job job = new NutchJob(getConf(), "db_stats");
+    numJobs = 1;
+    currentJob = new NutchJob(getConf(), "db_stats");
 
-    boolean sort = false;
-    if (args != null && args.length > 0) {
-      sort = (Boolean)args[0];
-    }
-    job.getConfiguration().setBoolean("db.reader.stats.sort", sort);
+    Boolean sort = (Boolean)args.get(Nutch.ARG_SORT);
+    if (sort == null) sort = Boolean.FALSE;
+    currentJob.getConfiguration().setBoolean("db.reader.stats.sort", sort);
 
-    DataStore<String, WebPage> store = StorageUtils.createWebStore(job
+    DataStore<String, WebPage> store = StorageUtils.createWebStore(currentJob
         .getConfiguration(), String.class, WebPage.class);
     Query<String, WebPage> query = store.newQuery();
     query.setFields(WebPage._ALL_FIELDS);
 
-    GoraMapper.initMapperJob(job, query, store, Text.class, LongWritable.class,
+    GoraMapper.initMapperJob(currentJob, query, store, Text.class, LongWritable.class,
         WebTableStatMapper.class, null, true);
 
-    job.setCombinerClass(WebTableStatCombiner.class);
-    job.setReducerClass(WebTableStatReducer.class);
+    currentJob.setCombinerClass(WebTableStatCombiner.class);
+    currentJob.setReducerClass(WebTableStatReducer.class);
 
-    FileOutputFormat.setOutputPath(job, tmpFolder);
+    FileOutputFormat.setOutputPath(currentJob, tmpFolder);
 
-    job.setOutputFormatClass(SequenceFileOutputFormat.class);
+    currentJob.setOutputFormatClass(SequenceFileOutputFormat.class);
 
-    job.setOutputKeyClass(Text.class);
-    job.setOutputValueClass(LongWritable.class);
-
-    return new Job[]{job};
-  }
-
-  @Override
-  public Map<String, Object> postJob(int jobIndex, Job job) throws Exception {
-    Path tmpFolder = FileOutputFormat.getOutputPath(job);
-
+    currentJob.setOutputKeyClass(Text.class);
+    currentJob.setOutputValueClass(LongWritable.class);
     FileSystem fileSystem = FileSystem.get(getConf());
 
-    if (!job.isSuccessful()) {
-      fileSystem.delete(tmpFolder, true);
-      return null;
+    try {
+      currentJob.waitForCompletion(true);
+    } finally {
+      ToolUtil.recordJobStatus(null, currentJob, results);
+      if (!currentJob.isSuccessful()) {
+        fileSystem.delete(tmpFolder, true);
+        return results;
+      }
     }
 
     Text key = new Text();
@@ -564,46 +552,40 @@ public class WebTableReader extends Configured implements Tool, NutchTool {
       reader.close();
     }
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Statistics for WebTable: ");
-      LongWritable totalCnt = stats.get("T");
-      if (totalCnt==null)totalCnt=new LongWritable(0);
-      stats.remove("T");
-      LOG.info("TOTAL urls:\t" + totalCnt.get());
-      for (Map.Entry<String, LongWritable> entry : stats.entrySet()) {
-        String k = entry.getKey();
-        LongWritable val = entry.getValue();
-        if (k.equals("scn")) {
-          LOG.info("min score:\t" + (float) (val.get() / 1000.0f));
-        } else if (k.equals("scx")) {
-          LOG.info("max score:\t" + (float) (val.get() / 1000.0f));
-        } else if (k.equals("sct")) {
-          LOG.info("avg score:\t"
-              + (float) ((((double) val.get()) / totalCnt.get()) / 1000.0));
-        } else if (k.startsWith("status")) {
-          String[] st = k.split(" ");
-          int code = Integer.parseInt(st[1]);
-          if (st.length > 2)
-            LOG.info("   " + st[2] + " :\t" + val);
-          else
-            LOG.info(st[0] + " " + code + " ("
-                + CrawlStatus.getName((byte) code) + "):\t" + val);
-        } else
-          LOG.info(k + ":\t" + val);
-      }
+    LongWritable totalCnt = stats.get("T");
+    if (totalCnt==null)totalCnt=new LongWritable(0);
+    stats.remove("T");
+    results.put("TOTAL urls", totalCnt.get());
+    for (Map.Entry<String, LongWritable> entry : stats.entrySet()) {
+      String k = entry.getKey();
+      LongWritable val = entry.getValue();
+      if (k.equals("scn")) {
+        results.put("min score", (float) (val.get() / 1000.0f));
+      } else if (k.equals("scx")) {
+        results.put("max score", (float) (val.get() / 1000.0f));
+      } else if (k.equals("sct")) {
+        results.put("avg score",
+            (float) ((((double) val.get()) / totalCnt.get()) / 1000.0));
+      } else if (k.startsWith("status")) {
+        String[] st = k.split(" ");
+        int code = Integer.parseInt(st[1]);
+        if (st.length > 2)
+          results.put(st[2], val.get());
+        else
+          results.put(st[0] + " " + code + " ("
+              + CrawlStatus.getName((byte) code) + ")", val.get());
+      } else
+        results.put(k, val.get());
     }
     // removing the tmp folder
     fileSystem.delete(tmpFolder, true);
     if (LOG.isInfoEnabled()) {
+      LOG.info("Statistics for WebTable: ");
+      for (Entry<String,Object> e : results.entrySet()) {
+        LOG.info(e.getKey() + ":\t" + e.getValue());
+      }
       LOG.info("WebTable statistics: done");
     }
-    return null;
+    return results;
   }
-
-  @Override
-  public Map<String, Object> finish() throws Exception {
-    // TODO Auto-generated method stub
-    return null;
-  }
-
 }

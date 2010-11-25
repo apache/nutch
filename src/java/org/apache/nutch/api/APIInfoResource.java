@@ -13,6 +13,7 @@ public class APIInfoResource extends ServerResource {
   static {
     info.add(new String[]{AdminResource.PATH, AdminResource.DESCR});
     info.add(new String[]{ConfResource.PATH, ConfResource.DESCR});
+    info.add(new String[]{DbResource.PATH, DbResource.DESCR});
     info.add(new String[]{JobResource.PATH, JobResource.DESCR});
   }
 

@@ -20,6 +20,8 @@ public interface ParseStatusCodes {
 
   // Secondary success codes go here:
 
+  public static final short SUCCESS_OK                = 0;
+
   /** Parsed content contains a directive to redirect to another URL.
    * The target URL can be retrieved from the arguments.
    */

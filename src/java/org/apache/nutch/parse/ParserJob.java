@@ -25,10 +25,10 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.TableUtil;
+import org.apache.nutch.util.ToolUtil;
 import org.apache.gora.mapreduce.GoraMapper;
 
-public class ParserJob extends GoraMapper<String, WebPage, String, WebPage>
-    implements Tool, NutchTool {
+public class ParserJob extends NutchTool implements Tool {
 
   public static final Logger LOG = LoggerFactory.getLogger(ParserJob.class);
 
@@ -50,66 +50,70 @@ public class ParserJob extends GoraMapper<String, WebPage, String, WebPage>
     FIELDS.add(WebPage.Field.METADATA);
   }
 
-  private ParseUtil parseUtil;
 
-  private boolean shouldResume;
+  public static class ParserMapper 
+      extends GoraMapper<String, WebPage, String, WebPage> {
+    private ParseUtil parseUtil;
 
-  private boolean force;
+    private boolean shouldResume;
 
-  private Utf8 batchId;
+    private boolean force;
 
+    private Utf8 batchId;
+    
+    @Override
+    public void setup(Context context) throws IOException {
+      Configuration conf = context.getConfiguration();
+      parseUtil = new ParseUtil(conf);
+      shouldResume = conf.getBoolean(RESUME_KEY, false);
+      force = conf.getBoolean(FORCE_KEY, false);
+      batchId = new Utf8(conf.get(GeneratorJob.BATCH_ID, Nutch.ALL_BATCH_ID_STR));
+    }
+
+    @Override
+    public void map(String key, WebPage page, Context context)
+        throws IOException, InterruptedException {
+      Utf8 mark = Mark.FETCH_MARK.checkMark(page);
+      if (!NutchJob.shouldProcess(mark, batchId)) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; different batch id");
+        }
+        return;
+      }
+      if (shouldResume && Mark.PARSE_MARK.checkMark(page) != null) {
+        if (force) {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Forced parsing " + TableUtil.unreverseUrl(key) + "; already parsed");
+          }
+        } else {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; already parsed");
+          }
+          return;
+        }
+      }
+
+      URLWebPage redirectedPage = parseUtil.process(key, page);
+      ParseStatus pstatus = page.getParseStatus();
+      if (pstatus != null) {
+        context.getCounter("ParserStatus",
+            ParseStatusCodes.majorCodes[pstatus.getMajorCode()]).increment(1);
+      }
+
+      if (redirectedPage != null) {
+        context.write(TableUtil.reverseUrl(redirectedPage.getUrl()),
+                      redirectedPage.getDatum());
+      }
+      context.write(key, page);
+    }    
+  }
+  
   public ParserJob() {
 
   }
 
   public ParserJob(Configuration conf) {
     setConf(conf);
-  }
-
-  @Override
-  public void setup(Context context) throws IOException {
-    Configuration conf = context.getConfiguration();
-    parseUtil = new ParseUtil(conf);
-    shouldResume = conf.getBoolean(RESUME_KEY, false);
-    force = conf.getBoolean(FORCE_KEY, false);
-    batchId = new Utf8(conf.get(GeneratorJob.BATCH_ID, Nutch.ALL_BATCH_ID_STR));
-  }
-
-  @Override
-  public void map(String key, WebPage page, Context context)
-      throws IOException, InterruptedException {
-    Utf8 mark = Mark.FETCH_MARK.checkMark(page);
-    if (!NutchJob.shouldProcess(mark, batchId)) {
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; different batch id");
-      }
-      return;
-    }
-    if (shouldResume && Mark.PARSE_MARK.checkMark(page) != null) {
-      if (force) {
-        if (LOG.isDebugEnabled()) {
-          LOG.debug("Forced parsing " + TableUtil.unreverseUrl(key) + "; already parsed");
-        }
-      } else {
-        if (LOG.isDebugEnabled()) {
-          LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; already parsed");
-        }
-        return;
-      }
-    }
-
-    URLWebPage redirectedPage = parseUtil.process(key, page);
-    ParseStatus pstatus = page.getParseStatus();
-    if (pstatus != null) {
-      context.getCounter("ParserStatus",
-          ParseStatusCodes.majorCodes[pstatus.getMajorCode()]).increment(1);
-    }
-
-    if (redirectedPage != null) {
-      context.write(TableUtil.reverseUrl(redirectedPage.getUrl()),
-                    redirectedPage.getDatum());
-    }
-    context.write(key, page);
   }
 
   public Collection<WebPage.Field> getFields(Job job) {
@@ -146,42 +150,35 @@ public class ParserJob extends GoraMapper<String, WebPage, String, WebPage>
     this.conf = conf;
   }
 
-  public Map<String,Object> prepare() throws Exception {
-    return null;
-  }
-  
-  public Map<String,Object> postJob(int jobIndex, Job job) throws Exception {
-    return null;
-  }
- 
-  public Map<String,Object> finish() throws Exception {
-    return null;
-  }
-  
-  public Job[] createJobs(Object... args) throws Exception {
-    String batchId = (String)args[0];
-    boolean shouldResume = (Boolean)args[1];
-    boolean force = (Boolean)args[2];
+  @Override
+  public Map<String,Object> run(Map<String,Object> args) throws Exception {
+    String batchId = (String)args.get(Nutch.ARG_BATCH);
+    Boolean shouldResume = (Boolean)args.get(Nutch.ARG_RESUME);
+    Boolean force = (Boolean)args.get(Nutch.ARG_FORCE);
     
     if (batchId != null) {
       getConf().set(GeneratorJob.BATCH_ID, batchId);
     }
-    getConf().setBoolean(RESUME_KEY, shouldResume);
-    getConf().setBoolean(FORCE_KEY, force);
-    final Job job = new NutchJob(getConf(), "parse");
+    if (shouldResume != null) {
+      getConf().setBoolean(RESUME_KEY, shouldResume);
+    }
+    if (force != null) {
+      getConf().setBoolean(FORCE_KEY, force);
+    }
+    currentJob = new NutchJob(getConf(), "parse");
     
-    Collection<WebPage.Field> fields = getFields(job);
-    StorageUtils.initMapperJob(job, fields, String.class, WebPage.class,
-        ParserJob.class);
-    StorageUtils.initReducerJob(job, IdentityPageReducer.class);
-    job.setNumReduceTasks(0);
+    Collection<WebPage.Field> fields = getFields(currentJob);
+    StorageUtils.initMapperJob(currentJob, fields, String.class, WebPage.class,
+        ParserMapper.class);
+    StorageUtils.initReducerJob(currentJob, IdentityPageReducer.class);
+    currentJob.setNumReduceTasks(0);
 
-    return new Job[]{job};
+    currentJob.waitForCompletion(true);
+    ToolUtil.recordJobStatus(null, currentJob, results);
+    return results;
   }
 
-  public int parse(String crawlId, boolean shouldResume, boolean force) throws Exception {
-    Job[] jobs = createJobs(crawlId, shouldResume, force);
-
+  public int parse(String batchId, boolean shouldResume, boolean force) throws Exception {
     LOG.info("ParserJob: starting");
 
     LOG.info("ParserJob: resuming:\t" + getConf().getBoolean(RESUME_KEY, false));
@@ -191,11 +188,10 @@ public class ParserJob extends GoraMapper<String, WebPage, String, WebPage>
     } else {
       LOG.info("ParserJob: batchId:\t" + batchId);
     }
-    boolean success = jobs[0].waitForCompletion(true);
-    if (!success){
-      LOG.info("ParserJob: failed");
-      return -1;
-    }
+    run(ToolUtil.toArgMap(
+        Nutch.ARG_BATCH, batchId,
+        Nutch.ARG_RESUME, shouldResume,
+        Nutch.ARG_FORCE, force));
     LOG.info("ParserJob: success");
     return 0;
   }

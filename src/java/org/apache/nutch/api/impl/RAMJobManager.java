@@ -15,10 +15,12 @@ import java.util.concurrent.TimeUnit;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.ReflectionUtils;
+import org.apache.nutch.api.ConfResource;
 import org.apache.nutch.api.JobManager;
 import org.apache.nutch.api.JobStatus;
 import org.apache.nutch.api.JobStatus.State;
 import org.apache.nutch.api.NutchApp;
+import org.apache.nutch.crawl.Crawler;
 import org.apache.nutch.crawl.DbUpdaterJob;
 import org.apache.nutch.crawl.GeneratorJob;
 import org.apache.nutch.crawl.InjectorJob;
@@ -79,6 +81,7 @@ public class RAMJobManager implements JobManager {
     typeToClass.put(JobType.PARSE, ParserJob.class);
     typeToClass.put(JobType.UPDATEDB, DbUpdaterJob.class);
     typeToClass.put(JobType.READDB, WebTableReader.class);
+    typeToClass.put(JobType.CRAWL, Crawler.class);
   }
 
   private void addFinishedStatus(JobStatus status) {
@@ -109,13 +112,24 @@ public class RAMJobManager implements JobManager {
   }
 
   @Override
-  public Map<String, String> get(String crawlId, String jobId) throws Exception {
-    // TODO Auto-generated method stub
+  public JobStatus get(String crawlId, String jobId) throws Exception {
+    for (JobStatus job : jobRunning) {
+      if (job.id.equals(jobId)) {
+        return job;
+      }
+    }
+    for (JobStatus job : jobHistory) {
+      if (job.id.equals(jobId)) {
+        return job;
+      }
+    }
     return null;
   }
 
   @Override
-  public String create(String crawlId, JobType type, String confId, Object... args) throws Exception {
+  public String create(String crawlId, JobType type, String confId,
+      Map<String,Object> args) throws Exception {
+    if (args == null) args = Collections.emptyMap();
     JobWorker worker = new JobWorker(crawlId, type, confId, args);
     String id = worker.getId();
     exec.execute(worker);
@@ -125,12 +139,28 @@ public class RAMJobManager implements JobManager {
 
   @Override
   public boolean abort(String crawlId, String id) throws Exception {
+    // find running job
+    for (JobStatus job : jobRunning) {
+      if (job.id.equals(id)) {
+        job.state = State.KILLING;
+        boolean res = job.tool.killJob();
+        job.state = State.KILLED;
+        return res;
+      }
+    }
     return false;
   }
 
   @Override
   public boolean stop(String crawlId, String id) throws Exception {
-    // TODO Auto-generated method stub
+    // find running job
+    for (JobStatus job : jobRunning) {
+      if (job.id.equals(id)) {
+        job.state = State.STOPPING;
+        boolean res = job.tool.stopJob();
+        return res;
+      }
+    }
     return false;
   }
   
@@ -139,12 +169,13 @@ public class RAMJobManager implements JobManager {
     JobType type;
     String confId;
     NutchTool tool;
-    Object[] args;
-    float progress = 0f;
-    Job currentJob = null;
+    Map<String,Object> args;
     JobStatus jobStatus;
     
-    JobWorker(String crawlId, JobType type, String confId, Object... args) throws Exception {
+    JobWorker(String crawlId, JobType type, String confId, Map<String,Object> args) throws Exception {
+      if (confId == null) {
+        confId = ConfResource.DEFAULT_CONF;
+      }
       Configuration conf = NutchApp.confMgr.get(confId);
       // clone it - we are going to modify it
       if (conf == null) {
@@ -161,10 +192,11 @@ public class RAMJobManager implements JobManager {
       }
       Class<? extends NutchTool> clz = typeToClass.get(type);
       if (clz == null) {
-        clz = (Class<? extends NutchTool>)args[0];
+        clz = (Class<? extends NutchTool>)Class.forName((String)args.get(Nutch.ARG_CLASS));
       }
       tool = ReflectionUtils.newInstance(clz, conf);
       jobStatus = new JobStatus(id, type, confId, args, State.IDLE, "idle");
+      jobStatus.tool = tool;
     }
     
     public String getId() {
@@ -172,65 +204,31 @@ public class RAMJobManager implements JobManager {
     }
     
     public float getProgress() {
-      return progress;
+      return tool.getProgress();
     }
     
     public State getState() {
       return jobStatus.state;
     }
     
-    private final float[] noProgress = new float[2];
-    
-    public float[] getCurrentJobProgress() throws IOException {
-      if (currentJob == null) {
-        return noProgress;
-      }
-      float[] res = new float[2];
-      res[0] = currentJob.mapProgress();
-      res[1] = currentJob.reduceProgress();
-      return res;
-    }
-    
     public Map<String,Object> getResult() {
       return jobStatus.result;
     }
     
-    public String getStatus() {
-      return jobStatus.msg;
+    public Map<String,Object> getStatus() {
+      return tool.getStatus();
     }
 
     @Override
     public void run() {
       try {
-        progress = 0f;
         jobStatus.state = State.RUNNING;
-        jobStatus.msg = "prepare";
-        tool.prepare();
-        progress = 0.1f;
-        Job[] jobs = tool.createJobs(args);
-        float delta = 0.8f / jobs.length;
-        for (int i = 0; i < jobs.length; i++) {
-          currentJob = jobs[i];
-          jobStatus.msg = "job " + (i + 1) + "/" + jobs.length;
-          boolean success = jobs[i].waitForCompletion(true);
-          if (!success) {
-            throw new Exception("Job failed.");
-          }
-          jobStatus.msg = "postJob " + (i + 1);
-          tool.postJob(i, jobs[i]);
-          progress += delta;
-        }
-        currentJob = null;
-        progress = 0.9f;
-        jobStatus.msg = "finish";
-        Map<String,Object> res = tool.finish();
-        if (res != null) {
-          jobStatus.result = res;
-        }
-        progress = 1.0f;
+        jobStatus.msg = "OK";
+        jobStatus.result = tool.run(args);
         jobStatus.state = State.FINISHED;
       } catch (Exception e) {
-        jobStatus.msg = "ERROR " + jobStatus.msg + ": " + e.toString();
+        e.printStackTrace();
+        jobStatus.msg = "ERROR: " + e.toString();
         jobStatus.state = State.FAILED;
       }
     }

@@ -36,6 +36,8 @@ public class NutchApp extends Application {
           "}", ConfResource.class);
       router.attach("/" + ConfResource.PATH + "/{" + Params.CONF_ID +
           "}/{" + Params.PROP_NAME + "}", ConfResource.class);
+      // db
+      router.attach("/" + DbResource.PATH, DbResource.class);
       // jobs
       router.attach("/" + JobResource.PATH, JobResource.class);
       router.attach("/" + JobResource.PATH + "/{" + Params.JOB_ID + "}",

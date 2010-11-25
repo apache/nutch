@@ -18,7 +18,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
@@ -37,6 +36,7 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.TableUtil;
+import org.apache.nutch.util.ToolUtil;
 
 /** This class takes a flat file of URLs and adds them to the of pages to be
  * crawled.  Useful for bootstrapping the system.
@@ -47,14 +47,9 @@ import org.apache.nutch.util.TableUtil;
  * - <i>nutch.fetchInterval</i> : allows to set a custom fetch interval for a specific URL <br>
  * e.g. http://www.nutch.org/ \t nutch.score=10 \t nutch.fetchInterval=2592000 \t userType=open_source
  **/
-public class InjectorJob extends GoraMapper<String, WebPage, String, WebPage>
-    implements Tool, NutchTool {
+public class InjectorJob extends NutchTool implements Tool {
 
   public static final Logger LOG = LoggerFactory.getLogger(InjectorJob.class);
-
-  private Configuration conf;
-
-  private FetchSchedule schedule;
 
   private static final Set<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
@@ -173,6 +168,35 @@ public class InjectorJob extends GoraMapper<String, WebPage, String, WebPage>
       context.write(reversedUrl, row);
     }
   }
+  
+  public static class InjectorMapper 
+      extends GoraMapper<String, WebPage, String, WebPage> {
+    private FetchSchedule schedule;
+
+    @Override
+    public void setup(Context context) throws IOException {
+      Configuration conf = context.getConfiguration();
+      schedule = FetchScheduleFactory.getFetchSchedule(conf);
+      // scoreInjected = conf.getFloat("db.score.injected", 1.0f);
+    }
+
+    @Override
+    protected void map(String key, WebPage row, Context context)
+        throws IOException, InterruptedException {
+      if (Mark.INJECT_MARK.checkMark(row) == null) {
+        return;
+      }
+      Mark.INJECT_MARK.removeMark(row);
+      if (!row.isReadable(WebPage.Field.STATUS.getIndex())) {
+        row.setStatus(CrawlStatus.STATUS_UNFETCHED);
+        schedule.initializeSchedule(key, row);
+        // row.setScore(scoreInjected);
+      }
+
+      context.write(key, row);
+    }
+        
+  }
 
   public InjectorJob() {
 
@@ -182,83 +206,50 @@ public class InjectorJob extends GoraMapper<String, WebPage, String, WebPage>
     setConf(conf);
   }
 
-  @Override
-  public Configuration getConf() {
-    return conf;
-  }
-
-  @Override
-  public void setConf(Configuration conf) {
-    this.conf = conf;
-  }
-
-  @Override
-  public void setup(Context context) throws IOException {
-    Configuration conf = context.getConfiguration();
-    schedule = FetchScheduleFactory.getFetchSchedule(conf);
-    // scoreInjected = conf.getFloat("db.score.injected", 1.0f);
-  }
-
-  @Override
-  protected void map(String key, WebPage row, Context context)
-      throws IOException, InterruptedException {
-    if (Mark.INJECT_MARK.checkMark(row) == null) {
-      return;
-    }
-    Mark.INJECT_MARK.removeMark(row);
-    if (!row.isReadable(WebPage.Field.STATUS.getIndex())) {
-      row.setStatus(CrawlStatus.STATUS_UNFETCHED);
-      schedule.initializeSchedule(key, row);
-      // row.setScore(scoreInjected);
-    }
-
-    context.write(key, row);
-  }
-  
-  public Map<String,Object> prepare() throws Exception {
-    return null;
-  }
-  
-  public Map<String,Object> postJob(int jobIndex, Job job) throws Exception {
-    return null;
-  }
-
-  public Map<String,Object> finish() throws Exception {
-    return null;
-  }
-  
-  public Job[] createJobs(Object... args) throws Exception {
-    Job[] jobs = new Job[2];
+  public Map<String,Object> run(Map<String,Object> args) throws Exception {
     getConf().setLong("injector.current.time", System.currentTimeMillis());
-    Job job = new NutchJob(getConf(), "inject-p1 " + args[0]);
-    FileInputFormat.addInputPath(job, (Path)args[0]);
-    job.setMapperClass(UrlMapper.class);
-    job.setMapOutputKeyClass(String.class);
-    job.setMapOutputValueClass(WebPage.class);
-    job.setOutputFormatClass(GoraOutputFormat.class);
-    DataStore<String, WebPage> store = StorageUtils.createWebStore(job.getConfiguration(),
+    Path input;
+    Object path = args.get(Nutch.ARG_SEEDDIR);
+    if (path instanceof Path) {
+      input = (Path)path;
+    } else {
+      input = new Path(path.toString());
+    }
+    numJobs = 2;
+    currentJobNum = 0;
+    status.put(Nutch.STAT_PHASE, "convert input");
+    currentJob = new NutchJob(getConf(), "inject-p1 " + input);
+    FileInputFormat.addInputPath(currentJob, input);
+    currentJob.setMapperClass(UrlMapper.class);
+    currentJob.setMapOutputKeyClass(String.class);
+    currentJob.setMapOutputValueClass(WebPage.class);
+    currentJob.setOutputFormatClass(GoraOutputFormat.class);
+    DataStore<String, WebPage> store = StorageUtils.createWebStore(currentJob.getConfiguration(),
         String.class, WebPage.class);
-    GoraOutputFormat.setOutput(job, store, true);
-    job.setReducerClass(Reducer.class);
-    job.setNumReduceTasks(0);
-    job.waitForCompletion(true);
+    GoraOutputFormat.setOutput(currentJob, store, true);
+    currentJob.setReducerClass(Reducer.class);
+    currentJob.setNumReduceTasks(0);
+    currentJob.waitForCompletion(true);
+    ToolUtil.recordJobStatus(null, currentJob, results);
+    currentJob = null;
 
-    job = new NutchJob(getConf(), "inject-p2 " + args[0]);
-    StorageUtils.initMapperJob(job, FIELDS, String.class,
-        WebPage.class, InjectorJob.class);
-    job.setNumReduceTasks(0);
-    jobs[1] = job;
-    return jobs;
+    status.put(Nutch.STAT_PHASE, "merge input with db");
+    status.put(Nutch.STAT_PROGRESS, 0.5f);
+    currentJobNum = 1;
+    currentJob = new NutchJob(getConf(), "inject-p2 " + input);
+    StorageUtils.initMapperJob(currentJob, FIELDS, String.class,
+        WebPage.class, InjectorMapper.class);
+    currentJob.setNumReduceTasks(0);
+    ToolUtil.recordJobStatus(null, currentJob, results);
+    status.put(Nutch.STAT_PROGRESS, 1.0f);
+    return results;
   }
 
   public void inject(Path urlDir) throws Exception {
     LOG.info("InjectorJob: starting");
     LOG.info("InjectorJob: urlDir: " + urlDir);
 
-    Job[] jobs = createJobs(urlDir);
-    jobs[0].waitForCompletion(true);
-
-    jobs[1].waitForCompletion(true);
+    run(ToolUtil.toArgMap(Nutch.ARG_SEEDDIR, urlDir));
   }
 
   @Override

@@ -3,6 +3,7 @@ package org.apache.nutch.crawl;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -26,8 +27,9 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
+import org.apache.nutch.util.ToolUtil;
 
-public class GeneratorJob extends Configured implements Tool, NutchTool {
+public class GeneratorJob extends NutchTool implements Tool {
   public static final String GENERATE_UPDATE_CRAWLDB = "generate.update.crawldb";
   public static final String GENERATOR_MIN_SCORE = "generate.min.score";
   public static final String GENERATOR_FILTER = "generate.filter";
@@ -124,36 +126,28 @@ public class GeneratorJob extends Configured implements Tool, NutchTool {
     setConf(conf);
   }
 
-  public Map<String,Object> prepare() throws Exception {
-    return null;
-  }
-  
-  public Map<String,Object> postJob(int jobIndex, Job job) throws Exception {
-    return null;
-  }
-  
-  public Map<String,Object> finish() throws Exception {
-    HashMap<String,Object> res = new HashMap<String,Object>();
-    res.put(BATCH_ID, batchId);
-    return res;
-  }
-
-  public Job[] createJobs(Object... args) throws Exception {
+  public Map<String,Object> run(Map<String,Object> args) throws Exception {
     // map to inverted subset due for fetch, sort by score
-    long topN = (Long)args[0];
-    long curTime = (Long)args[1];
-    boolean filter = (Boolean)args[2];
-    boolean norm = (Boolean)args[3];
+    Long topN = (Long)args.get(Nutch.ARG_TOPN);
+    Long curTime = (Long)args.get(Nutch.ARG_CURTIME);
+    if (curTime == null) {
+      curTime = System.currentTimeMillis();
+    }
+    Boolean filter = (Boolean)args.get(Nutch.ARG_FILTER);
+    Boolean norm = (Boolean)args.get(Nutch.ARG_NORMALIZE);
     // map to inverted subset due for fetch, sort by score
     getConf().setLong(GENERATOR_CUR_TIME, curTime);
-    getConf().setLong(GENERATOR_TOP_N, topN);
-    getConf().setBoolean(GENERATOR_FILTER, filter);
+    if (topN != null)
+      getConf().setLong(GENERATOR_TOP_N, topN);
+    if (filter != null)
+      getConf().setBoolean(GENERATOR_FILTER, filter);
     int randomSeed = Math.abs(new Random().nextInt());
-    String batchId = (curTime / 1000) + "-" + randomSeed;
+    batchId = (curTime / 1000) + "-" + randomSeed;
     getConf().setInt(GENERATOR_RANDOM_SEED, randomSeed);
     getConf().set(BATCH_ID, batchId);
     getConf().setLong(Nutch.GENERATE_TIME_KEY, System.currentTimeMillis());
-    getConf().setBoolean(GENERATOR_NORMALISE, norm);
+    if (norm != null)
+      getConf().setBoolean(GENERATOR_NORMALISE, norm);
     String mode = getConf().get(GENERATOR_COUNT_MODE, GENERATOR_COUNT_VALUE_HOST);
     if (GENERATOR_COUNT_VALUE_HOST.equalsIgnoreCase(mode)) {
       getConf().set(URLPartitioner.PARTITION_MODE_KEY, URLPartitioner.PARTITION_MODE_HOST);
@@ -164,12 +158,16 @@ public class GeneratorJob extends Configured implements Tool, NutchTool {
       getConf().set(GENERATOR_COUNT_MODE, GENERATOR_COUNT_VALUE_HOST);
       getConf().set(URLPartitioner.PARTITION_MODE_KEY, URLPartitioner.PARTITION_MODE_HOST);
     }
-
-    Job job = new NutchJob(getConf(), "generate: " + batchId);
-    StorageUtils.initMapperJob(job, FIELDS, SelectorEntry.class,
+    numJobs = 1;
+    currentJobNum = 0;
+    currentJob = new NutchJob(getConf(), "generate: " + batchId);
+    StorageUtils.initMapperJob(currentJob, FIELDS, SelectorEntry.class,
         WebPage.class, GeneratorMapper.class, URLPartitioner.class, true);
-    StorageUtils.initReducerJob(job, GeneratorReducer.class);
-    return new Job[]{job};
+    StorageUtils.initReducerJob(currentJob, GeneratorReducer.class);
+    currentJob.waitForCompletion(true);
+    ToolUtil.recordJobStatus(null, currentJob, results);
+    results.put(BATCH_ID, batchId);
+    return results;
   }
   
   private String batchId;
@@ -188,12 +186,12 @@ public class GeneratorJob extends Configured implements Tool, NutchTool {
     if (topN != Long.MAX_VALUE) {
       LOG.info("GeneratorJob: topN: " + topN);
     }
-    Job[] jobs = createJobs(topN, curTime, filter, norm);
-    boolean success = jobs[0].waitForCompletion(true);
-    if (!success) return null;
-    
+    run(ToolUtil.toArgMap(
+        Nutch.ARG_TOPN, topN,
+        Nutch.ARG_CURTIME, curTime,
+        Nutch.ARG_FILTER, filter,
+        Nutch.ARG_NORMALIZE, norm));
     batchId =  getConf().get(BATCH_ID);
-
     LOG.info("GeneratorJob: done");
     LOG.info("GeneratorJob: generated batch id: " + batchId);
     return batchId;
@@ -227,4 +225,5 @@ public class GeneratorJob extends Configured implements Tool, NutchTool {
     int res = ToolRunner.run(NutchConfiguration.create(), new GeneratorJob(), args);
     System.exit(res);
   }
+
 }

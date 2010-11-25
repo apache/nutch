@@ -3,6 +3,8 @@ package org.apache.nutch.fetcher;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
@@ -27,13 +29,14 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.TableUtil;
+import org.apache.nutch.util.ToolUtil;
 import org.apache.gora.mapreduce.GoraMapper;
 
 /**
  * Multi-threaded fetcher.
  *
  */
-public class FetcherJob implements Tool, NutchTool {
+public class FetcherJob extends NutchTool implements Tool {
 
   public static final String PROTOCOL_REDIR = "protocol";
 
@@ -108,24 +111,12 @@ public class FetcherJob implements Tool, NutchTool {
 
   public static final Logger LOG = LoggerFactory.getLogger(FetcherJob.class);
 
-  private Configuration conf;
-
   public FetcherJob() {
 
   }
 
   public FetcherJob(Configuration conf) {
     setConf(conf);
-  }
-
-  @Override
-  public Configuration getConf() {
-    return conf;
-  }
-
-  @Override
-  public void setConf(Configuration conf) {
-    this.conf = conf;
   }
 
   public Collection<WebPage.Field> getFields(Job job) {
@@ -140,32 +131,28 @@ public class FetcherJob implements Tool, NutchTool {
     return fields;
   }
 
-  public Map<String,Object> prepare() throws Exception {
-    return null;
-  }
-  
-  public Map<String,Object> postJob(int jobIndex, Job job) throws Exception {
-    return null;
-  }
- 
-  public Map<String,Object> finish() throws Exception {
-    return null;
-  }
-  
-  public Job[] createJobs(Object... args) throws Exception {
+  @Override
+  public Map<String,Object> run(Map<String,Object> args) throws Exception {
     checkConfiguration();
-    String batchId = (String)args[0];
-    int threads = (Integer)args[1];
-    boolean shouldResume = (Boolean)args[2];
-    boolean parse = (Boolean)args[3];
-    int numTasks = (Integer)args[4];
+    String batchId = (String)args.get(Nutch.ARG_BATCH);
+    Integer threads = (Integer)args.get(Nutch.ARG_THREADS);
+    Boolean shouldResume = (Boolean)args.get(Nutch.ARG_RESUME);
+    Boolean parse = (Boolean)args.get(Nutch.ARG_PARSE);
+    Integer numTasks = (Integer)args.get(Nutch.ARG_NUMTASKS);
  
-    if (threads > 0) {
+    if (threads != null && threads > 0) {
       getConf().setInt(THREADS_KEY, threads);
     }
+    if (batchId == null) {
+      batchId = Nutch.ALL_BATCH_ID_STR;
+    }
     getConf().set(GeneratorJob.BATCH_ID, batchId);
-    getConf().setBoolean(PARSE_KEY, parse);
-    getConf().setBoolean(RESUME_KEY, shouldResume);
+    if (parse != null) {
+      getConf().setBoolean(PARSE_KEY, parse);
+    }
+    if (shouldResume != null) {
+      getConf().setBoolean(RESUME_KEY, shouldResume);
+    }
 
     // set the actual time for the timelimit relative
     // to the beginning of the whole job and not of a specific task
@@ -175,19 +162,20 @@ public class FetcherJob implements Tool, NutchTool {
       timelimit = System.currentTimeMillis() + (timelimit * 60 * 1000);
       getConf().setLong("fetcher.timelimit", timelimit);
     }
-
-    Job job = new NutchJob(getConf(), "fetch");
-    Collection<WebPage.Field> fields = getFields(job);
-    StorageUtils.initMapperJob(job, fields, IntWritable.class,
+    numJobs = 1;
+    currentJob = new NutchJob(getConf(), "fetch");
+    Collection<WebPage.Field> fields = getFields(currentJob);
+    StorageUtils.initMapperJob(currentJob, fields, IntWritable.class,
         FetchEntry.class, FetcherMapper.class, PartitionUrlByHost.class, false);
-    StorageUtils.initReducerJob(job, FetcherReducer.class);
-    if (numTasks < 1) {
-      job.setNumReduceTasks(job.getConfiguration().getInt("mapred.map.tasks",
-          job.getNumReduceTasks()));
+    StorageUtils.initReducerJob(currentJob, FetcherReducer.class);
+    if (numTasks == null || numTasks < 1) {
+      currentJob.setNumReduceTasks(currentJob.getConfiguration().getInt("mapred.map.tasks",
+          currentJob.getNumReduceTasks()));
     } else {
-      job.setNumReduceTasks(numTasks);
+      currentJob.setNumReduceTasks(numTasks);
     }
-    return new Job[]{job};
+    ToolUtil.recordJobStatus(null, currentJob, results);
+    return results;
   }
 
   /**
@@ -216,13 +204,12 @@ public class FetcherJob implements Tool, NutchTool {
       LOG.info("FetcherJob: batchId: " + batchId);
     }
 
-    Job[] jobs = createJobs(batchId, threads, shouldResume, parse, numTasks);
-    boolean success = jobs[0].waitForCompletion(true);
-    if (!success) {
-        LOG.info("FetcherJob: failed");
-    	return -1;
-    }
-
+    run(ToolUtil.toArgMap(
+        Nutch.ARG_BATCH, batchId,
+        Nutch.ARG_THREADS, threads,
+        Nutch.ARG_RESUME, shouldResume,
+        Nutch.ARG_PARSE, parse,
+        Nutch.ARG_NUMTASKS, numTasks));
     LOG.info("FetcherJob: done");
     return 0;
   }
