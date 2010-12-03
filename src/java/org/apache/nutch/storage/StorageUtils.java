@@ -11,6 +11,7 @@ import org.apache.gora.persistency.Persistent;
 import org.apache.gora.query.Query;
 import org.apache.gora.store.DataStore;
 import org.apache.gora.store.DataStoreFactory;
+import org.apache.gora.util.GoraException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Partitioner;
@@ -20,7 +21,7 @@ public class StorageUtils {
 
   @SuppressWarnings("unchecked")
   public static <K, V extends Persistent> DataStore<K, V> createDataStore(Configuration conf,
-      Class<K> keyClass, Class<V> persistentClass) throws ClassNotFoundException {
+      Class<K> keyClass, Class<V> persistentClass) throws ClassNotFoundException, GoraException {
     Class<? extends DataStore<K, V>> dataStoreClass =
       (Class<? extends DataStore<K, V>>) getDataStoreClass(conf);
     return DataStoreFactory.createDataStore(dataStoreClass,
@@ -29,7 +30,7 @@ public class StorageUtils {
 
   @SuppressWarnings("unchecked")
   public static <K, V extends Persistent> DataStore<K, V> createWebStore(Configuration conf,
-      Class<K> keyClass, Class<V> persistentClass) throws ClassNotFoundException {
+      Class<K> keyClass, Class<V> persistentClass) throws ClassNotFoundException, GoraException {
     String schema = conf.get("storage.schema", "webpage");
     String crawlId = conf.get(Nutch.CRAWL_ID_KEY, "");
 
@@ -97,7 +98,7 @@ public class StorageUtils {
 
   public static <K, V> void initReducerJob(Job job,
       Class<? extends GoraReducer<K, V, String, WebPage>> reducerClass)
-  throws ClassNotFoundException {
+  throws ClassNotFoundException, GoraException {
     Configuration conf = job.getConfiguration();
     DataStore<String, WebPage> store =
       StorageUtils.createWebStore(conf, String.class, WebPage.class);
