@@ -174,6 +174,7 @@ public class FetcherJob extends NutchTool implements Tool {
     } else {
       currentJob.setNumReduceTasks(numTasks);
     }
+    currentJob.waitForCompletion(true);
     ToolUtil.recordJobStatus(null, currentJob, results);
     return results;
   }
