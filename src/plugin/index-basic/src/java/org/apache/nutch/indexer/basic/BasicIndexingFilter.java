@@ -20,8 +20,6 @@ package org.apache.nutch.indexer.basic;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.apache.lucene.document.DateTools;
-
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.Parse;
 
@@ -32,9 +30,12 @@ import org.apache.hadoop.io.Text;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
+import org.apache.solr.common.util.DateUtil;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Date;
+
 import org.apache.hadoop.conf.Configuration;
 
 /** Adds basic searchable fields to a document. */
@@ -86,9 +87,8 @@ public class BasicIndexingFilter implements IndexingFilter {
     }
     
     // add timestamp when fetched, for deduplication
-    doc.add("tstamp",
-            DateTools.timeToString(datum.getFetchTime(),
-            DateTools.Resolution.MILLISECOND));
+    String tstamp = DateUtil.getThreadLocalDateFormat().format(new Date(datum.getFetchTime()));
+    doc.add("tstamp", tstamp);
 
     return doc;
   }
