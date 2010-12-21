@@ -20,6 +20,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.FileOutputFormat;
@@ -30,6 +31,7 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.indexer.IndexerMapReduce;
 import org.apache.nutch.indexer.NutchIndexWriterFactory;
+import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
@@ -92,7 +94,7 @@ public class SolrIndexer extends Configured implements Tool {
 
   public int run(String[] args) throws Exception {
     if (args.length < 4) {
-      System.err.println("Usage: SolrIndexer <solr url> <crawldb> <linkdb> <segment> ...");
+      System.err.println("Usage: SolrIndexer <solr url> <crawldb> <linkdb> (<segment> ... | -dir <segments>)");
       return -1;
     }
 
@@ -101,7 +103,18 @@ public class SolrIndexer extends Configured implements Tool {
 
     final List<Path> segments = new ArrayList<Path>();
     for (int i = 3; i < args.length; i++) {
-      segments.add(new Path(args[i]));
+      if (args[i].equals("-dir")) {
+        Path dir = new Path(args[++i]);
+        FileSystem fs = dir.getFileSystem(getConf());
+        FileStatus[] fstats = fs.listStatus(dir,
+                HadoopFSUtil.getPassDirectoriesFilter(fs));
+        Path[] files = HadoopFSUtil.getPaths(fstats);
+        for (Path p : files) {
+          segments.add(p);
+        }
+      } else {
+        segments.add(new Path(args[i]));
+      }
     }
 
     try {

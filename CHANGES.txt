@@ -44,6 +44,8 @@ Release 1.3 - Current Development
 
 * NUTCH-832 Website menu has lots of broken links - in particular the API docs (Alex McLintock via mattmann)
 
+* NUTCH-939 Added -dir command line option to SolrIndexer (Claudio Martella via ab)
+
 
 Release 1.1 - 2010-06-06
 
