@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-949 Conflicting ANT jars in classpath (jnioche)
+
 * NUTCH-825 Publish nutch artifacts to central maven repository (mattmann)
 
 * NUTCH-913 Nutch should use new namespace for Gora (dogacan)
