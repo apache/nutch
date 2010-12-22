@@ -70,7 +70,7 @@ public class LanguageIndexingFilter implements IndexingFilter {
       lang = Bytes.toString(blang.array());
     }
 
-    if (lang == null) {
+    if (lang == null || lang.length() == 0) {
       lang = "unknown";
     }
 
