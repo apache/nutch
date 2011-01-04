@@ -62,8 +62,9 @@ public class SubcollectionIndexingFilter extends Configured implements IndexingF
    * @param url
    */
   private void addSubCollectionField(NutchDocument doc, String url) {
-    String collname = CollectionManager.getCollectionManager(getConf()).getSubCollections(url);
-    doc.add(FIELD_NAME, collname);
+    for (String collname: CollectionManager.getCollectionManager(getConf()).getSubCollections(url)) {
+      doc.add(FIELD_NAME, collname);
+    }
   }
 
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks) throws IndexingException {

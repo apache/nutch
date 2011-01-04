@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.3 - Current Development
 
+* NUTCH-716 Make subcollection index filed multivalued (Dmitry Lihachev via jnioche)
+
 * NUTCH-905 Configurable file protocol parent directory crawling (Thorsten Scherler, mattmann, ab)
 
 * NUTCH-787 ScoringFilters should not override the injected score (jnioche)

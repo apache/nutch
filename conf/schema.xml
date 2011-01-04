@@ -91,7 +91,7 @@
 
         <!-- fields for subcollection plugin -->
         <field name="subcollection" type="string" stored="true"
-            indexed="true"/>
+            indexed="true" multiValued="true"/>
 
         <!-- fields for feed plugin -->
         <field name="author" type="string" stored="true" indexed="true"/>
