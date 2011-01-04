@@ -67,16 +67,13 @@ public class OPICScoringFilter implements ScoringFilter {
 
   public void setConf(Configuration conf) {
     this.conf = conf;
-    scoreInjected = conf.getFloat("db.score.injected", 1.0f);
     scorePower = conf.getFloat("indexer.score.power", 0.5f);
     internalScoreFactor = conf.getFloat("db.score.link.internal", 1.0f);
     externalScoreFactor = conf.getFloat("db.score.link.external", 1.0f);
     countFiltered = conf.getBoolean("db.score.count.filtered", false);
   }
 
-  /** Set to the value defined in config, 1.0f by default. */
   public void injectedScore(Text url, CrawlDatum datum) throws ScoringFilterException {
-    datum.setScore(scoreInjected);
   }
 
   /** Set to 0.0f (unknown value) - inlink contributions will bring it to
