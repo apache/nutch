@@ -33,6 +33,15 @@
   confuse this setting with the http.content.limit setting.
   </description>
 </property>
+  
+<property>
+  <name>file.crawl.parent</name>
+  <value>true</value>
+  <description>The crawler is not restricted to the directories that you specified in the
+    Urls file but it is jumping into the parent directories as well. For your own crawlings you can
+    change this bahavior (set to false) the way that only directories beneath the directories that you specify get
+    crawled.</description>
+</property>
 
 <property>
   <name>file.content.ignored</name>
