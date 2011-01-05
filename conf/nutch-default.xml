@@ -682,86 +682,6 @@
   </description>
 </property>
 
-<!-- indexer properties -->
-
-<property>
-  <name>indexer.score.power</name>
-  <value>0.5</value>
-  <description>Determines the power of link analyis scores.  Each
-  pages's boost is set to <i>score<sup>scorePower</sup></i> where
-  <i>score</i> is its link analysis score and <i>scorePower</i> is the
-  value of this parameter.  This is compiled into indexes, so, when
-  this is changed, pages must be re-indexed for it to take
-  effect.</description>
-</property>
-
-<property>
-  <name>indexer.max.title.length</name>
-  <value>100</value>
-  <description>The maximum number of characters of a title that are indexed.
-  </description>
-</property>
-
-<property>
-  <name>indexer.max.tokens</name>
-  <value>10000</value>
-  <description>
-  The maximum number of tokens that will be indexed for a single field
-  in a document. This limits the amount of memory required for
-  indexing, so that collections with very large files will not crash
-  the indexing process by running out of memory.
-
-  Note that this effectively truncates large documents, excluding
-  from the index tokens that occur further in the document. If you
-  know your source documents are large, be sure to set this value
-  high enough to accomodate the expected size. If you set it to
-  -1, then the only limit is your memory, but you should anticipate
-  an OutOfMemoryError.
-  </description>
-</property>
-
-<property>
-  <name>indexer.mergeFactor</name>
-  <value>50</value>
-  <description>The factor that determines the frequency of Lucene segment
-  merges. This must not be less than 2, higher values increase indexing
-  speed but lead to increased RAM usage, and increase the number of
-  open file handles (which may lead to "Too many open files" errors).
-  NOTE: the "segments" here have nothing to do with Nutch segments, they
-  are a low-level data unit used by Lucene.
-  </description>
-</property>
-
-<property>
-  <name>indexer.minMergeDocs</name>
-  <value>50</value>
-  <description>This number determines the minimum number of Lucene
-  Documents buffered in memory between Lucene segment merges. Larger
-  values increase indexing speed and increase RAM usage.
-  </description>
-</property>
-
-<property>
-  <name>indexer.maxMergeDocs</name>
-  <value>2147483647</value>
-  <description>This number determines the maximum number of Lucene
-  Documents to be merged into a new Lucene segment. Larger values
-  increase batch indexing speed and reduce the number of Lucene segments,
-  which reduces the number of open file handles; however, this also
-  decreases incremental indexing performance.
-  </description>
-</property>
-
-<property>
-  <name>indexer.termIndexInterval</name>
-  <value>128</value>
-  <description>Determines the fraction of terms which Lucene keeps in
-  RAM when searching, to facilitate random-access.  Smaller values use
-  more memory but make searches somewhat faster.  Larger values use
-  less memory but make searches somewhat slower.
-  </description>
-</property>
-
 <!-- moreindexingfilter plugin properties -->
 
 <property>
@@ -788,6 +708,24 @@
   
   Filter ordering might have impact on result if one filter depends on output of
   another filter.
+  </description>
+</property>
+
+<property>
+  <name>indexer.score.power</name>
+  <value>0.5</value>
+  <description>Determines the power of link analyis scores.  Each
+  pages's boost is set to <i>score<sup>scorePower</sup></i> where
+  <i>score</i> is its link analysis score and <i>scorePower</i> is the
+  value of this parameter.  This is compiled into indexes, so, when
+  this is changed, pages must be re-indexed for it to take
+  effect.</description>
+</property>
+
+<property>
+  <name>indexer.max.title.length</name>
+  <value>100</value>
+  <description>The maximum number of characters of a title that are indexed.
   </description>
 </property>
 
