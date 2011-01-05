@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.3 - Current Development
 
+* NUTCH-935 basicurlnormalizer removes unnecessary /./ in URLs
+
 * NUTCH-912 MoreIndexingFilter does not parse docx and xlsx date formats (Markus Jelsma, jnioche)
 
 * NUTCH-886 A .gitignore file for Nutch (dogacan)
