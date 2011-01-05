@@ -32,6 +32,7 @@ import org.apache.nutch.net.URLFilter;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.util.URLUtil;
+import org.apache.nutch.util.domain.DomainSuffix;
 
 /**
  * <p>Filters URLs based on a file containing domain suffixes, domain names, and
@@ -174,9 +175,14 @@ public class DomainURLFilter
 
       // match for suffix, domain, and host in that order.  more general will
       // override more specific
-      String suffix = URLUtil.getDomainSuffix(url).getDomain();
       String domain = URLUtil.getDomainName(url).toLowerCase().trim();
       String host = URLUtil.getHost(url);
+      String suffix = null;
+      DomainSuffix domainSuffix = URLUtil.getDomainSuffix(url);
+      if (domainSuffix != null) {
+        suffix = domainSuffix.getDomain();
+      }
+      
       if (domainSet.contains(suffix) || domainSet.contains(domain)
         || domainSet.contains(host)) {
         return url;
