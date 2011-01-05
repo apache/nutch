@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-935 basicurlnormalizer removes unnecessary /./ in URLs
+
 * NUTCH-912 MoreIndexingFilter does not parse docx and xlsx date formats (Markus Jelsma, jnioche)
 
 * NUTCH-936 LanguageIdentifier should not set empty lang field on NutchDocument (Markus Jelsma via jnioche)

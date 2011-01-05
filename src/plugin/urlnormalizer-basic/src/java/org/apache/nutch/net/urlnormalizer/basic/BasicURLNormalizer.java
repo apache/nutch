@@ -43,6 +43,7 @@ public class BasicURLNormalizer implements URLNormalizer {
       };
     private Rule relativePathRule = null;
     private Rule leadingRelativePathRule = null;
+    private Rule currentPathRule = null;
     private Rule adjacentSlashRule = null;
 
     private Configuration conf;
@@ -64,6 +65,13 @@ public class BasicURLNormalizer implements URLNormalizer {
         leadingRelativePathRule.pattern = (Perl5Pattern)
           compiler.compile("^(/\\.\\./)+", Perl5Compiler.READ_ONLY_MASK);
         leadingRelativePathRule.substitution = new Perl5Substitution("/");
+
+        // this pattern tries to find spots like "/./" in the url,
+        // which could be replaced by "/"
+        currentPathRule = new Rule();
+        currentPathRule.pattern = (Perl5Pattern)
+          compiler.compile("(/\\./)", Perl5Compiler.READ_ONLY_MASK);
+        currentPathRule.substitution = new Perl5Substitution("/");
 
         // this pattern tries to find spots like "xx//yy" in the url,
         // which could be replaced by a "/"
@@ -171,6 +179,11 @@ public class BasicURLNormalizer implements URLNormalizer {
             fileWorkCopy = Util.substitute
               (matcher, leadingRelativePathRule.pattern,
                leadingRelativePathRule.substitution, fileWorkCopy, 1);
+
+            // remove unnecessary "/./"
+            fileWorkCopy = Util.substitute
+            (matcher, currentPathRule.pattern,
+            		currentPathRule.substitution, fileWorkCopy, 1);
             
             
             // collapse adjacent slashes with "/"

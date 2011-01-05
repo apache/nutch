@@ -60,6 +60,9 @@ public class TestBasicURLNormalizer extends TestCase {
     //     normalizeTest("http://foo.com/%66oo.html", "http://foo.com/foo.html");
 
     // check that unnecessary "../" are removed
+
+    normalizeTest("http://foo.com/aa/./foo.html",
+                  "http://foo.com/aa/foo.html" );
     normalizeTest("http://foo.com/aa/../",
                   "http://foo.com/" );
     normalizeTest("http://foo.com/aa/bb/../",
@@ -109,6 +112,7 @@ public class TestBasicURLNormalizer extends TestCase {
   public static void main(String[] args) throws Exception {
     new TestBasicURLNormalizer("test").testNormalizer();
   }
+
 
 
 
