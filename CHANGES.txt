@@ -1,7 +1,8 @@
 Nutch Change Log
 
-
 Release 1.3 - Current Development
+
+* NUTCH-855 ScoringFilter and IndexingFilter: To allow for the propagation of URL Metatags and their subsequent indexing (Scott Gonyea via mattmann)
 
 * NUTCH-901 Make index-more plug-in configurable (Markus Jelsma, mattmann)
 
