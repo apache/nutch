@@ -194,7 +194,7 @@ public class Crawler extends NutchTool implements Tool {
   @Override
   public int run(String[] args) throws Exception {
     if (args.length == 0) {
-      System.out.println("Usage: Crawl (<seedDir> | -continue) [-solr <solrURL>] [-threads n] [-depth i] [-topN N]");
+      System.out.println("Usage: Crawler (<seedDir> | -continue) [-solr <solrURL>] [-threads n] [-depth i] [-topN N]");
       return -1;
     }
     // parse most common arguments here

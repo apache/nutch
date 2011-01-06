@@ -170,7 +170,7 @@ fi
 
 # figure out which class to run
 if [ "$COMMAND" = "crawl" ] ; then
-CLASS=org.apache.nutch.crawl.Crawl
+CLASS=org.apache.nutch.crawl.Crawler
 elif [ "$COMMAND" = "inject" ] ; then
 CLASS=org.apache.nutch.crawl.InjectorJob
 elif [ "$COMMAND" = "generate" ] ; then

@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-953 Fixed crawl command in Nutch script (Alexis Detreglode via jnioche)
+
 * NUTCH-950 DomainURLFilter throws NPE on bogus urls (Alexis Detreglode via jnioche)
 
 * NUTCH-935 basicurlnormalizer removes unnecessary /./ in URLs
