@@ -19,6 +19,7 @@ package org.apache.nutch.protocol.file;
 
 // JDK imports
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
 
 import org.apache.hadoop.conf.Configuration;
@@ -112,6 +113,12 @@ public class FileResponse {
 
     String path = "".equals(url.getPath()) ? "/" : url.getPath();
 
+    try {
+      // specify the encoding via the config later?
+      path = java.net.URLDecoder.decode(path, "UTF-8");
+    } catch (UnsupportedEncodingException ex) {
+    }
+    
     try {
 
       this.content = null;

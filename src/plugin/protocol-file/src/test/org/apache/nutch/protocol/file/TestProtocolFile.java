@@ -20,7 +20,13 @@ package org.apache.nutch.protocol.file;
 // Hadoop imports
 import junit.framework.TestCase;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.net.protocols.Response;
+import org.apache.nutch.protocol.Protocol;
+import org.apache.nutch.protocol.ProtocolException;
+import org.apache.nutch.protocol.ProtocolFactory;
+import org.apache.nutch.protocol.ProtocolNotFound;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatusCodes;
 import org.apache.nutch.storage.WebPage;
@@ -36,34 +42,42 @@ import org.apache.nutch.util.NutchConfiguration;
  */
 public class TestProtocolFile extends TestCase {
 
-  private static final org.apache.nutch.protocol.file.File fileProtocol = 
-    new org.apache.nutch.protocol.file.File();
+  private String fileSeparator = System.getProperty("file.separator");
+  private String sampleDir = System.getProperty("test.data", ".");
 
-  private static final String testTextFile = "testprotocolfile.txt";
+  private static final String[] testTextFiles = new String[] {
+      "testprotocolfile.txt", "testprotocolfile_(encoded).txt", "testprotocolfile_%28encoded%29.txt" };
 
   private static final String expectedMimeType = "text/plain";
-
-  static {
-    fileProtocol.setConf(NutchConfiguration.create());
+  
+  private Configuration conf;
+  
+  protected void setUp() {
+    conf = NutchConfiguration.create();
   }
 
-  private String fileSeparator = System.getProperty("file.separator");
-  // This system property is defined in ./src/plugin/build-plugin.xml
-  private String sampleDir = System.getProperty("test.data", ".");
+  public void testSetContentType() throws ProtocolException {
+    for (String testTextFile : testTextFiles) {
+      setContentType(testTextFile);
+    }
+  }
   
   /**
    * Tests the setting of the <code>Response.CONTENT_TYPE</code> metadata
    * field.
+   * @throws ProtocolNotFound 
    * 
    * @since NUTCH-384
    * 
    */
-  public void testSetContentType() {
-    String fileURL = "file:"+sampleDir + fileSeparator + testTextFile;
-    assertNotNull(fileURL);
+  public void setContentType(String testTextFile) throws ProtocolNotFound {
+    String urlString = "file:" + sampleDir + fileSeparator + testTextFile;
+    assertNotNull(urlString);
     WebPage datum = new WebPage();
-    ProtocolOutput output = fileProtocol.getProtocolOutput(fileURL, datum);
+    Protocol protocol = new ProtocolFactory(conf).getProtocol(urlString);
+    ProtocolOutput output = protocol.getProtocolOutput(urlString,datum);
     assertNotNull(output);
+
     assertEquals("Status code: [" + output.getStatus().getCode()
         + "], not equal to: [" + ProtocolStatusCodes.SUCCESS + "]: args: ["
         + output.getStatus().getArgs() + "]", ProtocolStatusCodes.SUCCESS, output
