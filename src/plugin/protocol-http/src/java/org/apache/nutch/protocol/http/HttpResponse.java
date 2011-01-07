@@ -225,12 +225,10 @@ public class HttpResponse implements Response {
     ByteArrayOutputStream out = new ByteArrayOutputStream(Http.BUFFER_SIZE);
     byte[] bytes = new byte[Http.BUFFER_SIZE];
     int length = 0;                           // read content
-    for (int i = in.read(bytes); i != -1; i = in.read(bytes)) {
+    for (int i = in.read(bytes); i != -1 && length + i <= contentLength; i = in.read(bytes)) {
 
       out.write(bytes, 0, i);
       length += i;
-      if (length >= contentLength)
-        break;
     }
     content = out.toByteArray();
   }

@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.3 - Current Development
 
+* NUTCH-954 Strict application of Content-Length limit for http protocols (Alexis Detreglode via jnioche)
+
 * NUTCH-950 DomainURLFilter throws NPE on bogus urls (Alexis Detreglode via jnioche)
 
 * NUTCH-935 basicurlnormalizer removes unnecessary /./ in URLs
