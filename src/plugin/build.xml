@@ -74,6 +74,7 @@
      <ant dir="index-more" target="test"/>
      <ant dir="languageidentifier" target="test"/>
      <ant dir="lib-http" target="test"/>
+     <ant dir="protocol-file" target="test"/>
      <ant dir="protocol-httpclient" target="test"/>
      <!--ant dir="parse-ext" target="test"/-->
      <ant dir="parse-rss" target="test"/>
