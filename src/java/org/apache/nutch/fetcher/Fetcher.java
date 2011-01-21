@@ -323,7 +323,7 @@ public class Fetcher extends Configured implements Tool,
       this.byIP = conf.getBoolean("fetcher.threads.per.host.by.ip", false);
       this.crawlDelay = (long) (conf.getFloat("fetcher.server.delay", 1.0f) * 1000);
       this.minCrawlDelay = (long) (conf.getFloat("fetcher.server.min.delay", 0.0f) * 1000);
-      this.timelimit = conf.getLong("fetcher.timelimit.mins", -1);
+      this.timelimit = conf.getLong("fetcher.timelimit", -1);
       this.maxExceptionsPerQueue = conf.getInt("fetcher.max.exceptions.per.queue", -1);
     }
     
@@ -1014,7 +1014,7 @@ public class Fetcher extends Configured implements Tool,
     //feeder.setPriority((Thread.MAX_PRIORITY + Thread.NORM_PRIORITY) / 2);
     
     // the value of the time limit is either -1 or the time where it should finish
-    long timelimit = getConf().getLong("fetcher.timelimit.mins", -1);
+    long timelimit = getConf().getLong("fetcher.timelimit", -1);
     if (timelimit != -1) feeder.setTimeLimit(timelimit);
     feeder.start();
 
@@ -1081,7 +1081,7 @@ public class Fetcher extends Configured implements Tool,
     if (timelimit != -1) {
       timelimit = System.currentTimeMillis() + (timelimit * 60 * 1000);
       LOG.info("Fetcher Timelimit set for : " + timelimit);
-      getConf().setLong("fetcher.timelimit.mins", timelimit);
+      getConf().setLong("fetcher.timelimit", timelimit);
     }
         
     JobConf job = new NutchJob(getConf());
