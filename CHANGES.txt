@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.3 - Current Development
 
+* NUTCH-964 Upgraded Xerces to 2.91, ERROR conf.Configuration - Failed to set setXIncludeAware (markus)
+
 * NUTCH-927 Fetcher.timelimit.mins is invalid when depth is greater than 1 (Wade Lau via jnioche)
 
 * NUTCH-824 Crawling - File Error 404 when fetching file with an hexadecimal character in the file name (Michela Becchi via jnioche)
@@ -10,7 +12,7 @@ Release 1.3 - Current Development
 
 * NUTCH-950 DomainURLFilter throws NPE on bogus urls (Alexis Detreglode via jnioche)
 
-* NUTCH-935 basicurlnormalizer removes unnecessary /./ in URLs
+* NUTCH-935 basicurlnormalizer removes unnecessary /./ in URLs (Stondet via markus)
 
 * NUTCH-912 MoreIndexingFilter does not parse docx and xlsx date formats (Markus Jelsma, jnioche)
 

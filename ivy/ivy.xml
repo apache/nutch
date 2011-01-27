@@ -64,7 +64,7 @@
 
 		<dependency org="log4j" name="log4j" rev="1.2.15" conf="*->master" />
 
-		<dependency org="xerces" name="xercesImpl" rev="2.6.2" />
+		<dependency org="xerces" name="xercesImpl" rev="2.9.1" />
 		<dependency org="xerces" name="xmlParserAPIs" rev="2.6.2" />
 		<dependency org="oro" name="oro" rev="2.0.8" />
 
