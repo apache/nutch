@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-964 Upgraded Xerces to 2.91 (markus)
+
 * NUTCH-824 Crawling - File Error 404 when fetching file with an hexadecimal character in the file name (Michela Becchi via jnioche)
 
 * NUTCH-954 Strict application of Content-Length limit for http protocols (Alexis Detreglode via jnioche)
@@ -10,7 +12,7 @@ Release 2.0 - Current Development
 
 * NUTCH-950 DomainURLFilter throws NPE on bogus urls (Alexis Detreglode via jnioche)
 
-* NUTCH-935 basicurlnormalizer removes unnecessary /./ in URLs
+* NUTCH-935 basicurlnormalizer removes unnecessary /./ in URLs (Stondet via markus)
 
 * NUTCH-912 MoreIndexingFilter does not parse docx and xlsx date formats (Markus Jelsma, jnioche)
 
