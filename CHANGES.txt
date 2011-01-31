@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.3 - Current Development
 
+* NUTCH-564 External parser supports encoding attribute (Antony Bowesman, mattmann)
+
 * NUTCH-964 Upgraded Xerces to 2.91, ERROR conf.Configuration - Failed to set setXIncludeAware (markus)
 
 * NUTCH-927 Fetcher.timelimit.mins is invalid when depth is greater than 1 (Wade Lau via jnioche)

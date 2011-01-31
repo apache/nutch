@@ -41,6 +41,8 @@
         <parameter name="pathSuffix"  value=""/>
         <parameter name="command"     value="./build/plugins/parse-ext/command"/>
         <parameter name="timeout"     value="10"/>
+        <!-- can optionally specify an encoding parameter now, see NUTCH-564-->
+        <!-- <parameter name="encoding" value="UTF-8"/> -->
       </implementation>
 
       <implementation id="ExtParser"
@@ -49,6 +51,8 @@
         <parameter name="pathSuffix"  value=""/>
         <parameter name="command"     value="./build/plugins/parse-ext/command"/>
         <parameter name="timeout"     value="20"/>
+        <!-- can optionally specify an encoding parameter now, see NUTCH-564-->
+        <!-- <parameter name="encoding" value="UTF-8"/> -->
       </implementation>
 
    </extension>
