@@ -1129,7 +1129,7 @@ public class Fetcher extends Configured implements Tool,
     Path segment = new Path(args[0]);
 
     int threads = getConf().getInt("fetcher.threads.fetch", 10);
-    boolean parsing = true;
+    boolean parsing = false;
 
     for (int i = 1; i < args.length; i++) {       // parse command line
       if (args[i].equals("-threads")) {           // found -threads option
