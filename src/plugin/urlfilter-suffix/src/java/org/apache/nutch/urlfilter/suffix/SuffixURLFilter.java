@@ -34,6 +34,7 @@ import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.StringReader;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -139,7 +140,7 @@ public class SuffixURLFilter implements URLFilter {
   }
 
   public SuffixURLFilter(Reader reader) throws IOException {
-    readConfigurationFile(reader);
+    readConfiguration(reader);
   }
 
   public String filter(String url) {
@@ -167,7 +168,7 @@ public class SuffixURLFilter implements URLFilter {
     }
   }
 
-  public void readConfigurationFile(Reader reader) throws IOException {
+  public void readConfiguration(Reader reader) throws IOException {
 
     // handle missing config file
     if (reader == null) {
@@ -269,12 +270,18 @@ public class SuffixURLFilter implements URLFilter {
     }
 
     String file = conf.get("urlfilter.suffix.file");
+    String stringRules = conf.get("urlfilter.suffix.rules");
     // attribute "file" takes precedence if defined
     if (attributeFile != null) file = attributeFile;
-    Reader reader = conf.getConfResourceAsReader(file);
+    Reader reader = null;
+    if (stringRules != null) { // takes precedence over files
+      reader = new StringReader(stringRules);
+    } else {
+      reader = conf.getConfResourceAsReader(file);
+    }
 
     try {
-      readConfigurationFile(reader);
+      readConfiguration(reader);
     } catch (IOException e) {
       if (LOG.isFatalEnabled()) { LOG.fatal(e.getMessage()); }
       throw new RuntimeException(e.getMessage(), e);

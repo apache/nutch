@@ -20,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -70,7 +71,7 @@ public class DomainURLFilter
   private String domainFile = null;
   private Set<String> domainSet = new LinkedHashSet<String>();
 
-  private void readConfigurationFile(Reader configReader)
+  private void readConfiguration(Reader configReader)
     throws IOException {
 
     // read the configuration file, line by line
@@ -140,21 +141,24 @@ public class DomainURLFilter
 
     // domain file and attribute "file" take precedence if defined
     String file = conf.get("urlfilter.domain.file");    
+    String stringRules = conf.get("urlfilter.domain.rules");
     if (domainFile != null) {
       file = domainFile;
     }
     else if (attributeFile != null) {
       file = attributeFile;
     }
-
-    // get the file as a classpath resource and populate the domain set with
-    // the domains from the file
+    Reader reader = null;
+    if (stringRules != null) { // takes precedence over files
+      reader = new StringReader(stringRules);
+    } else {
+      reader = conf.getConfResourceAsReader(file);
+    }
     try {
-      Reader reader = conf.getConfResourceAsReader(file);
       if (reader == null) {
         reader = new FileReader(file);
       }
-      readConfigurationFile(reader);
+      readConfiguration(reader);
     }
     catch (IOException e) {
       LOG.error(org.apache.hadoop.util.StringUtils.stringifyException(e));

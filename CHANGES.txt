@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.3 - Current Development
 
+* NUTCH-921 Reduce dependency of Nutch on config files (ab)
+
 * NUTCH-876 Remove remaining robots/IP blocking code in lib-http (ab)
 
 * NUTCH-872 Change the default fetcher.parse to FALSE (ab)

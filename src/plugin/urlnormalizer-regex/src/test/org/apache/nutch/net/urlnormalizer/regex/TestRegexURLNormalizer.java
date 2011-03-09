@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -64,10 +65,10 @@ public class TestRegexURLNormalizer extends TestCase {
     });
     for (int i = 0; i < configs.length; i++) {
       try {
-        FileInputStream fis = new FileInputStream(configs[i]);
+        FileReader reader = new FileReader(configs[i]);
         String cname = configs[i].getName();
         cname = cname.substring(16, cname.indexOf(".xml"));
-        normalizer.setConfiguration(fis, cname);
+        normalizer.setConfiguration(reader, cname);
         NormalizedURL[] urls = readTestFile(cname);
         testData.put(cname, urls);
       } catch (Exception e) {

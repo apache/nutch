@@ -17,11 +17,13 @@
 package org.apache.nutch.urlfilter.api;
 
 // JDK imports
+import java.io.File;
 import java.io.Reader;
 import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -74,9 +76,20 @@ public abstract class RegexURLFilterBase implements URLFilter {
    * Constructs a new RegexURLFilter and init it with a file of rules.
    * @param filename is the name of rules file.
    */
-  public RegexURLFilterBase(String filename)
+  public RegexURLFilterBase(File filename)
     throws IOException, IllegalArgumentException {
     this(new FileReader(filename));
+  }
+  
+  /**
+   * Constructs a new RegexURLFilter and inits it with a list of rules.
+   * @param rules string with a list of rules, one rule per line
+   * @throws IOException
+   * @throws IllegalArgumentException
+   */
+  public RegexURLFilterBase(String rules) throws IOException,
+      IllegalArgumentException {
+    this(new StringReader(rules));
   }
 
   /**
@@ -85,7 +98,7 @@ public abstract class RegexURLFilterBase implements URLFilter {
    */
   protected RegexURLFilterBase(Reader reader)
     throws IOException, IllegalArgumentException {
-    rules = readRulesFile(reader);
+    rules = readRules(reader);
   }
   
   /**
@@ -102,9 +115,9 @@ public abstract class RegexURLFilterBase implements URLFilter {
    * Returns the name of the file of rules to use for
    * a particular implementation.
    * @param conf is the current configuration.
-   * @return the name of the file of rules to use.
+   * @return the name of the resource containing the rules to use.
    */
-  protected abstract String getRulesFile(Configuration conf);
+  protected abstract Reader getRulesReader(Configuration conf) throws IOException;
   
   
   /* -------------------------- *
@@ -132,18 +145,18 @@ public abstract class RegexURLFilterBase implements URLFilter {
   
   public void setConf(Configuration conf) {
     this.conf = conf;
-    String file = getRulesFile(conf);
-    Reader reader = conf.getConfResourceAsReader(file);
-    if (reader == null) {
-      if (LOG.isFatalEnabled()) { LOG.fatal("Can't find resource: " + file); }
-    } else {
-      try {
-        rules = readRulesFile(reader);
-      } catch (IOException e) {
-        if (LOG.isFatalEnabled()) { LOG.fatal(e.getMessage()); }
-        //TODO mb@media-style.com: throw Exception? Because broken api.
-        throw new RuntimeException(e.getMessage(), e);
-      }
+    Reader reader = null;
+    try {
+      reader = getRulesReader(conf);
+    } catch (Exception e) {
+      if (LOG.isErrorEnabled()) { LOG.error(e.getMessage()); }
+      throw new RuntimeException(e.getMessage(), e);      
+    }
+    try {
+      rules = readRules(reader);
+    } catch (IOException e) {
+      if (LOG.isErrorEnabled()) { LOG.error(e.getMessage()); }
+      throw new RuntimeException(e.getMessage(), e);
     }
   }
 
@@ -161,7 +174,7 @@ public abstract class RegexURLFilterBase implements URLFilter {
    * @param reader is a reader of regular expressions rules.
    * @return the corresponding {@RegexRule rules}.
    */
-  private RegexRule[] readRulesFile(Reader reader)
+  private RegexRule[] readRules(Reader reader)
     throws IOException, IllegalArgumentException {
 
     BufferedReader in = new BufferedReader(reader);
