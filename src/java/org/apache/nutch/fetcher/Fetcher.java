@@ -751,7 +751,7 @@ public class Fetcher extends Configured implements Tool,
                 output(fit.url, fit.datum, null, status, CrawlDatum.STATUS_FETCH_RETRY);
               }
 
-              if (redirecting && redirectCount >= maxRedirect) {
+              if (redirecting && redirectCount > maxRedirect) {
                 fetchQueues.finishFetchItem(fit);
                 if (LOG.isInfoEnabled()) {
                   LOG.info(" - redirect count exceeded " + fit.url);
@@ -759,7 +759,7 @@ public class Fetcher extends Configured implements Tool,
                 output(fit.url, fit.datum, null, ProtocolStatus.STATUS_REDIR_EXCEEDED, CrawlDatum.STATUS_FETCH_GONE);
               }
 
-            } while (redirecting && (redirectCount < maxRedirect));
+            } while (redirecting && (redirectCount <= maxRedirect));
             
           } catch (Throwable t) {                 // unexpected exception
             // unblock
