@@ -108,9 +108,32 @@
 			<exclude org="com.sun.jmx"/>
 			<exclude org="javax.jms"/>		
 		</dependency>		
-                <dependency org="org.restlet.jse" name="org.restlet" rev="2.0.1" conf="*->default"/>
-                <dependency org="org.restlet.jse" name="org.restlet.ext.jackson" rev="2.0.1" conf="*->default"/>
-                
+                <dependency org="org.restlet.jse" name="org.restlet" rev="2.0.5" conf="*->default"/>
+                <dependency org="org.restlet.jse" name="org.restlet.ext.jackson" rev="2.0.5" conf="*->default"/>
+
+<!--
+       Uncomment this to use MySQL as database with SQL as Gora store.
+-->
+<!--
+       <dependency org="mysql" name="mysql-connector-java" rev="5.1.13" conf="*->default"/>
+-->
+
+<!--
+       Uncomment this to use HBase as Gora backend. Then manually add hbase-0.20.6 jar to the lib directory.
+-->
+<!--
+       <dependency org="org.apache.gora" name="gora-hbase" rev="0.1" conf="*->compile">
+               <exclude org="com.sun.jdmk"/>
+               <exclude org="com.sun.jmx"/>
+               <exclude org="javax.jms"/>
+       </dependency>
+       <dependency org="org.apache.zookeeper" name="zookeeper" rev="3.3.2" conf="*->default">
+               <exclude org="com.sun.jdmk"/>
+               <exclude org="com.sun.jmx"/>
+               <exclude org="javax.jms"/>
+       </dependency>
+-->
+
                 <!--global exclusion-->
              	<exclude module="ant" />
 	</dependencies>
