@@ -18,11 +18,7 @@ package org.apache.nutch.protocol.http.api;
 
 // JDK imports
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.URL;
-import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.LinkedList;
 
 // Commons Logging imports
 import org.apache.commons.logging.Log;
@@ -72,21 +68,6 @@ public abstract class HttpBase implements Protocol {
   /** The length limit for downloaded content, in bytes. */
   protected int maxContent = 64 * 1024; 
 
-  /** The number of times a thread will delay when trying to fetch a page. */
-  protected int maxDelays = 3;
-
-  /**
-   * The maximum number of threads that should be allowed
-   * to access a host at one time.
-   */
-  protected int maxThreadsPerHost = 1; 
-
-  /**
-   * The number of seconds the fetcher will delay between
-   * successive requests to the same server.
-   */
-  protected long serverDelay = 1000;
-
   /** The Nutch 'User-Agent' request header */
   protected String userAgent = getAgentString(
                         "NutchCVS", null, "Nutch",
@@ -96,25 +77,6 @@ public abstract class HttpBase implements Protocol {
   /** The "Accept-Language" request header value. */
   protected String acceptLanguage = "en-us,en-gb,en;q=0.7,*;q=0.3";
     
-  /**
-   * Maps from host to a Long naming the time it should be unblocked.
-   * The Long is zero while the host is in use, then set to now+wait when
-   * a request finishes.  This way only one thread at a time accesses a
-   * host.
-   */
-  private static HashMap BLOCKED_ADDR_TO_TIME = new HashMap();
-  
-  /**
-   * Maps a host to the number of threads accessing that host.
-   */
-  private static HashMap THREADS_PER_HOST_COUNT = new HashMap();
-  
-  /**
-   * Queue of blocked hosts.  This contains all of the non-zero entries
-   * from BLOCKED_ADDR_TO_TIME, ordered by increasing time.
-   */
-  private static LinkedList BLOCKED_ADDR_QUEUE = new LinkedList();
-  
   /** The default logger */
   private final static Log LOGGER = LogFactory.getLog(HttpBase.class);
 
@@ -124,20 +86,11 @@ public abstract class HttpBase implements Protocol {
   /** The nutch configuration */
   private Configuration conf = null;
   
-  /** Do we block by IP addresses or by hostnames? */
-  private boolean byIP = true;
- 
   /** Do we use HTTP/1.1? */
   protected boolean useHttp11 = false;
   
   /** Skip page if Crawl-Delay longer than this value. */
   protected long maxCrawlDelay = -1L;
-
-  /** Plugin should handle host blocking internally. */
-  protected boolean checkBlocking = true;
-  
-  /** Plugin should handle robot rules checking internally. */
-  protected boolean checkRobots = true;
 
   /** Creates a new instance of HttpBase */
   public HttpBase() {
@@ -160,19 +113,12 @@ public abstract class HttpBase implements Protocol {
         this.useProxy = (proxyHost != null && proxyHost.length() > 0);
         this.timeout = conf.getInt("http.timeout", 10000);
         this.maxContent = conf.getInt("http.content.limit", 64 * 1024);
-        this.maxDelays = conf.getInt("http.max.delays", 3);
-        this.maxThreadsPerHost = conf.getInt("fetcher.threads.per.host", 1);
         this.userAgent = getAgentString(conf.get("http.agent.name"), conf.get("http.agent.version"), conf
                 .get("http.agent.description"), conf.get("http.agent.url"), conf.get("http.agent.email"));
         this.acceptLanguage = conf.get("http.accept.language", acceptLanguage);
-        this.serverDelay = (long) (conf.getFloat("fetcher.server.delay", 1.0f) * 1000);
-        this.maxCrawlDelay = (long)(conf.getInt("fetcher.max.crawl.delay", -1) * 1000);
         // backward-compatible default setting
-        this.byIP = conf.getBoolean("fetcher.threads.per.host.by.ip", true);
         this.useHttp11 = conf.getBoolean("http.useHttp11", false);
         this.robots.setConf(conf);
-        this.checkBlocking = conf.getBoolean(Protocol.CHECK_BLOCKING, true);
-        this.checkRobots = conf.getBoolean(Protocol.CHECK_ROBOTS, true);
         logConf();
     }
 
@@ -188,43 +134,8 @@ public abstract class HttpBase implements Protocol {
     String urlString = url.toString();
     try {
       URL u = new URL(urlString);
-      long delay = serverDelay;
-      
-      if (checkRobots) {
-        try {
-          if (!robots.isAllowed(this, u)) {
-            return new ProtocolOutput(null, new ProtocolStatus(ProtocolStatus.ROBOTS_DENIED, url));
-          }
-        } catch (Throwable e) {
-          // XXX Maybe bogus: assume this is allowed.
-          if (logger.isTraceEnabled()) {
-            logger.trace("Exception checking robot rules for " + url + ": " + e);
-          }
-        }
-
-        long crawlDelay = robots.getCrawlDelay(this, u);
-        delay = crawlDelay > 0 ? crawlDelay : serverDelay;
-      }
-      if (checkBlocking && maxCrawlDelay >= 0 && delay > maxCrawlDelay) {
-        // skip this page, otherwise the thread would block for too long.
-        LOGGER.info("Skipping: " + u + " exceeds fetcher.max.crawl.delay, max="
-                + (maxCrawlDelay / 1000) + ", Crawl-Delay=" + (delay / 1000));
-        return new ProtocolOutput(null, ProtocolStatus.STATUS_WOULDBLOCK);
-      }
       String host = null;
-      if (checkBlocking) {
-        try {
-          host = blockAddr(u, delay);
-        } catch (BlockedException be) {
-          return new ProtocolOutput(null, ProtocolStatus.STATUS_BLOCKED);
-        }
-      }
-      Response response;
-      try {
-        response = getResponse(u, datum, false); // make a request
-      } finally {
-        if (checkBlocking) unblockAddr(host, delay);
-      }
+      Response response = getResponse(u, datum, false); // make a request
       
       int code = response.getCode();
       byte[] content = response.getContent();
@@ -313,18 +224,6 @@ public abstract class HttpBase implements Protocol {
     return maxContent;
   }
 
-  public int getMaxDelays() {
-    return maxDelays;
-  }
-
-  public int getMaxThreadsPerHost() {
-    return maxThreadsPerHost;
-  }
-
-  public long getServerDelay() {
-    return serverDelay;
-  }
-
   public String getUserAgent() {
     return userAgent;
   }
@@ -338,94 +237,6 @@ public abstract class HttpBase implements Protocol {
 
   public boolean getUseHttp11() {
     return useHttp11;
-  }
-  
-  private String blockAddr(URL url, long crawlDelay) throws ProtocolException {
-    
-    String host;
-    if (byIP) {
-      try {
-        InetAddress addr = InetAddress.getByName(url.getHost());
-        host = addr.getHostAddress();
-      } catch (UnknownHostException e) {
-        // unable to resolve it, so don't fall back to host name
-        throw new HttpException(e);
-      }
-    } else {
-      host = url.getHost();
-      if (host == null)
-        throw new HttpException("Unknown host for url: " + url);
-      host = host.toLowerCase();
-    }
-    
-    int delays = 0;
-    while (true) {
-      cleanExpiredServerBlocks();                 // free held addresses
-      
-      Long time;
-      synchronized (BLOCKED_ADDR_TO_TIME) {
-        time = (Long) BLOCKED_ADDR_TO_TIME.get(host);
-        if (time == null) {                       // address is free
-          
-          // get # of threads already accessing this addr
-          Integer counter = (Integer)THREADS_PER_HOST_COUNT.get(host);
-          int count = (counter == null) ? 0 : counter.intValue();
-          
-          count++;                              // increment & store
-          THREADS_PER_HOST_COUNT.put(host, new Integer(count));
-          
-          if (count >= maxThreadsPerHost) {
-            BLOCKED_ADDR_TO_TIME.put(host, new Long(0)); // block it
-          }
-          return host;
-        }
-      }
-      
-      if (delays == maxDelays)
-        throw new BlockedException("Exceeded http.max.delays: retry later.");
-      
-      long done = time.longValue();
-      long now = System.currentTimeMillis();
-      long sleep = 0;
-      if (done == 0) {                            // address is still in use
-        sleep = crawlDelay;                      // wait at least delay
-        
-      } else if (now < done) {                    // address is on hold
-        sleep = done - now;                       // wait until its free
-      }
-      
-      try {
-        Thread.sleep(sleep);
-      } catch (InterruptedException e) {}
-      delays++;
-    }
-  }
-  
-  private void unblockAddr(String host, long crawlDelay) {
-    synchronized (BLOCKED_ADDR_TO_TIME) {
-      int addrCount = ((Integer)THREADS_PER_HOST_COUNT.get(host)).intValue();
-      if (addrCount == 1) {
-        THREADS_PER_HOST_COUNT.remove(host);
-        BLOCKED_ADDR_QUEUE.addFirst(host);
-        BLOCKED_ADDR_TO_TIME.put
-                (host, new Long(System.currentTimeMillis() + crawlDelay));
-      } else {
-        THREADS_PER_HOST_COUNT.put(host, new Integer(addrCount - 1));
-      }
-    }
-  }
-  
-  private static void cleanExpiredServerBlocks() {
-    synchronized (BLOCKED_ADDR_TO_TIME) {
-      for (int i = BLOCKED_ADDR_QUEUE.size() - 1; i >= 0; i--) {
-        String host = (String) BLOCKED_ADDR_QUEUE.get(i);
-        long time = ((Long) BLOCKED_ADDR_TO_TIME.get(host)).longValue();
-        if (time <= System.currentTimeMillis()) {
-          BLOCKED_ADDR_TO_TIME.remove(host);
-          BLOCKED_ADDR_QUEUE.remove(i);
-        }
-      }
-    }
   }
   
   private static String getAgentString(String agentName,
@@ -481,12 +292,6 @@ public abstract class HttpBase implements Protocol {
       logger.info("http.content.limit = " + maxContent);
       logger.info("http.agent = " + userAgent);
       logger.info("http.accept.language = " + acceptLanguage);
-      logger.info(Protocol.CHECK_BLOCKING + " = " + checkBlocking);
-      logger.info(Protocol.CHECK_ROBOTS + " = " + checkRobots);
-      if (checkBlocking) {
-        logger.info("fetcher.server.delay = " + serverDelay);
-        logger.info("http.max.delays = " + maxDelays);
-      }
     }
   }
   
