@@ -514,14 +514,14 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
                 output(fit, null, status, CrawlStatus.STATUS_RETRY);
               }
 
-              if (redirecting && redirectCount >= maxRedirect) {
+              if (redirecting && redirectCount > maxRedirect) {
                 fetchQueues.finishFetchItem(fit);
                 LOG.info(" - redirect count exceeded " + fit.url);
                 output(fit, null, ProtocolStatusUtils.STATUS_REDIR_EXCEEDED,
                     CrawlStatus.STATUS_GONE);
               }
 
-            } while (redirecting && (redirectCount < maxRedirect));
+            } while (redirecting && (redirectCount <= maxRedirect));
 
           } catch (final Throwable t) {                 // unexpected exception
             // unblock

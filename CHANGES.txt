@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-962 max. redirects not handled correctly: fetcher stops at max-1 redirects (Sebastian Nagel via ab)
+
 * NUTCH-964 Upgraded Xerces to 2.91 (markus)
 
 * NUTCH-824 Crawling - File Error 404 when fetching file with an hexadecimal character in the file name (Michela Becchi via jnioche)
