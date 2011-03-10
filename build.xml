@@ -15,7 +15,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project name="Nutch" default="runtime" xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="Nutch" default="runtime" xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 
   <!-- Load all the default properties, and any the user wants    -->
   <!-- to contribute (without having to type -D or edit this file -->
@@ -23,7 +23,17 @@
   <property file="${basedir}/build.properties" />
   <property file="${basedir}/default.properties" />
   <property name="test.junit.output.format" value="plain"/>
-  <!-- <loadproperties srcfile="${ivy.dir}/libraries.properties"/> -->
+  <property name="release.dir" value="${build.dir}/release"/>
+  
+  <!-- define Maven coordinates, repository url and artifacts name etc -->
+  <property name="groupId" value="org.apache.nutch" />
+  <property name="artifactId" value="nutch" />
+  <property name="maven-repository-url" value="https://repository.apache.org/service/local/staging/deploy/maven2" />
+  <property name="maven-repository-id" value="apache.releases.https" />
+  <property name="maven-jar" value="${release.dir}/${artifactId}-${version}.jar" />
+  <property name="maven-javadoc-jar" value="${release.dir}/${artifactId}-${version}-javadoc.jar" />
+  <property name="maven-sources-jar" value="${release.dir}/${artifactId}-${version}-sources.jar" />
+
  
   <!-- the normal classpath -->
   <path id="classpath">
@@ -53,6 +63,7 @@
   <target name="init" depends="ivy-init">
     <mkdir dir="${build.dir}"/>
     <mkdir dir="${build.classes}"/>
+    <mkdir dir="${release.dir}"/>
 
     <mkdir dir="${test.build.dir}"/>
     <mkdir dir="${test.build.classes}"/>
@@ -106,6 +117,126 @@
       <manifest>
       </manifest>
     </jar>
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Make Maven Central Release                                         -->
+  <!-- ================================================================== -->
+  <!--                                                                    -->
+  <!-- ================================================================== -->  
+  <target name="release" depends="compile-core" description="generate the release distribution">
+    <copy file="${conf.dir}/nutch-default.xml"
+          todir="${build.classes}"/>
+    <copy file="${conf.dir}/nutch-site.xml"
+          todir="${build.classes}"/>
+          
+	<!-- build the main artifact -->
+	<jar jarfile="${maven-jar}" basedir="${build.classes}" />
+
+	<!-- build the javadoc artifact -->
+    <javadoc
+      destdir="${release.dir}/javadoc"
+      overview="${src.dir}/overview.html"
+      author="true"
+      version="true"
+      use="true"
+      windowtitle="${Name} ${version} API"
+      doctitle="${Name} ${version} API"
+      bottom="Copyright &amp;copy; ${year} The Apache Software Foundation"
+      >
+        <arg value="${javadoc.proxy.host}"/>
+        <arg value="${javadoc.proxy.port}"/>
+
+      <packageset dir="${src.dir}"/>
+      <packageset dir="${plugins.dir}/lib-http/src/java"/>
+      <packageset dir="${plugins.dir}/lib-regex-filter/src/java"/>
+      <packageset dir="${plugins.dir}/microformats-reltag/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-file/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-ftp/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-http/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-httpclient/src/java"/>
+      <packageset dir="${plugins.dir}/parse-tika/src/java"/>
+      <packageset dir="${plugins.dir}/parse-ext/src/java"/>
+      <packageset dir="${plugins.dir}/parse-js/src/java"/>
+      <packageset dir="${plugins.dir}/parse-rss/src/java"/>
+      <packageset dir="${plugins.dir}/parse-swf/src/java"/>
+      <packageset dir="${plugins.dir}/parse-zip/src/java"/>
+      <packageset dir="${plugins.dir}/index-basic/src/java"/>
+      <packageset dir="${plugins.dir}/index-more/src/java"/>
+      <packageset dir="${plugins.dir}/scoring-opic/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-automaton/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-regex/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
+      <packageset dir="${plugins.dir}/creativecommons/src/java"/>
+      <packageset dir="${plugins.dir}/languageidentifier/src/java"/>
+      
+      <link href="${javadoc.link.java}"/>
+      <link href="${javadoc.link.lucene}"/>
+      <link href="${javadoc.link.hadoop}"/>
+      
+      <classpath refid="classpath"/>
+    	<classpath>
+    		<fileset dir="${plugins.dir}" >
+    			<include name="**/*.jar"/>
+    		</fileset>
+    	</classpath>
+    	
+      <group title="Core" packages="org.apache.nutch.*"/>
+      <group title="Plugins API" packages="${plugins.api}"/>
+      <group title="Protocol Plugins" packages="${plugins.protocol}"/>
+      <group title="URL Filter Plugins" packages="${plugins.urlfilter}"/>
+      <group title="Scoring Plugins" packages="${plugins.scoring}"/>
+      <group title="Parse Plugins" packages="${plugins.parse}"/>
+      <group title="Indexing Filter Plugins" packages="${plugins.index}"/>
+      <group title="Misc. Plugins" packages="${plugins.misc}"/>
+    </javadoc>	
+	<jar jarfile="${maven-javadoc-jar}">
+		<fileset dir="${release.dir}/javadoc" />
+	</jar>
+
+	<!-- build the sources artifact -->
+	<jar jarfile="${maven-sources-jar}">
+		<fileset dir="${src.dir}" />
+	</jar>
+  </target>
+  
+  <!-- ================================================================== -->
+  <!-- Deploy to Apache Nexus                                             -->
+  <!-- ================================================================== -->
+  <!--                                                                    -->
+  <!-- ================================================================== -->  
+  <target name="deploy" depends="release" description="deploy to Apache Nexus">
+	<!-- sign and deploy the main artifact -->
+	<artifact:mvn>
+		<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.1:sign-and-deploy-file" />
+		<arg value="-Durl=${maven-repository-url}" />
+		<arg value="-DrepositoryId=${maven-repository-id}" />
+		<arg value="-DpomFile=pom.xml" />
+		<arg value="-Dfile=${maven-jar}" />
+                       <arg value="-Papache-release" />
+	</artifact:mvn>
+
+	<!-- sign and deploy the sources artifact -->
+	<artifact:mvn>
+		<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.1:sign-and-deploy-file" />
+		<arg value="-Durl=${maven-repository-url}" />
+		<arg value="-DrepositoryId=${maven-repository-id}" />
+		<arg value="-DpomFile=pom.xml" />
+		<arg value="-Dfile=${maven-sources-jar}" />
+		<arg value="-Dclassifier=sources" />
+                       <arg value="-Papache-release" />
+	</artifact:mvn>
+
+	<!-- sign and deploy the javadoc artifact -->
+	<artifact:mvn>
+		<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.1:sign-and-deploy-file" />
+		<arg value="-Durl=${maven-repository-url}" />
+		<arg value="-DrepositoryId=${maven-repository-id}" />
+		<arg value="-DpomFile=pom.xml" />
+		<arg value="-Dfile=${maven-javadoc-jar}" />
+		<arg value="-Dclassifier=javadoc" />
+                       <arg value="-Papache-release" />
+	</artifact:mvn>
   </target>
 
   <!-- ================================================================== -->
