@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.3 - Current Development
 
+* NUTCH-963 Add support for deleting Solr documents with STATUS_DB_GONE in CrawlDB (Claudio Martella, markus)
+
 * NUTCH-825 Publish nutch artifacts to central maven repository (mattmann, jnioche)
 
 * NUTCH-962 max. redirects not handled correctly: fetcher stops at max-1 redirects (Sebastian Nagel via ab)

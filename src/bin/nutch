@@ -49,6 +49,7 @@ if [ $# = 0 ]; then
   echo "  mergelinkdb       merge linkdb-s, with optional filtering"
   echo "  solrindex         run the solr indexer on parsed segments and linkdb"
   echo "  solrdedup         remove duplicates from solr"
+  echo "  solrclean         remove HTTP 301 and 404 documents from solr"
   echo "  plugin            load a plugin and run one of its classes main()"
   echo " or"
   echo "  CLASSNAME         run the class named CLASSNAME"
@@ -210,6 +211,8 @@ elif [ "$COMMAND" = "solrindex" ] ; then
   CLASS=org.apache.nutch.indexer.solr.SolrIndexer
 elif [ "$COMMAND" = "solrdedup" ] ; then
   CLASS=org.apache.nutch.indexer.solr.SolrDeleteDuplicates
+elif [ "$COMMAND" = "solrclean" ] ; then
+  CLASS=org.apache.nutch.indexer.solr.SolrClean
 elif [ "$COMMAND" = "plugin" ] ; then
   CLASS=org.apache.nutch.plugin.PluginRepository
 else
