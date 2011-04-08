@@ -59,7 +59,7 @@
 		</dependency>
 
 		<dependency org="com.ibm.icu" name="icu4j" rev="4.0.1" />
-		<dependency org="org.apache.tika" name="tika-core" rev="0.7" />
+		<dependency org="org.apache.tika" name="tika-core" rev="0.9" />
 		<dependency org="org.mortbay.jetty" name="jetty-client" rev="6.1.22" />
 
 		<dependency org="log4j" name="log4j" rev="1.2.15" conf="*->master" />
