@@ -84,7 +84,7 @@
 
   <mime-type type="application/epub+zip">
     <acronym>EPUB</acronym>
-    <comment>Electronic Publication</comment>
+    <_comment>Electronic Publication</_comment>
     <magic priority="50">
       <match value="PK\003\004" type="string" offset="0">
         <match value="mimetypeapplication/epub+zip" type="string" offset="30"/>
@@ -209,8 +209,9 @@
 
   <!-- http://www.iana.org/assignments/media-types/application/msword -->
   <mime-type type="application/msword">
+    <!-- Use org.apache.tika.detect.ContainerAwareDetector for more reliable detection of OLE2 documents -->
     <alias type="application/vnd.ms-word"/>
-    <comment>Microsoft Word Document</comment>
+    <_comment>Microsoft Word Document</_comment>
     <magic priority="50">
       <match value="Microsoft\ Word\ 6.0\ Document" type="string" offset="2080"/>
       <match value="Documento\ Microsoft\ Word\ 6" type="string" offset="2080"/>
@@ -222,7 +223,9 @@
       <match value="\354\245\301" type="string" offset="512"/>
       <match value="\320\317\021\340\241\261\032\341" type="string" offset="0"/>
       <match value="\224\246\056" type="string" offset="0"/>
-      <match value="R\0o\0o\0t\0\ \0E\0n\0t\0r\0y" type="string" offset="512"/>
+      <match value="0xd0cf11e0a1b11ae1" type="string" offset="0:8">
+         <match value="W\x00o\x00r\x00d\x00D\x00o\x00c\x00u\x00m\x00e\x00n\x00t" type="string" offset="1152:4096" />
+      </match>
     </magic>
     <glob pattern="*.doc"/>
     <glob pattern="*.dot"/>
@@ -295,7 +298,7 @@
   <mime-type type="application/pdf">
     <alias type="application/x-pdf"/>
     <acronym>PDF</acronym>
-    <comment>Portable Document Format</comment>
+    <_comment>Portable Document Format</_comment>
     <magic priority="50">
       <match value="%PDF-" type="string" offset="0"/>
     </magic>
@@ -343,7 +346,7 @@
   <mime-type type="application/poc-settings+xml"/>
 
   <mime-type type="application/postscript">
-    <comment>PostScript</comment>
+    <_comment>PostScript</_comment>
     <magic priority="50">
       <match value="%!" type="string" offset="0" />
       <match value="\004%!" type="string" offset="0" />
@@ -370,7 +373,7 @@
     <root-XML localName="RDF" namespaceURI="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
     <sub-class-of type="application/xml"/>
     <acronym>RDF/XML</acronym>
-    <comment>XML syntax for RDF graphs</comment>
+    <_comment>XML syntax for RDF graphs</_comment>
     <glob pattern="*.rdf"/>
     <glob pattern="*.owl"/>
     <glob pattern="^rdf$" isregex="true"/>
@@ -556,6 +559,26 @@
   <mime-type type="application/vnd.apple.installer+xml">
     <glob pattern="*.mpkg"/>
   </mime-type>
+
+  <mime-type type="application/vnd.apple.iwork">
+    <sub-class-of type="application/zip"/>
+  </mime-type>
+  <mime-type type="application/vnd.apple.keynote">
+    <root-XML localName="presentation" namespaceURI="http://developer.apple.com/namespaces/keynote2" />
+    <sub-class-of type="application/vnd.apple.iwork" />
+    <glob pattern="*.key"/>
+  </mime-type>
+  <mime-type type="application/vnd.apple.pages">
+    <root-XML localName="document" namespaceURI="http://developer.apple.com/namespaces/sl" />
+    <sub-class-of type="application/vnd.apple.iwork" />
+    <glob pattern="*.pages"/>
+  </mime-type>
+  <mime-type type="application/vnd.apple.numbers">
+    <root-XML localName="document" namespaceURI="http://developer.apple.com/namespaces/ls" />
+    <sub-class-of type="application/vnd.apple.iwork" />
+    <glob pattern="*.numbers"/>
+  </mime-type>
+
   <mime-type type="application/vnd.arastra.swi">
     <glob pattern="*.swi"/>
   </mime-type>
@@ -1075,7 +1098,7 @@
   </mime-type>
 
   <mime-type type="application/vnd.mif">
-    <comment>FrameMaker MIF document</comment>
+    <_comment>FrameMaker MIF document</_comment>
     <alias type="application/x-mif"/>
     <alias type="application/x-frame"/>
     <magic priority="50">
@@ -1140,14 +1163,18 @@
 
   <!-- http://www.iana.org/assignments/media-types/application/vnd.ms-excel -->
   <mime-type type="application/vnd.ms-excel">
+    <!-- Use org.apache.tika.detect.ContainerAwareDetector for more reliable detection of OLE2 documents -->
     <alias type="application/msexcel" />
-    <comment>Microsoft Excel Spreadsheet</comment>
+    <_comment>Microsoft Excel Spreadsheet</_comment>
     <magic priority="50">
       <match value="Microsoft\ Excel\ 5.0\ Worksheet" type="string" offset="2080"/>
       <match value="Foglio\ di\ lavoro\ Microsoft\ Exce" type="string" offset="2080"/>
       <match value="Biff5" type="string" offset="2114"/>
       <match value="Biff5" type="string" offset="2121"/>
       <match value="\x09\x04\x06\x00\x00\x00\x10\x00" type="string" offset="0"/>
+      <match value="0xd0cf11e0a1b11ae1" type="string" offset="0:8">
+         <match value="W\x00o\x00r\x00k\x00b\x00o\x00o\x00k" type="string" offset="1152:4096" />
+      </match>
     </magic>
     <glob pattern="*.xls"/>
     <glob pattern="*.xlm"/>
@@ -1161,21 +1188,21 @@
   </mime-type>
 
   <mime-type type="application/vnd.ms-excel.addin.macroenabled.12">
-    <comment>Office Open XML Workbook Add-in (macro-enabled)</comment>
+    <_comment>Office Open XML Workbook Add-in (macro-enabled)</_comment>
     <glob pattern="*.xlam"/>
     <sub-class-of type="application/x-tika-ooxml"/>
   </mime-type>
 
   <mime-type type="application/vnd.ms-excel.sheet.macroenabled.12">
-    <comment>Office Open XML Workbook (macro-enabled)</comment>
+    <_comment>Office Open XML Workbook (macro-enabled)</_comment>
     <glob pattern="*.xlsm"/>
     <sub-class-of type="application/x-tika-ooxml"/>
   </mime-type>
 
   <mime-type type="application/vnd.ms-excel.sheet.binary.macroenabled.12">
-    <comment>Microsoft Excel 2007 Binary Spreadsheet</comment>
+    <_comment>Microsoft Excel 2007 Binary Spreadsheet</_comment>
     <glob pattern="*.xlsb"/>
-    <sub-class-of type="application/vnd.ms-excel"/>
+    <sub-class-of type="application/x-tika-ooxml"/>
   </mime-type>
 
   <mime-type type="application/vnd.ms-excel.template.macroenabled.12">
@@ -1197,7 +1224,7 @@
   </mime-type>
 
   <mime-type type="application/vnd.ms-outlook">
-    <comment>Microsoft Outlook Message</comment>
+    <_comment>Microsoft Outlook Message</_comment>
     <glob pattern="*.msg" />
     <sub-class-of type="application/x-tika-msoffice"/>
   </mime-type>
@@ -1212,8 +1239,14 @@
 
   <!-- http://www.iana.org/assignments/media-types/application/vnd.ms-powerpoint -->
   <mime-type type="application/vnd.ms-powerpoint">
+    <!-- Use org.apache.tika.detect.ContainerAwareDetector for more reliable detection of OLE2 documents -->
     <alias type="application/mspowerpoint"/>
-    <comment>Microsoft Powerpoint Presentation</comment>
+    <_comment>Microsoft Powerpoint Presentation</_comment>
+    <magic priority="50">
+      <match value="0xd0cf11e0a1b11ae1" type="string" offset="0:8">
+         <match value="P\x00o\x00w\x00e\x00r\x00P\x00o\x00i\x00n\x00t\x00 D\x00o\x00c\x00u\x00m\x00e\x00n\x00t" type="string" offset="1152:4096" />
+      </match>
+    </magic>
     <glob pattern="*.ppz"/>
     <glob pattern="*.ppt"/>
     <glob pattern="*.pps"/>
@@ -1223,31 +1256,31 @@
   </mime-type>
 
   <mime-type type="application/vnd.ms-powerpoint.addin.macroenabled.12">
-    <comment>Office Open XML Presentation Add-in (macro-enabled)</comment>
+    <_comment>Office Open XML Presentation Add-in (macro-enabled)</_comment>
     <glob pattern="*.ppam"/>
-    <sub-class-of type="application/x-tika-msoffice"/>
+    <sub-class-of type="application/x-tika-ooxml"/>
   </mime-type>
 
   <mime-type type="application/vnd.ms-powerpoint.presentation.macroenabled.12">
-    <comment>Office Open XML Presentation (macro-enabled)</comment>
+    <_comment>Office Open XML Presentation (macro-enabled)</_comment>
     <glob pattern="*.pptm"/>
-    <sub-class-of type="application/x-tika-msoffice"/>
+    <sub-class-of type="application/x-tika-ooxml"/>
   </mime-type>
 
   <mime-type type="application/vnd.ms-powerpoint.slide.macroenabled.12">
     <glob pattern="*.sldm"/>
-    <sub-class-of type="application/x-tika-msoffice"/>
+    <sub-class-of type="application/x-tika-ooxml"/>
   </mime-type>
 
   <mime-type type="application/vnd.ms-powerpoint.slideshow.macroenabled.12">
-    <comment>Office Open XML Presentation Slideshow (macro-enabled)</comment>
+    <_comment>Office Open XML Presentation Slideshow (macro-enabled)</_comment>
     <glob pattern="*.ppsm"/>
-    <sub-class-of type="application/x-tika-msoffice"/>
+    <sub-class-of type="application/x-tika-ooxml"/>
   </mime-type>
 
   <mime-type type="application/vnd.ms-powerpoint.template.macroenabled.12">
     <glob pattern="*.potm"/>
-    <sub-class-of type="application/x-tika-msoffice"/>
+    <sub-class-of type="application/x-tika-ooxml"/>
   </mime-type>
 
   <mime-type type="application/vnd.ms-project">
@@ -1256,6 +1289,7 @@
   </mime-type>
 
   <mime-type type="application/vnd.ms-tnef">
+    <alias type="application/ms-tnef" />
     <magic priority="50">
       <match value="0x223e9f78" type="little16" offset="0" />
     </magic>
@@ -1267,13 +1301,13 @@
   <mime-type type="application/vnd.ms-wmdrm.meter-resp"/>
 
   <mime-type type="application/vnd.ms-word.document.macroenabled.12">
-    <comment>Office Open XML Document (macro-enabled)</comment>
+    <_comment>Office Open XML Document (macro-enabled)</_comment>
     <glob pattern="*.docm"/>
     <sub-class-of type="application/x-tika-ooxml"/>
   </mime-type>
 
   <mime-type type="application/vnd.ms-word.template.macroenabled.12">
-    <comment>Office Open XML Document Template (macro-enabled)</comment>
+    <_comment>Office Open XML Document Template (macro-enabled)</_comment>
     <glob pattern="*.dotm"/>
     <sub-class-of type="application/x-tika-ooxml"/>
   </mime-type>
@@ -1360,7 +1394,7 @@
 
   <mime-type type="application/vnd.oasis.opendocument.chart">
     <alias type="application/x-vnd.oasis.opendocument.chart"/>
-    <comment>OpenDocument v1.0: Chart document</comment>
+    <_comment>OpenDocument v1.0: Chart document</_comment>
     <magic>
       <match type="string" offset="0" value="PK">
         <match type="string" offset="30"
@@ -1372,7 +1406,7 @@
 
   <mime-type type="application/vnd.oasis.opendocument.chart-template">
     <alias type="application/x-vnd.oasis.opendocument.chart-template"/>
-    <comment>OpenDocument v1.0: Chart document used as template</comment>
+    <_comment>OpenDocument v1.0: Chart document used as template</_comment>
     <magic>
       <match type="string" offset="0" value="PK">
         <match type="string" offset="30"
@@ -1388,7 +1422,7 @@
 
   <mime-type type="application/vnd.oasis.opendocument.formula">
     <alias type="application/x-vnd.oasis.opendocument.formula"/>
-    <comment>OpenDocument v1.0: Formula document</comment>
+    <_comment>OpenDocument v1.0: Formula document</_comment>
     <magic>
       <match type="string" offset="0" value="PK">
         <match type="string" offset="30"
@@ -1400,7 +1434,7 @@
 
   <mime-type type="application/vnd.oasis.opendocument.formula-template">
     <alias type="application/x-vnd.oasis.opendocument.formula-template"/>
-    <comment>OpenDocument v1.0: Formula document used as template</comment>
+    <_comment>OpenDocument v1.0: Formula document used as template</_comment>
     <magic>
       <match type="string" offset="0" value="PK">
         <match type="string" offset="30"
@@ -1412,7 +1446,7 @@
 
   <mime-type type="application/vnd.oasis.opendocument.graphics">
     <alias type="application/x-vnd.oasis.opendocument.graphics"/>
-    <comment>OpenDocument v1.0: Graphics document (Drawing)</comment>
+    <_comment>OpenDocument v1.0: Graphics document (Drawing)</_comment>
     <magic>
       <match type="string" offset="0" value="PK">
         <match type="string" offset="30"
@@ -1424,7 +1458,7 @@
 
   <mime-type type="application/vnd.oasis.opendocument.graphics-template">
     <alias type="application/x-vnd.oasis.opendocument.graphics-template"/>
-    <comment>OpenDocument v1.0: Graphics document used as template</comment>
+    <_comment>OpenDocument v1.0: Graphics document used as template</_comment>
     <magic>
       <match type="string" offset="0" value="PK">
         <match type="string" offset="30"
@@ -1436,7 +1470,7 @@
 
   <mime-type type="application/vnd.oasis.opendocument.image">
     <alias type="application/x-vnd.oasis.opendocument.image"/>
-    <comment>OpenDocument v1.0: Image document</comment>
+    <_comment>OpenDocument v1.0: Image document</_comment>
     <magic>
       <match type="string" offset="0" value="PK">
         <match type="string" offset="30"
@@ -1448,7 +1482,7 @@
 
   <mime-type type="application/vnd.oasis.opendocument.image-template">
     <alias type="application/x-vnd.oasis.opendocument.image-template"/>
-    <comment>OpenDocument v1.0: Image document used as template</comment>
+    <_comment>OpenDocument v1.0: Image document used as template</_comment>
     <magic>
       <match type="string" offset="0" value="PK">
         <match type="string" offset="30"
@@ -1460,7 +1494,7 @@
 
   <mime-type type="application/vnd.oasis.opendocument.presentation">
     <alias type="application/x-vnd.oasis.opendocument.presentation"/>
-    <comment>OpenDocument v1.0: Presentation document</comment>
+    <_comment>OpenDocument v1.0: Presentation document</_comment>
     <magic>
       <match type="string" offset="0" value="PK">
         <match type="string" offset="30"
@@ -1472,7 +1506,7 @@
 
   <mime-type type="application/vnd.oasis.opendocument.presentation-template">
     <alias type="application/x-vnd.oasis.opendocument.presentation-template"/>
-    <comment>OpenDocument v1.0: Presentation document used as template</comment>
+    <_comment>OpenDocument v1.0: Presentation document used as template</_comment>
     <magic>
       <match type="string" offset="0" value="PK">
         <match type="string" offset="30"
@@ -1484,7 +1518,7 @@
 
   <mime-type type="application/vnd.oasis.opendocument.spreadsheet">
     <alias type="application/x-vnd.oasis.opendocument.spreadsheet"/>
-    <comment>OpenDocument v1.0: Spreadsheet document</comment>
+    <_comment>OpenDocument v1.0: Spreadsheet document</_comment>
     <magic>
       <match type="string" offset="0" value="PK">
         <match type="string" offset="30"
@@ -1496,7 +1530,7 @@
 
   <mime-type type="application/vnd.oasis.opendocument.spreadsheet-template">
     <alias type="application/x-vnd.oasis.opendocument.spreadsheet-template"/>
-    <comment>OpenDocument v1.0: Spreadsheet document used as template</comment>
+    <_comment>OpenDocument v1.0: Spreadsheet document used as template</_comment>
     <magic>
       <match type="string" offset="0" value="PK">
         <match type="string" offset="30"
@@ -1508,7 +1542,7 @@
 
   <mime-type type="application/vnd.oasis.opendocument.text">
     <alias type="application/x-vnd.oasis.opendocument.text"/>
-    <comment>OpenDocument v1.0: Text document</comment>
+    <_comment>OpenDocument v1.0: Text document</_comment>
     <magic>
       <match type="string" offset="0" value="PK">
         <match type="string" offset="30"
@@ -1520,7 +1554,7 @@
 
   <mime-type type="application/vnd.oasis.opendocument.text-master">
     <alias type="application/x-vnd.oasis.opendocument.text-master"/>
-    <comment>OpenDocument v1.0: Global Text document</comment>
+    <_comment>OpenDocument v1.0: Global Text document</_comment>
     <magic>
       <match type="string" offset="0" value="PK">
         <match type="string" offset="30"
@@ -1532,7 +1566,7 @@
 
   <mime-type type="application/vnd.oasis.opendocument.text-template">
     <alias type="application/x-vnd.oasis.opendocument.text-template"/>
-    <comment>OpenDocument v1.0: Text document used as template</comment>
+    <_comment>OpenDocument v1.0: Text document used as template</_comment>
     <magic>
       <match type="string" offset="0" value="PK">
         <match type="string" offset="30"
@@ -1544,7 +1578,7 @@
 
   <mime-type type="application/vnd.oasis.opendocument.text-web">
     <alias type="application/x-vnd.oasis.opendocument.text-web"/>
-    <comment>OpenDocument v1.0: Text document used as template for HTML documents</comment>
+    <_comment>OpenDocument v1.0: Text document used as template for HTML documents</_comment>
     <magic>
       <match type="string" offset="0" value="PK">
         <match type="string" offset="30"
@@ -1597,7 +1631,7 @@
   </mime-type>
 
   <mime-type type="application/vnd.openxmlformats-officedocument.presentationml.presentation">
-    <comment>Office Open XML Presentation</comment>
+    <_comment>Office Open XML Presentation</_comment>
     <glob pattern="*.pptx"/>
     <glob pattern="*.thmx"/>
     <sub-class-of type="application/x-tika-ooxml"/>
@@ -1614,43 +1648,43 @@
   </mime-type>
 
   <mime-type type="application/vnd.openxmlformats-officedocument.presentationml.template">
-    <comment>Office Open XML Presentation Template</comment>
+    <_comment>Office Open XML Presentation Template</_comment>
     <glob pattern="*.potx"/>
     <sub-class-of type="application/x-tika-ooxml"/>
   </mime-type>
 
   <mime-type type="application/vnd.openxmlformats-officedocument.presentationml.slideshow">
-    <comment>Office Open XML Presentation Slideshow</comment>
+    <_comment>Office Open XML Presentation Slideshow</_comment>
     <glob pattern="*.ppsx"/>
     <sub-class-of type="application/x-tika-ooxml"/>
   </mime-type>
 
   <mime-type type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
-    <comment>Office Open XML Workbook</comment>
+    <_comment>Office Open XML Workbook</_comment>
     <glob pattern="*.xlsx"/>
     <sub-class-of type="application/x-tika-ooxml"/>
   </mime-type>
 
   <mime-type type="application/vnd.openxmlformats-officedocument.spreadsheetml.template">
-    <comment>Office Open XML Workbook Template</comment>
+    <_comment>Office Open XML Workbook Template</_comment>
     <glob pattern="*.xltx"/>
     <sub-class-of type="application/x-tika-ooxml"/>
   </mime-type>
 
   <mime-type type="application/vnd.ms-excel.template.macroenabled.12">
-    <comment>Office Open XML Workbook Template (macro-enabled)</comment>
+    <_comment>Office Open XML Workbook Template (macro-enabled)</_comment>
     <glob pattern="*.xltm"/>
     <sub-class-of type="application/x-tika-ooxml"/>
   </mime-type>
 
   <mime-type type="application/vnd.openxmlformats-officedocument.wordprocessingml.document">
-    <comment>Office Open XML Document</comment>
+    <_comment>Office Open XML Document</_comment>
     <glob pattern="*.docx"/>
     <sub-class-of type="application/x-tika-ooxml"/>
   </mime-type>
 
   <mime-type type="application/vnd.openxmlformats-officedocument.wordprocessingml.template">
-    <comment>Office Open XML Document Template</comment>
+    <_comment>Office Open XML Document Template</_comment>
     <glob pattern="*.dotx"/>
     <sub-class-of type="application/x-tika-ooxml"/>
   </mime-type>
@@ -1815,7 +1849,8 @@
   <mime-type type="application/vnd.stardivision.writer">
     <glob pattern="*.sdw"/>
   </mime-type>
-  <mime-type type="application/vnd.stardivision.writer">
+  <mime-type type="application/x-staroffice-template">
+    <sub-class-of type="application/x-tika-msoffice"/>
     <glob pattern="*.vor"/>
   </mime-type>
   <mime-type type="application/vnd.stardivision.writer-global">
@@ -1846,7 +1881,7 @@
 
   <mime-type type="application/vnd.sun.xml.writer">
     <alias type="application/x-vnd.sun.xml.writer"/>
-    <comment>OpenOffice v1.0: Writer Document</comment>
+    <_comment>OpenOffice v1.0: Writer Document</_comment>
     <magic>
       <match type="string" offset="0" value="PK">
         <match type="string" offset="30"
@@ -1945,7 +1980,7 @@
 
   <!-- http://www.iana.org/assignments/media-types/application/vnd.visio -->
   <mime-type type="application/vnd.visio">
-    <comment>Microsoft Visio Diagram</comment>
+    <_comment>Microsoft Visio Diagram</_comment>
     <glob pattern="*.vsd"/>
     <glob pattern="*.vst"/>
     <glob pattern="*.vss"/>
@@ -2074,13 +2109,13 @@
 
   <mime-type type="application/x-adobe-indesign">
     <acronym>INDD</acronym>
-    <comment>Adobe InDesign document</comment>
+    <_comment>Adobe InDesign document</_comment>
     <glob pattern="*.indd"/>
   </mime-type>
 
   <mime-type type="application/x-adobe-indesign-interchange">
     <acronym>INX</acronym>
-    <comment>Adobe InDesign Interchange format</comment>
+    <_comment>Adobe InDesign Interchange format</_comment>
     <magic priority="50">
       <match value="&lt;?aid" type="string" offset="0:100"/>
     </magic>
@@ -2196,6 +2231,11 @@
     <glob pattern="*.z"/>
   </mime-type>
 
+  <mime-type type="application/x-corelpresentations">
+    <glob pattern="*.shw"/>
+    <sub-class-of type="application/x-tika-msoffice"/>
+  </mime-type>
+  
   <mime-type type="application/x-cpio">
     <magic priority="50">
       <match value="070707" type="little16" offset="0"/>
@@ -2251,7 +2291,7 @@
   </mime-type>
 
   <mime-type type="application/x-elc">
-    <comment>Emacs Lisp bytecode</comment>
+    <_comment>Emacs Lisp bytecode</_comment>
     <magic priority="50">
       <!-- Emacs 18 -->
       <match value="\012(" type="string" offset="0" />
@@ -2273,9 +2313,13 @@
   <mime-type type="application/x-font-linux-psf">
     <glob pattern="*.psf"/>
   </mime-type>
+
   <mime-type type="application/x-font-otf">
+    <acronym>OTF</acronym>
+    <_comment>OpenType Font</_comment>
     <glob pattern="*.otf"/>
   </mime-type>
+
   <mime-type type="application/x-font-pcf">
     <glob pattern="*.pcf"/>
   </mime-type>
@@ -2284,10 +2328,17 @@
   </mime-type>
   <mime-type type="application/x-font-speedo"/>
   <mime-type type="application/x-font-sunos-news"/>
+
   <mime-type type="application/x-font-ttf">
+    <acronym>TTF</acronym>
+    <_comment>TrueType Font</_comment>
     <glob pattern="*.ttf"/>
     <glob pattern="*.ttc"/>
+    <magic priority="40">
+      <match value="0x00010000" type="string" offset="0"/>
+    </magic>
   </mime-type>
+
   <mime-type type="application/x-font-type1">
     <glob pattern="*.pfa"/>
     <glob pattern="*.pfb"/>
@@ -2295,6 +2346,13 @@
     <glob pattern="*.afm"/>
   </mime-type>
   <mime-type type="application/x-font-vfont"/>
+
+  <mime-type type="application/x-foxmail">
+    <_comment>Foxmail Email File</_comment>
+    <magic>
+      <match value="0x1010101010101011111111111153" type="string" offset="0"/>
+    </magic>
+  </mime-type>
 
   <mime-type type="application/x-futuresplash">
     <_comment>Macromedia FutureSplash File</_comment>
@@ -2338,6 +2396,7 @@
       <match value="\211HDF\r\n\032" type="string" offset="0"/>
     </magic>
     <glob pattern="*.hdf"/>
+    <glob pattern="*.he5"/>
   </mime-type>
 
   <mime-type type="application/x-hwp">
@@ -2418,6 +2477,9 @@
   </mime-type>
   <mime-type type="application/x-msaccess">
     <glob pattern="*.mdb"/>
+    <magic priority="60">
+      <match value="0x000100005374616e" type="string" offset="0"/>
+    </magic>
   </mime-type>
   <mime-type type="application/x-msbinder">
     <glob pattern="*.obd"/>
@@ -2441,8 +2503,10 @@
     <glob pattern="*.m14"/>
   </mime-type>
   <mime-type type="application/x-msmetafile">
+    <alias type="image/x-emf"/>
+    <alias type="image/x-wmf"/>
     <acronym>WMF</acronym>
-    <comment>Windows Metafile</comment>
+    <_comment>Windows Metafile</_comment>
     <glob pattern="*.wmf"/>
     <glob pattern="*.emf"/>
   </mime-type>
@@ -2477,6 +2541,14 @@
     <glob pattern="*.p7r"/>
   </mime-type>
 
+  <mime-type type="application/x-quattro-pro">
+    <glob pattern="*.qpw"/>
+    <glob pattern="*.wb1"/>
+    <glob pattern="*.wb2"/>
+    <glob pattern="*.wb3"/>
+    <sub-class-of type="application/x-tika-msoffice"/>
+  </mime-type>
+  
   <mime-type type="application/x-rar-compressed">
     <alias type="application/x-rar"/>
     <magic priority="50">
@@ -2511,7 +2583,7 @@
 
   <mime-type type="application/x-shockwave-flash">
     <acronym>Flash</acronym>
-    <comment>Adobe Flash</comment>
+    <_comment>Adobe Flash</_comment>
     <magic priority="50">
       <match value="FWS" type="string" offset="0"/> <!-- F = Uncompressed -->
       <match value="CWS" type="string" offset="0"/> <!-- C = Compressed   -->
@@ -2644,7 +2716,7 @@
   <mime-type type="application/xhtml+xml">
     <magic priority="50">
       <match value="&lt;html xmlns=" type="string" offset="0:8192"/>
-    </magic>    
+    </magic>
     <root-XML namespaceURI="http://www.w3.org/1999/xhtml" localName="html"/>
     <glob pattern="*.xhtml"/>
     <glob pattern="*.xht"/>
@@ -2681,7 +2753,7 @@
   <mime-type type="application/xslt+xml">
     <alias type="text/xsl"/>
     <acronym>XSLT</acronym>
-    <comment>XSL Transformations</comment>
+    <_comment>XSL Transformations</_comment>
     <root-XML localName="stylesheet"
               namespaceURI="http://www.w3.org/1999/XSL/Transform"/>
     <glob pattern="*.xslt"/>
@@ -2780,7 +2852,7 @@
 
   <mime-type type="audio/midi">
     <acronym>MIDI</acronym>
-    <comment>Musical Instrument Digital Interface</comment>
+    <_comment>Musical Instrument Digital Interface</_comment>
     <magic priority ="20">
       <match type="string" value="MThd" offset="0"/>
     </magic>
@@ -2801,7 +2873,7 @@
 
   <mime-type type="audio/mpeg">
     <acronym>MP3</acronym>
-    <comment>MPEG-1 Audio Layer 3</comment>
+    <_comment>MPEG-1 Audio Layer 3</_comment>
     <magic priority="20">
       <!-- http://mpgedit.org/mpgedit/mpeg_format/MP3Format.html -->
       <!-- Bit pattern for first two bytes: 11111111 111VVLLC    -->
@@ -2818,7 +2890,8 @@
       <match value="0xfffb" type="string" offset="0"/> <!-- V1, L3      -->
       <match value="0xfffc" type="string" offset="0"/> <!-- V1, L2, CRC -->
       <match value="0xfffd" type="string" offset="0"/> <!-- V1, L2      -->
-      <match value="0xfffe" type="string" offset="0"/> <!-- V1, L1, CRC -->
+      <!-- TIKA-417: This is the UTF-16 LE byte order mark! -->
+      <!-- match value="0xfffe" type="string" offset="0"/ --> <!-- V1, L1, CRC -->
       <match value="0xffff" type="string" offset="0"/> <!-- V1, L1      -->
       <match value="ID3" type="string" offset="0"/>
     </magic>
@@ -2933,7 +3006,7 @@
   <mime-type type="audio/x-aiff">
     <alias type="audio/aiff"/>
     <acronym>AIFF</acronym>
-    <comment>Audio Interchange File Format</comment>
+    <_comment>Audio Interchange File Format</_comment>
     <magic priority="20">
       <match value="FORM....AIFF" type="string" offset="0"
              mask="0xFFFFFFFF00000000FFFFFFFF"/>
@@ -2972,7 +3045,7 @@
 
   <mime-type type="audio/x-flac">
     <acronym>FLAC</acronym>
-    <comment>Free Lossless Audio Codec</comment>
+    <_comment>Free Lossless Audio Codec</_comment>
     <magic priority="50">
       <match value="fLaC" type="string" offset="0"/>
     </magic>
@@ -3011,7 +3084,7 @@
   </mime-type>
 
   <mime-type type="audio/x-pn-realaudio">
-    <comment>Real Audio</comment>
+    <_comment>Real Audio</_comment>
     <alias type="audio/x-realaudio" />
     <magic priority="50">
       <match value="0x2e7261fd" type="big32" offset="0"/>
@@ -3053,12 +3126,22 @@
     <glob pattern="*.xyz"/>
   </mime-type>
 
-  <mime-type type="image/bmp">
-    <alias type="image/x-ms-bmp"/>
+  <mime-type type="image/x-ms-bmp">
+    <alias type="image/bmp"/>
     <acronym>BMP</acronym>
-    <comment>Windows bitmap</comment>
+    <_comment>Windows bitmap</_comment>
     <magic priority="50">
-      <match value="BM" type="string" offset="0" />
+      <match value="BM" type="string" offset="0">
+        <match value="0x0100" type="string" offset="26">
+      	  <match value="0x0000" type="string" offset="28"/>
+      	  <match value="0x0100" type="string" offset="28"/>
+      	  <match value="0x0400" type="string" offset="28"/>
+      	  <match value="0x0800" type="string" offset="28"/>
+      	  <match value="0x1000" type="string" offset="28"/>
+      	  <match value="0x1800" type="string" offset="28"/>
+      	  <match value="0x2000" type="string" offset="28"/>
+        </match>
+      </match>
     </magic>
     <glob pattern="*.bmp"/>
     <glob pattern="*.dib"/>
@@ -3066,7 +3149,7 @@
 
   <mime-type type="image/cgm">
     <acronym>CGM</acronym>
-    <comment>Computer Graphics Metafile</comment>
+    <_comment>Computer Graphics Metafile</_comment>
     <magic priority="50">
       <match value="BEGMF" type="string" offset="0"/>
       <match value="0x0020" mask="0xffe0" type="string" offset="0"/>
@@ -3082,7 +3165,7 @@
 
   <mime-type type="image/gif">
     <acronym>GIF</acronym>
-    <comment>Graphics Interchange Format</comment>
+    <_comment>Graphics Interchange Format</_comment>
     <magic priority="50">
       <match value="GIF87a" type="string" offset="0"/>
       <match value="GIF89a" type="string" offset="0"/>
@@ -3097,7 +3180,7 @@
 
   <mime-type type="image/jpeg">
     <acronym>JPEG</acronym>
-    <comment>Joint Photographic Experts Group</comment>
+    <_comment>Joint Photographic Experts Group</_comment>
     <magic priority="50">
       <!-- FFD8 is the SOI (Start Of Image) marker.              -->
       <!-- It is followed by another marker that starts with FF. -->
@@ -3117,7 +3200,7 @@
 
   <mime-type type="image/png">
     <acronym>PNG</acronym>
-    <comment>Portable Network Graphics</comment>
+    <_comment>Portable Network Graphics</_comment>
     <magic priority="50">
       <match value="\x89PNG\x0d\x0a\x1a\x0a" type="string" offset="0"/>
     </magic>
@@ -3132,7 +3215,7 @@
   <mime-type type="image/svg+xml">
     <sub-class-of type="application/xml"/>
     <acronym>SVG</acronym>
-    <comment>Scalable Vector Graphics</comment>
+    <_comment>Scalable Vector Graphics</_comment>
     <root-XML localName="svg" namespaceURI="http://www.w3.org/2000/svg"/>
     <glob pattern="*.svg"/>
     <glob pattern="*.svgz"/>
@@ -3142,7 +3225,7 @@
 
   <mime-type type="image/tiff">
     <acronym>TIFF</acronym>
-    <comment>Tagged Image File Format</comment>
+    <_comment>Tagged Image File Format</_comment>
     <magic priority="50">
       <!-- MM.* = Big endian (M=Motorola) and 0x002a in big endian    -->
       <match value="MM\x00\x2a" type="string" offset="0"/>
@@ -3165,9 +3248,25 @@
     <glob pattern="*.djvu"/>
     <glob pattern="*.djv"/>
   </mime-type>
+
   <mime-type type="image/vnd.dwg">
+    <acronym>DWG</acronym>
+    <_comment>AutoCad Drawing</_comment>
+    <alias type="image/x-dwg"/>
+    <alias type="application/acad"/>
+    <alias type="application/x-acad"/>
+    <alias type="application/autocad_dwg"/>
+    <alias type="application/dwg"/>
+    <alias type="application/x-dwg"/>
+    <alias type="application/x-autocad"/>
     <glob pattern="*.dwg"/>
+    <magic priority="50">
+      <!-- "AC" followed by four numbers -->
+      <match value="AC0000" type="string" offset="0"
+             mask="0xFFFFF0F0F0F0"/>
+    </magic>
   </mime-type>
+
   <mime-type type="image/vnd.dxf">
     <glob pattern="*.dxf"/>
   </mime-type>
@@ -3233,7 +3332,7 @@
   </mime-type>
 
   <mime-type type="image/x-niff">
-    <comment>Navy Interchange File Format</comment>
+    <_comment>Navy Interchange File Format</_comment>
     <magic priority="50">
       <match value="IIN1" type="string" offset="0"/>
     </magic>
@@ -3249,14 +3348,14 @@
 
   <mime-type type="image/x-portable-anymap">
     <acronym>PNM</acronym>
-    <comment>Portable Any Map</comment>
+    <_comment>Portable Any Map</_comment>
     <glob pattern="*.pnm" />
   </mime-type>
 
   <mime-type type="image/x-portable-bitmap">
     <sub-class-of type="image/x-portable-anymap"/>
     <acronym>PBM</acronym>
-    <comment>Portable Bit Map</comment>
+    <_comment>Portable Bit Map</_comment>
     <magic priority="50">
       <match value="P1" type="string" offset="0"/>
       <match value="P4" type="string" offset="0"/>
@@ -3267,7 +3366,7 @@
   <mime-type type="image/x-portable-graymap">
     <sub-class-of type="image/x-portable-anymap"/>
     <acronym>PGM</acronym>
-    <comment>Portable Gray Map</comment>
+    <_comment>Portable Gray Map</_comment>
     <magic priority="50">
       <match value="P2" type="string" offset="0"/>
       <match value="P5" type="string" offset="0"/>
@@ -3278,7 +3377,7 @@
   <mime-type type="image/x-portable-pixmap">
     <sub-class-of type="image/x-portable-anymap"/>
     <acronym>PXM</acronym>
-    <comment>Portable Pixel Map</comment>
+    <_comment>Portable Pixel Map</_comment>
     <magic priority="50">
       <match value="P3" type="string" offset="0"/>
       <match value="P6" type="string" offset="0"/>
@@ -3289,28 +3388,28 @@
 
   <mime-type type="image/x-raw-adobe">
     <acronym>DNG</acronym>
-    <comment>Adobe Digital Negative</comment>
+    <_comment>Adobe Digital Negative</_comment>
     <glob pattern="*.dng"/>
   </mime-type>
 
   <mime-type type="image/x-raw-hasselblad">
-    <comment>Hasselblad raw image</comment>
+    <_comment>Hasselblad raw image</_comment>
     <glob pattern="*.3fr"/>
   </mime-type>
 
   <mime-type type="image/x-raw-fuji">
-    <comment>Fuji raw image</comment>
+    <_comment>Fuji raw image</_comment>
     <glob pattern="*.raf"/>
   </mime-type>
 
   <mime-type type="image/x-raw-canon">
-    <comment>Canon raw image</comment>
+    <_comment>Canon raw image</_comment>
     <glob pattern="*.crw"/>
     <glob pattern="*.cr2"/>
   </mime-type>
 
   <mime-type type="image/x-raw-kodak">
-    <comment>Kodak raw image</comment>
+    <_comment>Kodak raw image</_comment>
     <glob pattern="*.k25"/>
     <glob pattern="*.kdc"/>
     <glob pattern="*.dcs"/>
@@ -3318,88 +3417,88 @@
   </mime-type>
 
   <mime-type type="image/x-raw-minolta">
-    <comment>Minolta raw image</comment>
+    <_comment>Minolta raw image</_comment>
     <glob pattern="*.mrw"/>
   </mime-type>
 
   <mime-type type="image/x-raw-nikon">
-    <comment>Nikon raw image</comment>
+    <_comment>Nikon raw image</_comment>
     <glob pattern="*.nef"/>
     <glob pattern="*.nrw"/>
   </mime-type>
 
   <mime-type type="image/x-raw-olympus">
-    <comment>Olympus raw image</comment>
+    <_comment>Olympus raw image</_comment>
     <glob pattern="*.orf"/>
   </mime-type>
 
   <mime-type type="image/x-raw-pentax">
-    <comment>Pentax raw image</comment>
+    <_comment>Pentax raw image</_comment>
     <glob pattern="*.ptx"/>
     <glob pattern="*.pef"/>
   </mime-type>
 
   <mime-type type="image/x-raw-sony">
-    <comment>Sony raw image</comment>
+    <_comment>Sony raw image</_comment>
     <glob pattern="*.arw"/>
     <glob pattern="*.srf"/>
     <glob pattern="*.sr2"/>
   </mime-type>
 
   <mime-type type="image/x-raw-sigma">
-    <comment>Sigma raw image</comment>
+    <_comment>Sigma raw image</_comment>
     <glob pattern="*.x3f"/>
   </mime-type>
 
   <mime-type type="image/x-raw-epson">
-    <comment>Epson raw image</comment>
+    <_comment>Epson raw image</_comment>
     <glob pattern="*.erf"/>
   </mime-type>
 
   <mime-type type="image/x-raw-mamiya">
-    <comment>Mamiya raw image</comment>
+    <_comment>Mamiya raw image</_comment>
     <glob pattern="*.mef"/>
   </mime-type>
 
   <mime-type type="image/x-raw-leaf">
-    <comment>Leaf raw image</comment>
+    <_comment>Leaf raw image</_comment>
     <glob pattern="*.mos"/>
   </mime-type>
 
   <mime-type type="image/x-raw-panasonic">
-    <comment>Panasonic raw image</comment>
+    <_comment>Panasonic raw image</_comment>
     <glob pattern="*.raw"/>
     <glob pattern="*.rw2"/>
   </mime-type>
 
   <mime-type type="image/x-raw-phaseone">
-    <comment>Phase One raw image</comment>
+    <_comment>Phase One raw image</_comment>
     <glob pattern="*.cap"/>
     <glob pattern="*.iiq"/>
   </mime-type>
 
   <mime-type type="image/x-raw-red">
-    <comment>Red raw image</comment>
+    <_comment>Red raw image</_comment>
     <glob pattern="*.r3d"/>
   </mime-type>
 
   <mime-type type="image/x-raw-imacon">
-    <comment>Imacon raw image</comment>
+    <_comment>Imacon raw image</_comment>
     <glob pattern="*.fff"/>
   </mime-type>
 
   <mime-type type="image/x-raw-logitech">
-    <comment>Logitech raw image</comment>
+    <_comment>Logitech raw image</_comment>
     <glob pattern="*.pxn"/>
   </mime-type>
 
   <mime-type type="image/x-raw-casio">
-    <comment>Casio raw image</comment>
+    <_comment>Casio raw image</_comment>
     <glob pattern="*.bay"/>
   </mime-type>
 
   <mime-type type="image/x-raw-rawzor">
-    <comment>Rawzor raw image</comment>
+    <_comment>Rawzor raw image</_comment>
     <glob pattern="*.rwz"/>
   </mime-type>
 
@@ -3466,6 +3565,8 @@
     </magic>
     <glob pattern="*.eml"/>
     <glob pattern="*.mime"/>
+    <glob pattern="*.mht"/>
+    <glob pattern="*.mhtml"/>
   </mime-type>
 
   <mime-type type="message/s-http"/>
@@ -3535,7 +3636,7 @@
   </mime-type>
 
   <mime-type type="text/css">
-    <comment>Cascading Style Sheet</comment>
+    <_comment>Cascading Style Sheet</_comment>
     <glob pattern="*.css"/>
     <sub-class-of type="text/plain"/>
   </mime-type>
@@ -3562,7 +3663,13 @@
     <root-XML localName="BODY"/>
     <root-XML localName="p"/>
     <root-XML localName="P"/>
-    <magic priority="50">
+    <root-XML localName="script"/>
+    <root-XML localName="SCRIPT"/>
+    <root-XML localName="frameset"/>
+    <root-XML localName="FRAMESET"/>
+    <!-- The magic priority needs to be lower than that of -->
+    <!--  files which contain HTML within them, eg mime emails -->
+    <magic priority="40">
       <match value="&lt;!DOCTYPE HTML" type="string" offset="0:64"/>
       <match value="&lt;!doctype html" type="string" offset="0:64"/>
       <match value="&lt;HEAD" type="string" offset="0:64"/>
@@ -3571,7 +3678,7 @@
       <match value="&lt;title" type="string" offset="0:64"/>
       <!-- note on the offset value here: this can only be as big as
            MimeTypes#getMinLength(). If you set the offset value to larger
-           than that size, the magic will only be compared to up to 
+           than that size, the magic will only be compared to up to
            MimeTypes#getMinLength() bytes.
        -->
       <match value="&lt;html" type="string" offset="0:8192"/>
