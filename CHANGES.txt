@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.3 - Current Development
 
+* NUTCH-972 CrawlDbMerger doesn't break on non-existent input (Gabriele Kahlout via jnioche)
+
 * NUTCH-967 Upgrade to Tika 0.9 (jnioche)
 
 * NUTCH-975 Fix missing/wrong headers in source files (markus)

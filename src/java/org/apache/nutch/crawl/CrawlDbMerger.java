@@ -120,6 +120,7 @@ public class CrawlDbMerger extends Configured implements Tool {
 
     JobConf job = createMergeJob(getConf(), output, normalize, filter);
     for (int i = 0; i < dbs.length; i++) {
+      if (LOG.isInfoEnabled()) { LOG.info("Adding " + dbs[i]); }
       FileInputFormat.addInputPath(job, new Path(dbs[i], CrawlDb.CURRENT_NAME));
     }
     JobClient.runJob(job);
@@ -172,6 +173,7 @@ public class CrawlDbMerger extends Configured implements Tool {
     ArrayList<Path> dbs = new ArrayList<Path>();
     boolean filter = false;
     boolean normalize = false;
+    FileSystem fs = FileSystem.get(getConf());
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-filter")) {
         filter = true;
@@ -180,7 +182,9 @@ public class CrawlDbMerger extends Configured implements Tool {
         normalize = true;
         continue;
       }
-      dbs.add(new Path(args[i]));
+      final Path dbPath = new Path(args[i]);
+      if(fs.exists(dbPath))
+       dbs.add(dbPath);
     }
     try {
       merge(output, dbs.toArray(new Path[dbs.size()]), normalize, filter);
