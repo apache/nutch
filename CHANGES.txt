@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.3 - Current Development
 
+* NUTCH-890 Fix IllegalAccessError with slf4j used in Solrj (markus)
+
 * NUTCH-891 Subcollection plugin won't require blacklist any more (markus)
 
 * NUTCH-972 CrawlDbMerger doesn't break on non-existent input (Gabriele Kahlout via jnioche)
