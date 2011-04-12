@@ -25,6 +25,7 @@ import org.apache.hadoop.conf.Configured;
 import org.apache.nutch.net.URLFilter;
 import org.apache.xerces.util.DOMUtil;
 import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * SubCollection represents a subset of index, you can define url patterns that
@@ -170,11 +171,15 @@ public class Subcollection extends Configured implements URLFilter{
         collection.getElementsByTagName(TAG_NAME).item(0)).trim();
     this.wlString = DOMUtil.getChildText(
         collection.getElementsByTagName(TAG_WHITELIST).item(0)).trim();
-    this.blString = DOMUtil.getChildText(
-        collection.getElementsByTagName(TAG_BLACKLIST).item(0)).trim();
 
     parseList(this.whiteList, wlString);
-    parseList(this.blackList, blString);
+
+    // Check if there's a blacklist we need to parse
+    NodeList nodeList = collection.getElementsByTagName(TAG_BLACKLIST);
+    if (nodeList.getLength() > 0) {
+      this.blString = DOMUtil.getChildText(nodeList.item(0)).trim();
+      parseList(this.blackList, blString);
+    }
   }
 
   /**
