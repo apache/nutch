@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-982 Remove copying of ID and URL field in solrmapping (markus)
+
 * NUTCH-891 Subcollection plugin won't require blacklist any more (markus)
 
 * NUTCH-967 Upgrade to Tika 0.9 (jnioche)
