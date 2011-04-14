@@ -38,9 +38,6 @@ import org.xml.sax.SAXException;
 
 public class SolrMappingReader {
   public static Log LOG = LogFactory.getLog(SolrMappingReader.class);
-
-  /** The property name of the parse solr index mapping location */
-  private static final String SS_FILE_MAPPING = "solrindex.mapping.file";
   
   private Configuration conf;
   
@@ -65,7 +62,8 @@ public class SolrMappingReader {
 
   private void parseMapping() {    
     InputStream ssInputStream = null;
-    ssInputStream = conf.getConfResourceAsInputStream(conf.get(SS_FILE_MAPPING, "solrindex-mapping.xml"));
+    ssInputStream = conf.getConfResourceAsInputStream(conf.get(SolrConstants.MAPPING_FILE, "solrindex-mapping.xml"));
+
     InputSource inputSource = new InputSource(ssInputStream);
     try {
       DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
