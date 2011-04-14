@@ -1024,13 +1024,24 @@
 </property>
 
 <!-- solr index properties -->
+
 <property>
-  <name>solrindex.mapping.file</name>
+  <name>solr.mapping.file</name>
   <value>solrindex-mapping.xml</value>
   <description>
   Defines the name of the file that will be used in the mapping of internal
   nutch field names to solr index fields as specified in the target Solr schema.
   </description>
 </property>
+
+<property> 
+  <name>solr.commit.size</name>
+  <value>1000</value>
+  <description>
+  Defines the number of documents to send to Solr in a single update batch.
+  Decrease when handling very large documents to prevent Nutch from running
+  out of memory.
+  </description>  
+</property> 
 
 </configuration>
