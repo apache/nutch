@@ -32,7 +32,7 @@
 	<dependencies>
 		<dependency org="org.apache.solr" name="solr-solrj" rev="1.4.1"
 			conf="*->default" />
-		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.5.11" conf="*->master" />
+		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.5.5" conf="*->master" />
 
 		<dependency org="commons-lang" name="commons-lang" rev="2.4"
 			conf="*->default" />

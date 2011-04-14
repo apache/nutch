@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-980 Fix IllegalAccessError with slf4j used in Solrj (markus)
+
 * NUTCH-982 Remove copying of ID and URL field in solrmapping (markus)
 
 * NUTCH-891 Subcollection plugin won't require blacklist any more (markus)
