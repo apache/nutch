@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-975 Fix missing/wrong headers in source files (markus, jnioche)
+
 * NUTCH-980 Fix IllegalAccessError with slf4j used in Solrj (markus)
 
 * NUTCH-982 Remove copying of ID and URL field in solrmapping (markus)
