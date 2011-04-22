@@ -123,7 +123,7 @@
 
 <property>
   <name>http.agent.version</name>
-  <value>Nutch-1.3-dev</value>
+  <value>Nutch-1.3</value>
   <description>A version string to advertise in the User-Agent 
    header.</description>
 </property>

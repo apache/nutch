@@ -21,7 +21,7 @@
 	<artifactId>nutch</artifactId>
 	<packaging>jar</packaging>
 	<name>Apache Nutch</name>
-	<version>1.3-dev</version>
+	<version>1.3</version>
 	<description>Nutch is open source web-search software. It builds on 
 	Lucene and Solr, adding web-specifics, such as a crawler, a link-graph 
 	database, parsers for HTML and other document formats, etc.
@@ -77,6 +77,16 @@
 			<name>Sami Siren</name>
 			<email>siren@apache.org</email>
 		</developer>
+                <developer>
+                        <id>markus</id>
+                        <name>Markus Jelsma</name>
+                        <email>markus@apache.org</email>
+                </developer>
+                <developer>
+                        <id>alexis</id>
+                        <name>Alexis Detlegrode</name>
+                        <email>alexis@apache.org</email>
+                </developer>
 	</developers>
 	<dependencies>
 	    <dependency>
@@ -153,12 +163,12 @@
 	    <dependency>
 	       <groupId>org.apache.tika</groupId>
 	       <artifactId>tika-core</artifactId>
-	       <version>0.7</version>
+	       <version>0.9</version>
 	    </dependency>		
 	    <dependency>
 	       <groupId>org.apache.tika</groupId>
 	       <artifactId>tika-parsers</artifactId>
-	       <version>0.7</version>
+	       <version>0.9</version>
 	       <exclusions>
 	         <exclusion>
 	           <groupId>org.sun.jdmk</groupId>
@@ -275,9 +285,9 @@
 	       <version>1.1</version>
 	    </dependency>
 		<dependency>
-			<groupId>org.gora</groupId>
+			<groupId>org.apache.gora</groupId>
 			<artifactId>gora-sql</artifactId>
-			<version>0.1</version>
+			<version>0.1-incubating</version>
 		      <exclusions>
 		        <exclusion>
 		          <groupId>com.sun.jdmk</groupId>
