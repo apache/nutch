@@ -21,7 +21,9 @@ import java.io.DataOutput;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.Iterator;
+import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -126,7 +128,15 @@ Tool {
     public void readSolrDocument(SolrDocument doc) {
       id = (String)doc.getFieldValue(SolrConstants.ID_FIELD);
       boost = (Float)doc.getFieldValue(SolrConstants.BOOST_FIELD);
-      tstamp = (Long)doc.getFieldValue(SolrConstants.TIMESTAMP_FIELD);
+
+      // Attempt to convert Solr formatted date to internally used long
+      try {
+        DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        Date date = (Date)formatter.parse((String)doc.getFieldValue(SolrConstants.TIMESTAMP_FIELD));
+        tstamp = (Long)date.getTime();
+      } catch (Exception e) {
+        LOG.error("Could not convert date to long: " + e);
+      }
     }
 
     public void readFields(DataInput in) throws IOException {
