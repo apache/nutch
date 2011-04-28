@@ -308,6 +308,7 @@ Tool {
       if (numDeletes > 0) {
         LOG.info("SolrDeleteDuplicates: deleting " + numDeletes + " duplicates");
         updateRequest.process(solr);
+        solr.commit();
       }
     } catch (SolrServerException e) {
       throw new IOException(e);
