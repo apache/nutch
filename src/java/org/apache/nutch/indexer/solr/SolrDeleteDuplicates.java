@@ -316,6 +316,8 @@ implements Tool {
     try {
       if (numDeletes > 0) {
         updateRequest.process(solr);
+
+        solr.commit();
       }
     } catch (SolrServerException e) {
       throw new IOException(e);
