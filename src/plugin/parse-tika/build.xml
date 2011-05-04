@@ -29,6 +29,7 @@
   <mkdir dir="${build.test}/data"/>
   <copy todir="${build.test}/data">
     <fileset dir="sample">
+      <include name="*.rss"/>
       <include name="*.rtf"/>
       <include name="*.pdf"/>
       <include name="ootest.*"/>

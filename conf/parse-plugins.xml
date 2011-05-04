@@ -37,7 +37,7 @@
 	</mimeType>
 
 	<mimeType name="application/rss+xml">
-	    <plugin id="parse-rss" />
+	    <plugin id="parse-tika" />
 	    <plugin id="feed" />
 	</mimeType>
 
@@ -65,7 +65,6 @@
 
 	<mimeType name="text/xml">
 		<plugin id="parse-tika" />
-		<plugin id="parse-rss" />
 		<plugin id="feed" />
 	</mimeType>
 
@@ -88,8 +87,6 @@
 			extension-id="org.apache.nutch.parse.tika.TikaParser" />
 		<alias name="parse-ext" extension-id="ExtParser" />
 		<alias name="parse-js" extension-id="JSParser" />
-		<alias name="parse-rss"
-			extension-id="org.apache.nutch.parse.rss.RSSParser" />
 		<alias name="feed"
 			extension-id="org.apache.nutch.parse.feed.FeedParser" />
 		<alias name="parse-swf"

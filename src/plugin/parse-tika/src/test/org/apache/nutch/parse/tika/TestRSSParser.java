@@ -15,8 +15,12 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.parse.rss;
+package org.apache.nutch.parse.tika;
 
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.apache.nutch.protocol.ProtocolFactory;
@@ -54,7 +58,7 @@ public class TestRSSParser extends TestCase {
   // Make sure sample files are copied to "test.data" as specified in
   // ./src/plugin/parse-rss/build.xml during plugin compilation.
 
-  private String[] sampleFiles = {"rsstest.rss"};
+  private String[] sampleFiles = { "rsstest.rss" };
 
   /**
    * <p>
@@ -79,7 +83,7 @@ public class TestRSSParser extends TestCase {
    * file</li>
    * </ul>
    */
-  public void testIt() throws ProtocolException, ParseException {
+  public void testIt()throws ProtocolException, ParseException, IOException {
     String urlString;
     Protocol protocol;
     Parse parse;
@@ -89,43 +93,45 @@ public class TestRSSParser extends TestCase {
     for (int i = 0; i < sampleFiles.length; i++) {
       urlString = "file:" + sampleDir + fileSeparator + sampleFiles[i];
 
-      protocol = new ProtocolFactory(conf).getProtocol(urlString);
+      File file = new File(sampleDir + fileSeparator + sampleFiles[i]);
+      byte[] bytes = new byte[(int) file.length()];
+      DataInputStream in = new DataInputStream(new FileInputStream(file));
+      in.readFully(bytes);
+      in.close();
+
       WebPage page = new WebPage();
-      Content c = protocol.getProtocolOutput(urlString, page).getContent();
-      page.setContent(ByteBuffer.wrap(c.getContent()));
-      MimeType mtype = mimeutil.getMimeType(urlString);
+      page.setBaseUrl(new Utf8(urlString));
+      page.setContent(ByteBuffer.wrap(bytes));
+      MimeType mtype = mimeutil.getMimeType(file);
       page.setContentType(new Utf8(mtype.getName()));
 
       parse = new ParseUtil(conf).parse(urlString, page);
 
-      // check that there are 3 outlinks:
-      // http://test.channel.com
+      // check that there are 2 outlinks:
+
       // http://www-scf.usc.edu/~mattmann/
       // http://www.nutch.org
 
       Outlink[] theOutlinks = parse.getOutlinks();
 
-      assertTrue("There aren't 3 outlinks read!", theOutlinks.length == 3);
+      assertTrue("There aren't 2 outlinks read!", theOutlinks.length == 2);
 
       // now check to make sure that those are the two outlinks
-      boolean hasLink1 = false, hasLink2 = false, hasLink3 = false;
+      boolean hasLink1 = false, hasLink2 = false;
 
       for (int j = 0; j < theOutlinks.length; j++) {
         // System.out.println("reading "+theOutlinks[j].getToUrl());
-        if (theOutlinks[j].getToUrl().equals("http://www-scf.usc.edu/~mattmann/")) {
+        if (theOutlinks[j].getToUrl().equals(
+            "http://www-scf.usc.edu/~mattmann/")) {
           hasLink1 = true;
         }
 
         if (theOutlinks[j].getToUrl().equals("http://www.nutch.org/")) {
           hasLink2 = true;
         }
-
-        if (theOutlinks[j].getToUrl().equals("http://test.channel.com/")) {
-          hasLink3 = true;
-        }
       }
 
-      if (!hasLink1 || !hasLink2 || !hasLink3) {
+      if (!hasLink1 || !hasLink2) {
         fail("Outlinks read from sample rss file are not correct!");
       }
     }
