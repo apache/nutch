@@ -95,7 +95,7 @@ public class TestParserFactory extends TestCase {
     parsers = parserFactory.getParsers("text/rss","http://foo.com");
     assertNotNull(parsers);
     assertEquals(1,parsers.length);
-    assertEquals("org.apache.nutch.parse.rss.RSSParser",
+    assertEquals("org.apache.nutch.parse.tika.TikaParser",
                  parsers[0].getClass().getName());
   }
  
