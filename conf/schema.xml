@@ -28,6 +28,8 @@
             omitNorms="true"/>
         <fieldType name="float" class="solr.FloatField"
             omitNorms="true"/>
+        <fieldType name="date" class="solr.DateField"
+            omitNorms="true"/>
         <fieldType name="text" class="solr.TextField"
             positionIncrementGap="100">
             <analyzer>
@@ -71,7 +73,7 @@
         <field name="content" type="text" stored="false" indexed="true"/>
         <field name="title" type="text" stored="true" indexed="true"/>
         <field name="cache" type="string" stored="true" indexed="false"/>
-        <field name="tstamp" type="long" stored="true" indexed="false"/>
+        <field name="tstamp" type="date" stored="true" indexed="false"/>
 
         <!-- fields for index-anchor plugin -->
         <field name="anchor" type="string" stored="true" indexed="true"
