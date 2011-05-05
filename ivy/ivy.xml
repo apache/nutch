@@ -30,7 +30,7 @@
 	</publications>
 
 	<dependencies>
-		<dependency org="org.apache.solr" name="solr-solrj" rev="1.4.1"
+		<dependency org="org.apache.solr" name="solr-solrj" rev="3.1.0"
 			conf="*->default" />
 		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.5.5" conf="*->master" />
 
@@ -55,24 +55,12 @@
 		<dependency org="com.ibm.icu" name="icu4j" rev="4.0.1" />
 		<dependency org="org.apache.tika" name="tika-core" rev="0.9" />
 		<!--
-		  <dependency org="org.apache.tika" name="tika-parsers" rev="0.9" >
-			<exclude org="com.sun.jdmk"/>
-			<exclude org="com.sun.jmx"/>
-			<exclude org="javax.jms"/>
-		</dependency>
+		  <dependency org="org.apache.tika" name="tika-parsers" rev="0.9" />
 		-->
 		
-		<dependency org="org.apache.gora" name="gora-core" rev="0.1-incubating" conf="*->compile">
-			<exclude org="com.sun.jdmk"/>
-			<exclude org="com.sun.jmx"/>
-			<exclude org="javax.jms"/>
-		</dependency>
+		<dependency org="org.apache.gora" name="gora-core" rev="0.2-incubating" conf="*->compile"/>
 
-		<dependency org="log4j" name="log4j" rev="1.2.15" conf="*->master" >
-			<exclude org="com.sun.jdmk"/>
-			<exclude org="com.sun.jmx"/>
-			<exclude org="javax.jms"/>
-		</dependency>
+		<dependency org="log4j" name="log4j" rev="1.2.15" conf="*->master" />
 
 		<dependency org="xerces" name="xercesImpl" rev="2.9.1" />
 		<dependency org="xerces" name="xmlParserAPIs" rev="2.6.2" />
@@ -105,11 +93,7 @@
 		<dependency org="org.hsqldb" name="hsqldb" rev="2.0.0" conf="*->default"/>
 		<dependency org="org.jdom" name="jdom" rev="1.1" conf="test->default"/>
 
-		<dependency org="org.apache.gora" name="gora-sql" rev="0.1-incubating" conf="*->compile">
-			<exclude org="com.sun.jdmk"/>
-			<exclude org="com.sun.jmx"/>
-			<exclude org="javax.jms"/>		
-		</dependency>		
+		<dependency org="org.apache.gora" name="gora-sql" rev="0.2-incubating" conf="*->compile"/>				
                 <dependency org="org.restlet.jse" name="org.restlet" rev="2.0.5" conf="*->default"/>
                 <dependency org="org.restlet.jse" name="org.restlet.ext.jackson" rev="2.0.5" conf="*->default"/>
 
@@ -125,19 +109,16 @@
 -->
 <!--
        <dependency org="org.apache.gora" name="gora-hbase" rev="0.1" conf="*->compile">
-               <exclude org="com.sun.jdmk"/>
-               <exclude org="com.sun.jmx"/>
-               <exclude org="javax.jms"/>
        </dependency>
        <dependency org="org.apache.zookeeper" name="zookeeper" rev="3.3.2" conf="*->default">
-               <exclude org="com.sun.jdmk"/>
-               <exclude org="com.sun.jmx"/>
-               <exclude org="javax.jms"/>
        </dependency>
 -->
 
                 <!--global exclusion-->
              	<exclude module="ant" />
+             	<exclude module="jmxtools" />
+             	<exclude module="jms" />
+             	<exclude module="jmxri" />
 	</dependencies>
 
 </ivy-module>
