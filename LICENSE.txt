@@ -4233,12 +4233,6 @@ ASF
 lib/log4j-1.2.15.jar
 ASF
 
-src/plugin/parse-rss/lib/xmlrpc-1.2.jar
-ASF
-
-src/plugin/parse-rss/lib/commons-feedparser-0.6-fork.jar
-ASF
-
 src/plugin/feed/lib/rome-0.9.jar
 Copyright 2004 Sun Microsystems, Inc.
 
