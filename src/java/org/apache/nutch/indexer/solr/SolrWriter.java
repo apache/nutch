@@ -63,7 +63,7 @@ public class SolrWriter implements NutchIndexWriter {
     }
     inputDoc.setDocumentBoost(doc.getScore());
     inputDocs.add(inputDoc);
-    if (inputDocs.size() > commitSize) {
+    if (inputDocs.size() >= commitSize) {
       try {
         solr.add(inputDocs);
       } catch (final SolrServerException e) {
