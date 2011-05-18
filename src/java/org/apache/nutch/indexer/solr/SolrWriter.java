@@ -18,6 +18,7 @@ package org.apache.nutch.indexer.solr;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -29,6 +30,7 @@ import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.util.DateUtil;
 
 public class SolrWriter implements NutchIndexWriter {
 
@@ -50,7 +52,12 @@ public class SolrWriter implements NutchIndexWriter {
     final SolrInputDocument inputDoc = new SolrInputDocument();
     for(final Entry<String, NutchField> e : doc) {
       for (final Object val : e.getValue().getValues()) {
-        inputDoc.addField(solrMapping.mapKey(e.getKey()), val, e.getValue().getWeight());
+        // normalise the string representation for a Date
+        Object val2 = val;
+        if (val instanceof Date){
+          val2 = DateUtil.getThreadLocalDateFormat().format(val);
+        }
+        inputDoc.addField(solrMapping.mapKey(e.getKey()), val2, e.getValue().getWeight());
         String sCopy = solrMapping.mapCopyKey(e.getKey());
         if (sCopy != e.getKey()) {
         	inputDoc.addField(sCopy, val);	

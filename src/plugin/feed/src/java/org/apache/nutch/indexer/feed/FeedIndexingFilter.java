@@ -18,9 +18,7 @@
 package org.apache.nutch.indexer.feed;
 
 //JDK imports
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 
 //APACHE imports
 import org.apache.hadoop.conf.Configuration;
@@ -96,18 +94,14 @@ public class FeedIndexingFilter implements IndexingFilter {
     if (feed != null)
       doc.add(Feed.FEED, feed);
     
-    SimpleDateFormat sdf = new SimpleDateFormat(dateFormatStr);
-    sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
     if (published != null) {
       Date date = new Date(Long.parseLong(published));
-      String dateString = sdf.format(date);
-      doc.add(PUBLISHED_DATE, dateString);
+      doc.add(PUBLISHED_DATE, date);
     }
     
     if (updated != null) {
       Date date = new Date(Long.parseLong(updated));
-      String dateString = sdf.format(date);
-      doc.add(UPDATED_DATE, dateString);
+      doc.add(UPDATED_DATE, date);
     }
         
     return doc;

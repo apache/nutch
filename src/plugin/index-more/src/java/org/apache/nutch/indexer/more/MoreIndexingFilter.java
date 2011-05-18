@@ -51,7 +51,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import java.util.Date;
-import java.util.TimeZone;
 
 import org.apache.commons.lang.time.DateUtils;
 
@@ -101,21 +100,15 @@ public class MoreIndexingFilter implements IndexingFilter {
     if (lastModified != null) {                   // try parse last-modified
       time = getTime(lastModified,url);           // use as time
                                                   // store as string
-      doc.add("lastModified", Long.toString(time));
+      doc.add("lastModified", new Date(time));
     }
 
     if (time == -1) {                             // if no last-modified
       time = datum.getFetchTime();                // use fetch time
     }
 
-    // add support for query syntax date:
-    // query filter is implemented in DateQueryFilter.java
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-    sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-    String dateString = sdf.format(new Date(time));
-
     // un-stored, indexed and un-tokenized
-    doc.add("date", dateString);
+    doc.add("date", new Date(time));
 
     return doc;
   }

@@ -84,9 +84,9 @@
             multiValued="true"/>
         <field name="contentLength" type="long" stored="true"
             indexed="false"/>
-        <field name="lastModified" type="long" stored="true"
+        <field name="lastModified" type="date" stored="true"
             indexed="false"/>
-        <field name="date" type="string" stored="true" indexed="true"/>
+        <field name="date" type="date" stored="true" indexed="true"/>
 
         <!-- fields for languageidentifier plugin -->
         <field name="lang" type="string" stored="true" indexed="true"/>
@@ -99,9 +99,9 @@
         <field name="author" type="string" stored="true" indexed="true"/>
         <field name="tag" type="string" stored="true" indexed="true"/>
         <field name="feed" type="string" stored="true" indexed="true"/>
-        <field name="publishedDate" type="string" stored="true"
+        <field name="publishedDate" type="date" stored="true"
             indexed="true"/>
-        <field name="updatedDate" type="string" stored="true"
+        <field name="updatedDate" type="date" stored="true"
             indexed="true"/>
     </fields>
     <uniqueKey>id</uniqueKey>

@@ -30,7 +30,6 @@ import org.apache.hadoop.io.Text;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
-import org.apache.solr.common.util.DateUtil;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -87,8 +86,7 @@ public class BasicIndexingFilter implements IndexingFilter {
     }
     
     // add timestamp when fetched, for deduplication
-    String tstamp = DateUtil.getThreadLocalDateFormat().format(new Date(datum.getFetchTime()));
-    doc.add("tstamp", tstamp);
+    doc.add("tstamp", new Date(datum.getFetchTime()));
 
     return doc;
   }

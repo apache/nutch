@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.3 - 4/21/2011
 
+* NUTCH-997 IndexingFitlers to store Date objects instead of Strings (jnioche)
+
 * NUTCH-996 Indexer adds solr.commit.size+1 docs (markus)
 
 * NUTCH-983 Upgrade SolrJ to 3.1 (markus, jnioche)
