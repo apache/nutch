@@ -15,21 +15,28 @@
         and limitations under the License.
     -->
     <!--
-        Description: This document contains solr schema definition to be
-        used with solr integration currently build into Nutch. See
+        Description: This document contains Solr 3.1 schema definition to
+        be used with Solr integration currently build into Nutch. See
         https://issues.apache.org/jira/browse/NUTCH-442
-        https://issues.apache.org/jira/browse/NUTCH-699 for more info.
+        https://issues.apache.org/jira/browse/NUTCH-699
+        https://issues.apache.org/jira/browse/NUTCH-994
+        https://issues.apache.org/jira/browse/NUTCH-997
+        and
+        http://svn.apache.org/viewvc/lucene/dev/branches/branch_3x/solr/
+        example/solr/conf/schema.xml?view=markup
+        for more info.
     -->
-<schema name="nutch" version="1.1">
+<schema name="nutch" version="1.3">
     <types>
-        <fieldType name="string" class="solr.StrField"
-            sortMissingLast="true" omitNorms="true"/>
-        <fieldType name="long" class="solr.LongField"
-            omitNorms="true"/>
-        <fieldType name="float" class="solr.FloatField"
-            omitNorms="true"/>
-        <fieldType name="date" class="solr.DateField"
-            omitNorms="true"/>
+        <fieldType name="string" class="solr.StrField" sortMissingLast="true"
+            omitNorms="true"/> 
+        <fieldType name="long" class="solr.TrieLongField" precisionStep="0"
+            omitNorms="true" positionIncrementGap="0"/>
+        <fieldType name="float" class="solr.TrieFloatField" precisionStep="0"
+            omitNorms="true" positionIncrementGap="0"/>
+        <fieldType name="date" class="solr.TrieDateField" precisionStep="0"
+            omitNorms="true" positionIncrementGap="0"/>
+
         <fieldType name="text" class="solr.TextField"
             positionIncrementGap="100">
             <analyzer>
@@ -53,7 +60,6 @@
                 <filter class="solr.LowerCaseFilterFactory"/>
                 <filter class="solr.WordDelimiterFilterFactory"
                     generateWordParts="1" generateNumberParts="1"/>
-                <filter class="solr.RemoveDuplicatesTokenFilterFactory"/>
             </analyzer>
         </fieldType>
     </types>
@@ -95,14 +101,18 @@
         <field name="subcollection" type="string" stored="true"
             indexed="true" multiValued="true"/>
 
-        <!-- fields for feed plugin -->
+        <!-- fields for feed plugin (tag is also used by microformats-reltag)-->
         <field name="author" type="string" stored="true" indexed="true"/>
-        <field name="tag" type="string" stored="true" indexed="true"/>
+        <field name="tag" type="string" stored="true" indexed="true" multiValued="true"/>
         <field name="feed" type="string" stored="true" indexed="true"/>
         <field name="publishedDate" type="date" stored="true"
             indexed="true"/>
         <field name="updatedDate" type="date" stored="true"
             indexed="true"/>
+
+        <!-- fields for creativecommons plugin -->
+        <field name="cc" type="string" stored="true" indexed="true"
+            multiValued="true"/>
     </fields>
     <uniqueKey>id</uniqueKey>
     <defaultSearchField>content</defaultSearchField>
