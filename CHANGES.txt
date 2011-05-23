@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-999 Normalise String representation for Dates in IndexingFilters (jnioche)
+
 * NUTCH-996 Indexer adds solr.commit.size+1 docs (markus)
 
 * NUTCH-983 Upgrade SolrJ to 3.1 (markus, jnioche)

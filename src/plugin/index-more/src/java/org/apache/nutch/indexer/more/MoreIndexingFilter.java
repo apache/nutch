@@ -43,6 +43,7 @@ import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
 import org.apache.oro.text.regex.Perl5Pattern;
 import org.apache.tika.mime.MimeType;
+import org.apache.solr.common.util.DateUtil;
 
 /**
  * Add (or reset) a few metaData properties as respective fields (if they are
@@ -88,8 +89,9 @@ public class MoreIndexingFilter implements IndexingFilter {
     // String lastModified = data.getMeta(Metadata.LAST_MODIFIED);
     if (lastModified != null) { // try parse last-modified
       time = getTime(lastModified.toString(), url); // use as time
+      String formlastModified = DateUtil.getThreadLocalDateFormat().format(new Date(time));
       // store as string
-      doc.add("lastModified", Long.toString(time));
+      doc.add("lastModified", formlastModified);
     }
 
     if (time == -1) { // if no last-modified
@@ -97,11 +99,7 @@ public class MoreIndexingFilter implements IndexingFilter {
       time = page.getFetchTime(); // use fetch time
     }
 
-    // add support for query syntax date:
-    // query filter is implemented in DateQueryFilter.java
-    SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-    sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-    String dateString = sdf.format(new Date(time));
+    String dateString = DateUtil.getThreadLocalDateFormat().format(new Date(time));
 
     // un-stored, indexed and un-tokenized
     doc.add("date", dateString);

@@ -34,6 +34,7 @@ import org.apache.nutch.metadata.Feed;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
+import org.apache.solr.common.util.DateUtil;
 
 /**
  * @author dogacan
@@ -96,17 +97,15 @@ public class FeedIndexingFilter implements IndexingFilter {
     if (feed != null)
       doc.add(Feed.FEED, feed);
     
-    SimpleDateFormat sdf = new SimpleDateFormat(dateFormatStr);
-    sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
     if (published != null) {
       Date date = new Date(Long.parseLong(published));
-      String dateString = sdf.format(date);
+      String dateString =  DateUtil.getThreadLocalDateFormat().format(date);
       doc.add(PUBLISHED_DATE, dateString);
     }
     
     if (updated != null) {
       Date date = new Date(Long.parseLong(updated));
-      String dateString = sdf.format(date);
+      String dateString = DateUtil.getThreadLocalDateFormat().format(date);
       doc.add(UPDATED_DATE, dateString);
     }
         
