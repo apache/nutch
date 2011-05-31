@@ -17,708 +17,663 @@
 -->
 <project name="Nutch" default="runtime" xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 
-  <!-- Load all the default properties, and any the user wants    -->
-  <!-- to contribute (without having to type -D or edit this file -->
-  <property file="${user.home}/build.properties" />
-  <property file="${basedir}/build.properties" />
-  <property file="${basedir}/default.properties" />
-  <property name="test.junit.output.format" value="plain"/>
-  <property name="release.dir" value="${build.dir}/release"/>
-  
-  <!-- define Maven coordinates, repository url and artifacts name etc -->
-  <property name="groupId" value="org.apache.nutch" />
-  <property name="artifactId" value="nutch" />
-  <property name="maven-repository-url" value="https://repository.apache.org/service/local/staging/deploy/maven2" />
-  <property name="maven-repository-id" value="apache.releases.https" />
-  <property name="maven-jar" value="${release.dir}/${artifactId}-${version}.jar" />
-  <property name="maven-javadoc-jar" value="${release.dir}/${artifactId}-${version}-javadoc.jar" />
-  <property name="maven-sources-jar" value="${release.dir}/${artifactId}-${version}-sources.jar" />
+	<!-- Load all the default properties, and any the user wants    -->
+	<!-- to contribute (without having to type -D or edit this file -->
+	<property file="${user.home}/build.properties" />
+	<property file="${basedir}/build.properties" />
+	<property file="${basedir}/default.properties" />
+	<property name="test.junit.output.format" value="plain" />
+	<property name="release.dir" value="${build.dir}/release" />
 
- 
-  <!-- the normal classpath -->
-  <path id="classpath">
-    <pathelement location="${build.classes}"/>
-    <fileset dir="${build.lib.dir}">
-      <include name="*.jar" />
-    </fileset>
-  </path>
+	<!-- define Maven coordinates, repository url and artifacts name etc -->
+	<property name="groupId" value="org.apache.nutch" />
+	<property name="artifactId" value="nutch" />
+	<property name="maven-repository-url" value="https://repository.apache.org/service/local/staging/deploy/maven2" />
+	<property name="maven-repository-id" value="apache.releases.https" />
+	<property name="maven-jar" value="${release.dir}/${artifactId}-${version}.jar" />
+	<property name="maven-javadoc-jar" value="${release.dir}/${artifactId}-${version}-javadoc.jar" />
+	<property name="maven-sources-jar" value="${release.dir}/${artifactId}-${version}-sources.jar" />
 
-  <!-- the unit test classpath -->
-  <dirname property="plugins.classpath.dir" file="${build.plugins}"/>
-  <path id="test.classpath">
-    <pathelement location="${test.build.classes}" />
-    <pathelement location="${conf.dir}"/>
-    <pathelement location="${test.src.dir}"/>
-    <pathelement location="${plugins.classpath.dir}"/>
-    <path refid="classpath"/>
-    <pathelement location="${build.dir}/${final.name}.job" />
-    <fileset dir="${build.lib.dir}">
-      <include name="*.jar" />
-    </fileset>
-  </path>
 
-  <!-- ====================================================== -->
-  <!-- Stuff needed by all targets                            -->
-  <!-- ====================================================== -->
-  <target name="init" depends="ivy-init">
-    <mkdir dir="${build.dir}"/>
-    <mkdir dir="${build.classes}"/>
-    <mkdir dir="${release.dir}"/>
+	<!-- the normal classpath -->
+	<path id="classpath">
+		<pathelement location="${build.classes}" />
+		<fileset dir="${build.lib.dir}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
 
-    <mkdir dir="${test.build.dir}"/>
-    <mkdir dir="${test.build.classes}"/>
+	<!-- the unit test classpath -->
+	<dirname property="plugins.classpath.dir" file="${build.plugins}" />
+	<path id="test.classpath">
+		<pathelement location="${test.build.classes}" />
+		<pathelement location="${conf.dir}" />
+		<pathelement location="${test.src.dir}" />
+		<pathelement location="${plugins.classpath.dir}" />
+		<path refid="classpath" />
+		<pathelement location="${build.dir}/${final.name}.job" />
+		<fileset dir="${build.lib.dir}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
 
-    <touch datetime="01/25/1971 2:00 pm">
-      <fileset dir="${conf.dir}" includes="**/*.template"/>
-    </touch>
+	<!-- ====================================================== -->
+	<!-- Stuff needed by all targets                            -->
+	<!-- ====================================================== -->
+	<target name="init" depends="ivy-init">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${build.classes}" />
+		<mkdir dir="${release.dir}" />
 
-    <copy todir="${conf.dir}" verbose="true">
-      <fileset dir="${conf.dir}" includes="**/*.template"/>
-      <mapper type="glob" from="*.template" to="*"/>
-    </copy>
-  </target>
+		<mkdir dir="${test.build.dir}" />
+		<mkdir dir="${test.build.classes}" />
 
-  <!-- ====================================================== -->
-  <!-- Compile the Java files                                 -->
-  <!-- ====================================================== -->
-  <target name="compile" depends="compile-core, compile-plugins"/>
+		<touch datetime="01/25/1971 2:00 pm">
+			<fileset dir="${conf.dir}" includes="**/*.template" />
+		</touch>
 
-  <target name="compile-core" depends="init, resolve-default">
-    <javac 
-     encoding="${build.encoding}" 
-     srcdir="${src.dir}"
-     includes="org/apache/nutch/**/*.java"
-     destdir="${build.classes}"
-     debug="${javac.debug}"
-     optimize="${javac.optimize}"
-     target="${javac.version}"
-     source="${javac.version}"
-     deprecation="${javac.deprecation}">
-      <classpath refid="classpath"/>
-    </javac>    
-  </target>
+		<copy todir="${conf.dir}" verbose="true">
+			<fileset dir="${conf.dir}" includes="**/*.template" />
+			<mapper type="glob" from="*.template" to="*" />
+		</copy>
+	</target>
 
-  <target name="compile-plugins" depends="init, resolve-default">
-    <ant dir="src/plugin" target="deploy" inheritAll="false"/>
-  </target>
+	<!-- ====================================================== -->
+	<!-- Compile the Java files                                 -->
+	<!-- ====================================================== -->
+	<target name="compile" depends="compile-core, compile-plugins" />
 
-  <!-- ================================================================== -->
-  <!-- Make nutch.jar                                                     -->
-  <!-- ================================================================== -->
-  <!--                                                                    -->
-  <!-- ================================================================== -->
-  <target name="jar" depends="compile-core">
-    <copy file="${conf.dir}/nutch-default.xml"
-          todir="${build.classes}"/>
-    <copy file="${conf.dir}/nutch-site.xml"
-          todir="${build.classes}"/>
-    <jar jarfile="${build.dir}/${final.name}.jar"
-         basedir="${build.classes}">
-      <manifest>
-      </manifest>
-    </jar>
-  </target>
+	<target name="compile-core" depends="init, resolve-default">
+		<javac encoding="${build.encoding}" srcdir="${src.dir}" includes="org/apache/nutch/**/*.java" destdir="${build.classes}" debug="${javac.debug}" optimize="${javac.optimize}" target="${javac.version}" source="${javac.version}" deprecation="${javac.deprecation}">
+			<classpath refid="classpath" />
+		</javac>
+	</target>
 
-  <!-- ================================================================== -->
-  <!-- Make Maven Central Release                                         -->
-  <!-- ================================================================== -->
-  <!--                                                                    -->
-  <!-- ================================================================== -->  
-  <target name="release" depends="compile-core" description="generate the release distribution">
-    <copy file="${conf.dir}/nutch-default.xml"
-          todir="${build.classes}"/>
-    <copy file="${conf.dir}/nutch-site.xml"
-          todir="${build.classes}"/>
-          
-	<!-- build the main artifact -->
-	<jar jarfile="${maven-jar}" basedir="${build.classes}" />
+	<target name="compile-plugins" depends="init, resolve-default">
+		<ant dir="src/plugin" target="deploy" inheritAll="false" />
+	</target>
 
-	<!-- build the javadoc artifact -->
-    <javadoc
-      destdir="${release.dir}/javadoc"
-      overview="${src.dir}/overview.html"
-      author="true"
-      version="true"
-      use="true"
-      windowtitle="${Name} ${version} API"
-      doctitle="${Name} ${version} API"
-      bottom="Copyright &amp;copy; ${year} The Apache Software Foundation"
-      >
-        <arg value="${javadoc.proxy.host}"/>
-        <arg value="${javadoc.proxy.port}"/>
+	<!-- ================================================================== -->
+	<!-- Make nutch.jar                                                     -->
+	<!-- ================================================================== -->
+	<!--                                                                    -->
+	<!-- ================================================================== -->
+	<target name="jar" depends="compile-core">
+		<copy file="${conf.dir}/nutch-default.xml" todir="${build.classes}" />
+		<copy file="${conf.dir}/nutch-site.xml" todir="${build.classes}" />
+		<jar jarfile="${build.dir}/${final.name}.jar" basedir="${build.classes}">
+			<manifest>
+			</manifest>
+		</jar>
+	</target>
 
-      <packageset dir="${src.dir}"/>
-      <packageset dir="${plugins.dir}/lib-http/src/java"/>
-      <packageset dir="${plugins.dir}/lib-regex-filter/src/java"/>
-      <packageset dir="${plugins.dir}/microformats-reltag/src/java"/>
-      <packageset dir="${plugins.dir}/protocol-file/src/java"/>
-      <packageset dir="${plugins.dir}/protocol-ftp/src/java"/>
-      <packageset dir="${plugins.dir}/protocol-http/src/java"/>
-      <packageset dir="${plugins.dir}/protocol-httpclient/src/java"/>
-      <packageset dir="${plugins.dir}/parse-tika/src/java"/>
-      <packageset dir="${plugins.dir}/parse-ext/src/java"/>
-      <packageset dir="${plugins.dir}/parse-js/src/java"/>
-      <packageset dir="${plugins.dir}/parse-swf/src/java"/>
-      <packageset dir="${plugins.dir}/parse-zip/src/java"/>
-      <packageset dir="${plugins.dir}/index-basic/src/java"/>
-      <packageset dir="${plugins.dir}/index-more/src/java"/>
-      <packageset dir="${plugins.dir}/scoring-opic/src/java"/>
-      <packageset dir="${plugins.dir}/urlfilter-automaton/src/java"/>
-      <packageset dir="${plugins.dir}/urlfilter-regex/src/java"/>
-      <packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
-      <packageset dir="${plugins.dir}/creativecommons/src/java"/>
-      <packageset dir="${plugins.dir}/languageidentifier/src/java"/>
-      
-      <link href="${javadoc.link.java}"/>
-      <link href="${javadoc.link.lucene}"/>
-      <link href="${javadoc.link.hadoop}"/>
-      
-      <classpath refid="classpath"/>
-    	<classpath>
-    		<fileset dir="${plugins.dir}" >
-    			<include name="**/*.jar"/>
-    		</fileset>
-    	</classpath>
-    	
-      <group title="Core" packages="org.apache.nutch.*"/>
-      <group title="Plugins API" packages="${plugins.api}"/>
-      <group title="Protocol Plugins" packages="${plugins.protocol}"/>
-      <group title="URL Filter Plugins" packages="${plugins.urlfilter}"/>
-      <group title="Scoring Plugins" packages="${plugins.scoring}"/>
-      <group title="Parse Plugins" packages="${plugins.parse}"/>
-      <group title="Indexing Filter Plugins" packages="${plugins.index}"/>
-      <group title="Misc. Plugins" packages="${plugins.misc}"/>
-    </javadoc>	
-	<jar jarfile="${maven-javadoc-jar}">
-		<fileset dir="${release.dir}/javadoc" />
-	</jar>
+	<!-- ================================================================== -->
+	<!-- Make Maven Central Release                                         -->
+	<!-- ================================================================== -->
+	<!--                                                                    -->
+	<!-- ================================================================== -->
+	<target name="release" depends="compile-core" description="generate the release distribution">
+		<copy file="${conf.dir}/nutch-default.xml" todir="${build.classes}" />
+		<copy file="${conf.dir}/nutch-site.xml" todir="${build.classes}" />
 
-	<!-- build the sources artifact -->
-	<jar jarfile="${maven-sources-jar}">
-		<fileset dir="${src.dir}" />
-	</jar>
-  </target>
-  
-  <!-- ================================================================== -->
-  <!-- Deploy to Apache Nexus                                             -->
-  <!-- ================================================================== -->
-  <!--                                                                    -->
-  <!-- ================================================================== -->  
-  <target name="deploy" depends="release" description="deploy to Apache Nexus">
-	<!-- sign and deploy the main artifact -->
-	<artifact:mvn>
-		<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.1:sign-and-deploy-file" />
-		<arg value="-Durl=${maven-repository-url}" />
-		<arg value="-DrepositoryId=${maven-repository-id}" />
-		<arg value="-DpomFile=pom.xml" />
-		<arg value="-Dfile=${maven-jar}" />
-                       <arg value="-Papache-release" />
-	</artifact:mvn>
+		<!-- build the main artifact -->
+		<jar jarfile="${maven-jar}" basedir="${build.classes}" />
 
-	<!-- sign and deploy the sources artifact -->
-	<artifact:mvn>
-		<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.1:sign-and-deploy-file" />
-		<arg value="-Durl=${maven-repository-url}" />
-		<arg value="-DrepositoryId=${maven-repository-id}" />
-		<arg value="-DpomFile=pom.xml" />
-		<arg value="-Dfile=${maven-sources-jar}" />
-		<arg value="-Dclassifier=sources" />
-                       <arg value="-Papache-release" />
-	</artifact:mvn>
+		<!-- build the javadoc artifact -->
+		<javadoc destdir="${release.dir}/javadoc" overview="${src.dir}/overview.html" author="true" version="true" use="true" windowtitle="${Name} ${version} API" doctitle="${Name} ${version} API" bottom="Copyright &amp;copy; ${year} The Apache Software Foundation">
+			<arg value="${javadoc.proxy.host}" />
+			<arg value="${javadoc.proxy.port}" />
 
-	<!-- sign and deploy the javadoc artifact -->
-	<artifact:mvn>
-		<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.1:sign-and-deploy-file" />
-		<arg value="-Durl=${maven-repository-url}" />
-		<arg value="-DrepositoryId=${maven-repository-id}" />
-		<arg value="-DpomFile=pom.xml" />
-		<arg value="-Dfile=${maven-javadoc-jar}" />
-		<arg value="-Dclassifier=javadoc" />
-                       <arg value="-Papache-release" />
-	</artifact:mvn>
-  </target>
+			<packageset dir="${src.dir}" />
+			<packageset dir="${plugins.dir}/lib-http/src/java" />
+			<packageset dir="${plugins.dir}/lib-regex-filter/src/java" />
+			<packageset dir="${plugins.dir}/microformats-reltag/src/java" />
+			<packageset dir="${plugins.dir}/protocol-file/src/java" />
+			<packageset dir="${plugins.dir}/protocol-ftp/src/java" />
+			<packageset dir="${plugins.dir}/protocol-http/src/java" />
+			<packageset dir="${plugins.dir}/protocol-httpclient/src/java" />
+			<packageset dir="${plugins.dir}/parse-tika/src/java" />
+			<packageset dir="${plugins.dir}/parse-ext/src/java" />
+			<packageset dir="${plugins.dir}/parse-js/src/java" />
+			<packageset dir="${plugins.dir}/parse-swf/src/java" />
+			<packageset dir="${plugins.dir}/parse-zip/src/java" />
+			<packageset dir="${plugins.dir}/index-basic/src/java" />
+			<packageset dir="${plugins.dir}/index-more/src/java" />
+			<packageset dir="${plugins.dir}/scoring-opic/src/java" />
+			<packageset dir="${plugins.dir}/urlfilter-automaton/src/java" />
+			<packageset dir="${plugins.dir}/urlfilter-regex/src/java" />
+			<packageset dir="${plugins.dir}/urlfilter-prefix/src/java" />
+			<packageset dir="${plugins.dir}/creativecommons/src/java" />
+			<packageset dir="${plugins.dir}/languageidentifier/src/java" />
 
-  <!-- ================================================================== -->
-  <!-- Make job jar                                                       -->
-  <!-- ================================================================== -->
-  <!--                                                                    -->
-  <!-- ================================================================== -->
-  <target name="job" depends="compile">
-    <jar jarfile="${build.dir}/${final.name}.job">
-      <!-- If the build.classes has the nutch config files because the jar
+			<link href="${javadoc.link.java}" />
+			<link href="${javadoc.link.lucene}" />
+			<link href="${javadoc.link.hadoop}" />
+
+			<classpath refid="classpath" />
+			<classpath>
+				<fileset dir="${plugins.dir}">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+
+			<group title="Core" packages="org.apache.nutch.*" />
+			<group title="Plugins API" packages="${plugins.api}" />
+			<group title="Protocol Plugins" packages="${plugins.protocol}" />
+			<group title="URL Filter Plugins" packages="${plugins.urlfilter}" />
+			<group title="Scoring Plugins" packages="${plugins.scoring}" />
+			<group title="Parse Plugins" packages="${plugins.parse}" />
+			<group title="Indexing Filter Plugins" packages="${plugins.index}" />
+			<group title="Misc. Plugins" packages="${plugins.misc}" />
+		</javadoc>
+		<jar jarfile="${maven-javadoc-jar}">
+			<fileset dir="${release.dir}/javadoc" />
+		</jar>
+
+		<!-- build the sources artifact -->
+		<jar jarfile="${maven-sources-jar}">
+			<fileset dir="${src.dir}" />
+		</jar>
+	</target>
+
+	<!-- ================================================================== -->
+	<!-- Generate POM file                                                  -->
+	<!-- The Ivy lib must be > 2.2.0. Run the tasks with "ant -lib ivy" to  -->
+	<!-- force it to use the right version                                  -->
+	<!-- ================================================================== -->
+
+	<target name="generate-pom" description="Generate a pom file from ivy">
+		<ivy:makepom ivyfile="${ivy.file}" pomfile="${basedir}/pom.xml" templatefile="ivy/mvn.template">
+			<mapping conf="default" scope="compile" />
+			<mapping conf="runtime" scope="runtime" />
+		</ivy:makepom>
+	</target>
+
+	<!-- ================================================================== -->
+	<!-- Deploy to Apache Nexus                                             -->
+	<!-- ================================================================== -->
+	<!-- Note : the Maven jars must be in ANT lib directory                 -->
+	<!-- See http://codehaus.org/~jvanzyl/maven2/ant-tasks.html             -->
+	<!-- ================================================================== -->
+
+	<target name="deploy" depends="release" description="deploy to Apache Nexus">
+
+		<antcall target="generate-pom" />
+
+		<!-- sign and deploy the main artifact -->
+		<artifact:mvn>
+			<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.1:sign-and-deploy-file" />
+			<arg value="-Durl=${maven-repository-url}" />
+			<arg value="-DrepositoryId=${maven-repository-id}" />
+			<arg value="-DpomFile=pom.xml" />
+			<arg value="-Dfile=${maven-jar}" />
+			<arg value="-Papache-release" />
+		</artifact:mvn>
+
+		<!-- sign and deploy the sources artifact -->
+		<artifact:mvn>
+			<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.1:sign-and-deploy-file" />
+			<arg value="-Durl=${maven-repository-url}" />
+			<arg value="-DrepositoryId=${maven-repository-id}" />
+			<arg value="-DpomFile=pom.xml" />
+			<arg value="-Dfile=${maven-sources-jar}" />
+			<arg value="-Dclassifier=sources" />
+			<arg value="-Papache-release" />
+		</artifact:mvn>
+
+		<!-- sign and deploy the javadoc artifact -->
+		<artifact:mvn>
+			<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.1:sign-and-deploy-file" />
+			<arg value="-Durl=${maven-repository-url}" />
+			<arg value="-DrepositoryId=${maven-repository-id}" />
+			<arg value="-DpomFile=pom.xml" />
+			<arg value="-Dfile=${maven-javadoc-jar}" />
+			<arg value="-Dclassifier=javadoc" />
+			<arg value="-Papache-release" />
+		</artifact:mvn>
+	</target>
+
+	<!-- ================================================================== -->
+	<!-- Make job jar                                                       -->
+	<!-- ================================================================== -->
+	<!--                                                                    -->
+	<!-- ================================================================== -->
+	<target name="job" depends="compile">
+		<jar jarfile="${build.dir}/${final.name}.job">
+			<!-- If the build.classes has the nutch config files because the jar
            command command has run, exclude them.  The conf directory has 
            them.
       -->
-      <zipfileset dir="${build.classes}"
-                  excludes="nutch-default.xml,nutch-site.xml"/>
-      <zipfileset dir="${conf.dir}" excludes="*.template,hadoop*.*"/>
-      <zipfileset dir="${build.lib.dir}" prefix="lib"
-                  includes="**/*.jar" excludes="hadoop-*.jar"/>
-      <zipfileset dir="${build.plugins}" prefix="plugins"/>
-    </jar>
-  </target>
+			<zipfileset dir="${build.classes}" excludes="nutch-default.xml,nutch-site.xml" />
+			<zipfileset dir="${conf.dir}" excludes="*.template,hadoop*.*" />
+			<zipfileset dir="${build.lib.dir}" prefix="lib" includes="**/*.jar" excludes="hadoop-*.jar" />
+			<zipfileset dir="${build.plugins}" prefix="plugins" />
+		</jar>
+	</target>
 
-  <target name="runtime" depends="jar, job">
-    <mkdir dir="${runtime.dir}"/>
-    <mkdir dir="${runtime.local}"/>
-    <mkdir dir="${runtime.deploy}"/>
-    <!-- deploy area -->
-    <copy file="${build.dir}/${final.name}.job"
-          todir="${runtime.deploy}"/>
-    <copy todir="${runtime.deploy}/bin">
-      <fileset dir="src/bin"/>
-    </copy>
-    <chmod perm="ugo+x" type="file">
-        <fileset dir="${runtime.deploy}/bin"/>
-    </chmod>
-    <!-- local area -->
-    <copy file="${build.dir}/${final.name}.jar"
-          todir="${runtime.local}/lib"/>
-    <copy todir="${runtime.local}/lib/native">
-      <fileset dir="lib/native"/>
-    </copy>
-    <copy todir="${runtime.local}/conf">
-      <fileset dir="conf" excludes="*.template"/>
-    </copy>
-    <copy todir="${runtime.local}/bin">
-      <fileset dir="src/bin"/>
-    </copy>
-    <chmod perm="ugo+x" type="file">
-        <fileset dir="${runtime.local}/bin"/>
-    </chmod>
-    <copy todir="${runtime.local}/lib">
-      <fileset dir="${build.dir}/lib"/>
-    </copy>
-    <copy todir="${runtime.local}/plugins">
-      <fileset dir="${build.dir}/plugins"/>
-    </copy>
-  </target>
+	<target name="runtime" depends="jar, job">
+		<mkdir dir="${runtime.dir}" />
+		<mkdir dir="${runtime.local}" />
+		<mkdir dir="${runtime.deploy}" />
+		<!-- deploy area -->
+		<copy file="${build.dir}/${final.name}.job" todir="${runtime.deploy}" />
+		<copy todir="${runtime.deploy}/bin">
+			<fileset dir="src/bin" />
+		</copy>
+		<chmod perm="ugo+x" type="file">
+			<fileset dir="${runtime.deploy}/bin" />
+		</chmod>
+		<!-- local area -->
+		<copy file="${build.dir}/${final.name}.jar" todir="${runtime.local}/lib" />
+		<copy todir="${runtime.local}/lib/native">
+			<fileset dir="lib/native" />
+		</copy>
+		<copy todir="${runtime.local}/conf">
+			<fileset dir="conf" excludes="*.template" />
+		</copy>
+		<copy todir="${runtime.local}/bin">
+			<fileset dir="src/bin" />
+		</copy>
+		<chmod perm="ugo+x" type="file">
+			<fileset dir="${runtime.local}/bin" />
+		</chmod>
+		<copy todir="${runtime.local}/lib">
+			<fileset dir="${build.dir}/lib" />
+		</copy>
+		<copy todir="${runtime.local}/plugins">
+			<fileset dir="${build.dir}/plugins" />
+		</copy>
+	</target>
 
-  <!-- ================================================================== -->
-  <!-- Compile test code                                                  --> 
-  <!-- ================================================================== -->
-  <target name="compile-core-test" depends="compile-core, resolve-test">
-    <javac 
-     encoding="${build.encoding}" 
-     srcdir="${test.src.dir}"
-     includes="org/apache/nutch/**/*.java"
-     destdir="${test.build.classes}"
-     debug="${javac.debug}"
-     optimize="${javac.optimize}"
-     target="${javac.version}"
-     source="${javac.version}"
-     deprecation="${javac.deprecation}">
-      <classpath refid="test.classpath"/>
-    </javac>    
-  </target>
+	<!-- ================================================================== -->
+	<!-- Compile test code                                                  -->
+	<!-- ================================================================== -->
+	<target name="compile-core-test" depends="compile-core, resolve-test">
+		<javac encoding="${build.encoding}" srcdir="${test.src.dir}" includes="org/apache/nutch/**/*.java" destdir="${test.build.classes}" debug="${javac.debug}" optimize="${javac.optimize}" target="${javac.version}" source="${javac.version}" deprecation="${javac.deprecation}">
+			<classpath refid="test.classpath" />
+		</javac>
+	</target>
 
-  <!-- ================================================================== -->
-  <!-- Run code checks (PMD)                                              --> 
-  <!-- ================================================================== -->
-  <target name="pmd" depends="compile">
-	<property name="pmd.report" location="${build.dir}/pmd-report.html" />
-	<taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask">
-	  <classpath>
-		  <fileset dir="${lib.dir}">
-            <include name="pmd-ext/*.jar" />
-            <include name="xerces*.jar" />
-          </fileset>
-	  </classpath>
-	</taskdef>
-	<pmd shortFilenames="true" failonerror="true" failOnRuleViolation="false"
-		 encoding="${build.encoding}" failuresPropertyName="pmd.failures">
-	  <ruleset>unusedcode</ruleset>
-          <!--ruleset>basic</ruleset-->
-          <!--ruleset>optimizations</ruleset-->
-      <formatter type="html" toFile="${pmd.report}" />
-	  <!-- <formatter type="xml" toFile="${tempbuild}/$report_pmd.xml"/> -->
-	<fileset dir="${basedir}/src">
-        	<include name="java/**/*.java"/>
-	        <include name="plugin/**/*.java"/>
-      </fileset>
-    </pmd>
-	<condition property="pmd.stop" value="true">
-      <and>
-        <isset property="pmd.failures" />
-          <not>
-            <equals arg1="0" arg2="${pmd.failures}" trim="true" />
-          </not>
-      </and>
-	</condition>
-	<fail if="pmd.stop">FAILURE: PMD shows ${pmd.failures} rule violations. See ${pmd.report} for details.</fail>
-  </target>
+	<!-- ================================================================== -->
+	<!-- Run code checks (PMD)                                              -->
+	<!-- ================================================================== -->
+	<target name="pmd" depends="compile">
+		<property name="pmd.report" location="${build.dir}/pmd-report.html" />
+		<taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask">
+			<classpath>
+				<fileset dir="${lib.dir}">
+					<include name="pmd-ext/*.jar" />
+					<include name="xerces*.jar" />
+				</fileset>
+			</classpath>
+		</taskdef>
+		<pmd shortFilenames="true" failonerror="true" failOnRuleViolation="false" encoding="${build.encoding}" failuresPropertyName="pmd.failures">
+			<ruleset>unusedcode</ruleset>
+			<!--ruleset>basic</ruleset-->
+			<!--ruleset>optimizations</ruleset-->
+			<formatter type="html" toFile="${pmd.report}" />
+			<!-- <formatter type="xml" toFile="${tempbuild}/$report_pmd.xml"/> -->
+			<fileset dir="${basedir}/src">
+				<include name="java/**/*.java" />
+				<include name="plugin/**/*.java" />
+			</fileset>
+		</pmd>
+		<condition property="pmd.stop" value="true">
+			<and>
+				<isset property="pmd.failures" />
+				<not>
+					<equals arg1="0" arg2="${pmd.failures}" trim="true" />
+				</not>
+			</and>
+		</condition>
+		<fail if="pmd.stop">FAILURE: PMD shows ${pmd.failures} rule violations. See ${pmd.report} for details.</fail>
+	</target>
 
-  <target name="proxy" depends="job, compile-core-test">
-    <java classname="org.apache.nutch.tools.proxy.TestbedProxy" fork="true">
-      <classpath refid="test.classpath"/>
-      <arg value="-fake"/>
-<!--
+	<target name="proxy" depends="job, compile-core-test">
+		<java classname="org.apache.nutch.tools.proxy.TestbedProxy" fork="true">
+			<classpath refid="test.classpath" />
+			<arg value="-fake" />
+			<!--
       <arg value="-delay"/>
       <arg value="-200"/>
 -->
-      <jvmarg line="-Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
-    </java>
-  </target>
+			<jvmarg line="-Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl" />
+		</java>
+	</target>
 
-  <target name="benchmark">
-    <java classname="org.apache.nutch.tools.Benchmark" fork="true">
-      <classpath refid="test.classpath"/>
-      <jvmarg line="-Xmx512m -Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
-      <arg value="-maxPerHost"/>
-      <arg value="10"/>
-      <arg value="-seeds"/>
-      <arg value="1"/>
-      <arg value="-depth"/>
-      <arg value="5"/>
-    </java>
-  </target>
+	<target name="benchmark">
+		<java classname="org.apache.nutch.tools.Benchmark" fork="true">
+			<classpath refid="test.classpath" />
+			<jvmarg line="-Xmx512m -Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl" />
+			<arg value="-maxPerHost" />
+			<arg value="10" />
+			<arg value="-seeds" />
+			<arg value="1" />
+			<arg value="-depth" />
+			<arg value="5" />
+		</java>
+	</target>
 
-  <!-- ================================================================== -->
-  <!-- Run unit tests                                                     --> 
-  <!-- ================================================================== -->
-  <target name="test" depends="test-core, test-plugins"/>
+	<!-- ================================================================== -->
+	<!-- Run unit tests                                                     -->
+	<!-- ================================================================== -->
+	<target name="test" depends="test-core, test-plugins" />
 
-  <target name="test-core" depends="job, compile-core-test">
+	<target name="test-core" depends="job, compile-core-test">
 
-    <delete dir="${test.build.data}"/>
-    <mkdir dir="${test.build.data}"/>
-    <!-- 
+		<delete dir="${test.build.data}" />
+		<mkdir dir="${test.build.data}" />
+		<!-- 
      copy resources needed in junit tests
     -->
-    <copy todir="${test.build.data}">
-      <fileset dir="src/testresources" includes="**/*"/>
-    </copy>
-    <copy file="${test.src.dir}/nutch-site.xml"
-          todir="${test.build.classes}"/>
+		<copy todir="${test.build.data}">
+			<fileset dir="src/testresources" includes="**/*" />
+		</copy>
+		<copy file="${test.src.dir}/nutch-site.xml" todir="${test.build.classes}" />
 
-    <copy file="${test.src.dir}/log4j.properties"
-          todir="${test.build.classes}"/>
+		<copy file="${test.src.dir}/log4j.properties" todir="${test.build.classes}" />
 
-    <junit printsummary="yes" haltonfailure="no" fork="yes" dir="${basedir}"
-      errorProperty="tests.failed" failureProperty="tests.failed" maxmemory="1000m">
-      <sysproperty key="test.build.data" value="${test.build.data}"/>
-      <sysproperty key="test.src.dir" value="${test.src.dir}"/>
-      <sysproperty key="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/> 
-      <classpath refid="test.classpath"/>
-      <formatter type="${test.junit.output.format}" />
-      <batchtest todir="${test.build.dir}" unless="testcase">
-        <fileset dir="${test.src.dir}"
-                 includes="**/Test*.java" excludes="**/${test.exclude}.java" />
-      </batchtest>
-      <batchtest todir="${test.build.dir}" if="testcase">
-        <fileset dir="${test.src.dir}" includes="**/${testcase}.java"/>
-      </batchtest>
-    </junit>
+		<junit printsummary="yes" haltonfailure="no" fork="yes" dir="${basedir}" errorProperty="tests.failed" failureProperty="tests.failed" maxmemory="1000m">
+			<sysproperty key="test.build.data" value="${test.build.data}" />
+			<sysproperty key="test.src.dir" value="${test.src.dir}" />
+			<sysproperty key="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl" />
+			<classpath refid="test.classpath" />
+			<formatter type="${test.junit.output.format}" />
+			<batchtest todir="${test.build.dir}" unless="testcase">
+				<fileset dir="${test.src.dir}" includes="**/Test*.java" excludes="**/${test.exclude}.java" />
+			</batchtest>
+			<batchtest todir="${test.build.dir}" if="testcase">
+				<fileset dir="${test.src.dir}" includes="**/${testcase}.java" />
+			</batchtest>
+		</junit>
 
-    <fail if="tests.failed">Tests failed!</fail>
+		<fail if="tests.failed">Tests failed!</fail>
 
-  </target>   
+	</target>
 
-  <target name="test-plugins" depends="compile">
-    <ant dir="src/plugin" target="test" inheritAll="false"/>
-  </target>
+	<target name="test-plugins" depends="compile">
+		<ant dir="src/plugin" target="test" inheritAll="false" />
+	</target>
 
-  <target name="nightly" depends="test, tar">
-  </target>
+	<target name="nightly" depends="test, tar">
+	</target>
 
-  <!-- ================================================================== -->
-  <!-- Ivy targets                                                        -->
-  <!-- ================================================================== -->
+	<!-- ================================================================== -->
+	<!-- Ivy targets                                                        -->
+	<!-- ================================================================== -->
 
-  <!-- target: resolve  ================================================= -->
-  <target name="resolve-default" depends="clean-lib" description="--> resolve and retrieve dependencies with ivy">
-    <ivy:resolve file="${ivy.file}" conf="default" log="download-only"/>
-    <ivy:retrieve pattern="${build.lib.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
-    <antcall target="copy-libs"/>
-  </target>
+	<!-- target: resolve  ================================================= -->
+	<target name="resolve-default" depends="clean-lib" description="--> resolve and retrieve dependencies with ivy">
+		<ivy:resolve file="${ivy.file}" conf="default" log="download-only" />
+		<ivy:retrieve pattern="${build.lib.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet" />
+		<antcall target="copy-libs" />
+	</target>
 
-  <target name="resolve-test" depends="clean-lib" description="--> resolve and retrieve dependencies with ivy">
-    <ivy:resolve file="${ivy.file}" conf="test" log="download-only"/>
-    <ivy:retrieve pattern="${build.lib.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
-    <antcall target="copy-libs"/>
-  </target>
+	<target name="resolve-test" depends="clean-lib" description="--> resolve and retrieve dependencies with ivy">
+		<ivy:resolve file="${ivy.file}" conf="test" log="download-only" />
+		<ivy:retrieve pattern="${build.lib.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet" />
+		<antcall target="copy-libs" />
+	</target>
 
-  <target name="copy-libs">
-    <!-- copy the libs in lib, which are not ivy enabled-->
-    <copy todir="${build.lib.dir}/" failonerror="false">
-      <fileset dir="${lib.dir}" includes="**/*.jar"/>
-    </copy>
-  </target>
+	<target name="copy-libs">
+		<!-- copy the libs in lib, which are not ivy enabled-->
+		<copy todir="${build.lib.dir}/" failonerror="false">
+			<fileset dir="${lib.dir}" includes="**/*.jar" />
+		</copy>
+	</target>
 
-  <!-- target: publish-local  =========================================== -->
-  <target name="publish-local" depends="jar" description="--> publish this project in the local ivy repository">
-    <ivy:publish artifactspattern="${build.dir}/[artifact]-${version}.[ext]" 
-                    resolver="local"
-                    pubrevision="${version}"
-          pubdate="${now}"
-                    status="integration"
-              forcedeliver="true"
-              overwrite="true"
-        />
-    <echo message="project ${ant.project.name} published locally with version ${version}" />
-  </target>
+	<!-- target: publish-local  =========================================== -->
+	<target name="publish-local" depends="jar" description="--> publish this project in the local ivy repository">
+		<ivy:publish artifactspattern="${build.dir}/[artifact]-${version}.[ext]" resolver="local" pubrevision="${version}" pubdate="${now}" status="integration" forcedeliver="true" overwrite="true" />
+		<echo message="project ${ant.project.name} published locally with version ${version}" />
+	</target>
 
-  <!-- target: report  ================================================== -->
-  <target name="report" depends="resolve-test" description="--> generates a report of dependencies">
-    <ivy:report todir="${build.dir}"/>
-  </target>
+	<!-- target: report  ================================================== -->
+	<target name="report" depends="resolve-test" description="--> generates a report of dependencies">
+		<ivy:report todir="${build.dir}" />
+	</target>
 
-  <!-- target: ivy-init  ================================================ -->
-  <target name="ivy-init" depends="ivy-probe-antlib, ivy-init-antlib">
-    <ivy:settings file="${ivy.dir}/ivysettings.xml" />
-  </target>
+	<!-- target: ivy-init  ================================================ -->
+	<target name="ivy-init" depends="ivy-probe-antlib, ivy-init-antlib">
+		<ivy:settings file="${ivy.dir}/ivysettings.xml" />
+	</target>
 
-  <!-- target: ivy-probe-antlib  ======================================== -->
-  <target name="ivy-probe-antlib">
-    <condition property="ivy.found">
-      <typefound uri="antlib:org.apache.ivy.ant" name="cleancache" />
-    </condition>
-  </target>
+	<!-- target: ivy-probe-antlib  ======================================== -->
+	<target name="ivy-probe-antlib">
+		<condition property="ivy.found">
+			<typefound uri="antlib:org.apache.ivy.ant" name="cleancache" />
+		</condition>
+	</target>
 
-  <!-- target: ivy-download  ============================================ -->
-  <target name="ivy-download" description="Download ivy">
-    <available file="${ivy.jar}" property="ivy.jar.found"/>
-    <antcall target="-ivy-download-unchecked"/>
-  </target>
+	<!-- target: ivy-download  ============================================ -->
+	<target name="ivy-download" description="Download ivy">
+		<available file="${ivy.jar}" property="ivy.jar.found" />
+		<antcall target="-ivy-download-unchecked" />
+	</target>
 
-  <!-- target: ivy-download-unchecked  ================================== -->
-  <target name="-ivy-download-unchecked" unless="ivy.jar.found">
-    <get src="${ivy.repo.url}" dest="${ivy.jar}" usetimestamp="true" />
-  </target>
+	<!-- target: ivy-download-unchecked  ================================== -->
+	<target name="-ivy-download-unchecked" unless="ivy.jar.found">
+		<get src="${ivy.repo.url}" dest="${ivy.jar}" usetimestamp="true" />
+	</target>
 
-  <!-- target: ivy-init-antlib  ========================================= -->
-  <target name="ivy-init-antlib" depends="ivy-download" unless="ivy.found">
-    <typedef uri="antlib:org.apache.ivy.ant" onerror="fail" loaderRef="ivyLoader">
-      <classpath>
-        <pathelement location="${ivy.jar}" />
-      </classpath>
-    </typedef>
-    <fail>
-      <condition>
-        <not>
-          <typefound uri="antlib:org.apache.ivy.ant" name="cleancache" />
-        </not>
-      </condition>
-      You need Apache Ivy 2.0 or later from http://ant.apache.org/
+	<!-- target: ivy-init-antlib  ========================================= -->
+	<target name="ivy-init-antlib" depends="ivy-download" unless="ivy.found">
+		<typedef uri="antlib:org.apache.ivy.ant" onerror="fail" loaderRef="ivyLoader">
+			<classpath>
+				<pathelement location="${ivy.jar}" />
+			</classpath>
+		</typedef>
+		<fail>
+			<condition>
+				<not>
+					<typefound uri="antlib:org.apache.ivy.ant" name="cleancache" />
+				</not>
+			</condition>
+      You need Apache Ivy 2.2.0 or later from http://ant.apache.org/
       It could not be loaded from ${ivy.repo.url}
     </fail>
-  </target>
+	</target>
 
-  <!-- ================================================================== -->
-  <!-- Documentation                                                      -->
-  <!-- ================================================================== -->
-  <target name="javadoc" depends="compile">
-    <mkdir dir="${build.javadoc}"/>
-    <javadoc
-      overview="${src.dir}/overview.html"
-      destdir="${build.javadoc}"
-      author="true"
-      version="true"
-      use="true"
-      windowtitle="${Name} ${version} API"
-      doctitle="${Name} ${version} API"
-      bottom="Copyright &amp;copy; ${year} The Apache Software Foundation"
-      >
-        <arg value="${javadoc.proxy.host}"/>
-        <arg value="${javadoc.proxy.port}"/>
+	<!-- ================================================================== -->
+	<!-- Documentation                                                      -->
+	<!-- ================================================================== -->
+	<target name="javadoc" depends="compile">
+		<mkdir dir="${build.javadoc}" />
+		<javadoc overview="${src.dir}/overview.html" destdir="${build.javadoc}" author="true" version="true" use="true" windowtitle="${Name} ${version} API" doctitle="${Name} ${version} API" bottom="Copyright &amp;copy; ${year} The Apache Software Foundation">
+			<arg value="${javadoc.proxy.host}" />
+			<arg value="${javadoc.proxy.port}" />
 
-      <packageset dir="${src.dir}"/>
-      <packageset dir="${plugins.dir}/lib-http/src/java"/>
-      <packageset dir="${plugins.dir}/lib-regex-filter/src/java"/>
-      <packageset dir="${plugins.dir}/microformats-reltag/src/java"/>
-      <packageset dir="${plugins.dir}/protocol-file/src/java"/>
-      <packageset dir="${plugins.dir}/protocol-ftp/src/java"/>
-      <packageset dir="${plugins.dir}/protocol-http/src/java"/>
-      <packageset dir="${plugins.dir}/protocol-httpclient/src/java"/>
-      <packageset dir="${plugins.dir}/parse-tika/src/java"/>
-      <packageset dir="${plugins.dir}/parse-ext/src/java"/>
-      <packageset dir="${plugins.dir}/parse-js/src/java"/>
-      <packageset dir="${plugins.dir}/parse-swf/src/java"/>
-      <packageset dir="${plugins.dir}/parse-zip/src/java"/>
-      <packageset dir="${plugins.dir}/index-basic/src/java"/>
-      <packageset dir="${plugins.dir}/index-more/src/java"/>
-      <packageset dir="${plugins.dir}/scoring-opic/src/java"/>
-      <packageset dir="${plugins.dir}/urlfilter-automaton/src/java"/>
-      <packageset dir="${plugins.dir}/urlfilter-regex/src/java"/>
-      <packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
-      <packageset dir="${plugins.dir}/creativecommons/src/java"/>
-      <packageset dir="${plugins.dir}/languageidentifier/src/java"/>
-      
-      <link href="${javadoc.link.java}"/>
-      <link href="${javadoc.link.lucene}"/>
-      <link href="${javadoc.link.hadoop}"/>
-      
-      <classpath refid="classpath"/>
-    	<classpath>
-    		<fileset dir="${plugins.dir}" >
-    			<include name="**/*.jar"/>
-    		</fileset>
-    	</classpath>
-    	
-      <group title="Core" packages="org.apache.nutch.*"/>
-      <group title="Plugins API" packages="${plugins.api}"/>
-      <group title="Protocol Plugins" packages="${plugins.protocol}"/>
-      <group title="URL Filter Plugins" packages="${plugins.urlfilter}"/>
-      <group title="Scoring Plugins" packages="${plugins.scoring}"/>
-      <group title="Parse Plugins" packages="${plugins.parse}"/>
-      <group title="Indexing Filter Plugins" packages="${plugins.index}"/>
-      <group title="Misc. Plugins" packages="${plugins.misc}"/>
-    </javadoc>
-    <!-- Copy the plugin.dtd file to the plugin doc-files dir -->
-    <copy file="${plugins.dir}/plugin.dtd"
-          todir="${build.javadoc}/org/apache/nutch/plugin/doc-files"/>
-  </target>	
-	
-  <target name="default-doc">
-    <style basedir="${conf.dir}" destdir="${docs.dir}"
-           includes="nutch-default.xml" style="conf/nutch-conf.xsl"/>
-  </target>
+			<packageset dir="${src.dir}" />
+			<packageset dir="${plugins.dir}/lib-http/src/java" />
+			<packageset dir="${plugins.dir}/lib-regex-filter/src/java" />
+			<packageset dir="${plugins.dir}/microformats-reltag/src/java" />
+			<packageset dir="${plugins.dir}/protocol-file/src/java" />
+			<packageset dir="${plugins.dir}/protocol-ftp/src/java" />
+			<packageset dir="${plugins.dir}/protocol-http/src/java" />
+			<packageset dir="${plugins.dir}/protocol-httpclient/src/java" />
+			<packageset dir="${plugins.dir}/parse-tika/src/java" />
+			<packageset dir="${plugins.dir}/parse-ext/src/java" />
+			<packageset dir="${plugins.dir}/parse-js/src/java" />
+			<packageset dir="${plugins.dir}/parse-swf/src/java" />
+			<packageset dir="${plugins.dir}/parse-zip/src/java" />
+			<packageset dir="${plugins.dir}/index-basic/src/java" />
+			<packageset dir="${plugins.dir}/index-more/src/java" />
+			<packageset dir="${plugins.dir}/scoring-opic/src/java" />
+			<packageset dir="${plugins.dir}/urlfilter-automaton/src/java" />
+			<packageset dir="${plugins.dir}/urlfilter-regex/src/java" />
+			<packageset dir="${plugins.dir}/urlfilter-prefix/src/java" />
+			<packageset dir="${plugins.dir}/creativecommons/src/java" />
+			<packageset dir="${plugins.dir}/languageidentifier/src/java" />
 
-  <!-- ================================================================== -->
-  <!-- D I S T R I B U T I O N                                            -->
-  <!-- ================================================================== -->
-  <!--                                                                    -->
-  <!-- ================================================================== -->
-  <target name="package" depends="runtime, javadoc">
-    <mkdir dir="${dist.version.dir}"/>
-    <mkdir dir="${dist.version.dir}/lib"/>
-    <mkdir dir="${dist.version.dir}/runtime"/>
-    <mkdir dir="${dist.version.dir}/docs"/>
-    <mkdir dir="${dist.version.dir}/docs/api"/>
-    <mkdir dir="${dist.version.dir}/plugins"/>
+			<link href="${javadoc.link.java}" />
+			<link href="${javadoc.link.lucene}" />
+			<link href="${javadoc.link.hadoop}" />
 
-    <copy todir="${dist.version.dir}/lib" includeEmptyDirs="false">
-      <fileset dir="${build.lib.dir}"/>
-    </copy>
+			<classpath refid="classpath" />
+			<classpath>
+				<fileset dir="${plugins.dir}">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
 
-    <copy todir="${dist.version.dir}/plugins">
-      <fileset dir="${build.plugins}"/>
-    </copy>
+			<group title="Core" packages="org.apache.nutch.*" />
+			<group title="Plugins API" packages="${plugins.api}" />
+			<group title="Protocol Plugins" packages="${plugins.protocol}" />
+			<group title="URL Filter Plugins" packages="${plugins.urlfilter}" />
+			<group title="Scoring Plugins" packages="${plugins.scoring}" />
+			<group title="Parse Plugins" packages="${plugins.parse}" />
+			<group title="Indexing Filter Plugins" packages="${plugins.index}" />
+			<group title="Misc. Plugins" packages="${plugins.misc}" />
+		</javadoc>
+		<!-- Copy the plugin.dtd file to the plugin doc-files dir -->
+		<copy file="${plugins.dir}/plugin.dtd" todir="${build.javadoc}/org/apache/nutch/plugin/doc-files" />
+	</target>
 
-    <copy file="${build.dir}/${final.name}.jar" todir="${dist.version.dir}"/>
-    <copy file="${build.dir}/${final.name}.job" todir="${dist.version.dir}"/>
-   
-    <copy todir="${dist.version.dir}/runtime">
-      <fileset dir="runtime"/>
-    </copy>
+	<target name="default-doc">
+		<style basedir="${conf.dir}" destdir="${docs.dir}" includes="nutch-default.xml" style="conf/nutch-conf.xsl" />
+	</target>
 
-    <chmod perm="ugo+x" type="file">
-        <fileset dir="${dist.version.dir}/runtime/deploy/bin"/>
-        <fileset dir="${dist.version.dir}/runtime/local/bin"/>
-    </chmod>
+	<!-- ================================================================== -->
+	<!-- D I S T R I B U T I O N                                            -->
+	<!-- ================================================================== -->
+	<!--                                                                    -->
+	<!-- ================================================================== -->
+	<target name="package" depends="runtime, javadoc">
+		<mkdir dir="${dist.version.dir}" />
+		<mkdir dir="${dist.version.dir}/lib" />
+		<mkdir dir="${dist.version.dir}/runtime" />
+		<mkdir dir="${dist.version.dir}/docs" />
+		<mkdir dir="${dist.version.dir}/docs/api" />
+		<mkdir dir="${dist.version.dir}/plugins" />
 
-    <copy todir="${dist.version.dir}/conf">
-      <fileset dir="${conf.dir}" excludes="**/*.template"/>
-    </copy>
+		<copy todir="${dist.version.dir}/lib" includeEmptyDirs="false">
+			<fileset dir="${build.lib.dir}" />
+		</copy>
 
-    <copy todir="${dist.version.dir}/docs/api">
-      <fileset dir="${build.javadoc}"/>
-    </copy>
+		<copy todir="${dist.version.dir}/plugins">
+			<fileset dir="${build.plugins}" />
+		</copy>
 
-    <copy todir="${dist.version.dir}">
-      <fileset dir=".">
-        <include name="*.txt" />
-        <include name="KEYS" />
-      </fileset>
-    </copy>
+		<copy file="${build.dir}/${final.name}.jar" todir="${dist.version.dir}" />
+		<copy file="${build.dir}/${final.name}.job" todir="${dist.version.dir}" />
 
-    <copy todir="${dist.version.dir}/src" includeEmptyDirs="true">
-      <fileset dir="src"/>
-    </copy>
+		<copy todir="${dist.version.dir}/runtime">
+			<fileset dir="runtime" />
+		</copy>
 
-    <copy todir="${dist.version.dir}/" file="build.xml"/>
-    <copy todir="${dist.version.dir}/" file="default.properties"/>
+		<chmod perm="ugo+x" type="file">
+			<fileset dir="${dist.version.dir}/runtime/deploy/bin" />
+			<fileset dir="${dist.version.dir}/runtime/local/bin" />
+		</chmod>
 
-  </target>
+		<copy todir="${dist.version.dir}/conf">
+			<fileset dir="${conf.dir}" excludes="**/*.template" />
+		</copy>
 
-  <!-- ================================================================== -->
-  <!-- Make release tarball                                               -->
-  <!-- ================================================================== -->
-  <target name="tar" depends="package">
-    <tar compression="gzip" longfile="gnu"
-      destfile="${dist.dir}/${final.name}.tar.gz">
-      <tarfileset dir="${dist.dir}" mode="664">
-	<exclude name="${final.name}/bin/*" />
-        <include name="${final.name}/**" />
-      </tarfileset>
-      <tarfileset dir="${dist.dir}" mode="755">
-        <include name="${final.name}/bin/*" />
-      </tarfileset>
-    </tar>
-  </target>
+		<copy todir="${dist.version.dir}/docs/api">
+			<fileset dir="${build.javadoc}" />
+		</copy>
 
-  <!-- ================================================================== -->
-  <!-- Make release tarball                                               -->
-  <!-- ================================================================== -->
-  <target name="zip" depends="package">
-   <zip compress="true" casesensitive="yes" destfile="${dist.dir}/${final.name}.zip">
-   <zipfileset dir="${dist.dir}" filemode="664">
-       <exclude name="${final.name}/bin/*" />
-       <include name="${final.name}/**" />
-   </zipfileset>
-   <zipfileset dir="${dist.dir}" filemode="755">
-       <include name="${final.name}/bin/*" />
-   </zipfileset>
-   </zip>
-  </target>
-	
-  <!-- ================================================================== -->
-  <!-- Clean.  Delete the build files, and their directories              -->
-  <!-- ================================================================== -->
+		<copy todir="${dist.version.dir}">
+			<fileset dir=".">
+				<include name="*.txt" />
+				<include name="KEYS" />
+			</fileset>
+		</copy>
 
-  <!-- target: clean  =================================================== -->
-  <target name="clean" depends="clean-build, clean-lib, clean-dist, clean-runtime" description="--> clean the project" />
+		<copy todir="${dist.version.dir}/src" includeEmptyDirs="true">
+			<fileset dir="src" />
+		</copy>
 
-  <!-- target: clean-local  ============================================= -->
-  <target name="clean-local" depends="" 
-                description="--> cleans the local repository for the current module">
-    <delete dir="${ivy.local.default.root}/${ivy.organisation}/${ivy.module}"/>
-  </target>
+		<copy todir="${dist.version.dir}/" file="build.xml" />
+		<copy todir="${dist.version.dir}/" file="default.properties" />
 
-  <!-- target: clean-lib  =============================================== -->
-  <target name="clean-lib" description="--> clean the project libraries directory (dependencies)">
-    <delete includeemptydirs="true" dir="${build.lib.dir}"/>
-  </target>
+	</target>
 
-  <!-- target: clean-build  ============================================= -->
-  <target name="clean-build" description="--> clean the project built files">
-    <delete includeemptydirs="true" dir="${build.dir}"/>
-  </target>
+	<!-- ================================================================== -->
+	<!-- Make release tarball                                               -->
+	<!-- ================================================================== -->
+	<target name="tar" depends="package">
+		<tar compression="gzip" longfile="gnu" destfile="${dist.dir}/${final.name}.tar.gz">
+			<tarfileset dir="${dist.dir}" mode="664">
+				<exclude name="${final.name}/bin/*" />
+				<include name="${final.name}/**" />
+			</tarfileset>
+			<tarfileset dir="${dist.dir}" mode="755">
+				<include name="${final.name}/bin/*" />
+			</tarfileset>
+		</tar>
+	</target>
 
-  <!-- target: clean-dist   ============================================= -->
-  <target name="clean-dist" description="--> clean the project dist files">
-    <delete includeemptydirs="true" dir="${dist.dir}"/>
-  </target>
+	<!-- ================================================================== -->
+	<!-- Make release tarball                                               -->
+	<!-- ================================================================== -->
+	<target name="zip" depends="package">
+		<zip compress="true" casesensitive="yes" destfile="${dist.dir}/${final.name}.zip">
+			<zipfileset dir="${dist.dir}" filemode="664">
+				<exclude name="${final.name}/bin/*" />
+				<include name="${final.name}/**" />
+			</zipfileset>
+			<zipfileset dir="${dist.dir}" filemode="755">
+				<include name="${final.name}/bin/*" />
+			</zipfileset>
+		</zip>
+	</target>
 
-  <!-- target: clean-cache  ============================================= -->
-  <target name="clean-cache" depends=""
-                        description="delete ivy cache">
-    <ivy:cleancache />
-  </target>
+	<!-- ================================================================== -->
+	<!-- Clean.  Delete the build files, and their directories              -->
+	<!-- ================================================================== -->
 
-  <target name="clean-runtime" description="--> clean the project runtime area">
-    <delete includeemptydirs="true" dir="${runtime.dir}"/>
-  </target>
+	<!-- target: clean  =================================================== -->
+	<target name="clean" depends="clean-build, clean-lib, clean-dist, clean-runtime" description="--> clean the project" />
 
-  <!-- ================================================================== -->
-  <!-- RAT targets                                                        -->
-  <!-- ================================================================== -->
-  <target name="rat-sources-typedef">
-    <typedef resource="org/apache/rat/anttasks/antlib.xml" >
-      <classpath>
-        <fileset dir="." includes="rat*.jar"/>
-      </classpath>
-    </typedef>
-  </target>
+	<!-- target: clean-local  ============================================= -->
+	<target name="clean-local" depends="" description="--> cleans the local repository for the current module">
+		<delete dir="${ivy.local.default.root}/${ivy.organisation}/${ivy.module}" />
+	</target>
 
-  <target name="rat-sources" depends="rat-sources-typedef"
-	  description="runs the tasks over src/java">
-    <rat:report xmlns:rat="antlib:org.apache.rat.anttasks">
-      <fileset dir="src">
-      	<include name="java/**/*"/>
-      	<include name="plugin/**/src/**/*"/>
-      </fileset>
-    </rat:report>
-  </target>
-	
+	<!-- target: clean-lib  =============================================== -->
+	<target name="clean-lib" description="--> clean the project libraries directory (dependencies)">
+		<delete includeemptydirs="true" dir="${build.lib.dir}" />
+	</target>
+
+	<!-- target: clean-build  ============================================= -->
+	<target name="clean-build" description="--> clean the project built files">
+		<delete includeemptydirs="true" dir="${build.dir}" />
+	</target>
+
+	<!-- target: clean-dist   ============================================= -->
+	<target name="clean-dist" description="--> clean the project dist files">
+		<delete includeemptydirs="true" dir="${dist.dir}" />
+	</target>
+
+	<!-- target: clean-cache  ============================================= -->
+	<target name="clean-cache" depends="" description="delete ivy cache">
+		<ivy:cleancache />
+	</target>
+
+	<target name="clean-runtime" description="--> clean the project runtime area">
+		<delete includeemptydirs="true" dir="${runtime.dir}" />
+	</target>
+
+	<!-- ================================================================== -->
+	<!-- RAT targets                                                        -->
+	<!-- ================================================================== -->
+	<target name="rat-sources-typedef">
+		<typedef resource="org/apache/rat/anttasks/antlib.xml">
+			<classpath>
+				<fileset dir="." includes="rat*.jar" />
+			</classpath>
+		</typedef>
+	</target>
+
+	<target name="rat-sources" depends="rat-sources-typedef" description="runs the tasks over src/java">
+		<rat:report xmlns:rat="antlib:org.apache.rat.anttasks">
+			<fileset dir="src">
+				<include name="java/**/*" />
+				<include name="plugin/**/src/**/*" />
+			</fileset>
+		</rat:report>
+	</target>
+
 </project>
