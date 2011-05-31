@@ -1,0 +1,304 @@
+<?xml version="1.0"?>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one or more
+ contributor license agreements.  See the NOTICE file distributed with
+ this work for additional information regarding copyright ownership.
+ The ASF licenses this file to You under the Apache License, Version 2.0
+ (the "License"); you may not use this file except in compliance with
+ the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<project>
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.apache.nutch</groupId>
+	<artifactId>nutch</artifactId>
+	<packaging>jar</packaging>
+	<name>Apache Nutch</name>
+	<version>1.3</version>
+	<description>Nutch is open source web-search software. It builds on 
+	Lucene and Solr, adding web-specifics, such as a crawler, a link-graph 
+	database, parsers for HTML and other document formats, etc.
+	</description>
+	<url>http://maven.apache.org</url>
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version 2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt
+			</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<scm>
+		<url>http://svn.apache.org/viewvc/nutch
+		</url>
+		<connection>http://svn.apache.org/viewvc/nutch
+		</connection>
+	</scm>
+	<developers>
+		<developer>
+			<id>ab</id>
+			<name>Andrzej Bialecki</name>
+			<email>ab@apache.org</email>
+		</developer>
+		<developer>
+			<id>mattmann</id>
+			<name>Chris A. Mattmann</name>
+			<email>mattmann@apache.org</email>
+		</developer>
+		<developer>
+			<id>kubes</id>
+			<name>Dennis Kubes</name>
+			<email>kubes@apache.org</email>
+		</developer>		
+		<developer>
+			<id>dogacan</id>
+			<name>Dogacan Güney</name>
+			<email>dogacan@apache.org</email>
+		</developer>
+		<developer>
+			<id>jnioche</id>
+			<name>Julien Nioche</name>
+			<email>jnioche@apache.org</email>
+		</developer>
+		<developer>
+			<id>otis</id>
+			<name>Otis Gospodnetić</name>
+			<email>otis@apache.org</email>
+		</developer>
+		<developer>
+			<id>siren</id>
+			<name>Sami Siren</name>
+			<email>siren@apache.org</email>
+		</developer>
+                <developer>
+                        <id>markus</id>
+                        <name>Markus Jelsma</name>
+                        <email>markus@apache.org</email>
+                </developer>
+                <developer>
+                        <id>alexis</id>
+                        <name>Alexis Detlegrode</name>
+                        <email>alexis@apache.org</email>
+                </developer>
+	</developers>
+	<dependencies>
+	    <dependency>
+	       <groupId>org.apache.solr</groupId>
+	       <artifactId>solr-solrj</artifactId>
+	       <version>1.4.1</version>
+	    </dependency>
+	    <dependency>
+	       <groupId>org.slf4j</groupId>
+	       <artifactId>slf4j-log4j12</artifactId>
+	       <version>1.5.11</version>
+	    </dependency>
+	    <dependency>
+	       <groupId>commons-lang</groupId>
+	       <artifactId>commons-lang</artifactId>
+	       <version>2.4</version>
+	    </dependency>
+	    <dependency>
+	       <groupId>commons-collections</groupId>
+	       <artifactId>commons-collections</artifactId>
+	       <version>3.1</version>
+	    </dependency>
+	    <dependency>
+	       <groupId>commons-httpclient</groupId>
+	       <artifactId>commons-httpclient</artifactId>
+	       <version>3.1</version>
+	    </dependency>
+	    <dependency>
+	       <groupId>commons-codec</groupId>
+	       <artifactId>commons-codec</artifactId>
+	       <version>1.3</version>
+	    </dependency>
+	    <dependency>
+	       <groupId>org.apache.hadoop</groupId>
+	       <artifactId>hadoop-core</artifactId>
+	       <version>0.20.2</version>
+		      <exclusions>
+		        <exclusion>
+		          <groupId>hsqldb</groupId>
+		          <artifactId>hsqldb</artifactId>
+		        </exclusion>
+		        <exclusion>
+		          <groupId>net.sf.kosmosfs</groupId>
+		          <artifactId>kfs</artifactId>
+		        </exclusion>
+		        <exclusion>
+		          <groupId>net.java.dev.jets3t</groupId>
+		          <artifactId>jets3t</artifactId>
+		        </exclusion>
+		        <exclusion>
+		          <groupId>org.mortbay.jetty</groupId>
+		          <artifactId>jsp</artifactId>
+		        </exclusion>
+		        <exclusion>
+		          <groupId>org.eclipse.jdt</groupId>
+		          <artifactId>core</artifactId>
+		        </exclusion>
+		        <exclusion>
+		          <groupId>ant</groupId>
+		          <artifactId>ant</artifactId>
+		        </exclusion>
+		      </exclusions>
+	    </dependency>			
+	    <dependency>
+	       <groupId>com.ibm.icu</groupId>
+	       <artifactId>icu4j</artifactId>
+	       <version>4.0.1</version>
+	    </dependency>
+	    <dependency>
+	       <groupId>org.apache.lucene</groupId>
+	       <artifactId>lucene-misc</artifactId>
+	       <version>3.0.2</version>
+	    </dependency>		
+	    <dependency>
+	       <groupId>org.apache.tika</groupId>
+	       <artifactId>tika-core</artifactId>
+	       <version>0.9</version>
+	    </dependency>		
+	    <dependency>
+	       <groupId>org.apache.tika</groupId>
+	       <artifactId>tika-parsers</artifactId>
+	       <version>0.9</version>
+	       <exclusions>
+	         <exclusion>
+	           <groupId>org.sun.jdmk</groupId>
+	         </exclusion>
+	         <exclusion>
+	           <groupId>com.sun.jmx</groupId>
+	         </exclusion>
+	         <exclusion>
+	           <groupId>javax.jms</groupId>
+	         </exclusion>
+	       </exclusions>
+	    </dependency>	
+	    <dependency>
+	       <groupId>log4j</groupId>
+	       <artifactId>log4j</artifactId>
+	       <version>1.2.15</version>
+	       <exclusions>
+	         <exclusion>
+	           <groupId>org.sun.jdmk</groupId>
+	         </exclusion>
+	         <exclusion>
+	           <groupId>com.sun.jmx</groupId>
+	         </exclusion>
+	         <exclusion>
+	           <groupId>javax.jms</groupId>
+	         </exclusion>
+	       </exclusions>
+	    </dependency>
+	    <dependency>
+	       <groupId>xerces</groupId>
+	       <artifactId>xmlParserAPIs</artifactId>
+	       <version>2.6.2</version>
+	    </dependency>
+	    <dependency>
+	       <groupId>xerces</groupId>
+	       <artifactId>xercesImpl</artifactId>
+	       <version>2.9.1</version>
+	    </dependency>			
+	    <dependency>
+	       <groupId>oro</groupId>
+	       <artifactId>oro</artifactId>
+	       <version>2.0.8</version>
+	    </dependency>			
+	    <dependency>
+	       <groupId>com.healthmarketscience.sqlbuilder</groupId>
+	       <artifactId>sqlbuilder</artifactId>
+	       <version>2.0.6</version>
+	    </dependency>			
+	    <dependency>
+	       <groupId>org.mortbay.jetty</groupId>
+	       <artifactId>jetty</artifactId>
+	       <version>6.1.22</version>
+	       <scope>test</scope>
+	    </dependency>
+	    <dependency>
+	       <groupId>junit</groupId>
+	       <artifactId>junit</artifactId>
+	       <version>3.8.1</version>
+	       <scope>test</scope>
+	    </dependency>
+	    <dependency>
+	       <groupId>org.apache.hadoop</groupId>
+	       <artifactId>hadoop-test</artifactId>
+	       <version>0.20.2</version>
+		      <exclusions>
+		        <exclusion>
+		          <groupId>hsqldb</groupId>
+		          <artifactId>hsqldb</artifactId>
+		        </exclusion>
+		        <exclusion>
+		          <groupId>net.sf.kosmosfs</groupId>
+		          <artifactId>kfs</artifactId>
+		        </exclusion>
+		        <exclusion>
+		          <groupId>net.java.dev.jets3t</groupId>
+		          <artifactId>jets3t</artifactId>
+		        </exclusion>
+		        <exclusion>
+		          <groupId>org.mortbay.jetty</groupId>
+		          <artifactId>jsp</artifactId>
+		        </exclusion>
+		        <exclusion>
+		          <groupId>org.eclipse.jdt</groupId>
+		          <artifactId>core</artifactId>
+		        </exclusion>
+		      </exclusions>
+	       <scope>test</scope>
+	    </dependency>
+	    <dependency>
+	       <groupId>org.mortbay.jetty</groupId>
+	       <artifactId>jetty</artifactId>
+	       <version>6.1.22</version>
+	       <scope>test</scope>
+	    </dependency>
+	    <dependency>
+	       <groupId>org.mortbay.jetty</groupId>
+	       <artifactId>jetty-util</artifactId>
+	       <version>6.1.22</version>
+	       <scope>test</scope>
+	    </dependency>
+	    <dependency>
+	       <groupId>org.mortbay.jetty</groupId>
+	       <artifactId>jetty-client</artifactId>
+	       <version>6.1.22</version>
+	    </dependency>
+	    <dependency>
+	       <groupId>org.hsqldb</groupId>
+	       <artifactId>hsqldb</artifactId>
+	       <version>2.0.0</version>
+	    </dependency>
+	    <dependency>
+	       <groupId>org.jdom</groupId>
+	       <artifactId>jdom</artifactId>
+	       <version>1.1</version>
+	    </dependency>
+		<dependency>
+			<groupId>org.apache.gora</groupId>
+			<artifactId>gora-sql</artifactId>
+			<version>0.1-incubating</version>
+		      <exclusions>
+		        <exclusion>
+		          <groupId>com.sun.jdmk</groupId>
+		        </exclusion>
+		        <exclusion>
+		          <groupId>com.sun.jmx</groupId>
+		        </exclusion>
+		        <exclusion>
+		          <groupId>javax.jms</groupId>
+		        </exclusion>
+		      </exclusions>
+		</dependency>
+   </dependencies>
+</project>

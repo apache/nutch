@@ -1,6 +1,6 @@
 Nutch Change Log
 
-Release 1.3 - 5/31/2011
+Release 1.3 - 4/21/2011
 
 * NUTCH-994 Fine tune Solr schema (markus)
 
@@ -68,13 +68,39 @@ Release 1.3 - 5/31/2011
 
 * NUTCH-936 LanguageIdentifier should not set empty lang field on NutchDocument (Markus Jelsma via jnioche)
 
+* NUTCH-855 ScoringFilter and IndexingFilter: To allow for the propagation of URL Metatags and their subsequent indexing (Scott Gonyea via mattmann)
+
+* NUTCH-901 Make index-more plug-in configurable (Markus Jelsma, mattmann)
+
+* NUTCH-716 Make subcollection index filed multivalued (Dmitry Lihachev via jnioche)
+
+* NUTCH-905 Configurable file protocol parent directory crawling (Thorsten Scherler, mattmann, ab)
+
 * NUTCH-787 ScoringFilters should not override the injected score (jnioche)
 
 * NUTCH-949 Conflicting ANT jars in classpath (jnioche)
 
+* NUTCH-862 HttpClient null pointer exception (Sebastian Nagel via ab)
+
+* NUTCH-870 Injector should add the metadata before calling injectedScore (jnioche via mattmann)
+
+* NUTCH-869 Add parse-html back (jnioche)
+
+* NUTCH-871 MoreIndexingFilter missing date format (Max	Lynch via mattmann)
+
+* NUTCH-696 Timeout for Parser (ab, jnioche)
+
 * NUTCH-863 Benchmark and a testbed proxy server (ab)
 
+* NUTCH-677 Segment merge filtering based on segment content (Marcin Okraszewski via mattmann)
+
+* NUTCH-774 Retry interval in crawl date is set to 0 (Reinhard Schwab via mattmann)
+
+* NUTCH-697 Generate log output for solr indexer and dedup (Dmitry Lihachev, Jeroen van Vianen via mattmann)
+
 * NUTCH-844 Improve NutchConfiguration (ab)
+
+* NUTCH-850 SolrDeleteDuplicates needs to clone the SolrRecord objects (jnioche)
 
 * NUTCH-845 Native hadoop libs not available through maven (ab)
 
@@ -82,67 +108,24 @@ Release 1.3 - 5/31/2011
 
 * NUTCH-821 Use ivy in nutch builds (Enis Soztutar, jnioche)
 
+* NUTCH-838 Add timing information to all Tool classes (Jeroen van Vianen, mattmann)
+
 * NUTCH-837 Remove search servers and Lucene dependencies (ab)
 
 * NUTCH-836 Remove deprecated parse plugins (jnioche)
 
-* NUTCH-939 Added -dir command line option to SolrIndexer (Claudio Martella via ab)
-
-* NUTCH-948 Remove Lucene dependencies (ab)
-
-Release 1.2 - 09/18/2010
-
-* NUTCH-901 Make index-more plug-in configurable (Markus Jelsma via mattmann)
-
-* NUTCH-908 Infinite Loop and Null Pointer Bugs in Searching (kubes via mattmann)
-
-* NUTCH-906 Nutch OpenSearch sometimes raises DOMExceptions (Asheesh Laroia via ab)
-
-* NUTCH-862 HttpClient null pointer exception (Sebastian Nagel via ab)
-
-* NUTCH-905 Configurable file protocol parent directory crawling (Thorsten Scherler, mattmann, ab)
-
-* NUTCH-877 Allow setting of slop values for non-quote phrase queries on query-basic plugin (kubes via jnioche)
-
-* NUTCH-716 Make subcollection index filed multivalued (Dmitry Lihachev via jnioche)
-
-* NUTCH-878 ScoringFilters should not override the injected score 
-
-* NUTCH-870 Injector should add the metadata before calling injectedScore (jnioche via mattmann)
-
-* NUTCH-858 No longer able to set per-field boosts on lucene documents (ab)
-
-* NUTCH-869 Add parse-html back (jnioche)
-
-* NUTCH-871 MoreIndexingFilter missing date format (Max Lynch via mattmann)
-
-* NUTCH-696 Timeout for Parser (ab, jnioche)
-
-* NUTCH-857 DistributedBeans should not close their RPC counterparts (kubes)
-  
-* NUTCH-855 ScoringFilter and IndexingFilter: To allow for the propagation of URL Metatags 
-  and their subsequent indexing (Scott Gonyea via mattmann)
-
-* NUTCH-677 Segment merge filering based on segment content (Marcin Okraszewski via mattmann)
-
-* NUTCH-774 Retry interval in crawl date is set to 0 (Reinhard Schwab via mattmann)
-
-* NUTCH-697 Generate log output for solr indexer and dedup (Dmitry Lihachev, Jeroen van Vianen via mattmann)
-
-* NUTCH-850 SolrDeleteDuplicates needs to clone the SolrRecord objects (jnioche)
-
-* NUTCH-838 Add timing information to all Tool classes (Jeroen van Vianen, mattmann)
-
 * NUTCH-835 Document deduplication failed using MD5Signature (Sebastian Nagel via ab)
-
-* NUTCH-831 Allow configuration of how fields crawled by Nutch are stored / indexed / 
-  tokenized (Jeroen van Vianen via mattmann)
 
 * NUTCH-278 Fetcher-status might need clarification: kbit/s instead of kb/s shown (Alex McLintock via mattmann)
 
 * NUTCH-833 Website is still Lucene branded (mattmann, Alex McLintock)
 
 * NUTCH-832 Website menu has lots of broken links - in particular the API docs (Alex McLintock via mattmann)
+
+* NUTCH-939 Added -dir command line option to SolrIndexer (Claudio Martella via ab)
+
+* NUTCH-948 Remove Lucene dependencies (ab)
+
 
 Release 1.1 - 2010-06-06
 
