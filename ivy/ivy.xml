@@ -12,12 +12,12 @@
 	language governing permissions and limitations under the License. -->
 
 <ivy-module version="1.0">
-	<info organisation="org.apache.nutch" module="${ant.project.name}">
-		<license name="Apache 2.0" />
+	<info organisation="org.apache.nutch" module="nutch">
+		<license name="Apache 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt/"/>
 		<ivyauthor name="Apache Nutch Team" url="http://nutch.apache.org" />
-		<description>
-			Apache Nutch
-    </description>
+		<description homepage="http://nutch.apache.org">Nutch is an open source web-search software. It builds on 
+		Hadoop, Tika and Solr, adding web-specifics, such as a crawler, a link-graph database etc.
+		</description>
 	</info>
 
 	<configurations>

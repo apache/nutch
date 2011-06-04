@@ -205,6 +205,13 @@
   <!--                                                                    -->
   <!-- ================================================================== -->  
   <target name="deploy" depends="release" description="deploy to Apache Nexus">
+	
+	<!-- generate a pom file -->
+	<ivy:makepom ivyfile="${ivy.file}" pomfile="${basedir}/pom.xml" templatefile="ivy/mvn.template">
+	   <mapping conf="default" scope="compile"/>
+	   <mapping conf="runtime" scope="runtime"/>
+	</ivy:makepom>
+
 	<!-- sign and deploy the main artifact -->
 	<artifact:mvn>
 		<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.1:sign-and-deploy-file" />
