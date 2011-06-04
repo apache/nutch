@@ -1,6 +1,8 @@
 Nutch Change Log
 
-Release 1.3 - 5/31/2011
+Release 1.3 - 6/4/2011
+
+* NUTCH-1003 task 'package' does not reflect the new organisation of the code (jnioche)
 
 * NUTCH-994 Fine tune Solr schema (markus)
 
