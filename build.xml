@@ -606,18 +606,11 @@
     <mkdir dir="${dist.version.dir}/runtime"/>
     <mkdir dir="${dist.version.dir}/docs"/>
     <mkdir dir="${dist.version.dir}/docs/api"/>
-    <mkdir dir="${dist.version.dir}/plugins"/>
+    <mkdir dir="${dist.version.dir}/ivy"/>
 
     <copy todir="${dist.version.dir}/lib" includeEmptyDirs="false">
-      <fileset dir="${build.lib.dir}"/>
+      <fileset dir="lib"/>
     </copy>
-
-    <copy todir="${dist.version.dir}/plugins">
-      <fileset dir="${build.plugins}"/>
-    </copy>
-
-    <copy file="${build.dir}/${final.name}.jar" todir="${dist.version.dir}"/>
-    <copy file="${build.dir}/${final.name}.job" todir="${dist.version.dir}"/>
    
     <copy todir="${dist.version.dir}/runtime">
       <fileset dir="runtime"/>
@@ -645,6 +638,10 @@
 
     <copy todir="${dist.version.dir}/src" includeEmptyDirs="true">
       <fileset dir="src"/>
+    </copy>
+
+    <copy todir="${dist.version.dir}/ivy" includeEmptyDirs="true">
+      <fileset dir="ivy"/>
     </copy>
 
     <copy todir="${dist.version.dir}/" file="build.xml"/>

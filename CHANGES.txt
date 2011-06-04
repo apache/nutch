@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-1003 task 'package' does not reflect the new organisation of the code (jnioche)
+
 * NUTCH-994 Fine tune Solr schema (markus)
 
 * NUTCH-999 Normalise String representation for Dates in IndexingFilters (jnioche)
