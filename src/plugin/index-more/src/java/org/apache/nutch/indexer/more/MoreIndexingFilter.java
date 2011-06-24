@@ -143,7 +143,8 @@ public class MoreIndexingFilter implements IndexingFilter {
     Utf8 contentLength = page.getFromHeaders(new Utf8(
         HttpHeaders.CONTENT_LENGTH));
     if (contentLength != null)
-      doc.add("contentLength", contentLength.toString());
+      // NUTCH-1010 ContentLength not trimmed
+      doc.add("contentLength", contentLength.toString().trim());
 
     return doc;
   }
