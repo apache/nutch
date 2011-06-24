@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1000 Add option not to commit to Solr (markus)
+
 * NUTCH-1006 MetaEquiv with single quotes not accepted (markus)
 
 * NUTCH-1010 ContentLength not trimmed (markus)

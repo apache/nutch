@@ -282,6 +282,8 @@ Tool {
 
   private SolrServer solr;
 
+  private boolean noCommit = false;
+
   private int numDeletes = 0;
 
   private UpdateRequest updateRequest = new UpdateRequest();
@@ -297,6 +299,7 @@ Tool {
   public void configure(JobConf job) {
     try {
       solr = new CommonsHttpSolrServer(job.get(SolrConstants.SERVER_URL));
+      noCommit = job.getBoolean("noCommit", false);
     } catch (MalformedURLException e) {
       throw new RuntimeException(e);
     }
@@ -308,7 +311,10 @@ Tool {
       if (numDeletes > 0) {
         LOG.info("SolrDeleteDuplicates: deleting " + numDeletes + " duplicates");
         updateRequest.process(solr);
-        solr.commit();
+
+        if (!noCommit) {
+          solr.commit();
+        }
       }
     } catch (SolrServerException e) {
       throw new IOException(e);
@@ -343,7 +349,7 @@ Tool {
     }
   }
 
-  public void dedup(String solrUrl) throws IOException {
+  public void dedup(String solrUrl, boolean noCommit) throws IOException {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
     LOG.info("SolrDeleteDuplicates: starting at " + sdf.format(start));
@@ -352,6 +358,7 @@ Tool {
     JobConf job = new NutchJob(getConf());
 
     job.set(SolrConstants.SERVER_URL, solrUrl);
+    job.setBoolean("noCommit", noCommit);
     job.setInputFormat(SolrInputFormat.class);
     job.setOutputFormat(NullOutputFormat.class);
     job.setMapOutputKeyClass(Text.class);
@@ -366,12 +373,17 @@ Tool {
   }
 
   public int run(String[] args) throws IOException {
-    if (args.length != 1) {
-      System.err.println("Usage: SolrDeleteDuplicates <solr url>");
+    if (args.length < 1) {
+      System.err.println("Usage: SolrDeleteDuplicates <solr url> [-noCommit]");
       return 1;
     }
 
-    dedup(args[0]);
+    boolean noCommit = false;
+    if (args.length == 2 && args[1].equals("-noCommit")) {
+      noCommit = true;
+    }
+
+    dedup(args[0], noCommit);
     return 0;
   }
 
