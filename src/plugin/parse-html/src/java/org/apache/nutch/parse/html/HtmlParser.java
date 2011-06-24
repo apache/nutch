@@ -68,8 +68,10 @@ public class HtmlParser implements Parser {
   // meta tag well past the first 1000 bytes.
   // (e.g. http://cn.promo.yahoo.com/customcare/music.html)
   private static final int CHUNK_SIZE = 2000;
+
+  // NUTCH-1006 Meta equiv with single quotes not accepted
   private static Pattern metaPattern =
-    Pattern.compile("<meta\\s+([^>]*http-equiv=\"?content-type\"?[^>]*)>",
+    Pattern.compile("<meta\\s+([^>]*http-equiv=(\"|')?content-type(\"|')?[^>]*)>",
         Pattern.CASE_INSENSITIVE);
   private static Pattern charsetPattern =
     Pattern.compile("charset=\\s*([a-z][_\\-0-9a-z]*)",

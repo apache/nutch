@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-1006 MetaEquiv with single quotes not accepted (markus)
+
 * NUTCH-1010 ContentLength not trimmed (markus)
 
 * NUTCH-995 Generate POM file using the Ivy makepom task (mattmann, jnioche, Gabriele Kahlout)
