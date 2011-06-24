@@ -164,7 +164,8 @@ public class MoreIndexingFilter implements IndexingFilter {
     String contentLength = data.getMeta(Response.CONTENT_LENGTH);
 
     if (contentLength != null)
-      doc.add("contentLength", contentLength);
+      // NUTCH-1010 ContentLength not trimmed
+      doc.add("contentLength", contentLength.trim());
 
     return doc;
   }

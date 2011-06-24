@@ -1,5 +1,9 @@
 Nutch Change Log
 
+Release 1.4 - Current development
+
+* NUTCH-1010 ContentLength not trimmed (markus)
+
 Release 1.3 - 6/4/2011
 
 * NUTCH-995 Generate POM file using the Ivy makepom task (mattmann, jnioche, Gabriele Kahlout)
