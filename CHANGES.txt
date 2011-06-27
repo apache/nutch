@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-295 Description for fetcher.threads.fetch property (kubes via markus)
+
 * NUTCH-1006 MetaEquiv with single quotes not accepted (markus)
 
 * NUTCH-1010 ContentLength not trimmed (markus)
