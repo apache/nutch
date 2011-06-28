@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1012 Cannot handle illegal charset $charset (markus)
+
 * NUTCH-1022 Upgrade version number of Nutch agent in conf (markus)
 
 * NUTCH-295 Description for fetcher.threads.fetch property (kubes via markus)
