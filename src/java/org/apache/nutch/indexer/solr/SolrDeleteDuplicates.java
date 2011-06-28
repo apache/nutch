@@ -349,6 +349,10 @@ Tool {
     }
   }
 
+  public void dedup(String solrUrl) throws IOException {
+    dedup(solrUrl, false);
+  }
+
   public void dedup(String solrUrl, boolean noCommit) throws IOException {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();

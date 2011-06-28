@@ -57,6 +57,11 @@ public class SolrIndexer extends Configured implements Tool {
   }
 
   public void indexSolr(String solrUrl, Path crawlDb, Path linkDb,
+      List<Path> segments) throws IOException {
+      indexSolr(solrUrl, crawlDb, linkDb, segments, false);
+  }
+
+  public void indexSolr(String solrUrl, Path crawlDb, Path linkDb,
       List<Path> segments, boolean noCommit) throws IOException {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
