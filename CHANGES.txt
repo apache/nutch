@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-1012 Cannot handle illegal charset $charset (markus)
+
 * NUTCH-295 Description for fetcher.threads.fetch property (kubes via markus)
 
 * NUTCH-1006 MetaEquiv with single quotes not accepted (markus)
