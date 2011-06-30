@@ -22,6 +22,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.indexer.NutchField;
@@ -33,6 +35,8 @@ import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.util.DateUtil;
 
 public class SolrWriter implements NutchIndexWriter {
+
+  public static Log LOG = LogFactory.getLog(SolrWriter.class);
 
   private SolrServer solr;
   private SolrMappingReader solrMapping;
@@ -54,9 +58,15 @@ public class SolrWriter implements NutchIndexWriter {
       for (final Object val : e.getValue().getValues()) {
         // normalise the string representation for a Date
         Object val2 = val;
+
         if (val instanceof Date){
           val2 = DateUtil.getThreadLocalDateFormat().format(val);
         }
+
+        if (e.getKey().equals("content")) {
+          val2 = stripNonCharCodepoints((String)val);
+        }
+
         inputDoc.addField(solrMapping.mapKey(e.getKey()), val2, e.getValue().getWeight());
         String sCopy = solrMapping.mapCopyKey(e.getKey());
         if (sCopy != e.getKey()) {
@@ -68,6 +78,7 @@ public class SolrWriter implements NutchIndexWriter {
     inputDocs.add(inputDoc);
     if (inputDocs.size() >= commitSize) {
       try {
+        LOG.info("Adding " + Integer.toString(inputDocs.size()) + " documents");
         solr.add(inputDocs);
       } catch (final SolrServerException e) {
         throw makeIOException(e);
@@ -79,6 +90,7 @@ public class SolrWriter implements NutchIndexWriter {
   public void close() throws IOException {
     try {
       if (!inputDocs.isEmpty()) {
+        LOG.info("Adding " + Integer.toString(inputDocs.size()) + " documents");
         solr.add(inputDocs);
         inputDocs.clear();
       }
@@ -92,6 +104,27 @@ public class SolrWriter implements NutchIndexWriter {
     final IOException ioe = new IOException();
     ioe.initCause(e);
     return ioe;
+  }
+
+  public static String stripNonCharCodepoints(String input) {
+    StringBuilder retval = new StringBuilder();
+    char ch;
+
+    for (int i = 0; i < input.length(); i++) {
+      ch = input.charAt(i);
+
+      // Strip all non-characters http://unicode.org/cldr/utility/list-unicodeset.jsp?a=[:Noncharacter_Code_Point=True:]
+      // and non-printable control characters except tabulator, new line and carriage return
+      if (ch % 0x10000 != 0xffff && // 0xffff - 0x10ffff range step 0x10000
+          ch % 0x10000 != 0xfffe && // 0xfffe - 0x10fffe range
+          (ch <= 0xfdd0 || ch >= 0xfdef) && // 0xfdd0 - 0xfdef
+          (ch > 0x1F || ch == 0x9 || ch == 0xa || ch == 0xd)) {
+
+        retval.append(ch);
+      }
+    }
+
+    return retval.toString();
   }
 
 }

@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1016 Strip UTF-8 non-character codepoints and add logging for SolrWriter (markus)
+
 * NUTCH-1012 Cannot handle illegal charset $charset (markus)
 
 * NUTCH-1022 Upgrade version number of Nutch agent in conf (markus)
