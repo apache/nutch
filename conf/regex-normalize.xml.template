@@ -63,4 +63,10 @@
   <substitution></substitution>
 </regex>
 
+<!-- removes duplicate slashes -->
+<regex>
+  <pattern>(?&lt;!:)/{2,}</pattern>
+  <substitution>/</substitution>
+</regex>
+
 </regex-normalize>
