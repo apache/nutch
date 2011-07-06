@@ -30,6 +30,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.SequenceFile.CompressionType;
 
 import org.apache.hadoop.mapred.FileOutputFormat;
+import org.apache.hadoop.mapred.InvalidJobConfException;
 import org.apache.hadoop.mapred.OutputFormat;
 import org.apache.hadoop.mapred.RecordWriter;
 import org.apache.hadoop.mapred.JobConf;
@@ -46,8 +47,15 @@ public class FetcherOutputFormat implements OutputFormat<Text, NutchWritable> {
 
   public void checkOutputSpecs(FileSystem fs, JobConf job) throws IOException {
     Path out = FileOutputFormat.getOutputPath(job);
+    if ((out == null) && (job.getNumReduceTasks() != 0)) {
+    	throw new InvalidJobConfException(
+    			"Output directory not set in JobConf.");
+    }
+    if (fs == null) {
+    	fs = out.getFileSystem(job);
+    }
     if (fs.exists(new Path(out, CrawlDatum.FETCH_DIR_NAME)))
-      throw new IOException("Segment already fetched!");
+    	throw new IOException("Segment already fetched!");
   }
 
   public RecordWriter<Text, NutchWritable> getRecordWriter(final FileSystem fs,
