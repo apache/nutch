@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1030 WebgraphDB program requires manually added directories (markus)
+
 * NUTCH-1011 Normalize duplicate slashes in URL's (markus)
 
 * NUTCH-993 NullPointerException at FetcherOutputFormat.checkOutputSpecs (Christian Guegi via jnioche)

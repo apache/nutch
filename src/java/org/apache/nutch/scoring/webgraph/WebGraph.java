@@ -451,18 +451,19 @@ public class WebGraph
 
     // lock an existing webgraphdb to prevent multiple simultaneous updates
     Path lock = new Path(webGraphDb, LOCK_NAME);
-    boolean webGraphDbExists = fs.exists(webGraphDb);
-    if (webGraphDbExists) {
-      LockUtil.createLockFile(fs, lock, false);
-    }
-    else {
-      
-      // if the webgraph doesn't exist, create it
+    if (!fs.exists(webGraphDb)) {
       fs.mkdirs(webGraphDb);
     }
 
+    LockUtil.createLockFile(fs, lock, false);
+
     // outlink and temp outlink database paths
     Path outlinkDb = new Path(webGraphDb, OUTLINK_DIR);
+
+    if (!fs.exists(outlinkDb)) {
+      fs.mkdirs(outlinkDb);
+    }
+
     Path tempOutlinkDb = new Path(outlinkDb + "-"
       + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
     JobConf outlinkJob = new NutchJob(conf);
@@ -480,10 +481,8 @@ public class WebGraph
     }
 
     // add the existing webgraph
-    if (webGraphDbExists) {
-      LOG.info("OutlinkDb: adding input: " + outlinkDb);
-      FileInputFormat.addInputPath(outlinkJob, outlinkDb);
-    }
+    LOG.info("OutlinkDb: adding input: " + outlinkDb);
+    FileInputFormat.addInputPath(outlinkJob, outlinkDb);
 
     outlinkJob.setInputFormat(SequenceFileInputFormat.class);
     outlinkJob.setMapperClass(OutlinkDb.class);
