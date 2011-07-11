@@ -164,7 +164,7 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
         }
       }
       if (curRules == EMPTY_RULES || curRules == null) {
-        LOG.warn("can't find rules for scope '" + scope + "', using default");
+        LOG.info("can't find rules for scope '" + scope + "', using default");
         scopedRules.put(scope, EMPTY_RULES);
       }
     }

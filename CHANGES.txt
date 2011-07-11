@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1027 Degrade log level of `can't find rules for scope` (markus)
+
 * NUTCH-783 IndexingFiltersChecker utility (jnioche via markus)
 
 * NUTCH-1030 WebgraphDB program requires manually added directories (markus)
