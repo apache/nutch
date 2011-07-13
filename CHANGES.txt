@@ -2,6 +2,10 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1036 Solr jobs should increment counters in Reporter (markus)
+
+* NUTCH-987 Support HTTP auth for Solr communication (markus)
+
 * NUTCH-1027 Degrade log level of `can't find rules for scope` (markus)
 
 * NUTCH-783 IndexingFiltersChecker utility (jnioche via markus)

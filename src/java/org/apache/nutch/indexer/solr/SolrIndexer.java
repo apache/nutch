@@ -36,7 +36,6 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
 import org.apache.solr.client.solrj.SolrServer;
-import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -84,7 +83,7 @@ public class SolrIndexer extends Configured implements Tool {
     try {
       JobClient.runJob(job);
       // do the commits once and for all the reducers in one go
-      SolrServer solr =  new CommonsHttpSolrServer(solrUrl);
+      SolrServer solr =  SolrUtils.getCommonsHttpSolrServer(job);
 
       if (!noCommit) {
         solr.commit();

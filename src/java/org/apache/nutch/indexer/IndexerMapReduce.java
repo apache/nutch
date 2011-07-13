@@ -134,11 +134,15 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
       doc = this.filters.filter(doc, parse, key, fetchDatum, inlinks);
     } catch (final IndexingException e) {
       if (LOG.isWarnEnabled()) { LOG.warn("Error indexing "+key+": "+e); }
+      reporter.incrCounter("IndexerStatus", "Errors", 1);
       return;
     }
 
     // skip documents discarded by indexing filters
-    if (doc == null) return;
+    if (doc == null) {
+      reporter.incrCounter("IndexerStatus", "Skipped by filters", 1);
+      return;
+    }
 
     float boost = 1.0f;
     // run scoring filters
@@ -155,6 +159,8 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
     doc.setWeight(boost);
     // store boost for use by explain and dedup
     doc.add("boost", Float.toString(boost));
+
+    reporter.incrCounter("IndexerStatus", "Documents added", 1);
 
     output.collect(key, doc);
   }

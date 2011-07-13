@@ -45,7 +45,6 @@ import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
 import org.apache.solr.client.solrj.request.UpdateRequest;
 
 /**
@@ -102,7 +101,7 @@ public class SolrClean implements Tool {
     @Override
     public void configure(JobConf job) {
       try {
-        solr = new CommonsHttpSolrServer(job.get(SolrConstants.SERVER_URL));
+        solr = SolrUtils.getCommonsHttpSolrServer(job);
         noCommit = job.getBoolean("noCommit", false);
       } catch (MalformedURLException e) {
         throw new RuntimeException(e);
@@ -136,6 +135,7 @@ public class SolrClean implements Tool {
         Text document = values.next();
         updateRequest.deleteById(document.toString());
         numDeletes++;
+        reporter.incrCounter("SolrCleanStatus", "Deleted documents", 1);
         if (numDeletes >= NUM_MAX_DELETE_REQUEST) {
           try {
             LOG.info("SolrClean: deleting " + numDeletes + " documents");

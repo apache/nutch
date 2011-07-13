@@ -47,7 +47,6 @@ import org.apache.nutch.util.TimingUtil;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
 import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -188,7 +187,7 @@ Tool {
 
     /** Return each index as a split. */
     public InputSplit[] getSplits(JobConf job, int numSplits) throws IOException {
-      SolrServer solr = new CommonsHttpSolrServer(job.get(SolrConstants.SERVER_URL));
+      SolrServer solr = SolrUtils.getCommonsHttpSolrServer(job);
 
       final SolrQuery solrQuery = new SolrQuery(SOLR_GET_ALL_QUERY);
       solrQuery.setFields(SolrConstants.ID_FIELD);
@@ -219,7 +218,7 @@ Tool {
         Reporter reporter)
         throws IOException {
 
-      SolrServer solr = new CommonsHttpSolrServer(job.get(SolrConstants.SERVER_URL));
+      SolrServer solr = SolrUtils.getCommonsHttpSolrServer(job);
       SolrInputSplit solrSplit = (SolrInputSplit) split;
       final int numDocs = solrSplit.getNumDocs();
       
@@ -298,7 +297,7 @@ Tool {
 
   public void configure(JobConf job) {
     try {
-      solr = new CommonsHttpSolrServer(job.get(SolrConstants.SERVER_URL));
+      solr = SolrUtils.getCommonsHttpSolrServer(job);
       noCommit = job.getBoolean("noCommit", false);
     } catch (MalformedURLException e) {
       throw new RuntimeException(e);
@@ -336,6 +335,7 @@ Tool {
         updateRequest.deleteById(solrRecord.id);
       }
       numDeletes++;
+      reporter.incrCounter("SolrDedupStatus", "Deleted documents", 1);
       if (numDeletes >= NUM_MAX_DELETE_REQUEST) {
         try {
           LOG.info("SolrDeleteDuplicates: deleting " + numDeletes + " duplicates");

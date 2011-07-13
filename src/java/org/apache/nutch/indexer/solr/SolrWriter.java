@@ -30,7 +30,6 @@ import org.apache.nutch.indexer.NutchField;
 import org.apache.nutch.indexer.NutchIndexWriter;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
 import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.util.DateUtil;
 
@@ -47,7 +46,7 @@ public class SolrWriter implements NutchIndexWriter {
   private int commitSize;
 
   public void open(JobConf job, String name) throws IOException {
-    solr = new CommonsHttpSolrServer(job.get(SolrConstants.SERVER_URL));
+    solr = SolrUtils.getCommonsHttpSolrServer(job);
     commitSize = job.getInt(SolrConstants.COMMIT_SIZE, 1000);
     solrMapping = SolrMappingReader.getInstance(job);
   }
@@ -64,7 +63,7 @@ public class SolrWriter implements NutchIndexWriter {
         }
 
         if (e.getKey().equals("content")) {
-          val2 = stripNonCharCodepoints((String)val);
+          val2 = SolrUtils.stripNonCharCodepoints((String)val);
         }
 
         inputDoc.addField(solrMapping.mapKey(e.getKey()), val2, e.getValue().getWeight());
@@ -105,26 +104,4 @@ public class SolrWriter implements NutchIndexWriter {
     ioe.initCause(e);
     return ioe;
   }
-
-  public static String stripNonCharCodepoints(String input) {
-    StringBuilder retval = new StringBuilder();
-    char ch;
-
-    for (int i = 0; i < input.length(); i++) {
-      ch = input.charAt(i);
-
-      // Strip all non-characters http://unicode.org/cldr/utility/list-unicodeset.jsp?a=[:Noncharacter_Code_Point=True:]
-      // and non-printable control characters except tabulator, new line and carriage return
-      if (ch % 0x10000 != 0xffff && // 0xffff - 0x10ffff range step 0x10000
-          ch % 0x10000 != 0xfffe && // 0xfffe - 0x10fffe range
-          (ch <= 0xfdd0 || ch >= 0xfdef) && // 0xfdd0 - 0xfdef
-          (ch > 0x1F || ch == 0x9 || ch == 0xa || ch == 0xd)) {
-
-        retval.append(ch);
-      }
-    }
-
-    return retval.toString();
-  }
-
 }
