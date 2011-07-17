@@ -313,6 +313,9 @@ public class CrawlDbReader implements Closeable {
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(LongWritable.class);
 
+    // https://issues.apache.org/jira/browse/NUTCH-1029
+    job.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
+
     JobClient.runJob(job);
 
     // reading the result
@@ -464,7 +467,7 @@ public class CrawlDbReader implements Closeable {
     job.setOutputValueClass(Text.class);
 
     job.setNumReduceTasks(1); // create a single file.
-    
+
     JobClient.runJob(job);
     FileSystem fs = FileSystem.get(config);
     fs.delete(tempDir, true);
