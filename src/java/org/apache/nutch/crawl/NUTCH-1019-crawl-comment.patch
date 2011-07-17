@@ -1,0 +1,14 @@
+Index: Crawl.java
+===================================================================
+--- Crawl.java	(revision 1147708)
++++ Crawl.java	(working copy)
+@@ -48,7 +48,8 @@
+   }
+ 
+ 
+-  /* Perform complete crawling and indexing given a set of root urls. */
++  /* Perform complete crawling and indexing (to Solr) given a set of root urls and the -solr
++     parameter respectively. More information and Usage parameters can be found below. */
+   public static void main(String args[]) throws Exception {
+     Configuration conf = NutchConfiguration.create();
+     int res = ToolRunner.run(conf, new Crawl(), args);
