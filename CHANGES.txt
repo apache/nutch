@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1055 upgrade package.html file in language identifier plugin (lewismc)
+
 * NUTCH-1059 Remove convdb command from /bin/nutch (lewismc)
 
 * NUTCH-1019 Edit comment in org.apache.nutch.crawl.Crawl to reflect removal of legacy (lewismc)
