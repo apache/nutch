@@ -49,7 +49,6 @@ if [ $# = 0 ]; then
   echo "where COMMAND is one of:"
   echo "  crawl             one-step crawler for intranets"
   echo "  readdb            read / dump crawl db"
-  echo "  convdb            convert crawl db from pre-0.9 format"
   echo "  mergedb           merge crawldb-s, with optional filtering"
   echo "  readlinkdb        read / dump link db"
   echo "  inject            inject new urls into the database"
@@ -206,8 +205,6 @@ elif [ "$COMMAND" = "parse" ] ; then
   CLASS=org.apache.nutch.parse.ParseSegment
 elif [ "$COMMAND" = "readdb" ] ; then
   CLASS=org.apache.nutch.crawl.CrawlDbReader
-elif [ "$COMMAND" = "convdb" ] ; then
-  CLASS=org.apache.nutch.tools.compat.CrawlDbConverter
 elif [ "$COMMAND" = "mergedb" ] ; then
   CLASS=org.apache.nutch.crawl.CrawlDbMerger
 elif [ "$COMMAND" = "readlinkdb" ] ; then

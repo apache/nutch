@@ -2,6 +2,12 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1059 Remove convdb command from /bin/nutch (lewismc)
+
+* NUTCH-1019 Edit comment in org.apache.nutch.crawl.Crawl to reflect removal of legacy (lewismc)
+
+* NUTCH-1023 Trivial error in error message for org.apache.nutch.crawl.LinkDbReader (lewismc)
+
 * NUTCH-1043 Add pattern for filtering .js in default url filters (jnioche)
 
 * NUTCH-1054 LinkDB optional during indexing (jnioche)
