@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-1043 Add pattern for filtering .js in default url filters (jnioche)
+
 * NUTCH-1027 Degrade log level of `can't find rules for scope` (markus)
 
 * NUTCH-1011 Normalize duplicate slashes in URL's (markus)

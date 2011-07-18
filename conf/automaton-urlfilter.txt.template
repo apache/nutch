@@ -25,7 +25,8 @@
 -(file|ftp|mailto):.*
 
 # skip image and other suffixes we can't yet parse
--.*\.(gif|GIF|jpg|JPG|ico|ICO|css|sit|eps|wmf|zip|ppt|mpg|xls|gz|rpm|tgz|mov|MOV|exe)
+# for a more extensive coverage use the urlfilter-suffix plugin
+-.*\.(gif|GIF|jpg|JPG|png|PNG|ico|ICO|css|CSS|sit|SIT|eps|EPS|wmf|WMF|zip|ZIP|ppt|PPT|mpg|MPG|xls|XLS|gz|GZ|rpm|RPM|tgz|TGZ|mov|MOV|exe|EXE|jpeg|JPEG|bmp|BMP|js|JS)
 
 # skip URLs containing certain characters as probable queries, etc.
 -.*[?*!@=].*
