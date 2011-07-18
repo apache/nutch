@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1043 Add pattern for filtering .js in default url filters (jnioche)
+
 * NUTCH-1054 LinkDB optional during indexing (jnioche)
 
 * NUTCH-1029 Readdb throws EOFException (markus)
