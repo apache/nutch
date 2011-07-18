@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1054 LinkDB optional during indexing (jnioche)
+
 * NUTCH-1029 Readdb throws EOFException (markus)
 
 * NUTCH-1036 Solr jobs should increment counters in Reporter (markus)

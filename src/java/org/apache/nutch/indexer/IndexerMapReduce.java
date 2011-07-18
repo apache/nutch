@@ -23,6 +23,7 @@ import java.util.Iterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
@@ -172,7 +173,9 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
                            JobConf job) {
 
     LOG.info("IndexerMapReduce: crawldb: " + crawlDb);
-    LOG.info("IndexerMapReduce: linkdb: " + linkDb);
+    
+    if (linkDb!=null)
+      LOG.info("IndexerMapReduce: linkdb: " + linkDb);
 
     for (final Path segment : segments) {
       LOG.info("IndexerMapReduces: adding segment: " + segment);
@@ -183,7 +186,10 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
     }
 
     FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
-    FileInputFormat.addInputPath(job, new Path(linkDb, LinkDb.CURRENT_NAME));
+    
+    if (linkDb!=null)
+	  FileInputFormat.addInputPath(job, new Path(linkDb, LinkDb.CURRENT_NAME));
+    
     job.setInputFormat(SequenceFileInputFormat.class);
 
     job.setMapperClass(IndexerMapReduce.class);

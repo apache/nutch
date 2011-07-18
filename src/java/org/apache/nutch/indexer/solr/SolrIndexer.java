@@ -99,20 +99,23 @@ public class SolrIndexer extends Configured implements Tool {
   }
 
   public int run(String[] args) throws Exception {
-    if (args.length < 4) {
-      System.err.println("Usage: SolrIndexer <solr url> <crawldb> <linkdb> (<segment> ... | -dir <segments>) [-noCommit]");
+    if (args.length < 3) {
+      System.err.println("Usage: SolrIndexer <solr url> <crawldb> [-linkdb <linkdb>] (<segment> ... | -dir <segments>) [-noCommit]");
       return -1;
     }
 
     final Path crawlDb = new Path(args[1]);
-    final Path linkDb = new Path(args[2]);
+    Path linkDb = null;
 
     final List<Path> segments = new ArrayList<Path>();
 
     boolean noCommit = false;
 
-    for (int i = 3; i < args.length; i++) {
-      if (args[i].equals("-dir")) {
+    for (int i = 2; i < args.length; i++) {
+    	if (args[i].equals("-linkdb")) {
+    		linkDb = new Path(args[++i]);
+    	}
+    	else if (args[i].equals("-dir")) {
         Path dir = new Path(args[++i]);
         FileSystem fs = dir.getFileSystem(getConf());
         FileStatus[] fstats = fs.listStatus(dir,
