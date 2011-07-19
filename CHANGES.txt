@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1057 Fetcher thread time out configurable (markus)
+
 * NUTCH-1037 Option to deduplicate anchors prior to indexing (markus)
 
 * NUTCH-1050 Add segmentDir option to WebGraph (markus)

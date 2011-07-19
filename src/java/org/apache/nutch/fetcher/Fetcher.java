@@ -1010,6 +1010,9 @@ public class Fetcher extends Configured implements Tool,
     int threadCount = getConf().getInt("fetcher.threads.fetch", 10);
     if (LOG.isInfoEnabled()) { LOG.info("Fetcher: threads: " + threadCount); }
 
+    int timeoutDivisor = getConf().getInt("fetcher.threads.timeout.divisor", 2);
+    if (LOG.isInfoEnabled()) { LOG.info("Fetcher: time-out divisor: " + timeoutDivisor); }
+
     feeder = new QueueFeeder(input, fetchQueues, threadCount * 50);
     //feeder.setPriority((Thread.MAX_PRIORITY + Thread.NORM_PRIORITY) / 2);
     
@@ -1027,7 +1030,7 @@ public class Fetcher extends Configured implements Tool,
     }
 
     // select a timeout that avoids a task timeout
-    long timeout = getConf().getInt("mapred.task.timeout", 10*60*1000)/2;
+    long timeout = getConf().getInt("mapred.task.timeout", 10*60*1000)/timeoutDivisor;
 
     do {                                          // wait for threads to exit
       try {

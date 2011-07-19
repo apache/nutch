@@ -686,6 +686,15 @@
   </description>
 </property>
 
+<property>
+  <name>fetcher.threads.timeout.divisor</name>
+  <value>2</value>
+  <description>The thread time-out divisor to use. By default threads have a time-out
+  value of mapred.task.timeout / 2. Increase this setting if the fetcher waits too
+  long before killing hanged threads.
+  </description>
+</property>
+
 <!-- moreindexingfilter plugin properties -->
 
 <property>
