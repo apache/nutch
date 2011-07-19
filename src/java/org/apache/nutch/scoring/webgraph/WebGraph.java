@@ -38,6 +38,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
@@ -61,6 +62,7 @@ import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.util.FSUtils;
+import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.LockUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
@@ -617,26 +619,44 @@ public class WebGraph
       "the web graph database to use").create("webgraphdb");
     Option segOpts = OptionBuilder.withArgName("segment").hasArgs().withDescription(
       "the segment(s) to use").create("segment");
+    Option segDirOpts = OptionBuilder.withArgName("segmentDir").hasArgs().withDescription(
+      "the segment directory to use").create("segmentDir");
     options.addOption(helpOpts);
     options.addOption(webGraphDbOpts);
     options.addOption(segOpts);
+    options.addOption(segDirOpts);
 
     CommandLineParser parser = new GnuParser();
     try {
 
       CommandLine line = parser.parse(options, args);
       if (line.hasOption("help") || !line.hasOption("webgraphdb")
-        || !line.hasOption("segment")) {
+        || (!line.hasOption("segment") && !line.hasOption("segmentDir"))
+) {
         HelpFormatter formatter = new HelpFormatter();
         formatter.printHelp("WebGraph", options);
         return -1;
       }
 
       String webGraphDb = line.getOptionValue("webgraphdb");
-      String[] segments = line.getOptionValues("segment");
-      Path[] segPaths = new Path[segments.length];
-      for (int i = 0; i < segments.length; i++) {
-        segPaths[i] = new Path(segments[i]);
+
+      Path[] segPaths = null;
+
+      // Handle segment option
+      if (line.hasOption("segment")) {
+        String[] segments = line.getOptionValues("segment");
+        segPaths = new Path[segments.length];
+        for (int i = 0; i < segments.length; i++) {
+          segPaths[i] = new Path(segments[i]);
+        }
+      }
+
+      // Handle segmentDir option
+      if (line.hasOption("segmentDir")) {
+        Path dir = new Path(line.getOptionValue("segmentDir"));
+        FileSystem fs = dir.getFileSystem(getConf());
+        FileStatus[] fstats = fs.listStatus(dir, HadoopFSUtil.getPassDirectoriesFilter(fs));
+        segPaths = HadoopFSUtil.getPaths(fstats);
       }
 
       createWebGraph(new Path(webGraphDb), segPaths);

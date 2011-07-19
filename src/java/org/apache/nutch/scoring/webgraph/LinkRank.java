@@ -538,7 +538,7 @@ public class LinkRank
         + (this.dampingFactor * totalInlinkScore);
 
       LOG.info(url + ": score: " + linkRankScore + " num inlinks: "
-        + numInlinks + " iteration: " + itNum + "\n");
+        + numInlinks + " iteration: " + itNum);
 
       // store the score in a temporary NodeDb
       Node outNode = (Node)WritableUtils.clone(node, conf);
