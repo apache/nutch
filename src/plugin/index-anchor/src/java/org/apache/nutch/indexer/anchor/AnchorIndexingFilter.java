@@ -16,6 +16,8 @@
  */
 package org.apache.nutch.indexer.anchor;
 
+import java.util.WeakHashMap;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -35,9 +37,13 @@ public class AnchorIndexingFilter
 
   public static final Log LOG = LogFactory.getLog(AnchorIndexingFilter.class);
   private Configuration conf;
+  private boolean deduplicate = false;
 
   public void setConf(Configuration conf) {
     this.conf = conf;
+
+    deduplicate = conf.getBoolean("anchorIndexingFilter.deduplicate", false);
+    LOG.info("Anchor deduplication is: " + (deduplicate ? "on" : "off"));
   }
 
   public Configuration getConf() {
@@ -49,8 +55,24 @@ public class AnchorIndexingFilter
 
     String[] anchors = (inlinks != null ? inlinks.getAnchors()
       : new String[0]);
+
+    // https://issues.apache.org/jira/browse/NUTCH-1037
+    WeakHashMap<String,Integer> map = new WeakHashMap<String,Integer>();
+
     for (int i = 0; i < anchors.length; i++) {
-      doc.add("anchor", anchors[i]);
+      if (deduplicate) {
+        String lcAnchor = anchors[i].toLowerCase();
+
+        // Check if already processed the current anchor
+        if (!map.containsKey(lcAnchor)) {
+          doc.add("anchor", anchors[i]);
+
+          // Add to map
+          map.put(lcAnchor, 1);
+        }
+      } else {
+        doc.add("anchor", anchors[i]);
+      }
     }
 
     return doc;

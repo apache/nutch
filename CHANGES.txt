@@ -2,6 +2,10 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1037 Option to deduplicate anchors prior to indexing (markus)
+
+* NUTCH-1050 Add segmentDir option to WebGraph (markus)
+
 * NUTCH-1055 upgrade package.html file in language identifier plugin (lewismc)
 
 * NUTCH-1059 Remove convdb command from /bin/nutch (lewismc)
