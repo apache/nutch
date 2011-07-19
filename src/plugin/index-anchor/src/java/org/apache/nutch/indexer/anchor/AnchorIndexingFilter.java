@@ -19,6 +19,7 @@ package org.apache.nutch.indexer.anchor;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map.Entry;
+import java.util.WeakHashMap;
 
 import org.apache.avro.util.Utf8;
 import org.slf4j.Logger;
@@ -37,6 +38,7 @@ public class AnchorIndexingFilter implements IndexingFilter {
 
   public static final Logger LOG = LoggerFactory.getLogger(AnchorIndexingFilter.class);
   private Configuration conf;
+  private boolean deduplicate = false;
 
   private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
@@ -46,6 +48,9 @@ public class AnchorIndexingFilter implements IndexingFilter {
 
   public void setConf(Configuration conf) {
     this.conf = conf;
+
+    deduplicate = conf.getBoolean("anchorIndexingFilter.deduplicate", false);
+    LOG.info("Anchor deduplication is: " + (deduplicate ? "on" : "off"));
   }
 
   public Configuration getConf() {
@@ -59,8 +64,25 @@ public class AnchorIndexingFilter implements IndexingFilter {
   public NutchDocument filter(NutchDocument doc, String url, WebPage page)
       throws IndexingException {
 
+    // https://issues.apache.org/jira/browse/NUTCH-1037
+    WeakHashMap<String,Integer> map = new WeakHashMap<String,Integer>();
+
     for (Entry<Utf8, Utf8> e : page.getInlinks().entrySet()) {
-      doc.add("anchor", TableUtil.toString(e.getValue()));
+      String anchor = TableUtil.toString(e.getValue());
+
+      if (deduplicate) {
+        String lcAnchor = anchor.toLowerCase();
+
+        // Check if already processed the current anchor
+        if (!map.containsKey(lcAnchor)) {
+          doc.add("anchor", anchor);
+
+          // Add to map
+          map.put(lcAnchor, 1);
+        }
+      } else {
+        doc.add("anchor", anchor);
+      }
     }
 
     return doc;

@@ -716,7 +716,6 @@
   </description>
 </property>
 
-
 <!-- moreindexingfilter plugin properties -->
 
 <property>
@@ -728,6 +727,16 @@
   </description>
 </property>
 
+<!-- AnchorIndexing filter plugin properties -->
+
+<property>
+  <name>anchorIndexingFilter.deduplicate</name>
+  <value>false</value>
+  <description>With this enabled the indexer will case-insensitive deduplicate hanchors
+  before indexing. This prevents possible hundreds or thousands of identical anchors for
+  a given page to be indexed but will affect the search scoring (i.e. tf=1.0f).
+  </description>
+</property>
 
 <!-- URL normalizer properties -->
 
