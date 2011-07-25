@@ -19,8 +19,6 @@ package org.apache.nutch.util;
 
 // JDK imports
 import java.io.File;
-import java.io.IOException;
-import java.util.logging.Logger;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
@@ -30,6 +28,8 @@ import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 import org.apache.tika.mime.MimeTypesFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author mattmann
@@ -53,7 +53,7 @@ public final class MimeUtil {
   private boolean mimeMagic;
 
   /* our log stream */
-  private static final Logger LOG = Logger.getLogger(MimeUtil.class.getName());
+  private static final Logger LOG = LoggerFactory.getLogger(MimeUtil.class.getName());
 
   public MimeUtil(Configuration conf) {
     ObjectCache objectCache = ObjectCache.get(conf);
@@ -61,14 +61,23 @@ public final class MimeUtil {
         .getName());
     if (mimeTypez == null) {
       try {
-        mimeTypez = MimeTypesFactory.create(conf
-            .getConfResourceAsInputStream(conf.get("mime.types.file")));
+          String customMimeTypeFile = conf.get("mime.types.file");
+          if (customMimeTypeFile!=null && customMimeTypeFile.equals("")==false){
+              try {
+              mimeTypez = MimeTypesFactory.create(conf
+                      .getConfResourceAsInputStream(customMimeTypeFile));
+              }
+              catch (Exception e){
+                  LOG.error("Can't load mime.types.file : "+customMimeTypeFile+" using Tika's default");
+              }
+          }
+          if (mimeTypez==null)
+              mimeTypez = MimeTypes.getDefaultMimeTypes();
       } catch (Exception e) {
-        e.printStackTrace();
+        LOG.error("Exception in MimeUtil "+e.getMessage());
         throw new RuntimeException(e);
       }
       objectCache.setObject(MimeTypes.class.getName(), mimeTypez);
-
     }
     
     this.mimeTypes = mimeTypez;
@@ -206,7 +215,7 @@ public final class MimeUtil {
     try {
       return this.mimeTypes.forName(name);
     } catch (MimeTypeException e) {
-      LOG.warning("Exception getting mime type by name: [" + name
+      LOG.error("Exception getting mime type by name: [" + name
           + "]: Message: " + e.getMessage());
       return null;
     }

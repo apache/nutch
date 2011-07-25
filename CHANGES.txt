@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1045 MimeUtil to rely on default config provided by Tika (jnioche)
+
 * NUTCH-1057 Fetcher thread time out configurable (markus)
 
 * NUTCH-1037 Option to deduplicate anchors prior to indexing (markus)

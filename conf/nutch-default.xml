@@ -782,12 +782,16 @@
 
 <!-- mime properties -->
 
+<!--
 <property>
   <name>mime.types.file</name>
   <value>tika-mimetypes.xml</value>
   <description>Name of file in CLASSPATH containing filename extension and
-  magic sequence to mime types mapping information</description>
+  magic sequence to mime types mapping information. Overrides the default Tika config 
+  if specified.
+  </description>
 </property>
+-->
 
 <property>
   <name>mime.type.magic</name>
