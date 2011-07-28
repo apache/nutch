@@ -971,6 +971,8 @@ public class Fetcher extends Configured implements Tool,
     String status;
     long elapsed = (System.currentTimeMillis() - start)/1000;
     status = activeThreads + " threads, " +
+     fetchQueues.getQueueCount() + " queues, "+
+     fetchQueues.getTotalSize() + " URLs queued, "+
       pages+" pages, "+errors+" errors, "
       + Math.round(((float)pages.get()*10)/elapsed)/10.0+" pages/s, "
       + Math.round(((((float)bytes.get())*8)/1000)/elapsed)+" kbits/s, ";
