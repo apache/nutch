@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1071 Crawldb update displays total number of URLs per status (jnioche)
+
 * NUTCH-1045 MimeUtil to rely on default config provided by Tika (jnioche)
 
 * NUTCH-1057 Fetcher thread time out configurable (markus)

@@ -151,6 +151,7 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
     if (!fetchSet) {
       if (oldSet) {// at this point at least "old" should be present
         output.collect(key, old);
+        reporter.getCounter("CrawlDB status", CrawlDatum.getStatusName(result.getStatus())).increment(1);
       } else {
         LOG.warn("Missing fetch and old value, signature=" + signature);
       }
@@ -291,6 +292,7 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
     // remove generation time, if any
     result.getMetaData().remove(Nutch.WRITABLE_GENERATE_TIME_KEY);
     output.collect(key, result);
+    reporter.getCounter("CrawlDB status", CrawlDatum.getStatusName(result.getStatus())).increment(1);
   }
   
 }
