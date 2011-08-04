@@ -64,11 +64,6 @@
 			<email>jnioche@apache.org</email>
 		</developer>
 		<developer>
-			<id>otis</id>
-			<name>Otis Gospodnetić</name>
-			<email>otis@apache.org</email>
-		</developer>
-		<developer>
 			<id>siren</id>
 			<name>Sami Siren</name>
 			<email>siren@apache.org</email>
@@ -82,6 +77,11 @@
                         <id>alexis</id>
                         <name>Alexis Detlegrode</name>
                         <email>alexis@apache.org</email>
+                </developer>
+		<developer>
+                        <id>lewismc</id>
+                        <name>Lewis John McGibbney</name>
+                        <email>lewismc@apache.org</email>
                 </developer>
 	</developers>
         <build>
