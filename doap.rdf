@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl"?>
+<rdf:RDF xml:lang="en"
+         xmlns="http://usefulinc.com/ns/doap#" 
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+         xmlns:asfext="http://projects.apache.org/ns/asfext#"
+         xmlns:foaf="http://xmlns.com/foaf/0.1/">
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+   
+         http://www.apache.org/licenses/LICENSE-2.0
+   
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+  <Project rdf:about="http://nutch.apache.org">
+    <created>2011-07-21</created>
+    <license rdf:resource="http://usefulinc.com/doap/licenses/asl20" />
+    <name>Apache Nutch</name>
+    <homepage rdf:resource="http://nutch.apache.org" />
+    <asfext:pmc rdf:resource="http://nutch.apache.org" />
+    <shortdesc>Nutch 2.0 is a beeding edge (trunk) development of the Apache Nutch web search software.</shortdesc>
+    <description>Apache Nutch 2.0 maintains a refined architecture by delegating searching, parsing, and data storage to other software projects. In particular the storage layer has been delegated to the object relational mapping framework Gora (Apache Incubator) enabling the focus of Nutch 2.0 to be entirely on web crawling. This logic promotes Nutch 2.0 as a simpler, focussed web crawler enabling easy integration with other resources. </description>
+    <bug-database rdf:resource="http://issues.apache.org/jira/browse/NUTCH" />
+    <mailing-list rdf:resource="http://www.mail-archive.com/dev%40nutch.apache.org/" />
+    <download-page rdf:resource="http://svn.apache.org/repos/asf/nutch/trunk/" />
+    <programming-language>Java</programming-language>
+    <category rdf:resource="http://projects.apache.org/category/web-framework" />
+    <release>
+      <Version>
+        <name>Nutch 2.0 Trunk</name>
+        <created>tbc</created>
+        <revision>2.0</revision>
+      </Version>
+    </release>
+    <repository>
+      <SVNRepository>
+        <location rdf:resource="https://svn.apache.org/repos/asf/nutch/trunk/"/>
+        <browse rdf:resource="http://svn.apache.org/viewvc/nutch/trunk/"/>
+      </SVNRepository>
+    </repository>
+    <maintainer>
+      <foaf:Person>
+        <foaf:name>Nutch PMC</foaf:name>
+          <foaf:mbox rdf:resource="mailto:dev@nutch.apache.org"/>
+      </foaf:Person>
+    </maintainer>
+  </Project>
+</rdf:RDF>
