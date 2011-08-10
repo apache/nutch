@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1028 Log urls when parsing (markus)
+
 * NUTCH-1065 New mvn.template (lewismc)
 
 * NUTCH-1072 Display number and size of queues in Fetcher status (jnioche)

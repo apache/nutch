@@ -93,9 +93,10 @@ public class ParseSegment extends Configured implements Tool,
       Text url = entry.getKey();
       Parse parse = entry.getValue();
       ParseStatus parseStatus = parse.getData().getStatus();
-      
+
+      LOG.info("Parsing: " + url);
       reporter.incrCounter("ParserStatus", ParseStatus.majorCodes[parseStatus.getMajorCode()], 1);
-      
+
       if (!parseStatus.isSuccess()) {
         LOG.warn("Error parsing: " + key + ": " + parseStatus);
         parse = parseStatus.getEmptyParse(getConf());
