@@ -816,7 +816,7 @@ public class Fetcher extends Configured implements Tool,
           return url;
         } else {
           CrawlDatum newDatum = new CrawlDatum(CrawlDatum.STATUS_LINKED,
-              datum.getFetchInterval());
+              datum.getFetchInterval(),datum.getScore());
           // transfer existing metadata 
           newDatum.getMetaData().putAll(datum.getMetaData());
           try {
