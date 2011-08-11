@@ -16,7 +16,7 @@
  limitations under the License.
 -->
 <plugin
-   id="languageidentifier"
+   id="language-identifier"
    name="Language Identification Parser/Filter"
    version="1.0.0"
    provider-name="nutch.org">
