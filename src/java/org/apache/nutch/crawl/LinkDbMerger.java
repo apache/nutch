@@ -140,6 +140,9 @@ public class LinkDbMerger extends Configured implements Tool, Reducer<Text, Inli
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(Inlinks.class);
 
+    // https://issues.apache.org/jira/browse/NUTCH-1069
+    job.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
+
     return job;
   }
   

@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1069 Readlinkdb broken on Hadoop > 0.20 (markus)
+
 * NUTCH-1044 Redirected URLs and possibly all of their outlinked URLs have invalid scores (jnioche)
 
 * NUTCH-1028 Log urls when parsing (markus)
