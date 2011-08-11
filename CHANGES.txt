@@ -4,8 +4,6 @@ Release 2.0 - Current Development
 
 * NUTCH-914 Implement Apache Project Branding Requirements (lewismc via jnioche)
 
-* NUTCH-623 Change plugin source directory "languageidentifier" to "language-identifier" (lewismc)
-
 * NUTCH-1065 New mvn.template (lewismc)
 
 * NUTCH-1045 MimeUtil to rely on default config provided by Tika (jnioche)
