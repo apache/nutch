@@ -19,18 +19,15 @@ package org.apache.nutch.parse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.apache.hadoop.conf.Configuration;
-
-import org.apache.nutch.util.NutchConfiguration;
-
-import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.hadoop.io.Text;
-import org.apache.nutch.parse.ParseUtil;
-
-import org.apache.nutch.protocol.ProtocolFactory;
-import org.apache.nutch.protocol.Protocol;
+import org.apache.hadoop.util.Tool;
+import org.apache.hadoop.util.ToolRunner;
+import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.protocol.Content;
+import org.apache.nutch.protocol.Protocol;
+import org.apache.nutch.protocol.ProtocolFactory;
+import org.apache.nutch.util.NutchConfiguration;
 
 /**
  * Parser checker, useful for testing parser.
@@ -38,13 +35,16 @@ import org.apache.nutch.protocol.Content;
  * @author John Xing
  */
 
-public class ParserChecker {
+public class ParserChecker implements Tool {
 
   public static final Log LOG = LogFactory.getLog(ParserChecker.class);
 
-  public ParserChecker() {}
+  public ParserChecker() {
+  }
 
-  public static void main(String[] args) throws Exception {
+  Configuration conf = null;
+
+  public int run(String[] args) throws Exception {
     boolean dumpText = false;
     boolean force = false;
     String contentType = null;
@@ -63,7 +63,7 @@ public class ParserChecker {
         contentType = args[++i];
       } else if (args[i].equals("-dumpText")) {
         dumpText = true;
-      } else if (i != args.length-1) {
+      } else if (i != args.length - 1) {
         System.err.println(usage);
         System.exit(-1);
       } else {
@@ -71,12 +71,19 @@ public class ParserChecker {
       }
     }
 
-    if (LOG.isInfoEnabled()) { LOG.info("fetching: "+url); }
+    if (LOG.isInfoEnabled()) {
+      LOG.info("fetching: " + url);
+    }
 
-    Configuration conf = NutchConfiguration.create();
     ProtocolFactory factory = new ProtocolFactory(conf);
     Protocol protocol = factory.getProtocol(url);
-    Content content = protocol.getProtocolOutput(new Text(url), new CrawlDatum()).getContent();
+    Content content = protocol.getProtocolOutput(new Text(url),
+        new CrawlDatum()).getContent();
+
+    if (content == null) {
+      System.err.println("Can't fetch URL successfully");
+      return (-1);
+    }
 
     if (force) {
       content.setContentType(contentType);
@@ -86,12 +93,12 @@ public class ParserChecker {
 
     if (contentType == null) {
       System.err.println("");
-      System.exit(-1);
+      return (-1);
     }
 
     if (LOG.isInfoEnabled()) {
-      LOG.info("parsing: "+url);
-      LOG.info("contentType: "+contentType);
+      LOG.info("parsing: " + url);
+      LOG.info("contentType: " + contentType);
     }
 
     ParseResult parseResult = new ParseUtil(conf).parse(content);
@@ -108,6 +115,23 @@ public class ParserChecker {
       }
     }
 
-    System.exit(0);
+    return 0;
   }
+
+  @Override
+  public Configuration getConf() {
+    return conf;
+  }
+
+  @Override
+  public void setConf(Configuration c) {
+    conf = c;
+  }
+
+  public static void main(String[] args) throws Exception {
+    int res = ToolRunner.run(NutchConfiguration.create(), new ParserChecker(),
+        args);
+    System.exit(res);
+  }
+
 }
