@@ -159,7 +159,7 @@ public class NodeDumper
    * 
    * @throws IOException If an error occurs while dumping the top values.
    */
-  public void dumpNodes(Path webGraphDb, DumpType type, long topN, Path output)
+  public void dumpNodes(Path webGraphDb, DumpType type, long topN, Path output, boolean asEff)
     throws IOException {
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -185,6 +185,11 @@ public class NodeDumper
     dumper.setBoolean("outlinks", type == DumpType.OUTLINKS);
     dumper.setBoolean("scores", type == DumpType.SCORES);
     dumper.setLong("topn", topN);
+
+    // Set equals-sign as separator for Solr's ExternalFileField
+    if (asEff) {
+      dumper.set("mapred.textoutputformat.separator", "=");
+    }
 
     try {
       LOG.info("NodeDumper: running");
@@ -226,6 +231,8 @@ public class NodeDumper
       "show topN scores").create("topn");
     Option outputOpts = OptionBuilder.withArgName("output").hasArg().withDescription(
       "the output directory to use").create("output");
+    Option effOpts = OptionBuilder.withArgName("asEff").withDescription(
+      "Solr ExternalFileField compatible output format").create("asEff");
     options.addOption(helpOpts);
     options.addOption(webGraphDbOpts);
     options.addOption(inlinkOpts);
@@ -233,6 +240,7 @@ public class NodeDumper
     options.addOption(scoreOpts);
     options.addOption(topNOpts);
     options.addOption(outputOpts);
+    options.addOption(effOpts);
 
     CommandLineParser parser = new GnuParser();
     try {
@@ -256,7 +264,10 @@ public class NodeDumper
       DumpType type = (inlinks ? DumpType.INLINKS : outlinks
         ? DumpType.OUTLINKS : DumpType.SCORES);
 
-      dumpNodes(new Path(webGraphDb), type, topN, new Path(output));
+      // Use ExternalFileField?
+      boolean asEff = line.hasOption("asEff");
+
+      dumpNodes(new Path(webGraphDb), type, topN, new Path(output), asEff);
       return 0;
     }
     catch (Exception e) {

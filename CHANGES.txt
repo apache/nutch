@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1051 Export WebGraph node scores for Solr.ExternalFileField (markus)
+
 * NUTCH-1083 ParserChecker implements Tools (jnioche)
 
 * NUTCH-1082 IndexingFiltersChecker utility does not list multi valued fields (markus)
