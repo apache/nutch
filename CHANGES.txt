@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-1004 Do not index empty values for title field (markus)
+
 * NUTCH-914 Implement Apache Project Branding Requirements (lewismc via jnioche)
 
 * NUTCH-1065 New mvn.template (lewismc)

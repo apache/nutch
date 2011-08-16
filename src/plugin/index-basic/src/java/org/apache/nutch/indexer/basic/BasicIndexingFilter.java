@@ -95,8 +95,10 @@ public class BasicIndexingFilter implements IndexingFilter {
     if (title.length() > MAX_TITLE_LENGTH) { // truncate title if needed
       title = title.substring(0, MAX_TITLE_LENGTH);
     }
-    // add title indexed and stored so that it can be displayed
-    doc.add("title", title);
+    if (title.length() > 0) {
+      // NUTCH-1004 Do not index empty values for title field
+      doc.add("title", title);
+    }
     // add cached content/summary display policy, if available
     ByteBuffer cachingRaw = page
         .getFromMetadata(Nutch.CACHING_FORBIDDEN_KEY_UTF8);
