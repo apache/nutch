@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1004 Do not index empty values for title field (markus)
+
 * NUTCH-914 Implement Apache Project Branding Requirements (lewismc via jnioche)
 
 * NUTCH-1069 Readlinkdb broken on Hadoop > 0.20 (markus)
