@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1082 IndexingFiltersChecker utility does not list multi valued fields (markus)
+
 * NUTCH-1004 Do not index empty values for title field (markus)
 
 * NUTCH-914 Implement Apache Project Branding Requirements (lewismc via jnioche)

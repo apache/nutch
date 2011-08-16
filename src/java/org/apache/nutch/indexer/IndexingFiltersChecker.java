@@ -96,7 +96,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     }
 
     for (String fname : doc.getFieldNames()) {
-      List<Object> values = Arrays.asList(doc.getFieldValue(fname));
+      List<Object> values = doc.getField(fname).getValues();
       if (values != null) {
         for (Object value : values) {
           String str = value.toString();
