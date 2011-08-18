@@ -64,6 +64,13 @@ if [ $# = 0 ]; then
   echo "  solrindex         run the solr indexer on parsed segments and linkdb"
   echo "  solrdedup         remove duplicates from solr"
   echo "  solrclean         remove HTTP 301 and 404 documents from solr"
+  echo "  parsechecker      check the parser for a given url"
+  echo "  indexchecker      check the indexing filters for a given url"
+  echo "  domainstats       calculate domain statistics from crawldb"
+  echo "  webgraph          generate a web graph from existing segments"
+  echo "  linkrank          run a link analysis program on the generated web graph"
+  echo "  scoreupdater      updates the crawldb with linkrank scores"
+  echo "  nodedumper        dumps the web graph's node scores"
   echo "  plugin            load a plugin and run one of its classes main()"
   echo " or"
   echo "  CLASSNAME         run the class named CLASSNAME"
@@ -225,6 +232,20 @@ elif [ "$COMMAND" = "solrdedup" ] ; then
   CLASS=org.apache.nutch.indexer.solr.SolrDeleteDuplicates
 elif [ "$COMMAND" = "solrclean" ] ; then
   CLASS=org.apache.nutch.indexer.solr.SolrClean
+elif [ "$COMMAND" = "parsechecker" ] ; then
+  CLASS=org.apache.nutch.parse.ParserChecker
+elif [ "$COMMAND" = "indexchecker" ] ; then
+  CLASS=org.apache.nutch.indexer.IndexingFiltersChecker
+elif [ "$COMMAND" = "domainstats" ] ; then 
+  CLASS=org.apache.nutch.util.domain.DomainStatistics
+elif [ "$COMMAND" = "webgraph" ] ; then
+  CLASS=org.apache.nutch.scoring.webgraph.WebGraph
+elif [ "$COMMAND" = "linkrank" ] ; then
+  CLASS=org.apache.nutch.scoring.webgraph.LinkRank
+elif [ "$COMMAND" = "scoreupdater" ] ; then
+  CLASS=org.apache.nutch.scoring.webgraph.ScoreUpdater
+elif [ "$COMMAND" = "nodedumper" ] ; then
+  CLASS=org.apache.nutch.scoring.webgraph.NodeDumper
 elif [ "$COMMAND" = "plugin" ] ; then
   CLASS=org.apache.nutch.plugin.PluginRepository
 else
