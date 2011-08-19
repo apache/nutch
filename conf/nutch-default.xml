@@ -1006,34 +1006,38 @@
 <!-- language-identifier plugin properties -->
 
 <property>
-  <name>lang.ngram.min.length</name>
-  <value>1</value>
-  <description> The minimum size of ngrams to uses to identify
-  language (must be between 1 and lang.ngram.max.length).
-  The larger is the range between lang.ngram.min.length and
-  lang.ngram.max.length, the better is the identification, but
-  the slowest it is.
-  </description>
-</property>
-
-<property>
-  <name>lang.ngram.max.length</name>
-  <value>4</value>
-  <description> The maximum size of ngrams to uses to identify
-  language (must be between lang.ngram.min.length and 4).
-  The larger is the range between lang.ngram.min.length and
-  lang.ngram.max.length, the better is the identification, but
-  the slowest it is.
-  </description>
-</property>
-
-<property>
   <name>lang.analyze.max.length</name>
   <value>2048</value>
   <description> The maximum bytes of data to uses to indentify
   the language (0 means full content analysis).
   The larger is this value, the better is the analysis, but the
   slowest it is.
+  </description>
+</property>
+
+<property>
+  <name>lang.extraction.policy</name>
+  <value>detect,identify</value>
+  <description>This determines when the plugin uses detection and
+  statistical identification mechanisms. The order in which the
+  detect and identify are written will determine the extraction
+  policy. Default case (detect,identify)  means the plugin will
+  first try to extract language info from page headers and metadata,
+  if this is not successful it will try using tika language
+  identification. Possible values are:
+    detect
+    identify
+    detect,identify
+    identify,detect
+  </description>
+</property>
+
+<property>
+  <name>lang.identification.only.certain</name>
+  <value>false</value>
+  <description>If set to true with lang.extraction.policy containing identify,
+  the language code returned by Tika will be assigned to the document ONLY
+  if it is deemed certain by Tika.
   </description>
 </property>
 

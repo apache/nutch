@@ -52,7 +52,6 @@ public class LanguageIndexingFilter implements IndexingFilter {
   
 
   private Configuration conf;
-  private LanguageIdentifier languageIdentifier;
 
 /**
    * Constructs a new Language Indexing Filter.
@@ -72,18 +71,6 @@ public class LanguageIndexingFilter implements IndexingFilter {
     if (lang == null) {
         lang = parse.getData().getContentMeta().get(Response.CONTENT_LANGUAGE);
     }
-    
-    if (lang == null) {
-      StringBuilder text = new StringBuilder();
-      /*
-       * String[] anchors = fo.getAnchors(); for (int i = 0; i < anchors.length;
-       * i++) { text+=anchors[i] + " "; }
-       */
-      text.append(parse.getData().getTitle())
-          .append(" ")
-          .append(parse.getText());
-      lang = this.languageIdentifier.identify(text);
-    }
 
     if (lang == null || lang.length() == 0) {
       lang = "unknown";
@@ -96,7 +83,6 @@ public class LanguageIndexingFilter implements IndexingFilter {
 
   public void setConf(Configuration conf) {
     this.conf = conf;
-    this.languageIdentifier = new LanguageIdentifier(conf);
   }
 
   public Configuration getConf() {
