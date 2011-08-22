@@ -278,7 +278,7 @@ public class Generator extends Configured implements Tool {
             } else {
               if (hostCount[1] == maxCount + 1 && LOG.isInfoEnabled()) {
                 LOG.info("Host or domain " + hostordomain + " has more than " + maxCount
-                    + " URLs for all " + maxNumSegments + " segments - skipping");
+                    + " URLs for all " + maxNumSegments + " segments. Additional URLs won't be included in the fetchlist.");
               }
               // skip this entry
               continue;
