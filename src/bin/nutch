@@ -75,11 +75,6 @@ shift
 THIS_DIR=`dirname "$THIS"`
 NUTCH_HOME=`cd "$THIS_DIR/.." ; pwd`
 
-# determine HADOOP_HOME
-if [ "$HADOOP_HOME" = "" ]; then
-  HADOOP_HOME=$NUTCH_HOME
-fi
-
 # some Java parameters
 if [ "$NUTCH_JAVA_HOME" != "" ]; then
   #echo "run java in $NUTCH_JAVA_HOME"
@@ -214,13 +209,13 @@ if $local; then
  NUTCH_OPTS="-Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl $NUTCH_OPTS"
  EXEC_CALL="$JAVA $JAVA_HEAP_MAX $NUTCH_OPTS -classpath $CLASSPATH"
 else
- # check that we are really in a hadoop config
- if [ ! -f ${HADOOP_HOME}/bin/hadoop ]; then
-    echo "Can't find Hadoop scripts. Set HADOOP_HOME to a valid home of Hadoop installation."
+ # check that hadoop can be found on the path
+ if [ $(which hadoop | wc -l ) -eq 0 ]; then
+    echo "Can't find Hadoop executable. Add HADOOP_HOME/bin to the path or run in local mode."
     exit -1;
  fi
  # distributed mode
- EXEC_CALL="$HADOOP_HOME/bin/hadoop jar $NUTCH_JOB"
+ EXEC_CALL="hadoop jar $NUTCH_JOB"
 fi
 
 # run it

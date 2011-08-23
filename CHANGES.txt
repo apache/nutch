@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-1085 Nutch script does not require HADOOP_HOME (jnioche)
+
 * NUTCH-1083 ParserChecker implements Tools (jnioche)
 
 * NUTCH-1004 Do not index empty values for title field (markus)
