@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-1089 Short compressed pages caused exception in protocol-httpclient (Simone Frenzel via jnioche)
+
 * NUTCH-1085 Nutch script does not require HADOOP_HOME (jnioche)
 
 * NUTCH-1083 ParserChecker implements Tools (jnioche)
