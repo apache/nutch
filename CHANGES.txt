@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1096 Empty (not null) ContentLength results in failure of fetch (Ferdy Galema via jnioche)
+
 * NUTCH-1073 Rename parameters 'fetcher.threads.per.host.by.ip' and 'fetcher.threads.per.host' (jnioche)
 
 * NUTCH-1089 Short compressed pages caused exception in protocol-httpclient (Simone Frenzel via jnioche)

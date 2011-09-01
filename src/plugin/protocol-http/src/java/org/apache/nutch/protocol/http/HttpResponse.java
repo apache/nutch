@@ -213,7 +213,8 @@ public class HttpResponse implements Response {
     if (contentLengthString != null) {
       contentLengthString = contentLengthString.trim();
       try {
-        contentLength = Integer.parseInt(contentLengthString);
+        if (!contentLengthString.isEmpty()) 
+          contentLength = Integer.parseInt(contentLengthString);
       } catch (NumberFormatException e) {
         throw new HttpException("bad content length: "+contentLengthString);
       }
