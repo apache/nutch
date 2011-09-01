@@ -148,11 +148,11 @@ public class Fetcher extends Configured implements Tool,
       this.queueID = queueID;
     }
     
-    /** Create an item. Queue id will be created based on <code>byIP</code>
-     * argument, either as a protocol + hostname pair, or protocol + IP
-     * address pair.
+    /** Create an item. Queue id will be created based on <code>queueMode</code>
+     * argument, either as a protocol + hostname pair, protocol + IP
+     * address pair or protocol+domain pair.
      */
-    public static FetchItem create(Text url, CrawlDatum datum, boolean byIP) {
+    public static FetchItem create(Text url, CrawlDatum datum,  String queueMode) {
       String queueID;
       URL u = null;
       try {
@@ -161,26 +161,33 @@ public class Fetcher extends Configured implements Tool,
         LOG.warn("Cannot parse url: " + url, e);
         return null;
       }
-      String proto = u.getProtocol().toLowerCase();
-      String host;
-      if (byIP) {
+      final String proto = u.getProtocol().toLowerCase();
+      String key;
+      if (FetchItemQueues.QUEUE_MODE_IP.equalsIgnoreCase(queueMode)) {
         try {
-          InetAddress addr = InetAddress.getByName(u.getHost());
-          host = addr.getHostAddress();
-        } catch (UnknownHostException e) {
+          final InetAddress addr = InetAddress.getByName(u.getHost());
+          key = addr.getHostAddress();
+        } catch (final UnknownHostException e) {
           // unable to resolve it, so don't fall back to host name
           LOG.warn("Unable to resolve: " + u.getHost() + ", skipping.");
           return null;
         }
-      } else {
-        host = u.getHost();
-        if (host == null) {
-          LOG.warn("Unknown host for url: " + url + ", skipping.");
-          return null;
-        }
-        host = host.toLowerCase();
       }
-      queueID = proto + "://" + host;
+      else if (FetchItemQueues.QUEUE_MODE_DOMAIN.equalsIgnoreCase(queueMode)){
+        key = URLUtil.getDomainName(u);
+        if (key == null) {
+          LOG.warn("Unknown domain for url: " + url + ", using URL string as key");
+          key=u.toExternalForm();
+        }
+      }
+      else {
+        key = u.getHost();
+        if (key == null) {
+          LOG.warn("Unknown host for url: " + url + ", using URL string as key");
+          key=u.toExternalForm();
+        }
+      }
+      queueID = proto + "://" + key.toLowerCase();
       return new FetchItem(url, u, datum, queueID);
     }
 
@@ -309,18 +316,30 @@ public class Fetcher extends Configured implements Tool,
     Map<String, FetchItemQueue> queues = new HashMap<String, FetchItemQueue>();
     AtomicInteger totalSize = new AtomicInteger(0);
     int maxThreads;
-    boolean byIP;
     long crawlDelay;
     long minCrawlDelay;
     long timelimit = -1;
     int maxExceptionsPerQueue = -1;
-    Configuration conf;    
+    Configuration conf;  
+
+    public static final String QUEUE_MODE_HOST = "byHost";
+    public static final String QUEUE_MODE_DOMAIN = "byDomain";
+    public static final String QUEUE_MODE_IP = "byIP";
+    
+    String queueMode;
     
     public FetchItemQueues(Configuration conf) {
       this.conf = conf;
-      this.maxThreads = conf.getInt("fetcher.threads.per.host", 1);
-      // backward-compatible default setting
-      this.byIP = conf.getBoolean("fetcher.threads.per.host.by.ip", false);
+      this.maxThreads = conf.getInt("fetcher.threads.per.queue", 1);
+      queueMode = conf.get("fetcher.queue.mode", QUEUE_MODE_HOST);
+      // check that the mode is known
+      if (!queueMode.equals(QUEUE_MODE_IP) && !queueMode.equals(QUEUE_MODE_DOMAIN)
+          && !queueMode.equals(QUEUE_MODE_HOST)) {
+        LOG.error("Unknown partition mode : " + queueMode + " - forcing to byHost");
+        queueMode = QUEUE_MODE_HOST;
+      }
+      LOG.info("Using queue mode : "+queueMode);
+      
       this.crawlDelay = (long) (conf.getFloat("fetcher.server.delay", 1.0f) * 1000);
       this.minCrawlDelay = (long) (conf.getFloat("fetcher.server.min.delay", 0.0f) * 1000);
       this.timelimit = conf.getLong("fetcher.timelimit", -1);
@@ -336,7 +355,7 @@ public class Fetcher extends Configured implements Tool,
     }
     
     public void addFetchItem(Text url, CrawlDatum datum) {
-      FetchItem it = FetchItem.create(url, datum, byIP);
+      FetchItem it = FetchItem.create(url, datum, queueMode);
       if (it != null) addFetchItem(it);
     }
     
@@ -535,7 +554,7 @@ public class Fetcher extends Configured implements Tool,
     private URLNormalizers normalizers;
     private ProtocolFactory protocolFactory;
     private long maxCrawlDelay;
-    private boolean byIP;
+    private String queueMode;
     private int maxRedirect;
     private String reprUrl;
     private boolean redirecting;
@@ -552,7 +571,14 @@ public class Fetcher extends Configured implements Tool,
       this.protocolFactory = new ProtocolFactory(conf);
       this.normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_FETCHER);
       this.maxCrawlDelay = conf.getInt("fetcher.max.crawl.delay", 30) * 1000;
-      this.byIP = conf.getBoolean("fetcher.threads.per.host.by.ip", false);
+      queueMode = conf.get("fetcher.queue.mode", FetchItemQueues.QUEUE_MODE_HOST);
+      // check that the mode is known
+      if (!queueMode.equals(FetchItemQueues.QUEUE_MODE_IP) && !queueMode.equals(FetchItemQueues.QUEUE_MODE_DOMAIN)
+          && !queueMode.equals(FetchItemQueues.QUEUE_MODE_HOST)) {
+        LOG.error("Unknown partition mode : " + queueMode + " - forcing to byHost");
+        queueMode = FetchItemQueues.QUEUE_MODE_HOST;
+      }
+      LOG.info("Using queue mode : "+queueMode);
       this.maxRedirect = conf.getInt("http.redirect.max", 3);
       this.ignoreExternalLinks = 
         conf.getBoolean("db.ignore.external.links", false);
@@ -665,7 +691,7 @@ public class Fetcher extends Configured implements Tool,
                       newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
                           new Text(reprUrl));
                     }
-                    fit = FetchItem.create(redirUrl, newDatum, byIP);
+                    fit = FetchItem.create(redirUrl, newDatum, queueMode);
                     if (fit != null) {
                       FetchItemQueue fiq =
                         fetchQueues.getFetchItemQueue(fit.queueID);
@@ -706,7 +732,7 @@ public class Fetcher extends Configured implements Tool,
                     newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
                         new Text(reprUrl));
                   }
-                  fit = FetchItem.create(redirUrl, newDatum, byIP);
+                  fit = FetchItem.create(redirUrl, newDatum, queueMode);
                   if (fit != null) {
                     FetchItemQueue fiq =
                       fetchQueues.getFetchItemQueue(fit.queueID);

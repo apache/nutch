@@ -632,20 +632,21 @@
 </property>
 
 <property>
-  <name>fetcher.threads.per.host</name>
+  <name>fetcher.threads.per.queue</name>
   <value>1</value>
   <description>This number is the maximum number of threads that
-    should be allowed to access a host at one time.</description>
+    should be allowed to access a queue at one time. Replaces 
+    deprecated parameter 'fetcher.threads.per.host'.
+   </description>
 </property>
 
 <property>
-  <name>fetcher.threads.per.host.by.ip</name>
-  <value>false</value>
-  <description>If true, then fetcher will count threads by IP address,
-  to which the URL's host name resolves. If false, only host name will be
-  used. NOTE: this should be set to the same value as
-  "generate.max.per.host.by.ip" - default settings are different only for
-  reasons of backward-compatibility.</description>
+  <name>fetcher.queue.mode</name>
+  <value>byHost</value>
+  <description>Determines how to put URLs into queues. Default value is 'byHost', 
+  also takes 'byDomain' or 'byIP'. Replaces the deprecated parameter 
+  'fetcher.threads.per.host.by.ip'.
+  </description>
 </property>
 
 <property>
