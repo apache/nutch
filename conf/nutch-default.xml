@@ -404,6 +404,14 @@
 </property>
 
 <property>
+  <name>db.update.purge.404</name>
+  <value>false</value>
+  <description>If true, updatedb will add purge records with status DB_GONE
+  from the CrawlDB.
+  </description>
+</property>
+
+<property>
   <name>db.update.max.inlinks</name>
   <value>10000</value>
   <description>Maximum number of inlinks to take into account when updating 

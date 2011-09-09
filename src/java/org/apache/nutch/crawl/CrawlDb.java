@@ -46,6 +46,8 @@ public class CrawlDb extends Configured implements Tool {
 
   public static final String CRAWLDB_ADDITIONS_ALLOWED = "db.update.additions.allowed";
 
+  public static final String CRAWLDB_PURGE_404 = "db.update.purge.404";
+
   public static final String CURRENT_NAME = "current";
   
   public static final String LOCK_NAME = ".locked";
@@ -57,7 +59,7 @@ public class CrawlDb extends Configured implements Tool {
   }
 
   public void update(Path crawlDb, Path[] segments, boolean normalize, boolean filter) throws IOException {
-    boolean additionsAllowed = getConf().getBoolean(CRAWLDB_ADDITIONS_ALLOWED, true);    
+    boolean additionsAllowed = getConf().getBoolean(CRAWLDB_ADDITIONS_ALLOWED, true);
     update(crawlDb, segments, normalize, filter, additionsAllowed, false);
   }
   
@@ -67,6 +69,14 @@ public class CrawlDb extends Configured implements Tool {
     LockUtil.createLockFile(fs, lock, force);
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
+
+    JobConf job = CrawlDb.createJob(getConf(), crawlDb);
+    job.setBoolean(CRAWLDB_ADDITIONS_ALLOWED, additionsAllowed);
+    job.setBoolean(CrawlDbFilter.URL_FILTERING, filter);
+    job.setBoolean(CrawlDbFilter.URL_NORMALIZING, normalize);
+
+    boolean url404Purging = job.getBoolean(CRAWLDB_PURGE_404, false);
+
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb update: starting at " + sdf.format(start));
       LOG.info("CrawlDb update: db: " + crawlDb);
@@ -74,12 +84,9 @@ public class CrawlDb extends Configured implements Tool {
       LOG.info("CrawlDb update: additions allowed: " + additionsAllowed);
       LOG.info("CrawlDb update: URL normalizing: " + normalize);
       LOG.info("CrawlDb update: URL filtering: " + filter);
+      LOG.info("CrawlDb update: 404 purging: " + url404Purging);
     }
 
-    JobConf job = CrawlDb.createJob(getConf(), crawlDb);
-    job.setBoolean(CRAWLDB_ADDITIONS_ALLOWED, additionsAllowed);
-    job.setBoolean(CrawlDbFilter.URL_FILTERING, filter);
-    job.setBoolean(CrawlDbFilter.URL_NORMALIZING, normalize);
     for (int i = 0; i < segments.length; i++) {
       Path fetch = new Path(segments[i], CrawlDatum.FETCH_DIR_NAME);
       Path parse = new Path(segments[i], CrawlDatum.PARSE_DIR_NAME);
@@ -166,11 +173,13 @@ public class CrawlDb extends Configured implements Tool {
       System.err.println("\t-normalize\tuse URLNormalizer on urls in CrawlDb and segment (usually not needed)");
       System.err.println("\t-filter\tuse URLFilters on urls in CrawlDb and segment");
       System.err.println("\t-noAdditions\tonly update already existing URLs, don't add any newly discovered URLs");
+
       return -1;
     }
     boolean normalize = false;
     boolean filter = false;
     boolean force = false;
+    boolean url404Purging = false;
     final FileSystem fs = FileSystem.get(getConf());
     boolean additionsAllowed = getConf().getBoolean(CRAWLDB_ADDITIONS_ALLOWED, true);
     HashSet<Path> dirs = new HashSet<Path>();

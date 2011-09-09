@@ -46,6 +46,8 @@ public class CrawlDbFilter implements Mapper<Text, CrawlDatum, Text, CrawlDatum>
 
   private boolean urlNormalizers;
 
+  private boolean url404Purging;
+
   private URLFilters filters;
 
   private URLNormalizers normalizers;
@@ -57,6 +59,8 @@ public class CrawlDbFilter implements Mapper<Text, CrawlDatum, Text, CrawlDatum>
   public void configure(JobConf job) {
     urlFiltering = job.getBoolean(URL_FILTERING, false);
     urlNormalizers = job.getBoolean(URL_NORMALIZING, false);
+    url404Purging = job.getBoolean(CrawlDb.CRAWLDB_PURGE_404, false);
+
     if (urlFiltering) {
       filters = new URLFilters(job);
     }
@@ -75,6 +79,11 @@ public class CrawlDbFilter implements Mapper<Text, CrawlDatum, Text, CrawlDatum>
       Reporter reporter) throws IOException {
 
     String url = key.toString();
+
+    // https://issues.apache.org/jira/browse/NUTCH-1101 check status first, cheaper than normalizing or filtering
+    if (url404Purging && CrawlDatum.STATUS_DB_GONE == value.getStatus()) {
+      url = null;
+    }
     if (urlNormalizers) {
       try {
         url = normalizers.normalize(url, scope); // normalize the url
