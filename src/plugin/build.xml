@@ -31,6 +31,7 @@
      <ant dir="index-basic" target="deploy"/>
      <ant dir="index-anchor" target="deploy"/>
      <ant dir="index-more" target="deploy"/>
+     <ant dir="index-static" target="deploy"/>
      <ant dir="languageidentifier" target="deploy"/>
      <ant dir="lib-http" target="deploy"/>
      <ant dir="lib-nekohtml" target="deploy"/>
@@ -101,6 +102,7 @@
     <ant dir="index-basic" target="clean"/>
     <ant dir="index-anchor" target="clean"/>
     <ant dir="index-more" target="clean"/>
+    <ant dir="index-static" target="clean"/>
     <ant dir="languageidentifier" target="clean"/>
     <ant dir="lib-commons-httpclient" target="clean"/>
     <ant dir="lib-http" target="clean"/>
