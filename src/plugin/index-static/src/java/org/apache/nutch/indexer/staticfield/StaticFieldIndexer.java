@@ -29,6 +29,11 @@ import org.apache.nutch.parse.Parse;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.conf.Configuration;
 
+/** A simple plugin called at indexing that adds fields with static data. 
+ *  You can specify a list of fieldname:fieldcontent per nutch job.
+ *  It can be useful when collections can't be created by urlpatterns, 
+ *  like in subcollection, but on a job-basis. */
+
 public class StaticFieldIndexer implements IndexingFilter {
 	private Configuration conf;
 	private HashMap<String, String[]> fields;
