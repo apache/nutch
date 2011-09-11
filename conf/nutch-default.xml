@@ -1068,6 +1068,22 @@
   <description>Default class for storing data</description>
 </property>
 
+<!--
+<property>
+  <name>storage.data.store.class</name>
+  <value>org.apache.gora.cassandra.store.CassandraStore</value>
+  <description>Class for storing data in Apache Cassandra</description>
+</property>
+-->
+
+<!--
+<property>
+  <name>storage.data.store.class</name>
+  <value>org.apache.gora.hbase.store.HBaseStore</value>
+  <description>Class for storing data in Apache HBase</description>
+</property>
+-->
+
 <property>
   <name>storage.schema</name>
   <value>webpage</value>
