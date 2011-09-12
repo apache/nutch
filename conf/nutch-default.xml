@@ -762,6 +762,14 @@
   </description>
 </property>
 
+<property>
+  <name>indexer.max.content.length</name>
+  <value>-1</value>
+  <description>The maximum number of characters of a content that are indexed.
+  Content beyond the limit is truncated. A value of -1 disables this check.
+  </description>
+</property>
+
 <!-- URL normalizer properties -->
 
 <property>

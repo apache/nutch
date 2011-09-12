@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1105 Max content length option for index-basic (markus)
+
 * NUTCH-940 static field plugin (Claudio Martella via lewismc)
 
 * NUTCH-914 Implement Apache Project Branding Requirements (lewismc)

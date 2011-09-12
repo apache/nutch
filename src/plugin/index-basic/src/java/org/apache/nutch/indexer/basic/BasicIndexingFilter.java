@@ -42,6 +42,7 @@ public class BasicIndexingFilter implements IndexingFilter {
   public static final Log LOG = LogFactory.getLog(BasicIndexingFilter.class);
 
   private int MAX_TITLE_LENGTH;
+  private int MAX_CONTENT_LENGTH;
   private Configuration conf;
 
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
@@ -70,8 +71,14 @@ public class BasicIndexingFilter implements IndexingFilter {
     }
 
     doc.add("url", reprUrlString == null ? urlString : reprUrlString);
-    doc.add("content", parse.getText());
-    
+
+    // content
+    String content = parse.getText();
+    if (MAX_CONTENT_LENGTH > -1 && content.length() > MAX_CONTENT_LENGTH) {
+      content = content.substring(0, MAX_CONTENT_LENGTH);
+    }
+    doc.add("content", content);
+
     // title
     String title = parse.getData().getTitle();
     if (title.length() > MAX_TITLE_LENGTH) {      // truncate title if needed
@@ -88,7 +95,7 @@ public class BasicIndexingFilter implements IndexingFilter {
     if (caching != null && !caching.equals(Nutch.CACHING_FORBIDDEN_NONE)) {
       doc.add("cache", caching);
     }
-    
+
     // add timestamp when fetched, for deduplication
     doc.add("tstamp", new Date(datum.getFetchTime()));
 
@@ -98,6 +105,7 @@ public class BasicIndexingFilter implements IndexingFilter {
   public void setConf(Configuration conf) {
     this.conf = conf;
     this.MAX_TITLE_LENGTH = conf.getInt("indexer.max.title.length", 100);
+    this.MAX_CONTENT_LENGTH = conf.getInt("indexer.max.content.length", -1);
   }
 
   public Configuration getConf() {
