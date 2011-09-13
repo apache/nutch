@@ -139,6 +139,9 @@ public class CrawlDb extends Configured implements Tool {
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);
 
+    // https://issues.apache.org/jira/browse/NUTCH-1110
+    job.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
+
     return job;
   }
 
