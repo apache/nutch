@@ -2,6 +2,10 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1067 Configure minimum throughput for fetcher (markus)
+
+* NUTCH-1102 Fetcher to rely on fetcher.parse directive (markus)
+
 * NUTCH-1110 UpdateDB must not write _success file (markus)
 
 * NUTCH-1105 Max content length option for index-basic (markus)
