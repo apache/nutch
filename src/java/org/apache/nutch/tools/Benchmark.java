@@ -231,7 +231,7 @@ public class Benchmark extends Configured implements Tool {
         break;
       }
       start = System.currentTimeMillis();
-      fetcher.fetch(segs[0], threads, org.apache.nutch.fetcher.Fetcher.isParsing(getConf()));  // fetch it
+      fetcher.fetch(segs[0], threads);  // fetch it
       delta = System.currentTimeMillis() - start;
       res.addTiming("fetch", i + "", delta);
       if (!Fetcher.isParsing(job)) {

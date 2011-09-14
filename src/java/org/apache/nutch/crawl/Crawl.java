@@ -133,7 +133,7 @@ public class Crawl extends Configured implements Tool {
         LOG.info("Stopping at depth=" + i + " - no more URLs to fetch.");
         break;
       }
-      fetcher.fetch(segs[0], threads, org.apache.nutch.fetcher.Fetcher.isParsing(getConf()));  // fetch it
+      fetcher.fetch(segs[0], threads);  // fetch it
       if (!Fetcher.isParsing(job)) {
         parseSegment.parse(segs[0]);    // parse it, if needed
       }

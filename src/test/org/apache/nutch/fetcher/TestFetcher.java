@@ -98,7 +98,11 @@ public class TestFetcher extends TestCase {
     long time=System.currentTimeMillis();
     //fetch
     Fetcher fetcher=new Fetcher(conf);
-    fetcher.fetch(generatedSegment[0], 1, true);
+
+    // Set fetcher.parse to true
+    conf.setBoolean("fetcher.parse", true);
+
+    fetcher.fetch(generatedSegment[0], 1);
 
     time=System.currentTimeMillis()-time;
     
@@ -173,9 +177,9 @@ public class TestFetcher extends TestCase {
     conf.set("http.agent.name", "");
 
     try {
-      conf.setBoolean("fetcher.parse", true);
+      conf.setBoolean("fetcher.parse", false);
       Fetcher fetcher = new Fetcher(conf);
-      fetcher.fetch(null, 1, false);
+      fetcher.fetch(null, 1);
     } catch (IllegalArgumentException iae) {
       String message = iae.getMessage();
       failedNoAgentName = message.equals("Fetcher: No agents listed in "
