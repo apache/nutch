@@ -36,7 +36,7 @@
               point="org.apache.nutch.net.URLFilter">
       <implementation id="DomainURLFilter"
         class="org.apache.nutch.urlfilter.domain.DomainURLFilter">
-        <!-- <parameter name="file" value="domain-urlfilter.txt"/> -->
+        <parameter name="file" value="domain-urlfilter.txt"/>
       </implementation>
    </extension>
 
