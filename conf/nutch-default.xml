@@ -704,6 +704,24 @@
   </description>
 </property>
 
+<property>
+  <name>fetcher.throughput.threshold.pages</name>
+  <value>-1</value>
+  <description>The threshold of minimum pages per second. If the fetcher downloads less
+  pages per second than the configured threshold, the fetcher stops, preventing slow queue's
+  from stalling the throughput. This threshold must be an integer. This can be useful when
+  fetcher.timelimit.mins is hard to determine. The default value of -1 disables this check.
+  </description>
+</property>
+
+<property>
+  <name>fetcher.throughput.threshold.retries</name>
+  <value>5</value>
+  <description>The number of times the fetcher.throughput.threshold is allowed to be exceeded.
+  This settings prevents accidental slow downs from immediately killing the fetcher thread.
+  </description>
+</property>
+
 <!-- moreindexingfilter plugin properties -->
 
 <property>
