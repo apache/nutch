@@ -921,7 +921,6 @@
   "all" doesn't show either content or summaries.</description>
 </property>
 
-
 <property>
   <name>parser.html.impl</name>
   <value>neko</value>
@@ -947,6 +946,13 @@
   iframe, script, link, img. If you add any of those tags here, it
   won't be taken. Default is empty list. Probably reasonable value
   for most people would be "img,script,link".</description>
+</property>
+
+<property>
+  <name>parser.fix.embeddedparams</name>
+  <value>true</value>
+  <description>Whether to fix URL embedded params using semi-colons.
+  See NUTCH-436 and NUTCH-1115</description>
 </property>
 
 <property>

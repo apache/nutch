@@ -39,6 +39,8 @@ import org.w3c.dom.*;
  */
 public class DOMContentUtils {
 
+  private boolean fixEmbeddedParams;
+
   public static class LinkParams {
     public String elName;
     public String attrName;
@@ -87,6 +89,9 @@ public class DOMContentUtils {
       if ( ! forceTags.contains(ignoreTags[i]) )
         linkParams.remove(ignoreTags[i]);
     }
+
+    // https://issues.apache.org/jira/browse/NUTCH-1115
+    fixEmbeddedParams = conf.getBoolean("parser.fix.embeddedparams", true);
   }
   
   /**
@@ -321,7 +326,7 @@ public class DOMContentUtils {
     
     // the target contains params information or the base doesn't then no
     // conversion necessary, return regular URL
-    if (target.indexOf(';') >= 0 || base.toString().indexOf(';') == -1) {
+    if (!fixEmbeddedParams || target.indexOf(';') >= 0 || base.toString().indexOf(';') == -1) {
       return new URL(base, target);
     }
     
