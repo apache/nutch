@@ -24,8 +24,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.util.domain.DomainSuffix.Status;
 import org.apache.nutch.util.domain.TopLevelDomain.Type;
@@ -43,7 +43,7 @@ import org.xml.sax.SAXException;
  */
 class DomainSuffixesReader {
 
-  private static final Log LOG = LogFactory.getLog(DomainSuffixesReader.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DomainSuffixesReader.class);
 
   void read(DomainSuffixes tldEntries, InputStream input) throws IOException{
     try {

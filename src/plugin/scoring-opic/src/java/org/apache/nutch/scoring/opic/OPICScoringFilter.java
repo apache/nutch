@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Map.Entry;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
@@ -52,7 +52,7 @@ import org.apache.nutch.util.LogUtil;
  */
 public class OPICScoringFilter implements ScoringFilter {
 
-  private final static Log LOG = LogFactory.getLog(OPICScoringFilter.class);
+  private final static Logger LOG = LoggerFactory.getLogger(OPICScoringFilter.class);
 
   private Configuration conf;
   private float scoreInjected;

@@ -26,8 +26,8 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.ObjectCache;
 import org.w3c.dom.Document;
@@ -37,7 +37,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 public class SolrMappingReader {
-  public static Log LOG = LogFactory.getLog(SolrMappingReader.class);
+  public static Logger LOG = LoggerFactory.getLogger(SolrMappingReader.class);
   
   private Configuration conf;
   

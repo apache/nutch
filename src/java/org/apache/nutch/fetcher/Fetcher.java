@@ -28,8 +28,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
@@ -96,7 +96,7 @@ public class Fetcher extends Configured implements Tool,
 
   public static final String PROTOCOL_REDIR = "protocol";
 
-  public static final Log LOG = LogFactory.getLog(Fetcher.class);
+  public static final Logger LOG = LoggerFactory.getLogger(Fetcher.class);
   
   public static class InputFormat extends SequenceFileInputFormat<Text, CrawlDatum> {
     /** Don't split inputs, to keep things polite. */
@@ -518,7 +518,7 @@ public class Fetcher extends Configured implements Tool,
             hasMore = reader.next(url, datum);
             timelimitcount++;
           } catch (IOException e) {
-            LOG.fatal("QueueFeeder error reading input, record " + cnt, e);
+            LOG.error("QueueFeeder error reading input, record " + cnt, e);
             return;
           }
           continue;
@@ -543,7 +543,7 @@ public class Fetcher extends Configured implements Tool,
                 feed--;
               }
             } catch (IOException e) {
-              LOG.fatal("QueueFeeder error reading input, record " + cnt, e);
+              LOG.error("QueueFeeder error reading input, record " + cnt, e);
               return;
             }
           }
@@ -807,9 +807,9 @@ public class Fetcher extends Configured implements Tool,
         }
 
       } catch (Throwable e) {
-        if (LOG.isFatalEnabled()) {
-          e.printStackTrace(LogUtil.getFatalStream(LOG));
-          LOG.fatal("fetcher caught:"+e.toString());
+        if (LOG.isErrorEnabled()) {
+          e.printStackTrace(LogUtil.getErrorStream(LOG));
+          LOG.error("fetcher caught:"+e.toString());
         }
       } finally {
         if (fit != null) fetchQueues.finishFetchItem(fit);
@@ -975,9 +975,9 @@ public class Fetcher extends Configured implements Tool,
           }
         }
       } catch (IOException e) {
-        if (LOG.isFatalEnabled()) {
-          e.printStackTrace(LogUtil.getFatalStream(LOG));
-          LOG.fatal("fetcher caught:"+e.toString());
+        if (LOG.isErrorEnabled()) {
+          e.printStackTrace(LogUtil.getErrorStream(LOG));
+          LOG.error("fetcher caught:"+e.toString());
         }
       }
 
@@ -1238,7 +1238,7 @@ public class Fetcher extends Configured implements Tool,
       fetch(segment, threads);
       return 0;
     } catch (Exception e) {
-      LOG.fatal("Fetcher: " + StringUtils.stringifyException(e));
+      LOG.error("Fetcher: " + StringUtils.stringifyException(e));
       return -1;
     }
 
@@ -1253,8 +1253,8 @@ public class Fetcher extends Configured implements Tool,
     if (agentName == null || agentName.trim().length() == 0) {
       String message = "Fetcher: No agents listed in 'http.agent.name'"
           + " property.";
-      if (LOG.isFatalEnabled()) {
-        LOG.fatal(message);
+      if (LOG.isErrorEnabled()) {
+        LOG.error(message);
       }
       throw new IllegalArgumentException(message);
     } else {

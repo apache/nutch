@@ -27,8 +27,8 @@ import java.util.Random;
 import java.util.TreeMap;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -68,7 +68,7 @@ import org.apache.nutch.util.StringUtil;
  */
 public class CrawlDbReader implements Closeable {
 
-  public static final Log LOG = LogFactory.getLog(CrawlDbReader.class);
+  public static final Logger LOG = LoggerFactory.getLogger(CrawlDbReader.class);
   
   public static final int STD_FORMAT = 0;
   public static final int CSV_FORMAT = 1;

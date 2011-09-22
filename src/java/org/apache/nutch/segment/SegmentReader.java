@@ -33,8 +33,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileStatus;
@@ -74,7 +74,7 @@ import org.apache.nutch.util.NutchJob;
 public class SegmentReader extends Configured implements
     Reducer<Text, NutchWritable, Text, Text> {
 
-  public static final Log LOG = LogFactory.getLog(SegmentReader.class);
+  public static final Logger LOG = LoggerFactory.getLogger(SegmentReader.class);
 
   long recNo = 0L;
   

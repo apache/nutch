@@ -25,8 +25,8 @@ import org.apache.oro.text.regex.MatchResult;
 import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.tika.mime.MimeType;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.nutch.metadata.Metadata;
 
@@ -69,7 +69,7 @@ import org.apache.commons.lang.time.DateUtils;
  */
 
 public class MoreIndexingFilter implements IndexingFilter {
-  public static final Log LOG = LogFactory.getLog(MoreIndexingFilter.class);
+  public static final Logger LOG = LoggerFactory.getLogger(MoreIndexingFilter.class);
 
   /** A flag that tells if magic resolution must be performed */
   private boolean MAGIC;

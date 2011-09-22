@@ -23,8 +23,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.Text;
@@ -61,7 +61,7 @@ import org.apache.nutch.util.TimingUtil;
  * @author Andrzej Bialecki
  */
 public class FreeGenerator extends Configured implements Tool {
-  private static final Log LOG = LogFactory.getLog(FreeGenerator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(FreeGenerator.class);
   
   private static final String FILTER_KEY = "free.generator.filter";
   private static final String NORMALIZE_KEY = "free.generator.normalize";
@@ -153,7 +153,7 @@ public class FreeGenerator extends Configured implements Tool {
         } else if (args[i].equals("-normalize")) {
           normalize = true;
         } else {
-          LOG.fatal("Unknown argument: " + args[i] + ", exiting ...");
+          LOG.error("Unknown argument: " + args[i] + ", exiting ...");
           return -1;
         }
       }
@@ -184,7 +184,7 @@ public class FreeGenerator extends Configured implements Tool {
     try {
       JobClient.runJob(job);
     } catch (Exception e) {
-      LOG.fatal("FAILED: " + StringUtils.stringifyException(e));
+      LOG.error("FAILED: " + StringUtils.stringifyException(e));
       return -1;
     }
     long end = System.currentTimeMillis();

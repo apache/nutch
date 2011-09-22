@@ -28,8 +28,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Nutch imports
 import org.apache.nutch.metadata.Metadata;
@@ -54,7 +54,7 @@ import org.apache.hadoop.io.Text;
  */
 public class RelTagParser implements HtmlParseFilter {
   
-  public final static Log LOG = LogFactory.getLog(RelTagParser.class);
+  public final static Logger LOG = LoggerFactory.getLogger(RelTagParser.class);
 
   public final static String REL_TAG = "Rel-Tag";
   

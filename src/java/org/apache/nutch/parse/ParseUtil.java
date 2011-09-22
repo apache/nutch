@@ -22,8 +22,8 @@ import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.protocol.Content;
 
@@ -40,7 +40,7 @@ import org.apache.nutch.protocol.Content;
 public class ParseUtil {
   
   /* our log stream */
-  public static final Log LOG = LogFactory.getLog(ParseUtil.class);
+  public static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);
   private ParserFactory parserFactory;
   /** Parser timeout set to 30 sec by default. Set -1 to deactivate **/
   private int MAX_PARSE_TIME = 30;

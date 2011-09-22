@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.net.URL;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
@@ -78,10 +78,10 @@ public abstract class HttpBase implements Protocol {
   protected String acceptLanguage = "en-us,en-gb,en;q=0.7,*;q=0.3";
     
   /** The default logger */
-  private final static Log LOGGER = LogFactory.getLog(HttpBase.class);
+  private final static Logger LOGGER = LoggerFactory.getLogger(HttpBase.class);
 
   /** The specified logger */
-  private Log logger = LOGGER;
+  private Logger logger = LOGGER;
  
   /** The nutch configuration */
   private Configuration conf = null;
@@ -98,7 +98,7 @@ public abstract class HttpBase implements Protocol {
   }
   
   /** Creates a new instance of HttpBase */
-  public HttpBase(Log logger) {
+  public HttpBase(Logger logger) {
     if (logger != null) {
       this.logger = logger;
     }
@@ -247,8 +247,8 @@ public abstract class HttpBase implements Protocol {
     
     if ( (agentName == null) || (agentName.trim().length() == 0) ) {
       // TODO : NUTCH-258
-      if (LOGGER.isFatalEnabled()) {
-        LOGGER.fatal("No User-Agent string set (http.agent.name)!");
+      if (LOGGER.isErrorEnabled()) {
+        LOGGER.error("No User-Agent string set (http.agent.name)!");
       }
     }
     

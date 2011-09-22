@@ -22,8 +22,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
@@ -42,7 +42,7 @@ import org.apache.nutch.util.TimingUtil;
  * crawldb accordingly.
  */
 public class CrawlDb extends Configured implements Tool {
-  public static final Log LOG = LogFactory.getLog(CrawlDb.class);
+  public static final Logger LOG = LoggerFactory.getLogger(CrawlDb.class);
 
   public static final String CRAWLDB_ADDITIONS_ALLOWED = "db.update.additions.allowed";
 
@@ -206,7 +206,7 @@ public class CrawlDb extends Configured implements Tool {
       update(new Path(args[0]), dirs.toArray(new Path[dirs.size()]), normalize, filter, additionsAllowed, force);
       return 0;
     } catch (Exception e) {
-      LOG.fatal("CrawlDb update: " + StringUtils.stringifyException(e));
+      LOG.error("CrawlDb update: " + StringUtils.stringifyException(e));
       return -1;
     }
   }

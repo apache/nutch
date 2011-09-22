@@ -26,8 +26,8 @@ import java.util.zip.ZipInputStream;
 import java.net.URL;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
@@ -55,7 +55,7 @@ public class ZipTextExtractor {
   /** Get the MimeTypes resolver instance. */
   private MimeUtil MIME;
   
-  public static final Log LOG = LogFactory.getLog(ZipTextExtractor.class);
+  public static final Logger LOG = LoggerFactory.getLogger(ZipTextExtractor.class);
 
   private Configuration conf;
   

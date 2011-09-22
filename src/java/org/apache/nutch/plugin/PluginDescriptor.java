@@ -25,8 +25,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -53,7 +53,7 @@ public class PluginDescriptor {
   private ArrayList<URL> fNotExportedLibs = new ArrayList<URL>();
   private ArrayList<Extension> fExtensions = new ArrayList<Extension>();
   private PluginClassLoader fClassLoader;
-  public static final Log LOG = LogFactory.getLog(PluginDescriptor.class);
+  public static final Logger LOG = LoggerFactory.getLogger(PluginDescriptor.class);
   private Configuration fConf;
 
   /**

@@ -23,8 +23,8 @@ import java.util.Properties;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
@@ -45,7 +45,7 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class ZipParser implements Parser {
 
-  private static final Log LOG = LogFactory.getLog(ZipParser.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ZipParser.class);
   private Configuration conf;
 
   /** Creates a new instance of ZipParser */

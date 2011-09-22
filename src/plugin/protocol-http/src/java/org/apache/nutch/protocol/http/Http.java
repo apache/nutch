@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.net.URL;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
@@ -37,7 +37,7 @@ import org.apache.nutch.util.NutchConfiguration;
 
 public class Http extends HttpBase {
 
-  public static final Log LOG = LogFactory.getLog(Http.class);
+  public static final Logger LOG = LoggerFactory.getLogger(Http.class);
 
 
   public Http() {

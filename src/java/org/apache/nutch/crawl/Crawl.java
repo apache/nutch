@@ -22,8 +22,8 @@ import java.text.*;
 
 // Commons Logging imports
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.*;
@@ -40,7 +40,7 @@ import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.fetcher.Fetcher;
 
 public class Crawl extends Configured implements Tool {
-  public static final Log LOG = LogFactory.getLog(Crawl.class);
+  public static final Logger LOG = LoggerFactory.getLogger(Crawl.class);
 
   private static String getDate() {
     return new SimpleDateFormat("yyyyMMddHHmmss").format

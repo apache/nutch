@@ -17,8 +17,8 @@
 
 package org.apache.nutch.indexer.basic;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.Parse;
@@ -39,7 +39,7 @@ import org.apache.hadoop.conf.Configuration;
 
 /** Adds basic searchable fields to a document. */
 public class BasicIndexingFilter implements IndexingFilter {
-  public static final Log LOG = LogFactory.getLog(BasicIndexingFilter.class);
+  public static final Logger LOG = LoggerFactory.getLogger(BasicIndexingFilter.class);
 
   private int MAX_TITLE_LENGTH;
   private int MAX_CONTENT_LENGTH;

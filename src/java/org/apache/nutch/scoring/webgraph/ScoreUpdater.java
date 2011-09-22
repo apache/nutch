@@ -28,8 +28,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
@@ -66,7 +66,7 @@ public class ScoreUpdater
   implements Tool, Mapper<Text, Writable, Text, ObjectWritable>,
   Reducer<Text, ObjectWritable, Text, CrawlDatum> {
 
-  public static final Log LOG = LogFactory.getLog(ScoreUpdater.class);
+  public static final Logger LOG = LoggerFactory.getLogger(ScoreUpdater.class);
 
   private JobConf conf;
   private float clearScore = 0.0f;
@@ -244,7 +244,7 @@ public class ScoreUpdater
       return 0;
     }
     catch (Exception e) {
-      LOG.fatal("ScoreUpdater: " + StringUtils.stringifyException(e));
+      LOG.error("ScoreUpdater: " + StringUtils.stringifyException(e));
       return -1;
     }
   }

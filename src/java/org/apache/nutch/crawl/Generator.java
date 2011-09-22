@@ -23,8 +23,8 @@ import java.util.*;
 import java.text.*;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.conf.*;
@@ -57,7 +57,7 @@ import org.apache.nutch.util.URLUtil;
  **/
 public class Generator extends Configured implements Tool {
 
-  public static final Log LOG = LogFactory.getLog(Generator.class);
+  public static final Logger LOG = LoggerFactory.getLogger(Generator.class);
 
   public static final String GENERATE_UPDATE_CRAWLDB = "generate.update.crawldb";
   public static final String GENERATOR_MIN_SCORE = "generate.min.score";
@@ -693,7 +693,7 @@ public class Generator extends Configured implements Tool {
           norm, force, maxNumSegments);
       if (segs == null) return -1;
     } catch (Exception e) {
-      LOG.fatal("Generator: " + StringUtils.stringifyException(e));
+      LOG.error("Generator: " + StringUtils.stringifyException(e));
       return -1;
     }
     return 0;

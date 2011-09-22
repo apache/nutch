@@ -17,8 +17,8 @@
 
 package org.apache.nutch.parse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.SignatureFactory;
@@ -43,7 +43,7 @@ public class ParseSegment extends Configured implements Tool,
     Mapper<WritableComparable, Content, Text, ParseImpl>,
     Reducer<Text, Writable, Text, Writable> {
 
-  public static final Log LOG = LogFactory.getLog(ParseSegment.class);
+  public static final Logger LOG = LoggerFactory.getLogger(ParseSegment.class);
   
   private ScoringFilters scfilters;
   

@@ -24,8 +24,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
@@ -56,7 +56,7 @@ public class HttpAuthenticationFactory implements Configurable {
      */
     public static final String WWW_AUTHENTICATE = "WWW-Authenticate";
 	
-    public static final Log LOG = LogFactory.getLog(HttpAuthenticationFactory.class);
+    public static final Logger LOG = LoggerFactory.getLogger(HttpAuthenticationFactory.class);
 
     private static Map auths = new TreeMap(); 
 

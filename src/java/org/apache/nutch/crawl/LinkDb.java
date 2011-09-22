@@ -23,8 +23,8 @@ import java.util.*;
 import java.net.*;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
@@ -45,7 +45,7 @@ import org.apache.nutch.util.TimingUtil;
 /** Maintains an inverted link map, listing incoming links for each url. */
 public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, Text, Inlinks> {
 
-  public static final Log LOG = LogFactory.getLog(LinkDb.class);
+  public static final Logger LOG = LoggerFactory.getLogger(LinkDb.class);
 
   public static final String CURRENT_NAME = "current";
   public static final String LOCK_NAME = ".locked";
@@ -292,7 +292,7 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
       invert(db, segs.toArray(new Path[segs.size()]), normalize, filter, force);
       return 0;
     } catch (Exception e) {
-      LOG.fatal("LinkDb: " + StringUtils.stringifyException(e));
+      LOG.error("LinkDb: " + StringUtils.stringifyException(e));
       return -1;
     }
   }

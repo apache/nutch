@@ -20,8 +20,8 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.params.HttpClientParams;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
 
@@ -29,7 +29,7 @@ import java.net.MalformedURLException;
 
 public class SolrUtils {
 
-  public static Log LOG = LogFactory.getLog(SolrIndexer.class);
+  public static Logger LOG = LoggerFactory.getLogger(SolrIndexer.class);
 
   public static CommonsHttpSolrServer getCommonsHttpSolrServer(JobConf job) throws MalformedURLException {
     HttpClient client=new HttpClient();

@@ -21,8 +21,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.nutch.plugin.*;
 import org.apache.nutch.parse.Parse;
@@ -37,7 +37,7 @@ public class IndexingFilters {
 
   public static final String INDEXINGFILTER_ORDER = "indexingfilter.order";
 
-  public final static Log LOG = LogFactory.getLog(IndexingFilters.class);
+  public final static Logger LOG = LoggerFactory.getLogger(IndexingFilters.class);
 
   private IndexingFilter[] indexingFilters;
 

@@ -27,8 +27,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -65,7 +65,7 @@ public class NodeDumper
   extends Configured
   implements Tool {
 
-  public static final Log LOG = LogFactory.getLog(NodeDumper.class);
+  public static final Logger LOG = LoggerFactory.getLogger(NodeDumper.class);
 
   private static enum DumpType {
     INLINKS,
@@ -271,7 +271,7 @@ public class NodeDumper
       return 0;
     }
     catch (Exception e) {
-      LOG.fatal("NodeDumper: " + StringUtils.stringifyException(e));
+      LOG.error("NodeDumper: " + StringUtils.stringifyException(e));
       return -2;
     }
   }

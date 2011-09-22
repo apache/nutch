@@ -26,8 +26,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
@@ -104,7 +104,7 @@ public class EncodingDetector {
     }
   }
 
-  public static final Log LOG = LogFactory.getLog(EncodingDetector.class);
+  public static final Logger LOG = LoggerFactory.getLogger(EncodingDetector.class);
 
   public static final int NO_THRESHOLD = -1;
 

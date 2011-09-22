@@ -23,8 +23,8 @@ import java.io.PrintStream;
 import java.lang.reflect.Method;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -34,7 +34,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class LogUtil {
 
-  private final static Log LOG = LogFactory.getLog(LogUtil.class);
+  private final static Logger LOG = LoggerFactory.getLogger(LogUtil.class);
 
   private static Method TRACE = null;
   private static Method DEBUG = null;
@@ -45,12 +45,12 @@ public class LogUtil {
 
   static {
     try {
-      TRACE = Log.class.getMethod("trace", new Class[] { Object.class });
-      DEBUG = Log.class.getMethod("debug", new Class[] { Object.class });
-      INFO  = Log.class.getMethod("info",  new Class[] { Object.class });
-      WARN  = Log.class.getMethod("warn",  new Class[] { Object.class });
-      ERROR = Log.class.getMethod("error", new Class[] { Object.class });
-      FATAL = Log.class.getMethod("fatal", new Class[] { Object.class });
+      TRACE = Logger.class.getMethod("trace", new Class[] { Object.class });
+      DEBUG = Logger.class.getMethod("debug", new Class[] { Object.class });
+      INFO  = Logger.class.getMethod("info",  new Class[] { Object.class });
+      WARN  = Logger.class.getMethod("warn",  new Class[] { Object.class });
+      ERROR = Logger.class.getMethod("error", new Class[] { Object.class });
+      FATAL = Logger.class.getMethod("error", new Class[] { Object.class });
     } catch(Exception e) {
       if (LOG.isErrorEnabled()) {
         LOG.error("Cannot init log methods", e);
@@ -59,32 +59,32 @@ public class LogUtil {
   }
   
   
-  public static PrintStream getTraceStream(final Log logger) {
+  public static PrintStream getTraceStream(final Logger logger) {
     return getLogStream(logger, TRACE);
   }
 
-  public static PrintStream getDebugStream(final Log logger) {
+  public static PrintStream getDebugStream(final Logger logger) {
     return getLogStream(logger, DEBUG);
   }
 
-  public static PrintStream getInfoStream(final Log logger) {
+  public static PrintStream getInfoStream(final Logger logger) {
     return getLogStream(logger, INFO);
   }
   
-  public static PrintStream getWarnStream(final Log logger) {
+  public static PrintStream getWarnStream(final Logger logger) {
     return getLogStream(logger, WARN);
   }
 
-  public static PrintStream getErrorStream(final Log logger) {
+  public static PrintStream getErrorStream(final Logger logger) {
     return getLogStream(logger, ERROR);
   }
 
-  public static PrintStream getFatalStream(final Log logger) {
+  public static PrintStream getFatalStream(final Logger logger) {
     return getLogStream(logger, FATAL);
   }
   
   /** Returns a stream that, when written to, adds log lines. */
-  private static PrintStream getLogStream(final Log logger, final Method method) {
+  private static PrintStream getLogStream(final Logger logger, final Method method) {
     return new PrintStream(new ByteArrayOutputStream() {
         private int scan = 0;
 
@@ -102,8 +102,8 @@ public class LogUtil {
           try {
             method.invoke(logger, new Object[] { toString().trim() });
           } catch (Exception e) {
-            if (LOG.isFatalEnabled()) {
-              LOG.fatal("Cannot log with method [" + method + "]", e);
+            if (LOG.isErrorEnabled()) {
+              LOG.error("Cannot log with method [" + method + "]", e);
             }
           }
           reset();

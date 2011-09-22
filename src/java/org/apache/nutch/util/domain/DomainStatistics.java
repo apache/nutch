@@ -22,8 +22,8 @@ import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
@@ -55,7 +55,7 @@ extends MapReduceBase
 implements Tool, Mapper<Text, CrawlDatum, Text, LongWritable>,
            Reducer<Text, LongWritable, LongWritable, Text> {
 
-  private static final Log LOG = LogFactory.getLog(DomainStatistics.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DomainStatistics.class);
   
   private static final Text FETCHED_TEXT = new Text("FETCHED");
   private static final Text NOT_FETCHED_TEXT = new Text("NOT_FETCHED");

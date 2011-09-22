@@ -17,8 +17,8 @@
 
 package org.apache.nutch.protocol.file;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.hadoop.io.Text;
@@ -48,7 +48,7 @@ import java.net.URL;
  ***********************************/
 public class File implements Protocol {
 
-  public static final Log LOG = LogFactory.getLog(File.class);
+  public static final Logger LOG = LoggerFactory.getLogger(File.class);
 
   static final int MAX_REDIRECTS = 5;
 

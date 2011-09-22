@@ -28,8 +28,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.Base64;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
@@ -46,7 +46,7 @@ import org.apache.hadoop.conf.Configurable;
  */
 public class HttpBasicAuthentication implements HttpAuthentication, Configurable {
 
-    public static final Log LOG = LogFactory.getLog(HttpBasicAuthentication.class);
+    public static final Logger LOG = LoggerFactory.getLogger(HttpBasicAuthentication.class);
 
     private static Pattern basic = Pattern.compile("[bB][aA][sS][iI][cC] [rR][eE][aA][lL][mM]=\"(\\w*)\"");
 	

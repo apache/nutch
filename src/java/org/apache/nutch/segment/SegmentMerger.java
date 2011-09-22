@@ -22,8 +22,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileStatus;
@@ -113,7 +113,7 @@ import org.apache.nutch.util.NutchJob;
 public class SegmentMerger extends Configured implements
     Mapper<Text, MetaWrapper, Text, MetaWrapper>,
     Reducer<Text, MetaWrapper, Text, MetaWrapper> {
-  private static final Log LOG = LogFactory.getLog(SegmentMerger.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SegmentMerger.class);
 
   private static final String SEGMENT_PART_KEY = "part";
   private static final String SEGMENT_SLICE_KEY = "slice";

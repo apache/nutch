@@ -22,8 +22,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.io.Text;
 
 /**
@@ -39,7 +39,7 @@ public class ParseResult implements Iterable<Map.Entry<Text, Parse>> {
   private Map<Text, Parse> parseMap;
   private String originalUrl;
   
-  public static final Log LOG = LogFactory.getLog(ParseResult.class);
+  public static final Logger LOG = LoggerFactory.getLogger(ParseResult.class);
   
   /**
    * Create a container for parse results.

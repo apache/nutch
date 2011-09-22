@@ -19,8 +19,8 @@ package org.apache.nutch.indexer.tld;
 
 import java.net.URL;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -37,7 +37,7 @@ import org.apache.nutch.util.domain.DomainSuffix;
  * @author Enis Soztutar &lt;enis.soz.nutch@gmail.com&gt;
  */
 public class TLDIndexingFilter implements IndexingFilter {
-  public static final Log LOG = LogFactory.getLog(TLDIndexingFilter.class);
+  public static final Logger LOG = LoggerFactory.getLogger(TLDIndexingFilter.class);
 
   private Configuration conf;
 
@@ -51,7 +51,7 @@ public class TLDIndexingFilter implements IndexingFilter {
       doc.add("tld", d.getDomain());
       
     }catch (Exception ex) {
-      LOG.warn(ex);
+      LOG.warn(ex.toString());
     }
 
     return doc;

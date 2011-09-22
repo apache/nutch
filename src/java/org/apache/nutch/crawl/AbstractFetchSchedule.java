@@ -17,8 +17,8 @@
 
 package org.apache.nutch.crawl;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.Text;
@@ -31,7 +31,7 @@ import org.apache.nutch.crawl.CrawlDatum;
  * @author Andrzej Bialecki
  */
 public abstract class AbstractFetchSchedule extends Configured implements FetchSchedule {
-  private static final Log LOG = LogFactory.getLog(AbstractFetchSchedule.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractFetchSchedule.class);
   
   protected int defaultInterval;
   protected int maxInterval;

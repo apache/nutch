@@ -17,8 +17,8 @@
 
 package org.apache.nutch.protocol.ftp;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.commons.net.ftp.FTPFileEntryParser;
 
@@ -50,7 +50,7 @@ import java.io.IOException;
  ***********************************/
 public class Ftp implements Protocol {
 
-  public static final Log LOG = LogFactory.getLog(Ftp.class);
+  public static final Logger LOG = LoggerFactory.getLogger(Ftp.class);
 
   static final int BUFFER_SIZE = 16384; // 16*1024 = 16384
 

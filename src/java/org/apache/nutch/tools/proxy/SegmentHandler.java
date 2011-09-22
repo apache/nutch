@@ -25,8 +25,8 @@ import java.util.HashMap;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FileUtil;
@@ -52,7 +52,7 @@ import org.mortbay.jetty.Request;
  * XXX should turn this into a plugin?
  */
 public class SegmentHandler extends AbstractTestbedHandler {
-  private static final Log LOG = LogFactory.getLog(SegmentHandler.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SegmentHandler.class);
   private Segment seg;
   
   private static HashMap<Integer,Integer> protoCodes = new HashMap<Integer,Integer>();

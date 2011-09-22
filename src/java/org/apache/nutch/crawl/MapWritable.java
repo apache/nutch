@@ -29,8 +29,8 @@ import java.util.Map;
 import java.util.Set;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.DataInputBuffer;
@@ -61,7 +61,7 @@ import org.apache.nutch.protocol.ProtocolStatus;
  */
 public class MapWritable implements Writable {
 
-  public static final Log LOG = LogFactory.getLog(MapWritable.class);
+  public static final Logger LOG = LoggerFactory.getLogger(MapWritable.class);
 
   private KeyValueEntry fFirst;
 

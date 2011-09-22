@@ -22,8 +22,8 @@ import java.util.Map.Entry;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.Text;
@@ -43,7 +43,7 @@ import org.apache.nutch.scoring.ScoringFilterException;
  */
 public class URLMetaScoringFilter extends Configured implements ScoringFilter {
 
-  private static final Log LOG = LogFactory.getLog(URLMetaScoringFilter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(URLMetaScoringFilter.class);
   private static final String CONF_PROPERTY = "urlmeta.tags";
   private static String[] urlMetaTags;
   private Configuration conf;

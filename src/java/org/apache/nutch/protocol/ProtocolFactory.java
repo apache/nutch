@@ -21,8 +21,8 @@ import java.net.URL;
 import java.net.MalformedURLException;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.nutch.plugin.*;
 import org.apache.nutch.util.ObjectCache;
@@ -38,7 +38,7 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class ProtocolFactory {
 
-  public static final Log LOG = LogFactory.getLog(ProtocolFactory.class);
+  public static final Logger LOG = LoggerFactory.getLogger(ProtocolFactory.class);
 
   private ExtensionPoint extensionPoint;
 

@@ -18,8 +18,8 @@ package org.apache.nutch.indexer.anchor;
 
 import java.util.WeakHashMap;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -35,7 +35,7 @@ import org.apache.nutch.parse.Parse;
 public class AnchorIndexingFilter
   implements IndexingFilter {
 
-  public static final Log LOG = LogFactory.getLog(AnchorIndexingFilter.class);
+  public static final Logger LOG = LoggerFactory.getLogger(AnchorIndexingFilter.class);
   private Configuration conf;
   private boolean deduplicate = false;
 

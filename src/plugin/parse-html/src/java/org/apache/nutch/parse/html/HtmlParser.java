@@ -31,8 +31,8 @@ import org.xml.sax.SAXException;
 import org.w3c.dom.*;
 import org.apache.html.dom.*;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
@@ -42,7 +42,7 @@ import org.apache.nutch.parse.*;
 import org.apache.nutch.util.*;
 
 public class HtmlParser implements Parser {
-  public static final Log LOG = LogFactory.getLog("org.apache.nutch.parse.html");
+  public static final Logger LOG = LoggerFactory.getLogger("org.apache.nutch.parse.html");
 
   // I used 1000 bytes at first, but  found that some documents have 
   // meta tag well past the first 1000 bytes. 

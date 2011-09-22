@@ -3,8 +3,8 @@ package org.apache.nutch.indexer;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.Text;
@@ -33,7 +33,7 @@ import org.apache.nutch.util.NutchConfiguration;
 
 public class IndexingFiltersChecker extends Configured implements Tool {
   
-  public static final Log LOG = LogFactory.getLog(IndexingFiltersChecker.class);
+  public static final Logger LOG = LoggerFactory.getLogger(IndexingFiltersChecker.class);
   
   public IndexingFiltersChecker() {
 

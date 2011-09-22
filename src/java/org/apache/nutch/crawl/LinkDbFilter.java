@@ -20,8 +20,8 @@ package org.apache.nutch.crawl;
 import java.io.IOException;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Mapper;
@@ -53,7 +53,7 @@ public class LinkDbFilter implements Mapper<Text, Inlinks, Text, Inlinks> {
   
   private String scope;
   
-  public static final Log LOG = LogFactory.getLog(LinkDbFilter.class);
+  public static final Logger LOG = LoggerFactory.getLogger(LinkDbFilter.class);
 
   private Text newKey = new Text();
   

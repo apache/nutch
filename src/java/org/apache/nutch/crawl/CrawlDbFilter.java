@@ -19,8 +19,8 @@ package org.apache.nutch.crawl;
 
 import java.io.IOException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.Mapper;
@@ -54,7 +54,7 @@ public class CrawlDbFilter implements Mapper<Text, CrawlDatum, Text, CrawlDatum>
   
   private String scope;
 
-  public static final Log LOG = LogFactory.getLog(CrawlDbFilter.class);
+  public static final Logger LOG = LoggerFactory.getLogger(CrawlDbFilter.class);
 
   public void configure(JobConf job) {
     urlFiltering = job.getBoolean(URL_FILTERING, false);

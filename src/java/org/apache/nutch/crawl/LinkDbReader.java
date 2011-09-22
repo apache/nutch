@@ -20,8 +20,8 @@ package org.apache.nutch.crawl;
 import java.io.IOException;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.*;
@@ -40,7 +40,7 @@ import java.util.Iterator;
 
 /** . */
 public class LinkDbReader extends Configured implements Tool, Closeable {
-  public static final Log LOG = LogFactory.getLog(LinkDbReader.class);
+  public static final Logger LOG = LoggerFactory.getLogger(LinkDbReader.class);
 
   private static final Partitioner<WritableComparable, Writable> PARTITIONER = new HashPartitioner<WritableComparable, Writable>();
 
@@ -149,7 +149,7 @@ public class LinkDbReader extends Configured implements Tool, Closeable {
         return -1;
       }
     } catch (Exception e) {
-      LOG.fatal("LinkDbReader: " + StringUtils.stringifyException(e));
+      LOG.error("LinkDbReader: " + StringUtils.stringifyException(e));
       return -1;
     }
   }

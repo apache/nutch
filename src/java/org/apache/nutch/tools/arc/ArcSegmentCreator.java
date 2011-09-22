@@ -21,8 +21,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -73,7 +73,7 @@ public class ArcSegmentCreator
   extends Configured
   implements Tool, Mapper<Text, BytesWritable, Text, NutchWritable> {
 
-  public static final Log LOG = LogFactory.getLog(ArcSegmentCreator.class);
+  public static final Logger LOG = LoggerFactory.getLogger(ArcSegmentCreator.class);
   public static final String URL_VERSION = "arc.url.version";
   private JobConf jobConf;
   private URLFilters urlFilters;
@@ -233,8 +233,8 @@ public class ArcSegmentCreator
         }
       }
       catch (IOException e) {
-        if (LOG.isFatalEnabled()) {
-          LOG.fatal("ArcSegmentCreator caught:" + StringUtils.stringifyException(e));
+        if (LOG.isErrorEnabled()) {
+          LOG.error("ArcSegmentCreator caught:" + StringUtils.stringifyException(e));
         }
       }
 
@@ -398,7 +398,7 @@ public class ArcSegmentCreator
       return 0;
     }
     catch (Exception e) {
-      LOG.fatal("ArcSegmentCreator: " + StringUtils.stringifyException(e));
+      LOG.error("ArcSegmentCreator: " + StringUtils.stringifyException(e));
       return -1;
     }
   }

@@ -22,8 +22,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.indexer.NutchField;
@@ -35,7 +35,7 @@ import org.apache.solr.common.util.DateUtil;
 
 public class SolrWriter implements NutchIndexWriter {
 
-  public static Log LOG = LogFactory.getLog(SolrWriter.class);
+  public static Logger LOG = LoggerFactory.getLogger(SolrWriter.class);
 
   private SolrServer solr;
   private SolrMappingReader solrMapping;

@@ -22,8 +22,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
@@ -64,7 +64,7 @@ import org.apache.nutch.util.TimingUtil;
  * @author Andrzej Bialecki
  */
 public class LinkDbMerger extends Configured implements Tool, Reducer<Text, Inlinks, Text, Inlinks> {
-  private static final Log LOG = LogFactory.getLog(LinkDbMerger.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LinkDbMerger.class);
   
   private int maxInlinks;
   
@@ -178,7 +178,7 @@ public class LinkDbMerger extends Configured implements Tool, Reducer<Text, Inli
       merge(output, dbs.toArray(new Path[dbs.size()]), normalize, filter);
       return 0;
     } catch (Exception e) {
-      LOG.fatal("LinkDbMerger: " + StringUtils.stringifyException(e));
+      LOG.error("LinkDbMerger: " + StringUtils.stringifyException(e));
       return -1;
     }
   }

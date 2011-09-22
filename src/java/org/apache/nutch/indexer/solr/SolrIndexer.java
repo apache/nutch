@@ -16,8 +16,8 @@
  */
 package org.apache.nutch.indexer.solr;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileStatus;
@@ -45,7 +45,7 @@ import java.util.Random;
 
 public class SolrIndexer extends Configured implements Tool {
 
-  public static Log LOG = LogFactory.getLog(SolrIndexer.class);
+  public static Logger LOG = LoggerFactory.getLogger(SolrIndexer.class);
 
   public SolrIndexer() {
     super(null);
@@ -92,7 +92,7 @@ public class SolrIndexer extends Configured implements Tool {
       LOG.info("SolrIndexer: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
     }
     catch (Exception e){
-      LOG.error(e);
+      LOG.error(e.toString());
     } finally {
       FileSystem.get(job).delete(tmp, true);
     }
@@ -135,7 +135,7 @@ public class SolrIndexer extends Configured implements Tool {
       indexSolr(args[0], crawlDb, linkDb, segments, noCommit);
       return 0;
     } catch (final Exception e) {
-      LOG.fatal("SolrIndexer: " + StringUtils.stringifyException(e));
+      LOG.error("SolrIndexer: " + StringUtils.stringifyException(e));
       return -1;
     }
   }

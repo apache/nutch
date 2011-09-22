@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1078 Upgrade all instances of commons logging to slf4j (with log4j backend) (lewismc)
+
 * NUTCH-1114 Attr file missing in domain filter (markus)
 
 * NUTCH-1067 Configure minimum throughput for fetcher (markus)

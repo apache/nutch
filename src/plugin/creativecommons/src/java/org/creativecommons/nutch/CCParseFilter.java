@@ -24,8 +24,8 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.io.*;
@@ -37,7 +37,7 @@ import org.w3c.dom.*;
 
 /** Adds metadata identifying the Creative Commons license used, if any. */
 public class CCParseFilter implements HtmlParseFilter {
-  public static final Log LOG = LogFactory.getLog(CCParseFilter.class);
+  public static final Logger LOG = LoggerFactory.getLogger(CCParseFilter.class);
 
 
   /** Walks DOM tree, looking for RDF in comments and licenses in anchors.*/

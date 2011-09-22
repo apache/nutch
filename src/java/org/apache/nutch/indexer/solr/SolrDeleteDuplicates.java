@@ -24,8 +24,8 @@ import java.text.SimpleDateFormat;
 import java.util.Iterator;
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
@@ -85,7 +85,7 @@ public class SolrDeleteDuplicates
 implements Reducer<Text, SolrDeleteDuplicates.SolrRecord, Text, SolrDeleteDuplicates.SolrRecord>,
 Tool {
 
-  public static final Log LOG = LogFactory.getLog(SolrDeleteDuplicates.class);
+  public static final Logger LOG = LoggerFactory.getLogger(SolrDeleteDuplicates.class);
 
   private static final String SOLR_GET_ALL_QUERY = SolrConstants.ID_FIELD + ":[* TO *]";
 

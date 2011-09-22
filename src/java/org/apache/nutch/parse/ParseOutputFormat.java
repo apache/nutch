@@ -18,8 +18,8 @@
 package org.apache.nutch.parse;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.io.SequenceFile.CompressionType;
@@ -45,7 +45,7 @@ import org.apache.hadoop.util.Progressable;
 
 /* Parse content in a segment. */
 public class ParseOutputFormat implements OutputFormat<Text, Parse> {
-  private static final Log LOG = LogFactory.getLog(ParseOutputFormat.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ParseOutputFormat.class);
 
   private URLFilters filters;
   private URLNormalizers normalizers;

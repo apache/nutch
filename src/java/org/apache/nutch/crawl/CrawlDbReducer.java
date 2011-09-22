@@ -24,8 +24,8 @@ import java.util.Map.Entry;
 import java.io.IOException;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
@@ -36,7 +36,7 @@ import org.apache.nutch.scoring.ScoringFilters;
 
 /** Merge new page entries with existing entries. */
 public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatum> {
-  public static final Log LOG = LogFactory.getLog(CrawlDbReducer.class);
+  public static final Logger LOG = LoggerFactory.getLogger(CrawlDbReducer.class);
   
   private int retryMax;
   private CrawlDatum result = new CrawlDatum();

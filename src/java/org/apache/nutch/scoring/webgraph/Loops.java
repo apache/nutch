@@ -35,8 +35,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
@@ -80,7 +80,7 @@ public class Loops
   extends Configured
   implements Tool {
 
-  public static final Log LOG = LogFactory.getLog(Loops.class);
+  public static final Logger LOG = LoggerFactory.getLogger(Loops.class);
   public static final String LOOPS_DIR = "loops";
   public static final String ROUTES_DIR = "routes";
 
@@ -605,7 +605,7 @@ public class Loops
       return 0;
     }
     catch (Exception e) {
-      LOG.fatal("Loops: " + StringUtils.stringifyException(e));
+      LOG.error("Loops: " + StringUtils.stringifyException(e));
       return -2;
     }
   }

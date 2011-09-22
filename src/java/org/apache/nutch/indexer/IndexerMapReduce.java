@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -52,7 +52,7 @@ public class IndexerMapReduce extends Configured
 implements Mapper<Text, Writable, Text, NutchWritable>,
           Reducer<Text, NutchWritable, Text, NutchDocument> {
 
-  public static final Log LOG = LogFactory.getLog(IndexerMapReduce.class);
+  public static final Logger LOG = LoggerFactory.getLogger(IndexerMapReduce.class);
 
   private IndexingFilters filters;
   private ScoringFilters scfilters;

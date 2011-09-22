@@ -20,8 +20,8 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
@@ -59,7 +59,7 @@ import org.apache.nutch.util.TimingUtil;
 public class CrawlDBScanner extends Configured implements Tool,
     Mapper<Text,CrawlDatum,Text,CrawlDatum>, Reducer<Text,CrawlDatum,Text,CrawlDatum> {
 
-  public static final Log LOG = LogFactory.getLog(CrawlDBScanner.class);
+  public static final Logger LOG = LoggerFactory.getLogger(CrawlDBScanner.class);
 
   public CrawlDBScanner() {}
 
@@ -182,7 +182,7 @@ public class CrawlDBScanner extends Configured implements Tool,
       scan(dbDir, output, args[2], status, text);
       return 0;
     } catch (Exception e) {
-      LOG.fatal("CrawlDBScanner: " + StringUtils.stringifyException(e));
+      LOG.error("CrawlDBScanner: " + StringUtils.stringifyException(e));
       return -1;
     }
   }

@@ -22,8 +22,8 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
@@ -48,7 +48,7 @@ import org.apache.nutch.util.TimingUtil;
  * e.g. http://www.nutch.org/ \t nutch.score=10 \t nutch.fetchInterval=2592000 \t userType=open_source
  **/
 public class Injector extends Configured implements Tool {
-  public static final Log LOG = LogFactory.getLog(Injector.class);
+  public static final Logger LOG = LoggerFactory.getLogger(Injector.class);
   
   /** metadata key reserved for setting a custom score for a specific URL */
   public static String nutchScoreMDName = "nutch.score";
@@ -248,7 +248,7 @@ public class Injector extends Configured implements Tool {
       inject(new Path(args[0]), new Path(args[1]));
       return 0;
     } catch (Exception e) {
-      LOG.fatal("Injector: " + StringUtils.stringifyException(e));
+      LOG.error("Injector: " + StringUtils.stringifyException(e));
       return -1;
     }
   }

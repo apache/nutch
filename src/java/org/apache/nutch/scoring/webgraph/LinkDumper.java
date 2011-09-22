@@ -33,8 +33,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileSystem;
@@ -75,7 +75,7 @@ public class LinkDumper
   extends Configured
   implements Tool {
 
-  public static final Log LOG = LogFactory.getLog(LinkDumper.class);
+  public static final Logger LOG = LoggerFactory.getLogger(LinkDumper.class);
   public static final String DUMP_DIR = "linkdump";
 
   /**
@@ -454,7 +454,7 @@ public class LinkDumper
       return 0;
     }
     catch (Exception e) {
-      LOG.fatal("LinkDumper: " + StringUtils.stringifyException(e));
+      LOG.error("LinkDumper: " + StringUtils.stringifyException(e));
       return -2;
     }
   }

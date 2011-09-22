@@ -23,8 +23,8 @@ import java.util.*;
 import java.util.Map.Entry;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -54,7 +54,7 @@ import org.apache.nutch.util.TimingUtil;
  * @author Andrzej Bialecki
  */
 public class CrawlDbMerger extends Configured implements Tool {
-  private static final Log LOG = LogFactory.getLog(CrawlDbMerger.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CrawlDbMerger.class);
 
   public static class Merger extends MapReduceBase implements Reducer<Text, CrawlDatum, Text, CrawlDatum> {
     private org.apache.hadoop.io.MapWritable meta;
@@ -190,7 +190,7 @@ public class CrawlDbMerger extends Configured implements Tool {
       merge(output, dbs.toArray(new Path[dbs.size()]), normalize, filter);
       return 0;
     } catch (Exception e) {
-      LOG.fatal("CrawlDb merge: " + StringUtils.stringifyException(e));
+      LOG.error("CrawlDb merge: " + StringUtils.stringifyException(e));
       return -1;
     }
   }

@@ -34,8 +34,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FileStatus;
@@ -93,7 +93,7 @@ public class WebGraph
   extends Configured
   implements Tool {
 
-  public static final Log LOG = LogFactory.getLog(WebGraph.class);
+  public static final Logger LOG = LoggerFactory.getLogger(WebGraph.class);
   public static final String LOCK_NAME = ".locked";
   public static final String INLINK_DIR = "inlinks";
   public static final String OUTLINK_DIR = "outlinks";
@@ -663,7 +663,7 @@ public class WebGraph
       return 0;
     }
     catch (Exception e) {
-      LOG.fatal("WebGraph: " + StringUtils.stringifyException(e));
+      LOG.error("WebGraph: " + StringUtils.stringifyException(e));
       return -2;
     }
   }

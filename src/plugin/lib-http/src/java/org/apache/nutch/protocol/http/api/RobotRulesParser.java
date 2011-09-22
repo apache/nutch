@@ -29,8 +29,8 @@ import java.util.Hashtable;
 import java.util.StringTokenizer;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 // Nutch imports
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configurable;
@@ -52,7 +52,7 @@ import org.apache.nutch.protocol.RobotRules;
  */
 public class RobotRulesParser implements Configurable {
   
-  public static final Log LOG = LogFactory.getLog(RobotRulesParser.class);
+  public static final Logger LOG = LoggerFactory.getLogger(RobotRulesParser.class);
 
   private boolean allowForbidden = false;
 

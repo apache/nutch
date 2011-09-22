@@ -35,8 +35,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Hashtable;
 
@@ -52,7 +52,7 @@ import java.nio.charset.Charset;
 
 public class ExtParser implements Parser {
 
-  public static final Log LOG = LogFactory.getLog("org.apache.nutch.parse.ext");
+  public static final Logger LOG = LoggerFactory.getLogger("org.apache.nutch.parse.ext");
 
   static final int BUFFER_SIZE = 4096;
 

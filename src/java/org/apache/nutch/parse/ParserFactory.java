@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.Vector;
 
 // Commons Logging imports
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
@@ -43,7 +43,7 @@ import org.apache.nutch.util.ObjectCache;
 /** Creates and caches {@link Parser} plugins.*/
 public final class ParserFactory {
   
-  public static final Log LOG = LogFactory.getLog(ParserFactory.class);
+  public static final Logger LOG = LoggerFactory.getLogger(ParserFactory.class);
   
   /** Wildcard for default plugins. */
   public static final String DEFAULT_PLUGIN = "*";

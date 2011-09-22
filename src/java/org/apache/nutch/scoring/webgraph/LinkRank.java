@@ -34,8 +34,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -72,7 +72,7 @@ public class LinkRank
   extends Configured
   implements Tool {
 
-  public static final Log LOG = LogFactory.getLog(LinkRank.class);
+  public static final Logger LOG = LoggerFactory.getLogger(LinkRank.class);
   private static final String NUM_NODES = "_num_nodes_";
 
   /**
@@ -687,7 +687,7 @@ public class LinkRank
       return 0;
     }
     catch (Exception e) {
-      LOG.fatal("LinkAnalysis: " + StringUtils.stringifyException(e));
+      LOG.error("LinkAnalysis: " + StringUtils.stringifyException(e));
       return -2;
     }
   }

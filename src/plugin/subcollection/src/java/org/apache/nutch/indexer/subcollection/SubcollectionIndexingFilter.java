@@ -20,8 +20,8 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.Text;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.util.NutchConfiguration;
@@ -53,7 +53,7 @@ public class SubcollectionIndexingFilter extends Configured implements IndexingF
   /**
    * Logger
    */
-  public static final Log LOG = LogFactory.getLog(SubcollectionIndexingFilter.class);
+  public static final Logger LOG = LoggerFactory.getLogger(SubcollectionIndexingFilter.class);
 
   /**
    * "Mark" document to be a part of subcollection
