@@ -17,26 +17,29 @@
 
 package org.apache.nutch.crawl;
 
-import org.apache.nutch.storage.WebPage;
+import org.apache.hadoop.io.Text;
 
 /**
  * This class implements the default re-fetch schedule. That is, no matter
  * if the page was changed or not, the <code>fetchInterval</code> remains
  * unchanged, and the updated page fetchTime will always be set to
  * <code>fetchTime + fetchInterval * 1000</code>.
- *
+ * 
  * @author Andrzej Bialecki
  */
 public class DefaultFetchSchedule extends AbstractFetchSchedule {
 
   @Override
-  public void setFetchSchedule(String url, WebPage page,
+  public CrawlDatum setFetchSchedule(Text url, CrawlDatum datum,
           long prevFetchTime, long prevModifiedTime,
           long fetchTime, long modifiedTime, int state) {
-    super.setFetchSchedule(url, page, prevFetchTime, prevModifiedTime,
+    datum = super.setFetchSchedule(url, datum, prevFetchTime, prevModifiedTime,
         fetchTime, modifiedTime, state);
-    page.setFetchTime(fetchTime + page.getFetchInterval() * 1000L);
-    page.setModifiedTime(modifiedTime);
+    if (datum.getFetchInterval() == 0 ) {
+      datum.setFetchInterval(defaultInterval);
+    }
+    datum.setFetchTime(fetchTime + (long)datum.getFetchInterval() * 1000);
+    datum.setModifiedTime(modifiedTime);
+    return datum;
   }
-
 }

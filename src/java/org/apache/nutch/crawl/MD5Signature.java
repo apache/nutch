@@ -17,36 +17,22 @@
 
 package org.apache.nutch.crawl;
 
-import java.util.Collection;
-import java.util.HashSet;
-
 import org.apache.hadoop.io.MD5Hash;
-import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.parse.Parse;
+import org.apache.nutch.protocol.Content;
 
 /**
  * Default implementation of a page signature. It calculates an MD5 hash
  * of the raw binary content of a page. In case there is no content, it
  * calculates a hash from the page's URL.
- *
+ * 
  * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
 public class MD5Signature extends Signature {
 
-  private final static Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
-
-  static {
-    FIELDS.add(WebPage.Field.CONTENT);
-  }
-
-  @Override
-  public byte[] calculate(WebPage page) {
-    byte[] data = page.getContent().array();
-    if (data == null && page.getBaseUrl()!=null) data = page.getBaseUrl().getBytes();
+  public byte[] calculate(Content content, Parse parse) {
+    byte[] data = content.getContent();
+    if (data == null) data = content.getUrl().getBytes();
     return MD5Hash.digest(data).getDigest();
-  }
-
-  @Override
-  public Collection<WebPage.Field> getFields() {
-    return FIELDS;
   }
 }

@@ -22,8 +22,8 @@
    provider-name="nutch.org">
 
    <!-- this file hosts all extension points nutch core code offers. 
-   Please note that plugins can define extension points as well to be extendable.-->
-     
+   Please not that plugins can define extension points as well to be extendable.-->
+
 <extension-point
       id="org.apache.nutch.indexer.IndexingFilter"
       name="Nutch Indexing Filter"/>
@@ -33,8 +33,8 @@
       name="Nutch Content Parser"/>
  
 <extension-point
-      id="org.apache.nutch.parse.ParseFilter"
-      name="Parse Filter"/>
+      id="org.apache.nutch.parse.HtmlParseFilter"
+      name="HTML Parse Filter"/>
 
 <extension-point
       id="org.apache.nutch.protocol.Protocol"
@@ -51,5 +51,9 @@
 <extension-point
       id="org.apache.nutch.scoring.ScoringFilter"
       name="Nutch Scoring"/>
+
+<extension-point
+      id="org.apache.nutch.segment.SegmentMergeFilter"
+      name="Nutch Segment Merge Filter"/>
 
 </plugin>

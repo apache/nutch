@@ -79,10 +79,10 @@
                         <email>alexis@apache.org</email>
                 </developer>
 		<developer>
-			<id>lewismc</id>
-			<name>Lewis John McGibbney</name>
-			<email>lewismc@apache.org</email>
-		</developer>
+                        <id>lewismc</id>
+                        <name>Lewis John McGibbney</name>
+                        <email>lewismc@apache.org</email>
+                </developer>
 	</developers>
         <build>
           <sourceDirectory>src/java</sourceDirectory>

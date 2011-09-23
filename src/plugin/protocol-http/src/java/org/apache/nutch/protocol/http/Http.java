@@ -19,34 +19,31 @@ package org.apache.nutch.protocol.http;
 // JDK imports
 import java.io.IOException;
 import java.net.URL;
-import java.util.Collection;
-import java.util.HashSet;
 
+// Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+// Hadoop imports
 import org.apache.hadoop.conf.Configuration;
+
+// Nutch imports
+import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.http.api.HttpBase;
-import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
+
 
 public class Http extends HttpBase {
 
   public static final Logger LOG = LoggerFactory.getLogger(Http.class);
 
-  private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
-
-  static {
-    FIELDS.add(WebPage.Field.MODIFIED_TIME);
-    FIELDS.add(WebPage.Field.HEADERS);
-  }
 
   public Http() {
     super(LOG);
   }
 
-  @Override
   public void setConf(Configuration conf) {
     super.setConf(conf);
 //    Level logLevel = Level.WARNING;
@@ -62,14 +59,9 @@ public class Http extends HttpBase {
     main(http, args);
   }
 
-  @Override
-  protected Response getResponse(URL url, WebPage page, boolean redirect)
+  protected Response getResponse(URL url, CrawlDatum datum, boolean redirect)
     throws ProtocolException, IOException {
-    return new HttpResponse(this, url, page);
-  }
-
-  public Collection<WebPage.Field> getFields() {
-    return FIELDS;
+    return new HttpResponse(this, url, datum);
   }
 
 }

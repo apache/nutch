@@ -18,25 +18,30 @@
 package org.apache.nutch.protocol.ftp;
 
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.URL;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
+
 import org.apache.commons.net.ftp.parser.DefaultFTPFileEntryParserFactory;
 import org.apache.commons.net.ftp.parser.ParserInitializationException;
-import org.apache.hadoop.conf.Configuration;
+
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.protocol.Content;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
-import org.apache.nutch.protocol.Content;
-import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.LogUtil;
+
+import org.apache.hadoop.conf.Configuration;
+
+import java.net.InetAddress;
+import java.net.URL;
+
+import java.util.List;
+import java.util.LinkedList;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 
 /************************************
@@ -80,7 +85,7 @@ public class FtpResponse {
                        headers, this.conf);
   }
 
-  public FtpResponse(URL url, WebPage page, Ftp ftp, Configuration conf)
+  public FtpResponse(URL url, CrawlDatum datum, Ftp ftp, Configuration conf)
     throws FtpException, IOException {
 
     this.orig = url.toString();
@@ -254,9 +259,9 @@ public class FtpResponse {
       this.content = null;
 
       if (path.endsWith("/")) {
-        getDirAsHttpResponse(path, page.getModifiedTime());
+        getDirAsHttpResponse(path, datum.getModifiedTime());
       } else {
-        getFileAsHttpResponse(path, page.getModifiedTime());
+        getFileAsHttpResponse(path, datum.getModifiedTime());
       }
 
       // reset next renewalTime, take the lesser

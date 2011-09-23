@@ -259,12 +259,8 @@
       <zipfileset dir="${build.classes}"
                   excludes="nutch-default.xml,nutch-site.xml"/>
       <zipfileset dir="${conf.dir}" excludes="*.template,hadoop*.*"/>
-      <!-- need to exclude hsqldb.jar due to a conflicting version already
-           present in Hadoop/lib.
-      -->
       <zipfileset dir="${build.lib.dir}" prefix="lib"
-                  includes="**/*.jar"
-                  excludes="jasper*.jar,jsp-*.jar,hadoop-*.jar,hbase*test*.jar,ant*jar,hsqldb*.jar"/>
+                  includes="**/*.jar" excludes="hadoop-*.jar"/>
       <zipfileset dir="${build.plugins}" prefix="plugins"/>
     </jar>
   </target>
@@ -298,8 +294,7 @@
         <fileset dir="${runtime.local}/bin"/>
     </chmod>
     <copy todir="${runtime.local}/lib">
-      <fileset dir="${build.dir}/lib"
-        excludes="ant*.jar,jasper*.jar,jsp-*.jar,hadoop*test*.jar,hbase*test*.jar"/>
+      <fileset dir="${build.dir}/lib"/>
     </copy>
     <copy todir="${runtime.local}/plugins">
       <fileset dir="${build.dir}/plugins"/>
@@ -313,7 +308,7 @@
     <javac 
      encoding="${build.encoding}" 
      srcdir="${test.src.dir}"
-     includes="org/apache/nutch*/**/*.java"
+     includes="org/apache/nutch/**/*.java"
      destdir="${test.build.classes}"
      debug="${javac.debug}"
      optimize="${javac.optimize}"
@@ -360,30 +355,15 @@
 	<fail if="pmd.stop">FAILURE: PMD shows ${pmd.failures} rule violations. See ${pmd.report} for details.</fail>
   </target>
 
-  <target name="proxy" depends="job">
+  <target name="proxy" depends="job, compile-core-test">
     <java classname="org.apache.nutch.tools.proxy.TestbedProxy" fork="true">
       <classpath refid="test.classpath"/>
       <arg value="-fake"/>
-      <arg value="-hostMode"/>
-      <arg value="u"/>
-      <arg value="-pageMode"/>
-      <arg value="u"/>
-      <arg value="-debug"/>
 <!--
       <arg value="-delay"/>
       <arg value="-200"/>
 -->
       <jvmarg line="-Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
-    </java>
-  </target>
-
-  <target name="rundb">
-    <java classname="org.hsqldb.server.Server" fork="true">
-      <classpath refid="test.classpath"/>
-      <arg value="--database.0"/>
-      <arg value="file:data/benchmark"/>
-      <arg value="--dbname.0"/>
-      <arg value="nutchtest"/>
     </java>
   </target>
 
@@ -399,7 +379,6 @@
       <arg value="5"/>
     </java>
   </target>
-
 
   <!-- ================================================================== -->
   <!-- Run unit tests                                                     --> 
@@ -454,13 +433,13 @@
   <!-- ================================================================== -->
 
   <!-- target: resolve  ================================================= -->
-  <target name="resolve-default" depends="clean-lib, init" description="--> resolve and retrieve dependencies with ivy">
+  <target name="resolve-default" depends="clean-lib" description="--> resolve and retrieve dependencies with ivy">
     <ivy:resolve file="${ivy.file}" conf="default" log="download-only"/>
     <ivy:retrieve pattern="${build.lib.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
     <antcall target="copy-libs"/>
   </target>
 
-  <target name="resolve-test" depends="clean-lib, init" description="--> resolve and retrieve dependencies with ivy">
+  <target name="resolve-test" depends="clean-lib" description="--> resolve and retrieve dependencies with ivy">
     <ivy:resolve file="${ivy.file}" conf="test" log="download-only"/>
     <ivy:retrieve pattern="${build.lib.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
     <antcall target="copy-libs"/>

@@ -16,12 +16,18 @@
  */
 package org.apache.nutch.indexer;
 
-import junit.framework.TestCase;
-
-import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.storage.WebPage;
+import org.apache.hadoop.io.Text;
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.Inlinks;
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.parse.Outlink;
+import org.apache.nutch.parse.ParseData;
+import org.apache.nutch.parse.ParseImpl;
+import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.util.NutchConfiguration;
+
+import junit.framework.TestCase;
 
 public class TestIndexingFilters extends TestCase {
 
@@ -36,13 +42,9 @@ public class TestIndexingFilters extends TestCase {
     conf.set(IndexingFilters.INDEXINGFILTER_ORDER, class1 + " " + class2);
 
     IndexingFilters filters = new IndexingFilters(conf);
-//    filters.filter(new NutchDocument(), new ParseImpl("text", new ParseData(
-//        new ParseStatus(), "title", new Outlink[0], new Metadata())), new Text(
-//        "http://www.example.com/"), new CrawlDatum(), new Inlinks());
-    WebPage page = new WebPage();
-    page.setText(new Utf8("text"));
-    page.setTitle(new Utf8("title"));
-    filters.filter(new NutchDocument(),"http://www.example.com/",page);
+    filters.filter(new NutchDocument(), new ParseImpl("text", new ParseData(
+        new ParseStatus(), "title", new Outlink[0], new Metadata())), new Text(
+        "http://www.example.com/"), new CrawlDatum(), new Inlinks());
   }
 
 }

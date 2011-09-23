@@ -18,38 +18,40 @@ package org.apache.nutch.indexer;
 
 import java.io.IOException;
 
-import org.apache.hadoop.mapreduce.RecordWriter;
-import org.apache.hadoop.mapreduce.TaskAttemptContext;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.FileOutputFormat;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.RecordWriter;
+import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.util.Progressable;
 
-public class IndexerOutputFormat
-extends FileOutputFormat<String, NutchDocument> {
+public class IndexerOutputFormat extends FileOutputFormat<Text, NutchDocument> {
 
   @Override
-  public RecordWriter<String, NutchDocument> getRecordWriter(
-      TaskAttemptContext job) throws IOException, InterruptedException {
-
+  public RecordWriter<Text, NutchDocument> getRecordWriter(FileSystem ignored,
+      JobConf job, String name, Progressable progress) throws IOException {
+    
+    // populate JobConf with field indexing options
+    IndexingFilters filters = new IndexingFilters(job);
+    
     final NutchIndexWriter[] writers =
-      NutchIndexWriterFactory.getNutchIndexWriters(job.getConfiguration());
+      NutchIndexWriterFactory.getNutchIndexWriters(job);
 
     for (final NutchIndexWriter writer : writers) {
-      writer.open(job, FileOutputFormat.getUniqueFile(job, "part", ""));
+      writer.open(job, name);
     }
+    return new RecordWriter<Text, NutchDocument>() {
 
-    return new RecordWriter<String, NutchDocument>() {
-
-      @Override
-      public void write(String key, NutchDocument doc) throws IOException {
+      public void close(Reporter reporter) throws IOException {
         for (final NutchIndexWriter writer : writers) {
-          writer.write(doc);
+          writer.close();
         }
       }
 
-      @Override
-      public void close(TaskAttemptContext context) throws IOException,
-      InterruptedException {
+      public void write(Text key, NutchDocument doc) throws IOException {
         for (final NutchIndexWriter writer : writers) {
-          writer.close();
+          writer.write(doc);
         }
       }
     };

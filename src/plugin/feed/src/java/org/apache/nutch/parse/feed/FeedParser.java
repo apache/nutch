@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.util.StringUtils;
+// import org.apache.nutch.indexer.anchor.AnchorIndexingFilter; removed as per NUTCH-1078
 import org.apache.nutch.metadata.Feed;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.URLFilters;
@@ -78,8 +79,7 @@ public class FeedParser implements Parser {
   public static final String TEXT_PLAIN_CONTENT_TYPE = "text/plain; "
       + CHARSET_UTF8;
 
-  public static final Logger LOG = LoggerFactory
-      .getLogger("org.apache.nutch.parse.feed");
+  public static final Logger LOG = LoggerFactory.getLogger(FeedParser.class);
 
   private Configuration conf;
 

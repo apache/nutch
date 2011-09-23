@@ -18,9 +18,7 @@
 package org.apache.nutch.indexer.feed;
 
 //JDK imports
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.TimeZone;
 
 //APACHE imports
 import org.apache.hadoop.conf.Configuration;
@@ -34,7 +32,6 @@ import org.apache.nutch.metadata.Feed;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
-import org.apache.solr.common.util.DateUtil;
 
 /**
  * @author dogacan
@@ -99,14 +96,12 @@ public class FeedIndexingFilter implements IndexingFilter {
     
     if (published != null) {
       Date date = new Date(Long.parseLong(published));
-      String dateString =  DateUtil.getThreadLocalDateFormat().format(date);
-      doc.add(PUBLISHED_DATE, dateString);
+      doc.add(PUBLISHED_DATE, date);
     }
     
     if (updated != null) {
       Date date = new Date(Long.parseLong(updated));
-      String dateString = DateUtil.getThreadLocalDateFormat().format(date);
-      doc.add(UPDATED_DATE, dateString);
+      doc.add(UPDATED_DATE, date);
     }
         
     return doc;

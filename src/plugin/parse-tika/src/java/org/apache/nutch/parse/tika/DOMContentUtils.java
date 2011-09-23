@@ -37,7 +37,9 @@ import org.w3c.dom.NodeList;
  * DOM nodes, such as getOutlinks, getText, etc.
  *
  */
-public class DOMContentUtils {
+class DOMContentUtils {
+
+  private boolean fixEmbeddedParams;
 
   private static class LinkParams {
 	private String elName;
@@ -58,11 +60,11 @@ public class DOMContentUtils {
   private HashMap linkParams = new HashMap();
   private Configuration conf;
   
-  public DOMContentUtils(Configuration conf) {
+  DOMContentUtils(Configuration conf) {
     setConf(conf);
   }
   
-  public void setConf(Configuration conf) {
+  private void setConf(Configuration conf) {
     // forceTags is used to override configurable tag ignoring, later on
     Collection<String> forceTags = new ArrayList<String>(1);
 
@@ -87,6 +89,9 @@ public class DOMContentUtils {
       if ( ! forceTags.contains(ignoreTags[i]) )
         linkParams.remove(ignoreTags[i]);
     }
+
+    // https://issues.apache.org/jira/browse/NUTCH-1115
+    fixEmbeddedParams = conf.getBoolean("parser.fix.embeddedparams", true);
   }
   
   /**
@@ -118,7 +123,7 @@ public class DOMContentUtils {
    * #getText(StringBuffer,Node,boolean) getText(sb, node, false)}.
    * 
    */
-  public void getText(StringBuffer sb, Node node) {
+  void getText(StringBuffer sb, Node node) {
     getText(sb, node, false);
   }
 
@@ -174,7 +179,7 @@ public class DOMContentUtils {
    *
    * @return true if a title node was found, false otherwise
    */
-  public boolean getTitle(StringBuffer sb, Node node) {
+  boolean getTitle(StringBuffer sb, Node node) {
     
     NodeWalker walker = new NodeWalker(node);
     
@@ -318,10 +323,10 @@ public class DOMContentUtils {
    */
   private URL fixEmbeddedParams(URL base, String target) 
     throws MalformedURLException{
-    
+
     // the target contains params information or the base doesn't then no
     // conversion necessary, return regular URL
-    if (target.indexOf(';') >= 0 || base.toString().indexOf(';') == -1) {
+    if (!fixEmbeddedParams || target.indexOf(';') >= 0 || base.toString().indexOf(';') == -1) {
       return new URL(base, target);
     }
     
@@ -340,7 +345,7 @@ public class DOMContentUtils {
     else {
       target += params;
     }
-    
+
     return new URL(base, target);
   }
 
@@ -358,7 +363,7 @@ public class DOMContentUtils {
    * nodes (this is a common DOM-fixup artifact, at least with
    * nekohtml).
    */
-  public void getOutlinks(URL base, ArrayList outlinks, 
+  void getOutlinks(URL base, ArrayList outlinks, 
                                        Node node) {
     
     NodeWalker walker = new NodeWalker(node);

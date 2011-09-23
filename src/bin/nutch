@@ -14,7 +14,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-#
+# 
 # The Nutch command script
 #
 # Environment Variables
@@ -47,23 +47,38 @@ done
 if [ $# = 0 ]; then
   echo "Usage: nutch [-core] COMMAND"
   echo "where COMMAND is one of:"
-# echo " crawl one-step crawler for intranets"
-  echo " inject inject new urls into the database"
-  echo " generate generate new segments to fetch from crawl db"
-  echo " fetch fetch URLs marked during generate"
-  echo " parse parse URLs marked during fetch"
-  echo " updatedb update web table after parsing"
-  echo " readdb read/dump records from page database"
-  echo " solrindex run the solr indexer on parsed segments and linkdb"
-  echo " solrdedup remove duplicates from solr"
-  echo " plugin load a plugin and run one of its classes main()"
+  echo "  crawl             one-step crawler for intranets"
+  echo "  readdb            read / dump crawl db"
+  echo "  mergedb           merge crawldb-s, with optional filtering"
+  echo "  readlinkdb        read / dump link db"
+  echo "  inject            inject new urls into the database"
+  echo "  generate          generate new segments to fetch from crawl db"
+  echo "  freegen           generate new segments to fetch from text files"
+  echo "  fetch             fetch a segment's pages"
+  echo "  parse             parse a segment's pages"
+  echo "  readseg           read / dump segment data"
+  echo "  mergesegs         merge several segments, with optional filtering and slicing"
+  echo "  updatedb          update crawl db from segments after fetching"
+  echo "  invertlinks       create a linkdb from parsed segments"
+  echo "  mergelinkdb       merge linkdb-s, with optional filtering"
+  echo "  solrindex         run the solr indexer on parsed segments and linkdb"
+  echo "  solrdedup         remove duplicates from solr"
+  echo "  solrclean         remove HTTP 301 and 404 documents from solr"
+  echo "  parsechecker      check the parser for a given url"
+  echo "  indexchecker      check the indexing filters for a given url"
+  echo "  domainstats       calculate domain statistics from crawldb"
+  echo "  webgraph          generate a web graph from existing segments"
+  echo "  linkrank          run a link analysis program on the generated web graph"
+  echo "  scoreupdater      updates the crawldb with linkrank scores"
+  echo "  nodedumper        dumps the web graph's node scores"
+  echo "  plugin            load a plugin and run one of its classes main()"
   echo " or"
-  echo " CLASSNAME run the class named CLASSNAME"
+  echo "  CLASSNAME         run the class named CLASSNAME"
   echo "Most commands print help when invoked w/o parameters."
   echo ""
   echo "Expert: -core option is for developers only. It avoids building the job jar, "
-  echo " instead it simply includes classes compiled with ant compile-core. "
-  echo " NOTE: this works only for jobs executed in 'local' mode"
+  echo "        instead it simply includes classes compiled with ant compile-core. "
+  echo "        NOTE: this works only for jobs executed in 'local' mode"
   exit 1
 fi
 
@@ -86,6 +101,7 @@ if [ "$JAVA_HOME" = "" ]; then
   exit 1
 fi
 
+local=true
 
 # NUTCH_JOB 
 if [ -f ${NUTCH_HOME}/nutch-*.job ]; then
@@ -93,8 +109,6 @@ if [ -f ${NUTCH_HOME}/nutch-*.job ]; then
   for f in $NUTCH_HOME/nutch-*.job; do
     NUTCH_JOB=$f;
   done
-else
-  local=true
 fi
 
 # cygwin path translation
@@ -180,33 +194,63 @@ fi
 
 # figure out which class to run
 if [ "$COMMAND" = "crawl" ] ; then
-CLASS=org.apache.nutch.crawl.Crawler
+  CLASS=org.apache.nutch.crawl.Crawl
 elif [ "$COMMAND" = "inject" ] ; then
-CLASS=org.apache.nutch.crawl.InjectorJob
+  CLASS=org.apache.nutch.crawl.Injector
 elif [ "$COMMAND" = "generate" ] ; then
-CLASS=org.apache.nutch.crawl.GeneratorJob
+  CLASS=org.apache.nutch.crawl.Generator
+elif [ "$COMMAND" = "freegen" ] ; then
+  CLASS=org.apache.nutch.tools.FreeGenerator
 elif [ "$COMMAND" = "fetch" ] ; then
-CLASS=org.apache.nutch.fetcher.FetcherJob
+  CLASS=org.apache.nutch.fetcher.Fetcher
 elif [ "$COMMAND" = "parse" ] ; then
-CLASS=org.apache.nutch.parse.ParserJob
-elif [ "$COMMAND" = "updatedb" ] ; then
-CLASS=org.apache.nutch.crawl.DbUpdaterJob
+  CLASS=org.apache.nutch.parse.ParseSegment
 elif [ "$COMMAND" = "readdb" ] ; then
-CLASS=org.apache.nutch.crawl.WebTableReader
+  CLASS=org.apache.nutch.crawl.CrawlDbReader
+elif [ "$COMMAND" = "mergedb" ] ; then
+  CLASS=org.apache.nutch.crawl.CrawlDbMerger
+elif [ "$COMMAND" = "readlinkdb" ] ; then
+  CLASS=org.apache.nutch.crawl.LinkDbReader
+elif [ "$COMMAND" = "readseg" ] ; then
+  CLASS=org.apache.nutch.segment.SegmentReader
+elif [ "$COMMAND" = "mergesegs" ] ; then
+  CLASS=org.apache.nutch.segment.SegmentMerger
+elif [ "$COMMAND" = "updatedb" ] ; then
+  CLASS=org.apache.nutch.crawl.CrawlDb
+elif [ "$COMMAND" = "invertlinks" ] ; then
+  CLASS=org.apache.nutch.crawl.LinkDb
+elif [ "$COMMAND" = "mergelinkdb" ] ; then
+  CLASS=org.apache.nutch.crawl.LinkDbMerger
 elif [ "$COMMAND" = "solrindex" ] ; then
-CLASS=org.apache.nutch.indexer.solr.SolrIndexerJob
+  CLASS=org.apache.nutch.indexer.solr.SolrIndexer
 elif [ "$COMMAND" = "solrdedup" ] ; then
-CLASS=org.apache.nutch.indexer.solr.SolrDeleteDuplicates
+  CLASS=org.apache.nutch.indexer.solr.SolrDeleteDuplicates
+elif [ "$COMMAND" = "solrclean" ] ; then
+  CLASS=org.apache.nutch.indexer.solr.SolrClean
+elif [ "$COMMAND" = "parsechecker" ] ; then
+  CLASS=org.apache.nutch.parse.ParserChecker
+elif [ "$COMMAND" = "indexchecker" ] ; then
+  CLASS=org.apache.nutch.indexer.IndexingFiltersChecker
+elif [ "$COMMAND" = "domainstats" ] ; then 
+  CLASS=org.apache.nutch.util.domain.DomainStatistics
+elif [ "$COMMAND" = "webgraph" ] ; then
+  CLASS=org.apache.nutch.scoring.webgraph.WebGraph
+elif [ "$COMMAND" = "linkrank" ] ; then
+  CLASS=org.apache.nutch.scoring.webgraph.LinkRank
+elif [ "$COMMAND" = "scoreupdater" ] ; then
+  CLASS=org.apache.nutch.scoring.webgraph.ScoreUpdater
+elif [ "$COMMAND" = "nodedumper" ] ; then
+  CLASS=org.apache.nutch.scoring.webgraph.NodeDumper
 elif [ "$COMMAND" = "plugin" ] ; then
-CLASS=org.apache.nutch.plugin.PluginRepository
+  CLASS=org.apache.nutch.plugin.PluginRepository
 else
-CLASS=$COMMAND
+  CLASS=$COMMAND
 fi
 
+# distributed mode
+EXEC_CALL="hadoop jar $NUTCH_JOB"
 
 if $local; then
- # fix for the external Xerces lib issue with SAXParserFactory
- NUTCH_OPTS="-Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl $NUTCH_OPTS"
  EXEC_CALL="$JAVA $JAVA_HEAP_MAX $NUTCH_OPTS -classpath $CLASSPATH"
 else
  # check that hadoop can be found on the path
@@ -214,8 +258,6 @@ else
     echo "Can't find Hadoop executable. Add HADOOP_HOME/bin to the path or run in local mode."
     exit -1;
  fi
- # distributed mode
- EXEC_CALL="hadoop jar $NUTCH_JOB"
 fi
 
 # run it

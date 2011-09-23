@@ -188,7 +188,7 @@ public class HTMLMetaTags {
             + ", refreshHref=" + refreshHref + "\n"
             );
     sb.append(" * general tags:\n");
-    Iterator<?> it = generalTags.keySet().iterator();
+    Iterator it = generalTags.keySet().iterator();
     while (it.hasNext()) {
       String key = (String)it.next();
       sb.append("   - " + key + "\t=\t" + generalTags.get(key) + "\n");

@@ -239,19 +239,19 @@ public class DmozParser {
     public void error(SAXParseException spe) {
       if (LOG.isErrorEnabled()) {
         LOG.error("Error: " + spe.toString() + ": " + spe.getMessage());
-        spe.printStackTrace(LogUtil.getFatalStream(LOG));
+        spe.printStackTrace(LogUtil.getErrorStream(LOG));
       }
     }
 
     /**
      * Emit the exception message, with line numbers
      */
-    public void fatalError(SAXParseException spe) {
+    public void errorError(SAXParseException spe) {
       if (LOG.isErrorEnabled()) {
         LOG.error("Fatal err: " + spe.toString() + ": " + spe.getMessage());
         LOG.error("Last known line is " + location.getLineNumber() +
                   ", column " + location.getColumnNumber());
-        spe.printStackTrace(LogUtil.getFatalStream(LOG));
+        spe.printStackTrace(LogUtil.getErrorStream(LOG));
       }
     }
         
@@ -301,7 +301,7 @@ public class DmozParser {
     } catch (Exception e) {
       if (LOG.isErrorEnabled()) {
         LOG.error(e.toString());
-        e.printStackTrace(LogUtil.getFatalStream(LOG));
+        e.printStackTrace(LogUtil.getErrorStream(LOG));
       }
       System.exit(0);
     } finally {
@@ -323,7 +323,7 @@ public class DmozParser {
     catch (Exception e) {
       if (LOG.isErrorEnabled()) {
         LOG.error(e.toString());
-        e.printStackTrace(LogUtil.getFatalStream(LOG));
+        e.printStackTrace(LogUtil.getErrorStream(LOG));
       }
       System.exit(0);
     } finally {

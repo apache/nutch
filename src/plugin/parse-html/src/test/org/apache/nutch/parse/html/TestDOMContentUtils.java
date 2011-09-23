@@ -148,6 +148,12 @@ public class TestDOMContentUtils extends TestCase {
         + "<a href=\"?y=1#s\">anchor4</a>"
         + "<a href=\"?y=1;somethingelse\">anchor5</a>"
         + "</body></html>"), 
+    new String("<html><head><title> title </title>"
+        + "</head><body>"
+        + "<a href=\"g\"><!--no anchor--></a>"
+        + "<a href=\"g1\"> <!--whitespace-->  </a>"
+        + "<a href=\"g2\">  <img src=test.gif alt='bla bla'> </a>"
+        + "</body></html>"), 
   };
   
   private static int SKIP = 9;
@@ -164,7 +170,8 @@ public class TestDOMContentUtils extends TestCase {
     "http://www.nutch.org/",
     "http://www.nutch.org/",
     "http://www.nutch.org/",
-    "http://www.nutch.org/;something"
+    "http://www.nutch.org/;something",
+    "http://www.nutch.org/"
   };
     
   private static final DocumentFragment testDOMs[]=
@@ -191,7 +198,8 @@ public class TestDOMContentUtils extends TestCase {
     "test1 test2",
     "test1 test2",
     "title anchor1 anchor2 anchor3",
-    "title anchor1 anchor2 anchor3 anchor4 anchor5"
+    "title anchor1 anchor2 anchor3 anchor4 anchor5",
+    "title"
   };
 
   private static final String[] answerTitle= {
@@ -205,6 +213,7 @@ public class TestDOMContentUtils extends TestCase {
     "",
     "",
     "",
+    "title",
     "title",
     "title"
   };
@@ -239,63 +248,69 @@ public class TestDOMContentUtils extends TestCase {
       testDOMs[i]= node;
     }
     try {
-    answerOutlinks = new Outlink[][]{ 
-        {
-          new Outlink("http://www.nutch.org", "anchor"),
-        },
-        {
-          new Outlink("http://www.nutch.org/", "home"),
-          new Outlink("http://www.nutch.org/docs/bot.html", "bots"),
-        },
-        {
-          new Outlink("http://www.nutch.org/", "separate this"),
-          new Outlink("http://www.nutch.org/docs/ok", "from this"),
-        },
-        {
-          new Outlink("http://www.nutch.org/", "home"),
-          new Outlink("http://www.nutch.org/docs/1", "1"),
-          new Outlink("http://www.nutch.org/docs/2", "2"),
-        },
-        {
-          new Outlink("http://www.nutch.org/frames/top.html", ""),
-          new Outlink("http://www.nutch.org/frames/left.html", ""),
-          new Outlink("http://www.nutch.org/frames/invalid.html", ""),
-          new Outlink("http://www.nutch.org/frames/right.html", ""),
-        },
-        {
-          new Outlink("http://www.nutch.org/maps/logo.gif", ""),
-          new Outlink("http://www.nutch.org/index.html", ""),
-          new Outlink("http://www.nutch.org/maps/#bottom", ""),
-          new Outlink("http://www.nutch.org/bot.html", ""),
-          new Outlink("http://www.nutch.org/docs/index.html", ""),
-        },
-        {
-          new Outlink("http://www.nutch.org/index.html", "whitespace test"),
-        },
-        {
-        },
-        {
-          new Outlink("http://www.nutch.org/dummy.jsp", "test2"),
-        },
-        {
-        },
-        {
-          new Outlink("http://www.nutch.org/;x", "anchor1"),
-          new Outlink("http://www.nutch.org/g;x", "anchor2"),
-          new Outlink("http://www.nutch.org/g;x?y#s", "anchor3")
-        },
-        {
-          new Outlink("http://www.nutch.org/g;something", "anchor1"),
-          new Outlink("http://www.nutch.org/g;something?y#s", "anchor2"),
-          new Outlink("http://www.nutch.org/;something?y=1", "anchor3"),
-          new Outlink("http://www.nutch.org/;something?y=1#s", "anchor4"),
-          new Outlink("http://www.nutch.org/?y=1;somethingelse", "anchor5")
-        }
-    };
-
+     answerOutlinks = new Outlink[][]{ 
+         {
+           new Outlink("http://www.nutch.org", "anchor"),
+         },
+         {
+           new Outlink("http://www.nutch.org/", "home"),
+           new Outlink("http://www.nutch.org/docs/bot.html", "bots"),
+         },
+         {
+           new Outlink("http://www.nutch.org/", "separate this"),
+           new Outlink("http://www.nutch.org/docs/ok", "from this"),
+         },
+         {
+           new Outlink("http://www.nutch.org/", "home"),
+           new Outlink("http://www.nutch.org/docs/1", "1"),
+           new Outlink("http://www.nutch.org/docs/2", "2"),
+         },
+         {
+           new Outlink("http://www.nutch.org/frames/top.html", ""),
+           new Outlink("http://www.nutch.org/frames/left.html", ""),
+           new Outlink("http://www.nutch.org/frames/invalid.html", ""),
+           new Outlink("http://www.nutch.org/frames/right.html", ""),
+         },
+         {
+           new Outlink("http://www.nutch.org/maps/logo.gif", ""),
+           new Outlink("http://www.nutch.org/index.html", ""),
+           new Outlink("http://www.nutch.org/maps/#bottom", ""),
+           new Outlink("http://www.nutch.org/bot.html", ""),
+           new Outlink("http://www.nutch.org/docs/index.html", ""),
+         },
+         {
+             new Outlink("http://www.nutch.org/index.html", "whitespace test"),
+         },
+         {
+         },
+         {
+           new Outlink("http://www.nutch.org/dummy.jsp", "test2"),
+         },
+         {
+         },
+         {
+           new Outlink("http://www.nutch.org/;x", "anchor1"),
+           new Outlink("http://www.nutch.org/g;x", "anchor2"),
+           new Outlink("http://www.nutch.org/g;x?y#s", "anchor3")
+         },
+         {
+           new Outlink("http://www.nutch.org/g;something", "anchor1"),
+           new Outlink("http://www.nutch.org/g;something?y#s", "anchor2"),
+           new Outlink("http://www.nutch.org/;something?y=1", "anchor3"),
+           new Outlink("http://www.nutch.org/;something?y=1#s", "anchor4"),
+           new Outlink("http://www.nutch.org/?y=1;somethingelse", "anchor5")
+         },
+         {
+           new Outlink("http://www.nutch.org/g", ""),
+           new Outlink("http://www.nutch.org/g1", ""),
+           new Outlink("http://www.nutch.org/g2", "bla bla"),
+           new Outlink("http://www.nutch.org/test.gif", "bla bla"),
+         }
+      };
+   
     } catch (MalformedURLException e) {
         
-  }
+    }
   }
 
   private static boolean equalsIgnoreWhitespace(String s1, String s2) {
@@ -317,7 +332,7 @@ public class TestDOMContentUtils extends TestCase {
     if (testDOMs[0] == null) 
       setup();
     for (int i= 0; i < testPages.length; i++) {
-      StringBuilder sb= new StringBuilder();
+      StringBuffer sb= new StringBuffer();
       utils.getText(sb, testDOMs[i]);
       String text= sb.toString();
       assertTrue("expecting text: " + answerText[i] 
@@ -332,7 +347,7 @@ public class TestDOMContentUtils extends TestCase {
     if (testDOMs[0] == null) 
       setup();
     for (int i= 0; i < testPages.length; i++) {
-      StringBuilder sb= new StringBuilder();
+      StringBuffer sb= new StringBuffer();
       utils.getTitle(sb, testDOMs[i]);
       String text= sb.toString();
       assertTrue("expecting text: " + answerText[i] 
@@ -347,7 +362,7 @@ public class TestDOMContentUtils extends TestCase {
     if (testDOMs[0] == null) 
       setup();
     for (int i= 0; i < testPages.length; i++) {
-      ArrayList<Outlink> outlinks= new ArrayList<Outlink>();
+      ArrayList outlinks= new ArrayList();
       if (i == SKIP) {
         conf.setBoolean("parser.html.form.use_action", false);
         utils.setConf(conf);
@@ -357,7 +372,7 @@ public class TestDOMContentUtils extends TestCase {
       }
       utils.getOutlinks(testBaseHrefURLs[i], outlinks, testDOMs[i]);
       Outlink[] outlinkArr= new Outlink[outlinks.size()];
-      outlinkArr= outlinks.toArray(outlinkArr);
+      outlinkArr= (Outlink[]) outlinks.toArray(outlinkArr);
       compareOutlinks(answerOutlinks[i], outlinkArr);
     }
   }

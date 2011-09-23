@@ -33,7 +33,7 @@
 
    <extension id="org.creativecommons.nutch.CCParseFilter"
               name="Creative Commons Metadata Filter"
-              point="org.apache.nutch.parse.ParseFilter">
+              point="org.apache.nutch.parse.HtmlParseFilter">
       <implementation id="CCParseFilter"
                       class="org.creativecommons.nutch.CCParseFilter"/>
    </extension>

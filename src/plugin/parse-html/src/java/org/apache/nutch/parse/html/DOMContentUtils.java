@@ -22,6 +22,7 @@ import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Stack;
 
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.util.NodeWalker;
@@ -37,6 +38,8 @@ import org.w3c.dom.*;
  *
  */
 public class DOMContentUtils {
+
+  private boolean fixEmbeddedParams;
 
   public static class LinkParams {
     public String elName;
@@ -54,7 +57,8 @@ public class DOMContentUtils {
       }
   }
   
-  private HashMap<String, LinkParams> linkParams = new HashMap<String, LinkParams>();
+  private HashMap linkParams = new HashMap();
+  private Configuration conf;
   
   public DOMContentUtils(Configuration conf) {
     setConf(conf);
@@ -64,6 +68,7 @@ public class DOMContentUtils {
     // forceTags is used to override configurable tag ignoring, later on
     Collection<String> forceTags = new ArrayList<String>(1);
 
+    this.conf = conf;
     linkParams.clear();
     linkParams.put("a", new LinkParams("a", "href", 1));
     linkParams.put("area", new LinkParams("area", "href", 0));
@@ -84,12 +89,15 @@ public class DOMContentUtils {
       if ( ! forceTags.contains(ignoreTags[i]) )
         linkParams.remove(ignoreTags[i]);
     }
+
+    // https://issues.apache.org/jira/browse/NUTCH-1115
+    fixEmbeddedParams = conf.getBoolean("parser.fix.embeddedparams", true);
   }
   
   /**
-   * This method takes a {@link StringBuilder} and a DOM {@link Node},
+   * This method takes a {@link StringBuffer} and a DOM {@link Node},
    * and will append all the content text found beneath the DOM node to 
-   * the <code>StringBuilder</code>.
+   * the <code>StringBuffer</code>.
    *
    * <p>
    *
@@ -101,7 +109,7 @@ public class DOMContentUtils {
    *
    * @return true if nested anchors were found
    */
-  public boolean getText(StringBuilder sb, Node node, 
+  public boolean getText(StringBuffer sb, Node node, 
                                       boolean abortOnNestedAnchors) {
     if (getTextHelper(sb, node, abortOnNestedAnchors, 0)) {
       return true;
@@ -115,13 +123,13 @@ public class DOMContentUtils {
    * #getText(StringBuffer,Node,boolean) getText(sb, node, false)}.
    * 
    */
-  public void getText(StringBuilder sb, Node node) {
+  public void getText(StringBuffer sb, Node node) {
     getText(sb, node, false);
   }
 
   // returns true if abortOnNestedAnchors is true and we find nested 
   // anchors
-  private boolean getTextHelper(StringBuilder sb, Node node, 
+  private boolean getTextHelper(StringBuffer sb, Node node, 
                                              boolean abortOnNestedAnchors,
                                              int anchorDepth) {
     boolean abort = false;
@@ -171,7 +179,7 @@ public class DOMContentUtils {
    *
    * @return true if a title node was found, false otherwise
    */
-  public boolean getTitle(StringBuilder sb, Node node) {
+  public boolean getTitle(StringBuffer sb, Node node) {
     
     NodeWalker walker = new NodeWalker(node);
     
@@ -318,7 +326,7 @@ public class DOMContentUtils {
     
     // the target contains params information or the base doesn't then no
     // conversion necessary, return regular URL
-    if (target.indexOf(';') >= 0 || base.toString().indexOf(';') == -1) {
+    if (!fixEmbeddedParams || target.indexOf(';') >= 0 || base.toString().indexOf(';') == -1) {
       return new URL(base, target);
     }
     
@@ -355,7 +363,7 @@ public class DOMContentUtils {
    * nodes (this is a common DOM-fixup artifact, at least with
    * nekohtml).
    */
-  public void getOutlinks(URL base, ArrayList<Outlink> outlinks, 
+  public void getOutlinks(URL base, ArrayList outlinks, 
                                        Node node) {
     
     NodeWalker walker = new NodeWalker(node);
@@ -370,12 +378,41 @@ public class DOMContentUtils {
       if (nodeType == Node.ELEMENT_NODE) {
         
         nodeName = nodeName.toLowerCase();
-        LinkParams params = linkParams.get(nodeName);
+        LinkParams params = (LinkParams)linkParams.get(nodeName);
         if (params != null) {
           if (!shouldThrowAwayLink(currentNode, children, childLen, params)) {
   
-            StringBuilder linkText = new StringBuilder();
+            StringBuffer linkText = new StringBuffer();
             getText(linkText, currentNode, true);
+            if (linkText.toString().trim().length() == 0) {
+              // try harder - use img alt if present
+              NodeWalker subWalker = new NodeWalker(currentNode);
+              while (subWalker.hasNext()) {
+                Node subNode = subWalker.nextNode();
+                if (subNode.getNodeType() == Node.ELEMENT_NODE) {
+                  if (subNode.getNodeName().toLowerCase().equals("img")) {
+                    NamedNodeMap subAttrs = subNode.getAttributes();
+                    Node alt = subAttrs.getNamedItem("alt");
+                    if (alt != null) {
+                      String altTxt = alt.getTextContent();
+                      if (altTxt != null && altTxt.trim().length() > 0) {
+                        if (linkText.length() > 0) linkText.append(' ');
+                        linkText.append(altTxt);
+                      }
+                    }
+                  } else {
+                    // ignore other types of elements
+                    
+                  } 
+                } else if (subNode.getNodeType() == Node.TEXT_NODE) {
+                  String txt = subNode.getTextContent();
+                  if (txt != null && txt.length() > 0) {
+                    if (linkText.length() > 0) linkText.append(' ');
+                    linkText.append(txt);
+                  }                  
+                }
+              }
+            }
   
             NamedNodeMap attrs = currentNode.getAttributes();
             String target = null;

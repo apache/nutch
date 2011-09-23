@@ -18,27 +18,30 @@
 package org.apache.nutch.protocol.file;
 
 // Hadoop imports
-import junit.framework.TestCase;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
+
+// Nutch imports
+import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolFactory;
-import org.apache.nutch.protocol.ProtocolNotFound;
 import org.apache.nutch.protocol.ProtocolOutput;
-import org.apache.nutch.protocol.ProtocolStatusCodes;
-import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.util.NutchConfiguration;
+
+// Junit imports
+import junit.framework.TestCase;
 
 /**
  * @author mattmann
  * @version $Revision$
  * 
- * <p>
- * Unit tests for the {@link File}Protocol.
- * </p>.
+ *          <p>
+ *          Unit tests for the {@link File}Protocol.
+ *          </p>
+ *          .
  */
 public class TestProtocolFile extends TestCase {
 
@@ -48,10 +51,12 @@ public class TestProtocolFile extends TestCase {
   private static final String[] testTextFiles = new String[] {
       "testprotocolfile.txt", "testprotocolfile_(encoded).txt", "testprotocolfile_%28encoded%29.txt" };
 
+  private static final CrawlDatum datum = new CrawlDatum();
+
   private static final String expectedMimeType = "text/plain";
-  
+
   private Configuration conf;
-  
+
   protected void setUp() {
     conf = NutchConfiguration.create();
   }
@@ -61,33 +66,30 @@ public class TestProtocolFile extends TestCase {
       setContentType(testTextFile);
     }
   }
-  
+
   /**
-   * Tests the setting of the <code>Response.CONTENT_TYPE</code> metadata
-   * field.
-   * @throws ProtocolNotFound 
+   * Tests the setting of the <code>Response.CONTENT_TYPE</code> metadata field.
    * 
    * @since NUTCH-384
    * 
    */
-  public void setContentType(String testTextFile) throws ProtocolNotFound {
+  public void setContentType(String testTextFile) throws ProtocolException {
     String urlString = "file:" + sampleDir + fileSeparator + testTextFile;
     assertNotNull(urlString);
-    WebPage datum = new WebPage();
     Protocol protocol = new ProtocolFactory(conf).getProtocol(urlString);
-    ProtocolOutput output = protocol.getProtocolOutput(urlString,datum);
+    ProtocolOutput output = protocol.getProtocolOutput(new Text(urlString),
+        datum);
     assertNotNull(output);
-
     assertEquals("Status code: [" + output.getStatus().getCode()
-        + "], not equal to: [" + ProtocolStatusCodes.SUCCESS + "]: args: ["
-        + output.getStatus().getArgs() + "]", ProtocolStatusCodes.SUCCESS, output
+        + "], not equal to: [" + ProtocolStatus.SUCCESS + "]: args: ["
+        + output.getStatus().getArgs() + "]", ProtocolStatus.SUCCESS, output
         .getStatus().getCode());
     assertNotNull(output.getContent());
     assertNotNull(output.getContent().getContentType());
     assertEquals(expectedMimeType, output.getContent().getContentType());
     assertNotNull(output.getContent().getMetadata());
-    assertEquals(expectedMimeType, output.getContent().getMetadata().get(
-        Response.CONTENT_TYPE));
+    assertEquals(expectedMimeType,
+        output.getContent().getMetadata().get(Response.CONTENT_TYPE));
 
   }
 

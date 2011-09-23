@@ -42,15 +42,15 @@ public class LogUtil {
   private static Method WARN  = null;
   private static Method ERROR = null;
   private static Method FATAL = null;
-  
+
   static {
     try {
-      TRACE = Logger.class.getMethod("trace", new Class[] { String.class });
-      DEBUG = Logger.class.getMethod("debug", new Class[] { String.class });
-      INFO  = Logger.class.getMethod("info",  new Class[] { String.class });
-      WARN  = Logger.class.getMethod("warn",  new Class[] { String.class });
-      ERROR = Logger.class.getMethod("error", new Class[] { String.class });
-      FATAL = Logger.class.getMethod("error", new Class[] { String.class });
+      TRACE = Logger.class.getMethod("trace", new Class[] { Object.class });
+      DEBUG = Logger.class.getMethod("debug", new Class[] { Object.class });
+      INFO  = Logger.class.getMethod("info",  new Class[] { Object.class });
+      WARN  = Logger.class.getMethod("warn",  new Class[] { Object.class });
+      ERROR = Logger.class.getMethod("error", new Class[] { Object.class });
+      FATAL = Logger.class.getMethod("error", new Class[] { Object.class });
     } catch(Exception e) {
       if (LOG.isErrorEnabled()) {
         LOG.error("Cannot init log methods", e);

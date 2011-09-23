@@ -36,6 +36,7 @@ import org.apache.tika.mime.MimeTypes;
 import org.apache.tika.mime.MimeTypesFactory;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
+import org.mortbay.log.Log;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;

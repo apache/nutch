@@ -18,23 +18,22 @@
 package org.apache.nutch.indexer.tld;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.storage.WebPage;
-import org.apache.nutch.storage.WebPage.Field;
+import org.apache.nutch.parse.Parse;
 import org.apache.nutch.util.URLUtil;
 import org.apache.nutch.util.domain.DomainSuffix;
 
 /**
  * Adds the Top level domain extensions to the index
- * 
  * @author Enis Soztutar &lt;enis.soz.nutch@gmail.com&gt;
  */
 public class TLDIndexingFilter implements IndexingFilter {
@@ -42,17 +41,17 @@ public class TLDIndexingFilter implements IndexingFilter {
 
   private Configuration conf;
 
-  private static final Collection<Field> fields = new ArrayList<Field>();
-  
-  @Override
-  public NutchDocument filter(NutchDocument doc, String url, WebPage page)
-      throws IndexingException {
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text urlText, CrawlDatum datum, Inlinks inlinks)
+  throws IndexingException {
+
     try {
-      URL _url = new URL(url);
-      DomainSuffix d = URLUtil.getDomainSuffix(_url);
+      URL url = new URL(urlText.toString());
+      DomainSuffix d = URLUtil.getDomainSuffix(url);
+      
       doc.add("tld", d.getDomain());
-    } catch (Exception ex) {
-      LOG.warn("Exception in TLDIndexingFilter",ex);
+      
+    }catch (Exception ex) {
+      LOG.warn(ex.toString());
     }
 
     return doc;
@@ -64,10 +63,5 @@ public class TLDIndexingFilter implements IndexingFilter {
 
   public Configuration getConf() {
     return this.conf;
-  }
-
-  @Override
-  public Collection<Field> getFields() {
-    return fields;
   }
 }

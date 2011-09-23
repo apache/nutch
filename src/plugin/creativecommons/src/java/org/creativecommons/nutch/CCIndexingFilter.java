@@ -17,121 +17,105 @@
 
 package org.creativecommons.nutch;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.StringTokenizer;
+import org.apache.nutch.metadata.CreativeCommons;
 
-import org.apache.avro.util.Utf8;
+import org.apache.nutch.parse.Parse;
+
+import org.apache.nutch.indexer.IndexingFilter;
+import org.apache.nutch.indexer.IndexingException;
+import org.apache.nutch.indexer.NutchDocument;
+import org.apache.hadoop.io.Text;
+
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.Inlinks;
+import org.apache.nutch.metadata.Metadata;
+
+import org.apache.hadoop.conf.Configuration;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.indexer.IndexingException;
-import org.apache.nutch.indexer.IndexingFilter;
-import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.metadata.CreativeCommons;
-import org.apache.nutch.storage.WebPage;
-import org.apache.nutch.storage.WebPage.Field;
+
+import java.util.*;
+import java.net.URL;
+import java.net.MalformedURLException;
 
 /** Adds basic searchable fields to a document. */
 public class CCIndexingFilter implements IndexingFilter {
-	public static final Logger LOG = LoggerFactory.getLogger(CCIndexingFilter.class);
+  public static final Logger LOG = LoggerFactory.getLogger(CCIndexingFilter.class);
 
-	/** The name of the document field we use. */
-	public static String FIELD = "cc";
+  /** The name of the document field we use. */
+  public static String FIELD = "cc";
 
-	private Configuration conf;
+  private Configuration conf;
 
-	private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
+    throws IndexingException {
+    
+    Metadata metadata = parse.getData().getParseMeta();
+    // index the license
+    String licenseUrl = metadata.get(CreativeCommons.LICENSE_URL);
+    if (licenseUrl != null) {
+      if (LOG.isInfoEnabled()) {
+        LOG.info("CC: indexing " + licenseUrl + " for: " + url.toString());
+      }
 
-	static {
-		FIELDS.add(WebPage.Field.BASE_URL);
-		FIELDS.add(WebPage.Field.METADATA);
-	}
+      // add the entire license as cc:license=xxx
+      addFeature(doc, "license=" + licenseUrl);
 
-	/**
-	 * Add the features represented by a license URL. Urls are of the form
-	 * "http://creativecommons.org/licenses/xx-xx/xx/xx", where "xx" names a
-	 * license feature.
-	 */
-	public void addUrlFeatures(NutchDocument doc, String urlString) {
-		try {
-			URL url = new URL(urlString);
+      // index license attributes extracted of the license url
+      addUrlFeatures(doc, licenseUrl);
+    }
 
-			// tokenize the path of the url, breaking at slashes and dashes
-			StringTokenizer names = new StringTokenizer(url.getPath(), "/-");
+    // index the license location as cc:meta=xxx
+    String licenseLocation = metadata.get(CreativeCommons.LICENSE_LOCATION);
+    if (licenseLocation != null) {
+      addFeature(doc, "meta=" + licenseLocation);
+    }
 
-			if (names.hasMoreTokens())
-				names.nextToken(); // throw away "licenses"
+    // index the work type cc:type=xxx
+    String workType = metadata.get(CreativeCommons.WORK_TYPE);
+    if (workType != null) {
+      addFeature(doc, workType);
+    }
 
-			// add a feature per component after "licenses"
-			while (names.hasMoreTokens()) {
-				String feature = names.nextToken();
-				addFeature(doc, feature);
-			}
-		} catch (MalformedURLException e) {
-			if (LOG.isWarnEnabled()) {
-				LOG.warn("CC: failed to parse url: " + urlString + " : " + e);
-			}
-		}
-	}
+    return doc;
+  }
 
-	private void addFeature(NutchDocument doc, String feature) {
-		doc.add(FIELD, feature);
-	}
+  /** Add the features represented by a license URL.  Urls are of the form
+   * "http://creativecommons.org/licenses/xx-xx/xx/xx", where "xx" names a
+   * license feature. */
+  public void addUrlFeatures(NutchDocument doc, String urlString) {
+    try {
+      URL url = new URL(urlString);
 
-	public void setConf(Configuration conf) {
-		this.conf = conf;
-	}
+      // tokenize the path of the url, breaking at slashes and dashes
+      StringTokenizer names = new StringTokenizer(url.getPath(), "/-");
 
-	public Configuration getConf() {
-		return this.conf;
-	}
+      if (names.hasMoreTokens())
+        names.nextToken();                        // throw away "licenses"
 
-	@Override
-	public Collection<Field> getFields() {
-		return FIELDS;
-	}
+      // add a feature per component after "licenses"
+      while (names.hasMoreTokens()) {
+        String feature = names.nextToken();
+        addFeature(doc, feature);
+      }
+    } catch (MalformedURLException e) {
+      if (LOG.isWarnEnabled()) {
+        LOG.warn("CC: failed to parse url: " + urlString + " : " + e);
+      }
+    }
+  }
+  
+  private void addFeature(NutchDocument doc, String feature) {
+    doc.add(FIELD, feature);
+  }
 
-	@Override
-	public NutchDocument filter(NutchDocument doc, String url, WebPage page)
-			throws IndexingException {
+  public void setConf(Configuration conf) {
+    this.conf = conf;
+  }
 
-		ByteBuffer blicense = page.getFromMetadata(new Utf8(
-				CreativeCommons.LICENSE_URL));
-		if (blicense != null) {
-			String licenseUrl = new String(blicense.array());
-			if (LOG.isInfoEnabled()) {
-				LOG.info("CC: indexing " + licenseUrl + " for: "
-						+ url.toString());
-			}
-
-			// add the entire license as cc:license=xxx
-			addFeature(doc, "license=" + licenseUrl);
-
-			// index license attributes extracted of the license url
-			addUrlFeatures(doc, licenseUrl);
-		}
-
-		// index the license location as cc:meta=xxx
-		ByteBuffer blicenseloc = page.getFromMetadata(new Utf8(
-				CreativeCommons.LICENSE_LOCATION));
-		if (blicenseloc != null) {
-			String licenseLocation = new String(blicenseloc.array());
-			addFeature(doc, "meta=" + licenseLocation);
-		}
-
-		// index the work type cc:type=xxx
-		ByteBuffer bworkType = page.getFromMetadata(new Utf8(
-				CreativeCommons.WORK_TYPE));
-		if (bworkType != null) {
-			String workType = new String(bworkType.array());
-			addFeature(doc, workType);
-		}
-
-		return doc;
-	}
+  public Configuration getConf() {
+    return this.conf;
+  }
 
 }

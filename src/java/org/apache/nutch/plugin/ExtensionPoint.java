@@ -101,7 +101,7 @@ public class ExtensionPoint {
   }
 
   /**
-   * Install a corresponding extension to this extension point.
+   * Install a coresponding extension to this extension point.
    * 
    * @param extension
    */
@@ -110,7 +110,7 @@ public class ExtensionPoint {
   }
 
   /**
-   * Returns a array of extensions that listen to this extension point
+   * Returns a array of extensions that lsiten to this extension point
    * 
    * @return Extension[]
    */

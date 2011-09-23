@@ -32,7 +32,7 @@ import java.util.Map;
  * @author mattmann
  * @version 1.0
  */
-public class ParsePluginList {
+class ParsePluginList {
   
   /* a map to link mimeType to an ordered list of parsing plugins */
   private Map<String, List<String>> fMimeTypeToPluginMap = null;
@@ -49,7 +49,7 @@ public class ParsePluginList {
     aliases = new HashMap<String, String>();
   }
   
-  public List<String> getPluginList(String mimeType) {
+  List<String> getPluginList(String mimeType) {
     return fMimeTypeToPluginMap.get(mimeType);
   }
 
@@ -57,7 +57,7 @@ public class ParsePluginList {
     this.aliases = aliases;
   }
   
-  public Map<String, String> getAliases() {
+  Map<String, String> getAliases() {
     return aliases;
   }
   

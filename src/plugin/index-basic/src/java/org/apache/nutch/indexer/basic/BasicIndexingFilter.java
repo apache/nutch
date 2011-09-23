@@ -17,55 +17,48 @@
 
 package org.apache.nutch.indexer.basic;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.indexer.IndexingException;
-import org.apache.nutch.indexer.IndexingFilter;
-import org.apache.nutch.indexer.NutchDocument;
+
 import org.apache.nutch.metadata.Nutch;
-import org.apache.nutch.storage.WebPage;
-import org.apache.nutch.util.Bytes;
-import org.apache.nutch.util.TableUtil;
-import org.apache.solr.common.util.DateUtil;
+import org.apache.nutch.parse.Parse;
+
+import org.apache.nutch.indexer.IndexingFilter;
+import org.apache.nutch.indexer.IndexingException;
+import org.apache.nutch.indexer.NutchDocument;
+import org.apache.hadoop.io.Text;
+
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.Inlinks;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Date;
+
+import org.apache.hadoop.conf.Configuration;
 
 /** Adds basic searchable fields to a document. */
 public class BasicIndexingFilter implements IndexingFilter {
   public static final Logger LOG = LoggerFactory.getLogger(BasicIndexingFilter.class);
 
   private int MAX_TITLE_LENGTH;
+  private int MAX_CONTENT_LENGTH;
   private Configuration conf;
 
-  private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
+    throws IndexingException {
 
-  static {
-    FIELDS.add(WebPage.Field.TITLE);
-    FIELDS.add(WebPage.Field.TEXT);
-    FIELDS.add(WebPage.Field.FETCH_TIME);
-  }
-
-  public NutchDocument filter(NutchDocument doc, String url, WebPage page)
-      throws IndexingException {
-
-    String reprUrl = null;
-    if (page.isReadable(WebPage.Field.REPR_URL.getIndex())) {
-      reprUrl = TableUtil.toString(page.getReprUrl());
-    }
-
+    Text reprUrl = (Text) datum.getMetaData().get(Nutch.WRITABLE_REPR_URL_KEY);
+    String reprUrlString = reprUrl != null ? reprUrl.toString() : null;
+    String urlString = url.toString();
+    
     String host = null;
     try {
       URL u;
-      if (reprUrl != null) {
-        u = new URL(reprUrl);
+      if (reprUrlString != null) {
+        u = new URL(reprUrlString);
       } else {
-        u = new URL(url);
+        u = new URL(urlString);
       }
       host = u.getHost();
     } catch (MalformedURLException e) {
@@ -73,63 +66,50 @@ public class BasicIndexingFilter implements IndexingFilter {
     }
 
     if (host != null) {
-      // add host as un-stored, indexed and tokenized
       doc.add("host", host);
-      // add site as un-stored, indexed and un-tokenized
       doc.add("site", host);
     }
 
-    // url is both stored and indexed, so it's both searchable and returned
-    doc.add("url", reprUrl == null ? url : reprUrl);
+    doc.add("url", reprUrlString == null ? urlString : reprUrlString);
 
-    if (reprUrl != null) {
-      // also store original url as both stored and indexes
-      doc.add("orig", url);
+    // content
+    String content = parse.getText();
+    if (MAX_CONTENT_LENGTH > -1 && content.length() > MAX_CONTENT_LENGTH) {
+      content = content.substring(0, MAX_CONTENT_LENGTH);
     }
-
-    // content is indexed, so that it's searchable, but not stored in index
-    doc.add("content", TableUtil.toString(page.getText()));
+    doc.add("content", content);
 
     // title
-    String title = TableUtil.toString(page.getTitle());
-    if (title.length() > MAX_TITLE_LENGTH) { // truncate title if needed
+    String title = parse.getData().getTitle();
+    if (title.length() > MAX_TITLE_LENGTH) {      // truncate title if needed
       title = title.substring(0, MAX_TITLE_LENGTH);
     }
+
     if (title.length() > 0) {
       // NUTCH-1004 Do not index empty values for title field
       doc.add("title", title);
     }
+
     // add cached content/summary display policy, if available
-    ByteBuffer cachingRaw = page
-        .getFromMetadata(Nutch.CACHING_FORBIDDEN_KEY_UTF8);
-    String caching = (cachingRaw == null ? null : Bytes.toString(cachingRaw
-        .array()));
+    String caching = parse.getData().getMeta(Nutch.CACHING_FORBIDDEN_KEY);
     if (caching != null && !caching.equals(Nutch.CACHING_FORBIDDEN_NONE)) {
       doc.add("cache", caching);
     }
 
     // add timestamp when fetched, for deduplication
-    String tstamp = DateUtil.getThreadLocalDateFormat().format(new Date(page.getFetchTime()));
-    doc.add("tstamp", tstamp);
+    doc.add("tstamp", new Date(datum.getFetchTime()));
 
     return doc;
-  }
-
-  public void addIndexBackendOptions(Configuration conf) {
   }
 
   public void setConf(Configuration conf) {
     this.conf = conf;
     this.MAX_TITLE_LENGTH = conf.getInt("indexer.max.title.length", 100);
+    this.MAX_CONTENT_LENGTH = conf.getInt("indexer.max.content.length", -1);
   }
 
   public Configuration getConf() {
     return this.conf;
-  }
-
-  @Override
-  public Collection<WebPage.Field> getFields() {
-    return FIELDS;
   }
 
 }

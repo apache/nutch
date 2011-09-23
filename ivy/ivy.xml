@@ -31,8 +31,13 @@
 
 	<dependencies>
 		<dependency org="org.apache.solr" name="solr-solrj" rev="3.1.0"
-			conf="*->default" />
+			conf="*->default"/>
 		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.5.5" conf="*->master" />
+
+		<dependency org="commons-logging" name="commons-logging"
+			rev="1.0.4" conf="*->master" />
+		<dependency org="commons-logging" name="commons-logging-api"
+			rev="1.0.4" conf="*->master" />
 
 		<dependency org="commons-lang" name="commons-lang" rev="2.4"
 			conf="*->default" />
@@ -50,15 +55,12 @@
 			<exclude org="net.java.dev.jets3t" name="jets3t" />
 			<exclude org="org.eclipse.jdt" name="core" />
 			<exclude org="org.mortbay.jetty" name="jsp-*" />
+			<exclude org="ant" name="ant" />
 		</dependency>
 
 		<dependency org="com.ibm.icu" name="icu4j" rev="4.0.1" />
 		<dependency org="org.apache.tika" name="tika-core" rev="0.9" />
-		<!--
-		  <dependency org="org.apache.tika" name="tika-parsers" rev="0.9" />
-		-->
-		
-		<dependency org="org.apache.gora" name="gora-core" rev="0.2-incubating" conf="*->compile"/>
+		<dependency org="org.mortbay.jetty" name="jetty-client" rev="6.1.22" />
 
 		<dependency org="log4j" name="log4j" rev="1.2.15" conf="*->master" />
 
@@ -66,59 +68,23 @@
 		<dependency org="xerces" name="xmlParserAPIs" rev="2.6.2" />
 		<dependency org="oro" name="oro" rev="2.0.8" />
 
-    		<dependency org="com.healthmarketscience.sqlbuilder" name="sqlbuilder" rev="2.0.6"
-			conf="*->default"/>
-		<dependency org="org.jdom" name="jdom" rev="1.1" conf="*->default"/>
-
 		<!--Configuration: test -->
 
 		<!--artifacts needed for testing -->
 		<dependency org="junit" name="junit" rev="3.8.1" conf="test->default" />
-
 		<dependency org="org.apache.hadoop" name="hadoop-test" rev="0.20.2"
-			conf="test->default">
-			<exclude org="hsqldb" name="hsqldb" />
-			<exclude org="net.sf.kosmosfs" name="kfs" />
-			<exclude org="net.java.dev.jets3t" name="jets3t" />
-			<exclude org="org.eclipse.jdt" name="core" />
-			<exclude org="org.mortbay.jetty" name="jsp-*" />
-		</dependency>
+			conf="test->default" />
 
 		<dependency org="org.mortbay.jetty" name="jetty" rev="6.1.22"
 			conf="test->default" />
 		<dependency org="org.mortbay.jetty" name="jetty-util" rev="6.1.22"
 			conf="test->default" />
-		<dependency org="org.mortbay.jetty" name="jetty-client" rev="6.1.22" />
-
-		<dependency org="org.hsqldb" name="hsqldb" rev="2.0.0" conf="*->default"/>
-		<dependency org="org.jdom" name="jdom" rev="1.1" conf="test->default"/>
-
-		<dependency org="org.apache.gora" name="gora-sql" rev="0.2-incubating" conf="*->compile"/>				
-                <dependency org="org.restlet.jse" name="org.restlet" rev="2.0.5" conf="*->default"/>
-                <dependency org="org.restlet.jse" name="org.restlet.ext.jackson" rev="2.0.5" conf="*->default"/>
-
-<!--
-       Uncomment this to use MySQL as database with SQL as Gora store.
--->
-<!--
-       <dependency org="mysql" name="mysql-connector-java" rev="5.1.13" conf="*->default"/>
--->
-
-<!--
-       Uncomment this to use HBase as Gora backend. Then manually add hbase-0.20.6 jar to the lib directory.
--->
-<!--
-       <dependency org="org.apache.gora" name="gora-hbase" rev="0.1" conf="*->compile">
-       </dependency>
-       <dependency org="org.apache.zookeeper" name="zookeeper" rev="3.3.2" conf="*->default">
-       </dependency>
--->
 
                 <!--global exclusion-->
-             	<exclude module="ant" />
              	<exclude module="jmxtools" />
              	<exclude module="jms" />
              	<exclude module="jmxri" />
+
 	</dependencies>
 
 </ivy-module>

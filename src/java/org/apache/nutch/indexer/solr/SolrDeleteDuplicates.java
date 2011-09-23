@@ -20,32 +20,33 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
-import org.apache.hadoop.mapreduce.InputFormat;
-import org.apache.hadoop.mapreduce.InputSplit;
-import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.JobContext;
-import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.RecordReader;
-import org.apache.hadoop.mapreduce.Reducer;
-import org.apache.hadoop.mapreduce.TaskAttemptContext;
-import org.apache.hadoop.mapreduce.lib.output.NullOutputFormat;
+import org.apache.hadoop.mapred.InputFormat;
+import org.apache.hadoop.mapred.InputSplit;
+import org.apache.hadoop.mapred.JobClient;
+import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.mapred.OutputCollector;
+import org.apache.hadoop.mapred.RecordReader;
+import org.apache.hadoop.mapred.Reducer;
+import org.apache.hadoop.mapred.Reporter;
+import org.apache.hadoop.mapred.lib.IdentityMapper;
+import org.apache.hadoop.mapred.lib.NullOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TimingUtil;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
 import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -76,13 +77,13 @@ import org.apache.solr.common.SolrDocumentList;
  * </li>
  * </ul>
  * 
- * Note that we assume that two documents in
+ * Note that unlike {@link DeleteDuplicates} we assume that two documents in
  * a solr index will never have the same URL. So this class only deals with
  * documents with <b>different</b> URLs but the same digest. 
  */
 public class SolrDeleteDuplicates
-extends Reducer<Text, SolrDeleteDuplicates.SolrRecord, Text, SolrDeleteDuplicates.SolrRecord>
-implements Tool {
+implements Reducer<Text, SolrDeleteDuplicates.SolrRecord, Text, SolrDeleteDuplicates.SolrRecord>,
+Tool {
 
   public static final Logger LOG = LoggerFactory.getLogger(SolrDeleteDuplicates.class);
 
@@ -97,6 +98,12 @@ implements Tool {
     private String id;
 
     public SolrRecord() { }
+    
+    public SolrRecord(SolrRecord old) {
+	this.id = old.id;
+	this.boost = old.boost;
+	this.tstamp = old.tstamp;
+    }
 
     public SolrRecord(String id, float boost, long tstamp) {
       this.id = id;
@@ -124,14 +131,12 @@ implements Tool {
       tstamp = buffer.getTime();
     }
 
-    @Override
     public void readFields(DataInput in) throws IOException {
       id = Text.readString(in);
       boost = in.readFloat();
       tstamp = in.readLong();
     }
 
-    @Override
     public void write(DataOutput out) throws IOException {
       Text.writeString(out, id);
       out.writeFloat(boost);
@@ -139,7 +144,7 @@ implements Tool {
     } 
   }
 
-  public static class SolrInputSplit extends InputSplit {
+  public static class SolrInputSplit implements InputSplit {
 
     private int docBegin;
     private int numDocs;
@@ -155,81 +160,34 @@ implements Tool {
       return docBegin;
     }
 
-    @Override
+    public int getNumDocs() {
+      return numDocs;
+    }
+
     public long getLength() throws IOException {
       return numDocs;
     }
 
-    @Override
     public String[] getLocations() throws IOException {
       return new String[] {} ;
     }
+
+    public void readFields(DataInput in) throws IOException {
+      docBegin = in.readInt();
+      numDocs = in.readInt();
+    }
+
+    public void write(DataOutput out) throws IOException {
+      out.writeInt(docBegin);
+      out.writeInt(numDocs);
+    }
   }
-  
-  public static class SolrRecordReader extends RecordReader<Text, SolrRecord> {
 
-    private int currentDoc = 0;
-    private int numDocs;
-    private Text text;
-    private SolrRecord record;
-    private SolrDocumentList solrDocs;
-    
-    public SolrRecordReader(SolrDocumentList solrDocs, int numDocs) {
-      this.solrDocs = solrDocs;
-      this.numDocs = numDocs;
-    }
-    
-    @Override
-    public void initialize(InputSplit split, TaskAttemptContext context)
-        throws IOException, InterruptedException {
-      text = new Text();
-      record = new SolrRecord();   
-    }
+  public static class SolrInputFormat implements InputFormat<Text, SolrRecord> {
 
-    @Override
-    public void close() throws IOException { }
-
-    @Override
-    public float getProgress() throws IOException {
-      return currentDoc / (float) numDocs;
-    }
-
-    @Override
-    public Text getCurrentKey() throws IOException, InterruptedException {
-      return text;
-    }
-
-    @Override
-    public SolrRecord getCurrentValue() throws IOException,
-        InterruptedException {
-      return record;
-    }
-
-    @Override
-    public boolean nextKeyValue() throws IOException, InterruptedException {
-      if (currentDoc >= numDocs) {
-        return false;
-      }
-
-      SolrDocument doc = solrDocs.get(currentDoc);
-      String digest = (String) doc.getFieldValue(SolrConstants.DIGEST_FIELD);
-      text.set(digest);
-      record.readSolrDocument(doc);
-
-      currentDoc++;
-      return true;
-    }
-   
-  };
-
-  public static class SolrInputFormat extends InputFormat<Text, SolrRecord> {
-    
-    @Override
-    public List<InputSplit> getSplits(JobContext context)
-    throws IOException, InterruptedException {
-      Configuration conf = context.getConfiguration();
-      int numSplits = context.getNumReduceTasks();
-      SolrServer solr = new CommonsHttpSolrServer(conf.get(SolrConstants.SERVER_URL));
+    /** Return each index as a split. */
+    public InputSplit[] getSplits(JobConf job, int numSplits) throws IOException {
+      SolrServer solr = SolrUtils.getCommonsHttpSolrServer(job);
 
       final SolrQuery solrQuery = new SolrQuery(SOLR_GET_ALL_QUERY);
       solrQuery.setFields(SolrConstants.ID_FIELD);
@@ -245,23 +203,24 @@ implements Tool {
       int numResults = (int)response.getResults().getNumFound();
       int numDocsPerSplit = (numResults / numSplits); 
       int currentDoc = 0;
-      List<InputSplit> splits = new ArrayList<InputSplit>();
+      SolrInputSplit[] splits = new SolrInputSplit[numSplits];
       for (int i = 0; i < numSplits - 1; i++) {
-        splits.add(new SolrInputSplit(currentDoc, numDocsPerSplit));
+        splits[i] = new SolrInputSplit(currentDoc, numDocsPerSplit);
         currentDoc += numDocsPerSplit;
       }
-      splits.add(new SolrInputSplit(currentDoc, numResults - currentDoc));
+      splits[splits.length - 1] = new SolrInputSplit(currentDoc, numResults - currentDoc);
 
       return splits;
     }
 
-    @Override
-    public RecordReader<Text, SolrRecord> createRecordReader(InputSplit split,
-        TaskAttemptContext context) throws IOException, InterruptedException {
-      Configuration conf = context.getConfiguration();
-      SolrServer solr = new CommonsHttpSolrServer(conf.get(SolrConstants.SERVER_URL));
+    public RecordReader<Text, SolrRecord> getRecordReader(final InputSplit split,
+        final JobConf job, 
+        Reporter reporter)
+        throws IOException {
+
+      SolrServer solr = SolrUtils.getCommonsHttpSolrServer(job);
       SolrInputSplit solrSplit = (SolrInputSplit) split;
-      final int numDocs = (int) solrSplit.getLength();
+      final int numDocs = solrSplit.getNumDocs();
       
       SolrQuery solrQuery = new SolrQuery(SOLR_GET_ALL_QUERY);
       solrQuery.setFields(SolrConstants.ID_FIELD, SolrConstants.BOOST_FIELD,
@@ -278,7 +237,43 @@ implements Tool {
       }
 
       final SolrDocumentList solrDocs = response.getResults();
-      return new SolrRecordReader(solrDocs, numDocs);
+
+      return new RecordReader<Text, SolrRecord>() {
+
+        private int currentDoc = 0;
+
+        public void close() throws IOException { }
+
+        public Text createKey() {
+          return new Text();
+        }
+
+        public SolrRecord createValue() {
+          return new SolrRecord();
+        }
+
+        public long getPos() throws IOException {
+          return currentDoc;
+        }
+
+        public float getProgress() throws IOException {
+          return currentDoc / (float) numDocs;
+        }
+
+        public boolean next(Text key, SolrRecord value) throws IOException {
+          if (currentDoc >= numDocs) {
+            return false;
+          }
+
+          SolrDocument doc = solrDocs.get(currentDoc);
+          String digest = (String) doc.getFieldValue(SolrConstants.DIGEST_FIELD);
+          key.set(digest);
+          value.readSolrDocument(doc);
+
+          currentDoc++;
+          return true;
+        }    
+      };
     }
   }
 
@@ -286,62 +281,64 @@ implements Tool {
 
   private SolrServer solr;
 
+  private boolean noCommit = false;
+
   private int numDeletes = 0;
 
   private UpdateRequest updateRequest = new UpdateRequest();
 
-  @Override
   public Configuration getConf() {
     return conf;
   }
 
-  @Override
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
 
-  @Override
-  public void setup(Context job) throws IOException {
-    Configuration conf = job.getConfiguration();
+  public void configure(JobConf job) {
     try {
-      solr = new CommonsHttpSolrServer(conf.get(SolrConstants.SERVER_URL));
+      solr = SolrUtils.getCommonsHttpSolrServer(job);
+      noCommit = job.getBoolean("noCommit", false);
     } catch (MalformedURLException e) {
-      throw new IOException(e);
+      throw new RuntimeException(e);
     }
   }
 
 
-  @Override
-  public void cleanup(Context context) throws IOException {
+  public void close() throws IOException {
     try {
       if (numDeletes > 0) {
+        LOG.info("SolrDeleteDuplicates: deleting " + numDeletes + " duplicates");
         updateRequest.process(solr);
 
-        solr.commit();
+        if (!noCommit) {
+          solr.commit();
+        }
       }
     } catch (SolrServerException e) {
       throw new IOException(e);
     }
   }
 
-  @Override
-  public void reduce(Text key, Iterable<SolrRecord> values, Context context)
+  public void reduce(Text key, Iterator<SolrRecord> values,
+      OutputCollector<Text, SolrRecord> output, Reporter reporter)
   throws IOException {
-    Iterator<SolrRecord> iterator = values.iterator();
-    SolrRecord recordToKeep = iterator.next();
-    while (iterator.hasNext()) {
-      SolrRecord solrRecord = iterator.next();
+    SolrRecord recordToKeep = new SolrRecord(values.next());
+    while (values.hasNext()) {
+      SolrRecord solrRecord = values.next();
       if (solrRecord.getBoost() > recordToKeep.getBoost() ||
           (solrRecord.getBoost() == recordToKeep.getBoost() && 
               solrRecord.getTstamp() > recordToKeep.getTstamp())) {
         updateRequest.deleteById(recordToKeep.id);
-        recordToKeep = solrRecord;
+        recordToKeep = new SolrRecord(solrRecord);
       } else {
         updateRequest.deleteById(solrRecord.id);
       }
       numDeletes++;
+      reporter.incrCounter("SolrDedupStatus", "Deleted documents", 1);
       if (numDeletes >= NUM_MAX_DELETE_REQUEST) {
         try {
+          LOG.info("SolrDeleteDuplicates: deleting " + numDeletes + " duplicates");
           updateRequest.process(solr);
         } catch (SolrServerException e) {
           throw new IOException(e);
@@ -352,39 +349,46 @@ implements Tool {
     }
   }
 
-  public boolean dedup(String solrUrl)
-  throws IOException, InterruptedException, ClassNotFoundException {
-    LOG.info("SolrDeleteDuplicates: starting...");
-    LOG.info("SolrDeleteDuplicates: Solr url: " + solrUrl);
-    
-    getConf().set(SolrConstants.SERVER_URL, solrUrl);
-    
-    Job job = new Job(getConf(), "solrdedup");
-
-    job.setInputFormatClass(SolrInputFormat.class);
-    job.setOutputFormatClass(NullOutputFormat.class);
-    job.setMapOutputKeyClass(Text.class);
-    job.setMapOutputValueClass(SolrRecord.class);
-    job.setMapperClass(Mapper.class);
-    job.setReducerClass(SolrDeleteDuplicates.class);
-
-    return job.waitForCompletion(true);    
+  public void dedup(String solrUrl) throws IOException {
+    dedup(solrUrl, false);
   }
 
-  public int run(String[] args)
-  throws IOException, InterruptedException, ClassNotFoundException {
-    if (args.length != 1) {
-      System.err.println("Usage: SolrDeleteDuplicates <solr url>");
+  public void dedup(String solrUrl, boolean noCommit) throws IOException {
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("SolrDeleteDuplicates: starting at " + sdf.format(start));
+    LOG.info("SolrDeleteDuplicates: Solr url: " + solrUrl);
+    
+    JobConf job = new NutchJob(getConf());
+
+    job.set(SolrConstants.SERVER_URL, solrUrl);
+    job.setBoolean("noCommit", noCommit);
+    job.setInputFormat(SolrInputFormat.class);
+    job.setOutputFormat(NullOutputFormat.class);
+    job.setMapOutputKeyClass(Text.class);
+    job.setMapOutputValueClass(SolrRecord.class);
+    job.setMapperClass(IdentityMapper.class);
+    job.setReducerClass(SolrDeleteDuplicates.class);
+
+    JobClient.runJob(job);
+
+    long end = System.currentTimeMillis();
+    LOG.info("SolrDeleteDuplicates: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
+  }
+
+  public int run(String[] args) throws IOException {
+    if (args.length < 1) {
+      System.err.println("Usage: SolrDeleteDuplicates <solr url> [-noCommit]");
       return 1;
     }
 
-    boolean result = dedup(args[0]);
-    if (result) {
-      LOG.info("SolrDeleteDuplicates: done.");
-      return 0;
+    boolean noCommit = false;
+    if (args.length == 2 && args[1].equals("-noCommit")) {
+      noCommit = true;
     }
 
-    return -1;
+    dedup(args[0], noCommit);
+    return 0;
   }
 
   public static void main(String[] args) throws Exception {

@@ -37,7 +37,7 @@ public class FetchScheduleFactory {
     if (impl == null) {
       try {
         LOG.info("Using FetchSchedule impl: " + clazz);
-        Class<?> implClass = Class.forName(clazz);
+        Class implClass = Class.forName(clazz);
         impl = (FetchSchedule)implClass.newInstance();
         impl.setConf(conf);
         objectCache.setObject(clazz, impl);

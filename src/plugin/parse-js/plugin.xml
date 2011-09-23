@@ -42,7 +42,7 @@
    </extension>
    <extension id="org.apache.nutch.parse.js.JSParseFilter"
               name="Parse JS Filter"
-              point="org.apache.nutch.parse.ParseFilter">
+              point="org.apache.nutch.parse.HtmlParseFilter">
       <implementation id="JSParseFilter"
          class="org.apache.nutch.parse.js.JSParseFilter">
         <parameter name="contentType" value="application/x-javascript"/>

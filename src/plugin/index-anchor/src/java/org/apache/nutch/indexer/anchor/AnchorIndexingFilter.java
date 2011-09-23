@@ -16,35 +16,28 @@
  */
 package org.apache.nutch.indexer.anchor;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map.Entry;
 import java.util.WeakHashMap;
 
-import org.apache.avro.util.Utf8;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.NutchDocument;
-import org.apache.nutch.storage.WebPage;
-import org.apache.nutch.util.TableUtil;
+import org.apache.nutch.parse.Parse;
 
 /**
- * Indexing filter that indexes all inbound anchor text for a document.
+ * Indexing filter that indexes all inbound anchor text for a document. 
  */
-public class AnchorIndexingFilter implements IndexingFilter {
+public class AnchorIndexingFilter
+  implements IndexingFilter {
 
   public static final Logger LOG = LoggerFactory.getLogger(AnchorIndexingFilter.class);
   private Configuration conf;
   private boolean deduplicate = false;
-
-  private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
-
-  static {
-    FIELDS.add(WebPage.Field.INLINKS);
-  }
 
   public void setConf(Configuration conf) {
     this.conf = conf;
@@ -57,40 +50,32 @@ public class AnchorIndexingFilter implements IndexingFilter {
     return this.conf;
   }
 
-  public void addIndexBackendOptions(Configuration conf) {
-  }
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum,
+    Inlinks inlinks) throws IndexingException {
 
-  @Override
-  public NutchDocument filter(NutchDocument doc, String url, WebPage page)
-      throws IndexingException {
+    String[] anchors = (inlinks != null ? inlinks.getAnchors()
+      : new String[0]);
 
     // https://issues.apache.org/jira/browse/NUTCH-1037
     WeakHashMap<String,Integer> map = new WeakHashMap<String,Integer>();
 
-    for (Entry<Utf8, Utf8> e : page.getInlinks().entrySet()) {
-      String anchor = TableUtil.toString(e.getValue());
-
+    for (int i = 0; i < anchors.length; i++) {
       if (deduplicate) {
-        String lcAnchor = anchor.toLowerCase();
+        String lcAnchor = anchors[i].toLowerCase();
 
         // Check if already processed the current anchor
         if (!map.containsKey(lcAnchor)) {
-          doc.add("anchor", anchor);
+          doc.add("anchor", anchors[i]);
 
           // Add to map
           map.put(lcAnchor, 1);
         }
       } else {
-        doc.add("anchor", anchor);
+        doc.add("anchor", anchors[i]);
       }
     }
 
     return doc;
-  }
-
-  @Override
-  public Collection<WebPage.Field> getFields() {
-    return FIELDS;
   }
 
 }

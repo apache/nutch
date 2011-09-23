@@ -27,11 +27,20 @@
 <property>
   <name>file.content.limit</name>
   <value>65536</value>
-  <description>The length limit for downloaded content using the file
-   protocol, in bytes. If this value is nonnegative (>=0), content longer
-   than it will be truncated; otherwise, no truncation at all. Do not
-   confuse this setting with the http.content.limit setting.
+  <description>The length limit for downloaded content using the file://
+  protocol, in bytes. If this value is nonnegative (>=0), content longer
+  than it will be truncated; otherwise, no truncation at all. Do not
+  confuse this setting with the http.content.limit setting.
   </description>
+</property>
+  
+<property>
+  <name>file.crawl.parent</name>
+  <value>true</value>
+  <description>The crawler is not restricted to the directories that you specified in the
+    Urls file but it is jumping into the parent directories as well. For your own crawlings you can
+    change this bahavior (set to false) the way that only directories beneath the directories that you specify get
+    crawled.</description>
 </property>
 
 <property>
@@ -44,17 +53,6 @@
   !! NO IMPLEMENTED YET !!
   </description>
 </property>
-
-<property>
-  <name>file.crawl.parent</name>
-  <value>true</value>
-  <description>The crawler is not restricted to the directories that you specified in the
-    urls file but it is jumping into the parent directories as well. For your own crawling you can
-    change this behavior (set to false) the way that only directories beneath the directories that you specify get
-    crawled.
-  </description>
-</property>
-
 
 <!-- HTTP properties -->
 
@@ -125,7 +123,7 @@
 
 <property>
   <name>http.agent.version</name>
-  <value>Nutch-2.0-dev</value>
+  <value>Nutch-1.4-dev</value>
   <description>A version string to advertise in the User-Agent 
    header.</description>
 </property>
@@ -157,7 +155,7 @@
 <property>
   <name>http.content.limit</name>
   <value>65536</value>
-  <description>The length limit for downloaded content using the http
+  <description>The length limit for downloaded content using the http://
   protocol, in bytes. If this value is nonnegative (>=0), content longer
   than it will be truncated; otherwise, no truncation at all. Do not
   confuse this setting with the file.content.limit setting.
@@ -406,6 +404,14 @@
 </property>
 
 <property>
+  <name>db.update.purge.404</name>
+  <value>false</value>
+  <description>If true, updatedb will add purge records with status DB_GONE
+  from the CrawlDB.
+  </description>
+</property>
+
+<property>
   <name>db.update.max.inlinks</name>
   <value>10000</value>
   <description>Maximum number of inlinks to take into account when updating 
@@ -564,6 +570,14 @@
   updatedb will generate identical fetchlists.</description>
 </property>
 
+<property>
+  <name>generate.max.per.host</name>
+  <value>-1</value>
+  <description>(Deprecated). Use generate.max.count and generate.count.mode instead.
+  The maximum number of urls per host in a single
+  fetchlist.  -1 if unlimited.</description>
+</property>
+
 <!-- urlpartitioner properties -->
 <property>
   <name>partition.url.mode</name>
@@ -629,15 +643,17 @@
   <name>fetcher.threads.per.queue</name>
   <value>1</value>
   <description>This number is the maximum number of threads that
-    should be allowed to access a queue at one time.</description>
+    should be allowed to access a queue at one time. Replaces 
+    deprecated parameter 'fetcher.threads.per.host'.
+   </description>
 </property>
 
 <property>
   <name>fetcher.queue.mode</name>
   <value>byHost</value>
-  <description>Determines how the URLs are placed into queues. 
-   Allowed values are 'byHost', 'byDomain' and 'byIP'.
-   The value would usually correspond to that of 'partition.url.mode'.
+  <description>Determines how to put URLs into queues. Default value is 'byHost', 
+  also takes 'byDomain' or 'byIP'. Replaces the deprecated parameter 
+  'fetcher.threads.per.host.by.ip'.
   </description>
 </property>
 
@@ -650,8 +666,8 @@
 <property>
   <name>fetcher.parse</name>
   <value>false</value>
-  <description>If true, fetcher will parse content. NOTE: previous releases would
-  default to true. Since 2.0 this is set to false as a safer default.</description>
+  <description>If true, fetcher will parse content. Default is false, which means
+  that a separate parsing step is required after fetching is finished.</description>
 </property>
 
 <property>
@@ -679,6 +695,55 @@
   </description>
 </property>
 
+<property>
+  <name>fetcher.threads.timeout.divisor</name>
+  <value>2</value>
+  <description>The thread time-out divisor to use. By default threads have a time-out
+  value of mapred.task.timeout / 2. Increase this setting if the fetcher waits too
+  long before killing hanged threads.
+  </description>
+</property>
+
+<property>
+  <name>fetcher.throughput.threshold.pages</name>
+  <value>-1</value>
+  <description>The threshold of minimum pages per second. If the fetcher downloads less
+  pages per second than the configured threshold, the fetcher stops, preventing slow queue's
+  from stalling the throughput. This threshold must be an integer. This can be useful when
+  fetcher.timelimit.mins is hard to determine. The default value of -1 disables this check.
+  </description>
+</property>
+
+<property>
+  <name>fetcher.throughput.threshold.retries</name>
+  <value>5</value>
+  <description>The number of times the fetcher.throughput.threshold is allowed to be exceeded.
+  This settings prevents accidental slow downs from immediately killing the fetcher thread.
+  </description>
+</property>
+
+<!-- moreindexingfilter plugin properties -->
+
+<property>
+  <name>moreIndexingFilter.indexMimeTypeParts</name>
+  <value>true</value>
+  <description>Determines whether the index-more plugin will split the mime-type
+  in sub parts, this requires the type field to be multi valued. Set to true for backward
+  compatibility. False will not split the mime-type.
+  </description>
+</property>
+
+<!-- AnchorIndexing filter plugin properties -->
+
+<property>
+  <name>anchorIndexingFilter.deduplicate</name>
+  <value>false</value>
+  <description>With this enabled the indexer will case-insensitive deduplicate anchors
+  before indexing. This prevents possible hundreds or thousands of identical anchors for
+  a given page to be indexed but will affect the search scoring (i.e. tf=1.0f).
+  </description>
+</property>
+
 <!-- indexingfilter plugin properties -->
 
 <property>
@@ -700,8 +765,8 @@
 <property>
   <name>indexer.score.power</name>
   <value>0.5</value>
-  <description>Used by the OPIC plugin. Determines the power of link analyis scores. 
-  Each pages's boost is set to <i>score<sup>scorePower</sup></i> where
+  <description>Determines the power of link analyis scores.  Each
+  pages's boost is set to <i>score<sup>scorePower</sup></i> where
   <i>score</i> is its link analysis score and <i>scorePower</i> is the
   value of this parameter.  This is compiled into indexes, so, when
   this is changed, pages must be re-indexed for it to take
@@ -712,29 +777,14 @@
   <name>indexer.max.title.length</name>
   <value>100</value>
   <description>The maximum number of characters of a title that are indexed.
-  Used by index-basic.
   </description>
 </property>
 
-<!-- moreindexingfilter plugin properties -->
-
 <property>
-  <name>moreIndexingFilter.indexMimeTypeParts</name>
-  <value>true</value>
-  <description>Determines whether the index-more plugin will split the mime-type
-  in sub parts, this requires the type field to be multi valued. Set to true for backward
-  compatibility. False will not split the mime-type.
-  </description>
-</property>
-
-<!-- AnchorIndexing filter plugin properties -->
-
-<property>
-  <name>anchorIndexingFilter.deduplicate</name>
-  <value>false</value>
-  <description>With this enabled the indexer will case-insensitive deduplicate hanchors
-  before indexing. This prevents possible hundreds or thousands of identical anchors for
-  a given page to be indexed but will affect the search scoring (i.e. tf=1.0f).
+  <name>indexer.max.content.length</name>
+  <value>-1</value>
+  <description>The maximum number of characters of a content that are indexed.
+  Content beyond the limit is truncated. A value of -1 disables this check.
   </description>
 </property>
 
@@ -806,8 +856,8 @@
 
 <property>
   <name>plugin.includes</name>
- <value>protocol-http|urlfilter-regex|parse-(html|tika)|index-(basic|anchor)|urlnormalizer-(pass|regex|basic)|scoring-opic</value>
- <description>Regular expression naming plugin directory names to
+  <value>protocol-http|urlfilter-regex|parse-(html|tika)|index-(basic|anchor)|scoring-opic|urlnormalizer-(pass|regex|basic)</value>
+  <description>Regular expression naming plugin directory names to
   include.  Any plugin not matching this expression is excluded.
   In any case you need at least include the nutch-extensionpoints plugin. By
   default Nutch includes crawling just HTML and plain text via HTTP,
@@ -821,6 +871,19 @@
   <name>plugin.excludes</name>
   <value></value>
   <description>Regular expression naming plugin directory names to exclude.  
+  </description>
+</property>
+
+<property>
+  <name>urlmeta.tags</name>
+  <value></value>
+  <description>
+    To be used in conjunction with features introduced in NUTCH-655, which allows
+    for custom metatags to be injected alongside your crawl URLs. Specifying those
+    custom tags here will allow for their propagation into a pages outlinks, as
+    well as allow for them to be included as part of an index.
+    Values should be comma-delimited. ("tag1,tag2,tag3") Do not pad the tags with
+    white-space at their boundaries, if you are using anything earlier than Hadoop-0.21. 
   </description>
 </property>
 
@@ -858,7 +921,6 @@
   "all" doesn't show either content or summaries.</description>
 </property>
 
-
 <property>
   <name>parser.html.impl</name>
   <value>neko</value>
@@ -884,6 +946,13 @@
   iframe, script, link, img. If you add any of those tags here, it
   won't be taken. Default is empty list. Probably reasonable value
   for most people would be "img,script,link".</description>
+</property>
+
+<property>
+  <name>parser.fix.embeddedparams</name>
+  <value>true</value>
+  <description>Whether to fix URL embedded params using semi-colons.
+  See NUTCH-436 and NUTCH-1115</description>
 </property>
 
 <property>
@@ -978,28 +1047,6 @@
 <!-- language-identifier plugin properties -->
 
 <property>
-  <name>lang.ngram.min.length</name>
-  <value>1</value>
-  <description> The minimum size of ngrams to uses to identify
-  language (must be between 1 and lang.ngram.max.length).
-  The larger is the range between lang.ngram.min.length and
-  lang.ngram.max.length, the better is the identification, but
-  the slowest it is.
-  </description>
-</property>
-
-<property>
-  <name>lang.ngram.max.length</name>
-  <value>4</value>
-  <description> The maximum size of ngrams to uses to identify
-  language (must be between lang.ngram.min.length and 4).
-  The larger is the range between lang.ngram.min.length and
-  lang.ngram.max.length, the better is the identification, but
-  the slowest it is.
-  </description>
-</property>
-
-<property>
   <name>lang.analyze.max.length</name>
   <value>2048</value>
   <description> The maximum bytes of data to uses to indentify
@@ -1023,6 +1070,28 @@
     identify
     detect,identify
     identify,detect
+  </description>
+</property>
+
+<property>
+  <name>lang.identification.only.certain</name>
+  <value>false</value>
+  <description>If set to true with lang.extraction.policy containing identify,
+  the language code returned by Tika will be assigned to the document ONLY
+  if it is deemed certain by Tika.
+  </description>
+</property>
+
+<!-- index-static plugin properties -->
+
+<property>
+  <name>index-static</name>
+  <value></value>
+  <description>
+  A simple plugin called at indexing that adds fields with static data. 
+  You can specify a list of fieldname:fieldcontent per nutch job.
+  It can be useful when collections can't be created by urlpatterns, 
+  like in subcollection, but on a job-basis.
   </description>
 </property>
 
@@ -1050,59 +1119,23 @@
   </description>
 </property>
 
-<property>
+<property> 
   <name>solr.commit.size</name>
   <value>1000</value>
   <description>
   Defines the number of documents to send to Solr in a single update batch.
   Decrease when handling very large documents to prevent Nutch from running
   out of memory.
+  </description>  
+</property> 
+
+<property>
+  <name>solr.auth</name>
+  <value>false</value>
+  <description>
+  Whether to enable HTTP basic authentication for communicating with Solr.
+  Use the solr.auth.username and solr.auth.password properties to configure
+  your credentials.
   </description>
 </property>
-
-<!-- storage properties -->
-
-<property>
-  <name>storage.data.store.class</name>
-  <value>org.apache.gora.sql.store.SqlStore</value>
-  <description>Default class for storing data</description>
-</property>
-
-<!--
-<property>
-  <name>storage.data.store.class</name>
-  <value>org.apache.gora.cassandra.store.CassandraStore</value>
-  <description>Class for storing data in Apache Cassandra</description>
-</property>
--->
-
-<!--
-<property>
-  <name>storage.data.store.class</name>
-  <value>org.apache.gora.hbase.store.HBaseStore</value>
-  <description>Class for storing data in Apache HBase</description>
-</property>
--->
-
-<property>
-  <name>storage.schema</name>
-  <value>webpage</value>
-  <description>This value holds the schema name used for Nutch web db.
-  Note that Nutch ignores the value in the gora mapping files, and uses
-  this as the schema name.
-  </description>
-</property>
-
-<property>
-  <name>storage.crawl.id</name>
-  <value></value>
-  <description>This value helps differentiate between the datasets that
-  the jobs in the crawl cycle generate and operate on. The value will
-  be input to all the jobs which then will use it as a prefix when
-  accessing to the schemas. The default configuration uses no id to prefix
-  the schemas. The value could also be given as a command line argument
-  to each job.
-  </description>
-</property>
-
 </configuration>

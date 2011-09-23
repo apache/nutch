@@ -17,49 +17,42 @@
 
 package org.apache.nutch.protocol.file;
 
-import java.net.URL;
-import java.util.Collection;
-import java.util.HashSet;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.hadoop.conf.Configuration;
+
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.hadoop.io.Text;
+import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
+
+import org.apache.hadoop.conf.Configuration;
+
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.EmptyRobotRules;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolOutput;
-import org.apache.nutch.protocol.ProtocolStatusCodes;
-import org.apache.nutch.protocol.ProtocolStatusUtils;
+import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.protocol.RobotRules;
-import org.apache.nutch.storage.ProtocolStatus;
-import org.apache.nutch.storage.WebPage;
-import org.apache.nutch.storage.WebPage.Field;
 import org.apache.nutch.util.NutchConfiguration;
+
+import java.net.URL;
 
 /************************************
  * File.java deals with file: scheme.
- * 
- * Configurable parameters are defined under "FILE properties" section in
- * ./conf/nutch-default.xml or similar.
- * 
+ *
+ * Configurable parameters are defined under "FILE properties" section
+ * in ./conf/nutch-default.xml or similar.
+ *
  * @author John Xing
  ***********************************/
 public class File implements Protocol {
 
   public static final Logger LOG = LoggerFactory.getLogger(File.class);
 
-  private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
-
-  static {
-    FIELDS.add(WebPage.Field.MODIFIED_TIME);
-    FIELDS.add(WebPage.Field.HEADERS);
-  }
-
   static final int MAX_REDIRECTS = 5;
 
   int maxContentLength;
-  
   boolean crawlParents;
 
   private Configuration conf;
@@ -69,79 +62,69 @@ public class File implements Protocol {
   }
 
   /** Set the point at which content is truncated. */
-  public void setMaxContentLength(int length) {
-    maxContentLength = length;
-  }
+  public void setMaxContentLength(int length) {maxContentLength = length;}
 
-  public ProtocolOutput getProtocolOutput(String url, WebPage page) {
+  public ProtocolOutput getProtocolOutput(Text url, CrawlDatum datum) {
     String urlString = url.toString();
     try {
       URL u = new URL(urlString);
-
+  
       int redirects = 0;
-
+  
       while (true) {
         FileResponse response;
-        response = new FileResponse(u, page, this, getConf()); // make
-        // a
-        // request
-
+        response = new FileResponse(u, datum, this, getConf());   // make a request
+  
         int code = response.getCode();
-
-        if (code == 200) { // got a good response
-          return new ProtocolOutput(response.toContent()); // return
-          // it
-
-        } else if (code >= 300 && code < 400) { // handle redirect
+  
+        if (code == 200) {                          // got a good response
+          return new ProtocolOutput(response.toContent());              // return it
+  
+        } else if (code >= 300 && code < 400) {     // handle redirect
           if (redirects == MAX_REDIRECTS)
             throw new FileException("Too many redirects: " + url);
           u = new URL(response.getHeader("Location"));
-          redirects++;
+          redirects++;                
           if (LOG.isTraceEnabled()) {
-            LOG.trace("redirect to " + u);
+            LOG.trace("redirect to " + u); 
           }
-
-        } else { // convert to exception
+  
+        } else {                                    // convert to exception
           throw new FileError(code);
         }
-      }
+      } 
     } catch (Exception e) {
       e.printStackTrace();
-      ProtocolStatus ps = ProtocolStatusUtils.makeStatus(
-          ProtocolStatusCodes.EXCEPTION, e.toString());
-      return new ProtocolOutput(null, ps);
+      return new ProtocolOutput(null, new ProtocolStatus(e));
     }
   }
 
-  @Override
-  public RobotRules getRobotRules(String url, WebPage page) {
-    return EmptyRobotRules.RULES;
-  }
-
-  @Override
-  public Collection<Field> getFields() {
-    return FIELDS;
-  }
+//  protected void finalize () {
+//    // nothing here
+//  }
 
   /** For debugging. */
   public static void main(String[] args) throws Exception {
     int maxContentLength = Integer.MIN_VALUE;
+    String logLevel = "info";
     boolean dumpContent = false;
     String urlString = null;
 
-    String usage = "Usage: File [-maxContentLength L] [-dumpContent] url";
+    String usage = "Usage: File [-logLevel level] [-maxContentLength L] [-dumpContent] url";
 
     if (args.length == 0) {
       System.err.println(usage);
       System.exit(-1);
     }
-
+      
     for (int i = 0; i < args.length; i++) {
-      if (args[i].equals("-maxContentLength")) {
+      if (args[i].equals("-logLevel")) {
+        logLevel = args[++i];
+      } else if (args[i].equals("-maxContentLength")) {
         maxContentLength = Integer.parseInt(args[++i]);
       } else if (args[i].equals("-dumpContent")) {
         dumpContent = true;
-      } else if (i != args.length - 1) {
+      } else if (i != args.length-1) {
         System.err.println(usage);
         System.exit(-1);
       } else
@@ -155,16 +138,15 @@ public class File implements Protocol {
       file.setMaxContentLength(maxContentLength);
 
     // set log level
-    // LOG.setLevel(Level.parse((new String(logLevel)).toUpperCase()));
+    //LOG.setLevel(Level.parse((new String(logLevel)).toUpperCase()));
 
-    Content content = file.getProtocolOutput(urlString, new WebPage())
-        .getContent();
+    Content content = file.getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
 
-    System.out.println("Content-Type: " + content.getContentType());
-    System.out.println("Content-Length: "
-        + content.getMetadata().get(Response.CONTENT_LENGTH));
-    System.out.println("Last-Modified: "
-        + content.getMetadata().get(Response.LAST_MODIFIED));
+    System.err.println("Content-Type: " + content.getContentType());
+    System.err.println("Content-Length: " +
+                       content.getMetadata().get(Response.CONTENT_LENGTH));
+    System.err.println("Last-Modified: " +
+                       content.getMetadata().get(Response.LAST_MODIFIED));
     if (dumpContent) {
       System.out.print(new String(content.getContent()));
     }
@@ -180,5 +162,9 @@ public class File implements Protocol {
 
   public Configuration getConf() {
     return this.conf;
+  }
+
+  public RobotRules getRobotRules(Text url, CrawlDatum datum) {
+    return EmptyRobotRules.RULES;
   }
 }

@@ -1,34 +1,100 @@
 Nutch Change Log
 
-Release 2.0 - Current Development
+Release 1.4 - Current development
 
-* NUTCH-1099 Adds HBase and Cassandra storage properties to nutch-default.xml
+* NUTCH-1074 topN is ignored with maxNumSegments and generate.max.count (Robert Thomson via markus)
+
+* NUTCH-1078 Upgrade all instances of commons logging to slf4j (with log4j backend) (lewismc)
+
+* NUTCH-1115 Option to disable fixing embedded URL parameters in DomContentUtils (markus)
+
+* NUTCH-1114 Attr file missing in domain filter (markus)
+
+* NUTCH-1067 Configure minimum throughput for fetcher (markus)
+
+* NUTCH-1102 Fetcher to rely on fetcher.parse directive (markus)
+
+* NUTCH-1110 UpdateDB must not write _success file (markus)
+
+* NUTCH-1105 Max content length option for index-basic (markus)
+
+* NUTCH-940 static field plugin (Claudio Martella via lewismc)
+
+* NUTCH-914 Implement Apache Project Branding Requirements (lewismc)
+
+* NUTCH-1095 remove i18n from Nutch site to archive and legacy secton of wiki (lewismc)
+
+* NUTCH-1101 Option to purge db_gone records with updatedb (markus)
 
 * NUTCH-1096 Empty (not null) ContentLength results in failure of fetch (Ferdy Galema via jnioche)
+
+* NUTCH-1073 Rename parameters 'fetcher.threads.per.host.by.ip' and 'fetcher.threads.per.host' (jnioche)
 
 * NUTCH-1089 Short compressed pages caused exception in protocol-httpclient (Simone Frenzel via jnioche)
 
 * NUTCH-1085 Nutch script does not require HADOOP_HOME (jnioche)
 
+* NUTCH-1075 Delegate language identification to Tika (jnioche)
+
+* NUTCH-1049 Add classes to bin/nutch script (markus)
+
+* NUTCH-1051 Export WebGraph node scores for Solr.ExternalFileField (markus)
+
 * NUTCH-1083 ParserChecker implements Tools (jnioche)
+
+* NUTCH-1082 IndexingFiltersChecker utility does not list multi valued fields (markus)
 
 * NUTCH-1004 Do not index empty values for title field (markus)
 
 * NUTCH-914 Implement Apache Project Branding Requirements (lewismc via jnioche)
 
+* NUTCH-1069 Readlinkdb broken on Hadoop > 0.20 (markus)
+
+* NUTCH-1044 Redirected URLs and possibly all of their outlinked URLs have invalid scores (jnioche)
+
+* NUTCH-1028 Log urls when parsing (markus)
+
 * NUTCH-1065 New mvn.template (lewismc)
+
+* NUTCH-1072 Display number and size of queues in Fetcher status (jnioche)
+
+* NUTCH-1071 Crawldb update displays total number of URLs per status (jnioche)
 
 * NUTCH-1045 MimeUtil to rely on default config provided by Tika (jnioche)
 
+* NUTCH-1057 Fetcher thread time out configurable (markus)
+
 * NUTCH-1037 Option to deduplicate anchors prior to indexing (markus)
+
+* NUTCH-1050 Add segmentDir option to WebGraph (markus)
 
 * NUTCH-1055 upgrade package.html file in language identifier plugin (lewismc)
 
+* NUTCH-1059 Remove convdb command from /bin/nutch (lewismc)
+
+* NUTCH-1019 Edit comment in org.apache.nutch.crawl.Crawl to reflect removal of legacy (lewismc)
+
+* NUTCH-1023 Trivial error in error message for org.apache.nutch.crawl.LinkDbReader (lewismc)
+
 * NUTCH-1043 Add pattern for filtering .js in default url filters (jnioche)
+
+* NUTCH-1054 LinkDB optional during indexing (jnioche)
+
+* NUTCH-1029 Readdb throws EOFException (markus)
+
+* NUTCH-1036 Solr jobs should increment counters in Reporter (markus)
+
+* NUTCH-987 Support HTTP auth for Solr communication (markus)
 
 * NUTCH-1027 Degrade log level of `can't find rules for scope` (markus)
 
+* NUTCH-783 IndexingFiltersChecker utility (jnioche via markus)
+
+* NUTCH-1030 WebgraphDB program requires manually added directories (markus)
+
 * NUTCH-1011 Normalize duplicate slashes in URL's (markus)
+
+* NUTCH-993 NullPointerException at FetcherOutputFormat.checkOutputSpecs (Christian Guegi via jnioche)
 
 * NUTCH-1013 Migrate RegexURLNormalizer from Apache ORO to java.util.regex (markus)
 
@@ -36,11 +102,17 @@ Release 2.0 - Current Development
 
 * NUTCH-1012 Cannot handle illegal charset $charset (markus)
 
+* NUTCH-1022 Upgrade version number of Nutch agent in conf (markus)
+
 * NUTCH-295 Description for fetcher.threads.fetch property (kubes via markus)
+
+* NUTCH-1000 Add option not to commit to Solr (markus)
 
 * NUTCH-1006 MetaEquiv with single quotes not accepted (markus)
 
 * NUTCH-1010 ContentLength not trimmed (markus)
+
+Release 1.3 - 6/4/2011
 
 * NUTCH-995 Generate POM file using the Ivy makepom task (mattmann, jnioche, Gabriele Kahlout)
 
@@ -48,7 +120,7 @@ Release 2.0 - Current Development
 
 * NUTCH-994 Fine tune Solr schema (markus)
 
-* NUTCH-999 Normalise String representation for Dates in IndexingFilters (jnioche)
+* NUTCH-997 IndexingFitlers to store Date objects instead of Strings (jnioche)
 
 * NUTCH-996 Indexer adds solr.commit.size+1 docs (markus)
 
@@ -66,27 +138,37 @@ Release 2.0 - Current Development
 
 * NUTCH-976 Rename properties solrindex.* to solr.* (markus)
 
-* NUTCH-975 Fix missing/wrong headers in source files (markus, jnioche)
-
-* NUTCH-980 Fix IllegalAccessError with slf4j used in Solrj (markus)
-
-* NUTCH-982 Remove copying of ID and URL field in solrmapping (markus)
+* NUTCH-890 Fix IllegalAccessError with slf4j used in Solrj (markus)
 
 * NUTCH-891 Subcollection plugin won't require blacklist any more (markus)
 
+* NUTCH-972 CrawlDbMerger doesn't break on non-existent input (Gabriele Kahlout via jnioche)
+
 * NUTCH-967 Upgrade to Tika 0.9 (jnioche)
 
-* NUTCH-955 Ivy configuration improvements. Upgrade to Xerces 2.9.1 and Restlet 2.0.5 (alexis via ab)
+* NUTCH-975 Fix missing/wrong headers in source files (markus)
+
+* NUTCH-963 Add support for deleting Solr documents with STATUS_DB_GONE in CrawlDB (Claudio Martella, markus)
+
+* NUTCH-825 Publish nutch artifacts to central maven repository (mattmann, jnioche)
 
 * NUTCH-962 max. redirects not handled correctly: fetcher stops at max-1 redirects (Sebastian Nagel via ab)
 
-* NUTCH-964 Upgraded Xerces to 2.91 (markus)
+* NUTCH-921 Reduce dependency of Nutch on config files (ab)
+
+* NUTCH-876 Remove remaining robots/IP blocking code in lib-http (ab)
+
+* NUTCH-872 Change the default fetcher.parse to FALSE (ab)
+
+* NUTCH-564 External parser supports encoding attribute (Antony Bowesman, mattmann)
+
+* NUTCH-964 Upgraded Xerces to 2.91, ERROR conf.Configuration - Failed to set setXIncludeAware (markus)
+
+* NUTCH-927 Fetcher.timelimit.mins is invalid when depth is greater than 1 (Wade Lau via jnioche)
 
 * NUTCH-824 Crawling - File Error 404 when fetching file with an hexadecimal character in the file name (Michela Becchi via jnioche)
 
 * NUTCH-954 Strict application of Content-Length limit for http protocols (Alexis Detreglode via jnioche)
-
-* NUTCH-953 Fixed crawl command in Nutch script (Alexis Detreglode via jnioche)
 
 * NUTCH-950 DomainURLFilter throws NPE on bogus urls (Alexis Detreglode via jnioche)
 
@@ -94,65 +176,21 @@ Release 2.0 - Current Development
 
 * NUTCH-912 MoreIndexingFilter does not parse docx and xlsx date formats (Markus Jelsma, jnioche)
 
+* NUTCH-886 A .gitignore file for Nutch (dogacan)
+
+* NUTCH-930 Remove remaining dependencies on Lucene API (ab)
+
+* NUTCH-883 Remove unused parameters from nutch-default.xml (jnioche) 
+
 * NUTCH-936 LanguageIdentifier should not set empty lang field on NutchDocument (Markus Jelsma via jnioche)
+
+* NUTCH-787 ScoringFilters should not override the injected score (jnioche)
 
 * NUTCH-949 Conflicting ANT jars in classpath (jnioche)
 
-* NUTCH-825 Publish nutch artifacts to central maven repository (mattmann)
-
-* NUTCH-913 Nutch should use new namespace for Gora (dogacan)
-
-* NUTCH-714 Need a SFTP and SCP Protocol Handler (Sanjoy Ghosh, mattmann)
-
-* NUTCH-894 Move statistical language identification from indexing to parsing step
-  (Sertan Alkan via dogacan)
-
-* NUTCH-901 Make index-more plug-in configurable (Markus Jelsma via mattmann)
-
-* NUTCH-862 HttpClient null pointer exception (Sebastian Nagel via ab)
-
-* NUTCH-904 "-resume" option is always processed as "false" in FetcherJob
-  (Faruk Berksöz via dogacan)
-
-* NUTCH-905 Configurable file protocol parent directory crawling (Thorsten Scherler, mattmann, ab)
-
-* NUTCH-716 Make subcollection index filed multivalued (Dmitry Lihachev via jnioche)
-
-* NUTCH-884 FetcherJob should run more reduce tasks than default (ab)
-
-* NUTCH-883 Remove unused parameters from nutch-default.xml (jnioche)
-
-* NUTCH-886 A .gitignore file for Nutch (dogacan)
-
-* NUTCH-872 Change the default fetcher.parse to FALSE (ab).
-
-* NUTCH-861 Renamed HTMLParseFilter into ParseFilter 
-
-* NUTCH-876 Remove remaining robots/IP blocking code in lib-http (ab)
-
-* NUTCH-851 Port logging to slf4j (jnioche)
-
-* NUTCH-564 External parser supports encoding attribute (Antony Bowesman, mattmann)
-
-* NUTCH-873 Ivy configuration settings don't include Gora (mattmann)
-
-* NUTCH-870 Injector should add the metadata before calling injectedScore (jnioche via mattmann)
-
-* NUTCH-867 Port Nutch benchmark to Nutchbase (ab)
-
-* NUTCH-869 Add parse-html back (jnioche)
-
-* NUTCH-871 MoreIndexingFilter missing date format (Max	Lynch via mattmann)
-
-* NUTCH-696 Timeout for Parser (ab, jnioche)
-
-* NUTCH-774 Retry interval in crawl date is set to 0 (Reinhard Schwab via mattmann)
-
-* NUTCH-697 Generate log output for solr indexer and dedup (Dmitry Lihachev, Jeroen van Vianen via mattmann)
+* NUTCH-863 Benchmark and a testbed proxy server (ab)
 
 * NUTCH-844 Improve NutchConfiguration (ab)
-
-* NUTCH-850 SolrDeleteDuplicates needs to clone the SolrRecord objects (jnioche)
 
 * NUTCH-845 Native hadoop libs not available through maven (ab)
 
@@ -160,32 +198,67 @@ Release 2.0 - Current Development
 
 * NUTCH-821 Use ivy in nutch builds (Enis Soztutar, jnioche)
 
-* NUTCH-838 Add timing information to all Tool classes (Jeroen van Vianen, mattmann)
-
 * NUTCH-837 Remove search servers and Lucene dependencies (ab)
 
 * NUTCH-836 Remove deprecated parse plugins (jnioche)
 
+* NUTCH-939 Added -dir command line option to SolrIndexer (Claudio Martella via ab)
+
+* NUTCH-948 Remove Lucene dependencies (ab)
+
+Release 1.2 - 09/18/2010
+
+* NUTCH-901 Make index-more plug-in configurable (Markus Jelsma via mattmann)
+
+* NUTCH-908 Infinite Loop and Null Pointer Bugs in Searching (kubes via mattmann)
+
+* NUTCH-906 Nutch OpenSearch sometimes raises DOMExceptions (Asheesh Laroia via ab)
+
+* NUTCH-862 HttpClient null pointer exception (Sebastian Nagel via ab)
+
+* NUTCH-905 Configurable file protocol parent directory crawling (Thorsten Scherler, mattmann, ab)
+
+* NUTCH-877 Allow setting of slop values for non-quote phrase queries on query-basic plugin (kubes via jnioche)
+
+* NUTCH-716 Make subcollection index filed multivalued (Dmitry Lihachev via jnioche)
+
+* NUTCH-878 ScoringFilters should not override the injected score 
+
+* NUTCH-870 Injector should add the metadata before calling injectedScore (jnioche via mattmann)
+
+* NUTCH-858 No longer able to set per-field boosts on lucene documents (ab)
+
+* NUTCH-869 Add parse-html back (jnioche)
+
+* NUTCH-871 MoreIndexingFilter missing date format (Max Lynch via mattmann)
+
+* NUTCH-696 Timeout for Parser (ab, jnioche)
+
+* NUTCH-857 DistributedBeans should not close their RPC counterparts (kubes)
+  
+* NUTCH-855 ScoringFilter and IndexingFilter: To allow for the propagation of URL Metatags 
+  and their subsequent indexing (Scott Gonyea via mattmann)
+
+* NUTCH-677 Segment merge filering based on segment content (Marcin Okraszewski via mattmann)
+
+* NUTCH-774 Retry interval in crawl date is set to 0 (Reinhard Schwab via mattmann)
+
+* NUTCH-697 Generate log output for solr indexer and dedup (Dmitry Lihachev, Jeroen van Vianen via mattmann)
+
+* NUTCH-850 SolrDeleteDuplicates needs to clone the SolrRecord objects (jnioche)
+
+* NUTCH-838 Add timing information to all Tool classes (Jeroen van Vianen, mattmann)
+
 * NUTCH-835 Document deduplication failed using MD5Signature (Sebastian Nagel via ab)
+
+* NUTCH-831 Allow configuration of how fields crawled by Nutch are stored / indexed / 
+  tokenized (Jeroen van Vianen via mattmann)
 
 * NUTCH-278 Fetcher-status might need clarification: kbit/s instead of kb/s shown (Alex McLintock via mattmann)
 
 * NUTCH-833 Website is still Lucene branded (mattmann, Alex McLintock)
 
 * NUTCH-832 Website menu has lots of broken links - in particular the API docs (Alex McLintock via mattmann)
-
-* NUTCH-921 Reduce dependency of Nutch on config files (ab)
-
-* NUTCH-907 DataStore API doesn't support multiple storage areas for multiple disjoint crawls (Sertan Alkan via ab)
-
-* NUTCH-880 REST API for Nutch (ab)
-
-* NUTCH-930 Remove remaining dependencies on Lucene API (ab)
-
-* NUTCH-931 Simple admin API to fetch status and stop the service (ab)
-
-* NUTCH-932 Bulk REST API to retrieve crawl results as JSON (ab)
-
 
 Release 1.1 - 2010-06-06
 
