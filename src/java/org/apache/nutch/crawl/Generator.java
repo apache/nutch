@@ -115,6 +115,7 @@ public class Generator extends Configured implements Tool {
     private long limit;
     private long count;
     private HashMap<String,int[]> hostCounts = new HashMap<String,int[]>();
+    private int segCounts[];
     private int maxCount;
     private boolean byDomain = false;
     private Partitioner<Text,Writable> partitioner = new URLPartitioner();
@@ -155,6 +156,7 @@ public class Generator extends Configured implements Tool {
       schedule = FetchScheduleFactory.getFetchSchedule(job);
       scoreThreshold = job.getFloat(GENERATOR_MIN_SCORE, Float.NaN);
       maxNumSegments = job.getInt(GENERATOR_MAX_NUM_SEGMENTS, 1);
+      segCounts = new int[maxNumSegments];
     }
 
     public void close() {}
@@ -269,6 +271,12 @@ public class Generator extends Configured implements Tool {
           // increment hostCount
           hostCount[1]++;
 
+          // check if topN reached, select next segment if it is
+          while (segCounts[hostCount[0]-1] >= limit && hostCount[0] < maxNumSegments) {
+            hostCount[0]++;
+            hostCount[1] = 0;
+          }
+
           // reached the limit of allowed URLs per host / domain
           // see if we can put it in the next segment?
           if (hostCount[1] > maxCount) {
@@ -285,7 +293,11 @@ public class Generator extends Configured implements Tool {
             }
           }
           entry.segnum = new IntWritable(hostCount[0]);
-        } else entry.segnum = new IntWritable(currentsegmentnum);
+          segCounts[hostCount[0]-1]++;
+        } else {
+          entry.segnum = new IntWritable(currentsegmentnum);
+          segCounts[currentsegmentnum-1]++;
+        }
 
         output.collect(key, entry);
 

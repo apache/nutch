@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1074 topN is ignored with maxNumSegments and generate.max.count (Robert Thomson via markus)
+
 * NUTCH-1078 Upgrade all instances of commons logging to slf4j (with log4j backend) (lewismc)
 
 * NUTCH-1115 Option to disable fixing embedded URL parameters in DomContentUtils (markus)
