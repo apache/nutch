@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.0 - Current Development
 
+* NUTCH-1131 Rely on published artefacts for GORA (jnioche)
+
 * NUTCH-1099 Adds HBase and Cassandra storage properties to nutch-default.xml
 
 * NUTCH-1096 Empty (not null) ContentLength results in failure of fetch (Ferdy Galema via jnioche)

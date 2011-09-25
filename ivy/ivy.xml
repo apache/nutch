@@ -58,7 +58,7 @@
 		  <dependency org="org.apache.tika" name="tika-parsers" rev="0.9" />
 		-->
 		
-		<dependency org="org.apache.gora" name="gora-core" rev="0.2-incubating" conf="*->compile"/>
+		<dependency org="org.apache.gora" name="gora-core" rev="0.1.1-incubating" conf="*->compile"/>
 
 		<dependency org="log4j" name="log4j" rev="1.2.15" conf="*->master" />
 
@@ -93,7 +93,7 @@
 		<dependency org="org.hsqldb" name="hsqldb" rev="2.0.0" conf="*->default"/>
 		<dependency org="org.jdom" name="jdom" rev="1.1" conf="test->default"/>
 
-		<dependency org="org.apache.gora" name="gora-sql" rev="0.2-incubating" conf="*->compile"/>				
+		<dependency org="org.apache.gora" name="gora-sql" rev="0.1.1-incubating" conf="*->default"/>				
                 <dependency org="org.restlet.jse" name="org.restlet" rev="2.0.5" conf="*->default"/>
                 <dependency org="org.restlet.jse" name="org.restlet.ext.jackson" rev="2.0.5" conf="*->default"/>
 

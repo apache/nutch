@@ -83,7 +83,6 @@
     rather than look for them online.
     -->
     <module organisation="org.apache.nutch" name=".*" resolver="internal"/>
-    <module organisation="org.apache.gora" name=".*" resolver="internal"/>
     <module organisation="org.restlet" name=".*" resolver="restlet"/>
     <module organisation="org.restlet.jse" name=".*" resolver="restlet"/>
   </modules>
