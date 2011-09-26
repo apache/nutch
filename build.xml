@@ -167,7 +167,7 @@
       <packageset dir="${plugins.dir}/urlfilter-regex/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
-      <packageset dir="${plugins.dir}/languageidentifier/src/java"/>
+      <packageset dir="${plugins.dir}/language-identifier/src/java"/>
       
       <link href="${javadoc.link.java}"/>
       <link href="${javadoc.link.lucene}"/>
@@ -549,7 +549,7 @@
       <packageset dir="${plugins.dir}/urlfilter-regex/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
-      <packageset dir="${plugins.dir}/languageidentifier/src/java"/>
+      <packageset dir="${plugins.dir}/language-identifier/src/java"/>
       
       <link href="${javadoc.link.java}"/>
       <link href="${javadoc.link.lucene}"/>
