@@ -265,7 +265,7 @@
       <zipfileset dir="${build.lib.dir}" prefix="lib"
                   includes="**/*.jar"
                   excludes="jasper*.jar,jsp-*.jar,hadoop-*.jar,hbase*test*.jar,ant*jar,hsqldb*.jar"/>
-      <zipfileset dir="${build.plugins}" prefix="plugins"/>
+      <zipfileset dir="${build.plugins}" prefix="classes/plugins"/>
     </jar>
   </target>
 
