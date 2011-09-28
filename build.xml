@@ -261,7 +261,7 @@
       <zipfileset dir="${conf.dir}" excludes="*.template,hadoop*.*"/>
       <zipfileset dir="${build.lib.dir}" prefix="lib"
                   includes="**/*.jar" excludes="hadoop-*.jar"/>
-      <zipfileset dir="${build.plugins}" prefix="plugins"/>
+      <zipfileset dir="${build.plugins}" prefix="classes/plugins"/>
     </jar>
   </target>
 
