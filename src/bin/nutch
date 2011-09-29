@@ -72,6 +72,7 @@ if [ $# = 0 ]; then
   echo "  scoreupdater      updates the crawldb with linkrank scores"
   echo "  nodedumper        dumps the web graph's node scores"
   echo "  plugin            load a plugin and run one of its classes main()"
+  echo "  junit             runs the given JUnit test"
   echo " or"
   echo "  CLASSNAME         run the class named CLASSNAME"
   echo "Most commands print help when invoked w/o parameters."
@@ -243,6 +244,9 @@ elif [ "$COMMAND" = "nodedumper" ] ; then
   CLASS=org.apache.nutch.scoring.webgraph.NodeDumper
 elif [ "$COMMAND" = "plugin" ] ; then
   CLASS=org.apache.nutch.plugin.PluginRepository
+elif [ "$COMMAND" = "junit" ] ; then
+  CLASSPATH=$CLASSPATH:test/classes/
+  CLASS=junit.textui.TestRunner
 else
   CLASS=$COMMAND
 fi

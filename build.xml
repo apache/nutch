@@ -299,6 +299,9 @@
     <copy todir="${runtime.local}/plugins">
       <fileset dir="${build.dir}/plugins"/>
     </copy>
+    <copy todir="${runtime.local}/test">
+      <fileset dir="${build.dir}/test"/>
+    </copy>
   </target>
 
   <!-- ================================================================== -->
