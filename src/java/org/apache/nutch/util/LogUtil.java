@@ -22,7 +22,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
 
-// Commons Logging imports
+// slf4j Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,12 +45,12 @@ public class LogUtil {
 
   static {
     try {
-      TRACE = Logger.class.getMethod("trace", new Class[] { Object.class });
-      DEBUG = Logger.class.getMethod("debug", new Class[] { Object.class });
-      INFO  = Logger.class.getMethod("info",  new Class[] { Object.class });
-      WARN  = Logger.class.getMethod("warn",  new Class[] { Object.class });
-      ERROR = Logger.class.getMethod("error", new Class[] { Object.class });
-      FATAL = Logger.class.getMethod("error", new Class[] { Object.class });
+      TRACE = Logger.class.getMethod("trace", new Class[] { String.class });
+      DEBUG = Logger.class.getMethod("debug", new Class[] { String.class });
+      INFO  = Logger.class.getMethod("info",  new Class[] { String.class });
+      WARN  = Logger.class.getMethod("warn",  new Class[] { String.class });
+      ERROR = Logger.class.getMethod("error", new Class[] { String.class });
+      FATAL = Logger.class.getMethod("error", new Class[] { String.class });
     } catch(Exception e) {
       if (LOG.isErrorEnabled()) {
         LOG.error("Cannot init log methods", e);
@@ -100,7 +100,7 @@ public class LogUtil {
           if (!hasNewline())
             return;
           try {
-            method.invoke(logger, new Object[] { toString().trim() });
+            method.invoke(logger, new String[] { toString().trim() });
           } catch (Exception e) {
             if (LOG.isErrorEnabled()) {
               LOG.error("Cannot log with method [" + method + "]", e);

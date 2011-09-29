@@ -6,7 +6,7 @@ Release 1.4 - Current development
 
 * NUTCH-937 Put plugins in classes/plugins in job file (Claudio Martella, Ferdy Galema, jnioche)
 
-* NUTCH-623 Change plugin source directory "languageidentifier" to "language-identifier"
+* NUTCH-623 Change plugin source directory "languageidentifier" to "language-identifier" (lewismc)
 
 * NUTCH-1074 topN is ignored with maxNumSegments and generate.max.count (Robert Thomson via markus)
 
