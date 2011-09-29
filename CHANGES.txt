@@ -1,12 +1,14 @@
 Nutch Change Log
 
-Release 2.0 - Current Development
+Release nutchgora - Current Development
+
+* NUTCH-672 allow unit tests to be run from bin/nutch (Todd Lipton via lewismc)
 
 * NUTCH-937 Put plugins in classes/plugins in job file (Claudio Martella, Ferdy Galema, jnioche)
 
 * NUTCH-1131 Rely on published artefacts for GORA (jnioche)
 
-* NUTCH-1099 Adds HBase and Cassandra storage properties to nutch-default.xml
+* NUTCH-1099 Adds HBase and Cassandra storage properties to nutch-default.xml (lewismc)
 
 * NUTCH-1096 Empty (not null) ContentLength results in failure of fetch (Ferdy Galema via jnioche)
 

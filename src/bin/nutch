@@ -48,17 +48,18 @@ if [ $# = 0 ]; then
   echo "Usage: nutch [-core] COMMAND"
   echo "where COMMAND is one of:"
 # echo " crawl one-step crawler for intranets"
-  echo " inject inject new urls into the database"
-  echo " generate generate new segments to fetch from crawl db"
-  echo " fetch fetch URLs marked during generate"
-  echo " parse parse URLs marked during fetch"
-  echo " updatedb update web table after parsing"
-  echo " readdb read/dump records from page database"
-  echo " solrindex run the solr indexer on parsed segments and linkdb"
-  echo " solrdedup remove duplicates from solr"
-  echo " plugin load a plugin and run one of its classes main()"
+  echo " inject		inject new urls into the database"
+  echo " generate 	generate new segments to fetch from crawl db"
+  echo " fetch 		fetch URLs marked during generate"
+  echo " parse 		parse URLs marked during fetch"
+  echo " updatedb 	update web table after parsing"
+  echo " readdb 	read/dump records from page database"
+  echo " solrindex 	run the solr indexer on parsed segments and linkdb"
+  echo " solrdedup 	remove duplicates from solr"
+  echo " plugin 	load a plugin and run one of its classes main()"
+  echo " junit         	runs the given JUnit test"
   echo " or"
-  echo " CLASSNAME run the class named CLASSNAME"
+  echo " CLASSNAME 	run the class named CLASSNAME"
   echo "Most commands print help when invoked w/o parameters."
   echo ""
   echo "Expert: -core option is for developers only. It avoids building the job jar, "
@@ -199,6 +200,9 @@ elif [ "$COMMAND" = "solrdedup" ] ; then
 CLASS=org.apache.nutch.indexer.solr.SolrDeleteDuplicates
 elif [ "$COMMAND" = "plugin" ] ; then
 CLASS=org.apache.nutch.plugin.PluginRepository
+elif [ "$COMMAND" = "junit" ] ; then
+  CLASSPATH=$CLASSPATH:test/classes/
+  CLASS=junit.textui.TestRunner
 else
 CLASS=$COMMAND
 fi
