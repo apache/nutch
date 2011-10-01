@@ -1057,7 +1057,9 @@ public class Fetcher extends Configured implements Tool,
     int timeoutDivisor = getConf().getInt("fetcher.threads.timeout.divisor", 2);
     if (LOG.isInfoEnabled()) { LOG.info("Fetcher: time-out divisor: " + timeoutDivisor); }
 
-    feeder = new QueueFeeder(input, fetchQueues, threadCount * 50);
+    int queueDepthMuliplier =  getConf().getInt("fetcher.queue.depth.multiplier", 50);
+    
+    feeder = new QueueFeeder(input, fetchQueues, threadCount * queueDepthMuliplier);
     //feeder.setPriority((Thread.MAX_PRIORITY + Thread.NORM_PRIORITY) / 2);
     
     // the value of the time limit is either -1 or the time where it should finish

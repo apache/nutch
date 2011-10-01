@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1141 Configurable Fetcher queue depth (jnioche)
+
 * NUTCH-1091 Remove commons logging dependency from Nutch branch and trunk (lewismc)
 
 * NUTCH-672 allow unit tests to be run from bin/nutch (Todd Lipton via lewismc)

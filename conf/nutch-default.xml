@@ -722,6 +722,16 @@
   </description>
 </property>
 
+<property>
+  <name>fetcher.queue.depth.multiplier</name>
+  <value>50</value>
+  <description>(EXPERT)The fetcher buffers the incoming URLs into queues based on the [host|domain|IP]
+  (see param fetcher.queue.mode). The depth of the queue is the number of threads times the value of this parameter.
+  A large value requires more memory but can improve the performance of the fetch when the order of the URLS in the fetch list
+  is not optimal.
+  </description>
+</property>	
+
 <!-- moreindexingfilter plugin properties -->
 
 <property>
