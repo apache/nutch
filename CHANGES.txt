@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-1058 Upgrade Solr schema to version 1.4 (markus)
+
 * NUTCH-1137 LinkDB invertlinks other options ignored when using -dir option (Sebastian Nagel, markus)
 
 * NUTCH-1141 Configurable Fetcher queue depth (jnioche)
