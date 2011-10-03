@@ -20,13 +20,14 @@
         https://issues.apache.org/jira/browse/NUTCH-442
         https://issues.apache.org/jira/browse/NUTCH-699
         https://issues.apache.org/jira/browse/NUTCH-994
-        https://issues.apache.org/jira/browse/NUTCH-999
+        https://issues.apache.org/jira/browse/NUTCH-997
+        https://issues.apache.org/jira/browse/NUTCH-1058
         and
         http://svn.apache.org/viewvc/lucene/dev/branches/branch_3x/solr/
         example/solr/conf/schema.xml?view=markup
         for more info.
     -->
-<schema name="nutch" version="1.3">
+<schema name="nutch" version="1.4">
     <types>
         <fieldType name="string" class="solr.StrField" sortMissingLast="true"
             omitNorms="true"/> 
