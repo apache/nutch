@@ -150,7 +150,6 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
   }
 
   public void invert(Path linkDb, Path[] segments, boolean normalize, boolean filter, boolean force) throws IOException {
-
     Path lock = new Path(linkDb, LOCK_NAME);
     FileSystem fs = FileSystem.get(getConf());
     LockUtil.createLockFile(fs, lock, force);
@@ -164,6 +163,7 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
       LOG.info("LinkDb: URL normalize: " + normalize);
       LOG.info("LinkDb: URL filter: " + filter);
     }
+
     JobConf job = LinkDb.createJob(getConf(), linkDb, normalize, filter);
     for (int i = 0; i < segments.length; i++) {
       if (LOG.isInfoEnabled()) {
@@ -255,7 +255,7 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
     int res = ToolRunner.run(NutchConfiguration.create(), new LinkDb(), args);
     System.exit(res);
   }
-  
+
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.err.println("Usage: LinkDb <linkdb> (-dir <segmentsDir> | <seg1> <seg2> ...) [-force] [-noNormalize] [-noFilter]");
@@ -276,10 +276,8 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
     boolean force = false;
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-dir")) {
-        segDir = new Path(args[++i]);
-        FileStatus[] files = fs.listStatus(segDir, HadoopFSUtil.getPassDirectoriesFilter(fs));
-        if (files != null) segs.addAll(Arrays.asList(HadoopFSUtil.getPaths(files)));
-        break;
+        FileStatus[] paths = fs.listStatus(new Path(args[++i]), HadoopFSUtil.getPassDirectoriesFilter(fs));
+        segs.addAll(Arrays.asList(HadoopFSUtil.getPaths(paths)));
       } else if (args[i].equalsIgnoreCase("-noNormalize")) {
         normalize = false;
       } else if (args[i].equalsIgnoreCase("-noFilter")) {
