@@ -323,40 +323,8 @@
   </target>
 
   <!-- ================================================================== -->
-  <!-- Run code checks (PMD)                                              --> 
+  <!-- Run Nutch proxy                                                    --> 
   <!-- ================================================================== -->
-  <target name="pmd" depends="compile">
-	<property name="pmd.report" location="${build.dir}/pmd-report.html" />
-	<taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask">
-	  <classpath>
-		  <fileset dir="${lib.dir}">
-            <include name="pmd-ext/*.jar" />
-            <include name="xerces*.jar" />
-          </fileset>
-	  </classpath>
-	</taskdef>
-	<pmd shortFilenames="true" failonerror="true" failOnRuleViolation="false"
-		 encoding="${build.encoding}" failuresPropertyName="pmd.failures">
-	  <ruleset>unusedcode</ruleset>
-          <!--ruleset>basic</ruleset-->
-          <!--ruleset>optimizations</ruleset-->
-      <formatter type="html" toFile="${pmd.report}" />
-	  <!-- <formatter type="xml" toFile="${tempbuild}/$report_pmd.xml"/> -->
-	<fileset dir="${basedir}/src">
-        	<include name="java/**/*.java"/>
-	        <include name="plugin/**/*.java"/>
-      </fileset>
-    </pmd>
-	<condition property="pmd.stop" value="true">
-      <and>
-        <isset property="pmd.failures" />
-          <not>
-            <equals arg1="0" arg2="${pmd.failures}" trim="true" />
-          </not>
-      </and>
-	</condition>
-	<fail if="pmd.stop">FAILURE: PMD shows ${pmd.failures} rule violations. See ${pmd.report} for details.</fail>
-  </target>
 
   <target name="proxy" depends="job, compile-core-test">
     <java classname="org.apache.nutch.tools.proxy.TestbedProxy" fork="true">
@@ -369,6 +337,10 @@
       <jvmarg line="-Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/>
     </java>
   </target>
+
+  <!-- ================================================================== -->
+  <!-- Run Nutch benchmarking analysis                                    --> 
+  <!-- ================================================================== -->
 
   <target name="benchmark">
     <java classname="org.apache.nutch.tools.Benchmark" fork="true">
