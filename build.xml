@@ -699,5 +699,38 @@
       </fileset>
     </rat:report>
   </target>
+
+  <!-- ================================================================== -->
+  <!-- SONAR targets                                                      -->
+  <!-- ================================================================== -->
+  
+  <!-- Define the Sonar task if this hasn't been done in a common script -->
+  <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
+    <classpath path=""/>
+  </taskdef>
+  
+  <!-- Add the target -->
+  <target name="sonar">
+    <sonar:sonar workDir="${build.dir}" key="org.apache.nutch:nutch" version="1.4" xmlns:sonar="antlib:org.sonar.ant"/>
+
+    <!-- source directories (required) -->
+    <sources>
+      <path location="${src.dir}" />
+    </sources>
+ 
+    <!-- list of properties (optional) -->
+    <property key="sonar.projectName" value="Nutch Trunk 1.4 Sonar Analysis" />
+    <property key="sonar.dynamicAnalysis" value="false" />
+ 
+    <!-- test source directories (optional) -->
+    <tests>
+      <path location="${test.src.dir}" />
+    </tests>
+
+    <!-- binaries directories, which contain for example the compiled Java bytecode -->
+     <binaries>
+       <path location="${build.dir}/classes"/>
+     </binaries>
+  </target>
 	
 </project>
