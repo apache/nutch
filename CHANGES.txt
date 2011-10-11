@@ -2,6 +2,9 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-797 Fix parse-tika and parse-html to use relative URL resolution per RFC-3986
+  (Robert Hohman, ab)
+
 * NUTCH-1154 Upgrade to Tika 0.10. NOTE: Tika's new RTF parser may ignore more
   text in malformed documents than previously - see TIKA-748 for details. (ab)
 

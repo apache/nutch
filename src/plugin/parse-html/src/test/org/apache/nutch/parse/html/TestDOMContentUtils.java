@@ -294,11 +294,12 @@ public class TestDOMContentUtils extends TestCase {
            new Outlink("http://www.nutch.org/g;x?y#s", "anchor3")
          },
          {
-           new Outlink("http://www.nutch.org/g;something", "anchor1"),
-           new Outlink("http://www.nutch.org/g;something?y#s", "anchor2"),
+           // this is tricky - see RFC3986 section 5.4.1 example 7
+           new Outlink("http://www.nutch.org/g", "anchor1"),
+           new Outlink("http://www.nutch.org/g?y#s", "anchor2"),
            new Outlink("http://www.nutch.org/;something?y=1", "anchor3"),
            new Outlink("http://www.nutch.org/;something?y=1#s", "anchor4"),
-           new Outlink("http://www.nutch.org/?y=1;somethingelse", "anchor5")
+           new Outlink("http://www.nutch.org/;something?y=1;somethingelse", "anchor5")
          },
          {
            new Outlink("http://www.nutch.org/g", ""),

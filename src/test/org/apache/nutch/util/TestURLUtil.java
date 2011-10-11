@@ -213,4 +213,50 @@ public class TestURLUtil
     assertEquals(aDotCom, URLUtil.chooseRepr(aDotCom, aSubDotCom, true));
   }
 
+  // from RFC3986 section 5.4.1
+  private static String baseString = "http://a/b/c/d;p?q";
+  private static String[][] targets = new String[][] {
+    // unknown protocol {"g:h"           ,  "g:h"},
+    {"g"             ,  "http://a/b/c/g"},
+    { "./g"           ,  "http://a/b/c/g"},
+    { "g/"            ,  "http://a/b/c/g/"},
+    { "/g"            ,  "http://a/g"},
+    { "//g"           ,  "http://g"},
+    { "?y"            ,  "http://a/b/c/d;p?y"},
+    { "g?y"           ,  "http://a/b/c/g?y"},
+    { "#s"            ,  "http://a/b/c/d;p?q#s"},
+    { "g#s"           ,  "http://a/b/c/g#s"},
+    { "g?y#s"         ,  "http://a/b/c/g?y#s"},
+    { ";x"            ,  "http://a/b/c/;x"},
+    { "g;x"           ,  "http://a/b/c/g;x"},
+    { "g;x?y#s"       ,  "http://a/b/c/g;x?y#s"},
+    { ""              ,  "http://a/b/c/d;p?q"},
+    { "."             ,  "http://a/b/c/"},
+    { "./"            ,  "http://a/b/c/"},
+    { ".."            ,  "http://a/b/"},
+    { "../"           ,  "http://a/b/"},
+    { "../g"          ,  "http://a/b/g"},
+    { "../.."         ,  "http://a/"},
+    { "../../"        ,  "http://a/"},
+    { "../../g"       ,  "http://a/g"}
+  };
+
+  public void testResolveURL() throws Exception {
+    // test NUTCH-436
+    URL u436 = new URL("http://a/b/c/d;p?q#f");
+    assertEquals("http://a/b/c/d;p?q#f", u436.toString());
+    URL abs = URLUtil.resolveURL(u436, "?y");
+    assertEquals("http://a/b/c/d;p?y", abs.toString());
+    // test NUTCH-566
+    URL u566 = new URL("http://www.fleurie.org/entreprise.asp");
+    abs = URLUtil.resolveURL(u566, "?id_entrep=111");
+    assertEquals("http://www.fleurie.org/entreprise.asp?id_entrep=111", abs.toString());
+    URL base = new URL(baseString);
+    assertEquals("base url parsing", baseString, base.toString());
+    for (int i = 0; i < targets.length; i++) {
+      URL u = URLUtil.resolveURL(base, targets[i][0]);
+      assertEquals(targets[i][1], targets[i][1], u.toString());
+    }
+  }
+
 }

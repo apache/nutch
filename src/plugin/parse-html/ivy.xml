@@ -36,7 +36,7 @@
   </publications>
 
   <dependencies>
-   <dependency org="org.ccil.cowan.tagsoup" name="tagsoup" rev="1.2"/>
+   <dependency org="org.ccil.cowan.tagsoup" name="tagsoup" rev="1.2.1"/>
   </dependencies>
 
 </ivy-module>

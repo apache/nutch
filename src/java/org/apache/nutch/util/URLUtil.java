@@ -26,6 +26,108 @@ import org.apache.nutch.util.domain.DomainSuffixes;
 
 /** Utility class for URL analysis */
 public class URLUtil {
+  
+  /**
+   * Resolve relative URL-s and fix a few java.net.URL errors
+   * in handling of URLs with embedded params and pure query
+   * targets.
+   * @param base base url
+   * @param target target url (may be relative)
+   * @return resolved absolute url.
+   * @throws MalformedURLException
+   */
+  public static URL resolveURL(URL base, String target)
+          throws MalformedURLException {
+    target = target.trim();
+
+    /* this is probably not needed anymore - see NUTCH-797.
+    // handle params that are embedded into the base url - move them to target
+    // so URL class constructs the new url class properly
+    if (base.toString().indexOf(';') > 0)
+      return fixEmbeddedParams(base, target);
+    */
+    
+    // handle the case that there is a target that is a pure query,
+    // for example
+    // http://careers3.accenture.com/Careers/ASPX/Search.aspx?co=0&sk=0
+    // It has urls in the page of the form href="?co=0&sk=0&pg=1", and by
+    // default
+    // URL constructs the base+target combo as
+    // http://careers3.accenture.com/Careers/ASPX/?co=0&sk=0&pg=1, incorrectly
+    // dropping the Search.aspx target
+    //
+    // Browsers handle these just fine, they must have an exception similar to
+    // this
+    if (target.startsWith("?")) {
+      return fixPureQueryTargets(base, target);
+    }
+
+    return new URL(base, target);
+  }
+
+  /** Handle the case in RFC3986 section 5.4.1 example 7, and similar. */
+   static URL fixPureQueryTargets(URL base, String target)
+          throws MalformedURLException {
+    if (!target.startsWith("?")) return new URL(base, target);
+
+    String basePath = base.getPath();
+    String baseRightMost = "";
+    int baseRightMostIdx = basePath.lastIndexOf("/");
+    if (baseRightMostIdx != -1) {
+      baseRightMost = basePath.substring(baseRightMostIdx + 1);
+    }
+
+    if (target.startsWith("?")) target = baseRightMost + target;
+
+    return new URL(base, target);
+  }
+
+  /**
+   * Handles cases where the url param information is encoded into the base url
+   * as opposed to the target.
+   * <p>
+   * If the taget contains params (i.e. ';xxxx') information then the target
+   * params information is assumed to be correct and any base params information
+   * is ignored. If the base contains params information but the tareget does
+   * not, then the params information is moved to the target allowing it to be
+   * correctly determined by the java.net.URL class.
+   * 
+   * @param base
+   *          The base URL.
+   * @param target
+   *          The target path from the base URL.
+   * 
+   * @return URL A URL with the params information correctly encoded.
+   * 
+   * @throws MalformedURLException
+   *           If the url is not a well formed URL.
+   */
+  private static URL fixEmbeddedParams(URL base, String target)
+          throws MalformedURLException {
+
+    // the target contains params information or the base doesn't then no
+    // conversion necessary, return regular URL
+    if (target.indexOf(';') >= 0 || base.toString().indexOf(';') == -1) {
+      return new URL(base, target);
+    }
+
+    // get the base url and it params information
+    String baseURL = base.toString();
+    int startParams = baseURL.indexOf(';');
+    String params = baseURL.substring(startParams);
+
+    // if the target has a query string then put the params information after
+    // any path but before the query string, otherwise just append to the path
+    int startQS = target.indexOf('?');
+    if (startQS >= 0) {
+      target = target.substring(0, startQS) + params
+              + target.substring(startQS);
+    } else {
+      target += params;
+    }
+
+    return new URL(base, target);
+  }
 
   private static Pattern IP_PATTERN = Pattern.compile("(\\d{1,3}\\.){3}(\\d{1,3})");
 
