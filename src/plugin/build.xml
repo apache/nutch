@@ -30,7 +30,7 @@
      <ant dir="index-anchor" target="deploy"/>
      <ant dir="index-basic" target="deploy"/>
      <ant dir="index-more" target="deploy"/>
-     <ant dir="languageidentifier" target="deploy"/>
+     <ant dir="language-identifier" target="deploy"/>
      <ant dir="lib-http" target="deploy"/>
      <ant dir="lib-nekohtml" target="deploy"/>
      <ant dir="lib-regex-filter" target="deploy"/>
@@ -41,7 +41,7 @@
      <ant dir="protocol-file" target="deploy"/>
      <ant dir="protocol-http" target="deploy"/>
      <ant dir="protocol-httpclient" target="deploy"/>
-  	 <ant dir="protocol-sftp" target="deploy"/>
+     <ant dir="protocol-sftp" target="deploy"/>
      <ant dir="parse-js" target="deploy"/>
      <ant dir="parse-html" target="deploy"/>
      <ant dir="parse-tika" target="deploy"/>
@@ -75,7 +75,7 @@
      <ant dir="protocol-file" target="test"/>
      <ant dir="parse-html" target="test"/>
      <ant dir="index-more" target="test"/>
-     <ant dir="languageidentifier" target="test"/>
+     <ant dir="language-identifier" target="test"/>
      <ant dir="protocol-httpclient" target="test"/>
      <ant dir="urlfilter-automaton" target="test"/>
      <ant dir="urlfilter-domain" target="test" />
@@ -84,7 +84,6 @@
      <ant dir="urlnormalizer-basic" target="test"/>
      <ant dir="urlnormalizer-pass" target="test"/>
      <ant dir="urlnormalizer-regex" target="test"/>
-     <ant dir="languageidentifier" target="test"/>
      <ant dir="lib-http" target="test"/>
      <ant dir="subcollection" target="test"/>
      <!--
@@ -104,7 +103,7 @@
     <ant dir="index-anchor" target="clean"/>
     <ant dir="index-basic" target="clean"/>
     <ant dir="index-more" target="clean"/>
-    <ant dir="languageidentifier" target="clean"/>
+    <ant dir="language-identifier" target="clean"/>
     <ant dir="lib-http" target="clean"/>
     <ant dir="lib-nekohtml" target="clean"/>
     <ant dir="lib-regex-filter" target="clean"/>
@@ -121,7 +120,7 @@
     <ant dir="protocol-ftp" target="clean"/>
     <ant dir="protocol-httpclient" target="clean"/>
     <ant dir="protocol-http" target="clean"/>
-  	<ant dir="protocol-sftp" target="clean"/>
+    <ant dir="protocol-sftp" target="clean"/>
     <ant dir="scoring-link" target="clean"/>
     <ant dir="scoring-opic" target="clean"/>
     <ant dir="subcollection" target="clean"/>
