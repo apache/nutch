@@ -30,9 +30,9 @@
 	</publications>
 
 	<dependencies>
-		<dependency org="org.apache.solr" name="solr-solrj" rev="3.1.0"
+		<dependency org="org.apache.solr" name="solr-solrj" rev="3.4.0"
 			conf="*->default" />
-		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.5.5" conf="*->master" />
+		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.1" conf="*->master" />
 
 		<dependency org="commons-lang" name="commons-lang" rev="2.4"
 			conf="*->default" />
