@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
+* NUTCH-1132, 1133 & 1134 Fix TestGenerator, TestInjector & TestFetcher respectively (lewismc)
+
 * NUTCH-1154 Upgrade to Tika 0.10. NOTE: Tika's new RTF parser may ignore more
   text in malformed documents than previously - see TIKA-748 for details. (ab)
 

@@ -55,7 +55,7 @@ public class AbstractNutchTest extends TestCase {
   public void setUp() throws Exception {
     super.setUp();
     conf = CrawlTestUtil.createConfiguration();
-    conf.set("storage.data.store.class", "org.gora.sql.store.SqlStore");
+    conf.set("storage.data.store.class", "org.apache.gora.sql.store.SqlStore");
     fs = FileSystem.get(conf);
     // using hsqldb in memory
     DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.driver","org.hsqldb.jdbcDriver");
