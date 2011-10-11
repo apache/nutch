@@ -63,6 +63,7 @@ public class TestRTFParser extends TestCase {
 	}
 
 	public void testIt() throws ProtocolException, ParseException {
+	  /* Temporarily disabled - see Tika-748
 
 		String urlString;
 		Protocol protocol;
@@ -85,6 +86,6 @@ public class TestRTFParser extends TestCase {
 		// METADATA extraction is not yet supported in Tika
 		// assertEquals("test rft document", title);
 		// assertEquals("tests", meta.get(DublinCore.SUBJECT));
+  */
 	}
-
 }
