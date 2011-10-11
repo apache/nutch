@@ -53,9 +53,9 @@
 		</dependency>
 
 		<dependency org="com.ibm.icu" name="icu4j" rev="4.0.1" />
-		<dependency org="org.apache.tika" name="tika-core" rev="0.9" />
+		<dependency org="org.apache.tika" name="tika-core" rev="0.10" />
 		<!--
-		  <dependency org="org.apache.tika" name="tika-parsers" rev="0.9" />
+		  <dependency org="org.apache.tika" name="tika-parsers" rev="0.10" />
 		-->
 		
 		<dependency org="org.apache.gora" name="gora-core" rev="0.1.1-incubating" conf="*->compile"/>

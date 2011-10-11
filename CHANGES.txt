@@ -2,6 +2,9 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
+* NUTCH-1154 Upgrade to Tika 0.10. NOTE: Tika's new RTF parser may ignore more
+  text in malformed documents than previously - see TIKA-748 for details. (ab)
+
 * NUTCH-1152 Upgrade SolrJ to version 3.4.0 (ab)
 
 * NUTCH-1136 Ant pmd target is broken
