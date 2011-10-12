@@ -343,13 +343,12 @@ public final class ParserFactory {
       // NotMappedParserException
       
       for (int i=0; i<extensions.length; i++) {
-        if (extensions[i].getAttribute("contentType") != null
-            && extensions[i].getAttribute("contentType").equals(
-                contentType)) {
-          extList.add(extensions[i]);
-        }
-        else if ("*".equals(extensions[i].getAttribute("contentType"))){
+      	if ("*".equals(extensions[i].getAttribute("contentType"))){
           extList.add(0, extensions[i]);
+        }
+        else if (extensions[i].getAttribute("contentType") != null
+            && contentType.matches(escapeContentType(extensions[i].getAttribute("contentType")))) {
+          extList.add(extensions[i]);
         }
       }
       
@@ -377,10 +376,18 @@ public final class ParserFactory {
     
     return (extList.size() > 0) ? extList : null;
   }
+  
+  private String escapeContentType(String contentType) {
+  	// Escapes contentType in order to use as a regex 
+  	// (and keep backwards compatibility).
+  	// This enables to accept multiple types for a single parser. 
+  	return contentType.replace("+", "\\+").replace(".", "\\.");
+	}
 
   private boolean match(Extension extension, String id, String type) {
     return ((id.equals(extension.getId())) &&
-            (type.equals(extension.getAttribute("contentType")) || extension.getAttribute("contentType").equals("*") ||
+            (extension.getAttribute("contentType").equals("*") || 
+             type.matches(escapeContentType(extension.getAttribute("contentType"))) ||
              type.equals(DEFAULT_PLUGIN)));
   }
   

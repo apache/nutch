@@ -39,7 +39,7 @@
 
       <implementation id="org.apache.nutch.parse.html.HtmlParser"
                       class="org.apache.nutch.parse.html.HtmlParser">
-        <parameter name="contentType" value="text/html"/>
+        <parameter name="contentType" value="text/html|application/xhtml+xml"/>
         <parameter name="pathSuffix" value=""/>
       </implementation>
 
