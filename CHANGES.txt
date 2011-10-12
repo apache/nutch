@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
+* NUTCH-1097 application/xhtml+xml should be enabled in plugin.xml of parse-html; allow multiple mimetypes for plugin.xml (Ferdy via lewismc)
+
 * Change plugin source directory "languageidentifier" to "language-identifier" (lewismc)
 
 * NUTCH-1132, 1133 & 1134 Fix TestGenerator, TestInjector & TestFetcher respectively (lewismc)
