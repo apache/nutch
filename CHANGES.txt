@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
+* NUTCH-1156 building errors with gora-hbase as a backend; update ivy.xml to use correct dependancies (Ferdy via lewismc)
+
 * NUTCH-1109 Add Sonar targets to Ant build.xml (lewismc)
 
 * NUTCH-1097 application/xhtml+xml should be enabled in plugin.xml of parse-html; allow multiple mimetypes for plugin.xml (Ferdy via lewismc)
