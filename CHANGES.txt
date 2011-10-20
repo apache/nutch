@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.4 - Current development
 
+* NUTCH-865 - Format source code in unique style (lewismc)
+
 * NUTCH-1097 application/xhtml+xml should be enabled in plugin.xml of parse-html; allow multiple mimetypes for plugin.xml (Ferdy via lewismc)
 
 * NUTCH-797 Fix parse-tika and parse-html to use relative URL resolution per RFC-3986
