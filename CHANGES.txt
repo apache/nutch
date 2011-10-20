@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
+* NUTCH-1081 & 1135 ant tests fail & Fix TestGoraStorage for Nutchgora (Ferdy via lewismc)
+
 * NUTCH-1156 building errors with gora-hbase as a backend; update ivy.xml to use correct dependancies (Ferdy via lewismc)
 
 * NUTCH-1109 Add Sonar targets to Ant build.xml (lewismc)
