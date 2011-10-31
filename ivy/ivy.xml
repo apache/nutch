@@ -124,11 +124,12 @@
 		</dependency>
 -->
 
-                <!--global exclusion-->
-             	<exclude module="ant" />
-             	<exclude module="jmxtools" />
-             	<exclude module="jms" />
-             	<exclude module="jmxri" />
+             <!--global exclusion-->
+             <exclude module="ant" />
+             <exclude module="jmxtools" />
+             <exclude module="jms" />
+             <exclude module="jmxri" />
+             <exclude module="thrift" />
 	</dependencies>
 
 </ivy-module>
