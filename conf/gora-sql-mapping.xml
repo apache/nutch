@@ -25,15 +25,10 @@
 
     <!-- score fields                                       -->
     <field name="score" column="score"/>
-
     <field name="headers" column="headers"/>
-
     <field name="inlinks" column="inlinks"/>
-    
     <field name="outlinks" column="outlinks"/>
-    
     <field name="metadata" column="metadata"/>
-
     <field name="markers" column="markers"/>
 </class>
 

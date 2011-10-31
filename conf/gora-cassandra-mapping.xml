@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<gora-orm>
+    
+    <keyspace name="webpage" cluster="Test Cluster" host="localhost">
+        <family name="p"/>
+        <family name="f"/>
+        <family name="sc" type="super"/>
+    </keyspace>
+    <class keyClass="java.lang.String" name="org.apache.nutch.storage.WebPage">
+        
+        <!-- fetch fields -->
+        <field name="baseUrl" family="f" qualifier="bas"/>
+        <field name="status" family="f" qualifier="st"/>
+        <field name="prevFetchTime" family="f" qualifier="pts"/>
+        <field name="fetchTime" family="f" qualifier="ts"/>
+        <field name="fetchInterval" family="f" qualifier="fi"/>
+        <field name="retriesSinceFetch" family="f" qualifier="rsf"/>
+        <field name="reprUrl" family="f" qualifier="rpr"/>
+        <field name="content" family="f" qualifier="cnt"/>
+        <field name="contentType" family="f" qualifier="typ"/>
+        <field name="modifiedTime" family="f" qualifier="mod"/>
+        
+        <!-- parse fields -->
+        <field name="title" family="p" qualifier="t"/>
+        <field name="text" family="p" qualifier="c"/>
+        <field name="signature" family="p" qualifier="sig"/>
+        <field name="prevSignature" family="p" qualifier="psig"/>
+        
+        <!-- score fields -->
+        <field name="score" family="f" qualifier="s"/>
+        
+        <!-- super columns -->
+        <field name="markers" family="sc" qualifier="mk"/>
+        <field name="inlinks" family="sc" qualifier="il"/>
+        <field name="outlinks" family="sc" qualifier="ol"/>
+        <field name="metadata" family="sc" qualifier="mtdt"/>
+        <field name="headers" family="sc" qualifier="h"/>
+        <field name="parseStatus" family="sc" qualifier="pas"/>
+        <field name="protocolStatus" family="sc" qualifier="prs"/>
+    </class>
+    
+</gora-orm>

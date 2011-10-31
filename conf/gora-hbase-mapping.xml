@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<gora-orm>
+    
+    <table name="webpage">
+        <family name="p"/> <!-- This can also have params like compression, bloom filters -->
+        <family name="f"/>
+        <family name="s"/>
+        <family name="il"/>
+        <family name="ol"/>
+        <family name="h"/>
+        <family name="mtdt"/>
+        <family name="mk"/>
+    </table>
+    <class table="webpage" keyClass="java.lang.String" name="org.apache.nutch.storage.WebPage">
+        
+        <!-- fetch fields                                       -->
+        <field name="baseUrl" family="f" qualifier="bas"/>
+        <field name="status" family="f" qualifier="st"/>
+        <field name="prevFetchTime" family="f" qualifier="pts"/>
+        <field name="fetchTime" family="f" qualifier="ts"/>
+        <field name="fetchInterval" family="f" qualifier="fi"/>
+        <field name="retriesSinceFetch" family="f" qualifier="rsf"/>
+        <field name="reprUrl" family="f" qualifier="rpr"/>
+        <field name="content" family="f" qualifier="cnt"/>
+        <field name="contentType" family="f" qualifier="typ"/>
+        <field name="protocolStatus" family="f" qualifier="prot"/>
+        <field name="modifiedTime" family="f" qualifier="mod"/>
+        
+        <!-- parse fields                                       -->
+        <field name="title" family="p" qualifier="t"/>
+        <field name="text" family="p" qualifier="c"/>
+        <field name="parseStatus" family="p" qualifier="st"/>
+        <field name="signature" family="p" qualifier="sig"/>
+        <field name="prevSignature" family="p" qualifier="psig"/>
+        
+        <!-- score fields                                       -->
+        <field name="score" family="s" qualifier="s"/>
+        <field name="headers" family="h"/>
+        <field name="inlinks" family="il"/>
+        <field name="outlinks" family="ol"/>
+        <field name="metadata" family="mtdt"/>
+        <field name="markers" family="mk"/>
+    </class>
+    
+</gora-orm>

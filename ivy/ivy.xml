@@ -114,6 +114,16 @@
        </dependency>
 -->
 
+<!--
+    	Uncomment this to use Cassandra as Gora backend. 
+-->
+<!--
+		<dependency org="org.apache.gora" name="gora-cassandra" rev="0.1.1-incubating" conf="*->compile">
+		</dependency>
+		// Should be another dependency here???
+		</dependency>
+-->
+
                 <!--global exclusion-->
              	<exclude module="ant" />
              	<exclude module="jmxtools" />

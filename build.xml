@@ -15,7 +15,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project name="Nutch" default="runtime" xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+<project name="Nutchgora" default="runtime" xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 
   <!-- Load all the default properties, and any the user wants    -->
   <!-- to contribute (without having to type -D or edit this file -->
