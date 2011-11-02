@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
+* NUTCH-1172 AbstractNuchTest should have a generic testdir instead of specific 'inject' dir (ferdy)
+
 * NUTCH-1192 Add '/runtime' to svn ignore (ferdy)
 
 * NUTCH-1191 Port NUTCH-1102 to nutchgora - consistent use of fetcher.parse (ferdy)

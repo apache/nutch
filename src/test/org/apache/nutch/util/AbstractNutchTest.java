@@ -16,28 +16,15 @@
  */
 package org.apache.nutch.util;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.List;
-
 import junit.framework.TestCase;
 
-import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.nutch.crawl.URLWebPage;
-import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.StorageUtils;
 import org.apache.nutch.storage.WebPage;
-import org.apache.nutch.util.TableUtil;
-import org.apache.gora.query.Query;
-import org.apache.gora.query.Result;
-import org.apache.gora.sql.store.SqlStore;
 import org.apache.gora.store.DataStore;
 import org.apache.gora.store.DataStoreFactory;
-import org.apache.gora.util.ByteUtils;
 
 /**
  * This class provides common routines for setup/teardown of an in-memory data
@@ -47,7 +34,7 @@ public class AbstractNutchTest extends TestCase {
 
   protected Configuration conf;
   protected FileSystem fs;
-  protected Path testdir = new Path("build/test/inject-test");
+  protected Path testdir = new Path("build/test/working");
   protected DataStore<String, WebPage> webPageStore;
   protected boolean persistentDataStore = false;
 
