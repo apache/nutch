@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
+* NUTCH-1192 Add '/runtime' to svn ignore (ferdy)
+
 * NUTCH-1191 Port NUTCH-1102 to nutchgora - consistent use of fetcher.parse (ferdy)
 
 * NUTCH-1187 Port NUTCH-1028 to nutchgora - log parser keys (ferdy)
