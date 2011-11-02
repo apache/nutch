@@ -87,7 +87,7 @@ public class TestFetcher extends AbstractNutchTest {
     time = System.currentTimeMillis();
     conf.setBoolean(FetcherJob.PARSE_KEY, true);
     FetcherJob fetcher = new FetcherJob(conf);
-    fetcher.fetch(batchId, 1, false, true, -1);
+    fetcher.fetch(batchId, 1, false, -1);
 
     time = System.currentTimeMillis() - time;
 
