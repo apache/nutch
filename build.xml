@@ -712,7 +712,7 @@
   
   <!-- Add the target -->
   <target name="sonar">
-    <sonar:sonar workDir="${build.dir}" key="org.apache.nutch:nutch" version="1.4" xmlns:sonar="antlib:org.sonar.ant"/>
+    <sonar:sonar workDir="${base.dir}" key="org.apache.nutch:nutch" version="1.4" xmlns:sonar="antlib:org.sonar.ant"/>
 
     <!-- source directories (required) -->
     <sources>
