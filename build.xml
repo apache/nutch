@@ -706,7 +706,7 @@
   
   <!-- Define the Sonar task if this hasn't been done in a common script -->
   <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
-    <classpath path=""/>
+    <classpath path="${ant.library.dir}"/>
   </taskdef>
   
   <!-- Add the target -->
