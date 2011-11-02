@@ -86,8 +86,6 @@ public interface Nutch {
   public static final String ARG_RESUME = "resume";
   /** Force processing even if there are locks or inconsistencies. */
   public static final String ARG_FORCE = "force";
-  /** Parse during fetching. */
-  public static final String ARG_PARSE = "parse";
   /** Sort statistics. */
   public static final String ARG_SORT = "sort";
   /** Solr URL. */

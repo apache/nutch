@@ -137,7 +137,7 @@ public class FetcherJob extends NutchTool implements Tool {
 
   public Collection<WebPage.Field> getFields(Job job) {
     Collection<WebPage.Field> fields = new HashSet<WebPage.Field>(FIELDS);
-    if (job.getConfiguration().getBoolean(PARSE_KEY, true)) {
+    if (job.getConfiguration().getBoolean(PARSE_KEY, false)) {
       ParserJob parserJob = new ParserJob();
       fields.addAll(parserJob.getFields(job));
     }
@@ -153,7 +153,6 @@ public class FetcherJob extends NutchTool implements Tool {
     String batchId = (String)args.get(Nutch.ARG_BATCH);
     Integer threads = (Integer)args.get(Nutch.ARG_THREADS);
     Boolean shouldResume = (Boolean)args.get(Nutch.ARG_RESUME);
-    Boolean parse = (Boolean)args.get(Nutch.ARG_PARSE);
     Integer numTasks = (Integer)args.get(Nutch.ARG_NUMTASKS);
  
     if (threads != null && threads > 0) {
@@ -163,9 +162,6 @@ public class FetcherJob extends NutchTool implements Tool {
       batchId = Nutch.ALL_BATCH_ID_STR;
     }
     getConf().set(GeneratorJob.BATCH_ID, batchId);
-    if (parse != null) {
-      getConf().setBoolean(PARSE_KEY, parse);
-    }
     if (shouldResume != null) {
       getConf().setBoolean(RESUME_KEY, shouldResume);
     }
@@ -200,20 +196,18 @@ public class FetcherJob extends NutchTool implements Tool {
    * @param batchId batchId (obtained from Generator) or null to fetch all generated fetchlists
    * @param threads number of threads per map task
    * @param shouldResume
-   * @param parse if true, then parse content immediately, if false then a separate
-   * run of {@link ParserJob} will be needed.
    * @param numTasks number of fetching tasks (reducers). If set to < 1 then use the default,
    * which is mapred.map.tasks.
    * @return 0 on success
    * @throws Exception
    */
-  public int fetch(String batchId, int threads, boolean shouldResume, boolean parse, int numTasks)
+  public int fetch(String batchId, int threads, boolean shouldResume, int numTasks)
       throws Exception {
     LOG.info("FetcherJob: starting");
 
     LOG.info("FetcherJob : timelimit set for : " + getConf().getLong("fetcher.timelimit", -1));
     LOG.info("FetcherJob: threads: " + getConf().getInt(THREADS_KEY, 10));
-    LOG.info("FetcherJob: parsing: " + getConf().getBoolean(PARSE_KEY, true));
+    LOG.info("FetcherJob: parsing: " + getConf().getBoolean(PARSE_KEY, false));
     LOG.info("FetcherJob: resuming: " + getConf().getBoolean(RESUME_KEY, false));
     if (batchId.equals(Nutch.ALL_BATCH_ID_STR)) {
       LOG.info("FetcherJob: fetching all");
@@ -225,7 +219,6 @@ public class FetcherJob extends NutchTool implements Tool {
         Nutch.ARG_BATCH, batchId,
         Nutch.ARG_THREADS, threads,
         Nutch.ARG_RESUME, shouldResume,
-        Nutch.ARG_PARSE, parse,
         Nutch.ARG_NUMTASKS, numTasks));
     LOG.info("FetcherJob: done");
     return 0;
@@ -268,7 +261,6 @@ public class FetcherJob extends NutchTool implements Tool {
   public int run(String[] args) throws Exception {
     int threads = -1;
     boolean shouldResume = false;
-    boolean parse = getConf().getBoolean(PARSE_KEY, false);
     String batchId;
 
     String usage = "Usage: FetcherJob (<batchId> | -all) [-crawlId <id>] " +
@@ -276,7 +268,6 @@ public class FetcherJob extends NutchTool implements Tool {
       "\tbatchId\tcrawl identifier returned by Generator, or -all for all generated batchId-s\n" +
       "\t-crawlId <id>\t the id to prefix the schemas to operate on, (default: storage.crawl.id)\n" +
       "\t-threads N\tnumber of fetching threads per task\n" +
-      "\t-parse\tif specified then fetcher will immediately parse fetched content\n" +
       "\t-resume\tresume interrupted job\n" +
       "\t-numTasks N\tif N > 0 then use this many reduce tasks for fetching (default: mapred.map.tasks)";
 
@@ -297,8 +288,6 @@ public class FetcherJob extends NutchTool implements Tool {
         threads = Integer.parseInt(args[++i]);
       } else if ("-resume".equals(args[i])) {
         shouldResume = true;
-      } else if ("-parse".equals(args[i])) {
-        parse = true;
       } else if ("-numTasks".equals(args[i])) {
         numTasks = Integer.parseInt(args[++i]);
       } else if ("-crawlId".equals(args[i])) {
@@ -306,7 +295,7 @@ public class FetcherJob extends NutchTool implements Tool {
       }
     }
 
-    int fetchcode = fetch(batchId, threads, shouldResume, parse, numTasks); // run the Fetcher
+    int fetchcode = fetch(batchId, threads, shouldResume, numTasks); // run the Fetcher
 
     return fetchcode;
   }

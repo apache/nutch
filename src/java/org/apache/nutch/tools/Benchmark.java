@@ -222,9 +222,9 @@ public class Benchmark extends Configured implements Tool {
         LOG.info("Stopping at depth=" + i + " - no more URLs to fetch.");
         break;
       }
-      boolean isParsing = getConf().getBoolean("fetcher.parse", true);
+      boolean isParsing = getConf().getBoolean("fetcher.parse", false);
       start = System.currentTimeMillis();
-      fetcher.fetch(batchId, threads, false, isParsing, -1);  // fetch it
+      fetcher.fetch(batchId, threads, false, -1);  // fetch it
       delta = System.currentTimeMillis() - start;
       res.addTiming("fetch", i + "", delta);
       if (!isParsing) {

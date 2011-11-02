@@ -119,10 +119,7 @@ public class Crawler extends NutchTool implements Tool {
     }
     Integer depth = (Integer)args.get(Nutch.ARG_DEPTH);
     if (depth == null) depth = 1;
-    Boolean parse = (Boolean)args.get(Nutch.ARG_PARSE);
-    if (parse == null) {
-      parse = getConf().getBoolean(FetcherJob.PARSE_KEY, false);
-    }
+    boolean parse = getConf().getBoolean(FetcherJob.PARSE_KEY, false);
     String solrUrl = (String)args.get(Nutch.ARG_SOLR);
     int onePhase = 3;
     if (!parse) onePhase++;
