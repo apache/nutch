@@ -707,6 +707,7 @@
   <!-- Define the Sonar task if this hasn't been done in a common script -->
   <taskdef uri="antlib:org.sonar.ant" resource="org/sonar/ant/antlib.xml">
     <classpath path="${ant.library.dir}"/>
+    <classpath path="${mysql.library.dir}"/>
   </taskdef>
   
   <!-- Add the target -->
