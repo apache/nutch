@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
+* NUTCH-1187 Port NUTCH-1028 to nutchgora - log parser keys (ferdy)
+
 * NUTCH-902 Add all necessary files and configuration so that nutch can be used with different backends out-of-the-box (lewismc)
 
 * NUTCH-1081 & 1135 ant tests fail & Fix TestGoraStorage for Nutchgora (Ferdy via lewismc)

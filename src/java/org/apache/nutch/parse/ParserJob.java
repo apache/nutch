@@ -90,23 +90,20 @@ public class ParserJob extends NutchTool implements Tool {
     public void map(String key, WebPage page, Context context)
         throws IOException, InterruptedException {
       Utf8 mark = Mark.FETCH_MARK.checkMark(page);
+      String unreverseKey = TableUtil.unreverseUrl(key);
       if (!NutchJob.shouldProcess(mark, batchId)) {
-        if (LOG.isDebugEnabled()) {
-          LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; different batch id");
-        }
+        LOG.info("Skipping " + unreverseKey + "; different batch id");
         return;
       }
       if (shouldResume && Mark.PARSE_MARK.checkMark(page) != null) {
         if (force) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Forced parsing " + TableUtil.unreverseUrl(key) + "; already parsed");
-          }
+          LOG.info("Forced parsing " + unreverseKey + "; already parsed");
         } else {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; already parsed");
-          }
+          LOG.info("Skipping " + unreverseKey + "; already parsed");
           return;
         }
+      } else {
+        LOG.info("Parsing " + unreverseKey);
       }
 
       URLWebPage redirectedPage = parseUtil.process(key, page);
