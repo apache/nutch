@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.4 - 10/27/2011
 
+* NUTCH-1195 Add Solr 4x (trunk) example schema (ab)
+
 * NUTCH-1192 Add '/runtime' to svn ignore (ferdy)
 
 * NUTCH-1097 application/xhtml+xml should be enabled in plugin.xml of parse-html; allow multiple mimetypes for plugin.xml (Ferdy via lewismc)
