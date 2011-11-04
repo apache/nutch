@@ -1,6 +1,6 @@
 Nutch Change Log
 
-Release 1.4 - 10/27/2011
+Release 1.4 - 11/4/2011
 
 * NUTCH-1195 Add Solr 4x (trunk) example schema (ab)
 
