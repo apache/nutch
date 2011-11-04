@@ -82,6 +82,11 @@
            <name>Lewis John McGibbney</name>
            <email>lewismc@apache.org</email>
         </developer>
+        <developer>
+           <id>ferdy</id>
+           <name>Ferdy Galema</name>
+           <email>ferdy@apache.org</email>
+        </developer>
 	</developers>
         <build>
           <sourceDirectory>src/java</sourceDirectory>
