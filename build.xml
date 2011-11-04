@@ -712,26 +712,18 @@
   
   <!-- Add the target -->
   <target name="sonar">
-    <sonar:sonar workDir="${base.dir}" key="org.apache.nutch:nutch" version="1.4" xmlns:sonar="antlib:org.sonar.ant"/>
-
-    <!-- source directories (required) -->
-    <sources>
-      <path location="${src.dir}" />
-    </sources>
+    
+    <!-- list of mandatory source directories (required) -->
+    <property name="sonar.sources" value="${src.dir}"/>
  
     <!-- list of properties (optional) -->
-    <property key="sonar.projectName" value="Nutch Trunk 1.4 Sonar Analysis" />
-    <property key="sonar.dynamicAnalysis" value="false" />
- 
-    <!-- test source directories (optional) -->
-    <tests>
-      <path location="${test.src.dir}" />
-    </tests>
+    <property name="sonar.projectName" value="Nutch Trunk 1.4 Sonar Analysis" />
+    <property name="sonar.binaries" value="${build.dir}/classes" />
+    <property name="sonar.binaries" value="${build.dir}/plugins" />
+    <property name="sonar.tests" value="${test.src.dir}" />
 
-    <!-- binaries directories, which contain for example the compiled Java bytecode -->
-     <binaries>
-       <path location="${build.dir}/classes"/>
-     </binaries>
+    <sonar:sonar workDir="${base.dir}" key="org.apache.nutch:nutch" 
+     version="1.4-SNAPSHOT" xmlns:sonar="antlib:org.sonar.ant"/>
   </target>
 	
 </project>
