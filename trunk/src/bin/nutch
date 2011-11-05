@@ -1,0 +1,269 @@
+#!/bin/bash
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# 
+# The Nutch command script
+#
+# Environment Variables
+#
+#   NUTCH_JAVA_HOME The java implementation to use.  Overrides JAVA_HOME.
+#
+#   NUTCH_HEAPSIZE  The maximum amount of heap to use, in MB. 
+#                   Default is 1000.
+#
+#   NUTCH_OPTS      Extra Java runtime options.
+#
+cygwin=false
+case "`uname`" in
+CYGWIN*) cygwin=true;;
+esac
+
+# resolve links - $0 may be a softlink
+THIS="$0"
+while [ -h "$THIS" ]; do
+  ls=`ls -ld "$THIS"`
+  link=`expr "$ls" : '.*-> \(.*\)$'`
+  if expr "$link" : '.*/.*' > /dev/null; then
+    THIS="$link"
+  else
+    THIS=`dirname "$THIS"`/"$link"
+  fi
+done
+
+# if no args specified, show usage
+if [ $# = 0 ]; then
+  echo "Usage: nutch [-core] COMMAND"
+  echo "where COMMAND is one of:"
+  echo "  crawl             one-step crawler for intranets"
+  echo "  readdb            read / dump crawl db"
+  echo "  mergedb           merge crawldb-s, with optional filtering"
+  echo "  readlinkdb        read / dump link db"
+  echo "  inject            inject new urls into the database"
+  echo "  generate          generate new segments to fetch from crawl db"
+  echo "  freegen           generate new segments to fetch from text files"
+  echo "  fetch             fetch a segment's pages"
+  echo "  parse             parse a segment's pages"
+  echo "  readseg           read / dump segment data"
+  echo "  mergesegs         merge several segments, with optional filtering and slicing"
+  echo "  updatedb          update crawl db from segments after fetching"
+  echo "  invertlinks       create a linkdb from parsed segments"
+  echo "  mergelinkdb       merge linkdb-s, with optional filtering"
+  echo "  solrindex         run the solr indexer on parsed segments and linkdb"
+  echo "  solrdedup         remove duplicates from solr"
+  echo "  solrclean         remove HTTP 301 and 404 documents from solr"
+  echo "  parsechecker      check the parser for a given url"
+  echo "  indexchecker      check the indexing filters for a given url"
+  echo "  domainstats       calculate domain statistics from crawldb"
+  echo "  webgraph          generate a web graph from existing segments"
+  echo "  linkrank          run a link analysis program on the generated web graph"
+  echo "  scoreupdater      updates the crawldb with linkrank scores"
+  echo "  nodedumper        dumps the web graph's node scores"
+  echo "  plugin            load a plugin and run one of its classes main()"
+  echo "  junit             runs the given JUnit test"
+  echo " or"
+  echo "  CLASSNAME         run the class named CLASSNAME"
+  echo "Most commands print help when invoked w/o parameters."
+  echo ""
+  echo "Expert: -core option is for developers only. It avoids building the job jar, "
+  echo "        instead it simply includes classes compiled with ant compile-core. "
+  echo "        NOTE: this works only for jobs executed in 'local' mode"
+  exit 1
+fi
+
+# get arguments
+COMMAND=$1
+shift
+
+# some directories
+THIS_DIR=`dirname "$THIS"`
+NUTCH_HOME=`cd "$THIS_DIR/.." ; pwd`
+
+# some Java parameters
+if [ "$NUTCH_JAVA_HOME" != "" ]; then
+  #echo "run java in $NUTCH_JAVA_HOME"
+  JAVA_HOME=$NUTCH_JAVA_HOME
+fi
+  
+if [ "$JAVA_HOME" = "" ]; then
+  echo "Error: JAVA_HOME is not set."
+  exit 1
+fi
+
+local=true
+
+# NUTCH_JOB 
+if [ -f ${NUTCH_HOME}/nutch-*.job ]; then
+    local=false
+  for f in $NUTCH_HOME/nutch-*.job; do
+    NUTCH_JOB=$f;
+  done
+fi
+
+# cygwin path translation
+if $cygwin; then
+  NUTCH_JOB=`cygpath -p -w "$NUTCH_JOB"`
+fi
+
+JAVA=$JAVA_HOME/bin/java
+JAVA_HEAP_MAX=-Xmx1000m 
+
+# check envvars which might override default args
+if [ "$NUTCH_HEAPSIZE" != "" ]; then
+  #echo "run with heapsize $NUTCH_HEAPSIZE"
+  JAVA_HEAP_MAX="-Xmx""$NUTCH_HEAPSIZE""m"
+  #echo $JAVA_HEAP_MAX
+fi
+
+# CLASSPATH initially contains $NUTCH_CONF_DIR, or defaults to $NUTCH_HOME/conf
+CLASSPATH=${NUTCH_CONF_DIR:=$NUTCH_HOME/conf}
+CLASSPATH=${CLASSPATH}:$JAVA_HOME/lib/tools.jar
+
+# so that filenames w/ spaces are handled correctly in loops below
+IFS=
+
+# add libs to CLASSPATH
+if $local; then
+  for f in $NUTCH_HOME/lib/*.jar; do
+   CLASSPATH=${CLASSPATH}:$f;
+  done
+  # local runtime
+  # add plugins to classpath
+  if [ -d "$NUTCH_HOME/plugins" ]; then
+     CLASSPATH=${NUTCH_HOME}:${CLASSPATH}
+  fi
+fi
+
+# cygwin path translation
+if $cygwin; then
+  CLASSPATH=`cygpath -p -w "$CLASSPATH"`
+fi
+
+# setup 'java.library.path' for native-hadoop code if necessary
+# used only in local mode 
+JAVA_LIBRARY_PATH=''
+if [ -d "${NUTCH_HOME}/lib/native" ]; then
+  JAVA_PLATFORM=`CLASSPATH=${CLASSPATH} ${JAVA} org.apache.hadoop.util.PlatformName | sed -e 's/ /_/g'`
+  
+  if [ -d "${NUTCH_HOME}/lib/native" ]; then
+    if [ "x$JAVA_LIBRARY_PATH" != "x" ]; then
+      JAVA_LIBRARY_PATH=${JAVA_LIBRARY_PATH}:${NUTCH_HOME}/lib/native/${JAVA_PLATFORM}
+    else
+      JAVA_LIBRARY_PATH=${NUTCH_HOME}/lib/native/${JAVA_PLATFORM}
+    fi
+  fi
+fi
+
+if [ $cygwin = true -a "X${JAVA_LIBRARY_PATH}" != "X" ]; then
+  JAVA_LIBRARY_PATH=`cygpath -p -w "$JAVA_LIBRARY_PATH"`
+fi
+
+# restore ordinary behaviour
+unset IFS
+
+# default log directory & file
+if [ "$NUTCH_LOG_DIR" = "" ]; then
+  NUTCH_LOG_DIR="$NUTCH_HOME/logs"
+fi
+if [ "$NUTCH_LOGFILE" = "" ]; then
+  NUTCH_LOGFILE='hadoop.log'
+fi
+
+#Fix log path under cygwin
+if $cygwin; then
+  NUTCH_LOG_DIR=`cygpath -p -w "$NUTCH_LOG_DIR"`
+fi
+
+NUTCH_OPTS="$NUTCH_OPTS -Dhadoop.log.dir=$NUTCH_LOG_DIR"
+NUTCH_OPTS="$NUTCH_OPTS -Dhadoop.log.file=$NUTCH_LOGFILE"
+
+if [ "x$JAVA_LIBRARY_PATH" != "x" ]; then
+  NUTCH_OPTS="$NUTCH_OPTS -Djava.library.path=$JAVA_LIBRARY_PATH"
+fi
+
+# figure out which class to run
+if [ "$COMMAND" = "crawl" ] ; then
+  CLASS=org.apache.nutch.crawl.Crawl
+elif [ "$COMMAND" = "inject" ] ; then
+  CLASS=org.apache.nutch.crawl.Injector
+elif [ "$COMMAND" = "generate" ] ; then
+  CLASS=org.apache.nutch.crawl.Generator
+elif [ "$COMMAND" = "freegen" ] ; then
+  CLASS=org.apache.nutch.tools.FreeGenerator
+elif [ "$COMMAND" = "fetch" ] ; then
+  CLASS=org.apache.nutch.fetcher.Fetcher
+elif [ "$COMMAND" = "parse" ] ; then
+  CLASS=org.apache.nutch.parse.ParseSegment
+elif [ "$COMMAND" = "readdb" ] ; then
+  CLASS=org.apache.nutch.crawl.CrawlDbReader
+elif [ "$COMMAND" = "mergedb" ] ; then
+  CLASS=org.apache.nutch.crawl.CrawlDbMerger
+elif [ "$COMMAND" = "readlinkdb" ] ; then
+  CLASS=org.apache.nutch.crawl.LinkDbReader
+elif [ "$COMMAND" = "readseg" ] ; then
+  CLASS=org.apache.nutch.segment.SegmentReader
+elif [ "$COMMAND" = "mergesegs" ] ; then
+  CLASS=org.apache.nutch.segment.SegmentMerger
+elif [ "$COMMAND" = "updatedb" ] ; then
+  CLASS=org.apache.nutch.crawl.CrawlDb
+elif [ "$COMMAND" = "invertlinks" ] ; then
+  CLASS=org.apache.nutch.crawl.LinkDb
+elif [ "$COMMAND" = "mergelinkdb" ] ; then
+  CLASS=org.apache.nutch.crawl.LinkDbMerger
+elif [ "$COMMAND" = "solrindex" ] ; then
+  CLASS=org.apache.nutch.indexer.solr.SolrIndexer
+elif [ "$COMMAND" = "solrdedup" ] ; then
+  CLASS=org.apache.nutch.indexer.solr.SolrDeleteDuplicates
+elif [ "$COMMAND" = "solrclean" ] ; then
+  CLASS=org.apache.nutch.indexer.solr.SolrClean
+elif [ "$COMMAND" = "parsechecker" ] ; then
+  CLASS=org.apache.nutch.parse.ParserChecker
+elif [ "$COMMAND" = "indexchecker" ] ; then
+  CLASS=org.apache.nutch.indexer.IndexingFiltersChecker
+elif [ "$COMMAND" = "domainstats" ] ; then 
+  CLASS=org.apache.nutch.util.domain.DomainStatistics
+elif [ "$COMMAND" = "webgraph" ] ; then
+  CLASS=org.apache.nutch.scoring.webgraph.WebGraph
+elif [ "$COMMAND" = "linkrank" ] ; then
+  CLASS=org.apache.nutch.scoring.webgraph.LinkRank
+elif [ "$COMMAND" = "scoreupdater" ] ; then
+  CLASS=org.apache.nutch.scoring.webgraph.ScoreUpdater
+elif [ "$COMMAND" = "nodedumper" ] ; then
+  CLASS=org.apache.nutch.scoring.webgraph.NodeDumper
+elif [ "$COMMAND" = "plugin" ] ; then
+  CLASS=org.apache.nutch.plugin.PluginRepository
+elif [ "$COMMAND" = "junit" ] ; then
+  CLASSPATH=$CLASSPATH:test/classes/
+  CLASS=junit.textui.TestRunner
+else
+  CLASS=$COMMAND
+fi
+
+# distributed mode
+EXEC_CALL="hadoop jar $NUTCH_JOB"
+
+if $local; then
+ EXEC_CALL="$JAVA $JAVA_HEAP_MAX $NUTCH_OPTS -classpath $CLASSPATH"
+else
+ # check that hadoop can be found on the path
+ if [ $(which hadoop | wc -l ) -eq 0 ]; then
+    echo "Can't find Hadoop executable. Add HADOOP_HOME/bin to the path or run in local mode."
+    exit -1;
+ fi
+fi
+
+# run it
+exec $EXEC_CALL $CLASS "$@"
+

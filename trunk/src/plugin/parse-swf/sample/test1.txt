@@ -1,0 +1,60 @@
+
+--------
+/go/gnav_cart
+/go/gnav_company
+/go/gnav_devnet
+/go/gnav_downloads
+/go/gnav_fl_minmessage
+/go/gnav_help
+/go/gnav_mm_home
+/go/gnav_products
+/go/gnav_search?loc=en_us
+/go/gnav_showcase
+/go/gnav_solutions
+/go/gnav_store
+/go/gnav_support
+/go/gnav_your_account
+Acquisition Info
+Adobe Home
+AppleGothic
+Array
+Company
+Developers
+Downloads
+Help
+Home
+International
+LocaleManager
+Macromedia Flash Player
+Macromedia Home
+MovieClip
+Products
+Showcase
+Solutions
+Store
+String
+Support
+TextFormat
+To ensure the best possible Internet Experience, please download the latest version of the free
+Verdana
+_sans
+active
+bluePill
+button
+color
+company
+devnet
+downloads
+en_us
+home
+javascript:openCrosslinkWindow('/go/adobeacquisition')
+javascript:openCrosslinkWindow('/go/gnav_adobe_home')
+products
+rollOut
+rollOver
+selected
+showcase
+solutions
+support
+tabHolder
+textColor

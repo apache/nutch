@@ -1,0 +1,11 @@
+-file://home/jc/nutch/index.html
+-ftp://ftp.apache.org/nutch.html
+-mailto:jerome.charron@gmail.com
++news://any.news.server/comp.lang.java
++whois:/nutch.org
+-http://www.nutch.org/nutch.gif
+-http://www.nutch.org/nutch.eps
+-http://www.nutch.org/nutch?q=nutch
++http://www.nutch.org/
+-http://www.nutch.org/abcd/foo/bar/foo/bar/foo/
+-http://www.nutch.org/abcd/foo/bar/xyz/foo/bar/foo/

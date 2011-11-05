@@ -1,0 +1,1604 @@
+Nutch Change Log
+
+Release 1.4 - 11/4/2011
+
+* NUTCH-1195 Add Solr 4x (trunk) example schema (ab)
+
+* NUTCH-1192 Add '/runtime' to svn ignore (ferdy)
+
+* NUTCH-1097 application/xhtml+xml should be enabled in plugin.xml of parse-html; allow multiple mimetypes for plugin.xml (Ferdy via lewismc)
+
+* NUTCH-797 Fix parse-tika and parse-html to use relative URL resolution per RFC-3986
+  (Robert Hohman, ab)
+
+* NUTCH-1154 Upgrade to Tika 0.10. NOTE: Tika's new RTF parser may ignore more
+  text in malformed documents than previously - see TIKA-748 for details. (ab)
+
+* NUTCH-1109 Add Sonar targets to Ant build.xml (lewismc) 
+
+* NUTCH-1152 Upgrade SolrJ to version 3.4.0 (ab)
+
+* NUTCH-1136 Ant pmd target is broken (lewismc)
+
+* NUTCH-1058 Upgrade Solr schema to version 1.4 (markus)
+
+* NUTCH-1137 LinkDB invertlinks other options ignored when using -dir option (Sebastian Nagel, markus)
+
+* NUTCH-1141 Configurable Fetcher queue depth (jnioche)
+
+* NUTCH-1091 Remove commons logging dependency from Nutch branch and trunk (lewismc)
+
+* NUTCH-672 allow unit tests to be run from bin/nutch (Todd Lipton via lewismc)
+
+* NUTCH-937 Put plugins in classes/plugins in job file (Claudio Martella, Ferdy Galema, jnioche)
+
+* NUTCH-623 Change plugin source directory "languageidentifier" to "language-identifier" (lewismc)
+
+* NUTCH-1074 topN is ignored with maxNumSegments and generate.max.count (Robert Thomson via markus)
+
+* NUTCH-1078 Upgrade all instances of commons logging to slf4j (with log4j backend) (lewismc)
+
+* NUTCH-1115 Option to disable fixing embedded URL parameters in DomContentUtils (markus)
+
+* NUTCH-1114 Attr file missing in domain filter (markus)
+
+* NUTCH-1067 Configure minimum throughput for fetcher (markus)
+
+* NUTCH-1102 Fetcher to rely on fetcher.parse directive (markus)
+
+* NUTCH-1110 UpdateDB must not write _success file (markus)
+
+* NUTCH-1105 Max content length option for index-basic (markus)
+
+* NUTCH-940 static field plugin (Claudio Martella via lewismc)
+
+* NUTCH-914 Implement Apache Project Branding Requirements (lewismc)
+
+* NUTCH-1095 remove i18n from Nutch site to archive and legacy secton of wiki (lewismc)
+
+* NUTCH-1101 Option to purge db_gone records with updatedb (markus)
+
+* NUTCH-1096 Empty (not null) ContentLength results in failure of fetch (Ferdy Galema via jnioche)
+
+* NUTCH-1073 Rename parameters 'fetcher.threads.per.host.by.ip' and 'fetcher.threads.per.host' (jnioche)
+
+* NUTCH-1089 Short compressed pages caused exception in protocol-httpclient (Simone Frenzel via jnioche)
+
+* NUTCH-1085 Nutch script does not require HADOOP_HOME (jnioche)
+
+* NUTCH-1075 Delegate language identification to Tika (jnioche)
+
+* NUTCH-1049 Add classes to bin/nutch script (markus)
+
+* NUTCH-1051 Export WebGraph node scores for Solr.ExternalFileField (markus)
+
+* NUTCH-1083 ParserChecker implements Tools (jnioche)
+
+* NUTCH-1082 IndexingFiltersChecker utility does not list multi valued fields (markus)
+
+* NUTCH-1004 Do not index empty values for title field (markus)
+
+* NUTCH-914 Implement Apache Project Branding Requirements (lewismc via jnioche)
+
+* NUTCH-1069 Readlinkdb broken on Hadoop > 0.20 (markus)
+
+* NUTCH-1044 Redirected URLs and possibly all of their outlinked URLs have invalid scores (jnioche)
+
+* NUTCH-1028 Log urls when parsing (markus)
+
+* NUTCH-1065 New mvn.template (lewismc)
+
+* NUTCH-1072 Display number and size of queues in Fetcher status (jnioche)
+
+* NUTCH-1071 Crawldb update displays total number of URLs per status (jnioche)
+
+* NUTCH-1045 MimeUtil to rely on default config provided by Tika (jnioche)
+
+* NUTCH-1057 Fetcher thread time out configurable (markus)
+
+* NUTCH-1037 Option to deduplicate anchors prior to indexing (markus)
+
+* NUTCH-1050 Add segmentDir option to WebGraph (markus)
+
+* NUTCH-1055 upgrade package.html file in language identifier plugin (lewismc)
+
+* NUTCH-1059 Remove convdb command from /bin/nutch (lewismc)
+
+* NUTCH-1019 Edit comment in org.apache.nutch.crawl.Crawl to reflect removal of legacy (lewismc)
+
+* NUTCH-1023 Trivial error in error message for org.apache.nutch.crawl.LinkDbReader (lewismc)
+
+* NUTCH-1043 Add pattern for filtering .js in default url filters (jnioche)
+
+* NUTCH-1054 LinkDB optional during indexing (jnioche)
+
+* NUTCH-1029 Readdb throws EOFException (markus)
+
+* NUTCH-1036 Solr jobs should increment counters in Reporter (markus)
+
+* NUTCH-987 Support HTTP auth for Solr communication (markus)
+
+* NUTCH-1027 Degrade log level of `can't find rules for scope` (markus)
+
+* NUTCH-783 IndexingFiltersChecker utility (jnioche via markus)
+
+* NUTCH-1030 WebgraphDB program requires manually added directories (markus)
+
+* NUTCH-1011 Normalize duplicate slashes in URL's (markus)
+
+* NUTCH-993 NullPointerException at FetcherOutputFormat.checkOutputSpecs (Christian Guegi via jnioche)
+
+* NUTCH-1013 Migrate RegexURLNormalizer from Apache ORO to java.util.regex (markus)
+
+* NUTCH-1016 Strip UTF-8 non-character codepoints and add logging for SolrWriter (markus)
+
+* NUTCH-1012 Cannot handle illegal charset $charset (markus)
+
+* NUTCH-1022 Upgrade version number of Nutch agent in conf (markus)
+
+* NUTCH-295 Description for fetcher.threads.fetch property (kubes via markus)
+
+* NUTCH-1000 Add option not to commit to Solr (markus)
+
+* NUTCH-1006 MetaEquiv with single quotes not accepted (markus)
+
+* NUTCH-1010 ContentLength not trimmed (markus)
+
+Release 1.3 - 6/4/2011
+
+* NUTCH-995 Generate POM file using the Ivy makepom task (mattmann, jnioche, Gabriele Kahlout)
+
+* NUTCH-1003 task 'package' does not reflect the new organisation of the code (jnioche)
+
+* NUTCH-994 Fine tune Solr schema (markus)
+
+* NUTCH-997 IndexingFitlers to store Date objects instead of Strings (jnioche)
+
+* NUTCH-996 Indexer adds solr.commit.size+1 docs (markus)
+
+* NUTCH-983 Upgrade SolrJ to 3.1 (markus, jnioche)
+
+* NUTCH-989 Index-basic plugin and Solr schema now use date fieldType for tstamp field (markus)
+
+* NUTCH-888 Remove parse-rss and add tests for rss to parse-tika (jnioche)
+
+* NUTCH-991 SolrDedup must issue a commit (markus)
+
+* NUTCH 986 SolrDedup fails due to date incorrect format (markus)
+
+* NUTCH-977 SolrMappingReader uses hardcoded configuration parameter name for mapping file (markus)
+
+* NUTCH-976 Rename properties solrindex.* to solr.* (markus)
+
+* NUTCH-890 Fix IllegalAccessError with slf4j used in Solrj (markus)
+
+* NUTCH-891 Subcollection plugin won't require blacklist any more (markus)
+
+* NUTCH-972 CrawlDbMerger doesn't break on non-existent input (Gabriele Kahlout via jnioche)
+
+* NUTCH-967 Upgrade to Tika 0.9 (jnioche)
+
+* NUTCH-975 Fix missing/wrong headers in source files (markus)
+
+* NUTCH-963 Add support for deleting Solr documents with STATUS_DB_GONE in CrawlDB (Claudio Martella, markus)
+
+* NUTCH-825 Publish nutch artifacts to central maven repository (mattmann, jnioche)
+
+* NUTCH-962 max. redirects not handled correctly: fetcher stops at max-1 redirects (Sebastian Nagel via ab)
+
+* NUTCH-921 Reduce dependency of Nutch on config files (ab)
+
+* NUTCH-876 Remove remaining robots/IP blocking code in lib-http (ab)
+
+* NUTCH-872 Change the default fetcher.parse to FALSE (ab)
+
+* NUTCH-564 External parser supports encoding attribute (Antony Bowesman, mattmann)
+
+* NUTCH-964 Upgraded Xerces to 2.91, ERROR conf.Configuration - Failed to set setXIncludeAware (markus)
+
+* NUTCH-927 Fetcher.timelimit.mins is invalid when depth is greater than 1 (Wade Lau via jnioche)
+
+* NUTCH-824 Crawling - File Error 404 when fetching file with an hexadecimal character in the file name (Michela Becchi via jnioche)
+
+* NUTCH-954 Strict application of Content-Length limit for http protocols (Alexis Detreglode via jnioche)
+
+* NUTCH-950 DomainURLFilter throws NPE on bogus urls (Alexis Detreglode via jnioche)
+
+* NUTCH-935 basicurlnormalizer removes unnecessary /./ in URLs (Stondet via markus)
+
+* NUTCH-912 MoreIndexingFilter does not parse docx and xlsx date formats (Markus Jelsma, jnioche)
+
+* NUTCH-886 A .gitignore file for Nutch (dogacan)
+
+* NUTCH-930 Remove remaining dependencies on Lucene API (ab)
+
+* NUTCH-883 Remove unused parameters from nutch-default.xml (jnioche) 
+
+* NUTCH-936 LanguageIdentifier should not set empty lang field on NutchDocument (Markus Jelsma via jnioche)
+
+* NUTCH-787 ScoringFilters should not override the injected score (jnioche)
+
+* NUTCH-949 Conflicting ANT jars in classpath (jnioche)
+
+* NUTCH-863 Benchmark and a testbed proxy server (ab)
+
+* NUTCH-844 Improve NutchConfiguration (ab)
+
+* NUTCH-845 Native hadoop libs not available through maven (ab)
+
+* NUTCH-843 Separate the build and runtime environments (ab)
+
+* NUTCH-821 Use ivy in nutch builds (Enis Soztutar, jnioche)
+
+* NUTCH-837 Remove search servers and Lucene dependencies (ab)
+
+* NUTCH-836 Remove deprecated parse plugins (jnioche)
+
+* NUTCH-939 Added -dir command line option to SolrIndexer (Claudio Martella via ab)
+
+* NUTCH-948 Remove Lucene dependencies (ab)
+
+Release 1.2 - 09/18/2010
+
+* NUTCH-901 Make index-more plug-in configurable (Markus Jelsma via mattmann)
+
+* NUTCH-908 Infinite Loop and Null Pointer Bugs in Searching (kubes via mattmann)
+
+* NUTCH-906 Nutch OpenSearch sometimes raises DOMExceptions (Asheesh Laroia via ab)
+
+* NUTCH-862 HttpClient null pointer exception (Sebastian Nagel via ab)
+
+* NUTCH-905 Configurable file protocol parent directory crawling (Thorsten Scherler, mattmann, ab)
+
+* NUTCH-877 Allow setting of slop values for non-quote phrase queries on query-basic plugin (kubes via jnioche)
+
+* NUTCH-716 Make subcollection index filed multivalued (Dmitry Lihachev via jnioche)
+
+* NUTCH-878 ScoringFilters should not override the injected score 
+
+* NUTCH-870 Injector should add the metadata before calling injectedScore (jnioche via mattmann)
+
+* NUTCH-858 No longer able to set per-field boosts on lucene documents (ab)
+
+* NUTCH-869 Add parse-html back (jnioche)
+
+* NUTCH-871 MoreIndexingFilter missing date format (Max Lynch via mattmann)
+
+* NUTCH-696 Timeout for Parser (ab, jnioche)
+
+* NUTCH-857 DistributedBeans should not close their RPC counterparts (kubes)
+  
+* NUTCH-855 ScoringFilter and IndexingFilter: To allow for the propagation of URL Metatags 
+  and their subsequent indexing (Scott Gonyea via mattmann)
+
+* NUTCH-677 Segment merge filering based on segment content (Marcin Okraszewski via mattmann)
+
+* NUTCH-774 Retry interval in crawl date is set to 0 (Reinhard Schwab via mattmann)
+
+* NUTCH-697 Generate log output for solr indexer and dedup (Dmitry Lihachev, Jeroen van Vianen via mattmann)
+
+* NUTCH-850 SolrDeleteDuplicates needs to clone the SolrRecord objects (jnioche)
+
+* NUTCH-838 Add timing information to all Tool classes (Jeroen van Vianen, mattmann)
+
+* NUTCH-835 Document deduplication failed using MD5Signature (Sebastian Nagel via ab)
+
+* NUTCH-831 Allow configuration of how fields crawled by Nutch are stored / indexed / 
+  tokenized (Jeroen van Vianen via mattmann)
+
+* NUTCH-278 Fetcher-status might need clarification: kbit/s instead of kb/s shown (Alex McLintock via mattmann)
+
+* NUTCH-833 Website is still Lucene branded (mattmann, Alex McLintock)
+
+* NUTCH-832 Website menu has lots of broken links - in particular the API docs (Alex McLintock via mattmann)
+
+Release 1.1 - 2010-06-06
+
+* NUTCH-819 Included Solr schema.xml and solrindex-mapping.xml don't play together (ab)
+
+* NUTCH-818 Bugfix : Parse-tika uses minorCodes instead of majorCodes in ParseStatus (jnioche)
+
+* NUTCH-816 Add zip target to build.xml (mattmann)
+
+* NUTCH-732 Subcollection plugin not working (Filipe Antunes, ab)
+
+* NUTCH-815 Invalid blank line before If-Modified-Since header (Pascal Dimassimo via ab)
+
+* NUTCH-814 SegmentMerger bug (Rob Bradshaw, ab)
+
+* NUTCH-812 Crawl.java incorrectly uses the Generator API resulting in NPE (Phil Barnett via mattmann and ab)
+
+* NUTCH-810 Upgrade to Tika 0.7 (jnioche)
+
+* NUTCH-785 Copy metadata from origin URL when redirecting in Fetcher + call scfilters.initialScore on newly created URL (jnioche)
+
+* NUTCH-779 Mechanism for passing metadata from parse to crawldb (jnioche)
+
+* NUTCH-784 CrawlDBScanner (jnioche)
+
+* NUTCH-762 Generator can generate several segments in one parse of the crawlDB (jnioche)
+
+* NUTCH-740 Configuration option to override default language for fetched pages (Marcin Okraszewski via jnioche)
+
+* NUTCH-803 Upgrade to Hadoop 0.20.2 (ab)
+
+* NUTCH-787 Upgrade Lucene to 3.0.1. (Dawid Weiss via ab)
+
+* NUTCH-796 Zero results problems difficult to troubleshoot due to lack of logging (ab)
+
+* NUTCH-801 Remove RTF and MP3 parse plugins (jnioche)
+
+* NUTCH-798 Upgrade to SOLR1.4 and its dependencies (jnioche)
+
+* NUTCH-799 SOLRIndexer to commit once all reducers have finished (jnioche)
+
+* NUTCH-782 Ability to order htmlparsefilters (jnioche)
+
+* NUTCH-719 fetchQueues.totalSize incorrect in Fetcher (Steven Denny via jnioche) 
+
+* NUTCH-790 Some external javadoc links are broken (siren)
+
+* NUTCH-766 Tika parser (jnioche via mattmann)
+
+* NUTCH-786 Improvement to the list of suffix domains (jnioche)
+
+* NUTCH-775 Enhance searcher interface (siren)
+
+* NUTCH-781 Update Tika to v0.6 (jnioche)
+
+* NUTCH-269 CrawlDbReducer: OOME because no upper-bound on inlinks count (stack + jnioche)
+
+* NUTCH-655 Injecting Crawl metadata (jnioche)
+
+* NUTCH-658 Use counters to report fetching and parsing status (jnioche)
+
+* NUTCH-777 Upgrading to jetty6 broke unit tests (mattmann)
+
+* NUTCH-767 Update Tika to v0.5 for the MimeType detection (Julien Nioche via ab)
+
+* NUTCH-769 Fetcher to skip queues for URLS getting repeated exceptions
+  (Julien Nioche via ab)
+
+* NUTCH-768 - Upgrade Nutch 1.0 to use Hadoop 0.20.1, also upgrades Xerces to 
+  version 2.9.1. (kubes)
+  
+* NUTCH-712 ParseOutputFormat should catch java.net.MalformedURLException
+  coming from normalizers (Julien Nioche via ab)
+
+* NUTCH-741 Job file includes multiple copies of nutch config files
+  (Kirby Bohling via ab)
+
+* NUTCH-739 SolrDeleteDuplications too slow when using hadoop (Dmitry Lihachev via ab)
+
+* NUTCH-738 Close SegmentUpdater when FetchedSegments is closed
+  (Martina Koch, Kirby Bohling via ab)
+
+* NUTCH-746 NutchBeanConstructor does not close NutchBean upon contextDestroyed,
+  causing resource leak in the container. (Kirby Bohling via ab)
+
+* NUTCH-772 Upgrade Nutch to use Lucene 2.9.1 (ab)
+
+* NUTCH-760 Allow field mapping from Nutch to Solr index (David Stuart, ab)
+
+* NUTCH-761 Avoid cloning CrawlDatum in CrawlDbReducer (Julien Nioche, ab)
+
+* NUTCH-753 Prevent new Fetcher from retrieving the robots twice (Julien Nioche via ab)
+
+* NUTCH-773 - Some minor bugs in AbstractFetchSchedule (Reinhard Schwab via ab)
+
+* NUTCH-765 - Allow Crawl class to call Either Solr or Lucene Indexer (kubes)
+
+* NUTCH-735 - crawl-tool.xml must be read before nutch-site.xml when
+  invoked using crawl command (Susam Pal via dogacan)
+
+* NUTCH-721 - Fetcher2 Slow (Julien Nioche via dogacan)
+
+* NUTCH-702 - Lazy Instanciation of Metadata in CrawlDatum (Julien Nioche via dogacan)
+
+* NUTCH-707 - Generation of multiple segments in multiple runs returns only 1 segment
+  (Michael Chen, ab)
+
+* NUTCH-730 - NPE in LinkRank if no nodes with which to create the WebGraph
+  (Dennis Kubes via ab)
+
+* NUTCH-731 - Redirection of robots.txt in RobotRulesParser (Julien Nioche via ab)
+
+* NUTCH-757 - RequestUtils getBooleanParameter() always returns false
+  (Niall Pemberton via ab)
+
+* NUTCH-754 - Use GenericOptionsParser instead of FileSystem.parseArgs() (Julien
+  Nioche via ab)
+
+* NUTCH-756 - CrawlDatum.set() does not reset Metadata if it is null (Julien Nioche
+  via ab)
+
+* NUTCH-679 - Fetcher2 implementing Tool (Julien Nioche via ab)
+
+* NUTCH-758 - Set subversion eol-style to "native" (Niall Pemberton via ab)
+
+Release 1.0 - 2009-03-23
+
+ 1. NUTCH-474 - Fetcher2 crawlDelay and blocking fix (Dogacan Guney via ab)
+
+ 2. NUTCH-443 - Allow parsers to return multiple Parse objects.
+    (Dogacan Guney et al, via ab)
+
+ 3. NUTCH-393 - Indexer should handle null documents returned by filters.
+    (Eelco Lempsink via ab)
+
+ 4. NUTCH-456 - Parse msexcel plugin speedup (Heiko Dietze via siren)
+
+ 5. NUTCH-446 - RobotRulesParser should ignore Crawl-delay values of other
+    bots in robots.txt (Dogacan Guney via siren)
+
+ 6. NUTCH-482 - Remove redundant plugin lib-log4j (siren)
+ 
+ 7. NUTCH-483 - Remove redundant commons-logging jar from ontology plugin
+    (siren)
+
+ 8. NUTCH-161 - Change Plain text parser to
+    use parser.character.encoding.default property for fall back encoding
+    (KuroSaka TeruHiko, siren)
+
+ 9. NUTCH-61 - Support for adaptive re-fetch interval and detection of
+    unmodified content. (ab)
+
+10. NUTCH-392 - OutputFormat implementations should pass on Progressable.
+    (cutting via ab)
+
+11. NUTCH-495 - Unnecessary delays in Fetcher2 (dogacan)
+
+12. NUTCH-443 - allow parsers to return multiple Parse object, this will speed 
+    up the rss parser (dogacan via mattmann). This update is a fix and semantics
+    change from the original patch for NUTCH-443. The original patch did not tell
+    the  Indexer to read crawl_parse too so that it can pickup sub-urls' fetch 
+    datums. This patch addresses that issue. Now, if Fetcher gets a null content, 
+    instead of pushing an empty content, it filters the null content.
+    
+13. NUTCH-485 - Change HtmlParseFilter 's to return ParseResult object instead of 
+    Parse object. (Gal Nitzan via dogacan)
+
+14. NUTCH-489 - URLFilter-suffix management of the url path when the url contains 
+    some query parameters. (Emmanuel Joke via dogacan)
+
+15. NUTCH-502 - Bug in SegmentReader causes infinite loop. 
+    (Ilya Vishnevsky via dogacan)
+    
+16. NUTCH-444 Possibly use a different library to parse RSS feed for improved 
+    performance and compatibility. This patch introduced a new plugin, feed,
+    that includes an index filter and a parse plugin for feeds that uses ROME.
+    There was discussion to remove parse-rss, in light of the feed plugin, 
+    however, this patch does not explicitly remove parse-rss. (dogacan, mattmann)
+
+17. NUTCH-471 - Fix synchronization in NutchBean creation. 
+    (Enis Soztutar via dogacan)
+
+18. Upgrade to Lucene 2.2.0 and Hadoop 0.12.3. (ab)
+
+19. NUTCH-468 - Scoring filter should distribute score to all outlinks at 
+    once. (dogacan)
+
+20. NUTCH-504 - NUTCH-443 broke parsing during fetching. (dogacan)
+
+21. NUTCH-497 -  Extreme Nested Tags causes StackOverflowException in 
+	DomContentUtils...Spider Trap. (kubes)
+
+22. NUTCH-434 - Replace usage of ObjectWritable with something based on 
+    GenericWritable. (dogacan)
+
+23. NUTCH-499 - Refactor LinkDb and LinkDbMerger to reuse code. (dogacan)
+
+24. NUTCH-498 - Use Combiner in LinkDb to increase speed of linkdb generation.
+    (Espen Amble Kolstad via dogacan)
+
+25. NUTCH-507 - lib-lucene-analyzers jar defintion is wrong in plugin.xml.
+    (Emmanuel Joke via dogacan)
+
+26. NUTCH-503 - Generator exits incorrectly for small fetchlists. 
+    (Vishal Shah via dogacan)
+
+27. NUTCH-505 - Outlink urls should be validated. (dogacan)
+
+28. NUTCH-510 - IndexMerger delete working dir. (Enis Soztutar via dogacan)
+
+29. NUTCH-513 - suffix-urlfilter.txt does not have a template. (dogacan)
+
+30. NUTCH-515 - Next fetch time is set incorrectly. (dogacan)
+
+30. NUTCH-506 - Nutch should delegate compression to Hadoop. (dogacan)
+
+31. NUTCH-517 - build encoding should be UTF-8. (Enis Soztutar via dogacan).
+
+32. NUTCH-518 - Fix OpicScoringFilter to respect scoring filter chaining.
+    (Enis Soztutar via dogacan)
+
+33. NUTCH-516 - Next fetch time is not set when it is a 
+    CrawlDatum.STATUS_FETCH_GONE. (Emmanuel Joke via dogacan)
+
+34. NUTCH-525 - DeleteDuplicates generates ArrayIndexOutOfBoundsException 
+    when trying to rerun dedup on a segment. (Vishal Shah via dogacan)
+
+35. NUTCH-514 - Indexer should only index pages with fetch status SUCCESS.
+    (dogacan) Note: There is a bigger problem, i.e how to deal
+    with redirected pages, and this issue can be considered as a band-aid 
+    for the time being. See NUTCH-273 and NUTCH-353 for more details. 
+
+36. NUTCH-533 - LinkDbMerger: url normalized is not updated in the key and 
+    inlinks list. (Emmanuel Joke via dogacan)
+
+37. NUTCH-535 -ParseData's contentMeta accumulates unnecessary values during 
+    parse. (dogacan)
+
+38. NUTCH-522 - Use URLValidator in the Injector. (Emmanuel Joke, dogacan)
+
+39. NUTCH-536 - Reduce number of warnings in nutch core. (dogacan)
+
+40. NUTCH-439 - Top Level Domains Indexing / Scoring. Also adds 
+    domain-related utilities. (Enis Soztutar via dogacan)
+
+41. NUTCH-544 - Upgrade Carrot2 clustering plugin to the newest stable 
+    release (2.1). (Dawid Weiss via dogacan)
+
+42. NUTCH-545 - Configuration and OnlineClusterer get initialized in every
+    request. (Dawid Weiss via dogacan)
+
+43. NUTCH-532 - CrawlDbMerger: wrong computation of last fetch time. 
+    (Emmanuel Joke via dogacan)
+
+44. NUTCH-550 - Parse fails if db.max.outlinks.per.page is -1. (dogacan)
+
+45. NUTCH-546 - file URL are filtered out by the crawler. (dogacan)
+
+46. NUTCH-554 - Generator throws IOException on invalid urls.
+    (Brian Whitman via ab)
+
+47. NUTCH-529 - NodeWalker.skipChildren doesn't work for more than 1 child.
+    (Emmanuel Joke via dogacan)
+
+48. NUTCH-25 - needs 'character encoding' detector.
+    (Doug Cook, dogacan, Marcin Okraszewski, Renaud Richardet via dogacan)
+
+49. NUTCH-508 - ${hadoop.log.dir} and ${hadoop.log.file} are not propagated
+    to the tasktracker. (Mathijs Homminga, Emmanuel Joke via dogacan)
+    
+50. NUTCH-562 - Port mime type framework to use Tika mime detection framework.
+    (mattmann)
+    
+51. NUTCH-488 - Avoid parsing uneccessary links and get a more relevant outlink 
+    list. (Emmanuel Joke, Marcin Okraszewski via kubes)
+
+52. NUTCH-501 -  Implement a different caching mechanism for objects cached in
+    configuration. (dogacan)
+
+53. NUTCH-552 - Upgrade Nutch to Hadoop 0.15.x. (kubes)
+
+54. NUTCH-565 - Arc File to Nutch Segments Converter. (kubes)
+
+55. NUTCH-547 - Redirection handling: YahooSlurp's algorithm.
+    (dogacan, kubes via dogacan)
+
+56. NUTCH-548 - Move URLNormalizer from Outlink to ParseOutputFormat.
+    (Emmanuel Joke via dogacan)
+
+57. NUTCH-538 - Delete unused classes under o.a.n.util. (dogacan)
+
+58. NUTCH-494 - FindBugs: CrawlDbReader and DeleteDuplicates. (dogacan)
+
+59. NUTCH-574 - Including inlink anchor text in index can create irrelevant 
+    search results.  Created index-anchor plugin, removed functionality from 
+    index-basic plugin. For backwards compatibility, add index-anchor plugin to 
+    nutch-site.xml plugin.includes. (kubes)
+
+60. NUTCH-581 - DistributedSearch does not update search servers added to 
+    search-servers.txt on the fly.  (Rohan Mehta via kubes)
+
+61. NUTCH-586 - Add option to run compiled classes without job file
+    (enis via ab)
+
+62. NUTCH-559 - NTLM, Basic and Digest Authentication schemes for web/proxy
+    server. (Susam Pal via dogacan)
+
+63. NUTCH-534 - SegmentMerger: add -normalize option (Emmanuel Joke via ab)
+
+64. NUTCH-528 - CrawlDbReader: add some new stats + dump into a CSV format
+    (Emmanuel Joke via ab)
+
+65. NUTCH-597 - NPE in Fetcher2 (Remco Verhoef via ab)
+
+66. NUTCH-584 - urls missing from fetchlist (Ruslan Ermilov, ab)
+
+67. NUTCH-580 - Remove deprecated hadoop api calls (FS) (siren)
+
+68. NUTCH-587 - Upgrade to Hadoop 0.15.3 (kubes)
+
+69. NUTCH-604 - Upgrade to Lucene 2.3.0 (ab)
+
+70. NUTCH-602 - Allow configurable number of handlers for search servers
+    (hartbecke via kubes)
+
+71. NUTCH-607 - Update build.xml to include tika jar when building war (kubes)
+
+72. NUTCH-608 - Upgrade nutch to use released apache-tika-0.1-incubating (mattmann)
+
+73. NUTCH-606 - Refactoring of Generator, run all urls through checks (kubes)
+
+74. NUTCH-605 - Change deprecated configuration methods for Hadoop (kubes)
+
+75. NUTCH-603 - Add more default url normalizations (kubes)
+
+76. NUTCH-611 - Upgrade Nutch to use Hadoop 0.16 (kubes)
+
+77. NUTCH-44 - Too many search results, limits max results returned from a 
+    single search. (Emilijan Mirceski and Susam Pal via kubes)
+
+78. NUTCH-567 - Proper (?) handling of URIs in TagSoup. TagSoup library is
+    updated to 1.2 version. (dogacan)
+
+79. NUTCH-613 - Empty summaries and cached pages (kubes via ab)
+
+80. NUTCH-612 - URL filtering was disabled in Generator when invoked
+    from Crawl (Susam Pal via ab)
+
+81. NUTCH-601 - Recrawling on existing crawl directory (Susam Pal via ab)
+
+82. NUTCH-575 - NPE in OpenSearchServlet (John H. Lee via ab)
+
+83. NUTCH-126 - Fetching https does not work with a proxy (Fritz Elfert via ab)
+
+84. NUTCH-615 - Redirected URL-s fetched without setting fetchInterval.
+    Guard against reprUrl being null. (Emmanuel Joke, ab)
+
+85. NUTCH-616 - Reset Fetch Retry counter when fetch is successful (Emmanuel
+    Joke, ab)
+
+86. NUTCH-220 - Upgrade to PDFBox 0.7.3 (ab)
+
+87. NUTCH-223 - Crawl.java uses Integer.MAX_VALUE (Jeff Ritchie via ab)
+
+88. NUTCH-598 - Remove deprecated use of ToolBase. Use generics in Hadoop API.
+    (Emmanuel Joke, dogacan, ab)
+
+89. NUTCH-620 - BasicURLNormalizer should collapse runs of slashes with a
+    single slash. (Mark DeSpain via ab)
+
+90. NUTCH-500 - Add hadoop masters configuration file into conf folder. 
+    (Emmanuel Joke via kubes)
+
+91. NUTCH-596 - ParseSegments parse content even if its not
+    CrawlDatum.STATUS_FETCH_SUCCESS (dogacan)
+    
+92. NUTCH-618 - Tika error "Media type alias already exists" (mattmann,kubes)
+
+93. NUTCH-634 - Upgrade Nutch to Hadoop 0.17.1 (Michael Gottesman, Lincoln
+    Ritter, ab)
+
+94. NUTCH-641 - IndexSorter inorrectly copies stored fields (ab)
+
+95. NUTCH-645 - Parse-swf unit test failing (ab)
+
+96. NUTCH-642 - Unit tests fail when run in non-local mode (ab)
+
+97. NUTCH-639 - Change LuceneDocumentWrapper visibility from
+    private to _public_ (Guillaume Smet via dogacan)
+
+98. NUTCH-651 - Remove bin/{start|stop}-balancer.sh from svn
+    tracking. (dogacan)
+
+99. NUTCH-375 - Add support for Content-Encoding: deflated
+    (Pascal Beis, ab)
+
+100. NUTCH-633 - ParseSegment no longer allow reparsing.
+     (dogacan)
+
+101. NUTCH-653 - Upgrade to hadoop 0.18. (dogacan)
+
+102. NUTCH-621 - Nutch needs to declare it's crypto usage (mattmann)
+
+103. NUTCH-654 - urlfilter-regex's main does not work.
+     (dogacan)
+
+104. NUTCH-640 - confusing description "set it to Integer.MAX_VALUE".
+     (dogacan)
+     
+105. NUTCH-662 - Upgrade Nutch to use Lucene 2.4. (kubes)
+
+106. NUTCH-663 - Upgrade Nutch to use Hadoop 0.19 (kubes)
+
+107. NUTCH-647 - Resolve URLs tool (kubes)
+
+108. NUTCH-665 - Search Load Testing Tool (kubes)
+
+109. NUTCH-667 - Input Format for working with Content in Hadoop Streaming
+                 (kubes)
+
+110. NUTCH-635 -  LinkAnalysis Tool for Nutch. (kubes)
+
+111. NUTCH-646 -  New Indexing Framework for Nutch. (kubes)
+
+112. NUTCH-668 -  Domain URL Filter. (kubes)
+
+113. NUTCH-594 -  Serve Nutch search results in multiple formats including 
+                  XML and JSON. (kubes)
+
+114. NUTCH-442 - Integrate Solr/Nutch. (dogacan, original version by siren) 
+
+115. NUTCH-652 - AdaptiveFetchSchedule#setFetchSchedule doesn't calculate
+                 fetch interval correctly. (dogacan)
+
+116. NUTCH-627 - Minimize host address lookup (Otis Gospodnetic)
+
+117. NUTCH-678 - Hadoop 0.19 requires an update of jets3t.
+                 (julien nioche via dogacan)
+
+118. NUTCH-681 - parse-mp3 compilation problem. 
+                 (Wildan Maulana via dogacan)
+
+119. NUTCH-676 - MapWritable is written inefficiently and confusingly.
+                 (dogacan)
+
+120. NUTCH-579 - Feed plugin only indexes one post per feed due to identical
+                 digest. (dogacan)
+
+121. NUTCH-571 - parse-mp3 plugin doesn't always index album of mp3.
+                 (Joseph Chen, dogacan)
+
+122. NUTCH-682 - SOLR indexer does not set boost on the document.
+                 (julien nioche via dogacan)
+
+123. NUTCH-279 - Additions to urlnormalizer-regex (Stefan Neufeind, ab)
+
+124. NUTCH-671 - JSP errors in Nutch searcher webapp (Edwin Chu via ab)
+
+125. NUTCH-643 - ClassCastException in PDF parser (Guillaume Smet, ab)
+
+126. NUTCH-636 - Httpclient plugin https doesn't work on IBM JRE
+     (Curtis d'Entremont, ab)
+
+127. NUTCH-683 - NUTCH-676 broke CrawlDbMerger. (dogacan)
+
+128. NUTCH-631 - MoreIndexingFilter fails with NoSuchElementException
+     (Stefan Will, siren)
+     
+129. NUTCH-691 - Update jakarta poi jars to the most relevant version
+     (Dmitry Lihachev via siren)
+
+130. NUTCH-563 - Include custom fields in BasicQueryFilter
+     (Julien Nioche via siren)
+     
+131. NUTCH-695 - Incorrect mime type detection by MoreIndexingFilter plugin
+     (Dmitry Lihachev via siren)
+     
+132. NUTCH-694 - Distributed Search Server fails (siren)
+
+133. NUTCH-626 - Fetcher2 breaks out the domain with db.ignore.external.links
+     set at cross domain redirects (Remco Verhoef, dogacan via siren)
+
+134. NUTCH-247 - Robot parser to restrict (kubes, siren)
+
+135. NUTCH-698 - CrawlDb is corrupted after a few crawl cycles (dogacan
+     via siren)
+     
+136. NUTCH-699 - Add an "official" solr schema for solr integration (dogacan,
+     Dmitry Lihachev via siren)
+
+137. NUTCH-703 - Upgrade to Hadoop 0.19.1 (ab)
+
+138. NUTCH-419 - Unavailable robots.txt kills fetch (Carsten Lehmann,
+     Doug Cook via ab)
+     
+139. NUTCH-700 - Neko1.9.11 goes into a loop (Julien Nioche, siren)
+
+140. NUTCH-669 - Consolidate code for Fetcher and Fetcher2 (siren)
+
+141. NUTCH-711 - Indexer failing after upgrade to Hadoop 0.19.1 (ab)
+
+142. NUTCH-684 - Dedup support for Solr. (dogacan)
+
+143. NUTCH-715 - Subcollection plugin doesn't work with default
+     subcollections.xml file (Dmitry Lihachev via siren)
+     
+144. NUTCH-722 - Nutch contains JAI jars that we cannot redistribute
+
+Release 0.9 - 2007-04-02
+
+ 1. Changed log4j confiquration to log to stdout on commandline
+    tools (siren)
+
+ 2. NUTCH-344 - Fix for thread blocking issue (Greg Kim via siren)
+ 
+ 3. NUTCH-260 - Update hadoop version to 0.5.0 (Renaud Richardet,
+    siren)
+
+ 4. Optionally skip pages with abnormally large values of Crawl-Delay
+    (Dennis Kubes via ab)
+
+ 5. Change readdb -stats to use CombiningCollector (ab)
+
+ 6. NUTCH-348 - Fix Generator to select highest scoring pages (Chris
+    Schneider and Stefan Groschupf via ab)
+
+ 7. NUTCH-347 - Adjust plugin build script not to emit warnings when copying
+    dependant jars (siren)
+    
+ 8. NUTCH-338 - Remove the text parser as an option for parsing PDF files
+    in parse-plugins.xml (Chris A. Mattmann via siren)
+    
+ 9. NUTCH-105 - Network error during robots.txt fetch causes file to
+    be ignored (Greg Kim via siren)
+    
+10. NUTCH-367 - DistributedSearch thown ClassCastException (siren)
+
+11. NUTCH-332 - Fix the problem of doubling scores caused by links pointing
+    to the current page (e.g. anchors). (Stefan Groschupf via ab)
+
+12. NUTCH-365 - Flexible URL normalization (ab)
+
+13. NUTCH-336 - Differentiate between newly discovered pages and newly
+    injected pages (Chris Schneider via ab) NOTE: this changes the
+    scoring API, filter implementations need to be updated.
+
+14. NUTCH-337 - Fetcher ignores the fetcher.parse value (Stefan Groschupf
+    via ab)
+
+15. NUTCH-350 - Urls blocked by http.max.delays incorrectly marked as GONE
+    (Stefan Groschupf via ab)
+
+16. NUTCH-374 - when http.content.limit be set to -1 and  
+    Response.CONTENT_ENCODING is gzip or x-gzip , it can not fetch any thing 
+    (King Kong via pkosiorowski)
+
+17. NUTCH-383 - upgrade to Hadoop 0.7.1 and Lucene 2.0.0. (ab)
+
+  ****************************** WARNING !!! ********************************
+  * This upgrade breaks data format compatibility. A tool 'convertdb'       *
+  * was added to migrate existing CrawlDb-s to the new format. Segment data *
+  * can be partially migrated using 'mergesegs', however segments will      *
+  * require re-parsing (and consequently re-indexing).                      *
+  ****************************** WARNING !!! ********************************
+
+18. NUTCH-371 - DeleteDuplicates now correctly implements both parts of
+    the algorithm. (ab)
+
+19. NUTCH-391 - ParseUtil logs file contents to log file when it cannot
+    find parser (siren)
+
+20. NUTCH-379 - ParseUtil does not pass through the content's URL to the
+    ParserFactory (Chris A. Mattmann via siren)
+
+21. NUTCH-361, NUTCH-136 - When jobtracker is 'local' generate only one
+    partition. (ab)
+
+22. NUTCH-399 - Change CommandRunner to use concurrent api from jdk (siren)
+
+23. NUTCH-395 - Increase fetching speed (siren)
+
+24. NUTCH-388 - nutch-default.xml has outdated example for urlfilter.order
+    (reported by Jared Dunne)
+
+25. NUTCH-404 - Fix LinkDB Usage - implementation mismatch (siren)
+
+26. NUTCH-403 - Make URL filtering optional in Generator (siren)
+
+27. NUTCH-405 - Content object is not properly initialized in map method
+    of ParseSegment (siren)
+
+28. NUTCH-362 - Remove parse-text from unsupported filetypes in
+    parse-plugins.xml (siren)
+    
+29. NUTCH-305 - Update crawl and url filter lists to exclude
+    jpeg|JPEG|bmp|BMP, suffix-urlfilter.txt (contributed by Stefan
+    Neufeind) is also updated (siren)
+    
+30. NUTCH-406 - Metadata tries to write null values (mattmann)
+
+31. NUTCH-415 - Generator should mark selected records in CrawlDb. 
+    Due to increased resource consumption this step is optional. 
+    Application-level locking has been added to prevent concurrent
+    modification of databases. (ab)
+
+32. NUTCH-416 - CrawlDatum status and CrawlDbReducer refactoring. It is
+    now possible to correctly update CrawlDb from multiple segments.
+    Introduce new status codes for temporary and permanent
+    redirection. (ab)
+
+33. NUTCH-322 - Fix Fetcher to store redirected pages and to store
+    protocol-level status. This also should fix NUTCH-273. (ab)
+
+34. Change default Fetcher behavior not to follow redirects immediately.
+    Instead Fetcher will record redirects as new pages to be added to CrawlDb.
+    This also partially addresses NUTCH-273. (ab)
+
+35. Detect and report when Generator creates 0-sized segments. (ab)
+
+36. Fix Injector to preserve already existing CrawlDatum if the seed list
+    being injected also contains such URL. (ab)
+
+37. NUTCH-425, NUTCH-426 - Fix anchors pollution. Continue after
+    skipping bad URLs. (Michael Stack via ab)
+
+38. NUTCH-325 - UrlFilters.java throws NPE in case urlfilter.order contains
+    Filters that are not in plugin.includes (Stefan Groschupf, siren)
+    
+39. NUTCH-421 - Allow predeterminate running order of indexing filters
+    (Alan Tanaman, siren)
+
+40. When indexing pages with redirection, drop all intermediate pages and
+    index only the final page. (ab)
+
+41. Upgrade to Hadoop 0.10.1. (ab)
+
+42. NUTCH-420 - Fix a bug in DeleteDuplicates where results depended on the
+    order in which IndexDoc-s are processed. (Dogacan Guney via ab)
+
+43. NUTCH-428 - NullPointerException thrown when agent name is not
+    configured properly. Changed to throw RuntimeException instead.
+    (siren)
+
+44. NUTCH-430 - Integer overflow in HashComparator.compare (siren)
+
+45. NUTCH-68 - Add a tool to generate arbitrary fetchlists. (ab)
+
+46. NUTCH-433 - java.io.EOFException in newer nightlies in mergesegs
+    or indexing from hadoop.io.DataOutputBuffer (siren)
+
+47. NUTCH-339 - Fetcher2: a queue-based fetcher implementation. (ab)
+
+48. NUTCH-390 - Javadoc warnings (mattmann)
+
+49. NUTCH-449 - Make junit output format configurable. (nigel via cutting)
+
+50. NUTCH-432 - Fix a bug where platform name with spaces would break the
+    bin/nutch script. (Brian Whitman via ab)
+
+51. Upgrade to Hadoop 0.11.2 and Lucene 2.1.0 release. (ab)
+
+52. NUTCH-167 - Observation of robots "noarchive" directive. (ab)
+
+53. NUTCH-384 - Protocol-file plugin does not allow the parse plugins
+    framework to operate properly (Heiko Dietze via mattmann)
+
+54. NUTCH-233 - Wrong regular expression hangs reduce process forever (Stefan
+    Groschupf via kubes)
+    
+55. NUTCH-436 - Incorrect handling of relative paths when the embedded URL 
+    path is empty (kubes)
+
+56. Upgrade to Hadoop 0.12.1 release. (ab)
+
+57. NUTCH-246 - Incorrect segment size being generated due to time
+    synchronization issue (Stefan Groschupf via ab)
+
+58. Upgrade to Hadoop 0.12.2 release. (ab)
+
+59. NUTCH-333 - SegmentMerger and SegmentReader should use NutchJob. (Michael
+    Stack and Dogacan Guney via kubes)
+
+Release 0.8 - 2006-07-25
+
+ 0. Totally new architecture, based on hadoop
+    [http://lucene.apache.org/hadoop] (cutting)
+
+ 1. NUTCH-107 - Typo in plugin/urlfilter-*/plugin.xml. (Stephen Cross).
+
+ 2. NUTCH-108 - Log hosts that exceed generate.max.per.host.
+    (Rod Taylor via cutting)
+
+ 3. NUTCH-88 - Enhance ParserFactory plugin selection policy
+    (jerome)
+
+ 4. NUTCH-124 - Protocol-httpclient does not follow redirects when 
+    fetching robots.txt (cutting)
+
+ 5. NUTCH-130 - Be explicit about target JVM when building (1.4.x?)
+    (stack@archive.org, cutting)
+
+ 6. NUTCH-114 -	Getting number of urls and links from crawldb
+    (Stefan Groschupf via ab)
+
+ 7. NUTCH-112 - Link in cached.jsp page to cached content is an 
+    absolute link (Chris A. Mattmann via jerome)
+
+ 8. NUTCH-135 - Http header meta data are case insensitive in the
+    real world (Stefan Groschupf via jerome)
+
+ 9. NUTCH-145 - Build of war file fails on Chinese (zh) .xml files due
+    to UTF-8 BOM (KuroSaka TeruHiko via siren)
+
+10. NUTCH-121 - SegmentReader for mapred (Rod Taylor via ab)
+
+11. Added support for OpenSearch (cutting)
+
+12. NUTCH-142 - NutchConf should use the thread context classloader
+    (Mike Cannon-Brookes via pkosiorowski)
+
+13. NUTCH-160 - Use standard Java Regex library rather than
+    org.apache.oro.text.regex (Rod Taylor via cutting)
+
+14. NUTCH-151 - CommandRunner can hang after the main thread exec is
+    finished and has inefficient busy loop (Paul Baclace via cutting)
+
+15. NUTCH-174 - Problem encountered with ant during compilation
+
+16. NUTCH-190 - ParseUtil drops reason for failed parse
+    (stack@archive.org via ab)
+
+17. NUTCH-169 - Remove static NutchConf (Marko Bauhardt via ab)
+
+18. NUTCH-194 - Nutch-169 introduced two tiny bugs (Marko Bauhardt via ab)
+
+19. NUTCH-178 - in search.jsp must be session creation "false"
+    (YourSoft via siren)
+
+20. NUTCH-200 - OpenSearch Servlet ist broken
+    (Marko Bauhardt via siren)
+
+21. NUTCH-81 - Webapp only works when deployed in root
+    (AJ Banck, Michael Nebel via siren)
+
+22. NUTCH-139 - Standard metadata property names in the ParseData
+    metadata (Chris A. Mattmann, jerome)
+
+23. NUTCH-192 - Meta data support for CrawlDatum
+    (Stefan Groschupf via ab)
+    
+24. NUTCH-52 - Parser plugin for MS Excel files
+    (Rohit Kulkarni via jerome)
+
+25. NUTCH-53 - 	Parser plugin for Zip files
+    (Rohit Kulkarni via jerome)
+
+26. NUTCH-137 - footer is not displayed in search result page
+    (KuroSaka TeruHiko via siren)
+
+27. NUTCH-118 - FAQ link points to invalid URL
+    (Steve Betts via siren)
+
+28. NUTCH-184 - Serbian (sr, Cyrilic) and Serbo-Croatian (sh, Latin)
+    translation (Ivan Sekulovic via siren)
+
+29. NUTCH-211 - FetchedSegments leave readers open (Stefan Groschupf
+    via cutting)
+
+30. NUTCH-140 - Add alias capability in parse-plugins.xml file that
+    allows mimeType->extensionId mapping (Chris A. Mattmann via jerome)
+
+31. NUTCH-214 - Added Links to web site to search mailling list
+    (Jake Vanderdray via jerome)
+
+32. NUTCH-204 - Multiple field values in HitDetails
+    (Stefan Groschupf via jerome)
+
+33. NUTCH-219 - file.content.limit & ftp.content.limit should be changed
+    to -1 to be consistent with http (jerome)
+    
+34. NUTCH-221 - Prepare nutch for upcoming lucene 2.0 (siren)
+
+35. NUTCH-91 - Empty encoding causes exception (Michael Nebel via
+    pkosiorowski)
+
+36. NUTCH-228 - Clustering plugin descriptor broken (Dawid Weiss via
+    jerome)
+
+37. NUTCH-229 - Improved handling of plugin folder configuration
+    (Stefan Groschupf via ab)
+
+38. NUTCH-206 - Search server throws InstantiationException (ab)
+    
+39. NUTCH-203 - ParseSegment throws InstantiationException (Marko Bauhardt
+    via ab)
+
+40. NUTCH-3 - Multi values of header discarded (Stefan Groschupf via ab)
+
+41. Update to lucene 1.9.1 (cutting)
+
+42. NUTCH-235 - Duplicate Inlink values (ab)
+
+43. NUTCH-234 - Clustering extension code cleanups and a real
+    JUnit test case for the current implementation (Dawid Weiss via ab)
+    
+44. NUTCH-210 - Context.xml file for Nutch web application
+    (Chris A. Mattmann via jerome)
+
+45. NUTCH-231 - Invalid CSS entries (AJ Banck via jerome)
+
+46. NUTCH-232 - Search.jsp has multiple search forms creating
+    invalid html / incorrect focus function (jerome)
+    
+47. NUTCH-196 - lib-xml and lib-log4j plugins (ab, jerome)
+
+48. NUTCH-244 - Inconsistent handling of property values
+    boundaries / unable to set db.max.outlinks.per.page to
+    infinite (jerome)
+    
+49. NUTCH-245 -	DTD for plugin.xml configuration files
+    (Chris A. Mattmann via jerome)
+
+50. NUTCH-250 - Generate to log truncation caused by
+    generate.max.per.host (Rod Taylor via cutting)
+    
+51. NUTCH-125 - OpenOffice Parser plugin (ab)
+
+52. Switch from using java.io.File to org.apache.hadoop.fs.Path.
+    (cutting)
+
+53. NUTCH-240 - Scoring API: extension point, scoring filters and
+    an OPIC plugin (ab)
+    
+54. NUTCH-134 - Summarizer doesn't select the best snippets (jerome)
+
+55. NUTCH-268 - Generator and lib-http use different definitions of
+    "unique host" (ab)
+    
+56. NUTCH-280 - Url query causes NullPointerException (Grant Glouser
+    via siren)
+
+57. NUTCH-285 - LinkDb Fails rename doesn't create parent directories
+    (Dennis Kubes via ab)
+
+58. NUTCH-201 - Add support for subcollections
+    (siren)
+
+59. NUTCH-298 - If a 404 for a robots.txt is returned a NPE is thrown
+    (Stefan Groschupf via jerome)
+
+60. NUTCH-275 - Fetcher not parsing XHTML-pages at all (jerome)
+
+61. NUTCH-301 - CommonGrams loads analysis.common.terms.file for each query
+    (Stefan Groschupf via jerome)
+
+62. NUTCH-110 - OpenSearchServlet outputs illegal xml characters
+    (stack@archive.org via siren)
+
+63. NUTCH-292 - OpenSearchServlet: OutOfMemoryError: Java heap space
+    (Stefan Neufeind via siren)
+
+64. NUTCH-307 - Wrong configured log4j.properties (jerome)
+
+65. NUTCH-303 - Logging improvements (jerome)
+
+66. NUTCH-308 - Maximum search time limit (ab)
+
+67. NUTCH-306 - DistributedSearch.Client liveAddresses concurrency
+    problem (Grant Glouser via siren)
+
+68. Update to hadoop-0.4 (Milind Bhandarkar, cutting)
+
+69. NUTCH-317 - Clarify what the queryLanguage argument of
+    Query.parse(...) means (jerome)
+
+70. Added alternative experimental web gui in contrib containing
+    extensions like subcollection, keymatch, user preferences,
+    caching, implemented mainly using tiles and jstl (siren)
+
+71. NUTCH-320 DmozParser does not output list of urls to stdout
+    but to a log file instead. Original functionality restored.
+
+72. NUTCH-271 - Add ability to limit crawling to the set of initially
+    injected hosts (db.ignore.external.links) (Philippe Eugene,
+    Stefan Neufeind via ab)
+
+73. NUTCH-293 - Support for Crawl-Delay (Stefan Groschupf via ab)
+
+74. NUTCH-327 - Fixed logging directory on cygwin (siren)
+
+Release 0.7 - 2005-08-17
+
+ 1. Added support for "type:" in queries. Search results are limited/qualified
+    by mimetype or its primary type or sub type. For example,
+    (1) searching with "type:application/pdf" restricts results
+    to pages which were identified to be of mimetype "application/pdf".
+    (2) with "type:application", nutch will return pages of
+    primary type "application".
+    (3) with "type:pdf", only pages of sub type "pdf" will be listed.
+    (John Xing, 20050120)
+
+ 2. Added support for "date:" in queries. Last-Modified is indexed.
+    Search results are restricted by lower and upper date (inclusive)
+    as date:yyyymmdd-yyyymmdd. For example, date:20040101-20041231
+    only returns pages with Last-Modified in year 2004.
+    (John Xing, 20050122)
+
+ 3. Add URLFilter plugin interface and convert existing url filters into
+    plugins. (John Xing, 20050206)
+
+ 4. Add UpdateSegmentsFromDb tool, which updates the scores and
+    anchors of existing segments with the current values in the web
+    db.  This is used by CrawlTool, so that pages are now only fetched
+    once per crawl.  (Doug Cutting, 20050221)
+
+ 5. Moved code into org.apache.nutch sub-packages.  Changed license to
+    Apache 2.0.  Removed jar files whose licenses do not permit
+    redistribution by Apache.  Disabled compilation of plugins which
+    require these libraries.  (Doug Cutting 20050301)
+
+ 6. Index host and title in separate fields.  Host was indexed
+    previously only as a part of the URL.  Title was indexed as an
+    anchor.  Now boosts for matching these fields may be adjusted
+    separately from boosts for matching anchors and url.  Also: move
+    site indexing to index-basic plugin to minimize the number of
+    times the URL needs to be parsed; and, stop using anchor analyzer
+    for anything but anchors.  (Piotr Kosiorowski via Doug Cutting
+    20050323)
+
+ 7. Add servlet Cached.java that serves cached Content of any mime type.
+    Slightly modified are web.xml and cached.jsp.
+    (John Xing, 20050401)
+
+ 8. Add skipCompressedByteArray() to WritableUtils.java.
+    (John Xing, 20050402)
+
+ 9. Fixes to jsp and static web pages.  These now use relative links,
+    so that the Nutch webapp file can be used in places other than at
+    the root.  Also fixed links to the about and help pages.  Bug #32.
+    (Jerome Charron via cutting, 20050404)
+
+10. Added some features to DistributedSearch: new segments can be added
+    to searchservers without restarting the frontend, defective search
+    servers are not queried until tey come back online, watchdog keeps
+    an eye for your searchservers and writes simple statistics.
+    (Sami Siren, 20050407)
+    
+11. Fix for bug #4 - Unbalanced quote in query eats all resources.
+	(Piotr Kosiorowski, Sami Siren, 20050407)
+
+12. Close Issue #33 - MIME content type detector (using magic char sequences).
+    (Jerome Charron and Hari Kodungallur via John Xing, 20050416)
+
+13. Add a servlet that implements A9's OpenSearch RSS web service.
+    (cutting, 20050418)
+
+14. Remove references to link analysis from tutorial, and enable
+    scoring by link count when generating fetchlists and searching.
+    (cutting, 20040419)
+
+15. Make query boosts for host, title, anchor and phrase matches
+    configurable.  (Piotr Kosiorowski via cutting, 20050419)
+
+16. Add support for sorting search results and search-time deduping by
+    fields other than site.
+
+17. Automatically convert range queries into cached range filters.
+    This improves the performance and scalability of, e.g., date range
+    searching.
+
+18. Several methods have been renamed due to misspellings.  The old
+    methods have been deprecated and will be removed before the 1.0
+    release.
+
+
+Release 0.6
+
+ 1. Added clustering-carrot2 plugin, together with introduction of clustering
+    api and modification to search jsp. (Dawid Weiss via John Xing, 20040809)
+
+ 2. Make a number of changes to NDFS (Nutch Distributed File System)
+    to fix bugs, add admin tools, etc.
+
+    Also, modify all command line tools so you can indicate whether to
+    use NDFS or the local filesystem.  If you indicate nothing, then
+    it defaults to the local fs.
+
+    I've used this to do a 35m page crawl via NDFS, distributed over a
+    dozen machines.  (Mike Cafarella)
+
+ 3. Add support for BASE tags in HTML.  Outlinks are now correctly
+    extracted when a BASE tag is present.  (cutting)
+
+ 4. Fix two bugs in result pagination.  When the last hit on a page
+    was the last hit overall, the "next" button was sometimes shown
+    when the "show all" button should be shown instead.  Also, in
+    certain cases, the "show all" button would be shown when the
+    "next" button should have been shown.  (cutting)
+
+ 5. Add config parameter "indexer.max.tokens" that determines the
+    maximum number of tokens indexed per field.  (Andy Hedges via cutting)
+
+ 6. Add parser for mp3 files.  (Andy Hedges via cutting)
+
+ 7. Add RegexUrlNormalizer.  This is useful for things like stripping
+    out session IDs from URLs.  To use it, add values for
+    urlnormalizer.class and urlnormalizer.regex.file to your
+    nutch-site.xml.  The RegexUrlNormalizer class extends the
+    BasicUrlNormalizer, and does basic normalization as well.
+    (Luke Baker via cutting)
+
+ 8. Added Swedish translation (Stefan Verzel via Sami Siren, 20040910)
+
+ 9. Added Polish translation (Andrzej Bialecki, 20040911)
+ 
+10. Added 3 more language profiles to language identifier (ru,hu,pl).
+	Other changes to language identifier: Porfiles converted to utf8,
+	added some test cases, changed the similarity calculation.
+	(Sami Siren, 20040925)
+
+11. Added plugin parse-rtf (Andy Hedges via John Xing, 20040929)
+
+12. Added plugin index-more and more.jsp (John Xing, 20041003)
+
+13. Added "View as Plain Text" feature. A new op OP_PARSETEXT is introduced
+    in DistributedSearch.java. text.jsp is added. (John Xing, 20041006)
+
+14. Fixed a bug that fails cached.jsp, explain.jsp, anchors.jsp and text.jsp
+    (but not search.jsp) with NullPointerException in distributed search.
+    It seems that this bug appears after "hits per site" stuff is added.
+    The fix is done in Hit.java, making sure String site is never null.
+    Hope this fix not have bad effetct on "hits per site" code.
+    (John Xing, 20041006)
+
+15. Fixed a bug that fails fullyDelete() in FileUtil.java for
+    LocalFileSystem.java. This bug also exposes possible incompleteness
+    of NDFSFile.java, where a few methods are not supported, including
+    delete(). Nothing changed in NDFSFile.java though. Leave it for future
+    improvement (John Xing, 20041022).
+
+16. Introduced option -noParsing to Fetcher.java and added ParseSegment.java.
+    A new status code CANT_PARSE is added to FetcherOutput.java.
+    Without option -noParsing , no change in fetcher behavior. With
+    option -noParsing, fetcher does crawls only, no parsing is carried out.
+    Then, ParseSegment.java should be used to parse in separate pass.
+    (John Xing, 20041025)
+
+17. Added ontology plugin. Currently it is used for query refinement, as
+    examplified in refine-query-init.jsp and refine-query.jsp. By default,
+    query refinement is disabled in search.jsp. Please check
+    ./src/plugin/ontology/README.txt for further description.
+    Ontology plugin certainly can be used for many other things.
+    (Michael J. Pan via John Xing, 20041129)
+ 
+18. Changed fetcher.server.delay to be a float, so that sub-second
+    delays can be specified.  (cutting)
+
+19. Added plugin.includes config parameter that determines which
+    plugins are included.  By default now only http, html and basic
+    indexing and search plugins are enabled, rather than all plugins.
+    This should make default performance more predictable and reliable
+    going forward. (cutting)
+
+20. Cleaned up some filesystem code, including:
+
+    - Replaced BufferedRandomAccessFile with two simpler utilties,
+      NFSDataInputStream and NFSDataOutputStream.
+
+    - Fixed the bug where SequenceFiles were no longer flushed when
+      created, so that, when fetches crashed, segments were
+      unreadable.  Now segments are always readable after crashes.
+      Only the contents of the last buffer is lost.
+
+    - Simplified the FSOutputStream API to not include seek().  We
+      should never need that functionality.
+
+    - Simplified LocalFileSystem's implementations of FSInputStream
+      and FSOutputStream and optimized FSInputStream.seek().
+
+    (cutting)
+
+21. Fixed BasicUrlNormalizer to better handle relative urls.  The file
+    part of a URL is normalized in the following manner:
+
+      1. "/aa/../" will be replaced by "/" This is done step by step until
+	 the url doesnÂ´t change anymore. So we ensure, that
+	 "/aa/bb/../../" will be replaced by "/", too
+
+      2. leading "/../" will be replaced by "/"
+
+    (Sven Wende via cutting)
+
+22. Fix Page constructors so that next fetch date is less likely to be
+    misconstrued as a float.  This patches a problem in WebDBInjector,
+    where new pages were added to the db with nextScore set to the
+    intended nextFetch date.  This, in turn, confused link analysis.
+
+23. In ndfs code, replace addLocalFile(), putToLocalFile() with
+    copyFromLocalFile(), moveFromLocalFile(), copyToLocalFile() and
+    moveToLocalFile(). (John Xing, 20041217)
+
+24. Added new config parameter fetcher.threads.per.host.  This is used
+    by the Http protocol.  When this is one behavior is as before.
+    When this is greater than one then multiple threads are permitted
+    to access a host at once.  Note that fetcher.server.delay is no
+    longer consistently observed when this is greater than one.
+    (Luke Baker via Doug Cutting)
+
+Release 0.5
+
+ 1. Changed plugin directory to be a list of directories.
+
+ 2. Permit Plugin to be the default plugin implementation.
+
+ 3. Added pluggable interface for network protocols in new package
+    net.nutch.protocol.  Moved http code from core into a plugin.
+
+ 4. Added pluggable interface for content parsing in new package
+    net.nutch.parse.  Moved html parsing code from core into a
+    plugin.
+
+ 5. Fixed a bug in NutchAnalysis where 16-bit characters were not
+    processed correctly.
+
+ 6. Fixed bug #971731: random summaries on result page.
+    (Daniel Naber via cutting)
+
+ 7. Made Nutch logo transparent. (Daniel Naber via cutting)
+
+ 8. Added file protocol plugin.  (John Xing via cutting)
+
+ 9. Added ftp protocol plugin.  (John Xing via cutting)
+
+10. Added pdf and msword parser plugins.  (John Xing via cutting)
+
+11. Added pluggable indexing interface.  By default, url, content,
+    anchors and title are indexed, as before, but now one can easily
+    alter this to, e.g., index metadata.  A demonstration is provided
+    which extracts and indexes Creative Commons license urls. (cutting)
+
+12. Add language identification plugin. 
+
+    The process of identification is as follows:
+
+    1. html (html only, HTML 4.0 "lang" attribute)
+    2. meta tags (html only, http-equiv, dc.language)
+    3. http header (Content-Language)
+    4. if all above fail "statistical analysis"
+
+    1 & 2 are run during the fetching phase and 3 & 4 are run on
+    indexing phase.
+
+    Currently supported languages (in "statistical analysis") are
+    da,de,el,en,es,fi,fr,it,nl,sv and pt. The corpus used was grabbed
+    from http://www.isi.edu/~koehn/europarl/ and the profiles were
+    build with tool supplied in patch.
+
+    After indexing the language can be found from field named "lang"
+
+    It's not 100% accurate but it's a start.
+    (Sami Siren)
+
+13. Added SegmentMergeTool and "mergesegs" command, to remove
+    duplicated or otherwise not used content from several segments and
+    joining them together into a single new segment.  The tool also
+    optionally performs several other steps required for proper
+    operation of Nutch - such as indexing segments, deleting
+    duplicates, merging indices, and indexing the new single segment.
+    (Andrzej Bialecki)
+
+14. Add the ability to retrieve ParseData of a search hit. ParseData
+    contains many valuable properties of a search hit.
+
+    This is required (among others) to properly display the cached
+    content because it's not possible to determine the character
+    encoding from the output of the getContent() method (which returns
+    byte[]). The symptoms are that for HTML pages using non-latin1 or
+    non-UTF8 encodings the cached preview will almost certainly look
+    broken. Using the attached patch it is possible to determine the
+    character encoding from the ParseData (for HTTP: Content-Type
+    metadata), and encode the content accordingly. (Andrzej Bialecki)
+
+15. Add a pluggable query interface.  By default, the content, anchor
+    and url fields are searched as before.  A sample plugin indexes
+    the host name and adds a "site:" keyword to query parsing.
+
+16. Added support for "lang:" in queries.  For example, searching with
+    "lang:en" restricts results to pages which were identified to
+    be in English.
+
+17. Automatically optimize field queries to use cached Lucene filters.
+    This makes, for example, searches restricted by languages or sites
+    that are very common much faster.
+
+18. Improved charset handling in jsp pages.  (jshin by cutting)
+
+19. Permit topic filtering when injecting DMOZ pages.  (jshin by cutting)
+
+20. When parsing crawled pages, interpret charset specifications in
+    html meta tags.  (jshin by cutting)
+
+21. Added support for "cc:licensed" in queries, which searches for documents
+    released under Creative Commons licenses.  Attributes of the
+    license may also be queried, with, e.g., "cc:by" for
+    attribution-required licenses, "cc:nc" for non-commercial
+    licenses, etc.
+
+22. Relative paths named in plugin.folders are now searched for on the
+    classpath.  This makes, e.g., deployment in a war file much simpler.
+
+23. Modifications to Fetcher.java.
+
+    1. Make sure it works properly with regard to creation and initialization
+    of plugin instances. The problem was that multiple threads race to
+    startUp() or shutDown() plugin instances. It was solved by synchronizing
+    certain codes in PluginRepository.java and Extension.java.
+    (Stefan Groschupf via John Xing)
+
+    2. Added code to explictly shutDown() plugins. Otherwise FetcherThreads
+    may never return (quit) if there are still data or other structures
+    (e.g., persistent socket connections) associated with plugins. (John Xing)
+    
+    3. Fixed one type of Fetcher "hang" problems by monitoring named
+    FetcherThreads. If all FetcherThreads are gone (finished),
+    Fetcher.java is considered done. The problem was: there could be
+    runaway threads started by external libs via FetcherThreads.
+    Those threads never return, thus keep Fetcher from exiting normally.
+    (John Xing)
+
+24. Eliminate excessive hits from sites.  This is done efficiently by
+    adding the site name to Hit instances, and, when needed,
+    re-querying with too-frequent sites prohibited in the query.
+
+
+Release 0.4
+
+ 1. Http class refactored.  (Kevin Smith via Tom Pierce)
+
+ 2. Add Finnish translation. (Sampo Syreeni via Doug Cutting)
+
+ 3. Added Japanese translation. (Yukio Andoh via Doug Cutting)
+
+ 4. Updated Dutch translation. (Ype Kingma via Doug Cutting)
+
+ 5. Initial version of Distributed DB code.  (Mike Cafarella)
+
+ 6. Make things more tolerant of crashed fetcher output files.
+    (Doug Cutting)
+
+ 7. New skin for website. (Frank Henze via Doug Cutting)
+
+ 8. Added Spanish translation. (Diego Basch via Doug Cutting)
+
+ 9. Add FTP support to fetcher.  (John Xing via Doug Cutting)
+
+10. Added Thai translation. (Pichai Ongvasith via Doug Cutting)
+
+11. Added Robots.txt & throttling support to Fetcher.java.  (Mike
+    Cafarella)
+
+12. Added nightly build. (Doug Cutting)
+
+13. Default all link scores to 1.0. (Doug Cutting)
+
+14. Permit one to keep internal links. (Doug Cutting)
+
+15. Fixed dedup to select shortest URL. (Doug Cutting)
+
+16. Changed index merger so that merged index is written to named
+    directory, rather than to a generated name in that directory.
+    (Doug Cutting)
+
+17. Disable coordination weighting of query clauses and other minor
+    scoring improvements. (Doug Cutting)
+
+18. Added a new command, crawl, that constructs a database, injects a
+    url file and performs a few rounds of generate/fetch/updatedb.
+    This simplifies use for intranet sites.  Changed some defaults to
+    be more intranet friendly.  (Doug Cutting)
+
+19. Fixed a bug where Fetcher.java didn't construct correct relative
+    links when a page was redirected.  (Doug Cutting)
+
+20. Fixed a query parser problem with lookahead over plusses and minuses.
+    (Doug Cutting)
+
+21. Add support for HTTP proxy servers.  (Sami Siren via Doug Cutting)
+
+22. Permit searching while fetching and/or indexing.
+    (Sami Siren via Doug Cutting)
+
+23. Fix a bug when throttling is disabled.  (Sami Siren via Doug Cutting)
+
+24. Updated Bahasa Malaysia translation.  (Michael Lim via Doug Cutting)
+
+25. Added Catalan translation.  (Xavier Guardiola via Doug Cutting)
+
+26. Added brazilian portuguese translation.
+    (A. Moreir via Doug Cutting)
+
+27. Added a french translation.  (Julien Nioche via Doug Cutting)
+
+28. Updated to Lucene 1.4RC3.  (Doug Cutting)
+
+29. Add capability to boost by link count & use it in crawl tool.
+    (Doug Cutting)
+
+30. Added plugin system.  (Stefan Groschupf via Doug Cutting)
+
+31. Add this change log file, for recording significant changes to
+    Nutch.  Populate it with changes from the last few months.

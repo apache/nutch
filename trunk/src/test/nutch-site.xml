@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<!-- Configuration overrides used during unit tests. -->
+
+<configuration>
+
+<property>
+  <name>plugin.includes</name>
+  <value>.*</value>
+  <description>Enable all plugins during unit testing.</description>
+</property>
+
+<property>
+  <name>distributed.search.test.port</name>
+  <value>60000</value>
+  <description>TCP port used during junit testing.</description>
+</property>
+
+</configuration>

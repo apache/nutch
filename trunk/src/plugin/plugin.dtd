@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+ ! Licensed to the Apache Software Foundation (ASF) under one or more
+ ! contributor license agreements.  See the NOTICE file distributed with
+ ! this work for additional information regarding copyright ownership.
+ ! The ASF licenses this file to You under the Apache License, Version 2.0
+ ! (the "License"); you may not use this file except in compliance with
+ ! the License.  You may obtain a copy of the License at
+ !
+ !     http://www.apache.org/licenses/LICENSE-2.0
+ !
+ ! Unless required by applicable law or agreed to in writing, software
+ ! distributed under the License is distributed on an "AS IS" BASIS,
+ ! WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ ! See the License for the specific language governing permissions and
+ ! limitations under the License.
+ !
+ !
+ !  Document   : plugin.dtd
+ !  Created on : 14 avril 2006, 22:14
+ !  Author     : Chris Mattmann, Jerome Charron
+ !  Description: Nutch plug-in manifest DTD
+ !
+ !  PUBLIC ID  : -//Apache Software Fundation//DTD Nutch Plugin Manifest 1.0//EN
+ !  SYSTEM ID  : http://lucene.apache.org/nutch/plugin.dtd
+-->
+
+
+
+<!--
+ ! The <plugin> element defines the body of the manifest.
+ ! It optionally contains definitions for the plug-in runtime,
+ ! definitions of other plug-ins required by this one,
+ ! declarations of any new extension points being introduced by the plug-in,
+ ! as well as configuration of functional extensions
+ ! (configured into extension points defined by other plug-ins,
+ ! or introduced by this plug-in).
+ !-->
+<!ELEMENT plugin (runtime?, requires?, extension-point*, extension*)>
+
+<!-- A user displayable name for the plug-in -->
+<!ATTLIST plugin name CDATA #REQUIRED>
+
+<!-- 
+ ! A unique identifier for the plug-in.
+ ! To minimize potential for naming collisions,
+ ! the identifier should be derived from the internet domain id
+ ! of the supplying provider (reversing the domain name tokens and
+ ! appending additional name tokens separated by dot [.]).
+ ! For example, provider nutch.org could define plug-in identifier
+ ! org.nutch.myplugin
+ !-->
+<!ATTLIST plugin id CDATA #REQUIRED>
+
+<!--
+ ! The plug-in version number.
+ ! NOTE : Version numbers compatibility are not yet implemented.
+ !-->
+<!ATTLIST plugin version CDATA #REQUIRED>
+
+<!-- The user-displayable name of the provider supplying the plug-in. -->
+<!ATTLIST plugin provider-name CDATA #IMPLIED>
+
+<!--
+ ! The name of the plug-in class for this plug-in.
+ ! The class must be a subclass of org.apache.nutch.plugin.Plugin
+ !-->
+<!ATTLIST plugin class CDATA #IMPLIED>
+
+
+<!-- 
+ ! The <requires> section of the manifest declares
+ ! any dependencies on other plug-ins.
+ !-->
+<!ELEMENT requires (import+)>
+
+
+<!-- Each dependency is specified using an <import> element. -->
+<!ELEMENT import EMPTY>
+
+<!-- The identifier of the required plug-in. -->
+<!ATTLIST import plugin CDATA #REQUIRED>
+
+
+<!--
+ ! The <runtime> section of the manifest contains a definition of one or more
+ ! libraries that make up the plug-in runtime.
+ ! The referenced libraries are used by the plugin execution mechanisms
+ ! (the plug-in class loader) to load and execute the correct code required by
+ ! the plug-in.
+ !-->
+<!ELEMENT runtime (library+)>
+
+
+<!--
+ !The <library> elements collectively define the plug-in runtime.
+ ! At least one <library> must be specified.
+ !-->
+<!ELEMENT library (export*)>
+
+<!--
+ ! A string reference to a library file or directory containing classes
+ ! (relative to the plug-in install directory).
+ ! Directory references must contain trailing file separator.
+ !-->
+<!ATTLIST library name CDATA #REQUIRED>
+
+
+<!--
+ ! Each <library> element can specify which portion
+ ! of the library should be exported.
+ ! The export rules are specified as a set of export masks.
+ ! By default (no export rules specified),
+ ! the library is considered to be private.
+ ! Each export mask is specified using the name attribute.
+ !-->
+<!ELEMENT export EMPTY>
+
+<!--
+ ! The export mask can have the following values:
+ !   * - indicates all contents of library are exported (public)
+ !   package.name.* - indicates all classes in the specified package
+ !                    are exported. The matching rules are the same as in the
+ !                    Java import statement.
+ !   package.name.ClassName - fully qualified java class name
+ !
+ ! NOTE : export mask is not yet implemented in Nutch.
+ !-->
+<!ATTLIST export name CDATA #REQUIRED>
+
+
+<!--
+ ! Nutch's architecture is based on the notion of configurable extension points.
+ ! Nutch itself predefines a set of extension points that cover the task of
+ ! extending it (for example, adding parser, indexing filter, ...).
+ ! In addition to the predefined extension points, each supplied plug-in can
+ ! declare additional extension points. By declaring an extension point the
+ ! plug-in is essentially advertising the ability to configure the plug-in
+ ! function with externally supplied extensions.
+ !-->
+<!ELEMENT extension-point EMPTY>
+
+<!-- A user-displayable name for the extension point. -->
+<!ATTLIST extension-point name CDATA #REQUIRED>
+
+<!-- A simple id, unique within this plug-in -->
+<!ATTLIST extension-point id CDATA #REQUIRED>
+
+
+<!--
+ ! Actual extensions are configured into extension points
+ ! (predefined, or newly declared in this plug-in) in the <extension> section.
+ !
+ ! The configuration information is specified by at least one implementation
+ ! with some parameters.
+ !-->
+<!ELEMENT extension (implementation+)>
+
+<!-- 
+ ! A reference to an extension point being configured.
+ ! The extension point can be one defined in this plug-in or another plug-in.
+ !-->
+<!ATTLIST extension point CDATA #REQUIRED>
+
+<!--
+ ! Optional identifier for this extension point configuration instance.
+ ! This is used by extension points that need to uniquely identify
+ ! (rather than just enumerate) the specific configured extensions.
+ ! The identifier is specified as a simple token unique within the definition
+ ! of the declaring plug-in. When used globally, the extension identifier
+ ! is qualified by the plug-in identifier.
+ ! FIXME : Seems it is never read in the code.
+ !-->
+<!ATTLIST extension id CDATA #IMPLIED>
+
+<!--
+ ! A user-displayable name for the extension.
+ ! FIXME : Seems it is never read in the code.
+ !-->
+<!ATTLIST extension name CDATA #IMPLIED>
+
+
+<!--
+ ! Defines a specific implementation for the extension.
+ ! This implementation can define some special name/value parameters
+ ! used at runtime.
+ !-->
+<!ELEMENT implementation (parameter*)>
+
+<!-- A unique identifier for this implementation -->
+<!ATTLIST implementation id CDATA #REQUIRED>
+
+<!-- The fully-qualified Java Class that implements this extension-point -->
+<!ATTLIST implementation class CDATA #REQUIRED>
+
+
+<!-- Defines a name/value parameter -->
+<!ELEMENT parameter EMPTY>
+
+<!-- The parameter's name (should be unique for an extension) -->
+<!ATTLIST parameter name CDATA #REQUIRED>
+
+<!-- The parameter's value -->
+<!ATTLIST parameter value CDATA #REQUIRED> 
+
