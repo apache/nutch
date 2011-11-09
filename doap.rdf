@@ -27,11 +27,11 @@
     <name>Apache Nutch</name>
     <homepage rdf:resource="http://nutch.apache.org" />
     <asfext:pmc rdf:resource="http://nutch.apache.org" />
-    <shortdesc>Nutch 2.0 is a beeding edge (trunk) development of the Apache Nutch web search software.</shortdesc>
+    <shortdesc>Nutch 2.0 is a branch development of the Apache Nutch web search software.</shortdesc>
     <description>Apache Nutch 2.0 maintains a refined architecture by delegating searching, parsing, and data storage to other software projects. In particular the storage layer has been delegated to the object relational mapping framework Gora (Apache Incubator) enabling the focus of Nutch 2.0 to be entirely on web crawling. This logic promotes Nutch 2.0 as a simpler, focussed web crawler enabling easy integration with other resources. </description>
     <bug-database rdf:resource="http://issues.apache.org/jira/browse/NUTCH" />
     <mailing-list rdf:resource="http://www.mail-archive.com/dev%40nutch.apache.org/" />
-    <download-page rdf:resource="http://svn.apache.org/repos/asf/nutch/trunk/" />
+    <download-page rdf:resource="http://svn.apache.org/repos/asf/nutch/branches/nutchgora" />
     <programming-language>Java</programming-language>
     <category rdf:resource="http://projects.apache.org/category/web-framework" />
     <release>
@@ -43,8 +43,8 @@
     </release>
     <repository>
       <SVNRepository>
-        <location rdf:resource="https://svn.apache.org/repos/asf/nutch/trunk/"/>
-        <browse rdf:resource="http://svn.apache.org/viewvc/nutch/trunk/"/>
+        <location rdf:resource="https://svn.apache.org/repos/asf/nutch/branches/nutchgora"/>
+        <browse rdf:resource="http://svn.apache.org/viewvc/nutch/branches/nucthgora"/>
       </SVNRepository>
     </repository>
     <maintainer>
