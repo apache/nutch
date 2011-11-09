@@ -722,7 +722,7 @@
     <property name="sonar.binaries" value="${build.dir}/plugins" />
     <property name="sonar.tests" value="${test.src.dir}" />
 
-    <sonar:sonar workDir="${base.dir}" key="org.apache.nutch:nutch" 
+    <sonar:sonar workDir="${base.dir}" key="org.apache.nutch:trunk" 
      version="1.4-SNAPSHOT" xmlns:sonar="antlib:org.sonar.ant"/>
   </target>
 	
