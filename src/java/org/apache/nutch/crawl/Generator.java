@@ -279,7 +279,7 @@ public class Generator extends Configured implements Tool {
 
           // reached the limit of allowed URLs per host / domain
           // see if we can put it in the next segment?
-          if (hostCount[1] > maxCount) {
+          if (hostCount[1] >= maxCount) {
             if (hostCount[0] < maxNumSegments) {
               hostCount[0]++;
               hostCount[1] = 0;
