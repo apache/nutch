@@ -100,7 +100,7 @@ public class CrawlDbReader implements Closeable {
       public LineRecordWriter(DataOutputStream out) {
         this.out = out;
         try {
-          out.writeBytes("Url;Status code;Status name;Fetch Time;Modified Time;Retries since fetch;Retry interval;Score;Signature;Metadata\n");
+          out.writeBytes("Url;Status code;Status name;Fetch Time;Modified Time;Retries since fetch;Retry interval seconds;Retry interval days;Score;Signature\n");
         } catch (IOException e) {}
       }
 
