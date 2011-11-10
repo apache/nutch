@@ -16,13 +16,6 @@
  */
 package org.apache.nutch.indexer.more;
 
-
-import org.apache.oro.text.regex.Perl5Compiler;
-import org.apache.oro.text.regex.Perl5Matcher;
-import org.apache.oro.text.regex.Perl5Pattern;
-import org.apache.oro.text.regex.PatternMatcher;
-import org.apache.oro.text.regex.MatchResult;
-import org.apache.oro.text.regex.MalformedPatternException;
 import org.apache.tika.mime.MimeType;
 
 import org.slf4j.Logger;
@@ -51,9 +44,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
 import java.util.Date;
+import java.util.regex.*;
+
 
 import org.apache.commons.lang.time.DateUtils;
-
 
 /**
  * Add (or reset) a few metaData properties as respective fields
@@ -75,8 +69,8 @@ public class MoreIndexingFilter implements IndexingFilter {
   private boolean MAGIC;
 
   /** Get the MimeTypes resolver instance. */
-  private MimeUtil MIME; 
-  
+  private MimeUtil MIME;
+
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
     throws IndexingException {
 
@@ -89,7 +83,7 @@ public class MoreIndexingFilter implements IndexingFilter {
 
     return doc;
   }
-    
+
   // Add time related meta info.  Add last-modified if present.  Index date as
   // last-modified, or, if that's not present, use fetch time.
   private NutchDocument addTime(NutchDocument doc, ParseData data,
@@ -118,43 +112,43 @@ public class MoreIndexingFilter implements IndexingFilter {
     try {
       time = HttpDateFormat.toLong(date);
     } catch (ParseException e) {
-	// try to parse it as date in alternative format
-	try {
-	    Date parsedDate = DateUtils.parseDate(date,
-		  new String [] {
-		      "EEE MMM dd HH:mm:ss yyyy",
-		      "EEE MMM dd HH:mm:ss yyyy zzz",
-		      "EEE MMM dd HH:mm:ss zzz yyyy",
-		      "EEE, MMM dd HH:mm:ss yyyy zzz",
-		      "EEE, dd MMM yyyy HH:mm:ss zzz",
-		      "EEE,dd MMM yyyy HH:mm:ss zzz",
-		      "EEE, dd MMM yyyy HH:mm:sszzz",
-		      "EEE, dd MMM yyyy HH:mm:ss",
-		      "EEE, dd-MMM-yy HH:mm:ss zzz",
-		      "yyyy/MM/dd HH:mm:ss.SSS zzz",
-		      "yyyy/MM/dd HH:mm:ss.SSS",
-		      "yyyy/MM/dd HH:mm:ss zzz",
-		      "yyyy/MM/dd",
-		      "yyyy.MM.dd HH:mm:ss",
-		      "yyyy-MM-dd HH:mm",
-		      "MMM dd yyyy HH:mm:ss. zzz",
-		      "MMM dd yyyy HH:mm:ss zzz",
-		      "dd.MM.yyyy HH:mm:ss zzz",
-		      "dd MM yyyy HH:mm:ss zzz",
-		      "dd.MM.yyyy; HH:mm:ss",
-		      "dd.MM.yyyy HH:mm:ss",
-		      "dd.MM.yyyy zzz",
-		      "yyyy-MM-dd'T'HH:mm:ss'Z'"
-		  });
-	    time = parsedDate.getTime();
+  // try to parse it as date in alternative format
+  try {
+      Date parsedDate = DateUtils.parseDate(date,
+      new String [] {
+          "EEE MMM dd HH:mm:ss yyyy",
+          "EEE MMM dd HH:mm:ss yyyy zzz",
+          "EEE MMM dd HH:mm:ss zzz yyyy",
+          "EEE, MMM dd HH:mm:ss yyyy zzz",
+          "EEE, dd MMM yyyy HH:mm:ss zzz",
+          "EEE,dd MMM yyyy HH:mm:ss zzz",
+          "EEE, dd MMM yyyy HH:mm:sszzz",
+          "EEE, dd MMM yyyy HH:mm:ss",
+          "EEE, dd-MMM-yy HH:mm:ss zzz",
+          "yyyy/MM/dd HH:mm:ss.SSS zzz",
+          "yyyy/MM/dd HH:mm:ss.SSS",
+          "yyyy/MM/dd HH:mm:ss zzz",
+          "yyyy/MM/dd",
+          "yyyy.MM.dd HH:mm:ss",
+          "yyyy-MM-dd HH:mm",
+          "MMM dd yyyy HH:mm:ss. zzz",
+          "MMM dd yyyy HH:mm:ss zzz",
+          "dd.MM.yyyy HH:mm:ss zzz",
+          "dd MM yyyy HH:mm:ss zzz",
+          "dd.MM.yyyy; HH:mm:ss",
+          "dd.MM.yyyy HH:mm:ss",
+          "dd.MM.yyyy zzz",
+          "yyyy-MM-dd'T'HH:mm:ss'Z'"
+      });
+      time = parsedDate.getTime();
             // if (LOG.isWarnEnabled()) {
-	    //   LOG.warn(url + ": parsed date: " + date +" to:"+time);
+      //   LOG.warn(url + ": parsed date: " + date +" to:"+time);
             // }
-	} catch (Exception e2) {
+  } catch (Exception e2) {
             if (LOG.isWarnEnabled()) {
-	      LOG.warn(url + ": can't parse erroneous date: " + date);
+        LOG.warn(url + ": can't parse erroneous date: " + date);
             }
-	}
+  }
     }
     return time;
   }
@@ -184,7 +178,7 @@ public class MoreIndexingFilter implements IndexingFilter {
    * all case insensitive. The query filter is implemented in
    * {@link TypeQueryFilter}.
    * </p>
-   * 
+   *
    * @param doc
    * @param data
    * @param url
@@ -209,14 +203,14 @@ public class MoreIndexingFilter implements IndexingFilter {
     } else {
       mimeType = MIME.forName(MimeUtil.cleanMimeType(contentType));
     }
-        
+
     // Checks if we solved the content-type.
     if (mimeType == null) {
       return doc;
     }
 
     contentType = mimeType.getName();
-    
+
     doc.add("type", contentType);
 
     // Check if we need to split the content type in sub parts
@@ -227,14 +221,14 @@ public class MoreIndexingFilter implements IndexingFilter {
         doc.add("type", part);
       }
     }
-    
+
     // leave this for future improvement
     //MimeTypeParameterList parameterList = mimeType.getParameters()
 
     return doc;
   }
 
-  
+
   /**
    * Utility method for splitting mime type into type and subtype.
    * @param mimeType
@@ -251,19 +245,18 @@ public class MoreIndexingFilter implements IndexingFilter {
   // Patterns used to extract filename from possible non-standard
   // HTTP header "Content-Disposition". Typically it looks like:
   // Content-Disposition: inline; filename="foo.ppt"
-  private PatternMatcher matcher = new Perl5Matcher();
-
   private Configuration conf;
-  static Perl5Pattern patterns[] = {null, null};
+
+  static Pattern patterns[] = {null, null};
+
   static {
-    Perl5Compiler compiler = new Perl5Compiler();
     try {
       // order here is important
       patterns[0] =
-        (Perl5Pattern) compiler.compile("\\bfilename=['\"](.+)['\"]");
+        Pattern.compile("\\bfilename=['\"](.+)['\"]");
       patterns[1] =
-        (Perl5Pattern) compiler.compile("\\bfilename=(\\S+)\\b");
-    } catch (MalformedPatternException e) {
+        Pattern.compile("\\bfilename=(\\S+)\\b");
+    } catch (PatternSyntaxException e) {
       // just ignore
     }
   }
@@ -273,11 +266,10 @@ public class MoreIndexingFilter implements IndexingFilter {
     if (contentDisposition == null)
       return doc;
 
-    MatchResult result;
     for (int i=0; i<patterns.length; i++) {
-      if (matcher.contains(contentDisposition,patterns[i])) {
-        result = matcher.getMatch();
-        doc.add("title", result.group(1));
+      Matcher matcher = patterns[i].matcher(contentDisposition);
+      if (matcher.find()) {
+        doc.add("title", matcher.group(1));
         break;
       }
     }

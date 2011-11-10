@@ -70,6 +70,21 @@ public class TestMoreIndexingFilter extends TestCase {
     assertEquals("text/html", doc.getFieldValue("type"));    
   }
 
+  public void testContentDispositionTitle() throws IndexingException {
+    Configuration conf = NutchConfiguration.create();
+
+    Metadata metadata = new Metadata();
+    metadata.add(Response.CONTENT_DISPOSITION, "filename=filename.ext");
+    MoreIndexingFilter filter = new MoreIndexingFilter();
+    filter.setConf(conf);
+
+    NutchDocument doc = filter.filter(new NutchDocument(), new ParseImpl("text", new ParseData(
+      new ParseStatus(), "title", new Outlink[0], metadata)), new Text(
+        "http://www.example.com/"), new CrawlDatum(), new Inlinks());
+
+    assertEquals("content-disposition not detected", "filename.ext", doc.getFieldValue("title"));
+  }
+
   private void assertParts(String[] parts, int count, String... expected) {
     assertEquals(count, parts.length);
     for (int i = 0; i < expected.length; i++) {

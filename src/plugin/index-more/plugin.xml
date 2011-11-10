@@ -39,14 +39,4 @@
                       class="org.apache.nutch.indexer.more.MoreIndexingFilter"/>
    </extension>
 
-   <!--
-   <extension id="org.apache.nutch.searcher.more.MoreQueryFilter"
-              name="Nutch More Query Filter"
-              point="org.apache.nutch.searcher.QueryFilter">
-      <implementation id="MoreQueryFilter"
-                      class="org.apache.nutch.searcher.more.MoreQueryFilter"
-                      raw-fields="more"/>
-   </extension>
-   -->
-
 </plugin>
