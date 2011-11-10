@@ -105,6 +105,7 @@ public class LinkRank
     counter.setOutputValueClass(LongWritable.class);
     counter.setNumReduceTasks(1);
     counter.setOutputFormat(TextOutputFormat.class);
+    counter.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
 
     // run the counter job, outputs to a single reduce task and file
     LOG.info("Starting link counter job");
@@ -162,6 +163,7 @@ public class LinkRank
     initializer.setOutputKeyClass(Text.class);
     initializer.setOutputValueClass(Node.class);
     initializer.setOutputFormat(MapFileOutputFormat.class);
+    initializer.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
 
     // run the initializer
     LOG.info("Starting initialization job");
@@ -213,6 +215,7 @@ public class LinkRank
     inverter.setOutputKeyClass(Text.class);
     inverter.setOutputValueClass(LinkDatum.class);
     inverter.setOutputFormat(SequenceFileOutputFormat.class);
+    inverter.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
 
     // run the inverter job
     LOG.info("Starting inverter job");
@@ -262,6 +265,7 @@ public class LinkRank
     analyzer.setOutputKeyClass(Text.class);
     analyzer.setOutputValueClass(Node.class);
     analyzer.setOutputFormat(MapFileOutputFormat.class);
+    analyzer.setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
 
     LOG.info("Starting analysis job");
     try {
@@ -537,7 +541,7 @@ public class LinkRank
       float linkRankScore = (1 - this.dampingFactor)
         + (this.dampingFactor * totalInlinkScore);
 
-      LOG.info(url + ": score: " + linkRankScore + " num inlinks: "
+      LOG.debug(url + ": score: " + linkRankScore + " num inlinks: "
         + numInlinks + " iteration: " + itNum);
 
       // store the score in a temporary NodeDb

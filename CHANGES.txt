@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1153 LinkRank not to log all keys and not to write Hadoop _SUCCESS file (markus)
+
 Release 1.4 - 11/4/2011
 
 * NUTCH-1195 Add Solr 4x (trunk) example schema (ab)
