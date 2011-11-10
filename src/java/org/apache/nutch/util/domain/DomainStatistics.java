@@ -141,9 +141,10 @@ implements Tool, Mapper<Text, CrawlDatum, Text, LongWritable>,
   public void map(Text urlText, CrawlDatum datum,
       OutputCollector<Text, LongWritable> output, Reporter reporter)
   throws IOException {
-    
-    if(datum.getStatus() == CrawlDatum.STATUS_DB_FETCHED 
-        || datum.getStatus() == CrawlDatum.STATUS_FETCH_SUCCESS) {
+
+     if(datum.getStatus() == CrawlDatum.STATUS_DB_FETCHED
+        || datum.getStatus() == CrawlDatum.STATUS_DB_NOTMODIFIED) {
+
       try {
         URL url = new URL(urlText.toString());
         String out = null;

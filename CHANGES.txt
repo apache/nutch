@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1173 DomainStats doesn't count db_not_modified (markus)
+
 * NUTCH-1155 Host/domain limit in generator is generate.max.count+1 (markus)
 
 * NUTCH-1061 Migrate MoreIndexingFilter from Apache ORO to java.util.regex (markus)
