@@ -146,6 +146,8 @@ public class CrawlDb extends Configured implements Tool {
   }
 
   public static void install(JobConf job, Path crawlDb) throws IOException {
+    boolean preserveBackup = job.getBoolean("db.preserve.backup", true);
+
     Path newCrawlDb = FileOutputFormat.getOutputPath(job);
     FileSystem fs = new JobClient(job).getFs();
     Path old = new Path(crawlDb, "old");
@@ -156,7 +158,7 @@ public class CrawlDb extends Configured implements Tool {
     }
     fs.mkdirs(crawlDb);
     fs.rename(newCrawlDb, current);
-    if (fs.exists(old)) fs.delete(old, true);
+    if (!preserveBackup && fs.exists(old)) fs.delete(old, true);
     Path lock = new Path(crawlDb, LOCK_NAME);
     LockUtil.removeLockFile(fs, lock);
   }

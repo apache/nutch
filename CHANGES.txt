@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1180 UpdateDB to backup previous CrawlDB (markus)
+
 * NUTCH-1173 DomainStats doesn't count db_not_modified (markus)
 
 * NUTCH-1155 Host/domain limit in generator is generate.max.count+1 (markus)

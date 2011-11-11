@@ -404,6 +404,15 @@
 </property>
 
 <property>
+  <name>db.preserve.backup</name>
+  <value>true</value>
+  <description>If true, updatedb will keep a backup of the previous CrawlDB
+  version in the old directory. In case of disaster, one can rename old to 
+  current and restore the CrawlDB to its previous state.
+  </description>
+</property>
+
+<property>
   <name>db.update.purge.404</name>
   <value>false</value>
   <description>If true, updatedb will add purge records with status DB_GONE
