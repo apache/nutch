@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1185 Decrease solr.commit.size to 250 (markus)
+
 * NUTCH-1180 UpdateDB to backup previous CrawlDB (markus)
 
 * NUTCH-1173 DomainStats doesn't count db_not_modified (markus)
