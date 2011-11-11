@@ -1052,7 +1052,7 @@
 
 <property>
   <name>solr.commit.size</name>
-  <value>1000</value>
+  <value>250</value>
   <description>
   Defines the number of documents to send to Solr in a single update batch.
   Decrease when handling very large documents to prevent Nutch from running

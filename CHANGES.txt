@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
+* NUTCH-1185 Decrease solr.commit.size to 250 (markus)
+
 * NUTCH-1172 AbstractNuchTest should have a generic testdir instead of specific 'inject' dir (ferdy)
 
 * NUTCH-1192 Add '/runtime' to svn ignore (ferdy)
