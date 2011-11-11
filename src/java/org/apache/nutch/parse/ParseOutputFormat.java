@@ -242,6 +242,9 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
             }
             
             targets.add(new SimpleEntry(targetUrl, target));
+
+            // OVerwrite URL in Outlink object with normalized URL (NUTCH-1174)
+            links[i].setUrl(toUrl);
             outlinkList.add(links[i]);
             validCount++;
           }

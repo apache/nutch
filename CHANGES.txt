@@ -1,8 +1,8 @@
 Nutch Change Log
 
-* NUTCH-1203 ParseSegment to show number of milliseconds per parse (markus)
-
 * NUTCH-1174 Outlinks are not properly normalized (markus)
+
+* NUTCH-1203 ParseSegment to show number of milliseconds per parse (markus)
 
 * NUTCH-1185 Decrease solr.commit.size to 250 (markus)
 

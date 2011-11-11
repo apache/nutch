@@ -61,6 +61,9 @@ public class Outlink implements Writable {
   public String getToUrl() { return toUrl; }
   public String getAnchor() { return anchor; }
 
+  public void setUrl(String toUrl) {
+    this.toUrl = toUrl;
+  }
 
   public boolean equals(Object o) {
     if (!(o instanceof Outlink))
