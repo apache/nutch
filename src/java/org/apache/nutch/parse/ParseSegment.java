@@ -94,7 +94,8 @@ public class ParseSegment extends Configured implements Tool,
       Parse parse = entry.getValue();
       ParseStatus parseStatus = parse.getData().getStatus();
 
-      LOG.info("Parsing: " + url);
+      long start = System.currentTimeMillis();
+
       reporter.incrCounter("ParserStatus", ParseStatus.majorCodes[parseStatus.getMajorCode()], 1);
 
       if (!parseStatus.isSuccess()) {
@@ -120,6 +121,10 @@ public class ParseSegment extends Configured implements Tool,
           LOG.warn("Error passing score: "+ url +": "+e.getMessage());
         }
       }
+
+      long end = System.currentTimeMillis();
+      LOG.info("Parsed (" + Long.toString(end - start) + "ms):" + url);
+
       output.collect(url, new ParseImpl(new ParseText(parse.getText()), 
                                         parse.getData(), parse.isCanonical()));
     }
