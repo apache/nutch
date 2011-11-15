@@ -47,6 +47,8 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
 
   public static final Logger LOG = LoggerFactory.getLogger(LinkDb.class);
 
+  public static final String IGNORE_INTERNAL_LINKS = "db.ignore.internal.links";
+
   public static final String CURRENT_NAME = "current";
   public static final String LOCK_NAME = ".locked";
 
@@ -63,7 +65,7 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
   
   public void configure(JobConf job) {
     maxAnchorLength = job.getInt("db.max.anchor.length", 100);
-    ignoreInternalLinks = job.getBoolean("db.ignore.internal.links", true);
+    ignoreInternalLinks = job.getBoolean(IGNORE_INTERNAL_LINKS, true);
     if (job.getBoolean(LinkDbFilter.URL_FILTERING, false)) {
       urlFilters = new URLFilters(job);
     }
@@ -150,6 +152,7 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
   }
 
   public void invert(Path linkDb, Path[] segments, boolean normalize, boolean filter, boolean force) throws IOException {
+    JobConf job = LinkDb.createJob(getConf(), linkDb, normalize, filter);
     Path lock = new Path(linkDb, LOCK_NAME);
     FileSystem fs = FileSystem.get(getConf());
     LockUtil.createLockFile(fs, lock, force);
@@ -162,9 +165,11 @@ public class LinkDb extends Configured implements Tool, Mapper<Text, ParseData, 
       LOG.info("LinkDb: linkdb: " + linkDb);
       LOG.info("LinkDb: URL normalize: " + normalize);
       LOG.info("LinkDb: URL filter: " + filter);
+      if (job.getBoolean(IGNORE_INTERNAL_LINKS, true)) {
+        LOG.info("LinkDb: internal links will be ignored.");
+      }
     }
 
-    JobConf job = LinkDb.createJob(getConf(), linkDb, normalize, filter);
     for (int i = 0; i < segments.length; i++) {
       if (LOG.isInfoEnabled()) {
         LOG.info("LinkDb: adding segment: " + segments[i]);
