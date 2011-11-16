@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
+* NUTCH-1196 Update job should impose an upper limit on the number of inlinks (nutchgora) (ferdy)
+
 * NUTCH-1185 Decrease solr.commit.size to 250 (markus)
 
 * NUTCH-1172 AbstractNuchTest should have a generic testdir instead of specific 'inject' dir (ferdy)
