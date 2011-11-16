@@ -37,7 +37,7 @@ import org.apache.nutch.util.WebPageWritable;
 import org.apache.gora.mapreduce.GoraReducer;
 
 public class DbUpdateReducer
-extends GoraReducer<String, NutchWritable, String, WebPage> {
+extends GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
 
   public static final String CRAWLDB_ADDITIONS_ALLOWED = "db.update.additions.allowed";	
 	
@@ -49,6 +49,7 @@ extends GoraReducer<String, NutchWritable, String, WebPage> {
   private FetchSchedule schedule;
   private ScoringFilters scoringFilters;
   private List<ScoreDatum> inlinkedScoreData = new ArrayList<ScoreDatum>();
+  private int maxLinks;
 
   @Override
   protected void setup(Context context) throws IOException, InterruptedException {
@@ -58,26 +59,32 @@ extends GoraReducer<String, NutchWritable, String, WebPage> {
     maxInterval = conf.getInt("db.fetch.interval.max", 0 );
     schedule = FetchScheduleFactory.getFetchSchedule(conf);
     scoringFilters = new ScoringFilters(conf);
+    maxLinks = conf.getInt("db.update.max.inlinks", 10000);
   }
 
   @Override
-  protected void reduce(String key, Iterable<NutchWritable> values,
+  protected void reduce(UrlWithScore key, Iterable<NutchWritable> values,
       Context context) throws IOException, InterruptedException {
+    String keyUrl = key.getUrl().toString();
 
     WebPage page = null;
     inlinkedScoreData.clear();
-
+    
     for (NutchWritable nutchWritable : values) {
       Writable val = nutchWritable.get();
       if (val instanceof WebPageWritable) {
         page = ((WebPageWritable) val).getWebPage();
       } else {
         inlinkedScoreData.add((ScoreDatum) val);
+        if (inlinkedScoreData.size() >= maxLinks) {
+          LOG.info("Limit reached, skipping further inlinks for " + keyUrl);
+          break;
+        }
       }
     }
     String url;
     try {
-      url = TableUtil.unreverseUrl(key);
+      url = TableUtil.unreverseUrl(keyUrl);
     } catch (Exception e) {
       // this can happen because a newly discovered malformed link
       // may slip by url filters
@@ -177,7 +184,7 @@ extends GoraReducer<String, NutchWritable, String, WebPage> {
       Mark.UPDATEDB_MARK.putMark(page, mark);
     }
 
-    context.write(key, page);
+    context.write(keyUrl, page);
   }
 
 }

@@ -53,5 +53,9 @@ implements Writable {
   public WebPage getWebPage() {
     return webPage;
   }
+  
+  public void setWebPage(WebPage webPage) {
+    this.webPage = webPage;
+  }
 
 }

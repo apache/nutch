@@ -16,21 +16,16 @@
  ******************************************************************************/
 package org.apache.nutch.crawl;
 
-import java.io.IOException;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.io.RawComparator;
-import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.nutch.crawl.UrlWithScore.UrlOnlyPartitioner;
+import org.apache.nutch.crawl.UrlWithScore.UrlScoreComparator;
+import org.apache.nutch.crawl.UrlWithScore.UrlScoreComparator.UrlOnlyComparator;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.storage.StorageUtils;
@@ -39,7 +34,8 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.ToolUtil;
-import org.apache.gora.mapreduce.StringComparator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DbUpdaterJob extends NutchTool implements Tool {
 
@@ -85,10 +81,16 @@ public class DbUpdaterJob extends NutchTool implements Tool {
     ScoringFilters scoringFilters = new ScoringFilters(getConf());
     HashSet<WebPage.Field> fields = new HashSet<WebPage.Field>(FIELDS);
     fields.addAll(scoringFilters.getFields());
-    // TODO: Figure out why this needs to be here
-    currentJob.getConfiguration().setClass("mapred.output.key.comparator.class",
-        StringComparator.class, RawComparator.class);
-    StorageUtils.initMapperJob(currentJob, fields, String.class,
+    
+    // Partition by {url}, sort by {url,score} and group by {url}.
+    // This ensures that the inlinks are sorted by score when they enter
+    // the reducer.
+    
+    currentJob.setPartitionerClass(UrlOnlyPartitioner.class);
+    currentJob.setSortComparatorClass(UrlScoreComparator.class);
+    currentJob.setGroupingComparatorClass(UrlOnlyComparator.class);
+    
+    StorageUtils.initMapperJob(currentJob, fields, UrlWithScore.class,
         NutchWritable.class, DbUpdateMapper.class);
     StorageUtils.initReducerJob(currentJob, DbUpdateReducer.class);
     currentJob.waitForCompletion(true);

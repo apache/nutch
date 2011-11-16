@@ -24,6 +24,7 @@ import java.util.Map.Entry;
 
 import org.apache.avro.util.Utf8;
 import org.slf4j.Logger;
+import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.scoring.ScoreDatum;
 import org.apache.nutch.scoring.ScoringFilterException;
@@ -34,12 +35,17 @@ import org.apache.nutch.util.WebPageWritable;
 import org.apache.gora.mapreduce.GoraMapper;
 
 public class DbUpdateMapper
-extends GoraMapper<String, WebPage, String, NutchWritable> {
+extends GoraMapper<String, WebPage, UrlWithScore, NutchWritable> {
   public static final Logger LOG = DbUpdaterJob.LOG;
 
   private ScoringFilters scoringFilters;
 
   private final List<ScoreDatum> scoreData = new ArrayList<ScoreDatum>();
+  
+  //reuse writables
+  private UrlWithScore urlWithScore = new UrlWithScore();
+  private NutchWritable nutchWritable = new NutchWritable();
+  private WebPageWritable pageWritable;
 
   @Override
   public void map(String key, WebPage page, Context context)
@@ -63,19 +69,26 @@ extends GoraMapper<String, WebPage, String, NutchWritable> {
           " exception:" + StringUtils.stringifyException(e));
     }
 
-    context.write(key,
-        new NutchWritable(new WebPageWritable(context.getConfiguration(), page)));
+    urlWithScore.setUrl(key);
+    urlWithScore.setScore(Float.MAX_VALUE);
+    pageWritable.setWebPage(page);
+    nutchWritable.set(pageWritable);
+    context.write(urlWithScore, nutchWritable);
 
     for (ScoreDatum scoreDatum : scoreData) {
       String reversedOut = TableUtil.reverseUrl(scoreDatum.getUrl());
       scoreDatum.setUrl(url);
-      context.write(reversedOut, new NutchWritable(scoreDatum));
+      urlWithScore.setUrl(reversedOut);
+      urlWithScore.setScore(scoreDatum.getScore());
+      nutchWritable.set(scoreDatum);
+      context.write(urlWithScore, nutchWritable);
     }
   }
 
   @Override
   public void setup(Context context) {
     scoringFilters = new ScoringFilters(context.getConfiguration());
+    pageWritable = new WebPageWritable(context.getConfiguration(), null);
   }
 
 }
