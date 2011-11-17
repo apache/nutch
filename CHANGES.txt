@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
+* NUTCH-1198 Less verbose logging when unmapped mimetypes are trying to be parsed. (ferdy)
+
 * NUTCH-1196 Update job should impose an upper limit on the number of inlinks (nutchgora) (ferdy)
 
 * NUTCH-1185 Decrease solr.commit.size to 250 (markus)

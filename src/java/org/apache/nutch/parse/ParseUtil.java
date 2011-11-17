@@ -101,20 +101,16 @@ public class ParseUtil extends Configured {
    * returned. If the parse is unsuccessful, a message is logged to the
    * <code>WARNING</code> level, and an empty parse is returned.
    *
-   * @throws ParseException If no suitable parser is found to perform the parse.
+   * @throws ParserNotFound If there is no suitable parser found. 
+   * @throws ParseException If there is an error parsing.
    */
-  public Parse parse(String url, WebPage page) throws ParseException {
+  public Parse parse(String url, WebPage page) throws ParserNotFound, 
+      ParseException {
     Parser[] parsers = null;
 
     String contentType = TableUtil.toString(page.getContentType());
 
-    try {
-      parsers = this.parserFactory.getParsers(contentType, url);
-    } catch (ParserNotFound e) {
-      LOG.warn("No suitable parser found when trying to parse content " + url +
-          " of type " + contentType);
-      throw new ParseException(e.getMessage());
-    }
+    parsers = this.parserFactory.getParsers(contentType, url);
 
     for (int i=0; i<parsers.length; i++) {
       if (LOG.isDebugEnabled()) {
@@ -179,6 +175,10 @@ public class ParseUtil extends Configured {
     Parse parse;
     try {
       parse = parse(url, page);
+    } catch (ParserNotFound e) {
+      // do not print stacktrace for the fact that some types are not mapped.
+      LOG.warn("No suitable parser found: " + e.getMessage());
+      return redirectedPage;
     } catch (final Exception e) {
       LOG.warn("Error parsing: " + url + ": " + StringUtils.stringifyException(e));
       return redirectedPage;
