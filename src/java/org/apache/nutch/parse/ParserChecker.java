@@ -24,10 +24,12 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.StringUtil;
 
 /**
  * Parser checker, useful for testing parser.
@@ -96,12 +98,16 @@ public class ParserChecker implements Tool {
       return (-1);
     }
 
+    ParseResult parseResult = new ParseUtil(conf).parse(content);
+
+    // Calculate the signature
+    byte[] signature = SignatureFactory.getSignature(getConf()).calculate(content, parseResult.get(new Text(url)));
+
     if (LOG.isInfoEnabled()) {
       LOG.info("parsing: " + url);
       LOG.info("contentType: " + contentType);
+      LOG.info("signature: " + StringUtil.toHexString(signature));
     }
-
-    ParseResult parseResult = new ParseUtil(conf).parse(content);
 
     for (java.util.Map.Entry<Text, Parse> entry : parseResult) {
       Parse parse = entry.getValue();
