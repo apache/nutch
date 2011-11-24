@@ -113,7 +113,7 @@ public class ParserChecker implements Tool {
       Parse parse = entry.getValue();
       System.out.print("---------\nUrl\n---------------\n");
       System.out.print(entry.getKey());
-      System.out.print("---------\nParseData\n---------\n");
+      System.out.print("\n---------\nParseData\n---------\n");
       System.out.print(parse.getData().toString());
       if (dumpText) {
         System.out.print("---------\nParseText\n---------\n");

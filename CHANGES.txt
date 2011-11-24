@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1209 Output from ParserChecker Url missing a newline (mattmann)
+
 * NUTCH-1207 ParserChecker to output signature (markus)
 
 * NUTCH-1090 InvertLinks should inform when ignoring internal links (Marek Backmann via markus)
