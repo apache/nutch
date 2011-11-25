@@ -99,15 +99,7 @@ public class RegexURLFilter extends RegexURLFilterBase {
     }
 
     protected boolean match(String url) {
-	boolean matched = pattern.matcher(url).find();
-        if(url.indexOf("at_download") != -1){
-	    System.out.println("@#((#(#@ EVALUATING at_download LINK!: ["+url+"]: matched? ["+matched+"]");
-        }
-        else 
-	    {System.out.println("URL: ["+url+"] doesn't have at_download in it!");
-	    }
-	return matched;
-	//return pattern.matcher(url).find();
+      return pattern.matcher(url).find();
     }
   }
   
