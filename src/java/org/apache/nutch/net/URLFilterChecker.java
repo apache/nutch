@@ -105,7 +105,8 @@ public class URLFilterChecker {
 
   public static void main(String[] args) throws Exception {
 
-    String usage = "Usage: URLFilterChecker (-filterName filterName | -allCombined)";
+    String usage = "Usage: URLFilterChecker (-filterName filterName | -allCombined) \n" 
+	+ "Tool takes a list of URLs, one per line, passed via STDIN.\n";
 
     if (args.length == 0) {
       System.err.println(usage);
