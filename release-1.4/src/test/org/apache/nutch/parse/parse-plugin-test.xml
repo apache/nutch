@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one or more
+    contributor license agreements.  See the NOTICE file distributed with
+    this work for additional information regarding copyright ownership.
+    The ASF licenses this file to You under the Apache License, Version 2.0
+    (the "License"); you may not use this file except in compliance with
+    the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+    Author     : mattmann 
+    Description: Test parse-plugins.xml file. 
+-->
+
+<parse-plugins>
+
+  <!--  by default if the mimeType is set to *, or 
+        if it can't be determined, use parse-tika -->
+  <mimeType name="*">
+    <plugin id="parse-tika" />
+  </mimeType>
+	
+  <!--  test these 4 plugins -->
+  <mimeType name="text/html">
+    <!--
+     ! Test that if a parser cannot be instanciated,
+     ! it should not block the process and then the next one is used
+     !-->
+    <plugin id="parse-plugin-that-not-exist"/>
+  </mimeType>
+ 	 
+  <mimeType name="application/x-javascript">
+    <plugin id="parse-js"/>
+  </mimeType>
+ 	 
+  <mimeType name="text/rss">
+    <!-- Test that an extension-id can be directly used here -->
+    <plugin id="org.apache.nutch.parse.rss.RSSParser"/>
+  </mimeType>
+
+  <!--  alias mappings for parse-xxx names to the actual extension implementation 
+  ids described in each plugin's plugin.xml file -->
+  <aliases>
+    <alias name="parse-js"
+           extension-id="JSParser" />
+    <alias name="parse-rss"
+           extension-id="org.apache.nutch.parse.rss.RSSParser" />
+    <alias name="parse-tika"
+           extension-id="org.apache.nutch.parse.tika.TikaParser" />	
+  </aliases>
+</parse-plugins>

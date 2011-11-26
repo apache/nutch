@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!-- This is the configuration file for the RegexUrlNormalize Class.
+     This is intended so that users can specify substitutions to be
+     done on URLs. The regex engine that is used is Perl5 compatible.
+     The rules are applied to URLs in the order they occur in this file.  -->
+
+<!-- WATCH OUT: an xml parser reads this file an ampersands must be
+     expanded to &amp; -->
+
+<!-- The following rules show how to strip out session IDs, default pages, 
+     interpage anchors, etc. Order does matter!  -->
+<regex-normalize>
+
+<!-- removes session ids from urls (such as jsessionid and PHPSESSID) -->
+<regex>
+  <pattern>([;_]?((?i)l|j|bv_)?((?i)sid|phpsessid|sessionid)=.*?)(\?|&amp;|#|$)</pattern>
+  <substitution>$4</substitution>
+</regex>
+
+<!-- changes default pages into standard for /index.html, etc. into / -->
+<!-- these are commented in the default file but uncommented here for testing -->
+<regex>
+  <pattern>/((?i)index|default)\.((?i)js[pf]{1}?[afx]?|cgi|cfm|asp[x]?|[psx]?htm[l]?|php[3456]?)(\?|&amp;|#|$)</pattern>
+  <substitution>/$3</substitution>
+</regex> 
+
+<!-- removes interpage href anchors such as site.com#location -->
+<regex>
+  <pattern>#.*?(\?|&amp;|$)</pattern>
+  <substitution>$1</substitution>
+</regex>
+
+<!-- cleans ?&var=value into ?var=value -->
+<regex>
+  <pattern>\?&amp;</pattern>
+  <substitution>\?</substitution>
+</regex>
+
+<!-- cleans multiple sequential ampersands into a single ampersand -->
+<regex>
+  <pattern>&amp;{2,}</pattern>
+  <substitution>&amp;</substitution>
+</regex>
+
+<!-- removes trailing ?, ampersands, . -->
+<regex>
+  <pattern>[\?&amp;\.]$</pattern>
+  <substitution></substitution>
+</regex>
+
+</regex-normalize>
+

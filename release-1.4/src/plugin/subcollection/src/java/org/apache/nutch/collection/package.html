@@ -1,0 +1,36 @@
+<html>
+<body>
+<p>
+Subcollection is a subset of an index. Subcollections are defined
+by urlpatterns in form of white/blacklist. So to get the page into
+subcollection it must match the whitelist and not the blacklist.
+</p>
+<p>
+Subcollection definitions are read from a file subcollections.xml
+and the format is as follows (imagine here that you are crawling all
+the virtualhosts from apache.org and you wan't to tag pages with
+url pattern "http://lucene.apache.org/nutch" and http://wiki.apache.org/nutch/
+to be part of subcollection "nutch", this allows you to later search
+specifically from this subcollection)
+</p>
+<p/>
+<p/>
+<pre>
+&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;subcollections>
+	&lt;subcollection>
+		&lt;name>nutch&lt;/name>
+		&lt;id>lucene&lt;/id>
+		&lt;whitelist>http://lucene.apache.org/nutch&lt;/whitelist>
+		&lt;whitelist>http://wiki.apache.org/nutch/&lt;/whitelist>
+		&lt;blacklist />
+	&lt;/subcollection>
+&lt;/subcollections>
+</pre>
+</p>
+<p>Despite of this configuration you still can crawl any urls
+as long as they pass through your global url filters. (note that
+you must also seed your urls in normal nutch way)
+</p>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one or more
+ contributor license agreements.  See the NOTICE file distributed with
+ this work for additional information regarding copyright ownership.
+ The ASF licenses this file to You under the Apache License, Version 2.0
+ (the "License"); you may not use this file except in compliance with
+ the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<project name="creativecommons" default="jar-core">
+
+  <import file="../build-plugin.xml"/>
+
+  <!-- Deploy Unit test dependencies -->
+  <target name="deps-test">
+    <ant target="deploy" inheritall="false" dir="../nutch-extensionpoints"/>
+   <!--  <ant target="deploy" inheritall="false" dir="../parse-html"/> -->
+  </target>
+
+
+  <property name="this.web" location="${root}/src/web"/>
+  <property name="nutch.web" location="${nutch.root}/src/web"/>
+
+  <!-- Make creativecommons.war -->
+  <target name="war">
+    <war destfile="${build.dir}/${name}.war"
+	 webxml="${this.web}/web.xml">
+      <fileset dir="${nutch.web}/jsp" excludes="**/search.jsp"/>
+      <fileset dir="${nutch.root}/docs">
+        <include name="img/*.gif"/>
+      </fileset>
+      <fileset dir="${this.web}" includes="search.jsp"/>
+      <classes dir="${nutch.root}/conf" excludes="**/*.template"/>
+      <classes dir="${root}/conf"/>
+      <classes dir="${nutch.web}/locale"/>
+      <zipfileset dir="${this.web}" includes="include/*.html"/>
+      <lib dir="${nutch.root}/lib">
+	<include name="lucene*.jar"/>
+	<include name="taglibs-*.jar"/>
+	<include name="dom4j-*.jar"/>
+      </lib>
+      <lib dir="${nutch.root}/build">
+	<include name="nutch-*.jar"/>
+      </lib>
+      <zipfileset prefix="WEB-INF/classes/plugins"
+                  dir="${nutch.root}/build/plugins"/>
+      <webinf dir="${nutch.root}/lib">
+	<include name="taglibs-*.tld"/>
+      </webinf>
+    </war>
+   </target>
+
+
+</project>

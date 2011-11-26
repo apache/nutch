@@ -1,0 +1,27 @@
+# The url filter file used by the crawl command.
+
+# Better for intranet crawling.
+# Be sure to change MY.DOMAIN.NAME to your domain name.
+
+# Each non-comment, non-blank line contains a regular expression
+# prefixed by '+' or '-'.  The first matching pattern in the file
+# determines whether a URL is included or ignored.  If no pattern
+# matches, the URL is ignored.
+
+# skip file:, ftp:, & mailto: urls
+-^(file|ftp|mailto):
+
+# skip image and other suffixes we can't yet parse
+-\.(gif|GIF|jpg|JPG|ico|ICO|css|sit|eps|wmf|zip|ppt|mpg|xls|gz|rpm|tgz|mov|MOV|exe|png)$
+
+# skip URLs containing certain characters as probable queries, etc.
+-[?*!@=]
+
+# skip URLs with slash-delimited segment that repeats 3+ times, to break loops
+-.*(/.+?)/.*?\1/.*?\1/
+
+# accept hosts in MY.DOMAIN.NAME
++^http://([a-z0-9]*\.)*MY.DOMAIN.NAME/
+
+# skip everything else
+-.

@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+
+<!-- Configuration overrides used during unit tests. -->
+
+<configuration>
+
+<property>
+  <name>plugin.includes</name>
+  <value>parse-tika|protocol-http|urlfilter-suffix|scoring-opic</value>
+  <description>Enable required plugins.</description>
+</property>
+
+<property>
+  <name>content.server.port</name>
+  <value>55000</value>
+  <description>Port of http server serving content.</description>
+</property>
+
+<property>
+  <name>fetcher.server.delay</name>
+  <value>0.2</value>
+  <description>The number of seconds the fetcher will delay between 
+   successive requests to the same server.</description>
+</property>
+
+<property>
+  <name>http.agent.name</name>
+  <value>test-nutch</value>
+</property>
+
+<property>
+  <name>http.robots.agents</name>
+  <value>test-nutch,*</value>
+</property>
+
+<property>
+  <name>http.agent.name.check</name>
+  <value>true</value>
+</property>
+
+<property>                                                                                                                                                   
+  <name>http.robots.agents</name>                                                                                                                            
+  <value>test-nutch,*</value>                                                                                                                                
+  <description>The agent strings we'll look for in robots.txt files,                                                                                         
+  comma-separated, in decreasing order of precedence. You should                                                                                             
+  put the value of http.agent.name as the first agent name, and keep the                                                                                     
+  default * at the end of the list. E.g.: BlurflDev,Blurfl,*                                                                                                 
+  </description>                                                                                                                                             
+</property>
+
+</configuration>
+

@@ -1,0 +1,5 @@
+# comments start with the pound sign
+net
+apache.org
+be
+www.yahoo.com

@@ -1,0 +1,70 @@
+# test simple removal of session id, keeping parameters before and after
+http://foo.com/foo.php?PHPSESSID=cdc993a493e899bed04f4d0c8a462a03 http://foo.com/foo.php
+http://foo.com/foo.php?f=2&PHPSESSID=cdc993a493e899bed04f4d0c8a462a03 http://foo.com/foo.php?f=2
+http://foo.com/foo.php?f=2&PHPSESSID=cdc993a493e899bed04f4d0c8a462a03&q=3 http://foo.com/foo.php?f=2&q=3
+http://foo.com/foo.php?PHPSESSID=cdc993a493e899bed04f4d0c8a462a03&f=2 http://foo.com/foo.php?f=2
+
+# test removal of different session ids including removal of ; in jsessionid
+http://www.foo.com/foo.php?Bv_SessionID=fassassddsajkl http://www.foo.com/foo.php
+http://www.foo.com/foo.php?Bv_SessionID=fassassddsajkl&x=y http://www.foo.com/foo.php?x=y
+http://www.foo.com/foo.html;jsessionid=1E6FEC0D14D044541DD84D2D013D29ED http://www.foo.com/foo.html
+http://www.foo.com/foo.html?param=1&another=2;jsessionid=1E6FEC0D14D044541DD84D2D013D29ED http://www.foo.com/foo.html?param=1&another=2
+http://www.foo.com/foo.html;jsessionid=1E6FEC0D14D044541DD84D2D013D29ED?param=1&another=2 http://www.foo.com/foo.html?param=1&another=2
+http://www.foo.com/foo.php?&x=1&sid=xyz&something=1 http://www.foo.com/foo.php?x=1&something=1
+
+# test removal default pages
+http://www.foo.com/home/index.html http://www.foo.com/home/
+http://www.foo.com/index.html http://www.foo.com/
+http://www.foo.com/index.htm http://www.foo.com/
+http://www.foo.com/index.asp http://www.foo.com/
+http://www.foo.com/index.aspx http://www.foo.com/
+http://www.foo.com/index.php http://www.foo.com/
+http://www.foo.com/index.php3 http://www.foo.com/
+http://www.foo.com/default.html http://www.foo.com/
+http://www.foo.com/default.htm http://www.foo.com/
+http://www.foo.com/default.asp http://www.foo.com/
+http://www.foo.com/default.aspx http://www.foo.com/
+http://www.foo.com/default.php http://www.foo.com/
+http://www.foo.com/default.php3 http://www.foo.com/
+http://www.foo.com/something.php3 http://www.foo.com/something.php3
+http://www.foo.com/something.html http://www.foo.com/something.html
+http://www.foo.com/something.asp http://www.foo.com/something.asp
+http://www.foo.com/index.phtml http://www.foo.com/
+http://www.foo.com/index.cfm http://www.foo.com/
+http://www.foo.com/index.cgi http://www.foo.com/
+http://www.foo.com/index.HTML http://www.foo.com/
+http://www.foo.com/index.Htm http://www.foo.com/
+http://www.foo.com/index.ASP http://www.foo.com/
+http://www.foo.com/index.jsp http://www.foo.com/
+http://www.foo.com/index.jsf http://www.foo.com/
+http://www.foo.com/index.jspx http://www.foo.com/
+http://www.foo.com/index.jspfx http://www.foo.com/index.jspfx
+http://www.foo.com/index.jspa http://www.foo.com/
+http://www.foo.com/index.jsps http://www.foo.com/index.jsps
+http://www.foo.com/index.aspX http://www.foo.com/
+http://www.foo.com/index.PhP http://www.foo.com/
+http://www.foo.com/index.PhP4 http://www.foo.com/
+http://www.foo.com/default.HTml http://www.foo.com/
+http://www.foo.com/default.HTm http://www.foo.com/
+http://www.foo.com/default.ASp http://www.foo.com/
+http://www.foo.com/default.AspX http://www.foo.com/
+http://www.foo.com/default.PHP http://www.foo.com/
+http://www.foo.com/default.PHP3 http://www.foo.com/
+http://www.foo.com/index.phtml http://www.foo.com/
+http://www.foo.com/index.cfm http://www.foo.com/
+http://www.foo.com/index.cgi http://www.foo.com/
+
+# ensure keeping non-default pages
+http://www.foo.com/foo.php3 http://www.foo.com/foo.php3
+http://www.foo.com/foo.html http://www.foo.com/foo.html
+http://www.foo.com/foo.asp http://www.foo.com/foo.asp
+
+# test removal of interpage anchors and keeping query string
+http://www.foo.com/foo.html#something http://www.foo.com/foo.html
+http://www.foo.com/foo.html#something?x=y http://www.foo.com/foo.html?x=y
+
+# test general cleaning of bad urls
+http://www.foo.com/foo.html?&x=y http://www.foo.com/foo.html?x=y
+http://www.foo.com/foo.html?x=y&&&z=a http://www.foo.com/foo.html?x=y&z=a
+http://www.foo.com/foo.html? http://www.foo.com/foo.html
+
