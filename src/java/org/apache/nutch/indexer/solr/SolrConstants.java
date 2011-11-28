@@ -31,6 +31,8 @@ public interface SolrConstants {
 
   public static final String PASSWORD = SOLR_PREFIX + "auth.password";
   
+  public static final String PARAMS = SOLR_PREFIX + "params";
+
   public static final String ID_FIELD = "id";
   
   public static final String URL_FIELD = "url";

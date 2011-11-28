@@ -57,11 +57,16 @@ public class SolrIndexer extends Configured implements Tool {
 
   public void indexSolr(String solrUrl, Path crawlDb, Path linkDb,
       List<Path> segments) throws IOException {
-      indexSolr(solrUrl, crawlDb, linkDb, segments, false);
+      indexSolr(solrUrl, crawlDb, linkDb, segments, false, null);
   }
 
   public void indexSolr(String solrUrl, Path crawlDb, Path linkDb,
-      List<Path> segments, boolean noCommit) throws IOException {
+          List<Path> segments, boolean noCommit) throws IOException {
+    indexSolr(solrUrl, crawlDb, linkDb, segments, noCommit, null);
+  }
+  
+  public void indexSolr(String solrUrl, Path crawlDb, Path linkDb,
+      List<Path> segments, boolean noCommit, String solrParams) throws IOException {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
     LOG.info("SolrIndexer: starting at " + sdf.format(start));
@@ -72,6 +77,9 @@ public class SolrIndexer extends Configured implements Tool {
     IndexerMapReduce.initMRJob(crawlDb, linkDb, segments, job);
 
     job.set(SolrConstants.SERVER_URL, solrUrl);
+    if (solrParams != null) {
+      job.set(SolrConstants.PARAMS, solrParams);
+    }
     NutchIndexWriterFactory.addClassToConf(job, SolrWriter.class);
 
     job.setReduceSpeculativeExecution(false);
@@ -100,7 +108,7 @@ public class SolrIndexer extends Configured implements Tool {
 
   public int run(String[] args) throws Exception {
     if (args.length < 3) {
-      System.err.println("Usage: SolrIndexer <solr url> <crawldb> [-linkdb <linkdb>] (<segment> ... | -dir <segments>) [-noCommit]");
+      System.err.println("Usage: SolrIndexer <solr url> <crawldb> [-linkdb <linkdb>] [-params k1=v1&k2=v2...] (<segment> ... | -dir <segments>) [-noCommit]");
       return -1;
     }
 
@@ -108,6 +116,7 @@ public class SolrIndexer extends Configured implements Tool {
     Path linkDb = null;
 
     final List<Path> segments = new ArrayList<Path>();
+    String params = null;
 
     boolean noCommit = false;
 
@@ -126,13 +135,15 @@ public class SolrIndexer extends Configured implements Tool {
         }
       } else if (args[i].equals("-noCommit")) {
         noCommit = true;
+      } else if (args[i].equals("-params")) {
+        params = args[++i];
       } else {
         segments.add(new Path(args[i]));
       }
     }
 
     try {
-      indexSolr(args[0], crawlDb, linkDb, segments, noCommit);
+      indexSolr(args[0], crawlDb, linkDb, segments, noCommit, params);
       return 0;
     } catch (final Exception e) {
       LOG.error("SolrIndexer: " + StringUtils.stringifyException(e));

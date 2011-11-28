@@ -30,15 +30,18 @@ import org.apache.nutch.indexer.NutchField;
 import org.apache.nutch.indexer.NutchIndexWriter;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.common.SolrInputDocument;
+import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.util.DateUtil;
 
 public class SolrWriter implements NutchIndexWriter {
-
-  public static Logger LOG = LoggerFactory.getLogger(SolrWriter.class);
+  
+  public static final Logger LOG = LoggerFactory.getLogger(SolrWriter.class);
 
   private SolrServer solr;
   private SolrMappingReader solrMapping;
+  private ModifiableSolrParams params;
 
   private final List<SolrInputDocument> inputDocs =
     new ArrayList<SolrInputDocument>();
@@ -46,9 +49,28 @@ public class SolrWriter implements NutchIndexWriter {
   private int commitSize;
 
   public void open(JobConf job, String name) throws IOException {
-    solr = SolrUtils.getCommonsHttpSolrServer(job);
+    SolrServer server = SolrUtils.getCommonsHttpSolrServer(job);
+    init(server, job);
+  }
+  
+  // package protected for tests
+  void init(SolrServer server, JobConf job) throws IOException {
+    solr = server;
     commitSize = job.getInt(SolrConstants.COMMIT_SIZE, 1000);
     solrMapping = SolrMappingReader.getInstance(job);
+    // parse optional params
+    params = new ModifiableSolrParams();
+    String paramString = job.get(SolrConstants.PARAMS);
+    if (paramString != null) {
+      String[] values = paramString.split("&");
+      for (String v : values) {
+        String[] kv = v.split("=");
+        if (kv.length < 2) {
+          continue;
+        }
+        params.add(kv[0], kv[1]);
+      }
+    }
   }
 
   public void write(NutchDocument doc) throws IOException {
@@ -78,7 +100,10 @@ public class SolrWriter implements NutchIndexWriter {
     if (inputDocs.size() >= commitSize) {
       try {
         LOG.info("Adding " + Integer.toString(inputDocs.size()) + " documents");
-        solr.add(inputDocs);
+        UpdateRequest req = new UpdateRequest();
+        req.add(inputDocs);
+        req.setParams(params);
+        req.process(solr);
       } catch (final SolrServerException e) {
         throw makeIOException(e);
       }
@@ -90,7 +115,10 @@ public class SolrWriter implements NutchIndexWriter {
     try {
       if (!inputDocs.isEmpty()) {
         LOG.info("Adding " + Integer.toString(inputDocs.size()) + " documents");
-        solr.add(inputDocs);
+        UpdateRequest req = new UpdateRequest();
+        req.add(inputDocs);
+        req.setParams(params);
+        req.process(solr);
         inputDocs.clear();
       }
       // solr.commit();
