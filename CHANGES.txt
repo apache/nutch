@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1214 DomainStats tool should be named for what it's doing (markus)
+
 * NUTCH-1213 Pass additional SolrParams when indexing to Solr (ab)
 
 * NUTCH-1211 URLFilterChecker command line help doesn't inform user of 

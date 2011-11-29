@@ -88,17 +88,21 @@ implements Tool, Mapper<Text, CrawlDatum, Text, LongWritable>,
     LOG.info("DomainStatistics: starting at " + sdf.format(start));
 
     JobConf job = new NutchJob(getConf());
-    job.setJobName("Domain statistics");
 
     int mode = 0;
-    if(args[2].equals("host"))
+    if(args[2].equals("host")) {
+      job.setJobName("Host statistics");
       mode = MODE_HOST;
-    else if(args[2].equals("domain"))
+    } else if(args[2].equals("domain")) {
+      job.setJobName("Domain statistics");
       mode = MODE_DOMAIN;
-    else if(args[2].equals("suffix"))
+    } else if(args[2].equals("suffix")) {
+      job.setJobName("Suffix statistics");
       mode = MODE_SUFFIX;
+    }
+
     job.setInt("domain.statistics.mode", mode);
-    
+
     String[] inputDirsSpecs = inputDir.split(",");
     for (int i = 0; i < inputDirsSpecs.length; i++) {
       FileInputFormat.addInputPath(job, new Path(inputDirsSpecs[i]));
