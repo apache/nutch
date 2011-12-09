@@ -24,7 +24,15 @@ The build process will include these native libraries when preparing
 the /runtime/local environment for running in local mode.
 
 /runtime/local/bin/nutch knows how to use these libs - if they are
-found and correctly used you should see lines like this in your logs:
+found and correctly used that's fine, however if they are not and you
+see WARN, don't worry, however you will see lines like this in your logs:
+
+15:36:02,126 WARN org.apache.hadoop.util.NativeCodeLoader: Unable to load
+native-hadoop library for your platform... using builtin-java classes where
+applicable
+...
+probably quite a few more of the same
+...
 
 Distributed runtime
 -------------------

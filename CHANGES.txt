@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1216 Add trivial comment to lib/native/README.txt (lewismc)
+
 * NUTCH-1214 DomainStats tool should be named for what it's doing (markus)
 
 * NUTCH-1213 Pass additional SolrParams when indexing to Solr (ab)
