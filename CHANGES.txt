@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
+* NUTCH-1216 Add trivial comment to lib/native/README.txt (lewismc)
+
 * NUTCH-1198 Less verbose logging when unmapped mimetypes are trying to be parsed. (ferdy)
 
 * NUTCH-1196 Update job should impose an upper limit on the number of inlinks (nutchgora) (ferdy)
