@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1222 Upgrade to new Hadoop 0.22.0 (markus)
+
 * NUTCH-1221 Migrate DomainStatistics to MapReduce API (markus)
 
 * NUTCH-1216 Add trivial comment to lib/native/README.txt (lewismc)
