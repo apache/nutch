@@ -52,25 +52,25 @@ import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.*;
 
 
-/** 
+/**
  * A queue-based fetcher.
- * 
+ *
  * <p>This fetcher uses a well-known model of one producer (a QueueFeeder)
  * and many consumers (FetcherThread-s).
- * 
+ *
  * <p>QueueFeeder reads input fetchlists and
  * populates a set of FetchItemQueue-s, which hold FetchItem-s that
  * describe the items to be fetched. There are as many queues as there are unique
  * hosts, but at any given time the total number of fetch items in all queues
  * is less than a fixed number (currently set to a multiple of the number of
  * threads).
- * 
+ *
  * <p>As items are consumed from the queues, the QueueFeeder continues to add new
  * input items, so that their total count stays fixed (FetcherThread-s may also
  * add new items to the queues e.g. as a results of redirection) - until all
  * input items are exhausted, at which point the number of items in the queues
  * begins to decrease. When this number reaches 0 fetcher will finish.
- * 
+ *
  * <p>This fetcher implementation handles per-host blocking itself, instead
  * of delegating this work to protocol-specific plugins.
  * Each per-host queue handles its own "politeness" settings, such as the
@@ -79,16 +79,16 @@ import org.apache.nutch.util.*;
  * request was finished. As FetcherThread-s ask for new items to be fetched,
  * queues may return eligible items or null if for "politeness" reasons this
  * host's queue is not yet ready.
- * 
+ *
  * <p>If there are still unfetched items in the queues, but none of the items
  * are ready, FetcherThread-s will spin-wait until either some items become
  * available, or a timeout is reached (at which point the Fetcher will abort,
  * assuming the task is hung).
- * 
+ *
  * @author Andrzej Bialecki
  */
 public class Fetcher extends Configured implements Tool,
-    MapRunnable<Text, CrawlDatum, Text, NutchWritable> { 
+    MapRunnable<Text, CrawlDatum, Text, NutchWritable> {
 
   public static final int PERM_REFRESH_TIME = 5;
 
@@ -97,7 +97,7 @@ public class Fetcher extends Configured implements Tool,
   public static final String PROTOCOL_REDIR = "protocol";
 
   public static final Logger LOG = LoggerFactory.getLogger(Fetcher.class);
-  
+
   public static class InputFormat extends SequenceFileInputFormat<Text, CrawlDatum> {
     /** Don't split inputs, to keep things polite. */
     public InputSplit[] getSplits(JobConf job, int nSplits)
@@ -115,7 +115,7 @@ public class Fetcher extends Configured implements Tool,
 
   private OutputCollector<Text, NutchWritable> output;
   private Reporter reporter;
-  
+
   private String segmentName;
   private AtomicInteger activeThreads = new AtomicInteger(0);
   private AtomicInteger spinWaiting = new AtomicInteger(0);
@@ -131,28 +131,38 @@ public class Fetcher extends Configured implements Tool,
   private boolean parsing;
   FetchItemQueues fetchQueues;
   QueueFeeder feeder;
-  
+
   /**
    * This class described the item to be fetched.
    */
-  private static class FetchItem {    
+  private static class FetchItem {
+    int outlinkDepth = 0;
     String queueID;
     Text url;
     URL u;
     CrawlDatum datum;
-    
+
     public FetchItem(Text url, URL u, CrawlDatum datum, String queueID) {
+      this(url, u, datum, queueID, 0);
+    }
+
+    public FetchItem(Text url, URL u, CrawlDatum datum, String queueID, int outlinkDepth) {
       this.url = url;
       this.u = u;
       this.datum = datum;
       this.queueID = queueID;
+      this.outlinkDepth = outlinkDepth;
     }
-    
+
     /** Create an item. Queue id will be created based on <code>queueMode</code>
      * argument, either as a protocol + hostname pair, protocol + IP
      * address pair or protocol+domain pair.
      */
     public static FetchItem create(Text url, CrawlDatum datum,  String queueMode) {
+      return create(url, datum, queueMode, 0);
+    }
+
+    public static FetchItem create(Text url, CrawlDatum datum,  String queueMode, int outlinkDepth) {
       String queueID;
       URL u = null;
       try {
@@ -188,7 +198,7 @@ public class Fetcher extends Configured implements Tool,
         }
       }
       queueID = proto + "://" + key.toLowerCase();
-      return new FetchItem(url, u, datum, queueID);
+      return new FetchItem(url, u, datum, queueID, outlinkDepth);
     }
 
     public CrawlDatum getDatum() {
@@ -202,12 +212,12 @@ public class Fetcher extends Configured implements Tool,
     public Text getUrl() {
       return url;
     }
-    
+
     public URL getURL2() {
       return u;
     }
   }
-  
+
   /**
    * This class handles FetchItems which come from the same host ID (be it
    * a proto/hostname or proto/IP pair). It also keeps track of requests in
@@ -222,7 +232,7 @@ public class Fetcher extends Configured implements Tool,
     long minCrawlDelay;
     int maxThreads;
     Configuration conf;
-    
+
     public FetchItemQueue(Configuration conf, int maxThreads, long crawlDelay, long minCrawlDelay) {
       this.conf = conf;
       this.maxThreads = maxThreads;
@@ -231,42 +241,42 @@ public class Fetcher extends Configured implements Tool,
       // ready to start
       setEndTime(System.currentTimeMillis() - crawlDelay);
     }
-    
+
     public synchronized int emptyQueue() {
       int presize = queue.size();
       queue.clear();
       return presize;
     }
-    
+
     public int getQueueSize() {
       return queue.size();
     }
-    
+
     public int getInProgressSize() {
       return inProgress.size();
     }
-    
+
     public int incrementExceptionCounter() {
       return exceptionCounter.incrementAndGet();
     }
-    
+
     public void finishFetchItem(FetchItem it, boolean asap) {
       if (it != null) {
         inProgress.remove(it);
         setEndTime(System.currentTimeMillis(), asap);
       }
     }
-    
+
     public void addFetchItem(FetchItem it) {
       if (it == null) return;
       queue.add(it);
     }
-    
+
     public void addInProgressFetchItem(FetchItem it) {
       if (it == null) return;
       inProgress.add(it);
     }
-    
+
     public FetchItem getFetchItem() {
       if (inProgress.size() >= maxThreads) return null;
       long now = System.currentTimeMillis();
@@ -281,7 +291,7 @@ public class Fetcher extends Configured implements Tool,
       }
       return it;
     }
-    
+
     public synchronized void dump() {
       LOG.info("  maxThreads    = " + maxThreads);
       LOG.info("  inProgress    = " + inProgress.size());
@@ -294,11 +304,11 @@ public class Fetcher extends Configured implements Tool,
         LOG.info("  " + i + ". " + it.url);
       }
     }
-    
+
     private void setEndTime(long endTime) {
       setEndTime(endTime, false);
     }
-    
+
     private void setEndTime(long endTime, boolean asap) {
       if (!asap)
         nextFetchTime.set(endTime + (maxThreads > 1 ? minCrawlDelay : crawlDelay));
@@ -306,7 +316,7 @@ public class Fetcher extends Configured implements Tool,
         nextFetchTime.set(endTime);
     }
   }
-  
+
   /**
    * Convenience class - a collection of queues that keeps track of the total
    * number of items, and provides items eligible for fetching from any queue.
@@ -320,14 +330,14 @@ public class Fetcher extends Configured implements Tool,
     long minCrawlDelay;
     long timelimit = -1;
     int maxExceptionsPerQueue = -1;
-    Configuration conf;  
+    Configuration conf;
 
     public static final String QUEUE_MODE_HOST = "byHost";
     public static final String QUEUE_MODE_DOMAIN = "byDomain";
     public static final String QUEUE_MODE_IP = "byIP";
-    
+
     String queueMode;
-    
+
     public FetchItemQueues(Configuration conf) {
       this.conf = conf;
       this.maxThreads = conf.getInt("fetcher.threads.per.queue", 1);
@@ -339,36 +349,36 @@ public class Fetcher extends Configured implements Tool,
         queueMode = QUEUE_MODE_HOST;
       }
       LOG.info("Using queue mode : "+queueMode);
-      
+
       this.crawlDelay = (long) (conf.getFloat("fetcher.server.delay", 1.0f) * 1000);
       this.minCrawlDelay = (long) (conf.getFloat("fetcher.server.min.delay", 0.0f) * 1000);
       this.timelimit = conf.getLong("fetcher.timelimit", -1);
       this.maxExceptionsPerQueue = conf.getInt("fetcher.max.exceptions.per.queue", -1);
     }
-    
+
     public int getTotalSize() {
       return totalSize.get();
     }
-    
+
     public int getQueueCount() {
       return queues.size();
     }
-    
+
     public void addFetchItem(Text url, CrawlDatum datum) {
       FetchItem it = FetchItem.create(url, datum, queueMode);
       if (it != null) addFetchItem(it);
     }
-    
+
     public synchronized void addFetchItem(FetchItem it) {
       FetchItemQueue fiq = getFetchItemQueue(it.queueID);
       fiq.addFetchItem(it);
       totalSize.incrementAndGet();
     }
-    
+
     public void finishFetchItem(FetchItem it) {
       finishFetchItem(it, false);
     }
-    
+
     public void finishFetchItem(FetchItem it, boolean asap) {
       FetchItemQueue fiq = queues.get(it.queueID);
       if (fiq == null) {
@@ -377,7 +387,7 @@ public class Fetcher extends Configured implements Tool,
       }
       fiq.finishFetchItem(it, asap);
     }
-    
+
     public synchronized FetchItemQueue getFetchItemQueue(String id) {
       FetchItemQueue fiq = queues.get(id);
       if (fiq == null) {
@@ -387,7 +397,7 @@ public class Fetcher extends Configured implements Tool,
       }
       return fiq;
     }
-    
+
     public synchronized FetchItem getFetchItem() {
       Iterator<Map.Entry<String, FetchItemQueue>> it =
         queues.entrySet().iterator();
@@ -406,7 +416,7 @@ public class Fetcher extends Configured implements Tool,
       }
       return null;
     }
-    
+
     // called only once the feeder has stopped
     public synchronized int checkTimelimit() {
       int count = 0;
@@ -440,7 +450,7 @@ public class Fetcher extends Configured implements Tool,
 
       return count;
     }
-    
+
     /**
      * Increment the exception counter of a queue in case of an exception e.g.
      * timeout; when higher than a given threshold simply empty the queue.
@@ -470,7 +480,7 @@ public class Fetcher extends Configured implements Tool,
       return 0;
     }
 
-    
+
     public synchronized void dump() {
       for (String id : queues.keySet()) {
         FetchItemQueue fiq = queues.get(id);
@@ -480,7 +490,7 @@ public class Fetcher extends Configured implements Tool,
       }
     }
   }
-  
+
   /**
    * This class feeds the queues with input items, and re-fills them as
    * items are consumed by FetcherThread-s.
@@ -499,7 +509,7 @@ public class Fetcher extends Configured implements Tool,
       this.setDaemon(true);
       this.setName("QueueFeeder");
     }
-    
+
     public void setTimeLimit(long tl) {
       timelimit = tl;
     }
@@ -553,7 +563,7 @@ public class Fetcher extends Configured implements Tool,
           + timelimitcount);
     }
   }
-  
+
   /**
    * This class picks items from queues and fetches the pages.
    */
@@ -571,6 +581,14 @@ public class Fetcher extends Configured implements Tool,
     private boolean redirecting;
     private int redirectCount;
     private boolean ignoreExternalLinks;
+
+    // Used by fetcher.follow.outlinks.depth in parse
+    private int maxOutlinksPerPage;
+    private final int maxOutlinks;
+    private final int interval;
+    private int maxOutlinkDepth;
+    private int maxOutlinkDepthNumLinks;
+    private int outlinksDepthDivisor;
 
     public FetcherThread(Configuration conf) {
       this.setDaemon(true);                       // don't hang JVM on exit
@@ -591,16 +609,24 @@ public class Fetcher extends Configured implements Tool,
       }
       LOG.info("Using queue mode : "+queueMode);
       this.maxRedirect = conf.getInt("http.redirect.max", 3);
-      this.ignoreExternalLinks = 
+      this.ignoreExternalLinks =
         conf.getBoolean("db.ignore.external.links", false);
+
+      maxOutlinksPerPage = conf.getInt("db.max.outlinks.per.page", 100);
+      maxOutlinks = (maxOutlinksPerPage < 0) ? Integer.MAX_VALUE : maxOutlinksPerPage;
+      interval = conf.getInt("db.fetch.interval.default", 2592000);
+      ignoreExternalLinks = conf.getBoolean("db.ignore.external.links", false);
+      maxOutlinkDepth = conf.getInt("fetcher.follow.outlinks.depth", -1);
+      maxOutlinkDepthNumLinks = conf.getInt("fetcher.follow.outlinks.num.links", 4);
+      outlinksDepthDivisor = conf.getInt("fetcher.follow.outlinks.depth.divisor", 2);
     }
 
     public void run() {
       activeThreads.incrementAndGet(); // count threads
-      
+
       FetchItem fit = null;
       try {
-        
+
         while (true) {
           fit = fetchQueues.getFetchItem();
           if (fit == null) {
@@ -672,16 +698,16 @@ public class Fetcher extends Configured implements Tool,
               String urlString = fit.url.toString();
 
               reporter.incrCounter("FetcherStatus", status.getName(), 1);
-              
+
               switch(status.getCode()) {
-                
+
               case ProtocolStatus.WOULDBLOCK:
                 // retry ?
                 fetchQueues.addFetchItem(fit);
                 break;
 
               case ProtocolStatus.SUCCESS:        // got a page
-                pstatus = output(fit.url, fit.datum, content, status, CrawlDatum.STATUS_FETCH_SUCCESS);
+                pstatus = output(fit.url, fit.datum, content, status, CrawlDatum.STATUS_FETCH_SUCCESS, fit.outlinkDepth);
                 updateStatus(content.getContent().length);
                 if (pstatus != null && pstatus.isSuccess() &&
                         pstatus.getMinorCode() == ParseStatus.SUCCESS_REDIRECT) {
@@ -769,7 +795,7 @@ public class Fetcher extends Configured implements Tool,
               case ProtocolStatus.BLOCKED:
                 output(fit.url, fit.datum, null, status, CrawlDatum.STATUS_FETCH_RETRY);
                 break;
-                
+
               case ProtocolStatus.GONE:           // gone
               case ProtocolStatus.NOTFOUND:
               case ProtocolStatus.ACCESS_DENIED:
@@ -797,7 +823,7 @@ public class Fetcher extends Configured implements Tool,
               }
 
             } while (redirecting && (redirectCount <= maxRedirect));
-            
+
           } catch (Throwable t) {                 // unexpected exception
             // unblock
             fetchQueues.finishFetchItem(fit);
@@ -824,7 +850,7 @@ public class Fetcher extends Configured implements Tool,
     throws MalformedURLException, URLFilterException {
       newUrl = normalizers.normalize(newUrl, URLNormalizers.SCOPE_FETCHER);
       newUrl = urlFilters.filter(newUrl);
-      
+
       if (ignoreExternalLinks) {
         try {
           String origHost = new URL(urlString).getHost().toLowerCase();
@@ -839,7 +865,7 @@ public class Fetcher extends Configured implements Tool,
           }
         } catch (MalformedURLException e) { }
       }
-      
+
       if (newUrl != null && !newUrl.equals(urlString)) {
         reprUrl = URLUtil.chooseRepr(reprUrl, newUrl, temp);
         url = new Text(newUrl);
@@ -854,7 +880,7 @@ public class Fetcher extends Configured implements Tool,
         } else {
           CrawlDatum newDatum = new CrawlDatum(CrawlDatum.STATUS_LINKED,
               datum.getFetchInterval(),datum.getScore());
-          // transfer existing metadata 
+          // transfer existing metadata
           newDatum.getMetaData().putAll(datum.getMetaData());
           try {
             scfilters.initialScore(url, newDatum);
@@ -891,6 +917,12 @@ public class Fetcher extends Configured implements Tool,
     private ParseStatus output(Text key, CrawlDatum datum,
                         Content content, ProtocolStatus pstatus, int status) {
 
+      return output(key, datum, content, pstatus, status, 0);
+    }
+
+    private ParseStatus output(Text key, CrawlDatum datum,
+                        Content content, ProtocolStatus pstatus, int status, int outlinkDepth) {
+
       datum.setStatus(status);
       datum.setFetchTime(System.currentTimeMillis());
       if (pstatus != null) datum.getMetaData().put(Nutch.WRITABLE_PROTO_STATUS_KEY, pstatus);
@@ -910,7 +942,7 @@ public class Fetcher extends Configured implements Tool,
           }
         }
         /* Note: Fetcher will only follow meta-redirects coming from the
-         * original URL. */ 
+         * original URL. */
         if (parsing && status == CrawlDatum.STATUS_FETCH_SUCCESS) {
           try {
             parseResult = this.parseUtil.parse(content);
@@ -919,14 +951,14 @@ public class Fetcher extends Configured implements Tool,
           }
 
           if (parseResult == null) {
-            byte[] signature = 
-              SignatureFactory.getSignature(getConf()).calculate(content, 
+            byte[] signature =
+              SignatureFactory.getSignature(getConf()).calculate(content,
                   new ParseStatus().getEmptyParse(conf));
             datum.setSignature(signature);
           }
         }
-        
-        /* Store status code in content So we can read this value during 
+
+        /* Store status code in content So we can read this value during
          * parsing (as a separate job) and decide to parse or not.
          */
         content.getMetadata().add(Nutch.FETCH_STATUS_KEY, Integer.toString(status));
@@ -941,7 +973,8 @@ public class Fetcher extends Configured implements Tool,
             Text url = entry.getKey();
             Parse parse = entry.getValue();
             ParseStatus parseStatus = parse.getData().getStatus();
-            
+            ParseData parseData = parse.getData();
+
             if (!parseStatus.isSuccess()) {
               LOG.warn("Error parsing: " + key + ": " + parseStatus);
               parse = parseStatus.getEmptyParse(getConf());
@@ -949,15 +982,15 @@ public class Fetcher extends Configured implements Tool,
 
             // Calculate page signature. For non-parsing fetchers this will
             // be done in ParseSegment
-            byte[] signature = 
+            byte[] signature =
               SignatureFactory.getSignature(getConf()).calculate(content, parse);
             // Ensure segment name and score are in parseData metadata
-            parse.getData().getContentMeta().set(Nutch.SEGMENT_NAME_KEY, 
+            parseData.getContentMeta().set(Nutch.SEGMENT_NAME_KEY,
                 segmentName);
-            parse.getData().getContentMeta().set(Nutch.SIGNATURE_KEY, 
+            parseData.getContentMeta().set(Nutch.SIGNATURE_KEY,
                 StringUtil.toHexString(signature));
             // Pass fetch time to content meta
-            parse.getData().getContentMeta().set(Nutch.FETCH_TIME_KEY,
+            parseData.getContentMeta().set(Nutch.FETCH_TIME_KEY,
                 Long.toString(datum.getFetchTime()));
             if (url.equals(key))
               datum.setSignature(signature);
@@ -969,9 +1002,70 @@ public class Fetcher extends Configured implements Tool,
                 LOG.warn("Couldn't pass score, url " + key + " (" + e + ")");
               }
             }
+
+            String fromHost;
+
+            // collect outlinks for subsequent db update
+            Outlink[] links = parseData.getOutlinks();
+            int outlinksToStore = Math.min(maxOutlinks, links.length);
+            if (ignoreExternalLinks) {
+              try {
+                fromHost = new URL(url.toString()).getHost().toLowerCase();
+              } catch (MalformedURLException e) {
+                fromHost = null;
+              }
+            } else {
+              fromHost = null;
+            }
+
+            int validCount = 0;
+
+            // Process all outlinks, normalize, filter and deduplicate
+            List<Outlink> outlinkList = new ArrayList<Outlink>(outlinksToStore);
+            HashSet<String> outlinks = new HashSet<String>(outlinksToStore);
+            for (int i = 0; i < links.length && validCount < outlinksToStore; i++) {
+              String toUrl = links[i].getToUrl();
+
+              toUrl = ParseOutputFormat.filterNormalize(url.toString(), toUrl, fromHost, ignoreExternalLinks, urlFilters, normalizers);
+              if (toUrl == null) {
+                continue;
+              }
+
+              validCount++;
+              links[i].setUrl(toUrl);
+              outlinkList.add(links[i]);
+              outlinks.add(toUrl);
+            }
+
+            // Only process depth N outlinks
+            if (maxOutlinkDepth > 0 && outlinkDepth < maxOutlinkDepth) {
+              reporter.incrCounter("FetcherStatus", "outlinks_detected", outlinks.size());
+
+              // Counter to limit num outlinks to follow per page
+              int outlinkCounter = 0;
+
+              // Calculate variable number of outlinks by depth using the divisor (outlinks = Math.floor(divisor / depth * num.links))
+              int maxOutlinksByDepth = (int)Math.floor(outlinksDepthDivisor / (outlinkDepth + 1) * maxOutlinkDepthNumLinks);
+
+              // Walk over the outlinks and add as new FetchItem to the queues
+              Iterator<String> iter = outlinks.iterator();
+              while(iter.hasNext() && outlinkCounter < maxOutlinkDepthNumLinks) {
+                reporter.incrCounter("FetcherStatus", "outlinks_following", 1);
+
+                // Create new FetchItem with depth incremented
+                FetchItem fit = FetchItem.create(new Text(iter.next()), new CrawlDatum(CrawlDatum.STATUS_LINKED, interval), queueMode, outlinkDepth + 1);
+                fetchQueues.addFetchItem(fit);
+
+                outlinkCounter++;
+              }
+            }
+
+            // Overwrite the outlinks in ParseData with the normalized and filtered set
+            parseData.setOutlinks((Outlink[])outlinkList.toArray(new Outlink[outlinkList.size()]));
+
             output.collect(url, new NutchWritable(
-                    new ParseImpl(new ParseText(parse.getText()), 
-                                  parse.getData(), parse.isCanonical())));
+                    new ParseImpl(new ParseText(parse.getText()),
+                                  parseData, parse.isCanonical())));
           }
         }
       } catch (IOException e) {
@@ -991,7 +1085,7 @@ public class Fetcher extends Configured implements Tool,
       }
       return null;
     }
-    
+
   }
 
   public Fetcher() { super(null); }
@@ -1003,7 +1097,7 @@ public class Fetcher extends Configured implements Tool,
     bytes.addAndGet(bytesInPage);
   }
 
-  
+
   private void reportStatus(int pagesLastSec, int bytesLastSec) throws IOException {
     String status;
     long elapsed = (System.currentTimeMillis() - start)/1000;
@@ -1058,10 +1152,10 @@ public class Fetcher extends Configured implements Tool,
     if (LOG.isInfoEnabled()) { LOG.info("Fetcher: time-out divisor: " + timeoutDivisor); }
 
     int queueDepthMuliplier =  getConf().getInt("fetcher.queue.depth.multiplier", 50);
-    
+
     feeder = new QueueFeeder(input, fetchQueues, threadCount * queueDepthMuliplier);
     //feeder.setPriority((Thread.MAX_PRIORITY + Thread.NORM_PRIORITY) / 2);
-    
+
     // the value of the time limit is either -1 or the time where it should finish
     long timelimit = getConf().getLong("fetcher.timelimit", -1);
     if (timelimit != -1) feeder.setTimeLimit(timelimit);
@@ -1070,7 +1164,7 @@ public class Fetcher extends Configured implements Tool,
     // set non-blocking & no-robots mode for HTTP protocol plugins.
     getConf().setBoolean(Protocol.CHECK_BLOCKING, false);
     getConf().setBoolean(Protocol.CHECK_ROBOTS, false);
-    
+
     for (int i = 0; i < threadCount; i++) {       // spawn threads
       new FetcherThread(getConf()).start();
     }
@@ -1101,6 +1195,8 @@ public class Fetcher extends Configured implements Tool,
 
       pagesLastSec = pages.get() - pagesLastSec;
       bytesLastSec = (int)bytes.get() - bytesLastSec;
+
+      reporter.incrCounter("FetcherStatus", "bytes_downloaded", bytesLastSec);
 
       reportStatus(pagesLastSec, bytesLastSec);
 
@@ -1146,7 +1242,7 @@ public class Fetcher extends Configured implements Tool,
         if (hitByTimeLimit != 0) reporter.incrCounter("FetcherStatus",
             "hitByTimeLimit", hitByTimeLimit);
       }
-      
+
       // some requests seem to hang, despite all intentions
       if ((System.currentTimeMillis() - lastRequestStart.get()) > timeout) {
         if (LOG.isWarnEnabled()) {
@@ -1157,7 +1253,7 @@ public class Fetcher extends Configured implements Tool,
 
     } while (activeThreads.get() > 0);
     LOG.info("-activeThreads=" + activeThreads);
-    
+
   }
 
   public void fetch(Path segment, int threads)
@@ -1181,7 +1277,22 @@ public class Fetcher extends Configured implements Tool,
       LOG.info("Fetcher Timelimit set for : " + timelimit);
       getConf().setLong("fetcher.timelimit", timelimit);
     }
-        
+
+    int maxOutlinkDepth = getConf().getInt("fetcher.follow.outlinks.depth", -1);
+    if (maxOutlinkDepth > 0) {
+      LOG.info("Fetcher: following outlinks up to depth: " + Integer.toString(maxOutlinkDepth));
+
+      int maxOutlinkDepthNumLinks = getConf().getInt("fetcher.follow.outlinks.num.links", 4);
+      int outlinksDepthDivisor = getConf().getInt("fetcher.follow.outlinks.depth.divisor", 2);
+
+      int totalOutlinksToFollow = 0;
+      for (int i = 0; i < maxOutlinkDepth; i++) {
+        totalOutlinksToFollow += (int)Math.floor(outlinksDepthDivisor / (i + 1) * maxOutlinkDepthNumLinks);
+      }
+
+      LOG.info("Fetcher: maximum outlinks to follow: " + Integer.toString(totalOutlinksToFollow));
+    }
+
     JobConf job = new NutchJob(getConf());
     job.setJobName("fetch " + segment);
 
@@ -1213,7 +1324,7 @@ public class Fetcher extends Configured implements Tool,
     int res = ToolRunner.run(NutchConfiguration.create(), new Fetcher(), args);
     System.exit(res);
   }
-  
+
   public int run(String[] args) throws Exception {
 
     String usage = "Usage: Fetcher <segment> [-threads n]";
@@ -1222,7 +1333,7 @@ public class Fetcher extends Configured implements Tool,
       System.err.println(usage);
       return -1;
     }
-      
+
     Path segment = new Path(args[0]);
 
     int threads = getConf().getInt("fetcher.threads.fetch", 10);

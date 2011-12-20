@@ -705,15 +705,6 @@
 </property>
 
 <property>
-  <name>fetcher.threads.timeout.divisor</name>
-  <value>2</value>
-  <description>The thread time-out divisor to use. By default threads have a time-out
-  value of mapred.task.timeout / 2. Increase this setting if the fetcher waits too
-  long before killing hanged threads.
-  </description>
-</property>
-
-<property>
   <name>fetcher.throughput.threshold.pages</name>
   <value>-1</value>
   <description>The threshold of minimum pages per second. If the fetcher downloads less
@@ -732,6 +723,16 @@
 </property>
 
 <property>
+  <name>fetcher.threads.timeout.divisor</name>
+  <value>2</value>
+  <description>(EXPERT)The thread time-out divisor to use. By default threads have a time-out
+  value of mapred.task.timeout / 2. Increase this setting if the fetcher waits too
+  long before killing hanged threads. Be careful, a too high setting (+8) will most likely kill the
+  fetcher threads prematurely.
+  </description>
+</property>
+
+<property>
   <name>fetcher.queue.depth.multiplier</name>
   <value>50</value>
   <description>(EXPERT)The fetcher buffers the incoming URLs into queues based on the [host|domain|IP]
@@ -739,7 +740,38 @@
   A large value requires more memory but can improve the performance of the fetch when the order of the URLS in the fetch list
   is not optimal.
   </description>
-</property>	
+</property>
+
+<property>
+  <name>fetcher.follow.outlinks.depth</name>
+  <value>-1</value>
+  <description>(EXPERT)When fetcher.parse is true and this value is greater than 0 the fetcher will extract outlinks
+  and follow until the desired depth is reached. A value of 1 means all generated pages are fetched and their first degree
+  outlinks are fetched and parsed too. Be careful, this feature is in itself agnostic of the state of the CrawlDB and does not
+  know about already fetched pages. A setting larger than 2 will most likely fetch home pages twice in the same fetch cycle.
+  It is highly recommended to set db.ignore.external.links to true to restrict the outlink follower to URL's within the same
+  domain. When disabled (false) the feature is likely to follow duplicates even when depth=1.
+  A value of -1 of 0 disables this feature.
+  </description>
+</property>
+
+<property>
+  <name>fetcher.follow.outlinks.num.links</name>
+  <value>4</value>
+  <description>(EXPERT)The number of outlinks to follow when fetcher.follow.outlinks.depth is enabled. Be careful, this can multiply
+  the total number of pages to fetch. This works with fetcher.follow.outlinks.depth.divisor, by default settings the followed outlinks
+  at depth 1 is 8, not 4.
+  </description>
+</property>
+
+<property>
+  <name>fetcher.follow.outlinks.depth.divisor</name>
+  <value>2</value>
+  <description>(EXPERT)The divisor of fetcher.follow.outlinks.num.links per fetcher.follow.outlinks.depth. This decreases the number
+  of outlinks to follow by increasing depth. The formula used is: outlinks = floor(divisor / depth * num.links). This prevents
+  exponential growth of the fetch list.
+  </description>
+</property>
 
 <!-- moreindexingfilter plugin properties -->
 

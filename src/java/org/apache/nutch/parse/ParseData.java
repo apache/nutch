@@ -92,6 +92,10 @@ public final class ParseData extends VersionedWritable {
   public void setParseMeta(Metadata parseMeta) {
     this.parseMeta = parseMeta;
   }
+
+  public void setOutlinks(Outlink[] outlinks) {
+    this.outlinks = outlinks;
+  }
   
   /**
    * Get a metadata single value.

@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1184 Fetcher to parse and follow Nth degree outlinks (markus)
+
 * NUTCH-1225 Migrate CrawlDBScanner to MapReduce API (markus)
 
 * NUTCH-1222 Upgrade to new Hadoop 0.22.0 (markus)
