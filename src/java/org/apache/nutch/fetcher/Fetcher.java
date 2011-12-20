@@ -1039,7 +1039,7 @@ public class Fetcher extends Configured implements Tool,
 
             // Only process depth N outlinks
             if (maxOutlinkDepth > 0 && outlinkDepth < maxOutlinkDepth) {
-              reporter.incrCounter("FetcherStatus", "outlinks_detected", outlinks.size());
+              reporter.incrCounter("FetcherOutlinks", "outlinks_detected", outlinks.size());
 
               // Counter to limit num outlinks to follow per page
               int outlinkCounter = 0;
@@ -1050,7 +1050,7 @@ public class Fetcher extends Configured implements Tool,
               // Walk over the outlinks and add as new FetchItem to the queues
               Iterator<String> iter = outlinks.iterator();
               while(iter.hasNext() && outlinkCounter < maxOutlinkDepthNumLinks) {
-                reporter.incrCounter("FetcherStatus", "outlinks_following", 1);
+                reporter.incrCounter("FetcherOutlinks", "outlinks_following", 1);
 
                 // Create new FetchItem with depth incremented
                 FetchItem fit = FetchItem.create(new Text(iter.next()), new CrawlDatum(CrawlDatum.STATUS_LINKED, interval), queueMode, outlinkDepth + 1);
