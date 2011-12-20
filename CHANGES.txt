@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1129 Add freegenerator, domainstats and crawldbscanner to log4j (markus)
+
 * NUTCH-1184 Fetcher to parse and follow Nth degree outlinks (markus)
 
 * NUTCH-1225 Migrate CrawlDBScanner to MapReduce API (markus)
