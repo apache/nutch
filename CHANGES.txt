@@ -1,12 +1,12 @@
 Nutch Change Log
 
+* NUTCH-1235 Upgrade to new Hadoop 0.20.205.0 (markus)
+
 * NUTCH-1217 Update NOTICE.txt to drop some copyrights (lewismc)
 
 * NUTCH-1129 Add freegenerator, domainstats and crawldbscanner to log4j (markus)
 
 * NUTCH-1184 Fetcher to parse and follow Nth degree outlinks (markus)
-
-* NUTCH-1222 Upgrade to new Hadoop 0.22.0 (markus)
 
 * NUTCH-1221 Migrate DomainStatistics to MapReduce API (markus)
 
