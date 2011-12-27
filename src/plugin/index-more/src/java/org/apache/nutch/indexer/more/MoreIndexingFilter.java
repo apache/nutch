@@ -185,7 +185,7 @@ public class MoreIndexingFilter implements IndexingFilter {
    * @return
    */
   private NutchDocument addType(NutchDocument doc, ParseData data, String url) {
-    MimeType mimeType = null;
+    String mimeType = null;
     String contentType = data.getMeta(Response.CONTENT_TYPE);
     if (contentType == null) {
       // Note by Jerome Charron on 20050415:
@@ -209,13 +209,13 @@ public class MoreIndexingFilter implements IndexingFilter {
       return doc;
     }
 
-    contentType = mimeType.getName();
+    contentType = mimeType;
 
     doc.add("type", contentType);
 
     // Check if we need to split the content type in sub parts
     if (conf.getBoolean("moreIndexingFilter.indexMimeTypeParts", true)) {
-      String[] parts = getParts(contentType.toString());
+      String[] parts = getParts(contentType);
 
       for(String part: parts) {
         doc.add("type", part);

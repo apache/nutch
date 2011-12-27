@@ -33,7 +33,7 @@ import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
 
 // Tika imports
-import org.apache.tika.mime.MimeType;
+import org.apache.tika.Tika;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
@@ -74,6 +74,7 @@ public class FileResponse {
   private Configuration conf;
 
   private MimeUtil MIME;
+  private Tika tika;
 
   /** Returns the response code. */
   public int getCode() {
@@ -103,6 +104,7 @@ public class FileResponse {
     this.conf = conf;
     
     MIME = new MimeUtil(conf);
+    tika = new Tika();
 
     if (!"file".equals(url.getProtocol()))
       throw new FileException("Not a file url:" + url);
@@ -216,9 +218,9 @@ public class FileResponse {
     headers.set(Response.LAST_MODIFIED,
         HttpDateFormat.toString(f.lastModified()));
 
-    MimeType mimeType = MIME.getMimeType(f);
-    String mimeTypeString = mimeType != null ? mimeType.getName() : "";
-    headers.set(Response.CONTENT_TYPE, mimeTypeString);
+    String mimeType = MIME.getMimeType(f);
+
+    headers.set(Response.CONTENT_TYPE, mimeType != null ? mimeType : "");
 
     // response code
     this.code = 200; // http OK

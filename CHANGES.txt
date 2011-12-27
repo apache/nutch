@@ -1,5 +1,9 @@
 Nutch Change Log
 
+* NUTCH-1231 Upgrade to Tika 1.0 (markus)
+
+* NUTCH-1230 MimeType API deprecated and breaks with Tika 1.0 (markus)
+
 * NUTCH-1235 Upgrade to new Hadoop 0.20.205.0 (markus)
 
 * NUTCH-1217 Update NOTICE.txt to drop some copyrights (lewismc)

@@ -93,7 +93,7 @@ public class ZipTextExtractor {
         int i = fname.lastIndexOf('.');
         if (i != -1) {
           // Trying to resolve the Mime-Type
-          String contentType = MIME.getMimeType(fname).getName();
+          String contentType = MIME.getMimeType(fname);
           try {
             Metadata metadata = new Metadata();
             metadata.set(Response.CONTENT_LENGTH, Long.toString(entry.getSize()));
