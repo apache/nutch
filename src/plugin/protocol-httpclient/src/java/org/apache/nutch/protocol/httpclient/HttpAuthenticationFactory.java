@@ -23,7 +23,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
-// Commons Logging imports
+// Slf4j Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +33,6 @@ import org.apache.hadoop.conf.Configurable;
 
 // Nutch imports
 import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.util.LogUtil;
 
 
 /**
@@ -135,7 +134,7 @@ public class HttpAuthenticationFactory implements Configurable {
 				//TODO Add additional Authentication lookups here
 			}
 		} catch (Exception e) {
-			e.printStackTrace(LogUtil.getErrorStream(LOG));
+			LOG.error("Error: ", e);
 		}
         return null;
     }

@@ -55,7 +55,6 @@ import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.scoring.ScoringFilters;
-import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.StringUtil;
@@ -168,7 +167,6 @@ public class ArcSegmentCreator
       }
       catch (Exception e) {
         if (LOG.isWarnEnabled()) {
-          e.printStackTrace(LogUtil.getWarnStream(LOG));
           LOG.warn("Couldn't pass score, url " + key + " (" + e + ")");
         }
       }
@@ -223,7 +221,6 @@ public class ArcSegmentCreator
             }
             catch (Exception e) {
               if (LOG.isWarnEnabled()) {
-                e.printStackTrace(LogUtil.getWarnStream(LOG));
                 LOG.warn("Couldn't pass score, url " + key + " (" + e + ")");
               }
             }

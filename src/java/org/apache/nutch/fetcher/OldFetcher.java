@@ -22,7 +22,7 @@ import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.Map.Entry;
 
-// Commons Logging imports
+// Slf4j Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -131,7 +131,6 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
             }
           } catch (IOException e) {
             if (LOG.isErrorEnabled()) {
-              e.printStackTrace(LogUtil.getErrorStream(LOG));
               LOG.error("fetcher caught:"+e.toString());
             }
             break;
@@ -254,7 +253,6 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
 
       } catch (Throwable e) {
         if (LOG.isErrorEnabled()) {
-          e.printStackTrace(LogUtil.getErrorStream(LOG));
           LOG.error("fetcher caught:"+e.toString());
         }
       } finally {
@@ -327,7 +325,6 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
           scfilters.passScoreBeforeParsing(key, datum, content);
         } catch (Exception e) {
           if (LOG.isWarnEnabled()) {
-            e.printStackTrace(LogUtil.getWarnStream(LOG));
             LOG.warn("Couldn't pass score, url " + key + " (" + e + ")");
           }
         }
@@ -387,7 +384,6 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
               scfilters.passScoreAfterParsing(url, content, parse);
             } catch (Exception e) {
               if (LOG.isWarnEnabled()) {
-                e.printStackTrace(LogUtil.getWarnStream(LOG));
                 LOG.warn("Couldn't pass score, url " + key + " (" + e + ")");
               }
             }
@@ -398,7 +394,6 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
         }
       } catch (IOException e) {
         if (LOG.isErrorEnabled()) {
-          e.printStackTrace(LogUtil.getErrorStream(LOG));
           LOG.error("fetcher caught:"+e.toString());
         }
       }

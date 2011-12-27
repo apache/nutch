@@ -27,7 +27,7 @@ import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
-// Commons Logging imports
+// Slf4j Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -834,7 +834,6 @@ public class Fetcher extends Configured implements Tool,
 
       } catch (Throwable e) {
         if (LOG.isErrorEnabled()) {
-          e.printStackTrace(LogUtil.getErrorStream(LOG));
           LOG.error("fetcher caught:"+e.toString());
         }
       } finally {
@@ -937,7 +936,6 @@ public class Fetcher extends Configured implements Tool,
           scfilters.passScoreBeforeParsing(key, datum, content);
         } catch (Exception e) {
           if (LOG.isWarnEnabled()) {
-            e.printStackTrace(LogUtil.getWarnStream(LOG));
             LOG.warn("Couldn't pass score, url " + key + " (" + e + ")");
           }
         }
@@ -998,7 +996,6 @@ public class Fetcher extends Configured implements Tool,
               scfilters.passScoreAfterParsing(url, content, parse);
             } catch (Exception e) {
               if (LOG.isWarnEnabled()) {
-                e.printStackTrace(LogUtil.getWarnStream(LOG));
                 LOG.warn("Couldn't pass score, url " + key + " (" + e + ")");
               }
             }
@@ -1070,7 +1067,6 @@ public class Fetcher extends Configured implements Tool,
         }
       } catch (IOException e) {
         if (LOG.isErrorEnabled()) {
-          e.printStackTrace(LogUtil.getErrorStream(LOG));
           LOG.error("fetcher caught:"+e.toString());
         }
       }

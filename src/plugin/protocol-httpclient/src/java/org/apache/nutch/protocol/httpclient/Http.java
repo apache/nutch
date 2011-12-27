@@ -29,7 +29,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 
-// Commons Logging imports
+// Slf4j Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +44,6 @@ import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 
 // Nutch imports
-import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
@@ -123,7 +122,6 @@ public class Http extends HttpBase {
     } catch (Exception ex) {
       if (LOG.isErrorEnabled()) {
         LOG.error("Could not read " + authFile + " : " + ex.getMessage());
-        ex.printStackTrace(LogUtil.getErrorStream(LOG));
       }
     }
   }

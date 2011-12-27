@@ -35,7 +35,7 @@ import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.protocol.RobotRules;
 import org.apache.nutch.util.GZIPUtils;
 import org.apache.nutch.util.DeflateUtils;
-import org.apache.nutch.util.LogUtil;
+
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
@@ -194,7 +194,7 @@ public abstract class HttpBase implements Protocol {
                 + u));
       }
     } catch (Throwable e) {
-      e.printStackTrace(LogUtil.getErrorStream(logger));
+      logger.error("Failed to get protocol output", e);
       return new ProtocolOutput(null, new ProtocolStatus(e));
     }
   }

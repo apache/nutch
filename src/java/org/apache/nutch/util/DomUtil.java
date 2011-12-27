@@ -34,7 +34,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-// Commons Logging imports
+// Slf4j Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,11 +66,11 @@ public class DomUtil {
       } 
       element = (Element)parser.getDocument().getChildNodes().item(i);
     } catch (FileNotFoundException e) {
-      e.printStackTrace(LogUtil.getWarnStream(LOG));
+      LOG.error("Error: ", e);
     } catch (SAXException e) {
-      e.printStackTrace(LogUtil.getWarnStream(LOG));
+      LOG.error("Error: ", e);
     } catch (IOException e) {
-      e.printStackTrace(LogUtil.getWarnStream(LOG));
+      LOG.error("Error: ", e);
     }
     return element;
   }
@@ -93,13 +93,13 @@ public class DomUtil {
       transformer.transform(source, result);
       os.flush();
     } catch (UnsupportedEncodingException e1) {
-      e1.printStackTrace(LogUtil.getWarnStream(LOG));
+      LOG.error("Error: ", e1);
     } catch (IOException e1) {
-      e1.printStackTrace(LogUtil.getWarnStream(LOG));
+      LOG.error("Error: ", e1);
     } catch (TransformerConfigurationException e2) {
-      e2.printStackTrace(LogUtil.getWarnStream(LOG));
+      LOG.error("Error: ", e2);
     } catch (TransformerException ex) {
-      ex.printStackTrace(LogUtil.getWarnStream(LOG));
+      LOG.error("Error: ", ex);
     }
   }
 }

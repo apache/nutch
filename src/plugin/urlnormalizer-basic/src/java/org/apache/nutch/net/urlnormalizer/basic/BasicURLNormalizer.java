@@ -20,13 +20,12 @@ package org.apache.nutch.net.urlnormalizer.basic;
 import java.net.URL;
 import java.net.MalformedURLException;
 
-// Commons Logging imports
+// Slf4j Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // Nutch imports
 import org.apache.nutch.net.URLNormalizer;
-import org.apache.nutch.util.LogUtil;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.oro.text.regex.*;
@@ -81,7 +80,7 @@ public class BasicURLNormalizer implements URLNormalizer {
         adjacentSlashRule.substitution = new Perl5Substitution("/");
         
       } catch (MalformedPatternException e) {
-        e.printStackTrace(LogUtil.getWarnStream(LOG));
+        LOG.error("Error: ", e);
         throw new RuntimeException(e);
       }
     }

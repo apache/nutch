@@ -152,7 +152,7 @@ public class HtmlParser implements Parser {
     } catch (SAXException e) {
       return new ParseStatus(e).getEmptyParseResult(content.getUrl(), getConf());
     } catch (Exception e) {
-      e.printStackTrace(LogUtil.getWarnStream(LOG));
+      LOG.error("Error: ", e);
       return new ParseStatus(e).getEmptyParseResult(content.getUrl(), getConf());
     }
       
@@ -259,7 +259,9 @@ public class HtmlParser implements Parser {
         }
         res.appendChild(frag);
       }
-    } catch (Exception x) { x.printStackTrace(LogUtil.getWarnStream(LOG));};
+    } catch (Exception e) { 
+      LOG.error("Error: ", e);
+      };
     return res;
   }
   

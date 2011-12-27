@@ -35,7 +35,6 @@ import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.ExtensionPoint;
 import org.apache.nutch.plugin.PluginRuntimeException;
 import org.apache.nutch.plugin.PluginRepository;
-import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.ObjectCache;
 
@@ -136,7 +135,6 @@ public final class ParserFactory {
         parsers.add(p);
       } catch (PluginRuntimeException e) {
         if (LOG.isWarnEnabled()) {
-          e.printStackTrace(LogUtil.getWarnStream(LOG));
           LOG.warn("ParserFactory:PluginRuntimeException when "
                  + "initializing parser plugin "
                  + ext.getDescriptor().getPluginId()

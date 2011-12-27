@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-// Commons Logging imports
+// Slf4j Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -130,19 +130,19 @@ public class GZIPUtils {
       try {
         outStream.write(in);
       } catch (Exception e) {
-        e.printStackTrace(LogUtil.getWarnStream(LOG));
+        LOG.error("Error writing outStream: ", e);
       }
 
       try {
         outStream.close();
       } catch (IOException e) {
-        e.printStackTrace(LogUtil.getWarnStream(LOG));
+        LOG.error("Error closing outStream: ", e);
       }
 
       return byteOut.toByteArray();
 
     } catch (IOException e) {
-      e.printStackTrace(LogUtil.getWarnStream(LOG));
+      LOG.error("Error: ", e);
       return null;
     }
   }

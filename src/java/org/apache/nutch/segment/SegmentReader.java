@@ -66,7 +66,6 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.HadoopFSUtil;
-import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 
@@ -138,7 +137,7 @@ public class SegmentReader extends Configured implements
     try {
       this.fs = FileSystem.get(getConf());
     } catch (IOException e) {
-      e.printStackTrace(LogUtil.getWarnStream(LOG));
+      LOG.error("IOException:", e);
     }
   }
 
@@ -153,7 +152,7 @@ public class SegmentReader extends Configured implements
     try {
       this.fs = FileSystem.get(getConf());
     } catch (IOException e) {
-      e.printStackTrace(LogUtil.getWarnStream(LOG));
+      LOG.error("IOException:", e);
     }
   }
 
@@ -295,7 +294,7 @@ public class SegmentReader extends Configured implements
           List<Writable> res = getMapRecords(new Path(segment, Content.DIR_NAME), key);
           results.put("co", res);
         } catch (Exception e) {
-          e.printStackTrace(LogUtil.getWarnStream(LOG));
+          LOG.error("Exception:", e);
         }
       }
     });
@@ -305,7 +304,7 @@ public class SegmentReader extends Configured implements
           List<Writable> res = getMapRecords(new Path(segment, CrawlDatum.FETCH_DIR_NAME), key);
           results.put("fe", res);
         } catch (Exception e) {
-          e.printStackTrace(LogUtil.getWarnStream(LOG));
+          LOG.error("Exception:", e);
         }
       }
     });
@@ -315,7 +314,7 @@ public class SegmentReader extends Configured implements
           List<Writable> res = getSeqRecords(new Path(segment, CrawlDatum.GENERATE_DIR_NAME), key);
           results.put("ge", res);
         } catch (Exception e) {
-          e.printStackTrace(LogUtil.getWarnStream(LOG));
+          LOG.error("Exception:", e);
         }
       }
     });
@@ -325,7 +324,7 @@ public class SegmentReader extends Configured implements
           List<Writable> res = getSeqRecords(new Path(segment, CrawlDatum.PARSE_DIR_NAME), key);
           results.put("pa", res);
         } catch (Exception e) {
-          e.printStackTrace(LogUtil.getWarnStream(LOG));
+          LOG.error("Exception:", e);
         }
       }
     });
@@ -335,7 +334,7 @@ public class SegmentReader extends Configured implements
           List<Writable> res = getMapRecords(new Path(segment, ParseData.DIR_NAME), key);
           results.put("pd", res);
         } catch (Exception e) {
-          e.printStackTrace(LogUtil.getWarnStream(LOG));
+          LOG.error("Exception:", e);
         }
       }
     });
@@ -345,7 +344,7 @@ public class SegmentReader extends Configured implements
           List<Writable> res = getMapRecords(new Path(segment, ParseText.DIR_NAME), key);
           results.put("pt", res);
         } catch (Exception e) {
-          e.printStackTrace(LogUtil.getWarnStream(LOG));
+          LOG.error("Exception:", e);
         }
       }
     });

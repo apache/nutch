@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1138 remove LogUtil from trunk and nutch gora (lewismc)
+
 * NUTCH-1231 Upgrade to Tika 1.0 (markus)
 
 * NUTCH-1230 MimeType API deprecated and breaks with Tika 1.0 (markus)

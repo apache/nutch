@@ -23,7 +23,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map.Entry;
 
-// Commons Logging imports
+// Slf4j Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +38,6 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.scoring.ScoringFilter;
 import org.apache.nutch.scoring.ScoringFilterException;
-import org.apache.nutch.util.LogUtil;
 
 /**
  * This plugin implements a variant of an Online Page Importance Computation
@@ -116,7 +115,7 @@ public class OPICScoringFilter implements ScoringFilter {
       try {
         score = Float.parseFloat(scoreString);
       } catch (Exception e) {
-        e.printStackTrace(LogUtil.getWarnStream(LOG));
+        LOG.error("Error: ", e);
       }
     }
     int validCount = targets.size();
@@ -142,7 +141,7 @@ public class OPICScoringFilter implements ScoringFilter {
           target.getValue().setScore(externalScore);
         }
       } catch (MalformedURLException e) {
-        e.printStackTrace(LogUtil.getWarnStream(LOG));
+        LOG.error("Error: ", e);
         target.getValue().setScore(externalScore);
       }
     }

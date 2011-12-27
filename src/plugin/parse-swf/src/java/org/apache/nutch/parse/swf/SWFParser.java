@@ -28,7 +28,6 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.parse.*;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
 
 import org.apache.hadoop.conf.Configuration;
@@ -102,7 +101,7 @@ public class SWFParser implements Parser {
         outlinks.add(olinks[i]);
       }
     } catch (Exception e) { // run time exception
-      e.printStackTrace(LogUtil.getErrorStream(LOG));
+      LOG.error("Error, runtime exception: ", e);
       return new ParseStatus(ParseStatus.FAILED, "Can't be handled as SWF document. " + e).getEmptyParseResult(content.getUrl(), getConf());
     } 
     if (text == null) text = "";

@@ -117,7 +117,6 @@ public class ParseSegment extends Configured implements Tool,
         scfilters.passScoreAfterParsing(url, content, parse);
       } catch (ScoringFilterException e) {
         if (LOG.isWarnEnabled()) {
-          e.printStackTrace(LogUtil.getWarnStream(LOG));
           LOG.warn("Error passing score: "+ url +": "+e.getMessage());
         }
       }

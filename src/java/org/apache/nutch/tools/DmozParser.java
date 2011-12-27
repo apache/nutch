@@ -26,14 +26,13 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 import org.apache.xerces.util.XMLChar;
 
-// Commons Logging imports
+// Slf4j Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
 
 
@@ -239,7 +238,6 @@ public class DmozParser {
     public void error(SAXParseException spe) {
       if (LOG.isErrorEnabled()) {
         LOG.error("Error: " + spe.toString() + ": " + spe.getMessage());
-        spe.printStackTrace(LogUtil.getErrorStream(LOG));
       }
     }
 
@@ -251,7 +249,6 @@ public class DmozParser {
         LOG.error("Fatal err: " + spe.toString() + ": " + spe.getMessage());
         LOG.error("Last known line is " + location.getLineNumber() +
                   ", column " + location.getColumnNumber());
-        spe.printStackTrace(LogUtil.getErrorStream(LOG));
       }
     }
         
@@ -261,7 +258,6 @@ public class DmozParser {
     public void warning(SAXParseException spe) {
       if (LOG.isWarnEnabled()) {
         LOG.warn("Warning: " + spe.toString() + ": " + spe.getMessage());
-        spe.printStackTrace(LogUtil.getWarnStream(LOG));
       }
     }
   }
@@ -301,7 +297,6 @@ public class DmozParser {
     } catch (Exception e) {
       if (LOG.isErrorEnabled()) {
         LOG.error(e.toString());
-        e.printStackTrace(LogUtil.getErrorStream(LOG));
       }
       System.exit(0);
     } finally {
@@ -323,7 +318,6 @@ public class DmozParser {
     catch (Exception e) {
       if (LOG.isErrorEnabled()) {
         LOG.error(e.toString());
-        e.printStackTrace(LogUtil.getErrorStream(LOG));
       }
       System.exit(0);
     } finally {
