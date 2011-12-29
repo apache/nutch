@@ -1180,6 +1180,7 @@ public class Fetcher extends Configured implements Tool,
     if (LOG.isInfoEnabled()) { LOG.info("Fetcher: throughput threshold: " + throughputThresholdPages); }
     int throughputThresholdMaxRetries = getConf().getInt("fetcher.throughput.threshold.retries", 5);
     if (LOG.isInfoEnabled()) { LOG.info("Fetcher: throughput threshold retries: " + throughputThresholdMaxRetries); }
+    long throughputThresholdTimeLimit = getConf().getLong("fetcher.throughput.threshold.check.after", -1);
 
     do {                                          // wait for threads to exit
       pagesLastSec = pages.get();
@@ -1204,15 +1205,9 @@ public class Fetcher extends Configured implements Tool,
       }
 
       // if throughput threshold is enabled
-      if (!feeder.isAlive() && throughputThresholdPages != -1) {
-        // Have we reached the threshold of pages/second and threshold was not yet exceeded
-        if (pagesLastSec > throughputThresholdPages && !throughputThresholdExceeded) {
-          LOG.info("Exceding " + Integer.toString(throughputThresholdPages) + " pages/second");
-          throughputThresholdExceeded = true;
-        }
-
+      if (throughputThresholdTimeLimit < System.currentTimeMillis() && throughputThresholdPages != -1) {
         // Check if we're dropping below the threshold
-        if (throughputThresholdExceeded && pagesLastSec < throughputThresholdPages) {
+        if (pagesLastSec < throughputThresholdPages) {
           throughputThresholdNumRetries++;
           LOG.warn(Integer.toString(throughputThresholdNumRetries) + ": dropping below configured threshold of " + Integer.toString(throughputThresholdPages) + " pages per second");
 
@@ -1273,6 +1268,11 @@ public class Fetcher extends Configured implements Tool,
       LOG.info("Fetcher Timelimit set for : " + timelimit);
       getConf().setLong("fetcher.timelimit", timelimit);
     }
+
+    // Set the time limit after which the throughput threshold feature is enabled
+    timelimit = getConf().getLong("fetcher.throughput.threshold.check.after", 10);
+    timelimit = System.currentTimeMillis() + (timelimit * 60 * 1000);
+    getConf().setLong("fetcher.throughput.threshold.check.after", timelimit);
 
     int maxOutlinkDepth = getConf().getInt("fetcher.follow.outlinks.depth", -1);
     if (maxOutlinkDepth > 0) {

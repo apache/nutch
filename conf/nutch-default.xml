@@ -723,6 +723,12 @@
 </property>
 
 <property>
+  <name>fetcher.throughput.threshold.check.after</name>
+  <value>5</value>
+  <description>The number of minutes after which the throughput check is enabled.</description>
+</property>
+
+<property>
   <name>fetcher.threads.timeout.divisor</name>
   <value>2</value>
   <description>(EXPERT)The thread time-out divisor to use. By default threads have a time-out
