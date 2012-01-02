@@ -25,7 +25,8 @@ public class NutchWritable extends GenericWritableConfigurable {
   
   static {
     CLASSES = new Class[] {
-      org.apache.hadoop.io.NullWritable.class, 
+      org.apache.hadoop.io.NullWritable.class,
+      org.apache.hadoop.io.BooleanWritable.class,
       org.apache.hadoop.io.LongWritable.class,
       org.apache.hadoop.io.BytesWritable.class,
       org.apache.hadoop.io.FloatWritable.class,
@@ -45,6 +46,7 @@ public class NutchWritable extends GenericWritableConfigurable {
       org.apache.nutch.parse.ParseStatus.class,
       org.apache.nutch.protocol.Content.class,
       org.apache.nutch.protocol.ProtocolStatus.class,
+      org.apache.nutch.scoring.webgraph.LinkDatum.class,
     };
   }
 

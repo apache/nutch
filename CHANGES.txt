@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1239 Webgraph should remove deleted pages from segment input (markus)
+
 * NUTCH-1238 Fetcher throughput threshold must start before feeder finished (markus)
 
 * NUTCH-1138 remove LogUtil from trunk and nutch gora (lewismc)
