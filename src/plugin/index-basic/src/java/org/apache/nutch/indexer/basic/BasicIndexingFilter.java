@@ -67,7 +67,6 @@ public class BasicIndexingFilter implements IndexingFilter {
 
     if (host != null) {
       doc.add("host", host);
-      doc.add("site", host);
     }
 
     doc.add("url", reprUrlString == null ? urlString : reprUrlString);
