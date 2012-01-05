@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1146 Prevent generation of _SUCCESS files in output (jnioche)
+
 * NUTCH-1232 Remove site field from index-basic (markus)
 
 * NUTCH-1239 Webgraph should remove deleted pages from segment input (markus)

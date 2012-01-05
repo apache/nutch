@@ -1165,6 +1165,15 @@
   </description>
 </property>
 
+<property>
+  <name>mapreduce.fileoutputcommitter.marksuccessfuljobs</name>
+  <value>false</value>
+  <description>Hadoop >= 0.21 generates SUCCESS files in the output which can crash 
+  the readers. This should not be an issue once Nutch is ported to the new MapReduce API
+  but for now this parameter should prevent such cases.
+  </description>
+</property>
+
 <!-- solr index properties -->
 
 <property>
