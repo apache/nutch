@@ -95,6 +95,7 @@
   	target="${javac.version}"
     source="${javac.version}" 
   	deprecation="${javac.deprecation}">
+   <compilerarg value="-Xlint"/>
    <classpath refid="classpath" />
   </javac>
  </target>
@@ -318,6 +319,7 @@
   	target="${javac.version}"
     source="${javac.version}" 
   	deprecation="${javac.deprecation}">
+   <compilerarg value="-Xlint"/>
    <classpath refid="test.classpath" />
   </javac>
  </target>
