@@ -1,5 +1,9 @@
 Nutch Change Log
 
+* NUTCH-1237 Improve javac arguements for more verbose ouput (lewismc)
+
+* NUTCH-1236 Add link to site documentation to download older versions of Nutch (lewismc)
+
 * NUTCH-1146 Prevent generation of _SUCCESS files in output (jnioche)
 
 * NUTCH-1232 Remove site field from index-basic (markus)
