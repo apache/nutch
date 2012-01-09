@@ -24,6 +24,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.TreeMap;
 
 // Commons Logging imports
@@ -69,10 +71,7 @@ import org.apache.nutch.util.StringUtil;
 public class CrawlDbReader implements Closeable {
 
   public static final Logger LOG = LoggerFactory.getLogger(CrawlDbReader.class);
-  
-  public static final int STD_FORMAT = 0;
-  public static final int CSV_FORMAT = 1;
-    
+
   private MapFile.Reader[] readers = null;
   
   private void openReaders(String crawlDb, Configuration config) throws IOException {
@@ -394,14 +393,13 @@ public class CrawlDbReader implements Closeable {
       System.out.println("not found");
     }
   }
-  
-  public void processDumpJob(String crawlDb, String output, Configuration config, int format) throws IOException {
 
+  public void processDumpJob(String crawlDb, String output, Configuration config, String format, String regex, String status) throws IOException {
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb dump: starting");
       LOG.info("CrawlDb db: " + crawlDb);
     }
-    
+
     Path outFolder = new Path(output);
 
     JobConf job = new NutchJob(config);
@@ -409,15 +407,58 @@ public class CrawlDbReader implements Closeable {
 
     FileInputFormat.addInputPath(job, new Path(crawlDb, CrawlDb.CURRENT_NAME));
     job.setInputFormat(SequenceFileInputFormat.class);
-
     FileOutputFormat.setOutputPath(job, outFolder);
-    if(format == CSV_FORMAT) job.setOutputFormat(CrawlDatumCsvOutputFormat.class);
-    else job.setOutputFormat(TextOutputFormat.class);
+
+    if (format.equals("csv")) {
+      job.setOutputFormat(CrawlDatumCsvOutputFormat.class);
+    }
+    else if (format.equals("crawldb")) {
+      job.setOutputFormat(MapFileOutputFormat.class);
+    } else {
+      job.setOutputFormat(TextOutputFormat.class);
+    }
+
+    if (status != null) job.set("status", status);
+    if (regex != null) job.set("regex", regex);
+
+    job.setMapperClass(CrawlDbDumpMapper.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);
 
     JobClient.runJob(job);
     if (LOG.isInfoEnabled()) { LOG.info("CrawlDb dump: done"); }
+  }
+
+  public static class CrawlDbDumpMapper implements Mapper<Text, CrawlDatum, Text, CrawlDatum> {
+    Pattern pattern = null;
+    Matcher matcher = null;
+    String status = null;
+
+    public void configure(JobConf job) {
+      if (job.get("regex", null) != null) {
+        pattern = Pattern.compile(job.get("regex"));
+      }
+      status = job.get("status", null);
+    }
+
+    public void close() {}
+    public void map(Text key, CrawlDatum value, OutputCollector<Text, CrawlDatum> output, Reporter reporter)
+            throws IOException {
+
+      // check status
+      if (status != null
+        && !status.equalsIgnoreCase(CrawlDatum.getStatusName(value.getStatus()))) return;
+
+      // check regex
+      if (pattern != null) {
+        matcher = pattern.matcher(key.toString());
+        if (!matcher.matches()) {
+          return;
+        }
+      }
+
+      output.collect(key, value);
+    }
   }
 
   public void processTopNJob(String crawlDb, long topN, float min, String output, Configuration config) throws IOException {
@@ -483,9 +524,12 @@ public class CrawlDbReader implements Closeable {
       System.err.println("\t<crawldb>\tdirectory name where crawldb is located");
       System.err.println("\t-stats [-sort] \tprint overall statistics to System.out");
       System.err.println("\t\t[-sort]\tlist status sorted by host");
-      System.err.println("\t-dump <out_dir> [-format normal|csv ]\tdump the whole db to a text file in <out_dir>");
+      System.err.println("\t-dump <out_dir> [-format normal|csv|crawldb]\tdump the whole db to a text file in <out_dir>");
       System.err.println("\t\t[-format csv]\tdump in Csv format");
       System.err.println("\t\t[-format normal]\tdump in standard format (default option)");
+      System.err.println("\t\t[-format crawldb]\tdump as CrawlDB");
+      System.err.println("\t\t[-regex <expr>]\tfilter records with expression");
+      System.err.println("\t\t[-status <status>]\tfilter records by CrawlDatum status");
       System.err.println("\t-url <url>\tprint information on <url> to System.out");
       System.err.println("\t-topN <nnnn> <out_dir> [<min>]\tdump top <nnnn> urls sorted by score to <out_dir>");
       System.err.println("\t\t[<min>]\tskip records with scores below this value.");
@@ -506,9 +550,23 @@ public class CrawlDbReader implements Closeable {
       } else if (args[i].equals("-dump")) {
         param = args[++i];
         String format = "normal";
-        if(i < args.length - 1 &&  "-format".equals(args[i+1]))
-          format = args[i=i+2];
-        dbr.processDumpJob(crawlDb, param, conf, "csv".equals(format)? CSV_FORMAT : STD_FORMAT );
+        String regex = null;
+        String status = null;
+        for (int j = i + 1; j < args.length; j++) {
+          if (args[j].equals("-format")) {
+            format = args[++j];
+            i=i+2;
+          }
+          if (args[j].equals("-regex")) {
+            regex = args[++j];
+            i=i+2;
+          }
+          if (args[j].equals("-status")) {
+            status = args[++j];
+            i=i+2;
+          }
+        }
+        dbr.processDumpJob(crawlDb, param, conf, format, regex, status);
       } else if (args[i].equals("-url")) {
         param = args[++i];
         dbr.readUrl(crawlDb, param, conf);
