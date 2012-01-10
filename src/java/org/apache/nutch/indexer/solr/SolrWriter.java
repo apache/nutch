@@ -28,6 +28,7 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.indexer.NutchField;
 import org.apache.nutch.indexer.NutchIndexWriter;
+import org.apache.nutch.indexer.IndexerMapReduce;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.request.UpdateRequest;
@@ -47,6 +48,8 @@ public class SolrWriter implements NutchIndexWriter {
     new ArrayList<SolrInputDocument>();
 
   private int commitSize;
+  private int numDeletes = 0;
+  private boolean delete = false;
 
   public void open(JobConf job, String name) throws IOException {
     SolrServer server = SolrUtils.getCommonsHttpSolrServer(job);
@@ -58,6 +61,7 @@ public class SolrWriter implements NutchIndexWriter {
     solr = server;
     commitSize = job.getInt(SolrConstants.COMMIT_SIZE, 1000);
     solrMapping = SolrMappingReader.getInstance(job);
+    delete = job.getBoolean(IndexerMapReduce.INDEXER_DELETE, false);
     // parse optional params
     params = new ModifiableSolrParams();
     String paramString = job.get(SolrConstants.PARAMS);
@@ -69,6 +73,17 @@ public class SolrWriter implements NutchIndexWriter {
           continue;
         }
         params.add(kv[0], kv[1]);
+      }
+    }
+  }
+
+  public void delete(String key) throws IOException {
+    if (delete) {
+      try {
+        solr.deleteById(key);
+        numDeletes++;
+      } catch (final SolrServerException e) {
+        throw makeIOException(e);
       }
     }
   }
@@ -95,11 +110,14 @@ public class SolrWriter implements NutchIndexWriter {
         }
       }
     }
+
     inputDoc.setDocumentBoost(doc.getWeight());
     inputDocs.add(inputDoc);
-    if (inputDocs.size() >= commitSize) {
+    if (inputDocs.size() + numDeletes >= commitSize) {
       try {
-        LOG.info("Adding " + Integer.toString(inputDocs.size()) + " documents");
+        LOG.info("Indexing " + Integer.toString(inputDocs.size()) + " documents");
+        LOG.info("Deleting " + Integer.toString(numDeletes) + " documents");
+        numDeletes = 0;
         UpdateRequest req = new UpdateRequest();
         req.add(inputDocs);
         req.setParams(params);
@@ -114,7 +132,10 @@ public class SolrWriter implements NutchIndexWriter {
   public void close() throws IOException {
     try {
       if (!inputDocs.isEmpty()) {
-        LOG.info("Adding " + Integer.toString(inputDocs.size()) + " documents");
+        LOG.info("Indexing " + Integer.toString(inputDocs.size()) + " documents");
+        if (numDeletes > 0) {
+          LOG.info("Deleting " + Integer.toString(numDeletes) + " documents");
+        }
         UpdateRequest req = new UpdateRequest();
         req.add(inputDocs);
         req.setParams(params);

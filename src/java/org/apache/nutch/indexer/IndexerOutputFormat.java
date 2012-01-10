@@ -26,10 +26,10 @@ import org.apache.hadoop.mapred.RecordWriter;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.util.Progressable;
 
-public class IndexerOutputFormat extends FileOutputFormat<Text, NutchDocument> {
+public class IndexerOutputFormat extends FileOutputFormat<Text, NutchIndexAction> {
 
   @Override
-  public RecordWriter<Text, NutchDocument> getRecordWriter(FileSystem ignored,
+  public RecordWriter<Text, NutchIndexAction> getRecordWriter(FileSystem ignored,
       JobConf job, String name, Progressable progress) throws IOException {
     
     // populate JobConf with field indexing options
@@ -41,7 +41,7 @@ public class IndexerOutputFormat extends FileOutputFormat<Text, NutchDocument> {
     for (final NutchIndexWriter writer : writers) {
       writer.open(job, name);
     }
-    return new RecordWriter<Text, NutchDocument>() {
+    return new RecordWriter<Text, NutchIndexAction>() {
 
       public void close(Reporter reporter) throws IOException {
         for (final NutchIndexWriter writer : writers) {
@@ -49,9 +49,14 @@ public class IndexerOutputFormat extends FileOutputFormat<Text, NutchDocument> {
         }
       }
 
-      public void write(Text key, NutchDocument doc) throws IOException {
+      public void write(Text key, NutchIndexAction indexAction) throws IOException {
         for (final NutchIndexWriter writer : writers) {
-          writer.write(doc);
+          if (indexAction.action == NutchIndexAction.ADD) {
+            writer.write(indexAction.doc);
+          }
+          if (indexAction.action == NutchIndexAction.DELETE) {
+            writer.delete(key.toString());
+          }
         }
       }
     };

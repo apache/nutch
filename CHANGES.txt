@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1139 Indexer to delete gone documents (markus)
+
 * NUTCH-1244 CrawlDBDumper to filter by regex (markus)
 
 * NUTCH-1237 Improve javac arguements for more verbose ouput (lewismc)

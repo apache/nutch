@@ -50,10 +50,13 @@ import org.apache.nutch.scoring.ScoringFilters;
 
 public class IndexerMapReduce extends Configured
 implements Mapper<Text, Writable, Text, NutchWritable>,
-          Reducer<Text, NutchWritable, Text, NutchDocument> {
+          Reducer<Text, NutchWritable, Text, NutchIndexAction> {
 
   public static final Logger LOG = LoggerFactory.getLogger(IndexerMapReduce.class);
 
+  public static final String INDEXER_DELETE = "indexer.delete";
+
+  private boolean delete = false;
   private IndexingFilters filters;
   private ScoringFilters scfilters;
 
@@ -61,6 +64,7 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
     setConf(job);
     this.filters = new IndexingFilters(getConf());
     this.scfilters = new ScoringFilters(getConf());
+    this.delete = job.getBoolean(INDEXER_DELETE, false);
   }
 
   public void map(Text key, Writable value,
@@ -69,13 +73,14 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
   }
 
   public void reduce(Text key, Iterator<NutchWritable> values,
-                     OutputCollector<Text, NutchDocument> output, Reporter reporter)
+                     OutputCollector<Text, NutchIndexAction> output, Reporter reporter)
     throws IOException {
     Inlinks inlinks = null;
     CrawlDatum dbDatum = null;
     CrawlDatum fetchDatum = null;
     ParseData parseData = null;
     ParseText parseText = null;
+
     while (values.hasNext()) {
       final Writable value = values.next().get(); // unwrap
       if (value instanceof Inlinks) {
@@ -85,9 +90,32 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
         if (CrawlDatum.hasDbStatus(datum))
           dbDatum = datum;
         else if (CrawlDatum.hasFetchStatus(datum)) {
+
           // don't index unmodified (empty) pages
-          if (datum.getStatus() != CrawlDatum.STATUS_FETCH_NOTMODIFIED)
+          if (datum.getStatus() != CrawlDatum.STATUS_FETCH_NOTMODIFIED) {
             fetchDatum = datum;
+
+            /**
+             * Check if we need to delete 404 NOT FOUND and 301 PERMANENT REDIRECT.
+             */
+            if (delete) {
+              if (fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_GONE) {
+                reporter.incrCounter("IndexerStatus", "Documents deleted", 1);
+
+                NutchIndexAction action = new NutchIndexAction(null, NutchIndexAction.DELETE);
+                output.collect(key, action);
+                continue;
+              }
+              if (fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_REDIR_PERM) {
+                reporter.incrCounter("IndexerStatus", "Perm redirects deleted", 1);
+
+                NutchIndexAction action = new NutchIndexAction(null, NutchIndexAction.DELETE);
+                output.collect(key, action);
+                continue;
+              }
+            }
+          }
+
         } else if (CrawlDatum.STATUS_LINKED == datum.getStatus() ||
                    CrawlDatum.STATUS_SIGNATURE == datum.getStatus() ||
                    CrawlDatum.STATUS_PARSE_META == datum.getStatus()) {
@@ -163,7 +191,8 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
 
     reporter.incrCounter("IndexerStatus", "Documents added", 1);
 
-    output.collect(key, doc);
+    NutchIndexAction action = new NutchIndexAction(doc, NutchIndexAction.ADD);
+    output.collect(key, action);
   }
 
   public void close() throws IOException { }

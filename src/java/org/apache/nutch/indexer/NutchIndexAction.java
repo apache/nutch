@@ -16,17 +16,39 @@
  */
 package org.apache.nutch.indexer;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.IOException;
 
-import org.apache.hadoop.mapred.JobConf;
+import org.apache.hadoop.io.Writable;
 
-public interface NutchIndexWriter {
-  public void open(JobConf job, String name) throws IOException;
+import org.apache.nutch.indexer.NutchDocument;
 
-  public void write(NutchDocument doc) throws IOException;
+/**
+ * A {@link NutchIndexAction} is the new unit of indexing holding the
+ * document and action information.
+ */
+class NutchIndexAction implements Writable {
 
-  public void delete(String key) throws IOException;
+  public static final byte ADD = 0;
+  public static final byte DELETE = 1;
 
-  public void close() throws IOException;
+  public NutchDocument doc = null;
+  public byte action = ADD;
 
+  public NutchIndexAction(NutchDocument doc, byte action) {
+    this.doc = doc;
+    this.action = action;
+  }
+
+  public void readFields(DataInput in) throws IOException {
+    action = in.readByte();
+    NutchDocument doc = new NutchDocument();
+    doc.readFields(in);
+  }
+
+  public void write(DataOutput out) throws IOException {
+    out.write(action);
+    doc.write(out);
+  }
 }
