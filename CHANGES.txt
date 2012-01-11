@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
+* NUTCH-1189 add commented out default settings to gora.properties file (lewismc, Ferdy)
+
 * NUTCH-1138 remove LogUtil from trunk and nutchgora (lewismc)
 
 * NUTCH-1237 Improve javac arguements for more verbose output (lewismc)
