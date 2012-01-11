@@ -26,14 +26,12 @@ import org.xml.sax.*;
 import org.xml.sax.helpers.*;
 import org.apache.xerces.util.XMLChar;
 
-// Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
 
 
@@ -239,7 +237,6 @@ public class DmozParser {
     public void error(SAXParseException spe) {
       if (LOG.isErrorEnabled()) {
         LOG.error("Error: " + spe.toString() + ": " + spe.getMessage());
-        spe.printStackTrace(LogUtil.getFatalStream(LOG));
       }
     }
 
@@ -251,7 +248,6 @@ public class DmozParser {
         LOG.error("Fatal err: " + spe.toString() + ": " + spe.getMessage());
         LOG.error("Last known line is " + location.getLineNumber() +
                   ", column " + location.getColumnNumber());
-        spe.printStackTrace(LogUtil.getFatalStream(LOG));
       }
     }
         
@@ -261,7 +257,6 @@ public class DmozParser {
     public void warning(SAXParseException spe) {
       if (LOG.isWarnEnabled()) {
         LOG.warn("Warning: " + spe.toString() + ": " + spe.getMessage());
-        spe.printStackTrace(LogUtil.getWarnStream(LOG));
       }
     }
   }
@@ -300,8 +295,7 @@ public class DmozParser {
       reader.parse(is);
     } catch (Exception e) {
       if (LOG.isErrorEnabled()) {
-        LOG.error(e.toString());
-        e.printStackTrace(LogUtil.getFatalStream(LOG));
+        LOG.error("Failed to retieve the InputSource: ", e.toString());
       }
       System.exit(0);
     } finally {
@@ -322,8 +316,7 @@ public class DmozParser {
     } 
     catch (Exception e) {
       if (LOG.isErrorEnabled()) {
-        LOG.error(e.toString());
-        e.printStackTrace(LogUtil.getFatalStream(LOG));
+        LOG.error("Failed with the following exception: ", e.toString());
       }
       System.exit(0);
     } finally {

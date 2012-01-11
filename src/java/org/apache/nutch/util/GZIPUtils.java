@@ -130,19 +130,19 @@ public class GZIPUtils {
       try {
         outStream.write(in);
       } catch (Exception e) {
-        e.printStackTrace(LogUtil.getWarnStream(LOG));
+        LOG.error("Failed to get outStream.write input", e);
       }
 
       try {
         outStream.close();
       } catch (IOException e) {
-        e.printStackTrace(LogUtil.getWarnStream(LOG));
+        LOG.error("Failed to implement outStream.close", e);
       }
 
       return byteOut.toByteArray();
 
     } catch (IOException e) {
-      e.printStackTrace(LogUtil.getWarnStream(LOG));
+        LOG.error("Failed with IOException", e);
       return null;
     }
   }

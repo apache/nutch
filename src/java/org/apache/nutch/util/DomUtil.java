@@ -66,11 +66,11 @@ public class DomUtil {
       } 
       element = (Element)parser.getDocument().getChildNodes().item(i);
     } catch (FileNotFoundException e) {
-      e.printStackTrace(LogUtil.getWarnStream(LOG));
+        LOG.error("Failed to find file: ", e);
     } catch (SAXException e) {
-      e.printStackTrace(LogUtil.getWarnStream(LOG));
+        LOG.error("Failed with the following SAX exception: ", e);
     } catch (IOException e) {
-      e.printStackTrace(LogUtil.getWarnStream(LOG));
+        LOG.error("Failed with the following IOException", e);
     }
     return element;
   }
@@ -93,13 +93,13 @@ public class DomUtil {
       transformer.transform(source, result);
       os.flush();
     } catch (UnsupportedEncodingException e1) {
-      e1.printStackTrace(LogUtil.getWarnStream(LOG));
+        LOG.error("Failed with the following UnsupportedEncodingException: ", e1);
     } catch (IOException e1) {
-      e1.printStackTrace(LogUtil.getWarnStream(LOG));
+        LOG.error("Failed to with the following IOException: ", e1);
     } catch (TransformerConfigurationException e2) {
-      e2.printStackTrace(LogUtil.getWarnStream(LOG));
+        LOG.error("Failed with the following TransformerConfigurationException: ", e2);
     } catch (TransformerException ex) {
-      ex.printStackTrace(LogUtil.getWarnStream(LOG));
+       LOG.error("Failed with the following TransformerException: ", ex);
     }
   }
 }

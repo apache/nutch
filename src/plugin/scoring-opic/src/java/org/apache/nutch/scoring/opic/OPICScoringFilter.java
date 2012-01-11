@@ -35,7 +35,6 @@ import org.apache.nutch.scoring.ScoringFilter;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.Bytes;
-import org.apache.nutch.util.LogUtil;
 
 /**
  * This plugin implements a variant of an Online Page Importance Computation
@@ -145,7 +144,7 @@ public class OPICScoringFilter implements ScoringFilter {
           scoreDatum.setScore(externalScore);
         }
       } catch (MalformedURLException e) {
-        e.printStackTrace(LogUtil.getWarnStream(LOG));
+        LOG.error("Failed with the following MalformedURLException: ", e);
         scoreDatum.setScore(externalScore);
       }
     }

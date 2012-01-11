@@ -36,7 +36,6 @@ import org.apache.nutch.protocol.RobotRules;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.GZIPUtils;
 import org.apache.nutch.util.DeflateUtils;
-import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.MimeUtil;
 
 /**
@@ -194,7 +193,7 @@ public abstract class HttpBase implements Protocol {
                 + u));
       }
     } catch (Throwable e) {
-      e.printStackTrace(LogUtil.getErrorStream(logger));
+      logger.error("Failed with the following error: ", e);
       return new ProtocolOutput(null,
           ProtocolStatusUtils.makeStatus(ProtocolStatusCodes.EXCEPTION, e.toString()));
     }

@@ -53,7 +53,6 @@ import org.apache.nutch.protocol.RobotRules;
 import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.ProtocolStatus;
 import org.apache.nutch.storage.WebPage;
-import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.TableUtil;
 import org.apache.nutch.util.URLUtil;
 import org.apache.gora.mapreduce.GoraReducer;
@@ -542,8 +541,7 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
           } catch (final Throwable t) {                 // unexpected exception
             // unblock
             fetchQueues.finishFetchItem(fit);
-            logError(fit.url, t.toString());
-            t.printStackTrace(LogUtil.getDebugStream(LOG));
+            LOG.error(fit.url, t.toString());
             output(fit, null, ProtocolStatusUtils.STATUS_FAILED,
                 CrawlStatus.STATUS_RETRY);
           }
@@ -551,7 +549,6 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
 
       } catch (final Throwable e) {
         LOG.error("fetcher caught:"+e.toString());
-        e.printStackTrace(LogUtil.getFatalStream(LOG));
       } finally {
         if (fit != null) fetchQueues.finishFetchItem(fit);
         activeThreads.decrementAndGet(); // count threads

@@ -52,7 +52,6 @@ import org.apache.nutch.storage.ParseStatus;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.Bytes;
 import org.apache.nutch.util.EncodingDetector;
-import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.TableUtil;
 import org.cyberneko.html.parsers.DOMFragmentParser;
@@ -173,13 +172,16 @@ public class HtmlParser implements Parser {
       if (LOG.isTraceEnabled()) { LOG.trace("Parsing..."); }
       root = parse(input);
     } catch (IOException e) {
+      LOG.error("Failed with the following IOException: ", e);
       return ParseStatusUtils.getEmptyParse(e, getConf());
     } catch (DOMException e) {
+      LOG.error("Failed with the following DOMException: ", e);
       return ParseStatusUtils.getEmptyParse(e, getConf());
     } catch (SAXException e) {
+      LOG.error("Failed with the following SAXException: ", e);
       return ParseStatusUtils.getEmptyParse(e, getConf());
     } catch (Exception e) {
-      e.printStackTrace(LogUtil.getWarnStream(LOG));
+      LOG.error("Failed with the following Exception: ", e);
       return ParseStatusUtils.getEmptyParse(e, getConf());
     }
 
@@ -283,7 +285,9 @@ public class HtmlParser implements Parser {
         }
         res.appendChild(frag);
       }
-    } catch (Exception x) { x.printStackTrace(LogUtil.getWarnStream(LOG));};
+    } catch (Exception x) { 
+      LOG.error("Failed with the following Exception: ", x);
+      };
     return res;
   }
 

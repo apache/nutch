@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
+* NUTCH-1138 remove LogUtil from trunk and nutchgora (lewismc)
+
 * NUTCH-1237 Improve javac arguements for more verbose output (lewismc)
 
 * NUTCH-1217 Update NOTICE.txt to drop some copyrights (lewismc)

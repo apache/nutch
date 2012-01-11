@@ -37,7 +37,6 @@ import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.http.api.HttpBase;
 import org.apache.nutch.protocol.http.api.HttpException;
 import org.apache.nutch.storage.WebPage;
-import org.apache.nutch.util.LogUtil;
 
 /** An HTTP response. */
 public class HttpResponse implements Response {
@@ -307,7 +306,7 @@ public class HttpResponse implements Response {
           processHeaderLine(line);
         } catch (Exception e) {
           // fixme:
-          e.printStackTrace(LogUtil.getErrorStream(Http.LOG));
+          Http.LOG.error("Failed with the following exception: ", e);
         }
         return;
       }

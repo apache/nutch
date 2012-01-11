@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.nutch.util.DomUtil;
-import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.ObjectCache;
 import org.apache.xerces.dom.DocumentImpl;
@@ -80,8 +79,7 @@ public class CollectionManager extends Configured {
 			parse(input);
 		} catch (Exception e) {
 			if (LOG.isWarnEnabled()) {
-				LOG.warn("Error occured:" + e);
-				e.printStackTrace(LogUtil.getWarnStream(LOG));
+				LOG.warn("Error occured: " + e);
 			}
 		}
 	}

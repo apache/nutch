@@ -185,8 +185,7 @@ public class EncodingDetector {
           matches = detector.detectAll();
         }
       } catch (Exception e) {
-        LOG.debug("Exception from ICU4J (ignoring): ");
-        e.printStackTrace(LogUtil.getDebugStream(LOG));
+        LOG.debug("Exception from ICU4J (ignoring): ", e);
       }
 
       if (matches != null) {

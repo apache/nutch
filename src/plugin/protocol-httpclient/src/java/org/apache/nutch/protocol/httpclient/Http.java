@@ -49,7 +49,6 @@ import org.apache.commons.httpclient.protocol.Protocol;
 // Nutch imports
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.storage.WebPage.Field;
-import org.apache.nutch.util.LogUtil;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.http.api.HttpBase;
@@ -139,7 +138,6 @@ public class Http extends HttpBase {
 			if (LOG.isErrorEnabled()) {
 				LOG.error("Could not read " + authFile + " : "
 						+ ex.getMessage());
-				ex.printStackTrace(LogUtil.getErrorStream(LOG));
 			}
 		}
 	}

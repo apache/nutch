@@ -33,7 +33,6 @@ import org.apache.hadoop.conf.Configurable;
 
 // Nutch imports
 import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.util.LogUtil;
 
 
 /**
@@ -135,7 +134,7 @@ public class HttpAuthenticationFactory implements Configurable {
 				//TODO Add additional Authentication lookups here
 			}
 		} catch (Exception e) {
-			e.printStackTrace(LogUtil.getErrorStream(LOG));
+			LOG.error("Failed with following exception: ", e);
 		}
         return null;
     }

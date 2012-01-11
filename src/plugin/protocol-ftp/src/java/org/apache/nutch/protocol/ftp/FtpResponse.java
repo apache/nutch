@@ -36,7 +36,6 @@ import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.storage.WebPage;
-import org.apache.nutch.util.LogUtil;
 
 
 /************************************
@@ -282,7 +281,6 @@ public class FtpResponse {
     } catch (Exception e) {
       if (ftp.LOG.isWarnEnabled()) {
         ftp.LOG.warn(""+e);
-        e.printStackTrace(LogUtil.getWarnStream(ftp.LOG));
       }
       // for any un-foreseen exception (run time exception or not),
       // do ultimate clean and leave ftp.client for garbage collection

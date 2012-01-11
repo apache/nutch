@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 
 // Nutch imports
 import org.apache.nutch.net.URLNormalizer;
-import org.apache.nutch.util.LogUtil;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.oro.text.regex.*;
@@ -81,8 +80,7 @@ public class BasicURLNormalizer implements URLNormalizer {
         adjacentSlashRule.substitution = new Perl5Substitution("/");
         
       } catch (MalformedPatternException e) {
-        e.printStackTrace(LogUtil.getWarnStream(LOG));
-        throw new RuntimeException(e);
+        LOG.error("Failed with the following MalformedPatterException: " + e);
       }
     }
 
