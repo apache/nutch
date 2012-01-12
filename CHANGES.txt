@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1246 Upgrade to Hadoop 1.0.0 (jnioche)
+
 * NUTCH-1139 Indexer to delete gone documents (markus)
 
 * NUTCH-1244 CrawlDBDumper to filter by regex (markus)

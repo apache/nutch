@@ -46,7 +46,7 @@
 		<dependency org="org.codehaus.jackson" name="jackson-mapper-asl" rev="1.9.3"
 			conf="*->default" />
 
-		<dependency org="org.apache.hadoop" name="hadoop-core" rev="0.20.205.0"
+		<dependency org="org.apache.hadoop" name="hadoop-core" rev="1.0.0"
 			conf="*->default">
 			<exclude org="hsqldb" name="hsqldb" />
 			<exclude org="net.sf.kosmosfs" name="kfs" />
