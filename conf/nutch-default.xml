@@ -587,7 +587,22 @@
   fetchlist.  -1 if unlimited.</description>
 </property>
 
+<property>
+  <name>generate.min.score</name>
+  <value>0</value>
+  <description>Select only entries with a score larger than
+  generate.min.score.</description>
+</property>
+
+<property>
+  <name>generate.min.interval</name>
+  <value>-1</value>
+  <description>Select only entries with a retry interval lower than
+  generate.min.interval. A value of -1 disables this check.</description>
+</property>
+
 <!-- urlpartitioner properties -->
+
 <property>
   <name>partition.url.mode</name>
   <value>byHost</value>

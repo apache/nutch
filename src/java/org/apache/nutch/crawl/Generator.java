@@ -61,6 +61,7 @@ public class Generator extends Configured implements Tool {
 
   public static final String GENERATE_UPDATE_CRAWLDB = "generate.update.crawldb";
   public static final String GENERATOR_MIN_SCORE = "generate.min.score";
+  public static final String GENERATOR_MIN_INTERVAL = "generate.min.interval";
   public static final String GENERATOR_FILTER = "generate.filter";
   public static final String GENERATOR_NORMALISE = "generate.normalise";
   public static final String GENERATOR_MAX_COUNT = "generate.max.count";
@@ -129,6 +130,7 @@ public class Generator extends Configured implements Tool {
     private long genDelay;
     private FetchSchedule schedule;
     private float scoreThreshold = 0f;
+    private int intervalThreshold = -1;
     private int maxNumSegments = 1;
     int currentsegmentnum = 1;
 
@@ -155,6 +157,7 @@ public class Generator extends Configured implements Tool {
       if (time > 0) genTime.set(time);
       schedule = FetchScheduleFactory.getFetchSchedule(job);
       scoreThreshold = job.getFloat(GENERATOR_MIN_SCORE, Float.NaN);
+      intervalThreshold = job.getInt(GENERATOR_MIN_INTERVAL, -1);
       maxNumSegments = job.getInt(GENERATOR_MAX_NUM_SEGMENTS, 1);
       segCounts = new int[maxNumSegments];
     }
@@ -204,6 +207,9 @@ public class Generator extends Configured implements Tool {
 
       // consider only entries with a score superior to the threshold
       if (scoreThreshold != Float.NaN && sort < scoreThreshold) return;
+
+      // consider only entries with a retry (or fetch) interval lower than threshold
+      if (intervalThreshold != -1 && crawlDatum.getFetchInterval() > intervalThreshold) return;
 
       // sort by decreasing score, using DecreasingFloatComparator
       sortValue.set(sort);

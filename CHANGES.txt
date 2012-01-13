@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1177 Generator to select on retry interval (markus)
+
 * NUTCH-1246 Upgrade to Hadoop 1.0.0 (jnioche)
 
 * NUTCH-1139 Indexer to delete gone documents (markus)
