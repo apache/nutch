@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // imported for Javadoc
-import org.apache.nutch.protocol.ProtocolOutput
+import org.apache.nutch.protocol.ProtocolOutput;
 
 /**
  * @author mattmann
