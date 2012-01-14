@@ -26,7 +26,7 @@ import org.apache.nutch.crawl.CrawlDatum;
 
 /**
  * This class provides common methods for implementations of
- * {@link FetchSchedule}.
+ * <code>FetchSchedule</code>.
  * 
  * @author Andrzej Bialecki
  */
@@ -98,9 +98,9 @@ public abstract class AbstractFetchSchedule extends Configured implements FetchS
    * @param datum datum instance to be adjusted.
    *
    * @return adjusted page information, including all original information.
-   * NOTE: this may be a different instance than {@see datum}, but
+   * NOTE: this may be a different instance than @see CrawlDatum, but
    * implementations should make sure that it contains at least all
-   * information from {@see datum}.
+   * information from @see CrawlDatum.
    */
   public CrawlDatum setPageGoneSchedule(Text url, CrawlDatum datum,
           long prevFetchTime, long prevModifiedTime, long fetchTime) {
@@ -129,9 +129,9 @@ public abstract class AbstractFetchSchedule extends Configured implements FetchS
    * @param fetchTime current fetch time.
    *
    * @return adjusted page information, including all original information.
-   * NOTE: this may be a different instance than {@see datum}, but
+   * NOTE: this may be a different instance than @see CrawlDatum, but
    * implementations should make sure that it contains at least all
-   * information from {@see datum}.
+   * information from @see CrawlDatum.
    */
   public CrawlDatum setPageRetrySchedule(Text url, CrawlDatum datum,
           long prevFetchTime, long prevModifiedTime, long fetchTime) {
@@ -154,7 +154,7 @@ public abstract class AbstractFetchSchedule extends Configured implements FetchS
    * guarantee that the page will be fetched, it just allows it to be
    * included in the further selection process based on scores. The default
    * implementation checks <code>fetchTime</code>, if it is higher than the
-   * {@param curTime} it returns false, and true otherwise. It will also
+   * <code>curTime</code> it returns false, and true otherwise. It will also
    * check that fetchTime is not too remote (more than <code>maxInterval</code>,
    * in which case it lowers the interval and returns true.
    *

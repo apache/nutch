@@ -47,9 +47,9 @@ public interface FetchSchedule extends Configurable {
    * @param datum datum instance to be initialized.
    *
    * @return adjusted page information, including all original information.
-   * NOTE: this may be a different instance than {@see datum}, but
+   * NOTE: this may be a different instance than @see CrawlDatum, but
    * implementations should make sure that it contains at least all
-   * information from {@see datum}.
+   * information from @see CrawlDatum.
    */
   public CrawlDatum initializeSchedule(Text url, CrawlDatum datum);
   
@@ -69,11 +69,11 @@ public interface FetchSchedule extends Configurable {
    * @param prevModifiedTime previous value of modifiedTime, or 0 if not available.
    *
    * @param fetchTime the latest time, when the page was recently re-fetched. Most FetchSchedule
-   * implementations should update the value in {@see datum} to something greater than this value.
+   * implementations should update the value in @see CrawlDatum to something greater than this value.
    *
    * @param modifiedTime last time the content was modified. This information comes from
    * the protocol implementations, or is set to < 0 if not available. Most FetchSchedule
-   * implementations should update the value in {@see datum} to this value.
+   * implementations should update the value in @see CrawlDatum to this value.
    *
    * @param state if {@link #STATUS_MODIFIED}, then the content is considered to be "changed" before the
    * <code>fetchTime</code>, if {@link #STATUS_NOTMODIFIED} then the content is known to be unchanged.
@@ -82,8 +82,8 @@ public interface FetchSchedule extends Configurable {
    * are free to follow a sensible default behavior.
    *
    * @return adjusted page information, including all original information. NOTE: this may
-   * be a different instance than {@see datum}, but implementations should make sure that
-   * it contains at least all information from {@see datum}.
+   * be a different instance than @see CrawlDatum, but implementations should make sure that
+   * it contains at least all information from @see CrawlDatum}.
    */
   public CrawlDatum setFetchSchedule(Text url, CrawlDatum datum,
           long prevFetchTime, long prevModifiedTime,
@@ -100,9 +100,9 @@ public interface FetchSchedule extends Configurable {
    * @param datum datum instance to be adjusted.
    *
    * @return adjusted page information, including all original information.
-   * NOTE: this may be a different instance than {@see datum}, but
+   * NOTE: this may be a different instance than @see CrawlDatum, but
    * implementations should make sure that it contains at least all
-   * information from {@see datum}.
+   * information from @see CrawlDatum.
    */
   public CrawlDatum setPageGoneSchedule(Text url, CrawlDatum datum,
           long prevFetchTime, long prevModifiedTime, long fetchTime);
@@ -124,9 +124,9 @@ public interface FetchSchedule extends Configurable {
    * @param fetchTime current fetch time.
    *
    * @return adjusted page information, including all original information.
-   * NOTE: this may be a different instance than {@see datum}, but
+   * NOTE: this may be a different instance than @see CrawlDatum, but
    * implementations should make sure that it contains at least all
-   * information from {@see datum}.
+   * information from @see CrawlDatum.
    */
   public CrawlDatum setPageRetrySchedule(Text url, CrawlDatum datum,
           long prevFetchTime, long prevModifiedTime, long fetchTime);
@@ -143,7 +143,7 @@ public interface FetchSchedule extends Configurable {
    * guarantee that the page will be fetched, it just allows it to be
    * included in the further selection process based on scores. The default
    * implementation checks <code>fetchTime</code>, if it is higher than the
-   * {@see curTime} it returns false, and true otherwise. It will also
+   * curTime it returns false, and true otherwise. It will also
    * check that fetchTime is not too remote (more than <code>maxInterval</code),
    * in which case it lowers the interval and returns true.
    *
@@ -172,9 +172,9 @@ public interface FetchSchedule extends Configurable {
    * time is set.
    *
    * @return adjusted page information, including all original information.
-   * NOTE: this may be a different instance than {@see datum}, but
+   * NOTE: this may be a different instance than @see CrawlDatum, but
    * implementations should make sure that it contains at least all
-   * information from {@see datum}.
+   * information from @see CrawlDatum.
    */
   public CrawlDatum forceRefetch(Text url, CrawlDatum datum, boolean asap);
 }
