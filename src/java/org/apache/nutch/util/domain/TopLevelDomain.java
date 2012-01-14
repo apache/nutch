@@ -22,9 +22,12 @@ package org.apache.nutch.util.domain;
  * Internet domain name; that is, the letters which follow the final 
  * dot of any domain name. For example, in the domain name 
  * <code>www.website.com</code>, the top-level domain is <code>com</code>.
+ *
  * @author Enis Soztutar &lt;enis.soz.nutch@gmail.com&gt;
- * @see http://www.iana.org/
- * @see http://en.wikipedia.org/wiki/Top-level_domain
+ * 
+ * @see <a href="http://www.iana.org/"> iana.org</a>
+ * 
+ * @see <a href="http://en.wikipedia.org/wiki/Top-level_domain"> Top-level_domain</a>
  */
 public class TopLevelDomain extends DomainSuffix {
 

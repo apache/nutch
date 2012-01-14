@@ -77,7 +77,7 @@ import org.apache.solr.common.SolrDocumentList;
  * </li>
  * </ul>
  * 
- * Note that unlike {@link DeleteDuplicates} we assume that two documents in
+ * Note that unlike {@link DeleteDuplicate}s we assume that two documents in
  * a solr index will never have the same URL. So this class only deals with
  * documents with <b>different</b> URLs but the same digest. 
  */

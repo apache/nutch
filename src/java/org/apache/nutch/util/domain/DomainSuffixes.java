@@ -50,7 +50,7 @@ public class DomainSuffixes {
   
   /**
    * Singleton instance, lazy instantination
-   * @return
+   * @return returns the domain suffix instance 
    */
   public static DomainSuffixes getInstance() {
     if(instance == null) {

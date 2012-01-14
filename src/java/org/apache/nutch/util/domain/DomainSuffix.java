@@ -32,7 +32,7 @@ package org.apache.nutch.util.domain;
  * 
  * @author Enis Soztutar &lt;enis.soz.nutch@gmail.com&gt;
  * @see TopLevelDomain
- * @see domain-suffixes.xml
+ * for info please see conf/domain-suffixes.xml
  */
 public class DomainSuffix {
 

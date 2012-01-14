@@ -43,8 +43,8 @@ import org.apache.nutch.net.*;
  * regular expressions.
  *
  * <p>The regular expressions rules are expressed in a file. The file of rules
- * is provided by each implementation using the
- * {@link #getRulesFile(Configuration)} method.</p>
+ * is determined for each implementation using the
+ * {@link #getRulesReader(Configuration conf)} method.</p>
  * 
  * <p>The format of this file is made of many rules (one per line):<br/>
  * <code>

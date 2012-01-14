@@ -29,8 +29,13 @@ import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 import org.apache.tika.mime.MimeTypesFactory;
+
+// Slf4j logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+// imported for Javadoc
+import org.apache.nutch.protocol.ProtocolOutput
 
 /**
  * @author mattmann
@@ -123,7 +128,7 @@ public final class MimeUtil {
    * <code>typeName</code> is cleaned, with {@link #cleanMimeType(String)}.
    * Then the cleaned mime type is looked up in the underlying Tika
    * {@link MimeTypes} registry, by its cleaned name. If the {@link MimeType} is
-   * found, then that mime type is used, otherwise {@link URL} resolution is
+   * found, then that mime type is used, otherwise URL resolution is
    * used to try and determine the mime type. If that means is unsuccessful, and
    * if <code>mime.type.magic</code> is enabled in {@link NutchConfiguration},
    * then mime type magic resolution is used to try and obtain a
@@ -132,7 +137,7 @@ public final class MimeUtil {
    * @param typeName
    *          The original mime type, returned from a {@link ProtocolOutput}.
    * @param url
-   *          The given {@link URL}, that Nutch was trying to crawl.
+   *          The given @see url, that Nutch was trying to crawl.
    * @param data
    *          The byte data, returned from the crawl, if any.
    * @return The correctly, automatically guessed {@link MimeType} name.

@@ -40,12 +40,12 @@ import org.apache.hadoop.util.StringUtils;
  * <p>Arc files are essentially tars of gzips.  Each record in an arc file is
  * a compressed gzip.  Multiple records are concatenated together to form a
  * complete arc.  For more information on the arc file format see
- * {@link http://www.archive.org/web/researcher/ArcFileFormat.php}.</p>
+ * {@link http://www.archive.org/web/researcher/ArcFileFormat.php } .</p>
  * 
  * <p>Arc files are used by the internet archive and grub projects.</p>
  * 
- * @see http://www.archive.org/
- * @see http://www.grub.org/
+ * see {@link http://www.archive.org/ }
+ * see {@link http://www.grub.org/ }
  */
 public class ArcRecordReader
   implements RecordReader<Text, BytesWritable> {
