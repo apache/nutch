@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1255 Change ivy.xml of all plugins to remove "nutch.root" property (ferdy)
+
 * NUTCH-1248 Generator to select on status (markus)
 
 * NUTCH-1177 Generator to select on retry interval (markus)
