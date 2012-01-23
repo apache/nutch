@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
+* NUTCH-1255 Change ivy.xml of all plugins to remove "nutch.root" property (ferdy)
+
 * NUTCH-1189 add commented out default settings to gora.properties file (lewismc, Ferdy)
 
 * NUTCH-1138 remove LogUtil from trunk and nutchgora (lewismc)
