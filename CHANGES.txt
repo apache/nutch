@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1260 Fetcher should log fetching of redirects (Sebastian Nagel via markus)
+
 * NUTCH-1255 Change ivy.xml of all plugins to remove "nutch.root" property (ferdy)
 
 * NUTCH-1248 Generator to select on status (markus)

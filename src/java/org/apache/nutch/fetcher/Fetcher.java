@@ -653,12 +653,11 @@ public class Fetcher extends Configured implements Tool,
             reprUrl = reprUrlWritable.toString();
           }
           try {
-            if (LOG.isInfoEnabled()) { LOG.info("fetching " + fit.url); }
-
             // fetch the page
             redirecting = false;
             redirectCount = 0;
             do {
+              if (LOG.isInfoEnabled()) { LOG.info("fetching " + fit.url); }
               if (LOG.isDebugEnabled()) {
                 LOG.debug("redirectCount=" + redirectCount);
               }
