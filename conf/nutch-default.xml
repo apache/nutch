@@ -1180,6 +1180,68 @@
   </description>
 </property>
 
+<!-- linkrank scoring properties -->
+
+<property>
+  <name>link.ignore.internal.host</name>
+  <value>true</value>
+  <description>Ignore outlinks to the same hostname.</description>
+</property>
+
+<property>
+  <name>link.ignore.internal.domain</name>
+  <value>true</value>
+  <description>Ignore outlinks to the same domain.</description>
+</property>
+
+<property>
+  <name>link.ignore.limit.page</name>
+  <value>true</value>
+  <description>Limit to only a single outlink to the same page.</description>
+</property>
+
+<property>
+  <name>link.ignore.limit.domain</name>
+  <value>true</value>
+  <description>Limit to only a single outlink to the same domain.</description>
+</property> 
+
+<property>
+  <name>link.analyze.num.iterations</name>
+  <value>10</value>
+  <description>The number of LinkRank iterations to run.</description>
+</property>
+
+<property>
+  <name>link.analyze.initial.score</name>
+  <value>1.0f</value>
+  <description>The initial score.</description>
+</property>
+
+<property>
+  <name>link.analyze.damping.factor</name>
+  <value>0.85f</value>
+  <description>The damping factor.</description>
+</property>
+
+<property>
+  <name>link.delete.gone</name>
+  <value>false</value>
+  <description>Whether to delete gone pages from the web graph.</description>
+</property>
+
+<property> 
+  <name>link.loops.depth</name>
+  <value>2</value>
+  <description>The depth for the loops algorithm.</description>
+</property>
+
+<property>
+  <name>link.score.updater.clear.score</name>
+  <value>0.0f</value>
+  <description>The default score for URL's that are not in the web graph.</description>
+</property>
+
 <property>
   <name>mapreduce.fileoutputcommitter.marksuccessfuljobs</name>
   <value>false</value>

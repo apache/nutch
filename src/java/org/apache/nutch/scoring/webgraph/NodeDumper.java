@@ -44,6 +44,7 @@ import org.apache.hadoop.mapred.OutputCollector;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.SequenceFileInputFormat;
+import org.apache.hadoop.mapred.SequenceFileOutputFormat;
 import org.apache.hadoop.mapred.TextOutputFormat;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
@@ -51,6 +52,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TimingUtil;
+import org.apache.nutch.util.URLUtil;
 
 /**
  * A tools that dumps out the top urls by number of inlinks, number of outlinks,
@@ -71,6 +73,16 @@ public class NodeDumper
     INLINKS,
     OUTLINKS,
     SCORES
+  }
+
+  private static enum AggrType {
+    SUM,
+    MAX
+  }
+
+  private static enum NameType {
+    HOST,
+    DOMAIN
   }
 
   /**
@@ -142,7 +154,7 @@ public class NodeDumper
 
       // collect all values, this time with the url as key
       while (values.hasNext() && (numCollected < topn)) {
-        Text url = (Text)WritableUtils.clone(values.next(), conf);
+        Text url = WritableUtils.clone(values.next(), conf);
         output.collect(url, number);
         numCollected++;
       }
@@ -150,17 +162,110 @@ public class NodeDumper
   }
 
   /**
+   * Outputs the hosts or domains with an associated value. This value consists of either
+   * the number of inlinks, the number of outlinks or the score. The computed value is then
+   * either the sum of all parts or the top value.
+   */
+  public static class Dumper
+    extends Configured
+    implements Mapper<Text, Node, Text, FloatWritable>,
+    Reducer<Text, FloatWritable, Text, FloatWritable> {
+
+    private JobConf conf;
+    private boolean inlinks = false;
+    private boolean outlinks = false;
+    private boolean scores = false;
+    private long topn = Long.MAX_VALUE;
+    private boolean host = false;
+    private boolean domain = false;
+    private boolean sum = false;
+    private boolean max = false;
+
+    public void configure(JobConf conf) {
+      this.conf = conf;
+      this.inlinks = conf.getBoolean("inlinks", false);
+      this.outlinks = conf.getBoolean("outlinks", false);
+      this.scores = conf.getBoolean("scores", true);
+      this.topn = conf.getLong("topn", Long.MAX_VALUE);
+      this.host = conf.getBoolean("host", false);
+      this.domain = conf.getBoolean("domain", false);
+      this.sum = conf.getBoolean("sum", false);
+      this.max = conf.getBoolean("max", false);
+    }
+
+    public void close() {
+    }
+
+    /**
+     * Outputs the host or domain as key for this record and numInlinks, numOutlinks
+     * or score as the value.
+     */
+    public void map(Text key, Node node,
+      OutputCollector<Text, FloatWritable> output, Reporter reporter)
+      throws IOException {
+
+      float number = 0;
+      if (inlinks) {
+        number = node.getNumInlinks();
+      }
+      else if (outlinks) {
+        number = node.getNumOutlinks();
+      }
+      else {
+        number = node.getInlinkScore();
+      }
+
+      if (host) {
+        key.set(URLUtil.getHost(key.toString()));
+      } else {
+        key.set(URLUtil.getDomainName(key.toString()));
+      }
+
+      output.collect(key, new FloatWritable(number));
+    }
+
+    /**
+     * Outputs either the sum or the top value for this record.
+     */
+    public void reduce(Text key, Iterator<FloatWritable> values,
+      OutputCollector<Text, FloatWritable> output, Reporter reporter)
+      throws IOException {
+
+      long numCollected = 0;
+      float sumOrMax = 0;
+      float val = 0;
+
+      // collect all values, this time with the url as key
+      while (values.hasNext() && (numCollected < topn)) {
+        val = values.next().get();
+
+        if (sum) {
+          sumOrMax += val;
+        } else {
+          if (sumOrMax < val) {
+            sumOrMax = val;
+          }
+        }
+
+        numCollected++;
+      }
+
+      output.collect(key, new FloatWritable(sumOrMax));
+    }
+  }
+
+  /**
    * Runs the process to dump the top urls out to a text file.
-   * 
+   *
    * @param webGraphDb The WebGraph from which to pull values.
-   * 
+   *
    * @param topN
    * @param output
-   * 
+   *
    * @throws IOException If an error occurs while dumping the top values.
    */
-  public void dumpNodes(Path webGraphDb, DumpType type, long topN, Path output, boolean asEff)
-    throws IOException {
+  public void dumpNodes(Path webGraphDb, DumpType type, long topN, Path output, boolean asEff, NameType nameType, AggrType aggrType, boolean asSequenceFile)
+    throws Exception {
 
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
@@ -172,18 +277,39 @@ public class NodeDumper
     dumper.setJobName("NodeDumper: " + webGraphDb);
     FileInputFormat.addInputPath(dumper, nodeDb);
     dumper.setInputFormat(SequenceFileInputFormat.class);
-    dumper.setMapperClass(Sorter.class);
-    dumper.setReducerClass(Sorter.class);
-    dumper.setMapOutputKeyClass(FloatWritable.class);
-    dumper.setMapOutputValueClass(Text.class);
+
+    if (nameType == null) {
+      dumper.setMapperClass(Sorter.class);
+      dumper.setReducerClass(Sorter.class);
+      dumper.setMapOutputKeyClass(FloatWritable.class);
+      dumper.setMapOutputValueClass(Text.class);
+    } else {
+      dumper.setMapperClass(Dumper.class);
+      dumper.setReducerClass(Dumper.class);
+      dumper.setMapOutputKeyClass(Text.class);
+      dumper.setMapOutputValueClass(FloatWritable.class);
+    }
+
     dumper.setOutputKeyClass(Text.class);
     dumper.setOutputValueClass(FloatWritable.class);
     FileOutputFormat.setOutputPath(dumper, output);
-    dumper.setOutputFormat(TextOutputFormat.class);
+
+    if (asSequenceFile) {
+      dumper.setOutputFormat(SequenceFileOutputFormat.class);
+    } else {
+      dumper.setOutputFormat(TextOutputFormat.class);
+    }
+
     dumper.setNumReduceTasks(1);
     dumper.setBoolean("inlinks", type == DumpType.INLINKS);
     dumper.setBoolean("outlinks", type == DumpType.OUTLINKS);
     dumper.setBoolean("scores", type == DumpType.SCORES);
+
+    dumper.setBoolean("host", nameType == NameType.HOST);
+    dumper.setBoolean("domain", nameType == NameType.DOMAIN);
+    dumper.setBoolean("sum", aggrType == AggrType.SUM);
+    dumper.setBoolean("max", aggrType == AggrType.MAX);
+
     dumper.setLong("topn", topN);
 
     // Set equals-sign as separator for Solr's ExternalFileField
@@ -233,6 +359,11 @@ public class NodeDumper
       "the output directory to use").create("output");
     Option effOpts = OptionBuilder.withArgName("asEff").withDescription(
       "Solr ExternalFileField compatible output format").create("asEff");
+    Option groupOpts = OptionBuilder.hasArgs(2).withDescription(
+      "group <host|domain> <sum|max>").create("group");
+    Option sequenceFileOpts = OptionBuilder.withArgName("asSequenceFile").withDescription(
+      "whether to output as a sequencefile").create("asSequenceFile");
+
     options.addOption(helpOpts);
     options.addOption(webGraphDbOpts);
     options.addOption(inlinkOpts);
@@ -241,6 +372,8 @@ public class NodeDumper
     options.addOption(topNOpts);
     options.addOption(outputOpts);
     options.addOption(effOpts);
+    options.addOption(groupOpts);
+    options.addOption(sequenceFileOpts);
 
     CommandLineParser parser = new GnuParser();
     try {
@@ -256,6 +389,7 @@ public class NodeDumper
       boolean inlinks = line.hasOption("inlinks");
       boolean outlinks = line.hasOption("outlinks");
       boolean scores = line.hasOption("scores");
+
       long topN = (line.hasOption("topn")
         ? Long.parseLong(line.getOptionValue("topn")) : Long.MAX_VALUE);
 
@@ -264,10 +398,21 @@ public class NodeDumper
       DumpType type = (inlinks ? DumpType.INLINKS : outlinks
         ? DumpType.OUTLINKS : DumpType.SCORES);
 
+      NameType nameType = null;
+      AggrType aggrType = null;
+      String[] group = line.getOptionValues("group");
+      if (group != null && group.length == 2) {
+        nameType = (group[0].equals("host") ? NameType.HOST : group[0].equals("domain")
+          ? NameType.DOMAIN : null);
+        aggrType = (group[1].equals("sum") ? AggrType.SUM : group[1].equals("sum")
+          ? AggrType.MAX : null);
+      }
+
       // Use ExternalFileField?
       boolean asEff = line.hasOption("asEff");
+      boolean asSequenceFile = line.hasOption("asSequenceFile");
 
-      dumpNodes(new Path(webGraphDb), type, topN, new Path(output), asEff);
+      dumpNodes(new Path(webGraphDb), type, topN, new Path(output), asEff, nameType, aggrType, asSequenceFile);
       return 0;
     }
     catch (Exception e) {
