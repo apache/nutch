@@ -172,12 +172,25 @@ public class ParseSegment extends Configured implements Tool,
   public int run(String[] args) throws Exception {
     Path segment;
 
-    String usage = "Usage: ParseSegment segment";
+    String usage = "Usage: ParseSegment segment [-noFilter] [-noNormalize]";
 
     if (args.length == 0) {
       System.err.println(usage);
       System.exit(-1);
-    }      
+    }
+
+    if(args.length > 1) {
+      for(int i = 1; i < args.length; i++) {
+        String param = args[i];
+
+        if("-noilter".equalsIgnoreCase(param)) {
+          getConf().setBoolean("parse.filter.urls", false);
+        } else if ("-nonormalize".equalsIgnoreCase(param)) {
+          getConf().setBoolean("parse.normalize.urls", false);
+        }
+      }
+    }
+
     segment = new Path(args[0]);
     parse(segment);
     return 0;

@@ -92,8 +92,13 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
   public RecordWriter<Text, Parse> getRecordWriter(FileSystem fs, JobConf job,
                                       String name, Progressable progress) throws IOException {
 
-    filters = new URLFilters(job);
-    normalizers = new URLNormalizers(job, URLNormalizers.SCOPE_OUTLINK);
+    if(job.getBoolean("parse.filter.urls", true)) {
+      filters = new URLFilters(job);
+    }
+
+    if(job.getBoolean("parse.normalize.urls", true)) {
+      normalizers = new URLNormalizers(job, URLNormalizers.SCOPE_OUTLINK);
+    }
 
     this.scfilters = new ScoringFilters(job);
     final int interval = job.getInt("db.fetch.interval.default", 2592000);
@@ -166,13 +171,20 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
                 pstatus.getMinorCode() == ParseStatus.SUCCESS_REDIRECT) {
               String newUrl = pstatus.getMessage();
               int refreshTime = Integer.valueOf(pstatus.getArgs()[1]);
+
               try {
-                newUrl = normalizers.normalize(newUrl,
-                    URLNormalizers.SCOPE_FETCHER);
+                if(normalizers != null) {
+                    newUrl = normalizers.normalize(newUrl,
+                        URLNormalizers.SCOPE_FETCHER);
+                }
               } catch (MalformedURLException mfue) {
                 newUrl = null;
               }
-              if (newUrl != null) newUrl = filters.filter(newUrl);
+
+              if (filters != null) {
+                if (newUrl != null) newUrl = filters.filter(newUrl);
+              }
+
               String url = key.toString();
               if (newUrl != null && !newUrl.equals(url)) {
                 String reprUrl =
@@ -295,9 +307,13 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
       }
     }
     try {
-      toUrl = normalizers.normalize(toUrl,
+      if(normalizers != null) {
+        toUrl = normalizers.normalize(toUrl,
                   URLNormalizers.SCOPE_OUTLINK); // normalize the url
-      toUrl = filters.filter(toUrl);   // filter the url
+      }
+      if (filters != null) {
+        toUrl = filters.filter(toUrl);   // filter the url
+      }
       if (toUrl == null) {
         return null;
       }

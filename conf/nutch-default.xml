@@ -1050,6 +1050,18 @@
   </description>
 </property>
 
+<property>
+  <name>parse.filter.urls</name>
+  <value>true</value>
+  <description>Whether the parser will filter URLs (with the configured URL filters).</description>
+</property>
+
+<property>
+  <name>parse.normalize.urls</name>
+  <value>true</value>
+  <description>Whether the parser will normalize URLs (with the configured URL normalizers).</description>
+</property>
+
 <!-- urlfilter plugin properties -->
 
 <property>

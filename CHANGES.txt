@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1242 Allow disabling of URL Filters in ParseSegment (Edward Drapkin via markus)
+
 * NUTCH-1256 WebGraph to dump host + score (markus)
 
 * NUTCH-1260 Fetcher should log fetching of redirects (Sebastian Nagel via markus)
