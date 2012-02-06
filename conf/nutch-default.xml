@@ -1179,6 +1179,35 @@
   </description>
 </property>
 
+<!-- index-metadata plugin properties -->
+
+<property>
+  <name>index.parse.md</name>
+  <value></value>
+  <description>
+  Comma-separated list of keys to be taken from the parse metadata to generate fields.
+  Can be used e.g. for 'description' or 'keywords' provided that these values are generated
+  by a parser.  
+  </description>
+</property>
+
+<property>
+  <name>index.content.md</name>
+  <value></value>
+  <description>
+   Comma-separated list of keys to be taken from the content metadata to generate fields. 
+  </description>
+</property>
+
+<property>
+  <name>index.db.md</name>
+  <value></value>
+  <description>
+     Comma-separated list of keys to be taken from the crawldb metadata to generate fields.
+     Can be used to index values propagated from the seeds with the plugin urlmeta 
+  </description>
+</property>
+
 <!-- Temporary Hadoop 0.17.x workaround. -->
 
 <property>
