@@ -28,6 +28,7 @@
   <target name="deploy">
      <ant dir="creativecommons" target="deploy"/>
      <ant dir="feed" target="deploy"/>
+     <ant dir="headings" target="deploy"/>
      <ant dir="index-basic" target="deploy"/>
      <ant dir="index-anchor" target="deploy"/>
      <ant dir="index-more" target="deploy"/>
@@ -100,6 +101,7 @@
   <target name="clean">
     <ant dir="creativecommons" target="clean"/>
     <ant dir="feed" target="clean"/>
+    <ant dir="headings" target="clean"/>
     <ant dir="index-basic" target="clean"/>
     <ant dir="index-anchor" target="clean"/>
     <ant dir="index-more" target="clean"/>

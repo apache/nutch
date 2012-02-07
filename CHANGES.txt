@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1005 Parse headings plugin (markus)
+
 * NUTCH-1264 Configurable indexing plugin index-metadata (jnioche)
 
 * NUTCH-1242 Allow disabling of URL Filters in ParseSegment (Edward Drapkin via markus)
