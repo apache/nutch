@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1266 Subcollection to optionally write to configured fields (markus)
+
 * NUTCH-1005 Parse headings plugin (markus)
 
 * NUTCH-1264 Configurable indexing plugin index-metadata (jnioche)

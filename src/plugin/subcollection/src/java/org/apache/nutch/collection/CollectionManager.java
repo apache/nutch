@@ -165,25 +165,25 @@ public class CollectionManager extends Configured {
 
   /**
    * Return names of collections url is part of
-   * 
+   *
    * @param url
    *          The url to test against Collections
-   * @return Space delimited string of collection names url is part of
+   * @return Subcollections
    */
-  public List<String> getSubCollections(final String url) {
-    List<String> collections = new ArrayList<String>();
+  public List<Subcollection> getSubCollections(final String url) {
+    List<Subcollection> collections = new ArrayList<Subcollection>();
     final Iterator iterator = collectionMap.values().iterator();
 
     while (iterator.hasNext()) {
       final Subcollection subCol = (Subcollection) iterator.next();
       if (subCol.filter(url) != null) {
-        collections.add(subCol.name);
+        collections.add(subCol);
       }
     }
-    if (LOG.isTraceEnabled()) { 
-      LOG.trace("subcollections:" + Arrays.toString(collections.toArray())); 
+    if (LOG.isTraceEnabled()) {
+      LOG.trace("subcollections:" + Arrays.toString(collections.toArray()));
     }
-    
+
     return collections;
   }
 

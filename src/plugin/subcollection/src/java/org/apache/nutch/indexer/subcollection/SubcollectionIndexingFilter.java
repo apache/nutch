@@ -31,6 +31,7 @@ import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.NutchDocument;
 
 import org.apache.nutch.collection.CollectionManager;
+import org.apache.nutch.collection.Subcollection;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 
@@ -62,8 +63,12 @@ public class SubcollectionIndexingFilter extends Configured implements IndexingF
    * @param url
    */
   private void addSubCollectionField(NutchDocument doc, String url) {
-    for (String collname: CollectionManager.getCollectionManager(getConf()).getSubCollections(url)) {
-      doc.add(FIELD_NAME, collname);
+    for (Subcollection coll : CollectionManager.getCollectionManager(getConf()).getSubCollections(url)) {
+      if (coll.getKey() == null) {
+        doc.add(FIELD_NAME, coll.getName());
+      } else {
+        doc.add(coll.getKey(), coll.getName());
+      }
     }
   }
 

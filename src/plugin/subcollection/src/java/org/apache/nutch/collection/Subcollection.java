@@ -38,6 +38,7 @@ public class Subcollection extends Configured implements URLFilter{
   public static final String TAG_WHITELIST="whitelist";
   public static final String TAG_BLACKLIST="blacklist";
   public static final String TAG_NAME="name";
+  public static final String TAG_KEY="key";
   public static final String TAG_ID="id";
 
   ArrayList blackList = new ArrayList();
@@ -48,6 +49,11 @@ public class Subcollection extends Configured implements URLFilter{
    * SubCollection identifier
    */
   String id;
+
+  /**
+   * SubCollection key
+   */
+  String key;
 
   /** 
    * SubCollection name
@@ -70,8 +76,18 @@ public class Subcollection extends Configured implements URLFilter{
    * @param name name of SubCollection
    */
   public Subcollection(String id, String name, Configuration conf) {
+    this(id, name, null, conf);
+  }
+
+  /** public Constructor
+   *
+   * @param id id of SubCollection
+   * @param name name of SubCollection
+   */
+  public Subcollection(String id, String name, String key, Configuration conf) {
     this(conf);
     this.id=id;
+    this.key = key;
     this.name = name;
   }
 
@@ -84,6 +100,13 @@ public class Subcollection extends Configured implements URLFilter{
    */
   public String getName() {
     return name;
+  }
+
+  /**
+   * @return Returns the key
+   */
+  public String getKey() {
+    return key;
   }
 
   /**
@@ -179,6 +202,12 @@ public class Subcollection extends Configured implements URLFilter{
     if (nodeList.getLength() > 0) {
       this.blString = DOMUtil.getChildText(nodeList.item(0)).trim();
       parseList(this.blackList, blString);
+    }
+
+    // Check if there's a key element or set default name
+    nodeList = collection.getElementsByTagName(TAG_KEY);
+    if (nodeList.getLength() == 1) {
+      this.key = DOMUtil.getChildText(nodeList.item(0)).trim();
     }
   }
 
