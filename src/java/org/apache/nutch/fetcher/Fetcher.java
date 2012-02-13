@@ -924,7 +924,9 @@ public class Fetcher extends Configured implements Tool,
       datum.setStatus(status);
       datum.setFetchTime(System.currentTimeMillis());
       if (pstatus != null) datum.getMetaData().put(Nutch.WRITABLE_PROTO_STATUS_KEY, pstatus);
-
+      // store the guessed content type in the crawldatum
+      if (content.getContentType() != null) datum.getMetaData().put(new Text(Metadata.CONTENT_TYPE), new Text(content.getContentType()));
+      
       ParseResult parseResult = null;
       if (content != null) {
         Metadata metadata = content.getMetadata();

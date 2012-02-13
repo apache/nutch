@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1259 Store detected content-type in crawldatum metadata (jnioche, markus)
+
 * NUTCH-1266 Subcollection to optionally write to configured fields (markus)
 
 * NUTCH-1005 Parse headings plugin (markus)
