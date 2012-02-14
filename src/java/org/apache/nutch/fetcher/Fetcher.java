@@ -924,12 +924,14 @@ public class Fetcher extends Configured implements Tool,
       datum.setStatus(status);
       datum.setFetchTime(System.currentTimeMillis());
       if (pstatus != null) datum.getMetaData().put(Nutch.WRITABLE_PROTO_STATUS_KEY, pstatus);
-      // store the guessed content type in the crawldatum
-      if (content.getContentType() != null) datum.getMetaData().put(new Text(Metadata.CONTENT_TYPE), new Text(content.getContentType()));
       
       ParseResult parseResult = null;
       if (content != null) {
         Metadata metadata = content.getMetadata();
+        
+        // store the guessed content type in the crawldatum
+        if (content.getContentType() != null) datum.getMetaData().put(new Text(Metadata.CONTENT_TYPE), new Text(content.getContentType()));
+        
         // add segment to metadata
         metadata.set(Nutch.SEGMENT_NAME_KEY, segmentName);
         // add score to content metadata so that ParseSegment can pick it up.
