@@ -1169,7 +1169,7 @@
 <!-- index-static plugin properties -->
 
 <property>
-  <name>index-static</name>
+  <name>index.static</name>
   <value></value>
   <description>
   A simple plugin called at indexing that adds fields with static data. 
