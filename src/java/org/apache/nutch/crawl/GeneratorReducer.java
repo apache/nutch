@@ -50,6 +50,9 @@ extends GoraReducer<SelectorEntry, WebPage, String, WebPage> {
   protected void reduce(SelectorEntry key, Iterable<WebPage> values,
       Context context) throws IOException, InterruptedException {
     for (WebPage page : values) {
+      if (count >= limit) {
+        return;
+      }
       if (maxCount > 0) {
         String hostordomain;
         if (byDomain) {
@@ -67,9 +70,6 @@ extends GoraReducer<SelectorEntry, WebPage, String, WebPage> {
           return;
         }
         hostCountMap.put(hostordomain, hostCount + 1);
-      }
-      if (count >= limit) {
-        return;
       }
 
       Mark.GENERATE_MARK.putMark(page, batchId);
