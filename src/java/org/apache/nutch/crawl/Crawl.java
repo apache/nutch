@@ -84,7 +84,7 @@ public class Crawl extends Configured implements Tool {
           topN = Integer.parseInt(args[i+1]);
           i++;
       } else if ("-solr".equals(args[i])) {
-        solrUrl = StringUtils.lowerCase(args[i + 1]);
+        solrUrl = args[i + 1];
         i++;
       } else if (args[i] != null) {
         rootUrlDir = new Path(args[i]);
