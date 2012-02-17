@@ -615,10 +615,10 @@
   <name>crawl.gen.delay</name>
   <value>604800000</value>
   <description>
-   This value, expressed in days, defines how long we should keep the lock on records 
+   This value, expressed in milliseconds, defines how long we should keep the lock on records 
    in CrawlDb that were just selected for fetching. If these records are not updated 
-   in the meantime, the lock is canceled, i.e. the become eligible for selecting. 
-   Default value of this is 7 days.
+   in the meantime, the lock is canceled, i.e. they become eligible for selecting. 
+   Default value of this is 7 days (604800000 ms).
   </description>
 </property>
 
