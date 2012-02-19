@@ -59,6 +59,8 @@ import org.apache.nutch.protocol.ProtocolStatus;
  * @author Stefan Groschupf
  * @deprecated Use org.apache.hadoop.io.MapWritable instead.
  */
+ 
+@Deprecated
 public class MapWritable implements Writable {
 
   public static final Logger LOG = LoggerFactory.getLogger(MapWritable.class);

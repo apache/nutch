@@ -74,6 +74,7 @@ public class CrawlDBTestUtil {
    * @return
    * @deprecated Use {@link #createConfiguration()} instead
    */
+  @Deprecated
   public static Configuration create(){
     return createConfiguration();
   }
