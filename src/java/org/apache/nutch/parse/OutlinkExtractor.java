@@ -143,6 +143,7 @@ public class OutlinkExtractor {
    * @return Array of <code>Outlink</code> s within found in plainText
    * @deprecated only for tests
    */
+  @Deprecated
   private Outlink[] getOutlinksJakartaRegexpImpl(final String plainText) {
 
     throw new UnsupportedOperationException(
@@ -200,6 +201,7 @@ public class OutlinkExtractor {
    * @return Array of <code>Outlink</code> s within found in plainText
    * @deprecated only for tests
    */
+  @Deprecated
   private Outlink[] getOutlinksJDK5Impl(final String plainText) {
 
     throw new UnsupportedOperationException(

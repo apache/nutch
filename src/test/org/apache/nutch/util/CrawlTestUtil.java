@@ -55,6 +55,7 @@ public class CrawlTestUtil {
    * @return
    * @deprecated Use {@link #createConfiguration()} instead
    */
+  @Deprecated
   public static Configuration create() {
     return createConfiguration();
   }
