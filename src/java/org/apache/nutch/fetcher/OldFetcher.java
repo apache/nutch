@@ -208,7 +208,8 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
               // failures - increase the retry counter
               case ProtocolStatus.EXCEPTION:
                 logError(url, status.getMessage());
-              /* FALLTHROUGH */
+              
+              @SuppressWarnings("fallthrough")
               case ProtocolStatus.RETRY:          // retry
               case ProtocolStatus.WOULDBLOCK:
               case ProtocolStatus.BLOCKED:
