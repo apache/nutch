@@ -116,7 +116,8 @@ public class RAMJobManager implements JobManager {
     switch(state) {
     case ANY:
       res.addAll(jobHistory);
-      /* FALLTHROUGH */
+    
+    @SupressWarnings("fallthrough")
     case RUNNING:
     case IDLE:
       res.addAll(jobRunning);
