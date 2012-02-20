@@ -1026,6 +1026,15 @@
   </description>
 </property>
 
+<property>
+  <name>lang.identification.only.certain</name>
+  <value>false</value>
+  <description>If set to true with lang.extraction.policy containing identify,
+  the language code returned by Tika will be assigned to the document ONLY
+  if it is deemed certain by Tika.
+  </description>
+</property>
+
 <!-- Temporary Hadoop 0.17.x workaround. -->
 
 <property>

@@ -81,6 +81,8 @@ public class HTMLLanguageParser implements ParseFilter {
 
   private Configuration conf;
 
+  private boolean onlyCertain;
+
   /**
    * Scan the HTML document looking at possible indications of content language<br>
    * <li>1. html lang attribute
@@ -160,7 +162,11 @@ public class HTMLLanguageParser implements ParseFilter {
 
       LanguageIdentifier identifier = new LanguageIdentifier(text.toString());
 
-      if (identifier.isReasonablyCertain()) {
+      if (onlyCertain) {
+        if (identifier.isReasonablyCertain()) {
+          return identifier.getLanguage();
+        }
+      } else {
         return identifier.getLanguage();
       }
     }
@@ -302,6 +308,7 @@ public class HTMLLanguageParser implements ParseFilter {
 
   public void setConf(Configuration conf) {
     this.conf = conf;
+    onlyCertain = conf.getBoolean("lang.identification.only.certain", false);
     String[] policy = conf.getStrings("lang.extraction.policy");
     for (int i = 0; i < policy.length; i++) {
       if (policy[i].equals("detect")) {

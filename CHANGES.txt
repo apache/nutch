@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
+* NUTCH-1280 language-identifier should have option to use detected value by Tika even when uncertain (ferdy)
+
 * NUTCH-1246 Upgrade to Hadoop 1.0.0 (lewismc)
 
 * NUTCH-1279 Check if limit has been reached in GeneraterReducer must be the first check performance-wise. (ferdy)
