@@ -505,8 +505,7 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
                 break;
               case ProtocolStatusCodes.EXCEPTION:
                 logError(fit.url, ProtocolStatusUtils.getMessage(status));
-              
-              @SupressWarnings("fallthrough")
+                /* FALLTHROUGH */
               case ProtocolStatusCodes.RETRY:          // retry
               case ProtocolStatusCodes.BLOCKED:
                 output(fit, null, status, CrawlStatus.STATUS_RETRY);
