@@ -373,7 +373,7 @@ public class Fetcher extends Configured implements Tool,
       FetchItemQueue fiq = getFetchItemQueue(it.queueID);
       fiq.addFetchItem(it);
       totalSize.incrementAndGet();
-    }nutch jira
+    }
 
     public void finishFetchItem(FetchItem it) {
       finishFetchItem(it, false);
@@ -789,8 +789,7 @@ public class Fetcher extends Configured implements Tool,
                 int killedURLs = fetchQueues.checkExceptionThreshold(fit.getQueueID());
                 if (killedURLs!=0)
                    reporter.incrCounter("FetcherStatus", "AboveExceptionThresholdInQueue", killedURLs);
-                   
-              @SuppressWarnings("fallthrough")
+                /* FALLTHROUGH */
               case ProtocolStatus.RETRY:          // retry
               case ProtocolStatus.BLOCKED:
                 output(fit.url, fit.datum, null, status, CrawlDatum.STATUS_FETCH_RETRY);
