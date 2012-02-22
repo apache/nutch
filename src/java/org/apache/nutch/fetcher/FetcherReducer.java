@@ -43,6 +43,7 @@ import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.parse.ParseUtil;
+import org.apache.nutch.parse.ParserJob;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
@@ -81,6 +82,7 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
   private boolean parse;
 
   private ParseUtil parseUtil;
+  private boolean skipTruncated;
 
   /**
    * This class described the item to be fetched.
@@ -604,10 +606,14 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
       String key = TableUtil.reverseUrl(fit.url);
 
       if (parse) {
-        URLWebPage redirectedPage = parseUtil.process(key, fit.page);
-        if (redirectedPage != null) {
-          context.write(TableUtil.reverseUrl(redirectedPage.getUrl()),
-                        redirectedPage.getDatum());
+        if (skipTruncated) {
+          if (!ParserJob.isTruncated(fit.url, fit.page)) {
+            URLWebPage redirectedPage = parseUtil.process(key, fit.page);
+            if (redirectedPage != null) {
+              context.write(TableUtil.reverseUrl(redirectedPage.getUrl()),
+                            redirectedPage.getDatum());
+            }
+          }
         }
       }
       context.write(key, fit.page);
@@ -723,6 +729,7 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
     int threadCount = conf.getInt("fetcher.threads.fetch", 10);
     parse = conf.getBoolean(FetcherJob.PARSE_KEY, false);
     if (parse) {
+      skipTruncated=conf.getBoolean(ParserJob.SKIP_TRUNCATED, true);
       parseUtil = new ParseUtil(conf);
     }
     LOG.info("Fetcher: threads: " + threadCount);
