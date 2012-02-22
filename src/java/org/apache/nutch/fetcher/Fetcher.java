@@ -589,6 +589,7 @@ public class Fetcher extends Configured implements Tool,
     private int maxOutlinkDepth;
     private int maxOutlinkDepthNumLinks;
     private int outlinksDepthDivisor;
+    private boolean checkTruncated;
 
     public FetcherThread(Configuration conf) {
       this.setDaemon(true);                       // don't hang JVM on exit
@@ -597,6 +598,7 @@ public class Fetcher extends Configured implements Tool,
       this.urlFilters = new URLFilters(conf);
       this.scfilters = new ScoringFilters(conf);
       this.parseUtil = new ParseUtil(conf);
+      this.checkTruncated = conf.getBoolean(ParseSegment.SKIP_TRUNCATED, true);
       this.protocolFactory = new ProtocolFactory(conf);
       this.normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_FETCHER);
       this.maxCrawlDelay = conf.getInt("fetcher.max.crawl.delay", 30) * 1000;
@@ -945,17 +947,19 @@ public class Fetcher extends Configured implements Tool,
         /* Note: Fetcher will only follow meta-redirects coming from the
          * original URL. */
         if (parsing && status == CrawlDatum.STATUS_FETCH_SUCCESS) {
-          try {
-            parseResult = this.parseUtil.parse(content);
-          } catch (Exception e) {
-            LOG.warn("Error parsing: " + key + ": " + StringUtils.stringifyException(e));
-          }
-
-          if (parseResult == null) {
-            byte[] signature =
-              SignatureFactory.getSignature(getConf()).calculate(content,
-                  new ParseStatus().getEmptyParse(conf));
-            datum.setSignature(signature);
+          if (!checkTruncated || (checkTruncated && ParseSegment.isTruncated(content))) {
+            try {
+              parseResult = this.parseUtil.parse(content);
+            } catch (Exception e) {
+              LOG.warn("Error parsing: " + key + ": " + StringUtils.stringifyException(e));
+            }
+  
+            if (parseResult == null) {
+              byte[] signature =
+                SignatureFactory.getSignature(getConf()).calculate(content,
+                    new ParseStatus().getEmptyParse(conf));
+              datum.setSignature(signature);
+            }
           }
         }
 
