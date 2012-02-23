@@ -947,7 +947,7 @@ public class Fetcher extends Configured implements Tool,
         /* Note: Fetcher will only follow meta-redirects coming from the
          * original URL. */
         if (parsing && status == CrawlDatum.STATUS_FETCH_SUCCESS) {
-          if (!checkTruncated || (checkTruncated && ParseSegment.isTruncated(content))) {
+          if (!checkTruncated || (checkTruncated && !ParseSegment.isTruncated(content))) {
             try {
               parseResult = this.parseUtil.parse(content);
             } catch (Exception e) {
