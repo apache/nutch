@@ -115,10 +115,8 @@ public class ParserJob extends NutchTool implements Tool {
         LOG.info("Parsing " + unreverseKey);
       }
 
-      if (skipTruncated) {
-        if (isTruncated(unreverseKey, page)) {
-          return;
-        }
+      if (skipTruncated && isTruncated(unreverseKey, page)) {
+        return;
       }
       
 
@@ -165,19 +163,22 @@ public class ParserJob extends NutchTool implements Tool {
     if (StringUtil.isEmpty(lengthStr)) {
       return false;
     }
-    int contentLength;
+    int inHeaderSize;
     try {
-      contentLength = Integer.parseInt(lengthStr);
+      inHeaderSize = Integer.parseInt(lengthStr);
     } catch (NumberFormatException e) {
       LOG.warn("Wrong contentlength format for " + url, e);
       return false;
     }
-    if (contentLength > content.limit()) {
-      LOG.info(url + " skipped. Content of size " + contentLength
-          + " was truncated to " + content.limit());
+    int actualSize = content.limit();
+    if (inHeaderSize > actualSize) {
+      LOG.warn(url + " skipped. Content of size " + inHeaderSize
+          + " was truncated to " + actualSize);
       return true;
     }
-    LOG.info(url + " actual=" + content.limit() + " inHeader=" + contentLength);
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(url + " actualSize=" + actualSize + " inHeaderSize=" + inHeaderSize);
+    }
     return false;
   }
 
