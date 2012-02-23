@@ -104,7 +104,7 @@ public class ParseSegment extends Configured implements Tool,
       return;
     }
     
-    if (isTruncated(content)) {
+    if (skipTruncated && isTruncated(content)) {
       return;
     }
 
@@ -173,17 +173,22 @@ public class ParseSegment extends Configured implements Tool,
     if (StringUtil.isEmpty(lengthStr)) {
       return false;
     }
-    int contentLength;
+    int inHeaderSize;
+    String url = content.getUrl();
     try {
-      contentLength = Integer.parseInt(lengthStr);
+      inHeaderSize = Integer.parseInt(lengthStr);
     } catch (NumberFormatException e) {
-      LOG.warn("Wrong contentlength format for " + content.getUrl(), e);
+      LOG.warn("Wrong contentlength format for " + url, e);
       return false;
     }
-    if (contentLength > contentBytes.length) {
-      LOG.info(content.getUrl() + " skipped. Content of size " + contentLength
-          + " was truncated to " + contentBytes.length);
+    int actualSize = contentBytes.length;
+    if (inHeaderSize > actualSize) {
+      LOG.info(url + " skipped. Content of size " + inHeaderSize
+          + " was truncated to " + actualSize);
       return true;
+    }
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(url + " actualSize=" + actualSize + " inHeaderSize=" + inHeaderSize);
     }
     return false;
   }
