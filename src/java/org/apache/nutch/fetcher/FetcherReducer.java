@@ -606,13 +606,11 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
       String key = TableUtil.reverseUrl(fit.url);
 
       if (parse) {
-        if (skipTruncated) {
-          if (!ParserJob.isTruncated(fit.url, fit.page)) {
-            URLWebPage redirectedPage = parseUtil.process(key, fit.page);
-            if (redirectedPage != null) {
-              context.write(TableUtil.reverseUrl(redirectedPage.getUrl()),
-                            redirectedPage.getDatum());
-            }
+        if (!skipTruncated || (skipTruncated && !ParserJob.isTruncated(fit.url, fit.page))) {
+          URLWebPage redirectedPage = parseUtil.process(key, fit.page);
+          if (redirectedPage != null) {
+            context.write(TableUtil.reverseUrl(redirectedPage.getUrl()),
+                redirectedPage.getDatum());
           }
         }
       }
