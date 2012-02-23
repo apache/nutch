@@ -87,7 +87,8 @@
      <ant dir="parse-zip" target="test"/>
      <ant dir="subcollection" target="test"/>
      <ant dir="urlfilter-automaton" target="test"/>
-     <ant dir="urlfilter-domain" target="test" />
+     <ant dir="urlfilter-domain" target="test"/>
+     <ant dir="urlfilter-domainblacklist" target="test"/>
      <ant dir="urlfilter-regex" target="test"/>
      <ant dir="urlfilter-suffix" target="test"/>
      <ant dir="urlnormalizer-basic" target="test"/>
