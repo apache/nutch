@@ -17,6 +17,7 @@
 package org.apache.nutch.parse;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -31,6 +32,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.GeneratorJob;
 import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.nutch.crawl.URLWebPage;
+import org.apache.nutch.metadata.HttpHeaders;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.ParseStatus;
@@ -40,6 +42,7 @@ import org.apache.nutch.util.IdentityPageReducer;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
+import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.TableUtil;
 import org.apache.nutch.util.ToolUtil;
 import org.apache.gora.mapreduce.GoraMapper;
@@ -50,6 +53,8 @@ public class ParserJob extends NutchTool implements Tool {
 
   private static final String RESUME_KEY = "parse.job.resume";
   private static final String FORCE_KEY = "parse.job.force";
+  
+  public static final String SKIP_TRUNCATED = "parser.skip.truncated";
 
   private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
@@ -64,6 +69,7 @@ public class ParserJob extends NutchTool implements Tool {
     FIELDS.add(WebPage.Field.PARSE_STATUS);
     FIELDS.add(WebPage.Field.OUTLINKS);
     FIELDS.add(WebPage.Field.METADATA);
+    FIELDS.add(WebPage.Field.HEADERS);
   }
 
 
@@ -76,6 +82,8 @@ public class ParserJob extends NutchTool implements Tool {
     private boolean force;
 
     private Utf8 batchId;
+
+    private boolean skipTruncated;
     
     @Override
     public void setup(Context context) throws IOException {
@@ -84,6 +92,7 @@ public class ParserJob extends NutchTool implements Tool {
       shouldResume = conf.getBoolean(RESUME_KEY, false);
       force = conf.getBoolean(FORCE_KEY, false);
       batchId = new Utf8(conf.get(GeneratorJob.BATCH_ID, Nutch.ALL_BATCH_ID_STR));
+      skipTruncated=conf.getBoolean(SKIP_TRUNCATED, true);
     }
 
     @Override
@@ -106,6 +115,11 @@ public class ParserJob extends NutchTool implements Tool {
         LOG.info("Parsing " + unreverseKey);
       }
 
+      if (skipTruncated && isTruncated(unreverseKey, page)) {
+        return;
+      }
+      
+
       URLWebPage redirectedPage = parseUtil.process(key, page);
       ParseStatus pstatus = page.getParseStatus();
       if (pstatus != null) {
@@ -127,6 +141,45 @@ public class ParserJob extends NutchTool implements Tool {
 
   public ParserJob(Configuration conf) {
     setConf(conf);
+  }
+  
+  /**
+   * Checks if the page's content is truncated.
+   * @param url 
+   * @param page
+   * @return If the page is truncated <code>true</code>. When it is not,
+   * or when it could be determined, <code>false</code>. 
+   */
+  public static boolean isTruncated(String url, WebPage page) {
+    ByteBuffer content = page.getContent();
+    if (content == null) {
+      return false;
+    }
+    Utf8 lengthUtf8 = page.getFromHeaders(new Utf8(HttpHeaders.CONTENT_LENGTH));
+    if (lengthUtf8 == null) {
+      return false;
+    }
+    String lengthStr = lengthUtf8.toString().trim();
+    if (StringUtil.isEmpty(lengthStr)) {
+      return false;
+    }
+    int inHeaderSize;
+    try {
+      inHeaderSize = Integer.parseInt(lengthStr);
+    } catch (NumberFormatException e) {
+      LOG.warn("Wrong contentlength format for " + url, e);
+      return false;
+    }
+    int actualSize = content.limit();
+    if (inHeaderSize > actualSize) {
+      LOG.warn(url + " skipped. Content of size " + inHeaderSize
+          + " was truncated to " + actualSize);
+      return true;
+    }
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(url + " actualSize=" + actualSize + " inHeaderSize=" + inHeaderSize);
+    }
+    return false;
   }
 
   public Collection<WebPage.Field> getFields(Job job) {
