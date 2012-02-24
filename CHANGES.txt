@@ -2,8 +2,6 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
-* NUTCH-965 Skip parsing for truncated documents (alexis, lewismc, ferdy)
-
 * NUTCH-1287 Upgrade to hsqldb 2.2.8 (ferdy)
 
 * NUTCH-1280 language-identifier should have option to use detected value by Tika even when uncertain (ferdy)
