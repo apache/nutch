@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-965 Skip parsing for truncated documents (alexis, lewismc, ferdy)
+
 * NUTCH-1210 DomainBlacklistFilter (markus)
 
 * NUTCH-1193 Incorrect url transform to lowercase: parameter solr (Eduardo dos Santos Leggiero via lewismc)

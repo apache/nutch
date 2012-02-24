@@ -26,7 +26,9 @@ import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
 import org.apache.hadoop.conf.*;
+import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.*;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
@@ -45,7 +47,11 @@ public class ParseSegment extends Configured implements Tool,
 
   public static final Logger LOG = LoggerFactory.getLogger(ParseSegment.class);
   
+  public static final String SKIP_TRUNCATED = "parser.skip.truncated";
+  
   private ScoringFilters scfilters;
+  
+  private boolean skipTruncated;
   
   public ParseSegment() {
     this(null);
@@ -58,6 +64,7 @@ public class ParseSegment extends Configured implements Tool,
   public void configure(JobConf job) {
     setConf(job);
     this.scfilters = new ScoringFilters(job);
+    skipTruncated=job.getBoolean(SKIP_TRUNCATED, true);
   }
 
   public void close() {}
@@ -78,6 +85,10 @@ public class ParseSegment extends Configured implements Tool,
     if (status != CrawlDatum.STATUS_FETCH_SUCCESS) {
       // content not fetched successfully, skip document
       LOG.debug("Skipping " + key + " as content is not fetched successfully");
+      return;
+    }
+    
+    if (skipTruncated && isTruncated(content)) {
       return;
     }
 
@@ -127,6 +138,43 @@ public class ParseSegment extends Configured implements Tool,
       output.collect(url, new ParseImpl(new ParseText(parse.getText()), 
                                         parse.getData(), parse.isCanonical()));
     }
+  }
+  
+  /**
+   * Checks if the page's content is truncated.
+   * @param content
+   * @return If the page is truncated <code>true</code>. When it is not,
+   * or when it could be determined, <code>false</code>. 
+   */
+  public static boolean isTruncated(Content content) {
+    byte[] contentBytes = content.getContent();
+    if (contentBytes == null) return false;
+    Metadata metadata = content.getMetadata();
+    if (metadata == null) return false;
+    
+    String lengthStr = metadata.get(Response.CONTENT_LENGTH);
+    if (lengthStr != null) lengthStr=lengthStr.trim();
+    if (StringUtil.isEmpty(lengthStr)) {
+      return false;
+    }
+    int inHeaderSize;
+    String url = content.getUrl();
+    try {
+      inHeaderSize = Integer.parseInt(lengthStr);
+    } catch (NumberFormatException e) {
+      LOG.warn("Wrong contentlength format for " + url, e);
+      return false;
+    }
+    int actualSize = contentBytes.length;
+    if (inHeaderSize > actualSize) {
+      LOG.info(url + " skipped. Content of size " + inHeaderSize
+          + " was truncated to " + actualSize);
+      return true;
+    }
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(url + " actualSize=" + actualSize + " inHeaderSize=" + inHeaderSize);
+    }
+    return false;
   }
 
   public void reduce(Text key, Iterator<Writable> values,
