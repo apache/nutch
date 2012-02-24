@@ -2,8 +2,6 @@ Nutch Change Log
 
 * NUTCH-1210 DomainBlacklistFilter (markus)
 
-* NUTCH-965 Skip parsing for truncated documents (alexis, lewismc, ferdy)
-
 * NUTCH-1193 Incorrect url transform to lowercase: parameter solr (Eduardo dos Santos Leggiero via lewismc)
 
 * NUTCH-1272 Wrong property name for index-static in nutch-default.xml (Daniel Baur via jnioche)

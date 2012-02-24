@@ -1062,14 +1062,6 @@
   <description>Whether the parser will normalize URLs (with the configured URL normalizers).</description>
 </property>
 
-<property>
-  <name>parser.skip.truncated</name>
-  <value>true</value>
-  <description>Boolean value for whether we should skip parsing for truncated documents. By default this 
-  property is activated due to extremely high levels of CPU which parsing can sometimes take.  
-  </description>
-</property>
-
 <!-- urlfilter plugin properties -->
 
 <property>
