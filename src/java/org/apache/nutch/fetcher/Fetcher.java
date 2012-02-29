@@ -828,7 +828,7 @@ public class Fetcher extends Configured implements Tool,
           } catch (Throwable t) {                 // unexpected exception
             // unblock
             fetchQueues.finishFetchItem(fit);
-            logError(fit.url, t.toString());
+            logError(fit.url, StringUtils.stringifyException(t));
             output(fit.url, fit.datum, null, ProtocolStatus.STATUS_FAILED, CrawlDatum.STATUS_FETCH_RETRY);
           }
         }

@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1291 Fetcher to stringify exception on // unexpected exception (markus)
+
 * NUTCH-965 Skip parsing for truncated documents (alexis, lewismc, ferdy)
 
 * NUTCH-1210 DomainBlacklistFilter (markus)
