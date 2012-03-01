@@ -15,6 +15,7 @@ import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilters;
 import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.parse.ParseUtil;
@@ -65,7 +66,10 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     
     Content content = protocol.getProtocolOutput(new Text(url), datum)
         .getContent();
-    
+
+    // store the guessed content type in the crawldatum
+    if (content.getContentType() != null) datum.getMetaData().put(new Text(Metadata.CONTENT_TYPE), new Text(content.getContentType()));
+
     if (content == null) {
       System.out.println("No content for " + url);
       return 0;
@@ -81,7 +85,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
       LOG.info("parsing: " + url);
       LOG.info("contentType: " + contentType);
     }
-    
+
     ParseResult parseResult = new ParseUtil(conf).parse(content);
     
     NutchDocument doc = new NutchDocument();
