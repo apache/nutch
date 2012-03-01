@@ -39,6 +39,7 @@ import org.apache.nutch.util.MimeUtil;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -71,14 +72,14 @@ public class MoreIndexingFilter implements IndexingFilter {
   /** Get the MimeTypes resolver instance. */
   private MimeUtil MIME;
 
-  public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
-    throws IndexingException {
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
+      CrawlDatum datum, Inlinks inlinks) throws IndexingException {
 
     String url_s = url.toString();
 
     addTime(doc, parse.getData(), url_s, datum);
     addLength(doc, parse.getData(), url_s);
-    addType(doc, parse.getData(), url_s);
+    addType(doc, parse.getData(), url_s, datum);
     resetTitle(doc, parse.getData(), url_s);
 
     return doc;
@@ -184,9 +185,17 @@ public class MoreIndexingFilter implements IndexingFilter {
    * @param url
    * @return
    */
-  private NutchDocument addType(NutchDocument doc, ParseData data, String url) {
+  private NutchDocument addType(NutchDocument doc, ParseData data, String url,
+      CrawlDatum datum) {
     String mimeType = null;
-    String contentType = data.getMeta(Response.CONTENT_TYPE);
+    String contentType = null;
+
+    Writable tcontentType = datum.getMetaData().get(
+        new Text(Response.CONTENT_TYPE));
+    if (tcontentType != null) {
+      contentType = tcontentType.toString();
+    } else
+      contentType = data.getMeta(Response.CONTENT_TYPE);
     if (contentType == null) {
       // Note by Jerome Charron on 20050415:
       // Content Type not solved by a previous plugin
