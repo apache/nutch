@@ -72,7 +72,7 @@
       <resolver ref="maven2"/>
       <resolver ref="apache-snapshot"/>
     </chain>
-    <chain name="restlet">
+    <chain name="restletchain">
       <resolver ref="restlet"/>
     </chain>
   </resolvers>
@@ -83,7 +83,7 @@
     rather than look for them online.
     -->
     <module organisation="org.apache.nutch" name=".*" resolver="internal"/>
-    <module organisation="org.restlet" name=".*" resolver="restlet"/>
-    <module organisation="org.restlet.jse" name=".*" resolver="restlet"/>
+    <module organisation="org.restlet" name=".*" resolver="restletchain"/>
+    <module organisation="org.restlet.jse" name=".*" resolver="restletchain"/>
   </modules>
 </ivysettings>
