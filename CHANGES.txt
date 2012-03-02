@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
+* NUTCH-1263 FetcherJob must put 'fetchTime' on input (ferdy)
+
 * NUTCH-1296 nutchgora fetcher does not show correct 'threads' and 'resuming' properties (ferdy)
 
 * NUTCH-1295 nutchgora restlet dependencies failing when remote repos is down (ferdy)
