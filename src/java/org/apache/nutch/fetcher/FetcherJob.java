@@ -165,6 +165,11 @@ public class FetcherJob extends NutchTool implements Tool {
     if (shouldResume != null) {
       getConf().setBoolean(RESUME_KEY, shouldResume);
     }
+    
+    LOG.info("FetcherJob : timelimit set for : " + getConf().getLong("fetcher.timelimit", -1));
+    LOG.info("FetcherJob: threads: " + getConf().getInt(THREADS_KEY, 10));
+    LOG.info("FetcherJob: parsing: " + getConf().getBoolean(PARSE_KEY, false));
+    LOG.info("FetcherJob: resuming: " + getConf().getBoolean(RESUME_KEY, false));
 
     // set the actual time for the timelimit relative
     // to the beginning of the whole job and not of a specific task
@@ -205,10 +210,6 @@ public class FetcherJob extends NutchTool implements Tool {
       throws Exception {
     LOG.info("FetcherJob: starting");
 
-    LOG.info("FetcherJob : timelimit set for : " + getConf().getLong("fetcher.timelimit", -1));
-    LOG.info("FetcherJob: threads: " + getConf().getInt(THREADS_KEY, 10));
-    LOG.info("FetcherJob: parsing: " + getConf().getBoolean(PARSE_KEY, false));
-    LOG.info("FetcherJob: resuming: " + getConf().getBoolean(RESUME_KEY, false));
     if (batchId.equals(Nutch.ALL_BATCH_ID_STR)) {
       LOG.info("FetcherJob: fetching all");
     } else {
