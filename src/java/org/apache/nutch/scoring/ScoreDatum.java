@@ -102,4 +102,12 @@ public class ScoreDatum implements Writable {
   public String getAnchor() {
     return anchor;
   }
+
+  @Override
+  public String toString() {
+    return "ScoreDatum [score=" + score + ", url=" + url + ", anchor=" + anchor
+        + ", metaData=" + metaData + "]";
+  }
+  
+  
 }

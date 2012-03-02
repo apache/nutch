@@ -61,4 +61,11 @@ public class FetchEntry extends Configured implements Writable {
   public WebPage getWebPage() {
     return page;
   }
+
+  @Override
+  public String toString() {
+    return "FetchEntry [key=" + key + ", page=" + page + "]";
+  }
+  
+  
 }

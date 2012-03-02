@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
+* NUTCH-1292 Better exception logging and debugging during fetch. (ferdy)
+
 * NUTCH-1263 FetcherJob must put 'fetchTime' on input (ferdy)
 
 * NUTCH-1296 nutchgora fetcher does not show correct 'threads' and 'resuming' properties (ferdy)

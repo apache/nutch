@@ -143,6 +143,14 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
       return new FetchItem(url, page, u, queueID);
     }
 
+    @Override
+    public String toString() {
+      return "FetchItem [queueID=" + queueID + ", url=" + url + ", u=" + u
+          + ", page=" + page + "]";
+    }
+    
+    
+
   }
 
   /**
@@ -550,7 +558,7 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
         }
 
       } catch (final Throwable e) {
-        LOG.error("fetcher caught:"+e.toString());
+        LOG.error("fetcher throwable caught", e);
       } finally {
         if (fit != null) fetchQueues.finishFetchItem(fit);
         activeThreads.decrementAndGet(); // count threads
