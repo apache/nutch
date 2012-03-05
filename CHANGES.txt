@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
+* NUTCH-1289 In distributed mode URL's are not partitioned (Dan Rosher, ferdy)
+
 * NUTCH-1292 Better exception logging and debugging during fetch. (ferdy)
 
 * NUTCH-1263 FetcherJob must put 'fetchTime' on input (ferdy)

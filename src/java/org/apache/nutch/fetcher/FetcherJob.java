@@ -19,8 +19,6 @@ package org.apache.nutch.fetcher;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
@@ -35,6 +33,7 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.GeneratorJob;
+import org.apache.nutch.crawl.URLPartitioner.FetchEntryPartitioner;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.ParserJob;
 import org.apache.nutch.protocol.ProtocolFactory;
@@ -184,7 +183,7 @@ public class FetcherJob extends NutchTool implements Tool {
     currentJob = new NutchJob(getConf(), "fetch");
     Collection<WebPage.Field> fields = getFields(currentJob);
     StorageUtils.initMapperJob(currentJob, fields, IntWritable.class,
-        FetchEntry.class, FetcherMapper.class, PartitionUrlByHost.class, false);
+        FetchEntry.class, FetcherMapper.class, FetchEntryPartitioner.class, false);
     StorageUtils.initReducerJob(currentJob, FetcherReducer.class);
     if (numTasks == null || numTasks < 1) {
       currentJob.setNumReduceTasks(currentJob.getConfiguration().getInt("mapred.map.tasks",
