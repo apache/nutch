@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1299 LinkRank inverter to ignore records without Node (markus)
+
 * NUTCH-1258 MoreIndexingFilter should be able to read Content-Type from both parse metadata and content metadata (jnioche, markus)
 
 * NUTCH-1293 IndexingFiltersChecker to store detected content type in crawldatum metadata (markus)

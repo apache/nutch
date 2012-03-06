@@ -404,6 +404,16 @@ public class LinkRank
         }
       }
 
+      // Check for the possibility of a LoopSet object without Node and LinkDatum objects. This can happen
+      // with webgraphs that receive deletes (e.g. link.delete.gone and/or URL filters or normalizers) but
+      // without an updated Loops database.
+      // See: https://issues.apache.org/jira/browse/NUTCH-1299
+      if (node == null && loops != null) {
+        // Nothing to do
+        LOG.warn("LoopSet without Node object received for " + key.toString() + " . You should either not use Loops as input of the LinkRank program or rerun the Loops program over the WebGraph.");
+        return;
+      }
+
       // get the number of outlinks and the current inlink and outlink scores
       // from the node of the url
       int numOutlinks = node.getNumOutlinks();
