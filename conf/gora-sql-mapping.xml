@@ -11,7 +11,7 @@
     <field name="fetchInterval" column="fetchInterval"/>
     <field name="retriesSinceFetch" column="retriesSinceFetch"/>
     <field name="reprUrl" column="reprUrl" length="512"/>
-    <field name="content" column="content"/>
+    <field name="content" column="content" length="65536"/>
     <field name="contentType" column="typ" length="32"/>    
     <field name="protocolStatus" column="protocolStatus"/>
     <field name="modifiedTime" column="modifiedTime"/>
