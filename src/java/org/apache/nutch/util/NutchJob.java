@@ -24,7 +24,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.nutch.metadata.Nutch;
 
-/** A {@link Job} for Nutch jobs.  */
+/** A {@link Job} for Nutch jobs. */
 public class NutchJob extends Job {
 
   public NutchJob(Configuration conf) throws IOException {
@@ -35,6 +35,20 @@ public class NutchJob extends Job {
   public NutchJob(Configuration conf, String jobName) throws IOException {
     super(conf, jobName);
     setJarByClass(this.getClass());
+  }
+
+  @Override
+  public boolean waitForCompletion(boolean verbose) throws IOException,
+      InterruptedException, ClassNotFoundException {
+    boolean succeeded = super.waitForCompletion(verbose);
+    if (!succeeded) {
+      // check if we want to fail whenever a job fails. (expert setting)
+      if (getConfiguration().getBoolean("fail.on.job.failure", true)) {
+        throw new RuntimeException("job failed: " + "name=" + getJobName()
+            + ", jobid=" + getJobID());
+      }
+    }
+    return succeeded;
   }
 
   public static boolean shouldProcess(Utf8 mark, Utf8 batchId) {
