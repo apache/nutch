@@ -207,15 +207,16 @@ public class Crawler extends NutchTool implements Tool {
   @Override
   public int run(String[] args) throws Exception {
     if (args.length == 0) {
-      System.out.println("Usage: Crawler (<seedDir> | -continue) [-solr <solrURL>] [-threads n] [-depth i] [-topN N]");
+      System.out.println("Usage: Crawler (<seedDir> | -continue) [-solr <solrURL>] [-threads n] [-depth i] [-topN N] [-numTasks N]");
       return -1;
     }
     // parse most common arguments here
     String seedDir = null;
-    int threads = getConf().getInt("fetcher.threads.fetch", 10);
+    int threads = getConf().getInt("fetcher.threads.fetch", 10);    
     int depth = 5;
     long topN = Long.MAX_VALUE;
     String solrUrl = null;
+    Integer numTasks = null;
     
     for (int i = 0; i < args.length; i++) {
       if ("-threads".equals(args[i])) {
@@ -226,9 +227,12 @@ public class Crawler extends NutchTool implements Tool {
         i++;
       } else if ("-topN".equals(args[i])) {
           topN = Integer.parseInt(args[i+1]);
-          i++;
+          i++; 
       } else if ("-solr".equals(args[i])) {
         solrUrl = StringUtils.lowerCase(args[i + 1]);
+        i++;
+      } else if ("-numTasks".equals(args[i])) {
+        numTasks = Integer.parseInt(args[i+1]);
         i++;
       } else if ("-continue".equals(args[i])) {
         // skip
@@ -241,7 +245,8 @@ public class Crawler extends NutchTool implements Tool {
         Nutch.ARG_DEPTH, depth,
         Nutch.ARG_TOPN, topN,
         Nutch.ARG_SOLR, solrUrl,
-        Nutch.ARG_SEEDDIR, seedDir);
+        Nutch.ARG_SEEDDIR, seedDir,
+        Nutch.ARG_NUMTASKS, numTasks);
     run(argMap);
     return 0;
   }
