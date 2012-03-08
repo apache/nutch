@@ -124,7 +124,7 @@
  <!-- -->
  <!-- ================================================================== -->
  <target name="release" depends="compile-core"
-  description="generate the release distribution">
+  description="--> generate the release distribution">
   <copy file="${conf.dir}/nutch-default.xml" todir="${build.classes}" />
   <copy file="${conf.dir}/nutch-site.xml" todir="${build.classes}" />
 
@@ -201,7 +201,7 @@
  <!-- ================================================================== -->
  <!-- -->
  <!-- ================================================================== -->
- <target name="deploy" depends="release" description="deploy to Apache Nexus">
+ <target name="deploy" depends="release" description="--> deploy to Apache Nexus">
 
   <!-- generate a pom file -->
   <ivy:makepom ivyfile="${ivy.file}" pomfile="${basedir}/pom.xml"
@@ -459,7 +459,7 @@
  </target>
 
  <!-- target: ivy-download ============================================ -->
- <target name="ivy-download" description="Download ivy">
+ <target name="ivy-download" description="--> Download ivy">
   <available file="${ivy.jar}" property="ivy.jar.found" />
   <antcall target="-ivy-download-unchecked" />
  </target>
@@ -669,7 +669,7 @@
  </target>
 
  <!-- target: clean-cache ============================================= -->
- <target name="clean-cache" depends="" description="delete ivy cache">
+ <target name="clean-cache" depends="" description="--> delete ivy cache">
   <ivy:cleancache />
  </target>
 
@@ -689,7 +689,7 @@
  </target>
 
  <target name="rat-sources" depends="rat-sources-typedef"
-  description="runs the tasks over src/java">
+  description="--> runs the tasks over src/java">
   <rat:report xmlns:rat="antlib:org.apache.rat.anttasks">
    <fileset dir="src">
     <include name="java/**/*" />

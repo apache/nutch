@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
+* NUTCH-1307 Improve formatting of ant targets for clearer project help (lewismc)
+
 * NUTCH-1302 nutchgora job failures should be noticed by submitter (ferdy)
 
 * NUTCH-1298 Pass numTasks to FetcherJob (Dan Rosher via ferdy)
