@@ -80,7 +80,7 @@ public class DomainBlacklistURLFilter
     while ((line = reader.readLine()) != null) {
       if (StringUtils.isNotBlank(line) && !line.startsWith("#")) {
         // add non-blank lines and non-commented lines
-        domainSet.add(StringUtils.lowerCase(line));
+        domainSet.add(StringUtils.lowerCase(line.trim()));
       }
     }
   }
@@ -120,12 +120,12 @@ public class DomainBlacklistURLFilter
         break;
       }
     }
-    
+
     // handle blank non empty input
     if (attributeFile != null && attributeFile.trim().equals("")) {
       attributeFile = null;
     }
-    
+
     if (attributeFile != null) {
       if (LOG.isInfoEnabled()) {
         LOG.info("Attribute \"file\" is defined for plugin " + pluginName
@@ -170,9 +170,7 @@ public class DomainBlacklistURLFilter
   }
 
   public String filter(String url) {
-
     try {
-
       // match for suffix, domain, and host in that order.  more general will
       // override more specific
       String domain = URLUtil.getDomainName(url).toLowerCase().trim();
@@ -182,7 +180,7 @@ public class DomainBlacklistURLFilter
       if (domainSuffix != null) {
         suffix = domainSuffix.getDomain();
       }
-      
+
       if (domainSet.contains(suffix) || domainSet.contains(domain)
         || domainSet.contains(host)) {
         // Matches, filter!
@@ -193,7 +191,7 @@ public class DomainBlacklistURLFilter
       return url;
     }
     catch (Exception e) {
-      
+
       // if an error happens, allow the url to pass
       LOG.error("Could not apply filter on url: " + url + "\n"
         + org.apache.hadoop.util.StringUtils.stringifyException(e));
