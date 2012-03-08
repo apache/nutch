@@ -50,6 +50,7 @@ extends GoraMapper<String, WebPage, SelectorEntry, WebPage> {
       if (GeneratorJob.LOG.isDebugEnabled()) {
         GeneratorJob.LOG.debug("Skipping " + url + "; already generated");
       }
+      return;
     }
 
     // If filtering is on don't generate URLs that don't pass URLFilters
