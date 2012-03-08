@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1307 Improve formatting of ant targets for clearer project help (lewismc)
+
 * NUTCH-1299 LinkRank inverter to ignore records without Node (markus)
 
 * NUTCH-1258 MoreIndexingFilter should be able to read Content-Type from both parse metadata and content metadata (jnioche, markus)
