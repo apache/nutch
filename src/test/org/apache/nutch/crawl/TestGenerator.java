@@ -140,7 +140,7 @@ public class TestGenerator extends AbstractNutchTest {
     fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
 
     // verify we got right amount of records
-    assertEquals(2, fetchList.size());
+    assertEquals(3, fetchList.size()); //3 as 2 + 1 skipped (already generated)
 
     myConfiguration = new Configuration(conf);
     myConfiguration.setInt(GeneratorJob.GENERATOR_MAX_COUNT, 3);
@@ -149,7 +149,7 @@ public class TestGenerator extends AbstractNutchTest {
     fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
 
     // verify we got right amount of records
-    assertEquals(3, fetchList.size());
+    assertEquals(3, fetchList.size()); //3 as now all have generate mark 
   }
 
   /**
@@ -191,7 +191,7 @@ public class TestGenerator extends AbstractNutchTest {
     fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
 
     // verify we got right amount of records
-    assertEquals(2, fetchList.size());
+    assertEquals(3, fetchList.size()); // 2 + 1 skipped (already generated)
 
     myConfiguration = new Configuration(myConfiguration);
     myConfiguration.setInt(GeneratorJob.GENERATOR_MAX_COUNT, 3);
@@ -200,7 +200,7 @@ public class TestGenerator extends AbstractNutchTest {
     fetchList = CrawlTestUtil.readContents(webPageStore, Mark.GENERATE_MARK, FIELDS);
 
     // verify we got right amount of records
-    assertEquals(3, fetchList.size());
+    assertEquals(6, fetchList.size()); // 3 + 3 skipped (already generated)
   }
 
   /**
