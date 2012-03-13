@@ -106,7 +106,7 @@
        Uncomment this to use HBase as Gora backend. Then manually add hbase-0.20.6 jar to the lib directory.
 -->
 <!--
-       <dependency org="org.apache.gora" name="gora-hbase" rev="0.1.1-incubating" conf="*->compile">
+       <dependency org="org.apache.gora" name="gora-hbase" rev="0.1.1-incubating" conf="*->default">
        </dependency>
        <dependency org="org.apache.zookeeper" name="zookeeper" rev="3.3.2" conf="*->default">
        </dependency>
