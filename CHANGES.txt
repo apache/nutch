@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1305 Domain(blacklist)URLFilter to trim entries (markus)
+
 * NUTCH-1307 Improve formatting of ant targets for clearer project help (lewismc)
 
 * NUTCH-1299 LinkRank inverter to ignore records without Node (markus)
