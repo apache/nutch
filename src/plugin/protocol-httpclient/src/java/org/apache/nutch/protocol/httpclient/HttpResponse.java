@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.net.URL;
 
 // HTTP Client imports
+import org.apache.avro.util.Utf8;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpVersion;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
@@ -169,6 +170,14 @@ public class HttpResponse implements Response {
             fetchTrace.append("; extracted to " + content.length + " bytes");
         }
       }
+      
+      // add headers in metadata to row
+	  if (page.getHeaders() != null) {
+	    page.getHeaders().clear();
+	  }
+	  for (String key : headers.names()) {
+	    page.putToHeaders(new Utf8(key), new Utf8(headers.get(key)));
+	  }
 
       // Logger trace message
       if (Http.LOG.isTraceEnabled()) {
