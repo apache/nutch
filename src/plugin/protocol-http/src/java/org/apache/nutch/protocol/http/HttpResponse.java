@@ -50,7 +50,6 @@ public class HttpResponse implements Response {
   private int code;
   private Metadata headers = new SpellCheckedMetadata();
 
-
   public HttpResponse(HttpBase http, URL url, CrawlDatum datum)
     throws ProtocolException, IOException {
 
@@ -122,9 +121,13 @@ public class HttpResponse implements Response {
         reqStr.append(userAgent);
         reqStr.append("\r\n");
       }
-      
+
       reqStr.append("Accept-Language: ");
       reqStr.append(this.http.getAcceptLanguage());
+      reqStr.append("\r\n");
+
+      reqStr.append("Accept: ");
+      reqStr.append(this.http.getAccept());
       reqStr.append("\r\n");
 
       if (datum.getModifiedTime() > 0) {

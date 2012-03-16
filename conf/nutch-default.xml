@@ -248,6 +248,13 @@
   </description>
 </property>
 
+<property>
+  <name>http.accept</name>
+  <value>text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</value>
+  <description>Value of the "Accept" request header field.
+  </description>
+</property>
+
 <!-- FTP properties -->
 
 <property>

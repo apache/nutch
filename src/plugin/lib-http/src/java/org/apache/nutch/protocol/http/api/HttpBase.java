@@ -76,6 +76,9 @@ public abstract class HttpBase implements Protocol {
 
   /** The "Accept-Language" request header value. */
   protected String acceptLanguage = "en-us,en-gb,en;q=0.7,*;q=0.3";
+
+  /** The "Accept" request header value. */
+  protected String accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
     
   /** The default logger */
   private final static Logger LOGGER = LoggerFactory.getLogger(HttpBase.class);
@@ -105,22 +108,23 @@ public abstract class HttpBase implements Protocol {
     robots = new RobotRulesParser();
   }
   
-   // Inherited Javadoc
-    public void setConf(Configuration conf) {
-        this.conf = conf;
-        this.proxyHost = conf.get("http.proxy.host");
-        this.proxyPort = conf.getInt("http.proxy.port", 8080);
-        this.useProxy = (proxyHost != null && proxyHost.length() > 0);
-        this.timeout = conf.getInt("http.timeout", 10000);
-        this.maxContent = conf.getInt("http.content.limit", 64 * 1024);
-        this.userAgent = getAgentString(conf.get("http.agent.name"), conf.get("http.agent.version"), conf
-                .get("http.agent.description"), conf.get("http.agent.url"), conf.get("http.agent.email"));
-        this.acceptLanguage = conf.get("http.accept.language", acceptLanguage);
-        // backward-compatible default setting
-        this.useHttp11 = conf.getBoolean("http.useHttp11", false);
-        this.robots.setConf(conf);
-        logConf();
-    }
+  // Inherited Javadoc
+  public void setConf(Configuration conf) {
+      this.conf = conf;
+      this.proxyHost = conf.get("http.proxy.host");
+      this.proxyPort = conf.getInt("http.proxy.port", 8080);
+      this.useProxy = (proxyHost != null && proxyHost.length() > 0);
+      this.timeout = conf.getInt("http.timeout", 10000);
+      this.maxContent = conf.getInt("http.content.limit", 64 * 1024);
+      this.userAgent = getAgentString(conf.get("http.agent.name"), conf.get("http.agent.version"), conf
+              .get("http.agent.description"), conf.get("http.agent.url"), conf.get("http.agent.email"));
+      this.acceptLanguage = conf.get("http.accept.language", acceptLanguage);
+      this.accept = conf.get("http.accept", accept);
+      // backward-compatible default setting
+      this.useHttp11 = conf.getBoolean("http.useHttp11", false);
+      this.robots.setConf(conf);
+      logConf();
+  }
 
   // Inherited Javadoc
   public Configuration getConf() {
@@ -235,6 +239,10 @@ public abstract class HttpBase implements Protocol {
          return acceptLanguage;
   }
 
+  public String getAccept() {
+         return accept;
+  }
+
   public boolean getUseHttp11() {
     return useHttp11;
   }
@@ -292,6 +300,7 @@ public abstract class HttpBase implements Protocol {
       logger.info("http.content.limit = " + maxContent);
       logger.info("http.agent = " + userAgent);
       logger.info("http.accept.language = " + acceptLanguage);
+      logger.info("http.accept = " + accept);
     }
   }
   
