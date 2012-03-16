@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
+* NUTCH-1312 Nutchgora to send HTTP-accept header (ferdy)
+
 * NUTCH-1311 Add response headers to datastore for the protocol-httpclient plugin (Dan Rosher via ferdy)
 
 * NUTCH-1304 GeneratorMapper.java dosen't return when skipping and already generated mark (Dan Rosher via lewismc)

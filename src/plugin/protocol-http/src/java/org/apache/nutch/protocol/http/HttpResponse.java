@@ -109,6 +109,10 @@ public class HttpResponse implements Response {
 
       reqStr.append("Accept-Encoding: x-gzip, gzip\r\n");
 
+      reqStr.append("Accept: ");
+      reqStr.append(this.http.getAccept());
+      reqStr.append("\r\n");
+
       String userAgent = http.getUserAgent();
       if ((userAgent == null) || (userAgent.length() == 0)) {
         if (Http.LOG.isErrorEnabled()) { Http.LOG.error("User-agent is not set!"); }
