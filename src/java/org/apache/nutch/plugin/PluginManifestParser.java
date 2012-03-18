@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URI;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -148,7 +147,7 @@ public class PluginManifestParser {
   private PluginDescriptor parseManifestFile(String pManifestPath)
       throws MalformedURLException, SAXException, IOException,
       ParserConfigurationException {
-    Document document = parseXML(new File(pManifestPath).toURI().toURL());
+    Document document = parseXML(new File(pManifestPath).toURL());
     String pPath = new File(pManifestPath).getParent();
     return parsePlugin(document, pPath);
   }
