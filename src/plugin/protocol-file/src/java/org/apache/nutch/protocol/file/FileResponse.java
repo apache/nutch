@@ -21,6 +21,7 @@ package org.apache.nutch.protocol.file;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URI;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
@@ -143,7 +144,7 @@ public class FileResponse {
       if (!f.equals(f.getCanonicalFile())) {
         // set headers
         //hdrs.put("Location", f.getCanonicalFile().toURI());
-        headers.set(Response.LOCATION, f.getCanonicalFile().toURL().toString());
+        headers.set(Response.LOCATION, f.getCanonicalFile().toURI().toURL().toString());
 
         this.code = 300;  // http redirect
         return;

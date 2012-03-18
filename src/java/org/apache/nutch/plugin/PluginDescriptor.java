@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
@@ -214,12 +215,16 @@ public class PluginDescriptor {
 
   /**
    * Adds a exported library with a relative path to the plugin directory.
+   * We wish to automatically escape characters that are illegal in URLs. 
+   * It is recommended that new code convert an abstract pathname into a URL 
+   * by first converting it into a URI, via the toURI method, and then 
+   * converting the URI into a URL via the URI.toURL method
    * 
    * @param pLibPath
    */
   public void addExportedLibRelative(String pLibPath)
       throws MalformedURLException {
-    URL url = new File(getPluginPath() + File.separator + pLibPath).toURL();
+    URL url = new File(getPluginPath() + File.separator + pLibPath).toURI().toURL();
     fExportedLibs.add(url);
   }
 
@@ -242,13 +247,17 @@ public class PluginDescriptor {
   }
 
   /**
-   * Adds a not exported library with a plugin directory relative path.
+   * Adds a exported library with a relative path to the plugin directory.
+   * We wish to automatically escape characters that are illegal in URLs. 
+   * It is recommended that new code convert an abstract pathname into a URL 
+   * by first converting it into a URI, via the toURI method, and then 
+   * converting the URI into a URL via the URI.toURL method
    * 
    * @param pLibPath
    */
   public void addNotExportedLibRelative(String pLibPath)
       throws MalformedURLException {
-    URL url = new File(getPluginPath() + File.separator + pLibPath).toURL();
+    URL url = new File(getPluginPath() + File.separator + pLibPath).toURI().toURL();
     fNotExportedLibs.add(url);
   }
 
@@ -279,7 +288,7 @@ public class PluginDescriptor {
     try {
       for (File file2 : file.listFiles()) {
         if (file2.getAbsolutePath().endsWith("properties"))
-          arrayList.add(file2.getParentFile().toURL());
+          arrayList.add(file2.getParentFile().toURI().toURL());
       }
     } catch (MalformedURLException e) {
       LOG.debug(getPluginId() + " " + e.toString());

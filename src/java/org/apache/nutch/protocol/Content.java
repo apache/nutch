@@ -32,7 +32,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.ArrayFile;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.UTF8;
 import org.apache.hadoop.io.VersionMismatchException;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.GenericOptionsParser;
@@ -113,21 +112,21 @@ public final class Content implements Writable{
     switch (oldVersion) {
     case 0:
     case 1:
-      url = UTF8.readString(in); // read url
-      base = UTF8.readString(in); // read base
+      url = Text.readString(in); // read url
+      base = Text.readString(in); // read base
 
       content = new byte[in.readInt()]; // read content
       in.readFully(content);
 
-      contentType = UTF8.readString(in); // read contentType
+      contentType = Text.readString(in); // read contentType
       // reconstruct metadata
       int keySize = in.readInt();
       String key;
       for (int i = 0; i < keySize; i++) {
-        key = UTF8.readString(in);
+        key = Text.readString(in);
         int valueSize = in.readInt();
         for (int j = 0; j < valueSize; j++) {
-          metadata.add(key, UTF8.readString(in));
+          metadata.add(key, Text.readString(in));
         }
       }
       break;
