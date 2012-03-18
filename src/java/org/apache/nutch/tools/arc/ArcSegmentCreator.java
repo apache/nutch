@@ -315,7 +315,7 @@ public class ArcSegmentCreator
         // the arc file,  TODO: currently this doesn't handle text of errors
         // pages (i.e. 404, etc.). We assume we won't get those.
         ProtocolStatus status = ProtocolStatus.STATUS_SUCCESS;
-        Content content = new Content(urlStr, urlStr, bytes.get(), contentType,
+        Content content = new Content(urlStr, urlStr, bytes.getBytes(), contentType,
           new Metadata(), getConf());
         
         // set the url version into the metadata

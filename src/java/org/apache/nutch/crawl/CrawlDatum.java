@@ -262,7 +262,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
     if (version > 3) {
       boolean hasMetadata = false;
       if (version < 7) {
-        MapWritable oldMetaData = new MapWritable();
+        org.apache.hadoop.io.MapWritable oldMetaData = new org.apache.hadoop.io.MapWritable();
         if (in.readBoolean()) {
           hasMetadata = true;
           metaData = new org.apache.hadoop.io.MapWritable();

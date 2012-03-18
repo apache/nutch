@@ -37,6 +37,7 @@ import org.apache.nutch.util.TimingUtil;
 
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
+import java.io.Closeable;
 
 /** . */
 public class LinkDbReader extends Configured implements Tool, Closeable {

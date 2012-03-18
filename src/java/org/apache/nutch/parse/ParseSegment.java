@@ -75,7 +75,7 @@ public class ParseSegment extends Configured implements Tool,
                   OutputCollector<Text, ParseImpl> output, Reporter reporter)
     throws IOException {
     // convert on the fly from old UTF8 keys
-    if (key instanceof UTF8) {
+    if (key instanceof Text) {
       newKey.set(key.toString());
       key = newKey;
     }

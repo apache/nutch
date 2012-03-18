@@ -43,7 +43,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.UTF8;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.mapred.FileInputFormat;
@@ -86,8 +85,9 @@ public class SegmentReader extends Configured implements
 
     public void map(WritableComparable key, Writable value,
         OutputCollector<Text, NutchWritable> collector, Reporter reporter) throws IOException {
-      // convert on the fly from old formats with UTF8 keys
-      if (key instanceof UTF8) {
+      // convert on the fly from old formats with UTF8 keys.
+      // UTF8 deprecated and replaced by Text.
+      if (key instanceof Text) {
         newKey.set(key.toString());
         key = newKey;
       }
@@ -252,7 +252,7 @@ public class SegmentReader extends Configured implements
         writer.close();
       }
     }
-    fs.delete(tempDir);
+    fs.delete(tempDir, true);
     if (LOG.isInfoEnabled()) { LOG.info("SegmentReader: done"); }
   }
 

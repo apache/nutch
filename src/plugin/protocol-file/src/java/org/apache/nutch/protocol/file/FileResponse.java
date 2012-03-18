@@ -19,6 +19,7 @@ package org.apache.nutch.protocol.file;
 
 // JDK imports
 import java.net.URL;
+import java.net.URI;
 import java.util.Date;
 import java.util.TreeMap;
 import java.io.IOException;
@@ -151,7 +152,12 @@ public class FileResponse {
       if (!f.equals(f.getCanonicalFile())) {
         // set headers
         //hdrs.put("Location", f.getCanonicalFile().toURI());
-        headers.set(Response.LOCATION, f.getCanonicalFile().toURL().toString());
+        //
+        // we want to automatically escape characters that are illegal in URLs. 
+        // It is recommended that new code convert an abstract pathname into a URL 
+        // by first converting it into a URI, via the toURI method, and then 
+        // converting the URI into a URL via the URI.toURL method.
+        headers.set(Response.LOCATION, f.getCanonicalFile().toURI().toURL().toString());
 
         this.code = 300;  // http redirect
         return;

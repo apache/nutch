@@ -19,6 +19,7 @@ package org.apache.nutch.crawl;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.Closeable;
 import java.net.URL;
 import java.util.Date;
 import java.util.Iterator;
@@ -35,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.Closeable;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.MapFile;
