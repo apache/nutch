@@ -16,7 +16,7 @@
  limitations under the License.
 -->
 
-<project name="Nutchgora" default="runtime" xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+<project name="${name}" default="runtime" xmlns:ivy="antlib:org.apache.ivy.ant" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 
  <!-- Load all the default properties, and any the user wants -->
  <!-- to contribute (without having to type -D or edit this file -->
@@ -138,8 +138,8 @@
     author="true" 
   	version="true" 
   	use="true" 
-  	windowtitle="${Name} ${version} API"
-    doctitle="${Name} ${version} API"
+  	windowtitle="${name} ${version} API"
+    doctitle="${name} ${version} API"
     bottom="Copyright &amp;copy; ${year} The Apache Software Foundation">
    <arg value="${javadoc.proxy.host}" />
    <arg value="${javadoc.proxy.port}" />
@@ -499,8 +499,8 @@
     author="true" 
   	version="true" 
   	use="true" 
-  	windowtitle="${Name} ${version} API"
-    doctitle="${Name} ${version} API"
+  	windowtitle="${name} ${version} API"
+    doctitle="${name} ${version} API"
     bottom="Copyright &amp;copy; ${year} The Apache Software Foundation">
    <arg value="${javadoc.proxy.host}" />
    <arg value="${javadoc.proxy.port}" />
