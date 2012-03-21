@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-809 Parse-metatags plugin (jnioche)
+
 * NUTCH-1310 Nutch to send HTTP-accept header (markus)
 
 * NUTCH-1305 Domain(blacklist)URLFilter to trim entries (markus)

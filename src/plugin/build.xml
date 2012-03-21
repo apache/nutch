@@ -48,6 +48,7 @@
      <ant dir="parse-ext" target="deploy"/>
      <ant dir="parse-js" target="deploy"/>
      <ant dir="parse-html" target="deploy"/>
+     <ant dir="parse-metatags" target="deploy"/>
      <ant dir="parse-swf" target="deploy"/>
      <ant dir="parse-tika" target="deploy"/>
      <ant dir="parse-zip" target="deploy"/>
@@ -82,6 +83,7 @@
      <!--ant dir="parse-ext" target="test"/-->
      <ant dir="feed" target="test"/>
      <ant dir="parse-html" target="test"/>
+     <ant dir="parse-metatags" target="test"/>
      <ant dir="parse-swf" target="test"/>
      <ant dir="parse-tika" target="test"/>
      <ant dir="parse-zip" target="test"/>
@@ -125,6 +127,7 @@
     <ant dir="parse-ext" target="clean"/>
     <ant dir="parse-js" target="clean"/>
     <ant dir="parse-html" target="clean"/>
+    <ant dir="parse-metatags" target="clean"/>
     <ant dir="parse-swf" target="clean"/>
     <ant dir="parse-tika" target="clean"/>
     <ant dir="parse-zip" target="clean"/>

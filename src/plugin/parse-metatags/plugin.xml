@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="parse-metatags"
+   name="MetaTags"
+   version="1.0"
+   provider-name="digitalpebble.com">
+
+   <runtime>
+      <library name="parse-metatags.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <extension id="org.apache.nutch.parse.metatags.parser"
+              name="MetaTags Parser"
+              point="org.apache.nutch.parse.HtmlParseFilter">
+      <implementation id="MetaTagsParser"
+                      class="org.apache.nutch.parse.MetaTagsParser"/>
+   </extension>
+
+</plugin>
+
