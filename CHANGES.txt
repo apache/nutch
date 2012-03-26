@@ -1,5 +1,7 @@
 Nutch Change Log
 
+* NUTCH-1234 Upgrade to Tika 1.1 (markus)
+
 * NUTCH-809 Parse-metatags plugin (jnioche)
 
 * NUTCH-1310 Nutch to send HTTP-accept header (markus)
