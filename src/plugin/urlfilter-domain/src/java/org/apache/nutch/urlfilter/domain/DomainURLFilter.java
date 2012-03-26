@@ -80,7 +80,7 @@ public class DomainURLFilter
     while ((line = reader.readLine()) != null) {
       if (StringUtils.isNotBlank(line) && !line.startsWith("#")) {
         // add non-blank lines and non-commented lines
-        domainSet.add(StringUtils.lowerCase(line));
+        domainSet.add(StringUtils.lowerCase(line.trim()));
       }
     }
   }
