@@ -20,11 +20,8 @@ import java.io.ByteArrayInputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.html.dom.HTMLDocumentImpl;
 import org.apache.nutch.metadata.Nutch;
@@ -38,9 +35,13 @@ import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.protocol.Content;
+import org.apache.tika.config.TikaConfig;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.mime.MediaType;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DocumentFragment;
 
 /**
@@ -70,7 +71,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
 		}
 
 		// get the right parser using the mime type as a clue
-		Parser parser = tikaConfig.getParser(mimeType);
+		Parser parser = tikaConfig.getParser(MediaType.parse(mimeType));
 		byte[] raw = content.getContent();
 
 		if (parser == null) {
@@ -202,7 +203,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
 			}
 		} else {
 			try {
-				tikaConfig = TikaConfig.getDefaultConfig();
+				tikaConfig = new TikaConfig(this.getClass().getClassLoader());
 			} catch (Exception e2) {
 				String message = "Problem loading default Tika configuration";
 				LOG.error(message, e2);
