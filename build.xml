@@ -595,7 +595,7 @@
     <copy todir="${dist.version.dir}">
       <fileset dir=".">
         <include name="*.txt" />
-        <include name="KEYS" />
+        <!--<include name="KEYS" />-->
       </fileset>
     </copy>
 
