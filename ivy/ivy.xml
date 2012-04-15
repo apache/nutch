@@ -110,15 +110,17 @@
           <exclude org="hsqldb" name="hsqldb" />
        </dependency>
 -->
-
+<!--
+       Uncomment this to use Accumulo as Gora backend.
+-->
+<!--
+       <dependency org="org.apache.gora" name="gora-accumulo" rev="0.1.1-incubating" conf="*->default" />
+-->
 <!--
     	Uncomment this to use Cassandra as Gora backend. 
 -->
 <!--
-		<dependency org="org.apache.gora" name="gora-cassandra" rev="0.1.1-incubating" conf="*->compile">
-		</dependency>
-		// Should be another dependency here???
-		</dependency>
+		<dependency org="org.apache.gora" name="gora-cassandra" rev="0.1.1-incubating" conf="*->default" />
 -->
 
              <!--global exclusion-->

@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
+* NUTCH-1333 Introduce AvroStore, DataFileAvroStore and Accumulo Datastore implementations (lewismc)
+
 * NUTCH-1312 Nutchgora to send HTTP-accept header (ferdy)
 
 * NUTCH-1311 Add response headers to datastore for the protocol-httpclient plugin (Dan Rosher via ferdy)
