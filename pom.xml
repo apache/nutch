@@ -27,7 +27,7 @@
 	<groupId>org.apache.nutch</groupId>
 	<artifactId>nutch</artifactId>
 	<packaging>jar</packaging>
-	<version>1.5</version>
+	<version>1.6-SNAPSHOT</version>
 	<name>Apache Nutch</name>
 	<url>http://nutch.apache.org</url>
 	<licenses>
@@ -38,9 +38,9 @@
 		</license>
 	</licenses>
 	<scm>
-		<connection>scm:svn:http://svn.apache.org/repos/asf/nutch/tags/release-1.5</connection>
-		<developerConnection>scm:svn:https://svn.apache.org/repos/asf/nutch/tags/release-1.5</developerConnection>
-		<url>http://svn.apache.org/viewvc/nutch/tags/release-1.5</url>
+		<connection>scm:svn:http://svn.apache.org/repos/asf/nutch/trunk/</connection>
+		<developerConnection>scm:svn:https://svn.apache.org/repos/asf/nutch/trunk/</developerConnection>
+		<url>http://svn.apache.org/viewvc/nutch/trunk/</url>
 	</scm>
 	<developers>
 		<developer>
