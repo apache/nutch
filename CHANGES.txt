@@ -1,5 +1,7 @@
 Nutch Change Log
 
+Release 1.5 - 04/15/2012
+
 * NUTCH-1208 Don't include KEYS file in bin distribution (jnioche)
 
 * NUTCH-1234 Upgrade to Tika 1.1 (jnioche, markus)

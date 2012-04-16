@@ -27,7 +27,7 @@
 	<groupId>org.apache.nutch</groupId>
 	<artifactId>nutch</artifactId>
 	<packaging>jar</packaging>
-	<version>1.5-SNAPSHOT</version>
+	<version>1.5</version>
 	<name>Apache Nutch</name>
 	<url>http://nutch.apache.org</url>
 	<licenses>
