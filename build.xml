@@ -612,6 +612,47 @@
 
   </target>
 
+ <target name="package-bin" depends="runtime, javadoc">
+    <mkdir dir="${dist.version.dir}-bin"/>
+    <mkdir dir="${dist.version.dir}-bin/lib"/>
+    <mkdir dir="${dist.version.dir}-bin/bin"/>
+    <mkdir dir="${dist.version.dir}-bin/conf"/>
+    <mkdir dir="${dist.version.dir}-bin/docs"/>
+    <mkdir dir="${dist.version.dir}-bin/docs/api"/>
+    <mkdir dir="${dist.version.dir}-bin/plugins"/>
+
+    <copy todir="${dist.version.dir}-bin/lib" includeEmptyDirs="false">
+      <fileset dir="runtime/local/lib"/>
+    </copy>
+   
+    <copy todir="${dist.version.dir}-bin/bin">
+      <fileset dir="runtime/local/bin"/>
+    </copy>
+
+    <chmod perm="ugo+x" type="file">
+        <fileset dir="${dist.version.dir}-bin/bin"/>
+    </chmod>
+
+    <copy todir="${dist.version.dir}-bin/conf">
+      <fileset dir="runtime/local/conf" excludes="**/*.template"/>
+    </copy>
+
+    <copy todir="${dist.version.dir}-bin/docs/api">
+      <fileset dir="${build.javadoc}"/>
+    </copy>
+
+    <copy todir="${dist.version.dir}-bin">
+      <fileset dir=".">
+        <include name="*.txt" />
+      </fileset>
+    </copy>
+
+    <copy todir="${dist.version.dir}-bin/plugins" includeEmptyDirs="true">
+      <fileset dir="runtime/local/plugins"/>
+    </copy>
+
+  </target>
+
   <!-- ================================================================== -->
   <!-- Make release tarball                                               -->
   <!-- ================================================================== -->
@@ -629,7 +670,7 @@
   </target>
 
   <!-- ================================================================== -->
-  <!-- Make release tarball                                               -->
+  <!-- Make release zip                                               -->
   <!-- ================================================================== -->
   <target name="zip" depends="package">
    <zip compress="true" casesensitive="yes" destfile="${dist.dir}/${final.name}.zip">
