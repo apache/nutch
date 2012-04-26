@@ -48,7 +48,7 @@ extends Reducer<String, WebPage, String, NutchDocument> {
     filters = new IndexingFilters(conf);
     scoringFilters = new ScoringFilters(conf);
     try {
-      store = StorageUtils.createDataStore(conf, String.class, WebPage.class);
+      store = StorageUtils.createWebStore(conf, String.class, WebPage.class);
     } catch (ClassNotFoundException e) {
       throw new IOException(e);
     }

@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
+* NUTCH-882 Design a Host table in GORA (jnioche, ab, dogacan, Mathijs Homminga, ferdy)
+
 * NUTCH-1340 Increase scalability by only removing markers when they actually exist for DbUpdaterReducer (ferdy)
 
 * NUTCH-1333 Introduce AvroStore, DataFileAvroStore and Accumulo Datastore implementations (lewismc)

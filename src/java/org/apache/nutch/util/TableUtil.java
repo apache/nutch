@@ -126,6 +126,17 @@ public class TableUtil {
     buf.append(splits[0]);
   }
 
+  public static String reverseHost(String hostName) {
+    StringBuilder buf = new StringBuilder();
+    reverseAppendSplits(hostName.split("\\."), buf);
+    return buf.toString();
+    
+  }
+  public static String unreverseHost(String reversedHostName) {
+    return reverseHost(reversedHostName); // Reversible
+  }
+  
+  
   /**
    * Convert given Utf8 instance to String
    *

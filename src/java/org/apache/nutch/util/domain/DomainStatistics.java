@@ -103,7 +103,7 @@ public class DomainStatistics extends Configured implements Tool {
 			mode = MODE_SUFFIX;
 		job.getConfiguration().setInt("domain.statistics.mode", mode);
 
-		DataStore<String, WebPage> store = StorageUtils.createDataStore(
+		DataStore<String, WebPage> store = StorageUtils.createWebStore(
 				job.getConfiguration(), String.class, WebPage.class);
 
 		Query<String, WebPage> query = store.newQuery();

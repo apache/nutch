@@ -35,27 +35,40 @@ import org.apache.nutch.metadata.Nutch;
 
 public class StorageUtils {
 
-  @SuppressWarnings("unchecked")
-  public static <K, V extends Persistent> DataStore<K, V> createDataStore(Configuration conf,
-      Class<K> keyClass, Class<V> persistentClass) throws ClassNotFoundException, GoraException {
-    Class<? extends DataStore<K, V>> dataStoreClass =
-      (Class<? extends DataStore<K, V>>) getDataStoreClass(conf);
-    return DataStoreFactory.createDataStore(dataStoreClass,
-            keyClass, persistentClass);
-  }
-
+  /** Creates a store for the given persistentClass.
+   * Currently supports Webpage and Host stores.
+   * 
+   * @param conf
+   * @param keyClass
+   * @param persistentClass
+   * @return
+   * @throws ClassNotFoundException
+   * @throws GoraException
+   */
   @SuppressWarnings("unchecked")
   public static <K, V extends Persistent> DataStore<K, V> createWebStore(Configuration conf,
       Class<K> keyClass, Class<V> persistentClass) throws ClassNotFoundException, GoraException {
-    String schema = conf.get("storage.schema", "webpage");
+    
+    String schema = null;
+    if (WebPage.class.equals(persistentClass)) {
+      schema = conf.get("storage.schema.webpage", "webpage");
+    } else if (Host.class.equals(persistentClass)) {
+      schema = conf.get("storage.schema.host", "host");
+    } else {
+      throw new UnsupportedOperationException("Unable to create store for class " + persistentClass);
+    }
+    
     String crawlId = conf.get(Nutch.CRAWL_ID_KEY, "");
-
+    
     if (!crawlId.isEmpty()) {
       schema = crawlId + "_" + schema;
     }
 
     Class<? extends DataStore<K, V>> dataStoreClass =
       (Class<? extends DataStore<K, V>>) getDataStoreClass(conf);
+    //Following line gets a compile error during upgrade to newer Gora,
+    //Simply add 'conf' as an additional argument to fix this. 
+    //(between persistentClass and schema)
     return DataStoreFactory.createDataStore(dataStoreClass,
             keyClass, persistentClass, schema);
   }
@@ -122,7 +135,7 @@ public class StorageUtils {
     GoraOutputFormat.setOutput(job, store, true);
   }
 
-  private static String[] toStringArray(Collection<WebPage.Field> fields) {
+  public static String[] toStringArray(Collection<WebPage.Field> fields) {
     String[] arr = new String[fields.size()];
     Iterator<WebPage.Field> iter = fields.iterator();
     for (int i = 0; i < arr.length; i++) {

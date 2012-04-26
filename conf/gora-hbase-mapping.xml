@@ -58,4 +58,16 @@
         <field name="markers" family="mk"/>
     </class>
     
+    <table name="host">
+      <family name="mtdt" maxVersions="1"/>
+      <family name="il" maxVersions="1"/>
+      <family name="ol" maxVersions="1"/>
+    </table>
+    
+    <class table="host" keyClass="java.lang.String" name="org.apache.nutch.storage.Host">
+      <field name="metadata" family="mtdt"/>
+      <field name="inlinks" family="il"/>
+      <field name="outlinks" family="ol"/>
+    </class>
+    
 </gora-orm>

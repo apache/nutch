@@ -34,11 +34,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.apache.avro.util.Utf8;
-import org.slf4j.Logger;
+import org.apache.gora.mapreduce.GoraReducer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.nutch.crawl.CrawlStatus;
 import org.apache.nutch.crawl.URLWebPage;
+import org.apache.nutch.host.HostDb;
 import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
@@ -51,12 +52,13 @@ import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatusCodes;
 import org.apache.nutch.protocol.ProtocolStatusUtils;
 import org.apache.nutch.protocol.RobotRules;
+import org.apache.nutch.storage.Host;
 import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.ProtocolStatus;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.TableUtil;
 import org.apache.nutch.util.URLUtil;
-import org.apache.gora.mapreduce.GoraReducer;
+import org.slf4j.Logger;
 
 public class FetcherReducer
 extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
@@ -261,12 +263,15 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
     long minCrawlDelay;
     Configuration conf;
     long timelimit = -1;
+    
+    boolean useHostSettings = false;
+    HostDb hostDb = null;
 
     public static final String QUEUE_MODE_HOST = "byHost";
     public static final String QUEUE_MODE_DOMAIN = "byDomain";
     public static final String QUEUE_MODE_IP = "byIP";
 
-    public FetchItemQueues(Configuration conf) {
+    public FetchItemQueues(Configuration conf) throws IOException {
       this.conf = conf;
       this.maxThreads = conf.getInt("fetcher.threads.per.queue", 1);
       queueMode = conf.get("fetcher.queue.mode", QUEUE_MODE_HOST);
@@ -277,6 +282,17 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
         queueMode = QUEUE_MODE_HOST;
       }
       LOG.info("Using queue mode : "+queueMode);
+      
+      // Optionally enable host specific queue behavior 
+      if (queueMode.equals(QUEUE_MODE_HOST)) {
+        useHostSettings = conf.getBoolean("fetcher.queue.use.host.settings", false);
+        if (useHostSettings) {
+          LOG.info("Host specific queue settings enabled.");
+          // Initialize the HostDb if we need it.
+          hostDb = new HostDb(conf);
+        }
+      }
+      
       this.crawlDelay = (long) (conf.getFloat("fetcher.server.delay", 1.0f) * 1000);
       this.minCrawlDelay = (long) (conf.getFloat("fetcher.server.min.delay", 0.0f) * 1000);
       this.timelimit = conf.getLong("fetcher.timelimit", -1);
@@ -317,8 +333,27 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
     public synchronized FetchItemQueue getFetchItemQueue(String id) {
       FetchItemQueue fiq = queues.get(id);
       if (fiq == null) {
-        // initialize queue
-        fiq = new FetchItemQueue(conf, maxThreads, crawlDelay, minCrawlDelay);
+        // Create a new queue
+        if (useHostSettings) {
+          // Use host specific queue settings (if defined in the host table)
+          try {
+            String hostname = id.substring(id.indexOf("://")+3);
+            Host host = hostDb.getByHostName(hostname);
+            if (host != null) {
+              fiq = new FetchItemQueue(conf,
+                                       host.getInt("q_mt", maxThreads),
+                                       host.getLong("q_cd", crawlDelay),
+                                       host.getLong("q_mcd", minCrawlDelay));
+            }
+            
+          } catch (IOException e) {
+            LOG.error("Error while trying to access host settings", e);
+          }
+        } 
+        if (fiq == null) {
+          // Use queue defaults
+          fiq = new FetchItemQueue(conf, maxThreads, crawlDelay, minCrawlDelay);
+        }
         queues.put(id, fiq);
       }
       return fiq;

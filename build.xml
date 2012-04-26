@@ -487,6 +487,20 @@
    It could not be loaded from ${ivy.repo.url}
   </fail>
  </target>
+	
+  <target name="compile-avro-schema" depends="resolve-default">
+    <typedef name="schema" 
+  	         classname="org.apache.avro.specific.SchemaTask"
+  	         classpathref="classpath" />
+    
+  	<mkdir dir="${build.gora}" />
+  	<schema destdir="${build.gora}">
+  	  <fileset dir="./src/gora">
+  	    <include name="**/*.avsc"/>
+  	  </fileset>
+  	</schema>
+  	
+	</target>
 
  <!-- ================================================================== -->
  <!-- Documentation -->
