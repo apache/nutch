@@ -1089,61 +1089,34 @@
 <property>
   <name>storage.data.store.class</name>
   <value>org.apache.gora.sql.store.SqlStore</value>
-  <description>Default Gora class for storing data in the SQL Store. 
-  A DataStore implementation for RDBMS with a SQL interface. SqlStore
-  uses JDBC drivers to communicate with the DB.</description>
+  <description>The Gora DataStore class for storing and retrieving data.
+   Currently the following stores are available:
+  
+  org.apache.gora.sql.store.SqlStore 
+    Default store. A DataStore implementation for RDBMS with a SQL interface.
+    SqlStore uses JDBC drivers to communicate with the DB.
+  
+  org.apache.gora.cassandra.store.CassandraStore
+    Gora class for storing data in Apache Cassandra.
+  
+  org.apache.gora.hbase.store.HBaseStore
+    Gora class for storing data in Apache HBase.
+  
+  org.apache.gora.hbase.store.AccumuloStore
+    Gora class for storing data in Apache Accumulo.
+  
+  org.apache.gora.hbase.store.AvroStore
+    Gora class for storing data in Apache Avro.
+    
+  org.apache.gora.hbase.store.DataFileAvroStore
+    Gora class for storing data in Apache Avro. DataFileAvroStore is 
+    a file based store which uses Avro's DataFile{Writer,Reader}'s as a backend.
+    This datastore supports mapreduce.
+    
+  org.apache.gora.hbase.store.MemStore
+    Gora class for storing data in a Memory based implementation for tests.
+  </description>
 </property>
-
-<!--
-<property>
-  <name>storage.data.store.class</name>
-  <value>org.apache.gora.cassandra.store.CassandraStore</value>
-  <description>Gora class for storing data in Apache Cassandra</description>
-</property>
--->
-
-<!--
-<property>
-  <name>storage.data.store.class</name>
-  <value>org.apache.gora.hbase.store.HBaseStore</value>
-  <description>Gora class for storing data in Apache HBase</description>
-</property>
--->
-
-<!--
-<property>
-  <name>storage.data.store.class</name>
-  <value>org.apache.gora.hbase.store.AccumuloStore</value>
-  <description>Gora class for storing data in Apache Accumulo</description>
-</property>
--->
-
-<!--
-<property>
-  <name>storage.data.store.class</name>
-  <value>org.apache.gora.hbase.store.AvroStore</value>
-  <description>Gora class for storing data in Apache Avro</description>
-</property>
--->
-
-<!--
-<property>
-  <name>storage.data.store.class</name>
-  <value>org.apache.gora.hbase.store.DataFileAvroStore</value>
-  <description>Gora class for storing data in Apache Avro. DataFileAvroStore is 
-  a file based store which uses Avro's DataFile{Writer,Reader}'s as a backend. 
-  This datastore supports mapreduce.</description>
-</property>
--->
-
-<!--
-<property>
-  <name>storage.data.store.class</name>
-  <value>org.apache.gora.hbase.store.MemStore</value>
-  <description>Gora class for storing data in a Memory based {@link DataStore} 
-  implementation for tests.</description>
-</property>
--->
 
 <property>
   <name>storage.schema</name>
