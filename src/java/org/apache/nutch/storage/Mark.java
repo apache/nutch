@@ -43,4 +43,16 @@ public enum Mark {
   public Utf8 checkMark(WebPage page) {
     return page.getFromMarkers(name);
   }
+
+  /**
+   * Remove the mark only if the mark is present on the page.
+   * @param page The page to remove the mark from.
+   * @return If the mark was present.
+   */
+  public Utf8 removeMarkIfExist(WebPage page) {
+    if (page.getFromMarkers(name) != null) {
+      return page.removeFromMarkers(name);
+    }
+    return null;
+  }
 }

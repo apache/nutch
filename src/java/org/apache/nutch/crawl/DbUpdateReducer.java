@@ -175,11 +175,14 @@ extends GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
     }
 
     // clear markers
-
-    page.removeFromMetadata(FetcherJob.REDIRECT_DISCOVERED);
-    Mark.GENERATE_MARK.removeMark(page);
-    Mark.FETCH_MARK.removeMark(page);
-    Utf8 mark = Mark.PARSE_MARK.removeMark(page);
+    // But only delete when they exist. This is much faster for the underlying
+    // store. The markers are on the input anyway.
+    if (page.getFromMetadata(FetcherJob.REDIRECT_DISCOVERED) != null) {
+      page.removeFromMetadata(FetcherJob.REDIRECT_DISCOVERED);
+    }
+    Mark.GENERATE_MARK.removeMarkIfExist(page);
+    Mark.FETCH_MARK.removeMarkIfExist(page);
+    Utf8 mark = Mark.PARSE_MARK.removeMarkIfExist(page);
     if (mark != null) {
       Mark.UPDATEDB_MARK.putMark(page, mark);
     }

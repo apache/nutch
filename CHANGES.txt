@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release nutchgora - Current Development
 
+* NUTCH-1340 Increase scalability by only removing markers when they actually exist for DbUpdaterReducer (ferdy)
+
 * NUTCH-1333 Introduce AvroStore, DataFileAvroStore and Accumulo Datastore implementations (lewismc)
 
 * NUTCH-1312 Nutchgora to send HTTP-accept header (ferdy)
