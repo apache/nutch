@@ -105,7 +105,7 @@
 
     <!-- Uncomment this to use HBase as Gora backend. -->
     <!-- 
-    <!-- <dependency org="org.apache.gora" name="gora-hbase" rev="0.2" conf="*->default" />
+    <dependency org="org.apache.gora" name="gora-hbase" rev="0.2" conf="*->default" />
     -->
 
 
