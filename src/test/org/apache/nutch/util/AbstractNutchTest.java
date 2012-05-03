@@ -18,13 +18,12 @@ package org.apache.nutch.util;
 
 import junit.framework.TestCase;
 
+import org.apache.gora.store.DataStore;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.nutch.storage.StorageUtils;
 import org.apache.nutch.storage.WebPage;
-import org.apache.gora.store.DataStore;
-import org.apache.gora.store.DataStoreFactory;
 
 /**
  * This class provides common routines for setup/teardown of an in-memory data
@@ -44,12 +43,6 @@ public class AbstractNutchTest extends TestCase {
     conf = CrawlTestUtil.createConfiguration();
     conf.set("storage.data.store.class", "org.apache.gora.sql.store.SqlStore");
     fs = FileSystem.get(conf);
-    // using hsqldb in memory
-    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.driver","org.hsqldb.jdbcDriver");
-    // use separate in-memory db-s for tests
-    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.url","jdbc:hsqldb:mem:" + getClass().getName());
-    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.user","sa");
-    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.password","");
     webPageStore = StorageUtils.createWebStore(conf, String.class,
         WebPage.class);
   }

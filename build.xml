@@ -378,6 +378,9 @@
 
   <copy file="${test.src.dir}/log4j.properties" 
   	todir="${test.build.classes}" />
+  	
+  <copy file="${test.src.dir}/gora.properties" 
+  	todir="${test.build.classes}" />
 
   <junit printsummary="yes" haltonfailure="no" fork="yes" dir="${basedir}"
    errorProperty="tests.failed" failureProperty="tests.failed" maxmemory="1000m">

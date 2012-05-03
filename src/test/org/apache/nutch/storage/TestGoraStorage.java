@@ -30,7 +30,6 @@ import org.apache.avro.util.Utf8;
 import org.apache.commons.io.IOUtils;
 import org.apache.gora.query.Result;
 import org.apache.gora.store.DataStore;
-import org.apache.gora.store.DataStoreFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.AbstractNutchTest;
 import org.apache.nutch.util.CrawlTestUtil;
@@ -136,9 +135,13 @@ public class TestGoraStorage extends AbstractNutchTest {
     server.setDaemon(true);
     server.setSilent(true); // disables LOTS of trace
     final String className = getClass().getName();
-    server.setDatabasePath(0, "mem:" + className);
-    server.setDatabaseName(0, className);
+    String dbName = "test";
+    server.setDatabasePath(0, "mem:"+dbName);
+    server.setDatabaseName(0, dbName);
     server.start();
+    
+    //create the store so that the tests can start right away
+    StorageUtils.createWebStore(conf, String.class, WebPage.class);
     
     // create a fixed thread pool
     int numThreads = 4;
@@ -153,6 +156,9 @@ public class TestGoraStorage extends AbstractNutchTest {
           try {
             String separator = System.getProperty("file.separator");
             String classpath = System.getProperty("java.class.path");
+            String pathSeparator = System.getProperty("path.separator");
+            // connect local sql service
+            classpath = "./src/testprocess" + pathSeparator + classpath;
             String path = System.getProperty("java.home") + separator + "bin"
                 + separator + "java";
             ProcessBuilder processBuilder = new ProcessBuilder(path, "-cp", 
@@ -194,13 +200,6 @@ public class TestGoraStorage extends AbstractNutchTest {
 
     Configuration localConf = CrawlTestUtil.createConfiguration();
     localConf.set("storage.data.store.class", "org.apache.gora.sql.store.SqlStore");
-
-    //connect to local sql service
-    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.driver","org.hsqldb.jdbcDriver");
-    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.url",
-        "jdbc:hsqldb:hsql://localhost/"+TestGoraStorage.class.getName());
-    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.user","sa");
-    DataStoreFactory.properties.setProperty("gora.sqlstore.jdbc.password","");
 
     DataStore<String, WebPage> store = StorageUtils.createWebStore(localConf,
         String.class, WebPage.class);

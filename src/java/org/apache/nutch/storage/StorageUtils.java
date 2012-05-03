@@ -66,11 +66,8 @@ public class StorageUtils {
 
     Class<? extends DataStore<K, V>> dataStoreClass =
       (Class<? extends DataStore<K, V>>) getDataStoreClass(conf);
-    //Following line gets a compile error during upgrade to newer Gora,
-    //Simply add 'conf' as an additional argument to fix this. 
-    //(between persistentClass and schema)
     return DataStoreFactory.createDataStore(dataStoreClass,
-            keyClass, persistentClass, schema);
+            keyClass, persistentClass, conf, schema);
   }
 
   @SuppressWarnings("unchecked")
