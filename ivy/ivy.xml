@@ -105,8 +105,9 @@
 
     <!-- Uncomment this to use HBase as Gora backend. -->
     <!-- 
-    <dependency org="org.apache.gora" name="gora-hbase" rev="0.2" conf="*->default" /> 
+    <!-- <dependency org="org.apache.gora" name="gora-hbase" rev="0.2" conf="*->default" />
     -->
+
 
     <!-- Uncomment this to use Accumulo as Gora backend. -->
     <!-- 
@@ -115,7 +116,7 @@
 
     <!-- Uncomment this to use Cassandra as Gora backend. -->
     <!-- 
-    <dependency org="org.apache.gora" name="gora-cassandra" rev="0.2" conf="*->default" >
+    <dependency org="org.apache.gora" name="gora-cassandra" rev="0.2" conf="*->default" />
     -->
 
     <!--global exclusion -->
@@ -123,6 +124,7 @@
     <exclude module="slf4j-jdk14" />
     <exclude module="slf4j-simple" />
     <exclude org="hsqldb"/>
+    <exclude org="maven-plugins"/>
     <exclude module="jmxtools" />
     <exclude module="jms" />
     <exclude module="jmxri" />
