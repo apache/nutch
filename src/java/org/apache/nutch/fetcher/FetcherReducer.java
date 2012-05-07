@@ -775,7 +775,8 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
     }
     LOG.info("Fetcher: threads: " + threadCount);
 
-    feeder = new QueueFeeder(context, fetchQueues, threadCount * 50);
+    int maxFeedPerThread = conf.getInt("fetcher.queue.depth.multiplier", 50);
+    feeder = new QueueFeeder(context, fetchQueues, threadCount * maxFeedPerThread);
     feeder.start();
 
     for (int i = 0; i < threadCount; i++) {       // spawn threads
