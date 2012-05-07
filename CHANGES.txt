@@ -1,6 +1,8 @@
 Nutch Change Log
 
 Release nutchgora - Current Development
+* NUTCH-1355 nutchgora Configure minimum throughput for fetcher
+
 * NUTCH-1354 nutchgora support fetcher.queue.depth.multiplier property (ferdy)
 
 * NUTCH-1353 nutchgora DomainStatistics support crawlId, counter bug and reformatting (ferdy)

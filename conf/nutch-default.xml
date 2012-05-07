@@ -687,6 +687,30 @@
 </property>
 
 <property>
+  <name>fetcher.throughput.threshold.pages</name>
+  <value>-1</value>
+  <description>The threshold of minimum pages per second. If the fetcher downloads less
+  pages per second than the configured threshold, the fetcher stops, preventing slow queue's
+  from stalling the throughput. This threshold must be an integer. This can be useful when
+  fetcher.timelimit.mins is hard to determine. The default value of -1 disables this check.
+  </description>
+</property>
+
+<property>
+  <name>fetcher.throughput.threshold.sequence</name>
+  <value>5</value>
+  <description>The number of times the fetcher.throughput.threshold is allowed to be exceeded,
+  in a row. This setting prevents accidental slow downs from stopping the fetcher.
+  </description>
+</property>
+
+<property>
+  <name>fetcher.throughput.threshold.check.after</name>
+  <value>5</value>
+  <description>The number of minutes after which the throughput check is enabled.</description>
+</property>
+
+<property>
   <name>fetcher.queue.depth.multiplier</name>
   <value>50</value>
   <description>(EXPERT)The fetcher buffers the incoming URLs into queues based on the [host|domain|IP]
