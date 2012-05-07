@@ -28,22 +28,23 @@ import org.slf4j.LoggerFactory;
 import org.apache.nutch.net.URLNormalizer;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.oro.text.regex.*;
 
 /** Converts URLs to a normal form . */
-public class BasicURLNormalizer implements URLNormalizer {
+public class BasicURLNormalizer extends Configured implements URLNormalizer {
     public static final Logger LOG = LoggerFactory.getLogger(BasicURLNormalizer.class);
 
     private Perl5Compiler compiler = new Perl5Compiler();
-    private ThreadLocal matchers = new ThreadLocal() {
-        protected synchronized Object initialValue() {
+    private ThreadLocal<Perl5Matcher> matchers = new ThreadLocal<Perl5Matcher>() {
+        protected Perl5Matcher initialValue() {
           return new Perl5Matcher();
         }
       };
-    private Rule relativePathRule = null;
-    private Rule leadingRelativePathRule = null;
-    private Rule currentPathRule = null;
-    private Rule adjacentSlashRule = null;
+    private final Rule relativePathRule;
+    private final Rule leadingRelativePathRule;
+    private final Rule currentPathRule;
+    private final Rule adjacentSlashRule;
 
     private Configuration conf;
 
@@ -80,7 +81,7 @@ public class BasicURLNormalizer implements URLNormalizer {
         adjacentSlashRule.substitution = new Perl5Substitution("/");
         
       } catch (MalformedPatternException e) {
-        LOG.error("Failed with the following MalformedPatterException: " + e);
+        throw new RuntimeException(e);
       }
     }
 
@@ -164,7 +165,7 @@ public class BasicURLNormalizer implements URLNormalizer {
         // "http://www.foo.com/../" should return a http 404 error instead of
         // redirecting to "http://www.foo.com".
         //
-        Perl5Matcher matcher = (Perl5Matcher)matchers.get();
+        Perl5Matcher matcher = matchers.get();
 
         while (oldLen != newLen) {
             // substitue first occurence of "/xx/../" by "/"
@@ -204,15 +205,5 @@ public class BasicURLNormalizer implements URLNormalizer {
         public Perl5Pattern pattern;
         public Perl5Substitution substitution;
     }
-
-
-  public void setConf(Configuration conf) {
-    this.conf = conf;
-  }
-
-  public Configuration getConf() {
-    return this.conf;
-  }
-
 }
 

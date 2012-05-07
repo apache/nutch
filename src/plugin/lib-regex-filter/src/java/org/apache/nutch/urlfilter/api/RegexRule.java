@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.urlfilter.api;
 
-import org.apache.nutch.net.*;
 
 
 /**
@@ -26,8 +25,7 @@ import org.apache.nutch.net.*;
  */
 public abstract class RegexRule {
 
-  private boolean sign;
-  private String regex;
+  private final boolean sign;
 
   /**
    * Constructs a new regular expression rule.
@@ -41,7 +39,6 @@ public abstract class RegexRule {
    */
   protected RegexRule(boolean sign, String regex) {
     this.sign = sign;
-    this.regex = regex;
   }
 
   /**
