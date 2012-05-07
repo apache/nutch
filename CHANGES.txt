@@ -1,6 +1,7 @@
 Nutch Change Log
 
 Release nutchgora - Current Development
+* NUTCH-1353 nutchgora DomainStatistics support crawlId, counter bug and reformatting (ferdy)
 
 * NUTCH-1350 remove unused dependancy because of access restriction (ferdy)
 
