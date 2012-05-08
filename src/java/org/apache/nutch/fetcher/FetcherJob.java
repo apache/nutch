@@ -110,7 +110,7 @@ public class FetcherJob extends NutchTool implements Tool {
       Utf8 mark = Mark.GENERATE_MARK.checkMark(page);
       if (!NutchJob.shouldProcess(mark, batchId)) {
         if (LOG.isDebugEnabled()) {
-          LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; different batch id");
+          LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; different batch id (" + mark + ")");
         }
         return;
       }
@@ -265,12 +265,12 @@ public class FetcherJob extends NutchTool implements Tool {
     String batchId;
 
     String usage = "Usage: FetcherJob (<batchId> | -all) [-crawlId <id>] " +
-      "[-threads N] [-parse] [-resume] [-numTasks N]\n" +
-      "\tbatchId\tcrawl identifier returned by Generator, or -all for all generated batchId-s\n" +
-      "\t-crawlId <id>\t the id to prefix the schemas to operate on, (default: storage.crawl.id)\n" +
-      "\t-threads N\tnumber of fetching threads per task\n" +
-      "\t-resume\tresume interrupted job\n" +
-      "\t-numTasks N\tif N > 0 then use this many reduce tasks for fetching (default: mapred.map.tasks)";
+      "[-threads N] [-parse] \n \t \t  [-resume] [-numTasks N]\n" +
+      "    <batchId>     - crawl identifier returned by Generator, or -all for all \n \t \t    generated batchId-s\n" +
+      "    -crawlId <id> - the id to prefix the schemas to operate on, \n \t \t    (default: storage.crawl.id)\n" +
+      "    -threads N    - number of fetching threads per task\n" +
+      "    -resume       - resume interrupted job\n" +
+      "    -numTasks N   - if N > 0 then use this many reduce tasks for fetching \n \t \t    (default: mapred.map.tasks)";
 
     if (args.length == 0) {
       System.err.println(usage);

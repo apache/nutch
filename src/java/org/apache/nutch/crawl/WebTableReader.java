@@ -419,21 +419,17 @@ public class WebTableReader extends NutchTool implements Tool {
   public int run(String[] args) throws Exception {
     if (args.length < 1) {
       System.err
-          .println("Usage: WebTableReader (-stats | -url [url] | -dump <out_dir> [-regex regex]) [-crawlId <id>] [-content] [-headers] [-links] [-text]");
-      System.err.println("\t-crawlId <id>\t the id to prefix the schemas to operate on, (default: storage.crawl.id)");
-      System.err
-          .println("\t-stats [-sort] \tprint overall statistics to System.out");
-      System.err.println("\t\t[-sort]\tlist status sorted by host");
-      System.err
-          .println("\t-url <url>\tprint information on <url> to System.out");
-      System.err
-          .println("\t-dump <out_dir> [-regex regex]\tdump the webtable to a text file in <out_dir>");
-      System.err.println("\t\t-content\tdump also raw content");
-      System.err.println("\t\t-headers\tdump protocol headers");
-      System.err.println("\t\t-links\tdump links");
-      System.err.println("\t\t-text\tdump extracted text");
-      System.err
-          .println("\t\t[-regex]\tfilter on the URL of the webtable entry");
+          .println("Usage: WebTableReader (-stats | -url [url] | -dump <out_dir> [-regex regex]) \n \t \t      [-crawlId <id>] [-content] [-headers] [-links] [-text]");
+      System.err.println("    -crawlId <id>  - the id to prefix the schemas to operate on, \n \t \t     (default: storage.crawl.id)");
+      System.err.println("    -stats [-sort] - print overall statistics to System.out");
+      System.err.println("    [-sort]        - list status sorted by host");
+      System.err.println("    -url <url>     - print information on <url> to System.out");
+      System.err.println("    -dump <out_dir> [-regex regex] - dump the webtable to a text file in \n \t \t     <out_dir>");
+      System.err.println("    -content       - dump also raw content");
+      System.err.println("    -headers       - dump protocol headers");
+      System.err.println("    -links         - dump links");
+      System.err.println("    -text          - dump extracted text");
+      System.err.println("    [-regex]       - filter on the URL of the webtable entry");
       return -1;
     }
     String param = null;

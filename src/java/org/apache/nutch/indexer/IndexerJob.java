@@ -80,7 +80,7 @@ public abstract class IndexerJob extends NutchTool implements Tool {
       if (!batchId.equals(REINDEX)) {
         if (!NutchJob.shouldProcess(mark, batchId)) {
           if (LOG.isDebugEnabled()) {
-            LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; different batch id");
+            LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; different batch id (" + mark + ")");
           }
           return;
         }

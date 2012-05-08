@@ -269,11 +269,11 @@ public class ParserJob extends NutchTool implements Tool {
 
     if (args.length < 1) {
       System.err.println("Usage: ParserJob (<batchId> | -all) [-crawlId <id>] [-resume] [-force]");
-      System.err.println("\tbatchId\tsymbolic batch ID created by Generator");
-      System.err.println("\t-crawlId <id>\t the id to prefix the schemas to operate on, (default: storage.crawl.id)");
-      System.err.println("\t-all\tconsider pages from all crawl jobs");
-      System.err.println("-resume\tresume a previous incomplete job");
-      System.err.println("-force\tforce re-parsing even if a page is already parsed");
+      System.err.println("    <batchId>     - symbolic batch ID created by Generator");
+      System.err.println("    -crawlId <id> - the id to prefix the schemas to operate on, \n \t \t    (default: storage.crawl.id)");
+      System.err.println("    -all          - consider pages from all crawl jobs");
+      System.err.println("    -resume       - resume a previous incomplete job");
+      System.err.println("    -force        - force re-parsing even if a page is already parsed");
       return -1;
     }
     for (int i = 0; i < args.length; i++) {

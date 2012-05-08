@@ -1,11 +1,14 @@
 Nutch Change Log
 
 Release nutchgora - Current Development
+
+* NUTCH-1349 Make batchId explcit within debug logging and improve CLI (lewismc + ferdy)
+
 * NUTCH-1352 Improve regex urlfilters/normalizers synchronization (ferdy)
 
 * NUTCH-1356 ParseUtil use ExecutorService instead of manually thread handling. (ferdy)
 
-* NUTCH-1355 nutchgora Configure minimum throughput for fetcher
+* NUTCH-1355 nutchgora Configure minimum throughput for fetcher (ferdy)
 
 * NUTCH-1354 nutchgora support fetcher.queue.depth.multiplier property (ferdy)
 

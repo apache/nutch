@@ -49,11 +49,14 @@ if [ $# = 0 ]; then
   echo "where COMMAND is one of:"
 # echo " crawl one-step crawler for intranets"
   echo " inject		inject new urls into the database"
+  echo " hostinject     creates or updates an existing host table from a text file"
   echo " generate 	generate new segments to fetch from crawl db"
   echo " fetch 		fetch URLs marked during generate"
   echo " parse 		parse URLs marked during fetch"
   echo " updatedb 	update web table after parsing"
+  echo " updatehostdb   update host table after parsing"
   echo " readdb 	read/dump records from page database"
+  echo " readhostdb     display entries from the hostDB"
   echo " solrindex 	run the solr indexer on parsed segments and linkdb"
   echo " solrdedup 	remove duplicates from solr"
   echo " plugin 	load a plugin and run one of its classes main()"
@@ -184,6 +187,8 @@ if [ "$COMMAND" = "crawl" ] ; then
 CLASS=org.apache.nutch.crawl.Crawler
 elif [ "$COMMAND" = "inject" ] ; then
 CLASS=org.apache.nutch.crawl.InjectorJob
+elif [ "$COMMAND" = "hostinject" ] ; then
+CLASS=org.apache.nutch.host.HostInjectorJob
 elif [ "$COMMAND" = "generate" ] ; then
 CLASS=org.apache.nutch.crawl.GeneratorJob
 elif [ "$COMMAND" = "fetch" ] ; then
@@ -192,8 +197,12 @@ elif [ "$COMMAND" = "parse" ] ; then
 CLASS=org.apache.nutch.parse.ParserJob
 elif [ "$COMMAND" = "updatedb" ] ; then
 CLASS=org.apache.nutch.crawl.DbUpdaterJob
+elif [ "$COMMAND" = "updatehostdb" ] ; then
+CLASS=org.apache.nutch.host.HostDbUpdateJob
 elif [ "$COMMAND" = "readdb" ] ; then
 CLASS=org.apache.nutch.crawl.WebTableReader
+elif [ "$COMMAND" = "readhostdb" ] ; then
+CLASS=org.apache.nutch.host.HostDbReader
 elif [ "$COMMAND" = "solrindex" ] ; then
 CLASS=org.apache.nutch.indexer.solr.SolrIndexerJob
 elif [ "$COMMAND" = "solrdedup" ] ; then
