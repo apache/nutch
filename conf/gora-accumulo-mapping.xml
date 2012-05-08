@@ -18,14 +18,15 @@
 <gora-orm>
     
     <table name="webpage">
-        <family name="p" maxVersions="1"/> <!-- This can also have params like compression, bloom filters -->
-        <family name="f" maxVersions="1"/>
-        <family name="s" maxVersions="1"/>
-        <family name="il" maxVersions="1"/>
-        <family name="ol" maxVersions="1"/>
-        <family name="h" maxVersions="1"/>
-        <family name="mtdt" maxVersions="1"/>
-        <family name="mk" maxVersions="1"/>
+        <family name="p" /> <!-- This can also have params like compression, bloom filters -->
+        <family name="f" />
+        <family name="s" />
+        <family name="il" />
+        <family name="ol" />
+        <family name="h" />
+        <family name="mtdt" />
+        <family name="mk" />
+        <config key="table.file.compress.blocksize" value="32K"/>
     </table>
     <class table="webpage" keyClass="java.lang.String" name="org.apache.nutch.storage.WebPage">
         
@@ -56,6 +57,18 @@
         <field name="outlinks" family="ol"/>
         <field name="metadata" family="mtdt"/>
         <field name="markers" family="mk"/>
+    </class>
+    
+    <table name="host">
+        <family name="mtdt" />
+        <family name="il" />
+        <family name="ol" />
+    </table>
+    
+    <class table="host" keyClass="java.lang.String" name="org.apache.nutch.storage.Host">
+        <field name="metadata" family="mtdt"/>
+        <field name="inlinks" family="il"/>
+        <field name="outlinks" family="ol"/>
     </class>
     
 </gora-orm>
