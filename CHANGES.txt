@@ -1,6 +1,7 @@
 Nutch Change Log
 
 Release nutchgora - Current Development
+* NUTCH-1358 Do not accept bogus arguments (ferdy)
 
 * NUTCH-1349 Make batchId explcit within debug logging and improve CLI (lewismc + ferdy)
 

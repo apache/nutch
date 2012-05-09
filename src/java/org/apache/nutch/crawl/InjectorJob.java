@@ -274,8 +274,14 @@ public class InjectorJob extends NutchTool implements Tool {
       System.err.println("Usage: InjectorJob <url_dir> [-crawlId <id>]");
       return -1;
     }
-    if (args.length == 3 && "-crawlId".equals(args[1])) {
-      getConf().set(Nutch.CRAWL_ID_KEY, args[2]);
+    for (int i = 1; i < args.length; i++) {
+      if ("-crawlId".equals(args[i])) {
+        getConf().set(Nutch.CRAWL_ID_KEY, args[i+1]);
+        i++;
+      } else {
+        System.err.println("Unrecognized arg " + args[i]);
+        return -1;
+      }
     }
 
     try {

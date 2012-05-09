@@ -293,6 +293,8 @@ public class FetcherJob extends NutchTool implements Tool {
         numTasks = Integer.parseInt(args[++i]);
       } else if ("-crawlId".equals(args[i])) {
         getConf().set(Nutch.CRAWL_ID_KEY, args[++i]);
+      } else {
+        throw new IllegalArgumentException("arg " +args[i]+ " not recognized");
       }
     }
 

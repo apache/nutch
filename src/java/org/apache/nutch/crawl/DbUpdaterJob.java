@@ -107,8 +107,12 @@ public class DbUpdaterJob extends NutchTool implements Tool {
 
   public int run(String[] args) throws Exception {
     String crawlId = null;
-    if (args.length == 2 && "-crawlId".equals(args[0])) {
+    if (args.length == 0) {
+      //
+    } else if (args.length == 2 && "-crawlId".equals(args[0])) {
       crawlId = args[1];
+    } else {
+      throw new IllegalArgumentException("usage: " + "(-crawlId <id>)");
     }
     return updateTable(crawlId);
   }
