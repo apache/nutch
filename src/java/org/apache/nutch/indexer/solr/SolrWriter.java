@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.nutch.indexer.NutchDocument;
@@ -31,6 +33,8 @@ import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
 import org.apache.solr.common.SolrInputDocument;
 
 public class SolrWriter implements NutchIndexWriter {
+
+  public static Logger LOG = LoggerFactory.getLogger(SolrWriter.class);
 
   private SolrServer solr;
   private SolrMappingReader solrMapping;
@@ -54,10 +58,16 @@ public class SolrWriter implements NutchIndexWriter {
     final SolrInputDocument inputDoc = new SolrInputDocument();
     for(final Entry<String, List<String>> e : doc) {
       for (final String val : e.getValue()) {
-        inputDoc.addField(solrMapping.mapKey(e.getKey()), val);
+
+        Object val2 = val;
+        if (e.getKey().equals("content")) {
+          val2 = stripNonCharCodepoints((String)val);
+        }
+
+        inputDoc.addField(solrMapping.mapKey(e.getKey()), val2);
         String sCopy = solrMapping.mapCopyKey(e.getKey());
         if (sCopy != e.getKey()) {
-        	inputDoc.addField(sCopy, val);
+        	inputDoc.addField(sCopy, val2);
         }
       }
     }
@@ -65,6 +75,7 @@ public class SolrWriter implements NutchIndexWriter {
     inputDocs.add(inputDoc);
     if (inputDocs.size() >= commitSize) {
       try {
+        LOG.info("Adding " + Integer.toString(inputDocs.size()) + " documents");
         solr.add(inputDocs);
       } catch (final SolrServerException e) {
         throw new IOException(e);
@@ -77,12 +88,34 @@ public class SolrWriter implements NutchIndexWriter {
   public void close() throws IOException {
     try {
       if (!inputDocs.isEmpty()) {
+        LOG.info("Adding " + Integer.toString(inputDocs.size()) + " documents");
         solr.add(inputDocs);
         inputDocs.clear();
       }
     } catch (final SolrServerException e) {
       throw new IOException(e);
     }
+  }
+
+  public static String stripNonCharCodepoints(String input) {
+    StringBuilder retval = new StringBuilder();
+    char ch;
+
+    for (int i = 0; i < input.length(); i++) {
+      ch = input.charAt(i);
+
+      // Strip all non-characters http://unicode.org/cldr/utility/list-unicodeset.jsp?a=[:Noncharacter_Code_Point=True:]
+      // and non-printable control characters except tabulator, new line and carriage return
+      if (ch % 0x10000 != 0xffff && // 0xffff - 0x10ffff range step 0x10000
+          ch % 0x10000 != 0xfffe && // 0xfffe - 0x10fffe range
+          (ch <= 0xfdd0 || ch >= 0xfdef) && // 0xfdd0 - 0xfdef
+          (ch > 0x1F || ch == 0x9 || ch == 0xa || ch == 0xd)) {
+
+        retval.append(ch);
+      }
+    }
+
+    return retval.toString();
   }
 
 }
