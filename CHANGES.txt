@@ -1,6 +1,8 @@
 Nutch Change Log
 
 Release nutchgora - Current Development
+* NUTCH-1362 Fix error handling of urls with empty fields (lewis, ferdy)
+
 * NUTCH-1026 Strip UTF-8 non-character codepoints (markus, ferdy)
 
 * NUTCH-1358 Do not accept bogus arguments (ferdy)

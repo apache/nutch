@@ -21,6 +21,7 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 
 import org.apache.avro.util.Utf8;
+import org.apache.commons.lang.StringUtils;
 
 public class TableUtil {
 
@@ -63,7 +64,7 @@ public class TableUtil {
     StringBuilder buf = new StringBuilder();
 
     /* reverse host */
-    reverseAppendSplits(host.split("\\."), buf);
+    reverseAppendSplits(host, buf);
 
     /* add protocol */
     buf.append(':');
@@ -92,11 +93,11 @@ public class TableUtil {
       pathBegin = reversedUrl.length();
     String sub = reversedUrl.substring(0, pathBegin);
 
-    String[] splits = sub.split(":"); // {<reversed host>, <port>, <protocol>}
+    String[] splits = StringUtils.split(sub, ':'); // {<reversed host>, <port>, <protocol>}
 
     buf.append(splits[1]); // add protocol
     buf.append("://");
-    reverseAppendSplits(splits[0].split("\\."), buf); // splits[0] is reversed
+    reverseAppendSplits(splits[0], buf); // splits[0] is reversed
     // host
     if (splits.length == 3) { // has a port
       buf.append(':');
@@ -118,17 +119,22 @@ public class TableUtil {
     return reversedUrl.substring(0, reversedUrl.indexOf(':'));
   }
 
-  private static void reverseAppendSplits(String[] splits, StringBuilder buf) {
-    for (int i = splits.length - 1; i > 0; i--) {
-      buf.append(splits[i]);
-      buf.append('.');
+  private static void reverseAppendSplits(String string, StringBuilder buf) {
+    String[] splits = StringUtils.split(string,'.');
+    if (splits.length > 0) {
+      for (int i = splits.length - 1; i > 0; i--) {
+        buf.append(splits[i]);
+        buf.append('.');
+      }
+      buf.append(splits[0]);
+    } else {
+      buf.append(string);
     }
-    buf.append(splits[0]);
   }
 
   public static String reverseHost(String hostName) {
     StringBuilder buf = new StringBuilder();
-    reverseAppendSplits(hostName.split("\\."), buf);
+    reverseAppendSplits(hostName, buf);
     return buf.toString();
     
   }
