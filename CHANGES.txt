@@ -1,6 +1,8 @@
 Nutch Change Log
 
 Release nutchgora - Current Development
+* NUTCH-1366 speed up indexing by eliminating the indexreducer (ferdy)
+
 * NUTCH-1362 Fix error handling of urls with empty fields (lewis, ferdy)
 
 * NUTCH-1026 Strip UTF-8 non-character codepoints (markus, ferdy)

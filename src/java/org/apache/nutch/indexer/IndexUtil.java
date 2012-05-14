@@ -16,50 +16,41 @@
  ******************************************************************************/
 package org.apache.nutch.indexer;
 
-import java.io.IOException;
-
-import org.apache.avro.util.Utf8;
-import org.slf4j.Logger;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
-import org.apache.nutch.storage.Mark;
-import org.apache.nutch.storage.StorageUtils;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.TableUtil;
-import org.apache.gora.store.DataStore;
 
-public class IndexerReducer
-extends Reducer<String, WebPage, String, NutchDocument> {
-
-  public static final Logger LOG = IndexerJob.LOG;
-
+/**
+ * Utility to create an indexed document from a webpage.  
+ *
+ */
+public class IndexUtil {
+  private static final Log LOG = LogFactory.getLog(new Object() {
+  }.getClass().getEnclosingClass());
+  
+  
   private IndexingFilters filters;
-
   private ScoringFilters scoringFilters;
-
-  private DataStore<String, WebPage> store;
-
-  @Override
-  protected void setup(Context context) throws IOException {
-    Configuration conf = context.getConfiguration();
+  
+  public IndexUtil(Configuration conf) {
     filters = new IndexingFilters(conf);
     scoringFilters = new ScoringFilters(conf);
-    try {
-      store = StorageUtils.createWebStore(conf, String.class, WebPage.class);
-    } catch (ClassNotFoundException e) {
-      throw new IOException(e);
-    }
   }
-
-  @Override
-  protected void reduce(String key, Iterable<WebPage> values,
-      Context context) throws IOException, InterruptedException {
-    WebPage page = values.iterator().next();
+  
+  /**
+   * Index a webpage.
+   * 
+   * @param key The key of the page (reversed url).
+   * @param page The webpage.
+   * @return The indexed document, or null if skipped by index filters.
+   */
+  public NutchDocument index(String key, WebPage page) {
     NutchDocument doc = new NutchDocument();
-
     doc.add("id", key);
     doc.add("digest", StringUtil.toHexString(page.getSignature().array()));
 
@@ -73,11 +64,11 @@ extends Reducer<String, WebPage, String, NutchDocument> {
       doc = filters.filter(doc, url, page);
     } catch (IndexingException e) {
       LOG.warn("Error indexing "+key+": "+e);
-      return;
+      return null;
     }
 
     // skip documents discarded by indexing filters
-    if (doc == null) return;
+    if (doc == null) return null;
 
     float boost = 1.0f;
     // run scoring filters
@@ -85,24 +76,14 @@ extends Reducer<String, WebPage, String, NutchDocument> {
       boost = scoringFilters.indexerScore(url, doc, page, boost);
     } catch (final ScoringFilterException e) {
       LOG.warn("Error calculating score " + key + ": " + e);
-      return;
+      return null;
     }
 
     doc.setScore(boost);
     // store boost for use by explain and dedup
     doc.add("boost", Float.toString(boost));
 
-    Utf8 mark = Mark.UPDATEDB_MARK.checkMark(page);
-    if (mark != null) {
-      Mark.INDEX_MARK.putMark(page, Mark.UPDATEDB_MARK.checkMark(page));
-      store.put(key, page);
-    }
-    context.write(key, doc);
+    return doc;
   }
-
-  @Override
-  public void cleanup(Context context) throws IOException {
-    store.close();
-  }
-
+  
 }

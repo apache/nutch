@@ -41,6 +41,7 @@ import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.TableUtil;
 import org.apache.gora.mapreduce.GoraMapper;
 import org.apache.gora.mapreduce.StringComparator;
+import org.apache.gora.store.DataStore;
 
 public abstract class IndexerJob extends NutchTool implements Tool {
 
@@ -58,14 +59,27 @@ public abstract class IndexerJob extends NutchTool implements Tool {
   }
   
   public static class IndexerMapper
-      extends GoraMapper<String, WebPage, String, WebPage> {
+      extends GoraMapper<String, WebPage, String, NutchDocument> {
+    public IndexUtil indexUtil;
+    public DataStore<String, WebPage> store;
+    
     protected Utf8 batchId;
 
     @Override
     public void setup(Context context) throws IOException {
       Configuration conf = context.getConfiguration();
       batchId = new Utf8(conf.get(GeneratorJob.BATCH_ID, Nutch.ALL_BATCH_ID_STR));
+      indexUtil = new IndexUtil(conf);
+      try {
+        store = StorageUtils.createWebStore(conf, String.class, WebPage.class);
+      } catch (ClassNotFoundException e) {
+        throw new IOException(e);
+      }
     }
+    
+    protected void cleanup(Context context) throws IOException ,InterruptedException {
+      store.close();
+    };
 
     @Override
     public void map(String key, WebPage page, Context context)
@@ -85,9 +99,17 @@ public abstract class IndexerJob extends NutchTool implements Tool {
           return;
         }
       }
-
-      context.write(key, page);
-    }    
+      
+      NutchDocument doc = indexUtil.index(key, page);
+      if (doc == null) {
+        return;
+      }
+      if (mark != null) {
+        Mark.INDEX_MARK.putMark(page, Mark.UPDATEDB_MARK.checkMark(page));
+        store.put(key, page);
+      }
+      context.write(key, doc);
+    }
   }
 
 
@@ -110,9 +132,9 @@ public abstract class IndexerJob extends NutchTool implements Tool {
         StringComparator.class, RawComparator.class);
 
     Collection<WebPage.Field> fields = getFields(job);
-    StorageUtils.initMapperJob(job, fields, String.class, WebPage.class,
+    StorageUtils.initMapperJob(job, fields, String.class, NutchDocument.class,
         IndexerMapper.class);
-    job.setReducerClass(IndexerReducer.class);
+    job.setNumReduceTasks(0);
     job.setOutputFormatClass(IndexerOutputFormat.class);
     return job;
   }
