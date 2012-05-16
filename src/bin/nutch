@@ -59,6 +59,7 @@ if [ $# = 0 ]; then
   echo " readhostdb     display entries from the hostDB"
   echo " solrindex 	run the solr indexer on parsed segments and linkdb"
   echo " solrdedup 	remove duplicates from solr"
+  echo " parsechecker   check the parser for a given url"
   echo " plugin 	load a plugin and run one of its classes main()"
   echo " junit         	runs the given JUnit test"
   echo " or"
@@ -207,6 +208,8 @@ elif [ "$COMMAND" = "solrindex" ] ; then
 CLASS=org.apache.nutch.indexer.solr.SolrIndexerJob
 elif [ "$COMMAND" = "solrdedup" ] ; then
 CLASS=org.apache.nutch.indexer.solr.SolrDeleteDuplicates
+elif [ "$COMMAND" = "parsechecker" ] ; then
+  CLASS=org.apache.nutch.parse.ParserChecker
 elif [ "$COMMAND" = "plugin" ] ; then
 CLASS=org.apache.nutch.plugin.PluginRepository
 elif [ "$COMMAND" = "junit" ] ; then
