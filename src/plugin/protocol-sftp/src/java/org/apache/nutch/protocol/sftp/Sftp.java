@@ -32,7 +32,6 @@ import java.util.concurrent.BlockingQueue;
 
 //APACHE imports
 import org.apache.hadoop.conf.Configuration;
-import org.apache.log4j.Logger;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
@@ -41,6 +40,10 @@ import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.RobotRules;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.storage.WebPage.Field;
+
+//Logging imports
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 //JSCH imports
 import com.jcraft.jsch.ChannelSftp;
@@ -56,7 +59,7 @@ import com.jcraft.jsch.ChannelSftp.LsEntry;
  */
 public class Sftp implements Protocol {
 
-  private static final Logger logger = Logger.getLogger(Sftp.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Sftp.class);
   private static final Map<String, BlockingQueue<ChannelSftp>> channelSftpByHostMap = new Hashtable<String, BlockingQueue<ChannelSftp>>();
 
   private Configuration configuration;
@@ -92,7 +95,7 @@ public class Sftp implements Protocol {
         return po;
       }
     } catch (MalformedURLException e) {
-      logger.error("Bad URL String: " + urlStr, e);
+      LOG.error("Bad URL String: " + urlStr, e);
       return null;
     } catch (InterruptedException e) {
       return null;
@@ -101,14 +104,14 @@ public class Sftp implements Protocol {
     } catch (IOException e) {
       return null;
     } catch (Exception e) {
-      logger.error("Unknown Exception in getProtocolOutput()", e);
+      LOG.error("Unknown Exception in getProtocolOutput()", e);
       return null;
     } finally {
       if (channelSftp != null) {
         try {
           putChannelSftp(sUrl, channelSftp);
         } catch (InterruptedException e) {
-          logger.error("Cannot return ChannelSftp object to Queue", e);
+          LOG.error("Cannot return ChannelSftp object to Queue", e);
         }
       }
     }
@@ -125,8 +128,7 @@ public class Sftp implements Protocol {
       ChannelSftp cSftp = queue.take();
       return cSftp;
     } catch (InterruptedException e) {
-      logger
-          .error("Wait for getChannelSftp() interrupted for host: " + host, e);
+      LOG.error("Wait for getChannelSftp() interrupted for host: " + host, e);
       throw e;
     }
   }
@@ -142,8 +144,7 @@ public class Sftp implements Protocol {
     try {
       queue.put(cSftp);
     } catch (InterruptedException e) {
-      logger
-          .error("Wait for putChannelSftp() interrupted for host: " + host, e);
+      LOG.error("Wait for putChannelSftp() interrupted for host: " + host, e);
       throw e;
     }
   }
@@ -159,11 +160,11 @@ public class Sftp implements Protocol {
       bytes = new byte[size];
       iStream.read(bytes);
     } catch (SftpException e) {
-      logger.error("SftpException in getFileProtocolOutput(), file: "
+      LOG.error("SftpException in getFileProtocolOutput(), file: "
           + url.getFile(), e);
       throw e;
     } catch (IOException e) {
-      logger.error("IOException in getFileProtocolOutput(), file: "
+      LOG.error("IOException in getFileProtocolOutput(), file: "
           + url.getFile(), e);
       throw e;
     } finally {
@@ -219,7 +220,7 @@ public class Sftp implements Protocol {
       ProtocolOutput po = new ProtocolOutput(content);
       return po;
     } catch (SftpException e) {
-      logger.error("SftpException in getDirectoryProtocolOutput()", e);
+      LOG.error("SftpException in getDirectoryProtocolOutput()", e);
       throw e;
     }
   }
@@ -254,7 +255,7 @@ public class Sftp implements Protocol {
       try {
         session = jsch.getSession(user, server, port);
       } catch (JSchException e) {
-        logger.error("Cannot create JSch session for user: " + user
+        LOG.error("Cannot create JSch session for user: " + user
             + ", host: " + server + ", port: " + port);
         return;
       }
@@ -271,7 +272,7 @@ public class Sftp implements Protocol {
         cSftp = (ChannelSftp) session.openChannel("sftp");
         cSftp.connect();
       } catch (JSchException e) {
-        logger.error("Cannot connect to JSch session for user: " + user
+        LOG.error("Cannot connect to JSch session for user: " + user
             + ", host: " + server + ", port: " + port);
         return;
       }
@@ -281,7 +282,7 @@ public class Sftp implements Protocol {
       try {
         queue.put(cSftp);
       } catch (InterruptedException e) {
-        logger.error("Interrupted during setConf()", e);
+        LOG.error("Interrupted during setConf()", e);
         return;
       }
       channelSftpByHostMap.put(server, queue);

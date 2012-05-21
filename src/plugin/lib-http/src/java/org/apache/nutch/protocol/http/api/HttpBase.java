@@ -68,8 +68,8 @@ public abstract class HttpBase implements Protocol {
   /** The Nutch 'User-Agent' request header */
   protected String userAgent = getAgentString(
       "NutchCVS", null, "Nutch",
-      "http://lucene.apache.org/nutch/bot.html",
-  "nutch-agent@lucene.apache.org");
+      "http://nutch.apache.org/bot.html",
+  "agent@nutch.apache.org");
 
 
   /** The "Accept-Language" request header value. */
@@ -77,6 +77,9 @@ public abstract class HttpBase implements Protocol {
   
   /** The "Accept" request header value. */
   protected String accept = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
+  
+  /** The "_ip" request header value. */
+  protected boolean ip_header = false;
 
   /** The default logger */
   private final static Logger LOGGER = LoggerFactory.getLogger(HttpBase.class);
@@ -117,6 +120,7 @@ public abstract class HttpBase implements Protocol {
         .get("http.agent.description"), conf.get("http.agent.url"), conf.get("http.agent.email"));
     this.acceptLanguage = conf.get("http.accept.language", acceptLanguage);
     this.accept = conf.get("http.accept", accept);
+    this.ip_header = conf.getBoolean("http.store.ip.address", false);
     this.mimeTypes = new MimeUtil(conf);
     this.useHttp11 = conf.getBoolean("http.useHttp11", false);
     this.robots.setConf(conf);
@@ -246,6 +250,10 @@ public abstract class HttpBase implements Protocol {
   public boolean getUseHttp11() {
     return useHttp11;
   }
+  
+  public boolean getIP_Header(){
+	return ip_header;
+  }
 
   private static String getAgentString(String agentName,
       String agentVersion,
@@ -301,6 +309,7 @@ public abstract class HttpBase implements Protocol {
       logger.info("http.agent = " + userAgent);
       logger.info("http.accept.language = " + acceptLanguage);
       logger.info("http.accept = " + accept);
+      logger.info("http.store.ip.address = " + ip_header);
     }
   }
 
