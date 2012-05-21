@@ -62,10 +62,15 @@ extends GoraMapper<String, WebPage, SelectorEntry, WebPage> {
       if (filter && filters.filter(url) == null)
         return;
     } catch (URLFilterException e) {
-      GeneratorJob.LOG.warn("Couldn't filter url: " + url + " (" + e.getMessage() + ")");
-      return;
+      if (GeneratorJob.LOG.isWarnEnabled()) {
+        GeneratorJob.LOG.warn("Couldn't filter url: " + url + " (" + e.getMessage() + ")");
+        return;
+      }
     } catch (MalformedURLException e) {
-      GeneratorJob.LOG.warn("Couldn't filter url: " + url + " (" + e.getMessage() +")");
+      if (GeneratorJob.LOG.isWarnEnabled()) {
+        GeneratorJob.LOG.warn("Couldn't filter url: " + url + " (" + e.getMessage() +")");
+        return;
+      }
     }
 
     // check fetch schedule
