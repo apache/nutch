@@ -144,27 +144,40 @@
    <arg value="${javadoc.proxy.host}" />
    <arg value="${javadoc.proxy.port}" />
 
-   <packageset dir="${src.dir}" />
-   <packageset dir="${plugins.dir}/lib-http/src/java" />
-   <packageset dir="${plugins.dir}/lib-regex-filter/src/java" />
-   <packageset dir="${plugins.dir}/microformats-reltag/src/java" />
-   <packageset dir="${plugins.dir}/protocol-file/src/java" />
-   <packageset dir="${plugins.dir}/protocol-ftp/src/java" />
-   <packageset dir="${plugins.dir}/protocol-http/src/java" />
-   <packageset dir="${plugins.dir}/protocol-httpclient/src/java" />
-   <packageset dir="${plugins.dir}/parse-tika/src/java" />
-   <packageset dir="${plugins.dir}/parse-ext/src/java" />
-   <packageset dir="${plugins.dir}/parse-js/src/java" />
-   <packageset dir="${plugins.dir}/parse-swf/src/java" />
-   <packageset dir="${plugins.dir}/parse-zip/src/java" />
-   <packageset dir="${plugins.dir}/index-basic/src/java" />
-   <packageset dir="${plugins.dir}/index-more/src/java" />
-   <packageset dir="${plugins.dir}/scoring-opic/src/java" />
-   <packageset dir="${plugins.dir}/urlfilter-automaton/src/java" />
-   <packageset dir="${plugins.dir}/urlfilter-regex/src/java" />
-   <packageset dir="${plugins.dir}/urlfilter-prefix/src/java" />
-   <packageset dir="${plugins.dir}/creativecommons/src/java" />
-   <packageset dir="${plugins.dir}/language-identifier/src/java" />
+   <packageset dir="${src.dir}"/>
+      <packageset dir="${plugins.dir}/creativecommons/src/java"/>
+      <packageset dir="${plugins.dir}/feed/src/java"/>
+      <packageset dir="${plugins.dir}/index-anchor/src/java"/>
+      <packageset dir="${plugins.dir}/index-basic/src/java"/>
+      <packageset dir="${plugins.dir}/index-more/src/java"/>
+      <packageset dir="${plugins.dir}/language-identifier/src/java"/>
+      <packageset dir="${plugins.dir}/lib-http/src/java"/>
+      <packageset dir="${plugins.dir}/lib-regex-filter/src/java"/>
+      <packageset dir="${plugins.dir}/microformats-reltag/src/java"/>
+      <packageset dir="${plugins.dir}/parse-ext/src/java"/>
+      <packageset dir="${plugins.dir}/parse-html/src/java"/>
+      <packageset dir="${plugins.dir}/parse-js/src/java"/>
+      <packageset dir="${plugins.dir}/parse-swf/src/java"/>
+      <packageset dir="${plugins.dir}/parse-tika/src/java"/>
+      <packageset dir="${plugins.dir}/parse-zip/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-file/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-ftp/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-http/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-httpclient/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-sftp/src/java"/>
+      <packageset dir="${plugins.dir}/scoring-link/src/java"/>
+      <packageset dir="${plugins.dir}/scoring-opic/src/java"/>
+      <packageset dir="${plugins.dir}/subcollection/src/java"/>
+      <packageset dir="${plugins.dir}/tld/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-automaton/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-domain/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-regex/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-suffix/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-validator/src/java"/>
+      <packageset dir="${plugins.dir}/urlnormalizer-basic/src/java"/>
+      <packageset dir="${plugins.dir}/urlnormalizer-pass/src/java"/>
+      <packageset dir="${plugins.dir}/urlnormalizer-regex/src/java"/>
 
    <link href="${javadoc.link.java}" />
    <link href="${javadoc.link.lucene}" />
@@ -522,27 +535,40 @@
    <arg value="${javadoc.proxy.host}" />
    <arg value="${javadoc.proxy.port}" />
 
-   <packageset dir="${src.dir}" />
-   <packageset dir="${plugins.dir}/lib-http/src/java" />
-   <packageset dir="${plugins.dir}/lib-regex-filter/src/java" />
-   <packageset dir="${plugins.dir}/microformats-reltag/src/java" />
-   <packageset dir="${plugins.dir}/protocol-file/src/java" />
-   <packageset dir="${plugins.dir}/protocol-ftp/src/java" />
-   <packageset dir="${plugins.dir}/protocol-http/src/java" />
-   <packageset dir="${plugins.dir}/protocol-httpclient/src/java" />
-   <packageset dir="${plugins.dir}/parse-tika/src/java" />
-   <packageset dir="${plugins.dir}/parse-ext/src/java" />
-   <packageset dir="${plugins.dir}/parse-js/src/java" />
-   <packageset dir="${plugins.dir}/parse-swf/src/java" />
-   <packageset dir="${plugins.dir}/parse-zip/src/java" />
-   <packageset dir="${plugins.dir}/index-basic/src/java" />
-   <packageset dir="${plugins.dir}/index-more/src/java" />
-   <packageset dir="${plugins.dir}/scoring-opic/src/java" />
-   <packageset dir="${plugins.dir}/urlfilter-automaton/src/java" />
-   <packageset dir="${plugins.dir}/urlfilter-regex/src/java" />
-   <packageset dir="${plugins.dir}/urlfilter-prefix/src/java" />
-   <packageset dir="${plugins.dir}/creativecommons/src/java" />
-   <packageset dir="${plugins.dir}/language-identifier/src/java" />
+   <packageset dir="${src.dir}"/>
+      <packageset dir="${plugins.dir}/creativecommons/src/java"/>
+      <packageset dir="${plugins.dir}/feed/src/java"/>
+      <packageset dir="${plugins.dir}/index-anchor/src/java"/>
+      <packageset dir="${plugins.dir}/index-basic/src/java"/>
+      <packageset dir="${plugins.dir}/index-more/src/java"/>
+      <packageset dir="${plugins.dir}/language-identifier/src/java"/>
+      <packageset dir="${plugins.dir}/lib-http/src/java"/>
+      <packageset dir="${plugins.dir}/lib-regex-filter/src/java"/>
+      <packageset dir="${plugins.dir}/microformats-reltag/src/java"/>
+      <packageset dir="${plugins.dir}/parse-ext/src/java"/>
+      <packageset dir="${plugins.dir}/parse-html/src/java"/>
+      <packageset dir="${plugins.dir}/parse-js/src/java"/>
+      <packageset dir="${plugins.dir}/parse-swf/src/java"/>
+      <packageset dir="${plugins.dir}/parse-tika/src/java"/>
+      <packageset dir="${plugins.dir}/parse-zip/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-file/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-ftp/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-http/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-httpclient/src/java"/>
+      <packageset dir="${plugins.dir}/protocol-sftp/src/java"/>
+      <packageset dir="${plugins.dir}/scoring-link/src/java"/>
+      <packageset dir="${plugins.dir}/scoring-opic/src/java"/>
+      <packageset dir="${plugins.dir}/subcollection/src/java"/>
+      <packageset dir="${plugins.dir}/tld/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-automaton/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-domain/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-regex/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-suffix/src/java"/>
+      <packageset dir="${plugins.dir}/urlfilter-validator/src/java"/>
+      <packageset dir="${plugins.dir}/urlnormalizer-basic/src/java"/>
+      <packageset dir="${plugins.dir}/urlnormalizer-pass/src/java"/>
+      <packageset dir="${plugins.dir}/urlnormalizer-regex/src/java"/>
 
    <link href="${javadoc.link.java}" />
    <link href="${javadoc.link.lucene}" />
@@ -626,6 +652,47 @@
   <copy todir="${dist.version.dir}/" file="default.properties" />
 
  </target>
+ 
+ <target name="package-bin" depends="runtime, javadoc">
+    <mkdir dir="${dist.version.dir}-bin"/>
+    <mkdir dir="${dist.version.dir}-bin/lib"/>
+    <mkdir dir="${dist.version.dir}-bin/bin"/>
+    <mkdir dir="${dist.version.dir}-bin/conf"/>
+    <mkdir dir="${dist.version.dir}-bin/docs"/>
+    <mkdir dir="${dist.version.dir}-bin/docs/api"/>
+    <mkdir dir="${dist.version.dir}-bin/plugins"/>
+
+    <copy todir="${dist.version.dir}-bin/lib" includeEmptyDirs="false">
+      <fileset dir="runtime/local/lib"/>
+    </copy>
+   
+    <copy todir="${dist.version.dir}-bin/bin">
+      <fileset dir="runtime/local/bin"/>
+    </copy>
+
+    <chmod perm="ugo+x" type="file">
+        <fileset dir="${dist.version.dir}-bin/bin"/>
+    </chmod>
+
+    <copy todir="${dist.version.dir}-bin/conf">
+      <fileset dir="runtime/local/conf" excludes="**/*.template"/>
+    </copy>
+
+    <copy todir="${dist.version.dir}-bin/docs/api">
+      <fileset dir="${build.javadoc}"/>
+    </copy>
+
+    <copy todir="${dist.version.dir}-bin">
+      <fileset dir=".">
+        <include name="*.txt" />
+      </fileset>
+    </copy>
+
+    <copy todir="${dist.version.dir}-bin/plugins" includeEmptyDirs="true">
+      <fileset dir="runtime/local/plugins"/>
+    </copy>
+
+  </target>
 
  <!-- ================================================================== -->
  <!-- Make release tarball -->
