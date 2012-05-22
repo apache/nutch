@@ -600,59 +600,59 @@
  </target>
 
  <!-- ================================================================== -->
- <!-- D I S T R I B U T I O N -->
- <!-- ================================================================== -->
- <!-- -->
- <!-- ================================================================== -->
- <target name="package" depends="runtime, javadoc">
-  <mkdir dir="${dist.version.dir}" />
-  <mkdir dir="${dist.version.dir}/lib" />
-  <mkdir dir="${dist.version.dir}/runtime" />
-  <mkdir dir="${dist.version.dir}/docs" />
-  <mkdir dir="${dist.version.dir}/docs/api" />
-  <mkdir dir="${dist.version.dir}/ivy" />
+  <!-- D I S T R I B U T I O N                                            -->
+  <!-- ================================================================== -->
+  <!--                                                                    -->
+  <!-- ================================================================== -->
+  <target name="package-src" depends="runtime, javadoc">
+    <mkdir dir="${dist.version.dir}-src"/>
+    <mkdir dir="${dist.version.dir}-src/lib"/>
+    <mkdir dir="${dist.version.dir}-src/runtime"/>
+    <mkdir dir="${dist.version.dir}-src/docs"/>
+    <mkdir dir="${dist.version.dir}-src/docs/api"/>
+    <mkdir dir="${dist.version.dir}-src/ivy"/>
 
-  <copy todir="${dist.version.dir}/lib" includeEmptyDirs="false">
-   <fileset dir="lib" />
-  </copy>
+    <copy todir="${dist.version.dir}-src/lib" includeEmptyDirs="false">
+      <fileset dir="lib"/>
+    </copy>
+   
+    <copy todir="${dist.version.dir}-src/runtime">
+      <fileset dir="runtime"/>
+    </copy>
 
-  <copy todir="${dist.version.dir}/runtime">
-   <fileset dir="runtime" />
-  </copy>
+    <chmod perm="ugo+x" type="file">
+        <fileset dir="${dist.version.dir}-src/runtime/deploy/bin"/>
+        <fileset dir="${dist.version.dir}-src/runtime/local/bin"/>
+    </chmod>
 
-  <chmod perm="ugo+x" type="file">
-   <fileset dir="${dist.version.dir}/runtime/deploy/bin" />
-   <fileset dir="${dist.version.dir}/runtime/local/bin" />
-  </chmod>
+    <copy todir="${dist.version.dir}-src/conf">
+      <fileset dir="${conf.dir}" excludes="**/*.template"/>
+    </copy>
 
-  <copy todir="${dist.version.dir}/conf">
-   <fileset dir="${conf.dir}" excludes="**/*.template" />
-  </copy>
+    <copy todir="${dist.version.dir}-src/docs/api">
+      <fileset dir="${build.javadoc}"/>
+    </copy>
 
-  <copy todir="${dist.version.dir}/docs/api">
-   <fileset dir="${build.javadoc}" />
-  </copy>
+    <copy todir="${dist.version.dir}-src">
+      <fileset dir=".">
+        <include name="*.txt" />
+        <!--<include name="KEYS" />-->
+      </fileset>
+    </copy>
 
-  <copy todir="${dist.version.dir}">
-   <fileset dir=".">
-    <include name="*.txt" />
-    <include name="KEYS" />
-   </fileset>
-  </copy>
+    <copy todir="${dist.version.dir}-src/src" includeEmptyDirs="true">
+      <fileset dir="src"/>
+    </copy>
 
-  <copy todir="${dist.version.dir}/src" includeEmptyDirs="true">
-   <fileset dir="src" />
-  </copy>
+    <copy todir="${dist.version.dir}-src/ivy" includeEmptyDirs="true">
+      <fileset dir="ivy"/>
+    </copy>
 
-  <copy todir="${dist.version.dir}/ivy" includeEmptyDirs="true">
-   <fileset dir="ivy" />
-  </copy>
+    <copy todir="${dist.version.dir}-src/" file="build.xml"/>
+    <copy todir="${dist.version.dir}-src/" file="default.properties"/>
 
-  <copy todir="${dist.version.dir}/" file="build.xml" />
-  <copy todir="${dist.version.dir}/" file="default.properties" />
+  </target>
 
- </target>
- 
  <target name="package-bin" depends="runtime, javadoc">
     <mkdir dir="${dist.version.dir}-bin"/>
     <mkdir dir="${dist.version.dir}-bin/lib"/>
@@ -694,36 +694,67 @@
 
   </target>
 
- <!-- ================================================================== -->
- <!-- Make release tarball -->
- <!-- ================================================================== -->
- <target name="tar" depends="package">
-  <tar compression="gzip" longfile="gnu"
-   destfile="${dist.dir}/${final.name}.tar.gz">
-   <tarfileset dir="${dist.dir}" mode="664">
-    <exclude name="${final.name}/bin/*" />
-    <include name="${final.name}/**" />
-   </tarfileset>
-   <tarfileset dir="${dist.dir}" mode="755">
-    <include name="${final.name}/bin/*" />
-   </tarfileset>
-  </tar>
- </target>
+  <!-- ================================================================== -->
+  <!-- Make src-release tarball                                               -->
+  <!-- ================================================================== -->
+  <target name="tar" depends="package-src">
+    <tar compression="gzip" longfile="gnu"
+      destfile="${dist.dir}/${final.name}-src.tar.gz">
+      <tarfileset dir="${dist.dir}" mode="664">
+	<exclude name="${final.name}/bin/*" />
+        <include name="${final.name}/**" />
+      </tarfileset>
+      <tarfileset dir="${dist.dir}" mode="755">
+        <include name="${final.name}/bin/*" />
+      </tarfileset>
+    </tar>
+  </target>
+  
+  <!-- ================================================================== -->
+  <!-- Make bin release tarball                                               -->
+  <!-- ================================================================== -->
+  <target name="tar-bin" depends="package-bin">
+    <tar compression="gzip" longfile="gnu"
+      destfile="${dist.dir}/${final.name}-bin.tar.gz">
+      <tarfileset dir="${dist.dir}" mode="664">
+	<exclude name="${final.name}/bin/*" />
+        <include name="${final.name}/**" />
+      </tarfileset>
+      <tarfileset dir="${dist.dir}" mode="755">
+        <include name="${final.name}/bin/*" />
+      </tarfileset>
+    </tar>
+  </target>
 
- <!-- ================================================================== -->
- <!-- Make release tarball -->
- <!-- ================================================================== -->
- <target name="zip" depends="package">
-  <zip compress="true" casesensitive="yes" destfile="${dist.dir}/${final.name}.zip">
+  <!-- ================================================================== -->
+  <!-- Make src release zip                                               -->
+  <!-- ================================================================== -->
+  <target name="zip" depends="package-src">
+   <zip compress="true" casesensitive="yes" destfile="${dist.dir}/${final.name}-src.zip">
    <zipfileset dir="${dist.dir}" filemode="664">
-    <exclude name="${final.name}/bin/*" />
-    <include name="${final.name}/**" />
+       <exclude name="${final.name}/bin/*" />
+       <include name="${final.name}/**" />
    </zipfileset>
    <zipfileset dir="${dist.dir}" filemode="755">
-    <include name="${final.name}/bin/*" />
+       <include name="${final.name}/bin/*" />
    </zipfileset>
-  </zip>
- </target>
+   </zip>
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Make bin release zip                                               -->
+  <!-- ================================================================== -->
+  <target name="zip-bin" depends="package-bin">
+   <zip compress="true" casesensitive="yes" destfile="${dist.dir}/${final.name}-bin.zip">
+   <zipfileset dir="${dist.dir}" filemode="664">
+       <exclude name="${final.name}/bin/*" />
+       <include name="${final.name}/**" />
+   </zipfileset>
+   <zipfileset dir="${dist.dir}" filemode="755">
+       <include name="${final.name}/bin/*" />
+   </zipfileset>
+   </zip>
+  </target>
 
  <!-- ================================================================== -->
  <!-- Clean. Delete the build files, and their directories -->

@@ -1,6 +1,8 @@
 Nutch Change Log
 
-Release nutchgora - Current Development
+Release 2.1 (22/02/2012)
+
+* NUTCH-XX Commit to add configuration for separation of ant distribution targets (lewismc + jnioche)
 
 * NUTCH-1364 Add a counter for malformed urls (Jason Trost via lewismc)
 
