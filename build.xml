@@ -546,7 +546,6 @@
       <packageset dir="${plugins.dir}/parse-swf/src/java"/>
       <packageset dir="${plugins.dir}/parse-tika/src/java"/>
       <packageset dir="${plugins.dir}/parse-zip/src/java"/>
-      <packageset dir="${plugins.dir}/lib-http/src/java"/>
       <packageset dir="${plugins.dir}/protocol-file/src/java"/>
       <packageset dir="${plugins.dir}/protocol-ftp/src/java"/>
       <packageset dir="${plugins.dir}/protocol-http/src/java"/>
@@ -560,7 +559,6 @@
       <packageset dir="${plugins.dir}/urlfilter-domainblacklist/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-regex/src/java"/>
-      <packageset dir="${plugins.dir}/urlfilter-prefix/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-suffix/src/java"/>
       <packageset dir="${plugins.dir}/urlfilter-validator/src/java"/>
       <packageset dir="${plugins.dir}/urlmeta/src/java"/>
