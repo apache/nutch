@@ -1,5 +1,9 @@
 Nutch Change Log
 
+(trunk) Current Development:
+
+* NUTCH-XX Commit to add configuration for separation of ant distribution targets (lewismc + jnioche)
+
 Release 1.5 - 04/15/2012
 
 * NUTCH-1208 Don't include KEYS file in bin distribution (jnioche)
