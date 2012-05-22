@@ -59,6 +59,11 @@
 			<email>dogacan@apache.org</email>
 		</developer>
 		<developer>
+                        <id>ferdy</id>
+                        <name>Ferdy Galema</name>
+                        <email>ferdy@apache.org</email>
+                </developer>
+		<developer>
 			<id>jnioche</id>
 			<name>Julien Nioche</name>
 			<email>jnioche@apache.org</email>
@@ -83,7 +88,7 @@
                         <name>Lewis John McGibbney</name>
                         <email>lewismc@apache.org</email>
                 </developer>
-	</developers>
+        </developers>
         <build>
           <sourceDirectory>src/java</sourceDirectory>
           <testSourceDirectory>src/test</testSourceDirectory>
@@ -92,6 +97,18 @@
                <directory>src/testresources</directory>
              </testResource>
           </testResources>
+          <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <source>1.5</source>
+                        <target>1.5</target>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         </build>
 </project>
 
