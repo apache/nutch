@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.1 (22/02/2012)
 
+* NUTCH-1378 HostDb NullPointerException (ferdy)
+
 * NUTCH-XX Commit to add configuration for separation of ant distribution targets (lewismc + jnioche)
 
 * NUTCH-1364 Add a counter for malformed urls (Jason Trost via lewismc)

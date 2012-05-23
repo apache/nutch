@@ -100,7 +100,7 @@ public class HostDb implements Closeable {
     cache=CacheBuilder.newBuilder().maximumSize(lruSize)
         .removalListener(listener).concurrencyLevel(concurrencyLevel)
         .build();
-    lastFlush.set(System.currentTimeMillis());
+    lastFlush = new AtomicLong(System.currentTimeMillis());
   }
 
   
