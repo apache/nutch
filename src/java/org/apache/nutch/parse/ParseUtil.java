@@ -209,7 +209,12 @@ public class ParseUtil extends Configured {
           String reprUrl = URLUtil.chooseRepr(url, newUrl,
               refreshTime < FetcherJob.PERM_REFRESH_TIME);
           WebPage newWebPage = new WebPage();
-          page.setReprUrl(new Utf8(reprUrl));
+          if (reprUrl == null) {
+            LOG.warn("reprUrl==null for " + url);
+            return redirectedPage;
+          } else {
+            page.setReprUrl(new Utf8(reprUrl));
+          }
           page.putToMetadata(FetcherJob.REDIRECT_DISCOVERED, TableUtil.YES_VAL);
           redirectedPage = new URLWebPage(reprUrl, newWebPage);
         }
