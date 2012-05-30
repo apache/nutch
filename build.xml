@@ -420,7 +420,7 @@
     <ant dir="src/plugin" target="test" inheritAll="false"/>
   </target>
 
-  <target name="nightly" depends="test, tar">
+  <target name="nightly" depends="test, tar-src, zip-src">
   </target>
 
   <!-- ================================================================== -->
@@ -599,123 +599,158 @@
   <!-- ================================================================== -->
   <!--                                                                    -->
   <!-- ================================================================== -->
-  <target name="package" depends="runtime, javadoc">
-    <mkdir dir="${dist.version.dir}"/>
-    <mkdir dir="${dist.version.dir}/lib"/>
-    <mkdir dir="${dist.version.dir}/runtime"/>
-    <mkdir dir="${dist.version.dir}/docs"/>
-    <mkdir dir="${dist.version.dir}/docs/api"/>
-    <mkdir dir="${dist.version.dir}/ivy"/>
+  <target name="package-src" depends="runtime, javadoc">
+    <mkdir dir="${dist.dir}"/>
+    <mkdir dir="${src.dist.version.dir}"/>
+    <mkdir dir="${src.dist.version.dir}/lib"/>
+    <mkdir dir="${src.dist.version.dir}/runtime"/>
+    <mkdir dir="${src.dist.version.dir}/docs"/>
+    <mkdir dir="${src.dist.version.dir}/docs/api"/>
+    <mkdir dir="${src.dist.version.dir}/ivy"/>
 
-    <copy todir="${dist.version.dir}/lib" includeEmptyDirs="false">
+    <copy todir="${src.dist.version.dir}/lib" includeEmptyDirs="false">
       <fileset dir="lib"/>
     </copy>
    
-    <copy todir="${dist.version.dir}/runtime">
+    <copy todir="${src.dist.version.dir}/runtime">
       <fileset dir="runtime"/>
     </copy>
 
     <chmod perm="ugo+x" type="file">
-        <fileset dir="${dist.version.dir}/runtime/deploy/bin"/>
-        <fileset dir="${dist.version.dir}/runtime/local/bin"/>
+        <fileset dir="${src.dist.version.dir}/runtime/deploy/bin"/>
+        <fileset dir="${src.dist.version.dir}/runtime/local/bin"/>
     </chmod>
 
-    <copy todir="${dist.version.dir}/conf">
+    <copy todir="${src.dist.version.dir}/conf">
       <fileset dir="${conf.dir}" excludes="**/*.template"/>
     </copy>
 
-    <copy todir="${dist.version.dir}/docs/api">
+    <copy todir="${src.dist.version.dir}/docs/api">
       <fileset dir="${build.javadoc}"/>
     </copy>
 
-    <copy todir="${dist.version.dir}">
+    <copy todir="${src.dist.version.dir}">
       <fileset dir=".">
         <include name="*.txt" />
         <!--<include name="KEYS" />-->
       </fileset>
     </copy>
 
-    <copy todir="${dist.version.dir}/src" includeEmptyDirs="true">
+    <copy todir="${src.dist.version.dir}/src" includeEmptyDirs="true">
       <fileset dir="src"/>
     </copy>
 
-    <copy todir="${dist.version.dir}/ivy" includeEmptyDirs="true">
+    <copy todir="${src.dist.version.dir}/ivy" includeEmptyDirs="true">
       <fileset dir="ivy"/>
     </copy>
 
-    <copy todir="${dist.version.dir}/" file="build.xml"/>
-    <copy todir="${dist.version.dir}/" file="default.properties"/>
+    <copy todir="${src.dist.version.dir}/" file="build.xml"/>
+    <copy todir="${src.dist.version.dir}/" file="default.properties"/>
 
   </target>
 
  <target name="package-bin" depends="runtime, javadoc">
-    <mkdir dir="${dist.version.dir}-bin"/>
-    <mkdir dir="${dist.version.dir}-bin/lib"/>
-    <mkdir dir="${dist.version.dir}-bin/bin"/>
-    <mkdir dir="${dist.version.dir}-bin/conf"/>
-    <mkdir dir="${dist.version.dir}-bin/docs"/>
-    <mkdir dir="${dist.version.dir}-bin/docs/api"/>
-    <mkdir dir="${dist.version.dir}-bin/plugins"/>
+    <mkdir dir="${dist.dir}"/>
+    <mkdir dir="${bin.dist.version.dir}"/>
+    <mkdir dir="${bin.dist.version.dir}/lib"/>
+    <mkdir dir="${bin.dist.version.dir}/bin"/>
+    <mkdir dir="${bin.dist.version.dir}/conf"/>
+    <mkdir dir="${bin.dist.version.dir}/docs"/>
+    <mkdir dir="${bin.dist.version.dir}/docs/api"/>
+    <mkdir dir="${bin.dist.version.dir}/plugins"/>
 
-    <copy todir="${dist.version.dir}-bin/lib" includeEmptyDirs="false">
+    <copy todir="${bin.dist.version.dir}/lib" includeEmptyDirs="false">
       <fileset dir="runtime/local/lib"/>
     </copy>
    
-    <copy todir="${dist.version.dir}-bin/bin">
+    <copy todir="${bin.dist.version.dir}/bin">
       <fileset dir="runtime/local/bin"/>
     </copy>
 
     <chmod perm="ugo+x" type="file">
-        <fileset dir="${dist.version.dir}-bin/bin"/>
+        <fileset dir="${bin.dist.version.dir}/bin"/>
     </chmod>
 
-    <copy todir="${dist.version.dir}-bin/conf">
+    <copy todir="${bin.dist.version.dir}/conf">
       <fileset dir="runtime/local/conf" excludes="**/*.template"/>
     </copy>
 
-    <copy todir="${dist.version.dir}-bin/docs/api">
+    <copy todir="${bin.dist.version.dir}/docs/api">
       <fileset dir="${build.javadoc}"/>
     </copy>
 
-    <copy todir="${dist.version.dir}-bin">
+    <copy todir="${bin.dist.version.dir}">
       <fileset dir=".">
         <include name="*.txt" />
       </fileset>
     </copy>
 
-    <copy todir="${dist.version.dir}-bin/plugins" includeEmptyDirs="true">
+    <copy todir="${bin.dist.version.dir}/plugins" includeEmptyDirs="true">
       <fileset dir="runtime/local/plugins"/>
     </copy>
 
   </target>
 
   <!-- ================================================================== -->
-  <!-- Make release tarball                                               -->
+  <!-- Make src release tarball                                               -->
   <!-- ================================================================== -->
-  <target name="tar" depends="package">
+  <target name="tar-src" depends="package-src">
     <tar compression="gzip" longfile="gnu"
-      destfile="${dist.dir}/${final.name}.tar.gz">
+      destfile="${src.dist.version.dir}.tar.gz" basedir="${src.dist.version.dir}">
       <tarfileset dir="${dist.dir}" mode="664">
-	<exclude name="${final.name}/bin/*" />
-        <include name="${final.name}/**" />
+	<exclude name="${src.dist.version.dir}/bin/*" />
+        <include name="${src.dist.version.dir}/**" />
       </tarfileset>
       <tarfileset dir="${dist.dir}" mode="755">
-        <include name="${final.name}/bin/*" />
+        <include name="${src.dist.version.dir}/bin/*" />
+      </tarfileset>
+    </tar>
+  </target>
+  
+  <!-- ================================================================== -->
+  <!-- Make bin release tarball                                               -->
+  <!-- ================================================================== -->
+  <target name="tar-bin" depends="package-bin">
+    <tar compression="gzip" longfile="gnu"
+      destfile="${bin.dist.version.dir}.tar.gz" basedir="${bin.dist.version.dir}">
+      <tarfileset dir="${dist.dir}" mode="664">
+	<exclude name="${bin.dist.version.dir}/bin/*" />
+        <include name="${bin.dist.version.dir}/**" />
+      </tarfileset>
+      <tarfileset dir="${dist.dir}" mode="755">
+        <include name="${bin.dist.version.dir}/bin/*" />
       </tarfileset>
     </tar>
   </target>
 
   <!-- ================================================================== -->
-  <!-- Make release zip                                               -->
+  <!-- Make src release zip                                               -->
   <!-- ================================================================== -->
-  <target name="zip" depends="package">
-   <zip compress="true" casesensitive="yes" destfile="${dist.dir}/${final.name}.zip">
+  <target name="zip-src" depends="package-src">
+   <zip compress="true" casesensitive="yes" 
+     destfile="${src.dist.version.dir}.zip" basedir="${src.dist.version.dir}">
    <zipfileset dir="${dist.dir}" filemode="664">
-       <exclude name="${final.name}/bin/*" />
-       <include name="${final.name}/**" />
+       <exclude name="${src.dist.version.dir}/bin/*" />
+       <include name="${src.dist.version.dir}/**" />
    </zipfileset>
    <zipfileset dir="${dist.dir}" filemode="755">
-       <include name="${final.name}/bin/*" />
+       <include name="${src.dist.version.dir}/bin/*" />
+   </zipfileset>
+   </zip>
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Make bin release zip                                               -->
+  <!-- ================================================================== -->
+  <target name="zip-bin" depends="package-bin">
+   <zip compress="true" casesensitive="yes" 
+     destfile="${bin.dist.version.dir}.zip" basedir="${bin.dist.version.dir}">
+   <zipfileset dir="${dist.dir}" filemode="664">
+       <exclude name="${bin.dist.version.dir}/bin/*" />
+       <include name="${bin.dist.version.dir}/**" />
+   </zipfileset>
+   <zipfileset dir="${dist.dir}" filemode="755">
+       <include name="${bin.dist.version.dir}/bin/*" />
    </zipfileset>
    </zip>
   </target>
