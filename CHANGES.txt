@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk) Current Development:
 
+* NUTCH-1351 DomainStatistics to aggregate by TLD (markus)
+
 * NUTCH-1381 Allow to override default subcollection field name (markus)
 
 * NUTCH-XX Commit to add configuration for separation of ant distribution targets (lewismc + jnioche)

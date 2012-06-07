@@ -18,7 +18,7 @@
 package org.apache.nutch.util;
 
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.regex.Pattern;
 
 import org.apache.nutch.util.domain.DomainSuffix;
@@ -170,6 +170,36 @@ public class URLUtil {
    */
   public static String getDomainName(String url) throws MalformedURLException {
     return getDomainName(new URL(url));
+  }
+
+  /** Returns the top level domain name of the url. The top level domain name
+   *  of a url is the substring of the url's hostname, w/o subdomain names.
+   *  As an example <br><code>
+   *  getTopLevelDomainName(conf, new http://lucene.apache.org/)
+   *  </code><br>
+   *  will return <br><code> org</code>
+   * @throws MalformedURLException
+   */
+  public static String getTopLevelDomainName(URL url) throws MalformedURLException {
+    String suffix = getDomainSuffix(url).toString();
+    int idx = suffix.lastIndexOf(".");
+    if (idx != -1) {
+      return suffix.substring(idx + 1);
+    } else {
+      return suffix;
+    }
+  }
+
+  /** Returns the top level domain name of the url. The top level domain name
+   *  of a url is the substring of the url's hostname, w/o subdomain names.
+   *  As an example <br><code>
+   *  getTopLevelDomainName(conf, new http://lucene.apache.org/)
+   *  </code><br>
+   *  will return <br><code> org</code>
+   * @throws MalformedURLException
+   */
+  public static String getTopLevelDomainName(String url) throws MalformedURLException {
+    return getTopLevelDomainName(new URL(url));
   }
 
   /** Returns whether the given urls have the same domain name.
@@ -434,7 +464,7 @@ public class URLUtil {
       return null;
     }
   }
-  
+
   /** For testing */
   public static void main(String[] args){
     
