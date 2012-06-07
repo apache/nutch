@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk) Current Development:
 
+* NUTCH-1381 Allow to override default subcollection field name (markus)
+
 * NUTCH-XX Commit to add configuration for separation of ant distribution targets (lewismc + jnioche)
 
 Release 1.5 - 04/15/2012

@@ -1349,4 +1349,15 @@
   your credentials.
   </description>
 </property>
+
+<!-- subcollection properties -->
+
+<property>
+  <name>subcollection.default.field</name>
+  <value>subcollection</value>
+  <description>
+  The default field name for the subcollections.
+  </description>
+</property>
+
 </configuration>
