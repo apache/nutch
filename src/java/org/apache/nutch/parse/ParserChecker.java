@@ -29,6 +29,7 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.URLUtil;
 import org.apache.nutch.util.StringUtil;
 
 /**
@@ -69,7 +70,7 @@ public class ParserChecker implements Tool {
         System.err.println(usage);
         System.exit(-1);
       } else {
-        url = args[i];
+        url = URLUtil.toASCII(args[i]);
       }
     }
 
