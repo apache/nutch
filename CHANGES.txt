@@ -1,6 +1,7 @@
 Nutch Change Log
 
-Release 2.1 (22/02/2012)
+Release 2.0 (08/06/2012) ddmmyyy
+Full Jira report - https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=10680&version=12314893
 
 * NUTCH-1379 NPE when reprUrl is null in ParseUtil (ferdy)
 

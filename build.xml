@@ -608,7 +608,6 @@
     <mkdir dir="${dist.dir}"/>
     <mkdir dir="${src.dist.version.dir}"/>
     <mkdir dir="${src.dist.version.dir}/lib"/>
-    <mkdir dir="${src.dist.version.dir}/runtime"/>
     <mkdir dir="${src.dist.version.dir}/docs"/>
     <mkdir dir="${src.dist.version.dir}/docs/api"/>
     <mkdir dir="${src.dist.version.dir}/ivy"/>
@@ -616,15 +615,6 @@
     <copy todir="${src.dist.version.dir}/lib" includeEmptyDirs="false">
       <fileset dir="lib"/>
     </copy>
-   
-    <copy todir="${src.dist.version.dir}/runtime">
-      <fileset dir="runtime"/>
-    </copy>
-
-    <chmod perm="ugo+x" type="file">
-        <fileset dir="${src.dist.version.dir}/runtime/deploy/bin"/>
-        <fileset dir="${src.dist.version.dir}/runtime/local/bin"/>
-    </chmod>
 
     <copy todir="${src.dist.version.dir}/conf">
       <fileset dir="${conf.dir}" excludes="**/*.template"/>
@@ -704,6 +694,7 @@
       destfile="${src.dist.version.dir}.tar.gz" basedir="${src.dist.version.dir}">
       <tarfileset dir="${dist.dir}" mode="664">
 	<exclude name="${src.dist.version.dir}/bin/*" />
+	<exclude name="${src.dist.version.dir}/runtime/*" />
         <include name="${src.dist.version.dir}/**" />
       </tarfileset>
       <tarfileset dir="${dist.dir}" mode="755">
@@ -736,6 +727,7 @@
    destfile="${src.dist.version.dir}.zip" basedir="${src.dist.version.dir}">
    <zipfileset dir="${dist.dir}" filemode="664">
        <exclude name="${src.dist.version.dir}/bin/*" />
+       <exclude name="${src.dist.version.dir}/runtime/*" />
        <include name="${src.dist.version.dir}/**" />
    </zipfileset>
    <zipfileset dir="${dist.dir}" filemode="755">
