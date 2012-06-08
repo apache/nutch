@@ -1,0 +1,40 @@
+<html>
+<body>
+The Nutch {@link org.apache.nutch.plugin.Pluggable Plugin} System.
+<p>
+<b>The Nutch Plugin System provides a way to extend nutch functionality</b>.
+A large part of the functionality of Nutch are provided by plugins:
+All of the parsing, indexing and searching that nutch does is actually
+accomplished by various plugins.
+</p><p>
+In writing a plugin, you're actually providing one or more extensions of the
+existing extension-points (<i>hooks</i>).
+The core Nutch extension-points are themselves defined in a plugin,
+the <code>nutch-extensionpoints</code> plugin.
+Each extension-point defines an interface that must be implemented by the
+extension. The core extension-points and extensions available in Nutch are
+listed in the {@link org.apache.nutch.plugin.Pluggable} interface.
+</p>
+
+@see <a href="./doc-files/plugin.dtd">Nutch plugin manifest DTD</a>
+
+@see <a href="http://wiki.apache.org/nutch/PluginCentral">
+     Plugin Central
+     </a>
+@see <a href="http://wiki.apache.org/nutch/AboutPlugins">
+     About Plugins
+     </a>
+@see <a href="http://wiki.apache.org/nutch/WhyNutchHasAPluginSystem">
+     Why Nutch has a Plugin System?
+     </a>
+@see <a href="http://wiki.apache.org/nutch/WhichTechnicalConceptsAreBehindTheNutchPluginSystem">
+     Which technical concepts are behind the nutch plugin system?
+     </a>
+@see <a href="http://wiki.apache.org/nutch/WhatsTheProblemWithPluginsAndClass-loading">
+     What's the problem with Plugins and Class loading?
+     </a>
+@see <a href="http://wiki.apache.org/nutch/WritingPluginExample">
+     Writing Plugin Example
+     </a>
+</body>
+</html>

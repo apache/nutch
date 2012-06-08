@@ -1,0 +1,1183 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one or more
+ contributor license agreements.  See the NOTICE file distributed with
+ this work for additional information regarding copyright ownership.
+ The ASF licenses this file to You under the Apache License, Version 2.0
+ (the "License"); you may not use this file except in compliance with
+ the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<!-- Do not modify this file directly.  Instead, copy entries that you -->
+<!-- wish to modify from this file into nutch-site.xml and change them -->
+<!-- there.  If nutch-site.xml does not already exist, create it.      -->
+
+<configuration>
+
+<!-- file properties -->
+
+<property>
+  <name>file.content.limit</name>
+  <value>65536</value>
+  <description>The length limit for downloaded content using the file
+   protocol, in bytes. If this value is nonnegative (>=0), content longer
+   than it will be truncated; otherwise, no truncation at all. Do not
+   confuse this setting with the http.content.limit setting.
+  </description>
+</property>
+
+<property>
+  <name>file.content.ignored</name>
+  <value>true</value>
+  <description>If true, no file content will be saved during fetch.
+  And it is probably what we want to set most of time, since file:// URLs
+  are meant to be local and we can always use them directly at parsing
+  and indexing stages. Otherwise file contents will be saved.
+  !! NO IMPLEMENTED YET !!
+  </description>
+</property>
+
+<property>
+  <name>file.crawl.parent</name>
+  <value>true</value>
+  <description>The crawler is not restricted to the directories that you specified in the
+    urls file but it is jumping into the parent directories as well. For your own crawling you can
+    change this behavior (set to false) the way that only directories beneath the directories that you specify get
+    crawled.
+  </description>
+</property>
+
+
+<!-- HTTP properties -->
+
+<property>
+  <name>http.agent.name</name>
+  <value></value>
+  <description>HTTP 'User-Agent' request header. MUST NOT be empty - 
+  please set this to a single word uniquely related to your organization.
+
+  NOTE: You should also check other related properties:
+
+	http.robots.agents
+	http.agent.description
+	http.agent.url
+	http.agent.email
+	http.agent.version
+
+  and set their values appropriately.
+
+  </description>
+</property>
+
+<property>
+  <name>http.robots.agents</name>
+  <value>*</value>
+  <description>The agent strings we'll look for in robots.txt files,
+  comma-separated, in decreasing order of precedence. You should
+  put the value of http.agent.name as the first agent name, and keep the
+  default * at the end of the list. E.g.: BlurflDev,Blurfl,*
+  </description>
+</property>
+
+<property>
+  <name>http.robots.403.allow</name>
+  <value>true</value>
+  <description>Some servers return HTTP status 403 (Forbidden) if
+  /robots.txt doesn't exist. This should probably mean that we are
+  allowed to crawl the site nonetheless. If this is set to false,
+  then such sites will be treated as forbidden.</description>
+</property>
+
+<property>
+  <name>http.agent.description</name>
+  <value></value>
+  <description>Further description of our bot- this text is used in
+  the User-Agent header.  It appears in parenthesis after the agent name.
+  </description>
+</property>
+
+<property>
+  <name>http.agent.url</name>
+  <value></value>
+  <description>A URL to advertise in the User-Agent header.  This will 
+   appear in parenthesis after the agent name. Custom dictates that this
+   should be a URL of a page explaining the purpose and behavior of this
+   crawler.
+  </description>
+</property>
+
+<property>
+  <name>http.agent.email</name>
+  <value></value>
+  <description>An email address to advertise in the HTTP 'From' request
+   header and User-Agent header. A good practice is to mangle this
+   address (e.g. 'info at example dot com') to avoid spamming.
+  </description>
+</property>
+
+<property>
+  <name>http.agent.version</name>
+  <value>Nutch-2.0</value>
+  <description>A version string to advertise in the User-Agent 
+   header.</description>
+</property>
+
+<property>
+  <name>http.agent.host</name>
+  <value></value>
+  <description>Name or IP address of the host on which the Nutch crawler
+  would be running. Currently this is used by 'protocol-httpclient'
+  plugin.
+  </description>
+</property>
+
+<property>
+  <name>http.timeout</name>
+  <value>10000</value>
+  <description>The default network timeout, in milliseconds.</description>
+</property>
+
+<property>
+  <name>http.max.delays</name>
+  <value>100</value>
+  <description>The number of times a thread will delay when trying to
+  fetch a page.  Each time it finds that a host is busy, it will wait
+  fetcher.server.delay.  After http.max.delays attepts, it will give
+  up on the page for now.</description>
+</property>
+
+<property>
+  <name>http.content.limit</name>
+  <value>65536</value>
+  <description>The length limit for downloaded content using the http
+  protocol, in bytes. If this value is nonnegative (>=0), content longer
+  than it will be truncated; otherwise, no truncation at all. Do not
+  confuse this setting with the file.content.limit setting.
+  </description>
+</property>
+
+<property>
+  <name>http.proxy.host</name>
+  <value></value>
+  <description>The proxy hostname.  If empty, no proxy is used.</description>
+</property>
+
+<property>
+  <name>http.proxy.port</name>
+  <value></value>
+  <description>The proxy port.</description>
+</property>
+
+<property>
+  <name>http.proxy.username</name>
+  <value></value>
+  <description>Username for proxy. This will be used by
+  'protocol-httpclient', if the proxy server requests basic, digest
+  and/or NTLM authentication. To use this, 'protocol-httpclient' must
+  be present in the value of 'plugin.includes' property.
+  NOTE: For NTLM authentication, do not prefix the username with the
+  domain, i.e. 'susam' is correct whereas 'DOMAIN\susam' is incorrect.
+  </description>
+</property>
+
+<property>
+  <name>http.proxy.password</name>
+  <value></value>
+  <description>Password for proxy. This will be used by
+  'protocol-httpclient', if the proxy server requests basic, digest
+  and/or NTLM authentication. To use this, 'protocol-httpclient' must
+  be present in the value of 'plugin.includes' property.
+  </description>
+</property>
+
+<property>
+  <name>http.proxy.realm</name>
+  <value></value>
+  <description>Authentication realm for proxy. Do not define a value
+  if realm is not required or authentication should take place for any
+  realm. NTLM does not use the notion of realms. Specify the domain name
+  of NTLM authentication as the value for this property. To use this,
+  'protocol-httpclient' must be present in the value of
+  'plugin.includes' property.
+  </description>
+</property>
+
+<property>
+  <name>http.auth.file</name>
+  <value>httpclient-auth.xml</value>
+  <description>Authentication configuration file for
+  'protocol-httpclient' plugin.
+  </description>
+</property>
+
+<property>
+  <name>http.verbose</name>
+  <value>false</value>
+  <description>If true, HTTP will log more verbosely.</description>
+</property>
+
+<property>
+  <name>http.redirect.max</name>
+  <value>0</value>
+  <description>The maximum number of redirects the fetcher will follow when
+  trying to fetch a page. If set to negative or 0, fetcher won't immediately
+  follow redirected URLs, instead it will record them for later fetching.
+  </description>
+</property>
+
+<property>
+  <name>http.useHttp11</name>
+  <value>false</value>
+  <description>NOTE: at the moment this works only for protocol-httpclient.
+  If true, use HTTP 1.1, if false use HTTP 1.0 .
+  </description>
+</property>
+
+<property>
+  <name>http.accept.language</name>
+  <value>en-us,en-gb,en;q=0.7,*;q=0.3</value>
+  <description>Value of the "Accept-Language" request header field.
+  This allows selecting non-English language as default one to retrieve.
+  It is a useful setting for search engines build for certain national group.
+  </description>
+</property>
+
+<property>
+  <name>http.accept</name>
+  <value>text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</value>
+  <description>Value of the "Accept" request header field.
+  </description>
+</property>
+
+<property>
+  <name>http.store.ip.address</name>
+  <value>false</value>
+  <description>Enables us to capture the specific IP address of the 
+  host which we connect to to fetch a page.</description>
+</property>
+
+<!-- FTP properties -->
+
+<property>
+  <name>ftp.username</name>
+  <value>anonymous</value>
+  <description>ftp login username.</description>
+</property>
+
+<property>
+  <name>ftp.password</name>
+  <value>anonymous@example.com</value>
+  <description>ftp login password.</description>
+</property>
+
+<property>
+  <name>ftp.content.limit</name>
+  <value>65536</value> 
+  <description>The length limit for downloaded content, in bytes.
+  If this value is nonnegative (>=0), content longer than it will be truncated;
+  otherwise, no truncation at all.
+  Caution: classical ftp RFCs never defines partial transfer and, in fact,
+  some ftp servers out there do not handle client side forced close-down very
+  well. Our implementation tries its best to handle such situations smoothly.
+  </description>
+</property>
+
+<property>
+  <name>ftp.timeout</name>
+  <value>60000</value>
+  <description>Default timeout for ftp client socket, in millisec.
+  Please also see ftp.keep.connection below.</description>
+</property>
+
+<property>
+  <name>ftp.server.timeout</name>
+  <value>100000</value>
+  <description>An estimation of ftp server idle time, in millisec.
+  Typically it is 120000 millisec for many ftp servers out there.
+  Better be conservative here. Together with ftp.timeout, it is used to
+  decide if we need to delete (annihilate) current ftp.client instance and
+  force to start another ftp.client instance anew. This is necessary because
+  a fetcher thread may not be able to obtain next request from queue in time
+  (due to idleness) before our ftp client times out or remote server
+  disconnects. Used only when ftp.keep.connection is true (please see below).
+  </description>
+</property>
+
+<property>
+  <name>ftp.keep.connection</name>
+  <value>false</value>
+  <description>Whether to keep ftp connection. Useful if crawling same host
+  again and again. When set to true, it avoids connection, login and dir list
+  parser setup for subsequent urls. If it is set to true, however, you must
+  make sure (roughly):
+  (1) ftp.timeout is less than ftp.server.timeout
+  (2) ftp.timeout is larger than (fetcher.threads.fetch * fetcher.server.delay)
+  Otherwise there will be too many "delete client because idled too long"
+  messages in thread logs.</description>
+</property>
+
+<property>
+  <name>ftp.follow.talk</name>
+  <value>false</value>
+  <description>Whether to log dialogue between our client and remote
+  server. Useful for debugging.</description>
+</property>
+
+<!-- web db properties -->
+
+<property>
+  <name>db.default.fetch.interval</name>
+  <value>30</value>
+  <description>(DEPRECATED) The default number of days between re-fetches of a page.
+  </description>
+</property>
+
+<property>
+  <name>db.fetch.interval.default</name>
+  <value>2592000</value>
+  <description>The default number of seconds between re-fetches of a page (30 days).
+  </description>
+</property>
+
+<property>
+  <name>db.fetch.interval.max</name>
+  <value>7776000</value>
+  <description>The maximum number of seconds between re-fetches of a page
+  (90 days). After this period every page in the db will be re-tried, no
+  matter what is its status.
+  </description>
+</property>
+
+<property>
+  <name>db.fetch.schedule.class</name>
+  <value>org.apache.nutch.crawl.DefaultFetchSchedule</value>
+  <description>The implementation of fetch schedule. DefaultFetchSchedule simply
+  adds the original fetchInterval to the last fetch time, regardless of
+  page changes.</description>
+</property>
+
+<property>
+  <name>db.fetch.schedule.adaptive.inc_rate</name>
+  <value>0.4</value>
+  <description>If a page is unmodified, its fetchInterval will be
+  increased by this rate. This value should not
+  exceed 0.5, otherwise the algorithm becomes unstable.</description>
+</property>
+
+<property>
+  <name>db.fetch.schedule.adaptive.dec_rate</name>
+  <value>0.2</value>
+  <description>If a page is modified, its fetchInterval will be
+  decreased by this rate. This value should not
+  exceed 0.5, otherwise the algorithm becomes unstable.</description>
+</property>
+
+<property>
+  <name>db.fetch.schedule.adaptive.min_interval</name>
+  <value>60.0</value>
+  <description>Minimum fetchInterval, in seconds.</description>
+</property>
+
+<property>
+  <name>db.fetch.schedule.adaptive.max_interval</name>
+  <value>31536000.0</value>
+  <description>Maximum fetchInterval, in seconds (365 days).
+  NOTE: this is limited by db.fetch.interval.max. Pages with
+  fetchInterval larger than db.fetch.interval.max
+  will be fetched anyway.</description>
+</property>
+
+<property>
+  <name>db.fetch.schedule.adaptive.sync_delta</name>
+  <value>true</value>
+  <description>If true, try to synchronize with the time of page change.
+  by shifting the next fetchTime by a fraction (sync_rate) of the difference
+  between the last modification time, and the last fetch time.</description>
+</property>
+
+<property>
+  <name>db.fetch.schedule.adaptive.sync_delta_rate</name>
+  <value>0.3</value>
+  <description>See sync_delta for description. This value should not
+  exceed 0.5, otherwise the algorithm becomes unstable.</description>
+</property>
+
+<property>
+  <name>db.update.additions.allowed</name>
+  <value>true</value>
+  <description>If true, updatedb will add newly discovered URLs, if false
+  only already existing URLs in the CrawlDb will be updated and no new
+  URLs will be added.
+  </description>
+</property>
+
+<property>
+  <name>db.update.max.inlinks</name>
+  <value>10000</value>
+  <description>Maximum number of inlinks to take into account when updating 
+  a URL score in the crawlDB. Only the best scoring inlinks are kept. 
+  </description>
+</property>
+
+<property>
+  <name>db.ignore.internal.links</name>
+  <value>true</value>
+  <description>If true, when adding new links to a page, links from
+  the same host are ignored.  This is an effective way to limit the
+  size of the link database, keeping only the highest quality
+  links.
+  </description>
+</property>
+
+<property>
+  <name>db.ignore.external.links</name>
+  <value>false</value>
+  <description>If true, outlinks leading from a page to external hosts
+  will be ignored. This is an effective way to limit the crawl to include
+  only initially injected hosts, without creating complex URLFilters.
+  </description>
+</property>
+
+<property>
+  <name>db.score.injected</name>
+  <value>1.0</value>
+  <description>The score of new pages added by the injector.
+  </description>
+</property>
+
+<property>
+  <name>db.score.link.external</name>
+  <value>1.0</value>
+  <description>The score factor for new pages added due to a link from
+  another host relative to the referencing page's score. Scoring plugins
+  may use this value to affect initial scores of external links.
+  </description>
+</property>
+
+<property>
+  <name>db.score.link.internal</name>
+  <value>1.0</value>
+  <description>The score factor for pages added due to a link from the
+  same host, relative to the referencing page's score. Scoring plugins
+  may use this value to affect initial scores of internal links.
+  </description>
+</property>
+
+<property>
+  <name>db.score.count.filtered</name>
+  <value>false</value>
+  <description>The score value passed to newly discovered pages is
+  calculated as a fraction of the original page score divided by the
+  number of outlinks. If this option is false, only the outlinks that passed
+  URLFilters will count, if it's true then all outlinks will count.
+  </description>
+</property>
+
+<property>
+  <name>db.max.inlinks</name>
+  <value>10000</value>
+  <description>Maximum number of Inlinks per URL to be kept in LinkDb.
+  If "invertlinks" finds more inlinks than this number, only the first
+  N inlinks will be stored, and the rest will be discarded.
+  </description>
+</property>
+
+<property>
+  <name>db.max.outlinks.per.page</name>
+  <value>100</value>
+  <description>The maximum number of outlinks that we'll process for a page.
+  If this value is nonnegative (>=0), at most db.max.outlinks.per.page outlinks
+  will be processed for a page; otherwise, all outlinks will be processed.
+  </description>
+</property>
+
+<property>
+  <name>db.max.anchor.length</name>
+  <value>100</value>
+  <description>The maximum number of characters permitted in an anchor.
+  </description>
+</property>
+
+ <property>
+  <name>db.parsemeta.to.crawldb</name>
+  <value></value>
+  <description>Comma-separated list of parse metadata keys to transfer to the crawldb (NUTCH-779).
+   Assuming for instance that the languageidentifier plugin is enabled, setting the value to 'lang' 
+   will copy both the key 'lang' and its value to the corresponding entry in the crawldb.
+  </description>
+</property>
+
+<property>
+  <name>db.fetch.retry.max</name>
+  <value>3</value>
+  <description>The maximum number of times a url that has encountered
+  recoverable errors is generated for fetch.</description>
+</property>
+
+<property>
+  <name>db.signature.class</name>
+  <value>org.apache.nutch.crawl.MD5Signature</value>
+  <description>The default implementation of a page signature. Signatures
+  created with this implementation will be used for duplicate detection
+  and removal.</description>
+</property>
+
+<property>
+  <name>db.signature.text_profile.min_token_len</name>
+  <value>2</value>
+  <description>Minimum token length to be included in the signature.
+  </description>
+</property>
+
+<property>
+  <name>db.signature.text_profile.quant_rate</name>
+  <value>0.01</value>
+  <description>Profile frequencies will be rounded down to a multiple of
+  QUANT = (int)(QUANT_RATE * maxFreq), where maxFreq is a maximum token
+  frequency. If maxFreq > 1 then QUANT will be at least 2, which means that
+  for longer texts tokens with frequency 1 will always be discarded.
+  </description>
+</property>
+
+<!-- generate properties -->
+
+<property>
+  <name>generate.max.count</name>
+  <value>-1</value>
+  <description>The maximum number of urls in a single
+  fetchlist.  -1 if unlimited. The urls are counted according
+  to the value of the parameter generator.count.mode.
+  </description>
+</property>
+
+<property>
+  <name>generate.count.mode</name>
+  <value>host</value>
+  <description>Determines how the URLs are counted for generator.max.count.
+  Default value is 'host' but can be 'domain'. Note that we do not count 
+  per IP in the new version of the Generator.
+  </description>
+</property>
+
+<property>
+  <name>generate.update.crawldb</name>
+  <value>false</value>
+  <description>For highly-concurrent environments, where several
+  generate/fetch/update cycles may overlap, setting this to true ensures
+  that generate will create different fetchlists even without intervening
+  updatedb-s, at the cost of running an additional job to update CrawlDB.
+  If false, running generate twice without intervening
+  updatedb will generate identical fetchlists.</description>
+</property>
+
+<!-- urlpartitioner properties -->
+<property>
+  <name>partition.url.mode</name>
+  <value>byHost</value>
+  <description>Determines how to partition URLs. Default value is 'byHost', 
+  also takes 'byDomain' or 'byIP'. 
+  </description>
+</property>
+
+<property>
+  <name>crawl.gen.delay</name>
+  <value>604800000</value>
+  <description>
+   This value, expressed in days, defines how long we should keep the lock on records 
+   in CrawlDb that were just selected for fetching. If these records are not updated 
+   in the meantime, the lock is canceled, i.e. the become eligible for selecting. 
+   Default value of this is 7 days.
+  </description>
+</property>
+
+<!-- fetcher properties -->
+
+<property>
+  <name>fetcher.server.delay</name>
+  <value>5.0</value>
+  <description>The number of seconds the fetcher will delay between 
+   successive requests to the same server.</description>
+</property>
+
+<property>
+  <name>fetcher.server.min.delay</name>
+  <value>0.0</value>
+  <description>The minimum number of seconds the fetcher will delay between 
+  successive requests to the same server. This value is applicable ONLY
+  if fetcher.threads.per.host is greater than 1 (i.e. the host blocking
+  is turned off).</description>
+</property>
+
+<property>
+ <name>fetcher.max.crawl.delay</name>
+ <value>30</value>
+ <description>
+ If the Crawl-Delay in robots.txt is set to greater than this value (in
+ seconds) then the fetcher will skip this page, generating an error report.
+ If set to -1 the fetcher will never skip such pages and will wait the
+ amount of time retrieved from robots.txt Crawl-Delay, however long that
+ might be.
+ </description>
+</property> 
+
+<property>
+  <name>fetcher.threads.fetch</name>
+  <value>10</value>
+  <description>The number of FetcherThreads the fetcher should use.
+  This is also determines the maximum number of requests that are
+  made at once (each FetcherThread handles one connection). The total
+  number of threads running in distributed mode will be the number of
+  fetcher threads * number of nodes as fetcher has one map task per node.
+  </description>
+</property>
+
+<property>
+  <name>fetcher.threads.per.queue</name>
+  <value>1</value>
+  <description>This number is the maximum number of threads that
+    should be allowed to access a queue at one time.</description>
+</property>
+
+<property>
+  <name>fetcher.queue.mode</name>
+  <value>byHost</value>
+  <description>Determines how the URLs are placed into queues. 
+   Allowed values are 'byHost', 'byDomain' and 'byIP'.
+   The value would usually correspond to that of 'partition.url.mode'.
+  </description>
+</property>
+
+<property>
+  <name>fetcher.verbose</name>
+  <value>false</value>
+  <description>If true, fetcher will log more verbosely.</description>
+</property>
+
+<property>
+  <name>fetcher.parse</name>
+  <value>false</value>
+  <description>If true, fetcher will parse content. NOTE: previous releases would
+  default to true. Since 2.0 this is set to false as a safer default.</description>
+</property>
+
+<property>
+  <name>fetcher.store.content</name>
+  <value>true</value>
+  <description>If true, fetcher will store content.</description>
+</property>
+
+<property>
+  <name>fetcher.timelimit.mins</name>
+  <value>-1</value>
+  <description>This is the number of minutes allocated to the fetching.
+  Once this value is reached, any remaining entry from the input URL list is skipped 
+  and all active queues are emptied. The default value of -1 deactivates the time limit.
+  </description>
+</property>
+
+<property>
+  <name>fetcher.max.exceptions.per.queue</name>
+  <value>-1</value>
+  <description>The maximum number of protocol-level exceptions (e.g. timeouts) per
+  host (or IP) queue. Once this value is reached, any remaining entries from this
+  queue are purged, effectively stopping the fetching from this host/IP. The default
+  value of -1 deactivates this limit.
+  </description>
+</property>
+
+<property>
+  <name>fetcher.throughput.threshold.pages</name>
+  <value>-1</value>
+  <description>The threshold of minimum pages per second. If the fetcher downloads less
+  pages per second than the configured threshold, the fetcher stops, preventing slow queue's
+  from stalling the throughput. This threshold must be an integer. This can be useful when
+  fetcher.timelimit.mins is hard to determine. The default value of -1 disables this check.
+  </description>
+</property>
+
+<property>
+  <name>fetcher.throughput.threshold.sequence</name>
+  <value>5</value>
+  <description>The number of times the fetcher.throughput.threshold is allowed to be exceeded,
+  in a row. This setting prevents accidental slow downs from stopping the fetcher.
+  </description>
+</property>
+
+<property>
+  <name>fetcher.throughput.threshold.check.after</name>
+  <value>5</value>
+  <description>The number of minutes after which the throughput check is enabled.</description>
+</property>
+
+<property>
+  <name>fetcher.queue.depth.multiplier</name>
+  <value>50</value>
+  <description>(EXPERT)The fetcher buffers the incoming URLs into queues based on the [host|domain|IP]
+  (see param fetcher.queue.mode). The depth of the queue is the number of threads times the value of this parameter.
+  A large value requires more memory but can improve the performance of the fetch when the order of the URLS in the fetch list
+  is not optimal.
+  </description>
+</property>
+
+<!-- indexingfilter plugin properties -->
+
+<property>
+  <name>indexingfilter.order</name>
+  <value></value>
+  <description>The order by which index filters are applied.
+  If empty, all available index filters (as dictated by properties
+  plugin-includes and plugin-excludes above) are loaded and applied in system
+  defined order. If not empty, only named filters are loaded and applied
+  in given order. For example, if this property has value:
+  org.apache.nutch.indexer.basic.BasicIndexingFilter org.apache.nutch.indexer.more.MoreIndexingFilter
+  then BasicIndexingFilter is applied first, and MoreIndexingFilter second.
+  
+  Filter ordering might have impact on result if one filter depends on output of
+  another filter.
+  </description>
+</property>
+
+<property>
+  <name>indexer.score.power</name>
+  <value>0.5</value>
+  <description>Used by the OPIC plugin. Determines the power of link analyis scores. 
+  Each pages's boost is set to <i>score<sup>scorePower</sup></i> where
+  <i>score</i> is its link analysis score and <i>scorePower</i> is the
+  value of this parameter.  This is compiled into indexes, so, when
+  this is changed, pages must be re-indexed for it to take
+  effect.</description>
+</property>
+
+<property>
+  <name>indexer.max.title.length</name>
+  <value>100</value>
+  <description>The maximum number of characters of a title that are indexed.
+  Used by index-basic.
+  </description>
+</property>
+
+<!-- moreindexingfilter plugin properties -->
+
+<property>
+  <name>moreIndexingFilter.indexMimeTypeParts</name>
+  <value>true</value>
+  <description>Determines whether the index-more plugin will split the mime-type
+  in sub parts, this requires the type field to be multi valued. Set to true for backward
+  compatibility. False will not split the mime-type.
+  </description>
+</property>
+
+<!-- AnchorIndexing filter plugin properties -->
+
+<property>
+  <name>anchorIndexingFilter.deduplicate</name>
+  <value>false</value>
+  <description>With this enabled the indexer will case-insensitive deduplicate hanchors
+  before indexing. This prevents possible hundreds or thousands of identical anchors for
+  a given page to be indexed but will affect the search scoring (i.e. tf=1.0f).
+  </description>
+</property>
+
+<!-- URL normalizer properties -->
+
+<property>
+  <name>urlnormalizer.order</name>
+  <value>org.apache.nutch.net.urlnormalizer.basic.BasicURLNormalizer org.apache.nutch.net.urlnormalizer.regex.RegexURLNormalizer</value>
+  <description>Order in which normalizers will run. If any of these isn't
+  activated it will be silently skipped. If other normalizers not on the
+  list are activated, they will run in random order after the ones
+  specified here are run.
+  </description>
+</property>
+
+<property>
+  <name>urlnormalizer.regex.file</name>
+  <value>regex-normalize.xml</value>
+  <description>Name of the config file used by the RegexUrlNormalizer class.
+  </description>
+</property>
+
+<property>
+  <name>urlnormalizer.loop.count</name>
+  <value>1</value>
+  <description>Optionally loop through normalizers several times, to make
+  sure that all transformations have been performed.
+  </description>
+</property>
+
+<!-- mime properties -->
+
+<!--
+<property>
+  <name>mime.types.file</name>
+  <value>tika-mimetypes.xml</value>
+  <description>Name of file in CLASSPATH containing filename extension and
+  magic sequence to mime types mapping information. Overrides the default Tika config 
+  if specified.
+  </description>
+</property>
+-->
+
+<property>
+  <name>mime.type.magic</name>
+  <value>true</value>
+  <description>Defines if the mime content type detector uses magic resolution.
+  </description>
+</property>
+
+<!-- plugin properties -->
+
+<property>
+  <name>plugin.folders</name>
+  <value>plugins</value>
+  <description>Directories where nutch plugins are located.  Each
+  element may be a relative or absolute path.  If absolute, it is used
+  as is.  If relative, it is searched for on the classpath.</description>
+</property>
+
+<property>
+  <name>plugin.auto-activation</name>
+  <value>true</value>
+  <description>Defines if some plugins that are not activated regarding
+  the plugin.includes and plugin.excludes properties must be automaticaly
+  activated if they are needed by some actived plugins.
+  </description>
+</property>
+
+<property>
+  <name>plugin.includes</name>
+ <value>protocol-http|urlfilter-regex|parse-(html|tika)|index-(basic|anchor)|urlnormalizer-(pass|regex|basic)|scoring-opic</value>
+ <description>Regular expression naming plugin directory names to
+  include.  Any plugin not matching this expression is excluded.
+  In any case you need at least include the nutch-extensionpoints plugin. By
+  default Nutch includes crawling just HTML and plain text via HTTP,
+  and basic indexing and search plugins. In order to use HTTPS please enable 
+  protocol-httpclient, but be aware of possible intermittent problems with the 
+  underlying commons-httpclient library.
+  </description>
+</property>
+
+<property>
+  <name>plugin.excludes</name>
+  <value></value>
+  <description>Regular expression naming plugin directory names to exclude.  
+  </description>
+</property>
+
+<!-- parser properties -->
+
+<property>
+  <name>parse.plugin.file</name>
+  <value>parse-plugins.xml</value>
+  <description>The name of the file that defines the associations between
+  content-types and parsers.</description>
+</property>
+
+<property>
+  <name>parser.character.encoding.default</name>
+  <value>windows-1252</value>
+  <description>The character encoding to fall back to when no other information
+  is available</description>
+</property>
+
+<property>
+  <name>encodingdetector.charset.min.confidence</name>
+  <value>-1</value>
+  <description>A integer between 0-100 indicating minimum confidence value
+  for charset auto-detection. Any negative value disables auto-detection.
+  </description>
+</property>
+
+<property>
+  <name>parser.caching.forbidden.policy</name>
+  <value>content</value>
+  <description>If a site (or a page) requests through its robot metatags
+  that it should not be shown as cached content, apply this policy. Currently
+  three keywords are recognized: "none" ignores any "noarchive" directives.
+  "content" doesn't show the content, but shows summaries (snippets).
+  "all" doesn't show either content or summaries.</description>
+</property>
+
+
+<property>
+  <name>parser.html.impl</name>
+  <value>neko</value>
+  <description>HTML Parser implementation. Currently the following keywords
+  are recognized: "neko" uses NekoHTML, "tagsoup" uses TagSoup.
+  </description>
+</property>
+
+<property>
+  <name>parser.html.form.use_action</name>
+  <value>false</value>
+  <description>If true, HTML parser will collect URLs from form action
+  attributes. This may lead to undesirable behavior (submitting empty
+  forms during next fetch cycle). If false, form action attribute will
+  be ignored.</description>
+</property>
+
+<property>
+  <name>parser.html.outlinks.ignore_tags</name>
+  <value></value>
+  <description>Comma separated list of HTML tags, from which outlinks 
+  shouldn't be extracted. Nutch takes links from: a, area, form, frame, 
+  iframe, script, link, img. If you add any of those tags here, it
+  won't be taken. Default is empty list. Probably reasonable value
+  for most people would be "img,script,link".</description>
+</property>
+
+<property>
+  <name>htmlparsefilter.order</name>
+  <value></value>
+  <description>The order by which HTMLParse filters are applied.
+  If empty, all available HTMLParse filters (as dictated by properties
+  plugin-includes and plugin-excludes above) are loaded and applied in system
+  defined order. If not empty, only named filters are loaded and applied
+  in given order.
+  HTMLParse filter ordering MAY have an impact
+  on end result, as some filters could rely on the metadata generated by a previous filter.
+  </description>
+</property>
+
+<property>
+  <name>parser.timeout</name>
+  <value>30</value>
+  <description>Timeout in seconds for the parsing of a document, otherwise treats it as an exception and 
+  moves on the the following documents. This parameter is applied to any Parser implementation. 
+  Set to -1 to deactivate, bearing in mind that this could cause
+  the parsing to crash because of a very long or corrupted document.
+  </description>
+</property>
+
+<property>
+  <name>parser.skip.truncated</name>
+  <value>true</value>
+  <description>Boolean value for whether we should skip parsing for truncated documents. By default this 
+  property is activated due to extremely high levels of CPU which parsing can sometimes take.  
+  </description>
+</property>
+
+<!-- urlfilter plugin properties -->
+
+<property>
+  <name>urlfilter.domain.file</name>
+  <value>domain-urlfilter.txt</value>
+  <description>Name of file on CLASSPATH containing either top level domains or
+  hostnames used by urlfilter-domain (DomainURLFilter) plugin.</description>
+</property>
+
+<property>
+  <name>urlfilter.regex.file</name>
+  <value>regex-urlfilter.txt</value>
+  <description>Name of file on CLASSPATH containing regular expressions
+  used by urlfilter-regex (RegexURLFilter) plugin.</description>
+</property>
+
+<property>
+  <name>urlfilter.automaton.file</name>
+  <value>automaton-urlfilter.txt</value>
+  <description>Name of file on CLASSPATH containing regular expressions
+  used by urlfilter-automaton (AutomatonURLFilter) plugin.</description>
+</property>
+
+<property>
+  <name>urlfilter.prefix.file</name>
+  <value>prefix-urlfilter.txt</value>
+  <description>Name of file on CLASSPATH containing url prefixes
+  used by urlfilter-prefix (PrefixURLFilter) plugin.</description>
+</property>
+
+<property>
+  <name>urlfilter.suffix.file</name>
+  <value>suffix-urlfilter.txt</value>
+  <description>Name of file on CLASSPATH containing url suffixes
+  used by urlfilter-suffix (SuffixURLFilter) plugin.</description>
+</property>
+
+<property>
+  <name>urlfilter.order</name>
+  <value></value>
+  <description>The order by which url filters are applied.
+  If empty, all available url filters (as dictated by properties
+  plugin-includes and plugin-excludes above) are loaded and applied in system
+  defined order. If not empty, only named filters are loaded and applied
+  in given order. For example, if this property has value:
+  org.apache.nutch.urlfilter.regex.RegexURLFilter org.apache.nutch.urlfilter.prefix.PrefixURLFilter
+  then RegexURLFilter is applied first, and PrefixURLFilter second.
+  Since all filters are AND'ed, filter ordering does not have impact
+  on end result, but it may have performance implication, depending
+  on relative expensiveness of filters.
+  </description>
+</property>
+
+<!-- scoring filters properties -->
+
+<property>
+  <name>scoring.filter.order</name>
+  <value></value>
+  <description>The order in which scoring filters are applied.
+  This may be left empty (in which case all available scoring
+  filters will be applied in the order defined in plugin-includes
+  and plugin-excludes), or a space separated list of implementation
+  classes.
+  </description>
+</property>
+
+<!-- language-identifier plugin properties -->
+
+<property>
+  <name>lang.ngram.min.length</name>
+  <value>1</value>
+  <description> The minimum size of ngrams to uses to identify
+  language (must be between 1 and lang.ngram.max.length).
+  The larger is the range between lang.ngram.min.length and
+  lang.ngram.max.length, the better is the identification, but
+  the slowest it is.
+  </description>
+</property>
+
+<property>
+  <name>lang.ngram.max.length</name>
+  <value>4</value>
+  <description> The maximum size of ngrams to uses to identify
+  language (must be between lang.ngram.min.length and 4).
+  The larger is the range between lang.ngram.min.length and
+  lang.ngram.max.length, the better is the identification, but
+  the slowest it is.
+  </description>
+</property>
+
+<property>
+  <name>lang.analyze.max.length</name>
+  <value>2048</value>
+  <description> The maximum bytes of data to uses to indentify
+  the language (0 means full content analysis).
+  The larger is this value, the better is the analysis, but the
+  slowest it is.
+  </description>
+</property>
+
+<property>
+  <name>lang.extraction.policy</name>
+  <value>detect,identify</value>
+  <description>This determines when the plugin uses detection and
+  statistical identification mechanisms. The order in which the
+  detect and identify are written will determine the extraction
+  policy. Default case (detect,identify)  means the plugin will
+  first try to extract language info from page headers and metadata,
+  if this is not successful it will try using tika language
+  identification. Possible values are:
+    detect
+    identify
+    detect,identify
+    identify,detect
+  </description>
+</property>
+
+<property>
+  <name>lang.identification.only.certain</name>
+  <value>false</value>
+  <description>If set to true with lang.extraction.policy containing identify,
+  the language code returned by Tika will be assigned to the document ONLY
+  if it is deemed certain by Tika.
+  </description>
+</property>
+
+<!-- Temporary Hadoop 0.17.x workaround. -->
+
+<property>
+  <name>hadoop.job.history.user.location</name>
+  <value>${hadoop.log.dir}/history/user</value>
+  <description>Hadoop 0.17.x comes with a default setting to create
+     user logs inside the output path of the job. This breaks some
+     Hadoop classes, which expect the output to contain only
+     part-XXXXX files. This setting changes the output to a
+     subdirectory of the regular log directory.
+  </description>
+</property>
+
+<!-- solr index properties -->
+
+<property>
+  <name>solr.mapping.file</name>
+  <value>solrindex-mapping.xml</value>
+  <description>
+  Defines the name of the file that will be used in the mapping of internal
+  nutch field names to solr index fields as specified in the target Solr schema.
+  </description>
+</property>
+
+<property>
+  <name>solr.commit.size</name>
+  <value>250</value>
+  <description>
+  Defines the number of documents to send to Solr in a single update batch.
+  Decrease when handling very large documents to prevent Nutch from running
+  out of memory.
+  </description>
+</property>
+
+<!-- storage properties -->
+
+<property>
+  <name>storage.data.store.class</name>
+  <value>org.apache.gora.sql.store.SqlStore</value>
+  <description>The Gora DataStore class for storing and retrieving data.
+   Currently the following stores are available:
+  
+  org.apache.gora.sql.store.SqlStore 
+    Default store. A DataStore implementation for RDBMS with a SQL interface.
+    SqlStore uses JDBC drivers to communicate with the DB.
+  
+  org.apache.gora.cassandra.store.CassandraStore
+    Gora class for storing data in Apache Cassandra.
+  
+  org.apache.gora.hbase.store.HBaseStore
+    Gora class for storing data in Apache HBase.
+  
+  org.apache.gora.hbase.store.AccumuloStore
+    Gora class for storing data in Apache Accumulo.
+  
+  org.apache.gora.hbase.store.AvroStore
+    Gora class for storing data in Apache Avro.
+    
+  org.apache.gora.hbase.store.DataFileAvroStore
+    Gora class for storing data in Apache Avro. DataFileAvroStore is 
+    a file based store which uses Avro's DataFile{Writer,Reader}'s as a backend.
+    This datastore supports mapreduce.
+    
+  org.apache.gora.hbase.store.MemStore
+    Gora class for storing data in a Memory based implementation for tests.
+  </description>
+</property>
+
+<property>
+  <name>storage.schema</name>
+  <value>webpage</value>
+  <description>This value holds the schema name used for Nutch web db.
+  Note that Nutch ignores the value in the gora mapping files, and uses
+  this as the schema name.
+  </description>
+</property>
+
+<property>
+  <name>storage.crawl.id</name>
+  <value></value>
+  <description>This value helps differentiate between the datasets that
+  the jobs in the crawl cycle generate and operate on. The value will
+  be input to all the jobs which then will use it as a prefix when
+  accessing to the schemas. The default configuration uses no id to prefix
+  the schemas. The value could also be given as a command line argument
+  to each job.
+  </description>
+</property>
+
+</configuration>

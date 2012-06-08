@@ -1,0 +1,239 @@
+<?xml version="1.0"?>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one or more
+ contributor license agreements.  See the NOTICE file distributed with
+ this work for additional information regarding copyright ownership.
+ The ASF licenses this file to You under the Apache License, Version 2.0
+ (the "License"); you may not use this file except in compliance with
+ the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<!-- Imported by plugin build.xml files to define default targets. -->
+<project xmlns:ivy="antlib:org.apache.ivy.ant">
+
+  <property name="name" value="${ant.project.name}"/>
+  <property name="root" value="${basedir}"/>
+
+  <!-- load plugin-specific properties first -->
+  <property file="${user.home}/${name}.build.properties" />
+  <property file="${root}/build.properties" />
+
+  <property name="nutch.root" location="${root}/../../../"/>
+
+  <property name="src.dir" location="${root}/src/java"/>
+  <property name="src.test" location="${root}/src/test"/>
+
+  <available file="${src.test}" type="dir" property="test.available"/>
+
+  <property name="conf.dir" location="${nutch.root}/conf"/>
+
+  <property name="build.dir" location="${nutch.root}/build/${name}"/>
+  <property name="build.classes" location="${build.dir}/classes"/>
+  <property name="build.test" location="${build.dir}/test"/>
+
+  <property name="deploy.dir" location="${nutch.root}/build/plugins/${name}"/>
+
+  <!-- load nutch defaults last so that they can be overridden above -->
+  <property file="${nutch.root}/default.properties" />
+
+  <ivy:settings id="ivy.instance" file="${nutch.root}/ivy/ivysettings.xml" />
+
+  <path id="plugin.deps"/>
+
+  <fileset id="lib.jars" dir="${root}" includes="lib/*.jar"/>
+
+  <!-- the normal classpath -->
+  <path id="classpath">
+    <pathelement location="${build.classes}"/>
+    <fileset refid="lib.jars"/>
+    <pathelement location="${nutch.root}/build/classes"/>
+    <fileset dir="${nutch.root}/build/lib">
+      <include name="*.jar" />
+    </fileset>
+    <path refid="plugin.deps"/>
+    <fileset dir="${deploy.dir}">
+      <include name="*.jar" />
+    </fileset>
+  </path>
+
+  <!-- the unit test classpath -->
+  <path id="test.classpath">
+    <pathelement location="${build.test}" />
+    <pathelement location="${nutch.root}/build/test/classes"/>
+    <pathelement location="${nutch.root}/src/test"/>
+    <pathelement location="${conf.dir}"/>
+    <pathelement location="${nutch.root}/build"/>
+    <path refid="classpath"/>
+  </path>
+
+  <!-- ====================================================== -->
+  <!-- Stuff needed by all targets                            -->
+  <!-- ====================================================== -->
+  <target name="init">
+    <mkdir dir="${build.dir}"/>
+    <mkdir dir="${build.classes}"/>
+    <mkdir dir="${build.test}"/>
+    <mkdir dir="${deploy.dir}"/>
+
+    <antcall target="init-plugin"/>
+  </target>
+
+  <!-- to be overridden by sub-projects --> 
+  <target name="init-plugin"/>
+
+  <!--
+   ! Used to build plugin compilation dependencies
+   ! (to be overridden by plugins)
+   !-->
+  <target name="deps-jar"/>
+
+  <!--
+   ! Used to deploy plugin runtime dependencies
+   ! (to be overridden by plugins)
+   !-->
+  <target name="deps-test"/>
+
+  <!-- ====================================================== -->
+  <!-- Compile the Java files                                 -->
+  <!-- ====================================================== -->
+  <target name="compile" depends="init,deps-jar, resolve-default">
+    <echo message="Compiling plugin: ${name}"/>
+    <javac 
+     encoding="${build.encoding}" 
+     srcdir="${src.dir}"
+     includes="**/*.java"
+     destdir="${build.classes}"
+     debug="${javac.debug}"
+     optimize="${javac.optimize}"
+     target="${javac.version}"
+     source="${javac.version}"
+     deprecation="${javac.deprecation}">
+      <classpath refid="classpath"/>
+    </javac>
+  </target>
+
+  <target name="compile-core">
+    <ant target="compile-core" inheritall="false" dir="${nutch.root}"/>
+    <ant target="compile"/>
+  </target>
+  
+  <!-- ================================================================== -->
+  <!-- Make plugin .jar                                                   -->
+  <!-- ================================================================== -->
+  <!--                                                                    -->
+  <!-- ================================================================== -->
+  <target name="jar" depends="compile">
+    <jar
+      jarfile="${build.dir}/${name}.jar"
+      basedir="${build.classes}"
+    />
+  </target>
+
+  <target name="jar-core" depends="compile-core">
+    <jar
+        jarfile="${build.dir}/${name}.jar"
+        basedir="${build.classes}"
+        />
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Deploy plugin to ${deploy.dir}                                     -->
+  <!-- ================================================================== -->
+  <!--                                                                    -->
+  <!-- ================================================================== -->
+  <target name="deploy" depends="jar, deps-test">
+    <mkdir dir="${deploy.dir}"/>
+    <copy file="plugin.xml" todir="${deploy.dir}" 
+          preservelastmodified="true"/>
+    <available property="lib-available"
+                 file="${build.dir}/${name}.jar"/>
+    <antcall target="copy-generated-lib"/>
+    <copy todir="${deploy.dir}" flatten="true">
+      <fileset refid="lib.jars"/>
+    </copy>
+  </target>
+	
+  <target name="copy-generated-lib" if="lib-available">
+    <copy file="${build.dir}/${name}.jar" todir="${deploy.dir}" failonerror="false"/>
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Compile test code                                                  --> 
+  <!-- ================================================================== -->
+  <target name="compile-test" depends="compile" if="test.available">
+    <javac 
+     encoding="${build.encoding}" 
+     srcdir="${src.test}"
+     includes="**/*.java"
+     destdir="${build.test}"
+     debug="${javac.debug}"
+     optimize="${javac.optimize}"
+     target="${javac.version}"
+     source="${javac.version}"
+     deprecation="${javac.deprecation}">
+      <classpath refid="test.classpath"/>
+    </javac>    
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Run unit tests                                                     --> 
+  <!-- ================================================================== -->
+  <target name="test" depends="compile-test, deploy" if="test.available">
+    <echo message="Testing plugin: ${name}"/>
+
+    <junit printsummary="yes" haltonfailure="no" fork="yes"
+      errorProperty="tests.failed" failureProperty="tests.failed">
+      <sysproperty key="test.data" value="${build.test}/data"/>
+      <sysproperty key="test.input" value="${root}/data"/>
+      <sysproperty key="javax.xml.parsers.DocumentBuilderFactory" value="com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl"/> 
+      <classpath refid="test.classpath"/>
+      <formatter type="plain" />
+      <batchtest todir="${build.test}" unless="testcase">
+        <fileset dir="${src.test}"
+                 includes="**/Test*.java" excludes="**/${test.exclude}.java" />
+      </batchtest>
+      <batchtest todir="${build.test}" if="testcase">
+        <fileset dir="${src.test}" includes="**/${testcase}.java"/>
+      </batchtest>
+    </junit>
+
+    <fail if="tests.failed">Tests failed!</fail>
+
+  </target>   
+
+  <!-- target: resolve  ================================================= -->
+  <target name="resolve-default" depends="clean-lib" description="resolve and retrieve dependencies with ivy">
+    <ivy:resolve file="ivy.xml" conf="default" log="download-only"/>
+    <ivy:retrieve pattern="${deploy.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
+  </target>
+
+  <target name="resolve-test" depends="clean-lib" description="resolve and retrieve dependencies with ivy">
+    <ivy:resolve file="ivy.xml" conf="test" log="download-only"/>
+    <ivy:retrieve pattern="${deploy.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
+  </target>
+
+  <!-- ================================================================== -->
+  <!-- Clean.  Delete the build files, and their directories              -->
+  <!-- ================================================================== -->
+  <!-- target: clean  =================================================== -->
+  <target name="clean" depends="clean-build, clean-lib" description="--> clean the project" />
+
+  <!-- target: clean-lib  =============================================== -->
+  <target name="clean-lib" description="--> clean the project libraries directory (dependencies)">
+    <delete includeemptydirs="true" dir="${build.lib.dir}"/>
+  </target>
+
+  <!-- target: clean-build  ============================================= -->
+  <target name="clean-build" description="--> clean the project built files">
+    <delete includeemptydirs="true" dir="${build.dir}"/>
+    <delete includeemptydirs="true" dir="${deploy.dir}"/>
+  </target>
+
+</project>

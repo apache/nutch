@@ -1,0 +1,112 @@
+<?xml version="1.0"?>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one or more
+ contributor license agreements.  See the NOTICE file distributed with
+ this work for additional information regarding copyright ownership.
+ The ASF licenses this file to You under the Apache License, Version 2.0
+ (the "License"); you may not use this file except in compliance with
+ the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>${ivy.pom.groupId}</groupId>
+  <artifactId>${ivy.pom.artifactId}</artifactId>
+  <packaging>${ivy.pom.packaging}</packaging>
+  <version>${version}</version>
+  <name>Apache Nutch</name>
+  <description>${ivy.pom.description}</description>
+  <url>${ivy.pom.url}</url>
+  <licenses>
+     <license>
+	<name>The Apache Software License, Version 2.0</name>
+	<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+	<distribution>repo</distribution>
+     </license>
+  </licenses>
+  <scm>
+     <url>http://svn.apache.org/viewvc/nutch</url>
+     <connection>http://svn.apache.org/viewvc/nutch</connection>
+  </scm>
+  <developers>
+		<developer>
+			<id>ab</id>
+			<name>Andrzej Bialecki</name>
+			<email>ab@apache.org</email>
+		</developer>
+		<developer>
+			<id>mattmann</id>
+			<name>Chris A. Mattmann</name>
+			<email>mattmann@apache.org</email>
+		</developer>
+		<developer>
+			<id>kubes</id>
+			<name>Dennis Kubes</name>
+			<email>kubes@apache.org</email>
+		</developer>		
+		<developer>
+			<id>dogacan</id>
+			<name>Dogacan Güney</name>
+			<email>dogacan@apache.org</email>
+		</developer>
+		<developer>
+			<id>jnioche</id>
+			<name>Julien Nioche</name>
+			<email>jnioche@apache.org</email>
+		</developer>
+		<developer>
+			<id>siren</id>
+			<name>Sami Siren</name>
+			<email>siren@apache.org</email>
+		</developer>
+                <developer>
+                        <id>markus</id>
+                        <name>Markus Jelsma</name>
+                        <email>markus@apache.org</email>
+                </developer>
+                <developer>
+                        <id>alexis</id>
+                        <name>Alexis Detlegrode</name>
+                        <email>alexis@apache.org</email>
+                </developer>
+		<developer>
+			<id>lewismc</id>
+			<name>Lewis John McGibbney</name>
+			<email>lewismc@apache.org</email>
+		</developer>
+	</developers>
+        <build>
+          <sourceDirectory>src/java</sourceDirectory>
+          <testSourceDirectory>src/test</testSourceDirectory>
+          <testResources>
+             <testResource>
+               <directory>src/testresources</directory>
+             </testResource>
+             <testResource>
+               <directory>src/testprocess</directory>
+             </testResource>
+          </testResources>
+          <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <source>1.5</source>
+                        <target>1.5</target>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        </build>
+</project>
+

@@ -1,0 +1,15 @@
+Apache Nutch
+Copyright 2012 The Apache Software Foundation
+
+This product includes software developed by The Apache Software
+Foundation (http://www.apache.org/).
+
+This product includes software developed by the following copyright owners:
+
+Nutch includes JavaSWF:
+Copyright (c) 2001-2005, David N. Main, All rights reserved.
+
+Nutch includes Automaton:
+This package is Copyright © 2001-2008 Anders Møller. All rights reserved.
+
+

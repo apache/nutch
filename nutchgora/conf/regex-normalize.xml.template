@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one or more
+ contributor license agreements.  See the NOTICE file distributed with
+ this work for additional information regarding copyright ownership.
+ The ASF licenses this file to You under the Apache License, Version 2.0
+ (the "License"); you may not use this file except in compliance with
+ the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<!-- This is the configuration file for the RegexUrlNormalize Class.
+     This is intended so that users can specify substitutions to be
+     done on URLs. The regex engine that is used is Perl5 compatible.
+     The rules are applied to URLs in the order they occur in this file.  -->
+
+<!-- WATCH OUT: an xml parser reads this file an ampersands must be
+     expanded to &amp; -->
+
+<!-- The following rules show how to strip out session IDs, default pages, 
+     interpage anchors, etc. Order does matter!  -->
+<regex-normalize>
+
+<!-- removes session ids from urls (such as jsessionid and PHPSESSID) -->
+<regex>
+  <pattern>([;_]?((?i)l|j|bv_)?((?i)sid|phpsessid|sessionid)=.*?)(\?|&amp;|#|$)</pattern>
+  <substitution>$4</substitution>
+</regex>
+
+<!-- changes default pages into standard for /index.html, etc. into /
+<regex>
+  <pattern>/((?i)index|default)\.((?i)js[pf]{1}?[afx]?|cgi|cfm|asp[x]?|[psx]?htm[l]?|php[3456]?)(\?|&amp;|#|$)</pattern>
+  <substitution>/$3</substitution>
+</regex> -->
+
+<!-- removes interpage href anchors such as site.com#location -->
+<regex>
+  <pattern>#.*?(\?|&amp;|$)</pattern>
+  <substitution>$1</substitution>
+</regex>
+
+<!-- cleans ?&amp;var=value into ?var=value -->
+<regex>
+  <pattern>\?&amp;</pattern>
+  <substitution>\?</substitution>
+</regex>
+
+<!-- cleans multiple sequential ampersands into a single ampersand -->
+<regex>
+  <pattern>&amp;{2,}</pattern>
+  <substitution>&amp;</substitution>
+</regex>
+
+<!-- removes trailing ? -->
+<regex>
+  <pattern>[\?&amp;\.]$</pattern>
+  <substitution></substitution>
+</regex>
+
+<!-- removes duplicate slashes -->
+<regex>
+  <pattern>(?&lt;!:)/{2,}</pattern>
+  <substitution>/</substitution>
+</regex>
+
+</regex-normalize>
