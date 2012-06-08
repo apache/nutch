@@ -801,6 +801,14 @@
   </description>
 </property>
 
+<property>
+  <name>fetcher.follow.outlinks.ignore.external</name>
+  <value>true</value>  
+  <description>Whether to ignore or follow external links. Set db.ignore.external.links to false and this to true to store outlinks
+  in the output but not follow them. If db.ignore.external.links is true this directive is ignored.
+  </description>
+</property>
+
 <!-- moreindexingfilter plugin properties -->
 
 <property>
