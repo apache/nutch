@@ -55,7 +55,9 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
   public static final Logger LOG = LoggerFactory.getLogger(IndexerMapReduce.class);
 
   public static final String INDEXER_DELETE = "indexer.delete";
+  public static final String INDEXER_SKIP_NOTMODIFIED = "indexer.skip.notmodified";
 
+  private boolean skip = false;
   private boolean delete = false;
   private IndexingFilters filters;
   private ScoringFilters scfilters;
@@ -65,6 +67,7 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
     this.filters = new IndexingFilters(getConf());
     this.scfilters = new ScoringFilters(getConf());
     this.delete = job.getBoolean(INDEXER_DELETE, false);
+    this.skip = job.getBoolean(INDEXER_SKIP_NOTMODIFIED, false);
   }
 
   public void map(Text key, Writable value,
@@ -87,8 +90,15 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
         inlinks = (Inlinks)value;
       } else if (value instanceof CrawlDatum) {
         final CrawlDatum datum = (CrawlDatum)value;
-        if (CrawlDatum.hasDbStatus(datum))
+        if (CrawlDatum.hasDbStatus(datum)) {
           dbDatum = datum;
+
+          // Whether to skip DB_NOTMODIFIED pages
+          if (skip && dbDatum.getStatus() == CrawlDatum.STATUS_DB_NOTMODIFIED) {
+            reporter.incrCounter("IndexerStatus", "Skipped", 1);
+            return;
+          }
+        }
         else if (CrawlDatum.hasFetchStatus(datum)) {
 
           // don't index unmodified (empty) pages
@@ -104,14 +114,14 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
 
                 NutchIndexAction action = new NutchIndexAction(null, NutchIndexAction.DELETE);
                 output.collect(key, action);
-                continue;
+                return;
               }
               if (fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_REDIR_PERM) {
                 reporter.incrCounter("IndexerStatus", "Perm redirects deleted", 1);
 
                 NutchIndexAction action = new NutchIndexAction(null, NutchIndexAction.DELETE);
                 output.collect(key, action);
-                continue;
+                return;
               }
             }
           }

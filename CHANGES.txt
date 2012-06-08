@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk) Current Development:
 
+* NUTCH-1336 Optionally not index db_notmodified pages (markus)
+
 * NUTCH-1346 Follow outlinks to ignore external (markus)
 
 * NUTCH-1320 IndexChecker and ParseChecker choke on IDN's (markus)

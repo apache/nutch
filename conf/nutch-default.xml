@@ -875,6 +875,13 @@
   </description>
 </property>
 
+<property>
+  <name>indexer.skip.notmodified</name>
+  <value>false</value>
+  <description>Whether the indexer will skip records with a db_notmodified status.
+  </description>
+</property>
+
 <!-- URL normalizer properties -->
 
 <property>
