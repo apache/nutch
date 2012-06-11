@@ -820,6 +820,16 @@
   </description>
 </property>
 
+<property>
+  <name>moreIndexingFilter.mapMimeTypes</name>
+  <value>false</value>
+  <description>Determines whether MIME-type mapping is enabled. It takes a
+  plain text file with mapped MIME-types. With it the user can map both
+  application/xhtml+xml and text/html to the same target MIME-type so it
+  can be treated equally in an index. See conf/contenttype-mapping.txt.
+  </description>
+</property>
+
 <!-- AnchorIndexing filter plugin properties -->
 
 <property>
