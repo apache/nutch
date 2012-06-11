@@ -93,7 +93,9 @@ public class HttpResponse implements Response {
       int sockPort = http.useProxy() ? http.getProxyPort() : port;
       InetSocketAddress sockAddr= new InetSocketAddress(sockHost, sockPort);
       socket.connect(sockAddr, http.getTimeout());
-
+      
+      headers.set("_ip", socket.getInetAddress().getHostAddress());
+      
       // make request
       OutputStream req = socket.getOutputStream();
 
@@ -110,6 +112,12 @@ public class HttpResponse implements Response {
       reqStr.append(host);
       reqStr.append(portString);
       reqStr.append("\r\n");
+      
+      if(this.http.getConf().getBoolean("http.store.ip.address", true)) {
+        reqStr.append("_ip: ");
+        reqStr.append(http.getIP_Header());
+        reqStr.append("\r\n");
+      }
 
       reqStr.append("Accept-Encoding: x-gzip, gzip, deflate\r\n");
 
@@ -432,5 +440,5 @@ public class HttpResponse implements Response {
     in.unread(value);
     return value;
   }
-
+  
 }

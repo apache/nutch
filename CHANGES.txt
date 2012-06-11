@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk) Current Development:
 
+* NUTCH-1360 Suport the storing of IP address connected to when web crawling (lewismc)
+
 * NUTCH-1262 Map `duplicating` content-types to a single type (markus)
 
 * NUTCH-1384 Typo in ParseSegments's run-method (Matthias Agethle via markus)
