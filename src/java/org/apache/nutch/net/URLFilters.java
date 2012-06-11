@@ -42,7 +42,7 @@ public class URLFilters {
     if (this.filters == null) {
       String[] orderedFilters = null;
       if (order != null && !order.trim().equals("")) {
-        orderedFilters = order.split("\\s+");
+        orderedFilters = order.trim().split("\\s+");
       }
 
       try {

@@ -234,7 +234,7 @@ public final class URLNormalizers {
     String orderlist = conf.get("urlnormalizer.order." + scope);
     if (orderlist == null) orderlist = conf.get("urlnormalizer.order");
     if (orderlist != null && !orderlist.trim().equals("")) {
-      orders = orderlist.split("\\s+");
+      orders = orderlist.trim().split("\\s+");
     }
     String scopelist = conf.get("urlnormalizer.scope." + scope);
     Set<String> impls = null;
