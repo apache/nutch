@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk) Current Development:
 
+* NUTCH-1384 Typo in ParseSegments's run-method (Matthias Agethle via markus)
+
 * NUTCH-1385 More robust plug-in order properties in nutch-site.xml (Andy Xue via markus)
 
 * NUTCH-1336 Optionally not index db_notmodified pages (markus)
