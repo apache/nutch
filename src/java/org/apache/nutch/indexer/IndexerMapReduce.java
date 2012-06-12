@@ -41,6 +41,8 @@ import org.apache.nutch.crawl.LinkDb;
 import org.apache.nutch.crawl.NutchWritable;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.net.URLFilters;
+import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
@@ -56,11 +58,21 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
 
   public static final String INDEXER_DELETE = "indexer.delete";
   public static final String INDEXER_SKIP_NOTMODIFIED = "indexer.skip.notmodified";
+  public static final String URL_FILTERING = "indexer.url.filters";
+  public static final String URL_NORMALIZING = "indexer.url.normalizers";
 
   private boolean skip = false;
   private boolean delete = false;
   private IndexingFilters filters;
   private ScoringFilters scfilters;
+  
+  // using normalizers and/or filters
+  private boolean normalize = false;
+  private boolean filter = false;
+
+  // url normalizers, filters and job configuration
+  private URLNormalizers urlNormalizers;
+  private URLFilters urlFilters;
 
   public void configure(JobConf job) {
     setConf(job);
@@ -68,10 +80,80 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
     this.scfilters = new ScoringFilters(getConf());
     this.delete = job.getBoolean(INDEXER_DELETE, false);
     this.skip = job.getBoolean(INDEXER_SKIP_NOTMODIFIED, false);
+
+    normalize = job.getBoolean(URL_NORMALIZING, false);
+    filter = job.getBoolean(URL_FILTERING, false);
+
+    if (normalize) {
+      urlNormalizers = new URLNormalizers(getConf(), URLNormalizers.SCOPE_DEFAULT);
+    }
+
+    if (filter) {
+      urlFilters = new URLFilters(getConf());
+    }
+  }
+
+  /**
+   * Normalizes and trims extra whitespace from the given url.
+   *
+   * @param url The url to normalize.
+   *
+   * @return The normalized url.
+   */
+  private String normalizeUrl(String url) {
+    if (!normalize) {
+      return url;
+    }
+
+    String normalized = null;
+    if (urlNormalizers != null) {
+      try {
+
+        // normalize and trim the url
+        normalized = urlNormalizers.normalize(url,
+          URLNormalizers.SCOPE_INDEXER);
+        normalized = normalized.trim();
+      }
+      catch (Exception e) {
+        LOG.warn("Skipping " + url + ":" + e);
+        normalized = null;
+      }
+    }
+
+    return normalized;
+  }
+
+  /**
+   * Filters the given url.
+   *
+   * @param url The url to filter.
+   *
+   * @return The filtered url or null.
+   */
+  private String filterUrl(String url) {
+    if (!filter) {
+      return url;
+    }
+
+    try {
+      url = urlFilters.filter(url);
+    } catch (Exception e) {
+      url = null;
+    }
+
+    return url;
   }
 
   public void map(Text key, Writable value,
       OutputCollector<Text, NutchWritable> output, Reporter reporter) throws IOException {
+
+    String urlString = filterUrl(normalizeUrl(key.toString()));
+    if (urlString == null) {
+      return;
+    } else {
+      key.set(urlString);
+    }
+
     output.collect(key, new NutchWritable(value));
   }
 

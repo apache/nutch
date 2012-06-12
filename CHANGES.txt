@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk) Current Development:
 
+* NUTCH-1300 Indexer to filter normalize URL's (markus)
+
 * NUTCH-1330 WebGraph OutlinkDB to preserve back up (markus)
 
 * NUTCH-1319 HostNormalizer plugin (markus)

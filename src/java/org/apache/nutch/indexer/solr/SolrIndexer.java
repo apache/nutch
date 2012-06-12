@@ -72,6 +72,13 @@ public class SolrIndexer extends Configured implements Tool {
   
   public void indexSolr(String solrUrl, Path crawlDb, Path linkDb,
       List<Path> segments, boolean noCommit, boolean deleteGone, String solrParams) throws IOException {
+    indexSolr(solrUrl, crawlDb, linkDb, segments, noCommit, deleteGone, solrParams, false, false);
+  }
+  
+  public void indexSolr(String solrUrl, Path crawlDb, Path linkDb,
+      List<Path> segments, boolean noCommit, boolean deleteGone, String solrParams,
+      boolean filter, boolean normalize) throws IOException {
+      
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
     LOG.info("SolrIndexer: starting at " + sdf.format(start));
@@ -79,14 +86,16 @@ public class SolrIndexer extends Configured implements Tool {
     final JobConf job = new NutchJob(getConf());
     job.setJobName("index-solr " + solrUrl);
 
-    if (deleteGone) {
-      LOG.info("SolrIndexer: deleting gone documents");
-    }
-
+    LOG.info("SolrIndexer: deleting gone documents: " + deleteGone);
+    LOG.info("SolrIndexer: URL filtering: " + filter);
+    LOG.info("SolrIndexer: URL normalizing: " + normalize);
+    
     IndexerMapReduce.initMRJob(crawlDb, linkDb, segments, job);
 
     job.set(SolrConstants.SERVER_URL, solrUrl);
     job.setBoolean(IndexerMapReduce.INDEXER_DELETE, deleteGone);
+    job.setBoolean(IndexerMapReduce.URL_FILTERING, filter);
+    job.setBoolean(IndexerMapReduce.URL_NORMALIZING, normalize);
     if (solrParams != null) {
       job.set(SolrConstants.PARAMS, solrParams);
     }
@@ -118,7 +127,7 @@ public class SolrIndexer extends Configured implements Tool {
 
   public int run(String[] args) throws Exception {
     if (args.length < 3) {
-      System.err.println("Usage: SolrIndexer <solr url> <crawldb> [-linkdb <linkdb>] [-params k1=v1&k2=v2...] (<segment> ... | -dir <segments>) [-noCommit] [-deleteGone]");
+      System.err.println("Usage: SolrIndexer <solr url> <crawldb> [-linkdb <linkdb>] [-params k1=v1&k2=v2...] (<segment> ... | -dir <segments>) [-noCommit] [-deleteGone] [-filter] [-normalize]");
       return -1;
     }
 
@@ -130,6 +139,8 @@ public class SolrIndexer extends Configured implements Tool {
 
     boolean noCommit = false;
     boolean deleteGone = false;
+    boolean filter = false;
+    boolean normalize = false;
 
     for (int i = 2; i < args.length; i++) {
     	if (args[i].equals("-linkdb")) {
@@ -148,6 +159,10 @@ public class SolrIndexer extends Configured implements Tool {
         noCommit = true;
       } else if (args[i].equals("-deleteGone")) {
         deleteGone = true;
+      } else if (args[i].equals("-filter")) {
+        filter = true;
+      } else if (args[i].equals("-normalize")) {
+        normalize = true;
       } else if (args[i].equals("-params")) {
         params = args[++i];
       } else {
@@ -156,7 +171,7 @@ public class SolrIndexer extends Configured implements Tool {
     }
 
     try {
-      indexSolr(args[0], crawlDb, linkDb, segments, noCommit, deleteGone, params);
+      indexSolr(args[0], crawlDb, linkDb, segments, noCommit, deleteGone, params, filter, normalize);
       return 0;
     } catch (final Exception e) {
       LOG.error("SolrIndexer: " + StringUtils.stringifyException(e));

@@ -95,7 +95,8 @@ public final class URLNormalizers {
   public static final String SCOPE_INJECT = "inject";
   /** Scope used when constructing new {@link org.apache.nutch.parse.Outlink} instances. */
   public static final String SCOPE_OUTLINK = "outlink";
-  
+  /** Scope used when indexing URLs. */
+  public static final String SCOPE_INDEXER = "indexer";
 
   public static final Logger LOG = LoggerFactory.getLogger(URLNormalizers.class);
 
