@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk) Current Development:
 
+* NUTCH-1356 ParseUtil use ExecutorService instead of manually thread handling (ferdy via markus)
+
 * NUTCH-1352 Improve regex urlfilters/normalizers synchronization (ferdy via markus)
 
 * NUTCH-1024 Dynamically set fetchInterval by MIME-type (markus)

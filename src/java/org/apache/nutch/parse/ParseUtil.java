@@ -18,14 +18,17 @@ package org.apache.nutch.parse;
 
 // Commons Logging imports
 
-import java.util.concurrent.FutureTask;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.protocol.Content;
+
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 
 
 /**
@@ -43,7 +46,8 @@ public class ParseUtil {
   public static final Logger LOG = LoggerFactory.getLogger(ParseUtil.class);
   private ParserFactory parserFactory;
   /** Parser timeout set to 30 sec by default. Set -1 to deactivate **/
-  private int MAX_PARSE_TIME = 30;
+  private int maxParseTime = 30;
+  private ExecutorService executorService;
   
   /**
    * 
@@ -51,7 +55,9 @@ public class ParseUtil {
    */
   public ParseUtil(Configuration conf) {
     this.parserFactory = new ParserFactory(conf);
-    MAX_PARSE_TIME=conf.getInt("parser.timeout", 30);
+    maxParseTime=conf.getInt("parser.timeout", 30);
+    executorService = Executors.newCachedThreadPool(new ThreadFactoryBuilder()
+      .setNameFormat("parse-%d").setDaemon(true).build());
   }
   
   /**
@@ -83,7 +89,7 @@ public class ParseUtil {
       if (LOG.isDebugEnabled()) {
         LOG.debug("Parsing [" + content.getUrl() + "] with [" + parsers[i] + "]");
       }
-      if (MAX_PARSE_TIME!=-1)
+      if (maxParseTime!=-1)
       	parseResult = runParser(parsers[i], content);
       else 
       	parseResult = parsers[i].getParse(content);
@@ -133,7 +139,7 @@ public class ParseUtil {
     }
     
     ParseResult parseResult = null;
-    if (MAX_PARSE_TIME!=-1)
+    if (maxParseTime!=-1)
     	parseResult = runParser(p, content);
     else 
     	parseResult = p.getParse(content);
@@ -150,20 +156,14 @@ public class ParseUtil {
 
   private ParseResult runParser(Parser p, Content content) {
     ParseCallable pc = new ParseCallable(p, content);
-    FutureTask<ParseResult> task = new FutureTask<ParseResult>(pc);
+    Future<ParseResult> task = executorService.submit(pc);
     ParseResult res = null;
-    Thread t = new Thread(task);
-    t.start();
     try {
-      res = task.get(MAX_PARSE_TIME, TimeUnit.SECONDS);
-    } catch (TimeoutException e) {
-      LOG.warn("TIMEOUT parsing " + content.getUrl() + " with " + p);
+      res = task.get(maxParseTime, TimeUnit.SECONDS);
     } catch (Exception e) {
+      LOG.warn("Error parsing " + content.getUrl() + " with " + p, e);
       task.cancel(true);
-      res = null;
-      t.interrupt();
     } finally {
-      t = null;
       pc = null;
     }
     return res;
