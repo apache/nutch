@@ -48,7 +48,11 @@ public class HeadingsParseFilter implements HtmlParseFilter {
       heading = getElement(headings[i]);
 
       if (heading != null) {
-        parse.getData().getParseMeta().set(headings[i], heading.trim());
+        heading.trim();
+
+        if (heading.length() > 0) {
+          parse.getData().getParseMeta().set(headings[i], heading);
+        }
       }
     }
 
@@ -89,13 +93,13 @@ public class HeadingsParseFilter implements HtmlParseFilter {
    * Returns the text value of the specified Node and child nodes
    */
   protected static String getNodeValue(Node node) {
-    StringBuffer buffer = new StringBuffer();
+    StringBuilder buffer = new StringBuilder();
 
     NodeList children = node.getChildNodes();
 
     for (int i = 0; i < children.getLength(); i++) {
       if (children.item(i).getNodeType() == Node.TEXT_NODE) {
-          buffer.append(children.item(i).getNodeValue());
+        buffer.append(children.item(i).getNodeValue());
       }
     }
 
