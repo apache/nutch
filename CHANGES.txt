@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk) Current Development:
 
+* NUTCH-1319 HostNormalizer plugin (markus)
+
 * NUTCH-1386 Headings filter not to add empty values (markus)
 
 * NUTCH-1356 ParseUtil use ExecutorService instead of manually thread handling (ferdy via markus)
