@@ -100,7 +100,8 @@ public class WebGraph
   public static final Logger LOG = LoggerFactory.getLogger(WebGraph.class);
   public static final String LOCK_NAME = ".locked";
   public static final String INLINK_DIR = "inlinks";
-  public static final String OUTLINK_DIR = "outlinks";
+  public static final String OUTLINK_DIR = "outlinks/current";
+  public static final String OLD_OUTLINK_DIR = "outlinks/old";
   public static final String NODE_DIR = "nodes";
 
   /**
@@ -554,6 +555,7 @@ public class WebGraph
 
     // outlink and temp outlink database paths
     Path outlinkDb = new Path(webGraphDb, OUTLINK_DIR);
+    Path oldOutlinkDb = new Path(webGraphDb, OLD_OUTLINK_DIR);
 
     if (!fs.exists(outlinkDb)) {
       fs.mkdirs(outlinkDb);
@@ -565,6 +567,7 @@ public class WebGraph
     outlinkJob.setJobName("Outlinkdb: " + outlinkDb);
 
     boolean deleteGone = conf.getBoolean("link.delete.gone", false);
+    boolean preserveBackup = conf.getBoolean("db.preserve.backup", true);
 
     if (deleteGone) {
       LOG.info("OutlinkDb: deleting gone links");
@@ -612,7 +615,9 @@ public class WebGraph
       LOG.info("OutlinkDb: running");
       JobClient.runJob(outlinkJob);
       LOG.info("OutlinkDb: installing " + outlinkDb);
+      FSUtils.replace(fs, oldOutlinkDb, outlinkDb, true);
       FSUtils.replace(fs, outlinkDb, tempOutlinkDb, true);
+      if (!preserveBackup && fs.exists(oldOutlinkDb)) fs.delete(oldOutlinkDb, true);
       LOG.info("OutlinkDb: finished");
     }
     catch (IOException e) {
