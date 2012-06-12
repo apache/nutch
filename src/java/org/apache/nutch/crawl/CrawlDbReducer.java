@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.io.IOException;
 
-// Commons Logging imports
+// Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
