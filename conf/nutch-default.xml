@@ -409,6 +409,13 @@
 </property>
 
 <property>
+  <name>db.fetch.schedule.mime.file</name>
+  <value>adaptive-mimetypes.txt</value>
+  <description>The configuration file for the MimeAdaptiveFetchSchedule.
+  </description>
+</property>
+
+<property>
   <name>db.update.additions.allowed</name>
   <value>true</value>
   <description>If true, updatedb will add newly discovered URLs, if false
