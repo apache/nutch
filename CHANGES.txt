@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk) Current Development:
 
+* NUTCH-1352 Improve regex urlfilters/normalizers synchronization (ferdy via markus)
+
 * NUTCH-1024 Dynamically set fetchInterval by MIME-type (markus)
 
 * NUTCH-1364 Add a counter in Generator for malformed urls (lewismc)

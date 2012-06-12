@@ -17,35 +17,35 @@
 
 package org.apache.nutch.net.urlnormalizer.regex;
 
-import java.net.URL;
-import java.net.MalformedURLException;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
-
+import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
-
 import org.apache.nutch.net.URLNormalizer;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
-
-import javax.xml.parsers.*;
-import org.w3c.dom.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Text;
 import org.xml.sax.InputSource;
-
-import java.util.regex.*;
 
 /**
  * Allows users to do regex substitutions on all/any URLs that are encountered,
@@ -75,9 +75,20 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
     public String substitution;
   }
 
-  private HashMap scopedRules;
+  private ThreadLocal<HashMap<String, List<Rule>>> scopedRulesThreadLocal = 
+      new ThreadLocal<HashMap<String,List<Rule>>>() {
+    protected java.util.HashMap<String,java.util.List<Rule>> initialValue() {
+      return new HashMap<String, List<Rule>>();
+    };
+  };
   
-  private static final List EMPTY_RULES = Collections.EMPTY_LIST;
+  public HashMap<String, List<Rule>> getScopedRules() {
+    return scopedRulesThreadLocal.get();
+  }
+  
+  private List<Rule> defaultRules; 
+  
+  private static final List<Rule> EMPTY_RULES = Collections.emptyList();
 
   /**
    * The default constructor which is called from UrlNormalizerFactory
@@ -98,45 +109,44 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
   public RegexURLNormalizer(Configuration conf, String filename)
           throws IOException, PatternSyntaxException {
     super(conf);
-    List rules = readConfigurationFile(filename);
-    if (rules != null)
-      scopedRules.put(URLNormalizers.SCOPE_DEFAULT, rules);
+    List<Rule> rules = readConfigurationFile(filename);
+    if (rules != null) {
+      defaultRules = rules;
+    }
   }
 
   public void setConf(Configuration conf) {
     super.setConf(conf);
     if (conf == null) return;
     // the default constructor was called
-    if (this.scopedRules == null) {
-      String filename = getConf().get("urlnormalizer.regex.file");
-      String stringRules = getConf().get("urlnormalizer.regex.rules");
-      scopedRules = new HashMap();
-      Reader reader = null;
-      if (stringRules != null) {
-        reader = new StringReader(stringRules);
-      } else {
-        reader = getConf().getConfResourceAsReader(filename);
-      }
-      List rules = null;
-      if (reader == null) {
-        LOG.warn("Can't load the default rules! ");
-        rules = EMPTY_RULES;
-      } else {
-        try {
-          rules = readConfiguration(reader);
-        } catch (Exception e) {
-          LOG.warn("Couldn't read default config: " + e);
-          rules = EMPTY_RULES;
-        }
-      }
-      scopedRules.put(URLNormalizers.SCOPE_DEFAULT, rules);
+
+    String filename = getConf().get("urlnormalizer.regex.file");
+    String stringRules = getConf().get("urlnormalizer.regex.rules");
+    Reader reader = null;
+    if (stringRules != null) {
+      reader = new StringReader(stringRules);
+    } else {
+      reader = getConf().getConfResourceAsReader(filename);
     }
+    List<Rule> rules = null;
+    if (reader == null) {
+      LOG.warn("Can't load the default rules! ");
+      rules = EMPTY_RULES;
+    } else {
+      try {
+        rules = readConfiguration(reader);
+      } catch (Exception e) {
+        LOG.warn("Couldn't read default config: " + e);
+        rules = EMPTY_RULES;
+      }
+    }
+    defaultRules = rules;
   }
 
   // used in JUnit test.
   void setConfiguration(Reader reader, String scope) {
-    List rules = readConfiguration(reader);
-    scopedRules.put(scope, rules);
+    List<Rule> rules = readConfiguration(reader);
+    getScopedRules().put(scope, rules);
     LOG.debug("Set config for scope '" + scope + "': " + rules.size() + " rules.");
   }
   
@@ -144,23 +154,20 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
    * This function does the replacements by iterating through all the regex
    * patterns. It accepts a string url as input and returns the altered string.
    */
-  public synchronized String regexNormalize(String urlString, String scope) {
-    List curRules = (List)scopedRules.get(scope);
+  public String regexNormalize(String urlString, String scope) {
+    HashMap<String, List<Rule>> scopedRules = getScopedRules();
+    List<Rule> curRules = scopedRules.get(scope);
     if (curRules == null) {
       // try to populate
       String configFile = getConf().get("urlnormalizer.regex.file." + scope);
       if (configFile != null) {
         LOG.debug("resource for scope '" + scope + "': " + configFile);
-        if (configFile == null) {
-          LOG.warn("Can't load resource for config file: " + configFile);
-        } else {
-          try {
-            Reader reader = getConf().getConfResourceAsReader(configFile);
-            curRules = readConfiguration(reader);
-            scopedRules.put(scope, curRules);
-          } catch (Exception e) {
-            LOG.warn("Couldn't load resource '" + configFile + "': " + e);
-          }
+        try {
+          Reader reader = getConf().getConfResourceAsReader(configFile);
+          curRules = readConfiguration(reader);
+          scopedRules.put(scope, curRules);
+        } catch (Exception e) {
+          LOG.warn("Couldn't load resource '" + configFile + "': " + e);
         }
       }
       if (curRules == EMPTY_RULES || curRules == null) {
@@ -169,10 +176,9 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
       }
     }
     if (curRules == EMPTY_RULES || curRules == null) {
-      // use global rules
-      curRules = (List)scopedRules.get(URLNormalizers.SCOPE_DEFAULT);
+      curRules = defaultRules;
     }
-    Iterator i = curRules.iterator();
+    Iterator<Rule> i = curRules.iterator();
     while (i.hasNext()) {
       Rule r = (Rule) i.next();
 
@@ -183,13 +189,13 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
     return urlString;
   }
 
-  public synchronized String normalize(String urlString, String scope)
+  public String normalize(String urlString, String scope)
           throws MalformedURLException {
     return regexNormalize(urlString, scope);
   }
 
   /** Reads the configuration file and populates a List of Rules. */
-  private List readConfigurationFile(String filename) {
+  private List<Rule> readConfigurationFile(String filename) {
     if (LOG.isInfoEnabled()) {
       LOG.info("loading " + filename);
     }
@@ -202,8 +208,8 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
     }
   }
   
-  private List readConfiguration(Reader reader) {
-    List rules = new ArrayList();
+  private List<Rule> readConfiguration(Reader reader) {
+    List<Rule> rules = new ArrayList<Rule>();
     try {
 
       // borrowed heavily from code in Configuration.java
@@ -261,10 +267,11 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
           IOException {
     RegexURLNormalizer normalizer = new RegexURLNormalizer();
     normalizer.setConf(NutchConfiguration.create());
-    Iterator i = ((List)normalizer.scopedRules.get(URLNormalizers.SCOPE_DEFAULT)).iterator();
+    HashMap<String, List<Rule>> scopedRules = normalizer.getScopedRules();
+    Iterator<Rule> i = normalizer.defaultRules.iterator();
     System.out.println("* Rules for 'DEFAULT' scope:");
     while (i.hasNext()) {
-      Rule r = (Rule) i.next();
+      Rule r = i.next();
       System.out.print("  " + r.pattern.pattern() + " -> ");
       System.out.println(r.substitution);
     }
@@ -272,13 +279,13 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
     if (args.length > 1) {
       normalizer.normalize("http://test.com", args[1]);
     }
-    if (normalizer.scopedRules.size() > 1) {
-      Iterator it = normalizer.scopedRules.keySet().iterator();
+    if (scopedRules.size() > 1) {
+      Iterator<String> it = scopedRules.keySet().iterator();
       while (it.hasNext()) {
-        String scope = (String)it.next();
+        String scope = it.next();
         if (URLNormalizers.SCOPE_DEFAULT.equals(scope)) continue;
         System.out.println("* Rules for '" + scope + "' scope:");
-        i = ((List)normalizer.scopedRules.get(scope)).iterator();
+        i = ((List<Rule>)scopedRules.get(scope)).iterator();
         while (i.hasNext()) {
           Rule r = (Rule) i.next();
           System.out.print("  " + r.pattern.pattern() + " -> ");

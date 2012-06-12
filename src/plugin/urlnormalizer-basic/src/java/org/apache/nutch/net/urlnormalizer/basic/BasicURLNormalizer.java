@@ -28,22 +28,23 @@ import org.slf4j.LoggerFactory;
 import org.apache.nutch.net.URLNormalizer;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
 import org.apache.oro.text.regex.*;
 
 /** Converts URLs to a normal form . */
-public class BasicURLNormalizer implements URLNormalizer {
+public class BasicURLNormalizer extends Configured implements URLNormalizer {
     public static final Logger LOG = LoggerFactory.getLogger(BasicURLNormalizer.class);
 
     private Perl5Compiler compiler = new Perl5Compiler();
-    private ThreadLocal matchers = new ThreadLocal() {
-        protected synchronized Object initialValue() {
+    private ThreadLocal<Perl5Matcher> matchers = new ThreadLocal<Perl5Matcher>() {
+        protected Perl5Matcher initialValue() {
           return new Perl5Matcher();
         }
       };
-    private Rule relativePathRule = null;
-    private Rule leadingRelativePathRule = null;
-    private Rule currentPathRule = null;
-    private Rule adjacentSlashRule = null;
+    private final Rule relativePathRule;
+    private final Rule leadingRelativePathRule;
+    private final Rule currentPathRule;
+    private final Rule adjacentSlashRule;
 
     private Configuration conf;
 
@@ -80,7 +81,6 @@ public class BasicURLNormalizer implements URLNormalizer {
         adjacentSlashRule.substitution = new Perl5Substitution("/");
         
       } catch (MalformedPatternException e) {
-        LOG.error("Error: ", e);
         throw new RuntimeException(e);
       }
     }
