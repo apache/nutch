@@ -10,7 +10,7 @@ and our wiki, at:
 
 To get started using Nutch read Tutorial:
 
-   http://wiki.apache.org/nutch/NutchTutorial
+   http://wiki.apache.org/nutch/Nutch2Tutorial
    
 Export Control
 
