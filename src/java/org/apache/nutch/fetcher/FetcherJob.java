@@ -265,7 +265,7 @@ public class FetcherJob extends NutchTool implements Tool {
     String batchId;
 
     String usage = "Usage: FetcherJob (<batchId> | -all) [-crawlId <id>] " +
-      "[-threads N] [-parse] \n \t \t  [-resume] [-numTasks N]\n" +
+      "[-threads N] \n \t \t  [-resume] [-numTasks N]\n" +
       "    <batchId>     - crawl identifier returned by Generator, or -all for all \n \t \t    generated batchId-s\n" +
       "    -crawlId <id> - the id to prefix the schemas to operate on, \n \t \t    (default: storage.crawl.id)\n" +
       "    -threads N    - number of fetching threads per task\n" +

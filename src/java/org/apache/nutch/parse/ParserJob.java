@@ -231,6 +231,13 @@ public class ParserJob extends NutchTool implements Tool {
     if (force != null) {
       getConf().setBoolean(FORCE_KEY, force);
     }
+    LOG.info("ParserJob: resuming:\t" + getConf().getBoolean(RESUME_KEY, false));
+    LOG.info("ParserJob: forced reparse:\t" + getConf().getBoolean(FORCE_KEY, false));
+    if (batchId == null || batchId.equals(Nutch.ALL_BATCH_ID_STR)) {
+      LOG.info("ParserJob: parsing all");
+    } else {
+      LOG.info("ParserJob: batchId:\t" + batchId);
+    }
     currentJob = new NutchJob(getConf(), "parse");
     
     Collection<WebPage.Field> fields = getFields(currentJob);
@@ -247,13 +254,6 @@ public class ParserJob extends NutchTool implements Tool {
   public int parse(String batchId, boolean shouldResume, boolean force) throws Exception {
     LOG.info("ParserJob: starting");
 
-    LOG.info("ParserJob: resuming:\t" + getConf().getBoolean(RESUME_KEY, false));
-    LOG.info("ParserJob: forced reparse:\t" + getConf().getBoolean(FORCE_KEY, false));
-    if (batchId == null || batchId.equals(Nutch.ALL_BATCH_ID_STR)) {
-      LOG.info("ParserJob: parsing all");
-    } else {
-      LOG.info("ParserJob: batchId:\t" + batchId);
-    }
     run(ToolUtil.toArgMap(
         Nutch.ARG_BATCH, batchId,
         Nutch.ARG_RESUME, shouldResume,
