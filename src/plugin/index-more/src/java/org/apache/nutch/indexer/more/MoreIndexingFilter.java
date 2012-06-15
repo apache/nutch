@@ -17,16 +17,12 @@
 package org.apache.nutch.indexer.more;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.TimeZone;
 
 import org.apache.avro.util.Utf8;
 import org.apache.commons.lang.time.DateUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
@@ -42,8 +38,9 @@ import org.apache.oro.text.regex.PatternMatcher;
 import org.apache.oro.text.regex.Perl5Compiler;
 import org.apache.oro.text.regex.Perl5Matcher;
 import org.apache.oro.text.regex.Perl5Pattern;
-import org.apache.tika.mime.MimeType;
 import org.apache.solr.common.util.DateUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Add (or reset) a few metaData properties as respective fields (if they are
@@ -170,7 +167,7 @@ public class MoreIndexingFilter implements IndexingFilter {
    * @return
    */
   private NutchDocument addType(NutchDocument doc, WebPage page, String url) {
-    MimeType mimeType = null;
+    String mimeType = null;
     Utf8 contentType = page.getFromHeaders(new Utf8(HttpHeaders.CONTENT_TYPE));
     if (contentType == null) {
       // Note by Jerome Charron on 20050415:
@@ -194,9 +191,9 @@ public class MoreIndexingFilter implements IndexingFilter {
       return doc;
     }
 
-    String scontentType = mimeType.getName();
+    //String scontentType = mimeType.getName();
 
-    doc.add("type", scontentType);
+    doc.add("type", mimeType);
 
     // Check if we need to split the content type in sub parts
     if (conf.getBoolean("moreIndexingFilter.indexMimeTypeParts", true)) {

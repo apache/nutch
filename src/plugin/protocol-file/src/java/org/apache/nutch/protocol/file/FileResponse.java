@@ -209,8 +209,8 @@ public class FileResponse {
     headers.set(Response.LAST_MODIFIED, HttpDateFormat.toString(f
         .lastModified()));
     
-    MimeType mimeType = MIME.getMimeType(f);
-    String mimeTypeString = mimeType != null ? mimeType.getName() : "";
+    String mimeType = MIME.getMimeType(f);
+    String mimeTypeString = mimeType != null ? mimeType.toString() : "";
     headers.set(Response.CONTENT_TYPE, mimeTypeString);
 
     // response code

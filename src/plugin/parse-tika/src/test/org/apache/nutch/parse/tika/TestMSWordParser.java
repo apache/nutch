@@ -82,8 +82,8 @@ public class TestMSWordParser extends TestCase {
 	page.setContent(ByteBuffer.wrap(bytes));
 	// set the content type?
 	MimeUtil mimeutil = new MimeUtil(conf);
-	MimeType mtype = mimeutil.getMimeType(file);
-	page.setContentType(new Utf8(mtype.getName()));
+	String mtype = mimeutil.getMimeType(file);
+	page.setContentType(new Utf8(mtype));
 		
 	parse = new ParseUtil(conf).parse("file:"+urlString, page);
 	return parse.getText();

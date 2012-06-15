@@ -242,13 +242,13 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     page.setBaseUrl(new Utf8(url));
     page.setContent(ByteBuffer.wrap(bytes));
     MimeUtil mimeutil = new MimeUtil(conf);
-    MimeType mtype = mimeutil.getMimeType(file);
-    page.setContentType(new Utf8(mtype.getName()));
+    String mtype = mimeutil.getMimeType(file);
+    page.setContentType(new Utf8(mtype));
     // Parse parse = parser.getParse(url, page);
 
     Parse parse = new ParseUtil(conf).parse(url, page);
 
-    System.out.println("content type: " + mtype.getName());
+    System.out.println("content type: " + mtype);
     System.out.println("title: " + parse.getTitle());
     System.out.println("text: " + parse.getText());
     System.out.println("outlinks: " + Arrays.toString(parse.getOutlinks()));

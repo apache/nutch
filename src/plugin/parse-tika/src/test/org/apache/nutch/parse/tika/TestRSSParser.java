@@ -102,8 +102,8 @@ public class TestRSSParser extends TestCase {
       WebPage page = new WebPage();
       page.setBaseUrl(new Utf8(urlString));
       page.setContent(ByteBuffer.wrap(bytes));
-      MimeType mtype = mimeutil.getMimeType(file);
-      page.setContentType(new Utf8(mtype.getName()));
+      String mtype = mimeutil.getMimeType(file);
+      page.setContentType(new Utf8(mtype));
 
       parse = new ParseUtil(conf).parse(urlString, page);
 

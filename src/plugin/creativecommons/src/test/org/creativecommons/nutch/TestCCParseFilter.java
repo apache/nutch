@@ -73,8 +73,8 @@ public class TestCCParseFilter extends TestCase {
 		page.setBaseUrl(new Utf8(url));
 		page.setContent(ByteBuffer.wrap(bytes));
 		MimeUtil mimeutil = new MimeUtil(conf);
-		MimeType mtype = mimeutil.getMimeType(file);
-		page.setContentType(new Utf8(mtype.getName()));
+		String mtype = mimeutil.getMimeType(file);
+		page.setContentType(new Utf8(mtype));
 
 		new ParseUtil(conf).parse(url, page);
 
