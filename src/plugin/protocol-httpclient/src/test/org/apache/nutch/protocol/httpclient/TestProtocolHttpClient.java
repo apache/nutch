@@ -83,6 +83,7 @@ public class TestProtocolHttpClient extends TestCase {
 		startServer(47500);
 		fetchPage("/cookies.jsp", 200);
 		fetchPage("/cookies.jsp?cookie=yes", 200);
+		tearDown();
 	}
 
 	/**
@@ -94,6 +95,7 @@ public class TestProtocolHttpClient extends TestCase {
 	public void testNoPreemptiveAuth() throws Exception {
 		startServer(47500);
 		fetchPage("/noauth.jsp", 200);
+		tearDown();
 	}
 
 	/**
@@ -105,6 +107,7 @@ public class TestProtocolHttpClient extends TestCase {
 	public void testDefaultCredentials() throws Exception {
 		startServer(47502);
 		fetchPage("/basic.jsp", 200);
+		tearDown();
 	}
 
 	/**
@@ -118,7 +121,7 @@ public class TestProtocolHttpClient extends TestCase {
 		fetchPage("/basic.jsp", 200);
 		fetchPage("/basic.jsp?case=1", 200);
 		fetchPage("/basic.jsp?case=2", 200);
-		server.start();
+		tearDown();
 	}
 
 	/**
@@ -134,6 +137,7 @@ public class TestProtocolHttpClient extends TestCase {
 		fetchPage("/basic.jsp", 200);
 		fetchPage("/basic.jsp?case=1", 401);
 		fetchPage("/basic.jsp?case=2", 401);
+		tearDown();
 	}
 
 	/**
@@ -145,6 +149,7 @@ public class TestProtocolHttpClient extends TestCase {
 	public void testDigestAuth() throws Exception {
 		startServer(47500);
 		fetchPage("/digest.jsp", 200);
+		tearDown();
 	}
 
 	/**
@@ -156,6 +161,7 @@ public class TestProtocolHttpClient extends TestCase {
 	public void testNtlmAuth() throws Exception {
 		startServer(47501);
 		fetchPage("/ntlm.jsp", 200);
+		tearDown();
 	}
 
 	/**
