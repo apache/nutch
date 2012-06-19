@@ -93,9 +93,9 @@ fi
 
 
 # NUTCH_JOB 
-if [ -f ${NUTCH_HOME}/nutch-*.job ]; then
+if [ -f ${NUTCH_HOME}/*nutch*.job ]; then
     local=false
-  for f in $NUTCH_HOME/nutch-*.job; do
+  for f in $NUTCH_HOME/*nutch*.job; do
     NUTCH_JOB=$f;
   done
 else
