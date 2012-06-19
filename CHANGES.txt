@@ -3,6 +3,8 @@ Nutch Change Log
 Release 2.0 (08/06/2012) ddmmyyy
 Full Jira report - https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=10680&version=12314893
 
+* NUTCH-1401 Upgrade to Hadoop 1.0.3  (jnioche)
+
 * NUTCH-1396 Upgrade Tika 1.1 (jnioche)
 
 * NUTCH-1392 -force and -resume arguments being ignored in ParserJob (ferdy via lewismc)
