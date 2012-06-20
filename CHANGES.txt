@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk) Current Development:
 
+* NUTCH-1400 Remove developer -core option for bin/nutch (jnioche)
+
 * NUTCH-1404 Nutch script fails to find job file in deploy mode (sidabatra, jnioche)
 
 * NUTCH-1398 Upgrade to Hadoop 1.0.3 (jnioche)

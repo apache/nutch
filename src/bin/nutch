@@ -45,7 +45,7 @@ done
 
 # if no args specified, show usage
 if [ $# = 0 ]; then
-  echo "Usage: nutch [-core] COMMAND"
+  echo "Usage: nutch COMMAND"
   echo "where COMMAND is one of:"
   echo "  crawl             one-step crawler for intranets"
   echo "  readdb            read / dump crawl db"
@@ -76,10 +76,6 @@ if [ $# = 0 ]; then
   echo " or"
   echo "  CLASSNAME         run the class named CLASSNAME"
   echo "Most commands print help when invoked w/o parameters."
-  echo ""
-  echo "Expert: -core option is for developers only. It avoids building the job jar, "
-  echo "        instead it simply includes classes compiled with ant compile-core. "
-  echo "        NOTE: this works only for jobs executed in 'local' mode"
   exit 1
 fi
 
