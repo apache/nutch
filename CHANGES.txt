@@ -3,6 +3,8 @@ Nutch Change Log
 Release 2.0 (08/06/2012) ddmmyyy
 Full Jira report - https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=10680&version=12314893
 
+* NUTCH-1391 readdb -stats fires java.io.EOFException (jnioche)
+
 * NUTCH-1400 Remove developer -core option for bin/nutch (jnioche)
 
 * NUTCH-1399 TestProtocolHttpClient fails (jnioche)

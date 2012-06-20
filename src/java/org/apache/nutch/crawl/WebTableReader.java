@@ -498,6 +498,8 @@ public class WebTableReader extends NutchTool implements Tool {
     numJobs = 1;
     currentJob = new NutchJob(getConf(), "db_stats");
 
+    currentJob.getConfiguration().setBoolean("mapreduce.fileoutputcommitter.marksuccessfuljobs", false);
+    
     Boolean sort = (Boolean)args.get(Nutch.ARG_SORT);
     if (sort == null) sort = Boolean.FALSE;
     currentJob.getConfiguration().setBoolean("db.reader.stats.sort", sort);
