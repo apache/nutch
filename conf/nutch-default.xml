@@ -900,6 +900,12 @@
 </property>
 
 <property>
+  <name>indexer.add.domain</name>
+  <value>false</value>
+  <description>Whether to add the domain field to a NutchDocument.</description>
+</property>
+
+<property>
   <name>indexer.skip.notmodified</name>
   <value>false</value>
   <description>Whether the indexer will skip records with a db_notmodified status.

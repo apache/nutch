@@ -26,6 +26,7 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.util.URLUtil;
 import org.apache.hadoop.io.Text;
 
 import org.apache.nutch.crawl.CrawlDatum;
@@ -43,6 +44,7 @@ public class BasicIndexingFilter implements IndexingFilter {
 
   private int MAX_TITLE_LENGTH;
   private int MAX_CONTENT_LENGTH;
+  private boolean addDomain = false;
   private Configuration conf;
 
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
@@ -60,6 +62,11 @@ public class BasicIndexingFilter implements IndexingFilter {
       } else {
         u = new URL(urlString);
       }
+      
+      if (addDomain) {
+        doc.add("domain", URLUtil.getDomainName(u));
+      }
+      
       host = u.getHost();
     } catch (MalformedURLException e) {
       throw new IndexingException(e);
@@ -104,6 +111,7 @@ public class BasicIndexingFilter implements IndexingFilter {
   public void setConf(Configuration conf) {
     this.conf = conf;
     this.MAX_TITLE_LENGTH = conf.getInt("indexer.max.title.length", 100);
+    this.addDomain = conf.getBoolean("indexer.add.domain", false);
     this.MAX_CONTENT_LENGTH = conf.getInt("indexer.max.content.length", -1);
   }
 
