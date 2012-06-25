@@ -1,6 +1,6 @@
 Nutch Change Log
 
-(trunk) Current Development:
+Release 1.5.1 - 25/06/2012 - ddmmyyyy
 
 * NUTCH-1400 Remove developer -core option for bin/nutch (jnioche)
 
