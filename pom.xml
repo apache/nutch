@@ -147,7 +147,7 @@
                 <dependency>
                         <groupId>org.apache.hadoop</groupId>
                         <artifactId>hadoop-core</artifactId>
-                        <version>1.0.0</version>
+                        <version>1.0.3</version>
                         <optional>true</optional>
                 </dependency>
                 <dependency>
@@ -159,7 +159,7 @@
                 <dependency>
                         <groupId>org.apache.tika</groupId>
                         <artifactId>tika-core</artifactId>
-                        <version>0.10</version>
+                        <version>1.1</version>
                         <scope>compile</scope>
                 </dependency>
                 <dependency>
@@ -213,7 +213,7 @@
                 <dependency>
                         <groupId>org.apache.hadoop</groupId>
                         <artifactId>hadoop-test</artifactId>
-                        <version>1.0.0</version>
+                        <version>1.0.3</version>
                         <optional>true</optional>
                 </dependency>
                 <dependency>
