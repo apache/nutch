@@ -87,7 +87,7 @@ Tool {
 
   public static final Logger LOG = LoggerFactory.getLogger(SolrDeleteDuplicates.class);
 
-  private static final String SOLR_GET_ALL_QUERY = SolrConstants.ID_FIELD + ":[* TO *]";
+  private static final String SOLR_GET_ALL_QUERY = "*:*";
 
   private static final int NUM_MAX_DELETE_REQUEST = 1000;
 

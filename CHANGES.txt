@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk) Current Development:
 
+* NUTCH-1251 SolrDedup to use proper Lucene catch-all query (Arkadi Kosmynin via markus)
+
 * NUTCH-1407 BasicIndexingFilter to optionally add domain field (markus)
 
 * NUTCH-1408 RobotRulesParser main doesn't take URL's (markus)
