@@ -42,12 +42,20 @@ public class TestURLNormalizers extends TestCase {
 
     // NUTCH-1011 - Get rid of superfluous slashes
     try {
-      String normalizedSlashes = normalizers.normalize("http://www.example.org//path/to//somewhere.html", URLNormalizers.SCOPE_DEFAULT);
-      assertEquals(normalizedSlashes, "http://www.example.org/path/to/somewhere.html");
+      String normalizedSlashes = normalizers.normalize("http://www.example.com//path/to//somewhere.html", URLNormalizers.SCOPE_DEFAULT);
+      assertEquals(normalizedSlashes, "http://www.example.com/path/to/somewhere.html");
     } catch (MalformedURLException mue) {
       fail(mue.toString());
     }
-
+    
+    // HostNormalizer NUTCH-1319
+    try {
+      String normalizedHost = normalizers.normalize("http://www.example.org//path/to//somewhere.html", URLNormalizers.SCOPE_DEFAULT);
+      assertEquals(normalizedHost, "http://example.org/path/to/somewhere.html");
+    } catch (MalformedURLException mue) {
+      fail(mue.toString());
+    }
+    
     // check the order
     int pos1 = -1, pos2 = -1;
     URLNormalizer[] impls = normalizers.getURLNormalizers(URLNormalizers.SCOPE_DEFAULT);
