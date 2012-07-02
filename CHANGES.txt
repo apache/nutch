@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.5.1 - 07/02/2012
 
+* NUTCH-1404 Nutch script fails to find job file in deploy mode (sidabatra, jnioche)
+
 * NUTCH-1415 release packages to contain top level folder apache-nutch-x.x (snagel via lewismc)
 
 * NUTCH-1400 Remove developer -core option for bin/nutch (jnioche)

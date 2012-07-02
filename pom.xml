@@ -22,7 +22,7 @@
   <groupId>org.apache.nutch</groupId>
   <artifactId>nutch</artifactId>
   <packaging>jar</packaging>
-  <version>1.5</version>
+  <version>1.5.1</version>
   <name>Apache Nutch</name>
   <url>http://nutch.apache.org</url>
   <licenses>
@@ -149,7 +149,7 @@
                 <dependency>
                         <groupId>org.apache.hadoop</groupId>
                         <artifactId>hadoop-core</artifactId>
-                        <version>1.0.0</version>
+                        <version>1.0.3</version>
                         <optional>true</optional>
                 </dependency>
                 <dependency>
@@ -203,7 +203,7 @@
                 <dependency>
                         <groupId>org.apache.hadoop</groupId>
                         <artifactId>hadoop-test</artifactId>
-                        <version>1.0.0</version>
+                        <version>1.0.3</version>
                         <optional>true</optional>
                 </dependency>
                 <dependency>
