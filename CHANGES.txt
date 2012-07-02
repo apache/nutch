@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 1.5.1 - 07/02/2012
 
+* NUTCH-1415 release packages to contain top level folder apache-nutch-x.x (snagel via lewismc)
+
 * NUTCH-1400 Remove developer -core option for bin/nutch (jnioche)
 
 * NUTCH-1384 Typo in ParseSegment's run-method (Matthias Agethle via markus)
