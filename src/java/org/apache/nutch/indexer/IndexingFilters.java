@@ -54,7 +54,7 @@ public class IndexingFilters {
        */
       String[] orderedFilters = null;
       if (order != null && !order.trim().equals("")) {
-        orderedFilters = order.trim().split("\\s+");
+        orderedFilters = order.split("\\s+");
       }
       try {
         ExtensionPoint point = PluginRepository.get(conf).getExtensionPoint(

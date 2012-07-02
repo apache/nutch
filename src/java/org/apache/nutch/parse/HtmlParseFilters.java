@@ -45,7 +45,7 @@ public class HtmlParseFilters {
            */
           String[] orderedFilters = null;
           if (order != null && !order.trim().equals("")) {
-            orderedFilters = order.trim().split("\\s+");
+            orderedFilters = order.split("\\s+");
           }
             HashMap<String, HtmlParseFilter> filterMap =
               new HashMap<String, HtmlParseFilter>();

@@ -1,49 +1,5 @@
 Nutch Change Log
 
-Release 1.5.1 - 25/06/2012 - ddmmyyyy
-
-* NUTCH-1400 Remove developer -core option for bin/nutch (jnioche)
-
-* NUTCH-1404 Nutch script fails to find job file in deploy mode (sidabatra, jnioche)
-
-* NUTCH-1398 Upgrade to Hadoop 1.0.3 (jnioche)
-
-* NUTCH-1300 Indexer to filter normalize URL's (markus)
-
-* NUTCH-1330 WebGraph OutlinkDB to preserve back up (markus)
-
-* NUTCH-1319 HostNormalizer plugin (markus)
-
-* NUTCH-1386 Headings filter not to add empty values (markus)
-
-* NUTCH-1356 ParseUtil use ExecutorService instead of manually thread handling (ferdy via markus)
-
-* NUTCH-1352 Improve regex urlfilters/normalizers synchronization (ferdy via markus)
-
-* NUTCH-1024 Dynamically set fetchInterval by MIME-type (markus)
-
-* NUTCH-1364 Add a counter in Generator for malformed urls (lewismc)
-
-* NUTCH-1360 Suport the storing of IP address connected to when web crawling (lewismc)
-
-* NUTCH-1262 Map `duplicating` content-types to a single type (markus)
-
-* NUTCH-1384 Typo in ParseSegments's run-method (Matthias Agethle via markus)
-
-* NUTCH-1385 More robust plug-in order properties in nutch-site.xml (Andy Xue via markus)
-
-* NUTCH-1336 Optionally not index db_notmodified pages (markus)
-
-* NUTCH-1346 Follow outlinks to ignore external (markus)
-
-* NUTCH-1320 IndexChecker and ParseChecker choke on IDN's (markus)
-
-* NUTCH-1351 DomainStatistics to aggregate by TLD (markus)
-
-* NUTCH-1381 Allow to override default subcollection field name (markus)
-
-* NUTCH-XX Commit to add configuration for separation of ant distribution targets (lewismc + jnioche)
-
 Release 1.5 - 04/15/2012
 
 * NUTCH-1208 Don't include KEYS file in bin distribution (jnioche)

@@ -588,8 +588,6 @@ public class Fetcher extends Configured implements Tool,
     private final int interval;
     private int maxOutlinkDepth;
     private int maxOutlinkDepthNumLinks;
-    private boolean outlinksIgnoreExternal;
-
     private int outlinksDepthDivisor;
     private boolean skipTruncated;
 
@@ -621,7 +619,6 @@ public class Fetcher extends Configured implements Tool,
       interval = conf.getInt("db.fetch.interval.default", 2592000);
       ignoreExternalLinks = conf.getBoolean("db.ignore.external.links", false);
       maxOutlinkDepth = conf.getInt("fetcher.follow.outlinks.depth", -1);
-      outlinksIgnoreExternal = conf.getBoolean("fetcher.follow.outlinks.ignore.external", false);
       maxOutlinkDepthNumLinks = conf.getInt("fetcher.follow.outlinks.num.links", 4);
       outlinksDepthDivisor = conf.getInt("fetcher.follow.outlinks.depth.divisor", 2);
     }
@@ -1054,24 +1051,13 @@ public class Fetcher extends Configured implements Tool,
               // Calculate variable number of outlinks by depth using the divisor (outlinks = Math.floor(divisor / depth * num.links))
               int maxOutlinksByDepth = (int)Math.floor(outlinksDepthDivisor / (outlinkDepth + 1) * maxOutlinkDepthNumLinks);
 
-              String followUrl;
-
               // Walk over the outlinks and add as new FetchItem to the queues
               Iterator<String> iter = outlinks.iterator();
               while(iter.hasNext() && outlinkCounter < maxOutlinkDepthNumLinks) {
-                followUrl = iter.next();
-
-                // Check whether we'll follow external outlinks
-                if (outlinksIgnoreExternal) {
-                  if (!URLUtil.getHost(url.toString()).equals(URLUtil.getHost(followUrl))) {
-                    continue;
-                  }
-                }
-
                 reporter.incrCounter("FetcherOutlinks", "outlinks_following", 1);
 
                 // Create new FetchItem with depth incremented
-                FetchItem fit = FetchItem.create(new Text(followUrl), new CrawlDatum(CrawlDatum.STATUS_LINKED, interval), queueMode, outlinkDepth + 1);
+                FetchItem fit = FetchItem.create(new Text(iter.next()), new CrawlDatum(CrawlDatum.STATUS_LINKED, interval), queueMode, outlinkDepth + 1);
                 fetchQueues.addFetchItem(fit);
 
                 outlinkCounter++;

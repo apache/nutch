@@ -123,7 +123,7 @@
 
 <property>
   <name>http.agent.version</name>
-  <value>Nutch-1.5.1</value>
+  <value>Nutch-1.5</value>
   <description>A version string to advertise in the User-Agent 
    header.</description>
 </property>
@@ -253,13 +253,6 @@
   <value>text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</value>
   <description>Value of the "Accept" request header field.
   </description>
-</property>
-
-<property>
-  <name>http.store.ip.address</name>
-  <value>false</value>
-  <description>Enables us to capture the specific IP address of the 
-  host which we connect to to fetch a page.</description>
 </property>
 
 <!-- FTP properties -->
@@ -406,13 +399,6 @@
   <value>0.3</value>
   <description>See sync_delta for description. This value should not
   exceed 0.5, otherwise the algorithm becomes unstable.</description>
-</property>
-
-<property>
-  <name>db.fetch.schedule.mime.file</name>
-  <value>adaptive-mimetypes.txt</value>
-  <description>The configuration file for the MimeAdaptiveFetchSchedule.
-  </description>
 </property>
 
 <property>
@@ -815,14 +801,6 @@
   </description>
 </property>
 
-<property>
-  <name>fetcher.follow.outlinks.ignore.external</name>
-  <value>true</value>  
-  <description>Whether to ignore or follow external links. Set db.ignore.external.links to false and this to true to store outlinks
-  in the output but not follow them. If db.ignore.external.links is true this directive is ignored.
-  </description>
-</property>
-
 <!-- moreindexingfilter plugin properties -->
 
 <property>
@@ -831,16 +809,6 @@
   <description>Determines whether the index-more plugin will split the mime-type
   in sub parts, this requires the type field to be multi valued. Set to true for backward
   compatibility. False will not split the mime-type.
-  </description>
-</property>
-
-<property>
-  <name>moreIndexingFilter.mapMimeTypes</name>
-  <value>false</value>
-  <description>Determines whether MIME-type mapping is enabled. It takes a
-  plain text file with mapped MIME-types. With it the user can map both
-  application/xhtml+xml and text/html to the same target MIME-type so it
-  can be treated equally in an index. See conf/contenttype-mapping.txt.
   </description>
 </property>
 
@@ -896,13 +864,6 @@
   <value>-1</value>
   <description>The maximum number of characters of a content that are indexed.
   Content beyond the limit is truncated. A value of -1 disables this check.
-  </description>
-</property>
-
-<property>
-  <name>indexer.skip.notmodified</name>
-  <value>false</value>
-  <description>Whether the indexer will skip records with a db_notmodified status.
   </description>
 </property>
 
@@ -1388,15 +1349,4 @@
   your credentials.
   </description>
 </property>
-
-<!-- subcollection properties -->
-
-<property>
-  <name>subcollection.default.field</name>
-  <value>subcollection</value>
-  <description>
-  The default field name for the subcollections.
-  </description>
-</property>
-
 </configuration>

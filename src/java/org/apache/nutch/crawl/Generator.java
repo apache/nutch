@@ -22,7 +22,7 @@ import java.net.*;
 import java.util.*;
 import java.text.*;
 
-// rLogging imports
+// Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -267,7 +267,6 @@ public class Generator extends Configured implements Tool {
         } catch (Exception e) {
           LOG.warn("Malformed URL: '" + urlString + "', skipping ("
               + StringUtils.stringifyException(e) + ")");
-          reporter.getCounter("Generator", "MALFORMED_URL").increment(1);
           continue;
         }
 

@@ -44,16 +44,10 @@ import org.apache.hadoop.io.Writable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.Date;
 import java.util.regex.*;
-import java.util.HashMap;
 
-import org.apache.commons.lang.StringUtils;
+
 import org.apache.commons.lang.time.DateUtils;
 
 /**
@@ -77,10 +71,6 @@ public class MoreIndexingFilter implements IndexingFilter {
 
   /** Get the MimeTypes resolver instance. */
   private MimeUtil MIME;
-
-  /** Map for mime-type substitution */
-  private HashMap<String,String> mimeMap = null;
-  private boolean mapMimes = false;
 
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
       CrawlDatum datum, Inlinks inlinks) throws IndexingException {
@@ -228,15 +218,6 @@ public class MoreIndexingFilter implements IndexingFilter {
       return doc;
     }
 
-    // Check if we have to map mime types
-    if (mapMimes) {
-      // Check if the current mime is mapped
-      if (mimeMap.containsKey(mimeType)) {
-        // It's mapped, let's replace it
-        mimeType = mimeMap.get(mimeType);
-      }
-    }
-
     contentType = mimeType;
 
     doc.add("type", contentType);
@@ -308,42 +289,10 @@ public class MoreIndexingFilter implements IndexingFilter {
   public void setConf(Configuration conf) {
     this.conf = conf;
     MIME = new MimeUtil(conf);
-
-    if (conf.getBoolean("moreIndexingFilter.mapMimeTypes", false) == true) {
-      mapMimes = true;
-
-      // Load the mapping
-      try {
-        readConfiguration();
-      } catch (Exception e) {
-        LOG.error(org.apache.hadoop.util.StringUtils.stringifyException(e));
-      }
-    }
   }
 
   public Configuration getConf() {
     return this.conf;
   }
 
-  private void readConfiguration() throws IOException {
-    BufferedReader reader = new BufferedReader(conf.getConfResourceAsReader("contenttype-mapping.txt"));
-    String line;
-    String parts[];
-
-    mimeMap = new HashMap<String,String>();
-
-    while ((line = reader.readLine()) != null) {
-      if (StringUtils.isNotBlank(line) && !line.startsWith("#")) {
-        line.trim();
-        parts = line.split("\t");
-
-        // Must be at least two parts
-        if (parts.length > 1) {
-          for (int i = 1; i < parts.length; i++) {
-            mimeMap.put(parts[i].trim(), parts[0].trim());
-          }
-        }
-      }
-    }
-  }
 }

@@ -58,13 +58,12 @@ public class DomainStatistics extends Configured implements Tool {
   private static final int MODE_HOST = 1;
   private static final int MODE_DOMAIN = 2;
   private static final int MODE_SUFFIX = 3;
-  private static final int MODE_TLD = 4;
 
   private int mode = 0;
 
   public int run(String[] args) throws Exception {
     if (args.length < 3) {
-      System.out.println("usage: DomainStatistics inputDirs outDir host|domain|suffix|tld [numOfReducer]");
+      System.out.println("usage: DomainStatistics inputDirs outDir host|domain|suffix [numOfReducer]");
       return 1;
     }
     String inputDir = args[0];
@@ -90,9 +89,6 @@ public class DomainStatistics extends Configured implements Tool {
     } else if(args[2].equals("suffix")) {
       jobName = "Suffix statistics";
       mode = MODE_SUFFIX;
-    } else if(args[2].equals("tld")) {
-      jobName = "TLD statistics";
-      mode = MODE_TLD;
     }
 
     Configuration conf = getConf();
@@ -156,9 +152,6 @@ public class DomainStatistics extends Configured implements Tool {
               break;
             case MODE_SUFFIX:
               out = URLUtil.getDomainSuffix(url).getDomain();
-              break;
-            case MODE_TLD:
-              out = URLUtil.getTopLevelDomainName(url);
               break;
           }
           if(out.trim().equals("")) {

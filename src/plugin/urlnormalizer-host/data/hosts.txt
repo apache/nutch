@@ -1,8 +1,0 @@
-# Force all sub domains to www.
-*.example.com example.com
-
-# Force no sub domain to www. URL's
-www.example.net example.net
-
-# Force www. sub domain when hitting link without sub domain
-example.org www.example.org

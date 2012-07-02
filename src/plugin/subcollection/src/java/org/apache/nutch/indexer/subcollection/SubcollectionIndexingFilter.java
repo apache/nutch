@@ -38,8 +38,6 @@ import org.apache.nutch.crawl.Inlinks;
 
 public class SubcollectionIndexingFilter extends Configured implements IndexingFilter {
 
-  private Configuration conf;
-
   public SubcollectionIndexingFilter(){
     super(NutchConfiguration.create());
   }
@@ -47,27 +45,11 @@ public class SubcollectionIndexingFilter extends Configured implements IndexingF
   public SubcollectionIndexingFilter(Configuration conf) {
     super(conf);
   }
-  
-  /**
-   * @param Configuration conf
-   */
-  public void setConf(Configuration conf) {
-    this.conf = conf;
-    fieldName = conf.get("subcollection.default.fieldname", "subcollection");
-  }
 
-  /**
-   * @return Configuration
-   */
-  public Configuration getConf() {
-    return this.conf;
-  }
-
-  
   /**
    * Doc field name
    */
-  public static String fieldName = "subcollection";
+  public static final String FIELD_NAME = "subcollection";
 
   /**
    * Logger
@@ -83,7 +65,7 @@ public class SubcollectionIndexingFilter extends Configured implements IndexingF
   private void addSubCollectionField(NutchDocument doc, String url) {
     for (Subcollection coll : CollectionManager.getCollectionManager(getConf()).getSubCollections(url)) {
       if (coll.getKey() == null) {
-        doc.add(fieldName, coll.getName());
+        doc.add(FIELD_NAME, coll.getName());
       } else {
         doc.add(coll.getKey(), coll.getName());
       }

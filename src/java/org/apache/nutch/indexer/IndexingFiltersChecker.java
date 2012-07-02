@@ -40,47 +40,47 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.URLUtil;
 
 /**
  * Reads and parses a URL and run the indexers on it. Displays the fields obtained and the first
  * 100 characters of their value
- *
+ * 
  * Tested with e.g. ./nutch org.apache.nutch.indexer.IndexingFiltersChecker http://www.lemonde.fr
  * @author Julien Nioche
  **/
 
 public class IndexingFiltersChecker extends Configured implements Tool {
-
+  
   public static final Logger LOG = LoggerFactory.getLogger(IndexingFiltersChecker.class);
-
+  
   public IndexingFiltersChecker() {
 
   }
-
+  
   public int run(String[] args) throws Exception {
+    
     String contentType = null;
     String url = null;
-
+    
     String usage = "Usage: IndexingFiltersChecker <url>";
-
+    
     if (args.length != 1) {
       System.err.println(usage);
       System.exit(-1);
     }
-
-    url = URLUtil.toASCII(args[0]);
-
+    
+    url = args[0];
+    
     if (LOG.isInfoEnabled()) {
       LOG.info("fetching: " + url);
     }
-
+        
     IndexingFilters indexers = new IndexingFilters(conf);
-
+    
     ProtocolFactory factory = new ProtocolFactory(conf);
     Protocol protocol = factory.getProtocol(url);
     CrawlDatum datum = new CrawlDatum();
-
+    
     Content content = protocol.getProtocolOutput(new Text(url), datum)
         .getContent();
 
@@ -91,20 +91,20 @@ public class IndexingFiltersChecker extends Configured implements Tool {
       System.out.println("No content for " + url);
       return 0;
     }
-
+    
     contentType = content.getContentType();
-
+    
     if (contentType == null) {
       return -1;
     }
-
+    
     if (LOG.isInfoEnabled()) {
       LOG.info("parsing: " + url);
       LOG.info("contentType: " + contentType);
     }
 
     ParseResult parseResult = new ParseUtil(conf).parse(content);
-
+    
     NutchDocument doc = new NutchDocument();
     Text urlText = new Text(url);
 
@@ -128,19 +128,19 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     }
     return 0;
   }
-
+  
   public static void main(String[] args) throws Exception {
     final int res = ToolRunner.run(NutchConfiguration.create(),
         new IndexingFiltersChecker(), args);
     System.exit(res);
   }
-
+  
   Configuration conf;
-
+  
   public Configuration getConf() {
     return conf;
   }
-
+  
   @Override
   public void setConf(Configuration arg0) {
     conf = arg0;

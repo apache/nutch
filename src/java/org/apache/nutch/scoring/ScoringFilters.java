@@ -56,7 +56,7 @@ public class ScoringFilters extends Configured implements ScoringFilter {
     if (this.filters == null) {
       String[] orderedFilters = null;
       if (order != null && !order.trim().equals("")) {
-        orderedFilters = order.trim().split("\\s+");
+        orderedFilters = order.split("\\s+");
       }
 
       try {

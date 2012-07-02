@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.metadata;
 
-import org.apache.hadoop.io.Text;
 
 /**
  * A collection of HTTP header names.
@@ -42,13 +41,9 @@ public interface HttpHeaders {
   public final static String CONTENT_MD5 = "Content-MD5";
   
   public final static String CONTENT_TYPE = "Content-Type";
-
-  public static final Text WRITABLE_CONTENT_TYPE = new Text(CONTENT_TYPE);
   
   public final static String LAST_MODIFIED = "Last-Modified";
   
   public final static String LOCATION = "Location";
-  
-  public final static String IP_ADDRESS = "_ip";
 
 }

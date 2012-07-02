@@ -22,7 +22,7 @@
   <groupId>org.apache.nutch</groupId>
   <artifactId>nutch</artifactId>
   <packaging>jar</packaging>
-  <version>1.5.1</version>
+  <version>1.5</version>
   <name>Apache Nutch</name>
   <url>http://nutch.apache.org</url>
   <licenses>
@@ -43,11 +43,16 @@
 			<email>ab@apache.org</email>
 		</developer>
 		<developer>
-                        <id>alexis</id>
-                        <name>Alexis Detlegrode</name>
-                        <email>alexis@apache.org</email>
-                </developer>
-                <developer>
+			<id>mattmann</id>
+			<name>Chris A. Mattmann</name>
+			<email>mattmann@apache.org</email>
+		</developer>
+		<developer>
+			<id>kubes</id>
+			<name>Dennis Kubes</name>
+			<email>kubes@apache.org</email>
+		</developer>		
+		<developer>
 			<id>dogacan</id>
 			<name>Dogacan Güney</name>
 			<email>dogacan@apache.org</email>
@@ -57,37 +62,32 @@
                         <name>Ferdy Galema</name>
                         <email>ferdy@apache.org</email>
                 </developer>
-                <developer>
+		<developer>
 			<id>jnioche</id>
 			<name>Julien Nioche</name>
 			<email>jnioche@apache.org</email>
-		</developer>
-		<developer>
-			<id>kubes</id>
-			<name>Dennis Kubes</name>
-			<email>kubes@apache.org</email>
-		</developer>
-		<developer>
-                        <id>lewismc</id>
-                        <name>Lewis John McGibbney</name>
-                        <email>lewismc@apache.org</email>
-                </developer>
-		<developer>
-                        <id>markus</id>
-                        <name>Markus Jelsma</name>
-                        <email>markus@apache.org</email>
-                </developer>	
-		<developer>
-			<id>mattmann</id>
-			<name>Chris A. Mattmann</name>
-			<email>mattmann@apache.org</email>
 		</developer>
 		<developer>
 			<id>siren</id>
 			<name>Sami Siren</name>
 			<email>siren@apache.org</email>
 		</developer>
-	</developers>
+                <developer>
+                        <id>markus</id>
+                        <name>Markus Jelsma</name>
+                        <email>markus@apache.org</email>
+                </developer>
+                <developer>
+                        <id>alexis</id>
+                        <name>Alexis Detlegrode</name>
+                        <email>alexis@apache.org</email>
+                </developer>
+		<developer>
+                        <id>lewismc</id>
+                        <name>Lewis John McGibbney</name>
+                        <email>lewismc@apache.org</email>
+                </developer>
+        </developers>
         <build>
           <sourceDirectory>src/java</sourceDirectory>
           <testSourceDirectory>src/test</testSourceDirectory>
@@ -96,7 +96,7 @@
                <directory>src/testresources</directory>
              </testResource>
           </testResources>
-           <pluginManagement>
+          <pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -149,7 +149,7 @@
                 <dependency>
                         <groupId>org.apache.hadoop</groupId>
                         <artifactId>hadoop-core</artifactId>
-                        <version>1.0.3</version>
+                        <version>1.0.0</version>
                         <optional>true</optional>
                 </dependency>
                 <dependency>
@@ -195,12 +195,6 @@
                         <scope>compile</scope>
                 </dependency>
                 <dependency>
-                        <groupId>com.google.guava</groupId>
-                        <artifactId>guava</artifactId>
-                        <version>11.0.2</version>
-                        <scope>compile</scope>
-                </dependency>
-                <dependency>
                         <groupId>junit</groupId>
                         <artifactId>junit</artifactId>
                         <version>3.8.1</version>
@@ -209,7 +203,7 @@
                 <dependency>
                         <groupId>org.apache.hadoop</groupId>
                         <artifactId>hadoop-test</artifactId>
-                        <version>1.0.3</version>
+                        <version>1.0.0</version>
                         <optional>true</optional>
                 </dependency>
                 <dependency>
