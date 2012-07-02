@@ -1,5 +1,9 @@
 Nutch Change Log
 
+Release 1.5.1 - 07/02/2012
+
+* NUTCH-1398 Upgrade to Hadoop 1.0.3 (jnioche)
+
 Release 1.5 - 04/15/2012
 
 * NUTCH-1208 Don't include KEYS file in bin distribution (jnioche)
