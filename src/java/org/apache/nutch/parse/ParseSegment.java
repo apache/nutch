@@ -231,7 +231,7 @@ public class ParseSegment extends Configured implements Tool,
       for(int i = 1; i < args.length; i++) {
         String param = args[i];
 
-        if("-noilter".equalsIgnoreCase(param)) {
+        if("-nofilter".equalsIgnoreCase(param)) {
           getConf().setBoolean("parse.filter.urls", false);
         } else if ("-nonormalize".equalsIgnoreCase(param)) {
           getConf().setBoolean("parse.normalize.urls", false);
