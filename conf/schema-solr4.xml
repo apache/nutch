@@ -25,7 +25,7 @@
     for more info.
 -->
 
-<schema name="nutch" version="1.4">
+<schema name="nutch" version="1.5.1">
 
   <types>
 
