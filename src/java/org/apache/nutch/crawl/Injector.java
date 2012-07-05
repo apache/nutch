@@ -152,7 +152,18 @@ public class Injector extends Configured implements Tool {
 
   /** Combine multiple new entries for a url. */
   public static class InjectReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatum> {
-    public void configure(JobConf job) {}    
+    private int interval;
+    private float scoreInjected;
+    private boolean overwrite = false;
+    private boolean update = false;
+
+    public void configure(JobConf job) {
+      interval = job.getInt("db.fetch.interval.default", 2592000);
+      scoreInjected = job.getFloat("db.score.injected", 1.0f);
+      overwrite = job.getBoolean("db.injector.overwrite", false);
+      update = job.getBoolean("db.injector.update", false);
+    }
+    
     public void close() {}
 
     private CrawlDatum old = new CrawlDatum();
@@ -162,19 +173,48 @@ public class Injector extends Configured implements Tool {
                        OutputCollector<Text, CrawlDatum> output, Reporter reporter)
       throws IOException {
       boolean oldSet = false;
+      boolean injectedSet = false;
       while (values.hasNext()) {
         CrawlDatum val = values.next();
         if (val.getStatus() == CrawlDatum.STATUS_INJECTED) {
           injected.set(val);
           injected.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
+          injectedSet = true;
         } else {
           old.set(val);
           oldSet = true;
         }
       }
       CrawlDatum res = null;
-      if (oldSet) res = old; // don't overwrite existing value
-      else res = injected;
+      
+      /**
+       * Whether to overwrite, ignore or update existing records
+       * @see https://issues.apache.org/jira/browse/NUTCH-1405
+       */
+      
+      // Injected record already exists and overwrite but not update
+      if (injectedSet && oldSet && overwrite) {
+        res = injected;
+        
+        if (update) {
+          LOG.info(key.toString() + " overwritten with injected record but update was specified.");
+        }
+      }
+
+      // Injected record already exists and update but not overwrite
+      if (injectedSet && oldSet && update && !overwrite) {
+        res = old;
+        old.putAllMetaData(injected);
+        old.setScore(injected.getScore() != scoreInjected ? injected.getScore() : old.getScore());
+        old.setFetchInterval(injected.getFetchInterval() != interval ? injected.getFetchInterval() : old.getFetchInterval());
+      }
+      
+      // Old default behaviour
+      if (injectedSet && !oldSet) {
+        res = injected;
+      } else {
+        res = old;
+      }
 
       output.collect(key, res);
     }

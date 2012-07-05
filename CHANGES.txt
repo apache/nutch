@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk) Current Development:
 
+* NUTCH-1405 Allow to overwrite CrawlDatum's with injected entries (markus)
+
 * NUTCH-1412 Upgrade commons lang (markus)
 
 * NUTCH-1251 SolrDedup to use proper Lucene catch-all query (Arkadi Kosmynin via markus)

@@ -468,6 +468,23 @@
   </description>
 </property>
 
+ <property>
+  <name>db.injector.overwrite</name>
+  <value>false</value>
+  <description>Whether existing records in the CrawlDB will be overwritten
+  by injected records.
+  </description>
+</property>
+
+<property>
+  <name>db.injector.update</name>
+  <value>false</value>
+  <description>If true existing records in the CrawlDB will be updated with
+  injected records. Old meta data is preserved. The db.injector.overwrite
+  parameter has precedence.
+  </description>
+</property>
+
 <property>
   <name>db.score.injected</name>
   <value>1.0</value>
