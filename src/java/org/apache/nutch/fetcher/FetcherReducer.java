@@ -81,6 +81,7 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
 
   private FetchItemQueues fetchQueues;
 
+  private boolean storingContent;
   private boolean parse;
 
   private ParseUtil parseUtil;
@@ -665,6 +666,11 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
           }
         }
       }
+      //remove content if storingContent is false. Content is added to fit.page above 
+      //for ParseUtil be able to parse it. 
+      if(content != null && !storingContent){
+        fit.page.setContent(ByteBuffer.wrap(new byte[0]));
+      }
       context.write(key, fit.page);
     }
 
@@ -782,6 +788,7 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
     this.fetchQueues = new FetchItemQueues(conf);
     int threadCount = conf.getInt("fetcher.threads.fetch", 10);
     parse = conf.getBoolean(FetcherJob.PARSE_KEY, false);
+    storingContent=conf.getBoolean("fetcher.store.content", true);
     if (parse) {
       skipTruncated=conf.getBoolean(ParserJob.SKIP_TRUNCATED, true);
       parseUtil = new ParseUtil(conf);

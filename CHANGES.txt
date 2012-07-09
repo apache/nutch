@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.1 - Current Development
 
+* NUTCH-1411 nutchgora fetcher.store.content does not work (Alexander Kingson via ferdy) 
+
 * NUTCH-1426 HostDb close() should close store instead of flush (ferdy)
 
 * NUTCH-1425 DbUpdaterJob declares PREV_SIGNATURE on input twice (ferdy)
