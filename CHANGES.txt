@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.1 - Current Development
 
+* NUTCH-1423 Remove unused fields in LanguageIndexingFilter (ferdy)
+
 * NUTCH-1306 Add option to not commit and clarify existing solr.commit.size (ferdy)
 
 Release 2.0 (08/06/2012) ddmmyyy

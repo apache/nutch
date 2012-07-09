@@ -49,9 +49,6 @@ public class LanguageIndexingFilter implements IndexingFilter {
   private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
   static {
-    FIELDS.add(WebPage.Field.TITLE);
-    FIELDS.add(WebPage.Field.TEXT);
-    FIELDS.add(WebPage.Field.HEADERS);
     FIELDS.add(WebPage.Field.METADATA);
   }
 
