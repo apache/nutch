@@ -23,6 +23,8 @@ public interface SolrConstants {
 
   public static final String COMMIT_SIZE = SOLR_PREFIX + "commit.size";
 
+  public static final String COMMIT_INDEX = SOLR_PREFIX + "commit.index";
+
   public static final String MAPPING_FILE = SOLR_PREFIX + "mapping.file";
 
   public static final String USE_AUTH = SOLR_PREFIX + "auth";

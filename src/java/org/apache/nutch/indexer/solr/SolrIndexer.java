@@ -57,7 +57,8 @@ public class SolrIndexer extends Configured implements Tool {
 
   public void indexSolr(String solrUrl, Path crawlDb, Path linkDb,
       List<Path> segments) throws IOException {
-      indexSolr(solrUrl, crawlDb, linkDb, segments, false, false, null);
+      boolean noCommit = !getConf().getBoolean(SolrConstants.COMMIT_INDEX, true);
+      indexSolr(solrUrl, crawlDb, linkDb, segments, noCommit, false, null);
   }
 
   public void indexSolr(String solrUrl, Path crawlDb, Path linkDb,
