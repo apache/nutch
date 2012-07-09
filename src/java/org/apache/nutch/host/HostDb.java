@@ -141,6 +141,6 @@ public class HostDb implements Closeable {
 
   @Override
   public void close() throws IOException {
-    hostStore.flush();
+    hostStore.close();
   }
 }
