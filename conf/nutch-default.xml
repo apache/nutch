@@ -1121,7 +1121,15 @@
   <description>
   Defines the number of documents to send to Solr in a single update batch.
   Decrease when handling very large documents to prevent Nutch from running
-  out of memory.
+  out of memory. NOTE: It does not explicitly trigger a server side commit.
+  </description>
+</property>
+
+<property>
+  <name>solr.commit.index</name>
+  <value>true</value>
+  <description>
+  When closing the indexer, trigger a commit to the Solr server. 
   </description>
 </property>
 
