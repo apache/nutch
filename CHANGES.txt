@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.1 - Current Development
 
+* NUTCH-1425 DbUpdaterJob declares PREV_SIGNATURE on input twice (ferdy)
+
 * NUTCH-1424 fix fetcher timelimit logging (ferdy)
 
 * NUTCH-1423 Remove unused fields in LanguageIndexingFilter (ferdy)

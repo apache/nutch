@@ -58,7 +58,6 @@ public class DbUpdaterJob extends NutchTool implements Tool {
     FIELDS.add(WebPage.Field.MODIFIED_TIME);
     FIELDS.add(WebPage.Field.FETCH_INTERVAL);
     FIELDS.add(WebPage.Field.PREV_FETCH_TIME);
-    FIELDS.add(WebPage.Field.PREV_SIGNATURE);
   }
 
   public DbUpdaterJob() {
