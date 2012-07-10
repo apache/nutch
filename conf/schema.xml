@@ -28,7 +28,7 @@
         example/solr/conf/schema.xml?view=markup
         for more info.
     -->
-<schema name="nutch" version="1.6">
+<schema name="nutch" version="1.6-SNAPSHOT">
     <types>
         <fieldType name="string" class="solr.StrField" sortMissingLast="true"
             omitNorms="true"/> 
