@@ -46,7 +46,5 @@ public interface HttpHeaders {
   public final static String LAST_MODIFIED = "Last-Modified";
 
   public final static String LOCATION = "Location";
-  
-  public final static String IP_ADDRESS = "_ip";
 
 }

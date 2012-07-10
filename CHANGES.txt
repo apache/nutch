@@ -45,8 +45,6 @@ Full Jira report - https://issues.apache.org/jira/secure/ReleaseNote.jspa?projec
 
 * NUTCH-1361 Fix mishandling of malformed urls in generator job (Jason Trost via lewismc)
 
-* NUTCH-1360 Support the storing of IP address connected to when web crawling (lewismc)
-
 * NUTCH-1366 speed up indexing by eliminating the indexreducer (ferdy)
 
 * NUTCH-1362 Fix error handling of urls with empty fields (lewis, ferdy)

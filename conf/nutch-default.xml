@@ -257,13 +257,6 @@
   </description>
 </property>
 
-<property>
-  <name>http.store.ip.address</name>
-  <value>false</value>
-  <description>Enables us to capture the specific IP address of the 
-  host which we connect to to fetch a page.</description>
-</property>
-
 <!-- FTP properties -->
 
 <property>
