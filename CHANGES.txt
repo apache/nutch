@@ -16,12 +16,6 @@ Nutch Change Log
 
 * NUTCH-1408 RobotRulesParser main doesn't take URL's (markus)
 
-* NUTCH-1400 Remove developer -core option for bin/nutch (jnioche)
-
-* NUTCH-1404 Nutch script fails to find job file in deploy mode (sidabatra, jnioche)
-
-* NUTCH-1398 Upgrade to Hadoop 1.0.3 (jnioche)
-
 * NUTCH-1300 Indexer to filter normalize URL's (markus)
 
 * NUTCH-1330 WebGraph OutlinkDB to preserve back up (markus)
@@ -42,8 +36,6 @@ Nutch Change Log
 
 * NUTCH-1262 Map `duplicating` content-types to a single type (markus)
 
-* NUTCH-1384 Typo in ParseSegments's run-method (Matthias Agethle via markus)
-
 * NUTCH-1385 More robust plug-in order properties in nutch-site.xml (Andy Xue via markus)
 
 * NUTCH-1336 Optionally not index db_notmodified pages (markus)
@@ -57,6 +49,18 @@ Nutch Change Log
 * NUTCH-1381 Allow to override default subcollection field name (markus)
 
 * NUTCH-XX Commit to add configuration for separation of ant distribution targets (lewismc + jnioche)
+
+Release 1.5.1 - 07/10/2012
+
+* NUTCH-1404 Nutch script fails to find job file in deploy mode (sidabatra, jnioche)
+
+* NUTCH-1415 release packages to contain top level folder apache-nutch-x.x (snagel via lewismc)
+
+* NUTCH-1400 Remove developer -core option for bin/nutch (jnioche)
+
+* NUTCH-1384 Typo in ParseSegment's run-method (Matthias Agethle via markus)
+
+* NUTCH-1398 Upgrade to Hadoop 1.0.3 (jnioche)
 
 Release 1.5 - 04/15/2012
 
