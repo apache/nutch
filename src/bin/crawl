@@ -1,0 +1,185 @@
+#!/bin/bash
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# 
+# The Crawl command script : crawl <seedDir> <crawlDir> <solrURL> <numberOfRounds>
+#
+# 
+# UNLIKE THE NUTCH ALL-IN-ONE-CRAWL COMMAND THIS SCRIPT DOES THE LINK INVERSION AND 
+# INDEXING FOR EACH SEGMENT
+
+SEEDDIR="$1"
+CRAWL_PATH="$2"
+SOLRURL="$3"
+LIMIT="$4"
+
+if [ "$SEEDDIR" = "" ]; then
+    echo "Missing seedDir : crawl <seedDir> <crawlDir> <solrURL> <numberOfRounds>"
+    exit -1;
+fi
+
+if [ "$CRAWL_PATH" = "" ]; then
+    echo "Missing crawlDir : crawl <seedDir> <crawlDir> <solrURL> <numberOfRounds>"
+    exit -1;
+fi
+
+if [ "$SOLRURL" = "" ]; then
+    echo "Missing SOLRURL : crawl <seedDir> <crawlDir> <solrURL> <numberOfRounds>"
+    exit -1;
+fi
+
+if [ "$LIMIT" = "" ]; then
+    echo "Missing numberOfRounds : crawl <seedDir> <crawlDir> <solrURL> <numberOfRounds>"
+    exit -1;
+fi
+
+#############################################
+# MODIFY THE PARAMETERS BELOW TO YOUR NEEDS #
+#############################################
+
+# set the number of slaves nodes
+numSlaves=1
+
+# and the total number of available tasks
+# sets Hadoop parameter "mapred.reduce.tasks"
+numTasks=`expr $numSlaves \* 2`
+
+# number of urls to fetch in one iteration
+# 250K per task?
+sizeFetchlist=`expr $numSlaves \* 50000`
+
+# time limit for feching
+timeLimitFetch=180
+
+# num threads for fetching
+numThreads=50
+
+#############################################
+
+# determines whether mode based on presence of job file
+
+mode=local
+if [ -f ../nutch-*.job ]; then
+    mode=distributed
+fi
+
+bin=`dirname "$0"`
+bin=`cd "$bin"; pwd`
+
+# note that some of the options listed here could be set in the 
+# corresponding hadoop site xml param file 
+commonOptions="-D mapred.reduce.tasks=$numTasks -D mapred.child.java.opts=-Xmx1000m -D mapred.reduce.tasks.speculative.execution=false -D mapred.map.tasks.speculative.execution=false -D mapred.compress.map.output=true"
+
+ # check that hadoop can be found on the path 
+if [ $mode = "distributed" ]; then
+ if [ $(which hadoop | wc -l ) -eq 0 ]; then
+    echo "Can't find Hadoop executable. Add HADOOP_HOME/bin to the path or run in local mode."
+    exit -1;
+ fi
+fi
+
+# initial injection
+$bin/nutch inject $CRAWL_PATH/crawldb $SEEDDIR
+
+if [ $? -ne 0 ] 
+  then exit $? 
+fi
+
+
+# main loop : rounds of generate - fetch - parse - update
+for ((a=1; a <= LIMIT ; a++))
+do
+  if [ -e ".STOP" ]
+  then
+   echo "STOP file found - escaping loop"
+   break
+  fi
+
+  echo `date` ": Iteration $a of $LIMIT"
+
+  echo "Generating a new segment"
+  $bin/nutch generate $commonOptions $CRAWL_PATH/crawldb $CRAWL_PATH/segments -topN $sizeFetchlist -numFetchers $numSlaves -noFilter
+  
+  if [ $? -ne 0 ] 
+  then exit $? 
+  fi
+
+  # capture the name of the segment
+  # call hadoop in distributed mode
+  # or use ls
+
+  if [ $mode = "local" ]; then
+   SEGMENT=`ls -l $CRAWL_PATH/segments/ | sed -e "s/ /\\n/g" | egrep 20[0-9]+ | sort -n | tail -n 1`
+  else
+   SEGMENT=`hadoop fs -ls $CRAWL_PATH/segments/ | grep segments |  sed -e "s/\//\\n/g" | egrep 20[0-9]+ | sort -n | tail -n 1`
+  fi
+  
+  echo "Operating on segment : $SEGMENT"
+
+  # fetching the segment
+  echo "Fetching : $SEGMENT"
+  $bin/nutch fetch $commonOptions -D fetcher.timelimit.mins=$timeLimitFetch $CRAWL_PATH/segments/$SEGMENT -noParsing -threads $numThreads
+
+  if [ $? -ne 0 ] 
+  then exit $? 
+  fi
+
+  # parsing the segment
+  echo "Parsing : $SEGMENT"
+  # enable the skipping of records for the parsing so that a dodgy document 
+  # so that it does not fail the full task
+  skipRecordsOptions="-D mapred.skip.attempts.to.start.skipping=2 -D mapred.skip.map.max.skip.records=1"
+  $bin/nutch parse $commonOptions $skipRecordsOptions $CRAWL_PATH/segments/$SEGMENT
+
+  if [ $? -ne 0 ] 
+  then exit $? 
+  fi
+
+  # updatedb with this segment
+  echo "CrawlDB update"
+  $bin/nutch updatedb $commonOptions $CRAWL_PATH/crawldb  $CRAWL_PATH/segments/$SEGMENT
+
+  if [ $? -ne 0 ] 
+  then exit $? 
+  fi
+
+# note that the link inversion - indexing routine can be done within the main loop 
+# on a per segment basis
+  echo "Link inversion"
+  $bin/nutch invertlinks $CRAWL_PATH/linkdb $CRAWL_PATH/segments/$SEGMENT
+
+  if [ $? -ne 0 ] 
+  then exit $? 
+  fi
+
+  echo "Indexing $SEGMENT on SOLR index -> $SOLRURL"
+  $bin/nutch solrindex $SOLRURL $CRAWL_PATH/crawldb -linkdb $CRAWL_PATH/linkdb $SEGMENT
+  
+  if [ $? -ne 0 ] 
+   then exit $? 
+  fi
+
+  echo "SOLR dedup -> $SOLRURL"
+  $bin/nutch solrdedup $SOLRURL
+  
+  if [ $? -ne 0 ] 
+   then exit $? 
+  fi
+
+done
+
+exit 0
+

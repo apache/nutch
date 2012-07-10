@@ -1,6 +1,9 @@
 Nutch Change Log
 
 (trunk) Current Development:
+
+* NUTCH-1087 Deprecate crawl command and replace with example script (jnioche)
+
 * NUTCH-1306 Add option to not commit and clarify existing solr.commit.size (ferdy)
 
 * NUTCH-1405 Allow to overwrite CrawlDatum's with injected entries (markus)
