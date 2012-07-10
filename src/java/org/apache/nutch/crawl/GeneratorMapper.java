@@ -41,6 +41,7 @@ extends GoraMapper<String, WebPage, SelectorEntry, WebPage> {
   private FetchSchedule schedule;
   private ScoringFilters scoringFilters;
   private long curTime;
+  private SelectorEntry entry = new SelectorEntry();
 
   @Override
   public void map(String reversedUrl, WebPage page,
@@ -87,7 +88,7 @@ extends GoraMapper<String, WebPage, SelectorEntry, WebPage> {
     } catch (ScoringFilterException e) {
       //ignore
     }
-    SelectorEntry entry = new SelectorEntry(url, score);
+    entry.set(url, score);
     context.write(entry, page);
   }
 

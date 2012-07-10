@@ -118,6 +118,17 @@ public class GeneratorJob extends NutchTool implements Tool {
         return false;
       return true;
     }
+		
+    /**
+     * Sets url with score on this writable. Allows for writable reusing.
+     * 
+     * @param url
+     * @param score
+     */
+    public void set(String url, float score) {
+      this.url=url;
+      this.score=score;
+    }
   }
 
   public static class SelectorEntryComparator extends WritableComparator {
