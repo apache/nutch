@@ -95,13 +95,15 @@ extends GoraMapper<String, WebPage, SelectorEntry, WebPage> {
   @Override
   public void setup(Context context) {
     Configuration conf = context.getConfiguration();
-    filters = new URLFilters(conf);
-    curTime =
-      conf.getLong(GeneratorJob.GENERATOR_CUR_TIME, System.currentTimeMillis());
-    normalizers =
-      new URLNormalizers(conf, URLNormalizers.SCOPE_GENERATE_HOST_COUNT);
     filter = conf.getBoolean(GeneratorJob.GENERATOR_FILTER, true);
     normalise = conf.getBoolean(GeneratorJob.GENERATOR_NORMALISE, true);
+    if (filter) {
+      filters = new URLFilters(conf);
+    }
+    if (normalise) {
+      normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_GENERATE_HOST_COUNT);
+    }
+    curTime = conf.getLong(GeneratorJob.GENERATOR_CUR_TIME, System.currentTimeMillis());
     schedule = FetchScheduleFactory.getFetchSchedule(conf);
     scoringFilters = new ScoringFilters(conf);
   }

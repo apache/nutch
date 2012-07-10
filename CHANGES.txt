@@ -1,6 +1,9 @@
 Nutch Change Log
 
 Release 2.1 - Current Development
+
+* NUTCH-1428 GeneratorMapper should not initialize filters/normalizers when they are disabled (ferdy)
+
 * NUTCH-1427 Reuse SelectorEntry in Generator. (ferdy)
 
 * NUTCH-1411 nutchgora fetcher.store.content does not work (Alexander Kingson via ferdy) 
