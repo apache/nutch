@@ -32,8 +32,6 @@ Nutch Change Log
 
 * NUTCH-1364 Add a counter in Generator for malformed urls (lewismc)
 
-* NUTCH-1360 Suport the storing of IP address connected to when web crawling (lewismc)
-
 * NUTCH-1262 Map `duplicating` content-types to a single type (markus)
 
 * NUTCH-1385 More robust plug-in order properties in nutch-site.xml (Andy Xue via markus)
