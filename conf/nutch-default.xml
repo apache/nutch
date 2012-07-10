@@ -125,7 +125,7 @@
 
 <property>
   <name>http.agent.version</name>
-  <value>Nutch-2.0</value>
+  <value>Nutch-2.1-SNAPSHOT</value>
   <description>A version string to advertise in the User-Agent 
    header.</description>
 </property>
