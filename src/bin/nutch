@@ -61,6 +61,7 @@ if [ $# = 0 ]; then
   echo " solrdedup 	remove duplicates from solr"
   echo " parsechecker   check the parser for a given url"
   echo " plugin 	load a plugin and run one of its classes main()"
+  echo " nutchserver    run a (local) Nutch server on a user defined port"
   echo " junit         	runs the given JUnit test"
   echo " or"
   echo " CLASSNAME 	run the class named CLASSNAME"
@@ -208,6 +209,8 @@ elif [ "$COMMAND" = "parsechecker" ] ; then
   CLASS=org.apache.nutch.parse.ParserChecker
 elif [ "$COMMAND" = "plugin" ] ; then
 CLASS=org.apache.nutch.plugin.PluginRepository
+elif [ "$COMMAND" = "nutchserver" ] ; then
+CLASS=org.apache.nutch.api.NutchServer
 elif [ "$COMMAND" = "junit" ] ; then
   CLASSPATH=$CLASSPATH:test/classes/
   CLASS=junit.textui.TestRunner
