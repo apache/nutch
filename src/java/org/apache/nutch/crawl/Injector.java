@@ -32,6 +32,7 @@ import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.*;
 
 import org.apache.nutch.net.*;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.NutchConfiguration;
@@ -45,6 +46,7 @@ import org.apache.nutch.util.TimingUtil;
  * Note that some metadata keys are reserved : <br>
  * - <i>nutch.score</i> : allows to set a custom score for a specific URL <br>
  * - <i>nutch.fetchInterval</i> : allows to set a custom fetch interval for a specific URL <br>
+ * - <i>nutch.fetchInterval.fixed</i> : allows to set a custom fetch interval for a specific URL that is not changed by AdaptiveFetchSchedule <br>
  * e.g. http://www.nutch.org/ \t nutch.score=10 \t nutch.fetchInterval=2592000 \t userType=open_source
  **/
 public class Injector extends Configured implements Tool {
@@ -54,6 +56,8 @@ public class Injector extends Configured implements Tool {
   public static String nutchScoreMDName = "nutch.score";
   /** metadata key reserved for setting a custom fetchInterval for a specific URL */
   public static String nutchFetchIntervalMDName = "nutch.fetchInterval";
+  /** metadata key reserved for setting a fixed custom fetchInterval for a specific URL */
+  public static String nutchFixedFetchIntervalMDName = "nutch.fetchInterval.fixed";
 
   /** Normalize and filter injected urls. */
   public static class InjectMapper implements Mapper<WritableComparable, Text, Text, CrawlDatum> {
@@ -91,6 +95,7 @@ public class Injector extends Configured implements Tool {
       // must be name=value and separated by \t
       float customScore = -1f;
       int customInterval = interval;
+      int fixedInterval = -1;
       Map<String,String> metadata = new TreeMap<String,String>();
       if (url.indexOf("\t")!=-1){
     	  String[] splits = url.split("\t");
@@ -109,11 +114,16 @@ public class Injector extends Configured implements Tool {
     			  customScore = Float.parseFloat(metavalue);}
     			  catch (NumberFormatException nfe){}
     		  }
-    		  else if (metaname.equals(nutchFetchIntervalMDName)) {
-    			  try {
-    				  customInterval = Integer.parseInt(metavalue);}
-    			  catch (NumberFormatException nfe){}
-    		  }
+                  else if (metaname.equals(nutchFetchIntervalMDName)) {
+                          try {
+                                  customInterval = Integer.parseInt(metavalue);}
+                          catch (NumberFormatException nfe){}
+                  }
+                  else if (metaname.equals(nutchFixedFetchIntervalMDName)) {
+                          try {
+                                  fixedInterval = Integer.parseInt(metavalue);}
+                          catch (NumberFormatException nfe){}
+                  }
     		  else metadata.put(metaname,metavalue);
     	  }
       }
@@ -126,7 +136,18 @@ public class Injector extends Configured implements Tool {
       }
       if (url != null) {                          // if it passes
         value.set(url);                           // collect it
-        CrawlDatum datum = new CrawlDatum(CrawlDatum.STATUS_INJECTED, customInterval);
+        CrawlDatum datum = new CrawlDatum();
+        datum.setStatus(CrawlDatum.STATUS_INJECTED);
+
+        // Is interval custom? Then set as meta data
+        if (fixedInterval > -1) {
+          // Set writable using float. Flaot is used by AdaptiveFetchSchedule
+          datum.getMetaData().put(Nutch.WRITABLE_FIXED_INTERVAL_KEY, new FloatWritable(fixedInterval));
+          datum.setFetchInterval(fixedInterval);
+        } else {
+          datum.setFetchInterval(customInterval);
+        }
+
         datum.setFetchTime(curTime);
         // now add the metadata
         Iterator<String> keysIter = metadata.keySet().iterator();

@@ -2,6 +2,10 @@ Nutch Change Log
 
 (trunk) Current Development:
 
+* NUTCH-1388 Optionally maintain custom fetch interval despite AdaptiveFetchSchedule (markus)
+
+* NUTCH-1430 Freegenerator records overwrite CrawlDB records with AdaptiveFetchSchedule (markus)
+
 * NUTCH-1087 Deprecate crawl command and replace with example script (jnioche)
 
 * NUTCH-1306 Add option to not commit and clarify existing solr.commit.size (ferdy)

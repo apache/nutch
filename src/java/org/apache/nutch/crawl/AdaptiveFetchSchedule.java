@@ -94,9 +94,9 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
     float interval = datum.getFetchInterval();
     long refTime = fetchTime;
 
-    if (datum.getMetaData().containsKey(Nutch.WRITABLE_CUSTOM_INTERVAL_KEY)) {
+    if (datum.getMetaData().containsKey(Nutch.WRITABLE_FIXED_INTERVAL_KEY)) {
       // Is fetch interval preset in CrawlDatum MD? Then use preset interval
-      FloatWritable customIntervalWritable= (FloatWritable)(datum.getMetaData().get(Nutch.WRITABLE_CUSTOM_INTERVAL_KEY));
+      FloatWritable customIntervalWritable= (FloatWritable)(datum.getMetaData().get(Nutch.WRITABLE_FIXED_INTERVAL_KEY));
       interval = customIntervalWritable.get();
     } else {
       if (modifiedTime <= 0) modifiedTime = fetchTime;
