@@ -46,11 +46,11 @@
         <field name="score" family="f" qualifier="s"/>
         
         <!-- super columns -->
-        <field name="markers" family="sc" qualifier="mk"/>
+        <field name="headers" family="sc" qualifier="h"/>
         <field name="inlinks" family="sc" qualifier="il"/>
         <field name="outlinks" family="sc" qualifier="ol"/>
         <field name="metadata" family="sc" qualifier="mtdt"/>
-        <field name="headers" family="sc" qualifier="h"/>
+        <field name="markers" family="sc" qualifier="mk"/>
         <field name="parseStatus" family="sc" qualifier="pas"/>
         <field name="protocolStatus" family="sc" qualifier="prs"/>
     </class>

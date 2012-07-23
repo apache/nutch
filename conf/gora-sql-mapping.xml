@@ -47,4 +47,12 @@
     <field name="markers" column="markers"/>
 </class>
 
+<class name="org.apache.nutch.storage.Host" keyClass="java.lang.String"
+table="host">
+  <primarykey column="id" length="512"/>
+  <field name="metadata" column="metadata"/>
+  <field name="inlinks" column="inlinks"/>
+  <field name="outlinks" column="outlinks"/>
+</class>
+
 </gora-orm>
