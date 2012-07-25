@@ -17,6 +17,7 @@
 package org.apache.nutch.host;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -50,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * The files contain one host name per line, optionally followed by custom
  * metadata separated by tabs with the metadata key is separated from the
  * corresponding value by '='. <br>
- * The URLs must contain the protocol as well as the host name <br>
+ * The URLs can contain the protocol. It will be stripped if present <br>
  * e.g. http://www.nutch.org \t nutch.score=10 \t nutch.fetchInterval=2592000 \t
  * userType=open_source
  **/
@@ -96,7 +97,7 @@ public class HostInjectorJob implements Tool {
     @Override
     protected void map(LongWritable key, Text value, Context context)
         throws IOException, InterruptedException {
-      String url = value.toString();
+      String url = value.toString().trim();
 
       // skip empty lines
       if (url.trim().length() == 0)
@@ -113,8 +114,8 @@ public class HostInjectorJob implements Tool {
             // skip anything without a =
             continue;
           }
-          String metaname = splits[s].substring(0, indexEquals);
-          String metavalue = splits[s].substring(indexEquals + 1);
+          String metaname = splits[s].substring(0, indexEquals).trim();
+          String metavalue = splits[s].substring(indexEquals + 1).trim();
           metadata.put(metaname, metavalue);
         }
       }
@@ -128,8 +129,13 @@ public class HostInjectorJob implements Tool {
         String valuemd = metadata.get(keymd);
         host.putToMetadata(new Utf8(keymd), ByteBuffer.wrap(valuemd.getBytes()));
       }
-
-      String hostkey = TableUtil.reverseHost(url);
+      String hostname;
+      if (url.indexOf("://")> -1) {
+        hostname=new URL(url).getHost();
+      } else {
+        hostname=new URL("http://"+url).getHost();
+      }
+      String hostkey = TableUtil.reverseHost(hostname);
       context.write(hostkey, host);
     }
   }
