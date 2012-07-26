@@ -306,7 +306,7 @@
     <!-- core fields -->
     <field name="segment" type="string" stored="true" indexed="false"/>
     <field name="digest" type="string" stored="true" indexed="false"/>
-    <field name="boost" type="string" stored="true" indexed="false"/>
+    <field name="boost" type="float" stored="true" indexed="false"/>
 
     <!-- fields for index-basic plugin -->
     <field name="host" type="url" stored="false" indexed="true"/>
