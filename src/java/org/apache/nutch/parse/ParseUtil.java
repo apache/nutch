@@ -269,7 +269,10 @@ public class ParseUtil extends Configured {
 
           page.putToOutlinks(new Utf8(toUrl), new Utf8(outlinks[i].getAnchor()));
         }
-        Mark.PARSE_MARK.putMark(page, Mark.FETCH_MARK.checkMark(page));
+        Utf8 fetchMark = Mark.FETCH_MARK.checkMark(page);
+        if (fetchMark != null) {
+          Mark.PARSE_MARK.putMark(page, fetchMark);
+        }
       }
     }
     return redirectedPage;

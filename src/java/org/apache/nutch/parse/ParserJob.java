@@ -55,6 +55,8 @@ public class ParserJob extends NutchTool implements Tool {
   private static final String FORCE_KEY = "parse.job.force";
   
   public static final String SKIP_TRUNCATED = "parser.skip.truncated";
+  
+  private static final Utf8 REPARSE = new Utf8("-reparse");
 
   private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
@@ -100,19 +102,23 @@ public class ParserJob extends NutchTool implements Tool {
         throws IOException, InterruptedException {
       Utf8 mark = Mark.FETCH_MARK.checkMark(page);
       String unreverseKey = TableUtil.unreverseUrl(key);
-      if (!NutchJob.shouldProcess(mark, batchId)) {
-        LOG.info("Skipping " + unreverseKey + "; different batch id");
-        return;
-      }
-      if (shouldResume && Mark.PARSE_MARK.checkMark(page) != null) {
-        if (force) {
-          LOG.info("Forced parsing " + unreverseKey + "; already parsed");
-        } else {
-          LOG.info("Skipping " + unreverseKey + "; already parsed");
+      if (batchId.equals(REPARSE)) {
+        LOG.debug("Reparsing " + unreverseKey);
+      } else {
+        if (!NutchJob.shouldProcess(mark, batchId)) {
+          LOG.info("Skipping " + unreverseKey + "; different batch id");
           return;
         }
-      } else {
-        LOG.info("Parsing " + unreverseKey);
+        if (shouldResume && Mark.PARSE_MARK.checkMark(page) != null) {
+          if (force) {
+            LOG.info("Forced parsing " + unreverseKey + "; already parsed");
+          } else {
+            LOG.info("Skipping " + unreverseKey + "; already parsed");
+            return;
+          }
+        } else {
+          LOG.info("Parsing " + unreverseKey);
+        }
       }
 
       if (skipTruncated && isTruncated(unreverseKey, page)) {
@@ -294,7 +300,7 @@ public class ParserJob extends NutchTool implements Tool {
       }
     }
     if (batchId == null) {
-      System.err.println("BatchId not set (or -all not specified)!");
+      System.err.println("BatchId not set (or -all/-reparse not specified)!");
       return -1;
     }
     return parse(batchId, shouldResume, force);

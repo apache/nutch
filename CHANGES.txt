@@ -1,6 +1,8 @@
 Nutch Change Log
 
 Release 2.1 - Current Development
+* NUTCH-1438 ParserJob support for option -reparse (ferdy)
+
 * NUTCH-1437 HostInjectorJob to accept lines with or without protocol (ferdy)
 
 * NUTCH-1435 Host jobs throw NullPointerException with MySQL (ferdy via lewismc)
