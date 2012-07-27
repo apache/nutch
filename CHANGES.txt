@@ -1,6 +1,11 @@
 Nutch Change Log
 
 Release 2.1 - Current Development
+
+* NUTCH-1440 reconfigure non-existent stopwords_en.txt in schema-solr4.xml (shekhar sharma via lewismc)
+
+* NUTCH-1439 Define boost field as type float in schema-solr4.xml (shekhar sharma via lewismc)
+
 * NUTCH-1438 ParserJob support for option -reparse (ferdy)
 
 * NUTCH-1437 HostInjectorJob to accept lines with or without protocol (ferdy)
