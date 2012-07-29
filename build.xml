@@ -61,7 +61,7 @@
  <!-- ====================================================== -->
  <!-- Stuff needed by all targets -->
  <!-- ====================================================== -->
- <target name="init" depends="ivy-init">
+ <target name="init" depends="ivy-init" description="--> stuff required by all targets">
   <mkdir dir="${build.dir}" />
   <mkdir dir="${build.classes}" />
   <mkdir dir="${release.dir}" />
@@ -82,9 +82,9 @@
  <!-- ====================================================== -->
  <!-- Compile the Java files -->
  <!-- ====================================================== -->
- <target name="compile" depends="compile-core, compile-plugins" />
+ <target name="compile" depends="compile-core, compile-plugins" description="--> compile all Java files"/>
 
- <target name="compile-core" depends="init, resolve-default">
+ <target name="compile-core" depends="init, resolve-default" description="--> compile core Java files only">
   <javac 
   	encoding="${build.encoding}" 
   	srcdir="${src.dir}"
@@ -100,7 +100,7 @@
   </javac>
  </target>
 
- <target name="compile-plugins" depends="init, resolve-default">
+ <target name="compile-plugins" depends="init, resolve-default" description="--> compile plugins only">
   <ant dir="src/plugin" target="deploy" inheritAll="false" />
  </target>
 
@@ -109,7 +109,7 @@
  <!-- ================================================================== -->
  <!-- -->
  <!-- ================================================================== -->
- <target name="jar" depends="compile-core">
+ <target name="jar" depends="compile-core" description="--> make nutch.jar">
   <copy file="${conf.dir}/nutch-default.xml" todir="${build.classes}" />
   <copy file="${conf.dir}/nutch-site.xml" todir="${build.classes}" />
   <jar jarfile="${build.dir}/${final.name}.jar" basedir="${build.classes}">
@@ -262,7 +262,7 @@
  <!-- ================================================================== -->
  <!-- -->
  <!-- ================================================================== -->
- <target name="job" depends="compile">
+ <target name="job" depends="compile" description="--> make nutch.job jar">
   <jar jarfile="${build.dir}/${final.name}.job">
    <!-- 
    If the build.classes has the nutch config files because the jar command 
@@ -280,7 +280,7 @@
   </jar>
  </target>
 
- <target name="runtime" depends="jar, job">
+ <target name="runtime" depends="jar, job" description="--> default target for running Nutch">
   <mkdir dir="${runtime.dir}" />
   <mkdir dir="${runtime.local}" />
   <mkdir dir="${runtime.deploy}" />
@@ -321,7 +321,7 @@
  <!-- ================================================================== -->
  <!-- Compile test code -->
  <!-- ================================================================== -->
- <target name="compile-core-test" depends="compile-core, resolve-test">
+ <target name="compile-core-test" depends="compile-core, resolve-test" description="--> compile test code">
   <javac 
   	encoding="${build.encoding}" 
   	srcdir="${test.src.dir}"
@@ -341,7 +341,7 @@
  <!-- Run Nutch proxy -->
  <!-- ================================================================== -->
 
- <target name="proxy" depends="job, compile-core-test">
+ <target name="proxy" depends="job, compile-core-test" description="--> run nutch proxy">
   <java classname="org.apache.nutch.tools.proxy.TestbedProxy" fork="true">
    <classpath refid="test.classpath" />
    <arg value="-fake" />
@@ -357,7 +357,7 @@
  <!-- Run Nutch benchmarking analysis -->
  <!-- ================================================================== -->
 
- <target name="benchmark">
+ <target name="benchmark" description="--> run nutch benchmarking analysis">
   <java classname="org.apache.nutch.tools.Benchmark" fork="true">
    <classpath refid="test.classpath" />
    <jvmarg line="-Xmx512m -Djavax.xml.parsers.DocumentBuilderFactory=com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl" />
@@ -374,9 +374,9 @@
  <!-- ================================================================== -->
  <!-- Run unit tests -->
  <!-- ================================================================== -->
- <target name="test" depends="test-core, test-plugins" />
+ <target name="test" depends="test-core, test-plugins" description="--> run JUnit tests"/>
 
- <target name="test-core" depends="job, compile-core-test">
+ <target name="test-core" depends="job, compile-core-test" description="--> run core JUnit tests only">
 
   <delete dir="${test.build.data}" />
   <mkdir dir="${test.build.data}" />
@@ -415,11 +415,11 @@
 
  </target>
 
- <target name="test-plugins" depends="compile">
+ <target name="test-plugins" depends="compile" description="--> run plugin JUnit tests only">
   <ant dir="src/plugin" target="test" inheritAll="false" />
  </target>
 
- <target name="nightly" depends="test, tar-src, zip-src">
+ <target name="nightly" depends="test, tar-src, zip-src" description="--> run the nightly target build">
  </target>
 
  <!-- ================================================================== -->
@@ -439,7 +439,7 @@
   <antcall target="copy-libs" />
  </target>
 
- <target name="copy-libs">
+ <target name="copy-libs" description="--> copy the libs in lib, which are not ivy enabled">
   <!-- copy the libs in lib, which are not ivy enabled -->
   <copy todir="${build.lib.dir}/" failonerror="false">
    <fileset dir="${lib.dir}" includes="**/*.jar" />
@@ -463,30 +463,30 @@
  </target>
 
  <!-- target: ivy-init ================================================ -->
- <target name="ivy-init" depends="ivy-probe-antlib, ivy-init-antlib">
+ <target name="ivy-init" depends="ivy-probe-antlib, ivy-init-antlib" description="--> initialise Ivy settings">
   <ivy:settings file="${ivy.dir}/ivysettings.xml" />
  </target>
 
  <!-- target: ivy-probe-antlib ======================================== -->
- <target name="ivy-probe-antlib">
+ <target name="ivy-probe-antlib" description="--> probe the antlib library">
   <condition property="ivy.found">
    <typefound uri="antlib:org.apache.ivy.ant" name="cleancache" />
   </condition>
  </target>
 
  <!-- target: ivy-download ============================================ -->
- <target name="ivy-download" description="--> Download ivy">
+ <target name="ivy-download" description="--> download ivy">
   <available file="${ivy.jar}" property="ivy.jar.found" />
-  <antcall target="-ivy-download-unchecked" />
+  <antcall target="ivy-download-unchecked" />
  </target>
 
  <!-- target: ivy-download-unchecked ================================== -->
- <target name="-ivy-download-unchecked" unless="ivy.jar.found">
+ <target name="ivy-download-unchecked" unless="ivy.jar.found" description="--> fetch any ivy file">
   <get src="${ivy.repo.url}" dest="${ivy.jar}" usetimestamp="true" />
  </target>
 
  <!-- target: ivy-init-antlib ========================================= -->
- <target name="ivy-init-antlib" depends="ivy-download" unless="ivy.found">
+ <target name="ivy-init-antlib" depends="ivy-download" unless="ivy.found" description="--> attempt to use Ivy with Antlib">
   <typedef uri="antlib:org.apache.ivy.ant" onerror="fail"
    loaderRef="ivyLoader">
    <classpath>
@@ -504,7 +504,7 @@
   </fail>
  </target>
 	
-  <target name="compile-avro-schema" depends="resolve-default">
+  <target name="compile-avro-schema" depends="resolve-default" description="--> compile the avro schema(s) in src/gora/*.avsc">
     <typedef name="schema" 
   	         classname="org.apache.avro.specific.SchemaTask"
   	         classpathref="classpath" />
@@ -521,7 +521,7 @@
  <!-- ================================================================== -->
  <!-- Documentation -->
  <!-- ================================================================== -->
- <target name="javadoc" depends="compile">
+ <target name="javadoc" depends="compile" description="--> generate Javadoc">
   <mkdir dir="${build.javadoc}" />
   <javadoc 
   	overview="${src.dir}/overview.html" 
@@ -594,7 +594,7 @@
   <copy file="${plugins.dir}/plugin.dtd" todir="${build.javadoc}/org/apache/nutch/plugin/doc-files" />
  </target>
 
- <target name="default-doc">
+ <target name="default-doc" description="--> generate default Nutch documentation">
   <style basedir="${conf.dir}" destdir="${docs.dir}" 
   	includes="nutch-default.xml" style="conf/nutch-conf.xsl" />
  </target>
@@ -604,7 +604,7 @@
   <!-- ================================================================== -->
   <!--                                                                    -->
   <!-- ================================================================== -->
-  <target name="package-src" depends="runtime, javadoc">
+  <target name="package-src" depends="runtime, javadoc" description="--> generate source distribution package">
     <mkdir dir="${dist.dir}"/>
     <mkdir dir="${src.dist.version.dir}"/>
     <mkdir dir="${src.dist.version.dir}/lib"/>
@@ -644,7 +644,7 @@
 
   </target>
 
- <target name="package-bin" depends="runtime, javadoc">
+ <target name="package-bin" depends="runtime, javadoc" description="--> generate binary distribution package">
     <mkdir dir="${dist.dir}"/>
     <mkdir dir="${bin.dist.version.dir}"/>
     <mkdir dir="${bin.dist.version.dir}/lib"/>
@@ -689,7 +689,7 @@
   <!-- ================================================================== -->
   <!-- Make src-release tarball                                               -->
   <!-- ================================================================== -->
-  <target name="tar-src" depends="package-src">
+  <target name="tar-src" depends="package-src" description="--> generate src.tar.gz distribution package">
     <tar compression="gzip" longfile="gnu"
       destfile="${src.dist.version.dir}.tar.gz" basedir="${src.dist.version.dir}">
       <tarfileset dir="${dist.dir}" mode="664">
@@ -706,7 +706,7 @@
   <!-- ================================================================== -->
   <!-- Make bin release tarball                                               -->
   <!-- ================================================================== -->
-  <target name="tar-bin" depends="package-bin">
+  <target name="tar-bin" depends="package-bin" description="--> generate bin.tar.gz distribution package">
     <tar compression="gzip" longfile="gnu"
       destfile="${bin.dist.version.dir}.tar.gz" basedir="${bin.dist.version.dir}">
       <tarfileset dir="${dist.dir}" mode="664">
@@ -722,7 +722,7 @@
   <!-- ================================================================== -->
   <!-- Make src release zip                                               -->
   <!-- ================================================================== -->
-  <target name="zip-src" depends="package-src">
+  <target name="zip-src" depends="package-src" description="--> generate src.zip distribution package">
    <zip compress="true" casesensitive="yes" 
    destfile="${src.dist.version.dir}.zip" basedir="${src.dist.version.dir}">
    <zipfileset dir="${dist.dir}" filemode="664">
@@ -739,7 +739,7 @@
   <!-- ================================================================== -->
   <!-- Make bin release zip                                               -->
   <!-- ================================================================== -->
-  <target name="zip-bin" depends="package-bin">
+  <target name="zip-bin" depends="package-bin" description="--> generate bin.zip distribution package">
    <zip compress="true" casesensitive="yes" 
    destfile="${bin.dist.version.dir}.zip" basedir="${bin.dist.version.dir}">
    <zipfileset dir="${dist.dir}" filemode="664">
@@ -791,7 +791,7 @@
  <!-- ================================================================== -->
  <!-- RAT targets -->
  <!-- ================================================================== -->
- <target name="rat-sources-typedef">
+ <target name="rat-sources-typedef" description="--> run RAT antlib task">
   <typedef resource="org/apache/rat/anttasks/antlib.xml">
    <classpath>
     <fileset dir="." includes="rat*.jar" />
@@ -820,7 +820,7 @@
  </taskdef>
 
  <!-- Add the target -->
- <target name="sonar">
+ <target name="sonar" description="--> run SONAR analysis">
 
   <!-- list of mandatory source directories (required) -->
   <property name="sonar.sources" value="${src.dir}" />
