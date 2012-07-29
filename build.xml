@@ -482,11 +482,11 @@
   <!-- target: ivy-download  ============================================ -->
   <target name="ivy-download" description="--> download ivy">
     <available file="${ivy.jar}" property="ivy.jar.found"/>
-    <antcall target="-ivy-download-unchecked"/>
+    <antcall target="ivy-download-unchecked"/>
   </target>
 
   <!-- target: ivy-download-unchecked  ================================== -->
-  <target name="-ivy-download-unchecked" unless="ivy.jar.found" description="--> fetch any ivy file">
+  <target name="ivy-download-unchecked" unless="ivy.jar.found" description="--> fetch any ivy file">
     <get src="${ivy.repo.url}" dest="${ivy.jar}" usetimestamp="true" />
   </target>
 
