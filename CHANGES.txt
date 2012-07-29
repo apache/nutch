@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk) Current Development:
 
+* NUTCH-1417 Remove o.a.n.metadata.Office (lewismc)
+
 * NUTCH-1376 Add description parameter to every ant task (lewismc)
 
 * NUTCH-1440 reconfigure non-existent stopwords_en.txt in schema-solr4.xml (shekhar sharma via lewismc)
