@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk) Current Development:
 
+* NUTCH-1376 Add description parameter to every ant task (lewismc)
+
 * NUTCH-1440 reconfigure non-existent stopwords_en.txt in schema-solr4.xml (shekhar sharma via lewismc)
 
 * NUTCH-1439 Define boost field as type float in schema-solr4.xml (shekhar sharma via lewismc)
