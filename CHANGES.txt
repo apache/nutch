@@ -1,6 +1,7 @@
 Nutch Change Log
 
 Release 2.1 - Current Development
+* NUTCH-1441 AnchorIndexingFilter should use plain HashSet (ferdy)
 
 * NUTCH-1417 Remove o.a.n.metadata.Office (lewismc)
 

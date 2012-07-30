@@ -19,17 +19,16 @@ package org.apache.nutch.indexer.anchor;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map.Entry;
-import java.util.WeakHashMap;
 
 import org.apache.avro.util.Utf8;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.TableUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Indexing filter that indexes all inbound anchor text for a document.
@@ -63,28 +62,27 @@ public class AnchorIndexingFilter implements IndexingFilter {
   @Override
   public NutchDocument filter(NutchDocument doc, String url, WebPage page)
       throws IndexingException {
-
-    // https://issues.apache.org/jira/browse/NUTCH-1037
-    WeakHashMap<String,Integer> map = new WeakHashMap<String,Integer>();
-
+    HashSet<String> set = null;
+    
     for (Entry<Utf8, Utf8> e : page.getInlinks().entrySet()) {
       String anchor = TableUtil.toString(e.getValue());
 
       if (deduplicate) {
+        if (set == null) set = new HashSet<String>();
         String lcAnchor = anchor.toLowerCase();
 
         // Check if already processed the current anchor
-        if (!map.containsKey(lcAnchor)) {
+        if (!set.contains(lcAnchor)) {
           doc.add("anchor", anchor);
 
-          // Add to map
-          map.put(lcAnchor, 1);
+          // Add to set
+          set.add(lcAnchor);
         }
       } else {
         doc.add("anchor", anchor);
       }
     }
-
+    
     return doc;
   }
 
