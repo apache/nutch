@@ -22,7 +22,7 @@ import org.apache.hadoop.mapreduce.TaskAttemptContext;
 import org.apache.nutch.indexer.NutchDocument;
 
 public interface NutchIndexWriter {
-  public void open(TaskAttemptContext job, String name) throws IOException;
+  public void open(TaskAttemptContext job) throws IOException;
 
   public void write(NutchDocument doc) throws IOException;
 

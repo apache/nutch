@@ -1,6 +1,7 @@
 Nutch Change Log
 
 Release 2.1 - Current Development
+* NUTCH-1444 Indexing should not create temporary files (do not extend from FileOutputFormat) (ferdy)
 
 * NUTCH-1443 Solr schema version is invalid (markus)
 

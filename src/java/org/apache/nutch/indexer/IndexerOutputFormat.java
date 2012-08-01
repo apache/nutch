@@ -18,12 +18,13 @@ package org.apache.nutch.indexer;
 
 import java.io.IOException;
 
+import org.apache.hadoop.mapreduce.JobContext;
+import org.apache.hadoop.mapreduce.OutputCommitter;
+import org.apache.hadoop.mapreduce.OutputFormat;
 import org.apache.hadoop.mapreduce.RecordWriter;
 import org.apache.hadoop.mapreduce.TaskAttemptContext;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-public class IndexerOutputFormat
-extends FileOutputFormat<String, NutchDocument> {
+public class IndexerOutputFormat extends OutputFormat<String, NutchDocument> {
 
   @Override
   public RecordWriter<String, NutchDocument> getRecordWriter(
@@ -33,7 +34,7 @@ extends FileOutputFormat<String, NutchDocument> {
       NutchIndexWriterFactory.getNutchIndexWriters(job.getConfiguration());
 
     for (final NutchIndexWriter writer : writers) {
-      writer.open(job, FileOutputFormat.getUniqueFile(job, "part", ""));
+      writer.open(job);
     }
 
     return new RecordWriter<String, NutchDocument>() {
@@ -51,6 +52,35 @@ extends FileOutputFormat<String, NutchDocument> {
         for (final NutchIndexWriter writer : writers) {
           writer.close();
         }
+      }
+    };
+  }
+
+  @Override
+  public void checkOutputSpecs(JobContext jobContext) throws IOException,
+      InterruptedException {
+  }
+
+  @Override
+  public OutputCommitter getOutputCommitter(TaskAttemptContext arg0)
+      throws IOException, InterruptedException {
+    //return an empty outputcommitter
+    return new OutputCommitter() {
+      @Override
+      public void setupTask(TaskAttemptContext arg0) throws IOException {
+      }
+      @Override
+      public void setupJob(JobContext arg0) throws IOException {
+      }
+      @Override
+      public boolean needsTaskCommit(TaskAttemptContext arg0) throws IOException {
+        return false;
+      }
+      @Override
+      public void commitTask(TaskAttemptContext arg0) throws IOException {
+      }
+      @Override
+      public void abortTask(TaskAttemptContext arg0) throws IOException {
       }
     };
   }

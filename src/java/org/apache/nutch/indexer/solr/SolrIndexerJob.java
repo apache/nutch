@@ -16,28 +16,19 @@
  */
 package org.apache.nutch.indexer.solr;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Random;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.indexer.IndexerJob;
 import org.apache.nutch.indexer.NutchIndexWriterFactory;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.ToolUtil;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SolrIndexerJob extends IndexerJob {
 
@@ -51,30 +42,22 @@ public class SolrIndexerJob extends IndexerJob {
     getConf().set(SolrConstants.SERVER_URL, solrUrl);
 
     currentJob = createIndexJob(getConf(), "solr-index", batchId);
-    Path tmp = new Path("tmp_" + System.currentTimeMillis() + "-"
-                + new Random().nextInt());
 
-    FileOutputFormat.setOutputPath(currentJob, tmp);
     currentJob.waitForCompletion(true);
     ToolUtil.recordJobStatus(null, currentJob, results);
     return results;
   }
 
-  private void indexSolr(String solrUrl, String batchId) throws Exception {
+  public void indexSolr(String solrUrl, String batchId) throws Exception {
     LOG.info("SolrIndexerJob: starting");
 
-    try {
-      run(ToolUtil.toArgMap(
-          Nutch.ARG_SOLR, solrUrl,
-          Nutch.ARG_BATCH, batchId));
-      // do the commits once and for all the reducers in one go
-      SolrServer solr = new CommonsHttpSolrServer(solrUrl);
-      if (getConf().getBoolean(SolrConstants.COMMIT_INDEX, true)) {
-        solr.commit();
-      }
-    } finally {
-      FileSystem.get(getConf()).delete(
-          FileOutputFormat.getOutputPath(currentJob), true);
+    run(ToolUtil.toArgMap(
+        Nutch.ARG_SOLR, solrUrl,
+        Nutch.ARG_BATCH, batchId));
+    // do the commits once and for all the reducers in one go
+    SolrServer solr = new CommonsHttpSolrServer(solrUrl);
+    if (getConf().getBoolean(SolrConstants.COMMIT_INDEX, true)) {
+      solr.commit();
     }
     LOG.info("SolrIndexerJob: done.");
   }

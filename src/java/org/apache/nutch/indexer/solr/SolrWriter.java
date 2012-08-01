@@ -34,7 +34,7 @@ import org.apache.solr.common.SolrInputDocument;
 
 public class SolrWriter implements NutchIndexWriter {
 
-  public static Logger LOG = LoggerFactory.getLogger(SolrWriter.class);
+  public static final Logger LOG = LoggerFactory.getLogger(SolrWriter.class);
 
   private SolrServer solr;
   private SolrMappingReader solrMapping;
@@ -45,7 +45,7 @@ public class SolrWriter implements NutchIndexWriter {
   private int commitSize;
 
   @Override
-  public void open(TaskAttemptContext job, String name)
+  public void open(TaskAttemptContext job)
   throws IOException {
     Configuration conf = job.getConfiguration();
     solr = new CommonsHttpSolrServer(conf.get(SolrConstants.SERVER_URL));
