@@ -1126,6 +1126,34 @@
   </description>
 </property>
 
+<!-- elasticsearch index properties -->
+
+<property>
+  <name>elastic.index</name>
+  <value>index</value>
+  <description>
+  The name of the elasticsearch index. Will normally be autocreated if it
+  doesn't exist.
+  </description>
+</property>
+
+<property>
+  <name>elastic.max.bulk.docs</name>
+  <value>500</value>
+  <description>
+  The number of docs in the batch that will trigger a flush to elasticsearch.
+  </description>
+</property>
+
+<property>
+  <name>elastic.max.bulk.size</name>
+  <value>5001001</value>
+  <description> 
+  The total length of all indexed text in a batch that will trigger a flush to
+  elasticsearch, by checking after every document for excess of this amount.
+  </description>
+</property>
+
 <!-- storage properties -->
 
 <property>
