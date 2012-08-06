@@ -31,7 +31,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Indexing filter that indexes all inbound anchor text for a document.
+ * Indexing filter that offers an option to either index all inbound anchor text for 
+ * a document or deduplicate anchors. Deduplication does have it's con's, 
+ * @see {@code anchorIndexingFilter.deduplicate} in nutch-default.xml.
  */
 public class AnchorIndexingFilter implements IndexingFilter {
 
@@ -44,21 +46,37 @@ public class AnchorIndexingFilter implements IndexingFilter {
   static {
     FIELDS.add(WebPage.Field.INLINKS);
   }
-
+  
+  /**
+   * Set the {@link Configuration} object
+   */
   public void setConf(Configuration conf) {
     this.conf = conf;
 
     deduplicate = conf.getBoolean("anchorIndexingFilter.deduplicate", false);
     LOG.info("Anchor deduplication is: " + (deduplicate ? "on" : "off"));
   }
-
+  
+  /**
+   * Get the {@link Configuration} object
+   */
   public Configuration getConf() {
     return this.conf;
   }
-
+  
   public void addIndexBackendOptions(Configuration conf) {
   }
-
+  
+  /**
+   * The {@link AnchorIndexingFilter} filter object which supports boolean 
+   * configuration settings for the deduplication of anchors. 
+   * See {@code anchorIndexingFilter.deduplicate} in nutch-default.xml.
+   *  
+   * @param doc The {@link NutchDocument} object
+   * @param url URL to be filtered for anchor text
+   * @param page {@link WebPage} object relative to the URL
+   * @return filtered NutchDocument
+   */
   @Override
   public NutchDocument filter(NutchDocument doc, String url, WebPage page)
       throws IndexingException {
@@ -85,7 +103,10 @@ public class AnchorIndexingFilter implements IndexingFilter {
     
     return doc;
   }
-
+  
+  /**
+   * Gets all the fields for a given {@link WebPage}
+   */
   @Override
   public Collection<WebPage.Field> getFields() {
     return FIELDS;

@@ -74,6 +74,7 @@
      <ant dir="parse-tika" target="test"/>
      <ant dir="protocol-file" target="test"/>
      <ant dir="parse-html" target="test"/>
+  	 <ant dir="index-anchor" target="test"/>
      <ant dir="index-more" target="test"/>
      <ant dir="language-identifier" target="test"/>
      <ant dir="protocol-httpclient" target="test"/>

@@ -1,6 +1,9 @@
 Nutch Change Log
 
 Release 2.1 - Current Development
+
+* NUTCH-1159 Write JUnit test for index-anchor (ferdy + lewismc)
+
 * NUTCH-1445 Add ElasticIndexerJob that indexes to elasticsearch (ferdy)
 
 * NUTCH-1444 Indexing should not create temporary files (do not extend from FileOutputFormat) (ferdy)
