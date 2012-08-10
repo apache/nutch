@@ -36,7 +36,17 @@ import org.apache.nutch.util.Bytes;
 import org.apache.nutch.util.TableUtil;
 import org.apache.solr.common.util.DateUtil;
 
-/** Adds basic searchable fields to a document. */
+/** Adds basic searchable fields to a document. The fields are:
+ * host - add host as un-stored, indexed and tokenized
+ * site - add site as un-stored, indexed and un-tokenized
+ * url - url is both stored and indexed, so it's both searchable and returned. 
+ * This is also a required field.
+ * orig - also store original url as both stored and indexed
+ * content - content is indexed, so that it's searchable, but not stored in index
+ * title - title is stored and indexed
+ * cache - add cached content/summary display policy, if available
+ * tstamp - add timestamp when fetched, for deduplication
+ */
 public class BasicIndexingFilter implements IndexingFilter {
   public static final Logger LOG = LoggerFactory.getLogger(BasicIndexingFilter.class);
 
@@ -51,6 +61,16 @@ public class BasicIndexingFilter implements IndexingFilter {
     FIELDS.add(WebPage.Field.FETCH_TIME);
   }
 
+  /**
+   * The {@link BasicIndexingFilter} filter object which supports boolean 
+   * configurable value for length of characters permitted within the 
+   * title @see {@code indexer.max.title.length} in nutch-default.xml
+   *  
+   * @param doc The {@link NutchDocument} object
+   * @param url URL to be filtered for anchor text
+   * @param page {@link WebPage} object relative to the URL
+   * @return filtered NutchDocument
+   */
   public NutchDocument filter(NutchDocument doc, String url, WebPage page)
       throws IndexingException {
 
@@ -83,7 +103,7 @@ public class BasicIndexingFilter implements IndexingFilter {
     doc.add("url", reprUrl == null ? url : reprUrl);
 
     if (reprUrl != null) {
-      // also store original url as both stored and indexes
+      // also store original url as both stored and indexed
       doc.add("orig", url);
     }
 
@@ -118,15 +138,28 @@ public class BasicIndexingFilter implements IndexingFilter {
   public void addIndexBackendOptions(Configuration conf) {
   }
 
+  /**
+   * Set the {@link Configuration} object
+   */
   public void setConf(Configuration conf) {
     this.conf = conf;
     this.MAX_TITLE_LENGTH = conf.getInt("indexer.max.title.length", 100);
+    LOG.info("Maximum title length for indexing set to: " + this.MAX_TITLE_LENGTH);
   }
 
+  /**
+   * Get the {@link Configuration} object
+   */
   public Configuration getConf() {
     return this.conf;
   }
 
+  /**
+   * Gets all the fields for a given {@link WebPage}
+   * Many datastores need to setup the mapreduce job by specifying the fields
+   * needed. All extensions that work on WebPage are able to specify what fields
+   * they need.
+   */
   @Override
   public Collection<WebPage.Field> getFields() {
     return FIELDS;
