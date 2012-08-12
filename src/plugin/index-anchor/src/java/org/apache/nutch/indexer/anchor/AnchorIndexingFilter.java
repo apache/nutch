@@ -106,6 +106,9 @@ public class AnchorIndexingFilter implements IndexingFilter {
   
   /**
    * Gets all the fields for a given {@link WebPage}
+   * Many datastores need to setup the mapreduce job by specifying the fields
+   * needed. All extensions that work on WebPage are able to specify what fields
+   * they need.
    */
   @Override
   public Collection<WebPage.Field> getFields() {

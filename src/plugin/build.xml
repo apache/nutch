@@ -88,6 +88,7 @@
      <ant dir="urlnormalizer-regex" target="test"/>
      <ant dir="lib-http" target="test"/>
      <ant dir="subcollection" target="test"/>
+     <ant dir="microformats-reltag" target="test"/>
      <!--
      <ant dir="feed" target="test"/>
      <ant dir="parse-ext" target="test"/>

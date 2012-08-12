@@ -30,7 +30,7 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.storage.WebPage.Field;
 
 /**
- * An {@link org.apache.nutch.indexer.IndexingFilter} that add <code>tag</code>
+ * An {@link org.apache.nutch.indexer.IndexingFilter} that adds <code>tag</code>
  * field(s) to the document.
  * 
  * @see <a href="http://www.microformats.org/wiki/rel-tag">
@@ -38,42 +38,60 @@ import org.apache.nutch.storage.WebPage.Field;
  * @author J&eacute;r&ocirc;me Charron
  */
 public class RelTagIndexingFilter implements IndexingFilter {
+  
+  private Configuration conf;
 
-	private Configuration conf;
+  private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
-	private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
+  static {
+    FIELDS.add(WebPage.Field.BASE_URL);
+    FIELDS.add(WebPage.Field.METADATA);
+  }
 
-	static {
-		FIELDS.add(WebPage.Field.BASE_URL);
-		FIELDS.add(WebPage.Field.METADATA);
-	}
+  /**
+   * Gets all the fields for a given {@link WebPage}
+   * Many datastores need to setup the mapreduce job by specifying the fields
+   * needed. All extensions that work on WebPage are able to specify what fields
+   * they need.
+   */
+  @Override
+  public Collection<Field> getFields() {
+    return FIELDS;
+  }
 
-	@Override
-	public Collection<Field> getFields() {
-		return FIELDS;
-	}
+  /**
+   * Set the {@link Configuration} object
+   */
+  public void setConf(Configuration conf) {
+    this.conf = conf;
+  }
 
-	public void setConf(Configuration conf) {
-		this.conf = conf;
-	}
-
-	public Configuration getConf() {
-		return this.conf;
-	}
-
-	@Override
-	public NutchDocument filter(NutchDocument doc, String url, WebPage page)
-			throws IndexingException {
-		// Check if some Rel-Tags found, possibly put there by RelTagParser
-		ByteBuffer bb = page.getFromMetadata(new Utf8(RelTagParser.REL_TAG));
+  /**
+   * Get the {@link Configuration} object
+   */
+  public Configuration getConf() {
+    return this.conf;
+  }
+  
+  /**
+   * The {@link RelTagIndexingFilter} filter object.
+   *  
+   * @param doc The {@link NutchDocument} object
+   * @param url URL to be filtered for rel-tag's
+   * @param page {@link WebPage} object relative to the URL
+   * @return filtered NutchDocument
+   */
+  @Override
+  public NutchDocument filter(NutchDocument doc, String url, WebPage page) throws IndexingException {
+  // Check if some Rel-Tags found, possibly put there by RelTagParser
+    ByteBuffer bb = page.getFromMetadata(new Utf8(RelTagParser.REL_TAG));
 		
-		if (bb != null) {
-			String[] tags = new String(bb.array()).split("\t");
-			for (int i = 0; i < tags.length; i++) {
-				doc.add("tag", tags[i]);
-			}
-		}
-
-		return doc;
-	}
+    if (bb != null) {
+      String[] tags = new String(bb.array()).split("\t");
+      for (int i = 0; i < tags.length; i++) {
+	    doc.add("tag", tags[i]);
+      }
+    }
+    return doc;
+  }
 }

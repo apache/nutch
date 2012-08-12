@@ -22,6 +22,7 @@ import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.fetcher.FetcherJob;
 import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Test;
@@ -51,9 +52,9 @@ public class TestBasicIndexingFilter extends TestCase {
 	page.putToInlinks(new Utf8("http://nutch.apache.org/"), new Utf8("Welcome to Nutch"));
 	page.setTitle(new Utf8("Welcome to Nutch"));
     page.setReprUrl(new Utf8("http://www.urldoesnotmatter.org"));
-    //ByteBuffer bbuf = ByteBuffer.allocate(10);
-    //bbuf.putInt(123456789);
-    //page.putToMetadata(new Utf8("Cache_policy"), bbuf);
+    byte[] bytes = new byte[10];
+    ByteBuffer bbuf = ByteBuffer.wrap(bytes);
+    page.putToMetadata(Nutch.CACHING_FORBIDDEN_KEY_UTF8, bbuf);
     page.setFetchTime(System.currentTimeMillis());
 	try {
 	  filter.filter(doc, "http://www.apache.org/", page);
@@ -68,7 +69,7 @@ public class TestBasicIndexingFilter extends TestCase {
 	assertTrue("check for orig field", doc.getFieldNames().contains("orig"));
 	assertTrue("check for content field", doc.getFieldNames().contains("content"));
 	assertTrue("check for title field", doc.getFieldNames().contains("title"));
-	//assertTrue("check for cache field", doc.getFieldNames().contains("cache"));
+	assertTrue("check for cache field", doc.getFieldNames().contains("cache"));
 	assertTrue("check for tstamp field", doc.getFieldNames().contains("tstamp"));
   }
   
