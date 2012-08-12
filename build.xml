@@ -419,7 +419,7 @@
   <ant dir="src/plugin" target="test" inheritAll="false" />
  </target>
 
- <target name="nightly" depends="test, tar-src, zip-src" description="--> run the nightly target build">
+ <target name="nightly" depends="test, tar-src, zip-src, javadoc" description="--> run the nightly target build">
  </target>
 
  <!-- ================================================================== -->
