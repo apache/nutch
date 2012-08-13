@@ -35,7 +35,7 @@ import org.apache.nutch.util.ObjectCache;
 /** Creates and caches {@link IndexingFilter} implementing plugins.*/
 public class IndexingFilters {
 
-  public static final String INDEXINGFILTER_ORDER = "indexingfilterhbase.order";
+  public static final String INDEXINGFILTER_ORDER = "indexingfilter.order";
 
   public final static Logger LOG = LoggerFactory.getLogger(IndexingFilters.class);
 
@@ -112,6 +112,12 @@ public class IndexingFilters {
     return doc;
   }
 
+  /**
+   * Gets all the fields for a given {@link WebPage}
+   * Many datastores need to setup the mapreduce job by specifying the fields
+   * needed. All extensions that work on WebPage are able to specify what fields
+   * they need.
+   */
   public Collection<WebPage.Field> getFields() {
     Collection<WebPage.Field> columns = new HashSet<WebPage.Field>();
     for (IndexingFilter indexingFilter : indexingFilters) {
