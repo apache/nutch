@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.1 - Current Development
 
+* NUTCH-1365 Fix crawlId functionalilty by making using of new gora configuration (ferdy)
+
 * NUTCH-1442 indexingfilter.order is property is misread in code (ferdy via lewismc)
 
 * NUTCH-1450 Upgrade to gora deps to 0.2.1 (lewismc)

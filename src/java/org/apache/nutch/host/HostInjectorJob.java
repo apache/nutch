@@ -150,7 +150,7 @@ public class HostInjectorJob implements Tool {
     job.setMapOutputValueClass(Host.class);
     job.setOutputFormatClass(GoraOutputFormat.class);
     GoraOutputFormat.setOutput(job,
-        StorageUtils.createWebStore(getConf(), String.class, Host.class), true);
+        StorageUtils.createWebStore(job.getConfiguration(), String.class, Host.class), true);
     job.setReducerClass(Reducer.class);
     job.setNumReduceTasks(0);
     return job.waitForCompletion(true);

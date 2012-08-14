@@ -33,6 +33,10 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.nutch.metadata.Nutch;
 
+/**
+ * Entry point to Gora store/mapreduce functionality.
+ * Translates the concept of "crawlid" to the corresponding Gora support.
+ */
 public class StorageUtils {
 
   /** Creates a store for the given persistentClass.
@@ -61,7 +65,9 @@ public class StorageUtils {
     String crawlId = conf.get(Nutch.CRAWL_ID_KEY, "");
     
     if (!crawlId.isEmpty()) {
-      schema = crawlId + "_" + schema;
+      conf.set("schema.prefix", crawlId + "_");
+    } else {
+      conf.set("schema.prefix", "");
     }
 
     Class<? extends DataStore<K, V>> dataStoreClass =
@@ -71,20 +77,11 @@ public class StorageUtils {
   }
 
   @SuppressWarnings("unchecked")
-  public static <K, V extends Persistent> Class<? extends DataStore<K, V>>
+  private static <K, V extends Persistent> Class<? extends DataStore<K, V>>
   getDataStoreClass(Configuration conf)  throws ClassNotFoundException {
     return (Class<? extends DataStore<K, V>>)
       Class.forName(conf.get("storage.data.store.class",
           "org.apache.gora.sql.store.SqlStore"));
-  }
-
-  public static <K, V> void initMapperJob(Job job,
-      Collection<WebPage.Field> fields,
-      Class<K> outKeyClass, Class<V> outValueClass,
-      Class<? extends GoraMapper<String, WebPage, K, V>> mapperClass, boolean reuseObjects)
-  throws ClassNotFoundException, IOException {
-    initMapperJob(job, fields, outKeyClass, outValueClass,
-        mapperClass, null, reuseObjects);
   }
 
   public static <K, V> void initMapperJob(Job job,

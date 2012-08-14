@@ -20,6 +20,7 @@ package org.apache.nutch.util;
 import java.io.IOException;
 
 import org.apache.avro.util.Utf8;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.nutch.metadata.Nutch;
@@ -34,6 +35,12 @@ public class NutchJob extends Job {
 
   public NutchJob(Configuration conf, String jobName) throws IOException {
     super(conf, jobName);
+    //prefix jobName with crawlId if not empty
+    String crawlId = conf.get("storage.crawl.id");
+    if (!StringUtils.isEmpty(crawlId)) {
+      jobName = "["+crawlId+"]"+jobName;
+      setJobName(jobName);
+    }
     setJarByClass(this.getClass());
   }
 
