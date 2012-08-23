@@ -57,15 +57,17 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
   public static final Logger LOG = LoggerFactory.getLogger(IndexerMapReduce.class);
 
   public static final String INDEXER_DELETE = "indexer.delete";
+  public static final String INDEXER_DELETE_ROBOTS_NOINDEX = "indexer.delete.robots.noindex";
   public static final String INDEXER_SKIP_NOTMODIFIED = "indexer.skip.notmodified";
   public static final String URL_FILTERING = "indexer.url.filters";
   public static final String URL_NORMALIZING = "indexer.url.normalizers";
 
   private boolean skip = false;
   private boolean delete = false;
+  private boolean deleteRobotsNoIndex = false;
   private IndexingFilters filters;
   private ScoringFilters scfilters;
-  
+
   // using normalizers and/or filters
   private boolean normalize = false;
   private boolean filter = false;
@@ -79,6 +81,7 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
     this.filters = new IndexingFilters(getConf());
     this.scfilters = new ScoringFilters(getConf());
     this.delete = job.getBoolean(INDEXER_DELETE, false);
+    this.deleteRobotsNoIndex = job.getBoolean(INDEXER_DELETE_ROBOTS_NOINDEX, false);
     this.skip = job.getBoolean(INDEXER_SKIP_NOTMODIFIED, false);
 
     normalize = job.getBoolean(URL_NORMALIZING, false);
@@ -174,12 +177,6 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
         final CrawlDatum datum = (CrawlDatum)value;
         if (CrawlDatum.hasDbStatus(datum)) {
           dbDatum = datum;
-
-          // Whether to skip DB_NOTMODIFIED pages
-          if (skip && dbDatum.getStatus() == CrawlDatum.STATUS_DB_NOTMODIFIED) {
-            reporter.incrCounter("IndexerStatus", "Skipped", 1);
-            return;
-          }
         }
         else if (CrawlDatum.hasFetchStatus(datum)) {
 
@@ -217,6 +214,20 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
         }
       } else if (value instanceof ParseData) {
         parseData = (ParseData)value;
+
+        // Handle robots meta? https://issues.apache.org/jira/browse/NUTCH-1434
+        if (deleteRobotsNoIndex) {
+          // Get the robots meta data
+          String robotsMeta = parseData.getMeta("robots");
+
+          // Has it a noindex for this url?
+          if (robotsMeta != null && robotsMeta.toLowerCase().indexOf("noindex") != -1) {
+            // Delete it!
+            NutchIndexAction action = new NutchIndexAction(null, NutchIndexAction.DELETE);
+            output.collect(key, action);
+            return;
+          }
+        }
       } else if (value instanceof ParseText) {
         parseText = (ParseText)value;
       } else if (LOG.isWarnEnabled()) {
@@ -227,6 +238,12 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
     if (fetchDatum == null || dbDatum == null
         || parseText == null || parseData == null) {
       return;                                     // only have inlinks
+    }
+
+    // Whether to skip DB_NOTMODIFIED pages
+    if (skip && dbDatum.getStatus() == CrawlDatum.STATUS_DB_NOTMODIFIED) {
+      reporter.incrCounter("IndexerStatus", "Skipped", 1);
+      return;
     }
 
     if (!parseData.getStatus().isSuccess() ||

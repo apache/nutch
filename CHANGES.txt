@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk) Current Development:
 
+* NUTCH-1434 Indexer to delete robots noindex (markus)
+
 * NUTCH-1443 Solr schema version is invalid (markus)
 
 * NUTCH-1417 Remove o.a.n.metadata.Office (lewismc)
