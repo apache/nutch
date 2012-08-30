@@ -106,7 +106,7 @@ public class ParserJob extends NutchTool implements Tool {
         LOG.debug("Reparsing " + unreverseKey);
       } else {
         if (!NutchJob.shouldProcess(mark, batchId)) {
-          LOG.info("Skipping " + unreverseKey + "; different batch id");
+          LOG.info("Skipping " + TableUtil.unreverseUrl(key) + "; different batch id (" + mark + ")");
           return;
         }
         if (shouldResume && Mark.PARSE_MARK.checkMark(page) != null) {
