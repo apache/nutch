@@ -58,8 +58,9 @@ public class ElasticWriter implements NutchIndexWriter {
   @Override
   public void write(NutchDocument doc) throws IOException {
     String id = TableUtil.reverseUrl(doc.getFieldValue("url"));
-    IndexRequestBuilder request = client.prepareIndex(defaultIndex, doc
-        .getDocumentMeta().get("type"), id);
+    String type = doc.getDocumentMeta().get("type");
+    if (type == null) type = "doc";
+    IndexRequestBuilder request = client.prepareIndex(defaultIndex, type, id);
     
     Map<String, Object> source = new HashMap<String, Object>();
     

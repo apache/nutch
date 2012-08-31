@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.1 - Current Development
 
+* NUTCH-1462 Elasticsearch not indexing when type==null in NutchDocument metadata (ferdy)
+
 * NUTCH-1395 Show batchId when skipping within ParserJob (lewismc)
 
 * NUTCH-1365 Fix crawlId functionalilty by making using of new gora configuration (ferdy)
