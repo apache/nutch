@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.1 - Current Development
 
+* NUTCH-1463 Elasticsearch indexer should wait and check response for last flush (ferdy)
+
 * NUTCH-1462 Elasticsearch not indexing when type==null in NutchDocument metadata (ferdy)
 
 * NUTCH-1395 Show batchId when skipping within ParserJob (lewismc)

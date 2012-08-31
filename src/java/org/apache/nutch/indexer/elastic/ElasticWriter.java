@@ -132,6 +132,7 @@ public class ElasticWriter implements NutchIndexWriter {
     // Flush pending requests
     LOG.info("Processing remaining requests [docs = " + bulkDocs
         + ", length = " + bulkLength + ", total docs = " + indexedDocs + "]");
+    processExecute(false);
     // flush one more time to finalize the last bulk
     LOG.info("Processing to finalize last execute");
     processExecute(false);
