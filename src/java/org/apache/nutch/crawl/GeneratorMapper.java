@@ -29,6 +29,7 @@ import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.TableUtil;
+import org.apache.avro.util.Utf8;
 import org.apache.gora.mapreduce.GoraMapper;
 
 public class GeneratorMapper
@@ -42,6 +43,7 @@ extends GoraMapper<String, WebPage, SelectorEntry, WebPage> {
   private ScoringFilters scoringFilters;
   private long curTime;
   private SelectorEntry entry = new SelectorEntry();
+  private int maxDistance;
 
   @Override
   public void map(String reversedUrl, WebPage page,
@@ -53,6 +55,17 @@ extends GoraMapper<String, WebPage, SelectorEntry, WebPage> {
         GeneratorJob.LOG.debug("Skipping " + url + "; already generated");
       }
       return;
+    }
+
+    //filter on distance
+    if (maxDistance > -1) {
+      Utf8 distanceUtf8 = page.getFromMarkers(DbUpdaterJob.DISTANCE);
+      if (distanceUtf8 != null) {
+        int distance=Integer.parseInt(distanceUtf8.toString());
+        if (distance > maxDistance) {
+          return;
+        }
+      }
     }
 
     // If filtering is on don't generate URLs that don't pass URLFilters
@@ -103,6 +116,7 @@ extends GoraMapper<String, WebPage, SelectorEntry, WebPage> {
     if (normalise) {
       normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_GENERATE_HOST_COUNT);
     }
+    maxDistance=conf.getInt("generate.max.distance", -1);
     curTime = conf.getLong(GeneratorJob.GENERATOR_CUR_TIME, System.currentTimeMillis());
     schedule = FetchScheduleFactory.getFetchSchedule(conf);
     scoringFilters = new ScoringFilters(conf);

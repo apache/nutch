@@ -33,14 +33,16 @@ public class ScoreDatum implements Writable {
   private float score;
   private String url;
   private String anchor;
+  private int distance;
   private Map<String, byte[]> metaData = new HashMap<String, byte[]>();
   
   public ScoreDatum() { }
   
-  public ScoreDatum(float score, String url, String anchor) {
+  public ScoreDatum(float score, String url, String anchor, int depth) {
     this.score = score;
     this.url = url;
     this.anchor = anchor;
+    this.distance = depth;
   }
 
   @Override
@@ -48,6 +50,7 @@ public class ScoreDatum implements Writable {
     score = in.readFloat();
     url = Text.readString(in);
     anchor = Text.readString(in);
+    distance = WritableUtils.readVInt(in);
     metaData.clear();
     
     int size = WritableUtils.readVInt(in);
@@ -55,7 +58,7 @@ public class ScoreDatum implements Writable {
       String key = Text.readString(in);
       byte[] value = Bytes.readByteArray(in);
       metaData.put(key, value);
-    }
+    }    
   }
 
   @Override
@@ -63,6 +66,7 @@ public class ScoreDatum implements Writable {
     out.writeFloat(score);
     Text.writeString(out, url);
     Text.writeString(out, anchor);
+    WritableUtils.writeVInt(out, distance);
     
     WritableUtils.writeVInt(out, metaData.size());
     for (Entry<String, byte[]> e : metaData.entrySet()) {
@@ -102,11 +106,15 @@ public class ScoreDatum implements Writable {
   public String getAnchor() {
     return anchor;
   }
+  
+  public int getDistance() {
+    return distance;
+  }
 
   @Override
   public String toString() {
     return "ScoreDatum [score=" + score + ", url=" + url + ", anchor=" + anchor
-        + ", metaData=" + metaData + "]";
+        + ", distance="+distance + ", metaData=" + metaData + "]";
   }
   
   

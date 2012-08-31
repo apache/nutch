@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 
+import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -59,6 +60,8 @@ public class DbUpdaterJob extends NutchTool implements Tool {
     FIELDS.add(WebPage.Field.FETCH_INTERVAL);
     FIELDS.add(WebPage.Field.PREV_FETCH_TIME);
   }
+
+  public static final Utf8 DISTANCE = new Utf8("dist");
 
   public DbUpdaterJob() {
 

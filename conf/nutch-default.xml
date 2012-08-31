@@ -543,6 +543,15 @@
 </property>
 
 <property>
+  <name>generate.max.distance</name>
+  <value>-1</value>
+  <description>The maximum distance of an URL that the generator is allowed
+  to select for fetch. The distance is the smallest number of nodes (shortest path)
+  of an URL from the original injected URL. (Injected URLs have distance 0).
+  </description>
+</property>
+
+<property>
   <name>generate.count.mode</name>
   <value>host</value>
   <description>Determines how the URLs are counted for generator.max.count.

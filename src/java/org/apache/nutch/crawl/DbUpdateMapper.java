@@ -57,7 +57,11 @@ extends GoraMapper<String, WebPage, UrlWithScore, NutchWritable> {
     Map<Utf8, Utf8> outlinks = page.getOutlinks();
     if (outlinks != null) {
       for (Entry<Utf8, Utf8> e : outlinks.entrySet()) {
-        scoreData.add(new ScoreDatum(0.0f, e.getKey().toString(), e.getValue().toString()));
+                int depth=Integer.MAX_VALUE;
+        Utf8 depthUtf8=page.getFromMarkers(DbUpdaterJob.DISTANCE);
+        if (depthUtf8 != null) depth=Integer.parseInt(depthUtf8.toString());
+        scoreData.add(new ScoreDatum(0.0f, e.getKey().toString(), 
+            e.getValue().toString(), depth));
       }
     }
 

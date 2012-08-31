@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.1 - Current Development
 
+* NUTCH-1431 Introduce link 'distance' and add configurable max distance in the generator (ferdy)
+
 * NUTCH-1448 Redirected urls should be handled more cleanly (more like an outlink url) (ferdy)
 
 * NUTCH-1463 Elasticsearch indexer should wait and check response for last flush (ferdy)

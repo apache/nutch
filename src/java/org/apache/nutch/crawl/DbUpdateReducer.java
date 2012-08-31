@@ -154,6 +154,29 @@ extends GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
       page.putToInlinks(new Utf8(inlink.getUrl()), new Utf8(inlink.getAnchor()));
     }
 
+    // Distance calculation.
+    // Retrieve smallest distance from all inlinks distances
+    // Calculate new distance for current page: smallest inlink distance plus 1.
+    // If the new distance is smaller than old one (or if old did not exist yet),
+    // write it to the page.
+    int smallestDist=Integer.MAX_VALUE;
+    for (ScoreDatum inlink : inlinkedScoreData) {
+      int inlinkDist = inlink.getDistance();
+      if (inlinkDist < smallestDist) {
+        smallestDist=inlinkDist;
+      }
+      page.putToInlinks(new Utf8(inlink.getUrl()), new Utf8(inlink.getAnchor()));
+    }
+    if (smallestDist != Integer.MAX_VALUE) {
+      int oldDistance=Integer.MAX_VALUE;
+      Utf8 oldDistUtf8 = page.getFromMarkers(DbUpdaterJob.DISTANCE);
+      if (oldDistUtf8 != null)oldDistance=Integer.parseInt(oldDistUtf8.toString());
+      int newDistance = smallestDist+1;
+      if (newDistance < oldDistance) {
+        page.putToMarkers(DbUpdaterJob.DISTANCE, new Utf8(Integer.toString(newDistance)));
+      }
+    }
+
     try {
       scoringFilters.updateScore(url, page, inlinkedScoreData);
     } catch (ScoringFilterException e) {

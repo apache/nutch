@@ -179,6 +179,8 @@ public class InjectorJob extends NutchTool implements Tool {
     				  + ", using default (" + e.getMessage() + ")");
     	  }
       }
+      
+      row.putToMarkers(DbUpdaterJob.DISTANCE, new Utf8(String.valueOf(0)));
 
       Mark.INJECT_MARK.putMark(row, YES_STRING);
       context.write(reversedUrl, row);
