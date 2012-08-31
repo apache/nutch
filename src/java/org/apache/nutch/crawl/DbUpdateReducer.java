@@ -105,58 +105,45 @@ extends GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
         page.setScore(0.0f);
       }
     } else {
-      if (page.getMetadata().containsKey(FetcherJob.REDIRECT_DISCOVERED)
-            && !page.isReadable(WebPage.Field.STATUS.getIndex())) {
-        // this row is marked during fetch as the destination of a redirect
-        // but does not contain anything else, so we initialize it.
-        page.setStatus(CrawlStatus.STATUS_UNFETCHED);
-        schedule.initializeSchedule(url, page);
-        try {
-          scoringFilters.initialScore(url, page);
-        } catch (ScoringFilterException e) {
-          page.setScore(0.0f);
+      byte status = (byte)page.getStatus();
+      switch (status) {
+      case CrawlStatus.STATUS_FETCHED:         // succesful fetch
+      case CrawlStatus.STATUS_REDIR_TEMP:      // successful fetch, redirected
+      case CrawlStatus.STATUS_REDIR_PERM:
+      case CrawlStatus.STATUS_NOTMODIFIED:     // successful fetch, notmodified
+        int modified = FetchSchedule.STATUS_UNKNOWN;
+        if (status == CrawlStatus.STATUS_NOTMODIFIED) {
+          modified = FetchSchedule.STATUS_NOTMODIFIED;
         }
-      } else { // update row
-        byte status = (byte)page.getStatus();
-        switch (status) {
-        case CrawlStatus.STATUS_FETCHED:         // succesful fetch
-        case CrawlStatus.STATUS_REDIR_TEMP:      // successful fetch, redirected
-        case CrawlStatus.STATUS_REDIR_PERM:
-        case CrawlStatus.STATUS_NOTMODIFIED:     // successful fetch, notmodified
-          int modified = FetchSchedule.STATUS_UNKNOWN;
-          if (status == CrawlStatus.STATUS_NOTMODIFIED) {
+        ByteBuffer prevSig = page.getPrevSignature();
+        ByteBuffer signature = page.getSignature();
+        if (prevSig != null && signature != null) {
+          if (SignatureComparator.compare(prevSig.array(), signature.array()) != 0) {
+            modified = FetchSchedule.STATUS_MODIFIED;
+          } else {
             modified = FetchSchedule.STATUS_NOTMODIFIED;
           }
-          ByteBuffer prevSig = page.getPrevSignature();
-          ByteBuffer signature = page.getSignature();
-          if (prevSig != null && signature != null) {
-            if (SignatureComparator.compare(prevSig.array(), signature.array()) != 0) {
-              modified = FetchSchedule.STATUS_MODIFIED;
-            } else {
-              modified = FetchSchedule.STATUS_NOTMODIFIED;
-            }
-          }
-          long fetchTime = page.getFetchTime();
-          long prevFetchTime = page.getPrevFetchTime();
-          long modifiedTime = page.getModifiedTime();
-
-          schedule.setFetchSchedule(url, page, prevFetchTime, 0L,
-              fetchTime, modifiedTime, modified);
-          if (maxInterval < page.getFetchInterval())
-            schedule.forceRefetch(url, page, false);
-          break;
-        case CrawlStatus.STATUS_RETRY:
-          schedule.setPageRetrySchedule(url, page, 0L, 0L, page.getFetchTime());
-          if (page.getRetriesSinceFetch() < retryMax) {
-            page.setStatus(CrawlStatus.STATUS_UNFETCHED);
-          } else {
-            page.setStatus(CrawlStatus.STATUS_GONE);
-          }
-          break;
-        case CrawlStatus.STATUS_GONE:
-          schedule.setPageGoneSchedule(url, page, 0L, 0L, page.getFetchTime());
-          break;
         }
+        long fetchTime = page.getFetchTime();
+        long prevFetchTime = page.getPrevFetchTime();
+        long modifiedTime = page.getModifiedTime();
+
+        schedule.setFetchSchedule(url, page, prevFetchTime, 0L,
+            fetchTime, modifiedTime, modified);
+        if (maxInterval < page.getFetchInterval())
+          schedule.forceRefetch(url, page, false);
+        break;
+      case CrawlStatus.STATUS_RETRY:
+        schedule.setPageRetrySchedule(url, page, 0L, 0L, page.getFetchTime());
+        if (page.getRetriesSinceFetch() < retryMax) {
+          page.setStatus(CrawlStatus.STATUS_UNFETCHED);
+        } else {
+          page.setStatus(CrawlStatus.STATUS_GONE);
+        }
+        break;
+      case CrawlStatus.STATUS_GONE:
+        schedule.setPageGoneSchedule(url, page, 0L, 0L, page.getFetchTime());
+        break;
       }
     }
 

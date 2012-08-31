@@ -225,15 +225,6 @@
 </property>
 
 <property>
-  <name>http.redirect.max</name>
-  <value>0</value>
-  <description>The maximum number of redirects the fetcher will follow when
-  trying to fetch a page. If set to negative or 0, fetcher won't immediately
-  follow redirected URLs, instead it will record them for later fetching.
-  </description>
-</property>
-
-<property>
   <name>http.useHttp11</name>
   <value>false</value>
   <description>NOTE: at the moment this works only for protocol-httpclient.

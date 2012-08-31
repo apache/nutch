@@ -126,17 +126,13 @@ public class ParserJob extends NutchTool implements Tool {
       }
       
 
-      URLWebPage redirectedPage = parseUtil.process(key, page);
+      parseUtil.process(key, page);
       ParseStatus pstatus = page.getParseStatus();
       if (pstatus != null) {
         context.getCounter("ParserStatus",
             ParseStatusCodes.majorCodes[pstatus.getMajorCode()]).increment(1);
       }
 
-      if (redirectedPage != null) {
-        context.write(TableUtil.reverseUrl(redirectedPage.getUrl()),
-                      redirectedPage.getDatum());
-      }
       context.write(key, page);
     }    
   }

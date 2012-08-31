@@ -431,10 +431,8 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
     private final long maxCrawlDelay;
     @SuppressWarnings("unused")
     private final boolean byIP;
-    private final int maxRedirect;
     private String reprUrl;
-    private boolean redirecting;
-    private int redirectCount;
+
     private final Context context;
 
     public FetcherThread(Context context, int num) {
@@ -448,7 +446,6 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
       this.maxCrawlDelay = conf.getInt("fetcher.max.crawl.delay", 30) * 1000;
       // backward-compatible default setting
       this.byIP = conf.getBoolean("fetcher.threads.per.host.by.ip", true);
-      this.maxRedirect = conf.getInt("http.redirect.max", 3);
     }
 
     @Override
@@ -487,110 +484,93 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
             LOG.info("fetching " + fit.url);
 
             // fetch the page
-            redirecting = false;
-            redirectCount = 0;
-            do {
+            final Protocol protocol = this.protocolFactory.getProtocol(fit.url);
+            final RobotRules rules = protocol.getRobotRules(fit.url, fit.page);
+            if (!rules.isAllowed(fit.u)) {
+              // unblock
+              fetchQueues.finishFetchItem(fit, true);
               if (LOG.isDebugEnabled()) {
-                LOG.debug("redirectCount=" + redirectCount);
+                LOG.debug("Denied by robots.txt: " + fit.url);
               }
-              redirecting = false;
-              final Protocol protocol = this.protocolFactory.getProtocol(fit.url);
-              final RobotRules rules = protocol.getRobotRules(fit.url, fit.page);
-              if (!rules.isAllowed(fit.u)) {
+              output(fit, null, ProtocolStatusUtils.STATUS_ROBOTS_DENIED,
+                  CrawlStatus.STATUS_GONE);
+              continue;
+            }
+            if (rules.getCrawlDelay() > 0) {
+              if (rules.getCrawlDelay() > maxCrawlDelay) {
                 // unblock
                 fetchQueues.finishFetchItem(fit, true);
-                if (LOG.isDebugEnabled()) {
-                  LOG.debug("Denied by robots.txt: " + fit.url);
-                }
-                output(fit, null, ProtocolStatusUtils.STATUS_ROBOTS_DENIED,
-                    CrawlStatus.STATUS_GONE);
+                LOG.debug("Crawl-Delay for " + fit.url + " too long (" + rules.getCrawlDelay() + "), skipping");
+                output(fit, null, ProtocolStatusUtils.STATUS_ROBOTS_DENIED, CrawlStatus.STATUS_GONE);
                 continue;
+              } else {
+                final FetchItemQueue fiq = fetchQueues.getFetchItemQueue(fit.queueID);
+                fiq.crawlDelay = rules.getCrawlDelay();
               }
-              if (rules.getCrawlDelay() > 0) {
-                if (rules.getCrawlDelay() > maxCrawlDelay) {
-                  // unblock
-                  fetchQueues.finishFetchItem(fit, true);
-                  LOG.debug("Crawl-Delay for " + fit.url + " too long (" + rules.getCrawlDelay() + "), skipping");
-                  output(fit, null, ProtocolStatusUtils.STATUS_ROBOTS_DENIED, CrawlStatus.STATUS_GONE);
-                  continue;
-                } else {
-                  final FetchItemQueue fiq = fetchQueues.getFetchItemQueue(fit.queueID);
-                  fiq.crawlDelay = rules.getCrawlDelay();
-                }
+            }
+            final ProtocolOutput output = protocol.getProtocolOutput(fit.url, fit.page);
+            final ProtocolStatus status = output.getStatus();
+            final Content content = output.getContent();
+            // unblock queue
+            fetchQueues.finishFetchItem(fit);
+
+            context.getCounter("FetcherStatus", ProtocolStatusUtils.getName(status.getCode())).increment(1);
+
+            int length = 0;
+            if (content!=null && content.getContent()!=null) length= content.getContent().length;
+            updateStatus(length);
+
+            switch(status.getCode()) {
+
+            case ProtocolStatusCodes.WOULDBLOCK:
+              // retry ?
+              fetchQueues.addFetchItem(fit);
+              break;
+
+            case ProtocolStatusCodes.SUCCESS:        // got a page
+              output(fit, content, status, CrawlStatus.STATUS_FETCHED);
+              break;
+
+            case ProtocolStatusCodes.MOVED:         // redirect
+            case ProtocolStatusCodes.TEMP_MOVED:
+              byte code;
+              boolean temp;
+              if (status.getCode() == ProtocolStatusCodes.MOVED) {
+                code = CrawlStatus.STATUS_REDIR_PERM;
+                temp = false;
+              } else {
+                code = CrawlStatus.STATUS_REDIR_TEMP;
+                temp = true;
               }
-              final ProtocolOutput output = protocol.getProtocolOutput(fit.url, fit.page);
-              final ProtocolStatus status = output.getStatus();
-              final Content content = output.getContent();
-              // unblock queue
-              fetchQueues.finishFetchItem(fit);
+              final String newUrl = ProtocolStatusUtils.getMessage(status);
+              handleRedirect(fit.url, newUrl, temp,  FetcherJob.PROTOCOL_REDIR, fit.page);
+              output(fit, content, status, code);
+              break;
+            case ProtocolStatusCodes.EXCEPTION:
+              logFetchFailure(fit.url, ProtocolStatusUtils.getMessage(status));
+              /* FALLTHROUGH */
+            case ProtocolStatusCodes.RETRY:          // retry
+            case ProtocolStatusCodes.BLOCKED:
+              output(fit, null, status, CrawlStatus.STATUS_RETRY);
+              break;
 
-              context.getCounter("FetcherStatus", ProtocolStatusUtils.getName(status.getCode())).increment(1);
+            case ProtocolStatusCodes.GONE:           // gone
+            case ProtocolStatusCodes.NOTFOUND:
+            case ProtocolStatusCodes.ACCESS_DENIED:
+            case ProtocolStatusCodes.ROBOTS_DENIED:
+              output(fit, null, status, CrawlStatus.STATUS_GONE);
+              break;
 
-              int length = 0;
-              if (content!=null && content.getContent()!=null) length= content.getContent().length;
-              updateStatus(length);
+            case ProtocolStatusCodes.NOTMODIFIED:
+              output(fit, null, status, CrawlStatus.STATUS_NOTMODIFIED);
+              break;
 
-              switch(status.getCode()) {
-
-              case ProtocolStatusCodes.WOULDBLOCK:
-                // retry ?
-                fetchQueues.addFetchItem(fit);
-                break;
-
-              case ProtocolStatusCodes.SUCCESS:        // got a page
-                output(fit, content, status, CrawlStatus.STATUS_FETCHED);
-                break;
-
-              case ProtocolStatusCodes.MOVED:         // redirect
-              case ProtocolStatusCodes.TEMP_MOVED:
-                byte code;
-                boolean temp;
-                if (status.getCode() == ProtocolStatusCodes.MOVED) {
-                  code = CrawlStatus.STATUS_REDIR_PERM;
-                  temp = false;
-                } else {
-                  code = CrawlStatus.STATUS_REDIR_TEMP;
-                  temp = true;
-                }
-                output(fit, content, status, code);
-                final String newUrl = ProtocolStatusUtils.getMessage(status);
-                handleRedirect(fit.url, newUrl, temp,  FetcherJob.PROTOCOL_REDIR);
-                redirecting = false;
-                break;
-              case ProtocolStatusCodes.EXCEPTION:
-                logError(fit.url, ProtocolStatusUtils.getMessage(status));
-                /* FALLTHROUGH */
-              case ProtocolStatusCodes.RETRY:          // retry
-              case ProtocolStatusCodes.BLOCKED:
-                output(fit, null, status, CrawlStatus.STATUS_RETRY);
-                break;
-
-              case ProtocolStatusCodes.GONE:           // gone
-              case ProtocolStatusCodes.NOTFOUND:
-              case ProtocolStatusCodes.ACCESS_DENIED:
-              case ProtocolStatusCodes.ROBOTS_DENIED:
-                output(fit, null, status, CrawlStatus.STATUS_GONE);
-                break;
-
-              case ProtocolStatusCodes.NOTMODIFIED:
-                output(fit, null, status, CrawlStatus.STATUS_NOTMODIFIED);
-                break;
-
-              default:
-                if (LOG.isWarnEnabled()) {
-                  LOG.warn("Unknown ProtocolStatus: " + status.getCode());
-                }
-                output(fit, null, status, CrawlStatus.STATUS_RETRY);
+            default:
+              if (LOG.isWarnEnabled()) {
+                LOG.warn("Unknown ProtocolStatus: " + status.getCode());
               }
-
-              if (redirecting && redirectCount > maxRedirect) {
-                fetchQueues.finishFetchItem(fit);
-                LOG.info(" - redirect count exceeded " + fit.url);
-                output(fit, null, ProtocolStatusUtils.STATUS_REDIR_EXCEEDED,
-                    CrawlStatus.STATUS_GONE);
-              }
-
-            } while (redirecting && (redirectCount <= maxRedirect));
+              output(fit, null, status, CrawlStatus.STATUS_RETRY);
+            }
 
           } catch (final Throwable t) {                 // unexpected exception
             // unblock
@@ -611,27 +591,27 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
     }
 
     private void handleRedirect(String url, String newUrl,
-        boolean temp, String redirType)
+        boolean temp, String redirType, WebPage page)
     throws URLFilterException, IOException, InterruptedException {
       newUrl = normalizers.normalize(newUrl, URLNormalizers.SCOPE_FETCHER);
       newUrl = urlFilters.filter(newUrl);
       if (newUrl == null || newUrl.equals(url)) {
         return;
       }
+      page.putToOutlinks(new Utf8(newUrl), new Utf8());
+      page.putToMetadata(FetcherJob.REDIRECT_DISCOVERED, TableUtil.YES_VAL);
       reprUrl = URLUtil.chooseRepr(reprUrl, newUrl, temp);
-      final String reversedNewUrl = TableUtil.reverseUrl(newUrl);
-      WebPage newWebPage = new WebPage();
-      if (!reprUrl.equals(url)) {
-        newWebPage.setReprUrl(new Utf8(reprUrl));
+      if (reprUrl == null) {
+        LOG.warn("reprUrl==null");
+      } else {
+        page.setReprUrl(new Utf8(reprUrl));
+        if (LOG.isDebugEnabled()) {
+          LOG.debug(" - " + redirType + " redirect to " +
+              reprUrl + " (fetching later)");
+        }
       }
-      newWebPage.putToMetadata(FetcherJob.REDIRECT_DISCOVERED, TableUtil.YES_VAL);
-      context.write(reversedNewUrl, newWebPage);
-      if (LOG.isDebugEnabled()) {
-        LOG.debug(" - " + redirType + " redirect to " +
-            reprUrl + " (fetching later)");
-      }
-
     }
+    
 
     private void updateStatus(int bytesInPage) throws IOException {
       pages.incrementAndGet();
@@ -659,11 +639,7 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
 
       if (parse) {
         if (!skipTruncated || (skipTruncated && !ParserJob.isTruncated(fit.url, fit.page))) {
-          URLWebPage redirectedPage = parseUtil.process(key, fit.page);
-          if (redirectedPage != null) {
-            context.write(TableUtil.reverseUrl(redirectedPage.getUrl()),
-                redirectedPage.getDatum());
-          }
+          parseUtil.process(key, fit.page);
         }
       }
       //remove content if storingContent is false. Content is added to fit.page above 
@@ -674,11 +650,12 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
       context.write(key, fit.page);
     }
 
-    private void logError(String url, String message) {
-      LOG.info("fetch of " + url + " failed with: " + message);
+    private void logFetchFailure(String url, String message) {
+      LOG.warn("fetch of " + url + " failed with: " + message);
       errors.incrementAndGet();
     }
   }
+
 
   /**
    * This class feeds the queues with input items, and re-fills them as

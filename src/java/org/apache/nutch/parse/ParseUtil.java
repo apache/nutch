@@ -156,21 +156,19 @@ public class ParseUtil extends Configured {
   }
 
   /**
-   * Parses given web page and stores parsed content within page. Returns
-   * a pair of <String, WebPage> if a meta-redirect is discovered
+   * Parses given web page and stores parsed content within page. Puts
+   * a meta-redirect to outlinks.
    * @param key
    * @param page
-   * @return newly-discovered webpage (via a meta-redirect)
    */
-  public URLWebPage process(String key, WebPage page) {
-    URLWebPage redirectedPage = null;
+  public void process(String key, WebPage page) {
     String url = TableUtil.unreverseUrl(key);
     byte status = (byte) page.getStatus();
     if (status != CrawlStatus.STATUS_FETCHED) {
       if (LOG.isDebugEnabled()) {
         LOG.debug("Skipping " + url + " as status is: " + CrawlStatus.getName(status));
       }
-      return redirectedPage;
+      return;
     }
 
     Parse parse;
@@ -179,14 +177,15 @@ public class ParseUtil extends Configured {
     } catch (ParserNotFound e) {
       // do not print stacktrace for the fact that some types are not mapped.
       LOG.warn("No suitable parser found: " + e.getMessage());
-      return redirectedPage;
+      return;
     } catch (final Exception e) {
-      LOG.warn("Error parsing: " + url + ": " + StringUtils.stringifyException(e));
-      return redirectedPage;
+      LOG.warn("Error parsing: " + url + ": "
+          + StringUtils.stringifyException(e));
+      return;
     }
 
     if (parse == null) {
-      return redirectedPage;
+      return;
     }
 
     final byte[] signature = sig.calculate(page);
@@ -199,24 +198,34 @@ public class ParseUtil extends Configured {
         int refreshTime = Integer.parseInt(ParseStatusUtils.getArg(pstatus, 1));
         try {
           newUrl = normalizers.normalize(newUrl, URLNormalizers.SCOPE_FETCHER);
-          newUrl = filters.filter(newUrl);
-        } catch (URLFilterException e) {
-          return redirectedPage; // TODO: is this correct
+          if (newUrl == null) {
+            LOG.warn("redirect normalized to null " + url);
+            return;
+          }
+          try {
+            newUrl = filters.filter(newUrl);
+          } catch (URLFilterException e) {
+            return;
+          }
+          if (newUrl == null) {
+            LOG.warn("redirect filtered to null " + url);
+            return;
+          }
         } catch (MalformedURLException e) {
-          return redirectedPage;
+          LOG.warn("malformed url exception parsing redirect " + url);
+          return;
         }
+        page.putToOutlinks(new Utf8(newUrl), new Utf8());
+        page.putToMetadata(FetcherJob.REDIRECT_DISCOVERED, TableUtil.YES_VAL);
         if (newUrl == null || newUrl.equals(url)) {
           String reprUrl = URLUtil.chooseRepr(url, newUrl,
               refreshTime < FetcherJob.PERM_REFRESH_TIME);
-          WebPage newWebPage = new WebPage();
           if (reprUrl == null) {
             LOG.warn("reprUrl==null for " + url);
-            return redirectedPage;
+            return;
           } else {
             page.setReprUrl(new Utf8(reprUrl));
           }
-          page.putToMetadata(FetcherJob.REDIRECT_DISCOVERED, TableUtil.YES_VAL);
-          redirectedPage = new URLWebPage(reprUrl, newWebPage);
         }
       } else {
         page.setText(new Utf8(parse.getText()));
@@ -246,13 +255,17 @@ public class ParseUtil extends Configured {
           try {
             toUrl = normalizers.normalize(toUrl, URLNormalizers.SCOPE_OUTLINK);
             toUrl = filters.filter(toUrl);
-          } catch (final URLFilterException e) {
+          } catch (MalformedURLException e2) {
             continue;
-          }
-          catch (MalformedURLException e2){
+          } catch (URLFilterException e) {
             continue;
           }
           if (toUrl == null) {
+            continue;
+          }
+          Utf8 utf8ToUrl = new Utf8(toUrl);
+          if (page.getFromOutlinks(utf8ToUrl) != null) {
+            // skip duplicate outlinks
             continue;
           }
           String toHost;
@@ -267,7 +280,7 @@ public class ParseUtil extends Configured {
             }
           }
 
-          page.putToOutlinks(new Utf8(toUrl), new Utf8(outlinks[i].getAnchor()));
+          page.putToOutlinks(utf8ToUrl, new Utf8(outlinks[i].getAnchor()));
         }
         Utf8 fetchMark = Mark.FETCH_MARK.checkMark(page);
         if (fetchMark != null) {
@@ -275,6 +288,5 @@ public class ParseUtil extends Configured {
         }
       }
     }
-    return redirectedPage;
   }
 }
