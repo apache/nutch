@@ -25,9 +25,6 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.avro.util.Utf8;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.gora.mapreduce.GoraMapper;
 import org.apache.gora.mapreduce.GoraOutputFormat;
 import org.apache.gora.store.DataStore;
 import org.apache.hadoop.conf.Configuration;
@@ -53,6 +50,8 @@ import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.TableUtil;
 import org.apache.nutch.util.ToolUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** This class takes a flat file of URLs and adds them to the of pages to be
  * crawled.  Useful for bootstrapping the system.
@@ -186,35 +185,6 @@ public class InjectorJob extends NutchTool implements Tool {
       context.write(reversedUrl, row);
     }
   }
-  
-  public static class InjectorMapper 
-      extends GoraMapper<String, WebPage, String, WebPage> {
-    private FetchSchedule schedule;
-
-    @Override
-    public void setup(Context context) throws IOException {
-      Configuration conf = context.getConfiguration();
-      schedule = FetchScheduleFactory.getFetchSchedule(conf);
-      // scoreInjected = conf.getFloat("db.score.injected", 1.0f);
-    }
-
-    @Override
-    protected void map(String key, WebPage row, Context context)
-        throws IOException, InterruptedException {
-      if (Mark.INJECT_MARK.checkMark(row) == null) {
-        return;
-      }
-      Mark.INJECT_MARK.removeMark(row);
-      if (!row.isReadable(WebPage.Field.STATUS.getIndex())) {
-        row.setStatus(CrawlStatus.STATUS_UNFETCHED);
-        schedule.initializeSchedule(key, row);
-        // row.setScore(scoreInjected);
-      }
-
-      context.write(key, row);
-    }
-        
-  }
 
   public InjectorJob() {
 
@@ -233,10 +203,9 @@ public class InjectorJob extends NutchTool implements Tool {
     } else {
       input = new Path(path.toString());
     }
-    numJobs = 2;
+    numJobs = 1;
     currentJobNum = 0;
-    status.put(Nutch.STAT_PHASE, "convert input");
-    currentJob = new NutchJob(getConf(), "inject-p1 " + input);
+    currentJob = new NutchJob(getConf(), "inject " + input);
     FileInputFormat.addInputPath(currentJob, input);
     currentJob.setMapperClass(UrlMapper.class);
     currentJob.setMapOutputKeyClass(String.class);
@@ -249,17 +218,6 @@ public class InjectorJob extends NutchTool implements Tool {
     currentJob.setNumReduceTasks(0);
     currentJob.waitForCompletion(true);
     ToolUtil.recordJobStatus(null, currentJob, results);
-    currentJob = null;
-
-    status.put(Nutch.STAT_PHASE, "merge input with db");
-    status.put(Nutch.STAT_PROGRESS, 0.5f);
-    currentJobNum = 1;
-    currentJob = new NutchJob(getConf(), "inject-p2 " + input);
-    StorageUtils.initMapperJob(currentJob, FIELDS, String.class,
-        WebPage.class, InjectorMapper.class);
-    currentJob.setNumReduceTasks(0);
-    ToolUtil.recordJobStatus(null, currentJob, results);
-    status.put(Nutch.STAT_PROGRESS, 1.0f);
     return results;
   }
 
