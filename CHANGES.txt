@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.1 - Current Development
 
+* NUTCH-1456 Updater not setting batchId in markers correctly. (Alexander Kingson via ferdy)
+
 * NUTCH-1459 Remove dead code (phase2) from InjectorJob (ferdy)
 
 * NUTCH-1431 Introduce link 'distance' and add configurable max distance in the generator (ferdy)

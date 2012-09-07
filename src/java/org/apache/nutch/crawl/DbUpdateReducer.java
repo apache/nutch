@@ -192,9 +192,10 @@ extends GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
     }
     Mark.GENERATE_MARK.removeMarkIfExist(page);
     Mark.FETCH_MARK.removeMarkIfExist(page);
-    Utf8 mark = Mark.PARSE_MARK.removeMarkIfExist(page);
-    if (mark != null) {
-      Mark.UPDATEDB_MARK.putMark(page, mark);
+    Utf8 parse_mark = Mark.PARSE_MARK.checkMark(page);
+    if (parse_mark != null) {
+      Mark.UPDATEDB_MARK.putMark(page, parse_mark);
+      Mark.PARSE_MARK.removeMark(page);
     }
 
     context.write(keyUrl, page);
