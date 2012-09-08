@@ -18,6 +18,7 @@ package org.apache.nutch.fetcher;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
@@ -434,6 +435,7 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
     private String reprUrl;
 
     private final Context context;
+    private final boolean ignoreExternalLinks;
 
     public FetcherThread(Context context, int num) {
       this.setDaemon(true);                       // don't hang JVM on exit
@@ -446,6 +448,7 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
       this.maxCrawlDelay = conf.getInt("fetcher.max.crawl.delay", 30) * 1000;
       // backward-compatible default setting
       this.byIP = conf.getBoolean("fetcher.threads.per.host.by.ip", true);
+      this.ignoreExternalLinks = conf.getBoolean("db.ignore.external.links", false);
     }
 
     @Override
@@ -598,6 +601,16 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
       if (newUrl == null || newUrl.equals(url)) {
         return;
       }
+
+      if (ignoreExternalLinks) {
+        String toHost   = new URL(newUrl).getHost().toLowerCase();
+        String fromHost = new URL(url).getHost().toLowerCase();
+        if (toHost == null || !toHost.equals(fromHost)) {
+          // external links
+          return;
+        }
+      }
+
       page.putToOutlinks(new Utf8(newUrl), new Utf8());
       page.putToMetadata(FetcherJob.REDIRECT_DISCOVERED, TableUtil.YES_VAL);
       reprUrl = URLUtil.chooseRepr(reprUrl, newUrl, temp);
