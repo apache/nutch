@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.1 - Current Development
 
+* NUTCH-1470 Ensure test files are included for runtime testing (lewismc)
+
 * NUTCH-1162 Write JUnit tests for parse-js (lewismc)
 
 * NUTCH-1161 Write JUnit tests for microformats-reltag plugin (lewismc)
