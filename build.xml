@@ -392,11 +392,21 @@
     <copy todir="${test.build.data}">
       <fileset dir="src/testresources" includes="**/*"/>
     </copy>
+    
     <copy file="${test.src.dir}/nutch-site.xml"
           todir="${test.build.classes}"/>
 
     <copy file="${test.src.dir}/log4j.properties"
           todir="${test.build.classes}"/>
+
+    <copy file="${test.src.dir}/crawl-tests.xml"
+        todir="${test.build.classes}"/>
+        
+    <copy file="${test.src.dir}/domain-urlfilter.txt"
+        todir="${test.build.classes}"/>
+
+    <copy file="${test.src.dir}/filter-all.txt"
+        todir="${test.build.classes}"/>
 
     <junit printsummary="yes" haltonfailure="no" fork="yes" dir="${basedir}"
       errorProperty="tests.failed" failureProperty="tests.failed" maxmemory="1000m">
