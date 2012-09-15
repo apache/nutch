@@ -135,7 +135,13 @@ public class RelTagParser implements ParseFilter {
 	FIELDS.add(WebPage.Field.BASE_URL);
 	FIELDS.add(WebPage.Field.METADATA);
   }
-	
+  
+  /**
+   * Gets all the fields for a given {@link WebPage}
+   * Many datastores need to setup the mapreduce job by specifying the fields
+   * needed. All extensions that work on WebPage are able to specify what fields
+   * they need.
+   */
   @Override
   public Collection<Field> getFields() {
 	return FIELDS;

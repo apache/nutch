@@ -2,6 +2,12 @@ Nutch Change Log
 
 Release 2.1 - Current Development
 
+* NUTCH-1162 Write JUnit tests for parse-js (lewismc)
+
+* NUTCH-1161 Write JUnit tests for microformats-reltag plugin (lewismc)
+
+* NUTCH-1160 Write JUnit tests for index-basic (lewismc)
+
 * NUTCH-1456 Updater not setting batchId in markers correctly. (Alexander Kingson via ferdy)
 
 * NUTCH-1459 Remove dead code (phase2) from InjectorJob (ferdy)

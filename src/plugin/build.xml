@@ -74,6 +74,7 @@
      <ant dir="parse-tika" target="test"/>
      <ant dir="protocol-file" target="test"/>
      <ant dir="parse-html" target="test"/>
+  	 <ant dir="parse-js" target="test"/>
      <ant dir="index-anchor" target="test"/>
      <ant dir="index-basic" target="test"/>
      <ant dir="index-more" target="test"/>

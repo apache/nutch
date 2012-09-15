@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,16 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.microformats.reltag;
+package org.apache.nutch.parse.js;
 
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.parse.ParseUtil;
@@ -32,20 +34,18 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Test;
+
 import junit.framework.TestCase;
 
 /**
- * Junit test for {@link RelTagParser} based mainly John Xing's parser tests.
- * We are not concerned with actual parse text within the sample file, instead
- * we assert that the rel-tags we expect are found in the WebPage metadata.
- * To check the parser is working as expected we unwrap the ByteBuffer obtained 
- * from metadata, the same type as  * we use in expected (String). So just the 
- * other way around as we wrapped the metadata value.
+ * JUnit test case for {@link JSParseFilter} which tests 
+ * 1. That 5 outlinks are extracted from JavaScript snippets embedded in HTML
+ * 2. That X outlinks are extracted from a pure JavaScript file (this is temporarily disabled)
  * 
  * @author lewismc
- *
  */
-public class TestRelTagParser extends TestCase {
+
+public class TestJSParseFilter extends TestCase {
 
   private String fileSeparator = System.getProperty("file.separator");
 
@@ -53,47 +53,56 @@ public class TestRelTagParser extends TestCase {
   private String sampleDir = System.getProperty("test.data", ".");
 
   // Make sure sample files are copied to "test.data" as specified in
-  // ./src/plugin/microformats-reltag/build.xml during plugin compilation.
-  private String sampleFile = "microformats_reltag_test.html";
-  
-  // rel-tag's we expect to be extracted from page.getMetadata()
-  private String expectedRelTags = "Category:Specifications	Category:rel-tag	";
-  
+  // ./src/plugin/parse-js/build.xml during plugin compilation.
+  private String[] sampleFiles = { "parse_pure_js_test.js", "parse_embedded_js_test.html" };
+	  
   private Configuration conf;
-  
-  public TestRelTagParser(String name) {
-    super(name);
+	  
+  public TestJSParseFilter(String name) {
+	super(name);
   }
-  
-  @Test
-  public void testRelTagParser() throws ProtocolException, ParseException, IOException {
+	  
+  protected void setUp() {
 	conf = NutchConfiguration.create();
 	conf.set("file.content.limit", "-1");
+  }
+
+  protected void tearDown() {
+  }	
+  
+  public Outlink[] getOutlinks(String[] sampleFiles) throws ProtocolException, ParseException, IOException {
+	String urlString;
 	Parse parse;
-	String urlString = "file:" + sampleDir + fileSeparator + sampleFile;
-
-	File file = new File(sampleDir + fileSeparator + sampleFile);
+	
+	urlString = "file:" + sampleDir + fileSeparator + sampleFiles;
+	File file = new File(urlString);
 	byte[] bytes = new byte[(int) file.length()];
-	DataInputStream in = new DataInputStream(new FileInputStream(file));
-	in.readFully(bytes);
-	in.close();
-
+	DataInputStream dip = new DataInputStream(new FileInputStream(file));
+	dip.readFully(bytes);
+	dip.close();
+    
 	WebPage page = new WebPage();
 	page.setBaseUrl(new Utf8(urlString));
 	page.setContent(ByteBuffer.wrap(bytes));
-	MimeUtil mimeutil = new MimeUtil(conf);
-	String mtype = mimeutil.getMimeType(file);
-	page.setContentType(new Utf8(mtype));
+	MimeUtil mutil = new MimeUtil(conf);
+	String mime = mutil.getMimeType(file);
+	page.setContentType(new Utf8(mime));
+	
 	parse = new ParseUtil(conf).parse(urlString, page);
-    
-	//begin assertion for tests
-	ByteBuffer bbuf = page.getFromMetadata(new Utf8("Rel-Tag"));
-	byte[] byteArray = new byte[bbuf.remaining()];
-	bbuf.get(byteArray);
-	String s = new String(byteArray);
-	//bbuf.flip();
-	assertEquals("We expect 2 tab-separated rel-tag's extracted by the filter", 
-	  expectedRelTags, s);
+	return parse.getOutlinks();
   }
   
+  @Test
+  public void testOutlinkExtraction() throws ProtocolException, ParseException, IOException {
+	String[] filenames = new File(sampleDir).list();
+	for (int i = 0; i < filenames.length; i++) {
+	  if (filenames[i].endsWith(".js") == true) {
+		assertEquals("number of outlinks in .js test file should be 5", 5, getOutlinks(sampleFiles));
+		// temporarily disabled as a suitable pure JS file could not be be found.
+	    //} else {
+		//assertEquals("number of outlinks in .html file should be X", 5, getOutlinks(sampleFiles));
+	  }
+    }
+  }
+
 }

@@ -749,6 +749,8 @@
   effect.</description>
 </property>
 
+<!-- BasicIndexingfilter plugin properties -->
+
 <property>
   <name>indexer.max.title.length</name>
   <value>100</value>

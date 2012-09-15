@@ -69,6 +69,15 @@ public class JSParseFilter implements ParseFilter, Parser {
 
   private Configuration conf;
 
+  /**
+   * Scan the JavaScript looking for possible {@link Outlink}'s
+   * @param url URL of the {@link WebPage} to be parsed 
+   * @param page {@link WebPage} object relative to the URL
+   * @param parse {@link Parse} object holding parse status
+   * @param metatags within the {@link NutchDocument}
+   * @param doc The {@link NutchDocument} object
+   * @return parse the actual {@link Parse} object
+   */
   @Override
   public Parse filter(String url, WebPage page, Parse parse,
       HTMLMetaTags metaTags, DocumentFragment doc) {
@@ -104,9 +113,10 @@ public class JSParseFilter implements ParseFilter, Parser {
             if (i > 0) script.append('\n');
             script.append(nn.item(i).getNodeValue());
           }
-          // if (LOG.isInfoEnabled()) {
-          //   LOG.info("script: language=" + lang + ", text: " + script.toString());
-          // }
+          // This logging makes the output very messy.
+          //if (LOG.isInfoEnabled()) {
+          //  LOG.info("script: language=" + lang + ", text: " + script.toString());
+          //}
           Outlink[] links = getJSLinks(script.toString(), "", base);
           if (links != null && links.length > 0) outlinks.addAll(Arrays.asList(links));
           // no other children of interest here, go one level up.
@@ -141,6 +151,12 @@ public class JSParseFilter implements ParseFilter, Parser {
     }
   }
 
+  /**
+   * Set the {@link Configuration} object
+   * @param url URL of the {@link WebPage} which is parsed
+   * @param page {@link WebPage} object relative to the URL
+   * @return parse the actual {@link Parse} object
+   */
   @Override
   public Parse getParse(String url, WebPage page) {
     String type = TableUtil.toString(page.getContentType());
@@ -182,7 +198,9 @@ public class JSParseFilter implements ParseFilter, Parser {
     try {
       baseURL = new URL(base);
     } catch (Exception e) {
-      if (LOG.isErrorEnabled()) { LOG.error("getJSLinks", e); }
+      if (LOG.isErrorEnabled()) { 
+        LOG.error("error assigning base URL", e); 
+      }
     }
 
     try {
@@ -207,7 +225,9 @@ public class JSParseFilter implements ParseFilter, Parser {
         url = result.group(2);
         PatternMatcherInput input1 = new PatternMatcherInput(url);
         if (!matcher1.matches(input1, pattern1)) {
-          //if (LOG.isTraceEnabled()) { LOG.trace(" - invalid '" + url + "'"); }
+          if (LOG.isTraceEnabled()) { 
+        	LOG.trace(" - invalid '" + url + "'"); 
+          }
           continue;
         }
         if (url.startsWith("www.")) {
@@ -234,7 +254,9 @@ public class JSParseFilter implements ParseFilter, Parser {
     } catch (Exception ex) {
       // if it is a malformed URL we just throw it away and continue with
       // extraction.
-      if (LOG.isErrorEnabled()) { LOG.error("getJSLinks", ex); }
+      if (LOG.isErrorEnabled()) { 
+        LOG.error(" - invalid or malformed URL", ex); 
+      }
     }
 
     final Outlink[] retval;
@@ -249,6 +271,12 @@ public class JSParseFilter implements ParseFilter, Parser {
     return retval;
   }
 
+  /**
+   * Main method which can be run from command line with the plugin option.
+   * The method takes two arguments e.g. o.a.n.parse.js.JSParseFilter file.js baseURL  
+   * @param args
+   * @throws Exception
+   */
   public static void main(String[] args) throws Exception {
     if (args.length < 2) {
       System.err.println(JSParseFilter.class.getName() + " file.js baseURL");
@@ -267,14 +295,26 @@ public class JSParseFilter implements ParseFilter, Parser {
       System.out.println(" - " + links[i]);
   }
 
+  /**
+   * Set the {@link Configuration} object
+   */
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
 
+  /**
+   * Get the {@link Configuration} object
+   */
   public Configuration getConf() {
     return this.conf;
   }
 
+  /**
+   * Gets all the fields for a given {@link WebPage}
+   * Many datastores need to setup the mapreduce job by specifying the fields
+   * needed. All extensions that work on WebPage are able to specify what fields
+   * they need.
+   */
   @Override
   public Collection<WebPage.Field> getFields() {
     return null;

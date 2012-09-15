@@ -16,23 +16,6 @@
  ******************************************************************************/
 package org.apache.nutch.parse.tika;
 
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 // JUnit imports
 import java.io.DataInputStream;
 import java.io.File;
@@ -79,7 +62,6 @@ public class TestRTFParser extends TestCase {
     }
 
     public void testIt() throws ProtocolException, ParseException, IOException {
-        /* Temporarily disabled - see Tika-748
 
 	String urlString;
 	Parse parse;
@@ -97,22 +79,23 @@ public class TestRTFParser extends TestCase {
 	WebPage page = new WebPage();
 	page.setBaseUrl(new Utf8(urlString));
 	page.setContent(ByteBuffer.wrap(bytes));
-	MimeType mtype = mimeutil.getMimeType(file);
-	page.setContentType(new Utf8(mtype.getName()));
+	String mtype = mimeutil.getMimeType(file);
+	page.setContentType(new Utf8(mtype));
 
 	parse = new ParseUtil(conf).parse(urlString, page);
 
-	String text = parse.getText();
-	assertEquals("The quick brown fox jumps over the lazy dog", text.trim());
-
 	String title = parse.getTitle();
+	String text = parse.getText();
+	assertEquals("test rft document", title);
+	//assertEquals("The quick brown fox jumps over the lazy dog", text.trim());
+
+	
 	// HOW DO WE GET THE PARSE METADATA?
 	// Metadata meta = parse();
 
 	// METADATA extraction is not yet supported in Tika
-	// assertEquals("test rft document", title);
+	// 
 	// assertEquals("tests", meta.get(DublinCore.SUBJECT));
-        */
     }
 
 }
