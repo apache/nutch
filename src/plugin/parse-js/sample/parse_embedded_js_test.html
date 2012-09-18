@@ -1,0 +1,316 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html style="font-size: 16px;"><head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta content="Apache Forrest" name="Generator">
+<meta name="Forrest-version" content="0.9">
+<meta name="Forrest-skin-name" content="nutch">
+<title>About Apache Nutch</title>
+<link type="text/css" href="about_files/basic.css" rel="stylesheet">
+<link media="screen" type="text/css" href="about_files/screen.css" rel="stylesheet">
+<link media="print" type="text/css" href="about_files/print.css" rel="stylesheet">
+<link type="text/css" href="about_files/profile.css" rel="stylesheet">
+<script src="about_files/getBlank.js" language="javascript" type="text/javascript"></script><script src="about_files/getMenu.js" language="javascript" type="text/javascript"></script><style type="text/css">.menuitemgroup{display: none;}</style><script src="about_files/fontsize.js" language="javascript" type="text/javascript"></script>
+<link rel="shortcut icon" href="http://nutch.apache.org/images/favicon.ico">
+</head>
+<body style="font-size: 16px;" onload="init()">
+<script type="text/javascript">ndeSetTextSize();</script>
+<div id="top">
+<!--+
+    |breadtrail
+    +-->
+<div class="breadtrail">
+<a href="http://www.apache.org/">Apache</a> &gt; <a href="http://nutch.apache.org/">Nutch</a> &gt; <a href="http://nutch.apache.org/">Home</a><script src="about_files/breadcrumbs.js" language="JavaScript" type="text/javascript"></script> &gt; 
+</div>
+<!--+
+    |header
+    +-->
+<div class="header">
+<!--+
+    |start group logo
+    +-->
+<div class="grouplogo">
+<a href="http://www.apache.org/"><img class="logoImage" alt="Apache" src="about_files/feather-small.gif" title="Apache Software Foundation "></a>
+</div>
+<!--+
+    |end group logo
+    +-->
+<!--+
+    |start Project Logo
+    +-->
+<div class="projectlogo">
+<a href="http://nutch.apache.org/"><img class="logoImage" alt="Nutch" src="about_files/nutch_logo_tm.gif" title="Open Source Web Search Software"></a>
+</div>
+<!--+
+    |end Project Logo
+    +-->
+<!--+
+    |start Search
+    +-->
+<div class="searchbox">
+<script type="text/javascript">
+                      function selectProvider(form) {
+                        provider = form.elements['searchProvider'].value;
+                        if (provider == "any") {
+                          if (Math.random() > 0.5) {
+                            provider = "lucid";
+                          } else {
+                            provider = "sl";
+                          }
+                        }
+
+                        if (provider == "lucid") {
+                          form.action = "http://search.lucidimagination.com/p:nutch";
+                        } else if (provider == "sl") {
+                          form.action = "http://search-lucene.com/nutch";
+                        }
+
+                        days = 90; // cookie will be valid for 90 days
+                        date = new Date();
+                        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                        expires = "; expires=" + date.toGMTString();
+                        document.cookie = "searchProvider=" + provider + expires + "; path=/";
+                      }
+                    </script>
+<form id="searchform" action="http://search.lucidimagination.com/p:nutch" method="get" class="roundtopsmall">
+<input onfocus="getBlank (this, 'Search the site with Solr');" size="25" name="q" id="query" value="Search the site with Solr" type="text">&nbsp; 
+                    <input onclick="selectProvider(this.form)" name="Search" value="Search" type="submit">
+                      @
+                      <select id="searchProvider" name="searchProvider"><option selected="selected" value="any">select provider</option><option value="lucid">Lucid Find</option><option value="sl">Search-Lucene</option></select><script type="text/javascript">
+                        if (document.cookie.length>0) {
+                          cStart=document.cookie.indexOf("searchProvider=");
+                          if (cStart!=-1) {
+                            cStart=cStart + "searchProvider=".length;
+                            cEnd=document.cookie.indexOf(";", cStart);
+                            if (cEnd==-1) {
+                              cEnd=document.cookie.length;
+                            }
+                            provider = unescape(document.cookie.substring(cStart,cEnd));
+                            document.forms['searchform'].elements['searchProvider'].value = provider;
+                          }
+                        }
+                      </script>
+</form>
+</div>
+<!--+
+    |end search
+    +-->
+<!--+
+    |start Tabs
+    +-->
+<ul id="tabs">
+<li class="current">
+<a class="selected" href="http://nutch.apache.org/index.html">Main</a>
+</li>
+<li>
+<a class="unselected" href="http://nutch.apache.org/wiki.html">Wiki</a>
+</li>
+<li>
+<a class="unselected" href="http://issues.apache.org/jira/browse/NUTCH">Jira</a>
+</li>
+</ul>
+<!--+
+    |end Tabs
+    +-->
+</div>
+</div>
+<div id="main">
+<div id="publishedStrip">
+<!--+
+    |start Subtabs
+    +-->
+<div id="level2tabs"></div>
+<!--+
+    |end Endtabs
+    +-->
+<script type="text/javascript"><!--
+document.write("Last Published: " + document.lastModified);
+//  --></script>Last Published: 07/10/2012 15:39:10
+</div>
+<!--+
+    |breadtrail
+    +-->
+<div class="breadtrail">
+
+             &nbsp;
+           </div>
+<!--+
+    |start Menu, mainarea
+    +-->
+<!--+
+    |start Menu
+    +-->
+<div id="menu">
+<div onclick="SwitchMenu('menu_selected_1.1', 'skin/')" id="menu_selected_1.1Title" class="menutitle" style="background-image: url('skin/images/chapter_open.gif');">Project</div>
+<div id="menu_selected_1.1" class="selectedmenuitemgroup" style="display: block;">
+<div class="menuitem">
+<a href="http://nutch.apache.org/index.html">News</a>
+</div>
+<div class="menupage">
+<div class="menupagetitle">About</div>
+</div>
+<div class="menuitem">
+<a href="http://nutch.apache.org/credits.html">Credits</a>
+</div>
+<div class="menuitem">
+<a href="http://www.apache.org/foundation/thanks.html">Thanks</a>
+</div>
+<div class="menuitem">
+<a href="http://www.cafepress.com/nutch/">Buy Stuff</a>
+</div>
+<div class="menuitem">
+<a href="http://www.apache.org/foundation/sponsorship.html">Sponsorship</a>
+</div>
+<div class="menuitem">
+<a href="http://www.apache.org/licenses/">License</a>
+</div>
+<div class="menuitem">
+<a href="http://www.apache.org/security/">Security</a>
+</div>
+</div>
+<div onclick="SwitchMenu('menu_1.2', 'skin/')" id="menu_1.2Title" class="menutitle">Documentation</div>
+<div id="menu_1.2" class="menuitemgroup">
+<div class="menuitem">
+<a href="http://nutch.apache.org/faq.html">FAQ</a>
+</div>
+<div class="menuitem">
+<a href="http://nutch.apache.org/wiki.html">Wiki</a>
+</div>
+<div class="menuitem">
+<a href="http://nutch.apache.org/tutorial.html">Tutorial</a>
+</div>
+<div class="menuitem">
+<a href="http://nutch.apache.org/bot.html">Robot     </a>
+</div>
+<div class="menuitem">
+<a href="http://nutch.apache.org/apidocs-2.0/index.html">API Docs (2.0)</a>
+</div>
+<div class="menuitem">
+<a href="http://nutch.apache.org/apidocs-1.5/index.html">API Docs (1.5.1)</a>
+</div>
+<div class="menuitem">
+<a href="https://builds.apache.org/job/Nutch-trunk/javadoc/">API Docs (trunk-nightly)</a>
+</div>
+<div class="menuitem">
+<a href="https://builds.apache.org/job/Nutch-nutchgora/javadoc/">API Docs (2.0-Dev-nightly)</a>
+</div>
+</div>
+<div onclick="SwitchMenu('menu_1.3', 'skin/')" id="menu_1.3Title" class="menutitle">Resources</div>
+<div id="menu_1.3" class="menuitemgroup">
+<div class="menuitem">
+<a href="http://www.apache.org/dyn/closer.cgi/nutch/">Download</a>
+</div>
+<div class="menuitem">
+<a href="http://nutch.apache.org/nightly.html">Nightly builds</a>
+</div>
+<div class="menuitem">
+<a href="http://nutch.apache.org/sonar.html">Sonar Analysis</a>
+</div>
+<div class="menuitem">
+<a href="http://nutch.apache.org/mailing_lists.html">Mailing Lists</a>
+</div>
+<div class="menuitem">
+<a href="http://nutch.apache.org/issue_tracking.html">Issue Tracking</a>
+</div>
+<div class="menuitem">
+<a href="http://nutch.apache.org/version_control.html">Version Control</a>
+</div>
+<div class="menuitem">
+<a href="http://nutch.apache.org/old_downloads.html">Older Downloads</a>
+</div>
+</div>
+<div onclick="SwitchMenu('menu_1.4', 'skin/')" id="menu_1.4Title" class="menutitle">Related Projects</div>
+<div id="menu_1.4" class="menuitemgroup">
+<div class="menuitem">
+<a href="http://lucene.apache.org/java/">Lucene</a>
+</div>
+<div class="menuitem">
+<a href="http://hadoop.apache.org/">Hadoop</a>
+</div>
+<div class="menuitem">
+<a href="http://lucene.apache.org/solr/">Solr</a>
+</div>
+<div class="menuitem">
+<a href="http://tika.apache.org/">Tika</a>
+</div>
+<div class="menuitem">
+<a href="http://gora.apache.org/">Gora</a>
+</div>
+</div>
+<div id="credit"></div>
+<div id="roundbottom">
+<img style="display: none" class="corner" alt="" src="about_files/rc-b-l-15-1body-2menu-3menu.png" height="15" width="15"></div>
+<!--+
+  |alternative credits
+  +-->
+<div id="credit2"></div>
+</div>
+<!--+
+    |end Menu
+    +-->
+<!--+
+    |start content
+    +-->
+<div id="content">
+<div title="Portable Document Format" class="pdflink">
+<a class="dida" href="http://nutch.apache.org/about.pdf"><img alt="PDF -icon" src="about_files/pdfdoc.gif" class="skin"><br>
+        PDF</a>
+</div>
+<h1>About Apache Nutch</h1>
+<div id="minitoc-area">
+<ul class="minitoc">
+<li>
+<a href="#Overview">Overview</a>
+</li>
+</ul>
+</div> 
+
+    
+<a name="N1000E"></a><a name="Overview"></a>
+<h2 class="h3">Overview</h2>
+<div class="section">
+<p>Apache Nutch is an open source web-search
+      software project.  Stemming from <a href="http://lucene.apache.org/java/">Apache Lucene</a>, it now builds 
+      on <a href="http://lucene.apache.org/solr/">Apache Solr</a> adding web-specifics, such as a crawler, 
+      a link-graph database and parsing support handled by <a href="http://tika.apache.org/">Apache Tika</a>
+      for HTML and and array other document formats.</p>
+<p>Apache Nutch can run on a single machine, but gains a lot of its
+      strength from running in a <a href="http://hadoop.apache.org/">Hadoop cluster</a>
+</p>
+<p>The system can be enhanced (eg other document formats can be 
+      parsed) using a highly flexible, easily extensible and thoroughly maintained
+       plugin infrastructure.</p>
+<p>For more information about Apache Nutch, please see the <a href="http://wiki.apache.org/nutch/">Nutch wiki.</a>
+</p>
+</div>
+
+  
+</div>
+<!--+
+    |end content
+    +-->
+<div class="clearboth">&nbsp;</div>
+</div>
+<div id="footer">
+<!--+
+    |start bottomstrip
+    +-->
+<div class="lastmodified">
+<script type="text/javascript"><!--
+document.write("Last Published: " + document.lastModified);
+//  --></script>Last Published: 07/10/2012 15:39:10
+</div>
+<div class="copyright">
+        Copyright ©
+         2005-2011 <a href="http://www.apache.org/licenses/">The Apache 
+Software Foundation.  
+Apache Nutch, Nutch, Apache, the Apache feather logo, and the Apache 
+Nutch project logo are trademarks of The Apache Software Foundation.
+  </a>
+</div>
+<!--+
+    |end bottomstrip
+    +-->
+</div>
+
+
+</body></html>
