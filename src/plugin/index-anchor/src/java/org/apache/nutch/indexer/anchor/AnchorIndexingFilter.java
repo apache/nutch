@@ -16,10 +16,8 @@
  */
 package org.apache.nutch.indexer.anchor;
 
-import java.util.WeakHashMap;
+import java.util.HashSet;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -28,6 +26,8 @@ import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.parse.Parse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Indexing filter that indexes all inbound anchor text for a document. 
@@ -56,19 +56,19 @@ public class AnchorIndexingFilter
     String[] anchors = (inlinks != null ? inlinks.getAnchors()
       : new String[0]);
 
-    // https://issues.apache.org/jira/browse/NUTCH-1037
-    WeakHashMap<String,Integer> map = new WeakHashMap<String,Integer>();
+    HashSet<String> set = null;
 
     for (int i = 0; i < anchors.length; i++) {
       if (deduplicate) {
+        if (set == null) set = new HashSet<String>();
         String lcAnchor = anchors[i].toLowerCase();
 
         // Check if already processed the current anchor
-        if (!map.containsKey(lcAnchor)) {
+        if (!set.contains(lcAnchor)) {
           doc.add("anchor", anchors[i]);
 
           // Add to map
-          map.put(lcAnchor, 1);
+          set.add(lcAnchor);
         }
       } else {
         doc.add("anchor", anchors[i]);
