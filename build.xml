@@ -698,14 +698,13 @@
   <!-- ================================================================== -->
   <target name="tar-src" depends="package-src" description="--> generate src.tar.gz distribution package">
     <tar compression="gzip" longfile="gnu"
-      destfile="${src.dist.version.dir}.tar.gz" basedir="${src.dist.version.dir}">
-      <tarfileset dir="${dist.dir}" mode="664">
-	<exclude name="${src.dist.version.dir}/bin/*" />
-	<exclude name="${src.dist.version.dir}/runtime/*" />
-        <include name="${src.dist.version.dir}/**" />
+      destfile="${src.dist.version.dir}.tar.gz">
+      <tarfileset dir="${src.dist.version.dir}" mode="664" prefix="${final.name}">
+        <exclude name="src/bin/*" />
+        <include name="**" />
       </tarfileset>
-      <tarfileset dir="${dist.dir}" mode="755">
-        <include name="${src.dist.version.dir}/bin/*" />
+      <tarfileset dir="${src.dist.version.dir}" mode="755" prefix="${final.name}">
+        <include name="src/bin/*" />
       </tarfileset>
     </tar>
   </target>
@@ -715,13 +714,13 @@
   <!-- ================================================================== -->
   <target name="tar-bin" depends="package-bin" description="--> generate bin.tar.gz distribution package">
     <tar compression="gzip" longfile="gnu"
-      destfile="${bin.dist.version.dir}.tar.gz" basedir="${bin.dist.version.dir}">
-      <tarfileset dir="${dist.dir}" mode="664">
-	<exclude name="${bin.dist.version.dir}/bin/*" />
-        <include name="${bin.dist.version.dir}/**" />
+      destfile="${bin.dist.version.dir}.tar.gz">
+      <tarfileset dir="${bin.dist.version.dir}" mode="664" prefix="${final.name}">
+        <exclude name="bin/*" />
+        <include name="**" />
       </tarfileset>
-      <tarfileset dir="${dist.dir}" mode="755">
-        <include name="${bin.dist.version.dir}/bin/*" />
+      <tarfileset dir="${bin.dist.version.dir}" mode="755" prefix="${final.name}">
+        <include name="bin/*" />
       </tarfileset>
     </tar>
   </target>
@@ -731,14 +730,13 @@
   <!-- ================================================================== -->
   <target name="zip-src" depends="package-src" description="--> generate src.zip distribution package">
    <zip compress="true" casesensitive="yes" 
-     destfile="${src.dist.version.dir}.zip" basedir="${src.dist.version.dir}">
-   <zipfileset dir="${dist.dir}" filemode="664">
-       <exclude name="${src.dist.version.dir}/bin/*" />
-       <exclude name="${src.dist.version.dir}/runtime/*" />
-       <include name="${src.dist.version.dir}/**" />
+     destfile="${src.dist.version.dir}.zip">
+   <zipfileset dir="${src.dist.version.dir}" filemode="664" prefix="${final.name}">
+       <exclude name="src/bin/*" />
+       <include name="**" />
    </zipfileset>
-   <zipfileset dir="${dist.dir}" filemode="755">
-       <include name="${src.dist.version.dir}/bin/*" />
+   <zipfileset dir="${src.dist.version.dir}" filemode="755" prefix="${final.name}">
+       <include name="src/bin/*" />
    </zipfileset>
    </zip>
   </target>
@@ -746,15 +744,15 @@
   <!-- ================================================================== -->
   <!-- Make bin release zip                                               -->
   <!-- ================================================================== -->
-  <target name="zip-bin" depends="package-bin" description="--> generate src.zip distribution package">
+  <target name="zip-bin" depends="package-bin" description="--> generate bin.zip distribution package">
    <zip compress="true" casesensitive="yes" 
-     destfile="${bin.dist.version.dir}.zip" basedir="${bin.dist.version.dir}">
-   <zipfileset dir="${dist.dir}" filemode="664">
-       <exclude name="${bin.dist.version.dir}/bin/*" />
-       <include name="${bin.dist.version.dir}/**" />
+     destfile="${bin.dist.version.dir}.zip">
+   <zipfileset dir="${bin.dist.version.dir}" filemode="664" prefix="${final.name}">
+       <exclude name="bin/*" />
+       <include name="**" />
    </zipfileset>
-   <zipfileset dir="${dist.dir}" filemode="755">
-       <include name="${bin.dist.version.dir}/bin/*" />
+   <zipfileset dir="${bin.dist.version.dir}" filemode="755" prefix="${final.name}">
+       <include name="bin/*" />
    </zipfileset>
    </zip>
   </target>

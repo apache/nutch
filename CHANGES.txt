@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk) Current Development:
 
+* NUTCH-1415 release packages to contain top level folder apache-nutch-x.x (snagel)
+
 * NUTCH-1441 AnchorIndexingFilter should use plain HashSet (ferdy via lewismc)
 
 * NUTCH-1470 Ensure test files are included for runtime testing (lewismc)
