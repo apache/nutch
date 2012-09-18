@@ -3,6 +3,8 @@ Nutch Change Log
 Release 2.1 (19/09/2012) ddmmyyyy
 Full Jira Report - https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=10680&version=12321040
 
+* NUTCH-1415 release packages to contain top level folder apache-nutch-x.x (snagel)
+
 * NUTCH-1432 property storage.schema does not work anymore, should be storage.schema.webpage and storage.schema.host (lewismc)
 
 * NUTCH-1468 Redirects that are external links not adhering to db.ignore.external.links (Matt MacDonald via ferdy)

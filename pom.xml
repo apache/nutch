@@ -22,7 +22,7 @@
   <groupId>org.apache.nutch</groupId>
   <artifactId>nutch</artifactId>
   <packaging>jar</packaging>
-  <version>2.0</version>
+  <version>2.1</version>
   <name>Apache Nutch</name>
   <url>http://nutch.apache.org</url>
   <licenses>
@@ -109,6 +109,12 @@
         </build>
         <dependencies>
                 <dependency>
+                        <groupId>org.elasticsearch</groupId>
+                        <artifactId>elasticsearch</artifactId>
+                        <version>0.19.4</version>
+                        <optional>true</optional>
+                </dependency>
+                <dependency>
                         <groupId>org.apache.solr</groupId>
                         <artifactId>solr-solrj</artifactId>
                         <version>3.4.0</version>
@@ -165,7 +171,7 @@
                 <dependency>
                         <groupId>org.apache.gora</groupId>
                         <artifactId>gora-core</artifactId>
-                        <version>0.2</version>
+                        <version>0.2.1</version>
                         <optional>true</optional>
                 </dependency>
                 <dependency>
