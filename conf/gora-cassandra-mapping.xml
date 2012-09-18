@@ -22,7 +22,7 @@
         <family name="f"/>
         <family name="sc" type="super"/>
     </keyspace>
-    <class keyClass="java.lang.String" name="org.apache.nutch.storage.WebPage">
+    <class keyClass="java.lang.String" name="org.apache.nutch.storage.WebPage" keyspace="webpage">
         
         <!-- fetch fields -->
         <field name="baseUrl" family="f" qualifier="bas"/>
