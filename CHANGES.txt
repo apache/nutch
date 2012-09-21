@@ -35,7 +35,7 @@ Full Jira Report - https://issues.apache.org/jira/secure/ReleaseNote.jspa?projec
 
 * NUTCH-1442 indexingfilter.order is property is misread in code (ferdy via lewismc)
 
-* NUTCH-1450 Upgrade to gora deps to 0.2.1 (lewismc)
+* NUTCH-1450 Upgrade to gora deps to 0.2.1 except gora-cassandra (lewismc)
 
 * NUTCH-1159 Write JUnit test for index-anchor (ferdy + lewismc)
 

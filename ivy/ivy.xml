@@ -119,7 +119,7 @@
 
     <!-- Uncomment this to use Cassandra as Gora backend. -->
     <!-- 
-    <dependency org="org.apache.gora" name="gora-cassandra" rev="0.2.1" conf="*->default" />
+    <dependency org="org.apache.gora" name="gora-cassandra" rev="0.2" conf="*->default" />
     -->
 
     <!--global exclusion -->
