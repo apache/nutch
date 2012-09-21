@@ -1,6 +1,11 @@
 Nutch Change Log
 
-Release 2.1 - Current Development
+Release 2.2 - Current Development
+
+* NUTCH-
+
+Release 2.1 (19/09/2012) ddmmyyyy
+Full Jira Report - https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=10680&version=12321040
 
 * NUTCH-1415 release packages to contain top level folder apache-nutch-x.x (snagel)
 
@@ -34,7 +39,7 @@ Release 2.1 - Current Development
 
 * NUTCH-1442 indexingfilter.order is property is misread in code (ferdy via lewismc)
 
-* NUTCH-1450 Upgrade to gora deps to 0.2.1 (lewismc)
+* NUTCH-1450 Upgrade to gora deps to 0.2.1 except gora-cassandra (lewismc)
 
 * NUTCH-1159 Write JUnit test for index-anchor (ferdy + lewismc)
 
