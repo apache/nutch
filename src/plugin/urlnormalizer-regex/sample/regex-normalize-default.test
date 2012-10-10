@@ -11,8 +11,13 @@ http://www.foo.com/foo.html;jsessionid=1E6FEC0D14D044541DD84D2D013D29ED http://w
 http://www.foo.com/foo.html?param=1&another=2;jsessionid=1E6FEC0D14D044541DD84D2D013D29ED http://www.foo.com/foo.html?param=1&another=2
 http://www.foo.com/foo.html;jsessionid=1E6FEC0D14D044541DD84D2D013D29ED?param=1&another=2 http://www.foo.com/foo.html?param=1&another=2
 http://www.foo.com/foo.php?&x=1&sid=xyz&something=1 http://www.foo.com/foo.php?x=1&something=1
-# but NewsId is not a session id (NUTCH-706, NUTCH-1328)
+http://www.foo.com/foo.html?_sessionID=824A6C0A13a7e11205wxN28F44E3 http://www.foo.com/foo.html
+http://www.foo.com/foo.php?_sessionid=qmyrcedt&outputformat=html&path=/3_images/foo http://www.foo.com/foo.php?outputformat=html&path=/3_images/foo
+http://www.foo.com/foo.php?_pid=2&_spid=0&lang=en&_sessionid=e36902d5bb2d0d922fc24b43 http://www.foo.com/foo.php?_pid=2&_spid=0&lang=en
+http://www.foo.com/foo.php?app=content&content=overview&lang=en&_sid=587fba8f825b05844526519fdb7d75c8&b=35&m=47 http://www.foo.com/foo.php?app=content&content=overview&lang=en&b=35&m=47
+# but NewsId (and similar) is not a session id (NUTCH-706, NUTCH-1328)
 http://www.foo.com/fa/newsdetail.aspx?NewsID=1567539 http://www.foo.com/fa/newsdetail.aspx?NewsID=1567539
+http://www.foo.com/home.cfm?language=en&country=uk&addressid=250646&pagingpos=0 http://www.foo.com/home.cfm?language=en&country=uk&addressid=250646&pagingpos=0
 
 # test removal default pages
 http://www.foo.com/home/index.html http://www.foo.com/home/
