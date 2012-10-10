@@ -2,7 +2,7 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
-* NUTCH-
+* NUTCH-706 Url regex normalizer: pattern for session id removal not to match "newsId" (Meghna Kukreja via snagel)
 
 Release 2.1 (19/09/2012) ddmmyyyy
 Full Jira Report - https://issues.apache.org/jira/secure/ReleaseNote.jspa?projectId=10680&version=12321040
