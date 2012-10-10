@@ -23,14 +23,12 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ProtocolException;
 
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
 import org.apache.hadoop.io.Text;
-import org.apache.nutch.crawl.CrawlDatum;
 
 import junit.framework.TestCase;
 

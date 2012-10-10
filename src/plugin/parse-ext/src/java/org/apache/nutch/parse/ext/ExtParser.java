@@ -18,12 +18,8 @@
 package org.apache.nutch.parse.ext;
 
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.parse.ParseResult;
-import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.ParseData;
-import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.OutlinkExtractor;
 

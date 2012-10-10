@@ -20,7 +20,6 @@ package org.apache.nutch.parse.swf;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 
-import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.Protocol;
