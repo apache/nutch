@@ -29,7 +29,7 @@
 
 <!-- removes session ids from urls (such as jsessionid and PHPSESSID) -->
 <regex>
-  <pattern>([;_]?((?i)l|j|bv_)?((?i)sid|phpsessid|sessionid)=.*?)(\?|&amp;|#|$)</pattern>
+  <pattern>([;_]?\b((?i)l|j|bv_)?((?i)sid|phpsessid|sessionid)=.*?)(\?|&amp;|#|$)</pattern>
   <substitution>$4</substitution>
 </regex>
 

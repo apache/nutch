@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk) Current Development:
 
+* NUTCH-706 Url regex normalizer: pattern for session id removal not to match "newsId" (Meghna Kukreja via snagel)
+
 * NUTCH-1415 release packages to contain top level folder apache-nutch-x.x (snagel)
 
 * NUTCH-1441 AnchorIndexingFilter should use plain HashSet (ferdy via lewismc)
