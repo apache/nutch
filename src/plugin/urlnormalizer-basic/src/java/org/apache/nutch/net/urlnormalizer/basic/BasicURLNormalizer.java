@@ -104,7 +104,7 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
         if (!urlString.startsWith(protocol))        // protocol was lowercased
             changed = true;
 
-        if ("http".equals(protocol) || "ftp".equals(protocol)) {
+        if ("http".equals(protocol) || "https".equals(protocol) || "ftp".equals(protocol)) {
 
             if (host != null) {
                 String newHost = host.toLowerCase();    // lowercase host

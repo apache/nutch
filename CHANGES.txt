@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
+* NUTCH-1344 BasicURLNormalizer to normalize https same as http
+
 * NUTCH-706 Url regex normalizer: pattern for session id removal not to match "newsId" (Meghna Kukreja via snagel)
 
 Release 2.1 (19/09/2012) ddmmyyyy
