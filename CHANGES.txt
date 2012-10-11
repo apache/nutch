@@ -2,7 +2,9 @@ Nutch Change Log
 
 (trunk) Current Development:
 
-* NUTCH-1344 BasicURLNormalizer to normalize https same as http
+* NUTCH-1252 SegmentReader -get shows wrong data (snagel)
+
+* NUTCH-1344 BasicURLNormalizer to normalize https same as http (snagel)
 
 * NUTCH-706 Url regex normalizer: pattern for session id removal not to match "newsId" (Meghna Kukreja via snagel)
 

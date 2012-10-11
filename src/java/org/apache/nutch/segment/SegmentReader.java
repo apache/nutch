@@ -386,8 +386,15 @@ public class SegmentReader extends Configured implements
     Writable value = (Writable)valueClass.newInstance();
     // we don't know the partitioning schema
     for (int i = 0; i < readers.length; i++) {
-      if (readers[i].get(key, value) != null)
+      if (readers[i].get(key, value) != null) {
         res.add(value);
+        value = (Writable)valueClass.newInstance();
+        Text aKey = (Text) keyClass.newInstance();
+        while (readers[i].next(aKey, value) && aKey.equals(key)) {
+          res.add(value);
+          value = (Writable)valueClass.newInstance();
+        }
+      }
       readers[i].close();
     }
     return res;
@@ -404,8 +411,10 @@ public class SegmentReader extends Configured implements
     Writable value = (Writable)valueClass.newInstance();
     for (int i = 0; i < readers.length; i++) {
       while (readers[i].next(aKey, value)) {
-        if (aKey.equals(key))
+        if (aKey.equals(key)) {
           res.add(value);
+          value = (Writable)valueClass.newInstance();
+        }
       }
       readers[i].close();
     }
