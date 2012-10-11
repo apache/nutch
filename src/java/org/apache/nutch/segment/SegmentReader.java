@@ -488,7 +488,7 @@ public class SegmentReader extends Configured implements
       stats.fetched = cnt;
     }
     Path parseDir = new Path(segment, ParseData.DIR_NAME);
-    if (fs.exists(fetchDir) && fs.getFileStatus(fetchDir).isDir()) {
+    if (fs.exists(parseDir) && fs.getFileStatus(parseDir).isDir()) {
       cnt = 0L;
       long errors = 0L;
       ParseData value = new ParseData();

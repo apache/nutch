@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk) Current Development:
 
+* NUTCH-1476 SegmentReader getStats should set parsed = -1 if no parsing took place (snagel)
+
 * NUTCH-1252 SegmentReader -get shows wrong data (snagel)
 
 * NUTCH-1344 BasicURLNormalizer to normalize https same as http (snagel)
