@@ -84,9 +84,6 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     Content content = protocol.getProtocolOutput(new Text(url), datum)
         .getContent();
 
-    // store the guessed content type in the crawldatum
-    if (content.getContentType() != null) datum.getMetaData().put(new Text(Metadata.CONTENT_TYPE), new Text(content.getContentType()));
-
     if (content == null) {
       System.out.println("No content for " + url);
       return 0;
@@ -97,6 +94,9 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     if (contentType == null) {
       return -1;
     }
+
+    // store the guessed content type in the crawldatum
+    datum.getMetaData().put(new Text(Metadata.CONTENT_TYPE), new Text(contentType));
 
     if (LOG.isInfoEnabled()) {
       LOG.info("parsing: " + url);
@@ -111,11 +111,16 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     Inlinks inlinks = null;
     Parse parse = parseResult.get(urlText);
     try {
-      indexers.filter(doc, parse, urlText, datum, inlinks);
+      doc = indexers.filter(doc, parse, urlText, datum, inlinks);
     } catch (IndexingException e) {
       e.printStackTrace();
     }
 
+    if (doc == null) {
+      System.out.println("Document discarded by indexing filter");
+      return 0;
+    }
+    
     for (String fname : doc.getFieldNames()) {
       List<Object> values = doc.getField(fname).getValues();
       if (values != null) {
