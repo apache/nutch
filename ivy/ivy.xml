@@ -58,10 +58,8 @@
     </dependency>
 
     <dependency org="com.ibm.icu" name="icu4j" rev="4.0.1" />
-    <dependency org="org.apache.tika" name="tika-core" rev="1.1" />
-    <!-- 
-    <dependency org="org.apache.tika" name="tika-parsers" rev="0.10"/> 
-    -->
+    <dependency org="org.apache.tika" name="tika-core" rev="1.2" />
+    <dependency org="com.googlecode.juniversalchardet" name="juniversalchardet" rev="1.0.3"/>
 
     <dependency org="org.apache.gora" name="gora-core" rev="0.2.1" conf="*->compile"/>
 
