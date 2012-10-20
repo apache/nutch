@@ -1,0 +1,161 @@
+#!/bin/bash
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# 
+# The Crawl command script : crawl <seedDir> <crawlId> <solrURL> <numberOfRounds>
+#
+# 
+# UNLIKE THE NUTCH ALL-IN-ONE-CRAWL COMMAND THIS SCRIPT DOES THE LINK INVERSION AND 
+# INDEXING FOR EACH SEGMENT
+
+SEEDDIR="$1"
+CRAWL_ID="$2"
+SOLRURL="$3"
+LIMIT="$4"
+
+if [ "$SEEDDIR" = "" ]; then
+    echo "Missing seedDir : crawl <seedDir> <crawlID> <solrURL> <numberOfRounds>"
+    exit -1;
+fi
+
+if [ "$CRAWL_ID" = "" ]; then
+    echo "Missing crawlDir : crawl <seedDir> <crawlID> <solrURL> <numberOfRounds>"
+    exit -1;
+fi
+
+if [ "$SOLRURL" = "" ]; then
+    echo "Missing SOLRURL : crawl <seedDir> <crawlID> <solrURL> <numberOfRounds>"
+    exit -1;
+fi
+
+if [ "$LIMIT" = "" ]; then
+    echo "Missing numberOfRounds : crawl <seedDir> <crawlID> <solrURL> <numberOfRounds>"
+    exit -1;
+fi
+
+#############################################
+# MODIFY THE PARAMETERS BELOW TO YOUR NEEDS #
+#############################################
+
+# set the number of slaves nodes
+numSlaves=1
+
+# and the total number of available tasks
+# sets Hadoop parameter "mapred.reduce.tasks"
+numTasks=`expr $numSlaves \* 2`
+
+# number of urls to fetch in one iteration
+# 250K per task?
+sizeFetchlist=`expr $numSlaves \* 50000`
+
+# time limit for feching
+timeLimitFetch=180
+
+#############################################
+
+# determines whether mode based on presence of job file
+
+mode=local
+if [ -f ../nutch-*.job ]; then
+    mode=distributed
+fi
+
+bin=`dirname "$0"`
+bin=`cd "$bin"; pwd`
+
+# note that some of the options listed here could be set in the 
+# corresponding hadoop site xml param file 
+commonOptions="-D mapred.reduce.tasks=$numTasks -D mapred.child.java.opts=-Xmx1000m -D mapred.reduce.tasks.speculative.execution=false -D mapred.map.tasks.speculative.execution=false -D mapred.compress.map.output=true"
+
+ # check that hadoop can be found on the path 
+if [ $mode = "distributed" ]; then
+ if [ $(which hadoop | wc -l ) -eq 0 ]; then
+    echo "Can't find Hadoop executable. Add HADOOP_HOME/bin to the path or run in local mode."
+    exit -1;
+ fi
+fi
+
+# initial injection
+$bin/nutch inject $SEEDDIR -crawlId $CRAWL_ID
+
+if [ $? -ne 0 ] 
+  then exit $? 
+fi
+
+
+# main loop : rounds of generate - fetch - parse - update
+for ((a=1; a <= LIMIT ; a++))
+do
+  if [ -e ".STOP" ]
+  then
+   echo "STOP file found - escaping loop"
+   break
+  fi
+
+  echo `date` ": Iteration $a of $LIMIT"
+
+  echo "Generating a new fetchlist"
+  $bin/nutch generate $commonOptions $CRAWL_ID/crawldb $CRAWL_ID/segments -topN $sizeFetchlist -numFetchers $numSlaves -noFilter
+  
+  if [ $? -ne 0 ] 
+  then exit $? 
+  fi
+
+  # TODO capture the batchID
+  echo "Fetching : "
+  $bin/nutch fetch $commonOptions -D fetcher.timelimit.mins=$timeLimitFetch -all -crawlId $CRAWL_ID -threads 50
+
+  if [ $? -ne 0 ] 
+  then exit $? 
+  fi
+
+  # parsing the segment
+  echo "Parsing : "
+  # enable the skipping of records for the parsing so that a dodgy document 
+  # so that it does not fail the full task
+  skipRecordsOptions="-D mapred.skip.attempts.to.start.skipping=2 -D mapred.skip.map.max.skip.records=1"
+  $bin/nutch parse $commonOptions $skipRecordsOptions -all -crawlId $CRAWL_ID
+
+  if [ $? -ne 0 ] 
+  then exit $? 
+  fi
+
+  # updatedb with this segment
+  echo "CrawlDB update"
+  $bin/nutch updatedb $commonOptions
+
+  if [ $? -ne 0 ] 
+  then exit $? 
+  fi
+
+  echo "Indexing $CRAWL_ID on SOLR index -> $SOLRURL"
+  $bin/nutch solrindex $commonOptions $SOLRURL -all -crawlId $CRAWL_ID
+  
+  if [ $? -ne 0 ] 
+   then exit $? 
+  fi
+
+  echo "SOLR dedup -> $SOLRURL"
+  $bin/nutch solrdedup $commonOptions $SOLRURL
+  
+  if [ $? -ne 0 ] 
+   then exit $? 
+  fi
+
+done
+
+exit 0
+
