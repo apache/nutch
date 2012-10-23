@@ -8,7 +8,7 @@ Release 2.2 - Current Development
 
 * NUTCH-874 Make sure all plugins in src/plugin are compatible with Nutch 2.0 and Gora (part 1) (Kiran Chitturi via lewismc)
 
-* NUTCH-1344 BasicURLNormalizer to normalize https same as http
+* NUTCH-1344 BasicURLNormalizer to normalize https same as http (snagel)
 
 * NUTCH-706 Url regex normalizer: pattern for session id removal not to match "newsId" (Meghna Kukreja via snagel)
 
