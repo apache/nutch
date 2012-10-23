@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
+* NUTCH-1421 RegexURLNormalizer to only skip rules with invalid patterns (snagel)
+
 * NUTCH-1433 Upgrade to Tika 1.2 (jnioche)
 
 * NUTCH-1087 Deprecate crawl command and replace with example script (jnioche)
