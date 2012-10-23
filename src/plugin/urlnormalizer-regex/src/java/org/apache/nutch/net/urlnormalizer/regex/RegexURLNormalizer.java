@@ -247,7 +247,14 @@ public class RegexURLNormalizer extends Configured implements URLNormalizer {
         }
         if (patternValue != null && subValue != null) {
           Rule rule = new Rule();
-          rule.pattern = Pattern.compile(patternValue);
+          try {
+            rule.pattern = Pattern.compile(patternValue);
+          } catch (PatternSyntaxException e) {
+            if (LOG.isErrorEnabled()) {
+              LOG.error("skipped rule: " + patternValue + " -> " + subValue + " : invalid regular expression pattern: " + e);
+            }
+            continue;
+          }
           rule.substitution = subValue;
           rules.add(rule);
         }

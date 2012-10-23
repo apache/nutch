@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk) Current Development:
 
+* NUTCH-1421 RegexURLNormalizer to only skip rules with invalid patterns (snagel)
+
 * NUTCH-1341 NotModified time set to now but page not modified (markus)
 
 * NUTCH-1215 UpdateDB should not require segment as input (markus)
