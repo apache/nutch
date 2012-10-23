@@ -221,6 +221,10 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
       // set the result status and signature
       if (modified == FetchSchedule.STATUS_NOTMODIFIED) {
         result.setStatus(CrawlDatum.STATUS_DB_NOTMODIFIED);
+
+        // NUTCH-1341 The page is not modified according to its signature, let's reset lastModified as well
+        result.setModifiedTime(prevModifiedTime);
+
         if (oldSet) result.setSignature(old.getSignature());
       } else {
         switch (fetch.getStatus()) {
