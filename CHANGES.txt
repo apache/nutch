@@ -4,8 +4,6 @@ Nutch Change Log
 
 * NUTCH-1491 Strip UTF-8 non-character codepoints in title (Nathan Gass via markus)
 
-* NUTCH-1480 SolrIndexer to write to multiple server (markus)
-
 * NUTCH-1421 RegexURLNormalizer to only skip rules with invalid patterns (snagel)
 
 * NUTCH-1341 NotModified time set to now but page not modified (markus)
