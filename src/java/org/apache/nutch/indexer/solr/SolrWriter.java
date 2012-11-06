@@ -60,7 +60,7 @@ public class SolrWriter implements NutchIndexWriter {
       for (final String val : e.getValue()) {
 
         Object val2 = val;
-        if (e.getKey().equals("content")) {
+        if (e.getKey().equals("content") || e.getKey().equals("title")) {
           val2 = stripNonCharCodepoints((String)val);
         }
 
