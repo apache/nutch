@@ -37,7 +37,7 @@ import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.util.DateUtil;
 
 public class SolrWriter implements NutchIndexWriter {
-  
+
   public static final Logger LOG = LoggerFactory.getLogger(SolrWriter.class);
 
   private SolrServer solr;
@@ -55,7 +55,7 @@ public class SolrWriter implements NutchIndexWriter {
     SolrServer server = SolrUtils.getCommonsHttpSolrServer(job);
     init(server, job);
   }
-  
+
   // package protected for tests
   void init(SolrServer server, JobConf job) throws IOException {
     solr = server;
@@ -99,14 +99,14 @@ public class SolrWriter implements NutchIndexWriter {
           val2 = DateUtil.getThreadLocalDateFormat().format(val);
         }
 
-        if (e.getKey().equals("content")) {
+        if (e.getKey().equals("content") || e.getKey().equals("title")) {
           val2 = SolrUtils.stripNonCharCodepoints((String)val);
         }
 
         inputDoc.addField(solrMapping.mapKey(e.getKey()), val2, e.getValue().getWeight());
         String sCopy = solrMapping.mapCopyKey(e.getKey());
         if (sCopy != e.getKey()) {
-        	inputDoc.addField(sCopy, val);	
+        	inputDoc.addField(sCopy, val);
         }
       }
     }
