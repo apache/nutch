@@ -170,8 +170,9 @@ public class MoreIndexingFilter implements IndexingFilter {
 
     if (contentLength != null)
       // NUTCH-1010 ContentLength not trimmed
-      doc.add("contentLength", contentLength.trim());
-
+      String trimmed = contentLength.toString().trim();
+      if (!trimmed.isEmpty())
+        doc.add("contentLength", trimmed);
     return doc;
   }
 
