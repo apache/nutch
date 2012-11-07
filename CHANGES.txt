@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
+* NUTCH-1493 Error adding field 'contentLength'='' during solrindex using index-more (Nathan Gass via lewismc)
+
 * NUTCH-1491 Strip UTF-8 non-character codepoints in title (Nathan Gass via markus)
 
 * NUTCH-1421 RegexURLNormalizer to only skip rules with invalid patterns (snagel)

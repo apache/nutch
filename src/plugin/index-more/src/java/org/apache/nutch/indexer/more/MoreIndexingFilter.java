@@ -139,9 +139,12 @@ public class MoreIndexingFilter implements IndexingFilter {
   private NutchDocument addLength(NutchDocument doc, WebPage page, String url) {
     Utf8 contentLength = page.getFromHeaders(new Utf8(
         HttpHeaders.CONTENT_LENGTH));
-    if (contentLength != null)
+    if (contentLength != null) {
       // NUTCH-1010 ContentLength not trimmed
-      doc.add("contentLength", contentLength.toString().trim());
+      String trimmed = contentLength.toString().trim();
+      if (!trimmed.isEmpty())
+          doc.add("contentLength", trimmed);
+    }
 
     return doc;
   }
