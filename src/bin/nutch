@@ -215,7 +215,7 @@ CLASS=org.apache.nutch.plugin.PluginRepository
 elif [ "$COMMAND" = "nutchserver" ] ; then
 CLASS=org.apache.nutch.api.NutchServer
 elif [ "$COMMAND" = "junit" ] ; then
-  CLASSPATH=$CLASSPATH:test/classes/
+  CLASSPATH=$CLASSPATH:$NUTCH_HOME/test/classes/
   CLASS=junit.textui.TestRunner
 else
 CLASS=$COMMAND
