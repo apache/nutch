@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk) Current Development:
 
+* NUTCH-1488 bin/nutch to run junit from any directory (snagel via lewismc)
+
 * NUTCH-1493 Error adding field 'contentLength'='' during solrindex using index-more (Nathan Gass via lewismc)
 
 * NUTCH-1491 Strip UTF-8 non-character codepoints in title (Nathan Gass via markus)
