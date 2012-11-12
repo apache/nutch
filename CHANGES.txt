@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
+* NUTCH-1496 ParserJob logs skipped urls with level info (Nathan Gass via lewismc)
+
 * NUTCH-1488 bin/nutch to run junit from any directory (snagel via lewismc)
 
 * NUTCH-1493 Error adding field 'contentLength'='' during solrindex using index-more (Nathan Gass via lewismc)
