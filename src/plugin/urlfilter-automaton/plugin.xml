@@ -25,7 +25,7 @@
       <library name="urlfilter-automaton.jar">
          <export name="*"/>
       </library>
-      <library name="automaton.jar"/>
+      <library name="automaton-1.11-8.jar"/>
    </runtime>
 
    <requires>

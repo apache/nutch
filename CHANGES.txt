@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
+* NUTCH-1451 Upgrade automaton jar to 1.11-8 (lewismc)
+
 * NUTCH-1496 ParserJob logs skipped urls with level info (Nathan Gass via lewismc)
 
 * NUTCH-1488 bin/nutch to run junit from any directory (snagel via lewismc)
