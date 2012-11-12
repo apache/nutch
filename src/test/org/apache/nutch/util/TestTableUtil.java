@@ -28,6 +28,7 @@ public class TestTableUtil extends TestCase {
   String urlString5 = "http://foo.com?a=/a/b&c=0";
   String urlString5rev = "http://foo.com/?a=/a/b&c=0";
   String urlString6 = "http://foo.com";
+  String urlString7 = "file:///var/www/index.html";
 
   String reversedUrlString1 = "com.foo:http/";
   String reversedUrlString2 = "com.foo:http:8900/";
@@ -35,6 +36,7 @@ public class TestTableUtil extends TestCase {
   String reversedUrlString4 = "com.baz.bar:http:8983/to/index.html?a=b&c=d";
   String reversedUrlString5 = "com.foo:http/?a=/a/b&c=0";
   String reversedUrlString6 = "com.foo:http";
+  String reversedUrlString7 = ":file/var/www/index.html";
 
   public void testReverseUrl() throws Exception {
     assertReverse(urlString1, reversedUrlString1);
@@ -44,6 +46,7 @@ public class TestTableUtil extends TestCase {
     assertReverse(urlString5, reversedUrlString5); 
     assertReverse(urlString5, reversedUrlString5); 
     assertReverse(urlString6, reversedUrlString6); 
+    assertReverse(urlString7, reversedUrlString7);
   }
 
   public void testUnreverseUrl() throws Exception {
@@ -53,6 +56,7 @@ public class TestTableUtil extends TestCase {
     assertUnreverse(reversedUrlString4, urlString4);
     assertUnreverse(reversedUrlString5, urlString5rev);
     assertUnreverse(reversedUrlString6, urlString6);
+    assertUnreverse(reversedUrlString7, urlString7);
   }
 
   private static void assertReverse(String url, String expectedReversedUrl) throws Exception {

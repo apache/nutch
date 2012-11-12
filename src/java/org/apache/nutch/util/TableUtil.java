@@ -93,8 +93,8 @@ public class TableUtil {
       pathBegin = reversedUrl.length();
     String sub = reversedUrl.substring(0, pathBegin);
 
-    String[] splits = StringUtils.split(sub, ':'); // {<reversed host>, <port>, <protocol>}
-
+    String[] splits = StringUtils.splitPreserveAllTokens(sub, ':'); // {<reversed host>, <port>, <protocol>}
+    
     buf.append(splits[1]); // add protocol
     buf.append("://");
     reverseAppendSplits(splits[0], buf); // splits[0] is reversed
