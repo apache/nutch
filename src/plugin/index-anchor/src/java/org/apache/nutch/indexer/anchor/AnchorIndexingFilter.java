@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -30,26 +30,44 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Indexing filter that indexes all inbound anchor text for a document. 
+ * Indexing filter that offers an option to either index all inbound anchor text for 
+ * a document or deduplicate anchors. Deduplication does have it's con's, 
+ * @see {@code anchorIndexingFilter.deduplicate} in nutch-default.xml.
  */
-public class AnchorIndexingFilter
-  implements IndexingFilter {
+public class AnchorIndexingFilter implements IndexingFilter {
 
   public static final Logger LOG = LoggerFactory.getLogger(AnchorIndexingFilter.class);
   private Configuration conf;
   private boolean deduplicate = false;
 
+  /**
+   * Set the {@link Configuration} object
+   */
   public void setConf(Configuration conf) {
     this.conf = conf;
 
     deduplicate = conf.getBoolean("anchorIndexingFilter.deduplicate", false);
     LOG.info("Anchor deduplication is: " + (deduplicate ? "on" : "off"));
   }
-
+  /**
+   * Get the {@link Configuration} object
+   */
   public Configuration getConf() {
     return this.conf;
   }
 
+  /**
+   * The {@link AnchorIndexingFilter} filter object which supports boolean 
+   * configuration settings for the deduplication of anchors. 
+   * See {@code anchorIndexingFilter.deduplicate} in nutch-default.xml.
+   *  
+   * @param doc The {@link NutchDocument} object
+   * @param parse The relevant {@link Parse} object passing through the filter 
+   * @param url URL to be filtered for anchor text
+   * @param datum The {@link CrawlDatum} entry
+   * @param inlinks The {@link Inlinks} containing anchor text
+   * @return filtered NutchDocument
+   */
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum,
     Inlinks inlinks) throws IndexingException {
 
