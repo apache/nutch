@@ -27,7 +27,6 @@ import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.util.NutchConfiguration;
-import org.junit.Test;
 
 /**
  * JUnit test case which tests
@@ -39,7 +38,6 @@ import org.junit.Test;
  */
 public class TestAnchorIndexingFilter extends TestCase {
 
-  @Test
   public void testDeduplicateAnchor() throws Exception {
     Configuration conf = NutchConfiguration.create();
     conf.setBoolean("anchorIndexingFilter.deduplicate", true);
