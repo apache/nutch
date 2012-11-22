@@ -134,7 +134,9 @@ public class Injector extends Configured implements Tool {
         if (LOG.isWarnEnabled()) { LOG.warn("Skipping " +url+":"+e); }
         url = null;
       }
-      if (url != null) {                          // if it passes
+      if (url == null) {
+        reporter.getCounter("injector", "urls_filtered").increment(1);
+      } else {                                   // if it passes
         value.set(url);                           // collect it
         CrawlDatum datum = new CrawlDatum();
         datum.setStatus(CrawlDatum.STATUS_INJECTED);
@@ -166,6 +168,7 @@ public class Injector extends Configured implements Tool {
         				+ ", using default (" + e.getMessage() + ")");
         	}
         }
+        reporter.getCounter("injector", "urls_injected").increment(1);
         output.collect(value, datum);
       }
     }
@@ -275,7 +278,13 @@ public class Injector extends Configured implements Tool {
     sortJob.setOutputKeyClass(Text.class);
     sortJob.setOutputValueClass(CrawlDatum.class);
     sortJob.setLong("injector.current.time", System.currentTimeMillis());
-    JobClient.runJob(sortJob);
+    RunningJob mapJob = JobClient.runJob(sortJob);
+
+    long urlsInjected = mapJob.getCounters().findCounter("injector", "urls_injected").getValue();
+    long urlsFiltered = mapJob.getCounters().findCounter("injector", "urls_filtered").getValue();
+    LOG.info("Injector: total number of urls rejected by filters: " + urlsFiltered);
+    LOG.info("Injector: total number of urls injected after normalization and filtering: "
+        + urlsInjected);
 
     // merge with existing crawl db
     if (LOG.isInfoEnabled()) {

@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk) Current Development:
 
+* NUTCH-1370 Expose exact number of urls injected @runtime (snagel via lewismc)
+
 * NUTCH-1117 JUnit test for index-anchor (lewismc)
 
 * NUTCH-1451 Upgrade automaton jar to 1.11-8 (lewismc)
