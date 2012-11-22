@@ -2,6 +2,9 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
+* NUTCH-1370 Expose exact number of urls injected @runtime (ferdy, snagel and lewismc)
+   (includes commit for NUTCH-1471 make explicit which datastore urls are injected to)
+
 * NUTCH-1484 TableUtil unreverseURL fails on file:// URLs (Rogério Pereira Araújo via snagel)
 
 * NUTCH-1451 Upgrade automaton jar to 1.11-8 (lewismc)
