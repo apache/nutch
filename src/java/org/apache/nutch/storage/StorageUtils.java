@@ -75,9 +75,16 @@ public class StorageUtils {
     return DataStoreFactory.createDataStore(dataStoreClass,
             keyClass, persistentClass, conf, schema);
   }
-
+  
+  /**
+   * Return the Persistent Gora class used to persist Nutch Web data.
+   * 
+   * @param the Nutch configuration 
+   * @return the Gora DataStore persistent class
+   * @throws ClassNotFoundException
+   */
   @SuppressWarnings("unchecked")
-  private static <K, V extends Persistent> Class<? extends DataStore<K, V>>
+  public static <K, V extends Persistent> Class<? extends DataStore<K, V>>
   getDataStoreClass(Configuration conf)  throws ClassNotFoundException {
     return (Class<? extends DataStore<K, V>>)
       Class.forName(conf.get("storage.data.store.class",

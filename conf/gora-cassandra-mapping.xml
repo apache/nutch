@@ -55,4 +55,15 @@
         <field name="protocolStatus" family="sc" qualifier="prs"/>
     </class>
     
+    <keyspace name="host" cluster="Test Cluster" host="localhost">
+        <family name="mtdt" type="super"/>
+        <family name="il" type="super"/>
+        <family name="ol" type="super"/>
+    </keyspace>
+    <class keyClass="java.lang.String" name="org.apache.nutch.storage.Host" keyspace="host">
+        <field name="metadata" family="mtdt" qualifier="mtdt"/>
+        <field name="inlinks" family="il" qualifier="il"/>
+        <field name="outlinks" family="ol" qualifier="ol"/>
+    </class>
+    
 </gora-orm>
