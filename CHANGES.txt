@@ -1,5 +1,7 @@
 Nutch Change Log
 
+(trunk): Current Development
+
 Release 1.6 - 23/11/2012
 
 * NUTCH-1370 Expose exact number of urls injected @runtime (snagel via lewismc)
