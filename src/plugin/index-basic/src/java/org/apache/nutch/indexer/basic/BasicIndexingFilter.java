@@ -38,7 +38,6 @@ import org.apache.solr.common.util.DateUtil;
 
 /** Adds basic searchable fields to a document. The fields are:
  * host - add host as un-stored, indexed and tokenized
- * site - add site as un-stored, indexed and un-tokenized
  * url - url is both stored and indexed, so it's both searchable and returned. 
  * This is also a required field.
  * orig - also store original url as both stored and indexed
@@ -95,8 +94,6 @@ public class BasicIndexingFilter implements IndexingFilter {
     if (host != null) {
       // add host as un-stored, indexed and tokenized
       doc.add("host", host);
-      // add site as un-stored, indexed and un-tokenized
-      doc.add("site", host);
     }
 
     // url is both stored and indexed, so it's both searchable and returned

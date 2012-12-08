@@ -312,7 +312,6 @@
     <field name="host" type="url" stored="false" indexed="true"/>
     <field name="url" type="url" stored="true" indexed="true" required="true"/>
     <field name="orig" type="url" stored="true" indexed="true" />
-    <field name="site" type="string" stored="false" indexed="true"/>
     <!-- stored=true for highlighting, use term vectors  and positions for fast highlighting -->
     <field name="content" type="text_general" stored="true" indexed="true"/>
     <field name="title" type="text_general" stored="true" indexed="true"/>

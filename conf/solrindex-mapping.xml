@@ -32,7 +32,6 @@
          -->
 	<fields>
 		<field dest="content" source="content"/>
-		<field dest="site" source="site"/>
 		<field dest="title" source="title"/>
 		<field dest="host" source="host"/>
 		<field dest="segment" source="segment"/>

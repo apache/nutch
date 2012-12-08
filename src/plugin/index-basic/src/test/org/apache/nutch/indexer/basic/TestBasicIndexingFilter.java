@@ -30,7 +30,7 @@ import junit.framework.TestCase;
 
 /**
  * JUnit test case which tests
- * 1. that the host, site, url, orig, content, title, cache and tstamp fields 
+ * 1. that the host, url, orig, content, title, cache and tstamp fields 
  * are obtained by the filter.
  * 2. that configurable maximum length functionality for titles actually works. .
  * This property defaults at 100 characters @see {@code indexer.max.title.length} 
@@ -64,7 +64,6 @@ public class TestBasicIndexingFilter extends TestCase {
 	}
 	assertNotNull(doc);
 	assertTrue("check for host field ", doc.getFieldNames().contains("host"));
-	assertTrue("check for site field", doc.getFieldNames().contains("site"));
 	assertTrue("check for url field", doc.getFieldNames().contains("url"));
 	assertTrue("check for orig field", doc.getFieldNames().contains("orig"));
 	assertTrue("check for content field", doc.getFieldNames().contains("content"));
