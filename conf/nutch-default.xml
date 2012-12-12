@@ -649,6 +649,13 @@
 </property>
 
 <property>
+  <name>fetcher.queue.use.host.settings</name>
+  <value>false</value>
+  <description>Allows us to optionally enable host specific queue behavior if present.
+  </description>
+</property>
+
+<property>
   <name>fetcher.verbose</name>
   <value>false</value>
   <description>If true, fetcher will log more verbosely.</description>
