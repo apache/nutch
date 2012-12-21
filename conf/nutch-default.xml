@@ -1198,6 +1198,23 @@
   </description>
 </property>
 
+<!-- scoring-depth properties
+ Add 'scoring-depth' to the list of active plugins
+ in the parameter 'plugin.includes' in order to use it.
+ -->
+
+<property>
+  <name>scoring.depth.max</name>
+  <value>1000</value>
+  <description>Max depth value from seed allowed by default.
+  Can be overriden on a per-seed basis by specifying "_maxdepth_=VALUE"
+  as a seed metadata. This plugin adds a "_depth_" metadatum to the pages
+  to track the distance from the seed it was found from. 
+  The depth is used to prioritise URLs in the generation step so that
+  shallower pages are fetched first.
+  </description>
+</property>
+
 <!-- language-identifier plugin properties -->
 
 <property>

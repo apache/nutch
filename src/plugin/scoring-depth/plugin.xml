@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+   id="scoring-depth"
+   name="Scoring plugin for depth-limited crawling."
+   version="1.0.0"
+   provider-name="ant.com">
+
+   <runtime>
+      <library name="scoring-depth.jar">
+         <export name="*"/>
+      </library>
+   </runtime>
+
+   <requires>
+      <import plugin="nutch-extensionpoints"/>
+   </requires>
+
+   <extension id="org.apache.nutch.scoring.depth"
+              name="Depth Scoring Filter"
+              point="org.apache.nutch.scoring.ScoringFilter">
+      <implementation id="DepthScoringFilter"
+                      class="org.apache.nutch.scoring.depth.DepthScoringFilter"/>
+   </extension>
+</plugin>

@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<project name="scoring-depth" default="jar-core">
+
+  <import file="../build-plugin.xml"/>
+
+</project>
