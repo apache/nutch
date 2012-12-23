@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk): Current Development
 
+* NUTCH-1118 JUnit test for index-basic (Tejas Patil via lewismc)
+
 * NUTCH-1331 limit crawler to defined depth (jnioche)
 
 Release 1.6 - 23/11/2012

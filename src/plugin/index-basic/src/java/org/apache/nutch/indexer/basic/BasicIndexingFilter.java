@@ -38,7 +38,14 @@ import java.util.Date;
 
 import org.apache.hadoop.conf.Configuration;
 
-/** Adds basic searchable fields to a document. */
+/** 
+ * Adds basic searchable fields to a document. 
+ * The fields added are : domain, host, url, content, title, cache, tstamp
+ * domain is included depending on {@code indexer.add.domain} in nutch-default.xml.
+ * title is truncated as per {@code indexer.max.title.length} in nutch-default.xml. 
+ *       (As per NUTCH-1004, a zero-length title is not added)
+ * content is truncated as per {@code indexer.max.content.length} in nutch-default.xml.
+ */
 public class BasicIndexingFilter implements IndexingFilter {
   public static final Logger LOG = LoggerFactory.getLogger(BasicIndexingFilter.class);
 
@@ -47,6 +54,19 @@ public class BasicIndexingFilter implements IndexingFilter {
   private boolean addDomain = false;
   private Configuration conf;
 
+ /**
+  * The {@link BasicIndexingFilter} filter object which supports few 
+  * configuration settings for adding basic searchable fields. 
+  * See {@code indexer.add.domain}, {@code indexer.max.title.length}, 
+  * {@code indexer.max.content.length} in nutch-default.xml.
+  *  
+  * @param doc The {@link NutchDocument} object
+  * @param parse The relevant {@link Parse} object passing through the filter 
+  * @param url URL to be filtered for anchor text
+  * @param datum The {@link CrawlDatum} entry
+  * @param inlinks The {@link Inlinks} containing anchor text
+  * @return filtered NutchDocument
+  */
   public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
     throws IndexingException {
 
@@ -108,6 +128,9 @@ public class BasicIndexingFilter implements IndexingFilter {
     return doc;
   }
 
+  /**
+   * Set the {@link Configuration} object
+   */
   public void setConf(Configuration conf) {
     this.conf = conf;
     this.MAX_TITLE_LENGTH = conf.getInt("indexer.max.title.length", 100);
@@ -115,6 +138,9 @@ public class BasicIndexingFilter implements IndexingFilter {
     this.MAX_CONTENT_LENGTH = conf.getInt("indexer.max.content.length", -1);
   }
 
+  /**
+   * Get the {@link Configuration} object
+   */
   public Configuration getConf() {
     return this.conf;
   }
