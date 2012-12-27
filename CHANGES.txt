@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk): Current Development
 
+* NUTCH-1510 Upgrade to Hadoop 1.1.1 (markus)
+
 * NUTCH-1118 JUnit test for index-basic (Tejas Patil via lewismc)
 
 * NUTCH-1331 limit crawler to defined depth (jnioche)
