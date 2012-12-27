@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
+* NUTCH-1510 Upgrade to Hadoop 1.1.1 (markus)
+
 * NUTCH-1503 Configuration properties not in sync between FetcherReducer and nutch-default.xml (snagel + lewismc)
 
 * NUTCH-1394 backport NUTCH-1232 Remove site field from index-basic (lewismc)
