@@ -20,8 +20,6 @@ package org.apache.nutch.indexer.staticfield;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.IndexingFilter;
@@ -31,52 +29,78 @@ import org.apache.nutch.parse.Parse;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.conf.Configuration;
 
-/** A simple plugin called at indexing that adds fields with static data. 
- *  You can specify a list of fieldname:fieldcontent per nutch job.
- *  It can be useful when collections can't be created by urlpatterns, 
- *  like in subcollection, but on a job-basis. */
+/**
+ * A simple plugin called at indexing that adds fields with static data. You can
+ * specify a list of fieldname:fieldcontent per nutch job. It can be useful when
+ * collections can't be created by urlpatterns, like in subcollection, but on a
+ * job-basis.
+ */
 
 public class StaticFieldIndexer implements IndexingFilter {
-	private Configuration conf;
-	private HashMap<String, String[]> fields;
-	private boolean addStaticFields = false;
+  private Configuration conf;
+  private HashMap<String, String[]> fields;
+  private boolean addStaticFields = false;
 
-	public NutchDocument filter(NutchDocument doc, Parse parse, Text url, CrawlDatum datum, Inlinks inlinks)
-	    throws IndexingException {
-		
-		if(this.addStaticFields == true){
-			for(Entry<String,String[]> entry: this.fields.entrySet()){
-				doc.add(entry.getKey(), entry.getValue());
-			}
-		}	
-		return doc;
-	}
+  /**
+   * The {@link StaticFieldIndexer} filter object which adds fields as per
+   * configuration setting. See {@code index.static} in nutch-default.xml.
+   * 
+   * @param doc The {@link NutchDocument} object
+   * @param parse  The relevant {@link Parse} object passing through the filter
+   * @param url URL to be filtered for anchor text
+   * @param datum The {@link CrawlDatum} entry
+   * @param inlinks The {@link Inlinks} containing anchor text
+   * @return filtered NutchDocument
+   */
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
+      CrawlDatum datum, Inlinks inlinks) throws IndexingException {
 
-	private HashMap<String, String[]> parseFields(String fieldsString) {
-		HashMap<String, String[]> fields = new HashMap<String, String[]>();
-		
-		/*
-		  The format is very easy, it's a comma-separated list of fields in the form <name>:<value>
-		*/
-		for(String field: fieldsString.split(",")){
-			String[] entry = field.split(":");
-			if(entry.length == 2)
-				fields.put(entry[0].trim(), entry[1].trim().split(" "));
-		}
+    if (this.addStaticFields == true) {
+      for (Entry<String, String[]> entry : this.fields.entrySet()) {
+        doc.add(entry.getKey(), entry.getValue());
+      }
+    }
+    return doc;
+  }
 
-		return fields;
-	}
+  /**
+   * Populate a HashMap from a list of fieldname:fieldcontent.
+   * See {@index.static} in nutch-default.xml.
+   * 
+   * @param fieldsString string containing field:value pairs
+   * @return HashMap of fields and their corresponding values
+   */
+  private HashMap<String, String[]> parseFields(String fieldsString) {
+    HashMap<String, String[]> fields = new HashMap<String, String[]>();
 
-	public void setConf(Configuration conf) {
-		this.conf = conf;
-		String fieldsString = conf.get("index.static", null);
-		if(fieldsString != null){
-			this.addStaticFields = true;
-			this.fields = parseFields(fieldsString);
-		}
-	}
+    /* The format is very easy, it's a comma-separated list of fields in the
+       form <name>:<value>
+     */
+    for (String field : fieldsString.split(",")) {
+      String[] entry = field.split(":");
+      if (entry.length == 2)
+        fields.put(entry[0].trim(), entry[1].trim().split(" "));
+    }
 
-	public Configuration getConf() {
-		return this.conf;
-	}
+    return fields;
+  }
+
+  /**
+   * Set the {@link Configuration} object
+   */
+  public void setConf(Configuration conf) {
+    this.conf = conf;
+    String fieldsString = conf.get("index.static", null);
+    if (fieldsString != null) {
+      this.addStaticFields = true;
+      this.fields = parseFields(fieldsString);
+    }
+  }
+
+  /**
+   * Get the {@link Configuration} object
+   */
+  public Configuration getConf() {
+    return this.conf;
+  }
 }

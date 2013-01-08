@@ -80,6 +80,7 @@
      <ant dir="index-basic" target="test"/>
      <ant dir="index-anchor" target="test"/>
      <ant dir="index-more" target="test"/>
+     <ant dir="index-static" target="test"/>
      <ant dir="language-identifier" target="test"/>
      <ant dir="lib-http" target="test"/>
      <ant dir="protocol-file" target="test"/>
