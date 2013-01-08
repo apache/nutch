@@ -98,6 +98,7 @@
      <ant dir="urlfilter-domainblacklist" target="test"/>
      <ant dir="urlfilter-regex" target="test"/>
      <ant dir="urlfilter-suffix" target="test"/>
+     <ant dir="urlfilter-validator" target="test"/>
      <ant dir="urlnormalizer-basic" target="test"/>
      <ant dir="urlnormalizer-host" target="test"/>
      <ant dir="urlnormalizer-pass" target="test"/>

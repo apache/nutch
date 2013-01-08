@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk): Current Development
 
+* NUTCH-1127 JUnit test for urlfilter-validator (Tejas Patil via lewismc)
+
 * NUTCH-1119 JUnit test for index-static (Tejas Patil via lewismc)
 
 * NUTCH-1510 Upgrade to Hadoop 1.1.1 (markus)
