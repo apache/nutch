@@ -22,7 +22,7 @@
         <export name="*" />
       </library>
       <library name="rome-0.9.jar" />
-      <library name="jdom-1.0.jar" />
+      <library name="jdom-1.1.jar" />
     </runtime>
     
     <requires>
