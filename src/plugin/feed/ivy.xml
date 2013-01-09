@@ -36,7 +36,7 @@
   </publications>
 
   <dependencies>
-    <dependency org="net.java.dev.rome" name="rome" rev="1.0.0" conf="*->master"/>
+    <dependency org="rome" name="rome" rev="0.9" />
   </dependencies>
   
 </ivy-module>
