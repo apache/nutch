@@ -22,7 +22,7 @@
   <groupId>org.apache.nutch</groupId>
   <artifactId>nutch</artifactId>
   <packaging>jar</packaging>
-  <version>2.0</version>
+  <version>2.2</version>
   <name>Apache Nutch</name>
   <url>http://nutch.apache.org</url>
   <licenses>
@@ -54,7 +54,7 @@
 		</developer>		
 		<developer>
 			<id>dogacan</id>
-			<name>Dogacan Güney</name>
+			<name>Dogacan GÃ¼ney</name>
 			<email>dogacan@apache.org</email>
 		</developer>
 		<developer>
@@ -109,6 +109,12 @@
         </build>
         <dependencies>
                 <dependency>
+                        <groupId>org.elasticsearch</groupId>
+                        <artifactId>elasticsearch</artifactId>
+                        <version>0.19.4</version>
+                        <optional>true</optional>
+                </dependency>
+                <dependency>
                         <groupId>org.apache.solr</groupId>
                         <artifactId>solr-solrj</artifactId>
                         <version>3.4.0</version>
@@ -147,7 +153,7 @@
                 <dependency>
                         <groupId>org.apache.hadoop</groupId>
                         <artifactId>hadoop-core</artifactId>
-                        <version>1.0.3</version>
+                        <version>1.1.1</version>
                         <optional>true</optional>
                 </dependency>
                 <dependency>
@@ -159,13 +165,13 @@
                 <dependency>
                         <groupId>org.apache.tika</groupId>
                         <artifactId>tika-core</artifactId>
-                        <version>1.1</version>
+                        <version>1.2</version>
                         <scope>compile</scope>
                 </dependency>
                 <dependency>
                         <groupId>org.apache.gora</groupId>
                         <artifactId>gora-core</artifactId>
-                        <version>0.2</version>
+                        <version>0.2.1</version>
                         <optional>true</optional>
                 </dependency>
                 <dependency>
@@ -213,7 +219,7 @@
                 <dependency>
                         <groupId>org.apache.hadoop</groupId>
                         <artifactId>hadoop-test</artifactId>
-                        <version>1.0.3</version>
+                        <version>1.1.1</version>
                         <optional>true</optional>
                 </dependency>
                 <dependency>
