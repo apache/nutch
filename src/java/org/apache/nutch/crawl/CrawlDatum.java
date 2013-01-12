@@ -457,7 +457,7 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
     int res = 0;
     if (signature != null) {
       for (int i = 0; i < signature.length / 4; i += 4) {
-        res ^= (int)(signature[i] << 24 + signature[i+1] << 16 +
+        res ^= (signature[i] << 24 + signature[i+1] << 16 +
                 signature[i+2] << 8 + signature[i+3]);
       }
     }

@@ -237,7 +237,7 @@ public class SegmentReader extends Configured implements
       writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(fs.create(dumpFile))));
       try {
         for (int i = 0; i < files.length; i++) {
-          Path partFile = (Path) files[i];
+          Path partFile = files[i];
           try {
             currentRecordNumber = append(fs, job, partFile, writer, currentRecordNumber);
           } catch (IOException exception) {

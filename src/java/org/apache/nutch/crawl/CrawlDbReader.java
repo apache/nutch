@@ -175,10 +175,10 @@ public class CrawlDbReader implements Closeable {
     public void reduce(Text key, Iterator<LongWritable> values, OutputCollector<Text, LongWritable> output, Reporter reporter)
         throws IOException {
       val.set(0L);
-      String k = ((Text)key).toString();
+      String k = key.toString();
       if (!k.equals("s")) {
         while (values.hasNext()) {
-          LongWritable cnt = (LongWritable)values.next();
+          LongWritable cnt = values.next();
           val.set(val.get() + cnt.get());
         }
         output.collect(key, val);
@@ -187,7 +187,7 @@ public class CrawlDbReader implements Closeable {
         long min = Long.MAX_VALUE;
         long max = Long.MIN_VALUE;
         while (values.hasNext()) {
-          LongWritable cnt = (LongWritable)values.next();
+          LongWritable cnt = values.next();
           if (cnt.get() < min) min = cnt.get();
           if (cnt.get() > max) max = cnt.get();
           total += cnt.get();
@@ -205,40 +205,40 @@ public class CrawlDbReader implements Closeable {
     public void reduce(Text key, Iterator<LongWritable> values, OutputCollector<Text, LongWritable> output, Reporter reporter)
             throws IOException {
 
-      String k = ((Text) key).toString();
+      String k = key.toString();
       if (k.equals("T")) {
         // sum all values for this key
         long sum = 0;
         while (values.hasNext()) {
-          sum += ((LongWritable) values.next()).get();
+          sum += values.next().get();
         }
         // output sum
         output.collect(key, new LongWritable(sum));
       } else if (k.startsWith("status") || k.startsWith("retry")) {
         LongWritable cnt = new LongWritable();
         while (values.hasNext()) {
-          LongWritable val = (LongWritable)values.next();
+          LongWritable val = values.next();
           cnt.set(cnt.get() + val.get());
         }
         output.collect(key, cnt);
       } else if (k.equals("scx")) {
         LongWritable cnt = new LongWritable(Long.MIN_VALUE);
         while (values.hasNext()) {
-          LongWritable val = (LongWritable)values.next();
+          LongWritable val = values.next();
           if (cnt.get() < val.get()) cnt.set(val.get());
         }
         output.collect(key, cnt);
       } else if (k.equals("scn")) {
         LongWritable cnt = new LongWritable(Long.MAX_VALUE);
         while (values.hasNext()) {
-          LongWritable val = (LongWritable)values.next();
+          LongWritable val = values.next();
           if (cnt.get() > val.get()) cnt.set(val.get());
         }
         output.collect(key, cnt);
       } else if (k.equals("sct")) {
         LongWritable cnt = new LongWritable();
         while (values.hasNext()) {
-          LongWritable val = (LongWritable)values.next();
+          LongWritable val = values.next();
           cnt.set(cnt.get() + val.get());
         }
         output.collect(key, cnt);
@@ -356,9 +356,9 @@ public class CrawlDbReader implements Closeable {
         String k = entry.getKey();
         LongWritable val = entry.getValue();
         if (k.equals("scn")) {
-          LOG.info("min score:\t" + (float) (val.get() / 1000.0f));
+          LOG.info("min score:\t" + (val.get() / 1000.0f));
         } else if (k.equals("scx")) {
-          LOG.info("max score:\t" + (float) (val.get() / 1000.0f));
+          LOG.info("max score:\t" + (val.get() / 1000.0f));
         } else if (k.equals("sct")) {
           LOG.info("avg score:\t" + (float) ((((double)val.get()) / totalCnt.get()) / 1000.0));
         } else if (k.startsWith("status")) {

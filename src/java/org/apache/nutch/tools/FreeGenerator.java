@@ -124,7 +124,7 @@ public class FreeGenerator extends Configured implements Tool {
       // pick unique urls from values - discard the reduce key due to hash collisions
       HashMap<Text, CrawlDatum> unique = new HashMap<Text, CrawlDatum>();
       while (values.hasNext()) {
-        Generator.SelectorEntry entry = (Generator.SelectorEntry)values.next();
+        Generator.SelectorEntry entry = values.next();
         unique.put(entry.url, entry.datum);
       }
       // output unique urls

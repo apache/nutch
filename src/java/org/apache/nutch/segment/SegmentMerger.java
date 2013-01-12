@@ -213,7 +213,7 @@ public class SegmentMerger extends Configured implements
         public void write(Text key, MetaWrapper wrapper) throws IOException {
           // unwrap
           SegmentPart sp = SegmentPart.parse(wrapper.getMeta(SEGMENT_PART_KEY));
-          Writable o = (Writable)wrapper.get();
+          Writable o = wrapper.get();
           String slice = wrapper.getMeta(SEGMENT_SLICE_KEY);
           if (o instanceof CrawlDatum) {
             if (sp.partName.equals(CrawlDatum.GENERATE_DIR_NAME)) {

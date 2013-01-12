@@ -180,7 +180,7 @@ public class ParseSegment extends Configured implements Tool,
   public void reduce(Text key, Iterator<Writable> values,
                      OutputCollector<Text, Writable> output, Reporter reporter)
     throws IOException {
-    output.collect(key, (Writable)values.next()); // collect first value
+    output.collect(key, values.next()); // collect first value
   }
 
   public void parse(Path segment) throws IOException {

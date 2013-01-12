@@ -348,7 +348,7 @@ public class Loops
         ObjectWritable next = values.next();
         Object value = next.get();
         if (value instanceof Route) {
-          routeList.add((Route)WritableUtils.clone((Route)value, conf));
+          routeList.add(WritableUtils.clone((Route)value, conf));
         }
         else if (value instanceof Text) {
           String outlinkUrl = ((Text)value).toString();

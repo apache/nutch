@@ -251,7 +251,7 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
 
           try {
             // compute score contributions and adjustment to the original score
-            adjust = scfilters.distributeScoreToOutlinks((Text)key, parseData, 
+            adjust = scfilters.distributeScoreToOutlinks(key, parseData, 
                       targets, null, links.length);
           } catch (ScoringFilterException e) {
             LOG.warn("Cannot distribute score from " + key + ": " + e.getMessage());

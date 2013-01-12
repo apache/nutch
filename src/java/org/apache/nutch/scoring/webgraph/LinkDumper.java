@@ -265,7 +265,7 @@ public class LinkDumper
           node = (Node)obj;
         }
         else if (obj instanceof LinkDatum) {
-          outlinks.add((LinkDatum)WritableUtils.clone((LinkDatum)obj, conf));
+          outlinks.add(WritableUtils.clone((LinkDatum)obj, conf));
         }
         else if (obj instanceof LoopSet) {
           loops = (LoopSet)obj;
@@ -323,7 +323,7 @@ public class LinkDumper
       while (values.hasNext()) {
         LinkNode cur = values.next();
         if (numNodes < maxInlinks) {
-          nodeList.add((LinkNode)WritableUtils.clone(cur, conf));
+          nodeList.add(WritableUtils.clone(cur, conf));
           numNodes++;
         }
         else {

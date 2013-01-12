@@ -338,7 +338,7 @@ public class LinkRank
       throws IOException {
 
       String url = key.toString();
-      Node outNode = (Node)WritableUtils.clone(node, conf);
+      Node outNode = WritableUtils.clone(node, conf);
       outNode.setInlinkScore(initialScore);
 
       output.collect(new Text(url), outNode);
@@ -397,7 +397,7 @@ public class LinkRank
           node = (Node)obj;
         }
         else if (obj instanceof LinkDatum) {
-          outlinks.add((LinkDatum)WritableUtils.clone((LinkDatum)obj, conf));
+          outlinks.add(WritableUtils.clone((LinkDatum)obj, conf));
         }
         else if (obj instanceof LoopSet) {
           loops = (LoopSet)obj;
@@ -555,7 +555,7 @@ public class LinkRank
         + numInlinks + " iteration: " + itNum);
 
       // store the score in a temporary NodeDb
-      Node outNode = (Node)WritableUtils.clone(node, conf);
+      Node outNode = WritableUtils.clone(node, conf);
       outNode.setInlinkScore(linkRankScore);
       output.collect(key, outNode);
     }

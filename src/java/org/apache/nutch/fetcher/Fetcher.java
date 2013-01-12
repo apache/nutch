@@ -1079,7 +1079,7 @@ public class Fetcher extends Configured implements Tool,
             }
 
             // Overwrite the outlinks in ParseData with the normalized and filtered set
-            parseData.setOutlinks((Outlink[])outlinkList.toArray(new Outlink[outlinkList.size()]));
+            parseData.setOutlinks(outlinkList.toArray(new Outlink[outlinkList.size()]));
 
             output.collect(url, new NutchWritable(
                     new ParseImpl(new ParseText(parse.getText()),

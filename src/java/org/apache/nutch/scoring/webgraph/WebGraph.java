@@ -345,7 +345,7 @@ public class WebGraph
           if (mostRecent == 0L || mostRecent < timestamp) {
             mostRecent = timestamp;
           }
-          outlinkList.add((LinkDatum)WritableUtils.clone(next, conf));
+          outlinkList.add(WritableUtils.clone(next, conf));
           reporter.incrCounter("WebGraph.outlinks", "added links", 1);
         }
         else if (value instanceof BooleanWritable) {

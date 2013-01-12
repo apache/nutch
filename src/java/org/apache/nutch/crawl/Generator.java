@@ -201,7 +201,7 @@ public class Generator extends Configured implements Tool {
       }
       float sort = 1.0f;
       try {
-        sort = scfilters.generatorSortValue((Text) key, crawlDatum, sort);
+        sort = scfilters.generatorSortValue(key, crawlDatum, sort);
       } catch (ScoringFilterException sfe) {
         if (LOG.isWarnEnabled()) {
           LOG.warn("Couldn't filter generatorSortValue for " + key + ": " + sfe);
@@ -222,7 +222,7 @@ public class Generator extends Configured implements Tool {
       // record generation time
       crawlDatum.getMetaData().put(Nutch.WRITABLE_GENERATE_TIME_KEY, genTime);
       entry.datum = crawlDatum;
-      entry.url = (Text) key;
+      entry.url = key;
       output.collect(sortValue, entry); // invert for sort by score
     }
 
@@ -345,7 +345,7 @@ public class Generator extends Configured implements Tool {
 
     public void map(FloatWritable key, SelectorEntry value,
         OutputCollector<Text,SelectorEntry> output, Reporter reporter) throws IOException {
-      SelectorEntry entry = (SelectorEntry) value;
+      SelectorEntry entry = value;
       output.collect(entry.url, entry);
     }
   }

@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk): Current Development
 
+* NUTCH-1274 Fix [cast] javac warnings (Tejas Patil via lewismc)
+
 * NUTCH-1494 RSS feed plugin seems broken (Sourajit Basak, Tejas Patil and lewismc)
 
 * NUTCH-1127 JUnit test for urlfilter-validator (Tejas Patil via lewismc)

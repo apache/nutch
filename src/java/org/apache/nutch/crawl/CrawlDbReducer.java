@@ -75,7 +75,7 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
     org.apache.hadoop.io.MapWritable metaFromParse = null;
     
     while (values.hasNext()) {
-      CrawlDatum datum = (CrawlDatum)values.next();
+      CrawlDatum datum = values.next();
       if (!multiple && values.hasNext()) multiple = true;
       if (CrawlDatum.hasDbStatus(datum)) {
         if (!oldSet) {
@@ -184,10 +184,10 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
       if (oldSet) {                          // if old exists
         result.set(old);                          // use it
       } else {
-        result = schedule.initializeSchedule((Text)key, result);
+        result = schedule.initializeSchedule(key, result);
         result.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
         try {
-          scfilters.initialScore((Text)key, result);
+          scfilters.initialScore(key, result);
         } catch (ScoringFilterException e) {
           if (LOG.isWarnEnabled()) {
             LOG.warn("Cannot filter init score for url " + key +
@@ -216,7 +216,7 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
         }
       }
       // set the schedule
-      result = schedule.setFetchSchedule((Text)key, result, prevFetchTime,
+      result = schedule.setFetchSchedule(key, result, prevFetchTime,
           prevModifiedTime, fetch.getFetchTime(), fetch.getModifiedTime(), modified);
       // set the result status and signature
       if (modified == FetchSchedule.STATUS_NOTMODIFIED) {
@@ -254,7 +254,7 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
       // NOTMODIFIED state, when the old fetched copy was already removed with
       // old segments.
       if (maxInterval < result.getFetchInterval())
-        result = schedule.forceRefetch((Text)key, result, false);
+        result = schedule.forceRefetch(key, result, false);
       break;
     case CrawlDatum.STATUS_SIGNATURE:
       if (LOG.isWarnEnabled()) {
@@ -265,7 +265,7 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
       if (oldSet) {
         result.setSignature(old.getSignature());  // use old signature
       }
-      result = schedule.setPageRetrySchedule((Text)key, result, prevFetchTime,
+      result = schedule.setPageRetrySchedule(key, result, prevFetchTime,
           prevModifiedTime, fetch.getFetchTime());
       if (result.getRetriesSinceFetch() < retryMax) {
         result.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
@@ -278,7 +278,7 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
       if (oldSet)
         result.setSignature(old.getSignature());  // use old signature
       result.setStatus(CrawlDatum.STATUS_DB_GONE);
-      result = schedule.setPageGoneSchedule((Text)key, result, prevFetchTime,
+      result = schedule.setPageGoneSchedule(key, result, prevFetchTime,
           prevModifiedTime, fetch.getFetchTime());
       break;
 
@@ -287,7 +287,7 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
     }
 
     try {
-      scfilters.updateDbScore((Text)key, oldSet ? old : null, result, linkList);
+      scfilters.updateDbScore(key, oldSet ? old : null, result, linkList);
     } catch (Exception e) {
       if (LOG.isWarnEnabled()) {
         LOG.warn("Couldn't update score, key=" + key + ": " + e);

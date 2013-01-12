@@ -49,8 +49,8 @@ public class ContentAsTextInputFormat
       throws IOException {
       sequenceFileRecordReader = new SequenceFileRecordReader<Text, Content>(
         conf, split);
-      innerKey = (Text)sequenceFileRecordReader.createKey();
-      innerValue = (Content)sequenceFileRecordReader.createValue();
+      innerKey = sequenceFileRecordReader.createKey();
+      innerValue = sequenceFileRecordReader.createValue();
     }
 
     public Text createKey() {
