@@ -74,7 +74,7 @@ public class DbReader {
       // remove "url"
       flds.remove("url");
       if (flds.size() > 0) {
-        qFields = (String[])flds.toArray(new String[flds.size()]);
+        qFields = flds.toArray(new String[flds.size()]);
       } else {
         qFields = null;
       }

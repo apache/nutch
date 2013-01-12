@@ -122,14 +122,14 @@ public class ArcRecordReader
    * Creates a new instance of the <code>Text</code> object for the key.
    */
   public Text createKey() {
-    return (Text)ReflectionUtils.newInstance(Text.class, conf);
+    return ReflectionUtils.newInstance(Text.class, conf);
   }
 
   /**
    * Creates a new instance of the <code>BytesWritable</code> object for the key
    */
   public BytesWritable createValue() {
-    return (BytesWritable)ReflectionUtils.newInstance(BytesWritable.class, conf);
+    return ReflectionUtils.newInstance(BytesWritable.class, conf);
   }
 
   /**
@@ -264,9 +264,9 @@ public class ArcRecordReader
         System.arraycopy(content, eol + 1, raw, 0, raw.length);
         
         // populate key and values with the header and raw content.
-        Text keyText = (Text)key;
+        Text keyText = key;
         keyText.set(header);
-        BytesWritable valueBytes = (BytesWritable)value;
+        BytesWritable valueBytes = value;
         valueBytes.set(raw, 0, raw.length);
 
         // TODO: It would be best to start at the end of the gzip read but 

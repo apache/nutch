@@ -122,21 +122,21 @@ public class SolrMappingReader {
 
   public String hasCopy(String key) {
     if (copyMap.containsKey(key)) {
-      key = (String) copyMap.get(key);
+      key = copyMap.get(key);
     }
     return key;
   }
 
   public String mapKey(String key) throws IOException {
     if(keyMap.containsKey(key)) {
-      key = (String) keyMap.get(key);
+      key = keyMap.get(key);
     }
     return key;
   }
 
   public String mapCopyKey(String key) throws IOException {
     if(copyMap.containsKey(key)) {
-      key = (String) copyMap.get(key);
+      key = copyMap.get(key);
     }
     return key;
   }

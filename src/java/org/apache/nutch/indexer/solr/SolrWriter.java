@@ -61,7 +61,7 @@ public class SolrWriter implements NutchIndexWriter {
 
         Object val2 = val;
         if (e.getKey().equals("content") || e.getKey().equals("title")) {
-          val2 = stripNonCharCodepoints((String)val);
+          val2 = stripNonCharCodepoints(val);
         }
 
         inputDoc.addField(solrMapping.mapKey(e.getKey()), val2);

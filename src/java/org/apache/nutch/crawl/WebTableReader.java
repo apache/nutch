@@ -125,7 +125,7 @@ public class WebTableReader extends NutchTool implements Tool {
         throws IOException, InterruptedException {
       val.set(0L);
       Iterator<LongWritable> iter = values.iterator();
-      String k = ((Text) key).toString();
+      String k = key.toString();
       if (!k.equals("s")) {
         while (iter.hasNext()) {
           LongWritable cnt = iter.next();
@@ -166,7 +166,7 @@ public class WebTableReader extends NutchTool implements Tool {
         org.apache.hadoop.mapreduce.Reducer<Text, LongWritable, Text, LongWritable>.Context context)
         throws IOException, InterruptedException {
       Iterator<LongWritable> iter = values.iterator();
-      String k = ((Text) key).toString();
+      String k = key.toString();
       if (k.equals("T")) {
         // sum all values for this key
         long sum = 0;
@@ -574,9 +574,9 @@ public class WebTableReader extends NutchTool implements Tool {
       String k = entry.getKey();
       LongWritable val = entry.getValue();
       if (k.equals("scn")) {
-        results.put("min score", (float) (val.get() / 1000.0f));
+        results.put("min score", (val.get() / 1000.0f));
       } else if (k.equals("scx")) {
-        results.put("max score", (float) (val.get() / 1000.0f));
+        results.put("max score", (val.get() / 1000.0f));
       } else if (k.equals("sct")) {
         results.put("avg score",
             (float) ((((double) val.get()) / totalCnt.get()) / 1000.0));

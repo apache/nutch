@@ -761,7 +761,7 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
     status.append(spinWaiting).append("/").append(activeThreads).append(" spinwaiting/active, ");
     status.append(pages).append(" pages, ").append(errors).append(" errors, ");
     status.append(Math.round((((float)pages.get())*10)/elapsed)/10.0).append(" ");
-    status.append(Math.round(((float)actualPages)*10)/10.0).append(" pages/s, ");
+    status.append(Math.round((actualPages*10)/10.0)).append(" pages/s, ");
     status.append(Math.round((((float)bytes.get())*8)/1024)/elapsed).append(" ");
     status.append(Math.round(((float)actualBytes)*8)/1024).append(" kb/s, ");
     status.append(totalSize).append(" URLs in ");
