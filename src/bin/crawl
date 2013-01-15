@@ -166,7 +166,7 @@ do
   fi
 
   echo "Indexing $SEGMENT on SOLR index -> $SOLRURL"
-  $bin/nutch solrindex $SOLRURL $CRAWL_PATH/crawldb -linkdb $CRAWL_PATH/linkdb $SEGMENT
+  $bin/nutch solrindex $SOLRURL $CRAWL_PATH/crawldb -linkdb $CRAWL_PATH/linkdb $CRAWL_PATH/segments/$SEGMENT
   
   if [ $? -ne 0 ] 
    then exit $? 
