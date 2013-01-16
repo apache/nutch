@@ -37,7 +37,6 @@ public class NutchWritable extends GenericWritableConfigurable {
       org.apache.nutch.crawl.CrawlDatum.class,
       org.apache.nutch.crawl.Inlink.class,
       org.apache.nutch.crawl.Inlinks.class,
-      org.apache.nutch.fetcher.FetcherOutput.class,
       org.apache.nutch.indexer.NutchIndexAction.class,
       org.apache.nutch.metadata.Metadata.class,
       org.apache.nutch.parse.Outlink.class,

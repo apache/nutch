@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk): Current Development
 
+* NUTCH-1507 Remove FetcherOutput (markus)
+
 * NUTCH-1506 Add UPDATE action to NutchIndexAction (markus)
 
 * NUTCH-1500 bin/crawl fails on step solrindex with wrong path to segment (Tristan Buckner, snagel)
