@@ -89,8 +89,6 @@ public class MapWritable implements Writable {
     addToMap(LongWritable.class, new Byte((byte) -126));
     addToMap(Text.class, new Byte((byte) -125));
     addToMap(MD5Hash.class, new Byte((byte) -124));
-    addToMap(org.apache.nutch.fetcher.FetcherOutput.class,
-        new Byte((byte) -123));
     addToMap(org.apache.nutch.protocol.Content.class, new Byte((byte) -122));
     addToMap(org.apache.nutch.parse.ParseText.class, new Byte((byte) -121));
     addToMap(org.apache.nutch.parse.ParseData.class, new Byte((byte) -120));
