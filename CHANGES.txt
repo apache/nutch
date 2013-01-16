@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk): Current Development
 
+* NUTCH-1506 Add UPDATE action to NutchIndexAction (markus)
+
 * NUTCH-1500 bin/crawl fails on step solrindex with wrong path to segment (Tristan Buckner, snagel)
 
 * NUTCH-1274 Fix [cast] javac warnings (Tejas Patil via lewismc)

@@ -20,9 +20,9 @@ import org.apache.hadoop.io.Writable;
 import org.apache.nutch.util.GenericWritableConfigurable;
 
 public class NutchWritable extends GenericWritableConfigurable {
-  
+
   private static Class<? extends Writable>[] CLASSES = null;
-  
+
   static {
     CLASSES = new Class[] {
       org.apache.hadoop.io.NullWritable.class,
@@ -38,6 +38,7 @@ public class NutchWritable extends GenericWritableConfigurable {
       org.apache.nutch.crawl.Inlink.class,
       org.apache.nutch.crawl.Inlinks.class,
       org.apache.nutch.fetcher.FetcherOutput.class,
+      org.apache.nutch.indexer.NutchIndexAction.class,
       org.apache.nutch.metadata.Metadata.class,
       org.apache.nutch.parse.Outlink.class,
       org.apache.nutch.parse.ParseText.class,
@@ -51,7 +52,7 @@ public class NutchWritable extends GenericWritableConfigurable {
   }
 
   public NutchWritable() { }
-  
+
   public NutchWritable(Writable instance) {
     set(instance);
   }
