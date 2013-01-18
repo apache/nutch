@@ -38,7 +38,7 @@ import org.w3c.dom.NodeList;
  * DOM nodes, such as getOutlinks, getText, etc.
  *
  */
-class DOMContentUtils {
+public class DOMContentUtils {
 
   private static class LinkParams {
 	private String elName;
@@ -59,11 +59,11 @@ class DOMContentUtils {
   private HashMap<String,LinkParams> linkParams = new HashMap<String,LinkParams>();
   private Configuration conf;
   
-  DOMContentUtils(Configuration conf) {
+  public DOMContentUtils(Configuration conf) {
     setConf(conf);
   }
   
-  private void setConf(Configuration conf) {
+  public void setConf(Configuration conf) {
     // forceTags is used to override configurable tag ignoring, later on
     Collection<String> forceTags = new ArrayList<String>(1);
 
@@ -119,7 +119,7 @@ class DOMContentUtils {
    * #getText(StringBuffer,Node,boolean) getText(sb, node, false)}.
    * 
    */
-  void getText(StringBuffer sb, Node node) {
+  public void getText(StringBuffer sb, Node node) {
     getText(sb, node, false);
   }
 
@@ -175,7 +175,7 @@ class DOMContentUtils {
    *
    * @return true if a title node was found, false otherwise
    */
-  boolean getTitle(StringBuffer sb, Node node) {
+  public boolean getTitle(StringBuffer sb, Node node) {
     
     NodeWalker walker = new NodeWalker(node);
     
@@ -314,7 +314,7 @@ class DOMContentUtils {
    * nodes (this is a common DOM-fixup artifact, at least with
    * nekohtml).
    */
-  void getOutlinks(URL base, ArrayList<Outlink> outlinks, 
+  public void getOutlinks(URL base, ArrayList<Outlink> outlinks, 
                                        Node node) {
     
     NodeWalker walker = new NodeWalker(node);

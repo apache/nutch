@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk): Current Development
 
+* NUTCH-840  Port tests from parse-html to parse-tika (lewismc, jnioche)
+
 * NUTCH-1509 Implement read/write in NutchField (markus)
 
 * NUTCH-1507 Remove FetcherOutput (markus)

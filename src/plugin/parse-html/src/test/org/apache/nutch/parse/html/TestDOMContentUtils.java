@@ -363,7 +363,7 @@ public class TestDOMContentUtils extends TestCase {
     if (testDOMs[0] == null) 
       setup();
     for (int i= 0; i < testPages.length; i++) {
-      ArrayList outlinks= new ArrayList();
+      ArrayList<Outlink> outlinks= new ArrayList<Outlink>();
       if (i == SKIP) {
         conf.setBoolean("parser.html.form.use_action", false);
         utils.setConf(conf);
