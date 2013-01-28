@@ -484,7 +484,8 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
             reprUrl = TableUtil.toString(fit.page.getReprUrl());
           }
           try {
-            LOG.info("fetching " + fit.url);
+            LOG.info("fetching " + fit.url + " (queue crawl delay=" + 
+                      fetchQueues.getFetchItemQueue(fit.queueID).crawlDelay + "ms)"); 
 
             // fetch the page
             final Protocol protocol = this.protocolFactory.getProtocol(fit.url);
@@ -500,7 +501,7 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
               continue;
             }
             if (rules.getCrawlDelay() > 0) {
-              if (rules.getCrawlDelay() > maxCrawlDelay) {
+              if (rules.getCrawlDelay() > maxCrawlDelay && maxCrawlDelay >= 0) {
                 // unblock
                 fetchQueues.finishFetchItem(fit, true);
                 LOG.debug("Crawl-Delay for " + fit.url + " too long (" + rules.getCrawlDelay() + "), skipping");
@@ -509,6 +510,9 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
               } else {
                 final FetchItemQueue fiq = fetchQueues.getFetchItemQueue(fit.queueID);
                 fiq.crawlDelay = rules.getCrawlDelay();
+                if (LOG.isDebugEnabled()) {
+                  LOG.info("Crawl delay for queue: " + fit.queueID + " is set to " + fiq.crawlDelay + " as per robots.txt. url: " + fit.url);
+                }
               }
             }
             final ProtocolOutput output = protocol.getProtocolOutput(fit.url, fit.page);
@@ -875,3 +879,4 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
     LOG.info("-activeThreads=" + activeThreads);
   }
 }
+
