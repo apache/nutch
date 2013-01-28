@@ -662,7 +662,10 @@ public class Fetcher extends Configured implements Tool,
             redirecting = false;
             redirectCount = 0;
             do {
-              if (LOG.isInfoEnabled()) { LOG.info("fetching " + fit.url); }
+              if (LOG.isInfoEnabled()) {
+                LOG.info("fetching " + fit.url + " (queue crawl delay=" + 
+                         fetchQueues.getFetchItemQueue(fit.queueID).crawlDelay + "ms)"); 
+              }
               if (LOG.isDebugEnabled()) {
                 LOG.debug("redirectCount=" + redirectCount);
               }
@@ -680,7 +683,7 @@ public class Fetcher extends Configured implements Tool,
                 continue;
               }
               if (rules.getCrawlDelay() > 0) {
-                if (rules.getCrawlDelay() > maxCrawlDelay) {
+                if (rules.getCrawlDelay() > maxCrawlDelay && maxCrawlDelay >= 0) {
                   // unblock
                   fetchQueues.finishFetchItem(fit, true);
                   LOG.debug("Crawl-Delay for " + fit.url + " too long (" + rules.getCrawlDelay() + "), skipping");
@@ -690,6 +693,9 @@ public class Fetcher extends Configured implements Tool,
                 } else {
                   FetchItemQueue fiq = fetchQueues.getFetchItemQueue(fit.queueID);
                   fiq.crawlDelay = rules.getCrawlDelay();
+                  if (LOG.isDebugEnabled()) {
+                    LOG.info("Crawl delay for queue: " + fit.queueID + " is set to " + fiq.crawlDelay + " as per robots.txt. url: " + fit.url);
+                  }
                 }
               }
               ProtocolOutput output = protocol.getProtocolOutput(fit.url, fit.datum);

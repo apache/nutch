@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk): Current Development
 
+* NUTCH-1284 Add site fetcher.max.crawl.delay as log output by default (Tejas Patil)
+
 * NUTCH-1453 Substantiate tests for IndexingFilters (lufeng via lewismc)
 
 * NUTCH-840  Port tests from parse-html to parse-tika (lewismc, jnioche)
