@@ -84,7 +84,7 @@ public class CrawlDbFilter implements Mapper<Text, CrawlDatum, Text, CrawlDatum>
     if (url404Purging && CrawlDatum.STATUS_DB_GONE == value.getStatus()) {
       url = null;
     }
-    if (urlNormalizers) {
+    if (url != null && urlNormalizers) {
       try {
         url = normalizers.normalize(url, scope); // normalize the url
       } catch (Exception e) {
