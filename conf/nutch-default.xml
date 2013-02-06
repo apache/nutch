@@ -466,15 +466,6 @@
 </property>
 
 <property>
-  <name>db.max.inlinks</name>
-  <value>10000</value>
-  <description>Maximum number of Inlinks per URL to be kept in LinkDb.
-  If "invertlinks" finds more inlinks than this number, only the first
-  N inlinks will be stored, and the rest will be discarded.
-  </description>
-</property>
-
-<property>
   <name>db.max.outlinks.per.page</name>
   <value>100</value>
   <description>The maximum number of outlinks that we'll process for a page.
