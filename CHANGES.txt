@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk): Current Development
 
+* NUTCH-1420 Get rid of the dreaded � (markus via lewismc)
+
 * NUTCH-1521 CrawlDbFilter pass null url to urlNormalizers (Lufeng via lewismc)
 
 * NUTCH-1284 Add site fetcher.max.crawl.delay as log output by default (Tejas Patil)

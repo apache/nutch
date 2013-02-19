@@ -26,6 +26,7 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.URLUtil;
 import org.apache.hadoop.io.Text;
 
@@ -103,7 +104,7 @@ public class BasicIndexingFilter implements IndexingFilter {
     if (MAX_CONTENT_LENGTH > -1 && content.length() > MAX_CONTENT_LENGTH) {
       content = content.substring(0, MAX_CONTENT_LENGTH);
     }
-    doc.add("content", content);
+    doc.add("content", StringUtil.cleanField(content));
 
     // title
     String title = parse.getData().getTitle();
@@ -113,7 +114,7 @@ public class BasicIndexingFilter implements IndexingFilter {
 
     if (title.length() > 0) {
       // NUTCH-1004 Do not index empty values for title field
-      doc.add("title", title);
+      doc.add("title", StringUtil.cleanField(title));
     }
 
     // add cached content/summary display policy, if available
