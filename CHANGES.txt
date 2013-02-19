@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
+* NUTCH-1420 Get rid of the dreaded � (markus via lewismc)
+
 * NUTCH-XX remove unused db.max.inlinks property in nutch-default.xml (lewismc)
 
 * NUTCH-1284 Add site fetcher.max.crawl.delay as log output by default (Tejas Patil)
