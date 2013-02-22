@@ -33,7 +33,6 @@ import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.Bytes;
-import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.TableUtil;
 import org.apache.solr.common.util.DateUtil;
 
@@ -106,8 +105,7 @@ public class BasicIndexingFilter implements IndexingFilter {
     }
 
     // content is indexed, so that it's searchable, but not stored in index
-    String content = TableUtil.toString(page.getText());
-    doc.add("content", StringUtil.cleanField(content));
+    doc.add("content", TableUtil.toString(page.getText()));
 
     // title
     String title = TableUtil.toString(page.getTitle());
@@ -116,7 +114,7 @@ public class BasicIndexingFilter implements IndexingFilter {
     }
     if (title.length() > 0) {
       // NUTCH-1004 Do not index empty values for title field
-      doc.add("title", StringUtil.cleanField(title));
+      doc.add("title", title);
     }
     // add cached content/summary display policy, if available
     ByteBuffer cachingRaw = page
