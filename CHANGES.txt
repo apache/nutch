@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk): Current Development
 
+* NUTCH-1536 Ant build file has hardcoded conf dir location (zm via lewismc)
+
 * NUTCH-1420 Get rid of the dreaded � (markus via lewismc)
 
 * NUTCH-1521 CrawlDbFilter pass null url to urlNormalizers (Lufeng via lewismc)
