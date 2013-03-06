@@ -1172,18 +1172,18 @@
   org.apache.gora.hbase.store.HBaseStore
     Gora class for storing data in Apache HBase.
   
-  org.apache.gora.hbase.store.AccumuloStore
+  org.apache.gora.accumulo.store.AccumuloStore
     Gora class for storing data in Apache Accumulo.
   
-  org.apache.gora.hbase.store.AvroStore
+  org.apache.gora.avro.store.AvroStore
     Gora class for storing data in Apache Avro.
     
-  org.apache.gora.hbase.store.DataFileAvroStore
+  org.apache.gora.avro.store.DataFileAvroStore
     Gora class for storing data in Apache Avro. DataFileAvroStore is 
     a file based store which uses Avro's DataFile{Writer,Reader}'s as a backend.
     This datastore supports mapreduce.
     
-  org.apache.gora.hbase.store.MemStore
+  org.apache.gora.memory.store.MemStore
     Gora class for storing data in a Memory based implementation for tests.
   </description>
 </property>
@@ -1215,6 +1215,23 @@
   accessing to the schemas. The default configuration uses no id to prefix
   the schemas. The value could also be given as a command line argument
   to each job.
+  </description>
+</property>
+
+<property>
+  <name>gora.buffer.read.limit</name>
+  <value>10000</value>
+  <description>The maximum number of buffered Records we wish to
+  read in one batch. @see org.apache.gora.mapreduce.GoraRecordReader
+  </description>
+</property>
+
+<property>
+  <name>gora.buffer.write.limit</name>
+  <value>10000</value>
+  <description>Configures (for the Hadoop record writer) the maximum number of 
+  buffered Records we wish to regularly flush to the Gora datastore. 
+  @see org.apache.gora.mapreduce.GoraRecordWriter.
   </description>
 </property>
 
