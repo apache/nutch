@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
+* NUTCH-842 AutoGenerate WebPage code (jnioche via lewismc)
+
 * NUTCH-1536 Ant build file has hardcoded conf dir location (zm via lewismc)
 
 * NUTCH-XX remove unused db.max.inlinks property in nutch-default.xml (lewismc)
