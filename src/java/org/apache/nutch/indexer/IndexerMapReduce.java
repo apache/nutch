@@ -56,6 +56,7 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
 
   public static final Logger LOG = LoggerFactory.getLogger(IndexerMapReduce.class);
 
+  public static final String INDEXER_PARAMS = "indexer.additional.params";
   public static final String INDEXER_DELETE = "indexer.delete";
   public static final String INDEXER_DELETE_ROBOTS_NOINDEX = "indexer.delete.robots.noindex";
   public static final String INDEXER_SKIP_NOTMODIFIED = "indexer.skip.notmodified";

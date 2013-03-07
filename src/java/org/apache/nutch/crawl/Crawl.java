@@ -31,8 +31,8 @@ import org.apache.hadoop.mapred.*;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.parse.ParseSegment;
+import org.apache.nutch.indexer.IndexingJob;
 import org.apache.nutch.indexer.solr.SolrDeleteDuplicates;
-import org.apache.nutch.indexer.solr.SolrIndexer;
 import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
@@ -96,6 +96,11 @@ public class Crawl extends Configured implements Tool {
     if (solrUrl == null) {
       LOG.warn("solrUrl is not set, indexing will be skipped...");
     }
+    else {
+        // for simplicity assume that SOLR is used 
+        // and pass its URL via conf 
+        getConf().set("solr.server.url", solrUrl);
+    }
 
     FileSystem fs = FileSystem.get(job);
 
@@ -145,9 +150,11 @@ public class Crawl extends Configured implements Tool {
       if (solrUrl != null) {
         // index, dedup & merge
         FileStatus[] fstats = fs.listStatus(segments, HadoopFSUtil.getPassDirectoriesFilter(fs));
-        SolrIndexer indexer = new SolrIndexer(getConf());
-        indexer.indexSolr(solrUrl, crawlDb, linkDb, 
-          Arrays.asList(HadoopFSUtil.getPaths(fstats)));
+        
+        IndexingJob indexer = new IndexingJob(getConf());
+        indexer.index(crawlDb, linkDb, 
+                Arrays.asList(HadoopFSUtil.getPaths(fstats)));
+
         SolrDeleteDuplicates dedup = new SolrDeleteDuplicates();
         dedup.setConf(getConf());
         dedup.dedup(solrUrl);

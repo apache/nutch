@@ -61,9 +61,11 @@ if [ $# = 0 ]; then
   echo "  updatedb          update crawl db from segments after fetching"
   echo "  invertlinks       create a linkdb from parsed segments"
   echo "  mergelinkdb       merge linkdb-s, with optional filtering"
+  echo "  index             run the plugin-based indexer on parsed segments and linkdb"
   echo "  solrindex         run the solr indexer on parsed segments and linkdb"
   echo "  solrdedup         remove duplicates from solr"
   echo "  solrclean         remove HTTP 301 and 404 documents from solr"
+  echo "  clean             remove HTTP 301 and 404 documents from indexing backends configured via plugins"
   echo "  parsechecker      check the parser for a given url"
   echo "  indexchecker      check the indexing filters for a given url"
   echo "  domainstats       calculate domain statistics from crawldb"
@@ -219,11 +221,17 @@ elif [ "$COMMAND" = "invertlinks" ] ; then
 elif [ "$COMMAND" = "mergelinkdb" ] ; then
   CLASS=org.apache.nutch.crawl.LinkDbMerger
 elif [ "$COMMAND" = "solrindex" ] ; then
-  CLASS=org.apache.nutch.indexer.solr.SolrIndexer
+  CLASS="org.apache.nutch.indexer.IndexingJob -D solr.server.url=$1"
+  shift
+elif [ "$COMMAND" = "index" ] ; then
+  CLASS=org.apache.nutch.indexer.IndexingJob
 elif [ "$COMMAND" = "solrdedup" ] ; then
   CLASS=org.apache.nutch.indexer.solr.SolrDeleteDuplicates
 elif [ "$COMMAND" = "solrclean" ] ; then
-  CLASS=org.apache.nutch.indexer.solr.SolrClean
+  CLASS="org.apache.nutch.indexer.CleaningJob -D solr.server.url=$2 $1"
+  shift; shift
+elif [ "$COMMAND" = "clean" ] ; then
+  CLASS=org.apache.nutch.indexer.CleaningJob
 elif [ "$COMMAND" = "parsechecker" ] ; then
   CLASS=org.apache.nutch.parse.ParserChecker
 elif [ "$COMMAND" = "indexchecker" ] ; then

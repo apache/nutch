@@ -29,6 +29,10 @@
       name="Nutch Indexing Filter"/>
 
 <extension-point
+      id="org.apache.nutch.indexer.IndexWriter"
+      name="Nutch Index Writer"/>
+
+<extension-point
       id="org.apache.nutch.parse.Parser"
       name="Nutch Content Parser"/>
  

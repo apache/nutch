@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.indexer.solr;
+package org.apache.nutch.indexwriter.solr;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -122,21 +122,21 @@ public class SolrMappingReader {
 
   public String hasCopy(String key) {
     if (copyMap.containsKey(key)) {
-      key = copyMap.get(key);
+      key = (String) copyMap.get(key);
     }
     return key;
   }
 
   public String mapKey(String key) throws IOException {
     if(keyMap.containsKey(key)) {
-      key = keyMap.get(key);
+      key = (String) keyMap.get(key);
     }
     return key;
   }
 
   public String mapCopyKey(String key) throws IOException {
     if(copyMap.containsKey(key)) {
-      key = copyMap.get(key);
+      key = (String) copyMap.get(key);
     }
     return key;
   }

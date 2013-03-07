@@ -34,6 +34,7 @@
      <ant dir="index-more" target="deploy"/>
      <ant dir="index-static" target="deploy"/>
      <ant dir="index-metadata" target="deploy"/>
+     <ant dir="indexer-solr" target="deploy"/>
      <ant dir="language-identifier" target="deploy"/>
      <ant dir="lib-http" target="deploy"/>
      <ant dir="lib-nekohtml" target="deploy"/>
@@ -118,6 +119,7 @@
     <ant dir="index-more" target="clean"/>
     <ant dir="index-static" target="clean"/>
     <ant dir="index-metadata" target="clean"/>
+    <ant dir="indexer-solr" target="clean"/>
     <ant dir="language-identifier" target="clean"/>
     <ant dir="lib-commons-httpclient" target="clean"/>
     <ant dir="lib-http" target="clean"/>

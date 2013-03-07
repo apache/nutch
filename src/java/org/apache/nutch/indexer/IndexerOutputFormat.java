@@ -26,39 +26,32 @@ import org.apache.hadoop.mapred.RecordWriter;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.util.Progressable;
 
-public class IndexerOutputFormat extends FileOutputFormat<Text, NutchIndexAction> {
+public class IndexerOutputFormat extends
+        FileOutputFormat<Text, NutchIndexAction> {
 
-  @Override
-  public RecordWriter<Text, NutchIndexAction> getRecordWriter(FileSystem ignored,
-      JobConf job, String name, Progressable progress) throws IOException {
-    
-    // populate JobConf with field indexing options
-    IndexingFilters filters = new IndexingFilters(job);
-    
-    final NutchIndexWriter[] writers =
-      NutchIndexWriterFactory.getNutchIndexWriters(job);
+    @Override
+    public RecordWriter<Text, NutchIndexAction> getRecordWriter(
+            FileSystem ignored, JobConf job, String name, Progressable progress)
+            throws IOException {
 
-    for (final NutchIndexWriter writer : writers) {
-      writer.open(job, name);
+        final IndexWriters writers = new IndexWriters(job);
+
+        writers.open(job, name);
+
+        return new RecordWriter<Text, NutchIndexAction>() {
+
+            public void close(Reporter reporter) throws IOException {
+                writers.close();
+            }
+
+            public void write(Text key, NutchIndexAction indexAction)
+                    throws IOException {
+                if (indexAction.action == NutchIndexAction.ADD) {
+                    writers.write(indexAction.doc);
+                } else if (indexAction.action == NutchIndexAction.DELETE) {
+                    writers.delete(key.toString());
+                }
+            }
+        };
     }
-    return new RecordWriter<Text, NutchIndexAction>() {
-
-      public void close(Reporter reporter) throws IOException {
-        for (final NutchIndexWriter writer : writers) {
-          writer.close();
-        }
-      }
-
-      public void write(Text key, NutchIndexAction indexAction) throws IOException {
-        for (final NutchIndexWriter writer : writers) {
-          if (indexAction.action == NutchIndexAction.ADD) {
-            writer.write(indexAction.doc);
-          }
-          if (indexAction.action == NutchIndexAction.DELETE) {
-            writer.delete(key.toString());
-          }
-        }
-      }
-    };
-  }
 }

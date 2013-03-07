@@ -13,10 +13,14 @@
 
 <ivy-module version="1.0">
 	<info organisation="org.apache.nutch" module="nutch">
-		<license name="Apache 2.0" url="http://www.apache.org/licenses/LICENSE-2.0.txt/"/>
+		<license name="Apache 2.0"
+			url="http://www.apache.org/licenses/LICENSE-2.0.txt/" />
 		<ivyauthor name="Apache Nutch Team" url="http://nutch.apache.org" />
-		<description homepage="http://nutch.apache.org">Nutch is an open source web-search software. It builds on 
-		Hadoop, Tika and Solr, adding web-specifics, such as a crawler, a link-graph database etc.
+		<description homepage="http://nutch.apache.org">Nutch is an open source web-search
+			software. It builds on
+			Hadoop, Tika and Solr, adding web-specifics,
+			such as a crawler, a link-graph
+			database etc.
 		</description>
 	</info>
 
@@ -31,8 +35,12 @@
 
 	<dependencies>
 		<dependency org="org.apache.solr" name="solr-solrj" rev="3.4.0"
-			conf="*->default"/>
-		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.1" conf="*->master" />
+			conf="*->default" />
+
+		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.1"
+			conf="*->master" />
+		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.1"
+			conf="*->master" />
 
 		<dependency org="commons-lang" name="commons-lang" rev="2.6"
 			conf="*->default" />
@@ -55,15 +63,16 @@
 
 		<dependency org="org.apache.tika" name="tika-core" rev="1.2" />
 		<dependency org="com.ibm.icu" name="icu4j" rev="4.0.1" />
-		
-		<dependency org="org.mortbay.jetty" name="jetty-client" rev="6.1.22" />
+
+		<dependency org="org.mortbay.jetty" name="jetty-client"
+			rev="6.1.22" />
 
 		<dependency org="log4j" name="log4j" rev="1.2.15" conf="*->master" />
 
 		<dependency org="xerces" name="xercesImpl" rev="2.9.1" />
 		<dependency org="xerces" name="xmlParserAPIs" rev="2.6.2" />
 		<dependency org="oro" name="oro" rev="2.0.8" />
-		
+
 		<dependency org="com.google.guava" name="guava" rev="11.0.2" />
 
 		<!--Configuration: test -->
@@ -78,10 +87,10 @@
 		<dependency org="org.mortbay.jetty" name="jetty-util" rev="6.1.22"
 			conf="test->default" />
 
-                <!--global exclusion-->
-             	<exclude module="jmxtools" />
-             	<exclude module="jms" />
-             	<exclude module="jmxri" />
+		<!--global exclusion -->
+		<exclude module="jmxtools" />
+		<exclude module="jms" />
+		<exclude module="jmxri" />
 
 	</dependencies>
 

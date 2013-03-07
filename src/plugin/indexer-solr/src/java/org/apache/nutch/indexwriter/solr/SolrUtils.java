@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.indexer.solr;
+package org.apache.nutch.indexwriter.solr;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.auth.AuthScope;
@@ -50,7 +50,9 @@ public class SolrUtils {
       client.setParams(params);
     }
 
-    return new CommonsHttpSolrServer(job.get(SolrConstants.SERVER_URL), client);
+    String serverURL = job.get(SolrConstants.SERVER_URL);
+    
+    return new CommonsHttpSolrServer(serverURL, client);
   }
 
   public static String stripNonCharCodepoints(String input) {
