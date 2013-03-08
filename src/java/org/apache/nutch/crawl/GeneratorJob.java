@@ -19,6 +19,7 @@ package org.apache.nutch.crawl;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
@@ -40,6 +41,7 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
+import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.ToolUtil;
 
 public class GeneratorJob extends NutchTool implements Tool {
@@ -204,9 +206,13 @@ public class GeneratorJob extends NutchTool implements Tool {
   public String generate(long topN, long curTime, boolean filter, boolean norm)
       throws Exception {
 
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("GeneratorJob: starting at " + sdf.format(start));
     LOG.info("GeneratorJob: Selecting best-scoring urls due for fetch.");
     LOG.info("GeneratorJob: starting");
     LOG.info("GeneratorJob: filtering: " + filter);
+    LOG.info("GeneratorJob: normalizing: " + norm);
     if (topN != Long.MAX_VALUE) {
       LOG.info("GeneratorJob: topN: " + topN);
     }
@@ -216,12 +222,25 @@ public class GeneratorJob extends NutchTool implements Tool {
         Nutch.ARG_FILTER, filter,
         Nutch.ARG_NORMALIZE, norm));
     batchId =  getConf().get(BATCH_ID);
-    LOG.info("GeneratorJob: done");
+    long finish = System.currentTimeMillis();
+    LOG.info("GeneratorJob: finished at " + sdf.format(finish) + ", time elapsed: " + TimingUtil.elapsedTime(start, finish));
     LOG.info("GeneratorJob: generated batch id: " + batchId);
     return batchId;
   }
 
   public int run(String[] args) throws Exception {
+    if (args.length <= 0) {
+      System.out.println("Usage: GeneratorJob [-topN N] [-crawlId id] [-noFilter] [-noNorm]");
+      System.out.println("    -topN <N>      - number of top URLs to be selected, default is Long.MAX_VALUE ");
+      System.out.println("    -crawlId <id>  - the id to prefix the schemas to operate on, \n \t \t    (default: storage.crawl.id)\");");
+      System.out.println("    -noFilter      - do not activate the filter plugin to filter the url, default is true ");
+      System.out.println("    -noNorm        - do not activate the normalizer plugin to normalize the url, default is true ");
+
+      System.out.println("----------------------");
+      System.out.println("Please set the params.");
+      return -1;
+    }
+
     long curTime = System.currentTimeMillis(), topN = Long.MAX_VALUE;
     boolean filter = true, norm = true;
 

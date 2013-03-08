@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
+* NUTCH-1393 Display consistent usage of GeneratorJob with 1.X (Lufeng +via lewismc)
+
 * NUTCH-1540 Add Gora buffered read and write maximum limits to nutch-default.xml configuration. (lewismc)
 
 * NUTCH-842 AutoGenerate WebPage code (jnioche via lewismc)
