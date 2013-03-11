@@ -64,6 +64,10 @@ sizeFetchlist=`expr $numSlaves \* 50000`
 # time limit for feching
 timeLimitFetch=180
 
+# Adds <days> to the current time to facilitate 
+# crawling urls already fetched sooner then 
+# db.default.fetch.interval.
+addDays=0
 #############################################
 
 # determines whether mode based on presence of job file
@@ -108,7 +112,7 @@ do
   echo `date` ": Iteration $a of $LIMIT"
 
   echo "Generating a new fetchlist"
-  $bin/nutch generate $commonOptions $CRAWL_ID/crawldb $CRAWL_ID/segments -topN $sizeFetchlist -numFetchers $numSlaves -noFilter
+  $bin/nutch generate $commonOptions $CRAWL_ID/crawldb $CRAWL_ID/segments -topN $sizeFetchlist -numFetchers $numSlaves -noFilter -adddays $addDays
   
   if [ $? -ne 0 ] 
   then exit $? 
