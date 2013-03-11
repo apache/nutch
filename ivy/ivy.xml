@@ -33,7 +33,7 @@
 
   <dependencies>
     <dependency org="org.elasticsearch" name="elasticsearch" rev="0.19.4" 
-                conf="*->default,sources"/>
+                conf="*->default"/>
   
     <dependency org="org.apache.solr" name="solr-solrj" rev="3.4.0"
       conf="*->default" />
@@ -60,8 +60,6 @@
     <dependency org="com.ibm.icu" name="icu4j" rev="4.0.1" />
     <dependency org="org.apache.tika" name="tika-core" rev="1.2" />
     <dependency org="com.googlecode.juniversalchardet" name="juniversalchardet" rev="1.0.3"/>
-
-    <dependency org="org.apache.gora" name="gora-core" rev="0.2.1" conf="*->compile"/>
 
     <dependency org="log4j" name="log4j" rev="1.2.15" conf="*->master" />
 
@@ -92,29 +90,27 @@
     <dependency org="org.hsqldb" name="hsqldb" rev="2.2.8" conf="*->default" />
     <dependency org="org.jdom" name="jdom" rev="1.1" conf="test->default"/>
 
-    <dependency org="org.apache.gora" name="gora-sql" rev="0.1.1-incubating"
-      conf="*->default" />
-
     <dependency org="org.restlet.jse" name="org.restlet" rev="2.0.5" conf="*->default" />
     <dependency org="org.restlet.jse" name="org.restlet.ext.jackson" rev="2.0.5" 
       conf="*->default" />
 
+    <!--================-->
+    <!-- Gora artifacts -->
+    <!--================-->
+    <dependency org="org.apache.gora" name="gora-core" rev="0.2.1" conf="*->compile"/>
+    <dependency org="org.apache.gora" name="gora-sql" rev="0.1.1-incubating" conf="*->default" />
     <!-- Uncomment this to use MySQL as database with SQL as Gora store. -->
     <!-- 
     <dependency org="mysql" name="mysql-connector-java" rev="5.1.18" conf="*->default"/> 
     -->
-
     <!-- Uncomment this to use HBase as Gora backend. -->
     <!-- 
     <dependency org="org.apache.gora" name="gora-hbase" rev="0.2.1" conf="*->default" />
     -->
-
-
     <!-- Uncomment this to use Accumulo as Gora backend. -->
     <!-- 
     <dependency org="org.apache.gora" name="gora-accumulo" rev="0.2.1" conf="*->default" />
     -->
-
     <!-- Uncomment this to use Cassandra as Gora backend. -->
     <!-- 
     <dependency org="org.apache.gora" name="gora-cassandra" rev="0.2" conf="*->default" />
