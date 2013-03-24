@@ -31,7 +31,7 @@
     <field name="protocolStatus" column="protocolStatus"/>
     <field name="modifiedTime" column="modifiedTime"/>
     <field name="prevModifiedTime" column="prevModifiedTime"/>
-    <field name="batchId" column="batchId"/>
+    <field name="batchId" column="batchId" length="32"/>
 
     <!-- parse fields                                       -->
     <field name="title" column="title" length="512"/>
