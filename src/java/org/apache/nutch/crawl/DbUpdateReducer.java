@@ -127,14 +127,15 @@ extends GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
         long fetchTime = page.getFetchTime();
         long prevFetchTime = page.getPrevFetchTime();
         long modifiedTime = page.getModifiedTime();
+        long prevModifiedTime = page.getPrevModifiedTime();
 
-        schedule.setFetchSchedule(url, page, prevFetchTime, 0L,
+        schedule.setFetchSchedule(url, page, prevFetchTime, prevModifiedTime,
             fetchTime, modifiedTime, modified);
         if (maxInterval < page.getFetchInterval())
           schedule.forceRefetch(url, page, false);
         break;
       case CrawlStatus.STATUS_RETRY:
-        schedule.setPageRetrySchedule(url, page, 0L, 0L, page.getFetchTime());
+        schedule.setPageRetrySchedule(url, page, 0L, page.getPrevModifiedTime(), page.getFetchTime());
         if (page.getRetriesSinceFetch() < retryMax) {
           page.setStatus(CrawlStatus.STATUS_UNFETCHED);
         } else {
@@ -142,7 +143,7 @@ extends GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
         }
         break;
       case CrawlStatus.STATUS_GONE:
-        schedule.setPageGoneSchedule(url, page, 0L, 0L, page.getFetchTime());
+        schedule.setPageGoneSchedule(url, page, 0L, page.getPrevModifiedTime(), page.getFetchTime());
         break;
       }
     }

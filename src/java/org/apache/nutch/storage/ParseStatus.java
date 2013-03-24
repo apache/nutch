@@ -14,6 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
+ 
 package org.apache.nutch.storage;
 
 import java.nio.ByteBuffer;
@@ -26,6 +27,7 @@ import org.apache.avro.Protocol;
 import org.apache.avro.util.Utf8;
 import org.apache.avro.ipc.AvroRemoteException;
 import org.apache.avro.generic.GenericArray;
+import org.apache.avro.specific.FixedSize;
 import org.apache.avro.specific.SpecificExceptionBase;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.avro.specific.SpecificRecord;

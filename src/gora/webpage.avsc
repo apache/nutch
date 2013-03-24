@@ -9,6 +9,7 @@
         {"name": "fetchInterval", "type": "int"},
         {"name": "retriesSinceFetch", "type": "int"},
         {"name": "modifiedTime", "type": "long"},
+        {"name": "prevModifiedTime", "type": "long"},
         {"name": "protocolStatus", "type": {
             "name": "ProtocolStatus",
             "type": "record",
@@ -41,6 +42,7 @@
         {"name": "outlinks", "type": {"type": "map", "values": "string"}},
         {"name": "inlinks", "type": {"type": "map", "values": "string"}},
         {"name": "markers", "type": {"type": "map", "values": "string"}},
-        {"name": "metadata", "type": {"type": "map", "values": "bytes"}}
+        {"name": "metadata", "type": {"type": "map", "values": "bytes"}},
+        {"name": "batchId", "type": "string"}
    ]
 }

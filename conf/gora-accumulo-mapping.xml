@@ -42,6 +42,8 @@
         <field name="contentType" family="f" qualifier="typ"/>
         <field name="protocolStatus" family="f" qualifier="prot"/>
         <field name="modifiedTime" family="f" qualifier="mod"/>
+        <field name="prevModifiedTime" family="f" qualifier="pmod"/>
+        <field name="batchId" family="f" qualifier="bid"/>
         
         <!-- parse fields                                       -->
         <field name="title" family="p" qualifier="t"/>

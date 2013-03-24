@@ -37,6 +37,7 @@ public class DefaultFetchSchedule extends AbstractFetchSchedule {
         fetchTime, modifiedTime, state);
     page.setFetchTime(fetchTime + page.getFetchInterval() * 1000L);
     page.setModifiedTime(modifiedTime);
+    page.setPrevModifiedTime(prevModifiedTime);
   }
 
 }

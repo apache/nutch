@@ -105,6 +105,7 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
     if (interval > MAX_INTERVAL) interval = MAX_INTERVAL;
     page.setFetchTime(refTime + interval * 1000L);
     page.setModifiedTime(modifiedTime);
+    page.setPrevModifiedTime(prevModifiedTime);
   }
 
 

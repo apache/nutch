@@ -74,6 +74,7 @@ extends GoraReducer<SelectorEntry, WebPage, String, WebPage> {
       }
 
       Mark.GENERATE_MARK.putMark(page, batchId);
+      page.setBatchId(batchId);
       try {
         context.write(TableUtil.reverseUrl(key.url), page);
       } catch (MalformedURLException e) {

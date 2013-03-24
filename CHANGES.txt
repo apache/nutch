@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
+* NUTCH-1533 Implement getPrevModifiedTime(), setPrevModifiedTime(), getBatchId() and setBatchId() accessors in o.a.n.storage.WebPage (Feng via lewismc)
+
 * NUTCH-XX fix Elastic Search Ivy configuration (Binoy d via lewismc) 
 
 * NUTCH-1542 "adddays" param for generator not present in 2.x (tejasp)
