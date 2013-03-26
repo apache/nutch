@@ -39,6 +39,7 @@ import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
+import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.URLUtil;
 
@@ -81,8 +82,14 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     Protocol protocol = factory.getProtocol(url);
     CrawlDatum datum = new CrawlDatum();
 
-    Content content = protocol.getProtocolOutput(new Text(url), datum)
-        .getContent();
+    ProtocolOutput output = protocol.getProtocolOutput(new Text(url), datum);
+    
+    if (!output.getStatus().isSuccess()) {
+      System.out.println("Fetch failed with protocol status: " + output.getStatus());
+      return 0;
+    }
+         
+    Content content = output.getContent();
 
     if (content == null) {
       System.out.println("No content for " + url);

@@ -28,6 +28,7 @@ import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
+import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.URLUtil;
 import org.apache.nutch.util.StringUtil;
@@ -80,11 +81,17 @@ public class ParserChecker implements Tool {
 
     ProtocolFactory factory = new ProtocolFactory(conf);
     Protocol protocol = factory.getProtocol(url);
-    Content content = protocol.getProtocolOutput(new Text(url),
-        new CrawlDatum()).getContent();
+    ProtocolOutput output = protocol.getProtocolOutput(new Text(url), new CrawlDatum());
+    
+    if (!output.getStatus().isSuccess()) {
+      System.err.println("Fetch failed with protocol status: " + output.getStatus());
+      return (-1);
+    }
+    
+    Content content = output.getContent();
 
     if (content == null) {
-      System.err.println("Can't fetch URL successfully");
+      LOG.error("No content for " + url);
       return (-1);
     }
 
