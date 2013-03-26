@@ -37,6 +37,7 @@ import org.apache.gora.persistency.impl.PersistentBase;
 import org.apache.gora.persistency.impl.StateManagerImpl;
 import org.apache.gora.persistency.StatefulHashMap;
 import org.apache.gora.persistency.ListGenericArray;
+import org.apache.nutch.protocol.ProtocolStatusUtils;
 
 @SuppressWarnings("all")
 public class ProtocolStatus extends PersistentBase {
@@ -108,5 +109,13 @@ public class ProtocolStatus extends PersistentBase {
   }
   public void setLastModified(long value) {
     put(2, value);
+  }
+  
+  /**
+   * A convenience method which returns a successful {@link ProtocolStatus}.
+   * @return the {@link ProtocolStatus} value for 200 (success).
+   */
+  public boolean isSuccess() {
+    return code == ProtocolStatusUtils.SUCCESS; 
   }
 }

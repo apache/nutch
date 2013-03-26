@@ -85,7 +85,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
       page.setStatus(CrawlStatus.STATUS_FETCHED);
       page.setFetchTime(System.currentTimeMillis());
     } else {
-      System.out.println("Fetch failed with protocol status: "
+      LOG.error("Fetch failed with protocol status: "
           + ProtocolStatusUtils.getName(protocolOutput.getStatus().getCode())
           + ": " + ProtocolStatusUtils.getMessage(protocolOutput.getStatus()));
       return -1;
@@ -93,7 +93,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     
     Content content = protocolOutput.getContent();
     if (content == null) {
-      System.out.println("No content for " + url);
+      LOG.warn("No content for " + url);
       return 0;
     }
 
@@ -111,7 +111,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
 
     (new ParseUtil(conf)).process(url, page);
     if (!ParseStatusUtils.isSuccess(page.getParseStatus())) {
-      System.err.println("Problem with parse - check log");
+      LOG.warn("Problem with parse - check log");
       return (-1);
     }
 
@@ -124,7 +124,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     }
 
     if (doc == null) {
-      System.out.println("Document discarded by indexing filter");
+      LOG.info("Document discarded by indexing filter");
       return 0;
     }
     

@@ -31,6 +31,8 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
+import org.apache.nutch.protocol.ProtocolOutput;
+import org.apache.nutch.protocol.ProtocolStatusUtils;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.Bytes;
 import org.apache.nutch.util.NutchConfiguration;
@@ -83,7 +85,21 @@ public class ParserChecker implements Tool {
     ProtocolFactory factory = new ProtocolFactory(conf);
     Protocol protocol = factory.getProtocol(url);
     WebPage page = new WebPage();
-    Content content = protocol.getProtocolOutput(url, page).getContent();
+    
+    ProtocolOutput protocolOutput = protocol.getProtocolOutput(url, page);
+    
+    if(!protocolOutput.getStatus().isSuccess()) {
+      LOG.error("Fetch failed with protocol status: "
+          + ProtocolStatusUtils.getName(protocolOutput.getStatus().getCode())
+          + ": " + ProtocolStatusUtils.getMessage(protocolOutput.getStatus()));
+      return (-1);
+    }
+    Content content = protocolOutput.getContent();
+    
+    if (content == null) {
+      LOG.error("No content for " + url);
+      return (-1);
+    }
     page.setBaseUrl(new org.apache.avro.util.Utf8(url));
     page.setContent(ByteBuffer.wrap(content.getContent()));
 
