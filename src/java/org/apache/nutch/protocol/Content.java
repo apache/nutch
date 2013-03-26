@@ -32,7 +32,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.ArrayFile;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.io.UTF8;
 import org.apache.hadoop.io.VersionMismatchException;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.GenericOptionsParser;
@@ -113,21 +112,21 @@ public final class Content implements Writable{
     switch (oldVersion) {
     case 0:
     case 1:
-      url = UTF8.readString(in); // read url
-      base = UTF8.readString(in); // read base
+      url = Text.readString(in); // read url
+      base = Text.readString(in); // read base
 
       content = new byte[in.readInt()]; // read content
       in.readFully(content);
 
-      contentType = UTF8.readString(in); // read contentType
+      contentType = Text.readString(in); // read contentType
       // reconstruct metadata
       int keySize = in.readInt();
       String key;
       for (int i = 0; i < keySize; i++) {
-        key = UTF8.readString(in);
+        key = Text.readString(in);
         int valueSize = in.readInt();
         for (int j = 0; j < valueSize; j++) {
-          metadata.add(key, UTF8.readString(in));
+          metadata.add(key, Text.readString(in));
         }
       }
       break;
@@ -271,7 +270,7 @@ public final class Content implements Writable{
 
   public static void main(String args[]) throws Exception {
 
-    String usage = "Content (-local | -dfs <namenode:port>) recno segment";
+    String usage = "Content (-local | -dfs <namenode:port>) recno batchId";
 
     if (args.length < 3) {
       System.out.println("usage:" + usage);
@@ -286,9 +285,9 @@ public final class Content implements Writable{
     FileSystem fs = FileSystem.get(conf);
     try {
       int recno = Integer.parseInt(argv[0]);
-      String segment = argv[1];
+      String batchId = argv[1];
 
-      Path file = new Path(segment, DIR_NAME);
+      Path file = new Path(batchId, DIR_NAME);
       System.out.println("Reading from file: " + file);
 
       ArrayFile.Reader contents = new ArrayFile.Reader(fs, file.toString(),

@@ -247,12 +247,12 @@ public class TestGenerator extends AbstractNutchTest {
    *          number of results to generate
    * @param config
    *          Configuration to use
-   * @return path to generated segment
+   * @return path to generated batch
    * @throws IOException
    */
   private void generateFetchlist(int numResults, Configuration config,
       boolean filter) throws Exception {
-    // generate segment
+    // generate batch
     GeneratorJob g = new GeneratorJob();
     g.setConf(config);
     String batchId = g.generate(numResults, System.currentTimeMillis(), filter, false);

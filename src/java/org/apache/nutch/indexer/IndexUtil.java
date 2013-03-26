@@ -43,17 +43,28 @@ public class IndexUtil {
   }
   
   /**
-   * Index a webpage.
+   * Index a {@link Webpage}, here we add the following fields:
+   * <ol>
+   * <li><tt>id</tt>: default uniqueKey for the {@link NutchDocument}.</li>
+   * <li><tt>digest</tt>: Digest is used to identify pages (like unique ID) and is used to remove
+   * duplicates during the dedup procedure. It is calculated using {@link org.apache.nutch.crawl.MD5Signature} or
+   * {@link org.apache.nutch.crawl.TextProfileSignature}.</li>
+   * <li><tt>batchId</tt>: The page belongs to a unique batchId, this is its identifier.</li>
+   * <li><tt>boost</tt>: Boost is used to calculate document (field) score which can be used within
+   * queries submitted to the underlying indexing library to find the best results. It's part of the scoring algorithms. 
+   * See scoring.link, scoring.opic, scoring.tld, etc.</li>
+   * </ol>
    * 
    * @param key The key of the page (reversed url).
-   * @param page The webpage.
+   * @param page The {@link Webpage}.
    * @return The indexed document, or null if skipped by index filters.
    */
   public NutchDocument index(String key, WebPage page) {
     NutchDocument doc = new NutchDocument();
     doc.add("id", key);
     doc.add("digest", StringUtil.toHexString(page.getSignature().array()));
-
+    doc.add("batchId", page.getBatchId().toString());
+    
     String url = TableUtil.unreverseUrl(key);
 
     if (LOG.isDebugEnabled()) {

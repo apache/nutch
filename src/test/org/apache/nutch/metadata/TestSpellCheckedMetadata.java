@@ -296,7 +296,7 @@ public class TestSpellCheckedMetadata extends TestCase {
     scmd.add("Accept-Ranges", "bytes");
     scmd.add("ETag", "\"1234567-89-01234567\"");
     scmd.add("Content-Length", "123");
-    scmd.add(Nutch.SEGMENT_NAME_KEY, "segmentzzz");
+    scmd.add(Nutch.BATCH_NAME_KEY, "batchzzz");
     scmd.add(Nutch.SIGNATURE_KEY, "123");
     return scmd;
   }

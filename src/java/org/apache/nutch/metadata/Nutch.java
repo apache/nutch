@@ -36,7 +36,7 @@ public interface Nutch {
 
   public static final String SIGNATURE_KEY = "nutch.content.digest";
 
-  public static final String SEGMENT_NAME_KEY = "nutch.segment.name";
+  public static final String BATCH_NAME_KEY = "nutch.batch.name";
 
   public static final String SCORE_KEY = "nutch.crawl.score";
 

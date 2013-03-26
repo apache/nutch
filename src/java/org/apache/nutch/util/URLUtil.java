@@ -126,7 +126,7 @@ public class URLUtil {
   }
 
   /** Partitions of the hostname of the url by "."  */
-  public static String[] getHostSegments(URL url) {
+  public static String[] getHostBatches(URL url) {
     String host = url.getHost();
     //return whole hostname, if it is an ipv4
     //TODO : handle ipv6
@@ -137,8 +137,8 @@ public class URLUtil {
 
   /** Partitions of the hostname of the url by "."
    * @throws MalformedURLException */
-  public static String[] getHostSegments(String url) throws MalformedURLException {
-   return getHostSegments(new URL(url));
+  public static String[] getHostBatches(String url) throws MalformedURLException {
+   return getHostBatches(new URL(url));
   }
 
   /**

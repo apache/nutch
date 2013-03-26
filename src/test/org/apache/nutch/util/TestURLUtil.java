@@ -36,7 +36,7 @@ public class TestURLUtil
 
     URL url = null;
 
-    url = new URL("http://lucene.apache.org/nutch");
+    url = new URL("http://nutch.apache.org");
     assertEquals("apache.org", URLUtil.getDomainName(url));
 
     url = new URL("http://en.wikipedia.org/wiki/Java_coffee");
@@ -133,35 +133,35 @@ public class TestURLUtil
 
   }
 
-  public void testGetHostSegments()
+  public void testGetHostBatches()
     throws Exception {
     URL url;
-    String[] segments;
+    String[] batches;
 
     url = new URL("http://subdomain.example.edu.tr");
-    segments = URLUtil.getHostSegments(url);
-    assertEquals("subdomain", segments[0]);
-    assertEquals("example", segments[1]);
-    assertEquals("edu", segments[2]);
-    assertEquals("tr", segments[3]);
+    batches = URLUtil.getHostBatches(url);
+    assertEquals("subdomain", batches[0]);
+    assertEquals("example", batches[1]);
+    assertEquals("edu", batches[2]);
+    assertEquals("tr", batches[3]);
 
     url = new URL("http://");
-    segments = URLUtil.getHostSegments(url);
-    assertEquals(1, segments.length);
-    assertEquals("", segments[0]);
+    batches = URLUtil.getHostBatches(url);
+    assertEquals(1, batches.length);
+    assertEquals("", batches[0]);
 
     url = new URL("http://140.211.11.130/foundation/contributing.html");
-    segments = URLUtil.getHostSegments(url);
-    assertEquals(1, segments.length);
-    assertEquals("140.211.11.130", segments[0]);
+    batches = URLUtil.getHostBatches(url);
+    assertEquals(1, batches.length);
+    assertEquals("140.211.11.130", batches[0]);
 
     // test non-ascii
     url = new URL("http://www.example.商業.tw");
-    segments = URLUtil.getHostSegments(url);
-    assertEquals("www", segments[0]);
-    assertEquals("example", segments[1]);
-    assertEquals("商業", segments[2]);
-    assertEquals("tw", segments[3]);
+    batches = URLUtil.getHostBatches(url);
+    assertEquals("www", batches[0]);
+    assertEquals("example", batches[1]);
+    assertEquals("商業", batches[2]);
+    assertEquals("tw", batches[3]);
 
   }
 

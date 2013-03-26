@@ -169,7 +169,7 @@ implements FetchSchedule {
   public boolean shouldFetch(String url, WebPage page, long curTime) {
     // pages are never truly GONE - we have to check them from time to time.
     // pages with too long fetchInterval are adjusted so that they fit within
-    // maximum fetchInterval (segment retention period).
+    // maximum fetchInterval (batch retention period).
     long fetchTime = page.getFetchTime();
     if (fetchTime - curTime > maxInterval * 1000L) {
       if (page.getFetchInterval() > maxInterval) {

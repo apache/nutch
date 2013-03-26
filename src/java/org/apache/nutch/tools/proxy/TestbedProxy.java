@@ -32,19 +32,10 @@ package org.apache.nutch.tools.proxy;
  * limitations under the License.
  */
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Iterator;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.tools.proxy.FakeHandler.Mode;
-import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
@@ -85,7 +76,7 @@ public class TestbedProxy {
     }
     
     Configuration conf = NutchConfiguration.create();
-    int port = conf.getInt("segment.proxy.port", 8181);
+    int port = conf.getInt("batch.proxy.port", 8181);
     boolean forward = false;
     boolean fake = false;
     boolean delay = false;

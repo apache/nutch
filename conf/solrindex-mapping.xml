@@ -34,7 +34,7 @@
 		<field dest="content" source="content"/>
 		<field dest="title" source="title"/>
 		<field dest="host" source="host"/>
-		<field dest="segment" source="segment"/>
+		<field dest="batchId" source="batchId"/>
 		<field dest="boost" source="boost"/>
 		<field dest="digest" source="digest"/>
 		<field dest="tstamp" source="tstamp"/>
