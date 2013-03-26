@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
+* NUTCH-1038 Port IndexingFiltersChecker to 2.0 (snagel via lewismc)
+
 * NUTCH-1532 Replace 'segment' mapping field with batchId (Feng +via lewismc)
 
 * NUTCH-1533 Implement getPrevModifiedTime(), setPrevModifiedTime(), getBatchId() and setBatchId() accessors in o.a.n.storage.WebPage (Feng via lewismc)
