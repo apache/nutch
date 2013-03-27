@@ -106,6 +106,10 @@ public class ParserChecker implements Tool {
       return (-1);
     }
 
+    if (ParseSegment.isTruncated(content)) {
+      LOG.warn("Content is truncated, parse may fail!");
+    }
+
     ParseResult parseResult = new ParseUtil(conf).parse(content);
 
     // Calculate the signature

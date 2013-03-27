@@ -35,6 +35,7 @@ import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseResult;
+import org.apache.nutch.parse.ParseSegment;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
@@ -104,6 +105,10 @@ public class IndexingFiltersChecker extends Configured implements Tool {
 
     // store the guessed content type in the crawldatum
     datum.getMetaData().put(new Text(Metadata.CONTENT_TYPE), new Text(contentType));
+
+    if (ParseSegment.isTruncated(content)) {
+      LOG.warn("Content is truncated, parse may fail!");
+    }
 
     if (LOG.isInfoEnabled()) {
       LOG.info("parsing: " + url);
