@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
+* NUTCH-1389 parsechecker and indexchecker to report truncated content (snagel)
+
 * NUTCH-1419 parsechecker and indexchecker to report protocol status (snagel via lewismc)
 
 * NUTCH-1038 Port IndexingFiltersChecker to 2.0 (snagel via lewismc)

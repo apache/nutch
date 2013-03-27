@@ -28,6 +28,7 @@ import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlStatus;
 import org.apache.nutch.parse.ParseStatusUtils;
 import org.apache.nutch.parse.ParseUtil;
+import org.apache.nutch.parse.ParserJob;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
@@ -107,6 +108,10 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     if (LOG.isInfoEnabled()) {
       LOG.info("parsing: " + url);
       LOG.info("contentType: " + contentType);
+    }
+
+    if (ParserJob.isTruncated(url, page)) {
+      LOG.warn("Content is truncated, parse may fail!");
     }
 
     (new ParseUtil(conf)).process(url, page);

@@ -121,6 +121,10 @@ public class ParserChecker implements Tool {
 
     page.setContentType(new Utf8(contentType));
 
+    if (ParserJob.isTruncated(url, page)) {
+      LOG.warn("Content is truncated, parse may fail!");
+    }
+
     Parse parse = new ParseUtil(conf).parse(url, page);
 
     if (parse == null) {
