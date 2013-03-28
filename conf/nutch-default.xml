@@ -752,7 +752,7 @@
 <property>
   <name>indexer.max.title.length</name>
   <value>100</value>
-  <description>The maximum number of characters of a title that are indexed.
+  <description>The maximum number of characters of a title that are indexed. A value of -1 disables this check.
   Used by index-basic.
   </description>
 </property>
