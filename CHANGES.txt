@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk): Current Development
 
+* NUTCH-1547 BasicIndexingFilter - Problem to index full title (Feng)
+
 * NUTCH-1389 parsechecker and indexchecker to report truncated content (snagel)
 
 * NUTCH-1419 parsechecker and indexchecker to report protocol status (snagel + lewismc)

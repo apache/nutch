@@ -108,7 +108,7 @@ public class BasicIndexingFilter implements IndexingFilter {
 
     // title
     String title = parse.getData().getTitle();
-    if (title.length() > MAX_TITLE_LENGTH) {      // truncate title if needed
+    if (MAX_TITLE_LENGTH > -1 && title.length() > MAX_TITLE_LENGTH) {      // truncate title if needed
       title = title.substring(0, MAX_TITLE_LENGTH);
     }
 
