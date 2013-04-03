@@ -199,7 +199,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     doc.add("type", mimeType);
 
     // Check if we need to split the content type in sub parts
-    if (conf.getBoolean("moreIndexingFilter.indexMimeTypeParts", true)) {
+    if ( null != contentType && conf.getBoolean("moreIndexingFilter.indexMimeTypeParts", true)) {
       String[] parts = getParts(contentType.toString());
 
       for(String part: parts) {

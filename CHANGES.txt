@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
+* NUTCH-1552 possibility of a NPE in index-more plugin (kaveh minooie via lewismc)
+
 * NUTCH-1547 BasicIndexingFilter - Problem to index full title (Feng)
 
 * NUTCH-1389 parsechecker and indexchecker to report truncated content (snagel)
