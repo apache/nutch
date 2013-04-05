@@ -25,6 +25,8 @@ import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.plugin.Pluggable;
 
+import crawlercommons.robots.BaseRobotRules;
+
 
 /** A retriever of url content.  Implemented by protocol extensions. */
 public interface Protocol extends Pluggable, Configurable {
@@ -59,5 +61,6 @@ public interface Protocol extends Pluggable, Configurable {
    * @param datum page datum
    * @return robot rules (specific for this url or default), never null
    */
-  RobotRules getRobotRules(Text url, CrawlDatum datum);
+  BaseRobotRules getRobotRules(Text url, CrawlDatum datum);
 }
+

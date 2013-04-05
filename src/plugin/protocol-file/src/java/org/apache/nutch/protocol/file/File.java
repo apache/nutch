@@ -17,35 +17,33 @@
 
 package org.apache.nutch.protocol.file;
 
+import java.net.URL;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.nutch.crawl.CrawlDatum;
-import org.apache.hadoop.io.Text;
-import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.net.protocols.HttpDateFormat;
-import org.apache.nutch.net.protocols.Response;
-
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
 
+import org.apache.nutch.crawl.CrawlDatum;
+import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.EmptyRobotRules;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
-import org.apache.nutch.protocol.RobotRules;
+import org.apache.nutch.protocol.RobotRulesParser;
 import org.apache.nutch.util.NutchConfiguration;
 
-import java.net.URL;
+import crawlercommons.robots.BaseRobotRules;
 
-/************************************
- * File.java deals with file: scheme.
- *
- * Configurable parameters are defined under "FILE properties" section
- * in ./conf/nutch-default.xml or similar.
+/**
+ * This class is a protocol plugin used for file: scheme.
+ * It creates {@link FileResponse} object and gets the content of the url from it.
+ * Configurable parameters are {@code file.content.limit} and {@code file.crawl.parent} 
+ * in nutch-default.xml defined under "file properties" section.
  *
  * @author John Xing
- ***********************************/
+ */
 public class File implements Protocol {
 
   public static final Logger LOG = LoggerFactory.getLogger(File.class);
@@ -57,13 +55,40 @@ public class File implements Protocol {
 
   private Configuration conf;
 
-  // constructor
-  public File() {
+  public File() {}
+
+  /**
+   * Set the {@link Configuration} object
+   */
+  public void setConf(Configuration conf) {
+    this.conf = conf;
+    this.maxContentLength = conf.getInt("file.content.limit", 64 * 1024);
+    this.crawlParents = conf.getBoolean("file.crawl.parent", true);
   }
 
-  /** Set the point at which content is truncated. */
-  public void setMaxContentLength(int length) {maxContentLength = length;}
+  /**
+   * Get the {@link Configuration} object
+   */
+  public Configuration getConf() {
+    return this.conf;
+  }
+  
+  /** 
+   * Set the length after at which content is truncated. 
+   */
+  public void setMaxContentLength(int maxContentLength) {
+    this.maxContentLength = maxContentLength;
+  }
 
+  /** 
+   * Creates a {@link FileResponse} object corresponding to the url and 
+   * return a {@link ProtocolOutput} object as per the content received
+   * 
+   * @param url Text containing the url
+   * @param datum The CrawlDatum object corresponding to the url
+   * 
+   * @return {@link ProtocolOutput} object for the content of the file indicated by url
+   */
   public ProtocolOutput getProtocolOutput(Text url, CrawlDatum datum) {
     String urlString = url.toString();
     try {
@@ -99,11 +124,9 @@ public class File implements Protocol {
     }
   }
 
-//  protected void finalize () {
-//    // nothing here
-//  }
-
-  /** For debugging. */
+  /** 
+   * Quick way for running this class. Useful for debugging.
+   */
   public static void main(String[] args) throws Exception {
     int maxContentLength = Integer.MIN_VALUE;
     String logLevel = "info";
@@ -154,17 +177,12 @@ public class File implements Protocol {
     file = null;
   }
 
-  public void setConf(Configuration conf) {
-    this.conf = conf;
-    this.maxContentLength = conf.getInt("file.content.limit", 64 * 1024);
-    this.crawlParents = conf.getBoolean("file.crawl.parent", true);
-  }
-
-  public Configuration getConf() {
-    return this.conf;
-  }
-
-  public RobotRules getRobotRules(Text url, CrawlDatum datum) {
-    return EmptyRobotRules.RULES;
+  /** 
+   * No robots parsing is done for file protocol. 
+   * So this returns a set of empty rules which will allow every url.
+   */
+  public BaseRobotRules getRobotRules(Text url, CrawlDatum datum) {
+    return RobotRulesParser.EMPTY_RULES;
   }
 }
+

@@ -51,6 +51,7 @@ import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.*;
 
+import crawlercommons.robots.BaseRobotRules;
 
 /**
  * A queue-based fetcher.
@@ -671,8 +672,8 @@ public class Fetcher extends Configured implements Tool,
               }
               redirecting = false;
               Protocol protocol = this.protocolFactory.getProtocol(fit.url.toString());
-              RobotRules rules = protocol.getRobotRules(fit.url, fit.datum);
-              if (!rules.isAllowed(fit.u)) {
+              BaseRobotRules rules = protocol.getRobotRules(fit.url, fit.datum);
+              if (!rules.isAllowed(fit.u.toString())) {
                 // unblock
                 fetchQueues.finishFetchItem(fit, true);
                 if (LOG.isDebugEnabled()) {

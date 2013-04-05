@@ -32,14 +32,15 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
-import org.apache.nutch.protocol.RobotRules;
 import org.apache.nutch.util.GZIPUtils;
 import org.apache.nutch.util.DeflateUtils;
-
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
+
+// crawler-commons imports
+import crawlercommons.robots.BaseRobotRules;
 
 /**
  * @author J&eacute;r&ocirc;me Charron
@@ -51,7 +52,7 @@ public abstract class HttpBase implements Protocol {
   
   private static final byte[] EMPTY_CONTENT = new byte[0];
 
-  private RobotRulesParser robots = null;
+  private HttpRobotRulesParser robots = null;
  
   /** The proxy hostname. */ 
   protected String proxyHost = null;
@@ -105,7 +106,7 @@ public abstract class HttpBase implements Protocol {
     if (logger != null) {
       this.logger = logger;
     }
-    robots = new RobotRulesParser();
+    robots = new HttpRobotRulesParser();
   }
   
   // Inherited Javadoc
@@ -138,7 +139,6 @@ public abstract class HttpBase implements Protocol {
     String urlString = url.toString();
     try {
       URL u = new URL(urlString);
-      String host = null;
       Response response = getResponse(u, datum, false); // make a request
       
       int code = response.getCode();
@@ -381,18 +381,16 @@ public abstract class HttpBase implements Protocol {
       System.out.println("Content:");
       String text = new String(content.getContent());
       System.out.println(text);
-    }
-    
+    }  
   }
-  
   
   protected abstract Response getResponse(URL url,
                                           CrawlDatum datum,
                                           boolean followRedirects)
     throws ProtocolException, IOException;
 
-  public RobotRules getRobotRules(Text url, CrawlDatum datum) {
+  public BaseRobotRules getRobotRules(Text url, CrawlDatum datum) {
     return robots.getRobotRulesSet(this, url);
   }
-
 }
+

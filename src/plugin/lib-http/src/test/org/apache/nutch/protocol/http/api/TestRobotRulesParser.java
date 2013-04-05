@@ -17,292 +17,100 @@
 
 package org.apache.nutch.protocol.http.api;
 
-import org.apache.nutch.protocol.http.api.RobotRulesParser.RobotRuleSet;
-
+import crawlercommons.robots.BaseRobotRules;
 import junit.framework.TestCase;
 
+/**
+ * JUnit test case which tests
+ * 1. that robots filtering is performed correctly as per the agent name
+ * 2. that crawl delay is extracted correctly from the robots file
+ *
+ */
 public class TestRobotRulesParser extends TestCase {
-  private static final String LF= "\n";
-  private static final String CR= "\r";
-  private static final String CRLF= "\r\n";
+
+  private static final String CONTENT_TYPE = "text/plain";
+  private static final String SINGLE_AGENT = "Agent1";
+  private static final String MULTIPLE_AGENTS = "Agent2, Agent1";
+  private static final String UNKNOWN_AGENT = "AgentABC";
+  private static final String CR = "\r";
   
-  private static final boolean[] ACCEPT_ALL = {
-    true,   // "/a",	      
-    true,   // "/a/",	      
-    true,   // "/a/bloh/foo.html"
-    true,   // "/b",	      
-    true,   // "/b/a",	      
-    true,   // "/b/a/index.html",
-    true,   // "/b/b/foo.html",  
-    true,   // "/c",	      
-    true,   // "/c/a",	      
-    true,   // "/c/a/index.html",
-    true,   // "/c/b/foo.html",  
-    true,   // "/d",	      
-    true,   // "/d/a",	      
-    true,   // "/e/a/index.html",
-    true,   // "/e/d",	      
-    true,   // "/e/d/foo.html",  
-    true,   // "/e/doh.html",    
-    true,   // "/f/index.html",  
-    true,   // "/foo/bar.html",  
-    true,   // "/f/",
-  };
+  private static final String ROBOTS_STRING = 
+      "User-Agent: Agent1 #foo" + CR 
+      + "Disallow: /a" + CR 
+      + "Disallow: /b/a" + CR 
+      + "#Disallow: /c" + CR 
+      + "Crawl-delay: 10" + CR  // set crawl delay for Agent1 as 10 sec
+      + "" + CR 
+      + "" + CR 
+      + "User-Agent: Agent2" + CR 
+      + "Disallow: /a/bloh" + CR 
+      + "Disallow: /c" + CR
+      + "Disallow: /foo" + CR
+      + "Crawl-delay: 20" + CR
+      + "" + CR 
+      + "User-Agent: *" + CR 
+      + "Disallow: /foo/bar/" + CR;   // no crawl delay for other agents
   
-  private static final String[] ROBOTS_STRINGS= new String[] {
-    "User-Agent: Agent1 #foo" + CR 
-    + "Disallow: /a" + CR 
-    + "Disallow: /b/a" + CR 
-    + "#Disallow: /c" + CR 
-    + "" + CR 
-    + "" + CR 
-    + "User-Agent: Agent2 Agent3#foo" + CR 
-    + "User-Agent: Agent4" + CR 
-    + "Disallow: /d" + CR 
-    + "Disallow: /e/d/" + CR
-    + "" + CR 
-    + "User-Agent: *" + CR 
-    + "Disallow: /foo/bar/" + CR,
-    null  // Used to test EMPTY_RULES
+  private static final String[] TEST_PATHS = new String[] {
+    "http://example.com/a",
+    "http://example.com/a/bloh/foo.html",
+    "http://example.com/b",
+    "http://example.com/c",
+    "http://example.com/b/a/index.html",
+    "http://example.com/foo/bar/baz.html"
   };
 
-  private static final String[] AGENT_STRINGS= new String[] {
-    "Agent1",
-    "Agent2",
-    "Agent3",
-    "Agent4",
-    "Agent5",
+  private static final boolean[] RESULTS = new boolean[] {
+    false,  //  /a
+    false,  //  /a/bloh/foo.html
+    true,   //  /b
+    true,   //  /c
+    false,  //  /b/a/index.html
+    true    //  /foo/bar/baz.html
   };
 
-  private static final boolean[][] NOT_IN_ROBOTS_STRING= new boolean[][] {
-    { 
-      false, 
-      false,
-      false,
-      false,
-      true,
-    },
-    { 
-      false, 
-      false,
-      false,
-      false,
-      true,
-    }    
-  };
+  private HttpRobotRulesParser parser;
+  private BaseRobotRules rules;
 
-  private static final String[] TEST_PATHS= new String[] {
-    "/a",
-    "/a/",
-    "/a/bloh/foo.html",
-    "/b",
-    "/b/a",
-    "/b/a/index.html",
-    "/b/b/foo.html",
-    "/c",
-    "/c/a",
-    "/c/a/index.html",
-    "/c/b/foo.html",
-    "/d",
-    "/d/a",
-    "/e/a/index.html",
-    "/e/d",
-    "/e/d/foo.html",
-    "/e/doh.html",
-    "/f/index.html",
-    "/foo/bar/baz.html",  
-    "/f/",
-  };
-
-  private static final boolean[][][] ALLOWED= new boolean[][][] {
-    { // ROBOTS_STRINGS[0]
-      { // Agent1
-	false,  // "/a",	      
-	false,  // "/a/",	      
-	false,  // "/a/bloh/foo.html"
-	true,   // "/b",	      
-	false,  // "/b/a",	      
-	false,  // "/b/a/index.html",
-	true,   // "/b/b/foo.html",  
-	true,   // "/c",	      
-	true,   // "/c/a",	      
-	true,   // "/c/a/index.html",
-	true,   // "/c/b/foo.html",  
-	true,   // "/d",	      
-	true,   // "/d/a",	      
-	true,   // "/e/a/index.html",
-	true,   // "/e/d",	      
-	true,   // "/e/d/foo.html",  
-	true,   // "/e/doh.html",    
-	true,   // "/f/index.html",  
-	true,   // "/foo/bar.html",  
-	true,   // "/f/",  
-      }, 
-      { // Agent2
-	true,   // "/a",	      
-	true,   // "/a/",	      
-	true,   // "/a/bloh/foo.html"
-	true,   // "/b",	      
-	true,   // "/b/a",	      
-	true,   // "/b/a/index.html",
-	true,   // "/b/b/foo.html",  
-	true,   // "/c",	      
-	true,   // "/c/a",	      
-	true,   // "/c/a/index.html",
-	true,   // "/c/b/foo.html",  
-	false,  // "/d",	      
-	false,  // "/d/a",	      
-	true,   // "/e/a/index.html",
-	true,   // "/e/d",	      
-	false,  // "/e/d/foo.html",  
-	true,   // "/e/doh.html",    
-	true,   // "/f/index.html",  
-	true,   // "/foo/bar.html",  
-	true,   // "/f/",  
-      },
-      { // Agent3
-	true,   // "/a",	      
-	true,   // "/a/",	      
-	true,   // "/a/bloh/foo.html"
-	true,   // "/b",	      
-	true,   // "/b/a",	      
-	true,   // "/b/a/index.html",
-	true,   // "/b/b/foo.html",  
-	true,   // "/c",	      
-	true,   // "/c/a",	      
-	true,   // "/c/a/index.html",
-	true,   // "/c/b/foo.html",  
-	false,  // "/d",	      
-	false,  // "/d/a",	      
-	true,   // "/e/a/index.html",
-	true,   // "/e/d",	      
-	false,  // "/e/d/foo.html",  
-	true,   // "/e/doh.html",    
-	true,   // "/f/index.html",  
-	true,   // "/foo/bar.html",  
-	true,   // "/f/",  
-      },
-      { // Agent4
-	true,   // "/a",	      
-	true,   // "/a/",	      
-	true,   // "/a/bloh/foo.html"
-	true,   // "/b",	      
-	true,   // "/b/a",	      
-	true,   // "/b/a/index.html",
-	true,   // "/b/b/foo.html",  
-	true,   // "/c",	      
-	true,   // "/c/a",	      
-	true,   // "/c/a/index.html",
-	true,   // "/c/b/foo.html",  
-	false,  // "/d",	      
-	false,  // "/d/a",	      
-	true,   // "/e/a/index.html",
-	true,   // "/e/d",	      
-	false,  // "/e/d/foo.html",  
-	true,   // "/e/doh.html",    
-	true,   // "/f/index.html",  
-	true,   // "/foo/bar.html",  
-	true,   // "/f/",  
-      },
-      { // Agent5/"*"
-	true,   // "/a",	      
-	true,   // "/a/",	      
-	true,   // "/a/bloh/foo.html"
-	true,   // "/b",	      
-	true,   // "/b/a",	      
-	true,   // "/b/a/index.html",
-	true,   // "/b/b/foo.html",  
-	true,   // "/c",	      
-	true,   // "/c/a",	      
-	true,   // "/c/a/index.html",
-	true,   // "/c/b/foo.html",  
-	true,   // "/d",	      
-	true,   // "/d/a",	      
-	true,   // "/e/a/index.html",
-	true,   // "/e/d",	      
-	true,   // "/e/d/foo.html",  
-	true,   // "/e/doh.html",    
-	true,   // "/f/index.html",  
-	false,  // "/foo/bar.html",  
-	true,   // "/f/",  
-      }
-    },
-    { // ROBOTS_STRINGS[1]
-      ACCEPT_ALL, // Agent 1
-      ACCEPT_ALL, // Agent 2
-      ACCEPT_ALL, // Agent 3
-      ACCEPT_ALL, // Agent 4
-      ACCEPT_ALL, // Agent 5
-    }
-  };
- 
   public TestRobotRulesParser(String name) {
     super(name);
+    parser = new HttpRobotRulesParser();
   }
 
-  public void testRobotsOneAgent() {
-    for (int i= 0; i < ROBOTS_STRINGS.length; i++) {
-      for (int j= 0; j < AGENT_STRINGS.length; j++) {
-	testRobots(i, new String[] { AGENT_STRINGS[j] },
-		   TEST_PATHS, ALLOWED[i][j]);
-      }
+  /**
+  * Test that the robots rules are interpreted correctly by the robots rules parser. 
+  */
+  public void testRobotsAgent() {
+    rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(), CONTENT_TYPE, SINGLE_AGENT);
+
+    for(int counter = 0; counter < TEST_PATHS.length; counter++) {
+      assertTrue("testing on agent (" + SINGLE_AGENT + "), and " 
+              + "path " + TEST_PATHS[counter] 
+              + " got " + rules.isAllowed(TEST_PATHS[counter]),
+              rules.isAllowed(TEST_PATHS[counter]) == RESULTS[counter]);
+    }
+
+    rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(), CONTENT_TYPE, MULTIPLE_AGENTS);
+
+    for(int counter = 0; counter < TEST_PATHS.length; counter++) {
+      assertTrue("testing on agents (" + MULTIPLE_AGENTS + "), and " 
+              + "path " + TEST_PATHS[counter] 
+              + " got " + rules.isAllowed(TEST_PATHS[counter]),
+              rules.isAllowed(TEST_PATHS[counter]) == RESULTS[counter]);
     }
   }
 
-  public void testRobotsTwoAgents() {
-    for (int i= 0; i < ROBOTS_STRINGS.length; i++) {
-      for (int j= 0; j < AGENT_STRINGS.length; j++) {
-	for (int k= 0; k < AGENT_STRINGS.length; k++) {
-	  int key= j;
-	  if (NOT_IN_ROBOTS_STRING[i][j])
-	    key= k;
-	  testRobots(i, new String[] { AGENT_STRINGS[j], AGENT_STRINGS[k] },
-		     TEST_PATHS, ALLOWED[i][key]);
-	}
-      }
-    }
-  }
-  
+  /**
+  * Test that the crawl delay is extracted from the robots file for respective agent. 
+  * If its not specified for a given agent, default value must be returned.
+  */
   public void testCrawlDelay() {
-    RobotRulesParser p = new RobotRulesParser(new String[] { "nutchbot" });
-    String delayRule1 = "User-agent: nutchbot" + CR +
-                        "Crawl-delay: 10" + CR +
-                        "User-agent: foobot" + CR +
-                        "Crawl-delay: 20" + CR +
-                        "User-agent: *" + CR + 
-                        "Disallow:/baz" + CR;
-    String delayRule2 = "User-agent: foobot" + CR +
-                        "Crawl-delay: 20" + CR +
-                        "User-agent: *" + CR + 
-                        "Disallow:/baz" + CR;
-    RobotRuleSet rules = p.parseRules(delayRule1.getBytes());
-    long crawlDelay = rules.getCrawlDelay();
-    assertTrue("testing crawl delay for agent nutchbot - rule 1", (crawlDelay == 10000));
-    rules = p.parseRules(delayRule2.getBytes());
-    crawlDelay = rules.getCrawlDelay();
-    assertTrue("testing crawl delay for agent nutchbot - rule 2", (crawlDelay == -1));
+    // for SINGLE_AGENT, the crawl delay of 10 sec ie. 10000 msec must be returned by the parser
+    rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(), CONTENT_TYPE, SINGLE_AGENT);
+    assertTrue("testing crawl delay for agent "+ SINGLE_AGENT +" : ", (rules.getCrawlDelay() == 10000));
+    
+    // for UNKNOWN_AGENT, the default crawl delay must be returned.
+    rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(), CONTENT_TYPE, UNKNOWN_AGENT);
+    assertTrue("testing crawl delay for agent "+ UNKNOWN_AGENT +" : ", (rules.getCrawlDelay() == Long.MIN_VALUE));
   }
-
-  // helper
-
-  public void testRobots(int robotsString, String[] agents, String[] paths, 
-			 boolean[] allowed) {
-    String agentsString= agents[0];
-    for (int i= 1; i < agents.length; i++)
-      agentsString= agentsString + "," + agents[i];
-    RobotRulesParser p= new RobotRulesParser(agents);
-    RobotRuleSet rules= p.parseRules(ROBOTS_STRINGS[robotsString] != null
-                                     ? ROBOTS_STRINGS[robotsString].getBytes()
-                                     : null);
-    for (int i= 0; i < paths.length; i++) {
-      assertTrue("testing robots file "+robotsString+", on agents ("
-		 + agentsString + "), and path " + TEST_PATHS[i] + "; got " 
-		 + rules.isAllowed(TEST_PATHS[i]) + ", rules are: " + LF
-				   + rules,
-		 rules.isAllowed(TEST_PATHS[i]) == allowed[i]);
-    }
-  }
-
-
-  
 }
