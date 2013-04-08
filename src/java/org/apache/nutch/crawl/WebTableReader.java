@@ -341,24 +341,34 @@ public class WebTableReader extends NutchTool implements Tool {
     sb.append("baseUrl:\t" + page.getBaseUrl()).append("\n");
     sb.append("status:\t").append(page.getStatus()).append(" (").append(
         CrawlStatus.getName((byte) page.getStatus())).append(")\n");
-    sb.append("fetchInterval:\t" + page.getFetchInterval()).append("\n");
     sb.append("fetchTime:\t" + page.getFetchTime()).append("\n");
     sb.append("prevFetchTime:\t" + page.getPrevFetchTime()).append("\n");
-    sb.append("retries:\t" + page.getRetriesSinceFetch()).append("\n");
+    sb.append("fetchInterval:\t" + page.getFetchInterval()).append("\n"); 
+    sb.append("retriesSinceFetch:\t" + page.getRetriesSinceFetch()).append("\n");
     sb.append("modifiedTime:\t" + page.getModifiedTime()).append("\n");
+    sb.append("prevModifiedTime:\t" + page.getPrevModifiedTime()).append("\n");
     sb.append("protocolStatus:\t" +
         ProtocolStatusUtils.toString(page.getProtocolStatus())).append("\n");
-    sb.append("parseStatus:\t" +
-        ParseStatusUtils.toString(page.getParseStatus())).append("\n");
-    sb.append("title:\t" + page.getTitle()).append("\n");
-    sb.append("score:\t" + page.getScore()).append("\n");
+    ByteBuffer prevSig = page.getPrevSignature();
+        if (prevSig != null) {
+      sb.append("prevSignature:\t" + StringUtil.toHexString(prevSig.array())).append("\n");
+    }
     ByteBuffer sig = page.getSignature();
     if (sig != null) {
       sb.append("signature:\t" + StringUtil.toHexString(sig.array())).append("\n");
     }
+    sb.append("parseStatus:\t" +
+        ParseStatusUtils.toString(page.getParseStatus())).append("\n");
+    sb.append("title:\t" + page.getTitle()).append("\n");
+    sb.append("score:\t" + page.getScore()).append("\n");
+
     Map<Utf8, Utf8> markers = page.getMarkers();
     sb.append("markers:\t" + markers).append("\n");
-
+    sb.append("reprUrl:\t" + page.getReprUrl()).append("\n");
+    Utf8 batchId = page.getBatchId();
+    if (batchId != null) {
+      sb.append("batchId:\t" + batchId.toString()).append("\n");
+    }
     Map<Utf8, ByteBuffer> metadata = page.getMetadata();
     if (metadata != null) {
       Iterator<Entry<Utf8, ByteBuffer>> iterator = metadata.entrySet()
