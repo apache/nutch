@@ -63,7 +63,9 @@ public class IndexUtil {
     NutchDocument doc = new NutchDocument();
     doc.add("id", key);
     doc.add("digest", StringUtil.toHexString(page.getSignature().array()));
-    doc.add("batchId", page.getBatchId().toString());
+    if (page.getBatchId() != null) {
+      doc.add("batchId", page.getBatchId().toString());
+    }
     
     String url = TableUtil.unreverseUrl(key);
 
