@@ -34,7 +34,7 @@ import java.text.ParseException;
 public class HttpDateFormat {
 
   protected static SimpleDateFormat format = 
-    new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
+    new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
 
   /**
    * HTTP date uses TimeZone GMT
