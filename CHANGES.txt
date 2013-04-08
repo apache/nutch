@@ -2,8 +2,6 @@ Nutch Change Log
 
 (trunk): Current Development
 
-* NUTCH-1554 org.apache.nutch.net.protocols.HttpDateFormat should NOT be Locale.US aware (lewismc)
-
 * NUTCH-1031 Delegate parsing of robots.txt to crawler-commons (tejasp)
 
 * NUTCH-1547 BasicIndexingFilter - Problem to index full title (Feng)
