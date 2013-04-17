@@ -307,7 +307,14 @@ public class EncodingDetector {
   }
 
   public static String resolveEncodingAlias(String encoding) {
-    if (encoding == null || !Charset.isSupported(encoding))
+    //bug fix: wrong encoding ignored without throwing an exception
+  	boolean support=false;
+  	try{
+  		support=Charset.isSupported(encoding);
+  	}catch(Exception e){
+  		return null;
+  	}
+    if (encoding == null || !support)
       return null;
     String canonicalName = new String(Charset.forName(encoding).name());
     return ALIASES.containsKey(canonicalName) ? ALIASES.get(canonicalName)
