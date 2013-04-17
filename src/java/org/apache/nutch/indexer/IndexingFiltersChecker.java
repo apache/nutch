@@ -37,6 +37,7 @@ import org.apache.nutch.protocol.ProtocolStatusCodes;
 import org.apache.nutch.protocol.ProtocolStatusUtils;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.URLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,7 +68,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
       return -1;
     }
 
-    url = args[0];
+    url = URLUtil.toASCII(args[0]);
 
     if (LOG.isInfoEnabled()) {
       LOG.info("fetching: " + url);

@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
+import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
@@ -36,10 +37,32 @@ import org.apache.nutch.protocol.ProtocolStatusUtils;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.Bytes;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.StringUtil;
+import org.apache.nutch.util.URLUtil;
 
 /**
  * Parser checker, useful for testing parser.
- * 
+ * It also accurately reports possible fetching and 
+ * parsing failures and presents protocol status signals to aid 
+ * debugging. The tool enables us to retrieve the following data from 
+ * any url:
+ * <ol>
+ * <li><tt>contentType</tt>: The URL {@link org.apache.nutch.protocol.Content} type.</li>
+ * <li><tt>signature</tt>: Digest is used to identify pages (like unique ID) and is used to remove
+ * duplicates during the dedup procedure. 
+ * It is calculated using {@link org.apache.nutch.crawl.MD5Signature} or
+ * {@link org.apache.nutch.crawl.TextProfileSignature}.</li>
+ * <li><tt>Version</tt>: From {@link org.apache.nutch.parse.ParseData}.</li>
+ * <li><tt>Status</tt>: From {@link org.apache.nutch.parse.ParseData}.</li>
+ * <li><tt>Title</tt>: of the URL</li>
+ * <li><tt>Outlinks</tt>: associated with the URL</li>
+ * <li><tt>Content Metadata</tt>: such as <i>X-AspNet-Version</i>, <i>Date</i>,
+ * <i>Content-length</i>, <i>servedBy</i>, <i>Content-Type</i>, <i>Cache-Control</>, etc.</li>
+ * <li><tt>Parse Metadata</tt>: such as <i>CharEncodingForConversion</i>,
+ * <i>OriginalCharEncoding</i>, <i>language</i>, etc.</li>
+ * <li><tt>ParseText</tt>: The page parse text which varies in length depdnecing on 
+ * <code>content.length</code> configuration.</li>
+ * </ol>
  * @author John Xing
  */
 
@@ -60,7 +83,7 @@ public class ParserChecker implements Tool {
     String usage = "Usage: ParserChecker [-dumpText] [-forceAs mimeType] url";
 
     if (args.length == 0) {
-      System.err.println(usage);
+      LOG.error(usage);
       return (-1);
     }
 
@@ -71,10 +94,10 @@ public class ParserChecker implements Tool {
       } else if (args[i].equals("-dumpText")) {
         dumpText = true;
       } else if (i != args.length - 1) {
-        System.err.println(usage);
+        LOG.error(usage);
         System.exit(-1);
       } else {
-        url = args[i];
+        url = URLUtil.toASCII(args[i]);
       }
     }
 
@@ -110,13 +133,8 @@ public class ParserChecker implements Tool {
     }
 
     if (contentType == null) {
-      System.err.println("");
+      LOG.error("Failed to determine content type!");
       return (-1);
-    }
-
-    if (LOG.isInfoEnabled()) {
-      LOG.info("parsing: " + url);
-      LOG.info("contentType: " + contentType);
     }
 
     page.setContentType(new Utf8(contentType));
@@ -128,13 +146,23 @@ public class ParserChecker implements Tool {
     Parse parse = new ParseUtil(conf).parse(url, page);
 
     if (parse == null) {
-      System.err.println("Problem with parse - check log");
+      LOG.error("Problem with parse - check log");
       return (-1);
     }
+    
+    // Calculate the signature
+    byte[] signature = SignatureFactory.getSignature(getConf()).calculate(page);
+    
+    if (LOG.isInfoEnabled()) {
+      LOG.info("parsing: " + url);
+      LOG.info("contentType: " + contentType);
+      LOG.info("signature: " + StringUtil.toHexString(signature));
+    }
 
-    System.out.print("---------\nUrl\n---------------\n");
+
+    LOG.info("---------\nUrl\n---------------\n");
     System.out.print(url + "\n");
-    System.out.print("---------\nMetadata\n---------\n");
+    LOG.info("---------\nMetadata\n---------\n");
     Map<Utf8, ByteBuffer> metadata = page.getMetadata();
     StringBuffer sb = new StringBuffer();
     if (metadata != null) {
@@ -148,7 +176,7 @@ public class ParserChecker implements Tool {
       System.out.print(sb.toString());
     }
     if (dumpText) {
-      System.out.print("---------\nParseText\n---------\n");
+      LOG.info("---------\nParseText\n---------\n");
       System.out.print(parse.getText());
     }
 
@@ -170,4 +198,5 @@ public class ParserChecker implements Tool {
         args);
     System.exit(res);
   }
+
 }

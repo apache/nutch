@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
+* NUTCH-1501 Harmonize behavior of parsechecker and indexchecker (snagel + lewismc)
+
 * NUTCH-1551 Improve WebTableReader field order and display batchId (lewismc)
 
 * NUTCH-1552 possibility of a NPE in index-more plugin (kaveh minooie via lewismc)

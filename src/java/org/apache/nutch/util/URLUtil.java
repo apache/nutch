@@ -18,7 +18,7 @@
 package org.apache.nutch.util;
 
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.util.regex.Pattern;
 
 import org.apache.nutch.util.domain.DomainSuffix;
@@ -333,6 +333,43 @@ public class URLUtil {
     }
   }
   
+  public static String toASCII(String url) {
+    try {
+      URL u = new URL(url);
+      URI p = new URI(u.getProtocol(),
+        null,
+        IDN.toASCII(u.getHost()),
+        u.getPort(),
+        u.getPath(),
+        u.getQuery(),
+        u.getRef());
+
+      return p.toString();
+    }
+    catch (Exception e) {
+      return null;
+    }
+  }
+
+  public static String toUNICODE(String url) {
+    try {
+      URL u = new URL(url);
+      URI p = new URI(u.getProtocol(),
+        null,
+        IDN.toUnicode(u.getHost()),
+        u.getPort(),
+        u.getPath(),
+        u.getQuery(),
+        u.getRef());
+
+      return p.toString();
+    }
+    catch (Exception e) {
+      return null;
+    }
+  }
+
+
   /** For testing */
   public static void main(String[] args){
     
