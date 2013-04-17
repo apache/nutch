@@ -35,18 +35,37 @@ import org.apache.nutch.util.StringUtil;
 
 /**
  * Parser checker, useful for testing parser.
- * 
+ * It also accurately reports possible fetching and 
+ * parsing failures and presents protocol status signals to aid 
+ * debugging. The tool enables us to retrieve the following data from 
+ * any url:
+ * <ol>
+ * <li><tt>contentType</tt>: The URL {@link org.apache.nutch.protocol.Content} type.</li>
+ * <li><tt>signature</tt>: Digest is used to identify pages (like unique ID) and is used to remove
+ * duplicates during the dedup procedure. 
+ * It is calculated using {@link org.apache.nutch.crawl.MD5Signature} or
+ * {@link org.apache.nutch.crawl.TextProfileSignature}.</li>
+ * <li><tt>Version</tt>: From {@link org.apache.nutch.parse.ParseData}.</li>
+ * <li><tt>Status</tt>: From {@link org.apache.nutch.parse.ParseData}.</li>
+ * <li><tt>Title</tt>: of the URL</li>
+ * <li><tt>Outlinks</tt>: associated with the URL</li>
+ * <li><tt>Content Metadata</tt>: such as <i>X-AspNet-Version</i>, <i>Date</i>,
+ * <i>Content-length</i>, <i>servedBy</i>, <i>Content-Type</i>, <i>Cache-Control</>, etc.</li>
+ * <li><tt>Parse Metadata</tt>: such as <i>CharEncodingForConversion</i>,
+ * <i>OriginalCharEncoding</i>, <i>language</i>, etc.</li>
+ * <li><tt>ParseText</tt>: The page parse text which varies in length depdnecing on 
+ * <code>content.length</code> configuration.</li>
+ * </ol>
  * @author John Xing
  */
 
 public class ParserChecker implements Tool {
 
   public static final Logger LOG = LoggerFactory.getLogger(ParserChecker.class);
+  private Configuration conf;
 
   public ParserChecker() {
   }
-
-  Configuration conf = null;
 
   public int run(String[] args) throws Exception {
     boolean dumpText = false;
@@ -57,8 +76,8 @@ public class ParserChecker implements Tool {
     String usage = "Usage: ParserChecker [-dumpText] [-forceAs mimeType] url";
 
     if (args.length == 0) {
-      System.err.println(usage);
-      System.exit(-1);
+      LOG.error(usage);
+      return (-1);
     }
 
     for (int i = 0; i < args.length; i++) {
@@ -68,7 +87,7 @@ public class ParserChecker implements Tool {
       } else if (args[i].equals("-dumpText")) {
         dumpText = true;
       } else if (i != args.length - 1) {
-        System.err.println(usage);
+        LOG.error(usage);
         System.exit(-1);
       } else {
         url = URLUtil.toASCII(args[i]);
@@ -102,7 +121,7 @@ public class ParserChecker implements Tool {
     }
 
     if (contentType == null) {
-      System.err.println("");
+      LOG.error("Failed to determine content type!");
       return (-1);
     }
 
@@ -112,9 +131,14 @@ public class ParserChecker implements Tool {
 
     ParseResult parseResult = new ParseUtil(conf).parse(content);
 
+    if (parseResult == null) {
+      LOG.error("Problem with parse - check log");
+      return (-1);
+    }
+
     // Calculate the signature
     byte[] signature = SignatureFactory.getSignature(getConf()).calculate(content, parseResult.get(new Text(url)));
-
+    
     if (LOG.isInfoEnabled()) {
       LOG.info("parsing: " + url);
       LOG.info("contentType: " + contentType);
@@ -123,12 +147,12 @@ public class ParserChecker implements Tool {
 
     for (java.util.Map.Entry<Text, Parse> entry : parseResult) {
       Parse parse = entry.getValue();
-      System.out.print("---------\nUrl\n---------------\n");
+      LOG.info("---------\nUrl\n---------------\n");
       System.out.print(entry.getKey());
-      System.out.print("\n---------\nParseData\n---------\n");
+      LOG.info("\n---------\nParseData\n---------\n");
       System.out.print(parse.getData().toString());
       if (dumpText) {
-        System.out.print("---------\nParseText\n---------\n");
+        LOG.info("---------\nParseText\n---------\n");
         System.out.print(parse.getText());
       }
     }

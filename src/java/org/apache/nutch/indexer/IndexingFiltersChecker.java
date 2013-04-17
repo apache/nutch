@@ -68,7 +68,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
 
     if (args.length != 1) {
       System.err.println(usage);
-      System.exit(-1);
+      return -1;
     }
 
     url = URLUtil.toASCII(args[0]);
