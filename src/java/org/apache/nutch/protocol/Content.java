@@ -235,6 +235,7 @@ public final class Content implements Writable{
   }
 
   public String toString() {
+    String encoding=getEncoding();
     StringBuffer buffer = new StringBuffer();
 
     buffer.append("Version: " + version + "\n");
@@ -243,7 +244,16 @@ public final class Content implements Writable{
     buffer.append("contentType: " + contentType + "\n");
     buffer.append("metadata: " + metadata + "\n");
     buffer.append("Content:\n");
-    buffer.append(new String(content)); // try default encoding
+    if(encoding!=null && !"".equals(encoding.trim())){
+      try {
+			buffer.append(new String(content,encoding));
+		} catch (UnsupportedEncodingException e) {
+			buffer.append(new String(content));
+			e.printStackTrace();
+		} 
+    }else{
+		buffer.append(new String(content));
+    }
 
     return buffer.toString();
 
@@ -292,4 +302,61 @@ public final class Content implements Writable{
     return this.mimeTypes.autoResolveContentType(typeName, url, data);
   }
 
+  /////
+  ////The following code is added to detect coding 
+  /////
+
+  
+  public String getEncoding(){
+	  return get(content,this,conf.get("parser.character.encoding.default"));
+  }
+  public static String getEncoding(byte[] data,String defaultEncoding){
+	  return get(data,new Content(),defaultEncoding);
+  }
+
+  private static String get(byte[] byteContent,Content content,String defaultEncoding){
+      EncodingDetector detector = new EncodingDetector(NutchConfiguration.create());
+      detector.addClue(sniffCharacterEncoding(byteContent), "sniffed");
+      detector.autoDetectClues(content, true);
+      String encoding = detector.guessEncoding(content, defaultEncoding);
+      return encoding;
+  }
+  
+  private static final int CHUNK_SIZE = 2000;
+  
+  private static Pattern metaPattern =
+	    Pattern.compile("<meta\\s+([^>]*http-equiv=\"?content-type\"?[^>]*)>",
+	                    Pattern.CASE_INSENSITIVE);
+  
+  private static Pattern charsetPattern =
+	    Pattern.compile("charset=\\s*([a-z][_\\-0-9a-z]*)",
+	                    Pattern.CASE_INSENSITIVE);
+
+  private static String sniffCharacterEncoding(byte[] content) {
+    int length = content.length < CHUNK_SIZE ? 
+                 content.length : CHUNK_SIZE;
+
+    // We don't care about non-ASCII parts so that it's sufficient
+    // to just inflate each byte to a 16-bit value by padding. 
+    // For instance, the sequence {0x41, 0x82, 0xb7} will be turned into 
+    // {U+0041, U+0082, U+00B7}. 
+    String str = "";
+    try {
+      str = new String(content, 0, length,
+                       Charset.forName("ASCII").toString());
+    } catch (UnsupportedEncodingException e) {
+      // code should never come here, but just in case... 
+      return null;
+    }
+
+    Matcher metaMatcher = metaPattern.matcher(str);
+    String encoding = null;
+    if (metaMatcher.find()) {
+      Matcher charsetMatcher = charsetPattern.matcher(metaMatcher.group(1));
+      if (charsetMatcher.find()) 
+        encoding = new String(charsetMatcher.group(1));
+    }
+
+    return encoding;
+  }
 }

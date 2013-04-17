@@ -49,6 +49,10 @@
     // but I don't know how to emit 'byte sequence' in JSP.
     // out.getOutputStream().write(bean.getContent(details)) may work, 
     // but I'm not sure.
+
+    //fix bug：CharEncodingForConversion in ParseData's ParseMeta, not in ParseData's ContentMeta
+    metaData = bean.getParseData(details).getParseMeta();
+
     String encoding = (String) metaData.get("CharEncodingForConversion"); 
     if (encoding != null) {
       try {
@@ -59,8 +63,11 @@
         content = new String(bean.getContent(details), "windows-1252");
       }
     }
-    else 
-      content = new String(bean.getContent(details));
+    else {
+      ////fix bug：if http response Header Content-Type return wrong coding，then get coding from the original content of the page
+      encoding=org.apache.nutch.protocol.Content.getEncoding(bean.getContent(details), nutchConf.get("parser.character.encoding.default"));
+      content = new String(bean.getContent(details),encoding);
+    }
   }
 %>
 <!--
