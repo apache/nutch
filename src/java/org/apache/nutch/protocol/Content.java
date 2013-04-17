@@ -235,6 +235,7 @@ public final class Content implements Writable{
   }
 
   public String toString() {
+    String encoding=getEncoding();
     StringBuffer buffer = new StringBuffer();
 
     buffer.append("Version: " + version + "\n");
@@ -243,7 +244,16 @@ public final class Content implements Writable{
     buffer.append("contentType: " + contentType + "\n");
     buffer.append("metadata: " + metadata + "\n");
     buffer.append("Content:\n");
-    buffer.append(new String(content)); // try default encoding
+    if(encoding!=null && !"".equals(encoding.trim())){
+      try {
+			buffer.append(new String(content,encoding));
+		} catch (UnsupportedEncodingException e) {
+			buffer.append(new String(content));
+			e.printStackTrace();
+		} 
+    }else{
+		buffer.append(new String(content));
+    }
 
     return buffer.toString();
 
