@@ -72,7 +72,7 @@ numThreads=50
 # determines whether mode based on presence of job file
 
 mode=local
-if [ -f ../nutch-*.job ]; then
+if [ -f ../*nutch-*.job ]; then
     mode=distributed
 fi
 
