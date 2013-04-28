@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk): Current Development
 
+* NUTCH-829 duplicate hadoop temp files (Mike Baranczak, lewismc, tejasp)
+
 * NUTCH-1501 Harmonize behavior of parsechecker and indexchecker (snagel + lewismc)
 
 * NUTCH-1031 Delegate parsing of robots.txt to crawler-commons (tejasp)
