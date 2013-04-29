@@ -70,6 +70,7 @@
     <dependency org="org.jdom" name="jdom" rev="1.1" conf="*->default" />
 
     <dependency org="com.google.guava" name="guava" rev="11.0.2" />
+    <dependency org="com.google.code.crawler-commons" name="crawler-commons" rev="0.2" />
 
     <!--Configuration: test -->
 

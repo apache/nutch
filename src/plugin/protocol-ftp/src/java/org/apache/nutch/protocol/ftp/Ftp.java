@@ -28,23 +28,27 @@ import org.apache.commons.net.ftp.FTPFileEntryParser;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.EmptyRobotRules;
+import org.apache.nutch.protocol.RobotRulesParser;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatusCodes;
 import org.apache.nutch.protocol.ProtocolStatusUtils;
-import org.apache.nutch.protocol.RobotRules;
 import org.apache.nutch.storage.ProtocolStatus;
 import org.apache.nutch.storage.WebPage;
 
-/************************************
- * Ftp.java deals with ftp: scheme.
- * 
- * Configurable parameters are defined under "FTP properties" section in
- * ./conf/nutch-default.xml or similar.
+import crawlercommons.robots.BaseRobotRules;
+
+/**
+ * This class is a protocol plugin used for ftp: scheme.
+ * It creates {@link FtpResponse} object and gets the content of the url from it.
+ * Configurable parameters are {@code ftp.username}, {@code ftp.password},
+ *                             {@code ftp.content.limit}, {@code ftp.timeout}, 
+ *                             {@code ftp.server.timeout}, {@code ftp.password}, 
+ *                             {@code ftp.keep.connection} and {@code ftp.follow.talk}.
+ * For details see "FTP properties" section in {@code nutch-default.xml}.
  * 
  * @author John Xing
- ***********************************/
+ */
 public class Ftp implements Protocol {
 
   public static final Logger LOG = LoggerFactory.getLogger(Ftp.class);
@@ -109,6 +113,15 @@ public class Ftp implements Protocol {
     this.keepConnection = keepConnection;
   }
 
+  /** 
+   * Creates a {@link FtpResponse} object corresponding to the url and 
+   * returns a {@link ProtocolOutput} object as per the content received
+   * 
+   * @param url Text containing the ftp url
+   * @param datum The CrawlDatum object corresponding to the url
+   * 
+   * @return {@link ProtocolOutput} object for the url
+   */
   public ProtocolOutput getProtocolOutput(String url, WebPage page) {
     try {
       URL u = new URL(url);
@@ -154,6 +167,9 @@ public class Ftp implements Protocol {
     }
   }
 
+  /**
+   * Set the {@link Configuration} object
+   */
   public void setConf(Configuration conf) {
     this.conf = conf;
     this.maxContentLength = conf.getInt("ftp.content.limit", 64 * 1024);
@@ -165,12 +181,11 @@ public class Ftp implements Protocol {
     this.followTalk = conf.getBoolean("ftp.follow.talk", false);
   }
 
+  /**
+   * Get the {@link Configuration} object
+   */
   public Configuration getConf() {
     return this.conf;
-  }
-
-  public RobotRules getRobotRules(String url, WebPage page) {
-    return EmptyRobotRules.RULES;
   }
 
   /** For debugging. */
@@ -222,9 +237,6 @@ public class Ftp implements Protocol {
     if (maxContentLength != Integer.MIN_VALUE) // set maxContentLength
       ftp.setMaxContentLength(maxContentLength);
 
-    // set log level
-    // LOG.setLevel(Level.parse((new String(logLevel)).toUpperCase()));
-
     Content content = ftp.getProtocolOutput(urlString, new WebPage())
         .getContent();
 
@@ -244,4 +256,12 @@ public class Ftp implements Protocol {
     return FIELDS;
   }
 
+  /** 
+   * Currently, no robots parsing is done for ftp protocol 
+   * and this returns a set of empty rules which will allow every url.
+   * There a jira logged for the same NUTCH-1513
+   */
+  public BaseRobotRules getRobotRules(String url, WebPage page) {
+    return RobotRulesParser.EMPTY_RULES;
+  }
 }

@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
+* NUTCH-1031 Delegate parsing of robots.txt to crawler-commons (tejasp)
+
 * NUTCH-346 Improve readability of logs/hadoop.log (Renaud Richardet via tejasp)
 
 * NUTCH-1501 Harmonize behavior of parsechecker and indexchecker (snagel + lewismc)

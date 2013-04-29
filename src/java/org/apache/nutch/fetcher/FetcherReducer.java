@@ -61,6 +61,8 @@ import org.apache.nutch.util.TableUtil;
 import org.apache.nutch.util.URLUtil;
 import org.slf4j.Logger;
 
+import crawlercommons.robots.BaseRobotRules;
+
 public class FetcherReducer
 extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
 
@@ -152,9 +154,6 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
       return "FetchItem [queueID=" + queueID + ", url=" + url + ", u=" + u
           + ", page=" + page + "]";
     }
-    
-    
-
   }
 
   /**
@@ -489,8 +488,8 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
 
             // fetch the page
             final Protocol protocol = this.protocolFactory.getProtocol(fit.url);
-            final RobotRules rules = protocol.getRobotRules(fit.url, fit.page);
-            if (!rules.isAllowed(fit.u)) {
+            final BaseRobotRules rules = protocol.getRobotRules(fit.url, fit.page);
+            if (!rules.isAllowed(fit.u.toString())) {
               // unblock
               fetchQueues.finishFetchItem(fit, true);
               if (LOG.isDebugEnabled()) {

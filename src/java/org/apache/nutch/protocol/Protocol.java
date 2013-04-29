@@ -23,6 +23,8 @@ import org.apache.hadoop.conf.Configurable;
 import org.apache.nutch.plugin.FieldPluggable;
 import org.apache.nutch.storage.WebPage;
 
+import crawlercommons.robots.BaseRobotRules;
+
 /** A retriever of url content.  Implemented by protocol extensions. */
 public interface Protocol extends FieldPluggable, Configurable {
   /** The name of the extension point. */
@@ -46,7 +48,8 @@ public interface Protocol extends FieldPluggable, Configurable {
    */
   public final static String CHECK_ROBOTS = "protocol.plugin.check.robots";
 
-  /** Returns the {@link Content} for a fetchlist entry.
+  /*
+   * Returns the {@link Content} for a fetchlist entry.
    */
   ProtocolOutput getProtocolOutput(String url, WebPage page);
 
@@ -56,5 +59,5 @@ public interface Protocol extends FieldPluggable, Configurable {
    * @param page
    * @return robot rules (specific for this url or default), never null
    */
-  RobotRules getRobotRules(String url, WebPage page);
+  BaseRobotRules getRobotRules(String url, WebPage page);
 }

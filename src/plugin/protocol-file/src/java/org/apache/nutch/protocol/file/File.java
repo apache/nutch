@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.nutch.protocol.file;
 
 import java.net.URL;
@@ -23,28 +22,30 @@ import java.util.HashSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.Text;
+
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.EmptyRobotRules;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatusCodes;
 import org.apache.nutch.protocol.ProtocolStatusUtils;
-import org.apache.nutch.protocol.RobotRules;
+import org.apache.nutch.protocol.RobotRulesParser;
 import org.apache.nutch.storage.ProtocolStatus;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.storage.WebPage.Field;
 import org.apache.nutch.util.NutchConfiguration;
 
-/************************************
- * File.java deals with file: scheme.
- * 
- * Configurable parameters are defined under "FILE properties" section in
- * ./conf/nutch-default.xml or similar.
- * 
- * @author John Xing
- ***********************************/
+import crawlercommons.robots.BaseRobotRules;
+
+/**
+ * This class is a protocol plugin used for file: scheme.
+ * It creates {@link FileResponse} object and gets the content of the url from it.
+ * Configurable parameters are {@code file.content.limit} and {@code file.crawl.parent} 
+ * in nutch-default.xml defined under "file properties" section.
+ */
 public class File implements Protocol {
 
   public static final Logger LOG = LoggerFactory.getLogger(File.class);
@@ -65,14 +66,40 @@ public class File implements Protocol {
   private Configuration conf;
 
   // constructor
-  public File() {
-  }
+  public File() { }
 
-  /** Set the point at which content is truncated. */
-  public void setMaxContentLength(int length) {
-    maxContentLength = length;
+  /**
+   * Set the {@link Configuration} object
+   */
+  public void setConf(Configuration conf) {
+    this.conf = conf;
+    this.maxContentLength = conf.getInt("file.content.limit", 64 * 1024);
+    this.crawlParents = conf.getBoolean("file.crawl.parent", true);
   }
-
+  
+  /**
+   * Get the {@link Configuration} object
+   */
+  public Configuration getConf() {
+    return this.conf;
+  }
+    
+  /** 
+   * Set the point at which content is truncated. 
+   */
+  public void setMaxContentLength(int maxContentLength) {
+    this.maxContentLength = maxContentLength;
+  }
+  
+  /** 
+   * Creates a {@link FileResponse} object corresponding to the url and 
+   * return a {@link ProtocolOutput} object as per the content received
+   * 
+   * @param url Text containing the url
+   * @param datum The CrawlDatum object corresponding to the url
+   * 
+   * @return {@link ProtocolOutput} object for the content of the file indicated by url
+   */
   public ProtocolOutput getProtocolOutput(String url, WebPage page) {
     String urlString = url.toString();
     try {
@@ -82,16 +109,11 @@ public class File implements Protocol {
 
       while (true) {
         FileResponse response;
-        response = new FileResponse(u, page, this, getConf()); // make
-        // a
-        // request
-
+        response = new FileResponse(u, page, this, getConf()); // make a request
         int code = response.getCode();
 
         if (code == 200) { // got a good response
-          return new ProtocolOutput(response.toContent()); // return
-          // it
-
+          return new ProtocolOutput(response.toContent()); // return it
         } else if (code >= 300 && code < 400) { // handle redirect
           if (redirects == MAX_REDIRECTS)
             throw new FileException("Too many redirects: " + url);
@@ -114,16 +136,13 @@ public class File implements Protocol {
   }
 
   @Override
-  public RobotRules getRobotRules(String url, WebPage page) {
-    return EmptyRobotRules.RULES;
-  }
-
-  @Override
   public Collection<Field> getFields() {
     return FIELDS;
   }
 
-  /** For debugging. */
+  /** 
+   * Quick way for running this class. Useful for debugging. 
+   */
   public static void main(String[] args) throws Exception {
     int maxContentLength = Integer.MIN_VALUE;
     boolean dumpContent = false;
@@ -154,9 +173,6 @@ public class File implements Protocol {
     if (maxContentLength != Integer.MIN_VALUE) // set maxContentLength
       file.setMaxContentLength(maxContentLength);
 
-    // set log level
-    // LOG.setLevel(Level.parse((new String(logLevel)).toUpperCase()));
-
     Content content = file.getProtocolOutput(urlString, new WebPage())
         .getContent();
 
@@ -172,13 +188,11 @@ public class File implements Protocol {
     file = null;
   }
 
-  public void setConf(Configuration conf) {
-    this.conf = conf;
-    this.maxContentLength = conf.getInt("file.content.limit", 64 * 1024);
-    this.crawlParents = conf.getBoolean("file.crawl.parent", true);
-  }
-
-  public Configuration getConf() {
-    return this.conf;
-  }
+  /** 
+   * No robots parsing is done for file protocol. 
+   * So this returns a set of empty rules which will allow every url.
+   */
+  public BaseRobotRules getRobotRules(String url, WebPage page) {
+    return RobotRulesParser.EMPTY_RULES;
+  }   
 }

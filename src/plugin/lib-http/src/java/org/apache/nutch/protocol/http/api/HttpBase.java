@@ -32,23 +32,21 @@ import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatusCodes;
 import org.apache.nutch.protocol.ProtocolStatusUtils;
-import org.apache.nutch.protocol.RobotRules;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.GZIPUtils;
 import org.apache.nutch.util.DeflateUtils;
 import org.apache.nutch.util.MimeUtil;
 
-/**
- * @author J&eacute;r&ocirc;me Charron
- */
-public abstract class HttpBase implements Protocol {
+// crawler-commons imports
+import crawlercommons.robots.BaseRobotRules;
 
+public abstract class HttpBase implements Protocol {
 
   public static final int BUFFER_SIZE = 8 * 1024;
 
   private static final byte[] EMPTY_CONTENT = new byte[0];
 
-  private RobotRulesParser robots = null;
+  private HttpRobotRulesParser robots = null;
 
   /** The proxy hostname. */
   protected String proxyHost = null;
@@ -102,7 +100,7 @@ public abstract class HttpBase implements Protocol {
     if (logger != null) {
       this.logger = logger;
     }
-    robots = new RobotRulesParser();
+    robots = new HttpRobotRulesParser();
   }
 
   // Inherited Javadoc
@@ -128,13 +126,10 @@ public abstract class HttpBase implements Protocol {
     return this.conf;
   }
 
-
-
   public ProtocolOutput getProtocolOutput(String url, WebPage page) {
 
     try {
       URL u = new URL(url);
-      String host = null;
       Response response = getResponse(u, page, false); // make a request
       int code = response.getCode();
       byte[] content = response.getContent();
@@ -145,7 +140,6 @@ public abstract class HttpBase implements Protocol {
 
       if (code == 200) { // got a good response
         return new ProtocolOutput(c); // return it
-
       } else if (code == 410) { // page is gone
         return new ProtocolOutput(c,
             ProtocolStatusUtils.makeStatus(ProtocolStatusCodes.GONE, "Http: " + code + " url=" + url));
@@ -206,8 +200,6 @@ public abstract class HttpBase implements Protocol {
   /* -------------------------- *
    * </implementation:Protocol> *
    * -------------------------- */
-
-
   public String getProxyHost() {
     return proxyHost;
   }
@@ -367,10 +359,6 @@ public abstract class HttpBase implements Protocol {
         url = args[i];
     }
 
-    //    if (verbose) {
-    //      LOGGER.setLevel(Level.FINE);
-    //    }
-
     ProtocolOutput out = http.getProtocolOutput(url, new WebPage());
     Content content = out.getContent();
 
@@ -383,17 +371,14 @@ public abstract class HttpBase implements Protocol {
       String text = new String(content.getContent());
       System.out.println(text);
     }
-
   }
-
 
   protected abstract Response getResponse(URL url,
       WebPage page, boolean followRedirects)
   throws ProtocolException, IOException;
 
   @Override
-  public RobotRules getRobotRules(String url, WebPage page) {
+  public BaseRobotRules getRobotRules(String url, WebPage page) {
     return robots.getRobotRulesSet(this, url);
   }
-
 }

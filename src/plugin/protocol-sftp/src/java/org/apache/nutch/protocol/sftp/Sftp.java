@@ -38,9 +38,9 @@ import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolOutput;
-import org.apache.nutch.protocol.RobotRules;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.storage.WebPage.Field;
+import org.apache.nutch.protocol.RobotRulesParser;
 
 //JSCH imports
 import com.jcraft.jsch.ChannelSftp;
@@ -49,6 +49,8 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 import com.jcraft.jsch.ChannelSftp.LsEntry;
+
+import crawlercommons.robots.BaseRobotRules;
 
 /**
  * This class uses the Jsch package to fetch content using the Sftp protocol.
@@ -224,10 +226,16 @@ public class Sftp implements Protocol {
     }
   }
 
+  /**
+   * Get the {@link Configuration} object
+   */
   public Configuration getConf() {
     return configuration;
   }
 
+  /**
+   * Set the {@link Configuration} object
+   */
   public void setConf(Configuration arg0) {
     configuration = arg0;
 
@@ -288,34 +296,9 @@ public class Sftp implements Protocol {
     }
   }
 
-  /*
-   * (non-Javadoc)
-   * 
-   * @see org.apache.nutch.protocol.Protocol#getRobotRules(java.lang.String,
-   * org.apache.nutch.storage.WebPage)
-   */
   @Override
-  public RobotRules getRobotRules(String url, WebPage page) {
-    return new RobotRules() {
-
-      @Override
-      public boolean isAllowed(URL url) {
-        // they're all allowed for now.
-        return true;
-      }
-
-      @Override
-      public long getExpireTime() {
-        // set to 0 for never expire
-        return 0;
-      }
-
-      @Override
-      public long getCrawlDelay() {
-        // no delay
-        return 0;
-      }
-    };
+  public BaseRobotRules getRobotRules(String url, WebPage page) {
+    return RobotRulesParser.EMPTY_RULES;
   }
 
   /*
@@ -327,5 +310,4 @@ public class Sftp implements Protocol {
   public Collection<Field> getFields() {
     return Collections.emptySet();
   }
-
 }
