@@ -98,9 +98,9 @@ public class FetcherOutputFormat implements OutputFormat<Text, NutchWritable> {
           
           if (w instanceof CrawlDatum)
             fetchOut.append(key, w);
-          else if (w instanceof Content)
+          else if (w instanceof Content && contentOut != null)
             contentOut.append(key, w);
-          else if (w instanceof Parse)
+          else if (w instanceof Parse && parseOut != null)
             parseOut.write(key, (Parse)w);
         }
 
