@@ -25,6 +25,7 @@ import org.apache.hadoop.conf.Configuration;
 
 // Tika imports
 import org.apache.tika.Tika;
+import org.apache.tika.config.TikaConfig;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
@@ -33,7 +34,7 @@ import org.apache.tika.mime.MimeTypesFactory;
 // Slf4j logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+ 
 // imported for Javadoc
 import org.apache.nutch.protocol.ProtocolOutput;
 
@@ -169,11 +170,19 @@ public final class MimeUtil {
         || (type != null && type.getName().equals(MimeTypes.OCTET_STREAM))) {
       // If no mime-type header, or cannot find a corresponding registered
       // mime-type, then guess a mime-type from the url pattern
-      type = this.mimeTypes.getMimeType(url) != null ? this.mimeTypes
-          .getMimeType(url) : type;
-    }
 
-    retType= type.getName();
+      try {
+        TikaConfig tikaConfig = TikaConfig.getDefaultConfig();
+        Tika tika = new Tika(tikaConfig);
+        retType = tika.detect(url) != null ? tika.detect(url) : null;
+      } catch (Exception e) {
+        String message = "Problem loading default Tika configuration";
+        LOG.error(message, e);
+        throw new RuntimeException(e);
+      }
+    } else {
+        retType = type.getName();
+    }
 
     // if magic is enabled use mime magic to guess if the mime type returned
     // from the magic guess is different than the one that's already set so far
@@ -257,6 +266,4 @@ public final class MimeUtil {
       return null;
     }
   }
-
-
 }

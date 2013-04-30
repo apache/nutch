@@ -147,7 +147,7 @@ public class PluginManifestParser {
   private PluginDescriptor parseManifestFile(String pManifestPath)
       throws MalformedURLException, SAXException, IOException,
       ParserConfigurationException {
-    Document document = parseXML(new File(pManifestPath).toURL());
+    Document document = parseXML(new File(pManifestPath).toURI().toURL());
     String pPath = new File(pManifestPath).getParent();
     return parsePlugin(document, pPath);
   }

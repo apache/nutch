@@ -29,7 +29,7 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
-import org.apache.xml.serialize.DOMSerializerImpl;
+import org.apache.xml.serializer.dom3.LSSerializerImpl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -229,9 +229,9 @@ public class DOMContentUtilsTest extends TestCase {
 				fail("caught exception: " + e);
 			}
 			testDOMs[i] = root;
-			DOMSerializerImpl ds = new DOMSerializerImpl();
+			LSSerializerImpl lsi = new LSSerializerImpl();
 			System.out.println("input " + i + ": '" + testPages[i] + "'");
-			System.out.println("output " + i + ": '" + ds.writeToString(root)
+			System.out.println("output " + i + ": '" + lsi.writeToString(root)
 					+ "'");
 
 		}

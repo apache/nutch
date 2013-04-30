@@ -219,7 +219,7 @@ public class PluginDescriptor {
    */
   public void addExportedLibRelative(String pLibPath)
       throws MalformedURLException {
-    URL url = new File(getPluginPath() + File.separator + pLibPath).toURL();
+    URL url = new File(getPluginPath() + File.separator + pLibPath).toURI().toURL();
     fExportedLibs.add(url);
   }
 
@@ -248,7 +248,7 @@ public class PluginDescriptor {
    */
   public void addNotExportedLibRelative(String pLibPath)
       throws MalformedURLException {
-    URL url = new File(getPluginPath() + File.separator + pLibPath).toURL();
+    URL url = new File(getPluginPath() + File.separator + pLibPath).toURI().toURL();
     fNotExportedLibs.add(url);
   }
 
@@ -279,7 +279,7 @@ public class PluginDescriptor {
     try {
       for (File file2 : file.listFiles()) {
         if (file2.getAbsolutePath().endsWith("properties"))
-          arrayList.add(file2.getParentFile().toURL());
+          arrayList.add(file2.getParentFile().toURI().toURL());
       }
     } catch (MalformedURLException e) {
       LOG.debug(getPluginId() + " " + e.toString());

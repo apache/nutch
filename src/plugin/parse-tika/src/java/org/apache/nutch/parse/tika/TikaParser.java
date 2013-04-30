@@ -50,6 +50,7 @@ import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.TableUtil;
 import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
@@ -164,7 +165,8 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     // populate Nutch metadata with Tika metadata
     String[] TikaMDNames = tikamd.names();
     for (String tikaMDName : TikaMDNames) {
-      if (tikaMDName.equalsIgnoreCase(Metadata.TITLE)) continue;
+      if (tikaMDName.equalsIgnoreCase(TikaCoreProperties.TITLE.toString()))
+      continue;
       // TODO what if multivalued?
       page.putToMetadata(new Utf8(tikaMDName), ByteBuffer.wrap(Bytes.toBytes(tikamd
           .get(tikaMDName))));

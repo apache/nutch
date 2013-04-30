@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
+* NUTCH-1273 Fix [deprecation] javac warnings (lewsimc + tejasp)
+
 * NUTCH-1031 Delegate parsing of robots.txt to crawler-commons (tejasp)
 
 * NUTCH-346 Improve readability of logs/hadoop.log (Renaud Richardet via tejasp)

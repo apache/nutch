@@ -143,7 +143,7 @@ public class FileResponse {
       if (!f.equals(f.getCanonicalFile())) {
         // set headers
         //hdrs.put("Location", f.getCanonicalFile().toURI());
-        headers.set(Response.LOCATION, f.getCanonicalFile().toURL().toString());
+        headers.set(Response.LOCATION, f.getCanonicalFile().toURI().toURL().toString());
 
         this.code = 300;  // http redirect
         return;
