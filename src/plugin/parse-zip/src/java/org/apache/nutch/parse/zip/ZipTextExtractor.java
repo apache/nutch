@@ -38,13 +38,10 @@ import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseUtil;
-import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseException;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.util.MimeUtil;
-
-
+import org.apache.tika.Tika;
 
 /**
  *
@@ -52,26 +49,18 @@ import org.apache.nutch.util.MimeUtil;
  */
 public class ZipTextExtractor {
   
-  /** Get the MimeTypes resolver instance. */
-  private MimeUtil MIME;
-  
   public static final Logger LOG = LoggerFactory.getLogger(ZipTextExtractor.class);
 
   private Configuration conf;
-  
-  
+
   /** Creates a new instance of ZipTextExtractor */
   public ZipTextExtractor(Configuration conf) {
     this.conf = conf;
-    this.MIME = new MimeUtil(conf);
   }
   
-  public String extractText(InputStream input, String url, List outLinksList) throws IOException {
+  public String extractText(InputStream input, String url, List<Outlink> outLinksList) throws IOException {
     String resultText = "";
-    byte temp;
-    
     ZipInputStream zin = new ZipInputStream(input);
-    
     ZipEntry entry;
     
     while ((entry = zin.getNextEntry()) != null) {
@@ -93,7 +82,8 @@ public class ZipTextExtractor {
         int i = fname.lastIndexOf('.');
         if (i != -1) {
           // Trying to resolve the Mime-Type
-          String contentType = MIME.getMimeType(fname);
+          Tika tika = new Tika();
+          String contentType = tika.detect(fname);
           try {
             Metadata metadata = new Metadata();
             metadata.set(Response.CONTENT_LENGTH, Long.toString(entry.getSize()));

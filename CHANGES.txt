@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk): Current Development
 
+* NUTCH-1549 Fix deprecated use of Tika MimeType API in o.a.n.util.MimeUtil (tejasp)
+
 * NUTCH-346 Improve readability of logs/hadoop.log (Renaud Richardet via tejasp)
 
 * NUTCH-829 duplicate hadoop temp files (Mike Baranczak, lewismc, tejasp)

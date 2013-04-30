@@ -16,8 +16,6 @@
  */
 package org.apache.nutch.indexer.more;
 
-import org.apache.tika.mime.MimeType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,19 +34,16 @@ import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.util.MimeUtil;
+import org.apache.tika.Tika;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
 import java.util.Date;
 import java.util.regex.*;
 import java.util.HashMap;
@@ -72,11 +67,9 @@ import org.apache.commons.lang.time.DateUtils;
 public class MoreIndexingFilter implements IndexingFilter {
   public static final Logger LOG = LoggerFactory.getLogger(MoreIndexingFilter.class);
 
-  /** A flag that tells if magic resolution must be performed */
-  private boolean MAGIC;
-
   /** Get the MimeTypes resolver instance. */
   private MimeUtil MIME;
+  private Tika tika = new Tika();
 
   /** Map for mime-type substitution */
   private HashMap<String,String> mimeMap = null;
@@ -114,7 +107,6 @@ public class MoreIndexingFilter implements IndexingFilter {
 
     // un-stored, indexed and un-tokenized
     doc.add("date", new Date(time));
-
     return doc;
   }
 
@@ -220,7 +212,8 @@ public class MoreIndexingFilter implements IndexingFilter {
       // } else {
       //   contentType = MIME.getMimeType(url);
       // }
-      mimeType = MIME.getMimeType(url);
+
+      mimeType = tika.detect(url);
     } else {
       mimeType = MIME.forName(MimeUtil.cleanMimeType(contentType));
     }
@@ -240,7 +233,6 @@ public class MoreIndexingFilter implements IndexingFilter {
     }
 
     contentType = mimeType;
-
     doc.add("type", contentType);
 
     // Check if we need to split the content type in sub parts

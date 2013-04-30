@@ -224,7 +224,7 @@ public class FileResponse {
     headers.set(Response.LAST_MODIFIED,
         HttpDateFormat.toString(f.lastModified()));
 
-    String mimeType = MIME.getMimeType(f);
+    String mimeType = tika.detect(f);
 
     headers.set(Response.CONTENT_TYPE, mimeType != null ? mimeType : "");
 
