@@ -76,7 +76,6 @@ public class Generator extends Configured implements Tool {
   
   // deprecated parameters 
   public static final String GENERATE_MAX_PER_HOST_BY_IP = "generate.max.per.host.by.ip";
-  public static final String GENERATE_MAX_PER_HOST = "generate.max.per.host";
 
   public static class SelectorEntry implements Writable {
     public Text url;
@@ -140,10 +139,7 @@ public class Generator extends Configured implements Tool {
       curTime = job.getLong(GENERATOR_CUR_TIME, System.currentTimeMillis());
       limit = job.getLong(GENERATOR_TOP_N, Long.MAX_VALUE) / job.getNumReduceTasks();
       maxCount = job.getInt(GENERATOR_MAX_COUNT, -1);
-      // back compatibility with old param
-      int oldMaxPerHost = job.getInt(GENERATE_MAX_PER_HOST, -1);
-      if (maxCount==-1 && oldMaxPerHost!=-1){
-        maxCount = oldMaxPerHost;
+      if (maxCount==-1){
         byDomain = false;
       }
       if (GENERATOR_COUNT_VALUE_DOMAIN.equals(job.get(GENERATOR_COUNT_MODE))) byDomain = true;

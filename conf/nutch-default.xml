@@ -325,13 +325,6 @@
 <!-- web db properties -->
 
 <property>
-  <name>db.default.fetch.interval</name>
-  <value>30</value>
-  <description>(DEPRECATED) The default number of days between re-fetches of a page.
-  </description>
-</property>
-
-<property>
   <name>db.fetch.interval.default</name>
   <value>2592000</value>
   <description>The default number of seconds between re-fetches of a page (30 days).
@@ -611,14 +604,6 @@
 </property>
 
 <property>
-  <name>generate.max.per.host</name>
-  <value>-1</value>
-  <description>(Deprecated). Use generate.max.count and generate.count.mode instead.
-  The maximum number of urls per host in a single
-  fetchlist.  -1 if unlimited.</description>
-</property>
-
-<property>
   <name>generate.min.score</name>
   <value>0</value>
   <description>Select only entries with a score larger than
@@ -698,8 +683,7 @@
   <name>fetcher.threads.per.queue</name>
   <value>1</value>
   <description>This number is the maximum number of threads that
-    should be allowed to access a queue at one time. Replaces 
-    deprecated parameter 'fetcher.threads.per.host'.
+    should be allowed to access a queue at one time.
    </description>
 </property>
 
@@ -707,8 +691,7 @@
   <name>fetcher.queue.mode</name>
   <value>byHost</value>
   <description>Determines how to put URLs into queues. Default value is 'byHost', 
-  also takes 'byDomain' or 'byIP'. Replaces the deprecated parameter 
-  'fetcher.threads.per.host.by.ip'.
+  also takes 'byDomain' or 'byIP'. 
   </description>
 </property>
 
