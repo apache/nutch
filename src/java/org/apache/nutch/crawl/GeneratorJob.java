@@ -236,7 +236,7 @@ public class GeneratorJob extends NutchTool implements Tool {
       System.out.println("    -noFilter      - do not activate the filter plugin to filter the url, default is true ");
       System.out.println("    -noNorm        - do not activate the normalizer plugin to normalize the url, default is true ");
       System.out.println("    -adddays       - Adds numDays to the current time to facilitate crawling urls already");
-      System.out.println("                     fetched sooner then db.default.fetch.interval. Default value is 0.");
+      System.out.println("                     fetched sooner then db.fetch.interval.default. Default value is 0.");
       System.out.println("----------------------");
       System.out.println("Please set the params.");
       return -1;

@@ -107,7 +107,7 @@ public class TestGenerator extends AbstractNutchTest {
   }
 
   /**
-   * Test that generator obeys the property "generate.max.per.host".
+   * Test that generator obeys the property "generate.max.count" and "generate.count.mode".
    *
    * @throws Exception
    */
