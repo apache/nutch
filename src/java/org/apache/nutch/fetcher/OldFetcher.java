@@ -111,6 +111,7 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
       this.normalizers = new URLNormalizers(conf, URLNormalizers.SCOPE_FETCHER);
     }
 
+    @SuppressWarnings("fallthrough")
     public void run() {
       synchronized (OldFetcher.this) {activeThreads++;} // count threads
       

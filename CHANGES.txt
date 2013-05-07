@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk): Current Development
 
+* NUTCH-1277 Fix [fallthrough] javac warnings (tejasp)
+
 * NUTCH-1514 Phase out the deprecated configuration properties (if possible) (tejasp)
 
 * NUTCH-1334 NPE in FetcherOutputFormat (jnioche via tejasp)

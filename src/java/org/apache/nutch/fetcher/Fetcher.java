@@ -627,6 +627,7 @@ public class Fetcher extends Configured implements Tool,
       outlinksDepthDivisor = conf.getInt("fetcher.follow.outlinks.depth.divisor", 2);
     }
 
+    @SuppressWarnings("fallthrough")
     public void run() {
       activeThreads.incrementAndGet(); // count threads
 
