@@ -451,6 +451,7 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
     }
 
     @Override
+    @SuppressWarnings("fallthrough")
     public void run() {
       activeThreads.incrementAndGet(); // count threads
 

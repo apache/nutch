@@ -110,6 +110,7 @@ public class RAMJobManager implements JobManager {
   }
   
   @Override
+  @SuppressWarnings("fallthrough")
   public List<JobStatus> list(String crawlId, State state) throws Exception {
     List<JobStatus> res = new ArrayList<JobStatus>();
     if (state == null) state = State.ANY;
