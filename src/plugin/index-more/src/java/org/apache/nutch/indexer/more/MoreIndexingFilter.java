@@ -44,10 +44,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Add (or reset) a few metaData properties as respective fields (if they are
- * available), so that they can be displayed by more.jsp (called by search.jsp).
+ * available), so that they can be accurately used within the search index.
  * 
- * content-type is indexed to support query by type: last-modifed is indexed to
- * support query by date:
+ * 'lastModifed' is indexed to support query by date, 'contentLength' obtains content length from the HTTP
+ * header, 'type' field is indexed to support query by type and finally the 'title' field is an attempt 
+ * to reset the title if a content-disposition hint exists. The logic is that such a presence is indicative 
+ * that the content provider wants the filename therein to be used as the title.
  * 
  * Still need to make content-length searchable!
  * 
@@ -171,7 +173,9 @@ public class MoreIndexingFilter implements IndexingFilter {
    */
   private NutchDocument addType(NutchDocument doc, WebPage page, String url) {
     String mimeType = null;
-    Utf8 contentType = page.getFromHeaders(new Utf8(HttpHeaders.CONTENT_TYPE));
+    Utf8 contentType = page.getContentType();
+    if (contentType == null)
+    	contentType = page.getFromHeaders(new Utf8(HttpHeaders.CONTENT_TYPE));
     if (contentType == null) {
       // Note by Jerome Charron on 20050415:
       // Content Type not solved by a previous plugin
@@ -194,13 +198,11 @@ public class MoreIndexingFilter implements IndexingFilter {
       return doc;
     }
 
-    //String scontentType = mimeType.getName();
-
     doc.add("type", mimeType);
 
     // Check if we need to split the content type in sub parts
-    if ( null != contentType && conf.getBoolean("moreIndexingFilter.indexMimeTypeParts", true)) {
-      String[] parts = getParts(contentType.toString());
+    if (conf.getBoolean("moreIndexingFilter.indexMimeTypeParts", true)) {
+      String[] parts = getParts(mimeType);
 
       for(String part: parts) {
         doc.add("type", part);

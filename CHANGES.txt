@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
+* NUTCH-956 solrindex issues: add field tld to Solr schema (Alexis via lewismc, snagel)
+
 * NUTCH-1277 Fix [fallthrough] javac warnings (tejasp)
 
 * NUTCH-1514 Phase out the deprecated configuration properties (if possible) (tejasp)
