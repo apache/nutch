@@ -345,6 +345,9 @@
 
     <!-- fields for creativecommons plugin -->
     <field name="cc" type="string" stored="true" indexed="true" multiValued="true"/>
+
+    <!-- fields for tld plugin -->    
+    <field name="tld" type="string" stored="false" indexed="false"/>
  </fields>
  <uniqueKey>id</uniqueKey>
  <defaultSearchField>text</defaultSearchField>

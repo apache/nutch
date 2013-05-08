@@ -52,12 +52,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 
 /**
- * Add (or reset) a few metaData properties as respective fields
- * (if they are available), so that they can be displayed by more.jsp
- * (called by search.jsp).
- *
- * content-type is indexed to support query by type:
- * last-modifed is indexed to support query by date:
+ * Add (or reset) a few metaData properties as respective fields (if they are
+ * available), so that they can be accurately used within the search index.
+ * 
+ * 'lastModifed' is indexed to support query by date, 'contentLength' obtains content length from the HTTP
+ * header, 'type' field is indexed to support query by type and finally the 'title' field is an attempt 
+ * to reset the title if a content-disposition hint exists. The logic is that such a presence is indicative 
+ * that the content provider wants the filename therein to be used as the title.
  *
  * Still need to make content-length searchable!
  *
