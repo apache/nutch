@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
+* Added crawler-commons dependency in pom.xml (tejasp)
+
 * NUTCH-956 solrindex issues: add field tld to Solr schema (Alexis via lewismc, snagel)
 
 * NUTCH-1277 Fix [fallthrough] javac warnings (tejasp)
@@ -46,11 +48,11 @@ Release 2.2 - Current Development
 
 * NUTCH-XX remove unused db.max.inlinks property in nutch-default.xml (lewismc)
 
-* NUTCH-1284 Add site fetcher.max.crawl.delay as log output by default (Tejas Patil)
+* NUTCH-1284 Add site fetcher.max.crawl.delay as log output by default (tejasp)
 
 * NUTCH-1453 Substantiate tests for IndexingFilters (lufeng via lewismc)
 
-* NUTCH-1274 Fix [cast] javac warnings (Tejas Patil via lewismc)
+* NUTCH-1274 Fix [cast] javac warnings (tejasp via lewismc)
 
 * NUTCH-1516 Nutch 2.x pom.xml out of sync with ivy.xml (lewismc)
 

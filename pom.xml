@@ -82,6 +82,21 @@
 			<name>Lewis John McGibbney</name>
 			<email>lewismc@apache.org</email>
 		</developer>
+                <developer>
+                        <id>tejasp</id>
+                        <name>Tejas Patil</name>
+                        <email>tejasp@apache.org</email>
+                </developer>
+                <developer>
+                        <id>kiranch</id>
+                        <name>Kiran Chitturi</name>
+                        <email>kiranch@apache.org</email>
+                </developer>
+                <developer>
+                        <id>fenglu</id>
+                        <name>Feng</name>
+                        <email>fenglu@apache.org</email>
+                </developer>
 	</developers>
         <build>
           <sourceDirectory>src/java</sourceDirectory>
@@ -247,12 +262,6 @@
                         <optional>true</optional>
                 </dependency>
                 <dependency>
-                        <groupId>org.jdom</groupId>
-                        <artifactId>jdom</artifactId>
-                        <version>1.1</version>
-                        <optional>true</optional>
-                </dependency>
-                <dependency>
                         <groupId>org.apache.gora</groupId>
                         <artifactId>gora-sql</artifactId>
                         <version>0.1.1-incubating</version>
@@ -269,6 +278,12 @@
                         <artifactId>org.restlet.ext.jackson</artifactId>
                         <version>2.0.5</version>
                         <optional>true</optional>
+                </dependency>
+                <dependency>
+                        <groupId>com.google.code.crawler-commons</groupId>
+                        <artifactId>crawler-commons</artifactId>
+                        <version>0.2</version>
+                        <scope>compile</scope>
                 </dependency>
         </dependencies>
 </project>
