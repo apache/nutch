@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk): Current Development
 
+* Added crawler-commons dependency in pom.xml (tejasp)
+
 * NUTCH-956 solrindex issues: add field tld to Solr schema (Alexis via lewismc, snagel)
 
 * NUTCH-1277 Fix [fallthrough] javac warnings (tejasp)
@@ -34,7 +36,7 @@ Nutch Change Log
 
 * NUTCH-1521 CrawlDbFilter pass null url to urlNormalizers (Lufeng via lewismc)
 
-* NUTCH-1284 Add site fetcher.max.crawl.delay as log output by default (Tejas Patil)
+* NUTCH-1284 Add site fetcher.max.crawl.delay as log output by default (tejasp)
 
 * NUTCH-1453 Substantiate tests for IndexingFilters (lufeng via lewismc)
 
@@ -48,17 +50,17 @@ Nutch Change Log
 
 * NUTCH-1500 bin/crawl fails on step solrindex with wrong path to segment (Tristan Buckner, snagel)
 
-* NUTCH-1274 Fix [cast] javac warnings (Tejas Patil via lewismc)
+* NUTCH-1274 Fix [cast] javac warnings (tejasp via lewismc)
 
-* NUTCH-1494 RSS feed plugin seems broken (Sourajit Basak, Tejas Patil and lewismc)
+* NUTCH-1494 RSS feed plugin seems broken (Sourajit Basak, tejasp and lewismc)
 
-* NUTCH-1127 JUnit test for urlfilter-validator (Tejas Patil via lewismc)
+* NUTCH-1127 JUnit test for urlfilter-validator (tejasp via lewismc)
 
-* NUTCH-1119 JUnit test for index-static (Tejas Patil via lewismc)
+* NUTCH-1119 JUnit test for index-static (tejasp via lewismc)
 
 * NUTCH-1510 Upgrade to Hadoop 1.1.1 (markus)
 
-* NUTCH-1118 JUnit test for index-basic (Tejas Patil via lewismc)
+* NUTCH-1118 JUnit test for index-basic (tejasp via lewismc)
 
 * NUTCH-1331 limit crawler to defined depth (jnioche)
 

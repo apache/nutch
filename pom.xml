@@ -93,6 +93,21 @@
 			<name>Ferdy Galema</name>
 			<email>ferdy@apache.org</email>
 		</developer>
+                <developer>
+                        <id>tejasp</id>
+                        <name>Tejas Patil</name>
+                        <email>tejasp@apache.org</email>
+                </developer>
+                <developer>
+                        <id>kiranch</id>
+                        <name>Kiran Chitturi</name>
+                        <email>kiranch@apache.org</email>
+                </developer>
+                <developer>
+                        <id>fenglu</id>
+                        <name>Feng</name>
+                        <email>fenglu@apache.org</email>
+                </developer>
 	</developers>
 	<build>
 		<testSourceDirectory>${basedir}/src/test</testSourceDirectory>
@@ -294,6 +309,12 @@
 			<artifactId>jetty-util</artifactId>
 			<version>6.1.22</version>
 			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>com.google.code.crawler-commons</groupId>
+			<artifactId>crawler-commons</artifactId>
+			<version>0.2</version>
+                        <scope>compile</scope>
 		</dependency>
 	</dependencies>
 </project>
