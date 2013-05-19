@@ -30,7 +30,8 @@ import org.apache.nutch.util.NutchConfiguration;
 
 import org.apache.hadoop.io.Text;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -47,7 +48,7 @@ import java.io.IOException;
  *
  * @author John Xing
  */
-public class TestExtParser extends TestCase {
+public class TestExtParser {
   private File tempFile = null;
   private String urlString = null;
   private Content content = null;
@@ -58,7 +59,6 @@ public class TestExtParser extends TestCase {
   private String expectedMD5sum = "df46711a1a48caafc98b1c3b83aa1526";
 
   public TestExtParser(String name) { 
-    super(name); 
   }
 
   protected void setUp() throws ProtocolException, IOException {
@@ -95,6 +95,7 @@ public class TestExtParser extends TestCase {
     //  tempFile.delete();
   }
 
+  @Test
   public void testIt() throws ParseException {
     String contentType;
 

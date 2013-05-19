@@ -22,7 +22,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 import org.apache.hadoop.io.RawComparator;
 import org.apache.nutch.crawl.UrlWithScore;
@@ -33,8 +34,9 @@ import org.apache.nutch.crawl.UrlWithScore.UrlScoreComparator.UrlOnlyComparator;
 /**
  * Tests {@link UrlWithScore} with serialization, partitioning and sorting.
  */
-public class TestUrlWithScore extends TestCase {
+public class TestUrlWithScore {
 
+  @Test
   public void testSerialization() throws IOException {
     // create a key and test basic functionality
     UrlWithScore keyOut = new UrlWithScore("http://example.org/", 1f);
@@ -58,6 +60,7 @@ public class TestUrlWithScore extends TestCase {
     out.close();
   }
   
+  @Test
   public void testPartitioner() throws IOException {
     UrlOnlyPartitioner part = new UrlOnlyPartitioner();
     
@@ -80,6 +83,7 @@ public class TestUrlWithScore extends TestCase {
     assertEquals(partForKey3, part.getPartition(k5, null, numReduces));
   }
   
+  @Test
   public void testUrlOnlySorting() throws IOException {
     UrlOnlyComparator comp = new UrlOnlyComparator();
     
@@ -104,6 +108,7 @@ public class TestUrlWithScore extends TestCase {
     assertEquals(1, compareBothRegularAndRaw(comp, k5, k1));
   }
   
+  @Test
   public void testUrlScoreSorting() throws IOException {
     UrlScoreComparator comp = new UrlScoreComparator();
     

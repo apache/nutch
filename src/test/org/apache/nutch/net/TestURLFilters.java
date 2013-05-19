@@ -19,14 +19,16 @@ package org.apache.nutch.net;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-public class TestURLFilters extends TestCase {
+public class TestURLFilters {
 
   /**
    * Testcase for NUTCH-325.
    * @throws URLFilterException
    */
+  @Test
   public void testNonExistingUrlFilter() throws URLFilterException {
     Configuration conf = NutchConfiguration.create();
     String class1 = "NonExistingFilter";
@@ -34,7 +36,12 @@ public class TestURLFilters extends TestCase {
     conf.set(URLFilters.URLFILTER_ORDER, class1 + " " + class2);
 
     URLFilters normalizers = new URLFilters(conf);
-    normalizers.filter("http://someurl/");
+    assertNotNull(normalizers);
+    try {
+      normalizers.filter("http://someurl/");
+    } catch (URLFilterException ufe) {
+      fail(ufe.toString());
+    }
   }
 
 }

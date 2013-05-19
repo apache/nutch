@@ -16,25 +16,22 @@
  */
 package org.apache.nutch.urlfilter.domain;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
-public class TestDomainURLFilter
-  extends TestCase {
+public class TestDomainURLFilter {
 
   protected static final Logger LOG = LoggerFactory.getLogger(TestDomainURLFilter.class);
 
   private final static String SEPARATOR = System.getProperty("file.separator");
   private final static String SAMPLES = System.getProperty("test.data", ".");
 
-  public TestDomainURLFilter(String testName) {
-    super(testName);
-  }
-
+  @Test
   public void testFilter()
     throws Exception {
 

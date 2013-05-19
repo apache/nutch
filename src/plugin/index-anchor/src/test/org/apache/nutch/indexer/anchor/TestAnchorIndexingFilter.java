@@ -16,14 +16,13 @@
  */
 package org.apache.nutch.indexer.anchor;
 
-import junit.framework.TestCase;
-
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Test;
+import static org.junit.Assert.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * @author lewismc
  *
  */
-public class TestAnchorIndexingFilter extends TestCase {
+public class TestAnchorIndexingFilter {
   
   public static final Logger LOG = LoggerFactory.getLogger(TestAnchorIndexingFilter.class);
 	

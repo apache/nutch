@@ -17,8 +17,12 @@
 
 package org.apache.nutch.protocol.http.api;
 
+import org.junit.Before;
+import org.junit.Test;
+
 import crawlercommons.robots.BaseRobotRules;
-import junit.framework.TestCase;
+
+import static org.junit.Assert.*;
 
 /**
  * JUnit test case which tests
@@ -26,7 +30,7 @@ import junit.framework.TestCase;
  * 2. that crawl delay is extracted correctly from the robots file
  *
  */
-public class TestRobotRulesParser extends TestCase {
+public class TestRobotRulesParser {
 
   private static final String CONTENT_TYPE = "text/plain";
   private static final String SINGLE_AGENT = "Agent1";
@@ -72,14 +76,15 @@ public class TestRobotRulesParser extends TestCase {
   private HttpRobotRulesParser parser;
   private BaseRobotRules rules;
 
-  public TestRobotRulesParser(String name) {
-    super(name);
+  @Before
+  public void setUp() {
     parser = new HttpRobotRulesParser();
   }
 
   /**
   * Test that the robots rules are interpreted correctly by the robots rules parser. 
   */
+  @Test
   public void testRobotsAgent() {
     rules = parser.parseRules("testRobotsAgent", ROBOTS_STRING.getBytes(), CONTENT_TYPE, SINGLE_AGENT);
 
@@ -104,6 +109,7 @@ public class TestRobotRulesParser extends TestCase {
   * Test that the crawl delay is extracted from the robots file for respective agent. 
   * If its not specified for a given agent, default value must be returned.
   */
+  @Test
   public void testCrawlDelay() {
     // for SINGLE_AGENT, the crawl delay of 10 sec ie. 10000 msec must be returned by the parser
     rules = parser.parseRules("testCrawlDelay", ROBOTS_STRING.getBytes(), CONTENT_TYPE, SINGLE_AGENT);

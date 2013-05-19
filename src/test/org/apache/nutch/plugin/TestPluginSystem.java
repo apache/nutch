@@ -26,12 +26,14 @@ import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Properties;
 
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchJobConf;
 
 /**
@@ -39,14 +41,15 @@ import org.apache.nutch.util.NutchJobConf;
  * 
  * @author joa23
  */
-public class TestPluginSystem extends TestCase {
+public class TestPluginSystem {
     private int fPluginCount;
 
-    private LinkedList fFolders = new LinkedList();
+    private LinkedList<File> fFolders = new LinkedList<File>();
     private Configuration conf ;
     private PluginRepository repository;
 
-    protected void setUp() throws Exception {
+    @Before
+    public void setUp() throws Exception {
         this.conf = NutchConfiguration.create();
         conf.set("plugin.includes", ".*");
 //        String string = this.conf.get("plugin.includes", "");
@@ -56,12 +59,8 @@ public class TestPluginSystem extends TestCase {
         this.repository = PluginRepository.get(conf);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see junit.framework.TestCase#tearDown()
-     */
-    protected void tearDown() throws Exception {
+    @After
+    public void tearDown() throws Exception {
         for (int i = 0; i < fFolders.size(); i++) {
             File folder = (File) fFolders.get(i);
             delete(folder);
@@ -72,6 +71,7 @@ public class TestPluginSystem extends TestCase {
 
     /**
      */
+    @Test
     public void testPluginConfiguration() {
         String string = getPluginFolder();
         File file = new File(string);
@@ -83,6 +83,7 @@ public class TestPluginSystem extends TestCase {
 
     /**
      */
+    @Test
     public void testLoadPlugins() {
         PluginDescriptor[] descriptors = repository
                 .getPluginDescriptors();
@@ -98,6 +99,7 @@ public class TestPluginSystem extends TestCase {
         }
     }
 
+    @Test
     public void testRepositoryCache() {
       Configuration config = NutchConfiguration.create();
       PluginRepository repo = PluginRepository.get(config);
@@ -117,6 +119,7 @@ public class TestPluginSystem extends TestCase {
     /**
      *  
      */
+    @Test
     public void testGetExtensionAndAttributes() {
         String xpId = " sdsdsd";
         ExtensionPoint extensionPoint =repository
@@ -135,6 +138,7 @@ public class TestPluginSystem extends TestCase {
     /**
      * @throws PluginRuntimeException
      */
+    @Test
     public void testGetExtensionInstances() throws PluginRuntimeException {
         Extension[] extensions = repository
                 .getExtensionPoint(getGetExtensionId()).getExtensions();
@@ -154,6 +158,7 @@ public class TestPluginSystem extends TestCase {
      * 
      *  
      */
+    @Test
     public void testGetClassLoader() {
         PluginDescriptor[] descriptors = repository
                 .getPluginDescriptors();
@@ -166,6 +171,7 @@ public class TestPluginSystem extends TestCase {
     /**
      * @throws IOException
      */
+    @Test
     public void testGetResources() throws IOException {
         PluginDescriptor[] descriptors = repository
                 .getPluginDescriptors();

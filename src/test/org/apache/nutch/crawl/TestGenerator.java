@@ -28,14 +28,15 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.AbstractNutchTest;
 import org.apache.nutch.util.CrawlTestUtil;
 import org.apache.nutch.util.TableUtil;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * Basic generator test. 1. Insert entries in webtable 2. Generates entries to
  * fetch 3. Verifies that number of generated urls match 4. Verifies that
  * highest scoring urls are generated
- *
- * @author nutch-dev <nutch-dev at lucene.apache.org>
- * @param <URLWebPage>
  *
  */
 public class TestGenerator extends AbstractNutchTest {
@@ -46,12 +47,25 @@ public class TestGenerator extends AbstractNutchTest {
     WebPage.Field.MARKERS.getName(),
     WebPage.Field.SCORE.getName()
   };
+  
+  @Override
+  @Before
+  public void setUp() throws Exception{
+    super.setUp();
+  }
+  
+  @Override
+  @After
+  public void tearDown()throws Exception {
+    super.tearDown();
+  }
 
   /**
    * Test that generator generates fetchlist ordered by score (desc).
    *
    * @throws Exception
    */
+  @Test
   public void testGenerateHighest() throws Exception {
 
     final int NUM_RESULTS = 2;
@@ -111,6 +125,7 @@ public class TestGenerator extends AbstractNutchTest {
    *
    * @throws Exception
    */
+  @Test
   public void testGenerateHostLimit() throws Exception {
     ArrayList<URLWebPage> list = new ArrayList<URLWebPage>();
 
@@ -158,6 +173,7 @@ public class TestGenerator extends AbstractNutchTest {
    *
    * @throws Exception
    */
+  @Test
   public void testGenerateDomainLimit() throws Exception {
     ArrayList<URLWebPage> list = new ArrayList<URLWebPage>();
 
@@ -209,6 +225,7 @@ public class TestGenerator extends AbstractNutchTest {
    * @throws Exception
    * @throws IOException
    */
+  @Test
   public void testFilter() throws IOException, Exception {
 
     ArrayList<URLWebPage> list = new ArrayList<URLWebPage>();

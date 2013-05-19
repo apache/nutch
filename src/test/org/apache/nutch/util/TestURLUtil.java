@@ -19,18 +19,13 @@ package org.apache.nutch.util;
 
 import java.net.URL;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /** Test class for URLUtil */
-public class TestURLUtil
-  extends TestCase {
+public class TestURLUtil {
 
-  @Override
-  protected void setUp()
-    throws Exception {
-    super.setUp();
-  }
-
+  @Test
   public void testGetDomainName()
     throws Exception {
 
@@ -81,6 +76,7 @@ public class TestURLUtil
 
   }
 
+  @Test
   public void testGetDomainSuffix()
     throws Exception {
     URL url = null;
@@ -133,6 +129,7 @@ public class TestURLUtil
 
   }
 
+  @Test
   public void testGetHostBatches()
     throws Exception {
     URL url;
@@ -165,6 +162,7 @@ public class TestURLUtil
 
   }
 
+  @Test
   public void testChooseRepr()
     throws Exception {
     

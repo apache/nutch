@@ -30,6 +30,11 @@ import org.apache.nutch.util.AbstractNutchTest;
 import org.apache.nutch.util.CrawlTestUtil;
 import org.mortbay.jetty.Server;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
 /**
  * Basic fetcher test
  * 1. generate seedlist
@@ -37,7 +42,6 @@ import org.mortbay.jetty.Server;
  * 3. generate
  * 3. fetch
  * 4. Verify contents
- * @author nutch-dev <nutch-dev at lucene.apache.org>
  *
  */
 public class TestFetcher extends AbstractNutchTest {
@@ -47,6 +51,7 @@ public class TestFetcher extends AbstractNutchTest {
   Server server;
 
   @Override
+  @Before
   public void setUp() throws Exception{
     super.setUp();
     urlPath = new Path(testdir, "urls");
@@ -55,11 +60,13 @@ public class TestFetcher extends AbstractNutchTest {
   }
 
   @Override
+  @After
   public void tearDown() throws Exception{
     server.stop();
     fs.delete(testdir, true);
   }
 
+  @Test
   public void testFetch() throws Exception {
 
     //generate seedlist
@@ -124,6 +131,7 @@ public class TestFetcher extends AbstractNutchTest {
     urls.add("http://127.0.0.1:" + server.getConnectors()[0].getPort() + "/" + page);
   }
 
+  @Test
   public void testAgentNameCheck() {
 
     boolean failedNoAgentName = false;

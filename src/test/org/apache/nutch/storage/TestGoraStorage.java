@@ -35,16 +35,34 @@ import org.apache.nutch.util.AbstractNutchTest;
 import org.apache.nutch.util.CrawlTestUtil;
 import org.hsqldb.Server;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
 /**
  * Tests basic Gora functionality by writing and reading webpages.
  */
 public class TestGoraStorage extends AbstractNutchTest {
 
+  @Override
+  @Before
+  public void setUp() throws Exception {
+    super.setUp();
+  }
+
+  @Override
+  @After
+  public void tearDown() throws Exception {
+    super.tearDown();
+  }
+  
   /**
    * Sequentially read and write pages to a store.
    * 
    * @throws Exception
    */
+  @Test
   public void testSinglethreaded() throws Exception {
     String id = "singlethread";
     readWrite(id, webPageStore);
@@ -87,6 +105,7 @@ public class TestGoraStorage extends AbstractNutchTest {
    * 
    * @throws Exception
    */
+  @Test
   public void testMultithreaded() throws Exception {
     // create a fixed thread pool
     int numThreads = 8;
@@ -127,6 +146,7 @@ public class TestGoraStorage extends AbstractNutchTest {
    * 
    * @throws Exception
    */
+  @Test
   public void testMultiProcess() throws Exception {
     // create and start a hsql server, a stand-alone (memory backed) db
     // (important: a stand-alone server should be used because simple

@@ -16,8 +16,6 @@
  */
 package org.apache.nutch.util;
 
-import junit.framework.TestCase;
-
 import org.apache.gora.store.DataStore;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -29,7 +27,7 @@ import org.apache.nutch.storage.WebPage;
  * This class provides common routines for setup/teardown of an in-memory data
  * store.
  */
-public class AbstractNutchTest extends TestCase {
+public class AbstractNutchTest {
 
   protected Configuration conf;
   protected FileSystem fs;
@@ -37,9 +35,7 @@ public class AbstractNutchTest extends TestCase {
   protected DataStore<String, WebPage> webPageStore;
   protected boolean persistentDataStore = false;
 
-  @Override
   public void setUp() throws Exception {
-    super.setUp();
     conf = CrawlTestUtil.createConfiguration();
     conf.set("storage.data.store.class", "org.apache.gora.sql.store.SqlStore");
     fs = FileSystem.get(conf);
@@ -47,7 +43,6 @@ public class AbstractNutchTest extends TestCase {
         WebPage.class);
   }
 
-  @Override
   public void tearDown() throws Exception {
     // empty the database after test
     if (!persistentDataStore) {
@@ -55,7 +50,6 @@ public class AbstractNutchTest extends TestCase {
       webPageStore.flush();
       webPageStore.close();
     }
-    super.tearDown();
     fs.delete(testdir, true);
   }
 

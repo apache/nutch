@@ -19,7 +19,6 @@ package org.apache.nutch.parse.js;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
@@ -33,9 +32,9 @@ import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.Before;
 import org.junit.Test;
-
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
 /**
  * JUnit test case for {@link JSParseFilter} which tests 
@@ -45,7 +44,7 @@ import junit.framework.TestCase;
  * @author lewismc
  */
 
-public class TestJSParseFilter extends TestCase {
+public class TestJSParseFilter {
 
   private String fileSeparator = System.getProperty("file.separator");
 
@@ -58,50 +57,44 @@ public class TestJSParseFilter extends TestCase {
 	  
   private Configuration conf;
 	  
-  public TestJSParseFilter(String name) {
-	super(name);
-  }
-	  
-  protected void setUp() {
-	conf = NutchConfiguration.create();
-	conf.set("file.content.limit", "-1");
+  @Before
+  public void setUp() {
+    conf = NutchConfiguration.create();
+    conf.set("file.content.limit", "-1");
   }
 
-  protected void tearDown() {
-  }	
-  
   public Outlink[] getOutlinks(String[] sampleFiles) throws ProtocolException, ParseException, IOException {
-	String urlString;
-	Parse parse;
+    String urlString;
+    Parse parse;
 	
-	urlString = "file:" + sampleDir + fileSeparator + sampleFiles;
-	File file = new File(urlString);
-	byte[] bytes = new byte[(int) file.length()];
-	DataInputStream dip = new DataInputStream(new FileInputStream(file));
-	dip.readFully(bytes);
-	dip.close();
+    urlString = "file:" + sampleDir + fileSeparator + sampleFiles;
+    File file = new File(urlString);
+    byte[] bytes = new byte[(int) file.length()];
+    DataInputStream dip = new DataInputStream(new FileInputStream(file));
+    dip.readFully(bytes);
+    dip.close();
     
-	WebPage page = new WebPage();
-	page.setBaseUrl(new Utf8(urlString));
-	page.setContent(ByteBuffer.wrap(bytes));
-	MimeUtil mutil = new MimeUtil(conf);
-	String mime = mutil.getMimeType(file);
-	page.setContentType(new Utf8(mime));
+    WebPage page = new WebPage();
+    page.setBaseUrl(new Utf8(urlString));
+    page.setContent(ByteBuffer.wrap(bytes));
+    MimeUtil mutil = new MimeUtil(conf);
+    String mime = mutil.getMimeType(file);
+    page.setContentType(new Utf8(mime));
 	
-	parse = new ParseUtil(conf).parse(urlString, page);
-	return parse.getOutlinks();
+    parse = new ParseUtil(conf).parse(urlString, page);
+    return parse.getOutlinks();
   }
   
   @Test
   public void testOutlinkExtraction() throws ProtocolException, ParseException, IOException {
-	String[] filenames = new File(sampleDir).list();
-	for (int i = 0; i < filenames.length; i++) {
-	  if (filenames[i].endsWith(".js") == true) {
-		assertEquals("number of outlinks in .js test file should be 5", 5, getOutlinks(sampleFiles));
-		// temporarily disabled as a suitable pure JS file could not be be found.
-	    //} else {
-		//assertEquals("number of outlinks in .html file should be X", 5, getOutlinks(sampleFiles));
-	  }
+    String[] filenames = new File(sampleDir).list();
+    for (int i = 0; i < filenames.length; i++) {
+      if (filenames[i].endsWith(".js") == true) {
+        assertEquals("number of outlinks in .js test file should be 5", 5, getOutlinks(sampleFiles));
+        // temporarily disabled as a suitable pure JS file could not be be found.
+        //} else {
+        //assertEquals("number of outlinks in .html file should be X", 5, getOutlinks(sampleFiles));
+      }
     }
   }
 

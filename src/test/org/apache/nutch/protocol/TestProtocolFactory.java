@@ -20,20 +20,24 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.ObjectCache;
 
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-public class TestProtocolFactory extends TestCase {
+public class TestProtocolFactory {
 
   Configuration conf;
   ProtocolFactory factory;
   
-  protected void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
     conf = NutchConfiguration.create();
     conf.set("plugin.includes", ".*");
     conf.set("http.agent.name", "test-bot");
     factory=new ProtocolFactory(conf);
   }
 
+  @Test
   public void testGetProtocol(){
 
     //non existing protocol
@@ -69,6 +73,7 @@ public class TestProtocolFactory extends TestCase {
     }
   }
   
+  @Test
   public void testContains(){
     assertTrue(factory.contains("http", "http"));
     assertTrue(factory.contains("http", "http,ftp"));

@@ -20,13 +20,12 @@ import java.nio.ByteBuffer;
 
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.fetcher.FetcherJob;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Test;
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
 /**
  * JUnit test case which tests
@@ -39,7 +38,7 @@ import junit.framework.TestCase;
  * @author lewismc
  */
 
-public class TestBasicIndexingFilter extends TestCase {
+public class TestBasicIndexingFilter {
   
   @Test
   public void testBasicFields() throws Exception {

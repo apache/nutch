@@ -17,7 +17,8 @@
 
 package org.apache.nutch.parse.tika;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.tika.DOMBuilder;
@@ -43,7 +44,7 @@ import java.util.StringTokenizer;
 /**
  * Unit tests for DOMContentUtils.
  */
-public class DOMContentUtilsTest extends TestCase {
+public class DOMContentUtilsTest {
 
 	private static final String[] testPages = {
 			// 0.
@@ -200,7 +201,6 @@ public class DOMContentUtilsTest extends TestCase {
 	public static final Logger Logger = LoggerFactory.getLogger(DOMContentUtilsTest.class);
 
 	public DOMContentUtilsTest(String name) {
-		super(name);
 	}
 
 	private static void setup() throws Exception {
@@ -317,6 +317,7 @@ public class DOMContentUtilsTest extends TestCase {
 		return true;
 	}
 
+	@Test
 	public void testGetText() throws Exception {
 		if (testDOMs[0] == null)
 			setup();
@@ -335,6 +336,7 @@ public class DOMContentUtilsTest extends TestCase {
 
 	// won't work with Tika - the title is stored in the metadata but
 	// not put in the XHTML representation
+	@Test
 	public void testGetTitle() throws Exception {
 		if (testDOMs[0] == null)
 			setup();
@@ -351,6 +353,7 @@ public class DOMContentUtilsTest extends TestCase {
 		}
 	}
 
+	@Test
 	public void testGetOutlinks() throws Exception {
 		if (testDOMs[0] == null)
 			setup();

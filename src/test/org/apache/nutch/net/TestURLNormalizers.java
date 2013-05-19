@@ -21,10 +21,12 @@ import java.net.MalformedURLException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-public class TestURLNormalizers extends TestCase {
+public class TestURLNormalizers {
 
+  @Test
   public void testURLNormalizers() {
     Configuration conf = NutchConfiguration.create();
     String clazz1 = "org.apache.nutch.net.urlnormalizer.regex.RegexURLNormalizer";

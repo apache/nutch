@@ -32,14 +32,15 @@ import org.apache.nutch.parse.ParseException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /** 
  * Unit tests for SWFParser.
  *
  * @author Andrzej Bialecki
  */
-public class TestSWFParser extends TestCase {
+public class TestSWFParser {
 
   private String fileSeparator = System.getProperty("file.separator");
   // This system property is defined in ./src/plugin/build-plugin.xml
@@ -47,10 +48,8 @@ public class TestSWFParser extends TestCase {
   
   private String[] sampleFiles = new String[]{"test1.swf", "test2.swf", "test3.swf"};
   private String[] sampleTexts = new String[]{"test1.txt", "test2.txt", "test3.txt"};
-  private String[] texts = new String[sampleTexts.length];
-
+  
   public TestSWFParser(String name) { 
-    super(name);
     for (int i = 0; i < sampleFiles.length; i++) {
     try {
       // read the test string
@@ -74,6 +73,7 @@ public class TestSWFParser extends TestCase {
 
   protected void tearDown() {}
 
+  @Test
   public void testIt() throws ProtocolException, ParseException {
     String urlString;
     Protocol protocol;

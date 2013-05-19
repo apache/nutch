@@ -32,20 +32,20 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Test;
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
 /**
  * Junit test for {@link RelTagParser} based mainly John Xing's parser tests.
  * We are not concerned with actual parse text within the sample file, instead
  * we assert that the rel-tags we expect are found in the WebPage metadata.
  * To check the parser is working as expected we unwrap the ByteBuffer obtained 
- * from metadata, the same type as  * we use in expected (String). So just the 
+ * from metadata, the same type as we use in expected (String). So just the 
  * other way around as we wrapped the metadata value.
  * 
  * @author lewismc
  *
  */
-public class TestRelTagParser extends TestCase {
+public class TestRelTagParser {
 
   private String fileSeparator = System.getProperty("file.separator");
 
@@ -61,39 +61,34 @@ public class TestRelTagParser extends TestCase {
   
   private Configuration conf;
   
-  public TestRelTagParser(String name) {
-    super(name);
-  }
-  
   @Test
-  public void testRelTagParser() throws ProtocolException, ParseException, IOException {
-	conf = NutchConfiguration.create();
-	conf.set("file.content.limit", "-1");
-	Parse parse;
-	String urlString = "file:" + sampleDir + fileSeparator + sampleFile;
+  public void testRelTagParser() throws ParseException, ProtocolException, IOException {
+    conf = NutchConfiguration.create();
+    conf.set("file.content.limit", "-1");
+    Parse parse;
+    String urlString = "file:" + sampleDir + fileSeparator + sampleFile;
 
-	File file = new File(sampleDir + fileSeparator + sampleFile);
-	byte[] bytes = new byte[(int) file.length()];
-	DataInputStream in = new DataInputStream(new FileInputStream(file));
-	in.readFully(bytes);
-	in.close();
+    File file = new File(sampleDir + fileSeparator + sampleFile);
+    byte[] bytes = new byte[(int) file.length()];
+    DataInputStream in = new DataInputStream(new FileInputStream(file));
+    in.readFully(bytes);
+    in.close();
 
-	WebPage page = new WebPage();
-	page.setBaseUrl(new Utf8(urlString));
-	page.setContent(ByteBuffer.wrap(bytes));
-	MimeUtil mimeutil = new MimeUtil(conf);
-	String mtype = mimeutil.getMimeType(file);
-	page.setContentType(new Utf8(mtype));
-	parse = new ParseUtil(conf).parse(urlString, page);
-    
-	//begin assertion for tests
-	ByteBuffer bbuf = page.getFromMetadata(new Utf8("Rel-Tag"));
-	byte[] byteArray = new byte[bbuf.remaining()];
-	bbuf.get(byteArray);
-	String s = new String(byteArray);
-	//bbuf.flip();
-	assertEquals("We expect 2 tab-separated rel-tag's extracted by the filter", 
-	  expectedRelTags, s);
+    WebPage page = new WebPage();
+    page.setBaseUrl(new Utf8(urlString));
+    page.setContent(ByteBuffer.wrap(bytes));
+    MimeUtil mimeutil = new MimeUtil(conf);
+    String mtype = mimeutil.getMimeType(file);
+    page.setContentType(new Utf8(mtype));
+    parse = new ParseUtil(conf).parse(urlString, page);
+    //begin assertion for tests
+    ByteBuffer bbuf = page.getFromMetadata(new Utf8("Rel-Tag"));
+    byte[] byteArray = new byte[bbuf.remaining()];
+    bbuf.get(byteArray);
+    String s = new String(byteArray);
+    //bbuf.flip();
+    assertEquals("We expect 2 tab-separated rel-tag's extracted by the filter", 
+      expectedRelTags, s);
   }
   
 }

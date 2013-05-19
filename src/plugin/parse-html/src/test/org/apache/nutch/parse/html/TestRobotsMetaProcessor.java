@@ -17,8 +17,6 @@
 
 package org.apache.nutch.parse.html;
 
-import junit.framework.TestCase;
-
 import org.apache.nutch.parse.HTMLMetaTags;
 
 import java.io.ByteArrayInputStream;
@@ -29,11 +27,11 @@ import org.xml.sax.*;
 import org.w3c.dom.*;
 import org.apache.html.dom.*;
 
+import org.junit.Test;
+import static org.junit.Assert.*;
+
 /** Unit tests for HTMLMetaProcessor. */
-public class TestRobotsMetaProcessor extends TestCase {
-  public TestRobotsMetaProcessor(String name) { 
-    super(name); 
-  }
+public class TestRobotsMetaProcessor {
 
   /*
 
@@ -126,6 +124,7 @@ public class TestRobotsMetaProcessor extends TestCase {
 
   private URL[][] currURLsAndAnswers;
 
+  @Test
   public void testRobotsMetaProcessor() {
     DOMFragmentParser parser= new DOMFragmentParser();;
 

@@ -21,7 +21,8 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 import org.apache.avro.util.Utf8;
 import org.apache.nutch.metadata.Metadata;
@@ -32,7 +33,7 @@ import org.apache.nutch.util.EncodingDetector;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.tika.language.LanguageIdentifier;
 
-public class TestHTMLLanguageParser extends TestCase {
+public class TestHTMLLanguageParser {
 
   private static Utf8 URL = new Utf8("http://foo.bar/");
 
@@ -49,6 +50,7 @@ public class TestHTMLLanguageParser extends TestCase {
   /**
    * Test parsing of language identifiers from html
    **/
+  @Test
   public void testMetaHTMLParsing() {
 
     try {
@@ -71,6 +73,7 @@ public class TestHTMLLanguageParser extends TestCase {
   }
 
   /** Test of <code>LanguageParser.parseLanguage(String)</code> method. */
+  @Test
   public void testParseLanguage() {
     String tests[][] = { { "(SCHEME=ISO.639-1) sv", "sv" },
         { "(SCHEME=RFC1766) sv-FI", "sv" }, { "(SCHEME=Z39.53) SWE", "sv" },
@@ -98,6 +101,7 @@ public class TestHTMLLanguageParser extends TestCase {
     }
   }
 
+  @Test
   public void testLanguageIndentifier() {
     try {
       long total = 0;

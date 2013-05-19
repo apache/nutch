@@ -22,14 +22,16 @@ import java.util.Collection;
 
 import org.apache.nutch.util.NutchConfiguration;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-public class TestSubcollection extends TestCase {
+public class TestSubcollection {
   
   /**Test filtering logic
    * 
    * @throws Exception
    */
+  @Test
   public void testFilter() throws Exception {
     Subcollection sc=new Subcollection(NutchConfiguration.create());
     sc.setWhiteList("www.nutch.org\nwww.apache.org");
@@ -46,6 +48,7 @@ public class TestSubcollection extends TestCase {
     assertEquals(null, sc.filter("http://www.google.com/"));
   }
   
+  @Test
   public void testInput(){
     StringBuffer xml=new StringBuffer();
     xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");

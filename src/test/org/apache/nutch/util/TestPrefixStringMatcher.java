@@ -17,13 +17,11 @@
 
 package org.apache.nutch.util;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /** Unit tests for PrefixStringMatcher. */
-public class TestPrefixStringMatcher extends TestCase {
-  public TestPrefixStringMatcher(String name) { 
-    super(name); 
-  }
+public class TestPrefixStringMatcher {
 
   private final static int NUM_TEST_ROUNDS= 20;
   private final static int MAX_TEST_PREFIXES= 100;
@@ -51,6 +49,7 @@ public class TestPrefixStringMatcher extends TestCase {
     return new String(chars);
   }
   
+  @Test
   public void testPrefixMatcher() {
     int numMatches= 0;
     int numInputsTested= 0;

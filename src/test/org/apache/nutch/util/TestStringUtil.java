@@ -17,14 +17,13 @@
 
 package org.apache.nutch.util;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /** Unit tests for StringUtil methods. */
-public class TestStringUtil extends TestCase {
-  public TestStringUtil(String name) { 
-    super(name); 
-  }
+public class TestStringUtil {
 
+  @Test
   public void testRightPad() {
     String s= "my string";
 
@@ -42,6 +41,7 @@ public class TestStringUtil extends TestCase {
 
   }
 
+  @Test
   public void testLeftPad() {
     String s= "my string";
 

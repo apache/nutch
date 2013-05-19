@@ -18,7 +18,8 @@ package org.apache.nutch.crawl;
 
 import java.net.MalformedURLException;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.IntWritable;
@@ -33,11 +34,12 @@ import org.apache.nutch.util.TableUtil;
 /**
  * Tests {@link URLPartitioner}
  */
-public class TestURLPartitioner extends TestCase {
+public class TestURLPartitioner {
 
   /**
    * tests one reducer, everything goes into one partition, using host partitioner.
    */
+  @Test
   public void testOneReducer() {
     URLPartitioner partitioner = new URLPartitioner();
     Configuration conf = NutchConfiguration.create();
@@ -53,6 +55,7 @@ public class TestURLPartitioner extends TestCase {
   /**
    * tests partitioning by host
    */
+  @Test
   public void testModeHost() {
     URLPartitioner partitioner = new URLPartitioner();
     Configuration conf = NutchConfiguration.create();
@@ -75,6 +78,7 @@ public class TestURLPartitioner extends TestCase {
   /**
    * tests partitioning by domain
    */
+  @Test
   public void testModeDomain() {
     URLPartitioner partitioner = new URLPartitioner();
     Configuration conf = NutchConfiguration.create();
@@ -97,6 +101,7 @@ public class TestURLPartitioner extends TestCase {
   /**
    * tests partitioning by IP
    */
+  @Test
   public void testModeIP() {
     URLPartitioner partitioner = new URLPartitioner();
     Configuration conf = NutchConfiguration.create();
@@ -117,10 +122,10 @@ public class TestURLPartitioner extends TestCase {
         partitionWithoutWWW, partitionWithWWW);
   }
   
-  
   /**
    * Test the seed functionality, using host partitioner.
    */
+  @Test
   public void testSeed() {
     URLPartitioner partitioner = new URLPartitioner();
     Configuration conf = NutchConfiguration.create();
@@ -143,6 +148,7 @@ public class TestURLPartitioner extends TestCase {
   /**
    * Tests the {@link SelectorEntryPartitioner}.
    */
+  @Test
   public void testSelectorEntryPartitioner() {
     //The reference partitioner
     URLPartitioner refPartitioner = new URLPartitioner();
@@ -174,6 +180,7 @@ public class TestURLPartitioner extends TestCase {
    * Tests the {@link FetchEntryPartitioner}
    * @throws MalformedURLException 
    */
+  @Test
   public void testFetchEntryPartitioner() throws MalformedURLException {
     //The reference partitioner
     URLPartitioner refPartitioner = new URLPartitioner();

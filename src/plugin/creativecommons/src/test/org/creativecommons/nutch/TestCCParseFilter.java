@@ -17,29 +17,24 @@
 
 package org.creativecommons.nutch;
 
-import org.apache.nutch.metadata.Metadata;
-import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseUtil;
-import org.apache.nutch.protocol.Content;
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.tika.mime.MimeType;
-
-import java.util.Properties;
 import java.io.*;
-import java.net.URL;
 import java.nio.ByteBuffer;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-public class TestCCParseFilter extends TestCase {
+public class TestCCParseFilter {
 
 	private static final File testDir = new File(
 			System.getProperty("test.input"));
 
+  @Test
 	public void testPages() throws Exception {
 		pageTest(new File(testDir, "anchor.html"), "http://foo.com/",
 				"http://creativecommons.org/licenses/by-nc-sa/1.0", "a", null);
@@ -56,7 +51,6 @@ public class TestCCParseFilter extends TestCase {
 	public void pageTest(File file, String url, String license,
 			String location, String type) throws Exception {
 
-		String contentType = "text/html";
 		InputStream in = new FileInputStream(file);
 		ByteArrayOutputStream out = new ByteArrayOutputStream(
 				(int) file.length());

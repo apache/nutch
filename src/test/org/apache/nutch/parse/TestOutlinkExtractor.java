@@ -22,7 +22,8 @@ import org.apache.nutch.parse.OutlinkExtractor;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * TestCase to check regExp extraction of URLs.
@@ -31,7 +32,7 @@ import junit.framework.TestCase;
  * 
  * @version 1.0
  */
-public class TestOutlinkExtractor extends TestCase {
+public class TestOutlinkExtractor {
 
   private static Configuration conf = NutchConfiguration.create();
   public void testGetNoOutlinks() {
@@ -46,6 +47,7 @@ public class TestOutlinkExtractor extends TestCase {
     assertEquals(0, outlinks.length);
   }
   
+  @Test
   public void testGetOutlinksHttp() {
     Outlink[] outlinks = OutlinkExtractor.getOutlinks(
         "Test with http://www.nutch.org/index.html is it found? " +
@@ -58,6 +60,7 @@ public class TestOutlinkExtractor extends TestCase {
     assertEquals("Wrong URL", "http://www.sybit.com/solutions/portals.html", outlinks[2].getToUrl());
   }
   
+  @Test
   public void testGetOutlinksHttp2() {
     Outlink[] outlinks = OutlinkExtractor.getOutlinks(
         "Test with http://www.nutch.org/index.html is it found? " +
@@ -69,6 +72,8 @@ public class TestOutlinkExtractor extends TestCase {
     assertEquals("Wrong URL", "http://www.google.de", outlinks[1].getToUrl());
     assertEquals("Wrong URL", "http://www.sybit.com/solutions/portals.html", outlinks[2].getToUrl());
   }
+  
+  @Test
   public void testGetOutlinksFtp() {
     Outlink[] outlinks = OutlinkExtractor.getOutlinks(
         "Test with ftp://www.nutch.org is it found? " +

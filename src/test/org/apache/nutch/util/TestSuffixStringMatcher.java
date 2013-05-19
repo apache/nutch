@@ -17,13 +17,11 @@
 
 package org.apache.nutch.util;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /** Unit tests for SuffixStringMatcher. */
-public class TestSuffixStringMatcher extends TestCase {
-  public TestSuffixStringMatcher(String name) { 
-    super(name); 
-  }
+public class TestSuffixStringMatcher {
 
   private final static int NUM_TEST_ROUNDS= 20;
   private final static int MAX_TEST_SUFFIXES= 100;
@@ -51,6 +49,7 @@ public class TestSuffixStringMatcher extends TestCase {
     return new String(chars);
   }
   
+  @Test
   public void testSuffixMatcher() {
     int numMatches= 0;
     int numInputsTested= 0;

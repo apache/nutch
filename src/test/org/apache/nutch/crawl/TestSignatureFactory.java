@@ -19,10 +19,12 @@ package org.apache.nutch.crawl;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-public class TestSignatureFactory extends TestCase {
+public class TestSignatureFactory {
 
+  @Test
   public void testGetSignature() {
     Configuration conf=NutchConfiguration.create();
     Signature signature1=SignatureFactory.getSignature(conf);

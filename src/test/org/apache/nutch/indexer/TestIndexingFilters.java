@@ -16,7 +16,8 @@
  */
 package org.apache.nutch.indexer;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
@@ -24,12 +25,13 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 
-public class TestIndexingFilters extends TestCase {
+public class TestIndexingFilters {
 
   /**
    * Test behaviour when defined filter does not exist.
    * @throws IndexingException
    */
+  @Test
   public void testNonExistingIndexingFilter() throws IndexingException {
     Configuration conf = NutchConfiguration.create();
     conf.addResource("nutch-default.xml");
@@ -50,6 +52,7 @@ public class TestIndexingFilters extends TestCase {
    * Test behaviour when NutchDOcument is null
    * @throws IndexingException
    */
+  @Test
   public void testNutchDocumentNullIndexingFilter() throws IndexingException{
     Configuration conf = NutchConfiguration.create();
     conf.addResource("nutch-default.xml");
@@ -64,38 +67,38 @@ public class TestIndexingFilters extends TestCase {
     assertNull(doc);
   }
 
-    /**
-     * Test behaviour when reset the index filter order will not take effect
-     *
-     * @throws IndexingException
-     */
-    public void testFilterCacheIndexingFilter() throws IndexingException{
-        Configuration conf = NutchConfiguration.create();
-        conf.addResource("nutch-default.xml");
-        conf.addResource("crawl-tests.xml");
+  /**
+   * Test behaviour when reset the index filter order will not take effect
+   *
+   * @throws IndexingException
+   */
+  @Test
+  public void testFilterCacheIndexingFilter() throws IndexingException{
+    Configuration conf = NutchConfiguration.create();
+    conf.addResource("nutch-default.xml");
+    conf.addResource("crawl-tests.xml");
 
-        String class1 = "org.apache.nutch.indexer.basic.BasicIndexingFilter";
-        conf.set(IndexingFilters.INDEXINGFILTER_ORDER, class1);
+    String class1 = "org.apache.nutch.indexer.basic.BasicIndexingFilter";
+    conf.set(IndexingFilters.INDEXINGFILTER_ORDER, class1);
 
-        IndexingFilters filters1 = new IndexingFilters(conf);
-        WebPage page = new WebPage();
-        page.setText(new Utf8("text"));
-        page.setTitle(new Utf8("title"));
-        NutchDocument fdoc1 = filters1.filter(new NutchDocument(),"http://www.example.com/",page);
+    IndexingFilters filters1 = new IndexingFilters(conf);
+    WebPage page = new WebPage();
+    page.setText(new Utf8("text"));
+    page.setTitle(new Utf8("title"));
+    NutchDocument fdoc1 = filters1.filter(new NutchDocument(),"http://www.example.com/",page);
 
-        // add another index filter
-        String class2 = "org.apache.nutch.indexer.metadata.MetadataIndexer";
-        // set content metadata
-        Metadata md = new Metadata();
-        md.add("example","data");
-        // set content metadata property defined in MetadataIndexer
-        conf.set("index.content.md","example");
-        // add MetadataIndxer filter
-        conf.set(IndexingFilters.INDEXINGFILTER_ORDER, class1 + " " + class2);
-        IndexingFilters filters2 = new IndexingFilters(conf);
-        NutchDocument fdoc2 = filters2.filter(new NutchDocument(),"http://www.example.com/",page);
-        assertEquals(fdoc1.getFieldNames().size(),fdoc2.getFieldNames().size());
-    }
-
+    // add another index filter
+    String class2 = "org.apache.nutch.indexer.metadata.MetadataIndexer";
+    // set content metadata
+    Metadata md = new Metadata();
+    md.add("example","data");
+    // set content metadata property defined in MetadataIndexer
+    conf.set("index.content.md","example");
+    // add MetadataIndxer filter
+    conf.set(IndexingFilters.INDEXINGFILTER_ORDER, class1 + " " + class2);
+    IndexingFilters filters2 = new IndexingFilters(conf);
+    NutchDocument fdoc2 = filters2.filter(new NutchDocument(),"http://www.example.com/",page);
+    assertEquals(fdoc1.getFieldNames().size(),fdoc2.getFieldNames().size());
+  }
 
 }

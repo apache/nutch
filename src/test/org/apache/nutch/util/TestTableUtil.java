@@ -17,9 +17,10 @@
 package org.apache.nutch.util;
 
 import org.apache.nutch.util.TableUtil;
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-public class TestTableUtil extends TestCase {
+public class TestTableUtil {
 
   String urlString1 = "http://foo.com/";
   String urlString2 = "http://foo.com:8900/";
@@ -38,6 +39,7 @@ public class TestTableUtil extends TestCase {
   String reversedUrlString6 = "com.foo:http";
   String reversedUrlString7 = ":file/var/www/index.html";
 
+  @Test
   public void testReverseUrl() throws Exception {
     assertReverse(urlString1, reversedUrlString1);
     assertReverse(urlString2, reversedUrlString2);
@@ -49,6 +51,7 @@ public class TestTableUtil extends TestCase {
     assertReverse(urlString7, reversedUrlString7);
   }
 
+  @Test
   public void testUnreverseUrl() throws Exception {
     assertUnreverse(reversedUrlString1, urlString1);
     assertUnreverse(reversedUrlString2, urlString2);

@@ -24,33 +24,36 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
-// JUnit imports
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
-// Commons Logging imports
+// Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // Nutch imports
 import org.apache.nutch.net.URLFilter;
+//import org.apache.nutch.urlfilter.automaton.TestAutomatonURLFilter;
+//import org.apache.nutch.urlfilter.regex.TestRegexURLFilter;
 
+//import org.junit.runners.Suite;
+//import org.junit.runner.RunWith;
 
 /**
  * JUnit based test of class <code>RegexURLFilterBase</code>.
  *
  * @author J&eacute;r&ocirc;me Charron
  */
-public abstract class RegexURLFilterBaseTest extends TestCase {
+
+
+//@RunWith(Suite.class)
+//@Suite.SuiteClasses({TestAutomatonURLFilter.class, TestRegexURLFilter.class})
+public abstract class RegexURLFilterBaseTest {
   
   /** My logger */
   protected static final Logger LOG = LoggerFactory.getLogger(RegexURLFilterBaseTest.class);  
 
   private final static String SEPARATOR = System.getProperty("file.separator");  
   private final static String SAMPLES = System.getProperty("test.data", ".");
-  
-  public RegexURLFilterBaseTest(String testName) {
-    super(testName);
-  }
   
   protected abstract URLFilter getURLFilter(Reader rules);
 

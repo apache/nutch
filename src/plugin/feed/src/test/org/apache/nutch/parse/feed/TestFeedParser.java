@@ -35,8 +35,8 @@ import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.ProtocolNotFound;
 import org.apache.nutch.util.NutchConfiguration;
 
-// Junit imports
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * 
@@ -45,7 +45,7 @@ import junit.framework.TestCase;
  * Test Suite for the {@link FeedParser}.
  * 
  */
-public class TestFeedParser extends TestCase {
+public class TestFeedParser {
 
   private String fileSeparator = System.getProperty("file.separator");
 
@@ -67,7 +67,6 @@ public class TestFeedParser extends TestCase {
    *          The name of this {@link TestCase}.
    */
   public TestFeedParser(String name) {
-    super(name);
   }
 
   /**
@@ -85,6 +84,7 @@ public class TestFeedParser extends TestCase {
    * @throws ParseException
    *           If the {@link Parser}Layer cannot be loaded.
    */
+  @Test
   public void testParseFetchChannel() throws ProtocolNotFound, ParseException {
     String urlString;
     Protocol protocol;

@@ -18,7 +18,8 @@ package org.apache.nutch.indexer.more;
 
 import java.nio.ByteBuffer;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
@@ -28,8 +29,9 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.EncodingDetector;
 import org.apache.nutch.util.NutchConfiguration;
 
-public class TestMoreIndexingFilter extends TestCase {
+public class TestMoreIndexingFilter {
 
+  @Test
   public void testContentType() throws IndexingException {
     Configuration conf = NutchConfiguration.create();
     assertContentType(conf, "text/html", "text/html");
@@ -45,6 +47,7 @@ public class TestMoreIndexingFilter extends TestCase {
   /**
    * @since NUTCH-901
    */
+  @Test
   public void testNoParts(){
      Configuration conf = NutchConfiguration.create();
      conf.setBoolean("moreIndexingFilter.indexMimeTypeParts", false);

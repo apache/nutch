@@ -17,8 +17,9 @@
 
 package org.apache.nutch.parse;
 
-// JUnit imports
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 // Nutch imports
 import org.apache.nutch.plugin.Extension;
@@ -29,17 +30,15 @@ import org.apache.nutch.util.NutchConfiguration;
  * Unit test for new parse plugin selection.
  *
  * @author Sebastien Le Callonnec
- * @version 1.0
  */
-public class TestParserFactory extends TestCase {
+public class TestParserFactory {
 	
   private Configuration conf;
   private ParserFactory parserFactory;
     
-  public TestParserFactory(String name) { super(name); }
-
   /** Inits the Test Case with the test parse-plugin file */
-  protected void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
       conf = NutchConfiguration.create();
       conf.set("plugin.includes", ".*");
       conf.set("parse.plugin.file",
@@ -48,6 +47,7 @@ public class TestParserFactory extends TestCase {
   }
     
   /** Unit test for <code>getExtensions(String)</code> method. */
+  @Test
   public void testGetExtensions() throws Exception {
     Extension ext = parserFactory.getExtensions("text/html").get(0);
     assertEquals("parse-tika", ext.getDescriptor().getPluginId());
@@ -58,6 +58,7 @@ public class TestParserFactory extends TestCase {
   }
   
   /** Unit test to check <code>getParsers</code> method */
+  @Test
   public void testGetParsers() throws Exception {
     Parser [] parsers = parserFactory.getParsers("text/html", "http://foo.com");
     assertNotNull(parsers);

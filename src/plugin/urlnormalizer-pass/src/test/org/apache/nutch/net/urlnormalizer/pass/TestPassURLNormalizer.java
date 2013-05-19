@@ -23,10 +23,12 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
-public class TestPassURLNormalizer extends TestCase {
+public class TestPassURLNormalizer {
 
+  @Test
   public void testPassURLNormalizer() {
     Configuration conf = NutchConfiguration.create();
     

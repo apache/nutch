@@ -17,15 +17,13 @@
 
 package org.apache.nutch.util;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 
 /** Unit tests for GZIPUtils methods. */
-public class TestGZIPUtils extends TestCase {
-  public TestGZIPUtils(String name) { 
-    super(name); 
-  }
+public class TestGZIPUtils {
 
   /* a short, highly compressable, string */
   String SHORT_TEST_STRING= 
@@ -117,6 +115,7 @@ public class TestGZIPUtils extends TestCase {
 
   // tests
 
+  @Test
   public void testZipUnzip() {
     byte[] testBytes= SHORT_TEST_STRING.getBytes();
     testZipUnzip(testBytes);
@@ -126,6 +125,7 @@ public class TestGZIPUtils extends TestCase {
     testZipUnzip(testBytes);
   }
 
+  @Test
   public void testZipUnzipBestEffort() {
     byte[] testBytes= SHORT_TEST_STRING.getBytes();
     testZipUnzipBestEffort(testBytes);
@@ -135,6 +135,7 @@ public class TestGZIPUtils extends TestCase {
     testZipUnzipBestEffort(testBytes);
   }
   
+  @Test
   public void testTruncation() {
     byte[] testBytes= SHORT_TEST_STRING.getBytes();
     testTruncation(testBytes);
@@ -144,6 +145,7 @@ public class TestGZIPUtils extends TestCase {
     testTruncation(testBytes);
   }
 
+  @Test
   public void testLimit() {
     byte[] testBytes= SHORT_TEST_STRING.getBytes();
     testLimit(testBytes);

@@ -20,7 +20,10 @@ package org.apache.nutch.protocol.httpclient;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.protocols.Response;
@@ -35,7 +38,7 @@ import org.mortbay.jetty.servlet.ServletHolder;
  * 
  * @author Susam Pal
  */
-public class TestProtocolHttpClient extends TestCase {
+public class TestProtocolHttpClient {
 
 	private Server server;
 	private Configuration conf;
@@ -43,7 +46,8 @@ public class TestProtocolHttpClient extends TestCase {
 	private int port;
 	private Http http = new Http();
 
-	protected void setUp() throws Exception {
+  @Before
+	public void setUp() throws Exception {
 
 		server = new Server();
 		
@@ -69,7 +73,8 @@ public class TestProtocolHttpClient extends TestCase {
 		http.setConf(conf);
 	}
 
-	protected void tearDown() throws Exception {
+  @After
+	public void tearDown() throws Exception {
 		server.stop();
 	}
 
@@ -79,6 +84,7 @@ public class TestProtocolHttpClient extends TestCase {
 	 * @throws Exception
 	 *             If an error occurs or the test case fails.
 	 */
+	@Test
 	public void testCookies() throws Exception {
 		startServer(47500);
 		fetchPage("/cookies.jsp", 200);
@@ -92,6 +98,7 @@ public class TestProtocolHttpClient extends TestCase {
 	 * @throws Exception
 	 *             If an error occurs or the test case fails.
 	 */
+	@Test
 	public void testNoPreemptiveAuth() throws Exception {
 		startServer(47500);
 		fetchPage("/noauth.jsp", 200);
@@ -104,6 +111,7 @@ public class TestProtocolHttpClient extends TestCase {
 	 * @throws Exception
 	 *             If an error occurs or the test case fails.
 	 */
+	@Test
 	public void testDefaultCredentials() throws Exception {
 		startServer(47502);
 		fetchPage("/basic.jsp", 200);
@@ -116,6 +124,7 @@ public class TestProtocolHttpClient extends TestCase {
 	 * @throws Exception
 	 *             If an error occurs or the test case fails.
 	 */
+	@Test
 	public void testBasicAuth() throws Exception {
 		startServer(47500);
 		fetchPage("/basic.jsp", 200);
@@ -132,6 +141,7 @@ public class TestProtocolHttpClient extends TestCase {
 	 * @throws Exception
 	 *             If an error occurs or the test case fails.
 	 */
+	@Test
 	public void testOtherRealmsNoAuth() throws Exception {
 		startServer(47501);
 		fetchPage("/basic.jsp", 200);
@@ -146,6 +156,7 @@ public class TestProtocolHttpClient extends TestCase {
 	 * @throws Exception
 	 *             If an error occurs or the test case fails.
 	 */
+	@Test
 	public void testDigestAuth() throws Exception {
 		startServer(47500);
 		fetchPage("/digest.jsp", 200);
@@ -158,6 +169,7 @@ public class TestProtocolHttpClient extends TestCase {
 	 * @throws Exception
 	 *             If an error occurs or the test case fails.
 	 */
+	@Test
 	public void testNtlmAuth() throws Exception {
 		startServer(47501);
 		fetchPage("/ntlm.jsp", 200);

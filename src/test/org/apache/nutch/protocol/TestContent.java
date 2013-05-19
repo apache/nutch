@@ -24,17 +24,17 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.WritableTestUtils;
 import org.apache.tika.mime.MimeTypes;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 
 /** Unit tests for Content. */
 
-public class TestContent extends TestCase {
+public class TestContent {
 
   private static Configuration conf = NutchConfiguration.create();
 
-  public TestContent(String name) { super(name); }
-
+  @Test
   public void testContent() throws Exception {
 
     String page = "<HTML><BODY><H1>Hello World</H1><P>The Quick Brown Fox Jumped Over the Lazy Fox.</BODY></HTML>";
@@ -55,6 +55,7 @@ public class TestContent extends TestCase {
   }
 
   /** Unit tests for getContentType(String, String, byte[]) method. */
+  @Test
   public void testGetContentType() throws Exception {
     Content c = null;
     Metadata p = new Metadata();

@@ -19,14 +19,15 @@ package org.apache.nutch.util;
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.storage.WebPage;
 
-public class TestEncodingDetector extends TestCase {
+public class TestEncodingDetector {
   private static Configuration conf = NutchConfiguration.create();
 
   private static byte[] contentInOctets;
@@ -39,10 +40,7 @@ public class TestEncodingDetector extends TestCase {
     }
   }
 
-  public TestEncodingDetector(String name) {
-    super(name);
-  }
-
+  @Test
   public void testGuessing() {
     // first disable auto detection
     conf.setInt(EncodingDetector.MIN_CONFIDENCE_KEY, -1);

@@ -22,10 +22,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * JUnit based tests of class
@@ -34,23 +32,13 @@ import junit.textui.TestRunner;
  * @author Chris Mattmann
  * @author J&eacute;r&ocirc;me Charron
  */
-public class TestSpellCheckedMetadata extends TestCase {
+
+public class TestSpellCheckedMetadata {
 
   private static final int NUM_ITERATIONS = 10000;
 
-  public TestSpellCheckedMetadata(String testName) {
-    super(testName);
-  }
-
-  public static Test suite() {
-    return new TestSuite(TestSpellCheckedMetadata.class);
-  }
-
-  public static void main(String[] args) {
-    TestRunner.run(suite());
-  }
-
   /** Test for the <code>getNormalizedName(String)</code> method. */
+  @Test
   public void testGetNormalizedName() {
     assertEquals("Content-Type", SpellCheckedMetadata
         .getNormalizedName("Content-Type"));
@@ -67,6 +55,7 @@ public class TestSpellCheckedMetadata extends TestCase {
   }
   
   /** Test for the <code>add(String, String)</code> method. */
+  @Test
   public void testAdd() {
     String[] values = null;
     SpellCheckedMetadata meta = new SpellCheckedMetadata();
@@ -96,6 +85,7 @@ public class TestSpellCheckedMetadata extends TestCase {
   }
 
   /** Test for the <code>set(String, String)</code> method. */
+  @Test
   public void testSet() {
     String[] values = null;
     SpellCheckedMetadata meta = new SpellCheckedMetadata();
@@ -122,6 +112,7 @@ public class TestSpellCheckedMetadata extends TestCase {
   }
 
   /** Test for <code>setAll(Properties)</code> method. */
+  @Test
   public void testSetProperties() {
     String[] values = null;
     SpellCheckedMetadata meta = new SpellCheckedMetadata();
@@ -149,6 +140,7 @@ public class TestSpellCheckedMetadata extends TestCase {
   }
 
   /** Test for <code>get(String)</code> method. */
+  @Test
   public void testGet() {
     SpellCheckedMetadata meta = new SpellCheckedMetadata();
     assertNull(meta.get("a-name"));
@@ -160,6 +152,7 @@ public class TestSpellCheckedMetadata extends TestCase {
   }
 
   /** Test for <code>isMultiValued()</code> method. */
+  @Test
   public void testIsMultiValued() {
     SpellCheckedMetadata meta = new SpellCheckedMetadata();
     assertFalse(meta.isMultiValued("key"));
@@ -170,6 +163,7 @@ public class TestSpellCheckedMetadata extends TestCase {
   }
 
   /** Test for <code>names</code> method. */
+  @Test
   public void testNames() {
     String[] names = null;
     SpellCheckedMetadata meta = new SpellCheckedMetadata();
@@ -186,6 +180,7 @@ public class TestSpellCheckedMetadata extends TestCase {
   }
 
   /** Test for <code>remove(String)</code> method. */
+  @Test
   public void testRemove() {
     SpellCheckedMetadata meta = new SpellCheckedMetadata();
     meta.remove("name-one");
@@ -207,6 +202,7 @@ public class TestSpellCheckedMetadata extends TestCase {
   }
 
   /** Test for <code>equals(Object)</code> method. */
+  @Test
   public void testObject() {
     SpellCheckedMetadata meta1 = new SpellCheckedMetadata();
     SpellCheckedMetadata meta2 = new SpellCheckedMetadata();
@@ -232,6 +228,7 @@ public class TestSpellCheckedMetadata extends TestCase {
   }
 
   /** Test for <code>Writable</code> implementation. */
+  @Test
   public void testWritable() {
     SpellCheckedMetadata result = null;
     SpellCheckedMetadata meta = new SpellCheckedMetadata();
@@ -259,6 +256,7 @@ public class TestSpellCheckedMetadata extends TestCase {
    * IO Test method, usable only when you plan to do changes in metadata
    * to measure relative performance impact.
    */
+  @Test
   public final void testHandlingSpeed() {
     SpellCheckedMetadata result;
     long start = System.currentTimeMillis();

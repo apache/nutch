@@ -23,7 +23,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
@@ -34,14 +35,13 @@ import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.tika.mime.MimeType;
 
 /**
  * Unit tests for TestRTFParser. (Adapted from John Xing msword unit tests).
  * 
  * @author Andy Hedges
  */
-public class TestRTFParser extends TestCase {
+public class TestRTFParser {
 
     private String fileSeparator = System.getProperty("file.separator");
     // This system property is defined in ./src/plugin/build-plugin.xml
@@ -51,16 +51,7 @@ public class TestRTFParser extends TestCase {
     // Check ./src/plugin/parse-rtf/sample/README.txt for what they are.
     private String rtfFile = "test.rtf";
 
-    public TestRTFParser(String name) {
-	super(name);
-    }
-
-    protected void setUp() {
-    }
-
-    protected void tearDown() {
-    }
-
+    @Test
     public void testIt() throws ProtocolException, ParseException, IOException {
 
 	String urlString;

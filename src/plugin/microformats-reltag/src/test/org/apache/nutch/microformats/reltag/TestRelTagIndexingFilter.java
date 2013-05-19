@@ -24,8 +24,7 @@ import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Test;
-
-import junit.framework.TestCase;
+import static org.junit.Assert.*;
 
 /**
  *JUnit test case for {@link RelTagIndexingFilter} which 
@@ -34,7 +33,7 @@ import junit.framework.TestCase;
  *@author lewismc
  */
 
-  public class TestRelTagIndexingFilter extends TestCase {
+  public class TestRelTagIndexingFilter {
 
   @Test
   public void testRelTagFields() throws Exception {

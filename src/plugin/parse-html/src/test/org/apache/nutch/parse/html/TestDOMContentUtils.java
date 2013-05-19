@@ -17,8 +17,6 @@
 
 package org.apache.nutch.parse.html;
 
-import junit.framework.TestCase;
-
 import org.apache.nutch.parse.Outlink;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
@@ -34,10 +32,14 @@ import org.xml.sax.*;
 import org.w3c.dom.*;
 import org.apache.html.dom.*;
 
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
+
 /** 
  * Unit tests for DOMContentUtils.
  */
-public class TestDOMContentUtils extends TestCase {
+public class TestDOMContentUtils {
 
   private static final String[] testPages= { 
     new String("<html><head><title> title </title><script> script </script>"
@@ -215,11 +217,8 @@ public class TestDOMContentUtils extends TestCase {
   private static Configuration conf;
   private static DOMContentUtils utils = null;
   
-  public TestDOMContentUtils(String name) { 
-    super(name); 
-  }
-
-  private static void setup() {
+  @Before
+  public void setup() {
     conf = NutchConfiguration.create();
     conf.setBoolean("parser.html.form.use_action", true);
     utils = new DOMContentUtils(conf);
@@ -313,6 +312,7 @@ public class TestDOMContentUtils extends TestCase {
     return true;
   }
 
+  @Test
   public void testGetText() {
     if (testDOMs[0] == null) 
       setup();
@@ -328,6 +328,7 @@ public class TestDOMContentUtils extends TestCase {
     }
   }
 
+  @Test
   public void testGetTitle() {
     if (testDOMs[0] == null) 
       setup();
@@ -343,6 +344,7 @@ public class TestDOMContentUtils extends TestCase {
     }
   }
 
+  @Test
   public void testGetOutlinks() {
     if (testDOMs[0] == null) 
       setup();

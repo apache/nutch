@@ -22,30 +22,16 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * JUnit based tests of class {@link org.apache.nutch.metadata.Metadata}.
  */
-public class TestMetadata extends TestCase {
+public class TestMetadata {
 
   private static final String CONTENTTYPE = "contenttype";
 
-  public TestMetadata(String testName) {
-    super(testName);
-  }
-
-  public static Test suite() {
-    return new TestSuite(TestMetadata.class);
-  }
-
-  public static void main(String[] args) {
-    TestRunner.run(suite());
-  }
-  
   /**
    * Test to ensure that only non-null values get written when the
    * {@link Metadata} object is written using a Writeable.
@@ -53,6 +39,7 @@ public class TestMetadata extends TestCase {
    * @since NUTCH-406
    * 
    */
+  @Test
   public void testWriteNonNull() {
     Metadata met = new Metadata();
     met.add(CONTENTTYPE, null);
@@ -83,6 +70,7 @@ public class TestMetadata extends TestCase {
   }
 
   /** Test for the <code>add(String, String)</code> method. */
+  @Test
   public void testAdd() {
     String[] values = null;
     Metadata meta = new Metadata();
@@ -112,6 +100,7 @@ public class TestMetadata extends TestCase {
   }
 
   /** Test for the <code>set(String, String)</code> method. */
+  @Test
   public void testSet() {
     String[] values = null;
     Metadata meta = new Metadata();
@@ -138,6 +127,7 @@ public class TestMetadata extends TestCase {
   }
 
   /** Test for <code>setAll(Properties)</code> method. */
+  @Test
   public void testSetProperties() {
     String[] values = null;
     Metadata meta = new Metadata();
@@ -165,6 +155,7 @@ public class TestMetadata extends TestCase {
   }
 
   /** Test for <code>get(String)</code> method. */
+  @Test
   public void testGet() {
     Metadata meta = new Metadata();
     assertNull(meta.get("a-name"));
@@ -175,6 +166,7 @@ public class TestMetadata extends TestCase {
   }
 
   /** Test for <code>isMultiValued()</code> method. */
+  @Test
   public void testIsMultiValued() {
     Metadata meta = new Metadata();
     assertFalse(meta.isMultiValued("key"));
@@ -185,6 +177,7 @@ public class TestMetadata extends TestCase {
   }
 
   /** Test for <code>names</code> method. */
+  @Test
   public void testNames() {
     String[] names = null;
     Metadata meta = new Metadata();
@@ -201,6 +194,7 @@ public class TestMetadata extends TestCase {
   }
 
   /** Test for <code>remove(String)</code> method. */
+  @Test
   public void testRemove() {
     Metadata meta = new Metadata();
     meta.remove("name-one");
@@ -222,6 +216,7 @@ public class TestMetadata extends TestCase {
   }
 
   /** Test for <code>equals(Object)</code> method. */
+  @Test
   public void testObject() {
     Metadata meta1 = new Metadata();
     Metadata meta2 = new Metadata();
@@ -247,6 +242,7 @@ public class TestMetadata extends TestCase {
   }
 
   /** Test for <code>Writable</code> implementation. */
+  @Test
   public void testWritable() {
     Metadata result = null;
     Metadata meta = new Metadata();

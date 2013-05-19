@@ -23,9 +23,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.nutch.protocol.ProtocolFactory;
-import org.apache.nutch.protocol.Protocol;
-import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ProtocolException;
 
 import org.apache.nutch.parse.Parse;
@@ -38,9 +35,8 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
 
-import org.apache.tika.mime.MimeType;
-
-import junit.framework.TestCase;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * Unit tests for the RSS Parser based on John Xing's TestPdfParser class.
@@ -48,7 +44,7 @@ import junit.framework.TestCase;
  * @author mattmann
  * @version 1.0
  */
-public class TestRSSParser extends TestCase {
+public class TestRSSParser {
 
   private String fileSeparator = System.getProperty("file.separator");
 
@@ -62,18 +58,6 @@ public class TestRSSParser extends TestCase {
 
   /**
    * <p>
-   * Default constructor
-   * </p>
-   * 
-   * @param name
-   *          The name of the RSSParserTest
-   */
-  public TestRSSParser(String name) {
-    super(name);
-  }
-
-  /**
-   * <p>
    * The test method: tests out the following 2 asserts:
    * </p>
    * 
@@ -83,9 +67,9 @@ public class TestRSSParser extends TestCase {
    * file</li>
    * </ul>
    */
+  @Test
   public void testIt()throws ProtocolException, ParseException, IOException {
     String urlString;
-    Protocol protocol;
     Parse parse;
 
     Configuration conf = NutchConfiguration.create();

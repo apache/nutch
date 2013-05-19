@@ -19,10 +19,9 @@ package org.apache.nutch.urlfilter.suffix;
 import java.io.IOException;
 import java.io.StringReader;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 
 /**
@@ -30,7 +29,7 @@ import junit.textui.TestRunner;
  *
  * @author Andrzej Bialecki
  */
-public class TestSuffixURLFilter extends TestCase {
+public class TestSuffixURLFilter {
   private static final String suffixes =
     "# this is a comment\n" +
     "\n" +
@@ -117,22 +116,12 @@ public class TestSuffixURLFilter extends TestCase {
   
   private SuffixURLFilter filter = null;
   
-  public TestSuffixURLFilter(String testName) {
-    super(testName);
-  }
-  
-  public static Test suite() {
-    return new TestSuite(TestSuffixURLFilter.class);
-  }
-  
-  public static void main(String[] args) {
-    TestRunner.run(suite());
-  }
-  
+  @Before
   public void setUp() throws IOException {
     filter = new SuffixURLFilter(new StringReader(suffixes));
   }
   
+  @Test
   public void testModeAccept() {
     filter.setIgnoreCase(false);
     filter.setModeAccept(true);
@@ -141,6 +130,7 @@ public class TestSuffixURLFilter extends TestCase {
     }
   }
 
+  @Test
   public void testModeReject() {
     filter.setIgnoreCase(false);
     filter.setModeAccept(false);
@@ -149,6 +139,7 @@ public class TestSuffixURLFilter extends TestCase {
     }
   }
 
+  @Test
   public void testModeAcceptIgnoreCase() {
     filter.setIgnoreCase(true);
     filter.setModeAccept(true);
@@ -157,6 +148,7 @@ public class TestSuffixURLFilter extends TestCase {
     }
   }
 
+  @Test
   public void testModeRejectIgnoreCase() {
     filter.setIgnoreCase(true);
     filter.setModeAccept(false);
@@ -165,6 +157,7 @@ public class TestSuffixURLFilter extends TestCase {
     }
   }
   
+  @Test
   public void testModeAcceptAndNonPathFilter() {
     filter.setModeAccept(true);
     filter.setFilterFromPath(false);
@@ -173,6 +166,7 @@ public class TestSuffixURLFilter extends TestCase {
     }
   }
   
+  @Test
   public void testModeAcceptAndPathFilter() {
     filter.setModeAccept(true);
     filter.setFilterFromPath(true);

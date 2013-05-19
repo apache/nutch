@@ -18,10 +18,8 @@
 package org.apache.nutch.protocol.file;
 
 // Hadoop imports
-import junit.framework.TestCase;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Text;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolException;
@@ -31,6 +29,9 @@ import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatusCodes;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * @author mattmann
@@ -40,7 +41,7 @@ import org.apache.nutch.util.NutchConfiguration;
  * Unit tests for the {@link File}Protocol.
  * </p>.
  */
-public class TestProtocolFile extends TestCase {
+public class TestProtocolFile {
 
   private String fileSeparator = System.getProperty("file.separator");
   private String sampleDir = System.getProperty("test.data", ".");
@@ -52,10 +53,12 @@ public class TestProtocolFile extends TestCase {
   
   private Configuration conf;
   
-  protected void setUp() {
+  @Before
+  public void setUp() {
     conf = NutchConfiguration.create();
   }
 
+  @Test
   public void testSetContentType() throws ProtocolException {
     for (String testTextFile : testTextFiles) {
       setContentType(testTextFile);

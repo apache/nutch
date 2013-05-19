@@ -28,6 +28,8 @@ import org.apache.nutch.util.AbstractNutchTest;
 import org.apache.nutch.util.CrawlTestUtil;
 import org.apache.gora.util.ByteUtils;
 import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  * Basic injector test: 1. Creates a text file with urls 2. Injects them into
@@ -46,6 +48,7 @@ public class TestInjector extends AbstractNutchTest {
     urlPath = new Path(testdir, "urls");
   }
 
+  @Test
   public void testInject() throws Exception {
     ArrayList<String> urls = new ArrayList<String>();
     for (int i = 0; i < 100; i++) {

@@ -23,7 +23,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import junit.framework.TestCase;
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.*;
 
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
@@ -34,14 +36,13 @@ import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
-import org.apache.tika.mime.MimeType;
 
 /**
  * Unit tests for MSWordParser.
  * 
  * @author John Xing
  */
-public class TestMSWordParser extends TestCase {
+public class TestMSWordParser {
 
     private String fileSeparator = System.getProperty("file.separator");
     // This system property is defined in ./src/plugin/build-plugin.xml
@@ -55,16 +56,10 @@ public class TestMSWordParser extends TestCase {
 
     private Configuration conf;
 
-    public TestMSWordParser(String name) {
-	super(name);
-    }
-
-    protected void setUp() {
+    @Before
+    public void setUp() {
 	conf = NutchConfiguration.create();
 	conf.set("file.content.limit", "-1");
-    }
-
-    protected void tearDown() {
     }
 
     public String getTextContent(String fileName) throws ProtocolException,
@@ -89,6 +84,7 @@ public class TestMSWordParser extends TestCase {
 	return parse.getText();
     }
 
+    @Test
     public void testIt() throws ProtocolException, ParseException, IOException {
 	for (int i = 0; i < sampleFiles.length; i++) {
 	    String found = getTextContent(sampleFiles[i]);
@@ -97,6 +93,7 @@ public class TestMSWordParser extends TestCase {
 	}
     }
 
+    @Test
     public void testOpeningDocs() throws ProtocolException, ParseException, IOException {
 	String[] filenames = new File(sampleDir).list();
 	for (int i = 0; i < filenames.length; i++) {
