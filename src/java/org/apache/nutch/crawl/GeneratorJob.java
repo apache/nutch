@@ -24,7 +24,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.Collection;
 
+import org.apache.hadoop.mapreduce.Job;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -152,6 +154,12 @@ public class GeneratorJob extends NutchTool implements Tool {
     setConf(conf);
   }
 
+  public Collection<WebPage.Field> getFields(Job job) {
+    Collection<WebPage.Field> fields = new HashSet<WebPage.Field>(FIELDS);
+    fields.addAll(FetchScheduleFactory.getFetchSchedule(job.getConfiguration()).getFields());
+    return fields;
+  }
+
   public Map<String,Object> run(Map<String,Object> args) throws Exception {
     // map to inverted subset due for fetch, sort by score
     Long topN = (Long)args.get(Nutch.ARG_TOPN);
@@ -187,7 +195,8 @@ public class GeneratorJob extends NutchTool implements Tool {
     numJobs = 1;
     currentJobNum = 0;
     currentJob = new NutchJob(getConf(), "generate: " + batchId);
-    StorageUtils.initMapperJob(currentJob, FIELDS, SelectorEntry.class,
+    Collection<WebPage.Field> fields = getFields(currentJob);
+    StorageUtils.initMapperJob(currentJob, fields, SelectorEntry.class,
         WebPage.class, GeneratorMapper.class, SelectorEntryPartitioner.class, true);
     StorageUtils.initReducerJob(currentJob, GeneratorReducer.class);
     currentJob.waitForCompletion(true);

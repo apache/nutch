@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
+* NUTCH-1563 FetchSchedule#getFields is never used by GeneratorJob (Feng)
+
 * NUTCH-1573 Upgrade to most recent JUnit 4.x to improve test flexibility (lewismc)
 
 * Added crawler-commons dependency in pom.xml (tejasp)
