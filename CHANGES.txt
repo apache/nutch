@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk): Current Development
 
+* NUTCH-1249 and NUTCH-1275 : Resolve all issues flagged up by adding javac -Xlint argument (tejasp)
+
 * NUTCH-1053 Parsing of RSS feeds fails (tejasp)
 
 * Added crawler-commons dependency in pom.xml (tejasp)

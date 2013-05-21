@@ -217,14 +217,21 @@ public class ScoreUpdater
     throws Exception {
 
     Options options = new Options();
-    Option helpOpts = OptionBuilder.withArgName("help").withDescription(
-      "show this help message").create("help");
-    Option crawlDbOpts = OptionBuilder.withArgName("crawldb").hasArg().withDescription(
-      "the crawldb to use").create("crawldb");
-    Option webGraphOpts = OptionBuilder.withArgName("webgraphdb").hasArg().withDescription(
-      "the webgraphdb to use").create("webgraphdb");
+    OptionBuilder.withArgName("help");
+    OptionBuilder.withDescription("show this help message");
+    Option helpOpts = OptionBuilder.create("help");
     options.addOption(helpOpts);
+    
+    OptionBuilder.withArgName("crawldb");
+    OptionBuilder.hasArg();
+    OptionBuilder.withDescription("the crawldb to use");
+    Option crawlDbOpts = OptionBuilder.create("crawldb");
     options.addOption(crawlDbOpts);
+    
+    OptionBuilder.withArgName("webgraphdb");
+    OptionBuilder.hasArg();
+    OptionBuilder.withDescription("the webgraphdb to use");
+    Option webGraphOpts = OptionBuilder.create("webgraphdb");
     options.addOption(webGraphOpts);
 
     CommandLineParser parser = new GnuParser();

@@ -368,6 +368,7 @@ public class Generator extends Configured implements Tool {
       super(Text.class);
     }
 
+    @SuppressWarnings("rawtypes" )
     public int compare(WritableComparable a, WritableComparable b) {
       Text url1 = (Text) a;
       Text url2 = (Text) b;

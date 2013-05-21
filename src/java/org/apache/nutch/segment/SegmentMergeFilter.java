@@ -18,7 +18,7 @@ package org.apache.nutch.segment;
 
 import java.util.Collection;
 
-import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseText;
@@ -41,7 +41,7 @@ public interface SegmentMergeFilter {
    * @return <tt>true</tt> values for this <tt>key</tt> (URL) should be merged
    *         into the new segment.
    */
-  public boolean filter(WritableComparable key, CrawlDatum generateData,
+  public boolean filter(Text key, CrawlDatum generateData,
       CrawlDatum fetchData, CrawlDatum sigData, Content content,
       ParseData parseData, ParseText parseText, Collection<CrawlDatum> linked);
 }

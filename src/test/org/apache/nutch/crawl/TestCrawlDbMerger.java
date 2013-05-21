@@ -44,9 +44,9 @@ public class TestCrawlDbMerger extends TestCase {
           url21
   };
   
-  TreeSet init1 = new TreeSet();
-  TreeSet init2 = new TreeSet();
-  HashMap expected = new HashMap();
+  TreeSet<String> init1 = new TreeSet<String>();
+  TreeSet<String> init2 = new TreeSet<String>();
+  HashMap<String, CrawlDatum> expected = new HashMap<String, CrawlDatum>();
   CrawlDatum cd1, cd2, cd3;
   Configuration conf;
   FileSystem fs;
@@ -83,6 +83,7 @@ public class TestCrawlDbMerger extends TestCase {
     fs.mkdirs(testDir);
   }
   
+  @SuppressWarnings("deprecation")
   public void tearDown() {
     try {
       if (fs.exists(testDir))
@@ -93,6 +94,7 @@ public class TestCrawlDbMerger extends TestCase {
     } catch (Exception e) { }
   }
 
+  @SuppressWarnings("deprecation")
   public void testMerge() throws Exception {
     Path crawldb1 = new Path(testDir, "crawldb1");
     Path crawldb2 = new Path(testDir, "crawldb2");
@@ -105,11 +107,11 @@ public class TestCrawlDbMerger extends TestCase {
     LOG.fine("* reading crawldb: " + output);
     reader = new CrawlDbReader();
     String crawlDb = output.toString();
-    Iterator it = expected.keySet().iterator();
+    Iterator<String> it = expected.keySet().iterator();
     while (it.hasNext()) {
-      String url = (String)it.next();
+      String url = it.next();
       LOG.fine("url=" + url);
-      CrawlDatum cd = (CrawlDatum)expected.get(url);
+      CrawlDatum cd = expected.get(url);
       CrawlDatum res = reader.get(crawlDb, url, conf);
       LOG.fine(" -> " + res);
       System.out.println("url=" + url);
@@ -123,13 +125,13 @@ public class TestCrawlDbMerger extends TestCase {
     fs.delete(testDir);
   }
   
-  private void createCrawlDb(Configuration config, FileSystem fs, Path crawldb, TreeSet init, CrawlDatum cd) throws Exception {
+  private void createCrawlDb(Configuration config, FileSystem fs, Path crawldb, TreeSet<String> init, CrawlDatum cd) throws Exception {
     LOG.fine("* creating crawldb: " + crawldb);
     Path dir = new Path(crawldb, CrawlDb.CURRENT_NAME);
     MapFile.Writer writer = new MapFile.Writer(config, fs, new Path(dir, "part-00000").toString(), Text.class, CrawlDatum.class);
-    Iterator it = init.iterator();
+    Iterator<String> it = init.iterator();
     while (it.hasNext()) {
-      String key = (String)it.next();
+      String key = it.next();
       writer.append(new Text(key), cd);
     }
     writer.close();

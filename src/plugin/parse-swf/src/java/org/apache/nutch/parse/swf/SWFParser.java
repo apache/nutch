@@ -42,8 +42,6 @@ import com.anotherbigidea.io.InStream;
 /**
  * Parser for Flash SWF files. Loosely based on the sample in JavaSWF
  * distribution.
- * 
- * @author Andrzej Bialecki
  */
 public class SWFParser implements Parser {
   public static final Logger LOG = LoggerFactory.getLogger("org.apache.nutch.parse.swf");
@@ -63,7 +61,7 @@ public class SWFParser implements Parser {
   public ParseResult getParse(Content content) {
 
     String text = null;
-    Vector outlinks = new Vector();
+    Vector<Outlink> outlinks = new Vector<Outlink>();
 
     try {
 
@@ -120,6 +118,7 @@ public class SWFParser implements Parser {
 
     byte[] buf = new byte[in.available()];
     in.read(buf);
+    in.close();
     SWFParser parser = new SWFParser();
     ParseResult parseResult = parser.getParse(new Content("file:" + args[0], "file:" + args[0],
                                           buf, "application/x-shockwave-flash",
@@ -153,13 +152,13 @@ class ExtractText extends SWFTagTypesImpl {
    * character codes for the correspnding font glyphs (An empty array denotes a
    * System Font).
    */
-  protected HashMap fontCodes = new HashMap();
+  protected HashMap<Integer, int[]> fontCodes = new HashMap<Integer, int[]>();
 
-  public ArrayList strings = new ArrayList();
+  public ArrayList<String> strings = new ArrayList<String>();
 
-  public HashSet actionStrings = new HashSet();
+  public HashSet<String> actionStrings = new HashSet<String>();
 
-  public ArrayList urls = new ArrayList();
+  public ArrayList<String> urls = new ArrayList<String>();
 
   public ExtractText() {
     super(null);
@@ -167,7 +166,7 @@ class ExtractText extends SWFTagTypesImpl {
 
   public String getText() {
     StringBuffer res = new StringBuffer();
-    Iterator it = strings.iterator();
+    Iterator<String> it = strings.iterator();
     while (it.hasNext()) {
       if (res.length() > 0) res.append(' ');
       res.append(it.next());
@@ -189,7 +188,7 @@ class ExtractText extends SWFTagTypesImpl {
   public String[] getUrls() {
     String[] res = new String[urls.size()];
     int i = 0;
-    Iterator it = urls.iterator();
+    Iterator<String> it = urls.iterator();
     while (it.hasNext()) {
       res[i] = (String) it.next();
       i++;
@@ -350,26 +349,23 @@ class ExtractText extends SWFTagTypesImpl {
  * ActionScript parser. This parser tries to extract free text embedded inside
  * the script, but without polluting it too much with names of variables,
  * methods, etc. Not ideal, but it works.
- * 
- * @author Andrzej Bialecki
  */
 class NutchSWFActions extends SWFActionBlockImpl implements SWFActions {
-  private HashSet strings = null;
+  private HashSet<String> strings = null;
 
-  private ArrayList urls = null;
+  private ArrayList<String> urls = null;
 
   String[] dict = null;
 
-  Stack stack = null;
+  Stack<Object> stack = null;
 
-  public NutchSWFActions(HashSet strings, ArrayList urls) {
+  public NutchSWFActions(HashSet<String> strings, ArrayList<String> urls) {
     this.strings = strings;
     this.urls = urls;
     stack = new SmallStack(100, strings);
   }
 
   public void lookupTable(String[] values) throws IOException {
-    // System.out.println("-lookupTable: " + values.length);
     for (int i = 0; i < values.length; i++) {
       if (!strings.contains(values[i])) strings.add(values[i]);
     }
@@ -378,7 +374,6 @@ class NutchSWFActions extends SWFActionBlockImpl implements SWFActions {
   }
 
   public void defineLocal() throws IOException {
-    // System.out.println("-defineLocal");
     stack.pop();
     super.defineLocal();
   }
@@ -398,69 +393,58 @@ class NutchSWFActions extends SWFActionBlockImpl implements SWFActions {
   }
 
   public SWFActionBlock.TryCatchFinally _try(String var) throws IOException {
-    // System.out.println("_try: var=" + var);
     // stack.push(var);
     strings.remove(var);
     return super._try(var);
   }
 
   public void comment(String var) throws IOException {
-    // System.out.println("-comment: var=" + var);
     // stack.push(var);
     strings.remove(var);
     super.comment(var);
   }
 
   public void goToFrame(String var) throws IOException {
-    // System.out.println("-goToFrame: var=" + var);
     stack.push(var);
     strings.remove(var);
     super.gotoFrame(var);
   }
 
   public void ifJump(String var) throws IOException {
-    // System.out.println("-ifJump: var=" + var);
     strings.remove(var);
     super.ifJump(var);
   }
 
   public void jump(String var) throws IOException {
-    // System.out.println("-jump: var=" + var);
     strings.remove(var);
     super.jump(var);
   }
 
   public void jumpLabel(String var) throws IOException {
-    // System.out.println("-jumpLabel: var=" + var);
     strings.remove(var);
     super.jumpLabel(var);
   }
 
   public void lookup(int var) throws IOException {
-    // System.out.println("-lookup: var=" + var);
     if (dict != null && var >= 0 && var < dict.length) {
-      // System.out.println(" push " + dict[var]);
       stack.push(dict[var]);
     }
     super.lookup(var);
   }
 
   public void push(String var) throws IOException {
-    // System.out.println("-push: var=" + var);
     stack.push(var);
     strings.remove(var);
     super.push(var);
   }
 
   public void setTarget(String var) throws IOException {
-    // System.out.println("-setTarget: var=" + var);
     stack.push(var);
     strings.remove(var);
     super.setTarget(var);
   }
 
   public SWFActionBlock startFunction(String var, String[] params) throws IOException {
-    // System.out.println("-startFunction1: var=" + var);
     stack.push(var);
     strings.remove(var);
     if (params != null) {
@@ -472,7 +456,6 @@ class NutchSWFActions extends SWFActionBlockImpl implements SWFActions {
   }
 
   public SWFActionBlock startFunction2(String var, int arg1, int arg2, String[] params, int[] arg3) throws IOException {
-    // System.out.println("-startFunction2: var=" + var);
     stack.push(var);
     strings.remove(var);
     if (params != null) {
@@ -484,74 +467,61 @@ class NutchSWFActions extends SWFActionBlockImpl implements SWFActions {
   }
 
   public void waitForFrame(int num, String var) throws IOException {
-    // System.out.println("-waitForFrame: var=" + var);
     stack.push(var);
     strings.remove(var);
     super.waitForFrame(num, var);
   }
 
   public void waitForFrame(String var) throws IOException {
-    // System.out.println("-waitForFrame: var=" + var);
     stack.push(var);
     strings.remove(var);
     super.waitForFrame(var);
   }
 
   public void done() throws IOException {
-    // System.out.println("-done");
     while (stack.size() > 0) {
       strings.remove(stack.pop());
     }
   }
 
   public SWFActionBlock start(int arg0, int arg1) throws IOException {
-    // System.out.println("-start");
     return this;
   }
 
   public SWFActionBlock start(int arg0) throws IOException {
-    // System.out.println("-start");
     return this;
   }
 
   public void add() throws IOException {
-    // System.out.println("-add");
     super.add();
   }
 
   public void asciiToChar() throws IOException {
-    // System.out.println("-asciitochar");
     super.asciiToChar();
   }
 
   public void asciiToCharMB() throws IOException {
-    // System.out.println("-asciitocharMB");
     super.asciiToCharMB();
   }
 
   public void push(int var) throws IOException {
-    // System.out.println("-push(int)");
     if (dict != null && var >= 0 && var < dict.length) {
-      // System.out.println(" push " + dict[var]);
       stack.push(dict[var]);
     }
     super.push(var);
   }
 
   public void callFunction() throws IOException {
-    // System.out.println("-callFunction");
     strings.remove(stack.pop());
     super.callFunction();
   }
 
   public void callMethod() throws IOException {
-    // System.out.println("-callMethod");
     strings.remove(stack.pop());
     super.callMethod();
   }
 
   public void getMember() throws IOException {
-    // System.out.println("-getMember");
     // 0: name
     String val = (String) stack.pop();
     strings.remove(val);
@@ -560,116 +530,97 @@ class NutchSWFActions extends SWFActionBlockImpl implements SWFActions {
 
   public void setMember() throws IOException {
     // 0: value -1: name
-    String val = (String) stack.pop();
+    stack.pop(); // value
     String name = (String) stack.pop();
-    // System.out.println("-setMember: name=" + name + ", val=" + val);
     strings.remove(name);
     super.setMember();
   }
 
   public void setProperty() throws IOException {
-    // System.out.println("-setProperty");
     super.setProperty();
   }
 
   public void setVariable() throws IOException {
-    // System.out.println("-setVariable");
     super.setVariable();
   }
 
   public void call() throws IOException {
-    // System.out.println("-call");
     strings.remove(stack.pop());
     super.call();
   }
 
   public void setTarget() throws IOException {
-    // System.out.println("-setTarget");
     strings.remove(stack.pop());
     super.setTarget();
   }
 
   public void pop() throws IOException {
-    // System.out.println("-pop");
     strings.remove(stack.pop());
     super.pop();
   }
 
   public void push(boolean arg0) throws IOException {
-    // System.out.println("-push(b)");
     stack.push("" + arg0);
     super.push(arg0);
   }
 
   public void push(double arg0) throws IOException {
-    // System.out.println("-push(d)");
     stack.push("" + arg0);
     super.push(arg0);
   }
 
   public void push(float arg0) throws IOException {
-    // System.out.println("-push(f)");
     stack.push("" + arg0);
     super.push(arg0);
   }
 
   public void pushNull() throws IOException {
-    // System.out.println("-push(null)");
     stack.push("");
     super.pushNull();
   }
 
   public void pushRegister(int arg0) throws IOException {
-    // System.out.println("-push(reg)");
     stack.push("" + arg0);
     super.pushRegister(arg0);
   }
 
   public void pushUndefined() throws IOException {
-    // System.out.println("-push(undef)");
     stack.push("???");
     super.pushUndefined();
   }
 
   public void getProperty() throws IOException {
-    // System.out.println("-getProperty");
     stack.pop();
     super.getProperty();
   }
 
   public void getVariable() throws IOException {
-    // System.out.println("-getVariable");
     strings.remove(stack.pop());
     super.getVariable();
   }
 
   public void gotoFrame(boolean arg0) throws IOException {
-    // System.out.println("-gotoFrame(b)");
     stack.push("" + arg0);
     super.gotoFrame(arg0);
   }
 
   public void gotoFrame(int arg0) throws IOException {
-    // System.out.println("-gotoFrame(int)");
     stack.push("" + arg0);
     super.gotoFrame(arg0);
   }
 
   public void gotoFrame(String arg0) throws IOException {
-    // System.out.println("-gotoFrame(string)");
     stack.push("" + arg0);
     strings.remove(arg0);
     super.gotoFrame(arg0);
   }
 
   public void newObject() throws IOException {
-    // System.out.println("-newObject");
     stack.pop();
     super.newObject();
   }
 
   public SWFActionBlock startWith() throws IOException {
-    // System.out.println("-startWith");
     return this;
   }
 
@@ -678,13 +629,15 @@ class NutchSWFActions extends SWFActionBlockImpl implements SWFActions {
 /*
  * Small bottom-less stack.
  */
-class SmallStack extends Stack {
+class SmallStack extends Stack<Object> {
+
+  private static final long serialVersionUID = 1L;
 
   private int maxSize;
 
-  private HashSet strings = null;
+  private HashSet<String> strings = null;
 
-  public SmallStack(int maxSize, HashSet strings) {
+  public SmallStack(int maxSize, HashSet<String> strings) {
     this.maxSize = maxSize;
     this.strings = strings;
   }

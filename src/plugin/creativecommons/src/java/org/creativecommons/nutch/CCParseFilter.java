@@ -22,7 +22,6 @@ import org.apache.nutch.parse.*;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Text;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -217,11 +216,6 @@ public class CCParseFilter implements HtmlParseFilter {
           if (!CC_NS.equals(predicateElement.getNamespaceURI())) {
             continue;
           }
-          String predicate = predicateElement.getLocalName();
-
-          // object is rdf:resource from cc:xxx predicates
-          String object =
-            predicateElement.getAttributeNodeNS(RDF_NS, "resource").getValue();
         
           // add object and predicate to metadata
           // metadata.put(object, predicate);
@@ -234,22 +228,19 @@ public class CCParseFilter implements HtmlParseFilter {
       // get cc:Work nodes from rdf:RDF
       NodeList works = rdf.getElementsByTagNameNS(CC_NS, "Work");
       for (int i = 0; i < works.getLength(); i++) {
-        Element l = (Element)works.item(i);
-        
         // get dc:type nodes from cc:Work
         NodeList types = rdf.getElementsByTagNameNS(DC_NS, "type");
+        
         for (int j = 0; j < types.getLength(); j++) {
           Element type = (Element)types.item(j);
-          String workUri = 
-            type.getAttributeNodeNS(RDF_NS, "resource").getValue();
-          this.workType = (String)WORK_TYPE_NAMES.get(workUri);
-          break;
+          String workUri = type.getAttributeNodeNS(RDF_NS, "resource").getValue();
+          this.workType = WORK_TYPE_NAMES.get(workUri);
         }
       }
     }
   }
 
-  private static final HashMap WORK_TYPE_NAMES = new HashMap();
+  private static final HashMap<String, String> WORK_TYPE_NAMES = new HashMap<String, String>();
   static {
     WORK_TYPE_NAMES.put("http://purl.org/dc/dcmitype/MovingImage", "video");
     WORK_TYPE_NAMES.put("http://purl.org/dc/dcmitype/StillImage", "image");

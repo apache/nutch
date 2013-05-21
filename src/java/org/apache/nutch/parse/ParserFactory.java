@@ -48,7 +48,7 @@ public final class ParserFactory {
   public static final String DEFAULT_PLUGIN = "*";
   
   /** Empty extension list for caching purposes. */
-  private final List EMPTY_EXTENSION_LIST = Collections.EMPTY_LIST;
+  private final List<Extension> EMPTY_EXTENSION_LIST = Collections.<Extension>emptyList();
   
   private Configuration conf;
   private ExtensionPoint extensionPoint;
@@ -57,9 +57,9 @@ public final class ParserFactory {
   public ParserFactory(Configuration conf) {
     this.conf = conf;
     ObjectCache objectCache = ObjectCache.get(conf);
-    this.extensionPoint = PluginRepository.get(conf).getExtensionPoint(
-        Parser.X_POINT_ID);
+    this.extensionPoint = PluginRepository.get(conf).getExtensionPoint(Parser.X_POINT_ID);
     this.parsePluginList = (ParsePluginList)objectCache.getObject(ParsePluginList.class.getName());
+    
     if (this.parsePluginList == null) {
       this.parsePluginList = new ParsePluginsReader().parse(conf);
       objectCache.setObject(ParsePluginList.class.getName(), this.parsePluginList);
@@ -121,8 +121,8 @@ public final class ParserFactory {
     }
 
     parsers = new Vector<Parser>(parserExts.size());
-    for (Iterator i=parserExts.iterator(); i.hasNext(); ){
-      Extension ext = (Extension) i.next();
+    for (Iterator<Extension> i = parserExts.iterator(); i.hasNext(); ){
+      Extension ext = i.next();
       Parser p = null;
       try {
         //check to see if we've cached this parser instance yet
@@ -212,6 +212,7 @@ public final class ParserFactory {
    * @return a list of extensions to be used for this contentType.
    *         If none, returns <code>null</code>.
    */
+  @SuppressWarnings("unchecked")
   protected List<Extension> getExtensions(String contentType) {
     
     ObjectCache objectCache = ObjectCache.get(conf);
@@ -411,5 +412,4 @@ public final class ParserFactory {
   private Extension getExtensionFromAlias(Extension[] list, String id) {
     return getExtension(list, parsePluginList.getAliases().get(id));
   }
-
 }

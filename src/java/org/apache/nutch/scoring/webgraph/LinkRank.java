@@ -287,12 +287,10 @@ public class LinkRank
     implements Mapper<Text, Node, Text, LongWritable>,
     Reducer<Text, LongWritable, Text, LongWritable> {
 
-    private JobConf conf;
     private static Text numNodes = new Text(NUM_NODES);
     private static LongWritable one = new LongWritable(1L);
 
     public void configure(JobConf conf) {
-      this.conf = conf;
     }
 
     /**
@@ -678,11 +676,15 @@ public class LinkRank
     throws Exception {
 
     Options options = new Options();
-    Option helpOpts = OptionBuilder.withArgName("help").withDescription(
-      "show this help message").create("help");
-    Option webgraphOpts = OptionBuilder.withArgName("webgraphdb").hasArg().withDescription(
-      "the web graph db to use").create("webgraphdb");
+    OptionBuilder.withArgName("help");
+    OptionBuilder.withDescription("show this help message");
+    Option helpOpts = OptionBuilder.create("help");
     options.addOption(helpOpts);
+    
+    OptionBuilder.withArgName("webgraphdb");
+    OptionBuilder.hasArg();
+    OptionBuilder.withDescription("the web graph db to use");
+    Option webgraphOpts = OptionBuilder.create("webgraphdb");
     options.addOption(webgraphOpts);
 
     CommandLineParser parser = new GnuParser();

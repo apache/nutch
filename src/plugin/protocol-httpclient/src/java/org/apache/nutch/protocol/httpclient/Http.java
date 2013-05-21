@@ -42,6 +42,8 @@ import org.apache.commons.httpclient.NTCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.params.HttpConnectionManagerParams;
 import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
+import org.apache.commons.httpclient.protocol.SSLProtocolSocketFactory;
 
 // Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
@@ -158,8 +160,8 @@ public class Http extends HttpBase {
   private void configureClient() {
 
     // Set up an HTTPS socket factory that accepts self-signed certs.
-    Protocol https = new Protocol("https",
-        new DummySSLProtocolSocketFactory(), 443);
+    ProtocolSocketFactory factory = new SSLProtocolSocketFactory();
+    Protocol https = new Protocol("https", factory, 443);
     Protocol.registerProtocol("https", https);
 
     HttpConnectionManagerParams params = connectionManager.getParams();
@@ -174,7 +176,7 @@ public class Http extends HttpBase {
     client.getParams().setConnectionManagerTimeout(timeout);
 
     HostConfiguration hostConf = client.getHostConfiguration();
-    ArrayList headers = new ArrayList();
+    ArrayList<Header> headers = new ArrayList<Header>();
     // Set the User Agent in the header
     headers.add(new Header("User-Agent", userAgent));
     // prefer English
@@ -199,7 +201,7 @@ public class Http extends HttpBase {
 
         NTCredentials proxyCredentials = new NTCredentials(
             this.proxyUsername, this.proxyPassword,
-            this.agentHost, this.proxyRealm);
+            Http.agentHost, this.proxyRealm);
 
         client.getState().setProxyCredentials(
             proxyAuthScope, proxyCredentials);

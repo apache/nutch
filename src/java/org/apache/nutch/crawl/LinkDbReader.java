@@ -43,7 +43,7 @@ import java.io.Closeable;
 public class LinkDbReader extends Configured implements Tool, Closeable {
   public static final Logger LOG = LoggerFactory.getLogger(LinkDbReader.class);
 
-  private static final Partitioner<WritableComparable, Writable> PARTITIONER = new HashPartitioner<WritableComparable, Writable>();
+  private static final Partitioner<WritableComparable<?>, Writable> PARTITIONER = new HashPartitioner<WritableComparable<?>, Writable>();
 
   private FileSystem fs;
   private Path directory;

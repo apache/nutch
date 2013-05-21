@@ -21,7 +21,7 @@ import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.WritableComparable;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.net.URLFilter;
 import org.apache.nutch.parse.ParseData;
@@ -65,16 +65,14 @@ public class SegmentMergeFilters {
    * @return <tt>true</tt> values for this <tt>key</tt> (URL) should be merged
    *         into the new segment.
    */
-  public boolean filter(WritableComparable key, CrawlDatum generateData,
+  public boolean filter(Text key, CrawlDatum generateData,
       CrawlDatum fetchData, CrawlDatum sigData, Content content,
       ParseData parseData, ParseText parseText, Collection<CrawlDatum> linked) {
     for (SegmentMergeFilter filter : filters) {
       if (!filter.filter(key, generateData, fetchData, sigData, content,
           parseData, parseText, linked)) {
         if (LOG.isTraceEnabled())
-          LOG
-              .trace("Key " + key + " dropped by "
-                  + filter.getClass().getName());
+          LOG.trace("Key " + key + " dropped by " + filter.getClass().getName());
         return false;
       }
     }

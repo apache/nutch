@@ -28,8 +28,8 @@ import java.util.List;
 import org.apache.hadoop.io.*;
 
 /**
- * This class represents a multi-valued field with a weight. Values are arbitrary
- * objects.
+ * This class represents a multi-valued field with a weight. 
+ * Values are arbitrary objects.
  */
 public class NutchField implements Writable {
   private float weight;
@@ -44,7 +44,7 @@ public class NutchField implements Writable {
   public NutchField(Object value, float weight) {
     this.weight = weight;
     if (value instanceof Collection) {
-      values.addAll((Collection<Object>)value);
+      values.addAll((Collection<?>)value);
     } else {
       values.add(value);
     }

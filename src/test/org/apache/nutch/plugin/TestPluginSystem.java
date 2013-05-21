@@ -35,13 +35,11 @@ import org.apache.nutch.util.NutchJob;
 
 /**
  * Unit tests for the plugin system
- * 
- * @author joa23
  */
 public class TestPluginSystem extends TestCase {
     private int fPluginCount;
 
-    private LinkedList fFolders = new LinkedList();
+    private LinkedList<File> fFolders = new LinkedList<File>();
     private Configuration conf ;
     private PluginRepository repository;
 
@@ -62,11 +60,10 @@ public class TestPluginSystem extends TestCase {
      */
     protected void tearDown() throws Exception {
         for (int i = 0; i < fFolders.size(); i++) {
-            File folder = (File) fFolders.get(i);
+            File folder = fFolders.get(i);
             delete(folder);
             folder.delete();
         }
-
     }
 
     /**

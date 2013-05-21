@@ -45,7 +45,7 @@ import org.apache.nutch.util.*;
 
 
 /** The fetcher. Most of the work is done by plugins. */
-public class OldFetcher extends Configured implements Tool, MapRunnable<WritableComparable, Writable, Text, NutchWritable> { 
+public class OldFetcher extends Configured implements Tool, MapRunnable<WritableComparable<?>, Writable, Text, NutchWritable> { 
 
   public static final Logger LOG = LoggerFactory.getLogger(OldFetcher.class);
   
@@ -55,12 +55,11 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
 
   public static final String PROTOCOL_REDIR = "protocol";
 
-  public static class InputFormat extends SequenceFileInputFormat<WritableComparable, Writable> {
+  public static class InputFormat extends SequenceFileInputFormat<WritableComparable<?>, Writable> {
     /** Don't split inputs, to keep things polite. */
     public InputSplit[] getSplits(JobConf job, int nSplits)
       throws IOException {
       FileStatus[] files = listStatus(job);
-      FileSystem fs = FileSystem.get(job);
       InputSplit[] splits = new InputSplit[files.length];
       for (int i = 0; i < files.length; i++) {
         FileStatus cur = files[i];
@@ -71,7 +70,7 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
     }
   }
 
-  private RecordReader<WritableComparable, Writable> input;
+  private RecordReader<WritableComparable<?>, Writable> input;
   private OutputCollector<Text, NutchWritable> output;
   private Reporter reporter;
 
@@ -458,7 +457,7 @@ public class OldFetcher extends Configured implements Tool, MapRunnable<Writable
     return conf.getBoolean("fetcher.store.content", true);
   }
 
-  public void run(RecordReader<WritableComparable, Writable> input, OutputCollector<Text, NutchWritable> output,
+  public void run(RecordReader<WritableComparable<?>, Writable> input, OutputCollector<Text, NutchWritable> output,
                   Reporter reporter) throws IOException {
 
     this.input = input;

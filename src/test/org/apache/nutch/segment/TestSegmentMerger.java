@@ -42,11 +42,11 @@ public class TestSegmentMerger extends TestCase {
   public void setUp() throws Exception {
     conf = NutchConfiguration.create();
     fs = FileSystem.get(conf);
-    long blkSize = fs.getDefaultBlockSize();
     testDir = new Path(conf.get("hadoop.tmp.dir"), "merge-" + System.currentTimeMillis());
     seg1 = new Path(testDir, "seg1");
     seg2 = new Path(testDir, "seg2");
     out = new Path(testDir, "out");
+
     // create large parse-text segments
     System.err.println("Creating large segment 1...");
     DecimalFormat df = new DecimalFormat("0000000");
@@ -55,6 +55,9 @@ public class TestSegmentMerger extends TestCase {
     MapFile.Writer w = new MapFile.Writer(conf, fs, ptPath.toString(), Text.class, ParseText.class);
     long curSize = 0;
     countSeg1 = 0;
+    FileStatus fileStatus = fs.getFileStatus(ptPath);
+    long blkSize = fileStatus.getBlockSize();
+    
     while (curSize < blkSize * 2) {
       k.set("seg1-" + df.format(countSeg1));
       w.append(k, new ParseText("seg1 text " + countSeg1));

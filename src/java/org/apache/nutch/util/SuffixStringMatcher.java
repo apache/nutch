@@ -41,11 +41,11 @@ public class SuffixStringMatcher extends TrieStringMatcher {
    * <code>String</code>s with any suffix in the supplied
    * <code>Collection</code>
    */
-  public SuffixStringMatcher(Collection suffixes) {
+  public SuffixStringMatcher(Collection<String> suffixes) {
     super();
-    Iterator iter= suffixes.iterator();
+    Iterator<String> iter= suffixes.iterator();
     while (iter.hasNext())
-      addPatternBackward((String)iter.next());
+      addPatternBackward(iter.next());
   }
 
   /**

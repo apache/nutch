@@ -57,8 +57,6 @@ import org.apache.nutch.util.TimingUtil;
  * This tool generates fetchlists (segments to be fetched) from plain text
  * files containing one URL per line. It's useful when arbitrary URL-s need to
  * be fetched without adding them first to the CrawlDb, or during testing.
- * 
- * @author Andrzej Bialecki
  */
 public class FreeGenerator extends Configured implements Tool {
   private static final Logger LOG = LoggerFactory.getLogger(FreeGenerator.class);
@@ -67,7 +65,7 @@ public class FreeGenerator extends Configured implements Tool {
   private static final String NORMALIZE_KEY = "free.generator.normalize";
 
   public static class FG extends MapReduceBase
-  implements Mapper<WritableComparable, Text, Text, Generator.SelectorEntry>,
+  implements Mapper<WritableComparable<?>, Text, Text, Generator.SelectorEntry>,
   Reducer<Text, Generator.SelectorEntry, Text, CrawlDatum> {
     private URLNormalizers normalizers = null;
     private URLFilters filters = null;
@@ -89,7 +87,7 @@ public class FreeGenerator extends Configured implements Tool {
     
     Generator.SelectorEntry entry = new Generator.SelectorEntry();
 
-    public void map(WritableComparable key, Text value, OutputCollector<Text,
+    public void map(WritableComparable<?> key, Text value, OutputCollector<Text,
         Generator.SelectorEntry> output, Reporter reporter) throws IOException {
       // value is a line of text
       String urlString = value.toString();

@@ -77,9 +77,9 @@ public class Client extends FTP
     private int __dataTimeout;
     private int __passivePort;
     private String __passiveHost;
-    private int __fileType, __fileFormat;
+//    private int __fileType, __fileFormat;
     private boolean __remoteVerificationEnabled;
-    private FTPFileEntryParser __entryParser;
+//    private FTPFileEntryParser __entryParser;
     private String __systemName;
 
     // constructor
@@ -95,10 +95,10 @@ public class Client extends FTP
     {
         __passiveHost        = null;
         __passivePort        = -1;
-        __fileType           = FTP.ASCII_FILE_TYPE;
-        __fileFormat         = FTP.NON_PRINT_TEXT_FORMAT;
         __systemName         = null;
-        __entryParser        = null;
+//        __fileType           = FTP.ASCII_FILE_TYPE;
+//        __fileFormat         = FTP.NON_PRINT_TEXT_FORMAT;
+//        __entryParser        = null;
     }
 
     // parse reply for pass()
@@ -315,7 +315,7 @@ public class Client extends FTP
     }
 
     // retrieve list reply for path
-    public void retrieveList(String path, List entries, int limit,
+    public void retrieveList(String path, List<FTPFile> entries, int limit,
       FTPFileEntryParser parser)
       throws IOException,
         FtpExceptionCanNotHaveDataConnection,
@@ -331,7 +331,7 @@ public class Client extends FTP
           new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
       // force-close data channel socket, when download limit is reached
-      boolean mandatory_close = false;
+//      boolean mandatory_close = false;
 
       //List entries = new LinkedList();
       int count = 0;
@@ -348,7 +348,7 @@ public class Client extends FTP
         // impose download limit if limit >= 0, otherwise no limit
         // here, cut off is up to the line when total bytes is just over limit
         if (limit >= 0 && count > limit) {
-          mandatory_close = true;
+//          mandatory_close = true;
           break;
         }
         line = parser.readNextEntry(reader);
@@ -403,7 +403,7 @@ public class Client extends FTP
       // fixme, should we instruct server here for binary file type?
 
       // force-close data channel socket
-      boolean mandatory_close = false;
+      // boolean mandatory_close = false;
 
       int len; int count = 0;
       byte[] buf =
@@ -414,7 +414,7 @@ public class Client extends FTP
         // here, cut off is exactly of limit bytes
         if (limit >= 0 && count > limit) {
           os.write(buf,0,len-(count-limit));
-          mandatory_close = true;
+       //   mandatory_close = true;
           break;
         }
         os.write(buf,0,len);
@@ -502,8 +502,8 @@ public class Client extends FTP
     {
         if (FTPReply.isPositiveCompletion(type(fileType)))
         {
-            __fileType = fileType;
-            __fileFormat = FTP.NON_PRINT_TEXT_FORMAT;
+/*            __fileType = fileType;
+            __fileFormat = FTP.NON_PRINT_TEXT_FORMAT;*/
             return true;
         }
         return false;

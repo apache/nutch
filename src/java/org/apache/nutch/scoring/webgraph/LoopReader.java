@@ -45,9 +45,7 @@ public class LoopReader extends Configured {
   private FileSystem fs;
   private MapFile.Reader[] loopReaders;
   
-  public LoopReader() {
-    
-  }
+  public LoopReader() { }
   
   public LoopReader(Configuration conf) {
     super(conf);
@@ -94,14 +92,21 @@ public class LoopReader extends Configured {
     throws Exception {
 
     Options options = new Options();
-    Option helpOpts = OptionBuilder.withArgName("help").withDescription(
-      "show this help message").create("help");
-    Option webGraphOpts = OptionBuilder.withArgName("webgraphdb").hasArg()
-      .withDescription("the webgraphdb to use").create("webgraphdb");
-    Option urlOpts = OptionBuilder.withArgName("url").hasOptionalArg()
-      .withDescription("the url to dump").create("url");
+    OptionBuilder.withArgName("help");
+    OptionBuilder.withDescription("show this help message");
+    Option helpOpts = OptionBuilder.create("help");
     options.addOption(helpOpts);
+    
+    OptionBuilder.withArgName("webgraphdb");
+    OptionBuilder.hasArg();
+    OptionBuilder.withDescription("the webgraphdb to use");
+    Option webGraphOpts = OptionBuilder.create("webgraphdb");
     options.addOption(webGraphOpts);
+    
+    OptionBuilder.withArgName("url");
+    OptionBuilder.hasOptionalArg();
+    OptionBuilder.withDescription("the url to dump");
+    Option urlOpts = OptionBuilder.create("url");
     options.addOption(urlOpts);
 
     CommandLineParser parser = new GnuParser();

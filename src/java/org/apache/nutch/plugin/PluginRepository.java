@@ -39,8 +39,6 @@ import org.apache.nutch.util.NutchConfiguration;
  * descriptor represents all meta information about a plugin. So a plugin
  * instance will be created later when it is required, this allow lazy plugin
  * loading.
- * 
- * @author joa23
  */
 public class PluginRepository {
   private static final WeakHashMap<String, PluginRepository> CACHE = new WeakHashMap<String, PluginRepository>();
@@ -267,8 +265,8 @@ public class PluginRepository {
       // Suggested by Stefan Groschupf <sg@media-style.com>
       synchronized (pDescriptor) {
         PluginClassLoader loader = pDescriptor.getClassLoader();
-        Class pluginClass = loader.loadClass(pDescriptor.getPluginClass());
-        Constructor constructor = pluginClass.getConstructor(new Class[] {
+        Class<?> pluginClass = loader.loadClass(pDescriptor.getPluginClass());
+        Constructor<?> constructor = pluginClass.getConstructor(new Class<?>[] {
             PluginDescriptor.class, Configuration.class });
         Plugin plugin = (Plugin) constructor.newInstance(new Object[] {
             pDescriptor, this.conf });
@@ -400,7 +398,7 @@ public class PluginRepository {
     }
     ClassLoader cl = d.getClassLoader();
     // args[1] - class name
-    Class clazz = null;
+    Class<?> clazz = null;
     try {
       clazz = Class.forName(args[1], true, cl);
     } catch (Exception e) {
@@ -410,7 +408,7 @@ public class PluginRepository {
     }
     Method m = null;
     try {
-      m = clazz.getMethod("main", new Class[] { args.getClass() });
+      m = clazz.getMethod("main", new Class<?>[] { args.getClass() });
     } catch (Exception e) {
       System.err.println("Could not find the 'main(String[])' method in class "
           + args[1] + ": " + e.getMessage());

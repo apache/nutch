@@ -27,13 +27,8 @@ import java.util.Properties;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.Writable;
 
-
 /**
  * A multi-valued metadata container.
- *
- * @author Chris Mattmann
- * @author J&eacute;r&ocirc;me Charron
- *
  */
 public class Metadata implements Writable, CreativeCommons,
 DublinCore, HttpHeaders, Nutch, Feed {
@@ -128,7 +123,7 @@ DublinCore, HttpHeaders, Nutch, Feed {
    * @param properties properties to copy from
    */
   public void setAll(Properties properties) {
-    Enumeration names = properties.propertyNames();
+    Enumeration<?> names = properties.propertyNames();
     while (names.hasMoreElements()) {
       String name = (String) names.nextElement();
       metadata.put(name, new String[]{properties.getProperty(name)});

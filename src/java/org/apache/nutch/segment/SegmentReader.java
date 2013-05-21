@@ -80,10 +80,10 @@ public class SegmentReader extends Configured implements
   private FileSystem fs;
 
   public static class InputCompatMapper extends MapReduceBase implements
-      Mapper<WritableComparable, Writable, Text, NutchWritable> {
+      Mapper<WritableComparable<?>, Writable, Text, NutchWritable> {
     private Text newKey = new Text();
 
-    public void map(WritableComparable key, Writable value,
+    public void map(WritableComparable<?> key, Writable value,
         OutputCollector<Text, NutchWritable> collector, Reporter reporter) throws IOException {
       // convert on the fly from old formats with UTF8 keys.
       // UTF8 deprecated and replaced by Text.
@@ -98,8 +98,8 @@ public class SegmentReader extends Configured implements
 
   /** Implements a text output format */
   public static class TextOutputFormat extends
-      FileOutputFormat<WritableComparable, Writable> {
-    public RecordWriter<WritableComparable, Writable> getRecordWriter(
+      FileOutputFormat<WritableComparable<?>, Writable> {
+    public RecordWriter<WritableComparable<?>, Writable> getRecordWriter(
         final FileSystem fs, JobConf job,
         String name, final Progressable progress) throws IOException {
 
@@ -109,8 +109,8 @@ public class SegmentReader extends Configured implements
       if (fs.exists(segmentDumpFile)) fs.delete(segmentDumpFile, true);
 
       final PrintStream printStream = new PrintStream(fs.create(segmentDumpFile));
-      return new RecordWriter<WritableComparable, Writable>() {
-        public synchronized void write(WritableComparable key, Writable value) throws IOException {
+      return new RecordWriter<WritableComparable<?>, Writable>() {
+        public synchronized void write(WritableComparable<?> key, Writable value) throws IOException {
           printStream.println(value);
         }
 
@@ -379,8 +379,8 @@ public class SegmentReader extends Configured implements
   private List<Writable> getMapRecords(Path dir, Text key) throws Exception {
     MapFile.Reader[] readers = MapFileOutputFormat.getReaders(fs, dir, getConf());
     ArrayList<Writable> res = new ArrayList<Writable>();
-    Class keyClass = readers[0].getKeyClass();
-    Class valueClass = readers[0].getValueClass();
+    Class<?> keyClass = readers[0].getKeyClass();
+    Class<?> valueClass = readers[0].getValueClass();
     if (!keyClass.getName().equals("org.apache.hadoop.io.Text"))
       throw new IOException("Incompatible key (" + keyClass.getName() + ")");
     Writable value = (Writable)valueClass.newInstance();
@@ -403,8 +403,8 @@ public class SegmentReader extends Configured implements
   private List<Writable> getSeqRecords(Path dir, Text key) throws Exception {
     SequenceFile.Reader[] readers = SequenceFileOutputFormat.getReaders(getConf(), dir);
     ArrayList<Writable> res = new ArrayList<Writable>();
-    Class keyClass = readers[0].getKeyClass();
-    Class valueClass = readers[0].getValueClass();
+    Class<?> keyClass = readers[0].getKeyClass();
+    Class<?> valueClass = readers[0].getValueClass();
     if (!keyClass.getName().equals("org.apache.hadoop.io.Text"))
       throw new IOException("Incompatible key (" + keyClass.getName() + ")");
     Writable aKey = (Writable)keyClass.newInstance();

@@ -57,6 +57,10 @@
     </fileset>
   </path>
 
+  <presetdef name="javac">
+    <javac includeantruntime="false" />
+  </presetdef>
+
   <!-- ====================================================== -->
   <!-- Stuff needed by all targets                            -->
   <!-- ====================================================== -->
@@ -94,7 +98,7 @@
      target="${javac.version}"
      source="${javac.version}"
      deprecation="${javac.deprecation}">
-      <compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-path"/>
       <classpath refid="classpath"/>
     </javac>    
   </target>
@@ -341,7 +345,7 @@
      target="${javac.version}"
      source="${javac.version}"
      deprecation="${javac.deprecation}">
-      <compilerarg value="-Xlint"/>
+      <compilerarg value="-Xlint:-path"/>
       <classpath refid="test.classpath"/>
     </javac>    
   </target>

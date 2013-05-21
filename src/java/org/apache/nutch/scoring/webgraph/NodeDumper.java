@@ -343,36 +343,57 @@ public class NodeDumper
     throws Exception {
 
     Options options = new Options();
-    Option helpOpts = OptionBuilder.withArgName("help").withDescription(
-      "show this help message").create("help");
-    Option webGraphDbOpts = OptionBuilder.withArgName("webgraphdb").hasArg().withDescription(
-      "the web graph database to use").create("webgraphdb");
-    Option inlinkOpts = OptionBuilder.withArgName("inlinks").withDescription(
-      "show highest inlinks").create("inlinks");
-    Option outlinkOpts = OptionBuilder.withArgName("outlinks").withDescription(
-      "show highest outlinks").create("outlinks");
-    Option scoreOpts = OptionBuilder.withArgName("scores").withDescription(
-      "show highest scores").create("scores");
-    Option topNOpts = OptionBuilder.withArgName("topn").hasOptionalArg().withDescription(
-      "show topN scores").create("topn");
-    Option outputOpts = OptionBuilder.withArgName("output").hasArg().withDescription(
-      "the output directory to use").create("output");
-    Option effOpts = OptionBuilder.withArgName("asEff").withDescription(
-      "Solr ExternalFileField compatible output format").create("asEff");
-    Option groupOpts = OptionBuilder.hasArgs(2).withDescription(
-      "group <host|domain> <sum|max>").create("group");
-    Option sequenceFileOpts = OptionBuilder.withArgName("asSequenceFile").withDescription(
-      "whether to output as a sequencefile").create("asSequenceFile");
-
+    OptionBuilder.withArgName("help");
+    OptionBuilder.withDescription("show this help message");
+    Option helpOpts = OptionBuilder.create("help");
     options.addOption(helpOpts);
+    
+    OptionBuilder.withArgName("webgraphdb");
+    OptionBuilder.hasArg();
+    OptionBuilder.withDescription("the web graph database to use");
+    Option webGraphDbOpts = OptionBuilder.create("webgraphdb");
     options.addOption(webGraphDbOpts);
+    
+    OptionBuilder.withArgName("inlinks");
+    OptionBuilder.withDescription("show highest inlinks");
+    Option inlinkOpts = OptionBuilder.create("inlinks");
     options.addOption(inlinkOpts);
+    
+    OptionBuilder.withArgName("outlinks");
+    OptionBuilder.withDescription("show highest outlinks");
+    Option outlinkOpts = OptionBuilder.create("outlinks");
     options.addOption(outlinkOpts);
+    
+    OptionBuilder.withArgName("scores");
+    OptionBuilder.withDescription("show highest scores");
+    Option scoreOpts = OptionBuilder.create("scores");
     options.addOption(scoreOpts);
+    
+    OptionBuilder.withArgName("topn");
+    OptionBuilder.hasOptionalArg();
+    OptionBuilder.withDescription("show topN scores");
+    Option topNOpts = OptionBuilder.create("topn");
     options.addOption(topNOpts);
+    
+    OptionBuilder.withArgName("output");
+    OptionBuilder.hasArg();
+    OptionBuilder.withDescription("the output directory to use");
+    Option outputOpts = OptionBuilder.create("output");
     options.addOption(outputOpts);
+    
+    OptionBuilder.withArgName("asEff");
+    OptionBuilder.withDescription("Solr ExternalFileField compatible output format");
+    Option effOpts = OptionBuilder.create("asEff");
     options.addOption(effOpts);
+    
+    OptionBuilder.hasArgs(2);
+    OptionBuilder.withDescription("group <host|domain> <sum|max>");
+    Option groupOpts = OptionBuilder.create("group");
     options.addOption(groupOpts);
+    
+    OptionBuilder.withArgName("asSequenceFile");
+    OptionBuilder.withDescription("whether to output as a sequencefile");
+    Option sequenceFileOpts = OptionBuilder.create("asSequenceFile");
     options.addOption(sequenceFileOpts);
 
     CommandLineParser parser = new GnuParser();
@@ -388,7 +409,6 @@ public class NodeDumper
       String webGraphDb = line.getOptionValue("webgraphdb");
       boolean inlinks = line.hasOption("inlinks");
       boolean outlinks = line.hasOption("outlinks");
-      boolean scores = line.hasOption("scores");
 
       long topN = (line.hasOption("topn")
         ? Long.parseLong(line.getOptionValue("topn")) : Long.MAX_VALUE);

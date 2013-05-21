@@ -79,9 +79,9 @@ public class MapWritable implements Writable {
 
   private ClassIdEntry fIdFirst;
 
-  private static Map<Class, Byte> CLASS_ID_MAP = new HashMap<Class, Byte>();
+  private static Map<Class<?>, Byte> CLASS_ID_MAP = new HashMap<Class<?>, Byte>();
 
-  private static Map<Byte, Class> ID_CLASS_MAP = new HashMap<Byte, Class>();
+  private static Map<Byte, Class<?>> ID_CLASS_MAP = new HashMap<Byte, Class<?>>();
 
   static {
 
@@ -101,7 +101,7 @@ public class MapWritable implements Writable {
 
   }
 
-  private static void addToMap(Class clazz, Byte byteId) {
+  private static void addToMap(Class<?> clazz, Byte byteId) {
     CLASS_ID_MAP.put(clazz, byteId);
     ID_CLASS_MAP.put(byteId, clazz);
   }
@@ -338,7 +338,7 @@ public class MapWritable implements Writable {
       // read class-id map
       fIdCount = in.readByte();
       byte id;
-      Class clazz;
+      Class<?> clazz;
       for (int i = 0; i < fIdCount; i++) {
         try {
           id = in.readByte();
@@ -393,7 +393,7 @@ public class MapWritable implements Writable {
     }
   }
 
-  private byte addIdEntry(byte id, Class clazz) {
+  private byte addIdEntry(byte id, Class<?> clazz) {
     if (fIdFirst == null) {
       fIdFirst = fIdLast = new ClassIdEntry(id, clazz);
     } else {
@@ -402,7 +402,7 @@ public class MapWritable implements Writable {
     return id;
   }
 
-  private byte getClassId(Class clazz) {
+  private byte getClassId(Class<?> clazz) {
     Byte classId = CLASS_ID_MAP.get(clazz);
     if (classId != null) {
       return classId.byteValue();
@@ -438,8 +438,8 @@ public class MapWritable implements Writable {
       last = entry;
       entry = entry.fNextEntry;
     }
-    Class keyClass = getClass(keyId);
-    Class valueClass = getClass(valueId);
+    Class<?> keyClass = getClass(keyId);
+    Class<?> valueClass = getClass(valueId);
     try {
       return new KeyValueEntry((Writable) keyClass.newInstance(),
           (Writable) valueClass.newInstance());
@@ -449,8 +449,8 @@ public class MapWritable implements Writable {
 
   }
 
-  private Class getClass(final byte id) throws IOException {
-    Class clazz = ID_CLASS_MAP.get(new Byte(id));
+  private Class<?> getClass(final byte id) throws IOException {
+    Class<?> clazz = ID_CLASS_MAP.get(new Byte(id));
     if (clazz == null) {
       ClassIdEntry entry = fIdFirst;
       while (entry != null) {
@@ -502,14 +502,14 @@ public class MapWritable implements Writable {
 
   /** container for Id class tuples */
   private class ClassIdEntry {
-    public ClassIdEntry(byte id, Class clazz) {
+    public ClassIdEntry(byte id, Class<?> clazz) {
       fId = id;
       fclazz = clazz;
     }
 
     private byte fId;
 
-    private Class fclazz;
+    private Class<?> fclazz;
 
     private ClassIdEntry fNextIdEntry;
   }

@@ -42,7 +42,7 @@ import java.util.Map.Entry;
 
 /* Parse content in a segment. */
 public class ParseSegment extends Configured implements Tool,
-    Mapper<WritableComparable, Content, Text, ParseImpl>,
+    Mapper<WritableComparable<?>, Content, Text, ParseImpl>,
     Reducer<Text, Writable, Text, Writable> {
 
   public static final Logger LOG = LoggerFactory.getLogger(ParseSegment.class);
@@ -71,7 +71,7 @@ public class ParseSegment extends Configured implements Tool,
   
   private Text newKey = new Text();
 
-  public void map(WritableComparable key, Content content,
+  public void map(WritableComparable<?> key, Content content,
                   OutputCollector<Text, ParseImpl> output, Reporter reporter)
     throws IOException {
     // convert on the fly from old UTF8 keys

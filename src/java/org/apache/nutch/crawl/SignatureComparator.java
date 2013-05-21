@@ -19,7 +19,7 @@ package org.apache.nutch.crawl;
 
 import java.util.Comparator;
 
-public class SignatureComparator implements Comparator {
+public class SignatureComparator implements Comparator<Object> {
   public int compare(Object o1, Object o2) {
     return _compare(o1, o2);
   }

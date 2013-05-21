@@ -18,15 +18,12 @@
 package org.apache.nutch.parse.zip;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-import java.util.Properties;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.parse.ParseData;
@@ -40,8 +37,6 @@ import org.apache.hadoop.conf.Configuration;
 /**
  * ZipParser class based on MSPowerPointParser class by Stephan Strittmatter.
  * Nutch parse plugin for zip files - Content Type : application/zip
- * 
- * @author Rohit Kulkarni & Ashish Vaidya
  */
 public class ZipParser implements Parser {
 
@@ -57,17 +52,13 @@ public class ZipParser implements Parser {
     String resultText = null;
     String resultTitle = null;
     Outlink[] outlinks = null;
-    List outLinksList = new ArrayList();
-    Properties properties = null;
+    List<Outlink> outLinksList = new ArrayList<Outlink>();
 
     try {
       final String contentLen = content.getMetadata().get(Response.CONTENT_LENGTH);
       final int len = Integer.parseInt(contentLen);
       if (LOG.isDebugEnabled()) { LOG.debug("ziplen: " + len); }
       final byte[] contentInBytes = content.getContent();
-      final ByteArrayInputStream bainput = new ByteArrayInputStream(
-          contentInBytes);
-      final InputStream input = bainput;
 
       if (contentLen != null && contentInBytes.length != len) {
         return new ParseStatus(ParseStatus.FAILED,

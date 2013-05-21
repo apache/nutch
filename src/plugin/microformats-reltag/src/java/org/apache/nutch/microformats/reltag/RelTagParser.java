@@ -42,15 +42,12 @@ import org.apache.nutch.util.StringUtil;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Text;
-
 
 /**
  * Adds microformat rel-tags of document if found.
  *
  * @see <a href="http://www.microformats.org/wiki/rel-tag">
  *      http://www.microformats.org/wiki/rel-tag</a>
- * @author J&eacute;r&ocirc;me Charron
  */
 public class RelTagParser implements HtmlParseFilter {
   
@@ -58,9 +55,7 @@ public class RelTagParser implements HtmlParseFilter {
 
   public final static String REL_TAG = "Rel-Tag";
   
-  
   private Configuration conf = null;
-  
   
   /**
    * Scan the HTML document looking at possible rel-tags
@@ -72,25 +67,25 @@ public class RelTagParser implements HtmlParseFilter {
     Parse parse = parseResult.get(content.getUrl());
     // Trying to find the document's rel-tags
     Parser parser = new Parser(doc);
-    Set tags = parser.getRelTags();
-    Iterator iter = tags.iterator();
+    Set<?> tags = parser.getRelTags();
+    Iterator<?> iter = tags.iterator();
     Metadata metadata = parse.getData().getParseMeta();
-    while (iter.hasNext()) {
+    while (iter.hasNext())
       metadata.add(REL_TAG, (String) iter.next());
-    }
+
     return parseResult;
   }
 
   private static class Parser {
 
-    Set tags = null;
+    Set<String> tags = null;
     
     Parser(Node node) {
-      tags = new TreeSet();
+      tags = new TreeSet<String>();
       parse(node);
     }
   
-    Set getRelTags() {
+    Set<String> getRelTags() {
       return tags;
     }
     
@@ -120,9 +115,8 @@ public class RelTagParser implements HtmlParseFilter {
       
       // Recurse
       NodeList children = node.getChildNodes();
-      for (int i=0; children != null && i<children.getLength(); i++) {
+      for (int i=0; children != null && i<children.getLength(); i++)
         parse(children.item(i));
-      }
     }
     
     private final static String parseTag(String url) {
@@ -140,11 +134,6 @@ public class RelTagParser implements HtmlParseFilter {
     
   }
 
-
-  /* ----------------------------- *
-   * <implementation:Configurable> *
-   * ----------------------------- */
-  
   public void setConf(Configuration conf) {
     this.conf = conf;
   }
@@ -152,9 +141,4 @@ public class RelTagParser implements HtmlParseFilter {
   public Configuration getConf() {
     return this.conf;
   }
-  
-  /* ------------------------------ *
-   * </implementation:Configurable> *
-   * ------------------------------ */
-  
 }

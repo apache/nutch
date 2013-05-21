@@ -55,7 +55,7 @@ public class Ftp implements Protocol {
 
   public static final Logger LOG = LoggerFactory.getLogger(Ftp.class);
 
-  static final int BUFFER_SIZE = 16384; // 16*1024 = 16384
+  private static final int BUFFER_SIZE = 16384; // 16*1024 = 16384
 
   static final int MAX_REDIRECTS = 5;
 
@@ -256,6 +256,10 @@ public class Ftp implements Protocol {
    */
   public BaseRobotRules getRobotRules(Text url, CrawlDatum datum) {
     return RobotRulesParser.EMPTY_RULES;
+  }
+
+  public int getBufferSize() {
+    return BUFFER_SIZE;
   }
 }
 

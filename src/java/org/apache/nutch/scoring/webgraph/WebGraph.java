@@ -405,28 +405,13 @@ public class WebGraph
     extends Configured
     implements Mapper<Text, LinkDatum, Text, LinkDatum> {
 
-    private JobConf conf;
     private long timestamp;
-
-    /**
-     * Default constructor.
-     */
-    public InlinkDb() {
-    }
-
-    /**
-     * Configurable constructor.
-     */
-    public InlinkDb(Configuration conf) {
-      setConf(conf);
-    }
 
     /**
      * Configures job. Sets timestamp for all Inlink LinkDatum objects to the
      * current system time.
      */
     public void configure(JobConf conf) {
-      this.conf = conf;
       timestamp = System.currentTimeMillis();
     }
 
@@ -461,30 +446,12 @@ public class WebGraph
     extends Configured
     implements Reducer<Text, LinkDatum, Text, Node> {
 
-    private JobConf conf;
-
-    /**
-     * Default constructor.
-     */
-    public NodeDb() {
-    }
-
-    /**
-     * Configurable constructor.
-     */
-    public NodeDb(Configuration conf) {
-      setConf(conf);
-    }
-
     /**
      * Configures job.
      */
-    public void configure(JobConf conf) {
-      this.conf = conf;
-    }
+    public void configure(JobConf conf) { }
 
-    public void close() {
-    }
+    public void close() { }
 
     /**
      * Counts the number of inlinks and outlinks for each url and sets a default
@@ -731,23 +698,37 @@ public class WebGraph
     throws Exception {
 
     Options options = new Options();
-    Option helpOpts = OptionBuilder.withArgName("help").withDescription(
-      "show this help message").create("help");
-    Option webGraphDbOpts = OptionBuilder.withArgName("webgraphdb").hasArg().withDescription(
-      "the web graph database to use").create("webgraphdb");
-    Option segOpts = OptionBuilder.withArgName("segment").hasArgs().withDescription(
-      "the segment(s) to use").create("segment");
-    Option segDirOpts = OptionBuilder.withArgName("segmentDir").hasArgs().withDescription(
-      "the segment directory to use").create("segmentDir");
-    Option normalizeOpts = OptionBuilder.withArgName("normalize").withDescription(
-      "whether to use URLNormalizers on the URL's in the segment").create("normalize");
-    Option filterOpts = OptionBuilder.withArgName("filter").withDescription(
-      "whether to use URLFilters on the URL's in the segment").create("filter");
+    OptionBuilder.withArgName("help");
+    OptionBuilder.withDescription("show this help message");
+    Option helpOpts = OptionBuilder.create("help");
     options.addOption(helpOpts);
+    
+    OptionBuilder.withArgName("webgraphdb");
+    OptionBuilder.hasArg();
+    OptionBuilder.withDescription("the web graph database to use");
+    Option webGraphDbOpts = OptionBuilder.create("webgraphdb");
     options.addOption(webGraphDbOpts);
+    
+    OptionBuilder.withArgName("segment");
+    OptionBuilder.hasArgs();
+    OptionBuilder.withDescription("the segment(s) to use");
+    Option segOpts = OptionBuilder.create("segment");
     options.addOption(segOpts);
+    
+    OptionBuilder.withArgName("segmentDir");
+    OptionBuilder.hasArgs();
+    OptionBuilder.withDescription("the segment directory to use");
+    Option segDirOpts = OptionBuilder.create("segmentDir");
     options.addOption(segDirOpts);
+    
+    OptionBuilder.withArgName("normalize");
+    OptionBuilder.withDescription("whether to use URLNormalizers on the URL's in the segment");
+    Option normalizeOpts = OptionBuilder.create("normalize");
     options.addOption(normalizeOpts);
+    
+    OptionBuilder.withArgName("filter");
+    OptionBuilder.withDescription("whether to use URLFilters on the URL's in the segment");
+    Option filterOpts = OptionBuilder.create("filter");
     options.addOption(filterOpts);
 
     CommandLineParser parser = new GnuParser();

@@ -42,7 +42,6 @@ import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Text;
 import org.apache.oro.text.regex.MatchResult;
 import org.apache.oro.text.regex.Pattern;
 import org.apache.oro.text.regex.PatternCompiler;
@@ -60,9 +59,6 @@ import org.w3c.dom.NodeList;
  * This class is a heuristic link extractor for JavaScript files and
  * code snippets. The general idea of a two-pass regex matching comes from
  * Heritrix. Parts of the code come from OutlinkExtractor.java
- * by Stephan Strittmatter.
- *
- * @author Andrzej Bialecki &lt;ab@getopt.org&gt;
  */
 public class JSParseFilter implements HtmlParseFilter, Parser {
   public static final Logger LOG = LoggerFactory.getLogger(JSParseFilter.class);
@@ -77,12 +73,12 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     Parse parse = parseResult.get(content.getUrl());
 
     String url = content.getBaseUrl();
-    ArrayList outlinks = new ArrayList();
+    ArrayList<Outlink> outlinks = new ArrayList<Outlink>();
     walk(doc, parse, metaTags, url, outlinks);
     if (outlinks.size() > 0) {
       Outlink[] old = parse.getData().getOutlinks();
       String title = parse.getData().getTitle();
-      List list = Arrays.asList(old);
+      List<Outlink> list = Arrays.asList(old);
       outlinks.addAll(list);
       ParseStatus status = parse.getData().getStatus();
       String text = parse.getText();
@@ -97,14 +93,14 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     return parseResult;
   }
   
-  private void walk(Node n, Parse parse, HTMLMetaTags metaTags, String base, List outlinks) {
+  private void walk(Node n, Parse parse, HTMLMetaTags metaTags, String base, List<Outlink> outlinks) {
     if (n instanceof Element) {
       String name = n.getNodeName();
       if (name.equalsIgnoreCase("script")) {
-        String lang = null;
+ /*       String lang = null;
         Node lNode = n.getAttributes().getNamedItem("language");
         if (lNode == null) lang = "javascript";
-        else lang = lNode.getNodeValue();
+        else lang = lNode.getNodeValue(); */
         StringBuffer script = new StringBuffer();
         NodeList nn = n.getChildNodes();
         if (nn.getLength() > 0) {
@@ -183,7 +179,7 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
    */
   private Outlink[] getJSLinks(String plainText, String anchor, String base) {
 
-    final List outlinks = new ArrayList();
+    final List<Outlink> outlinks = new ArrayList<Outlink>();
     URL baseURL = null;
     
     try {
@@ -265,7 +261,10 @@ public class JSParseFilter implements HtmlParseFilter, Parser {
     BufferedReader br = new BufferedReader(new InputStreamReader(in, "UTF-8"));
     StringBuffer sb = new StringBuffer();
     String line = null;
-    while ((line = br.readLine()) != null) sb.append(line + "\n");
+    while ((line = br.readLine()) != null) 
+      sb.append(line + "\n");
+    br.close();
+    
     JSParseFilter parseFilter = new JSParseFilter();
     parseFilter.setConf(NutchConfiguration.create());
     Outlink[] links = parseFilter.getJSLinks(sb.toString(), "", args[1]);

@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.segment;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -207,7 +208,7 @@ public class SegmentMerger extends Configured implements
         MapFile.Writer pt_out = null;
         SequenceFile.Writer g_out = null;
         SequenceFile.Writer p_out = null;
-        HashMap sliceWriters = new HashMap();
+        HashMap<String, Closeable> sliceWriters = new HashMap<String, Closeable>();
         String segmentName = job.get("segment.merger.segmentName");
         
         public void write(Text key, MetaWrapper wrapper) throws IOException {
@@ -288,7 +289,7 @@ public class SegmentMerger extends Configured implements
         }
 
         public void close(Reporter reporter) throws IOException {
-          Iterator<Object> it = sliceWriters.values().iterator();
+          Iterator<Closeable> it = sliceWriters.values().iterator();
           while (it.hasNext()) {
             Object o = it.next();
             if (o instanceof SequenceFile.Writer) {

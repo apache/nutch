@@ -25,8 +25,6 @@ import org.apache.hadoop.conf.Configurable;
  * An <code>Extension</code> is a kind of listener descriptor that will be
  * installed on a concrete <code>ExtensionPoint</code> that acts as kind of
  * Publisher.
- * 
- * @author joa23
  */
 public class Extension {
   private PluginDescriptor fDescriptor;
@@ -153,7 +151,7 @@ public class Extension {
     synchronized (getId()) {
       try {
         PluginClassLoader loader = fDescriptor.getClassLoader();
-        Class extensionClazz = loader.loadClass(getClazz());
+        Class<?> extensionClazz = loader.loadClass(getClazz());
         // lazy loading of Plugin in case there is no instance of the plugin
         // already.
         this.pluginRepository.getPluginInstance(getDescriptor());

@@ -433,12 +433,17 @@ public class LinkDumper
     throws Exception {
 
     Options options = new Options();
-    Option helpOpts = OptionBuilder.withArgName("help").withDescription(
-      "show this help message").create("help");
-    Option webGraphDbOpts = OptionBuilder.withArgName("webgraphdb").hasArg()
-      .withDescription("the web graph database to use").create("webgraphdb");
+    OptionBuilder.withArgName("help");
+    OptionBuilder.withDescription("show this help message");
+    Option helpOpts = OptionBuilder.create("help");
     options.addOption(helpOpts);
+    
+    OptionBuilder.withArgName("webgraphdb");
+    OptionBuilder.hasArg();
+    OptionBuilder.withDescription("the web graph database to use");
+    Option webGraphDbOpts = OptionBuilder.create("webgraphdb");
     options.addOption(webGraphDbOpts);
+    
     CommandLineParser parser = new GnuParser();
     try {
 

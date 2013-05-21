@@ -42,8 +42,6 @@ import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
-import org.apache.nutch.parse.ParseData;
-import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ProtocolStatus;
 import org.mortbay.jetty.Request;
@@ -88,9 +86,8 @@ public class SegmentHandler extends AbstractTestbedHandler {
   
   private static class Segment implements Closeable {
     
-    private static final Partitioner PARTITIONER = new HashPartitioner();
+    private static final Partitioner<Text,Writable> PARTITIONER = new HashPartitioner<Text,Writable>();
 
-    private FileSystem fs;
     private Path segmentDir;
 
     private Object cLock = new Object();
@@ -102,7 +99,6 @@ public class SegmentHandler extends AbstractTestbedHandler {
     private Configuration conf;
 
     public Segment(FileSystem fs, Path segmentDir, Configuration conf) throws IOException {
-      this.fs = fs;
       this.segmentDir = segmentDir;
       this.conf = conf;
     }

@@ -41,7 +41,7 @@ public abstract class GenericWritableConfigurable extends GenericWritable
   @Override
   public void readFields(DataInput in) throws IOException {
     byte type = in.readByte();
-    Class clazz = getTypes()[type];
+    Class<?> clazz = getTypes()[type];
     try {
       set((Writable) clazz.newInstance());
     } catch (Exception e) {

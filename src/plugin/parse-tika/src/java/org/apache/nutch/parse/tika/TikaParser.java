@@ -59,7 +59,8 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
 	private HtmlParseFilters htmlParseFilters;
 	private String cachingPolicy;
 
-	public ParseResult getParse(Content content) {
+	@SuppressWarnings("deprecation")
+  public ParseResult getParse(Content content) {
 		String mimeType = content.getContentType();
 
 		URL base;

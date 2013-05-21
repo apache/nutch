@@ -14,9 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// $Id$
-
 package org.apache.nutch.urlfilter.prefix;
 
 import org.slf4j.Logger;
@@ -79,7 +76,7 @@ public class PrefixURLFilter implements URLFilter {
     throws IOException {
     
     BufferedReader in=new BufferedReader(reader);
-    List urlprefixes = new ArrayList();
+    List<String> urlprefixes = new ArrayList<String>();
     String line;
 
     while((line=in.readLine())!=null) {

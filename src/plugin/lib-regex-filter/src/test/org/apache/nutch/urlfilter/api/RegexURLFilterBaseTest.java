@@ -109,7 +109,7 @@ public abstract class RegexURLFilterBaseTest extends TestCase {
   
   private static FilteredURL[] readURLFile(Reader reader) throws IOException {
     BufferedReader in = new BufferedReader(reader);
-    List list = new ArrayList();
+    List<FilteredURL> list = new ArrayList<FilteredURL>();
     String line;
     while((line=in.readLine()) != null) {
       if (line.length() != 0) {

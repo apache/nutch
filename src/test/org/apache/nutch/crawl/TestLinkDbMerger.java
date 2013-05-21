@@ -68,9 +68,9 @@ public class TestLinkDbMerger extends TestCase {
   String[] urls20_expected = urls11_expected;
   String[] urls21_expected = urls21;
   
-  TreeMap init1 = new TreeMap();
-  TreeMap init2 = new TreeMap();
-  HashMap expected = new HashMap();
+  TreeMap<String, String[]> init1 = new TreeMap<String, String[]>();
+  TreeMap<String, String[]> init2 = new TreeMap<String, String[]>();
+  HashMap<String, String[]> expected = new HashMap<String, String[]>();
   Configuration conf;
   Path testDir;
   FileSystem fs;
@@ -116,16 +116,16 @@ public class TestLinkDbMerger extends TestCase {
     merger.merge(output, new Path[]{linkdb1, linkdb2}, false, false);
     LOG.fine("* reading linkdb: " + output);
     reader = new LinkDbReader(conf, output);
-    Iterator it = expected.keySet().iterator();
+    Iterator<String> it = expected.keySet().iterator();
     while (it.hasNext()) {
-      String url = (String)it.next();
+      String url = it.next();
       LOG.fine("url=" + url);
-      String[] vals = (String[])expected.get(url);
+      String[] vals = expected.get(url);
       Inlinks inlinks = reader.getInlinks(new Text(url));
       // may not be null
       assertNotNull(inlinks);
-      ArrayList links = new ArrayList();
-      Iterator it2 = inlinks.iterator();
+      ArrayList<String> links = new ArrayList<String>();
+      Iterator<?> it2 = inlinks.iterator();
       while (it2.hasNext()) {
         Inlink in = (Inlink)it2.next();
         links.add(in.getFromUrl());
@@ -139,15 +139,15 @@ public class TestLinkDbMerger extends TestCase {
     fs.delete(testDir, true);
   }
   
-  private void createLinkDb(Configuration config, FileSystem fs, Path linkdb, TreeMap init) throws Exception {
+  private void createLinkDb(Configuration config, FileSystem fs, Path linkdb, TreeMap<String, String[]> init) throws Exception {
     LOG.fine("* creating linkdb: " + linkdb);
     Path dir = new Path(linkdb, LinkDb.CURRENT_NAME);
     MapFile.Writer writer = new MapFile.Writer(config, fs, new Path(dir, "part-00000").toString(), Text.class, Inlinks.class);
-    Iterator it = init.keySet().iterator();
+    Iterator<String> it = init.keySet().iterator();
     while (it.hasNext()) {
-      String key = (String)it.next();
+      String key = it.next();
       Inlinks inlinks = new Inlinks();
-      String[] vals = (String[])init.get(key);
+      String[] vals = init.get(key);
       for (int i = 0; i < vals.length; i++) {
         Inlink in = new Inlink(vals[i], vals[i]);
         inlinks.add(in);

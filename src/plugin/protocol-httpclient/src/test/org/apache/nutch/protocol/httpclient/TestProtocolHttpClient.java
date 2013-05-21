@@ -23,7 +23,6 @@ import junit.framework.TestCase;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.handler.ContextHandler;
-import org.mortbay.jetty.handler.ResourceHandler;
 import org.mortbay.jetty.servlet.ServletHandler;
 import org.mortbay.jetty.servlet.SessionHandler;
 import org.apache.hadoop.conf.Configuration;
@@ -32,8 +31,6 @@ import org.apache.nutch.net.protocols.Response;
 
 /**
  * Test cases for protocol-httpclient.
- *
- * @author Susam Pal
  */
 public class TestProtocolHttpClient extends TestCase {
 

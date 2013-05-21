@@ -181,7 +181,7 @@ public class SuffixURLFilter implements URLFilter {
       return;
     }
     BufferedReader in = new BufferedReader(reader);
-    List aSuffixes = new ArrayList();
+    List<String> aSuffixes = new ArrayList<String>();
     boolean allow = false;
     boolean ignore = false;
     String line;

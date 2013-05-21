@@ -32,13 +32,12 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
+import org.mortbay.log.Log;
 
 import junit.framework.TestCase;
 
 /** 
  * Unit tests for SWFParser.
- *
- * @author Andrzej Bialecki
  */
 public class TestSWFParser extends TestCase {
 
@@ -48,7 +47,6 @@ public class TestSWFParser extends TestCase {
   
   private String[] sampleFiles = new String[]{"test1.swf", "test2.swf", "test3.swf"};
   private String[] sampleTexts = new String[]{"test1.txt", "test2.txt", "test3.txt"};
-  private String[] texts = new String[sampleTexts.length];
 
   public TestSWFParser(String name) { 
     super(name);
@@ -94,5 +92,4 @@ public class TestSWFParser extends TestCase {
       assertTrue(sampleTexts[i].equals(text));
     }
   }
-
 }

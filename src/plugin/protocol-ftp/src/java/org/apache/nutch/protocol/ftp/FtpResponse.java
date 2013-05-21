@@ -17,11 +17,9 @@
 
 package org.apache.nutch.protocol.ftp;
 
-
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
-
 import org.apache.commons.net.ftp.parser.DefaultFTPFileEntryParserFactory;
 import org.apache.commons.net.ftp.parser.ParserInitializationException;
 
@@ -42,8 +40,7 @@ import java.util.LinkedList;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-
-/************************************
+/**
  * FtpResponse.java mimics ftp replies as http response.
  * It tries its best to follow http's way for headers, response codes
  * as well as exceptions.
@@ -53,9 +50,7 @@ import java.io.IOException;
  * and some important commons-net exceptions passed by Client.java
  * must have been properly dealt with. They'd better not be leaked
  * to the caller of this class.
- *
- * @author John Xing
- ***********************************/
+ */
 public class FtpResponse {
 
   private String orig;
@@ -146,7 +141,7 @@ public class FtpResponse {
         // follow ftp talk?
         if (ftp.followTalk)
           ftp.client.addProtocolCommandListener(
-            new PrintCommandListener(ftp.LOG));
+            new PrintCommandListener(Ftp.LOG));
       }
 
       // quit from previous site if at a different site now
@@ -284,8 +279,8 @@ public class FtpResponse {
       }
       
     } catch (Exception e) {
-      if (ftp.LOG.isWarnEnabled()) {
-        ftp.LOG.warn("Error: ", e);
+      if (Ftp.LOG.isWarnEnabled()) {
+        Ftp.LOG.warn("Error: ", e);
       }
       // for any un-foreseen exception (run time exception or not),
       // do ultimate clean and leave ftp.client for garbage collection
@@ -312,11 +307,11 @@ public class FtpResponse {
     throws IOException {
 
     ByteArrayOutputStream os = null;
-    List list = null;
+    List<FTPFile> list = null;
 
     try {
       // first get its possible attributes
-      list = new LinkedList();
+      list = new LinkedList<FTPFile>();
       ftp.client.retrieveList(path, list, ftp.maxContentLength, ftp.parser);
 
       FTPFile ftpFile = (FTPFile) list.get(0);
@@ -329,7 +324,7 @@ public class FtpResponse {
         code = 304;
         return;
       }
-      os = new ByteArrayOutputStream(ftp.BUFFER_SIZE);
+      os = new ByteArrayOutputStream(ftp.getBufferSize());
       ftp.client.retrieveFile(path, os, ftp.maxContentLength);
 
       this.content = os.toByteArray();
@@ -414,7 +409,7 @@ public class FtpResponse {
   // get ftp dir list as http response
   private void getDirAsHttpResponse(String path, long lastModified)
     throws IOException {
-    List list = new LinkedList();
+    List<FTPFile> list = new LinkedList<FTPFile>();
 
     try {
 
@@ -482,7 +477,7 @@ public class FtpResponse {
   }
 
   // generate html page from ftp dir list
-  private byte[] list2html(List list, String path, boolean includeDotDot) {
+  private byte[] list2html(List<FTPFile> list, String path, boolean includeDotDot) {
 
     //StringBuffer x = new StringBuffer("<!doctype html public \"-//ietf//dtd html//en\"><html><head>");
     StringBuffer x = new StringBuffer("<html><head>");
