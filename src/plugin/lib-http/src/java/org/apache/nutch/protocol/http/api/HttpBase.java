@@ -131,8 +131,6 @@ public abstract class HttpBase implements Protocol {
   public Configuration getConf() {
     return this.conf;
   }
-   
-  
   
   public ProtocolOutput getProtocolOutput(Text url, CrawlDatum datum) {
     
