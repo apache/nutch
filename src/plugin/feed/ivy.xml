@@ -37,6 +37,7 @@
 
   <dependencies>
     <dependency org="rome" name="rome" rev="0.9" conf="*->master"/>
+    <dependency org="org.jdom" name="jdom" rev="1.1" conf="*->master"/>
   </dependencies>
   
 </ivy-module>
