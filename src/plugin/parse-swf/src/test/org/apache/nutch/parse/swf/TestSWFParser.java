@@ -32,7 +32,6 @@ import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
-import org.mortbay.log.Log;
 
 import junit.framework.TestCase;
 
