@@ -28,7 +28,6 @@ import org.apache.commons.net.ftp.FTPFileEntryParser;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.RobotRulesParser;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatusCodes;
@@ -46,8 +45,6 @@ import crawlercommons.robots.BaseRobotRules;
  *                             {@code ftp.server.timeout}, {@code ftp.password}, 
  *                             {@code ftp.keep.connection} and {@code ftp.follow.talk}.
  * For details see "FTP properties" section in {@code nutch-default.xml}.
- * 
- * @author John Xing
  */
 public class Ftp implements Protocol {
 
@@ -89,8 +86,11 @@ public class Ftp implements Protocol {
 
   private Configuration conf;
 
+  private FtpRobotRulesParser robots = null;
+      
   // constructor
   public Ftp() {
+    robots = new FtpRobotRulesParser();
   }
 
   /** Set the timeout. */
@@ -179,6 +179,7 @@ public class Ftp implements Protocol {
     this.serverTimeout = conf.getInt("ftp.server.timeout", 60 * 1000);
     this.keepConnection = conf.getBoolean("ftp.keep.connection", false);
     this.followTalk = conf.getBoolean("ftp.follow.talk", false);
+    this.robots.setConf(conf);
   }
 
   /**
@@ -257,11 +258,9 @@ public class Ftp implements Protocol {
   }
 
   /** 
-   * Currently, no robots parsing is done for ftp protocol 
-   * and this returns a set of empty rules which will allow every url.
-   * There a jira logged for the same NUTCH-1513
+   * Get the robots rules for a given url
    */
   public BaseRobotRules getRobotRules(String url, WebPage page) {
-    return RobotRulesParser.EMPTY_RULES;
+    return robots.getRobotRulesSet(this, url);
   }
 }
