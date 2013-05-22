@@ -25,6 +25,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.gora.store.DataStore;
+import org.apache.gora.util.GoraException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.storage.Host;
 import org.apache.nutch.storage.StorageUtils;
@@ -63,7 +64,7 @@ public class HostDb implements Closeable {
   
   private AtomicLong lastFlush;
 
-  public HostDb(Configuration conf) throws IOException {
+  public HostDb(Configuration conf) throws GoraException {
     try {
       hostStore = StorageUtils.createWebStore(conf, String.class, Host.class);
     } catch (ClassNotFoundException e) {
@@ -86,11 +87,7 @@ public class HostDb implements Closeable {
             CacheHost removeFromCacheHost = notification.getValue();
             if (removeFromCacheHost != NULL_HOST) {
               if (removeFromCacheHost.timestamp < lastFlush.get()) {
-                try {
-                  hostStore.flush();
-                } catch (IOException e) {
-                  throw new RuntimeException(e);
-                }
+                hostStore.flush();
                 lastFlush.set(System.currentTimeMillis());
               }
             }

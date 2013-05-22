@@ -39,7 +39,7 @@ import org.apache.nutch.util.TableUtil;
 public class HostDbReader extends Configured implements Tool {
   public static final Log LOG = LogFactory.getLog(HostDbReader.class);
 
-  private void read(String key) throws ClassNotFoundException, IOException {
+  private void read(String key) throws ClassNotFoundException, IOException, Exception {
 
     DataStore<String, Host> datastore = StorageUtils.createWebStore(getConf(),
         String.class, Host.class);
@@ -53,10 +53,14 @@ public class HostDbReader extends Configured implements Tool {
     Result<String, Host> result = datastore.execute(query);
 
     while (result.next()) {
-      String hostName = TableUtil.unreverseUrl(result.getKey());
-      Host host = result.get();
-      System.out.println(hostName);
-      System.out.println(host);
+      try {
+        String hostName = TableUtil.unreverseUrl(result.getKey());
+        Host host = result.get();
+        System.out.println(hostName);
+        System.out.println(host);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
     }
     result.close();
     datastore.close();

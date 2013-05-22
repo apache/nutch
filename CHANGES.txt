@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
+* NUTCH-1569 Upgrade 2.x to Gora 0.3 (lewismc)
+
 * NUTCH-1513 Support Robots.txt for Ftp urls (tejasp)
 
 * NUTCH-1053 Parsing of RSS feeds fails (tejasp)
