@@ -34,7 +34,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.AbstractNutchTest;
 import org.apache.nutch.util.CrawlTestUtil;
 import org.hsqldb.Server;
-import org.junit.Ignore;
 
 import org.junit.After;
 import org.junit.Before;
@@ -70,7 +69,7 @@ public class TestGoraStorage extends AbstractNutchTest {
   }
 
   private static void readWrite(String id, DataStore<String, WebPage> store) 
-      throws IOException, Exception {
+      throws IOException {
     WebPage page = new WebPage();
     int max = 1000;
     for (int i = 0; i < max; i++) {
@@ -91,13 +90,9 @@ public class TestGoraStorage extends AbstractNutchTest {
     Result<String, WebPage> result = store.execute(store.newQuery());
     int count = 0;
     while (result.next()) {
-      try {
-        // only count keys in the store for the current id
-        if (result.getKey().contains(id))
-          count++;
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
+      // only count keys in the store for the current id
+      if (result.getKey().contains(id))
+        count++;
     }
     // check amount
     assertEquals(max, count);
@@ -111,7 +106,6 @@ public class TestGoraStorage extends AbstractNutchTest {
    * @throws Exception
    */
   @Test
-  @Ignore("Temporarily diable until NUTCH-1572 is addressed.")
   public void testMultithreaded() throws Exception {
     // create a fixed thread pool
     int numThreads = 8;
@@ -225,7 +219,7 @@ public class TestGoraStorage extends AbstractNutchTest {
     System.out.println("Starting!");
 
     Configuration localConf = CrawlTestUtil.createConfiguration();
-    localConf.set("storage.data.store.class", "org.apache.gora.memory.store.MemStore");
+    localConf.set("storage.data.store.class", "org.apache.gora.sql.store.SqlStore");
 
     DataStore<String, WebPage> store = StorageUtils.createWebStore(localConf,
         String.class, WebPage.class);

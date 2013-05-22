@@ -223,7 +223,7 @@ public class WebTableReader extends NutchTool implements Tool {
 
   /** Prints out the entry to the standard out **/
   private void read(String key, boolean dumpContent, boolean dumpHeaders,
-      boolean dumpLinks, boolean dumpText) throws ClassNotFoundException, IOException, Exception {
+      boolean dumpLinks, boolean dumpText) throws ClassNotFoundException, IOException {
     DataStore<String, WebPage> datastore = StorageUtils.createWebStore(getConf(),
         String.class, WebPage.class);
 
@@ -235,19 +235,15 @@ public class WebTableReader extends NutchTool implements Tool {
     boolean found = false;
     // should happen only once
     while (result.next()) {
-      try {
-        WebPage page = result.get();
-        String skey = result.getKey();
-        // we should not get to this point but nevermind
-        if (page == null || skey == null)
-          break;
-        found = true;
-        String url = TableUtil.unreverseUrl(skey);
-        System.out.println(getPageRepresentation(url, page, dumpContent,
-            dumpHeaders, dumpLinks, dumpText));
-      }catch (Exception e) {
-        e.printStackTrace();
-      }
+      WebPage page = result.get();
+      String skey = result.getKey();
+      // we should not get to this point but nevermind
+      if (page == null || skey == null)
+        break;
+      found = true;
+      String url = TableUtil.unreverseUrl(skey);
+      System.out.println(getPageRepresentation(url, page, dumpContent,
+          dumpHeaders, dumpLinks, dumpText));
     }
     if (!found)
       System.out.println(key + " not found");

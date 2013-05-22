@@ -98,10 +98,10 @@ public class CrawlTestUtil {
    * Read entries from a data store
    *
    * @return list of matching {@link URLWebPage} objects
-   * @throws Exception
+   * @throws IOException
    */
   public static ArrayList<URLWebPage> readContents(DataStore<String,WebPage> store,
-      Mark requiredMark, String... fields) throws Exception {
+      Mark requiredMark, String... fields) throws IOException {
     ArrayList<URLWebPage> l = new ArrayList<URLWebPage>();
 
     Query<String, WebPage> query = store.newQuery();
@@ -111,21 +111,18 @@ public class CrawlTestUtil {
 
     Result<String, WebPage> results = store.execute(query);
     while (results.next()) {
-      try {
-        WebPage page = results.get();
-        String url = results.getKey();
+      WebPage page = results.get();
+      String url = results.getKey();
 
-        if (page == null)
-          continue;
+      if (page == null)
+        continue;
 
-        if (requiredMark != null && requiredMark.checkMark(page) == null)
-          continue;
+      if (requiredMark != null && requiredMark.checkMark(page) == null)
+        continue;
 
-        l.add(new URLWebPage(TableUtil.unreverseUrl(url), (WebPage)page.clone()));
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
+      l.add(new URLWebPage(TableUtil.unreverseUrl(url), (WebPage)page.clone()));
     }
+
     return l;
   }
 

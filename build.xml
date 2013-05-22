@@ -538,7 +538,7 @@
   <target name="generate-gora-src" depends="init" description="--> compile the avro schema(s) in src/gora/*.avsc">
     <java classname="org.apache.gora.compiler.GoraCompiler">
      <classpath refid="classpath"/>
-     <arg value="src/gora/"/>
+     <arg value="src/gora/webpage.avsc"/>
      <arg value="${src.dir}"/>
     </java>
  </target>
