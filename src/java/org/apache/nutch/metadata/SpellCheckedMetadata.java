@@ -52,9 +52,9 @@ public class SpellCheckedMetadata extends Metadata {
 
     // Uses following array to fill the metanames index and the
     // metanames list.
-    Class[] spellthese = {HttpHeaders.class};
+    Class<?>[] spellthese = {HttpHeaders.class};
 
-    for (Class spellCheckedNames : spellthese) {
+    for (Class<?> spellCheckedNames : spellthese) {
       for (Field field : spellCheckedNames.getFields()) {
         int mods = field.getModifiers();
         if (Modifier.isFinal(mods) && Modifier.isPublic(mods)

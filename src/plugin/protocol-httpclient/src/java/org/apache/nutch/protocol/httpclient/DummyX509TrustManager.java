@@ -36,9 +36,6 @@ public class DummyX509TrustManager implements X509TrustManager
 {
     private X509TrustManager standardTrustManager = null;
 
-    /** Logger object for this class. */
-    private static final Logger LOG = LoggerFactory.getLogger(DummyX509TrustManager.class);
-
     /**
      * Constructor for DummyX509TrustManager.
      */

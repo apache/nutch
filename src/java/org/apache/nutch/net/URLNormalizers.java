@@ -100,7 +100,7 @@ public final class URLNormalizers {
   public static final Logger LOG = LoggerFactory.getLogger(URLNormalizers.class);
 
   /* Empty extension list for caching purposes. */
-  private final List<Extension> EMPTY_EXTENSION_LIST = Collections.EMPTY_LIST;
+  private final List<Extension> EMPTY_EXTENSION_LIST = Collections.emptyList();
   
   private final URLNormalizer[] EMPTY_NORMALIZERS = new URLNormalizer[0];
 
@@ -193,6 +193,7 @@ public final class URLNormalizers {
    *         empty list.
    * @throws PluginRuntimeException
    */
+  @SuppressWarnings("unchecked")
   private List<Extension> getExtensions(String scope) {
     ObjectCache objectCache = ObjectCache.get(conf);
     List<Extension> extensions = 

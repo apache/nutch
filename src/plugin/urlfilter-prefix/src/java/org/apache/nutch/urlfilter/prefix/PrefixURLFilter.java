@@ -32,7 +32,6 @@ import org.apache.nutch.plugin.Extension;
 import org.apache.nutch.plugin.PluginRepository;
 
 import java.io.Reader;
-import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
@@ -79,7 +78,7 @@ public class PrefixURLFilter implements URLFilter {
     throws IOException {
     
     BufferedReader in=new BufferedReader(reader);
-    List urlprefixes = new ArrayList();
+    List<String> urlprefixes = new ArrayList<String>();
     String line;
 
     while((line=in.readLine())!=null) {

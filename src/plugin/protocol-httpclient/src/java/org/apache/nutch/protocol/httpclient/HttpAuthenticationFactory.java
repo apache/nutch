@@ -57,7 +57,7 @@ public class HttpAuthenticationFactory implements Configurable {
 	
     public static final Logger LOG = LoggerFactory.getLogger(HttpAuthenticationFactory.class);
 
-    private static Map auths = new TreeMap(); 
+    private static Map<?, ?> auths = new TreeMap<Object, Object>(); 
 
     private Configuration conf = null;
     
@@ -89,6 +89,7 @@ public class HttpAuthenticationFactory implements Configurable {
      * ---------------------------------- */
 
 
+    @SuppressWarnings("unchecked")
     public HttpAuthentication findAuthentication(Metadata header) {
 
         if (header == null) return null;
@@ -98,15 +99,15 @@ public class HttpAuthenticationFactory implements Configurable {
 			if (header instanceof Metadata) {
 				Object o = header.get(WWW_AUTHENTICATE);
 				if (o instanceof Collection) {
-					challenge = (Collection) o;
+					challenge = (Collection<?>) o;
 				} else {
-					challenge = new ArrayList();
+					challenge = new ArrayList<String>();
 					challenge.add(o.toString());
 				}
 			} else {
 				String challengeString = header.get(WWW_AUTHENTICATE); 
 				if (challengeString != null) {
-					challenge = new ArrayList();
+					challenge = new ArrayList<Object>();
 					challenge.add(challengeString);
 				}
 			}
@@ -117,7 +118,7 @@ public class HttpAuthenticationFactory implements Configurable {
 				return null;
 			}
 			
-			Iterator i = challenge.iterator();
+			Iterator<?> i = challenge.iterator();
 			HttpAuthentication auth = null;
 			while (i.hasNext() && auth == null) {
 				String challengeString = (String)i.next();

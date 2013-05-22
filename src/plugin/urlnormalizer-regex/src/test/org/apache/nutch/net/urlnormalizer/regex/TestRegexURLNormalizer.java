@@ -44,7 +44,7 @@ public class TestRegexURLNormalizer {
   
   private RegexURLNormalizer normalizer;
   private Configuration conf;
-  private HashMap testData = new HashMap();
+  private HashMap<String, NormalizedURL[]> testData = new HashMap<String, NormalizedURL[]>();
   
   // This system property is defined in ./src/plugin/build-plugin.xml
   private String sampleDir = System.getProperty("test.data", ".");
@@ -85,9 +85,9 @@ public class TestRegexURLNormalizer {
 
   @Test
   public void testNormalizerScope() throws Exception {
-    Iterator it = testData.keySet().iterator();
+    Iterator<String> it = testData.keySet().iterator();
     while (it.hasNext()) {
-      String scope = (String)it.next();
+      String scope = it.next();
       normalizeTest((NormalizedURL[])testData.get(scope), scope);
     }
   }
@@ -102,6 +102,7 @@ public class TestRegexURLNormalizer {
     }
   }
 	
+  /** Currently this is not being used in this class
   private void bench(int loops, String scope) {
     long start = System.currentTimeMillis();
     try {
@@ -116,6 +117,7 @@ public class TestRegexURLNormalizer {
     LOG.info("bench time (" + loops + ") " +
              (System.currentTimeMillis() - start) + "ms");
   }
+  */
 
   private static class NormalizedURL {
     String url;
@@ -131,7 +133,7 @@ public class TestRegexURLNormalizer {
   private NormalizedURL[] readTestFile(String scope) throws IOException {
     File f = new File(sampleDir, "regex-normalize-" + scope + ".test");
     BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF-8"));
-    List list = new ArrayList();
+    List<NormalizedURL> list = new ArrayList<NormalizedURL>();
     String line;
     while((line = in.readLine()) != null) {
       if (  line.trim().length() == 0 ||
@@ -139,6 +141,7 @@ public class TestRegexURLNormalizer {
             line.startsWith(" ")) continue;
       list.add(new NormalizedURL(line));
     }
+    in.close();
     return (NormalizedURL[]) list.toArray(new NormalizedURL[list.size()]);
   }  
 }

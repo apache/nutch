@@ -74,10 +74,9 @@ public class ResolveUrls {
       String host = URLUtil.getHost(url);
       long start = System.currentTimeMillis();
       try {
-        
         // get the address by name and if no error is thrown then it 
         // is resolved successfully
-        InetAddress ia = InetAddress.getByName(host);
+        InetAddress.getByName(host);
         LOG.info("Resolved: " + host);
         numResolved.incrementAndGet();
       }
@@ -161,12 +160,20 @@ public class ResolveUrls {
   public static void main(String[] args) {
 
     Options options = new Options();
-    Option helpOpts = OptionBuilder.withArgName("help").withDescription(
-      "show this help message").create("help");
-    Option urlOpts = OptionBuilder.withArgName("urls").hasArg().withDescription(
-      "the urls file to check").create("urls");
-    Option numThreadOpts = OptionBuilder.withArgName("numThreads").hasArgs().withDescription(
-      "the number of threads to use").create("numThreads");
+    OptionBuilder.withArgName("help");
+    OptionBuilder.withDescription("show this help message");
+    Option helpOpts = OptionBuilder.create("help");
+    
+    OptionBuilder.withArgName("urls");
+    OptionBuilder.hasArg();
+    OptionBuilder.withDescription("the urls file to check");
+    Option urlOpts = OptionBuilder.create("urls");
+    
+    OptionBuilder.withArgName("numThreads");
+    OptionBuilder.hasArgs();
+    OptionBuilder.withDescription("the number of threads to use");
+    Option numThreadOpts = OptionBuilder.create("numThreads");
+    
     options.addOption(helpOpts);
     options.addOption(urlOpts);
     options.addOption(numThreadOpts);

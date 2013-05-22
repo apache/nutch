@@ -58,7 +58,7 @@ class DOMBuilder
   public DocumentFragment m_docFrag = null;
 
   /** Vector of element nodes          */
-  protected Stack m_elemStack = new Stack();
+  protected Stack<Element> m_elemStack = new Stack<Element>();
 
   /**
    * DOMBuilder instance constructor... it will add the DOM nodes

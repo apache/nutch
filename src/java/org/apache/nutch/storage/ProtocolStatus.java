@@ -97,6 +97,7 @@ public class ProtocolStatus extends PersistentBase {
   public void setCode(int value) {
     put(0, value);
   }
+  @SuppressWarnings("unchecked")
   public GenericArray<Utf8> getArgs() {
     return (GenericArray<Utf8>) get(1);
   }

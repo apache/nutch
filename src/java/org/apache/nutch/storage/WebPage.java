@@ -286,6 +286,7 @@ public class WebPage extends PersistentBase {
   public void setReprUrl(Utf8 value) {
     put(17, value);
   }
+  @SuppressWarnings("unchecked")
   public Map<Utf8, Utf8> getHeaders() {
     return (Map<Utf8, Utf8>) get(18);
   }
@@ -302,6 +303,7 @@ public class WebPage extends PersistentBase {
     getStateManager().setDirty(this, 18);
     return headers.remove(key);
   }
+  @SuppressWarnings("unchecked")
   public Map<Utf8, Utf8> getOutlinks() {
     return (Map<Utf8, Utf8>) get(19);
   }
@@ -318,6 +320,7 @@ public class WebPage extends PersistentBase {
     getStateManager().setDirty(this, 19);
     return outlinks.remove(key);
   }
+  @SuppressWarnings("unchecked")
   public Map<Utf8, Utf8> getInlinks() {
     return (Map<Utf8, Utf8>) get(20);
   }
@@ -334,6 +337,7 @@ public class WebPage extends PersistentBase {
     getStateManager().setDirty(this, 20);
     return inlinks.remove(key);
   }
+  @SuppressWarnings("unchecked")
   public Map<Utf8, Utf8> getMarkers() {
     return (Map<Utf8, Utf8>) get(21);
   }
@@ -350,6 +354,7 @@ public class WebPage extends PersistentBase {
     getStateManager().setDirty(this, 21);
     return markers.remove(key);
   }
+  @SuppressWarnings("unchecked")
   public Map<Utf8, ByteBuffer> getMetadata() {
     return (Map<Utf8, ByteBuffer>) get(22);
   }

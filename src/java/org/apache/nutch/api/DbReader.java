@@ -163,6 +163,7 @@ public class DbReader {
       return pageAsMap(url, page);
     }
 
+    @SuppressWarnings("unchecked")
     private Map<String,Object> pageAsMap(String url, WebPage page) {
       HashMap<String,Object> res = new HashMap<String,Object>();
       if (fields == null || fields.contains("url")) {
@@ -228,10 +229,10 @@ public class DbReader {
       return res;
     }
     
-    private Map<String,String> convertMap(Map map) {
+    private Map<String,String> convertMap(Map<?,?> map) {
       Map<String,String> res = new HashMap<String,String>();
       for (Object o : map.entrySet()) {
-        Entry e = (Entry)o;
+        Entry<?, ?> e = (Entry<?, ?>)o;
         res.put(e.getKey().toString(), e.getValue().toString());
       }
       return res;

@@ -189,6 +189,7 @@ public class Sftp implements Protocol {
     return po;
   }
 
+  @SuppressWarnings("unchecked")
   private ProtocolOutput getDirectoryProtocolOutput(URL url,
       ChannelSftp channelSftp) throws SftpException {
     try {

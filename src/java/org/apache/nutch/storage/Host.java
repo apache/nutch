@@ -93,7 +93,7 @@ public class Host extends PersistentBase {
     default: throw new AvroRuntimeException("Bad index");
     }
   } 
-  
+  @SuppressWarnings("unchecked")
   public Map<Utf8, ByteBuffer> getMetadata() {
     return (Map<Utf8, ByteBuffer>) get(0);
   }
@@ -111,6 +111,7 @@ public class Host extends PersistentBase {
     getStateManager().setDirty(this, 0);
     return metadata.remove(key);
   }
+  @SuppressWarnings("unchecked")
   public Map<Utf8, Utf8> getOutlinks() {
     return (Map<Utf8, Utf8>) get(1);
   }
@@ -127,6 +128,7 @@ public class Host extends PersistentBase {
     getStateManager().setDirty(this, 1);
     return outlinks.remove(key);
   }
+  @SuppressWarnings("unchecked")
   public Map<Utf8, Utf8> getInlinks() {
     return (Map<Utf8, Utf8>) get(2);
   }
@@ -143,9 +145,6 @@ public class Host extends PersistentBase {
     getStateManager().setDirty(this, 2);
     return inlinks.remove(key);
   }
-  
-  
-  
   
   public boolean contains(String key) {
     return metadata.containsKey(new Utf8(key));

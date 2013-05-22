@@ -19,7 +19,6 @@ package org.apache.nutch.api;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.restlet.data.Form;
 import org.restlet.resource.Delete;
 import org.restlet.resource.Get;
 import org.restlet.resource.Post;
@@ -54,6 +53,7 @@ public class ConfResource extends ServerResource {
     }
   }
   
+  @SuppressWarnings("unchecked")
   @Put("json")
   public String create(Map<String,Object> args) throws Exception {
     System.out.println("args=" + args);
@@ -61,7 +61,11 @@ public class ConfResource extends ServerResource {
     if (id == null) {
       id = String.valueOf(seqId.incrementAndGet());
     }
-    Map<String,String> props = (Map<String,String>)args.get(Params.PROPS);
+    Object temp = args.get(Params.PROPS);
+    Map<String,String> props = null;
+    if(temp instanceof Map<?, ?>)
+      props = (Map<String,String>) temp; 
+    
     Boolean force = (Boolean)args.get(Params.FORCE);
     boolean f = force != null ? force : false;
     NutchApp.confMgr.create(id, props, f);

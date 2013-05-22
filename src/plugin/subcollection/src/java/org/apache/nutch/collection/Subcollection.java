@@ -40,9 +40,9 @@ public class Subcollection extends Configured implements URLFilter{
   public static final String TAG_NAME="name";
   public static final String TAG_ID="id";
 
-  ArrayList blackList = new ArrayList();
+  ArrayList<String> blackList = new ArrayList<String>();
 
-  ArrayList whiteList = new ArrayList();
+  ArrayList<String> whiteList = new ArrayList<String>();
 
   /** 
    * SubCollection identifier
@@ -98,7 +98,7 @@ public class Subcollection extends Configured implements URLFilter{
    * 
    * @return Whitelist entries
    */
-  public ArrayList getWhiteList() {
+  public ArrayList<String> getWhiteList() {
     return whiteList;
   }
 
@@ -124,7 +124,7 @@ public class Subcollection extends Configured implements URLFilter{
    * @param whiteList
    *          The whiteList to set.
    */
-  public void setWhiteList(ArrayList whiteList) {
+  public void setWhiteList(ArrayList<String> whiteList) {
     this.whiteList = whiteList;
   }
 
@@ -142,9 +142,9 @@ public class Subcollection extends Configured implements URLFilter{
    */
   public String filter(String urlString) {
     // first the blacklist
-    Iterator i = blackList.iterator();
+    Iterator<String> i = blackList.iterator();
     while (i.hasNext()) {
-      String row = (String) i.next();
+      String row = i.next();
       if (urlString.indexOf(row) != -1)
         return null;
     }
@@ -152,7 +152,7 @@ public class Subcollection extends Configured implements URLFilter{
     // then whitelist
     i = whiteList.iterator();
     while (i.hasNext()) {
-      String row = (String) i.next();
+      String row = i.next();
       if (urlString.indexOf(row) != -1)
         return urlString;
     }
@@ -189,7 +189,7 @@ public class Subcollection extends Configured implements URLFilter{
    * @param list
    * @param text
    */
-  protected void parseList(ArrayList list, String text) {
+  protected void parseList(ArrayList<String> list, String text) {
     list.clear();
 
     StringTokenizer st = new StringTokenizer(text, "\n\r");

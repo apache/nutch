@@ -44,6 +44,10 @@
   </fileset>
  </path>
 
+ <presetdef name="javac">
+   <javac includeantruntime="false" />
+ </presetdef>
+
  <!-- the unit test classpath -->
  <dirname property="plugins.classpath.dir" file="${build.plugins}" />
  <path id="test.classpath">
@@ -95,7 +99,7 @@
   	target="${javac.version}"
     source="${javac.version}" 
   	deprecation="${javac.deprecation}">
-   <compilerarg value="-Xlint"/>
+   <compilerarg value="-Xlint:-path"/>
    <classpath refid="classpath" />
   </javac>
  </target>
@@ -332,7 +336,7 @@
   	target="${javac.version}"
     source="${javac.version}" 
   	deprecation="${javac.deprecation}">
-   <compilerarg value="-Xlint"/>
+   <compilerarg value="-Xlint:-path"/>
    <classpath refid="test.classpath" />
   </javac>
  </target>

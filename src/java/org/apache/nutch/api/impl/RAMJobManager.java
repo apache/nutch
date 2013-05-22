@@ -16,20 +16,17 @@
  ******************************************************************************/
 package org.apache.nutch.api.impl;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.ReflectionUtils;
 import org.apache.nutch.api.ConfResource;
 import org.apache.nutch.api.JobManager;
@@ -189,6 +186,7 @@ public class RAMJobManager implements JobManager {
     Map<String,Object> args;
     JobStatus jobStatus;
     
+    @SuppressWarnings("unchecked")
     JobWorker(String crawlId, JobType type, String confId, Map<String,Object> args) throws Exception {
       if (confId == null) {
         confId = ConfResource.DEFAULT_CONF;
@@ -209,7 +207,10 @@ public class RAMJobManager implements JobManager {
       }
       Class<? extends NutchTool> clz = typeToClass.get(type);
       if (clz == null) {
-        clz = (Class<? extends NutchTool>)Class.forName((String)args.get(Nutch.ARG_CLASS));
+        Class<?> c = Class.forName((String)args.get(Nutch.ARG_CLASS));
+        if(c instanceof Class) {
+          clz = (Class<? extends NutchTool>) c;
+        }
       }
       tool = ReflectionUtils.newInstance(clz, conf);
       jobStatus = new JobStatus(id, type, confId, args, State.IDLE, "idle");

@@ -44,6 +44,7 @@ public class ToolUtil {
     return res;
   }
   
+  @SuppressWarnings("unchecked")
   public static final void recordJobStatus(String label, Job job, Map<String,Object> results) {
     Map<String,Object> jobs = (Map<String,Object>)results.get(Nutch.STAT_JOBS);
     if (jobs == null) {

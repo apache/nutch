@@ -102,6 +102,7 @@ public class ParseStatus extends PersistentBase {
   public void setMinorCode(int value) {
     put(1, value);
   }
+  @SuppressWarnings("unchecked")
   public GenericArray<Utf8> getArgs() {
     return (GenericArray<Utf8>) get(2);
   }

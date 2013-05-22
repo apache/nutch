@@ -21,10 +21,10 @@ package org.apache.nutch.protocol.httpclient;
  * In the future it may be used as a method of collecting authentication
  * failures during Http protocol transfer in order to present the user with
  * credentials required during a future fetch.
- * 
- * @author Matt Tencati
  */
 public class HttpAuthenticationException extends Exception {
+
+  private static final long serialVersionUID = 1L;
 
     /**
      *  Constructs a new exception with null as its detail message.

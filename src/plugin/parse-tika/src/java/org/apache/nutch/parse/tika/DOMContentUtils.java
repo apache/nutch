@@ -55,8 +55,7 @@ public class DOMContentUtils {
       }
   }
   
-  private HashMap linkParams = new HashMap();
-  private Configuration conf;
+  private HashMap<String, LinkParams> linkParams = new HashMap<String, LinkParams>();
   
   public DOMContentUtils(Configuration conf) {
     setConf(conf);
@@ -66,7 +65,6 @@ public class DOMContentUtils {
     // forceTags is used to override configurable tag ignoring, later on
     Collection<String> forceTags = new ArrayList<String>(1);
 
-    this.conf = conf;
     linkParams.clear();
     linkParams.put("a", new LinkParams("a", "href", 1));
     linkParams.put("area", new LinkParams("area", "href", 0));
@@ -358,7 +356,7 @@ public class DOMContentUtils {
    * nodes (this is a common DOM-fixup artifact, at least with
    * nekohtml).
    */
-  public void getOutlinks(URL base, ArrayList outlinks, 
+  public void getOutlinks(URL base, ArrayList<Outlink> outlinks, 
                                        Node node) {
     
     NodeWalker walker = new NodeWalker(node);

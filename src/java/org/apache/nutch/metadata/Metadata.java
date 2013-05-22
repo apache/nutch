@@ -128,7 +128,7 @@ DublinCore, HttpHeaders, Nutch, Feed {
    * @param properties properties to copy from
    */
   public void setAll(Properties properties) {
-    Enumeration names = properties.propertyNames();
+    Enumeration<?> names = properties.propertyNames();
     while (names.hasMoreElements()) {
       String name = (String) names.nextElement();
       metadata.put(name, new String[]{properties.getProperty(name)});

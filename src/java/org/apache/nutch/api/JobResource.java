@@ -16,7 +16,6 @@
  ******************************************************************************/
 package org.apache.nutch.api;
 
-import java.util.List;
 import java.util.Map;
 
 import org.apache.nutch.api.JobManager.JobType;
@@ -73,12 +72,17 @@ public class JobResource extends ServerResource {
    * Object[] args
    */
   @Put("json")
+  @SuppressWarnings("unchecked")
   public Object create(Map<String,Object> args) throws Exception {
     String cid = (String)args.get(Params.CRAWL_ID);
     String typeString = (String)args.get(Params.JOB_TYPE);
     JobType type = JobType.valueOf(typeString.toUpperCase());
     String confId = (String)args.get(Params.CONF_ID);
-    Map<String,Object> cmdArgs = (Map<String,Object>)args.get(Params.ARGS);
+    Object map = args.get(Params.ARGS);
+    Map<String,Object> cmdArgs = null;
+    if(map instanceof Map<?,?>)
+      cmdArgs = (Map<String,Object>)map;
+    
     String jobId = NutchApp.jobMgr.create(cid, type, confId, cmdArgs);
     return jobId;
   }

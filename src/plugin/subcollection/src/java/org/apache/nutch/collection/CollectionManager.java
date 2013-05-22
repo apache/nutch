@@ -49,7 +49,7 @@ public class CollectionManager extends Configured {
 
 	static final Logger LOG = LoggerFactory.getLogger(CollectionManager.class);
 
-	transient Map collectionMap = new HashMap();
+	transient Map<String, Subcollection> collectionMap = new HashMap<String, Subcollection>();
 
 	transient URL configfile;
 
@@ -175,10 +175,10 @@ public class CollectionManager extends Configured {
 	 */
 	public List<String> getSubCollections(final String url) {
 		List<String> collections = new ArrayList<String>();
-		final Iterator iterator = collectionMap.values().iterator();
+		final Iterator<Subcollection> iterator = collectionMap.values().iterator();
 
 		while (iterator.hasNext()) {
-			final Subcollection subCol = (Subcollection) iterator.next();
+			final Subcollection subCol = iterator.next();
 			if (subCol.filter(url) != null) {
 				collections.add(subCol.name);
 			}
@@ -196,7 +196,7 @@ public class CollectionManager extends Configured {
 	 * 
 	 * @return All collections CollectionManager knows about
 	 */
-	public Collection getAll() {
+	public Collection<Subcollection> getAll() {
 		return collectionMap.values();
 	}
 
@@ -212,10 +212,10 @@ public class CollectionManager extends Configured {
 			final Document doc = new DocumentImpl();
 			final Element collections = doc
 					.createElement(Subcollection.TAG_COLLECTIONS);
-			final Iterator iterator = collectionMap.values().iterator();
+			final Iterator<Subcollection> iterator = collectionMap.values().iterator();
 
 			while (iterator.hasNext()) {
-				final Subcollection subCol = (Subcollection) iterator.next();
+				final Subcollection subCol = iterator.next();
 				final Element collection = doc
 						.createElement(Subcollection.TAG_COLLECTION);
 				collections.appendChild(collection);

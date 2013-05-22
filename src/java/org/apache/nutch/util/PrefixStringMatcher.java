@@ -45,11 +45,11 @@ public class PrefixStringMatcher extends TrieStringMatcher {
    * @throws ClassCastException if any <code>Object</code>s in the
    * collection are not <code>String</code>s
    */
-  public PrefixStringMatcher(Collection prefixes) {
+  public PrefixStringMatcher(Collection<String> prefixes) {
     super();
-    Iterator iter= prefixes.iterator();
+    Iterator<String> iter= prefixes.iterator();
     while (iter.hasNext())
-      addPatternForward((String)iter.next());
+      addPatternForward(iter.next());
   }
 
   /**

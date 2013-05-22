@@ -36,8 +36,6 @@ import org.apache.hadoop.conf.Configuration;
  * <code>ExtensionPoint</code> and <code>Extension</code>. To provide
  * access to the meta data of a plugin via a descriptor allow a lazy loading
  * mechanism.
- * 
- * @author joa23
  */
 public class PluginDescriptor {
   private String fPluginPath;
@@ -46,7 +44,7 @@ public class PluginDescriptor {
   private String fVersion;
   private String fName;
   private String fProviderName;
-  private HashMap fMessages = new HashMap();
+  private HashMap<String, ResourceBundle> fMessages = new HashMap<String, ResourceBundle>();
   private ArrayList<ExtensionPoint> fExtensionPoints = new ArrayList<ExtensionPoint>();
   private ArrayList<String> fDependencies = new ArrayList<String>();
   private ArrayList<URL> fExportedLibs = new ArrayList<URL>();
@@ -327,8 +325,7 @@ public class PluginDescriptor {
   public String getResourceString(String pKey, Locale pLocale)
       throws IOException {
     if (fMessages.containsKey(pLocale.toString())) {
-      ResourceBundle bundle = (ResourceBundle) fMessages
-          .get(pLocale.toString());
+      ResourceBundle bundle = fMessages.get(pLocale.toString());
       try {
         return bundle.getString(pKey);
       } catch (MissingResourceException e) {
