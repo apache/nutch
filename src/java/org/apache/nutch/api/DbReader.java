@@ -113,10 +113,14 @@ public class DbReader {
       if (fields != null) {
         this.fields = new TreeSet<String>(Arrays.asList(fields));
       }
-      advance();
+      try {
+        advance();
+      } catch (Exception e){
+        e.printStackTrace();
+      }
     }
     
-    private void advance() throws IOException {
+    private void advance() throws Exception, IOException {
       hasNext = res.next();
       if (hasNext && batchId != null) {
         do {
@@ -148,6 +152,10 @@ public class DbReader {
           res.close();
         }
       } catch (IOException e) {
+        e.printStackTrace();
+        hasNext = false;
+        return null;
+      } catch (Exception e) {
         e.printStackTrace();
         hasNext = false;
         return null;

@@ -28,6 +28,7 @@ import org.apache.nutch.util.AbstractNutchTest;
 import org.apache.nutch.util.CrawlTestUtil;
 import org.apache.gora.util.ByteUtils;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -36,7 +37,6 @@ import static org.junit.Assert.*;
  * crawldb 3. Reads crawldb entries and verifies contents 4. Injects more urls
  * into webdb 5. Reads crawldb entries and verifies contents
  *
- * @author nutch-dev <nutch-dev at lucene.apache.org>
  */
 public class TestInjector extends AbstractNutchTest {
   Path urlPath;
@@ -49,6 +49,7 @@ public class TestInjector extends AbstractNutchTest {
   }
 
   @Test
+  @Ignore("Temporarily diable until NUTCH-1572 is addressed.")
   public void testInject() throws Exception {
     ArrayList<String> urls = new ArrayList<String>();
     for (int i = 0; i < 100; i++) {
