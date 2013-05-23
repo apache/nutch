@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
+* NUTCH-1243 Junit jar removed from lib (lewismc)
+
 * NUTCH-1249 and NUTCH-1275 : Resolve all issues flagged up by adding javac -Xlint argument (tejasp)
 
 * NUTCH-1513 Support Robots.txt for Ftp urls (tejasp)

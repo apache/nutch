@@ -76,7 +76,7 @@
     <!--Configuration: test -->
 
     <!--artifacts needed for testing -->
-    <dependency org="junit" name="junit" rev="4.11" conf="test->default" />
+    <dependency org="junit" name="junit" rev="4.11" conf="*->default" />
 
     <dependency org="org.apache.hadoop" name="hadoop-test" rev="1.1.1" conf="test->default">
       <exclude org="net.sf.kosmosfs" name="kfs" />
