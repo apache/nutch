@@ -229,7 +229,7 @@ implements Tool {
     throws IOException, InterruptedException {
       Configuration conf = context.getConfiguration();
       int numSplits = context.getNumReduceTasks();
-      SolrServer solr = new CommonsHttpSolrServer(conf.get(SolrConstants.SERVER_URL));
+      SolrServer solr = SolrUtils.getCommonsHttpSolrServer(conf);
 
       final SolrQuery solrQuery = new SolrQuery(SOLR_GET_ALL_QUERY);
       solrQuery.setFields(SolrConstants.ID_FIELD);
@@ -259,7 +259,7 @@ implements Tool {
     public RecordReader<Text, SolrRecord> createRecordReader(InputSplit split,
         TaskAttemptContext context) throws IOException, InterruptedException {
       Configuration conf = context.getConfiguration();
-      SolrServer solr = new CommonsHttpSolrServer(conf.get(SolrConstants.SERVER_URL));
+      SolrServer solr = SolrUtils.getCommonsHttpSolrServer(conf);
       SolrInputSplit solrSplit = (SolrInputSplit) split;
       final int numDocs = (int) solrSplit.getLength();
       
@@ -304,7 +304,7 @@ implements Tool {
   public void setup(Context job) throws IOException {
     Configuration conf = job.getConfiguration();
     try {
-      solr = new CommonsHttpSolrServer(conf.get(SolrConstants.SERVER_URL));
+      solr = SolrUtils.getCommonsHttpSolrServer(conf);
     } catch (MalformedURLException e) {
       throw new IOException(e);
     }

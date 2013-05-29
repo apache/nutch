@@ -1119,6 +1119,16 @@
   </description>
 </property>
 
+<property>
+  <name>solr.auth</name>
+  <value>false</value>
+  <description>
+  Whether to enable HTTP basic authentication for communicating with Solr.
+  Use the solr.auth.username and solr.auth.password properties to configure
+  your credentials.
+  </description>
+</property>
+
 <!-- elasticsearch index properties -->
 
 <property>

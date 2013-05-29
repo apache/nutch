@@ -55,7 +55,8 @@ public class SolrIndexerJob extends IndexerJob {
         Nutch.ARG_SOLR, solrUrl,
         Nutch.ARG_BATCH, batchId));
     // do the commits once and for all the reducers in one go
-    SolrServer solr = new CommonsHttpSolrServer(solrUrl);
+    getConf().set(SolrConstants.SERVER_URL,solrUrl);
+    SolrServer solr = SolrUtils.getCommonsHttpSolrServer(getConf());
     if (getConf().getBoolean(SolrConstants.COMMIT_INDEX, true)) {
       solr.commit();
     }
