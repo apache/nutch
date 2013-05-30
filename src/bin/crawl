@@ -19,7 +19,7 @@
 #
 # 
 # UNLIKE THE NUTCH ALL-IN-ONE-CRAWL COMMAND THIS SCRIPT DOES THE LINK INVERSION AND 
-# INDEXING FOR EACH SEGMENT
+# INDEXING FOR EACH BATCH
 
 SEEDDIR="$1"
 CRAWL_ID="$2"
@@ -111,33 +111,35 @@ do
 
   echo `date` ": Iteration $a of $LIMIT"
 
+  echo "Generating batchId"
+  batchId=`date +%s`-$RANDOM
+
   echo "Generating a new fetchlist"
-  $bin/nutch generate $commonOptions $CRAWL_ID/crawldb $CRAWL_ID/segments -topN $sizeFetchlist -numFetchers $numSlaves -noFilter -adddays $addDays
+  $bin/nutch generate $commonOptions -topN $sizeFetchlist -noNorm -noFilter -adddays $addDays -crawlId $CRAWL_ID -batchId $batchId
   
   if [ $? -ne 0 ] 
   then exit $? 
   fi
 
-  # TODO capture the batchID
   echo "Fetching : "
-  $bin/nutch fetch $commonOptions -D fetcher.timelimit.mins=$timeLimitFetch -all -crawlId $CRAWL_ID -threads 50
+  $bin/nutch fetch $commonOptions -D fetcher.timelimit.mins=$timeLimitFetch $batchId -crawlId $CRAWL_ID -threads 50
 
   if [ $? -ne 0 ] 
   then exit $? 
   fi
 
-  # parsing the segment
+  # parsing the batch
   echo "Parsing : "
   # enable the skipping of records for the parsing so that a dodgy document 
   # so that it does not fail the full task
   skipRecordsOptions="-D mapred.skip.attempts.to.start.skipping=2 -D mapred.skip.map.max.skip.records=1"
-  $bin/nutch parse $commonOptions $skipRecordsOptions -all -crawlId $CRAWL_ID
+  $bin/nutch parse $commonOptions $skipRecordsOptions $batchId -crawlId $CRAWL_ID
 
   if [ $? -ne 0 ] 
   then exit $? 
   fi
 
-  # updatedb with this segment
+  # updatedb with this batch
   echo "CrawlDB update"
   $bin/nutch updatedb $commonOptions
 

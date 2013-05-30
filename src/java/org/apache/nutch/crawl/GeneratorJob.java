@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -122,10 +122,10 @@ public class GeneratorJob extends NutchTool implements Tool {
         return false;
       return true;
     }
-		
+
     /**
      * Sets url with score on this writable. Allows for writable reusing.
-     * 
+     *
      * @param url
      * @param score
      */
@@ -175,10 +175,7 @@ public class GeneratorJob extends NutchTool implements Tool {
       getConf().setLong(GENERATOR_TOP_N, topN);
     if (filter != null)
       getConf().setBoolean(GENERATOR_FILTER, filter);
-    int randomSeed = Math.abs(new Random().nextInt());
-    batchId = (curTime / 1000) + "-" + randomSeed;
-    getConf().setInt(GENERATOR_RANDOM_SEED, randomSeed);
-    getConf().set(BATCH_ID, batchId);
+
     getConf().setLong(Nutch.GENERATE_TIME_KEY, System.currentTimeMillis());
     if (norm != null)
       getConf().setBoolean(GENERATOR_NORMALISE, norm);
@@ -194,19 +191,17 @@ public class GeneratorJob extends NutchTool implements Tool {
     }
     numJobs = 1;
     currentJobNum = 0;
-    currentJob = new NutchJob(getConf(), "generate: " + batchId);
+    currentJob = new NutchJob(getConf(), "generate: " + getConf().get(BATCH_ID));
     Collection<WebPage.Field> fields = getFields(currentJob);
     StorageUtils.initMapperJob(currentJob, fields, SelectorEntry.class,
         WebPage.class, GeneratorMapper.class, SelectorEntryPartitioner.class, true);
     StorageUtils.initReducerJob(currentJob, GeneratorReducer.class);
     currentJob.waitForCompletion(true);
     ToolUtil.recordJobStatus(null, currentJob, results);
-    results.put(BATCH_ID, batchId);
+    results.put(BATCH_ID, getConf().get(BATCH_ID));
     return results;
   }
-  
-  private String batchId;
-  
+
   /**
    * Mark URLs ready for fetching.
    * @throws ClassNotFoundException
@@ -230,7 +225,7 @@ public class GeneratorJob extends NutchTool implements Tool {
         Nutch.ARG_CURTIME, curTime,
         Nutch.ARG_FILTER, filter,
         Nutch.ARG_NORMALIZE, norm));
-    batchId =  getConf().get(BATCH_ID);
+    String batchId =  getConf().get(BATCH_ID);
     long finish = System.currentTimeMillis();
     LOG.info("GeneratorJob: finished at " + sdf.format(finish) + ", time elapsed: " + TimingUtil.elapsedTime(start, finish));
     LOG.info("GeneratorJob: generated batch id: " + batchId);
@@ -246,6 +241,7 @@ public class GeneratorJob extends NutchTool implements Tool {
       System.out.println("    -noNorm        - do not activate the normalizer plugin to normalize the url, default is true ");
       System.out.println("    -adddays       - Adds numDays to the current time to facilitate crawling urls already");
       System.out.println("                     fetched sooner then db.fetch.interval.default. Default value is 0.");
+      System.out.println("    -batchId       - the batch id ");
       System.out.println("----------------------");
       System.out.println("Please set the params.");
       return -1;
@@ -253,6 +249,11 @@ public class GeneratorJob extends NutchTool implements Tool {
 
     long curTime = System.currentTimeMillis(), topN = Long.MAX_VALUE;
     boolean filter = true, norm = true;
+
+    // generate batchId
+    int randomSeed = Math.abs(new Random().nextInt());
+    String batchId = (curTime / 1000) + "-" + randomSeed;
+    getConf().set(BATCH_ID, batchId);
 
     for (int i = 0; i < args.length; i++) {
       if ("-topN".equals(args[i])) {
@@ -266,6 +267,11 @@ public class GeneratorJob extends NutchTool implements Tool {
       } else if ("-adddays".equals(args[i])) {
         long numDays = Integer.parseInt(args[++i]);
         curTime += numDays * 1000L * 60 * 60 * 24;
+      }else if ("-batchId".equals(args[i]))
+        getConf().set(BATCH_ID,args[++i]);
+      else {
+        System.err.println("Unrecognized arg " + args[i]);
+        return -1;
       }
     }
 

@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
+* NUTCH-1545 capture batchId and remove references to segments in 2.x crawl script. (Feng)
+
 * NUTCH-1575 support solr authentication in nutch 2.x (Feng)
 
 * NUTCH-1569 Upgrade 2.x to Gora 0.3 (lewismc)
