@@ -54,7 +54,7 @@
 		</developer>		
 		<developer>
 			<id>dogacan</id>
-			<name>Dogacan GÃ¼ney</name>
+			<name>Dogacan Güney</name>
 			<email>dogacan@apache.org</email>
 		</developer>
 		<developer>
@@ -82,21 +82,6 @@
 			<name>Lewis John McGibbney</name>
 			<email>lewismc@apache.org</email>
 		</developer>
-                <developer>
-                        <id>tejasp</id>
-                        <name>Tejas Patil</name>
-                        <email>tejasp@apache.org</email>
-                </developer>
-                <developer>
-                        <id>kiranch</id>
-                        <name>Kiran Chitturi</name>
-                        <email>kiranch@apache.org</email>
-                </developer>
-                <developer>
-                        <id>fenglu</id>
-                        <name>Feng</name>
-                        <email>fenglu@apache.org</email>
-                </developer>
 	</developers>
         <build>
           <sourceDirectory>src/java</sourceDirectory>
@@ -184,10 +169,10 @@
                         <scope>compile</scope>
                 </dependency>
                 <dependency>
-                        <groupId>org.apache.gora</groupId>
-                        <artifactId>gora-core</artifactId>
-                        <version>0.2.1</version>
-                        <optional>true</optional>
+                        <groupId>com.googlecode.juniversalchardet</groupId>
+                        <artifactId>juniversalchardet</artifactId>
+                        <version>1.0.3</version>
+                        <scope>compile</scope>
                 </dependency>
                 <dependency>
                         <groupId>log4j</groupId>
@@ -205,6 +190,12 @@
                         <groupId>xerces</groupId>
                         <artifactId>xmlParserAPIs</artifactId>
                         <version>2.6.2</version>
+                        <scope>compile</scope>
+                </dependency>
+                <dependency>
+                        <groupId>xalan</groupId>
+                        <artifactId>serializer</artifactId>
+                        <version>2.7.1</version>
                         <scope>compile</scope>
                 </dependency>
                 <dependency>
@@ -226,9 +217,15 @@
                         <scope>compile</scope>
                 </dependency>
                 <dependency>
+                        <groupId>com.google.code.crawler-commons</groupId>
+                        <artifactId>crawler-commons</artifactId>
+                        <version>0.2</version>
+                        <scope>compile</scope>
+                </dependency>
+                <dependency>
                         <groupId>junit</groupId>
                         <artifactId>junit</artifactId>
-                        <version>3.8.1</version>
+                        <version>4.11</version>
                         <optional>true</optional>
                 </dependency>
                 <dependency>
@@ -262,9 +259,9 @@
                         <optional>true</optional>
                 </dependency>
                 <dependency>
-                        <groupId>org.apache.gora</groupId>
-                        <artifactId>gora-sql</artifactId>
-                        <version>0.1.1-incubating</version>
+                        <groupId>org.jdom</groupId>
+                        <artifactId>jdom</artifactId>
+                        <version>1.1</version>
                         <optional>true</optional>
                 </dependency>
                 <dependency>
@@ -280,10 +277,10 @@
                         <optional>true</optional>
                 </dependency>
                 <dependency>
-                        <groupId>com.google.code.crawler-commons</groupId>
-                        <artifactId>crawler-commons</artifactId>
-                        <version>0.2</version>
-                        <scope>compile</scope>
+                        <groupId>org.apache.gora</groupId>
+                        <artifactId>gora-core</artifactId>
+                        <version>0.3</version>
+                        <optional>true</optional>
                 </dependency>
         </dependencies>
 </project>
