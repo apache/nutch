@@ -2,7 +2,9 @@ Nutch Change Log
 
 (trunk): Current Development
 
-* NUTCH-1513 Support Robots.txt for Ftp urls (tejas)
+* NUTCH-1577 Add target for creating eclipse project (tejasp)
+
+* NUTCH-1513 Support Robots.txt for Ftp urls (tejasp)
 
 * NUTCH-1249 and NUTCH-1275 : Resolve all issues flagged up by adding javac -Xlint argument (tejasp)
 
