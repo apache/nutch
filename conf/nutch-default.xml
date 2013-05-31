@@ -125,7 +125,7 @@
 
 <property>
   <name>http.agent.version</name>
-  <value>Nutch-2.2-SNAPSHOT</value>
+  <value>Nutch-2.2</value>
   <description>A version string to advertise in the User-Agent 
    header.</description>
 </property>
@@ -1161,13 +1161,15 @@
 
 <property>
   <name>storage.data.store.class</name>
-  <value>org.apache.gora.sql.store.SqlStore</value>
+  <value>org.apache.gora.memory.store.MemStore</value>
   <description>The Gora DataStore class for storing and retrieving data.
    Currently the following stores are available:
   
   org.apache.gora.sql.store.SqlStore 
     Default store. A DataStore implementation for RDBMS with a SQL interface.
-    SqlStore uses JDBC drivers to communicate with the DB.
+    SqlStore uses JDBC drivers to communicate with the DB. As explained in 
+    ivy.xml, currently >= gora-core 0.3 is not backwards compatable with 
+    SqlStore.
   
   org.apache.gora.cassandra.store.CassandraStore
     Gora class for storing data in Apache Cassandra.
