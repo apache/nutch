@@ -87,7 +87,11 @@ public class HostDb implements Closeable {
             CacheHost removeFromCacheHost = notification.getValue();
             if (removeFromCacheHost != NULL_HOST) {
               if (removeFromCacheHost.timestamp < lastFlush.get()) {
-                hostStore.flush();
+                try {
+                  hostStore.flush();
+                } catch (Exception e) {
+                  throw new RuntimeException(e);
+                }
                 lastFlush.set(System.currentTimeMillis());
               }
             }

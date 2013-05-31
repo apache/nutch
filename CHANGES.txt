@@ -2,6 +2,8 @@ Nutch Change Log
 
 Release 2.2 - Current Development
 
+* NUTCH-1576 Need to keep hotStore.flush() exception catching (James Sullivan via lewismc)
+
 * NUTCH-1577 Add target for creating eclipse project (tejasp via lewismc)
 
 * NUTCH-1545 capture batchId and remove references to segments in 2.x crawl script. (Feng)
