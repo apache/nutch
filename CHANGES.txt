@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk): Current Development
 
+* NUTCH-1578 Upgrade to Hadoop 1.2.0 (markus)
+
 * NUTCH-1577 Add target for creating eclipse project (tejasp)
 
 * NUTCH-1513 Support Robots.txt for Ftp urls (tejasp)
