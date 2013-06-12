@@ -50,7 +50,7 @@
       conf="*->default" />
 
     <dependency org="org.apache.hadoop" name="hadoop-core"
-      rev="1.1.1" conf="*->default">
+      rev="1.2.0" conf="*->default">
       <exclude org="net.sf.kosmosfs" name="kfs" />
       <exclude org="net.java.dev.jets3t" name="jets3t" />
       <exclude org="org.eclipse.jdt" name="core" />
@@ -78,7 +78,7 @@
     <!--artifacts needed for testing -->
     <dependency org="junit" name="junit" rev="4.11" conf="*->default" />
 
-    <dependency org="org.apache.hadoop" name="hadoop-test" rev="1.1.1" conf="test->default">
+    <dependency org="org.apache.hadoop" name="hadoop-test" rev="1.2.0" conf="test->default">
       <exclude org="net.sf.kosmosfs" name="kfs" />
       <exclude org="net.java.dev.jets3t" name="jets3t" />
       <exclude org="org.eclipse.jdt" name="core" />
