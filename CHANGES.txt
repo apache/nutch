@@ -2,6 +2,10 @@ Nutch Change Log
 
 (trunk): Current Development
 
+* NUTCH-1560 index-metadata to add all values of multivalued metadata (snagel)
+
+* NUTCH-1467 Not able to parse mutliValued metatags (kiran via snagel)
+
 * NUTCH-1430 Freegenerator records overwrite CrawlDB records with AdaptiveFetchSchedule (markus)
 
 * NUTCH-1522 Upgrade to Tika 1.3 (jnioche)

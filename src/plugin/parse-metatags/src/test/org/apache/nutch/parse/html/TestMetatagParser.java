@@ -17,6 +17,9 @@
 
 package org.apache.nutch.parse.html;
 
+import java.util.Set;
+import java.util.TreeSet;
+
 import junit.framework.TestCase;
 
 import org.apache.hadoop.conf.Configuration;
@@ -35,6 +38,7 @@ public class TestMetatagParser extends TestCase {
   private String fileSeparator = System.getProperty("file.separator");
   private String sampleDir = System.getProperty("test.data", ".");
   private String sampleFile = "testMetatags.html";
+  private String sampleFileMultival = "testMultivalueMetatags.html";
   private String description = "This is a test of description";
   private String keywords = "This is a test of keywords";
   
@@ -42,26 +46,57 @@ public class TestMetatagParser extends TestCase {
     super(name);
   }
   
-  public void testIt() {
-    Configuration conf = NutchConfiguration.create();
-    
-    String urlString = "file:" + sampleDir + fileSeparator + sampleFile;
-    
+  public Metadata parseMeta(String fileName, Configuration conf) {
+    Metadata metadata = null;
     try {
+      String urlString = "file:" + sampleDir + fileSeparator + fileName;     
       Protocol protocol = new ProtocolFactory(conf).getProtocol(urlString);
       Content content = protocol.getProtocolOutput(new Text(urlString),
           new CrawlDatum()).getContent();
-      
       Parse parse = new ParseUtil(conf).parse(content).get(content.getUrl());
-      
-      // check that we get the same values
-      Metadata parseMeta = parse.getData().getParseMeta();
-      
-      assertEquals(description, parseMeta.get("metatag.description"));
-      assertEquals(keywords, parseMeta.get("metatag.keywords"));
+      metadata = parse.getData().getParseMeta();
     } catch (Exception e) {
       e.printStackTrace();
       fail(e.toString());
+    }
+    return metadata;
+  }
+
+  public void testIt() {
+    Configuration conf = NutchConfiguration.create();
+    
+    // check that we get the same values
+    Metadata parseMeta= parseMeta(sampleFile, conf);
+      
+    assertEquals(description, parseMeta.get("metatag.description"));
+    assertEquals(keywords, parseMeta.get("metatag.keywords"));
+  }
+
+  public void testMultiValueMetatags() {
+    Configuration conf = NutchConfiguration.create();
+    conf.set("metatags.names", "keywords;DC.creator");
+    conf.set("index.parse.md", "metatag.keywords,metatag.dc.creator");
+
+    Metadata parseMeta = parseMeta(sampleFileMultival, conf);
+    
+    String failMessage = "One value of metatag with multiple values is missing: ";
+
+    Set<String> valueSet = new TreeSet<String>();
+    for (String val : parseMeta.getValues("metatag.dc.creator")) {
+      valueSet.add(val);
+    }
+    String[] expectedValues1 = {"Doug Cutting", "Michael Cafarella"};
+    for (String val : expectedValues1) {
+      assertTrue(failMessage + val, valueSet.contains(val));      
+    }
+    
+    valueSet.clear();
+    for (String val : parseMeta.getValues("metatag.keywords")) {
+      valueSet.add(val);
+    }
+    String[] expectedValues2 = {"robot d'indexation", "web crawler", "Webcrawler"};
+    for (String val : expectedValues2) {
+      assertTrue(failMessage + val, valueSet.contains(val));      
     }
   }
   

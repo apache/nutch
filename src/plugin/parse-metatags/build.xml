@@ -28,6 +28,10 @@
 
 	<!-- for junit test -->
 	<mkdir dir="${build.test}/data" />
-	<copy file="sample/testMetatags.html" todir="${build.test}/data" />
+	<copy todir="${build.test}/data">
+		<fileset dir="sample">
+			<include name="*.html" />
+		</fileset>
+	</copy>
 
 </project>

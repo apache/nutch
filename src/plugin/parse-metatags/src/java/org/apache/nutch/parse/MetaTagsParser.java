@@ -75,16 +75,17 @@ public class MetaTagsParser implements HtmlParseFilter {
       }
     }
 
-    Properties generalMetaTags = metaTags.getGeneralTags();
-    for (Enumeration tagNames = generalMetaTags.propertyNames(); tagNames
-        .hasMoreElements();) {
-      String name = (String) tagNames.nextElement();
-      String value = generalMetaTags.getProperty(name);
+    Metadata generalMetaTags = metaTags.getGeneralTags();
+    for (String tagName : generalMetaTags.names() ) {
+    String[] tagValues = generalMetaTags.getValues(tagName);    
+  
+      for ( String tagValue : tagValues ) {
       // check whether the name is in the list of what we want or if
       // specified *
-      if (metatagset.contains("*") || metatagset.contains(name.toLowerCase())) {
-        LOG.debug("Found meta tag : " + name + "\t" + value);
-        metadata.add("metatag." + name.toLowerCase(), value);
+    	 if (metatagset.contains("*") || metatagset.contains(tagName.toLowerCase())) {
+    		 LOG.debug("Found meta tag : " + tagName + "\t" + tagValue);
+    		 metadata.add("metatag." + tagName.toLowerCase(), tagValue);
+    	 }
       }
     }
 

@@ -65,18 +65,20 @@ public class MetadataIndexer implements IndexingFilter {
 		// add the fields from parsemd
 		if (parseFieldnames != null) {
 			for (String metatag : parseFieldnames) {
-				String value = parse.getData().getParseMeta().get(metatag);
-				if (value != null)
-					doc.add(metatag, value);
+				for (String value : parse.getData().getParseMeta().getValues(metatag)) {
+					if (value != null)
+						doc.add(metatag, value);
+				}
 			}
 		}
 
 		// add the fields from contentmd
 		if (contentFieldnames != null) {
 			for (String metatag : contentFieldnames) {
-				String value = parse.getData().getContentMeta().get(metatag);
-				if (value != null)
-					doc.add(metatag, value);
+				for (String value : parse.getData().getContentMeta().getValues(metatag)) {
+					if (value != null)
+						doc.add(metatag, value);
+				}
 			}
 		}
 

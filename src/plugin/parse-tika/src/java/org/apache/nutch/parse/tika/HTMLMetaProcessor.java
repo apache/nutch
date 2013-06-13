@@ -49,7 +49,7 @@ public class HTMLMetaProcessor {
 
   private static final void getMetaTagsHelper(
     HTMLMetaTags metaTags, Node node, URL currURL) {
-
+	  
     if (node.getNodeType() == Node.ELEMENT_NODE) {
 
       if ("body".equalsIgnoreCase(node.getNodeName())) {
@@ -77,8 +77,8 @@ public class HTMLMetaProcessor {
         
         if (nameNode != null) {
           if (contentNode != null) {
-            String name = nameNode.getNodeValue().toLowerCase();
-            metaTags.getGeneralTags().setProperty(name, contentNode.getNodeValue());
+            String name = nameNode.getNodeValue().toLowerCase();   
+            metaTags.getGeneralTags().add(name, contentNode.getNodeValue());
             if ("robots".equals(name)) {
   
               if (contentNode != null) {
