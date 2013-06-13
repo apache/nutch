@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk): Current Development
 
+* NUTCH-1430 Freegenerator records overwrite CrawlDB records with AdaptiveFetchSchedule (markus)
+
 * NUTCH-1522 Upgrade to Tika 1.3 (jnioche)
 
 * NUTCH-1578 Upgrade to Hadoop 1.2.0 (markus)

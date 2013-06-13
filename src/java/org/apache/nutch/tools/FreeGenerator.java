@@ -72,10 +72,12 @@ public class FreeGenerator extends Configured implements Tool {
     private ScoringFilters scfilters;
     private CrawlDatum datum = new CrawlDatum();
     private Text url = new Text();
+    private int defaultInterval = 0;
 
     @Override
     public void configure(JobConf job) {
       super.configure(job);
+      defaultInterval = job.getInt("db.fetch.interval.default", 0);
       scfilters = new ScoringFilters(job);
       if (job.getBoolean(FILTER_KEY, false)) {
         filters = new URLFilters(job);
@@ -84,7 +86,7 @@ public class FreeGenerator extends Configured implements Tool {
         normalizers = new URLNormalizers(job, URLNormalizers.SCOPE_INJECT);
       }
     }
-    
+
     Generator.SelectorEntry entry = new Generator.SelectorEntry();
 
     public void map(WritableComparable<?> key, Text value, OutputCollector<Text,
@@ -114,6 +116,8 @@ public class FreeGenerator extends Configured implements Tool {
       }
       entry.datum = datum;
       entry.url = url;
+      // https://issues.apache.org/jira/browse/NUTCH-1430
+      entry.datum.setFetchInterval(defaultInterval);
       output.collect(url, entry);
     }
 
@@ -131,7 +135,7 @@ public class FreeGenerator extends Configured implements Tool {
       }
     }
   }
-  
+
   public int run(String[] args) throws Exception {
     if (args.length < 2) {
       System.err.println("Usage: FreeGenerator <inputDir> <segmentsDir> [-filter] [-normalize]");
@@ -156,7 +160,7 @@ public class FreeGenerator extends Configured implements Tool {
         }
       }
     }
-    
+
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     long start = System.currentTimeMillis();
     LOG.info("FreeGenerator: starting at " + sdf.format(start));

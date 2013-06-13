@@ -94,6 +94,9 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
     float interval = datum.getFetchInterval();
     long refTime = fetchTime;
 
+    // https://issues.apache.org/jira/browse/NUTCH-1430
+    interval = (interval == 0) ? defaultInterval : interval;
+
     if (datum.getMetaData().containsKey(Nutch.WRITABLE_FIXED_INTERVAL_KEY)) {
       // Is fetch interval preset in CrawlDatum MD? Then use preset interval
       FloatWritable customIntervalWritable= (FloatWritable)(datum.getMetaData().get(Nutch.WRITABLE_FIXED_INTERVAL_KEY));
