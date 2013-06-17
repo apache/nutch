@@ -125,6 +125,16 @@ public class StringUtil {
   public static boolean isEmpty(String str) {
     return (str == null) || (str.equals(""));
   }
+  
+
+  /**
+   * Takes in a String value and cleans out any offending "�"
+   * @param value the dirty String value.
+   * @return clean String
+   */
+  public static String cleanField(String value) {
+    return value.replaceAll("�", "");
+  }
 
   public static void main(String[] args) {
     if (args.length != 1)
