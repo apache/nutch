@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1475 Index-More Plugin -- A better fall back value for date field (James Sullivan, snagel via lewismc)
+
 * NUTCH-1420 Get rid of the dreaded � (markus + lewismc)
 
 * NUTCH-1578 Upgrade to Hadoop 1.2.0 (markus)

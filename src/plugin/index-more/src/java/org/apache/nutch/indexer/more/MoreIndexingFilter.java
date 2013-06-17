@@ -67,6 +67,7 @@ public class MoreIndexingFilter implements IndexingFilter {
   static {
     FIELDS.add(WebPage.Field.HEADERS);
     FIELDS.add(WebPage.Field.CONTENT_TYPE);
+    FIELDS.add(WebPage.Field.MODIFIED_TIME);
   }
 
   @Override
@@ -94,8 +95,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     }
 
     if (time == -1) { // if no last-modified
-      // time = datum.getFetchTime(); // use fetch time
-      time = page.getFetchTime(); // use fetch time
+      time = page.getModifiedTime(); // use Modified time
     }
 
     String dateString = DateUtil.getThreadLocalDateFormat().format(new Date(time));
@@ -145,7 +145,7 @@ public class MoreIndexingFilter implements IndexingFilter {
       // NUTCH-1010 ContentLength not trimmed
       String trimmed = contentLength.toString().trim();
       if (!trimmed.isEmpty())
-          doc.add("contentLength", trimmed);
+        doc.add("contentLength", trimmed);
     }
 
     return doc;
