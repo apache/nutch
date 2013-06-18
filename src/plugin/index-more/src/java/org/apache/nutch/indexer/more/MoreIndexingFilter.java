@@ -102,8 +102,11 @@ public class MoreIndexingFilter implements IndexingFilter {
       doc.add("lastModified", new Date(time));
     }
 
-    if (time == -1) {                             // if no last-modified
-      time = datum.getFetchTime();                // use fetch time
+    if (time == -1) {                             // if no last-modified specified in HTTP header
+      time = datum.getModifiedTime();             // use value in CrawlDatum
+      if (time <= 0) {                            // if also unset
+        time = new Date().getTime();              // use current time
+      }
     }
 
     // un-stored, indexed and un-tokenized
