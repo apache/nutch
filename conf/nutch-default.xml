@@ -1413,6 +1413,46 @@
   </description>
 </property>
 
+<!-- Elasticsearch properties -->
+
+<property>
+  <name>elastic.host</name>
+  <value></value>
+  <description>The hostname to send documents to using TransportClient. Either host
+  and port must be defined or cluster.</description>
+</property>
+
+<property> 
+  <name>elastic.port</name>
+  <value>9300</value>The port to connect to using TransportClient.<description>
+  </description>
+</property>
+
+<property> 
+  <name>elastic.cluster</name>
+  <value></value>
+  <description>The cluster name to discover. Either host and potr must be defined
+  or cluster.</description>
+</property>
+
+<property> 
+  <name>elastic.index</name>
+  <value>nutch</value> 
+  <description>Default index to send documents to.</description>
+</property>
+
+<property> 
+  <name>elastic.max.bulk.docs</name>
+  <value>250</value> 
+  <description>Maximum size of the bulk in number of documents.</description>
+</property>
+
+<property> 
+  <name>elastic.max.bulk.size</name>
+  <value>2500500</value> 
+  <description>Maximum size of the bulk in bytes.</description>
+</property>
+
 <!-- subcollection properties -->
 
 <property>
