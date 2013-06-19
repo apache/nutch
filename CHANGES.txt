@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk): Current Development
 
+* NUTCH-1245 URL gone with 404 after db.fetch.interval.max stays db_unfetched in CrawlDb (snagel)
+
 * NUTCH-1527 Elasticsearch indexer (lufeng + markus)
 
 * NUTCH-1475 Index-More Plugin -- A better fall back value for date field (James Sullivan, snagel via lewismc)

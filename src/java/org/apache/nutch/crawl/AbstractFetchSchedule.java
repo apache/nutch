@@ -85,9 +85,8 @@ public abstract class AbstractFetchSchedule extends Configured implements FetchS
   
   /**
    * This method specifies how to schedule refetching of pages
-   * marked as GONE. Default implementation increases fetchInterval by 50%,
-   * and if it exceeds the <code>maxInterval</code> it calls
-   * {@link #forceRefetch(Text, CrawlDatum, boolean)}.
+   * marked as GONE. Default implementation increases fetchInterval by 50%
+   * but the value may never exceed <code>maxInterval</code>.
    *
    * @param url URL of the page.
    *
@@ -102,9 +101,11 @@ public abstract class AbstractFetchSchedule extends Configured implements FetchS
           long prevFetchTime, long prevModifiedTime, long fetchTime) {
     // no page is truly GONE ... just increase the interval by 50%
     // and try much later.
-    datum.setFetchInterval(datum.getFetchInterval() * 1.5f);
+    if ((datum.getFetchInterval() * 1.5f) < maxInterval)
+      datum.setFetchInterval(datum.getFetchInterval() * 1.5f);
+    else
+      datum.setFetchInterval(maxInterval * 0.9f);
     datum.setFetchTime(fetchTime + (long)datum.getFetchInterval() * 1000);
-    if (maxInterval < datum.getFetchInterval()) forceRefetch(url, datum, false);
     return datum;
   }
   
