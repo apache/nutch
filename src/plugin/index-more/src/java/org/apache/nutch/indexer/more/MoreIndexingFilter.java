@@ -105,7 +105,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     if (time == -1) {                             // if no last-modified specified in HTTP header
       time = datum.getModifiedTime();             // use value in CrawlDatum
       if (time <= 0) {                            // if also unset
-        time = new Date().getTime();              // use current time
+        time = datum.getFetchTime();              // use time the fetch took place (fetchTime of fetchDatum)
       }
     }
 
