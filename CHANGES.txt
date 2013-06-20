@@ -2,6 +2,8 @@ Nutch Change Log
 
 (trunk): Current Development
 
+* NUTCH-1585 Ensure duplicate tags do not exist in microformat-reltag tag set. (lewismc)
+
 * NUTCH-1583 Headings plugin to support multivalued headings (markus)
 
 * NUTCH-1245 URL gone with 404 after db.fetch.interval.max stays db_unfetched in CrawlDb (snagel)
