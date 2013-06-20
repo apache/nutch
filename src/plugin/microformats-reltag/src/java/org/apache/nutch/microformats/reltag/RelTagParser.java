@@ -85,8 +85,10 @@ public class RelTagParser implements ParseFilter {
 	      if ("tag".equalsIgnoreCase(relNode.getNodeValue())) {
 	        String tag = parseTag(hrefNode.getNodeValue());
 	        if (!StringUtil.isEmpty(tag)) {
-	          tags.add(tag);
-		  LOG.debug("Adding tag: " + tag + " to tag set.");
+	          if(!tags.contains(tag)){
+                    tags.add(tag);
+		    LOG.debug("Adding tag: " + tag + " to tag set.");
+                  }
 	        }
 	      }
 	    }

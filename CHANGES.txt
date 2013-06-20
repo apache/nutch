@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1585 Ensure duplicate tags do not exist in microformat-reltag tag set (lewismc)
+
 * NUTCH-1475 Index-More Plugin -- A better fall back value for date field (James Sullivan, snagel via lewismc)
 
 * NUTCH-1420 Get rid of the dreaded � (markus + lewismc)
