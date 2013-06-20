@@ -34,6 +34,9 @@
 	</publications>
 
 	<dependencies>
+                <dependency org="org.elasticsearch" name="elasticsearch" rev="0.90.1"
+                        conf="*->default"/>
+
 		<dependency org="org.apache.solr" name="solr-solrj" rev="3.4.0"
 			conf="*->default" />
 
