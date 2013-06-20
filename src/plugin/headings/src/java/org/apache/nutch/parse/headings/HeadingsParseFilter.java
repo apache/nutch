@@ -17,7 +17,8 @@
 
 package org.apache.nutch.parse.headings;
 
-// Nutch imports
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.Parse;
@@ -25,8 +26,6 @@ import org.apache.nutch.parse.HtmlParseFilter;
 import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NodeWalker;
-
-// W3C imports
 import org.w3c.dom.*;
 
 /**
@@ -37,21 +36,25 @@ public class HeadingsParseFilter implements HtmlParseFilter {
   private Configuration conf;
   private DocumentFragment doc;
   private String[] headings;
+  private boolean multiValued = false;
 
   public ParseResult filter(Content content, ParseResult parseResult, HTMLMetaTags metaTags, DocumentFragment doc) {
     this.doc = doc;
 
-    String heading;
     Parse parse = parseResult.get(content.getUrl());
 
     for (int i = 0 ; headings != null && i < headings.length ; i++ ) {
-      heading = getElement(headings[i]);
+      List<String> discoveredHeadings = getElement(headings[i]);
 
-      if (heading != null) {
-        heading.trim();
+      if (discoveredHeadings.size() > 0) {
+        for (String heading : discoveredHeadings) {
+          if (heading != null) {
+            heading.trim();
 
-        if (heading.length() > 0) {
-          parse.getData().getParseMeta().set(headings[i], heading);
+            if (heading.length() > 0) {
+              parse.getData().getParseMeta().add(headings[i], heading);
+            }
+          }
         }
       }
     }
@@ -63,6 +66,7 @@ public class HeadingsParseFilter implements HtmlParseFilter {
     this.conf = conf;
 
     headings = conf.getStrings("headings");
+    multiValued = conf.getBoolean("headings.multivalued", false);
   }
 
   public Configuration getConf() {
@@ -72,7 +76,8 @@ public class HeadingsParseFilter implements HtmlParseFilter {
   /**
    * Finds the specified element and returns its value
    */
-  protected String getElement(String element) {
+  protected List<String> getElement(String element) {
+    List<String> headings = new ArrayList<String>();
     NodeWalker walker = new NodeWalker(doc);
 
     while (walker.hasNext()) {
@@ -80,13 +85,18 @@ public class HeadingsParseFilter implements HtmlParseFilter {
 
       if (currentNode.getNodeType() == Node.ELEMENT_NODE) {
         if (element.equalsIgnoreCase(currentNode.getNodeName())) {
-          return getNodeValue(currentNode);
+          headings.add(getNodeValue(currentNode));
+          
+          // Check for multiValued here, if disabled we don't need
+          // to discover more headings.
+          if (!multiValued) {
+            break;
+          }
         }
       }
     }
 
-    // Seems nothing is found
-    return null;
+    return headings;
   }
 
   /**
@@ -105,5 +115,4 @@ public class HeadingsParseFilter implements HtmlParseFilter {
 
     return buffer.toString();
   }
-
 }
