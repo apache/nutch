@@ -1463,4 +1463,18 @@
   </description>
 </property>
 
+<!-- Headings plugin properties -->
+
+<property>
+  <name>headings</name>
+  <value>h1,h2</value>
+  <description>Comma separated list of headings to retrieve from the document</description>
+</property>
+
+<property>
+  <name>headings.multivalued</name>
+  <value>false</value>
+  <description>Whether to support multivalued headings.</description>
+</property>
+
 </configuration>
