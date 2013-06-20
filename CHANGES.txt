@@ -1,6 +1,7 @@
 Nutch Change Log
 
-(trunk): Current Development
+Apache Nutch 1.7 Release - 06/20/2013 (mm/dd/yyyy)
+Release report - http://s.apache.org/1zE
 
 * NUTCH-1585 Ensure duplicate tags do not exist in microformat-reltag tag set. (lewismc)
 
