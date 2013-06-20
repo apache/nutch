@@ -259,55 +259,57 @@ public class CCParseFilter implements ParseFilter {
     }
 
     private static final Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
-      static {
-        FIELDS.add(WebPage.Field.BASE_URL);
-	FIELDS.add(WebPage.Field.METADATA);
+      
+    static {
+      FIELDS.add(WebPage.Field.BASE_URL);
+      FIELDS.add(WebPage.Field.METADATA);
+    }
+
+    private static final HashMap<String,String> WORK_TYPE_NAMES = new HashMap<String,String>();
+        
+    static {
+      WORK_TYPE_NAMES.put("http://purl.org/dc/dcmitype/MovingImage", "video");
+      WORK_TYPE_NAMES.put("http://purl.org/dc/dcmitype/StillImage", "image");
+      WORK_TYPE_NAMES.put("http://purl.org/dc/dcmitype/Sound", "audio");
+      WORK_TYPE_NAMES.put("http://purl.org/dc/dcmitype/Text", "text");
+      WORK_TYPE_NAMES.put("http://purl.org/dc/dcmitype/Interactive", "interactive");
+      WORK_TYPE_NAMES.put("http://purl.org/dc/dcmitype/Software", "software");
+      WORK_TYPE_NAMES.put("http://purl.org/dc/dcmitype/Image", "image");
+    }
+
+    private Configuration conf;
+
+    public void setConf(Configuration conf) {
+      this.conf = conf;
+    }
+
+    public Configuration getConf() {
+      return this.conf;
+    }
+
+    @Override
+    public Collection<Field> getFields() {
+      return FIELDS;
+    }
+
+    /**
+     * Adds metadata or otherwise modifies a parse of an HTML document, given
+     * the DOM tree of a page.
+     */
+    @Override
+    public Parse filter(String url, WebPage page, Parse parse,
+        HTMLMetaTags metaTags, DocumentFragment doc) {
+      // construct base url
+      URL base;
+      try {
+        base = new URL(page.getBaseUrl().toString());
+	// extract license metadata
+	Walker.walk(doc, base, page, getConf());
+      } catch (Exception e) {
+        LOG.error("Error parsing " + url, e);
+	return ParseStatusUtils.getEmptyParse(e, getConf());
       }
 
-      private static final HashMap<String,String> WORK_TYPE_NAMES = new HashMap<String,String>();
-        static {
-	  WORK_TYPE_NAMES.put("http://purl.org/dc/dcmitype/MovingImage", "video");
-	  WORK_TYPE_NAMES.put("http://purl.org/dc/dcmitype/StillImage", "image");
-	  WORK_TYPE_NAMES.put("http://purl.org/dc/dcmitype/Sound", "audio");
-	  WORK_TYPE_NAMES.put("http://purl.org/dc/dcmitype/Text", "text");
-	  WORK_TYPE_NAMES.put("http://purl.org/dc/dcmitype/Interactive", "interactive");
-	  WORK_TYPE_NAMES.put("http://purl.org/dc/dcmitype/Software", "software");
-	  WORK_TYPE_NAMES.put("http://purl.org/dc/dcmitype/Image", "image");
-	}
-
-      private Configuration conf;
-
-      public void setConf(Configuration conf) {
-        this.conf = conf;
-      }
-
-      public Configuration getConf() {
-        return this.conf;
-      }
-
-      @Override
-      public Collection<Field> getFields() {
-        return FIELDS;
-      }
-
-      /**
-       * Adds metadata or otherwise modifies a parse of an HTML document, given
-       * the DOM tree of a page.
-       */
-      @Override
-      public Parse filter(String url, WebPage page, Parse parse,
-          HTMLMetaTags metaTags, DocumentFragment doc) {
-        // construct base url
-	URL base;
-	try {
-	  base = new URL(page.getBaseUrl().toString());
-	  // extract license metadata
-	  Walker.walk(doc, base, page, getConf());
-	} catch (Exception e) {
-	  LOG.error("Error parsing " + url, e);
-	  return ParseStatusUtils.getEmptyParse(e, getConf());
-	}
-
-	return parse;
-      }
+      return parse;
+    }
 }
