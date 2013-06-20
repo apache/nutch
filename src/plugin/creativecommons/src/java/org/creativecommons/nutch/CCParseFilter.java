@@ -166,28 +166,28 @@ public class CCParseFilter implements ParseFilter {
     }
 
     /** Configure a namespace aware XML parser. */
-    private static final DocumentBuilderFactory FACTORY = DocumentBuilderFactory
-        .newInstance();
-      static {
-        FACTORY.setNamespaceAware(true);
-      }
+    private static final DocumentBuilderFactory FACTORY = DocumentBuilderFactory.newInstance();
+      
+    static {
+      FACTORY.setNamespaceAware(true);
+    }
 
-      /** Creative Commons' namespace URI. */
-      private static final String CC_NS = "http://web.resource.org/cc/";
+    /** Creative Commons' namespace URI. */
+    private static final String CC_NS = "http://web.resource.org/cc/";
 
-      /** Dublin Core namespace URI. */
-      private static final String DC_NS = "http://purl.org/dc/elements/1.1/";
+    /** Dublin Core namespace URI. */
+    private static final String DC_NS = "http://purl.org/dc/elements/1.1/";
 
-      /** RDF syntax namespace URI. */
-      private static final String RDF_NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+    /** RDF syntax namespace URI. */
+    private static final String RDF_NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 
-      private void findRdf(String comment) {
-        // first check for likely RDF in comment
-	int rdfPosition = comment.indexOf("RDF");
-	if (rdfPosition < 0)
-	  return; // no RDF, abort
-	int nsPosition = comment.indexOf(CC_NS);
-	if (nsPosition < 0)
+    private void findRdf(String comment) {
+      // first check for likely RDF in comment
+      int rdfPosition = comment.indexOf("RDF");
+      if (rdfPosition < 0)
+        return; // no RDF, abort
+      int nsPosition = comment.indexOf(CC_NS);
+        if (nsPosition < 0)
 	  return; // no RDF, abort
 	// try to parse the XML
 	Document doc;
