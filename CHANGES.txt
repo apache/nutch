@@ -1,5 +1,9 @@
 Nutch Change Log
 
+Nutch Development Trunk
+
+NUTCH-
+
 Apache Nutch 1.7 Release - 06/20/2013 (mm/dd/yyyy)
 Release report - http://s.apache.org/1zE
 
