@@ -81,7 +81,8 @@
      <ant dir="language-identifier" target="test"/>
      <ant dir="protocol-httpclient" target="test"/>
      <ant dir="urlfilter-automaton" target="test"/>
-     <ant dir="urlfilter-domain" target="test" />
+     <ant dir="urlfilter-domain" target="test"/>
+     <ant dir="urlfilter-prefix" target="test"/>
      <ant dir="urlfilter-regex" target="test"/>
      <ant dir="urlfilter-suffix" target="test"/>
      <ant dir="urlnormalizer-basic" target="test"/>
