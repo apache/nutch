@@ -2,7 +2,7 @@ Nutch Change Log
 
 Nutch Development Trunk
 
-NUTCH-
+* NUTCH-1126 JUnit test for urlfilter-prefix (Talat UYARER via markus)
 
 Apache Nutch 1.7 Release - 06/20/2013 (mm/dd/yyyy)
 Release report - http://s.apache.org/1zE

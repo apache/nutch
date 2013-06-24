@@ -98,6 +98,7 @@
      <ant dir="urlfilter-automaton" target="test"/>
      <ant dir="urlfilter-domain" target="test"/>
      <ant dir="urlfilter-domainblacklist" target="test"/>
+     <ant dir="urlfilter-prefix" target="test"/>
      <ant dir="urlfilter-regex" target="test"/>
      <ant dir="urlfilter-suffix" target="test"/>
      <ant dir="urlfilter-validator" target="test"/>
