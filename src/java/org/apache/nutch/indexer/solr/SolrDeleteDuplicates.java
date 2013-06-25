@@ -139,7 +139,7 @@ implements Tool {
     } 
   }
 
-  public static class SolrInputSplit extends InputSplit {
+  public static class SolrInputSplit extends InputSplit implements Writable {
 
     private int docBegin;
     private int numDocs;
@@ -164,6 +164,18 @@ implements Tool {
     public String[] getLocations() throws IOException {
       return new String[] {} ;
     }
+
+    @Override
+    public void readFields(DataInput in) throws IOException {
+      docBegin = in.readInt();
+      numDocs = in.readInt();
+    }
+
+    @Override
+    public void write(DataOutput out) throws IOException {
+      out.writeInt(docBegin);
+      out.writeInt(numDocs);
+    } 
   }
   
   public static class SolrRecordReader extends RecordReader<Text, SolrRecord> {
