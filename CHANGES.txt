@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-1580 index-static returns object instead of value for index.static (Antoinette, lewismc, snagel)
+
 * NUTCH-1126 JUnit test for urlfilter-prefix (Talat UYARER via markus)
 
 Apache Nutch 1.7 Release - 06/20/2013 (mm/dd/yyyy)

@@ -100,11 +100,11 @@ public class TestStaticFieldIndexerTest extends TestCase {
     assertNotNull(doc);
     assertFalse("test if doc is not empty", doc.getFieldNames().isEmpty());
     assertEquals("test if doc has 3 fields", 3, doc.getFieldNames().size());
-    assertEquals("test if doc has field1", "val1",
-        ((String[]) doc.getField("field1").getValues().get(0))[0]);
-    assertEquals("test if doc has field2", "val2",
-        ((String[]) doc.getField("field2").getValues().get(0))[0]);
-    assertEquals("test if doc has field4", "val4",
-        ((String[]) doc.getField("field4").getValues().get(0))[0]);
+    assertTrue("test if doc has field1", doc.getField("field1").getValues()
+        .contains("val1"));
+    assertTrue("test if doc has field2", doc.getField("field2").getValues()
+        .contains("val2"));
+    assertTrue("test if doc has field4", doc.getField("field4").getValues()
+        .contains("val4"));
   }
 }

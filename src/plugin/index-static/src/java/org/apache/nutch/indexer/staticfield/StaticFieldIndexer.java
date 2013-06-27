@@ -57,7 +57,9 @@ public class StaticFieldIndexer implements IndexingFilter {
 
     if (this.addStaticFields == true) {
       for (Entry<String, String[]> entry : this.fields.entrySet()) {
-        doc.add(entry.getKey(), entry.getValue());
+        for (String val : entry.getValue()) {
+          doc.add(entry.getKey(), val);
+        }
       }
     }
     return doc;

@@ -1241,9 +1241,11 @@
   <name>index.static</name>
   <value></value>
   <description>
-  A simple plugin called at indexing that adds fields with static data. 
-  You can specify a list of fieldname:fieldcontent per nutch job.
-  It can be useful when collections can't be created by urlpatterns, 
+  Used by plugin index-static to adds fields with static data at indexing time. 
+  You can specify a comma-separated list of fieldname:fieldcontent per Nutch job.
+  Each fieldcontent can have multiple values separated by space, e.g.,
+    field1:value1.1 value1.2 value1.3,field2:value2.1 value2.2 ...
+  It can be useful when collections can't be created by URL patterns, 
   like in subcollection, but on a job-basis.
   </description>
 </property>
