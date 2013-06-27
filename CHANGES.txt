@@ -5,6 +5,7 @@ Current Development
 NUTCH-
 
 Release 2.2.1 - 06/27/2013 (mm/dd/yyyy)
+Release Report - http://s.apache.org/PGa
 
 * NUTCH-1591 Incorrect conversion of ByteBuffer to String (Jason Howes via lewismc)
 
