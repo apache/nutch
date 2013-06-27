@@ -2,6 +2,10 @@ Nutch Change Log
 
 Current Development
 
+NUTCH-
+
+Release 2.2.1 - 06/27/2013 (mm/dd/yyyy)
+
 * NUTCH-1591 Incorrect conversion of ByteBuffer to String (Jason Howes via lewismc)
 
 * NUTCH-1571 SolrInputSplit doesn't implement Writable and crawl script doesn't pass crawlId to generate and updatedb tasks (yuanyun.cn via lewismc)
@@ -18,7 +22,7 @@ Current Development
 
 * NUTCH-1522 Upgrade to Tika 1.3 (jnioche)
 
-Release 2.2 - 05/31/2013 (mm/yy/dddd)
+Release 2.2 - 05/31/2013 (mm/dd/yyyy)
 Jira Release Report - http://s.apache.org/LPB
 
 * NUTCH-1576 Need to keep hotStore.flush() exception catching (James Sullivan via lewismc)
