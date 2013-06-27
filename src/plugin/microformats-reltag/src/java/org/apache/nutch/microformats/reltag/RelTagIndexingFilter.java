@@ -28,6 +28,7 @@ import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.storage.WebPage.Field;
+import org.apache.nutch.util.Bytes;
 
 /**
  * An {@link org.apache.nutch.indexer.IndexingFilter} that adds <code>tag</code>
@@ -87,7 +88,7 @@ public class RelTagIndexingFilter implements IndexingFilter {
     ByteBuffer bb = page.getFromMetadata(new Utf8(RelTagParser.REL_TAG));
 		
     if (bb != null) {
-      String[] tags = new String(bb.array()).split("\t");
+      String[] tags = Bytes.toString(bb).split("\t");
       for (int i = 0; i < tags.length; i++) {
 	    doc.add("tag", tags[i]);
       }

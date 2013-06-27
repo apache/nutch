@@ -61,11 +61,8 @@ public class LanguageIndexingFilter implements IndexingFilter {
       throws IndexingException {
 
     // check if LANGUAGE found, possibly put there by HTMLLanguageParser
-    String lang = null;
     ByteBuffer blang = page.getFromMetadata(new Utf8(Metadata.LANGUAGE));
-    if (blang != null) {
-      lang = Bytes.toString(blang.array());
-    }
+    String lang = Bytes.toString(blang);
 
     if (lang == null || lang.length() == 0) {
       lang = "unknown";

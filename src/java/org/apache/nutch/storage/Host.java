@@ -18,23 +18,14 @@ package org.apache.nutch.storage;
 
 import java.nio.ByteBuffer;
 import java.util.Map;
-import java.util.HashMap;
-import org.apache.avro.Protocol;
 import org.apache.avro.Schema;
 import org.apache.avro.AvroRuntimeException;
-import org.apache.avro.Protocol;
 import org.apache.avro.util.Utf8;
-import org.apache.avro.ipc.AvroRemoteException;
-import org.apache.avro.generic.GenericArray;
-import org.apache.avro.specific.SpecificExceptionBase;
-import org.apache.avro.specific.SpecificRecordBase;
-import org.apache.avro.specific.SpecificRecord;
-import org.apache.avro.specific.SpecificFixed;
 import org.apache.gora.persistency.StateManager;
 import org.apache.gora.persistency.impl.PersistentBase;
 import org.apache.gora.persistency.impl.StateManagerImpl;
 import org.apache.gora.persistency.StatefulHashMap;
-import org.apache.gora.persistency.ListGenericArray;
+import org.apache.nutch.util.Bytes;
 
 @SuppressWarnings("all")
 public class Host extends PersistentBase {
@@ -152,7 +143,7 @@ public class Host extends PersistentBase {
   
   public String getValue(String key, String defaultValue) {
     if (!contains(key)) return defaultValue;
-    return new String(metadata.get(new Utf8(key)).array());
+    return Bytes.toString(metadata.get(new Utf8(key)));
   }
   
   public int getInt(String key, int defaultValue) {

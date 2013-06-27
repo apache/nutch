@@ -27,6 +27,7 @@ import org.apache.nutch.crawl.InjectorJob;
 import org.apache.nutch.crawl.URLWebPage;
 import org.apache.nutch.storage.Mark;
 import org.apache.nutch.util.AbstractNutchTest;
+import org.apache.nutch.util.Bytes;
 import org.apache.nutch.util.CrawlTestUtil;
 import org.mortbay.jetty.Server;
 
@@ -113,7 +114,7 @@ public class TestFetcher extends AbstractNutchTest {
       if (bb == null) {
         continue;
       }
-      String content = new String(bb.array());
+      String content = Bytes.toString(bb);
       if (content.indexOf("Nutch fetcher test page")!=-1) {
         handledurls.add(up.getUrl());
       }

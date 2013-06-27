@@ -355,11 +355,11 @@ public class WebTableReader extends NutchTool implements Tool {
         ProtocolStatusUtils.toString(page.getProtocolStatus())).append("\n");
     ByteBuffer prevSig = page.getPrevSignature();
         if (prevSig != null) {
-      sb.append("prevSignature:\t" + StringUtil.toHexString(prevSig.array())).append("\n");
+      sb.append("prevSignature:\t" + StringUtil.toHexString(prevSig)).append("\n");
     }
     ByteBuffer sig = page.getSignature();
     if (sig != null) {
-      sb.append("signature:\t" + StringUtil.toHexString(sig.array())).append("\n");
+      sb.append("signature:\t" + StringUtil.toHexString(sig)).append("\n");
     }
     sb.append("parseStatus:\t" +
         ParseStatusUtils.toString(page.getParseStatus())).append("\n");
@@ -380,7 +380,7 @@ public class WebTableReader extends NutchTool implements Tool {
       while (iterator.hasNext()) {
         Entry<Utf8, ByteBuffer> entry = iterator.next();
         sb.append("metadata " + entry.getKey().toString()).append(" : \t")
-            .append(Bytes.toString(entry.getValue().array())).append("\n");
+            .append(Bytes.toString(entry.getValue())).append("\n");
       }
     }
     if (dumpLinks) {
@@ -409,7 +409,7 @@ public class WebTableReader extends NutchTool implements Tool {
     if (content != null && dumpContent) {
       sb.append("contentType:\t" + page.getContentType()).append("\n");
       sb.append("content:start:\n");
-      sb.append(Bytes.toString(content.array()));
+      sb.append(Bytes.toString(content));
       sb.append("\ncontent:end:\n");
     }
     Utf8 text = page.getText();

@@ -25,8 +25,8 @@ import org.apache.avro.util.Utf8;
 import org.apache.hadoop.fs.Path;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.AbstractNutchTest;
+import org.apache.nutch.util.Bytes;
 import org.apache.nutch.util.CrawlTestUtil;
-import org.apache.gora.util.ByteUtils;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -113,7 +113,7 @@ public class TestInjector extends AbstractNutchTest {
       representation += "\tnutch.score=" + (int)page.getScore();
       ByteBuffer bb = page.getFromMetadata(new Utf8("custom.attribute"));
       if (bb != null) {
-        representation += "\tcustom.attribute=" + ByteUtils.toString(bb.array());
+        representation += "\tcustom.attribute=" + Bytes.toString(bb);
       }
       read.add(representation);
     }

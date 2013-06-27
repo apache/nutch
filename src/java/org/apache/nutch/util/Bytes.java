@@ -273,11 +273,26 @@ public class Bytes {
 	 * @return the byte array
 	 */
 	public static byte[] toBytes(ByteBuffer bb) {
-		int length = bb.limit();
+		int length = bb.remaining();
 		byte[] result = new byte[length];
-		System.arraycopy(bb.array(), bb.arrayOffset(), result, 0, length);
+		System.arraycopy(bb.array(), bb.arrayOffset() + bb.position(), result, 0, length);
 		return result;
 	}
+
+    /**
+     * This method will convert utf8 encoded bytes into a string. If an
+     * UnsupportedEncodingException occurs, this method will eat it and return
+     * null instead.
+     *
+     * @param bb
+     *            Presumed UTF-8 encoded ByteBuffer.
+     * @return String made from <code>b</code> or null
+     */
+    public static String toString(ByteBuffer bb) {
+        return bb == null
+               ? null
+               : toString(bb.array(), bb.arrayOffset() + bb.position(), bb.remaining());
+    }
 
 	/**
 	 * @param b
@@ -332,6 +347,20 @@ public class Bytes {
 			return null;
 		}
 	}
+
+    /**
+     * Write a printable representation of a ByteBuffer. Non-printable
+     * characters are hex escaped in the format \\x%02X, eg: \x00 \x05 etc
+     *
+     * @param bb
+     *            ByteBuffer to write out
+     * @return string output
+     */
+    public static String toStringBinary(ByteBuffer bb) {
+        return bb == null
+               ? null
+               : toStringBinary(bb.array(), bb.arrayOffset() + bb.position(), bb.remaining());
+    }
 
 	/**
 	 * Write a printable representation of a byte array.

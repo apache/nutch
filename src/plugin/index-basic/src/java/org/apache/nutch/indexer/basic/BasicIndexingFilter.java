@@ -119,8 +119,7 @@ public class BasicIndexingFilter implements IndexingFilter {
     // add cached content/summary display policy, if available
     ByteBuffer cachingRaw = page
         .getFromMetadata(Nutch.CACHING_FORBIDDEN_KEY_UTF8);
-    String caching = (cachingRaw == null ? null : Bytes.toString(cachingRaw
-        .array()));
+    String caching = Bytes.toString(cachingRaw);
     if (caching != null && !caching.equals(Nutch.CACHING_FORBIDDEN_NONE)) {
       doc.add("cache", caching);
     }

@@ -195,7 +195,7 @@ public class DbReader {
             while (iterator.hasNext()) {
               Entry<Utf8, ByteBuffer> entry = iterator.next();
               simpleMeta.put(entry.getKey().toString(), 
-                  Bytes.toStringBinary(entry.getValue().array()));
+                  Bytes.toStringBinary(entry.getValue()));
             }
           }
           res.put(f, simpleMeta);
@@ -207,10 +207,10 @@ public class DbReader {
           res.put(f, ParseStatusUtils.toString(ps));
         } else if ("signature".equals(f)) {
           ByteBuffer bb = page.getSignature();
-          res.put(f, StringUtil.toHexString(bb.array()));
+          res.put(f, StringUtil.toHexString(bb));
         } else if ("content".equals(f)) {
           ByteBuffer bb = page.getContent();
-          res.put(f, Bytes.toStringBinary(bb.array()));
+          res.put(f, Bytes.toStringBinary(bb));
         } else if ("markers".equals(f)) {
           res.put(f, convertMap(page.getMarkers()));
         } else if ("inlinks".equals(f)) {
@@ -221,7 +221,7 @@ public class DbReader {
           if (val instanceof Utf8) {
             val = val.toString();
           } else if (val instanceof ByteBuffer) {
-            val = Bytes.toStringBinary(((ByteBuffer)val).array());
+            val = Bytes.toStringBinary((ByteBuffer)val);
           }
           res.put(f, val);
         }

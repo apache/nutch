@@ -111,7 +111,7 @@ public class OPICScoringFilter implements ScoringFilter {
     ByteBuffer cashRaw = row.getFromMetadata(CASH_KEY);
     float cash = 0.0f;
     if (cashRaw != null) {
-      cash = Bytes.toFloat(cashRaw.array());
+      cash = Bytes.toFloat(cashRaw.array(), cashRaw.arrayOffset() + cashRaw.position());
     }
     row.putToMetadata(CASH_KEY, ByteBuffer.wrap(Bytes.toBytes(cash + adjust)));
   }
@@ -125,7 +125,7 @@ public class OPICScoringFilter implements ScoringFilter {
     if (cashRaw == null) {
       return;
     }
-    float cash = Bytes.toFloat(cashRaw.array());
+    float cash = Bytes.toFloat(cashRaw.array(), cashRaw.arrayOffset() + cashRaw.position());
     if (cash == 0) {
       return;
     }

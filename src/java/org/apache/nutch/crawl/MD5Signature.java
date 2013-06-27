@@ -17,9 +17,11 @@
 
 package org.apache.nutch.crawl;
 
+import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.HashSet;
 
+import org.apache.avro.util.Utf8;
 import org.apache.hadoop.io.MD5Hash;
 import org.apache.nutch.storage.WebPage;
 
@@ -40,9 +42,29 @@ public class MD5Signature extends Signature {
 
   @Override
   public byte[] calculate(WebPage page) {
-    byte[] data = page.getContent().array();
-    if (data == null && page.getBaseUrl()!=null) data = page.getBaseUrl().getBytes();
-    return MD5Hash.digest(data).getDigest();
+    ByteBuffer buf = page.getContent();
+    byte[] data;
+    int of;
+    int cb;
+    if (buf == null) {
+      Utf8 baseUrl = page.getBaseUrl();
+      if (baseUrl == null) {
+        data = null;
+        of = 0;
+        cb = 0;
+      }
+      else {
+        data = baseUrl.getBytes();
+        of = 0;
+        cb = baseUrl.getLength();
+      }
+    } else {
+      data = buf.array();
+      of = buf.arrayOffset() + buf.position();
+      cb = buf.remaining();
+    }
+
+    return MD5Hash.digest(data, of, cb).getDigest();
   }
 
   @Override

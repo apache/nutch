@@ -34,6 +34,7 @@ import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.metadata.CreativeCommons;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.storage.WebPage.Field;
+import org.apache.nutch.util.Bytes;
 
 /** Adds basic searchable fields to a document. */
 public class CCIndexingFilter implements IndexingFilter {
@@ -102,7 +103,7 @@ public class CCIndexingFilter implements IndexingFilter {
 		ByteBuffer blicense = page.getFromMetadata(new Utf8(
 				CreativeCommons.LICENSE_URL));
 		if (blicense != null) {
-			String licenseUrl = new String(blicense.array());
+			String licenseUrl = Bytes.toString(blicense);
 			if (LOG.isInfoEnabled()) {
 				LOG.info("CC: indexing " + licenseUrl + " for: "
 						+ url.toString());
@@ -119,7 +120,7 @@ public class CCIndexingFilter implements IndexingFilter {
 		ByteBuffer blicenseloc = page.getFromMetadata(new Utf8(
 				CreativeCommons.LICENSE_LOCATION));
 		if (blicenseloc != null) {
-			String licenseLocation = new String(blicenseloc.array());
+			String licenseLocation = Bytes.toString(blicenseloc);
 			addFeature(doc, "meta=" + licenseLocation);
 		}
 
@@ -127,7 +128,7 @@ public class CCIndexingFilter implements IndexingFilter {
 		ByteBuffer bworkType = page.getFromMetadata(new Utf8(
 				CreativeCommons.WORK_TYPE));
 		if (bworkType != null) {
-			String workType = new String(bworkType.array());
+			String workType = Bytes.toString(bworkType);
 			addFeature(doc, workType);
 		}
 

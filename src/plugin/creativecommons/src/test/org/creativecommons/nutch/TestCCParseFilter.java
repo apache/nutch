@@ -21,6 +21,7 @@ import org.apache.nutch.parse.ParseUtil;
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.util.Bytes;
 import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import java.io.*;
@@ -73,13 +74,10 @@ public class TestCCParseFilter {
 		new ParseUtil(conf).parse(url, page);
 
 		ByteBuffer bb = page.getFromMetadata(new Utf8("License-Url"));
-		assertEquals(license, new String(bb.array()));
+		assertEquals(license, Bytes.toString(bb));
 		bb = page.getFromMetadata(new Utf8("License-Location"));
-		assertEquals(location, new String(bb.array()));
+		assertEquals(location, Bytes.toString(bb));
 		bb = page.getFromMetadata(new Utf8("Work-Type"));
-		if (bb == null)
-			assertEquals(type, null);
-		else
-			assertEquals(type, new String(bb.array()));
+        assertEquals(type, Bytes.toString(bb));
 	}
 }

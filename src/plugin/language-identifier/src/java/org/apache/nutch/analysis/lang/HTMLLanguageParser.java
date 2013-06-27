@@ -132,7 +132,7 @@ public class HTMLLanguageParser implements ParseFilter {
       LanguageParser parser = new LanguageParser(doc);
       lang = parser.getLanguage();
     } else
-      lang = Bytes.toString(blang.array());
+      lang = Bytes.toString(blang);
 
     if (lang != null) {
       return lang;

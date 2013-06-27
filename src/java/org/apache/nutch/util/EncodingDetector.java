@@ -16,6 +16,7 @@
  */
 package org.apache.nutch.util;
 
+import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -169,21 +170,20 @@ public class EncodingDetector {
 
   private void autoDetectClues(ByteBuffer dataBuffer, Utf8 typeUtf8,
                                String encoding, boolean filter) {
-    byte[] data = dataBuffer.array();
+    int length = dataBuffer.remaining();
     String type = TableUtil.toString(typeUtf8);
 
     if (minConfidence >= 0 && DETECTABLES.contains(type)
-        && data.length > MIN_LENGTH) {
+        && length > MIN_LENGTH) {
       CharsetMatch[] matches = null;
 
       // do all these in a try/catch; setText and detect/detectAll
       // will sometimes throw exceptions
       try {
         detector.enableInputFilter(filter);
-        if (data.length > MIN_LENGTH) {
-          detector.setText(data);
-          matches = detector.detectAll();
-        }
+        detector.setText(new ByteArrayInputStream(dataBuffer.array(),
+            dataBuffer.arrayOffset() + dataBuffer.position(), length));
+        matches = detector.detectAll();
       } catch (Exception e) {
         LOG.debug("Exception from ICU4J (ignoring): ", e);
       }

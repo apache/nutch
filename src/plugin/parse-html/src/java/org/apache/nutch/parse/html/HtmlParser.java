@@ -85,7 +85,7 @@ public class HtmlParser implements Parser {
   private String parserImpl;
 
   /**
-   * Given a <code>byte[]</code> representing an html file of an
+   * Given a <code>ByteBuffer</code> representing an html file of an
    * <em>unknown</em> encoding,  read out 'charset' parameter in the meta tag
    * from the first <code>CHUNK_SIZE</code> bytes.
    * If there's no meta tag for Content-Type or no charset is specified,
@@ -97,12 +97,11 @@ public class HtmlParser implements Parser {
    * See also http://www.w3.org/TR/REC-xml/#sec-guessing
    * <br />
    *
-   * @param content <code>byte[]</code> representation of an html file
+   * @param content <code>ByteBuffer</code> representation of an html file
    */
 
-  private static String sniffCharacterEncoding(byte[] content) {
-    int length = content.length < CHUNK_SIZE ?
-        content.length : CHUNK_SIZE;
+  private static String sniffCharacterEncoding(ByteBuffer content) {
+    int length = Math.min(content.remaining(), CHUNK_SIZE);
 
     // We don't care about non-ASCII parts so that it's sufficient
     // to just inflate each byte to a 16-bit value by padding.
@@ -110,8 +109,8 @@ public class HtmlParser implements Parser {
     // {U+0041, U+0082, U+00B7}.
     String str = "";
     try {
-      str = new String(content, 0, length,
-          Charset.forName("ASCII").toString());
+      str = new String(content.array(), content.arrayOffset() + content.position(),
+          length, Charset.forName("ASCII").toString());
     } catch (UnsupportedEncodingException e) {
       // code should never come here, but just in case...
       return null;
@@ -157,8 +156,9 @@ public class HtmlParser implements Parser {
     // parse the content
     DocumentFragment root;
     try {
-      byte[] contentInOctets = page.getContent().array();
-      InputSource input = new InputSource(new ByteArrayInputStream(contentInOctets));
+      ByteBuffer contentInOctets = page.getContent();
+      InputSource input = new InputSource(new ByteArrayInputStream(contentInOctets.array(),
+          contentInOctets.arrayOffset() + contentInOctets.position(), contentInOctets.remaining()));
 
       EncodingDetector detector = new EncodingDetector(conf);
       detector.autoDetectClues(page, true);

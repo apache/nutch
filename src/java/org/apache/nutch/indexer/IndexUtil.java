@@ -62,7 +62,7 @@ public class IndexUtil {
   public NutchDocument index(String key, WebPage page) {
     NutchDocument doc = new NutchDocument();
     doc.add("id", key);
-    doc.add("digest", StringUtil.toHexString(page.getSignature().array()));
+    doc.add("digest", StringUtil.toHexString(page.getSignature()));
     if (page.getBatchId() != null) {
       doc.add("batchId", page.getBatchId().toString());
     }

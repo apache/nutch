@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1591 Incorrect conversion of ByteBuffer to String (Jason Howes via lewismc)
+
 * NUTCH-1571 SolrInputSplit doesn't implement Writable and crawl script doesn't pass crawlId to generate and updatedb tasks (yuanyun.cn via lewismc)
 
 * NUTCH-1126 JUnit test for urlfilter-prefix (Talat UYARER via markus)

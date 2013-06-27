@@ -60,9 +60,7 @@ public class TestHTMLLanguageParser {
         WebPage page = getPage(docs[t]);
         parser.parse(URL.toString(), page);
         ByteBuffer blang = page.getFromMetadata(new Utf8(Metadata.LANGUAGE));
-        String lang = null;
-        if (blang != null)
-          lang = Bytes.toString(blang.array());
+        String lang = Bytes.toString(blang);
         assertEquals(metalanguages[t], lang);
       }
     } catch (Exception e) {

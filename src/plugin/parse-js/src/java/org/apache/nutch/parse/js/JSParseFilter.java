@@ -39,6 +39,7 @@ import org.apache.nutch.parse.ParseStatusUtils;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.storage.ParseStatus;
 import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.util.Bytes;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.TableUtil;
 import org.apache.oro.text.regex.MatchResult;
@@ -163,7 +164,7 @@ public class JSParseFilter implements ParseFilter, Parser {
     if (type != null && !type.trim().equals("") && !type.toLowerCase().startsWith("application/x-javascript"))
       return ParseStatusUtils.getEmptyParse(ParseStatusCodes.FAILED_INVALID_FORMAT,
           "Content not JavaScript: '" + type + "'", getConf());
-    String script = new String(page.getContent().array());
+    String script = Bytes.toString(page.getContent());
     Outlink[] outlinks = getJSLinks(script, "", url);
     if (outlinks == null) outlinks = new Outlink[0];
     // Title? use the first line of the script...

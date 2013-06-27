@@ -51,7 +51,6 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.TableUtil;
 import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.TikaCoreProperties;
-import org.apache.tika.mime.MimeType;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
 import org.w3c.dom.DocumentFragment;
@@ -92,7 +91,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     // get the right parser using the mime type as a clue
     String mimeType = page.getContentType().toString();
     Parser parser = tikaConfig.getParser(mimeType);
-    byte[] raw = page.getContent().array();
+    ByteBuffer raw = page.getContent();
 
     if (parser == null) {
       String message = "Can't retrieve Tika parser for mime-type " + mimeType;
@@ -114,7 +113,8 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     // to add once available in Tika
     // context.set(HtmlMapper.class, IdentityHtmlMapper.INSTANCE);
     try {
-      parser.parse(new ByteArrayInputStream(raw), domhandler, tikamd, context);
+      parser.parse(new ByteArrayInputStream(raw.array(), raw.arrayOffset() + raw.position(),
+          raw.remaining()), domhandler, tikamd, context);
     } catch (Exception e) {
       LOG.error("Error parsing "+url,e);
       return ParseStatusUtils.getEmptyParse(e, getConf());

@@ -171,7 +171,7 @@ public class ParserChecker implements Tool {
       while (iterator.hasNext()) {
         Entry<Utf8, ByteBuffer> entry = iterator.next();
         sb.append(entry.getKey().toString()).append(" : \t")
-            .append(Bytes.toString(entry.getValue().array())).append("\n");
+            .append(Bytes.toString(entry.getValue())).append("\n");
       }
       System.out.print(sb.toString());
     }
