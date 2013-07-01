@@ -649,6 +649,7 @@ public class SegmentMerger extends Configured implements
       System.err.println("\t-dir segments\tparent dir containing several segments");
       System.err.println("\tseg1 seg2 ...\tlist of segment dirs");
       System.err.println("\t-filter\t\tfilter out URL-s prohibited by current URLFilters");
+      System.err.println("\t-normalize\t\tnormalize URL via current URLNormalizers");
       System.err.println("\t-slice NNNN\tcreate many output segments, each containing NNNN URLs");
       return;
     }
