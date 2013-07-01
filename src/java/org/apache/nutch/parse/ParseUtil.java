@@ -239,7 +239,7 @@ public class ParseUtil extends Configured {
           page.getOutlinks().clear();
         }
         final Outlink[] outlinks = parse.getOutlinks();
-        final int count = 0;
+        int outlinksToStore = Math.min(maxOutlinks, outlinks.length);
         String fromHost;
         if (ignoreExternalLinks) {
           try {
@@ -250,7 +250,9 @@ public class ParseUtil extends Configured {
         } else {
           fromHost = null;
         }
-        for (int i = 0; count < maxOutlinks && i < outlinks.length; i++) {
+        int validCount = 0;
+
+        for (int i = 0; validCount < outlinksToStore && i < outlinks.length; i++) {
           String toUrl = outlinks[i].getToUrl();
           try {
             toUrl = normalizers.normalize(toUrl, URLNormalizers.SCOPE_OUTLINK);
@@ -279,7 +281,7 @@ public class ParseUtil extends Configured {
               continue; // skip it
             }
           }
-
+          validCount++;
           page.putToOutlinks(utf8ToUrl, new Utf8(outlinks[i].getAnchor()));
         }
         Utf8 fetchMark = Mark.FETCH_MARK.checkMark(page);
