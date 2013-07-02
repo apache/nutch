@@ -24,6 +24,7 @@ import java.net.URL;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,6 +42,7 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.FileOutputFormat;
 import org.apache.hadoop.mapred.JobClient;
@@ -64,42 +66,41 @@ import org.apache.nutch.util.StringUtil;
 
 /**
  * Read utility for the CrawlDB.
- * 
+ *
  * @author Andrzej Bialecki
- * 
+ *
  */
 public class CrawlDbReader implements Closeable {
 
   public static final Logger LOG = LoggerFactory.getLogger(CrawlDbReader.class);
 
   private MapFile.Reader[] readers = null;
-  
+
   private void openReaders(String crawlDb, Configuration config) throws IOException {
     if (readers != null) return;
     FileSystem fs = FileSystem.get(config);
     readers = MapFileOutputFormat.getReaders(fs, new Path(crawlDb,
         CrawlDb.CURRENT_NAME), config);
   }
-  
+
   private void closeReaders() {
     if (readers == null) return;
     for (int i = 0; i < readers.length; i++) {
       try {
         readers[i].close();
       } catch (Exception e) {
-        
+
       }
     }
   }
-  
+
   public static class CrawlDatumCsvOutputFormat extends FileOutputFormat<Text,CrawlDatum> {
     protected static class LineRecordWriter implements RecordWriter<Text,CrawlDatum> {
       private DataOutputStream out;
-
       public LineRecordWriter(DataOutputStream out) {
         this.out = out;
         try {
-          out.writeBytes("Url;Status code;Status name;Fetch Time;Modified Time;Retries since fetch;Retry interval seconds;Retry interval days;Score;Signature\n");
+          out.writeBytes("Url;Status code;Status name;Fetch Time;Modified Time;Retries since fetch;Retry interval seconds;Retry interval days;Score;Signature;Metadata\n");
         } catch (IOException e) {}
       }
 
@@ -129,6 +130,18 @@ public class CrawlDbReader implements Closeable {
           out.writeByte('"');
           out.writeBytes(value.getSignature() != null ? StringUtil.toHexString(value.getSignature()): "null");
           out.writeByte('"');
+          out.writeByte(';');
+          out.writeByte('"');
+          if (value.getMetaData() != null) {
+            for (Entry<Writable, Writable> e : value.getMetaData().entrySet()) {
+              out.writeBytes(e.getKey().toString());
+              out.writeByte(':');
+              out.writeBytes(e.getValue().toString());
+              out.writeBytes("|||");
+            }
+          }
+          out.writeByte('"');
+
           out.writeByte('\n');
       }
 
@@ -165,10 +178,10 @@ public class CrawlDbReader implements Closeable {
       }
     }
   }
-  
+
   public static class CrawlDbStatCombiner implements Reducer<Text, LongWritable, Text, LongWritable> {
     LongWritable val = new LongWritable();
-    
+
     public CrawlDbStatCombiner() { }
     public void configure(JobConf job) { }
     public void close() {}
@@ -249,7 +262,7 @@ public class CrawlDbReader implements Closeable {
   public static class CrawlDbTopNMapper implements Mapper<Text, CrawlDatum, FloatWritable, Text> {
     private static final FloatWritable fw = new FloatWritable();
     private float min = 0.0f;
-    
+
     public void configure(JobConf job) {
       long lmin = job.getLong("db.reader.topn.min", 0);
       if (lmin != 0) {
@@ -264,11 +277,11 @@ public class CrawlDbReader implements Closeable {
       output.collect(fw, key); // invert mapping: score -> url
     }
   }
-  
+
   public static class CrawlDbTopNReducer implements Reducer<FloatWritable, Text, FloatWritable, Text> {
     private long topN;
     private long count = 0L;
-    
+
     public void reduce(FloatWritable key, Iterator<Text> values, OutputCollector<FloatWritable, Text> output, Reporter reporter) throws IOException {
       while (values.hasNext() && count < topN) {
         key.set(-key.get());
@@ -280,20 +293,20 @@ public class CrawlDbReader implements Closeable {
     public void configure(JobConf job) {
       topN = job.getLong("db.reader.topn", 100) / job.getNumReduceTasks();
     }
-    
+
     public void close() {}
   }
 
   public void close() {
     closeReaders();
   }
-  
+
   public void processStatJob(String crawlDb, Configuration config, boolean sort) throws IOException {
 
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb statistics start: " + crawlDb);
     }
-    
+
     Path tmpFolder = new Path(crawlDb, "stat_tmp" + System.currentTimeMillis());
 
     JobConf job = new NutchJob(config);
@@ -339,14 +352,14 @@ public class CrawlDbReader implements Closeable {
         if (k.equals("scx")) {
           if (val.get() < value.get()) val.set(value.get());
         } else if (k.equals("scn")) {
-          if (val.get() > value.get()) val.set(value.get());          
+          if (val.get() > value.get()) val.set(value.get());
         } else {
           val.set(val.get() + value.get());
         }
       }
       reader.close();
     }
-    
+
     if (LOG.isInfoEnabled()) {
       LOG.info("Statistics for CrawlDb: " + crawlDb);
       LongWritable totalCnt = stats.get("T");
@@ -374,7 +387,7 @@ public class CrawlDbReader implements Closeable {
     if (LOG.isInfoEnabled()) { LOG.info("CrawlDb statistics: done"); }
 
   }
-  
+
   public CrawlDatum get(String crawlDb, String url, Configuration config) throws IOException {
     Text key = new Text(url);
     CrawlDatum val = new CrawlDatum();
@@ -462,12 +475,12 @@ public class CrawlDbReader implements Closeable {
   }
 
   public void processTopNJob(String crawlDb, long topN, float min, String output, Configuration config) throws IOException {
-    
+
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb topN: starting (topN=" + topN + ", min=" + min + ")");
       LOG.info("CrawlDb db: " + crawlDb);
     }
-    
+
     Path outFolder = new Path(output);
     Path tempDir =
       new Path(config.get("mapred.temp.dir", ".") +
@@ -488,8 +501,8 @@ public class CrawlDbReader implements Closeable {
 
     // XXX hmmm, no setFloat() in the API ... :(
     job.setLong("db.reader.topn.min", Math.round(1000000.0 * min));
-    JobClient.runJob(job); 
-    
+    JobClient.runJob(job);
+
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb topN: collecting topN scores.");
     }
