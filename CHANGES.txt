@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-1581 CrawlDB csv output to include metadata (markus)
+
 * NUTCH-1327 QueryStringNormalizer (markus)
 
 * NUTCH-1593 Normalize option missing in SegmentMerger's usage (markus)

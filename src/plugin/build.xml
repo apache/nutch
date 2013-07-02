@@ -70,6 +70,7 @@
      <ant dir="urlnormalizer-basic" target="deploy"/>
      <ant dir="urlnormalizer-host" target="deploy"/>
      <ant dir="urlnormalizer-pass" target="deploy"/>
+     <ant dir="urlnormalizer-querystring" target="deploy"/>
      <ant dir="urlnormalizer-regex" target="deploy"/>
   </target>
 
@@ -105,6 +106,7 @@
      <ant dir="urlnormalizer-basic" target="test"/>
      <ant dir="urlnormalizer-host" target="test"/>
      <ant dir="urlnormalizer-pass" target="test"/>
+     <ant dir="urlnormalizer-querystring" target="test"/>
      <ant dir="urlnormalizer-regex" target="test"/>
     </parallel>
   </target>
@@ -159,6 +161,7 @@
     <ant dir="urlnormalizer-host" target="clean"/>
     <ant dir="urlnormalizer-basic" target="clean"/>
     <ant dir="urlnormalizer-pass" target="clean"/>
+    <ant dir="urlnormalizer-querystring" target="clean"/>
     <ant dir="urlnormalizer-regex" target="clean"/>
   </target>
 </project>
