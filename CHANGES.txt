@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-1602 improve the readability of metadata in readdb dump normal (lufeng)
+
 * NUTCH-1596 HeadingsParseFilter not thread safe (snagel via markus)
 
 * NUTCH-1597 HeadingsParseFilter to trim and remove exess whitespace (markus)

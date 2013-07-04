@@ -410,15 +410,16 @@ public class CrawlDatum implements WritableComparable<CrawlDatum>, Cloneable {
         (getFetchInterval() / FetchSchedule.SECONDS_PER_DAY) + " days)\n");
     buf.append("Score: " + getScore() + "\n");
     buf.append("Signature: " + StringUtil.toHexString(getSignature()) + "\n");
-    buf.append("Metadata: ");
+    buf.append("Metadata: \n ");
     if (metaData != null) {
       for (Entry<Writable, Writable> e : metaData.entrySet()) {
+        buf.append("\t");
         buf.append(e.getKey());
-        buf.append(": ");
+        buf.append("=");
         buf.append(e.getValue());
+        buf.append("\n");
       }
     }
-    buf.append('\n');
     return buf.toString();
   }
   
