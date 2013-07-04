@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-1597  HeadingsParseFilter to trim and remove exess whitespace (markus)
+
 * NUTCH-1601 ElasticSearchIndexer fails to properly delete documents (markus)
 
 * NUTCH-1600 Injector overwrite does not always work properly (markus)

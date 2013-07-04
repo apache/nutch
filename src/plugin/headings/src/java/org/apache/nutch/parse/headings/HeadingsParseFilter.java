@@ -19,6 +19,7 @@ package org.apache.nutch.parse.headings;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.*;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.Parse;
@@ -33,6 +34,11 @@ import org.w3c.dom.*;
  */
 public class HeadingsParseFilter implements HtmlParseFilter {
 
+  /**
+   * Pattern used to strip surpluss whitespace
+   */
+  protected static Pattern whitespacePattern = Pattern.compile("\\s+");
+    
   private Configuration conf;
   private DocumentFragment doc;
   private String[] headings;
@@ -113,6 +119,8 @@ public class HeadingsParseFilter implements HtmlParseFilter {
       }
     }
 
-    return buffer.toString();
+    // Return with stripped surplus whitespace
+    Matcher matcher = whitespacePattern.matcher(buffer.toString().trim());
+    return matcher.replaceAll(" ").trim();
   }
 }
