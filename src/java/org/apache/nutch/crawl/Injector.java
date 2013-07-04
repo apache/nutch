@@ -186,6 +186,8 @@ public class Injector extends Configured implements Tool {
       scoreInjected = job.getFloat("db.score.injected", 1.0f);
       overwrite = job.getBoolean("db.injector.overwrite", false);
       update = job.getBoolean("db.injector.update", false);
+      LOG.info("Injector: overwrite: " + overwrite);
+      LOG.info("Injector: update: " + update);
     }
     
     public void close() {}
@@ -209,22 +211,20 @@ public class Injector extends Configured implements Tool {
           oldSet = true;
         }
       }
+
       CrawlDatum res = null;
+                
+      // Old default behaviour
+      if (injectedSet && !oldSet) {
+        res = injected;
+      } else {
+        res = old;
+      }
       
       /**
        * Whether to overwrite, ignore or update existing records
        * @see https://issues.apache.org/jira/browse/NUTCH-1405
        */
-      
-      // Injected record already exists and overwrite but not update
-      if (injectedSet && oldSet && overwrite) {
-        res = injected;
-        
-        if (update) {
-          LOG.info(key.toString() + " overwritten with injected record but update was specified.");
-        }
-      }
-
       // Injected record already exists and update but not overwrite
       if (injectedSet && oldSet && update && !overwrite) {
         res = old;
@@ -233,11 +233,9 @@ public class Injector extends Configured implements Tool {
         old.setFetchInterval(injected.getFetchInterval() != interval ? injected.getFetchInterval() : old.getFetchInterval());
       }
       
-      // Old default behaviour
-      if (injectedSet && !oldSet) {
+      // Injected record already exists and overwrite
+      if (injectedSet && oldSet && overwrite) {
         res = injected;
-      } else {
-        res = old;
       }
 
       output.collect(key, res);
