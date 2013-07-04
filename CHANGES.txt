@@ -2,7 +2,9 @@ Nutch Change Log
 
 Nutch Development Trunk
 
-* NUTCH-1597  HeadingsParseFilter to trim and remove exess whitespace (markus)
+* NUTCH-1596 HeadingsParseFilter not thread safe (snagel via markus)
+
+* NUTCH-1597 HeadingsParseFilter to trim and remove exess whitespace (markus)
 
 * NUTCH-1601 ElasticSearchIndexer fails to properly delete documents (markus)
 

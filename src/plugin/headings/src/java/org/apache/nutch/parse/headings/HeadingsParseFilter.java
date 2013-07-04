@@ -40,17 +40,14 @@ public class HeadingsParseFilter implements HtmlParseFilter {
   protected static Pattern whitespacePattern = Pattern.compile("\\s+");
     
   private Configuration conf;
-  private DocumentFragment doc;
   private String[] headings;
   private boolean multiValued = false;
 
   public ParseResult filter(Content content, ParseResult parseResult, HTMLMetaTags metaTags, DocumentFragment doc) {
-    this.doc = doc;
-
     Parse parse = parseResult.get(content.getUrl());
 
     for (int i = 0 ; headings != null && i < headings.length ; i++ ) {
-      List<String> discoveredHeadings = getElement(headings[i]);
+      List<String> discoveredHeadings = getElement(doc, headings[i]);
 
       if (discoveredHeadings.size() > 0) {
         for (String heading : discoveredHeadings) {
@@ -82,7 +79,7 @@ public class HeadingsParseFilter implements HtmlParseFilter {
   /**
    * Finds the specified element and returns its value
    */
-  protected List<String> getElement(String element) {
+  protected List<String> getElement(DocumentFragment doc, String element) {
     List<String> headings = new ArrayList<String>();
     NodeWalker walker = new NodeWalker(doc);
 
