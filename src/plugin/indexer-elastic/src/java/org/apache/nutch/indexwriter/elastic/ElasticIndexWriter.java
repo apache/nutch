@@ -139,6 +139,8 @@ public class ElasticIndexWriter implements IndexWriter {
   public void delete(String key) throws IOException {
     try{
       DeleteRequestBuilder builder =  client.prepareDelete();
+      builder.setIndex(defaultIndex);
+      builder.setType("doc");
       builder.setId(key);
       builder.execute().actionGet();
     }catch(ElasticSearchException e)
