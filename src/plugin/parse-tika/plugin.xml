@@ -28,39 +28,39 @@
 
       <library name="apache-mime4j-core-0.7.2.jar"/>
       <library name="apache-mime4j-dom-0.7.2.jar"/>
-      <library name="asm-3.1.jar"/>
+      <library name="asm-5.1.jar"/>
       <library name="aspectjrt-1.6.11.jar"/>
       <library name="bcmail-jdk15-1.45.jar"/>
       <library name="bcprov-jdk15-1.45.jar"/>
       <library name="boilerpipe-1.1.0.jar"/>
       <library name="commons-codec-1.5.jar"/>
-      <library name="commons-compress-1.4.1.jar"/>
+      <library name="commons-compress-1.5.jar"/>
       <library name="commons-logging-1.1.1.jar"/>
       <library name="dom4j-1.6.1.jar"/>
-      <library name="fontbox-1.7.1.jar"/>
+      <library name="fontbox-1.8.1.jar"/>
       <library name="geronimo-stax-api_1.0_spec-1.0.1.jar"/>
       <library name="isoparser-1.0-RC-1.jar"/>
       <library name="jdom-1.0.jar"/>
-      <library name="jempbox-1.7.1.jar"/>
+      <library name="jempbox-1.8.1.jar"/>
       <library name="juniversalchardet-1.0.3.jar"/>
       <library name="metadata-extractor-2.6.2.jar"/>
       <library name="netcdf-4.2-min.jar"/>
-      <library name="pdfbox-1.7.1.jar"/>
-      <library name="poi-3.8.jar"/>
-      <library name="poi-ooxml-3.8.jar"/>
-      <library name="poi-ooxml-schemas-3.8.jar"/>
-      <library name="poi-scratchpad-3.8.jar"/>
+      <library name="pdfbox-1.8.1.jar"/>
+      <library name="poi-3.9.jar"/>
+      <library name="poi-ooxml-3.9.jar"/>
+      <library name="poi-ooxml-schemas-3.9.jar"/>
+      <library name="poi-scratchpad-3.9.jar"/>
       <library name="rome-0.9.jar"/>
       <library name="slf4j-api-1.5.6.jar"/>
       <library name="tagsoup-1.2.1.jar"/>
-      <library name="tika-parsers-1.3.jar"/>
+      <library name="tika-parsers-1.4.jar"/>
       <library name="vorbis-java-core-0.1.jar"/>
       <library name="vorbis-java-tika-0.1.jar"/>
       <library name="xercesImpl-2.8.1.jar"/>
       <library name="xml-apis-1.3.03.jar"/>
       <library name="xmlbeans-2.3.0.jar"/>
       <library name="xmpcore-5.1.2.jar"/>
-      <library name="xz-1.0.jar"/>
+      <library name="xz-1.2.jar"/>
    </runtime>
 
    <requires>
