@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-1595 Upgrade to Tika 1.4 (jnioche, markus)
+
 * NUTCH-1598 ElasticSearchIndexer to read ImmutableSettings from config (markus)
 
 * NUTCH-1520 SegmentMerger looses records (markus)
