@@ -23,6 +23,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import java.io.BufferedReader;
+import java.io.IOException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -40,6 +42,7 @@ import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.common.settings.ImmutableSettings.Builder;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.node.Node;
@@ -77,13 +80,32 @@ public class ElasticIndexWriter implements IndexWriter {
     clusterName = job.get(ElasticConstants.CLUSTER);
     host = job.get(ElasticConstants.HOST);
     port = job.getInt(ElasticConstants.PORT, -1);
+
+    Builder settingsBuilder = ImmutableSettings.settingsBuilder();
+    
+    BufferedReader reader = new BufferedReader(job.getConfResourceAsReader("elasticsearch.conf"));
+    String line;
+    String parts[];
+
+    while ((line = reader.readLine()) != null) {
+      if (StringUtils.isNotBlank(line) && !line.startsWith("#")) {
+        line.trim();
+        parts = line.split("=");
+
+        if (parts.length == 2) {
+          settingsBuilder.put(parts[0].trim(), parts[1].trim());
+        }
+      }
+    }
+
+    // Set the cluster name and build the settings
+    Settings settings = settingsBuilder.put("cluster.name", clusterName).build();
     
     // Prefer TransportClient
     if (host != null && port > 1) {
-      Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", clusterName).build();
       client = new TransportClient(settings).addTransportAddress(new InetSocketTransportAddress(host, port));
     } else if (clusterName != null) {
-      node = nodeBuilder().clusterName(clusterName).client(true).node();
+      node = nodeBuilder().settings(settings).client(true).node();
       client = node.client();
     }
 

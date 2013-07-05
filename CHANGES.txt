@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-1598 ElasticSearchIndexer to read ImmutableSettings from config (markus)
+
 * NUTCH-1520 SegmentMerger looses records (markus)
 
 * NUTCH-1602 improve the readability of metadata in readdb dump normal (lufeng)
