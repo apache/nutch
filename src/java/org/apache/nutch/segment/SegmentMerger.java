@@ -412,10 +412,14 @@ public class SegmentMerger extends Configured implements
             lastF = val;
             lastFname = sp.segmentName;
           } else {
-            // take newer
-            if (lastFname.compareTo(sp.segmentName) < 0) {
-              lastF = val;
-              lastFname = sp.segmentName;
+            // only consider fetch status
+            // https://issues.apache.org/jira/browse/NUTCH-1520
+            if (CrawlDatum.hasFetchStatus(val)) {
+              // take newer
+              if (lastFname.compareTo(sp.segmentName) < 0) {
+                lastF = val;
+                lastFname = sp.segmentName;
+              }
             }
           }
         } else if (sp.partName.equals(CrawlDatum.PARSE_DIR_NAME)) {
@@ -480,7 +484,7 @@ public class SegmentMerger extends Configured implements
     			 			   linked.isEmpty() ? null : linked.lastEntry().getValue())){
       return;
     }
-    	
+
     curCount++;
     String sliceName = null;
     MetaWrapper wrapper = new MetaWrapper();

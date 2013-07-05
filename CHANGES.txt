@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-1520 SegmentMerger looses records (markus)
+
 * NUTCH-1602 improve the readability of metadata in readdb dump normal (lufeng)
 
 * NUTCH-1596 HeadingsParseFilter not thread safe (snagel via markus)
