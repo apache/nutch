@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1604 ProtocolFactory not thread-safe (jnioche)
+
 * NUTCH-1595 Upgrade to Tika 1.4 (jnioche, markus)
 
 * NUTCH-1594 count variable is never changed in ParseUtil class (Canan via Feng)

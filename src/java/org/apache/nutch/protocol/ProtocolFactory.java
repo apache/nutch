@@ -41,7 +41,8 @@ import org.apache.nutch.util.ObjectCache;
  */
 public class ProtocolFactory {
 
-  public static final Logger LOG = LoggerFactory.getLogger(ProtocolFactory.class);
+  public static final Logger LOG = LoggerFactory
+      .getLogger(ProtocolFactory.class);
 
   private final ExtensionPoint extensionPoint;
 
@@ -59,37 +60,37 @@ public class ProtocolFactory {
 
   /**
    * Returns the appropriate {@link Protocol} implementation for a url.
-   *
+   * 
    * @param urlString
    *          Url String
-   * @return The appropriate {@link Protocol} implementation for a given {@link URL}.
+   * @return The appropriate {@link Protocol} implementation for a given
+   *         {@link URL}.
    * @throws ProtocolNotFound
    *           when Protocol can not be found for urlString
    */
-  public Protocol getProtocol(String urlString) throws ProtocolNotFound {
+  public synchronized Protocol getProtocol(String urlString)
+      throws ProtocolNotFound {
     ObjectCache objectCache = ObjectCache.get(conf);
     try {
       URL url = new URL(urlString);
       String protocolName = url.getProtocol();
-      String cacheId = Protocol.X_POINT_ID + protocolName;
       if (protocolName == null)
         throw new ProtocolNotFound(urlString);
 
-      if (objectCache.getObject(cacheId) != null) {
-        return (Protocol) objectCache.getObject(cacheId);
-      } else {
-        Extension extension = findExtension(protocolName);
-        if (extension == null) {
-          throw new ProtocolNotFound(protocolName);
-        }
-
-        Protocol protocol = (Protocol) extension.getExtensionInstance();
-
-        objectCache.setObject(cacheId, protocol);
-
+      String cacheId = Protocol.X_POINT_ID + protocolName;
+      Protocol protocol = (Protocol) objectCache.getObject(cacheId);
+      if (protocol != null) {
         return protocol;
       }
 
+      Extension extension = findExtension(protocolName);
+      if (extension == null) {
+        throw new ProtocolNotFound(protocolName);
+      }
+
+      protocol = (Protocol) extension.getExtensionInstance();
+      objectCache.setObject(cacheId, protocol);
+      return protocol;
     } catch (MalformedURLException e) {
       throw new ProtocolNotFound(urlString, e.toString());
     } catch (PluginRuntimeException e) {
@@ -109,10 +110,11 @@ public class ProtocolFactory {
     return null;
   }
 
-  boolean contains(String what, String where){
-    String parts[]=where.split("[, ]");
-    for(int i=0;i<parts.length;i++) {
-      if(parts[i].equals(what)) return true;
+  boolean contains(String what, String where) {
+    String parts[] = where.split("[, ]");
+    for (int i = 0; i < parts.length; i++) {
+      if (parts[i].equals(what))
+        return true;
     }
     return false;
   }
