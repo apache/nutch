@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-1587 misspelled property "threshold" in conf/log4j.properties (snagel)
+
 * NUTCH-1604 ProtocolFactory not thread-safe (jnioche)
 
 * NUTCH-1595 Upgrade to Tika 1.4 (jnioche, markus)
