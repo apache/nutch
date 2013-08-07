@@ -114,6 +114,16 @@ public class File implements Protocol {
 
         if (code == 200) { // got a good response
           return new ProtocolOutput(response.toContent()); // return it
+
+        } else if (code == 304) { // got not modified
+          return new ProtocolOutput(response.toContent(), ProtocolStatusUtils.STATUS_NOTMODIFIED);
+
+        } else if (code == 401) { // access denied / no read permissions
+          return new ProtocolOutput(response.toContent(), ProtocolStatusUtils.makeStatus(ProtocolStatusUtils.ACCESS_DENIED));
+
+        } else if (code == 404) { // no such file
+          return new ProtocolOutput(response.toContent(), ProtocolStatusUtils.STATUS_NOTFOUND);
+
         } else if (code >= 300 && code < 400) { // handle redirect
           if (redirects == MAX_REDIRECTS)
             throw new FileException("Too many redirects: " + url);
