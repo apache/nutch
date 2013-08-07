@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-911 protocol-file to return proper protocol status (Peter Lundberg via snagel)
+
 * NUTCH-806 Merge CrawlDBScanner with CrawlDBReader (jnioche)
 
 * NUTCH-1587 misspelled property "threshold" in conf/log4j.properties (snagel)
