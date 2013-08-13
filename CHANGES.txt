@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1294 IndexClean job with solr implementation. (Dan Rosher via lewismc)
+
 * NUTCH-911 protocol-file to return proper protocol status (Peter Lundberg via snagel)
 
 * NUTCH-1587 misspelled property "threshold" in conf/log4j.properties (snagel)
