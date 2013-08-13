@@ -29,6 +29,10 @@
       name="Nutch Indexing Filter"/>
 
 <extension-point
+      id="org.apache.nutch.indexer.IndexCleaningFilter"
+      name="Nutch Index Cleaning Filter"/>
+
+<extension-point
       id="org.apache.nutch.parse.Parser"
       name="Nutch Content Parser"/>
  
