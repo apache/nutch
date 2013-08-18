@@ -2,7 +2,9 @@ Nutch Change Log
 
 Current Development
 
-* NUTCH-1294 IndexClean job with solr implementation. (Dan Rosher via lewismc)
+* NUTCH-1624 Typo in WebTableReader line 486 (kaveh minooie via lewismc)
+
+* NUTCH-1294 IndexClean job with solr implementation. (Dan Rosher, lewismc, Claudiu Chis via feng)
 
 * NUTCH-911 protocol-file to return proper protocol status (Peter Lundberg via snagel)
 

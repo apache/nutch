@@ -483,7 +483,7 @@ public class WebTableReader extends NutchTool implements Tool {
         }
       }
       if (op == null) {
-        throw new Exception("Select one of -url | -stat | -dump");
+        throw new Exception("Select one of -url | -stats | -dump");
       }
       switch (op) {
       case READ:
