@@ -84,9 +84,9 @@ public class Injector extends Configured implements Tool {
     public void map(WritableComparable<?> key, Text value,
                     OutputCollector<Text, CrawlDatum> output, Reporter reporter)
       throws IOException {
-      String url = value.toString();              // value is line of text
+      String url = value.toString().trim();              // value is line of text
 
-      if (url != null && url.trim().startsWith("#")) {
+      if (url != null && ( url.length() == 0 || url.startsWith("#") ) ) {
           /* Ignore line that start with # */
           return;
       }
