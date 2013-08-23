@@ -60,7 +60,8 @@ public class SolrIndexerJob extends IndexerJob {
     if (getConf().getBoolean(SolrConstants.COMMIT_INDEX, true)) {
       solr.commit();
     }
-    LOG.info("SolrIndexerJob: done.");
+    LOG.info("SolrIndexerJob: done. Total "+ SolrWriter.documentCount + 
+      (SolrWriter.documentCount > 1 ? " documents are " : " document is ") + "added.");
   }
 
   public int run(String[] args) throws Exception {

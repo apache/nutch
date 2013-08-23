@@ -41,7 +41,8 @@ public class SolrWriter implements NutchIndexWriter {
   private final List<SolrInputDocument> inputDocs =
     new ArrayList<SolrInputDocument>();
 
-  private int commitSize;
+  private int commitSize; 
+  protected static long documentCount = 0;
 
   @Override
   public void open(TaskAttemptContext job)
@@ -72,6 +73,7 @@ public class SolrWriter implements NutchIndexWriter {
     }
     inputDoc.setDocumentBoost(doc.getScore());
     inputDocs.add(inputDoc);
+    documentCount++;
     if (inputDocs.size() >= commitSize) {
       try {
         LOG.info("Adding " + Integer.toString(inputDocs.size()) + " documents");

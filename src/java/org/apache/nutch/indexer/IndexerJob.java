@@ -25,6 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.RawComparator;
+import org.apache.hadoop.mapred.Counters.Counter;
+import org.apache.hadoop.mapreduce.CounterGroup;
+import org.apache.hadoop.mapreduce.Counters;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.Tool;
 import org.apache.nutch.crawl.GeneratorJob;
@@ -109,6 +112,7 @@ public abstract class IndexerJob extends NutchTool implements Tool {
         store.put(key, page);
       }
       context.write(key, doc);
+      context.getCounter("IndexerJob", "DocumentCount").increment(1);
     }
   }
 

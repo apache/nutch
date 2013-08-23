@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1631 Display Document Count Added To Solr Server (Furkan KAMACI via lewismc)
+
 * NUTCH-1629 Injector skips empty lines in seed files (kaveh minooie via jnioche)
 
 * NUTCH-1624 Typo in WebTableReader line 486 (kaveh minooie via lewismc)
