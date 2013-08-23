@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1629 Injector skips empty lines in seed files (kaveh minooie via jnioche)
+
 * NUTCH-1624 Typo in WebTableReader line 486 (kaveh minooie via lewismc)
 
 * NUTCH-1294 IndexClean job with solr implementation. (Dan Rosher, lewismc, Claudiu Chis via feng)

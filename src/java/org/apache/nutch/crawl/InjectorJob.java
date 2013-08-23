@@ -110,9 +110,9 @@ public class InjectorJob extends NutchTool implements Tool {
 
     protected void map(LongWritable key, Text value, Context context)
         throws IOException, InterruptedException {
-      String url = value.toString(); // value is line of text
+      String url = value.toString().trim(); // value is line of text
       
-      if (url != null && url.trim().startsWith("#")) {
+      if (url != null && ( url.length() == 0 || url.startsWith("#") ) ) {
         /* Ignore line that start with # */
         return;
       }
