@@ -248,11 +248,7 @@ public class DmozParser {
      */
     public void endDocument() {
       LOG.info("Completed parse.  Found " + pages + " pages.");
-      try {
-        store.close();
-      } catch (IOException e) {
-        e.printStackTrace();
-      }
+      store.close();
     }
 
     /**
