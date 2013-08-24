@@ -18,6 +18,7 @@
 package org.apache.nutch.tools;
 
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.regex.*;
 
@@ -29,10 +30,15 @@ import org.apache.xerces.util.XMLChar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.apache.avro.util.Utf8;
+import org.apache.gora.store.DataStore;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.storage.StorageUtils;
+import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.TableUtil;
 
 
 /** Utility that converts DMOZ RDF into a flat file of URLs to be injected. */
@@ -40,7 +46,8 @@ public class DmozParser {
   public static final Logger LOG = LoggerFactory.getLogger(DmozParser.class);
   
     long pages = 0;
-
+    private static DataStore<String, WebPage> store = null;
+    
   /**
    * This filter fixes characters that might offend our parser.
    * This lets us be tolerant of errors that might appear in the input XML.
@@ -104,18 +111,20 @@ public class DmozParser {
     int subsetDenom;
     int hashSkew;
     boolean includeAdult;
+    boolean snippet;
     Locator location;
 
     /**
      * Pass in an XMLReader, plus a flag as to whether we 
      * should include adult material.
      */
-    public RDFProcessor(XMLReader reader, int subsetDenom, boolean includeAdult, int skew, Pattern topicPattern) throws IOException {
+    public RDFProcessor(XMLReader reader, int subsetDenom, boolean includeAdult, int skew, Pattern topicPattern, boolean snippet) throws IOException {
       this.reader = reader;
       this.subsetDenom = subsetDenom;
       this.includeAdult = includeAdult;
       this.topicPattern = topicPattern;
-
+      this.snippet = snippet;
+      
       this.hashSkew = skew != 0 ? skew : new Random().nextInt();
     }
 
@@ -179,20 +188,44 @@ public class DmozParser {
           // Inc the number of pages, insert the page, and 
           // possibly print status.
           //
-          System.out.println(curURL); 
+          if(snippet){
+            try {
+              String reversedUrl = TableUtil.reverseUrl(curURL);
+              WebPage row = store.get(reversedUrl);
+              
+              if(row!=null){
+                if (desc.length() > 0) {
+                  row.putToMetadata(new Utf8("_dmoz_desc_"), ByteBuffer.wrap(desc.toString().getBytes()));
+                  desc.delete(0, desc.length());
+                }
+                if (title.length() > 0) {
+                  row.putToMetadata(new Utf8("_dmoz_title_"), ByteBuffer.wrap(title.toString().getBytes()));
+                  title.delete(0, title.length());
+                }
+                store.put(reversedUrl, row);
+                store.flush();
+              }
+              
+             } catch (IOException e) {
+              // TODO Auto-generated catch block
+              e.printStackTrace();
+             }
+          } else {
+            System.out.println(curURL); 
+            
+            //
+            // Clear out the link text.  This is what
+            // you would use for adding to the linkdb.
+            //
+            if (desc.length() > 0) {
+              desc.delete(0, desc.length());
+            }
+            if (title.length() > 0) {
+              title.delete(0, title.length());
+            }
+          }
           pages++;
-
-          //
-          // Clear out the link text.  This is what
-          // you would use for adding to the linkdb.
-          //
-          if (title.length() > 0) {
-            title.delete(0, title.length());
-          }
-          if (desc.length() > 0) {
-            desc.delete(0, desc.length());
-          }
-
+          
           // Null out the URL.
           curURL = null;
         } else if ("d:Title".equals(qName)) {
@@ -215,6 +248,11 @@ public class DmozParser {
      */
     public void endDocument() {
       LOG.info("Completed parse.  Found " + pages + " pages.");
+      try {
+        store.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
     }
 
     /**
@@ -268,7 +306,8 @@ public class DmozParser {
   public void parseDmozFile(File dmozFile, int subsetDenom,
                             boolean includeAdult,
                             int skew,
-                            Pattern topicPattern)
+                            Pattern topicPattern,
+                            boolean snippet)
 
     throws IOException, SAXException, ParserConfigurationException {
 
@@ -279,7 +318,7 @@ public class DmozParser {
     // Create our own processor to receive SAX events
     RDFProcessor rp =
       new RDFProcessor(reader, subsetDenom, includeAdult,
-                       skew, topicPattern);
+                       skew, topicPattern, snippet);
     reader.setContentHandler(rp);
     reader.setErrorHandler(rp);
     LOG.info("skew = " + rp.hashSkew);
@@ -331,7 +370,7 @@ public class DmozParser {
    */
   public static void main(String argv[]) throws Exception {
     if (argv.length < 1) {
-      System.err.println("Usage: DmozParser <dmoz_file> [-subset <subsetDenominator>] [-includeAdultMaterial] [-skew skew] [-topicFile <topic list file>] [-topic <topic> [-topic <topic> [...]]]");
+      System.err.println("Usage: DmozParser <dmoz_file> [-subset <subsetDenominator>] [-includeAdultMaterial] [-skew skew] [-snippet] [-topicFile <topic list file>] [-topic <topic> [-topic <topic> [...]]]");
       return;
     }
     
@@ -343,10 +382,12 @@ public class DmozParser {
     int skew = 0;
     String dmozFile = argv[0];
     boolean includeAdult = false;
+    boolean snippet = false;
     Pattern topicPattern = null; 
     Vector<String> topics = new Vector<String>();
     
     Configuration conf = NutchConfiguration.create();
+    store = StorageUtils.createWebStore(conf,String.class, WebPage.class);
     FileSystem fs = FileSystem.get(conf);
     try {
       for (int i = 1; i < argv.length; i++) {
@@ -364,6 +405,8 @@ public class DmozParser {
         } else if ("-skew".equals(argv[i])) {
           skew = Integer.parseInt(argv[i+1]);
           i++;
+        }else if ("-snippet".equals(argv[i])) {
+          snippet = true;
         }
       }
 
@@ -383,7 +426,7 @@ public class DmozParser {
       }
 
       parser.parseDmozFile(new File(dmozFile), subsetDenom,
-                           includeAdult, skew, topicPattern);
+                           includeAdult, skew, topicPattern, snippet);
       
     } finally {
       fs.close();
