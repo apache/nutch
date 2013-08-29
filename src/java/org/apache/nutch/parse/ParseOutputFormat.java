@@ -233,6 +233,15 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
 
             CrawlDatum target = new CrawlDatum(CrawlDatum.STATUS_LINKED, interval);
             Text targetUrl = new Text(toUrl);
+            
+            // see if the outlink has any metadata attached 
+            // and if so pass that to the crawldatum so that 
+            // the initial score or distribution can use that 
+            MapWritable outlinkMD = links[i].getMetadata();
+            if (outlinkMD!=null){
+            	target.getMetaData().putAll(outlinkMD);
+            }
+            
             try {
               scfilters.initialScore(targetUrl, target);
             } catch (ScoringFilterException e) {
