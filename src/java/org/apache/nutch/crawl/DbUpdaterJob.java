@@ -73,12 +73,17 @@ public class DbUpdaterJob extends NutchTool implements Tool {
     
   public Map<String,Object> run(Map<String,Object> args) throws Exception {
     String crawlId = (String)args.get(Nutch.ARG_CRAWL);
+    String batchId = (String)args.get(Nutch.ARG_BATCH);
     numJobs = 1;
     currentJobNum = 0;
     currentJob = new NutchJob(getConf(), "update-table");
     if (crawlId != null) {
       currentJob.getConfiguration().set(Nutch.CRAWL_ID_KEY, crawlId);
     }
+    if (batchId == null) {
+      batchId = Nutch.ALL_BATCH_ID_STR;
+    }
+    getConf().set(Nutch.BATCH_NAME_KEY, batchId);
     //job.setBoolean(ALL, updateAll);
     ScoringFilters scoringFilters = new ScoringFilters(getConf());
     HashSet<WebPage.Field> fields = new HashSet<WebPage.Field>(FIELDS);
@@ -100,23 +105,46 @@ public class DbUpdaterJob extends NutchTool implements Tool {
     return results;
   }
   
-  private int updateTable(String crawlId) throws Exception {
+  private int updateTable(String crawlId,String batchId) throws Exception {
     LOG.info("DbUpdaterJob: starting");
-    run(ToolUtil.toArgMap(Nutch.ARG_CRAWL, crawlId));
+    if (batchId.equals(Nutch.ALL_BATCH_ID_STR)) {
+      LOG.info("DbUpdaterJob: updatinging all");
+    } else {
+      LOG.info("DbUpdaterJob: batchId: " + batchId);
+    }
+    run(ToolUtil.toArgMap(Nutch.ARG_CRAWL, crawlId,
+            Nutch.ARG_BATCH, batchId));
     LOG.info("DbUpdaterJob: done");
     return 0;
   }
 
   public int run(String[] args) throws Exception {
     String crawlId = null;
+    String batchId;
+
+    String usage = "Usage: DbUpdaterJob (<batchId> | -all) [-crawlId <id>] " +
+            "    <batchId>     - crawl identifier returned by Generator, or -all for all \n \t \t    generated batchId-s\n" +
+            "    -crawlId <id> - the id to prefix the schemas to operate on, \n \t \t    (default: storage.crawl.id)\n";
+
     if (args.length == 0) {
-      //
-    } else if (args.length == 2 && "-crawlId".equals(args[0])) {
-      crawlId = args[1];
-    } else {
-      throw new IllegalArgumentException("usage: " + "(-crawlId <id>)");
+      System.err.println(usage);
+      return -1;
     }
-    return updateTable(crawlId);
+
+    batchId = args[0];
+    if (!batchId.equals("-all") && batchId.startsWith("-")) {
+      System.err.println(usage);
+      return -1;
+    }
+
+    for (int i = 1; i < args.length; i++) {
+      if ("-crawlId".equals(args[i])) {
+        getConf().set(Nutch.CRAWL_ID_KEY, args[++i]);
+      } else {
+        throw new IllegalArgumentException("arg " +args[i]+ " not recognized");
+      }
+    }
+    return updateTable(crawlId,batchId);
   }
 
   public static void main(String[] args) throws Exception {

@@ -141,7 +141,7 @@ do
 
   # updatedb with this batch
   echo "CrawlDB update for $CRAWL_ID"
-  $bin/nutch updatedb $commonOptions -crawlId $CRAWL_ID
+  $bin/nutch updatedb $commonOptions -batchId $batchId -crawlId $CRAWL_ID
 
   if [ $? -ne 0 ] 
   then exit $? 

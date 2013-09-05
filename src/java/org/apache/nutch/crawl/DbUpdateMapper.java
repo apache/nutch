@@ -23,6 +23,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.avro.util.Utf8;
+import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.storage.Mark;
+import org.apache.nutch.util.NutchJob;
 import org.slf4j.Logger;
 import org.apache.hadoop.io.FloatWritable;
 import org.apache.hadoop.util.StringUtils;
@@ -41,6 +44,8 @@ extends GoraMapper<String, WebPage, UrlWithScore, NutchWritable> {
   private ScoringFilters scoringFilters;
 
   private final List<ScoreDatum> scoreData = new ArrayList<ScoreDatum>();
+
+  private Utf8 batchId;
   
   //reuse writables
   private UrlWithScore urlWithScore = new UrlWithScore();
@@ -50,6 +55,14 @@ extends GoraMapper<String, WebPage, UrlWithScore, NutchWritable> {
   @Override
   public void map(String key, WebPage page, Context context)
   throws IOException, InterruptedException {
+
+    Utf8 mark = Mark.GENERATE_MARK.checkMark(page);
+    if(!NutchJob.shouldProcess(mark,batchId)) {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; different batch id (" + mark + ")");
+      }
+      return;
+    }
 
     String url = TableUtil.unreverseUrl(key);
 
@@ -93,6 +106,7 @@ extends GoraMapper<String, WebPage, UrlWithScore, NutchWritable> {
   public void setup(Context context) {
     scoringFilters = new ScoringFilters(context.getConfiguration());
     pageWritable = new WebPageWritable(context.getConfiguration(), null);
+    batchId = new Utf8(context.getConfiguration().get(Nutch.BATCH_NAME_KEY,Nutch.ALL_BATCH_ID_STR));
   }
 
 }

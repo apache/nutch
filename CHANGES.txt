@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1556 enabling updatedb to accept batchId (kaveh minooie,Feng)
+
 * NUTCH-1619 Writes Dmoz Description and Title information to db with snippet argument ( Yasin Kılınç via feng)
 
 * NUTCH-1631 Display Document Count Added To Solr Server (Furkan KAMACI via lewismc)
