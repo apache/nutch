@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-1637 URLUtil is mising getProtocol (markus)
+
 * NUTCH-1622 Create Outlinks with metadata (jnioche)
 
 * NUTCH-1629 Injector skips empty lines in seed files (kaveh minooie via jnioche)

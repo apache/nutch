@@ -464,6 +464,18 @@ public class URLUtil {
       return null;
     }
   }
+  
+  public static String getProtocol(String url) {
+    try {
+      return getProtocol(new URL(url));
+    } catch (Exception e) {
+      return null;
+    }
+  }
+  
+  public static String getProtocol(URL url) {
+    return url.getProtocol();
+  }
 
   public static String toASCII(String url) {
     try {
