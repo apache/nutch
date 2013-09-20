@@ -18,6 +18,7 @@ package org.apache.nutch.parse;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -44,6 +45,7 @@ import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.TableUtil;
+import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.ToolUtil;
 import org.apache.gora.mapreduce.GoraMapper;
 
@@ -256,13 +258,19 @@ public class ParserJob extends NutchTool implements Tool {
   }
 
   public int parse(String batchId, boolean shouldResume, boolean force) throws Exception {
-    LOG.info("ParserJob: starting");
+    
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("ParserJob: starting at " + sdf.format(start));
 
     run(ToolUtil.toArgMap(
         Nutch.ARG_BATCH, batchId,
         Nutch.ARG_RESUME, shouldResume,
         Nutch.ARG_FORCE, force));
     LOG.info("ParserJob: success");
+    
+    long finish = System.currentTimeMillis();
+    LOG.info("ParserJob: finished at " + sdf.format(finish) + ", time elapsed: " + TimingUtil.elapsedTime(start, finish));
     return 0;
   }
 

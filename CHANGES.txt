@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1641 Log timings for main jobs (jnioche)
+
 * NUTCH-1556 enabling updatedb to accept batchId (kaveh minooie,Feng)
 
 * NUTCH-1619 Writes Dmoz Description and Title information to db with snippet argument ( Yasin Kılınç via feng)

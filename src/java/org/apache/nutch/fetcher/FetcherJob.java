@@ -17,6 +17,7 @@
 package org.apache.nutch.fetcher;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -44,6 +45,7 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
 import org.apache.nutch.util.TableUtil;
+import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.ToolUtil;
 import org.apache.gora.mapreduce.GoraMapper;
 
@@ -208,7 +210,10 @@ public class FetcherJob extends NutchTool implements Tool {
    */
   public int fetch(String batchId, int threads, boolean shouldResume, int numTasks)
       throws Exception {
-    LOG.info("FetcherJob: starting");
+    
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("FetcherJob: starting at " + sdf.format(start));
 
     if (batchId.equals(Nutch.ALL_BATCH_ID_STR)) {
       LOG.info("FetcherJob: fetching all");
@@ -221,7 +226,10 @@ public class FetcherJob extends NutchTool implements Tool {
         Nutch.ARG_THREADS, threads,
         Nutch.ARG_RESUME, shouldResume,
         Nutch.ARG_NUMTASKS, numTasks));
-    LOG.info("FetcherJob: done");
+    
+    long finish = System.currentTimeMillis();
+    LOG.info("FetcherJob: finished at " + sdf.format(finish) + ", time elapsed: " + TimingUtil.elapsedTime(start, finish));
+    
     return 0;
   }
 

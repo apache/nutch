@@ -16,6 +16,7 @@
  ******************************************************************************/
 package org.apache.nutch.crawl;
 
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -34,6 +35,7 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.NutchTool;
+import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.ToolUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,7 +108,11 @@ public class DbUpdaterJob extends NutchTool implements Tool {
   }
   
   private int updateTable(String crawlId,String batchId) throws Exception {
-    LOG.info("DbUpdaterJob: starting");
+    
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    long start = System.currentTimeMillis();
+    LOG.info("DbUpdaterJob: starting at " + sdf.format(start));
+    
     if (batchId.equals(Nutch.ALL_BATCH_ID_STR)) {
       LOG.info("DbUpdaterJob: updatinging all");
     } else {
@@ -114,7 +120,9 @@ public class DbUpdaterJob extends NutchTool implements Tool {
     }
     run(ToolUtil.toArgMap(Nutch.ARG_CRAWL, crawlId,
             Nutch.ARG_BATCH, batchId));
-    LOG.info("DbUpdaterJob: done");
+    
+    long finish = System.currentTimeMillis();
+    LOG.info("DbUpdaterJob: finished at " + sdf.format(finish) + ", time elapsed: " + TimingUtil.elapsedTime(start, finish));
     return 0;
   }
 
