@@ -2,7 +2,9 @@ Nutch Change Log
 
 Nutch Development Trunk
 
-* NUTCH-1637 URLUtil is mising getProtocol (markus)
+* NUTCH-1636 Indexer to normalize and filter repr URL (Iain Lopata via snagel)
+
+* NUTCH-1637 URLUtil is missing getProtocol (markus)
 
 * NUTCH-1622 Create Outlinks with metadata (jnioche)
 

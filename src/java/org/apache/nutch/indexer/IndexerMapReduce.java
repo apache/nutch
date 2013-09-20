@@ -89,7 +89,7 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
     filter = job.getBoolean(URL_FILTERING, false);
 
     if (normalize) {
-      urlNormalizers = new URLNormalizers(getConf(), URLNormalizers.SCOPE_DEFAULT);
+      urlNormalizers = new URLNormalizers(getConf(), URLNormalizers.SCOPE_INDEXER);
     }
 
     if (filter) {
@@ -267,7 +267,14 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
       // fetchDatum so that indexing filters can use it
       final Text url = (Text) dbDatum.getMetaData().get(Nutch.WRITABLE_REPR_URL_KEY);
       if (url != null) {
-        fetchDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY, url);
+        // Representation URL also needs normalization and filtering.
+        // If repr URL is excluded by filters we still accept this document
+        // but represented by its primary URL ("key") which has passed URL filters.
+        String urlString = filterUrl(normalizeUrl(url.toString()));
+        if (urlString != null) {
+          url.set(urlString);
+          fetchDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY, url);
+        }
       }
       // run indexing filters
       doc = this.filters.filter(doc, parse, key, fetchDatum, inlinks);
