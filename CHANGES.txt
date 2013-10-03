@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-1639 bin/crawl fails on mac os (various contributors via snagel)
+
 * NUTCH-1646 IndexerMapReduce to consider DB status (markus)
 
 * NUTCH-1636 Indexer to normalize and filter repr URL (Iain Lopata via snagel)

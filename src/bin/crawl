@@ -122,7 +122,7 @@ do
   # or use ls
 
   if [ $mode = "local" ]; then
-   SEGMENT=`ls -l $CRAWL_PATH/segments/ | sed -e "s/ /\\n/g" | egrep 20[0-9]+ | sort -n | tail -n 1`
+   SEGMENT=`ls $CRAWL_PATH/segments/ | sort -n | tail -n 1`
   else
    SEGMENT=`hadoop fs -ls $CRAWL_PATH/segments/ | grep segments |  sed -e "s/\//\\n/g" | egrep 20[0-9]+ | sort -n | tail -n 1`
   fi
