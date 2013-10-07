@@ -51,6 +51,8 @@ public class ParseSegment extends Configured implements Tool,
   
   private ScoringFilters scfilters;
   
+  private ParseUtil parseUtil;
+  
   private boolean skipTruncated;
   
   public ParseSegment() {
@@ -94,7 +96,9 @@ public class ParseSegment extends Configured implements Tool,
 
     ParseResult parseResult = null;
     try {
-      parseResult = new ParseUtil(getConf()).parse(content);
+      //if (parseUtil == null) 
+      parseUtil = new ParseUtil(getConf());
+      parseResult = parseUtil.parse(content);
     } catch (Exception e) {
       LOG.warn("Error parsing: " + key + ": " + StringUtils.stringifyException(e));
       return;
