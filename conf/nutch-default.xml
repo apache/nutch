@@ -1172,11 +1172,10 @@
 <property>
   <name>scoring.filter.order</name>
   <value></value>
-  <description>The order in which scoring filters are applied.
-  This may be left empty (in which case all available scoring
-  filters will be applied in the order defined in plugin-includes
-  and plugin-excludes), or a space separated list of implementation
-  classes.
+  <description>The order in which scoring filters are applied.  This
+  may be left empty (in which case all available scoring filters will
+  be applied in system defined order), or a space separated list of
+  implementation classes.
   </description>
 </property>
 

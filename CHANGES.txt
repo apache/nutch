@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-1562 Order of execution for scoring filters (jnioche, snagel)
+
 * NUTCH-1640 Reuse ParseUtil instance in ParseSegment (Mitesh Singh Jat via jnioche)
 
 * NUTCH-1639 bin/crawl fails on mac os (various contributors via snagel)

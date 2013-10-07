@@ -18,25 +18,19 @@
 package org.apache.nutch.scoring;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseData;
-import org.apache.nutch.plugin.Extension;
-import org.apache.nutch.plugin.ExtensionPoint;
-import org.apache.nutch.plugin.PluginRuntimeException;
 import org.apache.nutch.plugin.PluginRepository;
 import org.apache.nutch.protocol.Content;
-import org.apache.nutch.util.ObjectCache;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.conf.Configured;
-import org.apache.hadoop.io.Text;
 
 /**
  * Creates and caches {@link ScoringFilter} implementing plugins.
@@ -49,43 +43,9 @@ public class ScoringFilters extends Configured implements ScoringFilter {
 
   public ScoringFilters(Configuration conf) {
     super(conf);
-    ObjectCache objectCache = ObjectCache.get(conf);
-    String order = conf.get("scoring.filter.order");
-    this.filters = (ScoringFilter[]) objectCache.getObject(ScoringFilter.class.getName());
-
-    if (this.filters == null) {
-      String[] orderedFilters = null;
-      if (order != null && !order.trim().equals("")) {
-        orderedFilters = order.trim().split("\\s+");
-      }
-
-      try {
-        ExtensionPoint point = PluginRepository.get(conf).getExtensionPoint(ScoringFilter.X_POINT_ID);
-        if (point == null) throw new RuntimeException(ScoringFilter.X_POINT_ID + " not found.");
-        Extension[] extensions = point.getExtensions();
-        HashMap<String, ScoringFilter> filterMap =
-          new HashMap<String, ScoringFilter>();
-        for (int i = 0; i < extensions.length; i++) {
-          Extension extension = extensions[i];
-          ScoringFilter filter = (ScoringFilter) extension.getExtensionInstance();
-          if (!filterMap.containsKey(filter.getClass().getName())) {
-            filterMap.put(filter.getClass().getName(), filter);
-          }
-        }
-        if (orderedFilters == null) {
-          objectCache.setObject(ScoringFilter.class.getName(), filterMap.values().toArray(new ScoringFilter[0]));
-        } else {
-          ScoringFilter[] filter = new ScoringFilter[orderedFilters.length];
-          for (int i = 0; i < orderedFilters.length; i++) {
-            filter[i] = filterMap.get(orderedFilters[i]);
-          }
-          objectCache.setObject(ScoringFilter.class.getName(), filter);
-        }
-      } catch (PluginRuntimeException e) {
-        throw new RuntimeException(e);
-      }
-      this.filters = (ScoringFilter[]) objectCache.getObject(ScoringFilter.class.getName());
-    }
+    this.filters = (ScoringFilter[]) PluginRepository.get(conf)
+        .getOrderedPlugins(ScoringFilter.class, ScoringFilter.X_POINT_ID,
+            "scoring.filter.order");
   }
 
   /** Calculate a sort value for Generate. */
