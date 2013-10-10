@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-1653 AbstractScoringFilter (jnioche)
+
 * NUTCH-1562 Order of execution for scoring filters (jnioche, snagel)
 
 * NUTCH-1640 Reuse ParseUtil instance in ParseSegment (Mitesh Singh Jat via jnioche)
