@@ -36,7 +36,7 @@ public class ObjectCache {
     objectMap = new HashMap<String, Object>();
   }
   
-  public static ObjectCache get(Configuration conf) {
+  public synchronized static ObjectCache get(Configuration conf) {
     ObjectCache objectCache = CACHE.get(conf);
     if (objectCache == null) {
       LOG.debug("No object cache found for conf=" + conf 
@@ -47,11 +47,11 @@ public class ObjectCache {
     return objectCache;
   }
   
-  public Object getObject(String key) {
+  public synchronized Object getObject(String key) {
     return objectMap.get(key);
   }
   
-  public void setObject(String key, Object value) {
+  public synchronized void setObject(String key, Object value) {
     objectMap.put(key, value);
   }
 }

@@ -38,7 +38,7 @@ public class SignatureFactory {
   private SignatureFactory() {}                   // no public ctor
 
   /** Return the default Signature implementation. */
-  public static Signature getSignature(Configuration conf) {
+  public synchronized static Signature getSignature(Configuration conf) {
     String clazz = conf.get("db.signature.class", MD5Signature.class.getName());
     ObjectCache objectCache = ObjectCache.get(conf);
     Signature impl = (Signature)objectCache.getObject(clazz);
