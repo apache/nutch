@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-1656 ParseMeta not passed to CrawlDatum for not_modified (markus)
+
 * NUTCH-1606 Check that Factory classes use the cache in a thread safe way (jnioche)
 
 * NUTCH-1653 AbstractScoringFilter (jnioche)

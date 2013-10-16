@@ -243,12 +243,15 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
           else result.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
         }
         result.setSignature(signature);
-        if (metaFromParse != null) {
-            for (Entry<Writable, Writable> e : metaFromParse.entrySet()) {
-              result.getMetaData().put(e.getKey(), e.getValue());
-            }
-          }
       }
+
+      // https://issues.apache.org/jira/browse/NUTCH-1656
+      if (metaFromParse != null) {
+        for (Entry<Writable, Writable> e : metaFromParse.entrySet()) {
+          result.getMetaData().put(e.getKey(), e.getValue());
+        }
+      }
+
       // if fetchInterval is larger than the system-wide maximum, trigger
       // an unconditional recrawl. This prevents the page to be stuck at
       // NOTMODIFIED state, when the old fetched copy was already removed with
