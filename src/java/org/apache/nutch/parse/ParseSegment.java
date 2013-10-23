@@ -96,8 +96,8 @@ public class ParseSegment extends Configured implements Tool,
 
     ParseResult parseResult = null;
     try {
-      //if (parseUtil == null) 
-      parseUtil = new ParseUtil(getConf());
+      if (parseUtil == null) 
+        parseUtil = new ParseUtil(getConf());
       parseResult = parseUtil.parse(content);
     } catch (Exception e) {
       LOG.warn("Error parsing: " + key + ": " + StringUtils.stringifyException(e));
