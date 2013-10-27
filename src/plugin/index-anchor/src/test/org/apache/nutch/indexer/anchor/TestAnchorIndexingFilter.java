@@ -23,21 +23,15 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * JUnit test case which tests
  * 1. that anchor text is obtained
  * 2. that anchor deduplication functionality is working
- * 
- * @author lewismc
  *
  */
 public class TestAnchorIndexingFilter {
   
-  public static final Logger LOG = LoggerFactory.getLogger(TestAnchorIndexingFilter.class);
-	
   @Test
   public void testDeduplicateAnchor() throws Exception {
     Configuration conf = NutchConfiguration.create();
