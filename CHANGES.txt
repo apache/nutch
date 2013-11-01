@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1125 JUnit test for tld (Sertac TURKEL via lewismc)
+
 * NUTCH-1124 JUnit test for scoring-opic (Talat UYARER via lewismc)
 
 * NUTCH-1641 Log timings for main jobs (jnioche)
