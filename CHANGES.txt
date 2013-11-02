@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1650 Adaptive Fetch Scheduler interval Wrong Set (Talat UYARER via lewismc)
+
 * NUTCH-1413 Record response time (Yasin KILINC, Talat UYARER, snagel via lewismc)
 
 * NUTCH-1125 JUnit test for tld (Sertac TURKEL via lewismc)

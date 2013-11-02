@@ -93,7 +93,6 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
       case FetchSchedule.STATUS_UNKNOWN:
         break;
     }
-    page.setFetchInterval(interval);
     if (SYNC_DELTA) {
       // try to synchronize with the time of change
       // TODO: different from normal class (is delta in seconds)?
@@ -103,6 +102,8 @@ public class AdaptiveFetchSchedule extends AbstractFetchSchedule {
     }
     if (interval < MIN_INTERVAL) interval = MIN_INTERVAL;
     if (interval > MAX_INTERVAL) interval = MAX_INTERVAL;
+   
+    page.setFetchInterval(interval);
     page.setFetchTime(refTime + interval * 1000L);
     page.setModifiedTime(modifiedTime);
     page.setPrevModifiedTime(prevModifiedTime);
