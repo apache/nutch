@@ -101,9 +101,8 @@ implements FetchSchedule {
 
   /**
    * This method specifies how to schedule refetching of pages
-   * marked as GONE. Default implementation increases fetchInterval by 50%,
-   * and if it exceeds the <code>maxInterval</code> it calls
-   * {@link #forceRefetch(Text, CrawlDatum, boolean)}.
+   * marked as GONE. Default implementation increases fetchInterval by 50%
+   * but the value may never exceed <code>maxInterval</code>.
    * @param url URL of the page
    * @param page
    * @return adjusted page information, including all original information.
@@ -112,14 +111,17 @@ implements FetchSchedule {
    * information from {@param datum}.
    */
   @Override
-  public void setPageGoneSchedule(String url, WebPage page,
-          long prevFetchTime, long prevModifiedTime, long fetchTime) {
+  public void setPageGoneSchedule(String url, WebPage page, long prevFetchTime,
+      long prevModifiedTime, long fetchTime) {
     // no page is truly GONE ... just increase the interval by 50%
     // and try much later.
-    int newFetchInterval = (int) (page.getFetchInterval() * 1.5f);
-    page.setFetchInterval(newFetchInterval);
-    page.setFetchTime(fetchTime + newFetchInterval * 1000L);
-    if (maxInterval < newFetchInterval) forceRefetch(url, page, false);
+    if ((page.getFetchInterval() * 1.5f) < maxInterval) {
+      int newFetchInterval = (int) (page.getFetchInterval() * 1.5f);
+      page.setFetchInterval(newFetchInterval);
+    } else {
+      page.setFetchInterval((int) (maxInterval * 0.9f));
+    }
+    page.setFetchTime(fetchTime + page.getFetchInterval() * 1000L);
   }
 
   /**
