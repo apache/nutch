@@ -22,6 +22,17 @@
 
 <configuration>
 
+<!-- general properties  -->
+
+<property>
+  <name>store.ip.address</name>
+  <value>false</value>
+  <description>Enables us to capture the specific IP address 
+  (InetSocketAddress) of the host which we connect to via 
+  the given protocol.
+  </description>
+</property>
+
 <!-- file properties -->
 
 <property>

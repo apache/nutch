@@ -22,21 +22,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-
 import java.net.InetAddress;
 import java.net.Socket;
-
 import java.util.List;
 //import java.util.LinkedList;
 
-import org.apache.commons.net.MalformedServerReplyException;
 
+import org.apache.commons.net.MalformedServerReplyException;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPCommand;
 import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPFileEntryParser;
 import org.apache.commons.net.ftp.FTPReply;
-
 import org.apache.commons.net.ftp.FTPConnectionClosedException;
 
 /***********************************************
@@ -51,7 +48,7 @@ import org.apache.commons.net.ftp.FTPConnectionClosedException;
  * ftp server implementations are hardly uniform and none seems to follow
  * RFCs whole-heartedly. We have no choice, but assume common denominator
  * as following:
- * (1) Use stream mode for data tranfer. Block mode will be better for
+ * (1) Use stream mode for data transfer. Block mode will be better for
  *     multiple file downloading and partial file downloading. However
  *     not every ftpd has block mode support.
  * (2) Use passive mode for data connection.
@@ -150,7 +147,14 @@ public class Client extends FTP
         __passivePort = index;
     }
 
-    // open passive data connection socket
+    /**
+     * open a passive data connection socket
+     * @param command
+     * @param arg
+     * @return
+     * @throws IOException
+     * @throws FtpExceptionCanNotHaveDataConnection
+     */
     protected Socket __openPassiveDataConnection(int command, String arg)
       throws IOException, FtpExceptionCanNotHaveDataConnection {
         Socket socket;
@@ -314,7 +318,17 @@ public class Client extends FTP
         return FTPReply.isPositiveCompletion(quit());
     }
 
-    // retrieve list reply for path
+    /**
+     * Retrieve a list reply for path
+     * @param path
+     * @param entries
+     * @param limit
+     * @param parser
+     * @throws IOException
+     * @throws FtpExceptionCanNotHaveDataConnection
+     * @throws FtpExceptionUnknownForcedDataClose
+     * @throws FtpExceptionControlClosedByForcedDataClose
+     */
     public void retrieveList(String path, List<FTPFile> entries, int limit,
       FTPFileEntryParser parser)
       throws IOException,
@@ -380,7 +394,16 @@ public class Client extends FTP
 
     }
 
-    // retrieve file for path
+    /**
+     * Retrieve a file for path
+     * @param path
+     * @param os
+     * @param limit
+     * @throws IOException
+     * @throws FtpExceptionCanNotHaveDataConnection
+     * @throws FtpExceptionUnknownForcedDataClose
+     * @throws FtpExceptionControlClosedByForcedDataClose
+     */
     public void retrieveFile(String path, OutputStream os, int limit)
       throws IOException,
         FtpExceptionCanNotHaveDataConnection,

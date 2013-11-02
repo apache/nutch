@@ -29,7 +29,6 @@ import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.MimeUtil;
-import org.apache.tika.mime.MimeType;
 
 
 /************************************

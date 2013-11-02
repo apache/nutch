@@ -32,7 +32,6 @@ import java.util.concurrent.BlockingQueue;
 
 //APACHE imports
 import org.apache.hadoop.conf.Configuration;
-import org.apache.log4j.Logger;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
@@ -52,13 +51,16 @@ import com.jcraft.jsch.ChannelSftp.LsEntry;
 
 import crawlercommons.robots.BaseRobotRules;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * This class uses the Jsch package to fetch content using the Sftp protocol.
  * 
  */
 public class Sftp implements Protocol {
 
-  private static final Logger logger = Logger.getLogger(Sftp.class);
+  private static final Logger logger = LoggerFactory.getLogger(Sftp.class);
   private static final Map<String, BlockingQueue<ChannelSftp>> channelSftpByHostMap = new Hashtable<String, BlockingQueue<ChannelSftp>>();
 
   private Configuration configuration;
