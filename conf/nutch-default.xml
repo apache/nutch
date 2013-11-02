@@ -248,6 +248,14 @@
   </description>
 </property>
 
+<property>
+  <name>http.store.responsetime</name>
+  <value>true</value>
+  <description>Enables us to record the response time of the 
+  host which is the time period between start connection to end 
+  connection of a pages host.</description>
+</property>
+
 <!-- FTP properties -->
 
 <property>

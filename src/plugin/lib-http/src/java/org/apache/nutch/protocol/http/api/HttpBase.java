@@ -19,11 +19,10 @@ package org.apache.nutch.protocol.http.api;
 // JDK imports
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.LinkedList;
-
+import java.nio.ByteBuffer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
@@ -33,6 +32,7 @@ import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatusCodes;
 import org.apache.nutch.protocol.ProtocolStatusUtils;
 import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.util.Bytes;
 import org.apache.nutch.util.GZIPUtils;
 import org.apache.nutch.util.DeflateUtils;
 import org.apache.nutch.util.MimeUtil;
@@ -41,6 +41,8 @@ import org.apache.nutch.util.MimeUtil;
 import crawlercommons.robots.BaseRobotRules;
 
 public abstract class HttpBase implements Protocol {
+  
+  private final static Utf8 RESPONSE_TIME = new Utf8("_rs_");
 
   public static final int BUFFER_SIZE = 8 * 1024;
 
@@ -66,8 +68,8 @@ public abstract class HttpBase implements Protocol {
   /** The Nutch 'User-Agent' request header */
   protected String userAgent = getAgentString(
       "NutchCVS", null, "Nutch",
-      "http://lucene.apache.org/nutch/bot.html",
-  "nutch-agent@lucene.apache.org");
+      "http://nutch.apache.org/bot.html",
+      "agent@nutch.apache.org");
 
 
   /** The "Accept-Language" request header value. */
@@ -90,6 +92,9 @@ public abstract class HttpBase implements Protocol {
   /** Do we use HTTP/1.1? */
   protected boolean useHttp11 = false;
 
+  /** Response Time */
+  protected boolean responseTime = true;
+  
   /** Creates a new instance of HttpBase */
   public HttpBase() {
     this(null);
@@ -117,6 +122,7 @@ public abstract class HttpBase implements Protocol {
     this.accept = conf.get("http.accept", accept);
     this.mimeTypes = new MimeUtil(conf);
     this.useHttp11 = conf.getBoolean("http.useHttp11", false);
+    this.responseTime = conf.getBoolean("http.store.responsetime", true);
     this.robots.setConf(conf);
     logConf();
   }
@@ -130,7 +136,15 @@ public abstract class HttpBase implements Protocol {
 
     try {
       URL u = new URL(url);
+      
+      long startTime = System.currentTimeMillis();
       Response response = getResponse(u, page, false); // make a request
+      int elapsedTime =(int) (System.currentTimeMillis() - startTime);
+      
+      if(this.responseTime) {
+        page.putToMetadata(RESPONSE_TIME, ByteBuffer.wrap(Bytes.toBytes(elapsedTime))); 
+      }
+      
       int code = response.getCode();
       byte[] content = response.getContent();
       Content c = new Content(u.toString(), u.toString(),
