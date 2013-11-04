@@ -27,6 +27,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.fetcher.FetcherJob;
+import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.scoring.ScoreDatum;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
@@ -128,7 +129,14 @@ extends GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
         long prevFetchTime = page.getPrevFetchTime();
         long modifiedTime = page.getModifiedTime();
         long prevModifiedTime = page.getPrevModifiedTime();
-
+        Utf8 lastModified = page.getFromHeaders(new Utf8("Last-Modified"));
+        if ( lastModified != null ){
+          try {
+            modifiedTime = HttpDateFormat.toLong(lastModified.toString());
+            prevModifiedTime = page.getModifiedTime();
+          } catch (Exception e) {
+          }
+        }
         schedule.setFetchSchedule(url, page, prevFetchTime, prevModifiedTime,
             fetchTime, modifiedTime, modified);
         if (maxInterval < page.getFetchInterval())

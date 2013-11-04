@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1651 modifiedTime and prevmodifiedTime never set (Talat UYARER via lewismc)
+
 * NUTCH-1360 Suport the storing of IP address connected to when web crawling (ferdy, lewismc, Yasin Kılınç)
 
 * NUTCH-1588 Port NUTCH-1245 URL gone with 404 after db.fetch.interval.max stays db_unfetched in CrawlDb and is generated over and over again to 2.x (Talat UYARER via lewismc)
