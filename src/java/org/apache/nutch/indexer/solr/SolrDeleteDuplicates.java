@@ -267,8 +267,10 @@ Tool {
 
           SolrDocument doc = solrDocs.get(currentDoc);
           String digest = (String) doc.getFieldValue(SolrConstants.DIGEST_FIELD);
-          key.set(digest);
-          value.readSolrDocument(doc);
+          if (digest != null){
+            key.set(digest);
+            value.readSolrDocument(doc);
+          }
 
           currentDoc++;
           return true;

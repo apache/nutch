@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-1100 Avoid NPE in SOLRDedup (markus)
+
 * NUTCH-1666 Optimisation for BasicURLNormalizer (jnioche)
 
 * NUTCH-1656 ParseMeta not passed to CrawlDatum for not_modified (markus)
