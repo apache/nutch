@@ -45,6 +45,8 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
     private final Rule leadingRelativePathRule;
     private final Rule currentPathRule;
     private final Rule adjacentSlashRule;
+    
+    private final static java.util.regex.Pattern hasNormalizablePattern = java.util.regex.Pattern.compile("/\\.?\\.?/");
 
     private Configuration conf;
 
@@ -145,6 +147,10 @@ public class BasicURLNormalizer extends Configured implements URLNormalizer {
     }
 
     private String substituteUnnecessaryRelativePaths(String file) {
+    	
+    	if (!hasNormalizablePattern.matcher(file).find())
+    		return file;
+    	
         String fileWorkCopy = file;
         int oldLen = file.length();
         int newLen = oldLen - 1;
