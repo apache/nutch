@@ -47,7 +47,6 @@ done
 if [ $# = 0 ]; then
   echo "Usage: nutch COMMAND"
   echo "where COMMAND is one of:"
-  echo "  crawl             one-step crawler for intranets (DEPRECATED - USE CRAWL SCRIPT INSTEAD)"
   echo "  readdb            read / dump crawl db"
   echo "  mergedb           merge crawldb-s, with optional filtering"
   echo "  readlinkdb        read / dump link db"
@@ -193,7 +192,8 @@ fi
 
 # figure out which class to run
 if [ "$COMMAND" = "crawl" ] ; then
-  CLASS=org.apache.nutch.crawl.Crawl
+  echo "Command $COMMAND is deprecated, please use bin/crawl instead"
+  exit -1
 elif [ "$COMMAND" = "inject" ] ; then
   CLASS=org.apache.nutch.crawl.Injector
 elif [ "$COMMAND" = "generate" ] ; then
