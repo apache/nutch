@@ -227,6 +227,8 @@ elif [ "$COMMAND" = "index" ] ; then
   CLASS=org.apache.nutch.indexer.IndexingJob
 elif [ "$COMMAND" = "solrdedup" ] ; then
   CLASS=org.apache.nutch.indexer.solr.SolrDeleteDuplicates
+elif [ "$COMMAND" = "dedup" ] ; then
+  CLASS=org.apache.nutch.crawl.DeduplicationJob
 elif [ "$COMMAND" = "solrclean" ] ; then
   CLASS="org.apache.nutch.indexer.CleaningJob -D solr.server.url=$2 $1"
   shift; shift

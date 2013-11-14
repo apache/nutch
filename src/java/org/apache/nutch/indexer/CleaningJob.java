@@ -45,9 +45,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The class scans CrawlDB looking for entries with status DB_GONE (404) and
+ * The class scans CrawlDB looking for entries with status DB_GONE (404) or 
+ * DB_DUPLICATE and
  * sends delete requests to indexers for those documents.
- * 
  */
 
 public class CleaningJob implements Tool {
@@ -81,7 +81,7 @@ public class CleaningJob implements Tool {
                 OutputCollector<ByteWritable, Text> output, Reporter reporter)
                 throws IOException {
 
-            if (value.getStatus() == CrawlDatum.STATUS_DB_GONE) {
+            if (value.getStatus() == CrawlDatum.STATUS_DB_GONE || value.getStatus() == CrawlDatum.STATUS_DB_DUPLICATE) {
                 output.collect(OUT, key);
             }
         }
@@ -179,7 +179,9 @@ public class CleaningJob implements Tool {
 
     public int run(String[] args) throws IOException {
         if (args.length < 1) {
-            System.err.println("Usage: CleaningJob <crawldb> [-noCommit]");
+            String usage = "Usage: CleaningJob <crawldb> [-noCommit]";
+            LOG.error("Missing crawldb. "+usage);
+            System.err.println(usage);
             IndexWriters writers = new IndexWriters(getConf());
             System.err.println(writers.describe());
             return 1;

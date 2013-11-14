@@ -165,15 +165,22 @@ do
   then exit $? 
   fi
 
-  echo "Indexing $SEGMENT on SOLR index -> $SOLRURL"
-  $bin/nutch solrindex $SOLRURL $CRAWL_PATH/crawldb -linkdb $CRAWL_PATH/linkdb $CRAWL_PATH/segments/$SEGMENT
+  echo "Dedup on crawldb"
+  $bin/nutch dedup $CRAWL_PATH/crawldb
   
   if [ $? -ne 0 ] 
    then exit $? 
   fi
 
-  echo "SOLR dedup -> $SOLRURL"
-  $bin/nutch solrdedup $SOLRURL
+  echo "Indexing $SEGMENT on SOLR index -> $SOLRURL"
+  $bin/nutch index -D solr.server.url=$SOLRURL $CRAWL_PATH/crawldb -linkdb $CRAWL_PATH/linkdb $CRAWL_PATH/segments/$SEGMENT
+  
+  if [ $? -ne 0 ] 
+   then exit $? 
+  fi
+
+  echo "Cleanup on SOLR index -> $SOLRURL"
+  $bin/nutch clean -D solr.server.url=$SOLRURL $CRAWL_PATH/crawldb
   
   if [ $? -ne 0 ] 
    then exit $? 

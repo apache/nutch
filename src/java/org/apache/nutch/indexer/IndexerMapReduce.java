@@ -245,6 +245,14 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
       return;                                     // only have inlinks
     }
 
+    // Whether to delete pages marked as duplicates
+    if (delete && dbDatum.getStatus() == CrawlDatum.STATUS_DB_DUPLICATE) {
+      reporter.incrCounter("IndexerStatus", "Duplicates deleted", 1);
+      NutchIndexAction action = new NutchIndexAction(null, NutchIndexAction.DELETE);
+      output.collect(key, action);
+      return;
+    }
+    
     // Whether to skip DB_NOTMODIFIED pages
     if (skip && dbDatum.getStatus() == CrawlDatum.STATUS_DB_NOTMODIFIED) {
       reporter.incrCounter("IndexerStatus", "Skipped", 1);
