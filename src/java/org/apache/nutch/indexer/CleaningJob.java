@@ -166,6 +166,8 @@ public class CleaningJob implements Tool {
         job.setMapOutputValueClass(Text.class);
         job.setMapperClass(DBFilter.class);
         job.setReducerClass(DeleterReducer.class);
+        
+        job.setJobName("CleaningJob");
 
         // need to expicitely allow deletions
         job.setBoolean(IndexerMapReduce.INDEXER_DELETE, true);

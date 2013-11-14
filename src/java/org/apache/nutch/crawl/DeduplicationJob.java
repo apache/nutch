@@ -228,6 +228,8 @@ public class DeduplicationJob extends Configured implements Tool {
                 + Integer.toString(new Random().nextInt(Integer.MAX_VALUE)));
 
         JobConf job = new NutchJob(getConf());
+        
+        job.setJobName("Deduplication on "+crawldb);
 
         FileInputFormat.addInputPath(job, new Path(crawldb,
                 CrawlDb.CURRENT_NAME));
