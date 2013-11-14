@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1621 Remove deprecated class o.a.n.crawl.Crawler (Rui Gao via jnioche)
+
 * NUTCH-1651 modifiedTime and prevmodifiedTime never set (Talat UYARER via lewismc)
 
 * NUTCH-1360 Suport the storing of IP address connected to when web crawling (ferdy, lewismc, Yasin Kılınç)
