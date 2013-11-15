@@ -24,7 +24,7 @@ import org.apache.nutch.api.JobStatus.State;
 
 public interface JobManager {
   
-  public static enum JobType {INJECT, GENERATE, FETCH, PARSE, UPDATEDB, INDEX, CRAWL, READDB, CLASS};
+  public static enum JobType {INJECT, GENERATE, FETCH, PARSE, UPDATEDB, INDEX, READDB, CLASS};
 
   public List<JobStatus> list(String crawlId, State state) throws Exception;
   

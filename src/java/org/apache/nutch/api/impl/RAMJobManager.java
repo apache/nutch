@@ -33,7 +33,6 @@ import org.apache.nutch.api.JobManager;
 import org.apache.nutch.api.JobStatus;
 import org.apache.nutch.api.JobStatus.State;
 import org.apache.nutch.api.NutchApp;
-import org.apache.nutch.crawl.Crawler;
 import org.apache.nutch.crawl.DbUpdaterJob;
 import org.apache.nutch.crawl.GeneratorJob;
 import org.apache.nutch.crawl.InjectorJob;
@@ -94,7 +93,6 @@ public class RAMJobManager implements JobManager {
     typeToClass.put(JobType.PARSE, ParserJob.class);
     typeToClass.put(JobType.UPDATEDB, DbUpdaterJob.class);
     typeToClass.put(JobType.READDB, WebTableReader.class);
-    typeToClass.put(JobType.CRAWL, Crawler.class);
   }
 
   private void addFinishedStatus(JobStatus status) {
