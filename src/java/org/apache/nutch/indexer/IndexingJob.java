@@ -33,7 +33,6 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.nutch.indexer.solr.SolrConstants;
 import org.apache.nutch.util.HadoopFSUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
@@ -55,14 +54,6 @@ public class IndexingJob extends Configured implements Tool {
 
     public IndexingJob(Configuration conf) {
         super(conf);
-    }
-
-    public void index(Path crawlDb, Path linkDb, List<Path> segments)
-            throws IOException {
-        // SOLR SPECIFIC COMMIT PARAM USED BY CRAWL CLASS
-        boolean noCommit = !getConf().getBoolean(SolrConstants.COMMIT_INDEX,
-                true);
-        index(crawlDb, linkDb, segments, noCommit, false, null);
     }
 
     public void index(Path crawlDb, Path linkDb, List<Path> segments,

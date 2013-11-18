@@ -61,10 +61,11 @@ if [ $# = 0 ]; then
   echo "  invertlinks       create a linkdb from parsed segments"
   echo "  mergelinkdb       merge linkdb-s, with optional filtering"
   echo "  index             run the plugin-based indexer on parsed segments and linkdb"
-  echo "  solrindex         run the solr indexer on parsed segments and linkdb"
-  echo "  solrdedup         remove duplicates from solr"
-  echo "  solrclean         remove HTTP 301 and 404 documents from solr"
-  echo "  clean             remove HTTP 301 and 404 documents from indexing backends configured via plugins"
+  echo "  dedup             deduplicate entries in the crawldb and give them a special status"
+  echo "  solrindex         run the solr indexer on parsed segments and linkdb - DEPRECATED use the index command instead"
+  echo "  solrdedup         remove duplicates from solr - DEPRECATED use the dedup command instead"
+  echo "  solrclean         remove HTTP 301 and 404 documents from solr - DEPRECATED use the clean command instead"
+  echo "  clean             remove HTTP 301 and 404 documents and duplicates from indexing backends configured via plugins"
   echo "  parsechecker      check the parser for a given url"
   echo "  indexchecker      check the indexing filters for a given url"
   echo "  domainstats       calculate domain statistics from crawldb"
@@ -226,7 +227,8 @@ elif [ "$COMMAND" = "solrindex" ] ; then
 elif [ "$COMMAND" = "index" ] ; then
   CLASS=org.apache.nutch.indexer.IndexingJob
 elif [ "$COMMAND" = "solrdedup" ] ; then
-  CLASS=org.apache.nutch.indexer.solr.SolrDeleteDuplicates
+  echo "Command $COMMAND is deprecated, please use dedup instead"
+  exit -1
 elif [ "$COMMAND" = "dedup" ] ; then
   CLASS=org.apache.nutch.crawl.DeduplicationJob
 elif [ "$COMMAND" = "solrclean" ] ; then

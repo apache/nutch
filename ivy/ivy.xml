@@ -34,11 +34,8 @@
 	</publications>
 
 	<dependencies>
-                <dependency org="org.elasticsearch" name="elasticsearch" rev="0.90.1"
-                        conf="*->default"/>
-
-		<dependency org="org.apache.solr" name="solr-solrj" rev="3.4.0"
-			conf="*->default" />
+		<dependency org="org.elasticsearch" name="elasticsearch"
+			rev="0.90.1" conf="*->default" />
 
 		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.1"
 			conf="*->master" />
@@ -77,7 +74,8 @@
 		<dependency org="oro" name="oro" rev="2.0.8" />
 
 		<dependency org="com.google.guava" name="guava" rev="11.0.2" />
-                <dependency org="com.google.code.crawler-commons" name="crawler-commons" rev="0.2" />
+		<dependency org="com.google.code.crawler-commons" name="crawler-commons"
+			rev="0.2" />
 
 		<!--Configuration: test -->
 
