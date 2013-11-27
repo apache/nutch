@@ -258,6 +258,7 @@ public class MoreIndexingFilter implements IndexingFilter {
     for (int i = 0; i < patterns.length; i++) {
       if (matcher.contains(contentDisposition.toString(), patterns[i])) {
         result = matcher.getMatch();
+        doc.removeField("title");
         doc.add("title", result.group(1));
         break;
       }
