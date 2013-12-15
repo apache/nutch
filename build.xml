@@ -907,9 +907,9 @@
                  exported="false" />
         <library path="${basedir}/build/plugins/lib-nekohtml/nekohtml-0.9.5.jar" 
                  exported="false" />
-        <library path="${basedir}/build/plugins/lib-nekohtml/nekohtml-0.9.5.jar" 
-                 exported="false" />
         <library path="${basedir}/build/plugins/parse-html/tagsoup-1.2.1.jar" 
+                 exported="false" />
+        <library path="${basedir}/build/plugins/indexer-solr/solr-solrj-3.4.0.jar" 
                  exported="false" />
 
         <source path="${basedir}/src/java/" />
