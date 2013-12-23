@@ -210,5 +210,24 @@ public class TestURLUtil {
     // *www.a.com -> www.news.a.com
     assertEquals(aDotCom, URLUtil.chooseRepr(aDotCom, aSubDotCom, true));
   }
+  
+  @Test
+  public void testToUNICODE() throws Exception {
+    assertEquals("http://www.çevir.com", URLUtil.toUNICODE("http://www.xn--evir-zoa.com"));
+    assertEquals("http://uni-tübingen.de/", URLUtil.toUNICODE("http://xn--uni-tbingen-xhb.de/"));
+    assertEquals(
+        "http://www.medizin.uni-tübingen.de:8080/search.php?q=abc#p1",
+        URLUtil.toUNICODE("http://www.medizin.xn--uni-tbingen-xhb.de:8080/search.php?q=abc#p1"));
+    
+  }
+  
+  @Test
+  public void testToASCII() throws Exception {
+    assertEquals("http://www.xn--evir-zoa.com", URLUtil.toASCII("http://www.çevir.com"));
+    assertEquals("http://xn--uni-tbingen-xhb.de/", URLUtil.toASCII("http://uni-tübingen.de/"));
+    assertEquals(
+        "http://www.medizin.xn--uni-tbingen-xhb.de:8080/search.php?q=abc#p1",
+        URLUtil.toASCII("http://www.medizin.uni-tübingen.de:8080/search.php?q=abc#p1")); 
+  }
 
 }
