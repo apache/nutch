@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-1681 In URLUtil.java, toUNICODE method does not work correctly (İlhami KALKAN, snagel via markus)
+
 * NUTCH-1668 Remove package org.apache.nutch.indexer.solr (jnioche)
 
 * NUTCH-1621 Remove deprecated class o.a.n.crawl.Crawler (Rui Gao via jnioche)

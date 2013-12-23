@@ -258,5 +258,22 @@ public class TestURLUtil
       assertEquals(targets[i][1], targets[i][1], u.toString());
     }
   }
+  
+  public void testToUNICODE() throws Exception {
+    assertEquals("http://www.çevir.com", URLUtil.toUNICODE("http://www.xn--evir-zoa.com"));
+    assertEquals("http://uni-tübingen.de/", URLUtil.toUNICODE("http://xn--uni-tbingen-xhb.de/"));
+    assertEquals(
+        "http://www.medizin.uni-tübingen.de:8080/search.php?q=abc#p1",
+        URLUtil.toUNICODE("http://www.medizin.xn--uni-tbingen-xhb.de:8080/search.php?q=abc#p1"));
+    
+  }
+  
+  public void testToASCII() throws Exception {
+    assertEquals("http://www.xn--evir-zoa.com", URLUtil.toASCII("http://www.çevir.com"));
+    assertEquals("http://xn--uni-tbingen-xhb.de/", URLUtil.toASCII("http://uni-tübingen.de/"));
+    assertEquals(
+        "http://www.medizin.xn--uni-tbingen-xhb.de:8080/search.php?q=abc#p1",
+        URLUtil.toASCII("http://www.medizin.uni-tübingen.de:8080/search.php?q=abc#p1")); 
+  }
 
 }

@@ -481,7 +481,7 @@ public class URLUtil {
     try {
       URL u = new URL(url);
       URI p = new URI(u.getProtocol(),
-        null,
+        u.getUserInfo(),
         IDN.toASCII(u.getHost()),
         u.getPort(),
         u.getPath(),
@@ -498,15 +498,25 @@ public class URLUtil {
   public static String toUNICODE(String url) {
     try {
       URL u = new URL(url);
-      URI p = new URI(u.getProtocol(),
-        null,
-        IDN.toUnicode(u.getHost()),
-        u.getPort(),
-        u.getPath(),
-        u.getQuery(),
-        u.getRef());
+      StringBuilder sb = new StringBuilder();
+      sb.append(u.getProtocol());
+      sb.append("://");
+      if (u.getUserInfo() != null) {
+        sb.append(u.getUserInfo());
+        sb.append('@');
+      }
+      sb.append(IDN.toUnicode(u.getHost()));
+      if (u.getPort() != -1) {
+        sb.append(':');
+        sb.append(u.getPort());
+      }
+      sb.append(u.getFile()); // includes query
+      if (u.getRef() != null) {
+        sb.append('#');
+        sb.append(u.getRef());
+      }
 
-      return p.toString();
+      return sb.toString();
     }
     catch (Exception e) {
       return null;
