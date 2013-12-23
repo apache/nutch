@@ -39,11 +39,11 @@ import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.http.api.HttpBase;
 import org.apache.nutch.protocol.http.api.HttpException;
 import org.apache.nutch.storage.WebPage;
-import org.apache.nutch.util.NutchConfiguration;
 
 /** An HTTP response. */
 public class HttpResponse implements Response {
 
+  private Configuration conf;
   private final HttpBase http;
   private final URL url;
   private byte[] content;
@@ -93,7 +93,7 @@ public class HttpResponse implements Response {
       InetSocketAddress sockAddr= new InetSocketAddress(sockHost, sockPort);
       socket.connect(sockAddr, http.getTimeout());
       
-      Configuration conf = NutchConfiguration.create();
+      conf = http.getConf();
       if (sockAddr != null
           && conf.getBoolean("store.ip.address", false) == true) {
         String ipString = sockAddr.getAddress().getHostAddress(); //get the ip address

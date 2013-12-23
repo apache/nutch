@@ -25,7 +25,7 @@ import org.apache.nutch.metadata.Metadata;
 
 
 /**
- * A response inteface.  Makes all protocols model HTTP.
+ * A response interface.  Makes all protocols model HTTP.
  */
 public interface Response extends HttpHeaders {
   
