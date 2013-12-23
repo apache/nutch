@@ -40,10 +40,18 @@ public class Http extends HttpBase {
   public static final Logger LOG = LoggerFactory.getLogger(Http.class);
 
 
+  /**
+   * Public default constructor.
+   */
   public Http() {
     super(LOG);
   }
 
+  /**
+   * Set the {@link org.apache.hadoop.conf.Configuration}
+   * object.
+   * @param conf
+   */
   public void setConf(Configuration conf) {
     super.setConf(conf);
 //    Level logLevel = Level.WARNING;

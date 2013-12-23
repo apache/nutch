@@ -19,9 +19,6 @@ package org.apache.nutch.protocol.file;
 
 // JDK imports
 import java.net.URL;
-import java.net.URI;
-import java.util.Date;
-import java.util.TreeMap;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
@@ -96,6 +93,15 @@ public class FileResponse {
         getHeader(Response.CONTENT_TYPE), headers, this.conf);
   }
 
+  /**
+   * Default public constructor
+   * @param url
+   * @param datum
+   * @param file
+   * @param conf
+   * @throws FileException
+   * @throws IOException
+   */
   public FileResponse(URL url, CrawlDatum datum, File file, Configuration conf)
     throws FileException, IOException {
 
@@ -232,7 +238,11 @@ public class FileResponse {
     this.code = 200; // http OK
   }
 
-  // get dir list as http response
+  /**
+   * get dir list as http response
+   * @param f
+   * @throws IOException
+   */
   private void getDirAsHttpResponse(java.io.File f) throws IOException {
 
     String path = f.toString();
@@ -253,7 +263,13 @@ public class FileResponse {
     this.code = 200; // http OK
   }
 
-  // generate html page from dir list
+  /**
+   * generate html page from dir list
+   * @param list
+   * @param path
+   * @param includeDotDot
+   * @return
+   */
   private byte[] list2html(java.io.File[] list, String path,
       boolean includeDotDot) {
 

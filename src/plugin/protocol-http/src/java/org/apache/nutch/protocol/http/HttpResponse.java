@@ -28,7 +28,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
 
-// Nutch imports
+import org.apache.hadoop.conf.Configuration;
+
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.SpellCheckedMetadata;
@@ -38,10 +39,10 @@ import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.http.api.HttpBase;
 import org.apache.nutch.protocol.http.api.HttpException;
 
-
 /** An HTTP response. */
 public class HttpResponse implements Response {
  
+  private Configuration conf;
   private HttpBase http; 
   private URL url;
   private String orig;
@@ -50,6 +51,14 @@ public class HttpResponse implements Response {
   private int code;
   private Metadata headers = new SpellCheckedMetadata();
 
+  /**
+   * Default public constructor.
+   * @param http
+   * @param url
+   * @param datum
+   * @throws ProtocolException
+   * @throws IOException
+   */
   public HttpResponse(HttpBase http, URL url, CrawlDatum datum)
     throws ProtocolException, IOException {
 
@@ -93,6 +102,12 @@ public class HttpResponse implements Response {
       int sockPort = http.useProxy() ? http.getProxyPort() : port;
       InetSocketAddress sockAddr= new InetSocketAddress(sockHost, sockPort);
       socket.connect(sockAddr, http.getTimeout());
+      
+      this.conf = http.getConf();
+      if (sockAddr != null
+          && conf.getBoolean("store.ip.address", false) == true) {
+        headers.add("_ip_", sockAddr.getAddress().getHostAddress());
+      }
 
       // make request
       OutputStream req = socket.getOutputStream();
@@ -236,6 +251,14 @@ public class HttpResponse implements Response {
     content = out.toByteArray();
   }
 
+  /**
+   * 
+   * @param in
+   * @param line
+   * @throws HttpException
+   * @throws IOException
+   */
+  @SuppressWarnings("unused")
   private void readChunkedContent(PushbackInputStream in,  
                                   StringBuffer line) 
     throws HttpException, IOException {

@@ -51,14 +51,14 @@ import org.apache.commons.net.ftp.FTPConnectionClosedException;
  * ftp server implementations are hardly uniform and none seems to follow
  * RFCs whole-heartedly. We have no choice, but assume common denominator
  * as following:
- * (1) Use stream mode for data tranfer. Block mode will be better for
+ * (1) Use stream mode for data transfer. Block mode will be better for
  *     multiple file downloading and partial file downloading. However
  *     not every ftpd has block mode support.
  * (2) Use passive mode for data connection.
- *     So nutch will work if we run behind firewall.
+ *     So Nutch will work if we run behind firewall.
  * (3) Data connection is opened/closed per ftp command for the reasons
  *     listed in (1). There are ftp servers out there,
- *     when partial downloading is enforeced by closing data channel
+ *     when partial downloading is enforced by closing data channel
  *     socket on our client side, the server side immediately closes
  *     control channel (socket). Our codes deal with such a bad behavior.
  * (4) LIST is used to obtain remote file attributes if possible.
@@ -82,7 +82,7 @@ public class Client extends FTP
 //    private FTPFileEntryParser __entryParser;
     private String __systemName;
 
-    // constructor
+    /** Public default constructor */
     public Client()
     {
         __initDefaults();
@@ -150,7 +150,14 @@ public class Client extends FTP
         __passivePort = index;
     }
 
-    // open passive data connection socket
+    /** 
+     * open a passive data connection socket
+     * @param command
+     * @param arg
+     * @return
+     * @throws IOException
+     * @throws FtpExceptionCanNotHaveDataConnection
+     */
     protected Socket __openPassiveDataConnection(int command, String arg)
       throws IOException, FtpExceptionCanNotHaveDataConnection {
         Socket socket;
@@ -314,7 +321,17 @@ public class Client extends FTP
         return FTPReply.isPositiveCompletion(quit());
     }
 
-    // retrieve list reply for path
+    /**
+     * retrieve list reply for path
+     * @param path
+     * @param entries
+     * @param limit
+     * @param parser
+     * @throws IOException
+     * @throws FtpExceptionCanNotHaveDataConnection
+     * @throws FtpExceptionUnknownForcedDataClose
+     * @throws FtpExceptionControlClosedByForcedDataClose
+     */
     public void retrieveList(String path, List<FTPFile> entries, int limit,
       FTPFileEntryParser parser)
       throws IOException,
@@ -380,7 +397,16 @@ public class Client extends FTP
 
     }
 
-    // retrieve file for path
+    /**
+     * retrieve file for path
+     * @param path
+     * @param os
+     * @param limit
+     * @throws IOException
+     * @throws FtpExceptionCanNotHaveDataConnection
+     * @throws FtpExceptionUnknownForcedDataClose
+     * @throws FtpExceptionControlClosedByForcedDataClose
+     */
     public void retrieveFile(String path, OutputStream os, int limit)
       throws IOException,
         FtpExceptionCanNotHaveDataConnection,
@@ -450,7 +476,11 @@ public class Client extends FTP
 
     }
 
-    // reply check after closing data connection
+    /**
+     * reply check after closing data connection
+     * @param reply
+     * @return
+     */
     private boolean _notBadReply(int reply) {
 
       if (FTPReply.isPositiveCompletion(reply)) {

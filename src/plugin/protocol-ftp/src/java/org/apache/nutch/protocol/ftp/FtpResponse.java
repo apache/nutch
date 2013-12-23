@@ -22,21 +22,17 @@ import org.apache.commons.net.ftp.FTPFile;
 import org.apache.commons.net.ftp.FTPReply;
 import org.apache.commons.net.ftp.parser.DefaultFTPFileEntryParserFactory;
 import org.apache.commons.net.ftp.parser.ParserInitializationException;
-
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
-
 import org.apache.hadoop.conf.Configuration;
 
 import java.net.InetAddress;
 import java.net.URL;
-
 import java.util.List;
 import java.util.LinkedList;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
@@ -111,6 +107,10 @@ public class FtpResponse {
       }
 
       InetAddress addr = InetAddress.getByName(url.getHost());
+      if (addr != null
+          && conf.getBoolean("store.ip.address", false) == true) {
+        headers.add("_ip_", addr.getHostAddress());
+      }
 
       // idled too long, remote server or ourselves may have timed out,
       // should start anew.
