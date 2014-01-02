@@ -29,7 +29,7 @@
   <value>false</value>
   <description>Enables us to capture the specific IP address 
   (InetSocketAddress) of the host which we connect to via 
-  the given protocol. Currently supported is protocol-ftp & 
+  the given protocol. Currently supported is protocol-ftp and
   http.
   </description>
 </property>
