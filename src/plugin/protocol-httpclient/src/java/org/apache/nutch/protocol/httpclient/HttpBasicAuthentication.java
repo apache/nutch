@@ -50,11 +50,11 @@ public class HttpBasicAuthentication implements HttpAuthentication, Configurable
 
     private static Pattern basic = Pattern.compile("[bB][aA][sS][iI][cC] [rR][eE][aA][lL][mM]=\"(\\w*)\"");
 	
-    private static Map authMap = new TreeMap();
+    private static Map<String, HttpBasicAuthentication> authMap = new TreeMap<String, HttpBasicAuthentication>();
    
     private Configuration conf = null; 
     private String challenge = null;
-    private ArrayList credentials = null;
+    private ArrayList<String> credentials = null;
     private String realm = null;
 
 
@@ -70,7 +70,7 @@ public class HttpBasicAuthentication implements HttpAuthentication, Configurable
         
         setConf(conf);
         this.challenge = challenge;
-        credentials = new ArrayList();
+        credentials = new ArrayList<String>();
         
         String username = this.conf.get("http.auth.basic." + challenge + ".user");
         String password = this.conf.get("http.auth.basic." + challenge + ".password");
@@ -126,7 +126,7 @@ public class HttpBasicAuthentication implements HttpAuthentication, Configurable
      * @return    Credentials in the form of <code>Authorization: Basic &lt;Base64 encoded userid:password&gt;
      *
      */
-    public List getCredentials() {
+    public List<String> getCredentials() {
         return credentials;
     }
 

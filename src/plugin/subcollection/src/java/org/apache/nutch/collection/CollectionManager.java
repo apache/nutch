@@ -49,7 +49,7 @@ public class CollectionManager extends Configured {
 
   static final Logger LOG = LoggerFactory.getLogger(CollectionManager.class);
 
-  transient Map collectionMap = new HashMap();
+  transient Map<String, Subcollection> collectionMap = new HashMap<String, Subcollection>();
 
   transient URL configfile;
   

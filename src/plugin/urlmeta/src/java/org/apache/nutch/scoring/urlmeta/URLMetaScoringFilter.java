@@ -150,7 +150,7 @@ public class URLMetaScoringFilter extends Configured implements ScoringFilter {
 
   /** Boilerplate */
   public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum,
-      List inlinked) throws ScoringFilterException {
+      List<CrawlDatum> inlinked) throws ScoringFilterException {
     return;
   }
 

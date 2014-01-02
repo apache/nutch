@@ -33,7 +33,7 @@ public interface HttpAuthentication {
      *
      * @return    The credentials value
      */
-    public List getCredentials();
+    public List<String> getCredentials();
 
     /**
      *  Gets the realm used by the HttpAuthentication object during creation.

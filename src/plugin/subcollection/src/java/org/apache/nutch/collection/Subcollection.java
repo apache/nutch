@@ -18,6 +18,7 @@ package org.apache.nutch.collection;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.StringTokenizer;
 
 import org.apache.hadoop.conf.Configuration;
@@ -41,9 +42,8 @@ public class Subcollection extends Configured implements URLFilter{
   public static final String TAG_KEY="key";
   public static final String TAG_ID="id";
 
-  ArrayList blackList = new ArrayList();
-
-  ArrayList whiteList = new ArrayList();
+  List<String> blackList = new ArrayList<String>();
+  List<String> whiteList = new ArrayList<String>();
 
   /** 
    * SubCollection identifier
@@ -121,7 +121,7 @@ public class Subcollection extends Configured implements URLFilter{
    * 
    * @return Whitelist entries
    */
-  public ArrayList getWhiteList() {
+  public List<String> getWhiteList() {
     return whiteList;
   }
 
@@ -147,7 +147,7 @@ public class Subcollection extends Configured implements URLFilter{
    * @param whiteList
    *          The whiteList to set.
    */
-  public void setWhiteList(ArrayList whiteList) {
+  public void setWhiteList(ArrayList<String> whiteList) {
     this.whiteList = whiteList;
   }
 
@@ -165,10 +165,10 @@ public class Subcollection extends Configured implements URLFilter{
    */
   public String filter(String urlString) {
     // first the blacklist
-    Iterator i = blackList.iterator();
+    Iterator<String> i = blackList.iterator();
     while (i.hasNext()) {
       String row = (String) i.next();
-      if (urlString.indexOf(row) != -1)
+      if (urlString.contains(row))
         return null;
     }
 
@@ -176,7 +176,7 @@ public class Subcollection extends Configured implements URLFilter{
     i = whiteList.iterator();
     while (i.hasNext()) {
       String row = (String) i.next();
-      if (urlString.indexOf(row) != -1)
+      if (urlString.contains(row))
         return urlString;
     }
     return null;
@@ -218,7 +218,7 @@ public class Subcollection extends Configured implements URLFilter{
    * @param list
    * @param text
    */
-  protected void parseList(ArrayList list, String text) {
+  protected void parseList(List<String> list, String text) {
     list.clear();
 
     StringTokenizer st = new StringTokenizer(text, "\n\r");

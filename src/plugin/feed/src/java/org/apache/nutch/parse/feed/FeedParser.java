@@ -124,7 +124,6 @@ public class FeedParser implements Parser {
           .getEmptyParseResult(content.getUrl(), getConf());
     }
 
-    List entries = feed.getEntries();
     String feedLink = feed.getLink();
     try {
       feedLink = normalizers.normalize(feedLink, URLNormalizers.SCOPE_OUTLINK);
@@ -134,9 +133,9 @@ public class FeedParser implements Parser {
       feedLink = null;
     }
 
-    for (Iterator i = entries.iterator(); i.hasNext();) {
-      SyndEntry entry = (SyndEntry) i.next();
-      addToMap(parseResult, feed, feedLink, entry, content);
+    List<?> entries = feed.getEntries();
+    for(Object entry: entries) {
+      addToMap(parseResult, feed, feedLink, (SyndEntry)entry, content);
     }
 
     String feedDesc = stripTags(feed.getDescriptionEx());
@@ -254,11 +253,10 @@ public class FeedParser implements Parser {
       text = description.getValue();
 
     if (text == null) {
-      List contents = entry.getContents();
+      List<?> contents = entry.getContents();
       StringBuilder buf = new StringBuilder();
-      for (Iterator i = contents.iterator(); i.hasNext();) {
-        SyndContent syndContent = (SyndContent) i.next();
-        buf.append(syndContent.getValue());
+      for (Object syndContent: contents) {
+        buf.append(((SyndContent)syndContent).getValue());
       }
       text = buf.toString();
     }
@@ -304,7 +302,7 @@ public class FeedParser implements Parser {
 
   private void addFields(Metadata parseMeta, Metadata contentMeta,
       SyndFeed feed, SyndEntry entry) {
-    List authors = entry.getAuthors(), categories = entry.getCategories();
+    List<?> authors = entry.getAuthors(), categories = entry.getCategories();
     Date published = entry.getPublishedDate(), updated = entry.getUpdatedDate();
     String contentType = null;
 
@@ -325,8 +323,8 @@ public class FeedParser implements Parser {
       }
     }
 
-    for (Iterator i = categories.iterator(); i.hasNext();) {
-      parseMeta.add(Feed.FEED_TAGS, ((SyndCategory) i.next()).getName());
+    for (Object i: categories) {
+      parseMeta.add(Feed.FEED_TAGS, ((SyndCategory) i).getName());
     }
 
     if (published != null) {
@@ -341,7 +339,7 @@ public class FeedParser implements Parser {
       contentType = description.getType();
     } else {
       // TODO: What to do if contents.size() > 1?
-      List contents = entry.getContents();
+      List<?> contents = entry.getContents();
       if (contents.size() > 0) {
         contentType = ((SyndContent) contents.get(0)).getType();
       }

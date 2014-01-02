@@ -87,10 +87,10 @@ public class OPICScoringFilter implements ScoringFilter {
   }
 
   /** Increase the score by a sum of inlinked scores. */
-  public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum, List inlinked) throws ScoringFilterException {
+  public void updateDbScore(Text url, CrawlDatum old, CrawlDatum datum, List<CrawlDatum> inlinked) throws ScoringFilterException {
     float adjust = 0.0f;
     for (int i = 0; i < inlinked.size(); i++) {
-      CrawlDatum linked = (CrawlDatum)inlinked.get(i);
+      CrawlDatum linked = inlinked.get(i);
       adjust += linked.getScore();
     }
     if (old == null) old = datum;
