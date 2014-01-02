@@ -125,6 +125,8 @@ public class CrawlDbMerger extends Configured implements Tool {
     }
     JobClient.runJob(job);
     FileSystem fs = FileSystem.get(getConf());
+    if(fs.exists(output))
+      fs.delete(output,true);
     fs.mkdirs(output);
     fs.rename(FileOutputFormat.getOutputPath(job), new Path(output, CrawlDb.CURRENT_NAME));
     long end = System.currentTimeMillis();

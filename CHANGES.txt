@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-1670 set same crawldb directory in mergedb parameter (lufeng via tejasp)
+
 * NUTCH-1080 Type safe members, arguments for better readability (tejasp)
 
 * NUTCH-1360 Suport the storing of IP address connected to when web crawling (lewismc, ferdy and Yasin Kılınç)
