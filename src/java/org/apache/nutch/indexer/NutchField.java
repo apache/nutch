@@ -96,6 +96,8 @@ public class NutchField implements Writable {
         values.add(in.readInt());
       } else if (type.equals("java.lang.Float")) {
         values.add(in.readFloat());
+      } else if (type.equals("java.lang.Long")) {
+        values.add(in.readLong());
       } else if (type.equals("java.util.Date")) {
         values.add(new Date(in.readLong()));
       }
