@@ -127,4 +127,18 @@ implements Writable, Iterable<Entry<String, NutchField>> {
     out.writeFloat(weight);
     documentMeta.write(out);
   }
+  
+  public String toString() { 
+    StringBuilder sb = new StringBuilder();
+    sb.append("doc {\n");
+    for (Map.Entry<String, NutchField> entry : fields.entrySet()) {
+      sb.append("\t");
+      sb.append(entry.getKey());
+      sb.append(":\t");
+      sb.append(entry.getValue());
+      sb.append("\n");
+    }
+    sb.append("}\n");
+    return sb.toString();
+  }
 }

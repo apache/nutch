@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-1695 Add NutchDocument.toString() to ease debugging (markus)
+
 * NUTCH-1675 NutchField to support long (markus)
 
 * NUTCH-1670 set same crawldb directory in mergedb parameter (lufeng via tejasp)
