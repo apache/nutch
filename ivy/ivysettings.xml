@@ -17,9 +17,6 @@
    limitations under the License.
 -->
 
- <!--
-  see http://www.jayasoft.org/ivy/doc/configuration
-  -->
   <!-- you can override this property to use mirrors
           http://repo1.maven.org/maven2/
           http://mirrors.dotsrc.org/maven2
@@ -35,8 +32,8 @@
   <property name="repo.maven.org"
     value="http://repo1.maven.org/maven2/"
     override="false"/>
-  <property name="snapshot.apache.org"
-    value="http://people.apache.org/repo/m2-snapshot-repository/"
+  <property name="repository.apache.org"
+    value="https://repository.apache.org/content/repositories/snapshots/"
     override="false"/>
   <property name="maven2.pattern"
     value="[organisation]/[module]/[revision]/[module]-[revision]"/>
@@ -52,8 +49,8 @@
       m2compatible="true"
       />
     <ibiblio name="apache-snapshot"
-      root="${snapshot.apache.org}"
-      pattern="${maven2.pattern.ext}"
+      root="${repository.apache.org}"
+      changingPattern=".*-SNAPSHOT"
       m2compatible="true"
       />
     <ibiblio name="restlet"
@@ -71,6 +68,7 @@
       <resolver ref="local"/>
       <resolver ref="maven2"/>
       <resolver ref="sonatype"/>
+      <resolver ref="apache-snapshot"/>
     </chain>
     <chain name="internal">
       <resolver ref="local"/>

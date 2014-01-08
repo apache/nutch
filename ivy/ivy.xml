@@ -99,7 +99,12 @@
     <!--================-->
     <!-- Gora artifacts -->
     <!--================-->
+    <!-- N.B. To use Gora SNAPSHOT's merely replace the 'ref' value with the SNAPSHOT version 
+    and add changing="true" alongside the dependency declaration. An example has been
+    provided for the gora-core dependency as below -->
     <dependency org="org.apache.gora" name="gora-core" rev="0.3" conf="*->default"/>
+    <!--dependency org="org.apache.gora" name="gora-core" rev="0.4-SNAPSHOT" conf="*->default" changing="true"/-->
+    
     <!-- Uncomment this to use SQL as Gora backend. It should be noted that the 
     gora-sql 0.1.1-incubating artifact is NOT compatable with gora-core 0.3. Users should 
     downgrade to gora-core 0.2.1 in order to use SQL as a backend. -->
@@ -107,7 +112,7 @@
     <dependency org="org.apache.gora" name="gora-sql" rev="0.1.1-incubating" conf="*->default" />
     -->
     <!-- Uncomment this to use MySQL as database with SQL as Gora store. -->
-    <!-- 
+    <!--
     <dependency org="mysql" name="mysql-connector-java" rev="5.1.18" conf="*->default"/> 
     -->
     <!-- Uncomment this to use HBase as Gora backend. -->
@@ -115,7 +120,7 @@
     <dependency org="org.apache.gora" name="gora-hbase" rev="0.3" conf="*->default" />
     -->
     <!-- Uncomment this to use Accumulo as Gora backend. -->
-    <!-- 
+    <!--
     <dependency org="org.apache.gora" name="gora-accumulo" rev="0.3" conf="*->default" />
     -->
     <!-- Uncomment this to use Cassandra as Gora backend. -->
