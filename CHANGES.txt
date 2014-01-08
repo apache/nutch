@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1695 NutchDocument.toString() (markus via lewismc)
+
 * NUTCH-1696 Enable use of (Gora) SNAPSHOT dependencies (lewismc)
 
 * NUTCH-1681 In URLUtil.java, toUNICODE method does not work correctly (Ä°lhami KALKAN, snagel, markus via lewismc) 

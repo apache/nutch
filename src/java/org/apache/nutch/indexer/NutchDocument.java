@@ -138,4 +138,22 @@ implements Writable, Iterable<Entry<String, List<String>>> {
     documentMeta.write(out);
   }
 
+  /**
+   * A utility-like method which can easily be used to write
+   * any {@link org.apache.nutch.indexer.NutchDocument} object
+   * to string for simple debugging.
+   */
+  public String toString() { 
+    StringBuilder sb = new StringBuilder();
+    sb.append("doc {\n");
+    for (Entry<String, List<String>> entry : fields.entrySet()) {
+      sb.append("\t");
+      sb.append(entry.getKey());
+      sb.append(":\t");
+      sb.append(entry.getValue());
+      sb.append("\n");
+    }
+    sb.append("}\n");
+    return sb.toString();
+  }
 }
