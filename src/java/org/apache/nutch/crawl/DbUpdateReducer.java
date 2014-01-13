@@ -159,10 +159,7 @@ extends GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
     if (page.getInlinks() != null) {
       page.getInlinks().clear();
     }
-    for (ScoreDatum inlink : inlinkedScoreData) {
-      page.putToInlinks(new Utf8(inlink.getUrl()), new Utf8(inlink.getAnchor()));
-    }
-
+    
     // Distance calculation.
     // Retrieve smallest distance from all inlinks distances
     // Calculate new distance for current page: smallest inlink distance plus 1.

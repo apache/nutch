@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1672 Inlinks are added twice in DbUpdateReducer (Tien Nguyen Manh via lewismc)
+
 * NUTCH-1667 Updatedb always ignore batchId (Tien Nguyen Manh via lewismc)
 
 * NUTCH-1695 NutchDocument.toString() (markus via lewismc)
