@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1667 Updatedb always ignore batchId (Tien Nguyen Manh via lewismc)
+
 * NUTCH-1695 NutchDocument.toString() (markus via lewismc)
 
 * NUTCH-1696 Enable use of (Gora) SNAPSHOT dependencies (lewismc)

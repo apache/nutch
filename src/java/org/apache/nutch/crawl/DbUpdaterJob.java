@@ -80,10 +80,7 @@ public class DbUpdaterJob extends NutchTool implements Tool {
     String batchId = (String)args.get(Nutch.ARG_BATCH);
     numJobs = 1;
     currentJobNum = 0;
-    currentJob = new NutchJob(getConf(), "update-table");
-    if (crawlId != null) {
-      currentJob.getConfiguration().set(Nutch.CRAWL_ID_KEY, crawlId);
-    }
+    
     if (batchId == null) {
       batchId = Nutch.ALL_BATCH_ID_STR;
     }
@@ -92,6 +89,11 @@ public class DbUpdaterJob extends NutchTool implements Tool {
     ScoringFilters scoringFilters = new ScoringFilters(getConf());
     HashSet<WebPage.Field> fields = new HashSet<WebPage.Field>(FIELDS);
     fields.addAll(scoringFilters.getFields());
+    
+    currentJob = new NutchJob(getConf(), "update-table");
+    if (crawlId != null) {
+      currentJob.getConfiguration().set(Nutch.CRAWL_ID_KEY, crawlId);
+    }
     
     // Partition by {url}, sort by {url,score} and group by {url}.
     // This ensures that the inlinks are sorted by score when they enter
