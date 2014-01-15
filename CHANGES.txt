@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-1699 Tika Parser - Image Parse Bug (Mehmet Zahid Yüzügüldü, snagel via lewismc)
+
 * NUTCH-1695 Add NutchDocument.toString() to ease debugging (markus)
 
 * NUTCH-1675 NutchField to support long (markus)

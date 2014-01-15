@@ -93,6 +93,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
 		DocumentFragment root = doc.createDocumentFragment();
 		DOMBuilder domhandler = new DOMBuilder(doc, root);
 		ParseContext context = new ParseContext();
+		tikamd.set(Metadata.CONTENT_TYPE, mimeType);
 		try {
 		  parser.parse(new ByteArrayInputStream(raw), domhandler, tikamd,context);
 		} catch (Exception e) {
