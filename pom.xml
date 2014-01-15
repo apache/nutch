@@ -117,7 +117,7 @@
                 <dependency>
                         <groupId>org.apache.solr</groupId>
                         <artifactId>solr-solrj</artifactId>
-                        <version>3.4.0</version>
+                        <version>4.6.0</version>
                         <optional>true</optional>
                 </dependency>
                 <dependency>
@@ -139,9 +139,9 @@
                         <optional>true</optional>
                 </dependency>
                 <dependency>
-                        <groupId>commons-httpclient</groupId>
-                        <artifactId>commons-httpclient</artifactId>
-                        <version>3.1</version>
+                        <groupId>org.apache.httpcomponents</groupId>
+                        <artifactId>httpclient</artifactId>
+                        <version>4.2.5</version>
                         <optional>true</optional>
                 </dependency>
                 <dependency>

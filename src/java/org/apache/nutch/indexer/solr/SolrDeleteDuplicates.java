@@ -45,7 +45,7 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.apache.solr.client.solrj.SolrQuery;
 import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.CommonsHttpSolrServer;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.request.UpdateRequest;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
@@ -241,7 +241,7 @@ implements Tool {
     throws IOException, InterruptedException {
       Configuration conf = context.getConfiguration();
       int numSplits = context.getNumReduceTasks();
-      SolrServer solr = SolrUtils.getCommonsHttpSolrServer(conf);
+      SolrServer solr = SolrUtils.getHttpSolrServer(conf);
 
       final SolrQuery solrQuery = new SolrQuery(SOLR_GET_ALL_QUERY);
       solrQuery.setFields(SolrConstants.ID_FIELD);
@@ -271,7 +271,7 @@ implements Tool {
     public RecordReader<Text, SolrRecord> createRecordReader(InputSplit split,
         TaskAttemptContext context) throws IOException, InterruptedException {
       Configuration conf = context.getConfiguration();
-      SolrServer solr = SolrUtils.getCommonsHttpSolrServer(conf);
+      SolrServer solr = SolrUtils.getHttpSolrServer(conf);
       SolrInputSplit solrSplit = (SolrInputSplit) split;
       final int numDocs = (int) solrSplit.getLength();
       
@@ -315,11 +315,7 @@ implements Tool {
   @Override
   public void setup(Context job) throws IOException {
     Configuration conf = job.getConfiguration();
-    try {
-      solr = SolrUtils.getCommonsHttpSolrServer(conf);
-    } catch (MalformedURLException e) {
-      throw new IOException(e);
-    }
+    solr = SolrUtils.getHttpSolrServer(conf);
   }
 
 

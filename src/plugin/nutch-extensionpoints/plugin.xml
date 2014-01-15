@@ -56,4 +56,7 @@
       id="org.apache.nutch.scoring.ScoringFilter"
       name="Nutch Scoring"/>
 
+<extension-point
+      id="org.apache.nutch.indexer.IndexWriter"
+      name="Nutch Index Writer"/>
 </plugin>

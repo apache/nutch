@@ -38,7 +38,7 @@ import org.apache.nutch.crawl.GeneratorJob;
 import org.apache.nutch.crawl.InjectorJob;
 import org.apache.nutch.crawl.WebTableReader;
 import org.apache.nutch.fetcher.FetcherJob;
-import org.apache.nutch.indexer.solr.SolrIndexerJob;
+import org.apache.nutch.indexer.IndexingJob;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.ParserJob;
 import org.apache.nutch.util.NutchTool;
@@ -88,7 +88,7 @@ public class RAMJobManager implements JobManager {
   static {
     typeToClass.put(JobType.FETCH, FetcherJob.class);
     typeToClass.put(JobType.GENERATE, GeneratorJob.class);
-    typeToClass.put(JobType.INDEX, SolrIndexerJob.class);
+    typeToClass.put(JobType.INDEX, IndexingJob.class);
     typeToClass.put(JobType.INJECT, InjectorJob.class);
     typeToClass.put(JobType.PARSE, ParserJob.class);
     typeToClass.put(JobType.UPDATEDB, DbUpdaterJob.class);

@@ -154,6 +154,7 @@
       <packageset dir="${plugins.dir}/index-anchor/src/java"/>
       <packageset dir="${plugins.dir}/index-basic/src/java"/>
       <packageset dir="${plugins.dir}/index-more/src/java"/>
+      <packageset dir="${plugins.dir}/indexer-solr/src/java"/>
       <packageset dir="${plugins.dir}/language-identifier/src/java"/>
       <packageset dir="${plugins.dir}/lib-http/src/java"/>
       <packageset dir="${plugins.dir}/lib-regex-filter/src/java"/>
@@ -201,6 +202,7 @@
    <group title="Scoring Plugins" packages="${plugins.scoring}" />
    <group title="Parse Plugins" packages="${plugins.parse}" />
    <group title="Indexing Filter Plugins" packages="${plugins.index}" />
+   <group title="Indexer Plugins" packages="${plugins.indexer}"/>
    <group title="Misc. Plugins" packages="${plugins.misc}" />
   </javadoc>
   <jar jarfile="${maven-javadoc-jar}">
@@ -566,6 +568,7 @@
       <packageset dir="${plugins.dir}/index-anchor/src/java"/>
       <packageset dir="${plugins.dir}/index-basic/src/java"/>
       <packageset dir="${plugins.dir}/index-more/src/java"/>
+      <packageset dir="${plugins.dir}/indexer-solr/src/java"/>
       <packageset dir="${plugins.dir}/language-identifier/src/java"/>
       <packageset dir="${plugins.dir}/lib-http/src/java"/>
       <packageset dir="${plugins.dir}/lib-regex-filter/src/java"/>
@@ -613,6 +616,7 @@
    <group title="Scoring Plugins" packages="${plugins.scoring}" />
    <group title="Parse Plugins" packages="${plugins.parse}" />
    <group title="Indexing Filter Plugins" packages="${plugins.index}" />
+   <group title="Indexer Plugins" packages="${plugins.indexer}"/>
    <group title="Misc. Plugins" packages="${plugins.misc}" />
   </javadoc>
   <!-- Copy the plugin.dtd file to the plugin doc-files dir -->
@@ -928,7 +932,8 @@
         <!-- feed is currently disabled 
         <source path="${basedir}/src/plugin/feed/src/java/" />
         <source path="${basedir}/src/plugin/feed/src/test/" /> -->
-        <source path="${basedir}/src/plugin/index-anchor/src/java/" />
+        <source path="${basedir}/src/plugin/indexer-solr/src/java/" />
+      	<source path="${basedir}/src/plugin/index-anchor/src/java/" />
         <source path="${basedir}/src/plugin/index-anchor/src/test/" />
         <source path="${basedir}/src/plugin/index-basic/src/java/" />
         <source path="${basedir}/src/plugin/index-basic/src/test/" />

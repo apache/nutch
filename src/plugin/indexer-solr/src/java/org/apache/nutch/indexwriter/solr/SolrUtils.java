@@ -1,4 +1,4 @@
-package org.apache.nutch.indexer.solr;
+package org.apache.nutch.indexwriter.solr;
 
 
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -9,7 +9,6 @@ import org.apache.http.params.HttpParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.indexer.solr.SolrConstants;
 import org.apache.solr.client.solrj.impl.HttpSolrServer;
 
 import java.net.MalformedURLException;
@@ -29,9 +28,8 @@ public class SolrUtils {
 
       AuthScope scope = new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM, AuthScope.ANY_SCHEME);
 
-      client.getCredentialsProvider().setCredentials(scope, 
-          new UsernamePasswordCredentials(username, job.get(SolrConstants.PASSWORD)));
-
+      client.getCredentialsProvider().setCredentials(scope, new UsernamePasswordCredentials(username, job.get(SolrConstants.PASSWORD)));
+      
       HttpParams params = client.getParams();
       HttpClientParams.setAuthenticating(params, true);
 

@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1568 port pluggable indexing architecture to 2.x (Talat UYARER via lewismc)
+
 * NUTCH-1672 Inlinks are added twice in DbUpdateReducer (Tien Nguyen Manh via lewismc)
 
 * NUTCH-1667 Updatedb always ignore batchId (Tien Nguyen Manh via lewismc)

@@ -56,10 +56,12 @@ if [ $# = 0 ]; then
   echo " updatehostdb   update host table after parsing"
   echo " readdb 	read/dump records from page database"
   echo " readhostdb     display entries from the hostDB"
-  echo " elasticindex   run the elasticsearch indexer"
-  echo " solrindex 	run the solr indexer on parsed batches"
+  echo " index          run the plugin-based indexer on parsed batches"
+  echo " elasticindex   run the elasticsearch indexer - DEPRECATED use the index command instead"
+  echo " solrindex 	run the solr indexer on parsed batches - DEPRECATED use the index command instead"
   echo " solrdedup 	remove duplicates from solr"
-  echo " solrclean      configurable extension to remove various documents from solr"
+  echo " solrclean      remove HTTP 301 and 404 documents from solr - DEPRECATED use the clean command instead"
+  echo " clean          remove HTTP 301 and 404 documents and duplicates from indexing backends configured via plugins"
   echo " parsechecker   check the parser for a given url"
   echo " indexchecker   check the indexing filters for a given url"
   echo " plugin 	load a plugin and run one of its classes main()"
@@ -207,11 +209,17 @@ CLASS=org.apache.nutch.host.HostDbReader
 elif [ "$COMMAND" = "elasticindex" ] ; then
 CLASS=org.apache.nutch.indexer.elastic.ElasticIndexerJob
 elif [ "$COMMAND" = "solrindex" ] ; then
-CLASS=org.apache.nutch.indexer.solr.SolrIndexerJob
+CLASS="org.apache.nutch.indexer.IndexingJob -D solr.server.url=$1"
+shift
+elif [ "$COMMAND" = "index" ] ; then
+CLASS=org.apache.nutch.indexer.IndexingJob
 elif [ "$COMMAND" = "solrdedup" ] ; then
 CLASS=org.apache.nutch.indexer.solr.SolrDeleteDuplicates
 elif [ "$COMMAND" = "solrclean" ] ; then
-CLASS=org.apache.nutch.indexer.solr.SolrClean
+  CLASS="org.apache.nutch.indexer.CleaningJob -D solr.server.url=$2 $1"
+  shift; shift
+elif [ "$COMMAND" = "clean" ] ; then
+  CLASS=org.apache.nutch.indexer.CleaningJob
 elif [ "$COMMAND" = "parsechecker" ] ; then
   CLASS=org.apache.nutch.parse.ParserChecker
 elif [ "$COMMAND" = "indexchecker" ] ; then

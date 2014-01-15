@@ -30,29 +30,29 @@ public class IndexerOutputFormat extends OutputFormat<String, NutchDocument> {
   public RecordWriter<String, NutchDocument> getRecordWriter(
       TaskAttemptContext job) throws IOException, InterruptedException {
 
-    final NutchIndexWriter[] writers =
-      NutchIndexWriterFactory.getNutchIndexWriters(job.getConfiguration());
+    //final IndexWriter[] writers =
+    //  NutchIndexWriterFactory.getNutchIndexWriters(job.getConfiguration());
 
-    for (final NutchIndexWriter writer : writers) {
-      writer.open(job);
-    }
-
+    final IndexWriters writers = new IndexWriters(job.getConfiguration());
+    
+//    for (final IndexWriter writer : writers) {
+//      writer.open(job);
+//    }
+    writers.open(job.getConfiguration());
+    
     return new RecordWriter<String, NutchDocument>() {
 
       @Override
       public void write(String key, NutchDocument doc) throws IOException {
-        for (final NutchIndexWriter writer : writers) {
-          writer.write(doc);
-        }
+        // TODO: Check Write Status for delete or write.  
+        writers.write(doc);
       }
 
       @Override
       public void close(TaskAttemptContext context) throws IOException,
       InterruptedException {
-        for (final NutchIndexWriter writer : writers) {
-          writer.close();
+          writers.close();
         }
-      }
     };
   }
 

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+  
+  http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<plugin id="indexer-solr" name="SOLRIndexWriter" version="1.0.0"
+  provider-name="nutch.apache.org">
+
+  <runtime>
+    <library name="indexer-solr.jar">
+      <export name="*" />
+    </library>
+
+     <library name="activation-1.1.jar"/>
+     <!--library name="commons-codec-1.4.jar"/-->
+     <library name="httpclient-4.2.5.jar"/>
+     <!--library name="commons-io-1.4.jar"/-->
+     <library name="commons-logging-1.1.1.jar"/>
+     <library name="geronimo-stax-api_1.0_spec-1.0.1.jar"/>
+     <library name="jline-0.9.1.jar"/>
+     <library name="log4j-1.2.15.jar"/>
+     <!--library name="lucene-core-4.4.0.jar"/-->
+     <library name="mail-1.4.1.jar"/>
+     <!--library name="slf4j-api-1.6.1.jar"/-->
+     <library name="solr-solrj-4.6.0.jar"/>
+     <library name="stax-api-1.0.1.jar"/>
+     <library name="wstx-asl-3.2.7.jar"/>
+     <!--library name="zookeeper-3.3.1.jar"/-->
+  </runtime>
+
+  <requires>
+    <import plugin="nutch-extensionpoints" />
+  </requires>
+
+  <extension id="org.apache.nutch.indexwriter.solr"
+    name="SOLR Index Writer"
+    point="org.apache.nutch.indexer.IndexWriter">
+    <implementation id="SOLRIndexWriter"
+      class="org.apache.nutch.indexwriter.solr.SolrIndexWriter" />
+  </extension>
+
+</plugin>
