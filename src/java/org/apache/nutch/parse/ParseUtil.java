@@ -32,7 +32,6 @@ import org.apache.hadoop.util.StringUtils;
 import org.apache.nutch.crawl.CrawlStatus;
 import org.apache.nutch.crawl.Signature;
 import org.apache.nutch.crawl.SignatureFactory;
-import org.apache.nutch.crawl.URLWebPage;
 import org.apache.nutch.fetcher.FetcherJob;
 import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;

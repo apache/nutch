@@ -34,6 +34,7 @@
       <include name="*.pdf"/>
       <include name="ootest.*"/>
       <include name="*.doc"/>
+      <include name="*.gif"/>
     </fileset>
   </copy>
   

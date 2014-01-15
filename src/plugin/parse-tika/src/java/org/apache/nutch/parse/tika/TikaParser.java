@@ -112,6 +112,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     ParseContext context = new ParseContext();
     // to add once available in Tika
     // context.set(HtmlMapper.class, IdentityHtmlMapper.INSTANCE);
+    tikamd.set(Metadata.CONTENT_TYPE, mimeType);
     try {
       parser.parse(new ByteArrayInputStream(raw.array(), raw.arrayOffset() + raw.position(),
           raw.remaining()), domhandler, tikamd, context);
@@ -234,6 +235,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     String url = "file:" + name;
     File file = new File(name);
     byte[] bytes = new byte[(int) file.length()];
+    @SuppressWarnings("resource")
     DataInputStream in = new DataInputStream(new FileInputStream(file));
     in.readFully(bytes);
     Configuration conf = NutchConfiguration.create();

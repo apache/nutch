@@ -32,6 +32,7 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 /**
@@ -65,6 +66,7 @@ public class TestRelTagParser {
   public void testRelTagParser() throws ParseException, ProtocolException, IOException {
     conf = NutchConfiguration.create();
     conf.set("file.content.limit", "-1");
+    @SuppressWarnings("unused")
     Parse parse;
     String urlString = "file:" + sampleDir + fileSeparator + sampleFile;
 
