@@ -1149,10 +1149,33 @@
 </property>
 
 <!-- elasticsearch index properties -->
+<property>
+  <name>elastic.host</name>
+  <value></value>
+  <description>The hostname to send documents to using TransportClient.
+  Either host and port must be defined or cluster.
+  </description>
+</property>
+
+<property>
+  <name>elastic.port</name>
+  <value>9300</value>
+  <description>
+  The port to connect to using TransportClient.
+  </description>
+</property>
+
+<property>
+  <name>elastic.cluster</name>
+  <value></value>
+  <description>The cluster name to discover. Either host and potr must
+  be defined or cluster.
+  </description>
+</property>
 
 <property>
   <name>elastic.index</name>
-  <value>index</value>
+  <value>nutch</value>
   <description>
   The name of the elasticsearch index. Will normally be autocreated if it
   doesn't exist.
@@ -1161,18 +1184,20 @@
 
 <property>
   <name>elastic.max.bulk.docs</name>
-  <value>500</value>
+  <value>250</value>
   <description>
-  The number of docs in the batch that will trigger a flush to elasticsearch.
+  The number of docs in the batch that will trigger a flush to
+  elasticsearch.
   </description>
 </property>
 
 <property>
   <name>elastic.max.bulk.size</name>
-  <value>5001001</value>
-  <description> 
-  The total length of all indexed text in a batch that will trigger a flush to
-  elasticsearch, by checking after every document for excess of this amount.
+  <value>2500500</value>
+  <description>
+  The total length of all indexed text in a batch that will trigger a
+  flush to elasticsearch, by checking after every document for excess 
+  of this amount.
   </description>
 </property>
 

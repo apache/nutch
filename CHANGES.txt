@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1655 Indexer Plugin for Elastic Search (Talat UYARER via lewismc)
+
 * NUTCH-1699 Tika Parser - Image Parse Bug (Mehmet Zahid Yüzügüldü, snagel via lewismc)
 
 * NUTCH-1568 port pluggable indexing architecture to 2.x (Talat UYARER via lewismc)

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  contributor license agreements.  See the NOTICE file distributed with
+  this work for additional information regarding copyright ownership.
+  The ASF licenses this file to You under the Apache License, Version 2.0
+  (the "License"); you may not use this file except in compliance with
+  the License.  You may obtain a copy of the License at
+  
+  http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<plugin id="indexer-elastic" name="ElasticIndexWriter" version="1.0.0"
+  provider-name="nutch.apache.org">
+
+<runtime>
+    <library name="indexer-elastic.jar">
+      <export name="*" />
+    </library>
+    
+    <library name="elasticsearch-0.90.1.jar"/>
+    <library name="jna-3.3.0.jar"/>
+    <library name="jts-1.12.jar"/>
+    <library name="log4j-1.2.17.jar"/>
+    <library name="lucene-codecs-4.3.0.jar"/>
+    <library name="lucene-core-4.3.0.jar"/>
+    <library name="lucene-grouping-4.3.0.jar"/>
+    <library name="lucene-highlighter-4.3.0.jar"/>
+    <library name="lucene-join-4.3.0.jar"/>
+    <library name="lucene-memory-4.3.0.jar"/>
+    <library name="lucene-queries-4.3.0.jar"/>
+    <library name="lucene-queryparser-4.3.0.jar"/>
+    <library name="lucene-sandbox-4.3.0.jar"/>
+    <library name="lucene-spatial-4.3.0.jar"/>
+    <library name="lucene-suggest-4.3.0.jar"/>
+    <library name="spatial4j-0.3.jar"/>
+  </runtime>
+
+  <requires>
+    <import plugin="nutch-extensionpoints" />
+  </requires>
+
+  <extension id="org.apache.nutch.indexer.elastic"
+    name="Elasticsearch Index Writer"
+    point="org.apache.nutch.indexer.IndexWriter">
+    <implementation id="ElasticIndexWriter"
+      class="org.apache.nutch.indexwriter.elastic.ElasticIndexWriter" />
+  </extension>
+
+</plugin>
