@@ -407,7 +407,7 @@ public class CrawlDbReader implements Closeable {
     }
   }
 
-  public void processDumpJob(String crawlDb, String output, Configuration config, String format, String regex, String status) throws IOException {
+  public void processDumpJob(String crawlDb, String output, Configuration config, String format, String regex, String status, Integer retry) throws IOException {
     if (LOG.isInfoEnabled()) {
       LOG.info("CrawlDb dump: starting");
       LOG.info("CrawlDb db: " + crawlDb);
@@ -433,7 +433,8 @@ public class CrawlDbReader implements Closeable {
 
     if (status != null) job.set("status", status);
     if (regex != null) job.set("regex", regex);
-
+    if (retry != null) job.setInt("retry", retry);
+    
     job.setMapperClass(CrawlDbDumpMapper.class);
     job.setOutputKeyClass(Text.class);
     job.setOutputValueClass(CrawlDatum.class);
@@ -446,17 +447,26 @@ public class CrawlDbReader implements Closeable {
     Pattern pattern = null;
     Matcher matcher = null;
     String status = null;
+    Integer retry = null;
 
     public void configure(JobConf job) {
       if (job.get("regex", null) != null) {
         pattern = Pattern.compile(job.get("regex"));
       }
       status = job.get("status", null);
+      retry = job.getInt("retry", -1);
     }
 
     public void close() {}
     public void map(Text key, CrawlDatum value, OutputCollector<Text, CrawlDatum> output, Reporter reporter)
             throws IOException {
+            
+      // check retry
+      if (retry != -1) {
+        if (value.getRetriesSinceFetch() < retry) {
+          return;
+        }
+      }
 
       // check status
       if (status != null
@@ -542,6 +552,7 @@ public class CrawlDbReader implements Closeable {
       System.err.println("\t\t[-format normal]\tdump in standard format (default option)");
       System.err.println("\t\t[-format crawldb]\tdump as CrawlDB");
       System.err.println("\t\t[-regex <expr>]\tfilter records with expression");
+      System.err.println("\t\t[-retry <num>]\tminimum retry count");
       System.err.println("\t\t[-status <status>]\tfilter records by CrawlDatum status");
       System.err.println("\t-url <url>\tprint information on <url> to System.out");
       System.err.println("\t-topN <nnnn> <out_dir> [<min>]\tdump top <nnnn> urls sorted by score to <out_dir>");
@@ -564,6 +575,7 @@ public class CrawlDbReader implements Closeable {
         param = args[++i];
         String format = "normal";
         String regex = null;
+        Integer retry = null;
         String status = null;
         for (int j = i + 1; j < args.length; j++) {
           if (args[j].equals("-format")) {
@@ -574,12 +586,16 @@ public class CrawlDbReader implements Closeable {
             regex = args[++j];
             i=i+2;
           }
+          if (args[j].equals("-retry")) {
+            retry = Integer.parseInt(args[++j]);
+            i=i+2;
+          }
           if (args[j].equals("-status")) {
             status = args[++j];
             i=i+2;
           }
         }
-        dbr.processDumpJob(crawlDb, param, conf, format, regex, status);
+        dbr.processDumpJob(crawlDb, param, conf, format, regex, status, retry);
       } else if (args[i].equals("-url")) {
         param = args[++i];
         dbr.readUrl(crawlDb, param, conf);
