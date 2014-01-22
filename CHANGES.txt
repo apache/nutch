@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-1413 Record response time (Yasin Kılınç, Talat Uyarer, snagel)
+
 * NUTCH-1325 HostDB for Nutch (markus, tejasp)
 
 * NUTCH-1680 CrawlDbReader to dump minRetry value (markus)

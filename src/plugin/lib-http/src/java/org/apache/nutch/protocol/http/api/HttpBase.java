@@ -37,6 +37,7 @@ import org.apache.nutch.util.DeflateUtils;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
 
 // crawler-commons imports
@@ -47,7 +48,8 @@ import crawlercommons.robots.BaseRobotRules;
  */
 public abstract class HttpBase implements Protocol {
   
-  
+  public static final Text RESPONSE_TIME = new Text("_rs_");
+
   public static final int BUFFER_SIZE = 8 * 1024;
   
   private static final byte[] EMPTY_CONTENT = new byte[0];
@@ -92,6 +94,12 @@ public abstract class HttpBase implements Protocol {
   
   /** Do we use HTTP/1.1? */
   protected boolean useHttp11 = false;
+
+  /**
+   * Record response time in CrawlDatum's meta data, see property
+   * http.store.responsetime.
+   */
+  protected boolean responseTime = true;    
   
   /** Skip page if Crawl-Delay longer than this value. */
   protected long maxCrawlDelay = -1L;
@@ -123,6 +131,7 @@ public abstract class HttpBase implements Protocol {
       this.accept = conf.get("http.accept", accept);
       // backward-compatible default setting
       this.useHttp11 = conf.getBoolean("http.useHttp11", false);
+      this.responseTime = conf.getBoolean("http.store.responsetime", true);
       this.robots.setConf(conf);
       logConf();
   }
@@ -137,7 +146,14 @@ public abstract class HttpBase implements Protocol {
     String urlString = url.toString();
     try {
       URL u = new URL(urlString);
+      
+      long startTime = System.currentTimeMillis();
       Response response = getResponse(u, datum, false); // make a request
+      
+      if(this.responseTime) {
+        int elapsedTime = (int) (System.currentTimeMillis() - startTime);
+        datum.getMetaData().put(RESPONSE_TIME, new IntWritable(elapsedTime));
+      }
       
       int code = response.getCode();
       byte[] content = response.getContent();
