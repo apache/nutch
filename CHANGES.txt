@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-1325 HostDB for Nutch (markus, tejasp)
+
 * NUTCH-1680 CrawlDbReader to dump minRetry value (markus)
 
 * NUTCH-1699 Tika Parser - Image Parse Bug (Mehmet Zahid Yüzügüldü, snagel via lewismc)

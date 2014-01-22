@@ -66,6 +66,8 @@ if [ $# = 0 ]; then
   echo "  solrdedup         remove duplicates from solr - DEPRECATED use the dedup command instead"
   echo "  solrclean         remove HTTP 301 and 404 documents from solr - DEPRECATED use the clean command instead"
   echo "  clean             remove HTTP 301 and 404 documents and duplicates from indexing backends configured via plugins"
+  echo "  hostdb            create a HostDB (or update an earlier one) from the CrawlDB"
+  echo "  readhostdb        dumps HostDB data"
   echo "  parsechecker      check the parser for a given url"
   echo "  indexchecker      check the indexing filters for a given url"
   echo "  domainstats       calculate domain statistics from crawldb"
@@ -236,6 +238,10 @@ elif [ "$COMMAND" = "solrclean" ] ; then
   shift; shift
 elif [ "$COMMAND" = "clean" ] ; then
   CLASS=org.apache.nutch.indexer.CleaningJob
+elif [ "$COMMAND" = "hostdb" ] ; then
+  CLASS=org.apache.nutch.util.hostdb.HostDb
+elif [ "$COMMAND" = "readhostdb" ] ; then
+  CLASS=org.apache.nutch.util.hostdb.DumpHostDb 
 elif [ "$COMMAND" = "parsechecker" ] ; then
   CLASS=org.apache.nutch.parse.ParserChecker
 elif [ "$COMMAND" = "indexchecker" ] ; then

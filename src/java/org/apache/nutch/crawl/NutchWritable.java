@@ -48,6 +48,7 @@ public class NutchWritable extends GenericWritableConfigurable {
       org.apache.nutch.protocol.Content.class,
       org.apache.nutch.protocol.ProtocolStatus.class,
       org.apache.nutch.scoring.webgraph.LinkDatum.class,
+      org.apache.nutch.util.hostdb.HostDatum.class,
     };
   }
 
