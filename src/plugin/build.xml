@@ -82,6 +82,7 @@
      <ant dir="index-more" target="test"/>
      <ant dir="language-identifier" target="test"/>
      <ant dir="protocol-httpclient" target="test"/>
+     <ant dir="protocol-http" target="test"/>
      <ant dir="urlfilter-automaton" target="test"/>
      <ant dir="urlfilter-domain" target="test"/>
      <ant dir="urlfilter-prefix" target="test"/>

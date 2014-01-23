@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
 <!--
  Licensed to the Apache Software Foundation (ASF) under one or more
  contributor license agreements.  See the NOTICE file distributed with
@@ -15,31 +16,37 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 -->
-<project name="protocol-http" default="jar-core">
 
-  <import file="../build-plugin.xml"/>
+<configuration>
 
-  <target name="deps-jar">
-    <ant target="jar" inheritall="false" dir="../lib-http"/>
-  </target>
+<property>
+  <name>http.robots.agents</name>
+  <value>Nutch-Test,*</value>
+  <description></description>
+</property>
 
-  <path id="plugin.deps">
-    <fileset dir="${nutch.root}/build">
-      <include name="**/lib-http/*.jar" />
-    </fileset>
-    <pathelement location="${build.dir}/test/conf"/>
-  </path>
+<property>
+  <name>http.agent.name</name>
+  <value>Nutch-Test</value>
+  <description></description>
+</property>
 
-  <target name="deps-test">
-    <copy toDir="${build.test}">
-      <fileset dir="${src.test}" excludes="**/*.java"/>
-    </copy>
-  </target>
+<property>
+  <name>http.agent.description</name>
+  <value>Nutch protocol-httpclient test</value>
+  <description></description>
+</property>
 
-  <!-- for junit test -->
-  <mkdir dir="${build.test}/data" />
-  <copy todir="${build.test}/data">
-      <fileset dir="jsp"/>
-   </copy>
+<property>
+  <name>http.auth.file</name>
+  <value>httpclient-auth-test.xml</value>
+  <description></description>
+</property>
 
-</project>
+<property>
+  <name>http.timeout</name>
+  <value>60000</value>
+  <description></description>
+</property>
+
+</configuration>

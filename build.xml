@@ -915,13 +915,10 @@
                  exported="false" />
         <library path="${basedir}/build/plugins/lib-nekohtml/nekohtml-0.9.5.jar" 
                  exported="false" />
-        <library path="${basedir}/build/plugins/lib-nekohtml/nekohtml-0.9.5.jar" 
-                 exported="false" />
         <library path="${basedir}/build/plugins/parse-html/tagsoup-1.2.jar" 
                  exported="false" />
         <library path="${basedir}/build/plugins/protocol-sftp/jsch-0.1.41.jar" 
-                 exported="false" />
-                 
+                 exported="false" />         
         <library path="${basedir}/build/plugins/parse-html/tagsoup-1.2.jar" 
                  exported="false" />
 
@@ -968,6 +965,7 @@
         <source path="${basedir}/src/plugin/protocol-httpclient/src/java/" />
         <source path="${basedir}/src/plugin/protocol-httpclient/src/test/" />
         <source path="${basedir}/src/plugin/protocol-http/src/java/" />
+      	<source path="${basedir}/src/plugin/protocol-http/src/test/" />
         <source path="${basedir}/src/plugin/protocol-sftp/src/java/" />
         <source path="${basedir}/src/plugin/scoring-link/src/java/" />
         <source path="${basedir}/src/plugin/scoring-opic/src/java/" />

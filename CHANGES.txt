@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1164 Write JUnit tests for protocol-http (Sertac TURKEL via tejasp)
+
 * NUTCH-1710 Add gora package logging to log4j.properties (lewismc)
 
 * NUTCH-1655 Indexer Plugin for Elastic Search (Talat UYARER via lewismc)
