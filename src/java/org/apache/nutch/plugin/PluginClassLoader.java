@@ -18,6 +18,7 @@ package org.apache.nutch.plugin;
 
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Arrays;
 
 /**
  * The <code>PluginClassLoader</code> contains only classes of the runtime
@@ -30,6 +31,10 @@ import java.net.URLClassLoader;
  * @author joa23
  */
 public class PluginClassLoader extends URLClassLoader {
+
+  private URL[] urls;
+  private ClassLoader parent;
+
   /**
    * Construtor
    * 
@@ -40,5 +45,36 @@ public class PluginClassLoader extends URLClassLoader {
    */
   public PluginClassLoader(URL[] urls, ClassLoader parent) {
     super(urls, parent);
+    
+    this.urls = urls;
+    this.parent = parent;
+  }
+  
+  @Override
+  public int hashCode() {
+    final int PRIME = 31;
+    int result = 1;
+    result = PRIME * result + ((parent == null) ? 0 : parent.hashCode());
+    result = PRIME * result + Arrays.hashCode(urls);
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj)
+      return true;
+    if (obj == null)
+      return false;
+    if (getClass() != obj.getClass())
+      return false;
+    final PluginClassLoader other = (PluginClassLoader) obj;
+    if (parent == null) {
+      if (other.parent != null)
+        return false;
+    } else if (!parent.equals(other.parent))
+      return false;
+    if (!Arrays.equals(urls, other.urls))
+      return false;
+    return true;
   }
 }
