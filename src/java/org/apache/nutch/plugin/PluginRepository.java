@@ -50,6 +50,9 @@ public class PluginRepository {
   private HashMap<String, ExtensionPoint> fExtensionPoints;
 
   private HashMap<String, Plugin> fActivatedPlugins;
+  
+  private static final Map<String, Map<PluginClassLoader, Class>> CLASS_CACHE =
+    new HashMap<String, Map<PluginClassLoader,Class>>();
 
   private Configuration conf;
 
@@ -62,10 +65,10 @@ public class PluginRepository {
   public PluginRepository(Configuration conf) throws RuntimeException {
     fActivatedPlugins = new HashMap<String, Plugin>();
     fExtensionPoints = new HashMap<String, ExtensionPoint>();
-    this.conf = conf;
+    this.conf = new Configuration(conf);
     this.auto = conf.getBoolean("plugin.auto-activation", true);
     String[] pluginFolders = conf.getStrings("plugin.folders");
-    PluginManifestParser manifestParser = new PluginManifestParser(conf, this);
+    PluginManifestParser manifestParser = new PluginManifestParser(this.conf, this);
     Map<String, PluginDescriptor> allPlugins = manifestParser
         .parsePluginFolder(pluginFolders);
     Pattern excludes = Pattern.compile(conf.get("plugin.excludes", ""));
@@ -264,8 +267,7 @@ public class PluginRepository {
       // The same is in Extension.getExtensionInstance().
       // Suggested by Stefan Groschupf <sg@media-style.com>
       synchronized (pDescriptor) {
-        PluginClassLoader loader = pDescriptor.getClassLoader();
-        Class<?> pluginClass = loader.loadClass(pDescriptor.getPluginClass());
+        Class<?> pluginClass = getCachedClass(pDescriptor, pDescriptor.getPluginClass());
         Constructor<?> constructor = pluginClass.getConstructor(new Class<?>[] {
             PluginDescriptor.class, Configuration.class });
         Plugin plugin = (Plugin) constructor.newInstance(new Object[] {
@@ -293,7 +295,7 @@ public class PluginRepository {
    * @see java.lang.Object#finalize()
    */
   public void finalize() throws Throwable {
-    shotDownActivatedPlugins();
+    shutDownActivatedPlugins();
   }
 
   /**
@@ -301,10 +303,26 @@ public class PluginRepository {
    * 
    * @throws PluginRuntimeException
    */
-  private void shotDownActivatedPlugins() throws PluginRuntimeException {
+  private void shutDownActivatedPlugins() throws PluginRuntimeException {
     for (Plugin plugin : fActivatedPlugins.values()) {
       plugin.shutDown();
     }
+  }
+  
+  public Class getCachedClass(PluginDescriptor pDescriptor, String className)
+  throws ClassNotFoundException {
+    Map<PluginClassLoader, Class> descMap = CLASS_CACHE.get(className);
+    if (descMap == null) {
+      descMap = new HashMap<PluginClassLoader, Class>();
+      CLASS_CACHE.put(className, descMap);
+    }
+    PluginClassLoader loader = pDescriptor.getClassLoader();
+    Class clazz = descMap.get(loader);
+    if (clazz == null) {
+      clazz = loader.loadClass(className);
+      descMap.put(loader, clazz);
+    }
+    return clazz;
   }
 
   private void displayStatus() {
