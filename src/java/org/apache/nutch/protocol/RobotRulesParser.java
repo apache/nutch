@@ -121,8 +121,6 @@ public abstract class RobotRulesParser implements Configurable {
         combinedAgentsString.append(", " + agents.get(index));
       }
 
-      // always make sure "*" is included in the end
-      combinedAgentsString.append(", *");
       this.agentNames = combinedAgentsString.toString();
     }
   }

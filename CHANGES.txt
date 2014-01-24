@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1715 RobotRulesParser adds additional '*' to the robots name (tejasp)
+
 * NUTCH-356 Plugin repository cache can lead to memory leak (Enrico Triolo, Doğacan Güney via markus)
 
 * NUTCH-1164 Write JUnit tests for protocol-http (Sertac TURKEL via tejasp)
