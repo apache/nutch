@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-1717 HostDB not to complain if filters/normalizers are disabled (markus)
+
 * NUTCH-1715 RobotRulesParser adds additional '*' to the robots name (tejasp)
 
 * NUTCH-356 Plugin repository cache can lead to memory leak (Enrico Triolo, Doğacan Güney via markus)

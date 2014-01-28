@@ -505,12 +505,12 @@ public class HostDb extends Configured implements Tool {
     conf.setBoolean(HOSTDB_URL_NORMALIZING, normalize);
 
     // Check whether the urlfilter-domainblacklist plugin is loaded
-    if ("urlfilter-domainblacklist".matches(conf.get("plugin.includes"))) {
+    if (filter && "urlfilter-domainblacklist".matches(conf.get("plugin.includes"))) {
       throw new Exception("domainblacklist-urlfilter must not be enabled");
     }
 
     // Check whether the urlnormalizer-host plugin is loaded
-    if ("urlnormalizer-host".matches(conf.get("plugin.includes"))) {
+    if (normalize && "urlnormalizer-host".matches(conf.get("plugin.includes"))) {
       throw new Exception("urlnormalizer-host must not be enabled");
     }
 
