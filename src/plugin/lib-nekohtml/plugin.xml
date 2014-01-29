@@ -16,20 +16,21 @@
  limitations under the License.
 -->
 <!--
- ! NekoHTML is a simple HTML scanner and tag balancer.
- ! (http://people.apache.org/~andyc/neko/doc/html/index.html)
+ ! NekoHTML is a simple HTML scanner and tag balancer that enables 
+ ! application programmers to parse HTML documents and access the 
+ ! information using standard XML interfaces.
+ ! (http://sourceforge.net/projects/nekohtml/)
  ! 
- ! Dowload : http://people.apache.org/~andyc/neko/doc/html/index.html
- ! License : http://people.apache.org/~andyc/neko/LICENSE
+ ! License : https://nekohtml.svn.sourceforge.net/svnroot/nekohtml/trunk/LICENSE.txt
  !-->
 <plugin
    id="lib-nekohtml"
    name="CyberNeko HTML Parser"
-   version="1.9.11"
-   provider-name="org.cyberneko">
+   version="1.9.19"
+   provider-name="net.sourceforge.nekohtml">
 
    <runtime>
-     <library name="nekohtml-0.9.5.jar">
+     <library name="nekohtml-1.9.19.jar">
         <export name="*"/>
      </library>
    </runtime>
