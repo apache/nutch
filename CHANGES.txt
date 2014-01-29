@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-1253 Incompatable neko and xerces versions (snagel, lewismc)
+
 * NUTCH-1717 HostDB not to complain if filters/normalizers are disabled (markus)
 
 * NUTCH-1715 RobotRulesParser adds additional '*' to the robots name (tejasp)

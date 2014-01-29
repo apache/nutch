@@ -233,6 +233,11 @@ public class TestDOMContentUtils extends TestCase {
     conf.setBoolean("parser.html.form.use_action", true);
     utils = new DOMContentUtils(conf);
     DOMFragmentParser parser= new DOMFragmentParser();
+    try {
+      parser.setFeature(
+          "http://cyberneko.org/html/features/scanner/allow-selfclosing-iframe",
+          true);
+    } catch (SAXException e) {}
     for (int i= 0; i < testPages.length; i++) {
         DocumentFragment node= 
           new HTMLDocumentImpl().createDocumentFragment();

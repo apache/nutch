@@ -228,6 +228,8 @@ public class HtmlParser implements Parser {
   private DocumentFragment parseNeko(InputSource input) throws Exception {
     DOMFragmentParser parser = new DOMFragmentParser();
     try {
+      parser.setFeature("http://cyberneko.org/html/features/scanner/allow-selfclosing-iframe",
+              true);
       parser.setFeature("http://cyberneko.org/html/features/augmentations",
               true);
       parser.setProperty("http://cyberneko.org/html/properties/default-encoding",
