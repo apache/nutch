@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1719 DomainStatistics fails in 2.x because URL is not unreversed (Gerhard Gossen via lewismc)
+
 * NUTCH-1253 Incompatable neko and xerces versions (snagel, lewismc)
 
 * NUTCH-1715 RobotRulesParser adds additional '*' to the robots name (tejasp)

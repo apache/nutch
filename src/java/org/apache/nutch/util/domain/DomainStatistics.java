@@ -41,6 +41,7 @@ import org.apache.nutch.storage.StorageUtils;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.NutchJob;
+import org.apache.nutch.util.TableUtil;
 import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.URLUtil;
 import org.slf4j.Logger;
@@ -197,7 +198,7 @@ public class DomainStatistics extends Configured implements Tool {
             throws IOException, InterruptedException {
       if (value.getStatus() == CrawlStatus.STATUS_FETCHED) {
         try {
-          URL url = new URL(key.toString());
+          URL url = new URL(TableUtil.unreverseUrl(key.toString()));
           String out = null;
           switch (mode) {
           case MODE_HOST:
