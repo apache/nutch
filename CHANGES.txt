@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-1721 Upgrade to Crawler commons 0.3 (tejasp)
+
 * NUTCH-1253 Incompatable neko and xerces versions (snagel, lewismc)
 
 * NUTCH-1717 HostDB not to complain if filters/normalizers are disabled (markus)
