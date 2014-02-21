@@ -4,6 +4,8 @@ Nutch Development Trunk
 
 * NUTCH-1729 Upgrade to Tika 1.5 (jnioche)
 
+* NUTCH-1707 DummyIndexingWriter (markus)
+
 * NUTCH-1721 Upgrade to Crawler commons 0.3 (tejasp)
 
 * NUTCH-1253 Incompatable neko and xerces versions (snagel, lewismc)
