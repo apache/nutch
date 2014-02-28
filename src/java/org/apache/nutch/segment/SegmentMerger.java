@@ -408,14 +408,16 @@ public class SegmentMerger extends Configured implements
             }
           }
         } else if (sp.partName.equals(CrawlDatum.FETCH_DIR_NAME)) {
-          if (lastF == null) {
-            lastF = val;
-            lastFname = sp.segmentName;
-          } else {
-            // only consider fetch status
-            // https://issues.apache.org/jira/browse/NUTCH-1520
-            if (CrawlDatum.hasFetchStatus(val)) {
-              // take newer
+          // only consider fetch status and ignore fetch retry status
+          // https://issues.apache.org/jira/browse/NUTCH-1520
+          // https://issues.apache.org/jira/browse/NUTCH-1113
+          if (CrawlDatum.hasFetchStatus(val) &&
+            val.getStatus() != CrawlDatum.STATUS_FETCH_RETRY &&
+            val.getStatus() != CrawlDatum.STATUS_FETCH_NOTMODIFIED) {
+            if (lastF == null) {
+              lastF = val;
+              lastFname = sp.segmentName;
+            } else {
               if (lastFname.compareTo(sp.segmentName) < 0) {
                 lastF = val;
                 lastFname = sp.segmentName;
