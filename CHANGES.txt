@@ -1,6 +1,7 @@
 Nutch Change Log
 
-Nutch Development Trunk
+Nutch 1.8 - 01/03/2014 (dd/mm/yyyy)
+Release Report - http://s.apache.org/oHY 
 
 * NUTCH-1113 SegmentMerger can now be safely used to merge segments (Edward Drapkin, markus, snagel)
 
