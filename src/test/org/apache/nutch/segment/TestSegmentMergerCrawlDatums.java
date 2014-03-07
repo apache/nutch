@@ -28,6 +28,8 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.MapFileOutputFormat;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.util.NutchConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import junit.framework.TestCase;
 
@@ -51,6 +53,9 @@ public class TestSegmentMergerCrawlDatums extends TestCase {
   Configuration conf;
   FileSystem fs;
   Random rnd;
+
+  private static final Logger LOG = LoggerFactory
+      .getLogger(TestSegmentMergerCrawlDatums.class);
   
   public void setUp() throws Exception {
     conf = NutchConfiguration.create();
@@ -62,7 +67,10 @@ public class TestSegmentMergerCrawlDatums extends TestCase {
    *
    */
   public void testSingleRandomSequence() throws Exception {
-    assertEquals(new Byte(CrawlDatum.STATUS_FETCH_SUCCESS), new Byte(executeSequence(CrawlDatum.STATUS_FETCH_GONE, CrawlDatum.STATUS_FETCH_SUCCESS, 256, false)));
+    assertEquals(
+        new Byte(CrawlDatum.STATUS_FETCH_SUCCESS),
+        new Byte(executeSequence(CrawlDatum.STATUS_FETCH_GONE,
+            CrawlDatum.STATUS_FETCH_SUCCESS, 256, false)));
   }
   
   /**
@@ -103,9 +111,23 @@ public class TestSegmentMergerCrawlDatums extends TestCase {
   public void testRandomizedSequences() throws Exception {
     for (int i = 0; i < rnd.nextInt(16) + 16; i++) {
       byte expectedStatus = (byte)(rnd.nextInt(6) + 0x21);
+      while (expectedStatus == CrawlDatum.STATUS_FETCH_RETRY
+          || expectedStatus == CrawlDatum.STATUS_FETCH_NOTMODIFIED) {
+        // fetch_retry and fetch_notmodified never remain in a merged segment
+        expectedStatus = (byte) (rnd.nextInt(6) + 0x21);
+      }
       byte randomStatus = (byte)(rnd.nextInt(6) + 0x21);
+      int rounds = rnd.nextInt(16) + 32;
+      boolean withRedirects = rnd.nextBoolean();
       
-      assertEquals(new Byte(expectedStatus), new Byte(executeSequence(randomStatus, expectedStatus, rnd.nextInt(16) + 32, rnd.nextBoolean())));
+      byte resultStatus = executeSequence(randomStatus, expectedStatus,
+          rounds, withRedirects);
+      assertEquals(
+          "Expected status = " + CrawlDatum.getStatusName(expectedStatus)
+              + ", but got " + CrawlDatum.getStatusName(resultStatus)
+              + " when merging " + rounds + " segments"
+              + (withRedirects ? " with redirects" : ""), expectedStatus,
+          resultStatus);
     }
   }
   
@@ -145,14 +167,12 @@ public class TestSegmentMergerCrawlDatums extends TestCase {
     // Our test directory
     Path testDir = new Path(conf.get("hadoop.tmp.dir"), "merge-" + System.currentTimeMillis());
     
-    Path segment1 = new Path(testDir, "00001");
-    Path segment2 = new Path(testDir, "00002");
-    Path segment3 = new Path(testDir, "00003");
+    Path segment = new Path(testDir, "00001");
     
-    createSegment(segment3, CrawlDatum.STATUS_FETCH_SUCCESS, true, true);
+    createSegment(segment, CrawlDatum.STATUS_FETCH_SUCCESS, true, true);
     
     // Merge the segments and get status
-    Path mergedSegment = merge(testDir, new Path[]{segment3});
+    Path mergedSegment = merge(testDir, new Path[]{segment});
     Byte status = new Byte(status = checkMergedSegment(testDir, mergedSegment));
     
     assertEquals(new Byte(CrawlDatum.STATUS_FETCH_SUCCESS), status);
@@ -187,7 +207,7 @@ public class TestSegmentMergerCrawlDatums extends TestCase {
    * @param whether redirects are injected randomly
    * @return the CrawlDatum status
    */
-  protected byte executeSequence(byte firstSatus, byte lastStatus, int rounds, boolean redirect) throws Exception {
+  protected byte executeSequence(byte firstStatus, byte lastStatus, int rounds, boolean redirect) throws Exception {
     // Our test directory
     Path testDir = new Path(conf.get("hadoop.tmp.dir"), "merge-" + System.currentTimeMillis());
     
@@ -202,7 +222,7 @@ public class TestSegmentMergerCrawlDatums extends TestCase {
     }
        
     // Create the first segment according to the specified status
-    createSegment(segmentPaths[0], firstSatus, false);
+    createSegment(segmentPaths[0], firstStatus, false);
     
     // Create N segments with random status and optionally with randomized redirect injection
     for (int i = 1; i < rounds - 1; i++) {
@@ -210,14 +230,17 @@ public class TestSegmentMergerCrawlDatums extends TestCase {
       byte status = (byte)(rnd.nextInt(6) + 0x21);
       
       // Whether this is going to be a redirect
-      boolean needsToRedirect = redirect ? rnd.nextBoolean() : false;
-      boolean redirectAndFetch = redirect ? rnd.nextBoolean() : false;
+      boolean addRedirect = redirect ? rnd.nextBoolean() : false;
+      // If it's a redirect we add a datum resulting from a fetch at random,
+      // if not: always add a fetch datum to avoid empty segments
+      boolean addFetch = addRedirect ? rnd.nextBoolean() : true;
       
-      createSegment(segmentPaths[i], status, needsToRedirect, redirectAndFetch);
+      createSegment(segmentPaths[i], status, addFetch, addRedirect);
     }
 
     // Create the last segment according to the specified status
-    createSegment(segmentPaths[rounds - 1], lastStatus, redirect ? rnd.nextBoolean() : false, redirect ? rnd.nextBoolean() : false);    
+    // (additionally, add a redirect at random)
+    createSegment(segmentPaths[rounds - 1], lastStatus, true, redirect ? rnd.nextBoolean() : false);
     
     // Merge the segments!
     Path mergedSegment = merge(testDir, segmentPaths);
@@ -243,7 +266,7 @@ public class TestSegmentMergerCrawlDatums extends TestCase {
     
     for (MapFile.Reader reader : readers) {
       while (reader.next(key, value)) {
-        System.out.println("Reading status for: " + key.toString() + " > " + CrawlDatum.getStatusName(value.getStatus()));
+        LOG.info("Reading status for: " + key.toString() + " > " + CrawlDatum.getStatusName(value.getStatus()));
         
         // Only consider fetch status
         if (CrawlDatum.hasFetchStatus(value) && key.toString().equals("http://nutch.apache.org/")) {
@@ -258,7 +281,7 @@ public class TestSegmentMergerCrawlDatums extends TestCase {
     // Remove the test directory again
     fs.delete(testDir, true);
     
-    System.out.println("Final fetch status for: http://nutch.apache.org/ > " + CrawlDatum.getStatusName(finalStatus));
+    LOG.info("Final fetch status for: http://nutch.apache.org/ > " + CrawlDatum.getStatusName(finalStatus));
 
     // Return the final status
     return finalStatus;
@@ -301,7 +324,7 @@ public class TestSegmentMergerCrawlDatums extends TestCase {
   }
 
   protected void createSegment(Path segment, byte status, boolean fetch, boolean redirect) throws Exception {
-    System.out.println("\nSegment: " + segment.toString());
+    LOG.info("\nSegment: " + segment.toString());
     
     // The URL of our main record
     String url = "http://nutch.apache.org/";
@@ -324,7 +347,7 @@ public class TestSegmentMergerCrawlDatums extends TestCase {
     // - before fetch status to check whether fetch datum is preferred over linked datum when merging
     if (redirect) {
       // We're writing our our main record URL with status linked
-      System.out.println(url + " > " + CrawlDatum.getStatusName(CrawlDatum.STATUS_LINKED));
+      LOG.info(url + " > " + CrawlDatum.getStatusName(CrawlDatum.STATUS_LINKED));
       value = new CrawlDatum();
       value.setStatus(CrawlDatum.STATUS_LINKED);
       writer.append(new Text(url), value);
@@ -332,7 +355,7 @@ public class TestSegmentMergerCrawlDatums extends TestCase {
 
     // Whether we're fetching now
     if (fetch) {
-      System.out.println(url + " > " + CrawlDatum.getStatusName(status));
+      LOG.info(url + " > " + CrawlDatum.getStatusName(status));
       
       // Set the status
       value.setStatus(status);
@@ -344,7 +367,7 @@ public class TestSegmentMergerCrawlDatums extends TestCase {
     // Whether we're handing a redirect now
     if (redirect) {
       // And the redirect URL with redirect status, pointing to our main URL
-      System.out.println(redirectUrl + " > " + CrawlDatum.getStatusName(CrawlDatum.STATUS_FETCH_REDIR_TEMP));
+      LOG.info(redirectUrl + " > " + CrawlDatum.getStatusName(CrawlDatum.STATUS_FETCH_REDIR_TEMP));
       value.setStatus(CrawlDatum.STATUS_FETCH_REDIR_TEMP);
       writer.append(new Text(redirectUrl), value);
     }
