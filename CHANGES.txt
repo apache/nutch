@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Development Trunk
 
+* NUTCH-1706 IndexerMapReduce does not remove db_redir_temp (markus, snagel)
+
 * NUTCH-1113 SegmentMerger can now be safely used to merge segments (Edward Drapkin, markus, snagel)
 
 * NUTCH-1729 Upgrade to Tika 1.5 (jnioche)
