@@ -913,7 +913,7 @@
                  exported="false" />
         <library path="${basedir}/src/plugin/parse-swf/lib/javaswf.jar" 
                  exported="false" />
-        <library path="${basedir}/build/plugins/lib-nekohtml/nekohtml-0.9.5.jar" 
+        <library path="${basedir}/build/plugins/lib-nekohtml/nekohtml-1.9.19.jar" 
                  exported="false" />
         <library path="${basedir}/build/plugins/parse-html/tagsoup-1.2.jar" 
                  exported="false" />
