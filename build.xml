@@ -905,7 +905,7 @@
                  exported="false" />
         <library path="${basedir}/build/plugins/feed/rome-0.9.jar" 
                  exported="false" />
-        <library path="${basedir}/build/plugins/lib-nekohtml/nekohtml-0.9.5.jar" 
+        <library path="${basedir}/build/plugins/lib-nekohtml/nekohtml-1.9.19.jar" 
                  exported="false" />
         <library path="${basedir}/build/plugins/parse-html/tagsoup-1.2.1.jar" 
                  exported="false" />
