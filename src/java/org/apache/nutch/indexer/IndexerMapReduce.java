@@ -180,36 +180,10 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
           dbDatum = datum;
         }
         else if (CrawlDatum.hasFetchStatus(datum)) {
-
           // don't index unmodified (empty) pages
           if (datum.getStatus() != CrawlDatum.STATUS_FETCH_NOTMODIFIED) {
             fetchDatum = datum;
-
-            /**
-             * Check if we need to delete 404 NOT FOUND and 301 PERMANENT REDIRECT.
-             */
-            if (delete) {
-              if (fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_GONE || dbDatum.getStatus() == CrawlDatum.STATUS_DB_GONE) {
-                reporter.incrCounter("IndexerStatus", "Documents deleted", 1);
-
-                NutchIndexAction action = new NutchIndexAction(null, NutchIndexAction.DELETE);
-                output.collect(key, action);
-                return;
-              }
-              if (fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_REDIR_PERM ||
-                  fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_REDIR_TEMP ||
-                  dbDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_PERM ||
-                  dbDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_TEMP) {
-                reporter.incrCounter("IndexerStatus", "Deleted redirects", 1);
-                reporter.incrCounter("IndexerStatus", "Perm redirects deleted", 1);
-
-                NutchIndexAction action = new NutchIndexAction(null, NutchIndexAction.DELETE);
-                output.collect(key, action);
-                return;
-              }
-            }
           }
-
         } else if (CrawlDatum.STATUS_LINKED == datum.getStatus() ||
                    CrawlDatum.STATUS_SIGNATURE == datum.getStatus() ||
                    CrawlDatum.STATUS_PARSE_META == datum.getStatus()) {
@@ -237,6 +211,29 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
         parseText = (ParseText)value;
       } else if (LOG.isWarnEnabled()) {
         LOG.warn("Unrecognized type: "+value.getClass());
+      }
+    }
+    
+    // Whether to delete GONE or REDIRECTS
+    if (delete && fetchDatum != null && dbDatum != null) {    
+      if (fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_GONE || dbDatum.getStatus() == CrawlDatum.STATUS_DB_GONE) {
+        reporter.incrCounter("IndexerStatus", "Documents deleted", 1);
+
+        NutchIndexAction action = new NutchIndexAction(null, NutchIndexAction.DELETE);
+        output.collect(key, action);
+        return;
+      }
+      
+      if (fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_REDIR_PERM ||
+          fetchDatum.getStatus() == CrawlDatum.STATUS_FETCH_REDIR_TEMP ||
+          dbDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_PERM ||
+          dbDatum.getStatus() == CrawlDatum.STATUS_DB_REDIR_TEMP) {
+        reporter.incrCounter("IndexerStatus", "Deleted redirects", 1);
+        reporter.incrCounter("IndexerStatus", "Perm redirects deleted", 1);
+
+        NutchIndexAction action = new NutchIndexAction(null, NutchIndexAction.DELETE);
+        output.collect(key, action);
+        return;
       }
     }
 
