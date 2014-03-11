@@ -241,34 +241,34 @@
 
 	<!-- sign and deploy the main artifact -->
 	<artifact:mvn>
-		<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.1:sign-and-deploy-file" />
+		<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.5:sign-and-deploy-file" />
 		<arg value="-Durl=${maven-repository-url}" />
 		<arg value="-DrepositoryId=${maven-repository-id}" />
 		<arg value="-DpomFile=pom.xml" />
 		<arg value="-Dfile=${maven-jar}" />
-                       <arg value="-Papache-release" />
+                <arg value="-Papache-release" />
 	</artifact:mvn>
 
 	<!-- sign and deploy the sources artifact -->
 	<artifact:mvn>
-		<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.1:sign-and-deploy-file" />
+		<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.5:sign-and-deploy-file" />
 		<arg value="-Durl=${maven-repository-url}" />
 		<arg value="-DrepositoryId=${maven-repository-id}" />
 		<arg value="-DpomFile=pom.xml" />
 		<arg value="-Dfile=${maven-sources-jar}" />
 		<arg value="-Dclassifier=sources" />
-                       <arg value="-Papache-release" />
+                <arg value="-Papache-release" />
 	</artifact:mvn>
 
 	<!-- sign and deploy the javadoc artifact -->
 	<artifact:mvn>
-		<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.1:sign-and-deploy-file" />
+		<arg value="org.apache.maven.plugins:maven-gpg-plugin:1.5:sign-and-deploy-file" />
 		<arg value="-Durl=${maven-repository-url}" />
 		<arg value="-DrepositoryId=${maven-repository-id}" />
 		<arg value="-DpomFile=pom.xml" />
 		<arg value="-Dfile=${maven-javadoc-jar}" />
 		<arg value="-Dclassifier=javadoc" />
-                       <arg value="-Papache-release" />
+                <arg value="-Papache-release" />
 	</artifact:mvn>
   </target>
 
