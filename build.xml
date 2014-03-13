@@ -151,9 +151,11 @@
    <packageset dir="${src.dir}"/>
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
       <packageset dir="${plugins.dir}/feed/src/java"/>
+  	  <packageset dir="${plugins.dir}/index-metadata/src/java"/>
       <packageset dir="${plugins.dir}/index-anchor/src/java"/>
       <packageset dir="${plugins.dir}/index-basic/src/java"/>
       <packageset dir="${plugins.dir}/index-more/src/java"/>
+      <packageset dir="${plugins.dir}/index-metadata/src/java"/>
       <packageset dir="${plugins.dir}/indexer-solr/src/java"/>
       <packageset dir="${plugins.dir}/language-identifier/src/java"/>
       <packageset dir="${plugins.dir}/lib-http/src/java"/>
@@ -161,6 +163,7 @@
       <packageset dir="${plugins.dir}/microformats-reltag/src/java"/>
       <packageset dir="${plugins.dir}/parse-ext/src/java"/>
       <packageset dir="${plugins.dir}/parse-html/src/java"/>
+      <packageset dir="${plugins.dir}/parse-metatags/src/java"/>
       <packageset dir="${plugins.dir}/parse-js/src/java"/>
       <packageset dir="${plugins.dir}/parse-swf/src/java"/>
       <packageset dir="${plugins.dir}/parse-tika/src/java"/>
@@ -576,6 +579,7 @@
       <packageset dir="${plugins.dir}/parse-ext/src/java"/>
       <packageset dir="${plugins.dir}/parse-html/src/java"/>
       <packageset dir="${plugins.dir}/parse-js/src/java"/>
+      <packageset dir="${plugins.dir}/parse-metatags/src/java"/>
       <packageset dir="${plugins.dir}/parse-swf/src/java"/>
       <packageset dir="${plugins.dir}/parse-tika/src/java"/>
       <packageset dir="${plugins.dir}/parse-zip/src/java"/>
@@ -937,6 +941,7 @@
         <source path="${basedir}/src/plugin/index-basic/src/test/" />
         <source path="${basedir}/src/plugin/index-more/src/java/" />
         <source path="${basedir}/src/plugin/index-more/src/test/" />
+        <source path="${basedir}/src/plugin/index-metadata/src/java/" />
         <source path="${basedir}/src/plugin/language-identifier/src/java/" />
         <source path="${basedir}/src/plugin/language-identifier/src/test/" />
         <source path="${basedir}/src/plugin/lib-http/src/java/" />
@@ -952,6 +957,8 @@
         <source path="${basedir}/src/plugin/parse-html/src/test/" />
         <source path="${basedir}/src/plugin/parse-js/src/java/" />
         <source path="${basedir}/src/plugin/parse-js/src/test/" />
+        <source path="${basedir}/src/plugin/parse-metatags/src/java/" />
+        <source path="${basedir}/src/plugin/parse-metatags/src/test/" />
         <!-- parse-swf and parse-zip are currently disabled 
         <source path="${basedir}/src/plugin/parse-swf/src/java/" />
         <source path="${basedir}/src/plugin/parse-swf/src/test/" />

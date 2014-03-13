@@ -336,6 +336,9 @@
     <field name="contentLength" type="string" stored="true" indexed="false"/>
     <field name="lastModified" type="date" stored="true" indexed="false"/>
     <field name="date" type="tdate" stored="true" indexed="true"/>
+    
+    <!-- fields for index-metadata plugin -->  
+    <dynamicField name="meta_*" type="string" stored="true" indexed="true"/>
 
     <!-- fields for languageidentifier plugin -->
     <field name="lang" type="string" stored="true" indexed="true"/>

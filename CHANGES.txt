@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1478 Parse-metatags and index-metadata plugin for Nutch 2.x series (kiran, Nguyen Manh Tien, Talat UYARER, Vangelis Karvounis via lewismc)
+
 * NUTCH-1729 Upgrade to Tika 1.5 (jnioche)
 
 * NUTCH-1721 Upgrade to Crawler commons 0.3 (tejasp)

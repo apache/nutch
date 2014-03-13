@@ -30,6 +30,7 @@
      <ant dir="index-anchor" target="deploy"/>
      <ant dir="index-basic" target="deploy"/>
      <ant dir="index-more" target="deploy"/>
+     <ant dir="index-metadata" target="deploy"/>
      <ant dir="indexer-solr" target="deploy"/>
      <ant dir="indexer-elastic" target="deploy"/>
      <ant dir="language-identifier" target="deploy"/>
@@ -47,6 +48,7 @@
      <ant dir="parse-js" target="deploy"/>
      <ant dir="parse-html" target="deploy"/>
      <ant dir="parse-tika" target="deploy"/>
+     <ant dir="parse-metatags" target="deploy"/>
      <ant dir="scoring-link" target="deploy"/>
      <ant dir="scoring-opic" target="deploy"/>
      <ant dir="subcollection" target="deploy"/>
@@ -77,6 +79,7 @@
      <ant dir="protocol-file" target="test"/>
      <ant dir="parse-html" target="test"/>
      <ant dir="parse-js" target="test"/>
+     <ant dir="parse-metatags" target="test"/>
      <ant dir="index-anchor" target="test"/>
      <ant dir="index-basic" target="test"/>
      <ant dir="index-more" target="test"/>
@@ -113,6 +116,7 @@
     <ant dir="index-anchor" target="clean"/>
     <ant dir="index-basic" target="clean"/>
     <ant dir="index-more" target="clean"/>
+    <ant dir="index-metadata" target="clean"/>
     <ant dir="indexer-solr" target="clean"/>
     <ant dir="indexer-elastic" target="clean"/>
     <ant dir="language-identifier" target="clean"/>
@@ -128,6 +132,7 @@
     <ant dir="parse-swf" target="clean"/>
     <ant dir="parse-tika" target="clean"/>
     <ant dir="parse-zip" target="clean"/>
+    <ant dir="parse-metatags" target="clean"/>
     <ant dir="protocol-file" target="clean"/>
     <ant dir="protocol-ftp" target="clean"/>
     <ant dir="protocol-httpclient" target="clean"/>

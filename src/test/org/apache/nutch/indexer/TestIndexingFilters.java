@@ -92,8 +92,6 @@ public class TestIndexingFilters {
     // set content metadata
     Metadata md = new Metadata();
     md.add("example","data");
-    // set content metadata property defined in MetadataIndexer
-    conf.set("index.content.md","example");
     // add MetadataIndxer filter
     conf.set(IndexingFilters.INDEXINGFILTER_ORDER, class1 + " " + class2);
     IndexingFilters filters2 = new IndexingFilters(conf);
