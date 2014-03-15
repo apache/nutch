@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1645 Junit Test Case for Adaptive Fetch Schedule class (Yasin Kılınç, lufeng, Sertac TURKEL via snagel)
+
 * NUTCH-1478 Parse-metatags and index-metadata plugin for Nutch 2.x series (kiran, Nguyen Manh Tien, Talat UYARER, Vangelis Karvounis via lewismc)
 
 * NUTCH-1729 Upgrade to Tika 1.5 (jnioche)
