@@ -172,7 +172,12 @@ public class HttpResponse implements Response {
         haveSeenNonContinueStatus= code != 100; // 100 is "Continue"
       }
 
-      readPlainContent(in);
+	  String transferEncoding = getHeader(Response.TRANSFER_ENCODING); 
+	  if(transferEncoding != null && "chunked".equalsIgnoreCase(transferEncoding.trim())){    	  
+		 readChunkedContent(in, line);  
+	  }else{
+		 readPlainContent(in);  
+	  }
 
       String contentEncoding = getHeader(Response.CONTENT_ENCODING);
       if ("gzip".equals(contentEncoding) || "x-gzip".equals(contentEncoding)) {
