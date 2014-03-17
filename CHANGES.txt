@@ -1,6 +1,11 @@
 Nutch Change Log
 
-Nutch Development Trunk
+Nutch Current Development
+
+*
+
+Nutch 1.8      - 11/03/2014 (dd/mm/yyyy)
+Release Report - http://s.apache.org/oHY
 
 * NUTCH-1706 IndexerMapReduce does not remove db_redir_temp (markus, snagel)
 
