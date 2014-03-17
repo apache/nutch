@@ -37,6 +37,7 @@ import org.apache.nutch.protocol.ProtocolStatusCodes;
 import org.apache.nutch.protocol.ProtocolStatusUtils;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.URLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,6 +123,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     }
 
     NutchDocument doc = new NutchDocument();
+    doc.add("digest", StringUtil.toHexString(page.getSignature()));
 
     try {
       doc = indexers.filter(doc, url, page);
