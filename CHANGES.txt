@@ -2,7 +2,7 @@ Nutch Change Log
 
 Nutch Current Development
 
-*
+* NUTCH-1671 indexchecker to add digest field (snagel, lufeng)
 
 Nutch 1.8      - 11/03/2014 (dd/mm/yyyy)
 Release Report - http://s.apache.org/oHY

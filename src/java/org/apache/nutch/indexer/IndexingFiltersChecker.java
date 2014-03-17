@@ -17,11 +17,8 @@
  
 package org.apache.nutch.indexer;
 
-import java.util.Arrays;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.Text;
@@ -29,10 +26,9 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.crawl.Inlinks;
-import org.apache.nutch.indexer.IndexingException;
-import org.apache.nutch.indexer.IndexingFilters;
-import org.apache.nutch.indexer.NutchDocument;
+import org.apache.nutch.crawl.SignatureFactory;
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseResult;
 import org.apache.nutch.parse.ParseSegment;
@@ -42,7 +38,10 @@ import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.URLUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Reads and parses a URL and run the indexers on it. Displays the fields obtained and the first
@@ -122,6 +121,14 @@ public class IndexingFiltersChecker extends Configured implements Tool {
 
     Inlinks inlinks = null;
     Parse parse = parseResult.get(urlText);
+
+    byte[] signature = SignatureFactory.getSignature(conf).calculate(content,
+        parse);
+    parse.getData().getContentMeta()
+        .set(Nutch.SIGNATURE_KEY, StringUtil.toHexString(signature));
+    String digest = parse.getData().getContentMeta().get(Nutch.SIGNATURE_KEY);
+    doc.add("digest", digest);
+
     try {
       doc = indexers.filter(doc, parse, urlText, datum, inlinks);
     } catch (IndexingException e) {
