@@ -228,7 +228,7 @@ public class GeneratorJob extends NutchTool implements Tool {
     String batchId =  getConf().get(BATCH_ID);
     long finish = System.currentTimeMillis();
     LOG.info("GeneratorJob: finished at " + sdf.format(finish) + ", time elapsed: " + TimingUtil.elapsedTime(start, finish));
-    LOG.info("GeneratorJob: generated batch id: " + batchId);
+    LOG.info("GeneratorJob: generated batch id: " + batchId + " containing " + GeneratorReducer.count + " URLs");
     return batchId;
   }
 
