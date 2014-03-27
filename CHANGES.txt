@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1727 Configurable length for Tlds (Sertac TURKEL via lewismc)
+
 * NUTCH-1738 Expose number of URLs generated per batch in GeneratorJob (Talat UYARER via lewismc)
 
 * NUTCH-1671 indexchecker to add digest field (snagel, lufeng)

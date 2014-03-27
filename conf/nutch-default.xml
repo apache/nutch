@@ -973,6 +973,12 @@
 <!-- urlfilter plugin properties -->
 
 <property>
+  <name>urlfilter.tld.length</name>
+  <value></value>
+  <description>Maximum Character length of top-level-domain</description>
+</property>
+
+<property>
   <name>urlfilter.domain.file</name>
   <value>domain-urlfilter.txt</value>
   <description>Name of file on CLASSPATH containing either top level domains or

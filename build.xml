@@ -989,6 +989,7 @@
         <source path="${basedir}/src/plugin/urlfilter-suffix/src/java/" />
         <source path="${basedir}/src/plugin/urlfilter-suffix/src/test/" />
         <source path="${basedir}/src/plugin/urlfilter-validator/src/java/" />
+      	 <source path="${basedir}/src/plugin/urlfilter-validator/src/test/" />
         <source path="${basedir}/src/plugin/urlnormalizer-basic/src/java/" />
         <source path="${basedir}/src/plugin/urlnormalizer-basic/src/test/" />
         <source path="${basedir}/src/plugin/urlnormalizer-pass/src/java/" />
