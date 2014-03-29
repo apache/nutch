@@ -29,10 +29,12 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TestLinkDbMerger extends TestCase {
+public class TestLinkDbMerger {
   private static final Logger LOG = Logger.getLogger(TestLinkDbMerger.class.getName());
   
   String url10 = "http://example.com/foo";
@@ -76,6 +78,7 @@ public class TestLinkDbMerger extends TestCase {
   FileSystem fs;
   LinkDbReader reader;
   
+  @Before
   public void setUp() throws Exception {
     init1.put(url10, urls10);
     init1.put(url11, urls11);
@@ -92,6 +95,7 @@ public class TestLinkDbMerger extends TestCase {
     fs.mkdirs(testDir);
   }
   
+  @After
   public void tearDown() {
     try {
       if (fs.exists(testDir))
@@ -102,6 +106,7 @@ public class TestLinkDbMerger extends TestCase {
     } catch (Exception e) { }
   }
 
+  @Test
   public void testMerge() throws Exception {
     Configuration conf = NutchConfiguration.create();
     FileSystem fs = FileSystem.get(conf);
@@ -123,7 +128,7 @@ public class TestLinkDbMerger extends TestCase {
       String[] vals = expected.get(url);
       Inlinks inlinks = reader.getInlinks(new Text(url));
       // may not be null
-      assertNotNull(inlinks);
+      Assert.assertNotNull(inlinks);
       ArrayList<String> links = new ArrayList<String>();
       Iterator<?> it2 = inlinks.iterator();
       while (it2.hasNext()) {
@@ -132,7 +137,7 @@ public class TestLinkDbMerger extends TestCase {
       }
       for (int i = 0; i < vals.length; i++) {
         LOG.fine(" -> " + vals[i]);
-        assertTrue(links.contains(vals[i]));
+        Assert.assertTrue(links.contains(vals[i]));
       }
     }
     reader.close();

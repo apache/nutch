@@ -21,6 +21,8 @@ package org.apache.nutch.parse.feed;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.junit.Assert;
+import org.junit.Test;
 // APACHE imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,9 +39,6 @@ import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.ProtocolNotFound;
 import org.apache.nutch.util.NutchConfiguration;
 
-// Junit imports
-import junit.framework.TestCase;
-
 /**
  * 
  * @author mattmann
@@ -47,7 +46,7 @@ import junit.framework.TestCase;
  * Test Suite for the {@link FeedParser}.
  * 
  */
-public class TestFeedParser extends TestCase {
+public class TestFeedParser {
 
   private String fileSeparator = System.getProperty("file.separator");
 
@@ -61,16 +60,6 @@ public class TestFeedParser extends TestCase {
 
   public static final Logger LOG = LoggerFactory.getLogger(TestFeedParser.class
       .getName());
-
-  /**
-   * Default Constructor.
-   * 
-   * @param name
-   *          The name of this {@link TestCase}.
-   */
-  public TestFeedParser(String name) {
-    super(name);
-  }
 
   /**
    * Calls the {@link FeedParser} on a sample RSS file and checks that there are
@@ -87,6 +76,7 @@ public class TestFeedParser extends TestCase {
    * @throws ParseException
    *           If the {@link Parser}Layer cannot be loaded.
    */
+  @Test
   public void testParseFetchChannel() throws ProtocolNotFound, ParseException {
     String urlString;
     Protocol protocol;
@@ -104,7 +94,7 @@ public class TestFeedParser extends TestCase {
 
       parseResult = new ParseUtil(conf).parseByExtensionId("feed", content);
 
-      assertEquals(3, parseResult.size());
+      Assert.assertEquals(3, parseResult.size());
 
       boolean hasLink1 = false, hasLink2 = false, hasLink3=false;
 
@@ -121,12 +111,12 @@ public class TestFeedParser extends TestCase {
           hasLink3 = true;
         }
 
-        assertNotNull(entry.getValue());
-        assertNotNull(entry.getValue().getData());
+        Assert.assertNotNull(entry.getValue());
+        Assert.assertNotNull(entry.getValue().getData());
       }
 
       if (!hasLink1 || !hasLink2 || !hasLink3) {
-        fail("Outlinks read from sample rss file are not correct!");
+        Assert.fail("Outlinks read from sample rss file are not correct!");
       }
     }
 

@@ -20,8 +20,6 @@ package org.apache.nutch.parse.html;
 import java.util.Set;
 import java.util.TreeSet;
 
-import junit.framework.TestCase;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -32,8 +30,10 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class TestMetatagParser extends TestCase {
+public class TestMetatagParser {
   
   private String fileSeparator = System.getProperty("file.separator");
   private String sampleDir = System.getProperty("test.data", ".");
@@ -41,10 +41,6 @@ public class TestMetatagParser extends TestCase {
   private String sampleFileMultival = "testMultivalueMetatags.html";
   private String description = "This is a test of description";
   private String keywords = "This is a test of keywords";
-  
-  public TestMetatagParser(String name) {
-    super(name);
-  }
   
   public Metadata parseMeta(String fileName, Configuration conf) {
     Metadata metadata = null;
@@ -57,21 +53,23 @@ public class TestMetatagParser extends TestCase {
       metadata = parse.getData().getParseMeta();
     } catch (Exception e) {
       e.printStackTrace();
-      fail(e.toString());
+      Assert.fail(e.toString());
     }
     return metadata;
   }
 
+  @Test
   public void testIt() {
     Configuration conf = NutchConfiguration.create();
     
     // check that we get the same values
     Metadata parseMeta= parseMeta(sampleFile, conf);
       
-    assertEquals(description, parseMeta.get("metatag.description"));
-    assertEquals(keywords, parseMeta.get("metatag.keywords"));
+    Assert.assertEquals(description, parseMeta.get("metatag.description"));
+    Assert.assertEquals(keywords, parseMeta.get("metatag.keywords"));
   }
 
+  @Test
   public void testMultiValueMetatags() {
     Configuration conf = NutchConfiguration.create();
     conf.set("metatags.names", "keywords;DC.creator");
@@ -87,7 +85,7 @@ public class TestMetatagParser extends TestCase {
     }
     String[] expectedValues1 = {"Doug Cutting", "Michael Cafarella"};
     for (String val : expectedValues1) {
-      assertTrue(failMessage + val, valueSet.contains(val));      
+      Assert.assertTrue(failMessage + val, valueSet.contains(val));      
     }
     
     valueSet.clear();
@@ -96,7 +94,7 @@ public class TestMetatagParser extends TestCase {
     }
     String[] expectedValues2 = {"robot d'indexation", "web crawler", "Webcrawler"};
     for (String val : expectedValues2) {
-      assertTrue(failMessage + val, valueSet.contains(val));      
+      Assert.assertTrue(failMessage + val, valueSet.contains(val));      
     }
   }
   

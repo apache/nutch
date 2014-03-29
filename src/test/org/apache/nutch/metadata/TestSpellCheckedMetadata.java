@@ -22,10 +22,9 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Properties;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
+
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * JUnit based tests of class
@@ -34,232 +33,232 @@ import junit.textui.TestRunner;
  * @author Chris Mattmann
  * @author J&eacute;r&ocirc;me Charron
  */
-public class TestSpellCheckedMetadata extends TestCase {
+public class TestSpellCheckedMetadata {
 
   private static final int NUM_ITERATIONS = 10000;
 
-  public TestSpellCheckedMetadata(String testName) {
-    super(testName);
-  }
-
-  public static Test suite() {
-    return new TestSuite(TestSpellCheckedMetadata.class);
-  }
-
-  public static void main(String[] args) {
-    TestRunner.run(suite());
-  }
-
   /** Test for the <code>getNormalizedName(String)</code> method. */
+  @Test
   public void testGetNormalizedName() {
-    assertEquals("Content-Type", SpellCheckedMetadata
+    Assert.assertEquals("Content-Type", SpellCheckedMetadata
         .getNormalizedName("Content-Type"));
-    assertEquals("Content-Type", SpellCheckedMetadata
+    Assert.assertEquals("Content-Type", SpellCheckedMetadata
         .getNormalizedName("ContentType"));
-    assertEquals("Content-Type", SpellCheckedMetadata
+    Assert.assertEquals("Content-Type", SpellCheckedMetadata
         .getNormalizedName("Content-type"));
-    assertEquals("Content-Type", SpellCheckedMetadata
+    Assert.assertEquals("Content-Type", SpellCheckedMetadata
         .getNormalizedName("contenttype"));
-    assertEquals("Content-Type", SpellCheckedMetadata
+    Assert.assertEquals("Content-Type", SpellCheckedMetadata
         .getNormalizedName("contentype"));
-    assertEquals("Content-Type", SpellCheckedMetadata
+    Assert.assertEquals("Content-Type", SpellCheckedMetadata
         .getNormalizedName("contntype"));
   }
   
   /** Test for the <code>add(String, String)</code> method. */
+  @Test
   public void testAdd() {
     String[] values = null;
     SpellCheckedMetadata meta = new SpellCheckedMetadata();
 
     values = meta.getValues("contentype");
-    assertEquals(0, values.length);
+    Assert.assertEquals(0, values.length);
 
     meta.add("contentype", "value1");
     values = meta.getValues("contentype");
-    assertEquals(1, values.length);
-    assertEquals("value1", values[0]);
+    Assert.assertEquals(1, values.length);
+    Assert.assertEquals("value1", values[0]);
 
     meta.add("Content-Type", "value2");
     values = meta.getValues("contentype");
-    assertEquals(2, values.length);
-    assertEquals("value1", values[0]);
-    assertEquals("value2", values[1]);
+    Assert.assertEquals(2, values.length);
+    Assert.assertEquals("value1", values[0]);
+    Assert.assertEquals("value2", values[1]);
 
     // NOTE : For now, the same value can be added many times.
     // Should it be changed?
     meta.add("ContentType", "value1");
     values = meta.getValues("Content-Type");
-    assertEquals(3, values.length);
-    assertEquals("value1", values[0]);
-    assertEquals("value2", values[1]);
-    assertEquals("value1", values[2]);
+    Assert.assertEquals(3, values.length);
+    Assert.assertEquals("value1", values[0]);
+    Assert.assertEquals("value2", values[1]);
+    Assert.assertEquals("value1", values[2]);
   }
 
   /** Test for the <code>set(String, String)</code> method. */
+  @Test
   public void testSet() {
     String[] values = null;
     SpellCheckedMetadata meta = new SpellCheckedMetadata();
 
     values = meta.getValues("contentype");
-    assertEquals(0, values.length);
+    Assert.assertEquals(0, values.length);
 
     meta.set("contentype", "value1");
     values = meta.getValues("contentype");
-    assertEquals(1, values.length);
-    assertEquals("value1", values[0]);
+    Assert.assertEquals(1, values.length);
+    Assert.assertEquals("value1", values[0]);
 
     meta.set("Content-Type", "value2");
     values = meta.getValues("contentype");
-    assertEquals(1, values.length);
-    assertEquals("value2", values[0]);
+    Assert.assertEquals(1, values.length);
+    Assert.assertEquals("value2", values[0]);
 
     meta.set("contenttype", "new value 1");
     meta.add("contenttype", "new value 2");
     values = meta.getValues("contentype");
-    assertEquals(2, values.length);
-    assertEquals("new value 1", values[0]);
-    assertEquals("new value 2", values[1]);
+    Assert.assertEquals(2, values.length);
+    Assert.assertEquals("new value 1", values[0]);
+    Assert.assertEquals("new value 2", values[1]);
   }
 
   /** Test for <code>setAll(Properties)</code> method. */
+  @Test
   public void testSetProperties() {
     String[] values = null;
     SpellCheckedMetadata meta = new SpellCheckedMetadata();
     Properties props = new Properties();
 
     meta.setAll(props);
-    assertEquals(0, meta.size());
+    Assert.assertEquals(0, meta.size());
 
     props.setProperty("name-one", "value1.1");
     meta.setAll(props);
-    assertEquals(1, meta.size());
+    Assert.assertEquals(1, meta.size());
     values = meta.getValues("name-one");
-    assertEquals(1, values.length);
-    assertEquals("value1.1", values[0]);
+    Assert.assertEquals(1, values.length);
+    Assert.assertEquals("value1.1", values[0]);
 
     props.setProperty("name-two", "value2.1");
     meta.setAll(props);
-    assertEquals(2, meta.size());
+    Assert.assertEquals(2, meta.size());
     values = meta.getValues("name-one");
-    assertEquals(1, values.length);
-    assertEquals("value1.1", values[0]);
+    Assert.assertEquals(1, values.length);
+    Assert.assertEquals("value1.1", values[0]);
     values = meta.getValues("name-two");
-    assertEquals(1, values.length);
-    assertEquals("value2.1", values[0]);
+    Assert.assertEquals(1, values.length);
+    Assert.assertEquals("value2.1", values[0]);
   }
 
   /** Test for <code>get(String)</code> method. */
+  @Test
   public void testGet() {
     SpellCheckedMetadata meta = new SpellCheckedMetadata();
-    assertNull(meta.get("a-name"));
+    Assert.assertNull(meta.get("a-name"));
 
     meta.add("a-name", "value-1");
-    assertEquals("value-1", meta.get("a-name"));
+    Assert.assertEquals("value-1", meta.get("a-name"));
     meta.add("a-name", "value-2");
-    assertEquals("value-1", meta.get("a-name"));
+    Assert.assertEquals("value-1", meta.get("a-name"));
   }
 
   /** Test for <code>isMultiValued()</code> method. */
+  @Test
   public void testIsMultiValued() {
     SpellCheckedMetadata meta = new SpellCheckedMetadata();
-    assertFalse(meta.isMultiValued("key"));
+    Assert.assertFalse(meta.isMultiValued("key"));
     meta.add("key", "value1");
-    assertFalse(meta.isMultiValued("key"));
+    Assert.assertFalse(meta.isMultiValued("key"));
     meta.add("key", "value2");
-    assertTrue(meta.isMultiValued("key"));
+    Assert.assertTrue(meta.isMultiValued("key"));
   }
 
   /** Test for <code>names</code> method. */
+  @Test
   public void testNames() {
     String[] names = null;
     SpellCheckedMetadata meta = new SpellCheckedMetadata();
     names = meta.names();
-    assertEquals(0, names.length);
+    Assert.assertEquals(0, names.length);
 
     meta.add("name-one", "value");
     names = meta.names();
-    assertEquals(1, names.length);
-    assertEquals("name-one", names[0]);
+    Assert.assertEquals(1, names.length);
+    Assert.assertEquals("name-one", names[0]);
     meta.add("name-two", "value");
     names = meta.names();
-    assertEquals(2, names.length);
+    Assert.assertEquals(2, names.length);
   }
 
   /** Test for <code>remove(String)</code> method. */
+  @Test
   public void testRemove() {
     SpellCheckedMetadata meta = new SpellCheckedMetadata();
     meta.remove("name-one");
-    assertEquals(0, meta.size());
+    Assert.assertEquals(0, meta.size());
     meta.add("name-one", "value-1.1");
     meta.add("name-one", "value-1.2");
     meta.add("name-two", "value-2.2");
-    assertEquals(2, meta.size());
-    assertNotNull(meta.get("name-one"));
-    assertNotNull(meta.get("name-two"));
+    Assert.assertEquals(2, meta.size());
+    Assert.assertNotNull(meta.get("name-one"));
+    Assert.assertNotNull(meta.get("name-two"));
     meta.remove("name-one");
-    assertEquals(1, meta.size());
-    assertNull(meta.get("name-one"));
-    assertNotNull(meta.get("name-two"));
+    Assert.assertEquals(1, meta.size());
+    Assert.assertNull(meta.get("name-one"));
+    Assert.assertNotNull(meta.get("name-two"));
     meta.remove("name-two");
-    assertEquals(0, meta.size());
-    assertNull(meta.get("name-one"));
-    assertNull(meta.get("name-two"));
+    Assert.assertEquals(0, meta.size());
+    Assert.assertNull(meta.get("name-one"));
+    Assert.assertNull(meta.get("name-two"));
   }
 
   /** Test for <code>equals(Object)</code> method. */
+  @Test
   public void testObject() {
     SpellCheckedMetadata meta1 = new SpellCheckedMetadata();
     SpellCheckedMetadata meta2 = new SpellCheckedMetadata();
-    assertFalse(meta1.equals(null));
-    assertFalse(meta1.equals("String"));
-    assertTrue(meta1.equals(meta2));
+    Assert.assertFalse(meta1.equals(null));
+    Assert.assertFalse(meta1.equals("String"));
+    Assert.assertTrue(meta1.equals(meta2));
     meta1.add("name-one", "value-1.1");
-    assertFalse(meta1.equals(meta2));
+    Assert.assertFalse(meta1.equals(meta2));
     meta2.add("name-one", "value-1.1");
-    assertTrue(meta1.equals(meta2));
+    Assert.assertTrue(meta1.equals(meta2));
     meta1.add("name-one", "value-1.2");
-    assertFalse(meta1.equals(meta2));
+    Assert.assertFalse(meta1.equals(meta2));
     meta2.add("name-one", "value-1.2");
-    assertTrue(meta1.equals(meta2));
+    Assert.assertTrue(meta1.equals(meta2));
     meta1.add("name-two", "value-2.1");
-    assertFalse(meta1.equals(meta2));
+    Assert.assertFalse(meta1.equals(meta2));
     meta2.add("name-two", "value-2.1");
-    assertTrue(meta1.equals(meta2));
+    Assert.assertTrue(meta1.equals(meta2));
     meta1.add("name-two", "value-2.2");
-    assertFalse(meta1.equals(meta2));
+    Assert.assertFalse(meta1.equals(meta2));
     meta2.add("name-two", "value-2.x");
-    assertFalse(meta1.equals(meta2));
+    Assert.assertFalse(meta1.equals(meta2));
   }
 
   /** Test for <code>Writable</code> implementation. */
+  @Test
   public void testWritable() {
     SpellCheckedMetadata result = null;
     SpellCheckedMetadata meta = new SpellCheckedMetadata();
     result = writeRead(meta);
-    assertEquals(0, result.size());
+    Assert.assertEquals(0, result.size());
     meta.add("name-one", "value-1.1");
     result = writeRead(meta);
     meta.add("Contenttype", "text/html");
-    assertEquals(1, result.size());
-    assertEquals(1, result.getValues("name-one").length);
-    assertEquals("value-1.1", result.get("name-one"));
+    Assert.assertEquals(1, result.size());
+    Assert.assertEquals(1, result.getValues("name-one").length);
+    Assert.assertEquals("value-1.1", result.get("name-one"));
     meta.add("name-two", "value-2.1");
     meta.add("name-two", "value-2.2");
     result = writeRead(meta);
-    assertEquals(3, result.size());
-    assertEquals(1, result.getValues("name-one").length);
-    assertEquals("value-1.1", result.getValues("name-one")[0]);
-    assertEquals(2, result.getValues("name-two").length);
-    assertEquals("value-2.1", result.getValues("name-two")[0]);
-    assertEquals("value-2.2", result.getValues("name-two")[1]);
-    assertEquals("text/html", result.get(Metadata.CONTENT_TYPE));
+    Assert.assertEquals(3, result.size());
+    Assert.assertEquals(1, result.getValues("name-one").length);
+    Assert.assertEquals("value-1.1", result.getValues("name-one")[0]);
+    Assert.assertEquals(2, result.getValues("name-two").length);
+    Assert.assertEquals("value-2.1", result.getValues("name-two")[0]);
+    Assert.assertEquals("value-2.2", result.getValues("name-two")[1]);
+    Assert.assertEquals("text/html", result.get(Metadata.CONTENT_TYPE));
   }
 
   /**
    * IO Test method, usable only when you plan to do changes in metadata
    * to measure relative performance impact.
    */
+  @Test
   public final void testHandlingSpeed() {
+    @SuppressWarnings("unused")
     SpellCheckedMetadata result;
     long start = System.currentTimeMillis();
     for (int i = 0; i < NUM_ITERATIONS; i++) {
@@ -278,7 +277,7 @@ public class TestSpellCheckedMetadata extends TestCase {
       readed.readFields(new DataInputStream(new ByteArrayInputStream(out
           .toByteArray())));
     } catch (IOException ioe) {
-      fail(ioe.toString());
+      Assert.fail(ioe.toString());
     }
     return readed;
   }

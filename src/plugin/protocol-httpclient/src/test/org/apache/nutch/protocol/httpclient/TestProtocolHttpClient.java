@@ -18,8 +18,10 @@
 package org.apache.nutch.protocol.httpclient;
 
 import java.net.URL;
-import java.net.MalformedURLException;
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.bio.SocketConnector;
 import org.mortbay.jetty.handler.ContextHandler;
@@ -32,7 +34,7 @@ import org.apache.nutch.net.protocols.Response;
 /**
  * Test cases for protocol-httpclient.
  */
-public class TestProtocolHttpClient extends TestCase {
+public class TestProtocolHttpClient {
 
   private Server server;
   private Configuration conf;
@@ -40,7 +42,9 @@ public class TestProtocolHttpClient extends TestCase {
   private int port;
   private Http http = new Http();
 
-  protected void setUp() throws Exception {
+  @SuppressWarnings("deprecation")
+  @Before
+  public void setUp() throws Exception {
 
     ContextHandler context = new ContextHandler();
     context.setContextPath("/");
@@ -61,7 +65,8 @@ public class TestProtocolHttpClient extends TestCase {
     http.setConf(conf);
   }
 
-  protected void tearDown() throws Exception {
+  @After
+  public void tearDown() throws Exception {
     server.stop();
   }
 
@@ -70,6 +75,7 @@ public class TestProtocolHttpClient extends TestCase {
    *
    * @throws Exception If an error occurs or the test case fails.
    */
+  @Test
   public void testCookies() throws Exception {
     startServer(47500);
     fetchPage("/cookies.jsp", 200);
@@ -82,6 +88,7 @@ public class TestProtocolHttpClient extends TestCase {
    *
    * @throws Exception If an error occurs or the test case fails.
    */
+  @Test
   public void testNoPreemptiveAuth() throws Exception {
     startServer(47500);
     fetchPage("/noauth.jsp", 200);
@@ -92,6 +99,7 @@ public class TestProtocolHttpClient extends TestCase {
    *
    * @throws Exception If an error occurs or the test case fails.
    */
+  @Test
   public void testDefaultCredentials() throws Exception {
     startServer(47502);
     fetchPage("/basic.jsp", 200);
@@ -102,6 +110,7 @@ public class TestProtocolHttpClient extends TestCase {
    * 
    * @throws Exception If an error occurs or the test case fails.
    */
+  @Test
   public void testBasicAuth() throws Exception {
     startServer(47500);
     fetchPage("/basic.jsp", 200);
@@ -117,6 +126,7 @@ public class TestProtocolHttpClient extends TestCase {
    *
    * @throws Exception If an error occurs or the test case fails.
    */
+  @Test
   public void testOtherRealmsNoAuth() throws Exception {
     startServer(47501);
     fetchPage("/basic.jsp", 200);
@@ -129,6 +139,7 @@ public class TestProtocolHttpClient extends TestCase {
    *
    * @throws Exception If an error occurs or the test case fails.
    */
+  @Test
   public void testDigestAuth() throws Exception {
     startServer(47500);
     fetchPage("/digest.jsp", 200);
@@ -139,6 +150,7 @@ public class TestProtocolHttpClient extends TestCase {
    *
    * @throws Exception If an error occurs or the test case fails.
    */
+  @Test
   public void testNtlmAuth() throws Exception {
     startServer(47501);
     fetchPage("/ntlm.jsp", 200);
@@ -176,17 +188,6 @@ public class TestProtocolHttpClient extends TestCase {
     response = http.getResponse(url, new CrawlDatum(), true);
 
     int code = response.getCode();
-    assertEquals("HTTP Status Code for " + url, expectedCode, code);
-  }
-  
-  /**
-   * Returns an URL to the specified page.
-   *
-   * @param  page                  Page available in the local Jetty
-   *                               server.
-   * @throws MalformedURLException If an URL can not be formed.
-   */
-  private URL getURL(String page) throws MalformedURLException {
-    return new URL("http", "127.0.0.1", port, page);
+    Assert.assertEquals("HTTP Status Code for " + url, expectedCode, code);
   }
 }

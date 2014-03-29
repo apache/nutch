@@ -17,13 +17,11 @@
 
 package org.apache.nutch.util;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 /** Unit tests for SuffixStringMatcher. */
-public class TestSuffixStringMatcher extends TestCase {
-  public TestSuffixStringMatcher(String name) { 
-    super(name); 
-  }
+public class TestSuffixStringMatcher {
 
   private final static int NUM_TEST_ROUNDS= 20;
   private final static int MAX_TEST_SUFFIXES= 100;
@@ -51,6 +49,7 @@ public class TestSuffixStringMatcher extends TestCase {
     return new String(chars);
   }
   
+  @Test
   public void testSuffixMatcher() {
     int numMatches= 0;
     int numInputsTested= 0;
@@ -96,20 +95,19 @@ public class TestSuffixStringMatcher extends TestCase {
 
         numInputsTested++;
 
-        assertTrue( "'" + input + "' should " + (matches ? "" : "not ") 
+        Assert.assertTrue( "'" + input + "' should " + (matches ? "" : "not ") 
                     + "match!",
                     matches == sufmatcher.matches(input) );
         if (matches) {
-          assertTrue( shortestMatch 
+          Assert.assertTrue( shortestMatch 
                       == sufmatcher.shortestMatch(input).length());
-          assertTrue( input.substring(input.length() - shortestMatch).equals(
+          Assert.assertTrue( input.substring(input.length() - shortestMatch).equals(
                         sufmatcher.shortestMatch(input)) );
 
-          assertTrue( longestMatch 
+          Assert.assertTrue( longestMatch 
                       == sufmatcher.longestMatch(input).length());
-          assertTrue( input.substring(input.length() - longestMatch).equals(
+          Assert.assertTrue( input.substring(input.length() - longestMatch).equals(
                         sufmatcher.longestMatch(input)) );
-
         }
       }
     }

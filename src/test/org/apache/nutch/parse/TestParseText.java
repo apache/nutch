@@ -18,21 +18,17 @@
 package org.apache.nutch.parse;
 
 import org.apache.nutch.util.WritableTestUtils;
-
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /** Unit tests for ParseText. */
 
-public class TestParseText extends TestCase {
-  public TestParseText(String name) { super(name); }
+public class TestParseText  {
 
+  @Test
   public void testParseText() throws Exception {
 
     String page = "Hello World The Quick Brown Fox Jumped Over the Lazy Fox";
-
     ParseText s = new ParseText(page);
-                        
     WritableTestUtils.testWritable(s);
   }
-	
 }

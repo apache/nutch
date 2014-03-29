@@ -16,13 +16,10 @@
  */
 package org.apache.nutch.analysis.lang;
 
-
-
-// JUnit imports
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-import junit.framework.TestCase;
+
 
 // Nutch imports
 import org.apache.nutch.metadata.Metadata;
@@ -31,9 +28,11 @@ import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.tika.language.LanguageIdentifier;
+import org.junit.Assert;
+import org.junit.Test;
 
 
-public class TestHTMLLanguageParser extends TestCase {
+public class TestHTMLLanguageParser {
 
   private static String URL = "http://foo.bar/";
 
@@ -50,6 +49,7 @@ public class TestHTMLLanguageParser extends TestCase {
   /**
    * Test parsing of language identifiers from html 
    **/
+  @Test
   public void testMetaHTMLParsing() {
 
     try {
@@ -58,16 +58,17 @@ public class TestHTMLLanguageParser extends TestCase {
       for (int t = 0; t < docs.length; t++) {
         Content content = getContent(docs[t]);
         Parse parse = parser.parse(content).get(content.getUrl());
-        assertEquals(metalanguages[t], (String) parse.getData().getParseMeta().get(Metadata.LANGUAGE));
+        Assert.assertEquals(metalanguages[t], (String) parse.getData().getParseMeta().get(Metadata.LANGUAGE));
       }
     } catch (Exception e) {
       e.printStackTrace(System.out);
-      fail(e.toString());
+      Assert.fail(e.toString());
     }
 
   }
 
   /** Test of <code>LanguageParser.parseLanguage(String)</code> method. */
+  @Test
   public void testParseLanguage() {
     String tests[][] = {
       { "(SCHEME=ISO.639-1) sv", "sv" },
@@ -117,7 +118,7 @@ public class TestHTMLLanguageParser extends TestCase {
     };
     
     for (int i=0; i<44; i++) {
-      assertEquals(tests[i][1], HTMLLanguageParser.LanguageParser.parseLanguage(tests[i][0]));
+      Assert.assertEquals(tests[i][1], HTMLLanguageParser.LanguageParser.parseLanguage(tests[i][0]));
     }
   }
   
@@ -129,6 +130,7 @@ public class TestHTMLLanguageParser extends TestCase {
   }
   
 
+  @Test
   public void testLanguageIndentifier() {
     try {
       long total = 0;
@@ -150,7 +152,7 @@ public class TestHTMLLanguageParser extends TestCase {
             if (testLine.length() > 256) {
               identifier = new LanguageIdentifier(testLine);
               lang = identifier.getLanguage();
-              assertEquals(tokens[1], lang);
+              Assert.assertEquals(tokens[1], lang);
             }
           }
           testFile.close();
@@ -162,14 +164,14 @@ public class TestHTMLLanguageParser extends TestCase {
           lang = identifier.getLanguage();
           System.out.println(lang);
           total += System.currentTimeMillis() - start;
-          assertEquals(tokens[1], lang);
+          Assert.assertEquals(tokens[1], lang);
         }
       }
       in.close();
       System.out.println("Total Time=" + total);
     } catch (Exception e) {
       e.printStackTrace();
-      fail(e.toString());
+      Assert.fail(e.toString());
     }
   }
 

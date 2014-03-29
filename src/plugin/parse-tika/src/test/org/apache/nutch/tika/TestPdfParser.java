@@ -21,24 +21,22 @@ import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ProtocolException;
-
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
-
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
-
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 /** 
  * Unit tests for PdfParser.
  *
  * @author John Xing
  */
-public class TestPdfParser extends TestCase {
+public class TestPdfParser {
 
   private String fileSeparator = System.getProperty("file.separator");
   // This system property is defined in ./src/plugin/build-plugin.xml
@@ -53,14 +51,7 @@ public class TestPdfParser extends TestCase {
 
   private String expectedText = "A VERY SMALL PDF FILE";
 
-  public TestPdfParser(String name) { 
-    super(name); 
-  }
-
-  protected void setUp() {}
-
-  protected void tearDown() {}
-
+  @Test
   public void testIt() throws ProtocolException, ParseException {
     String urlString;
     Protocol protocol;
@@ -76,7 +67,7 @@ public class TestPdfParser extends TestCase {
       parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content).get(content.getUrl());
 
       int index = parse.getText().indexOf(expectedText);
-      assertTrue(index > 0);
+      Assert.assertTrue(index > 0);
     }
   }
 

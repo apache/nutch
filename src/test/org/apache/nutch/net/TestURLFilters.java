@@ -18,15 +18,15 @@ package org.apache.nutch.net;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TestURLFilters extends TestCase {
+public class TestURLFilters {
 
   /**
    * Testcase for NUTCH-325.
    * @throws URLFilterException
    */
+  @Test
   public void testNonExistingUrlFilter() throws URLFilterException {
     Configuration conf = NutchConfiguration.create();
     String class1 = "NonExistingFilter";

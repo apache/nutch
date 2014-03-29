@@ -16,8 +16,6 @@
  */
 package org.apache.nutch.indexer.anchor;
 
-import junit.framework.TestCase;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -27,6 +25,8 @@ import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.Assert;
+import org.junit.Test;
 
 /**
  * JUnit test case which tests
@@ -36,14 +36,15 @@ import org.apache.nutch.util.NutchConfiguration;
  * @author lewismc
  *
  */
-public class TestAnchorIndexingFilter extends TestCase {
+public class TestAnchorIndexingFilter {
 
+  @Test
   public void testDeduplicateAnchor() throws Exception {
     Configuration conf = NutchConfiguration.create();
     conf.setBoolean("anchorIndexingFilter.deduplicate", true);
     AnchorIndexingFilter filter = new AnchorIndexingFilter();
     filter.setConf(conf);
-    assertNotNull(filter);
+    Assert.assertNotNull(filter);
     NutchDocument doc = new NutchDocument();
     ParseImpl parse = new ParseImpl("foo bar", new ParseData());
     Inlinks inlinks = new Inlinks();
@@ -54,11 +55,11 @@ public class TestAnchorIndexingFilter extends TestCase {
       filter.filter(doc, parse, new Text("http://nutch.apache.org/index.html"), new CrawlDatum(), inlinks);
     } catch(Exception e){
       e.printStackTrace();
-      fail(e.getMessage());
+      Assert.fail(e.getMessage());
     }
-    assertNotNull(doc);
-    assertTrue("test if there is an anchor at all", doc.getFieldNames().contains("anchor"));
-    assertEquals("test dedup, we expect 2", 2, doc.getField("anchor").getValues().size());
+    Assert.assertNotNull(doc);
+    Assert.assertTrue("test if there is an anchor at all", doc.getFieldNames().contains("anchor"));
+    Assert.assertEquals("test dedup, we expect 2", 2, doc.getField("anchor").getValues().size());
   }
 
 }

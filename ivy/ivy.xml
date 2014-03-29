@@ -80,7 +80,7 @@
 		<!--Configuration: test -->
 
 		<!--artifacts needed for testing -->
-		<dependency org="junit" name="junit" rev="3.8.1" conf="*->default" />
+		<dependency org="junit" name="junit" rev="4.11" conf="*->default" />
 		<dependency org="org.apache.hadoop" name="hadoop-test" rev="1.2.0"
 			conf="test->default" />
 

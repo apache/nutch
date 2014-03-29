@@ -30,9 +30,9 @@ import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.ProtocolOutput;
 import org.apache.nutch.protocol.ProtocolStatus;
 import org.apache.nutch.util.NutchConfiguration;
-
-// Junit imports
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author mattmann
@@ -43,13 +43,13 @@ import junit.framework.TestCase;
  *          </p>
  *          .
  */
-public class TestProtocolFile extends TestCase {
+public class TestProtocolFile {
 
   private String fileSeparator = System.getProperty("file.separator");
   private String sampleDir = System.getProperty("test.data", ".");
 
   private static final String[] testTextFiles = new String[] {
-      "testprotocolfile.txt", "testprotocolfile_(encoded).txt", "testprotocolfile_%28encoded%29.txt" };
+    "testprotocolfile.txt", "testprotocolfile_(encoded).txt", "testprotocolfile_%28encoded%29.txt" };
 
   private static final CrawlDatum datum = new CrawlDatum();
 
@@ -57,10 +57,12 @@ public class TestProtocolFile extends TestCase {
 
   private Configuration conf;
 
-  protected void setUp() {
+  @Before
+  public void setUp() {
     conf = NutchConfiguration.create();
   }
 
+  @Test
   public void testSetContentType() throws ProtocolException {
     for (String testTextFile : testTextFiles) {
       setContentType(testTextFile);
@@ -75,20 +77,20 @@ public class TestProtocolFile extends TestCase {
    */
   public void setContentType(String testTextFile) throws ProtocolException {
     String urlString = "file:" + sampleDir + fileSeparator + testTextFile;
-    assertNotNull(urlString);
+    Assert.assertNotNull(urlString);
     Protocol protocol = new ProtocolFactory(conf).getProtocol(urlString);
     ProtocolOutput output = protocol.getProtocolOutput(new Text(urlString),
         datum);
-    assertNotNull(output);
-    assertEquals("Status code: [" + output.getStatus().getCode()
+    Assert.assertNotNull(output);
+    Assert.assertEquals("Status code: [" + output.getStatus().getCode()
         + "], not equal to: [" + ProtocolStatus.SUCCESS + "]: args: ["
         + output.getStatus().getArgs() + "]", ProtocolStatus.SUCCESS, output
         .getStatus().getCode());
-    assertNotNull(output.getContent());
-    assertNotNull(output.getContent().getContentType());
-    assertEquals(expectedMimeType, output.getContent().getContentType());
-    assertNotNull(output.getContent().getMetadata());
-    assertEquals(expectedMimeType,
+    Assert.assertNotNull(output.getContent());
+    Assert.assertNotNull(output.getContent().getContentType());
+    Assert.assertEquals(expectedMimeType, output.getContent().getContentType());
+    Assert.assertNotNull(output.getContent().getMetadata());
+    Assert.assertEquals(expectedMimeType,
         output.getContent().getMetadata().get(Response.CONTENT_TYPE));
 
   }

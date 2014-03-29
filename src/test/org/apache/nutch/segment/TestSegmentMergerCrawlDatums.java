@@ -28,13 +28,14 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.MapFileOutputFormat;
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import junit.framework.TestCase;
-
 /**
- * New SegmentMerger unit test focussing on several crappy issues with the segment
+ * New SegmentMerger unit test focusing on several crappy issues with the segment
  * merger. The general problem is disappearing records and incorrect CrawlDatum
  * status values. This unit test performs random sequences of segment merging where
  * we're looking for an expected status.
@@ -49,7 +50,7 @@ import junit.framework.TestCase;
  *
  * Cheers!
  */
-public class TestSegmentMergerCrawlDatums extends TestCase {
+public class TestSegmentMergerCrawlDatums {
   Configuration conf;
   FileSystem fs;
   Random rnd;
@@ -57,6 +58,7 @@ public class TestSegmentMergerCrawlDatums extends TestCase {
   private static final Logger LOG = LoggerFactory
       .getLogger(TestSegmentMergerCrawlDatums.class);
   
+  @Before
   public void setUp() throws Exception {
     conf = NutchConfiguration.create();
     fs = FileSystem.get(conf);
@@ -66,8 +68,9 @@ public class TestSegmentMergerCrawlDatums extends TestCase {
   /**
    *
    */
+  @Test
   public void testSingleRandomSequence() throws Exception {
-    assertEquals(
+    Assert.assertEquals(
         new Byte(CrawlDatum.STATUS_FETCH_SUCCESS),
         new Byte(executeSequence(CrawlDatum.STATUS_FETCH_GONE,
             CrawlDatum.STATUS_FETCH_SUCCESS, 256, false)));
@@ -76,6 +79,7 @@ public class TestSegmentMergerCrawlDatums extends TestCase {
   /**
    *
    */
+  @Test
   public void testMostlyRedirects() throws Exception {
     // Our test directory
     Path testDir = new Path(conf.get("hadoop.tmp.dir"), "merge-" + System.currentTimeMillis());
@@ -102,12 +106,13 @@ public class TestSegmentMergerCrawlDatums extends TestCase {
     Path mergedSegment = merge(testDir, new Path[]{segment1, segment2, segment3, segment4, segment5, segment6, segment7, segment8});
     Byte status = new Byte(status = checkMergedSegment(testDir, mergedSegment));
     
-    assertEquals(new Byte(CrawlDatum.STATUS_FETCH_SUCCESS), status);
+    Assert.assertEquals(new Byte(CrawlDatum.STATUS_FETCH_SUCCESS), status);
   }
   
   /**
    *
    */
+  @Test
   public void testRandomizedSequences() throws Exception {
     for (int i = 0; i < rnd.nextInt(16) + 16; i++) {
       byte expectedStatus = (byte)(rnd.nextInt(6) + 0x21);
@@ -122,7 +127,7 @@ public class TestSegmentMergerCrawlDatums extends TestCase {
       
       byte resultStatus = executeSequence(randomStatus, expectedStatus,
           rounds, withRedirects);
-      assertEquals(
+      Assert.assertEquals(
           "Expected status = " + CrawlDatum.getStatusName(expectedStatus)
               + ", but got " + CrawlDatum.getStatusName(resultStatus)
               + " when merging " + rounds + " segments"
@@ -134,13 +139,15 @@ public class TestSegmentMergerCrawlDatums extends TestCase {
   /**
    *
    */
+  @Test
   public void testRandomTestSequenceWithRedirects() throws Exception {
-    assertEquals(new Byte(CrawlDatum.STATUS_FETCH_SUCCESS), new Byte(executeSequence(CrawlDatum.STATUS_FETCH_GONE, CrawlDatum.STATUS_FETCH_SUCCESS, 128, true)));
+    Assert.assertEquals(new Byte(CrawlDatum.STATUS_FETCH_SUCCESS), new Byte(executeSequence(CrawlDatum.STATUS_FETCH_GONE, CrawlDatum.STATUS_FETCH_SUCCESS, 128, true)));
   }
   
   /**
    * Check a fixed sequence!
    */
+  @Test
   public void testFixedSequence() throws Exception {
     // Our test directory
     Path testDir = new Path(conf.get("hadoop.tmp.dir"), "merge-" + System.currentTimeMillis());
@@ -157,12 +164,13 @@ public class TestSegmentMergerCrawlDatums extends TestCase {
     Path mergedSegment = merge(testDir, new Path[]{segment1, segment2, segment3});
     Byte status = new Byte(status = checkMergedSegment(testDir, mergedSegment));
     
-    assertEquals(new Byte(CrawlDatum.STATUS_FETCH_SUCCESS), status);
+    Assert.assertEquals(new Byte(CrawlDatum.STATUS_FETCH_SUCCESS), status);
   }
   
   /**
    * Check a fixed sequence!
    */
+  @Test
   public void testRedirFetchInOneSegment() throws Exception {
     // Our test directory
     Path testDir = new Path(conf.get("hadoop.tmp.dir"), "merge-" + System.currentTimeMillis());
@@ -175,12 +183,13 @@ public class TestSegmentMergerCrawlDatums extends TestCase {
     Path mergedSegment = merge(testDir, new Path[]{segment});
     Byte status = new Byte(status = checkMergedSegment(testDir, mergedSegment));
     
-    assertEquals(new Byte(CrawlDatum.STATUS_FETCH_SUCCESS), status);
+    Assert.assertEquals(new Byte(CrawlDatum.STATUS_FETCH_SUCCESS), status);
   }
   
   /**
    * Check a fixed sequence!
    */
+  @Test
   public void testEndsWithRedirect() throws Exception {
     // Our test directory
     Path testDir = new Path(conf.get("hadoop.tmp.dir"), "merge-" + System.currentTimeMillis());
@@ -195,7 +204,7 @@ public class TestSegmentMergerCrawlDatums extends TestCase {
     Path mergedSegment = merge(testDir, new Path[]{segment1, segment2});
     Byte status = new Byte(status = checkMergedSegment(testDir, mergedSegment));
     
-    assertEquals(new Byte(CrawlDatum.STATUS_FETCH_SUCCESS), status);
+    Assert.assertEquals(new Byte(CrawlDatum.STATUS_FETCH_SUCCESS), status);
   }
   
   /**
@@ -303,7 +312,7 @@ public class TestSegmentMergerCrawlDatums extends TestCase {
     merger.merge(out, segments, false, false, -1);
 
     FileStatus[] stats = fs.listStatus(out);
-    assertEquals(1, stats.length);
+    Assert.assertEquals(1, stats.length);
     
     return stats[0].getPath();
   }

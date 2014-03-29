@@ -16,25 +16,17 @@
  */
 package org.apache.nutch.urlfilter.domainblacklist;
 
-import junit.framework.TestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.junit.Assert;
+import org.junit.Test;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 
-public class TestDomainBlacklistURLFilter
-  extends TestCase {
-
-  protected static final Logger LOG = LoggerFactory.getLogger(TestDomainBlacklistURLFilter.class);
+public class TestDomainBlacklistURLFilter {
 
   private final static String SEPARATOR = System.getProperty("file.separator");
   private final static String SAMPLES = System.getProperty("test.data", ".");
 
-  public TestDomainBlacklistURLFilter(String testName) {
-    super(testName);
-  }
-
+  @Test
   public void testFilter()
     throws Exception {
 
@@ -42,16 +34,16 @@ public class TestDomainBlacklistURLFilter
     Configuration conf = NutchConfiguration.create();
     DomainBlacklistURLFilter domainBlacklistFilter = new DomainBlacklistURLFilter(domainBlacklistFile);
     domainBlacklistFilter.setConf(conf);
-    assertNull(domainBlacklistFilter.filter("http://lucene.apache.org"));
-    assertNull(domainBlacklistFilter.filter("http://hadoop.apache.org"));
-    assertNull(domainBlacklistFilter.filter("http://www.apache.org"));
-    assertNotNull(domainBlacklistFilter.filter("http://www.google.com"));
-    assertNotNull(domainBlacklistFilter.filter("http://mail.yahoo.com"));
-    assertNull(domainBlacklistFilter.filter("http://www.foobar.net"));
-    assertNull(domainBlacklistFilter.filter("http://www.foobas.net"));
-    assertNull(domainBlacklistFilter.filter("http://www.yahoo.com"));
-    assertNull(domainBlacklistFilter.filter("http://www.foobar.be"));
-    assertNotNull(domainBlacklistFilter.filter("http://www.adobe.com"));
+    Assert.assertNull(domainBlacklistFilter.filter("http://lucene.apache.org"));
+    Assert.assertNull(domainBlacklistFilter.filter("http://hadoop.apache.org"));
+    Assert.assertNull(domainBlacklistFilter.filter("http://www.apache.org"));
+    Assert.assertNotNull(domainBlacklistFilter.filter("http://www.google.com"));
+    Assert.assertNotNull(domainBlacklistFilter.filter("http://mail.yahoo.com"));
+    Assert.assertNull(domainBlacklistFilter.filter("http://www.foobar.net"));
+    Assert.assertNull(domainBlacklistFilter.filter("http://www.foobas.net"));
+    Assert.assertNull(domainBlacklistFilter.filter("http://www.yahoo.com"));
+    Assert.assertNull(domainBlacklistFilter.filter("http://www.foobar.be"));
+    Assert.assertNotNull(domainBlacklistFilter.filter("http://www.adobe.com"));
   }
 
 }

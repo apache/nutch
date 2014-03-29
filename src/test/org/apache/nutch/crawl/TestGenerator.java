@@ -27,18 +27,18 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDBTestUtil.URLCrawlDatum;
-
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Basic generator test. 1. Insert entries in crawldb 2. Generates entries to
  * fetch 3. Verifies that number of generated urls match 4. Verifies that
  * highest scoring urls are generated
  *
- * @author nutch-dev <nutch-dev at lucene.apache.org>
- *
  */
-public class TestGenerator extends TestCase {
+public class TestGenerator {
 
   Configuration conf;
 
@@ -50,13 +50,15 @@ public class TestGenerator extends TestCase {
 
   final static Path testdir = new Path("build/test/generator-test");
 
-  protected void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
     conf = CrawlDBTestUtil.createConfiguration();
     fs = FileSystem.get(conf);
     fs.delete(testdir, true);
   }
 
-  protected void tearDown() {
+  @After
+  public void tearDown() {
     delete(testdir);
   }
 
@@ -72,6 +74,7 @@ public class TestGenerator extends TestCase {
    *
    * @throws Exception
    */
+  @Test
   public void testGenerateHighest() throws Exception {
 
     final int NUM_RESULTS = 2;
@@ -96,11 +99,11 @@ public class TestGenerator extends TestCase {
     Collections.sort(l, new ScoreComparator());
 
     // verify we got right amount of records
-    assertEquals(NUM_RESULTS, l.size());
+    Assert.assertEquals(NUM_RESULTS, l.size());
 
     // verify we have the highest scoring urls
-    assertEquals("http://aaa/100", (l.get(0).url.toString()));
-    assertEquals("http://aaa/099", (l.get(1).url.toString()));
+    Assert.assertEquals("http://aaa/100", (l.get(0).url.toString()));
+    Assert.assertEquals("http://aaa/099", (l.get(1).url.toString()));
   }
 
   private String pad(int i) {
@@ -131,6 +134,7 @@ public class TestGenerator extends TestCase {
    * Test that generator obeys the property "generate.max.per.host".
    * @throws Exception 
    */
+  @Test
   public void testGenerateHostLimit() throws Exception{
     ArrayList<URLCrawlDatum> list = new ArrayList<URLCrawlDatum>();
 
@@ -154,7 +158,7 @@ public class TestGenerator extends TestCase {
     ArrayList<URLCrawlDatum> fetchList = readContents(fetchlistPath);
 
     // verify we got right amount of records
-    assertEquals(1, fetchList.size());
+    Assert.assertEquals(1, fetchList.size());
 
     myConfiguration = new Configuration(conf);
     myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 3);
@@ -167,7 +171,7 @@ public class TestGenerator extends TestCase {
     fetchList = readContents(fetchlistPath);
 
     // verify we got right amount of records
-    assertEquals(2, fetchList.size());
+    Assert.assertEquals(2, fetchList.size());
 
     myConfiguration = new Configuration(conf);
     myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 4);
@@ -180,7 +184,7 @@ public class TestGenerator extends TestCase {
     fetchList = readContents(fetchlistPath);
 
     // verify we got right amount of records
-    assertEquals(3, fetchList.size());
+    Assert.assertEquals(3, fetchList.size());
   }
 
   /**
@@ -188,6 +192,7 @@ public class TestGenerator extends TestCase {
    * "generator.count.per.domain".
    * @throws Exception 
    */
+  @Test
   public void testGenerateDomainLimit() throws Exception{
     ArrayList<URLCrawlDatum> list = new ArrayList<URLCrawlDatum>();
 
@@ -210,7 +215,7 @@ public class TestGenerator extends TestCase {
     ArrayList<URLCrawlDatum> fetchList = readContents(fetchlistPath);
 
     // verify we got right amount of records
-    assertEquals(1, fetchList.size());
+    Assert.assertEquals(1, fetchList.size());
 
     myConfiguration = new Configuration(myConfiguration);
     myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 3);
@@ -222,7 +227,7 @@ public class TestGenerator extends TestCase {
     fetchList = readContents(fetchlistPath);
 
     // verify we got right amount of records
-    assertEquals(2, fetchList.size());
+    Assert.assertEquals(2, fetchList.size());
 
     myConfiguration = new Configuration(myConfiguration);
     myConfiguration.setInt(Generator.GENERATOR_MAX_COUNT, 4);
@@ -235,7 +240,7 @@ public class TestGenerator extends TestCase {
     fetchList = readContents(fetchlistPath);
 
     // verify we got right amount of records
-    assertEquals(3, fetchList.size());
+    Assert.assertEquals(3, fetchList.size());
   }
 
   /**
@@ -243,6 +248,7 @@ public class TestGenerator extends TestCase {
    * @throws Exception 
    * @throws IOException 
    */
+  @Test
   public void testFilter() throws IOException, Exception{
 
     ArrayList<URLCrawlDatum> list = new ArrayList<URLCrawlDatum>();
@@ -259,7 +265,7 @@ public class TestGenerator extends TestCase {
     Path generatedSegment = generateFetchlist(Integer.MAX_VALUE,
         myConfiguration, true);
 
-    assertNull("should be null (0 entries)", generatedSegment);
+    Assert.assertNull("should be null (0 entries)", generatedSegment);
 
     generatedSegment = generateFetchlist(Integer.MAX_VALUE, myConfiguration, false);
 
@@ -269,7 +275,7 @@ public class TestGenerator extends TestCase {
     ArrayList<URLCrawlDatum> fetchList = readContents(fetchlistPath);
 
     // verify nothing got filtered
-    assertEquals(list.size(), fetchList.size());
+    Assert.assertEquals(list.size(), fetchList.size());
 
   }
 

@@ -26,15 +26,16 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.Assert;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TestIndexingFilters extends TestCase {
+public class TestIndexingFilters {
 
   /**
    * Test behaviour when defined filter does not exist.
    * @throws IndexingException
    */
+  @Test
   public void testNonExistingIndexingFilter() throws IndexingException {
     Configuration conf = NutchConfiguration.create();
       conf.addResource("nutch-default.xml");
@@ -53,7 +54,7 @@ public class TestIndexingFilters extends TestCase {
   /**
    * Test behaviour when NutchDOcument is null
    */
-
+  @Test
   public void testNutchDocumentNullIndexingFilter() throws IndexingException{
     Configuration conf = NutchConfiguration.create();
     conf.addResource("nutch-default.xml");
@@ -64,7 +65,7 @@ public class TestIndexingFilters extends TestCase {
       new ParseStatus(), "title", new Outlink[0], new Metadata())), new Text(
       "http://www.example.com/"), new CrawlDatum(), new Inlinks());
      
-    assertNull(doc);
+    Assert.assertNull(doc);
   }
 
   /**
@@ -72,6 +73,7 @@ public class TestIndexingFilters extends TestCase {
    *
    * @throws IndexingException
    */
+  @Test
   public void testFilterCacheIndexingFilter() throws IndexingException{
     Configuration conf = NutchConfiguration.create();
     conf.addResource("nutch-default.xml");
@@ -98,7 +100,7 @@ public class TestIndexingFilters extends TestCase {
     NutchDocument fdoc2 = filters2.filter(new NutchDocument(),new ParseImpl("text",new ParseData(
       new ParseStatus(),"title",new Outlink[0],md)),new Text("http://www.example.com/"),
       new CrawlDatum(),new Inlinks());
-    assertEquals(fdoc1.getFieldNames().size(),fdoc2.getFieldNames().size());
+    Assert.assertEquals(fdoc1.getFieldNames().size(),fdoc2.getFieldNames().size());
   }
 
 }

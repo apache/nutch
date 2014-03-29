@@ -17,22 +17,16 @@
 
 package org.apache.nutch.parse;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.util.NutchConfiguration;
-
 import org.apache.nutch.util.WritableTestUtils;
 import org.apache.nutch.metadata.Metadata;
-
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 /** Unit tests for ParseData. */
 
-public class TestParseData extends TestCase {
-    
-  private Configuration conf = NutchConfiguration.create();
-  
-  public TestParseData(String name) { super(name); }
+public class TestParseData {
 
+  @Test
   public void testParseData() throws Exception {
 
     String title = "The Foo Page";
@@ -50,7 +44,8 @@ public class TestParseData extends TestCase {
                         
     WritableTestUtils.testWritable(r, null);
   }
-	
+
+  @Test
   public void testMaxOutlinks() throws Exception {
     Outlink[] outlinks = new Outlink[128];
     for (int i=0; i<outlinks.length; i++) {
@@ -61,6 +56,6 @@ public class TestParseData extends TestCase {
                                        outlinks,
                                        new Metadata());
     ParseData data = (ParseData) WritableTestUtils.writeRead(original, null);
-    assertEquals(outlinks.length, data.getOutlinks().length);
+    Assert.assertEquals(outlinks.length, data.getOutlinks().length);
   }
 }

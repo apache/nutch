@@ -21,22 +21,20 @@ import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ProtocolException;
-
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
-
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
-
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 /** 
  * Test extraction of image metadata
  */
-public class TestImageMetadata extends TestCase {
+public class TestImageMetadata {
 
   private String fileSeparator = System.getProperty("file.separator");
   // This system property is defined in ./src/plugin/build-plugin.xml
@@ -46,10 +44,7 @@ public class TestImageMetadata extends TestCase {
       "nutch_logo_tm.gif",
   };
 
-  public TestImageMetadata(String name) { 
-    super(name); 
-  }
-
+  @Test
   public void testIt() throws ProtocolException, ParseException {
     String urlString;
     Protocol protocol;
@@ -64,8 +59,8 @@ public class TestImageMetadata extends TestCase {
       content = protocol.getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
       parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content).get(content.getUrl());
 
-      assertEquals("121", parse.getData().getMeta("width"));
-      assertEquals("48", parse.getData().getMeta("height"));
+      Assert.assertEquals("121", parse.getData().getMeta("width"));
+      Assert.assertEquals("48", parse.getData().getMeta("height"));
     }
   }
 

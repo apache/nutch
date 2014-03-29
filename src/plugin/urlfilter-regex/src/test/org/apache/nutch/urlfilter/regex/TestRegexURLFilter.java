@@ -20,14 +20,11 @@ package org.apache.nutch.urlfilter.regex;
 import java.io.IOException;
 import java.io.Reader;
 
-// JUnit imports
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
 import org.apache.nutch.net.*;
-
 // Nutch imports
 import org.apache.nutch.urlfilter.api.RegexURLFilterBaseTest;
+import org.junit.Assert;
+import org.junit.Test;
 
 
 /**
@@ -36,28 +33,18 @@ import org.apache.nutch.urlfilter.api.RegexURLFilterBaseTest;
  * @author J&eacute;r&ocirc;me Charron
  */
 public class TestRegexURLFilter extends RegexURLFilterBaseTest {
-  
-  public TestRegexURLFilter(String testName) {
-    super(testName);
-  }
-  
-  public static Test suite() {
-    return new TestSuite(TestRegexURLFilter.class);
-  }
-  
-  public static void main(String[] args) {
-    TestRunner.run(suite());
-  }
+
 
   protected URLFilter getURLFilter(Reader rules) {
     try {
       return new RegexURLFilter(rules);
     } catch (IOException e) {
-      fail(e.toString());
+      Assert.fail(e.toString());
       return null;
     }
   }
   
+  @Test
   public void test() {
     test("WholeWebCrawling");
     test("IntranetCrawling");

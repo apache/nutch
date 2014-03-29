@@ -21,31 +21,33 @@ import java.io.InputStream;
 import java.util.Collection;
 
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.Assert;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TestSubcollection extends TestCase {
+public class TestSubcollection {
   
   /**Test filtering logic
    * 
    * @throws Exception
    */
+  @Test
   public void testFilter() throws Exception {
     Subcollection sc=new Subcollection(NutchConfiguration.create());
     sc.setWhiteList("www.nutch.org\nwww.apache.org");
     sc.setBlackList("jpg\nwww.apache.org/zecret/");
     
     //matches whitelist
-    assertEquals("http://www.apache.org/index.html", sc.filter("http://www.apache.org/index.html"));
+    Assert.assertEquals("http://www.apache.org/index.html", sc.filter("http://www.apache.org/index.html"));
     
     //matches blacklist
-    assertEquals(null, sc.filter("http://www.apache.org/zecret/index.html"));
-    assertEquals(null, sc.filter("http://www.apache.org/img/image.jpg"));
+    Assert.assertEquals(null, sc.filter("http://www.apache.org/zecret/index.html"));
+    Assert.assertEquals(null, sc.filter("http://www.apache.org/img/image.jpg"));
     
     //no match
-    assertEquals(null, sc.filter("http://www.google.com/"));
+    Assert.assertEquals(null, sc.filter("http://www.google.com/"));
   }
   
+  @Test
   public void testInput(){
     StringBuffer xml=new StringBuffer();
     xml.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
@@ -69,38 +71,38 @@ public class TestSubcollection extends TestCase {
     CollectionManager cm=new CollectionManager();
     cm.parse(is);
     
-    Collection c=cm.getAll();
+    Collection<?> c=cm.getAll();
     
     // test that size matches
-    assertEquals(1,c.size());
+    Assert.assertEquals(1,c.size());
     
     Subcollection collection=(Subcollection)c.toArray()[0];
     
     //test collection id
-    assertEquals("nutch", collection.getId());
+    Assert.assertEquals("nutch", collection.getId());
     
     //test collection name
-    assertEquals("nutch collection", collection.getName());
+    Assert.assertEquals("nutch collection", collection.getName());
 
     //test whitelist
-    assertEquals(2,collection.whiteList.size());
+    Assert.assertEquals(2,collection.whiteList.size());
     
     String wlUrl=(String)collection.whiteList.get(0);
-    assertEquals("http://lucene.apache.org/nutch/", wlUrl);
+    Assert.assertEquals("http://lucene.apache.org/nutch/", wlUrl);
 
     wlUrl=(String)collection.whiteList.get(1);
-    assertEquals("http://wiki.apache.org/nutch/", wlUrl);
+    Assert.assertEquals("http://wiki.apache.org/nutch/", wlUrl);
     
     //matches whitelist
-    assertEquals("http://lucene.apache.org/nutch/", collection.filter("http://lucene.apache.org/nutch/"));
+    Assert.assertEquals("http://lucene.apache.org/nutch/", collection.filter("http://lucene.apache.org/nutch/"));
 
     //test blacklist
-    assertEquals(1,collection.blackList.size());
+    Assert.assertEquals(1,collection.blackList.size());
 
     String blUrl=(String)collection.blackList.get(0);
-    assertEquals("http://www.xxx.yyy", blUrl);
+    Assert.assertEquals("http://www.xxx.yyy", blUrl);
 
     //no match
-    assertEquals(null, collection.filter("http://www.google.com/"));
+    Assert.assertEquals(null, collection.filter("http://www.google.com/"));
   }
 }

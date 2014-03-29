@@ -17,45 +17,44 @@
 
 package org.apache.nutch.util;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 /** Unit tests for StringUtil methods. */
-public class TestStringUtil extends TestCase {
-  public TestStringUtil(String name) { 
-    super(name); 
-  }
+public class TestStringUtil {
 
   public void testRightPad() {
     String s= "my string";
 
     String ps= StringUtil.rightPad(s, 0);
-    assertTrue(s.equals(ps));
+    Assert.assertTrue(s.equals(ps));
 
     ps= StringUtil.rightPad(s, 9);
-    assertTrue(s.equals(ps));
+    Assert.assertTrue(s.equals(ps));
 
     ps= StringUtil.rightPad(s, 10);
-    assertTrue( (s+" ").equals(ps) );
+    Assert.assertTrue( (s+" ").equals(ps) );
 
     ps= StringUtil.rightPad(s, 15);
-    assertTrue( (s+"      ").equals(ps) );
+    Assert.assertTrue( (s+"      ").equals(ps) );
 
   }
 
+  @Test
   public void testLeftPad() {
     String s= "my string";
 
     String ps= StringUtil.leftPad(s, 0);
-    assertTrue(s.equals(ps));
+    Assert.assertTrue(s.equals(ps));
 
     ps= StringUtil.leftPad(s, 9);
-    assertTrue(s.equals(ps));
+    Assert.assertTrue(s.equals(ps));
 
     ps= StringUtil.leftPad(s, 10);
-    assertTrue( (" "+s).equals(ps) );
+    Assert.assertTrue( (" "+s).equals(ps) );
 
     ps= StringUtil.leftPad(s, 15);
-    assertTrue( ("      "+s).equals(ps) );
+    Assert.assertTrue( ("      "+s).equals(ps) );
 
   }
 

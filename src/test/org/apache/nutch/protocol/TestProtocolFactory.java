@@ -19,31 +19,34 @@ package org.apache.nutch.protocol;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.ObjectCache;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TestProtocolFactory extends TestCase {
+public class TestProtocolFactory {
 
   Configuration conf;
   ProtocolFactory factory;
   
-  protected void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
     conf = NutchConfiguration.create();
     conf.set("plugin.includes", ".*");
     conf.set("http.agent.name", "test-bot");
     factory=new ProtocolFactory(conf);
   }
 
+  @Test
   public void testGetProtocol(){
 
     //non existing protocol
     try {
       factory.getProtocol("xyzxyz://somehost");
-      fail("Must throw ProtocolNotFound");
+      Assert.fail("Must throw ProtocolNotFound");
     } catch (ProtocolNotFound e) {
       //all is ok
     } catch (Exception ex){
-      fail("Must not throw any other exception");
+      Assert.fail("Must not throw any other exception");
     }
     
     Protocol httpProtocol=null;
@@ -51,30 +54,31 @@ public class TestProtocolFactory extends TestCase {
     //existing protocol
     try {
       httpProtocol=factory.getProtocol("http://somehost");
-      assertNotNull(httpProtocol);
+      Assert.assertNotNull(httpProtocol);
     } catch (Exception ex){
-      fail("Must not throw any other exception");
+      Assert.fail("Must not throw any other exception");
     }
 
     //cache key
     Object protocol = ObjectCache.get(conf).getObject(Protocol.X_POINT_ID + "http");
-    assertNotNull(protocol);
-    assertEquals(httpProtocol, protocol);
+    Assert.assertNotNull(protocol);
+    Assert.assertEquals(httpProtocol, protocol);
     
     //test same object instance
     try {
-      assertTrue(httpProtocol==factory.getProtocol("http://somehost"));
+      Assert.assertTrue(httpProtocol==factory.getProtocol("http://somehost"));
     } catch (ProtocolNotFound e) {
-      fail("Must not throw any exception");
+      Assert.fail("Must not throw any exception");
     }
   }
   
+  @Test
   public void testContains(){
-    assertTrue(factory.contains("http", "http"));
-    assertTrue(factory.contains("http", "http,ftp"));
-    assertTrue(factory.contains("http", "   http ,   ftp"));
-    assertTrue(factory.contains("smb", "ftp,smb,http"));
-    assertFalse(factory.contains("smb", "smbb"));
+    Assert.assertTrue(factory.contains("http", "http"));
+    Assert.assertTrue(factory.contains("http", "http,ftp"));
+    Assert.assertTrue(factory.contains("http", "   http ,   ftp"));
+    Assert.assertTrue(factory.contains("smb", "ftp,smb,http"));
+    Assert.assertFalse(factory.contains("smb", "smbb"));
   }
   
 }

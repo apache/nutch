@@ -23,18 +23,17 @@ import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.protocol.Content;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.Assert;
+import org.junit.Test;
 
-import java.util.Properties;
 import java.io.*;
-import java.net.URL;
 
-import junit.framework.TestCase;
-
-public class TestCCParseFilter extends TestCase {
+public class TestCCParseFilter {
 
   private static final File testDir =
     new File(System.getProperty("test.input"));
 
+  @Test
   public void testPages() throws Exception {
     pageTest(new File(testDir, "anchor.html"), "http://foo.com/",
              "http://creativecommons.org/licenses/by-nc-sa/1.0", "a", null);
@@ -69,9 +68,9 @@ public class TestCCParseFilter extends TestCase {
     Parse parse =  new ParseUtil(conf).parse(content).get(content.getUrl());
     
     Metadata metadata = parse.getData().getParseMeta();
-    assertEquals(license, metadata.get("License-Url"));
-    assertEquals(location, metadata.get("License-Location"));
-    assertEquals(type, metadata.get("Work-Type"));
+    Assert.assertEquals(license, metadata.get("License-Url"));
+    Assert.assertEquals(location, metadata.get("License-Location"));
+    Assert.assertEquals(type, metadata.get("Work-Type"));
   }
 }
 

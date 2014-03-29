@@ -27,9 +27,11 @@ import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.*;
 import org.apache.nutch.crawl.CrawlDBTestUtil.URLCrawlDatum;
-
-import junit.framework.TestCase;
 import org.apache.nutch.util.NutchJob;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * CrawlDbFiltering test which tests for correct, error free url 
@@ -38,20 +40,22 @@ import org.apache.nutch.util.NutchJob;
  * 
  * @author lufeng
  */
-public class TestCrawlDbFilter extends TestCase {
+public class TestCrawlDbFilter {
   Configuration conf;
   Path dbDir;
   Path newCrawlDb;
   final static Path testdir = new Path("build/test/crawldbfilter-test");
   FileSystem fs;
 
-  protected void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
     conf = CrawlDBTestUtil.createConfiguration();
     fs = FileSystem.get(conf);
     fs.delete(testdir, true);
   }
 
-  protected void tearDown() {
+  @After
+  public void tearDown() {
     delete(testdir);
   }
 
@@ -67,6 +71,7 @@ public class TestCrawlDbFilter extends TestCase {
    *
    * @throws Exception
    */
+  @Test
   public void testUrl404Purging() throws Exception {
     // create a CrawlDatum with DB GONE status
     ArrayList<URLCrawlDatum> list = new ArrayList<URLCrawlDatum>();
@@ -106,7 +111,7 @@ public class TestCrawlDbFilter extends TestCase {
     ArrayList<URLCrawlDatum> l = readContents(fetchlist);
 
     // verify we got right amount of records
-    assertEquals(2, l.size());
+    Assert.assertEquals(2, l.size());
   }
 
   /**

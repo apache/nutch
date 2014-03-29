@@ -20,21 +20,23 @@ package org.apache.nutch.net.urlnormalizer.basic;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.util.NutchConfiguration;
-
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 /** Unit tests for BasicURLNormalizer. */
-public class TestBasicURLNormalizer extends TestCase {
+public class TestBasicURLNormalizer {
   private BasicURLNormalizer normalizer;
+  
   private Configuration conf;
   
-  public TestBasicURLNormalizer(String name) {
-    super(name);
+  public TestBasicURLNormalizer() {
     normalizer = new BasicURLNormalizer();
     conf = NutchConfiguration.create();
     normalizer.setConf(conf);
   }
 
+
+  @Test
   public void testNormalizer() throws Exception {
     // check that leading and trailing spaces are removed
     normalizeTest(" http://foo.com/ ", "http://foo.com/");
@@ -106,14 +108,11 @@ public class TestBasicURLNormalizer extends TestCase {
   }
 
   private void normalizeTest(String weird, String normal) throws Exception {
-    assertEquals(normal, normalizer.normalize(weird, URLNormalizers.SCOPE_DEFAULT));
+    Assert.assertEquals(normal, normalizer.normalize(weird, URLNormalizers.SCOPE_DEFAULT));
   }
-
+  
   public static void main(String[] args) throws Exception {
     new TestBasicURLNormalizer("test").testNormalizer();
   }
-
-
-
 
 }

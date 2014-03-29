@@ -19,120 +19,115 @@ package org.apache.nutch.util;
 
 import java.net.URL;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 /** Test class for URLUtil */
-public class TestURLUtil
-  extends TestCase {
+public class TestURLUtil {
 
-  @Override
-  protected void setUp()
-    throws Exception {
-    super.setUp();
-  }
-
+  @Test
   public void testGetDomainName()
     throws Exception {
 
     URL url = null;
 
     url = new URL("http://lucene.apache.org/nutch");
-    assertEquals("apache.org", URLUtil.getDomainName(url));
+    Assert.assertEquals("apache.org", URLUtil.getDomainName(url));
 
     url = new URL("http://en.wikipedia.org/wiki/Java_coffee");
-    assertEquals("wikipedia.org", URLUtil.getDomainName(url));
+    Assert.assertEquals("wikipedia.org", URLUtil.getDomainName(url));
 
     url = new URL("http://140.211.11.130/foundation/contributing.html");
-    assertEquals("140.211.11.130", URLUtil.getDomainName(url));
+    Assert.assertEquals("140.211.11.130", URLUtil.getDomainName(url));
 
     url = new URL("http://www.example.co.uk:8080/index.html");
-    assertEquals("example.co.uk", URLUtil.getDomainName(url));
+    Assert.assertEquals("example.co.uk", URLUtil.getDomainName(url));
 
     url = new URL("http://com");
-    assertEquals("com", URLUtil.getDomainName(url));
+    Assert.assertEquals("com", URLUtil.getDomainName(url));
 
     url = new URL("http://www.example.co.uk.com");
-    assertEquals("uk.com", URLUtil.getDomainName(url));
+    Assert.assertEquals("uk.com", URLUtil.getDomainName(url));
 
     // "nn" is not a tld
     url = new URL("http://example.com.nn");
-    assertEquals("nn", URLUtil.getDomainName(url));
+    Assert.assertEquals("nn", URLUtil.getDomainName(url));
 
     url = new URL("http://");
-    assertEquals("", URLUtil.getDomainName(url));
+    Assert.assertEquals("", URLUtil.getDomainName(url));
 
     url = new URL("http://www.edu.tr.xyz");
-    assertEquals("xyz", URLUtil.getDomainName(url));
+    Assert.assertEquals("xyz", URLUtil.getDomainName(url));
 
     url = new URL("http://www.example.c.se");
-    assertEquals("example.c.se", URLUtil.getDomainName(url));
+    Assert.assertEquals("example.c.se", URLUtil.getDomainName(url));
 
     // plc.co.im is listed as a domain suffix
     url = new URL("http://www.example.plc.co.im");
-    assertEquals("example.plc.co.im", URLUtil.getDomainName(url));
+    Assert.assertEquals("example.plc.co.im", URLUtil.getDomainName(url));
 
     // 2000.hu is listed as a domain suffix
     url = new URL("http://www.example.2000.hu");
-    assertEquals("example.2000.hu", URLUtil.getDomainName(url));
+    Assert.assertEquals("example.2000.hu", URLUtil.getDomainName(url));
 
     // test non-ascii
     url = new URL("http://www.example.商業.tw");
-    assertEquals("example.商業.tw", URLUtil.getDomainName(url));
-
+    Assert.assertEquals("example.商業.tw", URLUtil.getDomainName(url));
   }
 
+  @Test
   public void testGetDomainSuffix()
     throws Exception {
     URL url = null;
 
     url = new URL("http://lucene.apache.org/nutch");
-    assertEquals("org", URLUtil.getDomainSuffix(url).getDomain());
+    Assert.assertEquals("org", URLUtil.getDomainSuffix(url).getDomain());
 
     url = new URL("http://140.211.11.130/foundation/contributing.html");
-    assertNull(URLUtil.getDomainSuffix(url));
+    Assert.assertNull(URLUtil.getDomainSuffix(url));
 
     url = new URL("http://www.example.co.uk:8080/index.html");
-    assertEquals("co.uk", URLUtil.getDomainSuffix(url).getDomain());
+    Assert.assertEquals("co.uk", URLUtil.getDomainSuffix(url).getDomain());
 
     url = new URL("http://com");
-    assertEquals("com", URLUtil.getDomainSuffix(url).getDomain());
+    Assert.assertEquals("com", URLUtil.getDomainSuffix(url).getDomain());
 
     url = new URL("http://www.example.co.uk.com");
-    assertEquals("com", URLUtil.getDomainSuffix(url).getDomain());
+    Assert.assertEquals("com", URLUtil.getDomainSuffix(url).getDomain());
 
     // "nn" is not a tld
     url = new URL("http://example.com.nn");
-    assertNull(URLUtil.getDomainSuffix(url));
+    Assert.assertNull(URLUtil.getDomainSuffix(url));
 
     url = new URL("http://");
-    assertNull(URLUtil.getDomainSuffix(url));
+    Assert.assertNull(URLUtil.getDomainSuffix(url));
 
     url = new URL("http://www.edu.tr.xyz");
-    assertNull(URLUtil.getDomainSuffix(url));
+    Assert.assertNull(URLUtil.getDomainSuffix(url));
 
     url = new URL("http://subdomain.example.edu.tr");
-    assertEquals("edu.tr", URLUtil.getDomainSuffix(url).getDomain());
+    Assert.assertEquals("edu.tr", URLUtil.getDomainSuffix(url).getDomain());
 
     url = new URL("http://subdomain.example.presse.fr");
-    assertEquals("presse.fr", URLUtil.getDomainSuffix(url).getDomain());
+    Assert.assertEquals("presse.fr", URLUtil.getDomainSuffix(url).getDomain());
 
     url = new URL("http://subdomain.example.presse.tr");
-    assertEquals("tr", URLUtil.getDomainSuffix(url).getDomain());
+    Assert.assertEquals("tr", URLUtil.getDomainSuffix(url).getDomain());
 
     // plc.co.im is listed as a domain suffix
     url = new URL("http://www.example.plc.co.im");
-    assertEquals("plc.co.im", URLUtil.getDomainSuffix(url).getDomain());
+    Assert.assertEquals("plc.co.im", URLUtil.getDomainSuffix(url).getDomain());
 
     // 2000.hu is listed as a domain suffix
     url = new URL("http://www.example.2000.hu");
-    assertEquals("2000.hu", URLUtil.getDomainSuffix(url).getDomain());
+    Assert.assertEquals("2000.hu", URLUtil.getDomainSuffix(url).getDomain());
 
     // test non-ascii
     url = new URL("http://www.example.商業.tw");
-    assertEquals("商業.tw", URLUtil.getDomainSuffix(url).getDomain());
-
+    Assert.assertEquals("商業.tw", URLUtil.getDomainSuffix(url).getDomain());
   }
 
+  @Test
   public void testGetHostSegments()
     throws Exception {
     URL url;
@@ -140,31 +135,32 @@ public class TestURLUtil
 
     url = new URL("http://subdomain.example.edu.tr");
     segments = URLUtil.getHostSegments(url);
-    assertEquals("subdomain", segments[0]);
-    assertEquals("example", segments[1]);
-    assertEquals("edu", segments[2]);
-    assertEquals("tr", segments[3]);
+    Assert.assertEquals("subdomain", segments[0]);
+    Assert.assertEquals("example", segments[1]);
+    Assert.assertEquals("edu", segments[2]);
+    Assert.assertEquals("tr", segments[3]);
 
     url = new URL("http://");
     segments = URLUtil.getHostSegments(url);
-    assertEquals(1, segments.length);
-    assertEquals("", segments[0]);
+    Assert.assertEquals(1, segments.length);
+    Assert.assertEquals("", segments[0]);
 
     url = new URL("http://140.211.11.130/foundation/contributing.html");
     segments = URLUtil.getHostSegments(url);
-    assertEquals(1, segments.length);
-    assertEquals("140.211.11.130", segments[0]);
+    Assert.assertEquals(1, segments.length);
+    Assert.assertEquals("140.211.11.130", segments[0]);
 
     // test non-ascii
     url = new URL("http://www.example.商業.tw");
     segments = URLUtil.getHostSegments(url);
-    assertEquals("www", segments[0]);
-    assertEquals("example", segments[1]);
-    assertEquals("商業", segments[2]);
-    assertEquals("tw", segments[3]);
+    Assert.assertEquals("www", segments[0]);
+    Assert.assertEquals("example", segments[1]);
+    Assert.assertEquals("商業", segments[2]);
+    Assert.assertEquals("tw", segments[3]);
 
   }
 
+  @Test
   public void testChooseRepr()
     throws Exception {
     
@@ -178,39 +174,39 @@ public class TestURLUtil
     
     // 1) different domain them keep dest, temp or perm
     // a.com -> b.com*
-    assertEquals(bDotCom, URLUtil.chooseRepr(aDotCom, bDotCom, true));
-    assertEquals(bDotCom, URLUtil.chooseRepr(aDotCom, bDotCom, false));
+    Assert.assertEquals(bDotCom, URLUtil.chooseRepr(aDotCom, bDotCom, true));
+    Assert.assertEquals(bDotCom, URLUtil.chooseRepr(aDotCom, bDotCom, false));
     
     // 2) permanent and root, keep src
     // *a.com -> a.com?y=1 || *a.com -> a.com/xyz/index.html
-    assertEquals(aDotCom, URLUtil.chooseRepr(aDotCom, aQStr, false));
-    assertEquals(aDotCom, URLUtil.chooseRepr(aDotCom, aPath, false));
+    Assert.assertEquals(aDotCom, URLUtil.chooseRepr(aDotCom, aQStr, false));
+    Assert.assertEquals(aDotCom, URLUtil.chooseRepr(aDotCom, aPath, false));
     
     //3) permanent and not root and dest root, keep dest
     //a.com/xyz/index.html -> a.com*
-    assertEquals(aDotCom, URLUtil.chooseRepr(aPath, aDotCom, false));
+    Assert.assertEquals(aDotCom, URLUtil.chooseRepr(aPath, aDotCom, false));
     
     //4) permanent and neither root keep dest
     // a.com/xyz/index.html -> a.com/abc/page.html*
-    assertEquals(aPath2, URLUtil.chooseRepr(aPath, aPath2, false));
+    Assert.assertEquals(aPath2, URLUtil.chooseRepr(aPath, aPath2, false));
     
     //5) temp and root and dest not root keep src
     //*a.com -> a.com/xyz/index.html
-    assertEquals(aDotCom, URLUtil.chooseRepr(aDotCom, aPath, true));
+    Assert.assertEquals(aDotCom, URLUtil.chooseRepr(aDotCom, aPath, true));
     
     //6) temp and not root and dest root keep dest
     // a.com/xyz/index.html -> a.com*
-    assertEquals(aDotCom, URLUtil.chooseRepr(aPath, aDotCom, true));
+    Assert.assertEquals(aDotCom, URLUtil.chooseRepr(aPath, aDotCom, true));
 
     //7) temp and neither root, keep shortest, if hosts equal by path else by hosts
     //  a.com/xyz/index.html -> a.com/abc/page.html*
     // *www.a.com/xyz/index.html -> www.news.a.com/xyz/index.html
-    assertEquals(aPath2, URLUtil.chooseRepr(aPath, aPath2, true));
-    assertEquals(aPath, URLUtil.chooseRepr(aPath, aPath3, true));
+    Assert.assertEquals(aPath2, URLUtil.chooseRepr(aPath, aPath2, true));
+    Assert.assertEquals(aPath, URLUtil.chooseRepr(aPath, aPath3, true));
 
     //8) temp and both root keep shortest sub domain
     // *www.a.com -> www.news.a.com
-    assertEquals(aDotCom, URLUtil.chooseRepr(aDotCom, aSubDotCom, true));
+    Assert.assertEquals(aDotCom, URLUtil.chooseRepr(aDotCom, aSubDotCom, true));
   }
 
   // from RFC3986 section 5.4.1
@@ -241,37 +237,40 @@ public class TestURLUtil
     { "../../g"       ,  "http://a/g"}
   };
 
+  @Test
   public void testResolveURL() throws Exception {
     // test NUTCH-436
     URL u436 = new URL("http://a/b/c/d;p?q#f");
-    assertEquals("http://a/b/c/d;p?q#f", u436.toString());
+    Assert.assertEquals("http://a/b/c/d;p?q#f", u436.toString());
     URL abs = URLUtil.resolveURL(u436, "?y");
-    assertEquals("http://a/b/c/d;p?y", abs.toString());
+    Assert.assertEquals("http://a/b/c/d;p?y", abs.toString());
     // test NUTCH-566
     URL u566 = new URL("http://www.fleurie.org/entreprise.asp");
     abs = URLUtil.resolveURL(u566, "?id_entrep=111");
-    assertEquals("http://www.fleurie.org/entreprise.asp?id_entrep=111", abs.toString());
+    Assert.assertEquals("http://www.fleurie.org/entreprise.asp?id_entrep=111", abs.toString());
     URL base = new URL(baseString);
-    assertEquals("base url parsing", baseString, base.toString());
+    Assert.assertEquals("base url parsing", baseString, base.toString());
     for (int i = 0; i < targets.length; i++) {
       URL u = URLUtil.resolveURL(base, targets[i][0]);
-      assertEquals(targets[i][1], targets[i][1], u.toString());
+      Assert.assertEquals(targets[i][1], targets[i][1], u.toString());
     }
   }
   
+  @Test
   public void testToUNICODE() throws Exception {
-    assertEquals("http://www.çevir.com", URLUtil.toUNICODE("http://www.xn--evir-zoa.com"));
-    assertEquals("http://uni-tübingen.de/", URLUtil.toUNICODE("http://xn--uni-tbingen-xhb.de/"));
-    assertEquals(
+    Assert.assertEquals("http://www.çevir.com", URLUtil.toUNICODE("http://www.xn--evir-zoa.com"));
+    Assert.assertEquals("http://uni-tübingen.de/", URLUtil.toUNICODE("http://xn--uni-tbingen-xhb.de/"));
+    Assert.assertEquals(
         "http://www.medizin.uni-tübingen.de:8080/search.php?q=abc#p1",
         URLUtil.toUNICODE("http://www.medizin.xn--uni-tbingen-xhb.de:8080/search.php?q=abc#p1"));
     
   }
   
+  @Test
   public void testToASCII() throws Exception {
-    assertEquals("http://www.xn--evir-zoa.com", URLUtil.toASCII("http://www.çevir.com"));
-    assertEquals("http://xn--uni-tbingen-xhb.de/", URLUtil.toASCII("http://uni-tübingen.de/"));
-    assertEquals(
+    Assert.assertEquals("http://www.xn--evir-zoa.com", URLUtil.toASCII("http://www.çevir.com"));
+    Assert.assertEquals("http://xn--uni-tbingen-xhb.de/", URLUtil.toASCII("http://uni-tübingen.de/"));
+    Assert.assertEquals(
         "http://www.medizin.xn--uni-tbingen-xhb.de:8080/search.php?q=abc#p1",
         URLUtil.toASCII("http://www.medizin.uni-tübingen.de:8080/search.php?q=abc#p1")); 
   }

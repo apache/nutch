@@ -21,28 +21,25 @@ import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ProtocolException;
-
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
-
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
-import java.io.FilenameFilter;
-
-import junit.framework.TestCase;
 
 /** 
  * Unit tests for MSWordParser.
  *
  * @author John Xing
  */
-public class TestMSWordParser extends TestCase {
+public class TestMSWordParser {
 
   private String fileSeparator = System.getProperty("file.separator");
   // This system property is defined in ./src/plugin/build-plugin.xml
@@ -53,19 +50,14 @@ public class TestMSWordParser extends TestCase {
   private String[] sampleFiles = {"word97.doc"};
 
   private String expectedText = "This is a sample doc file prepared for nutch.";
-  
+
   private Configuration conf;
 
-  public TestMSWordParser(String name) { 
-    super(name); 
-  }
-
-  protected void setUp() {
+  @Before
+  public void setUp() {
     conf = NutchConfiguration.create();
     conf.set("file.content.limit", "-1");
   }
-
-  protected void tearDown() {}
 
   public String getTextContent(String fileName) throws ProtocolException, ParseException {
     String urlString = "file:" + sampleDir + fileSeparator + fileName;
@@ -74,19 +66,21 @@ public class TestMSWordParser extends TestCase {
     Parse parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content).get(content.getUrl());
     return parse.getText();
   }
-  
+
+  @Test
   public void testIt() throws ProtocolException, ParseException {
     for (int i=0; i<sampleFiles.length; i++) {
       String found = getTextContent(sampleFiles[i]);
-      assertTrue("text found : '"+found+"'",found.startsWith(expectedText));
+      Assert.assertTrue("text found : '"+found+"'",found.startsWith(expectedText));
     }
   }
 
+  @Test
   public void testOpeningDocs() throws ProtocolException, ParseException {
     String[] filenames = new File(sampleDir).list();
-      for (int i = 0; i < filenames.length; i++) {
-    	if (filenames[i].endsWith(".doc")==false) continue;
-        assertTrue("cann't read content of " + filenames[i], getTextContent(filenames[i]).length() > 0);
-      }      
+    for (int i = 0; i < filenames.length; i++) {
+      if (filenames[i].endsWith(".doc")==false) continue;
+      Assert.assertTrue("cann't read content of " + filenames[i], getTextContent(filenames[i]).length() > 0);
+    }      
   }
 }

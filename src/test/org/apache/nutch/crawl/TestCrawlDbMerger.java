@@ -28,10 +28,12 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.MapFile;
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TestCrawlDbMerger extends TestCase {
+public class TestCrawlDbMerger {
   private static final Logger LOG = Logger.getLogger(CrawlDbMerger.class.getName());
   
   String url10 = "http://example.com/";
@@ -53,6 +55,7 @@ public class TestCrawlDbMerger extends TestCase {
   Path testDir;
   CrawlDbReader reader;
   
+  @Before
   public void setUp() throws Exception {
     init1.add(url10);
     init1.add(url11);
@@ -83,18 +86,18 @@ public class TestCrawlDbMerger extends TestCase {
     fs.mkdirs(testDir);
   }
   
-  @SuppressWarnings("deprecation")
+  @After
   public void tearDown() {
     try {
       if (fs.exists(testDir))
-        fs.delete(testDir);
+        fs.delete(testDir, true);
     } catch (Exception e) { }
     try {
       reader.close();
     } catch (Exception e) { }
   }
 
-  @SuppressWarnings("deprecation")
+  @Test
   public void testMerge() throws Exception {
     Path crawldb1 = new Path(testDir, "crawldb1");
     Path crawldb2 = new Path(testDir, "crawldb2");
@@ -118,11 +121,11 @@ public class TestCrawlDbMerger extends TestCase {
       System.out.println(" cd " + cd);
       System.out.println(" res " + res);
       // may not be null
-      assertNotNull(res);
-      assertTrue(cd.equals(res));
+      Assert.assertNotNull(res);
+      Assert.assertTrue(cd.equals(res));
     }
     reader.close();
-    fs.delete(testDir);
+    fs.delete(testDir, true);
   }
   
   private void createCrawlDb(Configuration config, FileSystem fs, Path crawldb, TreeSet<String> init, CrawlDatum cd) throws Exception {

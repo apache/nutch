@@ -1,5 +1,3 @@
-package org.apache.nutch.tika;
-
 /**
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -16,9 +14,7 @@ package org.apache.nutch.tika;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// JUnit imports
-import junit.framework.TestCase;
+package org.apache.nutch.tika;
 
 // Nutch imports
 import org.apache.nutch.crawl.CrawlDatum;
@@ -36,56 +32,49 @@ import org.apache.nutch.util.NutchConfiguration;
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
+import org.junit.Assert;
+import org.junit.Ignore;
+import org.junit.Test;
 
 /**
  * Unit tests for TestRTFParser. (Adapted from John Xing msword unit tests).
  * 
  * @author Andy Hedges
  */
-public class TestRTFParser extends TestCase {
+public class TestRTFParser {
 
-	private String fileSeparator = System.getProperty("file.separator");
-	// This system property is defined in ./src/plugin/build-plugin.xml
-	private String sampleDir = System.getProperty("test.data", ".");
-	// Make sure sample files are copied to "test.data" as specified in
-	// ./src/plugin/parse-rtf/build.xml during plugin compilation.
-	// Check ./src/plugin/parse-rtf/sample/README.txt for what they are.
-	private String rtfFile = "test.rtf";
+  private String fileSeparator = System.getProperty("file.separator");
+  // This system property is defined in ./src/plugin/build-plugin.xml
+  private String sampleDir = System.getProperty("test.data", ".");
+  // Make sure sample files are copied to "test.data" as specified in
+  // ./src/plugin/parse-rtf/build.xml during plugin compilation.
+  // Check ./src/plugin/parse-rtf/sample/README.txt for what they are.
+  private String rtfFile = "test.rtf";
 
-	public TestRTFParser(String name) {
-		super(name);
-	}
+  @Ignore("There seems to be an issue with line 71 e.g. text.trim()")
+  @Test
+  public void testIt() throws ProtocolException, ParseException {
 
-	protected void setUp() {
-	}
+    String urlString;
+    Protocol protocol;
+    Content content;
+    Parse parse;
 
-	protected void tearDown() {
-	}
+    Configuration conf = NutchConfiguration.create();
+    urlString = "file:" + sampleDir + fileSeparator + rtfFile;
+    protocol = new ProtocolFactory(conf).getProtocol(urlString);
+    content = protocol.getProtocolOutput(new Text(urlString),
+        new CrawlDatum()).getContent();
+    parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content)
+        .get(content.getUrl());
+    String text = parse.getText();
+    Assert.assertEquals("The quick brown fox jumps over the lazy dog", text.trim());
 
-	public void testIt() throws ProtocolException, ParseException {
-	  /* Temporarily disabled - see Tika-748
+    String title = parse.getData().getTitle();
+    Metadata meta = parse.getData().getParseMeta();
 
-		String urlString;
-		Protocol protocol;
-		Content content;
-		Parse parse;
+    Assert.assertEquals("test rft document", title);
+    Assert.assertEquals("tests", meta.get(DublinCore.SUBJECT));
 
-		Configuration conf = NutchConfiguration.create();
-		urlString = "file:" + sampleDir + fileSeparator + rtfFile;
-		protocol = new ProtocolFactory(conf).getProtocol(urlString);
-		content = protocol.getProtocolOutput(new Text(urlString),
-				new CrawlDatum()).getContent();
-		parse = new ParseUtil(conf).parseByExtensionId("parse-tika", content)
-				.get(content.getUrl());
-		String text = parse.getText();
-		assertEquals("The quick brown fox jumps over the lazy dog", text.trim());
-
-		String title = parse.getData().getTitle();
-		Metadata meta = parse.getData().getParseMeta();
-
-		// METADATA extraction is not yet supported in Tika
-		// assertEquals("test rft document", title);
-		// assertEquals("tests", meta.get(DublinCore.SUBJECT));
-  */
-	}
+  }
 }

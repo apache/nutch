@@ -924,6 +924,8 @@
         <source path="${basedir}/src/plugin/index-basic/src/java/" />
         <source path="${basedir}/src/plugin/index-basic/src/test/" />
         <source path="${basedir}/src/plugin/indexer-solr/src/java/" />
+        <source path="${basedir}/src/plugin/indexer-elastic/src/java/" />
+        <source path="${basedir}/src/plugin/indexer-dummy/src/java/" />
         <source path="${basedir}/src/plugin/index-metadata/src/java/" />
         <source path="${basedir}/src/plugin/index-more/src/java/" />
         <source path="${basedir}/src/plugin/index-more/src/test/" />
@@ -984,6 +986,8 @@
         <source path="${basedir}/src/plugin/urlnormalizer-pass/src/test/" />
         <source path="${basedir}/src/plugin/urlnormalizer-regex/src/java/" />
         <source path="${basedir}/src/plugin/urlnormalizer-regex/src/test/" />
+        <source path="${basedir}/src/plugin/urlnormalizer-querystring/src/java/" />
+        <source path="${basedir}/src/plugin/urlnormalizer-querystring/src/test/" />
 
         <output path="${basedir}/build/classes" />
       </classpath>

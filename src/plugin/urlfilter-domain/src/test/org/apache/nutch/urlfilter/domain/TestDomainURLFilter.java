@@ -16,25 +16,18 @@
  */
 package org.apache.nutch.urlfilter.domain;
 
-import junit.framework.TestCase;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.Assert;
+import org.junit.Test;
 
-public class TestDomainURLFilter
-  extends TestCase {
+public class TestDomainURLFilter {
 
-  protected static final Logger LOG = LoggerFactory.getLogger(TestDomainURLFilter.class);
 
   private final static String SEPARATOR = System.getProperty("file.separator");
   private final static String SAMPLES = System.getProperty("test.data", ".");
 
-  public TestDomainURLFilter(String testName) {
-    super(testName);
-  }
-
+  @Test
   public void testFilter()
     throws Exception {
 
@@ -42,16 +35,16 @@ public class TestDomainURLFilter
     Configuration conf = NutchConfiguration.create();
     DomainURLFilter domainFilter = new DomainURLFilter(domainFile);
     domainFilter.setConf(conf);
-    assertNotNull(domainFilter.filter("http://lucene.apache.org"));
-    assertNotNull(domainFilter.filter("http://hadoop.apache.org"));
-    assertNotNull(domainFilter.filter("http://www.apache.org"));
-    assertNull(domainFilter.filter("http://www.google.com"));
-    assertNull(domainFilter.filter("http://mail.yahoo.com"));
-    assertNotNull(domainFilter.filter("http://www.foobar.net"));
-    assertNotNull(domainFilter.filter("http://www.foobas.net"));
-    assertNotNull(domainFilter.filter("http://www.yahoo.com"));
-    assertNotNull(domainFilter.filter("http://www.foobar.be"));
-    assertNull(domainFilter.filter("http://www.adobe.com"));
+    Assert.assertNotNull(domainFilter.filter("http://lucene.apache.org"));
+    Assert.assertNotNull(domainFilter.filter("http://hadoop.apache.org"));
+    Assert.assertNotNull(domainFilter.filter("http://www.apache.org"));
+    Assert.assertNull(domainFilter.filter("http://www.google.com"));
+    Assert.assertNull(domainFilter.filter("http://mail.yahoo.com"));
+    Assert.assertNotNull(domainFilter.filter("http://www.foobar.net"));
+    Assert.assertNotNull(domainFilter.filter("http://www.foobas.net"));
+    Assert.assertNotNull(domainFilter.filter("http://www.yahoo.com"));
+    Assert.assertNotNull(domainFilter.filter("http://www.foobar.be"));
+    Assert.assertNull(domainFilter.filter("http://www.adobe.com"));
   }
 
 }

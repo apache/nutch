@@ -28,8 +28,10 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.SequenceFile;
 import org.apache.hadoop.io.Text;
-
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Basic injector test:
@@ -39,9 +41,8 @@ import junit.framework.TestCase;
  * 4. Injects more urls into webdb
  * 5. Reads crawldb entries and verifies contents
  * 
- * @author nutch-dev <nutch-dev at lucene.apache.org>
  */
-public class TestInjector extends TestCase {
+public class TestInjector {
 
   private Configuration conf;
   private FileSystem fs;
@@ -49,7 +50,8 @@ public class TestInjector extends TestCase {
   Path crawldbPath;
   Path urlPath;
   
-  protected void setUp() throws Exception {
+  @Before
+  public void setUp() throws Exception {
     conf = CrawlDBTestUtil.createConfiguration();
     urlPath=new Path(testdir,"urls");
     crawldbPath=new Path(testdir,"crawldb");
@@ -58,10 +60,12 @@ public class TestInjector extends TestCase {
     if (fs.exists(crawldbPath)) fs.delete(crawldbPath, true);
   }
   
-  protected void tearDown() throws IOException{
+  @After
+  public void tearDown() throws IOException{
     fs.delete(testdir, true);
   }
 
+  @Test
   public void testInject() throws IOException {
     ArrayList<String> urls=new ArrayList<String>();
     // We'll use a separate list for MD so we can still compare url with containsAll
@@ -81,10 +85,10 @@ public class TestInjector extends TestCase {
     Collections.sort(read);
     Collections.sort(urls);
 
-    assertEquals(urls.size(), read.size());
+    Assert.assertEquals(urls.size(), read.size());
     
-    assertTrue(read.containsAll(urls));
-    assertTrue(urls.containsAll(read));
+    Assert.assertTrue(read.containsAll(urls));
+    Assert.assertTrue(urls.containsAll(read));
     
     //inject more urls
     ArrayList<String> urls2=new ArrayList<String>();
@@ -106,10 +110,10 @@ public class TestInjector extends TestCase {
     Collections.sort(urls);
 
     // We should have 100 less records because we've overwritten
-    assertEquals(urls.size() - 100, read.size());
+    Assert.assertEquals(urls.size() - 100, read.size());
     
-    assertTrue(read.containsAll(urls));
-    assertTrue(urls.containsAll(read));
+    Assert.assertTrue(read.containsAll(urls));
+    Assert.assertTrue(urls.containsAll(read));
     
     // Check if we correctly preserved MD
     Map<String, CrawlDatum> records = readCrawldbRecords();
@@ -121,11 +125,11 @@ public class TestInjector extends TestCase {
     for (String url : urls) {
       if (url.indexOf("http://zzz") == 0) {       
         // Check for fetch interval
-        assertTrue(records.get(url).getFetchInterval() == 171717);
+        Assert.assertTrue(records.get(url).getFetchInterval() == 171717);
         // Check for default score
-        assertTrue(records.get(url).getScore() != 1.0);
+        Assert.assertTrue(records.get(url).getScore() != 1.0);
         // Check for MD key=value
-        assertEquals(writableValue, records.get(url).getMetaData().get(writableKey));
+        Assert.assertEquals(writableValue, records.get(url).getMetaData().get(writableKey));
       }
     }
   }
@@ -133,6 +137,7 @@ public class TestInjector extends TestCase {
   private List<String> readCrawldb() throws IOException{
     Path dbfile=new Path(crawldbPath,CrawlDb.CURRENT_NAME + "/part-00000/data");
     System.out.println("reading:" + dbfile);
+    @SuppressWarnings("resource")
     SequenceFile.Reader reader=new SequenceFile.Reader(fs, dbfile, conf);
     ArrayList<String> read=new ArrayList<String>();
     
@@ -150,6 +155,7 @@ public class TestInjector extends TestCase {
   private HashMap<String,CrawlDatum> readCrawldbRecords() throws IOException{
     Path dbfile=new Path(crawldbPath,CrawlDb.CURRENT_NAME + "/part-00000/data");
     System.out.println("reading:" + dbfile);
+    @SuppressWarnings("resource")
     SequenceFile.Reader reader=new SequenceFile.Reader(fs, dbfile, conf);
     HashMap<String,CrawlDatum> read=new HashMap<String,CrawlDatum>();
     

@@ -29,17 +29,19 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.Assert;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+public class TestMoreIndexingFilter {
 
-public class TestMoreIndexingFilter extends TestCase {
-
+  @Test
   public void testContentType() throws IndexingException {
     Configuration conf = NutchConfiguration.create();
     assertContentType(conf, "text/html", "text/html");
     assertContentType(conf, "text/html; charset=UTF-8", "text/html");
   }
   
+  @Test
   public void testGetParts() {
     String[] parts = MoreIndexingFilter.getParts("text/html");
     assertParts(parts, 2, "text", "html");
@@ -48,12 +50,13 @@ public class TestMoreIndexingFilter extends TestCase {
   /**
    * @since NUTCH-901
    */
+  @Test
   public void testNoParts(){
     Configuration conf = NutchConfiguration.create();
     conf.setBoolean("moreIndexingFilter.indexMimeTypeParts", false);
     MoreIndexingFilter filter = new MoreIndexingFilter();
     filter.setConf(conf);
-    assertNotNull(filter);
+    Assert.assertNotNull(filter);
     NutchDocument doc = new NutchDocument();
     ParseImpl parse = new ParseImpl("foo bar", new ParseData());
     
@@ -62,14 +65,15 @@ public class TestMoreIndexingFilter extends TestCase {
     }
     catch(Exception e){
         e.printStackTrace();
-        fail(e.getMessage());
+        Assert.fail(e.getMessage());
     }
-    assertNotNull(doc);
-    assertTrue(doc.getFieldNames().contains("type"));
-    assertEquals(1, doc.getField("type").getValues().size());
-    assertEquals("text/html", doc.getFieldValue("type"));    
+    Assert.assertNotNull(doc);
+    Assert.assertTrue(doc.getFieldNames().contains("type"));
+    Assert.assertEquals(1, doc.getField("type").getValues().size());
+    Assert.assertEquals("text/html", doc.getFieldValue("type"));    
   }
 
+  @Test
   public void testContentDispositionTitle() throws IndexingException {
     Configuration conf = NutchConfiguration.create();
 
@@ -82,13 +86,13 @@ public class TestMoreIndexingFilter extends TestCase {
       new ParseStatus(), "title", new Outlink[0], metadata)), new Text(
         "http://www.example.com/"), new CrawlDatum(), new Inlinks());
 
-    assertEquals("content-disposition not detected", "filename.ext", doc.getFieldValue("title"));
+    Assert.assertEquals("content-disposition not detected", "filename.ext", doc.getFieldValue("title"));
   }
 
   private void assertParts(String[] parts, int count, String... expected) {
-    assertEquals(count, parts.length);
+    Assert.assertEquals(count, parts.length);
     for (int i = 0; i < expected.length; i++) {
-      assertEquals(expected[i], parts[i]);
+      Assert.assertEquals(expected[i], parts[i]);
     }
   }
   
@@ -100,6 +104,6 @@ public class TestMoreIndexingFilter extends TestCase {
     NutchDocument doc = filter.filter(new NutchDocument(), new ParseImpl("text", new ParseData(
         new ParseStatus(), "title", new Outlink[0], metadata)), new Text(
         "http://www.example.com/"), new CrawlDatum(), new Inlinks());
-    assertEquals("mime type not detected", expected, doc.getFieldValue("type"));
+    Assert.assertEquals("mime type not detected", expected, doc.getFieldValue("type"));
   }
 }

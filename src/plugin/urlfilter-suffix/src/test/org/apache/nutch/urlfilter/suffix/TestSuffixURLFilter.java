@@ -19,18 +19,16 @@ package org.apache.nutch.urlfilter.suffix;
 import java.io.IOException;
 import java.io.StringReader;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-import junit.textui.TestRunner;
-
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * JUnit test for <code>SuffixURLFilter</code>.
  *
  * @author Andrzej Bialecki
  */
-public class TestSuffixURLFilter extends TestCase {
+public class TestSuffixURLFilter {
   private static final String suffixes =
     "# this is a comment\n" +
     "\n" +
@@ -117,67 +115,62 @@ public class TestSuffixURLFilter extends TestCase {
   
   private SuffixURLFilter filter = null;
   
-  public TestSuffixURLFilter(String testName) {
-    super(testName);
-  }
-  
-  public static Test suite() {
-    return new TestSuite(TestSuffixURLFilter.class);
-  }
-  
-  public static void main(String[] args) {
-    TestRunner.run(suite());
-  }
-  
+  @Before
   public void setUp() throws IOException {
     filter = new SuffixURLFilter(new StringReader(suffixes));
   }
   
+  @Test
   public void testModeAccept() {
     filter.setIgnoreCase(false);
     filter.setModeAccept(true);
     for (int i = 0; i < urls.length; i++) {
-      assertTrue(urlsModeAccept[i] == filter.filter(urls[i]));
+      Assert.assertTrue(urlsModeAccept[i] == filter.filter(urls[i]));
     }
   }
 
+  @Test
   public void testModeReject() {
     filter.setIgnoreCase(false);
     filter.setModeAccept(false);
     for (int i = 0; i < urls.length; i++) {
-      assertTrue(urlsModeReject[i] == filter.filter(urls[i]));
+      Assert.assertTrue(urlsModeReject[i] == filter.filter(urls[i]));
     }
   }
 
+  @Test
   public void testModeAcceptIgnoreCase() {
     filter.setIgnoreCase(true);
     filter.setModeAccept(true);
     for (int i = 0; i < urls.length; i++) {
-      assertTrue(urlsModeAcceptIgnoreCase[i] == filter.filter(urls[i]));
+      Assert.assertTrue(urlsModeAcceptIgnoreCase[i] == filter.filter(urls[i]));
     }
   }
 
+  @Test
   public void testModeRejectIgnoreCase() {
     filter.setIgnoreCase(true);
     filter.setModeAccept(false);
     for (int i = 0; i < urls.length; i++) {
-      assertTrue(urlsModeRejectIgnoreCase[i] == filter.filter(urls[i]));
+      Assert.assertTrue(urlsModeRejectIgnoreCase[i] == filter.filter(urls[i]));
     }
   }
   
+  @Test
   public void testModeAcceptAndNonPathFilter() {
     filter.setModeAccept(true);
     filter.setFilterFromPath(false);
     for (int i = 0; i < urls.length; i++) {
-      assertTrue(urlsModeAcceptAndNonPathFilter[i] == filter.filter(urls[i]));
+      Assert.assertTrue(urlsModeAcceptAndNonPathFilter[i] == filter.filter(urls[i]));
     }
   }
   
+  @Test
   public void testModeAcceptAndPathFilter() {
     filter.setModeAccept(true);
     filter.setFilterFromPath(true);
     for (int i = 0; i < urls.length; i++) {
-      assertTrue(urlsModeAcceptAndPathFilter[i] == filter.filter(urls[i]));
+      Assert.assertTrue(urlsModeAcceptAndPathFilter[i] == filter.filter(urls[i]));
     }
   }
 

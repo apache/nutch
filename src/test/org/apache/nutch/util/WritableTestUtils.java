@@ -19,8 +19,7 @@ package org.apache.nutch.util;
 
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.conf.*;
-
-import junit.framework.TestCase;
+import org.junit.Assert;
 
 public class WritableTestUtils {
 
@@ -32,7 +31,7 @@ public class WritableTestUtils {
   /** Utility method for testing writables. */
   public static void testWritable(Writable before, Configuration conf)
       throws Exception {
-    TestCase.assertEquals(before, writeRead(before, conf));
+    Assert.assertEquals(before, writeRead(before, conf));
   }
 
   

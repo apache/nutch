@@ -18,17 +18,18 @@ package org.apache.nutch.crawl;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.Assert;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+public class TestSignatureFactory {
 
-public class TestSignatureFactory extends TestCase {
-
+  @Test
   public void testGetSignature() {
     Configuration conf=NutchConfiguration.create();
     Signature signature1=SignatureFactory.getSignature(conf);
     Signature signature2=SignatureFactory.getSignature(conf);
-    assertNotNull(signature1);
-    assertNotNull(signature2);
-    assertEquals(signature1, signature2);
+    Assert.assertNotNull(signature1);
+    Assert.assertNotNull(signature2);
+    Assert.assertEquals(signature1, signature2);
   }
 }

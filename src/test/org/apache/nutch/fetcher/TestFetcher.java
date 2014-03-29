@@ -32,9 +32,11 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.protocol.Content;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.mortbay.jetty.Server;
-
-import junit.framework.TestCase;
 
 /**
  * Basic fetcher test
@@ -43,10 +45,9 @@ import junit.framework.TestCase;
  * 3. generate
  * 3. fetch
  * 4. Verify contents
- * @author nutch-dev <nutch-dev at lucene.apache.org>
  *
  */
-public class TestFetcher extends TestCase {
+public class TestFetcher {
 
   final static Path testdir=new Path("build/test/fetch-test");
   Configuration conf;
@@ -56,7 +57,8 @@ public class TestFetcher extends TestCase {
   Path urlPath;
   Server server;
 
-  protected void setUp() throws Exception{
+  @Before
+  public void setUp() throws Exception{
     conf=CrawlDBTestUtil.createConfiguration();
     fs=FileSystem.get(conf);
     fs.delete(testdir, true);
@@ -67,11 +69,13 @@ public class TestFetcher extends TestCase {
     server.start();
   }
 
-  protected void tearDown() throws Exception{
+  @After
+  public void tearDown() throws Exception{
     server.stop();
     fs.delete(testdir, true);
   }
   
+  @Test
   public void testFetch() throws IOException {
     
     //generate seedlist
@@ -108,10 +112,11 @@ public class TestFetcher extends TestCase {
     
     //verify politeness, time taken should be more than (num_of_pages +1)*delay
     int minimumTime=(int) ((urls.size()+1)*1000*conf.getFloat("fetcher.server.delay",5));
-    assertTrue(time > minimumTime);
+    Assert.assertTrue(time > minimumTime);
     
     //verify content
     Path content=new Path(new Path(generatedSegment[0], Content.DIR_NAME),"part-00000/data");
+    @SuppressWarnings("resource")
     SequenceFile.Reader reader=new SequenceFile.Reader(fs, content, conf);
     
     ArrayList<String> handledurls=new ArrayList<String>();
@@ -133,11 +138,11 @@ public class TestFetcher extends TestCase {
     Collections.sort(handledurls);
 
     //verify that enough pages were handled
-    assertEquals(urls.size(), handledurls.size());
+    Assert.assertEquals(urls.size(), handledurls.size());
 
     //verify that correct pages were handled
-    assertTrue(handledurls.containsAll(urls));
-    assertTrue(urls.containsAll(handledurls));
+    Assert.assertTrue(handledurls.containsAll(urls));
+    Assert.assertTrue(urls.containsAll(handledurls));
     
     handledurls.clear();
 
@@ -161,16 +166,17 @@ public class TestFetcher extends TestCase {
     
     Collections.sort(handledurls);
 
-    assertEquals(urls.size(), handledurls.size());
+    Assert.assertEquals(urls.size(), handledurls.size());
 
-    assertTrue(handledurls.containsAll(urls));
-    assertTrue(urls.containsAll(handledurls));
+    Assert.assertTrue(handledurls.containsAll(urls));
+    Assert.assertTrue(urls.containsAll(handledurls));
   }
 
   private void addUrl(ArrayList<String> urls, String page) {
     urls.add("http://127.0.0.1:" + server.getConnectors()[0].getPort() + "/" + page);
   }
   
+  @Test
   public void testAgentNameCheck() {
 
     boolean failedNoAgentName = false;
@@ -187,7 +193,7 @@ public class TestFetcher extends TestCase {
     } catch (Exception e) {
     }
 
-    assertTrue(failedNoAgentName);
+    Assert.assertTrue(failedNoAgentName);
   }
 
 }

@@ -18,20 +18,16 @@
 package org.apache.nutch.util;
 
 import java.io.ByteArrayInputStream;
-import junit.framework.TestCase;
 
 import org.apache.xerces.parsers.DOMParser;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
-
-
-
 /** Unit tests for NodeWalker methods. */
-public class TestNodeWalker extends TestCase {
-  public TestNodeWalker(String name) { 
-    super(name); 
-  }
+public class TestNodeWalker {
 
   /* a snapshot of the nutch webpage */
   private final static String WEBPAGE= 
@@ -49,13 +45,15 @@ public class TestNodeWalker extends TestCase {
 
   private final static String[] ULCONTENT = new String[4];
   
-  protected void setUp() throws Exception{
+  @Before
+  public void setUp() throws Exception{
     ULCONTENT[0]="crawl several billion pages per month" ;
     ULCONTENT[1]="maintain an index of these pages" ;
     ULCONTENT[2]="search that index up to 1000 times per second"  ;
     ULCONTENT[3]="operate at minimal cost" ;
   }
 
+  @Test
   public void testSkipChildren() {
     DOMParser parser= new DOMParser();
     
@@ -78,7 +76,7 @@ public class TestNodeWalker extends TestCase {
         sb.append(text);
       }
     }
-   assertTrue("UL Content can NOT be found in the node", findSomeUlContent(sb.toString()));
+    Assert.assertTrue("UL Content can NOT be found in the node", findSomeUlContent(sb.toString()));
      
    StringBuffer sbSkip = new StringBuffer();
    NodeWalker walkerSkip = new NodeWalker(parser.getDocument());
@@ -95,7 +93,7 @@ public class TestNodeWalker extends TestCase {
        sbSkip.append(text);
      }
    }
-   assertFalse("UL Content can be found in the node", findSomeUlContent(sbSkip.toString()));
+   Assert.assertFalse("UL Content can be found in the node", findSomeUlContent(sbSkip.toString()));
   }
   
   public boolean findSomeUlContent(String str) {

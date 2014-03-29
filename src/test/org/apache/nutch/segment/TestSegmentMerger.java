@@ -27,10 +27,12 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.MapFileOutputFormat;
 import org.apache.nutch.parse.ParseText;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TestSegmentMerger extends TestCase {
+public class TestSegmentMerger {
   Configuration conf;
   FileSystem fs;
   Path testDir;
@@ -39,6 +41,7 @@ public class TestSegmentMerger extends TestCase {
   Path out;
   int countSeg1, countSeg2;
   
+  @Before
   public void setUp() throws Exception {
     conf = NutchConfiguration.create();
     fs = FileSystem.get(conf);
@@ -81,17 +84,19 @@ public class TestSegmentMerger extends TestCase {
     System.err.println(" - done: " + countSeg2 + " records.");
   }
   
+  @After
   public void tearDown() throws Exception {
     fs.delete(testDir, true);
   }
   
+  @Test
   public void testLargeMerge() throws Exception {
     SegmentMerger merger = new SegmentMerger(conf);
     merger.merge(out, new Path[]{seg1, seg2}, false, false, -1);
     // verify output
     FileStatus[] stats = fs.listStatus(out);
     // there should be just one path
-    assertEquals(1, stats.length);
+    Assert.assertEquals(1, stats.length);
     Path outSeg = stats[0].getPath();
     Text k = new Text();
     ParseText v = new ParseText();
@@ -103,16 +108,16 @@ public class TestSegmentMerger extends TestCase {
         String vs = v.getText();
         if (ks.startsWith("seg1-")) {
           cnt1++;
-          assertTrue(vs.startsWith("seg1 "));
+          Assert.assertTrue(vs.startsWith("seg1 "));
         } else if (ks.startsWith("seg2-")) {
           cnt2++;
-          assertTrue(vs.startsWith("seg2 "));
+          Assert.assertTrue(vs.startsWith("seg2 "));
         }
       }
       r.close();
     }
-    assertEquals(countSeg1, cnt1);
-    assertEquals(countSeg2, cnt2);
+    Assert.assertEquals(countSeg1, cnt1);
+    Assert.assertEquals(countSeg2, cnt2);
   }
 
 }

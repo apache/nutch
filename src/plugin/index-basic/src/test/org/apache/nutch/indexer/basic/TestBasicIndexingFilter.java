@@ -28,9 +28,10 @@ import org.apache.nutch.parse.ParseData;
 import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseStatus;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.Assert;
+import org.junit.Test;
 
 import java.util.Date;
-import junit.framework.TestCase;
 
 /**
  * JUnit test case which tests 
@@ -43,8 +44,9 @@ import junit.framework.TestCase;
  *
  */
 
-public class TestBasicIndexingFilter extends TestCase {
+public class TestBasicIndexingFilter {
 
+  @Test
   public void testBasicIndexingFilter() throws Exception { 
     Configuration conf = NutchConfiguration.create();
     conf.setInt("indexer.max.title.length", 10);
@@ -53,7 +55,7 @@ public class TestBasicIndexingFilter extends TestCase {
 
     BasicIndexingFilter filter = new BasicIndexingFilter();
     filter.setConf(conf);
-    assertNotNull(filter);
+    Assert.assertNotNull(filter);
 
     NutchDocument doc = new NutchDocument();
 
@@ -73,15 +75,15 @@ public class TestBasicIndexingFilter extends TestCase {
       filter.filter(doc, parse, new Text("http://nutch.apache.org/index.html"), crawlDatum, inlinks);
     } catch(Exception e){
       e.printStackTrace();
-      fail(e.getMessage());
+      Assert.fail(e.getMessage());
     }
-    assertNotNull(doc);
-    assertEquals("test title, expect \"The Foo Pa\"", "The Foo Pa", doc.getField("title").getValues().get(0));
-    assertEquals("test domain, expect \"apache.org\"", "apache.org", doc.getField("domain").getValues().get(0));
-    assertEquals("test host, expect \"nutch.apache.org\"", "nutch.apache.org", doc.getField("host").getValues().get(0));
-    assertEquals("test url, expect \"http://nutch.apache.org/index.html\"", "http://nutch.apache.org/index.html", 
+    Assert.assertNotNull(doc);
+    Assert.assertEquals("test title, expect \"The Foo Pa\"", "The Foo Pa", doc.getField("title").getValues().get(0));
+    Assert.assertEquals("test domain, expect \"apache.org\"", "apache.org", doc.getField("domain").getValues().get(0));
+    Assert.assertEquals("test host, expect \"nutch.apache.org\"", "nutch.apache.org", doc.getField("host").getValues().get(0));
+    Assert.assertEquals("test url, expect \"http://nutch.apache.org/index.html\"", "http://nutch.apache.org/index.html", 
       doc.getField("url").getValues().get(0));
-    assertEquals("test content", "this is a sample foo", doc.getField("content").getValues().get(0));
-    assertEquals("test fetch time", new Date(100L), (Date)doc.getField("tstamp").getValues().get(0));
+    Assert.assertEquals("test content", "this is a sample foo", doc.getField("content").getValues().get(0));
+    Assert.assertEquals("test fetch time", new Date(100L), (Date)doc.getField("tstamp").getValues().get(0));
   }
 }

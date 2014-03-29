@@ -21,18 +21,17 @@ import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.ProtocolException;
-
 import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.ParseImpl;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParseException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.util.NutchConfiguration;
-
 import org.apache.hadoop.io.Text;
 import org.apache.nutch.crawl.CrawlDatum;
-
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -49,7 +48,7 @@ import java.io.IOException;
  *
  * @author John Xing
  */
-public class TestExtParser extends TestCase {
+public class TestExtParser {
   private File tempFile = null;
   private String urlString = null;
   private Content content = null;
@@ -59,10 +58,7 @@ public class TestExtParser extends TestCase {
   // echo -n "nutch rocks nutch rocks nutch rocks" | md5sum
   private String expectedMD5sum = "df46711a1a48caafc98b1c3b83aa1526";
 
-  public TestExtParser(String name) { 
-    super(name); 
-  }
-
+  @Before
   protected void setUp() throws ProtocolException, IOException {
     // prepare a temp file with expectedText as its content
     // This system property is defined in ./src/plugin/build-plugin.xml
@@ -76,7 +72,7 @@ public class TestExtParser extends TestCase {
       // otherwise in java.io.tmpdir
       tempFile = File.createTempFile("nutch.test.plugin.ExtParser.",".txt");
     }
-    urlString = tempFile.toURL().toString();
+    urlString = tempFile.toURI().toURL().toString();
 
     FileOutputStream fos = new FileOutputStream(tempFile);
     fos.write(expectedText.getBytes());
@@ -88,6 +84,7 @@ public class TestExtParser extends TestCase {
     protocol = null;
   }
 
+  @After
   protected void tearDown() {
     // clean content
     content = null;
@@ -97,6 +94,7 @@ public class TestExtParser extends TestCase {
     //  tempFile.delete();
   }
 
+  @Test
   public void testIt() throws ParseException {
     String contentType;
 
@@ -114,13 +112,13 @@ public class TestExtParser extends TestCase {
       contentType = "application/vnd.nutch.example.cat";
       content.setContentType(contentType);
       parse = new ParseUtil(conf).parseByExtensionId("parse-ext", content).get(content.getUrl());
-      assertEquals(expectedText,parse.getText());
+      Assert.assertEquals(expectedText,parse.getText());
 
       // check external parser that does 'md5sum'
       contentType = "application/vnd.nutch.example.md5sum";
       content.setContentType(contentType);
       parse = new ParseUtil(conf).parseByExtensionId("parse-ext", content).get(content.getUrl());
-      assertTrue(parse.getText().startsWith(expectedMD5sum));
+      Assert.assertTrue(parse.getText().startsWith(expectedMD5sum));
     }
   }
 

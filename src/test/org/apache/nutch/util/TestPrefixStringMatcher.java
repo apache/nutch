@@ -17,13 +17,12 @@
 
 package org.apache.nutch.util;
 
-import junit.framework.TestCase;
+import org.junit.Assert;
+import org.junit.Test;
 
 /** Unit tests for PrefixStringMatcher. */
-public class TestPrefixStringMatcher extends TestCase {
-  public TestPrefixStringMatcher(String name) { 
-    super(name); 
-  }
+public class TestPrefixStringMatcher {
+
 
   private final static int NUM_TEST_ROUNDS= 20;
   private final static int MAX_TEST_PREFIXES= 100;
@@ -51,6 +50,7 @@ public class TestPrefixStringMatcher extends TestCase {
     return new String(chars);
   }
   
+  @Test
   public void testPrefixMatcher() {
     int numMatches= 0;
     int numInputsTested= 0;
@@ -96,18 +96,18 @@ public class TestPrefixStringMatcher extends TestCase {
 
         numInputsTested++;
 
-        assertTrue( "'" + input + "' should " + (matches ? "" : "not ") 
+        Assert.assertTrue( "'" + input + "' should " + (matches ? "" : "not ") 
                     + "match!",
                     matches == prematcher.matches(input) );
         if (matches) {
-          assertTrue( shortestMatch 
+          Assert.assertTrue( shortestMatch 
                       == prematcher.shortestMatch(input).length());
-          assertTrue( input.substring(0, shortestMatch).equals(
+          Assert.assertTrue( input.substring(0, shortestMatch).equals(
                         prematcher.shortestMatch(input)) );
 
-          assertTrue( longestMatch 
+          Assert.assertTrue( longestMatch 
                       == prematcher.longestMatch(input).length());
-          assertTrue( input.substring(0, longestMatch).equals(
+          Assert.assertTrue( input.substring(0, longestMatch).equals(
                         prematcher.longestMatch(input)) );
 
         }

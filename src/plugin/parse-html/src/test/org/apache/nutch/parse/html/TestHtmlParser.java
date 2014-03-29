@@ -21,16 +21,17 @@ import java.nio.charset.Charset;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
+import org.apache.nutch.parse.html.HtmlParser;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.Parser;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.Assert;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import junit.framework.TestCase;
-
-public class TestHtmlParser extends TestCase {
+public class TestHtmlParser {
 
   public static final Logger LOG = LoggerFactory.getLogger(TestHtmlParser.class);
 
@@ -90,12 +91,11 @@ public class TestHtmlParser extends TestCase {
           + encodingTestContent
     }
   };
-  
+
   private Configuration conf;
   private Parser parser;
-  
-  public TestHtmlParser(String name) { 
-    super(name);
+
+  public TestHtmlParser() { 
     conf = NutchConfiguration.create();
     parser = new HtmlParser();
     parser.setConf(conf);
@@ -107,7 +107,8 @@ public class TestHtmlParser extends TestCase {
         new Content(dummyUrl, dummyUrl, contentBytes, "text/html", new Metadata(),
             conf)).get(dummyUrl);
   }
-  
+
+  @Test
   public void testEncodingDetection() {
     for (String[] testPage : encodingTestPages) {
       String name = testPage[0];
@@ -121,14 +122,14 @@ public class TestHtmlParser extends TestCase {
       LOG.info("title:\t" + title);
       LOG.info("keywords:\t" + keywords);
       LOG.info("text:\t" + text);
-      assertEquals("Title not extracted properly (" + name + ")",
+      Assert.assertEquals("Title not extracted properly (" + name + ")",
           encodingTestKeywords, title);
       for (String keyword : encodingTestKeywords.split(",\\s*")) {
-        assertTrue(keyword + " not found in text (" + name + ")",
+        Assert.assertTrue(keyword + " not found in text (" + name + ")",
             text.contains(keyword));
       }
       if (keywords != null) {
-        assertEquals("Keywords not extracted properly (" + name + ")",
+        Assert.assertEquals("Keywords not extracted properly (" + name + ")",
             encodingTestKeywords, keywords);
       }
     }
