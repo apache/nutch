@@ -74,9 +74,7 @@ public class TestRobotRulesParser {
   private HttpRobotRulesParser parser;
   private BaseRobotRules rules;
 
-  public TestRobotRulesParser () {
-  }
-  public TestRobotRulesParser(String name) {
+  public TestRobotRulesParser() {
     parser = new HttpRobotRulesParser();
   }
 
