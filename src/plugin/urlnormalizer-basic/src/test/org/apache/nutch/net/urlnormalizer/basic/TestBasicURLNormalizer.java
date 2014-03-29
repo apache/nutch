@@ -112,7 +112,7 @@ public class TestBasicURLNormalizer {
   }
   
   public static void main(String[] args) throws Exception {
-    new TestBasicURLNormalizer("test").testNormalizer();
+    new TestBasicURLNormalizer().testNormalizer();
   }
 
 }
