@@ -34,9 +34,6 @@
 	</publications>
 
 	<dependencies>
-		<dependency org="org.elasticsearch" name="elasticsearch"
-			rev="0.90.1" conf="*->default" />
-
 		<dependency org="org.slf4j" name="slf4j-api" rev="1.6.1"
 			conf="*->master" />
 		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.1"

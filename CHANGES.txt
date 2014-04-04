@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-1745 Upgrade to ElasticSearch 1.1.0 (jnioche)
+
 * NUTCH-1645 Junit Test Case for Adaptive Fetch Schedule class (Yasin Kılınç, lufeng, Sertac TURKEL via snagel)
 
 * NUTCH-1737 Upgrade to recent JUnit 4.x (lewismc)
