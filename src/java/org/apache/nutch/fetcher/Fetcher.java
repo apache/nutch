@@ -226,7 +226,7 @@ public class Fetcher extends Configured implements Tool,
    */
   private static class FetchItemQueue {
     List<FetchItem> queue = Collections.synchronizedList(new LinkedList<FetchItem>());
-    Set<FetchItem>  inProgress = Collections.synchronizedSet(new HashSet<FetchItem>());
+    AtomicInteger  inProgress = new AtomicInteger();
     AtomicLong nextFetchTime = new AtomicLong();
     AtomicInteger exceptionCounter = new AtomicInteger();
     long crawlDelay;
@@ -254,7 +254,7 @@ public class Fetcher extends Configured implements Tool,
     }
 
     public int getInProgressSize() {
-      return inProgress.size();
+      return inProgress.get();
     }
 
     public int incrementExceptionCounter() {
@@ -263,7 +263,7 @@ public class Fetcher extends Configured implements Tool,
 
     public void finishFetchItem(FetchItem it, boolean asap) {
       if (it != null) {
-        inProgress.remove(it);
+        inProgress.decrementAndGet();
         setEndTime(System.currentTimeMillis(), asap);
       }
     }
@@ -275,18 +275,18 @@ public class Fetcher extends Configured implements Tool,
 
     public void addInProgressFetchItem(FetchItem it) {
       if (it == null) return;
-      inProgress.add(it);
+      inProgress.incrementAndGet();
     }
 
     public FetchItem getFetchItem() {
-      if (inProgress.size() >= maxThreads) return null;
+      if (inProgress.get() >= maxThreads) return null;
       long now = System.currentTimeMillis();
       if (nextFetchTime.get() > now) return null;
       FetchItem it = null;
       if (queue.size() == 0) return null;
       try {
         it = queue.remove(0);
-        inProgress.add(it);
+        inProgress.incrementAndGet();
       } catch (Exception e) {
         LOG.error("Cannot remove FetchItem from queue or cannot add it to inProgress queue", e);
       }
@@ -295,7 +295,7 @@ public class Fetcher extends Configured implements Tool,
 
     public synchronized void dump() {
       LOG.info("  maxThreads    = " + maxThreads);
-      LOG.info("  inProgress    = " + inProgress.size());
+      LOG.info("  inProgress    = " + inProgress.get());
       LOG.info("  crawlDelay    = " + crawlDelay);
       LOG.info("  minCrawlDelay = " + minCrawlDelay);
       LOG.info("  nextFetchTime = " + nextFetchTime.get());
