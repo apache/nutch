@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-1735 code dedup fetcher queue redirects (snagel)
+
 * NUTCH-1745 Upgrade to ElasticSearch 1.1.0 (jnioche)
 
 * NUTCH-1645 Junit Test Case for Adaptive Fetch Schedule class (Yasin Kılınç, lufeng, Sertac TURKEL via snagel)

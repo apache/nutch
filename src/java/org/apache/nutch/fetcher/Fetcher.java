@@ -731,25 +731,7 @@ public class Fetcher extends Configured implements Tool,
                                    refreshTime < Fetcher.PERM_REFRESH_TIME,
                                    Fetcher.CONTENT_REDIR);
                   if (redirUrl != null) {
-                    CrawlDatum newDatum = new CrawlDatum(CrawlDatum.STATUS_DB_UNFETCHED,
-                        fit.datum.getFetchInterval(), fit.datum.getScore());
-                    // transfer existing metadata to the redir
-                    newDatum.getMetaData().putAll(fit.datum.getMetaData());
-                    scfilters.initialScore(redirUrl, newDatum);
-                    if (reprUrl != null) {
-                      newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
-                          new Text(reprUrl));
-                    }
-                    fit = FetchItem.create(redirUrl, newDatum, queueMode);
-                    if (fit != null) {
-                      FetchItemQueue fiq =
-                        fetchQueues.getFetchItemQueue(fit.queueID);
-                      fiq.addInProgressFetchItem(fit);
-                    } else {
-                      // stop redirecting
-                      redirecting = false;
-                      reporter.incrCounter("FetcherStatus", "FetchItem.notCreated.redirect", 1);
-                    }
+                    queueRedirect(redirUrl, fit);
                   }
                 }
                 break;
@@ -772,25 +754,7 @@ public class Fetcher extends Configured implements Tool,
                                  urlString, newUrl, temp,
                                  Fetcher.PROTOCOL_REDIR);
                 if (redirUrl != null) {
-                  CrawlDatum newDatum = new CrawlDatum(CrawlDatum.STATUS_DB_UNFETCHED,
-                      fit.datum.getFetchInterval(), fit.datum.getScore());
-                  // transfer existing metadata
-                  newDatum.getMetaData().putAll(fit.datum.getMetaData());
-                  scfilters.initialScore(redirUrl, newDatum);
-                  if (reprUrl != null) {
-                    newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
-                        new Text(reprUrl));
-                  }
-                  fit = FetchItem.create(redirUrl, newDatum, queueMode);
-                  if (fit != null) {
-                    FetchItemQueue fiq =
-                      fetchQueues.getFetchItemQueue(fit.queueID);
-                    fiq.addInProgressFetchItem(fit);
-                  } else {
-                    // stop redirecting
-                    redirecting = false;
-                    reporter.incrCounter("FetcherStatus", "FetchItem.notCreated.redirect", 1);
-                  }
+                  queueRedirect(redirUrl, fit);
                 } else {
                   // stop redirecting
                   redirecting = false;
@@ -915,6 +879,28 @@ public class Fetcher extends Configured implements Tool,
               (newUrl != null ? "to same url" : "filtered"));
         }
         return null;
+      }
+    }
+
+    private void queueRedirect(Text redirUrl, FetchItem fit) throws ScoringFilterException {
+      CrawlDatum newDatum = new CrawlDatum(CrawlDatum.STATUS_DB_UNFETCHED,
+          fit.datum.getFetchInterval(), fit.datum.getScore());
+      // transfer all existing metadata to the redirect
+      newDatum.getMetaData().putAll(fit.datum.getMetaData());
+      scfilters.initialScore(redirUrl, newDatum);
+      if (reprUrl != null) {
+        newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
+            new Text(reprUrl));
+      }
+      fit = FetchItem.create(redirUrl, newDatum, queueMode);
+      if (fit != null) {
+        FetchItemQueue fiq =
+          fetchQueues.getFetchItemQueue(fit.queueID);
+        fiq.addInProgressFetchItem(fit);
+      } else {
+        // stop redirecting
+        redirecting = false;
+        reporter.incrCounter("FetcherStatus", "FetchItem.notCreated.redirect", 1);
       }
     }
 
