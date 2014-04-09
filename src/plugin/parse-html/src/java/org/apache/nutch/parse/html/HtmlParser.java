@@ -75,6 +75,9 @@ public class HtmlParser implements Parser {
   private static Pattern charsetPattern =
     Pattern.compile("charset=\\s*([a-z][_\\-0-9a-z]*)",
         Pattern.CASE_INSENSITIVE);
+  private static Pattern charsetPatternHTML5 =
+		  Pattern.compile("<meta\\s+charset\\s*=\\s*[\"']?([a-z][_\\-0-9a-z]*)[^>]*>",
+				  Pattern.CASE_INSENSITIVE);
 
   private static Collection<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
@@ -86,15 +89,16 @@ public class HtmlParser implements Parser {
 
   /**
    * Given a <code>ByteBuffer</code> representing an html file of an
-   * <em>unknown</em> encoding,  read out 'charset' parameter in the meta tag
+   * <em>unknown</em> encoding,  read out 'charset' parameter in the meta tag   
    * from the first <code>CHUNK_SIZE</code> bytes.
    * If there's no meta tag for Content-Type or no charset is specified,
+   * the content is checked for a Unicode Byte Order Mark (BOM).
+   * This will also cover non-byte oriented character encodings (UTF-16 only).
+   * If no character set can be determined,
    * <code>null</code> is returned.  <br />
-   * FIXME: non-byte oriented character encodings (UTF-16, UTF-32)
-   * can't be handled with this.
-   * We need to do something similar to what's done by mozilla
-   * (http://lxr.mozilla.org/seamonkey/source/parser/htmlparser/src/nsParser.cpp#1993).
-   * See also http://www.w3.org/TR/REC-xml/#sec-guessing
+   * See also http://www.w3.org/International/questions/qa-html-encoding-declarations,
+   * http://www.w3.org/TR/2011/WD-html5-diff-20110405/#character-encoding, and
+   * http://www.w3.org/TR/REC-xml/#sec-guessing
    * <br />
    *
    * @param content <code>ByteBuffer</code> representation of an html file
@@ -122,6 +126,30 @@ public class HtmlParser implements Parser {
       Matcher charsetMatcher = charsetPattern.matcher(metaMatcher.group(1));
       if (charsetMatcher.find())
         encoding = new String(charsetMatcher.group(1));
+    }
+    if (encoding == null) {
+      // check for HTML5 meta charset
+      metaMatcher = charsetPatternHTML5.matcher(str);
+      if (metaMatcher.find()) {
+        encoding = new String(metaMatcher.group(1));
+      }
+    }
+    if (encoding == null) {
+      // check for BOM
+    	if (length >= 3
+          && content.get(0) == (byte) 0xEF
+          && content.get(1) == (byte) 0xBB
+          && content.get(2) == (byte) 0xBF) {
+        encoding = "UTF-8";
+      } else if (length >= 2) {
+        if (content.get(0) == (byte)0xFF
+            && content.get(1) == (byte)0xFE) {
+          encoding = "UTF-16LE";
+        } else if (content.get(0) == (byte)0xFE
+            && content.get(1) == (byte)0xFF) {
+          encoding = "UTF-16BE";
+        }
+      }
     }
 
     return encoding;
