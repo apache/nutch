@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-1750 Improvement of Fetcher's reportStatus (jnioche)
+
 * NUTCH-1747 Use AtomicInteger as semaphore in Fetcher (jnioche)
 
 * NUTCH-1735 code dedup fetcher queue redirects (snagel)

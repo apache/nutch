@@ -1110,20 +1110,21 @@ public class Fetcher extends Configured implements Tool,
 
 
   private void reportStatus(int pagesLastSec, int bytesLastSec) throws IOException {
-    String status;
-    long elapsed = (System.currentTimeMillis() - start)/1000;
+    StringBuilder status = new StringBuilder();
+    Long elapsed = new Long((System.currentTimeMillis() - start)/1000);
 
-    float avgPagesSec = Math.round(((float)pages.get()*10)/elapsed)/10;
-    float avgBytesSec = Math.round(((((float)bytes.get())*8)/1000)/elapsed);
+    float avgPagesSec =  (float) pages.get() / elapsed.floatValue();
+    long avgBytesSec =  (bytes.get() /125l) / elapsed.longValue();
 
-    status = activeThreads + " threads, " +
-     fetchQueues.getQueueCount() + " queues, "+
-     fetchQueues.getTotalSize() + " URLs queued, "+
-      pages+" pages, "+errors+" errors, "
-      + avgPagesSec + " (" + pagesLastSec + ") pages/s, "
-      + avgBytesSec + " (" + bytesLastSec + ") kbits/s, ";
+    status.append(activeThreads).append(" threads, ");
+    status.append(fetchQueues.getQueueCount()).append(" queues, ");
+    status.append(fetchQueues.getTotalSize()).append(" URLs queued, ");
+    status.append(pages).append(" pages, ").append(errors).append(" errors, ");
+    status.append(String.format("%.2f", avgPagesSec)).append(" pages/s (");
+    status.append(pagesLastSec).append(" last sec), ");
+    status.append(avgBytesSec).append(" kbits/s (").append((bytesLastSec / 125)).append(" last sec)");
 
-    reporter.setStatus(status);
+    reporter.setStatus(status.toString());
   }
 
   public void configure(JobConf job) {
