@@ -18,8 +18,6 @@ package org.apache.nutch.api;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
 import org.apache.nutch.api.JobStatus.State;
 
 public interface JobManager {

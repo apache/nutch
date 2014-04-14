@@ -33,4 +33,6 @@ public interface Params {
   public static final String JOB_CMD_STOP = "stop";
   public static final String JOB_CMD_ABORT = "abort";
   public static final String JOB_CMD_GET = "get";
+  
+  public static final String TRUE = "true";
 }

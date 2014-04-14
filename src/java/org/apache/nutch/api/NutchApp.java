@@ -16,6 +16,8 @@
  ******************************************************************************/
 package org.apache.nutch.api;
 
+import java.util.logging.Level;
+
 import org.apache.nutch.api.impl.RAMConfManager;
 import org.apache.nutch.api.impl.RAMJobManager;
 import org.restlet.Application;
@@ -41,7 +43,7 @@ public class NutchApp extends Application {
       getTunnelService().setEnabled(true);
       getTunnelService().setExtensionsTunnel(true);
       Router router = new Router(getContext());
-      //router.getLogger().setLevel(Level.FINEST);
+      router.getLogger().setLevel(Level.FINEST);
       // configs
       router.attach("/", APIInfoResource.class);
       router.attach("/" + AdminResource.PATH, AdminResource.class);

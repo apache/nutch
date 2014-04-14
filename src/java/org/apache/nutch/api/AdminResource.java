@@ -16,16 +16,21 @@
  ******************************************************************************/
 package org.apache.nutch.api;
 
-import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.nutch.api.JobStatus.State;
 import org.restlet.resource.Get;
 import org.restlet.resource.ServerResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Maps;
+
 public class AdminResource extends ServerResource {
+  private static final int SHUTDOWN_DELAY = 1000;
+
   private static final Logger LOG = LoggerFactory.getLogger(AdminResource.class);
 
   public static final String PATH = "admin";
@@ -33,41 +38,57 @@ public class AdminResource extends ServerResource {
 
   @Get("json")
   public Object execute() throws Exception {
-    String cmd = (String)getRequestAttributes().get(Params.CMD);
-    if ("status".equalsIgnoreCase(cmd)) {
-      // status
-      Map<String,Object> res = new HashMap<String,Object>();
-      res.put("started", NutchApp.started);
-      Map<String,Object> jobs = new HashMap<String,Object>();      
-      jobs.put("all", NutchApp.jobMgr.list(null, State.ANY));
-      jobs.put("running", NutchApp.jobMgr.list(null, State.RUNNING));
-      res.put("jobs", jobs);
-      res.put("confs", NutchApp.confMgr.list());
-      return res;
-    } else if ("stop".equalsIgnoreCase(cmd)) {
-      // stop
-      if (NutchApp.server.canStop()) {
-        Thread t = new Thread() {
-          public void run() {
-            try {
-              Thread.sleep(1000);
-              NutchApp.server.stop(false);
-              LOG.info("Service stopped.");
-            } catch (Exception e) {
-              LOG.error("Error stopping", e);
-            };
-          }
-        };
-        t.setDaemon(true);
-        t.start();
-        LOG.info("Service shutting down...");
-        return "stopping";
-      } else {
-        LOG.info("Command 'stop' denied due to unfinished jobs");
-        return "can't stop now";
-      }
-    } else {
-      return "Unknown command " + cmd;
+    Map<String, Object> attributes = getRequestAttributes();
+    String cmd = (String) attributes.get(Params.CMD);
+
+    if (StringUtils.equalsIgnoreCase("status", cmd)) {
+      return getNutchStatus();
     }
+    
+    if (StringUtils.equalsIgnoreCase("stop", cmd)) {
+      boolean force = BooleanUtils.toBoolean(getQuery().getFirstValue(Params.FORCE));
+      return stopServer(force);
+    }
+    return "Unknown command " + cmd;
+  }
+
+  private String stopServer(boolean force) throws Exception {
+    if (!canStopServer(force)) {
+      LOG.info("Command 'stop' denied due to unfinished jobs");
+      return "can't stop now";
+    }
+    
+    Thread t = new Thread() {
+      public void run() {
+        try {
+          Thread.sleep(SHUTDOWN_DELAY);
+          NutchApp.server.stop(false);
+          LOG.info("Service stopped.");
+        } catch (Exception e) {
+          LOG.error("Error stopping", e);
+        }
+      }
+    };
+    t.setDaemon(true);
+    t.start();
+    LOG.info("Service shutting down...");
+    return "stopping";
+  }
+
+  private boolean canStopServer(boolean force) throws Exception {
+    return force || NutchApp.server.canStop();
+  }
+
+  private Map<String, Object> getNutchStatus() throws Exception {
+    Map<String, Object> res = Maps.newHashMap();
+    res.put("started", NutchApp.started);
+
+    Map<String, Object> jobs = Maps.newHashMap();
+    jobs.put("all", NutchApp.jobMgr.list(null, State.ANY));
+    jobs.put("running", NutchApp.jobMgr.list(null, State.RUNNING));
+    res.put("jobs", jobs);
+    res.put("confs", NutchApp.confMgr.list());
+    
+    return res;
   }
 }
