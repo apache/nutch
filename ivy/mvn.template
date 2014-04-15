@@ -83,6 +83,11 @@
 			<name>Lewis John McGibbney</name>
 			<email>lewismc@apache.org</email>
 		</developer>
+                <developer>
+                        <id>talat</id>
+                        <name>Talat Uyarer</name>
+                        <email>talat@apache.org</email>
+                </developer>
 	</developers>
         <build>
           <sourceDirectory>src/java</sourceDirectory>
