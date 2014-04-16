@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-1603 ZIP parser complains about truncated PDF file (snagel)
+
 * NUTCH-1720 Duplicate lines in HttpBase.java (Walter Tietze via jnioche)
 
 * NUTCH-1750 Improvement of Fetcher's reportStatus (jnioche)

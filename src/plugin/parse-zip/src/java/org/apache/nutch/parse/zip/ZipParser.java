@@ -64,7 +64,7 @@ public class ZipParser implements Parser {
         return new ParseStatus(ParseStatus.FAILED,
             ParseStatus.FAILED_TRUNCATED, "Content truncated at "
                 + contentInBytes.length
-                + " bytes. Parser can't handle incomplete pdf file.")
+                + " bytes. Parser can't handle incomplete zip file.")
             .getEmptyParseResult(content.getUrl(), getConf());
       }
 
