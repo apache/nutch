@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1743 parsechecker to show outlinks (snagel)
+
 * NUTCH-1732 Better cmd line parsing for NutchServer (Fjodor Vershinin via lewismc)
 
 * NUTCH-1751 Empty anchors should not index (Sertac TURKEL via lewismc)
