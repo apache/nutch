@@ -151,12 +151,6 @@ public class ParserChecker implements Tool {
       System.out.print(entry.getKey());
       LOG.info("\n---------\nParseData\n---------\n");
       System.out.print(parse.getData().toString());
-      LOG.info("---------\nOutlinks\n---------\n");
-      StringBuffer sb = new StringBuffer();
-      for (Outlink l : parse.getData().getOutlinks()) {
-        sb.append("  outlink: ").append(l).append('\n');
-      }
-      System.out.print(sb.toString());
       if (dumpText) {
         LOG.info("---------\nParseText\n---------\n");
         System.out.print(parse.getText());
