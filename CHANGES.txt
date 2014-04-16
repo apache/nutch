@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1603 ZIP parser complains about truncated PDF file (snagel via lewismc)
+
 * NUTCH-1743 parsechecker to show outlinks (snagel)
 
 * NUTCH-1732 Better cmd line parsing for NutchServer (Fjodor Vershinin via lewismc)
