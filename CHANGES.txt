@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-1743 parsechecker to show outlinks (jnioche, snagel)
+
 * NUTCH-1603 ZIP parser complains about truncated PDF file (snagel)
 
 * NUTCH-1720 Duplicate lines in HttpBase.java (Walter Tietze via jnioche)
