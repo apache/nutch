@@ -38,35 +38,15 @@
      <connection>http://svn.apache.org/viewvc/nutch</connection>
   </scm>
   <developers>
-		<developer>
-			<id>ab</id>
-			<name>Andrzej Bialecki</name>
-			<email>ab@apache.org</email>
+  		<developer>
+			<id>mattmann</id>
+			<name>Chris A. Mattmann</name>
+			<email>mattmann@apache.org</email>
 		</developer>
-		<developer>
-                        <id>alexis</id>
-                        <name>Alexis Detlegrode</name>
-                        <email>alexis@apache.org</email>
-                </developer>
-                <developer>
-			<id>dogacan</id>
-			<name>Dogacan Güney</name>
-			<email>dogacan@apache.org</email>
-		</developer>
-		<developer>
-                        <id>ferdy</id>
-                        <name>Ferdy Galema</name>
-                        <email>ferdy@apache.org</email>
-                </developer>
                 <developer>
 			<id>jnioche</id>
 			<name>Julien Nioche</name>
 			<email>jnioche@apache.org</email>
-		</developer>
-		<developer>
-			<id>kubes</id>
-			<name>Dennis Kubes</name>
-			<email>kubes@apache.org</email>
 		</developer>
 		<developer>
                         <id>lewismc</id>
@@ -79,14 +59,19 @@
                         <email>markus@apache.org</email>
                 </developer>	
 		<developer>
-			<id>mattmann</id>
-			<name>Chris A. Mattmann</name>
-			<email>mattmann@apache.org</email>
+			<id>fenglu</id>
+			<name>Feng Lu</name>
+			<email>fenglu@apache.org</email>
 		</developer>
 		<developer>
-			<id>siren</id>
-			<name>Sami Siren</name>
-			<email>siren@apache.org</email>
+			<id>kiranch</id>
+			<name>Kiran Chitturi</name>
+			<email>kiranch@apache.org</email>
+		</developer>
+		<developer>
+			<id>tejasp</id>
+			<name>Tejas Patil</name>
+			<email>tejasp@apache.org</email>
 		</developer>
                 <developer>
                         <id>talat</id>
