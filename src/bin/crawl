@@ -70,15 +70,14 @@ timeLimitFetch=180
 addDays=0
 #############################################
 
-# determines whether mode based on presence of job file
-
-mode=local
-if [ -f ../*nutch-*.job ]; then
-    mode=distributed
-fi
-
 bin=`dirname "$0"`
 bin=`cd "$bin"; pwd`
+
+# determines whether mode based on presence of job file
+mode=local
+if [ -f ${bin}/../*nutch*.job ]; then
+    mode=distributed
+fi
 
 # note that some of the options listed here could be set in the 
 # corresponding hadoop site xml param file 
