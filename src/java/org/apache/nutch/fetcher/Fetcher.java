@@ -1116,7 +1116,7 @@ public class Fetcher extends Configured implements Tool,
     float avgPagesSec =  (float) pages.get() / elapsed.floatValue();
     long avgBytesSec =  (bytes.get() /125l) / elapsed.longValue();
 
-    status.append(activeThreads).append(" threads, ");
+    status.append(activeThreads).append(" threads (").append(spinWaiting.get()).append(" waiting), ");
     status.append(fetchQueues.getQueueCount()).append(" queues, ");
     status.append(fetchQueues.getTotalSize()).append(" URLs queued, ");
     status.append(pages).append(" pages, ").append(errors).append(" errors, ");
