@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1700 Remove deprecated code in src/plugin/creativecommons/build.xml (lewismc)
+
 * NUTCH-1761 Crawl script fails to find job file if not started from inside bin dir (David Hosking, jnioche)
 
 * NUTCH-1603 ZIP parser complains about truncated PDF file (snagel via lewismc)
