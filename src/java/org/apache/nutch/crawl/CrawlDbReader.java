@@ -542,7 +542,7 @@ public class CrawlDbReader implements Closeable {
   public static void main(String[] args) throws IOException {
     CrawlDbReader dbr = new CrawlDbReader();
 
-    if (args.length < 1) {
+    if (args.length < 2) {
       System.err.println("Usage: CrawlDbReader <crawldb> (-stats | -dump <out_dir> | -topN <nnnn> <out_dir> [<min>] | -url <url>)");
       System.err.println("\t<crawldb>\tdirectory name where crawldb is located");
       System.err.println("\t-stats [-sort] \tprint overall statistics to System.out");
