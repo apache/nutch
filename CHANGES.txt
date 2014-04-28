@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-797 URL not properly constructed when link target begins with a "?" (Doug Cook, Robert Hohman, Stondet, ab via snagel)
+
 * NUTCH-1759 Upgrade to Crawler Commons 0.4 (jnioche)
 
 * NUTCH-1700 Remove deprecated code in src/plugin/creativecommons/build.xml (lewismc)

@@ -25,6 +25,7 @@ import java.util.HashMap;
 
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.util.NodeWalker;
+import org.apache.nutch.util.URLUtil;
 import org.apache.hadoop.conf.Configuration;
 
 import org.w3c.dom.*;
@@ -338,7 +339,7 @@ public class DOMContentUtils {
       target += params;
     }
     
-    return new URL(base, target);
+    return URLUtil.resolveURL(base, target);
   }
 
   /**
@@ -398,7 +399,7 @@ public class DOMContentUtils {
               try {
                 
                 URL url = (base.toString().indexOf(';') > 0) ? 
-                  fixEmbeddedParams(base, target) :  new URL(base, target);
+                  fixEmbeddedParams(base, target) :  URLUtil.resolveURL(base, target);
                 outlinks.add(new Outlink(url.toString(),
                                          linkText.toString().trim()));
               } catch (MalformedURLException e) {

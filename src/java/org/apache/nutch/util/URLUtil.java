@@ -27,6 +27,54 @@ import org.apache.nutch.util.domain.DomainSuffixes;
 /** Utility class for URL analysis */
 public class URLUtil {
 
+  /**
+   * Resolve relative URL-s and fix a few java.net.URL errors
+   * in handling of URLs with embedded params and pure query
+   * targets.
+   * @param base base url
+   * @param target target url (may be relative)
+   * @return resolved absolute url.
+   * @throws MalformedURLException
+   */
+  public static URL resolveURL(URL base, String target)
+          throws MalformedURLException {
+    target = target.trim();
+
+    // handle the case that there is a target that is a pure query,
+    // for example
+    // http://careers3.accenture.com/Careers/ASPX/Search.aspx?co=0&sk=0
+    // It has urls in the page of the form href="?co=0&sk=0&pg=1", and by
+    // default
+    // URL constructs the base+target combo as
+    // http://careers3.accenture.com/Careers/ASPX/?co=0&sk=0&pg=1, incorrectly
+    // dropping the Search.aspx target
+    //
+    // Browsers handle these just fine, they must have an exception similar to
+    // this
+    if (target.startsWith("?")) {
+      return fixPureQueryTargets(base, target);
+    }
+
+    return new URL(base, target);
+  }
+
+  /** Handle the case in RFC3986 section 5.4.1 example 7, and similar. */
+   static URL fixPureQueryTargets(URL base, String target)
+          throws MalformedURLException {
+    if (!target.startsWith("?")) return new URL(base, target);
+
+    String basePath = base.getPath();
+    String baseRightMost = "";
+    int baseRightMostIdx = basePath.lastIndexOf("/");
+    if (baseRightMostIdx != -1) {
+      baseRightMost = basePath.substring(baseRightMostIdx + 1);
+    }
+
+    if (target.startsWith("?")) target = baseRightMost + target;
+
+    return new URL(base, target);
+  }
+
   private static Pattern IP_PATTERN = Pattern.compile("(\\d{1,3}\\.){3}(\\d{1,3})");
 
   /** Returns the domain name of the url. The domain name of a url is
