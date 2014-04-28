@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-1759 Upgrade to Crawler Commons 0.4 (jnioche)
+
 * NUTCH-1764 readdb to show command-line help if no action (-stats, -dump, etc.) given (Diaa via snagel)
 
 * NUTCH-1700 Remove deprecated code from creativecommons plugin (lewismc)

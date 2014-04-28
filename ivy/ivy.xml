@@ -72,7 +72,7 @@
 
 		<dependency org="com.google.guava" name="guava" rev="11.0.2" />
 		<dependency org="com.google.code.crawler-commons" name="crawler-commons"
-			rev="0.3" />
+			rev="0.4" />
 
 		<!--Configuration: test -->
 
