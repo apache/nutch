@@ -154,9 +154,6 @@ public abstract class HttpBase implements Protocol {
 
       if (code == 200) { // got a good response
         return new ProtocolOutput(c); // return it
-      } else if (code == 410) { // page is gone
-        return new ProtocolOutput(c,
-            ProtocolStatusUtils.makeStatus(ProtocolStatusCodes.GONE, "Http: " + code + " url=" + url));
       } else if (code >= 300 && code < 400) { // handle redirect
         String location = response.getHeader("Location");
         // some broken servers, such as MS IIS, use lowercase header name...
@@ -198,7 +195,7 @@ public abstract class HttpBase implements Protocol {
             ProtocolStatusUtils.makeStatus(ProtocolStatusCodes.NOTFOUND, u));
       } else if (code == 410) { // permanently GONE
         return new ProtocolOutput(c,
-            ProtocolStatusUtils.makeStatus(ProtocolStatusCodes.GONE, u));
+            ProtocolStatusUtils.makeStatus(ProtocolStatusCodes.GONE, "Http: " + code + " url=" + u));
       } else {
         return new ProtocolOutput(c,
             ProtocolStatusUtils.makeStatus(ProtocolStatusCodes.EXCEPTION, "Http code=" + code + ", url="
