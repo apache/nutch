@@ -24,6 +24,7 @@ import java.util.Map.Entry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.indexer.CleaningJob;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.indexer.IndexWriter;
 import org.apache.solr.client.solrj.SolrServer;
@@ -112,6 +113,7 @@ public class SolrIndexWriter implements IndexWriter {
   public void setConf(Configuration conf) {
     config = conf;
     String serverURL = conf.get(SolrConstants.SERVER_URL);
+    delete = config.getBoolean(CleaningJob.ARG_COMMIT, false);
     if (serverURL == null) {
       String message = "Missing SOLR URL. Should be set via -D "
           + SolrConstants.SERVER_URL;
