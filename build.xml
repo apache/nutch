@@ -876,6 +876,10 @@
       <include name="*.jar" />
       <exclude name="ant-eclipse-1.0-jvm1.2.jar" />
     </fileset>
+  	
+  	<fileset dir="${build.plugins}" >
+  	 	<include name="**/*.jar"/>
+  	 </fileset>
   </path>
   
   <!-- target: ant-eclipse-download   =================================== -->
@@ -913,19 +917,7 @@
         <library path="${conf.dir}" exported="false" />
         <library path="${basedir}/src/bin" exported="false" />
         <library pathref="eclipse.classpath" exported="false" />
-        <library path="${basedir}/build/plugins/urlfilter-automaton/automaton-1.11-8.jar" 
-                 exported="false" />
-        <library path="${basedir}/src/plugin/parse-swf/lib/javaswf.jar" 
-                 exported="false" />
-        <library path="${basedir}/build/plugins/lib-nekohtml/nekohtml-1.9.19.jar" 
-                 exported="false" />
-        <library path="${basedir}/build/plugins/parse-html/tagsoup-1.2.jar" 
-                 exported="false" />
-        <library path="${basedir}/build/plugins/protocol-sftp/jsch-0.1.41.jar" 
-                 exported="false" />         
-        <library path="${basedir}/build/plugins/parse-html/tagsoup-1.2.jar" 
-                 exported="false" />
-
+       
         <source path="${basedir}/src/java/" />
         <source path="${basedir}/src/test/" />
         <source path="${basedir}/src/plugin/creativecommons/src/java/" />

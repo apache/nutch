@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1753 Eclipse dependecy problem for 2.x (talat)
+
 * NUTCH-1720 Duplicate lines in HttpBase.java (Walter Tietze via jnioche)
 
 * NUTCH-797 URL not properly constructed when link target begins with a "?" (Doug Cook, Robert Hohman, Stondet, ab via snagel)
