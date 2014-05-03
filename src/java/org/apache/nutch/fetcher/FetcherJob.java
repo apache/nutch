@@ -183,6 +183,10 @@ public class FetcherJob extends NutchTool implements Tool {
     LOG.info("FetcherJob : timelimit set for : " + getConf().getLong("fetcher.timelimit", -1));
     numJobs = 1;
     currentJob = new NutchJob(getConf(), "fetch");
+    
+    // for politeness, don't permit parallel execution of a single task
+    currentJob.setReduceSpeculativeExecution(false);
+    
     Collection<WebPage.Field> fields = getFields(currentJob);
     StorageUtils.initMapperJob(currentJob, fields, IntWritable.class,
         FetchEntry.class, FetcherMapper.class, FetchEntryPartitioner.class, false);
