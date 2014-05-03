@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1657 ORIGINAL_CHAR_ENCODING and CHAR_ENCODING_FOR_CONVERSION never set in HTMLParser (talat)
+
 * NUTCH-1725 CleaningJob's reducer does not commit deleted docs. (ilhamikalkan via talat)
 
 * NUTCH-1728 indexer-solr plugin is not delete docs from Solr (ilhamikalkan via talat)

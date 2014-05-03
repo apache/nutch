@@ -179,7 +179,6 @@ public class HtmlParser implements Parser {
     String text = "";
     String title = "";
     Outlink[] outlinks = new Outlink[0];
-    Metadata metadata = new Metadata();
 
     // parse the content
     DocumentFragment root;
@@ -193,8 +192,8 @@ public class HtmlParser implements Parser {
       detector.addClue(sniffCharacterEncoding(contentInOctets), "sniffed");
       String encoding = detector.guessEncoding(page, defaultCharEncoding);
 
-      metadata.set(Metadata.ORIGINAL_CHAR_ENCODING, encoding);
-      metadata.set(Metadata.CHAR_ENCODING_FOR_CONVERSION, encoding);
+      page.putToMetadata(new Utf8(Metadata.ORIGINAL_CHAR_ENCODING), ByteBuffer.wrap(Bytes.toBytes(encoding)));
+      page.putToMetadata(new Utf8(Metadata.CHAR_ENCODING_FOR_CONVERSION), ByteBuffer.wrap(Bytes.toBytes(encoding)));
 
       input.setEncoding(encoding);
       if (LOG.isTraceEnabled()) { LOG.trace("Parsing..."); }
