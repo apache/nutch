@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1182 fetcher to log hung threads (snagel)
+
 * NUTCH-1618 Turn speculative execution off for Fetching (talat)
 
 * NUTCH-1657 ORIGINAL_CHAR_ENCODING and CHAR_ENCODING_FOR_CONVERSION never set in HTMLParser (talat)

@@ -871,7 +871,24 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
       
       // some requests seem to hang, despite all intentions
       if ((System.currentTimeMillis() - lastRequestStart.get()) > timeout) {
-        LOG.warn("Aborting with " + activeThreads + " hung threads.");
+        if (LOG.isWarnEnabled() && activeThreads.get() > 0) {
+          LOG.warn("Aborting with " + activeThreads + " hung threads.");
+          for (int i = 0; i < fetcherThreads.size(); i++) {
+            FetcherThread thread = fetcherThreads.get(i);
+            if (thread.isAlive()) {
+              LOG.warn("Thread #" + i + " hung while processing " + thread.reprUrl);
+              if (LOG.isDebugEnabled()) {
+                StackTraceElement[] stack = thread.getStackTrace();
+                StringBuilder sb = new StringBuilder();
+                sb.append("Stack of thread #").append(i).append(":\n");
+                for (StackTraceElement s : stack) {
+                  sb.append(s.toString()).append('\n');
+                }
+                LOG.debug(sb.toString());
+              }
+            }
+          }
+        }
         return;
       }
 
