@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-1182 fetcher to log hung threads (snagel)
+
 * NUTCH-1759 Upgrade to Crawler Commons 0.4 (jnioche)
 
 * NUTCH-1764 readdb to show command-line help if no action (-stats, -dump, etc.) given (Diaa via snagel)

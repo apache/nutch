@@ -133,6 +133,8 @@ public class Fetcher extends Configured implements Tool,
   FetchItemQueues fetchQueues;
   QueueFeeder feeder;
 
+  LinkedList<FetcherThread> fetcherThreads = new LinkedList<FetcherThread>();
+
   /**
    * This class described the item to be fetched.
    */
@@ -1178,7 +1180,9 @@ public class Fetcher extends Configured implements Tool,
     getConf().setBoolean(Protocol.CHECK_ROBOTS, false);
 
     for (int i = 0; i < threadCount; i++) {       // spawn threads
-      new FetcherThread(getConf()).start();
+      FetcherThread t = new FetcherThread(getConf());
+      fetcherThreads.add(t);
+      t.start();
     }
 
     // select a timeout that avoids a task timeout
@@ -1254,6 +1258,21 @@ public class Fetcher extends Configured implements Tool,
       if ((System.currentTimeMillis() - lastRequestStart.get()) > timeout) {
         if (LOG.isWarnEnabled()) {
           LOG.warn("Aborting with "+activeThreads+" hung threads.");
+          for (int i = 0; i < fetcherThreads.size(); i++) {
+            FetcherThread thread = fetcherThreads.get(i);
+            if (thread.isAlive()) {
+              LOG.warn("Thread #" + i + " hung while processing " + thread.reprUrl);
+              if (LOG.isDebugEnabled()) {
+                StackTraceElement[] stack = thread.getStackTrace();
+                StringBuilder sb = new StringBuilder();
+                sb.append("Stack of thread #").append(i).append(":\n");
+                for (StackTraceElement s : stack) {
+                  sb.append(s.toString()).append('\n');
+                }
+                LOG.debug(sb.toString());
+              }
+            }
+          }
         }
         return;
       }
