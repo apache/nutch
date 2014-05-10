@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-207 Bandwidth target for fetcher rather than a thread count (jnioche)
+
 * NUTCH-1182 fetcher to log hung threads (snagel)
 
 * NUTCH-1759 Upgrade to Crawler Commons 0.4 (jnioche)

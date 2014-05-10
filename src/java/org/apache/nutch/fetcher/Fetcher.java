@@ -595,6 +595,8 @@ public class Fetcher extends Configured implements Tool,
 
     private int outlinksDepthDivisor;
     private boolean skipTruncated;
+    
+    private boolean halted = false;
 
     public FetcherThread(Configuration conf) {
       this.setDaemon(true);                       // don't hang JVM on exit
@@ -637,6 +639,13 @@ public class Fetcher extends Configured implements Tool,
       try {
 
         while (true) {
+          // check whether must be stopped
+          if (isHalted()) {
+            LOG.debug(getName() + " set to halted");
+            fit = null;
+            return;
+          }
+          
           fit = fetchQueues.getFetchItem();
           if (fit == null) {
             if (feeder.isAlive() || fetchQueues.getTotalSize() > 0) {
@@ -650,6 +659,7 @@ public class Fetcher extends Configured implements Tool,
               continue;
             } else {
               // all done, finish this thread
+              LOG.info("Thread " + getName() + " has no more work available");
               return;
             }
           }
@@ -666,8 +676,8 @@ public class Fetcher extends Configured implements Tool,
             redirecting = false;
             redirectCount = 0;
             do {
-              if (LOG.isInfoEnabled()) {
-                LOG.info("fetching " + fit.url + " (queue crawl delay=" + 
+              if (LOG.isDebugEnabled()) {
+                LOG.debug("fetching " + fit.url + " (queue crawl delay=" + 
                          fetchQueues.getFetchItemQueue(fit.queueID).crawlDelay + "ms)"); 
               }
               if (LOG.isDebugEnabled()) {
@@ -1099,6 +1109,14 @@ public class Fetcher extends Configured implements Tool,
       return null;
     }
 
+    public synchronized void setHalted(boolean halted) {
+      this.halted = halted;
+    }
+
+    public synchronized boolean isHalted() {
+      return halted;
+    }
+    
   }
 
   public Fetcher() { super(null); }
@@ -1201,7 +1219,24 @@ public class Fetcher extends Configured implements Tool,
     int throughputThresholdMaxRetries = getConf().getInt("fetcher.throughput.threshold.retries", 5);
     if (LOG.isInfoEnabled()) { LOG.info("Fetcher: throughput threshold retries: " + throughputThresholdMaxRetries); }
     long throughputThresholdTimeLimit = getConf().getLong("fetcher.throughput.threshold.check.after", -1);
-
+    
+    int targetBandwidth = getConf().getInt("fetcher.bandwidth.target", -1) * 1000;
+    int maxNumThreads = getConf().getInt("fetcher.maxNum.threads", threadCount);
+    if (maxNumThreads < threadCount){
+      LOG.info("fetcher.maxNum.threads can't be < than "+ threadCount + " : using "+threadCount+" instead");
+      maxNumThreads = threadCount;
+    }
+    int bandwidthTargetCheckEveryNSecs  = getConf().getInt("fetcher.bandwidth.target.check.everyNSecs", 30);
+    if (bandwidthTargetCheckEveryNSecs < 1){
+      LOG.info("fetcher.bandwidth.target.check.everyNSecs can't be < to 1 : using 1 instead");
+      bandwidthTargetCheckEveryNSecs = 1;
+    }
+    
+    int maxThreadsPerQueue = getConf().getInt("fetcher.threads.per.queue", 1);
+    
+    int bandwidthTargetCheckCounter = 0;
+    long bytesAtLastBWTCheck = 0l;
+    
     do {                                          // wait for threads to exit
       pagesLastSec = pages.get();
       bytesLastSec = (int)bytes.get();
@@ -1218,7 +1253,7 @@ public class Fetcher extends Configured implements Tool,
       reportStatus(pagesLastSec, bytesLastSec);
 
       LOG.info("-activeThreads=" + activeThreads + ", spinWaiting=" + spinWaiting.get()
-          + ", fetchQueues.totalSize=" + fetchQueues.getTotalSize());
+          + ", fetchQueues.totalSize=" + fetchQueues.getTotalSize()+ ", fetchQueues.getQueueCount="+fetchQueues.getQueueCount());
 
       if (!feeder.isAlive() && fetchQueues.getTotalSize() < 5) {
         fetchQueues.dump();
@@ -1243,6 +1278,57 @@ public class Fetcher extends Configured implements Tool,
 
             if (hitByThrougputThreshold != 0) reporter.incrCounter("FetcherStatus",
               "hitByThrougputThreshold", hitByThrougputThreshold);
+          }
+        }
+      }
+      
+      // adjust the number of threads if a target bandwidth has been set
+      if (targetBandwidth>0) {
+        if (bandwidthTargetCheckCounter < bandwidthTargetCheckEveryNSecs) bandwidthTargetCheckCounter++;
+        else if (bandwidthTargetCheckCounter == bandwidthTargetCheckEveryNSecs){  	
+          long bpsSinceLastCheck = ((bytes.get() - bytesAtLastBWTCheck) * 8)/bandwidthTargetCheckEveryNSecs;
+
+          bytesAtLastBWTCheck = bytes.get();
+          bandwidthTargetCheckCounter = 0;
+
+          int averageBdwPerThread = 0;
+          if (activeThreads.get()>0)
+            averageBdwPerThread = Math.round(bpsSinceLastCheck/activeThreads.get());   
+
+          LOG.info("averageBdwPerThread : "+(averageBdwPerThread/1000) + " kbps");
+
+          if (bpsSinceLastCheck < targetBandwidth && averageBdwPerThread > 0){
+            // check whether it is worth doing e.g. more queues than threads
+
+            if ((fetchQueues.getQueueCount() * maxThreadsPerQueue) > activeThreads.get()){
+             
+              long remainingBdw = targetBandwidth - bpsSinceLastCheck;
+              int additionalThreads = Math.round(remainingBdw/averageBdwPerThread);
+              int availableThreads = maxNumThreads - activeThreads.get();
+
+              // determine the number of available threads (min between availableThreads and additionalThreads)
+              additionalThreads = (availableThreads < additionalThreads ? availableThreads:additionalThreads);
+              LOG.info("Has space for more threads ("+(bpsSinceLastCheck/1000) +" vs "+(targetBandwidth/1000)+" kbps) \t=> adding "+additionalThreads+" new threads");
+              // activate new threads
+              for (int i = 0; i < additionalThreads; i++) {
+                FetcherThread thread = new FetcherThread(getConf());
+                fetcherThreads.add(thread);
+                thread.start();
+              }
+            }
+          }
+          else if (bpsSinceLastCheck > targetBandwidth && averageBdwPerThread > 0){
+            // if the bandwidth we're using is greater then the expected bandwidth, we have to stop some threads
+            long excessBdw = bpsSinceLastCheck - targetBandwidth;
+            int excessThreads = Math.round(excessBdw/averageBdwPerThread);
+            LOG.info("Exceeding target bandwidth ("+bpsSinceLastCheck/1000 +" vs "+(targetBandwidth/1000)+" kbps). \t=> excessThreads = "+excessThreads);
+            // keep at least one
+            if (excessThreads >= fetcherThreads.size()) excessThreads = 0;
+            // de-activates threads
+            for (int i = 0; i < excessThreads; i++) {
+              FetcherThread thread = fetcherThreads.removeLast();
+              thread.setHalted(true);
+            }
           }
         }
       }

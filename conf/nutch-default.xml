@@ -838,6 +838,28 @@
   </description>
 </property>
 
+<property>
+  <name>fetcher.bandwidth.target</name>
+  <value>-1</value>  
+  <description>Target bandwidth in kilobits per sec for each mapper instance. This is used to adjust the number of 
+  fetching threads automatically (up to fetcher.maxNum.threads). A value of -1 deactivates the functionality, in which case
+  the number of fetching threads is fixed (see fetcher.threads.fetch).</description>
+</property>
+
+<property>
+  <name>fetcher.maxNum.threads</name>
+  <value>25</value>  
+  <description>Max number of fetch threads allowed when using fetcher.bandwidth.target. Defaults to fetcher.threads.fetch if unspecified or
+  set to a value lower than it. </description>
+</property>
+
+<property>
+  <name>fetcher.bandwidth.target.check.everyNSecs</name>
+  <value>30</value>  
+  <description>(EXPERT) Value in seconds which determines how frequently we should reassess the optimal number of fetch threads when using
+   fetcher.bandwidth.target. Defaults to 30 and must be at least 1.</description>
+</property>
+
 <!-- moreindexingfilter plugin properties -->
 
 <property>
