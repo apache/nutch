@@ -48,23 +48,38 @@ public class HttpRobotRulesParser extends RobotRulesParser {
     allowForbidden = conf.getBoolean("http.robots.403.allow", false);
   }
 
+  /** Compose unique key to store and access robot rules in cache for given URL */
+  protected static String getCacheKey(URL url) {
+    String protocol = url.getProtocol().toLowerCase();  // normalize to lower case
+    String host = url.getHost().toLowerCase();          // normalize to lower case
+    int port = url.getPort();
+    if (port == -1) {
+      port = url.getDefaultPort();
+    }
+   /* Robot rules apply only to host, protocol, and port where robots.txt is
+    * hosted (cf. NUTCH-1752). Consequently  */
+    String cacheKey = protocol + ":" + host + ":" + port;
+    return cacheKey;
+  }
+
   /**
-   * The hosts for which the caching of robots rules is yet to be done,
-   * it sends a Http request to the host corresponding to the {@link URL} 
-   * passed, gets robots file, parses the rules and caches the rules object
-   * to avoid re-work in future.
+   * Get the rules from robots.txt which applies for the given {@code url}.
+   * Robot rules are cached for a unique combination of host, protocol, and
+   * port. If no rules are found in the cache, a HTTP request is send to fetch
+   * {{protocol://host:port/robots.txt}}. The robots.txt is then parsed and the
+   * rules are cached to avoid re-fetching and re-parsing it again.
    * 
-   *  @param http The {@link Protocol} object
-   *  @param url URL 
-   *  
-   *  @return robotRules A {@link BaseRobotRules} object for the rules
+   * @param http
+   *          The {@link Protocol} object
+   * @param url
+   *          URL robots.txt applies to
+   *
+   * @return {@link BaseRobotRules} holding the rules from robots.txt
    */
   public BaseRobotRules getRobotRulesSet(Protocol http, URL url) {
 
-    String protocol = url.getProtocol().toLowerCase();  // normalize to lower case
-    String host = url.getHost().toLowerCase();          // normalize to lower case
-
-    BaseRobotRules robotRules = (SimpleRobotRules)CACHE.get(protocol + ":" + host);
+    String cacheKey = getCacheKey(url);
+    BaseRobotRules robotRules = (SimpleRobotRules) CACHE.get(cacheKey);
 
     boolean cacheRule = true;
     
@@ -114,10 +129,10 @@ public class HttpRobotRulesParser extends RobotRulesParser {
       }
 
       if (cacheRule) {
-        CACHE.put(protocol + ":" + host, robotRules);  // cache rules for host
-        if (redir != null && !redir.getHost().equals(host)) {
+        CACHE.put(cacheKey, robotRules);  // cache rules for host
+        if (redir != null && !redir.getHost().equalsIgnoreCase(url.getHost())) {
           // cache also for the redirected host
-          CACHE.put(protocol + ":" + redir.getHost(), robotRules);
+          CACHE.put(getCacheKey(redir), robotRules);
         }
       }
     }
