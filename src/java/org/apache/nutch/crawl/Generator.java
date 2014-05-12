@@ -547,6 +547,8 @@ public class Generator extends Configured implements Tool {
     try {
       JobClient.runJob(job);
     } catch (IOException e) {
+      LockUtil.removeLockFile(fs, lock);
+      fs.delete(tempDir, true);
       throw e;
     }
 
