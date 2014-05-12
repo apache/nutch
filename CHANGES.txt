@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1613 Timeouts in protocol-httpclient when crawling same host with >2 threads (brian44 via jnioche)
+
 * NUTCH-1182 fetcher to log hung threads (snagel)
 
 * NUTCH-1618 Turn speculative execution off for Fetching (talat)
