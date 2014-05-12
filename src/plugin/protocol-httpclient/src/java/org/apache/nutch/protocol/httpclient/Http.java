@@ -80,7 +80,7 @@ public class Http extends HttpBase {
   private static boolean authRulesRead = false;
   private static Configuration conf;
 
-  int maxThreadsTotal = 10;
+  private int maxThreadsTotal = 10;
 
   private String proxyUsername;
   private String proxyPassword;
@@ -170,6 +170,10 @@ public class Http extends HttpBase {
     params.setSendBufferSize(BUFFER_SIZE);
     params.setReceiveBufferSize(BUFFER_SIZE);
     params.setMaxTotalConnections(maxThreadsTotal);
+    
+    //Also set max connections per host to maxThreadsTotal since all threads
+    //might be used to fetch from the same host - otherwise timeout errors can occur
+    params.setDefaultMaxConnectionsPerHost(maxThreadsTotal);
 
     // executeMethod(HttpMethod) seems to ignore the connection timeout on the connection manager.
     // set it explicitly on the HttpClient.
