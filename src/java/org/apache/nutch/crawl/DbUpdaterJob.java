@@ -22,6 +22,9 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.avro.util.Utf8;
+import org.apache.gora.filter.FilterOp;
+import org.apache.gora.filter.MapFieldValueFilter;
+import org.apache.gora.filter.SingleFieldValueFilter;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -30,6 +33,7 @@ import org.apache.nutch.crawl.UrlWithScore.UrlScoreComparator;
 import org.apache.nutch.crawl.UrlWithScore.UrlScoreComparator.UrlOnlyComparator;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.scoring.ScoringFilters;
+import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.StorageUtils;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
@@ -103,14 +107,28 @@ public class DbUpdaterJob extends NutchTool implements Tool {
     currentJob.setSortComparatorClass(UrlScoreComparator.class);
     currentJob.setGroupingComparatorClass(UrlOnlyComparator.class);
     
+    MapFieldValueFilter<String, WebPage> batchIdFilter = getBatchIdFilter(batchId);
     StorageUtils.initMapperJob(currentJob, fields, UrlWithScore.class,
-        NutchWritable.class, DbUpdateMapper.class);
+        NutchWritable.class, DbUpdateMapper.class, batchIdFilter);
     StorageUtils.initReducerJob(currentJob, DbUpdateReducer.class);
     currentJob.waitForCompletion(true);
     ToolUtil.recordJobStatus(null, currentJob, results);
     return results;
   }
-  
+
+  private MapFieldValueFilter<String, WebPage> getBatchIdFilter(String batchId) {
+    if (batchId.equals(Nutch.ALL_CRAWL_ID.toString())) {
+      return null;
+    }
+    MapFieldValueFilter<String, WebPage> filter = new MapFieldValueFilter<String, WebPage>();
+    filter.setFieldName(WebPage.Field.MARKERS.toString());
+    filter.setFilterOp(FilterOp.EQUALS);
+    filter.setFilterIfMissing(true);
+    filter.setMapKey(Mark.GENERATE_MARK.getName());
+    filter.getOperands().add(new Utf8(batchId));
+    return filter;
+  }
+
   private int updateTable(String crawlId,String batchId) throws Exception {
     
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

@@ -16,6 +16,7 @@
  ******************************************************************************/
 package org.apache.nutch.storage;
 
+import org.apache.gora.filter.Filter;
 import org.apache.gora.mapreduce.GoraMapper;
 import org.apache.gora.mapreduce.GoraOutputFormat;
 import org.apache.gora.mapreduce.GoraReducer;
@@ -115,15 +116,40 @@ public class StorageUtils {
       Class<K> outKeyClass, Class<V> outValueClass,
       Class<? extends GoraMapper<String, WebPage, K, V>> mapperClass,
       Class<? extends Partitioner<K, V>> partitionerClass, boolean reuseObjects)
-  throws ClassNotFoundException, IOException {
+      throws ClassNotFoundException, IOException {
+    initMapperJob(job, fields, outKeyClass, outValueClass, mapperClass,
+        partitionerClass, null, reuseObjects);
+  }
+
+  public static <K, V> void initMapperJob(Job job,
+      Collection<WebPage.Field> fields, Class<K> outKeyClass,
+      Class<V> outValueClass,
+      Class<? extends GoraMapper<String, WebPage, K, V>> mapperClass,
+      Class<? extends Partitioner<K, V>> partitionerClass,
+      Filter<String, WebPage> filter, boolean reuseObjects)
+      throws ClassNotFoundException, IOException {
     DataStore<String, WebPage> store = createWebStore(job.getConfiguration(),
         String.class, WebPage.class);
-    if (store==null) throw new RuntimeException("Could not create datastore");
+    if (store == null)
+      throw new RuntimeException("Could not create datastore");
     Query<String, WebPage> query = store.newQuery();
     query.setFields(toStringArray(fields));
-    GoraMapper.initMapperJob(job, query, store,
-        outKeyClass, outValueClass, mapperClass, partitionerClass, reuseObjects);
+    if (filter != null) {
+      query.setFilter(filter);
+    }
+    GoraMapper.initMapperJob(job, query, store, outKeyClass, outValueClass,
+        mapperClass, partitionerClass, reuseObjects);
     GoraOutputFormat.setOutput(job, store, true);
+  }
+
+  public static <K, V> void initMapperJob(Job job,
+      Collection<WebPage.Field> fields, Class<K> outKeyClass,
+      Class<V> outValueClass,
+      Class<? extends GoraMapper<String, WebPage, K, V>> mapperClass,
+      Filter<String, WebPage> filter) throws ClassNotFoundException,
+      IOException {
+    initMapperJob(job, fields, outKeyClass, outValueClass, mapperClass, null,
+        filter, true);
   }
 
   public static <K, V> void initReducerJob(Job job,

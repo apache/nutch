@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.avro.util.Utf8;
+import org.apache.gora.filter.MapFieldValueFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -47,6 +48,8 @@ import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.TableUtil;
 import org.apache.nutch.util.TimingUtil;
 import org.apache.nutch.util.ToolUtil;
+import org.apache.gora.filter.FilterOp;
+import org.apache.gora.filter.SingleFieldValueFilter;
 import org.apache.gora.mapreduce.GoraMapper;
 
 public class ParserJob extends NutchTool implements Tool {
@@ -102,14 +105,14 @@ public class ParserJob extends NutchTool implements Tool {
     @Override
     public void map(String key, WebPage page, Context context)
         throws IOException, InterruptedException {
-      CharSequence mark = Mark.FETCH_MARK.checkMark(page);
       String unreverseKey = TableUtil.unreverseUrl(key);
       if (batchId.equals(REPARSE)) {
         LOG.debug("Reparsing " + unreverseKey);
       } else {
-        if (!NutchJob.shouldProcess(mark, batchId)) {
+        if (Mark.FETCH_MARK.checkMark(page) == null) {
           if (LOG.isDebugEnabled()) {
-            LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; different batch id (" + mark + ")");
+            LOG.debug("Skipping " + TableUtil.unreverseUrl(key)
+                + "; not fetched yet");
           }
           return;
         }
@@ -247,14 +250,29 @@ public class ParserJob extends NutchTool implements Tool {
     currentJob = new NutchJob(getConf(), "parse");
     
     Collection<WebPage.Field> fields = getFields(currentJob);
-    StorageUtils.initMapperJob(currentJob, fields, String.class, WebPage.class,
-        ParserMapper.class);
+    MapFieldValueFilter<String, WebPage> batchIdFilter = getBatchIdFilter(batchId);
+	StorageUtils.initMapperJob(currentJob, fields, String.class, WebPage.class,
+        ParserMapper.class, batchIdFilter);
     StorageUtils.initReducerJob(currentJob, IdentityPageReducer.class);
     currentJob.setNumReduceTasks(0);
 
     currentJob.waitForCompletion(true);
     ToolUtil.recordJobStatus(null, currentJob, results);
     return results;
+  }
+
+  private MapFieldValueFilter<String, WebPage> getBatchIdFilter(String batchId) {
+    if (batchId.equals(REPARSE.toString())
+        || batchId.equals(Nutch.ALL_CRAWL_ID.toString())) {
+      return null;
+    }
+    MapFieldValueFilter<String, WebPage> filter = new MapFieldValueFilter<String, WebPage>();
+    filter.setFieldName(WebPage.Field.MARKERS.toString());
+    filter.setFilterOp(FilterOp.EQUALS);
+    filter.setFilterIfMissing(true);
+    filter.setMapKey(Mark.FETCH_MARK.getName());
+    filter.getOperands().add(new Utf8(batchId));
+    return filter;
   }
 
   public int parse(String batchId, boolean shouldResume, boolean force) throws Exception {

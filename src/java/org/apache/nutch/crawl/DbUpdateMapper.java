@@ -55,15 +55,13 @@ extends GoraMapper<String, WebPage, UrlWithScore, NutchWritable> {
   @Override
   public void map(String key, WebPage page, Context context)
   throws IOException, InterruptedException {
-
-    Utf8 mark = Mark.GENERATE_MARK.checkMark(page);
-    if(!NutchJob.shouldProcess(mark,batchId)) {
+   if(Mark.GENERATE_MARK.checkMark(page) == null) {
       if (LOG.isDebugEnabled()) {
-        LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; different batch id (" + mark + ")");
+        LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; not generated yet");
       }
       return;
     }
-
+  
     String url = TableUtil.unreverseUrl(key);
 
     scoreData.clear();

@@ -26,6 +26,8 @@ import java.util.Random;
 import java.util.StringTokenizer;
 
 import org.apache.avro.util.Utf8;
+import org.apache.gora.filter.FilterOp;
+import org.apache.gora.filter.MapFieldValueFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -109,10 +111,10 @@ public class FetcherJob extends NutchTool implements Tool {
     @Override
     protected void map(String key, WebPage page, Context context)
         throws IOException, InterruptedException {
-      Utf8 mark = Mark.GENERATE_MARK.checkMark(page);
-      if (!NutchJob.shouldProcess(mark, batchId)) {
+      if (Mark.GENERATE_MARK.checkMark(page) == null) {
         if (LOG.isDebugEnabled()) {
-          LOG.debug("Skipping " + TableUtil.unreverseUrl(key) + "; different batch id (" + mark + ")");
+          LOG.debug("Skipping " + TableUtil.unreverseUrl(key)
+              + "; not generated yet");
         }
         return;
       }
@@ -188,8 +190,10 @@ public class FetcherJob extends NutchTool implements Tool {
     currentJob.setReduceSpeculativeExecution(false);
     
     Collection<WebPage.Field> fields = getFields(currentJob);
+    MapFieldValueFilter<String, WebPage> batchIdFilter = getBatchIdFilter(batchId);
     StorageUtils.initMapperJob(currentJob, fields, IntWritable.class,
-        FetchEntry.class, FetcherMapper.class, FetchEntryPartitioner.class, false);
+        FetchEntry.class, FetcherMapper.class, FetchEntryPartitioner.class,
+        batchIdFilter, false);
     StorageUtils.initReducerJob(currentJob, FetcherReducer.class);
     if (numTasks == null || numTasks < 1) {
       currentJob.setNumReduceTasks(currentJob.getConfiguration().getInt("mapred.map.tasks",
@@ -202,7 +206,20 @@ public class FetcherJob extends NutchTool implements Tool {
     return results;
   }
 
-  /**
+  private MapFieldValueFilter<String, WebPage> getBatchIdFilter(String batchId) {
+    if (batchId.equals(Nutch.ALL_CRAWL_ID.toString())) {
+      return null;
+    }
+    MapFieldValueFilter<String, WebPage> filter = new MapFieldValueFilter<String, WebPage>();
+    filter.setFieldName(WebPage.Field.MARKERS.toString());
+    filter.setFilterOp(FilterOp.EQUALS);
+    filter.setFilterIfMissing(true);
+    filter.setMapKey(Mark.GENERATE_MARK.getName());
+    filter.getOperands().add(new Utf8(batchId));
+    return filter;
+  }
+
+    /**
    * Run fetcher.
    * @param batchId batchId (obtained from Generator) or null to fetch all generated fetchlists
    * @param threads number of threads per map task

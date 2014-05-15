@@ -22,6 +22,8 @@ import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.avro.util.Utf8;
+import org.apache.gora.filter.FilterOp;
+import org.apache.gora.filter.MapFieldValueFilter;
 import org.apache.gora.mapreduce.GoraMapper;
 import org.apache.gora.mapreduce.StringComparator;
 import org.apache.gora.store.DataStore;
@@ -99,14 +101,12 @@ public class IndexingJob extends NutchTool implements Tool {
       }
 
       Utf8 mark = Mark.UPDATEDB_MARK.checkMark(page);
-      if (!batchId.equals(REINDEX)) {
-        if (!NutchJob.shouldProcess(mark, batchId)) {
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Skipping " + TableUtil.unreverseUrl(key)
-                + "; different batch id (" + mark + ")");
-          }
-          return;
+      if (mark == null) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Skipping " + TableUtil.unreverseUrl(key)
+              + "; not updated on db yet");
         }
+        return;
       }
 
       NutchDocument doc = indexUtil.index(key, page);
@@ -145,14 +145,29 @@ public class IndexingJob extends NutchTool implements Tool {
         StringComparator.class, RawComparator.class);
 
     Collection<WebPage.Field> fields = getFields(job);
+    MapFieldValueFilter<String, WebPage> batchIdFilter = getBatchIdFilter(batchId);
     StorageUtils.initMapperJob(job, fields, String.class, NutchDocument.class,
-        IndexerMapper.class);
+        IndexerMapper.class, batchIdFilter);
     job.setNumReduceTasks(0);
     job.setOutputFormatClass(IndexerOutputFormat.class);
 
     job.waitForCompletion(true);
     ToolUtil.recordJobStatus(null, job, results);
     return results;
+  }
+
+  private MapFieldValueFilter<String, WebPage> getBatchIdFilter(String batchId) {
+    if (batchId.equals(REINDEX.toString())
+        || batchId.equals(Nutch.ALL_CRAWL_ID.toString())) {
+      return null;
+    }
+    MapFieldValueFilter<String, WebPage> filter = new MapFieldValueFilter<String, WebPage>();
+    filter.setFieldName(WebPage.Field.MARKERS.toString());
+    filter.setFilterOp(FilterOp.EQUALS);
+    filter.setFilterIfMissing(true);
+    filter.setMapKey(Mark.UPDATEDB_MARK.getName());
+    filter.getOperands().add(new Utf8(batchId));
+    return filter;
   }
 
   public void index(String batchId) throws Exception {

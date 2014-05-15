@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1674 Use batchId filter to enable scan (GORA-119) for Fetch,Parse,Update,Index (Tien Nguyen Manh and Alparslan Avcı via jnioche)
+
 * NUTCH-1714 Upgrade to Gora 0.4 (Alparslan Avcı via jnioche)
 
 * NUTCH-1752 Cache robots.txt rules per protocol:host:port (snagel)

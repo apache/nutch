@@ -55,4 +55,8 @@ public enum Mark {
     }
     return null;
   }
+  
+  public Utf8 getName() {
+	return name;
+  }
 }
