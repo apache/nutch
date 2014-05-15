@@ -17,9 +17,8 @@
 
 package org.apache.nutch.protocol.ftp;
 
-import java.net.URL;
-
-import org.apache.commons.io.IOUtils;
+import crawlercommons.robots.BaseRobotRules;
+import crawlercommons.robots.SimpleRobotRules;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolOutput;
@@ -29,8 +28,7 @@ import org.apache.nutch.storage.WebPage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import crawlercommons.robots.BaseRobotRules;
-import crawlercommons.robots.SimpleRobotRules;
+import java.net.URL;
 
 /**
  * This class is used for parsing robots for urls belonging to FTP protocol.
@@ -75,7 +73,7 @@ public class FtpRobotRulesParser extends RobotRulesParser {
 
       try {
         String robotsUrl = new URL(url, "/robots.txt").toString();        
-        ProtocolOutput output = ((Ftp)ftp).getProtocolOutput(robotsUrl, new WebPage());
+        ProtocolOutput output = ((Ftp)ftp).getProtocolOutput(robotsUrl, WebPage.newBuilder().build());
         int statusCode = output.getStatus().getCode();
 
         if (statusCode == ProtocolStatusCodes.SUCCESS) {

@@ -17,13 +17,13 @@
 
 package org.apache.nutch.util;
 
-import java.io.IOException;
-
 import org.apache.avro.util.Utf8;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.nutch.metadata.Nutch;
+
+import java.io.IOException;
 
 /** A {@link Job} for Nutch jobs. */
 public class NutchJob extends Job {
@@ -58,7 +58,7 @@ public class NutchJob extends Job {
     return succeeded;
   }
 
-  public static boolean shouldProcess(Utf8 mark, Utf8 batchId) {
+  public static boolean shouldProcess(CharSequence mark, Utf8 batchId) {
     if (mark == null) {
       return false;
     }

@@ -16,6 +16,15 @@
  */
 package org.apache.nutch.util;
 
+import com.ibm.icu.text.CharsetDetector;
+import com.ibm.icu.text.CharsetMatch;
+import org.apache.avro.util.Utf8;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.net.protocols.Response;
+import org.apache.nutch.storage.WebPage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayInputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -23,16 +32,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-
-import org.apache.avro.util.Utf8;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.net.protocols.Response;
-import org.apache.nutch.storage.WebPage;
-
-import com.ibm.icu.text.CharsetDetector;
-import com.ibm.icu.text.CharsetMatch;
 
 /**
  * A simple class for detecting character encodings.
@@ -165,10 +164,10 @@ public class EncodingDetector {
 
   public void autoDetectClues(WebPage page, boolean filter) {
     autoDetectClues(page.getContent(), page.getContentType(),
-        parseCharacterEncoding(page.getFromHeaders(CONTENT_TYPE_UTF8)), filter);
+        parseCharacterEncoding(page.getHeaders().get(CONTENT_TYPE_UTF8)), filter);
   }
 
-  private void autoDetectClues(ByteBuffer dataBuffer, Utf8 typeUtf8,
+  private void autoDetectClues(ByteBuffer dataBuffer, CharSequence typeUtf8,
                                String encoding, boolean filter) {
     int length = dataBuffer.remaining();
     String type = TableUtil.toString(typeUtf8);
@@ -224,7 +223,7 @@ public class EncodingDetector {
    * @return Guessed encoding or defaultValue
    */
   public String guessEncoding(WebPage page, String defaultValue) {
-    Utf8 baseUrlUtf8 = page.getBaseUrl();
+    CharSequence baseUrlUtf8 = page.getBaseUrl();
     String baseUrl = TableUtil.toString(baseUrlUtf8);
     return guessEncoding(baseUrl, defaultValue);
   }
@@ -347,9 +346,9 @@ public class EncodingDetector {
    * This method was copied from org.apache.catalina.util.RequestUtil,
    * which is licensed under the Apache License, Version 2.0 (the "License").
    *
-   * @param contentType a content type header
+   * @param contentTypeUtf8
    */
-  public static String parseCharacterEncoding(Utf8 contentTypeUtf8) {
+  public static String parseCharacterEncoding(CharSequence contentTypeUtf8) {
     if (contentTypeUtf8 == null)
       return (null);
     String contentType = contentTypeUtf8.toString();

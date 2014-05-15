@@ -2,47 +2,47 @@
  "type": "record",
  "namespace": "org.apache.nutch.storage",
  "fields": [
-        {"name": "baseUrl", "type": "string"}, 
-        {"name": "status", "type": "int"},
-        {"name": "fetchTime", "type": "long"},
-        {"name": "prevFetchTime", "type": "long"},
-        {"name": "fetchInterval", "type": "int"},
-        {"name": "retriesSinceFetch", "type": "int"},
-        {"name": "modifiedTime", "type": "long"},
-        {"name": "prevModifiedTime", "type": "long"},
-        {"name": "protocolStatus", "type": {
+        {"name": "baseUrl", "type": ["null","string"], "default":null},
+        {"name": "status", "type": "int", "default":0},
+        {"name": "fetchTime", "type": "long", "default":0},
+        {"name": "prevFetchTime", "type": "long", "default":0},
+        {"name": "fetchInterval", "type": "int", "default":0},
+        {"name": "retriesSinceFetch", "type": "int", "default":0},
+        {"name": "modifiedTime", "type": "long", "default":0},
+        {"name": "prevModifiedTime", "type": "long", "default":0},
+        {"name": "protocolStatus", "type": ["null", {
             "name": "ProtocolStatus",
             "type": "record",
             "namespace": "org.apache.nutch.storage",
             "fields": [
-                {"name": "code", "type": "int"},
-                {"name": "args", "type": {"type": "array", "items": "string"}},
-                {"name": "lastModified", "type": "long"}
+                {"name": "code", "type": "int", "default":0},
+                {"name": "args", "type": {"type": "array", "items": "string"}, "default":[]},
+                {"name": "lastModified", "type": "long", "default":0}
             ]
-            }},
-        {"name": "content", "type": "bytes"},
-        {"name": "contentType", "type": "string"},
-        {"name": "prevSignature", "type": "bytes"},
-        {"name": "signature", "type": "bytes"},
-        {"name": "title", "type": "string"},
-        {"name": "text", "type": "string"},
-        {"name": "parseStatus", "type": {
+            }], "default":null},
+        {"name": "content", "type": ["null","bytes"], "default":null},
+        {"name": "contentType", "type": ["null","string"], "default":null},
+        {"name": "prevSignature", "type": ["null","bytes"], "default":null},
+        {"name": "signature", "type": ["null","bytes"], "default":null},
+        {"name": "title", "type": ["null","string"], "default":null},
+        {"name": "text", "type": ["null","string"], "default":null},
+        {"name": "parseStatus", "type": ["null", {
             "name": "ParseStatus",
             "type": "record",
             "namespace": "org.apache.nutch.storage",
             "fields": [
-                {"name": "majorCode", "type": "int"},
-                {"name": "minorCode", "type": "int"},
-                {"name": "args", "type": {"type": "array", "items": "string"}}
+                {"name": "majorCode", "type": "int", "default":0},
+                {"name": "minorCode", "type": "int", "default":0},
+                {"name": "args", "type": {"type": "array", "items": "string"}, "default":[]}
             ]
-            }},
-        {"name": "score", "type": "float"},
-        {"name": "reprUrl", "type": "string"},
-        {"name": "headers", "type": {"type": "map", "values": "string"}},
-        {"name": "outlinks", "type": {"type": "map", "values": "string"}},
-        {"name": "inlinks", "type": {"type": "map", "values": "string"}},
-        {"name": "markers", "type": {"type": "map", "values": "string"}},
-        {"name": "metadata", "type": {"type": "map", "values": "bytes"}},
-        {"name": "batchId", "type": "string"}
+            }], "default":null},
+        {"name": "score", "type": "float", "default":0},
+        {"name": "reprUrl", "type": ["null","string"], "default":null},
+        {"name": "headers", "type": {"type":"map", "values": ["null","string"]}, "default":{}},
+        {"name": "outlinks", "type": {"type": "map", "values": ["null","string"]}, "default":{}},
+        {"name": "inlinks", "type": {"type": "map", "values": ["null","string"]}, "default":{}},
+        {"name": "markers", "type": {"type": "map", "values": ["null","string"]}, "default":{}},
+        {"name": "metadata", "type": {"type": "map", "values": ["null","bytes"]}, "default":{}},
+        {"name": "batchId", "type": ["null","string"], "default":null}
    ]
 }

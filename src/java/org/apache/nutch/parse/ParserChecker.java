@@ -17,28 +17,24 @@
 
 package org.apache.nutch.parse;
 
-import java.nio.ByteBuffer;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import org.apache.avro.util.Utf8;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.SignatureFactory;
-import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.Protocol;
-import org.apache.nutch.protocol.ProtocolFactory;
-import org.apache.nutch.protocol.ProtocolOutput;
-import org.apache.nutch.protocol.ProtocolStatusUtils;
+import org.apache.nutch.protocol.*;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.Bytes;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.URLUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.nio.ByteBuffer;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Parser checker, useful for testing parser.
@@ -107,7 +103,7 @@ public class ParserChecker implements Tool {
 
     ProtocolFactory factory = new ProtocolFactory(conf);
     Protocol protocol = factory.getProtocol(url);
-    WebPage page = new WebPage();
+    WebPage page = WebPage.newBuilder().build();
     
     ProtocolOutput protocolOutput = protocol.getProtocolOutput(url, page);
     
@@ -163,13 +159,13 @@ public class ParserChecker implements Tool {
     LOG.info("---------\nUrl\n---------------\n");
     System.out.print(url + "\n");
     LOG.info("---------\nMetadata\n---------\n");
-    Map<Utf8, ByteBuffer> metadata = page.getMetadata();
+    Map<CharSequence, ByteBuffer> metadata = page.getMetadata();
     StringBuffer sb = new StringBuffer();
     if (metadata != null) {
-      Iterator<Entry<Utf8, ByteBuffer>> iterator = metadata.entrySet()
+      Iterator<Entry<CharSequence, ByteBuffer>> iterator = metadata.entrySet()
           .iterator();
       while (iterator.hasNext()) {
-        Entry<Utf8, ByteBuffer> entry = iterator.next();
+        Entry<CharSequence, ByteBuffer> entry = iterator.next();
         sb.append(entry.getKey().toString()).append(" : \t")
             .append(Bytes.toString(entry.getValue())).append("\n");
       }

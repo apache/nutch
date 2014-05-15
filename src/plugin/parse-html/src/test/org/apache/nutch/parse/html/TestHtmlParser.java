@@ -135,8 +135,7 @@ public class TestHtmlParser {
       String text = parse.getText();
       String title = parse.getTitle();
       //String keywords = parse.getMeta("keywords");
-      String keywords = Bytes.toString(page
-          .getFromMetadata(new Utf8("keywords")));
+      String keywords = Bytes.toString(page.getMetadata().get(new Utf8("keywords")));
       LOG.info(name);
       LOG.info("title:\t" + title);
       LOG.info("keywords:\t" + keywords);

@@ -192,8 +192,8 @@ public class HtmlParser implements Parser {
       detector.addClue(sniffCharacterEncoding(contentInOctets), "sniffed");
       String encoding = detector.guessEncoding(page, defaultCharEncoding);
 
-      page.putToMetadata(new Utf8(Metadata.ORIGINAL_CHAR_ENCODING), ByteBuffer.wrap(Bytes.toBytes(encoding)));
-      page.putToMetadata(new Utf8(Metadata.CHAR_ENCODING_FOR_CONVERSION), ByteBuffer.wrap(Bytes.toBytes(encoding)));
+      page.getMetadata().put(new Utf8(Metadata.ORIGINAL_CHAR_ENCODING), ByteBuffer.wrap(Bytes.toBytes(encoding)));
+      page.getMetadata().put(new Utf8(Metadata.CHAR_ENCODING_FOR_CONVERSION), ByteBuffer.wrap(Bytes.toBytes(encoding)));
 
       input.setEncoding(encoding);
       if (LOG.isTraceEnabled()) { LOG.trace("Parsing..."); }
@@ -240,19 +240,19 @@ public class HtmlParser implements Parser {
       }
     }
 
-    ParseStatus status = new ParseStatus();
-    status.setMajorCode(ParseStatusCodes.SUCCESS);
+    ParseStatus status = ParseStatus.newBuilder().build();
+    status.setMajorCode((int)ParseStatusCodes.SUCCESS);
     if (metaTags.getRefresh()) {
-      status.setMinorCode(ParseStatusCodes.SUCCESS_REDIRECT);
-      status.addToArgs(new Utf8(metaTags.getRefreshHref().toString()));
-      status.addToArgs(new Utf8(Integer.toString(metaTags.getRefreshTime())));
+      status.setMinorCode((int)ParseStatusCodes.SUCCESS_REDIRECT);
+      status.getArgs().add(new Utf8(metaTags.getRefreshHref().toString()));
+      status.getArgs().add(new Utf8(Integer.toString(metaTags.getRefreshTime())));
     }
 
     Parse parse = new Parse(text, title, outlinks, status);
     parse = htmlParseFilters.filter(url, page, parse, metaTags, root);
 
     if (metaTags.getNoCache()) {             // not okay to cache
-      page.putToMetadata(new Utf8(Nutch.CACHING_FORBIDDEN_KEY),
+      page.getMetadata().put(new Utf8(Nutch.CACHING_FORBIDDEN_KEY),
           ByteBuffer.wrap(Bytes.toBytes(cachingPolicy)));
     }
 
@@ -351,7 +351,7 @@ public class HtmlParser implements Parser {
     Configuration conf = NutchConfiguration.create();
     HtmlParser parser = new HtmlParser();
     parser.setConf(conf);
-    WebPage page = new WebPage();
+    WebPage page = WebPage.newBuilder().build();
     page.setBaseUrl(new Utf8(url));
     page.setContent(ByteBuffer.wrap(bytes));
     page.setContentType(new Utf8("text/html"));

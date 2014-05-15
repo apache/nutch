@@ -171,7 +171,7 @@ public class RelTagParser implements ParseFilter {
       sb.append("\t");
     }
     ByteBuffer bb = ByteBuffer.wrap(sb.toString().getBytes());
-    page.putToMetadata(new Utf8(REL_TAG), bb);
+    page.getMetadata().put(new Utf8(REL_TAG), bb);
     return parse;
   }
 }

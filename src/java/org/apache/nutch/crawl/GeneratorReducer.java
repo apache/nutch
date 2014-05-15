@@ -22,6 +22,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.avro.util.Utf8;
+import org.apache.gora.mapreduce.GoraReducer;
+import org.apache.gora.query.Query;
+import org.apache.gora.query.Result;
+import org.apache.gora.store.DataStore;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.crawl.GeneratorJob.SelectorEntry;
 import org.apache.nutch.fetcher.FetcherJob.FetcherMapper;
@@ -29,7 +33,6 @@ import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.TableUtil;
 import org.apache.nutch.util.URLUtil;
-import org.apache.gora.mapreduce.GoraReducer;
 
 /** Reduce class for generate
  *

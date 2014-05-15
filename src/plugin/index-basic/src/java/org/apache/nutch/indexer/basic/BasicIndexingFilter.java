@@ -17,15 +17,6 @@
 
 package org.apache.nutch.indexer.basic;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
@@ -35,6 +26,15 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.Bytes;
 import org.apache.nutch.util.TableUtil;
 import org.apache.solr.common.util.DateUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.ByteBuffer;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashSet;
 
 /** Adds basic searchable fields to a document. The fields are:
  * host - add host as un-stored, indexed and tokenized
@@ -74,9 +74,9 @@ public class BasicIndexingFilter implements IndexingFilter {
       throws IndexingException {
 
     String reprUrl = null;
-    if (page.isReadable(WebPage.Field.REPR_URL.getIndex())) {
+//    if (page.isReadable(WebPage.Field.REPR_URL.getIndex())) {
       reprUrl = TableUtil.toString(page.getReprUrl());
-    }
+//    }
 
     String host = null;
     try {
@@ -118,7 +118,7 @@ public class BasicIndexingFilter implements IndexingFilter {
     }
     // add cached content/summary display policy, if available
     ByteBuffer cachingRaw = page
-        .getFromMetadata(Nutch.CACHING_FORBIDDEN_KEY_UTF8);
+        .getMetadata().get(Nutch.CACHING_FORBIDDEN_KEY_UTF8);
     String caching = Bytes.toString(cachingRaw);
     if (caching != null && !caching.equals(Nutch.CACHING_FORBIDDEN_NONE)) {
       doc.add("cache", caching);

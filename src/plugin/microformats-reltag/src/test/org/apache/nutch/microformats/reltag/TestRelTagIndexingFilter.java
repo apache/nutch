@@ -16,14 +16,15 @@
  */
 package org.apache.nutch.microformats.reltag;
 
-import java.nio.ByteBuffer;
-
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Test;
+
+import java.nio.ByteBuffer;
+
 import static org.junit.Assert.*;
 
 /**
@@ -42,10 +43,10 @@ import static org.junit.Assert.*;
     filter.setConf(conf);
     assertNotNull(filter);
     NutchDocument doc = new NutchDocument();
-    WebPage page = new WebPage();
+    WebPage page = WebPage.newBuilder().build();
     byte[] bytes = new byte[10];
     ByteBuffer bbuf = ByteBuffer.wrap(bytes);
-    page.putToMetadata(new Utf8(RelTagParser.REL_TAG), bbuf);
+    page.getMetadata().put(new Utf8(RelTagParser.REL_TAG), bbuf);
     try {
       filter.filter(doc, "http://nutch.apache.org/", page);
     } catch (Exception e) {

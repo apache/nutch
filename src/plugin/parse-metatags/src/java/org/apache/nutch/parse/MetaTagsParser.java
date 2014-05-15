@@ -77,10 +77,9 @@ public class MetaTagsParser implements ParseFilter {
 
     // check in the metadata first : the tika-parser
     // might have stored the values there already
-    Iterator<Entry<Utf8, ByteBuffer>> iterator = page.getMetadata().entrySet()
-        .iterator();
+    Iterator<Entry<CharSequence, ByteBuffer>> iterator = page.getMetadata().entrySet().iterator();
     while (iterator.hasNext()) {
-      Entry<Utf8, ByteBuffer> entry = iterator.next();
+      Entry<CharSequence, ByteBuffer> entry = iterator.next();
       String mdName = entry.getKey().toString();
       String value = Bytes.toStringBinary(entry.getValue());
       if (metatagset.contains("*") || metatagset.contains(mdName.toLowerCase())) {
@@ -94,7 +93,7 @@ public class MetaTagsParser implements ParseFilter {
     Iterator<Entry<Utf8, ByteBuffer>> itm = metadata.entrySet().iterator();
     while (iterator.hasNext()) {
       Entry<Utf8, ByteBuffer> entry = itm.next();
-      page.putToMetadata(entry.getKey(), entry.getValue());
+      page.getMetadata().put(entry.getKey(), entry.getValue());
     }
 
     Properties generalMetaTags = metaTags.getGeneralTags();
@@ -118,7 +117,7 @@ public class MetaTagsParser implements ParseFilter {
       if (metatagset.contains("*") || metatagset.contains(name.toLowerCase())) {
         // Add the recently parsed value of multiValued array to metadata
         LOG.debug("Found meta tag : " + name + "\t" + sb.toString());
-        page.putToMetadata(new Utf8(PARSE_META_PREFIX + name.toLowerCase()),
+        page.getMetadata().put(new Utf8(PARSE_META_PREFIX + name.toLowerCase()),
             ByteBuffer.wrap(Bytes.toBytes(sb.toString())));
       }
     }
@@ -132,7 +131,7 @@ public class MetaTagsParser implements ParseFilter {
       // specified *
       if (metatagset.contains("*") || metatagset.contains(name.toLowerCase())) {
         LOG.debug("Found meta tag : " + name + "\t" + value);
-        page.putToMetadata(new Utf8(PARSE_META_PREFIX + name.toLowerCase()),
+        page.getMetadata().put(new Utf8(PARSE_META_PREFIX + name.toLowerCase()),
             ByteBuffer.wrap(value.getBytes()));
       }
     }

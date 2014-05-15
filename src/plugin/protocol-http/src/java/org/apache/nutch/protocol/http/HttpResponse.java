@@ -17,17 +17,6 @@
 package org.apache.nutch.protocol.http;
 
 // JDK imports
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PushbackInputStream;
-import java.net.InetSocketAddress;
-import java.net.Socket;
-import java.net.URL;
-import java.nio.ByteBuffer;
 
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
@@ -39,6 +28,12 @@ import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.protocol.http.api.HttpBase;
 import org.apache.nutch.protocol.http.api.HttpException;
 import org.apache.nutch.storage.WebPage;
+
+import java.io.*;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.URL;
+import java.nio.ByteBuffer;
 
 /** An HTTP response. */
 public class HttpResponse implements Response {
@@ -97,7 +92,7 @@ public class HttpResponse implements Response {
       if (sockAddr != null
           && conf.getBoolean("store.ip.address", false) == true) {
         String ipString = sockAddr.getAddress().getHostAddress(); //get the ip address
-        page.putToMetadata(new Utf8("_ip_"),
+        page.getMetadata().put(new Utf8("_ip_"),
           ByteBuffer.wrap(ipString.getBytes()));
       }
 
@@ -133,11 +128,11 @@ public class HttpResponse implements Response {
         reqStr.append("\r\n");
       }
 
-      if (page.isReadable(WebPage.Field.MODIFIED_TIME.getIndex())) {
+//      if (page.isReadable(WebPage.Field.MODIFIED_TIME.getIndex())) {
         reqStr.append("If-Modified-Since: " +
                       HttpDateFormat.toString(page.getModifiedTime()));
         reqStr.append("\r\n");
-      }
+//      }
       reqStr.append("\r\n");
 
       byte[] reqBytes= reqStr.toString().getBytes();
@@ -177,7 +172,7 @@ public class HttpResponse implements Response {
         page.getHeaders().clear();
       }
       for (String key : headers.names()) {
-        page.putToHeaders(new Utf8(key), new Utf8(headers.get(key)));
+        page.getHeaders().put(new Utf8(key), new Utf8(headers.get(key)));
       }
 
     } finally {

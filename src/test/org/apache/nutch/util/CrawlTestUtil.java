@@ -16,14 +16,9 @@
  */
 package org.apache.nutch.util;
 
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.gora.query.Query;
+import org.apache.gora.query.Result;
+import org.apache.gora.store.DataStore;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -31,14 +26,19 @@ import org.apache.hadoop.fs.Path;
 import org.apache.nutch.crawl.URLWebPage;
 import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.WebPage;
-import org.apache.gora.query.Query;
-import org.apache.gora.query.Result;
-import org.apache.gora.store.DataStore;
 import org.mortbay.jetty.Handler;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.handler.DefaultHandler;
 import org.mortbay.jetty.handler.HandlerList;
 import org.mortbay.jetty.handler.ResourceHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class CrawlTestUtil {
 
@@ -121,7 +121,7 @@ public class CrawlTestUtil {
         if (requiredMark != null && requiredMark.checkMark(page) == null)
           continue;
 
-        l.add(new URLWebPage(TableUtil.unreverseUrl(url), (WebPage)page.clone()));
+        l.add(new URLWebPage(TableUtil.unreverseUrl(url), WebPage.newBuilder(page).build()));
       } catch (Exception e) {
         e.printStackTrace();
       }

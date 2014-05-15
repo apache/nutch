@@ -17,6 +17,19 @@
 
 package org.creativecommons.nutch;
 
+import org.apache.avro.util.Utf8;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.metadata.CreativeCommons;
+import org.apache.nutch.parse.*;
+import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.storage.WebPage.Field;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.*;
+import org.xml.sax.InputSource;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -24,29 +37,6 @@ import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
-import org.apache.avro.util.Utf8;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.metadata.CreativeCommons;
-import org.apache.nutch.parse.HTMLMetaTags;
-import org.apache.nutch.parse.ParseFilter;
-import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.ParseException;
-import org.apache.nutch.parse.ParseStatusUtils;
-import org.apache.nutch.storage.WebPage;
-import org.apache.nutch.storage.WebPage.Field;
-import org.w3c.dom.Comment;
-import org.w3c.dom.Document;
-import org.w3c.dom.DocumentFragment;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 /** Adds metadata identifying the Creative Commons license used, if any. */
 public class CCParseFilter implements ParseFilter {
@@ -95,9 +85,9 @@ public class CCParseFilter implements ParseFilter {
         if (LOG.isDebugEnabled()) {
 	  LOG.debug("CC: found " + licenseUrl + " in " + licenseLocation + " of " + base);
 	}
-	page.putToMetadata(new Utf8(CreativeCommons.LICENSE_URL),
+	page.getMetadata().put(new Utf8(CreativeCommons.LICENSE_URL),
 	ByteBuffer.wrap(licenseUrl.getBytes()));
-	page.putToMetadata(new Utf8(CreativeCommons.LICENSE_LOCATION),
+	page.getMetadata().put(new Utf8(CreativeCommons.LICENSE_LOCATION),
 	    ByteBuffer.wrap(licenseLocation.getBytes()));
       }
 
@@ -105,7 +95,7 @@ public class CCParseFilter implements ParseFilter {
         if (LOG.isDebugEnabled()) {
 	  LOG.debug("CC: found " + walker.workType + " in " + base);
 	}
-	page.putToMetadata(new Utf8(CreativeCommons.WORK_TYPE),
+	page.getMetadata().put(new Utf8(CreativeCommons.WORK_TYPE),
 	   ByteBuffer.wrap(walker.workType.getBytes()));
       }
 

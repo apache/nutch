@@ -69,14 +69,14 @@ public class TestImageMetadata {
       parse = new ParseUtil(conf).parse(urlString, page);
       
       //assert width
-      ByteBuffer bbufW = page.getFromMetadata(new Utf8("width"));
+      ByteBuffer bbufW = page.getMetadata().get(new Utf8("width"));
       byte[] byteArrayW = new byte[bbufW.remaining()];
       bbufW.get(byteArrayW);
       String width = new String(byteArrayW);
       assertEquals("121", width);
       
       //assert height
-      ByteBuffer bbufH = page.getFromMetadata(new Utf8("height"));
+      ByteBuffer bbufH = page.getMetadata().get(new Utf8("height"));
       byte[] byteArrayH = new byte[bbufH.remaining()];
       bbufH.get(byteArrayH);
       String height = new String(byteArrayH);

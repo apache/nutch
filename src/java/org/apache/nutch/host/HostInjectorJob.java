@@ -16,15 +16,6 @@
  ******************************************************************************/
 package org.apache.nutch.host;
 
-import java.io.IOException;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
 import org.apache.avro.util.Utf8;
 import org.apache.gora.mapreduce.GoraOutputFormat;
 import org.apache.hadoop.conf.Configuration;
@@ -45,6 +36,11 @@ import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.TableUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.URL;
+import java.nio.ByteBuffer;
+import java.util.*;
 
 /**
  * Creates or updates an existing host table from a text file.<br>
@@ -127,7 +123,7 @@ public class HostInjectorJob implements Tool {
       while (keysIter.hasNext()) {
         String keymd = keysIter.next();
         String valuemd = metadata.get(keymd);
-        host.putToMetadata(new Utf8(keymd), ByteBuffer.wrap(valuemd.getBytes()));
+        host.getMetadata().put(new Utf8(keymd), ByteBuffer.wrap(valuemd.getBytes()));
       }
       String hostname;
       if (url.indexOf("://")> -1) {

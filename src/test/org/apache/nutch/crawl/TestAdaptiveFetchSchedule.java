@@ -87,7 +87,7 @@ public class TestAdaptiveFetchSchedule extends TestCase {
     wp.setStatus(1);
     wp.setFetchInterval(interval);
     wp.setScore(1.0f);
-    wp.setFetchTime(0);
+    wp.setFetchTime(0L);
     return wp;
   }
 

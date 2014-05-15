@@ -39,10 +39,10 @@ public class TestAnchorIndexingFilter {
     AnchorIndexingFilter filter = new AnchorIndexingFilter();
     filter.setConf(conf);
     NutchDocument doc = new NutchDocument();
-    WebPage page = new WebPage();
-    page.putToInlinks(new Utf8("http://example1.com/"), new Utf8("cool site"));
-    page.putToInlinks(new Utf8("http://example2.com/"), new Utf8("cool site"));
-    page.putToInlinks(new Utf8("http://example3.com/"), new Utf8("fun site"));
+    WebPage page = WebPage.newBuilder().build();
+    page.getInlinks().put(new Utf8("http://example1.com/"), new Utf8("cool site"));
+    page.getInlinks().put(new Utf8("http://example2.com/"), new Utf8("cool site"));
+    page.getInlinks().put(new Utf8("http://example3.com/"), new Utf8("fun site"));
     filter.filter(doc, "http://myurldoesnotmatter.com/", page);
     
     assertTrue("test if there is an anchor at all", doc.getFieldNames().contains("anchor"));

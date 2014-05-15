@@ -17,16 +17,7 @@
 
 package org.creativecommons.nutch;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.StringTokenizer;
-
 import org.apache.avro.util.Utf8;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.IndexingException;
 import org.apache.nutch.indexer.IndexingFilter;
@@ -35,6 +26,15 @@ import org.apache.nutch.metadata.CreativeCommons;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.storage.WebPage.Field;
 import org.apache.nutch.util.Bytes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.ByteBuffer;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.StringTokenizer;
 
 /** Adds basic searchable fields to a document. */
 public class CCIndexingFilter implements IndexingFilter {
@@ -100,7 +100,7 @@ public class CCIndexingFilter implements IndexingFilter {
 	public NutchDocument filter(NutchDocument doc, String url, WebPage page)
 			throws IndexingException {
 
-		ByteBuffer blicense = page.getFromMetadata(new Utf8(
+		ByteBuffer blicense = page.getMetadata().get(new Utf8(
 				CreativeCommons.LICENSE_URL));
 		if (blicense != null) {
 			String licenseUrl = Bytes.toString(blicense);
@@ -117,7 +117,7 @@ public class CCIndexingFilter implements IndexingFilter {
 		}
 
 		// index the license location as cc:meta=xxx
-		ByteBuffer blicenseloc = page.getFromMetadata(new Utf8(
+		ByteBuffer blicenseloc = page.getMetadata().get(new Utf8(
 				CreativeCommons.LICENSE_LOCATION));
 		if (blicenseloc != null) {
 			String licenseLocation = Bytes.toString(blicenseloc);
@@ -125,7 +125,7 @@ public class CCIndexingFilter implements IndexingFilter {
 		}
 
 		// index the work type cc:type=xxx
-		ByteBuffer bworkType = page.getFromMetadata(new Utf8(
+		ByteBuffer bworkType = page.getMetadata().get(new Utf8(
 				CreativeCommons.WORK_TYPE));
 		if (bworkType != null) {
 			String workType = Bytes.toString(bworkType);

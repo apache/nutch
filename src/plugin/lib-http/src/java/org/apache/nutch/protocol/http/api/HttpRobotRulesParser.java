@@ -17,19 +17,17 @@
 
 package org.apache.nutch.protocol.http.api;
 
-import java.net.URL;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import crawlercommons.robots.BaseRobotRules;
+import crawlercommons.robots.SimpleRobotRules;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.RobotRulesParser;
 import org.apache.nutch.storage.WebPage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import crawlercommons.robots.BaseRobotRules;
-import crawlercommons.robots.SimpleRobotRules;
+import java.net.URL;
 
 /**
  * This class is used for parsing robots for urls belonging to HTTP protocol.
@@ -88,7 +86,7 @@ public class HttpRobotRulesParser extends RobotRulesParser {
       if (LOG.isTraceEnabled()) { LOG.trace("cache miss " + url); }
       try {
         Response response = ((HttpBase)http).getResponse(new URL(url, "/robots.txt"),
-                                             new WebPage(), true);
+                                             WebPage.newBuilder().build(), true);
         // try one level of redirection ?
         if (response.getCode() == 301 || response.getCode() == 302) {
           String redirection = response.getHeader("Location");
@@ -104,7 +102,7 @@ public class HttpRobotRulesParser extends RobotRulesParser {
               redir = new URL(redirection);
             }
             
-            response = ((HttpBase)http).getResponse(redir, new WebPage(), true);
+            response = ((HttpBase)http).getResponse(redir, WebPage.newBuilder().build(), true);
           }
         }
 

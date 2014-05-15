@@ -52,7 +52,7 @@ public class MetadataIndexer implements IndexingFilter {
     // add the fields from parsemd
     if (parseFieldnames != null) {
       for (String metatag : parseFieldnames) {
-        ByteBuffer bvalues = page.getFromMetadata(new Utf8(PARSE_META_PREFIX
+        ByteBuffer bvalues = page.getMetadata().get(new Utf8(PARSE_META_PREFIX
             + metatag));
         if (bvalues != null) {
           String value = new String(bvalues.array());

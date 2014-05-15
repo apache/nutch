@@ -16,29 +16,20 @@
  */
 package org.apache.nutch.protocol.file;
 
-import java.net.URL;
-import java.util.Collection;
-import java.util.HashSet;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import crawlercommons.robots.BaseRobotRules;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.Text;
-
 import org.apache.nutch.net.protocols.Response;
-import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.Protocol;
-import org.apache.nutch.protocol.ProtocolOutput;
-import org.apache.nutch.protocol.ProtocolStatusCodes;
-import org.apache.nutch.protocol.ProtocolStatusUtils;
-import org.apache.nutch.protocol.RobotRulesParser;
+import org.apache.nutch.protocol.*;
 import org.apache.nutch.storage.ProtocolStatus;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.storage.WebPage.Field;
 import org.apache.nutch.util.NutchConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import crawlercommons.robots.BaseRobotRules;
+import java.net.URL;
+import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * This class is a protocol plugin used for file: scheme.
@@ -183,7 +174,7 @@ public class File implements Protocol {
     if (maxContentLength != Integer.MIN_VALUE) // set maxContentLength
       file.setMaxContentLength(maxContentLength);
 
-    Content content = file.getProtocolOutput(urlString, new WebPage())
+    Content content = file.getProtocolOutput(urlString, WebPage.newBuilder().build())
         .getContent();
 
     System.out.println("Content-Type: " + content.getContentType());

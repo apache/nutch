@@ -16,12 +16,6 @@
  */
 package org.apache.nutch.microformats.reltag;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.parse.Parse;
@@ -34,6 +28,14 @@ import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Junit test for {@link RelTagParser} based mainly John Xing's parser tests.
@@ -76,7 +78,7 @@ public class TestRelTagParser {
     in.readFully(bytes);
     in.close();
 
-    WebPage page = new WebPage();
+    WebPage page = WebPage.newBuilder().build();
     page.setBaseUrl(new Utf8(urlString));
     page.setContent(ByteBuffer.wrap(bytes));
     MimeUtil mimeutil = new MimeUtil(conf);
@@ -84,7 +86,7 @@ public class TestRelTagParser {
     page.setContentType(new Utf8(mtype));
     parse = new ParseUtil(conf).parse(urlString, page);
     //begin assertion for tests
-    ByteBuffer bbuf = page.getFromMetadata(new Utf8("Rel-Tag"));
+    ByteBuffer bbuf = page.getMetadata().get(new Utf8("Rel-Tag"));
     byte[] byteArray = new byte[bbuf.remaining()];
     bbuf.get(byteArray);
     String s = new String(byteArray);

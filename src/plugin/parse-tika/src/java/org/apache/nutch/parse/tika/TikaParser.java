@@ -16,6 +16,26 @@
  */
 package org.apache.nutch.parse.tika;
 
+import org.apache.avro.util.Utf8;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.html.dom.HTMLDocumentImpl;
+import org.apache.nutch.metadata.Nutch;
+import org.apache.nutch.parse.*;
+import org.apache.nutch.storage.ParseStatus;
+import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.storage.WebPage.Field;
+import org.apache.nutch.util.Bytes;
+import org.apache.nutch.util.MimeUtil;
+import org.apache.nutch.util.NutchConfiguration;
+import org.apache.nutch.util.TableUtil;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.metadata.TikaCoreProperties;
+import org.apache.tika.parser.ParseContext;
+import org.apache.tika.parser.Parser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.DocumentFragment;
+
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.File;
@@ -27,33 +47,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-
-import org.apache.avro.util.Utf8;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.util.Bytes;
-import org.apache.html.dom.HTMLDocumentImpl;
-import org.apache.nutch.metadata.Nutch;
-import org.apache.nutch.parse.HTMLMetaTags;
-import org.apache.nutch.parse.ParseFilters;
-import org.apache.nutch.parse.Outlink;
-import org.apache.nutch.parse.OutlinkExtractor;
-import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.ParseStatusCodes;
-import org.apache.nutch.parse.ParseStatusUtils;
-import org.apache.nutch.parse.ParseUtil;
-import org.apache.nutch.storage.ParseStatus;
-import org.apache.nutch.storage.WebPage;
-import org.apache.nutch.storage.WebPage.Field;
-import org.apache.nutch.util.MimeUtil;
-import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.TableUtil;
-import org.apache.tika.metadata.Metadata;
-import org.apache.tika.metadata.TikaCoreProperties;
-import org.apache.tika.parser.ParseContext;
-import org.apache.tika.parser.Parser;
-import org.w3c.dom.DocumentFragment;
 
 /**
  * Wrapper for Tika parsers. Mimics the HTMLParser but using the XHTML
@@ -169,7 +162,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
       if (tikaMDName.equalsIgnoreCase(TikaCoreProperties.TITLE.toString()))
       continue;
       // TODO what if multivalued?
-      page.putToMetadata(new Utf8(tikaMDName), ByteBuffer.wrap(Bytes.toBytes(tikamd
+      page.getMetadata().put(new Utf8(tikaMDName), ByteBuffer.wrap(Bytes.toBytes(tikamd
           .get(tikaMDName))));
     }
 
@@ -182,16 +175,16 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
 
     ParseStatus status = ParseStatusUtils.STATUS_SUCCESS;
     if (metaTags.getRefresh()) {
-      status.setMinorCode(ParseStatusCodes.SUCCESS_REDIRECT);
-      status.addToArgs(new Utf8(metaTags.getRefreshHref().toString()));
-      status.addToArgs(new Utf8(Integer.toString(metaTags.getRefreshTime())));
+      status.setMinorCode((int)ParseStatusCodes.SUCCESS_REDIRECT);
+      status.getArgs().add(new Utf8(metaTags.getRefreshHref().toString()));
+      status.getArgs().add(new Utf8(Integer.toString(metaTags.getRefreshTime())));
     }
 
     Parse parse = new Parse(text, title, outlinks, status);
     parse = htmlParseFilters.filter(url, page, parse, metaTags, root);
 
     if (metaTags.getNoCache()) { // not okay to cache
-      page.putToMetadata(new Utf8(Nutch.CACHING_FORBIDDEN_KEY), ByteBuffer.wrap(Bytes
+      page.getMetadata().put(new Utf8(Nutch.CACHING_FORBIDDEN_KEY), ByteBuffer.wrap(Bytes
           .toBytes(cachingPolicy)));
     }
 
@@ -241,7 +234,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     Configuration conf = NutchConfiguration.create();
     // TikaParser parser = new TikaParser();
     // parser.setConf(conf);
-    WebPage page = new WebPage();
+    WebPage page = WebPage.newBuilder().build();
     page.setBaseUrl(new Utf8(url));
     page.setContent(ByteBuffer.wrap(bytes));
     MimeUtil mimeutil = new MimeUtil(conf);

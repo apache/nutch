@@ -17,32 +17,29 @@
 package org.apache.nutch.analysis.lang;
 
 // JDK imports
-import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Properties;
 
 import org.apache.avro.util.Utf8;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.parse.HTMLMetaTags;
-import org.apache.nutch.parse.ParseFilter;
 import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseFilter;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.storage.WebPage.Field;
 import org.apache.nutch.util.Bytes;
 import org.apache.nutch.util.NodeWalker;
 import org.apache.tika.language.LanguageIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+
+import java.lang.CharSequence;
+import java.nio.ByteBuffer;
+import java.util.*;
 
 /**
  * Adds metadata identifying language of document if found We could also run
@@ -116,8 +113,8 @@ public class HTMLLanguageParser implements ParseFilter {
     }
 
     if (lang != null) {
-      page.putToMetadata(new Utf8(Metadata.LANGUAGE), ByteBuffer.wrap(lang
-          .getBytes()));
+      page.getMetadata().put(new Utf8(Metadata.LANGUAGE), ByteBuffer.wrap(lang
+              .getBytes()));
       return parse;
     }
 
@@ -138,7 +135,7 @@ public class HTMLLanguageParser implements ParseFilter {
       return lang;
     }
 
-    Utf8 ulang = page.getFromHeaders(new Utf8(Response.CONTENT_LANGUAGE));
+    CharSequence ulang = page.getHeaders().get(new Utf8(Response.CONTENT_LANGUAGE));
     if (ulang != null) {
       lang = ulang.toString();
     }
@@ -176,7 +173,7 @@ public class HTMLLanguageParser implements ParseFilter {
   // Check in the metadata whether the language has already been stored there by
   // Tika
   private static ByteBuffer getLanguageFromMetadata(
-      Map<Utf8, ByteBuffer> metadata) {
+      Map<CharSequence, ByteBuffer> metadata) {
     if (metadata == null)
       return null;
 

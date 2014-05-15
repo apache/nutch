@@ -16,16 +16,7 @@
  ******************************************************************************/
 package org.apache.nutch.api;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.TreeSet;
-
+import org.apache.avro.Schema;
 import org.apache.avro.util.Utf8;
 import org.apache.gora.query.Query;
 import org.apache.gora.query.Result;
@@ -34,17 +25,18 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.parse.ParseStatusUtils;
 import org.apache.nutch.protocol.ProtocolStatusUtils;
-import org.apache.nutch.storage.Mark;
-import org.apache.nutch.storage.ParseStatus;
-import org.apache.nutch.storage.ProtocolStatus;
-import org.apache.nutch.storage.StorageUtils;
-import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.storage.*;
 import org.apache.nutch.util.Bytes;
 import org.apache.nutch.util.NutchJob;
 import org.apache.nutch.util.StringUtil;
 import org.apache.nutch.util.TableUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.*;
+import java.util.Map.Entry;
 
 public class DbReader {
   private static final Logger LOG = LoggerFactory.getLogger(DbReader.class);
@@ -145,7 +137,7 @@ public class DbReader {
 
     public Map<String,Object> next() {
       url = res.getKey();
-      page = (WebPage)res.get().clone();
+        page = WebPage.newBuilder(res.get()).build();
       try {
         advance();
         if (!hasNext) {
@@ -169,16 +161,16 @@ public class DbReader {
       if (fields == null || fields.contains("url")) {
         res.put("url", TableUtil.unreverseUrl(url));
       }
-      String[] pfields = page.getFields();
-      TreeSet<String> flds = null;
+      List<Schema.Field> pfields = page.getSchema().getFields();
+      TreeSet<Schema.Field> flds = null;
       if (fields != null) {
-        flds = (TreeSet<String>)fields.clone();
+        flds = (TreeSet<Schema.Field>) fields.clone();
       } else {
-        flds = new TreeSet<String>(Arrays.asList(pfields));
+        flds = new TreeSet<Schema.Field>(pfields);
       }
       flds.retainAll(Arrays.asList(pfields));
-      for (String f : flds) {
-        int idx = page.getFieldIndex(f);
+      for (Schema.Field f : flds) {
+        int idx = f.pos();
         if (idx < 0) {
           continue;
         }
@@ -187,43 +179,43 @@ public class DbReader {
           continue;
         }
         if ("metadata".equals(f)) {
-          Map<Utf8, ByteBuffer> metadata = page.getMetadata();
+          Map<CharSequence, ByteBuffer> metadata = page.getMetadata();
           Map<String,String> simpleMeta = new HashMap<String,String>();
           if (metadata != null) {
-            Iterator<Entry<Utf8, ByteBuffer>> iterator = metadata.entrySet()
+            Iterator<Entry<CharSequence, ByteBuffer>> iterator = metadata.entrySet()
                 .iterator();
             while (iterator.hasNext()) {
-              Entry<Utf8, ByteBuffer> entry = iterator.next();
+              Entry<CharSequence, ByteBuffer> entry = iterator.next();
               simpleMeta.put(entry.getKey().toString(), 
                   Bytes.toStringBinary(entry.getValue()));
             }
           }
-          res.put(f, simpleMeta);
+          res.put(f.name(), simpleMeta);
         } else if ("protocolStatus".equals(f)) {
           ProtocolStatus ps = page.getProtocolStatus();
-          res.put(f, ProtocolStatusUtils.toString(ps));
+          res.put(f.name(), ProtocolStatusUtils.toString(ps));
         } else if ("parseStatus".equals(f)) {
           ParseStatus ps = page.getParseStatus();
-          res.put(f, ParseStatusUtils.toString(ps));
+          res.put(f.name(), ParseStatusUtils.toString(ps));
         } else if ("signature".equals(f)) {
           ByteBuffer bb = page.getSignature();
-          res.put(f, StringUtil.toHexString(bb));
+          res.put(f.name(), StringUtil.toHexString(bb));
         } else if ("content".equals(f)) {
           ByteBuffer bb = page.getContent();
-          res.put(f, Bytes.toStringBinary(bb));
+          res.put(f.name(), Bytes.toStringBinary(bb));
         } else if ("markers".equals(f)) {
-          res.put(f, convertMap(page.getMarkers()));
+          res.put(f.name(), convertMap(page.getMarkers()));
         } else if ("inlinks".equals(f)) {
-          res.put(f, convertMap(page.getInlinks()));
+          res.put(f.name(), convertMap(page.getInlinks()));
         } else if ("outlinks".equals(f)) {
-          res.put(f, convertMap(page.getOutlinks()));
+          res.put(f.name(), convertMap(page.getOutlinks()));
         } else {
           if (val instanceof Utf8) {
             val = val.toString();
           } else if (val instanceof ByteBuffer) {
             val = Bytes.toStringBinary((ByteBuffer)val);
           }
-          res.put(f, val);
+          res.put(f.name(), val);
         }
       }
       return res;

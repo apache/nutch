@@ -16,15 +16,6 @@
  ******************************************************************************/
 package org.apache.nutch.crawl;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.text.SimpleDateFormat;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-
 import org.apache.avro.util.Utf8;
 import org.apache.gora.mapreduce.GoraOutputFormat;
 import org.apache.gora.persistency.Persistent;
@@ -47,14 +38,14 @@ import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.StorageUtils;
 import org.apache.nutch.storage.WebPage;
-import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.NutchJob;
-import org.apache.nutch.util.NutchTool;
-import org.apache.nutch.util.TableUtil;
-import org.apache.nutch.util.TimingUtil;
-import org.apache.nutch.util.ToolUtil;
+import org.apache.nutch.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /** This class takes a flat file of URLs and adds them to the of pages to be
  * crawled.  Useful for bootstrapping the system.
@@ -160,7 +151,7 @@ public class InjectorJob extends NutchTool implements Tool {
         return;
       } else {                                         // if it passes
       String reversedUrl = TableUtil.reverseUrl(url);  // collect it
-      WebPage row = new WebPage();
+      WebPage row = WebPage.newBuilder().build();
       row.setFetchTime(curTime);
       row.setFetchInterval(customInterval);
 
@@ -169,7 +160,7 @@ public class InjectorJob extends NutchTool implements Tool {
       while (keysIter.hasNext()) {
         String keymd = keysIter.next();
         String valuemd = metadata.get(keymd);
-        row.putToMetadata(new Utf8(keymd), ByteBuffer.wrap(valuemd.getBytes()));
+        row.getMetadata().put(new Utf8(keymd), ByteBuffer.wrap(valuemd.getBytes()));
       }
 
       if (customScore != -1)
@@ -186,7 +177,7 @@ public class InjectorJob extends NutchTool implements Tool {
         }
       }
       context.getCounter("injector", "urls_injected").increment(1);
-      row.putToMarkers(DbUpdaterJob.DISTANCE, new Utf8(String.valueOf(0)));
+      row.getMarkers().put(DbUpdaterJob.DISTANCE, new Utf8(String.valueOf(0)));
       Mark.INJECT_MARK.putMark(row, YES_STRING);
       context.write(reversedUrl, row);
     }

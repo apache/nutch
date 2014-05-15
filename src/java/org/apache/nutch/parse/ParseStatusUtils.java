@@ -16,22 +16,23 @@
  ******************************************************************************/
 package org.apache.nutch.parse;
 
-import java.util.HashMap;
-import java.util.Iterator;
-
 import org.apache.avro.generic.GenericArray;
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.storage.ParseStatus;
 import org.apache.nutch.util.TableUtil;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+
 public class ParseStatusUtils {
 
-  public static ParseStatus STATUS_SUCCESS = new ParseStatus();
+  public static ParseStatus STATUS_SUCCESS = ParseStatus.newBuilder().build();
   public static final HashMap<Short,String> minorCodes = new HashMap<Short,String>();
 
   static {
-    STATUS_SUCCESS.setMajorCode(ParseStatusCodes.SUCCESS);
+    STATUS_SUCCESS.setMajorCode((int)ParseStatusCodes.SUCCESS);
     minorCodes.put(ParseStatusCodes.SUCCESS_OK, "ok");
     minorCodes.put(ParseStatusCodes.SUCCESS_REDIRECT, "redirect");
     minorCodes.put(ParseStatusCodes.FAILED_EXCEPTION, "exception");
@@ -52,7 +53,7 @@ public class ParseStatusUtils {
    * argument, or null.
    */
   public static String getMessage(ParseStatus status) {
-    GenericArray<Utf8> args = status.getArgs();
+    List<CharSequence> args = status.getArgs();
     if (args != null && args.size() > 0) {
       return TableUtil.toString(args.iterator().next());
     }
@@ -60,12 +61,12 @@ public class ParseStatusUtils {
   }
 
   public static String getArg(ParseStatus status, int n) {
-    GenericArray<Utf8> args = status.getArgs();
+    List<CharSequence> args = status.getArgs();
     if (args == null) {
       return null;
     }
     int i = 0;
-    for (Utf8 arg : args) {
+    for (CharSequence arg : args) {
       if (i == n) {
         return TableUtil.toString(arg);
       }
@@ -75,19 +76,19 @@ public class ParseStatusUtils {
   }
 
   public static Parse getEmptyParse(Exception e, Configuration conf) {
-    ParseStatus status = new ParseStatus();
-    status.setMajorCode(ParseStatusCodes.FAILED);
-    status.setMinorCode(ParseStatusCodes.FAILED_EXCEPTION);
-    status.addToArgs(new Utf8(e.toString()));
+    ParseStatus status = ParseStatus.newBuilder().build();
+    status.setMajorCode((int)ParseStatusCodes.FAILED);
+    status.setMinorCode((int)ParseStatusCodes.FAILED_EXCEPTION);
+    status.getArgs().add(new Utf8(e.toString()));
 
     return new Parse("", "", new Outlink[0], status);
   }
 
   public static Parse getEmptyParse(int minorCode, String message, Configuration conf) {
-    ParseStatus status = new ParseStatus();
-    status.setMajorCode(ParseStatusCodes.FAILED);
+    ParseStatus status = ParseStatus.newBuilder().build();
+    status.setMajorCode((int)ParseStatusCodes.FAILED);
     status.setMinorCode(minorCode);
-    status.addToArgs(new Utf8(message));
+    status.getArgs().add(new Utf8(message));
 
     return new Parse("", "", new Outlink[0], status);
   }
@@ -98,13 +99,13 @@ public class ParseStatusUtils {
     }
     StringBuilder sb = new StringBuilder();
     sb.append(ParseStatusCodes.majorCodes[status.getMajorCode()] +
-        "/" + minorCodes.get((short)status.getMinorCode()));
+        "/" + minorCodes.get(status.getMinorCode().shortValue()));
     sb.append(" (" + status.getMajorCode() + "/" + status.getMinorCode() + ")");
     sb.append(", args=[");
-    GenericArray<Utf8> args = status.getArgs();
+    List<CharSequence> args = status.getArgs();
     if (args != null) {
       int i = 0;
-      Iterator<Utf8> it = args.iterator();
+      Iterator<CharSequence> it = args.iterator();
       while (it.hasNext()) {
         if (i > 0) sb.append(',');
         sb.append(it.next());

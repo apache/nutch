@@ -16,43 +16,19 @@
  ******************************************************************************/
 package org.apache.nutch.fetcher;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-
+import crawlercommons.robots.BaseRobotRules;
 import org.apache.avro.util.Utf8;
 import org.apache.gora.mapreduce.GoraReducer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.nutch.crawl.CrawlStatus;
-import org.apache.nutch.crawl.URLWebPage;
 import org.apache.nutch.host.HostDb;
 import org.apache.nutch.net.URLFilterException;
 import org.apache.nutch.net.URLFilters;
 import org.apache.nutch.net.URLNormalizers;
 import org.apache.nutch.parse.ParseUtil;
 import org.apache.nutch.parse.ParserJob;
-import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.Protocol;
-import org.apache.nutch.protocol.ProtocolFactory;
-import org.apache.nutch.protocol.ProtocolOutput;
-import org.apache.nutch.protocol.ProtocolStatusCodes;
-import org.apache.nutch.protocol.ProtocolStatusUtils;
-import org.apache.nutch.protocol.RobotRules;
+import org.apache.nutch.protocol.*;
 import org.apache.nutch.storage.Host;
 import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.ProtocolStatus;
@@ -61,7 +37,14 @@ import org.apache.nutch.util.TableUtil;
 import org.apache.nutch.util.URLUtil;
 import org.slf4j.Logger;
 
-import crawlercommons.robots.BaseRobotRules;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.nio.ByteBuffer;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class FetcherReducer
 extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
@@ -478,7 +461,7 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
             }
           }
           lastRequestStart.set(System.currentTimeMillis());
-          if (!fit.page.isReadable(WebPage.Field.REPR_URL.getIndex())) {
+          if (fit.page.getReprUrl() == null) {
             reprUrl = fit.url;
           } else {
             reprUrl = TableUtil.toString(fit.page.getReprUrl());
@@ -615,8 +598,8 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
         }
       }
 
-      page.putToOutlinks(new Utf8(newUrl), new Utf8());
-      page.putToMetadata(FetcherJob.REDIRECT_DISCOVERED, TableUtil.YES_VAL);
+      page.getOutlinks().put(new Utf8(newUrl), new Utf8());
+      page.getMetadata().put(FetcherJob.REDIRECT_DISCOVERED, TableUtil.YES_VAL);
       reprUrl = URLUtil.chooseRepr(reprUrl, newUrl, temp);
       if (reprUrl == null) {
         LOG.warn("reprUrl==null");
@@ -638,7 +621,7 @@ extends GoraReducer<IntWritable, FetchEntry, String, WebPage> {
     private void output(FetchItem fit, Content content,
         ProtocolStatus pstatus, byte status)
     throws IOException, InterruptedException {
-      fit.page.setStatus(status);
+      fit.page.setStatus((int)status);
       final long prevFetchTime = fit.page.getFetchTime();
       fit.page.setPrevFetchTime(prevFetchTime);
       fit.page.setFetchTime(System.currentTimeMillis());

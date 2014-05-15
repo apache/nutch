@@ -16,18 +16,11 @@
  ******************************************************************************/
 package org.apache.nutch.crawl;
 
-import java.io.IOException;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.TreeMap;
-import java.util.regex.Pattern;
-
 import org.apache.avro.util.Utf8;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.gora.mapreduce.GoraMapper;
+import org.apache.gora.query.Query;
+import org.apache.gora.query.Result;
+import org.apache.gora.store.DataStore;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -47,17 +40,19 @@ import org.apache.nutch.parse.ParseStatusUtils;
 import org.apache.nutch.protocol.ProtocolStatusUtils;
 import org.apache.nutch.storage.StorageUtils;
 import org.apache.nutch.storage.WebPage;
-import org.apache.nutch.util.Bytes;
-import org.apache.nutch.util.NutchConfiguration;
-import org.apache.nutch.util.NutchJob;
-import org.apache.nutch.util.NutchTool;
-import org.apache.nutch.util.StringUtil;
-import org.apache.nutch.util.TableUtil;
-import org.apache.nutch.util.ToolUtil;
-import org.apache.gora.mapreduce.GoraMapper;
-import org.apache.gora.query.Query;
-import org.apache.gora.query.Result;
-import org.apache.gora.store.DataStore;
+import org.apache.nutch.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.net.URL;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 /**
  * Displays information about the entries of the webtable
@@ -320,7 +315,10 @@ public class WebTableReader extends NutchTool implements Tool {
     DataStore<String, WebPage> store = StorageUtils.createWebStore(job
         .getConfiguration(), String.class, WebPage.class);
     Query<String, WebPage> query = store.newQuery();
-    query.setFields(WebPage._ALL_FIELDS);
+    //remove the __g__dirty field since it is not stored
+    String[] fields = Arrays.copyOfRange(WebPage._ALL_FIELDS, 1,
+        WebPage._ALL_FIELDS.length);
+    query.setFields(fields);
 
     GoraMapper.initMapperJob(job, query, store, Text.class, Text.class,
         WebTableRegexMapper.class, null, true);
@@ -344,7 +342,7 @@ public class WebTableReader extends NutchTool implements Tool {
     sb.append("key:\t" + key).append("\n");
     sb.append("baseUrl:\t" + page.getBaseUrl()).append("\n");
     sb.append("status:\t").append(page.getStatus()).append(" (").append(
-        CrawlStatus.getName((byte) page.getStatus())).append(")\n");
+        CrawlStatus.getName(page.getStatus().byteValue())).append(")\n");
     sb.append("fetchTime:\t" + page.getFetchTime()).append("\n");
     sb.append("prevFetchTime:\t" + page.getPrevFetchTime()).append("\n");
     sb.append("fetchInterval:\t" + page.getFetchInterval()).append("\n"); 
@@ -366,41 +364,41 @@ public class WebTableReader extends NutchTool implements Tool {
     sb.append("title:\t" + page.getTitle()).append("\n");
     sb.append("score:\t" + page.getScore()).append("\n");
 
-    Map<Utf8, Utf8> markers = page.getMarkers();
+    Map<CharSequence, CharSequence> markers = page.getMarkers();
     sb.append("markers:\t" + markers).append("\n");
     sb.append("reprUrl:\t" + page.getReprUrl()).append("\n");
-    Utf8 batchId = page.getBatchId();
+    CharSequence batchId = page.getBatchId();
     if (batchId != null) {
       sb.append("batchId:\t" + batchId.toString()).append("\n");
     }
-    Map<Utf8, ByteBuffer> metadata = page.getMetadata();
+    Map<CharSequence, ByteBuffer> metadata = page.getMetadata();
     if (metadata != null) {
-      Iterator<Entry<Utf8, ByteBuffer>> iterator = metadata.entrySet()
+      Iterator<Entry<CharSequence, ByteBuffer>> iterator = metadata.entrySet()
           .iterator();
       while (iterator.hasNext()) {
-        Entry<Utf8, ByteBuffer> entry = iterator.next();
+        Entry<CharSequence, ByteBuffer> entry = iterator.next();
         sb.append("metadata " + entry.getKey().toString()).append(" : \t")
             .append(Bytes.toString(entry.getValue())).append("\n");
       }
     }
     if (dumpLinks) {
-      Map<Utf8,Utf8> inlinks = page.getInlinks();
-      Map<Utf8,Utf8> outlinks = page.getOutlinks();
+      Map<CharSequence, CharSequence> inlinks = page.getInlinks();
+      Map<CharSequence, CharSequence> outlinks = page.getOutlinks();
       if (outlinks != null) {
-        for (Entry<Utf8,Utf8> e : outlinks.entrySet()) {
+        for (Entry<CharSequence, CharSequence> e : outlinks.entrySet()) {
           sb.append("outlink:\t" + e.getKey() + "\t" + e.getValue() + "\n");
         }
       }
       if (inlinks != null) {
-        for (Entry<Utf8,Utf8> e : inlinks.entrySet()) {
+        for (Entry<CharSequence, CharSequence> e : inlinks.entrySet()) {
           sb.append("inlink:\t" + e.getKey() + "\t" + e.getValue() + "\n");
         }
       }
     }
     if (dumpHeaders) {
-      Map<Utf8,Utf8> headers = page.getHeaders();
+      Map<CharSequence, CharSequence> headers = page.getHeaders();
       if (headers != null) {
-        for (Entry<Utf8,Utf8> e : headers.entrySet()) {
+        for (Entry<CharSequence, CharSequence> e : headers.entrySet()) {
           sb.append("header:\t" + e.getKey() + "\t" + e.getValue() + "\n");
         }
       }
@@ -412,7 +410,7 @@ public class WebTableReader extends NutchTool implements Tool {
       sb.append(Bytes.toString(content));
       sb.append("\ncontent:end:\n");
     }
-    Utf8 text = page.getText();
+    CharSequence text = page.getText();
     if (text != null && dumpText) {
       sb.append("text:start:\n");
       sb.append(text.toString());
@@ -521,7 +519,11 @@ public class WebTableReader extends NutchTool implements Tool {
     DataStore<String, WebPage> store = StorageUtils.createWebStore(currentJob
         .getConfiguration(), String.class, WebPage.class);
     Query<String, WebPage> query = store.newQuery();
-    query.setFields(WebPage._ALL_FIELDS);
+
+    //remove the __g__dirty field since it is not stored
+    String[] fields = Arrays.copyOfRange(WebPage._ALL_FIELDS, 1,
+            WebPage._ALL_FIELDS.length);
+    query.setFields(fields);
 
     GoraMapper.initMapperJob(currentJob, query, store, Text.class, LongWritable.class,
         WebTableStatMapper.class, null, true);

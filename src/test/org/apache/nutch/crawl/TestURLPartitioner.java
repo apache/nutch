@@ -16,11 +16,6 @@
  ******************************************************************************/
 package org.apache.nutch.crawl;
 
-import java.net.MalformedURLException;
-
-import org.junit.Test;
-import static org.junit.Assert.*;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.nutch.crawl.GeneratorJob.SelectorEntry;
@@ -30,6 +25,12 @@ import org.apache.nutch.fetcher.FetchEntry;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.TableUtil;
+import org.junit.Test;
+
+import java.net.MalformedURLException;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 /**
  * Tests {@link URLPartitioner}
@@ -168,7 +169,7 @@ public class TestURLPartitioner {
     int partitionFromRef = refPartitioner.getPartition("http://www.example.org/", numReduceTasks);
     //init selector entry (score shouldn't matter)
     SelectorEntry selectorEntry = new SelectorEntry("http://www.example.org/", 1337);
-    WebPage page = new WebPage();
+    WebPage page = WebPage.newBuilder().build();
     int partitionFromSig = sigPartitioner.getPartition(selectorEntry, page, numReduceTasks);
     
     assertEquals("partitions should be same", 
@@ -199,7 +200,7 @@ public class TestURLPartitioner {
     
     int partitionFromRef = refPartitioner.getPartition("http://www.example.org/", numReduceTasks);
     IntWritable intWritable = new IntWritable(1337); //doesn't matter
-    WebPage page = new WebPage();
+    WebPage page = WebPage.newBuilder().build();
     String key = TableUtil.reverseUrl("http://www.example.org/");
     FetchEntry fetchEntry = new FetchEntry(conf, key, page);
     int partitionFromSig = sigPartitioner.getPartition(intWritable, fetchEntry, numReduceTasks);

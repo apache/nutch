@@ -17,17 +17,7 @@
 
 package org.apache.nutch.scoring.opic;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.apache.avro.util.Utf8;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.scoring.ScoreDatum;
@@ -35,6 +25,16 @@ import org.apache.nutch.scoring.ScoringFilter;
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.Bytes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.ByteBuffer;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * This plugin implements a variant of an Online Page Importance Computation
@@ -82,7 +82,7 @@ public class OPICScoringFilter implements ScoringFilter {
   public void injectedScore(String url, WebPage row)
   throws ScoringFilterException {
     float score = row.getScore();
-    row.putToMetadata(CASH_KEY, ByteBuffer.wrap(Bytes.toBytes(score)));
+    row.getMetadata().put(CASH_KEY, ByteBuffer.wrap(Bytes.toBytes(score)));
   }
 
   /** Set to 0.0f (unknown value) - inlink contributions will bring it to
@@ -90,7 +90,7 @@ public class OPICScoringFilter implements ScoringFilter {
   @Override
   public void initialScore(String url, WebPage row) throws ScoringFilterException {
     row.setScore(0.0f);
-    row.putToMetadata(CASH_KEY, ByteBuffer.wrap(Bytes.toBytes(0.0f)));
+    row.getMetadata().put(CASH_KEY, ByteBuffer.wrap(Bytes.toBytes(0.0f)));
   }
 
   /** Use {@link WebPage#getScore()}. */
@@ -108,12 +108,12 @@ public class OPICScoringFilter implements ScoringFilter {
     }
     float oldScore = row.getScore();
     row.setScore(oldScore + adjust);
-    ByteBuffer cashRaw = row.getFromMetadata(CASH_KEY);
+    ByteBuffer cashRaw = row.getMetadata().get(CASH_KEY);
     float cash = 0.0f;
     if (cashRaw != null) {
       cash = Bytes.toFloat(cashRaw.array(), cashRaw.arrayOffset() + cashRaw.position());
     }
-    row.putToMetadata(CASH_KEY, ByteBuffer.wrap(Bytes.toBytes(cash + adjust)));
+    row.getMetadata().put(CASH_KEY, ByteBuffer.wrap(Bytes.toBytes(cash + adjust)));
   }
 
   /** Get cash on hand, divide it by the number of outlinks and apply. */
@@ -121,7 +121,7 @@ public class OPICScoringFilter implements ScoringFilter {
   public void distributeScoreToOutlinks(String fromUrl,
       WebPage row, Collection<ScoreDatum> scoreData,
       int allCount) {
-    ByteBuffer cashRaw = row.getFromMetadata(CASH_KEY);
+    ByteBuffer cashRaw = row.getMetadata().get(CASH_KEY);
     if (cashRaw == null) {
       return;
     }
@@ -149,7 +149,7 @@ public class OPICScoringFilter implements ScoringFilter {
       }
     }
     // reset cash to zero
-    row.putToMetadata(CASH_KEY, ByteBuffer.wrap(Bytes.toBytes(0.0f)));
+    row.getMetadata().put(CASH_KEY, ByteBuffer.wrap(Bytes.toBytes(0.0f)));
   }
 
   /** Dampen the boost value by scorePower.*/

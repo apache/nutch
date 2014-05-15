@@ -16,16 +16,16 @@
  */
 package org.apache.nutch.util;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
-
-import org.junit.Test;
-import static org.junit.Assert.*;
-
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.storage.WebPage;
+import org.junit.Test;
+
+import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+
+import static org.junit.Assert.assertEquals;
 
 public class TestEncodingDetector {
   private static Configuration conf = NutchConfiguration.create();
@@ -50,7 +50,7 @@ public class TestEncodingDetector {
     // Content content;
     String encoding;
 
-    WebPage page = new WebPage();
+    WebPage page = WebPage.newBuilder().build();
     page.setBaseUrl(new Utf8("http://www.example.com/"));
     page.setContentType(new Utf8("text/plain"));
     page.setContent(ByteBuffer.wrap(contentInOctets));
@@ -61,18 +61,18 @@ public class TestEncodingDetector {
     // no information is available, so it should return default encoding
     assertEquals("windows-1252", encoding.toLowerCase());
 
-    page = new WebPage();
+    page = WebPage.newBuilder().build();
     page.setBaseUrl(new Utf8("http://www.example.com/"));
     page.setContentType(new Utf8("text/plain"));
     page.setContent(ByteBuffer.wrap(contentInOctets));
-    page.putToHeaders(EncodingDetector.CONTENT_TYPE_UTF8, new Utf8("text/plain; charset=UTF-16"));
+    page.getHeaders().put(EncodingDetector.CONTENT_TYPE_UTF8, new Utf8("text/plain; charset=UTF-16"));
     
     detector = new EncodingDetector(conf);
     detector.autoDetectClues(page, true);
     encoding = detector.guessEncoding(page, "windows-1252");
     assertEquals("utf-16", encoding.toLowerCase());
 
-    page = new WebPage();
+    page = WebPage.newBuilder().build();
     page.setBaseUrl(new Utf8("http://www.example.com/"));
     page.setContentType(new Utf8("text/plain"));
     page.setContent(ByteBuffer.wrap(contentInOctets));
@@ -85,11 +85,11 @@ public class TestEncodingDetector {
 
     // enable autodetection
     conf.setInt(EncodingDetector.MIN_CONFIDENCE_KEY, 50);
-    page = new WebPage();
+    page = WebPage.newBuilder().build();
     page.setBaseUrl(new Utf8("http://www.example.com/"));
     page.setContentType(new Utf8("text/plain"));
     page.setContent(ByteBuffer.wrap(contentInOctets));
-    page.putToMetadata(new Utf8(Response.CONTENT_TYPE), ByteBuffer.wrap("text/plain; charset=UTF-16".getBytes()));
+    page.getMetadata().put(new Utf8(Response.CONTENT_TYPE), ByteBuffer.wrap("text/plain; charset=UTF-16".getBytes()));
     
     detector = new EncodingDetector(conf);
     detector.autoDetectClues(page, true);

@@ -17,13 +17,13 @@
 
 package org.apache.nutch.crawl;
 
-import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.HashSet;
-
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.io.MD5Hash;
 import org.apache.nutch.storage.WebPage;
+
+import java.nio.ByteBuffer;
+import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * Default implementation of a page signature. It calculates an MD5 hash
@@ -47,7 +47,7 @@ public class MD5Signature extends Signature {
     int of;
     int cb;
     if (buf == null) {
-      Utf8 baseUrl = page.getBaseUrl();
+      Utf8 baseUrl = (Utf8) page.getBaseUrl();
       if (baseUrl == null) {
         data = null;
         of = 0;
@@ -56,7 +56,7 @@ public class MD5Signature extends Signature {
       else {
         data = baseUrl.getBytes();
         of = 0;
-        cb = baseUrl.getLength();
+        cb = baseUrl.length();
       }
     } else {
       data = buf.array();

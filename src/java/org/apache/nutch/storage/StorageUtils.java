@@ -16,10 +16,6 @@
  ******************************************************************************/
 package org.apache.nutch.storage;
 
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Iterator;
-
 import org.apache.gora.mapreduce.GoraMapper;
 import org.apache.gora.mapreduce.GoraOutputFormat;
 import org.apache.gora.mapreduce.GoraReducer;
@@ -32,6 +28,10 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.nutch.metadata.Nutch;
+
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * Entry point to Gora store/mapreduce functionality.
@@ -52,22 +52,22 @@ public class StorageUtils {
   @SuppressWarnings("unchecked")
   public static <K, V extends Persistent> DataStore<K, V> createWebStore(Configuration conf,
       Class<K> keyClass, Class<V> persistentClass) throws ClassNotFoundException, GoraException {
-    
-    String schema = null;
+
+    String crawlId = conf.get(Nutch.CRAWL_ID_KEY, "");
+    String schemaPrefix = "";
+    if (!crawlId.isEmpty()) {
+      schemaPrefix = crawlId + "_";
+    }
+      
+    String schema;
     if (WebPage.class.equals(persistentClass)) {
       schema = conf.get("storage.schema.webpage", "webpage");
+      conf.set("preferred.schema.name", schemaPrefix + "webpage");
     } else if (Host.class.equals(persistentClass)) {
       schema = conf.get("storage.schema.host", "host");
+      conf.set("preferred.schema.name", schemaPrefix + "host");
     } else {
       throw new UnsupportedOperationException("Unable to create store for class " + persistentClass);
-    }
-    
-    String crawlId = conf.get(Nutch.CRAWL_ID_KEY, "");
-    
-    if (!crawlId.isEmpty()) {
-      conf.set("schema.prefix", crawlId + "_");
-    } else {
-      conf.set("schema.prefix", "");
     }
 
     Class<? extends DataStore<K, V>> dataStoreClass =

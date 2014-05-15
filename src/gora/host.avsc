@@ -2,8 +2,8 @@
  "type": "record",
  "namespace": "org.apache.nutch.storage",
  "fields": [
-        {"name": "metadata", "type": {"type": "map", "values": "bytes"}},
-        {"name": "outlinks", "type": {"type": "map", "values": "string"}},
-        {"name": "inlinks", "type": {"type": "map", "values": "string"}}
+        {"name": "metadata", "type": {"type": "map", "values": "bytes"}, "default":{}},
+        {"name": "outlinks", "type": {"type": "map", "values": "string"}, "default":{}},
+        {"name": "inlinks", "type": {"type": "map", "values": "string"}, "default":{}}
    ]
 }

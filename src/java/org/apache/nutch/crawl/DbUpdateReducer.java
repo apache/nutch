@@ -22,7 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.avro.util.Utf8;
-import org.slf4j.Logger;
+import org.apache.gora.mapreduce.GoraReducer;
+import org.apache.gora.store.DataStore;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.StringUtils;
@@ -35,7 +36,7 @@ import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.TableUtil;
 import org.apache.nutch.util.WebPageWritable;
-import org.apache.gora.mapreduce.GoraReducer;
+import org.slf4j.Logger;
 
 public class DbUpdateReducer
 extends GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
@@ -97,16 +98,16 @@ extends GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
       if (!additionsAllowed) {
         return;
       }
-      page = new WebPage();
+      page = WebPage.newBuilder().build();
       schedule.initializeSchedule(url, page);
-      page.setStatus(CrawlStatus.STATUS_UNFETCHED);
+      page.setStatus((int) CrawlStatus.STATUS_UNFETCHED);
       try {
         scoringFilters.initialScore(url, page);
       } catch (ScoringFilterException e) {
         page.setScore(0.0f);
       }
     } else {
-      byte status = (byte)page.getStatus();
+      byte status = page.getStatus().byteValue();
       switch (status) {
       case CrawlStatus.STATUS_FETCHED:         // succesful fetch
       case CrawlStatus.STATUS_REDIR_TEMP:      // successful fetch, redirected
@@ -129,7 +130,7 @@ extends GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
         long prevFetchTime = page.getPrevFetchTime();
         long modifiedTime = page.getModifiedTime();
         long prevModifiedTime = page.getPrevModifiedTime();
-        Utf8 lastModified = page.getFromHeaders(new Utf8("Last-Modified"));
+        CharSequence lastModified = page.getHeaders().get(new Utf8("Last-Modified"));
         if ( lastModified != null ){
           try {
             modifiedTime = HttpDateFormat.toLong(lastModified.toString());
@@ -145,9 +146,9 @@ extends GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
       case CrawlStatus.STATUS_RETRY:
         schedule.setPageRetrySchedule(url, page, 0L, page.getPrevModifiedTime(), page.getFetchTime());
         if (page.getRetriesSinceFetch() < retryMax) {
-          page.setStatus(CrawlStatus.STATUS_UNFETCHED);
+          page.setStatus((int)CrawlStatus.STATUS_UNFETCHED);
         } else {
-          page.setStatus(CrawlStatus.STATUS_GONE);
+          page.setStatus((int)CrawlStatus.STATUS_GONE);
         }
         break;
       case CrawlStatus.STATUS_GONE:
@@ -171,15 +172,15 @@ extends GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
       if (inlinkDist < smallestDist) {
         smallestDist=inlinkDist;
       }
-      page.putToInlinks(new Utf8(inlink.getUrl()), new Utf8(inlink.getAnchor()));
+      page.getInlinks().put(new Utf8(inlink.getUrl()), new Utf8(inlink.getAnchor()));
     }
     if (smallestDist != Integer.MAX_VALUE) {
       int oldDistance=Integer.MAX_VALUE;
-      Utf8 oldDistUtf8 = page.getFromMarkers(DbUpdaterJob.DISTANCE);
+      CharSequence oldDistUtf8 = page.getMarkers().get(DbUpdaterJob.DISTANCE);
       if (oldDistUtf8 != null)oldDistance=Integer.parseInt(oldDistUtf8.toString());
       int newDistance = smallestDist+1;
       if (newDistance < oldDistance) {
-        page.putToMarkers(DbUpdaterJob.DISTANCE, new Utf8(Integer.toString(newDistance)));
+        page.getMarkers().put(DbUpdaterJob.DISTANCE, new Utf8(Integer.toString(newDistance)));
       }
     }
 
@@ -193,8 +194,8 @@ extends GoraReducer<UrlWithScore, NutchWritable, String, WebPage> {
     // clear markers
     // But only delete when they exist. This is much faster for the underlying
     // store. The markers are on the input anyway.
-    if (page.getFromMetadata(FetcherJob.REDIRECT_DISCOVERED) != null) {
-      page.removeFromMetadata(FetcherJob.REDIRECT_DISCOVERED);
+    if (page.getMetadata().get(FetcherJob.REDIRECT_DISCOVERED) != null) {
+      page.getMetadata().put(FetcherJob.REDIRECT_DISCOVERED, null);
     }
     Mark.GENERATE_MARK.removeMarkIfExist(page);
     Mark.FETCH_MARK.removeMarkIfExist(page);

@@ -16,11 +16,6 @@
  */
 package org.apache.nutch.crawl;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.fs.Path;
 import org.apache.nutch.storage.WebPage;
@@ -30,7 +25,14 @@ import org.apache.nutch.util.CrawlTestUtil;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Basic injector test: 1. Creates a text file with urls 2. Injects them into
@@ -110,8 +112,8 @@ public class TestInjector extends AbstractNutchTest {
     for (URLWebPage up : pages) {
       WebPage page = up.getDatum();
       String representation = up.getUrl();
-      representation += "\tnutch.score=" + (int)page.getScore();
-      ByteBuffer bb = page.getFromMetadata(new Utf8("custom.attribute"));
+      representation += "\tnutch.score=" + page.getScore().intValue();
+      ByteBuffer bb = page.getMetadata().get(new Utf8("custom.attribute"));
       if (bb != null) {
         representation += "\tcustom.attribute=" + Bytes.toString(bb);
       }

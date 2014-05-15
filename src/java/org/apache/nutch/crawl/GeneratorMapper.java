@@ -16,9 +16,8 @@
  ******************************************************************************/
 package org.apache.nutch.crawl;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-
+import org.apache.avro.util.Utf8;
+import org.apache.gora.mapreduce.GoraMapper;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.crawl.GeneratorJob.SelectorEntry;
 import org.apache.nutch.net.URLFilterException;
@@ -29,8 +28,11 @@ import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.TableUtil;
-import org.apache.avro.util.Utf8;
-import org.apache.gora.mapreduce.GoraMapper;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.ByteBuffer;
+import java.util.HashMap;
 
 public class GeneratorMapper
 extends GoraMapper<String, WebPage, SelectorEntry, WebPage> {
@@ -59,7 +61,7 @@ extends GoraMapper<String, WebPage, SelectorEntry, WebPage> {
 
     //filter on distance
     if (maxDistance > -1) {
-      Utf8 distanceUtf8 = page.getFromMarkers(DbUpdaterJob.DISTANCE);
+      CharSequence distanceUtf8 = page.getMarkers().get(DbUpdaterJob.DISTANCE);
       if (distanceUtf8 != null) {
         int distance=Integer.parseInt(distanceUtf8.toString());
         if (distance > maxDistance) {

@@ -16,13 +16,6 @@
  */
 package org.apache.nutch.crawl;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.storage.Mark;
 import org.apache.nutch.storage.WebPage;
@@ -33,7 +26,15 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import static org.junit.Assert.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * Basic generator test. 1. Insert entries in webtable 2. Generates entries to
@@ -294,10 +295,10 @@ public class TestGenerator extends AbstractNutchTest {
    */
   private URLWebPage createURLWebPage(final String url,
       final int fetchInterval, final float score) {
-    WebPage page = new WebPage();
+    WebPage page = WebPage.newBuilder().build();
     page.setFetchInterval(fetchInterval);
     page.setScore(score);
-    page.setStatus(CrawlStatus.STATUS_UNFETCHED);
+    page.setStatus((int)CrawlStatus.STATUS_UNFETCHED);
     return new URLWebPage(url, page);
   }
 

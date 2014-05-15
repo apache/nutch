@@ -17,16 +17,6 @@
 
 package org.apache.nutch.parse.tika;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
-
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.parse.Parse;
@@ -36,6 +26,16 @@ import org.apache.nutch.protocol.ProtocolException;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.MimeUtil;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * Unit tests for MSWordParser.
@@ -72,7 +72,7 @@ public class TestMSWordParser {
 	in.readFully(bytes);
 	in.close();
 	Parse parse;
-	WebPage page = new WebPage();
+	WebPage page = WebPage.newBuilder().build();
 	page.setBaseUrl(new Utf8("file:"+urlString));
 	page.setContent(ByteBuffer.wrap(bytes));
 	// set the content type?

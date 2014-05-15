@@ -142,7 +142,7 @@ public abstract class HttpBase implements Protocol {
       int elapsedTime =(int) (System.currentTimeMillis() - startTime);
       
       if(this.responseTime) {
-        page.putToMetadata(RESPONSE_TIME, ByteBuffer.wrap(Bytes.toBytes(elapsedTime))); 
+        page.getMetadata().put(RESPONSE_TIME, ByteBuffer.wrap(Bytes.toBytes(elapsedTime)));
       }
       
       int code = response.getCode();
@@ -370,7 +370,7 @@ public abstract class HttpBase implements Protocol {
         url = args[i];
     }
 
-    ProtocolOutput out = http.getProtocolOutput(url, new WebPage());
+    ProtocolOutput out = http.getProtocolOutput(url, WebPage.newBuilder().build());
     Content content = out.getContent();
 
     System.out.println("Status: " + out.getStatus());

@@ -16,6 +16,19 @@
  ******************************************************************************/
 package org.apache.nutch.storage;
 
+import org.apache.avro.util.Utf8;
+import org.apache.commons.io.IOUtils;
+import org.apache.gora.query.Result;
+import org.apache.gora.store.DataStore;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.util.AbstractNutchTest;
+import org.apache.nutch.util.CrawlTestUtil;
+import org.hsqldb.Server;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -26,20 +39,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.apache.avro.util.Utf8;
-import org.apache.commons.io.IOUtils;
-import org.apache.gora.query.Result;
-import org.apache.gora.store.DataStore;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.util.AbstractNutchTest;
-import org.apache.nutch.util.CrawlTestUtil;
-import org.hsqldb.Server;
-import org.junit.Ignore;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Tests basic Gora functionality by writing and reading webpages.
@@ -71,7 +72,7 @@ public class TestGoraStorage extends AbstractNutchTest {
 
   private static void readWrite(String id, DataStore<String, WebPage> store) 
       throws IOException, Exception {
-    WebPage page = new WebPage();
+    WebPage page = WebPage.newBuilder().build();
     int max = 1000;
     for (int i = 0; i < max; i++) {
       // store a page with title

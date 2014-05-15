@@ -195,11 +195,11 @@ public class DmozParser {
               
               if(row!=null){
                 if (desc.length() > 0) {
-                  row.putToMetadata(new Utf8("_dmoz_desc_"), ByteBuffer.wrap(desc.toString().getBytes()));
+                  row.getMetadata().put(new Utf8("_dmoz_desc_"), ByteBuffer.wrap(desc.toString().getBytes()));
                   desc.delete(0, desc.length());
                 }
                 if (title.length() > 0) {
-                  row.putToMetadata(new Utf8("_dmoz_title_"), ByteBuffer.wrap(title.toString().getBytes()));
+                  row.getMetadata().put(new Utf8("_dmoz_title_"), ByteBuffer.wrap(title.toString().getBytes()));
                   title.delete(0, title.length());
                 }
                 store.put(reversedUrl, row);

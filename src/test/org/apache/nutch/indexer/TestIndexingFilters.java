@@ -16,14 +16,15 @@
  */
 package org.apache.nutch.indexer;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
-
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class TestIndexingFilters {
 
@@ -42,7 +43,7 @@ public class TestIndexingFilters {
     conf.set(IndexingFilters.INDEXINGFILTER_ORDER, class1 + " " + class2);
 
     IndexingFilters filters = new IndexingFilters(conf);
-    WebPage page = new WebPage();
+    WebPage page = WebPage.newBuilder().build();
     page.setText(new Utf8("text"));
     page.setTitle(new Utf8("title"));
     filters.filter(new NutchDocument(),"http://www.example.com/",page);
@@ -59,7 +60,7 @@ public class TestIndexingFilters {
     conf.addResource("crawl-tests.xml");
 
     IndexingFilters filters = new IndexingFilters(conf);
-    WebPage page = new WebPage();
+    WebPage page = WebPage.newBuilder().build();
     page.setText(new Utf8("text"));
     page.setTitle(new Utf8("title"));
     NutchDocument doc = filters.filter(null,"http://www.example.com/",page);
@@ -82,7 +83,7 @@ public class TestIndexingFilters {
     conf.set(IndexingFilters.INDEXINGFILTER_ORDER, class1);
 
     IndexingFilters filters1 = new IndexingFilters(conf);
-    WebPage page = new WebPage();
+    WebPage page = WebPage.newBuilder().build();
     page.setText(new Utf8("text"));
     page.setTitle(new Utf8("title"));
     NutchDocument fdoc1 = filters1.filter(new NutchDocument(),"http://www.example.com/",page);

@@ -17,25 +17,20 @@
 
 package org.apache.nutch.protocol.ftp;
 
+import crawlercommons.robots.BaseRobotRules;
+import org.apache.commons.net.ftp.FTPFileEntryParser;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.net.protocols.Response;
+import org.apache.nutch.protocol.*;
+import org.apache.nutch.storage.ProtocolStatus;
+import org.apache.nutch.storage.WebPage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.apache.commons.net.ftp.FTPFileEntryParser;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.net.protocols.Response;
-import org.apache.nutch.protocol.Content;
-import org.apache.nutch.protocol.Protocol;
-import org.apache.nutch.protocol.ProtocolOutput;
-import org.apache.nutch.protocol.ProtocolStatusCodes;
-import org.apache.nutch.protocol.ProtocolStatusUtils;
-import org.apache.nutch.storage.ProtocolStatus;
-import org.apache.nutch.storage.WebPage;
-
-import crawlercommons.robots.BaseRobotRules;
 
 /**
  * This class is a protocol plugin used for ftp: scheme.
@@ -238,7 +233,7 @@ public class Ftp implements Protocol {
     if (maxContentLength != Integer.MIN_VALUE) // set maxContentLength
       ftp.setMaxContentLength(maxContentLength);
 
-    Content content = ftp.getProtocolOutput(urlString, new WebPage())
+    Content content = ftp.getProtocolOutput(urlString, WebPage.newBuilder().build())
         .getContent();
 
     System.err.println("Content-Type: " + content.getContentType());

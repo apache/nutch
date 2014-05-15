@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1714 Upgrade to Gora 0.4 (Alparslan Avcı via jnioche)
+
 * NUTCH-1752 Cache robots.txt rules per protocol:host:port (snagel)
 
 * NUTCH-1613 Timeouts in protocol-httpclient when crawling same host with >2 threads (brian44 via jnioche)

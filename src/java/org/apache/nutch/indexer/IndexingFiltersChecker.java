@@ -80,12 +80,12 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     ProtocolFactory factory = new ProtocolFactory(conf);
     Protocol protocol = factory.getProtocol(url);
 
-    WebPage page = new WebPage();
+    WebPage page = WebPage.newBuilder().build();
     page.setBaseUrl(new org.apache.avro.util.Utf8(url));
     ProtocolOutput protocolOutput = protocol.getProtocolOutput(url, page);
     page.setProtocolStatus(protocolOutput.getStatus());
     if (protocolOutput.getStatus().getCode() == ProtocolStatusCodes.SUCCESS) {
-      page.setStatus(CrawlStatus.STATUS_FETCHED);
+      page.setStatus((int)CrawlStatus.STATUS_FETCHED);
       page.setFetchTime(System.currentTimeMillis());
     } else {
       LOG.error("Fetch failed with protocol status: "

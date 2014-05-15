@@ -17,12 +17,6 @@
 package org.apache.nutch.analysis.lang;
 
 // JUnit imports
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
-
-import org.junit.Test;
-import static org.junit.Assert.*;
 
 import org.apache.avro.util.Utf8;
 import org.apache.nutch.metadata.Metadata;
@@ -32,6 +26,14 @@ import org.apache.nutch.util.Bytes;
 import org.apache.nutch.util.EncodingDetector;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.tika.language.LanguageIdentifier;
+import org.junit.Test;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class TestHTMLLanguageParser {
 
@@ -59,7 +61,7 @@ public class TestHTMLLanguageParser {
       for (int t = 0; t < docs.length; t++) {
         WebPage page = getPage(docs[t]);
         parser.parse(URL.toString(), page);
-        ByteBuffer blang = page.getFromMetadata(new Utf8(Metadata.LANGUAGE));
+        ByteBuffer blang = page.getMetadata().get(new Utf8(Metadata.LANGUAGE));
         String lang = Bytes.toString(blang);
         assertEquals(metalanguages[t], lang);
       }
@@ -145,12 +147,12 @@ public class TestHTMLLanguageParser {
   }
 
   private WebPage getPage(String text) {
-    WebPage page = new WebPage();
+    WebPage page = WebPage.newBuilder().build();
     page.setBaseUrl(BASE);
     page.setContent(ByteBuffer.wrap(text.getBytes()));
     page.setContentType(new Utf8("text/html"));
     page
-        .putToHeaders(EncodingDetector.CONTENT_TYPE_UTF8, new Utf8("text/html"));
+        .getHeaders().put(EncodingDetector.CONTENT_TYPE_UTF8, new Utf8("text/html"));
     return page;
   }
 }

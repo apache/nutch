@@ -58,13 +58,14 @@ public class TestMetaTagsParser {
 
   /**
    * 
+   *
    * @param fileName
    *          This variable set test file.
    * @param useUtil
    *          If value is True method use ParseUtil
    * @return If successfully document parsed, it return metatags
    */
-  public Map<Utf8, ByteBuffer> parseMetaTags(String fileName, boolean useUtil) {
+  public Map<CharSequence, ByteBuffer> parseMetaTags(String fileName, boolean useUtil) {
     try {
       Configuration conf = NutchConfiguration.create();
       String urlString = "file:" + sampleDir + fileSeparator + fileName;
@@ -185,7 +186,7 @@ public class TestMetaTagsParser {
   @Test
   public void testMetaTagsParserWithConf() {
     // check that we get the same values
-    Map<Utf8, ByteBuffer> meta = parseMetaTags(sampleFile, true);
+    Map<CharSequence, ByteBuffer> meta = parseMetaTags(sampleFile, true);
 
     assertEquals(description,
         getMeta(meta, MetaTagsParser.PARSE_META_PREFIX + "description"));
@@ -200,7 +201,7 @@ public class TestMetaTagsParser {
   @Test
   public void testFilter() {
     // check that we get the same values
-    Map<Utf8, ByteBuffer> meta = parseMetaTags(sampleFile, false);
+    Map<CharSequence, ByteBuffer> meta = parseMetaTags(sampleFile, false);
 
     assertEquals(description,
         getMeta(meta, MetaTagsParser.PARSE_META_PREFIX + "description"));
@@ -208,7 +209,7 @@ public class TestMetaTagsParser {
         getMeta(meta, MetaTagsParser.PARSE_META_PREFIX + "keywords"));
   }
 
-  private String getMeta(Map<Utf8, ByteBuffer> meta, String name) {
+  private String getMeta(Map<CharSequence, ByteBuffer> meta, String name) {
     ByteBuffer raw = meta.get(new Utf8(name));
     return Bytes.toString(raw);
   }

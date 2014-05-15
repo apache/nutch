@@ -17,9 +17,6 @@
 package org.apache.nutch.analysis.lang;
 
 // Nutch imports
-import java.nio.ByteBuffer;
-import java.util.Collection;
-import java.util.HashSet;
 
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
@@ -30,6 +27,10 @@ import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.storage.WebPage.Field;
 import org.apache.nutch.util.Bytes;
+
+import java.nio.ByteBuffer;
+import java.util.Collection;
+import java.util.HashSet;
 
 /**
  * An {@link org.apache.nutch.indexer.IndexingFilter} that adds a
@@ -61,7 +62,7 @@ public class LanguageIndexingFilter implements IndexingFilter {
       throws IndexingException {
 
     // check if LANGUAGE found, possibly put there by HTMLLanguageParser
-    ByteBuffer blang = page.getFromMetadata(new Utf8(Metadata.LANGUAGE));
+    ByteBuffer blang = page.getMetadata().get(new Utf8(Metadata.LANGUAGE));
     String lang = Bytes.toString(blang);
 
     if (lang == null || lang.length() == 0) {

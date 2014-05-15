@@ -16,13 +16,12 @@
  ******************************************************************************/
 package org.apache.nutch.util;
 
+import org.apache.avro.util.Utf8;
+import org.apache.commons.lang.StringUtils;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
-
-import org.apache.avro.util.Utf8;
-import org.apache.commons.lang.StringUtils;
-import org.apache.nutch.util.StringUtil;
 
 public class TableUtil {
 
@@ -148,11 +147,12 @@ public class TableUtil {
    * Convert given Utf8 instance to String and and cleans out 
    * any offending "�" from the String.
    *
+   *
    * @param utf8
    *          Utf8 object
    * @return string-ifed Utf8 object or null if Utf8 instance is null
    */
-  public static String toString(Utf8 utf8) {
+  public static String toString(CharSequence utf8) {
     return (utf8 == null ? null : StringUtil.cleanField(utf8.toString()));
   }
 

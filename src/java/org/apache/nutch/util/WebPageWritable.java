@@ -16,15 +16,15 @@
  ******************************************************************************/
 package org.apache.nutch.util;
 
-import java.io.DataInput;
-import java.io.DataOutput;
-import java.io.IOException;
-
+import org.apache.gora.util.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.Writable;
 import org.apache.nutch.storage.WebPage;
-import org.apache.gora.util.IOUtils;
+
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.IOException;
 
 public class WebPageWritable extends Configured
 implements Writable {
@@ -32,7 +32,7 @@ implements Writable {
   private WebPage webPage;
 
   public WebPageWritable() {
-    this(null, new WebPage());
+    this(null, WebPage.newBuilder().build());
   }
 
   public WebPageWritable(Configuration conf, WebPage webPage) {

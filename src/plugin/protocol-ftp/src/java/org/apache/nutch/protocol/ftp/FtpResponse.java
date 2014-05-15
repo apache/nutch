@@ -18,14 +18,6 @@
 package org.apache.nutch.protocol.ftp;
 
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.util.LinkedList;
-import java.util.List;
-
 import org.apache.avro.util.Utf8;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPFile;
@@ -38,6 +30,14 @@ import org.apache.nutch.net.protocols.HttpDateFormat;
 import org.apache.nutch.net.protocols.Response;
 import org.apache.nutch.protocol.Content;
 import org.apache.nutch.storage.WebPage;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.URL;
+import java.nio.ByteBuffer;
+import java.util.LinkedList;
+import java.util.List;
 
 
 /************************************
@@ -116,7 +116,7 @@ public class FtpResponse {
       if (addr != null
           && conf.getBoolean("store.ip.address", false) == true) {
         String ipString = addr.getHostAddress(); //get the ip address
-        page.putToMetadata(new Utf8("_ip_"),
+        page.getMetadata().put(new Utf8("_ip_"),
           ByteBuffer.wrap(ipString.getBytes()));
       }
 

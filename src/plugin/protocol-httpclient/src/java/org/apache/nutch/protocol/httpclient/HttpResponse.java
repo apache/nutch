@@ -176,7 +176,7 @@ public class HttpResponse implements Response {
 	    page.getHeaders().clear();
 	  }
 	  for (String key : headers.names()) {
-	    page.putToHeaders(new Utf8(key), new Utf8(headers.get(key)));
+	    page.getHeaders().put(new Utf8(key), new Utf8(headers.get(key)));
 	  }
 
       // Logger trace message

@@ -85,7 +85,7 @@ public class RelTagIndexingFilter implements IndexingFilter {
   @Override
   public NutchDocument filter(NutchDocument doc, String url, WebPage page) throws IndexingException {
   // Check if some Rel-Tags found, possibly put there by RelTagParser
-    ByteBuffer bb = page.getFromMetadata(new Utf8(RelTagParser.REL_TAG));
+    ByteBuffer bb = page.getMetadata().get(new Utf8(RelTagParser.REL_TAG));
 		
     if (bb != null) {
       String[] tags = Bytes.toString(bb).split("\t");

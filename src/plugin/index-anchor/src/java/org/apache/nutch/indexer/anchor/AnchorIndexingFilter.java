@@ -16,10 +16,6 @@
  */
 package org.apache.nutch.indexer.anchor;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map.Entry;
-
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.IndexingException;
@@ -29,6 +25,11 @@ import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.TableUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.CharSequence;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map.Entry;
 
 /**
  * Indexing filter that offers an option to either index all inbound anchor text for 
@@ -82,7 +83,7 @@ public class AnchorIndexingFilter implements IndexingFilter {
       throws IndexingException {
     HashSet<String> set = null;
     
-    for (Entry<Utf8, Utf8> e : page.getInlinks().entrySet()) {
+    for (Entry<CharSequence, CharSequence> e : page.getInlinks().entrySet()) {
       String anchor = TableUtil.toString(e.getValue());
       
       if(anchor.equals(""))

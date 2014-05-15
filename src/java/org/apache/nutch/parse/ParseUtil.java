@@ -17,14 +17,8 @@
 package org.apache.nutch.parse;
 
 // Commons Logging imports
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -43,7 +37,13 @@ import org.apache.nutch.util.URLUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.ByteBuffer;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A Utility class containing methods to simply perform parsing utilities such
@@ -162,7 +162,7 @@ public class ParseUtil extends Configured {
    */
   public void process(String key, WebPage page) {
     String url = TableUtil.unreverseUrl(key);
-    byte status = (byte) page.getStatus();
+    byte status = page.getStatus().byteValue();
     if (status != CrawlStatus.STATUS_FETCHED) {
       if (LOG.isDebugEnabled()) {
         LOG.debug("Skipping " + url + " as status is: " + CrawlStatus.getName(status));
@@ -214,8 +214,8 @@ public class ParseUtil extends Configured {
           LOG.warn("malformed url exception parsing redirect " + url);
           return;
         }
-        page.putToOutlinks(new Utf8(newUrl), new Utf8());
-        page.putToMetadata(FetcherJob.REDIRECT_DISCOVERED, TableUtil.YES_VAL);
+        page.getOutlinks().put(new Utf8(newUrl), new Utf8());
+        page.getMetadata().put(FetcherJob.REDIRECT_DISCOVERED, TableUtil.YES_VAL);
         if (newUrl == null || newUrl.equals(url)) {
           String reprUrl = URLUtil.chooseRepr(url, newUrl,
               refreshTime < FetcherJob.PERM_REFRESH_TIME);
@@ -265,7 +265,7 @@ public class ParseUtil extends Configured {
             continue;
           }
           Utf8 utf8ToUrl = new Utf8(toUrl);
-          if (page.getFromOutlinks(utf8ToUrl) != null) {
+          if (page.getOutlinks().get(utf8ToUrl) != null) {
             // skip duplicate outlinks
             continue;
           }
@@ -281,7 +281,7 @@ public class ParseUtil extends Configured {
             }
           }
           validCount++;
-          page.putToOutlinks(utf8ToUrl, new Utf8(outlinks[i].getAnchor()));
+          page.getOutlinks().put(utf8ToUrl, new Utf8(outlinks[i].getAnchor()));
         }
         Utf8 fetchMark = Mark.FETCH_MARK.checkMark(page);
         if (fetchMark != null) {

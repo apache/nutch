@@ -1,19 +1,3 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.apache.nutch.indexer.more;
 
 import java.text.ParseException;
@@ -84,8 +68,8 @@ public class MoreIndexingFilter implements IndexingFilter {
   // last-modified, or, if that's not present, use fetch time.
   private NutchDocument addTime(NutchDocument doc, WebPage page, String url) {
     long time = -1;
-    Utf8 lastModified = page
-        .getFromHeaders(new Utf8(HttpHeaders.LAST_MODIFIED));
+    CharSequence lastModified = page
+        .getHeaders().get(new Utf8(HttpHeaders.LAST_MODIFIED));
     // String lastModified = data.getMeta(Metadata.LAST_MODIFIED);
     if (lastModified != null) { // try parse last-modified
       time = getTime(lastModified.toString(), url); // use as time
@@ -139,8 +123,8 @@ public class MoreIndexingFilter implements IndexingFilter {
 
   // Add Content-Length
   private NutchDocument addLength(NutchDocument doc, WebPage page, String url) {
-    Utf8 contentLength = page.getFromHeaders(new Utf8(
-        HttpHeaders.CONTENT_LENGTH));
+    CharSequence contentLength = page.getHeaders().get(new Utf8(
+            HttpHeaders.CONTENT_LENGTH));
     if (contentLength != null) {
       // NUTCH-1010 ContentLength not trimmed
       String trimmed = contentLength.toString().trim();
@@ -173,9 +157,9 @@ public class MoreIndexingFilter implements IndexingFilter {
    */
   private NutchDocument addType(NutchDocument doc, WebPage page, String url) {
     String mimeType = null;
-    Utf8 contentType = page.getContentType();
+    CharSequence contentType = page.getContentType();
     if (contentType == null)
-    	contentType = page.getFromHeaders(new Utf8(HttpHeaders.CONTENT_TYPE));
+      contentType = page.getHeaders().get(new Utf8(HttpHeaders.CONTENT_TYPE));
     if (contentType == null) {
       // Note by Jerome Charron on 20050415:
       // Content Type not solved by a previous plugin
@@ -249,7 +233,7 @@ public class MoreIndexingFilter implements IndexingFilter {
   }
 
   private NutchDocument resetTitle(NutchDocument doc, WebPage page, String url) {
-    Utf8 contentDisposition = page.getFromHeaders(new Utf8(
+    CharSequence contentDisposition = page.getHeaders().get(new Utf8(
         HttpHeaders.CONTENT_DISPOSITION));
     if (contentDisposition == null)
       return doc;

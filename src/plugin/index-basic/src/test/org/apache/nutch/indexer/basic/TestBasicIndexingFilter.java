@@ -16,8 +16,6 @@
  */
 package org.apache.nutch.indexer.basic;
 
-import java.nio.ByteBuffer;
-
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.indexer.NutchDocument;
@@ -25,6 +23,9 @@ import org.apache.nutch.metadata.Nutch;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.NutchConfiguration;
 import org.junit.Test;
+
+import java.nio.ByteBuffer;
+
 import static org.junit.Assert.*;
 
 /**
@@ -47,13 +48,13 @@ public class TestBasicIndexingFilter {
 	filter.setConf(conf);
 	assertNotNull(filter);
 	NutchDocument doc = new NutchDocument();
-	WebPage page = new WebPage();
-	page.putToInlinks(new Utf8("http://nutch.apache.org/"), new Utf8("Welcome to Nutch"));
+	WebPage page = WebPage.newBuilder().build();
+	page.getInlinks().put(new Utf8("http://nutch.apache.org/"), new Utf8("Welcome to Nutch"));
 	page.setTitle(new Utf8("Welcome to Nutch"));
     page.setReprUrl(new Utf8("http://www.urldoesnotmatter.org"));
     byte[] bytes = new byte[10];
     ByteBuffer bbuf = ByteBuffer.wrap(bytes);
-    page.putToMetadata(Nutch.CACHING_FORBIDDEN_KEY_UTF8, bbuf);
+    page.getMetadata().put(Nutch.CACHING_FORBIDDEN_KEY_UTF8, bbuf);
     page.setFetchTime(System.currentTimeMillis());
 	try {
 	  filter.filter(doc, "http://www.apache.org/", page);
@@ -79,8 +80,8 @@ public class TestBasicIndexingFilter {
 	filter.setConf(conf);
 	assertNotNull(filter);
 	NutchDocument doc = new NutchDocument();
-	WebPage page = new WebPage();
-	page.putToInlinks(new Utf8("http://exceedmaximumtitleurl.org/"), new Utf8("exceeding title site"));
+	WebPage page = WebPage.newBuilder().build();
+	page.getInlinks().put(new Utf8("http://exceedmaximumtitleurl.org/"), new Utf8("exceeding title site"));
 	page.setTitle(new Utf8("This title exceeds maximum characters"));
 	try {
 	  filter.filter(doc, "http://www.apache.org/", page);

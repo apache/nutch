@@ -76,14 +76,14 @@ public class TestProtocolFile {
   public void setContentType(String testTextFile) throws ProtocolNotFound {
     String urlString = "file:" + sampleDir + fileSeparator + testTextFile;
     assertNotNull(urlString);
-    WebPage datum = new WebPage();
+    WebPage datum = WebPage.newBuilder().build();
     Protocol protocol = new ProtocolFactory(conf).getProtocol(urlString);
     ProtocolOutput output = protocol.getProtocolOutput(urlString,datum);
     assertNotNull(output);
 
     assertEquals("Status code: [" + output.getStatus().getCode()
         + "], not equal to: [" + ProtocolStatusCodes.SUCCESS + "]: args: ["
-        + output.getStatus().getArgs() + "]", ProtocolStatusCodes.SUCCESS, output
+        + output.getStatus().getArgs() + "]", (Integer) ProtocolStatusCodes.SUCCESS, output
         .getStatus().getCode());
     assertNotNull(output.getContent());
     assertNotNull(output.getContent().getContentType());

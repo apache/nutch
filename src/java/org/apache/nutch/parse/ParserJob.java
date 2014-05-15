@@ -102,7 +102,7 @@ public class ParserJob extends NutchTool implements Tool {
     @Override
     public void map(String key, WebPage page, Context context)
         throws IOException, InterruptedException {
-      Utf8 mark = Mark.FETCH_MARK.checkMark(page);
+      CharSequence mark = Mark.FETCH_MARK.checkMark(page);
       String unreverseKey = TableUtil.unreverseUrl(key);
       if (batchId.equals(REPARSE)) {
         LOG.debug("Reparsing " + unreverseKey);
@@ -161,7 +161,7 @@ public class ParserJob extends NutchTool implements Tool {
     if (content == null) {
       return false;
     }
-    Utf8 lengthUtf8 = page.getFromHeaders(new Utf8(HttpHeaders.CONTENT_LENGTH));
+    CharSequence lengthUtf8 = page.getHeaders().get(new Utf8(HttpHeaders.CONTENT_LENGTH));
     if (lengthUtf8 == null) {
       return false;
     }

@@ -17,26 +17,26 @@
 
 package org.apache.nutch.parse.tika;
 
+import org.apache.avro.util.Utf8;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.parse.Outlink;
+import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseException;
+import org.apache.nutch.parse.ParseUtil;
+import org.apache.nutch.protocol.ProtocolException;
+import org.apache.nutch.storage.WebPage;
+import org.apache.nutch.util.MimeUtil;
+import org.apache.nutch.util.NutchConfiguration;
+import org.junit.Test;
+
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import org.apache.nutch.protocol.ProtocolException;
-
-import org.apache.nutch.parse.Parse;
-import org.apache.nutch.parse.ParseUtil;
-import org.apache.nutch.parse.ParseException;
-import org.apache.nutch.parse.Outlink;
-import org.apache.avro.util.Utf8;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.storage.WebPage;
-import org.apache.nutch.util.MimeUtil;
-import org.apache.nutch.util.NutchConfiguration;
-
-import org.junit.Test;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Unit tests for the RSS Parser based on John Xing's TestPdfParser class.
@@ -83,7 +83,7 @@ public class TestRSSParser {
       in.readFully(bytes);
       in.close();
 
-      WebPage page = new WebPage();
+      WebPage page = WebPage.newBuilder().build();
       page.setBaseUrl(new Utf8(urlString));
       page.setContent(ByteBuffer.wrap(bytes));
       String mtype = mimeutil.getMimeType(file);

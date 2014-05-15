@@ -17,14 +17,14 @@
 
 package org.apache.nutch.crawl;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.nutch.storage.WebPage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * This class provides common methods for implementations of
@@ -196,7 +196,7 @@ implements FetchSchedule {
     // reduce fetchInterval so that it fits within the max value
     if (page.getFetchInterval() > maxInterval)
       page.setFetchInterval(Math.round(maxInterval * 0.9f));
-    page.setStatus(CrawlStatus.STATUS_UNFETCHED);
+    page.setStatus((int) CrawlStatus.STATUS_UNFETCHED);
     page.setRetriesSinceFetch(0);
     // TODO: row.setSignature(null) ??
     page.setModifiedTime(0L);

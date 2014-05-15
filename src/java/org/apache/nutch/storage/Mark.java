@@ -29,7 +29,7 @@ public enum Mark {
   }
 
   public void putMark(WebPage page, Utf8 markValue) {
-    page.putToMarkers(name, markValue);
+      page.getMarkers().put(name, markValue);
   }
 
   public void putMark(WebPage page, String markValue) {
@@ -37,11 +37,11 @@ public enum Mark {
   }
 
   public Utf8 removeMark(WebPage page) {
-    return page.removeFromMarkers(name);
+    return (Utf8) page.getMarkers().put(name, null);
   }
 
   public Utf8 checkMark(WebPage page) {
-    return page.getFromMarkers(name);
+    return (Utf8) page.getMarkers().get(name);
   }
 
   /**
@@ -50,8 +50,8 @@ public enum Mark {
    * @return If the mark was present.
    */
   public Utf8 removeMarkIfExist(WebPage page) {
-    if (page.getFromMarkers(name) != null) {
-      return page.removeFromMarkers(name);
+    if (checkMark(page) != null) {
+      return removeMark(page);
     }
     return null;
   }

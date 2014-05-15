@@ -16,13 +16,14 @@
  ******************************************************************************/
 package org.apache.nutch.protocol;
 
-import java.net.URL;
-import java.util.Iterator;
-
 import org.apache.avro.generic.GenericArray;
 import org.apache.avro.util.Utf8;
 import org.apache.nutch.storage.ProtocolStatus;
 import org.apache.nutch.util.TableUtil;
+
+import java.net.URL;
+import java.util.Iterator;
+import java.util.List;
 
 public class ProtocolStatusUtils implements ProtocolStatusCodes {
   // Useful static instances for status codes that don't usually require any
@@ -76,15 +77,15 @@ public class ProtocolStatusUtils implements ProtocolStatusCodes {
   }
 
   public static ProtocolStatus makeStatus(int code) {
-    ProtocolStatus pstatus = new ProtocolStatus();
+    ProtocolStatus pstatus = ProtocolStatus.newBuilder().build();
     pstatus.setCode(code);
-    pstatus.setLastModified(0);
+    pstatus.setLastModified(0L);
     return pstatus;
   }
 
   public static ProtocolStatus makeStatus(int code, String message) {
     ProtocolStatus pstatus = makeStatus(code);
-    pstatus.addToArgs(new Utf8(message));
+    pstatus.getArgs().add(new Utf8(message));
     return pstatus;
   }
 
@@ -93,7 +94,7 @@ public class ProtocolStatusUtils implements ProtocolStatusCodes {
   }
 
   public static String getMessage(ProtocolStatus pstatus) {
-    GenericArray<Utf8> args = pstatus.getArgs();
+    List<CharSequence> args = pstatus.getArgs();
     if (args == null || args.size() == 0) {
       return null;
     }
@@ -107,10 +108,10 @@ public class ProtocolStatusUtils implements ProtocolStatusCodes {
     StringBuilder sb = new StringBuilder();
     sb.append(getName(status.getCode()));
     sb.append(", args=[");
-    GenericArray<Utf8> args = status.getArgs();
+    List<CharSequence> args = status.getArgs();
     if (args != null) {
       int i = 0;
-      Iterator<Utf8> it = args.iterator();
+      Iterator<CharSequence> it = args.iterator();
       while (it.hasNext()) {
         if (i > 0) sb.append(',');
         sb.append(it.next());
