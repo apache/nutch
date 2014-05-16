@@ -16,7 +16,6 @@
  */
 package org.apache.nutch.protocol.http;
 
-// JDK imports
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
@@ -27,6 +26,13 @@ import java.io.PushbackInputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+ 
+import javax.net.ssl.SSLSocket;
+import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.hadoop.conf.Configuration;
 
@@ -50,6 +56,11 @@ public class HttpResponse implements Response {
   private byte[] content;
   private int code;
   private Metadata headers = new SpellCheckedMetadata();
+  
+  protected enum Scheme {
+    HTTP,
+    HTTPS,
+  }
 
   /**
    * Default public constructor.
@@ -66,9 +77,16 @@ public class HttpResponse implements Response {
     this.url = url;
     this.orig = url.toString();
     this.base = url.toString();
-
-    if (!"http".equals(url.getProtocol()))
-      throw new HttpException("Not an HTTP url:" + url);
+        
+    Scheme scheme = null;
+ 
+    if ("http".equals(url.getProtocol())) {
+      scheme = Scheme.HTTP;
+    } else if ("https".equals(url.getProtocol())) {
+      scheme = Scheme.HTTPS;
+    } else {
+      throw new HttpException("Unknown scheme (not http/https) for url:" + url);
+    }
 
     if (Http.LOG.isTraceEnabled()) {
       Http.LOG.trace("fetching " + url);
@@ -84,7 +102,11 @@ public class HttpResponse implements Response {
     int port;
     String portString;
     if (url.getPort() == -1) {
-      port= 80;
+      if (scheme == Scheme.HTTP) {
+        port = 80;
+      } else {
+        port = 443;
+      }
       portString= "";
     } else {
       port= url.getPort();
@@ -102,6 +124,26 @@ public class HttpResponse implements Response {
       int sockPort = http.useProxy() ? http.getProxyPort() : port;
       InetSocketAddress sockAddr= new InetSocketAddress(sockHost, sockPort);
       socket.connect(sockAddr, http.getTimeout());
+     
+      if (scheme == Scheme.HTTPS) {
+        SSLSocketFactory factory = (SSLSocketFactory)SSLSocketFactory.getDefault();
+        SSLSocket sslsocket = (SSLSocket)factory.createSocket(socket, sockHost, sockPort, true);
+        sslsocket.setUseClientMode(true);
+        
+        // Get the protocols and ciphers supported by this JVM    
+        Set<String> protocols = new HashSet<String>(Arrays.asList(sslsocket.getSupportedProtocols()));
+        Set<String> ciphers = new HashSet<String>(Arrays.asList(sslsocket.getSupportedCipherSuites()));
+        
+        // Intersect with preferred protocols and ciphers
+        protocols.retainAll(http.getTlsPreferredProtocols());
+        ciphers.retainAll(http.getTlsPreferredCipherSuites());
+        
+        sslsocket.setEnabledProtocols(protocols.toArray(new String[protocols.size()]));
+        sslsocket.setEnabledCipherSuites(ciphers.toArray(new String[ciphers.size()]));
+        
+        sslsocket.startHandshake();
+        socket = sslsocket;
+      }
       
       this.conf = http.getConf();
       if (sockAddr != null
