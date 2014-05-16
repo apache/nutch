@@ -676,8 +676,8 @@ public class Fetcher extends Configured implements Tool,
             redirecting = false;
             redirectCount = 0;
             do {
-              if (LOG.isDebugEnabled()) {
-                LOG.debug("fetching " + fit.url + " (queue crawl delay=" + 
+              if (LOG.isInfoEnabled()) {
+                LOG.info("fetching " + fit.url + " (queue crawl delay=" + 
                          fetchQueues.getFetchItemQueue(fit.queueID).crawlDelay + "ms)"); 
               }
               if (LOG.isDebugEnabled()) {
