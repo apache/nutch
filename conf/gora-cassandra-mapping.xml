@@ -15,57 +15,76 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
+
+<!--
+  The value of 'host' attribute of keyspace tag should match exactly what is in
+  gora.properties file. Essentially this means that if you are using port number, you should
+  use it every where regardless of whether it is the default port or not. 
+  At runtime Gora will otherwise try to connect to localhost
+  https://issues.apache.org/jira/browse/GORA-269
+  
+  The value of 'ttl' (time to live) attribute of field tag should most likely always
+  be zero unless you want Cassandra to create Tombstones and delete portions of your
+  data once this period expires. Any positive value is read and bound to the number 
+  of seconds after which the value for that field will disappear.
+  
+  The value used here for 'gc_grace_seconds' of '0' is ONLY VIABLE FOR SINGLE NODE
+  CLUSTER. you should update this value according to your cluster configuration.
+  https://wiki.apache.org/cassandra/StorageConfiguration
+  
+-->
+
 <gora-orm>
     
-    <keyspace name="webpage" cluster="Test Cluster" host="localhost">
-        <family name="p"/>
-        <family name="f"/>
-        <family name="sc" type="super"/>
+    <keyspace name="webpage" cluster="Test Cluster" host="localhost:9160">
+        <family name="p" gc_grace_seconds="0"/>
+        <family name="f" gc_grace_seconds="0"/>
+        <family name="sc" type="super" gc_grace_seconds="0"/>
     </keyspace>
     <class keyClass="java.lang.String" name="org.apache.nutch.storage.WebPage" keyspace="webpage">
         
         <!-- fetch fields -->
-        <field name="baseUrl" family="f" qualifier="bas"/>
-        <field name="status" family="f" qualifier="st"/>
-        <field name="prevFetchTime" family="f" qualifier="pts"/>
-        <field name="fetchTime" family="f" qualifier="ts"/>
-        <field name="fetchInterval" family="f" qualifier="fi"/>
-        <field name="retriesSinceFetch" family="f" qualifier="rsf"/>
-        <field name="reprUrl" family="f" qualifier="rpr"/>
-        <field name="content" family="f" qualifier="cnt"/>
-        <field name="contentType" family="f" qualifier="typ"/>
-        <field name="modifiedTime" family="f" qualifier="mod"/>
-        <field name="prevModifiedTime" family="f" qualifier="pmod"/>
-        <field name="batchId" family="f" qualifier="bid"/>
+        <field name="baseUrl" family="f" qualifier="bas" ttl="0"/>
+        <field name="status" family="f" qualifier="st" ttl="0"/>
+        <field name="prevFetchTime" family="f" qualifier="pts" ttl="0"/>
+        <field name="fetchTime" family="f" qualifier="ts" ttl="0"/>
+        <field name="fetchInterval" family="f" qualifier="fi" ttl="0"/>
+        <field name="retriesSinceFetch" family="f" qualifier="rsf" ttl="0"/>
+        <field name="reprUrl" family="f" qualifier="rpr" ttl="0"/>
+        <field name="content" family="f" qualifier="cnt" ttl="0"/>
+        <field name="contentType" family="f" qualifier="typ" ttl="0"/>
+        <field name="modifiedTime" family="f" qualifier="mod" ttl="0"/>
+        <field name="prevModifiedTime" family="f" qualifier="pmod" ttl="0"/>
+        <field name="batchId" family="f" qualifier="bid" ttl="0"/>
         
         <!-- parse fields -->
-        <field name="title" family="p" qualifier="t"/>
-        <field name="text" family="p" qualifier="c"/>
-        <field name="signature" family="p" qualifier="sig"/>
-        <field name="prevSignature" family="p" qualifier="psig"/>
+        <field name="title" family="p" qualifier="t" ttl="0"/>
+        <field name="text" family="p" qualifier="c" ttl="0"/>
+        <field name="signature" family="p" qualifier="sig" ttl="0"/>
+        <field name="prevSignature" family="p" qualifier="psig" ttl="0"/>
         
         <!-- score fields -->
-        <field name="score" family="f" qualifier="s"/>
+        <field name="score" family="f" qualifier="s" ttl="0"/>
         
         <!-- super columns -->
-        <field name="headers" family="sc" qualifier="h"/>
-        <field name="inlinks" family="sc" qualifier="il"/>
-        <field name="outlinks" family="sc" qualifier="ol"/>
-        <field name="metadata" family="sc" qualifier="mtdt"/>
-        <field name="markers" family="sc" qualifier="mk"/>
-        <field name="parseStatus" family="sc" qualifier="pas"/>
-        <field name="protocolStatus" family="sc" qualifier="prs"/>
+        <field name="headers" family="sc" qualifier="h" ttl="0"/>
+        <field name="inlinks" family="sc" qualifier="il" ttl="0"/>
+        <field name="outlinks" family="sc" qualifier="ol" ttl="0"/>
+        <field name="metadata" family="sc" qualifier="mtdt" ttl="0"/>
+        <field name="markers" family="sc" qualifier="mk" ttl="0"/>
+        <field name="parseStatus" family="sc" qualifier="pas" ttl="0"/>
+        <field name="protocolStatus" family="sc" qualifier="prs" ttl="0"/>
     </class>
     
-    <keyspace name="host" cluster="Test Cluster" host="localhost">
-        <family name="mtdt" type="super"/>
-        <family name="il" type="super"/>
-        <family name="ol" type="super"/>
+    <keyspace name="host" cluster="Test Cluster" host="localhost:9160">
+        <family name="mtdt" type="super" gc_grace_seconds="0"/>
+        <family name="il" type="super" gc_grace_seconds="0"/>
+        <family name="ol" type="super" gc_grace_seconds="0"/>
     </keyspace>
     <class keyClass="java.lang.String" name="org.apache.nutch.storage.Host" keyspace="host">
-        <field name="metadata" family="mtdt" qualifier="mtdt"/>
-        <field name="inlinks" family="il" qualifier="il"/>
-        <field name="outlinks" family="ol" qualifier="ol"/>
+        <field name="metadata" family="mtdt" qualifier="mtdt" ttl="0"/>
+        <field name="inlinks" family="il" qualifier="il" ttl="0"/>
+        <field name="outlinks" family="ol" qualifier="ol" ttl="0"/>
     </class>
     
 </gora-orm>

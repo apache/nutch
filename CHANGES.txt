@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* * NUTCH-1780 ttl and gc_grace_seconds attributes are missing from gora-cassandra-mapping.xml file (kaveh minooie via lewismc)
+
 * NUTCH-1676 Add rudimentary SSL support to protocol-http (jnioche, markus)
 
 * NUTCH-1674 Use batchId filter to enable scan (GORA-119) for Fetch,Parse,Update,Index (Tien Nguyen Manh and Alparslan Avcı via jnioche)
