@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-1757 ParserChecker to take custom metadata as input (jnioche)
+
 * NUTCH-1676 Add rudimentary SSL support to protocol-http (jnioche, markus)
 
 * NUTCH-1772 Injector does not need merging if no pre-existing crawldb (jnioche)

@@ -17,6 +17,9 @@
 
 package org.apache.nutch.parse;
 
+import java.util.HashMap;
+import java.util.Iterator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
@@ -29,6 +32,7 @@ import org.apache.nutch.protocol.Content;
 import org.apache.nutch.protocol.Protocol;
 import org.apache.nutch.protocol.ProtocolFactory;
 import org.apache.nutch.protocol.ProtocolOutput;
+import org.apache.nutch.scoring.ScoringFilters;
 import org.apache.nutch.util.NutchConfiguration;
 import org.apache.nutch.util.URLUtil;
 import org.apache.nutch.util.StringUtil;
@@ -73,12 +77,15 @@ public class ParserChecker implements Tool {
     String contentType = null;
     String url = null;
 
-    String usage = "Usage: ParserChecker [-dumpText] [-forceAs mimeType] url";
+    String usage = "Usage: ParserChecker [-dumpText] [-forceAs mimeType] [-md key=value] url";
 
     if (args.length == 0) {
       LOG.error(usage);
       return (-1);
     }
+
+    // used to simulate the metadata propagated from injection
+    HashMap<String, String> metadata = new HashMap<String, String>();
 
     for (int i = 0; i < args.length; i++) {
       if (args[i].equals("-forceAs")) {
@@ -86,6 +93,16 @@ public class ParserChecker implements Tool {
         contentType = args[++i];
       } else if (args[i].equals("-dumpText")) {
         dumpText = true;
+      } else if (args[i].equals("-md")) {
+        String k = null, v = null;
+        String nextOne = args[++i];
+        int firstEquals = nextOne.indexOf("=");
+        if (firstEquals != -1) {
+          k = nextOne.substring(0, firstEquals);
+          v = nextOne.substring(firstEquals + 1);
+        } else
+          k = nextOne;
+        metadata.put(k, v);
       } else if (i != args.length - 1) {
         LOG.error(usage);
         System.exit(-1);
@@ -98,9 +115,21 @@ public class ParserChecker implements Tool {
       LOG.info("fetching: " + url);
     }
 
+    CrawlDatum cd = new CrawlDatum();
+
+    Iterator<String> iter = metadata.keySet().iterator();
+    while (iter.hasNext()) {
+      String key = iter.next();
+      String value = metadata.get(key);
+      if (value == null)
+        value = "";
+      cd.getMetaData().put(new Text(key), new Text(value));
+    }
+
     ProtocolFactory factory = new ProtocolFactory(conf);
     Protocol protocol = factory.getProtocol(url);
-    ProtocolOutput output = protocol.getProtocolOutput(new Text(url), new CrawlDatum());
+    Text turl = new Text(url);
+    ProtocolOutput output = protocol.getProtocolOutput(turl, cd);
     
     if (!output.getStatus().isSuccess()) {
       System.err.println("Fetch failed with protocol status: " + output.getStatus());
@@ -129,6 +158,16 @@ public class ParserChecker implements Tool {
       LOG.warn("Content is truncated, parse may fail!");
     }
 
+    ScoringFilters scfilters = new ScoringFilters(conf);
+    // call the scoring filters
+    try {
+      scfilters.passScoreBeforeParsing(turl, cd, content);
+    } catch (Exception e) {
+      if (LOG.isWarnEnabled()) {
+        LOG.warn("Couldn't pass score, url " + turl.toString() + " (" + e + ")");
+      }
+    }    
+    
     ParseResult parseResult = new ParseUtil(conf).parse(content);
 
     if (parseResult == null) {
@@ -143,6 +182,15 @@ public class ParserChecker implements Tool {
       LOG.info("parsing: " + url);
       LOG.info("contentType: " + contentType);
       LOG.info("signature: " + StringUtil.toHexString(signature));
+    }
+
+    // call the scoring filters
+    try {
+      scfilters.passScoreAfterParsing(turl, content, parseResult.get(turl));
+    } catch (Exception e) {
+      if (LOG.isWarnEnabled()) {
+        LOG.warn("Couldn't pass score, url " + turl + " (" + e + ")");
+      }
     }
 
     for (java.util.Map.Entry<Text, Parse> entry : parseResult) {
