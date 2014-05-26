@@ -114,7 +114,9 @@ public class CrawlDb extends Configured implements Tool {
     long end = System.currentTimeMillis();
     LOG.info("CrawlDb update: finished at " + sdf.format(end) + ", elapsed: " + TimingUtil.elapsedTime(start, end));
   }
-
+/*
+ * Configure a new CrawlDb in a temp folder at crawlDb/<rand>
+ */
   public static JobConf createJob(Configuration config, Path crawlDb)
     throws IOException {
     Path newCrawlDb =
@@ -180,12 +182,11 @@ public class CrawlDb extends Configured implements Tool {
 
       return -1;
     }
-    boolean normalize = false;
-    boolean filter = false;
-    boolean force = false;
-    boolean url404Purging = false;
-    final FileSystem fs = FileSystem.get(getConf());
+    boolean normalize = getConf().getBoolean(CrawlDbFilter.URL_NORMALIZING, false);
+    boolean filter = getConf().getBoolean(CrawlDbFilter.URL_FILTERING, false);
     boolean additionsAllowed = getConf().getBoolean(CRAWLDB_ADDITIONS_ALLOWED, true);
+    boolean force = false;
+    final FileSystem fs = FileSystem.get(getConf());
     HashSet<Path> dirs = new HashSet<Path>();
     for (int i = 1; i < args.length; i++) {
       if (args[i].equals("-normalize")) {

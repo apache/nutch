@@ -76,11 +76,11 @@
 
   NOTE: You should also check other related properties:
 
-	http.robots.agents
-	http.agent.description
-	http.agent.url
-	http.agent.email
-	http.agent.version
+    http.robots.agents
+    http.agent.description
+    http.agent.url
+    http.agent.email
+    http.agent.version
 
   and set their values appropriately.
 
@@ -345,7 +345,6 @@
 </property>
 
 <!-- web db properties -->
-
 <property>
   <name>db.fetch.interval.default</name>
   <value>2592000</value>
@@ -447,6 +446,18 @@
   <description>If true, updatedb will add purge records with status DB_GONE
   from the CrawlDB.
   </description>
+</property>
+
+<property>
+    <name>db.url.normalizers</name>
+    <value>false</value>
+    <description>Normalize urls when updating crawldb</description>
+</property>
+
+<property>
+    <name>db.url.filters</name>
+    <value>false</value>
+    <description>Filter urls when updating crawldb</description>
 </property>
 
 <property>
