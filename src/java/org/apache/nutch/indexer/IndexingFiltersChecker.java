@@ -22,6 +22,7 @@ import java.util.List;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -83,6 +84,8 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     CrawlDatum datum = new CrawlDatum();
 
     ProtocolOutput output = protocol.getProtocolOutput(new Text(url), datum);
+    
+    IndexWriters writers = new IndexWriters(getConf());
     
     if (!output.getStatus().isSuccess()) {
       System.out.println("Fetch failed with protocol status: " + output.getStatus());
@@ -150,6 +153,13 @@ public class IndexingFiltersChecker extends Configured implements Tool {
         }
       }
     }
+    
+    if (conf.getBoolean("doIndex", false) && doc!=null){
+    	writers.open(new JobConf(getConf()), "IndexingFilterChecker");
+    	writers.write(doc);
+    	writers.close();
+    }
+    
     return 0;
   }
 
