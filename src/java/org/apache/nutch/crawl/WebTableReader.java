@@ -210,9 +210,15 @@ public class WebTableReader extends NutchTool implements Tool {
     if (LOG.isInfoEnabled()) {
       LOG.info("WebTable statistics start");
     }
+    
     run(ToolUtil.toArgMap(Nutch.ARG_SORT, sort));
-    for (Entry<String,Object> e : results.entrySet()) {
-      LOG.info(e.getKey() + ":\t" + e.getValue());
+    
+    if (LOG.isInfoEnabled()) {
+      LOG.info("Statistics for WebTable: ");
+      for (Entry<String,Object> e : results.entrySet()) {
+        LOG.info(e.getKey() + ":\t" + e.getValue());
+      }
+      LOG.info("WebTable statistics: done");
     }
   }
 
@@ -609,13 +615,7 @@ public class WebTableReader extends NutchTool implements Tool {
     }
     // removing the tmp folder
     fileSystem.delete(tmpFolder, true);
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Statistics for WebTable: ");
-      for (Entry<String,Object> e : results.entrySet()) {
-        LOG.info(e.getKey() + ":\t" + e.getValue());
-      }
-      LOG.info("WebTable statistics: done");
-    }
+    
     return results;
   }
 }

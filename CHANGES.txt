@@ -2,7 +2,9 @@ Nutch Change Log
 
 Current Development
 
-* * NUTCH-1780 ttl and gc_grace_seconds attributes are missing from gora-cassandra-mapping.xml file (kaveh minooie via lewismc)
+* NUTCH-1634 readdb -stats shows the result twice (kaveh minooie via jnioche)
+
+* NUTCH-1780 ttl and gc_grace_seconds attributes are missing from gora-cassandra-mapping.xml file (kaveh minooie via lewismc)
 
 * NUTCH-1676 Add rudimentary SSL support to protocol-http (jnioche, markus)
 
