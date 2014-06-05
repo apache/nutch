@@ -320,7 +320,7 @@
     <field name="orig" type="url" stored="true" indexed="true" />
     <!-- stored=true for highlighting, use term vectors  and positions for fast highlighting -->
     <field name="content" type="text_general" stored="true" indexed="true"/>
-    <field name="title" type="text_general" stored="true" indexed="true"/>
+    <field name="title" type="text_general" stored="true" indexed="true" multiValued="true"/>
     <field name="cache" type="string" stored="true" indexed="false"/>
     <field name="tstamp" type="date" stored="true" indexed="false"/>
 
