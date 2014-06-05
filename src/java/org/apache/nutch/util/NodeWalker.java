@@ -102,6 +102,14 @@ public class NodeWalker {
   }
   
   /**
+   * Return the current node.
+   * @return Node
+   */
+  public Node getCurrentNode() {
+    return currentNode;
+  }
+  
+  /**
    * @return returns true if there are more nodes on the current stack.
    * 
    */

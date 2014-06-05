@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-1782 NodeWalker to return current node (markus)
+
 * NUTCH-1758 IndexChecker to send document to IndexWriters (jnioche)
 
 * NUTCH-1786 CrawlDb should follow db.url.normalizers and db.url.filters (Diaa via markus)
