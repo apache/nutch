@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1781 Update gora-*-mapping.xml and gora.proeprties to reflect Gora 0.4 (lewismc)
+
 * NUTCH-1768 Upgrade to ElasticSearch 1.1.0 (jnioche)
 
 * NUTCH-1634 readdb -stats shows the result twice (kaveh minooie via jnioche)

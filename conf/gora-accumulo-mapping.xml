@@ -15,10 +15,19 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
+
+<!-- A comprehensive account of the entire gora-accumulo mapping 
+     options can be found on the Gora website at:
+     http://gora.apache.org/current/gora-accumulo.html
+     Users are strongly advised to consult this documentation
+     prior to working with the default mapping configuration
+     provided below. 
+-->
+
 <gora-orm>
     
     <table name="webpage">
-        <family name="p" /> <!-- This can also have params like compression, bloom filters -->
+        <family name="p" />
         <family name="f" />
         <family name="s" />
         <family name="il" />

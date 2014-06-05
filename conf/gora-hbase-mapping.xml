@@ -14,11 +14,34 @@
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
+-->i
+
+<!--
+In addition to family 'name' and 'maxVersions' attributes, 
+individual table families can ve defined with several other
+attributes such as
+  compression="$$$" - the compression option to use in HBase.
+  blockCache="$$$"  - an LRU cache that contains three levels of block priority 
+                      to allow for scan-resistance and in-memory ColumnFamilies.
+  blockSize="$$$"   - The blocksize can be configured for each ColumnFamily in 
+                      a table, and this defaults to 64k.
+  bloomFilter="$$$" - Bloom Filters can be enabled per-ColumnFamily.
+  maxVersions="$$$" - The maximum number of row versions to store is configured 
+                      per column family via HColumnDescriptor.
+  timeToLive="$$$"  - ColumnFamilies can set a TTL length in seconds, and HBase 
+                      will automatically delete rows once the expiration time is 
+                      reached.
+  inMemory="$$$"    - ColumnFamilies can optionally be defined as in-memory.
+
+You should consult the current Gora gora-hbase documentation
+for further information on properties and mapping configurtion.
+http://gora.apache.org/current/gora-hbase.html
 -->
+
 <gora-orm>
     
     <table name="webpage">
-        <family name="p" maxVersions="1"/> <!-- This can also have params like compression, bloom filters -->
+        <family name="p" maxVersions="1"/>
         <family name="f" maxVersions="1"/>
         <family name="s" maxVersions="1"/>
         <family name="il" maxVersions="1"/>

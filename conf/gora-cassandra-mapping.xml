@@ -31,7 +31,9 @@
   The value used here for 'gc_grace_seconds' of '0' is ONLY VIABLE FOR SINGLE NODE
   CLUSTER. you should update this value according to your cluster configuration.
   https://wiki.apache.org/cassandra/StorageConfiguration
-  
+ 
+  More information on gora-cassandra configuration and mapping's can be found
+  at http://gora.apache.org/current/gora-cassandra.html  
 -->
 
 <gora-orm>
