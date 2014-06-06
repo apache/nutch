@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1782 NodeWalker to return current node (markus)
+
 * NUTCH-1781 Update gora-*-mapping.xml and gora.proeprties to reflect Gora 0.4 (lewismc)
 
 * NUTCH-1768 Upgrade to ElasticSearch 1.1.0 (jnioche)
