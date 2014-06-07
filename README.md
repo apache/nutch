@@ -36,7 +36,7 @@ and metadata from encrypted PDF files. See http://pdfbox.apache.org for more
 details on PDFBox.
 
 
-**- JDK **
+**- JDK**
 
     # cd /opt
     # curl -LO "http://download.oracle.com/otn-pub/java/jdk/7u55-b13/jdk-7u55-linux-x64.tar.gz" -H 'Cookie: oraclelicense=accept-securebackup-cookie'
@@ -48,7 +48,7 @@ details on PDFBox.
     # echo 'export PATH=$PATH:$JAVA_HOME/bin' >> /etc/profile
     # echo '' >> /etc/profile
 
-**- Maven **
+**- Maven**
 
     # curl -LO "http://www.us.apache.org/dist/maven/maven-3/3.2.1/binaries/apache-maven-3.2.1-bin.tar.gz"
     # tar xzf apache-maven-3.2.1-bin.tar.gz
@@ -59,7 +59,7 @@ details on PDFBox.
     # echo 'export PATH=$PATH:$M2' >> /etc/profile
     # echo '' >> /etc/profile
 
-**- Ant **
+**- Ant**
 
     # curl -LO "http://www.us.apache.org/dist/ant/binaries/apache-ant-1.9.4-bin.tar.bz2"
     # tar xjf apache-ant-1.9.4-bin.tar.bz2
@@ -69,7 +69,7 @@ details on PDFBox.
     # echo 'export PATH=$PATH:$ANT_HOME/bin' >> /etc/profile
     # echo '' >> /etc/profile
 
-**- Apache Nutch Build **
+**- Nutch Build**
 
     # git clone https://github.com/ruo91/nutch
     # cd nutch
