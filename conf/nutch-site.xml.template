@@ -4,5 +4,12 @@
 <!-- Put site-specific property overrides in this file. -->
 
 <configuration>
-
+    <property>
+        <name>http.agent.name</name>
+        <value>NutchCrawler</value>
+    </property>
+    <property>
+        <name>http.robots.agents</name>
+        <value>NutchCrawler,*</value>
+    </property>
 </configuration>
