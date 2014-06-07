@@ -101,7 +101,7 @@ public class ElasticWriter implements NutchIndexWriter {
       BulkResponse actionGet = execute.actionGet();
       if (actionGet.hasFailures()) {
         for (BulkItemResponse item : actionGet) {
-          if (item.failed()) {
+          if (item.isFailed()) {
             throw new RuntimeException("First failure in bulk: "
                 + item.getFailureMessage());
           }

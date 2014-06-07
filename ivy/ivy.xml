@@ -32,7 +32,7 @@
   </publications>
 
   <dependencies>
-    <dependency org="org.elasticsearch" name="elasticsearch" rev="0.19.4" 
+    <dependency org="org.elasticsearch" name="elasticsearch" rev="1.2.0" 
                 conf="*->default"/>
   
     <dependency org="org.apache.solr" name="solr-solrj" rev="3.4.0"
