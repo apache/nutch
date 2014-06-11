@@ -213,8 +213,13 @@ public class HttpResponse implements Response {
         parseHeaders(in, line);
         haveSeenNonContinueStatus= code != 100; // 100 is "Continue"
       }
-
-      readPlainContent(in);
+      String transferEncoding = getHeader(Response.TRANSFER_ENCODING);
+      if (transferEncoding != null
+          && "chunked".equalsIgnoreCase(transferEncoding.trim())) {
+        readChunkedContent(in, line);
+      } else {
+        readPlainContent(in);
+      }
 
       String contentEncoding = getHeader(Response.CONTENT_ENCODING);
       if ("gzip".equals(contentEncoding) || "x-gzip".equals(contentEncoding)) {
@@ -339,7 +344,7 @@ public class HttpResponse implements Response {
         break;
       }
 
-      if ( (contentBytesRead + chunkLen) > http.getMaxContent() )
+      if ( http.getMaxContent() >= 0 && (contentBytesRead + chunkLen) > http.getMaxContent() )
         chunkLen= http.getMaxContent() - contentBytesRead;
 
       // read one chunk

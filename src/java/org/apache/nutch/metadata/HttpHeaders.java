@@ -26,6 +26,8 @@ import org.apache.hadoop.io.Text;
  */
 public interface HttpHeaders {
 
+  public final static String TRANSFER_ENCODING = "Transfer-Encoding";
+	
   public final static String CONTENT_ENCODING = "Content-Encoding";
   
   public final static String CONTENT_LANGUAGE = "Content-Language";
