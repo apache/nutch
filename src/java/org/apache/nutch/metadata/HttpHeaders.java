@@ -28,6 +28,7 @@ package org.apache.nutch.metadata;
  * @author J&eacute;r&ocirc;me Charron
  */
 public interface HttpHeaders {
+  public final static String TRANSFER_ENCODING = "Transfer-Encoding";
 
   public final static String CONTENT_ENCODING = "Content-Encoding";
 

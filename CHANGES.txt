@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1736 Can't fetch page if http response header contains Transfer-Encoding：chunked (ysc via jnioche)
+
 * NUTCH-1782 NodeWalker to return current node (markus)
 
 * NUTCH-1781 Update gora-*-mapping.xml and gora.proeprties to reflect Gora 0.4 (lewismc)

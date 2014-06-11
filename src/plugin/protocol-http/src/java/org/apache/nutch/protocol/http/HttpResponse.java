@@ -196,7 +196,13 @@ public class HttpResponse implements Response {
         haveSeenNonContinueStatus= code != 100; // 100 is "Continue"
       }
 
-      readPlainContent(in);
+      String transferEncoding = getHeader(Response.TRANSFER_ENCODING);
+      if (transferEncoding != null
+          && "chunked".equalsIgnoreCase(transferEncoding.trim())) {
+        readChunkedContent(in, line);
+      } else {
+        readPlainContent(in);
+      }
 
       String contentEncoding = getHeader(Response.CONTENT_ENCODING);
       if ("gzip".equals(contentEncoding) || "x-gzip".equals(contentEncoding)) {
@@ -281,6 +287,93 @@ public class HttpResponse implements Response {
     content = out.toByteArray();
   }
 
+  /**
+   * 
+   * @param in
+   * @param line
+   * @throws HttpException
+   * @throws IOException
+   */
+  @SuppressWarnings("unused")
+  private void readChunkedContent(PushbackInputStream in, StringBuffer line)
+      throws HttpException, IOException {
+    boolean doneChunks = false;
+    int contentBytesRead = 0;
+    byte[] bytes = new byte[Http.BUFFER_SIZE];
+    ByteArrayOutputStream out = new ByteArrayOutputStream(Http.BUFFER_SIZE);
+
+    while (!doneChunks) {
+      if (Http.LOG.isTraceEnabled()) {
+        Http.LOG.trace("Http: starting chunk");
+      }
+
+      readLine(in, line, false);
+
+      String chunkLenStr;
+      // if (LOG.isTraceEnabled()) { LOG.trace("chunk-header: '" + line + "'");
+      // }
+
+      int pos = line.indexOf(";");
+      if (pos < 0) {
+        chunkLenStr = line.toString();
+      } else {
+        chunkLenStr = line.substring(0, pos);
+        // if (LOG.isTraceEnabled()) { LOG.trace("got chunk-ext: " +
+        // line.substring(pos+1)); }
+      }
+      chunkLenStr = chunkLenStr.trim();
+      int chunkLen;
+      try {
+        chunkLen = Integer.parseInt(chunkLenStr, 16);
+      } catch (NumberFormatException e) {
+        throw new HttpException("bad chunk length: " + line.toString());
+      }
+
+      if (chunkLen == 0) {
+        doneChunks = true;
+        break;
+      }
+
+      if (http.getMaxContent() >= 0
+          && (contentBytesRead + chunkLen) > http.getMaxContent())
+        chunkLen = http.getMaxContent() - contentBytesRead;
+
+      // read one chunk
+      int chunkBytesRead = 0;
+      while (chunkBytesRead < chunkLen) {
+
+        int toRead = (chunkLen - chunkBytesRead) < Http.BUFFER_SIZE ? (chunkLen - chunkBytesRead)
+            : Http.BUFFER_SIZE;
+        int len = in.read(bytes, 0, toRead);
+
+        if (len == -1)
+          throw new HttpException("chunk eof after " + contentBytesRead
+              + " bytes in successful chunks" + " and " + chunkBytesRead
+              + " in current chunk");
+
+        // DANGER!!! Will printed GZIPed stuff right to your
+        // terminal!
+        // if (LOG.isTraceEnabled()) { LOG.trace("read: " + new String(bytes, 0,
+        // len)); }
+
+        out.write(bytes, 0, len);
+        chunkBytesRead += len;
+      }
+
+      readLine(in, line, false);
+    }
+
+    if (!doneChunks) {
+      if (contentBytesRead != http.getMaxContent())
+        throw new HttpException("chunk eof: !doneChunk && didn't max out");
+      return;
+    }
+
+    content = out.toByteArray();
+    parseHeaders(in, line);
+
+  }
+  
   private int parseStatusLine(PushbackInputStream in, StringBuffer line)
     throws IOException, HttpException {
     readLine(in, line, false);
