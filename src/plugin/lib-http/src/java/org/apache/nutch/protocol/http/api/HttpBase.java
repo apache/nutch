@@ -359,6 +359,11 @@ public abstract class HttpBase implements Protocol {
 
     if (LOGGER.isTraceEnabled()) { LOGGER.trace("uncompressing...."); }
 
+    // content can be empty (i.e. redirection) in which case
+    // there is nothing to unzip
+    if (compressed.length == 0)
+      return compressed;
+    
     byte[] content;
     if (getMaxContent() >= 0) {
         content = GZIPUtils.unzipBestEffort(compressed, getMaxContent());
@@ -379,6 +384,11 @@ public abstract class HttpBase implements Protocol {
 
   public byte[] processDeflateEncoded(byte[] compressed, URL url) throws IOException {
 
+    // content can be empty (i.e. redirection) in which case
+    // there is nothing to deflate
+    if (compressed.length == 0)
+      return compressed;
+    
     if (LOGGER.isTraceEnabled()) { LOGGER.trace("inflating...."); }
 
     byte[] content = DeflateUtils.inflateBestEffort(compressed, getMaxContent());

@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-1647 protocol-http throws 'unzipBestEffort returned null' for redirected pages (jnioche)
+
 * NUTCH-1736 Can't fetch page if http response header contains Transfer-Encoding：chunked (ysc via jnioche)
 
 * NUTCH-1782 NodeWalker to return current node (markus)
