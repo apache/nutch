@@ -63,15 +63,25 @@ public class IndexingFiltersChecker extends Configured implements Tool {
   public int run(String[] args) throws Exception {
     String contentType = null;
     String url = null;
+    boolean dumpText = false;
 
-    String usage = "Usage: IndexingFiltersChecker <url>";
+    String usage = "Usage: IndexingFiltersChecker [-dumpText] <url>";
 
-    if (args.length != 1) {
+    if (args.length == 0) {
       System.err.println(usage);
       return -1;
     }
 
-    url = URLUtil.toASCII(args[0]);
+    for (int i = 0; i < args.length; i++) {
+      if (args[i].equals("-dumpText")) {
+        dumpText = true;
+      } else if (i != args.length - 1) {
+        System.err.println(usage);
+        System.exit(-1);
+      } else {
+        url = URLUtil.toASCII(args[i]);
+      }
+    }
 
     if (LOG.isInfoEnabled()) {
       LOG.info("fetching: " + url);
@@ -148,7 +158,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
       if (values != null) {
         for (Object value : values) {
           String str = value.toString();
-          int minText = Math.min(100, str.length());
+          int minText = dumpText ? str.length() : Math.min(100, str.length());
           System.out.println(fname + " :\t" + str.substring(0, minText));
         }
       }
