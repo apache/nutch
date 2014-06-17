@@ -44,8 +44,12 @@ public class HttpRobotRulesParser extends RobotRulesParser {
   HttpRobotRulesParser() { }
 
   public HttpRobotRulesParser(Configuration conf) {
-    super(conf);
-    allowForbidden = conf.getBoolean("http.robots.403.allow", false);
+	    setConf(conf);
+  }
+ 
+  public void setConf(Configuration conf) {
+	    super.setConf(conf);
+	    allowForbidden = conf.getBoolean("http.robots.403.allow", true);
   }
 
   /** Compose unique key to store and access robot rules in cache for given URL */
