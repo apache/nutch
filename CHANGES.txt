@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-1590 [SECURITY] Frame injection vulnerability in published Javadoc (jnioche)
+
 * NUTCH-1793 HttpRobotRulesParser not configured properly (jnioche)
 
 * NUTCH-1647 protocol-http throws 'unzipBestEffort returned null' for redirected pages (jnioche)

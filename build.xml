@@ -138,6 +138,17 @@
 	<!-- build the main artifact -->
 	<jar jarfile="${maven-jar}" basedir="${build.classes}" />
   	
+    <fail message="Unsupported Java version: ${java.version}. Javadoc requires Java version 7u25 or greater. See https://issues.apache.org/jira/browse/NUTCH-1590">
+      <condition>
+          <or>
+        	<matches string="${java.version}" pattern="1.7.0_2[01234].+" casesensitive="false" /> 
+			<matches string="${java.version}" pattern="1.7.0_1.+" casesensitive="false" /> 
+            <equals arg1="${ant.java.version}" arg2="1.6" />
+			<equals arg1="${ant.java.version}" arg2="1.5" /> 
+          </or>
+      </condition>
+    </fail>
+
 	<!-- build the javadoc artifact -->
     <javadoc
       destdir="${release.dir}/javadoc"
@@ -528,6 +539,16 @@
   <!-- Documentation                                                      -->
   <!-- ================================================================== -->
   <target name="javadoc" depends="compile" description="--> generate Javadoc">
+    <fail message="Unsupported Java version: ${java.version}. Javadoc requires Java version 7u25 or greater. See https://issues.apache.org/jira/browse/NUTCH-1590">
+      <condition>
+          <or>
+        	<matches string="${java.version}" pattern="1.7.0_2[01234].+" casesensitive="false" /> 
+			<matches string="${java.version}" pattern="1.7.0_1.+" casesensitive="false" /> 
+            <equals arg1="${ant.java.version}" arg2="1.6" />
+			<equals arg1="${ant.java.version}" arg2="1.5" /> 
+          </or>
+      </condition>
+    </fail>
     <mkdir dir="${build.javadoc}"/>
     <javadoc
       overview="${src.dir}/overview.html"
