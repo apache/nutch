@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-1718 redefine http.robots.agent as "additional agent names" (snagel, Tejas Patil, Daniel Kugel)
+
 * NUTCH-1794 IndexingFilterChecker to optionally dumpText (markus)
 
 * NUTCH-1590 [SECURITY] Frame injection vulnerability in published Javadoc (jnioche)
