@@ -26,6 +26,7 @@ import java.util.HashMap;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.parse.Outlink;
 import org.apache.nutch.util.NodeWalker;
+import org.apache.nutch.util.URLUtil;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -298,51 +299,6 @@ public class DOMContentUtils {
   }
   
   /**
-   * Handles cases where the url param information is encoded into the base
-   * url as opposed to the target.
-   * <p>
-   * If the taget contains params (i.e. ';xxxx') information then the target 
-   * params information is assumed to be correct and any base params information
-   * is ignored.  If the base contains params information but the tareget does
-   * not, then the params information is moved to the target allowing it to be
-   * correctly determined by the java.net.URL class.
-   * 
-   * @param base The base URL.
-   * @param target The target path from the base URL.
-   * 
-   * @return URL A URL with the params information correctly encoded.
-   * 
-   * @throws MalformedURLException If the url is not a well formed URL.
-   */
-  private URL fixEmbeddedParams(URL base, String target) 
-    throws MalformedURLException{
-    
-    // the target contains params information or the base doesn't then no
-    // conversion necessary, return regular URL
-    if (target.indexOf(';') >= 0 || base.toString().indexOf(';') == -1) {
-      return new URL(base, target);
-    }
-    
-    // get the base url and it params information
-    String baseURL = base.toString();
-    int startParams = baseURL.indexOf(';');
-    String params = baseURL.substring(startParams);
-    
-    // if the target has a query string then put the params information after
-    // any path but before the query string, otherwise just append to the path
-    int startQS = target.indexOf('?');
-    if (startQS >= 0) {
-      target = target.substring(0, startQS) + params + 
-        target.substring(startQS);
-    }
-    else {
-      target += params;
-    }
-    
-    return new URL(base, target);
-  }
-
-  /**
    * This method finds all anchors below the supplied DOM
    * <code>node</code>, and creates appropriate {@link Outlink}
    * records for each (relative to the supplied <code>base</code>
@@ -397,9 +353,8 @@ public class DOMContentUtils {
             }
             if (target != null && !noFollow && !post)
               try {
-                
-                URL url = (base.toString().indexOf(';') > 0) ? 
-                  fixEmbeddedParams(base, target) :  new URL(base, target);
+
+                URL url = URLUtil.resolveURL(base, target);
                 outlinks.add(new Outlink(url.toString(),
                                          linkText.toString().trim()));
               } catch (MalformedURLException e) {

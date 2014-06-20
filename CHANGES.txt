@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1767 remove special treatment of "params" in relative links (snagel)
+
 * NUTCH-1718 redefine http.robots.agent as "additional agent names" (snagel, Tejas Patil, Daniel Kugel)
 
 * NUTCH-1796 Ensure Gora object builders are used as oppose to empty constructors (snagel via lewismc)

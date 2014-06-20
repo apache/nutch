@@ -28,9 +28,8 @@ import org.apache.nutch.util.domain.DomainSuffixes;
 public class URLUtil {
 
   /**
-   * Resolve relative URL-s and fix a few java.net.URL errors
-   * in handling of URLs with embedded params and pure query
-   * targets.
+   * Resolve relative URL-s and fix a java.net.URL error
+   * in handling of URLs with pure query targets.
    * @param base base url
    * @param target target url (may be relative)
    * @return resolved absolute url.
