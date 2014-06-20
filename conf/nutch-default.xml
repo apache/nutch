@@ -90,11 +90,18 @@
 
 <property>
   <name>http.robots.agents</name>
-  <value>*</value>
-  <description>The agent strings we'll look for in robots.txt files,
-  comma-separated, in decreasing order of precedence. You should
-  put the value of http.agent.name as the first agent name, and keep the
-  default * at the end of the list. E.g.: BlurflDev,Blurfl,*
+  <value></value>
+  <description>Any other agents, apart from 'http.agent.name', that the robots
+  parser would look for in robots.txt. Multiple agents can be provided using 
+  comma as a delimiter. eg. mybot,foo-spider,bar-crawler
+  
+  The ordering of agents does NOT matter and the robots parser would make 
+  decision based on the agent which matches first to the robots rules.  
+  Also, there is NO need to add a wildcard (ie. "*") to this string as the 
+  robots parser would smartly take care of a no-match situation. 
+    
+  If no value is specified, by default HTTP agent (ie. 'http.agent.name') 
+  would be used for user agent matching by the robots parser. 
   </description>
 </property>
 

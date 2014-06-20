@@ -255,10 +255,7 @@ public class FetcherJob extends NutchTool implements Tool {
   }
 
   void checkConfiguration() {
-
-    // ensure that a value has been set for the agent name and that that
-    // agent name is the first value in the agents we advertise for robot
-    // rules parsing
+    // ensure that a value has been set for the agent name
     String agentName = getConf().get("http.agent.name");
     if (agentName == null || agentName.trim().length() == 0) {
       String message = "Fetcher: No agents listed in 'http.agent.name'"
@@ -267,23 +264,6 @@ public class FetcherJob extends NutchTool implements Tool {
         LOG.error(message);
       }
       throw new IllegalArgumentException(message);
-    } else {
-
-      // get all of the agents that we advertise
-      String agentNames = getConf().get("http.robots.agents");
-      StringTokenizer tok = new StringTokenizer(agentNames, ",");
-      ArrayList<String> agents = new ArrayList<String>();
-      while (tok.hasMoreTokens()) {
-        agents.add(tok.nextToken().trim());
-      }
-
-      // if the first one is not equal to our agent name, log fatal and throw
-      // an exception
-      if (!(agents.get(0)).equalsIgnoreCase(agentName)) {
-        String message = "Fetcher: Your 'http.agent.name' value should be "
-            + "listed first in 'http.robots.agents' property.";
-        LOG.warn(message);
-      }
     }
   }
 

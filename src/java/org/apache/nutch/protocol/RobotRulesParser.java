@@ -85,43 +85,27 @@ public abstract class RobotRulesParser implements Configurable {
 
     // Grab the agent names we advertise to robots files.
     String agentName = conf.get("http.agent.name");
-    if (null == agentName) {
+    if (agentName == null || (agentName = agentName.trim()).isEmpty()) {
       throw new RuntimeException("Agent name not configured!");
     }
+    agentNames = agentName;
 
-    String agentNames = conf.get("http.robots.agents");
-    StringTokenizer tok = new StringTokenizer(agentNames, ",");
-    ArrayList<String> agents = new ArrayList<String>();
-    while (tok.hasMoreTokens()) {
-      agents.add(tok.nextToken().trim());
-    }
-
-    /**
-     * If there are no agents for robots-parsing, use the
-     * default agent-string. If both are present, our agent-string
-     * should be the first one we advertise to robots-parsing.
-     */
-    if (agents.size() == 0) {
-      if (LOG.isErrorEnabled()) {
-        LOG.error("No agents listed in 'http.robots.agents' property!");
-      }
-    } else { 
-      StringBuffer combinedAgentsString = new StringBuffer(agentName);
-      int index = 0;
-
-      if ((agents.get(0)).equalsIgnoreCase(agentName))
-        index++;
-      else if (LOG.isErrorEnabled()) {
-        LOG.error("Agent we advertise (" + agentName
-            + ") not listed first in 'http.robots.agents' property!");
+    // If there are any other agents specified, append those to the list of agents
+    String otherAgents = conf.get("http.robots.agents");
+    if(otherAgents != null && !otherAgents.trim().isEmpty()) {
+      StringTokenizer tok = new StringTokenizer(otherAgents, ",");
+      StringBuilder sb = new StringBuilder(agentNames);
+      while (tok.hasMoreTokens()) {
+        String str = tok.nextToken().trim();
+        if (str.equals("*") || str.equals(agentName)) {
+          // skip wildcard "*" or agent name itself
+          // (required for backward compatibility, cf. NUTCH-1715 and NUTCH-1718)
+        } else {
+          sb.append(",").append(str);
+        }
       }
 
-      // append all the agents from the http.robots.agents property
-      for(; index < agents.size(); index++) {
-        combinedAgentsString.append(", " + agents.get(index));
-      }
-
-      this.agentNames = combinedAgentsString.toString();
+      agentNames = sb.toString();
     }
   }
 
@@ -137,8 +121,8 @@ public abstract class RobotRulesParser implements Configurable {
    *    
    * @param url A string containing url
    * @param content Contents of the robots file in a byte array 
-   * @param contentType The 
-   * @param robotName A string containing value of  
+   * @param contentType The content type of the robots file
+   * @param robotName A string containing all the robots agent names used by parser for matching
    * @return BaseRobotRules object 
    */
   public BaseRobotRules parseRules (String url, byte[] content, String contentType, String robotName) {
@@ -160,23 +144,18 @@ public abstract class RobotRulesParser implements Configurable {
   /** command-line main for testing */
   public static void main(String[] argv) {
 
-    if (argv.length < 3) {
+    if (argv.length != 3) {
       System.err.println("Usage: RobotRulesParser <robots-file> <url-file> <agent-names>\n");
       System.err.println("    <robots-file> - Input robots.txt file which will be parsed.");
       System.err.println("    <url-file>    - Contains input URLs (1 per line) which are tested against the rules.");
-      System.err.println("    <agent-names> - Input agent name. Multiple agent names can be specified using spaces.");
+      System.err.println("    <agent-names> - Input agent names. Multiple agent names can be provided using");
+      System.err.println("                    comma as a delimiter without any spaces.");
       System.exit(-1);
     }
 
     try {
-      StringBuilder agentNames = new StringBuilder();
-      for(int counter = 2; counter < argv.length; counter++) 
-        agentNames.append(argv[counter]).append(",");
-
-      agentNames.deleteCharAt(agentNames.length()-1);
-
       byte[] robotsBytes = Files.toByteArray(new File(argv[0]));
-      BaseRobotRules rules = robotParser.parseContent(argv[0], robotsBytes, "text/plain", agentNames.toString());
+      BaseRobotRules rules = robotParser.parseContent(argv[0], robotsBytes, "text/plain", argv[2]);
 
       LineNumberReader testsIn = new LineNumberReader(new FileReader(argv[1]));
       String testPath = testsIn.readLine().trim();
