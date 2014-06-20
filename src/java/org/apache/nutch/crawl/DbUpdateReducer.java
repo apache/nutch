@@ -23,7 +23,6 @@ import java.util.List;
 
 import org.apache.avro.util.Utf8;
 import org.apache.gora.mapreduce.GoraReducer;
-import org.apache.gora.store.DataStore;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Writable;
 import org.apache.hadoop.util.StringUtils;

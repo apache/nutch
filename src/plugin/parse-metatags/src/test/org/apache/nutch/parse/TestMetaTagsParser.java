@@ -76,7 +76,7 @@ public class TestMetaTagsParser {
       in.readFully(bytes);
       in.close();
 
-      WebPage page = new WebPage();
+      WebPage page = WebPage.newBuilder().build();
       page.setBaseUrl(new Utf8(urlString));
       page.setContent(ByteBuffer.wrap(bytes));
       page.setContentType(new Utf8("text/html"));

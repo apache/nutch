@@ -83,7 +83,7 @@ public class TestAdaptiveFetchSchedule extends TestCase {
    * @return wp :Webpage
    */
   public WebPage prepareWebpage() {
-    WebPage wp = new WebPage();
+    WebPage wp = WebPage.newBuilder().build();
     wp.setStatus(1);
     wp.setFetchInterval(interval);
     wp.setScore(1.0f);

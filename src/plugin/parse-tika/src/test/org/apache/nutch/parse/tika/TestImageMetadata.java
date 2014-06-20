@@ -60,7 +60,7 @@ public class TestImageMetadata {
       in.readFully(bytes);
       in.close();
       
-      WebPage page = new WebPage();
+      WebPage page = WebPage.newBuilder().build();
       page.setBaseUrl(new Utf8(urlString));
       page.setContent(ByteBuffer.wrap(bytes));
       String mtype = mimeutil.getMimeType(file);

@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.scoring.ScoreDatum;
 import org.apache.nutch.storage.WebPage;
@@ -148,7 +147,7 @@ public class TestOPICScoringFilter {
 
     // injecting seed list, with scored attached to webpages
     for (String url : self.seedList) {
-      WebPage row = new WebPage();
+      WebPage row = WebPage.newBuilder().build();
       row.setScore(scoreInjected);
       scoringFilter.injectedScore(url, row);
 
@@ -191,15 +190,15 @@ public class TestOPICScoringFilter {
         // getting outlinks from testdata
         String[] seedOutlinks = self.linkList.get(url);
         for (String seedOutlink : seedOutlinks) {
-          row.putToOutlinks(new Utf8(seedOutlink), new Utf8());
+          row.getOutlinks().put(seedOutlink, "");
         }
 
         self.outlinkedScoreData.clear();
 
         // Existing outlinks are added to outlinkedScoreData
-        Map<Utf8, Utf8> outlinks = row.getOutlinks();
+        Map<CharSequence, CharSequence> outlinks = row.getOutlinks();
         if (outlinks != null) {
-          for (Entry<Utf8, Utf8> e : outlinks.entrySet()) {
+          for (Entry<CharSequence, CharSequence> e : outlinks.entrySet()) {
             int depth = Integer.MAX_VALUE;
             self.outlinkedScoreData.add(new ScoreDatum(0.0f, e.getKey()
                 .toString(), e.getValue().toString(), depth));
@@ -213,7 +212,7 @@ public class TestOPICScoringFilter {
           if (dbWebPages.get(TableUtil.reverseUrl(sc.getUrl())) == null) {
             // Check each outlink and creates new webpages if it's not
             // exist in database (dbWebPages)
-            WebPage outlinkRow = new WebPage();
+            WebPage outlinkRow = WebPage.newBuilder().build();
             scoringFilter.initialScore(sc.getUrl(), outlinkRow);
             List<ScoreDatum> newScoreList = new LinkedList<ScoreDatum>();
             newScoreList.add(sc);

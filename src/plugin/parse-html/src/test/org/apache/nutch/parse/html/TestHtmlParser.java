@@ -22,18 +22,16 @@ import java.nio.charset.Charset;
 
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.Parser;
-import org.apache.nutch.protocol.Content;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.util.Bytes;
 import org.apache.nutch.util.NutchConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.junit.Before;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 public class TestHtmlParser {
@@ -111,7 +109,7 @@ public class TestHtmlParser {
   }
 
   protected WebPage page(byte[] contentBytes) {
-    WebPage page = new WebPage();
+    WebPage page = WebPage.newBuilder().build();
     page.setBaseUrl(new Utf8(dummyUrl));
     page.setContent(ByteBuffer.wrap(contentBytes));
     page.setContentType(new Utf8("text/html"));

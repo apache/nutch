@@ -119,8 +119,9 @@ public class TestProtocolHttp {
    */
   private void fetchPage(String page, int expectedCode) throws Exception {
     URL url = new URL("http", "127.0.0.1", port, page);
-    Response response = http.getResponse(url, new WebPage(), true);
-    ProtocolOutput out = http.getProtocolOutput(url.toString(), new WebPage());
+    WebPage p = WebPage.newBuilder().build();
+    Response response = http.getResponse(url, p, true);
+    ProtocolOutput out = http.getProtocolOutput(url.toString(), p);
     Content content = out.getContent();
     
     assertEquals("HTTP Status Code for " + url, expectedCode, response.getCode());

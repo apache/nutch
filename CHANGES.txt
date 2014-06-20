@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1796 Ensure Gora object builders are used as oppose to empty constructors (snagel via lewismc)
+
 * NUTCH-1590 [SECURITY] Frame injection vulnerability in published Javadoc (jnioche)
 
 * NUTCH-1736 Can't fetch page if http response header contains Transfer-Encoding：chunked (ysc via jnioche)

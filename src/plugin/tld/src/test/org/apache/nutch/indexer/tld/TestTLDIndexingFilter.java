@@ -92,7 +92,7 @@ public class TestTLDIndexingFilter {
     urls.put("ftp://w.info.nf/", "info.nf");
     urls.put("file://x.aa.no", "aa.no");
 
-    WebPage page = new WebPage();
+    WebPage page = WebPage.newBuilder().build();
 
     TLDIndexingFilter filter = new TLDIndexingFilter();
     assertNotNull(filter);
