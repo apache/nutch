@@ -1128,13 +1128,6 @@
 </property>
 
 <property>
-  <name>parser.fix.embeddedparams</name>
-  <value>true</value>
-  <description>Whether to fix URL embedded params using semi-colons.
-  See NUTCH-436 and NUTCH-1115</description>
-</property>
-
-<property>
   <name>htmlparsefilter.order</name>
   <value></value>
   <description>The order by which HTMLParse filters are applied.
