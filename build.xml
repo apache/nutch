@@ -161,24 +161,24 @@
 
    <packageset dir="${src.dir}"/>
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
-      <packageset dir="${plugins.dir}/feed/src/java"/>
-  	  <packageset dir="${plugins.dir}/index-metadata/src/java"/>
+      <!--packageset dir="${plugins.dir}/feed/src/java"/-->
       <packageset dir="${plugins.dir}/index-anchor/src/java"/>
       <packageset dir="${plugins.dir}/index-basic/src/java"/>
-      <packageset dir="${plugins.dir}/index-more/src/java"/>
       <packageset dir="${plugins.dir}/index-metadata/src/java"/>
+      <packageset dir="${plugins.dir}/index-more/src/java"/>
+      <packageset dir="${plugins.dir}/indexer-elastic/src/java"/>
       <packageset dir="${plugins.dir}/indexer-solr/src/java"/>
       <packageset dir="${plugins.dir}/language-identifier/src/java"/>
       <packageset dir="${plugins.dir}/lib-http/src/java"/>
       <packageset dir="${plugins.dir}/lib-regex-filter/src/java"/>
       <packageset dir="${plugins.dir}/microformats-reltag/src/java"/>
-      <packageset dir="${plugins.dir}/parse-ext/src/java"/>
+      <!--packageset dir="${plugins.dir}/parse-ext/src/java"/-->
       <packageset dir="${plugins.dir}/parse-html/src/java"/>
       <packageset dir="${plugins.dir}/parse-metatags/src/java"/>
       <packageset dir="${plugins.dir}/parse-js/src/java"/>
-      <packageset dir="${plugins.dir}/parse-swf/src/java"/>
+      <!--packageset dir="${plugins.dir}/parse-swf/src/java"/-->
       <packageset dir="${plugins.dir}/parse-tika/src/java"/>
-      <packageset dir="${plugins.dir}/parse-zip/src/java"/>
+      <!--packageset dir="${plugins.dir}/parse-zip/src/java"/-->
       <packageset dir="${plugins.dir}/protocol-file/src/java"/>
       <packageset dir="${plugins.dir}/protocol-ftp/src/java"/>
       <packageset dir="${plugins.dir}/protocol-http/src/java"/>
@@ -213,8 +213,10 @@
    <group title="Plugins API" packages="${plugins.api}" />
    <group title="Protocol Plugins" packages="${plugins.protocol}" />
    <group title="URL Filter Plugins" packages="${plugins.urlfilter}" />
+   <group title="URL Normalizer Plugins" packages="${plugins.urlnormalizer}"/>
    <group title="Scoring Plugins" packages="${plugins.scoring}" />
    <group title="Parse Plugins" packages="${plugins.parse}" />
+   <group title="Parse Filter Plugins" packages="${plugins.parsefilter}"/>
    <group title="Indexing Filter Plugins" packages="${plugins.index}" />
    <group title="Indexer Plugins" packages="${plugins.indexer}"/>
    <group title="Misc. Plugins" packages="${plugins.misc}" />
@@ -588,22 +590,24 @@
 
    <packageset dir="${src.dir}"/>
       <packageset dir="${plugins.dir}/creativecommons/src/java"/>
-      <packageset dir="${plugins.dir}/feed/src/java"/>
+      <!--packageset dir="${plugins.dir}/feed/src/java"/-->
       <packageset dir="${plugins.dir}/index-anchor/src/java"/>
       <packageset dir="${plugins.dir}/index-basic/src/java"/>
+      <packageset dir="${plugins.dir}/index-metadata/src/java"/>
       <packageset dir="${plugins.dir}/index-more/src/java"/>
+      <packageset dir="${plugins.dir}/indexer-elastic/src/java"/>
       <packageset dir="${plugins.dir}/indexer-solr/src/java"/>
       <packageset dir="${plugins.dir}/language-identifier/src/java"/>
       <packageset dir="${plugins.dir}/lib-http/src/java"/>
       <packageset dir="${plugins.dir}/lib-regex-filter/src/java"/>
       <packageset dir="${plugins.dir}/microformats-reltag/src/java"/>
-      <packageset dir="${plugins.dir}/parse-ext/src/java"/>
+      <!--packageset dir="${plugins.dir}/parse-ext/src/java"/-->
       <packageset dir="${plugins.dir}/parse-html/src/java"/>
       <packageset dir="${plugins.dir}/parse-js/src/java"/>
       <packageset dir="${plugins.dir}/parse-metatags/src/java"/>
-      <packageset dir="${plugins.dir}/parse-swf/src/java"/>
+      <!--packageset dir="${plugins.dir}/parse-swf/src/java"/-->
       <packageset dir="${plugins.dir}/parse-tika/src/java"/>
-      <packageset dir="${plugins.dir}/parse-zip/src/java"/>
+      <!--packageset dir="${plugins.dir}/parse-zip/src/java"/-->
       <packageset dir="${plugins.dir}/protocol-file/src/java"/>
       <packageset dir="${plugins.dir}/protocol-ftp/src/java"/>
       <packageset dir="${plugins.dir}/protocol-http/src/java"/>
@@ -638,8 +642,10 @@
    <group title="Plugins API" packages="${plugins.api}" />
    <group title="Protocol Plugins" packages="${plugins.protocol}" />
    <group title="URL Filter Plugins" packages="${plugins.urlfilter}" />
+   <group title="URL Normalizer Plugins" packages="${plugins.urlnormalizer}"/>
    <group title="Scoring Plugins" packages="${plugins.scoring}" />
    <group title="Parse Plugins" packages="${plugins.parse}" />
+   <group title="Parse Filter Plugins" packages="${plugins.parsefilter}"/>
    <group title="Indexing Filter Plugins" packages="${plugins.index}" />
    <group title="Indexer Plugins" packages="${plugins.indexer}"/>
    <group title="Misc. Plugins" packages="${plugins.misc}" />
@@ -952,9 +958,9 @@
         <source path="${basedir}/src/plugin/index-anchor/src/test/" />
         <source path="${basedir}/src/plugin/index-basic/src/java/" />
         <source path="${basedir}/src/plugin/index-basic/src/test/" />
+        <source path="${basedir}/src/plugin/index-metadata/src/java/" />
         <source path="${basedir}/src/plugin/index-more/src/java/" />
         <source path="${basedir}/src/plugin/index-more/src/test/" />
-        <source path="${basedir}/src/plugin/index-metadata/src/java/" />
         <source path="${basedir}/src/plugin/language-identifier/src/java/" />
         <source path="${basedir}/src/plugin/language-identifier/src/test/" />
         <source path="${basedir}/src/plugin/lib-http/src/java/" />
@@ -989,20 +995,23 @@
         <source path="${basedir}/src/plugin/protocol-sftp/src/java/" />
         <source path="${basedir}/src/plugin/scoring-link/src/java/" />
         <source path="${basedir}/src/plugin/scoring-opic/src/java/" />
+        <source path="${basedir}/src/plugin/scoring-opic/src/test/" />
         <source path="${basedir}/src/plugin/subcollection/src/java/" />
         <source path="${basedir}/src/plugin/subcollection/src/test/" />
         <source path="${basedir}/src/plugin/tld/src/java/" />
+        <source path="${basedir}/src/plugin/tld/src/test/" />
         <source path="${basedir}/src/plugin/urlfilter-automaton/src/java/" />
         <source path="${basedir}/src/plugin/urlfilter-automaton/src/test/" />
         <source path="${basedir}/src/plugin/urlfilter-domain/src/java/" />
         <source path="${basedir}/src/plugin/urlfilter-domain/src/test/" />
         <source path="${basedir}/src/plugin/urlfilter-prefix/src/java/" />
+        <source path="${basedir}/src/plugin/urlfilter-prefix/src/test/" />
         <source path="${basedir}/src/plugin/urlfilter-regex/src/java/" />
         <source path="${basedir}/src/plugin/urlfilter-regex/src/test/" />
         <source path="${basedir}/src/plugin/urlfilter-suffix/src/java/" />
         <source path="${basedir}/src/plugin/urlfilter-suffix/src/test/" />
         <source path="${basedir}/src/plugin/urlfilter-validator/src/java/" />
-      	 <source path="${basedir}/src/plugin/urlfilter-validator/src/test/" />
+        <source path="${basedir}/src/plugin/urlfilter-validator/src/test/" />
         <source path="${basedir}/src/plugin/urlnormalizer-basic/src/java/" />
         <source path="${basedir}/src/plugin/urlnormalizer-basic/src/test/" />
         <source path="${basedir}/src/plugin/urlnormalizer-pass/src/java/" />

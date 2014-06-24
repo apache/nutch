@@ -31,7 +31,13 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.oro.text.regex.*;
 
-/** Converts URLs to a normal form . */
+/**
+ * Converts URLs to a normal form:
+ * <ul>
+ * <li>remove dot segments in path: <code>/./</code> or <code>/../</code></li>
+ * <li>remove default ports, e.g. 80 for protocol <code>http://</code></li>
+ * </ul>
+ */
 public class BasicURLNormalizer extends Configured implements URLNormalizer {
     public static final Logger LOG = LoggerFactory.getLogger(BasicURLNormalizer.class);
 

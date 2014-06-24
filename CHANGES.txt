@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1787 update and complete API doc overview page (snagel)
+
 * NUTCH-1767 remove special treatment of "params" in relative links (snagel)
 
 * NUTCH-1718 redefine http.robots.agent as "additional agent names" (snagel, Tejas Patil, Daniel Kugel)

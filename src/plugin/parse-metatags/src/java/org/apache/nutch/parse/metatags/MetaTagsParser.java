@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.parse;
+package org.apache.nutch.parse.metatags;
 
 import java.nio.ByteBuffer;
 import java.util.Collection;
@@ -31,6 +31,9 @@ import org.apache.avro.util.Utf8;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.parse.HTMLMetaTags;
+import org.apache.nutch.parse.Parse;
+import org.apache.nutch.parse.ParseFilter;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.storage.WebPage.Field;
 import org.apache.nutch.util.Bytes;
@@ -40,8 +43,7 @@ import org.w3c.dom.DocumentFragment;
  * Parse HTML meta tags (keywords, description) and store them in the parse
  * metadata so that they can be indexed with the index-metadata plugin with the
  * prefix 'metatag.'
- ***/
-
+ */
 public class MetaTagsParser implements ParseFilter {
 
   private static final Log LOG = LogFactory.getLog(MetaTagsParser.class
