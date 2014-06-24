@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.nutch.parse.html;
+package org.apache.nutch.parse.metatags;
 
 import java.util.Set;
 import java.util.TreeSet;

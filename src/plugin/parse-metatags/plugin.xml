@@ -15,7 +15,7 @@
               name="MetaTags Parser"
               point="org.apache.nutch.parse.HtmlParseFilter">
       <implementation id="MetaTagsParser"
-                      class="org.apache.nutch.parse.MetaTagsParser"/>
+                      class="org.apache.nutch.parse.metatags.MetaTagsParser"/>
    </extension>
 
 </plugin>

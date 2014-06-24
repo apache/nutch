@@ -22,7 +22,7 @@ import org.apache.nutch.scoring.ScoringFilterException;
 
 /**
  * This scoring filter limits the number of hops from the initial seed urls. If
- * the numbe of hops exceeds the depth (either the default value, or the one
+ * the number of hops exceeds the depth (either the default value, or the one
  * set in the injector file) then all outlinks from that url are discarded,
  * effectively stopping further crawling along this path.
  */

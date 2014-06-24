@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -14,34 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nutch.net.protocols;
-
-// JDK imports
-import java.net.URL;
-
-// Nutch imports
-import org.apache.nutch.metadata.HttpHeaders;
-import org.apache.nutch.metadata.Metadata;
-
 
 /**
- * A response interface.  Makes all protocols model HTTP.
+ * Generic {@link org.apache.nutch.net.URLFilter URL filter} library,
+ * abstracting away from regular expression implementations.
  */
-public interface Response extends HttpHeaders {
-  
-  /** Returns the URL used to retrieve this response. */
-  public URL getUrl();
+package org.apache.nutch.urlfilter.api;
 
-  /** Returns the response code. */
-  public int getCode();
-
-  /** Returns the value of a named header. */
-  public String getHeader(String name);
-
-  /** Returns all the headers. */
-  public Metadata getHeaders();
-  
-  /** Returns the full content of the response. */
-  public byte[] getContent();
-
-}
