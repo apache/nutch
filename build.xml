@@ -297,7 +297,7 @@
    in Hadoop/lib. 
    -->
    <zipfileset dir="${build.lib.dir}" prefix="lib" includes="**/*.jar"
-    excludes="jasper*.jar,jsp-*.jar,hadoop-*.jar,hbase*test*.jar,ant*jar,hsqldb*.jar" />
+    excludes="jasper*.jar,jsp-*.jar,hadoop-*.jar,hbase*test*.jar,ant*jar,hsqldb*.jar,slf4j*.jar,log4j*.jar" />
    <zipfileset dir="${build.plugins}" prefix="classes/plugins" />
   </jar>
  </target>
