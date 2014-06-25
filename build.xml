@@ -303,7 +303,7 @@
                   excludes="nutch-default.xml,nutch-site.xml"/>
       <zipfileset dir="${conf.dir}" excludes="*.template,hadoop*.*"/>
       <zipfileset dir="${build.lib.dir}" prefix="lib"
-                  includes="**/*.jar" excludes="hadoop-*.jar"/>
+                  includes="**/*.jar" excludes="hadoop-*.jar,slf4j*.jar,log4j*.jar"/>
       <zipfileset dir="${build.plugins}" prefix="classes/plugins"/>
     </jar>
   </target>
