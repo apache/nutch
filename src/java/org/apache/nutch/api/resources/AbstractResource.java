@@ -14,25 +14,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.apache.nutch.api;
+package org.apache.nutch.api.resources;
 
-import java.util.Map;
-import java.util.Set;
+import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.api.model.request.NutchConfig;
+import org.apache.nutch.api.ConfManager;
+import org.apache.nutch.api.JobManager;
+import org.apache.nutch.api.NutchServer;
+import org.restlet.Context;
 
-public interface ConfManager {
+@Produces({ MediaType.APPLICATION_JSON })
+public abstract class AbstractResource {
 
-  public Set<String> list();
+  protected ConfManager configManager;
+  protected JobManager jobManager;
+  protected NutchServer server;
 
-  public Configuration get(String confId);
+  public AbstractResource() {
+    server = (NutchServer) Context.getCurrent().getAttributes()
+        .get(NutchServer.NUTCH_SERVER);
+    configManager = server.getConfMgr();
+    jobManager = server.getJobMgr();
+  }
 
-  public Map<String, String> getAsMap(String confId);
-
-  public void delete(String confId);
-
-  public void setProperty(String confId, String propName, String propValue);
-
-  public String create(NutchConfig nutchConfig);
+  protected void throwBadRequestException(String message) {
+    throw new WebApplicationException(Response.status(Status.BAD_REQUEST)
+        .entity(message).build());
+  }
 }

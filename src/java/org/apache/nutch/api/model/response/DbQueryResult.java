@@ -14,27 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.apache.nutch.api;
+package org.apache.nutch.api.model.response;
 
-import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
-import org.restlet.resource.Get;
-import org.restlet.resource.ServerResource;
+import com.google.common.collect.Lists;
 
-public class APIInfoResource extends ServerResource {
-  private static final List<String[]> info = new ArrayList<String[]>();
-  
-  static {
-    info.add(new String[]{AdminResource.PATH, AdminResource.DESCR});
-    info.add(new String[]{ConfResource.PATH, ConfResource.DESCR});
-    info.add(new String[]{DbResource.PATH, DbResource.DESCR});
-    info.add(new String[]{JobResource.PATH, JobResource.DESCR});
+public class DbQueryResult {
+  private List<Map<String, Object>> values = Lists.newLinkedList();
+
+  public List<Map<String, Object>> getValues() {
+    return Collections.unmodifiableList(values);
   }
 
-  @Get("json")
-  public List<String[]> retrieve() throws IOException {
-    return info;
+  public void addValue(Map<String, Object> next) {
+    values.add(next);
   }
 }

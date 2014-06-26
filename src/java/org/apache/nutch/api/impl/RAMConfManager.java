@@ -16,68 +16,104 @@
  ******************************************************************************/
 package org.apache.nutch.api.impl;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
-import java.util.TreeMap;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.commons.collections.MapUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.nutch.api.ConfManager;
-import org.apache.nutch.api.ConfResource;
+import org.apache.nutch.api.model.request.NutchConfig;
+import org.apache.nutch.api.resources.ConfigResource;
 import org.apache.nutch.util.NutchConfiguration;
 
+import com.google.common.collect.Maps;
+
 public class RAMConfManager implements ConfManager {
-  Map<String,Configuration> configs = new HashMap<String,Configuration>();
-  
+  private Map<String, Configuration> configurations = Maps.newConcurrentMap();
+
+  private AtomicInteger newConfigId = new AtomicInteger();
+
   public RAMConfManager() {
-    configs.put(ConfResource.DEFAULT_CONF, NutchConfiguration.create());
+    configurations.put(ConfigResource.DEFAULT, NutchConfiguration.create());
   }
-  
+
   public Set<String> list() {
-    return configs.keySet();
+    return configurations.keySet();
   }
-  
+
   public Configuration get(String confId) {
-    return configs.get(confId);
+    if (confId == null) {
+      return configurations.get(ConfigResource.DEFAULT);
+    }
+    return configurations.get(confId);
   }
-  
-  public Map<String,String> getAsMap(String confId) {
-    Configuration cfg = configs.get(confId);
-    if (cfg == null) return null;
-    Iterator<Entry<String,String>> it = cfg.iterator();
-    TreeMap<String,String> res = new TreeMap<String,String>();
-    while (it.hasNext()) {
-      Entry<String,String> e = it.next();
-      res.put(e.getKey(), e.getValue());
+
+  public Map<String, String> getAsMap(String confId) {
+    Configuration configuration = configurations.get(confId);
+    if (configuration == null) {
+      return Collections.emptyMap();
     }
-    return res;
+
+    Iterator<Entry<String, String>> iterator = configuration.iterator();
+    Map<String, String> configMap = Maps.newTreeMap();
+    while (iterator.hasNext()) {
+      Entry<String, String> entry = iterator.next();
+      configMap.put(entry.getKey(), entry.getValue());
+    }
+    return configMap;
   }
-  
-  public void create(String confId, Map<String,String> props, boolean force) throws Exception {
-    if (configs.containsKey(confId) && !force) {
-      throw new Exception("Config name '" + confId + "' already exists.");
+
+  public void setProperty(String confId, String propName, String propValue) {
+    if (!configurations.containsKey(confId)) {
+      throw new IllegalArgumentException("Unknown configId '" + confId + "'");
     }
-    Configuration conf = NutchConfiguration.create();
-    // apply overrides
-    if (props != null) {
-      for (Entry<String,String> e : props.entrySet()) {
-        conf.set(e.getKey(), e.getValue());
-      }
-    }
-    configs.put(confId, conf);
-  }
-  
-  public void setProperty(String confId, String propName, String propValue) throws Exception {
-    if (!configs.containsKey(confId)) {
-      throw new Exception("Unknown configId '" + confId + "'");
-    }
-    Configuration conf = configs.get(confId);
+    Configuration conf = configurations.get(confId);
     conf.set(propName, propValue);
   }
-  
+
   public void delete(String confId) {
-    configs.remove(confId);
+    configurations.remove(confId);
   }
+
+  @Override
+  public String create(NutchConfig nutchConfig) {
+    if (StringUtils.isBlank(nutchConfig.getConfigId())) {
+      nutchConfig.setConfigId(String.valueOf(newConfigId.incrementAndGet()));
+    }
+
+    if (!canCreate(nutchConfig)) {
+      throw new IllegalArgumentException("Config already exists.");
+    }
+    
+    createHadoopConfig(nutchConfig);
+    return nutchConfig.getConfigId();
+  }
+
+  private boolean canCreate(NutchConfig nutchConfig) {
+    if (nutchConfig.isForce()) {
+      return true;
+    }
+    if (!configurations.containsKey(nutchConfig.getConfigId())) {
+      return true;
+    }
+    return false;
+  }
+
+  private void createHadoopConfig(NutchConfig nutchConfig) {
+    Configuration conf = NutchConfiguration.create();
+    configurations.put(nutchConfig.getConfigId(), conf);
+
+    if (MapUtils.isEmpty(nutchConfig.getParams())) {
+      return;
+    }
+    for (Entry<String, String> e : nutchConfig.getParams().entrySet()) {
+      conf.set(e.getKey(), e.getValue());
+    }
+  }
+
 }

@@ -14,25 +14,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.apache.nutch.api;
+package org.apache.nutch.api.model.response;
 
-import java.util.Map;
-import java.util.Set;
+import org.apache.commons.lang.exception.ExceptionUtils;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.api.model.request.NutchConfig;
+public class ErrorResponse {
+  private String exception;
+  private String message;
+  private String stackTrace;
 
-public interface ConfManager {
+  public ErrorResponse(Throwable throwable) {
+    if (throwable == null) {
+      message = "Unknown error!";
+      return;
+    }
+    exception = throwable.getClass().toString();
+    message = ExceptionUtils.getMessage(throwable);
+    stackTrace = ExceptionUtils.getFullStackTrace(throwable);
+  }
 
-  public Set<String> list();
+  public String getException() {
+    return exception;
+  }
 
-  public Configuration get(String confId);
+  public String getMessage() {
+    return message;
+  }
 
-  public Map<String, String> getAsMap(String confId);
-
-  public void delete(String confId);
-
-  public void setProperty(String confId, String propName, String propValue);
-
-  public String create(NutchConfig nutchConfig);
+  public String getStackTrace() {
+    return stackTrace;
+  }
 }

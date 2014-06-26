@@ -14,25 +14,56 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.apache.nutch.api;
+package org.apache.nutch.api.model.request;
 
 import java.util.Map;
-import java.util.Set;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.api.model.request.NutchConfig;
+import org.apache.nutch.api.JobManager.JobType;
 
-public interface ConfManager {
+public class JobConfig {
+  private String crawlId;
+  private JobType type;
+  private String confId;
+  private String jobClassName;
+  private Map<String, Object> args;
 
-  public Set<String> list();
+  public String getCrawlId() {
+    return crawlId;
+  }
 
-  public Configuration get(String confId);
+  public void setCrawlId(String crawlId) {
+    this.crawlId = crawlId;
+  }
 
-  public Map<String, String> getAsMap(String confId);
+  public JobType getType() {
+    return type;
+  }
 
-  public void delete(String confId);
+  public void setType(JobType type) {
+    this.type = type;
+  }
 
-  public void setProperty(String confId, String propName, String propValue);
+  public String getConfId() {
+    return confId;
+  }
 
-  public String create(NutchConfig nutchConfig);
+  public void setConfId(String confId) {
+    this.confId = confId;
+  }
+
+  public Map<String, Object> getArgs() {
+    return args;
+  }
+
+  public void setArgs(Map<String, Object> args) {
+    this.args = args;
+  }
+
+  public String getJobClassName() {
+    return jobClassName;
+  }
+
+  public void setJobClassName(String jobClass) {
+    this.jobClassName = jobClass;
+  }
 }

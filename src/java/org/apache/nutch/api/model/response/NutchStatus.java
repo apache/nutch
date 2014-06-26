@@ -14,33 +14,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.apache.nutch.api;
+package org.apache.nutch.api.model.response;
 
-import java.util.Map;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Set;
 
-import org.apache.nutch.api.JobManager.JobType;
-import org.apache.nutch.util.NutchTool;
-
-public class JobStatus {
-  public static enum State {IDLE, RUNNING, FINISHED, FAILED, KILLED,
-    STOPPING, KILLING, ANY};
-  public String id;
-  public JobType type;
-  public String confId;
-  public Map<String,Object> args;
-  public Map<String,Object> result;
-  public NutchTool tool;
-  public State state;
-  public String msg;
+public class NutchStatus {
   
-  public JobStatus(String id, JobType type, String confId, Map<String,Object> args,
-      State state, String msg) {
-    this.id = id;
-    this.type = type;
-    this.confId = confId;
-    this.args = args;
-    this.state = state;
-    this.msg = msg;
+  private Date startDate;
+  private Set<String> configuration;
+  private Collection<JobInfo> jobs;
+  private Collection<JobInfo> runningJobs;
+
+  public Date getStartDate() {
+    return startDate;
   }
 
+  public void setStartDate(Date startDate) {
+    this.startDate = startDate;
+  }
+
+  public Set<String> getConfiguration() {
+    return configuration;
+  }
+
+  public void setConfiguration(Set<String> configuration) {
+    this.configuration = configuration;
+  }
+
+  public Collection<JobInfo> getJobs() {
+    return jobs;
+  }
+
+  public void setJobs(Collection<JobInfo> jobs) {
+    this.jobs = jobs;
+  }
+
+  public Collection<JobInfo> getRunningJobs() {
+    return runningJobs;
+  }
+
+  public void setRunningJobs(Collection<JobInfo> runningJobs) {
+    this.runningJobs = runningJobs;
+  }
 }

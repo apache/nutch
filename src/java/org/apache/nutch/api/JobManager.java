@@ -16,22 +16,25 @@
  ******************************************************************************/
 package org.apache.nutch.api;
 
-import java.util.List;
-import java.util.Map;
-import org.apache.nutch.api.JobStatus.State;
+import java.util.Collection;
+
+import org.apache.nutch.api.model.request.JobConfig;
+import org.apache.nutch.api.model.response.JobInfo;
+import org.apache.nutch.api.model.response.JobInfo.State;
 
 public interface JobManager {
-  
-  public static enum JobType {INJECT, GENERATE, FETCH, PARSE, UPDATEDB, INDEX, READDB, CLASS};
 
-  public List<JobStatus> list(String crawlId, State state) throws Exception;
-  
-  public JobStatus get(String crawlId, String id) throws Exception;
-  
-  public String create(String crawlId, JobType type, String confId,
-      Map<String,Object> args) throws Exception;
-  
-  public boolean abort(String crawlId, String id) throws Exception;
-  
-  public boolean stop(String crawlId, String id) throws Exception;
+  public static enum JobType {
+    INJECT, GENERATE, FETCH, PARSE, UPDATEDB, INDEX, READDB, CLASS
+  };
+
+  public Collection<JobInfo> list(String crawlId, State state);
+
+  public JobInfo get(String crawlId, String id);
+
+  public String create(JobConfig jobConfig);
+
+  public boolean abort(String crawlId, String id);
+
+  public boolean stop(String crawlId, String id);
 }

@@ -14,25 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.apache.nutch.api;
+package org.apache.nutch.api.misc;
 
-public interface Params {
-  
-  public static final String CONF_ID = "conf";
-  public static final String PROP_NAME = "prop";
-  public static final String PROP_VALUE = "value";
-  public static final String PROPS = "props";
-  public static final String CRAWL_ID = "crawl";
-  public static final String JOB_ID = "job";
-  public static final String JOB_TYPE = "type";
-  public static final String ARGS = "args";
-  public static final String CMD = "cmd";
-  public static final String FORCE = "force";
-  
-  
-  public static final String JOB_CMD_STOP = "stop";
-  public static final String JOB_CMD_ABORT = "abort";
-  public static final String JOB_CMD_GET = "get";
-  
-  public static final String TRUE = "true";
+import org.apache.nutch.api.model.response.ErrorResponse;
+import org.restlet.Request;
+import org.restlet.Response;
+import org.restlet.data.Status;
+import org.restlet.ext.jackson.JacksonRepresentation;
+import org.restlet.representation.Representation;
+import org.restlet.service.StatusService;
+
+public class ErrorStatusService extends StatusService {
+  @Override
+  public Status getStatus(Throwable throwable, Request request,
+      Response response) {
+    return new Status(Status.SERVER_ERROR_INTERNAL, throwable);
+  }
+
+  @Override
+  public Representation getRepresentation(Status status, Request request,
+      Response response) {
+    ErrorResponse errorResponse = new ErrorResponse(status.getThrowable());
+    return new JacksonRepresentation<ErrorResponse>(errorResponse);
+  }
 }

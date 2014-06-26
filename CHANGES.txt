@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1769 REST API refactoring (Fjodor Vershinin via lewismc)
+
 * NUTCH-1633 slf4j is provided by hadoop and should not be included in the job file (kaveh minooie via jnioche)
 
 * NUTCH-1787 update and complete API doc overview page (snagel)

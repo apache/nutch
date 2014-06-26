@@ -14,25 +14,54 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.apache.nutch.api;
+package org.apache.nutch.api.model.request;
 
-import java.util.Map;
 import java.util.Set;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.api.model.request.NutchConfig;
+public class DbFilter {
+  private String batchId;
+  private String startKey;
+  private String endKey;
+  private boolean isKeysReversed = false;
+  private Set<String> fields;
 
-public interface ConfManager {
+  public Set<String> getFields() {
+    return fields;
+  }
 
-  public Set<String> list();
+  public void setFields(Set<String> fields) {
+    this.fields = fields;
+  }
 
-  public Configuration get(String confId);
+  public boolean isKeysReversed() {
+    return isKeysReversed;
+  }
 
-  public Map<String, String> getAsMap(String confId);
+  public void setKeysReversed(boolean isKeysReversed) {
+    this.isKeysReversed = isKeysReversed;
+  }
 
-  public void delete(String confId);
+  public String getEndKey() {
+    return endKey;
+  }
 
-  public void setProperty(String confId, String propName, String propValue);
+  public void setEndKey(String endKey) {
+    this.endKey = endKey;
+  }
 
-  public String create(NutchConfig nutchConfig);
+  public String getStartKey() {
+    return startKey;
+  }
+
+  public void setStartKey(String startKey) {
+    this.startKey = startKey;
+  }
+
+  public String getBatchId() {
+    return batchId;
+  }
+
+  public void setBatchId(String batchId) {
+    this.batchId = batchId;
+  }
 }

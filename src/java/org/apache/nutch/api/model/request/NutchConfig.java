@@ -14,25 +14,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package org.apache.nutch.api;
+package org.apache.nutch.api.model.request;
 
 import java.util.Map;
-import java.util.Set;
 
-import org.apache.hadoop.conf.Configuration;
-import org.apache.nutch.api.model.request.NutchConfig;
+import java.util.Collections;
 
-public interface ConfManager {
+public class NutchConfig {
+  private String configId;
+  private boolean force = false;
+  private Map<String, String> params = Collections.emptyMap();
 
-  public Set<String> list();
+  public Map<String, String> getParams() {
+    return params;
+  }
 
-  public Configuration get(String confId);
+  public void setParams(Map<String, String> params) {
+    this.params = params;
+  }
 
-  public Map<String, String> getAsMap(String confId);
+  public String getConfigId() {
+    return configId;
+  }
 
-  public void delete(String confId);
+  public void setConfigId(String configId) {
+    this.configId = configId;
+  }
 
-  public void setProperty(String confId, String propName, String propValue);
+  public boolean isForce() {
+    return force;
+  }
 
-  public String create(NutchConfig nutchConfig);
+  public void setForce(boolean force) {
+    this.force = force;
+  }
 }
