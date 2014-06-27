@@ -684,7 +684,10 @@
   <name>fetcher.server.delay</name>
   <value>5.0</value>
   <description>The number of seconds the fetcher will delay between 
-   successive requests to the same server.</description>
+   successive requests to the same server. Note that this might get
+   overriden by a Crawl-Delay from a robots.txt and is used ONLY if 
+   fetcher.threads.per.queue is set to 1.
+   </description>
 </property>
 
 <property>
@@ -692,7 +695,7 @@
   <value>0.0</value>
   <description>The minimum number of seconds the fetcher will delay between 
   successive requests to the same server. This value is applicable ONLY
-  if fetcher.threads.per.host is greater than 1 (i.e. the host blocking
+  if fetcher.threads.per.queue is greater than 1 (i.e. the host blocking
   is turned off).</description>
 </property>
 
@@ -723,7 +726,11 @@
   <name>fetcher.threads.per.queue</name>
   <value>1</value>
   <description>This number is the maximum number of threads that
-    should be allowed to access a queue at one time.
+    should be allowed to access a queue at one time. Setting it to 
+    a value > 1 will cause the Crawl-Delay value from robots.txt to
+    be ignored and the value of fetcher.server.min.delay to be used
+    as a delay between successive requests to the same server instead 
+    of fetcher.server.delay.
    </description>
 </property>
 
