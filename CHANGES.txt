@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-385 Improve description of thread related configuration for Fetcher (jnioche,lufeng)
+
 * NUTCH-1798 Crawl script not calling index command correctly (Aaron Bedward via jnioche)
 
 * NUTCH-1769 REST API refactoring (Fjodor Vershinin via lewismc)
