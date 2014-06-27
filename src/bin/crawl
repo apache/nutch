@@ -147,7 +147,7 @@ do
   fi
 
   echo "Indexing $CRAWL_ID on SOLR index -> $SOLRURL"
-  $bin/nutch solrindex $commonOptions $SOLRURL -all -crawlId $CRAWL_ID
+  $bin/nutch index $commonOptions -D solr.server.url=$SOLRURL -all -crawlId $CRAWL_ID
   
   if [ $? -ne 0 ] 
    then exit $? 
