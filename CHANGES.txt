@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-1803 Put test dependencies in a separate lib dir (jnioche)
+
 * NUTCH-385 Improve description of thread related configuration for Fetcher (jnioche,lufeng)
 
 * NUTCH-1633 slf4j is provided by hadoop and should not be included in the job file (kaveh minooie via jnioche)

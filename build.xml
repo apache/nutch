@@ -43,8 +43,9 @@
     </fileset>
   </path>
 
-  <!-- the unit test classpath -->
   <dirname property="plugins.classpath.dir" file="${build.plugins}"/>
+
+  <!-- the unit test classpath -->
   <path id="test.classpath">
     <pathelement location="${test.build.classes}" />
     <pathelement location="${conf.dir}"/>
@@ -53,6 +54,9 @@
     <path refid="classpath"/>
     <pathelement location="${build.dir}/${final.name}.job" />
     <fileset dir="${build.lib.dir}">
+      <include name="*.jar" />
+    </fileset>
+    <fileset dir="${test.build.lib.dir}">
       <include name="*.jar" />
     </fileset>
   </path>
@@ -71,6 +75,7 @@
 
     <mkdir dir="${test.build.dir}"/>
     <mkdir dir="${test.build.classes}"/>
+    <mkdir dir="${test.build.lib.dir}"/>
 
     <touch datetime="01/25/1971 2:00 pm">
       <fileset dir="${conf.dir}" includes="**/*.template"/>
@@ -350,7 +355,7 @@
   <!-- ================================================================== -->
   <!-- Compile test code                                                  --> 
   <!-- ================================================================== -->
-  <target name="compile-core-test" depends="compile-core, resolve-test" description="--> compile test code">
+  <target name="compile-core-test" depends="resolve-test, compile-core" description="--> compile test code">
     <javac 
      encoding="${build.encoding}" 
      srcdir="${test.src.dir}"
@@ -370,7 +375,7 @@
   <!-- Run Nutch proxy                                                    --> 
   <!-- ================================================================== -->
 
-  <target name="proxy" depends="job, compile-core-test" description="--> run nutch proxy">
+  <target name="proxy" depends="compile-core-test, job" description="--> run nutch proxy">
     <java classname="org.apache.nutch.tools.proxy.TestbedProxy" fork="true">
       <classpath refid="test.classpath"/>
       <arg value="-fake"/>
@@ -404,7 +409,7 @@
   <!-- ================================================================== -->
   <target name="test" depends="test-core, test-plugins" description="--> run JUnit tests"/>
 
-  <target name="test-core" depends="job, compile-core-test" description="--> run core JUnit tests only">
+  <target name="test-core" depends="compile-core-test, job" description="--> run core JUnit tests only">
 
     <delete dir="${test.build.data}"/>
     <mkdir dir="${test.build.data}"/>
@@ -450,7 +455,7 @@
 
   </target>   
 
-  <target name="test-plugins" depends="compile" description="--> run plugin JUnit tests only">
+  <target name="test-plugins" depends="compile,resolve-test" description="--> run plugin JUnit tests only">
     <ant dir="src/plugin" target="test" inheritAll="false"/>
   </target>
 
@@ -470,7 +475,7 @@
 
   <target name="resolve-test" depends="clean-lib" description="--> resolve and retrieve dependencies with ivy">
     <ivy:resolve file="${ivy.file}" conf="test" log="download-only"/>
-    <ivy:retrieve pattern="${build.lib.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
+    <ivy:retrieve pattern="${test.build.lib.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
     <antcall target="copy-libs"/>
   </target>
 
@@ -814,6 +819,7 @@
   <!-- target: clean-lib  =============================================== -->
   <target name="clean-lib" description="--> clean the project libraries directory (dependencies)">
     <delete includeemptydirs="true" dir="${build.lib.dir}"/>
+    <delete includeemptydirs="true" dir="${test.build.lib.dir}"/>
   </target>
 
   <!-- target: clean-build  ============================================= -->
