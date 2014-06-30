@@ -39,6 +39,8 @@
 		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.6.1"
 			conf="*->master" />
 
+		<dependency org="log4j" name="log4j" rev="1.2.15" conf="*->master" />
+
 		<dependency org="commons-lang" name="commons-lang" rev="2.6"
 			conf="*->default" />
 		<dependency org="commons-collections" name="commons-collections"
@@ -61,11 +63,6 @@
 		<dependency org="org.apache.tika" name="tika-core" rev="1.5" />
 		<dependency org="com.ibm.icu" name="icu4j" rev="4.0.1" />
 
-		<dependency org="org.mortbay.jetty" name="jetty-client"
-			rev="6.1.22" />
-
-		<dependency org="log4j" name="log4j" rev="1.2.15" conf="*->master" />
-
 		<dependency org="xerces" name="xercesImpl" rev="2.9.1" />
 		<dependency org="xerces" name="xmlParserAPIs" rev="2.6.2" />
 		<dependency org="oro" name="oro" rev="2.0.8" />
@@ -78,8 +75,12 @@
 
 		<!--artifacts needed for testing -->
 		<dependency org="junit" name="junit" rev="4.11" conf="*->default" />
+
 		<dependency org="org.apache.hadoop" name="hadoop-test" rev="1.2.0"
 			conf="test->default" />
+
+		<dependency org="org.mortbay.jetty" name="jetty-client"
+			rev="6.1.22" conf="test->default" />
 
 		<dependency org="org.mortbay.jetty" name="jetty" rev="6.1.22"
 			conf="test->default" />

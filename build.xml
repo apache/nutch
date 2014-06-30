@@ -376,7 +376,7 @@
   <!-- ================================================================== -->
 
   <target name="proxy" depends="compile-core-test, job" description="--> run nutch proxy">
-    <java classname="org.apache.nutch.tools.proxy.TestbedProxy" fork="true">
+    <java classname="org.apache.nutch.tools.proxy.ProxyTestbed" fork="true">
       <classpath refid="test.classpath"/>
       <arg value="-fake"/>
 <!--

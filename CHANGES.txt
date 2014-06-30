@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-1802 Move TestbedProxy to test environment (jnioche)
+
 * NUTCH-1803 Put test dependencies in a separate lib dir (jnioche)
 
 * NUTCH-385 Improve description of thread related configuration for Fetcher (jnioche,lufeng)

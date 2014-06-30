@@ -36,8 +36,8 @@ import org.mortbay.jetty.handler.HandlerList;
 import org.mortbay.jetty.servlet.ServletHandler;
 import org.mortbay.proxy.AsyncProxyServlet;
 
-public class TestbedProxy {
-  private static final Logger LOG = LoggerFactory.getLogger(TestbedProxy.class);
+public class ProxyTestbed {
+  private static final Logger LOG = LoggerFactory.getLogger(ProxyTestbed.class);
 
   /**
    * @param args
