@@ -355,7 +355,7 @@
   <!-- ================================================================== -->
   <!-- Compile test code                                                  --> 
   <!-- ================================================================== -->
-  <target name="compile-core-test" depends="resolve-test, compile-core" description="--> compile test code">
+  <target name="compile-core-test" depends="init, resolve-test, compile-core" description="--> compile test code">
     <javac 
      encoding="${build.encoding}" 
      srcdir="${test.src.dir}"
