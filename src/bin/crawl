@@ -69,12 +69,12 @@ numThreads=50
 
 #############################################
 
-bin=`dirname "$0"`
-bin=`cd "$bin"; pwd`
+bin="`dirname "$0"`"
+bin="`cd "$bin"; pwd`"
 
 # determines whether mode based on presence of job file
 mode=local
-if [ -f ${bin}/../*nutch*.job ]; then
+if [ -f "${bin}"/../*nutch*.job ]; then
     mode=distributed
 fi
 
@@ -91,7 +91,7 @@ if [ $mode = "distributed" ]; then
 fi
 
 # initial injection
-$bin/nutch inject $CRAWL_PATH/crawldb $SEEDDIR
+"$bin/nutch" inject "$CRAWL_PATH"/crawldb "$SEEDDIR"
 
 if [ $? -ne 0 ] 
   then exit $? 
@@ -110,7 +110,7 @@ do
   echo `date` ": Iteration $a of $LIMIT"
 
   echo "Generating a new segment"
-  $bin/nutch generate $commonOptions $CRAWL_PATH/crawldb $CRAWL_PATH/segments -topN $sizeFetchlist -numFetchers $numSlaves -noFilter
+  "$bin/nutch" generate $commonOptions "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN $sizeFetchlist -numFetchers $numSlaves -noFilter
   
   if [ $? -ne 0 ] 
   then exit $? 
@@ -121,16 +121,16 @@ do
   # or use ls
 
   if [ $mode = "local" ]; then
-   SEGMENT=`ls $CRAWL_PATH/segments/ | sort -n | tail -n 1`
+   SEGMENT=`ls "$CRAWL_PATH"/segments/ | sort -n | tail -n 1`
   else
-   SEGMENT=`hadoop fs -ls $CRAWL_PATH/segments/ | grep segments |  sed -e "s/\//\\n/g" | egrep 20[0-9]+ | sort -n | tail -n 1`
+   SEGMENT=`hadoop fs -ls "$CRAWL_PATH"/segments/ | grep segments |  sed -e "s/\//\\n/g" | egrep 20[0-9]+ | sort -n | tail -n 1`
   fi
   
   echo "Operating on segment : $SEGMENT"
 
   # fetching the segment
   echo "Fetching : $SEGMENT"
-  $bin/nutch fetch $commonOptions -D fetcher.timelimit.mins=$timeLimitFetch $CRAWL_PATH/segments/$SEGMENT -noParsing -threads $numThreads
+  "$bin/nutch" fetch $commonOptions -D fetcher.timelimit.mins=$timeLimitFetch "$CRAWL_PATH"/segments/$SEGMENT -noParsing -threads $numThreads
 
   if [ $? -ne 0 ] 
   then exit $? 
@@ -141,7 +141,7 @@ do
   # enable the skipping of records for the parsing so that a dodgy document 
   # so that it does not fail the full task
   skipRecordsOptions="-D mapred.skip.attempts.to.start.skipping=2 -D mapred.skip.map.max.skip.records=1"
-  $bin/nutch parse $commonOptions $skipRecordsOptions $CRAWL_PATH/segments/$SEGMENT
+  "$bin/nutch" parse $commonOptions $skipRecordsOptions "$CRAWL_PATH"/segments/$SEGMENT
 
   if [ $? -ne 0 ] 
   then exit $? 
@@ -149,7 +149,7 @@ do
 
   # updatedb with this segment
   echo "CrawlDB update"
-  $bin/nutch updatedb $commonOptions $CRAWL_PATH/crawldb  $CRAWL_PATH/segments/$SEGMENT
+  "$bin/nutch" updatedb $commonOptions "$CRAWL_PATH"/crawldb  "$CRAWL_PATH"/segments/$SEGMENT
 
   if [ $? -ne 0 ] 
   then exit $? 
@@ -158,7 +158,7 @@ do
 # note that the link inversion - indexing routine can be done within the main loop 
 # on a per segment basis
   echo "Link inversion"
-  $bin/nutch invertlinks $CRAWL_PATH/linkdb $CRAWL_PATH/segments/$SEGMENT
+  "$bin/nutch" invertlinks "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT
 
   if [ $? -ne 0 ] 
   then exit $? 
@@ -172,14 +172,14 @@ do
   fi
 
   echo "Indexing $SEGMENT on SOLR index -> $SOLRURL"
-  $bin/nutch index -D solr.server.url=$SOLRURL $CRAWL_PATH/crawldb -linkdb $CRAWL_PATH/linkdb $CRAWL_PATH/segments/$SEGMENT
+  "$bin/nutch" index -D solr.server.url=$SOLRURL "$CRAWL_PATH"/crawldb -linkdb "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT
   
   if [ $? -ne 0 ] 
    then exit $? 
   fi
 
   echo "Cleanup on SOLR index -> $SOLRURL"
-  $bin/nutch clean -D solr.server.url=$SOLRURL $CRAWL_PATH/crawldb
+  "$bin/nutch" clean -D solr.server.url=$SOLRURL "$CRAWL_PATH"/crawldb
   
   if [ $? -ne 0 ] 
    then exit $? 

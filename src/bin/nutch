@@ -25,6 +25,14 @@
 #                   Default is 1000.
 #
 #   NUTCH_OPTS      Extra Java runtime options.
+#                   Multiple options must be separated by white space.
+#
+#   NUTCH_LOG_DIR   Log directory (default: $NUTCH_HOME/logs)
+#
+#   NUTCH_LOGFILE   Log file (default: hadoop.log)
+#
+#   NUTCH_CONF_DIR  Path(s) to configuration files (default: $NUTCH_HOME/conf).
+#                   Multiple paths must be separated by a colon ':'.
 #
 cygwin=false
 case "`uname`" in
@@ -86,13 +94,13 @@ COMMAND=$1
 shift
 
 # some directories
-THIS_DIR=`dirname "$THIS"`
-NUTCH_HOME=`cd "$THIS_DIR/.." ; pwd`
+THIS_DIR="`dirname "$THIS"`"
+NUTCH_HOME="`cd "$THIS_DIR/.." ; pwd`"
 
 # some Java parameters
 if [ "$NUTCH_JAVA_HOME" != "" ]; then
   #echo "run java in $NUTCH_JAVA_HOME"
-  JAVA_HOME=$NUTCH_JAVA_HOME
+  JAVA_HOME="$NUTCH_JAVA_HOME"
 fi
   
 if [ "$JAVA_HOME" = "" ]; then
@@ -103,19 +111,18 @@ fi
 local=true
 
 # NUTCH_JOB 
-if [ -f ${NUTCH_HOME}/*nutch*.job ]; then
-    local=false
-  for f in $NUTCH_HOME/*nutch*.job; do
-    NUTCH_JOB=$f;
+if [ -f "${NUTCH_HOME}"/*nutch*.job ]; then
+  local=false
+  for f in "$NUTCH_HOME"/*nutch*.job; do
+    NUTCH_JOB="$f"
   done
+  # cygwin path translation
+  if $cygwin; then
+	NUTCH_JOB="`cygpath -p -w "$NUTCH_JOB"`"
+  fi
 fi
 
-# cygwin path translation
-if $cygwin; then
-  NUTCH_JOB=`cygpath -p -w "$NUTCH_JOB"`
-fi
-
-JAVA=$JAVA_HOME/bin/java
+JAVA="$JAVA_HOME/bin/java"
 JAVA_HEAP_MAX=-Xmx1000m 
 
 # check envvars which might override default args
@@ -126,46 +133,47 @@ if [ "$NUTCH_HEAPSIZE" != "" ]; then
 fi
 
 # CLASSPATH initially contains $NUTCH_CONF_DIR, or defaults to $NUTCH_HOME/conf
-CLASSPATH=${NUTCH_CONF_DIR:=$NUTCH_HOME/conf}
-CLASSPATH=${CLASSPATH}:$JAVA_HOME/lib/tools.jar
+CLASSPATH="${NUTCH_CONF_DIR:=$NUTCH_HOME/conf}"
+CLASSPATH="${CLASSPATH}:$JAVA_HOME/lib/tools.jar"
 
 # so that filenames w/ spaces are handled correctly in loops below
 IFS=
 
 # add libs to CLASSPATH
 if $local; then
-  for f in $NUTCH_HOME/lib/*.jar; do
-   CLASSPATH=${CLASSPATH}:$f;
+  for f in "$NUTCH_HOME"/lib/*.jar; do
+   CLASSPATH="${CLASSPATH}:$f";
   done
   # local runtime
   # add plugins to classpath
   if [ -d "$NUTCH_HOME/plugins" ]; then
-     CLASSPATH=${NUTCH_HOME}:${CLASSPATH}
+     CLASSPATH="${NUTCH_HOME}:${CLASSPATH}"
   fi
 fi
 
 # cygwin path translation
 if $cygwin; then
-  CLASSPATH=`cygpath -p -w "$CLASSPATH"`
+  CLASSPATH="`cygpath -p -w "$CLASSPATH"`"
 fi
 
 # setup 'java.library.path' for native-hadoop code if necessary
 # used only in local mode 
 JAVA_LIBRARY_PATH=''
 if [ -d "${NUTCH_HOME}/lib/native" ]; then
-  JAVA_PLATFORM=`CLASSPATH=${CLASSPATH} ${JAVA} org.apache.hadoop.util.PlatformName | sed -e 's/ /_/g'`
-  
+
+  JAVA_PLATFORM=`"${JAVA}" -classpath "$CLASSPATH" org.apache.hadoop.util.PlatformName | sed -e 's/ /_/g'`
+
   if [ -d "${NUTCH_HOME}/lib/native" ]; then
     if [ "x$JAVA_LIBRARY_PATH" != "x" ]; then
-      JAVA_LIBRARY_PATH=${JAVA_LIBRARY_PATH}:${NUTCH_HOME}/lib/native/${JAVA_PLATFORM}
+      JAVA_LIBRARY_PATH="${JAVA_LIBRARY_PATH}:${NUTCH_HOME}/lib/native/${JAVA_PLATFORM}"
     else
-      JAVA_LIBRARY_PATH=${NUTCH_HOME}/lib/native/${JAVA_PLATFORM}
+      JAVA_LIBRARY_PATH="${NUTCH_HOME}/lib/native/${JAVA_PLATFORM}"
     fi
   fi
 fi
 
 if [ $cygwin = true -a "X${JAVA_LIBRARY_PATH}" != "X" ]; then
-  JAVA_LIBRARY_PATH=`cygpath -p -w "$JAVA_LIBRARY_PATH"`
+  JAVA_LIBRARY_PATH="`cygpath -p -w "$JAVA_LIBRARY_PATH"`"
 fi
 
 # restore ordinary behaviour
@@ -181,14 +189,14 @@ fi
 
 #Fix log path under cygwin
 if $cygwin; then
-  NUTCH_LOG_DIR=`cygpath -p -w "$NUTCH_LOG_DIR"`
+  NUTCH_LOG_DIR="`cygpath -p -w "$NUTCH_LOG_DIR"`"
 fi
 
-NUTCH_OPTS="$NUTCH_OPTS -Dhadoop.log.dir=$NUTCH_LOG_DIR"
-NUTCH_OPTS="$NUTCH_OPTS -Dhadoop.log.file=$NUTCH_LOGFILE"
+NUTCH_OPTS=($NUTCH_OPTS -Dhadoop.log.dir="$NUTCH_LOG_DIR")
+NUTCH_OPTS=("${NUTCH_OPTS[@]}" -Dhadoop.log.file="$NUTCH_LOGFILE")
 
 if [ "x$JAVA_LIBRARY_PATH" != "x" ]; then
-  NUTCH_OPTS="$NUTCH_OPTS -Djava.library.path=$JAVA_LIBRARY_PATH"
+  NUTCH_OPTS=("${NUTCH_OPTS[@]}" -Djava.library.path="$JAVA_LIBRARY_PATH")
 fi
 
 # figure out which class to run
@@ -253,17 +261,17 @@ elif [ "$COMMAND" = "nodedumper" ] ; then
 elif [ "$COMMAND" = "plugin" ] ; then
   CLASS=org.apache.nutch.plugin.PluginRepository
 elif [ "$COMMAND" = "junit" ] ; then
-  CLASSPATH=$CLASSPATH:$NUTCH_HOME/test/classes/
+  CLASSPATH="$CLASSPATH:$NUTCH_HOME/test/classes/"
   CLASS=junit.textui.TestRunner
 else
   CLASS=$COMMAND
 fi
 
 # distributed mode
-EXEC_CALL="hadoop jar $NUTCH_JOB"
+EXEC_CALL=(hadoop jar "$NUTCH_JOB")
 
 if $local; then
- EXEC_CALL="$JAVA $JAVA_HEAP_MAX $NUTCH_OPTS -classpath $CLASSPATH"
+ EXEC_CALL=("$JAVA" $JAVA_HEAP_MAX "${NUTCH_OPTS[@]}" -classpath "$CLASSPATH")
 else
  # check that hadoop can be found on the path
  if [ $(which hadoop | wc -l ) -eq 0 ]; then
@@ -273,5 +281,5 @@ else
 fi
 
 # run it
-exec $EXEC_CALL $CLASS "$@"
+exec "${EXEC_CALL[@]}" $CLASS "$@"
 
