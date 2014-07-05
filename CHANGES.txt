@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1566 bin/nutch to allow whitespace in paths (tejasp, snagel)
+
 * NUTCH-1605 MIME type detector recognizes xlsx as zip file (snagel)
 
 * NUTCH-385 Improve description of thread related configuration for Fetcher (jnioche,lufeng)

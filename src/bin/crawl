@@ -70,12 +70,12 @@ timeLimitFetch=180
 addDays=0
 #############################################
 
-bin=`dirname "$0"`
-bin=`cd "$bin"; pwd`
+bin="`dirname "$0"`"
+bin="`cd "$bin"; pwd`"
 
 # determines whether mode based on presence of job file
 mode=local
-if [ -f ${bin}/../*nutch*.job ]; then
+if [ -f "${bin}"/../*nutch*.job ]; then
     mode=distributed
 fi
 
@@ -92,8 +92,7 @@ if [ $mode = "distributed" ]; then
 fi
 
 # initial injection
-$bin/nutch inject $SEEDDIR -crawlId $CRAWL_ID
-
+"$bin/nutch" inject "$SEEDDIR" -crawlId "$CRAWL_ID"
 if [ $? -ne 0 ] 
   then exit $? 
 fi
@@ -114,14 +113,14 @@ do
   batchId=`date +%s`-$RANDOM
 
   echo "Generating a new fetchlist"
-  $bin/nutch generate $commonOptions -topN $sizeFetchlist -noNorm -noFilter -adddays $addDays -crawlId $CRAWL_ID -batchId $batchId
+  "$bin/nutch" generate $commonOptions -topN $sizeFetchlist -noNorm -noFilter -adddays $addDays -crawlId "$CRAWL_ID" -batchId $batchId
   
   if [ $? -ne 0 ] 
   then exit $? 
   fi
 
   echo "Fetching : "
-  $bin/nutch fetch $commonOptions -D fetcher.timelimit.mins=$timeLimitFetch $batchId -crawlId $CRAWL_ID -threads 50
+  "$bin/nutch" fetch $commonOptions -D fetcher.timelimit.mins=$timeLimitFetch $batchId -crawlId "$CRAWL_ID" -threads 50
 
   if [ $? -ne 0 ] 
   then exit $? 
@@ -132,7 +131,7 @@ do
   # enable the skipping of records for the parsing so that a dodgy document 
   # so that it does not fail the full task
   skipRecordsOptions="-D mapred.skip.attempts.to.start.skipping=2 -D mapred.skip.map.max.skip.records=1"
-  $bin/nutch parse $commonOptions $skipRecordsOptions $batchId -crawlId $CRAWL_ID
+  "$bin/nutch" parse $commonOptions $skipRecordsOptions $batchId -crawlId "$CRAWL_ID"
 
   if [ $? -ne 0 ] 
   then exit $? 
@@ -140,21 +139,21 @@ do
 
   # updatedb with this batch
   echo "CrawlDB update for $CRAWL_ID"
-  $bin/nutch updatedb $commonOptions $batchId -crawlId $CRAWL_ID
+  "$bin/nutch" updatedb $commonOptions $batchId -crawlId "$CRAWL_ID"
 
   if [ $? -ne 0 ] 
   then exit $? 
   fi
 
   echo "Indexing $CRAWL_ID on SOLR index -> $SOLRURL"
-  $bin/nutch index $commonOptions -D solr.server.url=$SOLRURL -all -crawlId $CRAWL_ID
+  "$bin/nutch" index $commonOptions -D solr.server.url=$SOLRURL -all -crawlId "$CRAWL_ID"
   
   if [ $? -ne 0 ] 
    then exit $? 
   fi
 
   echo "SOLR dedup -> $SOLRURL"
-  $bin/nutch solrdedup $commonOptions $SOLRURL
+  "$bin/nutch" solrdedup $commonOptions $SOLRURL
   
   if [ $? -ne 0 ] 
    then exit $? 
