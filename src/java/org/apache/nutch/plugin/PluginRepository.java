@@ -71,6 +71,10 @@ public class PluginRepository {
     PluginManifestParser manifestParser = new PluginManifestParser(this.conf, this);
     Map<String, PluginDescriptor> allPlugins = manifestParser
         .parsePluginFolder(pluginFolders);
+    if (allPlugins.isEmpty()) {
+      LOG.warn("No plugins found on paths of property plugin.folders=\"{}\"",
+          conf.get("plugin.folders"));
+    }
     Pattern excludes = Pattern.compile(conf.get("plugin.excludes", ""));
     Pattern includes = Pattern.compile(conf.get("plugin.includes", ""));
     Map<String, PluginDescriptor> filteredPlugins = filter(excludes, includes,

@@ -133,6 +133,9 @@ public class PluginManifestParser {
       } catch (UnsupportedEncodingException e) {
       }
       directory = new File(path);
+    } else if (!directory.exists()) {
+      LOG.warn("Plugins: directory not found: " + name);
+      return null;
     }
     return directory;
   }
