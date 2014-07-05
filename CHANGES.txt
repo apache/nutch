@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1605 MIME type detector recognizes xlsx as zip file (snagel)
+
 * NUTCH-385 Improve description of thread related configuration for Fetcher (jnioche,lufeng)
 
 * NUTCH-1798 Crawl script not calling index command correctly (Aaron Bedward via jnioche)

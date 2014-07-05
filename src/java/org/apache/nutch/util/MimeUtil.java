@@ -19,13 +19,16 @@ package org.apache.nutch.util;
 
 // JDK imports
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 // Hadoop imports
 import org.apache.hadoop.conf.Configuration;
 
 // Tika imports
 import org.apache.tika.Tika;
-import org.apache.tika.config.TikaConfig;
+import org.apache.tika.io.TikaInputStream;
+import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
@@ -128,10 +131,10 @@ public final class MimeUtil {
    * strategies available within Tika. First, the mime type provided in
    * <code>typeName</code> is cleaned, with {@link #cleanMimeType(String)}.
    * Then the cleaned mime type is looked up in the underlying Tika
-   * {@link MimeTypes} registry, by its cleaned name. If the {@link MimeType} is
-   * found, then that mime type is used, otherwise URL resolution is
-   * used to try and determine the mime type. If that means is unsuccessful, and
-   * if <code>mime.type.magic</code> is enabled in {@link NutchConfiguration},
+   * {@link MimeTypes} registry, by its cleaned name. If the {@link MimeType}
+   * is found, then that mime type is used, otherwise URL resolution is
+   * used to try and determine the mime type. However, if
+   * <code>mime.type.magic</code> is enabled in {@link NutchConfiguration},
    * then mime type magic resolution is used to try and obtain a
    * better-than-the-default approximation of the {@link MimeType}.
    * 
@@ -145,24 +148,19 @@ public final class MimeUtil {
    */
   public String autoResolveContentType(String typeName, String url, byte[] data) {
     String retType = null;
-    String magicType = null;
     MimeType type = null;
     String cleanedMimeType = null;
 
-    try {
-      cleanedMimeType = MimeUtil.cleanMimeType(typeName) != null ? this.mimeTypes
-          .forName(MimeUtil.cleanMimeType(typeName)).getName()
-          : null;
-    } catch (MimeTypeException mte) {
-      // Seems to be a malformed mime type name...
-    }
-
+    cleanedMimeType = MimeUtil.cleanMimeType(typeName);
     // first try to get the type from the cleaned type name
-    try {
-      type = cleanedMimeType != null ? this.mimeTypes.forName(cleanedMimeType)
-          : null;
-    } catch (MimeTypeException e) {
-      type = null;
+    if (cleanedMimeType != null) {
+      try {
+        type = mimeTypes.forName(cleanedMimeType);
+        cleanedMimeType = type.getName();
+      } catch (MimeTypeException mte) {
+        // Seems to be a malformed mime type name...
+        cleanedMimeType = null;
+      }
     }
 
     // if returned null, or if it's the default type then try url resolution
@@ -172,8 +170,6 @@ public final class MimeUtil {
       // mime-type, then guess a mime-type from the url pattern
 
       try {
-        TikaConfig tikaConfig = TikaConfig.getDefaultConfig();
-        Tika tika = new Tika(tikaConfig);
         retType = tika.detect(url) != null ? tika.detect(url) : null;
       } catch (Exception e) {
         String message = "Problem loading default Tika configuration";
@@ -189,10 +185,21 @@ public final class MimeUtil {
     // if it is, and it's not the default mime type, then go with the mime type
     // returned by the magic
     if (this.mimeMagic) {
-      magicType = tika.detect(data);
+      String magicType = null;
+      // pass URL (file name) and (cleansed) content type from protocol to Tika
+      Metadata tikaMeta = new Metadata();
+      tikaMeta.add(Metadata.RESOURCE_NAME_KEY, url);
+      tikaMeta.add(Metadata.CONTENT_TYPE,
+          (cleanedMimeType != null ? cleanedMimeType : typeName));
+      try {
+        InputStream stream = TikaInputStream.get(data);
+        try {
+          magicType = tika.detect(stream, tikaMeta);
+       } finally {
+         stream.close();
+        }
+      } catch (IOException ignore) {}
 
-      // Deprecated in Tika 1.0 See https://issues.apache.org/jira/browse/NUTCH-1230
-      //MimeType magicType = this.mimeTypes.getMimeType(data);
       if (magicType != null && !magicType.equals(MimeTypes.OCTET_STREAM)
           && !magicType.equals(MimeTypes.PLAIN_TEXT)
           && retType != null && !retType.equals(magicType)) {
