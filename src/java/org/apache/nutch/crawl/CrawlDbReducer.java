@@ -274,6 +274,8 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
         result.setStatus(CrawlDatum.STATUS_DB_UNFETCHED);
       } else {
         result.setStatus(CrawlDatum.STATUS_DB_GONE);
+        result = schedule.setPageGoneSchedule(key, result, prevFetchTime,
+          prevModifiedTime, fetch.getFetchTime());
       }
       break;
 

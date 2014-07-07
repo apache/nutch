@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-578 URL fetched with 403 is generated over and over again (snagel)
+
 * NUTCH-1776 Log incorrect plugin.folder file path (Diaa via snagel)
 
 * NUTCH-1566 bin/nutch to allow whitespace in paths (tejasp, snagel)
