@@ -238,7 +238,7 @@ elif [ "$COMMAND" = "nutchserver" ] ; then
 CLASS=org.apache.nutch.api.NutchServer
 elif [ "$COMMAND" = "junit" ] ; then
   CLASSPATH="$CLASSPATH:$NUTCH_HOME/test/classes/"
-  CLASS=junit.textui.TestRunner
+  CLASS=org.junit.runner.JUnitCore
 else
 CLASS=$COMMAND
 fi
