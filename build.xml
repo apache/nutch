@@ -903,6 +903,9 @@
     <fileset dir="${build.plugins}">
       <include name="**/*.jar" />
     </fileset>
+    <fileset dir="${test.build.lib.dir}">
+      <include name="*.jar" />
+    </fileset>
   </path>
   
   <!-- target: ant-eclipse-download   =================================== -->
@@ -922,7 +925,7 @@
   
   <!-- target: eclipse   ================================================ -->
   <target name="eclipse" 
-          depends="clean,init,job,ant-eclipse-download"
+          depends="clean,init,resolve-test,job,ant-eclipse-download"
           description="Create eclipse project files">
 
 	     <pathconvert property="eclipse.project">
