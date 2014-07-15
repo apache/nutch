@@ -455,7 +455,7 @@
 
   </target>   
 
-  <target name="test-plugins" depends="compile,resolve-test" description="--> run plugin JUnit tests only">
+  <target name="test-plugins" depends="resolve-test, compile" description="--> run plugin JUnit tests only">
     <ant dir="src/plugin" target="test" inheritAll="false"/>
   </target>
 

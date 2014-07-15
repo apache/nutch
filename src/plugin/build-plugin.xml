@@ -37,6 +37,7 @@
   <property name="build.dir" location="${nutch.root}/build/${name}"/>
   <property name="build.classes" location="${build.dir}/classes"/>
   <property name="build.test" location="${build.dir}/test"/>
+  <property name="build.test.lib" location="${build.test}/lib"/>
 
   <property name="deploy.dir" location="${nutch.root}/build/plugins/${name}"/>
 
@@ -70,6 +71,14 @@
     <pathelement location="${nutch.root}/src/test"/>
     <pathelement location="${conf.dir}"/>
     <pathelement location="${nutch.root}/build"/>
+    <!-- test dependencies specific to current plugin -->
+    <fileset dir="${build.test.lib}">
+      <include name="*.jar" />
+    </fileset>
+    <!-- global test dependencies -->
+    <fileset dir="${nutch.root}/build/test/lib">
+      <include name="*.jar" />
+    </fileset>
     <path refid="classpath"/>
   </path>
 
@@ -80,6 +89,7 @@
     <mkdir dir="${build.dir}"/>
     <mkdir dir="${build.classes}"/>
     <mkdir dir="${build.test}"/>
+    <mkdir dir="${build.test.lib}"/>
     <mkdir dir="${deploy.dir}"/>
 
     <antcall target="init-plugin"/>
@@ -216,7 +226,7 @@
 
   <target name="resolve-test" depends="clean-lib" description="resolve and retrieve dependencies with ivy">
     <ivy:resolve file="ivy.xml" conf="test" log="download-only"/>
-    <ivy:retrieve pattern="${deploy.dir}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
+    <ivy:retrieve pattern="${build.test.lib}/[artifact]-[revision].[ext]" symlink="false" log="quiet"/>
   </target>
 
   <!-- ================================================================== -->

@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-1804 Move JUnit dependency to test scope (jnioche)
+
 * NUTCH-1811 bin/nutch junit to use junit 4 test runner (snagel)
 
 * NUTCH-1799 ANT Eclipse task discovers all plugin jars automatically (jnioche)
