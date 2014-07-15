@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-1422 Bypass signature comparison when a document is redirected (snagel)
+
 * NUTCH-1502 Test for CrawlDatum state transitions (snagel)
 
 * NUTCH-1804 Move JUnit dependency to test scope (jnioche)

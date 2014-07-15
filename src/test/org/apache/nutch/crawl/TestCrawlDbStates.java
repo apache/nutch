@@ -27,11 +27,14 @@ import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.util.StringUtils;
 
 import org.apache.nutch.crawl.CrawlDatum;
+
 import static org.apache.nutch.crawl.CrawlDatum.*;
+
 import org.apache.nutch.scoring.ScoringFilterException;
 import org.apache.nutch.scoring.ScoringFilters;
 
 import static org.junit.Assert.*;
+
 import org.junit.Test;
 
 import org.slf4j.Logger;
@@ -482,5 +485,81 @@ public class TestCrawlDbStates {
     }
   }
 
+
+  /**
+   * Test whether signatures are reset for "content-less" states
+   * (gone, redirect, etc.): otherwise, if this state is temporary
+   * and the document appears again with the old content, it may
+   * get marked as not_modified in CrawlDb just after the redirect
+   * state. In this case we cannot expect content in segments.
+   * Cf. NUTCH-1422: reset signature for redirects.
+   */
+  // TODO: can only test if solution is done in CrawlDbReducer
+  @Test
+  public void testSignatureReset() {
+    LOG.info("NUTCH-1422 must reset signature for redirects and similar states");
+    Configuration conf = CrawlDBTestUtil.createConfiguration();
+    for (String sched : schedules) {
+      LOG.info("Testing reset signature with " + sched);
+      conf.set("db.fetch.schedule.class", "org.apache.nutch.crawl."+sched);
+      ContinuousCrawlTestUtil crawlUtil = new CrawlTestSignatureReset(conf);
+      if (!crawlUtil.run(20)) {
+        fail("failed: signature not reset");
+      }
+    }
+  }
+
+  private class CrawlTestSignatureReset extends ContinuousCrawlTestUtil {
+
+    byte[][] noContentStates = {
+        { STATUS_FETCH_GONE,       STATUS_DB_GONE },
+        { STATUS_FETCH_REDIR_TEMP, STATUS_DB_REDIR_TEMP },
+        { STATUS_FETCH_REDIR_PERM, STATUS_DB_REDIR_PERM } };
+
+    int counter = 0;
+    byte fetchState;
+
+    public CrawlTestSignatureReset(Configuration conf) {
+      super(conf);
+    }
+
+    @Override
+    protected CrawlDatum fetch(CrawlDatum datum, long currentTime) {
+      datum = super.fetch(datum, currentTime);
+      counter++;
+      // flip-flopping between successful fetch and one of content-less states
+      if (counter%2 == 1) {
+        fetchState = STATUS_FETCH_SUCCESS;
+      } else {
+        fetchState = noContentStates[(counter%6)/2][0];
+      }
+      LOG.info("Step " + counter + ": fetched with "
+          + getStatusName(fetchState));
+      datum.setStatus(fetchState);
+     return datum;
+    }
+
+    @Override
+    protected boolean check(CrawlDatum result) {
+      if (result.getStatus() == STATUS_DB_NOTMODIFIED
+          && !(fetchState == STATUS_FETCH_SUCCESS || fetchState == STATUS_FETCH_NOTMODIFIED)) {
+        LOG.error("Should never get into state "
+            + getStatusName(STATUS_DB_NOTMODIFIED) + " from "
+            + getStatusName(fetchState));
+        return false;
+      }
+      if (result.getSignature() != null
+          && !(result.getStatus() == STATUS_DB_FETCHED || result.getStatus() == STATUS_DB_NOTMODIFIED)) {
+        LOG.error("Signature not reset in state "
+            + getStatusName(result.getStatus()));
+        // ok here: since it's not the problem itself (the db_notmodified), but
+        // the reason for it
+      }
+      return true;
+    }
+
+  }
+
+  
 }
 

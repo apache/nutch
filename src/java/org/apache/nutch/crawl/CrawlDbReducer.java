@@ -206,7 +206,9 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
       int modified = FetchSchedule.STATUS_UNKNOWN;
       if (fetch.getStatus() == CrawlDatum.STATUS_FETCH_NOTMODIFIED) {
         modified = FetchSchedule.STATUS_NOTMODIFIED;
-      } else {
+      } else if (fetch.getStatus() == CrawlDatum.STATUS_FETCH_SUCCESS) {
+        // only successful fetches (but not redirects, NUTCH-1422)
+        // are detected as "not modified" by signature comparison
         if (oldSet && old.getSignature() != null && signature != null) {
           if (SignatureComparator._compare(old.getSignature(), signature) != 0) {
             modified = FetchSchedule.STATUS_MODIFIED;
