@@ -165,56 +165,42 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
         }
         if (parseMDCrawlDatum != null) crawlOut.append(key, parseMDCrawlDatum);
 
+        if (ignoreExternalLinks) {
+          // need to determine fromHost (once for all outlinks)
           try {
-            ParseStatus pstatus = parseData.getStatus();
-            if (pstatus != null && pstatus.isSuccess() &&
-                pstatus.getMinorCode() == ParseStatus.SUCCESS_REDIRECT) {
-              String newUrl = pstatus.getMessage();
-              int refreshTime = Integer.valueOf(pstatus.getArgs()[1]);
-
-              try {
-                if(normalizers != null) {
-                    newUrl = normalizers.normalize(newUrl,
-                        URLNormalizers.SCOPE_FETCHER);
-                }
-              } catch (MalformedURLException mfue) {
-                newUrl = null;
-              }
-
-              if (filters != null) {
-                if (newUrl != null) newUrl = filters.filter(newUrl);
-              }
-
-              String url = key.toString();
-              if (newUrl != null && !newUrl.equals(url)) {
-                String reprUrl =
-                  URLUtil.chooseRepr(url, newUrl,
-                                     refreshTime < Fetcher.PERM_REFRESH_TIME);
-                CrawlDatum newDatum = new CrawlDatum();
-                newDatum.setStatus(CrawlDatum.STATUS_LINKED);
-                if (reprUrl != null && !reprUrl.equals(newUrl)) {
-                  newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
-                                             new Text(reprUrl));
-                }
-                crawlOut.append(new Text(newUrl), newDatum);
-              }
-            }
-          } catch (URLFilterException e) {
-            // ignore
+            fromHost = new URL(fromUrl).getHost().toLowerCase();
+          } catch (MalformedURLException e) {
+            fromHost = null;
           }
+        } else {
+          fromHost = null;
+        }
+
+        ParseStatus pstatus = parseData.getStatus();
+        if (pstatus != null && pstatus.isSuccess()
+            && pstatus.getMinorCode() == ParseStatus.SUCCESS_REDIRECT) {
+          String newUrl = pstatus.getMessage();
+          int refreshTime = Integer.valueOf(pstatus.getArgs()[1]);
+          newUrl = filterNormalize(fromUrl, newUrl, fromHost,
+              ignoreExternalLinks, filters, normalizers,
+              URLNormalizers.SCOPE_FETCHER);
+
+          if (newUrl != null) {
+            String reprUrl = URLUtil.chooseRepr(fromUrl, newUrl,
+                refreshTime < Fetcher.PERM_REFRESH_TIME);
+            CrawlDatum newDatum = new CrawlDatum();
+            newDatum.setStatus(CrawlDatum.STATUS_LINKED);
+            if (reprUrl != null && !reprUrl.equals(newUrl)) {
+              newDatum.getMetaData().put(Nutch.WRITABLE_REPR_URL_KEY,
+                  new Text(reprUrl));
+            }
+            crawlOut.append(new Text(newUrl), newDatum);
+          }
+        }
 
           // collect outlinks for subsequent db update
           Outlink[] links = parseData.getOutlinks();
           int outlinksToStore = Math.min(maxOutlinks, links.length);
-          if (ignoreExternalLinks) {
-            try {
-              fromHost = new URL(fromUrl).getHost().toLowerCase();
-            } catch (MalformedURLException e) {
-              fromHost = null;
-            }
-          } else {
-            fromHost = null;
-          }
 
           int validCount = 0;
           CrawlDatum adjust = null;
@@ -299,7 +285,16 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
     
   }
 
-  public static String filterNormalize(String fromUrl, String toUrl, String fromHost, boolean ignoreExternalLinks, URLFilters filters, URLNormalizers normalizers) {
+  public static String filterNormalize(String fromUrl, String toUrl,
+      String fromHost, boolean ignoreExternalLinks, URLFilters filters,
+      URLNormalizers normalizers) {
+    return filterNormalize(fromUrl, toUrl, fromHost, ignoreExternalLinks,
+        filters, normalizers, URLNormalizers.SCOPE_OUTLINK);
+  }
+
+  public static String filterNormalize(String fromUrl, String toUrl,
+      String fromHost, boolean ignoreExternalLinks, URLFilters filters,
+      URLNormalizers normalizers, String urlNormalizerScope) {
     // ignore links to self (or anchors within the page)
     if (fromUrl.equals(toUrl)) {
       return null;
@@ -318,7 +313,7 @@ public class ParseOutputFormat implements OutputFormat<Text, Parse> {
     try {
       if(normalizers != null) {
         toUrl = normalizers.normalize(toUrl,
-                  URLNormalizers.SCOPE_OUTLINK); // normalize the url
+                  urlNormalizerScope);   // normalize the url
       }
       if (filters != null) {
         toUrl = filters.filter(toUrl);   // filter the url
