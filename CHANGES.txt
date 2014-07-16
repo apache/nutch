@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1817 Remove pom.xml from source (jnioche)
+
 * NUTCH-1811 bin/nutch junit to use junit 4 test runner (snagel)
 
 * NUTCH-1776 Log incorrect plugin.folder file path (Diaa via snagel)
