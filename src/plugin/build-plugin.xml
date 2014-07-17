@@ -110,6 +110,12 @@
    !-->
   <target name="deps-test"/>
 
+  <!--
+   ! Used to compile test for plugin runtime dependencies
+   ! (to be overridden by plugins)
+   !-->
+  <target name="deps-test-compile"/>
+
   <!-- ====================================================== -->
   <!-- Compile the Java files                                 -->
   <!-- ====================================================== -->
@@ -177,7 +183,7 @@
   <!-- ================================================================== -->
   <!-- Compile test code                                                  --> 
   <!-- ================================================================== -->
-  <target name="compile-test" depends="compile" if="test.available">
+  <target name="compile-test" depends="compile, deps-test-compile" if="test.available">
     <javac 
      encoding="${build.encoding}" 
      srcdir="${src.test}"
