@@ -22,7 +22,6 @@
   <!-- Build compilation dependencies -->
   <target name="deps-jar">
     <ant target="jar" inheritall="false" dir="../lib-regex-filter"/>
-    <ant target="compile-test" inheritall="false" dir="../lib-regex-filter"/>
   </target>
 
   <!-- Add compilation dependencies to classpath -->
