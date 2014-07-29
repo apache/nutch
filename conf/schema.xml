@@ -307,7 +307,7 @@
     to include it as performance improvements are minimal. -->
     <field name="_version_" type="long" indexed="true" stored="true"/>
     
-    <field name="id" type="string" stored="true" indexed="true"/>
+    <field name="id" type="string" stored="true" indexed="true" required="true"/>
 
     <!-- core fields -->
     <field name="batchId" type="string" stored="true" indexed="false"/>
@@ -316,7 +316,7 @@
 
     <!-- fields for index-basic plugin -->
     <field name="host" type="url" stored="false" indexed="true"/>
-    <field name="url" type="url" stored="true" indexed="true" required="true"/>
+    <field name="url" type="url" stored="true" indexed="true"/>
     <field name="orig" type="url" stored="true" indexed="true" />
     <!-- stored=true for highlighting, use term vectors  and positions for fast highlighting -->
     <field name="content" type="text_general" stored="true" indexed="true"/>

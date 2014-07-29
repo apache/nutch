@@ -123,6 +123,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     }
 
     NutchDocument doc = new NutchDocument();
+    doc.add("id", url);
     doc.add("digest", StringUtil.toHexString(page.getSignature()));
 
     try {
