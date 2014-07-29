@@ -38,8 +38,6 @@
 		<field dest="boost" source="boost"/>
 		<field dest="digest" source="digest"/>
 		<field dest="tstamp" source="tstamp"/>
-		<field dest="id" source="url"/>
-		<copyField source="url" dest="url"/>
 	</fields>
 	<uniqueKey>id</uniqueKey>
 </mapping>

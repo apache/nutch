@@ -66,7 +66,8 @@
         </fieldType>
     </types>
     <fields>
-        <field name="id" type="string" stored="true" indexed="true"/>
+        <field name="id" type="string" stored="true" indexed="true"
+            required="true"/>
 
         <!-- core fields -->
         <field name="segment" type="string" stored="true" indexed="false"/>
@@ -75,8 +76,7 @@
 
         <!-- fields for index-basic plugin -->
         <field name="host" type="string" stored="false" indexed="true"/>
-        <field name="url" type="url" stored="true" indexed="true"
-            required="true"/>
+        <field name="url" type="url" stored="true" indexed="true"/>
         <field name="content" type="text" stored="false" indexed="true"/>
         <field name="title" type="text" stored="true" indexed="true"/>
         <field name="cache" type="string" stored="true" indexed="false"/>

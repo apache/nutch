@@ -262,6 +262,8 @@ implements Mapper<Text, Writable, Text, NutchWritable>,
     }
 
     NutchDocument doc = new NutchDocument();
+    doc.add("id", key.toString());
+
     final Metadata metadata = parseData.getContentMeta();
 
     // add segment, used to map from merged index back to segment files

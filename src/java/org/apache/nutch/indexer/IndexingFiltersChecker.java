@@ -130,6 +130,7 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     ParseResult parseResult = new ParseUtil(conf).parse(content);
 
     NutchDocument doc = new NutchDocument();
+    doc.add("id", url);
     Text urlText = new Text(url);
 
     Inlinks inlinks = null;

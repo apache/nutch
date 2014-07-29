@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-1708 use same id when indexing and deleting redirects (snagel)
+
 * NUTCH-1818 Add deps-test-compile task for building plugins (jnioche)
 
 * NUTCH-1817 Remove pom.xml from source (jnioche)

@@ -53,12 +53,12 @@ public class DummyIndexWriter implements IndexWriter {
 
   @Override
   public void update(NutchDocument doc) throws IOException {
-    writer.write("update\t" + doc.getFieldValue("url") + "\n");
+    writer.write("update\t" + doc.getFieldValue("id") + "\n");
   }
 
   @Override
   public void write(NutchDocument doc) throws IOException {
-    writer.write("add\t" + doc.getFieldValue("url") + "\n");
+    writer.write("add\t" + doc.getFieldValue("id") + "\n");
   }
 
   public void close() throws IOException {
