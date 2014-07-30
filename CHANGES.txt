@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-1561 improve usability of parse-metatags and index-metadata (snagel)
+
 * NUTCH-1708 use same id when indexing and deleting redirects (snagel)
 
 * NUTCH-1818 Add deps-test-compile task for building plugins (jnioche)

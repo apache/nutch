@@ -18,7 +18,8 @@
 package org.apache.nutch.indexer.metadata;
 
 import java.util.HashMap;
-import java.util.Map.Entry;
+import java.util.Locale;
+import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
@@ -30,73 +31,74 @@ import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.parse.Parse;
 
 /**
- * Indexer which can be configured to extract metadata from the crawldb, parse metadata or content metadata.
- * You can specify the properties "index.db", "index.parse" or "index.content" who's values are
- * comma-delimited <value>key1, key2, key3</value>.
+ * Indexer which can be configured to extract metadata from the crawldb, parse
+ * metadata or content metadata. You can specify the properties "index.db.md",
+ * "index.parse.md" or "index.content.md" who's values are comma-delimited
+ * <value>key1,key2,key3</value>.
  */
-
 public class MetadataIndexer implements IndexingFilter {
-	private Configuration conf;
-	private HashMap<String, String[]> staticfields;
-	private static String[] dbFieldnames;
-	private static String[] parseFieldnames;
-	private static String[] contentFieldnames;
-	private static final String db_CONF_PROPERTY = "index.db.md";
-	private static final String parse_CONF_PROPERTY = "index.parse.md";
-	private static final String content_CONF_PROPERTY = "index.content.md";
+  private Configuration conf;
+  private String[] dbFieldnames;
+  private Map<String, String> parseFieldnames;
+  private String[] contentFieldnames;
+  private static final String db_CONF_PROPERTY = "index.db.md";
+  private static final String parse_CONF_PROPERTY = "index.parse.md";
+  private static final String content_CONF_PROPERTY = "index.content.md";
 
-	public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
-			CrawlDatum datum, Inlinks inlinks) throws IndexingException {
+  public NutchDocument filter(NutchDocument doc, Parse parse, Text url,
+      CrawlDatum datum, Inlinks inlinks) throws IndexingException {
 
-		// just in case
-		if (doc == null)
-			return doc;
+    // just in case
+    if (doc == null)
+      return doc;
 
-		// add the fields from crawldb
-		if (dbFieldnames != null) {
-			for (String metatag : dbFieldnames) {
-				Text metadata = (Text) datum.getMetaData().get(
-						new Text(metatag));
-				if (metadata != null)
-					doc.add(metatag, metadata.toString());
-			}
-		}
+    // add the fields from crawldb
+    if (dbFieldnames != null) {
+      for (String metatag : dbFieldnames) {
+        Text metadata = (Text) datum.getMetaData().get(new Text(metatag));
+        if (metadata != null)
+          doc.add(metatag, metadata.toString());
+      }
+    }
 
-		// add the fields from parsemd
-		if (parseFieldnames != null) {
-			for (String metatag : parseFieldnames) {
-				for (String value : parse.getData().getParseMeta().getValues(metatag)) {
-					if (value != null)
-						doc.add(metatag, value);
-				}
-			}
-		}
+    // add the fields from parsemd
+    if (parseFieldnames != null) {
+      for (String metatag : parseFieldnames.keySet()) {
+        for (String value : parse.getData().getParseMeta().getValues(metatag)) {
+          if (value != null)
+            doc.add(parseFieldnames.get(metatag), value);
+        }
+      }
+    }
 
-		// add the fields from contentmd
-		if (contentFieldnames != null) {
-			for (String metatag : contentFieldnames) {
-				for (String value : parse.getData().getContentMeta().getValues(metatag)) {
-					if (value != null)
-						doc.add(metatag, value);
-				}
-			}
-		}
+    // add the fields from contentmd
+    if (contentFieldnames != null) {
+      for (String metatag : contentFieldnames) {
+        for (String value : parse.getData().getContentMeta().getValues(metatag)) {
+          if (value != null)
+            doc.add(metatag, value);
+        }
+      }
+    }
 
-		return doc;
-	}
+    return doc;
+  }
 
-	public void setConf(Configuration conf) {
-		this.conf = conf;
-		dbFieldnames = conf.getStrings(db_CONF_PROPERTY);
-		parseFieldnames = conf.getStrings(parse_CONF_PROPERTY);
-		contentFieldnames = conf.getStrings(content_CONF_PROPERTY);
+  public void setConf(Configuration conf) {
+    this.conf = conf;
+    dbFieldnames = conf.getStrings(db_CONF_PROPERTY);
+    parseFieldnames = new HashMap<String, String>();
+    for (String metatag : conf.getStrings(parse_CONF_PROPERTY)) {
+      parseFieldnames.put(metatag.toLowerCase(Locale.ROOT), metatag);
+    }
+    contentFieldnames = conf.getStrings(content_CONF_PROPERTY);
 
-		// TODO check conflict between field names e.g. could have same label
-		// from different sources
+    // TODO check conflict between field names e.g. could have same label
+    // from different sources
 
-	}
+  }
 
-	public Configuration getConf() {
-		return this.conf;
-	}
+  public Configuration getConf() {
+    return this.conf;
+  }
 }

@@ -18,6 +18,7 @@ package org.apache.nutch.parse.metatags;
 
 import java.util.Enumeration;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
 
@@ -35,7 +36,7 @@ import org.w3c.dom.DocumentFragment;
 /**
  * Parse HTML meta tags (keywords, description) and store them in the parse
  * metadata so that they can be indexed with the index-metadata plugin with the
- * prefix 'metatag.'
+ * prefix 'metatag.'. Metatags are matched ignoring case.
  */
 public class MetaTagsParser implements HtmlParseFilter {
 
@@ -50,14 +51,46 @@ public class MetaTagsParser implements HtmlParseFilter {
     this.conf = conf;
     // specify whether we want a specific subset of metadata
     // by default take everything we can find
-    String metatags = conf.get("metatags.names", "*");
-    String[] values = metatags.split(";");
-    for (String val : values)
-      metatagset.add(val.toLowerCase());
+    String[] values = conf.getStrings("metatags.names", "*");
+    for (String val : values) {
+      metatagset.add(val.toLowerCase(Locale.ROOT));
+    }
   }
 
   public Configuration getConf() {
     return this.conf;
+  }
+
+  /**
+   * Check whether the metatag is in the list of metatags to be indexed (or if
+   * '*' is specified). If yes, add it to parse metadata.
+   */
+  private void addIndexedMetatags(Metadata metadata, String metatag,
+      String value) {
+    String lcMetatag = metatag.toLowerCase(Locale.ROOT);
+    if (metatagset.contains("*") || metatagset.contains(lcMetatag)) {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Found meta tag: " + lcMetatag + "\t" + value);
+      }
+      metadata.add("metatag." + lcMetatag, value);
+    }
+  }
+
+  /**
+   * Check whether the metatag is in the list of metatags to be indexed (or if
+   * '*' is specified). If yes, add it with all values to parse metadata.
+   */
+  private void addIndexedMetatags(Metadata metadata, String metatag,
+      String[] values) {
+    String lcMetatag = metatag.toLowerCase(Locale.ROOT);
+    if (metatagset.contains("*") || metatagset.contains(lcMetatag)) {
+      for (String value : values) {
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Found meta tag: " + lcMetatag + "\t" + value);
+        }
+        metadata.add("metatag." + lcMetatag, value);
+      }
+    }
   }
 
   public ParseResult filter(Content content, ParseResult parseResult,
@@ -68,42 +101,21 @@ public class MetaTagsParser implements HtmlParseFilter {
 
     // check in the metadata first : the tika-parser
     // might have stored the values there already
-
     for (String mdName : metadata.names()) {
-      String value = metadata.get(mdName);
-      // check whether the name is in the list of what we want or if
-      // specified *
-      if (metatagset.contains("*") || metatagset.contains(mdName.toLowerCase())) {
-        LOG.debug("Found meta tag : " + mdName + "\t" + value);
-        metadata.add("metatag." + mdName.toLowerCase(), value);
-      }
+      addIndexedMetatags(metadata, mdName, metadata.getValues(mdName));
     }
 
     Metadata generalMetaTags = metaTags.getGeneralTags();
-    for (String tagName : generalMetaTags.names() ) {
-    String[] tagValues = generalMetaTags.getValues(tagName);    
-  
-      for ( String tagValue : tagValues ) {
-      // check whether the name is in the list of what we want or if
-      // specified *
-    	 if (metatagset.contains("*") || metatagset.contains(tagName.toLowerCase())) {
-    		 LOG.debug("Found meta tag : " + tagName + "\t" + tagValue);
-    		 metadata.add("metatag." + tagName.toLowerCase(), tagValue);
-    	 }
-      }
+    for (String tagName : generalMetaTags.names()) {
+      addIndexedMetatags(metadata, tagName, generalMetaTags.getValues(tagName));
     }
 
     Properties httpequiv = metaTags.getHttpEquivTags();
-    for (Enumeration tagNames = httpequiv.propertyNames(); tagNames
+    for (Enumeration<?> tagNames = httpequiv.propertyNames(); tagNames
         .hasMoreElements();) {
       String name = (String) tagNames.nextElement();
       String value = httpequiv.getProperty(name);
-      // check whether the name is in the list of what we want or if
-      // specified *
-      if (metatagset.contains("*") || metatagset.contains(name.toLowerCase())) {
-        LOG.debug("Found meta tag : " + name + "\t" + value);
-        metadata.add("metatag." + name.toLowerCase(), value);
-      }
+      addIndexedMetatags(metadata, name, value);
     }
 
     return parseResult;
