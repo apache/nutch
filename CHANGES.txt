@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1819 batchId in GeneratorJob ( Fjodor Vershinin via lewismc)
+
 * NUTCH-1708 use same id when indexing and deleting redirects (snagel)
 
 * NUTCH-1817 Remove pom.xml from source (jnioche)

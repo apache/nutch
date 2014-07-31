@@ -161,6 +161,11 @@ public class GeneratorJob extends NutchTool implements Tool {
   }
 
   public Map<String,Object> run(Map<String,Object> args) throws Exception {
+    String batchId = (String)args.get(Nutch.ARG_BATCH);
+    if (batchId != null) {
+      getConf().set(GeneratorJob.BATCH_ID, batchId);
+    }
+    
     // map to inverted subset due for fetch, sort by score
     Long topN = (Long)args.get(Nutch.ARG_TOPN);
     Long curTime = (Long)args.get(Nutch.ARG_CURTIME);
