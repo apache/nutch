@@ -1,0 +1,225 @@
+<?xml version="1.0"?>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one or more
+ contributor license agreements.  See the NOTICE file distributed with
+ this work for additional information regarding copyright ownership.
+ The ASF licenses this file to You under the Apache License, Version 2.0
+ (the "License"); you may not use this file except in compliance with
+ the License.  You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.apache.nutch</groupId>
+  <artifactId>nutch</artifactId>
+  <packaging>jar</packaging>
+  <version>1.9</version>
+  <name>Apache Nutch</name>
+  <url>http://nutch.apache.org</url>
+  <licenses>
+     <license>
+	<name>The Apache Software License, Version 2.0</name>
+	<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+	<distribution>repo</distribution>
+     </license>
+  </licenses>
+  <scm>
+     <url>http://svn.apache.org/viewvc/nutch</url>
+     <connection>http://svn.apache.org/viewvc/nutch</connection>
+  </scm>
+  <developers>
+  		<developer>
+			<id>mattmann</id>
+			<name>Chris A. Mattmann</name>
+			<email>mattmann@apache.org</email>
+		</developer>
+                <developer>
+			<id>jnioche</id>
+			<name>Julien Nioche</name>
+			<email>jnioche@apache.org</email>
+		</developer>
+		<developer>
+                        <id>lewismc</id>
+                        <name>Lewis John McGibbney</name>
+                        <email>lewismc@apache.org</email>
+                </developer>
+		<developer>
+                        <id>markus</id>
+                        <name>Markus Jelsma</name>
+                        <email>markus@apache.org</email>
+                </developer>	
+		<developer>
+			<id>fenglu</id>
+			<name>Feng Lu</name>
+			<email>fenglu@apache.org</email>
+		</developer>
+		<developer>
+			<id>kiranch</id>
+			<name>Kiran Chitturi</name>
+			<email>kiranch@apache.org</email>
+		</developer>
+		<developer>
+			<id>tejasp</id>
+			<name>Tejas Patil</name>
+			<email>tejasp@apache.org</email>
+		</developer>
+                <developer>
+                        <id>talat</id>
+                        <name>Talat Uyarer</name>
+                        <email>talat@apache.org</email>
+                </developer>
+	</developers>
+        <build>
+          <sourceDirectory>src/java</sourceDirectory>
+          <testSourceDirectory>src/test</testSourceDirectory>
+          <testResources>
+             <testResource>
+               <directory>src/testresources</directory>
+             </testResource>
+          </testResources>
+           <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <source>1.5</source>
+                        <target>1.5</target>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+        </build>
+        <dependencies>
+                <dependency>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-api</artifactId>
+                        <version>1.6.1</version>
+                        <optional>true</optional>
+                </dependency>
+                <dependency>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-log4j12</artifactId>
+                        <version>1.6.1</version>
+                        <optional>true</optional>
+                </dependency>
+                <dependency>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                        <version>1.2.15</version>
+                        <optional>true</optional>
+                </dependency>
+                <dependency>
+                        <groupId>commons-lang</groupId>
+                        <artifactId>commons-lang</artifactId>
+                        <version>2.6</version>
+                        <optional>true</optional>
+                </dependency>
+                <dependency>
+                        <groupId>commons-collections</groupId>
+                        <artifactId>commons-collections</artifactId>
+                        <version>3.1</version>
+                        <optional>true</optional>
+                </dependency>
+                <dependency>
+                        <groupId>commons-httpclient</groupId>
+                        <artifactId>commons-httpclient</artifactId>
+                        <version>3.1</version>
+                        <optional>true</optional>
+                </dependency>
+                <dependency>
+                        <groupId>commons-codec</groupId>
+                        <artifactId>commons-codec</artifactId>
+                        <version>1.3</version>
+                        <optional>true</optional>
+                </dependency>
+                <dependency>
+                        <groupId>org.apache.hadoop</groupId>
+                        <artifactId>hadoop-core</artifactId>
+                        <version>1.2.0</version>
+                        <optional>true</optional>
+                </dependency>
+                <dependency>
+                        <groupId>org.apache.tika</groupId>
+                        <artifactId>tika-core</artifactId>
+                        <version>1.5</version>
+                        <scope>compile</scope>
+                </dependency>
+                <dependency>
+                        <groupId>com.ibm.icu</groupId>
+                        <artifactId>icu4j</artifactId>
+                        <version>4.0.1</version>
+                        <scope>compile</scope>
+                </dependency>
+                <dependency>
+                        <groupId>xerces</groupId>
+                        <artifactId>xercesImpl</artifactId>
+                        <version>2.9.1</version>
+                        <scope>compile</scope>
+                </dependency>
+                <dependency>
+                        <groupId>xerces</groupId>
+                        <artifactId>xmlParserAPIs</artifactId>
+                        <version>2.6.2</version>
+                        <scope>compile</scope>
+                </dependency>
+                <dependency>
+                        <groupId>oro</groupId>
+                        <artifactId>oro</artifactId>
+                        <version>2.0.8</version>
+                        <scope>compile</scope>
+                </dependency>
+                <dependency>
+                        <groupId>com.google.guava</groupId>
+                        <artifactId>guava</artifactId>
+                        <version>11.0.2</version>
+                        <scope>compile</scope>
+                </dependency>
+                <dependency>
+                        <groupId>com.google.code.crawler-commons</groupId>
+                        <artifactId>crawler-commons</artifactId>
+                        <version>0.4</version>
+                        <scope>compile</scope>
+                </dependency>
+                <dependency>
+                        <groupId>junit</groupId>
+                        <artifactId>junit</artifactId>
+                        <version>4.11</version>
+                        <optional>true</optional>
+                </dependency>
+                <dependency>
+                        <groupId>org.apache.hadoop</groupId>
+                        <artifactId>hadoop-test</artifactId>
+                        <version>1.2.0</version>
+                        <optional>true</optional>
+                </dependency>
+                <dependency>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>jetty-client</artifactId>
+                        <version>6.1.22</version>
+                        <optional>true</optional>
+                </dependency>
+                <dependency>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>jetty</artifactId>
+                        <version>6.1.22</version>
+                        <optional>true</optional>
+                </dependency>
+                <dependency>
+                        <groupId>org.mortbay.jetty</groupId>
+                        <artifactId>jetty-util</artifactId>
+                        <version>6.1.22</version>
+                        <optional>true</optional>
+                </dependency>
+        </dependencies>
+</project>
+
