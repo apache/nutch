@@ -2,6 +2,11 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-XX
+
+Nutch 1.9 Release Change Log - 12/08/2014 (dd/mm/yyyy)
+Release Report - http://s.apache.org/1.9-release
+
 * NUTCH-1561 improve usability of parse-metatags and index-metadata (snagel)
 
 * NUTCH-1708 use same id when indexing and deleting redirects (snagel)
