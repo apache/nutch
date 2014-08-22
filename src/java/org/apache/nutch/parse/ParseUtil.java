@@ -187,8 +187,6 @@ public class ParseUtil extends Configured {
       return;
     }
 
-    final byte[] signature = sig.calculate(page);
-
     org.apache.nutch.storage.ParseStatus pstatus = parse.getParseStatus();
     page.setParseStatus(pstatus);
     if (ParseStatusUtils.isSuccess(pstatus)) {
@@ -233,6 +231,7 @@ public class ParseUtil extends Configured {
         if (prevSig != null) {
           page.setPrevSignature(prevSig);
         }
+        final byte[] signature = sig.calculate(page);
         page.setSignature(ByteBuffer.wrap(signature));
         if (page.getOutlinks() != null) {
           page.getOutlinks().clear();

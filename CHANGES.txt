@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1693 TextMD5Signature computed on textual content (Tien Nguyen Manh, markus via snagel)
+
 * NUTCH-1409 remove deprecated properties db.{default,max}.fetch.interval, generate.max.per.host.by.ip (Matthias Agethle via snagel)
 
 * NUTCH-1819 batchId in GeneratorJob ( Fjodor Vershinin via lewismc)
