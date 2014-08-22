@@ -50,9 +50,7 @@ public class CrawlDbReducer implements Reducer<Text, CrawlDatum, Text, CrawlDatu
     retryMax = job.getInt("db.fetch.retry.max", 3);
     scfilters = new ScoringFilters(job);
     additionsAllowed = job.getBoolean(CrawlDb.CRAWLDB_ADDITIONS_ALLOWED, true);
-    int oldMaxInterval = job.getInt("db.max.fetch.interval", 0);
     maxInterval = job.getInt("db.fetch.interval.max", 0 );
-    if (oldMaxInterval > 0 && maxInterval == 0) maxInterval = oldMaxInterval * FetchSchedule.SECONDS_PER_DAY;
     schedule = FetchScheduleFactory.getFetchSchedule(job);
     int maxLinks = job.getInt("db.update.max.inlinks", 10000);
     linked = new InlinkPriorityQueue(maxLinks);

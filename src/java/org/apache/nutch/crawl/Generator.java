@@ -74,9 +74,6 @@ public class Generator extends Configured implements Tool {
   public static final String GENERATOR_DELAY = "crawl.gen.delay";
   public static final String GENERATOR_MAX_NUM_SEGMENTS = "generate.max.num.segments";
   
-  // deprecated parameters 
-  public static final String GENERATE_MAX_PER_HOST_BY_IP = "generate.max.per.host.by.ip";
-
   public static class SelectorEntry implements Writable {
     public Text url;
     public CrawlDatum datum;
@@ -505,10 +502,6 @@ public class Generator extends Configured implements Tool {
       LOG.info("Generator: topN: " + topN);
     }
     
-    if ("true".equals(getConf().get(GENERATE_MAX_PER_HOST_BY_IP))){
-      LOG.info("Generator: GENERATE_MAX_PER_HOST_BY_IP will be ignored, use partition.url.mode instead");
-    }
-
     // map to inverted subset due for fetch, sort by score
     JobConf job = new NutchJob(getConf());
     job.setJobName("generate: select from " + dbDir);
