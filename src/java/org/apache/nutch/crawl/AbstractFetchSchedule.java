@@ -60,12 +60,8 @@ implements FetchSchedule {
   public void setConf(Configuration conf) {
     super.setConf(conf);
     if (conf == null) return;
-    int oldDefaultInterval = conf.getInt("db.default.fetch.interval", 0);
     defaultInterval = conf.getInt("db.fetch.interval.default", 0);
-    if (oldDefaultInterval > 0 && defaultInterval == 0) defaultInterval = oldDefaultInterval * SECONDS_PER_DAY;
-    int oldMaxInterval = conf.getInt("db.max.fetch.interval", 0);
     maxInterval = conf.getInt("db.fetch.interval.max", 0 );
-    if (oldMaxInterval > 0 && maxInterval == 0) maxInterval = oldMaxInterval * FetchSchedule.SECONDS_PER_DAY;
     LOG.info("defaultInterval=" + defaultInterval);
     LOG.info("maxInterval=" + maxInterval);
   }
