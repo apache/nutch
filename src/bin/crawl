@@ -92,9 +92,10 @@ fi
 
 # initial injection
 "$bin/nutch" inject "$CRAWL_PATH"/crawldb "$SEEDDIR"
+RETCODE=$?
 
-if [ $? -ne 0 ] 
-  then exit $? 
+if [ $RETCODE -ne 0 ] 
+  then exit $RETCODE 
 fi
 
 
@@ -111,9 +112,10 @@ do
 
   echo "Generating a new segment"
   "$bin/nutch" generate $commonOptions "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN $sizeFetchlist -numFetchers $numSlaves -noFilter
+  RETCODE=$?
   
-  if [ $? -ne 0 ] 
-  then exit $? 
+  if [ $RETCODE -ne 0 ] 
+  then exit $RETCODE 
   fi
 
   # capture the name of the segment
@@ -131,9 +133,10 @@ do
   # fetching the segment
   echo "Fetching : $SEGMENT"
   "$bin/nutch" fetch $commonOptions -D fetcher.timelimit.mins=$timeLimitFetch "$CRAWL_PATH"/segments/$SEGMENT -noParsing -threads $numThreads
+  RETCODE=$?
 
-  if [ $? -ne 0 ] 
-  then exit $? 
+  if [ $RETCODE -ne 0 ] 
+  then exit $RETCODE 
   fi
 
   # parsing the segment
@@ -142,47 +145,53 @@ do
   # so that it does not fail the full task
   skipRecordsOptions="-D mapred.skip.attempts.to.start.skipping=2 -D mapred.skip.map.max.skip.records=1"
   "$bin/nutch" parse $commonOptions $skipRecordsOptions "$CRAWL_PATH"/segments/$SEGMENT
+  RETCODE=$?
 
-  if [ $? -ne 0 ] 
-  then exit $? 
+  if [ $RETCODE -ne 0 ] 
+  then exit $RETCODE 
   fi
 
   # updatedb with this segment
   echo "CrawlDB update"
   "$bin/nutch" updatedb $commonOptions "$CRAWL_PATH"/crawldb  "$CRAWL_PATH"/segments/$SEGMENT
+  RETCODE=$?
 
-  if [ $? -ne 0 ] 
-  then exit $? 
+  if [ $RETCODE -ne 0 ] 
+  then exit $RETCODE 
   fi
 
 # note that the link inversion - indexing routine can be done within the main loop 
 # on a per segment basis
   echo "Link inversion"
   "$bin/nutch" invertlinks "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT
+  RETCODE=$?
 
-  if [ $? -ne 0 ] 
-  then exit $? 
+  if [ $RETCODE -ne 0 ] 
+  then exit $RETCODE 
   fi
 
   echo "Dedup on crawldb"
   $bin/nutch dedup $CRAWL_PATH/crawldb
+  RETCODE=$?
   
-  if [ $? -ne 0 ] 
-   then exit $? 
+  if [ $RETCODE -ne 0 ] 
+  then exit $RETCODE 
   fi
 
   echo "Indexing $SEGMENT on SOLR index -> $SOLRURL"
   "$bin/nutch" index -D solr.server.url=$SOLRURL "$CRAWL_PATH"/crawldb -linkdb "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT
+  RETCODE=$?
   
-  if [ $? -ne 0 ] 
-   then exit $? 
+  if [ $RETCODE -ne 0 ] 
+  then exit $RETCODE 
   fi
 
   echo "Cleanup on SOLR index -> $SOLRURL"
   "$bin/nutch" clean -D solr.server.url=$SOLRURL "$CRAWL_PATH"/crawldb
+  RETCODE=$?
   
-  if [ $? -ne 0 ] 
-   then exit $? 
+  if [ $RETCODE -ne 0 ] 
+  then exit $RETCODE 
   fi
 
 done
