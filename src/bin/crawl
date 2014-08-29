@@ -93,9 +93,12 @@ fi
 
 # initial injection
 "$bin/nutch" inject "$SEEDDIR" -crawlId "$CRAWL_ID"
-if [ $? -ne 0 ] 
-  then exit $? 
+RETCODE=$?
+
+if [ $RETCODE -ne 0 ] 
+  then exit $RETCODE 
 fi
+
 
 
 # main loop : rounds of generate - fetch - parse - update
@@ -114,16 +117,18 @@ do
 
   echo "Generating a new fetchlist"
   "$bin/nutch" generate $commonOptions -topN $sizeFetchlist -noNorm -noFilter -adddays $addDays -crawlId "$CRAWL_ID" -batchId $batchId
-  
-  if [ $? -ne 0 ] 
-  then exit $? 
+  RETCODE=$?
+
+  if [ $RETCODE -ne 0 ] 
+    then exit $RETCODE 
   fi
 
   echo "Fetching : "
   "$bin/nutch" fetch $commonOptions -D fetcher.timelimit.mins=$timeLimitFetch $batchId -crawlId "$CRAWL_ID" -threads 50
+  RETCODE=$?
 
-  if [ $? -ne 0 ] 
-  then exit $? 
+  if [ $RETCODE -ne 0 ] 
+    then exit $RETCODE 
   fi
 
   # parsing the batch
@@ -132,31 +137,35 @@ do
   # so that it does not fail the full task
   skipRecordsOptions="-D mapred.skip.attempts.to.start.skipping=2 -D mapred.skip.map.max.skip.records=1"
   "$bin/nutch" parse $commonOptions $skipRecordsOptions $batchId -crawlId "$CRAWL_ID"
+  RETCODE=$?
 
-  if [ $? -ne 0 ] 
-  then exit $? 
+  if [ $RETCODE -ne 0 ] 
+    then exit $RETCODE 
   fi
 
   # updatedb with this batch
   echo "CrawlDB update for $CRAWL_ID"
   "$bin/nutch" updatedb $commonOptions $batchId -crawlId "$CRAWL_ID"
+  RETCODE=$?
 
-  if [ $? -ne 0 ] 
-  then exit $? 
+  if [ $RETCODE -ne 0 ] 
+    then exit $RETCODE 
   fi
 
   echo "Indexing $CRAWL_ID on SOLR index -> $SOLRURL"
   "$bin/nutch" index $commonOptions -D solr.server.url=$SOLRURL -all -crawlId "$CRAWL_ID"
-  
-  if [ $? -ne 0 ] 
-   then exit $? 
+  RETCODE=$?
+
+  if [ $RETCODE -ne 0 ] 
+    then exit $RETCODE 
   fi
 
   echo "SOLR dedup -> $SOLRURL"
   "$bin/nutch" solrdedup $commonOptions $SOLRURL
-  
-  if [ $? -ne 0 ] 
-   then exit $? 
+  RETCODE=$?
+
+  if [ $RETCODE -ne 0 ] 
+    then exit $RETCODE 
   fi
 
 done
