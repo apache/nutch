@@ -23,8 +23,16 @@
 
 SEEDDIR="$1"
 CRAWL_PATH="$2"
-SOLRURL="$3"
-LIMIT="$4"
+if [ "$#" -eq 3 ]; then
+    LIMIT="$3"
+elif [ "$#" -eq 4 ]; then
+     SOLRURL="$3"
+     LIMIT="$4"
+else
+    echo "Unknown # of arguments $#"
+    echo "Usage: crawl <seedDir> <crawlDir> [<solrUrl>] <numberOfRounds>"
+    exit -1;
+fi
 
 if [ "$SEEDDIR" = "" ]; then
     echo "Missing seedDir : crawl <seedDir> <crawlDir> <solrURL> <numberOfRounds>"
@@ -37,8 +45,7 @@ if [ "$CRAWL_PATH" = "" ]; then
 fi
 
 if [ "$SOLRURL" = "" ]; then
-    echo "Missing SOLRURL : crawl <seedDir> <crawlDir> <solrURL> <numberOfRounds>"
-    exit -1;
+    echo "No SOLRURL specified. Skipping indexing."
 fi
 
 if [ "$LIMIT" = "" ]; then
@@ -166,7 +173,7 @@ do
   "$bin/nutch" invertlinks "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT
   RETCODE=$?
 
-  if [ $RETCODE -ne 0 ] 
+  if [ $RETCODE -ne 0 ]   
   then exit $RETCODE 
   fi
 
@@ -178,20 +185,23 @@ do
   then exit $RETCODE 
   fi
 
-  echo "Indexing $SEGMENT on SOLR index -> $SOLRURL"
-  "$bin/nutch" index -D solr.server.url=$SOLRURL "$CRAWL_PATH"/crawldb -linkdb "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT
-  RETCODE=$?
+  if [ -n "$SOLRURL" ]; then
+      echo "Indexing $SEGMENT on SOLR index -> $SOLRURL"
+      "$bin/nutch" index -D solr.server.url=$SOLRURL "$CRAWL_PATH"/crawldb -linkdb "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT
+      RETCODE=$?
+      if [ $RETCODE -ne 0 ]; then 
+         exit $RETCODE
+      fi
   
-  if [ $RETCODE -ne 0 ] 
-  then exit $RETCODE 
-  fi
+      echo "Cleanup on SOLR index -> $SOLRURL"
+      "$bin/nutch" clean -D solr.server.url=$SOLRURL "$CRAWL_PATH"/crawldb
+      RETCODE=$?
 
-  echo "Cleanup on SOLR index -> $SOLRURL"
-  "$bin/nutch" clean -D solr.server.url=$SOLRURL "$CRAWL_PATH"/crawldb
-  RETCODE=$?
-  
-  if [ $RETCODE -ne 0 ] 
-  then exit $RETCODE 
+      if [ $RETCODE -ne 0 ]; then 
+         exit $RETCODE
+      fi
+  else
+      echo "Skipping indexing: no SOLR url provided."
   fi
 
 done
