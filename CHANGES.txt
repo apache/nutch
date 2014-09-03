@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-1833 Include version number within nutch binary usage statement (Rishi Verma via mattmann)
+
 * NUTCH-1832 Make Nutch work without an indexer (mattmann)
 
 * NUTCH-1828 bin/crawl : incorrect handling of nutch errors (Mathieu Bouchard via jnioche)
