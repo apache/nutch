@@ -1,7 +1,7 @@
 Nutch Change Log
 
 Nutch Current Development
-
+ 
 * NUTCH-1835 Nutch's Solr schema doesn't work with Solr 4.9 because of the RealTimeGet handler (mattmann)
 
 * NUTCH-1833 Include version number within nutch binary usage statement (Rishi Verma via mattmann)
