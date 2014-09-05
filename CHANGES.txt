@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1829 Generator : unable to distinguish real errors (Mathieu Bouchard via jnioche)
+
 * NUTCH-1828 bin/crawl : incorrect handling of nutch errors (Mathieu Bouchard via jnioche)
 
 * NUTCH-1693 TextMD5Signature computed on textual content (Tien Nguyen Manh, markus via snagel)

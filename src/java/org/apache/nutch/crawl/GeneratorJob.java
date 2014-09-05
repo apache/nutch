@@ -281,7 +281,7 @@ public class GeneratorJob extends NutchTool implements Tool {
     }
 
     try {
-      return (generate(topN, curTime, filter, norm) != null) ? 0 : -1;
+      return (generate(topN, curTime, filter, norm) != null) ? 0 : 1;
     } catch (Exception e) {
       LOG.error("GeneratorJob: " + StringUtils.stringifyException(e));
       return -1;
