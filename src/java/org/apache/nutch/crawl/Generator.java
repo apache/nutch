@@ -708,7 +708,7 @@ public class Generator extends Configured implements Tool {
     try {
       Path[] segs = generate(dbDir, segmentsDir, numFetchers, topN, curTime, filter,
           norm, force, maxNumSegments);
-      if (segs == null) return -1;
+      if (segs == null) return 1;
     } catch (Exception e) {
       LOG.error("Generator: " + StringUtils.stringifyException(e));
       return -1;

@@ -1,6 +1,8 @@
 Nutch Change Log
 
 Nutch Current Development
+
+* NUTCH-1829 Generator : unable to distinguish real errors (Mathieu Bouchard via jnioche)
  
 * NUTCH-1835 Nutch's Solr schema doesn't work with Solr 4.9 because of the RealTimeGet handler (mattmann)
 
