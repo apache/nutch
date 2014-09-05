@@ -117,6 +117,10 @@
             
         <!-- fields for tld plugin -->    
         <field name="tld" type="string" stored="false" indexed="false"/>
+
+        <!-- to work with Solr 4.9 and beyond that use RealTimeGetHandler -->
+        <field name="_version_" type="long" indexed="true" stored="true"/>
+
     </fields>
     <uniqueKey>id</uniqueKey>
     <defaultSearchField>content</defaultSearchField>
