@@ -199,8 +199,7 @@ public class SolrIndexWriter implements IndexWriter {
     	sb.append("\t").append(SolrConstants.COMMIT_SIZE).append(" : buffer size when sending to SOLR (default 1000)\n");
     	sb.append("\t").append(SolrConstants.MAPPING_FILE).append(" : name of the mapping file for fields (default solrindex-mapping.xml)\n");
     	sb.append("\t").append(SolrConstants.USE_AUTH).append(" : use authentication (default false)\n");
-    	sb.append("\t").append(SolrConstants.USERNAME).append(" : use authentication (default false)\n");
-    	sb.append("\t").append(SolrConstants.USE_AUTH).append(" : username for authentication\n");
+    	sb.append("\t").append(SolrConstants.USERNAME).append(" : username for authentication\n");
     	sb.append("\t").append(SolrConstants.PASSWORD).append(" : password for authentication\n");
     	return sb.toString();
     }

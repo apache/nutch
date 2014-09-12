@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-1840 the describe function in SolrIndexWriter is not correct (kaveh minooie via jnioche)
+
 * NUTCH-1837 Upgrade to Tika 1.6 (jnioche)
 
 * NUTCH-1829 Generator : unable to distinguish real errors (Mathieu Bouchard via jnioche)
