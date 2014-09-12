@@ -170,8 +170,6 @@ public class SolrIndexWriter implements IndexWriter {
     sb.append("\t").append(SolrConstants.USE_AUTH)
         .append(" : use authentication (default false)\n");
     sb.append("\t").append(SolrConstants.USERNAME)
-        .append(" : use authentication (default false)\n");
-    sb.append("\t").append(SolrConstants.USE_AUTH)
         .append(" : username for authentication\n");
     sb.append("\t").append(SolrConstants.PASSWORD)
         .append(" : password for authentication\n");
