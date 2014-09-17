@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1832 Make Nutch work without an indexer (mattmann via lewismc)
+
 * NUTCH-1840 the describe function in SolrIndexWriter is not correct (kaveh minooie via jnioche)
 
 * NUTCH-1837 Upgrade to Tika 1.6 (lewismc)

@@ -23,26 +23,33 @@
 
 SEEDDIR="$1"
 CRAWL_ID="$2"
-SOLRURL="$3"
-LIMIT="$4"
+if [ "$#" -eq 3 ]; then
+    LIMIT="$3"
+elif [ "$#" -eq 4 ]; then
+     SOLRURL="$3"
+     LIMIT="$4"
+else
+    echo "Unknown # of arguments $#"
+    echo "Usage: crawl <seedDir> <crawlDir> [<solrUrl>] <numberOfRounds>"
+    exit -1;
+fi
 
 if [ "$SEEDDIR" = "" ]; then
-    echo "Missing seedDir : crawl <seedDir> <crawlID> <solrURL> <numberOfRounds>"
+    echo "Missing seedDir : crawl <seedDir> <crawlID> [<solrURL>] <numberOfRounds>"
     exit -1;
 fi
 
 if [ "$CRAWL_ID" = "" ]; then
-    echo "Missing crawlDir : crawl <seedDir> <crawlID> <solrURL> <numberOfRounds>"
+    echo "Missing crawlDir : crawl <seedDir> <crawlID> [<solrURL>] <numberOfRounds>"
     exit -1;
 fi
 
 if [ "$SOLRURL" = "" ]; then
-    echo "Missing SOLRURL : crawl <seedDir> <crawlID> <solrURL> <numberOfRounds>"
-    exit -1;
+    echo "No SOLRURL specified. Skipping indexing."
 fi
 
 if [ "$LIMIT" = "" ]; then
-    echo "Missing numberOfRounds : crawl <seedDir> <crawlID> <solrURL> <numberOfRounds>"
+    echo "Missing numberOfRounds : crawl <seedDir> <crawlID> [<solrURL>] <numberOfRounds>"
     exit -1;
 fi
 
@@ -152,20 +159,24 @@ do
     then exit $RETCODE 
   fi
 
-  echo "Indexing $CRAWL_ID on SOLR index -> $SOLRURL"
-  "$bin/nutch" index $commonOptions -D solr.server.url=$SOLRURL -all -crawlId "$CRAWL_ID"
-  RETCODE=$?
+  if [ -n "$SOLRURL" ]; then
+    echo "Indexing $CRAWL_ID on SOLR index -> $SOLRURL"
+    "$bin/nutch" index $commonOptions -D solr.server.url=$SOLRURL -all -crawlId "$CRAWL_ID"
+    RETCODE=$?
 
-  if [ $RETCODE -ne 0 ] 
-    then exit $RETCODE 
-  fi
+    if [ $RETCODE -ne 0 ] 
+      then exit $RETCODE 
+    fi
 
-  echo "SOLR dedup -> $SOLRURL"
-  "$bin/nutch" solrdedup $commonOptions $SOLRURL
-  RETCODE=$?
+    echo "SOLR dedup -> $SOLRURL"
+    "$bin/nutch" solrdedup $commonOptions $SOLRURL
+    RETCODE=$?
 
-  if [ $RETCODE -ne 0 ] 
-    then exit $RETCODE 
+    if [ $RETCODE -ne 0 ] 
+      then exit $RETCODE 
+    fi
+  else
+      echo "Skipping indexing tasks: no SOLR url provided."
   fi
 
 done
