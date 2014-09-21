@@ -71,6 +71,7 @@ if [ $# = 0 ]; then
   echo "  mergelinkdb       merge linkdb-s, with optional filtering"
   echo "  index             run the plugin-based indexer on parsed segments and linkdb"
   echo "  dedup             deduplicate entries in the crawldb and give them a special status"
+  echo "  dump              exports cralwed data from segments into files"
   echo "  solrindex         run the solr indexer on parsed segments and linkdb - DEPRECATED use the index command instead"
   echo "  solrdedup         remove duplicates from solr - DEPRECATED use the dedup command instead"
   echo "  solrclean         remove HTTP 301 and 404 documents from solr - DEPRECATED use the clean command instead"
@@ -230,6 +231,8 @@ elif [ "$COMMAND" = "invertlinks" ] ; then
   CLASS=org.apache.nutch.crawl.LinkDb
 elif [ "$COMMAND" = "mergelinkdb" ] ; then
   CLASS=org.apache.nutch.crawl.LinkDbMerger
+elif [ "$COMMAND" = "dump" ] ; then
+  CLASS=org.apache.nutch.tools.FileDumper
 elif [ "$COMMAND" = "solrindex" ] ; then
   CLASS="org.apache.nutch.indexer.IndexingJob -D solr.server.url=$1"
   shift
