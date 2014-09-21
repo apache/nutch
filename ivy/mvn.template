@@ -78,6 +78,11 @@
                         <name>Talat Uyarer</name>
                         <email>talat@apache.org</email>
                 </developer>
+		<developer>
+			<id>snagel</id>
+			<name>Sebastian Nagel</name>
+			<email>snagel@apache.org</email>
+		</developer>
 	</developers>
         <build>
           <sourceDirectory>src/java</sourceDirectory>
