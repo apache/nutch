@@ -74,6 +74,7 @@ if [ $# = 0 ]; then
   echo " indexchecker   check the indexing filters for a given url"
   echo " plugin 	load a plugin and run one of its classes main()"
   echo " nutchserver    run a (local) Nutch server on a user defined port"
+  echo " webapp         run a local Nutch web application"
   echo " junit         	runs the given JUnit test"
   echo " or"
   echo " CLASSNAME 	run the class named CLASSNAME"
@@ -234,6 +235,8 @@ elif [ "$COMMAND" = "indexchecker" ] ; then
   CLASS=org.apache.nutch.indexer.IndexingFiltersChecker
 elif [ "$COMMAND" = "plugin" ] ; then
 CLASS=org.apache.nutch.plugin.PluginRepository
+elif [ "$COMMAND" = "webapp" ] ; then
+CLASS=org.apache.nutch.webui.NutchUiServer
 elif [ "$COMMAND" = "nutchserver" ] ; then
 CLASS=org.apache.nutch.api.NutchServer
 elif [ "$COMMAND" = "junit" ] ; then

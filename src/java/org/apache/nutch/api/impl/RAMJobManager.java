@@ -52,7 +52,7 @@ public class RAMJobManager implements JobManager {
 
   @Override
   public JobInfo get(String crawlId, String jobId) {
-    return executor.findWorker(jobId).getInfo();
+    return executor.getInfo(jobId);
   }
 
   @Override

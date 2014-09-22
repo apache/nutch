@@ -42,6 +42,7 @@ import org.apache.nutch.api.resources.AdminResource;
 import org.apache.nutch.api.resources.ConfigResource;
 import org.apache.nutch.api.resources.DbResource;
 import org.apache.nutch.api.resources.JobResource;
+import org.apache.nutch.api.resources.SeedResource;
 import org.restlet.Component;
 import org.restlet.Context;
 import org.restlet.data.Protocol;
@@ -118,6 +119,7 @@ public class NutchServer extends Application {
     resources.add(AdminResource.class);
     resources.add(ConfigResource.class);
     resources.add(DbResource.class);
+    resources.add(SeedResource.class);
     return resources;
   }
 
