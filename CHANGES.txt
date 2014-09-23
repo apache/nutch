@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-1839 Improve WebGraph CLI parsing (lewismc)
+
 * NUTCH-1526 Create SegmentContentDumperTool for easily extracting out file contents from SegmentDirs (mattmann, lewismc, Julien Le Dem)
 
 * NUTCH-1840 the describe function in SolrIndexWriter is not correct (kaveh minooie via jnioche)

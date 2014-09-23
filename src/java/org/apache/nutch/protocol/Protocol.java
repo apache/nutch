@@ -28,7 +28,7 @@ import org.apache.nutch.plugin.Pluggable;
 import crawlercommons.robots.BaseRobotRules;
 
 
-/** A retriever of url content.  Implemented by protocol extensions. */
+/** A retriever of url content. Implemented by protocol extensions. */
 public interface Protocol extends Pluggable, Configurable {
   /** The name of the extension point. */
   public final static String X_POINT_ID = Protocol.class.getName();

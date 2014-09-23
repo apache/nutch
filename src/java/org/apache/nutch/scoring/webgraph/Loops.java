@@ -72,7 +72,7 @@ import org.apache.nutch.util.TimingUtil;
  * This job will identify both reciprocal links and cycles of 2+ links up to a
  * set depth to check. The Loops job is expensive in both computational and
  * space terms. Because it checks outlinks of outlinks of outlinks for cycles
- * its intermediate output can be extremly large even if the end output is
+ * its intermediate output can be extremely large even if the end output is
  * rather small. Because of this the Loops job is optional and if it doesn't
  * exist then it won't be factored into the LinkRank program.
  */
