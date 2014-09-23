@@ -124,9 +124,9 @@
     <dependency org="org.apache.gora" name="gora-accumulo" rev="0.4" conf="*->default" />
     -->
     <!-- Uncomment this to use Cassandra as Gora backend. -->
-    
+    <!-- 
     <dependency org="org.apache.gora" name="gora-cassandra" rev="0.4" conf="*->default" />
-    
+    -->
     
 	<!-- web app dependencies -->
 
