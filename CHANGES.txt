@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development
 
+* NUTCH-1853 Add commented out WebGraph executions to ./bin/crawl (lewismc)
+
 * NUTCH-1844 testresources/testcrawl not referenced anywhere in code (mattmann)
 
 * NUTCH-1839 Improve WebGraph CLI parsing (lewismc)

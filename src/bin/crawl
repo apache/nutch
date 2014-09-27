@@ -203,7 +203,45 @@ do
   else
       echo "Skipping indexing: no SOLR url provided."
   fi
+  
+  #######################################################
+  # The following commands fall into WebGraph territory
+  # and should be uncommented based on your requirements
+  #######################################################
+  #echo "Building WebGraph within $CRAWL_PATH on all segments in $CRAWL_PATH/segments/"
+  #"$bin/nutch" webgraph $commonOptions -filter -normalize -segmentDir "$CRAWL_PATH"/segments/ -webgraphdb "$CRAWL_PATH"
 
+  #if [ $? -ne 0 ]
+  # then exit $?
+  #fi
+
+  #echo "Running Loops Job on WebGraph within $CRAWL_PATH"
+  #"$bin/nutch" org.apache.nutch.scoring.webgraph.Loops $commonOptions -webgraphdb "$CRAWL_PATH"
+
+  #if [ $? -ne 0 ]
+  # then exit $?
+  #fi
+
+  #echo "Running LinkRank Algorithm on WebGraph within $CRAWL_PATH"
+  #"$bin/nutch" linkrank $commonOptions -webgraphdb "$CRAWL_PATH"
+
+  #if [ $? -ne 0 ]
+  # then exit $?
+  #fi
+
+  #echo "Running ScoreUpdater Job with $CRAWL_PATH/crawldb and  WebGraph within $CRAWL_PATH"
+  #"$bin/nutch" scoreupdater $commonOptions -crawldb "$CRAWL_PATH"/crawldb -webgraphdb "$CRAWL_PATH"
+
+  #if [ $? -ne 0 ]
+  # then exit $?
+  #fi
+
+  #echo "Running NodeDumper on WebGraph within $CRAWL_PATH and dumping output to $CRAWL_PATH/dump/scores"
+  #"$bin/nutch" nodedumper $commonOptions -scores -topn 1000 -webgraphdb "$CRAWL_PATH" -output "$CRAWL_PATH"/dump/scores
+
+  #if [ $? -ne 0 ]
+  # then exit $?
+  #fi
 done
 
 exit 0
