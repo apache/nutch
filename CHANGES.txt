@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development
 
+* NUTCH-1848 Bug in DashboardPage.html instances counter (Nima Falaki via lewismc)
+
 * NUTCH-841 Create a Wicket-based Web Application for Nutch (Fjodor Vershinin via lewismc)
 
 * NUTCH-1832 Make Nutch work without an indexer (mattmann via lewismc)
