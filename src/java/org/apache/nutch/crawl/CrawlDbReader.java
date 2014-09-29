@@ -30,10 +30,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.TreeMap;
 
+
 // Commons Logging imports
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -100,7 +100,7 @@ public class CrawlDbReader implements Closeable {
       public LineRecordWriter(DataOutputStream out) {
         this.out = out;
         try {
-          out.writeBytes("Url;Status code;Status name;Fetch Time;Modified Time;Retries since fetch;Retry interval seconds;Retry interval days;Score;Signature;Metadata\n");
+          out.writeBytes("Url,Status code,Status name,Fetch Time,Modified Time,Retries since fetch,Retry interval seconds,Retry interval days,Score,Signature,Metadata\n");
         } catch (IOException e) {}
       }
 
@@ -108,29 +108,29 @@ public class CrawlDbReader implements Closeable {
           out.writeByte('"');
           out.writeBytes(key.toString());
           out.writeByte('"');
-          out.writeByte(';');
+          out.writeByte(',');
           out.writeBytes(Integer.toString(value.getStatus()));
-          out.writeByte(';');
+          out.writeByte(',');
           out.writeByte('"');
           out.writeBytes(CrawlDatum.getStatusName(value.getStatus()));
           out.writeByte('"');
-          out.writeByte(';');
+          out.writeByte(',');
           out.writeBytes(new Date(value.getFetchTime()).toString());
-          out.writeByte(';');
+          out.writeByte(',');
           out.writeBytes(new Date(value.getModifiedTime()).toString());
-          out.writeByte(';');
+          out.writeByte(',');
           out.writeBytes(Integer.toString(value.getRetriesSinceFetch()));
-          out.writeByte(';');
+          out.writeByte(',');
           out.writeBytes(Float.toString(value.getFetchInterval()));
-          out.writeByte(';');
+          out.writeByte(',');
           out.writeBytes(Float.toString((value.getFetchInterval() / FetchSchedule.SECONDS_PER_DAY)));
-          out.writeByte(';');
+          out.writeByte(',');
           out.writeBytes(Float.toString(value.getScore()));
-          out.writeByte(';');
+          out.writeByte(',');
           out.writeByte('"');
           out.writeBytes(value.getSignature() != null ? StringUtil.toHexString(value.getSignature()): "null");
           out.writeByte('"');
-          out.writeByte(';');
+          out.writeByte(',');
           out.writeByte('"');
           if (value.getMetaData() != null) {
             for (Entry<Writable, Writable> e : value.getMetaData().entrySet()) {
@@ -540,6 +540,7 @@ public class CrawlDbReader implements Closeable {
   }
 
   public static void main(String[] args) throws IOException {
+    @SuppressWarnings("resource")
     CrawlDbReader dbr = new CrawlDbReader();
 
     if (args.length < 2) {
