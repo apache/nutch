@@ -16,6 +16,14 @@
  */
 package org.apache.nutch.webui;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.GnuParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.wicket.protocol.http.WicketFilter;
 import org.apache.wicket.spring.SpringWebApplicationFactory;
 import org.mortbay.jetty.Handler;
@@ -29,15 +37,36 @@ import org.springframework.web.context.request.RequestContextListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 
 public class NutchUiServer {
-  private static final String APP_FACTORY_NAME = SpringWebApplicationFactory.class.getName();
+  private static final String APP_FACTORY_NAME = SpringWebApplicationFactory.class
+      .getName();
   private static final String CONFIG_LOCATION = "org.apache.nutch.webui";
+  private static final String CMD_PORT = "port";
+  private static Integer port = 8080;
 
   public static void main(String[] args) throws Exception {
+    CommandLineParser parser = new GnuParser();
+    Options options = createWebAppOptions();
+    CommandLine commandLine = null;
+    HelpFormatter formatter = new HelpFormatter();
+    try {
+      commandLine = parser.parse(options, args);
+    }  catch (Exception e) {
+      formatter.printHelp("NutchUiServer", options, true);
+      StringUtils.stringifyException(e);
+    }
+
+    if (commandLine.hasOption("help")) {
+      formatter.printHelp("NutchUiServer", options, true);
+      return;
+    }
+    if (commandLine.hasOption(CMD_PORT)) {
+      port = Integer.parseInt(commandLine.getOptionValue(CMD_PORT));
+    }
     startServer();
   }
 
   private static void startServer() throws Exception, InterruptedException {
-    Server server = new Server(8080);
+    Server server = new Server(port);
     Context context = new Context(server, "/", Context.SESSIONS);
     context.addServlet(DefaultServlet.class, "/*");
 
@@ -59,6 +88,17 @@ public class NutchUiServer {
     AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
     context.setConfigLocation(CONFIG_LOCATION);
     return context;
+  }
+
+  private static Options createWebAppOptions() {
+    Options options = new Options();
+    Option helpOpt = new Option("h", "help", false, "show this help message");
+    OptionBuilder.withDescription("Port to run the WebApplication on.");
+    OptionBuilder.hasOptionalArg();
+    OptionBuilder.withArgName("port number");
+    options.addOption(OptionBuilder.create(CMD_PORT));
+    options.addOption(helpOpt);
+    return options;
   }
 
 }
