@@ -1,6 +1,8 @@
 Nutch Change Log
 
-Current Development
+Current Development 2.3-SNAPSHOT
+
+* NUTCH-1866 ant eclipse target should not delete runtime (nimafl via lewismc)
 
 * NUTCH-1859 Make Nutch webapp port configurable (Nima Falaki via lewismc)
 

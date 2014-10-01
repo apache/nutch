@@ -822,6 +822,9 @@
  <!-- target: clean =================================================== -->
  <target name="clean" depends="clean-build, clean-lib, clean-dist, clean-runtime" description="--> clean the project" />
 
+  <!-- target: clean-eclipse ============================================ -->
+  <target name="clean-eclipse" depends="clean-build, clean-lib, clean-dist" description="--> cleans the eclipse project"/> 
+
  <!-- target: clean-local ============================================= -->
  <target name="clean-local" depends="" description="--> cleans the local repository for the current module">
   <delete dir="${ivy.local.default.root}/${ivy.organisation}/${ivy.module}" />
@@ -931,13 +934,13 @@
   
   <!-- target: eclipse   ================================================ -->
   <target name="eclipse" 
-          depends="clean,init,job,ant-eclipse-download"
+          depends="clean-eclipse,init,resolve-test,job,ant-eclipse-download"
           description="--> Create eclipse project files">
 
-	     <pathconvert property="eclipse.project">
-	       <path path="${basedir}"/>
-	       <regexpmapper from="^.*/([^/]+)$$" to="\1" handledirsep="yes"/>
-	     </pathconvert>
+         <pathconvert property="eclipse.project">
+           <path path="${basedir}"/>
+           <regexpmapper from="^.*/([^/]+)$$" to="\1" handledirsep="yes"/>
+         </pathconvert>
   
     <taskdef name="eclipse"
              classname="prantl.ant.eclipse.EclipseTask"
