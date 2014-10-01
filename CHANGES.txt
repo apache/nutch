@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1866 ant eclipse target should not delete runtime (nimafl vai lewismc)
+
 * NUTCH-1857 readb -dump -format csv should use comma (lewismc)
 
 * NUTCH-1853 Add commented out WebGraph executions to ./bin/crawl (lewismc)
