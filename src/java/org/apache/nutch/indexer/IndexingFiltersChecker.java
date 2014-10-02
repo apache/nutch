@@ -95,8 +95,6 @@ public class IndexingFiltersChecker extends Configured implements Tool {
 
     ProtocolOutput output = protocol.getProtocolOutput(new Text(url), datum);
     
-    IndexWriters writers = new IndexWriters(getConf());
-    
     if (!output.getStatus().isSuccess()) {
       System.out.println("Fetch failed with protocol status: " + output.getStatus());
       return 0;
@@ -166,9 +164,10 @@ public class IndexingFiltersChecker extends Configured implements Tool {
     }
     
     if (conf.getBoolean("doIndex", false) && doc!=null){
-    	writers.open(new JobConf(getConf()), "IndexingFilterChecker");
-    	writers.write(doc);
-    	writers.close();
+      IndexWriters writers = new IndexWriters(getConf());
+      writers.open(new JobConf(getConf()), "IndexingFilterChecker");
+      writers.write(doc);
+      writers.close();
     }
     
     return 0;
