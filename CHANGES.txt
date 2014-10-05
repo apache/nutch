@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1867 CrawlDbReader: use setFloat to pass min score (lewismc, snagel)
+
 * NUTCH-1826, NUTCH-1864 indexchecker fails if solr.server.url not configured (lewismc, snagel)
 
 * NUTCH-1866 ant eclipse target should not delete runtime (nimafl vai lewismc)

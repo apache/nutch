@@ -264,10 +264,7 @@ public class CrawlDbReader implements Closeable {
     private float min = 0.0f;
 
     public void configure(JobConf job) {
-      long lmin = job.getLong("db.reader.topn.min", 0);
-      if (lmin != 0) {
-        min = (float)lmin / 1000000.0f;
-      }
+      min = job.getFloat("db.reader.topn.min", 0.0f);
     }
     public void close() {}
     public void map(Text key, CrawlDatum value, OutputCollector<FloatWritable, Text> output, Reporter reporter)
@@ -509,8 +506,7 @@ public class CrawlDbReader implements Closeable {
     job.setOutputKeyClass(FloatWritable.class);
     job.setOutputValueClass(Text.class);
 
-    // XXX hmmm, no setFloat() in the API ... :(
-    job.setLong("db.reader.topn.min", Math.round(1000000.0 * min));
+    job.setFloat("db.reader.topn.min", min);
     JobClient.runJob(job);
 
     if (LOG.isInfoEnabled()) {
