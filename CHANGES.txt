@@ -2,6 +2,10 @@ Nutch Change Log
 
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1868 Document and improve CLI for FileDumper tool (lewismc)
+
+* NUTCH-1869 Add a flag to -mimeType fiag to FileDumper (lewismc)
+
 * NUTCH-1867 CrawlDbReader: use setFloat to pass min score (lewismc, snagel)
 
 * NUTCH-1826, NUTCH-1864 indexchecker fails if solr.server.url not configured (lewismc, snagel)
