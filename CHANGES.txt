@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1164 Write JUnit tests for protocol-http (nimafl via snagel)
+
 * NUTCH-1868 Document and improve CLI for FileDumper tool (lewismc)
 
 * NUTCH-1869 Add a flag to -mimeType fiag to FileDumper (lewismc)
@@ -10,7 +12,7 @@ Nutch Current Development 1.10-SNAPSHOT
 
 * NUTCH-1826, NUTCH-1864 indexchecker fails if solr.server.url not configured (lewismc, snagel)
 
-* NUTCH-1866 ant eclipse target should not delete runtime (nimafl vai lewismc)
+* NUTCH-1866 ant eclipse target should not delete runtime (nimafl via lewismc)
 
 * NUTCH-1857 readb -dump -format csv should use comma (lewismc)
 

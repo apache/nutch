@@ -88,6 +88,7 @@
      <ant dir="language-identifier" target="test"/>
      <ant dir="lib-http" target="test"/>
      <ant dir="protocol-file" target="test"/>
+     <ant dir="protocol-http" target="test"/>
      <ant dir="protocol-httpclient" target="test"/>
      <!--ant dir="parse-ext" target="test"/-->
      <ant dir="feed" target="test"/>

@@ -992,7 +992,7 @@
         <source path="${plugins.dir}/protocol-httpclient/src/java/" />
         <source path="${plugins.dir}/protocol-httpclient/src/test/" />
         <source path="${plugins.dir}/protocol-http/src/java/" />
-        <!-- <source path="${plugins.dir}/protocol-http/src/test/" /> --> 
+        <source path="${plugins.dir}/protocol-http/src/test/" />
         <source path="${plugins.dir}/scoring-depth/src/java/" />
         <source path="${plugins.dir}/scoring-link/src/java/" />
         <source path="${plugins.dir}/scoring-opic/src/java/" />
