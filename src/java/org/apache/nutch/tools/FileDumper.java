@@ -60,13 +60,13 @@ import org.slf4j.LoggerFactory;
  * The tool has a number of immediate uses:
  * <ol>
  * <li>one can see what a page looked like at the time it was crawled</li>
- * <li>one can see different media types aquired as part of the crawl</li>
+ * <li>one can see different media types acquired as part of the crawl</li>
  * <li>it enables us to see webpages before we augment them with additional metadata,
  * this can be handy for providing a provenance trail for your crawl data.</li>
  * </ol>
  * </p>
  * <p>Upon successful completion the tool displays a very convenient JSON snippet 
- * detailing the mimetype classifications and the counts of doucments which 
+ * detailing the mimetype classifications and the counts of documents which 
  * fall into those classifications. An example is as follows:</p>
  * <pre>
  * {@code
