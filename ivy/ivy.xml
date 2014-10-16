@@ -68,7 +68,7 @@
     <dependency org="org.jdom" name="jdom" rev="1.1" conf="*->default" />
 
     <dependency org="com.google.guava" name="guava" rev="11.0.2" />
-    <dependency org="com.google.code.crawler-commons" name="crawler-commons" rev="0.4" />
+    <dependency org="com.google.code.crawler-commons" name="crawler-commons" rev="0.5" />
     
 	<dependency org="org.restlet.jse" name="org.restlet" rev="2.2.1" conf="*->default" />
     <dependency org="org.restlet.jse" name="org.restlet.ext.jackson" rev="2.2.1" 

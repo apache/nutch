@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development 2.3-SNAPSHOT
 
+* NUTCH-1876 Upgrade to Crawler Commons 0.5 (jnioche)
+
 * NUTCH-1866 ant eclipse target should not delete runtime (nimafl via lewismc)
 
 * NUTCH-1859 Make Nutch webapp port configurable (Nima Falaki via lewismc)
