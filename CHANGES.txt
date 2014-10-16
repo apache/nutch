@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1876 Upgrade to Crawler Commons 0.5 (jnioche)
+
 * NUTCH-1874 FileDumper comment typos ( Arthur Cinader via lewismc)
 
 * NUTCH-1164 Write JUnit tests for protocol-http (nimafl via snagel)
