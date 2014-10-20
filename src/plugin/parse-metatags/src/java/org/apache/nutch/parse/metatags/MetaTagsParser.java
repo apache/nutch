@@ -22,6 +22,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -31,6 +32,7 @@ import org.apache.avro.util.Utf8;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.parse.HTMLMetaTags;
 import org.apache.nutch.parse.Parse;
 import org.apache.nutch.parse.ParseFilter;
@@ -42,7 +44,7 @@ import org.w3c.dom.DocumentFragment;
 /**
  * Parse HTML meta tags (keywords, description) and store them in the parse
  * metadata so that they can be indexed with the index-metadata plugin with the
- * prefix 'metatag.'
+ * prefix 'metatag.'. Metatags are matched ignoring case.
  */
 public class MetaTagsParser implements ParseFilter {
 
@@ -59,12 +61,9 @@ public class MetaTagsParser implements ParseFilter {
     this.conf = conf;
     // specify whether we want a specific subset of metadata
     // by default take everything we can find
-    String metatags = conf.get("metatags.names", "*");
-    String[] values = metatags.split(";");
-    for (String val : values)
-      metatagset.add(val.toLowerCase());
-    if(metatagset.size()==0){
-      metatagset.add("*");
+    String[] values = conf.getStrings("metatags.names", "*");
+    for (String val : values) {
+      metatagset.add(val.toLowerCase(Locale.ROOT));
     }
   }
 
@@ -72,56 +71,53 @@ public class MetaTagsParser implements ParseFilter {
     return this.conf;
   }
 
+  /**
+   * Check whether the metatag is in the list of metatags to be indexed (or if
+   * '*' is specified). If yes, add it to parse metadata.
+   */
+  private void addIndexedMetatags(Map<CharSequence, ByteBuffer> metadata,
+      String metatag, String value) {
+    String lcMetatag = metatag.toLowerCase(Locale.ROOT);
+    if (metatagset.contains("*") || metatagset.contains(lcMetatag)) {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Found meta tag: " + lcMetatag + "\t" + value);
+      }
+      metadata.put(new Utf8(PARSE_META_PREFIX + lcMetatag),
+          ByteBuffer.wrap(value.getBytes()));
+    }
+  }
+
   public Parse filter(String url, WebPage page, Parse parse,
       HTMLMetaTags metaTags, DocumentFragment doc) {
 
-    Map<Utf8, ByteBuffer> metadata = new HashMap<Utf8, ByteBuffer>();
+    // temporary map: cannot concurrently iterate over and modify page metadata
+    Map<CharSequence, ByteBuffer> metadata = new HashMap<CharSequence, ByteBuffer>();
 
     // check in the metadata first : the tika-parser
-    // might have stored the values there already
-    Iterator<Entry<CharSequence, ByteBuffer>> iterator = page.getMetadata().entrySet().iterator();
-    while (iterator.hasNext()) {
-      Entry<CharSequence, ByteBuffer> entry = iterator.next();
+    // might have stored the values there already.
+    // Values are then additionally stored with the prefixed key.
+    for (Entry<CharSequence, ByteBuffer> entry : page.getMetadata().entrySet()) {
       String mdName = entry.getKey().toString();
       String value = Bytes.toStringBinary(entry.getValue());
-      if (metatagset.contains("*") || metatagset.contains(mdName.toLowerCase())) {
-        // now add the metadata
-        LOG.debug("Found meta tag: '" + mdName + "', with value: '" + value
-            + "'");
-        metadata.put(new Utf8(PARSE_META_PREFIX + mdName.toLowerCase()),
-            ByteBuffer.wrap(value.getBytes()));
-      }
+      addIndexedMetatags(metadata, mdName, value);
     }
-    Iterator<Entry<Utf8, ByteBuffer>> itm = metadata.entrySet().iterator();
-    while (iterator.hasNext()) {
-      Entry<Utf8, ByteBuffer> entry = itm.next();
+
+    // add temporary metadata to page metadata
+    for (Entry<CharSequence, ByteBuffer> entry : metadata.entrySet()) {
       page.getMetadata().put(entry.getKey(), entry.getValue());
     }
 
-    Properties generalMetaTags = metaTags.getGeneralTags();
-    Iterator<Object> it = generalMetaTags.keySet().iterator();
-    while (it.hasNext()) {
+    Metadata generalMetaTags = metaTags.getGeneralTags();
+    for (String tagName : generalMetaTags.names()) {
+      // multiple values of a metadata field are separated by '\t' in storage.
       StringBuilder sb = new StringBuilder();
-      String name = (String) it.next();
-      String[] values = new String[] { (String) generalMetaTags.get(name) };
-      // The multivalues of a metadata field are saved with a separator '\t'
-      // in the storage
-      // unless there is only one entry, where no \t is appended.
-      for (String value : values) {
-        if (values.length > 1) {
-          sb.append(value).append("\t");
-        } else {
-          sb.append(value);
+      for (String value : generalMetaTags.getValues(tagName)) {
+        if (sb.length() > 0) {
+          sb.append("\t");
         }
+        sb.append(value);
       }
-      // check whether the name is in the list of what we want or if
-      // specified *
-      if (metatagset.contains("*") || metatagset.contains(name.toLowerCase())) {
-        // Add the recently parsed value of multiValued array to metadata
-        LOG.debug("Found meta tag : " + name + "\t" + sb.toString());
-        page.getMetadata().put(new Utf8(PARSE_META_PREFIX + name.toLowerCase()),
-            ByteBuffer.wrap(Bytes.toBytes(sb.toString())));
-      }
+      addIndexedMetatags(page.getMetadata(), tagName, sb.toString());
     }
 
     Properties httpequiv = metaTags.getHttpEquivTags();
@@ -129,13 +125,7 @@ public class MetaTagsParser implements ParseFilter {
     while (tagNames.hasMoreElements()) {
       String name = (String) tagNames.nextElement();
       String value = httpequiv.getProperty(name);
-      // check whether the name is in the list of what we want or if
-      // specified *
-      if (metatagset.contains("*") || metatagset.contains(name.toLowerCase())) {
-        LOG.debug("Found meta tag : " + name + "\t" + value);
-        page.getMetadata().put(new Utf8(PARSE_META_PREFIX + name.toLowerCase()),
-            ByteBuffer.wrap(value.getBytes()));
-      }
+      addIndexedMetatags(page.getMetadata(), name, value);
     }
 
     return parse;

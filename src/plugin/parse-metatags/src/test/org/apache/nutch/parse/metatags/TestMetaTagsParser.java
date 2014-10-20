@@ -140,8 +140,7 @@ public class TestMetaTagsParser {
         if (nameNode != null) {
           if (contentNode != null) {
             String name = nameNode.getNodeValue().toLowerCase();
-            metaTags.getGeneralTags().setProperty(name,
-                contentNode.getNodeValue());
+            metaTags.getGeneralTags().add(name, contentNode.getNodeValue());
           }
         }
 

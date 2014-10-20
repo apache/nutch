@@ -21,6 +21,8 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.Properties;
 
+import org.apache.nutch.metadata.Metadata;
+
 /**
  * This class holds the information about HTML "meta" tags extracted from 
  * a page. Some special tags have convenience methods for easy checking.
@@ -40,7 +42,7 @@ public class HTMLMetaTags {
 
   private URL refreshHref = null;
 
-  private Properties generalTags = new Properties();
+  private Metadata generalTags = new Metadata();
 
   private Properties httpEquivTags = new Properties();
 
@@ -166,7 +168,7 @@ public class HTMLMetaTags {
    * Returns all collected values of the general meta tags. Property names are
    * tag names, property values are "content" values.
    */
-  public Properties getGeneralTags() {
+  public Metadata getGeneralTags() {
     return generalTags;
   }
 
@@ -188,13 +190,13 @@ public class HTMLMetaTags {
             + ", refreshHref=" + refreshHref + "\n"
             );
     sb.append(" * general tags:\n");
-    Iterator<?> it = generalTags.keySet().iterator();
-    while (it.hasNext()) {
-      String key = (String)it.next();
+    String[] names = generalTags.names();
+    for (String name : names) {
+      String key = name;
       sb.append("   - " + key + "\t=\t" + generalTags.get(key) + "\n");
     }
     sb.append(" * http-equiv tags:\n");
-    it = httpEquivTags.keySet().iterator();
+    Iterator<Object> it = httpEquivTags.keySet().iterator();
     while (it.hasNext()) {
       String key = (String)it.next();
       sb.append("   - " + key + "\t=\t" + httpEquivTags.get(key) + "\n");

@@ -19,6 +19,10 @@ package org.apache.nutch.indexer.metadata;
 
 import java.nio.ByteBuffer;
 import java.util.Collection;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.apache.avro.util.Utf8;
 import org.apache.hadoop.conf.Configuration;
@@ -27,17 +31,18 @@ import org.apache.nutch.indexer.IndexingFilter;
 import org.apache.nutch.indexer.NutchDocument;
 import org.apache.nutch.storage.WebPage;
 import org.apache.nutch.storage.WebPage.Field;
+import org.apache.nutch.util.Bytes;
 
 /**
  * Indexer which can be configured to extract metadata from the crawldb, parse
  * metadata or content metadata. You can specify the properties "index.db",
  * "index.parse" or "index.content" who's values are comma-delimited
- * <value>key1, key2, key3</value>.
+ * <value>key1,key2,key3</value>.
  */
 
 public class MetadataIndexer implements IndexingFilter {
   private Configuration conf;
-  private static String[] parseFieldnames;
+  private static Map<Utf8,String> parseFieldnames;
   private static final String PARSE_CONF_PROPERTY = "index.metadata";
   private static final String INDEX_PREFIX = "meta_";
   private static final String PARSE_META_PREFIX = "meta_";
@@ -51,14 +56,14 @@ public class MetadataIndexer implements IndexingFilter {
 
     // add the fields from parsemd
     if (parseFieldnames != null) {
-      for (String metatag : parseFieldnames) {
-        ByteBuffer bvalues = page.getMetadata().get(new Utf8(PARSE_META_PREFIX
-            + metatag));
+      for (Entry<Utf8,String> metatag : parseFieldnames.entrySet()) {
+        ByteBuffer bvalues = page.getMetadata().get(metatag.getKey());
         if (bvalues != null) {
-          String value = new String(bvalues.array());
+          String key = metatag.getValue();
+          String value = Bytes.toString(bvalues.array());
           String[] values = value.split("\t");
           for (String eachvalue : values) {
-            doc.add(INDEX_PREFIX + metatag, eachvalue);
+            doc.add(key, eachvalue);
           }
         }
       }
@@ -69,7 +74,13 @@ public class MetadataIndexer implements IndexingFilter {
 
   public void setConf(Configuration conf) {
     this.conf = conf;
-    parseFieldnames = conf.getStrings(PARSE_CONF_PROPERTY);
+    String[] metatags = conf.getStrings(PARSE_CONF_PROPERTY);
+    parseFieldnames = new TreeMap<Utf8,String>();
+    for (int i = 0; i < metatags.length; i++) {
+      parseFieldnames.put(
+          new Utf8(PARSE_META_PREFIX + metatags[i].toLowerCase(Locale.ROOT)),
+          INDEX_PREFIX + metatags[i]);
+    }
     // TODO check conflict between field names e.g. could have same label
     // from different sources
   }

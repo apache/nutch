@@ -1125,7 +1125,7 @@
   <description>
   Comma-separated list of keys to be taken from the metadata to generate fields.
   Can be used e.g. for 'description' or 'keywords' provided that these values are generated
-  by a parser (see parse-metatags plugin)  
+  by a parser (see parse-metatags plugin), and property 'metatags.names'.
   </description>
 </property>
 
@@ -1133,11 +1133,12 @@
 <property>
   <name>metatags.names</name>
   <value>*</value>
-  <description> Names of the metatags to extract, separated by ';'. 
-  Use '*' to extract all metatags. Prefixes the names with 'meta_'
-  in the parse-metadata. For instance to index description and keywords, 
-  you need to activate the plugin index-metadata and set the value of the 
-  parameter 'index.metadata' to 'meta_description;meta_keywords'.
+  <description>Names of the metatags to extract, separated by ','.
+  Use '*' to extract all metatags. Prefixes the names with 'meta_' in
+  the parse-metadata. For instance, to index description and keywords,
+  you need to activate the plugins parse-metadata and index-metadata
+  and set the value of the properties 'metatags.names' and
+  'index.metadata' to 'description,keywords'.
   </description>
 </property>
 
