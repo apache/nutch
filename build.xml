@@ -954,7 +954,7 @@
         <library pathref="eclipse.classpath" exported="false" />
        
         <source path="${basedir}/src/java/" />
-        <source path="${basedir}/src/test/" />
+        <source path="${basedir}/src/test/" output="build/test/classes" />
         <source path="${basedir}/src/plugin/creativecommons/src/java/" />
         <source path="${basedir}/src/plugin/creativecommons/src/test/" />
         <!-- feed is currently disabled 
