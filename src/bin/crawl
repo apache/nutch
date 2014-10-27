@@ -97,13 +97,28 @@ if [ $mode = "distributed" ]; then
  fi
 fi
 
-# initial injection
-"$bin/nutch" inject "$CRAWL_PATH"/crawldb "$SEEDDIR"
-RETCODE=$?
 
-if [ $RETCODE -ne 0 ] 
-  then exit $RETCODE 
-fi
+function __bin_nutch {
+    # run $bin/nutch, exit if exit value indicates error
+
+    echo "$bin/nutch $@" ;# echo command and arguments
+    "$bin/nutch" "$@"
+
+    RETCODE=$?
+    if [ $RETCODE -ne 0 ]
+    then
+        echo "Error running:"
+        echo "  $bin/nutch $@"
+        echo "Failed with exit value $RETCODE."
+        exit $RETCODE
+    fi
+}
+
+
+
+# initial injection
+echo "Injecting seed URLs"
+__bin_nutch inject "$CRAWL_PATH"/crawldb "$SEEDDIR"
 
 
 # main loop : rounds of generate - fetch - parse - update
@@ -118,12 +133,7 @@ do
   echo `date` ": Iteration $a of $LIMIT"
 
   echo "Generating a new segment"
-  "$bin/nutch" generate $commonOptions "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN $sizeFetchlist -numFetchers $numSlaves -noFilter
-  RETCODE=$?
-  
-  if [ $RETCODE -ne 0 ] 
-  then exit $RETCODE 
-  fi
+  __bin_nutch generate $commonOptions "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN $sizeFetchlist -numFetchers $numSlaves -noFilter
 
   # capture the name of the segment
   # call hadoop in distributed mode
@@ -139,67 +149,33 @@ do
 
   # fetching the segment
   echo "Fetching : $SEGMENT"
-  "$bin/nutch" fetch $commonOptions -D fetcher.timelimit.mins=$timeLimitFetch "$CRAWL_PATH"/segments/$SEGMENT -noParsing -threads $numThreads
-  RETCODE=$?
-
-  if [ $RETCODE -ne 0 ] 
-  then exit $RETCODE 
-  fi
+  __bin_nutch fetch $commonOptions -D fetcher.timelimit.mins=$timeLimitFetch "$CRAWL_PATH"/segments/$SEGMENT -noParsing -threads $numThreads
 
   # parsing the segment
   echo "Parsing : $SEGMENT"
   # enable the skipping of records for the parsing so that a dodgy document 
   # so that it does not fail the full task
   skipRecordsOptions="-D mapred.skip.attempts.to.start.skipping=2 -D mapred.skip.map.max.skip.records=1"
-  "$bin/nutch" parse $commonOptions $skipRecordsOptions "$CRAWL_PATH"/segments/$SEGMENT
-  RETCODE=$?
-
-  if [ $RETCODE -ne 0 ] 
-  then exit $RETCODE 
-  fi
+  __bin_nutch parse $commonOptions $skipRecordsOptions "$CRAWL_PATH"/segments/$SEGMENT
 
   # updatedb with this segment
   echo "CrawlDB update"
-  "$bin/nutch" updatedb $commonOptions "$CRAWL_PATH"/crawldb  "$CRAWL_PATH"/segments/$SEGMENT
-  RETCODE=$?
-
-  if [ $RETCODE -ne 0 ] 
-  then exit $RETCODE 
-  fi
+  __bin_nutch updatedb $commonOptions "$CRAWL_PATH"/crawldb  "$CRAWL_PATH"/segments/$SEGMENT
 
 # note that the link inversion - indexing routine can be done within the main loop 
 # on a per segment basis
   echo "Link inversion"
-  "$bin/nutch" invertlinks "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT
-  RETCODE=$?
-
-  if [ $RETCODE -ne 0 ]   
-  then exit $RETCODE 
-  fi
+  __bin_nutch invertlinks "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT
 
   echo "Dedup on crawldb"
   $bin/nutch dedup $CRAWL_PATH/crawldb
-  RETCODE=$?
-  
-  if [ $RETCODE -ne 0 ] 
-  then exit $RETCODE 
-  fi
 
   if [ -n "$SOLRURL" ]; then
       echo "Indexing $SEGMENT on SOLR index -> $SOLRURL"
-      "$bin/nutch" index -D solr.server.url=$SOLRURL "$CRAWL_PATH"/crawldb -linkdb "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT
-      RETCODE=$?
-      if [ $RETCODE -ne 0 ]; then 
-         exit $RETCODE
-      fi
+      __bin_nutch index -D solr.server.url=$SOLRURL "$CRAWL_PATH"/crawldb -linkdb "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT
   
       echo "Cleanup on SOLR index -> $SOLRURL"
-      "$bin/nutch" clean -D solr.server.url=$SOLRURL "$CRAWL_PATH"/crawldb
-      RETCODE=$?
-
-      if [ $RETCODE -ne 0 ]; then 
-         exit $RETCODE
-      fi
+      __bin_nutch clean -D solr.server.url=$SOLRURL "$CRAWL_PATH"/crawldb
   else
       echo "Skipping indexing: no SOLR url provided."
   fi
@@ -209,39 +185,20 @@ do
   # and should be uncommented based on your requirements
   #######################################################
   #echo "Building WebGraph within $CRAWL_PATH on all segments in $CRAWL_PATH/segments/"
-  #"$bin/nutch" webgraph $commonOptions -filter -normalize -segmentDir "$CRAWL_PATH"/segments/ -webgraphdb "$CRAWL_PATH"
-
-  #if [ $? -ne 0 ]
-  # then exit $?
-  #fi
+  #__bin_nutch webgraph $commonOptions -filter -normalize -segmentDir "$CRAWL_PATH"/segments/ -webgraphdb "$CRAWL_PATH"
 
   #echo "Running Loops Job on WebGraph within $CRAWL_PATH"
-  #"$bin/nutch" org.apache.nutch.scoring.webgraph.Loops $commonOptions -webgraphdb "$CRAWL_PATH"
-
-  #if [ $? -ne 0 ]
-  # then exit $?
-  #fi
+  #__bin_nutch org.apache.nutch.scoring.webgraph.Loops $commonOptions -webgraphdb "$CRAWL_PATH"
 
   #echo "Running LinkRank Algorithm on WebGraph within $CRAWL_PATH"
-  #"$bin/nutch" linkrank $commonOptions -webgraphdb "$CRAWL_PATH"
-
-  #if [ $? -ne 0 ]
-  # then exit $?
-  #fi
+  #__bin_nutch linkrank $commonOptions -webgraphdb "$CRAWL_PATH"
 
   #echo "Running ScoreUpdater Job with $CRAWL_PATH/crawldb and  WebGraph within $CRAWL_PATH"
-  #"$bin/nutch" scoreupdater $commonOptions -crawldb "$CRAWL_PATH"/crawldb -webgraphdb "$CRAWL_PATH"
-
-  #if [ $? -ne 0 ]
-  # then exit $?
-  #fi
+  #__bin_nutch scoreupdater $commonOptions -crawldb "$CRAWL_PATH"/crawldb -webgraphdb "$CRAWL_PATH"
 
   #echo "Running NodeDumper on WebGraph within $CRAWL_PATH and dumping output to $CRAWL_PATH/dump/scores"
-  #"$bin/nutch" nodedumper $commonOptions -scores -topn 1000 -webgraphdb "$CRAWL_PATH" -output "$CRAWL_PATH"/dump/scores
+  #__bin_nutch nodedumper $commonOptions -scores -topn 1000 -webgraphdb "$CRAWL_PATH" -output "$CRAWL_PATH"/dump/scores
 
-  #if [ $? -ne 0 ]
-  # then exit $?
-  #fi
 done
 
 exit 0

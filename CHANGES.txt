@@ -2,7 +2,9 @@ Nutch Change Log
 
 Nutch Current Development 1.10-SNAPSHOT
 
-* NUTCH-NUTCH-1865 Enable use of SNAPSHOT's with Nutch Ivy dependency management (lewismc)
+* NUTCH-1883 bin/crawl: use function to run bin/nutch and check exit value (snagel)
+
+* NUTCH-1865 Enable use of SNAPSHOT's with Nutch Ivy dependency management (lewismc)
 
 * NUTCH-1882 ant eclipse target to add output path to src/test (snagel)
 
