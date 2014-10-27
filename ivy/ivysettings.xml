@@ -16,10 +16,6 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 -->
-
- <!--
-  see http://www.jayasoft.org/ivy/doc/configuration
-  -->
   <!-- you can override this property to use mirrors
           http://repo1.maven.org/maven2/
           http://mirrors.dotsrc.org/maven2
@@ -29,11 +25,14 @@
           http://ibiblio.lsu.edu/main/pub/packages/maven2
           http://www.ibiblio.net/pub/packages/maven2
   -->
+  <property name="oss.sonatype.org" 
+    value="http://oss.sonatype.org/content/repositories/releases/" 
+    override="false"/>
   <property name="repo.maven.org"
     value="http://repo1.maven.org/maven2/"
     override="false"/>
-  <property name="snapshot.apache.org"
-    value="http://people.apache.org/repo/m2-snapshot-repository/"
+  <property name="repository.apache.org"
+    value="https://repository.apache.org/content/repositories/snapshots/"
     override="false"/>
   <property name="maven2.pattern"
     value="[organisation]/[module]/[revision]/[module]-[revision]"/>
@@ -49,13 +48,22 @@
       m2compatible="true"
       />
     <ibiblio name="apache-snapshot"
-      root="${snapshot.apache.org}"
+      root="${repository.apache.org}"
+      m2compatible="true" 
+      changingMatcher="regexp"
+      changingPattern=".*SNAPSHOT.*" 
+      checkmodified="true"
+      />
+    <ibiblio name="sonatype"
+      root="${oss.sonatype.org}"
       pattern="${maven2.pattern.ext}"
       m2compatible="true"
       />
     <chain name="default" dual="true">
       <resolver ref="local"/>
       <resolver ref="maven2"/>
+      <resolver ref="apache-snapshot"/>
+      <resolver ref="sonatype"/>
     </chain>
     <chain name="internal">
       <resolver ref="local"/>
@@ -66,10 +74,10 @@
     <chain name="external-and-snapshots">
       <resolver ref="maven2"/>
       <resolver ref="apache-snapshot"/>
+      <resolver ref="sonatype"/>
     </chain>
   </resolvers>
   <modules>
-
     <!--
     This forces a requirement for other nutch-artifacts to be built locally
     rather than look for them online.

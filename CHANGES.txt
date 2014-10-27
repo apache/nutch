@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-NUTCH-1865 Enable use of SNAPSHOT's with Nutch Ivy dependency management (lewismc)
+
 * NUTCH-1882 ant eclipse target to add output path to src/test (snagel)
 
 * NUTCH-1876 Upgrade to Crawler Commons 0.5 (jnioche)
