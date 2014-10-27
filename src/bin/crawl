@@ -30,7 +30,7 @@ elif [ "$#" -eq 4 ]; then
      LIMIT="$4"
 else
     echo "Unknown # of arguments $#"
-    echo "Usage: crawl <seedDir> <crawlDir> [<solrUrl>] <numberOfRounds>"
+    echo "Usage: crawl <seedDir> <crawlID> [<solrUrl>] <numberOfRounds>"
     exit -1;
 fi
 
@@ -40,7 +40,7 @@ if [ "$SEEDDIR" = "" ]; then
 fi
 
 if [ "$CRAWL_ID" = "" ]; then
-    echo "Missing crawlDir : crawl <seedDir> <crawlID> [<solrURL>] <numberOfRounds>"
+    echo "Missing crawlID : crawl <seedDir> <crawlID> [<solrURL>] <numberOfRounds>"
     exit -1;
 fi
 
@@ -98,14 +98,28 @@ if [ $mode = "distributed" ]; then
  fi
 fi
 
+
+function __bin_nutch {
+    # run $bin/nutch, exit if exit value indicates error
+
+    echo "$bin/nutch $@" ;# echo command and arguments
+    "$bin/nutch" "$@"
+
+    RETCODE=$?
+    if [ $RETCODE -ne 0 ]
+    then
+        echo "Error running:"
+        echo "  $bin/nutch $@"
+        echo "Failed with exit value $RETCODE."
+        exit $RETCODE
+    fi
+}
+
+
+
 # initial injection
-"$bin/nutch" inject "$SEEDDIR" -crawlId "$CRAWL_ID"
-RETCODE=$?
-
-if [ $RETCODE -ne 0 ] 
-  then exit $RETCODE 
-fi
-
+echo "Injecting seed URLs"
+__bin_nutch inject "$SEEDDIR" -crawlId "$CRAWL_ID"
 
 
 # main loop : rounds of generate - fetch - parse - update
@@ -123,58 +137,28 @@ do
   batchId=`date +%s`-$RANDOM
 
   echo "Generating a new fetchlist"
-  "$bin/nutch" generate $commonOptions -topN $sizeFetchlist -noNorm -noFilter -adddays $addDays -crawlId "$CRAWL_ID" -batchId $batchId
-  RETCODE=$?
-
-  if [ $RETCODE -ne 0 ] 
-    then exit $RETCODE 
-  fi
+  __bin_nutch generate $commonOptions -topN $sizeFetchlist -noNorm -noFilter -adddays $addDays -crawlId "$CRAWL_ID" -batchId $batchId
 
   echo "Fetching : "
-  "$bin/nutch" fetch $commonOptions -D fetcher.timelimit.mins=$timeLimitFetch $batchId -crawlId "$CRAWL_ID" -threads 50
-  RETCODE=$?
-
-  if [ $RETCODE -ne 0 ] 
-    then exit $RETCODE 
-  fi
+  __bin_nutch fetch $commonOptions -D fetcher.timelimit.mins=$timeLimitFetch $batchId -crawlId "$CRAWL_ID" -threads 50
 
   # parsing the batch
   echo "Parsing : "
   # enable the skipping of records for the parsing so that a dodgy document 
   # so that it does not fail the full task
   skipRecordsOptions="-D mapred.skip.attempts.to.start.skipping=2 -D mapred.skip.map.max.skip.records=1"
-  "$bin/nutch" parse $commonOptions $skipRecordsOptions $batchId -crawlId "$CRAWL_ID"
-  RETCODE=$?
-
-  if [ $RETCODE -ne 0 ] 
-    then exit $RETCODE 
-  fi
+  __bin_nutch parse $commonOptions $skipRecordsOptions $batchId -crawlId "$CRAWL_ID"
 
   # updatedb with this batch
   echo "CrawlDB update for $CRAWL_ID"
-  "$bin/nutch" updatedb $commonOptions $batchId -crawlId "$CRAWL_ID"
-  RETCODE=$?
-
-  if [ $RETCODE -ne 0 ] 
-    then exit $RETCODE 
-  fi
+  __bin_nutch updatedb $commonOptions $batchId -crawlId "$CRAWL_ID"
 
   if [ -n "$SOLRURL" ]; then
     echo "Indexing $CRAWL_ID on SOLR index -> $SOLRURL"
-    "$bin/nutch" index $commonOptions -D solr.server.url=$SOLRURL -all -crawlId "$CRAWL_ID"
-    RETCODE=$?
-
-    if [ $RETCODE -ne 0 ] 
-      then exit $RETCODE 
-    fi
+    __bin_nutch index $commonOptions -D solr.server.url=$SOLRURL -all -crawlId "$CRAWL_ID"
 
     echo "SOLR dedup -> $SOLRURL"
-    "$bin/nutch" solrdedup $commonOptions $SOLRURL
-    RETCODE=$?
-
-    if [ $RETCODE -ne 0 ] 
-      then exit $RETCODE 
-    fi
+    __bin_nutch solrdedup $commonOptions $SOLRURL
   else
       echo "Skipping indexing tasks: no SOLR url provided."
   fi
