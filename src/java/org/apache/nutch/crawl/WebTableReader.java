@@ -16,7 +16,6 @@
  ******************************************************************************/
 package org.apache.nutch.crawl;
 
-import org.apache.avro.util.Utf8;
 import org.apache.gora.mapreduce.GoraMapper;
 import org.apache.gora.query.Query;
 import org.apache.gora.query.Result;
@@ -371,7 +370,15 @@ public class WebTableReader extends NutchTool implements Tool {
     sb.append("score:\t" + page.getScore()).append("\n");
 
     Map<CharSequence, CharSequence> markers = page.getMarkers();
-    sb.append("markers:\t" + markers).append("\n");
+    if (markers != null) {
+      Iterator<Entry<CharSequence, CharSequence>> iterator = markers.entrySet()
+          .iterator();
+      while (iterator.hasNext()) {
+        Entry<CharSequence, CharSequence> entry = iterator.next();
+        sb.append("marker " + entry.getKey().toString()).append(" : \t")
+            .append(entry.getValue()).append("\n");
+      }
+    }
     sb.append("reprUrl:\t" + page.getReprUrl()).append("\n");
     CharSequence batchId = page.getBatchId();
     if (batchId != null) {

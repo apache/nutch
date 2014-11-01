@@ -104,9 +104,9 @@ public class ParserChecker implements Tool {
     ProtocolFactory factory = new ProtocolFactory(conf);
     Protocol protocol = factory.getProtocol(url);
     WebPage page = WebPage.newBuilder().build();
-    
+
     ProtocolOutput protocolOutput = protocol.getProtocolOutput(url, page);
-    
+
     if(!protocolOutput.getStatus().isSuccess()) {
       LOG.error("Fetch failed with protocol status: "
           + ProtocolStatusUtils.getName(protocolOutput.getStatus().getCode())
@@ -114,7 +114,7 @@ public class ParserChecker implements Tool {
       return (-1);
     }
     Content content = protocolOutput.getContent();
-    
+
     if (content == null) {
       LOG.error("No content for " + url);
       return (-1);
@@ -145,10 +145,10 @@ public class ParserChecker implements Tool {
       LOG.error("Problem with parse - check log");
       return (-1);
     }
-    
+
     // Calculate the signature
     byte[] signature = SignatureFactory.getSignature(getConf()).calculate(page);
-    
+
     if (LOG.isInfoEnabled()) {
       LOG.info("parsing: " + url);
       LOG.info("contentType: " + contentType);
@@ -167,7 +167,7 @@ public class ParserChecker implements Tool {
       while (iterator.hasNext()) {
         Entry<CharSequence, ByteBuffer> entry = iterator.next();
         sb.append(entry.getKey().toString()).append(" : \t")
-            .append(Bytes.toString(entry.getValue())).append("\n");
+        .append(Bytes.toString(entry.getValue())).append("\n");
       }
       System.out.print(sb.toString());
     }
@@ -177,6 +177,21 @@ public class ParserChecker implements Tool {
       sb.append("  outlink: ").append(l).append('\n');
     }
     System.out.print(sb.toString());
+    if (page.getHeaders() != null) {
+      LOG.info("---------\nHeaders\n---------\n");
+      Map<CharSequence, CharSequence> headers = page.getHeaders();
+      StringBuffer headersb = new StringBuffer();
+      if (metadata != null) {
+        Iterator<Entry<CharSequence, CharSequence>> iterator = headers.entrySet()
+            .iterator();
+        while (iterator.hasNext()) {
+          Entry<CharSequence, CharSequence> entry = iterator.next();
+          headersb.append(entry.getKey().toString()).append(" : \t")
+          .append(entry.getValue()).append("\n");
+        }
+        System.out.print(headersb.toString());
+      }
+    }
     if (dumpText) {
       LOG.info("---------\nParseText\n---------\n");
       System.out.print(parse.getText());

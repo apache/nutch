@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+   Licensed to the Apache Software Foundation (ASF) under one or more
+   contributor license agreements.  See the NOTICE file distributed with
+   this work for additional information regarding copyright ownership.
+   The ASF licenses this file to You under the Apache License, Version 2.0
+   (the "License"); you may not use this file except in compliance with
+   the License.  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+-->
+<!--
+  More information on gora-solr configuration and mapping's can be found
+  at http://gora.apache.org/current/gora-solr.html
+-->
+<gora-otd>
+
+    <class name="org.apache.nutch.storage.WebPage" keyClass="java.lang.String" table="webpage">
+        <!-- fetch fields -->
+        <primarykey column="baseUrl"/>
+        <field name="status" column="status"/>
+        <field name="prevFetchTime" column="prevFetchTime" />
+        <field name="fetchTime" column="fetchTime" />
+        <field name="fetchInterval" column="fetchInterval"/>
+        <field name="retriesSinceFetch" column="retriesSinceFetch"/>
+        <field name="reprUrl" column="reprUrl"/>
+        <field name="content" column="content"/>
+        <field name="contentType" column="contentType"/>
+        <field name="modifiedTime" column="modifiedTime"/>
+        <field name="prevModifiedTime" column="prevModifiedTime" />
+        <field name="batchId" column="batchId" />
+        
+        <!-- parse fields -->
+        <field name="title" column="title" />
+        <field name="text" column="text" />
+        <field name="signature" column="signature" />
+        <field name="prevSignature" column="prevSignature"/>
+        <!-- score fields -->
+        <field name="score" column="score"/>
+        <field name="headers" column="headers"/>
+        <field name="inlinks" column="inlinks" />
+        <field name="outlinks" column="outlinks"/>
+        <field name="metadata" column="metadata" />
+        <field name="markers" column="markers" />
+        <field name="parseStatus" column="parseStatus"/>
+        <field name="protocolStatus" column="protocolStatus" />
+    </class>
+    
+    <class name="org.apache.nutch.storage.Host" keyClass="java.lang.String" table="host">
+        <field name="metadata" column="metadata" />
+        <field name="inlinks" column="inlinks" />
+        <field name="outlinks" column="outlinks" />
+    </class>
+</gora-otd>
+

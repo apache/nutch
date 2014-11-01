@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development 2.3-SNAPSHOT
 
+* NUTCH-1843 Upgrade to Gora 0.5 (talat, lewismc, Kiril Menshikov, drazzib)
+
 * NUTCH-1883 bin/crawl: use function to run bin/nutch and check exit value (snagel)
 
 * NUTCH-1882 ant eclipse target to add output path to src/test (snagel)

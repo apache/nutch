@@ -103,7 +103,7 @@
     <!-- N.B. To use Gora SNAPSHOT's merely replace the 'ref' value with the SNAPSHOT version 
     and add changing="true" alongside the dependency declaration. An example has been
     provided for the gora-core dependency as below -->
-    <dependency org="org.apache.gora" name="gora-core" rev="0.4" conf="*->default"/>
+    <dependency org="org.apache.gora" name="gora-core" rev="0.5" conf="*->default"/>
     
     <!-- Uncomment this to use SQL as Gora backend. It should be noted that the 
     gora-sql 0.1.1-incubating artifact is NOT compatable with gora-core 0.3. Users should 
@@ -116,35 +116,43 @@
     <dependency org="mysql" name="mysql-connector-java" rev="5.1.18" conf="*->default"/> 
     -->
     <!-- Uncomment this to use HBase as Gora backend. -->
-    <!--
-    <dependency org="org.apache.gora" name="gora-hbase" rev="0.4" conf="*->default" />
+    <!--     
+    <dependency org="org.apache.gora" name="gora-hbase" rev="0.5" conf="*->default" /> 
     -->
     <!-- Uncomment this to use Accumulo as Gora backend. -->
     <!--
-    <dependency org="org.apache.gora" name="gora-accumulo" rev="0.4" conf="*->default" />
+    <dependency org="org.apache.gora" name="gora-accumulo" rev="0.5" conf="*->default" />
     -->
     <!-- Uncomment this to use Cassandra as Gora backend. -->
     <!-- 
-    <dependency org="org.apache.gora" name="gora-cassandra" rev="0.4" conf="*->default" />
+    <dependency org="org.apache.gora" name="gora-cassandra" rev="0.5" conf="*->default" />
     -->
-    
-	<!-- web app dependencies -->
+    <!-- Uncomment this to use MongoDB as Gora backend. -->
+    <!--
+    <dependency org="org.apache.gora" name="gora-mongodb" rev="0.5" conf="*->default" />
+    -->    
+    <!-- Uncomment this to use Solr as Gora backend. -->
+    <!--
+    <dependency org="org.apache.gora" name="gora-solr" rev="0.5" conf="*->default" />
+    -->
 
-	<dependency org="org.apache.commons" name="commons-collections4" rev="4.0" conf="*->default" />
-	<dependency org="org.springframework" name="spring-core" rev="4.0.4.RELEASE" conf="*->default" />
-	<dependency org="org.springframework" name="spring-context" rev="4.0.4.RELEASE" conf="*->default" />
-	<dependency org="org.springframework" name="spring-web" rev="4.0.4.RELEASE" conf="*->default" />
+    <!-- web app dependencies -->
 
-	<dependency org="com.sun.jersey" name="jersey-client" rev="1.8" conf="*->default" />
+    <dependency org="org.apache.commons" name="commons-collections4" rev="4.0" conf="*->default" />
+    <dependency org="org.springframework" name="spring-core" rev="4.0.4.RELEASE" conf="*->default" />
+    <dependency org="org.springframework" name="spring-context" rev="4.0.4.RELEASE" conf="*->default" />
+    <dependency org="org.springframework" name="spring-web" rev="4.0.4.RELEASE" conf="*->default" />
+
+    <dependency org="com.sun.jersey" name="jersey-client" rev="1.8" conf="*->default" />
 	
-	<dependency org="com.j256.ormlite" name="ormlite-jdbc" rev="4.48" conf="*->default" />
-	<dependency org="com.h2database" name="h2" rev="1.4.180" conf="*->default" />
-	<dependency org="org.eclipse.persistence" name="javax.persistence" rev="2.0.0" conf="*->default" />
+    <dependency org="com.j256.ormlite" name="ormlite-jdbc" rev="4.48" conf="*->default" />
+    <dependency org="com.h2database" name="h2" rev="1.4.180" conf="*->default" />
+    <dependency org="org.eclipse.persistence" name="javax.persistence" rev="2.0.0" conf="*->default" />
 	
-	<dependency org="org.apache.wicket" name="wicket-core" rev="6.16.0" conf="*->default" />
-	<dependency org="org.apache.wicket" name="wicket-spring" rev="6.16.0" conf="*->default" />
-	<dependency org="de.agilecoders.wicket" name="wicket-bootstrap-core" rev="0.9.2" conf="*->default" />
-	<dependency org="de.agilecoders.wicket" name="wicket-bootstrap-extensions" rev="0.9.2" conf="*->default" />
+    <dependency org="org.apache.wicket" name="wicket-core" rev="6.16.0" conf="*->default" />
+    <dependency org="org.apache.wicket" name="wicket-spring" rev="6.16.0" conf="*->default" />
+    <dependency org="de.agilecoders.wicket" name="wicket-bootstrap-core" rev="0.9.2" conf="*->default" />
+    <dependency org="de.agilecoders.wicket" name="wicket-bootstrap-extensions" rev="0.9.2" conf="*->default" />
 
     <!--global exclusion -->
     <exclude module="ant" />
