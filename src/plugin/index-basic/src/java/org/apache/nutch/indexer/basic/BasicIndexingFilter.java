@@ -40,7 +40,6 @@ import java.util.HashSet;
  * host - add host as un-stored, indexed and tokenized
  * url - url is both stored and indexed, so it's both searchable and returned. 
  * This is also a required field.
- * orig - also store original url as both stored and indexed
  * content - content is indexed, so that it's searchable, but not stored in index
  * title - title is stored and indexed
  * cache - add cached content/summary display policy, if available
@@ -98,11 +97,6 @@ public class BasicIndexingFilter implements IndexingFilter {
 
     // url is both stored and indexed, so it's both searchable and returned
     doc.add("url", reprUrl == null ? url : reprUrl);
-
-    if (reprUrl != null) {
-      // also store original url as both stored and indexed
-      doc.add("orig", url);
-    }
 
     // content is indexed, so that it's searchable, but not stored in index
     doc.add("content", TableUtil.toString(page.getText()));

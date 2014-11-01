@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development 2.3-SNAPSHOT
 
+* NUTCH-1820 remove field "orig" which duplicates "id" (lewismc, snagel)
+
 * NUTCH-1843 Upgrade to Gora 0.5 (talat, lewismc, Kiril Menshikov, drazzib)
 
 * NUTCH-1883 bin/crawl: use function to run bin/nutch and check exit value (snagel)
