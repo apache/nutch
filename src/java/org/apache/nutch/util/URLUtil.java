@@ -383,9 +383,15 @@ public class URLUtil {
   public static String toASCII(String url) {
     try {
       URL u = new URL(url);
+      String host = u.getHost();
+      if (host == null || host.isEmpty()) {
+        // no host name => no punycoded domain name
+        // also do not add additional slashes for file: URLs (NUTCH-1880)
+        return url;
+      }
       URI p = new URI(u.getProtocol(),
         u.getUserInfo(),
-        IDN.toASCII(u.getHost()),
+        IDN.toASCII(host),
         u.getPort(),
         u.getPath(),
         u.getQuery(),
@@ -401,6 +407,12 @@ public class URLUtil {
   public static String toUNICODE(String url) {
     try {
       URL u = new URL(url);
+      String host = u.getHost();
+      if (host == null || host.isEmpty()) {
+        // no host name => no punycoded domain name
+        // also do not add additional slashes for file: URLs (NUTCH-1880)
+        return url;
+      }
       StringBuilder sb = new StringBuilder();
       sb.append(u.getProtocol());
       sb.append("://");
@@ -408,7 +420,7 @@ public class URLUtil {
         sb.append(u.getUserInfo());
         sb.append('@');
       }
-      sb.append(IDN.toUnicode(u.getHost()));
+      sb.append(IDN.toUnicode(host));
       if (u.getPort() != -1) {
         sb.append(':');
         sb.append(u.getPort());

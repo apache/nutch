@@ -277,4 +277,11 @@ public class TestURLUtil {
         URLUtil.toASCII("http://www.medizin.uni-tübingen.de:8080/search.php?q=abc#p1")); 
   }
 
+  @Test
+  public void testFileProtocol() throws Exception {
+    // keep one single slash NUTCH-XXX
+    assertEquals("file:/path/file.html", URLUtil.toASCII("file:/path/file.html"));
+    assertEquals("file:/path/file.html", URLUtil.toUNICODE("file:/path/file.html"));
+  }
+
 }

@@ -2,6 +2,14 @@ Nutch Change Log
 
 Current Development 2.3-SNAPSHOT
 
+* NUTCH-1483 Can't crawl filesystem with protocol-file plugin (Rogério Pereira Araújo, Mengying Wang, snagel)
+
+* NUTCH-1885 Protocol-file should treat symbolic links as redirects (Mengying Wang, snagel)
+
+* NUTCH-1880 URLUtil should not add additional slashes for file URLs (snagel)
+
+* NUTCH-1879 Regex URL normalizer should remove multiple slashes after file: protocol (snagel)
+
 * NUTCH-1820 remove field "orig" which duplicates "id" (lewismc, snagel)
 
 * NUTCH-1843 Upgrade to Gora 0.5 (talat, lewismc, Kiril Menshikov, drazzib)
