@@ -53,6 +53,12 @@ public class File implements Protocol {
   int maxContentLength;
   boolean crawlParents;
 
+  /**
+   * if true return a redirect for symbolic links and do not resolve the links
+   * internally
+   */
+  boolean symlinksAsRedirects = true;
+
   private Configuration conf;
 
   public File() {}
@@ -64,6 +70,8 @@ public class File implements Protocol {
     this.conf = conf;
     this.maxContentLength = conf.getInt("file.content.limit", 64 * 1024);
     this.crawlParents = conf.getBoolean("file.crawl.parent", true);
+    this.symlinksAsRedirects = conf.getBoolean(
+        "file.crawl.redirect_noncanonical", true);
   }
 
   /**
@@ -115,13 +123,19 @@ public class File implements Protocol {
           return new ProtocolOutput(response.toContent(), ProtocolStatus.STATUS_NOTFOUND);
 
         } else if (code >= 300 && code < 400) {     // handle redirect
-          if (redirects == MAX_REDIRECTS)
-            throw new FileException("Too many redirects: " + url);
           u = new URL(response.getHeader("Location"));
-          redirects++;                
           if (LOG.isTraceEnabled()) {
             LOG.trace("redirect to " + u); 
           }
+          if (symlinksAsRedirects) {
+            return new ProtocolOutput(response.toContent(), new ProtocolStatus(
+                ProtocolStatus.MOVED, u));
+          } else if (redirects == MAX_REDIRECTS) {
+            LOG.trace("Too many redirects: {}", url);
+            return new ProtocolOutput(response.toContent(), new ProtocolStatus(
+                ProtocolStatus.REDIR_EXCEEDED, u));
+          }
+          redirects++;
   
         } else {                                    // convert to exception
           throw new FileError(code);
@@ -172,13 +186,21 @@ public class File implements Protocol {
     // set log level
     //LOG.setLevel(Level.parse((new String(logLevel)).toUpperCase()));
 
-    Content content = file.getProtocolOutput(new Text(urlString), new CrawlDatum()).getContent();
+    ProtocolOutput output = file.getProtocolOutput(new Text(urlString), new CrawlDatum());
+    Content content = output.getContent();
 
+    System.err.println("URL: " + content.getUrl());
+    System.err.println("Status: " + output.getStatus());
     System.err.println("Content-Type: " + content.getContentType());
     System.err.println("Content-Length: " +
                        content.getMetadata().get(Response.CONTENT_LENGTH));
     System.err.println("Last-Modified: " +
                        content.getMetadata().get(Response.LAST_MODIFIED));
+    String redirectLocation = content.getMetadata().get("Location");
+    if (redirectLocation != null) {
+      System.err.println("Location: " + redirectLocation);
+    }
+
     if (dumpContent) {
       System.out.print(new String(content.getContent()));
     }

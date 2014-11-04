@@ -75,3 +75,10 @@ http://www.foo.com/foo.html?&x=y http://www.foo.com/foo.html?x=y
 http://www.foo.com/foo.html?x=y&&&z=a http://www.foo.com/foo.html?x=y&z=a
 http://www.foo.com/foo.html? http://www.foo.com/foo.html
 
+# remove double slashes but keep 2 slashes after protocol
+http://www.foo.com//path//foo.html http://www.foo.com/path/foo.html
+https://www.foo.com//path//foo.html https://www.foo.com/path/foo.html
+
+# normalize file: protocol prefix (keep one slash)
+file:///path//foo.html file:/path/foo.html
+file:/path//foo.html file:/path/foo.html

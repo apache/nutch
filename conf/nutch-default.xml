@@ -56,6 +56,19 @@
 </property>
 
 <property>
+  <name>file.crawl.redirect_noncanonical</name>
+  <value>true</value>
+  <description>
+    If true, protocol-file treats non-canonical file names as
+    redirects and does not canonicalize file names internally. A file
+    name containing symbolic links as path elements is then not
+    resolved and &quot;fetched&quot; but recorded as redirect with the
+    canonical name (all links on path are resolved) as redirect
+    target.
+  </description>
+</property>
+
+<property>
   <name>file.content.ignored</name>
   <value>true</value>
   <description>If true, no file content will be saved during fetch.
