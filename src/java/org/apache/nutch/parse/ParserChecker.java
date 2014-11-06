@@ -19,11 +19,13 @@ package org.apache.nutch.parse;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.util.StringUtils;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.nutch.crawl.CrawlDatum;
@@ -164,14 +166,15 @@ public class ParserChecker implements Tool {
       scfilters.passScoreBeforeParsing(turl, cd, content);
     } catch (Exception e) {
       if (LOG.isWarnEnabled()) {
-        LOG.warn("Couldn't pass score, url " + turl.toString() + " (" + e + ")");
+        LOG.warn("Couldn't pass score before parsing, url " + turl + " (" + e + ")");
+        LOG.warn(StringUtils.stringifyException(e));
       }
     }    
     
     ParseResult parseResult = new ParseUtil(conf).parse(content);
 
     if (parseResult == null) {
-      LOG.error("Problem with parse - check log");
+      LOG.error("Parsing content failed!");
       return (-1);
     }
 
@@ -184,17 +187,30 @@ public class ParserChecker implements Tool {
       LOG.info("signature: " + StringUtil.toHexString(signature));
     }
 
+    Parse parse = parseResult.get(turl);
+    if (parse == null) {
+      LOG.error("Failed to get parse from parse result");
+      LOG.error("Available parses in parse result (by URL key):");
+      for (Map.Entry<Text, Parse> entry : parseResult) {
+        LOG.error("  " + entry.getKey());
+      }
+      LOG.error("Parse result does not contain a parse for URL to be checked:");
+      LOG.error("  " + turl);
+      return -1;
+    }
+
     // call the scoring filters
     try {
-      scfilters.passScoreAfterParsing(turl, content, parseResult.get(turl));
+      scfilters.passScoreAfterParsing(turl, content, parse);
     } catch (Exception e) {
       if (LOG.isWarnEnabled()) {
-        LOG.warn("Couldn't pass score, url " + turl + " (" + e + ")");
+        LOG.warn("Couldn't pass score after parsing, url " + turl + " (" + e + ")");
+        LOG.warn(StringUtils.stringifyException(e));
       }
     }
 
-    for (java.util.Map.Entry<Text, Parse> entry : parseResult) {
-      Parse parse = entry.getValue();
+    for (Map.Entry<Text, Parse> entry : parseResult) {
+      parse = entry.getValue();
       LOG.info("---------\nUrl\n---------------\n");
       System.out.print(entry.getKey());
       LOG.info("\n---------\nParseData\n---------\n");

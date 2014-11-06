@@ -17,7 +17,9 @@
  
 package org.apache.nutch.indexer;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
@@ -133,6 +135,16 @@ public class IndexingFiltersChecker extends Configured implements Tool {
 
     Inlinks inlinks = null;
     Parse parse = parseResult.get(urlText);
+    if (parse == null) {
+      LOG.error("Failed to get parse from parse result");
+      LOG.error("Available parses in parse result (by URL key):");
+      for (Map.Entry<Text, Parse> entry : parseResult) {
+        LOG.error("  " + entry.getKey());
+      }
+      LOG.error("Parse result does not contain a parse for URL to be checked:");
+      LOG.error("  " + urlText);
+      return -1;
+    }
 
     byte[] signature = SignatureFactory.getSignature(conf).calculate(content,
         parse);
