@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1825 protocol-http may hang for certain web pages (Phu Kieu via snagel)
+
 * NUTCH-1483 Can't crawl filesystem with protocol-file plugin (Rogério Pereira Araújo, Mengying Wang, snagel)
 
 * NUTCH-1885 Protocol-file should treat symbolic links as redirects (Mengying Wang, snagel)

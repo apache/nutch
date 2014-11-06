@@ -26,16 +26,14 @@ import java.io.PushbackInputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.URL;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
- 
+
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 
 import org.apache.hadoop.conf.Configuration;
-
 import org.apache.nutch.crawl.CrawlDatum;
 import org.apache.nutch.metadata.Metadata;
 import org.apache.nutch.metadata.SpellCheckedMetadata;
@@ -289,11 +287,22 @@ public class HttpResponse implements Response {
 
     ByteArrayOutputStream out = new ByteArrayOutputStream(Http.BUFFER_SIZE);
     byte[] bytes = new byte[Http.BUFFER_SIZE];
-    int length = 0;                           // read content
-    for (int i = in.read(bytes); i != -1 && length + i <= contentLength; i = in.read(bytes)) {
-
+    int length = 0;
+    // read content
+    int i = in.read(bytes);
+    while (i != -1) {
       out.write(bytes, 0, i);
       length += i;
+      if (length >= contentLength) {
+        break;
+      }
+      if ((length + Http.BUFFER_SIZE) > contentLength) {
+        // reading next chunk may hit contentLength,
+        // must limit number of bytes read
+        i = in.read(bytes, 0, (contentLength - length));
+      } else {
+        i = in.read(bytes);
+      }
     }
     content = out.toByteArray();
   }
