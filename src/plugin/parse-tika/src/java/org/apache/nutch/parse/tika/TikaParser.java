@@ -22,6 +22,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.html.dom.HTMLDocumentImpl;
 import org.apache.nutch.metadata.Nutch;
@@ -40,6 +41,7 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.mime.MediaType;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
+import org.apache.tika.parser.html.HtmlMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.DocumentFragment;
@@ -58,9 +60,10 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
 	private DOMContentUtils utils;
 	private HtmlParseFilters htmlParseFilters;
 	private String cachingPolicy;
+	private HtmlMapper HTMLMapper;
 
 	@SuppressWarnings("deprecation")
-  public ParseResult getParse(Content content) {
+	public ParseResult getParse(Content content) {
 		String mimeType = content.getContentType();
 
 		URL base;
@@ -93,11 +96,14 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
 		DocumentFragment root = doc.createDocumentFragment();
 		DOMBuilder domhandler = new DOMBuilder(doc, root);
 		ParseContext context = new ParseContext();
+		if (HTMLMapper != null)
+			context.set(HtmlMapper.class, HTMLMapper);
 		tikamd.set(Metadata.CONTENT_TYPE, mimeType);
 		try {
-		  parser.parse(new ByteArrayInputStream(raw), domhandler, tikamd,context);
+			parser.parse(new ByteArrayInputStream(raw), domhandler, tikamd,
+					context);
 		} catch (Exception e) {
-			LOG.error("Error parsing "+content.getUrl(),e);
+			LOG.error("Error parsing " + content.getUrl(), e);
 			return new ParseStatus(ParseStatus.FAILED, e.getMessage())
 					.getEmptyParseResult(content.getUrl(), getConf());
 		}
@@ -168,18 +174,18 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
 			status.setArgs(new String[] { metaTags.getRefreshHref().toString(),
 					Integer.toString(metaTags.getRefreshTime()) });
 		}
-		ParseData parseData = new ParseData(status, title, outlinks, content
-				.getMetadata(), nutchMetadata);
-		ParseResult parseResult = ParseResult.createParseResult(content
-				.getUrl(), new ParseImpl(text, parseData));
+		ParseData parseData = new ParseData(status, title, outlinks,
+				content.getMetadata(), nutchMetadata);
+		ParseResult parseResult = ParseResult.createParseResult(
+				content.getUrl(), new ParseImpl(text, parseData));
 
 		// run filters on parse
 		ParseResult filteredParse = this.htmlParseFilters.filter(content,
 				parseResult, metaTags, root);
 		if (metaTags.getNoCache()) { // not okay to cache
 			for (Map.Entry<org.apache.hadoop.io.Text, Parse> entry : filteredParse)
-				entry.getValue().getData().getParseMeta().set(
-						Nutch.CACHING_FORBIDDEN_KEY, cachingPolicy);
+				entry.getValue().getData().getParseMeta()
+						.set(Nutch.CACHING_FORBIDDEN_KEY, cachingPolicy);
 		}
 		return filteredParse;
 	}
@@ -189,7 +195,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
 		this.tikaConfig = null;
 
 		// do we want a custom Tika configuration file
-		// deprecated since Tika 0.7 which is based on 
+		// deprecated since Tika 0.7 which is based on
 		// a service provider based configuration
 		String customConfFile = conf.get("tika.config.file");
 		if (customConfFile != null) {
@@ -209,6 +215,26 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
 			} catch (Exception e2) {
 				String message = "Problem loading default Tika configuration";
 				LOG.error(message, e2);
+			}
+		}
+
+		// use a custom htmlmapper
+		String htmlmapperClassName = conf.get("tika.htmlmapper.classname");
+		if (StringUtils.isNotBlank(htmlmapperClassName)) {
+			try {
+				Class HTMLMapperClass = Class.forName(htmlmapperClassName);
+				boolean interfaceOK = HtmlMapper.class
+						.isAssignableFrom(HTMLMapperClass);
+				if (!interfaceOK) {
+					throw new RuntimeException("Class " + htmlmapperClassName
+							+ " does not implement HtmlMapper");
+				}
+				HTMLMapper = (HtmlMapper) HTMLMapperClass.newInstance();
+			} catch (Exception e) {
+				LOG.error("Can't generate instance for class "
+						+ htmlmapperClassName);
+				throw new RuntimeException("Can't generate instance for class "
+						+ htmlmapperClassName);
 			}
 		}
 
