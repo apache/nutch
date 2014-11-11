@@ -133,7 +133,22 @@ do
   echo `date` ": Iteration $a of $LIMIT"
 
   echo "Generating a new segment"
-  __bin_nutch generate $commonOptions "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN $sizeFetchlist -numFetchers $numSlaves -noFilter
+  generate_args=($commonOptions "$CRAWL_PATH"/crawldb "$CRAWL_PATH"/segments -topN $sizeFetchlist -numFetchers $numSlaves -noFilter)
+  echo "$bin/nutch generate ${generate_args[@]}"
+  $bin/nutch generate "${generate_args[@]}"
+  RETCODE=$?
+  if [ $RETCODE -eq 0 ]; then
+      : # ok: no error
+  elif [ $RETCODE -eq 1 ]; then
+    echo "Generate returned 1 (no new segments created)"
+    echo "Escaping loop: no more URLs to fetch now"
+    break
+  else
+    echo "Error running:"
+    echo "  $bin/nutch generate ${generate_args[@]}"
+    echo "Failed with exit value $RETCODE."
+    exit $RETCODE
+  fi
 
   # capture the name of the segment
   # call hadoop in distributed mode
@@ -168,7 +183,7 @@ do
   __bin_nutch invertlinks "$CRAWL_PATH"/linkdb "$CRAWL_PATH"/segments/$SEGMENT
 
   echo "Dedup on crawldb"
-  $bin/nutch dedup $CRAWL_PATH/crawldb
+  __bin_nutch dedup "$CRAWL_PATH"/crawldb
 
   if [ -n "$SOLRURL" ]; then
       echo "Indexing $SEGMENT on SOLR index -> $SOLRURL"
