@@ -912,7 +912,7 @@
   </path>
   
   <!-- target: ant-eclipse-download   =================================== -->
-  <target name="ant-eclipse-download" description="--> Downloads the ant-eclipse binary">
+  <target name="ant-eclipse-download" description="Downloads the ant-eclipse binary.">
     <get src="http://downloads.sourceforge.net/project/ant-eclipse/ant-eclipse/1.0/ant-eclipse-1.0.bin.tar.bz2"
          dest="${build.dir}/ant-eclipse-1.0.bin.tar.bz2" usetimestamp="false" />
 
@@ -929,7 +929,7 @@
   <!-- target: eclipse   ================================================ -->
   <target name="eclipse" 
           depends="clean-eclipse,init,resolve-test,job,ant-eclipse-download"
-          description="--> Create eclipse project files">
+          description="Create eclipse project files">
 
 	     <pathconvert property="eclipse.project">
 	       <path path="${basedir}"/>

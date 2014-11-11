@@ -27,7 +27,7 @@
 
 # skip image and other suffixes we can't yet parse
 # for a more extensive coverage use the urlfilter-suffix plugin
-#-\.(gif|GIF|jpg|JPG|png|PNG|ico|ICO|css|CSS|sit|SIT|eps|EPS|wmf|WMF|zip|ZIP|ppt|PPT|mpg|MPG|xls|XLS|gz|GZ|rpm|RPM|tgz|TGZ|mov|MOV|exe|EXE|jpeg|JPEG|bmp|BMP|js|JS)$
+-\.(gif|GIF|jpg|JPG|png|PNG|ico|ICO|css|CSS|sit|SIT|eps|EPS|wmf|WMF|zip|ZIP|ppt|PPT|mpg|MPG|xls|XLS|gz|GZ|rpm|RPM|tgz|TGZ|mov|MOV|exe|EXE|jpeg|JPEG|bmp|BMP|js|JS)$
 
 # skip URLs containing certain characters as probable queries, etc.
 -[?*!@=]
@@ -35,9 +35,5 @@
 # skip URLs with slash-delimited segment that repeats 3+ times, to break loops
 -.*(/[^/]+)/[^/]+\1/[^/]+\1/
 
-
 # accept anything else
-# #+^http://([a-z0-9]*\.)*nutch.apache.org/
-# #+^file:/Users/AngelaWang/Documents/programs/oodt/cas-curator-0.6/staging/products/xml
-# #+^.
-+^https://([a-zA-Z0-9]*\.)*www.aoncadis.org/
++.
