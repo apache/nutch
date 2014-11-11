@@ -36,7 +36,7 @@
   </publications>
 
   <dependencies>
-    <dependency org="org.apache.tika" name="tika-parsers" rev="1.6" conf="*->default">
+    <dependency org="org.apache.tika" name="tika-parsers" rev="1.7-SNAPSHOT" conf="*->default" changing="true">
      <exclude org="org.apache.tika" name="tika-core" />
     </dependency>
   </dependencies>
