@@ -137,7 +137,22 @@ do
   batchId=`date +%s`-$RANDOM
 
   echo "Generating a new fetchlist"
-  __bin_nutch generate $commonOptions -topN $sizeFetchlist -noNorm -noFilter -adddays $addDays -crawlId "$CRAWL_ID" -batchId $batchId
+  generate_args=($commonOptions -topN $sizeFetchlist -noNorm -noFilter -adddays $addDays -crawlId "$CRAWL_ID" -batchId $batchId)
+  echo "$bin/nutch generate ${generate_args[@]}"
+  $bin/nutch generate "${generate_args[@]}"
+  RETCODE=$?
+  if [ $RETCODE -eq 0 ]; then
+      : # ok: no error
+  elif [ $RETCODE -eq 1 ]; then
+    echo "Generate returned 1 (no new segments created)"
+    echo "Escaping loop: no more URLs to fetch now"
+    break
+  else
+    echo "Error running:"
+    echo "  $bin/nutch generate ${generate_args[@]}"
+    echo "Failed with exit value $RETCODE."
+    exit $RETCODE
+  fi
 
   echo "Fetching : "
   __bin_nutch fetch $commonOptions -D fetcher.timelimit.mins=$timeLimitFetch $batchId -crawlId "$CRAWL_ID" -threads 50
