@@ -69,6 +69,8 @@
         <field name="id" type="string" stored="true" indexed="true"
             required="true"/>
 
+        <field name="text" type="text" stored="false" indexed="true" multiValued="true"/>
+
         <!-- core fields -->
         <field name="segment" type="string" stored="true" indexed="false"/>
         <field name="digest" type="string" stored="true" indexed="false"/>
@@ -125,4 +127,15 @@
     <uniqueKey>id</uniqueKey>
     <defaultSearchField>content</defaultSearchField>
     <solrQueryParser defaultOperator="OR"/>
+
+    <!-- copyField commands copy one field to another at the time a document
+       is added to the index. It's used either to index the same field differently,
+       or to add multiple fields to the same field for easier/faster searching. 
+    -->
+    <copyField source="content" dest="text"/>
+    <copyField source="url" dest="text"/>
+    <copyField source="title" dest="text"/>
+    <copyField source="anchor" dest="text"/>
+    <copyField source="author" dest="text"/>
+
 </schema>
