@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1877 Suffix URL filter to ignore query string by default (markus via snagel)
+
 * NUTCH-1890 Major Typo in Documentation for Integrating Nutch and Solr (Boadu Akoto Charles Jnr, mattmann)
 
 * NUTCH-1887 Specify HTMLMapper to use in TikaParser (jnioche)
