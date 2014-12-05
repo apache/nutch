@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development 2.3-SNAPSHOT
 
+* NUTCH-1877 Suffix URL filter to ignore query string by default (markus via snagel)
+
 * NUTCH-1825 protocol-http may hang for certain web pages (Phu Kieu via snagel)
 
 * NUTCH-1483 Can't crawl filesystem with protocol-file plugin (Rogério Pereira Araújo, Mengying Wang, snagel)
