@@ -61,6 +61,7 @@ public class GeneratorJob extends NutchTool implements Tool {
   public static final String GENERATOR_DELAY = "crawl.gen.delay";
   public static final String GENERATOR_RANDOM_SEED = "generate.partition.seed";
   public static final String BATCH_ID = "generate.batch.id";
+  public static final String GENERATE_COUNT = "generate.count";
 
   private static final Set<WebPage.Field> FIELDS = new HashSet<WebPage.Field>();
 
@@ -204,6 +205,9 @@ public class GeneratorJob extends NutchTool implements Tool {
     currentJob.waitForCompletion(true);
     ToolUtil.recordJobStatus(null, currentJob, results);
     results.put(BATCH_ID, getConf().get(BATCH_ID));
+    long generateCount = currentJob.getCounters()
+        .findCounter("Generator", "GENERATE_MARK").getValue();
+    results.put(GENERATE_COUNT, generateCount);
     return results;
   }
 
@@ -225,15 +229,16 @@ public class GeneratorJob extends NutchTool implements Tool {
     if (topN != Long.MAX_VALUE) {
       LOG.info("GeneratorJob: topN: " + topN);
     }
-    run(ToolUtil.toArgMap(
+    Map<String,Object> results = run(ToolUtil.toArgMap(
         Nutch.ARG_TOPN, topN,
         Nutch.ARG_CURTIME, curTime,
         Nutch.ARG_FILTER, filter,
         Nutch.ARG_NORMALIZE, norm));
     String batchId =  getConf().get(BATCH_ID);
     long finish = System.currentTimeMillis();
+    long generateCount = (Long) results.get(GENERATE_COUNT);
     LOG.info("GeneratorJob: finished at " + sdf.format(finish) + ", time elapsed: " + TimingUtil.elapsedTime(start, finish));
-    LOG.info("GeneratorJob: generated batch id: " + batchId + " containing " + GeneratorReducer.count + " URLs");
+    LOG.info("GeneratorJob: generated batch id: " + batchId + " containing " + generateCount + " URLs");
     return batchId;
   }
 
