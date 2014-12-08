@@ -239,6 +239,9 @@ public class GeneratorJob extends NutchTool implements Tool {
     long generateCount = (Long) results.get(GENERATE_COUNT);
     LOG.info("GeneratorJob: finished at " + sdf.format(finish) + ", time elapsed: " + TimingUtil.elapsedTime(start, finish));
     LOG.info("GeneratorJob: generated batch id: " + batchId + " containing " + generateCount + " URLs");
+    if (generateCount == 0) {
+      return null;
+    }
     return batchId;
   }
 
