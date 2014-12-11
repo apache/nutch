@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1592 TikaParser can uppercase the element names while generating the DOM (jnioche)
+
 * NUTCH-1877 Suffix URL filter to ignore query string by default (markus via snagel)
 
 * NUTCH-1890 Major Typo in Documentation for Integrating Nutch and Solr (Boadu Akoto Charles Jnr, mattmann)

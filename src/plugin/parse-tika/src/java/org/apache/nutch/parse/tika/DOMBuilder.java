@@ -47,6 +47,7 @@ import org.xml.sax.ext.LexicalHandler;
 class DOMBuilder
         implements ContentHandler, LexicalHandler
 {
+    private boolean upperCaseElementNames = true;
 
   /** Root document          */
   public Document m_doc;
@@ -265,7 +266,10 @@ class DOMBuilder
   {
 
     Element elem;
-
+    
+    if (upperCaseElementNames)
+        name = name.toUpperCase();
+    
 	// Note that the namespace-aware call must be used to correctly
 	// construct a Level 2 DOM, even for non-namespaced nodes.
     if ((null == ns) || (ns.length() == 0))
@@ -737,4 +741,12 @@ class DOMBuilder
    *        parameter entity, the name will begin with '%'.
    */
   public void skippedEntity(String name) throws org.xml.sax.SAXException{}
+  
+  public boolean isUpperCaseElementNames() {
+      return upperCaseElementNames;
+  }
+
+  public void setUpperCaseElementNames(boolean upperCaseElementNames) {
+      this.upperCaseElementNames = upperCaseElementNames;
+  }
 }

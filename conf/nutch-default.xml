@@ -1200,6 +1200,15 @@
 </property>
 -->
 
+<property>
+  <name>tika.uppercase.element.names</name>
+  <value>true</value>
+  <description>Determines whether TikaParser should uppercase the element name while generating the DOM
+  for a page, as done by Neko (used per default by parse-html)(see NUTCH-1592).
+  </description>
+</property>
+
+
 <!-- urlfilter plugin properties -->
 
 <property>

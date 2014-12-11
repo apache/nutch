@@ -61,6 +61,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
 	private HtmlParseFilters htmlParseFilters;
 	private String cachingPolicy;
 	private HtmlMapper HTMLMapper;
+	private boolean upperCaseElementNames = true;
 
 	@SuppressWarnings("deprecation")
 	public ParseResult getParse(Content content) {
@@ -95,6 +96,7 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
 		doc.setErrorChecking(false);
 		DocumentFragment root = doc.createDocumentFragment();
 		DOMBuilder domhandler = new DOMBuilder(doc, root);
+		domhandler.setUpperCaseElementNames(upperCaseElementNames);
 		ParseContext context = new ParseContext();
 		if (HTMLMapper != null)
 			context.set(HtmlMapper.class, HTMLMapper);
@@ -242,7 +244,8 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
 		this.utils = new DOMContentUtils(conf);
 		this.cachingPolicy = getConf().get("parser.caching.forbidden.policy",
 				Nutch.CACHING_FORBIDDEN_CONTENT);
-
+		this.upperCaseElementNames = getConf().getBoolean(
+				"tika.uppercase.element.names", true);
 	}
 
 	public Configuration getConf() {
