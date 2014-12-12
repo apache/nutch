@@ -93,14 +93,8 @@ public class PluginManifestParser {
             LOG.debug("parsing: " + manifestPath);
             PluginDescriptor p = parseManifestFile(manifestPath);
             map.put(p.getPluginId(), p);
-          } catch (MalformedURLException e) {
-            LOG.warn(e.toString());
-          } catch (SAXException e) {
-            LOG.warn(e.toString());
-          } catch (IOException e) {
-            LOG.warn(e.toString());
-          } catch (ParserConfigurationException e) {
-            LOG.warn(e.toString());
+          } catch (Exception e) {
+            LOG.warn("Error while loading plugin `" + manifestPath + "` " + e.toString());
           }
         }
       }
