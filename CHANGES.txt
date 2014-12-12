@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1823 Upgrade to elasticsearch 1.4.1 (Phu Kieu, markus via lewismc)
+
 * NUTCH-1592 TikaParser can uppercase the element names while generating the DOM (jnioche)
 
 * NUTCH-1877 Suffix URL filter to ignore query string by default (markus via snagel)

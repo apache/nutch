@@ -23,21 +23,24 @@
       <export name="*" />
     </library>
     
-    <library name="elasticsearch-1.1.0.jar"/>
-    <library name="lucene-analyzers-common-4.7.0.jar"/>
-    <library name="lucene-codecs-4.7.0.jar"/>
-    <library name="lucene-core-4.7.0.jar"/>
-    <library name="lucene-grouping-4.7.0.jar"/>
-    <library name="lucene-highlighter-4.7.0.jar"/>
-    <library name="lucene-join-4.7.0.jar"/>
-    <library name="lucene-memory-4.7.0.jar"/>
-    <library name="lucene-misc-4.7.0.jar"/>
-    <library name="lucene-queries-4.7.0.jar"/>
-    <library name="lucene-queryparser-4.7.0.jar"/>
-    <library name="lucene-sandbox-4.7.0.jar"/>
-    <library name="lucene-spatial-4.7.0.jar"/>
-    <library name="lucene-suggest-4.7.0.jar"/>
+    <library name="elasticsearch-1.4.1.jar"/>
+    <library name="lucene-analyzers-common-4.10.2.jar"/>
+    <library name="lucene-codecs-4.10.2.jar"/>
+    <library name="lucene-core-4.10.2.jar"/>
+    <library name="lucene-grouping-4.10.2.jar"/>
+    <library name="lucene-highlighter-4.10.2.jar"/>
+    <library name="lucene-join-4.10.2.jar"/>
+    <library name="lucene-memory-4.10.2.jar"/>
+    <library name="lucene-misc-4.10.2.jar"/>
+    <library name="lucene-queries-4.10.2.jar"/>
+    <library name="lucene-queryparser-4.10.2.jar"/>
+    <library name="lucene-sandbox-4.10.2.jar"/>
+    <library name="lucene-spatial-4.10.2.jar"/>
+    <library name="lucene-suggest-4.10.2.jar"/>
     <library name="spatial4j-0.4.1.jar"/>
+    <library name="antlr-runtime-3.5.jar"/>
+    <library name="asm-4.1"/>
+    <library name="asm-commons-4.1.jar"/>
   </runtime>
 
   <requires>
