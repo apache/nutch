@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development 2.3-SNAPSHOT
 
+* NUTCH-1823 Upgrade to elasticsearch 1.4.1 (Phu Kieu, markus, lewismc)
+
 * NUTCH-1829 Generator : unable to distinguish real errors (Mathieu Bouchard, jnioche, snagel)
 
 * NUTCH-1778 Generator not logging number of URLs in batch correctly (jnioche via snagel)
