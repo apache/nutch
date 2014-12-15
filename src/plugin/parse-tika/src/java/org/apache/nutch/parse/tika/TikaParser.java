@@ -17,6 +17,7 @@
 package org.apache.nutch.parse.tika;
 
 import org.apache.avro.util.Utf8;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.html.dom.HTMLDocumentImpl;
 import org.apache.nutch.metadata.Nutch;
@@ -32,6 +33,7 @@ import org.apache.tika.metadata.Metadata;
 import org.apache.tika.metadata.TikaCoreProperties;
 import org.apache.tika.parser.ParseContext;
 import org.apache.tika.parser.Parser;
+import org.apache.tika.parser.html.HtmlMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.DocumentFragment;
@@ -70,6 +72,8 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
   private ParseFilters htmlParseFilters;
   private String cachingPolicy;
 
+  private HtmlMapper HTMLMapper;
+
   @Override
   public Parse getParse(String url, WebPage page) {
 
@@ -93,8 +97,8 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
           message, getConf());
     }
 
-    LOG.debug("Using Tika parser " + parser.getClass().getName() + " for mime-type "
-        + mimeType);
+    LOG.debug("Using Tika parser " + parser.getClass().getName()
+        + " for mime-type " + mimeType);
 
     Metadata tikamd = new Metadata();
 
@@ -103,14 +107,16 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     DocumentFragment root = doc.createDocumentFragment();
     DOMBuilder domhandler = new DOMBuilder(doc, root);
     ParseContext context = new ParseContext();
+    if (HTMLMapper != null)
+      context.set(HtmlMapper.class, HTMLMapper);
     // to add once available in Tika
     // context.set(HtmlMapper.class, IdentityHtmlMapper.INSTANCE);
     tikamd.set(Metadata.CONTENT_TYPE, mimeType);
     try {
-      parser.parse(new ByteArrayInputStream(raw.array(), raw.arrayOffset() + raw.position(),
-          raw.remaining()), domhandler, tikamd, context);
+      parser.parse(new ByteArrayInputStream(raw.array(), raw.arrayOffset()
+          + raw.position(), raw.remaining()), domhandler, tikamd, context);
     } catch (Exception e) {
-      LOG.error("Error parsing "+url,e);
+      LOG.error("Error parsing " + url, e);
       return ParseStatusUtils.getEmptyParse(e, getConf());
     }
 
@@ -160,10 +166,10 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
     String[] TikaMDNames = tikamd.names();
     for (String tikaMDName : TikaMDNames) {
       if (tikaMDName.equalsIgnoreCase(TikaCoreProperties.TITLE.toString()))
-      continue;
+        continue;
       // TODO what if multivalued?
-      page.getMetadata().put(new Utf8(tikaMDName), ByteBuffer.wrap(Bytes.toBytes(tikamd
-          .get(tikaMDName))));
+      page.getMetadata().put(new Utf8(tikaMDName),
+          ByteBuffer.wrap(Bytes.toBytes(tikamd.get(tikaMDName))));
     }
 
     // no outlinks? try OutlinkExtractor e.g works for mime types where no
@@ -175,17 +181,18 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
 
     ParseStatus status = ParseStatusUtils.STATUS_SUCCESS;
     if (metaTags.getRefresh()) {
-      status.setMinorCode((int)ParseStatusCodes.SUCCESS_REDIRECT);
+      status.setMinorCode((int) ParseStatusCodes.SUCCESS_REDIRECT);
       status.getArgs().add(new Utf8(metaTags.getRefreshHref().toString()));
-      status.getArgs().add(new Utf8(Integer.toString(metaTags.getRefreshTime())));
+      status.getArgs().add(
+          new Utf8(Integer.toString(metaTags.getRefreshTime())));
     }
 
     Parse parse = new Parse(text, title, outlinks, status);
     parse = htmlParseFilters.filter(url, page, parse, metaTags, root);
 
     if (metaTags.getNoCache()) { // not okay to cache
-      page.getMetadata().put(new Utf8(Nutch.CACHING_FORBIDDEN_KEY), ByteBuffer.wrap(Bytes
-          .toBytes(cachingPolicy)));
+      page.getMetadata().put(new Utf8(Nutch.CACHING_FORBIDDEN_KEY),
+          ByteBuffer.wrap(Bytes.toBytes(cachingPolicy)));
     }
 
     return parse;
@@ -203,16 +210,35 @@ public class TikaParser implements org.apache.nutch.parse.Parser {
       throw new RuntimeException(e2);
     }
 
+    // use a custom htmlmapper
+    String htmlmapperClassName = conf.get("tika.htmlmapper.classname");
+    if (StringUtils.isNotBlank(htmlmapperClassName)) {
+      try {
+        Class HTMLMapperClass = Class.forName(htmlmapperClassName);
+        boolean interfaceOK = HtmlMapper.class
+            .isAssignableFrom(HTMLMapperClass);
+        if (!interfaceOK) {
+          throw new RuntimeException("Class " + htmlmapperClassName
+              + " does not implement HtmlMapper");
+        }
+        HTMLMapper = (HtmlMapper) HTMLMapperClass.newInstance();
+      } catch (Exception e) {
+        LOG.error("Can't generate instance for class " + htmlmapperClassName);
+        throw new RuntimeException("Can't generate instance for class "
+            + htmlmapperClassName);
+      }
+    }
+
     this.htmlParseFilters = new ParseFilters(getConf());
     this.utils = new DOMContentUtils(conf);
     this.cachingPolicy = getConf().get("parser.caching.forbidden.policy",
         Nutch.CACHING_FORBIDDEN_CONTENT);
   }
 
-  public TikaConfig getTikaConfig(){
-	  return this.tikaConfig;
+  public TikaConfig getTikaConfig() {
+    return this.tikaConfig;
   }
-  
+
   public Configuration getConf() {
     return this.conf;
   }

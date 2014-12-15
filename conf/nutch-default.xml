@@ -998,6 +998,16 @@
   </description>
 </property>
 
+<!--
+<property>
+  <name>tika.htmlmapper.classname</name>
+  <value>org.apache.tika.parser.html.IdentityHtmlMapper</value>
+  <description>Classname of Tika HTMLMapper to use. Influences the elements included in the DOM and hence
+  the behaviour of the HTMLParseFilters.
+  </description>
+</property>
+-->
+
 <!-- urlfilter plugin properties -->
 
 <property>
