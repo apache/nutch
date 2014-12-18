@@ -2,6 +2,8 @@ Nutch Change Log
 
 Current Development 2.3-SNAPSHOT
 
+* NUTCH-1899 upgrade restlet lib to prevent build failure (talat)
+
 * NUTCH-1797 remove unused package o.a.n.html (Saurabh Chhajed via snagel)
 
 * NUTCH-1888 Specify HTMLMapper to use in TikaParser (Halil Simsek via jnioche)
