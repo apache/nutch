@@ -53,9 +53,7 @@ extends GoraMapper<String, WebPage, SelectorEntry, WebPage> {
     String url = TableUtil.unreverseUrl(reversedUrl);
 
     if (Mark.GENERATE_MARK.checkMark(page) != null) {
-      if (GeneratorJob.LOG.isDebugEnabled()) {
-        GeneratorJob.LOG.debug("Skipping " + url + "; already generated");
-      }
+      GeneratorJob.LOG.debug("Skipping {}; already generated", url);
       return;
     }
 
@@ -78,15 +76,11 @@ extends GoraMapper<String, WebPage, SelectorEntry, WebPage> {
       if (filter && filters.filter(url) == null)
         return;
     } catch (URLFilterException e) {
-      if (GeneratorJob.LOG.isWarnEnabled()) {
-        GeneratorJob.LOG.warn("Couldn't filter url: " + url + " (" + e.getMessage() + ")");
-        return;
-      }
+      GeneratorJob.LOG.warn("Couldn't filter url: {} ({})", url, e.getMessage());
+      return;
     } catch (MalformedURLException e) {
-      if (GeneratorJob.LOG.isWarnEnabled()) {
-        GeneratorJob.LOG.warn("Couldn't filter url: " + url + " (" + e.getMessage() +")");
-        return;
-      }
+      GeneratorJob.LOG.warn("Couldn't filter url: {} ({})", url, e.getMessage());
+      return;
     }
 
     // check fetch schedule
