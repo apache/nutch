@@ -302,6 +302,7 @@
 
  <fields>
     <field name="id" type="string" stored="true" indexed="true" required="true"/>
+    <field name="_version_" type="long" indexed="true" stored="true"/>
 
     <!-- core fields -->
     <field name="segment" type="string" stored="true" indexed="false"/>
