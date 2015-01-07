@@ -82,11 +82,21 @@ public class TestMoreIndexingFilter {
     MoreIndexingFilter filter = new MoreIndexingFilter();
     filter.setConf(conf);
 
-    NutchDocument doc = filter.filter(new NutchDocument(), new ParseImpl("text", new ParseData(
-      new ParseStatus(), "title", new Outlink[0], metadata)), new Text(
-        "http://www.example.com/"), new CrawlDatum(), new Inlinks());
+    Text url = new Text("http://www.example.com/");
+    ParseImpl parseImpl = new ParseImpl("text", new ParseData(
+        new ParseStatus(), "title", new Outlink[0], metadata));
+
+    NutchDocument doc = new NutchDocument();
+    doc = filter.filter(doc, parseImpl, url, new CrawlDatum(), new Inlinks());
 
     Assert.assertEquals("content-disposition not detected", "filename.ext", doc.getFieldValue("title"));
+    
+    /* NUTCH-1140: do not add second title to avoid a multi-valued title field */
+    doc = new NutchDocument();
+    doc.add("title", "title");
+    doc = filter.filter(doc, parseImpl, url, new CrawlDatum(), new Inlinks());
+    Assert.assertEquals("do not add second title by content-disposition",
+        "title", doc.getFieldValue("title"));
   }
 
   private void assertParts(String[] parts, int count, String... expected) {

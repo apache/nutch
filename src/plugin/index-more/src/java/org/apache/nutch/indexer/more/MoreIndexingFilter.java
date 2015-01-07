@@ -289,7 +289,7 @@ public class MoreIndexingFilter implements IndexingFilter {
 
   private NutchDocument resetTitle(NutchDocument doc, ParseData data, String url) {
     String contentDisposition = data.getMeta(Metadata.CONTENT_DISPOSITION);
-    if (contentDisposition == null)
+    if (contentDisposition == null || doc.getFieldValue("title") != null)
       return doc;
 
     for (int i=0; i<patterns.length; i++) {

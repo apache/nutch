@@ -2,6 +2,8 @@ Nutch Change Log
 
 Nutch Current Development 1.10-SNAPSHOT
 
+* NUTCH-1140 index-more plugin, resetTitle creates multiple values in title field (Joe Liedtke, kaveh minooie via snagel)
+
 * NUTCH-1904 Schema for Solr4 doesn't include _version_ field (mattmann)
 
 * NUTCH-1897 Easier debugging of plugin XML errors (markus)
